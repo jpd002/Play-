@@ -1,0 +1,181 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// French (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
+#ifdef _WIN32
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_DEBUGGER MENU 
+BEGIN
+    POPUP "&Virtual Machine"
+    BEGIN
+        MENUITEM "Resume\tF5",                  ID_VM_RESUME
+        MENUITEM "&Save State\tF7",             ID_VM_SAVESTATE
+        MENUITEM "Load State\tF8",              ID_VM_LOADSTATE
+        MENUITEM "Step CPU 1\tF10",             ID_VM_STEP1
+        MENUITEM "Dump Thread Schedule",        ID_VM_DUMPTHREADS
+        MENUITEM "Dump INTC Handlers",          ID_VM_DUMPINTCHANDLERS
+        MENUITEM "Dump DMAC Handlers",          ID_VM_DUMPDMACHANDLERS
+        MENUITEM "Find Value in Memory...",     ID_VM_FINDVALUE
+        MENUITEM "Assemble JAL...",             ID_VM_ASMJAL
+        POPUP "Assemble && Start Test"
+        BEGIN
+            MENUITEM "Shift Operations Test",       ID_VM_TEST_SHIFT
+            MENUITEM "Split Load Operations Test",  ID_VM_TEST_SPLITLOAD
+            MENUITEM "64-bit Addition Operations Test", ID_VM_TEST_ADD64
+        END
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Disassembly",                ID_VIEW_DISASSEMBLY
+        MENUITEM "Memory",                      ID_VIEW_MEMORY
+        MENUITEM "Call Stack\tCtrl+A",          ID_VIEW_CALLSTACK
+        MENUITEM "&Functions\tCtrl+F",          ID_VIEW_FUNCTIONS
+        MENUITEM "&ELF File Information",       ID_VIEW_ELF
+        MENUITEM "&Log",                        ID_VIEW_LOG
+        MENUITEM SEPARATOR
+        MENUITEM "EmotionEngine View\tAlt+1",   ID_VIEW_EEVIEW
+        MENUITEM "Vector Unit 1 View\tAlt+3",   ID_VIEW_VU1VIEW
+    END
+    POPUP "Logging"
+    BEGIN
+        MENUITEM "GIF/GS Logging",              ID_LOGGING_GS
+        MENUITEM "DMAC Logging",                ID_LOGGING_DMAC
+        MENUITEM "IPU Logging",                 ID_LOGGING_IPU
+        MENUITEM "OS Logging",                  ID_LOGGING_OS
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCAD
+        MENUITEM "Tile &Horizontal",            ID_WINDOW_TILEHORIZONTAL
+        MENUITEM "Tile &Vertical",              ID_WINDOW_TILEVERTICAL
+        MENUITEM "Layout (1024x768)",           ID_WINDOW_LAYOUT1024
+        MENUITEM "Layout (1280x1024)",          ID_WINDOW_LAYOUT1280
+    END
+END
+
+IDR_MAINWINDOW MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Boot cdrom0",                 ID_MAIN_FILE_BOOTCDROM
+        MENUITEM "Load .ELF...\tCtrl+O",        ID_MAIN_FILE_LOADELF
+        MENUITEM SEPARATOR
+        MENUITEM "&Quit\tAlt+F4",               ID_MAIN_FILE_EXIT
+    END
+    POPUP "Virtual Machine"
+    BEGIN
+        MENUITEM "&Pause / Resume\tF5",         ID_MAIN_VM_RESUME
+        MENUITEM "R&eset",                      ID_MAIN_VM_RESET, GRAYED
+        MENUITEM "Pause When Focus Lost",       ID_MAIN_VM_PAUSEFOCUS
+        MENUITEM SEPARATOR
+        MENUITEM "State Slot",                  ID_MAIN_VM_STATESLOT
+        MENUITEM "Save State\tF7",              ID_MAIN_VM_SAVESTATE
+        MENUITEM "Load State\tF8",              ID_MAIN_VM_LOADSTATE
+    END
+    POPUP "Options"
+    BEGIN
+        MENUITEM "Renderer Settings...",        ID_MAIN_OPTIONS_RENDERER
+        MENUITEM "&Virtual File System Manager...", ID_MAIN_OPTIONS_VFSMANAGER
+        MENUITEM "Configuration Editor...",     ID_MAIN_OPTIONS_CONFIGEDI, GRAYED
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "System Information...",       ID_MAIN_HELP_SYSINFO
+        MENUITEM "&About...",                   ID_MAIN_HELP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_ARROW               BITMAP                  "Images\\arrow.bmp"
+IDB_BREAKPOINT          BITMAP                  "Images\\bpoint.bmp"
+IDB_EXD                 BITMAP                  "Images\\exd.bmp"
+IDB_EX                  BITMAP                  "Images\\ex.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_PUREI               ICON                    "Images\\purei.ico"
+#endif    // French (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
