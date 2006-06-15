@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+
+	<head>
+		<title>プレイ! - Official Documentation</title>
+		<style type="text/css">
+			table
+			{
+				border: 1px outset black;
+			}
+			
+			td
+			{
+				border: 1px inset black;
+			}
+			
+			table.comp
+			{
+				width: 100%;
+			}
+			
+			table.ext
+			{
+				width: 100%;
+			}
+			
+			table.ctrl
+			{
+				width: 100%;
+			}
+			
+			td.ctrl_header
+			{
+				width: 50%;
+				text-align: center;
+				text-decoration: underline;
+			}
+			
+			td.comp_header
+			{
+				width: 50%;
+				text-align: center;
+				text-decoration: underline;
+			}
+						
+			td.comp_header
+			{
+				width: 50%;
+				text-align: center;
+				text-decoration: underline;
+			}
+
+		</style>
+		
+	</head>
+	
+	<body>
+		
+		<h1>プレイ! - Official Documentation</h1>
+		
+		<div>
+			<h2>Table of Contents</h2>
+			
+			<ul>
+				<li><a href="#disclaimer">Disclaimer</a></li>
+				<li><a href="#whatsthis">What's this?</a></li>
+				<li><a href="#requirements">System Requirements</a></li>
+				<li><a href="#features">Technical Features</a></li>
+				<li><a href="#guide">Basic User Guide</a>
+					<ul>
+						<li><a href="#guide_playing">Playing a Game</a></li>
+						<li><a href="#guide_controls">Game Controls</a></li>
+						<li><a href="#guide_state">State Saving/Loading</a></li>
+					</ul>
+				</li>
+				<li><a href="#ext">OpenGL Extensions</a></li>
+				<li><a href="#comp">Compatibility</a></li>
+				<li><a href="#contact">Contact Information</a></li>
+				<li><a href="#greetings">Special Thanks/Greetings</a></li>
+			</ul>
+			
+		</div>
+		
+		<hr />
+		
+		<div>
+		
+			<h2 id="disclaimer">Discalimer</h2>
+			
+			<p>
+			
+				This PlayStation 2 emulator is provided as is with absolutely no garantees.
+				<br /><br />
+				The author takes no responsability for any damage/loss caused by the use of this emulator.
+				<br /><br />
+				You are not allowed to sell this emulator.
+			
+			</p>
+
+		</div>
+		
+		<hr />
+		
+		<div>
+			
+			<h2 id="whatsthis">What's this?</h2>
+
+			<p>
+
+				Purei! (written in Japanese kana as well) is a PlayStation 2 console emulator still in
+				preliminary stages. This won't run your favorite PlayStation 2 game perfectly and with
+				the optimal speed: this only works with a few number of demos and games created by people 
+				involved in the non-professional PS2 coding scene.
+
+			</p>		
+
+		</div>
+
+		<hr />
+		
+		<div>
+
+			<h2 id="requirements">System Requirements</h2>
+			
+			<p>
+				A PC running Windows 2000/XP/2003 and a CPU supporting SSE should be enough to be able to run the emulator.
+			</p>
+
+			<p>
+				For interesting emulation speeds, a CPU clocked at at least 1GHz is required.
+			</p>
+
+			<p>
+				The emulator isn't really greedy memory wise, as 256MBs of RAM should be enough to prevent
+				any hardcore virtual memory page swapping.
+			</p>
+			
+		</div>
+		
+		<hr />
+		
+		<div>
+		
+			<h2 id="features">Technical Features</h2>
+			
+			<ul>
+				<li>EmotionEngine:
+					<ul>
+						<li>Near complete emulation of the base MIPSIV core.</li>
+						<li>Basic emulation of the MMI instruction subset.</li>
+						<li>Basic COP0 (System Control Unit) / COP1 (Floating Point Unit) emulation.</li>
+						<li>CPU emulation done using an instruction caching/recompilation scheme.</li>
+					</ul>
+				</li>
+
+				<li>OS:
+					<ul>
+						<li>ELF binaries loading support.</li>
+						<li>Basic BIOS system calls implemented.</li>
+						<li>Basic interrupt servicing implemented.</li>
+						<li>Basic thread scheduling support.</li>
+					</ul>
+				</li>
+				
+				<li>GS/GIF:
+					<ul>
+						<li>Basic GIF transfers implemented.</li>
+						<li>Basic GS registers emulation.</li>
+						<li>Basic GS rendering supported (using OpenGL).</li>
+					</ul>
+				</li>
+				
+				<li>VU/VIF:
+					<ul>
+						<li>Basic micromode support for the VU1.</li>
+						<li>Basic macromode support for the VU0.</li>
+						<li>Basic VIF transfers implemented.</li>
+					</ul>
+				</li>
+				<li>DMAC:
+					<ul>
+						<li>Channel 0, 2, 4, 5 and 7 support.</li>
+						<li>Channel 5 and 6 (SIF0 and SIF1) support using hacks. (should be using Source or Destination Chain modes)</li>
+					</ul>
+				</li>
+				
+				<li>IPU:
+					<ul>
+						<li>Only supports MPEG-1 compatible macroblock decoding for now.</li>
+						<li>All commands emulated except for IDEC and PACK.</li>
+					</ul>
+				</li>
+				
+				<li>IOP/SIF:
+					<ul>
+						<li>High-level emulation of the IO processor done by intercepting SIF commands and routing them to native modules.</li>
+						<li>Basic support for CDVDFSV, PADMAN, DBCMAN, FILEIO and LOADFILE modules.</li>
+					</ul>
+				</li>
+				
+				<li>INTC:
+					<ul>
+						<li>DMAC and V-Blank Start interrupt emulation.</li>
+					</ul>
+				</li>
+			</ul>
+			
+		</div>
+		
+		<hr />
+		
+		<div>
+		
+			<h2 id="guide">Basic User Guide</h2>
+
+			<h3 id="guide_playing">Playing a Game</h3>
+			
+		    <p>
+				To play an homebrewn game or demo, follow these steps: 
+		    </p>
+		    
+		    <ul>
+				<li>Extract the contents of the archive containing the executable into the "/vfs/host" subdirectory present in the Purei! directory.</li>
+				<li>Select "File | Load ELF..." from the menu bar.</li>
+				<li>Select the ELF executable image file you've previously extracted.</li>
+				<li>After a successful loading, the virtual machine will start executing the program.</li>
+			</ul>
+			
+			<p>
+				To play a commercial game present on a DVD-ROM or in a disk image in raw ISO9660 format, follow these steps:
+			</p>
+			
+			<ul>
+				<li>
+					Configure the source that will be used to read the disk from by selecting "Options | Virtual File System Manager..." from the menu bar
+					and double clicking on the "cdrom0" device.
+					<ul>
+						<li>
+							If you have a physical disk you'll be reading from your DVD-ROM drive, click the "Physical CD/DVD Reader Device" radio button
+						    and select the drive that'll be containing the disk in the combo box below.
+						</li>
+						<li>
+							If you have a disk image, click the "ISO9660 Disk Image" radio button and select your image file by clicking the "..." button.
+						</li>
+						<li>
+							Confirm your changes and go back to the main window.
+						</li>
+					</ul>
+				</li>
+				<li>Select "File | Boot cdrom0" from the menu bar.</li>
+				<li>After a successful loading, the virtual machine will start executing the program.</li>
+			</ul>
+		    
+		    <h3 id="guide_controls">Game Controls</h3>
+
+			<p>
+				This is the current controller to keyboard button mapping configuration which is hardcoded in the
+				program for the moment. It will be possible to change them in a later version.
+			</p>
+			
+			<table class="ctrl">
+				<tr>
+					<td class="ctrl_header">Dual Shock Controller Button</td>
+					<td class="ctrl_header">Keyboard Equivalent</td>
+				</tr>
+				<tr>
+					<td>Left (d-pad)</td>
+					<td>Left Arrow</td>
+				</tr>
+				<tr>
+					<td>Right (d-pad)</td>
+					<td>Right Arrow</td>
+				</tr>
+				<tr>
+					<td>Up (d-pad)</td>
+					<td>Up Arrow</td>
+				</tr>
+				<tr>
+					<td>Down (d-pad)</td>
+					<td>Down Arrow</td>
+				</tr>
+				<tr>
+					<td>Square</td>
+					<td>A</td>
+				</tr>
+				<tr>
+					<td>Cross (X)</td>
+					<td>Z</td>
+				</tr>
+				<tr>
+					<td>Triangle</td>
+					<td>S</td>
+				</tr>
+				<tr>
+					<td>Circle</td>
+					<td>X</td>
+				</tr>
+				<tr>
+					<td>Start</td>
+					<td>Return</td>
+				</tr>
+				<tr>
+					<td>Select</td>
+					<td>Left or Right Shift</td>
+				</tr>
+			</table>
+
+			<h3 id="guide_state">State Saving/Loading</h3>
+			
+			<p>
+				Since memory card support isn't there yet, you might find it more convenient to save your
+				games using saved states. To save a state, simply press F7 or select the "Virtual Machine | Save State" menu item.
+				To load a previously saved state, press F8 or select the "Virtual Machine | Load State" menu item. There's also 10 slots
+				available for you to place your saved states in, accessible through the "Virtual Machine | State Slot" submenu.
+			</p>
+			
+		</div>
+		
+		<hr />
+		
+		<div>
+		
+			<h2 id="ext">OpenGL Extensions</h2>
+			
+			<p>
+			
+				The current GS handler requires some OpenGL extensions to be allowed to render
+				some features of the GS correctly. To check which extensions are supported by your video card
+				driver, consult the "Renderer Settings" dialog in the emulator. The following table 
+				lists which extensions are currently being used and what might be the consequences 
+				if your video card driver do not support them.
+			
+			</p>
+			
+			<table class="ext">
+				<tr>
+					<td class="comp_header">Extension</td>
+					<td class="comp_header">Absence Effect</td>
+				</tr>
+				<tr>
+					<td>glBlendColor function</td>
+					<td>Used for "Ys I &amp; II: Eternal Story". Some elements of the game that should appear translucent will appear opaque.</td>
+				</tr>
+				<tr>
+					<td>glBlendEquation function</td>
+					<td>Used for "Ys I &amp; II: Eternal Story". Some elements of the game that should appear translucent will appear opaque.</td>
+				</tr>
+				<tr>
+					<td>glColorTable function</td>
+					<td>Used for "Ys I &amp; II: Eternal Story". Textures need to be converted to the RGBA8888 format resulting in a slow down.</td>
+				</tr>
+				<tr>
+					<td>GL_UNSIGNED_SHORT_1_5_5_5_REV texture format</td>
+					<td>Used for "Lobotoma". Textures need to be converted to the RGBA8888 format resulting in a slow down.</td>
+				</tr>
+			</table>
+			
+		</div>
+		
+		<hr />
+		
+		<div>
+		
+			<h2 id="comp">Compatibility</h2>
+			
+			<p>
+				The following table lists the games I've tested with the emulator and the status of thier support. 
+				Please note that sound isn't considered in this compatibility list.
+			</p>
+			
+			<table class="comp">
+				<tr>
+					<td class="comp_header">Game/Demo</td>
+					<td class="comp_header">Compatibility Status</td>
+				</tr>
+				<tr>
+					<td class="comp_header" colspan="2">Commercial Games</td>
+				</tr>
+				<tr>
+					<td>Ys I &amp; II: Eternal Story (SPLS_252.06)</td>
+					<td>
+						<ul>
+						<li>No particles when hitting enemies;</li>
+						<li>Might crash (rarely) when playing movies;</li>
+						<li>Flickering in some scenes.</li>
+						</ul> 
+					</td>
+				</tr>
+				<tr>
+					<td class="comp_header" colspan="2">Homebrewn</td>
+				</tr>
+				<tr>
+					<td>1987 (1987.elf)</td>
+					<td>Working.</td>
+				</tr>
+				<tr>
+					<td>By The Way (bytheway.elf)</td>
+					<td>Video output is cut in half.</td>
+				</tr>
+				<tr>
+					<td>Cube Mastah (cubemastah.elf)</td>
+					<td>Working.</td>
+				</tr>
+				<tr>
+					<td>FiRE (FiRE.elf)</td>
+					<td>Working.</td>
+				</tr>
+				<tr>
+					<td>Lobotomia (LOBOTOM.ELF)</td>
+					<td>Flickering in some scenes.</td>
+				</tr>
+				<tr>
+					<td>Plasma Tunnel (plasma_tunnel.elf)</td>
+					<td>Rendering progress visible.</td>
+				</tr>
+				<tr>
+					<td>PS2 Invaders v1.6 (space.elf)</td>
+					<td>Working.</td>
+				</tr>
+				<tr>
+					<td>Quake (quake.elf)</td>
+					<td>Working with the version that doesn't use the USB module.</td>
+				</tr>
+				<tr>
+					<td>Slave of the VU (slave_of_the_vu.elf)</td>
+					<td>Working.</td>
+				</tr>
+			</table>
+		</div>
+		
+		<hr />
+		
+		<div>
+			
+			<h2 id="contact">Contact Information</h2>
+			
+			<p>
+				e-mail: <a href="mailto:jean-philip.desjardins@polymtl.ca">jean-philip.desjardins@polymtl.ca</a>
+				<br />
+				WWW: <a href="http://purei.org">http://purei.org</a>
+				<br />
+				ICQ: 9898384
+			</p>
+			
+			<p>
+				I'm not looking forward bug reports for now since I know it's buggy. And I'm not looking for source code patches to fix bugs either. Anything else should be fine though.
+			</p>
+
+		</div>
+		
+		<hr />
+		
+		<div>
+			<h2 id="greetings">Special Thanks/Greetings</h2>
+			
+			<p>
+				ps2dev (great source for technical info/demos/source code), <a href="http://zlib.net">zlib</a>, Charles Verdon, Eric Bernard, 
+				Brian Guthrie, thrended, FOnewearl Lina.
+			</p>
+			
+		</div>
+		
+	</body>
+
+</html>
