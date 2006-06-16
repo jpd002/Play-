@@ -54,8 +54,10 @@ void CSIF::Reset()
 	m_Module.Insert(m_pPadMan,										IOP::CPadMan::MODULE_ID_3);
 	m_Module.Insert(new IOP::CMcServ,								IOP::CMcServ::MODULE_ID);
 	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_1),	IOP::CCdvdfsv::MODULE_ID_1);
+	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_2),	IOP::CCdvdfsv::MODULE_ID_2);
 	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_4),	IOP::CCdvdfsv::MODULE_ID_4);
 	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_6),	IOP::CCdvdfsv::MODULE_ID_6);
+	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_7),	IOP::CCdvdfsv::MODULE_ID_7);
 	m_Module.Insert(new IOP::CLibSD,								IOP::CLibSD::MODULE_ID);
 	m_Module.Insert(new IOP::CDbcMan,								IOP::CDbcMan::MODULE_ID);
 }

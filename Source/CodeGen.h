@@ -45,6 +45,7 @@ public:
 	static void					Call(void*, unsigned int, bool);
 	static void					Cmp(CONDITION);
 	static void					Cmp64(CONDITION);
+	static void					Lzc();
 	static void					Or();
 	static void					SeX();
 	static void					SeX16();

@@ -759,6 +759,87 @@ void CCodeGen::Cmp64(CONDITION nCondition)
 	}
 }
 
+void CCodeGen::Lzc()
+{
+	if(m_Shadow.GetAt(0) == VARIABLE)
+	{
+		uint32 nVariable;
+		unsigned int nRegister;
+
+		m_Shadow.Pull();
+		nVariable = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadVariableInRegister(nRegister, nVariable);
+
+		//cmp reg, -1
+		m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]), 0xFF);
+
+		//je __set32 (+0x12)
+		m_pBlock->StreamWrite(2, 0x74, 0x12);
+
+		//test reg, reg
+		m_pBlock->StreamWrite(2, 0x85, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+
+		//je __set32 (+0x0E)
+		m_pBlock->StreamWrite(2, 0x74, 0x0E);
+
+		//jns __countzero (+0x02)
+		m_pBlock->StreamWrite(2, 0x79, 0x02);
+
+		//__countone
+		//not reg
+		m_pBlock->StreamWrite(2, 0xF7, 0xC0 | (0x02 << 3) | (m_nRegisterLookup[nRegister]));
+
+		//__countzero
+		//bsr reg, reg
+		m_pBlock->StreamWrite(3, 0x0F, 0xBD, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+
+		//neg reg
+		m_pBlock->StreamWrite(2, 0xF7, 0xC0 | (0x03 << 3) | (m_nRegisterLookup[nRegister]));
+
+		//add reg, 0x1E
+		m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]), 0x1E);
+
+		//jmp __done (+0x05)
+		m_pBlock->StreamWrite(2, 0xEB, 0x05);
+
+		//__set32
+		//mov reg, 0x1F
+		m_pBlock->StreamWrite(1, 0xB8 | (m_nRegisterLookup[nRegister]));
+		m_pBlock->StreamWriteWord(0x0000001F);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+/*
+		__asm
+		{
+			mov ebx, 0;
+			cmp ebx, -1;
+			je _set32;
+			test ebx, ebx;
+			jz _set32;
+			jns _countzero;
+_countone:
+			not ebx;
+_countzero:
+			bsr ebx, ebx;
+			neg ebx;
+			add ebx, 30;
+			jmp _done;
+_set32:
+			mov ebx, 31
+_done:
+
+		}
+*/
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
 void CCodeGen::Or()
 {
 	if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))

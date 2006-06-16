@@ -50,6 +50,7 @@ private:
 
 	//Special2
 	static void							MADD();
+	static void							PLZCW();
 	static void							MMI0();
 	static void							MMI2();
 	static void							MFHI1();

@@ -23,6 +23,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpRegImm[0x19] = MTSAH;
 
 	m_pOpSpecial2[0x00] = MADD;
+	m_pOpSpecial2[0x04] = PLZCW;
 	m_pOpSpecial2[0x08] = MMI0;
 	m_pOpSpecial2[0x09] = MMI2;
 	m_pOpSpecial2[0x10] = MFHI1;
@@ -190,6 +191,21 @@ void CMA_EE::MADD()
 	m_pB->SeX32();
 	m_pB->PullAddr(&m_pCtx->m_State.nHI[1]);
 	m_pB->PullAddr(&m_pCtx->m_State.nHI[0]);
+}
+
+//04
+void CMA_EE::PLZCW()
+{
+	CCodeGen::Begin(m_pB);
+	{
+		for(unsigned int i = 0; i < 2; i++)
+		{
+			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[i]);
+			CCodeGen::Lzc();
+			CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[i]);
+		}
+	}
+	CCodeGen::End();
 }
 
 //08

@@ -8,8 +8,6 @@ using namespace Framework;
 
 uint32	CCdvdfsv::m_nStreamPos = 0;
 
-//593 - Method 0x22 CdMmode
-
 CCdvdfsv::CCdvdfsv(uint32 nID)
 {
 	m_nID = nID;
@@ -27,11 +25,17 @@ void CCdvdfsv::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet,
 	case MODULE_ID_1:
 		Invoke592(nMethod, pArgs, nArgsSize, pRet, nRetSize);
 		break;
+	case MODULE_ID_2:
+		Invoke593(nMethod, pArgs, nArgsSize, pRet, nRetSize);
+		break;
 	case MODULE_ID_4:
 		Invoke595(nMethod, pArgs, nArgsSize, pRet, nRetSize);
 		break;
 	case MODULE_ID_6:
 		Invoke597(nMethod, pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	case MODULE_ID_7:
+		Invoke59C(nMethod, pArgs, nArgsSize, pRet, nRetSize);
 		break;
 	}
 }
@@ -56,6 +60,24 @@ void CCdvdfsv::Invoke592(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 	{
 	case 0:
 		//Init
+		if(nRetSize >= 0x10)
+		{
+			((uint32*)pRet)[0x03] = 0xFF;
+		}
+		break;
+	}
+}
+
+void CCdvdfsv::Invoke593(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	switch(nMethod)
+	{
+	case 0x22:
+		//Set Media Mode (1 - CDROM, 2 - DVDROM)
+		if(nRetSize >= 4)
+		{
+			((uint32*)pRet)[0x00] = 1;
+		}
 		break;
 	}
 }
@@ -82,6 +104,20 @@ void CCdvdfsv::Invoke597(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 		break;
 	default:
 		printf("IOP_Cdvdfsv: Unknown method called (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
+		break;
+	}
+}
+
+void CCdvdfsv::Invoke59C(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	switch(nMethod)
+	{
+	case 0:
+		//DiskReady (returns 2 if ready, 6 if not ready)
+		if(nRetSize >= 4)
+		{
+			((uint32*)pRet)[0x00] = 2;
+		}
 		break;
 	}
 }
