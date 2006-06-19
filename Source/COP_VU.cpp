@@ -404,6 +404,12 @@ void CCOP_VU::VRSQRT()
 	VUShared::RSQRT(m_pB, m_pCtx, m_nFS, m_nFSF, m_nFT, m_nFTF);
 }
 
+//10
+void CCOP_VU::VRINIT()
+{
+	VUShared::RINIT(m_pB, m_pCtx, m_nFS, m_nFSF);
+}
+
 //////////////////////////////////////////////////
 //V3 Instructions
 //////////////////////////////////////////////////
@@ -418,6 +424,12 @@ void CCOP_VU::VNOP()
 void CCOP_VU::VWAITQ()
 {
 	//Nothing to do
+}
+
+//10
+void CCOP_VU::VRXOR()
+{
+	VUShared::RXOR(m_pB, m_pCtx, m_nFS, m_nFSF);
 }
 
 //////////////////////////////////////////////////
@@ -487,7 +499,7 @@ void (*CCOP_VU::m_pOpVx2[0x20])() =
 	//0x08
 	Illegal,		Illegal,		Illegal,		VOPMULA,		Illegal,		Illegal,		VRSQRT,			Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	VRINIT,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x18
 	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 };
@@ -499,7 +511,7 @@ void (*CCOP_VU::m_pOpVx3[0x20])() =
 	//0x08
 	Illegal,		Illegal,		Illegal,		VNOP,			Illegal,		Illegal,		VWAITQ,			Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	VRXOR,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x18
 	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 };

@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "PS2OS.h"
 #include "PS2VM.h"
 #include "StdStream.h"
@@ -126,11 +127,12 @@ void CPS2OS::DumpThreadSchedule()
 			break;
 		}
 
-		printf("ID: %0.2i, Priority: %0.2i, EPC: 0x%0.8X, Status: %s.\r\n", \
+		printf("ID: %0.2i, Priority: %0.2i, EPC: 0x%0.8X, Status: %s, WaitSema: %i.\r\n", \
 			itThread.GetValue(), \
 			pThread->nPriority, \
 			pThread->nEPC, \
-			sStatus);
+			sStatus, \
+			pThread->nSemaWait);
 	}
 }
 
@@ -165,7 +167,7 @@ void CPS2OS::DumpDmacHandlers()
 		pHandler = GetDmacHandler(i + 1);
 		if(pHandler->nValid == 0) continue;
 
-		printf("ID: %0.2i, Line: %i, Address: 0x%0.8X.\r\n", \
+		printf("ID: %0.2i, Channel: %i, Address: 0x%0.8X.\r\n", \
 			i + 1,
 			pHandler->nChannel,
 			pHandler->nAddress);
@@ -286,7 +288,7 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 	for(i = 0; i < 0x02000000 / 4; i++)
 	{
 		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
-		if((nVal & 0xFFFF) == 0x26C0)
+		if((nVal & 0xFFFF) == 0x9FB8)
 		{
 			//if((nVal & 0xFC000000) != 0x0C000000)
 			{
@@ -618,7 +620,7 @@ void CPS2OS::AssembleInterruptHandler()
 	Asm.JALR(CMIPS::T0);
 	Asm.NOP();
 
-	//Check if INT2 (GS)
+	//Check if INT2 (Vblank Start)
 	Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0004);
 	Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
 	Asm.NOP();
@@ -627,6 +629,18 @@ void CPS2OS::AssembleInterruptHandler()
 	Asm.LUI(CMIPS::T0, 0x1FC0);
 	Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
 	Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0002);
+	Asm.JALR(CMIPS::T0);
+	Asm.NOP();
+
+	//Check if INT3 (Vblank End)
+	Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0008);
+	Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
+	Asm.NOP();
+
+	//Process handlers
+	Asm.LUI(CMIPS::T0, 0x1FC0);
+	Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+	Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0003);
 	Asm.JALR(CMIPS::T0);
 	Asm.NOP();
 
@@ -841,37 +855,39 @@ void CPS2OS::ElectThread(uint32 nID)
 {
 	//Save the context of the current thread
 	THREAD* pThread;
-	uint128* pCtx;
+	THREADCONTEXT* pContext;
 	uint32 i;
 
 	if(nID == GetCurrentThreadId()) return;
 
 	pThread = GetThread(GetCurrentThreadId());
-	pCtx = (uint128*)&CPS2VM::m_pRAM[pThread->nContextPtr];
+	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
 
 	//Save the context
-	for(i = 0; i < 32; i++)
+	for(i = 0; i < 0x20; i++)
 	{
-		pCtx[i].nV[0] = m_pCtx->m_State.nGPR[i].nV[0];
-		pCtx[i].nV[1] = m_pCtx->m_State.nGPR[i].nV[1];
-		pCtx[i].nV[2] = m_pCtx->m_State.nGPR[i].nV[2];
-		pCtx[i].nV[3] = m_pCtx->m_State.nGPR[i].nV[3];
+		if(i == CMIPS::R0) continue;
+		if(i == CMIPS::K0) continue;
+		if(i == CMIPS::K1) continue;
+		pContext->nGPR[i] = m_pCtx->m_State.nGPR[i];
 	}
+
 	pThread->nEPC = m_pCtx->m_State.nPC;
 
 	SetCurrentThreadId(nID);
 	pThread = GetThread(GetCurrentThreadId());
+	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
 
 	//Load the context
+
 	m_pCtx->m_State.nPC = pThread->nEPC;
 
-	pCtx = (uint128*)&CPS2VM::m_pRAM[pThread->nContextPtr];
-	for(i = 0; i < 32; i++)
+	for(i = 0; i < 0x20; i++)
 	{
-		m_pCtx->m_State.nGPR[i].nV[0] = pCtx[i].nV[0];
-		m_pCtx->m_State.nGPR[i].nV[1] = pCtx[i].nV[1];
-		m_pCtx->m_State.nGPR[i].nV[2] = pCtx[i].nV[2];
-		m_pCtx->m_State.nGPR[i].nV[3] = pCtx[i].nV[3];
+		if(i == CMIPS::R0) continue;
+		if(i == CMIPS::K0) continue;
+		if(i == CMIPS::K1) continue;
+		m_pCtx->m_State.nGPR[i] = pContext->nGPR[i];
 	}
 
 	printf("PS2OS: New thread elected (id = %i).\r\n", nID);
@@ -1231,8 +1247,8 @@ void CPS2OS::sc_CreateThread()
 {
 	THREADPARAM* pThreadParam;
 	THREAD* pThread;
+	THREADCONTEXT* pContext;
 	uint32 nID, nStackAddr, nHeapBase;
-	uint128* pCtx;
 
 	pThreadParam = (THREADPARAM*)&CPS2VM::m_pRAM[m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]];
 
@@ -1256,20 +1272,20 @@ void CPS2OS::sc_CreateThread()
 	pThread->nHeapBase		= nHeapBase;
 	pThread->nWakeUpCount	= 0;
 	pThread->nScheduleID	= m_pThreadSchedule->Insert(nID, pThreadParam->nPriority);
+	pThread->nStackSize		= pThreadParam->nStackSize;
 
 	nStackAddr = pThreadParam->nStackBase + pThreadParam->nStackSize - STACKRES;
 	pThread->nContextPtr	= nStackAddr;
 
-	pCtx = (uint128*)&CPS2VM::m_pRAM[pThread->nContextPtr];
-	//Clear reserved stack area (to prevent junk)
-	memset(pCtx, 0, STACKRES);
-	pCtx[CMIPS::SP].nV0 = nStackAddr;
-	pCtx[CMIPS::FP].nV0 = nStackAddr;
-	pCtx[CMIPS::GP].nV0 = pThreadParam->nGP;
-	pCtx[CMIPS::RA].nV0	= 0x1FC03000;
+	assert(sizeof(THREADCONTEXT) == STACKRES);
 
-	pCtx[CMIPS::K0].nV0 = m_pCtx->m_State.nGPR[CMIPS::K0].nV[0];
-	pCtx[CMIPS::K0].nV1 = m_pCtx->m_State.nGPR[CMIPS::K0].nV[1];
+	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
+	memset(pContext, 0, sizeof(THREADCONTEXT));
+
+	pContext->nGPR[CMIPS::SP].nV0 = nStackAddr;
+	pContext->nGPR[CMIPS::FP].nV0 = nStackAddr;
+	pContext->nGPR[CMIPS::GP].nV0 = pThreadParam->nGP;
+	pContext->nGPR[CMIPS::RA].nV0 = 0x1FC03000;
 
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -1304,7 +1320,7 @@ void CPS2OS::sc_StartThread()
 {
 	uint32 nID, nArg;
 	THREAD* pThread;
-	uint128* pCtx;
+	THREADCONTEXT* pContext;
 
 	nID		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
 	nArg	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
@@ -1319,8 +1335,8 @@ void CPS2OS::sc_StartThread()
 
 	pThread->nStatus = THREAD_RUNNING;
 
-	pCtx = (uint128*)&CPS2VM::m_pRAM[pThread->nContextPtr];
-	pCtx[CMIPS::A0].nV0 = nArg;
+	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
+	pContext->nGPR[CMIPS::A0].nV0 = nArg;
 
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -1430,6 +1446,54 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 void CPS2OS::sc_GetThreadId()
 {
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = GetCurrentThreadId();
+	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+}
+
+//30
+void CPS2OS::sc_ReferThreadStatus()
+{
+	//THS_RUN = 0x01, THS_READY = 0x02, THS_WAIT = 0x04, THS_SUSPEND = 0x08, THS_DORMANT = 0x10
+	uint32 nID, nStatusPtr, nRet;
+	THREAD* pThread;
+
+	nID			= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nStatusPtr	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+
+	pThread = GetThread(nID);
+	if(!pThread->nValid)
+	{
+		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		return;
+	}
+
+//	assert(nStatusPtr == 0);
+
+	switch(pThread->nStatus)
+	{
+	case THREAD_RUNNING:
+		nRet = 0x01;
+		break;
+	case THREAD_WAITING:
+		nRet = 0x04;
+		break;
+	case THREAD_SUSPENDED:
+		nRet = 0x10;
+		break;
+	}
+
+	if(nStatusPtr != 0)
+	{
+		THREADPARAM* pThreadParam;
+
+		pThreadParam = (THREADPARAM*)(&CPS2VM::m_pRAM[nStatusPtr]);
+		pThreadParam->nStatus		= nRet;
+		pThreadParam->nPriority		= pThread->nPriority;
+		pThreadParam->nStackBase	= pThread->nStackBase;
+		pThreadParam->nStackSize	= pThread->nStackSize;
+	}
+
+	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nRet;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -1639,7 +1703,10 @@ void CPS2OS::sc_SignalSema()
 		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
 		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
 
-		ElectThread(GetNextReadyThread());
+		if(!nInt)
+		{
+			ElectThread(GetNextReadyThread());
+		}
 	}
 	else
 	{
@@ -1688,6 +1755,13 @@ void CPS2OS::sc_WaitSema()
 
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+
+	//Force reschedule
+	nID = GetNextReadyThread();
+	if(nID != GetCurrentThreadId())
+	{
+		ElectThread(nID);
+	}
 }
 
 //45
@@ -1719,6 +1793,32 @@ void CPS2OS::sc_PollSema()
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
+//48
+void CPS2OS::sc_ReferSemaStatus()
+{
+	uint32 nID;
+	SEMAPHORE* pSema;
+	SEMAPHOREPARAM *pSemaParam;
+
+	nID = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	pSemaParam = (SEMAPHOREPARAM*)(CPS2VM::m_pRAM + (m_pCtx->m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
+
+	pSema = GetSemaphore(nID);
+	if(!pSema->nValid)
+	{
+		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		return;
+	}
+
+	pSemaParam->nCount			= pSema->nCount;
+	pSemaParam->nMaxCount		= pSema->nMaxCount;
+	pSemaParam->nWaitThreads	= pSema->nWaitCount;
+
+	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+}
+
 //64
 void CPS2OS::sc_FlushCache()
 {
@@ -1744,6 +1844,7 @@ void CPS2OS::sc_SetVSyncFlag()
 	nPtr2	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
 
 	*(uint32*)&CPS2VM::m_pRAM[nPtr1] = 0x01;
+	*(uint32*)&CPS2VM::m_pRAM[nPtr2] = (1 << 13);
 
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -2053,6 +2154,10 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 		printf("PS2OS: DeleteSema(semaid = %i);\r\n", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
+	case 0x42:
+		printf("PS2OS: SignalSema(semaid = %i);\r\n", \
+			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
 	case 0x43:
 		printf("PS2OS: iSignalSema(semaid = %i);\r\n", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
@@ -2064,6 +2169,15 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 	case 0x45:
 		printf("PS2OS: PollSema(semaid = %i);\r\n", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
+	case 0x46:
+		printf("PS2OS: iPollSema(semaid = %i);\r\n", \
+			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
+	case 0x48:
+		printf("PS2OS: iReferSemaStatus(semaid = %i, status = 0x%0.8X);\r\n",
+			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0],
+			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x64:
 #ifdef _DEBUG
@@ -2122,37 +2236,37 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 void (*CPS2OS::m_pSysCall[0x80])() = 
 {
 	//0x00
-	sc_Unhandled,		sc_Unhandled,				sc_GsSetCrt,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_GsSetCrt,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x08
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x10
-	sc_AddIntcHandler,	sc_RemoveIntcHandler,		sc_AddDmacHandler,	sc_RemoveDmacHandler,		sc_EnableIntc,		sc_DisableIntc,		sc_EnableDmac,		sc_DisableDmac,
+	sc_AddIntcHandler,		sc_RemoveIntcHandler,		sc_AddDmacHandler,	sc_RemoveDmacHandler,		sc_EnableIntc,		sc_DisableIntc,		sc_EnableDmac,		sc_DisableDmac,
 	//0x18
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x20
-	sc_CreateThread,	sc_DeleteThread,			sc_StartThread,		sc_ExitThread,				sc_Unhandled,		sc_TerminateThread,	sc_Unhandled,		sc_Unhandled,
+	sc_CreateThread,		sc_DeleteThread,			sc_StartThread,		sc_ExitThread,				sc_Unhandled,		sc_TerminateThread,	sc_Unhandled,		sc_Unhandled,
 	//0x28
-	sc_Unhandled,		sc_ChangeThreadPriority,	sc_Unhandled,		sc_RotateThreadReadyQueue,	sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_GetThreadId,
+	sc_Unhandled,			sc_ChangeThreadPriority,	sc_Unhandled,		sc_RotateThreadReadyQueue,	sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_GetThreadId,
 	//0x30
-	sc_Unhandled,		sc_Unhandled,				sc_SleepThread,		sc_WakeupThread,			sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_ReferThreadStatus,	sc_Unhandled,				sc_SleepThread,		sc_WakeupThread,			sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x38
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_RFU060,			sc_RFU061,			sc_EndOfHeap,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_RFU060,			sc_RFU061,			sc_EndOfHeap,		sc_Unhandled,
 	//0x40
-	sc_CreateSema,		sc_DeleteSema,				sc_SignalSema,		sc_SignalSema,				sc_WaitSema,		sc_PollSema,		sc_Unhandled,		sc_Unhandled,
+	sc_CreateSema,			sc_DeleteSema,				sc_SignalSema,		sc_SignalSema,				sc_WaitSema,		sc_PollSema,		sc_PollSema,		sc_Unhandled,
 	//0x48
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_ReferSemaStatus,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x50
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x58
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x60
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_FlushCache,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_FlushCache,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x68
-	sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x70
-	sc_Unhandled,		sc_GsPutIMR,				sc_Unhandled,		sc_SetVSyncFlag,			sc_SetSyscall,		sc_Unhandled,		sc_SifDmaStat,		sc_SifSetDma,
+	sc_Unhandled,			sc_GsPutIMR,				sc_Unhandled,		sc_SetVSyncFlag,			sc_SetSyscall,		sc_Unhandled,		sc_SifDmaStat,		sc_SifSetDma,
 	//0x78
-	sc_SifSetDChain,	sc_SifSetReg,				sc_SifGetReg,		sc_Unhandled,				sc_Deci2Call,		sc_Unhandled,		sc_Unhandled,		sc_GetMemorySize,
+	sc_SifSetDChain,		sc_SifSetReg,				sc_SifGetReg,		sc_Unhandled,				sc_Deci2Call,		sc_Unhandled,		sc_Unhandled,		sc_GetMemorySize,
 };
 
 //////////////////////////////////////////////////

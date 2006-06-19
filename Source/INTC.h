@@ -15,8 +15,9 @@ public:
 
 	enum LINES
 	{
-		INTC_LINE_DMAC	= 1,
-		INTC_LINE_GS	= 2,
+		INTC_LINE_DMAC			= 1,
+		INTC_LINE_VBLANK_START	= 2,
+		INTC_LINE_VBLANK_END	= 3,
 	};
 
 	static void		Reset();

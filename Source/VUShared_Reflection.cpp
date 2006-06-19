@@ -166,6 +166,26 @@ void VUShared::ReflOpAccFsFtBc(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	sprintf(sText, "ACC%s, VF%i%s, VF%i%s", m_sDestination[nDest], nFS, m_sDestination[nDest], nFT, m_sBroadcast[nBc]);
 }
 
+void VUShared::ReflOpRFsf(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8 nFS, nFSF;
+
+	nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	nFSF	= (uint8 )((nOpcode >> 21) & 0x0003);
+
+	sprintf(sText, "R, VF%i%s", nFS, m_sBroadcast[nFSF]);
+}
+
+void VUShared::ReflOpFtR(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8 nFT, nDest;
+
+	nDest	= (uint8 )((nOpcode >> 21) & 0x000F);
+	nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
+
+	sprintf(sText, "VF%i%s, R", nFT, m_sDestination[nDest]);
+}
+
 void VUShared::ReflOpQFtf(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nFT;

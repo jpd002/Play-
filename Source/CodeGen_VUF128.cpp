@@ -1,5 +1,8 @@
 #include "CodeGen_VUF128.h"
 #include "PtrMacro.h"
+#ifdef AMD64
+#include "amd64/CPUID.h"
+#endif
 
 using namespace CodeGen;
 
@@ -11,12 +14,21 @@ CVUF128::CFactory* CVUF128::CreateFactory()
 {
 	uint32 nFeatures;
 
+#ifdef AMD64
+
+	//Quite useless, since most AMD64 CPUs would have SSE2 anyways...
+	nFeatures = _cpuid_GetCpuFeatures();
+
+#else
+
 	__asm
 	{
 		mov eax, 0x00000001;
 		cpuid;
 		mov dword ptr[nFeatures], edx
 	}
+
+#endif
 
 	//Check SSE2
 	if(nFeatures & 0x04000000)

@@ -82,7 +82,7 @@ void CRegViewVU::GetDisplayText(CStrA* pText)
 	sprintf(sLine, "P    : %+.7e\r\n", *(float*)&pState->nCOP2P);
 	(*pText) += sLine;
 
-	sprintf(sLine, "R    : %+.7e\r\n", *(float*)&pState->nCOP2R);
+	sprintf(sLine, "R    : %+.7e (0x%0.8X)\r\n", *(float*)&pState->nCOP2R, pState->nCOP2R);
 	(*pText) += sLine;
 
 	sprintf(sLine, "MACSF: %i%i%i%ib\r\n", \

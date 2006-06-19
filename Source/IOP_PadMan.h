@@ -4,6 +4,8 @@
 #include "IOP_Module.h"
 #include "PadListener.h"
 
+//#define USE_EX
+
 namespace IOP
 {
 	class CPadMan : public CModule, public CPadListener
@@ -57,19 +59,8 @@ namespace IOP
 			PADDATA*				m_pData;
 		};
 */
+#ifdef USE_EX
 		struct PADDATA
-		{
-			uint32			nFrame;
-			uint8			nState;
-			uint8			nReqState;
-			uint8			nOk;
-			uint8			nReserved0;
-			uint8			nData[32];
-			uint32			nLength;
-			uint32			nReserved1[5];
-		};
-
-		struct PADDATAEX
 		{
 			uint8			nData[32];
 			uint32			nReserved1[4];
@@ -90,12 +81,28 @@ namespace IOP
 			uint8			nOk;
 			uint8			nReserved5[13];
 		};
+#else
+		struct PADDATA
+		{
+			uint32			nFrame;
+			uint8			nState;
+			uint8			nReqState;
+			uint8			nOk;
+			uint8			nReserved0;
+			uint8			nData[32];
+			uint32			nLength;
+			uint32			nReserved1[5];
+		};
+#endif
 
-		PADDATAEX*			m_pPad;
+		PADDATA*			m_pPad;
 
 		void				Open(void*, uint32, void*, uint32);
+		void				Init(void*, uint32, void*, uint32);
+		void				GetModuleVersion(void*, uint32, void*, uint32);
+
+		static void			Log(const char*, ...);
 	};
 }
-
 
 #endif

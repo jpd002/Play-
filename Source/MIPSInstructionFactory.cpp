@@ -2,6 +2,7 @@
 #include "MIPSInstructionFactory.h"
 #include "MIPS.h"
 #include "PtrMacro.h"
+#include "CodeGen.h"
 
 CMIPS*				CMIPSInstructionFactory::m_pCtx		= NULL;
 CCacheBlock*		CMIPSInstructionFactory::m_pB		= NULL;
@@ -104,6 +105,27 @@ void CMIPSInstructionFactory::BranchLikely(bool nCondition)
 	m_pB->EndJcc();
 
 	m_pB->SetProgramCounterChanged();
+	m_pB->SetDelayedJumpCheck();
+}
+
+void CMIPSInstructionFactory::BranchEx(bool nCondition)
+{
+	uint16 nImmediate;
+
+	nImmediate = (uint16)(m_nOpcode & 0xFFFF);
+
+	CCodeGen::PushCst(MIPS_INVALID_PC);
+	CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
+
+	CCodeGen::BeginIf(nCondition);
+	{
+		CCodeGen::PushVar(&m_pCtx->m_State.nPC);
+		CCodeGen::PushCst(CMIPS::GetBranch(nImmediate));
+		CCodeGen::Add();
+		CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
+	}
+	CCodeGen::EndIf();
+
 	m_pB->SetDelayedJumpCheck();
 }
 

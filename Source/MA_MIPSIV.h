@@ -88,8 +88,6 @@ private:
 	static uint32						m_nSDRMaskHi[8];
 	static uint32						m_nSDRShift[8];
 
-	static void							BranchEx(bool);
-
 	static void							SPECIAL();
 	static void							SPECIAL2();
 	static void							REGIMM();

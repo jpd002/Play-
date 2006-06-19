@@ -1,6 +1,9 @@
 #include <assert.h>
 #include "CodeGen_VUI128.h"
 #include "PtrMacro.h"
+#ifdef AMD64
+#include "amd64/CPUID.h"
+#endif
 
 using namespace CodeGen;
 
@@ -24,12 +27,21 @@ CVUI128::CFactory* CVUI128::CreateFactory()
 {
 	uint32 nFeatures;
 
+#ifdef AMD64
+
+	//Quite useless, since most AMD64 CPUs would have SSE2 anyways...
+	nFeatures = _cpuid_GetCpuFeatures();
+
+#else
+
 	__asm
 	{
 		mov eax, 0x00000001;
 		cpuid;
 		mov dword ptr[nFeatures], edx
 	}
+
+#endif
 
 	//Force SSE
 	//return new CSSEFactory();

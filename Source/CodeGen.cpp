@@ -219,6 +219,26 @@ void CCodeGen::LoadVariableInRegister(unsigned int nRegister, uint32 nVariable)
 	m_pBlock->StreamWriteWord(nVariable);
 }
 
+void CCodeGen::LoadRelativeInRegister(unsigned int nRegister, uint32 nOffset)
+{
+	//mov reg, [base + rel]
+	m_pBlock->StreamWrite(1, 0x8B);
+	WriteRelativeRm(nRegister, nOffset);
+}
+
+void CCodeGen::WriteRelativeRm(unsigned int nRegister, uint32 nOffset)
+{
+	if(nOffset <= 0x7F)
+	{
+		m_pBlock->StreamWrite(2, (0x01 << 6) | (nRegister << 3) | 0x05, (uint8)nOffset);
+	}
+	else
+	{
+		m_pBlock->StreamWrite(1, (0x02 << 6) | (nRegister << 3) | 0x05);
+		m_pBlock->StreamWriteWord(nOffset);
+	}
+}
+
 void CCodeGen::PushVar(uint32* pValue)
 {
 	m_Shadow.Push(*(uint32*)&pValue);
@@ -235,6 +255,12 @@ void CCodeGen::PushRef(void* pAddr)
 {
 	m_Shadow.Push(*(uint32*)&pAddr);
 	m_Shadow.Push(REFERENCE);
+}
+
+void CCodeGen::PushRel(size_t nOffset)
+{
+	m_Shadow.Push((uint32)nOffset);
+	m_Shadow.Push(RELATIVE);
 }
 
 void CCodeGen::PushReg(unsigned int nRegister)
@@ -309,6 +335,52 @@ void CCodeGen::PullVar(uint32* pValue)
 	}
 }
 
+void CCodeGen::PullRel(size_t nOffset)
+{
+	if(m_Shadow.GetAt(0) == REGISTER)
+	{
+		uint32 nRegister;
+
+		m_Shadow.Pull();
+		nRegister = m_Shadow.Pull();
+
+		//mov dword ptr[pValue], reg
+		m_pBlock->StreamWrite(1, 0x89); WriteRelativeRm(nRegister, (uint32)nOffset);
+
+		FreeRegister(nRegister);
+	}
+	else if(m_Shadow.GetAt(0) == CONSTANT)
+	{
+		uint32 nConstant, nRegister;
+
+		m_Shadow.Pull();
+		nConstant = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+
+		if(nConstant == 0)
+		{
+			//xor reg, reg
+			m_pBlock->StreamWrite(2, 0x33, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+		}
+		else
+		{
+			//mov reg, $Constant
+			m_pBlock->StreamWrite(1, 0xB8 | (m_nRegisterLookup[nRegister]));
+			m_pBlock->StreamWriteWord(nConstant);
+		}
+
+		//mov dword ptr[pValue], reg
+		m_pBlock->StreamWrite(1, 0x89); WriteRelativeRm(nRegister, (uint32)nOffset);
+
+		FreeRegister(nRegister);		
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
 void CCodeGen::Add()
 {
 	if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == VARIABLE))
@@ -340,6 +412,34 @@ void CCodeGen::Add()
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
+	}
+	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
+	{
+		uint32 nRelative, nConstant, nRegister;
+
+		m_Shadow.Pull();
+		nConstant = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+
+		LoadRelativeInRegister(nRegister, nRelative);
+
+		if(GetMinimumConstantSize(nConstant) == 1)
+		{
+			//add reg, Immediate
+			m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
+		}
+		else
+		{
+			//add reg, Immediate
+			m_pBlock->StreamWrite(2, 0x81, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+			m_pBlock->StreamWriteWord(nConstant);
+		}
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);		
 	}
 	else if((m_Shadow.GetAt(0) == VARIABLE) && (m_Shadow.GetAt(2) == VARIABLE))
 	{
@@ -1168,6 +1268,24 @@ void CCodeGen::Xor()
 		//xor reg, dword ptr[Variable2]
 		m_pBlock->StreamWrite(2, 0x33, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
 		m_pBlock->StreamWriteWord(nVariable2);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+	}
+	else if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
+	{
+		uint32 nRelative1, nRelative2, nRegister;
+
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative1);
+
+		//xor reg, dword ptr[base + rel]
+		m_pBlock->StreamWrite(1, 0x33); WriteRelativeRm(nRegister, nRelative2);
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);

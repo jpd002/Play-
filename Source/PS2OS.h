@@ -116,6 +116,19 @@ private:
 		uint32									nSemaWait;
 		uint32									nWakeUpCount;
 		uint32									nScheduleID;
+		uint32									nStackSize;
+	};
+
+	struct THREADCONTEXT
+	{
+		uint128									nGPR[0x20];
+		uint128									nHI;
+		uint128									nLO;
+		uint32									nSA;
+		uint32									nFCSR;
+		uint32									nCOP1A;
+		uint32									nReserved3;
+		uint32									nCOP1[0x1C];
 	};
 
 	struct DMACHANDLER
@@ -235,6 +248,7 @@ private:
 	static void									sc_ChangeThreadPriority();
 	static void									sc_RotateThreadReadyQueue();
 	static void									sc_GetThreadId();
+	static void									sc_ReferThreadStatus();
 	static void									sc_SleepThread();
 	static void									sc_WakeupThread();
 	static void									sc_RFU060();
@@ -245,6 +259,7 @@ private:
 	static void									sc_SignalSema();
 	static void									sc_WaitSema();
 	static void									sc_PollSema();
+	static void									sc_ReferSemaStatus();
 	static void									sc_FlushCache();
 	static void									sc_GsPutIMR();
 	static void									sc_SetVSyncFlag();

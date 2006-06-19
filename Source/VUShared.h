@@ -59,7 +59,9 @@ namespace VUShared
 	void				MULAi(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				OPMSUB(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				OPMULA(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				RINIT(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				RSQRT(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				RXOR(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				SQRT(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				SUB(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
@@ -75,6 +77,8 @@ namespace VUShared
 	void				ReflOpAccFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpAccFsFt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpAccFsFtBc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void				ReflOpRFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void				ReflOpFtR(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpQFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpQFsfFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 

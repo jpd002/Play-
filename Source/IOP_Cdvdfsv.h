@@ -38,6 +38,8 @@ namespace IOP
 		void			StreamCmd(void*, uint32, void*, uint32);
 		void			SearchFile(void*, uint32, void*, uint32);
 
+		static void		Log(const char*, ...);
+
 		uint32			m_nID;
 		static uint32	m_nStreamPos;
 	};

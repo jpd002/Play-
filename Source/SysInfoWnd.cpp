@@ -3,6 +3,9 @@
 #include "SysInfoWnd.h"
 #include "PtrMacro.h"
 #include "win32/LayoutWindow.h"
+#ifdef AMD64
+#include "amd64/CPUID.h"
+#endif
 
 #define CLSNAME			_X("SysInfoWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -173,12 +176,20 @@ void CSysInfoWnd::UpdateProcessorFeatures()
 	uint32 nFeatures;
 	int i;
 
+#ifdef AMD64
+
+	nFeatures = _cpuid_GetCpuFeatures();
+
+#else
+
 	__asm
 	{
 		mov eax, 0x00000001;
 		cpuid;
 		mov dword ptr[nFeatures], edx
 	}
+
+#endif
 
 	m_pFeatures->ResetContent();
 
@@ -221,12 +232,20 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 	QueryPerformanceFrequency(&nTime);
 	nDeltaTime = (nTime.QuadPart * CPUFREQDELAY) / 1000;
 
+#ifdef AMD64
+
+	nStamp1 = 0;
+
+#else
+
 	__asm
 	{
 		rdtsc;
 		mov dword ptr[nStamp1 + 0x00], eax;
 		mov dword ptr[nStamp1 + 0x04], edx;
 	}
+
+#endif
 
 	QueryPerformanceCounter(&nTime);
 	nDone = nTime.QuadPart + nDeltaTime;
@@ -236,6 +255,12 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 		if((uint64)nTime.QuadPart >= nDone) break;
 	}
 
+#ifdef AMD64
+
+	nStamp2 = 0;
+
+#else
+
 	__asm
 	{
 		rdtsc;
@@ -243,9 +268,17 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 		mov dword ptr[nStamp2 + 0x04], edx;
 	}
 
+#endif
+
 	nDeltaStamp = 1000 * (nStamp2 - nStamp1) / CPUFREQDELAY;
 
 	SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL);
+
+#ifdef AMD64
+
+	_cpuid_GetCpuIdString(sCpu);
+
+#else
 
 	__asm
 	{
@@ -255,7 +288,11 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 		mov dword ptr[sCpu + 4], edx;
 		mov dword ptr[sCpu + 8], ecx;
 	}
+
+#endif
+
 	sCpu[12] = '\0';
+
 	xconvert(sConvert, sCpu, 13);
 
 	pWnd = (CSysInfoWnd*)pParam;

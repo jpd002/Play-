@@ -2,6 +2,7 @@
 #include "MIPS.h"
 #include "CodeGen_FPU.h"
 #include "CodeGen_VUF128.h"
+#include <stddef.h>
 
 using namespace VUShared;
 using namespace CodeGen;
@@ -647,6 +648,18 @@ void VUShared::OPMSUB(CCacheBlock* pB, CMIPS* pCtx, uint8 nFd, uint8 nFs, uint8 
 	CCodeGen::End();
 }
 
+void VUShared::RINIT(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf)
+{
+	CCodeGen::Begin(pB);
+	{
+		CCodeGen::PushVar(&pCtx->m_State.nCOP2[nFs].nV[nFsf]);
+		CCodeGen::PushCst(0x007FFFFF);
+		CCodeGen::And();
+		CCodeGen::PullVar(&pCtx->m_State.nCOP2R);
+	}
+	CCodeGen::End();
+}
+
 void VUShared::RSQRT(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf)
 {
 	CCodeGen::Begin(pB);
@@ -656,6 +669,20 @@ void VUShared::RSQRT(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf, uint8 
 		CFPU::Sqrt();
 		CFPU::Div();
 		CFPU::PullSingle(&pCtx->m_State.nCOP2Q);
+	}
+	CCodeGen::End();
+}
+
+void VUShared::RXOR(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf)
+{
+	CCodeGen::Begin(pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[nFsf]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2R));
+		CCodeGen::Xor();
+		CCodeGen::PushCst(0x007FFFFF);
+		CCodeGen::And();
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2R));
 	}
 	CCodeGen::End();
 }

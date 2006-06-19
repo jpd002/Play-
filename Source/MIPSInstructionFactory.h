@@ -25,6 +25,8 @@ protected:
 	static void				Branch(bool);
 	static void				BranchLikely(bool);
 
+	static void				BranchEx(bool);
+
 	static void				Illegal();
 	static void				SetupQuickVariables(uint32, CCacheBlock*, CMIPS*);
 

@@ -184,12 +184,14 @@ void CGSHandler::SetVBlank()
 	//Alternate current field
 	m_nCSR ^= 0x2000;
 
-	CINTC::AssertLine(CINTC::INTC_LINE_GS);
+	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
 }
 
 void CGSHandler::ResetVBlank()
 {
 	m_nCSR &= ~0x08;
+
+	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_END);
 }
 
 uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)

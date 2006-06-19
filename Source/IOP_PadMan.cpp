@@ -6,8 +6,8 @@
 using namespace IOP;
 using namespace Framework;
 
-#define PADNUM	(1)
-#define MODE	(0x4)
+#define PADNUM			(1)
+#define MODE			(0x4)
 
 CPadMan::CPadMan()
 {
@@ -16,18 +16,22 @@ CPadMan::CPadMan()
 
 void CPadMan::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 {
-	if(nMethod != 1)
-	{
-		assert(0);
-	}
-	switch(((uint32*)pArgs)[0])
+	assert(nMethod == 1);
+	nMethod = ((uint32*)pArgs)[0];
+	switch(nMethod)
 	{
 	case 0x00000001:
 	case 0x80000100:
 		Open(pArgs, nArgsSize, pRet, nRetSize);
 		break;
+	case 0x00000010:
+		Init(pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	case 0x00000012:
+		GetModuleVersion(pArgs, nArgsSize, pRet, nRetSize);
+		break;
 	default:
-		//assert(0);
+		Log("Unknown method invoked (0x%0.8X).\r\n", nMethod);
 		break;
 	}
 }
@@ -47,7 +51,7 @@ void CPadMan::LoadState(CStream* pStream)
 
 	pStream->Read(&nAddress, 4);
 
-	m_pPad = (PADDATAEX*)(CPS2VM::m_pRAM + nAddress);
+	m_pPad = (PADDATA*)(CPS2VM::m_pRAM + nAddress);
 }
 
 void CPadMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButton, bool nPressed)
@@ -76,9 +80,9 @@ void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 
 	nPort = ((uint32*)pArgs)[1];
 	nSlot = ((uint32*)pArgs)[2];
-	m_pPad = (PADDATAEX*)(CPS2VM::m_pRAM + ((uint32*)pArgs)[4]);
+	m_pPad = (PADDATA*)(CPS2VM::m_pRAM + ((uint32*)pArgs)[4]);
 
-	printf("IOP_PadMan: Opening device on port %i and slot %i.\r\n", nPort, nSlot);
+	Log("Opening device on port %i and slot %i.\r\n", nPort, nSlot);
 
 	m_pPad[0].nFrame			= 0;
 	m_pPad[0].nState			= 6;
@@ -91,10 +95,41 @@ void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 	m_pPad[1].nReqState			= 0;
 	m_pPad[1].nLength			= 32;
 	m_pPad[1].nOk				= 1;
+#ifdef USE_EX
 	m_pPad[1].nModeCurId		= MODE << 4;
 	m_pPad[1].nModeCurOffset	= 0;
 	m_pPad[1].nModeTable[0]		= MODE;
+#endif
 
 	//Returns 0 on error
 	((uint32*)pRet)[3] = 0x00000001;
+}
+
+void CPadMan::Init(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	assert(nRetSize >= 0x10);
+
+	Log("Init();\r\n");
+
+	((uint32*)pRet)[3] = 1;
+}
+
+void CPadMan::GetModuleVersion(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	assert(nRetSize >= 0x10);
+
+	Log("GetModuleVersion();\r\n");
+
+	((uint32*)pRet)[3] = 0x00000400;
+}
+
+void CPadMan::Log(const char* sFormat, ...)
+{
+#ifdef _DEBUG
+	va_list Args;
+	printf("IOP_PadMan: ");
+	va_start(Args, sFormat);
+	vprintf(sFormat, Args);
+	va_end(Args);
+#endif
 }

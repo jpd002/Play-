@@ -267,26 +267,6 @@ void CMA_VU::CLower::ReflOpFtP(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	sprintf(sText, "VF%i%s, P", nFT, m_sDestination[nDest]);
 }
 
-void CMA_VU::CLower::ReflOpRFsf(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
-{
-	uint8 nFS, nFSF;
-
-	nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
-	nFSF	= (uint8 )((nOpcode >> 21) & 0x0003);
-
-	sprintf(sText, "R, VF%i%s", nFS, m_sBroadcast[nFSF]);
-}
-
-void CMA_VU::CLower::ReflOpFtR(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
-{
-	uint8 nFT, nDest;
-
-	nDest	= (uint8 )((nOpcode >> 21) & 0x000F);
-	nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
-
-	sprintf(sText, "VF%i%s, R", nFT, m_sDestination[nDest]);
-}
-
 uint32 CMA_VU::CLower::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	uint16 nImm;

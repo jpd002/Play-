@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "MA_MIPSIV.h"
 #include "MIPS.h"
 #include "CodeGen.h"
@@ -243,23 +244,6 @@ void CMA_MIPSIV::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS*
 	}
 }
 
-void CMA_MIPSIV::BranchEx(bool nCondition)
-{
-	CCodeGen::PushCst(MIPS_INVALID_PC);
-	CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
-
-	CCodeGen::BeginIf(nCondition);
-	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nPC);
-		CCodeGen::PushCst(CMIPS::GetBranch(m_nImmediate));
-		CCodeGen::Add();
-		CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
-	}
-	CCodeGen::EndIf();
-
-	m_pB->SetDelayedJumpCheck();
-}
-
 void CMA_MIPSIV::SPECIAL()
 {
 	m_pOpSpecial[m_nImmediate & 0x3F]();
@@ -413,12 +397,12 @@ void CMA_MIPSIV::ADDIU()
 {
 	CCodeGen::Begin(m_pB);
 	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		CCodeGen::PushCst((int16)m_nImmediate);
 		CCodeGen::Add();
 		CCodeGen::SeX();
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	}
 	CCodeGen::End();
 }
@@ -488,8 +472,10 @@ void CMA_MIPSIV::LUI()
 	{
 		CCodeGen::PushCst(m_nImmediate << 16);
 		CCodeGen::PushCst((m_nImmediate & 0x8000) ? 0xFFFFFFFF : 0x00000000);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+//		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+//		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
 	}
 	CCodeGen::End();
 }

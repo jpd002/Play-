@@ -586,13 +586,7 @@ void CMA_VU::CLower::RGET()
 //10
 void CMA_VU::CLower::RINIT()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nCOP2[m_nIS].nV[m_nFSF]);
-		CCodeGen::PushCst(0x007FFFFF);
-		CCodeGen::PullVar(&m_pCtx->m_State.nCOP2R);
-	}
-	CCodeGen::End();
+	VUShared::RINIT(m_pB, m_pCtx, m_nIS, m_nFSF);
 }
 
 //1E

@@ -19,6 +19,9 @@ public:
 	bool	GetOSLoggingStatus();
 	void	SetOSLoggingStatus(bool);
 
+	bool	GetSIFLoggingStatus();
+	void	SetSIFLoggingStatus(bool);
+
 private:
 	void	LoadConfig();
 	void	SaveConfig();
@@ -27,6 +30,7 @@ private:
 	bool	m_nDMACLogging;
 	bool	m_nIPULogging;
 	bool	m_nOSLogging;
+	bool	m_nSIFLogging;
 };
 
 #endif

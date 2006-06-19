@@ -1,7 +1,7 @@
 #include "MA_EE.h"
+#include "CodeGen_VUI128.h"
 #include "MIPS.h"
 #include "PS2OS.h"
-#include "CodeGen_VUI128.h"
 
 using namespace CodeGen;
 

@@ -98,10 +98,12 @@ private:
 	//V2
 	static void							VOPMULA();
 	static void							VRSQRT();
+	static void							VRINIT();
 
 	//V3
 	static void							VNOP();
 	static void							VWAITQ();
+	static void							VRXOR();
 
 	static uint8						m_nBc;
 	static uint8						m_nDest;

@@ -60,10 +60,20 @@ void CCdvdfsv::Invoke592(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 	{
 	case 0:
 		//Init
-		if(nRetSize >= 0x10)
-		{
-			((uint32*)pRet)[0x03] = 0xFF;
-		}
+		uint32 nMode;
+
+		assert(nArgsSize >= 4);
+		assert(nRetSize >= 0x10);
+
+		nMode = ((uint32*)pArgs)[0x00];
+
+		Log("Init(mode = %i);\r\n", nMode);
+
+		((uint32*)pRet)[0x03] = 0xFF;
+
+		break;
+	default:
+		Log("Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
 		break;
 	}
 }
@@ -72,12 +82,38 @@ void CCdvdfsv::Invoke593(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 {
 	switch(nMethod)
 	{
+	case 0x0C:
+		//Status
+		//Returns
+		//0 - Stopped
+		//1 - Open
+		//2 - Spin
+		//3 - Read
+		//and more...
+
+		assert(nRetSize >= 4);
+
+		Log("Status();\r\n");
+
+		((uint32*)pRet)[0x00] = 0;
+
+		break;
 	case 0x22:
 		//Set Media Mode (1 - CDROM, 2 - DVDROM)
-		if(nRetSize >= 4)
-		{
-			((uint32*)pRet)[0x00] = 1;
-		}
+		uint32 nMode;
+
+		assert(nArgsSize >= 4);
+		assert(nRetSize >= 4);
+
+		nMode = ((uint32*)pArgs)[0x00];
+
+		Log("SetMediaMode(mode = %i);\r\n", nMode); 
+		
+		((uint32*)pRet)[0x00] = 1;
+
+		break;
+	default:
+		Log("Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
 		break;
 	}
 }
@@ -89,8 +125,24 @@ void CCdvdfsv::Invoke595(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 	case 1:
 		Read(pArgs, nArgsSize, pRet, nRetSize);
 		break;
+	case 4:
+		//GetToc
+		uint32 nBuffer;
+
+		assert(nArgsSize >= 4);
+		assert(nRetSize >= 4);
+
+		nBuffer = ((uint32*)pArgs)[0x00];
+
+		Log("GetToc(buffer = 0x%0.8X);\r\n", nBuffer);
+
+		((uint32*)pRet)[0x00] = 1;
+		break;
 	case 9:
 		StreamCmd(pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	default:
+		Log("Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
 		break;
 	}
 }
@@ -103,7 +155,7 @@ void CCdvdfsv::Invoke597(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 		SearchFile(pArgs, nArgsSize, pRet, nRetSize);
 		break;
 	default:
-		printf("IOP_Cdvdfsv: Unknown method called (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
+		Log("Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
 		break;
 	}
 }
@@ -114,10 +166,20 @@ void CCdvdfsv::Invoke59C(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 	{
 	case 0:
 		//DiskReady (returns 2 if ready, 6 if not ready)
-		if(nRetSize >= 4)
-		{
-			((uint32*)pRet)[0x00] = 2;
-		}
+
+		uint32 nMode;
+
+		assert(nRetSize >= 4);
+		assert(nArgsSize >= 4);
+
+		nMode = ((uint32*)pArgs)[0x00];
+
+		Log("DiskReady(mode = %i);\r\n", nMode);
+
+		((uint32*)pRet)[0x00] = 2;
+		break;
+	default:
+		Log("Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
 		break;
 	}
 }
@@ -263,4 +325,15 @@ void CCdvdfsv::SearchFile(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRet
 	((uint32*)pArgs)[0x01] = Record.GetDataLength();
 
 	*(uint32*)pRet = 1;
+}
+
+void CCdvdfsv::Log(const char* sFormat, ...)
+{
+#ifdef _DEBUG
+	va_list Args;
+	printf("IOP_Cdvdfsv: ");
+	va_start(Args, sFormat);
+	vprintf(sFormat, Args);
+	va_end(Args);
+#endif
 }

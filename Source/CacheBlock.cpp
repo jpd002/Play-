@@ -1,9 +1,18 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <stddef.h>
 #include "PtrMacro.h"
 #include "CacheBlock.h"
 #include "MIPS.h"
+
+#ifdef AMD64
+
+#include <windows.h>
+
+extern "C" RET_CODE _CCacheBlock_Execute(void*, void*);
+
+#endif
 
 #define GROWSIZE	(0x40000)
 
@@ -37,26 +46,46 @@ RET_CODE CCacheBlock::Execute(CMIPS* pCtx)
 	if(!m_nValid)
 	{
 		Compile(pCtx);
+
+#ifdef AMD64
+
+		DWORD nOldProtect;
+		VirtualProtect(m_pData, m_nSize, PAGE_EXECUTE_READWRITE, &nOldProtect);
+
+#endif
+
 	}
 
 	nAddress = pCtx->m_pAddrTranslator(pCtx, 0x00000000, pCtx->m_State.nPC);
 
 	pEntry = (uint8*)m_pData + m_pReloc[(nAddress - m_nStart) / 4];
 
+#ifdef AMD64
+
+	nRet = _CCacheBlock_Execute(pEntry, pCtx);
+
+#else
+
 	__asm
 	{
 		push	ebx
 		push	esi
 		push	edi
+		push	ebp
 
 		mov		eax, [pEntry];
+		mov		ebp, [pCtx];
 		call	eax
-		mov		[nRet], eax;
 
+		pop		ebp
 		pop		edi
 		pop		esi
 		pop		ebx
+
+		mov		[nRet], eax;
 	}
+
+#endif
 
 	return nRet;
 }
@@ -90,9 +119,11 @@ void CCacheBlock::Compile(CMIPS* pCtx)
 void CCacheBlock::InsertProlog(CMIPS* pCtx)
 {
 	//add [pCtx->m_State.nPC], 4
-	StreamWrite(2, 0x83, 0x00 | (0x00 << 3) | (0x05));
-	StreamWriteWord((uint32)((uint8*)(&pCtx->m_State.nPC) - (uint8*)0));
-	StreamWriteByte(4);
+	StreamWrite(4, 0x83, (0x01 << 6) | (0x00 << 3) | (0x05), offsetof(CMIPS, m_State.nPC), 4);
+
+//	StreamWrite(2, 0x83, 0x00 | (0x00 << 3) | (0x05));
+//	StreamWriteWord((uint32)((uint8*)(&pCtx->m_State.nPC) - (uint8*)0));
+//	StreamWriteByte(4);
 }
 
 void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
@@ -147,15 +178,37 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 	{
 		//Call the tick function (push a different value than 1 if there's a dead loop in there)
 
+#ifdef AMD64
+		
+		//mov ecx, 1
+		StreamWrite(1, 0xB9);
+		StreamWriteWord(1);
+
+		//sub esp, 0x08
+		StreamWrite(3, 0x83, 0xC0 | (0x05 << 3) | (0x04), 0x08);
+
+#else
+
 		//push 1
 		StreamWrite(2, 0x6A, 0x01);
 
+#endif
+
 		//call [TickFunction]
-		StreamWrite(2, 0xFF, 0x00 | (0x02 << 3) | (0x05));
-		StreamWriteWord((uint32)((uint8*)(&pCtx->m_pTickFunction) - (uint8*)0));
+		StreamWrite(2, 0xFF, (0x02 << 6) | (0x02 << 3) | (0x05));
+		StreamWriteWord(offsetof(CMIPS, m_pTickFunction));
+
+#ifdef AMD64
+
+		//add esp, 0x08
+		StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (0x04), 0x08);
+
+#else
 
 		//add esp, 4
 		StreamWrite(3, 0x83, 0xC4, 0x04);
+
+#endif
 
 		//test eax, eax
 		StreamWrite(2, 0x85, 0xC0);
@@ -175,9 +228,13 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 	//Decrement quota
 
 	//sub [Quota], 1
-	StreamWrite(2, 0x83, 0x00 | (0x05 << 3) | (0x05));
-	StreamWriteWord((uint32)((uint8*)(&pCtx->m_nQuota) - (uint8*)0));
+	StreamWrite(2, 0x83, (0x02 << 6) | (0x05 << 3) | (0x05));
+	StreamWriteWord(offsetof(CMIPS, m_nQuota));
 	StreamWriteByte(1);
+
+//	StreamWrite(2, 0x83, 0x00 | (0x05 << 3) | (0x05));
+//	StreamWriteWord((uint32)((uint8*)(&pCtx->m_nQuota) - (uint8*)0));
+//	StreamWriteByte(1);
 
 	//jne $notdone
 	StreamWriteByte(0x75);

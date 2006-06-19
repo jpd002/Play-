@@ -36,8 +36,10 @@ public:
 	static void					PushVar(uint32*);
 	static void					PushCst(uint32);
 	static void					PushRef(void*);
+	static void					PushRel(size_t);
 
 	static void					PullVar(uint32*);
+	static void					PullRel(size_t);
 
 	static void					Add();
 	static void					Add64();
@@ -65,12 +67,18 @@ private:
 		MAX_REGISTER = 6,
 	};
 
+	enum REL_REGISTER
+	{
+		REL_REGISTER = 5,
+	};
+
 	enum SYMBOLS
 	{
 		VARIABLE = 0x8000,
 		REGISTER,
 		CONSTANT,
 		REFERENCE,
+		RELATIVE,
 	};
 
 	enum IFBLOCKS
@@ -90,6 +98,8 @@ private:
 	static unsigned int			GetMinimumConstantSize(uint32);
 	static bool					RegisterHasNextUse(unsigned int);
 	static void					LoadVariableInRegister(unsigned int, uint32);
+	static void					LoadRelativeInRegister(unsigned int, uint32);
+	static void					WriteRelativeRm(unsigned int, uint32);
 
 	static bool					IsTopRegCstPairCom();
 	static void					GetRegCstPairCom(unsigned int*, uint32*);
