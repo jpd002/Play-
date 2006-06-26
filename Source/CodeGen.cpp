@@ -11,6 +11,29 @@ CArrayStack<uint32>	CCodeGen::m_Shadow;
 CArrayStack<uint32>	CCodeGen::m_IfStack;
 
 bool				CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
+
+#ifdef AMD64
+
+unsigned int		CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
+{
+	0,
+	1,
+	2,
+	3,
+	6,
+	7,
+	8,
+	9,
+	10,
+	11,
+	12,
+	13,
+	14,
+	15,
+};
+
+#else
+
 unsigned int		CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
 {
 	0,
@@ -20,6 +43,8 @@ unsigned int		CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
 	6,
 	7,
 };
+
+#endif
 
 void CCodeGen::Begin(CCacheBlock* pBlock)
 {
@@ -203,6 +228,27 @@ unsigned int CCodeGen::AllocateRegister(REGISTER_TYPE nPreference)
 			}
 		}
 	}
+	if(nPreference == REGISTER_SAVED)
+	{
+		for(unsigned int i = 0; i < MAX_REGISTER; i++)
+		{
+			if(i == 0) continue;
+			if(i == 1) continue;
+			if(i == 2) continue;
+#ifdef AMD64
+			if(i == 8) continue;
+			if(i == 9) continue;
+			if(i == 10) continue;
+			if(i == 11) continue;
+#endif
+			if(!m_nRegisterAllocated[i])
+			{
+				m_nRegisterAllocated[i] = true;
+				return i;
+			}
+		}
+
+	}
 	assert(0);
 	return 0;
 }
@@ -221,22 +267,148 @@ void CCodeGen::LoadVariableInRegister(unsigned int nRegister, uint32 nVariable)
 
 void CCodeGen::LoadRelativeInRegister(unsigned int nRegister, uint32 nOffset)
 {
+
+#ifdef AMD64
+
+	if(m_nRegisterLookup[nRegister] > 7)
+	{
+		//REX byte
+		m_pBlock->StreamWrite(1, 0x44);
+	}
+
+#endif
+
 	//mov reg, [base + rel]
 	m_pBlock->StreamWrite(1, 0x8B);
-	WriteRelativeRm(nRegister, nOffset);
+	WriteRelativeRmRegister(nRegister, nOffset);
 }
 
-void CCodeGen::WriteRelativeRm(unsigned int nRegister, uint32 nOffset)
+void CCodeGen::LoadConstantInRegister(unsigned int nRegister, uint32 nConstant)
+{
+	unsigned int nRegIndex;
+
+	nRegIndex = m_nRegisterLookup[nRegister];
+
+#ifdef AMD64
+
+	if(nRegIndex > 7)
+	{
+		//REX byte
+		m_pBlock->StreamWrite(1, 0x41);
+
+		nRegIndex &= 0x07;
+	}
+
+#endif
+
+	//mov reg, nConstant
+	m_pBlock->StreamWrite(1, 0xB8 | nRegIndex);
+	m_pBlock->StreamWriteWord(nConstant);
+}
+
+void CCodeGen::CopyRegister(unsigned int nDst, unsigned int nSrc)
+{
+	unsigned int nRegIndex1, nRegIndex2;
+
+	nRegIndex1 = m_nRegisterLookup[nSrc];
+	nRegIndex2 = m_nRegisterLookup[nDst];
+
+#ifdef AMD64
+
+	bool nNeedRex;
+	uint8 nRex;
+
+	nNeedRex = false;
+	nRex = 0x40;
+
+	nNeedRex = (nRegIndex1 > 7) || (nRegIndex2 > 7);
+
+	if(nRegIndex1 > 7)
+	{
+		nRegIndex1 &= 0x07;
+		nRex |= 0x04;
+	}
+
+	if(nRegIndex2 > 7)
+	{
+		nRegIndex2 &= 0x07;
+		nRex |= 0x01;
+	}
+
+	if(nNeedRex)
+	{
+		m_pBlock->StreamWrite(1, nRex);
+	}
+
+#endif
+
+	m_pBlock->StreamWrite(2, 0x89, 0xC0 | (nRegIndex1 << 3) | (nRegIndex2));
+}
+
+#ifdef AMD64
+
+void CCodeGen::LoadRelativeInRegister64(unsigned int nRegister, uint32 nRelative)
+{
+	unsigned int nRegIndex;
+	uint8 nRex;
+
+	nRegIndex	= m_nRegisterLookup[nRegister];
+	nRex		= 0x48;
+	
+	if(nRegIndex > 7)
+	{
+		nRex |= 0x01;
+		nRegIndex &= 0x07;
+	}
+
+	//mov reg, nRelative
+	m_pBlock->StreamWrite(2, nRex, 0x8B);
+	WriteRelativeRmRegister(nRegister, nRelative);
+}
+
+void CCodeGen::LoadConstantInRegister64(unsigned int nRegister, uint64 nConstant)
+{
+	unsigned int nRegIndex;
+	uint8 nRex;
+
+	nRegIndex	= m_nRegisterLookup[nRegister];
+	nRex		= 0x48;
+	
+	if(nRegIndex > 7)
+	{
+		nRex |= 0x01;
+		nRegIndex &= 0x07;
+	}
+
+	//mov reg, nConstant
+	m_pBlock->StreamWrite(2, nRex, 0xB8 | nRegIndex);
+	m_pBlock->StreamWriteWord((uint32)((nConstant >>  0) & 0xFFFFFFFF));
+	m_pBlock->StreamWriteWord((uint32)((nConstant >> 32) & 0xFFFFFFFF));
+}
+
+#endif
+
+void CCodeGen::WriteRelativeRm(unsigned int nIndex, uint32 nOffset)
 {
 	if(nOffset <= 0x7F)
 	{
-		m_pBlock->StreamWrite(2, (0x01 << 6) | (nRegister << 3) | 0x05, (uint8)nOffset);
+		m_pBlock->StreamWrite(2, (0x01 << 6) | (nIndex << 3) | 0x05, (uint8)nOffset);
 	}
 	else
 	{
-		m_pBlock->StreamWrite(1, (0x02 << 6) | (nRegister << 3) | 0x05);
+		m_pBlock->StreamWrite(1, (0x02 << 6) | (nIndex << 3) | 0x05);
 		m_pBlock->StreamWriteWord(nOffset);
 	}
+}
+
+void CCodeGen::WriteRelativeRmRegister(unsigned int nRegister, uint32 nOffset)
+{
+	WriteRelativeRm(m_nRegisterLookup[nRegister] & 0x07, nOffset);
+}
+
+void CCodeGen::WriteRelativeRmFunction(unsigned int nFunction, uint32 nOffset)
+{
+	WriteRelativeRm(nFunction, nOffset);
 }
 
 void CCodeGen::PushVar(uint32* pValue)
@@ -263,10 +435,44 @@ void CCodeGen::PushRel(size_t nOffset)
 	m_Shadow.Push(RELATIVE);
 }
 
+void CCodeGen::PushIdx(unsigned int nIndex)
+{
+	uint32 nParam1, nParam2;
+
+	nIndex *= 2;
+
+	nParam1 = m_Shadow.GetAt(nIndex + 0);
+	nParam2 = m_Shadow.GetAt(nIndex + 1);
+
+	m_Shadow.Push(nParam2);
+	m_Shadow.Push(nParam1);
+}
+
+void CCodeGen::PushTop()
+{
+	PushIdx(0);
+}
+
 void CCodeGen::PushReg(unsigned int nRegister)
 {
 	m_Shadow.Push(nRegister);
 	m_Shadow.Push(REGISTER);
+}
+
+void CCodeGen::ReplaceRegisterInStack(unsigned int nDst, unsigned int nSrc)
+{
+	for(unsigned int i = 0; i < m_Shadow.GetCount(); i += 2)
+	{
+		if(m_Shadow.GetAt(i + 0) == REGISTER)
+		{
+			unsigned int nRegister;
+			nRegister = m_Shadow.GetAt(i + 1);
+			if(nRegister == nSrc)
+			{
+				m_Shadow.SetAt(i + 1, nDst);
+			}
+		}
+	}
 }
 
 void CCodeGen::PullVar(uint32* pValue)
@@ -345,7 +551,8 @@ void CCodeGen::PullRel(size_t nOffset)
 		nRegister = m_Shadow.Pull();
 
 		//mov dword ptr[pValue], reg
-		m_pBlock->StreamWrite(1, 0x89); WriteRelativeRm(nRegister, (uint32)nOffset);
+		m_pBlock->StreamWrite(1, 0x89);
+		WriteRelativeRmRegister(nRegister, (uint32)nOffset);
 
 		FreeRegister(nRegister);
 	}
@@ -371,14 +578,37 @@ void CCodeGen::PullRel(size_t nOffset)
 		}
 
 		//mov dword ptr[pValue], reg
-		m_pBlock->StreamWrite(1, 0x89); WriteRelativeRm(nRegister, (uint32)nOffset);
+		m_pBlock->StreamWrite(1, 0x89);
+		WriteRelativeRmRegister(nRegister, (uint32)nOffset);
 
 		FreeRegister(nRegister);		
+	}
+	else if(m_Shadow.GetAt(0) == RELATIVE)
+	{
+		uint32 nRelative, nRegister;
+
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+
+		LoadRelativeInRegister(nRegister, nRelative);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+
+		PullRel(nOffset);
 	}
 	else
 	{
 		assert(0);
 	}
+}
+
+void CCodeGen::PullTop()
+{
+	m_Shadow.Pull();
+	m_Shadow.Pull();
 }
 
 void CCodeGen::Add()
@@ -642,6 +872,27 @@ void CCodeGen::And()
 
 		And();
 	}
+	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
+	{
+		uint32 nRelative, nConstant;
+		unsigned int nRegister;
+
+		m_Shadow.Pull();
+		nConstant = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+
+		m_Shadow.Push(nConstant);
+		m_Shadow.Push(CONSTANT);
+
+		And();
+	}
 	else if((m_Shadow.GetAt(0) == VARIABLE) && (m_Shadow.GetAt(2) == VARIABLE))
 	{
 		uint32 nVariable1, nVariable2;
@@ -672,6 +923,36 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 {
 	uint32 nCallRegister;
 
+#ifdef AMD64
+
+	unsigned int nParamReg[4] =
+	{
+		1,
+		2,
+		6,
+		7,
+	};
+
+	assert(nParamCount <= 4);
+	assert(m_nRegisterAllocated[nParamReg[0]] == false);
+	assert(m_nRegisterAllocated[nParamReg[1]] == false);
+	assert(m_nRegisterAllocated[nParamReg[2]] == false);
+	assert(m_nRegisterAllocated[nParamReg[3]] == false);
+
+#endif
+
+	if(m_nRegisterAllocated[0])
+	{
+		//This register is going to be scrapped, gotta save it...
+		unsigned int nSaveReg;
+
+		nSaveReg = AllocateRegister(REGISTER_SAVED);
+		CopyRegister(nSaveReg, 0);
+		ReplaceRegisterInStack(nSaveReg, 0);
+
+		FreeRegister(0);
+	}
+
 	for(unsigned int i = 0; i < nParamCount; i++)
 	{
 		if(m_Shadow.GetAt(0) == VARIABLE)
@@ -685,6 +966,27 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 			m_pBlock->StreamWrite(2, 0xFF, 0x35);
 			m_pBlock->StreamWriteWord(nVariable);
 		}
+		else if(m_Shadow.GetAt(0) == RELATIVE)
+		{
+			uint32 nRelative;
+
+			m_Shadow.Pull();
+			nRelative = m_Shadow.Pull();
+
+#ifdef AMD64
+
+			LoadRelativeInRegister(nParamReg[nParamCount - 1 - i], nRelative);
+
+#else
+
+			//push [nBase + nRel]
+			m_pBlock->StreamWrite(1, 0xFF);
+			WriteRelativeRmFunction(6, nRelative);
+
+#endif
+
+		}
+
 		else if(m_Shadow.GetAt(0) == REGISTER)
 		{
 			uint32 nRegister;
@@ -697,8 +999,18 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 				FreeRegister(nRegister);
 			}
 
+#ifdef AMD64
+
+			//mov param_reg, reg
+			CopyRegister(nParamReg[nParamCount - 1 - i], nRegister);
+
+#else
+
 			//push reg
 			m_pBlock->StreamWrite(1, 0x50 | m_nRegisterLookup[nRegister]);
+
+#endif
+
 		}
 		else if((m_Shadow.GetAt(0) == REFERENCE) || (m_Shadow.GetAt(0) == CONSTANT))
 		{
@@ -707,9 +1019,19 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 			m_Shadow.Pull();
 			nNumber = m_Shadow.Pull();
 
+#ifdef AMD64
+
+			//mov reg, nNumber
+			LoadConstantInRegister(nParamReg[nParamCount - 1 - i], nNumber);
+
+#else
+
 			//push nNumber
 			m_pBlock->StreamWrite(1, 0x68);
 			m_pBlock->StreamWriteWord(nNumber);
+
+#endif
+
 		}
 		else
 		{
@@ -719,6 +1041,38 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 
 	nCallRegister = AllocateRegister();
 
+#ifdef AMD64
+
+	unsigned int nRegIndex;
+
+	if(nParamCount != 0)
+	{
+		//sub rsp, (nParams * 0x08)
+		m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x05 << 3) | (0x04), nParamCount * 0x08);
+	}
+
+	//mov reg, nFuncAddress
+	LoadConstantInRegister64(nCallRegister, (uint64)((uint8*)pFunc - (uint8*)0));
+
+	//call reg
+	nRegIndex = m_nRegisterLookup[nCallRegister];
+	if(nRegIndex > 7)
+	{
+		//REX byte
+		m_pBlock->StreamWrite(1, 0x41);
+		nRegIndex &= 7;
+	}
+
+	m_pBlock->StreamWrite(2, 0xFF, 0xD0 | (nRegIndex));
+
+	if(nParamCount != 0)
+	{
+		//add esp, 0x08
+		m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (0x04), nParamCount * 0x08);
+	}
+
+#else
+
 	//mov reg, pFunc
 	m_pBlock->StreamWrite(1, 0xB8 | (m_nRegisterLookup[nCallRegister]));
 	m_pBlock->StreamWriteWord((uint32)((uint8*)pFunc - (uint8*)0));
@@ -726,13 +1080,15 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 	//call reg
 	m_pBlock->StreamWrite(2, 0xFF, 0xD0 | (m_nRegisterLookup[nCallRegister]));
 
-	FreeRegister(nCallRegister);
-
 	if(nParamCount != 0)
 	{
 		//add esp, nParams * 4;
 		m_pBlock->StreamWrite(3, 0x83, 0xC4, nParamCount * 4);
 	}
+
+#endif
+
+	FreeRegister(nCallRegister);
 
 	if(nKeepRet)
 	{
@@ -1285,7 +1641,8 @@ void CCodeGen::Xor()
 		LoadRelativeInRegister(nRegister, nRelative1);
 
 		//xor reg, dword ptr[base + rel]
-		m_pBlock->StreamWrite(1, 0x33); WriteRelativeRm(nRegister, nRelative2);
+		m_pBlock->StreamWrite(1, 0x33);
+		WriteRelativeRmRegister(nRegister, nRelative2);
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
@@ -1422,6 +1779,99 @@ void CCodeGen::Cmp64Lt(bool nSigned)
 
 		//movzx reg, reg[l]
 		m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+	}
+	else if(\
+		(m_Shadow.GetAt(0) == RELATIVE) && \
+		(m_Shadow.GetAt(2) == RELATIVE) && \
+		(m_Shadow.GetAt(4) == RELATIVE) && \
+		(m_Shadow.GetAt(6) == RELATIVE))
+	{
+		uint32 nRelative1, nRelative2, nRelative3, nRelative4;
+		uint32 nRegister;
+		unsigned int nJmpPos1, nJmpPos2;
+
+		m_Shadow.Pull();
+		nRelative4 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative3 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		assert(m_nRegisterLookup[nRegister] < 8);
+
+#ifdef AMD64
+
+		if(((nRelative4 - nRelative3) == 4) && ((nRelative2 - nRelative1) == 4))
+		{
+			LoadRelativeInRegister64(nRegister, nRelative1);
+
+			//cmp reg, qword ptr[base + rel4]
+			m_pBlock->StreamWrite(2, 0x48, 0x3B);
+			WriteRelativeRmRegister(nRegister, nRelative3);
+
+			//setb/l reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, nSigned ? 0x9C : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+
+			//movzx reg, reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+		}
+		else
+
+#endif
+
+		{
+			/////////////////////////////////////////
+			//Check high order word if equal
+
+			//mov reg, dword ptr[base + rel2]
+			LoadRelativeInRegister(nRegister, nRelative2);
+
+			//cmp reg, dword ptr[base + rel4]
+			m_pBlock->StreamWrite(1, 0x3B);
+			WriteRelativeRmRegister(nRegister, nRelative4);
+
+			//je +0x08
+			m_pBlock->StreamWrite(2, 0x74, 0x08);
+
+			///////////////////////////////////////////////////////////
+			//If they aren't equal, this comparaison decides of result
+
+			//setb/l reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, nSigned ? 0x9C : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+
+			//movzx reg, reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+
+			//jmp +?
+			nJmpPos1 = m_pBlock->StreamGetSize() + 1;
+			m_pBlock->StreamWrite(2, 0xEB, 0x00);
+
+			////////////////////////////////////////////////////////////
+			//If they are equal, next comparaison decides of result
+
+			//mov reg, dword ptr[base + rel1]
+			LoadRelativeInRegister(nRegister, nRelative1);
+
+			//cmp reg, dword ptr[base + rel3]
+			m_pBlock->StreamWrite(1, 0x3B);
+			WriteRelativeRmRegister(nRegister, nRelative3);
+
+			//setb reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+
+			//movzx reg, reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+
+			//Fix Jmp Offset
+			nJmpPos2 = m_pBlock->StreamGetSize();
+			m_pBlock->StreamWriteAt(nJmpPos1, (nJmpPos2 - nJmpPos1 - 1));
+		}
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);

@@ -13,4 +13,10 @@
 		<Patch Address="0x0029B8EC" Value="0x00000000" Description="Skips movies" />
 		<Patch Address="0x0029B8F8" Value="0x00000000" Description="Skips movies" />
 	</Executable>
+	<Executable Name="SLPM_661.75;1">
+		<Patch Address="0x009B47D0" Value="0x00000002" Description="Enable libcdvd tracing."/>
+		<Patch Address="0x0042FD58" Value="0x24020001" />
+		<Patch Address="0x00412CB4" Value="0x24020000" />
+		<Patch Address="0x00417284" Value="0x00000000" />
+	</Executable>
 </Patches>

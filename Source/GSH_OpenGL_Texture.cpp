@@ -118,6 +118,7 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		//glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pRAM + nPointer);
 		break;
 	case PSMCT16:
+	case PSMCT16S:
 		((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
 		break;
 	case PSMT8:

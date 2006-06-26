@@ -227,6 +227,13 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			}
 		}
 		break;
+	case 0x1200008:
+		W_REG(nAddress, nData, m_nDISPLAY1);
+		if(nAddress & 0x04)
+		{
+			UpdateViewport();
+		}
+		break;
 	case 0x1200009:
 		W_REG(nAddress, nData, m_nDISPFB2);
 		if(nAddress & 0x04)

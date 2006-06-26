@@ -120,10 +120,6 @@ void CCacheBlock::InsertProlog(CMIPS* pCtx)
 {
 	//add [pCtx->m_State.nPC], 4
 	StreamWrite(4, 0x83, (0x01 << 6) | (0x00 << 3) | (0x05), offsetof(CMIPS, m_State.nPC), 4);
-
-//	StreamWrite(2, 0x83, 0x00 | (0x00 << 3) | (0x05));
-//	StreamWriteWord((uint32)((uint8*)(&pCtx->m_State.nPC) - (uint8*)0));
-//	StreamWriteByte(4);
 }
 
 void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)

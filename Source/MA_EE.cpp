@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "MA_EE.h"
 #include "CodeGen_VUI128.h"
 #include "MIPS.h"
@@ -91,27 +92,27 @@ void CMA_EE::LQ()
 //1F
 void CMA_EE::SQ()
 {
-	ComputeMemAccessAddr();
+	CCodeGen::Begin(m_pB);
+	{
+		ComputeMemAccessAddrEx();
 
-	//Write the words
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 2, false);
-	m_pB->AddImm(4);
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			CCodeGen::PushRef(m_pCtx);
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			CCodeGen::PushIdx(2);
+			CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 2, false);
-	m_pB->AddImm(4);
+			if(i != 3)
+			{
+				CCodeGen::PushCst(4);
+				CCodeGen::Add();
+			}
+		}
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[2]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 2, false);
-	m_pB->AddImm(4);
-
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[3]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+		CCodeGen::PullTop();
+	}
+	CCodeGen::End();
 }
 
 //////////////////////////////////////////////////

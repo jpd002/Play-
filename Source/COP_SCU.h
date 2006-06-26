@@ -10,6 +10,7 @@ public:
 	{
 		STATUS		= 0x0C,
 		EPC			= 0x0E,
+		ERROREPC	= 0x1E,
 	};
 
 						CCOP_SCU(MIPS_REGSIZE);

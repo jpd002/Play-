@@ -1894,19 +1894,19 @@ void CMA_MIPSIV::SLTU()
 {
 	CCodeGen::Begin(m_pB);
 	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
 		CCodeGen::Cmp64(CCodeGen::CONDITION_BL);
 
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
 		//Clear higher 32-bits
 		CCodeGen::PushCst(0);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 	CCodeGen::End();
 }

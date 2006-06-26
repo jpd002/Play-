@@ -82,6 +82,25 @@ void CCdvdfsv::Invoke593(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 {
 	switch(nMethod)
 	{
+	case 0x03:
+		
+		assert(nRetSize >= 4);
+		
+		Log("GetDiskType();\r\n");
+
+		//Returns PS2DVD for now.
+		((uint32*)pRet)[0x00] = 0x14;
+
+		break;
+
+	case 0x04:
+		assert(nRetSize >= 4);
+
+		Log("GetError();\r\n");
+
+		((uint32*)pRet)[0x00] = 0x00;
+		break;
+
 	case 0x0C:
 		//Status
 		//Returns
@@ -140,6 +159,15 @@ void CCdvdfsv::Invoke595(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pR
 		break;
 	case 9:
 		StreamCmd(pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	case 0x0E:
+		//DiskReady (returns 2 if ready, 6 if not ready)
+
+		assert(nRetSize >= 4);
+
+		Log("NDiskReady();\r\n");
+
+		((uint32*)pRet)[0x00] = 2;
 		break;
 	default:
 		Log("Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", m_nID, nMethod);
@@ -205,7 +233,10 @@ void CCdvdfsv::Read(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 		CPS2VM::m_pCDROM0->ReadBlock(nSector + i, CPS2VM::m_pRAM + (nDstAddr + (i * 0x800)));
 	}
 
-	((uint32*)pRet)[0] = 0;
+	if(nRetSize >= 4)
+	{
+		((uint32*)pRet)[0] = 0;
+	}
 }
 
 void CCdvdfsv::StreamCmd(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)

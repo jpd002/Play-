@@ -94,7 +94,8 @@ long CFunctionsView::OnNotify(WPARAM wParam, NMHDR* pH)
 			break;
 		}
 	}
-	return TRUE;
+
+	return FALSE;
 }
 
 long CFunctionsView::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)

@@ -1,7 +1,9 @@
 #include <string.h>
 #include <stdio.h>
+#include <stddef.h>
 #include "COP_SCU.h"
 #include "MIPS.h"
+#include "CodeGen.h"
 
 uint8		CCOP_SCU::m_nRT;
 uint8		CCOP_SCU::m_nRD;
@@ -95,16 +97,38 @@ void CCOP_SCU::CO()
 //18
 void CCOP_SCU::ERET()
 {
-	//Remove exception mode
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP0[STATUS]);
-	m_pB->AndImm(~0x00000002);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP0[STATUS]);
+	CCodeGen::Begin(m_pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+		CCodeGen::PushCst(0x02);
+		CCodeGen::And();
+		
+		CCodeGen::PushCst(0x00);
+		CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
 
-	//Go back to normal execution
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP0[EPC]);
-	m_pB->PullAddr(&m_pCtx->m_State.nPC);
+		CCodeGen::BeginIfElse(false);
+		{
+			//EXL bit was set
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[EPC]));
+			CCodeGen::PullRel(offsetof(CMIPS, m_State.nPC));
+		}
+		CCodeGen::BeginIfElseAlt();
+		{
+			//EXL bit wasn't set, we assume ERL was (unsafe)
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[ERROREPC]));
+			CCodeGen::PullRel(offsetof(CMIPS, m_State.nPC));
+		}
+		CCodeGen::EndIf();
 
-	m_pB->SetProgramCounterChanged();
+		//Clear both EXL and ERL bits
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+		CCodeGen::PushCst(~0x06);
+		CCodeGen::And();
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+
+		m_pB->SetProgramCounterChanged();
+	}
+	CCodeGen::End();
 }
 
 //38

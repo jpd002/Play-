@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdlib.h>
 #include "PS2OS.h"
 #include "PS2VM.h"
 #include "StdStream.h"
@@ -33,6 +34,10 @@
 // 0x1FC01000	0x1FC02000		DMAC Interrupt Handler
 // 0x1FC02000	0x1FC03000		GS Interrupt Handler
 // 0x1FC03000	0x1FC03100		Thread epilogue
+// 0x1FC03100	0x1FC03200		Wait Thread Proc
+
+#define BIOS_ADDRESS_BASE				0x1FC00000
+#define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 
 #define CONFIGPATH ".\\config\\"
 #define PATCHESPATH "patches.xml"
@@ -288,7 +293,7 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 	for(i = 0; i < 0x02000000 / 4; i++)
 	{
 		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
-		if((nVal & 0xFFFF) == 0x9FB8)
+		if((nVal & 0xFFFF) == 0x9B70)
 		{
 			//if((nVal & 0xFC000000) != 0x0C000000)
 			{
@@ -374,6 +379,8 @@ void CPS2OS::LoadExecutable()
 	AssembleDmacHandler();
 	AssembleIntcHandler();
 	AssembleThreadEpilog();
+	AssembleWaitThreadProc();
+	CreateWaitThread();
 
 #ifdef DEBUGGER_INCLUDED
 	CPS2VM::m_EE.m_pAnalysis->Clear();
@@ -689,7 +696,7 @@ void CPS2OS::AssembleDmacHandler()
 	Asm.ORI(CMIPS::T0, CMIPS::R0, 0x0001);
 	Asm.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::S0);
 	Asm.AND(CMIPS::T0, CMIPS::T0, CMIPS::S1);
-	Asm.BEQ(CMIPS::T0, CMIPS::R0, 0x0019);
+	Asm.BEQ(CMIPS::T0, CMIPS::R0, 0x001A);
 	Asm.NOP();
 
 	//Clear interrupt
@@ -709,18 +716,17 @@ void CPS2OS::AssembleDmacHandler()
 
 	//Check validity
 	Asm.LW(CMIPS::T1, 0x0000, CMIPS::T0);
-	Asm.BEQ(CMIPS::T1, CMIPS::R0, 0x0009);
+	Asm.BEQ(CMIPS::T1, CMIPS::R0, 0x000A);
 	Asm.NOP();
 
 	//Check if the channel is good one
 	Asm.LW(CMIPS::T1, 0x0004, CMIPS::T0);
-	Asm.BNE(CMIPS::S0, CMIPS::T1, 0x0006);
+	Asm.BNE(CMIPS::S0, CMIPS::T1, 0x0007);
 	Asm.NOP();
 
 	//Load the necessary stuff
 	Asm.LW(CMIPS::T1, 0x0008, CMIPS::T0);
-	//Asm.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
-	//Asm.LW(CMIPS::A0, 0x000C, CMIPS::T0);
+	Asm.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
 	Asm.LW(CMIPS::A1, 0x000C, CMIPS::T0);
 	Asm.LW(CMIPS::GP, 0x0010, CMIPS::T0);
 	
@@ -731,12 +737,12 @@ void CPS2OS::AssembleDmacHandler()
 	//Increment handler counter and test
 	Asm.ADDIU(CMIPS::S2, CMIPS::S2, 0x0001);
 	Asm.ADDIU(CMIPS::T0, CMIPS::R0, MAX_DMACHANDLER - 1);
-	Asm.BNE(CMIPS::S2, CMIPS::T0, 0xFFED);
+	Asm.BNE(CMIPS::S2, CMIPS::T0, 0xFFEC);
 	Asm.NOP();
 
 	//Decrement channel counter and test
 	Asm.ADDIU(CMIPS::S0, CMIPS::S0, 0xFFFF);
-	Asm.BGEZ(CMIPS::S0, 0xFFE1);
+	Asm.BGEZ(CMIPS::S0, 0xFFE0);
 	Asm.NOP();
 
 	//Epilogue
@@ -812,6 +818,17 @@ void CPS2OS::AssembleThreadEpilog()
 	
 	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x23);
 	Asm.SYSCALL();
+}
+
+void CPS2OS::AssembleWaitThreadProc()
+{
+	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[BIOS_ADDRESS_WAITTHREADPROC - BIOS_ADDRESS_BASE]);
+
+	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x03);
+	Asm.SYSCALL();
+
+	Asm.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFD);
+	Asm.NOP();
 }
 
 uint32* CPS2OS::GetCustomSyscallTable()
@@ -899,6 +916,54 @@ uint32 CPS2OS::GetNextReadyThread()
 	THREAD* pThread;
 	unsigned int nID;
 
+	unsigned int nRand, nCount;
+	srand((unsigned int)time(NULL));
+	nRand = rand();
+
+	nCount = 0;
+	for(unsigned int i = 1; i < MAX_THREAD; i++)
+	{
+		if(i == GetCurrentThreadId()) continue;
+		pThread = GetThread(i);
+		if(pThread->nValid != 1) continue;
+		if(pThread->nStatus != THREAD_RUNNING) continue;
+		nCount++;
+	}
+
+
+	if(nCount == 0)
+	{
+		nID = GetCurrentThreadId();
+
+		pThread = GetThread(nID);
+		if(pThread->nStatus != THREAD_RUNNING)
+		{
+			//Now, now, everyone is waiting for something...
+			nID = 0;
+		}
+
+		return nID;
+	}
+
+	nRand %= nCount;
+
+	nCount = 0;
+	for(unsigned int i = 1; i < MAX_THREAD; i++)
+	{
+		if(i == GetCurrentThreadId()) continue;
+		pThread = GetThread(i);
+		if(pThread->nValid != 1) continue;
+		if(pThread->nStatus != THREAD_RUNNING) continue;
+		if(nRand == nCount)
+		{
+			nID = i;
+			break;
+		}
+		nCount++;
+	}
+
+	return nID;
+/*
 	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
 	{
 		nID = itThread.GetValue();
@@ -906,6 +971,7 @@ uint32 CPS2OS::GetNextReadyThread()
 		if(pThread->nStatus != THREAD_RUNNING) continue;
 		break;
 	}
+
 
 	if(itThread.IsEnd())
 	{
@@ -918,6 +984,17 @@ uint32 CPS2OS::GetNextReadyThread()
 	m_pThreadSchedule->Insert(nID, pThread->nPriority);
 
 	return nID;
+*/
+}
+
+void CPS2OS::CreateWaitThread()
+{
+	THREAD* pThread;
+
+	pThread = GetThread(0);
+	pThread->nValid		= 1;
+	pThread->nEPC		= BIOS_ADDRESS_WAITTHREADPROC;
+	pThread->nStatus	= THREAD_ZOMBIE;
 }
 
 uint32 CPS2OS::GetNextAvailableSemaphoreId()
@@ -1514,12 +1591,15 @@ void CPS2OS::sc_SleepThread()
 }
 
 //33
+//34
 void CPS2OS::sc_WakeupThread()
 {
 	THREAD* pThread;
 	uint32 nID;
+	bool nInt;
 
 	nID		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nInt	= m_pCtx->m_State.nGPR[3].nV[0] == 0x34;
 
 	pThread = GetThread(nID);
 
@@ -1554,7 +1634,7 @@ void CPS2OS::sc_RFU060()
 
 	//Set up the main thread
 
-	pThread = GetThread(0);
+	pThread = GetThread(1);
 	
 	pThread->nValid			= 0x01;
 	pThread->nStatus		= THREAD_RUNNING;
@@ -1565,7 +1645,7 @@ void CPS2OS::sc_RFU060()
 	nStackAddr -= STACKRES;
 	pThread->nContextPtr	= nStackAddr;
 
-	SetCurrentThreadId(0);
+	SetCurrentThreadId(1);
 
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nStackAddr;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -2130,6 +2210,10 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 		printf("PS2OS: WakeupThread(id = %i);\r\n", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
+	case 0x34:
+		printf("PS2OS: iWakeupThread(id = %i);\r\n", \
+			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
 	case 0x3C:
 		printf("PS2OS: RFU060(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);\r\n", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
@@ -2248,7 +2332,7 @@ void (*CPS2OS::m_pSysCall[0x80])() =
 	//0x28
 	sc_Unhandled,			sc_ChangeThreadPriority,	sc_Unhandled,		sc_RotateThreadReadyQueue,	sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_GetThreadId,
 	//0x30
-	sc_ReferThreadStatus,	sc_Unhandled,				sc_SleepThread,		sc_WakeupThread,			sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_ReferThreadStatus,	sc_Unhandled,				sc_SleepThread,		sc_WakeupThread,			sc_WakeupThread,	sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x38
 	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_RFU060,			sc_RFU061,			sc_EndOfHeap,		sc_Unhandled,
 	//0x40
@@ -2326,7 +2410,7 @@ unsigned int CPS2OS::CRoundRibbon::Insert(uint32 nValue, uint32 nWeight)
 			continue;
 		}
 
-		if(pNode->nWeight < pNext->nWeight)
+		if(pNode->nWeight > pNext->nWeight)
 		{
 			pNext = NULL;
 			continue;

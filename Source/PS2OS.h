@@ -208,9 +208,11 @@ private:
 	static void									AssembleDmacHandler();
 	static void									AssembleIntcHandler();
 	static void									AssembleThreadEpilog();
+	static void									AssembleWaitThreadProc();
 
 	static uint32*								GetCustomSyscallTable();
 
+	static void									CreateWaitThread();
 	static uint32								GetCurrentThreadId();
 	static void									SetCurrentThreadId(uint32);
 	static uint32								GetNextAvailableThreadId();

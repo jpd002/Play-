@@ -439,7 +439,8 @@ uint32 CVIF::CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
 		return 0;
 		break;
 	case 0x50:
-		//DIRECT
+	case 0x51:
+		//DIRECT/DIRECTHL
 		return Cmd_DIRECT(nCommand, nAddress, nSize);
 		break;
 	default:
@@ -450,6 +451,8 @@ uint32 CVIF::CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
 
 uint32 CVIF::CVPU1::Cmd_DIRECT(CODE nCommand, uint32 nAddress, uint32 nSize)
 {
+	nSize = min(m_CODE.nIMM * 0x10, nSize);
+
 	CGIF::ProcessPacket(CPS2VM::m_pRAM, nAddress, nAddress + nSize);
 
 	m_CODE.nIMM -= (nSize / 0x10);

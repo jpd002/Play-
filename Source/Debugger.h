@@ -42,6 +42,7 @@ private:
 	void							StartShift64OpTest();
 	void							StartSplitLoadOpTest();
 	void							StartAddition64OpTest();
+	void							StartSetLessThanOpTest();
 	void							Resume();
 	void							StepCPU1();
 	void							FindValue();

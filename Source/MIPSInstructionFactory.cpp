@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stddef.h>
 #include "MIPSInstructionFactory.h"
 #include "MIPS.h"
 #include "PtrMacro.h"
@@ -106,6 +107,36 @@ void CMIPSInstructionFactory::BranchLikely(bool nCondition)
 
 	m_pB->SetProgramCounterChanged();
 	m_pB->SetDelayedJumpCheck();
+}
+
+void CMIPSInstructionFactory::ComputeMemAccessAddrEx()
+{
+	uint8 nRS;
+	uint16 nImmediate;
+
+	nRS			= (uint8) ((m_nOpcode >> 21) & 0x001F);
+	nImmediate	= (uint16)((m_nOpcode >>  0) & 0xFFFF);
+
+	//TODO: Compute the complete 64-bit address
+
+	//Translate the address
+
+	//Push context
+	CCodeGen::PushRef(m_pCtx);
+
+	//Push high part
+	CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[1]));
+
+	//Push low part of address
+	CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
+	if(nImmediate != 0)
+	{
+		CCodeGen::PushCst((int16)nImmediate);
+		CCodeGen::Add();
+	}
+
+	//Call
+	CCodeGen::Call(m_pCtx->m_pAddrTranslator, 3, true);
 }
 
 void CMIPSInstructionFactory::BranchEx(bool nCondition)

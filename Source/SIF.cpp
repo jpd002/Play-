@@ -10,6 +10,7 @@
 #include "IOP_DbcMan.h"
 #include "IOP_LibSD.h"
 #include "IOP_Cdvdfsv.h"
+#include "IOP_Dummy.h"
 
 #define		CMD_RECVADDR		0x00001000
 #define		RPC_RECVADDR		0xDEADBEEF
@@ -47,6 +48,7 @@ void CSIF::Reset()
 	//Create modules that have multiple RPC IDs
 	m_pPadMan = new IOP::CPadMan();
 
+	m_Module.Insert(new IOP::CDummy,								IOP::CDummy::MODULE_ID);
 	m_Module.Insert(new IOP::CFileIO,								IOP::CFileIO::MODULE_ID);
 	m_Module.Insert(new IOP::CSysMem,								IOP::CSysMem::MODULE_ID);
 	m_Module.Insert(new IOP::CLoadFile,								IOP::CLoadFile::MODULE_ID);

@@ -259,9 +259,6 @@ void CGSH_OpenGL::SetReadCircuitMatrix(int nWidth, int nHeight)
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-//	glOrtho(0, nWidth, nHeight, 0, 0, -1.0);
-//	glOrtho(0, nWidth, nHeight, 0, -1.0, -65536.0);
-//	glOrtho(0, nWidth, nHeight, 0, 0.01, 1000);
 
 	LinearZOrtho(0, nWidth, nHeight, 0);
 
@@ -846,6 +843,7 @@ void CGSH_OpenGL::Prim_Sprite()
 	}
 	else if(!m_PrimitiveMode.nTexture)
 	{
+		/*
 		//Humm? Would it be possible to have a gradient using those registers?
 		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
 		//glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
@@ -858,6 +856,7 @@ void CGSH_OpenGL::Prim_Sprite()
 			glVertex3d(nX1, nY2, nZ2);
 
 		glEnd();
+		*/
 	}
 	else
 	{

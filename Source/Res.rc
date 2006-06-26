@@ -82,6 +82,7 @@ BEGIN
             MENUITEM "Shift Operations Test",       ID_VM_TEST_SHIFT
             MENUITEM "Split Load Operations Test",  ID_VM_TEST_SPLITLOAD
             MENUITEM "64-bit Addition Operations Test", ID_VM_TEST_ADD64
+            MENUITEM "SLT Operations Test",         ID_VM_TEST_SLT
         END
     END
     POPUP "&View"

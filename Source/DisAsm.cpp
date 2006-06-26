@@ -229,7 +229,7 @@ void CDisAsm::FindCallers()
 	for(i = 0; i < CPS2VM::RAMSIZE / 4; i++)
 	{
 		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
-		if((nVal & 0xFC000000) == 0x0C000000)
+		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
 		{
 			nVal &= 0x3FFFFFF;
 			nVal *= 4;

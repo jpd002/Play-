@@ -80,7 +80,7 @@ long CCallStackWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 		break;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 void CCallStackWnd::RefreshLayout()

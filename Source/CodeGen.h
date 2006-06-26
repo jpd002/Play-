@@ -37,9 +37,12 @@ public:
 	static void					PushCst(uint32);
 	static void					PushRef(void*);
 	static void					PushRel(size_t);
+	static void					PushTop();
+	static void					PushIdx(unsigned int);
 
 	static void					PullVar(uint32*);
 	static void					PullRel(size_t);
+	static void					PullTop();
 
 	static void					Add();
 	static void					Add64();
@@ -64,7 +67,11 @@ private:
 
 	enum MAX_REGISTER
 	{
+#ifdef AMD64
+		MAX_REGISTER = 14,
+#else
 		MAX_REGISTER = 6,
+#endif
 	};
 
 	enum REL_REGISTER
@@ -91,6 +98,7 @@ private:
 	{
 		REGISTER_NORMAL,
 		REGISTER_HASLOW,
+		REGISTER_SAVED,
 	};
 
 	static unsigned int			AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
@@ -99,12 +107,22 @@ private:
 	static bool					RegisterHasNextUse(unsigned int);
 	static void					LoadVariableInRegister(unsigned int, uint32);
 	static void					LoadRelativeInRegister(unsigned int, uint32);
+	static void					LoadConstantInRegister(unsigned int, uint32);
+	static void					CopyRegister(unsigned int, unsigned int);
+#ifdef AMD64
+	static void					LoadRelativeInRegister64(unsigned int, uint32);
+	static void					LoadConstantInRegister64(unsigned int, uint64);
+#endif
+
 	static void					WriteRelativeRm(unsigned int, uint32);
+	static void					WriteRelativeRmRegister(unsigned int, uint32);
+	static void					WriteRelativeRmFunction(unsigned int, uint32);
 
 	static bool					IsTopRegCstPairCom();
 	static void					GetRegCstPairCom(unsigned int*, uint32*);
 
 	static void					PushReg(unsigned int);
+	static void					ReplaceRegisterInStack(unsigned int, unsigned int);
 
 	static void					Cmp64Eq();
 	static void					Cmp64Lt(bool);
