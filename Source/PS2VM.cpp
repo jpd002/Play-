@@ -6,6 +6,7 @@
 #include "GIF.h"
 #include "SIF.h"
 #include "VIF.h"
+#include "Timer.h"
 #include "MA_EE.h"
 #include "MA_VU.h"
 #include "COP_SCU.h"
@@ -58,7 +59,6 @@ CEvent<int>		CPS2VM::m_OnNewFrame;
 CLogControl		CPS2VM::m_Logging;
 CPS2OS*			CPS2VM::m_pOS						= NULL;
 CISO9660*		CPS2VM::m_pCDROM0					= NULL;
-uint32			CPS2VM::m_T0_COUNT					= 0;
 
 //////////////////////////////////////////////////
 //Various Message Functions
@@ -261,7 +261,8 @@ void CPS2VM::ResetVM()
 	CVIF::Reset();
 	CDMAC::Reset();
 	CINTC::Reset();
-	
+	CTimer::Reset();
+
 	if(m_pGS != NULL)
 	{
 		m_pGS->Reset();
@@ -431,7 +432,11 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 {
-	if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
+	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
+	{
+		CTimer::SetRegister(nAddress, nData);
+	}
+	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
 		CIPU::SetRegister(nAddress, nData);
 	}
@@ -468,7 +473,11 @@ void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 
 uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 {
-	if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
+	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
+	{
+		return CTimer::GetRegister(nAddress);
+	}
+	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
 		return CIPU::GetRegister(nAddress);
 	}
@@ -641,7 +650,7 @@ void* CPS2VM::EmuThread(void* pParam)
 				{
 					nRet = m_EE.Execute(5000);
 					m_nVBlankTicks -= (5000 - m_EE.m_nQuota);
-					m_T0_COUNT += (5000 - m_EE.m_nQuota);
+					CTimer::Count(5000 - m_EE.m_nQuota);
 					if((int)m_nVBlankTicks <= 0)
 					{
 						m_nInVBlank = !m_nInVBlank;

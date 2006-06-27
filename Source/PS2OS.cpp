@@ -651,6 +651,18 @@ void CPS2OS::AssembleInterruptHandler()
 	Asm.JALR(CMIPS::T0);
 	Asm.NOP();
 
+	//Check if INT11 (Timer2)
+	Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0800);
+	Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
+	Asm.NOP();
+
+	//Process handlers
+	Asm.LUI(CMIPS::T0, 0x1FC0);
+	Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+	Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x000B);
+	Asm.JALR(CMIPS::T0);
+	Asm.NOP();
+
 	//Restore EPC
 	Asm.LW(CMIPS::T0, 0x0200, CMIPS::K0);
 	Asm.MTC0(CMIPS::T0, CCOP_SCU::EPC);

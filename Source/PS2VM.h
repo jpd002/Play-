@@ -153,8 +153,6 @@ private:
 	static CThreadMsg				m_MsgBox;
 
 	static CPS2OS*					m_pOS;
-
-	static uint32					m_T0_COUNT;
 };
 
 #endif

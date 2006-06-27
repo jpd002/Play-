@@ -165,6 +165,8 @@ uint32 CDMAC::ReceiveSPRDMA(uint32 nSrcAddress, uint32 nCount, bool nTagIncluded
 
 uint32 CDMAC::GetRegister(uint32 nAddress)
 {
+	DisassembleGet(nAddress);
+
 	switch(nAddress)
 	{
 	case D1_CHCR + 0x0:
@@ -266,8 +268,6 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		printf("DMAC: Read to an unhandled IO port (0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, CPS2VM::m_EE.m_State.nPC);
 		break;
 	}
-
-	DisassembleGet(nAddress);
 
 	return 0;
 }

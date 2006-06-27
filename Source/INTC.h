@@ -18,6 +18,7 @@ public:
 		INTC_LINE_DMAC			= 1,
 		INTC_LINE_VBLANK_START	= 2,
 		INTC_LINE_VBLANK_END	= 3,
+		INTC_LINE_TIMER2		= 11,
 	};
 
 	static void		Reset();

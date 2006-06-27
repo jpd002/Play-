@@ -100,7 +100,7 @@ void CCOP_SCU::ERET()
 	CCodeGen::Begin(m_pB);
 	{
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-		CCodeGen::PushCst(0x02);
+		CCodeGen::PushCst(0x04);
 		CCodeGen::And();
 		
 		CCodeGen::PushCst(0x00);
@@ -108,23 +108,29 @@ void CCOP_SCU::ERET()
 
 		CCodeGen::BeginIfElse(false);
 		{
-			//EXL bit was set
-			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[EPC]));
+			//ERL bit was set
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[ERROREPC]));
 			CCodeGen::PullRel(offsetof(CMIPS, m_State.nPC));
+
+			//Clear ERL bit
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+			CCodeGen::PushCst(~0x04);
+			CCodeGen::And();
+			CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 		}
 		CCodeGen::BeginIfElseAlt();
 		{
 			//EXL bit wasn't set, we assume ERL was (unsafe)
-			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[ERROREPC]));
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[EPC]));
 			CCodeGen::PullRel(offsetof(CMIPS, m_State.nPC));
+
+			//Clear EXL bit
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+			CCodeGen::PushCst(~0x02);
+			CCodeGen::And();
+			CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 		}
 		CCodeGen::EndIf();
-
-		//Clear both EXL and ERL bits
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-		CCodeGen::PushCst(~0x06);
-		CCodeGen::And();
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 
 		m_pB->SetProgramCounterChanged();
 	}
