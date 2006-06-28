@@ -34,11 +34,13 @@ private:
 
 	void						OnListDblClick();
 	void						OnNewClick();
+	void						OnRenameClick();
 	void						OnDeleteClick();
 	void						OnImportClick();
 
 	Framework::CListView*		m_pList;
 	Framework::CButton*			m_pNew;
+	Framework::CButton*			m_pRename;
 	Framework::CButton*			m_pDelete;
 	Framework::CButton*			m_pImport;
 

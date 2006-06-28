@@ -919,7 +919,10 @@ void CPS2OS::ElectThread(uint32 nID)
 		m_pCtx->m_State.nGPR[i] = pContext->nGPR[i];
 	}
 
-	printf("PS2OS: New thread elected (id = %i).\r\n", nID);
+	if(CPS2VM::m_Logging.GetOSLoggingStatus())
+	{
+		printf("PS2OS: New thread elected (id = %i).\r\n", nID);
+	}
 }
 
 uint32 CPS2OS::GetNextReadyThread()

@@ -44,12 +44,14 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 	CreateListColumns();
 
 	m_pNew		= new CButton(_X("New..."), m_hWnd, &rc);
+	m_pRename	= new CButton(_X("Rename..."), m_hWnd, &rc);
 	m_pDelete	= new CButton(_X("Delete"), m_hWnd, &rc);
 	m_pImport	= new CButton(_X("Load ELF symbols"), m_hWnd, &rc);
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
 	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pNew));
+	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pRename));
 	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
 	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pImport));
 
@@ -103,6 +105,10 @@ long CFunctionsView::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSe
 	if(hSender == m_pNew->m_hWnd)
 	{
 		OnNewClick();
+	}
+	if(hSender == m_pRename->m_hWnd)
+	{
+		OnRenameClick();
 	}
 	if(hSender == m_pDelete->m_hWnd)
 	{
@@ -266,12 +272,49 @@ void CFunctionsView::OnNewClick()
 
 	if(bQuit) return;
 
-	xconvert(sName, sNameX, 256);
+	xconvert(sName, sNameX, countof(sName));
 
 	m_pCtx->m_Functions.InsertTag(nAddress, sName);
 
 	RefreshList();
 	m_OnFunctionsStateChange.Notify(NULL);
+}
+
+void CFunctionsView::OnRenameClick()
+{
+	int nItem;
+	uint32 nAddress;
+	const char* sName;
+	xchar sNameX[256];
+
+	const xchar* sNewNameX;
+	char sNewName[256];
+
+	nItem = m_pList->GetSelection();
+	if(nItem == -1) return;
+	
+	nAddress = m_pList->GetItemData(nItem);
+	sName = m_pCtx->m_Functions.Find(nAddress);
+
+	if(sName == NULL)
+	{
+		//WTF?
+		return;
+	}
+
+	xconvert(sNameX, sName, countof(sNameX));
+
+	CInputBox RenameInput(_X("Rename Function"), _X("New Function Name:"), sNameX);
+	sNewNameX = RenameInput.GetValue(m_hWnd);
+	
+	if(sNewNameX == NULL) return;
+
+	xconvert(sNewName, sNewNameX, countof(sNewName));
+
+	m_pCtx->m_Functions.InsertTag(nAddress, sNewName);
+	RefreshList();
+
+	m_OnFunctionsStateChange.Notify(NULL);	
 }
 
 void CFunctionsView::OnImportClick()

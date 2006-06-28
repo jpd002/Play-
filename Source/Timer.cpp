@@ -12,6 +12,7 @@ void CTimer::Reset()
 
 void CTimer::Count(unsigned int nCycles)
 {
+/*
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		TIMER* pTimer;
@@ -47,13 +48,13 @@ void CTimer::Count(unsigned int nCycles)
 		}
 
 		pTimer->nCOUNT = nNext;
-/*
-		if(pTimer->nCOUNT >= 0xFFFF)
-		{
-			pTimer->nMODE |= 0x800;
-			pTimer->nCOUNT &= 0xFFFF;
-		}
-*/
+
+//		if(pTimer->nCOUNT >= 0xFFFF)
+//		{
+//			pTimer->nMODE |= 0x800;
+//			pTimer->nCOUNT &= 0xFFFF;
+//		}
+
 		if(i == 2)
 		{
 			uint32 nMask;
@@ -64,6 +65,7 @@ void CTimer::Count(unsigned int nCycles)
 			}
 		}
 	}
+*/
 }
 
 uint32 CTimer::GetRegister(uint32 nAddress)

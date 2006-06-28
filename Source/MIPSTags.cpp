@@ -45,7 +45,7 @@ void CMIPSTags::RemoveTags()
 	}
 }
 
-char* CMIPSTags::Find(uint32 nAddress)
+const char* CMIPSTags::Find(uint32 nAddress)
 {
 	return m_Tag.Find(nAddress);
 }

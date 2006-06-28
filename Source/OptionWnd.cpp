@@ -68,7 +68,8 @@ long COptionWnd<T>::OnNotify(WPARAM wParam, NMHDR* pH)
 			}
 		}
 	}
-	return TRUE;
+
+	return FALSE;
 }
 
 template <typename T>

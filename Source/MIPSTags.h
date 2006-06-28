@@ -11,7 +11,7 @@ public:
 								~CMIPSTags();
 	void						InsertTag(uint32, char*);
 	void						RemoveTags();
-	char*						Find(uint32);
+	const char*					Find(uint32);
 	void						Serialize(char*);
 	void						Unserialize(char*);
 

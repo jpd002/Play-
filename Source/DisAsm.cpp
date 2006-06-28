@@ -183,7 +183,7 @@ void CDisAsm::EditComment()
 	xchar sTemp[256];
 	const xchar* sValue;
 	char sConvert[256];
-	char* sComment;
+	const char* sComment;
 
 	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
 	{
@@ -606,7 +606,7 @@ void CDisAsm::Paint(HDC hDC)
 	uint32 nData, nAddress, nEffAddr;
 	xchar sTemp[256];
 	char sDisAsm[256];
-	char* sTag;
+	const char* sTag;
 	int nLines, i;
 	unsigned int nY;
 	bool nCommentDrawn;
