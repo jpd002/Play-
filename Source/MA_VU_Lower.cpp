@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "MA_VU.h"
 #include "MIPS.h"
 #include "VIF.h"
@@ -288,6 +289,27 @@ void CMA_VU::CLower::B()
 	CCodeGen::End();
 }
 
+//25
+void CMA_VU::CLower::JALR()
+{
+	CCodeGen::Begin(m_pB);
+	{
+		//Save PC
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nPC));
+		CCodeGen::PushCst(0x0C);
+		CCodeGen::Add();
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+
+		//Compute new PC
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+		CCodeGen::Shl(3);
+		CCodeGen::PushCst(0x4000);
+		CCodeGen::Add();
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+	}
+	CCodeGen::End();
+}
+
 //28
 void CMA_VU::CLower::IBEQ()
 {
@@ -327,6 +349,38 @@ void CMA_VU::CLower::IBLTZ()
 		CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
 
 		SetBranchAddressEx(false, VUShared::GetBranch(m_nImm11) + 4);
+	}
+	CCodeGen::End();
+}
+
+//2D
+void CMA_VU::CLower::IBGTZ()
+{
+	CCodeGen::Begin(m_pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+		CCodeGen::SeX16();
+
+		CCodeGen::PushCst(0);
+		CCodeGen::Cmp(CCodeGen::CONDITION_GT);
+	
+		SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
+	}
+	CCodeGen::End();
+}
+
+//2E
+void CMA_VU::CLower::IBLEZ()
+{
+	CCodeGen::Begin(m_pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+		CCodeGen::SeX16();
+
+		CCodeGen::PushCst(0);
+		CCodeGen::Cmp(CCodeGen::CONDITION_LE);
+	
+		SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
 	}
 	CCodeGen::End();
 }
@@ -583,6 +637,27 @@ void CMA_VU::CLower::RGET()
 //Vector2 Instructions
 //////////////////////////////////////////////////
 
+//0F
+void CMA_VU::CLower::ILWR()
+{
+	CCodeGen::Begin(m_pB);
+	{
+		//Push context
+		CCodeGen::PushRef(m_pCtx);
+
+		//Compute Address
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+		CCodeGen::Shl(4);
+		CCodeGen::PushCst(GetDestOffset(m_nDest));
+		CCodeGen::Add();
+
+		CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
+
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	CCodeGen::End();
+}
+
 //10
 void CMA_VU::CLower::RINIT()
 {
@@ -663,9 +738,9 @@ void (*CMA_VU::CLower::m_pOpGeneral[0x80])() =
 	//0x18
 	Illegal,		Illegal,		FMAND,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x20
-	B,				Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	B,				Illegal,		Illegal,		Illegal,		Illegal,		JALR,			Illegal,		Illegal,
 	//0x28
-	IBEQ,			IBNE,			Illegal,		Illegal,		IBLTZ,			Illegal,		Illegal,		IBGEZ,
+	IBEQ,			IBNE,			Illegal,		Illegal,		IBLTZ,			IBGTZ,			IBLEZ,			IBGEZ,
 	//0x30
 	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x38
@@ -737,7 +812,7 @@ void (*CMA_VU::CLower::m_pOpVector2[0x20])() =
 	//0x00
 	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		ILWR,
 	//0x10
 	RINIT,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x18

@@ -402,6 +402,9 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 		case 2:
 			nFunc = GL_LESS;
 			break;
+		case 6:
+			nFunc = GL_GREATER;
+			break;
 		case 7:
 			nFunc = GL_NOTEQUAL;
 			break;
@@ -413,6 +416,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 		nValue = (float)tst.nAlphaRef / 255.0f;
 		glAlphaFunc(nFunc, nValue);
 
+		//REMOVE
 		glEnable(GL_ALPHA_TEST);
 
 	}
@@ -825,6 +829,7 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		glBegin(GL_QUADS);
 		{
+			//glColor4d(1.0, 1.0, 1.0, 1.0);
 			glTexCoord2d(nU1, nV1);
 			glVertex3d(nX1, nY1, nZ1);
 
@@ -834,6 +839,7 @@ void CGSH_OpenGL::Prim_Sprite()
 			glTexCoord2d(nU2, nV2);
 			glVertex3d(nX2, nY2, nZ1);
 
+			//glColor4d(1.0, 0.0, 1.0, 1.0);
 			glTexCoord2d(nU1, nV2);
 			glVertex3d(nX1, nY2, nZ2);
 		}
@@ -843,6 +849,7 @@ void CGSH_OpenGL::Prim_Sprite()
 	}
 	else if(!m_PrimitiveMode.nTexture)
 	{
+		//REMOVE
 		/*
 		//Humm? Would it be possible to have a gradient using those registers?
 		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
@@ -922,6 +929,18 @@ void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
 	case GS_REG_XYZF2:
 	case GS_REG_XYZF3:
 		VertexKick(nRegister, nData);
+		break;
+
+	case GS_REG_TEX2_1:
+	case GS_REG_TEX2_2:
+		{
+			unsigned int nContext;
+			const uint64 nMask = 0xFFFFFFE003F00000;
+
+			nContext = nRegister - GS_REG_TEX2_1;
+			m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
+			m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
+		}
 		break;
 
 	case GS_REG_FOGCOL:

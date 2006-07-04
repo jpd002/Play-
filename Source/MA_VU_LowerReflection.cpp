@@ -123,6 +123,17 @@ void CMA_VU::CLower::ReflOpIdIsIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddr
 	sprintf(sText, "VI%i, VI%i, VI%i", nID, nIS, nIT);
 }
 
+void CMA_VU::CLower::ReflOpItIsDst(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8 nIT, nIS, nDest;
+
+	nDest	= (uint8 )((nOpcode >> 21) & 0x000F);
+	nIT		= (uint8 )((nOpcode >> 16) & 0x001F);
+	nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	sprintf(sText, "VI%i, (VI%i)%s", nIT, nIS, m_sDestination[nDest]);
+}
+
 void CMA_VU::CLower::ReflOpItOfsIsDst(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nIT, nIS, nDest;
@@ -277,6 +288,15 @@ uint32 CMA_VU::CLower::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAd
 	return (nAddress + GetBranch(nImm));
 }
 
+uint32 CMA_VU::CLower::ReflEaIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+{
+	uint8 nIS;
+
+	nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	return pCtx->m_State.nCOP2VI[nIS] & 0xFFFF;
+}
+
 INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 {
 	//0x00
@@ -321,7 +341,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"JALR",		NULL,			CopyMnemonic,		ReflOpItIs,			IsBranch,			ReflEaIs		},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x28
@@ -330,8 +350,8 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"IBLTZ",	NULL,			CopyMnemonic,		ReflOpIsOfs,		IsBranch,			ReflEaOffset	},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"IBGTZ",	NULL,			CopyMnemonic,		ReflOpIsOfs,		IsBranch,			ReflEaOffset	},
+	{	"IBLEZ",	NULL,			CopyMnemonic,		ReflOpIsOfs,		IsBranch,			ReflEaOffset	},
 	{	"IBGEZ",	NULL,			CopyMnemonic,		ReflOpIsOfs,		IsBranch,			ReflEaOffset	},
 	//0x30
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -600,7 +620,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ILWR",		NULL,			CopyMnemonic,		ReflOpItIsDst,		NULL,				NULL			},
 	//0x10
 	{	"RINIT",	NULL,			CopyMnemonic,		ReflOpRFsf,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

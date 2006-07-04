@@ -20,6 +20,8 @@ public:
 		CONDITION_BE,
 		CONDITION_LT,
 		CONDITION_AB,
+		CONDITION_GT,
+		CONDITION_LE,
 	};
 
 	friend						CodeGen::CFPU;
@@ -113,6 +115,8 @@ private:
 	static void					LoadRelativeInRegister64(unsigned int, uint32);
 	static void					LoadConstantInRegister64(unsigned int, uint64);
 #endif
+
+	static void					LoadConditionInRegister(unsigned int, CONDITION);
 
 	static void					WriteRelativeRm(unsigned int, uint32);
 	static void					WriteRelativeRmRegister(unsigned int, uint32);

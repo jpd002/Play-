@@ -160,6 +160,7 @@ private:
 		static void							ReflOpItIsImm5(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIdIsIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+		static void							ReflOpItIsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItOfsIsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpImm24(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpVi1Imm24(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -175,6 +176,7 @@ private:
 		static void							ReflOpFtP(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
 		static uint32						ReflEaOffset(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
+		static uint32						ReflEaIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
 
 		//General
 		static void							LQ();
@@ -187,9 +189,12 @@ private:
 		static void							FCAND();
 		static void							FMAND();
 		static void							B();
+		static void							JALR();
 		static void							IBEQ();
 		static void							IBNE();
 		static void							IBLTZ();
+		static void							IBGTZ();
+		static void							IBLEZ();
 		static void							IBGEZ();
 		static void							LOWEROP();
 
@@ -220,6 +225,7 @@ private:
 		static void							RGET();
 
 		//Vector2
+		static void							ILWR();
 		static void							RINIT();
 		static void							ERCPR();
 

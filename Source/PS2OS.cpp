@@ -287,13 +287,13 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 //	pELF = new CELF(pStream);
 //	memcpy(CPS2VM::m_pRAM + 0x01000000, pELF->m_pData, pELF->m_nLenght);
 //	delete pELF;
-/*
+
 	int i;
 	uint32 nVal;
 	for(i = 0; i < 0x02000000 / 4; i++)
 	{
 		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
-		if((nVal & 0xFFFF) == 0x9B70)
+		if((nVal & 0xFFFF) == 0x6728)
 		{
 			//if((nVal & 0xFC000000) != 0x0C000000)
 			{
@@ -301,7 +301,7 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 			}
 		}
 	}
-*/
+
 /*
 	int i;
 	uint32 nVal;
@@ -1943,6 +1943,9 @@ void CPS2OS::sc_SetVSyncFlag()
 
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+
+	//Force reschedule
+	ElectThread(GetNextReadyThread());
 }
 
 //74
@@ -1998,6 +2001,9 @@ void CPS2OS::sc_SifSetDma()
 		CDMAC::SetRegister(CDMAC::D6_QWC,	nSize);
 		CDMAC::SetRegister(CDMAC::D6_CHCR,	0x00000100);
 	}
+
+	//Force reschedule
+	ElectThread(GetNextReadyThread());
 }
 
 //78

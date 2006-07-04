@@ -141,7 +141,10 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		break;
 	}
 
-	//DumpTexture(nWidth, nHeight);
+	if(pReg0->nPsm == PSMT8)
+	{
+		//DumpTexture(nWidth, nHeight);
+	}
 
 	//
 	/*
@@ -200,8 +203,8 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 
 void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
 {
-	assert(pTex0->nCSA == 0);
-	assert(pTex0->nCLD == 1);
+	//assert(pTex0->nCSA == 0);
+	//assert(pTex0->nCLD == 1);
 
 	if(pTex0->nCSM == 1)
 	{
@@ -220,7 +223,7 @@ void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
 
 		for(unsigned int i = 0; i < 0x10; i++)
 		{
-			(*pDst++) = *(Indexor.GetPixel(nOffsetX + i, nOffsetY));
+			(*pDst++) = Indexor.GetPixel(nOffsetX + i, nOffsetY);
 		}
 	}
 	else
@@ -236,7 +239,7 @@ void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
 			{
 				for(unsigned int i = 0; i < 8; i++)
 				{
-					(*pDst++) = *(Indexor.GetPixel(i, j));
+					(*pDst++) = Indexor.GetPixel(i, j);
 				}
 			}
 		}
@@ -251,7 +254,7 @@ void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
 			{
 				for(unsigned int i = 0; i < 8; i++)
 				{
-					(*pDst++) = *(Indexor.GetPixel(i, j));
+					(*pDst++) = Indexor.GetPixel(i, j);
 				}
 			}
 		}
@@ -280,7 +283,7 @@ void CGSH_OpenGL::ReadCLUT8(GSTEX0* pTex0)
 			{
 				nIndex = i + (j * 16);
 				nIndex = (nIndex & ~0x18) | ((nIndex & 0x08) << 1) | ((nIndex & 0x10) >> 1);
-				m_pCLUT32[nIndex] = *(Indexor.GetPixel(i, j));
+				m_pCLUT32[nIndex] = Indexor.GetPixel(i, j);
 			}
 		}
 	}
@@ -294,7 +297,7 @@ void CGSH_OpenGL::ReadCLUT8(GSTEX0* pTex0)
 			{
 				nIndex = i + (j * 16);
 				nIndex = (nIndex & ~0x18) | ((nIndex & 0x08) << 1) | ((nIndex & 0x10) >> 1);
-				m_pCLUT16[nIndex] = *(Indexor.GetPixel(i, j));
+				m_pCLUT16[nIndex] = Indexor.GetPixel(i, j);
 			}
 		}
 	}
@@ -322,7 +325,7 @@ void CGSH_OpenGL::TexUploader_Psm32(GSTEX0* pReg0, GSTEXA* pTexA)
 	{
 		for(i = 0; i < nWidth; i++)
 		{
-			pDst[i] = *(Indexor.GetPixel(i, j));
+			pDst[i] = Indexor.GetPixel(i, j);
 		}
 
 		pDst += nDstPitch;
@@ -408,6 +411,73 @@ void CGSH_OpenGL::TexUploader_Psm8_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT, nWidth, nHeight, 0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, m_pRAM + nPointer);
 }
 
+template <> uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT8>::GetPixel(unsigned int nX, unsigned int nY)
+{
+	typedef CGSHandler::STORAGEPSMT8 Storage;
+
+	unsigned int nByte, nTable;
+
+	static unsigned int nColSwizzleTable[2][2][8] =
+	{
+		{
+			{	0,	1,	4,	5,	8,	9,	12,	13,	},
+			{	2,	3,	6,	7,	10,	11,	14,	15,	},
+		},
+		{
+			{	8,	9,	12,	13,	0,	1,	4,	5,	},
+			{	10,	11,	14,	15,	2,	3,	6,	7,	},
+		},
+	};
+
+	uint32 nPageNum, nBlockNum, nColumnNum, nOffset;
+
+	nPageNum = (nX / Storage::PAGEWIDTH) + (nY / Storage::PAGEHEIGHT) * (m_nWidth * 64) / Storage::PAGEWIDTH;
+
+	nX %= Storage::PAGEWIDTH;
+	nY %= Storage::PAGEHEIGHT;
+
+	nBlockNum = Storage::m_nBlockSwizzleTable[nY / Storage::BLOCKHEIGHT][nX / Storage::BLOCKWIDTH];
+
+	nX %= Storage::BLOCKWIDTH;
+	nY %= Storage::BLOCKHEIGHT;
+
+	nColumnNum = (nY / Storage::COLUMNHEIGHT);
+
+	nY %= Storage.COLUMNHEIGHT;
+
+	nOffset = m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE);
+	nOffset &= (RAMSIZE - 1);
+
+	if((nX < 8) && (nY < 2))
+	{
+		nByte = 0;
+		nTable = 0;
+	}
+	else if((nX >= 8) && (nY < 2))
+	{
+		nByte = 2;
+		nTable = 0;
+	}
+	else if((nX < 8) && (nY >= 2))
+	{
+		nByte = 1;
+		nTable = 1;
+	}
+	else
+	{
+		nByte = 3;
+		nTable = 1;
+	}
+
+	if(nColumnNum & 0x01) nTable ^= 0x01;
+
+	nX &= 0x7;
+	nY &= 0x1;
+
+	return ((uint8*)&m_pMemory[nOffset])[nColSwizzleTable[nTable][nY][nX] * 4 + nByte];
+	//return &((uint8*)&m_pMemory[nOffset])[Storage::m_nColumnSwizzleTable[nY][nX]];
+}
+
 void CGSH_OpenGL::TexUploader_Psm8_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 {
 	unsigned int nWidth, nHeight, nDstPitch, i, j;
@@ -431,8 +501,9 @@ void CGSH_OpenGL::TexUploader_Psm8_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 		{
 			for(i = 0; i < nWidth; i++)
 			{
-				nPixel = *(Indexor.GetPixel(i, j));
+				nPixel = Indexor.GetPixel(i, j);
 				pDst[i] = m_pCLUT32[nPixel];
+				//pDst[i] = (nPixel) | (nPixel << 8) | (nPixel << 16) | 0xFF000000;
 			}
 
 			pDst += nDstPitch;
@@ -444,7 +515,7 @@ void CGSH_OpenGL::TexUploader_Psm8_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 		{
 			for(i = 0; i < nWidth; i++)
 			{
-				nPixel = *(Indexor.GetPixel(i, j));
+				nPixel = Indexor.GetPixel(i, j);
 				pDst[i] = RGBA16ToRGBA32(m_pCLUT16[nPixel]);
 			}
 
@@ -572,11 +643,21 @@ void CGSH_OpenGL::TexUploader_Psm4_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 	{
 		for(j = 0; j < nHeight; j++)
 		{
+			/*
 			for(i = 0; i < nWidth; i += 2)
 			{
 				nPixel = *(Indexor.GetPixel(i / 2, j));
-				pDst[i + 0] = m_pCLUT32[(nPixel >> 0x00) & 0x0F];
-				pDst[i + 1] = m_pCLUT32[(nPixel >> 0x04) & 0x0F];
+				//pDst[i + 0] = m_pCLUT32[(nPixel >> 0x00) & 0x0F];
+				//pDst[i + 1] = m_pCLUT32[(nPixel >> 0x04) & 0x0F];
+				pDst[i + 0] = 0xFFFF0000 | ((nPixel & 0x0F) << 12) | ((nPixel & 0x0F) << 4);
+				pDst[i + 1] = 0xFFFF0000 | ((nPixel & 0xF0) <<  8) | ((nPixel & 0xF0) << 0);
+			}
+			*/
+
+			for(i = 0; i < nWidth; i++)
+			{
+				nPixel = Indexor.GetPixel(i, j);
+				pDst[i] = 0xFFFF0000 | ((nPixel & 0x0F) << 12) | ((nPixel & 0x0F) << 4);
 			}
 
 			pDst += nDstPitch;
@@ -586,11 +667,10 @@ void CGSH_OpenGL::TexUploader_Psm4_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 	{
 		for(j = 0; j < nHeight; j++)
 		{
-			for(i = 0; i < nWidth; i += 2)
+			for(i = 0; i < nWidth; i++)
 			{
-				nPixel = *(Indexor.GetPixel(i / 2, j));
-				pDst[i + 0] = RGBA16ToRGBA32(m_pCLUT16[(nPixel >> 0x00) & 0x0F]);
-				pDst[i + 1] = RGBA16ToRGBA32(m_pCLUT16[(nPixel >> 0x04) & 0x0F]);
+				nPixel = Indexor.GetPixel(i, j);
+				pDst[i] = RGBA16ToRGBA32(m_pCLUT16[nPixel]);
 			}
 
 			pDst += nDstPitch;
@@ -631,7 +711,7 @@ void CGSH_OpenGL::TexUploader_Psm4H_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 		{
 			for(i = 0; i < nWidth; i++)
 			{
-				nPixel = *(Indexor.GetPixel(i, j));
+				nPixel = Indexor.GetPixel(i, j);
 				nPixel = (nPixel >> nShift) & 0x0F;
 				pDst[i] = m_pCLUT32[nPixel];
 			}
@@ -645,7 +725,7 @@ void CGSH_OpenGL::TexUploader_Psm4H_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 		{
 			for(i = 0; i < nWidth; i++)
 			{
-				nPixel = *(Indexor.GetPixel(i, j));
+				nPixel = Indexor.GetPixel(i, j);
 				nPixel = (nPixel >> nShift) & 0x0F;
 				pDst[i] = RGBA16ToRGBA32(m_pCLUT16[nPixel]);
 			}
@@ -687,7 +767,7 @@ void CGSH_OpenGL::TexUploader_Psm8H_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 		{
 			for(i = 0; i < nWidth; i++)
 			{
-				nPixel = *(Indexor.GetPixel(i, j));
+				nPixel = Indexor.GetPixel(i, j);
 				nPixel = (nPixel >> 24);
 				pDst[i] = m_pCLUT32[nPixel];
 			}
@@ -701,7 +781,7 @@ void CGSH_OpenGL::TexUploader_Psm8H_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 		{
 			for(i = 0; i < nWidth; i++)
 			{
-				nPixel = *(Indexor.GetPixel(i, j));
+				nPixel = Indexor.GetPixel(i, j);
 				nPixel = (nPixel >> 24);
 				pDst[i] = RGBA16ToRGBA32(m_pCLUT16[nPixel]);
 			}

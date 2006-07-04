@@ -61,6 +61,24 @@ int CGSHandler::STORAGEPSMCT16::m_nColumnSwizzleTable[2][16] =
 	{	4,	6,	12,	14,	20,	22,	28,	30,	5,	7,	13,	15,	21,	23,	29,	31,	},
 };
 
+int CGSHandler::STORAGEPSMCT16S::m_nBlockSwizzleTable[8][4] =
+{
+	{	0,	2,	16,	18,	},
+	{	1,	3,	17,	19,	},
+	{	8,	10,	24,	26,	},
+	{	9,	11,	25,	27,	},
+	{	4,	6,	20,	22,	},
+	{	5,	7,	21,	23,	},
+	{	12,	14,	28,	30,	},
+	{	13,	15,	29,	31,	},
+};
+
+int CGSHandler::STORAGEPSMCT16S::m_nColumnSwizzleTable[2][16] =
+{
+	{	0,	2,	8,	10,	16,	18,	24,	26,	1,	3,	9,	11,	17,	19,	25,	27,	},
+	{	4,	6,	12,	14,	20,	22,	28,	30,	5,	7,	13,	15,	21,	23,	29,	31,	},
+};
+
 int CGSHandler::STORAGEPSMT8::m_nBlockSwizzleTable[4][8] =
 {
 	{	0,	1,	4,	5,	16,	17,	20,	21	},
@@ -91,14 +109,16 @@ int CGSHandler::STORAGEPSMT4::m_nBlockSwizzleTable[8][4] =
 	{	21,	23,	29,	31,	}
 };
 
-//The values contained here aren't correct... I didn't bother since the contents of this
-//table depends of the column we're working with.
-int CGSHandler::STORAGEPSMT4::m_nColumnSwizzleTable[4][16] =
+int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 {
-	{	0,	1,	2,	3,	4,	5,	6,	7,	8,	9,	10,	11,	12,	13,	14,	15,	},
-	{	16,	17,	18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	},
-	{	32,	33,	34,	35,	36,	37,	38,	39,	40,	41,	42,	43,	44,	45,	46,	47,	},
-	{	48,	49,	50,	51,	52,	53,	54,	55,	56,	57,	58,	59,	60,	61,	62,	63,	},
+	{
+		{	0,	1,	4,	5,	8,	9,	12,	13,	},
+		{	2,	3,	6,	7,	10,	11,	14,	15,	},
+	},
+	{
+		{	8,	9,	12,	13,	0,	1,	4,	5,	},
+		{	10,	11,	14,	15,	2,	3,	6,	7,	},
+	},
 };
 
 CGSHandler::CGSHandler()
@@ -346,6 +366,7 @@ void CGSHandler::FeedImageData(void* pData, uint32 nLength)
 	pBuf = GetBitBltBuf();
 	if(pBuf->nDstPsm == 1) return;
 	((this)->*(m_pTransferHandler[pBuf->nDstPsm]))(pData, nLength);
+
 	m_TrxCtx.nSize -= nLength;
 
 	if(m_TrxCtx.nSize == 0)
@@ -371,7 +392,7 @@ void CGSHandler::FetchImagePSCMT16(uint16* pDst, uint32 nBufPos, uint32 nBufWidt
 	{
 		for(unsigned int i = 0; i < nWidth; i++)
 		{
-			pDst[i] = *(Indexor.GetPixel(i, j));
+			pDst[i] = Indexor.GetPixel(i, j);
 		}
 
 		pDst += (nWidth);
@@ -406,7 +427,7 @@ void CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
 		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-		*(Indexor.GetPixel(nX, nY)) = pSrc[i];
+		Indexor.SetPixel(nX, nY, pSrc[i]);
 
 		m_TrxCtx.nRRX++;
 		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
@@ -440,7 +461,7 @@ void CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
 		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-		pDstPixel = Indexor.GetPixel(nX, nY);
+		pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		nSrcPixel = (*(uint32*)&pSrc[i]) & 0x00FFFFFF;
 		(*pDstPixel) &= 0xFF000000;
 		(*pDstPixel) |= nSrcPixel;
@@ -456,6 +477,8 @@ void CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 
 void CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 {
+	//Gotta rewrite this
+
 	uint8* pSrc;
 	uint32 nX, nY;
 	TRXPOS* pTrxPos;
@@ -468,6 +491,8 @@ void CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 
 	CPixelIndexorPSMT4 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
+	assert(0);
+
 	pSrc = (uint8*)pData;
 
 	for(unsigned int i = 0; i < nLength; i++)
@@ -475,10 +500,10 @@ void CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
 		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-		*(Indexor.GetPixel(nX, nY)) = pSrc[i];
+//		*(Indexor.GetPixel(nX, nY)) = pSrc[i];
 
 		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == (pTrxReg->nRRW / 2))
+		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
 		{
 			m_TrxCtx.nRRX = 0;
 			m_TrxCtx.nRRY++;
@@ -513,7 +538,7 @@ void CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 
 		nSrcPixel = pSrc[i] & 0x0F;
 
-		pDstPixel = (Indexor.GetPixel(nX, nY));
+		pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		(*pDstPixel) &= ~nMask;
 		(*pDstPixel) |= (nSrcPixel << nShift);
 
@@ -530,7 +555,7 @@ void CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 
 		nSrcPixel = (pSrc[i] & 0xF0);
 
-		pDstPixel = (Indexor.GetPixel(nX, nY));
+		pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		(*pDstPixel) &= ~nMask;
 		(*pDstPixel) |= (nSrcPixel << (nShift - 4));
 
@@ -568,7 +593,7 @@ void CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 
 		nSrcPixel = pSrc[i];
 
-		pDstPixel = (Indexor.GetPixel(nX, nY));
+		pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		(*pDstPixel) &= ~0xFF000000;
 		(*pDstPixel) |= (nSrcPixel << 24);
 
@@ -822,6 +847,19 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			tex1.nMipBaseAddr, \
 			tex1.nLODL, \
 			tex1.nLODK);
+		break;
+	case GS_REG_TEX2_1:
+	case GS_REG_TEX2_2:
+		TEX2 tex2;
+		tex2 = *(TEX2*)&nData;
+		printf("GS: TEX2_%i(PSM: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
+			nRegister == GS_REG_TEX2_1 ? 1 : 2, \
+			tex2.nPsm, \
+			tex2.GetCLUTPtr(), \
+			tex2.nCPSM, \
+			tex2.nCSM, \
+			tex2.nCSA, \
+			tex2.nCLD);
 		break;
 	case GS_REG_XYOFFSET_1:
 	case GS_REG_XYOFFSET_2:

@@ -24,6 +24,8 @@ enum GS_REGS
 	GS_REG_XYZ3			= 0x0D,
 	GS_REG_TEX1_1		= 0x14,
 	GS_REG_TEX1_2		= 0x15,
+	GS_REG_TEX2_1		= 0x16,
+	GS_REG_TEX2_2		= 0x17,
 	GS_REG_XYOFFSET_1	= 0x18,
 	GS_REG_XYOFFSET_2	= 0x19,
 	GS_REG_PRMODECONT	= 0x1A,
@@ -286,6 +288,7 @@ protected:
 		uint32			GetBufWidth()	{ return nBufWidth * 64; };
 	};
 
+	//Reg 0x08/0x09
 	struct CLAMP
 	{
 		unsigned int	nWMS			: 2;
@@ -297,6 +300,21 @@ protected:
 		unsigned int	nReserved0		: 22;
 	};
 
+	//Reg 0x16/0x17
+	struct TEX2
+	{
+		unsigned int	nReserved0		: 20;
+		unsigned int	nPsm			: 6;
+		unsigned int	nReserved1		: 11;
+		unsigned int	nCBP			: 14;
+		unsigned int	nCPSM			: 4;
+		unsigned int	nCSM			: 1;
+		unsigned int	nCSA			: 5;
+		unsigned int	nCLD			: 3;
+		uint32			GetCLUTPtr()	{ return nCBP * 256; }
+	};
+
+	//Reg 0x3D
 	struct FOGCOL
 	{
 		unsigned int	nFCR			: 8;
@@ -306,6 +324,7 @@ protected:
 		unsigned int	nReserved1		: 32;
 	};
 
+	//Reg 0x3F
 	struct TEXCLUT
 	{
 		unsigned int	nCBW			: 6;
@@ -318,6 +337,7 @@ protected:
 		uint32			GetOffsetV()	{ return nCOV; }
 	};
 
+	//Reg 0x4C/0x4D
 	struct FRAME
 	{
 		unsigned int	nPtr			: 16;
@@ -328,6 +348,7 @@ protected:
 		uint32			GetWidth()		{ return nWidth * 64; }
 	};
 
+	//Reg 0x4E/0x4F
 	struct ZBUF
 	{
 		unsigned int	nPtr			: 9;
@@ -338,6 +359,7 @@ protected:
 		uint32			GetBasePtr()	{ return nPtr * 2048; }
 	};
 
+	//Reg 0x50
 	struct BITBLTBUF
 	{
 		unsigned int	nSrcPtr			: 14;
@@ -358,6 +380,7 @@ protected:
 		uint32			GetDstWidth()	{ return nDstWidth * 64; }
 	};
 
+	//Reg 0x51
 	struct TRXPOS
 	{
 		unsigned int	nSSAX			: 11;
@@ -371,6 +394,7 @@ protected:
 		unsigned int	nReserved3		: 3;
 	};
 
+	//Reg 0x52
 	struct TRXREG
 	{
 		unsigned int	nRRW			: 12;
@@ -416,6 +440,21 @@ protected:
 		typedef uint16 Unit;
 	};
 
+	struct STORAGEPSMCT16S
+	{
+		enum PAGEWIDTH		{ PAGEWIDTH = 64 };
+		enum PAGEHEIGHT		{ PAGEHEIGHT = 64 };
+		enum BLOCKWIDTH		{ BLOCKWIDTH = 16 };
+		enum BLOCKHEIGHT	{ BLOCKHEIGHT = 8 };
+		enum COLUMNWIDTH	{ COLUMNWIDTH = 16 };
+		enum COLUMNHEIGHT	{ COLUMNHEIGHT = 2 };
+
+		static int m_nBlockSwizzleTable[8][4];
+		static int m_nColumnSwizzleTable[2][16];
+
+		typedef uint16 Unit;
+	};
+
 	struct STORAGEPSMT8
 	{
 		enum PAGEWIDTH		{ PAGEWIDTH = 128 };
@@ -432,18 +471,17 @@ protected:
 		typedef uint8 Unit;
 	};
 
-	//We use a little "hack" here since we can't address stuff on 4-bits boundaries
 	struct STORAGEPSMT4
 	{
-		enum PAGEWIDTH		{ PAGEWIDTH = 64 };
+		enum PAGEWIDTH		{ PAGEWIDTH = 128 };
 		enum PAGEHEIGHT		{ PAGEHEIGHT = 128 };
-		enum BLOCKWIDTH		{ BLOCKWIDTH = 16 };
+		enum BLOCKWIDTH		{ BLOCKWIDTH = 32 };
 		enum BLOCKHEIGHT	{ BLOCKHEIGHT = 16 };
-		enum COLUMNWIDTH	{ COLUMNWIDTH = 16 };
+		enum COLUMNWIDTH	{ COLUMNWIDTH = 32 };
 		enum COLUMNHEIGHT	{ COLUMNHEIGHT = 4 };
 
 		static int m_nBlockSwizzleTable[8][4];
-		static int m_nColumnSwizzleTable[4][16];
+		static int m_nColumnWordTable[2][2][8];
 
 		typedef uint8 Unit;
 	};
@@ -458,9 +496,31 @@ protected:
 			m_pMemory		= pMemory;
 		}
 
-		typename Storage::Unit* GetPixel(unsigned int nX, unsigned int nY)
+		typename Storage::Unit GetPixel(unsigned int nX, unsigned int nY)
 		{
-			uint32 nPageNum, nBlockNum, nColumnNum, nOffset;
+			uint32 nAddress;
+			nAddress = GetColumnAddress(nX, nY);
+			return ((typename Storage::Unit*)&m_pMemory[nAddress])[Storage::m_nColumnSwizzleTable[nY][nX]];
+		}
+
+		void SetPixel(unsigned int nX, unsigned int nY, typename Storage::Unit nPixel)
+		{
+			uint32 nAddress;
+			nAddress = GetColumnAddress(nX, nY);
+			((typename Storage::Unit*)&m_pMemory[nAddress])[Storage::m_nColumnSwizzleTable[nY][nX]] = nPixel;
+		}
+
+		typename Storage::Unit* GetPixelAddress(unsigned int nX, unsigned int nY)
+		{
+			uint32 nAddress;
+			nAddress = GetColumnAddress(nX, nY);
+			return &((typename Storage::Unit*)&m_pMemory[nAddress])[Storage::m_nColumnSwizzleTable[nY][nX]];
+		}
+
+	private:
+		uint32 GetColumnAddress(unsigned int& nX, unsigned int& nY)
+		{
+			uint32 nPageNum, nBlockNum, nColumnNum;
 
 			nPageNum = (nX / Storage::PAGEWIDTH) + (nY / Storage::PAGEHEIGHT) * (m_nWidth * 64) / Storage::PAGEWIDTH;
 
@@ -476,13 +536,9 @@ protected:
 
 			nY %= Storage.COLUMNHEIGHT;
 
-			nOffset = m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE);
-			nOffset &= (RAMSIZE - 1);
-
-			return &((typename Storage::Unit*)&m_pMemory[nOffset])[Storage::m_nColumnSwizzleTable[nY][nX]];
+			return m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE);
 		}
 
-	private:
 		enum PAGESIZE
 		{
 			PAGESIZE = 8192,
@@ -505,6 +561,7 @@ protected:
 
 	typedef CPixelIndexor<STORAGEPSMCT32>	CPixelIndexorPSMCT32;
 	typedef CPixelIndexor<STORAGEPSMCT16>	CPixelIndexorPSMCT16;
+	typedef CPixelIndexor<STORAGEPSMCT16S>	CPixelIndexorPSMCT16S;
 	typedef CPixelIndexor<STORAGEPSMT8>		CPixelIndexorPSMT8;
 	typedef CPixelIndexor<STORAGEPSMT4>		CPixelIndexorPSMT4;
 
@@ -555,5 +612,26 @@ protected:
 	bool									m_nCrtIsInterlaced;
 	bool									m_nCrtIsFrameMode;
 };
+
+template <> uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::GetPixel(unsigned int nX, unsigned int nY)
+{
+	typedef STORAGEPSMT4 Storage;
+
+	uint32 nAddress;
+	unsigned int nColumnNum, nSubTable, nShiftAmount;
+
+	nColumnNum = (nY / Storage::COLUMNHEIGHT) & 0x01;
+	nAddress = GetColumnAddress(nX, nY);
+
+	nShiftAmount	=	(nX & 0x18);
+	nShiftAmount	+=	(nY & 0x02) << 1;
+	nSubTable		=	(nY & 0x02) >> 1;
+	nSubTable		^=	(nColumnNum);
+
+	nX &= 0x07;
+	nY &= 0x01;
+
+	return (uint8)(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]] >> nShiftAmount) & 0x0F;
+}
 
 #endif

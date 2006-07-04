@@ -7,7 +7,8 @@ using namespace Framework;
 
 uint32		CVIF::m_VPU_STAT;
 
-static unsigned int nExecCount = 0;
+//REMOVE
+static int nExecTimes = 0;
 
 CVIF::CVPU*		CVIF::m_pVPU[2] =
 {
@@ -228,31 +229,36 @@ uint32 CVIF::CVPU::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
 
 void CVIF::CVPU::ExecuteMicro(uint32 nAddress, uint32 nMask)
 {
-	//--- REMOVE
-	nExecCount++;
-//	if((nExecCount > 20))
-//	{
-//		return;
-//	}
-	//--- REMOVE
+	//REMOVE
+/*
+	nExecTimes++;
+	if(nExecTimes > 0x7E)
+	{
+		if(!CPS2VM::m_EE.MustBreak())
+		{
+			CPS2VM::m_EE.ToggleBreakpoint(CPS2VM::m_EE.m_State.nPC);
+		}
+		return;
+	}
+*/
 
 	m_pCtx->m_State.nPC = nAddress;
 	m_VPU_STAT |= nMask;
+
 #ifndef VU_DEBUG
+
 	while(m_VPU_STAT & nMask)
 	{
-		m_pCtx->Execute(100000);
+		RET_CODE nRet;
+		nRet = m_pCtx->Execute(100000);
 	}
+
 #endif
 }
 
 uint32 CVIF::CVPU::Cmd_MPG(CODE nCommand, uint32 nAddress, uint32 nSize)
 {
 	uint32 nTransfered, nDstAddr, nNum, nCodeNum;
-
-	//--- REMOVE
-	nExecCount = 0;
-	//--- REMOVE
 
 	nNum		= (m_NUM == 0) ? (256 * 8) : (m_NUM * 8);
 	nCodeNum	= (m_CODE.nNUM == 0) ? (256 * 8) : (m_CODE.nNUM * 8);
@@ -267,11 +273,6 @@ uint32 CVIF::CVPU::Cmd_MPG(CODE nCommand, uint32 nAddress, uint32 nSize)
 	{
 		m_pCtx->m_pExecMap->InvalidateBlocks();
 		memcpy((*m_pMicroMem) + nDstAddr, CPS2VM::m_pRAM + nAddress, nSize);
-
-		//--- REMOVE
-		//*(uint32*)&CPS2VM::m_pMicroMem1[0x380] = 0x8000033C;
-		//*(uint32*)&CPS2VM::m_pMicroMem1[0x410] = 0x8000033C;
-		//--- REMOVE
 	}
 
 	m_NUM -= (uint8)(nSize / 8);
