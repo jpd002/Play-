@@ -206,61 +206,68 @@ void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
 	//assert(pTex0->nCSA == 0);
 	//assert(pTex0->nCLD == 1);
 
-	if(pTex0->nCSM == 1)
+	if(pTex0->nCLD != 1)
 	{
-		TEXCLUT* pTexClut;
-		unsigned int nOffsetX, nOffsetY;
-		uint16* pDst;
-
-		assert(pTex0->nCPSM == PSMCT16);
-
-		pTexClut = GetTexClut();
-
-		CPixelIndexorPSMCT16 Indexor(m_pRAM, pTex0->GetCLUTPtr(), pTexClut->nCBW);
-		nOffsetX = pTexClut->GetOffsetU();
-		nOffsetY = pTexClut->GetOffsetV();
-		pDst = m_pCLUT16;
-
-		for(unsigned int i = 0; i < 0x10; i++)
-		{
-			(*pDst++) = Indexor.GetPixel(nOffsetX + i, nOffsetY);
-		}
+		memmove(m_pCLUT32, m_pCLUT32 + (pTex0->nCSA * 16), 0x40);
 	}
 	else
 	{
-		if(pTex0->nCPSM == PSMCT32)
+		if(pTex0->nCSM == 1)
 		{
-			CPixelIndexorPSMCT32 Indexor(m_pRAM, pTex0->GetCLUTPtr(), 1);
-			uint32* pDst;
-
-			pDst = m_pCLUT32;
-
-			for(unsigned int j = 0; j < 2; j++)
-			{
-				for(unsigned int i = 0; i < 8; i++)
-				{
-					(*pDst++) = Indexor.GetPixel(i, j);
-				}
-			}
-		}
-		else if(pTex0->nCPSM == PSMCT16)
-		{
-			CPixelIndexorPSMCT16 Indexor(m_pRAM, pTex0->GetCLUTPtr(), 1);
+			TEXCLUT* pTexClut;
+			unsigned int nOffsetX, nOffsetY;
 			uint16* pDst;
 
+			assert(pTex0->nCPSM == PSMCT16);
+
+			pTexClut = GetTexClut();
+
+			CPixelIndexorPSMCT16 Indexor(m_pRAM, pTex0->GetCLUTPtr(), pTexClut->nCBW);
+			nOffsetX = pTexClut->GetOffsetU();
+			nOffsetY = pTexClut->GetOffsetV();
 			pDst = m_pCLUT16;
 
-			for(unsigned int j = 0; j < 2; j++)
+			for(unsigned int i = 0; i < 0x10; i++)
 			{
-				for(unsigned int i = 0; i < 8; i++)
-				{
-					(*pDst++) = Indexor.GetPixel(i, j);
-				}
+				(*pDst++) = Indexor.GetPixel(nOffsetX + i, nOffsetY);
 			}
 		}
 		else
 		{
-			assert(0);
+			if(pTex0->nCPSM == PSMCT32)
+			{
+				CPixelIndexorPSMCT32 Indexor(m_pRAM, pTex0->GetCLUTPtr(), 1);
+				uint32* pDst;
+
+				pDst = m_pCLUT32;
+
+				for(unsigned int j = 0; j < 2; j++)
+				{
+					for(unsigned int i = 0; i < 8; i++)
+					{
+						(*pDst++) = Indexor.GetPixel(i, j);
+					}
+				}
+			}
+			else if(pTex0->nCPSM == PSMCT16)
+			{
+				CPixelIndexorPSMCT16 Indexor(m_pRAM, pTex0->GetCLUTPtr(), 1);
+				uint16* pDst;
+
+				pDst = m_pCLUT16;
+
+				for(unsigned int j = 0; j < 2; j++)
+				{
+					for(unsigned int i = 0; i < 8; i++)
+					{
+						(*pDst++) = Indexor.GetPixel(i, j);
+					}
+				}
+			}
+			else
+			{
+				assert(0);
+			}
 		}
 	}
 }
@@ -657,7 +664,8 @@ void CGSH_OpenGL::TexUploader_Psm4_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 			for(i = 0; i < nWidth; i++)
 			{
 				nPixel = Indexor.GetPixel(i, j);
-				pDst[i] = 0xFFFF0000 | ((nPixel & 0x0F) << 12) | ((nPixel & 0x0F) << 4);
+				//pDst[i] = 0xFFFF0000 | ((nPixel & 0x0F) << 12) | ((nPixel & 0x0F) << 4);
+				pDst[i] = m_pCLUT32[nPixel];
 			}
 
 			pDst += nDstPitch;

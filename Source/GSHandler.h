@@ -305,7 +305,8 @@ protected:
 	{
 		unsigned int	nReserved0		: 20;
 		unsigned int	nPsm			: 6;
-		unsigned int	nReserved1		: 11;
+		unsigned int	nReserved1		: 6;
+		unsigned int	nReserved2		: 5;
 		unsigned int	nCBP			: 14;
 		unsigned int	nCPSM			: 4;
 		unsigned int	nCSM			: 1;

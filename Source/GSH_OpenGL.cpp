@@ -829,7 +829,6 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		glBegin(GL_QUADS);
 		{
-			//glColor4d(1.0, 1.0, 1.0, 1.0);
 			glTexCoord2d(nU1, nV1);
 			glVertex3d(nX1, nY1, nZ1);
 
@@ -839,7 +838,6 @@ void CGSH_OpenGL::Prim_Sprite()
 			glTexCoord2d(nU2, nV2);
 			glVertex3d(nX2, nY2, nZ1);
 
-			//glColor4d(1.0, 0.0, 1.0, 1.0);
 			glTexCoord2d(nU1, nV2);
 			glVertex3d(nX1, nY2, nZ2);
 		}
@@ -850,7 +848,6 @@ void CGSH_OpenGL::Prim_Sprite()
 	else if(!m_PrimitiveMode.nTexture)
 	{
 		//REMOVE
-		/*
 		//Humm? Would it be possible to have a gradient using those registers?
 		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
 		//glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
@@ -863,7 +860,6 @@ void CGSH_OpenGL::Prim_Sprite()
 			glVertex3d(nX1, nY2, nZ2);
 
 		glEnd();
-		*/
 	}
 	else
 	{
@@ -936,8 +932,16 @@ void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
 		{
 			unsigned int nContext;
 			const uint64 nMask = 0xFFFFFFE003F00000;
+			GSTEX0 Tex0;
 
 			nContext = nRegister - GS_REG_TEX2_1;
+
+			Tex0 = *(GSTEX0*)&m_nReg[GS_REG_TEX0_1 + nContext];
+			if(Tex0.nCLD == 1 && Tex0.nCPSM == 0)
+			{
+				ReadCLUT8(&Tex0);
+			}
+
 			m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
 			m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
 		}
