@@ -6,14 +6,8 @@
 #include "PtrMacro.h"
 #include "RendererSettingsWnd.h"
 #include "Config.h"
-#include "glext.h"
 
 using namespace Framework;
-
-PFNGLCOLORTABLEEXTPROC		glColorTableEXT;
-PFNGLBLENDCOLOREXTPROC		glBlendColorEXT;
-PFNGLBLENDEQUATIONEXTPROC	glBlendEquationEXT;
-PFNGLFOGCOORDFEXTPROC		glFogCoordfEXT;
 
 PIXELFORMATDESCRIPTOR		CGSH_OpenGL::m_PFD =
 {
@@ -83,6 +77,8 @@ void CGSH_OpenGL::InitializeRC()
 	m_hRC = wglCreateContext(m_hDC);
 	wglMakeCurrent(m_hDC, m_hRC);
 
+	glewInit();
+/*
 	glColorTableEXT = (PFNGLCOLORTABLEEXTPROC)wglGetProcAddress("glColorTable");
 	if(glColorTableEXT == NULL)
 	{
@@ -102,7 +98,7 @@ void CGSH_OpenGL::InitializeRC()
 	}
 
 	glFogCoordfEXT = (PFNGLFOGCOORDFEXTPROC)wglGetProcAddress("glFogCoordfEXT");
-
+*/
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(0.0f);
@@ -135,6 +131,28 @@ void CGSH_OpenGL::InitializeRC()
 		m_pTexUploader_Psm16 = &CGSH_OpenGL::TexUploader_Psm16_Hw;
 	}
 
+	m_pProgram = NULL;
+	m_pVertShader = m_pFragShader = NULL;
+
+	//Create shaders/program
+	if((glCreateProgram != NULL) && (glCreateShader != NULL))
+	{
+		m_pProgram		= new OpenGl::CProgram();
+		m_pVertShader	= new OpenGl::CShader(GL_VERTEX_SHADER);
+		m_pFragShader	= new OpenGl::CShader(GL_FRAGMENT_SHADER);
+
+		LoadShaderSourceFromResource(m_pVertShader, _X("IDR_VERTSHADER"));
+		LoadShaderSourceFromResource(m_pFragShader, _X("IDR_FRAGSHADER"));
+
+		m_pVertShader->Compile();
+		m_pFragShader->Compile();
+
+		m_pProgram->AttachShader((*m_pVertShader));
+		m_pProgram->AttachShader((*m_pFragShader));
+
+		m_pProgram->Link();
+	}
+
 	m_pCvtBuffer = (uint8*)malloc(CVTBUFFERSIZE);
 
 	m_pCLUT		= malloc(0x400);
@@ -146,6 +164,21 @@ void CGSH_OpenGL::InitializeRC()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	SwapBuffers(m_hDC);
+}
+
+void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const xchar* sResourceName)
+{
+	const char* sSource;
+	HGLOBAL nResourcePtr;
+	HRSRC nResource;
+	DWORD nSize;
+
+	nResource		= FindResource(GetModuleHandle(NULL), sResourceName, _X("SHADER"));
+	nResourcePtr	= LoadResource(GetModuleHandle(NULL), nResource);
+	sSource			= const_cast<char*>(reinterpret_cast<char*>(LockResource(nResourcePtr)));
+	nSize			= SizeofResource(GetModuleHandle(NULL), nResource);
+
+	pShader->SetSource(sSource, nSize);
 }
 
 void CGSH_OpenGL::VerifyRGBA5551Support()

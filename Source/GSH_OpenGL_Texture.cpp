@@ -8,8 +8,6 @@
 
 using namespace Framework;
 
-extern PFNGLCOLORTABLEEXTPROC		glColorTableEXT;
-
 /////////////////////////////////////////////////////////////
 // Texture Loading
 /////////////////////////////////////////////////////////////
@@ -38,6 +36,25 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 	default:
 		assert(0);
 		break;
+	}
+
+	if(m_pProgram != NULL)
+	{
+		if((pClamp->nWMS > 1) || (pClamp->nWMT > 1))
+		{
+			//We gotta use the shader
+
+			glUseProgram((*m_pProgram));
+
+			m_pProgram->SetUniformi("g_nClamp",	pClamp->nWMS - 1,	pClamp->nWMT - 1);
+			m_pProgram->SetUniformi("g_nMin",	pClamp->GetMinU(),	pClamp->GetMinV());
+			m_pProgram->SetUniformi("g_nMax",	pClamp->GetMaxU(),	pClamp->GetMaxV());
+			m_pProgram->SetUniformf("g_nSize",	(float)nWidth,		(float)nHeight);
+		}
+		else
+		{
+			glUseProgram(NULL);
+		}
 	}
 
 	nTexture = TexCache_Search(pReg0);

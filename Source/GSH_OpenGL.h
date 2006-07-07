@@ -3,7 +3,9 @@
 
 #include "GSHandler.h"
 #include "win32/Window.h"
-#include <gl/gl.h>
+#include "opengl/OpenGl.h"
+#include "opengl/Program.h"
+#include "opengl/Shader.h"
 
 #define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
@@ -77,6 +79,7 @@ private:
 	static CGSHandler*				GSHandlerFactory(void*);
 
 	void							InitializeRC();
+	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const xchar*);
 	void							SetViewport(int, int);
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(double, double, double, double);
@@ -161,6 +164,10 @@ private:
 	TEXTUREUPLOADER					m_pTexUploader_Psm16;
 
 	Framework::CWindow*				m_pOutputWnd;
+
+	Framework::OpenGl::CProgram*	m_pProgram;
+	Framework::OpenGl::CShader*		m_pVertShader;
+	Framework::OpenGl::CShader*		m_pFragShader;
 
 	HGLRC							m_hRC;
 	HDC								m_hDC;

@@ -9,6 +9,8 @@
 #define IDB_EX                          108
 #define IDR_MAINWINDOW                  109
 #define IDI_PUREI                       110
+#define IDR_SHADER1                     113
+#define IDR_SHADER2                     114
 #define ID_FILE_EXIT                    40002
 #define ID_FILE_OPENELF                 40003
 #define ID_Menu                         40005
@@ -124,7 +126,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        113
+#define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40124
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

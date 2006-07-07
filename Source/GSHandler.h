@@ -295,9 +295,14 @@ protected:
 		unsigned int	nWMT			: 2;
 		unsigned int	nMINU			: 10;
 		unsigned int	nMAXU			: 10;
-		unsigned int	nMINV			: 10;
+		unsigned int	nReserved0		: 8;
+		unsigned int	nReserved1		: 2;
 		unsigned int	nMAXV			: 10;
-		unsigned int	nReserved0		: 22;
+		unsigned int	nReserved2		: 22;
+		unsigned int	GetMinU()		{ return nMINU;	}
+		unsigned int	GetMaxU()		{ return nMAXU;	}
+		unsigned int	GetMinV()		{ return (nReserved0) | (nReserved1 << 8); }
+		unsigned int	GetMaxV()		{ return nMAXV; }
 	};
 
 	//Reg 0x16/0x17

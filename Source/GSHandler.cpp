@@ -829,10 +829,10 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			nRegister == GS_REG_CLAMP_1 ? 1 : 2, \
 			clamp.nWMS, \
 			clamp.nWMT, \
-			clamp.nMINU, \
-			clamp.nMAXU, \
-			clamp.nMINV, \
-			clamp.nMAXV);
+			clamp.GetMinU(), \
+			clamp.GetMaxU(), \
+			clamp.GetMinV(), \
+			clamp.GetMaxV());
 		break;
 	case GS_REG_TEX1_1:
 	case GS_REG_TEX1_2:

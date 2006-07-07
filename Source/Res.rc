@@ -165,6 +165,15 @@ IDB_EX                  BITMAP                  "Images\\ex.bmp"
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_PUREI               ICON                    "Images\\purei.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SHADER
+//
+
+IDR_VERTSHADER			SHADER					"shaders\\TexClamp.vert"
+IDR_FRAGSHADER          SHADER                  "shaders\\TexClamp.frag"
+
 #endif    // French (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
