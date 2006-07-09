@@ -6,7 +6,7 @@
 using namespace IOP;
 using namespace Framework;
 
-#define PADNUM			(1)
+#define PADNUM			(0)
 #define MODE			(0x4)
 
 CPadMan::CPadMan()
@@ -59,7 +59,7 @@ void CPadMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButt
 	uint16 nStatus;
 	if(m_pPad == NULL) return;
 	nStatus = (m_pPad[PADNUM].nData[2] << 8) | (m_pPad[PADNUM].nData[3]);
-	
+
 	nStatus &= ~nButton;
 	if(!nPressed)
 	{
@@ -75,12 +75,19 @@ void CPadMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButt
 
 void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 {
-	uint32 nPort;
-	uint32 nSlot;
+	uint32 nPort, nSlot, nAddress;
 
-	nPort = ((uint32*)pArgs)[1];
-	nSlot = ((uint32*)pArgs)[2];
-	m_pPad = (PADDATA*)(CPS2VM::m_pRAM + ((uint32*)pArgs)[4]);
+	nPort		= ((uint32*)pArgs)[1];
+	nSlot		= ((uint32*)pArgs)[2];
+	nAddress	= ((uint32*)pArgs)[4];
+
+	if(nPort == 1)
+	{
+		((uint32*)pRet)[3] = 0x00000000;
+		return;
+	}
+
+	m_pPad = (PADDATA*)(CPS2VM::m_pRAM + nAddress);
 
 	Log("Opening device on port %i and slot %i.\r\n", nPort, nSlot);
 

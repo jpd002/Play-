@@ -82,6 +82,7 @@ namespace IOP
 			uint8			nReserved5[13];
 		};
 #else
+/*
 		struct PADDATA
 		{
 			uint32			nFrame;
@@ -93,6 +94,24 @@ namespace IOP
 			uint32			nLength;
 			uint32			nReserved1[5];
 		};
+*/
+#pragma pack(push, 1)
+		//Castlevania: Yami no Juin - The structure is a bit different...
+		struct PADDATA
+		{
+			uint8			nData[0x20];
+			uint8			nReserved0[0x40];
+			uint32			nLength;
+			uint32			nReserved1;
+			uint32			nFrame;
+			uint32			nReserved2;
+			uint8			nState;
+			uint8			nReqState;
+			uint8			nOk;
+			uint8			nReserved3[0xD];
+		};
+#pragma pack(pop)
+
 #endif
 
 		PADDATA*			m_pPad;

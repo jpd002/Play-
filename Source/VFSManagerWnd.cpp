@@ -123,7 +123,7 @@ long CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 		}
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 void CVFSManagerWnd::RefreshLayout()

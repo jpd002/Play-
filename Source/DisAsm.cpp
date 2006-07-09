@@ -414,14 +414,14 @@ long CDisAsm::OnKillFocus()
 	return TRUE;
 }
 
-long CDisAsm::OnLeftButtonDown(unsigned int nX, unsigned int nY)
+long CDisAsm::OnLeftButtonDown(int nX, int nY)
 {
 	UpdateMouseSelection(nX, nY);
 	SetFocus();
 	return FALSE;
 }
 
-long CDisAsm::OnRightButtonUp(unsigned int nX, unsigned int nY)
+long CDisAsm::OnRightButtonUp(int nX, int nY)
 {
 	POINT pt;
 	HMENU hMenu;
@@ -470,7 +470,7 @@ long CDisAsm::OnRightButtonUp(unsigned int nX, unsigned int nY)
 	return FALSE;
 }
 
-long CDisAsm::OnMouseMove(WPARAM nButton, unsigned int nX, unsigned int nY)
+long CDisAsm::OnMouseMove(WPARAM nButton, int nX, int nY)
 {
 	if(!(nButton & MK_LBUTTON)) return TRUE;
 	UpdateMouseSelection(nX, nY);
@@ -549,7 +549,7 @@ long CDisAsm::OnKeyDown(unsigned int nKey)
 	return TRUE;
 }
 
-long CDisAsm::OnLeftButtonDblClk(unsigned int nX, unsigned int nY)
+long CDisAsm::OnLeftButtonDblClk(int nX, int nY)
 {
 	if(nX > 18)
 	{

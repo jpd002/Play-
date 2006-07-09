@@ -21,7 +21,7 @@ protected:
 	long			OnVScroll(unsigned int, unsigned int);
 	long			OnSetFocus();
 	long			OnMouseWheel(short);
-	long			OnLeftButtonDown(unsigned int, unsigned int);
+	long			OnLeftButtonDown(int, int);
 
 private:
 	void			GetVisibleRowsCols(unsigned int*, unsigned int*);

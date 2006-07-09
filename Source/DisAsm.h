@@ -19,10 +19,10 @@ protected:
 	long							OnCommand(unsigned short, unsigned short, HWND);
 	long							OnSetFocus();
 	long							OnKillFocus();
-	long							OnLeftButtonDown(unsigned int, unsigned int);
-	long							OnLeftButtonDblClk(unsigned int, unsigned int);
-	long							OnRightButtonUp(unsigned int, unsigned int);
-	long							OnMouseMove(WPARAM, unsigned int, unsigned int);
+	long							OnLeftButtonDown(int, int);
+	long							OnLeftButtonDblClk(int, int);
+	long							OnRightButtonUp(int, int);
+	long							OnMouseMove(WPARAM, int, int);
 	long							OnVScroll(unsigned int, unsigned int);
 	long							OnKeyDown(unsigned int);
 

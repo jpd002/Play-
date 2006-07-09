@@ -14,7 +14,7 @@ public:
 protected:
 	virtual uint8					GetByte(uint32);
 	virtual HFONT					GetFont();
-	long							OnRightButtonUp(unsigned int, unsigned int);
+	long							OnRightButtonUp(int, int);
 	long							OnCommand(unsigned short, unsigned short, HWND);
 
 private:

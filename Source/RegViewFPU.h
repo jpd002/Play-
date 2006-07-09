@@ -21,7 +21,7 @@ public:
 	};
 
 protected:
-	long							OnRightButtonUp(unsigned int, unsigned int);
+	long							OnRightButtonUp(int, int);
 	long							OnCommand(unsigned short, unsigned short, HWND);
 
 private:

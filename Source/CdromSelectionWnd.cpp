@@ -2,7 +2,7 @@
 #include "HorizontalLayout.h"
 #include "LayoutStretch.h"
 #include "win32/LayoutWindow.h"
-#include "FileDialog.h"
+#include "win32/FileDialog.h"
 #include "ISO9660/ISO9660.h"
 #include "StdStream.h"
 #include "PtrMacro.h"
@@ -302,7 +302,7 @@ void CCdromSelectionWnd::PopulateDeviceList()
 
 void CCdromSelectionWnd::SelectImage()
 {
-	CFileDialog Dialog;
+	Win32::CFileDialog Dialog;
 	char sConvert[MAX_PATH];
 	CISO9660* pISO;
 	CStdStream* pStream;

@@ -15,7 +15,7 @@ protected:
 	long							OnVScroll(unsigned int, unsigned int);
 	long							OnSize(unsigned int, unsigned int, unsigned int);
 	long							OnMouseWheel(short);
-	long							OnLeftButtonDown(unsigned int, unsigned int);
+	long							OnLeftButtonDown(int, int);
 
 private:
 	void							Paint(HDC);

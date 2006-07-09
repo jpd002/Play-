@@ -100,7 +100,7 @@ long CRegViewPage::OnMouseWheel(short nZ)
 	return TRUE;
 }
 
-long CRegViewPage::OnLeftButtonDown(unsigned int nX, unsigned int nY)
+long CRegViewPage::OnLeftButtonDown(int nX, int nY)
 {
 	SetFocus();
 	return TRUE;

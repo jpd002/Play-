@@ -24,7 +24,7 @@ CMemoryViewMIPS::~CMemoryViewMIPS()
 	CPS2VM::m_OnMachineStateChange.RemoveHandler(m_pOnMachineStateChangeHandler);
 }
 
-long CMemoryViewMIPS::OnRightButtonUp(unsigned int nX, unsigned int nY)
+long CMemoryViewMIPS::OnRightButtonUp(int nX, int nY)
 {
 	POINT pt;
 	HMENU hMenu;

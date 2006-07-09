@@ -307,7 +307,7 @@ long CMemoryView::OnMouseWheel(short nZ)
 	return FALSE;
 }
 
-long CMemoryView::OnLeftButtonDown(unsigned int nX, unsigned int nY)
+long CMemoryView::OnLeftButtonDown(int nX, int nY)
 {
 	SetFocus();
 	return FALSE;

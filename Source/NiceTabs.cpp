@@ -256,13 +256,13 @@ long CNiceTabs::OnMouseLeave()
 	return FALSE;
 }
 
-long CNiceTabs::OnMouseMove(WPARAM nButton, unsigned int nX, unsigned int nY)
+long CNiceTabs::OnMouseMove(WPARAM nButton, int nX, int nY)
 {
 	RECT rcli;
 
 	GetClientRect(&rcli);
 
-	if((nX >= (unsigned int)EXLEFT(rcli)) && (nX <= (unsigned int)EXRIGHT(rcli)))
+	if((nX >= EXLEFT(rcli)) && (nX <= EXRIGHT(rcli)))
 	{
 		if((nY >= EXTOP) && (nY <= EXBOTTOM))
 		{
@@ -306,11 +306,12 @@ long CNiceTabs::OnMouseMove(WPARAM nButton, unsigned int nX, unsigned int nY)
 	return FALSE;
 }
 
-long CNiceTabs::OnLeftButtonDown(unsigned int nX, unsigned int nY)
+long CNiceTabs::OnLeftButtonDown(int nX, int nY)
 {
-	unsigned long nBase, nWidth, i;
+	int nBase, nWidth;
+	
 	nBase = GetTabBase(0);
-	for(i = 0; i < m_List.Count(); i++)
+	for(unsigned int i = 0; i < m_List.Count(); i++)
 	{
 		nWidth = GetTabWidth(i);
 		if((nX > nBase) && (nX < (nBase + nWidth)))
@@ -334,7 +335,7 @@ long CNiceTabs::OnLeftButtonDown(unsigned int nX, unsigned int nY)
 	return FALSE;
 }
 
-long CNiceTabs::OnLeftButtonUp(unsigned int nX, unsigned int nY)
+long CNiceTabs::OnLeftButtonUp(int nX, int nY)
 {
 	if(m_nHoverEx == 1)
 	{

@@ -133,7 +133,7 @@ void CRegViewFPU::RenderSingle(CStrA* pText)
 	RenderFCSR(pText);
 }
 
-long CRegViewFPU::OnRightButtonUp(unsigned int nX, unsigned int nY)
+long CRegViewFPU::OnRightButtonUp(int nX, int nY)
 {
 	POINT pt;
 	HMENU hMenu;

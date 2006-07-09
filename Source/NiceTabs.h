@@ -30,9 +30,9 @@ public:
 protected:
 	void								Paint(HDC);
 	long								OnMouseLeave();
-	long								OnMouseMove(WPARAM, unsigned int, unsigned int);
-	long								OnLeftButtonDown(unsigned int, unsigned int);
-	long								OnLeftButtonUp(unsigned int, unsigned int);
+	long								OnMouseMove(WPARAM, int, int);
+	long								OnLeftButtonDown(int, int);
+	long								OnLeftButtonUp(int, int);
 
 private:
 	HFONT								CreateOurFont();
