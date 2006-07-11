@@ -19,7 +19,7 @@ private:
 	void							RefreshLayout();
 
 	Framework::CVerticalLayout*		m_pLayout;
-	Framework::CStatic*				m_pImage;
+	Framework::Win32::CStatic*		m_pImage;
 };
 
 #endif

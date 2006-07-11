@@ -43,10 +43,10 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 
 	CreateListColumns();
 
-	m_pNew		= new CButton(_X("New..."), m_hWnd, &rc);
-	m_pRename	= new CButton(_X("Rename..."), m_hWnd, &rc);
-	m_pDelete	= new CButton(_X("Delete"), m_hWnd, &rc);
-	m_pImport	= new CButton(_X("Load ELF symbols"), m_hWnd, &rc);
+	m_pNew		= new Win32::CButton(_X("New..."), m_hWnd, &rc);
+	m_pRename	= new Win32::CButton(_X("Rename..."), m_hWnd, &rc);
+	m_pDelete	= new Win32::CButton(_X("Delete"), m_hWnd, &rc);
+	m_pImport	= new Win32::CButton(_X("Load ELF symbols"), m_hWnd, &rc);
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
@@ -234,14 +234,14 @@ void CFunctionsView::OnListDblClick()
 
 void CFunctionsView::OnNewClick()
 {
-	CInputBox* pInput;
+	Win32::CInputBox* pInput;
 	bool bQuit;
 	xchar sNameX[256];
 	const xchar* sValue;
 	char sName[256];
 	uint32 nAddress;
 
-	pInput = new CInputBox(_X("New Function"), _X("New Function Name:"), _X(""));
+	pInput = new Win32::CInputBox(_X("New Function"), _X("New Function Name:"), _X(""));
 	sValue = pInput->GetValue(m_hWnd);
 
 	bQuit = (sValue == NULL);
@@ -254,7 +254,7 @@ void CFunctionsView::OnNewClick()
 
 	if(bQuit) return;
 
-	pInput = new CInputBox(_X("New Function"), _X("New Function Address:"), _X("00000000"));
+	pInput = new Win32::CInputBox(_X("New Function"), _X("New Function Address:"), _X("00000000"));
 	sValue = pInput->GetValue(m_hWnd);
 
 	bQuit = (sValue == NULL);
@@ -304,7 +304,7 @@ void CFunctionsView::OnRenameClick()
 
 	xconvert(sNameX, sName, countof(sNameX));
 
-	CInputBox RenameInput(_X("Rename Function"), _X("New Function Name:"), sNameX);
+	Win32::CInputBox RenameInput(_X("Rename Function"), _X("New Function Name:"), sNameX);
 	sNewNameX = RenameInput.GetValue(m_hWnd);
 	
 	if(sNewNameX == NULL) return;

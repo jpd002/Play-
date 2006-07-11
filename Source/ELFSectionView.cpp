@@ -35,29 +35,29 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 	Create(NULL, CLSNAME, _X(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pType			= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pFlags		= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pAddress		= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pOffset		= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pSize			= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pLink			= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pInfo			= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pAlignment	= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pEntrySize	= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pType			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pFlags		= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pAddress		= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pOffset		= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pSize			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pLink			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pInfo			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pAlignment	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pEntrySize	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
 
 	m_pData = new CMemoryViewPtr(m_hWnd, &rc);
 
 	pSubLayout0 = new CGridLayout(2, 9);
 
-	pSubLayout0->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Type:"))));
-	pSubLayout0->SetObject(0, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Flags:"))));
-	pSubLayout0->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Address:"))));
-	pSubLayout0->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("File Offset:"))));
-	pSubLayout0->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Size:"))));
-	pSubLayout0->SetObject(0, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Section Link:"))));
-	pSubLayout0->SetObject(0, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Info:"))));
-	pSubLayout0->SetObject(0, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Alignment:"))));
-	pSubLayout0->SetObject(0, 8, CLayoutWindow::CreateTextBoxBehavior(100, 20, new CStatic(m_hWnd, _X("Entry Size:"))));
+	pSubLayout0->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Type:"))));
+	pSubLayout0->SetObject(0, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Flags:"))));
+	pSubLayout0->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Address:"))));
+	pSubLayout0->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("File Offset:"))));
+	pSubLayout0->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Size:"))));
+	pSubLayout0->SetObject(0, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Section Link:"))));
+	pSubLayout0->SetObject(0, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Info:"))));
+	pSubLayout0->SetObject(0, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Alignment:"))));
+	pSubLayout0->SetObject(0, 8, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Entry Size:"))));
 
 	pSubLayout0->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
 	pSubLayout0->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFlags));

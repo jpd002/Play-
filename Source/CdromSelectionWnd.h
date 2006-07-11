@@ -44,13 +44,13 @@ private:
 	unsigned int					m_nPhysicalDevice;
 
 	Framework::CVerticalLayout*		m_pLayout;
-	Framework::CButton*				m_pImageRadio;
-	Framework::CButton*				m_pDeviceRadio;
-	Framework::CButton*				m_pImageBrowse;
-	Framework::CEdit*				m_pImageEdit;
-	Framework::CComboBox*			m_pDeviceCombo;
-	Framework::CButton*				m_pOk;
-	Framework::CButton*				m_pCancel;
+	Framework::Win32::CButton*		m_pImageRadio;
+	Framework::Win32::CButton*		m_pDeviceRadio;
+	Framework::Win32::CButton*		m_pImageBrowse;
+	Framework::Win32::CEdit*		m_pImageEdit;
+	Framework::Win32::CComboBox*	m_pDeviceCombo;
+	Framework::Win32::CButton*		m_pOk;
+	Framework::Win32::CButton*		m_pCancel;
 };
 
 #endif

@@ -106,15 +106,15 @@ CModalWindow(hParent)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pOk			= new CButton(_X("OK"), m_hWnd, &rc);
-	m_pCancel		= new CButton(_X("Cancel"), m_hWnd, &rc);
+	m_pOk			= new Win32::CButton(_X("OK"), m_hWnd, &rc);
+	m_pCancel		= new Win32::CButton(_X("Cancel"), m_hWnd, &rc);
 
-	m_pImageRadio	= new CButton(_X("ISO9660 Disk Image"), m_hWnd, &rc, BS_RADIOBUTTON);
-	m_pDeviceRadio	= new CButton(_X("Physical CD/DVD Reader Device"), m_hWnd, &rc, BS_RADIOBUTTON);
+	m_pImageRadio	= new Win32::CButton(_X("ISO9660 Disk Image"), m_hWnd, &rc, BS_RADIOBUTTON);
+	m_pDeviceRadio	= new Win32::CButton(_X("Physical CD/DVD Reader Device"), m_hWnd, &rc, BS_RADIOBUTTON);
 
-	m_pImageEdit	= new CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pImageBrowse	= new CButton(_X("..."), m_hWnd, &rc);
-	m_pDeviceCombo	= new CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
+	m_pImageEdit	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pImageBrowse	= new Win32::CButton(_X("..."), m_hWnd, &rc);
+	m_pDeviceCombo	= new Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
 
 	PopulateDeviceList();
 

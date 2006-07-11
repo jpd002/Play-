@@ -26,7 +26,7 @@ protected:
 private:
 	void							ResizePanel(HWND);
 	Framework::CTreeView*			m_pTreeView;
-	Framework::CStatic*				m_pContainer;
+	Framework::Win32::CStatic*		m_pContainer;
 	Framework::CHorizontalLayout*	m_pLayout;
 
 

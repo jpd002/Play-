@@ -39,10 +39,10 @@ private:
 	void						OnImportClick();
 
 	Framework::CListView*		m_pList;
-	Framework::CButton*			m_pNew;
-	Framework::CButton*			m_pRename;
-	Framework::CButton*			m_pDelete;
-	Framework::CButton*			m_pImport;
+	Framework::Win32::CButton*	m_pNew;
+	Framework::Win32::CButton*	m_pRename;
+	Framework::Win32::CButton*	m_pDelete;
+	Framework::Win32::CButton*	m_pImport;
 
 	Framework::CVerticalLayout*	m_pLayout;
 	CMIPS*						m_pCtx;

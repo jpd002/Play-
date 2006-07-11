@@ -9,30 +9,30 @@
 class CELFHeaderView : public Framework::CWindow
 {
 public:
-							CELFHeaderView(HWND, CELF*);
-							~CELFHeaderView();
+								CELFHeaderView(HWND, CELF*);
+								~CELFHeaderView();
 
 protected:
-	long					OnSize(unsigned int, unsigned int, unsigned int);
+	long						OnSize(unsigned int, unsigned int, unsigned int);
 
 private:
-	void					FillInformation();
-	void					RefreshLayout();
-	CELF*					m_pELF;
-	Framework::CGridLayout*	m_pLayout;
-	Framework::CEdit*		m_pType;
-	Framework::CEdit*		m_pMachine;
-	Framework::CEdit*		m_pVersion;
-	Framework::CEdit*		m_pEntry;
-	Framework::CEdit*		m_pFlags;
-	Framework::CEdit*		m_pSize;
-	Framework::CEdit*		m_pPHOffset;
-	Framework::CEdit*		m_pPHSize;
-	Framework::CEdit*		m_pPHCount;
-	Framework::CEdit*		m_pSHOffset;
-	Framework::CEdit*		m_pSHSize;
-	Framework::CEdit*		m_pSHCount;
-	Framework::CEdit*		m_pSHStrTab;
+	void						FillInformation();
+	void						RefreshLayout();
+	CELF*						m_pELF;
+	Framework::CGridLayout*		m_pLayout;
+	Framework::Win32::CEdit*	m_pType;
+	Framework::Win32::CEdit*	m_pMachine;
+	Framework::Win32::CEdit*	m_pVersion;
+	Framework::Win32::CEdit*	m_pEntry;
+	Framework::Win32::CEdit*	m_pFlags;
+	Framework::Win32::CEdit*	m_pSize;
+	Framework::Win32::CEdit*	m_pPHOffset;
+	Framework::Win32::CEdit*	m_pPHSize;
+	Framework::Win32::CEdit*	m_pPHCount;
+	Framework::Win32::CEdit*	m_pSHOffset;
+	Framework::Win32::CEdit*	m_pSHSize;
+	Framework::Win32::CEdit*	m_pSHCount;
+	Framework::Win32::CEdit*	m_pSHStrTab;
 };
 
 #endif

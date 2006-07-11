@@ -41,8 +41,8 @@ CModalWindow(hParent)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pOk		= new CButton(_X("OK"), m_hWnd, &rc);
-	m_pCancel	= new CButton(_X("Cancel"), m_hWnd, &rc);
+	m_pOk		= new Win32::CButton(_X("OK"), m_hWnd, &rc);
+	m_pCancel	= new Win32::CButton(_X("Cancel"), m_hWnd, &rc);
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
@@ -53,10 +53,10 @@ CModalWindow(hParent)
 	m_nLinesAsQuads				= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
 
-	m_pLineCheck = new CButton(_X("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
+	m_pLineCheck = new Win32::CButton(_X("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pLineCheck->SetCheck(m_nLinesAsQuads);
 
-	m_pForceBilinearCheck = new CButton(_X("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
+	m_pForceBilinearCheck = new Win32::CButton(_X("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
 
 	m_pExtList = new CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
@@ -65,10 +65,10 @@ CModalWindow(hParent)
 	m_pLayout = new CVerticalLayout;
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pLineCheck));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 2, new CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, new CStatic(m_hWnd, _X("OpenGL extension availability report:"))));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _X("OpenGL extension availability report:"))));
 	m_pLayout->InsertObject(new CLayoutWindow(1, 1, 1, 1, m_pExtList));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 30, new CStatic(m_hWnd, _X("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _X("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
 	m_pLayout->InsertObject(pSubLayout0);
 
 	RefreshLayout();

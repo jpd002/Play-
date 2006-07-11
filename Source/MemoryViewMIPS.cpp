@@ -79,7 +79,7 @@ void CMemoryViewMIPS::GotoAddress()
 		return;
 	}
 
-	CInputBox i(_X("Goto Address"), _X("Enter new address:"), _X("00000000"));
+	Win32::CInputBox i(_X("Goto Address"), _X("Enter new address:"), _X("00000000"));
 	sValue = i.GetValue(m_hWnd);
 
 	if(sValue != NULL)

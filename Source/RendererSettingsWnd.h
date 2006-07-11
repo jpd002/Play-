@@ -24,10 +24,10 @@ private:
 
 	Framework::CVerticalLayout*	m_pLayout;
 	Framework::CListView*		m_pExtList;
-	Framework::CButton*			m_pLineCheck;
-	Framework::CButton*			m_pForceBilinearCheck;
-	Framework::CButton*			m_pOk;
-	Framework::CButton*			m_pCancel;
+	Framework::Win32::CButton*	m_pLineCheck;
+	Framework::Win32::CButton*	m_pForceBilinearCheck;
+	Framework::Win32::CButton*	m_pOk;
+	Framework::Win32::CButton*	m_pCancel;
 	CGSH_OpenGL*				m_pRenderer;
 
 	bool						m_nLinesAsQuads;

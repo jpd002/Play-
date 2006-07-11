@@ -35,7 +35,7 @@ COptionWnd<T>::COptionWnd(HWND hParent, xchar* sTitle)
 
 	m_pTreeView		= NULL;
 	m_pTreeView		= new CTreeView(m_hWnd, &rc, TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
-	m_pContainer	= new CStatic(m_hWnd, &rc);
+	m_pContainer	= new Win32::CStatic(m_hWnd, &rc);
 
 	m_pLayout = new CHorizontalLayout;
 	m_pLayout->InsertObject(new CLayoutWindow(25, 20, 1, 0, m_pTreeView, false));

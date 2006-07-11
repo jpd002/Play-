@@ -22,15 +22,15 @@ private:
 	CELF*						m_pELF;
 	uint16						m_nSection;
 	Framework::CVerticalLayout*	m_pLayout;
-	Framework::CEdit*			m_pType;
-	Framework::CEdit*			m_pFlags;
-	Framework::CEdit*			m_pAddress;
-	Framework::CEdit*			m_pOffset;
-	Framework::CEdit*			m_pSize;
-	Framework::CEdit*			m_pLink;
-	Framework::CEdit*			m_pInfo;
-	Framework::CEdit*			m_pAlignment;
-	Framework::CEdit*			m_pEntrySize;
+	Framework::Win32::CEdit*	m_pType;
+	Framework::Win32::CEdit*	m_pFlags;
+	Framework::Win32::CEdit*	m_pAddress;
+	Framework::Win32::CEdit*	m_pOffset;
+	Framework::Win32::CEdit*	m_pSize;
+	Framework::Win32::CEdit*	m_pLink;
+	Framework::Win32::CEdit*	m_pInfo;
+	Framework::Win32::CEdit*	m_pAlignment;
+	Framework::Win32::CEdit*	m_pEntrySize;
 	CMemoryViewPtr*				m_pData;
 };
 

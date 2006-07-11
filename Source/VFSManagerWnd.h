@@ -72,8 +72,8 @@ private:
 	void							Save();
 
 	Framework::CVerticalLayout*		m_pLayout;
-	Framework::CButton*				m_pOk;
-	Framework::CButton*				m_pCancel;
+	Framework::Win32::CButton*		m_pOk;
+	Framework::Win32::CButton*		m_pCancel;
 	Framework::CListView*			m_pList;
 
 	Framework::CList<CDevice>		m_Device;

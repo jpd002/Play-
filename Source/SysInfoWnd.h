@@ -28,9 +28,9 @@ private:
 
 	HANDLE							m_nRDTSCThread;
 
-	Framework::CStatic*				m_pProcessor;
-	Framework::CStatic*				m_pProcesses;
-	Framework::CStatic*				m_pThreads;
+	Framework::Win32::CStatic*		m_pProcessor;
+	Framework::Win32::CStatic*		m_pProcesses;
+	Framework::Win32::CStatic*		m_pThreads;
 	Framework::CListBox*			m_pFeatures;
 
 	Framework::CVerticalLayout*		m_pLayout;

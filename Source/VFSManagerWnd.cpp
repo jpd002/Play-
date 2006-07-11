@@ -46,8 +46,8 @@ CModalWindow(hParent)
 	m_pList = new CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_pOk		= new CButton(_X("OK"), m_hWnd, &rc);
-	m_pCancel	= new CButton(_X("Cancel"), m_hWnd, &rc);
+	m_pOk		= new Win32::CButton(_X("OK"), m_hWnd, &rc);
+	m_pCancel	= new Win32::CButton(_X("Cancel"), m_hWnd, &rc);
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
@@ -57,7 +57,7 @@ CModalWindow(hParent)
 
 	m_pLayout = new CVerticalLayout;
 	m_pLayout->InsertObject(new CLayoutWindow(1, 1, 1, 1, m_pList));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 40, new CStatic(m_hWnd, _X("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT)));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 40, new Win32::CStatic(m_hWnd, _X("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT)));
 	m_pLayout->InsertObject(pSubLayout0);
 
 	RefreshLayout();

@@ -36,7 +36,7 @@ private:
 	HWND						m_hParent;
 
 	unsigned long				m_nKillThread;
-	Framework::CEdit*			m_pEdit;
+	Framework::Win32::CEdit*	m_pEdit;
 };
 
 #endif

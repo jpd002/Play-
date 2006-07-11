@@ -120,7 +120,7 @@ void CDisAsm::GotoAddress()
 
 	xsnprintf(sTemp, countof(sTemp), _X("%0.8X"), m_nAddress);
 
-	CInputBox i(_X("Goto Address"), _X("Enter new address:"), sTemp);
+	Win32::CInputBox i(_X("Goto Address"), _X("Enter new address:"), sTemp);
 
 	sValue = i.GetValue(m_hWnd);
 	if(sValue != NULL)
@@ -202,7 +202,7 @@ void CDisAsm::EditComment()
 		xstrcpy(sTemp, _X(""));
 	}
 
-	CInputBox i(_X("Edit Comment"), _X("Enter new comment:"), sTemp);
+	Win32::CInputBox i(_X("Edit Comment"), _X("Enter new comment:"), sTemp);
 	sValue = i.GetValue(m_hWnd);
 
 	if(sValue != NULL)
