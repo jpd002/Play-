@@ -146,14 +146,14 @@ void CMIPSInstructionFactory::BranchEx(bool nCondition)
 	nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 
 	CCodeGen::PushCst(MIPS_INVALID_PC);
-	CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
+	CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 	CCodeGen::BeginIf(nCondition);
 	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nPC);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nPC));
 		CCodeGen::PushCst(CMIPS::GetBranch(nImmediate));
 		CCodeGen::Add();
-		CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	CCodeGen::EndIf();
 

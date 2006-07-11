@@ -862,11 +862,17 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		glBegin(GL_QUADS);
 		{
+			//REMOVE
+			//glColor4d(1.0, 1.0, 1.0, 1.0);
+
 			glTexCoord2d(nU1, nV1);
 			glVertex3d(nX1, nY1, nZ1);
 
 			glTexCoord2d(nU2, nV1);
 			glVertex3d(nX2, nY1, nZ2);
+
+			//REMOVE
+			//glColor4d(0.5, 0.5, 0.5, 1.0);
 
 			glTexCoord2d(nU2, nV2);
 			glVertex3d(nX2, nY2, nZ1);

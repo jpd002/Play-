@@ -6,7 +6,7 @@
 using namespace IOP;
 using namespace Framework;
 
-#define PADNUM			(0)
+#define PADNUM			(1)
 #define MODE			(0x4)
 
 CPadMan::CPadMan()
@@ -23,6 +23,9 @@ void CPadMan::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, 
 	case 0x00000001:
 	case 0x80000100:
 		Open(pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	case 0x00000008:
+		SetActuatorAlign(pArgs, nArgsSize, pRet, nRetSize);
 		break;
 	case 0x00000010:
 		Init(pArgs, nArgsSize, pRet, nRetSize);
@@ -66,10 +69,12 @@ void CPadMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButt
 		nStatus |= nButton;
 	}
 
+	m_pPad[PADNUM].nReqState = 0;
+
 	m_pPad[PADNUM].nData[2] = (uint8)(nStatus >> 8);
 	m_pPad[PADNUM].nData[3] = (uint8)(nStatus >> 0);
 
-	m_pPad[PADNUM].nData[0] = 1;
+	m_pPad[PADNUM].nData[0] = 0;
 	m_pPad[PADNUM].nData[1] = MODE << 4;
 }
 
@@ -81,13 +86,10 @@ void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 	nSlot		= ((uint32*)pArgs)[2];
 	nAddress	= ((uint32*)pArgs)[4];
 
-	if(nPort == 1)
+	if(nPort == 0)
 	{
-		((uint32*)pRet)[3] = 0x00000000;
-		return;
+		m_pPad = (PADDATA*)(CPS2VM::m_pRAM + nAddress);
 	}
-
-	m_pPad = (PADDATA*)(CPS2VM::m_pRAM + nAddress);
 
 	Log("Opening device on port %i and slot %i.\r\n", nPort, nSlot);
 
@@ -110,6 +112,13 @@ void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 
 	//Returns 0 on error
 	((uint32*)pRet)[3] = 0x00000001;
+}
+
+void CPadMan::SetActuatorAlign(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	assert(nRetSize >= 24);
+
+	((uint32*)pRet)[5] = 1;
 }
 
 void CPadMan::Init(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)

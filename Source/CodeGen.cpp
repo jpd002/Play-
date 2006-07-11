@@ -1740,53 +1740,73 @@ void CCodeGen::Xor()
 void CCodeGen::Cmp64Eq()
 {
 	if(\
-		(m_Shadow.GetAt(0) == VARIABLE) && \
-		(m_Shadow.GetAt(2) == VARIABLE) && \
-		(m_Shadow.GetAt(4) == VARIABLE) && \
-		(m_Shadow.GetAt(6) == VARIABLE))
+		(m_Shadow.GetAt(0) == RELATIVE) && \
+		(m_Shadow.GetAt(2) == RELATIVE) && \
+		(m_Shadow.GetAt(4) == RELATIVE) && \
+		(m_Shadow.GetAt(6) == RELATIVE))
 	{
-		uint32 nVariable1, nVariable2, nVariable3, nVariable4;
+		uint32 nRelative1, nRelative2, nRelative3, nRelative4;
 		uint32 nRegister1, nRegister2;
 
 		m_Shadow.Pull();
-		nVariable4 = m_Shadow.Pull();
+		nRelative4 = m_Shadow.Pull();
 		m_Shadow.Pull();
-		nVariable3 = m_Shadow.Pull();
+		nRelative3 = m_Shadow.Pull();
 		m_Shadow.Pull();
-		nVariable2 = m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
 		m_Shadow.Pull();
-		nVariable1 = m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
 
-		nRegister1 = AllocateRegister();
-		nRegister2 = AllocateRegister();
+		nRegister1 = AllocateRegister(REGISTER_HASLOW);
+		nRegister2 = AllocateRegister(REGISTER_HASLOW);
 
-		//mov reg1, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister1] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable2);
+#ifdef AMD64
 
-		//cmp reg1, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x3B, 0x00 | (m_nRegisterLookup[nRegister1] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable4);
+		if(((nRelative4 - nRelative3) == 4) && ((nRelative2 - nRelative1) == 4))
+		{
+			LoadRelativeInRegister64(nRegister1, nRelative1);
 
-		//sete reg1[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0x94, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister1]));
+			//cmp reg, qword ptr[base + rel4]
+			m_pBlock->StreamWrite(2, 0x48, 0x3B);
+			WriteRelativeRmRegister(nRegister1, nRelative3);
 
-		//mov reg2, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister2] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable1);
+			//sete reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0x94, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister1]));
 
-		//cmp reg2, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x3B, 0x00 | (m_nRegisterLookup[nRegister2] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable3);
+			//movzx reg, reg[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister1]));
+		}
+		else
 
-		//sete reg2[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0x94, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister2]));
+#endif
+		{
+			//mov nReg1, dword ptr[nRel2]
+			LoadRelativeInRegister(nRegister1, nRelative2);
 
-		//and reg1, reg2
-		m_pBlock->StreamWrite(2, 0x23, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
+			//cmp nReg1, dword ptr[nRel4]
+			m_pBlock->StreamWrite(1, 0x3B);
+			WriteRelativeRmRegister(nRegister1, nRelative4);
 
-		//movzx reg1, reg1[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister1]));
+			//sete reg1[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0x94, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister1]));
+
+			//mov reg2, dword ptr[nRel1]
+			LoadRelativeInRegister(nRegister2, nRelative1);
+
+			//cmp reg2, dword ptr[nRel3]
+			m_pBlock->StreamWrite(1, 0x3B);
+			WriteRelativeRmRegister(nRegister2, nRelative3);
+
+			//sete reg2[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0x94, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister2]));
+
+			//and reg1, reg2
+			m_pBlock->StreamWrite(2, 0x23, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
+
+			//movzx reg1, reg1[l]
+			m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister1]));
+
+		}
 
 		FreeRegister(nRegister2);
 

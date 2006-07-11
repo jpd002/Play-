@@ -4,7 +4,7 @@
 #include "IOP_Module.h"
 #include "PadListener.h"
 
-//#define USE_EX
+#define USE_EX
 
 namespace IOP
 {
@@ -82,7 +82,7 @@ namespace IOP
 			uint8			nReserved5[13];
 		};
 #else
-/*
+
 		struct PADDATA
 		{
 			uint32			nFrame;
@@ -94,29 +94,13 @@ namespace IOP
 			uint32			nLength;
 			uint32			nReserved1[5];
 		};
-*/
-#pragma pack(push, 1)
-		//Castlevania: Yami no Juin - The structure is a bit different...
-		struct PADDATA
-		{
-			uint8			nData[0x20];
-			uint8			nReserved0[0x40];
-			uint32			nLength;
-			uint32			nReserved1;
-			uint32			nFrame;
-			uint32			nReserved2;
-			uint8			nState;
-			uint8			nReqState;
-			uint8			nOk;
-			uint8			nReserved3[0xD];
-		};
-#pragma pack(pop)
 
 #endif
 
 		PADDATA*			m_pPad;
 
 		void				Open(void*, uint32, void*, uint32);
+		void				SetActuatorAlign(void*, uint32, void*, uint32);
 		void				Init(void*, uint32, void*, uint32);
 		void				GetModuleVersion(void*, uint32, void*, uint32);
 

@@ -24,6 +24,8 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 	nWidth		= pReg0->GetWidth();
 	nHeight		= pReg0->GetHeight();
 
+	//return NULL;
+
 	//Set the right texture function
 	switch(pReg0->nFunction)
 	{
