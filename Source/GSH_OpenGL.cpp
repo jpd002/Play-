@@ -403,6 +403,21 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	}
+	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
+	{
+		//Cs * As
+		glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+	}
+	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
+	{
+		//Cs * Ad + Cd * (1 - Ad)
+		glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+	}
+	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 1) && (alpha.nD == 1))
+	{
+		//Cs * Ad + Cd
+		glBlendFunc(GL_DST_ALPHA, GL_ONE);
+	}
 	else
 	{
 		printf("GSH_OpenGL: Unknown color blending formula.\r\n");
@@ -845,39 +860,70 @@ void CGSH_OpenGL::Prim_Sprite()
 		glEnable(GL_BLEND);
 	}
 
-	if(m_PrimitiveMode.nUseUV && m_PrimitiveMode.nTexture)
+	if(m_PrimitiveMode.nTexture)
 	{
-		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+		double nS[2], nT[2];
 
 		glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
 
-		DECODE_UV(m_VtxBuffer[1].nUV, nU1, nV1);
-		DECODE_UV(m_VtxBuffer[0].nUV, nU2, nV2);
+		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
 
-		nU1 /= (double)m_nTexWidth;
-		nU2 /= (double)m_nTexWidth;
+		if(m_PrimitiveMode.nUseUV)
+		{
+			DECODE_UV(m_VtxBuffer[1].nUV, nU1, nV1);
+			DECODE_UV(m_VtxBuffer[0].nUV, nU2, nV2);
 
-		nV1 /= (double)m_nTexHeight;
-		nV2 /= (double)m_nTexHeight;
+			//nU1 /= (double)m_nTexWidth;
+			//nU2 /= (double)m_nTexWidth;
+
+			//nV1 /= (double)m_nTexHeight;
+			//nV2 /= (double)m_nTexHeight;
+
+			nS[0] = nU1 / (double)m_nTexWidth;
+			nS[1] = nU2 / (double)m_nTexWidth;
+
+			nT[0] = nV1 / (double)m_nTexHeight;
+			nT[1] = nV2 / (double)m_nTexHeight;
+		}
+		else
+		{
+			double nS1, nS2;
+			double nT1, nT2;
+			double nQ1, nQ2;
+
+			DECODE_ST(m_VtxBuffer[1].nST, nS1, nT1);
+			DECODE_ST(m_VtxBuffer[0].nST, nS2, nT2);
+
+			nQ1 = rgbaq[1].nQ;
+			nQ2 = rgbaq[0].nQ;
+			if(nQ1 == 0) nQ1 = 1;
+			if(nQ2 == 0) nQ2 = 1;
+
+			nS[0] = nS1 / nQ1;
+			nS[1] = nS2 / nQ2;
+
+			nT[0] = nT1 / nQ1;
+			nT[1] = nT2 / nQ2;
+		}
 
 		glBegin(GL_QUADS);
 		{
 			//REMOVE
 			//glColor4d(1.0, 1.0, 1.0, 1.0);
 
-			glTexCoord2d(nU1, nV1);
+			glTexCoord2d(nS[0], nT[0]);
 			glVertex3d(nX1, nY1, nZ1);
 
-			glTexCoord2d(nU2, nV1);
+			glTexCoord2d(nS[1], nT[0]);
 			glVertex3d(nX2, nY1, nZ2);
 
 			//REMOVE
 			//glColor4d(0.5, 0.5, 0.5, 1.0);
 
-			glTexCoord2d(nU2, nV2);
+			glTexCoord2d(nS[1], nT[1]);
 			glVertex3d(nX2, nY2, nZ1);
 
-			glTexCoord2d(nU1, nV2);
+			glTexCoord2d(nS[0], nT[1]);
 			glVertex3d(nX1, nY2, nZ2);
 		}
 		glEnd();
@@ -988,6 +1034,28 @@ void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
 
 	case GS_REG_FOGCOL:
 		SetupFogColor();
+		break;
+
+	case GS_REG_FRAME_1:
+	case GS_REG_FRAME_2:
+		{
+			FRAME Frame;
+			DISPFB* pDispFb;
+			uint32 nPtr;
+
+			Frame = *(FRAME*)&nData;
+			pDispFb = GetDispFb((m_nPMODE & 1) ? 0 : 1);
+
+			nPtr = Frame.GetBasePtr();
+
+			if(nPtr != 0)
+			{
+				if(pDispFb->GetBufPtr() == nPtr)
+				{
+					Flip();
+				}
+			}
+		}
 		break;
 	}
 }

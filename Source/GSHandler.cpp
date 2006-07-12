@@ -160,6 +160,7 @@ void CGSHandler::SaveState(CStream* pS)
 	pS->Write(m_nReg, sizeof(uint64) * 0x80);
 
 	pS->Write(&m_nPMODE,			8);
+	pS->Write(&m_nDISPFB1,			8);
 	pS->Write(&m_nDISPLAY1,			8);
 	pS->Write(&m_nDISPFB2,			8);
 	pS->Write(&m_nDISPLAY2,			8);
@@ -180,6 +181,7 @@ void CGSHandler::LoadState(CStream* pS)
 	pS->Read(m_nReg, sizeof(uint64) * 0x80);
 
 	pS->Read(&m_nPMODE,				8);
+	pS->Read(&m_nDISPFB1,			8);
 	pS->Read(&m_nDISPLAY1,			8);
 	pS->Read(&m_nDISPFB2,			8);
 	pS->Read(&m_nDISPLAY2,			8);
@@ -244,6 +246,23 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			{
 				printf("GS: Warning. Both read circuits were enabled. Using RC1 for display.\r\n");
 				m_nPMODE &= ~0x02;
+			}
+		}
+		break;
+	case 0x1200007:
+		W_REG(nAddress, nData, m_nDISPFB1);
+		if(nAddress & 0x04)
+		{
+			if(CPS2VM::m_Logging.GetGSLoggingStatus())
+			{
+				DISPFB* dispfb;
+				dispfb = GetDispFb(0);
+				printf("GS: DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+					dispfb->GetBufPtr(), \
+					dispfb->GetBufWidth(), \
+					dispfb->nPSM, \
+					dispfb->nX, \
+					dispfb->nY);
 			}
 		}
 		break;

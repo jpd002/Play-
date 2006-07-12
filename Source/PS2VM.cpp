@@ -658,7 +658,7 @@ void* CPS2VM::EmuThread(void* pParam)
 						{
 							m_nVBlankTicks = VBLANKTICKS;
 							m_pGS->SetVBlank();
-							m_pGS->Flip();
+							//m_pGS->Flip();
 							m_pPad->Update();
 							m_OnNewFrame.Notify(NULL);
 						}
