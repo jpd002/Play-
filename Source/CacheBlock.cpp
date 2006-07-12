@@ -130,42 +130,25 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 		m_nCheckDelayedJump = false;
 
 		//mov eax, dword ptr[nDelayedJumpAddr]
-		StreamWrite(2, 0x8B, 0x00 | (0x00 << 3) | (0x05));
-		StreamWriteWord((uint32)((uint8*)(&pCtx->m_State.nDelayedJumpAddr) - (uint8*)0));
+		StreamWrite(3, 0x8B, (0x01 << 6) | (0x00 << 3) | (0x05), offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 		//cmp eax, 1
 		StreamWrite(1, 0x3D);
 		StreamWriteWord(MIPS_INVALID_PC);
 
-		//je +11
-		StreamWrite(2, 0x74, 0x11);
+		//je +0B
+		StreamWrite(2, 0x74, 0x0B);
 
 		//mov dword ptr[nPC], eax
-		StreamWrite(2, 0x89, 0x00 | (0x00 << 3) | (0x05));
-		StreamWriteWord((uint32)((uint8*)(&pCtx->m_State.nPC) - (uint8*)0));
+		StreamWrite(3, 0x89, (0x01 << 6) | (0x00 << 3) | (0x05), offsetof(CMIPS, m_State.nPC));
 
 		//mov eax, 1
 		StreamWrite(1, 0xB8);
 		StreamWriteWord(MIPS_INVALID_PC);
 
 		//mov dword ptr[nDelayedJumpAddr], eax
-		StreamWrite(2, 0x89, 0x00 | (0x00 << 3) | (0x05));
-		StreamWriteWord((uint32)((uint8*)(&pCtx->m_State.nDelayedJumpAddr) - (uint8*)0));
-	/*
-		PushAddr(&pCtx->m_State.nDelayedJumpAddr);
-		PushImm(MIPS_INVALID_PC);
-		Cmp(JCC_CONDITION_EQ);
-		BeginJcc(false);
-		{
-			PushAddr(&pCtx->m_State.nDelayedJumpAddr);
-			PullAddr(&pCtx->m_State.nPC);
-		}
-		EndJcc();
+		StreamWrite(3, 0x89, (0x01 << 6) | (0x00 << 3) | (0x05), offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-		//Reset the delay slot address
-		PushImm(MIPS_INVALID_PC);
-		PullAddr(&pCtx->m_State.nDelayedJumpAddr);
-	*/
 		//PC Changed
 		SetProgramCounterChanged();
 	}
@@ -228,10 +211,6 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 	StreamWriteWord(offsetof(CMIPS, m_nQuota));
 	StreamWriteByte(1);
 
-//	StreamWrite(2, 0x83, 0x00 | (0x05 << 3) | (0x05));
-//	StreamWriteWord((uint32)((uint8*)(&pCtx->m_nQuota) - (uint8*)0));
-//	StreamWriteByte(1);
-
 	//jne $notdone
 	StreamWriteByte(0x75);
 	StreamWriteByte(0x06);
@@ -256,8 +235,7 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 void CCacheBlock::SynchornizePC(CMIPS* pCtx)
 {
 	//mov eax, dword ptr[nPC]
-	StreamWrite(2, 0x8B, 0x00 | (0x00 << 3) | (0x05));
-	StreamWriteWord((uint32)((uint8*)(&pCtx->m_State.nPC) - (uint8*)0));
+	StreamWrite(3, 0x8B, (0x01 << 6) | (0x00 << 3) | (0x05), offsetof(CMIPS, m_State.nPC));
 
 	//sub eax, m_nStart
 	StreamWrite(1, 0x2D);
@@ -287,69 +265,19 @@ void CCacheBlock::SynchornizePC(CMIPS* pCtx)
 	//ret
 	StreamWrite(1, 0xC3);
 
-	//mov ebx, &m_nReloc
-	StreamWrite(2, 0x8B, 0x00 | (0x03 << 3) | (0x05));
-	StreamWriteWord((uint32)((uint8*)(&m_pReloc) - (uint8*)0));
+	//mov ebx, m_nReloc (64-BITS : Potentially dangerous!)
+	StreamWrite(1, 0xBB);
+	StreamWriteWord((uint32)((uint8*)(m_pReloc) - (uint8*)0));
 
 	//mov eax, [ebx + eax]
 	StreamWrite(3, 0x8B, 0x00 | (0x00 << 3) | (0x04), 0x03);
 
-	//add eax, m_pData
+	//add eax, m_pData (64-BITS : Potentially dangerous!)
 	StreamWrite(1, 0x05);
 	StreamWriteWord((uint32)((uint8*)(m_pData) - (uint8*)0));
 
 	//jmp eax
 	StreamWrite(2, 0xFF, 0xE0);
-
-/*
-	//Check if we can take the execution back inside our block
-	PushAddr(&pCtx->m_State.nPC);
-	PushImm(m_nStart);
-	Cmp(JCC_CONDITION_BL);
-
-	BeginJcc(true);
-	{
-		Ret(RET_CODE_INTERBLOCKJUMP);
-	}
-	EndJcc();
-
-	PushAddr(&pCtx->m_State.nPC);
-	PushImm(m_nEnd);
-	Cmp(JCC_CONDITION_BL);
-
-	BeginJcc(false);
-	{
-		Ret(RET_CODE_INTERBLOCKJUMP);
-	}
-	EndJcc();
-
-	//This will go to the PC
-	PushAddr(&m_pData);
-	PushAddr(&m_pReloc);
-	
-	PushAddr(&pCtx->m_State.nPC);
-	SubImm(m_nStart);
-	
-	Add();
-
-	//pop eax
-	StreamWriteByte(0x58);
-
-	//pop ebx
-	StreamWriteByte(0x5B);
-
-	//mov eax, [eax]
-	StreamWriteByte(0x8B);
-	StreamWriteByte(0x00);
-
-	//add eax, ebx
-	StreamWriteByte(0x03);
-	StreamWriteByte(0xC3);
-
-	//jmp eax
-	StreamWriteByte(0xFF);
-	StreamWriteByte(0xE0);
-*/
 }
 
 ///////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@ protected:
 	long							OnSize(unsigned int, unsigned int, unsigned int);
 
 	Framework::CWindow*				GetContainer();
-	Framework::CTreeView*			GetTreeView();
+	Framework::Win32::CTreeView*	GetTreeView();
 	HTREEITEM						InsertOption(HTREEITEM, const xchar*, HWND);
 	void							DeleteAllOptions();
 	void							RefreshLayout();
@@ -25,7 +25,7 @@ protected:
 
 private:
 	void							ResizePanel(HWND);
-	Framework::CTreeView*			m_pTreeView;
+	Framework::Win32::CTreeView*	m_pTreeView;
 	Framework::Win32::CStatic*		m_pContainer;
 	Framework::CHorizontalLayout*	m_pLayout;
 

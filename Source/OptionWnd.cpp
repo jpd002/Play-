@@ -34,7 +34,7 @@ COptionWnd<T>::COptionWnd(HWND hParent, xchar* sTitle)
 	SetRect(&rc, 0, 0, 1, 1);
 
 	m_pTreeView		= NULL;
-	m_pTreeView		= new CTreeView(m_hWnd, &rc, TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
+	m_pTreeView		= new Win32::CTreeView(m_hWnd, &rc, TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
 	m_pContainer	= new Win32::CStatic(m_hWnd, &rc);
 
 	m_pLayout = new CHorizontalLayout;
@@ -86,7 +86,7 @@ CWindow* COptionWnd<T>::GetContainer()
 }
 
 template <typename T>
-CTreeView* COptionWnd<T>::GetTreeView()
+Win32::CTreeView* COptionWnd<T>::GetTreeView()
 {
 	return m_pTreeView;
 }
