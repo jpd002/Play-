@@ -3,7 +3,6 @@
 
 #include "Types.h"
 #include "Stream.h"
-#include "SettingsDialogProvider.h"
 
 #pragma pack(push, 1)
 
@@ -242,8 +241,6 @@ public:
 	virtual void							UpdateViewport()						= 0;
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
 	virtual void							Flip()									= 0;
-
-	virtual CSettingsDialogProvider*		GetSettingsDialogProvider()				= 0;
 
 	enum PRIVATE_REGISTER
 	{
