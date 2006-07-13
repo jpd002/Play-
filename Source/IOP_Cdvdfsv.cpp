@@ -222,7 +222,7 @@ void CCdvdfsv::Read(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 	nDstAddr	= ((uint32*)pArgs)[0x02];
 	nMode		= ((uint32*)pArgs)[0x04];
 
-	printf("IOP_Cdvdfsv: Read(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n", \
+	Log("Read(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n", \
 		nSector,
 		nCount,
 		nDstAddr,
@@ -249,7 +249,7 @@ void CCdvdfsv::StreamCmd(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetS
 	nCmd		= ((uint32*)pArgs)[0x03];
 	nMode		= ((uint32*)pArgs)[0x04];
 
-	printf("IOP_Cdvdfsv: StreamCmd(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, cmd = 0x%0.8X);\r\n", \
+	Log("StreamCmd(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, cmd = 0x%0.8X);\r\n", \
 		nSector,
 		nCount,
 		nDstAddr,
@@ -262,7 +262,7 @@ void CCdvdfsv::StreamCmd(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetS
 		m_nStreamPos = nSector;
 		((uint32*)pRet)[0] = 1;
 		
-		printf("IOP_Cdvdfsv: StreamStart(pos = 0x%0.8X);\r\n", \
+		Log("StreamStart(pos = 0x%0.8X);\r\n", \
 			nSector);
 		break;
 	case 2:
@@ -277,7 +277,7 @@ void CCdvdfsv::StreamCmd(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetS
 
 		((uint32*)pRet)[0] = nCount;
 
-		printf("IOP_Cdvdfsv: StreamRead(count = 0x%0.8X, dest = 0x%0.8X);\r\n", \
+		Log("StreamRead(count = 0x%0.8X, dest = 0x%0.8X);\r\n", \
 			nCount, \
 			nDstAddr);
 		break;
@@ -285,7 +285,7 @@ void CCdvdfsv::StreamCmd(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetS
 		//Init
 		((uint32*)pRet)[0] = 1;
 
-		printf("IOP_Cdvdfsv: StreamInit(bufsize = 0x%0.8X, numbuf = 0x%0.8X, buf = 0x%0.8X);\r\n", \
+		Log("StreamInit(bufsize = 0x%0.8X, numbuf = 0x%0.8X, buf = 0x%0.8X);\r\n", \
 			nSector, \
 			nCount, \
 			nDstAddr);
@@ -296,7 +296,7 @@ void CCdvdfsv::StreamCmd(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetS
 		m_nStreamPos = nSector;
 		((uint32*)pRet)[0] = 1;
 
-		printf("IOP_Cdvdfsv: StreamSeek(pos = 0x%0.8X);\r\n", \
+		Log("StreamSeek(pos = 0x%0.8X);\r\n", \
 			nSector);
 		break;
 	}
@@ -344,7 +344,7 @@ void CCdvdfsv::SearchFile(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRet
 		sTemp = strchr(sTemp + 1, '\\');
 	}
 
-	printf("IOP_Cdvdfsv: SearchFile(path = %s);\r\n", sFixedPath);
+	Log("SearchFile(path = %s);\r\n", sFixedPath);
 
 	if(!pISO->GetFileRecord(&Record, sFixedPath))
 	{
@@ -361,10 +361,14 @@ void CCdvdfsv::SearchFile(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRet
 void CCdvdfsv::Log(const char* sFormat, ...)
 {
 #ifdef _DEBUG
+
+	if(!CPS2VM::m_Logging.GetIOPLoggingStatus()) return;
+
 	va_list Args;
 	printf("IOP_Cdvdfsv: ");
 	va_start(Args, sFormat);
 	vprintf(sFormat, Args);
 	va_end(Args);
+
 #endif
 }

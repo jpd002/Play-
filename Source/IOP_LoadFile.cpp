@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "IOP_LoadFile.h"
+#include "PS2VM.h"
 
 using namespace IOP;
 using namespace Framework;
@@ -46,7 +47,7 @@ void CLoadFile::LoadModule(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRe
 	strncpy(sModuleName, &((const char*)pArgs)[8], 252);
 
 	//Load the module???
-	printf("IOP_LoadFile: Request to load module '%s' received.\r\n", sModuleName);
+	Log("Request to load module '%s' received.\r\n", sModuleName);
 
 	//This function returns something negative upon failure
 	*(uint32*)pRet = 0x00000000;
@@ -58,4 +59,19 @@ void CLoadFile::Initialize(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRe
 	assert(nRetSize == 4);
 
 	*(uint32*)pRet = 0x2E2E2E2E;
+}
+
+void CLoadFile::Log(const char* sFormat, ...)
+{
+#ifdef _DEBUG
+
+	if(!CPS2VM::m_Logging.GetIOPLoggingStatus()) return;
+
+	va_list Args;
+	printf("IOP_LoadFile: ");
+	va_start(Args, sFormat);
+	vprintf(sFormat, Args);
+	va_end(Args);
+
+#endif
 }

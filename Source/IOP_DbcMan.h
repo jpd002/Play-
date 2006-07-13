@@ -39,6 +39,8 @@ namespace IOP
 
 		void						DeleteAllSockets();
 
+		void						Log(const char*, ...);
+
 		Framework::CList<SOCKET>	m_Socket;
 	};
 

@@ -103,7 +103,7 @@ uint32 CSIF::ReceiveDMA(uint32 nSrcAddr, uint32 nDstAddr, uint32 nSize)
 		pHDR->nCID |= 0x80000000;
 	}
 */
-	printf("SIF: Received command 0x%0.8X.\r\n", pHDR->nCID);
+	Log("Received command 0x%0.8X.\r\n", pHDR->nCID);
 
 	switch(pHDR->nCID)
 	{
@@ -241,7 +241,7 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 
 	//Maybe check what it wants to bind?
 
-	printf("SIF: Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
+	Log("Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
 
 	//Fill in the request end 
 	rend.Header.nSize		= sizeof(RPCREQUESTEND);
@@ -271,7 +271,7 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 
 	pCall = (RPCCALL*)pHDR;
 
-	printf("SIF: Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
+	Log("Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
 
 	nRecvAddr = (pCall->nRecv & (CPS2VM::RAMSIZE - 1));
 
@@ -282,7 +282,7 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 	}
 	else
 	{
-		printf("SIF: Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
+		Log("Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
 	}
 
 	memset(&rend, 0, sizeof(RPCREQUESTEND));
@@ -344,7 +344,7 @@ uint32 CSIF::GetRegister(uint32 nRegister)
 			return 1;
 			break;
 		default:
-			printf("SIF: Warning. Trying to read an invalid system register (0x%0.8X).\r\n", nRegister);
+			Log("Warning. Trying to read an invalid system register (0x%0.8X).\r\n", nRegister);
 			return 0;
 			break;
 		}
@@ -381,8 +381,23 @@ void CSIF::SetRegister(uint32 nRegister, uint32 nValue)
 			//Set by RPC library (initialized state?)
 			break;
 		default:
-			printf("SIF: Warning. Trying to write to an invalid system register (0x%0.8X).\r\n", nRegister);
+			Log("Warning. Trying to write to an invalid system register (0x%0.8X).\r\n", nRegister);
 			break;
 		}
 	}
+}
+
+void CSIF::Log(const char* sFormat, ...)
+{
+#ifdef _DEBUG
+
+	if(!CPS2VM::m_Logging.GetSIFLoggingStatus()) return;
+
+	va_list Args;
+	printf("SIF: ");
+	va_start(Args, sFormat);
+	vprintf(sFormat, Args);
+	va_end(Args);
+
+#endif
 }

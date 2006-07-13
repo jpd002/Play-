@@ -170,7 +170,7 @@ uint32 CFileIO::Open(uint32 nMode, const char* sPath)
 */
 	CStream* pFile;
 
-	printf("IOP_FileIO: Attempting to open file '%s'.\r\n", sPath);
+	Log("Attempting to open file '%s'.\r\n", sPath);
 	
 	pFile = GetFile(nMode, sPath);
 	if(pFile == NULL)
@@ -221,7 +221,7 @@ uint32 CFileIO::Read(uint32 nFile, uint32 nSize, void* pBuffer)
 	pFile = m_File.Find(nFile);
 	if(pFile == NULL)
 	{
-		printf("IOP_FileIO: Reading from an unopened file (fd = %i).\r\n", nFile);
+		Log("Reading from an unopened file (fd = %i).\r\n", nFile);
 		return 0xFFFFFFFF;
 	}
 
@@ -238,7 +238,7 @@ uint32 CFileIO::Write(uint32 nFile, uint32 nSize, void* pBuffer)
 	{
 		if(nFile > 2)
 		{
-			printf("IOP_FileIO: Writing to an unopened file (fd = %i).\r\n", nFile);
+			Log("Writing to an unopened file (fd = %i).\r\n", nFile);
 		}
 		return 0xFFFFFFFF;
 	}
@@ -256,7 +256,7 @@ uint32 CFileIO::Seek(uint32 nFile, uint32 nOffset, uint32 nWhence)
 	pFile = m_File.Find(nFile);
 	if(pFile == NULL)
 	{
-		printf("IOP_FileIO: Seeking in an unopened file (fd = %i).\r\n", nFile);
+		Log("Seeking in an unopened file (fd = %i).\r\n", nFile);
 		return 0xFFFFFFFF;
 	}
 
@@ -275,6 +275,21 @@ uint32 CFileIO::Seek(uint32 nFile, uint32 nOffset, uint32 nWhence)
 
 	pFile->Seek(nOffset, nPosition);
 	return (uint32)pFile->Tell();
+}
+
+void CFileIO::Log(const char* sFormat, ...)
+{
+#ifdef _DEBUG
+
+	if(!CPS2VM::m_Logging.GetIOPLoggingStatus()) return;
+
+	va_list Args;
+	printf("IOP_FileIO: ");
+	va_start(Args, sFormat);
+	vprintf(sFormat, Args);
+	va_end(Args);
+
+#endif
 }
 
 /////////////////////////////////////////////

@@ -126,7 +126,7 @@ void CDbcMan::CreateSocket(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRe
 
 	((uint32*)pRet)[0x09] = nID;
 
-	printf("IOP_DbcMan: CreateSocket(type1 = 0x%0.8X, type2 = 0x%0.8X, port = %i, slot = %i, buf1 = 0x%0.8X, buf2 = 0x%0.8X);\r\n", \
+	Log("CreateSocket(type1 = 0x%0.8X, type2 = 0x%0.8X, port = %i, slot = %i, buf1 = 0x%0.8X, buf2 = 0x%0.8X);\r\n", \
 		nType1, \
 		nType2, \
 		nPort, \
@@ -152,7 +152,7 @@ void CDbcMan::SetWorkAddr(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRet
 
 	((uint32*)pRet)[0] = 0x00000000;
 
-	printf("IOP_DbcMan: SetWorkAddr(addr = 0x%0.8X);\r\n", nAddress);
+	Log("SetWorkAddr(addr = 0x%0.8X);\r\n", nAddress);
 }
 
 void CDbcMan::ReceiveData(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
@@ -186,7 +186,7 @@ void CDbcMan::ReceiveData(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRet
 	((uint32*)pRet)[2] = 0x1;
 	((uint32*)pRet)[3] = 0x1;
 
-	printf("IOP_DbcMan: ReceiveData(socket = 0x%0.8X, flags = 0x%0.8X, param = 0x%0.8X);\r\n", nSocket, nFlags, nParam);
+	Log("ReceiveData(socket = 0x%0.8X, flags = 0x%0.8X, param = 0x%0.8X);\r\n", nSocket, nFlags, nParam);
 }
 
 void CDbcMan::GetVersionInformation(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
@@ -196,7 +196,7 @@ void CDbcMan::GetVersionInformation(void* pArgs, uint32 nArgsSize, void* pRet, u
 
 	((uint32*)pRet)[0] = 0x00000200;
 
-	printf("IOP_DbcMan: GetVersionInformation();\r\n");
+	Log("GetVersionInformation();\r\n");
 }
 
 void CDbcMan::DeleteAllSockets()
@@ -205,4 +205,19 @@ void CDbcMan::DeleteAllSockets()
 	{
 		delete m_Socket.Pull();
 	}
+}
+
+void CDbcMan::Log(const char* sFormat, ...)
+{
+#ifdef _DEBUG
+
+	if(!CPS2VM::m_Logging.GetIOPLoggingStatus()) return;
+
+	va_list Args;
+	printf("IOP_DbcMan: ");
+	va_start(Args, sFormat);
+	vprintf(sFormat, Args);
+	va_end(Args);
+
+#endif
 }

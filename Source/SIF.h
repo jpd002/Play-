@@ -103,6 +103,8 @@ private:
 	static void								Cmd_Bind(PACKETHDR*);
 	static void								Cmd_Call(PACKETHDR*);
 
+	static void								Log(const char*, ...);
+
 	static uint32							m_nMAINADDR;
 	static uint32							m_nSUBADDR;
 	static uint32							m_nMSFLAG;
@@ -115,6 +117,7 @@ private:
 
 	static IOP::CPadMan*					m_pPadMan;
 	static Framework::CList<IOP::CModule>	m_Module;
+
 };
 
 #endif

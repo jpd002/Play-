@@ -20,6 +20,8 @@ namespace IOP
 	private:
 		uint32			Allocate(uint32);
 		uint32			AllocateSystemMemory(uint32, uint32, uint32);
+
+		void			Log(const char*, ...);
 	};
 };
 

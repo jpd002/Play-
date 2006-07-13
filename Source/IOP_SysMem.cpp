@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include "IOP_SysMem.h"
+#include "PS2VM.h"
 
 using namespace IOP;
 using namespace Framework;
@@ -35,7 +36,7 @@ void CSysMem::LoadState(CStream* pStream)
 
 uint32 CSysMem::Allocate(uint32 nSize)
 {
-	printf("IOP_SysMem: Allocate(size = 0x%0.8X);\r\n", nSize);
+	Log("Allocate(size = 0x%0.8X);\r\n", nSize);
 	//return 0x01;
 	return nSize;
 }
@@ -44,6 +45,21 @@ uint32 CSysMem::AllocateSystemMemory(uint32 nFlags, uint32 nSize, uint32 nPtr)
 {
 	//Ys 1&2 Eternal Story calls this
 
-	printf("IOP_SysMem: AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", nFlags, nSize, nPtr);
+	Log("AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", nFlags, nSize, nPtr);
 	return 0x01;
+}
+
+void CSysMem::Log(const char* sFormat, ...)
+{
+#ifdef _DEBUG
+
+	if(!CPS2VM::m_Logging.GetIOPLoggingStatus()) return;
+
+	va_list Args;
+	printf("IOP_SysMem: ");
+	va_start(Args, sFormat);
+	vprintf(sFormat, Args);
+	va_end(Args);
+
+#endif
 }

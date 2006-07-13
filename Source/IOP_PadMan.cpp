@@ -142,10 +142,14 @@ void CPadMan::GetModuleVersion(void* pArgs, uint32 nArgsSize, void* pRet, uint32
 void CPadMan::Log(const char* sFormat, ...)
 {
 #ifdef _DEBUG
+
+	if(!CPS2VM::m_Logging.GetIOPLoggingStatus()) return;
+
 	va_list Args;
 	printf("IOP_PadMan: ");
 	va_start(Args, sFormat);
 	vprintf(sFormat, Args);
 	va_end(Args);
+
 #endif
 }

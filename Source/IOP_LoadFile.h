@@ -20,6 +20,7 @@ namespace IOP
 	private:
 		void			LoadModule(void*, uint32, void*, uint32);
 		void			Initialize(void*, uint32, void*, uint32);
+		void			Log(const char*, ...);
 	};
 
 };

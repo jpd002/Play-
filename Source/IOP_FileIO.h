@@ -71,6 +71,8 @@ namespace IOP
 		uint32									Close(uint32);
 		uint32									Seek(uint32, uint32, uint32);
 
+		void									Log(const char*, ...);
+
 		uint32									m_nFileID;
 
 		Framework::CList<Framework::CStream>	m_File;
