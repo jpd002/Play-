@@ -1,9 +1,9 @@
 #ifndef _PS2VM_H_
 #define _PS2VM_H_
 
+#include <boost/thread.hpp>
 #include "Types.h"
 #include "PS2OS.h"
-#include "Thread.h"
 #include "MIPS.h"
 #include "ThreadMsg.h"
 #include "GSHandler.h"
@@ -34,6 +34,10 @@ enum PS2VM_STATUS
 
 #define VERSION_MAJOR		(0)
 #define VERSION_MINOR		(20)
+
+#ifdef	PROFILE
+#define	PROFILE_EEZONE "EE"
+#endif
 
 typedef CGSHandler*			(*GSHANDLERFACTORY)(void*); 
 typedef CPadHandler*		(*PADHANDLERFACTORY)(void*);
@@ -148,8 +152,8 @@ private:
 	static void						RegisterModulesInPadHandler();
 
 	static unsigned int				SendMessage(PS2VM_MSG, void* = NULL);
-	static void*					EmuThread(void*);
-	static Framework::CThread*		m_pThread;
+	static void						EmuThread();
+	static boost::thread*			m_pThread;
 	static CThreadMsg				m_MsgBox;
 
 	static CPS2OS*					m_pOS;

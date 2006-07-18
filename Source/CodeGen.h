@@ -118,11 +118,14 @@ private:
 
 	static void					LoadConditionInRegister(unsigned int, CONDITION);
 
+	static void					ReduceToRegister();
+
 	static void					WriteRelativeRm(unsigned int, uint32);
 	static void					WriteRelativeRmRegister(unsigned int, uint32);
 	static void					WriteRelativeRmFunction(unsigned int, uint32);
 
 	static bool					IsTopRegCstPairCom();
+	static bool					IsTopRegZeroPairCom();
 	static void					GetRegCstPairCom(unsigned int*, uint32*);
 
 	static void					PushReg(unsigned int);

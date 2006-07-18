@@ -34,7 +34,8 @@ private:
 	void							ShowSysInfo();
 	void							ShowAbout();
 	void							ShowRendererSettings();
-	void							ShowVFSManager();
+	void							ShowVfsManager();
+	void							ShowMcManager();
 
 	void							LoadELF(const char*);
 	void							RefreshLayout();

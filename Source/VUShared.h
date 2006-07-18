@@ -20,6 +20,7 @@ namespace VUShared
 
 	bool				DestinationHasElement(uint8, unsigned int);
 	uint32*				GetVectorElement(CMIPS*, unsigned int, unsigned int);
+	size_t				GetVectorElement(unsigned int, unsigned int);
 	uint32*				GetAccumulatorElement(CMIPS*, unsigned int);
 
 	void				PullVector(uint8, uint128*);

@@ -23,8 +23,6 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 	nWidth		= pReg0->GetWidth();
 	nHeight		= pReg0->GetHeight();
 
-	//return NULL;
-
 	//Set the right texture function
 	switch(pReg0->nFunction)
 	{
@@ -47,9 +45,41 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 
 			glUseProgram((*m_pProgram));
 
-			m_pProgram->SetUniformi("g_nClamp",	pClamp->nWMS - 1,	pClamp->nWMT - 1);
-			m_pProgram->SetUniformi("g_nMin",	pClamp->GetMinU(),	pClamp->GetMinV());
-			m_pProgram->SetUniformi("g_nMax",	pClamp->GetMaxU(),	pClamp->GetMaxV());
+			unsigned int nMode[2];
+			unsigned int nMin[2];
+			unsigned int nMax[2];
+
+			nMode[0] = pClamp->nWMS - 1;
+			nMode[1] = pClamp->nWMT - 1;
+
+			nMin[0] = pClamp->GetMinU();
+			nMin[1] = pClamp->GetMinV();
+
+			nMax[0] = pClamp->GetMaxU();
+			nMax[1] = pClamp->GetMaxV();
+
+			for(unsigned int i = 0; i < 2; i++)
+			{
+				if(nMode[i] == 2)
+				{
+					//Check if we can transform in something more elegant
+
+					for(unsigned int j = 1; j < 0x3FF; j = ((j << 1) | 1))
+					{
+						if(nMin[i] < j) break;
+						if(nMin[i] != j) continue;
+
+						if((nMin[i] & nMax[i]) != 0) break;
+
+						nMin[i]++;
+						nMode[i] = 3;
+					}
+				}
+			}
+
+			m_pProgram->SetUniformi("g_nClamp",	nMode[0],			nMode[1]);
+			m_pProgram->SetUniformi("g_nMin",	nMin[0],			nMin[1]);
+			m_pProgram->SetUniformi("g_nMax",	nMax[0],			nMax[1]);
 			m_pProgram->SetUniformf("g_nSize",	(float)nWidth,		(float)nHeight);
 		}
 		else
@@ -132,12 +162,10 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 	{
 	case PSMCT32:
 		TexUploader_Psm32(pReg0, &TexA);
-		//glPixelTransferf(GL_ALPHA_SCALE, 2.0f);
-		//glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pRAM + nPointer);
 		break;
 	case PSMCT16:
 	case PSMCT16S:
-		((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
+		//((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
 		break;
 	case PSMT8:
 		((this)->*(m_pTexUploader_Psm8))(pReg0, &TexA);
@@ -668,21 +696,9 @@ void CGSH_OpenGL::TexUploader_Psm4_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 	{
 		for(j = 0; j < nHeight; j++)
 		{
-			/*
-			for(i = 0; i < nWidth; i += 2)
-			{
-				nPixel = *(Indexor.GetPixel(i / 2, j));
-				//pDst[i + 0] = m_pCLUT32[(nPixel >> 0x00) & 0x0F];
-				//pDst[i + 1] = m_pCLUT32[(nPixel >> 0x04) & 0x0F];
-				pDst[i + 0] = 0xFFFF0000 | ((nPixel & 0x0F) << 12) | ((nPixel & 0x0F) << 4);
-				pDst[i + 1] = 0xFFFF0000 | ((nPixel & 0xF0) <<  8) | ((nPixel & 0xF0) << 0);
-			}
-			*/
-
 			for(i = 0; i < nWidth; i++)
 			{
 				nPixel = Indexor.GetPixel(i, j);
-				//pDst[i] = 0xFFFF0000 | ((nPixel & 0x0F) << 12) | ((nPixel & 0x0F) << 4);
 				pDst[i] = m_pCLUT32[nPixel];
 			}
 

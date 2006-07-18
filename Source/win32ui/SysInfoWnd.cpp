@@ -4,7 +4,7 @@
 #include "PtrMacro.h"
 #include "win32/LayoutWindow.h"
 #ifdef AMD64
-#include "amd64/CPUID.h"
+#include "../amd64/CPUID.h"
 #endif
 
 #define CLSNAME			_X("SysInfoWnd")

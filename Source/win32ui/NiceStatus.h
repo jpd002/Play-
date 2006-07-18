@@ -23,8 +23,8 @@ class CNiceStatus : public Framework::CCustomDrawn
 public:
 									CNiceStatus(HWND, RECT*);
 									~CNiceStatus();
-	void							InsertPanel(unsigned long, double, xchar*);
-	void							SetCaption(unsigned long, xchar*);
+	void							InsertPanel(unsigned long, double, const xchar*);
+	void							SetCaption(unsigned long, const xchar*);
 protected:
 	void							Paint(HDC);
 

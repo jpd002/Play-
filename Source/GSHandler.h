@@ -411,6 +411,7 @@ protected:
 		uint32			nSize;
 		uint32			nRRX;
 		uint32			nRRY;
+		bool			nDirty;
 	};
 
 	struct STORAGEPSMCT32
@@ -568,7 +569,7 @@ protected:
 	typedef CPixelIndexor<STORAGEPSMT8>		CPixelIndexorPSMT8;
 	typedef CPixelIndexor<STORAGEPSMT4>		CPixelIndexorPSMT4;
 
-	typedef void (CGSHandler::*TRANSFERHANDLER)(void*, uint32);
+	typedef bool (CGSHandler::*TRANSFERHANDLER)(void*, uint32);
 
 	//General Purpose Registers
 	TEXCLUT*								GetTexClut();
@@ -588,12 +589,12 @@ protected:
 
 	TRANSFERHANDLER							m_pTransferHandler[PSM_MAX];
 
-	void									TrxHandlerInvalid(void*, uint32);
-	template <typename Storage> void		TrxHandlerCopy(void*, uint32);
-	void									TrxHandlerPSMT4(void*, uint32);
-	void									TrxHandlerPSMCT24(void*, uint32);
-	void									TrxHandlerPSMT8H(void*, uint32);
-	template <uint32, uint32> void			TrxHandlerPSMT4H(void*, uint32);
+	bool									TrxHandlerInvalid(void*, uint32);
+	template <typename Storage> bool		TrxHandlerCopy(void*, uint32);
+	bool									TrxHandlerPSMT4(void*, uint32);
+	bool									TrxHandlerPSMCT24(void*, uint32);
+	bool									TrxHandlerPSMT8H(void*, uint32);
+	template <uint32, uint32> bool			TrxHandlerPSMT4H(void*, uint32);
 
 	unsigned int							GetPsmPixelSize(unsigned int);
 

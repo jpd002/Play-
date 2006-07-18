@@ -2,10 +2,18 @@
 #include "GIF.h"
 #include "uint128.h"
 #include "PS2VM.h"
+#include "Profiler.h"
+
+using namespace Framework;
+
+#ifdef	PROFILE
+#define PROFILE_GIFZONE		"GIF"
+#endif
 
 uint16	CGIF::m_nLoops		= 0;
 uint8	CGIF::m_nCmd		= 0;
 uint8	CGIF::m_nRegs		= 0;
+uint8	CGIF::m_nRegsTemp	= 0;
 uint64	CGIF::m_nRegList	= 0;
 bool	CGIF::m_nEOP		= false;
 uint32	CGIF::m_nQTemp		= 0;
@@ -19,23 +27,22 @@ void CGIF::Reset()
 
 uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
-	uint32 nRegDesc, j, nStart;
+	uint32 nRegDesc, nStart;
 	uint64 nTemp;
 	uint128 nPacket;
 
 	nStart = nAddress;
 
-	while(m_nLoops != 0)
+	while((m_nLoops != 0) && (nAddress < nEnd))
 	{
-		for(j = 0; j < m_nRegs; j++)
+		while((m_nRegsTemp != 0) && (nAddress < nEnd))
 		{
-			nRegDesc = (uint32)((m_nRegList >> (j * 4)) & 0x0F);
+			nRegDesc = (uint32)((m_nRegList >> ((m_nRegs - m_nRegsTemp) * 4)) & 0x0F);
 
-			nPacket.nV[0] = *(uint32*)&pMemory[nAddress + 0x00];
-			nPacket.nV[1] = *(uint32*)&pMemory[nAddress + 0x04];
-			nPacket.nV[2] = *(uint32*)&pMemory[nAddress + 0x08];
-			nPacket.nV[3] = *(uint32*)&pMemory[nAddress + 0x0C];
+			nPacket = *(uint128*)&pMemory[nAddress];
 			nAddress += 0x10;
+
+			m_nRegsTemp--;
 
 			switch(nRegDesc)
 			{
@@ -102,7 +109,12 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			}
 		}
 
-		m_nLoops--;
+		if(m_nRegsTemp == 0)
+		{
+			m_nLoops--;
+			m_nRegsTemp = m_nRegs;
+		}
+
 	}
 
 	return nAddress - nStart;
@@ -119,6 +131,8 @@ uint32 CGIF::ProcessRegList(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 	{
 		for(j = 0; j < m_nRegs; j++)
 		{
+			assert(nAddress < nEnd);
+
 			nRegDesc = (uint32)((m_nRegList >> (j * 4)) & 0x0F);
 
  			nPacket.nV[0] = *(uint32*)&pMemory[nAddress + 0x00];
@@ -158,6 +172,11 @@ uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_GIFZONE);
+#endif
+
 	uint128 nPacket;
 	uint32 nStart;
 
@@ -178,10 +197,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			}
 
 			//We need to update the registers
-			nPacket.nV[0] = *(uint32*)&pMemory[nAddress + 0x00];
-			nPacket.nV[1] = *(uint32*)&pMemory[nAddress + 0x04];
-			nPacket.nV[2] = *(uint32*)&pMemory[nAddress + 0x08];
-			nPacket.nV[3] = *(uint32*)&pMemory[nAddress + 0x0C];
+			nPacket = *(uint128*)&pMemory[nAddress];
 			nAddress += 0x10;
 
 			m_nLoops	= (uint16)((nPacket.nV0 >>  0) & 0x7FFF);
@@ -199,6 +215,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			}
 
 			if(m_nRegs == 0) m_nRegs = 0x10;
+			m_nRegsTemp = m_nRegs;
 			continue;
 		}
 		switch(m_nCmd)
@@ -223,6 +240,10 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			m_nEOP = false;
 		}
 	}
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
 
 	return nAddress - nStart;
 }

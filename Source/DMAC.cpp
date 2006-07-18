@@ -6,6 +6,11 @@
 #include "SIF.h"
 #include "VIF.h"
 #include "IPU.h"
+#include "Profiler.h"
+
+#ifdef	PROFILE
+#define	PROFILE_DMACZONE "DMAC"
+#endif
 
 using namespace Framework;
 
@@ -274,6 +279,11 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 {
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_DMACZONE);
+#endif
+
 	switch(nAddress)
 	{
 	case D1_CHCR + 0x0:
@@ -565,6 +575,11 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	}
 
 	DisassembleSet(nAddress, nData);
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
+
 }
 
 void CDMAC::LoadState(CStream* pStream)

@@ -63,6 +63,11 @@ float Clamp(int nClampMode, float nCoord, int nMin, int nMax)
 		//Repeat Clamp
 		nCoord = or(int(and(int(nCoord), nMin)), nMax);
 	}
+	else if(nClampMode == 3)
+	{
+		//Repeat Clamp (more elegant)
+		nCoord = mod(nCoord, float(nMin)) + float(nMax);
+	}
 		
 	return nCoord;
 }

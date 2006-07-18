@@ -78,27 +78,7 @@ void CGSH_OpenGL::InitializeRC()
 	wglMakeCurrent(m_hDC, m_hRC);
 
 	glewInit();
-/*
-	glColorTableEXT = (PFNGLCOLORTABLEEXTPROC)wglGetProcAddress("glColorTable");
-	if(glColorTableEXT == NULL)
-	{
-		glColorTableEXT = (PFNGLCOLORTABLEEXTPROC)wglGetProcAddress("glColorTableEXT");
-	}
 
-	glBlendColorEXT	= (PFNGLBLENDCOLOREXTPROC)wglGetProcAddress("glBlendColor");
-	if(glBlendColorEXT == NULL)
-	{
-		glBlendColorEXT	= (PFNGLBLENDCOLOREXTPROC)wglGetProcAddress("glBlendColorEXT");
-	}
-
-	glBlendEquationEXT = (PFNGLBLENDEQUATIONEXTPROC)wglGetProcAddress("glBlendEquation");
-	if(glBlendEquationEXT == NULL)
-	{
-		glBlendEquationEXT = (PFNGLBLENDEQUATIONEXTPROC)wglGetProcAddress("glBlendEquationEXT");
-	}
-
-	glFogCoordfEXT = (PFNGLFOGCOORDFEXTPROC)wglGetProcAddress("glFogCoordfEXT");
-*/
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(0.0f);
@@ -164,6 +144,8 @@ void CGSH_OpenGL::InitializeRC()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	SwapBuffers(m_hDC);
+
+	//wglMakeCurrent(NULL, NULL);
 }
 
 void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const xchar* sResourceName)
@@ -255,26 +237,12 @@ void CGSH_OpenGL::UpdateViewport()
 	m_nWidth = nW;
 	m_nHeight = nH;
 
-//	SetViewport(m_nWidth, m_nHeight);
-	SetViewport(GetCrtWidth(), GetCrtHeight());
-//	SetViewport(320, 240);
-	SetReadCircuitMatrix(m_nWidth, m_nHeight);
-
-	/*
-	float nRatio;
-	nRatio = (float)GetCrtWidth() / (float)m_nWidth;
-
-	if((nRatio - (int)nRatio) != 0)
+	//wglMakeCurrent(m_hDC, m_hRC);
 	{
-		glEnable(GL_LINE_SMOOTH);
+		SetViewport(GetCrtWidth(), GetCrtHeight());
+		SetReadCircuitMatrix(m_nWidth, m_nHeight);
 	}
-	else
-	{
-		glDisable(GL_LINE_SMOOTH);
-	}
-
-	glLineWidth(nRatio);
-	*/
+	//wglMakeCurrent(NULL, NULL);
 }
 
 void CGSH_OpenGL::SetViewport(int nWidth, int nHeight)
@@ -543,6 +511,8 @@ void CGSH_OpenGL::SetupFogColor()
 {
 	float nColor[4];
 	FOGCOL* pColor;
+
+	//wglMakeCurrent(m_hDC, m_hRC);
 
 	pColor = GetFogCol();
 	nColor[0] = (float)pColor->nFCR / 255.0f;
@@ -1091,50 +1061,54 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 
 	if(m_nVtxCount == 0)
 	{
-		if((m_nReg[GS_REG_PRMODECONT] & 1) != 0)
+		//wglMakeCurrent(m_hDC, m_hRC);
 		{
-			DECODE_PRMODE(m_nReg[GS_REG_PRIM], m_PrimitiveMode);
-		}
-		else
-		{
-			DECODE_PRMODE(m_nReg[GS_REG_PRMODE], m_PrimitiveMode);
-		}
+			if((m_nReg[GS_REG_PRMODECONT] & 1) != 0)
+			{
+				DECODE_PRMODE(m_nReg[GS_REG_PRIM], m_PrimitiveMode);
+			}
+			else
+			{
+				DECODE_PRMODE(m_nReg[GS_REG_PRMODE], m_PrimitiveMode);
+			}
 
-		SetRenderingContext(m_PrimitiveMode.nContext);
+			SetRenderingContext(m_PrimitiveMode.nContext);
 
-		switch(m_nPrimitiveType)
-		{
-		case 0:
-			if(nDrawingKick) Prim_Point();
-			break;
-		case 1:
-			if(nDrawingKick) Prim_Line();
-			break;
-		case 2:
-			if(nDrawingKick) Prim_Line();
-			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
-			m_nVtxCount = 1;
-			break;
-		case 3:
-			if(nDrawingKick) Prim_Triangle();
-			m_nVtxCount = 3;
-			break;
-		case 4:
-			if(nDrawingKick) Prim_Triangle();
-			memcpy(&m_VtxBuffer[2], &m_VtxBuffer[1], sizeof(VERTEX));
-			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
-			m_nVtxCount = 1;
-			break;
-		case 5:
-			if(nDrawingKick) Prim_Triangle();
-			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
-			m_nVtxCount = 1;
-			break;
-		case 6:
-			if(nDrawingKick) Prim_Sprite();
-			m_nVtxCount = 2;
-			break;
+			switch(m_nPrimitiveType)
+			{
+			case 0:
+				if(nDrawingKick) Prim_Point();
+				break;
+			case 1:
+				if(nDrawingKick) Prim_Line();
+				break;
+			case 2:
+				if(nDrawingKick) Prim_Line();
+				memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
+				m_nVtxCount = 1;
+				break;
+			case 3:
+				if(nDrawingKick) Prim_Triangle();
+				m_nVtxCount = 3;
+				break;
+			case 4:
+				if(nDrawingKick) Prim_Triangle();
+				memcpy(&m_VtxBuffer[2], &m_VtxBuffer[1], sizeof(VERTEX));
+				memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
+				m_nVtxCount = 1;
+				break;
+			case 5:
+				if(nDrawingKick) Prim_Triangle();
+				memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
+				m_nVtxCount = 1;
+				break;
+			case 6:
+				if(nDrawingKick) Prim_Sprite();
+				m_nVtxCount = 2;
+				break;
+			}
 		}
+		//wglMakeCurrent(NULL, NULL);
 	}
 }
 

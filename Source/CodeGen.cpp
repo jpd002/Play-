@@ -417,6 +417,43 @@ void CCodeGen::LoadConditionInRegister(unsigned int nRegister, CONDITION nCondit
 	m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
 }
 
+void CCodeGen::ReduceToRegister()
+{
+	if(m_Shadow.GetAt(0) == RELATIVE)
+	{
+		uint32 nRelative;
+		unsigned int nRegister;
+
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative);
+
+		PushReg(nRegister);
+	}
+	else if(m_Shadow.GetAt(0) == VARIABLE)
+	{
+		uint32 nVariable, nRegister;
+
+		m_Shadow.Pull();
+		nVariable = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadVariableInRegister(nRegister, nVariable);
+
+		PushReg(nRegister);
+	}
+	else if(m_Shadow.GetAt(0) == REGISTER)
+	{
+		//That's fine
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
 void CCodeGen::WriteRelativeRm(unsigned int nIndex, uint32 nOffset)
 {
 	if(nOffset <= 0x7F)
@@ -612,6 +649,12 @@ void CCodeGen::PullRel(size_t nOffset)
 
 		FreeRegister(nRegister);		
 	}
+	else if(m_Shadow.GetAt(0) == VARIABLE)
+	{
+		ReduceToRegister();
+
+		PullRel(nOffset);
+	}
 	else if(m_Shadow.GetAt(0) == RELATIVE)
 	{
 		uint32 nRelative, nRegister;
@@ -678,6 +721,10 @@ void CCodeGen::Add()
 
 		m_Shadow.Pull();
 		nConstant = m_Shadow.Pull();
+
+		//No point in adding zero
+		if(nConstant == 0) return;
+
 		m_Shadow.Pull();
 		nRelative = m_Shadow.Pull();
 
@@ -750,6 +797,9 @@ void CCodeGen::Add()
 		m_Shadow.Pull();
 		nConstant = m_Shadow.Pull();
 
+		//No point in adding zero
+		if(nConstant == 0) return;
+
 		m_Shadow.Pull();
 		nRegister = m_Shadow.Pull();
 
@@ -767,6 +817,17 @@ void CCodeGen::Add()
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
+	}
+	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == CONSTANT))
+	{
+		uint32 nConstant1, nConstant2;
+	
+		m_Shadow.Pull();
+		nConstant2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nConstant1 = m_Shadow.Pull();
+
+		PushCst(nConstant2 + nConstant1);
 	}
 	else
 	{
@@ -941,6 +1002,17 @@ void CCodeGen::And()
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
+	}
+	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == CONSTANT))
+	{
+		uint32 nConstant1, nConstant2;
+	
+		m_Shadow.Pull();
+		nConstant2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nConstant1 = m_Shadow.Pull();
+
+		PushCst(nConstant2 & nConstant1);
 	}
 	else
 	{
@@ -1200,14 +1272,11 @@ void CCodeGen::Cmp(CONDITION nCondition)
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
 	}
-	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(1) == 0) && (nCondition == CONDITION_EQ))
+	else if(IsTopRegZeroPairCom() && (nCondition == CONDITION_EQ))
 	{
-		uint32 nRegister;
+		unsigned int nRegister;
 
-		m_Shadow.Pull();
-		m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
+		GetRegCstPairCom(&nRegister, NULL);
 
 		//test reg, reg
 		m_pBlock->StreamWrite(2, 0x85, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
@@ -1425,104 +1494,46 @@ void CCodeGen::Or()
 
 void CCodeGen::SeX16()
 {
-	if(m_Shadow.GetAt(0) == REGISTER)
-	{
-		uint32 nRegister;
+	ReduceToRegister();
 
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
+	uint32 nRegister;
 
-		assert(nRegister == 0);
+	m_Shadow.Pull();
+	nRegister = m_Shadow.Pull();
 
-		//cwde
-		m_pBlock->StreamWrite(1, 0x98);
+	assert(nRegister == 0);
 
-		m_Shadow.Push(0);
-		m_Shadow.Push(REGISTER);
-	}
-	else if(m_Shadow.GetAt(0) == VARIABLE)
-	{
-		uint32 nVariable, nRegister;
+	//cwde
+	m_pBlock->StreamWrite(1, 0x98);
 
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadVariableInRegister(nRegister, nVariable);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		SeX16();
-	}
-	else if(m_Shadow.GetAt(0) == RELATIVE)
-	{
-		uint32 nRelative;
-		unsigned int nRegister;
-
-		m_Shadow.Pull();
-		nRelative = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, nRelative);
-
-		PushReg(nRegister);
-
-		SeX16();
-	}
-	else
-	{
-		assert(0);
-	}	
+	m_Shadow.Push(0);
+	m_Shadow.Push(REGISTER);
 }
 
 void CCodeGen::SeX()
 {
-	if(m_Shadow.GetAt(0) == REGISTER)
-	{
-		uint32 nRegister;
+	ReduceToRegister();
 
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
+	uint32 nRegister;
 
-		if(nRegister != 0 && m_nRegisterAllocated[2])
-		{
-			assert(0);
-		}
+	m_Shadow.Pull();
+	nRegister = m_Shadow.Pull();
 
-		m_nRegisterAllocated[2] = true;
-
-		//cdq
-		m_pBlock->StreamWrite(1, 0x99);
-
-		m_Shadow.Push(0);
-		m_Shadow.Push(REGISTER);
-
-		m_Shadow.Push(2);
-		m_Shadow.Push(REGISTER);
-	}
-	else if(m_Shadow.GetAt(0) == VARIABLE)
-	{
-		uint32 nVariable, nRegister;
-
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-
-		//mov reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		SeX();
-	}
-	else
+	if(nRegister != 0 && m_nRegisterAllocated[2])
 	{
 		assert(0);
 	}
+
+	m_nRegisterAllocated[2] = true;
+
+	//cdq
+	m_pBlock->StreamWrite(1, 0x99);
+
+	m_Shadow.Push(0);
+	m_Shadow.Push(REGISTER);
+
+	m_Shadow.Push(2);
+	m_Shadow.Push(REGISTER);
 }
 
 void CCodeGen::Shl(uint8 nAmount)
@@ -1571,6 +1582,17 @@ void CCodeGen::Shl(uint8 nAmount)
 		m_Shadow.Push(REGISTER);
 
 		Shl(nAmount);
+	}
+	else if(m_Shadow.GetAt(0) == CONSTANT)
+	{
+		uint32 nConstant;
+
+		m_Shadow.Pull();
+		nConstant = m_Shadow.Pull();
+
+		nConstant <<= nAmount;
+
+		PushCst(nConstant);
 	}
 	else
 	{
@@ -1990,6 +2012,12 @@ bool CCodeGen::IsTopRegCstPairCom()
 {
 	return ((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == REGISTER)) ||
 		((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == CONSTANT));
+}
+
+bool CCodeGen::IsTopRegZeroPairCom()
+{
+	return ((m_Shadow.GetAt(0) == CONSTANT)&& (m_Shadow.GetAt(1) == 0) && (m_Shadow.GetAt(2) == REGISTER)) ||
+		((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == CONSTANT) && (m_Shadow.GetAt(3) == 0));
 }
 
 void CCodeGen::GetRegCstPairCom(unsigned int* pReg, uint32* pCst)

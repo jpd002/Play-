@@ -17,6 +17,7 @@
 #include "GZipStream.h"
 #include "VolumeStream.h"
 #include "Config.h"
+#include "Profiler.h"
 
 #ifdef _DEBUG
 
@@ -31,11 +32,12 @@
 //#define		SCREENTICKS		4833333
 #define		SCREENTICKS		2000000
 //#define		SCREENTICKS		1000000
-#define		VBLANKTICKS		10000
+#define		VBLANKTICKS		100000
 
 #endif
 
 using namespace Framework;
+using namespace boost;
 
 uint8*			CPS2VM::m_pRAM						= NULL;
 uint8*			CPS2VM::m_pBIOS						= NULL;
@@ -44,7 +46,7 @@ uint8*			CPS2VM::m_pVUMem0					= NULL;
 uint8*			CPS2VM::m_pMicroMem0				= NULL;
 uint8*			CPS2VM::m_pVUMem1					= NULL;
 uint8*			CPS2VM::m_pMicroMem1				= NULL;
-CThread*		CPS2VM::m_pThread					= NULL;
+thread*			CPS2VM::m_pThread					= NULL;
 CMIPS			CPS2VM::m_EE(MEMORYMAP_ENDIAN_LSBF,		0x00000000, 0x20000000);
 CMIPS			CPS2VM::m_VU1(MEMORYMAP_ENDIAN_LSBF,	0x00000000, 0x00008000);
 CThreadMsg		CPS2VM::m_MsgBox;
@@ -144,14 +146,13 @@ void CPS2VM::DumpEEDmacHandlers()
 void CPS2VM::Initialize()
 {
 	CreateVM();
-	m_pThread = new CThread(EmuThread, NULL);
-//	SendMessage(PS2VM_MSG_NULL);
+	m_pThread = new thread(&EmuThread);
 }
 
 void CPS2VM::Destroy()
 {
 	SendMessage(PS2VM_MSG_DESTROY);
-	m_pThread->Join();
+	m_pThread->join();
 	DELETEPTR(m_pThread);
 	DestroyVM();
 }
@@ -432,6 +433,10 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 {
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
+
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
 		CTimer::SetRegister(nAddress, nData);
@@ -469,39 +474,55 @@ void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		printf("PS2VM: Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, nData, m_EE.m_State.nPC);
 	}
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
+#endif
 }
 
 uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 {
+	uint32 nReturn;
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
+
+	nReturn = 0;
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
-		return CTimer::GetRegister(nAddress);
+		nReturn = CTimer::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
-		return CIPU::GetRegister(nAddress);
+		nReturn = CIPU::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
-		return CDMAC::GetRegister(nAddress);
+		nReturn = CDMAC::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
 	{
-		return CINTC::GetRegister(nAddress);
+		nReturn = CINTC::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
 	{
-		return CDMAC::GetRegister(nAddress);
+		nReturn = CDMAC::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
-		return m_pGS->ReadPrivRegister(nAddress);
+		nReturn = m_pGS->ReadPrivRegister(nAddress);
 	}
 	else
 	{
 		printf("PS2VM: Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
 	}
-	return 0;
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
+#endif
+
+	return nReturn;
 }
 
 unsigned int CPS2VM::EETickFunction(unsigned int nTicks)
@@ -558,7 +579,7 @@ unsigned int CPS2VM::VU1TickFunction(unsigned int nTicks)
 	return 0;
 }
 
-void* CPS2VM::EmuThread(void* pParam)
+void CPS2VM::EmuThread()
 {
 	bool nEnd;
 	CThreadMsg::MESSAGE Msg;
@@ -627,6 +648,12 @@ void* CPS2VM::EmuThread(void* pParam)
 		if(m_nStatus == PS2VM_STATUS_RUNNING)
 		{
 			RET_CODE nRet;
+
+#ifdef PROFILE
+			CProfiler::GetInstance().BeginIteration();
+			CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
+#endif
+
 #if (DEBUGGER_INCLUDED && VU_DEBUG)
 			if(CVIF::IsVU1Running())
 			{
@@ -669,6 +696,12 @@ void* CPS2VM::EmuThread(void* pParam)
 						}
 					}
 				}
+
+#ifdef PROFILE
+			CProfiler::GetInstance().EndZone();
+			CProfiler::GetInstance().EndIteration();
+#endif
+
 				if(nRet == RET_CODE_BREAKPOINT)
 				{
 					printf("PS2VM: (EmotionEngine) Breakpoint encountered at 0x%0.8X.\r\n", m_EE.m_State.nPC);
@@ -680,5 +713,4 @@ void* CPS2VM::EmuThread(void* pParam)
 			}
 		}
 	}
-	return NULL;
 }

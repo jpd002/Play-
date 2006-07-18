@@ -41,7 +41,7 @@ HFONT CNiceStatus::CreateOurFont()
 	return CreateFont(-11, 0, 0, 0, 0, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, _X("Tahoma"));
 }
 
-void CNiceStatus::InsertPanel(unsigned long nID, double nWidth, xchar* sCaption)
+void CNiceStatus::InsertPanel(unsigned long nID, double nWidth, const xchar* sCaption)
 {
 	STATUSPANEL* p;
 	p = (STATUSPANEL*)malloc(sizeof(STATUSPANEL));
@@ -52,7 +52,7 @@ void CNiceStatus::InsertPanel(unsigned long nID, double nWidth, xchar* sCaption)
 	m_Panel.Insert(p, nID);
 }
 
-void CNiceStatus::SetCaption(unsigned long nID, xchar* sCaption)
+void CNiceStatus::SetCaption(unsigned long nID, const xchar* sCaption)
 {
 	STATUSPANEL* p;
 

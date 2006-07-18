@@ -11,6 +11,7 @@
 #include "COP_SCU.h"
 #include "uint128.h"
 #include "MIPSAssembler.h"
+#include "Profiler.h"
 #include "xml\Node.h"
 #include "xml\Parser.h"
 
@@ -2123,6 +2124,11 @@ void CPS2OS::sc_GetMemorySize()
 
 void CPS2OS::SysCallHandler()
 {
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
+
 	uint32 nFunc;
 
 	nFunc = m_pCtx->m_State.nGPR[3].nV[0];
@@ -2145,6 +2151,11 @@ void CPS2OS::SysCallHandler()
 	{
 		m_pCtx->GenerateException(0x1FC00100);
 	}
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
+#endif
+
 }
 
 void CPS2OS::DisassembleSysCall(uint8 nFunc)

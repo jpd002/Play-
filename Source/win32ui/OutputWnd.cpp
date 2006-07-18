@@ -21,7 +21,7 @@ COutputWnd::COutputWnd(HWND hParent, RECT* pR)
 		RegisterClassEx(&wc);
 	}
 
-	Create(NULL, CLSNAME, NULL, WS_VISIBLE | WS_CHILD, pR, hParent, NULL);
+	Create(NULL, CLSNAME, NULL, WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, pR, hParent, NULL);
 	SetClassPtr();
 }
 

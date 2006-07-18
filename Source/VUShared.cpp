@@ -32,6 +32,11 @@ uint32* VUShared::GetVectorElement(CMIPS* pCtx, unsigned int nReg, unsigned int 
 	return NULL;
 }
 
+size_t VUShared::GetVectorElement(unsigned int nRegister, unsigned int nElement)
+{
+	return offsetof(CMIPS, m_State.nCOP2[nRegister].nV[nElement]);
+}
+
 uint32* VUShared::GetAccumulatorElement(CMIPS* pCtx, unsigned int nElement)
 {
 	switch(nElement)

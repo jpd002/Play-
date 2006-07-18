@@ -125,13 +125,16 @@
 #define ID_LOGGING_SIF                  40125
 #define ID_LOGGING_IOPLOGGING           40126
 #define ID_LOGGING_IOP                  40127
+#define ID_OPTIONS_MEMORYCARDMANAGER    40128
+#define ID_MAIN_OPTIONS_MMMANAGER       40129
+#define ID_MAIN_OPTIONS_MCMANAGER       40130
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        115
-#define _APS_NEXT_COMMAND_VALUE         40128
+#define _APS_NEXT_COMMAND_VALUE         40131
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -2,6 +2,12 @@
 #include "VIF.h"
 #include "GIF.h"
 #include "PS2VM.h"
+#include "Profiler.h"
+
+#ifdef	PROFILE
+#define	PROFILE_VIFZONE "VIF"
+#define PROFILE_VU1ZONE	"VU0"
+#endif
 
 using namespace Framework;
 
@@ -41,6 +47,11 @@ void CVIF::LoadState(CStream* pStream)
 
 uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 {
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_VIFZONE);
+#endif
+
 	if(nTagIncluded)
 	{
 		m_pVPU[1]->ProcessPacket(nAddress + 8, (nQWC * 0x10) - 8);
@@ -49,6 +60,11 @@ uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 	{
 		m_pVPU[1]->ProcessPacket(nAddress, nQWC * 0x10);
 	}
+	
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
+
 	return nQWC;
 }
 
@@ -242,6 +258,10 @@ void CVIF::CVPU::ExecuteMicro(uint32 nAddress, uint32 nMask)
 	}
 */
 
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_VU1ZONE);
+#endif
+
 	m_pCtx->m_State.nPC = nAddress;
 	m_VPU_STAT |= nMask;
 
@@ -254,6 +274,11 @@ void CVIF::CVPU::ExecuteMicro(uint32 nAddress, uint32 nMask)
 	}
 
 #endif
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
+
 }
 
 uint32 CVIF::CVPU::Cmd_MPG(CODE nCommand, uint32 nAddress, uint32 nSize)

@@ -149,6 +149,7 @@ private:
 		static uint32						GetDestOffset(uint8);
 		static void							SetBranchAddress(bool, int32);
 		static void							SetBranchAddressEx(bool, int32);
+		static void							PushIntegerRegister(unsigned int);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

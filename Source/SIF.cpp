@@ -11,9 +11,14 @@
 #include "IOP_LibSD.h"
 #include "IOP_Cdvdfsv.h"
 #include "IOP_Dummy.h"
+#include "Profiler.h"
 
 #define		CMD_RECVADDR		0x00001000
 #define		RPC_RECVADDR		0xDEADBEEF
+
+#ifdef	PROFILE
+#define	PROFILE_SIFZONE "SIF"
+#endif
 
 using namespace Framework;
 
@@ -79,6 +84,11 @@ void CSIF::DeleteModules()
 
 uint32 CSIF::ReceiveDMA(uint32 nSrcAddr, uint32 nDstAddr, uint32 nSize)
 {
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_SIFZONE);
+#endif
+
 	PACKETHDR* pHDR;
 
 	//Humm, this is kinda odd, but it ors the address with 0x20000000
@@ -89,6 +99,10 @@ uint32 CSIF::ReceiveDMA(uint32 nSrcAddr, uint32 nDstAddr, uint32 nSize)
 		//This should be the arguments for the call command
 		//Just save the source address for later use
 		m_nDataAddr = nSrcAddr;
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
 		return nSize;
 	}
 
@@ -120,6 +134,10 @@ uint32 CSIF::ReceiveDMA(uint32 nSrcAddr, uint32 nDstAddr, uint32 nSize)
 		Cmd_Call(pHDR);
 		break;
 	}
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
 
 	return nSize;
 }

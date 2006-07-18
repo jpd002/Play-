@@ -139,6 +139,7 @@ BEGIN
     BEGIN
         MENUITEM "Renderer Settings...",        ID_MAIN_OPTIONS_RENDERER
         MENUITEM "&Virtual File System Manager...", ID_MAIN_OPTIONS_VFSMANAGER
+        MENUITEM "Memory Card Manager...",      ID_MAIN_OPTIONS_MCMANAGER
         MENUITEM "Configuration Editor...",     ID_MAIN_OPTIONS_CONFIGEDI, GRAYED
     END
     POPUP "Help"
