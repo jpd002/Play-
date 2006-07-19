@@ -67,7 +67,7 @@ CSaveView::~CSaveView()
 	delete m_pLayout;
 }
 
-void CSaveView::SetSave(CSave* pSave)
+void CSaveView::SetSave(const CSave* pSave)
 {
 	m_pSave = pSave;
 

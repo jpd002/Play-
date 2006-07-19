@@ -15,14 +15,14 @@ CMemoryCard::~CMemoryCard()
 	
 }
 
-CMemoryCard::SaveIterator CMemoryCard::GetSavesBegin()
+size_t CMemoryCard::GetSaveCount() const
 {
-	return m_Saves.begin();
+	return m_Saves.size();
 }
 
-CMemoryCard::SaveIterator CMemoryCard::GetSavesEnd()
+const CSave* CMemoryCard::GetSaveByIndex(size_t nIndex) const
 {
-	return m_Saves.end();
+	return &m_Saves[nIndex];
 }
 
 const char* CMemoryCard::GetBasePath()

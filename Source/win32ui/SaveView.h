@@ -13,7 +13,7 @@ public:
 								CSaveView(HWND);
 								~CSaveView();
 
-	void						SetSave(CSave*);
+	void						SetSave(const CSave*);
 
 protected:
 	long						OnSize(unsigned int, unsigned int, unsigned int);
@@ -23,7 +23,7 @@ private:
 	void						RefreshLayout();
 	void						OpenSaveFolder();
 
-	CSave*						m_pSave;
+	const CSave*				m_pSave;
 	Framework::CGridLayout*		m_pLayout;
 	Framework::Win32::CEdit*	m_pNameLine1;
 	Framework::Win32::CEdit*	m_pNameLine2;

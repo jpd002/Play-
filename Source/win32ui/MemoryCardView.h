@@ -1,10 +1,14 @@
 #ifndef _MEMORYCARDVIEW_H_
 #define _MEMORYCARDVIEW_H_
 
+#include <boost/thread.hpp>
+#include <boost/ptr_container/ptr_map.hpp>
 #include "win32/Window.h"
+#include "win32/ClientDeviceContext.h"
 #include "MemoryCard.h"
 #include "IconView.h"
 #include "Event.h"
+#include "../ThreadMsg.h"
 
 class CMemoryCardView : public Framework::CWindow
 {
@@ -12,14 +16,12 @@ public:
 									CMemoryCardView(HWND, RECT*);
 									~CMemoryCardView();
 
-	long							OnDrawItem(unsigned int, LPDRAWITEMSTRUCT);
 	void							SetMemoryCard(CMemoryCard*);
 
-	Framework::CEvent<CSave*>		m_OnSelectionChange;
+	Framework::CEvent<const CSave*>	m_OnSelectionChange;
 
 protected:
 	long							OnPaint();
-	long							OnTimer();
 	long							OnVScroll(unsigned int, unsigned int);
 	long							OnLeftButtonDown(int, int);
 	long							OnMouseWheel(short);
@@ -27,31 +29,63 @@ protected:
 	long							OnKeyDown(unsigned int);
 
 private:
-	typedef boost::ptr_list<CIconView>	IconList;
-	typedef std::list<CSave*>			SaveList;
+	struct CViewState
+	{
+	public:
+		int							GetCanvasSize(unsigned int);
+		void						Reset(RECT*);
+		void						EnsureItemFullyVisible(unsigned int);
 
-	void							Animate();
-	void							DrawScene();
+		unsigned int				m_nItemWidth;
+		unsigned int				m_nItemHeight;
+		unsigned int				m_nSelection;
+		int							m_nScrollPosition;
+		RECT						m_ClientRect;
+	};
+
+	class CRender
+	{
+	public:
+												CRender(HWND, const CViewState*);
+												~CRender();
+
+		void									Animate();
+		void									DrawScene();
+		void									SetMemoryCard(const CMemoryCard*);
+
+	private:
+		typedef boost::ptr_map<unsigned int, CIconView> IconList;
+
+		Framework::Win32::CClientDeviceContext	m_DeviceContext;
+		static PIXELFORMATDESCRIPTOR			m_PFD;
+		HGLRC									m_hRC;
+		IconList								m_Icons;
+		const CViewState*						m_pViewState;
+		const CMemoryCard*						m_pMemoryCard;
+	};
+
+	enum THREADMSG
+	{
+		THREAD_END,
+		THREAD_SETMEMORYCARD,
+	};
+
+	void							ThreadProc();
 	void							UpdateScroll();
 	void							UpdateScrollPosition();
-	int								GetCanvasSize();
 	void							UpdateGeometry();
 	void							SetSelection(unsigned int);
 	void							EnsureItemFullyVisible(unsigned int);
 
-	IconList						m_Icons;
-	SaveList						m_Saves;
+	CThreadMsg						m_MailSlot;
+	CViewState						m_ViewState;
+	boost::thread*					m_pThread;
 
-	double							m_nRotation;
-	static PIXELFORMATDESCRIPTOR	m_PFD;
+	unsigned int					m_nItemCount;
+
 	HDC								m_hDC;
 	HGLRC							m_hRC;
 	
-	unsigned int					m_nItemWidth;
-	unsigned int					m_nItemHeight;
-	unsigned int					m_nSelection;
-	int								m_nScrollPosition;
-
 	CMemoryCard*					m_pMemoryCard;
 };
 

@@ -51,7 +51,7 @@ m_MemoryCard0(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
-	m_pMemoryCardView->m_OnSelectionChange.InsertHandler(new CEventHandlerMethod<CSaveView, CSave*>(m_pSaveView, &CSaveView::SetSave));
+	m_pMemoryCardView->m_OnSelectionChange.InsertHandler(new CEventHandlerMethod<CSaveView, const CSave*>(m_pSaveView, &CSaveView::SetSave));
 	m_pMemoryCardView->SetMemoryCard(&m_MemoryCard0);
 
 	m_pMemoryCardList->AddString(_X("Memory Card Slot 0 (mc0)"));

@@ -27,6 +27,7 @@ CIconView::CIconView(CIcon* pIcon)
 
 CIconView::~CIconView()
 {
+	glDeleteTextures(1, &m_nTexture);
 	delete m_pIcon;
 }
 
@@ -34,7 +35,6 @@ CIconView::~CIconView()
 
 void CIconView::Render()
 {
-
 	unsigned int nVertexCount;
 	const CIcon::VERTEX* pShape;
 	const CIcon::TEXCOORD* pTexCoords;
@@ -194,5 +194,4 @@ void CIconView::LoadTexture()
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
 	delete [] pCvtBuffer;
-
 }
