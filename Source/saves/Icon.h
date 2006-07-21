@@ -20,11 +20,15 @@ public:
 		double		nT;
 	};
 
+#pragma pack(push, 1)
+
 	struct KEY
 	{
 		float		nTime;
 		float		nAmplitude;
 	};
+
+#pragma pack(pop)
 
 	struct FRAME
 	{

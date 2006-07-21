@@ -3,6 +3,7 @@
 
 #include <boost/filesystem/path.hpp>
 #include <string>
+#include <ctime>
 #include "Types.h"
 
 class CSave
@@ -16,6 +17,7 @@ public:
 	boost::filesystem::path		GetPath() const;
 	boost::filesystem::path		GetNormalIconPath() const;
 	size_t						GetSecondLineStartPosition() const;
+	time_t						GetLastModificationTime() const;
 
 private:
 	void						ReadName(std::istream&);
@@ -25,6 +27,7 @@ private:
 	std::string					m_sId;
 	std::string					m_sNormalIconFileName;
 	uint16						m_nSecondLineStartPosition;
+	time_t						m_nLastModificationTime;
 };
 
 #endif

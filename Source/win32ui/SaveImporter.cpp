@@ -7,7 +7,24 @@
 using namespace std;
 using namespace boost;
 
-void CSaveImporter::ImportSave(istream& Input, const char* sOutputPath)
+CSaveImporter::CSaveImporter(OverwritePromptFunctionType OverwritePromptFunction)
+{
+	m_OverwritePromptFunction = OverwritePromptFunction;
+	m_nOverwriteAll = false;
+}
+
+CSaveImporter::~CSaveImporter()
+{
+
+}
+
+void CSaveImporter::ImportSave(istream& Input, const char* sOutputPath, OverwritePromptFunctionType OverwritePromptFunction)
+{
+	CSaveImporter SaveImporter(OverwritePromptFunction);
+	SaveImporter.Import(Input, sOutputPath);
+}
+
+void CSaveImporter::Import(istream& Input, const char* sOutputPath)
 {
 	uint32 nSignature;
 
@@ -26,6 +43,30 @@ void CSaveImporter::ImportSave(istream& Input, const char* sOutputPath)
 	{
 		throw exception("Unknown input file format.");
 	}
+}
+
+bool CSaveImporter::CanExtractFile(const filesystem::path& Path)
+{
+	if(!filesystem::exists(Path)) return true;
+	if(m_nOverwriteAll) return true;
+
+	OVERWRITE_PROMPT_RETURN nReturn;
+
+	nReturn = m_OverwritePromptFunction(filesystem::complete(Path).string());
+
+	switch(nReturn)
+	{
+	case OVERWRITE_YESTOALL:
+		m_nOverwriteAll = true;
+	case OVERWRITE_YES:
+		return true;
+		break;
+	case OVERWRITE_NO:
+		return false;
+		break;
+	}
+	
+	return false;
 }
 
 void CSaveImporter::XPS_Import(istream& Input, const char* sOutputPath)
@@ -95,20 +136,30 @@ void CSaveImporter::XPS_ExtractFiles(istream& Input, const char* sOutputPath, ui
 		}
 		else
 		{
-			char sBuffer[1024];
+			filesystem::path OutputPath;
 
-			iostreams::filtering_ostream Output;
-			Output.push(iostreams::file_sink((Path / sName).string(), ios::out | ios::binary));
-
-			while(nLength != 0)
+			OutputPath = Path / sName;
+			if(!CanExtractFile(OutputPath))
 			{
-				unsigned int nRead;
+				Input.seekg(nLength, ios::cur);
+			}
+			else
+			{
+				char sBuffer[1024];
 
-				nRead = min<unsigned int>(nLength, 1024);
-				Input.read(sBuffer, nRead);
-				Output.write(sBuffer, nRead);
+				iostreams::filtering_ostream Output;
+				Output.push(iostreams::file_sink(OutputPath.string(), ios::out | ios::binary));
 
-				nLength -= nRead;
+				while(nLength != 0)
+				{
+					unsigned int nRead;
+
+					nRead = min<unsigned int>(nLength, 1024);
+					Input.read(sBuffer, nRead);
+					Output.write(sBuffer, nRead);
+
+					nLength -= nRead;
+				}
 			}
 		}
 	}
@@ -142,21 +193,32 @@ void CSaveImporter::PSU_Import(istream& Input, const char* sOutputPath)
 		}
 		else if(nEntryType == 0x8497)
 		{
-			char sBuffer[1024];
+			filesystem::path OutputPath;
 
-			iostreams::filtering_ostream Output;
-			Output.push(iostreams::file_sink((Path / sEntryName).string(), ios::out | ios::binary));
-
-			while(nEntrySize != 0)
+			OutputPath = Path / sEntryName;
+			if(!CanExtractFile(OutputPath))
 			{
-				unsigned int nRead;
-
-				nRead = min<unsigned int>(nEntrySize, 1024);
-				Input.read(sBuffer, nRead);
-				Output.write(sBuffer, nRead);
-
-				nEntrySize -= nRead;
+				Input.seekg(nEntrySize, ios::cur);
 			}
+			else
+			{
+				char sBuffer[1024];
+
+				iostreams::filtering_ostream Output;
+				Output.push(iostreams::file_sink(OutputPath.string(), ios::out | ios::binary));
+
+				while(nEntrySize != 0)
+				{
+					unsigned int nRead;
+
+					nRead = min<unsigned int>(nEntrySize, 1024);
+					Input.read(sBuffer, nRead);
+					Output.write(sBuffer, nRead);
+
+					nEntrySize -= nRead;
+				}
+			}
+
 
 			unsigned int nPosition;
 			nPosition = Input.tellg();

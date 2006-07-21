@@ -111,33 +111,47 @@ void CIcon::ReadVertices(istream& Input)
 	{
 		for(unsigned int j = 0; j < m_nShapeCount; j++)
 		{
-			int16 nX, nY, nZ;
+#pragma pack(push, 1)
+			struct FILEVERTEX
+			{
+				int16 nX;
+				int16 nY;
+				int16 nZ;
+				int16 nW;
+			};
+#pragma pack(pop)
+
 			VERTEX* pVertex;
+			FILEVERTEX FileVertex;
 
 			pVertex = &m_pShapes[j][i];
-			Input.read(reinterpret_cast<char*>(&nX), 2);
-			Input.read(reinterpret_cast<char*>(&nY), 2);
-			Input.read(reinterpret_cast<char*>(&nZ), 2);
-			Input.seekg(2, ios::cur);
 
-			pVertex->nX = (double)nX / 4096.0;
-			pVertex->nY = (double)nY / 4096.0;
-			pVertex->nZ = (double)nZ / 4096.0;
+			Input.read(reinterpret_cast<char*>(&FileVertex), sizeof(FILEVERTEX));
+
+			pVertex->nX = (double)FileVertex.nX / 4096.0;
+			pVertex->nY = (double)FileVertex.nY / 4096.0;
+			pVertex->nZ = (double)FileVertex.nZ / 4096.0;
 		}
 
-		//Skip normals
-		Input.seekg(8, ios::cur);
+#pragma pack(push, 1)
+		struct FILEVERTEXATTRIB
+		{
+			int16 nNX;
+			int16 nNY;
+			int16 nNZ;
+			int16 nNW;
+			int16 nS;
+			int16 nT;
+			uint32 nColor;
+		};
+#pragma pack(pop)
 
-		//Read texture coordinates
-		int16 nS, nT;
-		Input.read(reinterpret_cast<char*>(&nS), 2);
-		Input.read(reinterpret_cast<char*>(&nT), 2);
+		FILEVERTEXATTRIB FileVertexAttrib;
 
-		m_pTexCoords[i].nS = (double)nS / 4096.0;
-		m_pTexCoords[i].nT = (double)nT / 4096.0;
+		Input.read(reinterpret_cast<char*>(&FileVertexAttrib), sizeof(FILEVERTEXATTRIB));
 
-		//Skip color
-		Input.seekg(4, ios::cur);
+		m_pTexCoords[i].nS = (double)FileVertexAttrib.nS / 4096.0;
+		m_pTexCoords[i].nT = (double)FileVertexAttrib.nT / 4096.0;
 	}
 }
 
@@ -167,16 +181,7 @@ void CIcon::ReadAnimations(istream& Input)
 		Input.read(reinterpret_cast<char*>(&pFrame->nKeyCount), 4);
 
 		pFrame->pKeys = new KEY[pFrame->nKeyCount];
-
-		for(unsigned int j = 0; j < pFrame->nKeyCount; j++)
-		{
-			KEY* pKey;
-
-			pKey = &pFrame->pKeys[j];
-
-			Input.read(reinterpret_cast<char*>(&pKey->nTime),		4);
-			Input.read(reinterpret_cast<char*>(&pKey->nAmplitude),	4);
-		}
+		Input.read(reinterpret_cast<char*>(pFrame->pKeys), sizeof(KEY) * pFrame->nKeyCount);
 	}
 }
 

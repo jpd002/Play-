@@ -67,7 +67,6 @@ void CMemoryCardView::SetMemoryCard(CMemoryCard* pMemoryCard)
 	
 	if(m_pMemoryCard != NULL)
 	{
-		UpdateScroll();
 		m_nItemCount = static_cast<unsigned int>(m_pMemoryCard->GetSaveCount());
 	}
 	else
@@ -75,6 +74,8 @@ void CMemoryCardView::SetMemoryCard(CMemoryCard* pMemoryCard)
 		m_nItemCount = 0;
 	}
 
+	m_ViewState.m_nScrollPosition = 0;
+	UpdateScroll();
 	m_MailSlot.SendMessage(THREAD_SETMEMORYCARD, pMemoryCard);
 
 	SetSelection(0);

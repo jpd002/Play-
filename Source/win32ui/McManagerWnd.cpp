@@ -1,10 +1,7 @@
 #include <boost/filesystem/operations.hpp>
+#include <boost/bind.hpp>
 #include <fstream>
 #include "McManagerWnd.h"
-#include "SaveImporter.h"
-#include "HorizontalLayout.h"
-#include "LayoutStretch.h"
-#include "win32/LayoutWindow.h"
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
 #include "../Config.h"
@@ -19,11 +16,19 @@ using namespace std;
 
 CMcManagerWnd::CMcManagerWnd(HWND hParent) :
 CModalWindow(hParent),
-m_MemoryCard0(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.mc0.directory"), filesystem::native))
+m_MemoryCard0(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.mc0.directory"), filesystem::native)),
+m_MemoryCard1(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.mc1.directory"), filesystem::native))
 {
 	RECT rc;
 
-	m_pImportButton = NULL;
+	m_pImportButton		= NULL;
+	m_pCloseButton		= NULL;
+	m_pMemoryCardList	= NULL;
+
+	m_pMemoryCard[0] = &m_MemoryCard0;
+	m_pMemoryCard[1] = &m_MemoryCard1;
+
+	m_pCurrentMemoryCard = NULL;
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -31,7 +36,7 @@ m_MemoryCard0(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.
 		memset(&wc, 0, sizeof(WNDCLASSEX));
 		wc.cbSize			= sizeof(WNDCLASSEX);
 		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
+		wc.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE); 
 		wc.hInstance		= GetModuleHandle(NULL);
 		wc.lpszClassName	= CLSNAME;
 		wc.lpfnWndProc		= CWindow::WndProc;
@@ -48,14 +53,14 @@ m_MemoryCard0(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.
 
 	m_pMemoryCardList	= new Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
 	m_pImportButton		= new Win32::CButton(_X("Import Save(s)..."), m_hWnd, &rc);
+	m_pCloseButton		= new Win32::CButton(_X("Close"), m_hWnd, &rc);
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
 	m_pMemoryCardView->m_OnSelectionChange.InsertHandler(new CEventHandlerMethod<CSaveView, const CSave*>(m_pSaveView, &CSaveView::SetSave));
-	m_pMemoryCardView->SetMemoryCard(&m_MemoryCard0);
 
-	m_pMemoryCardList->AddString(_X("Memory Card Slot 0 (mc0)"));
-	m_pMemoryCardList->AddString(_X("Memory Card Slot 1 (mc1)"));
+	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_X("Memory Card Slot 0 (mc0)")), 0);
+	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_X("Memory Card Slot 1 (mc1)")), 1);
 	m_pMemoryCardList->SetSelection(0);
 
 	CHorizontalLayout* pSubLayout0;
@@ -72,12 +77,22 @@ m_MemoryCard0(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.
 	pSubLayout1->InsertObject(new CLayoutWindow(100, 100, 1, 1, m_pSaveView));
 	pSubLayout1->SetVerticalStretch(1);
 
+	CHorizontalLayout* pSubLayout2;
+
+	pSubLayout2 = new CHorizontalLayout();
+	pSubLayout2->InsertObject(new CLayoutStretch());
+	pSubLayout2->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pCloseButton));
+
 	m_pLayout = new CVerticalLayout();
 	m_pLayout->InsertObject(pSubLayout0);
 	m_pLayout->InsertObject(CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
 	m_pLayout->InsertObject(pSubLayout1);
+	m_pLayout->InsertObject(CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
+	m_pLayout->InsertObject(pSubLayout2);
 
 	RefreshLayout();
+
+	UpdateMemoryCardSelection();
 
 	Center();
 	Show(SW_SHOW);
@@ -115,13 +130,32 @@ long CMcManagerWnd::OnDrawItem(unsigned int nId, LPDRAWITEMSTRUCT pDrawItem)
 	return FALSE;
 }
 
-long CMcManagerWnd::OnCommand(unsigned short nCmd, unsigned short nId, HWND hWndFrom)
+long CMcManagerWnd::OnCommand(unsigned short nId, unsigned short nCmd, HWND hWndFrom)
 {
 	if(m_pImportButton != NULL)
 	{
 		if(m_pImportButton->m_hWnd == hWndFrom)
 		{
 			Import();
+		}
+	}
+	if(m_pCloseButton != NULL)
+	{
+		if(m_pCloseButton->m_hWnd == hWndFrom)
+		{
+			Destroy();
+		}
+	}
+	if(m_pMemoryCardList != NULL)
+	{
+		if(m_pMemoryCardList->m_hWnd == hWndFrom)
+		{
+			switch(nCmd)
+			{
+			case CBN_SELCHANGE:
+				UpdateMemoryCardSelection();
+				break;
+			}
 		}
 	}
 	return TRUE;
@@ -144,7 +178,7 @@ void CMcManagerWnd::Import()
 
 	try
 	{
-		CSaveImporter::ImportSave(Input, m_MemoryCard0.GetBasePath());
+		CSaveImporter::ImportSave(Input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, _1));
 	}
 	catch(const exception& Exception)
 	{
@@ -155,8 +189,30 @@ void CMcManagerWnd::Import()
 	}
 
 	m_pMemoryCardView->SetMemoryCard(NULL);
-	m_MemoryCard0.RefreshContents();
-	m_pMemoryCardView->SetMemoryCard(&m_MemoryCard0);
+	m_pCurrentMemoryCard->RefreshContents();
+	m_pMemoryCardView->SetMemoryCard(m_pCurrentMemoryCard);
 
 	MessageBox(m_hWnd, _X("Save imported successfully."), NULL, MB_ICONINFORMATION); 
+}
+
+CSaveImporter::OVERWRITE_PROMPT_RETURN CMcManagerWnd::OnImportOverwrite(const string& sFilePath)
+{
+	string sMessage;
+	int nReturn;
+	sMessage = "File '" + sFilePath + "' already exists.\r\n\r\nOverwrite?";
+
+	nReturn = MessageBoxA(m_hWnd, sMessage.c_str(), NULL, MB_YESNO | MB_ICONQUESTION);
+
+	return (nReturn == IDYES) ? CSaveImporter::OVERWRITE_YES : CSaveImporter::OVERWRITE_NO;
+}
+
+void CMcManagerWnd::UpdateMemoryCardSelection()
+{
+	unsigned int nIndex;
+
+	m_pMemoryCardView->SetMemoryCard(NULL);
+
+	nIndex = m_pMemoryCardList->GetItemData(m_pMemoryCardList->GetSelection());
+	m_pCurrentMemoryCard = m_pMemoryCard[nIndex];
+	m_pMemoryCardView->SetMemoryCard(m_pCurrentMemoryCard);
 }

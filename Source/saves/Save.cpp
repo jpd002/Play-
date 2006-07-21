@@ -32,6 +32,8 @@ m_BasePath(BasePath)
 	m_sNormalIconFileName = sBuffer;
 
 	m_sId = m_BasePath.leaf().c_str();
+
+	m_nLastModificationTime = filesystem::last_write_time(m_BasePath / "icon.sys");
 }
 
 CSave::~CSave()
@@ -82,6 +84,11 @@ filesystem::path CSave::GetNormalIconPath() const
 size_t CSave::GetSecondLineStartPosition() const
 {
 	return min<size_t>(m_nSecondLineStartPosition / 2, m_sName.length());
+}
+
+time_t CSave::GetLastModificationTime() const
+{
+	return m_nLastModificationTime;
 }
 
 void CSave::ReadName(istream& Input)

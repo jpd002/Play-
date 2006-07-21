@@ -1,10 +1,9 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "SaveView.h"
-#include "win32/LayoutWindow.h"
+#include "string_cast.h"
 #include "win32/Static.h"
-#include "LayoutStretch.h"
-#include "HorizontalLayout.h"
 
 #define CLSNAME _X("CSaveView")
 
@@ -22,7 +21,7 @@ CSaveView::CSaveView(HWND hParent)
 		memset(&wc, 0, sizeof(WNDCLASSEX));
 		wc.cbSize			= sizeof(WNDCLASSEX);
 		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
+		wc.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE); 
 		wc.hInstance		= GetModuleHandle(NULL);
 		wc.lpszClassName	= CLSNAME;
 		wc.lpfnWndProc		= CWindow::WndProc;
@@ -39,25 +38,71 @@ CSaveView::CSaveView(HWND hParent)
 	m_pNameLine2	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
 	m_pSize			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
 	m_pId			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
+	m_pLastModified	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
 	m_pOpenFolder	= new Win32::CButton(_X("Open folder..."), m_hWnd, &rc);
+	m_pExport		= new Win32::CButton(_X("Export..."), m_hWnd, &rc);
+	m_pDelete		= new Win32::CButton(_X("Delete"), m_hWnd, &rc);
+	m_pNormalIcon	= new Win32::CButton(_X("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE);
+	m_pCopyingIcon	= new Win32::CButton(_X("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE);
+	m_pDeletingIcon	= new Win32::CButton(_X("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE);
+	m_pIconView		= new CIconView(m_hWnd, &rc);
 
 	CHorizontalLayout* pSubLayout0;
-	pSubLayout0 = new CHorizontalLayout();
-	pSubLayout0->InsertObject(CLayoutWindow::CreateTextBoxBehavior(300, 20, m_pId));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 20, m_pOpenFolder));
+	{
+		pSubLayout0 = new CHorizontalLayout();
+		pSubLayout0->InsertObject(CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pId));
+		pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pOpenFolder));
+	}
 
-	m_pLayout = new CGridLayout(2, 5);
+	CGridLayout* pSubLayout1;
+	{
+		pSubLayout1 = new CGridLayout(2, 5);
 
-	m_pLayout->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Name:"))));
-	m_pLayout->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Size:"))));
-	m_pLayout->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Id:"))));
-	m_pLayout->SetObject(0, 4, new CLayoutStretch());
+		pSubLayout1->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Name:"))));
+		pSubLayout1->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Size:"))));
+		pSubLayout1->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Id:"))));
+		pSubLayout1->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Last Modified:")))); 
 
-	m_pLayout->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(300, 20, m_pNameLine1));
-	m_pLayout->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(300, 20, m_pNameLine2));
-	m_pLayout->SetObject(1, 2, CLayoutWindow::CreateTextBoxBehavior(300, 20, m_pSize));
-	m_pLayout->SetObject(1, 3, pSubLayout0);
-	m_pLayout->SetObject(1, 4, new CLayoutStretch());
+		pSubLayout1->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine1));
+		pSubLayout1->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine2));
+		pSubLayout1->SetObject(1, 2, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pSize));
+		pSubLayout1->SetObject(1, 3, pSubLayout0);
+		pSubLayout1->SetObject(1, 4, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pLastModified));
+
+		pSubLayout1->SetVerticalStretch(0);
+	}
+
+	CHorizontalLayout* pSubLayout2;
+	{
+		pSubLayout2 = new CHorizontalLayout();
+		pSubLayout2->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pExport));
+		pSubLayout2->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
+		pSubLayout2->SetVerticalStretch(0);
+	}
+
+	CHorizontalLayout* pSubLayout3;
+	{
+		pSubLayout3 = new CHorizontalLayout();
+		pSubLayout3->InsertObject(new CLayoutWindow(50, 50, 1, 1, m_pIconView));
+		pSubLayout3->SetVerticalStretch(1);
+	}
+
+	CHorizontalLayout* pSubLayout4;
+	{
+		pSubLayout4 = new CHorizontalLayout();
+		pSubLayout4->InsertObject(new CLayoutWindow(50, 23, 1, 0, m_pNormalIcon));
+		pSubLayout4->InsertObject(new CLayoutWindow(50, 23, 1, 0, m_pCopyingIcon));
+		pSubLayout4->InsertObject(new CLayoutWindow(50, 23, 1, 0, m_pDeletingIcon));
+		pSubLayout4->SetVerticalStretch(0);
+	}
+
+	m_pNormalIcon->SetCheck();
+
+	m_pLayout = new CVerticalLayout();
+	m_pLayout->InsertObject(pSubLayout1);
+	m_pLayout->InsertObject(pSubLayout2);
+	m_pLayout->InsertObject(pSubLayout3);
+	m_pLayout->InsertObject(pSubLayout4);
 
 	RefreshLayout();
 }
@@ -78,7 +123,11 @@ void CSaveView::SetSave(const CSave* pSave)
 		m_pNameLine1->SetText(sName.substr(0, m_pSave->GetSecondLineStartPosition()).c_str());
 		m_pNameLine2->SetText(sName.substr(m_pSave->GetSecondLineStartPosition()).c_str());
 		m_pSize->SetText((lexical_cast<xstring>(m_pSave->GetSize()) + _X(" bytes")).c_str());
-		m_pId->SetText(lexical_cast<xstring>(m_pSave->GetId()).c_str());
+		m_pId->SetText(string_cast<xstring>(m_pSave->GetId()).c_str());
+		m_pLastModified->SetText(
+			string_cast<xstring>(
+			posix_time::to_simple_string(
+			posix_time::from_time_t(m_pSave->GetLastModificationTime()))).c_str());
 	}
 	else
 	{
@@ -86,6 +135,7 @@ void CSaveView::SetSave(const CSave* pSave)
 		m_pNameLine2->SetText(_X(""));
 		m_pSize->SetText(_X("--"));
 		m_pId->SetText(_X("--"));
+		m_pLastModified->SetText(_X("--"));
 	}
 
 	m_pOpenFolder->Enable(m_pSave != NULL);
