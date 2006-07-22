@@ -13,7 +13,11 @@ m_BasePath(BasePath)
 {
 	uint32 nMagic;
 	char sBuffer[64];
-	iostreams::stream_buffer<iostreams::file_source> IconFileBuffer((m_BasePath / "icon.sys").string(), ios::in | ios::binary);
+	filesystem::path IconSysPath;
+
+	IconSysPath = m_BasePath / "icon.sys";
+
+	iostreams::stream_buffer<iostreams::file_source> IconFileBuffer(IconSysPath.string(), ios::in | ios::binary);
 	istream IconFile(&IconFileBuffer);
 
 	IconFile.read(reinterpret_cast<char*>(&nMagic), 4);
@@ -31,9 +35,15 @@ m_BasePath(BasePath)
 	IconFile.read(sBuffer, 64);
 	m_sNormalIconFileName = sBuffer;
 
+	IconFile.read(sBuffer, 64);
+	m_sCopyingIconFileName = sBuffer;
+
+	IconFile.read(sBuffer, 64);
+	m_sDeletingIconFileName = sBuffer;
+
 	m_sId = m_BasePath.leaf().c_str();
 
-	m_nLastModificationTime = filesystem::last_write_time(m_BasePath / "icon.sys");
+	m_nLastModificationTime = filesystem::last_write_time(IconSysPath);
 }
 
 CSave::~CSave()
@@ -79,6 +89,16 @@ filesystem::path CSave::GetPath() const
 filesystem::path CSave::GetNormalIconPath() const
 {
 	return m_BasePath / m_sNormalIconFileName;
+}
+
+filesystem::path CSave::GetDeletingIconPath() const
+{
+	return m_BasePath / m_sDeletingIconFileName;
+}
+
+filesystem::path CSave::GetCopyingIconPath() const
+{
+	return m_BasePath / m_sCopyingIconFileName;
 }
 
 size_t CSave::GetSecondLineStartPosition() const

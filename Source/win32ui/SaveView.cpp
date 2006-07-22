@@ -15,6 +15,10 @@ CSaveView::CSaveView(HWND hParent)
 {
 	RECT rc;
 
+	m_pNormalIcon = NULL;
+	m_pDeletingIcon = NULL;
+	m_pCopyingIcon = NULL;
+
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -42,10 +46,10 @@ CSaveView::CSaveView(HWND hParent)
 	m_pOpenFolder	= new Win32::CButton(_X("Open folder..."), m_hWnd, &rc);
 	m_pExport		= new Win32::CButton(_X("Export..."), m_hWnd, &rc);
 	m_pDelete		= new Win32::CButton(_X("Delete"), m_hWnd, &rc);
-	m_pNormalIcon	= new Win32::CButton(_X("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE);
-	m_pCopyingIcon	= new Win32::CButton(_X("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE);
-	m_pDeletingIcon	= new Win32::CButton(_X("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE);
-	m_pIconView		= new CIconView(m_hWnd, &rc);
+	m_pNormalIcon	= new Win32::CButton(_X("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pCopyingIcon	= new Win32::CButton(_X("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pDeletingIcon	= new Win32::CButton(_X("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pIconViewWnd	= new CIconViewWnd(m_hWnd, &rc);
 
 	CHorizontalLayout* pSubLayout0;
 	{
@@ -83,7 +87,7 @@ CSaveView::CSaveView(HWND hParent)
 	CHorizontalLayout* pSubLayout3;
 	{
 		pSubLayout3 = new CHorizontalLayout();
-		pSubLayout3->InsertObject(new CLayoutWindow(50, 50, 1, 1, m_pIconView));
+		pSubLayout3->InsertObject(new CLayoutWindow(50, 50, 1, 1, m_pIconViewWnd));
 		pSubLayout3->SetVerticalStretch(1);
 	}
 
@@ -96,7 +100,7 @@ CSaveView::CSaveView(HWND hParent)
 		pSubLayout4->SetVerticalStretch(0);
 	}
 
-	m_pNormalIcon->SetCheck();
+	SetIconType(ICON_NORMAL);
 
 	m_pLayout = new CVerticalLayout();
 	m_pLayout->InsertObject(pSubLayout1);
@@ -138,7 +142,11 @@ void CSaveView::SetSave(const CSave* pSave)
 		m_pLastModified->SetText(_X("--"));
 	}
 
+	m_pIconViewWnd->SetSave(pSave);
 	m_pOpenFolder->Enable(m_pSave != NULL);
+	m_pNormalIcon->Enable(m_pSave != NULL);
+	m_pDeletingIcon->Enable(m_pSave != NULL);
+	m_pCopyingIcon->Enable(m_pSave != NULL);
 }
 
 long CSaveView::OnSize(unsigned int nX, unsigned int nY, unsigned int nType)
@@ -152,6 +160,18 @@ long CSaveView::OnCommand(unsigned short nCmd, unsigned short nId, HWND hWndFrom
 	if(m_pOpenFolder != NULL)
 	{
 		if(m_pOpenFolder->m_hWnd == hWndFrom) OpenSaveFolder();
+	}
+	if(m_pNormalIcon != NULL)
+	{
+		if(m_pNormalIcon->m_hWnd == hWndFrom) SetIconType(ICON_NORMAL);
+	}
+	if(m_pCopyingIcon != NULL)
+	{
+		if(m_pCopyingIcon->m_hWnd == hWndFrom) SetIconType(ICON_COPYING);
+	}
+	if(m_pDeletingIcon != NULL)
+	{
+		if(m_pDeletingIcon->m_hWnd == hWndFrom) SetIconType(ICON_DELETING);
 	}
 	return TRUE;
 }
@@ -168,6 +188,17 @@ void CSaveView::RefreshLayout()
 	m_pLayout->RefreshGeometry();
 
 	Redraw();
+}
+
+void CSaveView::SetIconType(ICONTYPE nIconType)
+{
+	m_nIconType = nIconType;
+
+	m_pIconViewWnd->SetIconType(nIconType);
+
+	m_pNormalIcon->SetCheck(m_nIconType == ICON_NORMAL);
+	m_pDeletingIcon->SetCheck(m_nIconType == ICON_DELETING);
+	m_pCopyingIcon->SetCheck(m_nIconType == ICON_COPYING);
 }
 
 void CSaveView::OpenSaveFolder()

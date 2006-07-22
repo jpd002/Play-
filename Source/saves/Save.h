@@ -16,6 +16,8 @@ public:
 	unsigned int				GetSize() const;
 	boost::filesystem::path		GetPath() const;
 	boost::filesystem::path		GetNormalIconPath() const;
+	boost::filesystem::path		GetDeletingIconPath() const;
+	boost::filesystem::path		GetCopyingIconPath() const;
 	size_t						GetSecondLineStartPosition() const;
 	time_t						GetLastModificationTime() const;
 
@@ -26,6 +28,8 @@ private:
 	std::wstring				m_sName;
 	std::string					m_sId;
 	std::string					m_sNormalIconFileName;
+	std::string					m_sDeletingIconFileName;
+	std::string					m_sCopyingIconFileName;
 	uint16						m_nSecondLineStartPosition;
 	time_t						m_nLastModificationTime;
 };

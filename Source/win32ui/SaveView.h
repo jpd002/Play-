@@ -6,6 +6,7 @@
 #include "win32/Edit.h"
 #include "win32/Button.h"
 #include "win32/Layouts.h"
+#include "IconView.h"
 #include "../saves/Save.h"
 #include "../ThreadMsg.h"
 
@@ -22,29 +23,67 @@ protected:
 	long						OnCommand(unsigned short, unsigned short, HWND);
 
 private:
-	class CIconView : public Framework::CWindow
+	enum ICONTYPE
+	{
+		ICON_NORMAL,
+		ICON_DELETING,
+		ICON_COPYING,
+	};
+
+	class CIconViewWnd : public Framework::CWindow
 	{
 	public:
-										CIconView(HWND, RECT*);
-										~CIconView();
+										CIconViewWnd(HWND, RECT*);
+										~CIconViewWnd();
+		void							SetSave(const CSave*);
+		void							SetIconType(ICONTYPE);
+
+	protected:
+		long							OnLeftButtonDown(int, int);
+		long							OnLeftButtonUp(int, int);
+		long							OnMouseWheel(short);
+		long							OnMouseMove(WPARAM, int, int);
+		long							OnSetCursor(HWND, unsigned int, unsigned int);
 
 	private:
 		void							ThreadProc();
+		void							ThreadSetSave(const CSave*);
+		void							ThreadSetIconType(ICONTYPE);
+		void							LoadIcon();
+		void							ChangeCursor();
 		void							Render(HDC);
+		void							DrawBackground();
 
 		HGLRC							m_hRC;
 		boost::thread*					m_pThread;
 		static PIXELFORMATDESCRIPTOR	m_PFD;
 		CThreadMsg						m_MailSlot;
+		const CSave*					m_pSave;
+		CIconView*						m_pIconView;
+		ICONTYPE						m_nIconType;
+		
+		double							m_nRotationX;
+		double							m_nRotationY;
+
+		bool							m_nGrabbing;
+		int								m_nGrabPosX;
+		int								m_nGrabPosY;
+		int								m_nGrabDistX;
+		int								m_nGrabDistY;
+		double							m_nGrabRotX;
+		double							m_nGrabRotY;
+		double							m_nZoom;
 
 		enum THREADMSG
 		{
 			THREAD_END,
 			THREAD_SETSAVE,
+			THREAD_SETICONTYPE,
 		};
 	};
 
 	void						RefreshLayout();
+	void						SetIconType(ICONTYPE);
 	void						OpenSaveFolder();
 
 	const CSave*				m_pSave;
@@ -60,7 +99,8 @@ private:
 	Framework::Win32::CButton*	m_pNormalIcon;
 	Framework::Win32::CButton*	m_pCopyingIcon;
 	Framework::Win32::CButton*	m_pDeletingIcon;
-	CIconView*					m_pIconView;
+	CIconViewWnd*				m_pIconViewWnd;
+	ICONTYPE					m_nIconType;
 };
 
 #endif

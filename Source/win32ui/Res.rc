@@ -176,6 +176,14 @@ IDI_PUREI               ICON                    "Images\\purei.ico"
 
 IDR_VERTSHADER          SHADER                  "shaders\\TexClamp.vert"
 IDR_FRAGSHADER          SHADER                  "shaders\\TexClamp.frag"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_GRAB                CURSOR                  "images\\grab.cur"
+IDC_GRABBING            CURSOR                  "images\\grabbing.cur"
 #endif    // French (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
