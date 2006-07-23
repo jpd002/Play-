@@ -85,6 +85,7 @@ private:
 	void						RefreshLayout();
 	void						SetIconType(ICONTYPE);
 	void						OpenSaveFolder();
+	void						Export();
 
 	const CSave*				m_pSave;
 	Framework::CVerticalLayout*	m_pLayout;

@@ -8,7 +8,7 @@
 #include "MemoryCard.h"
 #include "MemoryCardView.h"
 #include "SaveView.h"
-#include "SaveImporter.h"
+#include "../saves/SaveImporter.h"
 
 class CMcManagerWnd : public CModalWindow
 {

@@ -187,9 +187,12 @@ void CSaveImporter::PSU_Import(istream& Input, const char* sOutputPath)
 		Input.seekg(0x38, ios::cur);
 		Input.read(sEntryName, 0x1C0);
 
-		if(nEntryType == 0x8427 && (nEntrySize != 0))
+		if(nEntryType == 0x8427)
 		{
-			PSU_Import(Input, (Path / sEntryName).string().c_str());
+			if(nEntrySize != 0)
+			{
+				PSU_Import(Input, (Path / sEntryName).string().c_str());
+			}
 		}
 		else if(nEntryType == 0x8497)
 		{
@@ -202,27 +205,31 @@ void CSaveImporter::PSU_Import(istream& Input, const char* sOutputPath)
 			}
 			else
 			{
-				char sBuffer[1024];
+				unsigned int nEntrySizeDrain;
 
 				iostreams::filtering_ostream Output;
 				Output.push(iostreams::file_sink(OutputPath.string(), ios::out | ios::binary));
 
-				while(nEntrySize != 0)
+				nEntrySizeDrain = nEntrySize;
+
+				while(nEntrySizeDrain != 0)
 				{
 					unsigned int nRead;
+					char sBuffer[1024];
 
-					nRead = min<unsigned int>(nEntrySize, 1024);
+					nRead = min<unsigned int>(nEntrySizeDrain, 1024);
 					Input.read(sBuffer, nRead);
 					Output.write(sBuffer, nRead);
 
-					nEntrySize -= nRead;
+					nEntrySizeDrain -= nRead;
 				}
 			}
 
-
-			unsigned int nPosition;
-			nPosition = Input.tellg();
-			Input.seekg(0x200 - (nPosition & 0x1FF), ios::cur);
+			Input.seekg(0x400 - (nEntrySize & 0x3FF), ios::cur);
+		}
+		else
+		{
+			throw exception("Invalid entry type encountered.");
 		}
 
 		Input.read(reinterpret_cast<char*>(&nEntryType), 2);

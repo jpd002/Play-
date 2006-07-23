@@ -166,7 +166,7 @@ void CMcManagerWnd::Import()
 	unsigned int nRet;
 
 	Win32::CFileDialog FileDialog;
-	FileDialog.m_OFN.lpstrFilter = _X("All supported types\0*.psu;*.xps\0EMS Memory Adapder Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps(*.xps)\0*.xps\0All files (*.*)\0*.*\0");
+	FileDialog.m_OFN.lpstrFilter = _X("All supported types\0*.psu;*.xps\0EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps(*.xps)\0*.xps\0All files (*.*)\0*.*\0");
 
 	Enable(FALSE);
 	nRet = FileDialog.Summon(m_hWnd);

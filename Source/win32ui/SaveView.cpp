@@ -1,9 +1,12 @@
+#include <fstream>
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include "../saves/SaveExporter.h"
 #include "SaveView.h"
 #include "string_cast.h"
 #include "win32/Static.h"
+#include "win32/FileDialog.h"
 
 #define CLSNAME _X("CSaveView")
 
@@ -173,6 +176,10 @@ long CSaveView::OnCommand(unsigned short nCmd, unsigned short nId, HWND hWndFrom
 	{
 		if(m_pDeletingIcon->m_hWnd == hWndFrom) SetIconType(ICON_DELETING);
 	}
+	if(m_pExport != NULL)
+	{
+		if(m_pExport->m_hWnd == hWndFrom) Export();
+	}
 	return TRUE;
 }
 
@@ -208,4 +215,49 @@ void CSaveView::OpenSaveFolder()
 	filesystem::path Path(filesystem::complete(m_pSave->GetPath()));
 
 	ShellExecuteA(m_hWnd, "open", Path.string().c_str(), NULL, NULL, SW_SHOW);
+}
+
+void CSaveView::Export()
+{
+	if(m_pSave == NULL) return;
+
+	unsigned int nRet;
+
+	Win32::CFileDialog FileDialog;
+	FileDialog.m_OFN.lpstrFilter = _X("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0");
+
+	EnableWindow(GetParent(), FALSE);
+	nRet = FileDialog.Summon(m_hWnd);
+	EnableWindow(GetParent(), TRUE);
+
+	if(nRet == 0) return;
+
+	FILE* pStream;
+	pStream = xfopen(FileDialog.m_sFile, _X("wb"));
+
+	if(pStream == NULL)
+	{
+		MessageBox(m_hWnd, _X("Couldn't open file for writing."), NULL, 16);
+		return;
+	}
+
+	ofstream Output(pStream);
+
+	try
+	{
+		CSaveExporter::ExportPSU(Output, m_pSave->GetPath().string().c_str());
+		Output.close();
+	}
+	catch(const exception& Exception)
+	{
+		Output.close();
+
+		string sMessage;
+		sMessage  = "Couldn't export save:\r\n\r\n";
+		sMessage += Exception.what();
+		MessageBoxA(m_hWnd, sMessage.c_str(), NULL, 16);
+		return;
+	}
+
+	MessageBox(m_hWnd, _X("Save exported successfully."), NULL, MB_ICONINFORMATION); 
 }
