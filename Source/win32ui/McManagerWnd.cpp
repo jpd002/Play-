@@ -1,10 +1,12 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/bind.hpp>
 #include <fstream>
+#include "string_cast.h"
 #include "McManagerWnd.h"
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
 #include "../Config.h"
+#include "WinUtils.h"
 
 #define CLSNAME			_X("CMcManagerWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -57,7 +59,8 @@ m_MemoryCard1(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
-	m_pMemoryCardView->m_OnSelectionChange.InsertHandler(new CEventHandlerMethod<CSaveView, const CSave*>(m_pSaveView, &CSaveView::SetSave));
+	m_pSaveView->m_OnDeleteClicked.InsertHandler(bind(&CMcManagerWnd::Delete, this, _1));
+	m_pMemoryCardView->m_OnSelectionChange.InsertHandler(bind(&CSaveView::SetSave, m_pSaveView, _1));
 
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_X("Memory Card Slot 0 (mc0)")), 0);
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_X("Memory Card Slot 1 (mc1)")), 1);
@@ -174,14 +177,26 @@ void CMcManagerWnd::Import()
 
 	if(nRet == 0) return;
 
-	ifstream Input(xfopen(FileDialog.m_sFile, _X("rb")));
+	FILE* pStream;
+
+	pStream = xfopen(FileDialog.m_sFile, _X("rb"));
+	if(pStream == NULL)
+	{
+		MessageBox(m_hWnd, _X("Couldn't open file for reading."), NULL, 16);
+		return;		
+	}
+
+	ifstream Input(pStream);
 
 	try
 	{
 		CSaveImporter::ImportSave(Input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, _1));
+		Input.close();
 	}
 	catch(const exception& Exception)
 	{
+		Input.close();
+
 		char sMessage[256];
 		sprintf(sMessage, "Couldn't import save(s):\r\n\r\n%s", Exception.what());
 		MessageBoxA(m_hWnd, sMessage, NULL, 16);
@@ -193,6 +208,40 @@ void CMcManagerWnd::Import()
 	m_pMemoryCardView->SetMemoryCard(m_pCurrentMemoryCard);
 
 	MessageBox(m_hWnd, _X("Save imported successfully."), NULL, MB_ICONINFORMATION); 
+}
+
+void CMcManagerWnd::Delete(const CSave* pSave)
+{
+	int nReturn;
+
+	nReturn = MessageBox(m_hWnd, _T("Are you sure you want to delete the currently selected entry?"), NULL, MB_YESNO | MB_ICONQUESTION);
+
+	if(nReturn == IDNO) return;
+
+	tstring sPath;
+	TCHAR* sFromList;
+
+	sPath = string_cast<tstring>(filesystem::complete(pSave->GetPath()).string());
+	m_pMemoryCardView->SetMemoryCard(NULL);
+
+	transform(sPath.begin(), sPath.end(), sPath.begin(), WinUtils::FixSlashes);
+
+	//Construct the file list
+	sFromList = (TCHAR*)_alloca((sPath.size() + 2) * sizeof(TCHAR));
+	_tcscpy(sFromList, sPath.c_str());
+	sFromList[sPath.size() + 1] = 0;
+
+	//Construct the FILEOP structure
+	SHFILEOPSTRUCT FileOp;
+	memset(&FileOp, 0, sizeof(SHFILEOPSTRUCT));
+	FileOp.hwnd		= m_hWnd;
+	FileOp.wFunc	= FO_DELETE;
+	FileOp.fFlags	= FOF_NOCONFIRMATION;
+	FileOp.pFrom	= sFromList;
+	SHFileOperation(&FileOp);
+
+	m_pCurrentMemoryCard->RefreshContents();
+	m_pMemoryCardView->SetMemoryCard(m_pCurrentMemoryCard);
 }
 
 CSaveImporter::OVERWRITE_PROMPT_RETURN CMcManagerWnd::OnImportOverwrite(const string& sFilePath)

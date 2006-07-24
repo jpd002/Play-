@@ -7,20 +7,24 @@
 #include "win32/Button.h"
 #include "win32/Layouts.h"
 #include "IconView.h"
+#include "CommandSink.h"
+#include "EventEx.h"
 #include "../saves/Save.h"
 #include "../ThreadMsg.h"
 
 class CSaveView : public Framework::CWindow
 {
 public:
-								CSaveView(HWND);
-								~CSaveView();
+										CSaveView(HWND);
+										~CSaveView();
 
-	void						SetSave(const CSave*);
+	void								SetSave(const CSave*);
+
+	Framework::CEventEx<const CSave*>	m_OnDeleteClicked;
 
 protected:
-	long						OnSize(unsigned int, unsigned int, unsigned int);
-	long						OnCommand(unsigned short, unsigned short, HWND);
+	long								OnSize(unsigned int, unsigned int, unsigned int);
+	long								OnCommand(unsigned short, unsigned short, HWND);
 
 private:
 	enum ICONTYPE
@@ -82,26 +86,30 @@ private:
 		};
 	};
 
-	void						RefreshLayout();
-	void						SetIconType(ICONTYPE);
-	void						OpenSaveFolder();
-	void						Export();
+	void								RefreshLayout();
 
-	const CSave*				m_pSave;
-	Framework::CVerticalLayout*	m_pLayout;
-	Framework::Win32::CEdit*	m_pNameLine1;
-	Framework::Win32::CEdit*	m_pNameLine2;
-	Framework::Win32::CEdit*	m_pSize;
-	Framework::Win32::CEdit*	m_pId;
-	Framework::Win32::CEdit*	m_pLastModified;
-	Framework::Win32::CButton*	m_pOpenFolder;
-	Framework::Win32::CButton*	m_pExport;
-	Framework::Win32::CButton*	m_pDelete;
-	Framework::Win32::CButton*	m_pNormalIcon;
-	Framework::Win32::CButton*	m_pCopyingIcon;
-	Framework::Win32::CButton*	m_pDeletingIcon;
-	CIconViewWnd*				m_pIconViewWnd;
-	ICONTYPE					m_nIconType;
+	long								SetIconType(ICONTYPE);
+	long								OpenSaveFolder();
+	long								Export();
+	long								Delete();
+
+	CCommandSink						m_CommandSink;
+
+	const CSave*						m_pSave;
+	Framework::CVerticalLayout*			m_pLayout;
+	Framework::Win32::CEdit*			m_pNameLine1;
+	Framework::Win32::CEdit*			m_pNameLine2;
+	Framework::Win32::CEdit*			m_pSize;
+	Framework::Win32::CEdit*			m_pId;
+	Framework::Win32::CEdit*			m_pLastModified;
+	Framework::Win32::CButton*			m_pOpenFolder;
+	Framework::Win32::CButton*			m_pExport;
+	Framework::Win32::CButton*			m_pDelete;
+	Framework::Win32::CButton*			m_pNormalIcon;
+	Framework::Win32::CButton*			m_pCopyingIcon;
+	Framework::Win32::CButton*			m_pDeletingIcon;
+	CIconViewWnd*						m_pIconViewWnd;
+	ICONTYPE							m_nIconType;
 };
 
 #endif

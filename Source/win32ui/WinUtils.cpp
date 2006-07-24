@@ -25,3 +25,8 @@ HBITMAP WinUtils::CreateMask(HBITMAP nBitmap, uint32 nColor)
 
 	return nMask;
 }
+
+TCHAR WinUtils::FixSlashes(TCHAR nCharacter)
+{
+	return (nCharacter == _T('/')) ? _T('\\') : nCharacter;
+}

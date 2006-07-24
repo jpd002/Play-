@@ -2,6 +2,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/bind.hpp>
 #include "../saves/SaveExporter.h"
 #include "SaveView.h"
 #include "string_cast.h"
@@ -17,10 +18,6 @@ using namespace std;
 CSaveView::CSaveView(HWND hParent)
 {
 	RECT rc;
-
-	m_pNormalIcon = NULL;
-	m_pDeletingIcon = NULL;
-	m_pCopyingIcon = NULL;
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -53,6 +50,13 @@ CSaveView::CSaveView(HWND hParent)
 	m_pCopyingIcon	= new Win32::CButton(_X("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
 	m_pDeletingIcon	= new Win32::CButton(_X("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
 	m_pIconViewWnd	= new CIconViewWnd(m_hWnd, &rc);
+
+	m_CommandSink.RegisterCallback(m_pOpenFolder->m_hWnd,	bind(&CSaveView::OpenSaveFolder, this));
+	m_CommandSink.RegisterCallback(m_pNormalIcon->m_hWnd,	bind(&CSaveView::SetIconType, this, ICON_NORMAL));
+	m_CommandSink.RegisterCallback(m_pCopyingIcon->m_hWnd,	bind(&CSaveView::SetIconType, this, ICON_COPYING));
+	m_CommandSink.RegisterCallback(m_pDeletingIcon->m_hWnd,	bind(&CSaveView::SetIconType, this, ICON_DELETING));
+	m_CommandSink.RegisterCallback(m_pExport->m_hWnd,		bind(&CSaveView::Export, this));
+	m_CommandSink.RegisterCallback(m_pDelete->m_hWnd,		bind(&CSaveView::Delete, this));
 
 	CHorizontalLayout* pSubLayout0;
 	{
@@ -150,6 +154,8 @@ void CSaveView::SetSave(const CSave* pSave)
 	m_pNormalIcon->Enable(m_pSave != NULL);
 	m_pDeletingIcon->Enable(m_pSave != NULL);
 	m_pCopyingIcon->Enable(m_pSave != NULL);
+	m_pExport->Enable(m_pSave != NULL);
+	m_pDelete->Enable(m_pSave != NULL);
 }
 
 long CSaveView::OnSize(unsigned int nX, unsigned int nY, unsigned int nType)
@@ -160,27 +166,7 @@ long CSaveView::OnSize(unsigned int nX, unsigned int nY, unsigned int nType)
 
 long CSaveView::OnCommand(unsigned short nCmd, unsigned short nId, HWND hWndFrom)
 {
-	if(m_pOpenFolder != NULL)
-	{
-		if(m_pOpenFolder->m_hWnd == hWndFrom) OpenSaveFolder();
-	}
-	if(m_pNormalIcon != NULL)
-	{
-		if(m_pNormalIcon->m_hWnd == hWndFrom) SetIconType(ICON_NORMAL);
-	}
-	if(m_pCopyingIcon != NULL)
-	{
-		if(m_pCopyingIcon->m_hWnd == hWndFrom) SetIconType(ICON_COPYING);
-	}
-	if(m_pDeletingIcon != NULL)
-	{
-		if(m_pDeletingIcon->m_hWnd == hWndFrom) SetIconType(ICON_DELETING);
-	}
-	if(m_pExport != NULL)
-	{
-		if(m_pExport->m_hWnd == hWndFrom) Export();
-	}
-	return TRUE;
+	return m_CommandSink.OnCommand(nCmd, nId, hWndFrom);
 }
 
 void CSaveView::RefreshLayout()
@@ -197,7 +183,7 @@ void CSaveView::RefreshLayout()
 	Redraw();
 }
 
-void CSaveView::SetIconType(ICONTYPE nIconType)
+long CSaveView::SetIconType(ICONTYPE nIconType)
 {
 	m_nIconType = nIconType;
 
@@ -206,20 +192,24 @@ void CSaveView::SetIconType(ICONTYPE nIconType)
 	m_pNormalIcon->SetCheck(m_nIconType == ICON_NORMAL);
 	m_pDeletingIcon->SetCheck(m_nIconType == ICON_DELETING);
 	m_pCopyingIcon->SetCheck(m_nIconType == ICON_COPYING);
+
+	return FALSE;
 }
 
-void CSaveView::OpenSaveFolder()
+long CSaveView::OpenSaveFolder()
 {
-	if(m_pSave == NULL) return;
+	if(m_pSave == NULL) return FALSE;
 
 	filesystem::path Path(filesystem::complete(m_pSave->GetPath()));
 
 	ShellExecuteA(m_hWnd, "open", Path.string().c_str(), NULL, NULL, SW_SHOW);
+
+	return FALSE;
 }
 
-void CSaveView::Export()
+long CSaveView::Export()
 {
-	if(m_pSave == NULL) return;
+	if(m_pSave == NULL) return FALSE;
 
 	unsigned int nRet;
 
@@ -230,7 +220,7 @@ void CSaveView::Export()
 	nRet = FileDialog.Summon(m_hWnd);
 	EnableWindow(GetParent(), TRUE);
 
-	if(nRet == 0) return;
+	if(nRet == 0) return FALSE;
 
 	FILE* pStream;
 	pStream = xfopen(FileDialog.m_sFile, _X("wb"));
@@ -238,7 +228,7 @@ void CSaveView::Export()
 	if(pStream == NULL)
 	{
 		MessageBox(m_hWnd, _X("Couldn't open file for writing."), NULL, 16);
-		return;
+		return FALSE;
 	}
 
 	ofstream Output(pStream);
@@ -256,8 +246,19 @@ void CSaveView::Export()
 		sMessage  = "Couldn't export save:\r\n\r\n";
 		sMessage += Exception.what();
 		MessageBoxA(m_hWnd, sMessage.c_str(), NULL, 16);
-		return;
+		return FALSE;
 	}
 
 	MessageBox(m_hWnd, _X("Save exported successfully."), NULL, MB_ICONINFORMATION); 
+
+	return FALSE;
+}
+
+long CSaveView::Delete()
+{
+	if(m_pSave == NULL) return FALSE;
+
+	m_OnDeleteClicked.Notify(m_pSave);
+
+	return FALSE;
 }

@@ -1,6 +1,5 @@
 #include "MemoryCardView.h"
 #include "win32/DeviceContext.h"
-#include <boost/bind.hpp>
 #include <exception>
 #include <gl/gl.h>
 #include <gl/glu.h>

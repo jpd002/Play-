@@ -23,8 +23,10 @@ protected:
 private:
 	void									RefreshLayout();
 	void									Import();
+	void									Delete(const CSave*);
 	void									UpdateMemoryCardSelection();
 	CSaveImporter::OVERWRITE_PROMPT_RETURN	OnImportOverwrite(const std::string&);
+	void									OnDeleteClicked(const CSave*);
 
 	CMemoryCard								m_MemoryCard0;
 	CMemoryCard								m_MemoryCard1;

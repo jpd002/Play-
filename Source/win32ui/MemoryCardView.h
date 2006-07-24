@@ -7,40 +7,40 @@
 #include "win32/ClientDeviceContext.h"
 #include "MemoryCard.h"
 #include "IconView.h"
-#include "Event.h"
+#include "EventEx.h"
 #include "../ThreadMsg.h"
 
 class CMemoryCardView : public Framework::CWindow
 {
 public:
-									CMemoryCardView(HWND, RECT*);
-									~CMemoryCardView();
+										CMemoryCardView(HWND, RECT*);
+										~CMemoryCardView();
 
-	void							SetMemoryCard(CMemoryCard*);
+	void								SetMemoryCard(CMemoryCard*);
 
-	Framework::CEvent<const CSave*>	m_OnSelectionChange;
+	Framework::CEventEx<const CSave*>	m_OnSelectionChange;
 
 protected:
-	long							OnPaint();
-	long							OnVScroll(unsigned int, unsigned int);
-	long							OnLeftButtonDown(int, int);
-	long							OnMouseWheel(short);
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnKeyDown(unsigned int);
+	long								OnPaint();
+	long								OnVScroll(unsigned int, unsigned int);
+	long								OnLeftButtonDown(int, int);
+	long								OnMouseWheel(short);
+	long								OnSize(unsigned int, unsigned int, unsigned int);
+	long								OnKeyDown(unsigned int);
 
 private:
 	struct CViewState
 	{
 	public:
-		int							GetCanvasSize(unsigned int);
-		void						Reset(RECT*);
-		void						EnsureItemFullyVisible(unsigned int);
+		int								GetCanvasSize(unsigned int);
+		void							Reset(RECT*);
+		void							EnsureItemFullyVisible(unsigned int);
 
-		unsigned int				m_nItemWidth;
-		unsigned int				m_nItemHeight;
-		unsigned int				m_nSelection;
-		int							m_nScrollPosition;
-		RECT						m_ClientRect;
+		unsigned int					m_nItemWidth;
+		unsigned int					m_nItemHeight;
+		unsigned int					m_nSelection;
+		int								m_nScrollPosition;
+		RECT							m_ClientRect;
 	};
 
 	class CRender
@@ -70,23 +70,23 @@ private:
 		THREAD_SETMEMORYCARD,
 	};
 
-	void							ThreadProc();
-	void							UpdateScroll();
-	void							UpdateScrollPosition();
-	void							UpdateGeometry();
-	void							SetSelection(unsigned int);
-	void							EnsureItemFullyVisible(unsigned int);
+	void								ThreadProc();
+	void								UpdateScroll();
+	void								UpdateScrollPosition();
+	void								UpdateGeometry();
+	void								SetSelection(unsigned int);
+	void								EnsureItemFullyVisible(unsigned int);
 
-	CThreadMsg						m_MailSlot;
-	CViewState						m_ViewState;
-	boost::thread*					m_pThread;
+	CThreadMsg							m_MailSlot;
+	CViewState							m_ViewState;
+	boost::thread*						m_pThread;
 
-	unsigned int					m_nItemCount;
+	unsigned int						m_nItemCount;
 
-	HDC								m_hDC;
-	HGLRC							m_hRC;
+	HDC									m_hDC;
+	HGLRC								m_hRC;
 	
-	CMemoryCard*					m_pMemoryCard;
+	CMemoryCard*						m_pMemoryCard;
 };
 
 #endif
