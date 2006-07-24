@@ -2,7 +2,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include "SaveExporter.h"
-#include "Types.h"
 
 using namespace std;
 using namespace boost;
@@ -11,45 +10,20 @@ void CSaveExporter::ExportPSU(ostream& Output, const char* sSavePath)
 {
 	filesystem::path SavePath(sSavePath, filesystem::native);
 	filesystem::directory_iterator itEnd;
+	posix_time::ptime BaseTime;
 
 	uint32 nSector = 0x18D;
 
-#pragma pack(push, 1)
+	assert(sizeof(PSUENTRY) == 0x200);
 
-	struct ENTRY
-	{
-		//All fields seem to be BCDs except for year
-		struct TIME
-		{
-			uint8	nUnknown;
-			uint8	nSecond;
-			uint8	nMinute;
-			uint8	nHour;
-			uint8	nDay;
-			uint8	nMonth;
-			uint16	nYear;
-		};
-
-		uint32	nFlags;
-		uint32	nSize;
-		TIME	CreationTime;
-		uint32	nSector;
-		uint32	nChecksum;
-		TIME	ModificationTime;
-		uint8	Padding[0x20];
-		uint8	sName[0x1C0];
-	};
-
-#pragma pack(pop)
-
-	assert(sizeof(ENTRY) == 0x200);
+	BaseTime = posix_time::from_time_t(filesystem::last_write_time(SavePath));
 
 	{
 		//Save base directory entry
 
-		ENTRY Entry;
+		PSUENTRY Entry;
 
-		memset(&Entry, 0, sizeof(ENTRY));
+		memset(&Entry, 0, sizeof(PSUENTRY));
 
 		Entry.nSize = 2;
 
@@ -64,23 +38,12 @@ void CSaveExporter::ExportPSU(ostream& Output, const char* sSavePath)
 		Entry.nFlags					= 0x8427;
 		Entry.nSector					= nSector;
 
-		Entry.CreationTime.nSecond		= 0x27;
-		Entry.CreationTime.nMinute		= 0x23;
-		Entry.CreationTime.nHour		= 0x11;
-		Entry.CreationTime.nDay			= 0x17;
-		Entry.CreationTime.nMonth		= 0x06;
-		Entry.CreationTime.nYear		= 2006;
-
-		Entry.ModificationTime.nSecond	= 0x27;
-		Entry.ModificationTime.nMinute	= 0x23;
-		Entry.ModificationTime.nHour	= 0x11;
-		Entry.ModificationTime.nDay		= 0x17;
-		Entry.ModificationTime.nMonth	= 0x06;
-		Entry.ModificationTime.nYear	= 2006;
+		PSU_CopyTime(&Entry.CreationTime,		&BaseTime);
+		PSU_CopyTime(&Entry.ModificationTime,	&BaseTime);
 
 		strncpy(reinterpret_cast<char*>(Entry.sName), SavePath.leaf().c_str(), 0x1C0);
 
-		Output.write(reinterpret_cast<char*>(&Entry), sizeof(ENTRY));
+		Output.write(reinterpret_cast<char*>(&Entry), sizeof(PSUENTRY));
 	}
 
 	static const char* sRelDirName[2] = 
@@ -93,30 +56,19 @@ void CSaveExporter::ExportPSU(ostream& Output, const char* sSavePath)
 
 	for(unsigned int i = 0; i < 2; i++)
 	{
-		ENTRY Entry;
+		PSUENTRY Entry;
 
-		memset(&Entry, 0, sizeof(ENTRY));
+		memset(&Entry, 0, sizeof(PSUENTRY));
 
 		Entry.nFlags					= 0x8427;
 		Entry.nSector					= 0;
 
-		Entry.CreationTime.nSecond		= 0x27;
-		Entry.CreationTime.nMinute		= 0x23;
-		Entry.CreationTime.nHour		= 0x11;
-		Entry.CreationTime.nDay			= 0x17;
-		Entry.CreationTime.nMonth		= 0x06;
-		Entry.CreationTime.nYear		= 2006;
-
-		Entry.ModificationTime.nSecond	= 0x27;
-		Entry.ModificationTime.nMinute	= 0x23;
-		Entry.ModificationTime.nHour	= 0x11;
-		Entry.ModificationTime.nDay		= 0x17;
-		Entry.ModificationTime.nMonth	= 0x06;
-		Entry.ModificationTime.nYear	= 2006;
+		PSU_CopyTime(&Entry.CreationTime,		&BaseTime);
+		PSU_CopyTime(&Entry.ModificationTime,	&BaseTime);
 
 		strncpy(reinterpret_cast<char*>(Entry.sName), sRelDirName[i], 0x1C0);
 
-		Output.write(reinterpret_cast<char*>(&Entry), sizeof(ENTRY));
+		Output.write(reinterpret_cast<char*>(&Entry), sizeof(PSUENTRY));
 	}
 
 	nSector += 2;
@@ -128,32 +80,24 @@ void CSaveExporter::ExportPSU(ostream& Output, const char* sSavePath)
 	{
 		if(filesystem::is_directory(*itElement)) continue;
 
-		ENTRY Entry;
+		PSUENTRY Entry;
 		uint32 nSize;
+		posix_time::ptime FileTime;
 
-		memset(&Entry, 0, sizeof(ENTRY));
+		FileTime = posix_time::from_time_t(filesystem::last_write_time(*itElement));
+
+		memset(&Entry, 0, sizeof(PSUENTRY));
 
 		Entry.nFlags					= 0x8497;
 		Entry.nSize						= static_cast<uint32>(filesystem::file_size(*itElement));
 		Entry.nSector					= nSector;
 
-		Entry.CreationTime.nSecond		= 0x27;
-		Entry.CreationTime.nMinute		= 0x23;
-		Entry.CreationTime.nHour		= 0x11;
-		Entry.CreationTime.nDay			= 0x17;
-		Entry.CreationTime.nMonth		= 0x06;
-		Entry.CreationTime.nYear		= 2006;
-
-		Entry.ModificationTime.nSecond	= 0x27;
-		Entry.ModificationTime.nMinute	= 0x23;
-		Entry.ModificationTime.nHour	= 0x11;
-		Entry.ModificationTime.nDay		= 0x17;
-		Entry.ModificationTime.nMonth	= 0x06;
-		Entry.ModificationTime.nYear	= 2006;
+		PSU_CopyTime(&Entry.CreationTime,		&FileTime);
+		PSU_CopyTime(&Entry.ModificationTime,	&FileTime);
 
 		strncpy(reinterpret_cast<char*>(Entry.sName), (*itElement).leaf().c_str(), 0x1C0);
 
-		Output.write(reinterpret_cast<char*>(&Entry), sizeof(ENTRY));
+		Output.write(reinterpret_cast<char*>(&Entry), sizeof(PSUENTRY));
 
 		//Write file contents
 		{
@@ -187,4 +131,14 @@ void CSaveExporter::ExportPSU(ostream& Output, const char* sSavePath)
 
 		nSector += (Entry.nSize + 0x3FF) / 0x400;
 	}
+}
+
+void CSaveExporter::PSU_CopyTime(PSUENTRY::TIME* pDst, posix_time::ptime* pSrc)
+{
+	pDst->nSecond	= static_cast<uint8>(pSrc->time_of_day().seconds());
+	pDst->nMinute	= static_cast<uint8>(pSrc->time_of_day().minutes());
+	pDst->nHour		= static_cast<uint8>(pSrc->time_of_day().hours());
+	pDst->nDay		= static_cast<uint8>(pSrc->date().day());
+	pDst->nMonth	= static_cast<uint8>(pSrc->date().month());
+	pDst->nYear		= pSrc->date().year();
 }
