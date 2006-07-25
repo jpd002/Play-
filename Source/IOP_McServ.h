@@ -21,7 +21,9 @@ namespace IOP
 		};
 
 	private:
+		void			GetInfo(void*, uint32, void*, uint32);
 		void			GetVersionInformation(void*, uint32, void*, uint32);
+		void			Log(const char*, ...);
 	};
 
 }

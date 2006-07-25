@@ -2025,16 +2025,16 @@ void CCodeGen::GetRegCstPairCom(unsigned int* pReg, uint32* pCst)
 	if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == REGISTER))
 	{
 		m_Shadow.Pull();
-		if(pCst != NULL) (*pCst) = m_Shadow.Pull();
+		(pCst != NULL) ? (*pCst) = m_Shadow.Pull() : m_Shadow.Pull();
 		m_Shadow.Pull();
-		if(pReg != NULL) (*pReg) = m_Shadow.Pull();
+		(pReg != NULL) ? (*pReg) = m_Shadow.Pull() : m_Shadow.Pull();
 	}
 	else if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == CONSTANT))
 	{
 		m_Shadow.Pull();
-		if(pReg != NULL) (*pReg) = m_Shadow.Pull();
+		(pReg != NULL) ? (*pReg) = m_Shadow.Pull() : m_Shadow.Pull();
 		m_Shadow.Pull();
-		if(pCst != NULL) (*pCst) = m_Shadow.Pull();
+		(pCst != NULL) ? (*pCst) = m_Shadow.Pull() : m_Shadow.Pull();
 	}
 	else
 	{
