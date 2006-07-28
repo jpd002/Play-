@@ -23,12 +23,15 @@ namespace IOP
 		};
 
 	private:
-		void				GetInfo(void*, uint32, void*, uint32);
-		void				GetDir(void*, uint32, void*, uint32);
-		void				GetVersionInformation(void*, uint32, void*, uint32);
-		void				Log(const char*, ...);
-
-		static const char*	m_sMcPathPreference[2];
+		struct CMD
+		{
+			uint32	nPort;
+			uint32	nSlot;
+			uint32	nFlags;
+			uint32	nMaxEntries;
+			uint32	nTableAddress;
+			char	sName[0x400];
+		};
 
 		class CPathFinder
 		{
@@ -70,6 +73,15 @@ namespace IOP
 			unsigned int				m_nMax;
 
 		};
+
+		void				GetInfo(void*, uint32, void*, uint32);
+		void				Open(void*, uint32, void*, uint32);
+		void				GetDir(void*, uint32, void*, uint32);
+		void				GetVersionInformation(void*, uint32, void*, uint32);
+		void				Log(const char*, ...);
+
+		static const char*	m_sMcPathPreference[2];
+
 	};
 
 }

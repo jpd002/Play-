@@ -18,7 +18,7 @@ const char* CMcServ::m_sMcPathPreference[2] =
 
 CMcServ::CMcServ()
 {
-	
+	assert(sizeof(CMD) == 0x414);
 }
 
 CMcServ::~CMcServ()
@@ -32,6 +32,9 @@ void CMcServ::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, 
 	{
 	case 0x01:
 		GetInfo(pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	case 0x02:
+		Open(pArgs, nArgsSize, pRet, nRetSize);
 		break;
 	case 0x0D:
 		GetDir(pArgs, nArgsSize, pRet, nRetSize);
@@ -93,23 +96,24 @@ void CMcServ::GetInfo(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize
 	((uint32*)pRet)[0] = 0;
 }
 
+void CMcServ::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	CMD* pCmd;
+
+	assert(nArgsSize >= 0x414);
+
+	pCmd = reinterpret_cast<CMD*>(pArgs);
+
+	Log("Open(nPort = %i, nSlot = %i, nFlags = %i, sName = %s);\r\n",
+		pCmd->nPort, pCmd->nSlot, pCmd->nFlags, pCmd->sName);
+}
+
 void CMcServ::GetDir(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 {
-	struct CMD
-	{
-		uint32	nPort;
-		uint32	nSlot;
-		uint32	nFlags;
-		uint32	nMaxEntries;
-		uint32	nTableAddress;
-		char	sName[0x400];
-	};
-
 	uint32 nRet;
 
 	nRet = 0;
 
-	assert(sizeof(CMD) == 0x414);
 	assert(nArgsSize >= 0x414);
 
 	CMD* pCmd;
@@ -189,33 +193,40 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& Path)
 		itElement != itEnd;
 		itElement++)
 	{
+		string sRelativePath((*itElement).string());
+
+		//"Extract" a more appropriate relative path from the memory card point of view
+		sRelativePath.erase(0, m_BasePath.string().size());
+
+		//Attempt to match this against the filter
+		if(MatchesFilter(sRelativePath.c_str()))
+		{
+			//This fits... fill in the information
+
+			ENTRY* pEntry;
+			pEntry = &m_pEntry[m_nIndex];
+
+			//strncpy(reinterpret_cast<char*>(pEntry->sName), sRelativePath.c_str(), 0x1F);
+			strncpy(reinterpret_cast<char*>(pEntry->sName), (*itElement).leaf().c_str(), 0x1F);
+			pEntry->sName[0x1F] = 0;
+
+			if(filesystem::is_directory(*itElement))
+			{
+				pEntry->nSize		= 0;
+				pEntry->nAttributes	= 0x8427;
+			}
+			else
+			{
+				pEntry->nSize		= static_cast<uint32>(filesystem::file_size(*itElement));
+				pEntry->nAttributes = 0x8497;
+			}
+
+			m_nIndex++;
+		}
+
 		if(filesystem::is_directory(*itElement))
 		{
-			//Humm, can this thing return directories too??
 			SearchRecurse(*itElement);
-		}
-		else
-		{
-			string sRelativePath((*itElement).string());
-
-			//"Extract" a more appropriate relative path from the memory card point of view
-			sRelativePath.erase(0, m_BasePath.string().size());
-
-			//Attempt to match this against the filter
-			if(MatchesFilter(sRelativePath.c_str()))
-			{
-				//This fits... fill in the information
-
-				ENTRY* pEntry;
-				pEntry = &m_pEntry[m_nIndex];
-
-				pEntry->nSize = static_cast<uint32>(filesystem::file_size(*itElement));
-
-				strncpy(reinterpret_cast<char*>(pEntry->sName), sRelativePath.c_str(), 0x1F);
-				pEntry->sName[0x1F] = 0;
-
-				m_nIndex++;
-			}
 		}
 	}
 }
