@@ -19,11 +19,19 @@ const char* CMcServ::m_sMcPathPreference[2] =
 CMcServ::CMcServ()
 {
 	assert(sizeof(CMD) == 0x414);
+	m_nNextHandle = 1;
 }
 
 CMcServ::~CMcServ()
 {
-
+	//Close any handles that might still be in there...
+	
+	for(HandleMap::iterator itHandle = m_Handles.begin();
+		itHandle != m_Handles.end();
+		itHandle++)
+	{
+		fclose(itHandle->second);
+	}
 }
 
 void CMcServ::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
@@ -35,6 +43,12 @@ void CMcServ::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, 
 		break;
 	case 0x02:
 		Open(pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	case 0x03:
+		Close(pArgs, nArgsSize, pRet, nRetSize);
+		break;
+	case 0x05:
+		Read(pArgs, nArgsSize, pRet, nRetSize);
 		break;
 	case 0x0D:
 		GetDir(pArgs, nArgsSize, pRet, nRetSize);
@@ -98,7 +112,10 @@ void CMcServ::GetInfo(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize
 
 void CMcServ::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 {
+	uint32 nHandle;
 	CMD* pCmd;
+	FILE* pFile;
+	const char* sAccess;
 
 	assert(nArgsSize >= 0x414);
 
@@ -106,6 +123,101 @@ void CMcServ::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 
 	Log("Open(nPort = %i, nSlot = %i, nFlags = %i, sName = %s);\r\n",
 		pCmd->nPort, pCmd->nSlot, pCmd->nFlags, pCmd->sName);
+
+	if(pCmd->nPort > 1)
+	{
+		assert(0);
+		((uint32*)pRet)[0] = -1;
+		return;
+	}
+
+	filesystem::path Path;
+	Path = CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]);
+	Path /= pCmd->sName;
+
+	sAccess = NULL;
+	switch(pCmd->nFlags)
+	{
+	case 1:
+		sAccess = "rb";
+		break;
+	}
+
+	if(sAccess == NULL)
+	{
+		((uint32*)pRet)[0] = -1;
+		assert(0);
+		return;
+	}
+
+	pFile = fopen(Path.string().c_str(), sAccess);
+	if(pFile == NULL)
+	{
+		((uint32*)pRet)[0] = -1;
+		assert(0);
+		return;
+	}
+
+	nHandle = GenerateHandle();
+	m_Handles[nHandle] = pFile;
+
+	((uint32*)pRet)[0] = nHandle;
+}
+
+void CMcServ::Close(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	FILECMD* pCmd;
+
+	pCmd = reinterpret_cast<FILECMD*>(pArgs);
+
+	Log("Close(nHandle = %i);\r\n",
+		pCmd->nHandle);
+
+	HandleMap::iterator itHandle;
+
+	itHandle = m_Handles.find(pCmd->nHandle);
+	if(itHandle == m_Handles.end())
+	{
+		((uint32*)pRet)[0] = -1;
+		assert(0);
+		return;
+	}
+
+	fclose(itHandle->second);
+	m_Handles.erase(itHandle);
+
+	((uint32*)pRet)[0] = 0;
+}
+
+void CMcServ::Read(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
+{
+	FILECMD* pCmd;
+	FILE* pFile;
+	void* pDst;
+
+	pCmd = reinterpret_cast<FILECMD*>(pArgs);
+
+	Log("Read(nHandle = %i, nSize = 0x%0.8X, nBufferAddress = 0x%0.8X, nParamAddress = 0x%0.8X);\r\n",
+		pCmd->nHandle, pCmd->nSize, pCmd->nBufferAddress, pCmd->nParamAddress);
+
+	HandleMap::iterator itHandle;
+
+	itHandle = m_Handles.find(pCmd->nHandle);
+	if(itHandle == m_Handles.end())
+	{
+		((uint32*)pRet)[0] = -1;
+		assert(0);
+		return;
+	}
+
+	pFile = itHandle->second;
+	pDst = &CPS2VM::m_pRAM[pCmd->nBufferAddress];
+
+	//This param buffer is used in the callback after calling this method... No clue what it's for
+	((uint32*)&CPS2VM::m_pRAM[pCmd->nParamAddress])[0] = 0;
+	((uint32*)&CPS2VM::m_pRAM[pCmd->nParamAddress])[1] = 0;
+
+	((uint32*)pRet)[0] = static_cast<uint32>(fread(pDst, 1, pCmd->nSize, pFile));
 }
 
 void CMcServ::GetDir(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
@@ -122,8 +234,12 @@ void CMcServ::GetDir(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 	Log("GetDir(nPort = %i, nSlot = %i, nFlags = %i, nMaxEntries = %i, nTableAddress = 0x%0.8X, sName = %s);\r\n",
 		pCmd->nPort, pCmd->nSlot, pCmd->nFlags, pCmd->nMaxEntries, pCmd->nTableAddress, pCmd->sName);
 
-	assert(pCmd->nPort < 2);
-	pCmd->nPort &= 1;
+	if(pCmd->nPort > 1)
+	{
+		assert(0);
+		((uint32*)pRet)[0] = -1;
+		return;
+	}
 
 	filesystem::path McPath(CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
 	McPath = filesystem::complete(McPath);
@@ -149,6 +265,11 @@ void CMcServ::GetVersionInformation(void* pArgs, uint32 nArgsSize, void* pRet, u
 	Log("Init();\r\n");
 }
 
+uint32 CMcServ::GenerateHandle()
+{
+	return m_nNextHandle++;
+}
+
 void CMcServ::Log(const char* sFormat, ...)
 {
 #ifdef _DEBUG
@@ -164,6 +285,9 @@ void CMcServ::Log(const char* sFormat, ...)
 #endif
 }
 
+/////////////////////////////////////////////
+//CPathFinder Implementation
+/////////////////////////////////////////////
 
 CMcServ::CPathFinder::CPathFinder(const filesystem::path& BasePath, ENTRY* pEntry, unsigned int nMax, const char* sFilter)
 {

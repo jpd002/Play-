@@ -3,6 +3,7 @@
 
 #include "IOP_Module.h"
 #include <string>
+#include <map>
 #include <boost/filesystem/path.hpp>
 
 namespace IOP
@@ -31,6 +32,18 @@ namespace IOP
 			uint32	nMaxEntries;
 			uint32	nTableAddress;
 			char	sName[0x400];
+		};
+
+		struct FILECMD
+		{
+			uint32	nHandle;
+			uint32	nPad[2];
+			uint32	nSize;
+			uint32	nOffset;
+			uint32	nOrigin;
+			uint32	nBufferAddress;
+			uint32	nParamAddress;
+			char	nData[16];
 		};
 
 		class CPathFinder
@@ -76,12 +89,19 @@ namespace IOP
 
 		void				GetInfo(void*, uint32, void*, uint32);
 		void				Open(void*, uint32, void*, uint32);
+		void				Close(void*, uint32, void*, uint32);
+		void				Read(void*, uint32, void*, uint32);
 		void				GetDir(void*, uint32, void*, uint32);
 		void				GetVersionInformation(void*, uint32, void*, uint32);
+
+		uint32				GenerateHandle();
 		void				Log(const char*, ...);
 
-		static const char*	m_sMcPathPreference[2];
+		typedef std::map<uint32, FILE*> HandleMap;
 
+		HandleMap			m_Handles;
+		static const char*	m_sMcPathPreference[2];
+		uint32				m_nNextHandle;
 	};
 
 }
