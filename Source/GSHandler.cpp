@@ -517,7 +517,6 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 	//Gotta rewrite this
 
 	uint8* pSrc;
-	uint32 nX, nY;
 	TRXPOS* pTrxPos;
 	TRXREG* pTrxReg;
 	BITBLTBUF* pTrxBuf;
@@ -531,22 +530,32 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 	assert(0);
 
 	pSrc = (uint8*)pData;
-
+/*
 	for(unsigned int i = 0; i < nLength; i++)
 	{
-		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint8 nPixel[2];
 
-//		*(Indexor.GetPixel(nX, nY)) = pSrc[i];
+		nPixel[0] = (pSrc[i] >> 0) & 0x0F;
+		nPixel[1] = (pSrc[i] >> 4) & 0x0F;
 
-		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+		for(unsigned int j = 0; j < 2; j++)
 		{
-			m_TrxCtx.nRRX = 0;
-			m_TrxCtx.nRRY++;
+			uint32 nX, nY;
+
+			nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
+			nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+
+			Indexor.SetPixel(nX, nY, nPixel[j]);
+
+			m_TrxCtx.nRRX++;
+			if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+			{
+				m_TrxCtx.nRRX = 0;
+				m_TrxCtx.nRRY++;
+			}
 		}
 	}
-
+*/
 	return true;
 }
 

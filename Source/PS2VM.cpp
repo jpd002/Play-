@@ -685,7 +685,11 @@ void CPS2VM::EmuThread()
 						{
 							m_nVBlankTicks = VBLANKTICKS;
 							m_pGS->SetVBlank();
+							
+							//Old Flipping Method
 							//m_pGS->Flip();
+							//////
+
 							m_pPad->Update();
 							m_OnNewFrame.Notify(NULL);
 						}

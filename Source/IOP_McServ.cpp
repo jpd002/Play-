@@ -132,8 +132,18 @@ void CMcServ::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 	}
 
 	filesystem::path Path;
-	Path = CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]);
-	Path /= pCmd->sName;
+
+	try
+	{
+		Path = filesystem::path(CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
+		Path /= pCmd->sName;
+	}
+	catch(const exception& Exception)
+	{
+		Log("Error while executing Open: %s\r\n.", Exception.what());
+		reinterpret_cast<uint32*>(pRet)[0] = -1;
+		return;
+	}
 
 	sAccess = NULL;
 	switch(pCmd->nFlags)
@@ -154,7 +164,6 @@ void CMcServ::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 	if(pFile == NULL)
 	{
 		((uint32*)pRet)[0] = -1;
-		assert(0);
 		return;
 	}
 
@@ -241,13 +250,20 @@ void CMcServ::GetDir(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 		return;
 	}
 
-	filesystem::path McPath(CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
-	McPath = filesystem::complete(McPath);
-
-	if(filesystem::exists(McPath))
+	try
 	{
-		CPathFinder PathFinder(McPath, reinterpret_cast<CPathFinder::ENTRY*>(&CPS2VM::m_pRAM[pCmd->nTableAddress]), pCmd->nMaxEntries, pCmd->sName);
-		nRet = PathFinder.Search();
+		filesystem::path McPath(CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
+		McPath = filesystem::complete(McPath);
+
+		if(filesystem::exists(McPath))
+		{
+			CPathFinder PathFinder(McPath, reinterpret_cast<CPathFinder::ENTRY*>(&CPS2VM::m_pRAM[pCmd->nTableAddress]), pCmd->nMaxEntries, pCmd->sName);
+			nRet = PathFinder.Search();
+		}
+	}
+	catch(const exception& Exception)
+	{
+		Log("Error while executing GetDir: %s\r\n.", Exception.what());
 	}
 
 	((uint32*)pRet)[0] = nRet;

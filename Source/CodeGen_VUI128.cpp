@@ -1017,17 +1017,139 @@ void CVUI128::CSSEFactory::UnpackUpperBH()
 
 void CVUI128::CSSEFactory::UnpackLowerHW()
 {
-	assert(0);
+	//TODO: This hasn't been tested properly
+
+	uint32 nVariable1, nVariable2;
+	uint32 nRegister, nTemp;
+
+	assert(m_OpStack.GetAt(0) == VARIABLE);
+	assert(m_OpStack.GetAt(2) == VARIABLE);
+
+	RequireEMMS();
+
+	m_OpStack.Pull();
+	nVariable2 = m_OpStack.Pull();
+	m_OpStack.Pull();
+	nVariable1 = m_OpStack.Pull();
+
+	nRegister	= AllocateRegister();
+	nTemp		= AllocateRegister();
+
+	//We need to load the lower value of this variable twice
+
+	//movq nReg + 0, [nVariable2 + 0]
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0x00 | ((nRegister + 0) << 3) | 0x05);
+	m_pBlock->StreamWriteWord(nVariable2 + 0);
+
+	//movq nReg + 1, nReg + 0
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0xC0 | ((nRegister + 1) << 3) | (nRegister + 0));
+
+	//Load the lower value of the other variable into a temp register
+	
+	//movq nTemp + 0, [nVariable1 + 0]
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0x00 | ((nTemp + 0) << 3) | 0x05);
+	m_pBlock->StreamWriteWord(nVariable1 + 0);
+
+	//punpcklwd nReg + 0, nTemp 
+	m_pBlock->StreamWrite(3, 0x0F, 0x61, 0xC0 | ((nRegister + 0) << 3) | (nTemp + 0));
+
+	//punpckhwd nReg + 1, nTemp
+	m_pBlock->StreamWrite(3, 0x0F, 0x69, 0xC0 | ((nRegister + 1) << 3) | (nTemp + 0));
+
+	FreeRegister(nTemp);
+
+	m_OpStack.Push(nRegister);
+	m_OpStack.Push(REGISTER);
 }
 
 void CVUI128::CSSEFactory::UnpackLowerWD()
 {
-	assert(0);
+	uint32 nVariable1, nVariable2;
+	uint32 nRegister, nTemp;
+
+	assert(m_OpStack.GetAt(0) == VARIABLE);
+	assert(m_OpStack.GetAt(2) == VARIABLE);
+
+	RequireEMMS();
+
+	m_OpStack.Pull();
+	nVariable2 = m_OpStack.Pull();
+	m_OpStack.Pull();
+	nVariable1 = m_OpStack.Pull();
+
+	nRegister	= AllocateRegister();
+	nTemp		= AllocateRegister();
+
+	//We need to load the lower value of this variable twice
+
+	//movq nReg + 0, [nVariable2 + 0]
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0x00 | ((nRegister + 0) << 3) | 0x05);
+	m_pBlock->StreamWriteWord(nVariable2 + 0);
+
+	//movq nReg + 1, nReg + 0
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0xC0 | ((nRegister + 1) << 3) | (nRegister + 0));
+
+	//Load the lower value of the other variable into a temp register
+	
+	//movq nTemp + 0, [nVariable1 + 0]
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0x00 | ((nTemp + 0) << 3) | 0x05);
+	m_pBlock->StreamWriteWord(nVariable1 + 0);
+
+	//punpckldq nReg + 0, nTemp 
+	m_pBlock->StreamWrite(3, 0x0F, 0x62, 0xC0 | ((nRegister + 0) << 3) | (nTemp + 0));
+
+	//punpckhqd nReg + 1, nTemp
+	m_pBlock->StreamWrite(3, 0x0F, 0x6A, 0xC0 | ((nRegister + 1) << 3) | (nTemp + 0));
+
+	FreeRegister(nTemp);
+
+	m_OpStack.Push(nRegister);
+	m_OpStack.Push(REGISTER);
 }
 
 void CVUI128::CSSEFactory::UnpackUpperWD()
 {
-	assert(0);
+	uint32 nVariable1, nVariable2;
+	uint32 nRegister, nTemp;
+
+	assert(m_OpStack.GetAt(0) == VARIABLE);
+	assert(m_OpStack.GetAt(2) == VARIABLE);
+
+	RequireEMMS();
+
+	m_OpStack.Pull();
+	nVariable2 = m_OpStack.Pull();
+	m_OpStack.Pull();
+	nVariable1 = m_OpStack.Pull();
+
+	nRegister	= AllocateRegister();
+	nTemp		= AllocateRegister();
+
+	//We need to load the lower value of this variable twice
+
+	//movq nReg + 0, [nVariable2 + 8]
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0x00 | ((nRegister + 0) << 3) | 0x05);
+	m_pBlock->StreamWriteWord(nVariable2 + 8);
+
+	//movq nReg + 1, nReg + 0
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0xC0 | ((nRegister + 1) << 3) | (nRegister + 0));
+
+	//Load the lower value of the other variable into a temp register
+	
+	//movq nTemp + 0, [nVariable1 + 8]
+	m_pBlock->StreamWrite(3, 0x0F, 0x6F, 0x00 | ((nTemp + 0) << 3) | 0x05);
+	m_pBlock->StreamWriteWord(nVariable1 + 8);
+
+	//punpckldq nReg + 0, nTemp 
+	m_pBlock->StreamWrite(3, 0x0F, 0x62, 0xC0 | ((nRegister + 0) << 3) | (nTemp + 0));
+
+	//punpckhqd nReg + 1, nTemp
+	m_pBlock->StreamWrite(3, 0x0F, 0x6A, 0xC0 | ((nRegister + 1) << 3) | (nTemp + 0));
+
+	FreeRegister(nTemp);
+
+	m_OpStack.Push(nRegister);
+	m_OpStack.Push(REGISTER);
 }
 
 void CVUI128::CSSEFactory::Xor()
