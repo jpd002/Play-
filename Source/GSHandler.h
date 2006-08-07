@@ -469,8 +469,7 @@ protected:
 		enum COLUMNHEIGHT	{ COLUMNHEIGHT = 4 };
 
 		static int m_nBlockSwizzleTable[4][8];
-		//The swizzling actually differs depending you're on columns 0-2 or 1-3
-		static int m_nColumnSwizzleTable[4][16];
+		static int m_nColumnWordTable[2][2][8];
 
 		typedef uint8 Unit;
 	};
@@ -502,16 +501,12 @@ protected:
 
 		typename Storage::Unit GetPixel(unsigned int nX, unsigned int nY)
 		{
-			uint32 nAddress;
-			nAddress = GetColumnAddress(nX, nY);
-			return ((typename Storage::Unit*)&m_pMemory[nAddress])[Storage::m_nColumnSwizzleTable[nY][nX]];
+			return *GetPixelAddress(nX, nY);
 		}
 
 		void SetPixel(unsigned int nX, unsigned int nY, typename Storage::Unit nPixel)
 		{
-			uint32 nAddress;
-			nAddress = GetColumnAddress(nX, nY);
-			((typename Storage::Unit*)&m_pMemory[nAddress])[Storage::m_nColumnSwizzleTable[nY][nX]] = nPixel;
+			*GetPixelAddress(nX, nY) = nPixel;
 		}
 
 		typename Storage::Unit* GetPixelAddress(unsigned int nX, unsigned int nY)
@@ -617,6 +612,9 @@ protected:
 	bool									m_nCrtIsFrameMode;
 };
 
+//////////////////////////////////////////////
+//Some storage methods templates specializations
+
 template <> uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::GetPixel(unsigned int nX, unsigned int nY)
 {
 	typedef STORAGEPSMT4 Storage;
@@ -637,6 +635,7 @@ template <> uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::GetPixel(
 
 	return (uint8)(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]] >> nShiftAmount) & 0x0F;
 }
+
 /*
 template <> void CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::SetPixel(unsigned int nX, unsigned int nY, uint8 nPixel)
 {
@@ -663,4 +662,26 @@ template <> void CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::SetPixel(u
 	(*pPixel) |= (nPixel	<< nShiftAmount);
 }
 */
+
+template <> uint8* CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT8>::GetPixelAddress(unsigned int nX, unsigned int nY)
+{
+	typedef CGSHandler::STORAGEPSMT8 Storage;
+
+	unsigned int nByte, nTable;
+	uint32 nColumnNum, nOffset;
+
+	nColumnNum = (nY / Storage::COLUMNHEIGHT) & 0x01;
+	nOffset = GetColumnAddress(nX, nY);
+
+	nTable			=	(nY & 0x02) >> 1;
+	nByte			=	(nX & 0x08) >> 2;
+	nByte			+=	(nY & 0x02) >> 1;
+	nTable			^=	(nColumnNum);
+
+	nX &= 0x7;
+	nY &= 0x1;
+
+	return reinterpret_cast<uint8*>(&((uint32*)&m_pMemory[nOffset])[Storage::m_nColumnWordTable[nTable][nY][nX]]) + nByte;
+}
+
 #endif

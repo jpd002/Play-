@@ -1007,12 +1007,13 @@ void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
 		break;
 
 	//Atelier Iris
+	//Ys 1 & 2 : Eternal Story
 	case GS_REG_FRAME_1:
 		Flip();
 		break;
-	
-	//Castlevania: CoD
+
 /*
+	//Castlevania: CoD
 	case GS_REG_FRAME_1:
 	case GS_REG_FRAME_2:
 		{
@@ -1033,7 +1034,6 @@ void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
 				}
 			}
 		}
-
 		break;
 */
 	}

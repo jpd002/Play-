@@ -187,11 +187,6 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		break;
 	}
 
-	if(pReg0->nPsm == PSMT8)
-	{
-		//DumpTexture(nWidth, nHeight);
-	}
-
 	//
 	/*
 	glColor4d(1.0, 1.0, 1.0, 1.0);
@@ -462,73 +457,6 @@ void CGSH_OpenGL::TexUploader_Psm8_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 
 	glColorTableEXT(GL_TEXTURE_2D, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, nPalette);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT, nWidth, nHeight, 0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, m_pRAM + nPointer);
-}
-
-template <> uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT8>::GetPixel(unsigned int nX, unsigned int nY)
-{
-	typedef CGSHandler::STORAGEPSMT8 Storage;
-
-	unsigned int nByte, nTable;
-
-	static unsigned int nColSwizzleTable[2][2][8] =
-	{
-		{
-			{	0,	1,	4,	5,	8,	9,	12,	13,	},
-			{	2,	3,	6,	7,	10,	11,	14,	15,	},
-		},
-		{
-			{	8,	9,	12,	13,	0,	1,	4,	5,	},
-			{	10,	11,	14,	15,	2,	3,	6,	7,	},
-		},
-	};
-
-	uint32 nPageNum, nBlockNum, nColumnNum, nOffset;
-
-	nPageNum = (nX / Storage::PAGEWIDTH) + (nY / Storage::PAGEHEIGHT) * (m_nWidth * 64) / Storage::PAGEWIDTH;
-
-	nX %= Storage::PAGEWIDTH;
-	nY %= Storage::PAGEHEIGHT;
-
-	nBlockNum = Storage::m_nBlockSwizzleTable[nY / Storage::BLOCKHEIGHT][nX / Storage::BLOCKWIDTH];
-
-	nX %= Storage::BLOCKWIDTH;
-	nY %= Storage::BLOCKHEIGHT;
-
-	nColumnNum = (nY / Storage::COLUMNHEIGHT);
-
-	nY %= Storage.COLUMNHEIGHT;
-
-	nOffset = m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE);
-	nOffset &= (RAMSIZE - 1);
-
-	if((nX < 8) && (nY < 2))
-	{
-		nByte = 0;
-		nTable = 0;
-	}
-	else if((nX >= 8) && (nY < 2))
-	{
-		nByte = 2;
-		nTable = 0;
-	}
-	else if((nX < 8) && (nY >= 2))
-	{
-		nByte = 1;
-		nTable = 1;
-	}
-	else
-	{
-		nByte = 3;
-		nTable = 1;
-	}
-
-	if(nColumnNum & 0x01) nTable ^= 0x01;
-
-	nX &= 0x7;
-	nY &= 0x1;
-
-	return ((uint8*)&m_pMemory[nOffset])[nColSwizzleTable[nTable][nY][nX] * 4 + nByte];
-	//return &((uint8*)&m_pMemory[nOffset])[Storage::m_nColumnSwizzleTable[nY][nX]];
 }
 
 void CGSH_OpenGL::TexUploader_Psm8_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
