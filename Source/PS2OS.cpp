@@ -255,23 +255,23 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 		pELF = new CELF(pStream);
 		delete pStream;
 	}
-	catch(const char* sError)
+	catch(const exception& Exception)
 	{
 		delete pStream;
-		throw sError;
+		throw Exception;
 	}
 
 	//Check for MIPS CPU
 	if(pELF->m_Header.nCPU != 8)
 	{
 		DELETEPTR(pELF);
-		throw "Invalid target CPU. Must be MIPS.";
+		throw exception("Invalid target CPU. Must be MIPS.");
 	}
 
 	if(pELF->m_Header.nType != 2)
 	{
 		DELETEPTR(pELF);
-		throw "Not an executable ELF file.";
+		throw exception("Not an executable ELF file.");
 	}
 	
 	CPS2VM::Pause();

@@ -1,7 +1,9 @@
+#include <exception>
 #include "VolumeStream.h"
 
 using namespace Framework;
 using namespace Framework::Win32;
+using namespace std;
 
 CVolumeStream::CVolumeStream(char nDriveLetter)
 {
@@ -41,7 +43,7 @@ void CVolumeStream::Seek(int64 nDistance, STREAM_SEEK_DIRECTION nFrom)
 		m_nPosition += nDistance;
 		break;
 	case STREAM_SEEK_END:
-		throw "Operation not supported.";
+		throw exception("Operation not supported.");
 		break;
 	}
 }
@@ -83,7 +85,7 @@ uint64 CVolumeStream::Read(void* pBuffer, uint64 nSize)
 
 uint64 CVolumeStream::Write(const void* pBuffer, uint64 nSize)
 {
-	throw "Operation not-supported.";
+	throw exception("Operation not-supported.");
 }
 
 bool CVolumeStream::IsEOF()

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <exception>
 #include "PS2VM.h"
 #include "DMAC.h"
 #include "INTC.h"
@@ -38,6 +39,7 @@
 
 using namespace Framework;
 using namespace boost;
+using namespace std;
 
 uint8*			CPS2VM::m_pRAM						= NULL;
 uint8*			CPS2VM::m_pBIOS						= NULL;
@@ -400,9 +402,9 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 			}
 			m_pCDROM0 = new CISO9660(pStream);
 		}
-		catch(const char* sError)
+		catch(const exception& Exception)
 		{
-			printf("PS2VM: Error mounting cdrom0 device: %s\r\n", sError);
+			printf("PS2VM: Error mounting cdrom0 device: %s\r\n", Exception.what());
 		}
 	}
 
