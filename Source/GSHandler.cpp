@@ -205,15 +205,15 @@ void CGSHandler::SetVBlank()
 {
 	m_nCSR |= 0x08;
 
-	//Alternate current field
-	m_nCSR ^= 0x2000;
-
 	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
 }
 
 void CGSHandler::ResetVBlank()
 {
 	m_nCSR &= ~0x08;
+
+	//Alternate current field
+	m_nCSR ^= 0x2000;
 
 	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_END);
 }
@@ -849,6 +849,18 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			nX, \
 			nY, \
 			nZ);
+		break;
+	case GS_REG_XYZF2:
+		{
+			XYZF xyzf;
+			xyzf = *reinterpret_cast<XYZF*>(&nData);
+			printf("GS: XYZF2(%f, %f, %i, %i);\r\n", \
+				xyzf.GetX(),
+				xyzf.GetY(),
+				xyzf.nZ,
+				xyzf.nF);
+		}
+		break;
 	case GS_REG_XYZ3:
 		DECODE_XYZ2(nData, nX, nY, nZ);
 		printf("GS: XYZ3(%f, %f, %f);\r\n", \
@@ -858,49 +870,55 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:
-		GSTEX0 tex;
-		DECODE_TEX0(nData, tex);
-		printf("GS: TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
-			nRegister == GS_REG_TEX0_1 ? 1 : 2, \
-			tex.GetBufPtr(), \
-			tex.GetBufWidth(), \
-			tex.nPsm, \
-			tex.GetWidth(), \
-			tex.GetHeight(), \
-			tex.nColorComp, \
-			tex.nFunction, \
-			tex.GetCLUTPtr(), \
-			tex.nCPSM, \
-			tex.nCSM, \
-			tex.nCSA, \
-			tex.nCLD);
+		{
+			GSTEX0 tex;
+			DECODE_TEX0(nData, tex);
+			printf("GS: TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
+				nRegister == GS_REG_TEX0_1 ? 1 : 2, \
+				tex.GetBufPtr(), \
+				tex.GetBufWidth(), \
+				tex.nPsm, \
+				tex.GetWidth(), \
+				tex.GetHeight(), \
+				tex.nColorComp, \
+				tex.nFunction, \
+				tex.GetCLUTPtr(), \
+				tex.nCPSM, \
+				tex.nCSM, \
+				tex.nCSA, \
+				tex.nCLD);
+		}
 		break;
 	case GS_REG_CLAMP_1:
 	case GS_REG_CLAMP_2:
-		CLAMP clamp;
-		clamp = *(CLAMP*)&nData;
-		printf("GS: CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i);\r\n", \
-			nRegister == GS_REG_CLAMP_1 ? 1 : 2, \
-			clamp.nWMS, \
-			clamp.nWMT, \
-			clamp.GetMinU(), \
-			clamp.GetMaxU(), \
-			clamp.GetMinV(), \
-			clamp.GetMaxV());
+		{
+			CLAMP clamp;
+			clamp = *(CLAMP*)&nData;
+			printf("GS: CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i);\r\n", \
+				nRegister == GS_REG_CLAMP_1 ? 1 : 2, \
+				clamp.nWMS, \
+				clamp.nWMT, \
+				clamp.GetMinU(), \
+				clamp.GetMaxU(), \
+				clamp.GetMinV(), \
+				clamp.GetMaxV());
+		}
 		break;
 	case GS_REG_TEX1_1:
 	case GS_REG_TEX1_2:
-		GSTEX1 tex1;
-		DECODE_TEX1(nData, tex1);
-		printf("GS: TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i);\r\n", \
-			nRegister == GS_REG_TEX1_1 ? 1 : 2, \
-			tex1.nLODMethod, \
-			tex1.nMaxMip, \
-			tex1.nMagFilter, \
-			tex1.nMinFilter, \
-			tex1.nMipBaseAddr, \
-			tex1.nLODL, \
-			tex1.nLODK);
+		{
+			GSTEX1 tex1;
+			DECODE_TEX1(nData, tex1);
+			printf("GS: TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i);\r\n", \
+				nRegister == GS_REG_TEX1_1 ? 1 : 2, \
+				tex1.nLODMethod, \
+				tex1.nMaxMip, \
+				tex1.nMagFilter, \
+				tex1.nMinFilter, \
+				tex1.nMipBaseAddr, \
+				tex1.nLODL, \
+				tex1.nLODK);
+		}
 		break;
 	case GS_REG_TEX2_1:
 	case GS_REG_TEX2_2:

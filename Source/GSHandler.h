@@ -285,6 +285,18 @@ protected:
 		uint32			GetBufWidth()	{ return nBufWidth * 64; };
 	};
 
+	//Reg 0x04/0x0C
+	struct XYZF
+	{
+		unsigned int	nX				: 16;
+		unsigned int	nY				: 16;
+		unsigned int	nZ				: 24;
+		unsigned int	nF				: 8;
+
+		double			GetX()			{ return (double)nX / 16.0; }
+		double			GetY()			{ return (double)nY / 16.0; }
+	};
+
 	//Reg 0x08/0x09
 	struct CLAMP
 	{

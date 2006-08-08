@@ -1,5 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include <exception>
+#include <boost/filesystem/path.hpp>
 #include "PS2OS.h"
 #include "PS2VM.h"
 #include "StdStream.h"
@@ -44,6 +46,8 @@
 #define PATCHESPATH "patches.xml"
 
 using namespace Framework;
+using namespace std;
+using namespace boost;
 
 CEvent<int>							CPS2OS::m_OnExecutableChange;
 CEvent<int>							CPS2OS::m_OnExecutableUnloading;
@@ -182,10 +186,8 @@ void CPS2OS::DumpDmacHandlers()
 
 void CPS2OS::BootFromFile(const char* sPath)
 {
-	const char* sExecName;
-
-	sExecName = Utils::GetFilenameFromPath(sPath);
-	LoadELF(new CStdStream(fopen(sPath, "rb")), sExecName);
+	filesystem::path ExecPath(sPath, filesystem::native);
+	LoadELF(new CStdStream(fopen(ExecPath.string().c_str(), "rb")), ExecPath.leaf().c_str());
 }
 
 void CPS2OS::BootFromCDROM()
@@ -198,7 +200,7 @@ void CPS2OS::BootFromCDROM()
 	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, "cdrom0:SYSTEM.CNF");
 	if(pFile == NULL)
 	{
-		throw "No 'SYSTEM.CNF' file found on the cdrom0 device.";
+		throw exception("No 'SYSTEM.CNF' file found on the cdrom0 device.");
 	}
 
 	sExecPath = NULL;
@@ -223,7 +225,7 @@ void CPS2OS::BootFromCDROM()
 
 	if(sExecPath == NULL)
 	{
-		throw "Error parsing 'SYSTEM.CNF' for a BOOT2 value.";
+		throw exception("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
 	}
 
 	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, sExecPath);
@@ -1935,12 +1937,24 @@ void CPS2OS::sc_GsPutIMR()
 void CPS2OS::sc_SetVSyncFlag()
 {
 	uint32 nPtr1, nPtr2;
+	CGSHandler* pGsHandler;
 
 	nPtr1	= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
 	nPtr2	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
 
 	*(uint32*)&CPS2VM::m_pRAM[nPtr1] = 0x01;
-	*(uint32*)&CPS2VM::m_pRAM[nPtr2] = (1 << 13);
+
+	pGsHandler = CPS2VM::GetGSHandler();
+	if(pGsHandler != NULL)
+	{
+		//*(uint32*)&CPS2VM::m_pRAM[nPtr2] = 0x2000;
+		*(uint32*)&CPS2VM::m_pRAM[nPtr2] = pGsHandler->ReadPrivRegister(CGSHandler::GS_CSR) & 0x2000;
+	}
+	else
+	{
+		//Humm...
+		*(uint32*)&CPS2VM::m_pRAM[nPtr2] = 0;
+	}
 
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
