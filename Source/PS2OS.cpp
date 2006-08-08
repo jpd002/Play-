@@ -933,7 +933,7 @@ uint32 CPS2OS::GetNextReadyThread()
 	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
 	THREAD* pThread;
 	unsigned int nID;
-
+/*
 	unsigned int nRand, nCount;
 	srand((unsigned int)time(NULL));
 	nRand = rand();
@@ -981,7 +981,8 @@ uint32 CPS2OS::GetNextReadyThread()
 	}
 
 	return nID;
-/*
+*/
+
 	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
 	{
 		nID = itThread.GetValue();
@@ -1002,7 +1003,7 @@ uint32 CPS2OS::GetNextReadyThread()
 	m_pThreadSchedule->Insert(nID, pThread->nPriority);
 
 	return nID;
-*/
+
 }
 
 void CPS2OS::CreateWaitThread()
@@ -2007,6 +2008,9 @@ void CPS2OS::sc_SifSetDma()
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nCount;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
 
+	//Force reschedule
+	ElectThread(GetNextReadyThread());
+
 	for(i = 0; i < nCount; i++)
 	{
 		nSize = (pXfer[i].nSize + 0x0F) / 0x10;
@@ -2016,9 +2020,6 @@ void CPS2OS::sc_SifSetDma()
 		CDMAC::SetRegister(CDMAC::D6_QWC,	nSize);
 		CDMAC::SetRegister(CDMAC::D6_CHCR,	0x00000100);
 	}
-
-	//Force reschedule
-	ElectThread(GetNextReadyThread());
 }
 
 //78

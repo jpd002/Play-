@@ -5,6 +5,7 @@
 		<Patch Address="0x0029B758" Value="0x00000000" Description="Skips movies" />
 		<Patch Address="0x0029B768" Value="0x00000000" Description="Skips movies" />
 		<Patch Address="0x0029B774" Value="0x00000000" Description="Skips movies" />
+		<Patch Address="0x0029E910" Value="0x00000000" Description="Skips movies" />
 	</Executable>
 	<Executable Name="SLUS_211.13;1">
 		<Patch Address="0x002E5A80" Value="0x8000033C" Description="Removes VU1 MAC flag check for world map" />
