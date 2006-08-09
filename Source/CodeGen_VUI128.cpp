@@ -575,7 +575,19 @@ void CVUI128::CSSEFactory::And()
 
 void CVUI128::CSSEFactory::CmpEqW()
 {
-	assert(0);
+	uint32 nVariable, nRegister;
+
+	BeginTwoOperands(&nRegister, &nVariable);
+	{
+		//pcmpeqd mm? + 0, [nVariable + 0]
+		m_pBlock->StreamWrite(3, 0x0F, 0x66, 0x00 | ((nRegister + 0) << 3) | 0x05);
+		m_pBlock->StreamWriteWord(nVariable + 0);
+
+		//pcmpeqd mm? + 1, [nVariable + 8]
+		m_pBlock->StreamWrite(3, 0x0F, 0x66, 0x00 | ((nRegister + 1) << 3) | 0x05);
+		m_pBlock->StreamWriteWord(nVariable + 8);
+	}
+	EndTwoOperands(nRegister);
 }
 
 void CVUI128::CSSEFactory::CmpGtH()
