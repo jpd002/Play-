@@ -2,7 +2,7 @@
 #define _MAINWINDOW_H_
 
 #include "win32/Window.h"
-#include "NiceStatus.h"
+#include "win32/StatusBar.h"
 #include "OutputWnd.h"
 #include "EventHandler.h"
 #ifdef DEBUGGER_INCLUDED
@@ -66,11 +66,12 @@ private:
 	bool							m_nPauseFocusLost;
 	bool							m_nDeactivatePause;
 
-	CNiceStatus*					m_pStatusBar;
+	Framework::Win32::CStatusBar*	m_pStatusBar;
 	COutputWnd*						m_pOutputWnd;
 #ifdef DEBUGGER_INCLUDED
 	CDebugger*						m_pDebugger;
 #endif
+	static double					m_nStatusBarPanelWidths[2];
 };
 
 #endif

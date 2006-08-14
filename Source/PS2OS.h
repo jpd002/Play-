@@ -26,6 +26,8 @@ public:
 	static CELF*								GetELF();
 	static const char*							GetExecutableName();
 
+	static void									ThreadShakeAndBake();
+
 	static void									ExceptionHandler();
 	static uint32								TranslateAddress(CMIPS*, uint32, uint32);
 
@@ -117,6 +119,7 @@ private:
 		uint32									nWakeUpCount;
 		uint32									nScheduleID;
 		uint32									nStackSize;
+		uint32									nQuota;
 	};
 
 	struct THREADCONTEXT
@@ -217,8 +220,10 @@ private:
 	static void									SetCurrentThreadId(uint32);
 	static uint32								GetNextAvailableThreadId();
 	static THREAD*								GetThread(uint32);
-	static void									ElectThread(uint32);
-	static uint32								GetNextReadyThread();
+	//static void								ElectThread(uint32);
+	//static uint32								GetNextReadyThread();
+	static bool									ThreadHasAllQuotasExpired();
+	static void									ThreadSwitchContext(unsigned int);
 
 	static uint32								GetNextAvailableSemaphoreId();
 	static SEMAPHORE*							GetSemaphore(uint32);

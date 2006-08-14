@@ -45,6 +45,8 @@
 #define CONFIGPATH ".\\config\\"
 #define PATCHESPATH "patches.xml"
 
+#define THREAD_INIT_QUOTA				(5)
+
 using namespace Framework;
 using namespace std;
 using namespace boost;
@@ -883,12 +885,92 @@ CPS2OS::THREAD* CPS2OS::GetThread(uint32 nID)
 	return &((THREAD*)&CPS2VM::m_pRAM[0x00011000])[nID];
 }
 
-void CPS2OS::ElectThread(uint32 nID)
+void CPS2OS::ThreadShakeAndBake()
+{
+	THREAD* pThread;
+	unsigned int nId;
+
+	//Don't play with fire (don't switch if we're in exception mode)
+	if(CPS2VM::m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & 0x02)
+	{
+		return;
+	}
+
+	if(GetCurrentThreadId() == 0)
+	{
+		return;
+	}
+
+	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
+
+	//First of all, revoke the current's thread right to execute itself
+	pThread = GetThread(GetCurrentThreadId());
+	pThread->nQuota--;
+
+	//Check if all quotas expired
+	if(ThreadHasAllQuotasExpired())
+	{
+		//If so, regive a quota to everyone
+		for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+		{
+			nId = itThread.GetValue();
+			pThread = GetThread(nId);
+
+			pThread->nQuota = THREAD_INIT_QUOTA;
+		}
+	}
+
+	//Next, find the next suitable thread to execute
+	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+	{
+		nId = itThread.GetValue();
+		pThread = GetThread(nId);
+
+		if(pThread->nStatus != THREAD_RUNNING) continue;
+		if(pThread->nQuota == 0) continue;
+		break;
+	}
+
+
+	if(itThread.IsEnd())
+	{
+		//Deadlock or something here
+		assert(0);
+	}
+
+	//Remove and readd the thread into the queue
+	m_pThreadSchedule->Remove(pThread->nScheduleID);
+	m_pThreadSchedule->Insert(nId, pThread->nPriority);
+
+	ThreadSwitchContext(nId);
+}
+
+bool CPS2OS::ThreadHasAllQuotasExpired()
+{
+	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
+
+	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+	{
+		THREAD* pThread;
+		unsigned int nId;
+
+		nId = itThread.GetValue();
+		pThread = GetThread(nId);
+
+		if(pThread->nStatus != THREAD_RUNNING) continue;
+		if(pThread->nQuota == 0) continue;
+
+		return false;
+	}
+
+	return true;
+}
+
+void CPS2OS::ThreadSwitchContext(unsigned int nID)
 {
 	//Save the context of the current thread
 	THREAD* pThread;
 	THREADCONTEXT* pContext;
-	uint32 i;
 
 	if(nID == GetCurrentThreadId()) return;
 
@@ -896,7 +978,7 @@ void CPS2OS::ElectThread(uint32 nID)
 	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
 
 	//Save the context
-	for(i = 0; i < 0x20; i++)
+	for(uint32 i = 0; i < 0x20; i++)
 	{
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
@@ -914,7 +996,7 @@ void CPS2OS::ElectThread(uint32 nID)
 
 	m_pCtx->m_State.nPC = pThread->nEPC;
 
-	for(i = 0; i < 0x20; i++)
+	for(uint32 i = 0; i < 0x20; i++)
 	{
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
@@ -928,60 +1010,60 @@ void CPS2OS::ElectThread(uint32 nID)
 	}
 }
 
+/*
 uint32 CPS2OS::GetNextReadyThread()
 {
 	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
 	THREAD* pThread;
 	unsigned int nID;
-/*
-	unsigned int nRand, nCount;
-	srand((unsigned int)time(NULL));
-	nRand = rand();
 
-	nCount = 0;
-	for(unsigned int i = 1; i < MAX_THREAD; i++)
-	{
-		if(i == GetCurrentThreadId()) continue;
-		pThread = GetThread(i);
-		if(pThread->nValid != 1) continue;
-		if(pThread->nStatus != THREAD_RUNNING) continue;
-		nCount++;
-	}
+//	unsigned int nRand, nCount;
+//	srand((unsigned int)time(NULL));
+//	nRand = rand();
 
-
-	if(nCount == 0)
-	{
-		nID = GetCurrentThreadId();
-
-		pThread = GetThread(nID);
-		if(pThread->nStatus != THREAD_RUNNING)
-		{
-			//Now, now, everyone is waiting for something...
-			nID = 0;
-		}
-
-		return nID;
-	}
-
-	nRand %= nCount;
-
-	nCount = 0;
-	for(unsigned int i = 1; i < MAX_THREAD; i++)
-	{
-		if(i == GetCurrentThreadId()) continue;
-		pThread = GetThread(i);
-		if(pThread->nValid != 1) continue;
-		if(pThread->nStatus != THREAD_RUNNING) continue;
-		if(nRand == nCount)
-		{
-			nID = i;
-			break;
-		}
-		nCount++;
-	}
-
-	return nID;
-*/
+//	nCount = 0;
+//	for(unsigned int i = 1; i < MAX_THREAD; i++)
+//	{
+//		if(i == GetCurrentThreadId()) continue;
+//		pThread = GetThread(i);
+//		if(pThread->nValid != 1) continue;
+//		if(pThread->nStatus != THREAD_RUNNING) continue;
+//		nCount++;
+//	}
+//
+//
+//	if(nCount == 0)
+//	{
+//		nID = GetCurrentThreadId();
+//
+//		pThread = GetThread(nID);
+//		if(pThread->nStatus != THREAD_RUNNING)
+//		{
+//			//Now, now, everyone is waiting for something...
+//			nID = 0;
+//		}
+//
+//		return nID;
+//	}
+//
+//	nRand %= nCount;
+//
+//	nCount = 0;
+//	for(unsigned int i = 1; i < MAX_THREAD; i++)
+//	{
+//		if(i == GetCurrentThreadId()) continue;
+//		pThread = GetThread(i);
+//		if(pThread->nValid != 1) continue;
+//		if(pThread->nStatus != THREAD_RUNNING) continue;
+//		if(nRand == nCount)
+//		{
+//			nID = i;
+//			break;
+//		}
+//		nCount++;
+//	}
+//
+//	return nID;
 
 	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
 	{
@@ -1005,6 +1087,7 @@ uint32 CPS2OS::GetNextReadyThread()
 	return nID;
 
 }
+*/
 
 void CPS2OS::CreateWaitThread()
 {
@@ -1367,6 +1450,7 @@ void CPS2OS::sc_CreateThread()
 	pThread->nPriority		= pThreadParam->nPriority;
 	pThread->nHeapBase		= nHeapBase;
 	pThread->nWakeUpCount	= 0;
+	pThread->nQuota			= THREAD_INIT_QUOTA;
 	pThread->nScheduleID	= m_pThreadSchedule->Insert(nID, pThreadParam->nPriority);
 	pThread->nStackSize		= pThreadParam->nStackSize;
 
@@ -1446,7 +1530,7 @@ void CPS2OS::sc_ExitThread()
 	pThread = GetThread(GetCurrentThreadId());
 	pThread->nStatus = THREAD_ZOMBIE;
 
-	ElectThread(GetNextReadyThread());
+	ThreadShakeAndBake();
 }
 
 //25
@@ -1498,7 +1582,7 @@ void CPS2OS::sc_ChangeThreadPriority()
 	m_pThreadSchedule->Remove(pThread->nScheduleID);
 	pThread->nScheduleID = m_pThreadSchedule->Insert(nID, pThread->nPriority);
 
-	ElectThread(GetNextReadyThread());
+	ThreadShakeAndBake();
 }
 
 //2B
@@ -1534,7 +1618,7 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 	if(!itThread.IsEnd())
 	{
 		//Change has been made
-		ElectThread(GetNextReadyThread());
+		ThreadShakeAndBake();
 	}
 }
 
@@ -1602,7 +1686,7 @@ void CPS2OS::sc_SleepThread()
 	if(pThread->nWakeUpCount == 0)
 	{
 		pThread->nStatus = THREAD_SUSPENDED;
-		ElectThread(GetNextReadyThread());
+		ThreadShakeAndBake();
 		return;
 	}
 
@@ -1659,6 +1743,7 @@ void CPS2OS::sc_RFU060()
 	pThread->nStatus		= THREAD_RUNNING;
 	pThread->nStackBase		= nStackAddr - nStackSize;
 	pThread->nPriority		= 0;
+	pThread->nQuota			= THREAD_INIT_QUOTA;
 	pThread->nScheduleID	= m_pThreadSchedule->Insert(0, pThread->nPriority);
 
 	nStackAddr -= STACKRES;
@@ -1804,7 +1889,7 @@ void CPS2OS::sc_SignalSema()
 
 		if(!nInt)
 		{
-			ElectThread(GetNextReadyThread());
+			ThreadShakeAndBake();
 		}
 	}
 	else
@@ -1842,7 +1927,7 @@ void CPS2OS::sc_WaitSema()
 		pThread->nStatus	= THREAD_WAITING;
 		pThread->nSemaWait	= nID;
 
-		ElectThread(GetNextReadyThread());
+		ThreadShakeAndBake();
 
 		return;
 	}
@@ -1855,12 +1940,13 @@ void CPS2OS::sc_WaitSema()
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
 
+	//REMOVE
 	//Force reschedule
-	nID = GetNextReadyThread();
-	if(nID != GetCurrentThreadId())
-	{
-		ElectThread(nID);
-	}
+	//nID = GetNextReadyThread();
+	//if(nID != GetCurrentThreadId())
+	//{
+	//	ElectThread(nID);
+	//}
 }
 
 //45
@@ -1960,8 +2046,9 @@ void CPS2OS::sc_SetVSyncFlag()
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
 
+	//REMOVE
 	//Force reschedule
-	ElectThread(GetNextReadyThread());
+	//ElectThread(GetNextReadyThread());
 }
 
 //74
@@ -2008,8 +2095,9 @@ void CPS2OS::sc_SifSetDma()
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nCount;
 	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
 
+	//REMOVE
 	//Force reschedule
-	ElectThread(GetNextReadyThread());
+	//ElectThread(GetNextReadyThread());
 
 	for(i = 0; i < nCount; i++)
 	{
@@ -2311,6 +2399,7 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x64:
+	case 0x68:
 #ifdef _DEBUG
 //		printf("FlushCache();\r\n");
 #endif
@@ -2393,7 +2482,7 @@ void (*CPS2OS::m_pSysCall[0x80])() =
 	//0x60
 	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_FlushCache,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x68
-	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	sc_FlushCache,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
 	//0x70
 	sc_Unhandled,			sc_GsPutIMR,				sc_Unhandled,		sc_SetVSyncFlag,			sc_SetSyscall,		sc_Unhandled,		sc_SifDmaStat,		sc_SifSetDma,
 	//0x78

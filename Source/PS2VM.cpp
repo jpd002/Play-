@@ -685,9 +685,11 @@ void CPS2VM::EmuThread()
 						m_nInVBlank = !m_nInVBlank;
 						if(m_nInVBlank)
 						{
+							m_pOS->ThreadShakeAndBake();
+
 							m_nVBlankTicks = VBLANKTICKS;
 							m_pGS->SetVBlank();
-							
+
 							//Old Flipping Method
 							//m_pGS->Flip();
 							//////
