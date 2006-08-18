@@ -45,7 +45,7 @@
 #define CONFIGPATH ".\\config\\"
 #define PATCHESPATH "patches.xml"
 
-#define THREAD_INIT_QUOTA				(5)
+#define THREAD_INIT_QUOTA				(15)
 
 using namespace Framework;
 using namespace std;
@@ -1193,6 +1193,7 @@ CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 nID)
 
 void CPS2OS::ExceptionHandler()
 {
+	ThreadShakeAndBake();
 	m_pCtx->GenerateInterrupt(0x1FC00200);
 }
 
@@ -1709,7 +1710,7 @@ void CPS2OS::sc_WakeupThread()
 	if(pThread->nStatus == THREAD_SUSPENDED)
 	{
 		pThread->nStatus = THREAD_RUNNING;
-		//Reschedule?
+		ThreadShakeAndBake();
 	}
 	else
 	{
@@ -1875,7 +1876,8 @@ void CPS2OS::sc_SignalSema()
 			if(pThread->nStatus != THREAD_WAITING) continue;
 			if(pThread->nSemaWait != nID) continue;
 
-			pThread->nStatus = THREAD_RUNNING;
+			pThread->nStatus	= THREAD_RUNNING;
+			pThread->nQuota		= THREAD_INIT_QUOTA;
 			pSema->nWaitCount--;
 
 			if(pSema->nWaitCount == 0)
@@ -2097,7 +2099,7 @@ void CPS2OS::sc_SifSetDma()
 
 	//REMOVE
 	//Force reschedule
-	//ElectThread(GetNextReadyThread());
+	//ThreadShakeAndBake();
 
 	for(i = 0; i < nCount; i++)
 	{
@@ -2546,7 +2548,7 @@ unsigned int CPS2OS::CRoundRibbon::Insert(uint32 nValue, uint32 nWeight)
 			continue;
 		}
 
-		if(pNode->nWeight > pNext->nWeight)
+		if(pNode->nWeight < pNext->nWeight)
 		{
 			pNext = NULL;
 			continue;
