@@ -57,7 +57,7 @@ CEvent<int>							CPS2OS::m_OnExecutableUnloading;
 bool								CPS2OS::m_nInitialized		= false;
 CELF*								CPS2OS::m_pELF				= NULL;
 
-CStrA								CPS2OS::m_sExecutableName;
+string								CPS2OS::m_sExecutableName;
 CMIPS*								CPS2OS::m_pCtx				= NULL;
 
 CPS2OS::CRoundRibbon*				CPS2OS::m_pThreadSchedule	= NULL;
@@ -245,7 +245,7 @@ CELF* CPS2OS::GetELF()
 
 const char* CPS2OS::GetExecutableName()
 {
-	return m_sExecutableName;
+	return m_sExecutableName.c_str();
 }
 
 void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
@@ -414,28 +414,19 @@ void CPS2OS::LoadExecutableConfig()
 
 #ifdef DEBUGGER_INCLUDED
 
-	char sPath[256];
+	string sPath;
 
 	//Functions
-	strcpy(sPath, CONFIGPATH);
-	strcat(sPath, m_sExecutableName);
-	strcat(sPath, ".functions");
-
-	CPS2VM::m_EE.m_Functions.Unserialize(sPath);
+	sPath = CONFIGPATH + m_sExecutableName + ".functions";
+	CPS2VM::m_EE.m_Functions.Unserialize(sPath.c_str());
 
 	//Comments
-	strcpy(sPath, CONFIGPATH);
-	strcat(sPath, m_sExecutableName);
-	strcat(sPath, ".comments");
-
-	CPS2VM::m_EE.m_Comments.Unserialize(sPath);
+	sPath = CONFIGPATH + m_sExecutableName + ".comments";
+	CPS2VM::m_EE.m_Comments.Unserialize(sPath.c_str());
 
 	//VU1 Comments
-	strcpy(sPath, CONFIGPATH);
-	strcat(sPath, m_sExecutableName);
-	strcat(sPath, ".vu1comments");
-
-	CPS2VM::m_VU1.m_Comments.Unserialize(sPath);
+	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
+	CPS2VM::m_VU1.m_Comments.Unserialize(sPath.c_str());
 
 #endif
 
@@ -446,29 +437,19 @@ void CPS2OS::SaveExecutableConfig()
 
 #ifdef DEBUGGER_INCLUDED
 
-	char sPath[256];
+	string sPath;
 
 	//Functions
-	strcpy(sPath, CONFIGPATH);
-	strcat(sPath, m_sExecutableName);
-	strcat(sPath, ".functions");
-
-	CPS2VM::m_EE.m_Functions.Serialize(sPath);
+	sPath = CONFIGPATH + m_sExecutableName + ".functions";
+	CPS2VM::m_EE.m_Functions.Serialize(sPath.c_str());
 
 	//Comments
-	strcpy(sPath, CONFIGPATH);
-	strcat(sPath, m_sExecutableName);
-	strcat(sPath, ".comments");
-
-	CPS2VM::m_EE.m_Comments.Serialize(sPath);
+	sPath = CONFIGPATH + m_sExecutableName + ".comments";
+	CPS2VM::m_EE.m_Comments.Serialize(sPath.c_str());
 
 	//VU1 Comments
-
-	strcpy(sPath, CONFIGPATH);
-	strcat(sPath, m_sExecutableName);
-	strcat(sPath, ".vu1comments");
-
-	CPS2VM::m_VU1.m_Comments.Serialize(sPath);
+	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
+	CPS2VM::m_VU1.m_Comments.Serialize(sPath.c_str());
 
 #endif
 

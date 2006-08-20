@@ -50,7 +50,7 @@ const char* CMIPSTags::Find(uint32 nAddress)
 	return m_Tag.Find(nAddress);
 }
 
-void CMIPSTags::Serialize(char* sPath)
+void CMIPSTags::Serialize(const char* sPath)
 {
 	FILE* pFile;
 	CStdStream* pStream;
@@ -82,7 +82,7 @@ void CMIPSTags::Serialize(char* sPath)
 
 }
 
-void CMIPSTags::Unserialize(char* sPath)
+void CMIPSTags::Unserialize(const char* sPath)
 {
 	FILE* pFile;
 	CStdStream* pStream;

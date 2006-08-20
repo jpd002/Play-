@@ -1,8 +1,8 @@
 #ifndef _PS2OS_H_
 #define _PS2OS_H_
 
+#include <string>
 #include "ELF.h"
-#include "Str.h"
 #include "Event.h"
 #include "List.h"
 #include "MIPS.h"
@@ -286,7 +286,7 @@ private:
 	static CMIPS*								m_pCtx;
 	static CRoundRibbon*						m_pThreadSchedule;
 
-	static Framework::CStrA						m_sExecutableName;
+	static std::string							m_sExecutableName;
 };
 
 #endif

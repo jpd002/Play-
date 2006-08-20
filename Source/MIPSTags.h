@@ -12,8 +12,8 @@ public:
 	void						InsertTag(uint32, char*);
 	void						RemoveTags();
 	const char*					Find(uint32);
-	void						Serialize(char*);
-	void						Unserialize(char*);
+	void						Serialize(const char*);
+	void						Unserialize(const char*);
 
 	Framework::CList<char>		m_Tag;
 	
