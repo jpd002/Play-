@@ -131,13 +131,15 @@
 #define ID_OPTIONS_MEMORYCARDMANAGER    40128
 #define ID_MAIN_OPTIONS_MMMANAGER       40129
 #define ID_MAIN_OPTIONS_MCMANAGER       40130
+#define ID_ASSEMBLESTARTTEST_65         40131
+#define ID_VM_TEST_SHIFT64              40132
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        117
-#define _APS_NEXT_COMMAND_VALUE         40131
+#define _APS_NEXT_COMMAND_VALUE         40133
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

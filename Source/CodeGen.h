@@ -24,42 +24,45 @@ public:
 		CONDITION_LE,
 	};
 
-	friend						CodeGen::CFPU;
+	friend							CodeGen::CFPU;
 
-	static void					Begin(CCacheBlock*);
-	static void					End();
+	static void						Begin(CCacheBlock*);
+	static void						End();
 
-	static void					BeginIf(bool);
-	static void					EndIf();
+	static void						BeginIf(bool);
+	static void						EndIf();
 
-	static void					BeginIfElse(bool);
-	static void					BeginIfElseAlt();
+	static void						BeginIfElse(bool);
+	static void						BeginIfElseAlt();
 
-	static void					PushVar(uint32*);
-	static void					PushCst(uint32);
-	static void					PushRef(void*);
-	static void					PushRel(size_t);
-	static void					PushTop();
-	static void					PushIdx(unsigned int);
+	static void						PushVar(uint32*);
+	static void						PushCst(uint32);
+	static void						PushRef(void*);
+	static void						PushRel(size_t);
+	static void						PushTop();
+	static void						PushIdx(unsigned int);
 
-	static void					PullVar(uint32*);
-	static void					PullRel(size_t);
-	static void					PullTop();
+	static void						PullVar(uint32*);
+	static void						PullRel(size_t);
+	static void						PullTop();
 
-	static void					Add();
-	static void					Add64();
-	static void					And();
-	static void					Call(void*, unsigned int, bool);
-	static void					Cmp(CONDITION);
-	static void					Cmp64(CONDITION);
-	static void					Lzc();
-	static void					Or();
-	static void					SeX();
-	static void					SeX16();
-	static void					Shl(uint8);
-	static void					Shr64(uint8);
-	static void					Sub();
-	static void					Xor();
+	static void						Add();
+	static void						Add64();
+	static void						And();
+	static void						Call(void*, unsigned int, bool);
+	static void						Cmp(CONDITION);
+	static void						Cmp64(CONDITION);
+	static void						Lzc();
+	static void						Or();
+	static void						SeX();
+	static void						SeX16();
+	static void						Shl(uint8);
+	static void						Shl64();
+	static void						Shl64(uint8);
+	static void						Srl64();
+	static void						Srl64(uint8);
+	static void						Sub();
+	static void						Xor();
 
 private:
 	enum MAX_STACK
@@ -88,6 +91,9 @@ private:
 		CONSTANT,
 		REFERENCE,
 		RELATIVE,
+#ifdef AMD64
+		REGISTER64,
+#endif
 	};
 
 	enum IFBLOCKS
@@ -101,47 +107,57 @@ private:
 		REGISTER_NORMAL,
 		REGISTER_HASLOW,
 		REGISTER_SAVED,
+		REGISTER_SHIFTAMOUNT,
 	};
 
-	static unsigned int			AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
-	static void					FreeRegister(unsigned int);
-	static unsigned int			GetMinimumConstantSize(uint32);
-	static bool					RegisterHasNextUse(unsigned int);
-	static void					LoadVariableInRegister(unsigned int, uint32);
-	static void					LoadRelativeInRegister(unsigned int, uint32);
-	static void					LoadConstantInRegister(unsigned int, uint32);
-	static void					CopyRegister(unsigned int, unsigned int);
+	static unsigned int				AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
+	static void						FreeRegister(unsigned int);
+	static unsigned int				GetMinimumConstantSize(uint32);
+	static bool						RegisterHasNextUse(unsigned int);
+	static void						LoadVariableInRegister(unsigned int, uint32);
+	static void						LoadRelativeInRegister(unsigned int, uint32);
+	static void						LoadConstantInRegister(unsigned int, uint32);
+	static void						CopyRegister(unsigned int, unsigned int);
 #ifdef AMD64
-	static void					LoadRelativeInRegister64(unsigned int, uint32);
-	static void					LoadConstantInRegister64(unsigned int, uint64);
+	static void						LoadRelativeInRegister64(unsigned int, uint32);
+	static void						LoadConstantInRegister64(unsigned int, uint64);
 #endif
 
-	static void					LoadConditionInRegister(unsigned int, CONDITION);
+	static void						LoadConditionInRegister(unsigned int, CONDITION);
 
-	static void					ReduceToRegister();
+	static void						ReduceToRegister();
 
-	static void					WriteRelativeRm(unsigned int, uint32);
-	static void					WriteRelativeRmRegister(unsigned int, uint32);
-	static void					WriteRelativeRmFunction(unsigned int, uint32);
+	static void						WriteRelativeRm(unsigned int, uint32);
+	static void						WriteRelativeRmRegister(unsigned int, uint32);
+	static void						WriteRelativeRmFunction(unsigned int, uint32);
 
-	static bool					IsTopRegCstPairCom();
-	static bool					IsTopRegZeroPairCom();
-	static void					GetRegCstPairCom(unsigned int*, uint32*);
+	static uint8					MakeRegRegRm(unsigned int, unsigned int);
+	static uint8					MakeRegFunRm(unsigned int, unsigned int);
 
-	static void					PushReg(unsigned int);
-	static void					ReplaceRegisterInStack(unsigned int, unsigned int);
+	static bool						IsTopRegCstPairCom();
+	static bool						IsTopRegZeroPairCom();
+	static void						GetRegCstPairCom(unsigned int*, uint32*);
 
-	static void					Cmp64Eq();
-	static void					Cmp64Lt(bool);
+	static void						PushReg(unsigned int);
+#ifdef AMD64
+	static void						PushReg64(unsigned int);
+#endif
+	static void						ReplaceRegisterInStack(unsigned int, unsigned int);
 
-	static bool					m_nBlockStarted;
+	static void						Cmp64Eq();
+	static void						Cmp64Lt(bool);
 
-	static CArrayStack<uint32>	m_Shadow;
-	static bool					m_nRegisterAllocated[MAX_REGISTER];
-	static unsigned int			m_nRegisterLookup[MAX_REGISTER];
-	static CCacheBlock*			m_pBlock;
+	static bool						m_nBlockStarted;
 
-	static CArrayStack<uint32>	m_IfStack;
+	static CArrayStack<uint32>		m_Shadow;
+#ifdef AMD64
+	static CArrayStack<uint32, 2>	m_PullReg64Stack;
+#endif
+	static bool						m_nRegisterAllocated[MAX_REGISTER];
+	static unsigned int				m_nRegisterLookup[MAX_REGISTER];
+	static CCacheBlock*				m_pBlock;
+
+	static CArrayStack<uint32>		m_IfStack;
 };
 
 #endif

@@ -5,10 +5,13 @@
 #include "CodeGen_FPU.h"
 #include "PtrMacro.h"
 
-bool				CCodeGen::m_nBlockStarted = false;
-CCacheBlock*		CCodeGen::m_pBlock = NULL;
-CArrayStack<uint32>	CCodeGen::m_Shadow;
-CArrayStack<uint32>	CCodeGen::m_IfStack;
+bool					CCodeGen::m_nBlockStarted = false;
+CCacheBlock*			CCodeGen::m_pBlock = NULL;
+CArrayStack<uint32>		CCodeGen::m_Shadow;
+#ifdef AMD64
+CArrayStack<uint32, 2>	CCodeGen::m_PullReg64Stack;
+#endif
+CArrayStack<uint32>		CCodeGen::m_IfStack;
 
 bool				CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
 
@@ -213,6 +216,14 @@ unsigned int CCodeGen::AllocateRegister(REGISTER_TYPE nPreference)
 				m_nRegisterAllocated[i] = true;
 				return i;
 			}
+		}
+	}
+	if(nPreference == REGISTER_SHIFTAMOUNT)
+	{
+		if(!m_nRegisterAllocated[1])
+		{
+			m_nRegisterAllocated[1] = true;
+			return 1;
 		}
 	}
 	if(nPreference == REGISTER_HASLOW)
@@ -477,6 +488,21 @@ void CCodeGen::WriteRelativeRmFunction(unsigned int nFunction, uint32 nOffset)
 	WriteRelativeRm(nFunction, nOffset);
 }
 
+uint8 CCodeGen::MakeRegFunRm(unsigned int nDst, unsigned int nFunction)
+{
+	assert(m_nRegisterLookup[nDst] < 8);
+
+	return 0xC0 | (nFunction << 3) | (m_nRegisterLookup[nDst]);
+}
+
+uint8 CCodeGen::MakeRegRegRm(unsigned int nDst, unsigned int nSrc)
+{
+	assert(m_nRegisterLookup[nDst] < 8);
+	assert(m_nRegisterLookup[nSrc] < 8);
+
+	return 0xC0 | (m_nRegisterLookup[nSrc] << 3) | (m_nRegisterLookup[nDst]);
+}
+
 void CCodeGen::PushVar(uint32* pValue)
 {
 	m_Shadow.Push(*(uint32*)&pValue);
@@ -524,6 +550,16 @@ void CCodeGen::PushReg(unsigned int nRegister)
 	m_Shadow.Push(nRegister);
 	m_Shadow.Push(REGISTER);
 }
+
+#ifdef AMD64
+
+void CCodeGen::PushReg64(unsigned int nRegister)
+{
+	m_Shadow.Push(nRegister);
+	m_Shadow.Push(REGISTER64);
+}
+
+#endif
 
 void CCodeGen::ReplaceRegisterInStack(unsigned int nDst, unsigned int nSrc)
 {
@@ -671,6 +707,36 @@ void CCodeGen::PullRel(size_t nOffset)
 
 		PullRel(nOffset);
 	}
+#ifdef AMD64
+	else if(m_Shadow.GetAt(0) == REGISTER64)
+	{
+		if(m_PullReg64Stack.GetCount() == 0)
+		{
+			//Save the provided offset for the next time
+			m_PullReg64Stack.Push(static_cast<uint32>(nOffset));
+		}
+		else
+		{
+			uint32 nRelative1, nRelative2;
+			uint32 nRegister;
+
+			nRelative2 = m_PullReg64Stack.Pull();
+			nRelative1 = static_cast<uint32>(nOffset);
+
+			m_Shadow.Pull();
+			nRegister = m_Shadow.Pull();
+
+			assert((nRelative2 - nRelative1) == 4);
+			assert(m_nRegisterLookup[nRegister] < 8);
+
+			//mov qword ptr[pValue], reg
+			m_pBlock->StreamWrite(2, 0x48, 0x89);
+			WriteRelativeRmRegister(nRegister, nRelative1);
+
+			FreeRegister(nRegister);
+		}
+	}
+#endif
 	else
 	{
 		assert(0);
@@ -1486,6 +1552,24 @@ void CCodeGen::Or()
 
 		Or();
 	}
+	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
+	{
+		unsigned int nRegister;
+		uint32 nConstant, nRelative;
+
+		m_Shadow.Pull();
+		nConstant = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative);
+
+		PushReg(nRegister);
+		PushCst(nConstant);
+
+		Or();
+	}
 	else
 	{
 		assert(0);
@@ -1600,18 +1684,331 @@ void CCodeGen::Shl(uint8 nAmount)
 	}
 }
 
-void CCodeGen::Shr64(uint8 nAmount)
+void CCodeGen::Shl64()
 {
 	if(\
-		(m_Shadow.GetAt(0) == VARIABLE) && \
-		(m_Shadow.GetAt(2) == VARIABLE))
+		(m_Shadow.GetAt(0) == RELATIVE) && \
+		(m_Shadow.GetAt(2) == RELATIVE) && \
+		(m_Shadow.GetAt(4) == RELATIVE))
 	{
-		uint32 nVariable1, nVariable2;
+		uint32 nAmount, nRelative1, nRelative2;
+		unsigned int nAmountReg;
 
 		m_Shadow.Pull();
-		nVariable2 = m_Shadow.Pull();
+		nAmount = m_Shadow.Pull();
 		m_Shadow.Pull();
-		nVariable1 = m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+		nAmountReg = AllocateRegister(REGISTER_SHIFTAMOUNT);
+		LoadRelativeInRegister(nAmountReg, nAmount);
+
+		//and cl, 0x3F
+		m_pBlock->StreamWrite(3, 0x80, 0xC0 | (0x4 << 3) | 1, 0x3F);
+
+#ifdef AMD64
+		if((nRelative2 - nRelative1) == 4)
+		{
+			unsigned int nRegister;
+
+			nRegister = AllocateRegister();
+			assert(m_nRegisterLookup[nRegister] < 8); 
+
+			LoadRelativeInRegister64(nRegister, nRelative1);
+
+			//shl reg, cl
+			m_pBlock->StreamWrite(3, 0x48, 0xD3, MakeRegFunRm(nRegister, 0x04));
+
+			PushReg64(nRegister);
+		}
+		else
+#endif
+		{
+			unsigned int nRegister1, nRegister2;
+			unsigned int nDoneJmp[2];
+			unsigned int nMoreJmp;
+
+			nRegister1 = AllocateRegister();
+			nRegister2 = AllocateRegister();
+
+			LoadRelativeInRegister(nRegister1, nRelative1);
+			LoadRelativeInRegister(nRegister2, nRelative2);
+
+			//test cl, cl
+			m_pBlock->StreamWrite(2, 0x84, 0xC9);
+
+			//je $done
+			m_pBlock->StreamWrite(2, 0x74, 0x00);
+			nDoneJmp[0] = m_pBlock->StreamGetSize();
+
+			//cmp cl, 0x20
+			m_pBlock->StreamWrite(3, 0x80, 0xF9, 0x20);
+
+			//jae $more32
+			m_pBlock->StreamWrite(2, 0x73, 0x00);
+			nMoreJmp = m_pBlock->StreamGetSize();
+
+			//shld reg2, reg1, cl
+			m_pBlock->StreamWrite(3, 0x0F, 0xA5, MakeRegRegRm(nRegister2, nRegister1));
+
+			//shl reg1, cl
+			m_pBlock->StreamWrite(2, 0xD3, MakeRegFunRm(nRegister1, 0x04));
+
+			//jmp $done
+			m_pBlock->StreamWrite(2, 0xEB, 0x00);
+			nDoneJmp[1] = m_pBlock->StreamGetSize();
+
+//$more32
+			m_pBlock->StreamWriteAt(nMoreJmp - 1, m_pBlock->StreamGetSize() - nMoreJmp);
+
+			//mov reg2, reg1
+			m_pBlock->StreamWrite(2, 0x89, MakeRegRegRm(nRegister2, nRegister1));
+
+			//xor reg1, reg1
+			m_pBlock->StreamWrite(2, 0x33, MakeRegRegRm(nRegister1, nRegister1));
+
+			//and cl, 0x1F
+			m_pBlock->StreamWrite(3, 0x80, 0xE1, 0x1F);
+
+			//shl reg2, cl
+			m_pBlock->StreamWrite(2, 0xD3, MakeRegFunRm(nRegister2, 0x04));
+
+//$done
+			m_pBlock->StreamWriteAt(nDoneJmp[0] - 1, m_pBlock->StreamGetSize() - nDoneJmp[0]);
+			m_pBlock->StreamWriteAt(nDoneJmp[1] - 1, m_pBlock->StreamGetSize() - nDoneJmp[1]);
+
+			PushReg(nRegister1);
+			PushReg(nRegister2);
+		}
+
+		FreeRegister(nAmountReg);
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void CCodeGen::Shl64(uint8 nAmount)
+{
+	if(\
+		(m_Shadow.GetAt(0) == RELATIVE) && \
+		(m_Shadow.GetAt(2) == RELATIVE))
+	{
+
+		uint32 nRelative1, nRelative2;
+
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+		assert(nAmount < 0x40);
+
+#ifdef AMD64
+		
+		if((nRelative2 - nRelative1) == 4)
+		{
+			unsigned int nRegister;
+
+			nRegister = AllocateRegister();
+			LoadRelativeInRegister64(nRegister, nRelative1);
+
+			assert(m_nRegisterLookup[nRegister] < 8);
+
+			//shl reg, amount
+			m_pBlock->StreamWrite(4, 0x48, 0xC1, MakeRegFunRm(nRegister, 0x04), nAmount);
+
+			PushReg64(nRegister);
+		}
+		else
+#endif
+		{
+			if(nAmount == 0)
+			{
+				uint32 nRegister1, nRegister2;
+
+				nRegister1 = AllocateRegister();
+				nRegister2 = AllocateRegister();
+
+				LoadRelativeInRegister(nRegister1, nRelative1);
+				LoadRelativeInRegister(nRegister2, nRelative2);
+
+				PushReg(nRegister1);
+				PushReg(nRegister2);
+			}
+			else if(nAmount == 32)
+			{
+				uint32 nRegister;
+
+				nRegister = AllocateRegister();
+				LoadRelativeInRegister(nRegister, nRelative1);
+
+				PushCst(0);
+				PushReg(nRegister);
+			}
+			else if(nAmount > 32)
+			{
+				uint32 nRegister;
+
+				nRegister = AllocateRegister();
+
+				LoadRelativeInRegister(nRegister, nRelative1);
+
+				//shl reg, amount
+				m_pBlock->StreamWrite(3, 0xC1, MakeRegFunRm(nRegister, 0x04), nAmount & 0x1F);
+
+				PushCst(0);
+				PushReg(nRegister);
+			}
+			else
+			{
+				uint32 nRegister1, nRegister2;
+
+				nRegister1 = AllocateRegister();
+				nRegister2 = AllocateRegister();
+
+				LoadRelativeInRegister(nRegister1, nRelative1);
+				LoadRelativeInRegister(nRegister2, nRelative2);
+
+				//shld nReg2, nReg1, nAmount
+				m_pBlock->StreamWrite(4, 0x0F, 0xA4, MakeRegRegRm(nRegister2, nRegister1), nAmount);
+
+				//shl nReg1, nAmount
+				m_pBlock->StreamWrite(3, 0xC1, MakeRegFunRm(nRegister1, 0x04), nAmount);
+
+				PushReg(nRegister1);
+				PushReg(nRegister2);
+			}
+		}
+
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void CCodeGen::Srl64()
+{
+	if(\
+		(m_Shadow.GetAt(0) == RELATIVE) && \
+		(m_Shadow.GetAt(2) == RELATIVE) && \
+		(m_Shadow.GetAt(4) == RELATIVE))
+	{
+		uint32 nAmount, nRelative1, nRelative2;
+		unsigned int nAmountReg;
+
+		m_Shadow.Pull();
+		nAmount = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+		nAmountReg = AllocateRegister(REGISTER_SHIFTAMOUNT);
+		LoadRelativeInRegister(nAmountReg, nAmount);
+
+		//and cl, 0x3F
+		m_pBlock->StreamWrite(3, 0x80, 0xC0 | (0x4 << 3) | 1, 0x3F);
+
+#ifdef AMD64
+
+		if((nRelative2 - nRelative1) == 4)
+		{
+			unsigned int nRegister;
+
+			nRegister = AllocateRegister();
+			assert(m_nRegisterLookup[nRegister] < 8); 
+
+			LoadRelativeInRegister64(nRegister, nRelative1);
+
+			//shr reg, cl
+			m_pBlock->StreamWrite(3, 0x48, 0xD3, MakeRegFunRm(nRegister, 0x05));
+
+			PushReg64(nRegister);
+		}
+		else
+#endif
+		{
+			unsigned int nRegister1, nRegister2;
+			unsigned int nDoneJmp[2];
+			unsigned int nMoreJmp;
+
+			nRegister1 = AllocateRegister();
+			nRegister2 = AllocateRegister();
+
+			LoadRelativeInRegister(nRegister1, nRelative1);
+			LoadRelativeInRegister(nRegister2, nRelative2);
+
+			//test cl, cl
+			m_pBlock->StreamWrite(2, 0x84, 0xC9);
+
+			//je $done
+			m_pBlock->StreamWrite(2, 0x74, 0x00);
+			nDoneJmp[0] = m_pBlock->StreamGetSize();
+
+			//cmp cl, 0x20
+			m_pBlock->StreamWrite(3, 0x80, 0xF9, 0x20);
+
+			//jae $more32
+			m_pBlock->StreamWrite(2, 0x73, 0x00);
+			nMoreJmp = m_pBlock->StreamGetSize();
+
+			//shrd reg1, reg2, cl
+			m_pBlock->StreamWrite(3, 0x0F, 0xAD, MakeRegRegRm(nRegister1, nRegister2));
+
+			//shr reg2, cl
+			m_pBlock->StreamWrite(2, 0xD3, MakeRegFunRm(nRegister2, 0x05));
+
+			//jmp $done
+			m_pBlock->StreamWrite(2, 0xEB, 0x00);
+			nDoneJmp[1] = m_pBlock->StreamGetSize();
+
+//$more32
+			m_pBlock->StreamWriteAt(nMoreJmp - 1, m_pBlock->StreamGetSize() - nMoreJmp);
+
+			//mov reg1, reg2
+			m_pBlock->StreamWrite(2, 0x89, MakeRegRegRm(nRegister1, nRegister2));
+
+			//xor reg2, reg2
+			m_pBlock->StreamWrite(2, 0x33, MakeRegRegRm(nRegister2, nRegister2));
+
+			//and cl, 0x1F
+			m_pBlock->StreamWrite(3, 0x80, 0xE1, 0x1F);
+
+			//shr reg1, cl
+			m_pBlock->StreamWrite(2, 0xD3, MakeRegFunRm(nRegister1, 0x05));
+
+//$done
+			m_pBlock->StreamWriteAt(nDoneJmp[0] - 1, m_pBlock->StreamGetSize() - nDoneJmp[0]);
+			m_pBlock->StreamWriteAt(nDoneJmp[1] - 1, m_pBlock->StreamGetSize() - nDoneJmp[1]);
+
+			PushReg(nRegister1);
+			PushReg(nRegister2);
+		}
+
+		FreeRegister(nAmountReg);
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void CCodeGen::Srl64(uint8 nAmount)
+{
+	if(\
+		(m_Shadow.GetAt(0) == RELATIVE) && \
+		(m_Shadow.GetAt(2) == RELATIVE))
+	{
+		uint32 nRelative1, nRelative2;
+
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
 
 		assert(nAmount < 0x40);
 
@@ -1622,27 +2019,21 @@ void CCodeGen::Shr64(uint8 nAmount)
 			nRegister1 = AllocateRegister();
 			nRegister2 = AllocateRegister();
 
-			LoadVariableInRegister(nRegister1, nVariable1);
-			LoadVariableInRegister(nRegister2, nVariable2);
+			LoadRelativeInRegister(nRegister1, nRelative1);
+			LoadRelativeInRegister(nRegister2, nRelative2);
 
-			m_Shadow.Push(nRegister1);
-			m_Shadow.Push(REGISTER);
-			
-			m_Shadow.Push(nRegister2);
-			m_Shadow.Push(REGISTER);
+			PushReg(nRegister1);
+			PushReg(nRegister2);
 		}
 		else if(nAmount == 32)
 		{
 			uint32 nRegister;
 
 			nRegister = AllocateRegister();
-			LoadVariableInRegister(nRegister, nVariable2);
+			LoadRelativeInRegister(nRegister, nRelative2);
 
-			m_Shadow.Push(nRegister);
-			m_Shadow.Push(REGISTER);
-
-			m_Shadow.Push(0);
-			m_Shadow.Push(CONSTANT);
+			PushReg(nRegister);
+			PushCst(0);
 		}
 		else if(nAmount > 32)
 		{
@@ -1650,16 +2041,13 @@ void CCodeGen::Shr64(uint8 nAmount)
 
 			nRegister = AllocateRegister();
 
-			LoadVariableInRegister(nRegister, nVariable2);
+			LoadRelativeInRegister(nRegister, nRelative2);
 
 			//shr reg, amount
-			m_pBlock->StreamWrite(3, 0xC1, 0xC0 | (0x05 << 3) | (nRegister), nAmount & 0x1F);
+			m_pBlock->StreamWrite(3, 0xC1, MakeRegFunRm(nRegister, 0x05), nAmount & 0x1F);
 
-			m_Shadow.Push(nRegister);
-			m_Shadow.Push(REGISTER);
-			
-			m_Shadow.Push(0);
-			m_Shadow.Push(CONSTANT);
+			PushReg(nRegister);
+			PushCst(0);
 		}
 		else
 		{
@@ -1668,20 +2056,17 @@ void CCodeGen::Shr64(uint8 nAmount)
 			nRegister1 = AllocateRegister();
 			nRegister2 = AllocateRegister();
 
-			LoadVariableInRegister(nRegister1, nVariable1);
-			LoadVariableInRegister(nRegister2, nVariable2);
+			LoadRelativeInRegister(nRegister1, nRelative1);
+			LoadRelativeInRegister(nRegister2, nRelative2);
 
 			//shrd nReg1, nReg2, nAmount
-			m_pBlock->StreamWrite(4, 0x0F, 0xAC, 0xC0 | (nRegister2 << 3) | (nRegister1), nAmount);
+			m_pBlock->StreamWrite(4, 0x0F, 0xAC, MakeRegRegRm(nRegister1, nRegister2), nAmount);
 
 			//shr nReg2, nAmount
-			m_pBlock->StreamWrite(3, 0xC1, 0xC0 | (0x05 << 3) | (nRegister2), nAmount);
+			m_pBlock->StreamWrite(3, 0xC1, MakeRegFunRm(nRegister2, 0x05), nAmount);
 
-			m_Shadow.Push(nRegister1);
-			m_Shadow.Push(REGISTER);
-
-			m_Shadow.Push(nRegister2);
-			m_Shadow.Push(REGISTER);
+			PushReg(nRegister1);
+			PushReg(nRegister2);
 		}
 	}
 }

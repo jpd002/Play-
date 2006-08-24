@@ -441,14 +441,22 @@ void CMA_MIPSIV::ANDI()
 //0D
 void CMA_MIPSIV::ORI()
 {
-	//Lower 32-bits
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->OrImm(m_nImmediate);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+	CCodeGen::Begin(m_pB);
+	{
+		//Lower 32-bits
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		CCodeGen::PushCst(m_nImmediate);
+		CCodeGen::Or();
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
-	//Higher 32-bits
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+		//Higher 32-bits (only if registers are different)
+		if(m_nRS != m_nRT)
+		{
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+			CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		}
+	}
+	CCodeGen::End();
 }
 
 //0E
@@ -474,8 +482,6 @@ void CMA_MIPSIV::LUI()
 		CCodeGen::PushCst((m_nImmediate & 0x8000) ? 0xFFFFFFFF : 0x00000000);
 		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-//		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-//		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
 	}
 	CCodeGen::End();
 }
@@ -1664,34 +1670,37 @@ void CMA_MIPSIV::MTLO()
 //14
 void CMA_MIPSIV::DSLLV()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	
-	//Push shift amount
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
+	CCodeGen::Begin(m_pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-	m_pB->Sll64();
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 
-	//Get the result
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+		CCodeGen::Shl64();
+
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
+	CCodeGen::End();
 }
 
 //16
 void CMA_MIPSIV::DSRLV()
 {
-	//Push value
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	
-	//Push shift amount
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
+	CCodeGen::Begin(m_pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-	m_pB->Srl64();
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 
-	//Get the result
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+		CCodeGen::Srl64();
+
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
+	CCodeGen::End();
 }
 
 //18
@@ -1972,13 +1981,13 @@ void CMA_MIPSIV::DSRL()
 {
 	CCodeGen::Begin(m_pB);
 	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-		CCodeGen::Shr64(m_nSA);
+		CCodeGen::Srl64(m_nSA);
 
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 	}
 	CCodeGen::End();
 }
@@ -1999,16 +2008,17 @@ void CMA_MIPSIV::DSRA()
 //3C
 void CMA_MIPSIV::DSLL32()
 {
-	//Clear out the first 32-bits
-	m_pB->PushImm(0);
+	CCodeGen::Begin(m_pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-	//2nd 32-bits
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->SllImm(m_nSA);
+		CCodeGen::Shl64(m_nSA + 0x20);
 
-	//Write the result
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
+	CCodeGen::End();
 }
 
 //3E
@@ -2016,13 +2026,13 @@ void CMA_MIPSIV::DSRL32()
 {
 	CCodeGen::Begin(m_pB);
 	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-		CCodeGen::Shr64(m_nSA + 32);
+		CCodeGen::Srl64(m_nSA + 32);
 
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 	}
 	CCodeGen::End();
 }

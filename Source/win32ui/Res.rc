@@ -80,6 +80,7 @@ BEGIN
         POPUP "Assemble && Start Test"
         BEGIN
             MENUITEM "Shift Operations Test",       ID_VM_TEST_SHIFT
+            MENUITEM "64-bit Shift Operations Test", ID_VM_TEST_SHIFT64
             MENUITEM "Split Load Operations Test",  ID_VM_TEST_SPLITLOAD
             MENUITEM "64-bit Addition Operations Test", ID_VM_TEST_ADD64
             MENUITEM "SLT Operations Test",         ID_VM_TEST_SLT
