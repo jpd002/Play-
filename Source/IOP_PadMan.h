@@ -159,6 +159,7 @@ namespace IOP
 
 		static void			PDF_InitializeStruct0(CPadDataInterface*);
 		static void			PDF_InitializeStruct1(CPadDataInterface*);
+		static void			PDF_SetButtonState(CPadDataInterface*, BUTTON, bool);
 
 		static void			Log(const char*, ...);
 	};

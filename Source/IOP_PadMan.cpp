@@ -1,16 +1,20 @@
 #include <assert.h>
 #include <stdio.h>
+#include <boost/bind.hpp>
 #include "IOP_PadMan.h"
 #include "PS2VM.h"
 
 using namespace IOP;
 using namespace Framework;
+using namespace boost;
 
 #define PADNUM			(1)
 #define MODE			(0x4)
 
 CPadMan::CPadMan()
 {
+	m_nPadDataAddress = 0;
+	m_nPadDataType = 0;
 	m_pPad = NULL;
 }
 
@@ -53,23 +57,10 @@ void CPadMan::LoadState(CStream* pStream)
 
 void CPadMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButton, bool nPressed)
 {
-	uint16 nStatus;
-	if(m_pPad == NULL) return;
-	nStatus = (m_pPad[PADNUM].nData[2] << 8) | (m_pPad[PADNUM].nData[3]);
+	if(m_nPadDataAddress == 0) return;
 
-	nStatus &= ~nButton;
-	if(!nPressed)
-	{
-		nStatus |= nButton;
-	}
-
-	m_pPad[PADNUM].nReqState = 0;
-
-	m_pPad[PADNUM].nData[2] = (uint8)(nStatus >> 8);
-	m_pPad[PADNUM].nData[3] = (uint8)(nStatus >> 0);
-
-	m_pPad[PADNUM].nData[0] = 0;
-	m_pPad[PADNUM].nData[1] = MODE << 4;
+	ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, _1, nButton, nPressed),
+		CPS2VM::m_pRAM + m_nPadDataAddress, PADNUM);
 }
 
 void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
@@ -105,6 +96,8 @@ void CPadMan::SetActuatorAlign(void* pArgs, uint32 nArgsSize, void* pRet, uint32
 void CPadMan::Init(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 {
 	assert(nRetSize >= 0x10);
+
+	m_nPadDataType = 1;
 
 	Log("Init();\r\n");
 
@@ -171,6 +164,47 @@ void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
 	m_pPad[1].nModeCurOffset	= 0;
 	m_pPad[1].nModeTable[0]		= MODE;
 #endif
+*/
+}
+
+void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, BUTTON nButton, bool nPressed)
+{
+	uint16 nStatus;
+
+	nStatus = (pPadData->GetData(2) << 8) | (pPadData->GetData(3));
+
+	nStatus &= ~nButton;
+	if(!nPressed)
+	{
+		nStatus |= nButton;
+	}
+
+	pPadData->SetReqState(0);
+
+	pPadData->SetData(2, static_cast<uint8>(nStatus >> 8));
+	pPadData->SetData(3, static_cast<uint8>(nStatus >> 0));
+
+	pPadData->SetData(0, 0);
+	pPadData->SetData(1, MODE << 4);
+
+/*
+	uint16 nStatus;
+	if(m_pPad == NULL) return;
+	nStatus = (m_pPad[PADNUM].nData[2] << 8) | (m_pPad[PADNUM].nData[3]);
+
+	nStatus &= ~nButton;
+	if(!nPressed)
+	{
+		nStatus |= nButton;
+	}
+
+	m_pPad[PADNUM].nReqState = 0;
+
+	m_pPad[PADNUM].nData[2] = (uint8)(nStatus >> 8);
+	m_pPad[PADNUM].nData[3] = (uint8)(nStatus >> 0);
+
+	m_pPad[PADNUM].nData[0] = 0;
+	m_pPad[PADNUM].nData[1] = MODE << 4;
 */
 }
 

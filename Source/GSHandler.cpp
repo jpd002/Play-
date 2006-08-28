@@ -290,6 +290,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 					dispfb->nX, \
 					dispfb->nY);
 			}
+			CPS2VM::m_OnNewFrame.Notify(NULL);
 			Flip();
 		}
 		break;
@@ -322,7 +323,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 void CGSHandler::WriteRegister(uint8 nRegister, uint64 nData)
 {
 	m_nReg[nRegister] = nData;
-	
+
 	switch(nRegister)
 	{
 	case GS_REG_TRXDIR:

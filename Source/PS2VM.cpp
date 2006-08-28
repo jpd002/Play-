@@ -690,10 +690,10 @@ void CPS2VM::EmuThread()
 
 							//Old Flipping Method
 							//m_pGS->Flip();
+							//m_OnNewFrame.Notify(NULL);
 							//////
 
 							m_pPad->Update();
-							m_OnNewFrame.Notify(NULL);
 						}
 						else
 						{
