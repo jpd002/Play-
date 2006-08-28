@@ -245,6 +245,15 @@ void CGSH_OpenGL::UpdateViewport()
 	//wglMakeCurrent(NULL, NULL);
 }
 
+unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
+{
+	assert((m_nPMODE & 0x3) != 0x03);
+	if(m_nPMODE & 0x1) return 0;
+	if(m_nPMODE & 0x2) return 1;
+	//Getting here is bad
+	return 0;
+}
+
 void CGSH_OpenGL::SetViewport(int nWidth, int nHeight)
 {
 	RECT rc;
@@ -1008,34 +1017,41 @@ void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
 
 	//Atelier Iris
 	//Ys 1 & 2 : Eternal Story
-	case GS_REG_FRAME_1:
-		Flip();
-		break;
+//	case GS_REG_FRAME_1:
+//		{
+//			DISPFB* fb;
+//			fb = GetDispFb(GetCurrentReadCircuit());
+//			Flip();
+//		}
+//		break;
 
-/*
-	//Castlevania: CoD
-	case GS_REG_FRAME_1:
-	case GS_REG_FRAME_2:
-		{
-			FRAME Frame;
-			DISPFB* pDispFb;
-			uint32 nPtr;
-
-			Frame = *(FRAME*)&nData;
-			pDispFb = GetDispFb((m_nPMODE & 1) ? 0 : 1);
-
-			nPtr = Frame.GetBasePtr();
-
-			if(nPtr != 0)
-			{
-				if(pDispFb->GetBufPtr() == nPtr)
-				{
-					Flip();
-				}
-			}
-		}
-		break;
-*/
+//	case GS_REG_FRAME_2:
+//		Flip();
+//		break;
+//
+//	//Castlevania: CoD
+//	case GS_REG_FRAME_1:
+//	case GS_REG_FRAME_2:
+//		{
+//			FRAME Frame;
+//			DISPFB* pDispFb;
+//			uint32 nPtr;
+//
+//			Frame = *(FRAME*)&nData;
+//			pDispFb = GetDispFb(GetCurrentReadCircuit());
+//
+//			nPtr = Frame.GetBasePtr();
+//
+//			//if(nPtr != 0)
+//			{
+//				if(pDispFb->GetBufPtr() == nPtr)
+//				{
+//					Flip();
+//				}
+//			}
+//		}
+//		break;
+//
 	}
 }
 

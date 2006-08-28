@@ -822,10 +822,10 @@ void CPS2OS::AssembleWaitThreadProc()
 {
 	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[BIOS_ADDRESS_WAITTHREADPROC - BIOS_ADDRESS_BASE]);
 
-	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x03);
-	Asm.SYSCALL();
+//	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x03);
+//	Asm.SYSCALL();
 
-	Asm.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFD);
+	Asm.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFF);
 	Asm.NOP();
 }
 
@@ -917,11 +917,14 @@ void CPS2OS::ThreadShakeAndBake()
 	{
 		//Deadlock or something here
 		assert(0);
+		nId = 0;
 	}
-
-	//Remove and readd the thread into the queue
-	m_pThreadSchedule->Remove(pThread->nScheduleID);
-	m_pThreadSchedule->Insert(nId, pThread->nPriority);
+	else
+	{
+		//Remove and readd the thread into the queue
+		m_pThreadSchedule->Remove(pThread->nScheduleID);
+		m_pThreadSchedule->Insert(nId, pThread->nPriority);
+	}
 
 	ThreadSwitchContext(nId);
 }
@@ -1726,7 +1729,7 @@ void CPS2OS::sc_RFU060()
 	pThread->nStackBase		= nStackAddr - nStackSize;
 	pThread->nPriority		= 0;
 	pThread->nQuota			= THREAD_INIT_QUOTA;
-	pThread->nScheduleID	= m_pThreadSchedule->Insert(0, pThread->nPriority);
+	pThread->nScheduleID	= m_pThreadSchedule->Insert(1, pThread->nPriority);
 
 	nStackAddr -= STACKRES;
 	pThread->nContextPtr	= nStackAddr;

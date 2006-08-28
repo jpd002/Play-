@@ -93,6 +93,21 @@ void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 
 	Log("Opening device on port %i and slot %i.\r\n", nPort, nSlot);
 
+	CPadDataInterface* pInterface;
+	unsigned int m_nType = 1;
+
+	switch(m_nType)
+	{
+	case 0:
+		pInterface = new (_alloca(sizeof(CPadDataHandler<PADDATA>))) CPadDataHandler<PADDATA>(CPS2VM::m_pRAM + nAddress);
+		break;
+	case 1:
+		pInterface = new (_alloca(sizeof(CPadDataHandler<PADDATAEX>))) CPadDataHandler<PADDATAEX>(CPS2VM::m_pRAM + nAddress);
+		break;
+	}
+
+	pInterface->SetFrame(1);
+
 	m_pPad[0].nFrame			= 0;
 	m_pPad[0].nState			= 6;
 	m_pPad[0].nReqState			= 0;
@@ -138,7 +153,13 @@ void CPadMan::GetModuleVersion(void* pArgs, uint32 nArgsSize, void* pRet, uint32
 
 	((uint32*)pRet)[3] = 0x00000400;
 }
-
+/*
+CPadMan::CPadDataInterface& CPadMan::CreatePadDataHandler()
+{
+	CPadDataInterface* pInterface;
+	pInterface = &CPadDataHandler<PADDATA>(NULL);
+}
+*/
 void CPadMan::Log(const char* sFormat, ...)
 {
 #ifdef _DEBUG

@@ -85,6 +85,7 @@ private:
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(double, double, double, double);
 	void							UpdateViewport();
+	unsigned int					GetCurrentReadCircuit();
 	unsigned int					LoadTexture(GSTEX0*, GSTEX1*, CLAMP*);
 
 	void							ReadCLUT4(GSTEX0*);

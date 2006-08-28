@@ -4,7 +4,7 @@
 #include "IOP_Module.h"
 #include "PadListener.h"
 
-#define USE_EX
+//#define USE_EX
 
 namespace IOP
 {
@@ -26,41 +26,54 @@ namespace IOP
 		};
 
 	private:
-/*
-		class CPadData
+		class CPadDataInterface
 		{
 		public:
-									CPadData(uint32, uint32);
-			virtual					~CPadData();
-			virtual void uint8*		GetData() = 0;
-
-		private:
-			uint32					m_nType;
-			uint32					m_nAddress;
+			virtual				~CPadDataInterface() {}
+			virtual void 		SetData(unsigned int, uint8) = 0;
+			virtual uint8		GetData(unsigned int) = 0;
+			virtual size_t		GetSize() = 0;
+			virtual void		SetFrame(unsigned int) = 0;
 		};
 
-		class CPadDataSmall
+		template <typename T> class CPadDataHandler : public CPadDataInterface
 		{
 		public:
-
-		private:
-			struct PADDATA
+			CPadDataHandler(void* pPtr)
 			{
-				uint32				nFrame;
-				uint8				nState;
-				uint8				nReqState;
-				uint8				nOk;
-				uint8				nReserved0;
-				uint8				nData[32];
-				uint32				nLength;
-				uint32				nReserved1[5];
-			};
+				m_pPadData = reinterpret_cast<T*>(pPtr);
+			}
 
-			PADDATA*				m_pData;
+			virtual ~CPadDataHandler()
+			{
+
+			}
+
+			virtual uint8 GetData(unsigned int nIndex)
+			{
+				return m_pPadData->nData[nIndex];
+			}
+
+			virtual void SetData(unsigned int nIndex, uint8 nValue)
+			{
+				m_pPadData->nData[nIndex] = nValue;
+			}
+
+			virtual size_t GetSize()
+			{
+				return sizeof(T);
+			}
+
+			virtual void SetFrame(unsigned int nValue)
+			{
+				m_pPadData->nFrame = nValue;
+			}
+
+		private:
+			T*		m_pPadData;
 		};
-*/
-#ifdef USE_EX
-		struct PADDATA
+
+		struct PADDATAEX
 		{
 			uint8			nData[32];
 			uint32			nReserved1[4];
@@ -81,7 +94,6 @@ namespace IOP
 			uint8			nOk;
 			uint8			nReserved5[13];
 		};
-#else
 
 		struct PADDATA
 		{
@@ -95,14 +107,14 @@ namespace IOP
 			uint32			nReserved1[5];
 		};
 
-#endif
-
 		PADDATA*			m_pPad;
 
 		void				Open(void*, uint32, void*, uint32);
 		void				SetActuatorAlign(void*, uint32, void*, uint32);
 		void				Init(void*, uint32, void*, uint32);
 		void				GetModuleVersion(void*, uint32, void*, uint32);
+
+		CPadDataInterface&	CreatePadDataHandler();
 
 		static void			Log(const char*, ...);
 	};

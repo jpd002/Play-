@@ -164,8 +164,8 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		TexUploader_Psm32(pReg0, &TexA);
 		break;
 	case PSMCT16:
-	case PSMCT16S:
-		//((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
+//	case PSMCT16S:
+		((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
 		break;
 	case PSMT8:
 		((this)->*(m_pTexUploader_Psm8))(pReg0, &TexA);
