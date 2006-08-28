@@ -3,6 +3,7 @@
 
 #include "IOP_Module.h"
 #include "PadListener.h"
+#include <boost/function.hpp>
 
 //#define USE_EX
 
@@ -26,53 +27,6 @@ namespace IOP
 		};
 
 	private:
-		class CPadDataInterface
-		{
-		public:
-			virtual				~CPadDataInterface() {}
-			virtual void 		SetData(unsigned int, uint8) = 0;
-			virtual uint8		GetData(unsigned int) = 0;
-			virtual size_t		GetSize() = 0;
-			virtual void		SetFrame(unsigned int) = 0;
-		};
-
-		template <typename T> class CPadDataHandler : public CPadDataInterface
-		{
-		public:
-			CPadDataHandler(void* pPtr)
-			{
-				m_pPadData = reinterpret_cast<T*>(pPtr);
-			}
-
-			virtual ~CPadDataHandler()
-			{
-
-			}
-
-			virtual uint8 GetData(unsigned int nIndex)
-			{
-				return m_pPadData->nData[nIndex];
-			}
-
-			virtual void SetData(unsigned int nIndex, uint8 nValue)
-			{
-				m_pPadData->nData[nIndex] = nValue;
-			}
-
-			virtual size_t GetSize()
-			{
-				return sizeof(T);
-			}
-
-			virtual void SetFrame(unsigned int nValue)
-			{
-				m_pPadData->nFrame = nValue;
-			}
-
-		private:
-			T*		m_pPadData;
-		};
-
 		struct PADDATAEX
 		{
 			uint8			nData[32];
@@ -107,17 +61,122 @@ namespace IOP
 			uint32			nReserved1[5];
 		};
 
+		class CPadDataInterface
+		{
+		public:
+			virtual				~CPadDataInterface() {}
+			virtual void 		SetData(unsigned int, uint8) = 0;
+			virtual uint8		GetData(unsigned int) = 0;
+			virtual void		SetFrame(unsigned int) = 0;
+			virtual void		SetState(unsigned int) = 0;
+			virtual void		SetReqState(unsigned int) = 0;
+			virtual void		SetLength(unsigned int) = 0;
+			virtual void		SetOk(unsigned int) = 0;
+			virtual void		SetModeCurId(unsigned int) = 0;
+			virtual void		SetModeCurOffset(unsigned int) = 0;
+			virtual void		SetModeTable(unsigned int, unsigned int) = 0;
+		};
+
+		template <typename T> class CPadDataHandler : public CPadDataInterface
+		{
+		public:
+			CPadDataHandler(void* pPtr)
+			{
+				m_pPadData = reinterpret_cast<T*>(pPtr);
+			}
+
+			virtual ~CPadDataHandler()
+			{
+
+			}
+
+			virtual uint8 GetData(unsigned int nIndex)
+			{
+				return m_pPadData->nData[nIndex];
+			}
+
+			virtual void SetData(unsigned int nIndex, uint8 nValue)
+			{
+				m_pPadData->nData[nIndex] = nValue;
+			}
+
+			virtual void SetFrame(unsigned int nValue)
+			{
+				m_pPadData->nFrame = nValue;
+			}
+
+			virtual void SetState(unsigned int nValue)
+			{
+				m_pPadData->nState = nValue;
+			}
+
+			virtual void SetReqState(unsigned int nValue)
+			{
+				m_pPadData->nReqState = nValue;
+			}
+
+			virtual void SetLength(unsigned int nValue)
+			{
+				m_pPadData->nLength = nValue;
+			}
+
+			virtual void SetOk(unsigned int nValue)
+			{
+				m_pPadData->nOk = nValue;
+			}
+
+			virtual void SetModeCurId(unsigned int nValue)
+			{
+				m_pPadData->nModeCurId = nValue;
+			}
+
+			virtual void SetModeCurOffset(unsigned int nValue)
+			{
+				m_pPadData->nModeCurOffset = nValue;
+			}
+
+			virtual void SetModeTable(unsigned int nIndex, unsigned int nValue)
+			{
+				m_pPadData->nModeTable[nIndex] = nValue;
+			}
+
+		private:
+			T*		m_pPadData;
+		};
+
+		typedef boost::function< void (CPadDataInterface*) > PadDataFunction;
+
 		PADDATA*			m_pPad;
+
+		unsigned int		m_nPadDataType;
+		uint32				m_nPadDataAddress;
 
 		void				Open(void*, uint32, void*, uint32);
 		void				SetActuatorAlign(void*, uint32, void*, uint32);
 		void				Init(void*, uint32, void*, uint32);
 		void				GetModuleVersion(void*, uint32, void*, uint32);
+		void				ExecutePadDataFunction(PadDataFunction, void*, size_t);
 
-		CPadDataInterface&	CreatePadDataHandler();
+		static void			PDF_InitializeStruct0(CPadDataInterface*);
+		static void			PDF_InitializeStruct1(CPadDataInterface*);
 
 		static void			Log(const char*, ...);
 	};
+
+	template <> virtual void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int)
+	{
+
+	}
+
+	template <> virtual void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int)
+	{
+
+	}
+
+	template <> virtual void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int)
+	{
+		
+	}
 }
 
 #endif

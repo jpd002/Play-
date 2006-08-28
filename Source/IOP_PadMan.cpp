@@ -40,21 +40,15 @@ void CPadMan::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, 
 }
 
 void CPadMan::SaveState(CStream* pStream)
-{
-	uint32 nAddress;
-
-	nAddress = (uint32)((uint8*)m_pPad - CPS2VM::m_pRAM);
-	
-	pStream->Write(&nAddress, 4);
+{	
+	pStream->Write(&m_nPadDataAddress,	4);
+	pStream->Write(&m_nPadDataType,		4);
 }
 
 void CPadMan::LoadState(CStream* pStream)
 {
-	uint32 nAddress;
-
-	pStream->Read(&nAddress, 4);
-
-	m_pPad = (PADDATA*)(CPS2VM::m_pRAM + nAddress);
+	pStream->Read(&m_nPadDataAddress,	4);
+	pStream->Read(&m_nPadDataType,		4);
 }
 
 void CPadMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButton, bool nPressed)
@@ -88,42 +82,14 @@ void CPadMan::Open(void* pArgs, uint32 nArgsSize, void* pRet, uint32 nRetSize)
 
 	if(nPort == 0)
 	{
+		m_nPadDataAddress = nAddress;
 		m_pPad = (PADDATA*)(CPS2VM::m_pRAM + nAddress);
 	}
 
 	Log("Opening device on port %i and slot %i.\r\n", nPort, nSlot);
 
-	CPadDataInterface* pInterface;
-	unsigned int m_nType = 1;
-
-	switch(m_nType)
-	{
-	case 0:
-		pInterface = new (_alloca(sizeof(CPadDataHandler<PADDATA>))) CPadDataHandler<PADDATA>(CPS2VM::m_pRAM + nAddress);
-		break;
-	case 1:
-		pInterface = new (_alloca(sizeof(CPadDataHandler<PADDATAEX>))) CPadDataHandler<PADDATAEX>(CPS2VM::m_pRAM + nAddress);
-		break;
-	}
-
-	pInterface->SetFrame(1);
-
-	m_pPad[0].nFrame			= 0;
-	m_pPad[0].nState			= 6;
-	m_pPad[0].nReqState			= 0;
-	m_pPad[0].nLength			= 32;
-	m_pPad[0].nOk				= 1;
-
-	m_pPad[1].nFrame			= 1;
-	m_pPad[1].nState			= 6;
-	m_pPad[1].nReqState			= 0;
-	m_pPad[1].nLength			= 32;
-	m_pPad[1].nOk				= 1;
-#ifdef USE_EX
-	m_pPad[1].nModeCurId		= MODE << 4;
-	m_pPad[1].nModeCurOffset	= 0;
-	m_pPad[1].nModeTable[0]		= MODE;
-#endif
+	ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, CPS2VM::m_pRAM + m_nPadDataAddress, 0);
+	ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, CPS2VM::m_pRAM + m_nPadDataAddress, 1);
 
 	//Returns 0 on error
 	((uint32*)pRet)[3] = 0x00000001;
@@ -153,13 +119,61 @@ void CPadMan::GetModuleVersion(void* pArgs, uint32 nArgsSize, void* pRet, uint32
 
 	((uint32*)pRet)[3] = 0x00000400;
 }
-/*
-CPadMan::CPadDataInterface& CPadMan::CreatePadDataHandler()
+
+void CPadMan::ExecutePadDataFunction(PadDataFunction Function, void* pBase, size_t nOffset)
 {
-	CPadDataInterface* pInterface;
-	pInterface = &CPadDataHandler<PADDATA>(NULL);
+	switch(m_nPadDataType)
+	{
+	case 0:
+		Function(&CPadDataHandler<PADDATA>(reinterpret_cast<PADDATA*>(pBase) + nOffset));
+		break;
+	case 1:
+		Function(&CPadDataHandler<PADDATAEX>(reinterpret_cast<PADDATAEX*>(pBase) + nOffset));
+		break;
+	}
 }
+
+void CPadMan::PDF_InitializeStruct0(CPadDataInterface* pPadData)
+{
+	pPadData->SetFrame(0);
+	pPadData->SetState(6);
+	pPadData->SetReqState(0);
+	pPadData->SetLength(32);
+	pPadData->SetOk(1);
+
+//	m_pPad[0].nFrame			= 0;
+//	m_pPad[0].nState			= 6;
+//	m_pPad[0].nReqState			= 0;
+//	m_pPad[0].nLength			= 32;
+//	m_pPad[0].nOk				= 1;
+}
+
+void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
+{
+	pPadData->SetFrame(1);
+	pPadData->SetState(6);
+	pPadData->SetReqState(0);
+	pPadData->SetLength(32);
+	pPadData->SetOk(1);
+
+	//EX struct initialization
+	pPadData->SetModeCurId(MODE << 4);
+	pPadData->SetModeCurOffset(0);
+	pPadData->SetModeTable(0, MODE);
+/*
+	m_pPad[1].nFrame			= 1;
+	m_pPad[1].nState			= 6;
+	m_pPad[1].nReqState			= 0;
+	m_pPad[1].nLength			= 32;
+	m_pPad[1].nOk				= 1;
+#ifdef USE_EX
+	m_pPad[1].nModeCurId		= MODE << 4;
+	m_pPad[1].nModeCurOffset	= 0;
+	m_pPad[1].nModeTable[0]		= MODE;
+#endif
 */
+}
+
 void CPadMan::Log(const char* sFormat, ...)
 {
 #ifdef _DEBUG
