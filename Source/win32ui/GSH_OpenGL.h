@@ -10,6 +10,7 @@
 
 #define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
+#define PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC			"renderer.opengl.forceflippingvsync"
 
 class CGSH_OpenGL : public CGSHandler, public CSettingsDialogProvider
 {
@@ -24,7 +25,8 @@ public:
 	void							WriteRegister(uint8, uint64);
 	void							ProcessImageTransfer(uint32, uint32);
 
-	void							Flip();
+	virtual void					SetVBlank();
+	virtual void					Flip();
 	CSettingsDialogProvider*		GetSettingsDialogProvider();
 
 	CModalWindow*					CreateSettingsDialog(HWND);
@@ -78,6 +80,8 @@ private:
 	};
 
 	static CGSHandler*				GSHandlerFactory(void*);
+
+	void							LoadSettings();
 
 	void							InitializeRC();
 	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const xchar*);
@@ -139,6 +143,7 @@ private:
 
 	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;
+	bool							m_nForceFlippingVSync;
 
 	uint8*							m_pCvtBuffer;
 	void*							m_pCLUT;
@@ -174,7 +179,6 @@ private:
 	HGLRC							m_hRC;
 	HDC								m_hDC;
 	static PIXELFORMATDESCRIPTOR	m_PFD;
-
 };
 
 #endif

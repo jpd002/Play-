@@ -34,7 +34,7 @@ CModalWindow(hParent)
 		RegisterClassEx(&w);
 	}
 
-	SetRect(&rc, 0, 0, 400, 275);
+	SetRect(&rc, 0, 0, 400, 300);
 
 	Create(WNDSTYLEEX, CLSNAME, _X("Renderer Settings"), WNDSTYLE, &rc, hParent, NULL);
 	SetClassPtr();
@@ -52,6 +52,7 @@ CModalWindow(hParent)
 
 	m_nLinesAsQuads				= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	m_nForceFlippingVSync		= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
 
 	m_pLineCheck = new Win32::CButton(_X("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pLineCheck->SetCheck(m_nLinesAsQuads);
@@ -59,12 +60,16 @@ CModalWindow(hParent)
 	m_pForceBilinearCheck = new Win32::CButton(_X("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
 
+	m_pForceFlippingCheck = new Win32::CButton(_T("Force buffer flipping at V-Sync"), m_hWnd, &rc, BS_CHECKBOX);
+	m_pForceFlippingCheck->SetCheck(m_nForceFlippingVSync);
+
 	m_pExtList = new CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
 	m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	m_pLayout = new CVerticalLayout;
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pLineCheck));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceFlippingCheck));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _X("OpenGL extension availability report:"))));
 	m_pLayout->InsertObject(new CLayoutWindow(1, 1, 1, 1, m_pExtList));
@@ -95,16 +100,10 @@ long CRendererSettingsWnd::OnCommand(unsigned short nID, unsigned short nCmd, HW
 		Destroy();
 		return TRUE;
 	}
-	else if(hSender == m_pLineCheck->m_hWnd)
-	{
-		m_nLinesAsQuads = !m_nLinesAsQuads;
-		m_pLineCheck->SetCheck(m_nLinesAsQuads);
-	}
-	else if(hSender == m_pForceBilinearCheck->m_hWnd)
-	{
-		m_nForceBilinearTextures = !m_nForceBilinearTextures;
-		m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
-	}
+	else if(ProcessCheckBoxMessage(hSender, m_pLineCheck, &m_nLinesAsQuads)) return TRUE;
+	else if(ProcessCheckBoxMessage(hSender, m_pForceBilinearCheck, &m_nForceBilinearTextures)) return TRUE;
+	else if(ProcessCheckBoxMessage(hSender, m_pForceFlippingCheck, &m_nForceFlippingVSync)) return TRUE;
+
 	return FALSE;
 }
 
@@ -187,4 +186,17 @@ void CRendererSettingsWnd::Save()
 {
 	CConfig::GetInstance()->SetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, m_nLinesAsQuads);
 	CConfig::GetInstance()->SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
+	CConfig::GetInstance()->SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, m_nForceFlippingVSync);
+}
+
+bool CRendererSettingsWnd::ProcessCheckBoxMessage(HWND hSender, Win32::CButton* pCheckBox, bool* pFlag)
+{
+	if(pCheckBox == NULL) return false;
+	if(pFlag == NULL) return false;
+	if(hSender != pCheckBox->m_hWnd) return false;
+
+	(*pFlag) = !(*pFlag);
+	pCheckBox->SetCheck(*pFlag);
+
+	return true;
 }

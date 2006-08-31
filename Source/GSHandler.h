@@ -229,13 +229,14 @@ public:
 	virtual void							WritePrivRegister(uint32, uint32);
 	virtual uint32							ReadPrivRegister(uint32);
 	void									DisassembleWrite(uint8, uint64);
-	void									SetVBlank();
+	virtual void							SetVBlank();
 	void									ResetVBlank();
 
 	virtual void							WriteRegister(uint8, uint64);
 	void									FeedImageData(void*, uint32);
 
 	void									FetchImagePSCMT16(uint16*, uint32, uint32, uint32, uint32);
+	void									FetchImagePSMCT32(uint32*, uint32, uint32, uint32, uint32);
 
 	virtual void							SetCrt(bool, unsigned int, bool);
 	virtual void							UpdateViewport()						= 0;

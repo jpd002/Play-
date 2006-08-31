@@ -38,9 +38,9 @@ long COutputWnd::OnSize(unsigned int nMode, unsigned int nX, unsigned int nY)
 
 long COutputWnd::OnPaint()
 {
-	if(CPS2VM::m_pGS != NULL)
-	{
-		CPS2VM::m_pGS->Flip();
-	}
+	//if(CPS2VM::m_pGS != NULL)
+	//{
+	//	CPS2VM::m_pGS->Flip();
+	//}
 	return TRUE;
 }

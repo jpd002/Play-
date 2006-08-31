@@ -34,10 +34,9 @@ CGSH_OpenGL::CGSH_OpenGL(CWindow* pOutputWnd)
 
 	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
+	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
 
-	m_nLinesAsQuads = CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
-	m_nForceBilinearTextures = CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-
+	LoadSettings();
 	InitializeRC();
 
 	m_nVtxCount = 0;
@@ -65,6 +64,13 @@ void CGSH_OpenGL::LoadState(CStream* pStream)
 	CGSHandler::LoadState(pStream);
 
 	TexCache_InvalidateTextures(0, RAMSIZE);
+}
+
+void CGSH_OpenGL::LoadSettings()
+{
+	m_nLinesAsQuads				= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
+	m_nForceBilinearTextures	= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	m_nForceFlippingVSync		= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
 }
 
 void CGSH_OpenGL::InitializeRC()
@@ -1014,44 +1020,6 @@ void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
 	case GS_REG_FOGCOL:
 		SetupFogColor();
 		break;
-
-	//Atelier Iris
-	//Ys 1 & 2 : Eternal Story
-//	case GS_REG_FRAME_1:
-//		{
-//			DISPFB* fb;
-//			fb = GetDispFb(GetCurrentReadCircuit());
-//			Flip();
-//		}
-//		break;
-
-//	case GS_REG_FRAME_2:
-//		Flip();
-//		break;
-//
-//	//Castlevania: CoD
-//	case GS_REG_FRAME_1:
-//	case GS_REG_FRAME_2:
-//		{
-//			FRAME Frame;
-//			DISPFB* pDispFb;
-//			uint32 nPtr;
-//
-//			Frame = *(FRAME*)&nData;
-//			pDispFb = GetDispFb(GetCurrentReadCircuit());
-//
-//			nPtr = Frame.GetBasePtr();
-//
-//			//if(nPtr != 0)
-//			{
-//				if(pDispFb->GetBufPtr() == nPtr)
-//				{
-//					Flip();
-//				}
-//			}
-//		}
-//		break;
-//
 	}
 }
 
@@ -1186,10 +1154,13 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	nW2 = GetNextPowerOf2(nW);
 	nH2 = GetNextPowerOf2(nH);
 
+	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, nW, nW, nH);
+
 	//Upload the texture
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, nW);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pImg);
+	//glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pImg);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -1219,8 +1190,19 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	glDeleteTextures(1, &nTexture);
 }
 
+void CGSH_OpenGL::SetVBlank()
+{
+	CGSHandler::SetVBlank();
+
+	if(m_nForceFlippingVSync)
+	{
+		Flip();
+	}
+}
+
 void CGSH_OpenGL::Flip()
 {
+	CPS2VM::m_OnNewFrame.Notify(NULL);
 	SwapBuffers(m_hDC);
 }
 
@@ -1236,8 +1218,7 @@ CModalWindow* CGSH_OpenGL::CreateSettingsDialog(HWND hParent)
 
 void CGSH_OpenGL::OnSettingsDialogDestroyed()
 {
-	m_nLinesAsQuads = CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
-	m_nForceBilinearTextures = CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	LoadSettings();
 	TexCache_Flush();
 }
 

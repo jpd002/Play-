@@ -49,6 +49,7 @@ public:
 	static void						Add();
 	static void						Add64();
 	static void						And();
+	static void						And64();
 	static void						Call(void*, unsigned int, bool);
 	static void						Cmp(CONDITION);
 	static void						Cmp64(CONDITION);

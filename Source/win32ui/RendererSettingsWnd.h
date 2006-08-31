@@ -22,16 +22,20 @@ private:
 	void						UpdateExtList();
 	void						Save();
 
+	bool						ProcessCheckBoxMessage(HWND, Framework::Win32::CButton*, bool*);
+
 	Framework::CVerticalLayout*	m_pLayout;
 	Framework::CListView*		m_pExtList;
 	Framework::Win32::CButton*	m_pLineCheck;
 	Framework::Win32::CButton*	m_pForceBilinearCheck;
+	Framework::Win32::CButton*	m_pForceFlippingCheck;
 	Framework::Win32::CButton*	m_pOk;
 	Framework::Win32::CButton*	m_pCancel;
 	CGSH_OpenGL*				m_pRenderer;
 
 	bool						m_nLinesAsQuads;
 	bool						m_nForceBilinearTextures;
+	bool						m_nForceFlippingVSync;
 };
 
 #endif
