@@ -383,8 +383,9 @@ void CGSHandler::FeedImageData(void* pData, uint32 nLength)
 
 	if(m_TrxCtx.nSize < nLength)
 	{
-		assert(0);
-		return;
+		nLength = m_TrxCtx.nSize;
+		//assert(0);
+		//return;
 	}
 
 	pBuf = GetBitBltBuf();

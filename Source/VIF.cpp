@@ -93,43 +93,6 @@ bool CVIF::IsVU1Running()
 {
 	return (m_VPU_STAT & STAT_VBS1) != 0;
 }
-/*
-uint32 CVIF::UnpackV45(uint32 nSrcAddr, uint32 nDstAddr, uint32 nWriteSize, bool nUsn, uint8 nWL, uint8 nCL, uint8* pVUMem)
-{
-	unsigned int i, nPackets;
-	uint16 nColor;
-	uint32 nAddress;
-
-	if(nCL != nWL)
-	{
-		assert(0);
-	}
-
-	nPackets = (nWriteSize / 0x10);
-	nAddress = nSrcAddr;
-
-	for(i = 0; i < nPackets; i++)
-	{
-		nColor = *(uint16*)&CPS2VM::m_pRAM[nAddress];
-
-		*(uint32*)&pVUMem[nDstAddr + 0x0] = ((nColor >>  0) & 0x1F) << 3;
-		*(uint32*)&pVUMem[nDstAddr + 0x4] = ((nColor >>  5) & 0x1F) << 3;
-		*(uint32*)&pVUMem[nDstAddr + 0x8] = ((nColor >> 10) & 0x1F) << 3;
-		*(uint32*)&pVUMem[nDstAddr + 0xC] = ((nColor >> 15) & 0x01) << 7;
-
-		nDstAddr += 0x10;
-		nAddress += 0x02;
-	}
-
-	//Force word alignment
-	if(nAddress & 0x03)
-	{
-		nAddress += 0x02;
-	}
-
-	return nAddress - nSrcAddr;
-}
-*/
 
 ////////////////////////////////////////////////////////////
 // VPU Class Implementation
@@ -317,6 +280,41 @@ uint32 CVIF::CVPU::Cmd_UNPACK(CODE nCommand, uint32 nAddress, uint32 nSize)
 {
 	assert(0);
 	return 0;
+}
+
+uint32 CVIF::CVPU::Unpack_V45(uint32 nDstAddr, uint32 nSrcAddr, uint32 nSize)
+{
+	unsigned int i, nPackets;
+	uint16 nColor;
+	uint32 nAddress;
+
+	assert(m_CYCLE.nCL == m_CYCLE.nWL);
+
+	nPackets = min(nSize / 2, m_NUM);
+	nAddress = nSrcAddr;
+
+	for(i = 0; i < nPackets; i++)
+	{
+		nColor = *(uint16*)&CPS2VM::m_pRAM[nAddress];
+
+		*(uint32*)&((*m_pVUMem)[nDstAddr + 0x0]) = ((nColor >>  0) & 0x1F) << 3;
+		*(uint32*)&((*m_pVUMem)[nDstAddr + 0x4]) = ((nColor >>  5) & 0x1F) << 3;
+		*(uint32*)&((*m_pVUMem)[nDstAddr + 0x8]) = ((nColor >> 10) & 0x1F) << 3;
+		*(uint32*)&((*m_pVUMem)[nDstAddr + 0xC]) = ((nColor >> 15) & 0x01) << 7;
+
+		nDstAddr += 0x10;
+		nAddress += 0x02;
+
+		m_NUM--;
+	}
+
+	//Force word alignment
+	if(nAddress & 0x03)
+	{
+		nAddress += 0x02;
+	}
+
+	return nAddress - nSrcAddr;
 }
 
 uint32 CVIF::CVPU::Unpack_V432(uint32 nDstAddr, uint32 nSrcAddr, uint32 nSize)
@@ -518,6 +516,10 @@ uint32 CVIF::CVPU1::Cmd_UNPACK(CODE nCommand, uint32 nAddress, uint32 nSize)
 	case 0x0C:
 		//V4-32
 		nSize = Unpack_V432(nDstAddr, nAddress, nSize);
+		break;
+	case 0x0F:
+		//V4-5
+		nSize = Unpack_V45(nDstAddr, nAddress, nSize);
 		break;
 	default:
 		assert(0);

@@ -91,6 +91,7 @@ private:
 
 		uint32			Cmd_MPG(CODE, uint32, uint32);
 
+		uint32			Unpack_V45(uint32, uint32, uint32);
 		uint32			Unpack_V432(uint32, uint32, uint32);
 
 		STAT			m_STAT;

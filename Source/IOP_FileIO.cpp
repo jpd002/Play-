@@ -225,6 +225,11 @@ uint32 CFileIO::Read(uint32 nFile, uint32 nSize, void* pBuffer)
 		return 0xFFFFFFFF;
 	}
 
+	if(pFile->IsEOF())
+	{
+		return 0;
+	}
+
 	return (uint32)pFile->Read(pBuffer, nSize);
 }
 
