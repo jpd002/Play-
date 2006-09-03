@@ -789,13 +789,13 @@ void CGSH_OpenGL::Prim_Triangle()
 		//Non Textured Triangle
 		glBegin(GL_TRIANGLES);
 			
-			glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, (uint8)min(0xFF, (int)rgbaq[0].nA * 2));
+			glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, MulBy2Clamp(rgbaq[0].nA));
 			glVertex3d(nX1, nY1, nZ1);
 
-			glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, (uint8)min(0xFF, (int)rgbaq[1].nA * 2));
+			glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, MulBy2Clamp(rgbaq[1].nA));
 			glVertex3d(nX2, nY2, nZ2);
 
-			glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, (uint8)min(0xFF, (int)rgbaq[2].nA * 2));
+			glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, MulBy2Clamp(rgbaq[2].nA));
 			glVertex3d(nX3, nY3, nZ3);
 
 		glEnd();
