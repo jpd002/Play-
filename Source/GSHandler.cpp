@@ -376,7 +376,9 @@ void CGSHandler::FeedImageData(void* pData, uint32 nLength)
 
 	if(m_TrxCtx.nSize == 0)
 	{
+#ifdef _DEBUG
 		printf("GS: Warning. Received image data when no transfer was expected.\r\n");
+#endif
 		return;
 	}
 

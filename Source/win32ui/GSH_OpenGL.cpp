@@ -1154,7 +1154,7 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	nW2 = GetNextPowerOf2(nW);
 	nH2 = GetNextPowerOf2(nH);
 
-	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, nW, nW, nH);
+	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, nW / 64, nW, nH);
 
 	//Upload the texture
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, nW);
