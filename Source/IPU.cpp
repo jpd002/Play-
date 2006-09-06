@@ -163,6 +163,16 @@ void CIPU::ExecuteCommand(uint32 nValue)
 		m_IN_FIFO.Reset();
 		m_IN_FIFO.SetBitPosition(nValue & 0x7F);
 		break;
+	case 1:
+		//IDEC
+		DecodeIntra( \
+			static_cast<uint8>((nValue >> 27) & 1), \
+			static_cast<uint8>((nValue >> 26) & 1), \
+			static_cast<uint8>((nValue >> 25) & 1), \
+			static_cast<uint8>((nValue >> 24) & 1), \
+			static_cast<uint8>((nValue >> 16) & 0x1F), \
+			static_cast<uint8>((nValue >>  0) & 0x3F));
+		break;
 	case 2:
 		//BDEC
 		DecodeBlock( \
@@ -239,6 +249,40 @@ void CIPU::DMASliceDoneCallback()
 		nCommand = m_nPendingCommand;
 		m_nPendingCommand = 0;
 		ExecuteCommand(nCommand);
+	}
+}
+
+void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQSC, uint8 nFB)
+{
+	bool nResetDc;
+
+	m_IN_FIFO.SkipBits(nFB);
+
+	nResetDc = true;
+
+	while(1)
+	{
+		uint32 nMBType;
+		uint8 nDCTType;
+
+		nMBType = CMacroblockTypeITable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
+
+		if(nDTD != 0)
+		{
+			nDCTType = static_cast<uint8>(m_IN_FIFO.GetBits_MSBF(1));
+		}
+		else
+		{
+			nDCTType = 0;
+		}
+
+		if(nMBType == 2)
+		{
+			nQSC = static_cast<uint8>(m_IN_FIFO.GetBits_MSBF(5));
+		}
+
+		DecodeBlock(1, nResetDc, nDCTType, nQSC, 0);
+		nResetDc = false;
 	}
 }
 

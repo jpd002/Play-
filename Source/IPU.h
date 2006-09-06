@@ -76,6 +76,7 @@ private:
 	};
 
 	static void			ExecuteCommand(uint32);
+	static void			DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
 	static void			DecodeBlock(uint8, uint8, uint8, uint8, uint8);
 	static void			VariableLengthDecode(uint8, uint8);
 	static void			FixedLengthDecode(uint8);
