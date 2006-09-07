@@ -24,13 +24,21 @@ public:
 	static void			DMASliceDoneCallback();
 
 private:
-	class COUTFIFO
+	class COutFifoBase
+	{
+	public:
+		virtual			~COutFifoBase();
+		virtual void	Write(void*, unsigned int) = 0;
+		virtual void	Flush() = 0;
+	};
+
+	class COUTFIFO : public COutFifoBase
 	{
 	public:
 						COUTFIFO();
 		virtual			~COUTFIFO();
-		void			Write(void*, unsigned int);
-		void			Flush();
+		virtual void	Write(void*, unsigned int);
+		virtual void	Flush();
 
 	private:
 		void			RequestGrow(unsigned int);
@@ -43,6 +51,27 @@ private:
 		unsigned int	m_nSize;
 		unsigned int	m_nAlloc;
 		uint8*			m_pBuffer;
+	};
+
+	class CIDecFifo : public Framework::CBitStream, public COutFifoBase
+	{
+	public:
+						CIDecFifo();
+		virtual			~CIDecFifo();
+		void			Reset();
+		virtual void	Write(void*, unsigned int);
+		virtual void	Flush();
+		virtual uint32	GetBits_LSBF(uint8);
+		virtual uint32	GetBits_MSBF(uint8);
+		virtual uint32	PeekBits_LSBF(uint8);
+		virtual uint32	PeekBits_MSBF(uint8);
+		virtual void	SeekToByteAlign();
+		virtual bool	IsOnByteBoundary();
+
+	private:
+		uint8			m_nBuffer[0x300];
+		unsigned int	m_nReadPtr;
+		unsigned int	m_nWritePtr;
 	};
 
 	class CINFIFO : public Framework::CBitStream
@@ -77,12 +106,12 @@ private:
 
 	static void			ExecuteCommand(uint32);
 	static void			DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
-	static void			DecodeBlock(uint8, uint8, uint8, uint8, uint8);
+	static void			DecodeBlock(COutFifoBase*, uint8, uint8, uint8, uint8, uint8);
 	static void			VariableLengthDecode(uint8, uint8);
 	static void			FixedLengthDecode(uint8);
 	static void			LoadIQMatrix(uint8*);
 	static void			LoadVQCLUT();
-	static void			ColorSpaceConversion(uint8, uint8, uint16);
+	static void			ColorSpaceConversion(Framework::CBitStream*, uint8, uint8, uint16);
 	static void			SetThresholdValues(uint32);
 	
 	static bool			IsExecutionRisky(unsigned int);

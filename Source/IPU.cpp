@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <exception>
 #include "IPU.h"
 #include "IPU_MacroblockAddressIncrementTable.h"
 #include "IPU_MacroblockTypeITable.h"
@@ -22,6 +23,7 @@
 using namespace IPU;
 using namespace MPEG2;
 using namespace Framework;
+using namespace std;
 
 uint8			CIPU::m_nIntraIQ[0x40];
 uint8			CIPU::m_nNonIntraIQ[0x40];
@@ -175,12 +177,12 @@ void CIPU::ExecuteCommand(uint32 nValue)
 		break;
 	case 2:
 		//BDEC
-		DecodeBlock( \
-			(uint8)((nValue >> 27) & 1), \
-			(uint8)((nValue >> 26) & 1), \
-			(uint8)((nValue >> 25) & 1), \
-			(uint8)((nValue >> 16) & 0x1F), \
-			(uint8)(nValue & 0x3F));
+		DecodeBlock(&m_OUT_FIFO, \
+			static_cast<uint8>((nValue >> 27) & 1), \
+			static_cast<uint8>((nValue >> 26) & 1), \
+			static_cast<uint8>((nValue >> 25) & 1), \
+			static_cast<uint8>((nValue >> 16) & 0x1F), \
+			static_cast<uint8>(nValue & 0x3F));
 		break;
 	case 3:
 		//VDEC
@@ -207,10 +209,10 @@ void CIPU::ExecuteCommand(uint32 nValue)
 		break;
 	case 7:
 		//CSC
-		ColorSpaceConversion( \
-			(uint8)((nValue >> 27) & 1), \
-			(uint8)((nValue >> 26) & 1), \
-			(uint16)((nValue >>  0) & 0x7FF));
+		ColorSpaceConversion(&m_IN_FIFO, \
+			static_cast<uint8>((nValue >> 27) & 1), \
+			static_cast<uint8>((nValue >> 26) & 1), \
+			static_cast<uint16>((nValue >>  0) & 0x7FF));
 		break;
 	case 9:
 		//SETTH
@@ -255,6 +257,7 @@ void CIPU::DMASliceDoneCallback()
 void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQSC, uint8 nFB)
 {
 	bool nResetDc;
+	CIDecFifo IDecFifo;
 
 	m_IN_FIFO.SkipBits(nFB);
 
@@ -262,7 +265,7 @@ void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQS
 
 	while(1)
 	{
-		uint32 nMBType;
+		uint32 nMBType, nMBAIncrement;
 		uint8 nDCTType;
 
 		nMBType = CMacroblockTypeITable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
@@ -281,12 +284,23 @@ void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQS
 			nQSC = static_cast<uint8>(m_IN_FIFO.GetBits_MSBF(5));
 		}
 
-		DecodeBlock(1, nResetDc, nDCTType, nQSC, 0);
+		DecodeBlock(&IDecFifo, 1, nResetDc, nDCTType, nQSC, 0);
 		nResetDc = false;
+
+		ColorSpaceConversion(&IDecFifo, nOFM, nDTE, 1);
+
+		if(m_IN_FIFO.PeekBits_MSBF(23) == 0)
+		{
+			//We're done decoding
+			break;
+		}
+		
+		nMBAIncrement = CMacroblockAddressIncrementTable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
+		assert(nMBAIncrement == 1);
 	}
 }
 
-void CIPU::DecodeBlock(uint8 nMBI, uint8 nDCR, uint8 nDT, uint8 nQSC, uint8 nFB)
+void CIPU::DecodeBlock(COutFifoBase* pOutput, uint8 nMBI, uint8 nDCR, uint8 nDT, uint8 nQSC, uint8 nFB)
 {
 	struct BLOCKENTRY
 	{
@@ -374,20 +388,20 @@ void CIPU::DecodeBlock(uint8 nMBI, uint8 nDCR, uint8 nDT, uint8 nQSC, uint8 nFB)
 	//Write blocks into out FIFO
 	for(i = 0; i < 8; i++)
 	{
-		m_OUT_FIFO.Write(Block[0].pBlock + (i * 8), sizeof(int16) * 0x8);
-		m_OUT_FIFO.Write(Block[1].pBlock + (i * 8), sizeof(int16) * 0x8);
+		pOutput->Write(Block[0].pBlock + (i * 8), sizeof(int16) * 0x8);
+		pOutput->Write(Block[1].pBlock + (i * 8), sizeof(int16) * 0x8);
 	}
 
 	for(i = 0; i < 8; i++)
 	{
-		m_OUT_FIFO.Write(Block[2].pBlock + (i * 8), sizeof(int16) * 0x8);
-		m_OUT_FIFO.Write(Block[3].pBlock + (i * 8), sizeof(int16) * 0x8);
+		pOutput->Write(Block[2].pBlock + (i * 8), sizeof(int16) * 0x8);
+		pOutput->Write(Block[3].pBlock + (i * 8), sizeof(int16) * 0x8);
 	}
 
-	m_OUT_FIFO.Write(Block[4].pBlock, sizeof(int16) * 0x40);
-	m_OUT_FIFO.Write(Block[5].pBlock, sizeof(int16) * 0x40);
+	pOutput->Write(Block[4].pBlock, sizeof(int16) * 0x40);
+	pOutput->Write(Block[5].pBlock, sizeof(int16) * 0x40);
 
-	m_OUT_FIFO.Flush();
+	pOutput->Flush();
 
 /*
 	if(m_IN_FIFO.PeekBits_MSBF(23) == 0)
@@ -484,7 +498,7 @@ void CIPU::LoadVQCLUT()
 	}
 }
 
-void CIPU::ColorSpaceConversion(uint8 nOFM, uint8 nDTE, uint16 nMBC)
+void CIPU::ColorSpaceConversion(CBitStream* pInput, uint8 nOFM, uint8 nDTE, uint16 nMBC)
 {
 	unsigned int* pCbCrMap;
 	uint8* pY;
@@ -503,11 +517,11 @@ void CIPU::ColorSpaceConversion(uint8 nOFM, uint8 nDTE, uint16 nMBC)
 		{
 			for(j = 0; j < 8; j++)
 			{
-				nBlockY[i + j + 0x00] = (uint8)m_IN_FIFO.GetBits_MSBF(8);
+				nBlockY[i + j + 0x00] = (uint8)pInput->GetBits_MSBF(8);
 			}
 			for(j = 0; j < 8; j++)
 			{
-				nBlockY[i + j + 0x08] = (uint8)m_IN_FIFO.GetBits_MSBF(8);
+				nBlockY[i + j + 0x08] = (uint8)pInput->GetBits_MSBF(8);
 			}
 		}
 
@@ -516,24 +530,24 @@ void CIPU::ColorSpaceConversion(uint8 nOFM, uint8 nDTE, uint16 nMBC)
 		{
 			for(j = 0; j < 8; j++)
 			{
-				nBlockY[i + j + 0x80] = (uint8)m_IN_FIFO.GetBits_MSBF(8);
+				nBlockY[i + j + 0x80] = (uint8)pInput->GetBits_MSBF(8);
 			}
 			for(j = 0; j < 8; j++)
 			{
-				nBlockY[i + j + 0x88] = (uint8)m_IN_FIFO.GetBits_MSBF(8);
+				nBlockY[i + j + 0x88] = (uint8)pInput->GetBits_MSBF(8);
 			}
 		}
 
 		//Get Cb data
 		for(i = 0; i < 0x40; i++)
 		{
-			nBlockCb[i] = (uint8)m_IN_FIFO.GetBits_MSBF(8);
+			nBlockCb[i] = (uint8)pInput->GetBits_MSBF(8);
 		}
 
 		//Get Cr data
 		for(i = 0; i < 0x40; i++)
 		{
-			nBlockCr[i] = (uint8)m_IN_FIFO.GetBits_MSBF(8);
+			nBlockCr[i] = (uint8)pInput->GetBits_MSBF(8);
 		}
 
 		pY			= nBlockY;
@@ -971,6 +985,15 @@ void CIPU::DisassembleCommand(uint32 nValue)
 }
 
 /////////////////////////////////////////////
+//COutFifoBase class implementation
+/////////////////////////////////////////////
+
+CIPU::COutFifoBase::~COutFifoBase()
+{
+
+}
+
+/////////////////////////////////////////////
 //OUT FIFO class implementation
 /////////////////////////////////////////////
 
@@ -1146,4 +1169,64 @@ unsigned int CIPU::CINFIFO::GetSize()
 void CIPU::CINFIFO::Reset()
 {
 	m_nSize = 0;
+}
+
+/////////////////////////////////////////////
+//IDEC FIFO class implementation
+/////////////////////////////////////////////
+
+CIPU::CIDecFifo::CIDecFifo()
+{
+	Reset();
+}
+
+CIPU::CIDecFifo::~CIDecFifo()
+{
+	
+}
+
+void CIPU::CIDecFifo::Reset()
+{
+	m_nReadPtr = 0;
+	m_nWritePtr = 0;
+}
+
+void CIPU::CIDecFifo::Write(void* pBuffer, unsigned int nSize)
+{
+
+}
+
+void CIPU::CIDecFifo::Flush()
+{
+	//Nothing to do
+}
+
+uint32 CIPU::CIDecFifo::PeekBits_MSBF(uint8 nLength)
+{
+	throw exception();
+}
+
+uint32 CIPU::CIDecFifo::GetBits_MSBF(uint8 nLength)
+{
+	return 0;
+}
+
+uint32 CIPU::CIDecFifo::PeekBits_LSBF(uint8 nLength)
+{
+	throw exception();
+}
+
+uint32 CIPU::CIDecFifo::GetBits_LSBF(uint8 nLength)
+{
+	throw exception();
+}
+
+void CIPU::CIDecFifo::SeekToByteAlign()
+{
+	throw exception();
+}
+
+bool CIPU::CIDecFifo::IsOnByteBoundary()
+{
+	throw exception();
 }
