@@ -284,6 +284,8 @@ void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQS
 			nQSC = static_cast<uint8>(m_IN_FIFO.GetBits_MSBF(5));
 		}
 
+		IDecFifo.Reset();
+
 		DecodeBlock(&IDecFifo, 1, nResetDc, nDCTType, nQSC, 0);
 		nResetDc = false;
 
@@ -1193,7 +1195,9 @@ void CIPU::CIDecFifo::Reset()
 
 void CIPU::CIDecFifo::Write(void* pBuffer, unsigned int nSize)
 {
-
+	assert((m_nWritePtr + nSize) <= BUFFERSIZE);
+	memcpy(m_nBuffer + m_nWritePtr, pBuffer, nSize);
+	m_nWritePtr += nSize;
 }
 
 void CIPU::CIDecFifo::Flush()
@@ -1208,7 +1212,9 @@ uint32 CIPU::CIDecFifo::PeekBits_MSBF(uint8 nLength)
 
 uint32 CIPU::CIDecFifo::GetBits_MSBF(uint8 nLength)
 {
-	return 0;
+	assert(nLength == 8);
+	assert(m_nReadPtr < BUFFERSIZE);
+	return m_nBuffer[m_nReadPtr++];
 }
 
 uint32 CIPU::CIDecFifo::PeekBits_LSBF(uint8 nLength)

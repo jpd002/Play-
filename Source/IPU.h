@@ -69,7 +69,12 @@ private:
 		virtual bool	IsOnByteBoundary();
 
 	private:
-		uint8			m_nBuffer[0x300];
+		enum BUFFERSIZE
+		{
+			BUFFERSIZE = 0x300,
+		};
+
+		uint8			m_nBuffer[BUFFERSIZE];
 		unsigned int	m_nReadPtr;
 		unsigned int	m_nWritePtr;
 	};
