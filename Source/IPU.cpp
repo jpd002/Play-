@@ -605,13 +605,13 @@ void CIPU::SetThresholdValues(uint32 nValue)
 
 bool CIPU::IsExecutionRisky(unsigned int nCmd)
 {
-	uint32 nCHCR;
-
-	nCHCR = CDMAC::GetRegister(CDMAC::D4_CHCR);
-
-	if((nCHCR & CDMAC::CHCR_STR) == 0) return true;
 	if(nCmd == 2)
 	{
+		uint32 nCHCR;
+
+		nCHCR = CDMAC::GetRegister(CDMAC::D4_CHCR);
+		if((nCHCR & CDMAC::CHCR_STR) == 0) return true;
+
 		if(CDMAC::IsEndTagId(nCHCR))
 		{
 			if(CDMAC::GetRegister(CDMAC::D4_QWC) < 0x10) return true;
@@ -619,7 +619,7 @@ bool CIPU::IsExecutionRisky(unsigned int nCmd)
 	}
 	else
 	{
-		if(m_IN_FIFO.GetSize() <= 0x80) return true;
+		if(m_IN_FIFO.GetSize() < 0x20) return true;
 	}
 	return false;
 }
