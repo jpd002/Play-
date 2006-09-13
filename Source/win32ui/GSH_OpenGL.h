@@ -126,6 +126,8 @@ private:
 	void							TexUploader_Psm16_Cvt(GSTEX0*, GSTEXA*);
 	void							TexUploader_Psm16_Hw(GSTEX0*, GSTEXA*);
 
+	void							TexUploader_Psm16S_Hw(GSTEX0*, GSTEXA*);
+
 	void							TexUploader_Psm4_Cvt(GSTEX0*, GSTEXA*);
 	template <uint32> void			TexUploader_Psm4H_Cvt(GSTEX0*, GSTEXA*);
 	void							TexUploader_Psm8H_Cvt(GSTEX0*, GSTEXA*);

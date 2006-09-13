@@ -9,6 +9,7 @@ void CDummy::Invoke(uint32 nMethod, void* pArgs, uint32 nArgsSize, void* pRet, u
 	switch(nMethod)
 	{
 	case 1:
+	case 2:
 		assert(nRetSize >= 4);
 
 		((uint32*)pRet)[0] = 1;

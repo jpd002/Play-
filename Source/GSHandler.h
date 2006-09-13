@@ -235,7 +235,8 @@ public:
 	virtual void							WriteRegister(uint8, uint64);
 	void									FeedImageData(void*, uint32);
 
-	void									FetchImagePSCMT16(uint16*, uint32, uint32, uint32, uint32);
+	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
+	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
 	void									FetchImagePSMCT32(uint32*, uint32, uint32, uint32, uint32);
 
 	virtual void							SetCrt(bool, unsigned int, bool);

@@ -164,8 +164,10 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		TexUploader_Psm32(pReg0, &TexA);
 		break;
 	case PSMCT16:
-//	case PSMCT16S:
 		((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
+		break;
+	case PSMCT16S:
+		TexUploader_Psm16S_Hw(pReg0, &TexA);
 		break;
 	case PSMT8:
 		((this)->*(m_pTexUploader_Psm8))(pReg0, &TexA);
@@ -515,7 +517,6 @@ void CGSH_OpenGL::TexUploader_Psm8_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 
 void CGSH_OpenGL::TexUploader_Psm16_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 {
-
 	unsigned int nWidth, nHeight;
 	uint32 nPointer;
 
@@ -523,7 +524,7 @@ void CGSH_OpenGL::TexUploader_Psm16_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 	nWidth		= pReg0->GetWidth();
 	nHeight		= pReg0->GetHeight();
 
-	FetchImagePSCMT16((uint16*)m_pCvtBuffer, nPointer, pReg0->nBufWidth, nWidth, nHeight);
+	FetchImagePSMCT16((uint16*)m_pCvtBuffer, nPointer, pReg0->nBufWidth, nWidth, nHeight);
 
 	if(pReg0->nColorComp == 1)
 	{
@@ -601,6 +602,31 @@ void CGSH_OpenGL::TexUploader_Psm16_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 	glPixelTransferf(GL_ALPHA_SCALE, 2.0f);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, nWidth);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+}
+
+void CGSH_OpenGL::TexUploader_Psm16S_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
+{
+	unsigned int nWidth, nHeight;
+	uint32 nPointer;
+
+	nPointer	= pReg0->GetBufPtr();
+	nWidth		= pReg0->GetWidth();
+	nHeight		= pReg0->GetHeight();
+
+	FetchImagePSMCT16S(reinterpret_cast<uint16*>(m_pCvtBuffer), nPointer, pReg0->nBufWidth, nWidth, nHeight);
+
+	if(pReg0->nColorComp == 1)
+	{
+		//This isn't right... TA0 isn't considered
+		glPixelTransferf(GL_ALPHA_SCALE, static_cast<float>(pTexA->nTA1));
+	}
+	else
+	{
+		glPixelTransferf(GL_ALPHA_SCALE, 0);
+	}
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, nWidth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
 }
 
 void CGSH_OpenGL::TexUploader_Psm4_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
