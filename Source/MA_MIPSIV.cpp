@@ -1965,20 +1965,17 @@ void CMA_MIPSIV::DSUBU()
 //38
 void CMA_MIPSIV::DSLL()
 {
-	//1st 32-bits half
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->SllImm(m_nSA);
+	CCodeGen::Begin(m_pB);
+	{
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-	//2nd 32-bits half
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->SllImm(m_nSA);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->SrlImm(32 - m_nSA);
-	m_pB->Or();
+		CCodeGen::Shl64(m_nSA);
 
-	//Write the result
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
+	CCodeGen::End();
 }
 
 //3A
@@ -2000,6 +1997,7 @@ void CMA_MIPSIV::DSRL()
 //3B
 void CMA_MIPSIV::DSRA()
 {
+	//TODO: Fix that! Run-time shift algorithm selection is used
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
 	m_pB->PushImm(m_nSA);
