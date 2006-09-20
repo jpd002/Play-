@@ -17,7 +17,9 @@
 		<Patch Address="0x009B47D0" Value="0x00000002" Description="Enable libcdvd tracing."/>
 		<Patch Address="0x00400868" Value="0x081D8174" Description="Redirect calls from printf stub to the real printf" />
 		<Patch Address="0x0040086C" Value="0x00000000" Description="Redirect calls from printf stub to the real printf" />
-		<Patch Address="0x0042FD58" Value="0x24020001" />
 		<Patch Address="0x00417284" Value="0x00000000" />
+<!--
+		<Patch Address="0x0042FD58" Value="0x24020001" Description="cv patch"/>
+!-->
 	</Executable>
 </Patches>

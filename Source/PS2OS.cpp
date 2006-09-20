@@ -292,13 +292,13 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 //	pELF = new CELF(pStream);
 //	memcpy(CPS2VM::m_pRAM + 0x01000000, pELF->m_pData, pELF->m_nLenght);
 //	delete pELF;
-/*
+
 	int i;
 	uint32 nVal;
 	for(i = 0; i < 0x02000000 / 4; i++)
 	{
 		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
-		if((nVal & 0xFFFF) == 0x6728)
+		if((nVal & 0xFFFF) == 0x95B0)
 		{
 			//if((nVal & 0xFC000000) != 0x0C000000)
 			{
@@ -306,7 +306,7 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 			}
 		}
 	}
-*/
+
 /*
 	int i;
 	uint32 nVal;
