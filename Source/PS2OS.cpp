@@ -14,8 +14,9 @@
 #include "uint128.h"
 #include "MIPSAssembler.h"
 #include "Profiler.h"
-#include "xml\Node.h"
-#include "xml\Parser.h"
+#include "xml/Node.h"
+#include "xml/Parser.h"
+#include "xml/FilteringNodeIterator.h"
 
 // PS2OS Memory Allocation
 // Start        End             Description
@@ -457,30 +458,18 @@ void CPS2OS::SaveExecutableConfig()
 
 void CPS2OS::ApplyPatches()
 {
-	CStdStream* pStream;
 	Xml::CNode* pDocument;
 	Xml::CNode* pPatches;
-	Xml::CNode* pExecutable;
-	Xml::CNode* pPatch;
-	CList<Xml::CNode>::ITERATOR itNode;
-	const char* sName;
-	const char* sAddress;
-	const char* sValue;
-	uint32 nValue, nAddress;
-	unsigned int nPatchCount;
 
 	try
 	{
-		pStream = new CStdStream(fopen(PATCHESPATH, "rb"));
+		pDocument = Xml::CParser::ParseDocument(&CStdStream(fopen(PATCHESPATH, "rb")));
+		if(pDocument == NULL) return;
 	}
 	catch(...)
 	{
 		return;
 	}
-
-	pDocument = Xml::CParser::ParseDocument(pStream);
-
-	delete pStream;
 
 	pPatches = pDocument->Select("Patches");
 	if(pPatches == NULL)
@@ -489,11 +478,12 @@ void CPS2OS::ApplyPatches()
 		return;
 	}
 
-	for(itNode = pPatches->GetChildIterator(); itNode.HasNext(); itNode++)
+	for(Xml::CFilteringNodeIterator itNode(pPatches, "Executable"); !itNode.IsEnd(); itNode++)
 	{
+		Xml::CNode* pExecutable;
+		const char* sName;
+
 		pExecutable = (*itNode);
-		if(!pExecutable->IsTag()) continue;
-		if(strcmp(pExecutable->GetText(), "Executable")) continue;
 
 		sName = pExecutable->GetAttribute("Name");
 		if(sName == NULL) continue;
@@ -501,35 +491,37 @@ void CPS2OS::ApplyPatches()
 		if(!strcmp(sName, GetExecutableName()))
 		{
 			//Found the right executable
+			unsigned int nPatchCount;
+
+			nPatchCount = 0;
+
+			for(Xml::CFilteringNodeIterator itNode(pExecutable, "Patch"); !itNode.IsEnd(); itNode++)
+			{
+				Xml::CNode* pPatch;
+				const char* sAddress;
+				const char* sValue;
+				uint32 nValue, nAddress;
+
+				pPatch = (*itNode);
+				
+				sAddress	= pPatch->GetAttribute("Address");
+				sValue		= pPatch->GetAttribute("Value");
+
+				if(sAddress == NULL) continue;
+				if(sValue == NULL) continue;
+
+				if(sscanf(sAddress, "%x", &nAddress) == 0) continue;
+				if(sscanf(sValue, "%x", &nValue) == 0) continue;
+
+				*(uint32*)&CPS2VM::m_pRAM[nAddress] = nValue;
+
+				nPatchCount++;
+			}
+
+			printf("PS2OS: Applied %i patch(es).\r\n", nPatchCount);
+
 			break;
 		}
-	}
-
-	if(itNode.HasNext() == true)
-	{
-		nPatchCount = 0;
-
-		for(itNode = pExecutable->GetChildIterator(); itNode.HasNext(); itNode++)
-		{
-			pPatch = (*itNode);
-			if(!pPatch->IsTag()) continue;
-			if(strcmp(pPatch->GetText(), "Patch")) continue;
-			
-			sAddress	= pPatch->GetAttribute("Address");
-			sValue		= pPatch->GetAttribute("Value");
-
-			if(sAddress == NULL) continue;
-			if(sValue == NULL) continue;
-
-			if(sscanf(sAddress, "%x", &nAddress) == 0) continue;
-			if(sscanf(sValue, "%x", &nValue) == 0) continue;
-
-			*(uint32*)&CPS2VM::m_pRAM[nAddress] = nValue;
-
-			nPatchCount++;
-		}
-
-		printf("PS2OS: Applied %i patch(es).\r\n", nPatchCount);
 	}
 
 	delete pDocument;

@@ -5,6 +5,7 @@
 #include "xml/Writer.h"
 #include "xml/Parser.h"
 #include "xml/Utils.h"
+#include "xml/FilteringNodeIterator.h"
 
 #define CONFIGPATH "config.xml"
 
@@ -212,26 +213,17 @@ bool CConfig::SetPreferenceString(const char* sName, const char* sValue)
 
 void CConfig::Load()
 {
-	CStdStream* pStream;
 	Xml::CNode* pDocument;
 	Xml::CNode* pConfig;
-	Xml::CNode* pPref;
-	CList<Xml::CNode>::ITERATOR itNode;
-	const char* sType;
-	const char* sName;
 
 	try
 	{
-		pStream = new CStdStream(fopen(CONFIGPATH, "rb"));
+		pDocument = Xml::CParser::ParseDocument(&CStdStream(fopen(CONFIGPATH, "rb")));
 	}
 	catch(...)
 	{
 		return;
 	}
-
-	pDocument = Xml::CParser::ParseDocument(pStream);
-
-	delete pStream;
 
 	pConfig = pDocument->Select("Config");
 	if(pConfig == NULL)
@@ -240,11 +232,13 @@ void CConfig::Load()
 		return;
 	}
 
-	for(itNode = pConfig->GetChildIterator(); itNode.HasNext(); itNode++)
+	for(Xml::CFilteringNodeIterator itNode(pConfig, "Preference"); !itNode.IsEnd(); itNode++)
 	{
+		Xml::CNode* pPref;
+		const char* sType;
+		const char* sName;
+
 		pPref = (*itNode);
-		if(!pPref->IsTag()) continue;
-		if(strcmp(pPref->GetText(), "Preference")) continue;
 
 		sType = pPref->GetAttribute("Type");
 		sName = pPref->GetAttribute("Name");
