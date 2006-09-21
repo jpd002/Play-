@@ -11,6 +11,7 @@
 #include "IOP_LibSD.h"
 #include "IOP_Cdvdfsv.h"
 #include "IOP_Dummy.h"
+#include "IOP_Unknown.h"
 #include "Profiler.h"
 
 #define		CMD_RECVADDR		0x00001000
@@ -54,6 +55,7 @@ void CSIF::Reset()
 	m_pPadMan = new IOP::CPadMan();
 
 	m_Module.Insert(new IOP::CDummy,								IOP::CDummy::MODULE_ID);
+	m_Module.Insert(new IOP::CUnknown,								IOP::CUnknown::MODULE_ID);
 	m_Module.Insert(new IOP::CFileIO,								IOP::CFileIO::MODULE_ID);
 	m_Module.Insert(new IOP::CSysMem,								IOP::CSysMem::MODULE_ID);
 	m_Module.Insert(new IOP::CLoadFile,								IOP::CLoadFile::MODULE_ID);
