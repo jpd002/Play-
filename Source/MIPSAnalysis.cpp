@@ -89,7 +89,8 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 					nReturnAddr = (nOp & 0xFFFF);
 				}
 
-				if(nOp == 0x03E00008)
+				//Check for JR RA or J
+				if((nOp == 0x03E00008) || ((nOp & 0xFC000000) == 0x08000000))
 				{
 					//Check if there's a stack unwinding instruction above or below
 

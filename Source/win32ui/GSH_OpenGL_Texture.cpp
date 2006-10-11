@@ -222,8 +222,6 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 
 void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 {
-	CBitmap* pBitmap;
-	CStdStream* pStream;
 	char sFilename[256];
 	unsigned int i;
 	struct _stat Stat;
@@ -234,14 +232,10 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 		if(_stat(sFilename, &Stat) == -1) break;
 	}
 
-	pStream = new CStdStream(fopen(sFilename, "wb"));
-	pBitmap = new CBitmap(nWidth, nHeight, 32);
+	CBitmap Bitmap(nWidth, nHeight, 32);
 
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_BYTE, pBitmap->GetData());
-	CBMP::ToBMP(pBitmap, pStream);
-
-	delete pBitmap;
-	delete pStream;
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_BYTE, Bitmap.GetPixels());
+	CBMP::ToBMP(&Bitmap, &CStdStream(fopen(sFilename, "wb")));
 }
 
 void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
