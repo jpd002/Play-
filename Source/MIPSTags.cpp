@@ -17,17 +17,30 @@ CMIPSTags::~CMIPSTags()
 
 void CMIPSTags::InsertTag(uint32 nAddress, const char* sTag)
 {
-	TagMap::iterator itTag;
+	bool nErase;
 
-	//Check if it already exists
-	itTag = m_Tags.find(nAddress);
-	if(itTag == m_Tags.end())
+	nErase = false;
+	if(sTag == NULL)
 	{
-		m_Tags[nAddress] = sTag;
+		nErase = true;
 	}
 	else
 	{
-		m_Tags.erase(itTag);
+		nErase = (strlen(sTag) == 0);
+	}
+
+	if(nErase)
+	{
+		TagMap::iterator itTag(m_Tags.find(nAddress));
+
+		if(itTag != m_Tags.end())
+		{
+			m_Tags.erase(itTag);
+		}
+	}
+	else
+	{
+		m_Tags[nAddress] = sTag;
 	}
 }
 
