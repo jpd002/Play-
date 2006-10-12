@@ -2,21 +2,28 @@
 #define _MIPSTAGS_H_
 
 #include "Types.h"
-#include "List.h"
+#include <map>
 
 class CMIPSTags
 {
 public:
+	typedef std::map<uint32, std::string>	TagMap;
+	typedef TagMap::const_iterator			TagIterator;
+
 								CMIPSTags();
 								~CMIPSTags();
-	void						InsertTag(uint32, char*);
+	void						InsertTag(uint32, const char*);
 	void						RemoveTags();
 	const char*					Find(uint32);
 	void						Serialize(const char*);
 	void						Unserialize(const char*);
 
-	Framework::CList<char>		m_Tag;
-	
+	TagIterator					GetTagsBegin() const;
+	TagIterator					GetTagsEnd() const;
+
+private:
+
+	TagMap						m_Tags;
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "MIPS.h"
 
 using namespace Framework;
+using namespace std;
 
 #define MASK		(0x1FFFFFFF)
 #define SHIFT		(3)
@@ -11,53 +12,36 @@ using namespace Framework;
 CMIPSAnalysis::CMIPSAnalysis(CMIPS* pCtx)
 {
 	m_pCtx = pCtx;
-	m_Hashed = new CSubList[0x10000];
 }
 
 CMIPSAnalysis::~CMIPSAnalysis()
 {
-	Clear();
-	delete [] m_Hashed;
+
 }
 
 void CMIPSAnalysis::Clear()
 {
-	unsigned int i;
-
-	for(i = 0; i < 0x10000; i++)
-	{
-		while(m_Hashed[i].Count())
-		{
-			m_Hashed[i].Pull();
-		}
-	}
-
-	while(m_Subroutine.Count())
-	{
-		free(m_Subroutine.Pull());
-	}
+	m_Subroutines.clear();
 }
 
 void CMIPSAnalysis::InsertSubroutine(uint32 nStart, uint32 nEnd, uint32 nAllocStart, uint32 nAllocEnd, uint32 nStackSize, uint32 nReturnAddrPos)
 {
-	uint32 nHashStart, nHashEnd, i;
-	MIPSSUBROUTINE* pS;
+	uint32 nHashStart, nHashEnd;
+	SUBROUTINE Subroutine;
 
 	nHashStart	= HASH(nStart);
 	nHashEnd	= HASH(nEnd);
 
-	pS = (MIPSSUBROUTINE*)malloc(sizeof(MIPSSUBROUTINE));
-	pS->nStart				= nStart;
-	pS->nEnd				= nEnd;
-	pS->nStackAllocStart	= nAllocStart;
-	pS->nStackAllocEnd		= nAllocEnd;
-	pS->nStackSize			= nStackSize;
-	pS->nReturnAddrPos		= nReturnAddrPos;
-	m_Subroutine.Insert(pS);
+	Subroutine.nStart				= nStart;
+	Subroutine.nEnd					= nEnd;
+	Subroutine.nStackAllocStart		= nAllocStart;
+	Subroutine.nStackAllocEnd		= nAllocEnd;
+	Subroutine.nStackSize			= nStackSize;
+	Subroutine.nReturnAddrPos		= nReturnAddrPos;
 
-	for(i = nHashStart; i <= nHashEnd; i++)
+	for(uint32 i = nHashStart; i <= nHashEnd; i++)
 	{
-		m_Hashed[i].Insert(pS);
+		m_Subroutines.insert(SubroutineList::value_type(i, Subroutine));
 	}
 }
 
@@ -138,19 +122,21 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 	printf("CMIPSAnalysis: Found %i subroutines in the range [0x%0.8X, 0x%0.8X].\r\n", nFound, nStart, nEnd);
 }
 
-MIPSSUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 nAddress)
+CMIPSAnalysis::SUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 nAddress)
 {
-	MIPSSUBROUTINE* pS;
-	CSubList::ITERATOR It;
-
-	for(It = m_Hashed[HASH(nAddress)].Begin(); It.HasNext(); It++)
+	pair<SubroutineList::iterator, SubroutineList::iterator> Iterators;
+	Iterators = m_Subroutines.equal_range(HASH(nAddress));
+	
+	for(SubroutineList::iterator itSubroutine(Iterators.first);
+		itSubroutine != Iterators.second; itSubroutine++)
 	{
-		pS = (*It);
-		if(nAddress >= pS->nStart)
+		SUBROUTINE& Subroutine = (*itSubroutine).second;
+
+		if(nAddress >= Subroutine.nStart)
 		{
-			if(nAddress <= pS->nEnd)
+			if(nAddress <= Subroutine.nEnd)
 			{
-				return pS;
+				return &Subroutine;
 			}
 		}
 	}

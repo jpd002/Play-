@@ -3,6 +3,7 @@
 #include "StdStream.h"
 
 using namespace Framework;
+using namespace std;
 
 CMIPSTags::CMIPSTags()
 {
@@ -14,99 +15,91 @@ CMIPSTags::~CMIPSTags()
 	RemoveTags();
 }
 
-void CMIPSTags::InsertTag(uint32 nAddress, char* sTag)
+void CMIPSTags::InsertTag(uint32 nAddress, const char* sTag)
 {
-	char* sTemp;
+	TagMap::iterator itTag;
 
-	sTemp = m_Tag.Find(nAddress);
-	if(sTemp == NULL)
+	//Check if it already exists
+	itTag = m_Tags.find(nAddress);
+	if(itTag == m_Tags.end())
 	{
-		//No comment yet
-		sTemp = (char*)malloc(strlen(sTag) + 1);
-		strcpy(sTemp, sTag);
-		m_Tag.Insert(sTemp, nAddress);
-		return;
+		m_Tags[nAddress] = sTag;
 	}
-	FREEPTR(sTemp);
-	m_Tag.Remove(nAddress);
-	if(sTag == NULL) return;
-	if(strlen(sTag) == 0) return;
-
-	sTemp = (char*)malloc(strlen(sTag) + 1);
-	strcpy(sTemp, sTag);
-	m_Tag.Insert(sTemp, nAddress);
+	else
+	{
+		m_Tags.erase(itTag);
+	}
 }
 
 void CMIPSTags::RemoveTags()
 {
-	while(m_Tag.Count() != 0)
-	{
-		free(m_Tag.Pull());
-	}
+	m_Tags.clear();
 }
 
 const char* CMIPSTags::Find(uint32 nAddress)
 {
-	return m_Tag.Find(nAddress);
+	TagMap::const_iterator itTag(m_Tags.find(nAddress));
+	return (itTag != m_Tags.end()) ? (itTag->second.c_str()) : (NULL);
 }
 
 void CMIPSTags::Serialize(const char* sPath)
 {
-	FILE* pFile;
-	CStdStream* pStream;
-	uint32 nCount, nKey;
-	uint8 nLenght;
-	char* sTag;
-	CList<char>::ITERATOR itTag;
+	CStdStream Stream(fopen(sPath, "wb"));
 
-	pFile = fopen(sPath, "wb");
-	if(pFile == NULL) return;
-	pStream = new CStdStream(pFile);
+	Stream.Write32(static_cast<uint32>(m_Tags.size()));
 
-	nCount = m_Tag.Count();
-
-	pStream->Write(&nCount, 4);
-
-	for(itTag = m_Tag.Begin(); itTag.HasNext(); itTag++)
+	for(TagMap::const_iterator itTag(m_Tags.begin());
+		itTag != m_Tags.end(); itTag++)
 	{
-		sTag = (*itTag);
-		nLenght = (uint8)strlen(sTag);
-		nKey = itTag.GetKey();
+		const string& sTag = itTag->second;
+		uint8 nLength;
 
-		pStream->Write(&nKey, 4);
-		pStream->Write(&nLenght, 1);
-		pStream->Write(sTag, nLenght);
+		nLength = static_cast<uint8>(min<size_t>(sTag.length(), 255));
+
+		Stream.Write32(itTag->first);
+		Stream.Write8(nLength);
+		Stream.Write(sTag.c_str(), nLength);
 	}
-
-	DELETEPTR(pStream);
-
 }
 
 void CMIPSTags::Unserialize(const char* sPath)
 {
-	FILE* pFile;
-	CStdStream* pStream;
-	unsigned int i;
-	uint32 nCount, nKey;
-	uint8 nLenght;
-	char sTag[257];
-
-	pFile = fopen(sPath, "rb");
-	if(pFile == NULL) return;
-	pStream = new CStdStream(pFile);
-
-	RemoveTags();
-
-	pStream->Read(&nCount, 4);
-
-	for(i = 0; i < nCount; i++)
+	try
 	{
-		pStream->Read(&nKey, 4);
-		pStream->Read(&nLenght, 1);
-		pStream->Read(sTag, nLenght);
-		sTag[nLenght] = 0x00;
-		InsertTag(nKey, sTag);
-	}
+		CStdStream Stream(fopen(sPath, "rb"));
+		uint32 nCount;
 
-	DELETEPTR(pStream);
+		RemoveTags();
+
+		nCount = Stream.Read32();
+
+		for(uint32 i = 0; i < nCount; i++)
+		{
+			uint32 nKey;
+			uint8 nLength;
+			char sTag[256];
+
+			nKey		= Stream.Read32();
+			nLength		= Stream.Read8();
+
+			Stream.Read(sTag, nLength);
+			sTag[nLength] = 0;
+
+			InsertTag(nKey, sTag);
+		}
+	}
+	catch(...)
+	{
+		
+	}
+}
+
+CMIPSTags::TagIterator CMIPSTags::GetTagsBegin() const
+{
+	return m_Tags.begin();
+}
+
+CMIPSTags::TagIterator CMIPSTags::GetTagsEnd() const
+{
+	return m_Tags.end();
 }

@@ -3,12 +3,14 @@
 #include "HorizontalLayout.h"
 #include "win32/LayoutWindow.h"
 #include "win32/InputBox.h"
+#include "string_cast.h"
 #include "LayoutStretch.h"
 #include "PtrMacro.h"
 
 #define CLSNAME _X("FunctionsView")
 
 using namespace Framework;
+using namespace std;
 
 CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 {
@@ -177,31 +179,29 @@ void CFunctionsView::RefreshLayout()
 
 void CFunctionsView::RefreshList()
 {
-	LVITEM it;
-	unsigned int nCount, i;
+	unsigned int nCount;
 	uint32 nAddress;
-	char* sTag;
-	CList<char>::ITERATOR itTag;
 	xchar sTemp[256];
 
 	m_pList->DeleteAllItems();
 
-	for(itTag = m_pCtx->m_Functions.m_Tag.Begin(); itTag.HasNext(); itTag++)
+	for(CMIPSTags::TagIterator itTag(m_pCtx->m_Functions.GetTagsBegin());
+		itTag != m_pCtx->m_Functions.GetTagsEnd(); itTag++)
 	{
-		sTag = (*itTag);
+		LVITEM it;
 
-		xconvert(sTemp, sTag, 256);
+		tstring sTag(string_cast<tstring>(itTag->second));
 
 		memset(&it, 0, sizeof(LVITEM));
-		it.pszText	= sTemp;
-		it.lParam	= itTag.GetKey();
+		it.pszText	= const_cast<LPWSTR>(sTag.c_str());
+		it.lParam	= itTag->first;
 		it.mask		= LVIF_PARAM | LVIF_TEXT;
 		m_pList->InsertItem(&it);
 	}
 
 	nCount = m_pList->GetItemCount();
 
-	for(i = 0; i < nCount; i++)
+	for(unsigned int i = 0; i < nCount; i++)
 	{
 		nAddress = m_pList->GetItemData(i);
 		xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), nAddress);

@@ -610,7 +610,7 @@ void CDisAsm::Paint(HDC hDC)
 	int nLines, i;
 	unsigned int nY;
 	bool nCommentDrawn;
-	MIPSSUBROUTINE* pSub;
+	CMIPSAnalysis::SUBROUTINE* pSub;
 
 	GetClientRect(&rwin);
 

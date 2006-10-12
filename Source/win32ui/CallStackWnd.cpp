@@ -121,7 +121,7 @@ void CCallStackWnd::CreateColumns()
 void CCallStackWnd::Update()
 {
 	uint32 nPC, nRA, nSP;
-	MIPSSUBROUTINE* pRoutine;
+	CMIPSAnalysis::SUBROUTINE* pRoutine;
 	LVITEM item;
 	unsigned int i;
 	const char* sName;
