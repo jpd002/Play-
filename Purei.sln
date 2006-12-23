@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Purei", "Purei.vcproj", "{DF7BEC15-DC00-4C86-94AF-72CA742590CC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CF8E8640-24C8-49F1-B510-CF5BB945F99C} = {CF8E8640-24C8-49F1-B510-CF5BB945F99C}
+		{8AD44184-94A7-461B-8076-CE4455B7559A} = {8AD44184-94A7-461B-8076-CE4455B7559A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-1.2.3", "..\zlib-1.2.3\zlib-1.2.3.vcproj", "{8AD44184-94A7-461B-8076-CE4455B7559A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\Framework\Framework.vcproj", "{CF8E8640-24C8-49F1-B510-CF5BB945F99C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug+|Win32 = Debug+|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF7BEC15-DC00-4C86-94AF-72CA742590CC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DF7BEC15-DC00-4C86-94AF-72CA742590CC}.Debug|Win32.Build.0 = Debug|Win32
+		{DF7BEC15-DC00-4C86-94AF-72CA742590CC}.Debug+|Win32.ActiveCfg = Debug|Win32
+		{DF7BEC15-DC00-4C86-94AF-72CA742590CC}.Debug+|Win32.Build.0 = Debug|Win32
+		{DF7BEC15-DC00-4C86-94AF-72CA742590CC}.Release|Win32.ActiveCfg = Release|Win32
+		{DF7BEC15-DC00-4C86-94AF-72CA742590CC}.Release|Win32.Build.0 = Release|Win32
+		{8AD44184-94A7-461B-8076-CE4455B7559A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8AD44184-94A7-461B-8076-CE4455B7559A}.Debug|Win32.Build.0 = Debug|Win32
+		{8AD44184-94A7-461B-8076-CE4455B7559A}.Debug+|Win32.ActiveCfg = Debug|Win32
+		{8AD44184-94A7-461B-8076-CE4455B7559A}.Debug+|Win32.Build.0 = Debug|Win32
+		{8AD44184-94A7-461B-8076-CE4455B7559A}.Release|Win32.ActiveCfg = Release|Win32
+		{8AD44184-94A7-461B-8076-CE4455B7559A}.Release|Win32.Build.0 = Release|Win32
+		{CF8E8640-24C8-49F1-B510-CF5BB945F99C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CF8E8640-24C8-49F1-B510-CF5BB945F99C}.Debug|Win32.Build.0 = Debug|Win32
+		{CF8E8640-24C8-49F1-B510-CF5BB945F99C}.Debug+|Win32.ActiveCfg = Debug+|Win32
+		{CF8E8640-24C8-49F1-B510-CF5BB945F99C}.Debug+|Win32.Build.0 = Debug+|Win32
+		{CF8E8640-24C8-49F1-B510-CF5BB945F99C}.Release|Win32.ActiveCfg = Release|Win32
+		{CF8E8640-24C8-49F1-B510-CF5BB945F99C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
