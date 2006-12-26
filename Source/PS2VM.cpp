@@ -200,6 +200,8 @@ void CPS2VM::CreateVM()
 	m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, IOPortWriteHandler,	MEMORYMAP_TYPE_FUNCTION,	0x02);
 	m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, IOPortWriteHandler,	MEMORYMAP_TYPE_FUNCTION,	0x03);
 
+	m_EE.m_pMemoryMap->SetWriteNotifyHandler(EEMemWriteHandler);
+
 	m_EE.m_pArch			= &g_MAEE;
 	m_EE.m_pCOP[0]			= &g_COPSCU;
 	m_EE.m_pCOP[1]			= &g_COPFPU;
@@ -433,6 +435,51 @@ void CPS2VM::RegisterModulesInPadHandler()
 	m_pPad->InsertListener(CSIF::GetDbcMan());
 }
 
+uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
+{
+	uint32 nReturn;
+
+#ifdef PROFILE
+	CProfiler::GetInstance().EndZone();
+#endif
+
+	nReturn = 0;
+	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
+	{
+		nReturn = CTimer::GetRegister(nAddress);
+	}
+	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
+	{
+		nReturn = CIPU::GetRegister(nAddress);
+	}
+	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
+	{
+		nReturn = CDMAC::GetRegister(nAddress);
+	}
+	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
+	{
+		nReturn = CINTC::GetRegister(nAddress);
+	}
+	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
+	{
+		nReturn = CDMAC::GetRegister(nAddress);
+	}
+	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
+	{
+		nReturn = m_pGS->ReadPrivRegister(nAddress);
+	}
+	else
+	{
+		printf("PS2VM: Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
+	}
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
+#endif
+
+	return nReturn;
+}
+
 void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 {
 #ifdef PROFILE
@@ -482,49 +529,27 @@ void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 #endif
 }
 
-uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
+void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 {
-	uint32 nReturn;
+	if(nAddress < RAMSIZE)
+	{
+		//Check if the block we're about to invalidate is the same
+		//as the one we're executing in
 
-#ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
+		CCacheBlock* pBlock;
+		pBlock = m_EE.m_pExecMap->FindBlock(nAddress);
+		if(m_EE.m_pExecMap->FindBlock(m_EE.m_State.nPC) != pBlock)
+		{
+			m_EE.m_pExecMap->InvalidateBlock(nAddress);
+		}
+		else
+		{
+#ifdef _DEBUG
+			printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n",
+				m_EE.m_State.nPC);
 #endif
-
-	nReturn = 0;
-	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
-	{
-		nReturn = CTimer::GetRegister(nAddress);
+		}
 	}
-	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
-	{
-		nReturn = CIPU::GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
-	{
-		nReturn = CDMAC::GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
-	{
-		nReturn = CINTC::GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
-	{
-		nReturn = CDMAC::GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
-	{
-		nReturn = m_pGS->ReadPrivRegister(nAddress);
-	}
-	else
-	{
-		printf("PS2VM: Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
-	}
-
-#ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
-#endif
-
-	return nReturn;
 }
 
 unsigned int CPS2VM::EETickFunction(unsigned int nTicks)

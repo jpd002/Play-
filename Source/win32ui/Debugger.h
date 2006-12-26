@@ -1,19 +1,20 @@
 #ifndef _DEBUGGER_H_
 #define _DEBUGGER_H_
 
+#include <boost/signal.hpp>
 #include "win32/MDIFrame.h"
 #include "ELFView.h"
 #include "FunctionsView.h"
 #include "DebugView.h"
-#include "Log.h"
 #include "EventHandler.h"
 
-class CDebugger : public Framework::CMDIFrame
+class CDebugger : public Framework::CMDIFrame, public boost::signals::trackable
 {
 public:
 									CDebugger();
-									~CDebugger();
+	virtual							~CDebugger();
 	HACCEL							GetAccelerators();
+	static void						InitializeConsole();
 
 protected:
 	long							OnCommand(unsigned short, unsigned short, HWND);
@@ -65,21 +66,17 @@ private:
 	//Event handlers
 	void							OnFunctionViewFunctionDblClick(uint32);
 	void							OnFunctionViewFunctionsStateChange(int);
-	void							OnExecutableChange(int);
-	void							OnExecutableUnloading(int);
+	void							OnExecutableChange();
+	void							OnExecutableUnloading();
 
 	//Tunnelled handlers
 	void							OnExecutableChangeMsg();
 	void							OnExecutableUnloadingMsg();
 
-	Framework::CEventHandler<int>*	m_pOnExecutableChangeHandler;
-	Framework::CEventHandler<int>*	m_pOnExecutableUnloadingHandler;
-
 	HACCEL							m_nAccTable;
 
 	CELFView*						m_pELFView;
 	CFunctionsView*					m_pFunctionsView;
-	CLog*							m_pLog;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
 	unsigned int					m_nCurrentView;
 };

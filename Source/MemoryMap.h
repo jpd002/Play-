@@ -3,6 +3,7 @@
 
 #include "List.h"
 #include "Types.h"
+#include <boost/function.hpp>
 
 enum MEMORYMAP_TYPE
 {
@@ -27,6 +28,8 @@ struct MEMORYMAPELEMENT
 class CMemoryMap
 {
 public:
+	typedef boost::function<void (uint32)> WriteNotifyHandlerType;
+
 	virtual									~CMemoryMap();
 	uint8									GetByte(uint32);
 	virtual uint16							GetHalf(uint32) = 0;
@@ -36,10 +39,14 @@ public:
 	virtual void							SetWord(uint32, uint32) = 0;
 	void									InsertReadMap(uint32, uint32, void*, MEMORYMAP_TYPE, unsigned char);
 	void									InsertWriteMap(uint32, uint32, void*, MEMORYMAP_TYPE, unsigned char);
+	void									SetWriteNotifyHandler(WriteNotifyHandlerType);
+
 protected:
+	WriteNotifyHandlerType					m_WriteNotifyHandler;
 	static MEMORYMAPELEMENT*				GetMap(Framework::CList<MEMORYMAPELEMENT>*, uint32);
 	Framework::CList<MEMORYMAPELEMENT>		m_Read;
 	Framework::CList<MEMORYMAPELEMENT>		m_Write;
+
 private:
 	static void								InsertMap(Framework::CList<MEMORYMAPELEMENT>*, uint32, uint32, void*, MEMORYMAP_TYPE, unsigned char);
 	static void								DeleteMap(Framework::CList<MEMORYMAPELEMENT>*);

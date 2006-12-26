@@ -14,6 +14,7 @@
 #include "uint128.h"
 #include "MIPSAssembler.h"
 #include "Profiler.h"
+#include "OsEventManager.h"
 #include "xml/Node.h"
 #include "xml/Parser.h"
 #include "xml/FilteringNodeIterator.h"
@@ -40,20 +41,20 @@
 // 0x1FC03000	0x1FC03100		Thread epilogue
 // 0x1FC03100	0x1FC03200		Wait Thread Proc
 
-#define BIOS_ADDRESS_BASE				0x1FC00000
-#define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
+#define BIOS_ADDRESS_BASE			0x1FC00000
+#define BIOS_ADDRESS_WAITTHREADPROC	0x1FC03100
 
 #define CONFIGPATH ".\\config\\"
 #define PATCHESPATH "patches.xml"
 
-#define THREAD_INIT_QUOTA				(15)
+#define THREAD_INIT_QUOTA			(15)
 
 using namespace Framework;
 using namespace std;
 using namespace boost;
 
-CEvent<int>							CPS2OS::m_OnExecutableChange;
-CEvent<int>							CPS2OS::m_OnExecutableUnloading;
+signal<void ()>						CPS2OS::m_OnExecutableChange;
+signal<void ()>						CPS2OS::m_OnExecutableUnloading;
 
 bool								CPS2OS::m_nInitialized		= false;
 CELF*								CPS2OS::m_pELF				= NULL;
@@ -342,7 +343,8 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 
 	ApplyPatches();
 
-	m_OnExecutableChange.Notify(0);
+	m_OnExecutableChange();
+	COsEventManager::GetInstance().Begin(m_sExecutableName.c_str());
 
 	printf("PS2OS: Loaded '%s' executable file.\r\n", sExecName);
 }
@@ -398,7 +400,7 @@ void CPS2OS::LoadExecutable()
 
 void CPS2OS::UnloadExecutable()
 {
-	m_OnExecutableUnloading.Notify(0);
+	m_OnExecutableUnloading();
 
 	if(m_pELF == NULL) return;
 
@@ -2222,7 +2224,10 @@ void CPS2OS::SysCallHandler()
 
 	if(GetCustomSyscallTable()[nFunc] == NULL)
 	{
-		DisassembleSysCall((uint8)(nFunc & 0xFF));
+#ifdef _DEBUG
+		DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
+		RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
+#endif
 		if(nFunc < 0x80)
 		{
 			m_pSysCall[nFunc & 0xFF]();
@@ -2425,6 +2430,16 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 		printf("PS2OS: GetMemorySize();\r\n");
 		break;
 	}
+}
+
+void CPS2OS::RecordSysCall(uint8 nFunction)
+{
+	COsEventManager::OSEVENT Event;
+	
+	Event.nThreadId		= GetCurrentThreadId();
+	Event.nEventType	= nFunction;
+
+	COsEventManager::GetInstance().InsertEvent(Event);
 }
 
 //////////////////////////////////////////////////

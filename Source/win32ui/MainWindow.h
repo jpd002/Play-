@@ -1,6 +1,7 @@
 #ifndef _MAINWINDOW_H_
 #define _MAINWINDOW_H_
 
+#include <boost/signal.hpp>
 #include "win32/Window.h"
 #include "win32/StatusBar.h"
 #include "OutputWnd.h"
@@ -9,7 +10,7 @@
 #include "Debugger.h"
 #endif
 
-class CMainWindow : public Framework::CWindow
+class CMainWindow : public Framework::CWindow, public boost::signals::trackable
 {
 public:
 									CMainWindow(char*);
@@ -52,7 +53,7 @@ private:
 
 	void							OnNewFrame(int);
 	void							OnOutputWndSizeChange(int);
-	void							OnExecutableChange(int);
+	void							OnExecutableChange();
 
 	Framework::CEventHandler<int>*	m_pOnOutputWndSizeChangeHandler;
 	Framework::CEventHandler<int>*	m_pOnNewFrameHandler;

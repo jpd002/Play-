@@ -20,6 +20,11 @@ void CMemoryMap::InsertWriteMap(uint32 nStart, uint32 nEnd, void* pPointer, MEMO
 	InsertMap(&m_Write, nStart, nEnd, pPointer, nType, nKey);
 }
 
+void CMemoryMap::SetWriteNotifyHandler(WriteNotifyHandlerType WriteNotifyHandler)
+{
+	m_WriteNotifyHandler = WriteNotifyHandler;
+}
+
 void CMemoryMap::InsertMap(CList<MEMORYMAPELEMENT>* pMap, uint32 nStart, uint32 nEnd, void* pPointer, MEMORYMAP_TYPE nType, unsigned char nKey)
 {
 	MEMORYMAPELEMENT* e;
@@ -95,6 +100,11 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 	default:
 		assert(0);
 		break;
+	}
+
+	if(m_WriteNotifyHandler)
+	{
+		m_WriteNotifyHandler(nAddress);
 	}
 }
 
@@ -172,6 +182,11 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 		assert(0);
 		break;
 	}
+
+	if(m_WriteNotifyHandler)
+	{
+		m_WriteNotifyHandler(nAddress);
+	}
 }
 
 void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
@@ -199,5 +214,10 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 	default:
 		assert(0);
 		break;
+	}
+	
+	if(m_WriteNotifyHandler)
+	{
+		m_WriteNotifyHandler(nAddress);
 	}
 }

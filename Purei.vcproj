@@ -832,6 +832,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\OsEventManager.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\PadHandler.cpp"
 					>
 				</File>
@@ -1091,6 +1095,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\MIPSTags.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\OsEventManager.h"
 					>
 				</File>
 				<File

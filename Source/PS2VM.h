@@ -94,6 +94,8 @@ public:
 	static uint32					IOPortReadHandler(uint32);
 	static void						IOPortWriteHandler(uint32, uint32);
 
+	static void						EEMemWriteHandler(uint32);
+
 	static CGSHandler*				m_pGS;
 	static CPadHandler*				m_pPad;
 

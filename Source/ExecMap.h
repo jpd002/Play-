@@ -10,9 +10,12 @@ public:
 							~CExecMap();
 	CCacheBlock*			CreateBlock(uint32);
 	CCacheBlock*			FindBlock(uint32);
+	void					InvalidateBlock(uint32);
 	void					InvalidateBlocks();
 
 private:
+	CCacheBlock**			GetBlockAddress(uint32);
+
 	uint32					m_nStart;
 	uint32					m_nEnd;
 	uint32					m_nGranularity;

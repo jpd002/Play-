@@ -23,25 +23,45 @@ CExecMap::~CExecMap()
 
 CCacheBlock* CExecMap::CreateBlock(uint32 nAddress)
 {
-	uint32 nBlock;
+	CCacheBlock** pBlock;
+	pBlock = GetBlockAddress(nAddress);
+	if(pBlock == NULL) return NULL;
 
-	if(nAddress >= m_nEnd) return NULL;
-	if(nAddress < m_nStart) return NULL;
-	nBlock = nAddress;
-	nBlock -= m_nStart;
-	nBlock /= m_nGranularity;
-
-	if(m_pBlock[nBlock] == NULL)
+	if((*pBlock) == NULL)
 	{
 		nAddress &= ~(m_nGranularity - 1);
-		m_pBlock[nBlock] = new CCacheBlock(nAddress, nAddress + m_nGranularity);
+		(*pBlock) = new CCacheBlock(nAddress, nAddress + m_nGranularity);
 	}
 
-
-	return m_pBlock[nBlock];
+	return (*pBlock);
 }
 
 CCacheBlock* CExecMap::FindBlock(uint32 nAddress)
+{
+	CCacheBlock** pBlock;
+	pBlock = GetBlockAddress(nAddress);
+	return (pBlock == NULL) ? NULL : (*pBlock);
+}
+
+void CExecMap::InvalidateBlock(uint32 nAddress)
+{
+	CCacheBlock** pBlock;
+	pBlock = GetBlockAddress(nAddress);
+	if(pBlock == NULL) return;
+	DELETEPTR(*pBlock);
+}
+
+void CExecMap::InvalidateBlocks()
+{
+	unsigned int i;
+
+	for(i = 0; i < m_nCount; i++)
+	{
+		DELETEPTR(m_pBlock[i]);
+	}
+}
+
+CCacheBlock** CExecMap::GetBlockAddress(uint32 nAddress)
 {
 	uint32 nBlock;
 
@@ -60,15 +80,5 @@ CCacheBlock* CExecMap::FindBlock(uint32 nAddress)
 	nBlock -= m_nStart;
 	nBlock /= m_nGranularity;
 
-	return m_pBlock[nBlock];
-}
-
-void CExecMap::InvalidateBlocks()
-{
-	unsigned int i;
-
-	for(i = 0; i < m_nCount; i++)
-	{
-		DELETEPTR(m_pBlock[i]);
-	}
+	return &m_pBlock[nBlock];
 }

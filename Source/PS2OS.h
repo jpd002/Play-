@@ -2,8 +2,8 @@
 #define _PS2OS_H_
 
 #include <string>
+#include <boost/signal.hpp>
 #include "ELF.h"
-#include "Event.h"
 #include "List.h"
 #include "MIPS.h"
 
@@ -31,8 +31,8 @@ public:
 	static void									ExceptionHandler();
 	static uint32								TranslateAddress(CMIPS*, uint32, uint32);
 
-	static Framework::CEvent<int>				m_OnExecutableChange;
-	static Framework::CEvent<int>				m_OnExecutableUnloading;
+	static boost::signal<void ()>				m_OnExecutableChange;
+	static boost::signal<void ()>				m_OnExecutableUnloading;
 
 private:
 	class CRoundRibbon
@@ -203,6 +203,7 @@ private:
 
 	static void									SysCallHandler();
 	static void									DisassembleSysCall(uint8);
+	static void									RecordSysCall(uint8);
 
 	static void									(*m_pSysCall[0x80])();
 

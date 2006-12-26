@@ -416,6 +416,8 @@ void CMA_MIPSIV::ADDI()
 //09
 void CMA_MIPSIV::ADDIU()
 {
+	if(m_nRT == 0) return;
+
 	CCodeGen::Begin(m_pB);
 	{
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
