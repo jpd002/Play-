@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
+#include <boost/bind.hpp>
 #include "RegViewFPU.h"
 #include "../PS2VM.h"
 
 using namespace Framework;
+using namespace boost;
 
 CRegViewFPU::CRegViewFPU(HWND hParent, RECT* pR, CMIPS* pC) :
 CRegViewPage(hParent, pR)
@@ -12,17 +14,13 @@ CRegViewPage(hParent, pR)
 
 	m_pCtx = pC;
 	
-	m_pOnMachineStateChangeHandler = new CEventHandlerMethod<CRegViewFPU, int>(this, &CRegViewFPU::OnMachineStateChange);
-	m_pOnRunningStateChangeHandler = new CEventHandlerMethod<CRegViewFPU, int>(this, &CRegViewFPU::OnRunningStateChange);
-
-	CPS2VM::m_OnMachineStateChange.InsertHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.InsertHandler(m_pOnRunningStateChangeHandler);
+	CPS2VM::m_OnMachineStateChange.connect(bind(&CRegViewFPU::OnMachineStateChange, this));
+	CPS2VM::m_OnRunningStateChange.connect(bind(&CRegViewFPU::OnRunningStateChange, this));
 }
 
 CRegViewFPU::~CRegViewFPU()
 {
-	CPS2VM::m_OnMachineStateChange.RemoveHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.RemoveHandler(m_pOnRunningStateChangeHandler);
+
 }
 
 void CRegViewFPU::Update()
@@ -164,12 +162,12 @@ long CRegViewFPU::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 	return TRUE;
 }
 
-void CRegViewFPU::OnRunningStateChange(int nNothing)
+void CRegViewFPU::OnRunningStateChange()
 {
 	Update();
 }
 
-void CRegViewFPU::OnMachineStateChange(int nNothing)
+void CRegViewFPU::OnMachineStateChange()
 {
 	Update();
 }

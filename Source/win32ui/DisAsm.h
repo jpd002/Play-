@@ -1,11 +1,11 @@
 #ifndef _DISASM_H_
 #define _DISASM_H_
 
+#include <boost/signal.hpp>
 #include "win32/CustomDrawn.h"
 #include "../MIPS.h"
-#include "EventHandler.h"
 
-class CDisAsm : public Framework::CCustomDrawn
+class CDisAsm : public Framework::CCustomDrawn, public boost::signals::trackable
 {
 public:
 									CDisAsm(HWND, RECT*, CMIPS*);
@@ -54,8 +54,8 @@ private:
 	uint32							HistoryGetNext();
 	bool							HistoryHasPrevious();
 	bool							HistoryHasNext();
-	void							OnMachineStateChange(int);
-	void							OnRunningStateChange(int);
+	void							OnMachineStateChange();
+	void							OnRunningStateChange();
 
 
 	CMIPS*							m_pCtx;
@@ -71,9 +71,6 @@ private:
 	uint32							m_nHistory[HISTORY_STACK_MAX];
 	unsigned int					m_nHistoryPosition;
 	unsigned int					m_nHistorySize;
-
-	Framework::CEventHandler<int>*	m_pOnMachineStateChangeHandler;
-	Framework::CEventHandler<int>*	m_pOnRunningStateChangeHandler;
 };
 
 #endif

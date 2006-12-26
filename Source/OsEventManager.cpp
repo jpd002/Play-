@@ -80,3 +80,8 @@ void COsEventManager::Flush()
 
 	delete pRootNode;
 }
+
+Xml::CNode* COsEventManager::GetEvents()
+{
+	return Xml::CParser::ParseDocument(&CStdStream(fopen((m_sExecutableName + ".xml").c_str(), "wb")));
+}

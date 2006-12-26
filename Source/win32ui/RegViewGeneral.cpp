@@ -1,26 +1,24 @@
 #include <stdio.h>
 #include <string.h>
+#include <boost/bind.hpp>
 #include "RegViewGeneral.h"
 #include "../PS2VM.h"
 
 using namespace Framework;
+using namespace boost;
 
 CRegViewGeneral::CRegViewGeneral(HWND hParent, RECT* pR, CMIPS* pC) :
 CRegViewPage(hParent, pR)
 {
 	m_pCtx = pC;
 	
-	m_pOnMachineStateChangeHandler = new CEventHandlerMethod<CRegViewGeneral, int>(this, &CRegViewGeneral::OnMachineStateChange);
-	m_pOnRunningStateChangeHandler = new CEventHandlerMethod<CRegViewGeneral, int>(this, &CRegViewGeneral::OnRunningStateChange);
-
-	CPS2VM::m_OnMachineStateChange.InsertHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.InsertHandler(m_pOnRunningStateChangeHandler);
+	CPS2VM::m_OnMachineStateChange.connect(bind(&CRegViewGeneral::Update, this));
+	CPS2VM::m_OnRunningStateChange.connect(bind(&CRegViewGeneral::Update, this));
 }
 
 CRegViewGeneral::~CRegViewGeneral()
 {
-	CPS2VM::m_OnMachineStateChange.RemoveHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.RemoveHandler(m_pOnRunningStateChangeHandler);
+
 }
 
 void CRegViewGeneral::Update()
@@ -59,14 +57,4 @@ void CRegViewGeneral::GetDisplayText(CStrA* pText)
 
 	sprintf(sTemp, "SA : 0x%0.8X\r\n", s->nSA);
 	(*pText) += sTemp;
-}
-
-void CRegViewGeneral::OnRunningStateChange(int nNothing)
-{
-	Update();
-}
-
-void CRegViewGeneral::OnMachineStateChange(int nNothing)
-{
-	Update();
 }

@@ -51,13 +51,11 @@ private:
 	void							GenerateStatePath(char*);
 	void							UpdateUI();
 
-	void							OnNewFrame(int);
+	void							OnNewFrame();
 	void							OnOutputWndSizeChange(int);
 	void							OnExecutableChange();
 
 	Framework::CEventHandler<int>*	m_pOnOutputWndSizeChangeHandler;
-	Framework::CEventHandler<int>*	m_pOnNewFrameHandler;
-	Framework::CEventHandler<int>*	m_pOnExecutableChange;
 
 	unsigned int					m_nFrames;
 	HACCEL							m_nAccTable;

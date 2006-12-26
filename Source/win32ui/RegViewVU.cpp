@@ -1,27 +1,25 @@
 #include <stdio.h>
+#include <boost/bind.hpp>
 #include "RegViewVU.h"
 #include "../PS2VM.h"
 
 using namespace Framework;
+using namespace boost;
 
 CRegViewVU::CRegViewVU(HWND hParent, RECT* pR, CMIPS* pCtx) :
 CRegViewPage(hParent, pR)
 {
 	m_pCtx = pCtx;
 
-	m_pOnMachineStateChangeHandler = new CEventHandlerMethod<CRegViewVU, int>(this, &CRegViewVU::OnMachineStateChange);
-	m_pOnRunningStateChangeHandler = new CEventHandlerMethod<CRegViewVU, int>(this, &CRegViewVU::OnRunningStateChange);
-
-	CPS2VM::m_OnMachineStateChange.InsertHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.InsertHandler(m_pOnRunningStateChangeHandler);
+	CPS2VM::m_OnMachineStateChange.connect(bind(&CRegViewVU::Update, this));
+	CPS2VM::m_OnRunningStateChange.connect(bind(&CRegViewVU::Update, this));
 
 	Update();
 }
 
 CRegViewVU::~CRegViewVU()
 {
-	CPS2VM::m_OnMachineStateChange.RemoveHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.RemoveHandler(m_pOnRunningStateChangeHandler);
+
 }
 
 void CRegViewVU::Update()
@@ -118,14 +116,4 @@ void CRegViewVU::GetDisplayText(CStrA* pText)
 		sprintf(sLine, "%s: 0x%0.4X    %s: 0x%0.4X\r\n", sReg1, pState->nCOP2VI[i] & 0xFFFF, sReg2, pState->nCOP2VI[i + 1] & 0xFFFF);
 		(*pText) += sLine;
 	}
-}
-
-void CRegViewVU::OnMachineStateChange(int nNothing)
-{
-	Update();
-}
-
-void CRegViewVU::OnRunningStateChange(int nNothing)
-{
-	Update();
 }

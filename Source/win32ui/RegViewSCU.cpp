@@ -1,27 +1,25 @@
 #include <stdio.h>
 #include <string.h>
+#include <boost/bind.hpp>
 #include "RegViewSCU.h"
 #include "../COP_SCU.h"
 #include "../PS2VM.h"
 
 using namespace Framework;
+using namespace boost;
 
 CRegViewSCU::CRegViewSCU(HWND hParent, RECT* pR, CMIPS* pC) :
 CRegViewPage(hParent, pR)
 {
 	m_pCtx = pC;
-	
-	m_pOnMachineStateChangeHandler = new CEventHandlerMethod<CRegViewSCU, int>(this, &CRegViewSCU::OnMachineStateChange);
-	m_pOnRunningStateChangeHandler = new CEventHandlerMethod<CRegViewSCU, int>(this, &CRegViewSCU::OnRunningStateChange);
 
-	CPS2VM::m_OnMachineStateChange.InsertHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.InsertHandler(m_pOnRunningStateChangeHandler);
+	CPS2VM::m_OnMachineStateChange.connect(bind(&CRegViewSCU::Update, this));
+	CPS2VM::m_OnRunningStateChange.connect(bind(&CRegViewSCU::Update, this));
 }
 
 CRegViewSCU::~CRegViewSCU()
 {
-	CPS2VM::m_OnMachineStateChange.RemoveHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.RemoveHandler(m_pOnRunningStateChangeHandler);
+
 }
 
 void CRegViewSCU::Update()
@@ -45,14 +43,4 @@ void CRegViewSCU::GetDisplayText(CStrA* pText)
 		sprintf(sTemp, "%10s : 0x%0.8X\r\n", CCOP_SCU::m_sRegName[i], s->nCOP0[i]);
 		(*pText) += sTemp;
 	}
-}
-
-void CRegViewSCU::OnRunningStateChange(int nNothing)
-{
-	Update();
-}
-
-void CRegViewSCU::OnMachineStateChange(int nNothing)
-{
-	Update();
 }

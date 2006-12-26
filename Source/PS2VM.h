@@ -2,6 +2,7 @@
 #define _PS2VM_H_
 
 #include <boost/thread.hpp>
+#include <boost/signal.hpp>
 #include "Types.h"
 #include "PS2OS.h"
 #include "MIPS.h"
@@ -9,7 +10,6 @@
 #include "GSHandler.h"
 #include "PadHandler.h"
 #include "LogControl.h"
-#include "Event.h"
 #include "iso9660/ISO9660.h"
 
 enum PS2VM_MSG
@@ -115,9 +115,9 @@ public:
 	static unsigned int				m_nVBlankTicks;
 	static bool						m_nInVBlank;
 
-	static Framework::CEvent<int>	m_OnMachineStateChange;
-	static Framework::CEvent<int>	m_OnRunningStateChange;
-	static Framework::CEvent<int>	m_OnNewFrame;
+	static boost::signal<void ()>	m_OnMachineStateChange;
+	static boost::signal<void ()>	m_OnRunningStateChange;
+	static boost::signal<void ()>	m_OnNewFrame;
 
 	static CLogControl				m_Logging;
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <boost/bind.hpp>
 #include "MemoryViewMIPS.h"
 #include "win32/InputBox.h"
 #include "../PS2VM.h"
@@ -6,6 +7,7 @@
 #define ID_MEMORYVIEW_GOTOADDRESS	40001
 
 using namespace Framework;
+using namespace boost;
 
 CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, RECT* pR, CMIPS* pCtx) :
 CMemoryView(hParent, pR)
@@ -14,14 +16,12 @@ CMemoryView(hParent, pR)
 
 	SetMemorySize(0x02004000);
 
-	m_pOnMachineStateChangeHandler = new CEventHandlerMethod<CMemoryViewMIPS, int>(this, &CMemoryViewMIPS::OnMachineStateChange);
-
-	CPS2VM::m_OnMachineStateChange.InsertHandler(m_pOnMachineStateChangeHandler);
+	CPS2VM::m_OnMachineStateChange.connect(bind(&CMemoryViewMIPS::OnMachineStateChange, this));
 }
 
 CMemoryViewMIPS::~CMemoryViewMIPS()
 {
-	CPS2VM::m_OnMachineStateChange.RemoveHandler(m_pOnMachineStateChangeHandler);
+
 }
 
 long CMemoryViewMIPS::OnRightButtonUp(int nX, int nY)
@@ -63,7 +63,7 @@ uint8 CMemoryViewMIPS::GetByte(uint32 nAddress)
 	return m_pCtx->m_pMemoryMap->GetByte(nAddress);
 }
 
-void CMemoryViewMIPS::OnMachineStateChange(int nDummy)
+void CMemoryViewMIPS::OnMachineStateChange()
 {
 	Redraw();
 }

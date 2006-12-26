@@ -8,7 +8,8 @@ class CRegViewPage : public Framework::CCustomDrawn
 {
 public:
 									CRegViewPage(HWND, RECT*);
-									~CRegViewPage();
+	virtual							~CRegViewPage();
+
 protected:
 	void							SetDisplayText(const char*);
 	void							Update();

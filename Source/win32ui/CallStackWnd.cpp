@@ -1,3 +1,4 @@
+#include <boost/bind.hpp>
 #include "CallStackWnd.h"
 #include "PtrMacro.h"
 #include "../MIPS.h"
@@ -6,6 +7,7 @@
 #define CLSNAME		_X("CallStackWnd")
 
 using namespace Framework;
+using namespace boost;
 
 CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* pCtx)
 {
@@ -36,11 +38,8 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* pCtx)
 	m_pList = new CListView(m_hWnd, &rc, LVS_REPORT);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_pOnMachineStateChangeHandler = new CEventHandlerMethod<CCallStackWnd, int>(this, &CCallStackWnd::OnMachineStateChange);
-	m_pOnRunningStateChangeHandler = new CEventHandlerMethod<CCallStackWnd, int>(this, &CCallStackWnd::OnRunningStateChange);
-
-	CPS2VM::m_OnMachineStateChange.InsertHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.InsertHandler(m_pOnRunningStateChangeHandler);
+	CPS2VM::m_OnMachineStateChange.connect(bind(&CCallStackWnd::OnMachineStateChange, this));
+	CPS2VM::m_OnRunningStateChange.connect(bind(&CCallStackWnd::OnRunningStateChange, this));
 
 	CreateColumns();
 
@@ -235,12 +234,12 @@ void CCallStackWnd::OnListDblClick()
 	}
 }
 
-void CCallStackWnd::OnMachineStateChange(int nNothing)
+void CCallStackWnd::OnMachineStateChange()
 {
 	Update();
 }
 
-void CCallStackWnd::OnRunningStateChange(int nNothing)
+void CCallStackWnd::OnRunningStateChange()
 {
 	Update();
 }

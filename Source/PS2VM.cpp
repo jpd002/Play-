@@ -57,9 +57,9 @@ CGSHandler*		CPS2VM::m_pGS						= NULL;
 CPadHandler*	CPS2VM::m_pPad						= NULL;
 unsigned int	CPS2VM::m_nVBlankTicks				= SCREENTICKS;
 bool			CPS2VM::m_nInVBlank					= false;
-CEvent<int>		CPS2VM::m_OnMachineStateChange;
-CEvent<int>		CPS2VM::m_OnRunningStateChange;
-CEvent<int>		CPS2VM::m_OnNewFrame;
+signal<void ()>	CPS2VM::m_OnMachineStateChange;
+signal<void ()>	CPS2VM::m_OnRunningStateChange;
+signal<void ()>	CPS2VM::m_OnNewFrame;
 CLogControl		CPS2VM::m_Logging;
 CPS2OS*			CPS2VM::m_pOS						= NULL;
 CISO9660*		CPS2VM::m_pCDROM0					= NULL;
@@ -365,7 +365,7 @@ unsigned int CPS2VM::LoadVMState(const char* sPath)
 
 	printf("PS2VM: Loaded state from file '%s'.\r\n", sPath);
 
-	m_OnMachineStateChange.Notify(0);
+	m_OnMachineStateChange();
 
 	return 0;
 }
@@ -624,13 +624,13 @@ void CPS2VM::EmuThread()
 			{
 			case PS2VM_MSG_PAUSE:
 				m_nStatus = PS2VM_STATUS_PAUSED;
-				m_OnMachineStateChange.Notify(0);
-				m_OnRunningStateChange.Notify(0);
+				m_OnMachineStateChange();
+				m_OnRunningStateChange();
 				printf("PS2VM: Virtual Machine paused.\r\n");
 				break;
 			case PS2VM_MSG_RESUME:
 				m_nStatus = PS2VM_STATUS_RUNNING;
-				m_OnRunningStateChange.Notify(0);
+				m_OnRunningStateChange();
 				printf("PS2VM: Virtual Machine started.\r\n");
 				break;
 			case PS2VM_MSG_DESTROY:
@@ -737,8 +737,8 @@ void CPS2VM::EmuThread()
 				{
 					printf("PS2VM: (EmotionEngine) Breakpoint encountered at 0x%0.8X.\r\n", m_EE.m_State.nPC);
 					m_nStatus = PS2VM_STATUS_PAUSED;
-					m_OnMachineStateChange.Notify(0);
-					m_OnRunningStateChange.Notify(0);
+					m_OnMachineStateChange();
+					m_OnRunningStateChange();
 					continue;
 				}
 			}

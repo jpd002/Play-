@@ -395,12 +395,13 @@ void CPS2OS::LoadExecutable()
 	CPS2VM::m_EE.m_pAnalysis->Analyse(nMinAddr, (nMinAddr + m_pELF->m_nLenght) & ~0x3);
 #endif
 
-	CPS2VM::m_OnMachineStateChange.Notify(0);
+	CPS2VM::m_OnMachineStateChange();
 }
 
 void CPS2OS::UnloadExecutable()
 {
 	m_OnExecutableUnloading();
+	COsEventManager::GetInstance().Flush();
 
 	if(m_pELF == NULL) return;
 

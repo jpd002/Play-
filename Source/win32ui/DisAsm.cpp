@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <boost/bind.hpp>
 #include "DisAsm.h"
 #include "resource.h"
 #include "../PS2VM.h"
@@ -18,6 +19,7 @@
 #define ID_DISASM_GOTONEXT		40007
 
 using namespace Framework;
+using namespace boost;
 
 CDisAsm::CDisAsm(HWND hParent, RECT* pR, CMIPS* pCtx)
 {
@@ -48,11 +50,8 @@ CDisAsm::CDisAsm(HWND hParent, RECT* pR, CMIPS* pCtx)
 	Create(WS_EX_CLIENTEDGE, CLSNAME, _X(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
-	m_pOnMachineStateChangeHandler = new CEventHandlerMethod<CDisAsm, int>(this, &CDisAsm::OnMachineStateChange);
-	m_pOnRunningStateChangeHandler = new CEventHandlerMethod<CDisAsm, int>(this, &CDisAsm::OnRunningStateChange);
-
-	CPS2VM::m_OnMachineStateChange.InsertHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.InsertHandler(m_pOnRunningStateChangeHandler);
+	CPS2VM::m_OnMachineStateChange.connect(bind(&CDisAsm::OnMachineStateChange, this));
+	CPS2VM::m_OnRunningStateChange.connect(bind(&CDisAsm::OnRunningStateChange, this));
 
 	m_pCtx = pCtx;
 
@@ -75,9 +74,6 @@ CDisAsm::~CDisAsm()
 	DeleteObject(m_nArrowMask);
 	DeleteObject(m_nBPoint);
 	DeleteObject(m_nBPointMask);
-
-	CPS2VM::m_OnMachineStateChange.RemoveHandler(m_pOnMachineStateChangeHandler);
-	CPS2VM::m_OnRunningStateChange.RemoveHandler(m_pOnRunningStateChangeHandler);
 }
 
 void CDisAsm::SetAddress(uint32 nAddress)
@@ -86,7 +82,7 @@ void CDisAsm::SetAddress(uint32 nAddress)
 	Redraw();
 }
 
-void CDisAsm::OnMachineStateChange(int nNothing)
+void CDisAsm::OnMachineStateChange()
 {
 	if(!IsAddressVisible(m_pCtx->m_State.nPC))
 	{
@@ -95,7 +91,7 @@ void CDisAsm::OnMachineStateChange(int nNothing)
 	Redraw();
 }
 
-void CDisAsm::OnRunningStateChange(int nNothing)
+void CDisAsm::OnRunningStateChange()
 {
 	Redraw();
 }

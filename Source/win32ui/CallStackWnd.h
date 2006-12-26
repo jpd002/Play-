@@ -1,13 +1,14 @@
 #ifndef _CALLSTACKWND_H_
 #define _CALLSTACKWND_H_
 
+#include <boost/signal.hpp>
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
 #include "Event.h"
 
 class CMIPS;
 
-class CCallStackWnd : public Framework::CMDIChild
+class CCallStackWnd : public Framework::CMDIChild, public boost::signals::trackable
 {
 public:
 									CCallStackWnd(HWND, CMIPS*);
@@ -25,11 +26,8 @@ private:
 	void							Update();
 	void							OnListDblClick();
 
-	void							OnMachineStateChange(int);
-	void							OnRunningStateChange(int);
-
-	Framework::CEventHandler<int>*	m_pOnMachineStateChangeHandler;
-	Framework::CEventHandler<int>*	m_pOnRunningStateChangeHandler;
+	void							OnMachineStateChange();
+	void							OnRunningStateChange();
 
 	CMIPS*							m_pCtx;
 	Framework::CListView*			m_pList;

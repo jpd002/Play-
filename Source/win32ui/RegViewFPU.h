@@ -1,15 +1,16 @@
 #ifndef _REGVIEWFPU_H_
 #define _REGVIEWFPU_H_
 
+#include <boost/signal.hpp>
 #include "RegViewPage.h"
 #include "EventHandler.h"
 #include "../MIPS.h"
 
-class CRegViewFPU : public CRegViewPage
+class CRegViewFPU : public CRegViewPage, public boost::signals::trackable
 {
 public:
 									CRegViewFPU(HWND, RECT*, CMIPS*);
-									~CRegViewFPU();
+	virtual							~CRegViewFPU();
 
 	enum VIEWMODE
 	{
@@ -32,13 +33,11 @@ private:
 	void							RenderSingle(Framework::CStrA*);
 	void							RenderFCSR(Framework::CStrA*);
 
-	void							OnMachineStateChange(int);
-	void							OnRunningStateChange(int);
+	void							OnMachineStateChange();
+	void							OnRunningStateChange();
 
 	VIEWMODE						m_nViewMode;
 	CMIPS*							m_pCtx;
-	Framework::CEventHandler<int>*	m_pOnMachineStateChangeHandler;
-	Framework::CEventHandler<int>*	m_pOnRunningStateChangeHandler;
 };
 
 #endif

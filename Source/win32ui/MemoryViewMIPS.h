@@ -1,15 +1,15 @@
 #ifndef _MEMORYVIEWMIPS_H_
 #define _MEMORYVIEWMIPS_H_
 
+#include <boost/signal.hpp>
 #include "MemoryView.h"
 #include "../MIPS.h"
-#include "EventHandler.h"
 
-class CMemoryViewMIPS : public CMemoryView
+class CMemoryViewMIPS : public CMemoryView, public boost::signals::trackable
 {
 public:
 									CMemoryViewMIPS(HWND, RECT*, CMIPS*);
-									~CMemoryViewMIPS();
+	virtual							~CMemoryViewMIPS();
 
 protected:
 	virtual uint8					GetByte(uint32);
@@ -19,9 +19,7 @@ protected:
 
 private:
 	void							GotoAddress();
-	void							OnMachineStateChange(int);
-
-	Framework::CEventHandler<int>*	m_pOnMachineStateChangeHandler;
+	void							OnMachineStateChange();
 
 	CMIPS*							m_pCtx;
 };

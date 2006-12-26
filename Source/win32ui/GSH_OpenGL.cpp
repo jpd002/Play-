@@ -1202,7 +1202,7 @@ void CGSH_OpenGL::SetVBlank()
 
 void CGSH_OpenGL::Flip()
 {
-	CPS2VM::m_OnNewFrame.Notify(NULL);
+	CPS2VM::m_OnNewFrame();
 	SwapBuffers(m_hDC);
 }
 
