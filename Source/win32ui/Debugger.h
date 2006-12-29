@@ -5,6 +5,7 @@
 #include "win32/MDIFrame.h"
 #include "ELFView.h"
 #include "FunctionsView.h"
+#include "OsEventViewWnd.h"
 #include "DebugView.h"
 #include "EventHandler.h"
 
@@ -77,6 +78,7 @@ private:
 
 	CELFView*						m_pELFView;
 	CFunctionsView*					m_pFunctionsView;
+	COsEventViewWnd*				m_pOsEventView;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
 	unsigned int					m_nCurrentView;
 };

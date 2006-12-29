@@ -6,7 +6,7 @@
 #include "RegViewWnd.h"
 #include "CallStackWnd.h"
 
-class CDebugView
+class CDebugView : public boost::signals::trackable
 {
 public:
 							CDebugView(HWND, CMIPS*, const char*);

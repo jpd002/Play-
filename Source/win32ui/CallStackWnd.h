@@ -4,7 +4,7 @@
 #include <boost/signal.hpp>
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
-#include "Event.h"
+#include "Types.h"
 
 class CMIPS;
 
@@ -12,8 +12,8 @@ class CCallStackWnd : public Framework::CMDIChild, public boost::signals::tracka
 {
 public:
 									CCallStackWnd(HWND, CMIPS*);
-									~CCallStackWnd();
-	Framework::CEvent<uint32>		m_OnFunctionDblClick;
+	virtual							~CCallStackWnd();
+	boost::signal<void (uint32)>	m_OnFunctionDblClick;
 
 protected:
 	long							OnSize(unsigned int, unsigned int, unsigned int);

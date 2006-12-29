@@ -93,7 +93,7 @@ BEGIN
         MENUITEM "Call Stack\tCtrl+A",          ID_VIEW_CALLSTACK
         MENUITEM "&Functions\tCtrl+F",          ID_VIEW_FUNCTIONS
         MENUITEM "&ELF File Information",       ID_VIEW_ELF
-        MENUITEM "&Log",                        ID_VIEW_LOG
+        MENUITEM "OS Events",                   ID_VIEW_OSEVENTS
         MENUITEM SEPARATOR
         MENUITEM "EmotionEngine View\tAlt+1",   ID_VIEW_EEVIEW
         MENUITEM "Vector Unit 1 View\tAlt+3",   ID_VIEW_VU1VIEW

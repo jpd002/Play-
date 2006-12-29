@@ -1,13 +1,16 @@
 #include <boost/bind.hpp>
 #include "CallStackWnd.h"
 #include "PtrMacro.h"
+#include "string_cast.h"
+#include "lexical_cast_ex.h"
 #include "../MIPS.h"
 #include "../PS2VM.h"
 
-#define CLSNAME		_X("CallStackWnd")
+#define CLSNAME		_T("CallStackWnd")
 
 using namespace Framework;
 using namespace boost;
+using namespace std;
 
 CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* pCtx)
 {
@@ -30,7 +33,7 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* pCtx)
 	
 	SetRect(&rc, 0, 0, 320, 240);
 
-	Create(NULL, CLSNAME, _X("Call Stack"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Call Stack"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
 	SetRect(&rc, 0, 0, 1, 1);
@@ -107,12 +110,12 @@ void CCallStackWnd::CreateColumns()
 	m_pList->GetClientRect(&rc);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText = _X("Function");
+	col.pszText = _T("Function");
 	col.mask	= LVCF_TEXT;
 	m_pList->InsertColumn(0, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText = _X("Caller");
+	col.pszText = _T("Caller");
 	col.mask	= LVCF_TEXT;
 	m_pList->InsertColumn(1, &col);
 }
@@ -123,9 +126,6 @@ void CCallStackWnd::Update()
 	CMIPSAnalysis::SUBROUTINE* pRoutine;
 	LVITEM item;
 	unsigned int i;
-	const char* sName;
-	xchar sAddress[256];
-	xchar sConvert[256];
 
 	nPC = m_pCtx->m_State.nPC;
 	nRA = m_pCtx->m_State.nGPR[CMIPS::RA].nV[0];
@@ -140,7 +140,7 @@ void CCallStackWnd::Update()
 	{
 		//Cannot go further
 		memset(&item, 0, sizeof(LVITEM));
-		item.pszText	= _X("Call stack unavailable at this state.");
+		item.pszText	= _T("Call stack unavailable at this state.");
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
 		item.lParam		= MIPS_INVALID_PC;
 		m_pList->InsertItem(&item);
@@ -178,9 +178,11 @@ void CCallStackWnd::Update()
 
 	while(1)
 	{
+		const char* sName;
+
 		//Add the current function
 		memset(&item, 0, sizeof(LVITEM));
-		item.pszText	= _X("");
+		item.pszText	= _T("");
 		item.iItem		= m_pList->GetItemCount();
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
 		item.lParam		= pRoutine->nStart;
@@ -188,20 +190,14 @@ void CCallStackWnd::Update()
 
 		sName = m_pCtx->m_Functions.Find(pRoutine->nStart);
 
-		if(sName == NULL)
-		{
-			xsnprintf(sAddress, countof(sAddress), _X("0x%0.8X"), pRoutine->nStart);
-		}
-		else
-		{
-			xconvert(sConvert, sName, 256);
-			xsnprintf(sAddress, countof(sAddress), _X("0x%0.8X (%s)"), pRoutine->nStart, sConvert);
-		}
-		
-		m_pList->SetItemText(i, 0, sAddress);
+		m_pList->SetItemText(i, 0, (
+			_T("0x") + lexical_cast_hex<tstring>(pRoutine->nStart, 8) +
+			(sName != NULL ? (_T(" (") + string_cast<tstring>(sName) + _T(")")) : _T(""))
+			).c_str());
 
-		xsnprintf(sAddress, countof(sAddress), _X("0x%0.8X"), nRA - 4);
-		m_pList->SetItemText(i, 1, sAddress);
+		m_pList->SetItemText(i, 1, (
+			_T("0x") + lexical_cast_hex<tstring>(nRA - 4, 8)
+			).c_str());
 
 		//Go to previous routine
 		nPC = nRA - 4;
@@ -229,7 +225,7 @@ void CCallStackWnd::OnListDblClick()
 		nAddress = m_pList->GetItemData(nSelection);
 		if(nAddress != MIPS_INVALID_PC)
 		{
-			m_OnFunctionDblClick.Notify(nAddress);
+			m_OnFunctionDblClick(nAddress);
 		}
 	}
 }

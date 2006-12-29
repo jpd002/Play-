@@ -1,7 +1,9 @@
+#include <boost/bind.hpp>
 #include "DebugView.h"
 #include "PtrMacro.h"
 
 using namespace Framework;
+using namespace boost;
 
 CDebugView::CDebugView(HWND hParent, CMIPS* pCtx, const char* sName)
 {
@@ -13,7 +15,7 @@ CDebugView::CDebugView(HWND hParent, CMIPS* pCtx, const char* sName)
 	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, m_pCtx);
 
 	m_pCallStackWnd		= new CCallStackWnd(hParent, m_pCtx);
-	m_pCallStackWnd->m_OnFunctionDblClick.InsertHandler(new CEventHandlerMethod<CDebugView, uint32>(this, &CDebugView::OnCallStackWndFunctionDblClick));
+	m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
 
 	Hide();
 }

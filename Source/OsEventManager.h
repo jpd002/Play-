@@ -3,6 +3,7 @@
 
 #include "Singleton.h"
 #include "xml/Node.h"
+#include "Types.h"
 #include <vector>
 
 class COsEventManager : public CSingleton<COsEventManager>
@@ -10,15 +11,17 @@ class COsEventManager : public CSingleton<COsEventManager>
 public:
 	friend					CSingleton;
 
-	struct OSEVENT
+	class COsEvent
 	{
+	public:
 		unsigned int		nTime;
 		unsigned int		nThreadId;
 		unsigned int		nEventType;
+		uint32				nAddress;
 	};
 
 	void					Begin(const char*);
-	void					InsertEvent(OSEVENT);
+	void					InsertEvent(COsEvent);
 	void					Flush();
 	Framework::Xml::CNode*	GetEvents();
 
@@ -28,7 +31,7 @@ private:
 		RESERVE = 500,
 	};
 
-	typedef std::vector<OSEVENT> EventListType;
+	typedef std::vector<COsEvent> EventListType;
 
 							COsEventManager();
 	virtual					~COsEventManager();

@@ -28,7 +28,7 @@ void COsEventManager::Begin(const char* sExecutableName)
 	m_sExecutableName = sExecutableName;
 }
 
-void COsEventManager::InsertEvent(OSEVENT Event)
+void COsEventManager::InsertEvent(COsEvent Event)
 {
 	Event.nTime = m_nCurrentTime++;
 
@@ -43,7 +43,7 @@ void COsEventManager::InsertEvent(OSEVENT Event)
 void COsEventManager::Flush()
 {
 	if(m_Events.size() == 0) return;
-	if(m_sExecutableName.size() == 0) return;
+	if(m_sExecutableName.length() == 0) return;
 
 	Xml::CNode* pRootNode;
 	Xml::CNode* pEventsNode;
@@ -67,9 +67,10 @@ void COsEventManager::Flush()
 		Xml::CNode* pEventNode;
 		
 		pEventNode = new Xml::CNode("Event", true);
-		pEventNode->InsertAttribute(Xml::AttributeType("Time",		lexical_cast<string>((*itEvent).nTime)));
+		pEventNode->InsertAttribute(Xml::AttributeType("Address",	lexical_cast<string>((*itEvent).nAddress)));
 		pEventNode->InsertAttribute(Xml::AttributeType("ThreadId",	lexical_cast<string>((*itEvent).nThreadId)));
 		pEventNode->InsertAttribute(Xml::AttributeType("EventType",	lexical_cast<string>((*itEvent).nEventType)));
+		pEventNode->InsertAttribute(Xml::AttributeType("Time",		lexical_cast<string>((*itEvent).nTime)));
 
 		pEventsNode->InsertNode(pEventNode);
 	}
@@ -83,5 +84,16 @@ void COsEventManager::Flush()
 
 Xml::CNode* COsEventManager::GetEvents()
 {
-	return Xml::CParser::ParseDocument(&CStdStream(fopen((m_sExecutableName + ".xml").c_str(), "wb")));
+	if(m_sExecutableName.length() == 0) return NULL;
+
+	Flush();
+
+	try
+	{
+		return Xml::CParser::ParseDocument(&CStdStream(fopen((m_sExecutableName + ".xml").c_str(), "rb")));
+	}
+	catch(...)
+	{
+		return NULL;
+	}
 }

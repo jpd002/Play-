@@ -2435,10 +2435,11 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 
 void CPS2OS::RecordSysCall(uint8 nFunction)
 {
-	COsEventManager::OSEVENT Event;
+	COsEventManager::COsEvent Event;
 	
 	Event.nThreadId		= GetCurrentThreadId();
 	Event.nEventType	= nFunction;
+	Event.nAddress		= m_pCtx->m_State.nGPR[CMIPS::RA].nV0;
 
 	COsEventManager::GetInstance().InsertEvent(Event);
 }
