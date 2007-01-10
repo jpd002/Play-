@@ -22,7 +22,7 @@ private:
 	void					RefreshLayout();
 
 	Framework::CListView*	m_pList;
-	Xml::CNode*				m_pEvents;
+	Framework::Xml::CNode*	m_pEvents;
 };
 
 #endif

@@ -2227,7 +2227,7 @@ void CPS2OS::SysCallHandler()
 	{
 #ifdef _DEBUG
 		DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
-		RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
+		//RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
 #endif
 		if(nFunc < 0x80)
 		{
