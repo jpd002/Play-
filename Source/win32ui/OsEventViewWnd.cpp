@@ -1,4 +1,3 @@
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include "OsEventViewWnd.h"
 #include "win32/Rect.h"
@@ -6,12 +5,15 @@
 #include "xml/Utils.h"
 #include "../OsEventManager.h"
 #include "../PS2VM.h"
+#include "resource.h"
 
 #define CLSNAME		_T("OsEventViewWnd")
 
 using namespace Framework;
 using namespace boost;
 using namespace std;
+
+#define ID_REFRESH	(0xDEAF + 0)
 
 COsEventViewWnd::COsEventViewWnd(HWND hParent)
 {
@@ -31,19 +33,18 @@ COsEventViewWnd::COsEventViewWnd(HWND hParent)
 	}
 
 	Create(NULL, CLSNAME, _T("OS Events"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, 
-		CRect(0, 0, 320, 240), hParent, NULL);
+		Win32::CRect(0, 0, 320, 240), hParent, NULL);
 	SetClassPtr();
 
-	m_pList = new CListView(m_hWnd, CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
+	m_pList = new Win32::CListView(m_hWnd, Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-//	CPS2VM::m_OnMachineStateChange.connect(bind(&COsEventViewWnd::Update, this));
-//	CPS2VM::m_OnRunningStateChange.connect(bind(&COsEventViewWnd::Update, this));
+	m_pToolBar = new Win32::CToolBar(m_hWnd, 1, GetModuleHandle(NULL), IDB_OSEVENTVIEW_TOOLBAR, 16, 16);
+	m_pToolBar->InsertButton(0, ID_REFRESH);
 
 	CreateColumns();
 
 	RefreshLayout();
-	Update();
 }
 
 COsEventViewWnd::~COsEventViewWnd()
@@ -83,6 +84,18 @@ long COsEventViewWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 		Show(SW_HIDE);
 		return FALSE;
 	}
+	return TRUE;
+}
+
+long COsEventViewWnd::OnCommand(unsigned short nId, unsigned short nCmd, HWND hWndFrom)
+{
+	switch(nId)
+	{
+	case ID_REFRESH:
+		Update();
+		break;
+	}
+
 	return TRUE;
 }
 
@@ -156,17 +169,25 @@ void COsEventViewWnd::Update()
 
 void COsEventViewWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
-
-	if(m_pList != NULL)
+	if(m_pToolBar != NULL && m_pList != NULL)
 	{
-		m_pList->SetSize(rc.right, rc.bottom);
+		RECT rc;
+		RECT ToolBarRect;
+
+		GetClientRect(&rc);
+
+		m_pToolBar->Resize();
+
+		m_pToolBar->GetWindowRect(&ToolBarRect);
+		ScreenToClient(m_hWnd, reinterpret_cast<POINT*>(&ToolBarRect) + 0);
+		ScreenToClient(m_hWnd, reinterpret_cast<POINT*>(&ToolBarRect) + 1);
+
+		m_pList->SetPosition(0, ToolBarRect.bottom);
+		m_pList->SetSize(rc.right, rc.bottom - ToolBarRect.bottom);
+
+		m_pList->GetClientRect(&rc);
+
+		m_pList->SetColumnWidth(0, rc.right / 2);
+		m_pList->SetColumnWidth(1, rc.right / 2);
 	}
-
-	m_pList->GetClientRect(&rc);
-
-	m_pList->SetColumnWidth(0, rc.right / 2);
-	m_pList->SetColumnWidth(1, rc.right / 2);
 }

@@ -43,7 +43,7 @@ CModalWindow(hParent)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pList = new CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING);
+	m_pList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	m_pOk		= new Win32::CButton(_X("OK"), m_hWnd, &rc);

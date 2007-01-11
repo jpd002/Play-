@@ -38,7 +38,7 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* pCtx)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pList = new CListView(m_hWnd, &rc, LVS_REPORT);
+	m_pList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	CPS2VM::m_OnMachineStateChange.connect(bind(&CCallStackWnd::OnMachineStateChange, this));

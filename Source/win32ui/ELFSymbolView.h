@@ -8,14 +8,14 @@
 class CELFSymbolView : public Framework::CWindow
 {
 public:
-							CELFSymbolView(HWND, CELF*);
-							~CELFSymbolView();
+									CELFSymbolView(HWND, CELF*);
+									~CELFSymbolView();
 private:
-	Framework::CListView*	m_pListView;
-	long					OnSize(unsigned int, unsigned int, unsigned int);
-	void					RefreshLayout();
-	void					PopulateList();
-	CELF*					m_pELF;
+	Framework::Win32::CListView*	m_pListView;
+	long							OnSize(unsigned int, unsigned int, unsigned int);
+	void							RefreshLayout();
+	void							PopulateList();
+	CELF*							m_pELF;
 };
 
 #endif

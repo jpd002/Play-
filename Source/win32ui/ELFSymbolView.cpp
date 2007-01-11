@@ -31,7 +31,7 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 
 	m_pELF = pELF;
 
-	m_pListView = new CListView(m_hWnd, &rc, LVS_REPORT);
+	m_pListView = new Win32::CListView(m_hWnd, &rc, LVS_REPORT);
 	m_pListView->SetExtendedListViewStyle(m_pListView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	memset(&col, 0, sizeof(LVCOLUMN));

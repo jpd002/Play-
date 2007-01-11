@@ -14,6 +14,8 @@
 #define IDC_GRAB                        115
 #define IDC_CURSOR1                     116
 #define IDC_GRABBING                    116
+#define IDB_REFRESH                     117
+#define IDB_OSEVENTVIEW_TOOLBAR         117
 #define ID_FILE_EXIT                    40002
 #define ID_FILE_OPENELF                 40003
 #define ID_Menu                         40005
@@ -139,7 +141,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        117
+#define _APS_NEXT_RESOURCE_VALUE        118
 #define _APS_NEXT_COMMAND_VALUE         40134
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

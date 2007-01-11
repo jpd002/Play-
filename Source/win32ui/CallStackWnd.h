@@ -30,7 +30,7 @@ private:
 	void							OnRunningStateChange();
 
 	CMIPS*							m_pCtx;
-	Framework::CListView*			m_pList;
+	Framework::Win32::CListView*	m_pList;
 };
 
 #endif

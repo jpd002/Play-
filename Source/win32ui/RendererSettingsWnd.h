@@ -10,32 +10,32 @@
 class CRendererSettingsWnd : public CModalWindow
 {
 public:
-								CRendererSettingsWnd(HWND, CGSH_OpenGL*);
-	virtual						~CRendererSettingsWnd();
+									CRendererSettingsWnd(HWND, CGSH_OpenGL*);
+	virtual							~CRendererSettingsWnd();
 
 protected:
-	long						OnCommand(unsigned short, unsigned short, HWND);
+	long							OnCommand(unsigned short, unsigned short, HWND);
 
 private:
-	void						RefreshLayout();
-	void						CreateExtListColumns();
-	void						UpdateExtList();
-	void						Save();
+	void							RefreshLayout();
+	void							CreateExtListColumns();
+	void							UpdateExtList();
+	void							Save();
 
-	bool						ProcessCheckBoxMessage(HWND, Framework::Win32::CButton*, bool*);
+	bool							ProcessCheckBoxMessage(HWND, Framework::Win32::CButton*, bool*);
 
-	Framework::CVerticalLayout*	m_pLayout;
-	Framework::CListView*		m_pExtList;
-	Framework::Win32::CButton*	m_pLineCheck;
-	Framework::Win32::CButton*	m_pForceBilinearCheck;
-	Framework::Win32::CButton*	m_pForceFlippingCheck;
-	Framework::Win32::CButton*	m_pOk;
-	Framework::Win32::CButton*	m_pCancel;
-	CGSH_OpenGL*				m_pRenderer;
+	Framework::CVerticalLayout*		m_pLayout;
+	Framework::Win32::CListView*	m_pExtList;
+	Framework::Win32::CButton*		m_pLineCheck;
+	Framework::Win32::CButton*		m_pForceBilinearCheck;
+	Framework::Win32::CButton*		m_pForceFlippingCheck;
+	Framework::Win32::CButton*		m_pOk;
+	Framework::Win32::CButton*		m_pCancel;
+	CGSH_OpenGL*					m_pRenderer;
 
-	bool						m_nLinesAsQuads;
-	bool						m_nForceBilinearTextures;
-	bool						m_nForceFlippingVSync;
+	bool							m_nLinesAsQuads;
+	bool							m_nForceBilinearTextures;
+	bool							m_nForceFlippingVSync;
 };
 
 #endif

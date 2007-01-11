@@ -40,7 +40,7 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 
 	SetRect(&rc, 0, 0, 0, 0);
 
-	m_pList = new CListView(m_hWnd, &rc, LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
+	m_pList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
 	CreateListColumns();

@@ -2,6 +2,7 @@
 #define _MAINWINDOW_H_
 
 #include <boost/signal.hpp>
+#include <string>
 #include "win32/Window.h"
 #include "win32/StatusBar.h"
 #include "OutputWnd.h"
@@ -48,7 +49,7 @@ private:
 	void							CreateDebugMenu();
 
 	void							CreateStateSlotMenu();
-	void							GenerateStatePath(char*);
+	std::string						GenerateStatePath();
 	void							UpdateUI();
 
 	void							OnNewFrame();

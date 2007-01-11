@@ -737,6 +737,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\win32ui\Images\OsEventViewToolBar.bmp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\win32ui\Images\purei.ico"
 					>
 				</File>

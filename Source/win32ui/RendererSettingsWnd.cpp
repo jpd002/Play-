@@ -63,7 +63,7 @@ CModalWindow(hParent)
 	m_pForceFlippingCheck = new Win32::CButton(_T("Force buffer flipping at V-Sync"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pForceFlippingCheck->SetCheck(m_nForceFlippingVSync);
 
-	m_pExtList = new CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
+	m_pExtList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
 	m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	m_pLayout = new CVerticalLayout;
