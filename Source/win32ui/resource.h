@@ -15,7 +15,6 @@
 #define IDC_CURSOR1                     116
 #define IDC_GRABBING                    116
 #define IDB_REFRESH                     117
-#define IDB_OSEVENTVIEW_TOOLBAR         117
 #define ID_FILE_EXIT                    40002
 #define ID_FILE_OPENELF                 40003
 #define ID_Menu                         40005

@@ -39,8 +39,10 @@ COsEventViewWnd::COsEventViewWnd(HWND hParent)
 	m_pList = new Win32::CListView(m_hWnd, Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_pToolBar = new Win32::CToolBar(m_hWnd, 1, GetModuleHandle(NULL), IDB_OSEVENTVIEW_TOOLBAR, 16, 16);
-	m_pToolBar->InsertButton(0, ID_REFRESH);
+	m_pToolBar = new Win32::CToolBar(m_hWnd);
+	m_pToolBar->LoadStandardImageList(IDB_STD_SMALL_COLOR);
+	m_pToolBar->InsertImageButton(STD_UNDO, ID_REFRESH);
+	m_pToolBar->SetButtonToolTipText(ID_REFRESH, _T("Refresh"));
 
 	CreateColumns();
 
@@ -97,6 +99,15 @@ long COsEventViewWnd::OnCommand(unsigned short nId, unsigned short nCmd, HWND hW
 	}
 
 	return TRUE;
+}
+
+long COsEventViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
+{
+	if(m_pToolBar != NULL)
+	{
+		m_pToolBar->ProcessNotify(wParam, pHdr);
+	}
+	return FALSE;
 }
 
 void COsEventViewWnd::Update()

@@ -16,6 +16,7 @@ protected:
 	long							OnSize(unsigned int, unsigned int, unsigned int);
 	long							OnSysCommand(unsigned int, LPARAM);
 	long							OnCommand(unsigned short, unsigned short, HWND);
+	long							OnNotify(WPARAM, NMHDR*);
 
 private:
 	void							CreateColumns();
