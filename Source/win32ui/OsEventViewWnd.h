@@ -1,6 +1,7 @@
 #ifndef _OSEVENTVIEWWND_H_
 #define _OSEVENTVIEWWND_H_
 
+#include <boost/signal.hpp>
 #include "win32/ListView.h"
 #include "win32/ToolBar.h"
 #include "win32/MDIChild.h"
@@ -12,6 +13,7 @@ class COsEventViewWnd : public Framework::CMDIChild
 public:
 									COsEventViewWnd(HWND);
 	virtual							~COsEventViewWnd();
+	boost::signal<void (uint32)>	m_OnEventDblClick;
 
 protected:
 	long							OnSize(unsigned int, unsigned int, unsigned int);
@@ -33,6 +35,7 @@ private:
 	void							Update();
 	void							RefreshLayout();
 	void							GetDisplayInfoCallback(LVITEM*);
+	void							OnListDblClick();
 
 	Framework::Win32::CListView*	m_pList;
 	Framework::Win32::CToolBar*		m_pToolBar;

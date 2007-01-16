@@ -7,7 +7,6 @@
 #include "FunctionsView.h"
 #include "OsEventViewWnd.h"
 #include "DebugView.h"
-#include "EventHandler.h"
 
 class CDebugger : public Framework::CMDIFrame, public boost::signals::trackable
 {
@@ -66,7 +65,8 @@ private:
 
 	//Event handlers
 	void							OnFunctionViewFunctionDblClick(uint32);
-	void							OnFunctionViewFunctionsStateChange(int);
+	void							OnFunctionViewFunctionsStateChange();
+	void							OnEventViewEventDblClick(uint32);
 	void							OnExecutableChange();
 	void							OnExecutableUnloading();
 

@@ -66,7 +66,6 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 	SetELF(NULL);
 
 	RefreshLayout();
-
 }
 
 CFunctionsView::~CFunctionsView()
@@ -229,7 +228,7 @@ void CFunctionsView::OnListDblClick()
 	nItem = m_pList->GetSelection();
 	if(nItem == -1) return;
 	nAddress = (uint32)m_pList->GetItemData(nItem);
-	m_OnFunctionDblClick.Notify(nAddress);
+	m_OnFunctionDblClick(nAddress);
 }
 
 void CFunctionsView::OnNewClick()
@@ -277,7 +276,7 @@ void CFunctionsView::OnNewClick()
 	m_pCtx->m_Functions.InsertTag(nAddress, sName);
 
 	RefreshList();
-	m_OnFunctionsStateChange.Notify(NULL);
+	m_OnFunctionsStateChange();
 }
 
 void CFunctionsView::OnRenameClick()
@@ -314,7 +313,7 @@ void CFunctionsView::OnRenameClick()
 	m_pCtx->m_Functions.InsertTag(nAddress, sNewName);
 	RefreshList();
 
-	m_OnFunctionsStateChange.Notify(NULL);	
+	m_OnFunctionsStateChange();
 }
 
 void CFunctionsView::OnImportClick()
@@ -343,7 +342,7 @@ void CFunctionsView::OnImportClick()
 
 	RefreshList();
 
-	m_OnFunctionsStateChange.Notify(NULL);
+	m_OnFunctionsStateChange();
 
 	printf("FunctionsView: Symbolic information found and loaded.\r\n");
 }
@@ -364,5 +363,5 @@ void CFunctionsView::OnDeleteClick()
 	m_pCtx->m_Functions.InsertTag(nAddress, NULL);
 	RefreshList();
 
-	m_OnFunctionsStateChange.Notify(NULL);
+	m_OnFunctionsStateChange();
 }

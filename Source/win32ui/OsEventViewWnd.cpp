@@ -115,6 +115,15 @@ long COsEventViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
 	if(m_pList != NULL)
 	{
 		m_pList->ProcessGetDisplayInfo(pHdr, bind(&COsEventViewWnd::GetDisplayInfoCallback, this, _1));
+		if(pHdr->hwndFrom == m_pList->m_hWnd)
+		{
+			switch(pHdr->code)
+			{
+			case NM_DBLCLK:
+				OnListDblClick();
+				break;
+			}
+		}
 	}
 	return FALSE;
 }
@@ -189,7 +198,7 @@ void COsEventViewWnd::RefreshLayout()
 void COsEventViewWnd::GetDisplayInfoCallback(LVITEM* pItem)
 {
 	if((pItem->mask & LVIF_TEXT) == 0) return;
-	if(static_cast<unsigned int>(pItem->iItem) > m_ListItems.size()) return;
+	if(static_cast<unsigned int>(pItem->iItem) >= m_ListItems.size()) return;
 
 	LISTITEM& Item(m_ListItems[pItem->iItem]);
 
@@ -205,4 +214,17 @@ void COsEventViewWnd::GetDisplayInfoCallback(LVITEM* pItem)
 		_tcsncpy(pItem->pszText, (_T("0x") + lexical_cast_hex<tstring>(Item.nAddress, 8)).c_str(), pItem->cchTextMax);
 		break;
 	}
+}
+
+void COsEventViewWnd::OnListDblClick()
+{
+	int nSelection;
+
+	nSelection = m_pList->GetSelection();
+	if(nSelection == -1) return;
+	if(static_cast<unsigned int>(nSelection) >= m_ListItems.size()) return;
+
+	LISTITEM& Item(m_ListItems[nSelection]);
+	
+	m_OnEventDblClick(Item.nAddress);
 }
