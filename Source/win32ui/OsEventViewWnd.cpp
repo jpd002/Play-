@@ -1,4 +1,6 @@
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+#include "lexical_cast_ex.h"
 #include "OsEventViewWnd.h"
 #include "win32/Rect.h"
 #include "xml/FilteringNodeIterator.h"
@@ -17,8 +19,6 @@ using namespace std;
 
 COsEventViewWnd::COsEventViewWnd(HWND hParent)
 {
-	m_pEvents = NULL;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -70,6 +70,11 @@ void COsEventViewWnd::CreateColumns()
 	col.pszText = _T("Event Type");
 	col.mask	= LVCF_TEXT;
 	m_pList->InsertColumn(1, &col);
+
+	memset(&col, 0, sizeof(LVCOLUMN));
+	col.pszText = _T("Address");
+	col.mask	= LVCF_TEXT;
+	m_pList->InsertColumn(2, &col);
 }
 
 long COsEventViewWnd::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
@@ -107,11 +112,17 @@ long COsEventViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
 	{
 		m_pToolBar->ProcessNotify(wParam, pHdr);
 	}
+	if(m_pList != NULL)
+	{
+		m_pList->ProcessGetDisplayInfo(pHdr, bind(&COsEventViewWnd::GetDisplayInfoCallback, this, _1));
+	}
 	return FALSE;
 }
 
 void COsEventViewWnd::Update()
 {
+	m_ListItems.clear();
+
 	Xml::CNode* pRootNode;
 
 	pRootNode = COsEventManager::GetInstance().GetEvents();
@@ -122,60 +133,31 @@ void COsEventViewWnd::Update()
 		pEventsNode = pRootNode->Search("Events");
 		if(pEventsNode != NULL)
 		{
-			unsigned int nCount = 0;
 			for(Xml::CFilteringNodeIterator itEvent(pEventsNode, "Event");
 				!itEvent.IsEnd(); itEvent++)
 			{
-				nCount++;
+				int nId, nThreadId, nEventType, nAddress;
+
+				if(!Xml::GetAttributeIntValue(*itEvent, "Time",			&nId))			continue;
+				if(!Xml::GetAttributeIntValue(*itEvent, "EventType",	&nEventType))	continue;
+				if(!Xml::GetAttributeIntValue(*itEvent, "ThreadId",		&nThreadId))	continue;
+				if(!Xml::GetAttributeIntValue(*itEvent, "Address",		&nAddress))		continue;
+
+				LISTITEM Item;
+				Item.nThreadId		= nThreadId;
+				Item.sDescription	= lexical_cast<tstring>(nEventType);
+				Item.nAddress		= nAddress;
+
+				m_ListItems[nId] = Item;
 			}
 
-			m_pList->SetItemCount(nCount);
+			m_pList->SetItemCount(static_cast<int>(m_ListItems.size()));
 		}
-
-		return;
 	}
-
-	m_pList->SetItemCount(0);
-
-		/*
-	Xml::CNode* pRootNode;
-	Xml::CNode* pEventsNode;
-
-	m_pList->DeleteAllItems();
-
-	pRootNode = COsEventManager::GetInstance().GetEvents();
-	if(pRootNode == NULL) return;
-
-	pEventsNode = pRootNode->Search("Events");
-	if(pEventsNode != NULL)
+	else
 	{
-		m_pList->SetRedraw(false);
-
-		for(Xml::CFilteringNodeIterator itEvent(pEventsNode, "Event");
-			!itEvent.IsEnd(); itEvent++)
-		{
-			LVITEM Item;
-			int nTime, nItemIndex, nThreadId;
-
-			if(!Xml::GetAttributeIntValue(*itEvent, "Time", &nTime)) continue;
-			if(!Xml::GetAttributeIntValue(*itEvent, "ThreadId", &nThreadId)) continue;
-
-			//Add the current function
-			memset(&Item, 0, sizeof(LVITEM));
-			Item.pszText	= _T("");
-			Item.iItem		= m_pList->GetItemCount();
-			Item.mask		= LVIF_TEXT | LVIF_PARAM;
-			Item.lParam		= nTime;
-			nItemIndex = m_pList->InsertItem(&Item);
-
-			m_pList->SetItemText(nItemIndex, 0, lexical_cast<tstring>(nThreadId).c_str());
-		}
-
-		m_pList->SetRedraw(true);
+		m_pList->SetItemCount(0);
 	}
-
-	delete pRootNode;
-*/
 }
 
 void COsEventViewWnd::RefreshLayout()
@@ -198,7 +180,29 @@ void COsEventViewWnd::RefreshLayout()
 
 		m_pList->GetClientRect(&rc);
 
-		m_pList->SetColumnWidth(0, rc.right / 2);
-		m_pList->SetColumnWidth(1, rc.right / 2);
+		m_pList->SetColumnWidth(0, rc.right / 3);
+		m_pList->SetColumnWidth(1, rc.right / 3);
+		m_pList->SetColumnWidth(2, rc.right / 3);
+	}
+}
+
+void COsEventViewWnd::GetDisplayInfoCallback(LVITEM* pItem)
+{
+	if((pItem->mask & LVIF_TEXT) == 0) return;
+	if(static_cast<unsigned int>(pItem->iItem) > m_ListItems.size()) return;
+
+	LISTITEM& Item(m_ListItems[pItem->iItem]);
+
+	switch(pItem->iSubItem)
+	{
+	case 0:
+		_tcsncpy(pItem->pszText, lexical_cast<tstring>(Item.nThreadId).c_str(), pItem->cchTextMax);
+		break;
+	case 1:
+		_tcsncpy(pItem->pszText, Item.sDescription.c_str(), pItem->cchTextMax);
+		break;
+	case 2:
+		_tcsncpy(pItem->pszText, (_T("0x") + lexical_cast_hex<tstring>(Item.nAddress, 8)).c_str(), pItem->cchTextMax);
+		break;
 	}
 }

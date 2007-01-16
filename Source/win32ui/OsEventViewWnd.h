@@ -5,6 +5,7 @@
 #include "win32/ToolBar.h"
 #include "win32/MDIChild.h"
 #include "xml/Node.h"
+#include "Types.h"
 
 class COsEventViewWnd : public Framework::CMDIChild
 {
@@ -19,13 +20,23 @@ protected:
 	long							OnNotify(WPARAM, NMHDR*);
 
 private:
+	struct LISTITEM
+	{
+		unsigned int	nThreadId;
+		std::tstring	sDescription;
+		uint32			nAddress;
+	};
+
+	typedef std::map<unsigned int, LISTITEM> ListItemMap;
+
 	void							CreateColumns();
 	void							Update();
 	void							RefreshLayout();
+	void							GetDisplayInfoCallback(LVITEM*);
 
 	Framework::Win32::CListView*	m_pList;
 	Framework::Win32::CToolBar*		m_pToolBar;
-	Framework::Xml::CNode*			m_pEvents;
+	ListItemMap						m_ListItems;
 };
 
 #endif
