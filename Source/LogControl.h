@@ -25,6 +25,9 @@ public:
 	bool	GetIOPLoggingStatus();
 	void	SetIOPLoggingStatus(bool);
 
+	bool	GetOSRecordingStatus();
+	void	SetOSRecordingStatus(bool);
+
 private:
 	void	LoadConfig();
 	void	SaveConfig();
@@ -35,6 +38,7 @@ private:
 	bool	m_nOSLogging;
 	bool	m_nSIFLogging;
 	bool	m_nIOPLogging;
+	bool	m_nOSRecording;
 };
 
 #endif

@@ -104,6 +104,7 @@ BEGIN
         MENUITEM "DMAC Logging",                ID_LOGGING_DMAC
         MENUITEM "IPU Logging",                 ID_LOGGING_IPU
         MENUITEM "OS Logging",                  ID_LOGGING_OS
+        MENUITEM "OS Recording",                ID_RECORDING_OS
         MENUITEM "SIF Logging",                 ID_LOGGING_SIF
         MENUITEM "IOP Logging",                 ID_LOGGING_IOP
     END

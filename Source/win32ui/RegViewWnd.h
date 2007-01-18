@@ -6,11 +6,12 @@
 
 class CMIPS;
 
-class CRegViewWnd : public Framework::CMDIChild
+class CRegViewWnd : public Framework::CMDIChild, public boost::signals::trackable
 {
 public:
 						CRegViewWnd(HWND, CMIPS*);
-						~CRegViewWnd();
+	virtual				~CRegViewWnd();
+
 protected:
 	long				OnSize(unsigned int, unsigned int, unsigned int);
 	long				OnSysCommand(unsigned int, LPARAM);

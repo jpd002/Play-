@@ -1,9 +1,9 @@
 #ifndef _NICETABS_H_
 #define _NICETABS_H_
 
+#include <boost/signal.hpp>
 #include "win32/CustomDrawn.h"
 #include "List.h"
-#include "Event.h"
 
 struct TABITEM
 {
@@ -22,10 +22,10 @@ class CNiceTabs : public Framework::CCustomDrawn
 {
 public:
 										CNiceTabs(HWND, RECT*);
-										~CNiceTabs();
+	virtual								~CNiceTabs();
 	void								InsertTab(xchar*, unsigned long, unsigned int);
 
-	Framework::CEvent<unsigned int>		m_OnTabChange;
+	boost::signal<void (unsigned int)>	m_OnTabChange;
 
 protected:
 	void								Paint(HDC);

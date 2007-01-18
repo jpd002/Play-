@@ -2227,7 +2227,10 @@ void CPS2OS::SysCallHandler()
 	{
 #ifdef _DEBUG
 		DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
-		//RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
+		if(CPS2VM::m_Logging.GetOSRecordingStatus())
+		{
+			RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
+		}
 #endif
 		if(nFunc < 0x80)
 		{
@@ -2249,92 +2252,120 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 {
 	if(!CPS2VM::m_Logging.GetOSLoggingStatus()) return;
 
-	switch(nFunc)
+	string sDescription(GetSysCallDescription(nFunc));
+
+	if(sDescription.length() != 0)
+	{
+		printf("PS2OS: %s\r\n", sDescription.c_str());
+	}
+}
+
+void CPS2OS::RecordSysCall(uint8 nFunction)
+{
+	COsEventManager::COsEvent Event;
+
+	string sDescription(GetSysCallDescription(nFunction));
+
+	Event.nThreadId		= GetCurrentThreadId();
+	Event.nEventType	= nFunction;
+	Event.nAddress		= m_pCtx->m_State.nGPR[CMIPS::RA].nV0 - 8;
+	Event.sDescription	= (sDescription.length() != 0) ? sDescription : "(Unknown)";
+
+	COsEventManager::GetInstance().InsertEvent(Event);
+}
+
+string CPS2OS::GetSysCallDescription(uint8 nFunction)
+{
+	char sDescription[256];
+
+	strcpy(sDescription, "");
+
+	switch(nFunction)
 	{
 	case 0x02:
-		printf("PS2OS: GsSetCrt(interlace = %i, mode = %i, field = %i);\r\n", \
+		sprintf(sDescription, "GsSetCrt(interlace = %i, mode = %i, field = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x11:
-		printf("PS2OS: RemoveIntcHandler(cause = %i, id = %i);\r\n", \
+		sprintf(sDescription, "RemoveIntcHandler(cause = %i, id = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x12:
-		printf("PS2OS: AddDmacHandler(channel = %i, address = 0x%0.8X, next = %i, arg = %i);\r\n", \
+		sprintf(sDescription, "AddDmacHandler(channel = %i, address = 0x%0.8X, next = %i, arg = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM2].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x13:
-		printf("PS2OS: RemoveDmacHandler(channel = %i, handler = %i);\r\n", \
+		sprintf(sDescription, "RemoveDmacHandler(channel = %i, handler = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x14:
-		printf("PS2OS: EnableIntc(cause = %i);\r\n", \
+		sprintf(sDescription, "EnableIntc(cause = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x15:
-		printf("PS2OS: DisableIntc(cause = %i);\r\n", \
+		sprintf(sDescription, "DisableIntc(cause = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x16:
-		printf("PS2OS: EnableDmac(channel = %i);\r\n", \
+		sprintf(sDescription, "EnableDmac(channel = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x17:
-		printf("PS2OS: DisableDmac(channel = %i);\r\n", \
+		sprintf(sDescription, "DisableDmac(channel = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x20:
-		printf("PS2OS: CreateThread(thread = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "CreateThread(thread = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x21:
-		printf("PS2OS: DeleteThread(id = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "DeleteThread(id = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x22:
-		printf("PS2OS: StartThread(id = 0x%0.8X, a0 = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "StartThread(id = 0x%0.8X, a0 = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x23:
-		printf("PS2OS: ExitThread();\r\n");
+		sprintf(sDescription, "ExitThread();");
 		break;
 	case 0x25:
-		printf("PS2OS: TerminateThread(id = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "TerminateThread(id = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x29:
-		printf("PS2OS: ChangeThreadPriority(id = 0x%0.8X, priority = %i);\r\n", \
+		sprintf(sDescription, "ChangeThreadPriority(id = 0x%0.8X, priority = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2B:
-		printf("PS2OS: RotateThreadReadyQueue(prio = %i);\r\n", \
+		sprintf(sDescription, "RotateThreadReadyQueue(prio = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2F:
-		printf("PS2OS: GetThreadId();\r\n");
+		sprintf(sDescription, "GetThreadId();");
 		break;
 	case 0x32:
-		printf("PS2OS: SleepThread();\r\n");
+		sprintf(sDescription, "SleepThread();");
 		break;
 	case 0x33:
-		printf("PS2OS: WakeupThread(id = %i);\r\n", \
+		sprintf(sDescription, "WakeupThread(id = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x34:
-		printf("PS2OS: iWakeupThread(id = %i);\r\n", \
+		sprintf(sDescription, "iWakeupThread(id = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
-		printf("PS2OS: RFU060(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "RFU060(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM2].nV[0], \
@@ -2342,106 +2373,97 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 			m_pCtx->m_State.nGPR[SC_PARAM4].nV[0]);
 		break;
 	case 0x3D:
-		printf("PS2OS: RFU061(heap_start = 0x%0.8X, heap_size = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "RFU061(heap_start = 0x%0.8X, heap_size = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x3E:
-		printf("PS2OS: EndOfHeap();\r\n");
+		sprintf(sDescription, "EndOfHeap();");
 		break;
 	case 0x40:
-		printf("PS2OS: CreateSema(sema = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "CreateSema(sema = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x41:
-		printf("PS2OS: DeleteSema(semaid = %i);\r\n", \
+		sprintf(sDescription, "DeleteSema(semaid = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x42:
-		printf("PS2OS: SignalSema(semaid = %i);\r\n", \
+		sprintf(sDescription, "SignalSema(semaid = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x43:
-		printf("PS2OS: iSignalSema(semaid = %i);\r\n", \
+		sprintf(sDescription, "iSignalSema(semaid = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x44:
-		printf("PS2OS: WaitSema(semaid = %i);\r\n", \
+		sprintf(sDescription, "WaitSema(semaid = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x45:
-		printf("PS2OS: PollSema(semaid = %i);\r\n", \
+		sprintf(sDescription, "PollSema(semaid = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x46:
-		printf("PS2OS: iPollSema(semaid = %i);\r\n", \
+		sprintf(sDescription, "iPollSema(semaid = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x48:
-		printf("PS2OS: iReferSemaStatus(semaid = %i, status = 0x%0.8X);\r\n",
+		sprintf(sDescription, "iReferSemaStatus(semaid = %i, status = 0x%0.8X);",
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0],
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x64:
 	case 0x68:
 #ifdef _DEBUG
-//		printf("FlushCache();\r\n");
+//		sprintf(sDescription, "FlushCache();");
 #endif
 		break;
 	case 0x71:
-		printf("PS2OS: GsPutIMR(GS_IMR = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "GsPutIMR(GS_IMR = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x73:
-		printf("PS2OS: SetVSyncFlag(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "SetVSyncFlag(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x74:
-		printf("PS2OS: SetSyscall(num = 0x%0.2X, address = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "SetSyscall(num = 0x%0.2X, address = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x76:
-		printf("PS2OS: SifDmaStat();\r\n");
+		sprintf(sDescription, "SifDmaStat();");
 		break;
 	case 0x77:
-		printf("PS2OS: SifSetDma(list = 0x%0.8X, count = %i);\r\n", \
+		sprintf(sDescription, "SifSetDma(list = 0x%0.8X, count = %i);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x78:
-		printf("PS2OS: SifSetDChain();\r\n");
+		sprintf(sDescription, "SifSetDChain();");
 		break;
 	case 0x79:
-		printf("PS2OS: SifSetReg(register = 0x%0.8X, value = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "SifSetReg(register = 0x%0.8X, value = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7A:
-		printf("PS2OS: SifGetReg(register = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "SifGetReg(register = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x7C:
-		printf("PS2OS: Deci2Call(func = 0x%0.8X, param = 0x%0.8X);\r\n", \
+		sprintf(sDescription, "Deci2Call(func = 0x%0.8X, param = 0x%0.8X);", \
 			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
 			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7F:
-		printf("PS2OS: GetMemorySize();\r\n");
+		sprintf(sDescription, "GetMemorySize();");
 		break;
 	}
-}
 
-void CPS2OS::RecordSysCall(uint8 nFunction)
-{
-	COsEventManager::COsEvent Event;
-	
-	Event.nThreadId		= GetCurrentThreadId();
-	Event.nEventType	= nFunction;
-	Event.nAddress		= m_pCtx->m_State.nGPR[CMIPS::RA].nV0;
-
-	COsEventManager::GetInstance().InsertEvent(Event);
+	return string(sDescription);
 }
 
 //////////////////////////////////////////////////

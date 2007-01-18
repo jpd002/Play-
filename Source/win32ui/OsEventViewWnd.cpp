@@ -67,7 +67,7 @@ void COsEventViewWnd::CreateColumns()
 	m_pList->InsertColumn(0, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText = _T("Event Type");
+	col.pszText = _T("Description");
 	col.mask	= LVCF_TEXT;
 	m_pList->InsertColumn(1, &col);
 

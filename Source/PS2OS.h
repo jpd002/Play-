@@ -204,6 +204,7 @@ private:
 	static void									SysCallHandler();
 	static void									DisassembleSysCall(uint8);
 	static void									RecordSysCall(uint8);
+	static std::string							GetSysCallDescription(uint8);
 
 	static void									(*m_pSysCall[0x80])();
 

@@ -18,6 +18,7 @@ public:
 		unsigned int		nThreadId;
 		unsigned int		nEventType;
 		uint32				nAddress;
+		std::string			sDescription;
 	};
 
 	void					Begin(const char*);
@@ -38,7 +39,7 @@ private:
 
 	unsigned int			m_nCurrentTime;
 	EventListType			m_Events;
-	std::string				m_sExecutableName;
+	std::string				m_sRecordPath;
 };
 
 #endif

@@ -9,6 +9,7 @@ CLogControl::CLogControl()
 	CConfig::GetInstance()->RegisterPreferenceBoolean("logging.os",		false);
 	CConfig::GetInstance()->RegisterPreferenceBoolean("logging.sif",	false);
 	CConfig::GetInstance()->RegisterPreferenceBoolean("logging.iop",	false);
+	CConfig::GetInstance()->RegisterPreferenceBoolean("recording.os",	false);
 
 	LoadConfig();
 }
@@ -26,6 +27,7 @@ void CLogControl::LoadConfig()
 	m_nOSLogging	= CConfig::GetInstance()->GetPreferenceBoolean("logging.os");
 	m_nSIFLogging	= CConfig::GetInstance()->GetPreferenceBoolean("logging.sif");
 	m_nIOPLogging	= CConfig::GetInstance()->GetPreferenceBoolean("logging.iop");
+	m_nOSRecording	= CConfig::GetInstance()->GetPreferenceBoolean("recording.os");
 }
 
 void CLogControl::SaveConfig()
@@ -36,6 +38,7 @@ void CLogControl::SaveConfig()
 	CConfig::GetInstance()->SetPreferenceBoolean("logging.os",		m_nOSLogging);
 	CConfig::GetInstance()->SetPreferenceBoolean("logging.sif",		m_nSIFLogging);
 	CConfig::GetInstance()->SetPreferenceBoolean("logging.iop",		m_nIOPLogging);
+	CConfig::GetInstance()->SetPreferenceBoolean("recording.os",	m_nOSRecording);
 }
 
 bool CLogControl::GetGSLoggingStatus()
@@ -96,4 +99,14 @@ bool CLogControl::GetIOPLoggingStatus()
 void CLogControl::SetIOPLoggingStatus(bool nStatus)
 {
 	m_nIOPLogging = nStatus;
+}
+
+bool CLogControl::GetOSRecordingStatus()
+{
+	return m_nOSRecording;
+}
+
+void CLogControl::SetOSRecordingStatus(bool nStatus)
+{
+	m_nOSRecording = nStatus;
 }

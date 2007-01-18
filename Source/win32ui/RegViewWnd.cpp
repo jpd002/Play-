@@ -1,3 +1,4 @@
+#include <boost/bind.hpp>
 #include "RegViewWnd.h"
 #include "RegViewGeneral.h"
 #include "RegViewSCU.h"
@@ -9,6 +10,7 @@
 #define CLSNAME		_X("CRegViewWnd")
 
 using namespace Framework;
+using namespace boost;
 
 CRegViewWnd::CRegViewWnd(HWND hParent, CMIPS* pCtx)
 {
@@ -56,7 +58,7 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CMIPS* pCtx)
 	m_pCurrent = NULL;
 	SetCurrentView(0);
 
-	m_pTabs->m_OnTabChange.InsertHandler(new CEventHandlerMethod<CRegViewWnd, unsigned int>(this, &CRegViewWnd::OnTabChange));
+	m_pTabs->m_OnTabChange.connect(bind(&CRegViewWnd::OnTabChange, this, _1));
 
 	RefreshLayout();
 }

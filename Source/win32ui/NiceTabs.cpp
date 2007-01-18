@@ -317,7 +317,7 @@ long CNiceTabs::OnLeftButtonDown(int nX, int nY)
 		if((nX > nBase) && (nX < (nBase + nWidth)))
 		{
 			m_nSelected = i;
-			m_OnTabChange.Notify(m_ListIdx.KeyAt(i));
+			m_OnTabChange(m_ListIdx.KeyAt(i));
 			RedrawWindow(m_hWnd, NULL, NULL, RDW_INVALIDATE);
 			break;
 		}
@@ -356,7 +356,7 @@ long CNiceTabs::OnLeftButtonUp(int nX, int nY)
 		free(i->sCaption);
 		free(i);
 
-		m_OnTabChange.Notify(m_ListIdx.KeyAt(m_nSelected));
+		m_OnTabChange(m_ListIdx.KeyAt(m_nSelected));
 		RedrawWindow(m_hWnd, NULL, NULL, RDW_INVALIDATE);
 	}
 	return FALSE;
