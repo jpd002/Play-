@@ -420,10 +420,8 @@ void CPS2VM::CDROM0_Destroy()
 
 void CPS2VM::LoadBIOS()
 {
-	CStdStream* pS;
-	pS = new CStdStream(fopen("./vfs/rom0/scph10000.bin", "rb"));
-	pS->Read(m_pBIOS, BIOSSIZE);
-	delete pS;
+	CStdStream BiosStream(fopen("./vfs/rom0/scph10000.bin", "rb"));
+	BiosStream.Read(m_pBIOS, BIOSSIZE);
 }
 
 void CPS2VM::RegisterModulesInPadHandler()

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <exception>
 #include <boost/filesystem/path.hpp>
+#include <boost/lexical_cast.hpp>
 #include "PS2OS.h"
 #include "PS2VM.h"
 #include "StdStream.h"
@@ -2269,7 +2270,7 @@ void CPS2OS::RecordSysCall(uint8 nFunction)
 	Event.nThreadId		= GetCurrentThreadId();
 	Event.nEventType	= nFunction;
 	Event.nAddress		= m_pCtx->m_State.nGPR[CMIPS::RA].nV0 - 8;
-	Event.sDescription	= (sDescription.length() != 0) ? sDescription : "(Unknown)";
+	Event.sDescription	= (sDescription.length() != 0) ? sDescription : ("Unknown (" + lexical_cast<string>(nFunction) + ")");
 
 	COsEventManager::GetInstance().InsertEvent(Event);
 }

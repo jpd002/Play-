@@ -16,6 +16,9 @@
 		/>
 	</Platforms>
 	<ToolFiles>
+		<DefaultToolFile
+			FileName="masm.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -30,6 +33,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -111,6 +117,9 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
+				Name="MASM"
+			/>
+			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
@@ -124,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(FrameworkRoot)\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUGGER_INCLUDED;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;GLEW_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUGGER_INCLUDED;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;GLEW_STATIC;AMD64"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -132,6 +141,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4103"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -146,7 +156,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib icuuc.lib"
 				LinkIncremental="2"
-				IgnoreDefaultLibraryNames="LIBC"
+				IgnoreDefaultLibraryNames="LIBC;LIBCMT"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -156,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles=".\source\win32ui\manifest.xml"
+				AdditionalManifestFiles=".\source\win32ui\manifest64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -190,6 +200,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -269,6 +282,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -1367,6 +1383,130 @@
 				<File
 					RelativePath=".\Source\VUShared.h"
 					>
+				</File>
+			</Filter>
+			<Filter
+				Name="amd64"
+				>
+				<File
+					RelativePath=".\Source\amd64\CacheBlock_Execute.asm"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Assembling..."
+							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+							Outputs="$(OutDir)\$(InputName).obj"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Assembling..."
+							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+							Outputs="$(OutDir)\$(InputName).obj"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Source\amd64\CPUID.asm"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Assembling..."
+							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+							Outputs="$(OutDir)\$(InputName).obj"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Assembling..."
+							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+							Outputs="$(OutDir)\$(InputName).obj"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Source\amd64\InterlockedCompareExchange.asm"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Assembling..."
+							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+							Outputs="$(OutDir)\$(InputName).obj"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="Assembling..."
+							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+							Outputs="$(OutDir)\$(InputName).obj"
+						/>
+					</FileConfiguration>
 				</File>
 			</Filter>
 		</Filter>

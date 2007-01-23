@@ -1,6 +1,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include "lexical_cast_ex.h"
+#include "string_cast.h"
 #include "OsEventViewWnd.h"
 #include "win32/Rect.h"
 #include "xml/FilteringNodeIterator.h"
@@ -146,15 +147,18 @@ void COsEventViewWnd::Update()
 				!itEvent.IsEnd(); itEvent++)
 			{
 				int nId, nThreadId, nEventType, nAddress;
+				const char* sDescription;
 
-				if(!Xml::GetAttributeIntValue(*itEvent, "Time",			&nId))			continue;
-				if(!Xml::GetAttributeIntValue(*itEvent, "EventType",	&nEventType))	continue;
-				if(!Xml::GetAttributeIntValue(*itEvent, "ThreadId",		&nThreadId))	continue;
-				if(!Xml::GetAttributeIntValue(*itEvent, "Address",		&nAddress))		continue;
+				if(!Xml::GetAttributeIntValue(*itEvent, "Time",			&nId))				continue;
+				if(!Xml::GetAttributeIntValue(*itEvent, "EventType",	&nEventType))		continue;
+				if(!Xml::GetAttributeIntValue(*itEvent, "ThreadId",		&nThreadId))		continue;
+				if(!Xml::GetAttributeIntValue(*itEvent, "Address",		&nAddress))			continue;
+				if(!Xml::GetAttributeStringValue(*itEvent, "Description", &sDescription))	continue;
 
 				LISTITEM Item;
 				Item.nThreadId		= nThreadId;
-				Item.sDescription	= lexical_cast<tstring>(nEventType);
+//				Item.sDescription	= lexical_cast<tstring>(nEventType);
+				Item.sDescription	= string_cast<tstring>(sDescription);
 				Item.nAddress		= nAddress;
 
 				m_ListItems[nId] = Item;
@@ -189,9 +193,9 @@ void COsEventViewWnd::RefreshLayout()
 
 		m_pList->GetClientRect(&rc);
 
-		m_pList->SetColumnWidth(0, rc.right / 3);
-		m_pList->SetColumnWidth(1, rc.right / 3);
-		m_pList->SetColumnWidth(2, rc.right / 3);
+		m_pList->SetColumnWidth(0, rc.right * 1 / 5);
+		m_pList->SetColumnWidth(1, rc.right * 2 / 5);
+		m_pList->SetColumnWidth(2, rc.right * 2 / 5);
 	}
 }
 
