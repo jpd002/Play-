@@ -203,6 +203,9 @@ void CCOP_SCU::GetInstruction(uint32 nOpcode, char* sText)
 	case 0x10:
 		switch(nOpcode & 0x3F)
 		{
+		case 0x02:
+			strcpy(sText, "TLBWI");
+			break;
 		case 0x18:
 			strcpy(sText, "ERET");
 			break;
