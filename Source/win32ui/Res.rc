@@ -115,6 +115,7 @@ BEGIN
         MENUITEM "Tile &Vertical",              ID_WINDOW_TILEVERTICAL
         MENUITEM "Layout (1024x768)",           ID_WINDOW_LAYOUT1024
         MENUITEM "Layout (1280x1024)",          ID_WINDOW_LAYOUT1280
+        MENUITEM "Layout (1600x1200)",          ID_WINDOW_LAYOUT1600
     END
 END
 

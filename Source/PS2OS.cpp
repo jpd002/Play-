@@ -121,9 +121,11 @@ void CPS2OS::DumpThreadSchedule()
 
 	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
 	{
-		pThread = GetThread(itThread.GetValue());
+        pThread = GetThread(itThread.GetValue());
 
-		switch(pThread->nStatus)
+        THREADCONTEXT* pContext(reinterpret_cast<THREADCONTEXT*>(&CPS2VM::m_pRAM[pThread->nContextPtr]));
+
+        switch(pThread->nStatus)
 		{
 		case THREAD_RUNNING:
 			sStatus = "Running";
@@ -142,13 +144,14 @@ void CPS2OS::DumpThreadSchedule()
 			break;
 		}
 
-		printf("ID: %0.2i, Priority: %0.2i, EPC: 0x%0.8X, Status: %s, WaitSema: %i.\r\n", \
-			itThread.GetValue(), \
-			pThread->nPriority, \
-			pThread->nEPC, \
-			sStatus, \
-			pThread->nSemaWait);
-	}
+        printf("Status: %19s, ID: %0.2i, Priority: %0.2i, EPC: 0x%0.8X, RA: 0x%0.8X, WaitSema: %i.\r\n",
+            sStatus,
+            itThread.GetValue(),
+            pThread->nPriority,
+            pThread->nEPC,
+            pContext->nGPR[CMIPS::RA].nV[0],
+            pThread->nSemaWait);
+    }
 }
 
 void CPS2OS::DumpIntcHandlers()

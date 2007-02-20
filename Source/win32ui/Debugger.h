@@ -50,6 +50,7 @@ private:
 	void							AssembleJAL();
 	void							Layout1024();
 	void							Layout1280();
+    void                            Layout1600();
 
 	//View related functions
 	void							ActivateView(unsigned int);

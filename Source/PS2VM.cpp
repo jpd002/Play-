@@ -244,7 +244,7 @@ void CPS2VM::ResetVM()
 	memset(m_pVUMem1,		0, VUMEM1SIZE);
 	memset(m_pMicroMem1,	0, MICROMEM1SIZE);
 
-	LoadBIOS();
+	//LoadBIOS();
 
 	//Reset Context
 	memset(&m_EE.m_State, 0, sizeof(MIPSSTATE));

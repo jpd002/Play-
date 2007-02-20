@@ -137,13 +137,15 @@
 #define ID_VIEW_OSEVENTS                40133
 #define ID_LOGGING_OSRECORDING          40134
 #define ID_RECORDING_OS                 40135
+#define ID_WINDOW_LAYOUT40136           40136
+#define ID_WINDOW_LAYOUT1600            40137
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40136
+#define _APS_NEXT_COMMAND_VALUE         40138
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
