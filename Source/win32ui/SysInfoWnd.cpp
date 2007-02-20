@@ -1,5 +1,7 @@
 #include <windows.h>
 #include <tlhelp32.h>
+#include <boost/lexical_cast.hpp>
+#include "string_cast.h"
 #include "SysInfoWnd.h"
 #include "PtrMacro.h"
 #include "win32/LayoutWindow.h"
@@ -7,47 +9,49 @@
 #include "../amd64/CPUID.h"
 #endif
 
-#define CLSNAME			_X("SysInfoWnd")
+#define CLSNAME			_T("SysInfoWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
 #define CPUFREQDELAY	(250)
 
 using namespace Framework;
+using namespace boost;
+using namespace std;
 
-const xchar* CSysInfoWnd::m_sFeature[32] =
+const TCHAR* CSysInfoWnd::m_sFeature[32] =
 {
-	_X("FPU"),
-	_X("VME"),
-	_X("DE"),
-	_X("PSE"),
-	_X("TSC"),
-	_X("MSR"),
-	_X("PAE"),
-	_X("MCE"),
-	_X("CX8"),
-	_X("APIC"),
-	_X("*RESERVED*"),
-	_X("SEP"),
-	_X("MTRR"),
-	_X("PGE"),
-	_X("MCA"),
-	_X("CMOV"),
-	_X("PAT"),
-	_X("PSE36"),
-	_X("PSN"),
-	_X("CLFL"),
-	_X("*RESERVED*"),
-	_X("DTES"),
-	_X("ACPI"),
-	_X("MMX"),
-	_X("FXSR"),
-	_X("SSE"),
-	_X("SSE2"),
-	_X("SS"),
-	_X("HTT"),
-	_X("TM"),
-	_X("IA-64"),
-	_X("PBE")
+	_T("FPU"),
+	_T("VME"),
+	_T("DE"),
+	_T("PSE"),
+	_T("TSC"),
+	_T("MSR"),
+	_T("PAE"),
+	_T("MCE"),
+	_T("CX8"),
+	_T("APIC"),
+	_T("*RESERVED*"),
+	_T("SEP"),
+	_T("MTRR"),
+	_T("PGE"),
+	_T("MCA"),
+	_T("CMOV"),
+	_T("PAT"),
+	_T("PSE36"),
+	_T("PSN"),
+	_T("CLFL"),
+	_T("*RESERVED*"),
+	_T("DTES"),
+	_T("ACPI"),
+	_T("MMX"),
+	_T("FXSR"),
+	_T("SSE"),
+	_T("SSE2"),
+	_T("SS"),
+	_T("HTT"),
+	_T("TM"),
+	_T("IA-64"),
+	_T("PBE")
 };
 
 CSysInfoWnd::CSysInfoWnd(HWND hParent)
@@ -74,22 +78,22 @@ CSysInfoWnd::CSysInfoWnd(HWND hParent)
 		EnableWindow(hParent, FALSE);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _X("System Information"), WNDSTYLE, &rc, hParent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("System Information"), WNDSTYLE, &rc, hParent, NULL);
 	SetClassPtr();
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pProcessor	= new Win32::CStatic(m_hWnd, _X(""));
-	m_pProcesses	= new Win32::CStatic(m_hWnd, _X(""));
-	m_pThreads		= new Win32::CStatic(m_hWnd, _X(""));
+	m_pProcessor	= new Win32::CStatic(m_hWnd, _T(""));
+	m_pProcesses	= new Win32::CStatic(m_hWnd, _T(""));
+	m_pThreads		= new Win32::CStatic(m_hWnd, _T(""));
 	m_pFeatures		= new CListBox(m_hWnd, &rc, WS_VSCROLL | LBS_SORT);
 
 	m_pLayout = new CVerticalLayout;
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcesses));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pThreads));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Processor:"))));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor:"))));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcessor));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Processor Features:"))));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor Features:"))));
 	m_pLayout->InsertObject(new CLayoutWindow(200, 200, 1, 1, m_pFeatures));
 
 	m_nRDTSCThread = NULL;
@@ -137,7 +141,6 @@ void CSysInfoWnd::UpdateSchedulerInfo()
 	HANDLE hSnapshot;
 	THREADENTRY32 ti;
 	PROCESSENTRY32 pi;
-	xchar sTemp[256];
 
 	nThreads = 0;
 	nProcesses = 0;
@@ -164,11 +167,8 @@ void CSysInfoWnd::UpdateSchedulerInfo()
 		}
 	}
 
-	xsnprintf(sTemp, countof(sTemp), _X("%i processes running."), nProcesses);
-	m_pProcesses->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("%i threads running."), nThreads);
-	m_pThreads->SetText(sTemp);
+	m_pProcesses->SetText((lexical_cast<tstring>(nProcesses) + _T(" processes running.")).c_str());
+	m_pThreads->SetText((lexical_cast<tstring>(nThreads) + _T(" threads running.")).c_str());
 }
 
 void CSysInfoWnd::UpdateProcessorFeatures()
@@ -223,8 +223,7 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 	LARGE_INTEGER nTime;
 	uint64 nStamp1, nStamp2, nDeltaStamp, nDeltaTime, nDone;
 	char sCpu[13];
-	xchar sConvert[13];
-	xchar sTemp[256];
+	TCHAR sTemp[256];
 
 	hThread = GetCurrentThread();
 	SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
@@ -293,11 +292,9 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 
 	sCpu[12] = '\0';
 
-	xconvert(sConvert, sCpu, 13);
-
 	pWnd = (CSysInfoWnd*)pParam;
 
-	xsnprintf(sTemp, countof(sTemp), _X("%s @ ~%i MHz"), sConvert, nDeltaStamp / 1000000);
+	_sntprintf(sTemp, countof(sTemp), _T("%s @ ~%i MHz"), string_cast<tstring>(sCpu).c_str(), nDeltaStamp / 1000000);
 	pWnd->m_pProcessor->SetText(sTemp);
 
 	return 0xDEADBEEF;

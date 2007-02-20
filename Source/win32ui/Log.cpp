@@ -3,7 +3,7 @@
 #include "Log.h"
 #include "PtrMacro.h"
 
-#define CLSNAME		_X("CLog")
+#define CLSNAME		_T("CLog")
 #define BUFFERSIZE	0x1000
 #define WM_FINISH	(WM_USER + 1)
 
@@ -120,15 +120,15 @@ unsigned long CLog::WndThreadProc()
 	
 	SetRect(&rc, 0, 0, 320, 240);
 
-	Create(NULL, CLSNAME, _X("Log"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, m_hParent, NULL);
+	Create(NULL, CLSNAME, _T("Log"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, m_hParent, NULL);
 	SetClassPtr();
 
 	SetEvent(m_nWindowCreatedEvent);
 
 	SetRect(&rc, 0, 0, 1, 1);
-	m_pEdit = new Win32::CEdit(m_hWnd, &rc, _X(""), ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | WS_VSCROLL | WS_HSCROLL);
+	m_pEdit = new Win32::CEdit(m_hWnd, &rc, _T(""), ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | WS_VSCROLL | WS_HSCROLL);
 
-	nFont = CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 3, 2, 1, 49, _X("Courier New"));
+	nFont = CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 3, 2, 1, 49, _T("Courier New"));
 	m_pEdit->SetFont(nFont);
 
 	RefreshLayout();

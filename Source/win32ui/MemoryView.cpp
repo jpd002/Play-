@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include "MemoryView.h"
+#include "string_cast.h"
 
-#define CLSNAME		_X("CMemoryView")
+#define CLSNAME		_T("CMemoryView")
 #define XMARGIN		5
 #define YMARGIN		5
 #define YSPACE		0
+
+using namespace std;
 
 CMemoryView::CMemoryView(HWND hParent, RECT* pR)
 {
@@ -22,7 +25,7 @@ CMemoryView::CMemoryView(HWND hParent, RECT* pR)
 		RegisterClassEx(&w);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _X(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
 	m_nSize = 0;
@@ -129,7 +132,7 @@ void CMemoryView::GetVisibleRowsCols(unsigned int* pRows, unsigned int* pCols)
 
 	SelectObject(hDC, hFont);
 
-	GetTextExtentPoint32(hDC, _X("0"), 1, &s);
+	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
 
 	DeleteObject(hFont);
 	ReleaseDC(m_hWnd, hDC);
@@ -160,7 +163,7 @@ void CMemoryView::Paint(HDC hDC)
 	SIZE s;
 	unsigned int nLines, nX, nY, i, j, nBytes, nFixedBytes, nOffset;
 	uint32 nAddress;
-	xchar sTemp[256];
+	TCHAR sTemp[256];
 	uint8 nValue;
 	char sValue[2];
 	HFONT hFont;
@@ -172,7 +175,7 @@ void CMemoryView::Paint(HDC hDC)
 	hFont = GetFont();
 	SelectObject(hDC, hFont);
 
-	GetTextExtentPoint32(hDC, _X("0"), 1, &s);
+	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
 
 	nLines = (rwin.bottom - (YMARGIN * 2)) / (s.cy + YSPACE);
 	
@@ -203,14 +206,14 @@ void CMemoryView::Paint(HDC hDC)
 		}
 
 		nX = XMARGIN;
-		xsnprintf(sTemp, countof(sTemp), _X("%0.8X"), nAddress);
-		TextOut(hDC, nX, nY, sTemp, (int)xstrlen(sTemp));
+		_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), nAddress);
+		TextOut(hDC, nX, nY, sTemp, (int)_tcslen(sTemp));
 		nX += (8 * s.cx) + 10;
 		
 		for(j = 0; j < nBytes; j++)
 		{
-			xsnprintf(sTemp, countof(sTemp), _X("%0.2X"), GetByte(nAddress + j));
-			TextOut(hDC, nX, nY, sTemp, (int)xstrlen(sTemp));
+			_sntprintf(sTemp, countof(sTemp), _T("%0.2X"), GetByte(nAddress + j));
+			TextOut(hDC, nX, nY, sTemp, (int)_tcslen(sTemp));
 			nX += (2 * s.cx) + 3;
 		}
 		nX += (nFixedBytes - nBytes) * (2 * s.cx + 3);
@@ -226,8 +229,7 @@ void CMemoryView::Paint(HDC hDC)
 			}
 			sValue[0] = nValue;
 			sValue[1] = 0x00;
-			xconvert(sTemp, sValue, 2);
-			TextOut(hDC, nX, nY, sTemp, 1);
+			TextOut(hDC, nX, nY, string_cast<tstring>(sValue).c_str(), 1);
 			nX += s.cx;
 		}
 

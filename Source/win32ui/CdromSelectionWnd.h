@@ -24,7 +24,7 @@ public:
 		unsigned int	nPhysicalDevice;
 	};
 
-									CCdromSelectionWnd(HWND, const xchar*, CDROMBINDING*);
+									CCdromSelectionWnd(HWND, const TCHAR*, CDROMBINDING*);
 									~CCdromSelectionWnd();
 	bool							WasConfirmed();
 	void							GetBindingInfo(CDROMBINDING*);

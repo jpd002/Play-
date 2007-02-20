@@ -41,9 +41,9 @@ private:
 
 	void							LoadELF(const char*);
 	void							RefreshLayout();
-	void							PrintVersion(xchar*, size_t);
+	void							PrintVersion(TCHAR*, size_t);
 	void							PrintStatusTextA(const char*, ...);
-	void							SetStatusText(xchar*);
+	void							SetStatusText(const TCHAR*);
 	void							CreateAccelerators();
 	
 	void							CreateDebugMenu();

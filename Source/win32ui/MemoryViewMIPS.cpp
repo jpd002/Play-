@@ -34,7 +34,7 @@ long CMemoryViewMIPS::OnRightButtonUp(int nX, int nY)
 	ClientToScreen(m_hWnd, &pt);
 
 	hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_BYPOSITION, ID_MEMORYVIEW_GOTOADDRESS, _X("Goto Address..."));
+	InsertMenu(hMenu, 0, MF_BYPOSITION, ID_MEMORYVIEW_GOTOADDRESS, _T("Goto Address..."));
 	//Goto register?
 
 	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
@@ -55,7 +55,7 @@ long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hS
 
 HFONT CMemoryViewMIPS::GetFont()
 {
-	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _X("Courier New"));
+	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
 }
 
 uint8 CMemoryViewMIPS::GetByte(uint32 nAddress)
@@ -71,7 +71,7 @@ void CMemoryViewMIPS::OnMachineStateChange()
 void CMemoryViewMIPS::GotoAddress()
 {
 	uint32 nAddress;
-	const xchar* sValue;
+	const TCHAR* sValue;
 
 	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
 	{
@@ -79,12 +79,12 @@ void CMemoryViewMIPS::GotoAddress()
 		return;
 	}
 
-	Win32::CInputBox i(_X("Goto Address"), _X("Enter new address:"), _X("00000000"));
+	Win32::CInputBox i(_T("Goto Address"), _T("Enter new address:"), _T("00000000"));
 	sValue = i.GetValue(m_hWnd);
 
 	if(sValue != NULL)
 	{
-		xsscanf(sValue, _X("%x"), &nAddress);
+		_stscanf(sValue, _T("%x"), &nAddress);
 		ScrollToAddress(nAddress);
 	}
 }

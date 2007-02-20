@@ -1,7 +1,7 @@
 #include "MemoryViewMIPSWnd.h"
 #include "PtrMacro.h"
 
-#define CLSNAME		_X("MemoryViewMIPSWnd")
+#define CLSNAME		_T("MemoryViewMIPSWnd")
 
 using namespace Framework;
 
@@ -24,7 +24,7 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CMIPS* pCtx)
 	
 	SetRect(&rc, 0, 0, 320, 240);
 
-	Create(NULL, CLSNAME, _X("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
 	m_pMemoryView = new CMemoryViewMIPS(m_hWnd, &rc, pCtx);

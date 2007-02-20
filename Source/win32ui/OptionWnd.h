@@ -9,7 +9,7 @@
 template <typename T> class COptionWnd : public T
 {
 public:
-									COptionWnd(HWND, xchar*);
+									COptionWnd(HWND, const TCHAR*);
 									~COptionWnd();
 
 protected:
@@ -18,7 +18,7 @@ protected:
 
 	Framework::CWindow*				GetContainer();
 	Framework::Win32::CTreeView*	GetTreeView();
-	HTREEITEM						InsertOption(HTREEITEM, const xchar*, HWND);
+	HTREEITEM						InsertOption(HTREEITEM, const TCHAR*, HWND);
 	void							DeleteAllOptions();
 	void							RefreshLayout();
 	void							UpdatePanel(TVITEM*, TVITEM*);

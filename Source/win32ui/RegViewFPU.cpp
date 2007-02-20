@@ -141,10 +141,10 @@ long CRegViewFPU::OnRightButtonUp(int nX, int nY)
 	ClientToScreen(m_hWnd, &pt);
 
 	hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == 0 ? MF_CHECKED : 0), 40000 + 0, _X("32 Bits Integers"));
-	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_nViewMode == 1 ? MF_CHECKED : 0), 40000 + 1, _X("64 Bits Integers"));
-	InsertMenu(hMenu, 2, MF_BYPOSITION | (m_nViewMode == 2 ? MF_CHECKED : 0), 40000 + 2, _X("Single Precision Floating-Point Numbers"));
-	InsertMenu(hMenu, 3, MF_BYPOSITION | (m_nViewMode == 3 ? MF_CHECKED : 0), 40000 + 3, _X("Double Precision Floating-Point Numbers"));
+	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == 0 ? MF_CHECKED : 0), 40000 + 0, _T("32 Bits Integers"));
+	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_nViewMode == 1 ? MF_CHECKED : 0), 40000 + 1, _T("64 Bits Integers"));
+	InsertMenu(hMenu, 2, MF_BYPOSITION | (m_nViewMode == 2 ? MF_CHECKED : 0), 40000 + 2, _T("Single Precision Floating-Point Numbers"));
+	InsertMenu(hMenu, 3, MF_BYPOSITION | (m_nViewMode == 3 ? MF_CHECKED : 0), 40000 + 3, _T("Double Precision Floating-Point Numbers"));
 
 	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
 

@@ -4,15 +4,17 @@
 #include "win32/LayoutWindow.h"
 #include "win32/FileDialog.h"
 #include "../ISO9660/ISO9660.h"
+#include "string_cast.h"
 #include "StdStream.h"
 #include "PtrMacro.h"
 #include <winioctl.h>
 
-#define CLSNAME		_X("CdromSelectionWnd")
+#define CLSNAME		_T("CdromSelectionWnd")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
 
 using namespace Framework;
+using namespace std;
 
 //------------------------------------------------------
 //Some definitions from the DDK (and +)
@@ -66,7 +68,7 @@ typedef struct _STORAGE_DEVICE_DESCRIPTOR
 
 //------------------------------------------------------
 
-CCdromSelectionWnd::CCdromSelectionWnd(HWND hParent, const xchar* sTitle, CDROMBINDING* pInitBinding) :
+CCdromSelectionWnd::CCdromSelectionWnd(HWND hParent, const TCHAR* sTitle, CDROMBINDING* pInitBinding) :
 CModalWindow(hParent)
 {
 	RECT rc;
@@ -106,14 +108,14 @@ CModalWindow(hParent)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pOk			= new Win32::CButton(_X("OK"), m_hWnd, &rc);
-	m_pCancel		= new Win32::CButton(_X("Cancel"), m_hWnd, &rc);
+	m_pOk			= new Win32::CButton(_T("OK"), m_hWnd, &rc);
+	m_pCancel		= new Win32::CButton(_T("Cancel"), m_hWnd, &rc);
 
-	m_pImageRadio	= new Win32::CButton(_X("ISO9660 Disk Image"), m_hWnd, &rc, BS_RADIOBUTTON);
-	m_pDeviceRadio	= new Win32::CButton(_X("Physical CD/DVD Reader Device"), m_hWnd, &rc, BS_RADIOBUTTON);
+	m_pImageRadio	= new Win32::CButton(_T("ISO9660 Disk Image"), m_hWnd, &rc, BS_RADIOBUTTON);
+	m_pDeviceRadio	= new Win32::CButton(_T("Physical CD/DVD Reader Device"), m_hWnd, &rc, BS_RADIOBUTTON);
 
-	m_pImageEdit	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pImageBrowse	= new Win32::CButton(_X("..."), m_hWnd, &rc);
+	m_pImageEdit	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pImageBrowse	= new Win32::CButton(_T("..."), m_hWnd, &rc);
 	m_pDeviceCombo	= new Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
 
 	PopulateDeviceList();
@@ -170,7 +172,7 @@ long CCdromSelectionWnd::OnCommand(unsigned short nID, unsigned short nCmd, HWND
 		{
 			if(strlen(m_sImagePath) == 0)
 			{
-				MessageBox(m_hWnd, _X("Please select a disk image to bind with this device."), NULL, 16);
+				MessageBox(m_hWnd, _T("Please select a disk image to bind with this device."), NULL, 16);
 				return FALSE;
 			}
 		}
@@ -244,16 +246,16 @@ void CCdromSelectionWnd::RefreshLayout()
 void CCdromSelectionWnd::PopulateDeviceList()
 {
 	uint32 nDrives, i;
-	xchar sDeviceRoot[32];
-	xchar sDevicePath[32];
+	TCHAR sDeviceRoot[32];
+	TCHAR sDevicePath[32];
 	HANDLE hDevice;
 	STORAGE_PROPERTY_QUERY Query;
 	STORAGE_DEVICE_DESCRIPTOR* pDesc;
 	uint8 nBuffer[512];
 	DWORD nRetSize;
-	xchar sVendorId[256];
-	xchar sProductId[256];
-	xchar sDisplay[256];
+	TCHAR sVendorId[256];
+	TCHAR sProductId[256];
+	TCHAR sDisplay[256];
 	unsigned int nIndex;
 
 	nDrives = GetLogicalDrives();
@@ -261,14 +263,14 @@ void CCdromSelectionWnd::PopulateDeviceList()
 	{
 
 		if((nDrives & (1 << i)) == 0) continue;
-		xsnprintf(sDeviceRoot, countof(sDeviceRoot), _X("%c:\\"), _X('A') + i);
+		_sntprintf(sDeviceRoot, countof(sDeviceRoot), _T("%c:\\"), _T('A') + i);
 
 		if(GetDriveType(sDeviceRoot) != DRIVE_CDROM) continue;
 
-		xsnprintf(sDevicePath, countof(sDevicePath), _X("\\\\.\\%c:"), _X('A') + i);
+		_sntprintf(sDevicePath, countof(sDevicePath), _T("\\\\.\\%c:"), _T('A') + i);
 
-		xstrcpy(sVendorId, _X(""));
-		xstrcpy(sProductId, _X("(Unknown device)"));
+		_tcscpy(sVendorId, _T(""));
+		_tcscpy(sProductId, _T("(Unknown device)"));
 
 		hDevice = CreateFile(sDevicePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
 		if(hDevice != INVALID_HANDLE_VALUE)
@@ -281,19 +283,19 @@ void CCdromSelectionWnd::PopulateDeviceList()
 			{
 				pDesc = (STORAGE_DEVICE_DESCRIPTOR*)nBuffer;
 
-				xconvert(sVendorId, pDesc->GetVendorId() != NULL ? pDesc->GetVendorId() : "", 256);
-				xconvert(sProductId, pDesc->GetProductId() != NULL ? pDesc->GetProductId() : "", 256);
+				_tcsncpy(sVendorId, pDesc->GetVendorId() != NULL ? string_cast<tstring>(pDesc->GetVendorId()).c_str() : _T(""), 256);
+				_tcsncpy(sProductId, pDesc->GetProductId() != NULL ? string_cast<tstring>(pDesc->GetProductId()).c_str() : _T(""), 256);
 
 				if(pDesc->GetVendorId() != NULL)
 				{
-					xstrcat(sVendorId, _X(" "));
+					_tcscat(sVendorId, _T(" "));
 				}
 			}
 
 			CloseHandle(hDevice);
 		}
 
-		xsnprintf(sDisplay, countof(sDisplay), _X("%s - %s%s"),  sDeviceRoot, sVendorId, sProductId);
+		_sntprintf(sDisplay, countof(sDisplay), _T("%s - %s%s"),  sDeviceRoot, sVendorId, sProductId);
 
 		nIndex = m_pDeviceCombo->AddString(sDisplay);
 		m_pDeviceCombo->SetItemData(nIndex, i);
@@ -303,26 +305,25 @@ void CCdromSelectionWnd::PopulateDeviceList()
 void CCdromSelectionWnd::SelectImage()
 {
 	Win32::CFileDialog Dialog;
-	char sConvert[MAX_PATH];
 	CISO9660* pISO;
 	CStdStream* pStream;
 
-	Dialog.m_OFN.lpstrFilter = _X("ISO9660 Disk Images (*.iso; *.bin)\0*.iso;*.bin\0All files (*.*)\0*.*\0");
+	Dialog.m_OFN.lpstrFilter = _T("ISO9660 Disk Images (*.iso; *.bin)\0*.iso;*.bin\0All files (*.*)\0*.*\0");
 
 	if(Dialog.Summon(m_hWnd) != IDOK)
 	{
 		return;
 	}
 
-	xconvert(sConvert, Dialog.m_sFile, MAX_PATH);
+    string sPath(string_cast<string>(Dialog.m_sFile));
 
 	try
 	{
-		pStream = new CStdStream(fopen(sConvert, "rb"));
+		pStream = new CStdStream(fopen(sPath.c_str(), "rb"));
 	}
 	catch(...)
 	{
-		CWindow::MessageBoxFormat(m_hWnd, 16, NULL, _X("Couldn't open file '%s' for reading."), Dialog.m_sFile);
+		CWindow::MessageBoxFormat(m_hWnd, 16, NULL, _T("Couldn't open file '%s' for reading."), Dialog.m_sFile);
 		return;
 	}
 
@@ -332,12 +333,12 @@ void CCdromSelectionWnd::SelectImage()
 	}
 	catch(...)
 	{
-		CWindow::MessageBoxFormat(m_hWnd, 16, NULL, _X("File '%s' is an unrecognized ISO9660 disk image."), Dialog.m_sFile);
+		CWindow::MessageBoxFormat(m_hWnd, 16, NULL, _T("File '%s' is an unrecognized ISO9660 disk image."), Dialog.m_sFile);
 		delete pStream;
 		return;
 	}
 
 	delete pISO;
 
-	m_sImagePath = sConvert;
+	m_sImagePath = sPath.c_str();
 }

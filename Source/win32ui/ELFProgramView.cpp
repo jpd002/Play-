@@ -5,7 +5,7 @@
 #include "win32/Static.h"
 #include "win32/LayoutWindow.h"
 
-#define CLSNAME	_X("CELFProgramView")
+#define CLSNAME	_T("CELFProgramView")
 
 using namespace Framework;
 
@@ -31,28 +31,28 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	Create(NULL, CLSNAME, _X(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pType		= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pOffset	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pVAddr	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pPAddr	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pFileSize	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pMemSize	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pFlags	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pAlign	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pType		= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pOffset	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pVAddr	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pPAddr	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pFileSize	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pMemSize	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pFlags	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pAlign	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
 
 	m_pLayout = new CGridLayout(2, 9);
 
-	m_pLayout->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Type:"))));
-	m_pLayout->SetObject(0, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Offset:"))));
-	m_pLayout->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Virtual Address:"))));
-	m_pLayout->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Physical Address:"))));
-	m_pLayout->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("File Size:"))));
-	m_pLayout->SetObject(0, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Memory Size:"))));
-	m_pLayout->SetObject(0, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Flags:"))));
-	m_pLayout->SetObject(0, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Alignment:"))));
+	m_pLayout->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
+	m_pLayout->SetObject(0, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Offset:"))));
+	m_pLayout->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Virtual Address:"))));
+	m_pLayout->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Physical Address:"))));
+	m_pLayout->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("File Size:"))));
+	m_pLayout->SetObject(0, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Memory Size:"))));
+	m_pLayout->SetObject(0, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
+	m_pLayout->SetObject(0, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Alignment:"))));
 
 	m_pLayout->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
 	m_pLayout->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pOffset));
@@ -85,58 +85,58 @@ long CELFProgramView::OnSize(unsigned int nType, unsigned int nX, unsigned int n
 void CELFProgramView::FillInformation()
 {
 	ELFPROGRAMHEADER* pH;
-	xchar sTemp[256];
+	TCHAR sTemp[256];
 	
 	pH = m_pELF->GetProgram(m_nProgram);
 
 	switch(pH->nType)
 	{
 	case 0x00:
-		xstrcpy(sTemp, _X("PT_NULL"));
+		_tcscpy(sTemp, _T("PT_NULL"));
 		break;
 	case 0x01:
-		xstrcpy(sTemp, _X("PT_LOAD"));
+		_tcscpy(sTemp, _T("PT_LOAD"));
 		break;
 	case 0x02:
-		xstrcpy(sTemp, _X("PT_DYNAMIC"));
+		_tcscpy(sTemp, _T("PT_DYNAMIC"));
 		break;
 	case 0x03:
-		xstrcpy(sTemp, _X("PT_INTERP"));
+		_tcscpy(sTemp, _T("PT_INTERP"));
 		break;
 	case 0x04:
-		xstrcpy(sTemp, _X("PT_NOTE"));
+		_tcscpy(sTemp, _T("PT_NOTE"));
 		break;
 	case 0x05:
-		xstrcpy(sTemp, _X("PT_SHLIB"));
+		_tcscpy(sTemp, _T("PT_SHLIB"));
 		break;
 	case 0x06:
-		xstrcpy(sTemp, _X("PT_PHDR"));
+		_tcscpy(sTemp, _T("PT_PHDR"));
 		break;
 	default:
-		xsnprintf(sTemp, countof(sTemp), _X("Unknown (0x%0.8X)"), pH->nType);
+		_sntprintf(sTemp, countof(sTemp), _T("Unknown (0x%0.8X)"), pH->nType);
 		break;
 	}
 	m_pType->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nOffset);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nOffset);
 	m_pOffset->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nVAddress);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nVAddress);
 	m_pVAddr->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nPAddress);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nPAddress);
 	m_pPAddr->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nFileSize);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nFileSize);
 	m_pFileSize->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nMemorySize);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nMemorySize);
 	m_pMemSize->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nFlags);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nFlags);
 	m_pFlags->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nAlignment);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nAlignment);
 	m_pAlign->SetText(sTemp);
 }
 

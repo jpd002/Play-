@@ -4,9 +4,10 @@
 #include "resource.h"
 #include "../PS2VM.h"
 #include "win32/InputBox.h"
+#include "string_cast.h"
 #include "WinUtils.h"
 
-#define CLSNAME		_X("CDisAsm")
+#define CLSNAME		_T("CDisAsm")
 #define YSPACE		3
 #define YMARGIN		1
 
@@ -20,6 +21,7 @@
 
 using namespace Framework;
 using namespace boost;
+using namespace std;
 
 CDisAsm::CDisAsm(HWND hParent, RECT* pR, CMIPS* pCtx)
 {
@@ -47,7 +49,7 @@ CDisAsm::CDisAsm(HWND hParent, RECT* pR, CMIPS* pCtx)
 		RegisterClassEx(&w);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _X(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
 	CPS2VM::m_OnMachineStateChange.connect(bind(&CDisAsm::OnMachineStateChange, this));
@@ -99,13 +101,13 @@ void CDisAsm::OnRunningStateChange()
 HFONT CDisAsm::GetFont()
 {
 	//return (HFONT)GetStockObject(ANSI_FIXED_FONT);
-	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _X("Courier New"));
+	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
 }
 
 void CDisAsm::GotoAddress()
 {
-	xchar sTemp[256];
-	const xchar* sValue;
+	TCHAR sTemp[256];
+	const TCHAR* sValue;
 	uint32 nAddress;
 	
 	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
@@ -114,17 +116,17 @@ void CDisAsm::GotoAddress()
 		return;
 	}
 
-	xsnprintf(sTemp, countof(sTemp), _X("%0.8X"), m_nAddress);
+	_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), m_nAddress);
 
-	Win32::CInputBox i(_X("Goto Address"), _X("Enter new address:"), sTemp);
+	Win32::CInputBox i(_T("Goto Address"), _T("Enter new address:"), sTemp);
 
 	sValue = i.GetValue(m_hWnd);
 	if(sValue != NULL)
 	{
-		xsscanf(sValue, _X("%x"), &nAddress);
+		_stscanf(sValue, _T("%x"), &nAddress);
 		if(nAddress & 0x03)
 		{
-			MessageBox(m_hWnd, _X("Invalid address"), NULL, 16);
+			MessageBox(m_hWnd, _T("Invalid address"), NULL, 16);
 			return;
 		}
 
@@ -176,9 +178,8 @@ void CDisAsm::GotoEA()
 
 void CDisAsm::EditComment()
 {
-	xchar sTemp[256];
-	const xchar* sValue;
-	char sConvert[256];
+    tstring sCommentConv;
+	const TCHAR* sValue;
 	const char* sComment;
 
 	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
@@ -191,20 +192,19 @@ void CDisAsm::EditComment()
 
 	if(sComment != NULL)
 	{
-		xconvert(sTemp, sComment, 256);
+        sCommentConv = string_cast<tstring>(sComment);
 	}
 	else
 	{
-		xstrcpy(sTemp, _X(""));
+        sCommentConv = _T("");
 	}
 
-	Win32::CInputBox i(_X("Edit Comment"), _X("Enter new comment:"), sTemp);
+	Win32::CInputBox i(_T("Edit Comment"), _T("Enter new comment:"), sCommentConv.c_str());
 	sValue = i.GetValue(m_hWnd);
 
 	if(sValue != NULL)
 	{
-		xconvert(sConvert, sValue, 256);
-		m_pCtx->m_Comments.InsertTag(m_nSelected, sConvert);
+		m_pCtx->m_Comments.InsertTag(m_nSelected, string_cast<string>(sValue).c_str());
 		Redraw();
 	}
 }
@@ -249,7 +249,7 @@ unsigned int CDisAsm::GetFontHeight()
 	nFont = GetFont();
 	SelectObject(hDC, nFont);
 
-	GetTextExtentPoint32(hDC, _X("0"), 1, &s);
+	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
 
 	DeleteObject(nFont);
 
@@ -422,7 +422,7 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	POINT pt;
 	HMENU hMenu;
 	unsigned int nPosition;
-	xchar sTemp[256];
+	TCHAR sTemp[256];
 	uint32 nAddress;
 	uint32 nOpcode;
 
@@ -433,10 +433,10 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	nPosition = 0;
 
 	hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOPC,			_X("Goto PC"));
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOADDRESS,	_X("Goto Address..."));
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_EDITCOMMENT,	_X("Edit Comment..."));
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_FINDCALLERS,	_X("Find Callers"));
+	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOPC,			_T("Goto PC"));
+	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOADDRESS,	_T("Goto Address..."));
+	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_EDITCOMMENT,	_T("Edit Comment..."));
+	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_FINDCALLERS,	_T("Find Callers"));
 
 	if(m_nSelected != MIPS_INVALID_PC)
 	{
@@ -444,20 +444,20 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 		if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, m_nSelected, nOpcode))
 		{
 			nAddress = m_pCtx->m_pArch->GetInstructionEffectiveAddress(m_pCtx, m_nSelected, nOpcode);
-			xsnprintf(sTemp, countof(sTemp), _X("Go to 0x%0.8X"), nAddress);
+			_sntprintf(sTemp, countof(sTemp), _T("Go to 0x%0.8X"), nAddress);
 			InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOEA, sTemp);
 		}
 	}
 
 	if(HistoryHasPrevious())
 	{
-		xsnprintf(sTemp, countof(sTemp), _X("Go back (0x%0.8X)"), HistoryGetPrevious());
+		_sntprintf(sTemp, countof(sTemp), _T("Go back (0x%0.8X)"), HistoryGetPrevious());
 		InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOPREV, sTemp);
 	}
 
 	if(HistoryHasNext())
 	{
-		xsnprintf(sTemp, countof(sTemp), _X("Go forward (0x%0.8X)"), HistoryGetNext());
+		_sntprintf(sTemp, countof(sTemp), _T("Go forward (0x%0.8X)"), HistoryGetNext());
 		InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTONEXT, sTemp);
 	}
 
@@ -600,7 +600,8 @@ void CDisAsm::Paint(HDC hDC)
 	HFONT nFont;
 	SIZE s;
 	uint32 nData, nAddress, nEffAddr;
-	xchar sTemp[256];
+	TCHAR sTemp[256];
+    tstring sConvertTemp;
 	char sDisAsm[256];
 	const char* sTag;
 	int nLines, i;
@@ -615,7 +616,7 @@ void CDisAsm::Paint(HDC hDC)
 	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
 	SelectObject(hDC, nFont);
 
-	GetTextExtentPoint32(hDC, _X("0"), 1, &s);
+	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
 
 	nLines = (rwin.bottom - (YMARGIN * 2)) / (s.cy + YSPACE);
 	nLines++;
@@ -691,8 +692,8 @@ void CDisAsm::Paint(HDC hDC)
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x00));
 		}
 
-		xsnprintf(sTemp, countof(sTemp), _X("%0.8X"), nAddress);
-		TextOut(hDC, 20, nY, sTemp, (int)xstrlen(sTemp));
+		_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), nAddress);
+		TextOut(hDC, 20, nY, sTemp, (int)_tcslen(sTemp));
 		
 		pSub = m_pCtx->m_pAnalysis->FindSubroutine(nAddress);
 		if(pSub != NULL)
@@ -718,16 +719,16 @@ void CDisAsm::Paint(HDC hDC)
 		}
 
 		nData = GetInstruction(nAddress);
-		xsnprintf(sTemp, countof(sTemp), _X("%0.8X"), nData);
-		TextOut(hDC, 100, nY, sTemp, (int)xstrlen(sTemp));
+		_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), nData);
+		TextOut(hDC, 100, nY, sTemp, (int)_tcslen(sTemp));
 		
 		m_pCtx->m_pArch->GetInstructionMnemonic(m_pCtx, nAddress, nData, sDisAsm, 256);
-		xconvert(sTemp, sDisAsm, 256);
-		TextOut(hDC, 200, nY, sTemp, (int)xstrlen(sTemp));
+        sConvertTemp = string_cast<tstring>(sDisAsm);
+		TextOut(hDC, 200, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
 
 		m_pCtx->m_pArch->GetInstructionOperands(m_pCtx, nAddress, nData, sDisAsm, 256);
-		xconvert(sTemp, sDisAsm, 256);
-		TextOut(hDC, 300, nY, sTemp, (int)xstrlen(sTemp));
+        sConvertTemp = string_cast<tstring>(sDisAsm);
+		TextOut(hDC, 300, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
 
 		nCommentDrawn = false;
 
@@ -737,8 +738,8 @@ void CDisAsm::Paint(HDC hDC)
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x80));
 			strcpy(sDisAsm, "@");
 			strcat(sDisAsm, sTag);
-			xconvert(sTemp, sDisAsm, 256);
-			TextOut(hDC, 450, nY, sTemp, (int)xstrlen(sTemp));
+            sConvertTemp = string_cast<tstring>(sDisAsm);
+			TextOut(hDC, 450, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
 			nCommentDrawn = true;
 		}
 
@@ -753,8 +754,8 @@ void CDisAsm::Paint(HDC hDC)
 					SetTextColor(hDC, RGB(0x00, 0x00, 0x80));
 					strcpy(sDisAsm, "-> ");
 					strcat(sDisAsm, sTag);
-					xconvert(sTemp, sDisAsm, 256);
-					TextOut(hDC, 450, nY, sTemp, (int)xstrlen(sTemp));
+                    sConvertTemp = string_cast<tstring>(sDisAsm);
+					TextOut(hDC, 450, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
 					nCommentDrawn = true;
 				}
 			}
@@ -766,8 +767,8 @@ void CDisAsm::Paint(HDC hDC)
 			SetTextColor(hDC, RGB(0x00, 0x80, 0x00));
 			strcpy(sDisAsm, ";");
 			strcat(sDisAsm, sTag);
-			xconvert(sTemp, sDisAsm, 256);
-			TextOut(hDC, 450, nY, sTemp, (int)xstrlen(sTemp));
+            sConvertTemp = string_cast<tstring>(sDisAsm);
+			TextOut(hDC, 450, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
 		}
 
 		nY += s.cy + YSPACE;

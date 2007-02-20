@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include "ELFSymbolView.h"
 #include "PtrMacro.h"
+#include <boost/lexical_cast.hpp>
+#include "string_cast.h"
+#include "lexical_cast_ex.h"
 
-#define CLSNAME _X("CELFSymbolView")
+#define CLSNAME _T("CELFSymbolView")
 
 using namespace Framework;
+using namespace std;
+using namespace boost;
 
 CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 {
@@ -26,7 +31,7 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	Create(NULL, CLSNAME, _X(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
 	SetClassPtr();
 
 	m_pELF = pELF;
@@ -35,32 +40,32 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 	m_pListView->SetExtendedListViewStyle(m_pListView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Name");
+	col.pszText		= _T("Name");
 	col.mask		= LVCF_TEXT;
 	m_pListView->InsertColumn(0, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Address");
+	col.pszText		= _T("Address");
 	col.mask		= LVCF_TEXT;
 	m_pListView->InsertColumn(1, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Size");
+	col.pszText		= _T("Size");
 	col.mask		= LVCF_TEXT;
 	m_pListView->InsertColumn(2, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Type");
+	col.pszText		= _T("Type");
 	col.mask		= LVCF_TEXT;
 	m_pListView->InsertColumn(3, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Binding");
+	col.pszText		= _T("Binding");
 	col.mask		= LVCF_TEXT;
 	m_pListView->InsertColumn(4, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Section");
+	col.pszText		= _T("Section");
 	col.mask		= LVCF_TEXT;
 	m_pListView->InsertColumn(5, &col);
 
@@ -94,13 +99,11 @@ long CELFSymbolView::OnSize(unsigned int nType, unsigned int nWidth, unsigned in
 
 void CELFSymbolView::PopulateList()
 {
-	unsigned int i, nCount;
+	unsigned int nCount;
 	LVITEM it;
 	ELFSYMBOL* pSym;
 	ELFSECTIONHEADER* pSymTab;
 	const char* pStrTab;
-	xchar sTemp[256];
-
 
 	pSymTab = m_pELF->FindSection(".symtab");
 	if(pSymTab == NULL) return;
@@ -113,42 +116,39 @@ void CELFSymbolView::PopulateList()
 
 	m_pListView->DeleteAllItems();
 	
-	for(i = 0; i < nCount; i++)
+	for(unsigned int i = 0; i < nCount; i++)
 	{
 		memset(&it, 0, sizeof(LVITEM));
 		m_pListView->InsertItem(&it);
 	}
 
-	for(i = 0; i < nCount; i++)
+	for(unsigned int i = 0; i < nCount; i++)
 	{
-		xconvert(sTemp, (char*)pStrTab + pSym[i].nName, 256);
-		m_pListView->SetItemText(i, 0, sTemp);
+    	TCHAR sTemp[256];
 
-		xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pSym[i].nValue);
-		m_pListView->SetItemText(i, 1, sTemp);
-
-		xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pSym[i].nSize);
-		m_pListView->SetItemText(i, 2, sTemp);
+        m_pListView->SetItemText(i, 0, string_cast<tstring>(pStrTab + pSym[i].nName).c_str());
+		m_pListView->SetItemText(i, 1, (_T("0x") + lexical_cast_hex<tstring>(pSym[i].nValue, 8)).c_str());
+		m_pListView->SetItemText(i, 2, (_T("0x") + lexical_cast_hex<tstring>(pSym[i].nSize, 8)).c_str());
 	
 		switch(pSym[i].nInfo & 0x0F)
 		{
 		case 0x00:
-			xstrcpy(sTemp, _X("STT_NOTYPE"));
+			_tcscpy(sTemp, _T("STT_NOTYPE"));
 			break;
 		case 0x01:
-			xstrcpy(sTemp, _X("STT_OBJECT"));
+			_tcscpy(sTemp, _T("STT_OBJECT"));
 			break;
 		case 0x02:
-			xstrcpy(sTemp, _X("STT_FUNC"));
+			_tcscpy(sTemp, _T("STT_FUNC"));
 			break;
 		case 0x03:
-			xstrcpy(sTemp, _X("STT_SECTION"));
+			_tcscpy(sTemp, _T("STT_SECTION"));
 			break;
 		case 0x04:
-			xstrcpy(sTemp, _X("STT_FILE"));
+			_tcscpy(sTemp, _T("STT_FILE"));
 			break;
 		default:
-			xsnprintf(sTemp, countof(sTemp), _X("%i"), pSym[i].nInfo & 0x0F);
+			_sntprintf(sTemp, countof(sTemp), _T("%i"), pSym[i].nInfo & 0x0F);
 			break;
 		}
 		m_pListView->SetItemText(i, 3, sTemp);
@@ -156,16 +156,16 @@ void CELFSymbolView::PopulateList()
 		switch((pSym[i].nInfo >> 4) & 0xF)
 		{
 		case 0x00:
-			xstrcpy(sTemp, _X("STB_LOCAL"));
+			_tcscpy(sTemp, _T("STB_LOCAL"));
 			break;
 		case 0x01:
-			xstrcpy(sTemp, _X("STB_GLOBAL"));
+			_tcscpy(sTemp, _T("STB_GLOBAL"));
 			break;
 		case 0x02:
-			xstrcpy(sTemp, _X("STB_WEAK"));
+			_tcscpy(sTemp, _T("STB_WEAK"));
 			break;
 		default:
-			xsnprintf(sTemp, countof(sTemp), _X("%i"), (pSym[i].nInfo >> 4) & 0x0F);
+			_sntprintf(sTemp, countof(sTemp), _T("%i"), (pSym[i].nInfo >> 4) & 0x0F);
 			break;
 		}
 		m_pListView->SetItemText(i, 4, sTemp);
@@ -173,13 +173,13 @@ void CELFSymbolView::PopulateList()
 		switch(pSym[i].nSectionIndex)
 		{
 		case 0:
-			xstrcpy(sTemp, _X("SHN_UNDEF"));
+			_tcscpy(sTemp, _T("SHN_UNDEF"));
 			break;
 		case 0xFFF1:
-			xstrcpy(sTemp, _X("SHN_ABS"));
+			_tcscpy(sTemp, _T("SHN_ABS"));
 			break;
 		default:
-			xsnprintf(sTemp, countof(sTemp), _X("%i"), pSym[i].nSectionIndex);
+			_sntprintf(sTemp, countof(sTemp), _T("%i"), pSym[i].nSectionIndex);
 			break;
 		}
 		m_pListView->SetItemText(i, 5, sTemp);

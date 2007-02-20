@@ -8,7 +8,7 @@
 #include "../Config.h"
 #include "WinUtils.h"
 
-#define CLSNAME			_X("CMcManagerWnd")
+#define CLSNAME			_T("CMcManagerWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
 
@@ -48,22 +48,22 @@ m_MemoryCard1(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.
 
 	SetRect(&rc, 0, 0, 600, 500);
 	
-	Create(WNDSTYLEEX, CLSNAME, _X("Memory Card Manager"), WNDSTYLE, &rc, hParent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("Memory Card Manager"), WNDSTYLE, &rc, hParent, NULL);
 	SetClassPtr();
 
 	GetClientRect(&rc);
 
 	m_pMemoryCardList	= new Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
-	m_pImportButton		= new Win32::CButton(_X("Import Save(s)..."), m_hWnd, &rc);
-	m_pCloseButton		= new Win32::CButton(_X("Close"), m_hWnd, &rc);
+	m_pImportButton		= new Win32::CButton(_T("Import Save(s)..."), m_hWnd, &rc);
+	m_pCloseButton		= new Win32::CButton(_T("Close"), m_hWnd, &rc);
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
 	m_pSaveView->m_OnDeleteClicked.InsertHandler(bind(&CMcManagerWnd::Delete, this, _1));
 	m_pMemoryCardView->m_OnSelectionChange.InsertHandler(bind(&CSaveView::SetSave, m_pSaveView, _1));
 
-	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_X("Memory Card Slot 0 (mc0)")), 0);
-	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_X("Memory Card Slot 1 (mc1)")), 1);
+	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 0 (mc0)")), 0);
+	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 1 (mc1)")), 1);
 	m_pMemoryCardList->SetSelection(0);
 
 	CHorizontalLayout* pSubLayout0;
@@ -169,7 +169,7 @@ void CMcManagerWnd::Import()
 	unsigned int nRet;
 
 	Win32::CFileDialog FileDialog;
-	FileDialog.m_OFN.lpstrFilter = _X("All supported types\0*.psu;*.xps\0EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps(*.xps)\0*.xps\0All files (*.*)\0*.*\0");
+	FileDialog.m_OFN.lpstrFilter = _T("All supported types\0*.psu;*.xps\0EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps(*.xps)\0*.xps\0All files (*.*)\0*.*\0");
 
 	Enable(FALSE);
 	nRet = FileDialog.Summon(m_hWnd);
@@ -179,10 +179,10 @@ void CMcManagerWnd::Import()
 
 	FILE* pStream;
 
-	pStream = xfopen(FileDialog.m_sFile, _X("rb"));
+	pStream = _tfopen(FileDialog.m_sFile, _T("rb"));
 	if(pStream == NULL)
 	{
-		MessageBox(m_hWnd, _X("Couldn't open file for reading."), NULL, 16);
+		MessageBox(m_hWnd, _T("Couldn't open file for reading."), NULL, 16);
 		return;		
 	}
 
@@ -207,7 +207,7 @@ void CMcManagerWnd::Import()
 	m_pCurrentMemoryCard->RefreshContents();
 	m_pMemoryCardView->SetMemoryCard(m_pCurrentMemoryCard);
 
-	MessageBox(m_hWnd, _X("Save imported successfully."), NULL, MB_ICONINFORMATION); 
+	MessageBox(m_hWnd, _T("Save imported successfully."), NULL, MB_ICONINFORMATION); 
 }
 
 void CMcManagerWnd::Delete(const CSave* pSave)

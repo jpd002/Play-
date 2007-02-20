@@ -2,7 +2,7 @@
 #include "resource.h"
 #include <assert.h>
 
-#define CLASSNAME	_X("CNiceTabs")
+#define CLASSNAME	_T("CNiceTabs")
 #define EXLEFT(r)	((r.right - 23) + 7)
 #define EXTOP		8
 #define EXWIDTH		8
@@ -49,12 +49,12 @@ CNiceTabs::~CNiceTabs()
 	DeleteObject(m_nEx);
 }
 
-void CNiceTabs::InsertTab(xchar* sCaption, unsigned long nFlags, unsigned int nID)
+void CNiceTabs::InsertTab(const TCHAR* sCaption, unsigned long nFlags, unsigned int nID)
 {
 	TABITEM* t;
 	t = (TABITEM*)malloc(sizeof(TABITEM));
-	t->sCaption = (xchar*)malloc((xstrlen(sCaption) + 1) * sizeof(xchar));
-	xstrcpy(t->sCaption, sCaption);
+	t->sCaption = (TCHAR*)malloc((_tcslen(sCaption) + 1) * sizeof(TCHAR));
+	_tcscpy(t->sCaption, sCaption);
 	t->nWidth	= MeasureString(t->sCaption);
 	t->nFlags	= nFlags; 
 	m_List.Insert(t, nID);
@@ -80,7 +80,7 @@ unsigned long CNiceTabs::GetTabBase(unsigned int nTab)
 	return nBase;
 }
 
-unsigned long CNiceTabs::MeasureString(xchar* sText)
+unsigned long CNiceTabs::MeasureString(const TCHAR* sText)
 {
 	HDC hDC;
 	SIZE p;
@@ -91,7 +91,7 @@ unsigned long CNiceTabs::MeasureString(xchar* sText)
 	nFont = CreateOurFont();
 	SelectObject(hDC, nFont);
 
-	GetTextExtentPoint32(hDC, sText, (int)xstrlen(sText), &p);
+	GetTextExtentPoint32(hDC, sText, (int)_tcslen(sText), &p);
 
 	DeleteObject(nFont);
 	ReleaseDC(m_hWnd, hDC);
@@ -101,7 +101,7 @@ unsigned long CNiceTabs::MeasureString(xchar* sText)
 
 HFONT CNiceTabs::CreateOurFont()
 {
-	return CreateFont(-11, 0, 0, 0, 0, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, _X("Tahoma"));
+	return CreateFont(-11, 0, 0, 0, 0, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, _T("Tahoma"));
 }
 
 void CNiceTabs::Paint(HDC hDC)
@@ -162,13 +162,13 @@ void CNiceTabs::Paint(HDC hDC)
 			DeleteObject(nPen);
 			
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x00));
-			TextOut(hDC, nBase + 24, 4, t->sCaption, (int)xstrlen(t->sCaption));
+			TextOut(hDC, nBase + 24, 4, t->sCaption, (int)_tcslen(t->sCaption));
 		}
 		else
 		{
 
 			SetTextColor(hDC, RGB(0x80, 0x80, 0x80));
-			TextOut(hDC, nBase + 24, 4, t->sCaption, (int)xstrlen(t->sCaption));
+			TextOut(hDC, nBase + 24, 4, t->sCaption, (int)_tcslen(t->sCaption));
 			if(i != (m_nSelected - 1))
 			{
 				//Draw the right line

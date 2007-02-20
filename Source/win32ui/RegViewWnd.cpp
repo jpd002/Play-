@@ -7,7 +7,7 @@
 #include "PtrMacro.h"
 #include "EventHandler.h"
 
-#define CLSNAME		_X("CRegViewWnd")
+#define CLSNAME		_T("CRegViewWnd")
 
 using namespace Framework;
 using namespace boost;
@@ -31,7 +31,7 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CMIPS* pCtx)
 	
 	SetRect(&rc, 0, 0, 320, 240);
 
-	Create(NULL, CLSNAME, _X("Registers"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Registers"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
 	m_pRegView[0] = new CRegViewGeneral(m_hWnd, &rc, pCtx);
@@ -50,10 +50,10 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CMIPS* pCtx)
 	m_pRegView[3]->Show(SW_HIDE);
 
 	m_pTabs = new CNiceTabs(m_hWnd, &rc);
-	m_pTabs->InsertTab(_X("General"),	TAB_FLAG_UNDELETEABLE, 0);
-	m_pTabs->InsertTab(_X("SCU"),		TAB_FLAG_UNDELETEABLE, 1);
-	m_pTabs->InsertTab(_X("FPU"),		TAB_FLAG_UNDELETEABLE, 2);
-	m_pTabs->InsertTab(_X("VU"),		TAB_FLAG_UNDELETEABLE, 3);
+	m_pTabs->InsertTab(_T("General"),	TAB_FLAG_UNDELETEABLE, 0);
+	m_pTabs->InsertTab(_T("SCU"),		TAB_FLAG_UNDELETEABLE, 1);
+	m_pTabs->InsertTab(_T("FPU"),		TAB_FLAG_UNDELETEABLE, 2);
+	m_pTabs->InsertTab(_T("VU"),		TAB_FLAG_UNDELETEABLE, 3);
 
 	m_pCurrent = NULL;
 	SetCurrentView(0);

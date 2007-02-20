@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include "ELFView.h"
 #include "PtrMacro.h"
+#include <boost/lexical_cast.hpp>
+#include "string_cast.h"
 
 using namespace Framework;
+using namespace std;
+using namespace boost;
 
 CELFView::CELFView(HWND hParent) :
-COptionWnd<CMDIChild>(hParent, _X("ELF File Viewer"))
+COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer"))
 {
 	m_pELF = NULL;
 }
@@ -83,17 +87,18 @@ void CELFView::PopulateList()
 	HTREEITEM hItem;
 	const char* sName;
 	const char* sStrTab;
-	xchar sDisplay[256];
-	unsigned int i;
 
-	InsertOption(NULL, _X("Header"), m_pHeaderView->m_hWnd);
-	hItem = InsertOption(NULL, _X("Sections"), NULL);
+	InsertOption(NULL, _T("Header"), m_pHeaderView->m_hWnd);
+	hItem = InsertOption(NULL, _T("Sections"), NULL);
 
 	sStrTab = (const char*)m_pELF->GetSectionData(m_pELF->m_Header.nSectHeaderStringTableIndex);
-	for(i = 0; i < m_pELF->m_Header.nSectHeaderCount; i++)
+	for(unsigned int i = 0; i < m_pELF->m_Header.nSectHeaderCount; i++)
 	{
-		pSect = m_pELF->GetSection(i);
-		if(sStrTab != NULL)
+        tstring sDisplay;
+
+        pSect = m_pELF->GetSection(i);
+		
+        if(sStrTab != NULL)
 		{
 			sName = sStrTab + pSect->nStringTableIndex;
 		}
@@ -101,26 +106,28 @@ void CELFView::PopulateList()
 		{
 			sName = "";
 		}
-		if(strlen(sName))
+
+        if(strlen(sName))
 		{
-			xconvert(sDisplay, sName, 256);
+            sDisplay = string_cast<tstring>(sName);
 		}
 		else
 		{
-			xsnprintf(sDisplay, countof(sDisplay), _X("Section %i"), i);
+            sDisplay = _T("Section ") + lexical_cast<tstring>(i);
 		}
-		InsertOption(hItem, sDisplay, m_pSectionView[i]->m_hWnd);
+
+        InsertOption(hItem, sDisplay.c_str(), m_pSectionView[i]->m_hWnd);
 	}
 	GetTreeView()->Expand(hItem, TVE_EXPAND);
 
 	if(m_pELF->m_Header.nProgHeaderCount != 0)
 	{
-		hItem = InsertOption(NULL, _X("Segments"), NULL);
+		hItem = InsertOption(NULL, _T("Segments"), NULL);
 
-		for(i = 0; i < m_pELF->m_Header.nProgHeaderCount; i++)
+		for(unsigned int i = 0; i < m_pELF->m_Header.nProgHeaderCount; i++)
 		{
-			xsnprintf(sDisplay, countof(sDisplay), _X("Segment %i"), i);
-			InsertOption(hItem, sDisplay, m_pProgramView[i]->m_hWnd);
+            tstring sDisplay(_T("Segment ") + lexical_cast<tstring>(i));
+			InsertOption(hItem, sDisplay.c_str(), m_pProgramView[i]->m_hWnd);
 		}
 		GetTreeView()->Expand(hItem, TVE_EXPAND);
 	
@@ -128,7 +135,7 @@ void CELFView::PopulateList()
 
 	if(m_pELF->FindSection(".strtab") && m_pELF->FindSection(".symtab"))
 	{
-		InsertOption(NULL, _X("Symbols"), m_pSymbolView->m_hWnd);
+		InsertOption(NULL, _T("Symbols"), m_pSymbolView->m_hWnd);
 	}
 
 }

@@ -3,13 +3,13 @@
 #include "win32/LayoutWindow.h"
 #include "win32/MDIChild.h"
 
-#define CLSNAME		_X("OptionWindow")
+#define CLSNAME		_T("OptionWindow")
 #define WNDSTYLE	(WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX | WS_CLIPCHILDREN)
 
 using namespace Framework;
 
 template <typename T> 
-COptionWnd<T>::COptionWnd(HWND hParent, xchar* sTitle)
+COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
 {
 	RECT rc;
 
@@ -143,7 +143,7 @@ void COptionWnd<T>::UpdatePanel(TVITEM* pNew, TVITEM* pOld)
 }
 
 template <typename T>
-HTREEITEM COptionWnd<T>::InsertOption(HTREEITEM hParent, const xchar* sName, HWND hWnd)
+HTREEITEM COptionWnd<T>::InsertOption(HTREEITEM hParent, const TCHAR* sName, HWND hWnd)
 {
 	TVINSERTSTRUCT s;
 	s.hParent		= hParent;

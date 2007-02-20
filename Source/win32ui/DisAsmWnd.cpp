@@ -1,7 +1,7 @@
 #include "DisAsmWnd.h"
 #include "PtrMacro.h"
 
-#define CLSNAME		_X("CDisAsmWnd")
+#define CLSNAME		_T("CDisAsmWnd")
 
 using namespace Framework;
 
@@ -24,7 +24,7 @@ CDisAsmWnd::CDisAsmWnd(HWND hParent, CMIPS* pCtx)
 	
 	SetRect(&rc, 0, 0, 320, 240);
 
-	Create(NULL, CLSNAME, _X("Disassembly"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Disassembly"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
 	m_pDisAsm = new CDisAsm(m_hWnd, &rc, pCtx);

@@ -7,7 +7,7 @@
 
 struct TABITEM
 {
-	xchar*			sCaption;
+	TCHAR*			sCaption;
 	unsigned long	nWidth;
 	unsigned long	nFlags;
 };
@@ -23,7 +23,7 @@ class CNiceTabs : public Framework::CCustomDrawn
 public:
 										CNiceTabs(HWND, RECT*);
 	virtual								~CNiceTabs();
-	void								InsertTab(xchar*, unsigned long, unsigned int);
+	void								InsertTab(const TCHAR*, unsigned long, unsigned int);
 
 	boost::signal<void (unsigned int)>	m_OnTabChange;
 
@@ -38,7 +38,7 @@ private:
 	HFONT								CreateOurFont();
 	unsigned long						GetTabWidth(unsigned int);
 	unsigned long						GetTabBase(unsigned int);
-	unsigned long						MeasureString(xchar*);
+	unsigned long						MeasureString(const TCHAR*);
 
 	Framework::CList<TABITEM>			m_List;
 	Framework::CList<TABITEM>::INDEXOR	m_ListIdx;

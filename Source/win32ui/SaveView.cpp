@@ -9,7 +9,7 @@
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
 
-#define CLSNAME _X("CSaveView")
+#define CLSNAME _T("CSaveView")
 
 using namespace Framework;
 using namespace boost;
@@ -33,22 +33,22 @@ CSaveView::CSaveView(HWND hParent)
 		RegisterClassEx(&wc);
 	}
 
-	Create(NULL, CLSNAME, _X(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, &rc, hParent, NULL);
 	SetClassPtr();
 
 	GetClientRect(&rc);
 
-	m_pNameLine1	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
-	m_pNameLine2	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
-	m_pSize			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
-	m_pId			= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
-	m_pLastModified	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY, 0);
-	m_pOpenFolder	= new Win32::CButton(_X("Open folder..."), m_hWnd, &rc);
-	m_pExport		= new Win32::CButton(_X("Export..."), m_hWnd, &rc);
-	m_pDelete		= new Win32::CButton(_X("Delete"), m_hWnd, &rc);
-	m_pNormalIcon	= new Win32::CButton(_X("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pCopyingIcon	= new Win32::CButton(_X("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pDeletingIcon	= new Win32::CButton(_X("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pNameLine1	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pNameLine2	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pSize			= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pId			= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pLastModified	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pOpenFolder	= new Win32::CButton(_T("Open folder..."), m_hWnd, &rc);
+	m_pExport		= new Win32::CButton(_T("Export..."), m_hWnd, &rc);
+	m_pDelete		= new Win32::CButton(_T("Delete"), m_hWnd, &rc);
+	m_pNormalIcon	= new Win32::CButton(_T("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pCopyingIcon	= new Win32::CButton(_T("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pDeletingIcon	= new Win32::CButton(_T("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
 	m_pIconViewWnd	= new CIconViewWnd(m_hWnd, &rc);
 
 	m_CommandSink.RegisterCallback(m_pOpenFolder->m_hWnd,	bind(&CSaveView::OpenSaveFolder, this));
@@ -69,10 +69,10 @@ CSaveView::CSaveView(HWND hParent)
 	{
 		pSubLayout1 = new CGridLayout(2, 5);
 
-		pSubLayout1->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Name:"))));
-		pSubLayout1->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Size:"))));
-		pSubLayout1->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Id:"))));
-		pSubLayout1->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _X("Last Modified:")))); 
+		pSubLayout1->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Name:"))));
+		pSubLayout1->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Size:"))));
+		pSubLayout1->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Id:"))));
+		pSubLayout1->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Last Modified:")))); 
 
 		pSubLayout1->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine1));
 		pSubLayout1->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine2));
@@ -133,20 +133,20 @@ void CSaveView::SetSave(const CSave* pSave)
 
 		m_pNameLine1->SetText(sName.substr(0, m_pSave->GetSecondLineStartPosition()).c_str());
 		m_pNameLine2->SetText(sName.substr(m_pSave->GetSecondLineStartPosition()).c_str());
-		m_pSize->SetText((lexical_cast<xstring>(m_pSave->GetSize()) + _X(" bytes")).c_str());
-		m_pId->SetText(string_cast<xstring>(m_pSave->GetId()).c_str());
+		m_pSize->SetText((lexical_cast<tstring>(m_pSave->GetSize()) + _T(" bytes")).c_str());
+		m_pId->SetText(string_cast<tstring>(m_pSave->GetId()).c_str());
 		m_pLastModified->SetText(
-			string_cast<xstring>(
+			string_cast<tstring>(
 			posix_time::to_simple_string(
 			posix_time::from_time_t(m_pSave->GetLastModificationTime()))).c_str());
 	}
 	else
 	{
-		m_pNameLine1->SetText(_X("--"));
-		m_pNameLine2->SetText(_X(""));
-		m_pSize->SetText(_X("--"));
-		m_pId->SetText(_X("--"));
-		m_pLastModified->SetText(_X("--"));
+		m_pNameLine1->SetText(_T("--"));
+		m_pNameLine2->SetText(_T(""));
+		m_pSize->SetText(_T("--"));
+		m_pId->SetText(_T("--"));
+		m_pLastModified->SetText(_T("--"));
 	}
 
 	m_pIconViewWnd->SetSave(pSave);
@@ -214,7 +214,7 @@ long CSaveView::Export()
 	unsigned int nRet;
 
 	Win32::CFileDialog FileDialog;
-	FileDialog.m_OFN.lpstrFilter = _X("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0");
+	FileDialog.m_OFN.lpstrFilter = _T("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0");
 
 	EnableWindow(GetParent(), FALSE);
 	nRet = FileDialog.Summon(m_hWnd);
@@ -223,11 +223,11 @@ long CSaveView::Export()
 	if(nRet == 0) return FALSE;
 
 	FILE* pStream;
-	pStream = xfopen(FileDialog.m_sFile, _X("wb"));
+	pStream = _tfopen(FileDialog.m_sFile, _T("wb"));
 
 	if(pStream == NULL)
 	{
-		MessageBox(m_hWnd, _X("Couldn't open file for writing."), NULL, 16);
+		MessageBox(m_hWnd, _T("Couldn't open file for writing."), NULL, 16);
 		return FALSE;
 	}
 
@@ -249,7 +249,7 @@ long CSaveView::Export()
 		return FALSE;
 	}
 
-	MessageBox(m_hWnd, _X("Save exported successfully."), NULL, MB_ICONINFORMATION); 
+	MessageBox(m_hWnd, _T("Save exported successfully."), NULL, MB_ICONINFORMATION); 
 
 	return FALSE;
 }

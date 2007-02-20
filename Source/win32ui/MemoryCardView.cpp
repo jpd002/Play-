@@ -5,7 +5,7 @@
 #include <gl/glu.h>
 #include <math.h>
 
-#define CLSNAME		_X("CMemoryCardView")
+#define CLSNAME		_T("CMemoryCardView")
 
 using namespace Framework;
 using namespace std;
@@ -45,7 +45,7 @@ CMemoryCardView::CMemoryCardView(HWND hParent, RECT* pRect)
 		RegisterClassEx(&wc);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _X(""), WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, pRect, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, pRect, hParent, NULL);
 	SetClassPtr();
 
 	UpdateGeometry();

@@ -4,10 +4,11 @@
 #include "win32/LayoutWindow.h"
 #include "win32/InputBox.h"
 #include "string_cast.h"
+#include "lexical_cast_ex.h"
 #include "LayoutStretch.h"
 #include "PtrMacro.h"
 
-#define CLSNAME _X("FunctionsView")
+#define CLSNAME _T("FunctionsView")
 
 using namespace Framework;
 using namespace std;
@@ -35,7 +36,7 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 
 	SetRect(&rc, 0, 0, 320, 240);
 
-	Create(NULL, CLSNAME, _X("Functions"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Functions"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
 	SetRect(&rc, 0, 0, 0, 0);
@@ -45,10 +46,10 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 
 	CreateListColumns();
 
-	m_pNew		= new Win32::CButton(_X("New..."), m_hWnd, &rc);
-	m_pRename	= new Win32::CButton(_X("Rename..."), m_hWnd, &rc);
-	m_pDelete	= new Win32::CButton(_X("Delete"), m_hWnd, &rc);
-	m_pImport	= new Win32::CButton(_X("Load ELF symbols"), m_hWnd, &rc);
+	m_pNew		= new Win32::CButton(_T("New..."), m_hWnd, &rc);
+	m_pRename	= new Win32::CButton(_T("Rename..."), m_hWnd, &rc);
+	m_pDelete	= new Win32::CButton(_T("Delete"), m_hWnd, &rc);
+	m_pImport	= new Win32::CButton(_T("Load ELF symbols"), m_hWnd, &rc);
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
@@ -138,12 +139,12 @@ void CFunctionsView::CreateListColumns()
 	LVCOLUMN col;
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Name");
+	col.pszText		= _T("Name");
 	col.mask		= LVCF_TEXT;
 	m_pList->InsertColumn(0, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _X("Address");
+	col.pszText		= _T("Address");
 	col.mask		= LVCF_TEXT;
 	m_pList->InsertColumn(1, &col);
 }
@@ -180,7 +181,6 @@ void CFunctionsView::RefreshList()
 {
 	unsigned int nCount;
 	uint32 nAddress;
-	xchar sTemp[256];
 
 	m_pList->DeleteAllItems();
 
@@ -203,8 +203,7 @@ void CFunctionsView::RefreshList()
 	for(unsigned int i = 0; i < nCount; i++)
 	{
 		nAddress = m_pList->GetItemData(i);
-		xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), nAddress);
-		m_pList->SetItemText(i, 1, sTemp);
+		m_pList->SetItemText(i, 1, (_T("0x") + lexical_cast_hex<tstring>(nAddress, 8)).c_str());
 	}
 }
 
@@ -235,34 +234,33 @@ void CFunctionsView::OnNewClick()
 {
 	Win32::CInputBox* pInput;
 	bool bQuit;
-	xchar sNameX[256];
-	const xchar* sValue;
-	char sName[256];
+	TCHAR sNameX[256];
+	const TCHAR* sValue;
 	uint32 nAddress;
 
-	pInput = new Win32::CInputBox(_X("New Function"), _X("New Function Name:"), _X(""));
+	pInput = new Win32::CInputBox(_T("New Function"), _T("New Function Name:"), _T(""));
 	sValue = pInput->GetValue(m_hWnd);
 
 	bQuit = (sValue == NULL);
 	if(sValue != NULL)
 	{
-		xstrncpy(sNameX, sValue, 255);	
+		_tcsncpy(sNameX, sValue, 255);	
 	}
 
 	delete pInput;
 
 	if(bQuit) return;
 
-	pInput = new Win32::CInputBox(_X("New Function"), _X("New Function Address:"), _X("00000000"));
+	pInput = new Win32::CInputBox(_T("New Function"), _T("New Function Address:"), _T("00000000"));
 	sValue = pInput->GetValue(m_hWnd);
 
 	bQuit = (sValue == NULL);
 	if(sValue != NULL)
 	{
-		xsscanf(sValue, _X("%x"), &nAddress);
+		_stscanf(sValue, _T("%x"), &nAddress);
 		if((nAddress & 0x3) != 0x0)
 		{
-			MessageBox(m_hWnd, _X("Invalid address."), NULL, 16);
+			MessageBox(m_hWnd, _T("Invalid address."), NULL, 16);
 			bQuit = true;
 		}
 	}
@@ -271,9 +269,7 @@ void CFunctionsView::OnNewClick()
 
 	if(bQuit) return;
 
-	xconvert(sName, sNameX, countof(sName));
-
-	m_pCtx->m_Functions.InsertTag(nAddress, sName);
+	m_pCtx->m_Functions.InsertTag(nAddress, string_cast<string>(sNameX).c_str());
 
 	RefreshList();
 	m_OnFunctionsStateChange();
@@ -284,10 +280,7 @@ void CFunctionsView::OnRenameClick()
 	int nItem;
 	uint32 nAddress;
 	const char* sName;
-	xchar sNameX[256];
-
-	const xchar* sNewNameX;
-	char sNewName[256];
+    const TCHAR* sNewNameX;
 
 	nItem = m_pList->GetSelection();
 	if(nItem == -1) return;
@@ -301,16 +294,12 @@ void CFunctionsView::OnRenameClick()
 		return;
 	}
 
-	xconvert(sNameX, sName, countof(sNameX));
-
-	Win32::CInputBox RenameInput(_X("Rename Function"), _X("New Function Name:"), sNameX);
+	Win32::CInputBox RenameInput(_T("Rename Function"), _T("New Function Name:"), string_cast<tstring>(sName).c_str());
 	sNewNameX = RenameInput.GetValue(m_hWnd);
 	
 	if(sNewNameX == NULL) return;
 
-	xconvert(sNewName, sNewNameX, countof(sNewName));
-
-	m_pCtx->m_Functions.InsertTag(nAddress, sNewName);
+	m_pCtx->m_Functions.InsertTag(nAddress, string_cast<string>(sNewNameX).c_str());
 	RefreshList();
 
 	m_OnFunctionsStateChange();
@@ -354,7 +343,7 @@ void CFunctionsView::OnDeleteClick()
 
 	nItem = m_pList->GetSelection();
 	if(nItem == -1) return;
-	if(MessageBox(m_hWnd, _X("Delete this function?"), NULL, MB_ICONQUESTION | MB_YESNO) != IDYES)
+	if(MessageBox(m_hWnd, _T("Delete this function?"), NULL, MB_ICONQUESTION | MB_YESNO) != IDYES)
 	{
 		return;
 	}

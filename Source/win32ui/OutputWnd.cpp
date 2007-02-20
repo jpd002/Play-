@@ -1,7 +1,7 @@
 #include "OutputWnd.h"
 #include "../PS2VM.h"
 
-#define CLSNAME		_X("COutputWnd")
+#define CLSNAME		_T("COutputWnd")
 
 using namespace Framework;
 

@@ -1,6 +1,6 @@
 #include "RegViewPage.h"
 
-#define CLSNAME			_X("CRegViewPage")
+#define CLSNAME			_T("CRegViewPage")
 #define XMARGIN			6
 #define YMARGIN			5
 #define YSPACE			4
@@ -22,7 +22,7 @@ CRegViewPage::CRegViewPage(HWND hParent, RECT* pR)
 		RegisterClassEx(&w);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _X(""), WS_CHILD | WS_VSCROLL, pR, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_CHILD | WS_VSCROLL, pR, hParent, NULL);
 	SetClassPtr();
 }
 
@@ -133,7 +133,7 @@ unsigned int CRegViewPage::GetFontHeight()
 	nFont = GetFont();
 	SelectObject(hDC, nFont);
 
-	GetTextExtentPoint32(hDC, _X("0"), 1, &s);
+	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
 
 	DeleteObject(nFont);
 
@@ -236,7 +236,7 @@ void CRegViewPage::UpdateScroll()
 
 HFONT CRegViewPage::GetFont()
 {
-	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _X("Courier New"));
+	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
 }
 
 unsigned int CRegViewPage::GetScrollPosition()

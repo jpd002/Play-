@@ -5,7 +5,7 @@
 #include "opengl/OpenGl.h"
 #include "PtrMacro.h"
 
-#define CLSNAME		_X("CSaveView_CIconView")
+#define CLSNAME		_T("CSaveView_CIconView")
 
 using namespace Framework;
 using namespace boost;
@@ -46,7 +46,7 @@ CSaveView::CIconViewWnd::CIconViewWnd(HWND hParent, RECT* pR)
 		RegisterClassEx(&wc);
 	}
 
-	Create(WS_EX_STATICEDGE, CLSNAME, _X(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, pR, hParent, NULL);
+	Create(WS_EX_STATICEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
 	m_pThread = new thread(bind(&CSaveView::CIconViewWnd::ThreadProc, this));

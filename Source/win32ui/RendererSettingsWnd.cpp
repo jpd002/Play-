@@ -6,7 +6,7 @@
 #include "win32/Static.h"
 #include "../Config.h"
 
-#define CLSNAME			_X("RendererSettingsWnd")
+#define CLSNAME			_T("RendererSettingsWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
 
@@ -36,13 +36,13 @@ CModalWindow(hParent)
 
 	SetRect(&rc, 0, 0, 400, 300);
 
-	Create(WNDSTYLEEX, CLSNAME, _X("Renderer Settings"), WNDSTYLE, &rc, hParent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("Renderer Settings"), WNDSTYLE, &rc, hParent, NULL);
 	SetClassPtr();
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pOk		= new Win32::CButton(_X("OK"), m_hWnd, &rc);
-	m_pCancel	= new Win32::CButton(_X("Cancel"), m_hWnd, &rc);
+	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, &rc);
+	m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, &rc);
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
@@ -54,10 +54,10 @@ CModalWindow(hParent)
 	m_nForceBilinearTextures	= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
 	m_nForceFlippingVSync		= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
 
-	m_pLineCheck = new Win32::CButton(_X("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
+	m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pLineCheck->SetCheck(m_nLinesAsQuads);
 
-	m_pForceBilinearCheck = new Win32::CButton(_X("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
+	m_pForceBilinearCheck = new Win32::CButton(_T("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
 
 	m_pForceFlippingCheck = new Win32::CButton(_T("Force buffer flipping at V-Sync"), m_hWnd, &rc, BS_CHECKBOX);
@@ -71,9 +71,9 @@ CModalWindow(hParent)
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceFlippingCheck));
 	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _X("OpenGL extension availability report:"))));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
 	m_pLayout->InsertObject(new CLayoutWindow(1, 1, 1, 1, m_pExtList));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _X("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
+	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _T("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
 	m_pLayout->InsertObject(pSubLayout0);
 
 	RefreshLayout();
@@ -129,13 +129,13 @@ void CRendererSettingsWnd::CreateExtListColumns()
 	m_pExtList->GetClientRect(&rc);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText = _X("Extension");
+	col.pszText = _T("Extension");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right * 3 / 4;
 	m_pExtList->InsertColumn(0, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText = _X("Availability");
+	col.pszText = _T("Availability");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 4;
 	m_pExtList->InsertColumn(1, &col);
@@ -148,38 +148,38 @@ void CRendererSettingsWnd::UpdateExtList()
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
-	itm.pszText		= _X("glColorTable function");
+	itm.pszText		= _T("glColorTable function");
 	i = m_pExtList->InsertItem(&itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsColorTableExtSupported() ? _X("Present") : _X("Absent"));
+	m_pExtList->SetItemText(i, 1, m_pRenderer->IsColorTableExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
-	itm.pszText		= _X("glBlendColor function");
+	itm.pszText		= _T("glBlendColor function");
 	i = m_pExtList->InsertItem(&itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendColorExtSupported() ? _X("Present") : _X("Absent"));
+	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendColorExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
-	itm.pszText		= _X("GL_UNSIGNED_SHORT_1_5_5_5_REV texture format");
+	itm.pszText		= _T("GL_UNSIGNED_SHORT_1_5_5_5_REV texture format");
 	i = m_pExtList->InsertItem(&itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsRGBA5551ExtSupported() ? _X("Present") : _X("Absent"));
+	m_pExtList->SetItemText(i, 1, m_pRenderer->IsRGBA5551ExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
-	itm.pszText		= _X("glBlendEquation function");
+	itm.pszText		= _T("glBlendEquation function");
 	i = m_pExtList->InsertItem(&itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendEquationExtSupported() ? _X("Present") : _X("Absent"));
+	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendEquationExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
-	itm.pszText		= _X("glFogCoordf function");
+	itm.pszText		= _T("glFogCoordf function");
 	i = m_pExtList->InsertItem(&itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsFogCoordfExtSupported() ? _X("Present") : _X("Absent"));
+	m_pExtList->SetItemText(i, 1, m_pRenderer->IsFogCoordfExtSupported() ? _T("Present") : _T("Absent"));
 }
 
 void CRendererSettingsWnd::Save()

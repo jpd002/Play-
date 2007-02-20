@@ -84,7 +84,7 @@ private:
 	void							LoadSettings();
 
 	void							InitializeRC();
-	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const xchar*);
+	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const TCHAR*);
 	void							SetViewport(int, int);
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(double, double, double, double);

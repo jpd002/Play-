@@ -127,8 +127,8 @@ void CGSH_OpenGL::InitializeRC()
 		m_pVertShader	= new OpenGl::CShader(GL_VERTEX_SHADER);
 		m_pFragShader	= new OpenGl::CShader(GL_FRAGMENT_SHADER);
 
-		LoadShaderSourceFromResource(m_pVertShader, _X("IDR_VERTSHADER"));
-		LoadShaderSourceFromResource(m_pFragShader, _X("IDR_FRAGSHADER"));
+		LoadShaderSourceFromResource(m_pVertShader, _T("IDR_VERTSHADER"));
+		LoadShaderSourceFromResource(m_pFragShader, _T("IDR_FRAGSHADER"));
 
 		m_pVertShader->Compile();
 		m_pFragShader->Compile();
@@ -154,14 +154,14 @@ void CGSH_OpenGL::InitializeRC()
 	//wglMakeCurrent(NULL, NULL);
 }
 
-void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const xchar* sResourceName)
+void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const TCHAR* sResourceName)
 {
 	const char* sSource;
 	HGLOBAL nResourcePtr;
 	HRSRC nResource;
 	DWORD nSize;
 
-	nResource		= FindResource(GetModuleHandle(NULL), sResourceName, _X("SHADER"));
+	nResource		= FindResource(GetModuleHandle(NULL), sResourceName, _T("SHADER"));
 	nResourcePtr	= LoadResource(GetModuleHandle(NULL), nResource);
 	sSource			= const_cast<char*>(reinterpret_cast<char*>(LockResource(nResourcePtr)));
 	nSize			= SizeofResource(GetModuleHandle(NULL), nResource);

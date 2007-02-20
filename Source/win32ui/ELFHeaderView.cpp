@@ -4,10 +4,14 @@
 #include "LayoutStretch.h"
 #include "win32/Static.h"
 #include "win32/LayoutWindow.h"
+#include <boost/lexical_cast.hpp>
+#include "lexical_cast_ex.h"
 
-#define CLSNAME _X("CELFHeaderView")
+#define CLSNAME _T("CELFHeaderView")
 
 using namespace Framework;
+using namespace boost;
+using namespace std;
 
 CELFHeaderView::CELFHeaderView(HWND hParent, CELF* pELF)
 {
@@ -30,38 +34,38 @@ CELFHeaderView::CELFHeaderView(HWND hParent, CELF* pELF)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	Create(NULL, CLSNAME, _X(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
 	SetClassPtr();
 	
-	m_pType		= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pMachine	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pVersion	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pEntry	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pPHOffset	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pPHSize	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pPHCount	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pSHOffset	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pSHSize	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pSHCount	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pFlags	= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pSize		= new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
-	m_pSHStrTab = new Win32::CEdit(m_hWnd, &rc, _X(""), ES_READONLY);
+	m_pType		= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pMachine	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pVersion	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pEntry	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pPHOffset	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pPHSize	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pPHCount	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pSHOffset	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pSHSize	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pSHCount	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pFlags	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pSize		= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pSHStrTab = new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
 
 	m_pLayout = new CGridLayout(2, 14);
 
-	m_pLayout->SetObject(0,  0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Type:"))));
-	m_pLayout->SetObject(0,  1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Machine:"))));
-	m_pLayout->SetObject(0,  2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Version:"))));
-	m_pLayout->SetObject(0,  3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Entry Point:"))));
-	m_pLayout->SetObject(0,  4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Flags:"))));
-	m_pLayout->SetObject(0,  5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Header Size:"))));
-	m_pLayout->SetObject(0,  6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Program Header Table Offset:"))));
-	m_pLayout->SetObject(0,  7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Program Header Size:"))));
-	m_pLayout->SetObject(0,  8, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Program Header Count:"))));
-	m_pLayout->SetObject(0,  9, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Section Header Table Offset:"))));
-	m_pLayout->SetObject(0, 10, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Section Header Size:"))));
-	m_pLayout->SetObject(0, 11, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Section Header Count:"))));
-	m_pLayout->SetObject(0, 12, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _X("Section Header String Table Index:"))));
+	m_pLayout->SetObject(0,  0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
+	m_pLayout->SetObject(0,  1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Machine:"))));
+	m_pLayout->SetObject(0,  2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Version:"))));
+	m_pLayout->SetObject(0,  3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Entry Point:"))));
+	m_pLayout->SetObject(0,  4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
+	m_pLayout->SetObject(0,  5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Header Size:"))));
+	m_pLayout->SetObject(0,  6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Program Header Table Offset:"))));
+	m_pLayout->SetObject(0,  7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Program Header Size:"))));
+	m_pLayout->SetObject(0,  8, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Program Header Count:"))));
+	m_pLayout->SetObject(0,  9, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Section Header Table Offset:"))));
+	m_pLayout->SetObject(0, 10, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Section Header Size:"))));
+	m_pLayout->SetObject(0, 11, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Section Header Count:"))));
+	m_pLayout->SetObject(0, 12, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Section Header String Table Index:"))));
 
 	m_pLayout->SetObject(1,  0, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
 	m_pLayout->SetObject(1,  1, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pMachine));
@@ -91,7 +95,7 @@ CELFHeaderView::~CELFHeaderView()
 
 void CELFHeaderView::FillInformation()
 {
-	xchar sTemp[256];
+	TCHAR sTemp[256];
 	ELFHEADER* pH;
 
 	pH = &m_pELF->m_Header;
@@ -99,22 +103,22 @@ void CELFHeaderView::FillInformation()
 	switch(pH->nType)
 	{
 	case 0x00:
-		xstrcpy(sTemp, _X("ET_NONE"));
+		_tcscpy(sTemp, _T("ET_NONE"));
 		break;
 	case 0x01:
-		xstrcpy(sTemp, _X("ET_REL"));
+		_tcscpy(sTemp, _T("ET_REL"));
 		break;
 	case 0x02:
-		xstrcpy(sTemp, _X("ET_EXEC"));
+		_tcscpy(sTemp, _T("ET_EXEC"));
 		break;
 	case 0x03:
-		xstrcpy(sTemp, _X("ET_DYN"));
+		_tcscpy(sTemp, _T("ET_DYN"));
 		break;
 	case 0x04:
-		xstrcpy(sTemp, _X("ET_CORE"));
+		_tcscpy(sTemp, _T("ET_CORE"));
 		break;
 	default:
-		xsnprintf(sTemp, countof(sTemp), _X("Unknown (%i)"), pH->nType);
+		_sntprintf(sTemp, countof(sTemp), _T("Unknown (%i)"), pH->nType);
 		break;
 	}
 	m_pType->SetText(sTemp);
@@ -122,31 +126,31 @@ void CELFHeaderView::FillInformation()
 	switch(pH->nCPU)
 	{
 	case 0x00:
-		xstrcpy(sTemp, _X("EM_NONE"));
+		_tcscpy(sTemp, _T("EM_NONE"));
 		break;
 	case 0x01:
-		xstrcpy(sTemp, _X("EM_M32"));
+		_tcscpy(sTemp, _T("EM_M32"));
 		break;
 	case 0x02:
-		xstrcpy(sTemp, _X("EM_SPARC"));
+		_tcscpy(sTemp, _T("EM_SPARC"));
 		break;
 	case 0x03:
-		xstrcpy(sTemp, _X("EM_386"));
+		_tcscpy(sTemp, _T("EM_386"));
 		break;
 	case 0x04:
-		xstrcpy(sTemp, _X("EM_68K"));
+		_tcscpy(sTemp, _T("EM_68K"));
 		break;
 	case 0x05:
-		xstrcpy(sTemp, _X("EM_88K"));
+		_tcscpy(sTemp, _T("EM_88K"));
 		break;
 	case 0x07:
-		xstrcpy(sTemp, _X("EM_860"));
+		_tcscpy(sTemp, _T("EM_860"));
 		break;
 	case 0x08:
-		xstrcpy(sTemp, _X("EM_MIPS"));
+		_tcscpy(sTemp, _T("EM_MIPS"));
 		break;
 	default:
-		xsnprintf(sTemp, countof(sTemp), _X("Unknown (%i)"), pH->nCPU);
+		_sntprintf(sTemp, countof(sTemp), _T("Unknown (%i)"), pH->nCPU);
 		break;
 	}
 	m_pMachine->SetText(sTemp);
@@ -154,46 +158,27 @@ void CELFHeaderView::FillInformation()
 	switch(pH->nVersion)
 	{
 	case 0x00:
-		xstrcpy(sTemp, _X("EV_NONE"));
+		_tcscpy(sTemp, _T("EV_NONE"));
 		break;
 	case 0x01:
-		xstrcpy(sTemp, _X("EV_CURRENT"));
+		_tcscpy(sTemp, _T("EV_CURRENT"));
 		break;
 	default:
-		xsnprintf(sTemp, countof(sTemp), _X("Unknown (%i)"), pH->nVersion);
+		_sntprintf(sTemp, countof(sTemp), _T("Unknown (%i)"), pH->nVersion);
 		break;
 	}
 	m_pVersion->SetText(sTemp);
 
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nEntryPoint);
-	m_pEntry->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nProgHeaderStart);
-	m_pPHOffset->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nProgHeaderEntrySize);
-	m_pPHSize->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("%i"), pH->nProgHeaderCount);
-	m_pPHCount->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nSectHeaderStart);
-	m_pSHOffset->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nSectHeaderEntrySize);
-	m_pSHSize->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("%i"), pH->nSectHeaderCount);
-	m_pSHCount->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nFlags);
-	m_pFlags->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("0x%0.8X"), pH->nSize);
-	m_pSize->SetText(sTemp);
-
-	xsnprintf(sTemp, countof(sTemp), _X("%i"), pH->nSectHeaderStringTableIndex);
-	m_pSHStrTab->SetText(sTemp);
+	m_pEntry->SetText((_T("0x") + lexical_cast_hex<tstring>(pH->nEntryPoint, 8)).c_str());
+	m_pPHOffset->SetText((_T("0x") + lexical_cast_hex<tstring>(pH->nProgHeaderStart, 8)).c_str());
+	m_pPHSize->SetText((_T("0x") + lexical_cast_hex<tstring>(pH->nProgHeaderEntrySize, 8)).c_str());
+	m_pPHCount->SetText(lexical_cast<tstring>(pH->nProgHeaderCount).c_str());
+	m_pSHOffset->SetText((_T("0x") + lexical_cast_hex<tstring>(pH->nSectHeaderStart, 8)).c_str());
+	m_pSHSize->SetText((_T("0x") + lexical_cast_hex<tstring>(pH->nSectHeaderEntrySize, 8)).c_str());
+	m_pSHCount->SetText(lexical_cast<tstring>(pH->nSectHeaderCount).c_str());
+	m_pFlags->SetText((_T("0x") + lexical_cast_hex<tstring>(pH->nFlags, 8)).c_str());
+	m_pSize->SetText((_T("0x") + lexical_cast_hex<tstring>(pH->nSize, 8)).c_str());
+	m_pSHStrTab->SetText(lexical_cast<tstring>(pH->nSectHeaderStringTableIndex).c_str());
 }
 
 void CELFHeaderView::RefreshLayout()

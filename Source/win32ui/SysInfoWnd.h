@@ -24,7 +24,7 @@ private:
 	void							RefreshLayout();
 
 	static unsigned long WINAPI		ThreadRDTSC(void*);
-	static const xchar*				m_sFeature[32];
+	static const TCHAR*				m_sFeature[32];
 
 	HANDLE							m_nRDTSCThread;
 
