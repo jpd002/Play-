@@ -33,6 +33,8 @@ private:
 		HISTORY_STACK_MAX = 20
 	};
 
+    typedef std::pair<uint32, uint32> SelectionRangeType;
+
 	void							GotoAddress();
 	void							GotoPC();
 	void							GotoEA();
@@ -47,7 +49,8 @@ private:
 	unsigned int					GetFontHeight();
 	HFONT							GetFont();
 	bool							IsAddressVisible(uint32);
-	void							HistoryReset();
+    SelectionRangeType              GetSelectionRange();
+    void							HistoryReset();
 	void							HistorySave(uint32);
 	void							HistoryGoBack();
 	void							HistoryGoForward();
@@ -55,9 +58,8 @@ private:
 	uint32							HistoryGetNext();
 	bool							HistoryHasPrevious();
 	bool							HistoryHasNext();
-	void							OnMachineStateChange();
+    void							OnMachineStateChange();
 	void							OnRunningStateChange();
-
 
 	CMIPS*							m_pCtx;
 	HBITMAP							m_nArrow;
@@ -66,6 +68,7 @@ private:
 	HBITMAP							m_nBPointMask;
 	uint32							m_nAddress;
 	uint32							m_nSelected;
+    uint32                          m_nSelectionEnd;
 	int								m_nFontCX;
 	bool							m_nFocus;
 

@@ -7,6 +7,7 @@
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "WinUtils.h"
+#include "win32/DeviceContext.h"
 
 #define CLSNAME		_T("CDisAsm")
 #define YSPACE		3
@@ -67,6 +68,7 @@ CDisAsm::CDisAsm(HWND hParent, RECT* pR, CMIPS* pCtx)
 	SetScrollInfo(m_hWnd, SB_VERT, &si, FALSE);
 
 	m_nSelected = 0;
+    m_nSelectionEnd = -1;
 	m_nAddress = 0;
 
 }
@@ -285,6 +287,23 @@ bool CDisAsm::IsAddressVisible(uint32 nAddress)
 	return true;
 }
 
+CDisAsm::SelectionRangeType CDisAsm::GetSelectionRange()
+{
+    if(m_nSelectionEnd == -1)
+    {
+        return SelectionRangeType(m_nSelected, m_nSelected);
+    }
+
+    if(m_nSelectionEnd > m_nSelected)
+    {
+        return SelectionRangeType(m_nSelected, m_nSelectionEnd);
+    }
+    else
+    {
+        return SelectionRangeType(m_nSelectionEnd, m_nSelected);
+    }
+}
+
 void CDisAsm::HistoryReset()
 {
 	m_nHistoryPosition	= -1;
@@ -360,8 +379,18 @@ void CDisAsm::UpdateMouseSelection(unsigned int nX, unsigned int nY)
 	if(nX <= 18) return;
 	nNew = nY / (GetFontHeight() + YSPACE);
 	nNew = (m_nAddress + (nNew * 4));
-	if(nNew == m_nSelected) return;
-	m_nSelected = nNew;
+
+    if(GetKeyState(VK_SHIFT) & 0x8000)
+    {
+        m_nSelectionEnd = nNew;
+    }
+    else
+    {
+        m_nSelectionEnd = -1;
+        if(nNew == m_nSelected) return;
+        m_nSelected = nNew;
+    }
+
 	Redraw();
 }
 
@@ -602,18 +631,39 @@ long CDisAsm::OnCopy()
 
     EmptyClipboard();
     
-    tstring sText;
-    char sDisAsm[256];
+    SelectionRangeType SelectionRange;
     HGLOBAL hMemory;
-    uint32 nOpcode;
+    tstring sText;
 
-    nOpcode = GetInstruction(m_nAddress);
+    SelectionRange = GetSelectionRange();
 
-    m_pCtx->m_pArch->GetInstructionMnemonic(m_pCtx, m_nSelected, nOpcode, sDisAsm, countof(sDisAsm));
-    sText += string_cast<tstring>(sDisAsm) + _T("       ");
+    for(uint32 i = SelectionRange.first; i <= SelectionRange.second; i += 4)
+    {
+        char sDisAsm[256];
+        uint32 nOpcode;
 
-	m_pCtx->m_pArch->GetInstructionOperands(m_pCtx, m_nSelected, nOpcode, sDisAsm, countof(sDisAsm));
-    sText += string_cast<tstring>(sDisAsm);
+        if(i != SelectionRange.first)
+        {
+            sText += _T("\r\n");    
+        }
+
+        nOpcode = GetInstruction(i);
+
+        sText += lexical_cast_hex<tstring>(i,       8) + _T("    ");
+        sText += lexical_cast_hex<tstring>(nOpcode, 8) + _T("    ");
+
+        m_pCtx->m_pArch->GetInstructionMnemonic(m_pCtx, i, nOpcode, sDisAsm, countof(sDisAsm));
+        
+        sText += string_cast<tstring>(sDisAsm);
+        for(size_t j = strlen(sDisAsm); j < 15; j++)
+        {
+            sText += _T(" ");
+        }
+
+	    m_pCtx->m_pArch->GetInstructionOperands(m_pCtx, i, nOpcode, sDisAsm, countof(sDisAsm));
+        sText += string_cast<tstring>(sDisAsm);
+
+    }
 
     hMemory = GlobalAlloc(GMEM_MOVEABLE, (sText.length() + 1) * sizeof(TCHAR));
     _tcscpy(reinterpret_cast<TCHAR*>(GlobalLock(hMemory)), sText.c_str());
@@ -639,13 +689,14 @@ void CDisAsm::Paint(HDC hDC)
 	SIZE s;
 	uint32 nData, nAddress, nEffAddr;
 	TCHAR sTemp[256];
-    tstring sConvertTemp;
 	char sDisAsm[256];
 	const char* sTag;
 	int nLines, i;
 	unsigned int nY;
 	bool nCommentDrawn;
 	CMIPSAnalysis::SUBROUTINE* pSub;
+    SelectionRangeType SelectionRange;
+    Win32::CDeviceContext DeviceContext(hDC);
 
 	GetClientRect(&rwin);
 
@@ -673,6 +724,8 @@ void CDisAsm::Paint(HDC hDC)
 	SetBkMode(hDC, TRANSPARENT);
 
 	nY = YMARGIN;
+
+    SelectionRange = GetSelectionRange();
 
 	for(i = 0; i < nLines; i++)
 	{
@@ -712,7 +765,10 @@ void CDisAsm::Paint(HDC hDC)
 			}
 		}
 
-		if(nAddress == m_nSelected)
+		if(
+            (nAddress >= SelectionRange.first) && 
+            (nAddress <= SelectionRange.second)
+            )
 		{
 			SetRect(&rsel, 18, nY, rwin.right, nY + s.cy + YSPACE);
 			if(m_nFocus)
@@ -757,16 +813,13 @@ void CDisAsm::Paint(HDC hDC)
 		}
 
 		nData = GetInstruction(nAddress);
-		_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), nData);
-		TextOut(hDC, 100, nY, sTemp, (int)_tcslen(sTemp));
+        DeviceContext.TextOut(100, nY, lexical_cast_hex<tstring>(nData, 8).c_str());
 		
 		m_pCtx->m_pArch->GetInstructionMnemonic(m_pCtx, nAddress, nData, sDisAsm, 256);
-        sConvertTemp = string_cast<tstring>(sDisAsm);
-		TextOut(hDC, 200, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
+        DeviceContext.TextOut(200, nY, string_cast<tstring>(sDisAsm).c_str());
 
 		m_pCtx->m_pArch->GetInstructionOperands(m_pCtx, nAddress, nData, sDisAsm, 256);
-        sConvertTemp = string_cast<tstring>(sDisAsm);
-		TextOut(hDC, 300, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
+        DeviceContext.TextOut(300, nY, string_cast<tstring>(sDisAsm).c_str());
 
 		nCommentDrawn = false;
 
@@ -776,8 +829,7 @@ void CDisAsm::Paint(HDC hDC)
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x80));
 			strcpy(sDisAsm, "@");
 			strcat(sDisAsm, sTag);
-            sConvertTemp = string_cast<tstring>(sDisAsm);
-			TextOut(hDC, 450, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
+            DeviceContext.TextOut(450, nY, string_cast<tstring>(sDisAsm).c_str());
 			nCommentDrawn = true;
 		}
 
@@ -792,8 +844,7 @@ void CDisAsm::Paint(HDC hDC)
 					SetTextColor(hDC, RGB(0x00, 0x00, 0x80));
 					strcpy(sDisAsm, "-> ");
 					strcat(sDisAsm, sTag);
-                    sConvertTemp = string_cast<tstring>(sDisAsm);
-					TextOut(hDC, 450, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
+                    DeviceContext.TextOut(450, nY, string_cast<tstring>(sDisAsm).c_str());
 					nCommentDrawn = true;
 				}
 			}
@@ -805,8 +856,7 @@ void CDisAsm::Paint(HDC hDC)
 			SetTextColor(hDC, RGB(0x00, 0x80, 0x00));
 			strcpy(sDisAsm, ";");
 			strcat(sDisAsm, sTag);
-            sConvertTemp = string_cast<tstring>(sDisAsm);
-			TextOut(hDC, 450, nY, sConvertTemp.c_str(), static_cast<int>(sConvertTemp.length()));
+            DeviceContext.TextOut(450, nY, string_cast<tstring>(sDisAsm).c_str());
 		}
 
 		nY += s.cy + YSPACE;
