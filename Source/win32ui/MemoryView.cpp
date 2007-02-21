@@ -19,7 +19,7 @@ CMemoryView::CMemoryView(HWND hParent, RECT* pR)
 		w.cbSize		= sizeof(WNDCLASSEX);
 		w.lpfnWndProc	= CWindow::WndProc;
 		w.lpszClassName	= CLSNAME;
-		w.hbrBackground	= (HBRUSH)GetStockObject(WHITE_BRUSH);
+		w.hbrBackground	= NULL;
 		w.hInstance		= GetModuleHandle(NULL);
 		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
 		RegisterClassEx(&w);
