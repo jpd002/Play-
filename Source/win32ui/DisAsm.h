@@ -25,6 +25,7 @@ protected:
 	long							OnMouseMove(WPARAM, int, int);
 	long							OnVScroll(unsigned int, unsigned int);
 	long							OnKeyDown(unsigned int);
+    long                            OnCopy();
 
 private:
 	enum

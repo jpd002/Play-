@@ -5,6 +5,7 @@
 #include "../PS2VM.h"
 #include "win32/InputBox.h"
 #include "string_cast.h"
+#include "lexical_cast_ex.h"
 #include "WinUtils.h"
 
 #define CLSNAME		_T("CDisAsm")
@@ -106,7 +107,6 @@ HFONT CDisAsm::GetFont()
 
 void CDisAsm::GotoAddress()
 {
-	TCHAR sTemp[256];
 	const TCHAR* sValue;
 	uint32 nAddress;
 	
@@ -116,9 +116,10 @@ void CDisAsm::GotoAddress()
 		return;
 	}
 
-	_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), m_nAddress);
-
-	Win32::CInputBox i(_T("Goto Address"), _T("Enter new address:"), sTemp);
+	Win32::CInputBox i(
+		_T("Goto Address"),
+		_T("Enter new address:"),
+		(_T("0x") + lexical_cast_hex<tstring>(m_nAddress, 8)).c_str());
 
 	sValue = i.GetValue(m_hWnd);
 	if(sValue != NULL)
@@ -590,6 +591,43 @@ long CDisAsm::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 		break;
 	}
 	return TRUE;
+}
+
+long CDisAsm::OnCopy()
+{
+    if(!OpenClipboard(m_hWnd))
+    {
+        return TRUE;
+    }
+
+    EmptyClipboard();
+    
+    tstring sText;
+    char sDisAsm[256];
+    HGLOBAL hMemory;
+    uint32 nOpcode;
+
+    nOpcode = GetInstruction(m_nAddress);
+
+    m_pCtx->m_pArch->GetInstructionMnemonic(m_pCtx, m_nSelected, nOpcode, sDisAsm, countof(sDisAsm));
+    sText += string_cast<tstring>(sDisAsm) + _T("       ");
+
+	m_pCtx->m_pArch->GetInstructionOperands(m_pCtx, m_nSelected, nOpcode, sDisAsm, countof(sDisAsm));
+    sText += string_cast<tstring>(sDisAsm);
+
+    hMemory = GlobalAlloc(GMEM_MOVEABLE, (sText.length() + 1) * sizeof(TCHAR));
+    _tcscpy(reinterpret_cast<TCHAR*>(GlobalLock(hMemory)), sText.c_str());
+    GlobalUnlock(hMemory);
+
+#ifdef _UNICODE
+    SetClipboardData(CF_UNICODETEXT, hMemory);
+#else
+    SetClipboardData(CF_TEXT, hMemory);
+#endif
+
+    CloseClipboard();
+
+    return TRUE;
 }
 
 void CDisAsm::Paint(HDC hDC)

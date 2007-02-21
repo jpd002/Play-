@@ -79,3 +79,8 @@ long CDisAsmWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 	}
 	return TRUE;
 }
+
+long CDisAsmWnd::OnCopy()
+{
+    return static_cast<long>(SendMessage(m_pDisAsm->m_hWnd, WM_COPY, 0, 0));
+}
