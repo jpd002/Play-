@@ -2,6 +2,9 @@
 #include <string.h>
 #include "MemoryView.h"
 #include "string_cast.h"
+#include "win32/GdiObj.h"
+#include "win32/ClientDeviceContext.h"
+#include "lexical_cast_ex.h"
 
 #define CLSNAME		_T("CMemoryView")
 #define XMARGIN		5
@@ -9,10 +12,11 @@
 #define YSPACE		0
 
 using namespace std;
+using namespace Framework;
 
 CMemoryView::CMemoryView(HWND hParent, RECT* pR)
 {
-	if(!DoesWindowClassExist(CLSNAME))
+    if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
 		memset(&w, 0, sizeof(WNDCLASSEX));
@@ -29,6 +33,7 @@ CMemoryView::CMemoryView(HWND hParent, RECT* pR)
 	SetClassPtr();
 
 	m_nSize = 0;
+    m_nSelectionStart = 0;
 
 	UpdateScrollRange();
 }
@@ -121,21 +126,16 @@ unsigned int CMemoryView::GetScrollThumbPosition()
 
 void CMemoryView::GetVisibleRowsCols(unsigned int* pRows, unsigned int* pCols)
 {
-	HDC hDC;
 	SIZE s;
 	RECT rc;
 	unsigned int nRows, nCols;
-	HFONT hFont;
 
-	hDC = GetDC(m_hWnd);
-	hFont = GetFont();
+    {
+        Win32::CClientDeviceContext DeviceContext(m_hWnd);
+        Win32::CFont Font(GetFont());
 
-	SelectObject(hDC, hFont);
-
-	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
-
-	DeleteObject(hFont);
-	ReleaseDC(m_hWnd, hDC);
+        s = DeviceContext.GetFontSize(Font);
+    }
 
 	GetClientRect(&rc);
 
@@ -161,40 +161,24 @@ void CMemoryView::Paint(HDC hDC)
 {
 	RECT rwin;
 	SIZE s;
-	unsigned int nLines, nX, nY, i, j, nBytes, nFixedBytes, nOffset;
+	unsigned int nLines, nX, nY, nBytes, nFixedBytes;
 	uint32 nAddress;
-	TCHAR sTemp[256];
-	uint8 nValue;
-	char sValue[2];
-	HFONT hFont;
+    Win32::CDeviceContext DeviceContext(hDC);
 
 	GetClientRect(&rwin);
+	BitBlt(DeviceContext, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
 
-	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
+    Win32::CFont Font(GetFont());
+    DeviceContext.SelectObject(Font);
 
-	hFont = GetFont();
-	SelectObject(hDC, hFont);
+    s = DeviceContext.GetFontSize(Font);
 
-	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
+    GetRenderParams(s, nLines, nFixedBytes, nAddress);
 
-	nLines = (rwin.bottom - (YMARGIN * 2)) / (s.cy + YSPACE);
-	
-	nFixedBytes = rwin.right - (2 * XMARGIN) - (5 * s.cx) - 17;
-	nFixedBytes /= (3 * (s.cx + 1));
-	if(nFixedBytes != 0)
-	{
-		nFixedBytes--;
-	}
-	//nFixedBytes &= ~(0x0F);
-	nBytes = nFixedBytes;
-
-	nLines++;
-
-	nOffset = GetScrollOffset();
-
+    nBytes = nFixedBytes;
 	nY = YMARGIN;
-	nAddress = nOffset * nFixedBytes;
-	for(i = 0; i < nLines; i++)
+
+    for(unsigned int i = 0; i < nLines; i++)
 	{
 		if(nAddress >= m_nSize)
 		{
@@ -206,38 +190,38 @@ void CMemoryView::Paint(HDC hDC)
 		}
 
 		nX = XMARGIN;
-		_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), nAddress);
-		TextOut(hDC, nX, nY, sTemp, (int)_tcslen(sTemp));
+        DeviceContext.TextOut(nX, nY, lexical_cast_hex<tstring>(nAddress, 8).c_str());
 		nX += (8 * s.cx) + 10;
-		
-		for(j = 0; j < nBytes; j++)
+
+		for(unsigned int j = 0; j < nBytes; j++)
 		{
-			_sntprintf(sTemp, countof(sTemp), _T("%0.2X"), GetByte(nAddress + j));
-			TextOut(hDC, nX, nY, sTemp, (int)_tcslen(sTemp));
+            DeviceContext.TextOut(nX, nY, lexical_cast_hex<tstring>(GetByte(nAddress + j), 2).c_str());
 			nX += (2 * s.cx) + 3;
 		}
 		nX += (nFixedBytes - nBytes) * (2 * s.cx + 3);
 
 		nX += 10;
 
-		for(j = 0; j < nBytes; j++)
+		for(unsigned int j = 0; j < nBytes; j++)
 		{
-			nValue = GetByte(nAddress + j);
+	        uint8 nValue;
+	        char sValue[2];
+
+            nValue = GetByte(nAddress + j);
 			if(nValue < 0x20 || nValue > 0x7F)
 			{
 				nValue = '.';
 			}
 			sValue[0] = nValue;
 			sValue[1] = 0x00;
-			TextOut(hDC, nX, nY, string_cast<tstring>(sValue).c_str(), 1);
+
+            DeviceContext.TextOut(nX, nY, string_cast<tstring>(sValue).c_str());
 			nX += s.cx;
 		}
 
 		nY += (s.cy + YSPACE);
 		nAddress += nBytes;
 	}
-
-	DeleteObject(hFont);
 }
 
 void CMemoryView::SetMemorySize(uint32 nSize)
@@ -280,6 +264,8 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 	si.fMask		= SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
+    UpdateCaretPosition();
+
 	Redraw();
 	return TRUE;
 }
@@ -287,13 +273,32 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 long CMemoryView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
 {
 	UpdateScrollRange();
+    UpdateCaretPosition();
 	CCustomDrawn::OnSize(nType, nX, nY);
 	return TRUE;
 }
 
 long CMemoryView::OnSetFocus()
 {
+    Win32::CClientDeviceContext DeviceContext(m_hWnd);
+    Win32::CFont Font(GetFont());
+
+    CreateCaret(m_hWnd, NULL, 2, DeviceContext.GetFontHeight(Font));
+    ShowCaret(m_hWnd);
+
+    UpdateCaretPosition();
+
+    Redraw();
+
 	return FALSE;
+}
+
+long CMemoryView::OnKillFocus()
+{
+    HideCaret(m_hWnd);
+    DestroyCaret();
+
+    return FALSE;
 }
 
 long CMemoryView::OnMouseWheel(short nZ)
@@ -313,4 +318,118 @@ long CMemoryView::OnLeftButtonDown(int nX, int nY)
 {
 	SetFocus();
 	return FALSE;
+}
+
+long CMemoryView::OnLeftButtonUp(int nX, int nY)
+{
+    SIZE FontSize = Win32::CClientDeviceContext(m_hWnd).GetFontSize(Win32::CFont(GetFont()));
+
+    nY -= YMARGIN;
+    nX -= XMARGIN + (8 * FontSize.cx) + 10;
+
+    if(nY < 0) return FALSE;
+    if(nX < 0) return FALSE;
+
+    unsigned int nLine, nRow;
+    uint32 nAddress;
+    unsigned int nCols, nRows;
+
+    //Find selected line
+    nLine = nY / (FontSize.cy + YSPACE);
+
+    //Find selected row;
+    nRow = nX / ((2 * FontSize.cx) + 3);
+   
+    GetRenderParams(FontSize, nCols, nRows, nAddress);
+
+    if(nRow >= nRows) return FALSE;
+
+    SetSelectionStart(nAddress + nRow + (nLine * nRows));
+
+    return FALSE;
+}
+
+long CMemoryView::OnKeyDown(unsigned int nKey)
+{
+    switch(nKey)
+    {
+    case VK_RIGHT:
+        SetSelectionStart(m_nSelectionStart + 1);
+        break;
+    case VK_LEFT:
+        SetSelectionStart(m_nSelectionStart - 1);
+        break;
+    case VK_UP:
+    case VK_DOWN:
+        {
+            unsigned int nCols;
+            GetVisibleRowsCols(NULL, &nCols);
+            SetSelectionStart(m_nSelectionStart + ((nKey == VK_UP) ? (-static_cast<int>(nCols)) : (nCols)));
+        }
+    }
+
+    return TRUE;
+}
+
+void CMemoryView::SetSelectionStart(unsigned int nNewAddress)
+{
+    if(static_cast<int>(nNewAddress) < 0) return;
+    if(nNewAddress >= m_nSize) return;
+
+    m_nSelectionStart = nNewAddress;
+    UpdateCaretPosition();
+    m_OnSelectionChange(m_nSelectionStart);
+}
+
+void CMemoryView::UpdateCaretPosition()
+{
+    Win32::CClientDeviceContext DeviceContext(m_hWnd);
+    Win32::CFont Font(GetFont());
+
+    unsigned int nLines, nBytes;
+    uint32 nAddress;
+    SIZE FontSize(DeviceContext.GetFontSize(Font));
+
+    GetRenderParams(
+        FontSize,
+        nLines,
+        nBytes,
+        nAddress);
+
+    if(
+        (m_nSelectionStart >= nAddress) && 
+        (m_nSelectionStart <= (nAddress + (nLines * nBytes)))
+        )
+    {
+        int nX, nY;
+        unsigned int nSelectionStart = m_nSelectionStart - nAddress;
+
+        nX = XMARGIN + (8 * FontSize.cx) + 10 + (nSelectionStart % nBytes) * ((2 * FontSize.cx) + 3);
+        nY = YMARGIN + (FontSize.cy + YSPACE) * (nSelectionStart / nBytes);
+        SetCaretPos(nX, nY);
+    }
+    else
+    {
+        SetCaretPos(-20, -20);
+    }
+}
+
+void CMemoryView::GetRenderParams(const SIZE& FontSize, unsigned int& nLines, unsigned int& nFixedBytes, uint32& nAddress)
+{
+    RECT ClientRect(GetClientRect());
+
+	nLines = (ClientRect.bottom - (YMARGIN * 2)) / (FontSize.cy + YSPACE);
+	
+	nFixedBytes = ClientRect.right - (2 * XMARGIN) - (5 * FontSize.cx) - 17;
+	nFixedBytes /= (3 * (FontSize.cx + 1));
+	if(nFixedBytes != 0)
+	{
+		nFixedBytes--;
+	}
+	//nFixedBytes &= ~(0x0F);
+	//nBytes = nFixedBytes;
+
+	nLines++;
+
+	nAddress = GetScrollOffset() * nFixedBytes;
 }
