@@ -13,6 +13,7 @@ public:
 	virtual			                ~CMemoryView();
 	void			                SetMemorySize(uint32);
 	void			                ScrollToAddress(uint32);
+    uint32                          GetSelection();
 
     boost::signal<void (uint32)>    m_OnSelectionChange;
 
@@ -29,13 +30,13 @@ protected:
 	long			                OnLeftButtonDown(int, int);
     long                            OnLeftButtonUp(int, int);
     long                            OnKeyDown(unsigned int);
+    void                            SetSelectionStart(unsigned int);
 
 private:
 	void			                GetVisibleRowsCols(unsigned int*, unsigned int*);
 	void			                UpdateScrollRange();
 	unsigned int	                GetScrollOffset();
 	unsigned int	                GetScrollThumbPosition();
-    void                            SetSelectionStart(unsigned int);
     void                            UpdateCaretPosition();
     void                            GetRenderParams(const SIZE&, unsigned int&, unsigned int&, uint32&);
 

@@ -86,5 +86,6 @@ void CMemoryViewMIPS::GotoAddress()
 	{
 		_stscanf(sValue, _T("%x"), &nAddress);
 		ScrollToAddress(nAddress);
+        SetSelectionStart(nAddress);
 	}
 }

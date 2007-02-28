@@ -71,6 +71,11 @@ void CMemoryView::ScrollToAddress(uint32 nAddress)
 	Redraw();
 }
 
+uint32 CMemoryView::GetSelection()
+{
+    return m_nSelectionStart;
+}
+
 void CMemoryView::UpdateScrollRange()
 {
 	unsigned int nTotalRows;
