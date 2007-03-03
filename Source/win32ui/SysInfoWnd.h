@@ -6,7 +6,7 @@
 #include "win32/ListBox.h"
 #include "VerticalLayout.h"
 
-class CSysInfoWnd : public Framework::CWindow
+class CSysInfoWnd : public Framework::Win32::CWindow
 {
 public:
 									CSysInfoWnd(HWND);
@@ -31,7 +31,7 @@ private:
 	Framework::Win32::CStatic*		m_pProcessor;
 	Framework::Win32::CStatic*		m_pProcesses;
 	Framework::Win32::CStatic*		m_pThreads;
-	Framework::CListBox*			m_pFeatures;
+	Framework::Win32::CListBox*		m_pFeatures;
 
 	Framework::CVerticalLayout*		m_pLayout;
 };

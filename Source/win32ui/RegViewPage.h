@@ -4,7 +4,7 @@
 #include "win32/CustomDrawn.h"
 #include "Str.h"
 
-class CRegViewPage : public Framework::CCustomDrawn
+class CRegViewPage : public Framework::Win32::CCustomDrawn
 {
 public:
 									CRegViewPage(HWND, RECT*);

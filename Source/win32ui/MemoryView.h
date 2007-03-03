@@ -6,7 +6,7 @@
 #include "win32/DeviceContext.h"
 #include <boost/signal.hpp>
 
-class CMemoryView : public Framework::CCustomDrawn
+class CMemoryView : public Framework::Win32::CCustomDrawn
 {
 public:
 					                CMemoryView(HWND, RECT*);

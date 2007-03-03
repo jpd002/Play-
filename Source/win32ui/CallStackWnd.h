@@ -8,7 +8,7 @@
 
 class CMIPS;
 
-class CCallStackWnd : public Framework::CMDIChild, public boost::signals::trackable
+class CCallStackWnd : public Framework::Win32::CMDIChild, public boost::signals::trackable
 {
 public:
 									CCallStackWnd(HWND, CMIPS*);

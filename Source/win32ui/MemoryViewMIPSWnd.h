@@ -5,7 +5,7 @@
 #include "win32/StatusBar.h"
 #include "MemoryViewMIPS.h"
 
-class CMemoryViewMIPSWnd : public Framework::CMDIChild
+class CMemoryViewMIPSWnd : public Framework::Win32::CMDIChild
 {
 public:
 						            CMemoryViewMIPSWnd(HWND, CMIPS*);

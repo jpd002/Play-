@@ -12,7 +12,7 @@
 #include "../saves/Save.h"
 #include "../ThreadMsg.h"
 
-class CSaveView : public Framework::CWindow
+class CSaveView : public Framework::Win32::CWindow
 {
 public:
 										CSaveView(HWND);
@@ -34,7 +34,7 @@ private:
 		ICON_COPYING,
 	};
 
-	class CIconViewWnd : public Framework::CWindow
+	class CIconViewWnd : public Framework::Win32::CWindow
 	{
 	public:
 										CIconViewWnd(HWND, RECT*);

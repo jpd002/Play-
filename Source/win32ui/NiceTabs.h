@@ -18,7 +18,7 @@ enum TABFLAGS
 	TAB_FLAG_UNMOVABLE		= 0x02,
 };
 
-class CNiceTabs : public Framework::CCustomDrawn
+class CNiceTabs : public Framework::Win32::CCustomDrawn
 {
 public:
 										CNiceTabs(HWND, RECT*);

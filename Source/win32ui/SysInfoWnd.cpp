@@ -86,15 +86,15 @@ CSysInfoWnd::CSysInfoWnd(HWND hParent)
 	m_pProcessor	= new Win32::CStatic(m_hWnd, _T(""));
 	m_pProcesses	= new Win32::CStatic(m_hWnd, _T(""));
 	m_pThreads		= new Win32::CStatic(m_hWnd, _T(""));
-	m_pFeatures		= new CListBox(m_hWnd, &rc, WS_VSCROLL | LBS_SORT);
+	m_pFeatures		= new Win32::CListBox(m_hWnd, &rc, WS_VSCROLL | LBS_SORT);
 
 	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcesses));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pThreads));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor:"))));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcessor));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor Features:"))));
-	m_pLayout->InsertObject(new CLayoutWindow(200, 200, 1, 1, m_pFeatures));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcesses));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pThreads));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor:"))));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcessor));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor Features:"))));
+	m_pLayout->InsertObject(new Win32::CLayoutWindow(200, 200, 1, 1, m_pFeatures));
 
 	m_nRDTSCThread = NULL;
 

@@ -1047,6 +1047,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MipsTestEngine.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\OsEventManager.cpp"
 					>
 				</File>
@@ -1310,6 +1314,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\MIPSTags.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\MipsTestEngine.h"
 					>
 				</File>
 				<File

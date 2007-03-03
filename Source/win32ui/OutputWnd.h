@@ -4,7 +4,7 @@
 #include "win32/Window.h"
 #include "Event.h"
 
-class COutputWnd : public Framework::CWindow
+class COutputWnd : public Framework::Win32::CWindow
 {
 public:
 									COutputWnd(HWND, RECT*);

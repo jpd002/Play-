@@ -53,13 +53,13 @@ CModalWindow(hParent)
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
 	pSubLayout0->SetVerticalStretch(0);
 
 	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(new CLayoutWindow(1, 1, 1, 1, m_pList));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 40, new Win32::CStatic(m_hWnd, _T("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT)));
+	m_pLayout->InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pList));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 40, new Win32::CStatic(m_hWnd, _T("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT)));
 	m_pLayout->InsertObject(pSubLayout0);
 
 	RefreshLayout();

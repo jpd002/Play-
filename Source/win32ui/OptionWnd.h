@@ -16,7 +16,7 @@ protected:
 	long							OnNotify(WPARAM, NMHDR*);
 	long							OnSize(unsigned int, unsigned int, unsigned int);
 
-	Framework::CWindow*				GetContainer();
+    Framework::Win32::CWindow*		GetContainer();
 	Framework::Win32::CTreeView*	GetTreeView();
 	HTREEITEM						InsertOption(HTREEITEM, const TCHAR*, HWND);
 	void							DeleteAllOptions();

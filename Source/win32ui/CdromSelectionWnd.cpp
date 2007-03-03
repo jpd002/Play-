@@ -122,20 +122,20 @@ CModalWindow(hParent)
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
 	pSubLayout0->SetVerticalStretch(0);
 
 	pSubLayout1 = new CHorizontalLayout;
-	pSubLayout1->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 21, m_pImageEdit));
-	pSubLayout1->InsertObject(CLayoutWindow::CreateButtonBehavior(20, 21, m_pImageBrowse));
+    pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 21, m_pImageEdit));
+    pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(20, 21, m_pImageBrowse));
 	pSubLayout1->SetVerticalStretch(0);
 
 	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pImageRadio));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pImageRadio));
 	m_pLayout->InsertObject(pSubLayout1);
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pDeviceRadio));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pDeviceCombo));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pDeviceRadio));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pDeviceCombo));
 	m_pLayout->InsertObject(new CLayoutStretch);
 	m_pLayout->InsertObject(pSubLayout0);
 

@@ -9,7 +9,7 @@
 #include "ELFSymbolView.h"
 #include "win32/MDIChild.h"
 
-class CELFView : public COptionWnd<Framework::CMDIChild>
+class CELFView : public COptionWnd<Framework::Win32::CMDIChild>
 {
 public:
 						CELFView(HWND);

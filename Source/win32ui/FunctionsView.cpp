@@ -53,13 +53,13 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pNew));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pRename));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pImport));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pNew));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pRename));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImport));
 
 	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(new CLayoutWindow(1, 1, 1, 1, m_pList));
+	m_pLayout->InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pList));
 	m_pLayout->InsertObject(pSubLayout0);
 
 	SetSize(469, 612);

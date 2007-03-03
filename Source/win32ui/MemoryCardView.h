@@ -10,7 +10,7 @@
 #include "EventEx.h"
 #include "../ThreadMsg.h"
 
-class CMemoryCardView : public Framework::CWindow
+class CMemoryCardView : public Framework::Win32::CWindow
 {
 public:
 										CMemoryCardView(HWND, RECT*);

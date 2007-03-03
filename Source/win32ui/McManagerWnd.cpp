@@ -69,28 +69,28 @@ m_MemoryCard1(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.
 	CHorizontalLayout* pSubLayout0;
 
 	pSubLayout0 = new CHorizontalLayout();
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(200, 23, m_pMemoryCardList));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pImportButton));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 23, m_pMemoryCardList));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImportButton));
 	pSubLayout0->InsertObject(new CLayoutStretch());
 
 	CHorizontalLayout* pSubLayout1;
 
 	pSubLayout1 = new CHorizontalLayout();
-	pSubLayout1->InsertObject(CLayoutWindow::CreateButtonBehavior(130, 23, m_pMemoryCardView));
-	pSubLayout1->InsertObject(new CLayoutWindow(100, 100, 1, 1, m_pSaveView));
+	pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(130, 23, m_pMemoryCardView));
+	pSubLayout1->InsertObject(new Win32::CLayoutWindow(100, 100, 1, 1, m_pSaveView));
 	pSubLayout1->SetVerticalStretch(1);
 
 	CHorizontalLayout* pSubLayout2;
 
 	pSubLayout2 = new CHorizontalLayout();
 	pSubLayout2->InsertObject(new CLayoutStretch());
-	pSubLayout2->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pCloseButton));
+	pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCloseButton));
 
 	m_pLayout = new CVerticalLayout();
 	m_pLayout->InsertObject(pSubLayout0);
-	m_pLayout->InsertObject(CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
 	m_pLayout->InsertObject(pSubLayout1);
-	m_pLayout->InsertObject(CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
 	m_pLayout->InsertObject(pSubLayout2);
 
 	RefreshLayout();

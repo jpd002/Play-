@@ -3,7 +3,7 @@
 
 #include "win32/Window.h"
 
-class CModalWindow : public Framework::CWindow
+class CModalWindow : public Framework::Win32::CWindow
 {
 public:
 					CModalWindow(HWND);

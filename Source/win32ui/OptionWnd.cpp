@@ -38,8 +38,8 @@ COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
 	m_pContainer	= new Win32::CStatic(m_hWnd, &rc);
 
 	m_pLayout = new CHorizontalLayout;
-	m_pLayout->InsertObject(new CLayoutWindow(25, 20, 1, 0, m_pTreeView, false));
-	m_pLayout->InsertObject(new CLayoutWindow(75, 20, 3, 0, m_pContainer));
+	m_pLayout->InsertObject(new Win32::CLayoutWindow(25, 20, 1, 0, m_pTreeView, false));
+	m_pLayout->InsertObject(new Win32::CLayoutWindow(75, 20, 3, 0, m_pContainer));
 
 	RefreshLayout();
 }
@@ -80,7 +80,7 @@ long COptionWnd<T>::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
 }
 
 template <typename T>
-CWindow* COptionWnd<T>::GetContainer()
+Win32::CWindow* COptionWnd<T>::GetContainer()
 {
 	return m_pContainer;
 }
@@ -160,5 +160,5 @@ void COptionWnd<T>::DeleteAllOptions()
 	m_pTreeView->DeleteAllItems();
 }
 
-template class COptionWnd<Framework::CWindow>;
-template class COptionWnd<Framework::CMDIChild>;
+template class COptionWnd<Framework::Win32::CWindow>;
+template class COptionWnd<Framework::Win32::CMDIChild>;

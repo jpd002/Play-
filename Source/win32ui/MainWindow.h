@@ -11,7 +11,7 @@
 #include "Debugger.h"
 #endif
 
-class CMainWindow : public Framework::CWindow, public boost::signals::trackable
+class CMainWindow : public Framework::Win32::CWindow, public boost::signals::trackable
 {
 public:
 									CMainWindow(char*);

@@ -6,7 +6,7 @@
 
 class CMIPS;
 
-class CRegViewWnd : public Framework::CMDIChild, public boost::signals::trackable
+class CRegViewWnd : public Framework::Win32::CMDIChild, public boost::signals::trackable
 {
 public:
 						CRegViewWnd(HWND, CMIPS*);

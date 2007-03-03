@@ -4,7 +4,7 @@
 #include "win32/MDIChild.h"
 #include "DisAsm.h"
 
-class CDisAsmWnd : public Framework::CMDIChild
+class CDisAsmWnd : public Framework::Win32::CMDIChild
 {
 public:
 						CDisAsmWnd(HWND, CMIPS*);

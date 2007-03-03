@@ -8,7 +8,7 @@
 #include "xml/Node.h"
 #include "Types.h"
 
-class COsEventViewWnd : public Framework::CMDIChild
+class COsEventViewWnd : public Framework::Win32::CMDIChild
 {
 public:
 									COsEventViewWnd(HWND);

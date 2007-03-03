@@ -15,10 +15,10 @@
 class CGSH_OpenGL : public CGSHandler, public CSettingsDialogProvider
 {
 public:
-									CGSH_OpenGL(Framework::CWindow*);
+									CGSH_OpenGL(Framework::Win32::CWindow*);
 									~CGSH_OpenGL();
 
-	static void						CreateGSHandler(Framework::CWindow*);
+	static void						CreateGSHandler(Framework::Win32::CWindow*);
 
 	virtual void					LoadState(Framework::CStream*);
 
@@ -172,7 +172,7 @@ private:
 	TEXTUREUPLOADER					m_pTexUploader_Psm8;
 	TEXTUREUPLOADER					m_pTexUploader_Psm16;
 
-	Framework::CWindow*				m_pOutputWnd;
+	Framework::Win32::CWindow*		m_pOutputWnd;
 
 	Framework::OpenGl::CProgram*	m_pProgram;
 	Framework::OpenGl::CShader*		m_pVertShader;

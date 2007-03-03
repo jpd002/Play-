@@ -9,7 +9,7 @@
 #include "../MIPS.h"
 #include "../ELF.h"
 
-class CFunctionsView : public Framework::CMDIChild
+class CFunctionsView : public Framework::Win32::CMDIChild
 {
 public:
 									CFunctionsView(HWND, CMIPS*);

@@ -61,24 +61,24 @@ CSaveView::CSaveView(HWND hParent)
 	CHorizontalLayout* pSubLayout0;
 	{
 		pSubLayout0 = new CHorizontalLayout();
-		pSubLayout0->InsertObject(CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pId));
-		pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pOpenFolder));
+		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pId));
+		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOpenFolder));
 	}
 
 	CGridLayout* pSubLayout1;
 	{
 		pSubLayout1 = new CGridLayout(2, 5);
 
-		pSubLayout1->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Name:"))));
-		pSubLayout1->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Size:"))));
-		pSubLayout1->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Id:"))));
-		pSubLayout1->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Last Modified:")))); 
+		pSubLayout1->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Name:"))));
+		pSubLayout1->SetObject(0, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Size:"))));
+		pSubLayout1->SetObject(0, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Id:"))));
+		pSubLayout1->SetObject(0, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Last Modified:")))); 
 
-		pSubLayout1->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine1));
-		pSubLayout1->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine2));
-		pSubLayout1->SetObject(1, 2, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pSize));
+		pSubLayout1->SetObject(1, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine1));
+		pSubLayout1->SetObject(1, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine2));
+		pSubLayout1->SetObject(1, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pSize));
 		pSubLayout1->SetObject(1, 3, pSubLayout0);
-		pSubLayout1->SetObject(1, 4, CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pLastModified));
+		pSubLayout1->SetObject(1, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pLastModified));
 
 		pSubLayout1->SetVerticalStretch(0);
 	}
@@ -86,24 +86,24 @@ CSaveView::CSaveView(HWND hParent)
 	CHorizontalLayout* pSubLayout2;
 	{
 		pSubLayout2 = new CHorizontalLayout();
-		pSubLayout2->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pExport));
-		pSubLayout2->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
+		pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pExport));
+		pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
 		pSubLayout2->SetVerticalStretch(0);
 	}
 
 	CHorizontalLayout* pSubLayout3;
 	{
 		pSubLayout3 = new CHorizontalLayout();
-		pSubLayout3->InsertObject(new CLayoutWindow(50, 50, 1, 1, m_pIconViewWnd));
+		pSubLayout3->InsertObject(new Win32::CLayoutWindow(50, 50, 1, 1, m_pIconViewWnd));
 		pSubLayout3->SetVerticalStretch(1);
 	}
 
 	CHorizontalLayout* pSubLayout4;
 	{
 		pSubLayout4 = new CHorizontalLayout();
-		pSubLayout4->InsertObject(new CLayoutWindow(50, 23, 1, 0, m_pNormalIcon));
-		pSubLayout4->InsertObject(new CLayoutWindow(50, 23, 1, 0, m_pCopyingIcon));
-		pSubLayout4->InsertObject(new CLayoutWindow(50, 23, 1, 0, m_pDeletingIcon));
+		pSubLayout4->InsertObject(new Win32::CLayoutWindow(50, 23, 1, 0, m_pNormalIcon));
+		pSubLayout4->InsertObject(new Win32::CLayoutWindow(50, 23, 1, 0, m_pCopyingIcon));
+		pSubLayout4->InsertObject(new Win32::CLayoutWindow(50, 23, 1, 0, m_pDeletingIcon));
 		pSubLayout4->SetVerticalStretch(0);
 	}
 

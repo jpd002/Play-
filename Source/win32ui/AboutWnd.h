@@ -6,7 +6,7 @@
 #include "win32/Button.h"
 #include "VerticalLayout.h"
 
-class CAboutWnd : public Framework::CWindow
+class CAboutWnd : public Framework::Win32::CWindow
 {
 public:
 									CAboutWnd(HWND);

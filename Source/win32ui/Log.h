@@ -4,7 +4,7 @@
 #include "win32/Edit.h"
 #include "win32/MDIChild.h"
 
-class CLog : public Framework::CMDIChild
+class CLog : public Framework::Win32::CMDIChild
 {
 public:
 								CLog(HWND);

@@ -5,7 +5,7 @@
 #include "win32/CustomDrawn.h"
 #include "../MIPS.h"
 
-class CDisAsm : public Framework::CCustomDrawn, public boost::signals::trackable
+class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::trackable
 {
 public:
 									CDisAsm(HWND, RECT*, CMIPS*);

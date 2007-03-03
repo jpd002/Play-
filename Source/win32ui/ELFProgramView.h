@@ -7,7 +7,7 @@
 #include "Types.h"
 #include "../ELF.h"
 
-class CELFProgramView : public Framework::CWindow
+class CELFProgramView : public Framework::Win32::CWindow
 {
 public:
 								CELFProgramView(HWND, CELF*, uint16);

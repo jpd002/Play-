@@ -46,8 +46,8 @@ CModalWindow(hParent)
 
 	pSubLayout0 = new CHorizontalLayout;
 	pSubLayout0->InsertObject(new CLayoutStretch);
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
-	pSubLayout0->InsertObject(CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
+	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
 	pSubLayout0->SetVerticalStretch(0);
 
 	m_nLinesAsQuads				= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
@@ -67,13 +67,13 @@ CModalWindow(hParent)
 	m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pLineCheck));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceFlippingCheck));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
-	m_pLayout->InsertObject(new CLayoutWindow(1, 1, 1, 1, m_pExtList));
-	m_pLayout->InsertObject(CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _T("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pLineCheck));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceFlippingCheck));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
+	m_pLayout->InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pExtList));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _T("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
 	m_pLayout->InsertObject(pSubLayout0);
 
 	RefreshLayout();

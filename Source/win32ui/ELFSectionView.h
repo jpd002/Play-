@@ -8,7 +8,7 @@
 #include "MemoryViewPtr.h"
 #include "../ELF.h"
 
-class CELFSectionView : public Framework::CWindow
+class CELFSectionView : public Framework::Win32::CWindow
 {
 public:
 								CELFSectionView(HWND, CELF*, uint16);

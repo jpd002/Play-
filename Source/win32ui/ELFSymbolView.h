@@ -5,7 +5,7 @@
 #include "win32/ListView.h"
 #include "../ELF.h"
 
-class CELFSymbolView : public Framework::CWindow
+class CELFSymbolView : public Framework::Win32::CWindow
 {
 public:
 									CELFSymbolView(HWND, CELF*);

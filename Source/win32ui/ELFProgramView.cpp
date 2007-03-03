@@ -45,23 +45,23 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
 
 	m_pLayout = new CGridLayout(2, 9);
 
-	m_pLayout->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
-	m_pLayout->SetObject(0, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Offset:"))));
-	m_pLayout->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Virtual Address:"))));
-	m_pLayout->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Physical Address:"))));
-	m_pLayout->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("File Size:"))));
-	m_pLayout->SetObject(0, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Memory Size:"))));
-	m_pLayout->SetObject(0, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
-	m_pLayout->SetObject(0, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Alignment:"))));
+	m_pLayout->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
+	m_pLayout->SetObject(0, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Offset:"))));
+	m_pLayout->SetObject(0, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Virtual Address:"))));
+	m_pLayout->SetObject(0, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Physical Address:"))));
+	m_pLayout->SetObject(0, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("File Size:"))));
+	m_pLayout->SetObject(0, 5, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Memory Size:"))));
+	m_pLayout->SetObject(0, 6, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
+	m_pLayout->SetObject(0, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Alignment:"))));
 
-	m_pLayout->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
-	m_pLayout->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pOffset));
-	m_pLayout->SetObject(1, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pVAddr));
-	m_pLayout->SetObject(1, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pPAddr));
-	m_pLayout->SetObject(1, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFileSize));
-	m_pLayout->SetObject(1, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pMemSize));
-	m_pLayout->SetObject(1, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFlags));
-	m_pLayout->SetObject(1, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAlign));
+	m_pLayout->SetObject(1, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
+	m_pLayout->SetObject(1, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pOffset));
+	m_pLayout->SetObject(1, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pVAddr));
+	m_pLayout->SetObject(1, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pPAddr));
+	m_pLayout->SetObject(1, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFileSize));
+	m_pLayout->SetObject(1, 5, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pMemSize));
+	m_pLayout->SetObject(1, 6, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFlags));
+	m_pLayout->SetObject(1, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAlign));
 	m_pLayout->SetObject(1, 8, new CLayoutStretch);
 
 	FillInformation();

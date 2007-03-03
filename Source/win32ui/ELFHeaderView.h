@@ -6,7 +6,7 @@
 #include "GridLayout.h"
 #include "../ELF.h"
 
-class CELFHeaderView : public Framework::CWindow
+class CELFHeaderView : public Framework::Win32::CWindow
 {
 public:
 								CELFHeaderView(HWND, CELF*);

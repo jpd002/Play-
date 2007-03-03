@@ -49,31 +49,31 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 
 	pSubLayout0 = new CGridLayout(2, 9);
 
-	pSubLayout0->SetObject(0, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
-	pSubLayout0->SetObject(0, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
-	pSubLayout0->SetObject(0, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Address:"))));
-	pSubLayout0->SetObject(0, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("File Offset:"))));
-	pSubLayout0->SetObject(0, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Size:"))));
-	pSubLayout0->SetObject(0, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Section Link:"))));
-	pSubLayout0->SetObject(0, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Info:"))));
-	pSubLayout0->SetObject(0, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Alignment:"))));
-	pSubLayout0->SetObject(0, 8, CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Entry Size:"))));
+	pSubLayout0->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
+	pSubLayout0->SetObject(0, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
+	pSubLayout0->SetObject(0, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Address:"))));
+	pSubLayout0->SetObject(0, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("File Offset:"))));
+	pSubLayout0->SetObject(0, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Size:"))));
+	pSubLayout0->SetObject(0, 5, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Section Link:"))));
+	pSubLayout0->SetObject(0, 6, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Info:"))));
+	pSubLayout0->SetObject(0, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Alignment:"))));
+	pSubLayout0->SetObject(0, 8, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Entry Size:"))));
 
-	pSubLayout0->SetObject(1, 0, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
-	pSubLayout0->SetObject(1, 1, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFlags));
-	pSubLayout0->SetObject(1, 2, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAddress));
-	pSubLayout0->SetObject(1, 3, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pOffset));
-	pSubLayout0->SetObject(1, 4, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pSize));
-	pSubLayout0->SetObject(1, 5, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pLink));
-	pSubLayout0->SetObject(1, 6, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pInfo));
-	pSubLayout0->SetObject(1, 7, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAlignment));
-	pSubLayout0->SetObject(1, 8, CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pEntrySize));
+	pSubLayout0->SetObject(1, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
+	pSubLayout0->SetObject(1, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFlags));
+	pSubLayout0->SetObject(1, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAddress));
+	pSubLayout0->SetObject(1, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pOffset));
+	pSubLayout0->SetObject(1, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pSize));
+	pSubLayout0->SetObject(1, 5, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pLink));
+	pSubLayout0->SetObject(1, 6, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pInfo));
+	pSubLayout0->SetObject(1, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAlignment));
+	pSubLayout0->SetObject(1, 8, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pEntrySize));
 
 	pSubLayout0->SetVerticalStretch(0);
 
 	m_pLayout = new CVerticalLayout;
 	m_pLayout->InsertObject(pSubLayout0);
-	m_pLayout->InsertObject(new CLayoutWindow(200, 200, 1, 1, m_pData));
+	m_pLayout->InsertObject(new Win32::CLayoutWindow(200, 200, 1, 1, m_pData));
 
 	FillInformation();
 

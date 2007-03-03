@@ -27,7 +27,7 @@ PIXELFORMATDESCRIPTOR		CGSH_OpenGL::m_PFD =
 	0, 0, 0
 };
 
-CGSH_OpenGL::CGSH_OpenGL(CWindow* pOutputWnd)
+CGSH_OpenGL::CGSH_OpenGL(Win32::CWindow* pOutputWnd)
 {
 	m_pOutputWnd = pOutputWnd;
 	m_pCvtBuffer = NULL;
@@ -54,7 +54,7 @@ CGSH_OpenGL::~CGSH_OpenGL()
 	wglDeleteContext(m_hRC);
 }
 
-void CGSH_OpenGL::CreateGSHandler(CWindow* pOutputWnd)
+void CGSH_OpenGL::CreateGSHandler(Win32::CWindow* pOutputWnd)
 {
 	CPS2VM::CreateGSHandler(GSHandlerFactory, pOutputWnd);
 }
@@ -1249,5 +1249,5 @@ bool CGSH_OpenGL::IsFogCoordfExtSupported()
 
 CGSHandler* CGSH_OpenGL::GSHandlerFactory(void* pParam)
 {
-	return new CGSH_OpenGL((CWindow*)pParam);
+	return new CGSH_OpenGL((Win32::CWindow*)pParam);
 }

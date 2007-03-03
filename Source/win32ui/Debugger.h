@@ -8,7 +8,7 @@
 #include "OsEventViewWnd.h"
 #include "DebugView.h"
 
-class CDebugger : public Framework::CMDIFrame, public boost::signals::trackable
+class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals::trackable
 {
 public:
 									CDebugger();
@@ -35,8 +35,8 @@ private:
 	void							UpdateTitle();
 	void							LoadSettings();
 	void							SaveSettings();
-	void							SerializeWindowGeometry(Framework::CWindow*, const char*, const char*, const char*, const char*, const char*);
-	void							UnserializeWindowGeometry(Framework::CWindow*, const char*, const char*, const char*, const char*, const char*);
+	void							SerializeWindowGeometry(Framework::Win32::CWindow*, const char*, const char*, const char*, const char*, const char*);
+	void							UnserializeWindowGeometry(Framework::Win32::CWindow*, const char*, const char*, const char*, const char*, const char*);
 	void							CreateAccelerators();
 	void							DestroyAccelerators();
 	void							StartShiftOpTest();
