@@ -22,6 +22,7 @@ CMipsTestEngine::CMipsTestEngine(const char* sPath)
 
     LoadInputs(pRootNode->Select("Test/Inputs"));
     LoadOutputs(pRootNode->Select("Test/Outputs"));
+    LoadInstances(pRootNode->Select("Test/Instances"));
 
     delete pRootNode;
 }
@@ -33,7 +34,7 @@ CMipsTestEngine::~CMipsTestEngine()
 
 void CMipsTestEngine::LoadInputs(Xml::CNode* pInputsNode)
 {
-    if(pInputsNode  == NULL)
+    if(pInputsNode == NULL)
     {
         throw exception();
     }
@@ -46,7 +47,7 @@ void CMipsTestEngine::LoadInputs(Xml::CNode* pInputsNode)
 
 void CMipsTestEngine::LoadOutputs(Xml::CNode* pOutputsNode)
 {
-    if(pOutputsNode  == NULL)
+    if(pOutputsNode == NULL)
     {
         throw exception();
     }
@@ -57,12 +58,31 @@ void CMipsTestEngine::LoadOutputs(Xml::CNode* pOutputsNode)
     }
 }
 
+void CMipsTestEngine::LoadInstances(Xml::CNode* pInstancesNode)
+{
+    if(pInstancesNode == NULL)
+    {
+        throw exception();
+    }
+
+    for(Xml::CFilteringNodeIterator itNode(pInstancesNode, "Instance"); !itNode.IsEnd(); itNode++)
+    {
+        m_Instances.push_back(new CInstance(*itNode));
+    }
+}
+
 ////////////////////////////////////////////////////
 // CValueSet implementation
 ////////////////////////////////////////////////////
 
 CMipsTestEngine::CValueSet::CValueSet(Xml::CNode* pValueSetNode)
 {
+    m_nInputId = 0;
+    m_nInstanceId = 0;
+
+    Xml::GetAttributeIntValue(pValueSetNode, "InputId", reinterpret_cast<int*>(&m_nInputId));
+    Xml::GetAttributeIntValue(pValueSetNode, "InstanceId", reinterpret_cast<int*>(&m_nInstanceId));
+
     for(Xml::CNode::NodeIterator itNode(pValueSetNode->GetChildrenBegin());
         itNode != pValueSetNode->GetChildrenEnd(); itNode++)
     {
@@ -82,6 +102,25 @@ CMipsTestEngine::CValueSet::CValueSet(Xml::CNode* pValueSetNode)
 }
 
 CMipsTestEngine::CValueSet::~CValueSet()
+{
+
+}
+
+////////////////////////////////////////////////////
+// CInstance implementation
+////////////////////////////////////////////////////
+
+CMipsTestEngine::CInstance::CInstance(Xml::CNode* pInstanceNode)
+{
+    if(!Xml::GetAttributeIntValue(pInstanceNode, "Id", reinterpret_cast<int*>(&m_nId)))
+    {
+        throw runtime_error("No Id declared for instance.");
+    }
+
+    m_sSource = pInstanceNode->GetInnerText();
+}
+
+CMipsTestEngine::CInstance::~CInstance()
 {
 
 }

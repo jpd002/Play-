@@ -43,18 +43,34 @@ private:
     private:
         typedef boost::ptr_list<CValue> ValueListType;
 
+        unsigned int    m_nInputId;
+        unsigned int    m_nInstanceId;
         ValueListType   m_Values;
 
     };
 
+    class CInstance
+    {
+    public:
+                        CInstance(Framework::Xml::CNode*);
+        virtual         ~CInstance();
+        
+    private:
+        unsigned int    m_nId;
+        std::string     m_sSource;
+    };
+
     typedef boost::ptr_list<CValueSet> InputsType;
     typedef boost::ptr_list<CValueSet> OutputsType;
+    typedef boost::ptr_list<CInstance> InstancesType;
 
     void                LoadInputs(Framework::Xml::CNode*);
     void                LoadOutputs(Framework::Xml::CNode*);
+    void                LoadInstances(Framework::Xml::CNode*);
 
     InputsType          m_Inputs;
     OutputsType         m_Outputs;
+    InstancesType       m_Instances;
 };
 
 #endif
