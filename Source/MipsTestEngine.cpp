@@ -32,6 +32,23 @@ CMipsTestEngine::~CMipsTestEngine()
 
 }
 
+CMipsTestEngine::OutputsType::iterator CMipsTestEngine::GetOutputsBegin()
+{
+    return m_Outputs.begin();
+}
+
+CMipsTestEngine::OutputsType::iterator CMipsTestEngine::GetOutputsEnd()
+{
+    return m_Outputs.end();
+}
+
+CMipsTestEngine::CValueSet* CMipsTestEngine::GetInput(unsigned int nId)
+{
+    InputsByIdMapType::iterator itInput;
+    itInput = m_InputsById.find(nId);
+    return (itInput != m_InputsById.end()) ? (itInput->second) : (NULL);
+}
+
 void CMipsTestEngine::LoadInputs(Xml::CNode* pInputsNode)
 {
     if(pInputsNode == NULL)
@@ -41,7 +58,9 @@ void CMipsTestEngine::LoadInputs(Xml::CNode* pInputsNode)
 
     for(Xml::CFilteringNodeIterator itNode(pInputsNode, "ValueSet"); !itNode.IsEnd(); itNode++)
     {
-        m_Inputs.push_back(new CValueSet(*itNode));
+        CValueSet* pInput(new CValueSet(*itNode));
+        m_Inputs.push_back(pInput);
+        m_InputsById[pInput->GetInputId()] = pInput;
     }
 }
 
@@ -104,6 +123,16 @@ CMipsTestEngine::CValueSet::CValueSet(Xml::CNode* pValueSetNode)
 CMipsTestEngine::CValueSet::~CValueSet()
 {
 
+}
+
+unsigned int CMipsTestEngine::CValueSet::GetInputId() const
+{
+    return m_nInputId;
+}
+
+unsigned int CMipsTestEngine::CValueSet::GetInstanceId() const
+{
+    return m_nInstanceId;
 }
 
 ////////////////////////////////////////////////////
