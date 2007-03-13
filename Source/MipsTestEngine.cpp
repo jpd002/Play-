@@ -49,6 +49,13 @@ CMipsTestEngine::CValueSet* CMipsTestEngine::GetInput(unsigned int nId)
     return (itInput != m_InputsById.end()) ? (itInput->second) : (NULL);
 }
 
+CMipsTestEngine::CInstance* CMipsTestEngine::GetInstance(unsigned int nId)
+{
+    InstancesByIdMapType::iterator itInstance;
+    itInstance = m_InstancesById.find(nId);
+    return (itInstance != m_InstancesById.end()) ? (itInstance->second) : (NULL);
+}
+
 void CMipsTestEngine::LoadInputs(Xml::CNode* pInputsNode)
 {
     if(pInputsNode == NULL)
@@ -86,7 +93,9 @@ void CMipsTestEngine::LoadInstances(Xml::CNode* pInstancesNode)
 
     for(Xml::CFilteringNodeIterator itNode(pInstancesNode, "Instance"); !itNode.IsEnd(); itNode++)
     {
-        m_Instances.push_back(new CInstance(*itNode));
+        CInstance* pInstance(new CInstance(*itNode));
+        m_Instances.push_back(pInstance);
+        m_InstancesById[pInstance->GetId()] = pInstance;
     }
 }
 
@@ -135,6 +144,15 @@ unsigned int CMipsTestEngine::CValueSet::GetInstanceId() const
     return m_nInstanceId;
 }
 
+void CMipsTestEngine::CValueSet::AssembleLoad(CMIPSAssembler& Assembler)
+{
+    for(ValueListType::iterator itValue(m_Values.begin());
+        itValue != m_Values.end(); itValue++)
+    {
+        itValue->AssembleLoad(Assembler);
+    }
+}
+
 ////////////////////////////////////////////////////
 // CInstance implementation
 ////////////////////////////////////////////////////
@@ -152,6 +170,16 @@ CMipsTestEngine::CInstance::CInstance(Xml::CNode* pInstanceNode)
 CMipsTestEngine::CInstance::~CInstance()
 {
 
+}
+
+unsigned int CMipsTestEngine::CInstance::GetId()
+{
+    return m_nId;
+}
+
+const char* CMipsTestEngine::CInstance::GetSource()
+{
+    return m_sSource.c_str();
 }
 
 ////////////////////////////////////////////////////
@@ -176,16 +204,7 @@ CMipsTestEngine::CRegisterValue::CRegisterValue(Xml::CNode* pNode)
         throw runtime_error("RegisterValue: Couldn't find attribute 'Name'.");
     }
 
-    m_nRegister = -1;
-    for(unsigned int i = 0; i < 32; i++)
-    {
-        if(!strcmp(CMIPS::m_sGPRName[i], sName))
-        {
-            m_nRegister = i;
-            break;
-        }
-    }
-
+    m_nRegister = CMIPSAssembler::GetRegisterIndex(sName);
     if(m_nRegister == -1)
     {
         throw runtime_error("RegisterValue: Invalid register name.");
@@ -210,9 +229,35 @@ CMipsTestEngine::CRegisterValue::~CRegisterValue()
 
 }
 
-void CMipsTestEngine::CRegisterValue::AssembleLoad()
+void CMipsTestEngine::CRegisterValue::AssembleLoad(CMIPSAssembler& Assembler)
 {
+    if((m_nValue0 == 0) && (m_nValue1 == 0))
+    {
+        Assembler.ADDIU(m_nRegister, 0, 0x0000);
+    }
+    else
+    {
+        uint16 nHalf[4];
+        uint32 nSignExtension;
+ 
+        nHalf[0] = (m_nValue0 >>  0) & 0xFFFF;
+        nHalf[1] = (m_nValue0 >> 16) & 0xFFFF;
+        nHalf[2] = (m_nValue1 >>  0) & 0xFFFF;
+        nHalf[3] = (m_nValue1 >> 16) & 0xFFFF;
 
+        Assembler.LUI(m_nRegister, nHalf[1]);
+        Assembler.ORI(m_nRegister, m_nRegister, nHalf[0]);
+
+        nSignExtension = ((m_nValue0 & 0x80000000) == 0) ? (0x00000000) : (0xFFFFFFFF);
+
+        if(m_nValue1 != nSignExtension)
+        {
+            Assembler.DSRL(m_nRegister, m_nRegister, 4);
+            Assembler.ORI(m_nRegister, m_nRegister, nHalf[2]);
+            Assembler.DSRL(m_nRegister, m_nRegister, 4);
+            Assembler.ORI(m_nRegister, m_nRegister, nHalf[3]);
+        }
+    }
 }
 
 void CMipsTestEngine::CRegisterValue::Verify()

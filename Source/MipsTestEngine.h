@@ -4,6 +4,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 #include "xml/Node.h"
 #include "MIPS.h"
+#include "MIPSAssembler.h"
 
 class CMipsTestEngine
 {
@@ -12,7 +13,7 @@ public:
     {
     public:
         virtual             ~CValue();
-        virtual void        AssembleLoad() = 0;
+        virtual void        AssembleLoad(CMIPSAssembler&) = 0;
         virtual void        Verify() = 0;
     };
 
@@ -21,7 +22,7 @@ public:
     public:
                             CRegisterValue(Framework::Xml::CNode*);
         virtual             ~CRegisterValue();
-        virtual void        AssembleLoad();
+        virtual void        AssembleLoad(CMIPSAssembler&);
         virtual void        Verify();
 
     private:
@@ -35,8 +36,11 @@ public:
     public:
                             CValueSet(Framework::Xml::CNode*);
         virtual             ~CValueSet();
+
         unsigned int        GetInputId() const;
         unsigned int        GetInstanceId() const;
+
+        void                AssembleLoad(CMIPSAssembler&);
 
     private:
         typedef boost::ptr_list<CValue> ValueListType;
@@ -53,6 +57,9 @@ public:
                             CInstance(Framework::Xml::CNode*);
         virtual             ~CInstance();
         
+        unsigned int        GetId();
+        const char*         GetSource();
+
     private:
         unsigned int        m_nId;
         std::string         m_sSource;
@@ -73,6 +80,7 @@ public:
 
 private:
     typedef std::map<unsigned int, CValueSet*> InputsByIdMapType;
+    typedef std::map<unsigned int, CInstance*> InstancesByIdMapType;
 
     void                    LoadInputs(Framework::Xml::CNode*);
     void                    LoadOutputs(Framework::Xml::CNode*);
@@ -82,6 +90,7 @@ private:
     OutputsType             m_Outputs;
     InstancesType           m_Instances;
     InputsByIdMapType       m_InputsById;
+    InstancesByIdMapType    m_InstancesById;
 };
 
 #endif

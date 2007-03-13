@@ -1,4 +1,10 @@
 #include "MIPSAssembler.h"
+#include "MIPS.h"
+#include <boost/tokenizer.hpp>
+#include "lexical_cast_ex.h"
+
+using namespace boost;
+using namespace std;
 
 CMIPSAssembler::CMIPSAssembler(uint32* pPtr)
 {
@@ -311,4 +317,53 @@ void CMIPSAssembler::SYSCALL()
 {
 	(*m_pPtr) = 0x0000000C;
 	m_pPtr++;
+}
+
+void CMIPSAssembler::AssembleString(const char* sCode)
+{
+    string sString(sCode);
+    tokenizer<> Tokens(sString);
+
+    tokenizer<>::iterator itToken(Tokens.begin());
+    const char* sMnemonic;
+
+    //First token must be the instruction mnemonic
+    sMnemonic = (*itToken).c_str();
+
+    if(!strcmp(sMnemonic, "ADDIU"))
+    {
+        unsigned int nRT, nRS;
+        uint16 nImm;
+
+        if(itToken == Tokens.end()) throw exception();
+        nRT = GetRegisterIndex((*(++itToken)).c_str());
+
+        if(itToken == Tokens.end()) throw exception();
+        nRS = GetRegisterIndex((*(++itToken)).c_str());
+
+        if(itToken == Tokens.end()) throw exception();
+        nImm = lexical_cast_hex<string>((*(++itToken)).c_str());
+
+        if(nRT == -1) throw exception();
+        if(nRS == -1) throw exception();
+
+        ADDIU(nRT, nRS, nImm);
+    }
+}
+
+unsigned int CMIPSAssembler::GetRegisterIndex(const char* sRegisterName)
+{
+    unsigned int nRegister;
+
+    nRegister = -1;
+    for(unsigned int i = 0; i < 32; i++)
+    {
+        if(!strcmp(CMIPS::m_sGPRName[i], sRegisterName))
+        {
+            nRegister = i;
+            break;
+        }
+    }
+
+    return nRegister;
 }
