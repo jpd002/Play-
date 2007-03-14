@@ -8,6 +8,9 @@ class CMIPSAssembler
 public:
 				        CMIPSAssembler(uint32*);
 				        ~CMIPSAssembler();
+
+    unsigned int        GetProgramSize();
+
 	void		        ADDIU(unsigned int, unsigned int, uint16);
 	void		        ADDU(unsigned int, unsigned int, unsigned int);
 	void		        AND(unsigned int, unsigned int, unsigned int);
@@ -64,6 +67,7 @@ public:
 
 private:
 	uint32*		        m_pPtr;
+    uint32*             m_pStartPtr;
 };
 
 #endif

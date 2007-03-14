@@ -260,7 +260,7 @@ void CMipsTestEngine::CRegisterValue::AssembleLoad(CMIPSAssembler& Assembler)
     }
 }
 
-void CMipsTestEngine::CRegisterValue::Verify()
+void CMipsTestEngine::CRegisterValue::Verify(CMIPS&)
 {
 
 }

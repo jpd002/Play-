@@ -9,11 +9,17 @@ using namespace std;
 CMIPSAssembler::CMIPSAssembler(uint32* pPtr)
 {
 	m_pPtr = pPtr;
+    m_pStartPtr = pPtr;
 }
 
 CMIPSAssembler::~CMIPSAssembler()
 {
 
+}
+
+unsigned int CMIPSAssembler::GetProgramSize()
+{
+    return static_cast<unsigned int>(m_pPtr - m_pStartPtr);
 }
 
 void CMIPSAssembler::ADDIU(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
