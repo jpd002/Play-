@@ -153,6 +153,19 @@ void CMipsTestEngine::CValueSet::AssembleLoad(CMIPSAssembler& Assembler)
     }
 }
 
+bool CMipsTestEngine::CValueSet::Verify(CMIPS& Context)
+{
+    bool nResult = true;
+
+    for(ValueListType::iterator itValue(m_Values.begin());
+        itValue != m_Values.end(); itValue++)
+    {
+        nResult &= itValue->Verify(Context);
+    }
+
+    return nResult;
+}
+
 ////////////////////////////////////////////////////
 // CInstance implementation
 ////////////////////////////////////////////////////
@@ -260,7 +273,17 @@ void CMipsTestEngine::CRegisterValue::AssembleLoad(CMIPSAssembler& Assembler)
     }
 }
 
-void CMipsTestEngine::CRegisterValue::Verify(CMIPS&)
+bool CMipsTestEngine::CRegisterValue::Verify(CMIPS& Context)
 {
+    if(Context.m_State.nGPR[m_nRegister].nV[0] != m_nValue0)
+    {
+        return false;
+    }
 
+    if(Context.m_State.nGPR[m_nRegister].nV[1] != m_nValue1)
+    {
+        return false;
+    }
+
+    return true;
 }

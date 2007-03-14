@@ -14,7 +14,7 @@ public:
     public:
         virtual             ~CValue();
         virtual void        AssembleLoad(CMIPSAssembler&) = 0;
-        virtual void        Verify(CMIPS&) = 0;
+        virtual bool        Verify(CMIPS&) = 0;
     };
 
     class CRegisterValue : public CValue
@@ -23,7 +23,7 @@ public:
                             CRegisterValue(Framework::Xml::CNode*);
         virtual             ~CRegisterValue();
         virtual void        AssembleLoad(CMIPSAssembler&);
-        virtual void        Verify(CMIPS&);
+        virtual bool        Verify(CMIPS&);
 
     private:
         unsigned int        m_nRegister;
@@ -41,6 +41,7 @@ public:
         unsigned int        GetInstanceId() const;
 
         void                AssembleLoad(CMIPSAssembler&);
+        bool                Verify(CMIPS&);
 
     private:
         typedef boost::ptr_list<CValue> ValueListType;
