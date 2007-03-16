@@ -94,6 +94,7 @@ BEGIN
         MENUITEM "&Functions\tCtrl+F",          ID_VIEW_FUNCTIONS
         MENUITEM "&ELF File Information",       ID_VIEW_ELF
         MENUITEM "OS Events",                   ID_VIEW_OSEVENTS
+        MENUITEM "Test Engine Console",         ID_VIEW_TESTENGINECONSOLE
         MENUITEM SEPARATOR
         MENUITEM "EmotionEngine View\tAlt+1",   ID_VIEW_EEVIEW
         MENUITEM "Vector Unit 1 View\tAlt+3",   ID_VIEW_VU1VIEW

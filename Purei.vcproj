@@ -383,6 +383,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\win32ui\DebuggerChildWnd.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\win32ui\DebugView.h"
 					>
 				</File>
@@ -531,6 +535,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\win32ui\TestEngineWnd.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\win32ui\VFSManagerWnd.h"
 					>
 				</File>
@@ -560,6 +568,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\win32ui\Debugger.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DebuggerChildWnd.cpp"
 					>
 				</File>
 				<File
@@ -712,6 +724,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\win32ui\SysInfoWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\TestEngineWnd.cpp"
 					>
 				</File>
 				<File

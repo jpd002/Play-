@@ -7,6 +7,7 @@
 #include "FunctionsView.h"
 #include "OsEventViewWnd.h"
 #include "DebugView.h"
+#include "TestEngineWnd.h"
 
 class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals::trackable
 {
@@ -64,7 +65,7 @@ private:
 	CRegViewWnd*					GetRegisterViewWindow();
 	CCallStackWnd*					GetCallStackWindow();
 
-	//Event handlers
+    //Event handlers
 	void							OnFunctionViewFunctionDblClick(uint32);
 	void							OnFunctionViewFunctionsStateChange();
 	void							OnEventViewEventDblClick(uint32);
@@ -80,6 +81,7 @@ private:
 	CELFView*						m_pELFView;
 	CFunctionsView*					m_pFunctionsView;
 	COsEventViewWnd*				m_pOsEventView;
+    CTestEngineWnd*                 m_pTestEngineView;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
 	unsigned int					m_nCurrentView;
 };
