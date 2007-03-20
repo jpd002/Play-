@@ -1,6 +1,7 @@
 #include "TestEngineWnd.h"
 #include "win32/Rect.h"
 #include <boost/filesystem/operations.hpp>
+#include <boost/lexical_cast.hpp>
 #include "string_cast.h"
 #include "../PS2VM.h"
 #include "../MipsTestEngine.h"
@@ -93,8 +94,13 @@ void CTestEngineWnd::Test(const INSTRUCTION& Instruction)
         for(CMipsTestEngine::OutputsType::iterator itOutput(Engine.GetOutputsBegin());
             itOutput != Engine.GetOutputsEnd(); itOutput++)
         {
-            /*
+            bool nHasSucceeded, nHasFailed, nHasError;
+
+            nHasSucceeded = nHasFailed = nHasError = false;
+
             nTotal++;
+
+            //Instruction.TestCases.push_back(TestCase({0, 0}));
 
             try
             {
@@ -116,24 +122,46 @@ void CTestEngineWnd::Test(const INSTRUCTION& Instruction)
 
                     if(!itOutput->Verify(CPS2VM::m_EE))
                     {
-                        nFailed++;
+                        nHasFailed = true;
                     }
                     else
                     {
-                        nSuccess++;
+                        nHasSucceeded = true;
                     }
                 }
                 else
                 {
-                    nError++;
+                    nHasError = true;
                 }
             }
             catch(...)
             {
-                nError++;
+                nHasError = true;
             }
-            */
+
+            if(nHasSucceeded) nSuccess++;
+            if(nHasFailed) nFailed++;
+            if(nHasError) nError++;
+
+            //Insert the item into the list
+            tstring sCaption;
+            sCaption  = lexical_cast<tstring>(itOutput->GetInputId()) + _T("_");
+            sCaption += lexical_cast<tstring>(itOutput->GetInstanceId());
+            sCaption += tstring(_T("\t")) + (nHasSucceeded ? _T("X") : _T(""));
+            sCaption += tstring(_T("\t")) + (nHasFailed ? _T("X") : _T(""));
+            sCaption += tstring(_T("\t")) + (nHasError ? _T("X") : _T(""));
+
+            m_pInstructionList->GetTreeView()->InsertItem(Instruction.nTreeItem, sCaption.c_str());
         }
+
+        //Update the totals
+        tstring sCaption;
+        sCaption  = string_cast<tstring>(Instruction.sName);
+        sCaption += _T("\t") + lexical_cast<tstring>(nSuccess);
+        sCaption += _T("\t") + lexical_cast<tstring>(nFailed);
+        sCaption += _T("\t") + lexical_cast<tstring>(nError);
+
+        m_pInstructionList->GetTreeView()->SetItemText(Instruction.nTreeItem, sCaption.c_str());
     }
     catch(const exception& Exception)
     {
@@ -143,7 +171,9 @@ void CTestEngineWnd::Test(const INSTRUCTION& Instruction)
             string_cast<tstring>(Exception.what())).c_str(),
             NULL,
             16);
-    }    
+    }
+
+    m_pInstructionList->GetTreeView()->Redraw();
 }
 
 void CTestEngineWnd::RefreshLayout()

@@ -18,10 +18,19 @@ protected:
     long                                    OnCommand(unsigned short, unsigned short, HWND);
 
 private:
+    struct TESTCASE
+    {
+        unsigned int nInputId;
+        unsigned int nInstanceId;
+    };
+
     struct INSTRUCTION
     {
-        std::string sName;
-        HTREEITEM   nTreeItem;
+        //typedef std::vector<TESTCASE> CaseListType;
+
+        std::string     sName;
+        HTREEITEM       nTreeItem;
+        //CaseListType    TestCases;
     };
 
     typedef std::map<unsigned int, INSTRUCTION> InstructionByIdMapType;
