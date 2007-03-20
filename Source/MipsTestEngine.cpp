@@ -60,7 +60,7 @@ void CMipsTestEngine::LoadInputs(Xml::CNode* pInputsNode)
 {
     if(pInputsNode == NULL)
     {
-        throw exception();
+        throw runtime_error("No 'Inputs' node was found in the test suite definition.");
     }
 
     for(Xml::CFilteringNodeIterator itNode(pInputsNode, "ValueSet"); !itNode.IsEnd(); itNode++)
@@ -75,7 +75,7 @@ void CMipsTestEngine::LoadOutputs(Xml::CNode* pOutputsNode)
 {
     if(pOutputsNode == NULL)
     {
-        throw exception();
+        throw runtime_error("No 'Outputs' node was found in the test suite definition.");
     }
 
     for(Xml::CFilteringNodeIterator itNode(pOutputsNode, "ValueSet"); !itNode.IsEnd(); itNode++)
@@ -88,7 +88,7 @@ void CMipsTestEngine::LoadInstances(Xml::CNode* pInstancesNode)
 {
     if(pInstancesNode == NULL)
     {
-        throw exception();
+        throw runtime_error("No 'Instances' node was found in the test suite definition.");
     }
 
     for(Xml::CFilteringNodeIterator itNode(pInstancesNode, "Instance"); !itNode.IsEnd(); itNode++)
