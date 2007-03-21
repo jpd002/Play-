@@ -12,7 +12,9 @@ using namespace Framework;
 using namespace boost;
 using namespace std;
 
-CTestEngineWnd::CTestEngineWnd(HWND hParent)
+CTestEngineWnd::CTestEngineWnd(HWND hParent) :
+m_pInstructionList(NULL),
+m_pTestAllButton(NULL)
 {
     if(!DoesWindowClassExist(CLSNAME))
     {
@@ -72,16 +74,33 @@ long CTestEngineWnd::OnCommand(unsigned short nCmd, unsigned short nId, HWND hWn
     return TRUE;
 }
 
+long CTestEngineWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
+{
+    if((m_pInstructionList != NULL) && (pHdr->hwndFrom == m_pInstructionList->m_hWnd))
+    {
+        Win32::CColumnTreeView::MESSAGE* pMsg(
+            static_cast<Win32::CColumnTreeView::MESSAGE*>(pHdr));
+        
+        switch(pMsg->code)
+        {
+        case NM_DBLCLK:
+            OnItemDblClick();
+            break;
+        }
+    }
+    return FALSE;
+}
+
 void CTestEngineWnd::TestAll()
 {
-    for(InstructionByIdMapType::const_iterator itInstruction(m_InstructionsById.begin());
+    for(InstructionByIdMapType::iterator itInstruction(m_InstructionsById.begin());
         itInstruction != m_InstructionsById.end(); itInstruction++)
     {
         Test(itInstruction->second);
     }
 }
 
-void CTestEngineWnd::Test(const INSTRUCTION& Instruction)
+void CTestEngineWnd::Test(INSTRUCTION& Instruction)
 {
     try
     {
@@ -99,8 +118,6 @@ void CTestEngineWnd::Test(const INSTRUCTION& Instruction)
             nHasSucceeded = nHasFailed = nHasError = false;
 
             nTotal++;
-
-            //Instruction.TestCases.push_back(TestCase({0, 0}));
 
             try
             {
@@ -151,7 +168,16 @@ void CTestEngineWnd::Test(const INSTRUCTION& Instruction)
             sCaption += tstring(_T("\t")) + (nHasFailed ? _T("X") : _T(""));
             sCaption += tstring(_T("\t")) + (nHasError ? _T("X") : _T(""));
 
-            m_pInstructionList->GetTreeView()->InsertItem(Instruction.nTreeItem, sCaption.c_str());
+            HTREEITEM nCaseTreeItem;
+            nCaseTreeItem = m_pInstructionList->GetTreeView()->InsertItem(Instruction.nTreeItem, sCaption.c_str());
+
+            TESTCASE TestCase;
+            TestCase.nInputId       = itOutput->GetInputId();
+            TestCase.nInstanceId    = itOutput->GetInstanceId();
+            //Instruction.TestCases.push_back(TestCase);
+            Instruction.TestCases[nCaseTreeItem] = TestCase;
+
+            //m_pInstructionList->GetTreeView()->SetItemParam(nCaseTreeItem, Instruction.TestCases[
         }
 
         //Update the totals
@@ -226,5 +252,20 @@ void CTestEngineWnd::RefreshInstructionList()
         INSTRUCTION& Instruction(itInstruction->second);
         sCaption = string_cast<tstring>(Instruction.sName) + _T("\t?\t?\t?");
         Instruction.nTreeItem = m_pInstructionList->GetTreeView()->InsertItem(TVI_ROOT, sCaption.c_str());
+    }
+}
+
+void CTestEngineWnd::OnItemDblClick()
+{
+    Win32::CTreeView* pTreeView(m_pInstructionList->GetTreeView());
+    HTREEITEM nItem(pTreeView->GetSelection());
+
+    if(nItem == NULL) return;
+
+    if(pTreeView->GetItemParent(nItem) != pTreeView->GetRoot())
+    {
+        //This is a test case;
+        TESTCASE* pTestCase(dynamic_cast<TESTCASE*>(pTreeView->GetItemParam<ITEM>(nItem)));
+        if(pTestCase == NULL) return;
     }
 }
