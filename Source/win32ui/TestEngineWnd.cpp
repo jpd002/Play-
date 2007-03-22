@@ -4,7 +4,6 @@
 #include <boost/lexical_cast.hpp>
 #include "string_cast.h"
 #include "../PS2VM.h"
-#include "../MipsTestEngine.h"
 
 #define CLSNAME _T("TestEngineWnd")
 
@@ -126,16 +125,13 @@ void CTestEngineWnd::Test(INSTRUCTION& Instruction)
 
                 if((pInput != NULL) && (pInstance != NULL))
                 {
-        	        const int nBaseAddress = 0x00100000;
-                	
-                    CPS2VM::m_EE.m_pExecMap->InvalidateBlocks();
+                    unsigned int nProgramSize;
+                    const unsigned int nBaseAddress = 0x00100000;
 
-                    CMIPSAssembler Assembler(reinterpret_cast<uint32*>(&CPS2VM::m_pRAM[nBaseAddress]));
-                    pInput->AssembleLoad(Assembler);
-                    Assembler.AssembleString(pInstance->GetSource());
-                	
+                    nProgramSize = AssembleTestCase(nBaseAddress, pInput, pInstance);
+
                     CPS2VM::m_EE.m_State.nPC = nBaseAddress;
-                    CPS2VM::m_EE.Execute(Assembler.GetProgramSize());
+                    CPS2VM::m_EE.Execute(nProgramSize);
 
                     if(!itOutput->Verify(CPS2VM::m_EE))
                     {
@@ -170,14 +166,7 @@ void CTestEngineWnd::Test(INSTRUCTION& Instruction)
 
             HTREEITEM nCaseTreeItem;
             nCaseTreeItem = m_pInstructionList->GetTreeView()->InsertItem(Instruction.nTreeItem, sCaption.c_str());
-
-            TESTCASE TestCase;
-            TestCase.nInputId       = itOutput->GetInputId();
-            TestCase.nInstanceId    = itOutput->GetInstanceId();
-            //Instruction.TestCases.push_back(TestCase);
-            Instruction.TestCases[nCaseTreeItem] = TestCase;
-
-            //m_pInstructionList->GetTreeView()->SetItemParam(nCaseTreeItem, Instruction.TestCases[
+            Instruction.TestCases[nCaseTreeItem] = INSTRUCTION::TestCaseType(itOutput->GetInputId(), itOutput->GetInstanceId());
         }
 
         //Update the totals
@@ -200,6 +189,18 @@ void CTestEngineWnd::Test(INSTRUCTION& Instruction)
     }
 
     m_pInstructionList->GetTreeView()->Redraw();
+}
+
+unsigned int CTestEngineWnd::AssembleTestCase(unsigned int nBaseAddress, CMipsTestEngine::CValueSet* pInput, CMipsTestEngine::CInstance* pInstance)
+{
+    CMIPSAssembler Assembler(reinterpret_cast<uint32*>(&CPS2VM::m_pRAM[nBaseAddress]));
+
+    CPS2VM::m_EE.m_pExecMap->InvalidateBlocks();
+
+    pInput->AssembleLoad(Assembler);
+    Assembler.AssembleString(pInstance->GetSource());
+
+    return Assembler.GetProgramSize();
 }
 
 void CTestEngineWnd::RefreshLayout()
@@ -245,13 +246,16 @@ void CTestEngineWnd::RefreshInstructionMap()
 
 void CTestEngineWnd::RefreshInstructionList()
 {
+    Win32::CTreeView* pTreeView(m_pInstructionList->GetTreeView());
+
     for(InstructionByIdMapType::iterator itInstruction(m_InstructionsById.begin());
         itInstruction != m_InstructionsById.end(); itInstruction++)
     {
         tstring sCaption;
         INSTRUCTION& Instruction(itInstruction->second);
         sCaption = string_cast<tstring>(Instruction.sName) + _T("\t?\t?\t?");
-        Instruction.nTreeItem = m_pInstructionList->GetTreeView()->InsertItem(TVI_ROOT, sCaption.c_str());
+        Instruction.nTreeItem = pTreeView->InsertItem(TVI_ROOT, sCaption.c_str());
+        pTreeView->SetItemParam(Instruction.nTreeItem, itInstruction->first);
     }
 }
 
@@ -262,10 +266,48 @@ void CTestEngineWnd::OnItemDblClick()
 
     if(nItem == NULL) return;
 
-    if(pTreeView->GetItemParent(nItem) != pTreeView->GetRoot())
+    HTREEITEM nParent(pTreeView->GetItemParent(nItem));
+
+    if(nParent != NULL)
     {
-        //This is a test case;
-        TESTCASE* pTestCase(dynamic_cast<TESTCASE*>(pTreeView->GetItemParam<ITEM>(nItem)));
-        if(pTestCase == NULL) return;
+        //This is a test case
+        unsigned int nInstructionId(pTreeView->GetItemParam<unsigned int>(nParent));
+        InstructionByIdMapType::iterator itInstruction(m_InstructionsById.find(nInstructionId));
+
+        if(itInstruction == m_InstructionsById.end()) return;
+
+        const INSTRUCTION& Instruction(itInstruction->second);
+        INSTRUCTION::CaseListType::const_iterator itTestCase(Instruction.TestCases.find(nItem));
+
+        if(itTestCase == Instruction.TestCases.end()) return;
+        
+        const INSTRUCTION::TestCaseType& TestCase(itTestCase->second);
+
+        try
+        {
+            CMipsTestEngine Engine(("./tests/" + Instruction.sName + ".xml").c_str());
+            CMipsTestEngine::CValueSet* pInput(Engine.GetInput(TestCase.first));
+            CMipsTestEngine::CInstance* pInstance(Engine.GetInstance(TestCase.second));
+
+            if((pInput != NULL) && (pInstance != NULL))
+            {
+                const unsigned int nBaseAddress = 0x00100000;
+                AssembleTestCase(nBaseAddress, pInput, pInstance);
+                CPS2VM::m_EE.m_State.nPC = nBaseAddress;
+                m_OnTestCaseLoad(nBaseAddress);
+            }
+        }
+        catch(const exception& Exception)
+        {
+            MessageBox(m_hWnd, 
+                (_T("Error occured while trying to assemble the test case: \r\n\r\n") + 
+                string_cast<tstring>(Exception.what())).c_str(),
+                NULL,
+                16);
+        }
+    }
+    else
+    {
+        //Instruction
     }
 }

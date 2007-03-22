@@ -5,8 +5,9 @@
 #include "win32/ColumnTreeView.h"
 #include "win32/Button.h"
 #include "win32/Layouts.h"
+#include "../MipsTestEngine.h"
 #include <map>
-#include <vector>
+#include <boost/signal.hpp>
 
 class CTestEngineWnd : public CDebuggerChildWnd
 {
@@ -14,26 +15,18 @@ public:
                                             CTestEngineWnd(HWND);
     virtual                                 ~CTestEngineWnd();
 
+    boost::signal<void (uint32)>            m_OnTestCaseLoad;
+
 protected:
     long                                    OnSize(unsigned int, unsigned int, unsigned int);
     long                                    OnCommand(unsigned short, unsigned short, HWND);
     long                                    OnNotify(WPARAM, NMHDR*);
 
 private:
-    struct ITEM
+    struct INSTRUCTION
     {
-        virtual ~ITEM() { }
-    };
-
-    struct TESTCASE : public ITEM
-    {
-        unsigned int nInputId;
-        unsigned int nInstanceId;
-    };
-
-    struct INSTRUCTION : public ITEM
-    {
-        typedef std::map<HTREEITEM, TESTCASE> CaseListType;
+        typedef std::pair<unsigned int, unsigned int> TestCaseType;
+        typedef std::map<HTREEITEM, TestCaseType> CaseListType;
 
         std::string     sName;
         HTREEITEM       nTreeItem;
@@ -44,6 +37,7 @@ private:
 
     void                                    TestAll();
     void                                    Test(INSTRUCTION&);
+    unsigned int                            AssembleTestCase(unsigned int, CMipsTestEngine::CValueSet*, CMipsTestEngine::CInstance*);
     void                                    RefreshLayout();
     void                                    RefreshInstructionMap();
     void                                    RefreshInstructionList();

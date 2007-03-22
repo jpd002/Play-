@@ -50,9 +50,9 @@
 			<Register Name="T1" Value0="0xFFFF7FFF" Value1="0xFFFFFFFF" />
 		</ValueSet>
 
-		<ValueSet InputId="1" InstanceId="3">
+		<ValueSet InputId="0" InstanceId="3">
 			<Register Name="T0" Value0="0x00000000" />
-			<Register Name="T1" Value0="0xFFFFFFFE" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF" />
 		</ValueSet>
 
 	</Outputs>

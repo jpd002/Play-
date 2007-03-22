@@ -68,6 +68,7 @@ private:
     //Event handlers
 	void							OnFunctionViewFunctionDblClick(uint32);
 	void							OnFunctionViewFunctionsStateChange();
+    void                            OnTestEngineViewTestCaseLoad(uint32);
 	void							OnEventViewEventDblClick(uint32);
 	void							OnExecutableChange();
 	void							OnExecutableUnloading();
