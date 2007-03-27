@@ -12,39 +12,48 @@ public:
     class CValue
     {
     public:
-        virtual             ~CValue();
-        virtual void        AssembleLoad(CMIPSAssembler&) = 0;
-        virtual bool        Verify(CMIPS&) = 0;
+        virtual                 ~CValue();
+        virtual void            AssembleLoad(CMIPSAssembler&) = 0;
+        virtual bool            Verify(CMIPS&) = 0;
+        virtual std::string     GetString() const = 0;
     };
 
     class CRegisterValue : public CValue
     {
     public:
-                            CRegisterValue(Framework::Xml::CNode*);
-        virtual             ~CRegisterValue();
-        virtual void        AssembleLoad(CMIPSAssembler&);
-        virtual bool        Verify(CMIPS&);
+                                CRegisterValue(Framework::Xml::CNode*);
+        virtual                 ~CRegisterValue();
+        virtual void            AssembleLoad(CMIPSAssembler&);
+        virtual bool            Verify(CMIPS&);
+        virtual std::string     GetString() const;
 
     private:
-        unsigned int        m_nRegister;
-        unsigned int        m_nValue0;
-        unsigned int        m_nValue1;
+        unsigned int            m_nRegister;
+        unsigned int            m_nValue0;
+        unsigned int            m_nValue1;
     };
 
     class CValueSet
     {
+    private:
+        typedef boost::ptr_list<CValue> ValueListType;
+
     public:
+        typedef ValueListType::const_iterator ValueIterator;
+
                             CValueSet(Framework::Xml::CNode*);
         virtual             ~CValueSet();
 
         unsigned int        GetInputId() const;
         unsigned int        GetInstanceId() const;
 
+        ValueIterator       GetValuesBegin() const;
+        ValueIterator       GetValuesEnd() const;
+
         void                AssembleLoad(CMIPSAssembler&);
         bool                Verify(CMIPS&);
 
     private:
-        typedef boost::ptr_list<CValue> ValueListType;
 
         unsigned int        m_nInputId;
         unsigned int        m_nInstanceId;
@@ -77,6 +86,7 @@ public:
     OutputsType::iterator   GetOutputsEnd();
 
     CValueSet*              GetInput(unsigned int);
+    CValueSet*              GetOutput(unsigned int, unsigned int);
     CInstance*              GetInstance(unsigned int);
 
 private:

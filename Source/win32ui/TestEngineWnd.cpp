@@ -2,6 +2,8 @@
 #include "win32/Rect.h"
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
 #include "string_cast.h"
 #include "../PS2VM.h"
 
@@ -38,8 +40,10 @@ m_pTestAllButton(NULL)
     m_pInstructionList->GetHeader()->InsertItem(_T("Error"), 100);
 
     m_pTestAllButton = new Win32::CButton(_T("Test All"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+    m_pDescriptionEdit = new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 1, 1), NULL, ES_READONLY | ES_MULTILINE | WS_VSCROLL);
 
     m_Layout.InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pInstructionList));
+    m_Layout.InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pDescriptionEdit));
 
     {
         CHorizontalLayout* pTempLayout(new CHorizontalLayout());
@@ -83,7 +87,10 @@ long CTestEngineWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
         switch(pMsg->code)
         {
         case NM_DBLCLK:
-            OnItemDblClick();
+            ProcessListEvent(bind(&CTestEngineWnd::OnItemDblClick, this, _1, _2));
+            break;
+        case TVN_SELCHANGED:
+            ProcessListEvent(bind(&CTestEngineWnd::OnListSelChange, this, _1, _2));
             break;
         }
     }
@@ -108,6 +115,9 @@ void CTestEngineWnd::Test(INSTRUCTION& Instruction)
         unsigned int nFailed, nSuccess, nError, nTotal;
 
         nFailed = nSuccess = nError = nTotal = 0;
+
+        //Delete all existing nodes
+        m_pInstructionList->GetTreeView()->DeleteChildren(Instruction.nTreeItem);
 
         for(CMipsTestEngine::OutputsType::iterator itOutput(Engine.GetOutputsBegin());
             itOutput != Engine.GetOutputsEnd(); itOutput++)
@@ -259,7 +269,7 @@ void CTestEngineWnd::RefreshInstructionList()
     }
 }
 
-void CTestEngineWnd::OnItemDblClick()
+void CTestEngineWnd::ProcessListEvent(ListMessageHandlerType Handler)
 {
     Win32::CTreeView* pTreeView(m_pInstructionList->GetTreeView());
     HTREEITEM nItem(pTreeView->GetSelection());
@@ -283,11 +293,23 @@ void CTestEngineWnd::OnItemDblClick()
         
         const INSTRUCTION::TestCaseType& TestCase(itTestCase->second);
 
+        Handler(&Instruction, &TestCase);
+    }
+    else
+    {
+        //Instruction
+    }
+}
+
+void CTestEngineWnd::OnItemDblClick(const INSTRUCTION* pInstruction, const INSTRUCTION::TestCaseType* pTestCase)
+{
+    if(pTestCase != NULL)
+    {
         try
         {
-            CMipsTestEngine Engine(("./tests/" + Instruction.sName + ".xml").c_str());
-            CMipsTestEngine::CValueSet* pInput(Engine.GetInput(TestCase.first));
-            CMipsTestEngine::CInstance* pInstance(Engine.GetInstance(TestCase.second));
+            CMipsTestEngine Engine(("./tests/" + pInstruction->sName + ".xml").c_str());
+            CMipsTestEngine::CValueSet* pInput(Engine.GetInput(pTestCase->first));
+            CMipsTestEngine::CInstance* pInstance(Engine.GetInstance(pTestCase->second));
 
             if((pInput != NULL) && (pInstance != NULL))
             {
@@ -309,5 +331,46 @@ void CTestEngineWnd::OnItemDblClick()
     else
     {
         //Instruction
+    }
+}
+
+void CTestEngineWnd::OnListSelChange(const INSTRUCTION* pInstruction, const INSTRUCTION::TestCaseType* pTestCase)
+{
+    if(pTestCase != NULL)
+    {
+        try
+        {
+            CMipsTestEngine Engine(("./tests/" + pInstruction->sName + ".xml").c_str());
+            CMipsTestEngine::CValueSet* pInput(Engine.GetInput(pTestCase->first));
+            CMipsTestEngine::CValueSet* pOutput(Engine.GetOutput(pTestCase->first, pTestCase->second));
+            CMipsTestEngine::CInstance* pInstance(Engine.GetInstance(pTestCase->second));
+
+            if((pInput != NULL) && (pInstance != NULL) && (pOutput != NULL))
+            {
+                tstring sText;
+
+                for(CMipsTestEngine::CValueSet::ValueIterator itValue(pInput->GetValuesBegin());
+                    itValue != pInput->GetValuesEnd(); itValue++)
+                {
+                    sText += string_cast<tstring>(itValue->GetString()) + _T("\r\n");
+                }
+
+                sText += _T("\r\n") + algorithm::trim_copy(string_cast<tstring>(pInstance->GetSource())) + _T("\r\n\r\n");
+
+                for(CMipsTestEngine::CValueSet::ValueIterator itValue(pOutput->GetValuesBegin());
+                    itValue != pOutput->GetValuesEnd(); itValue++)
+                {
+                    sText += string_cast<tstring>(itValue->GetString()) + _T("\r\n");
+                }
+
+                m_pDescriptionEdit->SetText(sText.c_str());
+            }
+        }
+        catch(const exception& Exception)
+        {
+            m_pDescriptionEdit->SetText(
+                (_T("Error occured while trying to assemble the test case: \r\n\r\n") + 
+                string_cast<tstring>(Exception.what())).c_str());
+        }
     }
 }

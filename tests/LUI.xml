@@ -1,0 +1,34 @@
+<Test>
+	<Inputs>
+
+		<ValueSet InputId="0">
+			<Register Name="T0" Value0="0xFFFF0256" />
+		</ValueSet>
+
+	</Inputs>
+
+	<Instances>
+
+		<Instance Id="0">
+			LUI T0, 0x0800
+		</Instance>
+
+		<Instance Id="1">
+			LUI T0, 0x8000
+		</Instance>
+
+	</Instances>
+
+	<Outputs>
+
+		<ValueSet InputId="0" InstanceId="0">
+			<Register Name="T0" Value0="0x08000000" />
+		</ValueSet>
+
+		<ValueSet InputId="0" InstanceId="1">
+			<Register Name="T0" Value0="0x80000000" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+	</Outputs>
+
+</Test>

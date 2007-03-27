@@ -46,8 +46,8 @@
 		</ValueSet>
 
 		<ValueSet InputId="1" InstanceId="2">
-			<Register Name="T0" Value0="0x00000000" />
-			<Register Name="T1" Value0="0xFFFF7FFF" Value1="0xFFFFFFFF" />
+			<Register Name="T0" Value0="0x00000001" />
+			<Register Name="T1" Value0="0xFFFF8001" Value1="0xFFFFFFFF" />
 		</ValueSet>
 
 		<ValueSet InputId="0" InstanceId="3">

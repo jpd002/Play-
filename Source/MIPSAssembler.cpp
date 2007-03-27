@@ -1,10 +1,122 @@
 #include "MIPSAssembler.h"
 #include "MIPS.h"
 #include <boost/tokenizer.hpp>
+#include <boost/function.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
 #include "lexical_cast_ex.h"
 
 using namespace boost;
 using namespace std;
+
+struct RtRsImm
+{
+    typedef void (CMIPSAssembler::*AssemblerFunctionType) (unsigned int, unsigned int, uint16);
+
+    RtRsImm(AssemblerFunctionType Assembler) :
+    m_Assembler(Assembler)
+    {
+        
+    }
+
+    void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+    {
+        unsigned int nRT, nRS;
+        uint16 nImm;
+
+        if(itToken == Tokens.end()) throw exception();
+        nRT = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+        if(itToken == Tokens.end()) throw exception();
+        nRS = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+        if(itToken == Tokens.end()) throw exception();
+        nImm = lexical_cast_hex<string>((*(++itToken)).c_str());
+
+        if(nRT == -1) throw exception();
+        if(nRS == -1) throw exception();
+
+        bind(m_Assembler, pAssembler, _1, _2, _3)(nRT, nRS, nImm);
+    }
+
+    AssemblerFunctionType m_Assembler;
+};
+
+struct RtRsSa
+{
+    typedef void (CMIPSAssembler::*AssemblerFunctionType) (unsigned int, unsigned int, unsigned int);
+
+    RtRsSa(AssemblerFunctionType Assembler) :
+    m_Assembler(Assembler)
+    {
+        
+    }
+
+    void operator()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+    {
+        unsigned int nRT, nRS, nSA;
+
+        if(itToken == Tokens.end()) throw exception();
+        nRT = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+        if(itToken == Tokens.end()) throw exception();
+        nRS = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+        if(itToken == Tokens.end()) throw exception();
+        nSA = lexical_cast<unsigned int>((*(++itToken)).c_str());
+
+        if(nRT == -1) throw exception();
+        if(nRS == -1) throw exception();
+
+        bind(m_Assembler, pAssembler, _1, _2, _3)(nRT, nRS, nSA);
+    }
+
+    AssemblerFunctionType m_Assembler;
+};
+
+struct Instruction
+{
+    Instruction(const char* sMnemonic) :
+    m_sMnemonic(sMnemonic)
+    {
+
+    }
+
+    const char* m_sMnemonic;
+    virtual void Invoke(tokenizer<>&, tokenizer<>::iterator&, CMIPSAssembler*) = 0;
+};
+
+
+template <typename Functor> 
+struct SpecInstruction : public Instruction
+{
+    SpecInstruction(const char* sMnemonic, const Functor& Parser) :
+    Instruction(sMnemonic),
+    m_Parser(Parser)
+    {
+        
+    }
+
+    virtual void Invoke(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+    {
+        m_Parser(Tokens, itToken, pAssembler);
+    }
+
+    Functor m_Parser;
+};
+
+
+SpecInstruction<RtRsImm>    Instruction_ADDIU   = SpecInstruction<RtRsImm>("ADDIU", RtRsImm(&CMIPSAssembler::ADDIU));
+SpecInstruction<RtRsSa>     Instruction_SLL     = SpecInstruction<RtRsSa>("SLL", RtRsSa(&CMIPSAssembler::SLL));
+SpecInstruction<RtRsSa>     Instruction_SRA     = SpecInstruction<RtRsSa>("SRA", RtRsSa(&CMIPSAssembler::SRA));
+
+Instruction* Instrs[] = 
+{
+    &Instruction_ADDIU,
+    &Instruction_SLL,
+    &Instruction_SRA,
+    NULL,
+};
 
 CMIPSAssembler::CMIPSAssembler(uint32* pPtr)
 {
@@ -336,24 +448,21 @@ void CMIPSAssembler::AssembleString(const char* sCode)
     //First token must be the instruction mnemonic
     sMnemonic = (*itToken).c_str();
 
-    if(!strcmp(sMnemonic, "ADDIU"))
+    bool nFound(false);
+
+    for(unsigned int i = 0; Instrs[i] != NULL; i++)
     {
-        unsigned int nRT, nRS;
-        uint16 nImm;
+        if(!strcmp(Instrs[i]->m_sMnemonic, sMnemonic))
+        {
+            Instrs[i]->Invoke(Tokens, itToken, this);
+            nFound = true;
+            break;
+        }
+    }
 
-        if(itToken == Tokens.end()) throw exception();
-        nRT = GetRegisterIndex((*(++itToken)).c_str());
-
-        if(itToken == Tokens.end()) throw exception();
-        nRS = GetRegisterIndex((*(++itToken)).c_str());
-
-        if(itToken == Tokens.end()) throw exception();
-        nImm = lexical_cast_hex<string>((*(++itToken)).c_str());
-
-        if(nRT == -1) throw exception();
-        if(nRS == -1) throw exception();
-
-        ADDIU(nRT, nRS, nImm);
+    if(nFound == false)
+    {
+        throw runtime_error("Invalid mnemonic specified.");
     }
 }
 

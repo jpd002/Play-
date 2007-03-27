@@ -4,6 +4,7 @@
 #include "DebuggerChildWnd.h"
 #include "win32/ColumnTreeView.h"
 #include "win32/Button.h"
+#include "win32/Edit.h"
 #include "win32/Layouts.h"
 #include "../MipsTestEngine.h"
 #include <map>
@@ -34,6 +35,7 @@ private:
     };
 
     typedef std::map<unsigned int, INSTRUCTION> InstructionByIdMapType;
+    typedef boost::function<void (const INSTRUCTION*, const INSTRUCTION::TestCaseType*)> ListMessageHandlerType;
 
     void                                    TestAll();
     void                                    Test(INSTRUCTION&);
@@ -41,9 +43,12 @@ private:
     void                                    RefreshLayout();
     void                                    RefreshInstructionMap();
     void                                    RefreshInstructionList();
-    void                                    OnItemDblClick();
+    void                                    ProcessListEvent(ListMessageHandlerType);
+    void                                    OnItemDblClick(const INSTRUCTION*, const INSTRUCTION::TestCaseType*);
+    void                                    OnListSelChange(const INSTRUCTION*, const INSTRUCTION::TestCaseType*);
 
     Framework::Win32::CColumnTreeView*      m_pInstructionList;
+    Framework::Win32::CEdit*                m_pDescriptionEdit;
     Framework::Win32::CButton*              m_pTestAllButton;
     Framework::CVerticalLayout              m_Layout;
     InstructionByIdMapType                  m_InstructionsById;

@@ -49,6 +49,23 @@ CMipsTestEngine::CValueSet* CMipsTestEngine::GetInput(unsigned int nId)
     return (itInput != m_InputsById.end()) ? (itInput->second) : (NULL);
 }
 
+CMipsTestEngine::CValueSet* CMipsTestEngine::GetOutput(unsigned int nInputId, unsigned int nInstanceId)
+{
+    for(OutputsType::iterator itOutput(m_Outputs.begin());
+        itOutput != m_Outputs.end(); itOutput++)
+    {
+        if(
+            (itOutput->GetInputId() == nInputId) && 
+            (itOutput->GetInstanceId() == nInstanceId)
+            )
+        {
+            return &(*itOutput);
+        }
+    }
+
+    return NULL;
+}
+
 CMipsTestEngine::CInstance* CMipsTestEngine::GetInstance(unsigned int nId)
 {
     InstancesByIdMapType::iterator itInstance;
@@ -142,6 +159,16 @@ unsigned int CMipsTestEngine::CValueSet::GetInputId() const
 unsigned int CMipsTestEngine::CValueSet::GetInstanceId() const
 {
     return m_nInstanceId;
+}
+
+CMipsTestEngine::CValueSet::ValueIterator CMipsTestEngine::CValueSet::GetValuesBegin() const
+{
+    return m_Values.begin();
+}
+
+CMipsTestEngine::CValueSet::ValueIterator CMipsTestEngine::CValueSet::GetValuesEnd() const
+{
+    return m_Values.end();
 }
 
 void CMipsTestEngine::CValueSet::AssembleLoad(CMIPSAssembler& Assembler)
@@ -258,17 +285,25 @@ void CMipsTestEngine::CRegisterValue::AssembleLoad(CMIPSAssembler& Assembler)
         nHalf[2] = (m_nValue1 >>  0) & 0xFFFF;
         nHalf[3] = (m_nValue1 >> 16) & 0xFFFF;
 
-        Assembler.LUI(m_nRegister, nHalf[1]);
-        Assembler.ORI(m_nRegister, m_nRegister, nHalf[0]);
-
         nSignExtension = ((m_nValue0 & 0x80000000) == 0) ? (0x00000000) : (0xFFFFFFFF);
 
         if(m_nValue1 != nSignExtension)
         {
-            Assembler.DSRL(m_nRegister, m_nRegister, 4);
-            Assembler.ORI(m_nRegister, m_nRegister, nHalf[2]);
-            Assembler.DSRL(m_nRegister, m_nRegister, 4);
-            Assembler.ORI(m_nRegister, m_nRegister, nHalf[3]);
+            Assembler.ADDIU(m_nRegister, 0, 0x0000);
+
+            for(int i = 3; i >= 0; i--)
+            {
+                Assembler.ORI(m_nRegister, m_nRegister, nHalf[i]);
+                if(i != 0)
+                {
+                    Assembler.DSLL(m_nRegister, m_nRegister, 16);
+                }
+            }
+        }
+        else
+        {
+            Assembler.LUI(m_nRegister, nHalf[1]);
+            Assembler.ORI(m_nRegister, m_nRegister, nHalf[0]);
         }
     }
 }
@@ -286,4 +321,11 @@ bool CMipsTestEngine::CRegisterValue::Verify(CMIPS& Context)
     }
 
     return true;
+}
+
+string CMipsTestEngine::CRegisterValue::GetString() const
+{
+    return string(CMIPS::m_sGPRName[m_nRegister]) + 
+        ": 0x" + lexical_cast_hex<string>(m_nValue1, 8) +
+        " 0x" + lexical_cast_hex<string>(m_nValue0, 8);
 }
