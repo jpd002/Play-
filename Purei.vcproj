@@ -104,6 +104,88 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(FrameworkRoot)\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;GLEW_STATIC"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib icuuc.lib"
+				LinkIncremental="1"
+				IgnoreDefaultLibraryNames="LIBC"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				AdditionalManifestFiles=".\source\win32ui\manifest.xml"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
@@ -167,88 +249,6 @@
 			<Tool
 				Name="VCManifestTool"
 				AdditionalManifestFiles=".\source\win32ui\manifest64.xml"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="MASM"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(FrameworkRoot)\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;GLEW_STATIC"
-				RuntimeLibrary="0"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib icuuc.lib"
-				LinkIncremental="1"
-				IgnoreDefaultLibraryNames="LIBC"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-				AdditionalManifestFiles=".\source\win32ui\manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -1047,6 +1047,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MipsAssemblerDefinitions.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MIPSCoprocessor.cpp"
 					>
 				</File>
@@ -1317,6 +1321,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MipsAssemblerDefinitions.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MIPSCoprocessor.h"
 					>
 				</File>
@@ -1424,6 +1432,14 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Debug|x64"
 						>
 						<Tool
@@ -1431,14 +1447,6 @@
 							Description="Assembling..."
 							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(OutDir)\$(InputName).obj"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="MASM"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -1464,6 +1472,14 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Debug|x64"
 						>
 						<Tool
@@ -1471,14 +1487,6 @@
 							Description="Assembling..."
 							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(OutDir)\$(InputName).obj"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="MASM"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -1504,6 +1512,14 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="MASM"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Debug|x64"
 						>
 						<Tool
@@ -1511,14 +1527,6 @@
 							Description="Assembling..."
 							CommandLine="ml64 /nologo /c /Fo$(OutDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(OutDir)\$(InputName).obj"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="MASM"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
