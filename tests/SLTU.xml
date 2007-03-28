@@ -1,0 +1,54 @@
+<Test>
+	<Inputs>
+
+		<!-- Less Than -->
+		<ValueSet InputId="0">
+			<Register Name="T0" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+			<Register Name="T1" Value0="0x00000001" />
+		</ValueSet>
+
+		<!-- Greater Than -->
+		<ValueSet InputId="1">
+			<Register Name="T0" Value0="0x00000001" />
+			<Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+		</ValueSet>
+
+		<!-- Equal -->
+		<ValueSet InputId="2">
+			<Register Name="T0" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+			<Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+		</ValueSet>
+
+	</Inputs>
+
+	<Instances>
+
+		<Instance Id="0">
+			SLTU T2, T1, T0
+		</Instance>
+
+	</Instances>
+
+	<Outputs>
+
+		<ValueSet InputId="0" InstanceId="0">
+			<Register Name="T0" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+			<Register Name="T1" Value0="0x00000001" />
+			<Register Name="T2" Value0="0x00000001" />
+		</ValueSet>
+
+		<ValueSet InputId="1" InstanceId="0">
+			<Register Name="T0" Value0="0x00000001" />
+			<Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+			<Register Name="T2" Value0="0x00000000" />
+		</ValueSet>
+
+		<ValueSet InputId="2" InstanceId="0">
+			<Register Name="T0" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+			<Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+			<Register Name="T2" Value0="0x00000000" />
+		</ValueSet>
+		
+	</Outputs>
+
+</Test>
