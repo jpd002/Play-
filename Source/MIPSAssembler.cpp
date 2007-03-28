@@ -279,7 +279,7 @@ void CMIPSAssembler::SLLV(unsigned int nRD, unsigned int nRT, unsigned int nRS)
 	m_pPtr++;
 }
 
-void CMIPSAssembler::SLTU(unsigned int nRD, unsigned int nRT, unsigned int nRS)
+void CMIPSAssembler::SLTU(unsigned int nRD, unsigned int nRS, unsigned int nRT)
 {
 	(*m_pPtr) = (nRS << 21) | (nRT << 16) | (nRD << 11) | 0x2B;
 	m_pPtr++;

@@ -1576,12 +1576,15 @@ void CMA_MIPSIV::SRAV()
 //08
 void CMA_MIPSIV::JR()
 {
-	//TODO: 64-bits addresses
+    //TODO: 64-bits addresses
+    CCodeGen::Begin(m_pB);
+	{
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
-
-	m_pB->SetDelayedJumpCheck();
+		m_pB->SetDelayedJumpCheck();
+	}
+	CCodeGen::End();
 }
 
 //09
