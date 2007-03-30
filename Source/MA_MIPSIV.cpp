@@ -913,14 +913,21 @@ void CMA_MIPSIV::LWL()
 //23
 void CMA_MIPSIV::LW()
 {
-	ComputeMemAccessAddr();
+    CCodeGen::Begin(m_pB);
+    {
+        ComputeMemAccessAddrEx();
 
-	//Load the word
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+		CCodeGen::PushRef(m_pCtx);
+		CCodeGen::PushIdx(1);
+		CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
 
+		CCodeGen::SeX();
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+        CCodeGen::PullTop();
+    }
+    CCodeGen::End();
 }
 
 //24
@@ -1106,12 +1113,18 @@ void CMA_MIPSIV::SWL()
 //2B
 void CMA_MIPSIV::SW()
 {
-	ComputeMemAccessAddr();
+	CCodeGen::Begin(m_pB);
+	{
+		ComputeMemAccessAddrEx();
 
-	//Write the words
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+		CCodeGen::PushRef(m_pCtx);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushIdx(2);
+		CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
+
+		CCodeGen::PullTop();
+	}
+	CCodeGen::End();
 }
 
 //2C
@@ -1499,17 +1512,27 @@ void CMA_MIPSIV::SDC2()
 //3F
 void CMA_MIPSIV::SD()
 {
-	ComputeMemAccessAddr();
+	CCodeGen::Begin(m_pB);
+	{
+		ComputeMemAccessAddrEx();
 
-	//Write the words
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 2, false);
-	m_pB->AddImm(4);
+		for(unsigned int i = 0; i < 2; i++)
+		{
+			CCodeGen::PushRef(m_pCtx);
+			CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			CCodeGen::PushIdx(2);
+			CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+			if(i != 1)
+			{
+				CCodeGen::PushCst(4);
+				CCodeGen::Add();
+			}
+		}
+
+		CCodeGen::PullTop();
+	}
+	CCodeGen::End();
 }
 
 //////////////////////////////////////////////////
