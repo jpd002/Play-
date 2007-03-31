@@ -60,6 +60,7 @@ public:
 	static void						Shl(uint8);
 	static void						Shl64();
 	static void						Shl64(uint8);
+    static void                     Sra(uint8);
 	static void						Srl64();
 	static void						Srl64(uint8);
 	static void						Sub();

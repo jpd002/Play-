@@ -29,8 +29,22 @@ public:
 
     private:
         unsigned int            m_nRegister;
-        unsigned int            m_nValue0;
-        unsigned int            m_nValue1;
+        uint32                  m_nValue0;
+        uint32                  m_nValue1;
+    };
+
+    class CMemoryValue : public CValue
+    {
+    public:
+                                CMemoryValue(Framework::Xml::CNode*);
+        virtual                 ~CMemoryValue();
+        virtual void            AssembleLoad(CMIPSAssembler&);
+        virtual bool            Verify(CMIPS&);
+        virtual std::string     GetString() const;
+
+    private:
+        uint32                  m_nAddress;
+        uint32                  m_nValue;
     };
 
     class CValueSet

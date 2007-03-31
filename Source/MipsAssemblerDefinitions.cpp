@@ -145,6 +145,41 @@ namespace MipsAssemblerDefinitions
         AssemblerFunctionType m_Assembler;
     };
 
+    //RtOfsBase Parser
+    //-----------------------------
+    struct RtOfsBase
+    {
+        typedef void (CMIPSAssembler::*AssemblerFunctionType) (unsigned int, uint16, unsigned int);
+
+        RtOfsBase(AssemblerFunctionType Assembler) :
+        m_Assembler(Assembler)
+        {
+            
+        }
+
+        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        {
+            unsigned int nRT, nBase;
+            uint16 nOfs;
+
+            if(itToken == Tokens.end()) throw exception();
+            nRT = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+            if(itToken == Tokens.end()) throw exception();
+            nOfs = lexical_cast_hex<string>((*(++itToken)).c_str());
+
+            if(itToken == Tokens.end()) throw exception();
+            nBase = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+            if(nBase == -1) throw exception();
+            if(nRT == -1) throw exception();
+
+            ((pAssembler)->*(m_Assembler))(nRT, nOfs, nBase);
+        }
+
+        AssemblerFunctionType m_Assembler;
+    };
+
     template <typename Functor> 
     struct SpecInstruction : public Instruction
     {
@@ -168,6 +203,7 @@ namespace MipsAssemblerDefinitions
 
     SpecInstruction<RtRsImm>    Instruction_ADDIU   = SpecInstruction<RtRsImm>("ADDIU", RtRsImm(&CMIPSAssembler::ADDIU));
     SpecInstruction<RtImm>      Instruction_LUI     = SpecInstruction<RtImm>("LUI", RtImm(&CMIPSAssembler::LUI));
+    SpecInstruction<RtOfsBase>  Instruction_LW      = SpecInstruction<RtOfsBase>("LW", RtOfsBase(&CMIPSAssembler::LW));
     SpecInstruction<RtRsSa>     Instruction_SLL     = SpecInstruction<RtRsSa>("SLL", RtRsSa(&CMIPSAssembler::SLL));
     SpecInstruction<RdRsRt>     Instruction_SLTU    = SpecInstruction<RdRsRt>("SLTU", RdRsRt(&CMIPSAssembler::SLTU));
     SpecInstruction<RtRsSa>     Instruction_SRA     = SpecInstruction<RtRsSa>("SRA", RtRsSa(&CMIPSAssembler::SRA));
@@ -176,6 +212,7 @@ namespace MipsAssemblerDefinitions
     {
         &Instruction_ADDIU,
         &Instruction_LUI,
+        &Instruction_LW,
         &Instruction_SLL,
         &Instruction_SLTU,
         &Instruction_SRA,

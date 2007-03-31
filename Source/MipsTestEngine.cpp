@@ -139,6 +139,10 @@ CMipsTestEngine::CValueSet::CValueSet(Xml::CNode* pValueSetNode)
         {
             m_Values.push_back(new CRegisterValue(pNode));
         }
+        else if(!strcmp(pNode->GetText(), "Memory"))
+        {
+            m_Values.push_back(new CMemoryValue(pNode));
+        }
         else
         {
             throw runtime_error(string("Unknown value type '") + pNode->GetText() + string("' encountered."));
@@ -280,10 +284,10 @@ void CMipsTestEngine::CRegisterValue::AssembleLoad(CMIPSAssembler& Assembler)
         uint16 nHalf[4];
         uint32 nSignExtension;
  
-        nHalf[0] = (m_nValue0 >>  0) & 0xFFFF;
-        nHalf[1] = (m_nValue0 >> 16) & 0xFFFF;
-        nHalf[2] = (m_nValue1 >>  0) & 0xFFFF;
-        nHalf[3] = (m_nValue1 >> 16) & 0xFFFF;
+        nHalf[0] = static_cast<uint16>((m_nValue0 >>  0) & 0xFFFF);
+        nHalf[1] = static_cast<uint16>((m_nValue0 >> 16) & 0xFFFF);
+        nHalf[2] = static_cast<uint16>((m_nValue1 >>  0) & 0xFFFF);
+        nHalf[3] = static_cast<uint16>((m_nValue1 >> 16) & 0xFFFF);
 
         nSignExtension = ((m_nValue0 & 0x80000000) == 0) ? (0x00000000) : (0xFFFFFFFF);
 
@@ -328,4 +332,56 @@ string CMipsTestEngine::CRegisterValue::GetString() const
     return string(CMIPS::m_sGPRName[m_nRegister]) + 
         ": 0x" + lexical_cast_hex<string>(m_nValue1, 8) +
         " 0x" + lexical_cast_hex<string>(m_nValue0, 8);
+}
+
+////////////////////////////////////////////////////
+// CMemoryValue implementation
+////////////////////////////////////////////////////
+
+CMipsTestEngine::CMemoryValue::CMemoryValue(Xml::CNode* pNode)
+{
+    const char* sValue;
+
+    m_nAddress = 0;
+    m_nValue = 0;
+
+    if(Xml::GetAttributeStringValue(pNode, "Address", &sValue))
+    {
+        m_nAddress = lexical_cast_hex<string>(sValue);
+    }
+
+    if(Xml::GetAttributeStringValue(pNode, "Value", &sValue))
+    {
+        m_nValue = lexical_cast_hex<string>(sValue);
+    }
+}
+
+CMipsTestEngine::CMemoryValue::~CMemoryValue()
+{
+
+}
+
+void CMipsTestEngine::CMemoryValue::AssembleLoad(CMIPSAssembler& Assembler)
+{
+    //Load value in register
+    Assembler.LUI(CMIPS::T8,            static_cast<uint16>(m_nValue >> 16));
+    Assembler.ORI(CMIPS::T8, CMIPS::T8, static_cast<uint16>(m_nValue >>  0));
+
+    //Load the address
+    Assembler.LUI(CMIPS::T9,            static_cast<uint16>(m_nAddress >> 16));
+    Assembler.ORI(CMIPS::T9, CMIPS::T9, static_cast<uint16>(m_nAddress >>  0));
+
+    //Store the value
+    Assembler.SW(CMIPS::T8, 0, CMIPS::T9);
+}
+
+bool CMipsTestEngine::CMemoryValue::Verify(CMIPS& Context)
+{
+    return false;
+}
+
+string CMipsTestEngine::CMemoryValue::GetString() const
+{
+    return string("RAM[0x") + lexical_cast_hex<string>(m_nAddress, 8)
+        + "] := 0x" + lexical_cast_hex<string>(m_nValue, 8);
 }

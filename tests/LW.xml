@@ -1,0 +1,42 @@
+<Test>
+	<Inputs>
+
+		<ValueSet InputId="0">
+			<Memory Address="0x00000020" Value="0x7000FFFF" />
+			<Register Name="T0" Value0="0x00000040" />
+		</ValueSet>
+
+		<ValueSet InputId="1">
+			<Memory Address="0x00000020" Value="0x8000FFFF" />
+			<Register Name="T0" Value0="0xFFFFFFC0" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+	</Inputs>
+
+	<Instances>
+
+		<Instance Id="0">
+			LW T1, 0xFFE0(T0)
+		</Instance>
+
+		<Instance Id="1">
+			LW T1, 0x0060(T0)
+		</Instance>
+
+	</Instances>
+
+	<Outputs>
+
+		<ValueSet InputId="0" InstanceId="0">
+			<Register Name="T0" Value0="0x00000040" />
+			<Register Name="T1" Value0="0x7000FFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="1" InstanceId="1">
+			<Register Name="T0" Value0="0xFFFFFFC0" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0x8000FFFF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+	</Outputs>
+
+</Test>

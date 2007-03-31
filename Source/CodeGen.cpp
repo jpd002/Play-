@@ -1925,6 +1925,43 @@ void CCodeGen::Shl64(uint8 nAmount)
 	}
 }
 
+void CCodeGen::Sra(uint8 nAmount)
+{
+	if(m_Shadow.GetAt(0) == REGISTER)
+	{
+		uint32 nRegister;
+
+		m_Shadow.Pull();
+		nRegister = m_Shadow.Pull();
+
+        //sar nRegister, nAmount
+		m_pBlock->StreamWrite(3, 0xC1, 0xF8 | (m_nRegisterLookup[nRegister]), nAmount);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+	}
+	else if(m_Shadow.GetAt(0) == RELATIVE)
+	{
+		uint32 nRelative;
+		unsigned int nRegister;
+
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+
+		Sra(nAmount);
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
 void CCodeGen::Srl64()
 {
 	if(\
