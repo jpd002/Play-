@@ -201,18 +201,22 @@ namespace MipsAssemblerDefinitions
     //Instruction definitions
     //-------------------------------
 
+    SpecInstruction<RdRsRt>     Instruction_ADDU    = SpecInstruction<RdRsRt>("ADDU", RdRsRt(&CMIPSAssembler::ADDU));
     SpecInstruction<RtRsImm>    Instruction_ADDIU   = SpecInstruction<RtRsImm>("ADDIU", RtRsImm(&CMIPSAssembler::ADDIU));
     SpecInstruction<RtImm>      Instruction_LUI     = SpecInstruction<RtImm>("LUI", RtImm(&CMIPSAssembler::LUI));
     SpecInstruction<RtOfsBase>  Instruction_LW      = SpecInstruction<RtOfsBase>("LW", RtOfsBase(&CMIPSAssembler::LW));
+    SpecInstruction<RdRsRt>     Instruction_MULT    = SpecInstruction<RdRsRt>("MULT", RdRsRt(&CMIPSAssembler::MULT));
     SpecInstruction<RtRsSa>     Instruction_SLL     = SpecInstruction<RtRsSa>("SLL", RtRsSa(&CMIPSAssembler::SLL));
     SpecInstruction<RdRsRt>     Instruction_SLTU    = SpecInstruction<RdRsRt>("SLTU", RdRsRt(&CMIPSAssembler::SLTU));
     SpecInstruction<RtRsSa>     Instruction_SRA     = SpecInstruction<RtRsSa>("SRA", RtRsSa(&CMIPSAssembler::SRA));
 
     Instruction* g_Instructions[] = 
     {
+        &Instruction_ADDU,
         &Instruction_ADDIU,
         &Instruction_LUI,
         &Instruction_LW,
+        &Instruction_MULT,
         &Instruction_SLL,
         &Instruction_SLTU,
         &Instruction_SRA,

@@ -143,6 +143,10 @@ CMipsTestEngine::CValueSet::CValueSet(Xml::CNode* pValueSetNode)
         {
             m_Values.push_back(new CMemoryValue(pNode));
         }
+        else if(!strcmp(pNode->GetText(), "SpecialRegister"))
+        {
+            m_Values.push_back(new CSpecialRegisterValue(pNode));
+        }
         else
         {
             throw runtime_error(string("Unknown value type '") + pNode->GetText() + string("' encountered."));
@@ -330,6 +334,102 @@ bool CMipsTestEngine::CRegisterValue::Verify(CMIPS& Context)
 string CMipsTestEngine::CRegisterValue::GetString() const
 {
     return string(CMIPS::m_sGPRName[m_nRegister]) + 
+        ": 0x" + lexical_cast_hex<string>(m_nValue1, 8) +
+        " 0x" + lexical_cast_hex<string>(m_nValue0, 8);
+}
+
+////////////////////////////////////////////////////
+// CSpecialRegisterValue implementation
+////////////////////////////////////////////////////
+
+CMipsTestEngine::CSpecialRegisterValue::CSpecialRegisterValue(Xml::CNode* pNode)
+{
+    const char* sName;
+    const char* sValue;
+
+    if(!Xml::GetAttributeStringValue(pNode, "Name", &sName))
+    {
+        throw runtime_error("SpecialRegisterValue: Couldn't find attribute 'Name'.");
+    }
+
+    if(!strcmp(sName, "LO"))
+    {
+        m_nRegister = LO;
+    }
+    else if(!strcmp(sName, "HI"))
+    {
+        m_nRegister = HI;
+    }
+    else if(!strcmp(sName, "LO1"))
+    {
+        m_nRegister = LO1;
+    }
+    else if(!strcmp(sName, "HI1"))
+    {
+        m_nRegister = HI1;
+    }
+    else if(!strcmp(sName, "PC"))
+    {
+        m_nRegister = PC;
+    }
+    else
+    {
+        throw runtime_error("SpecialRegisterValue: Invalid register specified.");
+    }
+
+    m_nValue0 = 0;
+    m_nValue1 = 0;
+
+    if(Xml::GetAttributeStringValue(pNode, "Value0", &sValue))
+    {
+        m_nValue0 = lexical_cast_hex<string>(sValue);
+    }
+
+    if(Xml::GetAttributeStringValue(pNode, "Value1", &sValue))
+    {
+        m_nValue1 = lexical_cast_hex<string>(sValue);
+    }
+}
+
+CMipsTestEngine::CSpecialRegisterValue::~CSpecialRegisterValue()
+{
+
+}
+
+void CMipsTestEngine::CSpecialRegisterValue::AssembleLoad(CMIPSAssembler& Assembler)
+{
+    throw exception();
+}
+
+bool CMipsTestEngine::CSpecialRegisterValue::Verify(CMIPS& Context)
+{
+    switch(m_nRegister)
+    {
+    case LO:
+        return (Context.m_State.nLO[0] == m_nValue0) && (Context.m_State.nLO[1] == m_nValue1);
+        break;
+    case HI:
+        return (Context.m_State.nHI[0] == m_nValue0) && (Context.m_State.nHI[1] == m_nValue1);
+        break;
+    }
+    return false;
+}
+
+std::string CMipsTestEngine::CSpecialRegisterValue::GetString() const
+{
+    const char* sName;
+ 
+    switch(m_nRegister)
+    {
+    case LO:
+        sName = "LO";
+        break;
+    case HI:
+        sName = "HI";
+        break;
+    }
+
+    return string(sName) + 
         ": 0x" + lexical_cast_hex<string>(m_nValue1, 8) +
         " 0x" + lexical_cast_hex<string>(m_nValue0, 8);
 }

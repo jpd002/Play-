@@ -242,6 +242,12 @@ void CMIPSAssembler::MTC0(unsigned int nRT, unsigned int nRD)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::MULT(unsigned int nRD, unsigned int nRS, unsigned int nRT)
+{
+	(*m_pPtr) = (nRS << 21) | (nRT << 16) | (nRD << 11) | 0x18;
+	m_pPtr++;
+}
+
 void CMIPSAssembler::MULTU(unsigned int nRS, unsigned int nRT, unsigned int nRD)
 {
 	(*m_pPtr) = (nRS << 21) | (nRT << 16) | (nRD << 11) | 0x19;

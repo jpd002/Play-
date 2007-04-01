@@ -33,6 +33,31 @@ public:
         uint32                  m_nValue1;
     };
 
+    class CSpecialRegisterValue : public CValue
+    {
+    public:
+                                CSpecialRegisterValue(Framework::Xml::CNode*);
+        virtual                 ~CSpecialRegisterValue();
+
+        virtual void            AssembleLoad(CMIPSAssembler&);
+        virtual bool            Verify(CMIPS&);
+        virtual std::string     GetString() const;
+
+    private:
+        enum REGISTER
+        {
+            LO,
+            HI,
+            LO1,
+            HI1,
+            PC,
+        };
+
+        REGISTER                m_nRegister;
+        uint32                  m_nValue0;
+        uint32                  m_nValue1;
+    };
+
     class CMemoryValue : public CValue
     {
     public:

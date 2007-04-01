@@ -1,0 +1,74 @@
+<Test>
+	<Inputs>
+
+		<ValueSet InputId="0">
+			<Register Name="T0" Value0="0x80000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0x00000004" />
+			<Register Name="T2" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="1">
+			<Register Name="T0" Value0="0x80000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0xFFFFFFFC" Value1="0xFFFFFFFF" />
+			<Register Name="T2" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="2">
+			<Register Name="T0" Value0="0xFFFF8000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0x00000010" />
+			<Register Name="T2" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="3">
+			<Register Name="T0" Value0="0xFFFF8000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0xFFFFFFF0" Value1="0xFFFFFFFF" />
+			<Register Name="T2" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+	</Inputs>
+
+	<Instances>
+
+		<Instance Id="0">
+			MULT T2, T1, T0
+		</Instance>
+
+	</Instances>
+
+	<Outputs>
+
+		<ValueSet InputId="0" InstanceId="0">
+			<Register Name="T0" Value0="0x80000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0x00000004" />
+			<Register Name="T2" Value0="0x00000000" />
+			<SpecialRegister Name="LO" Value0="0x00000000" />
+			<SpecialRegister Name="HI" Value0="0xFFFFFFFE" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="1" InstanceId="0">
+			<Register Name="T0" Value0="0x80000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0xFFFFFFFC" Value1="0xFFFFFFFF" />
+			<Register Name="T2" Value0="0x00000000" />
+			<SpecialRegister Name="LO" Value0="0x00000000" />
+			<SpecialRegister Name="HI" Value0="0x00000002" />
+		</ValueSet>
+
+		<ValueSet InputId="2" InstanceId="0">
+			<Register Name="T0" Value0="0xFFFF8000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0x00000010" />
+			<Register Name="T2" Value0="0xFFF80000" Value1="0xFFFFFFFF" />
+			<SpecialRegister Name="LO" Value0="0xFFF80000" Value1="0xFFFFFFFF" />
+			<SpecialRegister Name="HI" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="3" InstanceId="0">
+			<Register Name="T0" Value0="0xFFFF8000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0xFFFFFFF0" Value1="0xFFFFFFFF" />
+			<Register Name="T2" Value0="0x00080000" />
+			<SpecialRegister Name="LO" Value0="0x00080000" />
+			<SpecialRegister Name="HI" Value0="0x00000000" />
+		</ValueSet>
+
+	</Outputs>
+
+</Test>

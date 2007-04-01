@@ -46,6 +46,7 @@ public:
 	void		        LQ(unsigned int, uint16, unsigned int);
 	void		        MFC0(unsigned int, unsigned int);
 	void		        MTC0(unsigned int, unsigned int);
+    void                MULT(unsigned int, unsigned int, unsigned int);
 	void		        MULTU(unsigned int, unsigned int, unsigned int);
 	void		        NOP();
 	void		        ORI(unsigned int, unsigned int, uint16);

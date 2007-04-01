@@ -835,6 +835,26 @@ void CCodeGen::Add()
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
 	}
+	else if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
+	{
+        uint32 nRelative1, nRelative2, nRegister;
+
+        m_Shadow.Pull();
+        nRelative2 = m_Shadow.Pull();
+        m_Shadow.Pull();
+        nRelative1 = m_Shadow.Pull();
+
+        nRegister = AllocateRegister();
+
+        LoadRelativeInRegister(nRegister, nRelative1);
+
+        //add reg, dword ptr[nRelative1]
+        m_pBlock->StreamWrite(1, 0x03);
+        WriteRelativeRmRegister(nRegister, nRelative2);
+
+        m_Shadow.Push(nRegister);
+        m_Shadow.Push(REGISTER);
+    }
 	else if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
 	{
 		uint32 nRegister1, nRegister2;
@@ -1522,6 +1542,41 @@ _done:
 	}
 }
 
+void CCodeGen::MultS()
+{
+	if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
+	{
+        uint32 nRelative1, nRelative2, nRegister;
+
+        m_Shadow.Pull();
+        nRelative2 = m_Shadow.Pull();
+        m_Shadow.Pull();
+        nRelative1 = m_Shadow.Pull();
+
+        //We need eax and edx for this
+        assert(!m_nRegisterAllocated[REGISTER_EAX] && !m_nRegisterAllocated[REGISTER_EDX]);
+        m_nRegisterAllocated[REGISTER_EAX] = true;
+        m_nRegisterAllocated[REGISTER_EDX] = true;
+        nRegister = REGISTER_EAX;
+
+        LoadRelativeInRegister(nRegister, nRelative1);
+
+        //imul eax, [Relative2]
+        m_pBlock->StreamWrite(1, 0xF7);
+        WriteRelativeRmFunction(5, nRelative2);
+
+        m_Shadow.Push(REGISTER_EDX);
+        m_Shadow.Push(REGISTER);
+
+        m_Shadow.Push(nRegister);
+        m_Shadow.Push(REGISTER);
+	}
+    else
+    {
+        assert(0);
+    }
+}
+
 void CCodeGen::Or()
 {
 	if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
@@ -1638,20 +1693,33 @@ void CCodeGen::SeX()
 	m_Shadow.Pull();
 	nRegister = m_Shadow.Pull();
 
-	if(nRegister != 0 && m_nRegisterAllocated[2])
-	{
-		assert(0);
-	}
+    //Must be in eax
+    if(nRegister != 0)
+    {
+        assert(m_nRegisterAllocated[REGISTER_EAX] == false);
+        m_nRegisterAllocated[REGISTER_EAX] = true;
+        CopyRegister(REGISTER_EAX, nRegister);
+    }
 
-	m_nRegisterAllocated[2] = true;
+    //Can't overwrite the result
+    if(m_nRegisterAllocated[REGISTER_EDX])
+    {
+        unsigned int nCopyReg = AllocateRegister();
+        CopyRegister(nCopyReg, REGISTER_EDX);
+        ReplaceRegisterInStack(nCopyReg, REGISTER_EDX);
+        m_nRegisterAllocated[REGISTER_EDX] = false;
+    }
+
+    assert(m_nRegisterAllocated[REGISTER_EDX] == false);
+	m_nRegisterAllocated[REGISTER_EDX] = true;
 
 	//cdq
 	m_pBlock->StreamWrite(1, 0x99);
 
-	m_Shadow.Push(0);
+	m_Shadow.Push(REGISTER_EAX);
 	m_Shadow.Push(REGISTER);
 
-	m_Shadow.Push(2);
+	m_Shadow.Push(REGISTER_EDX);
 	m_Shadow.Push(REGISTER);
 }
 

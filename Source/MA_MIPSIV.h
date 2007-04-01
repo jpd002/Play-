@@ -189,10 +189,25 @@ private:
 	static void							BLTZL();
 	static void							BGEZL();
 
-	//Reflection tables
+    //Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
 	static MIPSReflection::INSTRUCTION	m_cReflSpecial[64];
 	static MIPSReflection::INSTRUCTION	m_cReflRegImm[32];
+
+    //Instruction compiler templates
+
+    struct Template_ShiftCst32
+    {
+        typedef void (*OperationFunctionType)(uint8);
+        void operator()(OperationFunctionType);
+    };
+
+    struct Template_Mult32
+    {
+        typedef void (*OperationFunctionType)();
+        void operator()(OperationFunctionType);
+    };
+
 };
 
 extern CMA_MIPSIV g_MAMIPSIV;

@@ -54,6 +54,7 @@ public:
 	static void						Cmp(CONDITION);
 	static void						Cmp64(CONDITION);
 	static void						Lzc();
+    static void                     MultS();
 	static void						Or();
 	static void						SeX();
 	static void						SeX16();
@@ -103,6 +104,12 @@ private:
 		IFBLOCK,
 		IFELSEBLOCK,
 	};
+
+    enum SPECREGS
+    {
+        REGISTER_EAX = 0,
+        REGISTER_EDX = 2,
+    };
 
 	enum REGISTER_TYPE
 	{
