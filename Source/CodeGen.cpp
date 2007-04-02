@@ -4,6 +4,9 @@
 #include "CodeGen_VUF128.h"
 #include "CodeGen_FPU.h"
 #include "PtrMacro.h"
+#include <boost/bind.hpp>
+
+using namespace boost;
 
 bool					CCodeGen::m_nBlockStarted = false;
 CCacheBlock*			CCodeGen::m_pBlock = NULL;
@@ -1740,19 +1743,7 @@ void CCodeGen::Shl(uint8 nAmount)
 	}
 	else if(m_Shadow.GetAt(0) == RELATIVE)
 	{
-		uint32 nRelative;
-		unsigned int nRegister;
-
-		m_Shadow.Pull();
-		nRelative = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, nRelative);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		Shl(nAmount);
+        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Shl, nAmount));
 	}
 	else if(m_Shadow.GetAt(0) == VARIABLE)
 	{
@@ -2010,19 +2001,32 @@ void CCodeGen::Sra(uint8 nAmount)
 	}
 	else if(m_Shadow.GetAt(0) == RELATIVE)
 	{
-		uint32 nRelative;
-		unsigned int nRegister;
+        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Sra, nAmount));
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void CCodeGen::Srl(uint8 nAmount)
+{
+	if(m_Shadow.GetAt(0) == REGISTER)
+	{
+		uint32 nRegister;
 
 		m_Shadow.Pull();
-		nRelative = m_Shadow.Pull();
+		nRegister = m_Shadow.Pull();
 
-		nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, nRelative);
+        //shr nRegister, nAmount
+		m_pBlock->StreamWrite(3, 0xC1, 0xE8 | (m_nRegisterLookup[nRegister]), nAmount);
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
-
-		Sra(nAmount);
+	}
+	else if(m_Shadow.GetAt(0) == RELATIVE)
+	{
+        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Srl, nAmount));
 	}
 	else
 	{

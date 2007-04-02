@@ -196,6 +196,11 @@ private:
 
     //Instruction compiler templates
 
+    struct Template_LoadUnsigned32
+    {
+        void operator()(void*);
+    };
+
     struct Template_ShiftCst32
     {
         typedef void (*OperationFunctionType)(uint8);

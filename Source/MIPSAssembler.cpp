@@ -200,6 +200,12 @@ void CMIPSAssembler::LDR(unsigned int nRT, uint16 nOffset, unsigned int nBase)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::LHU(unsigned int nRT, uint16 nOffset, unsigned int nBase)
+{
+	(*m_pPtr) = ((0x25) << 26) | (nBase << 21) | (nRT << 16) | nOffset;
+	m_pPtr++;
+}
+
 void CMIPSAssembler::LUI(unsigned int nRT, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x0F) << 26) | (nRT << 16) | nImmediate;

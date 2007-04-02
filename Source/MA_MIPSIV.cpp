@@ -455,10 +455,24 @@ void CMA_MIPSIV::SLTIU()
 //0C
 void CMA_MIPSIV::ANDI()
 {
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+        CCodeGen::PushCst(m_nImmediate);
+        
+        CCodeGen::And();
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+        CCodeGen::PushCst(0);
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+    }
+    CCodeGen::End();
+/*
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
 	m_pB->AndImm(m_nImmediate);
 	SignExtendTop32(m_nRT);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+*/
 }
 
 //0D
@@ -913,44 +927,19 @@ void CMA_MIPSIV::LWL()
 //23
 void CMA_MIPSIV::LW()
 {
-    CCodeGen::Begin(m_pB);
-    {
-        ComputeMemAccessAddrEx();
-
-		CCodeGen::PushRef(m_pCtx);
-		CCodeGen::PushIdx(1);
-		CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
-
-		CCodeGen::SeX();
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-        CCodeGen::PullTop();
-    }
-    CCodeGen::End();
+    Template_LoadUnsigned32()(&CCacheBlock::GetWordProxy);
 }
 
 //24
 void CMA_MIPSIV::LBU()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetByteProxy, 2, true);
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+    Template_LoadUnsigned32()(&CCacheBlock::GetByteProxy);
 }
 
 //25
 void CMA_MIPSIV::LHU()
 {
-	ComputeMemAccessAddr();
-	
-	//Get the half
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetHalfProxy, 2, true);
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+    Template_LoadUnsigned32()(&CCacheBlock::GetHalfProxy);
 }
 
 //26
@@ -1035,11 +1024,18 @@ void CMA_MIPSIV::SB()
 //29
 void CMA_MIPSIV::SH()
 {
-	ComputeMemAccessAddr();
+	CCodeGen::Begin(m_pB);
+	{
+		ComputeMemAccessAddrEx();
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetHalfProxy, 3, false);
+		CCodeGen::PushRef(m_pCtx);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushIdx(2);
+		CCodeGen::Call(&CCacheBlock::SetHalfProxy, 3, false);
+
+		CCodeGen::PullTop();
+	}
+	CCodeGen::End();
 }
 
 //2A
@@ -1470,17 +1466,28 @@ void CMA_MIPSIV::LDC2()
 //37
 void CMA_MIPSIV::LD()
 {
-	ComputeMemAccessAddr();
+    CCodeGen::Begin(m_pB);
+    {
+        ComputeMemAccessAddrEx();
 
-	//Load the word
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 1, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->AddImm(4);
+        for(unsigned int i = 0; i < 2; i++)
+        {
+		    CCodeGen::PushRef(m_pCtx);
+		    CCodeGen::PushIdx(1);
+		    CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+            CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+
+            if(i != 1)
+            {
+                CCodeGen::PushCst(4);
+                CCodeGen::Add();
+            }
+        }
+
+        CCodeGen::PullTop();
+    }
+    CCodeGen::End();
 }
 
 //39
@@ -1548,10 +1555,7 @@ void CMA_MIPSIV::SLL()
 //02
 void CMA_MIPSIV::SRL()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->SrlImm(m_nSA);
-	SignExtendTop32(m_nRD);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    Template_ShiftCst32()(&CCodeGen::Srl);
 }
 
 //03

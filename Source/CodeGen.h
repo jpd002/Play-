@@ -62,6 +62,7 @@ public:
 	static void						Shl64();
 	static void						Shl64(uint8);
     static void                     Sra(uint8);
+    static void                     Srl(uint8);
 	static void						Srl64();
 	static void						Srl64(uint8);
 	static void						Sub();
@@ -146,6 +147,24 @@ private:
 	static bool						IsTopRegCstPairCom();
 	static bool						IsTopRegZeroPairCom();
 	static void						GetRegCstPairCom(unsigned int*, uint32*);
+    
+    template <typename T> 
+    static void                     UnaryRelativeSelfCallAsRegister(const T& Function)
+    {
+		uint32 nRelative;
+		unsigned int nRegister;
+
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+
+		Function();
+    }
 
 	static void						PushReg(unsigned int);
 #ifdef AMD64

@@ -2,6 +2,25 @@
 #include "CodeGen.h"
 #include "MIPS.h"
 
+void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
+{
+    CCodeGen::Begin(m_pB);
+    {
+        ComputeMemAccessAddrEx();
+
+		CCodeGen::PushRef(m_pCtx);
+		CCodeGen::PushIdx(1);
+		CCodeGen::Call(pProxyFunction, 2, true);
+
+		CCodeGen::SeX();
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+        CCodeGen::PullTop();
+    }
+    CCodeGen::End();
+}
+
 void CMA_MIPSIV::Template_ShiftCst32::operator()(OperationFunctionType Function)
 {
     CCodeGen::Begin(m_pB);

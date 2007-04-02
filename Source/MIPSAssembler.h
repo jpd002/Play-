@@ -39,7 +39,8 @@ public:
 	void		        LD(unsigned int, uint16, unsigned int);
 	void		        LDL(unsigned int, uint16, unsigned int);
 	void		        LDR(unsigned int, uint16, unsigned int);
-	void		        LUI(unsigned int, uint16);
+    void                LHU(unsigned int, uint16, unsigned int);
+    void		        LUI(unsigned int, uint16);
 	void		        LW(unsigned int, uint16, unsigned int);
 	void		        LWL(unsigned int, uint16, unsigned int);
 	void		        LWR(unsigned int, uint16, unsigned int);
