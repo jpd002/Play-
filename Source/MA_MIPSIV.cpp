@@ -353,13 +353,29 @@ void CMA_MIPSIV::BNE()
 void CMA_MIPSIV::BLEZ()
 {
 /*
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+
+        CCodeGen::PushCst(0);
+        CCodeGen::PushCst(0);
+
+        CCodeGen::Cmp64(CCodeGen::CONDITION_LE);
+
+        BranchEx(true);
+    }
+    CCodeGen::End();
+*/
+/*
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
 	m_pB->PushImm(0);
 	m_pB->Cmp(JCC_CONDITION_LE);
 
 	Branch(true);
 */
-	//Check sign bit
+
+    //Check sign bit
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
 	m_pB->AndImm(0x80000000);
 	m_pB->PushImm(0x00000000);
@@ -378,6 +394,7 @@ void CMA_MIPSIV::BLEZ()
 	m_pB->And();
 
 	Branch(false);
+
 }
 
 //07

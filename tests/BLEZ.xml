@@ -1,0 +1,91 @@
+<Test>
+  <Inputs>
+
+    <!-- Less Than 32-bits -->
+    <ValueSet InputId="0">
+      <Register Name="T0" Value0="0xFFFFE000" Value1="0xFFFFFFFF" />
+    </ValueSet>
+
+    <!-- Greater Than 32-bits -->
+    <ValueSet InputId="1">
+      <Register Name="T0" Value0="0x0000FFF1" />
+    </ValueSet>
+
+    <!-- Less Than 64-bits -->
+    <ValueSet InputId="3">
+      <Register Name="T0" Value0="0x00000001" Value1="0xFFFF8000" />
+    </ValueSet>
+
+    <!-- Greater Than 64-bits -->
+    <ValueSet InputId="5">
+      <Register Name="T0" Value0="0x00000000" Value1="0x7FFFFFFF" />
+    </ValueSet>
+
+    <!-- Equal -->
+    <ValueSet InputId="2">
+      <Register Name="T0" Value0="0x00000000" />
+    </ValueSet>
+
+  </Inputs>
+
+  <Instances>
+
+    <Instance Id="0">
+      BLEZ T0, 8
+    </Instance>
+
+  </Instances>
+
+  <Outputs>
+
+    <ValueSet InputId="0" InstanceId="0">
+      <Register Name="T0" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+      <Register Name="T1" Value0="0x00000001" />
+      <Register Name="T2" Value0="0x00000001" />
+    </ValueSet>
+
+    <ValueSet InputId="1" InstanceId="0">
+      <Register Name="T0" Value0="0x00000001" />
+      <Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+      <Register Name="T2" Value0="0x00000000" />
+    </ValueSet>
+
+    <ValueSet InputId="2" InstanceId="0">
+      <Register Name="T0" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+      <Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFF"/>
+      <Register Name="T2" Value0="0x00000000" />
+    </ValueSet>
+
+    <ValueSet InputId="3" InstanceId="0">
+      <Register Name="T0" Value0="0x00000000" Value1="0x00007FFF" />
+      <Register Name="T1" Value0="0x00000001" />
+      <Register Name="T2" Value0="0x00000001" />
+    </ValueSet>
+
+    <ValueSet InputId="4" InstanceId="0">
+      <Register Name="T0" Value0="0x00000000" Value1="0x00007FFF" />
+      <Register Name="T1" Value0="0x00000000" Value1="0x00000001" />
+      <Register Name="T2" Value0="0x00000001" />
+    </ValueSet>
+
+    <ValueSet InputId="5" InstanceId="0">
+      <Register Name="T0" Value0="0x00000001" />
+      <Register Name="T1" Value0="0x00000000" Value1="0x00007FFF" />
+      <Register Name="T2" Value0="0x00000000" />
+    </ValueSet>
+
+    <ValueSet InputId="6" InstanceId="0">
+      <Register Name="T0" Value0="0x00000000" Value1="0x00000001" />
+      <Register Name="T1" Value0="0x00000000" Value1="0x00007FFF" />
+      <Register Name="T2" Value0="0x00000000" />
+    </ValueSet>
+
+    <ValueSet InputId="7" InstanceId="0">
+      <Register Name="T0" Value0="0x00000000" Value1="0x00007FFF" />
+      <Register Name="T1" Value0="0x00000000" Value1="0x00007FFF" />
+      <Register Name="T2" Value0="0x00000000" />
+    </ValueSet>
+
+  </Outputs>
+
+</Test>
