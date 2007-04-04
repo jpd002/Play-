@@ -467,12 +467,6 @@ void CMA_MIPSIV::ANDI()
         CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
     }
     CCodeGen::End();
-/*
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->AndImm(m_nImmediate);
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-*/
 }
 
 //0D
@@ -1014,11 +1008,18 @@ void CMA_MIPSIV::LWU()
 //28
 void CMA_MIPSIV::SB()
 {
-	ComputeMemAccessAddr();
+	CCodeGen::Begin(m_pB);
+	{
+		ComputeMemAccessAddrEx();
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetByteProxy, 3, false);
+		CCodeGen::PushRef(m_pCtx);
+		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		CCodeGen::PushIdx(2);
+		CCodeGen::Call(&CCacheBlock::SetByteProxy, 3, false);
+
+		CCodeGen::PullTop();
+	}
+	CCodeGen::End();
 }
 
 //29
@@ -1884,15 +1885,20 @@ void CMA_MIPSIV::AND()
 //25
 void CMA_MIPSIV::OR()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->Or();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    //TODO: Use a 64-bits op
+    CCodeGen::Begin(m_pB);
+    {
+        for(unsigned int i = 0; i < 2; i++)
+        {
+            CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+            CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->Or();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
+            CCodeGen::Or();
+
+            CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+        }
+    }
+    CCodeGen::End();
 }
 
 //26

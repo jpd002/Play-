@@ -207,6 +207,7 @@ namespace MipsAssemblerDefinitions
     SpecInstruction<RtImm>      Instruction_LUI     = SpecInstruction<RtImm>("LUI", RtImm(&CMIPSAssembler::LUI));
     SpecInstruction<RtOfsBase>  Instruction_LW      = SpecInstruction<RtOfsBase>("LW", RtOfsBase(&CMIPSAssembler::LW));
     SpecInstruction<RdRsRt>     Instruction_MULT    = SpecInstruction<RdRsRt>("MULT", RdRsRt(&CMIPSAssembler::MULT));
+    SpecInstruction<RdRsRt>     Instruction_OR      = SpecInstruction<RdRsRt>("OR", RdRsRt(&CMIPSAssembler::OR));
     SpecInstruction<RtRsSa>     Instruction_SLL     = SpecInstruction<RtRsSa>("SLL", RtRsSa(&CMIPSAssembler::SLL));
     SpecInstruction<RdRsRt>     Instruction_SLTU    = SpecInstruction<RdRsRt>("SLTU", RdRsRt(&CMIPSAssembler::SLTU));
     SpecInstruction<RtRsSa>     Instruction_SRA     = SpecInstruction<RtRsSa>("SRA", RtRsSa(&CMIPSAssembler::SRA));
@@ -219,6 +220,7 @@ namespace MipsAssemblerDefinitions
         &Instruction_LUI,
         &Instruction_LW,
         &Instruction_MULT,
+        &Instruction_OR,
         &Instruction_SLL,
         &Instruction_SLTU,
         &Instruction_SRA,

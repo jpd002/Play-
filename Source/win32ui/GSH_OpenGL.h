@@ -16,7 +16,7 @@ class CGSH_OpenGL : public CGSHandler, public CSettingsDialogProvider
 {
 public:
 									CGSH_OpenGL(Framework::Win32::CWindow*);
-									~CGSH_OpenGL();
+	virtual                         ~CGSH_OpenGL();
 
 	static void						CreateGSHandler(Framework::Win32::CWindow*);
 

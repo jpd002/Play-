@@ -1645,6 +1645,26 @@ void CCodeGen::Or()
 
 		Or();
 	}
+    else if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
+    {
+        uint32 nRelative1, nRelative2, nRegister;
+
+        m_Shadow.Pull();
+        nRelative2 = m_Shadow.Pull();
+        m_Shadow.Pull();
+        nRelative1 = m_Shadow.Pull();
+
+        nRegister = AllocateRegister();
+
+        LoadRelativeInRegister(nRegister, nRelative1);
+
+        //or reg, dword ptr[nRelative1]
+        m_pBlock->StreamWrite(1, 0x0B);
+        WriteRelativeRmRegister(nRegister, nRelative2);
+
+        m_Shadow.Push(nRegister);
+        m_Shadow.Push(REGISTER);
+    }
 	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
 	{
 		unsigned int nRegister;

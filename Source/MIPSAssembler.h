@@ -50,6 +50,7 @@ public:
     void                MULT(unsigned int, unsigned int, unsigned int);
 	void		        MULTU(unsigned int, unsigned int, unsigned int);
 	void		        NOP();
+    void                OR(unsigned int, unsigned int, unsigned int);
 	void		        ORI(unsigned int, unsigned int, uint16);
 	void		        SD(unsigned int, uint16, unsigned int);
 	void		        SLL(unsigned int, unsigned int, unsigned int);

@@ -266,6 +266,12 @@ void CMIPSAssembler::NOP()
 	m_pPtr++;
 }
 
+void CMIPSAssembler::OR(unsigned int nRD, unsigned int nRS, unsigned int nRT)
+{
+	(*m_pPtr) = (nRS << 21) | (nRT << 16) | (nRD << 11) | 0x25;
+	m_pPtr++;
+}
+
 void CMIPSAssembler::ORI(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x0D) << 26) | (nRS << 21) | (nRT << 16) | nImmediate;
