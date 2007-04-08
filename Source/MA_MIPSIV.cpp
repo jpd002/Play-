@@ -352,7 +352,6 @@ void CMA_MIPSIV::BNE()
 //06
 void CMA_MIPSIV::BLEZ()
 {
-/*
     CCodeGen::Begin(m_pB);
     {
         CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -366,35 +365,6 @@ void CMA_MIPSIV::BLEZ()
         BranchEx(true);
     }
     CCodeGen::End();
-*/
-/*
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushImm(0);
-	m_pB->Cmp(JCC_CONDITION_LE);
-
-	Branch(true);
-*/
-
-    //Check sign bit
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	//Check if parts aren't equal to zero
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->Or();
-	m_pB->And();
-
-	Branch(false);
-
 }
 
 //07
@@ -2145,13 +2115,19 @@ void CMA_MIPSIV::BLTZ()
 //01
 void CMA_MIPSIV::BGEZ()
 {
-	m_pB->PushImm(0);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushCst(0);
 
-	m_pB->Cmp(JCC_CONDITION_EQ);
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+        CCodeGen::PushCst(0x80000000);
+        CCodeGen::And();
 
-	Branch(true);
+        CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
+
+        BranchEx(true);
+    }
+    CCodeGen::End();
 }
 
 //02

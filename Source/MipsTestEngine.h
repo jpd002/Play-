@@ -51,6 +51,7 @@ public:
             LO1,
             HI1,
             PC,
+            DELAYSLOT,
         };
 
         REGISTER                m_nRegister;

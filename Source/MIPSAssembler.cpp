@@ -50,7 +50,7 @@ void CMIPSAssembler::ANDI(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
 	m_pPtr++;
 }
 
-void CMIPSAssembler::BEQ(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
+void CMIPSAssembler::BEQ(unsigned int nRS, unsigned int nRT, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x04) << 26) | (nRS << 21) | (nRT << 16) | nImmediate;
 	m_pPtr++;
@@ -68,7 +68,7 @@ void CMIPSAssembler::BGTZ(unsigned int nRS, uint16 nImmediate)
 	m_pPtr++;
 }
 
-void CMIPSAssembler::BNE(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
+void CMIPSAssembler::BNE(unsigned int nRS, unsigned int nRT, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x05) << 26) | (nRS << 21) | (nRT << 16) | nImmediate;
 	m_pPtr++;

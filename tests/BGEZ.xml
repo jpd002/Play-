@@ -31,7 +31,7 @@
   <Instances>
 
     <Instance Id="0">
-      BLEZ T0, 8
+      BGEZ T0, 8
     </Instance>
 
   </Instances>
@@ -39,19 +39,19 @@
   <Outputs>
 
     <ValueSet InputId="0" InstanceId="0">
-			<SpecialRegister Name="DelaySlot" Value0="1" />
+			<SpecialRegister Name="DelaySlot" Value0="0" />
     </ValueSet>
 
 		<ValueSet InputId="1" InstanceId="0">
-			<SpecialRegister Name="DelaySlot" Value0="0" />
-		</ValueSet>
-
-		<ValueSet InputId="2" InstanceId="0">
 			<SpecialRegister Name="DelaySlot" Value0="1" />
 		</ValueSet>
 
-		<ValueSet InputId="3" InstanceId="0">
+		<ValueSet InputId="2" InstanceId="0">
 			<SpecialRegister Name="DelaySlot" Value0="0" />
+		</ValueSet>
+
+		<ValueSet InputId="3" InstanceId="0">
+			<SpecialRegister Name="DelaySlot" Value0="1" />
 		</ValueSet>
 
 		<ValueSet InputId="4" InstanceId="0">

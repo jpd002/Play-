@@ -10,6 +10,41 @@ using namespace std;
 
 namespace MipsAssemblerDefinitions
 {
+    //RsRtImm Parser
+    //-----------------------------
+    struct RsRtImm
+    {
+        typedef void (CMIPSAssembler::*AssemblerFunctionType) (unsigned int, unsigned int, uint16);
+
+        RsRtImm(AssemblerFunctionType Assembler) :
+        m_Assembler(Assembler)
+        {
+            
+        }
+
+        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        {
+            unsigned int nRT, nRS;
+            uint16 nImm;
+
+            if(itToken == Tokens.end()) throw exception();
+            nRS = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+            if(itToken == Tokens.end()) throw exception();
+            nRT = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+            if(itToken == Tokens.end()) throw exception();
+            nImm = lexical_cast_hex<string>((*(++itToken)).c_str());
+
+            if(nRT == -1) throw exception();
+            if(nRS == -1) throw exception();
+
+            bind(m_Assembler, pAssembler, _1, _2, _3)(nRS, nRT, nImm);
+        }
+
+        AssemblerFunctionType m_Assembler;
+    };
+
     //RtRsImm Parser
     //-----------------------------
     struct RtRsImm
@@ -75,6 +110,37 @@ namespace MipsAssemblerDefinitions
             if(nRD == -1) throw exception();
 
             bind(m_Assembler, pAssembler, _1, _2, _3)(nRD, nRS, nRT);
+        }
+
+        AssemblerFunctionType m_Assembler;
+    };
+
+    //RsImm Parser
+    //-----------------------------
+    struct RsImm
+    {
+        typedef void (CMIPSAssembler::*AssemblerFunctionType) (unsigned int, uint16);
+
+        RsImm(AssemblerFunctionType Assembler) :
+        m_Assembler(Assembler)
+        {
+            
+        }
+
+        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        {
+            unsigned int nRS;
+            uint16 nImm;
+
+            if(itToken == Tokens.end()) throw exception();
+            nRS = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
+
+            if(itToken == Tokens.end()) throw exception();
+            nImm = lexical_cast_hex<string>((*(++itToken)).c_str());
+
+            if(nRS == -1) throw exception();
+
+            bind(m_Assembler, pAssembler, _1, _2)(nRS, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -203,6 +269,10 @@ namespace MipsAssemblerDefinitions
 
     SpecInstruction<RdRsRt>     Instruction_ADDU    = SpecInstruction<RdRsRt>("ADDU", RdRsRt(&CMIPSAssembler::ADDU));
     SpecInstruction<RtRsImm>    Instruction_ADDIU   = SpecInstruction<RtRsImm>("ADDIU", RtRsImm(&CMIPSAssembler::ADDIU));
+    SpecInstruction<RsRtImm>    Instruction_BEQ     = SpecInstruction<RsRtImm>("BEQ", RsRtImm(&CMIPSAssembler::BEQ));
+    SpecInstruction<RsImm>      Instruction_BGEZ    = SpecInstruction<RsImm>("BGEZ", RsImm(&CMIPSAssembler::BGEZ));
+    SpecInstruction<RsImm>      Instruction_BLEZ    = SpecInstruction<RsImm>("BLEZ", RsImm(&CMIPSAssembler::BLEZ));
+    SpecInstruction<RsRtImm>    Instruction_BNE     = SpecInstruction<RsRtImm>("BNE", RsRtImm(&CMIPSAssembler::BNE));
     SpecInstruction<RtOfsBase>  Instruction_LHU     = SpecInstruction<RtOfsBase>("LHU", RtOfsBase(&CMIPSAssembler::LHU));
     SpecInstruction<RtImm>      Instruction_LUI     = SpecInstruction<RtImm>("LUI", RtImm(&CMIPSAssembler::LUI));
     SpecInstruction<RtOfsBase>  Instruction_LW      = SpecInstruction<RtOfsBase>("LW", RtOfsBase(&CMIPSAssembler::LW));
@@ -216,6 +286,10 @@ namespace MipsAssemblerDefinitions
     {
         &Instruction_ADDU,
         &Instruction_ADDIU,
+        &Instruction_BEQ,
+        &Instruction_BGEZ,
+        &Instruction_BLEZ,
+        &Instruction_BNE,
         &Instruction_LHU,
         &Instruction_LUI,
         &Instruction_LW,

@@ -140,6 +140,7 @@ void CTestEngineWnd::Test(INSTRUCTION& Instruction)
 
                     nProgramSize = AssembleTestCase(nBaseAddress, pInput, pInstance);
 
+                    CPS2VM::m_EE.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
                     CPS2VM::m_EE.m_State.nPC = nBaseAddress;
                     CPS2VM::m_EE.Execute(nProgramSize);
 

@@ -123,6 +123,7 @@ private:
 	static unsigned int				AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
 	static void						FreeRegister(unsigned int);
 	static unsigned int				GetMinimumConstantSize(uint32);
+    static unsigned int             GetMinimumConstantSize64(uint64);
 	static bool						RegisterHasNextUse(unsigned int);
 	static void						LoadVariableInRegister(unsigned int, uint32);
 	static void						LoadRelativeInRegister(unsigned int, uint32);
@@ -146,6 +147,8 @@ private:
 
 	static bool						IsTopRegCstPairCom();
 	static bool						IsTopRegZeroPairCom();
+    static bool                     IsTopContRelPair64();
+    static bool                     IsTopContRelCstPair64();
 	static void						GetRegCstPairCom(unsigned int*, uint32*);
     
     template <typename T> 
@@ -173,7 +176,8 @@ private:
 	static void						ReplaceRegisterInStack(unsigned int, unsigned int);
 
 	static void						Cmp64Eq();
-	static void						Cmp64Lt(bool);
+	static void						Cmp64Lt(bool, bool);
+    static void                     Cmp64Cont(CONDITION);
 
 	static bool						m_nBlockStarted;
 

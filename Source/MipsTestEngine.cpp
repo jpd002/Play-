@@ -372,6 +372,10 @@ CMipsTestEngine::CSpecialRegisterValue::CSpecialRegisterValue(Xml::CNode* pNode)
     {
         m_nRegister = PC;
     }
+    else if(!strcmp(sName, "DelaySlot"))
+    {
+        m_nRegister = DELAYSLOT;
+    }
     else
     {
         throw runtime_error("SpecialRegisterValue: Invalid register specified.");
@@ -411,27 +415,37 @@ bool CMipsTestEngine::CSpecialRegisterValue::Verify(CMIPS& Context)
     case HI:
         return (Context.m_State.nHI[0] == m_nValue0) && (Context.m_State.nHI[1] == m_nValue1);
         break;
+    case DELAYSLOT:
+        return (Context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC) == (m_nValue0 != 0);
+        break;
     }
     return false;
 }
 
 std::string CMipsTestEngine::CSpecialRegisterValue::GetString() const
 {
-    const char* sName;
- 
-    switch(m_nRegister)
+    if(m_nRegister == DELAYSLOT)
     {
-    case LO:
-        sName = "LO";
-        break;
-    case HI:
-        sName = "HI";
-        break;
+        return string("DelaySlot: ") + ((m_nValue0 != 0) ? "Yes" : "No");
     }
+    else
+    {
+        const char* sName;
 
-    return string(sName) + 
-        ": 0x" + lexical_cast_hex<string>(m_nValue1, 8) +
-        " 0x" + lexical_cast_hex<string>(m_nValue0, 8);
+        switch(m_nRegister)
+        {
+        case LO:
+            sName = "LO";
+            break;
+        case HI:
+            sName = "HI";
+            break;
+        }
+
+        return string(sName) + 
+            ": 0x" + lexical_cast_hex<string>(m_nValue1, 8) +
+            " 0x" + lexical_cast_hex<string>(m_nValue0, 8);
+    }
 }
 
 ////////////////////////////////////////////////////
