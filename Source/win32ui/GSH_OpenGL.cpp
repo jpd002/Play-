@@ -1131,7 +1131,7 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	unsigned int nW2, nH2;
 	unsigned int nDX, nDY;
 	unsigned int nTexture;
-	uint32* pImg;
+//	uint32* pImg;
 	double nS, nT;
 	TRXREG* pReg;
 	TRXPOS* pPos;
@@ -1145,7 +1145,7 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	nDX = pPos->nDSAX;
 	nDY = pPos->nDSAY;
 
-	pImg = (uint32*)(m_pRAM + nAddress);
+//	pImg = (uint32*)(m_pRAM + nAddress);
 
 	glGenTextures(1, &nTexture);
 
