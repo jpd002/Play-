@@ -90,7 +90,12 @@ void CGSH_Software::Flip()
 
             for(unsigned int i = 0; i < m_nHeight; i++)
             {
-                memcpy(pDst, pSrc, m_nWidth * 4);
+                for(unsigned int j = 0; j < m_nWidth; j++)
+                {
+                    uint8* pColor(reinterpret_cast<uint8*>(&pSrc[j]));
+                    pDst[j] = RGB(pColor[2], pColor[1], pColor[0]);
+                }
+//                memcpy(pDst, pSrc, m_nWidth * 4);
                 pDst += ddsd.lPitch;
                 pSrc += m_nWidth;
             }
