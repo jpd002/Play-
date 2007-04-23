@@ -234,7 +234,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib icuuc.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib icuuc.lib ddraw.lib"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="LIBC"
 				GenerateDebugInformation="true"
@@ -275,7 +275,7 @@
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -325,6 +325,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
 				TargetMachine="17"
 			/>
 			<Tool

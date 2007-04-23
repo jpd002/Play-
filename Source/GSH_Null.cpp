@@ -23,7 +23,7 @@ void CGSH_Null::ProcessImageTransfer(uint32 nAddress, uint32 nSize)
 
 void CGSH_Null::Flip()
 {
-
+    CPS2VM::m_OnNewFrame();
 }
 
 void CGSH_Null::CreateGSHandler()

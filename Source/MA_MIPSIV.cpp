@@ -431,12 +431,23 @@ void CMA_MIPSIV::SLTI()
 //0B
 void CMA_MIPSIV::SLTIU()
 {
-	//TODO: Complete 64-bit comparaison
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushImm((int16)m_nImmediate);
-	m_pB->Cmp(JCC_CONDITION_BL);
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+
+        CCodeGen::PushCst(static_cast<int16>(m_nImmediate));
+        CCodeGen::PushCst(m_nImmediate & 0x8000 ? 0xFFFFFFFF : 0x00000000);
+
+        CCodeGen::Cmp64(CCodeGen::CONDITION_BL);
+
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+		//Clear higher 32-bits
+		CCodeGen::PushCst(0);
+		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+    }
+    CCodeGen::End();
 }
 
 //0C

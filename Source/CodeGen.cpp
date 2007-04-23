@@ -197,6 +197,10 @@ unsigned int CCodeGen::GetMinimumConstantSize64(uint64 nConstant)
     {
         return 1;
     }
+    if(((int64)nConstant >= -2147483647) && ((int64)nConstant <= 2147483647))
+    {
+        return 4;
+    }
     return 8;
 }
 
@@ -2610,10 +2614,23 @@ void CCodeGen::Cmp64Cont(CONDITION nCondition)
         LoadRelativeInRegister64(nRegister, nRelative1);
 
         nConstant = (nConstant2 << 32) | (nConstant1);
-        assert(GetMinimumConstantSize64(nConstant) == 1);
 
-        //cmp reg, Immediate
-        m_pBlock->StreamWrite(4, 0x48, 0x83, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
+        unsigned int nConstantSize(GetMinimumConstantSize64(nConstant));
+        if(nConstantSize == 1)
+        {
+            //cmp reg, Immediate
+            m_pBlock->StreamWrite(4, 0x48, 0x83, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
+        }
+        else if(nConstantSize == 4)
+        {
+            //cmp reg, Immediate
+            m_pBlock->StreamWrite(3, 0x48, 0x81, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]));
+            m_pBlock->StreamWriteWord(static_cast<uint32>(nConstant1));
+        }
+        else
+        {
+            assert(0);
+        }
     }
     else
     {

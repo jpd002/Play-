@@ -72,9 +72,14 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CCacheBlock* pC, CMIPS* pCtx,
 //00
 void CCOP_SCU::MFC0()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP0[m_nRD]);
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+        CCodeGen::SeX();
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    }
+    CCodeGen::End();
 }
 
 //04
@@ -154,9 +159,14 @@ void CCOP_SCU::EI()
 //39
 void CCOP_SCU::DI()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP0[STATUS]);
-	m_pB->AndImm(~0x00010001);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP0[STATUS]);
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+        CCodeGen::PushCst(~0x00010001);
+        CCodeGen::And();
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+    }
+    CCodeGen::End();
 }
 
 //////////////////////////////////////////////////

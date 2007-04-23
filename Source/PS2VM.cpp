@@ -712,7 +712,7 @@ void CPS2VM::EmuThread()
 							m_pGS->SetVBlank();
 
 							//Old Flipping Method
-							m_pGS->Flip();
+							//m_pGS->Flip();
 							//m_OnNewFrame.Notify(NULL);
 							//////
 

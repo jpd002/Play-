@@ -290,7 +290,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 					dispfb->nX, \
 					dispfb->nY);
 			}
-			//Flip();
+			Flip();
 		}
 		break;
 	case 0x120000A:
