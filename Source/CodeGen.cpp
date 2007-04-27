@@ -974,6 +974,40 @@ void CCodeGen::Add64()
 		PushReg(nRegister1);
 		PushReg(nRegister2);
 	}
+    else if(\
+		(m_Shadow.GetAt(0) == CONSTANT) && \
+		(m_Shadow.GetAt(2) == CONSTANT) && \
+		(m_Shadow.GetAt(4) == RELATIVE) && \
+		(m_Shadow.GetAt(6) == RELATIVE))
+    {
+		uint32 nRelative1, nRelative2;
+        uint32 nConstant1, nConstant2;
+		uint32 nRegister1, nRegister2;
+
+		m_Shadow.Pull();
+		nConstant2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nConstant1 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+		nRegister1 = AllocateRegister();
+		nRegister2 = AllocateRegister();
+
+		LoadRelativeInRegister(nRegister1, nRelative1);
+		LoadRelativeInRegister(nRegister2, nRelative2);
+
+        //add reg1, const1
+        X86_RegImmOp(nRegister1, nConstant1, 0x00);
+
+        //adc reg2, const2
+        X86_RegImmOp(nRegister2, nConstant2, 0x02);
+
+		PushReg(nRegister1);
+		PushReg(nRegister2);
+    }
 	else
 	{
 		assert(0);
@@ -2055,6 +2089,43 @@ void CCodeGen::Sra(uint8 nAmount)
 	}
 }
 
+void CCodeGen::Sra64(uint8 nAmount)
+{
+    if(
+		(m_Shadow.GetAt(0) == RELATIVE) && \
+		(m_Shadow.GetAt(2) == RELATIVE))
+    {
+		uint32 nRelative1, nRelative2;
+
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+        nAmount &= 0x3F;
+
+        if(nAmount == 32)
+        {
+            PushRel(nRelative2);
+            SeX();
+        }
+        else if(nAmount > 32)
+        {
+            PushRel(nRelative2);
+            Sra(nAmount - 32);
+            SeX();
+        }
+        else
+        {
+            assert(0);
+        }
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
 void CCodeGen::Srl(uint8 nAmount)
 {
 	if(m_Shadow.GetAt(0) == REGISTER)
@@ -2759,4 +2830,22 @@ bool CCodeGen::IsTopContRelCstPair64()
     {
         return false;
     }
+}
+
+void CCodeGen::X86_RegImmOp(unsigned int nRegister, uint32 nConstant, unsigned int nOp)
+{
+    assert(nOp < 8);
+    assert(nRegister < 8);
+
+	if(GetMinimumConstantSize(nConstant) == 1)
+	{
+		//op reg, Immediate
+		m_pBlock->StreamWrite(3, 0x83, 0xC0 | (nOp << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
+	}
+	else
+	{
+		//op reg, Immediate
+		m_pBlock->StreamWrite(2, 0x81, 0xC0 | (nOp << 3) | (m_nRegisterLookup[nRegister]));
+		m_pBlock->StreamWriteWord(nConstant);
+	}
 }

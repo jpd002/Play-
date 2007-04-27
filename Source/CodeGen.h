@@ -62,6 +62,7 @@ public:
 	static void						Shl64();
 	static void						Shl64(uint8);
     static void                     Sra(uint8);
+    static void                     Sra64(uint8);
     static void                     Srl(uint8);
 	static void						Srl64();
 	static void						Srl64(uint8);
@@ -179,7 +180,9 @@ private:
 	static void						Cmp64Lt(bool, bool);
     static void                     Cmp64Cont(CONDITION);
 
-	static bool						m_nBlockStarted;
+    static void                     X86_RegImmOp(unsigned int, uint32, unsigned int);
+
+    static bool						m_nBlockStarted;
 
 	static CArrayStack<uint32>		m_Shadow;
 #ifdef AMD64

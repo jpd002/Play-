@@ -1,0 +1,65 @@
+<Test>
+	<Inputs>
+
+		<ValueSet InputId="0">
+			<Register Name="T0" Value0="0x00000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0xDEADBEEF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="1">
+			<Register Name="T0" Value0="0x00000001" />
+			<Register Name="T1" Value0="0x0EADBEEF" />
+		</ValueSet>
+
+	</Inputs>
+
+	<Instances>
+
+		<Instance Id="0">
+			DADDIU T1, T0, 0x0000
+		</Instance>
+
+		<Instance Id="1">
+			DADDIU T1, T0, 0x7FFF
+		</Instance>
+
+		<Instance Id="2">
+			DADDIU T1, T0, 0x8000
+		</Instance>
+
+		<Instance Id="3">
+			DADDIU T1, T0, 0xFFFF
+		</Instance>
+		
+	</Instances>
+
+	<Outputs>
+
+		<ValueSet InputId="0" InstanceId="0">
+			<Register Name="T0" Value0="0x00000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0x00000000" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="0" InstanceId="1">
+			<Register Name="T0" Value0="0x00000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0x00007FFF" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="0" InstanceId="3">
+			<Register Name="T0" Value0="0x00000000" Value1="0xFFFFFFFF" />
+			<Register Name="T1" Value0="0xFFFFFFFF" Value1="0xFFFFFFFE" />
+		</ValueSet>
+
+		<ValueSet InputId="1" InstanceId="2">
+			<Register Name="T0" Value0="0x00000001" />
+			<Register Name="T1" Value0="0xFFFF8001" Value1="0xFFFFFFFF" />
+		</ValueSet>
+
+		<ValueSet InputId="1" InstanceId="3">
+			<Register Name="T0" Value0="0x00000001" />
+			<Register Name="T1" Value0="0x00000000" />
+		</ValueSet>
+
+	</Outputs>
+
+</Test>

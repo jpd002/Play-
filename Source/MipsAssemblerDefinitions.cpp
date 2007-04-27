@@ -273,6 +273,8 @@ namespace MipsAssemblerDefinitions
     SpecInstruction<RsImm>      Instruction_BGEZ    = SpecInstruction<RsImm>("BGEZ", RsImm(&CMIPSAssembler::BGEZ));
     SpecInstruction<RsImm>      Instruction_BLEZ    = SpecInstruction<RsImm>("BLEZ", RsImm(&CMIPSAssembler::BLEZ));
     SpecInstruction<RsRtImm>    Instruction_BNE     = SpecInstruction<RsRtImm>("BNE", RsRtImm(&CMIPSAssembler::BNE));
+    SpecInstruction<RtRsImm>    Instruction_DADDIU  = SpecInstruction<RtRsImm>("DADDIU", RtRsImm(&CMIPSAssembler::DADDIU));
+    SpecInstruction<RtRsSa>     Instruction_DSRA32  = SpecInstruction<RtRsSa>("DSRA32", RtRsSa(&CMIPSAssembler::DSRA32));
     SpecInstruction<RtOfsBase>  Instruction_LHU     = SpecInstruction<RtOfsBase>("LHU", RtOfsBase(&CMIPSAssembler::LHU));
     SpecInstruction<RtImm>      Instruction_LUI     = SpecInstruction<RtImm>("LUI", RtImm(&CMIPSAssembler::LUI));
     SpecInstruction<RtOfsBase>  Instruction_LW      = SpecInstruction<RtOfsBase>("LW", RtOfsBase(&CMIPSAssembler::LW));
@@ -291,6 +293,8 @@ namespace MipsAssemblerDefinitions
         &Instruction_BGEZ,
         &Instruction_BLEZ,
         &Instruction_BNE,
+        &Instruction_DADDIU,
+        &Instruction_DSRA32,
         &Instruction_LHU,
         &Instruction_LUI,
         &Instruction_LW,
