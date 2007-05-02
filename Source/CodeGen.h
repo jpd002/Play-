@@ -3,6 +3,7 @@
 
 #include "CacheBlock.h"
 #include "ArrayStack.h"
+#include "X86Assembler.h"
 
 namespace CodeGen
 {
@@ -181,6 +182,7 @@ private:
     static void                     Cmp64Cont(CONDITION);
 
     static void                     X86_RegImmOp(unsigned int, uint32, unsigned int);
+    static void                     WriteByte(uint8);
 
     static bool						m_nBlockStarted;
 
@@ -190,9 +192,11 @@ private:
 #endif
 	static bool						m_nRegisterAllocated[MAX_REGISTER];
 	static unsigned int				m_nRegisterLookup[MAX_REGISTER];
+    static CX86Assembler::REGISTER  m_nRegisterLookupEx[MAX_REGISTER];
 	static CCacheBlock*				m_pBlock;
 
 	static CArrayStack<uint32>		m_IfStack;
+    static CX86Assembler            m_Assembler;
 };
 
 #endif

@@ -297,6 +297,12 @@ void CMIPSAssembler::SLLV(unsigned int nRD, unsigned int nRT, unsigned int nRS)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::SLTI(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
+{
+	(*m_pPtr) = ((0x0A) << 26) | (nRS << 21) | (nRT << 16) | nImmediate;
+	m_pPtr++;
+}
+
 void CMIPSAssembler::SLTIU(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x0B) << 26) | (nRS << 21) | (nRT << 16) | nImmediate;

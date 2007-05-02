@@ -55,6 +55,7 @@ public:
 	void		        SD(unsigned int, uint16, unsigned int);
 	void		        SLL(unsigned int, unsigned int, unsigned int);
 	void		        SLLV(unsigned int, unsigned int, unsigned int);
+    void                SLTI(unsigned int, unsigned int, uint16);
     void                SLTIU(unsigned int, unsigned int, uint16);
 	void		        SLTU(unsigned int, unsigned int, unsigned int);
 	void		        SRA(unsigned int, unsigned int, unsigned int);

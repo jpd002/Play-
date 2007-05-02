@@ -1152,6 +1152,10 @@
 					RelativePath=".\Source\VUShared_Reflection.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\Source\X86Assembler.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Header Files"
@@ -1436,6 +1440,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\VUShared.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\X86Assembler.h"
 					>
 				</File>
 			</Filter>

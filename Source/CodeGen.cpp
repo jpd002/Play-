@@ -15,12 +15,15 @@ CArrayStack<uint32>		CCodeGen::m_Shadow;
 CArrayStack<uint32, 2>	CCodeGen::m_PullReg64Stack;
 #endif
 CArrayStack<uint32>		CCodeGen::m_IfStack;
+CX86Assembler           CCodeGen::m_Assembler(&CCodeGen::WriteByte);
 
-bool				CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
+bool                    CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
+
+const CX86Assembler::REGISTER g_nBaseRegister = CX86Assembler::rBP;
 
 #ifdef AMD64
 
-unsigned int		CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
+unsigned int            CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
 {
 	0,
 	1,
@@ -38,9 +41,27 @@ unsigned int		CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
 	15,
 };
 
+CX86Assembler::REGISTER CCodeGen::m_nRegisterLookupEx[MAX_REGISTER] =
+{
+    CX86Assembler::rAX,
+	CX86Assembler::rCX,
+	CX86Assembler::rDX,
+	CX86Assembler::rBX,
+	CX86Assembler::rSI,
+	CX86Assembler::rDI,
+	CX86Assembler::r8,
+	CX86Assembler::r9,
+	CX86Assembler::r10,
+	CX86Assembler::r11,
+	CX86Assembler::r12,
+	CX86Assembler::r13,
+	CX86Assembler::r14,
+	CX86Assembler::r15,
+};
+
 #else
 
-unsigned int		CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
+unsigned int            CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
 {
 	0,
 	1,
@@ -294,20 +315,10 @@ void CCodeGen::LoadVariableInRegister(unsigned int nRegister, uint32 nVariable)
 
 void CCodeGen::LoadRelativeInRegister(unsigned int nRegister, uint32 nOffset)
 {
-
-#ifdef AMD64
-
-	if(m_nRegisterLookup[nRegister] > 7)
-	{
-		//REX byte
-		m_pBlock->StreamWrite(1, 0x44);
-	}
-
-#endif
-
 	//mov reg, [base + rel]
-	m_pBlock->StreamWrite(1, 0x8B);
-	WriteRelativeRmRegister(nRegister, nOffset);
+    m_Assembler.MovEd(
+        m_nRegisterLookupEx[nRegister],
+        CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, nOffset));
 }
 
 void CCodeGen::LoadConstantInRegister(unsigned int nRegister, uint32 nConstant)
@@ -376,21 +387,9 @@ void CCodeGen::CopyRegister(unsigned int nDst, unsigned int nSrc)
 
 void CCodeGen::LoadRelativeInRegister64(unsigned int nRegister, uint32 nRelative)
 {
-	unsigned int nRegIndex;
-	uint8 nRex;
-
-	nRegIndex	= m_nRegisterLookup[nRegister];
-	nRex		= 0x48;
-	
-	if(nRegIndex > 7)
-	{
-		nRex |= 0x01;
-		nRegIndex &= 0x07;
-	}
-
-	//mov reg, nRelative
-	m_pBlock->StreamWrite(2, nRex, 0x8B);
-	WriteRelativeRmRegister(nRegister, nRelative);
+    m_Assembler.MovEq(
+        m_nRegisterLookupEx[nRegister],
+        CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, nRelative));
 }
 
 void CCodeGen::LoadConstantInRegister64(unsigned int nRegister, uint64 nConstant)
@@ -669,8 +668,9 @@ void CCodeGen::PullRel(size_t nOffset)
 		nRegister = m_Shadow.Pull();
 
 		//mov dword ptr[pValue], reg
-		m_pBlock->StreamWrite(1, 0x89);
-		WriteRelativeRmRegister(nRegister, (uint32)nOffset);
+        m_Assembler.MovGd(
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(nOffset)),
+            m_nRegisterLookupEx[nRegister]);
 
 		FreeRegister(nRegister);
 	}
@@ -686,18 +686,20 @@ void CCodeGen::PullRel(size_t nOffset)
 		if(nConstant == 0)
 		{
 			//xor reg, reg
-			m_pBlock->StreamWrite(2, 0x33, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+            m_Assembler.XorGd(
+                CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
+                m_nRegisterLookupEx[nRegister]);
 		}
 		else
 		{
 			//mov reg, $Constant
-			m_pBlock->StreamWrite(1, 0xB8 | (m_nRegisterLookup[nRegister]));
-			m_pBlock->StreamWriteWord(nConstant);
+            m_Assembler.MovId(m_nRegisterLookupEx[nRegister], nConstant);
 		}
 
 		//mov dword ptr[pValue], reg
-		m_pBlock->StreamWrite(1, 0x89);
-		WriteRelativeRmRegister(nRegister, (uint32)nOffset);
+        m_Assembler.MovGd(
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(nOffset)),
+            m_nRegisterLookupEx[nRegister]);
 
 		FreeRegister(nRegister);		
 	}
@@ -814,17 +816,10 @@ void CCodeGen::Add()
 
 		LoadRelativeInRegister(nRegister, nRelative);
 
-		if(GetMinimumConstantSize(nConstant) == 1)
-		{
-			//add reg, Immediate
-			m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
-		}
-		else
-		{
-			//add reg, Immediate
-			m_pBlock->StreamWrite(2, 0x81, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-			m_pBlock->StreamWriteWord(nConstant);
-		}
+        //add reg, Immediate
+        m_Assembler.AddId(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
+            nConstant);
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);		
@@ -2659,8 +2654,9 @@ void CCodeGen::Cmp64Cont(CONDITION nCondition)
 		LoadRelativeInRegister64(nRegister, nRelative1);
 
 		//cmp reg, qword ptr[base + rel4]
-		m_pBlock->StreamWrite(2, 0x48, 0x3B);
-		WriteRelativeRmRegister(nRegister, nRelative3);
+        m_Assembler.CmpEq(
+            m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, nRelative3));
     }
     else if(
         (m_Shadow.GetAt(0) == CONSTANT) &&
@@ -2686,22 +2682,9 @@ void CCodeGen::Cmp64Cont(CONDITION nCondition)
 
         nConstant = (nConstant2 << 32) | (nConstant1);
 
-        unsigned int nConstantSize(GetMinimumConstantSize64(nConstant));
-        if(nConstantSize == 1)
-        {
-            //cmp reg, Immediate
-            m_pBlock->StreamWrite(4, 0x48, 0x83, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
-        }
-        else if(nConstantSize == 4)
-        {
-            //cmp reg, Immediate
-            m_pBlock->StreamWrite(3, 0x48, 0x81, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]));
-            m_pBlock->StreamWriteWord(static_cast<uint32>(nConstant1));
-        }
-        else
-        {
-            assert(0);
-        }
+        m_Assembler.CmpIq(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
+            nConstant);
     }
     else
     {
@@ -2830,6 +2813,11 @@ bool CCodeGen::IsTopContRelCstPair64()
     {
         return false;
     }
+}
+
+void CCodeGen::WriteByte(uint8 nByte)
+{
+    m_pBlock->StreamWriteByte(nByte);
 }
 
 void CCodeGen::X86_RegImmOp(unsigned int nRegister, uint32 nConstant, unsigned int nOp)
