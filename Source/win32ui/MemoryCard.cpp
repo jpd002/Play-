@@ -46,16 +46,18 @@ void CMemoryCard::ScanSaves()
 			itElement != itEnd;
 			itElement++)
 		{
-			if(filesystem::is_directory(*itElement))
+            filesystem::path Element(*itElement);
+
+			if(filesystem::is_directory(Element))
 			{
 				filesystem::path IconSysPath;
-				IconSysPath = (*itElement) / "icon.sys";
+                IconSysPath = Element / "icon.sys";
 
 				//Check if 'icon.sys' exists in this directory
 				if(filesystem::exists(IconSysPath))
 				{
 					//Create new Save
-					m_Saves.push_back(new CSave(*itElement));
+					m_Saves.push_back(new CSave(Element));
 				}
 			}
 		}

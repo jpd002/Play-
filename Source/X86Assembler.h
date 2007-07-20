@@ -67,6 +67,7 @@ public:
     void                                    MovEq(REGISTER, const CAddress&);
     void                                    MovGd(const CAddress&, REGISTER);
     void                                    MovId(REGISTER, uint32);
+    void                                    SubEd(REGISTER, const CAddress&);
     void                                    SubId(const CAddress&, uint32);
     void                                    XorGd(const CAddress&, REGISTER);
     void                                    XorGq(const CAddress&, REGISTER);

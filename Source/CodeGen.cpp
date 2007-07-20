@@ -71,6 +71,16 @@ unsigned int            CCodeGen::m_nRegisterLookup[MAX_REGISTER] =
 	7,
 };
 
+CX86Assembler::REGISTER CCodeGen::m_nRegisterLookupEx[MAX_REGISTER] =
+{
+    CX86Assembler::rAX,
+	CX86Assembler::rCX,
+	CX86Assembler::rDX,
+	CX86Assembler::rBX,
+	CX86Assembler::rSI,
+	CX86Assembler::rDI,
+};
+
 #endif
 
 void CCodeGen::Begin(CCacheBlock* pBlock)
@@ -2348,6 +2358,25 @@ void CCodeGen::Sub()
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
 	}
+    else if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
+    {
+		uint32 nRelative1, nRelative2, nRegister;
+
+		m_Shadow.Pull();
+		nRelative2 = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative1 = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative1);
+
+        m_Assembler.SubEd(
+            m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, nRelative2));
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+    }
 	else
 	{
 		assert(0);

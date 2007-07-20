@@ -1867,11 +1867,18 @@ void CMA_MIPSIV::ADDU()
 //23
 void CMA_MIPSIV::SUBU()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->Sub();
-	SignExtendTop32(m_nRD);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+        CCodeGen::Sub();
+        CCodeGen::SeX();
+
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+    }
+    CCodeGen::End();
 }
 
 //24
@@ -2115,18 +2122,6 @@ void CMA_MIPSIV::DSRA32()
 		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
     }
     CCodeGen::End();
-/*
-	//1st 32-bits
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->SraImm(m_nSA);
-
-	//2nd 32-bits
-	m_pB->SeX32();
-
-	//Write the result
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-*/
 }
 
 //////////////////////////////////////////////////

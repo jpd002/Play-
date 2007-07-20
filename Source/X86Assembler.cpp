@@ -98,6 +98,11 @@ void CX86Assembler::MovId(REGISTER nRegister, uint32 nConstant)
     WriteDWord(nConstant);
 }
 
+void CX86Assembler::SubEd(REGISTER nRegister, const CAddress& Address)
+{
+    WriteEvGvOp(0x2B, false, Address, nRegister);
+}
+
 void CX86Assembler::SubId(const CAddress& Address, uint32 nConstant)
 {
     WriteEvId(0x05, Address, nConstant);

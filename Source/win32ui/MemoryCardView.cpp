@@ -103,7 +103,7 @@ long CMemoryCardView::OnVScroll(unsigned int nType, unsigned int nThumb)
 		break;
 	case SB_THUMBPOSITION:
 	case SB_THUMBTRACK:
-		m_ViewState.m_nScrollPosition = GetScrollThumbPosition(SB_VERT);
+        m_ViewState.m_nScrollPosition = GetVerticalScrollBar().GetThumbPosition();
 		break;
 	default:
 		return FALSE;
@@ -418,7 +418,7 @@ void CMemoryCardView::CRender::DrawScene()
 			}
 			else
 			{
-				pIcon = &(*itIcon);
+				pIcon = itIcon->second;
 			}
 
 			if(pIcon != NULL)
