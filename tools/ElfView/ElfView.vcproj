@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(FrameworkRoot)\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="comctl32.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -117,7 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(FrameworkRoot)\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -135,6 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="comctl32.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -181,6 +183,42 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\win32ui\ELFHeaderView.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFProgramView.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFSectionView.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFSymbolView.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ElfViewFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryView.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryViewPtr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\OptionWnd.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\WinMain.cpp"
 				>
 			</File>
@@ -192,6 +230,42 @@
 			>
 			<File
 				RelativePath="..\..\Source\ELF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFHeaderView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFProgramView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFSectionView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFSymbolView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ElfViewFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryViewPtr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\OptionWnd.h"
 				>
 			</File>
 		</Filter>
