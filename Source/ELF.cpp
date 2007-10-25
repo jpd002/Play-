@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <string.h>
-#include <exception>
+#include <stdexcept>
 #include "ELF.h"
 
 using namespace Framework;
@@ -22,12 +22,12 @@ CELF::CELF(CStream* pS)
 	
 	if(m_Header.nId[0] != 0x7F || m_Header.nId[1] != 'E' || m_Header.nId[2] != 'L' || m_Header.nId[3] != 'F')
 	{
-		throw exception("This file isn't a valid ELF file.");
+		throw runtime_error("This file isn't a valid ELF file.");
 	}
 
 	if(m_Header.nId[4] != 1 || m_Header.nId[5] != 1)
 	{
-		throw exception("This ELF file format is not supported. Only 32-bits LSB ordered ELFs are supported.");
+		throw runtime_error("This ELF file format is not supported. Only 32-bits LSB ordered ELFs are supported.");
 	}
 
 	nCount = m_Header.nProgHeaderCount;

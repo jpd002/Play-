@@ -73,7 +73,7 @@ public:
 	const void*			FindSectionData(const char*);
 	ELFPROGRAMHEADER*	GetProgram(unsigned int);
 	ELFHEADER			m_Header;
-	void*				m_pData;
+	char*				m_pData;
 	int					m_nLenght;
 private:
 	ELFSECTIONHEADER*	m_pSection;
