@@ -1,21 +1,26 @@
 #include <windows.h>
-//#include "..\Purei\Source\ELF.h"
-//#include "..\Purei\Source\win32ui\ELFView.h"
-//#include "StdStream.h"
 #include "ElfViewFrame.h"
+#include <boost/algorithm/string.hpp>
 
 using namespace Framework;
+using namespace std;
+using namespace boost;
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int showCmd)
 {
-    CElfViewFrame elfViewFrame;
-    elfViewFrame.Center();
-    elfViewFrame.Show(SW_SHOW);
-//    CStdStream stream("D:\\rar\\Purei\\psf2.irx", "rb");    
-//    CELF elf(&stream);
-//    CELFView elfView(NULL);
-//    elfView.SetELF(&elf);
-//    elfView.Show(SW_SHOW);
-    Win32::CWindow::StdMsgLoop(&elfViewFrame);
+    try
+    {
+        string path(params);
+        erase_all(path, "\"");
+        CElfViewFrame elfViewFrame(path.c_str());
+        elfViewFrame.Center();
+        elfViewFrame.Show(SW_SHOW);
+        Win32::CWindow::StdMsgLoop(&elfViewFrame);
+    }
+    catch(const exception& except)
+    {
+        MessageBoxA(NULL, except.what(), NULL, 16);
+//        MessageBoxA(NULL, params, NULL, 16);
+    }
     return 0;
 }

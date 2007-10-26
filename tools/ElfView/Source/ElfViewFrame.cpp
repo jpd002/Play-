@@ -1,11 +1,13 @@
 #include "ElfViewFrame.h"
 #include "win32/Rect.h"
+#include "StdStream.h"
 
 using namespace Framework;
 
 #define CLSNAME _T("ElfViewFrame")
 
-CElfViewFrame::CElfViewFrame()
+CElfViewFrame::CElfViewFrame(const char* path) :
+m_elfView(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -21,16 +23,27 @@ CElfViewFrame::CElfViewFrame()
 	}
 	
     Create(NULL, CLSNAME, _T("Elf Viewer"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 
-        Win32::CRect(0, 0, 640, 480), NULL, NULL);
+        Win32::CRect(0, 0, 770, 580), NULL, NULL);
 	SetClassPtr();
 
-//	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_DEBUGGER)));
-
 	CreateClient(NULL);
+
+    m_elfView = Open(path);
 }
 
 CElfViewFrame::~CElfViewFrame()
 {
-
+    if(m_elfView)
+    {
+        delete m_elfView;
+    }
 }
 
+CElfViewEx* CElfViewFrame::Open(const char* path)
+{
+    CStdStream stream(path, "rb");    
+    CElfViewEx* elfView = new CElfViewEx(m_pMDIClient->m_hWnd, stream);
+    elfView->SetTextA(path);
+    elfView->Show(SW_MAXIMIZE);
+    return elfView;
+}

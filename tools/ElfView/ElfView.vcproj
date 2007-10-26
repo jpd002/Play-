@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\ElfViewEx.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\ElfViewFrame.cpp"
 				>
 			</File>
@@ -250,6 +254,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\win32ui\ELFView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ElfViewEx.h"
 				>
 			</File>
 			<File
