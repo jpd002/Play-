@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(FrameworkRoot)/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;;&quot;$(SolutionDir)/source&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="pdcurses.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -184,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PsfVm.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\WinMain.cpp"
 				>
 			</File>
@@ -201,12 +206,180 @@
 				RelativePath=".\Source\PsfFs.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Source\PsfVm.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="Purei Core"
+			>
+			<File
+				RelativePath="..\..\Source\CacheBlock.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CacheBlock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen_FPU.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen_FPU.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen_VUF128.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen_VUF128.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen_VUI128.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\CodeGen_VUI128.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ELF.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ELF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ExecMap.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ExecMap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MA_MIPSIV.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MA_MIPSIV.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MA_MIPSIV_Reflection.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MA_MIPSIV_Templates.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MemoryMap.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MemoryMap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPS.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSAnalysis.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSAnalysis.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSArchitecture.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSArchitecture.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSAssembler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSAssembler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MipsAssemblerDefinitions.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MipsAssemblerDefinitions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSCoprocessor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSCoprocessor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSInstructionFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSInstructionFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSReflection.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSReflection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSTags.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSTags.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\X86Assembler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\X86Assembler.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
