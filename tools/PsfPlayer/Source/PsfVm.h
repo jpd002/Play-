@@ -10,6 +10,8 @@ public:
                 CPsfVm(const char*);
     virtual     ~CPsfVm();
 
+    CMIPS&      GetCpu();
+
 private:
     enum RAMSIZE
     {

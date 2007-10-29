@@ -177,6 +177,18 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Source\CursesUtils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\DisAsmView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\MemoryView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\OffsetStream.cpp"
 				>
 			</File>
@@ -186,6 +198,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfVm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\TextDebugger.cpp"
 				>
 			</File>
 			<File
@@ -199,6 +215,22 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Source\CursesUtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\DebugView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\DisAsmView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\MemoryView.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\OffsetStream.h"
 				>
 			</File>
@@ -208,6 +240,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfVm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\TextDebugger.h"
 				>
 			</File>
 		</Filter>
