@@ -122,6 +122,9 @@ void CELFSectionView::FillInformation()
 	case 0x08:
 		_tcscpy(sTemp, _T("SHT_NOBITS"));
 		break;
+    case 0x09:
+        _tcscpy(sTemp, _T("SHT_REL"));
+        break;
 	default:
 		_sntprintf(sTemp, countof(sTemp), _T("Unknown (0x%0.8X)"), pH->nType);
 		break;

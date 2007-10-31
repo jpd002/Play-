@@ -61,6 +61,7 @@ public:
 
     void                                    AddId(const CAddress&, uint32);
     void                                    CmpEq(REGISTER, const CAddress&);
+    void                                    CmpId(const CAddress&, uint32);
     void                                    CmpIq(const CAddress&, uint64);
     void                                    Nop();
     void                                    MovEd(REGISTER, const CAddress&);

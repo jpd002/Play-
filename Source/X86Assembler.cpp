@@ -65,6 +65,11 @@ void CX86Assembler::CmpEq(REGISTER nRegister, const CAddress& Address)
     WriteEvGvOp(0x3B, true, Address, nRegister);
 }
 
+void CX86Assembler::CmpId(const CAddress& address, uint32 constant)
+{
+    WriteEvId(0x07, address, constant);
+}
+
 void CX86Assembler::CmpIq(const CAddress& Address, uint64 nConstant)
 {
     WriteEvIq(0x07, Address, nConstant);

@@ -16,6 +16,7 @@ CMemoryView::~CMemoryView()
 void CMemoryView::Update(WINDOW* window, int width, int height)
 {
     const int bytesPerLine = 16;
+    getmaxyx(window, height, width);
     uint32 address = m_viewAddress;
 
     //Draw the ruler
@@ -62,7 +63,9 @@ void CMemoryView::Update(WINDOW* window, int width, int height)
         }
 
         address += bytesPerLine;
-    }   
+    }
+
+    wrefresh(window);
 }
 
 void CMemoryView::SetViewAddress(uint32 viewAddress)

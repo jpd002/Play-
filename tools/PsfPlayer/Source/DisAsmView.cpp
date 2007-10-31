@@ -21,6 +21,7 @@ void CDisAsmView::SetViewAddress(uint32 viewAddress)
 void CDisAsmView::Update(WINDOW* window, int width, int height)
 {
     uint32 address = m_viewAddress;
+    getmaxyx(window, height, width);
 
     for(int i = 0; i < height; i++)
     {
@@ -56,4 +57,6 @@ void CDisAsmView::Update(WINDOW* window, int width, int height)
 
         address += 4;
     }
+
+    wrefresh(window);
 }

@@ -2496,14 +2496,15 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
 {
     struct EmitComparaison
     {
-        void operator ()(uint32 nValueType, uint32 nValue, unsigned int nRegister)
+        void operator ()(uint32 nValueType, uint32 nValue, unsigned int nRegister, CX86Assembler& assembler)
         {
             switch(nValueType)
             {
             case CONSTANT:
-                assert(GetMinimumConstantSize(nValue) == 1);
 			    //cmp reg, Immediate
-			    m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]), static_cast<uint8>(nValue));
+                assembler.CmpId(
+                    CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
+                    nValue);
                 break;
             case RELATIVE:
 			    //cmp reg, dword ptr[rel]
@@ -2612,7 +2613,7 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
 			//mov reg, dword ptr[base + rel2]
 			LoadRelativeInRegister(nRegister, nValue[1]);
 
-            EmitComparaison()(nValueType[3], nValue[3], nRegister);
+            EmitComparaison()(nValueType[3], nValue[3], nRegister, m_Assembler);
 
             //je +0x08
 			m_pBlock->StreamWrite(2, 0x74, 0x08);
@@ -2636,7 +2637,7 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
 			//mov reg, dword ptr[base + rel1]
 			LoadRelativeInRegister(nRegister, nValue[0]);
 
-            EmitComparaison()(nValueType[2], nValue[2], nRegister);
+            EmitComparaison()(nValueType[2], nValue[2], nRegister, m_Assembler);
 
 		    //setb/be reg[l]
             m_pBlock->StreamWrite(3, 0x0F, nOrEqual ? 0x96 : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));

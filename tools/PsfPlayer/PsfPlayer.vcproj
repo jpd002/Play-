@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\RegisterView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\TextDebugger.cpp"
 				>
 			</File>
@@ -240,6 +244,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfVm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\RegisterView.h"
 				>
 			</File>
 			<File

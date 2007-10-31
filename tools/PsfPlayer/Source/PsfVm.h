@@ -7,10 +7,10 @@
 class CPsfVm
 {
 public:
-                CPsfVm(const char*);
-    virtual     ~CPsfVm();
+                            CPsfVm(const char*);
+    virtual                 ~CPsfVm();
 
-    CMIPS&      GetCpu();
+    CMIPS&                  GetCpu();
 
 private:
     enum RAMSIZE
@@ -18,11 +18,12 @@ private:
         RAMSIZE = 0x00400000,
     };
 
-    uint32      LoadIopModule(const char*, uint32);
+    uint32                  LoadIopModule(const char*, uint32);
+    static unsigned int     TickFunction(unsigned int);
 
-    CMIPS       m_cpu;
-    CPsfFs      m_fileSystem;
-    uint8*      m_ram;
+    CMIPS                   m_cpu;
+    CPsfFs                  m_fileSystem;
+    uint8*                  m_ram;
 };
 
 #endif

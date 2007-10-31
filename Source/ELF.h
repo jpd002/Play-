@@ -65,6 +65,18 @@ struct ELFPROGRAMHEADER
 class CELF
 {
 public:
+    enum SECTION_HEADER_TYPE
+    {
+        SHT_REL = 9,
+    };
+
+    enum MIPS_RELOCATION_TYPE
+    {
+        R_MIPS_26 = 4,
+        R_MIPS_HI16 = 5,
+        R_MIPS_LO16 = 6,
+    };
+
 						CELF(Framework::CStream*);
 						~CELF();
 	ELFSECTIONHEADER*	GetSection(unsigned int);
