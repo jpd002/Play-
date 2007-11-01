@@ -10,6 +10,9 @@ CPsfVm::CPsfVm(const char* psfPath) :
 m_fileSystem(psfPath),
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE)
 {
+    //Initialize block map
+    m_blockMap[RAMSIZE] = 0;
+
     m_ram = new uint8[RAMSIZE];
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, RAMSIZE - 1, m_ram, MEMORYMAP_TYPE_MEMORY, 0x00);
     m_cpu.m_pArch = &g_MAMIPSIV;
@@ -36,12 +39,17 @@ uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
     CPtrStream stream(file->data, file->size);
     CELF elf(&stream);
 
+//    baseAddress = AllocateMemory(elf.m_nLenght);
+    baseAddress = 0x1B000;
+
     //Process relocation
     for(unsigned int i = 0; i < elf.m_Header.nSectHeaderCount; i++)
     {
         ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
         if(sectionHeader != NULL && sectionHeader->nType == CELF::SHT_REL)
         {
+            uint32 lastHi16 = -1;
+            uint32 instructionHi16 = -1;
             unsigned int linkedSection = sectionHeader->nInfo;
             unsigned int recordCount = sectionHeader->nSize / 8;
             ELFSECTIONHEADER* relocatedSection = elf.GetSection(linkedSection);
@@ -66,16 +74,29 @@ uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
                         break;
                     case CELF::R_MIPS_HI16:
                         {
-                            uint32 offset = (instruction & 0xFFFF) + (baseAddress >> 16);
-                            instruction &= ~0xFFFF;
-                            instruction |= offset;
+                            lastHi16 = relocationAddress;
+                            instructionHi16 = instruction;
                         }
                         break;
                     case CELF::R_MIPS_LO16:
                         {
-                            uint32 offset = (instruction & 0xFFFF) + (baseAddress & 0xFFFF);
-                            instruction &= ~0xFFFF;
-                            instruction |= offset;
+                            if(lastHi16 != -1)
+                            {
+                                uint32 offset = static_cast<int16>(instruction) + (instructionHi16 << 16);
+                                offset += baseAddress;
+                                instruction &= ~0xFFFF;
+                                instruction |= offset & 0xFFFF;
+
+                                uint32& prevInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[lastHi16]);
+                                prevInstruction &= ~0xFFFF;
+                                if(offset & 0x8000) offset += 0x10000;
+                                prevInstruction |= offset >> 16;
+                                lastHi16 = -1;
+                            }
+                            else
+                            {
+                                printf("%s: No HI16 relocation record found for corresponding LO16.\r\n", __FUNCTION__);
+                            }
                         }
                         break;
                     default:
@@ -106,4 +127,40 @@ uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
 unsigned int CPsfVm::TickFunction(unsigned int dummy)
 {
     return 1;
+}
+
+uint32 CPsfVm::AllocateMemory(uint32 size)
+{
+    uint32 begin = 0x1000;
+    const uint32 blockSize = 0x400;
+    size = ((size + (blockSize - 1)) / blockSize) * blockSize;
+    for(BlockMapType::iterator blockIterator(m_blockMap.begin());
+        blockIterator != m_blockMap.end(); blockIterator++)
+    {
+        uint32 end = blockIterator->first;
+        if((end - begin) >= size)
+        {
+            break;
+        }
+        begin = blockIterator->first + blockIterator->second;
+    }
+    if(begin != RAMSIZE)
+    {
+        m_blockMap[begin] = size;
+        return begin;
+    }
+    return NULL;
+}
+
+void CPsfVm::FreeMemory(uint32 address)
+{
+    BlockMapType::iterator block(m_blockMap.find(address));
+    if(block != m_blockMap.end())
+    {
+        m_blockMap.erase(block);
+    }
+    else
+    {
+        printf("%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
+    }
 }
