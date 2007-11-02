@@ -19,6 +19,16 @@ void CDisAsmView::SetViewAddress(uint32 viewAddress)
     m_viewAddress = viewAddress;
 }
 
+void CDisAsmView::EnsureVisible(uint32 address, WINDOW* window)
+{
+    int height, width;
+    getmaxyx(window, height, width);
+    if((address < m_viewAddress) || (address >= m_viewAddress + (height * 4)))
+    {
+        SetViewAddress(address);
+    }
+}
+
 void CDisAsmView::Update(WINDOW* window, int width, int height)
 {
     uint32 address = m_viewAddress;

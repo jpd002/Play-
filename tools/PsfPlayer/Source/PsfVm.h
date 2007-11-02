@@ -20,10 +20,17 @@ private:
         RAMSIZE = 0x00400000,
     };
 
+    enum DEFAULT_STACKSIZE
+    {
+        DEFAULT_STACKSIZE = 0x8000,
+    };
+
     uint32                  LoadIopModule(const char*, uint32);
     uint32                  AllocateMemory(uint32);
     void                    FreeMemory(uint32);
+    uint32                  Push(uint32&, const uint8*, uint32);
     static unsigned int     TickFunction(unsigned int);
+    static void             SysCallHandler(CMIPS*);
 
     CMIPS                   m_cpu;
     CPsfFs                  m_fileSystem;

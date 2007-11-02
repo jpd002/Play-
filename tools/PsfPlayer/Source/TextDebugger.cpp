@@ -79,6 +79,7 @@ void CTextDebugger::Run()
         if(ch == KEY_F(10))
         {
             m_cpu.Step();
+            m_disAsmView.EnsureVisible(m_cpu.m_State.nPC, m_primaryWindow);
         }
         else if(ch == 8)
         {

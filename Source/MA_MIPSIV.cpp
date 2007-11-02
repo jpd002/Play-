@@ -406,7 +406,12 @@ void CMA_MIPSIV::ADDI()
 //09
 void CMA_MIPSIV::ADDIU()
 {
-	if(m_nRT == 0) return;
+	if(m_nRT == 0) 
+    {
+        //Hack: PS2 IOP uses ADDIU R0, R0, $x for dynamic linking
+        SYSCALL();
+        return;
+    }
 
 	CCodeGen::Begin(m_pB);
 	{
@@ -1679,8 +1684,16 @@ void CMA_MIPSIV::MOVN()
 //0C
 void CMA_MIPSIV::SYSCALL()
 {
-	m_pB->Call(reinterpret_cast<void*>(m_pCtx->m_pSysCallHandler), 0, false);
-	m_pB->SetProgramCounterChanged();
+    CCodeGen::Begin(m_pB);
+    {
+        CCodeGen::PushRef(m_pCtx);
+        CCodeGen::Call(reinterpret_cast<void*>(m_pCtx->m_pSysCallHandler), 1, false);
+        m_pB->SetProgramCounterChanged();
+    }
+    CCodeGen::End();
+
+//	m_pB->Call(reinterpret_cast<void*>(m_pCtx->m_pSysCallHandler), 0, false);
+//	m_pB->SetProgramCounterChanged();
 }
 
 //0F

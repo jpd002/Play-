@@ -12,6 +12,7 @@ public:
     virtual void    Update(WINDOW*, int, int);
 
     void            SetViewAddress(uint32);
+    void            EnsureVisible(uint32, WINDOW*);
 
 private:
     CMIPS&          m_cpu;

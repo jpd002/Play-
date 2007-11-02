@@ -1,5 +1,5 @@
 #include <string.h>
-#include <alloca.h>
+#include "alloca_def.h"
 #include "CursesUtils.h"
 
 void CursesUtils::ClearLine(WINDOW* window, int width)

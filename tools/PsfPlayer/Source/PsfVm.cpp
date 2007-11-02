@@ -13,13 +13,29 @@ m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE)
     //Initialize block map
     m_blockMap[RAMSIZE] = 0;
 
+    memset(&m_cpu.m_State, 0, sizeof(m_cpu.m_State));
     m_ram = new uint8[RAMSIZE];
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, RAMSIZE - 1, m_ram, MEMORYMAP_TYPE_MEMORY, 0x00);
+    m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, RAMSIZE - 1, m_ram, MEMORYMAP_TYPE_MEMORY, 0x00);
+
     m_cpu.m_pArch = &g_MAMIPSIV;
     m_cpu.m_pAddrTranslator = m_cpu.TranslateAddress64;
     m_cpu.m_pTickFunction = TickFunction;
+    m_cpu.m_pSysCallHandler = reinterpret_cast<::SysCallHandler>(SysCallHandler);
 
+    uint32 stackBegin = AllocateMemory(DEFAULT_STACKSIZE);
     uint32 entryPoint = LoadIopModule("psf2.irx", 0x000100000);
+    string execPath = "host:/psf2.irx";
+    m_cpu.m_State.nGPR[CMIPS::SP].nV0 = stackBegin + DEFAULT_STACKSIZE;
+    m_cpu.m_State.nGPR[CMIPS::A0].nV0 = 1;
+    uint32 firstParam = Push(
+        m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+        reinterpret_cast<const uint8*>(execPath.c_str()),
+        execPath.length() + 1);
+    m_cpu.m_State.nGPR[CMIPS::A1].nV0 = Push(
+        m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+        reinterpret_cast<const uint8*>(&firstParam),
+        4);
     m_cpu.m_State.nPC = entryPoint;
 }
 
@@ -39,8 +55,7 @@ uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
     CPtrStream stream(file->data, file->size);
     CELF elf(&stream);
 
-//    baseAddress = AllocateMemory(elf.m_nLenght);
-    baseAddress = 0x1B000;
+    baseAddress = AllocateMemory(elf.m_nLenght);
 
     //Process relocation
     for(unsigned int i = 0; i < elf.m_Header.nSectHeaderCount; i++)
@@ -129,6 +144,19 @@ unsigned int CPsfVm::TickFunction(unsigned int dummy)
     return 1;
 }
 
+void CPsfVm::SysCallHandler(CMIPS* state)
+{
+    uint32 searchAddress = state->m_State.nPC - 4;
+    uint32 callInstruction = state->m_pMemoryMap->GetWord(searchAddress);
+    //Search for the import record
+    uint32 instruction = callInstruction;
+    while(instruction != 0x41E00000)
+    {
+        searchAddress -= 4;
+        instruction = state->m_pMemoryMap->GetWord(searchAddress);
+    }
+}
+
 uint32 CPsfVm::AllocateMemory(uint32 size)
 {
     uint32 begin = 0x1000;
@@ -163,4 +191,12 @@ void CPsfVm::FreeMemory(uint32 address)
     {
         printf("%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
     }
+}
+
+uint32 CPsfVm::Push(uint32& address, const uint8* data, uint32 size)
+{
+    uint32 fixedSize = ((size + 0xF) / 0x10) * 0x10;
+    address -= fixedSize;
+    memcpy(&m_ram[address], data, size);
+    return address;
 }
