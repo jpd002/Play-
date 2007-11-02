@@ -41,7 +41,7 @@ CPsfFs::CPsfFs(const char* loadPath)
     stream.Seek(tagBeginPosition, STREAM_SEEK_SET);
 
     {
-        char* tagBuffer = reinterpret_cast<char*>(_alloca(tagSize + 1));
+        char* tagBuffer = reinterpret_cast<char*>(alloca(tagSize + 1));
         stream.Read(tagBuffer, tagSize);
         tagBuffer[tagSize] = 0;
         m_tag = tagBuffer;
@@ -86,7 +86,7 @@ string CPsfFs::GetPsfLibAttributeName(unsigned int libIndex)
 void CPsfFs::ReadFile(CStream& stream, FILE& file)
 {
     unsigned int sizeTableEntryCount = (file.size + file.blockSize - 1) / file.blockSize;
-    uint32* sizeTable = reinterpret_cast<uint32*>(_alloca(sizeTableEntryCount * sizeof(uint32)));
+    uint32* sizeTable = reinterpret_cast<uint32*>(alloca(sizeTableEntryCount * sizeof(uint32)));
     for(unsigned int entry = 0; entry < sizeTableEntryCount; entry++)
     {
         sizeTable[entry] = stream.Read32();
@@ -95,7 +95,7 @@ void CPsfFs::ReadFile(CStream& stream, FILE& file)
             throw runtime_error("Invalid block size.");
         }
     }
-    uint8* block = reinterpret_cast<uint8*>(_alloca(file.blockSize));
+    uint8* block = reinterpret_cast<uint8*>(alloca(file.blockSize));
     uint32 position = 0;
     for(unsigned int entry = 0; entry < sizeTableEntryCount; entry++)
     {

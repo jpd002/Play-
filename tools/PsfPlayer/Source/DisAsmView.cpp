@@ -1,5 +1,6 @@
 #include "DisAsmView.h"
 #include "CursesUtils.h"
+#include "countof.h"
 
 CDisAsmView::CDisAsmView(CMIPS& cpu) :
 m_cpu(cpu),
@@ -36,8 +37,8 @@ void CDisAsmView::Update(WINDOW* window, int width, int height)
         char mnemonic[256];
         char operands[256];
         uint32 opcode = m_cpu.m_pMemoryMap->GetWord(address);
-        m_cpu.m_pArch->GetInstructionMnemonic(&m_cpu, address, opcode, mnemonic, _countof(mnemonic));
-        m_cpu.m_pArch->GetInstructionOperands(&m_cpu, address, opcode, operands, _countof(operands));
+        m_cpu.m_pArch->GetInstructionMnemonic(&m_cpu, address, opcode, mnemonic, countof(mnemonic));
+        m_cpu.m_pArch->GetInstructionOperands(&m_cpu, address, opcode, operands, countof(operands));
 
         wmove(window, i, 0);
         wprintw(window, "%0.8X", address);
