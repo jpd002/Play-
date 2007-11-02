@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include <map>
+#include <string>
 
 class CMIPSTags
 {

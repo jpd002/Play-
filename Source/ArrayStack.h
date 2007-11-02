@@ -1,7 +1,7 @@
 #ifndef _ARRAYSTACK_H_
 #define _ARRAYSTACK_H_
 
-#include <exception>
+#include <stdexcept>
 
 template <typename Type, unsigned int MAXSIZE = 0x100> class CArrayStack
 {
@@ -20,7 +20,7 @@ public:
 	{
 		if(m_nStackPointer + nAddress >= MAXSIZE)
 		{
-			throw std::exception("Invalid Address.");
+			throw std::runtime_error("Invalid Address.");
 		}
 		return m_nStack[m_nStackPointer + nAddress];
 	}
@@ -29,7 +29,7 @@ public:
 	{
 		if(m_nStackPointer + nAddress >= MAXSIZE)
 		{
-			throw std::exception("Invalid Address.");
+			throw std::runtime_error("Invalid Address.");
 		}
 		m_nStack[m_nStackPointer + nAddress] = nValue;
 	}
@@ -38,7 +38,7 @@ public:
 	{
 		if(m_nStackPointer == 0)
 		{
-			throw std::exception("Stack Full.");
+			throw std::runtime_error("Stack Full.");
 		}
 		m_nStack[--m_nStackPointer] = nValue;
 	}
@@ -47,7 +47,7 @@ public:
 	{
 		if(m_nStackPointer == MAXSIZE)
 		{
-			throw std::exception("Stack Empty.");
+			throw std::runtime_error("Stack Empty.");
 		}
 		return m_nStack[m_nStackPointer++];
 	}

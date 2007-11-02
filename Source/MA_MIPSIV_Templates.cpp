@@ -2,6 +2,9 @@
 #include "CodeGen.h"
 #include "MIPS.h"
 
+#undef offsetof
+#define offsetof(a, b) (reinterpret_cast<uint8*>(&reinterpret_cast<a*>(0x10)->b) - reinterpret_cast<uint8*>(0x10))
+
 void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
 {
     CCodeGen::Begin(m_pB);

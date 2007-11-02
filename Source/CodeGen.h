@@ -25,7 +25,7 @@ public:
 		CONDITION_LE,
 	};
 
-	friend							CodeGen::CFPU;
+	friend class					CodeGen::CFPU;
 
 	static void						Begin(CCacheBlock*);
 	static void						End();

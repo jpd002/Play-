@@ -9,8 +9,8 @@ namespace CodeGen
 
 	class CVUF128
 	{
-		friend static void				CCodeGen::Begin(CCacheBlock*);
-		friend static void				CCodeGen::End();
+		friend void						CCodeGen::Begin(CCacheBlock*);
+		friend void						CCodeGen::End();
 
 	public:
 		static void						Push(uint128*);

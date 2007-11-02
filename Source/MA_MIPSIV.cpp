@@ -3,6 +3,9 @@
 #include "MIPS.h"
 #include "CodeGen.h"
 
+#undef offsetof
+#define offsetof(a, b) (reinterpret_cast<uint8*>(&reinterpret_cast<a*>(0x10)->b) - reinterpret_cast<uint8*>(0x10))
+
 CMA_MIPSIV			g_MAMIPSIV(MIPS_REGSIZE_64);
 
 uint8				CMA_MIPSIV::m_nRS;
@@ -680,7 +683,7 @@ void CMA_MIPSIV::LDL()
 	//Get the lower word
 	m_pB->PushValueAt(0);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//3 - BYTE EA
 	//2 - OFFSET
 	//1 - EA
@@ -690,7 +693,7 @@ void CMA_MIPSIV::LDL()
 	m_pB->PushValueAt(1);
 	m_pB->AddImm(4);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//4 - BYTE EA
 	//3 - OFFSET
 	//2 - EA
@@ -773,7 +776,7 @@ void CMA_MIPSIV::LDR()
 	//Get the lower word
 	m_pB->PushValueAt(0);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//3 - BYTE EA
 	//2 - OFFSET
 	//1 - EA
@@ -783,7 +786,7 @@ void CMA_MIPSIV::LDR()
 	m_pB->PushValueAt(1);
 	m_pB->AddImm(4);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//4 - BYTE EA
 	//3 - OFFSET
 	//2 - EA
@@ -856,7 +859,7 @@ void CMA_MIPSIV::LB()
 	ComputeMemAccessAddr();
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetByteProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetByteProxy), 2, true);
 	m_pB->SeX8();
 	SignExtendTop32(m_nRT);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
@@ -869,7 +872,7 @@ void CMA_MIPSIV::LH()
 
 	//Load the word
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetHalfProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetHalfProxy), 2, true);
 	m_pB->SeX16();
 	SignExtendTop32(m_nRT);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
@@ -891,7 +894,7 @@ void CMA_MIPSIV::LWL()
 	//Get the word
 	m_pB->PushValueAt(0);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//3 - BYTE EA
 	//2 - OFFSET
 	//1 - EA
@@ -932,19 +935,19 @@ void CMA_MIPSIV::LWL()
 //23
 void CMA_MIPSIV::LW()
 {
-    Template_LoadUnsigned32()(&CCacheBlock::GetWordProxy);
+    Template_LoadUnsigned32()(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy));
 }
 
 //24
 void CMA_MIPSIV::LBU()
 {
-    Template_LoadUnsigned32()(&CCacheBlock::GetByteProxy);
+    Template_LoadUnsigned32()(reinterpret_cast<void*>(&CCacheBlock::GetByteProxy));
 }
 
 //25
 void CMA_MIPSIV::LHU()
 {
-    Template_LoadUnsigned32()(&CCacheBlock::GetHalfProxy);
+    Template_LoadUnsigned32()(reinterpret_cast<void*>(&CCacheBlock::GetHalfProxy));
 }
 
 //26
@@ -963,7 +966,7 @@ void CMA_MIPSIV::LWR()
 	//Get the word
 	m_pB->PushValueAt(0);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//3 - BYTE EA
 	//2 - OFFSET
 	//1 - EA
@@ -1008,7 +1011,7 @@ void CMA_MIPSIV::LWU()
 
 	//Load the word
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
 
 	//Zero extend the value
@@ -1026,7 +1029,7 @@ void CMA_MIPSIV::SB()
 		CCodeGen::PushRef(m_pCtx);
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		CCodeGen::PushIdx(2);
-		CCodeGen::Call(&CCacheBlock::SetByteProxy, 3, false);
+		CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetByteProxy), 3, false);
 
 		CCodeGen::PullTop();
 	}
@@ -1043,7 +1046,7 @@ void CMA_MIPSIV::SH()
 		CCodeGen::PushRef(m_pCtx);
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		CCodeGen::PushIdx(2);
-		CCodeGen::Call(&CCacheBlock::SetHalfProxy, 3, false);
+		CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetHalfProxy), 3, false);
 
 		CCodeGen::PullTop();
 	}
@@ -1091,7 +1094,7 @@ void CMA_MIPSIV::SWL()
 	//Obtain the value of memory, mask, or with the value and save
 	m_pB->PushValueAt(2);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//5 - BYTE EA
 	//4 - OFFSET
 	//3 - EA
@@ -1109,7 +1112,7 @@ void CMA_MIPSIV::SWL()
 	m_pB->PushValueAt(1);
 	m_pB->Swap();
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 	//2 - BYTE EA
 	//1 - OFFSET
 	//0 - EA
@@ -1128,7 +1131,7 @@ void CMA_MIPSIV::SW()
 		CCodeGen::PushRef(m_pCtx);
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		CCodeGen::PushIdx(2);
-		CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
+		CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 
 		CCodeGen::PullTop();
 	}
@@ -1185,7 +1188,7 @@ void CMA_MIPSIV::SDL()
 	m_pB->PushValueAt(3);
 	m_pB->AddImm(4);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//6 - BYTE EA
 	//5 - OFFSET
 	//4 - EA
@@ -1206,7 +1209,7 @@ void CMA_MIPSIV::SDL()
 	m_pB->AddImm(4);
 	m_pB->Swap();
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 	//3 - BYTE EA
 	//2 - OFFSET
 	//1 - EA
@@ -1228,7 +1231,7 @@ void CMA_MIPSIV::SDL()
 	//Obtain the value of memory, mask, or with the value and save
 	m_pB->PushValueAt(2);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//5 - BYTE EA
 	//4 - OFFSET
 	//3 - EA
@@ -1246,7 +1249,7 @@ void CMA_MIPSIV::SDL()
 	m_pB->PushValueAt(1);
 	m_pB->Swap();
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 	//2 - BYTE EA
 	//1 - OFFSET
 	//0 - EA
@@ -1305,7 +1308,7 @@ void CMA_MIPSIV::SDR()
 	m_pB->PushValueAt(3);
 	m_pB->AddImm(4);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//6 - BYTE EA
 	//5 - OFFSET
 	//4 - EA
@@ -1326,7 +1329,7 @@ void CMA_MIPSIV::SDR()
 	m_pB->AddImm(4);
 	m_pB->Swap();
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 	//3 - BYTE EA
 	//2 - OFFSET
 	//1 - EA
@@ -1348,7 +1351,7 @@ void CMA_MIPSIV::SDR()
 	//Obtain the value of memory, mask, or with the value and save
 	m_pB->PushValueAt(2);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//5 - BYTE EA
 	//4 - OFFSET
 	//3 - EA
@@ -1366,7 +1369,7 @@ void CMA_MIPSIV::SDR()
 	m_pB->PushValueAt(1);
 	m_pB->Swap();
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 	//2 - BYTE EA
 	//1 - OFFSET
 	//0 - EA
@@ -1416,7 +1419,7 @@ void CMA_MIPSIV::SWR()
 	//Obtain the value of memory, mask, or with the value and save
 	m_pB->PushValueAt(2);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	//5 - BYTE EA
 	//4 - OFFSET
 	//3 - EA
@@ -1434,7 +1437,7 @@ void CMA_MIPSIV::SWR()
 	m_pB->PushValueAt(1);
 	m_pB->Swap();
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 	//2 - BYTE EA
 	//1 - OFFSET
 	//0 - EA
@@ -1486,7 +1489,7 @@ void CMA_MIPSIV::LD()
         {
 		    CCodeGen::PushRef(m_pCtx);
 		    CCodeGen::PushIdx(1);
-		    CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
+		    CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
             CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 
@@ -1540,7 +1543,7 @@ void CMA_MIPSIV::SD()
 			CCodeGen::PushRef(m_pCtx);
 			CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 			CCodeGen::PushIdx(2);
-			CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
+			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 
 			if(i != 1)
 			{
@@ -1676,7 +1679,7 @@ void CMA_MIPSIV::MOVN()
 //0C
 void CMA_MIPSIV::SYSCALL()
 {
-	m_pB->Call(m_pCtx->m_pSysCallHandler, 0, false);
+	m_pB->Call(reinterpret_cast<void*>(m_pCtx->m_pSysCallHandler), 0, false);
 	m_pB->SetProgramCounterChanged();
 }
 

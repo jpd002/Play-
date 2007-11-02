@@ -15,7 +15,9 @@ struct MIPSSTATE
 	uint32		nPC;
 	uint32		nDelayedJumpAddr;
 
+#ifdef WIN32
 __declspec(align(16))
+#endif
 	uint128		nGPR[32];
 
 	uint32		nHI[2];
@@ -34,8 +36,9 @@ __declspec(align(16))
 	uint32		nFCSR;
 
 	//COP2
+#ifdef WIN32
 __declspec(align(16))
-
+#endif
 	uint128		nCOP2[32];
 
 	uint128		nCOP2A;

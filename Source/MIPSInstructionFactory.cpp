@@ -5,6 +5,9 @@
 #include "PtrMacro.h"
 #include "CodeGen.h"
 
+#undef offsetof
+#define offsetof(a, b) (reinterpret_cast<uint8*>(&reinterpret_cast<a*>(0x10)->b) - reinterpret_cast<uint8*>(0x10))
+
 CMIPS*				CMIPSInstructionFactory::m_pCtx		= NULL;
 CCacheBlock*		CMIPSInstructionFactory::m_pB		= NULL;
 uint32				CMIPSInstructionFactory::m_nAddress = 0;
@@ -47,7 +50,7 @@ void CMIPSInstructionFactory::ComputeMemAccessAddr()
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[nRS].nV[1]);
 	//Push context address
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(m_pCtx->m_pAddrTranslator, 3, true);	
+	m_pB->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);	
 }
 
 void CMIPSInstructionFactory::SignExtendTop32(unsigned int nTarget)
@@ -136,7 +139,7 @@ void CMIPSInstructionFactory::ComputeMemAccessAddrEx()
 	}
 
 	//Call
-	CCodeGen::Call(m_pCtx->m_pAddrTranslator, 3, true);
+	CCodeGen::Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);
 }
 
 void CMIPSInstructionFactory::BranchEx(bool nCondition)
