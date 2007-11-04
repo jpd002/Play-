@@ -9,18 +9,19 @@ using namespace CodeGen;
 
 CCacheBlock*			CVUI128::m_pBlock = NULL;
 CArrayStack<uint32>		CVUI128::m_OpStack;
-CVUI128::CFactory*		CVUI128::m_pFactory = CreateFactory();
+//CVUI128::CFactory*		CVUI128::m_pFactory = CreateFactory();
+CVUI128::CFactory*		CVUI128::m_pFactory = NULL;
 
 void CVUI128::Begin(CCacheBlock* pBlock)
 {
 	m_pBlock = pBlock;
 	m_OpStack.Reset();
-	m_pFactory->Begin(pBlock);
+	//m_pFactory->Begin(pBlock);
 }
 
 void CVUI128::End()
 {
-	m_pFactory->End();
+//	m_pFactory->End();
 }
 
 CVUI128::CFactory* CVUI128::CreateFactory()

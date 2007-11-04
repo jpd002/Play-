@@ -7,7 +7,8 @@
 using namespace CodeGen;
 
 CCacheBlock*				CVUF128::m_pBlock = NULL;
-CVUF128::CFactory*			CVUF128::m_pFactory = CreateFactory();
+//CVUF128::CFactory*			CVUF128::m_pFactory = CreateFactory();
+CVUF128::CFactory*			CVUF128::m_pFactory = NULL;
 uint8						CVUF128::m_nRegister = 0;
 
 CVUF128::CFactory* CVUF128::CreateFactory()
@@ -48,12 +49,12 @@ CVUF128::CFactory* CVUF128::CreateFactory()
 void CVUF128::Begin(CCacheBlock* pBlock)
 {
 	m_pBlock = pBlock;
-	m_pFactory->Begin();
+//	m_pFactory->Begin();
 }
 
 void CVUF128::End()
 {
-	m_pFactory->End(m_pBlock);
+//	m_pFactory->End(m_pBlock);
 }
 
 void CVUF128::Push(uint128* pVector)

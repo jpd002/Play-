@@ -314,8 +314,8 @@ void CCacheBlock::StreamWrite(unsigned int nCount, ...)
 	
 	for(i = 0; i < nCount; i++)
 	{
-		nValue = va_arg(args, uint8);
-		StreamWriteByte(nValue);
+		nValue = va_arg(args, int);
+		StreamWriteByte(static_cast<uint8>(nValue));
 	}
 
 	va_end(args);
