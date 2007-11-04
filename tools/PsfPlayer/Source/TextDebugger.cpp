@@ -50,6 +50,7 @@ void CTextDebugger::Run()
     m_primaryWindow = newwin(primaryViewHeight, m_width, 0, 0);
     m_secondaryWindow = newwin(regViewHeight, m_width, primaryViewHeight, 0);
 
+	keypad(stdscr, true);
     keypad(m_commandWindow, true);
     wbkgd(m_commandWindow, COLOR_PAIR(2));
 
@@ -147,5 +148,10 @@ void CTextDebugger::ExecuteCommand(const string& command)
                 }
             }
         }
+		else if(!commandName.compare("s"))
+		{
+			m_cpu.Step();
+            m_disAsmView.EnsureVisible(m_cpu.m_State.nPC, m_primaryWindow);			
+		}
     }
 }
