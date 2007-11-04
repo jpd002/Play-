@@ -21,7 +21,7 @@ m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE)
     m_cpu.m_pArch = &g_MAMIPSIV;
     m_cpu.m_pAddrTranslator = m_cpu.TranslateAddress64;
     m_cpu.m_pTickFunction = TickFunction;
-//    m_cpu.m_pSysCallHandler = reinterpret_cast<::SysCallHandler>(SysCallHandler);
+    m_cpu.m_pSysCallHandler = reinterpret_cast<SysCallHandlerType>(SysCallHandler);
 
     uint32 stackBegin = AllocateMemory(DEFAULT_STACKSIZE);
     uint32 entryPoint = LoadIopModule("psf2.irx", 0x000100000);

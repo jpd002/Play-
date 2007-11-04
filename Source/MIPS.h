@@ -58,7 +58,7 @@ __declspec(align(16))
 #define MIPS_INVALID_PC			(0x00000001)
 
 typedef unsigned int			(*TickFunction)(unsigned int);
-typedef void					(*SysCallHandler)();
+typedef void					(*SysCallHandlerType)();
 typedef uint32					(*AddressTranslator)(CMIPS*, uint32, uint32);
 
 class CMIPS
@@ -94,7 +94,7 @@ public:
 	CMIPSTags					m_Functions;
 
 	AddressTranslator			m_pAddrTranslator;
-	SysCallHandler				m_pSysCallHandler;
+	SysCallHandlerType			m_pSysCallHandler;
 	TickFunction				m_pTickFunction;
 
 	enum REGISTER
