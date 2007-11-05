@@ -21,7 +21,8 @@ m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE)
     m_cpu.m_pArch = &g_MAMIPSIV;
     m_cpu.m_pAddrTranslator = m_cpu.TranslateAddress64;
     m_cpu.m_pTickFunction = TickFunction;
-    m_cpu.m_pSysCallHandler = reinterpret_cast<SysCallHandlerType>(SysCallHandler);
+    m_cpu.m_pSysCallHandler = reinterpret_cast<SysCallHandlerType>(SysCallHandlerStub);
+    m_cpu.m_handlerParam = this;
 
     uint32 stackBegin = AllocateMemory(DEFAULT_STACKSIZE);
     uint32 entryPoint = LoadIopModule("psf2.irx", 0x000100000);
@@ -47,6 +48,11 @@ CPsfVm::~CPsfVm()
 CMIPS& CPsfVm::GetCpu()
 {
     return m_cpu;
+}
+
+CVirtualMachine::STATUS CPsfVm::GetStatus() const
+{
+    return PAUSED;
 }
 
 uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
@@ -144,16 +150,72 @@ unsigned int CPsfVm::TickFunction(unsigned int dummy)
     return 1;
 }
 
-void CPsfVm::SysCallHandler(CMIPS* state)
+string CPsfVm::ReadModuleName(uint32 address)
 {
-    uint32 searchAddress = state->m_State.nPC - 4;
-    uint32 callInstruction = state->m_pMemoryMap->GetWord(searchAddress);
+    string moduleName;
+    while(1)
+    {
+        uint8 character = m_cpu.m_pMemoryMap->GetByte(address);
+        if(character == 0) break;
+        moduleName += character;
+        address++;
+    }
+    return moduleName;
+}
+
+void CPsfVm::stdio_printf()
+{
+    const char* format = reinterpret_cast<const char*>(&m_ram[m_cpu.m_State.nGPR[CMIPS::A0].nV[0]]);
+    unsigned int param = CMIPS::A1;
+    while(*format != 0)
+    {
+        char character = *(format++);
+        if(character == '%')
+        {
+            char type = *(format++);
+            if(type == 's')
+            {
+                const char* text = reinterpret_cast<const char*>(&m_ram[m_cpu.m_State.nGPR[param++].nV[0]]);
+                printf("%s", text);
+            }
+        }
+        else
+        {
+            putc(character, stdout);
+        }
+    }
+}
+
+void CPsfVm::SysCallHandlerStub(CMIPS* state)
+{
+    reinterpret_cast<CPsfVm*>(state->m_handlerParam)->SysCallHandler();
+}
+
+void CPsfVm::SysCallHandler()
+{
+    uint32 searchAddress = m_cpu.m_State.nPC - 4;
+    uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
     //Search for the import record
     uint32 instruction = callInstruction;
     while(instruction != 0x41E00000)
     {
         searchAddress -= 4;
-        instruction = state->m_pMemoryMap->GetWord(searchAddress);
+        instruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
+    }
+    uint32 functionId = callInstruction & 0xFFFF;
+    uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
+    string moduleName = ReadModuleName(searchAddress + 0x0C);
+
+    printf("IOP: Calling function %d of module '%s'.\r\n", functionId, moduleName.c_str());
+
+    if(!moduleName.compare("stdio"))
+    {
+        switch(functionId)
+        {
+        case 4:
+            stdio_printf();
+            break;
+        }
     }
 }
 

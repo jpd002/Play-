@@ -25,7 +25,8 @@ using namespace Framework;
 using namespace boost;
 using namespace std;
 
-CDisAsm::CDisAsm(HWND hParent, RECT* pR, CMIPS* pCtx)
+CDisAsm::CDisAsm(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
+m_virtualMachine(virtualMachine)
 {
 	SCROLLINFO si;
 
@@ -54,8 +55,10 @@ CDisAsm::CDisAsm(HWND hParent, RECT* pR, CMIPS* pCtx)
 	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
-	CPS2VM::m_OnMachineStateChange.connect(bind(&CDisAsm::OnMachineStateChange, this));
-	CPS2VM::m_OnRunningStateChange.connect(bind(&CDisAsm::OnRunningStateChange, this));
+//	CPS2VM::m_OnMachineStateChange.connect(bind(&CDisAsm::OnMachineStateChange, this));
+//	CPS2VM::m_OnRunningStateChange.connect(bind(&CDisAsm::OnRunningStateChange, this));
+	m_virtualMachine.m_OnMachineStateChange.connect(bind(&CDisAsm::OnMachineStateChange, this));
+	m_virtualMachine.m_OnRunningStateChange.connect(bind(&CDisAsm::OnRunningStateChange, this));
 
 	m_pCtx = pCtx;
 
@@ -103,7 +106,6 @@ void CDisAsm::OnRunningStateChange()
 
 HFONT CDisAsm::GetFont()
 {
-	//return (HFONT)GetStockObject(ANSI_FIXED_FONT);
 	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
 }
 
@@ -112,7 +114,8 @@ void CDisAsm::GotoAddress()
 	const TCHAR* sValue;
 	uint32 nAddress;
 	
-	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
 		return;
@@ -145,8 +148,9 @@ void CDisAsm::GotoAddress()
 
 void CDisAsm::GotoPC()
 {
-	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
-	{
+//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+    {
 		MessageBeep(-1);
 		return;
 	}
@@ -159,8 +163,9 @@ void CDisAsm::GotoEA()
 {
 	uint32 nOpcode, nAddress;
 
-	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
-	{
+//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+    {
 		MessageBeep(-1);
 		return;
 	}
@@ -185,8 +190,9 @@ void CDisAsm::EditComment()
 	const TCHAR* sValue;
 	const char* sComment;
 
-	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
-	{
+//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+    {
 		MessageBeep(-1);
 		return;
 	}
@@ -214,31 +220,30 @@ void CDisAsm::EditComment()
 
 void CDisAsm::FindCallers()
 {
-	int i;
-	uint32 nVal;
-
-	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
-	{
+//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+    {
 		MessageBeep(-1);
 		return;
 	}
 
 	printf("Searching callers...\r\n");
 
-	for(i = 0; i < CPS2VM::RAMSIZE / 4; i++)
-	{
-		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
-		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
-		{
-			nVal &= 0x3FFFFFF;
-			nVal *= 4;
-			if(nVal == m_nSelected)
-			{
-				printf("JAL: 0x%0.8X\r\n", i * 4);
-			}
-		}
-	}
-
+//	for(int i = 0; i < CPS2VM::RAMSIZE / 4; i++)
+//	{
+//    	uint32 nVal;
+//		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
+//		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
+//		{
+//			nVal &= 0x3FFFFFF;
+//			nVal *= 4;
+//			if(nVal == m_nSelected)
+//			{
+//				printf("JAL: 0x%0.8X\r\n", i * 4);
+//			}
+//		}
+//	}
+    printf("Reimplement needed.\r\n");
 	printf("Done.\r\n");
 }
 
@@ -410,8 +415,9 @@ uint32 CDisAsm::GetInstruction(uint32 nAddress)
 
 void CDisAsm::ToggleBreakpoint(uint32 nAddress)
 {
-	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
-	{
+//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+    {
 		MessageBeep(-1);
 		return;
 	}
@@ -747,8 +753,9 @@ void CDisAsm::Paint(HDC hDC)
 			DeleteDC(hMem);
 		}
 
-		if(CPS2VM::m_nStatus != PS2VM_STATUS_RUNNING)
-		{
+//		if(CPS2VM::m_nStatus != PS2VM_STATUS_RUNNING)
+        if(m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING)
+        {
 			if(nAddress == m_pCtx->m_State.nPC)
 			{
 				SetTextColor(hDC, RGB(0x00, 0x00, 0x00));

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="PsfPlayer"
 	ProjectGUID="{EDA20432-A4C3-481C-B0EA-24AA8ABD7621}"
 	RootNamespace="PsfPlayer"
@@ -61,7 +61,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pdcurses.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -177,15 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\Source\CursesUtils.cpp"
+				RelativePath="..\..\Source\win32ui\DisAsm.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\DisAsmView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MemoryView.cpp"
+				RelativePath=".\Source\win32\MiniDebugger.cpp"
 				>
 			</File>
 			<File
@@ -201,15 +196,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\RegisterView.cpp"
+				RelativePath=".\Source\win32\WinMain.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\TextDebugger.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\WinMain.cpp"
+				RelativePath="..\..\Source\win32ui\WinUtils.cpp"
 				>
 			</File>
 		</Filter>
@@ -219,19 +210,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Source\CursesUtils.h"
+				RelativePath="..\..\Source\win32ui\DisAsm.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\DebugView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\DisAsmView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MemoryView.h"
+				RelativePath=".\Source\win32\MiniDebugger.h"
 				>
 			</File>
 			<File
@@ -247,11 +230,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\RegisterView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\TextDebugger.h"
+				RelativePath="..\..\Source\win32ui\WinUtils.h"
 				>
 			</File>
 		</Filter>
@@ -260,6 +239,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath="..\..\Source\win32ui\Res.rc"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Purei Core"
@@ -414,6 +397,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\MIPSTags.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\VirtualMachine.h"
 				>
 			</File>
 			<File

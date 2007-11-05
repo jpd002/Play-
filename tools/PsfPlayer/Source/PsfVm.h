@@ -3,14 +3,17 @@
 
 #include "MIPS.h"
 #include "PsfFs.h"
+#include "VirtualMachine.h"
+#include <string>
 
-class CPsfVm
+class CPsfVm : public CVirtualMachine
 {
 public:
                             CPsfVm(const char*);
     virtual                 ~CPsfVm();
 
     CMIPS&                  GetCpu();
+    STATUS                  GetStatus() const;
 
 private:
     typedef std::map<uint32, uint32> BlockMapType;
@@ -30,7 +33,11 @@ private:
     void                    FreeMemory(uint32);
     uint32                  Push(uint32&, const uint8*, uint32);
     static unsigned int     TickFunction(unsigned int);
-    static void             SysCallHandler(CMIPS*);
+    static void             SysCallHandlerStub(CMIPS*);
+    void                    SysCallHandler();
+
+    std::string             ReadModuleName(uint32);
+    void                    stdio_printf();
 
     CMIPS                   m_cpu;
     CPsfFs                  m_fileSystem;

@@ -96,6 +96,7 @@ public:
 	AddressTranslator			m_pAddrTranslator;
 	SysCallHandlerType			m_pSysCallHandler;
 	TickFunction				m_pTickFunction;
+    void*                       m_handlerParam;                        
 
 	enum REGISTER
 	{

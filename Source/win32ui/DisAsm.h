@@ -4,11 +4,12 @@
 #include <boost/signal.hpp>
 #include "win32/CustomDrawn.h"
 #include "../MIPS.h"
+#include "../VirtualMachine.h"
 
 class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::trackable
 {
 public:
-									CDisAsm(HWND, RECT*, CMIPS*);
+									CDisAsm(HWND, RECT*, CVirtualMachine&, CMIPS*);
 									~CDisAsm();
 	void							SetAddress(uint32);
 
@@ -62,6 +63,7 @@ private:
 	void							OnRunningStateChange();
 
 	CMIPS*							m_pCtx;
+    CVirtualMachine&                m_virtualMachine;
 	HBITMAP							m_nArrow;
 	HBITMAP							m_nArrowMask;
 	HBITMAP							m_nBPoint;
