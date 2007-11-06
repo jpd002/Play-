@@ -26,9 +26,9 @@ void InitializeConsole()
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE, char*, int)
 {
-//    string filename = "C:\\nsf\\kh\\Kingdom Hearts (Sequences Only)\\101 - Dearly Beloved.psf2";
+    string filename = "C:\\nsf\\kh\\Kingdom Hearts (Sequences Only)\\101 - Dearly Beloved.psf2";
 //    string filename = "C:\\nsf\\FF10\\111 Game Over.minipsf2";
-    string filename = "C:\\Projects\\Purei\\tools\\PsfPlayer\\226 Castle Zvahl.psf2";
+//    string filename = "C:\\Projects\\Purei\\tools\\PsfPlayer\\226 Castle Zvahl.psf2";
     InitializeConsole();
     CPsfVm virtualMachine(filename.c_str());
 	

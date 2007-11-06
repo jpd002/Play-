@@ -200,34 +200,6 @@ string CPsfVm::ReadModuleName(uint32 address)
     return moduleName;
 }
 
-void CPsfVm::stdio_printf()
-{
-    const char* format = reinterpret_cast<const char*>(&m_ram[m_cpu.m_State.nGPR[CMIPS::A0].nV[0]]);
-    unsigned int param = CMIPS::A1;
-    while(*format != 0)
-    {
-        char character = *(format++);
-        if(character == '%')
-        {
-            char type = *(format++);
-            if(type == 's')
-            {
-                const char* text = reinterpret_cast<const char*>(&m_ram[m_cpu.m_State.nGPR[param++].nV[0]]);
-                printf("%s", text);
-            }
-            else if(type == 'd')
-            {
-                int number = m_cpu.m_State.nGPR[param++].nV[0];
-                printf("%d", number);
-            }
-        }
-        else
-        {
-            putc(character, stdout);
-        }
-    }
-}
-
 void CPsfVm::SysCallHandlerStub(CMIPS* state)
 {
     reinterpret_cast<CPsfVm*>(state->m_handlerParam)->SysCallHandler();
