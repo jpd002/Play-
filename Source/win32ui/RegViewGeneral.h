@@ -4,18 +4,21 @@
 #include <boost/signal.hpp>
 #include "RegViewPage.h"
 #include "../MIPS.h"
+#include "../VirtualMachine.h"
+#include <string>
 
 class CRegViewGeneral : public CRegViewPage, public boost::signals::trackable
 {
 public:
-									CRegViewGeneral(HWND, RECT*, CMIPS*);
+									CRegViewGeneral(HWND, RECT*, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewGeneral();
 
 private:
 	void							Update();
-	void							GetDisplayText(Framework::CStrA*);
+    std::string						GetDisplayText();
 
-	CMIPS*							m_pCtx;
+    CVirtualMachine&                m_virtualMachine;
+    CMIPS*							m_pCtx;
 };
 
 #endif

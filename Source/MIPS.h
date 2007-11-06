@@ -9,6 +9,7 @@
 #include "MIPSAnalysis.h"
 #include "MIPSTags.h"
 #include "uint128.h"
+#include <set>
 
 struct MIPSSTATE
 {
@@ -57,7 +58,7 @@ __declspec(align(16))
 
 #define MIPS_INVALID_PC			(0x00000001)
 
-typedef unsigned int			(*TickFunction)(unsigned int);
+typedef unsigned int			(*TickFunctionType)(unsigned int);
 typedef void					(*SysCallHandlerType)();
 typedef uint32					(*AddressTranslator)(CMIPS*, uint32, uint32);
 
@@ -87,7 +88,7 @@ public:
 	CMIPSCoprocessor*			m_pCOP[4];
 	CMemoryMap*					m_pMemoryMap;
 	CExecMap*					m_pExecMap;
-	Framework::CList<void>		m_Breakpoint;
+    std::set<uint32>            m_breakpoints;
 
 	CMIPSAnalysis*				m_pAnalysis;
 	CMIPSTags					m_Comments;
@@ -95,7 +96,7 @@ public:
 
 	AddressTranslator			m_pAddrTranslator;
 	SysCallHandlerType			m_pSysCallHandler;
-	TickFunction				m_pTickFunction;
+	TickFunctionType			m_pTickFunction;
     void*                       m_handlerParam;                        
 
 	enum REGISTER

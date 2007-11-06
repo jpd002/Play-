@@ -738,7 +738,7 @@ void CDisAsm::Paint(HDC hDC)
 		nAddress = m_nAddress + (i * 4);
 		
 		//Not thread safe...?
-		if(m_pCtx->m_Breakpoint.DoesKeyExist(nAddress))
+        if(m_pCtx->m_breakpoints.find(nAddress) != m_pCtx->m_breakpoints.end())
 		{
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x00));
 

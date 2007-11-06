@@ -2,13 +2,18 @@
 #include "MA_MIPSIV.h"
 #include "PtrStream.h"
 #include "ELF.h"
+#include <boost/bind.hpp>
 
 using namespace Framework;
 using namespace std;
+using namespace boost;
 
 CPsfVm::CPsfVm(const char* psfPath) :
 m_fileSystem(psfPath),
-m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE)
+m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE),
+m_status(PAUSED),
+m_pauseAck(false),
+m_emuThread(NULL)
 {
     //Initialize block map
     m_blockMap[RAMSIZE] = 0;
@@ -20,7 +25,7 @@ m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE)
 
     m_cpu.m_pArch = &g_MAMIPSIV;
     m_cpu.m_pAddrTranslator = m_cpu.TranslateAddress64;
-    m_cpu.m_pTickFunction = TickFunction;
+    m_cpu.m_pTickFunction = reinterpret_cast<TickFunctionType>(TickFunctionStub);
     m_cpu.m_pSysCallHandler = reinterpret_cast<SysCallHandlerType>(SysCallHandlerStub);
     m_cpu.m_handlerParam = this;
 
@@ -38,11 +43,34 @@ m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE)
         reinterpret_cast<const uint8*>(&firstParam),
         4);
     m_cpu.m_State.nPC = entryPoint;
+
+    m_emuThread = new thread(bind(&CPsfVm::EmulationProc, this));
 }
 
 CPsfVm::~CPsfVm()
 {
     delete [] m_ram;
+}
+
+void CPsfVm::Pause()
+{
+    if(GetStatus() == PAUSED) return;
+    m_pauseAck = false;
+    m_status = PAUSED;
+    while(!m_pauseAck)
+    {
+        xtime xt;
+        xtime_get(&xt, boost::TIME_UTC);
+        xt.nsec += 100000000;
+    }
+    m_OnRunningStateChange();
+}
+
+void CPsfVm::Resume()
+{
+    if(GetStatus() == RUNNING) return;
+    m_status = RUNNING;
+    m_OnRunningStateChange();
 }
 
 CMIPS& CPsfVm::GetCpu()
@@ -52,7 +80,7 @@ CMIPS& CPsfVm::GetCpu()
 
 CVirtualMachine::STATUS CPsfVm::GetStatus() const
 {
-    return PAUSED;
+    return m_status;
 }
 
 uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
@@ -145,9 +173,18 @@ uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
     return baseAddress + elf.m_Header.nEntryPoint;
 }
 
-unsigned int CPsfVm::TickFunction(unsigned int dummy)
+unsigned int CPsfVm::TickFunctionStub(unsigned int ticks, CMIPS* context)
 {
-    return 1;
+    return reinterpret_cast<CPsfVm*>(context->m_handlerParam)->TickFunction(ticks);
+}
+
+unsigned int CPsfVm::TickFunction(unsigned int ticks)
+{
+    if(m_cpu.MustBreak())
+    {
+        return 1;
+    }
+    return 0;
 }
 
 string CPsfVm::ReadModuleName(uint32 address)
@@ -177,6 +214,11 @@ void CPsfVm::stdio_printf()
             {
                 const char* text = reinterpret_cast<const char*>(&m_ram[m_cpu.m_State.nGPR[param++].nV[0]]);
                 printf("%s", text);
+            }
+            else if(type == 'd')
+            {
+                int number = m_cpu.m_State.nGPR[param++].nV[0];
+                printf("%d", number);
             }
         }
         else
@@ -261,4 +303,29 @@ uint32 CPsfVm::Push(uint32& address, const uint8* data, uint32 size)
     address -= fixedSize;
     memcpy(&m_ram[address], data, size);
     return address;
+}
+
+void CPsfVm::EmulationProc()
+{
+    while(1)
+    {
+        if(m_status == RUNNING)
+        {
+            RET_CODE returnCode = m_cpu.Execute(1000);
+            if(returnCode == RET_CODE_BREAKPOINT)
+            {
+                m_status = PAUSED;
+                m_OnRunningStateChange();
+                m_OnMachineStateChange();
+            }
+        }
+        else
+        {
+            m_pauseAck = true;
+            xtime xt;
+            xtime_get(&xt, boost::TIME_UTC);
+            xt.nsec += 100000000;
+            thread::sleep(xt);
+        }
+    }
 }

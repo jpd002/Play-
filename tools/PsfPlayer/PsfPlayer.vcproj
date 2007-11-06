@@ -196,6 +196,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\win32ui\RegViewGeneral.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\RegViewPage.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\win32\WinMain.cpp"
 				>
 			</File>
@@ -227,6 +235,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfVm.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\RegViewGeneral.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\RegViewPage.h"
 				>
 			</File>
 			<File

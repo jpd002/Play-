@@ -4,6 +4,7 @@
 #include "win32/Window.h"
 #include "win32/HorizontalSplitter.h"
 #include "win32ui/DisAsm.h"
+#include "win32ui/RegViewGeneral.h"
 #include "../PsfVm.h"
 
 class CMiniDebugger : public Framework::Win32::CWindow
@@ -23,6 +24,7 @@ private:
     CPsfVm&                                     m_virtualMachine;
     Framework::Win32::CHorizontalSplitter*      m_splitter;
     CDisAsm*                                    m_disAsmView;
+    CRegViewGeneral*                            m_registerView;
     HACCEL                                      m_acceleratorTable;
 };
 

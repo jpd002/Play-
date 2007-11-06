@@ -168,7 +168,12 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 
 #else
 
-		//push 1
+#pragma message("TODO : Need to fix that for x64.")
+
+        //push ebp
+        StreamWrite(1, 0x55);
+
+        //push 1
 		StreamWrite(2, 0x6A, 0x01);
 
 #endif
@@ -184,8 +189,8 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 
 #else
 
-		//add esp, 4
-		StreamWrite(3, 0x83, 0xC4, 0x04);
+		//add esp, 8
+		StreamWrite(3, 0x83, 0xC4, 0x08);
 
 #endif
 

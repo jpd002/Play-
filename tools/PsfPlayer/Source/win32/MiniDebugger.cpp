@@ -32,7 +32,11 @@ m_virtualMachine(virtualMachine)
 
     m_splitter = new Win32::CHorizontalSplitter(m_hWnd, GetClientRect());
     m_disAsmView = new CDisAsm(m_splitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_virtualMachine.GetCpu());
+    m_registerView = new CRegViewGeneral(m_splitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_virtualMachine.GetCpu());
+    m_registerView->Show(SW_SHOW);
+
     m_splitter->SetChild(0, *m_disAsmView);
+    m_splitter->SetChild(1, *m_registerView);
     m_disAsmView->SetAddress(m_virtualMachine.GetCpu().m_State.nPC);
 }
 
@@ -61,6 +65,9 @@ long CMiniDebugger::OnCommand(unsigned short command, unsigned short id, HWND hw
     {
     case ID_VM_STEP1:
         StepCPU();
+        break;
+    case ID_VM_RESUME:
+        m_virtualMachine.Resume();
         break;
     }
 

@@ -14,6 +14,8 @@ public:
 
     virtual                     ~CVirtualMachine() {};
     virtual STATUS              GetStatus() const = 0;
+    virtual void                Pause() = 0;
+    virtual void                Resume() = 0;
 
 	boost::signal<void ()>	    m_OnMachineStateChange;
 	boost::signal<void ()>	    m_OnRunningStateChange;

@@ -44,14 +44,14 @@ CMIPS::~CMIPS()
 	DELETEPTR(m_pAnalysis);
 }
 
-void CMIPS::ToggleBreakpoint(uint32 nAddress)
+void CMIPS::ToggleBreakpoint(uint32 address)
 {
-	if(m_Breakpoint.DoesKeyExist(nAddress))
+    if(m_breakpoints.find(address) != m_breakpoints.end())
 	{
-		m_Breakpoint.Remove(nAddress);
+        m_breakpoints.erase(address);
 		return;
 	}
-	m_Breakpoint.Insert(NULL, nAddress);
+    m_breakpoints.insert(address);
 }
 
 void CMIPS::Step()
@@ -151,5 +151,5 @@ void CMIPS::InvalidateCache()
 
 bool CMIPS::MustBreak()
 {
-	return m_Breakpoint.DoesKeyExist(m_State.nPC);
+	return m_breakpoints.find(m_State.nPC) != m_breakpoints.end();
 }
