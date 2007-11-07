@@ -55,6 +55,10 @@ m_iopStdio(NULL)
         m_iopStdio = new Iop::CStdio(m_ram);
         m_iopModules[m_iopStdio->GetId()] = m_iopStdio;
     }
+    {
+        m_iopIoman = new Iop::CIoman(m_ram);
+        m_iopModules[m_iopIoman->GetId()] = m_iopIoman;
+    }
 
     m_emuThread = new thread(bind(&CPsfVm::EmulationProc, this));
 }

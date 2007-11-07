@@ -7,6 +7,7 @@
 #include <string>
 #include <boost/thread.hpp>
 #include "Iop_Stdio.h"
+#include "Iop_Ioman.h"
 
 class CPsfVm : public CVirtualMachine
 {
@@ -56,6 +57,7 @@ private:
 
     IopModuleMapType        m_iopModules;
     Iop::CStdio*            m_iopStdio;
+    Iop::CIoman*            m_iopIoman;
 };
 
 #endif
