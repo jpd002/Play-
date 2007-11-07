@@ -9,7 +9,11 @@
 using namespace Framework;
 
 CMiniDebugger::CMiniDebugger(CPsfVm& virtualMachine) :
-m_virtualMachine(virtualMachine)
+m_virtualMachine(virtualMachine),
+m_functionsView(NULL),
+m_splitter(NULL),
+m_disAsmView(NULL),
+m_registerView(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -35,14 +39,21 @@ m_virtualMachine(virtualMachine)
     m_registerView = new CRegViewGeneral(m_splitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_virtualMachine.GetCpu());
     m_registerView->Show(SW_SHOW);
 
+    m_functionsView = new CFunctionsView(NULL, &m_virtualMachine.GetCpu());
+    m_functionsView->Refresh();
+
     m_splitter->SetChild(0, *m_disAsmView);
     m_splitter->SetChild(1, *m_registerView);
+    m_splitter->SetEdgePosition(0.675);
     m_disAsmView->SetAddress(m_virtualMachine.GetCpu().m_State.nPC);
 }
 
 CMiniDebugger::~CMiniDebugger()
 {
-    
+    delete m_functionsView;
+    delete m_disAsmView;
+    delete m_registerView;
+    delete m_splitter;
 }
 
 void CMiniDebugger::Run()
@@ -68,6 +79,13 @@ long CMiniDebugger::OnCommand(unsigned short command, unsigned short id, HWND hw
         break;
     case ID_VM_RESUME:
         m_virtualMachine.Resume();
+        break;
+    case ID_VIEW_FUNCTIONS:
+        if(m_functionsView != NULL)
+        {
+            m_functionsView->Show(SW_SHOW);
+            SetForegroundWindow(*m_functionsView);
+        }
         break;
     }
 

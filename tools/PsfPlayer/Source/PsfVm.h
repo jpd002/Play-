@@ -6,6 +6,7 @@
 #include "VirtualMachine.h"
 #include <string>
 #include <boost/thread.hpp>
+#include "Iop_Stdio.h"
 
 class CPsfVm : public CVirtualMachine
 {
@@ -19,6 +20,7 @@ public:
     void                    Resume();
 
 private:
+    typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
     typedef std::map<uint32, uint32> BlockMapType;
 
     enum RAMSIZE
@@ -41,7 +43,6 @@ private:
     void                    SysCallHandler();
 
     std::string             ReadModuleName(uint32);
-    void                    stdio_printf();
 
     void                    EmulationProc();
 
@@ -52,6 +53,9 @@ private:
     STATUS                  m_status;
     bool                    m_pauseAck;
     boost::thread*          m_emuThread;
+
+    IopModuleMapType        m_iopModules;
+    Iop::CStdio*            m_iopStdio;
 };
 
 #endif

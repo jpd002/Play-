@@ -8,7 +8,7 @@ namespace Iop
     class CStdio : public CModule
     {
     public:
-                        CStdio();
+                        CStdio(uint8*);
         virtual         ~CStdio();
         
         std::string     GetId() const;
@@ -16,6 +16,7 @@ namespace Iop
 
     private:
         void            Printf(CMIPS&);
+        uint8*          m_ram;
     };
 }
 

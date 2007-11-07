@@ -3,7 +3,8 @@
 using namespace Iop;
 using namespace std;
 
-CStdio::CStdio()
+CStdio::CStdio(uint8* ram) :
+m_ram(ram)
 {
 
 }
@@ -26,7 +27,7 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
         Printf(context);
         break;
     default:
-        printf("%s: Unknown function (%d) called.", __FUNCTION__, functionId);
+        printf("%s(%0.8X): Unknown function (%d) called.", __FUNCTION__, context.m_State.nPC, functionId);
         break;
     }
 }

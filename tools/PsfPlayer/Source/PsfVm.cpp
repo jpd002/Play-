@@ -3,6 +3,7 @@
 #include "PtrStream.h"
 #include "ELF.h"
 #include <boost/bind.hpp>
+#include <boost/filesystem/path.hpp>
 
 using namespace Framework;
 using namespace std;
@@ -13,7 +14,8 @@ m_fileSystem(psfPath),
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, RAMSIZE),
 m_status(PAUSED),
 m_pauseAck(false),
-m_emuThread(NULL)
+m_emuThread(NULL),
+m_iopStdio(NULL)
 {
     //Initialize block map
     m_blockMap[RAMSIZE] = 0;
@@ -28,6 +30,11 @@ m_emuThread(NULL)
     m_cpu.m_pTickFunction = reinterpret_cast<TickFunctionType>(TickFunctionStub);
     m_cpu.m_pSysCallHandler = reinterpret_cast<SysCallHandlerType>(SysCallHandlerStub);
     m_cpu.m_handlerParam = this;
+
+#ifdef _DEBUG
+    m_cpu.m_Functions.Unserialize("functions.bin");
+    m_cpu.m_Comments.Unserialize("comments.bin");
+#endif
 
     uint32 stackBegin = AllocateMemory(DEFAULT_STACKSIZE);
     uint32 entryPoint = LoadIopModule("psf2.irx", 0x000100000);
@@ -44,11 +51,26 @@ m_emuThread(NULL)
         4);
     m_cpu.m_State.nPC = entryPoint;
 
+    {
+        m_iopStdio = new Iop::CStdio(m_ram);
+        m_iopModules[m_iopStdio->GetId()] = m_iopStdio;
+    }
+
     m_emuThread = new thread(bind(&CPsfVm::EmulationProc, this));
 }
 
 CPsfVm::~CPsfVm()
 {
+#ifdef _DEBUG
+    m_cpu.m_Functions.Serialize("functions.bin");
+    m_cpu.m_Comments.Serialize("comments.bin");
+#endif
+
+    while(m_iopModules.size() != 0)
+    {
+        delete m_iopModules.begin()->second;
+        m_iopModules.erase(m_iopModules.begin());
+    }
     delete [] m_ram;
 }
 
@@ -220,16 +242,15 @@ void CPsfVm::SysCallHandler()
     uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
     string moduleName = ReadModuleName(searchAddress + 0x0C);
 
-    printf("IOP: Calling function %d of module '%s'.\r\n", functionId, moduleName.c_str());
-
-    if(!moduleName.compare("stdio"))
+    IopModuleMapType::iterator module(m_iopModules.find(moduleName));
+    if(module != m_iopModules.end())
     {
-        switch(functionId)
-        {
-        case 4:
-            stdio_printf();
-            break;
-        }
+        module->second->Invoke(m_cpu, functionId);
+    }
+    else
+    {
+        printf("IOP(%0.8X): Trying to call a function from non-existing module (%s, %d).\r\n", 
+            m_cpu.m_State.nPC, moduleName.c_str(), functionId);
     }
 }
 
