@@ -8,6 +8,7 @@
 #include <boost/thread.hpp>
 #include "Iop_Stdio.h"
 #include "Iop_Ioman.h"
+#include "Ioman_Psf.h"
 
 class CPsfVm : public CVirtualMachine
 {

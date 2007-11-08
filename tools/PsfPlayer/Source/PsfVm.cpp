@@ -58,6 +58,7 @@ m_iopStdio(NULL)
     {
         m_iopIoman = new Iop::CIoman(m_ram);
         m_iopModules[m_iopIoman->GetId()] = m_iopIoman;
+        m_iopIoman->RegisterDevice("host", new Iop::Ioman::CPsf(m_fileSystem));
     }
 
     m_emuThread = new thread(bind(&CPsfVm::EmulationProc, this));
