@@ -10,6 +10,14 @@ namespace Iop
         class CDevice
         {
         public:
+		    enum OPEN_FLAGS
+		    {
+			    O_RDONLY	= 0x00000001,
+			    O_WRONLY	= 0x00000002,
+			    O_RDWR		= 0x00000003,
+			    O_CREAT		= 0x00000200,
+		    };
+
             virtual                         ~CDevice() {}
             virtual Framework::CStream*     GetFile(uint32, const char*) = 0;
         };

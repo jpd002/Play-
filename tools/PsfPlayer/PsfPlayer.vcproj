@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="PsfPlayer"
 	ProjectGUID="{EDA20432-A4C3-481C-B0EA-24AA8ABD7621}"
 	RootNamespace="PsfPlayer"
@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_Sysmem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\win32\MiniDebugger.cpp"
 				>
 			</File>
@@ -260,6 +264,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Iop_Stdio.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Sysmem.h"
 				>
 			</File>
 			<File

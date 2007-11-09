@@ -20,6 +20,7 @@ namespace Iop
         void                    RegisterDevice(const char*, Ioman::CDevice*);
 
         uint32                  Open(uint32, const char*);
+        uint32                  Seek(uint32, uint32, uint32);
 
     private:
         typedef std::map<uint32, Framework::CStream*> FileMapType;
@@ -30,6 +31,7 @@ namespace Iop
         FileMapType             m_files;
         DeviceMapType           m_devices;
         uint8*                  m_ram;
+        uint32                  m_nextFileHandle;
     };
 }
 
