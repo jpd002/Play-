@@ -20,6 +20,8 @@ namespace Iop
         void                    RegisterDevice(const char*, Ioman::CDevice*);
 
         uint32                  Open(uint32, const char*);
+        uint32                  Close(uint32);
+        uint32                  Read(uint32, uint32, void*);
         uint32                  Seek(uint32, uint32, uint32);
 
     private:

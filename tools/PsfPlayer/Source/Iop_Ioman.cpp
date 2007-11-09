@@ -60,6 +60,46 @@ uint32 CIoman::Open(uint32 flags, const char* path)
     return handle;
 }
 
+uint32 CIoman::Close(uint32 handle)
+{
+    uint32 result = 0xFFFFFFFF;
+    try
+    {
+        FileMapType::iterator file(m_files.find(handle));
+        if(file == m_files.end())
+        {
+            throw runtime_error("Invalid file handle.");
+        }
+        delete file->second;
+        m_files.erase(file);
+        result = 0;
+    }
+    catch(const exception& except)
+    {
+        printf("%s: Error occured while trying to close file : %s\r\n", __FUNCTION__, except.what());
+    }
+    return result;
+}
+
+uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
+{
+    uint32 result = 0xFFFFFFFF;
+    try
+    {
+        FileMapType::iterator file(m_files.find(handle));
+        if(file == m_files.end())
+        {
+            throw runtime_error("Invalid file handle.");
+        }
+        result = static_cast<uint32>(file->second->Read(buffer, size));
+    }
+    catch(const exception& except)
+    {
+        printf("%s: Error occured while trying to read file : %s\r\n", __FUNCTION__, except.what());
+    }
+    return result;
+}
+
 uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 {
     uint32 result = 0xFFFFFFFF;
@@ -103,6 +143,18 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
             reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]])
             ));
         break;
+    case 5:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Close(
+            context.m_State.nGPR[CMIPS::A0].nV[0]
+            ));
+        break;
+    case 6:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Read(
+            context.m_State.nGPR[CMIPS::A0].nV[0],
+            context.m_State.nGPR[CMIPS::A2].nV[0],
+            &m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]]
+            ));
+        break;
     case 8:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Seek(
             context.m_State.nGPR[CMIPS::A0].nV[0],
@@ -110,7 +162,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
             context.m_State.nGPR[CMIPS::A2].nV[0]));
         break;
     default:
-        printf("%s(%0.8X): Unknown function (%d) called.", __FUNCTION__, context.m_State.nPC, functionId);
+        printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
         break;
     }
 }

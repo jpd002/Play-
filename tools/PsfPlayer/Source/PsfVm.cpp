@@ -17,9 +17,6 @@ m_pauseAck(false),
 m_emuThread(NULL),
 m_iopStdio(NULL)
 {
-    //Initialize block map
-    m_blockMap[RAMSIZE] = 0;
-
     memset(&m_cpu.m_State, 0, sizeof(m_cpu.m_State));
     m_ram = new uint8[RAMSIZE];
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, RAMSIZE - 1, m_ram, MEMORYMAP_TYPE_MEMORY, 0x00);
@@ -36,7 +33,22 @@ m_iopStdio(NULL)
     m_cpu.m_Comments.Unserialize("comments.bin");
 #endif
 
-    uint32 stackBegin = AllocateMemory(DEFAULT_STACKSIZE);
+    //Register built-in modules
+    {
+        m_iopStdio = new Iop::CStdio(m_ram);
+        RegisterModule(m_iopStdio);
+    }
+    {
+        m_iopIoman = new Iop::CIoman(m_ram);
+        RegisterModule(m_iopIoman);
+        m_iopIoman->RegisterDevice("host", new Iop::Ioman::CPsf(m_fileSystem));
+    }
+    {
+        m_iopSysmem = new Iop::CSysmem(0x1000, RAMSIZE);
+        RegisterModule(m_iopSysmem);
+    }
+
+    uint32 stackBegin = m_iopSysmem->AllocateMemory(DEFAULT_STACKSIZE, 0);
     uint32 entryPoint = LoadIopModule("psf2.irx", 0x000100000);
     string execPath = "host:/psf2.irx";
     m_cpu.m_State.nGPR[CMIPS::SP].nV0 = stackBegin + DEFAULT_STACKSIZE;
@@ -51,15 +63,6 @@ m_iopStdio(NULL)
         4);
     m_cpu.m_State.nPC = entryPoint;
 
-    {
-        m_iopStdio = new Iop::CStdio(m_ram);
-        m_iopModules[m_iopStdio->GetId()] = m_iopStdio;
-    }
-    {
-        m_iopIoman = new Iop::CIoman(m_ram);
-        m_iopModules[m_iopIoman->GetId()] = m_iopIoman;
-        m_iopIoman->RegisterDevice("host", new Iop::Ioman::CPsf(m_fileSystem));
-    }
 
     m_emuThread = new thread(bind(&CPsfVm::EmulationProc, this));
 }
@@ -116,7 +119,7 @@ uint32 CPsfVm::LoadIopModule(const char* modulePath, uint32 baseAddress)
     CPtrStream stream(file->data, file->size);
     CELF elf(&stream);
 
-    baseAddress = AllocateMemory(elf.m_nLenght);
+    baseAddress = m_iopSysmem->AllocateMemory(elf.m_nLenght, 0);
 
     //Process relocation
     for(unsigned int i = 0; i < elf.m_Header.nSectHeaderCount; i++)
@@ -227,6 +230,11 @@ string CPsfVm::ReadModuleName(uint32 address)
     return moduleName;
 }
 
+void CPsfVm::RegisterModule(Iop::CModule* module)
+{
+    m_iopModules[module->GetId()] = module;
+}
+
 void CPsfVm::SysCallHandlerStub(CMIPS* state)
 {
     reinterpret_cast<CPsfVm*>(state->m_handlerParam)->SysCallHandler();
@@ -256,42 +264,6 @@ void CPsfVm::SysCallHandler()
     {
         printf("IOP(%0.8X): Trying to call a function from non-existing module (%s, %d).\r\n", 
             m_cpu.m_State.nPC, moduleName.c_str(), functionId);
-    }
-}
-
-uint32 CPsfVm::AllocateMemory(uint32 size)
-{
-    uint32 begin = 0x1000;
-    const uint32 blockSize = 0x400;
-    size = ((size + (blockSize - 1)) / blockSize) * blockSize;
-    for(BlockMapType::iterator blockIterator(m_blockMap.begin());
-        blockIterator != m_blockMap.end(); blockIterator++)
-    {
-        uint32 end = blockIterator->first;
-        if((end - begin) >= size)
-        {
-            break;
-        }
-        begin = blockIterator->first + blockIterator->second;
-    }
-    if(begin != RAMSIZE)
-    {
-        m_blockMap[begin] = size;
-        return begin;
-    }
-    return NULL;
-}
-
-void CPsfVm::FreeMemory(uint32 address)
-{
-    BlockMapType::iterator block(m_blockMap.find(address));
-    if(block != m_blockMap.end())
-    {
-        m_blockMap.erase(block);
-    }
-    else
-    {
-        printf("%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
     }
 }
 

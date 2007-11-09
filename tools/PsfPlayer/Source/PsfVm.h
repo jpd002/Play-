@@ -8,6 +8,7 @@
 #include <boost/thread.hpp>
 #include "Iop_Stdio.h"
 #include "Iop_Ioman.h"
+#include "Iop_Sysmem.h"
 #include "Ioman_Psf.h"
 
 class CPsfVm : public CVirtualMachine
@@ -23,7 +24,6 @@ public:
 
 private:
     typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
-    typedef std::map<uint32, uint32> BlockMapType;
 
     enum RAMSIZE
     {
@@ -36,8 +36,6 @@ private:
     };
 
     uint32                  LoadIopModule(const char*, uint32);
-    uint32                  AllocateMemory(uint32);
-    void                    FreeMemory(uint32);
     uint32                  Push(uint32&, const uint8*, uint32);
     static unsigned int     TickFunctionStub(unsigned int, CMIPS*);
     static void             SysCallHandlerStub(CMIPS*);
@@ -45,13 +43,13 @@ private:
     void                    SysCallHandler();
 
     std::string             ReadModuleName(uint32);
+    void                    RegisterModule(Iop::CModule*);
 
     void                    EmulationProc();
 
     CMIPS                   m_cpu;
     CPsfFs                  m_fileSystem;
     uint8*                  m_ram;
-    BlockMapType            m_blockMap;
     STATUS                  m_status;
     bool                    m_pauseAck;
     boost::thread*          m_emuThread;
@@ -59,6 +57,7 @@ private:
     IopModuleMapType        m_iopModules;
     Iop::CStdio*            m_iopStdio;
     Iop::CIoman*            m_iopIoman;
+    Iop::CSysmem*           m_iopSysmem;
 };
 
 #endif
