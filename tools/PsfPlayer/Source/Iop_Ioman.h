@@ -11,6 +11,18 @@ namespace Iop
     class CIoman : public CModule
     {
     public:
+        class CFile
+        {
+        public:
+                        CFile(uint32, CIoman&);
+            virtual     ~CFile();
+
+                        operator uint32();
+        private:
+            uint32      m_handle;
+            CIoman&     m_ioman;
+        };
+
                                 CIoman(uint8*);
         virtual                 ~CIoman();
         
@@ -24,7 +36,10 @@ namespace Iop
         uint32                  Read(uint32, uint32, void*);
         uint32                  Seek(uint32, uint32, uint32);
 
+        Framework::CStream*     GetFileStream(uint32);
+
     private:
+
         typedef std::map<uint32, Framework::CStream*> FileMapType;
         typedef std::map<std::string, Ioman::CDevice*> DeviceMapType;
 

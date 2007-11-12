@@ -86,12 +86,8 @@ uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
     uint32 result = 0xFFFFFFFF;
     try
     {
-        FileMapType::iterator file(m_files.find(handle));
-        if(file == m_files.end())
-        {
-            throw runtime_error("Invalid file handle.");
-        }
-        result = static_cast<uint32>(file->second->Read(buffer, size));
+        CStream* stream = GetFileStream(handle);
+        result = static_cast<uint32>(stream->Read(buffer, size));
     }
     catch(const exception& except)
     {
@@ -105,11 +101,7 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
     uint32 result = 0xFFFFFFFF;
     try
     {
-        FileMapType::iterator file(m_files.find(handle));
-        if(file == m_files.end())
-        {
-            throw runtime_error("Invalid file handle.");
-        }
+        CStream* stream = GetFileStream(handle);
         switch(whence)
         {
         case 0:
@@ -123,14 +115,24 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
             break;
         }
 
-        file->second->Seek(position, static_cast<STREAM_SEEK_DIRECTION>(whence));
-        result = static_cast<uint32>(file->second->Tell());
+        stream->Seek(position, static_cast<STREAM_SEEK_DIRECTION>(whence));
+        result = static_cast<uint32>(stream->Tell());
     }
     catch(const exception& except)
     {
         printf("%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
     }
     return result;
+}
+
+CStream* CIoman::GetFileStream(uint32 handle)
+{
+    FileMapType::iterator file(m_files.find(handle));
+    if(file == m_files.end())
+    {
+        throw runtime_error("Invalid file handle.");
+    }
+    return file->second;
 }
 
 void CIoman::Invoke(CMIPS& context, unsigned int functionId)
@@ -165,4 +167,24 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
         printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
         break;
     }
+}
+
+//--------------------------------------------------
+//--------------------------------------------------
+
+CIoman::CFile::CFile(uint32 handle, CIoman& ioman) :
+m_handle(handle),
+m_ioman(ioman)
+{
+
+}
+
+CIoman::CFile::~CFile()
+{
+    m_ioman.Close(m_handle);
+}
+
+CIoman::CFile::operator uint32()
+{
+    return m_handle;
 }

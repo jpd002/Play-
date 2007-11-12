@@ -15,7 +15,8 @@ namespace Iop
         void                    Invoke(CMIPS&, unsigned int);
 
         uint32                  AllocateMemory(uint32, uint32);
-        void                    FreeMemory(uint32);
+        uint32                  FreeMemory(uint32);
+
     private:
         typedef std::map<uint32, uint32> BlockMapType;
 

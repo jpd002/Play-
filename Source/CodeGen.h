@@ -182,7 +182,9 @@ private:
     static void                     Cmp64Cont(CONDITION);
 
     static void                     X86_RegImmOp(unsigned int, uint32, unsigned int);
-    static void                     WriteByte(uint8);
+    static void                     StreamWriteByte(uint8);
+    static void                     StreamWriteAt(unsigned int, uint8);
+    static size_t                   StreamTell();
 
     static bool						m_nBlockStarted;
 

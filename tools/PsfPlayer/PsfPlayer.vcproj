@@ -189,7 +189,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_Dynamic.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Iop_Ioman.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Loadcore.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Modload.cpp"
 				>
 			</File>
 			<File
@@ -197,7 +209,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_Sysclib.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Iop_Sysmem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\IopBios.cpp"
 				>
 			</File>
 			<File
@@ -255,7 +275,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_Dynamic.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Iop_Ioman.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Loadcore.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Modload.h"
 				>
 			</File>
 			<File
@@ -267,7 +299,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_Sysclib.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Iop_Sysmem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\IopBios.h"
 				>
 			</File>
 			<File

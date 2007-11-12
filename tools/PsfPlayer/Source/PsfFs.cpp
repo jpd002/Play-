@@ -41,7 +41,7 @@ CPsfFs::CPsfFs(const char* loadPath)
     stream.Seek(tagBeginPosition, STREAM_SEEK_SET);
 
     {
-        char* tagBuffer = reinterpret_cast<char*>(alloca(tagSize + 1));
+        char* tagBuffer = reinterpret_cast<char*>(alloca(static_cast<size_t>(tagSize) + 1));
         stream.Read(tagBuffer, tagSize);
         tagBuffer[tagSize] = 0;
         m_tag = tagBuffer;
@@ -148,7 +148,7 @@ const CPsfFs::FILE* CPsfFs::GetFileDetail(const DIRECTORY& directory, const char
             nodeIterator != directory.fileList.end(); nodeIterator++)
         {
             const NODE* node(*nodeIterator);
-            if(!strcmp(node->name, path))
+            if(!_stricmp(node->name, path))
             {
                 return dynamic_cast<const FILE*>(node);
             }

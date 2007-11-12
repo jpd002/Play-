@@ -1,12 +1,14 @@
 #include "MiniDebugger.h"
 #include "win32/Rect.h"
 #include "win32ui/resource.h"
+#include <boost/bind.hpp>
 
 #define CLSNAME		_T("MiniDebugger")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(0)
 
 using namespace Framework;
+using namespace boost;
 
 CMiniDebugger::CMiniDebugger(CPsfVm& virtualMachine) :
 m_virtualMachine(virtualMachine),
@@ -40,6 +42,7 @@ m_registerView(NULL)
     m_registerView->Show(SW_SHOW);
 
     m_functionsView = new CFunctionsView(NULL, &m_virtualMachine.GetCpu());
+    m_functionsView->m_OnFunctionDblClick.connect(bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
     m_functionsView->Refresh();
 
     m_splitter->SetChild(0, *m_disAsmView);
@@ -101,8 +104,12 @@ void CMiniDebugger::StepCPU()
     }
 
     m_disAsmView->SetFocus();
-    m_virtualMachine.GetCpu().Step();
-    m_virtualMachine.m_OnMachineStateChange();
+    m_virtualMachine.Step();
+}
+
+void CMiniDebugger::OnFunctionDblClick(uint32 address)
+{
+    m_disAsmView->SetAddress(address);
 }
 
 void CMiniDebugger::CreateAccelerators()

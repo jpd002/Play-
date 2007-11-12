@@ -53,6 +53,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 	
 	nFound = 0;
 	nCandidate = nStart;
+    nReturnAddr = 0;
 
 	while(nCandidate != nEnd)
 	{

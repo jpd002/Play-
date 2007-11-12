@@ -15,7 +15,12 @@ CArrayStack<uint32>		CCodeGen::m_Shadow;
 CArrayStack<uint32, 2>	CCodeGen::m_PullReg64Stack;
 #endif
 CArrayStack<uint32>		CCodeGen::m_IfStack;
-CX86Assembler           CCodeGen::m_Assembler(&CCodeGen::WriteByte);
+CX86Assembler           CCodeGen::m_Assembler
+                                            (
+                                                &CCodeGen::StreamWriteByte, 
+                                                &CCodeGen::StreamWriteAt,
+                                                &CCodeGen::StreamTell
+                                            );
 
 bool                    CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
 
@@ -2377,6 +2382,25 @@ void CCodeGen::Sub()
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
     }
+    else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
+    {
+		uint32 nRelative, nConstant, nRegister;
+
+		m_Shadow.Pull();
+		nConstant = m_Shadow.Pull();
+		m_Shadow.Pull();
+		nRelative = m_Shadow.Pull();
+
+		nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, nRelative);
+
+        m_Assembler.SubId(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
+            nConstant);
+
+		m_Shadow.Push(nRegister);
+		m_Shadow.Push(REGISTER);
+    }
 	else
 	{
 		assert(0);
@@ -2845,9 +2869,19 @@ bool CCodeGen::IsTopContRelCstPair64()
     }
 }
 
-void CCodeGen::WriteByte(uint8 nByte)
+void CCodeGen::StreamWriteByte(uint8 nByte)
 {
     m_pBlock->StreamWriteByte(nByte);
+}
+
+void CCodeGen::StreamWriteAt(unsigned int position, uint8 value)
+{
+    m_pBlock->StreamWriteAt(position, value);
+}
+
+size_t CCodeGen::StreamTell()
+{
+    return m_pBlock->StreamGetSize();
 }
 
 void CCodeGen::X86_RegImmOp(unsigned int nRegister, uint32 nConstant, unsigned int nOp)

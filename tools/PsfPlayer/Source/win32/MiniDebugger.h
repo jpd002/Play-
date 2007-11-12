@@ -21,6 +21,7 @@ protected:
 private:
     void                                        CreateAccelerators();
     void                                        StepCPU();
+    void                                        OnFunctionDblClick(uint32);
 
     CPsfVm&                                     m_virtualMachine;
     Framework::Win32::CHorizontalSplitter*      m_splitter;

@@ -1,7 +1,16 @@
 #include "X86Assembler.h"
 
-CX86Assembler::CX86Assembler(const WriteFunctionType& WriteFunction) :
-m_WriteFunction(WriteFunction)
+using namespace std;
+
+CX86Assembler::CX86Assembler(
+                             const WriteFunctionType& WriteFunction,
+                             const WriteAtFunctionType& WriteAtFunction,
+                             const TellFunctionType& TellFunction
+                             ) :
+m_WriteFunction(WriteFunction),
+m_WriteAtFunction(WriteAtFunction),
+m_TellFunction(TellFunction),
+m_nextLabelId(1)
 {
     
 }
@@ -55,6 +64,42 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, 
     return Address;
 }
 
+CX86Assembler::LABEL CX86Assembler::CreateLabel()
+{
+    return m_nextLabelId++;
+}
+
+void CX86Assembler::MarkLabel(LABEL label)
+{
+    m_labels[label] = m_TellFunction();
+}
+
+void CX86Assembler::ResolveLabelReferences()
+{
+    for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
+        m_labelReferences.end() != labelRef; labelRef++)
+    {
+        LabelMapType::iterator label(m_labels.find(labelRef->first));
+        if(label == m_labels.end())
+        {
+            throw runtime_error("Invalid label.");
+        }
+        size_t referencePos = labelRef->second.address;
+        size_t labelPos = label->second;
+        unsigned int referenceSize = labelRef->second.offsetSize;
+        int offset = static_cast<int>(labelPos - referencePos - referenceSize);
+        if(referenceSize == 1)
+        {
+            if(offset > 127 || offset < -128)
+            {
+                throw runtime_error("Label reference too small.");
+            }
+            m_WriteAtFunction(referencePos, static_cast<uint8>(offset));
+        }
+    }
+    m_labelReferences.clear();
+}
+
 void CX86Assembler::AddId(const CAddress& Address, uint32 nConstant)
 {
     WriteEvId(0x00, Address, nConstant);
@@ -73,6 +118,20 @@ void CX86Assembler::CmpId(const CAddress& address, uint32 constant)
 void CX86Assembler::CmpIq(const CAddress& Address, uint64 nConstant)
 {
     WriteEvIq(0x07, Address, nConstant);
+}
+
+void CX86Assembler::JeJb(LABEL label)
+{
+    WriteByte(0x74);
+    CreateLabelReference(label, 1);
+    WriteByte(0x00);
+}
+
+void CX86Assembler::JneJb(LABEL label)
+{
+    WriteByte(0x75);
+    CreateLabelReference(label, 1);
+    WriteByte(0x00);
 }
 
 void CX86Assembler::Nop()
@@ -101,6 +160,11 @@ void CX86Assembler::MovId(REGISTER nRegister, uint32 nConstant)
     WriteRexByte(false, Address);
     WriteByte(0xB8 | Address.ModRm.nRM);
     WriteDWord(nConstant);
+}
+
+void CX86Assembler::Ret()
+{
+    WriteByte(0xC3);
 }
 
 void CX86Assembler::SubEd(REGISTER nRegister, const CAddress& Address)
@@ -197,6 +261,14 @@ void CX86Assembler::WriteEvIq(uint8 nOp, const CAddress& Address, uint64 nConsta
         NewAddress.Write(m_WriteFunction);
         WriteDWord(static_cast<uint32>(nConstant));
     }
+}
+
+void CX86Assembler::CreateLabelReference(LABEL label, unsigned int size)
+{
+    LABELREF reference;
+    reference.address = m_TellFunction();
+    reference.offsetSize = size;
+    m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
 }
 
 unsigned int CX86Assembler::GetMinimumConstantSize(uint32 nConstant)

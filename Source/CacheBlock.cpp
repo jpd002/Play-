@@ -5,6 +5,11 @@
 #include "PtrMacro.h"
 #include "CacheBlock.h"
 #include "MIPS.h"
+#include "COP_SCU.h"
+#include "X86Assembler.h"
+#include <boost/bind.hpp>
+
+using namespace boost;
 
 #ifdef AMD64
 
@@ -124,6 +129,12 @@ void CCacheBlock::InsertProlog(CMIPS* pCtx)
 
 void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 {
+    CX86Assembler assembler(
+        bind(&CCacheBlock::StreamWriteByte, this, _1),
+        bind(&CCacheBlock::StreamWriteAt, this, _1, _2),
+        bind(&CCacheBlock::StreamGetSize, this)
+        );
+
 	//Check delay slot (we truly need to do something better about this...)
 	if(nDelayJump)
 	{
@@ -208,6 +219,17 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 		StreamWrite(1, 0xC3);
 	}
 
+    {
+        CX86Assembler::LABEL label = assembler.CreateLabel();
+        assembler.CmpId(
+            CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC])), 0);
+        assembler.JeJb(label);
+        assembler.MovId(CX86Assembler::rAX, RET_CODE_EXCEPTION);
+        assembler.Ret();
+        assembler.MarkLabel(label);
+    }
+
+
 	//////////////////////////////
 	//Decrement quota
 
@@ -235,6 +257,7 @@ void CCacheBlock::InsertEpilog(CMIPS* pCtx, bool nDelayJump)
 		SynchornizePC(pCtx);
 	}
 
+    assembler.ResolveLabelReferences();
 }
 
 void CCacheBlock::SynchornizePC(CMIPS* pCtx)

@@ -32,6 +32,11 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
             context.m_State.nGPR[CMIPS::A0].nV[0]
             ));
         break;
+    case 5:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(FreeMemory(
+            context.m_State.nGPR[CMIPS::A0].nV[0]
+            ));
+        break;
     default:
         printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
         break;
@@ -61,7 +66,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags)
     return NULL;
 }
 
-void CSysmem::FreeMemory(uint32 address)
+uint32 CSysmem::FreeMemory(uint32 address)
 {
     address -= m_memoryBegin;
     BlockMapType::iterator block(m_blockMap.find(address));
@@ -73,4 +78,5 @@ void CSysmem::FreeMemory(uint32 address)
     {
         printf("%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
     }
+    return 0;
 }

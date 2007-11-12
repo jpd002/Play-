@@ -2,6 +2,7 @@
 #include "MA_MIPSIV.h"
 #include "MIPS.h"
 #include "CodeGen.h"
+#include "COP_SCU.h"
 
 #undef offsetof
 #define offsetof(a, b) (reinterpret_cast<uint8*>(&reinterpret_cast<a*>(0x10)->b) - reinterpret_cast<uint8*>(0x10))
@@ -406,21 +407,25 @@ void CMA_MIPSIV::ADDI()
 //09
 void CMA_MIPSIV::ADDIU()
 {
-	if(m_nRT == 0) 
-    {
-        //Hack: PS2 IOP uses ADDIU R0, R0, $x for dynamic linking
-        SYSCALL();
-        return;
-    }
-
 	CCodeGen::Begin(m_pB);
 	{
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-		CCodeGen::PushCst((int16)m_nImmediate);
-		CCodeGen::Add();
-		CCodeGen::SeX();
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+        if(m_nRT == 0) 
+        {
+            //Hack: PS2 IOP uses ADDIU R0, R0, $x for dynamic linking
+            CCodeGen::PushRel(offsetof(CMIPS, m_State.nPC));
+            CCodeGen::PushCst(4);
+            CCodeGen::Sub();
+            CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+        }
+        else
+        {
+		    CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		    CCodeGen::PushCst((int16)m_nImmediate);
+		    CCodeGen::Add();
+		    CCodeGen::SeX();
+		    CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		    CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+        }
 	}
 	CCodeGen::End();
 }
@@ -1686,9 +1691,13 @@ void CMA_MIPSIV::SYSCALL()
 {
     CCodeGen::Begin(m_pB);
     {
-        CCodeGen::PushRef(m_pCtx);
-        CCodeGen::Call(reinterpret_cast<void*>(m_pCtx->m_pSysCallHandler), 1, false);
-        m_pB->SetProgramCounterChanged();
+        CCodeGen::PushRel(offsetof(CMIPS, m_State.nPC));
+        CCodeGen::PushCst(4);
+        CCodeGen::Sub();
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+//        CCodeGen::PushRef(m_pCtx);
+//        CCodeGen::Call(reinterpret_cast<void*>(m_pCtx->m_pSysCallHandler), 1, false);
+//        m_pB->SetProgramCounterChanged();
     }
     CCodeGen::End();
 
