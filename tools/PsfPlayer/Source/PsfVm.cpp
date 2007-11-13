@@ -2,6 +2,7 @@
 #include "MA_MIPSIV.h"
 #include "COP_SCU.h"
 #include "PtrStream.h"
+#include "StdStream.h"
 #include "Ioman_Psf.h"
 #include "ELF.h"
 #include <boost/bind.hpp>
@@ -44,7 +45,21 @@ m_singleStep(false)
 
     m_bios->GetIoman()->RegisterDevice(PSF_DEVICENAME, new Iop::Ioman::CPsf(m_fileSystem));
     m_bios->LoadAndStartModule(execPath.c_str(), NULL, 0);
-
+/*
+    {
+        uint32 handle = m_bios->GetIoman()->Open(Iop::Ioman::CDevice::O_RDONLY, 
+            (PSF_DEVICENAME + string(":/IOPSOUND_linkfix.IRX")).c_str());
+        CStream* stream = m_bios->GetIoman()->GetFileStream(handle);
+        stream->Seek(0, STREAM_SEEK_END);
+        uint64 size = stream->Tell();
+        stream->Seek(0, STREAM_SEEK_SET);
+        uint8* buffer = new uint8[size];
+        stream->Read(buffer, size);
+        m_bios->GetIoman()->Close(handle);
+        CStdStream output("iopsound_linkfix.irx", "wb");
+        output.Write(buffer, size);
+    }
+*/
     m_emuThread = new thread(bind(&CPsfVm::EmulationProc, this));
 }
 

@@ -298,9 +298,10 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
             const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
             uint8* relocatedSectionData = reinterpret_cast<uint8*>(const_cast<void*>(elf.GetSectionData(linkedSection)));
             if(relocatedSection == NULL || relocationRecord == NULL || relocatedSection == NULL) continue;
+            uint32 sectionBase = relocatedSection->nStart;
             for(unsigned int record = 0; record < recordCount; record++)
             {
-                uint32 relocationAddress = relocationRecord[0];
+                uint32 relocationAddress = relocationRecord[0] - sectionBase;
                 uint32 relocationType = relocationRecord[1];
                 if(relocationAddress < relocatedSection->nSize) 
                 {

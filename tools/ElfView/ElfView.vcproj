@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(FrameworkRoot)\include"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(SolutionDir)/source&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
