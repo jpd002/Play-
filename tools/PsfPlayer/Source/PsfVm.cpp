@@ -21,12 +21,21 @@ m_status(PAUSED),
 m_pauseAck(false),
 m_emuThread(NULL),
 m_bios(NULL),
+m_spu(SPUBEGIN),
 m_singleStep(false)
 {
     memset(&m_cpu.m_State, 0, sizeof(m_cpu.m_State));
+    
     m_ram = new uint8[RAMSIZE];
-	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, RAMSIZE - 1, m_ram, MEMORYMAP_TYPE_MEMORY, 0x00);
-    m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, RAMSIZE - 1, m_ram, MEMORYMAP_TYPE_MEMORY, 0x00);
+    memset(m_ram, 0, RAMSIZE);
+
+    m_intc.SetMask(0xFFFFFFFF);
+    m_intc.SetStatus(0);
+
+	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000,   RAMSIZE - 1,    m_ram,                                          0x00);
+    m_cpu.m_pMemoryMap->InsertReadMap(SPUBEGIN,     SPUEND - 1,     bind(&CSpu2::ReadRegister, &m_spu, _1),         0x01);
+
+    m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000,  RAMSIZE - 1,    m_ram,                                          0x00);
 
     m_cpu.m_pArch = &g_MAMIPSIV;
     m_cpu.m_pAddrTranslator = m_cpu.TranslateAddress64;
@@ -35,8 +44,8 @@ m_singleStep(false)
     m_cpu.m_handlerParam = this;
 
 #ifdef _DEBUG
-    m_cpu.m_Functions.Unserialize("functions.bin");
-    m_cpu.m_Comments.Unserialize("comments.bin");
+//    m_cpu.m_Functions.Unserialize("functions.bin");
+//    m_cpu.m_Comments.Unserialize("comments.bin");
 #endif
 
     m_bios = new CIopBios(0x100, m_cpu, m_ram, RAMSIZE);
@@ -44,6 +53,7 @@ m_singleStep(false)
     string execPath = string(PSF_DEVICENAME) + ":/psf2.irx";
 
     m_bios->GetIoman()->RegisterDevice(PSF_DEVICENAME, new Iop::Ioman::CPsf(m_fileSystem));
+    m_bios->GetIoman()->RegisterDevice("host0", new Iop::Ioman::CPsf(m_fileSystem));
     m_bios->LoadAndStartModule(execPath.c_str(), NULL, 0);
 /*
     {
@@ -65,9 +75,10 @@ m_singleStep(false)
 
 CPsfVm::~CPsfVm()
 {
+    Pause();
 #ifdef _DEBUG
-    m_cpu.m_Functions.Serialize("functions.bin");
-    m_cpu.m_Comments.Serialize("comments.bin");
+//    m_cpu.m_Functions.Serialize("functions.bin");
+//    m_cpu.m_Comments.Serialize("comments.bin");
 #endif
     delete m_bios;
     delete [] m_ram;
@@ -118,6 +129,14 @@ unsigned int CPsfVm::TickFunctionStub(unsigned int ticks, CMIPS* context)
 
 unsigned int CPsfVm::TickFunction(unsigned int ticks)
 {
+    if(m_cpu.m_State.nGPR[CMIPS::RA].nV0 > 0x1FC00000)
+    {
+        return 1;
+    }
+    if(m_cpu.m_State.nPC > 0x1FC00000)
+    {
+        return 1;
+    }
     if(m_cpu.MustBreak())
     {
         return 1;
@@ -130,17 +149,53 @@ void CPsfVm::SysCallHandlerStub(CMIPS* state)
     reinterpret_cast<CPsfVm*>(state->m_handlerParam)->m_bios->SysCallHandler();
 }
 
+void CPsfVm::ProcessTimer()
+{
+    static clock_t timerValue = 0;
+    if(timerValue == 0)
+    {
+        timerValue = clock();
+    }
+    else
+    {
+        if(clock() - timerValue > 2 * CLOCKS_PER_SEC)
+        {
+            m_intc.AssertLine(0);
+        }
+    }
+}
+
+void CPsfVm::CheckInterrupts()
+{
+    if(m_intc.HasPendingInterrupt())
+    {
+        if(m_cpu.GenerateInterrupt(0x1FC00000))
+        {
+            m_cpu.m_State.nHasException = 1;
+        }
+    }
+}
+
 void CPsfVm::EmulationProc()
 {
     while(1)
     {
         if(m_status == RUNNING)
         {
-            RET_CODE returnCode = m_cpu.Execute(m_singleStep ? 1 : 1000);
-            if(m_cpu.m_State.nCOP0[CCOP_SCU::EPC] != 0)
+            RET_CODE returnCode = RET_CODE_QUOTADONE;
+            ProcessTimer();
+            if(!m_cpu.m_State.nHasException)
+            {
+                CheckInterrupts();
+            }
+            if(!m_cpu.m_State.nHasException)
+            {
+                returnCode = m_cpu.Execute(m_singleStep ? 1 : 5000);
+            }
+            if(m_cpu.m_State.nHasException)
             {
                 m_bios->SysCallHandler();
-                assert(m_cpu.m_State.nCOP0[CCOP_SCU::EPC] == 0);
+                assert(!m_cpu.m_State.nHasException);
             }
             if(returnCode == RET_CODE_BREAKPOINT || m_singleStep)
             {

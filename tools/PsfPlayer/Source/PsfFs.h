@@ -78,6 +78,7 @@ private:
     void            ReadFile(Framework::CStream&, FILE&);
     void            ReadDirectory(Framework::CStream&, DIRECTORY&);
     const FILE*     GetFileDetail(const DIRECTORY&, const char*) const;
+    const NODE*     GetFileFindNode(const DIRECTORY&, const char*) const;
     std::string     GetPsfLibAttributeName(unsigned int);
 
     std::string     m_tag;

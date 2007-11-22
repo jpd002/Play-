@@ -125,6 +125,11 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
     return result;
 }
 
+uint32 CIoman::DelDrv(const char* deviceName)
+{
+    return -1;
+}
+
 CStream* CIoman::GetFileStream(uint32 handle)
 {
     FileMapType::iterator file(m_files.find(handle));
@@ -162,6 +167,11 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
             context.m_State.nGPR[CMIPS::A0].nV[0],
             context.m_State.nGPR[CMIPS::A1].nV[0],
             context.m_State.nGPR[CMIPS::A2].nV[0]));
+        break;
+    case 21:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelDrv(
+            reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nD0])
+        ));
         break;
     default:
         printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);

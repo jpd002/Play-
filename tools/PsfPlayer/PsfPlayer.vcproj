@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="PsfPlayer"
 	ProjectGUID="{EDA20432-A4C3-481C-B0EA-24AA8ABD7621}"
 	RootNamespace="PsfPlayer"
@@ -117,7 +117,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;;&quot;$(SolutionDir)/source&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -135,6 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="comctl32.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -177,6 +179,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Source\ArgumentIterator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\win32ui\DisAsm.cpp"
 				>
 			</File>
@@ -190,6 +196,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\Iop_Dynamic.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Intc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Intrman.cpp"
 				>
 			</File>
 			<File
@@ -221,7 +235,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_Thevent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Thsema.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Timrman.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\IopBios.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Log.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryView.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryViewMIPS.cpp"
 				>
 			</File>
 			<File
@@ -249,6 +287,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Spu2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Spu2_Core.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\win32\WinMain.cpp"
 				>
 			</File>
@@ -262,6 +308,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\Source\ArgumentIterator.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\Source\win32ui\DisAsm.h"
 				>
@@ -280,6 +330,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\Iop_Dynamic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Intc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Intrman.h"
 				>
 			</File>
 			<File
@@ -315,7 +373,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_Thevent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Thsema.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_Timrman.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\IopBios.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Log.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryViewMIPS.h"
 				>
 			</File>
 			<File
@@ -340,6 +422,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\win32ui\RegViewPage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Spu2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Spu2_Core.h"
 				>
 			</File>
 			<File

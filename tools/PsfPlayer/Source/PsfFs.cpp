@@ -137,25 +137,45 @@ void CPsfFs::ReadDirectory(CStream& stream, DIRECTORY& baseDirectory)
     }
 }
 
+const CPsfFs::NODE* CPsfFs::GetFileFindNode(const DIRECTORY& directory, const char* path) const
+{
+    for(DIRECTORY::FileListType::const_iterator nodeIterator(directory.fileList.begin());
+        nodeIterator != directory.fileList.end(); nodeIterator++)
+    {
+        const NODE* node(*nodeIterator);
+        if(!_stricmp(node->name, path))
+        {
+            return node;
+        }
+    }
+
+    return NULL;
+}
+
 const CPsfFs::FILE* CPsfFs::GetFileDetail(const DIRECTORY& directory, const char* path) const
 {
     if(*path == '/') path++;
     const char* separator = strchr(path, '/');
 
+    string filename(path, separator != NULL ? separator : path + strlen(path));
+
+    const NODE* node = GetFileFindNode(directory, filename.c_str());
+    if(node == NULL)
+    {
+        return NULL;
+    }
+
     if(separator == NULL)
     {
-        for(DIRECTORY::FileListType::const_iterator nodeIterator(directory.fileList.begin());
-            nodeIterator != directory.fileList.end(); nodeIterator++)
-        {
-            const NODE* node(*nodeIterator);
-            if(!_stricmp(node->name, path))
-            {
-                return dynamic_cast<const FILE*>(node);
-            }
-        }
+        return dynamic_cast<const FILE*>(node);
     }
     else
     {
-        //Gotta look in subdir
+        const DIRECTORY* subDir = dynamic_cast<const DIRECTORY*>(node);
+        if(subDir == NULL)
+        {
+            return NULL;
+        }
+        return GetFileDetail(*subDir, separator + 1);
     }
 }

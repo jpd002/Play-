@@ -3,9 +3,10 @@
 using namespace Iop;
 using namespace std;
 
-CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd) :
+CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio) :
 m_memoryBegin(memoryBegin),
 m_memoryEnd(memoryEnd),
+m_stdio(stdio),
 m_memorySize(memoryEnd - memoryBegin)
 {
     //Initialize block map
@@ -36,6 +37,9 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(FreeMemory(
             context.m_State.nGPR[CMIPS::A0].nV[0]
             ));
+        break;
+    case 14:
+        m_stdio.__printf(context);
         break;
     default:
         printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);

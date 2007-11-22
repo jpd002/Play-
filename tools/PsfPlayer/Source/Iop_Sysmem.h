@@ -2,13 +2,14 @@
 #define _IOP_SYSMEM_H_
 
 #include "Iop_Module.h"
+#include "Iop_Stdio.h"
 
 namespace Iop
 {
     class CSysmem : public CModule
     {
     public:
-                                CSysmem(uint32, uint32);
+                                CSysmem(uint32, uint32, Iop::CStdio&);
         virtual                 ~CSysmem();
 
         std::string             GetId() const;
@@ -24,6 +25,7 @@ namespace Iop
         uint32                  m_memoryBegin;
         uint32                  m_memoryEnd;
         uint32                  m_memorySize;
+        Iop::CStdio&            m_stdio;
     };
 }
 

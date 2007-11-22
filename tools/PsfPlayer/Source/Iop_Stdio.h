@@ -2,6 +2,7 @@
 #define _IOP_STDIO_H_
 
 #include "Iop_Module.h"
+#include "ArgumentIterator.h"
 
 namespace Iop
 {
@@ -13,10 +14,11 @@ namespace Iop
         
         std::string     GetId() const;
         void            Invoke(CMIPS&, unsigned int);
+        void            __printf(CMIPS&);
+        std::string     PrintFormatted(CArgumentIterator&);
 
     private:
-        void            Printf(CMIPS&);
-        uint8*          m_ram;
+        uint8*              m_ram;
     };
 }
 

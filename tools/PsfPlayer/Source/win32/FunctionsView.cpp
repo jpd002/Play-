@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <boost/bind.hpp>
 #include "FunctionsView.h"
 #include "HorizontalLayout.h"
 #include "win32/LayoutWindow.h"
@@ -12,6 +13,7 @@
 
 using namespace Framework;
 using namespace std;
+using namespace boost;
 
 CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 {
@@ -62,7 +64,9 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 	m_pLayout->InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pList));
 	m_pLayout->InsertObject(pSubLayout0);
 
-	SetSize(469, 612);
+    m_pCtx->m_Functions.m_OnTagListChanged.connect(bind(&CFunctionsView::Refresh, this));
+
+    SetSize(469, 612);
 
 	SetELF(NULL);
 

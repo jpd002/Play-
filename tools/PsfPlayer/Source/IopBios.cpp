@@ -2,7 +2,15 @@
 #include "COP_SCU.h"
 #include "Iop_Sysclib.h"
 #include "Iop_Loadcore.h"
+#include "Iop_Thbase.h"
+#include "Iop_Thsema.h"
+#include "Iop_Thevent.h"
+#include "Iop_Timrman.h"
+#include "Log.h"
 #include <vector>
+#include <time.h>
+
+#define LOGNAME "iop_bios"
 
 using namespace std;
 using namespace Framework;
@@ -12,10 +20,12 @@ m_baseAddress(baseAddress),
 m_cpu(cpu),
 m_ram(ram),
 m_nextThreadId(1),
+m_nextSemaphoreId(1),
 m_stdio(NULL),
 m_sysmem(NULL),
 m_ioman(NULL),
 m_modload(NULL),
+m_rescheduleNeeded(false),
 m_currentThreadId(-1)
 {
     CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[m_baseAddress]));
@@ -31,7 +41,7 @@ m_currentThreadId(-1)
         RegisterModule(m_ioman);
     }
     {
-        m_sysmem = new Iop::CSysmem(0x1000, ramSize);
+        m_sysmem = new Iop::CSysmem(0x1000, ramSize, *m_stdio);
         RegisterModule(m_sysmem);
     }
     {
@@ -39,15 +49,31 @@ m_currentThreadId(-1)
         RegisterModule(m_modload);
     }
     {
-        RegisterModule(new Iop::CSysclib(m_ram));
+        RegisterModule(new Iop::CSysclib(m_ram, *m_stdio));
     }
     {
         RegisterModule(new Iop::CLoadcore(*this, m_ram));
+    }
+    {
+        RegisterModule(new Iop::CThbase(*this, m_ram));
+    }
+    {
+        RegisterModule(new Iop::CThsema(*this, m_ram));
+    }
+    {
+        RegisterModule(new Iop::CThevent(*this, m_ram));
+    }
+    {
+        RegisterModule(new Iop::CTimrman());
     }
 }
 
 CIopBios::~CIopBios()
 {
+#ifdef _DEBUG
+    SaveAllModulesTags(m_cpu.m_Comments, "comments");
+    SaveAllModulesTags(m_cpu.m_Functions, "functions");
+#endif
     while(m_modules.size() != 0)
     {
         delete m_modules.begin()->second;
@@ -57,8 +83,16 @@ CIopBios::~CIopBios()
 
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
 {
-    uint32 entryPoint = LoadExecutable(path);
-    uint32 threadId = CreateThread(entryPoint);
+    ExecutableRange moduleRange;
+    uint32 entryPoint = LoadExecutable(path, moduleRange);
+
+    LOADEDMODULE loadedModule;
+    loadedModule.name = GetModuleNameFromPath(path);
+    loadedModule.begin = moduleRange.first;
+    loadedModule.end = moduleRange.second;
+    m_loadedModules.push_back(loadedModule);
+
+    uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY);
     THREAD& thread = GetThread(threadId);
 
     typedef vector<uint32> ParamListType;
@@ -75,7 +109,7 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
             reinterpret_cast<const uint8*>(args),
             static_cast<uint32>(strlen(args)) + 1));
     }
-    thread.context.gpr[CMIPS::A0] = paramList.size();
+    thread.context.gpr[CMIPS::A0] = static_cast<uint32>(paramList.size());
     for(ParamListType::reverse_iterator param(paramList.rbegin());
         paramList.rend() != param; param++)
     {
@@ -85,7 +119,53 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
             4);
     }
 
-    Reschedule();
+    StartThread(threadId);
+    if(m_currentThreadId == -1)
+    {
+        Reschedule();
+    }
+
+#ifdef _DEBUG
+    LoadModuleTags(loadedModule, m_cpu.m_Comments, "comments");
+    LoadModuleTags(loadedModule, m_cpu.m_Functions, "functions");
+    m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
+#endif
+
+	for(int i = 0; i < 0x00400000 / 4; i++)
+	{
+		uint32 nVal = ((uint32*)m_ram)[i];
+//        if(nVal == 0x34C00)
+//        {
+//			printf("Allo: 0x%0.8X\r\n", i * 4);
+//        }
+
+        if((nVal & 0xFFFF) == 0xC958)
+        {
+            char mnemonic[256];
+            m_cpu.m_pArch->GetInstructionMnemonic(&m_cpu, i * 4, nVal, mnemonic, 256);
+            printf("Allo: %s, 0x%0.8X\r\n", mnemonic, i * 4);
+        }
+
+/*
+        if(nVal == 0x2F9B50)
+		{
+			printf("Allo: 0x%0.8X\r\n", i * 4);
+		}
+*/
+/*
+        if((nVal & 0xFC000000) == 0x0C000000)
+		{
+			nVal &= 0x3FFFFFF;
+			nVal *= 4;
+			if(nVal == 0x034C00)
+			{
+				printf("Allo: 0x%0.8X\r\n", i * 4);
+			}
+		}
+*/
+	}
+
+    *reinterpret_cast<uint32*>(&m_ram[0x41674]) = 0;
 }
 
 CIopBios::THREAD& CIopBios::GetThread(uint32 threadId)
@@ -106,19 +186,82 @@ CIopBios::ThreadMapType::iterator CIopBios::GetThreadPosition(uint32 threadId)
     throw runtime_error("Unexisting thread id.");
 }
 
-uint32 CIopBios::CreateThread(uint32 threadProc)
+uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority)
 {
     THREAD thread;
     memset(&thread, 0, sizeof(thread));
     thread.context.delayJump = 1;
     uint32 stackBaseAddress = m_sysmem->AllocateMemory(DEFAULT_STACKSIZE, 0);
     thread.id = m_nextThreadId++;
-    thread.priority = 7;
+    thread.priority = priority;
+    thread.status = THREAD_STATUS_CREATED;
     thread.context.epc = threadProc;
+    thread.nextActivateTime = 0;
     thread.context.gpr[CMIPS::RA] = m_threadFinishAddress;
     thread.context.gpr[CMIPS::SP] = stackBaseAddress;
     m_threads.insert(ThreadMapType::value_type(thread.priority, thread));
     return thread.id;
+}
+
+void CIopBios::StartThread(uint32 threadId, uint32* param)
+{
+    THREAD& thread = GetThread(threadId);
+    if(thread.status != THREAD_STATUS_CREATED)
+    {
+        throw runtime_error("Invalid thread state.");
+    }
+    thread.status = THREAD_STATUS_RUNNING;
+    if(param != NULL)
+    {
+        thread.context.gpr[CMIPS::A0] = *param;
+    }
+    m_rescheduleNeeded = true;
+}
+
+void CIopBios::DelayThread(uint32 delay)
+{
+    //TODO : Need to delay or something...
+    THREAD& thread = GetThread(m_currentThreadId);
+    thread.nextActivateTime = GetCurrentTime() + delay;
+    m_rescheduleNeeded = true;
+}
+
+void CIopBios::SleepThread()
+{
+    THREAD& thread = GetThread(m_currentThreadId);
+    if(thread.status != THREAD_STATUS_RUNNING)
+    {
+        throw runtime_error("Thread isn't running.");
+    }
+    if(thread.wakeupCount == 0)
+    {
+        thread.status = THREAD_STATUS_SLEEPING;
+        m_rescheduleNeeded = true;
+    }
+    else
+    {
+        thread.wakeupCount--;
+    }
+}
+
+uint32 CIopBios::WakeupThread(uint32 threadId)
+{
+    THREAD& thread = GetThread(threadId);
+    if(thread.status == THREAD_STATUS_SLEEPING)
+    {
+        thread.status = THREAD_STATUS_RUNNING;
+        m_rescheduleNeeded = true;
+    }
+    else
+    {
+        thread.wakeupCount++;
+    }
+    return thread.wakeupCount;
+}
+
+uint32 CIopBios::GetThreadId()
+{
+    return m_currentThreadId;
 }
 
 void CIopBios::ExitCurrentThread()
@@ -126,7 +269,7 @@ void CIopBios::ExitCurrentThread()
     ThreadMapType::iterator thread = GetThreadPosition(m_currentThreadId);
     m_threads.erase(thread);
     m_currentThreadId = -1;
-    Reschedule();
+    m_rescheduleNeeded = true;
 }
 
 void CIopBios::LoadThreadContext(uint32 threadId)
@@ -169,10 +312,114 @@ void CIopBios::Reschedule()
         m_threads.insert(ThreadMapType::value_type(thread.priority, thread));
     }
 
-    THREAD& nextThread = m_threads.begin()->second;
-    LoadThreadContext(nextThread.id);
-    m_currentThreadId = nextThread.id;
+    uint32 nextThreadId = GetNextReadyThread(true);
+    if(nextThreadId == -1)
+    {
+        //Try without checking activation time
+        nextThreadId = GetNextReadyThread(false);
+        if(nextThreadId == -1)
+        {
+            throw runtime_error("No thread available for running.");
+        }
+    }
+
+    LoadThreadContext(nextThreadId);
+    m_currentThreadId = nextThreadId;
     m_cpu.m_nQuota = 1;
+}
+
+uint32 CIopBios::GetNextReadyThread(bool checkActivateTime)
+{
+    for(ThreadMapType::const_iterator thread(m_threads.begin()); 
+        thread != m_threads.end(); thread++)
+    {
+        const THREAD& nextThread = thread->second;
+        if(checkActivateTime && (GetCurrentTime() <= nextThread.nextActivateTime)) continue;
+        if(nextThread.status == THREAD_STATUS_RUNNING)
+        {
+            return nextThread.id;
+        }
+    }
+
+    return -1;
+}
+
+uint64 CIopBios::GetCurrentTime()
+{
+    return (clock() * 1000) / CLOCKS_PER_SEC;
+}
+
+CIopBios::SEMAPHORE& CIopBios::GetSemaphore(uint32 semaphoreId)
+{
+    SemaphoreMapType::iterator semaphore(m_semaphores.find(semaphoreId));
+    if(semaphore == m_semaphores.end())
+    {
+        throw runtime_error("Invalid semaphore id.");
+    }
+    return semaphore->second;
+}
+
+uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
+{
+    SEMAPHORE semaphore;
+    memset(&semaphore, 0, sizeof(SEMAPHORE));
+    semaphore.count = initialCount;
+    semaphore.maxCount = maxCount;
+    semaphore.id = m_nextSemaphoreId++;
+    semaphore.waitCount = 0;
+    m_semaphores[semaphore.id] = semaphore;
+    return semaphore.id;
+}
+
+uint32 CIopBios::SignalSemaphore(uint32 semaphoreId)
+{
+    SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
+    if(semaphore.waitCount != 0)
+    {
+        for(ThreadMapType::iterator threadIterator(m_threads.begin());
+            m_threads.end() != threadIterator; ++threadIterator)
+        {
+            THREAD& thread(threadIterator->second);
+            if(thread.waitSemaphore == semaphoreId)
+            {
+                if(thread.status != THREAD_STATUS_WAITING)
+                {
+                    throw runtime_error("Thread not waiting (inconsistent state).");
+                }
+                thread.status = THREAD_STATUS_RUNNING;
+                thread.waitSemaphore = 0;
+                m_rescheduleNeeded = true;
+                semaphore.waitCount--;
+                if(semaphore.waitCount == 0)
+                {
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        semaphore.count++;
+    }
+    return semaphore.count;
+}
+
+uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
+{
+    SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
+    if(semaphore.count == 0)
+    {
+        THREAD& thread = GetThread(m_currentThreadId);
+        thread.status           = THREAD_STATUS_WAITING;
+        thread.waitSemaphore    = semaphoreId;
+        semaphore.waitCount++;
+        m_rescheduleNeeded      = true;
+    }
+    else
+    {
+        semaphore.count--;
+    }
+    return semaphore.count;
 }
 
 Iop::CIoman* CIopBios::GetIoman()
@@ -219,12 +466,77 @@ void CIopBios::SysCallHandler()
         }
         else
         {
-            printf("IOP(%0.8X): Trying to call a function from non-existing module (%s, %d).\r\n", 
+#ifdef _DEBUG
+            CLog::GetInstance().Print(LOGNAME, "%0.8X: Trying to call a function from non-existing module (%s, %d).\r\n", 
                 m_cpu.m_State.nPC, moduleName.c_str(), functionId);
+#endif
         }
     }
 
-    m_cpu.m_State.nCOP0[CCOP_SCU::EPC] = 0;
+    if(m_rescheduleNeeded)
+    {
+        m_rescheduleNeeded = false;
+        Reschedule();
+    }
+
+    m_cpu.m_State.nHasException = 0;
+}
+
+string CIopBios::GetModuleNameFromPath(const std::string& path)
+{
+    string::size_type slashPosition;
+    slashPosition = path.rfind('/');
+    if(slashPosition != string::npos)
+    {
+        return string(path.begin() + slashPosition + 1, path.end());
+    }
+    return path;
+}
+
+const CIopBios::LOADEDMODULE& CIopBios::GetModuleAtAddress(uint32 address)
+{
+    for(LoadedModuleListType::const_iterator moduleIterator(m_loadedModules.begin());
+        m_loadedModules.end() != moduleIterator; moduleIterator++)
+    {
+        const LOADEDMODULE& module(*moduleIterator);
+        if(address >= module.begin && address <= module.end)
+        {
+            return module;
+        }
+    }
+    throw runtime_error("No module at specified address.");
+}
+
+void CIopBios::LoadModuleTags(const LOADEDMODULE& module, CMIPSTags& tags, const char* tagCollectionName)
+{
+    CMIPSTags moduleTags;
+    moduleTags.Unserialize((module.name + "." + string(tagCollectionName)).c_str());
+    for(CMIPSTags::TagIterator tag(moduleTags.GetTagsBegin());
+        tag != moduleTags.GetTagsEnd(); tag++)
+    {
+        tags.InsertTag(tag->first + module.begin, tag->second.c_str());
+    }
+    tags.m_OnTagListChanged();
+}
+
+void CIopBios::SaveAllModulesTags(CMIPSTags& tags, const char* tagCollectionName)
+{
+    for(LoadedModuleListType::const_iterator moduleIterator(m_loadedModules.begin());
+        m_loadedModules.end() != moduleIterator; moduleIterator++)
+    {
+        const LOADEDMODULE& module(*moduleIterator);
+        CMIPSTags moduleTags;
+        for(CMIPSTags::TagIterator tag(tags.GetTagsBegin());
+            tag != tags.GetTagsEnd(); tag++)
+        {
+            uint32 tagAddress = tag->first;
+            if(tagAddress >= module.begin && tagAddress <= module.end)
+            {
+                moduleTags.InsertTag(tagAddress - module.begin, tag->second.c_str());
+            }
+        }
+        moduleTags.Serialize((module.name + "." + string(tagCollectionName)).c_str());
+    }
 }
 
 string CIopBios::ReadModuleName(uint32 address)
@@ -253,7 +565,7 @@ uint32 CIopBios::Push(uint32& address, const uint8* data, uint32 size)
     return address;
 }
 
-uint32 CIopBios::LoadExecutable(const char* path)
+uint32 CIopBios::LoadExecutable(const char* path, ExecutableRange& executableRange)
 {
     uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::O_RDONLY, path);
     if(handle & 0x80000000)
@@ -264,22 +576,42 @@ uint32 CIopBios::LoadExecutable(const char* path)
     CStream* stream = m_ioman->GetFileStream(file);
     CELF elf(stream);
 
-    uint32 baseAddress = m_sysmem->AllocateMemory(elf.m_nLenght, 0);
+    unsigned int programHeaderIndex = GetElfProgramToLoad(elf);
+    if(programHeaderIndex == -1)
+    {
+        throw runtime_error("No program to load.");
+    }
+    ELFPROGRAMHEADER* programHeader = elf.GetProgram(programHeaderIndex);
+//    uint32 baseAddress = m_sysmem->AllocateMemory(elf.m_nLenght, 0);
+    uint32 baseAddress = m_sysmem->AllocateMemory(programHeader->nMemorySize, 0);
     RelocateElf(elf, baseAddress);
 
+    memcpy(
+        m_ram + baseAddress, 
+        elf.m_pData + programHeader->nOffset, 
+        programHeader->nFileSize);
+
+    executableRange.first = baseAddress;
+    executableRange.second = baseAddress + programHeader->nMemorySize;
+    return baseAddress + elf.m_Header.nEntryPoint;
+}
+
+unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
+{
+    unsigned int program = -1;
     for(unsigned int i = 0; i < elf.m_Header.nProgHeaderCount; i++)
     {
         ELFPROGRAMHEADER* programHeader = elf.GetProgram(i);
         if(programHeader != NULL && programHeader->nType == 1)
         {
-            memcpy(
-                m_ram + baseAddress, 
-                elf.m_pData + programHeader->nOffset, 
-                programHeader->nFileSize);
+            if(program != -1)
+            {
+                throw runtime_error("Multiple loadable program headers found.");
+            }
+            program = i;
         }
     }
-
-    return baseAddress + elf.m_Header.nEntryPoint;
+    return program;
 }
 
 void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
@@ -343,7 +675,10 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
                             }
                             else
                             {
-                                printf("%s: No HI16 relocation record found for corresponding LO16.\r\n", __FUNCTION__);
+#ifdef _DEBUG
+                                CLog::GetInstance().Print(LOGNAME, "%s: No HI16 relocation record found for corresponding LO16.\r\n", 
+                                    __FUNCTION__);
+#endif
                             }
                         }
                         break;

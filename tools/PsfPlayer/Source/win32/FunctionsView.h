@@ -9,7 +9,7 @@
 #include "MIPS.h"
 #include "ELF.h"
 
-class CFunctionsView : public Framework::Win32::CWindow
+class CFunctionsView : public Framework::Win32::CWindow, public boost::signals::trackable
 {
 public:
 									CFunctionsView(HWND, CMIPS*);

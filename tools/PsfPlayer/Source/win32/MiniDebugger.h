@@ -3,8 +3,10 @@
 
 #include "win32/Window.h"
 #include "win32/HorizontalSplitter.h"
+#include "win32/VerticalSplitter.h"
 #include "win32ui/DisAsm.h"
 #include "win32ui/RegViewGeneral.h"
+#include "win32ui/MemoryViewMIPS.h"
 #include "FunctionsView.h"
 #include "../PsfVm.h"
 
@@ -24,9 +26,11 @@ private:
     void                                        OnFunctionDblClick(uint32);
 
     CPsfVm&                                     m_virtualMachine;
-    Framework::Win32::CHorizontalSplitter*      m_splitter;
+    Framework::Win32::CHorizontalSplitter*      m_subSplitter;
+    Framework::Win32::CVerticalSplitter*        m_mainSplitter;
     CDisAsm*                                    m_disAsmView;
     CRegViewGeneral*                            m_registerView;
+    CMemoryViewMIPS*                            m_memoryView;
     CFunctionsView*                             m_functionsView;
     HACCEL                                      m_acceleratorTable;
 };
