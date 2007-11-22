@@ -416,6 +416,9 @@ void CMA_MIPSIV::ADDIU()
             CCodeGen::PushCst(4);
             CCodeGen::Sub();
             CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+
+            CCodeGen::PushCst(1);
+            CCodeGen::PullRel(offsetof(CMIPS, m_State.nHasException));
         }
         else
         {
@@ -1695,6 +1698,8 @@ void CMA_MIPSIV::SYSCALL()
         CCodeGen::PushCst(4);
         CCodeGen::Sub();
         CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+        CCodeGen::PushCst(1);
+        CCodeGen::PullRel(offsetof(CMIPS, m_State.nHasException));
 //        CCodeGen::PushRef(m_pCtx);
 //        CCodeGen::Call(reinterpret_cast<void*>(m_pCtx->m_pSysCallHandler), 1, false);
 //        m_pB->SetProgramCounterChanged();

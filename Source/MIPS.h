@@ -15,6 +15,7 @@ struct MIPSSTATE
 {
 	uint32		nPC;
 	uint32		nDelayedJumpAddr;
+    uint32      nHasException;
 
 #ifdef WIN32
 __declspec(align(16))

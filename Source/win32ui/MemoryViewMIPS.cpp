@@ -2,21 +2,20 @@
 #include <boost/bind.hpp>
 #include "MemoryViewMIPS.h"
 #include "win32/InputBox.h"
-#include "../PS2VM.h"
 
 #define ID_MEMORYVIEW_GOTOADDRESS	40001
 
 using namespace Framework;
 using namespace boost;
 
-CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, RECT* pR, CMIPS* pCtx) :
-CMemoryView(hParent, pR)
+CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
+CMemoryView(hParent, pR),
+m_virtualMachine(virtualMachine),
+m_pCtx(pCtx)
 {
-	m_pCtx = pCtx;
-
 	SetMemorySize(0x02004000);
 
-	CPS2VM::m_OnMachineStateChange.connect(bind(&CMemoryViewMIPS::OnMachineStateChange, this));
+	m_virtualMachine.m_OnMachineStateChange.connect(bind(&CMemoryViewMIPS::OnMachineStateChange, this));
 }
 
 CMemoryViewMIPS::~CMemoryViewMIPS()
@@ -73,7 +72,7 @@ void CMemoryViewMIPS::GotoAddress()
 	uint32 nAddress;
 	const TCHAR* sValue;
 
-	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
+    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
 		return;

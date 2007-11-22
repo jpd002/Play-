@@ -2,22 +2,30 @@
 #include <stdio.h>
 #include "MemoryMap.h"
 
-using namespace Framework;
-
 CMemoryMap::~CMemoryMap()
 {
-	DeleteMap(&m_Read);
-	DeleteMap(&m_Write);
+	DeleteMap(m_Read);
+	DeleteMap(m_Write);
 }
 
-void CMemoryMap::InsertReadMap(uint32 nStart, uint32 nEnd, void* pPointer, MEMORYMAP_TYPE nType, unsigned char nKey)
+void CMemoryMap::InsertReadMap(uint32 nStart, uint32 nEnd, void* pPointer, unsigned char nKey)
 {
-	InsertMap(&m_Read, nStart, nEnd, pPointer, nType, nKey);
+	InsertMap(m_Read, nStart, nEnd, pPointer, nKey);
 }
 
-void CMemoryMap::InsertWriteMap(uint32 nStart, uint32 nEnd, void* pPointer, MEMORYMAP_TYPE nType, unsigned char nKey)
+void CMemoryMap::InsertReadMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
-	InsertMap(&m_Write, nStart, nEnd, pPointer, nType, nKey);
+    InsertMap(m_Read, start, end, handler, key);
+}
+
+void CMemoryMap::InsertWriteMap(uint32 nStart, uint32 nEnd, void* pPointer, unsigned char nKey)
+{
+	InsertMap(m_Write, nStart, nEnd, pPointer, nKey);
+}
+
+void CMemoryMap::InsertWriteMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
+{
+    InsertMap(m_Write, start, end, handler, key);
 }
 
 void CMemoryMap::SetWriteNotifyHandler(WriteNotifyHandlerType WriteNotifyHandler)
@@ -25,27 +33,46 @@ void CMemoryMap::SetWriteNotifyHandler(WriteNotifyHandlerType WriteNotifyHandler
 	m_WriteNotifyHandler = WriteNotifyHandler;
 }
 
-void CMemoryMap::InsertMap(CList<MEMORYMAPELEMENT>* pMap, uint32 nStart, uint32 nEnd, void* pPointer, MEMORYMAP_TYPE nType, unsigned char nKey)
+void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, void* pointer, unsigned char key)
 {
-	MEMORYMAPELEMENT* e;
-	e = (MEMORYMAPELEMENT*)malloc(sizeof(MEMORYMAPELEMENT));
-	e->nStart		= nStart;
-	e->nEnd			= nEnd;
-	e->pPointer		= pPointer;
-	e->nType		= nType;
-	pMap->Insert(e, nKey);
+    MEMORYMAPELEMENT element;
+	element.nStart      = start;
+	element.nEnd        = end;
+	element.pPointer    = pointer;
+	element.nType       = MEMORYMAP_TYPE_MEMORY;
+    memoryMap[key] = element;
 }
 
-void CMemoryMap::DeleteMap(CList<MEMORYMAPELEMENT>* pMap)
+void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
-	while(pMap->Count())
-	{
-		free(pMap->Pull());
-	}
+    MEMORYMAPELEMENT element;
+	element.nStart      = start;
+	element.nEnd        = end;
+    element.handler     = handler;
+    element.pPointer    = NULL;
+	element.nType       = MEMORYMAP_TYPE_FUNCTION;
+    memoryMap[key] = element;
 }
 
-MEMORYMAPELEMENT* CMemoryMap::GetMap(CList<MEMORYMAPELEMENT>* pMap, uint32 nAddress)
+void CMemoryMap::DeleteMap(MemoryMapListType& memoryMap)
 {
+    memoryMap.clear();
+}
+
+CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(MemoryMapListType& memoryMap, uint32 nAddress)
+{
+    for(MemoryMapListType::iterator element(memoryMap.begin());
+        memoryMap.end() != element; element++)
+    {
+        MEMORYMAPELEMENT& mapElement(element->second);
+		if(nAddress <= mapElement.nEnd)
+		{
+			if(!(nAddress >= mapElement.nStart)) return NULL;
+			return &mapElement;
+		}
+    }
+    return NULL;
+/*
 	MEMORYMAPELEMENT* e;
 	CList<MEMORYMAPELEMENT>::ITERATOR It;
 	It = pMap->Begin();
@@ -61,12 +88,13 @@ MEMORYMAPELEMENT* CMemoryMap::GetMap(CList<MEMORYMAPELEMENT>* pMap, uint32 nAddr
 		e = (*It);
 	}
 	return e;
+*/
 }
 
 uint8 CMemoryMap::GetByte(uint32 nAddress)
 {
 	MEMORYMAPELEMENT* e;
-	e = GetMap(&m_Read, nAddress);
+	e = GetMap(m_Read, nAddress);
 	if(e == NULL) return 0xCC;
 	switch(e->nType)
 	{
@@ -83,7 +111,7 @@ uint8 CMemoryMap::GetByte(uint32 nAddress)
 void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 {
 	MEMORYMAPELEMENT* e;
-	e = GetMap(&m_Write, nAddress);
+	e = GetMap(m_Write, nAddress);
 	if(e == NULL)
 	{
 		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
@@ -95,7 +123,7 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 		*(uint8*)&((uint8*)e->pPointer)[nAddress - e->nStart] = nValue;
 		break;
 	case MEMORYMAP_TYPE_FUNCTION:
-		((void (*)(uint32, uint32))e->pPointer)(nAddress, nValue);
+        e->handler(nAddress, nValue);
 		break;
 	default:
 		assert(0);
@@ -120,7 +148,7 @@ uint16 CMemoryMap_LSBF::GetHalf(uint32 nAddress)
 		//Unaligned access (shouldn't happen)
 		assert(0);
 	}
-	e = GetMap(&m_Read, nAddress);
+	e = GetMap(m_Read, nAddress);
 	if(e == NULL) return 0xCCCC;
 	switch(e->nType)
 	{
@@ -128,8 +156,7 @@ uint16 CMemoryMap_LSBF::GetHalf(uint32 nAddress)
 		return *(uint16*)&((uint8*)e->pPointer)[nAddress - e->nStart];
 		break;
 	default:
-		assert(0);
-		return 0xCCCC;
+        return static_cast<uint16>(e->handler(nAddress, 0));
 		break;
 	}
 }
@@ -142,7 +169,7 @@ uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 		//Unaligned access (shouldn't happen)
 		assert(0);
 	}
-	e = GetMap(&m_Read, nAddress);
+	e = GetMap(m_Read, nAddress);
 	if(e == NULL) return 0xCCCCCCCC;
 	switch(e->nType)
 	{
@@ -150,7 +177,7 @@ uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 		return *(uint32*)&((uint8*)e->pPointer)[nAddress - e->nStart];
 		break;
 	case MEMORYMAP_TYPE_FUNCTION:
-		return ((uint32 (*)(uint32))e->pPointer)(nAddress);
+        return e->handler(nAddress, 0);
 		break;
 	default:
 		assert(0);
@@ -167,7 +194,7 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
         //Unaligned access (shouldn't happen)
 		assert(0);
 	}
-	e = GetMap(&m_Write, nAddress);
+	e = GetMap(m_Write, nAddress);
 	if(e == NULL) 
 	{
 		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
@@ -197,7 +224,7 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
         //Unaligned access (shouldn't happen)
 		assert(0);
 	}
-	e = GetMap(&m_Write, nAddress);
+	e = GetMap(m_Write, nAddress);
 	if(e == NULL) 
 	{
 		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.8X).\r\n", nAddress, nValue);
@@ -209,7 +236,7 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 		*(uint32*)&((uint8*)e->pPointer)[nAddress - e->nStart] = nValue;
 		break;
 	case MEMORYMAP_TYPE_FUNCTION:
-		((void (*)(uint32, uint32))e->pPointer)(nAddress, nValue);
+        e->handler(nAddress, nValue);
 		break;
 	default:
 		assert(0);

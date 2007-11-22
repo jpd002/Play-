@@ -83,6 +83,7 @@ long CRegViewPage::OnVScroll(unsigned int nType, unsigned int nThumbPos)
 
 long CRegViewPage::OnSize(unsigned int nX, unsigned int nY, unsigned int nType)
 {
+    Win32::CCustomDrawn::OnSize(nX, nY, nType);
 	Update();
 	return TRUE;
 }

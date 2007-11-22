@@ -2,13 +2,14 @@
 #define _MEMORYVIEWMIPS_H_
 
 #include <boost/signal.hpp>
-#include "MemoryView.h"
 #include "../MIPS.h"
+#include "../VirtualMachine.h"
+#include "MemoryView.h"
 
 class CMemoryViewMIPS : public CMemoryView, public boost::signals::trackable
 {
 public:
-									CMemoryViewMIPS(HWND, RECT*, CMIPS*);
+									CMemoryViewMIPS(HWND, RECT*, CVirtualMachine&, CMIPS*);
 	virtual							~CMemoryViewMIPS();
 
 protected:
@@ -22,6 +23,7 @@ private:
 	void							OnMachineStateChange();
 
 	CMIPS*							m_pCtx;
+    CVirtualMachine&                m_virtualMachine;
 };
 
 #endif

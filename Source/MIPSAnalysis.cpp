@@ -2,7 +2,6 @@
 #include "MIPSAnalysis.h"
 #include "MIPS.h"
 
-using namespace Framework;
 using namespace std;
 
 #define MASK		(0x1FFFFFFF)
@@ -50,7 +49,10 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 	uint32 nCandidate, nOp, nTemp;
 	uint32 nStackAmount, nReturnAddr;
 	int nFound;
-	
+
+    nStart &= ~0x3;
+    nEnd &= ~0x3;
+
 	nFound = 0;
 	nCandidate = nStart;
     nReturnAddr = 0;
@@ -60,7 +62,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 		nOp = m_pCtx->m_pMemoryMap->GetWord(nCandidate);
 		if((nOp & 0xFFFF0000) == 0x27BD0000)
 		{
-			//Found the head of a routine (stack allocation)
+            //Found the head of a routine (stack allocation)
 			nStackAmount = 0 - (int16)(nOp & 0xFFFF);
 			//Look for a JR RA
 			nTemp = nCandidate;
@@ -109,11 +111,11 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 							InsertSubroutine(nCandidate, nTemp + 4, nCandidate, nTemp + 4, nStackAmount, nReturnAddr);
 							nCandidate = nTemp + 4;
 							nFound++;
-							break;
 						}
+						break;
 					}
 					//No stack unwinding was found... just forget about this one
-					break;
+					//break;
 				}
 				nTemp += 4;
 			}

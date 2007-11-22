@@ -94,7 +94,7 @@ void CDisAsm::OnMachineStateChange()
 {
 	if(!IsAddressVisible(m_pCtx->m_State.nPC))
 	{
-		m_nAddress = m_pCtx->m_State.nPC;
+		m_nAddress = m_pCtx->m_State.nPC & 0xFFFFFFFC;
 	}
 	Redraw();
 }

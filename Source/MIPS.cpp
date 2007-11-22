@@ -4,8 +4,6 @@
 #include "MIPS.h"
 #include "COP_SCU.h"
 
-using namespace Framework;
-
 const char* CMIPS::m_sGPRName[] =
 {
 	"R0",	"AT",	"V0",	"V1",	"A0",	"A1",	"A2",	"A3",
