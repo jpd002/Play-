@@ -169,10 +169,10 @@ void CPsfVm::CheckInterrupts()
 {
     if(m_intc.HasPendingInterrupt())
     {
-        if(m_cpu.GenerateInterrupt(0x1FC00000))
-        {
-            m_cpu.m_State.nHasException = 1;
-        }
+//        if(m_cpu.GenerateInterrupt(0x1FC00000))
+//        {
+//            m_cpu.m_State.nHasException = 1;
+//        }
     }
 }
 

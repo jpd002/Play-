@@ -6,6 +6,7 @@
 #include "Iop_Thsema.h"
 #include "Iop_Thevent.h"
 #include "Iop_Timrman.h"
+#include "Iop_Intrman.h"
 #include "Log.h"
 #include <vector>
 #include <time.h>
@@ -65,6 +66,9 @@ m_currentThreadId(-1)
     }
     {
         RegisterModule(new Iop::CTimrman());
+    }
+    {
+        RegisterModule(new Iop::CIntrman(m_ram));
     }
 }
 
@@ -138,31 +142,31 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
 //        {
 //			printf("Allo: 0x%0.8X\r\n", i * 4);
 //        }
-
-        if((nVal & 0xFFFF) == 0xC958)
+/*
+        if((nVal & 0xFFFF) == 0xB730)
         {
             char mnemonic[256];
             m_cpu.m_pArch->GetInstructionMnemonic(&m_cpu, i * 4, nVal, mnemonic, 256);
             printf("Allo: %s, 0x%0.8X\r\n", mnemonic, i * 4);
         }
-
+*/
 /*
         if(nVal == 0x2F9B50)
 		{
 			printf("Allo: 0x%0.8X\r\n", i * 4);
 		}
 */
-/*
+
         if((nVal & 0xFC000000) == 0x0C000000)
 		{
 			nVal &= 0x3FFFFFF;
 			nVal *= 4;
-			if(nVal == 0x034C00)
+			if(nVal == 0x41410)
 			{
 				printf("Allo: 0x%0.8X\r\n", i * 4);
 			}
 		}
-*/
+
 	}
 
     *reinterpret_cast<uint32*>(&m_ram[0x41674]) = 0;
@@ -330,18 +334,37 @@ void CIopBios::Reschedule()
 
 uint32 CIopBios::GetNextReadyThread(bool checkActivateTime)
 {
-    for(ThreadMapType::const_iterator thread(m_threads.begin()); 
-        thread != m_threads.end(); thread++)
+    if(checkActivateTime)
     {
-        const THREAD& nextThread = thread->second;
-        if(checkActivateTime && (GetCurrentTime() <= nextThread.nextActivateTime)) continue;
-        if(nextThread.status == THREAD_STATUS_RUNNING)
+        for(ThreadMapType::const_iterator thread(m_threads.begin()); 
+            thread != m_threads.end(); thread++)
         {
-            return nextThread.id;
+            const THREAD& nextThread = thread->second;
+            if(GetCurrentTime() <= nextThread.nextActivateTime) continue;
+            if(nextThread.status == THREAD_STATUS_RUNNING)
+            {
+                return nextThread.id;
+            }
         }
+        return -1;
     }
-
-    return -1;
+    else
+    {
+        //Find the thread with the earliest wakeup time
+        uint64 activateTime = -1;
+        uint32 nextThreadId = -1;
+        for(ThreadMapType::const_iterator thread(m_threads.begin()); 
+            thread != m_threads.end(); thread++)
+        {
+            const THREAD& nextThread = thread->second;
+            if(nextThread.status != THREAD_STATUS_RUNNING) continue;
+            if(nextThread.nextActivateTime < activateTime)
+            {
+                nextThreadId = nextThread.id;
+            }
+        }
+        return nextThreadId;
+    }
 }
 
 uint64 CIopBios::GetCurrentTime()

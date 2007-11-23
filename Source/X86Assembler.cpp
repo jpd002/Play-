@@ -94,7 +94,7 @@ void CX86Assembler::ResolveLabelReferences()
             {
                 throw runtime_error("Label reference too small.");
             }
-            m_WriteAtFunction(referencePos, static_cast<uint8>(offset));
+            m_WriteAtFunction(static_cast<unsigned int>(referencePos), static_cast<uint8>(offset));
         }
     }
     m_labelReferences.clear();
