@@ -3,13 +3,14 @@
 
 #include "win32/MDIChild.h"
 #include "NiceTabs.h"
+#include "../VirtualMachine.h"
 
 class CMIPS;
 
 class CRegViewWnd : public Framework::Win32::CMDIChild, public boost::signals::trackable
 {
 public:
-						CRegViewWnd(HWND, CMIPS*);
+						CRegViewWnd(HWND, CVirtualMachine&, CMIPS*);
 	virtual				~CRegViewWnd();
 
 protected:

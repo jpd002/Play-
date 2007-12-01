@@ -4,6 +4,12 @@
 #include "CacheBlock.h"
 #include "ArrayStack.h"
 #include "X86Assembler.h"
+#include "Stream.h"
+
+#ifdef WIN32
+#undef RELATIVE
+#undef CONDITION
+#endif
 
 namespace CodeGen
 {
@@ -30,7 +36,9 @@ public:
 	static void						Begin(CCacheBlock*);
 	static void						End();
 
-	static void						BeginIf(bool);
+    bool                            IsStackEmpty();
+
+    static void						BeginIf(bool);
 	static void						EndIf();
 
 	static void						BeginIfElse(bool);
@@ -70,6 +78,25 @@ public:
 	static void						Sub();
 	static void						Xor();
 
+    void                            SetStream(Framework::CStream*);
+    static CX86Assembler            m_Assembler;
+
+protected:
+	enum SYMBOLS
+	{
+		VARIABLE = 0x8000,
+		REGISTER,
+		CONSTANT,
+		REFERENCE,
+		RELATIVE,
+#ifdef AMD64
+		REGISTER64,
+#endif
+	};
+
+    static CArrayStack<uint32>		m_Shadow;
+	static void						PushReg(unsigned int);
+
 private:
 	enum MAX_STACK
 	{
@@ -88,18 +115,6 @@ private:
 	enum REL_REGISTER
 	{
 		REL_REGISTER = 5,
-	};
-
-	enum SYMBOLS
-	{
-		VARIABLE = 0x8000,
-		REGISTER,
-		CONSTANT,
-		REFERENCE,
-		RELATIVE,
-#ifdef AMD64
-		REGISTER64,
-#endif
 	};
 
 	enum IFBLOCKS
@@ -171,7 +186,6 @@ private:
 		Function();
     }
 
-	static void						PushReg(unsigned int);
 #ifdef AMD64
 	static void						PushReg64(unsigned int);
 #endif
@@ -188,7 +202,6 @@ private:
 
     static bool						m_nBlockStarted;
 
-	static CArrayStack<uint32>		m_Shadow;
 #ifdef AMD64
 	static CArrayStack<uint32, 2>	m_PullReg64Stack;
 #endif
@@ -198,7 +211,7 @@ private:
 	static CCacheBlock*				m_pBlock;
 
 	static CArrayStack<uint32>		m_IfStack;
-    static CX86Assembler            m_Assembler;
+    static Framework::CStream*      m_stream;
 };
 
 #endif

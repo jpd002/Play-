@@ -627,8 +627,9 @@ void CMA_VU::CLower::XTOP()
 {
 	CCodeGen::Begin(m_pB);
 	{
-		CCodeGen::PushVar(CVIF::GetTop1Address());
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+        assert(0);
+//		CCodeGen::PushVar(CVIF::GetTop1Address());
+//		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 	}
 	CCodeGen::End();
 }
@@ -636,8 +637,9 @@ void CMA_VU::CLower::XTOP()
 //1B
 void CMA_VU::CLower::XGKICK()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	m_pB->Call(CVIF::ProcessXGKICK, 1, false);
+    assert(0);
+//	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
+//	m_pB->Call(CVIF::ProcessXGKICK, 1, false);
 }
 
 //////////////////////////////////////////////////

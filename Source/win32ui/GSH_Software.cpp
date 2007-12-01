@@ -1,6 +1,5 @@
 #include "GSH_Software.h"
 #include "PtrMacro.h"
-#include "../PS2VM.h"
 
 using namespace Framework;
 using namespace std;
@@ -54,9 +53,14 @@ CGSH_Software::~CGSH_Software()
     FREECOM(m_pDirectDraw);
 }
 
-void CGSH_Software::CreateGSHandler(Win32::CWindow* pOutputWnd)
+void CGSH_Software::InitializeImpl()
 {
-	CPS2VM::CreateGSHandler(GSHandlerFactory, pOutputWnd);
+
+}
+
+void CGSH_Software::CreateGSHandler(CPS2VM& virtualMachine, Win32::CWindow* pOutputWnd)
+{
+	virtualMachine.CreateGSHandler(GSHandlerFactory, pOutputWnd);
 }
 
 CGSHandler* CGSH_Software::GSHandlerFactory(void* pParam)
@@ -64,12 +68,12 @@ CGSHandler* CGSH_Software::GSHandlerFactory(void* pParam)
     return new CGSH_Software(reinterpret_cast<Win32::CWindow*>(pParam));
 }
 
-void CGSH_Software::UpdateViewport()
+void CGSH_Software::UpdateViewportImpl()
 {
 	RecreateFrameBuffer(GetCrtWidth(), GetCrtHeight());
 }
 
-void CGSH_Software::Flip()
+void CGSH_Software::FlipImpl()
 {
     DISPFB* pDispFb(GetDispFb(1));
 
@@ -110,7 +114,7 @@ void CGSH_Software::Flip()
     ClientToScreen(m_pOutputWnd->m_hWnd, reinterpret_cast<POINT*>(&Rect) + 1);
     m_pPrimarySurface->Blt(&Rect, m_pFrameBufferSurface, NULL, DDBLT_WAIT, NULL);
 
-    CPS2VM::m_OnNewFrame();
+//    CPS2VM::m_OnNewFrame();
 }
 
 void CGSH_Software::ProcessImageTransfer(uint32 nAddress, uint32 nLength)

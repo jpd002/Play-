@@ -2,20 +2,19 @@
 #include <string.h>
 #include <boost/bind.hpp>
 #include "RegViewFPU.h"
-#include "../PS2VM.h"
 
 using namespace Framework;
 using namespace boost;
 
-CRegViewFPU::CRegViewFPU(HWND hParent, RECT* pR, CMIPS* pC) :
+CRegViewFPU::CRegViewFPU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) :
 CRegViewPage(hParent, pR)
 {
 	m_nViewMode = VIEWMODE_SINGLE;
 
 	m_pCtx = pC;
 	
-	CPS2VM::m_OnMachineStateChange.connect(bind(&CRegViewFPU::OnMachineStateChange, this));
-	CPS2VM::m_OnRunningStateChange.connect(bind(&CRegViewFPU::OnRunningStateChange, this));
+	virtualMachine.m_OnMachineStateChange.connect(bind(&CRegViewFPU::OnMachineStateChange, this));
+	virtualMachine.m_OnRunningStateChange.connect(bind(&CRegViewFPU::OnRunningStateChange, this));
 }
 
 CRegViewFPU::~CRegViewFPU()

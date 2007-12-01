@@ -1,9 +1,11 @@
 #ifndef _MIPSINSTRUCTIONFACTORY_H_
 #define _MIPSINSTRUCTIONFACTORY_H_
 
-#include "CacheBlock.h"
+#include "Types.h"
 
 class CMIPS;
+class CMipsCodeGen;
+class CCacheBlock;
 
 enum MIPS_REGSIZE
 {
@@ -32,6 +34,7 @@ protected:
 	static void				SetupQuickVariables(uint32, CCacheBlock*, CMIPS*);
 
 	static CCacheBlock*		m_pB;
+    static CMipsCodeGen*    m_codeGen;
 	static CMIPS*			m_pCtx;
 	static uint32			m_nOpcode;
 	static uint32			m_nAddress;

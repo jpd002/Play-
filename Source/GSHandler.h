@@ -3,6 +3,8 @@
 
 #include "Types.h"
 #include "Stream.h"
+#include <boost/thread.hpp>
+#include "MailBox.h"
 
 #pragma pack(push, 1)
 
@@ -232,17 +234,18 @@ public:
 	virtual void							SetVBlank();
 	void									ResetVBlank();
 
-	virtual void							WriteRegister(uint8, uint64);
-	void									FeedImageData(void*, uint32);
+	void                                    WriteRegister(uint8, uint64);
+	void                                    FeedImageData(void*, uint32);
 
 	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
 	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
 	void									FetchImagePSMCT32(uint32*, uint32, uint32, uint32, uint32);
 
-	virtual void							SetCrt(bool, unsigned int, bool);
-	virtual void							UpdateViewport()						= 0;
+    virtual void							SetCrt(bool, unsigned int, bool);
+    void                                    Initialize();
+    void        							UpdateViewport();
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
-	virtual void							Flip()									= 0;
+    void                                    Flip();
 
 	enum PRIVATE_REGISTER
 	{
@@ -596,6 +599,13 @@ protected:
 	bool									GetCrtIsInterlaced();
 	bool									GetCrtIsFrameMode();
 
+    void                                    ThreadProc();
+    virtual void                            InitializeImpl() = 0;
+    virtual void                            FlipImpl() = 0;
+    virtual void                            UpdateViewportImpl() = 0;
+	virtual void                            WriteRegisterImpl(uint8, uint64);
+	virtual void                            FeedImageDataImpl(void*, uint32);
+
 	TRANSFERHANDLER							m_pTransferHandler[PSM_MAX];
 
 	bool									TrxHandlerInvalid(void*, uint32);
@@ -624,6 +634,8 @@ protected:
 	unsigned int							m_nCrtMode;
 	bool									m_nCrtIsInterlaced;
 	bool									m_nCrtIsFrameMode;
+    boost::thread*                          m_thread;
+    CMailBox                                m_mailBox;
 };
 
 //////////////////////////////////////////////

@@ -2,6 +2,7 @@
 #define _GSH_SOFTWARE_H_
 
 #include "../GSHandler.h"
+#include "../PS2VM.h"
 #include "win32/Window.h"
 #include <ddraw.h>
 
@@ -11,13 +12,14 @@ public:
                                     CGSH_Software(Framework::Win32::CWindow*);
     virtual                         ~CGSH_Software();
 
-	static void                     CreateGSHandler(Framework::Win32::CWindow*);
+	static void                     CreateGSHandler(CPS2VM&, Framework::Win32::CWindow*);
 
 private:
    	static CGSHandler*              GSHandlerFactory(void*);
 
-    virtual void                    UpdateViewport();
-    virtual void                    Flip();
+    virtual void                    InitializeImpl();
+    virtual void                    UpdateViewportImpl();
+    virtual void                    FlipImpl();
     virtual void                    ProcessImageTransfer(uint32, uint32);
 
     void                            RecreateFrameBuffer(unsigned int, unsigned int);

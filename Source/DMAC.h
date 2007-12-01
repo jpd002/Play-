@@ -3,10 +3,14 @@
 
 #include "Types.h"
 #include "Stream.h"
+#include "Dmac_Channel.h"
+#include <boost/thread.hpp>
 
 class CDMAC
 {
 public:
+    friend class Dmac::CChannel;
+
 	enum REGISTER
 	{
 		D1_CHCR		= 0x10009000,
@@ -59,101 +63,64 @@ public:
 		ENABLE_CPND		= 0x10000,
 	};
 
-	static void					Reset();
+                        CDMAC(uint8*, uint8*);
+    virtual             ~CDMAC();
 
-	static uint32				GetRegister(uint32);
-	static void					SetRegister(uint32, uint32);
+	void                Reset();
 
-	static void					LoadState(Framework::CStream*);
-	static void					SaveState(Framework::CStream*);
+    void                SetChannelTransferFunction(unsigned int, const Dmac::DmaReceiveHandler&);
 
-	static void					DisassembleGet(uint32);
-	static void					DisassembleSet(uint32, uint32);
+    uint32              GetRegister(uint32);
+	void                SetRegister(uint32, uint32);
 
-	static bool					IsInterruptPending();
-	static uint32				ResumeDMA3(void*, uint32);
-	static void					ResumeDMA4();
-	static bool					IsEndTagId(uint32);
+	void                LoadState(Framework::CStream*);
+	void                SaveState(Framework::CStream*);
+
+	void                DisassembleGet(uint32);
+	void                DisassembleSet(uint32, uint32);
+
+	bool                IsInterruptPending();
+	uint32				ResumeDMA3(void*, uint32);
+	void                ResumeDMA4();
+	static bool         IsEndTagId(uint32);
 
 private:
-	enum SCCTRL_BIT
-	{
-		SCCTRL_SUSPENDED	= 0x001,
-		SCCTRL_INITXFER		= 0x200,
-	};
+    void                Execute();
+    uint64				FetchDMATag(uint32);
 
-	typedef uint32				(*DMARECEIVEMETHOD)(uint32, uint32, bool);
-	typedef	void				(*DMASLICEDONECALLBACK)();
+	uint32				ReceiveSPRDMA(uint32, uint32, bool);
 
-	class CChannel
-	{
-	public:
-		struct CHCR
-		{
-			unsigned int		nDIR		: 1;
-			unsigned int		nReserved0	: 1;
-			unsigned int		nMOD		: 2;
-			unsigned int		nASP		: 2;
-			unsigned int		nTTE		: 1;
-			unsigned int		nTIE		: 1;
-			unsigned int		nSTR		: 1;
-			unsigned int		nReserved1	: 7;
-			unsigned int		nTAG		: 16;
-		};
+	uint32				m_D_STAT;
+	uint32				m_D_ENABLE;
 
+    Dmac::CChannel      m_D1;
 
-								CChannel(unsigned int, DMARECEIVEMETHOD, DMASLICEDONECALLBACK);
-		void					Reset();
-		uint32					ReadCHCR();
-		void					WriteCHCR(uint32);
-		void					ExecuteNormal();
-		void					ExecuteSourceChain();
-		void					LoadState(Framework::CStream*);
-		void					SaveState(Framework::CStream*);
+    Dmac::CChannel      m_D2;
 
-		CHCR					m_CHCR;
-		uint32					m_nMADR;
-		uint32					m_nQWC;
-		uint32					m_nTADR;
-		uint32					m_nASR[2];
+	uint32				m_D3_CHCR;
+	uint32				m_D3_MADR;
+	uint32				m_D3_QWC;
 
-	private:
-		void					ClearSTR();
+    Dmac::CChannel      m_D4;
 
-		unsigned int			m_nNumber;
-		uint32					m_nSCCTRL;
-		DMARECEIVEMETHOD		m_pReceive;
-		DMASLICEDONECALLBACK	m_pSliceDone;
-	};
+	uint32				m_D5_CHCR;
+	uint32				m_D5_MADR;
+	uint32				m_D5_QWC;
 
-	static uint64				FetchDMATag(uint32);
+	uint32				m_D6_CHCR;
+	uint32				m_D6_MADR;
+	uint32				m_D6_QWC;
+	uint32				m_D6_TADR;
 
-	static uint32				ReceiveSPRDMA(uint32, uint32, bool);
+    Dmac::CChannel      m_D9;
+	uint32				m_D9_SADR;
 
-	static uint32				m_D_STAT;
-	static uint32				m_D_ENABLE;
+    uint8*              m_ram;
+    uint8*              m_spr;
 
-	static CChannel				m_D1;
-
-	static CChannel				m_D2;
-
-	static uint32				m_D3_CHCR;
-	static uint32				m_D3_MADR;
-	static uint32				m_D3_QWC;
-
-	static CChannel				m_D4;
-
-	static uint32				m_D5_CHCR;
-	static uint32				m_D5_MADR;
-	static uint32				m_D5_QWC;
-
-	static uint32				m_D6_CHCR;
-	static uint32				m_D6_MADR;
-	static uint32				m_D6_QWC;
-	static uint32				m_D6_TADR;
-
-	static CChannel				m_D9;
-	static uint32				m_D9_SADR;
+    boost::thread*      m_thread;
+    boost::mutex        m_waitMutex;
+    boost::condition    m_waitCondition;
 };
 
 #endif

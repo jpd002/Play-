@@ -11,7 +11,12 @@ CGSH_Null::~CGSH_Null()
 
 }
 
-void CGSH_Null::UpdateViewport()
+void CGSH_Null::InitializeImpl()
+{
+
+}
+
+void CGSH_Null::UpdateViewportImpl()
 {
 
 }
@@ -21,14 +26,14 @@ void CGSH_Null::ProcessImageTransfer(uint32 nAddress, uint32 nSize)
 
 }
 
-void CGSH_Null::Flip()
+void CGSH_Null::FlipImpl()
 {
-    CPS2VM::m_OnNewFrame();
+//    CPS2VM::m_OnNewFrame();
 }
 
-void CGSH_Null::CreateGSHandler()
+void CGSH_Null::CreateGSHandler(CPS2VM& virtualMachine)
 {
-	CPS2VM::CreateGSHandler(GSHandlerFactory, NULL);
+	virtualMachine.CreateGSHandler(GSHandlerFactory, NULL);
 }
 
 CGSHandler* CGSH_Null::GSHandlerFactory(void* pParam)

@@ -216,8 +216,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(FrameworkRoot)\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;GLEW_STATIC"
-				RuntimeLibrary="0"
+				PreprocessorDefinitions="WIN32;NDEBUG;_MSVC;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;GLEW_STATIC"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -739,6 +739,22 @@
 				<File
 					RelativePath=".\Source\win32ui\TestEngineWnd.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\win32ui\VFSManagerWnd.cpp"
@@ -857,6 +873,10 @@
 				UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 				>
 				<File
+					RelativePath=".\Source\BasicBlock.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CacheBlock.cpp"
 					>
 				</File>
@@ -905,6 +925,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Dmac_Channel.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\ELF.cpp"
 					>
 				</File>
@@ -931,14 +955,62 @@
 				<File
 					RelativePath=".\Source\INTC.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_Cdvdfsv.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_DbcMan.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_Dummy.cpp"
@@ -947,6 +1019,22 @@
 				<File
 					RelativePath=".\Source\IOP_FileIO.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_LibSD.cpp"
@@ -955,18 +1043,82 @@
 				<File
 					RelativePath=".\Source\IOP_LoadFile.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_McServ.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_PadMan.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_SysMem.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_Unknown.cpp"
@@ -975,6 +1127,22 @@
 				<File
 					RelativePath=".\Source\IPU.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IPU_DmVectorTable.cpp"
@@ -999,6 +1167,46 @@
 				<File
 					RelativePath=".\Source\IPU_MotionCodeTable.cpp"
 					>
+				</File>
+				<File
+					RelativePath=".\Source\Log.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\LogControl.cpp"
@@ -1045,6 +1253,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MailBox.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MemoryMap.cpp"
 					>
 				</File>
@@ -1069,6 +1281,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MipsCodeGen.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MIPSCoprocessor.cpp"
 					>
 				</File>
@@ -1087,6 +1303,22 @@
 				<File
 					RelativePath=".\Source\MipsTestEngine.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\OsEventManager.cpp"
@@ -1123,6 +1355,22 @@
 				<File
 					RelativePath=".\Source\SIF.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\ThreadMsg.cpp"
@@ -1131,6 +1379,22 @@
 				<File
 					RelativePath=".\Source\Timer.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\Utils.cpp"
@@ -1139,6 +1403,22 @@
 				<File
 					RelativePath=".\Source\VIF.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\VolumeStream.cpp"
@@ -1164,6 +1444,10 @@
 				>
 				<File
 					RelativePath=".\Source\ArrayStack.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\BasicBlock.h"
 					>
 				</File>
 				<File
@@ -1204,6 +1488,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\DMAC.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Dmac_Channel.h"
 					>
 				</File>
 				<File
@@ -1311,6 +1599,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Log.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\LogControl.h"
 					>
 				</File>
@@ -1324,6 +1616,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\MA_VU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\MailBox.h"
 					>
 				</File>
 				<File
@@ -1351,6 +1647,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MipsCodeGen.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MIPSCoprocessor.h"
 					>
 				</File>
@@ -1368,6 +1668,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\MipsTestEngine.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\offsetof_def.h"
 					>
 				</File>
 				<File

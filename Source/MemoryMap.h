@@ -2,7 +2,7 @@
 #define _MEMORYMAP_H_
 
 #include "Types.h"
-#include <boost/function.hpp>
+#include <functional>
 #include <map>
 
 enum MEMORYMAP_ENDIANESS
@@ -14,8 +14,8 @@ enum MEMORYMAP_ENDIANESS
 class CMemoryMap
 {
 public:
-    typedef boost::function<void (uint32)> WriteNotifyHandlerType;
-    typedef boost::function<uint32 (uint32, uint32)> MemoryMapHandlerType;
+    typedef std::tr1::function<void (uint32)> WriteNotifyHandlerType;
+    typedef std::tr1::function<uint32 (uint32, uint32)> MemoryMapHandlerType;
 
 	virtual									~CMemoryMap();
 	uint8									GetByte(uint32);

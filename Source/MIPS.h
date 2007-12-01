@@ -59,14 +59,14 @@ __declspec(align(16))
 
 #define MIPS_INVALID_PC			(0x00000001)
 
-typedef unsigned int			(*TickFunctionType)(unsigned int);
-typedef void					(*SysCallHandlerType)();
-typedef uint32					(*AddressTranslator)(CMIPS*, uint32, uint32);
-
 class CMIPS
 {
 public:
-								CMIPS(MEMORYMAP_ENDIANESS, uint32, uint32);
+    typedef unsigned int        (*TickFunctionType)(unsigned int, CMIPS*);
+    typedef void                (*SysCallHandlerType)(CMIPS*);
+    typedef uint32              (*AddressTranslator)(CMIPS*, uint32, uint32);
+
+                                CMIPS(MEMORYMAP_ENDIANESS, uint32, uint32);
 								~CMIPS();
 	void						ToggleBreakpoint(uint32);
 	void						InvalidateCache();
@@ -76,7 +76,7 @@ public:
 	bool						IsBranch(uint32);
 	static long					GetBranch(uint16);
 	static uint32				TranslateAddress64(CMIPS*, uint32, uint32);
-	static void					DefaultSysCallHandler();
+	static void					DefaultSysCallHandler(CMIPS*);
 
 	bool						GenerateInterrupt(uint32);
 	bool						GenerateException(uint32);

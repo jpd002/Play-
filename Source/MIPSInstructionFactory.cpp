@@ -1,15 +1,15 @@
 #include <assert.h>
 #include <stddef.h>
 #include "MIPSInstructionFactory.h"
+#include "MipsCodeGen.h"
+#include "CacheBlock.h"
 #include "MIPS.h"
 #include "PtrMacro.h"
-#include "CodeGen.h"
-
-#undef offsetof
-#define offsetof(a, b) (reinterpret_cast<uint8*>(&reinterpret_cast<a*>(0x10)->b) - reinterpret_cast<uint8*>(0x10))
+#include "offsetof_def.h"
 
 CMIPS*				CMIPSInstructionFactory::m_pCtx		= NULL;
 CCacheBlock*		CMIPSInstructionFactory::m_pB		= NULL;
+CMipsCodeGen*       CMIPSInstructionFactory::m_codeGen  = NULL;
 uint32				CMIPSInstructionFactory::m_nAddress = 0;
 uint32				CMIPSInstructionFactory::m_nOpcode	= 0;
 
@@ -26,7 +26,8 @@ CMIPSInstructionFactory::~CMIPSInstructionFactory()
 void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx)
 {
 	m_pCtx			= pCtx;
-	m_pB			= pBlock;
+//	m_pB			= pBlock;
+    m_codeGen       = reinterpret_cast<CMipsCodeGen*>(pBlock);
 	m_nAddress		= nAddress;
 
 	m_nOpcode		= m_pCtx->m_pMemoryMap->GetWord(m_nAddress);
@@ -125,21 +126,21 @@ void CMIPSInstructionFactory::ComputeMemAccessAddrEx()
 	//Translate the address
 
 	//Push context
-	CCodeGen::PushRef(m_pCtx);
+	m_codeGen->PushRef(m_pCtx);
 
 	//Push high part
-	CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[1]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[1]));
 
 	//Push low part of address
-	CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
 	if(nImmediate != 0)
 	{
-		CCodeGen::PushCst((int16)nImmediate);
-		CCodeGen::Add();
+		m_codeGen->PushCst((int16)nImmediate);
+		m_codeGen->Add();
 	}
 
 	//Call
-	CCodeGen::Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);
+	m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);
 }
 
 void CMIPSInstructionFactory::BranchEx(bool nCondition)
@@ -148,19 +149,19 @@ void CMIPSInstructionFactory::BranchEx(bool nCondition)
 
 	nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 
-	CCodeGen::PushCst(MIPS_INVALID_PC);
-	CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+	m_codeGen->PushCst(MIPS_INVALID_PC);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-	CCodeGen::BeginIf(nCondition);
+	m_codeGen->BeginIf(nCondition);
 	{
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nPC));
-		CCodeGen::PushCst(CMIPS::GetBranch(nImmediate));
-		CCodeGen::Add();
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->PushCst(CMIPS::GetBranch(nImmediate));
+		m_codeGen->Add();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
-	CCodeGen::EndIf();
+	m_codeGen->EndIf();
 
-	m_pB->SetDelayedJumpCheck();
+//	m_pB->SetDelayedJumpCheck();
 }
 
 void CMIPSInstructionFactory::Illegal()

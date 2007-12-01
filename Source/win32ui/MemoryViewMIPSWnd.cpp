@@ -9,7 +9,7 @@ using namespace Framework;
 using namespace std;
 using namespace boost;
 
-CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CMIPS* pCtx)
+CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 {
 	RECT rc;
 
@@ -33,7 +33,7 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CMIPS* pCtx)
 
     m_pStatusBar = new Win32::CStatusBar(m_hWnd);
 
-    m_pMemoryView = new CMemoryViewMIPS(m_hWnd, &rc, pCtx);
+    m_pMemoryView = new CMemoryViewMIPS(m_hWnd, &rc, virtualMachine, pCtx);
     m_pMemoryView->m_OnSelectionChange.connect(bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
 
     UpdateStatusBar();

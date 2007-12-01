@@ -7,6 +7,7 @@
 #include <boost/bind.hpp>
 
 using namespace boost;
+using namespace Framework;
 
 bool					CCodeGen::m_nBlockStarted = false;
 CCacheBlock*			CCodeGen::m_pBlock = NULL;
@@ -23,6 +24,7 @@ CX86Assembler           CCodeGen::m_Assembler
                                             );
 
 bool                    CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
+CStream*                CCodeGen::m_stream = NULL;
 
 const CX86Assembler::REGISTER g_nBaseRegister = CX86Assembler::rBP;
 
@@ -88,10 +90,13 @@ CX86Assembler::REGISTER CCodeGen::m_nRegisterLookupEx[MAX_REGISTER] =
 
 #endif
 
+void CCodeGen::SetStream(CStream* stream)
+{
+    m_stream = stream;
+}
+
 void CCodeGen::Begin(CCacheBlock* pBlock)
 {
-	unsigned int i;
-
 	assert(m_nBlockStarted == false);
 	m_nBlockStarted = true;
 
@@ -102,7 +107,7 @@ void CCodeGen::Begin(CCacheBlock* pBlock)
 	m_Shadow.Reset();
 	m_pBlock = pBlock;
 
-	for(i = 0; i < MAX_REGISTER; i++)
+	for(unsigned int i = 0; i < MAX_REGISTER; i++)
 	{
 		m_nRegisterAllocated[i] = false;		
 	}
@@ -118,29 +123,40 @@ void CCodeGen::End()
 	CodeGen::CVUF128::End();
 }
 
+bool CCodeGen::IsStackEmpty()
+{
+    return m_Shadow.GetCount() == 0;
+}
+
 void CCodeGen::BeginIf(bool nCondition)
 {
 	if(m_Shadow.GetAt(0) == REGISTER)
 	{
-		uint32 nRegister, nPosition;
-
 		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
+		uint32 nRegister = m_Shadow.Pull();
+
+		//test reg, reg
+        m_Assembler.TestEd(m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]));
 
 		if(!RegisterHasNextUse(nRegister))
 		{
 			FreeRegister(nRegister);
 		}
 
-		//test reg, reg
-		m_pBlock->StreamWrite(2, 0x85, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+        CX86Assembler::LABEL ifLabel = m_Assembler.CreateLabel();
 
 		//jcc label
-		m_pBlock->StreamWrite(1, nCondition ? 0x74 : 0x75);
-		nPosition = m_pBlock->StreamGetSize();
-		m_pBlock->StreamWrite(1, 0x00);
+        if(nCondition)
+        {
+            m_Assembler.JeJb(ifLabel);
+        }
+        else
+        {
+            m_Assembler.JneJb(ifLabel);
+        }
 
-		m_IfStack.Push(nPosition);
+		m_IfStack.Push(ifLabel);
 		m_IfStack.Push(IFBLOCK);
 	}
 	else
@@ -151,17 +167,13 @@ void CCodeGen::BeginIf(bool nCondition)
 
 void CCodeGen::EndIf()
 {
-	uint32 nPosition, nSize;
-
 	assert(m_IfStack.GetAt(0) == IFBLOCK);
 
 	m_IfStack.Pull();
-	nPosition = m_IfStack.Pull();
+    CX86Assembler::LABEL ifLabel = static_cast<CX86Assembler::LABEL>(m_IfStack.Pull());
 
-	nSize = m_pBlock->StreamGetSize() - nPosition - 1;
-	assert(nSize <= 0xFF);
-
-	m_pBlock->StreamWriteAt(nPosition, (uint8)nSize);
+    m_Assembler.MarkLabel(ifLabel);
+    m_Assembler.ResolveLabelReferences();
 }
 
 void CCodeGen::BeginIfElse(bool nCondition)
@@ -361,41 +373,9 @@ void CCodeGen::LoadConstantInRegister(unsigned int nRegister, uint32 nConstant)
 
 void CCodeGen::CopyRegister(unsigned int nDst, unsigned int nSrc)
 {
-	unsigned int nRegIndex1, nRegIndex2;
-
-	nRegIndex1 = m_nRegisterLookup[nSrc];
-	nRegIndex2 = m_nRegisterLookup[nDst];
-
-#ifdef AMD64
-
-	bool nNeedRex;
-	uint8 nRex;
-
-	nNeedRex = false;
-	nRex = 0x40;
-
-	nNeedRex = (nRegIndex1 > 7) || (nRegIndex2 > 7);
-
-	if(nRegIndex1 > 7)
-	{
-		nRegIndex1 &= 0x07;
-		nRex |= 0x04;
-	}
-
-	if(nRegIndex2 > 7)
-	{
-		nRegIndex2 &= 0x07;
-		nRex |= 0x01;
-	}
-
-	if(nNeedRex)
-	{
-		m_pBlock->StreamWrite(1, nRex);
-	}
-
-#endif
-
-	m_pBlock->StreamWrite(2, 0x89, 0xC0 | (nRegIndex1 << 3) | (nRegIndex2));
+    m_Assembler.MovEd(
+        m_nRegisterLookupEx[nDst],
+        CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nSrc]));
 }
 
 #ifdef AMD64
@@ -915,17 +895,9 @@ void CCodeGen::Add()
 		m_Shadow.Pull();
 		nRegister = m_Shadow.Pull();
 
-		if(GetMinimumConstantSize(nConstant) == 1)
-		{
-			//add reg, Immediate
-			m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
-		}
-		else
-		{
-			//add reg, Immediate
-			m_pBlock->StreamWrite(2, 0x81, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-			m_pBlock->StreamWriteWord(nConstant);
-		}
+        m_Assembler.AddId(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
+            nConstant);
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
@@ -1203,8 +1175,6 @@ void CCodeGen::And64()
 
 void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 {
-	uint32 nCallRegister;
-
 #ifdef AMD64
 
 	unsigned int nParamReg[4] =
@@ -1250,8 +1220,8 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 #else
 
 			//push [nBase + nRel]
-			m_pBlock->StreamWrite(1, 0xFF);
-			WriteRelativeRmFunction(6, nRelative);
+            m_Assembler.PushEd(
+                CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, nRelative));
 
 #endif
 
@@ -1277,7 +1247,7 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 #else
 
 			//push reg
-			m_pBlock->StreamWrite(1, 0x50 | m_nRegisterLookup[nRegister]);
+            m_Assembler.Push(m_nRegisterLookupEx[nRegister]);
 
 #endif
 
@@ -1297,8 +1267,7 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 #else
 
 			//push nNumber
-			m_pBlock->StreamWrite(1, 0x68);
-			m_pBlock->StreamWriteWord(nNumber);
+            m_Assembler.PushId(nNumber);
 
 #endif
 
@@ -1321,7 +1290,7 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 		FreeRegister(0);
 	}
 
-	nCallRegister = AllocateRegister();
+	unsigned int nCallRegister = AllocateRegister();
 
 #ifdef AMD64
 
@@ -1355,17 +1324,21 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 
 #else
 
-	//mov reg, pFunc
-	m_pBlock->StreamWrite(1, 0xB8 | (m_nRegisterLookup[nCallRegister]));
-	m_pBlock->StreamWriteWord((uint32)((uint8*)pFunc - (uint8*)0));
+    //mov reg, pFunc
+    m_Assembler.MovId(
+        m_nRegisterLookupEx[nCallRegister],
+        static_cast<uint32>(reinterpret_cast<uint8*>(pFunc) - reinterpret_cast<uint8*>(NULL)));
 
-	//call reg
-	m_pBlock->StreamWrite(2, 0xFF, 0xD0 | (m_nRegisterLookup[nCallRegister]));
+    //call reg
+    m_Assembler.CallEd(
+        CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nCallRegister]));
 
-	if(nParamCount != 0)
+
+    if(nParamCount != 0)
 	{
 		//add esp, nParams * 4;
-		m_pBlock->StreamWrite(3, 0x83, 0xC4, nParamCount * 4);
+        m_Assembler.AddId(
+            CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), nParamCount * 4);
 	}
 
 #endif
@@ -1455,21 +1428,24 @@ void CCodeGen::Cmp(CONDITION nCondition)
 	}
 	else if(IsTopRegZeroPairCom() && (nCondition == CONDITION_EQ))
 	{
-		unsigned int nRegister;
+		unsigned int valueRegister;
 
-		GetRegCstPairCom(&nRegister, NULL);
+		GetRegCstPairCom(&valueRegister, NULL);
+
+        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
 
 		//test reg, reg
-		m_pBlock->StreamWrite(2, 0x85, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+        m_Assembler.TestEd(m_nRegisterLookupEx[valueRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[valueRegister]));
 		
 		//sete reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0x94, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
 
 		//movzx reg, reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+        m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
 		
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        PushReg(resultRegister);
 	}
 	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT))
 	{
@@ -1779,41 +1755,29 @@ void CCodeGen::SeX16()
 
 void CCodeGen::SeX()
 {
-	ReduceToRegister();
-
-	uint32 nRegister;
-
-	m_Shadow.Pull();
-	nRegister = m_Shadow.Pull();
-
-    //Must be in eax
-    if(nRegister != 0)
+    if(m_Shadow.GetAt(0) == CONSTANT)
     {
-        assert(m_nRegisterAllocated[REGISTER_EAX] == false);
-        m_nRegisterAllocated[REGISTER_EAX] = true;
-        CopyRegister(REGISTER_EAX, nRegister);
-    }
+        uint32 constant = m_Shadow.GetAt(1);
 
-    //Can't overwrite the result
-    if(m_nRegisterAllocated[REGISTER_EDX])
+        //Sign extend the constant and push it on the stack
+        PushCst(constant & 0x80000000 ? 0xFFFFFFFF : 0x00000000);
+    }
+    else
     {
-        unsigned int nCopyReg = AllocateRegister();
-        CopyRegister(nCopyReg, REGISTER_EDX);
-        ReplaceRegisterInStack(nCopyReg, REGISTER_EDX);
-        m_nRegisterAllocated[REGISTER_EDX] = false;
+	    ReduceToRegister();
+
+	    m_Shadow.Pull();
+	    unsigned int valueRegister = m_Shadow.Pull();
+
+        unsigned int resultRegister = AllocateRegister();
+        CopyRegister(resultRegister, valueRegister);
+
+        m_Assembler.SarEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]),
+            0x1F);
+
+        PushReg(valueRegister);
+        PushReg(resultRegister);
     }
-
-    assert(m_nRegisterAllocated[REGISTER_EDX] == false);
-	m_nRegisterAllocated[REGISTER_EDX] = true;
-
-	//cdq
-	m_pBlock->StreamWrite(1, 0x99);
-
-	m_Shadow.Push(REGISTER_EAX);
-	m_Shadow.Push(REGISTER);
-
-	m_Shadow.Push(REGISTER_EDX);
-	m_Shadow.Push(REGISTER);
 }
 
 void CCodeGen::Shl(uint8 nAmount)
@@ -2455,23 +2419,33 @@ void CCodeGen::Xor()
 
 void CCodeGen::Cmp64Eq()
 {
-	if(\
-		(m_Shadow.GetAt(0) == RELATIVE) && \
-		(m_Shadow.GetAt(2) == RELATIVE) && \
-		(m_Shadow.GetAt(4) == RELATIVE) && \
-		(m_Shadow.GetAt(6) == RELATIVE))
+    uint32 operandType[4];
+    uint32 operandValue[4];
+
+    for(int i = 3; i >= 0; i--)
+    {
+        operandType[i] = m_Shadow.Pull();
+        operandValue[i] = m_Shadow.Pull();
+    }
+/*
+	if(
+		(operandType[0] == RELATIVE) &&
+		(operandType[1] == RELATIVE) &&
+		(operandType[2] == RELATIVE) &&
+		(operandType[3] == RELATIVE))
 	{
 		uint32 nRelative1, nRelative2, nRelative3, nRelative4;
 		uint32 nRegister1, nRegister2;
 
-		m_Shadow.Pull();
-		nRelative4 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative3 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative1 = m_Shadow.Pull();
+        nRelative4 = operandValue[3];
+        nRelative3 = operandValue[2];
+        nRelative2 = operandValue[1];
+        nRelative1 = operandValue[0];
+
+//		nRelative4 = m_Shadow.Pull();
+//		nRelative3 = m_Shadow.Pull();
+//		nRelative2 = m_Shadow.Pull();
+//		nRelative1 = m_Shadow.Pull();
 
 		nRegister1 = AllocateRegister(REGISTER_HASLOW);
 		nRegister2 = AllocateRegister(REGISTER_HASLOW);
@@ -2510,6 +2484,23 @@ void CCodeGen::Cmp64Eq()
 		m_Shadow.Push(nRegister1);
 		m_Shadow.Push(REGISTER);
 	}
+    else 
+*/
+    if(
+        //If both top values are constants and have the same value
+        (operandType[3] == CONSTANT) &&
+        (operandType[1] == CONSTANT) &&
+        (operandValue[1] == operandValue[3])
+        )
+    {
+        m_Shadow.Push(operandValue[0]);
+        m_Shadow.Push(operandType[0]);
+
+        m_Shadow.Push(operandValue[2]);
+        m_Shadow.Push(operandType[2]);
+
+        Cmp(CONDITION_EQ);
+    }
 	else
 	{
 		assert(0);
@@ -2532,8 +2523,9 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
                 break;
             case RELATIVE:
 			    //cmp reg, dword ptr[rel]
-			    m_pBlock->StreamWrite(1, 0x3B);
-			    WriteRelativeRmRegister(nRegister, nValue);
+                assembler.CmpEd(
+                    m_nRegisterLookupEx[nRegister],
+                    CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, nValue));
                 break;
             default:
                 assert(0);
@@ -2626,12 +2618,14 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
         assert(nValueType[1] == RELATIVE);
 
 		uint32 nRegister;
-		unsigned int nJmpPos1, nJmpPos2;
 
 		nRegister = AllocateRegister();
 
 		{
-			/////////////////////////////////////////
+            CX86Assembler::LABEL highOrderEqualLabel = m_Assembler.CreateLabel();
+            CX86Assembler::LABEL doneLabel = m_Assembler.CreateLabel();
+
+            /////////////////////////////////////////
 			//Check high order word if equal
 
 			//mov reg, dword ptr[base + rel2]
@@ -2639,24 +2633,34 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
 
             EmitComparaison()(nValueType[3], nValue[3], nRegister, m_Assembler);
 
-            //je +0x08
-			m_pBlock->StreamWrite(2, 0x74, 0x08);
+            //je highOrderEqual
+            m_Assembler.JeJb(highOrderEqualLabel);
 
 			///////////////////////////////////////////////////////////
 			//If they aren't equal, this comparaison decides of result
 
 			//setb/l reg[l]
-			m_pBlock->StreamWrite(3, 0x0F, nSigned ? 0x9C : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+//			m_pBlock->StreamWrite(3, 0x0F, nSigned ? 0x9C : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+            if(nSigned)
+            {
+                m_Assembler.SetlEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
+            }
+            else
+            {
+                m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
+            }
 
 			//movzx reg, reg[l]
-			m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+            m_Assembler.MovzxEb(
+                m_nRegisterLookupEx[nRegister],
+                CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
 
-			//jmp +?
-			nJmpPos1 = m_pBlock->StreamGetSize() + 1;
-			m_pBlock->StreamWrite(2, 0xEB, 0x00);
+			//jmp done
+            m_Assembler.JmpJb(doneLabel);
 
-			////////////////////////////////////////////////////////////
-			//If they are equal, next comparaison decides of result
+			//highOrderEqual: /////////////////////////////////////
+            m_Assembler.MarkLabel(highOrderEqualLabel);
+            //If they are equal, next comparaison decides of result
 
 			//mov reg, dword ptr[base + rel1]
 			LoadRelativeInRegister(nRegister, nValue[0]);
@@ -2664,14 +2668,25 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
             EmitComparaison()(nValueType[2], nValue[2], nRegister, m_Assembler);
 
 		    //setb/be reg[l]
-            m_pBlock->StreamWrite(3, 0x0F, nOrEqual ? 0x96 : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+//            m_pBlock->StreamWrite(3, 0x0F, nOrEqual ? 0x96 : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
+            if(nOrEqual)
+            {
+                m_Assembler.SetbeEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
+            }
+            else
+            {
+                m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
+            }
 
 			//movzx reg, reg[l]
-			m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+            m_Assembler.MovzxEb(
+                m_nRegisterLookupEx[nRegister],
+                CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
 
-			//Fix Jmp Offset
-			nJmpPos2 = m_pBlock->StreamGetSize();
-			m_pBlock->StreamWriteAt(nJmpPos1, (nJmpPos2 - nJmpPos1 - 1));
+            //done: ///////////////////////////////////////////////
+            m_Assembler.MarkLabel(doneLabel);
+
+            m_Assembler.ResolveLabelReferences();
 		}
 
 		m_Shadow.Push(nRegister);
@@ -2871,17 +2886,26 @@ bool CCodeGen::IsTopContRelCstPair64()
 
 void CCodeGen::StreamWriteByte(uint8 nByte)
 {
-    m_pBlock->StreamWriteByte(nByte);
+    if(m_stream == NULL) return;
+    m_stream->Write(&nByte, 1);
+//    m_pBlock->StreamWriteByte(nByte);
 }
 
 void CCodeGen::StreamWriteAt(unsigned int position, uint8 value)
 {
-    m_pBlock->StreamWriteAt(position, value);
+    if(m_stream == NULL) return;
+    uint64 currentPosition = m_stream->Tell();
+    m_stream->Seek(position, STREAM_SEEK_SET);
+    m_stream->Write(&value, 1);
+    m_stream->Seek(currentPosition, STREAM_SEEK_SET);
+//    m_pBlock->StreamWriteAt(position, value);
 }
 
 size_t CCodeGen::StreamTell()
 {
-    return m_pBlock->StreamGetSize();
+    if(m_stream == NULL) return 0;
+//    return m_pBlock->StreamGetSize();
+    return static_cast<size_t>(m_stream->Tell());
 }
 
 void CCodeGen::X86_RegImmOp(unsigned int nRegister, uint32 nConstant, unsigned int nOp)

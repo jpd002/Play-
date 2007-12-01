@@ -2,12 +2,12 @@
 #include <boost/bind.hpp>
 #include "DisAsm.h"
 #include "resource.h"
-#include "../PS2VM.h"
 #include "win32/InputBox.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "WinUtils.h"
 #include "win32/DeviceContext.h"
+#include "win32/ClientDeviceContext.h"
 
 #define CLSNAME		_T("CDisAsm")
 #define YSPACE		3
@@ -26,7 +26,8 @@ using namespace boost;
 using namespace std;
 
 CDisAsm::CDisAsm(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
-m_virtualMachine(virtualMachine)
+m_virtualMachine(virtualMachine),
+m_font(CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New")))
 {
 	SCROLLINFO si;
 
@@ -55,8 +56,6 @@ m_virtualMachine(virtualMachine)
 	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
-//	CPS2VM::m_OnMachineStateChange.connect(bind(&CDisAsm::OnMachineStateChange, this));
-//	CPS2VM::m_OnRunningStateChange.connect(bind(&CDisAsm::OnRunningStateChange, this));
 	m_virtualMachine.m_OnMachineStateChange.connect(bind(&CDisAsm::OnMachineStateChange, this));
 	m_virtualMachine.m_OnRunningStateChange.connect(bind(&CDisAsm::OnRunningStateChange, this));
 
@@ -96,25 +95,24 @@ void CDisAsm::OnMachineStateChange()
 	{
 		m_nAddress = m_pCtx->m_State.nPC & 0xFFFFFFFC;
 	}
-	Redraw();
+    Redraw();
 }
 
 void CDisAsm::OnRunningStateChange()
 {
-	Redraw();
+    Redraw();
 }
-
+/*
 HFONT CDisAsm::GetFont()
 {
 	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
 }
-
+*/
 void CDisAsm::GotoAddress()
 {
 	const TCHAR* sValue;
 	uint32 nAddress;
 	
-//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
@@ -148,7 +146,6 @@ void CDisAsm::GotoAddress()
 
 void CDisAsm::GotoPC()
 {
-//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
     {
 		MessageBeep(-1);
@@ -163,7 +160,6 @@ void CDisAsm::GotoEA()
 {
 	uint32 nOpcode, nAddress;
 
-//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
     {
 		MessageBeep(-1);
@@ -190,7 +186,6 @@ void CDisAsm::EditComment()
 	const TCHAR* sValue;
 	const char* sComment;
 
-//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
     {
 		MessageBeep(-1);
@@ -220,7 +215,6 @@ void CDisAsm::EditComment()
 
 void CDisAsm::FindCallers()
 {
-//	if(CPS2VM::m_nStatus == PS2VM_STATUS_RUNNING)
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
     {
 		MessageBeep(-1);
@@ -249,17 +243,12 @@ void CDisAsm::FindCallers()
 
 unsigned int CDisAsm::GetFontHeight()
 {
-	HDC hDC;
-	HFONT nFont;
 	SIZE s;
+    Win32::CClientDeviceContext dc(m_hWnd);
 
-	hDC = GetDC(m_hWnd);
-	nFont = GetFont();
-	SelectObject(hDC, nFont);
+    dc.SelectObject(m_font);
 
-	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
-
-	DeleteObject(nFont);
+	GetTextExtentPoint32(dc, _T("0"), 1, &s);
 
 	return s.cy;
 }
@@ -691,7 +680,6 @@ void CDisAsm::Paint(HDC hDC)
 	HDC hMem;
 	RECT rmarg, rwin, rsel;
 	HPEN nPen, nLtGrayPen;
-	HFONT nFont;
 	SIZE s;
 	uint32 nData, nAddress, nEffAddr;
 	TCHAR sTemp[256];
@@ -702,14 +690,13 @@ void CDisAsm::Paint(HDC hDC)
 	bool nCommentDrawn;
 	CMIPSAnalysis::SUBROUTINE* pSub;
     SelectionRangeType SelectionRange;
+
     Win32::CDeviceContext DeviceContext(hDC);
 
 	GetClientRect(&rwin);
 
-	nFont = GetFont();
-
 	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
-	SelectObject(hDC, nFont);
+	SelectObject(hDC, m_font);
 
 	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
 
@@ -870,6 +857,4 @@ void CDisAsm::Paint(HDC hDC)
 	}
 
 	DeleteObject(nLtGrayPen);
-	DeleteObject(nFont);
 }
-

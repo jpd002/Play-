@@ -19,6 +19,7 @@
 #include "xml/Node.h"
 #include "xml/Parser.h"
 #include "xml/FilteringNodeIterator.h"
+#include "Log.h"
 
 // PS2OS Memory Allocation
 // Start        End             Description
@@ -54,46 +55,32 @@ using namespace Framework;
 using namespace std;
 using namespace boost;
 
-signal<void ()>						CPS2OS::m_OnExecutableChange;
-signal<void ()>						CPS2OS::m_OnExecutableUnloading;
-
-bool								CPS2OS::m_nInitialized		= false;
-CELF*								CPS2OS::m_pELF				= NULL;
-
-string								CPS2OS::m_sExecutableName;
-CMIPS*								CPS2OS::m_pCtx				= NULL;
-
-CPS2OS::CRoundRibbon*				CPS2OS::m_pThreadSchedule	= NULL;
-
-CPS2OS::CPS2OS()
+CPS2OS::CPS2OS(CMIPS& ee, CMIPS& vu1, uint8* ram, uint8* bios, CGSHandler*& gs) :
+m_ee(ee),
+m_vu1(vu1),
+m_gs(gs),
+m_pELF(NULL),
+m_ram(ram),
+m_bios(bios),
+m_pThreadSchedule(NULL)
 {
-	if(m_nInitialized)
-	{
-		assert(0);
-	}
 	Initialize();
 }
 
 CPS2OS::~CPS2OS()
 {
-	if(!m_nInitialized)
-	{
-		assert(0);
-	}
 	Release();
 }
 
 void CPS2OS::Initialize()
 {
 	m_pELF = NULL;
-	m_pCtx = &CPS2VM::m_EE;
+//	m_pCtx = &CPS2VM::m_EE;
 
-	m_pCtx->m_State.nGPR[CMIPS::K0].nV[0] = 0x80030000;
-	m_pCtx->m_State.nGPR[CMIPS::K0].nV[1] = 0xFFFFFFFF;
+	m_ee.m_State.nGPR[CMIPS::K0].nV[0] = 0x80030000;
+	m_ee.m_State.nGPR[CMIPS::K0].nV[1] = 0xFFFFFFFF;
 
-	m_pThreadSchedule = new CRoundRibbon(CPS2VM::m_pRAM + 0x30000, 0x2000);
-
-	m_nInitialized = true;
+	m_pThreadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
 }
 
 void CPS2OS::Release()
@@ -101,13 +88,6 @@ void CPS2OS::Release()
 	UnloadExecutable();
 	
 	DELETEPTR(m_pThreadSchedule);
-
-	m_nInitialized = false;
-}
-
-bool CPS2OS::IsInitialized()
-{
-	return m_nInitialized;
 }
 
 void CPS2OS::DumpThreadSchedule()
@@ -123,7 +103,7 @@ void CPS2OS::DumpThreadSchedule()
 	{
         pThread = GetThread(itThread.GetValue());
 
-        THREADCONTEXT* pContext(reinterpret_cast<THREADCONTEXT*>(&CPS2VM::m_pRAM[pThread->nContextPtr]));
+        THREADCONTEXT* pContext(reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]));
 
         switch(pThread->nStatus)
 		{
@@ -205,7 +185,8 @@ void CPS2OS::BootFromCDROM()
 	const char* sExecPath;
 	const char* sExecName;
 
-	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, "cdrom0:SYSTEM.CNF");
+    assert(0);
+//	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, "cdrom0:SYSTEM.CNF");
 	if(pFile == NULL)
 	{
 		throw exception("No 'SYSTEM.CNF' file found on the cdrom0 device.");
@@ -236,7 +217,7 @@ void CPS2OS::BootFromCDROM()
 		throw exception("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
 	}
 
-	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, sExecPath);
+//	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, sExecPath);
 
 	sExecName = strchr(sExecPath, ':') + 1;
 	if(sExecName[0] == '/' || sExecName[0] == '\\') sExecName++;
@@ -282,7 +263,7 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 		throw exception("Not an executable ELF file.");
 	}
 	
-	CPS2VM::Pause();
+//	CPS2VM::Pause();
 
 	UnloadExecutable();
 
@@ -296,14 +277,14 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 //	pStream = new CStdStream(fopen("./vfs/host/sjpcm.irx", "rb"));
 //	pStream = new CStdStream(fopen("./vfs/host/padman.irx", "rb"));
 //	pELF = new CELF(pStream);
-//	memcpy(CPS2VM::m_pRAM + 0x01000000, pELF->m_pData, pELF->m_nLenght);
+//	memcpy(m_ram + 0x01000000, pELF->m_pData, pELF->m_nLenght);
 //	delete pELF;
 /*
 	int i;
 	uint32 nVal;
 	for(i = 0; i < 0x02000000 / 4; i++)
 	{
-		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
+		nVal = ((uint32*)m_ram)[i];
 		if((nVal & 0xFFFF) == 0x95B0)
 		{
 			//if((nVal & 0xFC000000) != 0x0C000000)
@@ -318,7 +299,7 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 	uint32 nVal;
 	for(i = 0; i < 0x02000000 / 4; i++)
 	{
-		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
+		nVal = ((uint32*)m_ram)[i];
 		if(nVal == 0x2F9B50)
 		{
 			printf("Allo: 0x%0.8X\r\n", i * 4);
@@ -334,16 +315,16 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 		}
 	}
 */
-//	*((uint32*)&CPS2VM::m_pRAM[0x0010B5E4]) = 0;
-//	*((uint32*)&CPS2VM::m_pRAM[0x002F6C58]) = 0;
-//	*((uint32*)&CPS2VM::m_pRAM[0x00109208]) = 0x28840100;
-//	*((uint32*)&CPS2VM::m_pRAM[0x0010922C]) = 0;
-//	*((uint32*)&CPS2VM::m_pRAM[0x001067C4]) = 0;
-//	*((uint32*)&CPS2VM::m_pRAM[0x001AC028]) = 0;
+//	*((uint32*)&m_ram[0x0010B5E4]) = 0;
+//	*((uint32*)&m_ram[0x002F6C58]) = 0;
+//	*((uint32*)&m_ram[0x00109208]) = 0x28840100;
+//	*((uint32*)&m_ram[0x0010922C]) = 0;
+//	*((uint32*)&m_ram[0x001067C4]) = 0;
+//	*((uint32*)&m_ram[0x001AC028]) = 0;
 
-//	*(uint32*)&CPS2VM::m_pRAM[0x0029B758] = 0;
-//	*(uint32*)&CPS2VM::m_pRAM[0x0029B768] = 0;
-//	*(uint32*)&CPS2VM::m_pRAM[0x0029B774] = 0;
+//	*(uint32*)&m_ram[0x0029B758] = 0;
+//	*(uint32*)&m_ram[0x0029B768] = 0;
+//	*(uint32*)&m_ram[0x0029B774] = 0;
 
 	ApplyPatches();
 
@@ -359,7 +340,7 @@ void CPS2OS::LoadExecutable()
 	unsigned int i;
 	uint32 nMinAddr;
 
-	CPS2VM::m_EE.InvalidateCache();
+    m_ee.InvalidateCache();
 
 	nMinAddr = 0xFFFFFFF0;
 
@@ -372,7 +353,7 @@ void CPS2OS::LoadExecutable()
 			{
 				nMinAddr = p->nVAddress;
 			}
-			memcpy(CPS2VM::m_pRAM + p->nVAddress, (uint8*)m_pELF->m_pData + p->nOffset, p->nFileSize);
+			memcpy(m_ram + p->nVAddress, (uint8*)m_pELF->m_pData + p->nOffset, p->nFileSize);
 		}
 	}
 
@@ -381,11 +362,9 @@ void CPS2OS::LoadExecutable()
 
 	//InsertFunctionSymbols();
 
-	CPS2VM::m_EE.m_State.nPC = m_pELF->m_Header.nEntryPoint;
+	m_ee.m_State.nPC = m_pELF->m_Header.nEntryPoint;
 	
-	//Install hooks
-	CPS2VM::m_EE.m_pSysCallHandler = SysCallHandler;
-	*(uint32*)&CPS2VM::m_pBIOS[0x00000004] = 0x0000001D;
+	*(uint32*)&m_bios[0x00000004] = 0x0000001D;
 	AssembleCustomSyscallHandler();
 	AssembleInterruptHandler();
 	AssembleDmacHandler();
@@ -395,11 +374,11 @@ void CPS2OS::LoadExecutable()
 	CreateWaitThread();
 
 #ifdef DEBUGGER_INCLUDED
-	CPS2VM::m_EE.m_pAnalysis->Clear();
-	CPS2VM::m_EE.m_pAnalysis->Analyse(nMinAddr, (nMinAddr + m_pELF->m_nLenght) & ~0x3);
+	m_ee.m_pAnalysis->Clear();
+	m_ee.m_pAnalysis->Analyse(nMinAddr, (nMinAddr + m_pELF->m_nLenght) & ~0x3);
 #endif
 
-	CPS2VM::m_OnMachineStateChange();
+//	CPS2VM::m_OnMachineStateChange();
 }
 
 void CPS2OS::UnloadExecutable()
@@ -413,8 +392,8 @@ void CPS2OS::UnloadExecutable()
 
 	SaveExecutableConfig();
 
-	CPS2VM::m_EE.m_Comments.RemoveTags();
-	CPS2VM::m_EE.m_Functions.RemoveTags();
+	m_ee.m_Comments.RemoveTags();
+	m_ee.m_Functions.RemoveTags();
 }
 
 void CPS2OS::LoadExecutableConfig()
@@ -426,15 +405,15 @@ void CPS2OS::LoadExecutableConfig()
 
 	//Functions
 	sPath = CONFIGPATH + m_sExecutableName + ".functions";
-	CPS2VM::m_EE.m_Functions.Unserialize(sPath.c_str());
+	m_ee.m_Functions.Unserialize(sPath.c_str());
 
 	//Comments
 	sPath = CONFIGPATH + m_sExecutableName + ".comments";
-	CPS2VM::m_EE.m_Comments.Unserialize(sPath.c_str());
+	m_ee.m_Comments.Unserialize(sPath.c_str());
 
 	//VU1 Comments
 	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
-	CPS2VM::m_VU1.m_Comments.Unserialize(sPath.c_str());
+	m_vu1.m_Comments.Unserialize(sPath.c_str());
 
 #endif
 
@@ -449,15 +428,15 @@ void CPS2OS::SaveExecutableConfig()
 
 	//Functions
 	sPath = CONFIGPATH + m_sExecutableName + ".functions";
-	CPS2VM::m_EE.m_Functions.Serialize(sPath.c_str());
+	m_ee.m_Functions.Serialize(sPath.c_str());
 
 	//Comments
 	sPath = CONFIGPATH + m_sExecutableName + ".comments";
-	CPS2VM::m_EE.m_Comments.Serialize(sPath.c_str());
+	m_ee.m_Comments.Serialize(sPath.c_str());
 
 	//VU1 Comments
 	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
-	CPS2VM::m_VU1.m_Comments.Serialize(sPath.c_str());
+	m_vu1.m_Comments.Serialize(sPath.c_str());
 
 #endif
 
@@ -520,7 +499,7 @@ void CPS2OS::ApplyPatches()
 				if(sscanf(sAddress, "%x", &nAddress) == 0) continue;
 				if(sscanf(sValue, "%x", &nValue) == 0) continue;
 
-				*(uint32*)&CPS2VM::m_pRAM[nAddress] = nValue;
+				*(uint32*)&m_ram[nAddress] = nValue;
 
 				nPatchCount++;
 			}
@@ -536,7 +515,7 @@ void CPS2OS::ApplyPatches()
 
 void CPS2OS::AssembleCustomSyscallHandler()
 {
-	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[0x100]);
+	CMIPSAssembler Asm((uint32*)&m_bios[0x100]);
 
 	//Epilogue
 	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
@@ -565,7 +544,7 @@ void CPS2OS::AssembleCustomSyscallHandler()
 
 void CPS2OS::AssembleInterruptHandler()
 {
-	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[0x200]);
+	CMIPSAssembler Asm((uint32*)&m_bios[0x200]);
 	unsigned int i;
 
 	//Epilogue (allocate 0x204 bytes)
@@ -665,7 +644,7 @@ void CPS2OS::AssembleInterruptHandler()
 
 void CPS2OS::AssembleDmacHandler()
 {
-	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[0x1000]);
+	CMIPSAssembler Asm((uint32*)&m_bios[0x1000]);
 
 	//Prologue
 	//S0 -> Channel Counter
@@ -754,7 +733,7 @@ void CPS2OS::AssembleDmacHandler()
 
 void CPS2OS::AssembleIntcHandler()
 {
-	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[0x2000]);
+	CMIPSAssembler Asm((uint32*)&m_bios[0x2000]);
 
 	//Prologue
 	//S0 -> Handler Counter
@@ -811,7 +790,7 @@ void CPS2OS::AssembleIntcHandler()
 
 void CPS2OS::AssembleThreadEpilog()
 {
-	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[0x3000]);
+	CMIPSAssembler Asm((uint32*)&m_bios[0x3000]);
 	
 	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x23);
 	Asm.SYSCALL();
@@ -819,7 +798,7 @@ void CPS2OS::AssembleThreadEpilog()
 
 void CPS2OS::AssembleWaitThreadProc()
 {
-	CMIPSAssembler Asm((uint32*)&CPS2VM::m_pBIOS[BIOS_ADDRESS_WAITTHREADPROC - BIOS_ADDRESS_BASE]);
+	CMIPSAssembler Asm((uint32*)&m_bios[BIOS_ADDRESS_WAITTHREADPROC - BIOS_ADDRESS_BASE]);
 
 //	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x03);
 //	Asm.SYSCALL();
@@ -830,17 +809,17 @@ void CPS2OS::AssembleWaitThreadProc()
 
 uint32* CPS2OS::GetCustomSyscallTable()
 {
-	return (uint32*)&CPS2VM::m_pRAM[0x00010000];
+	return (uint32*)&m_ram[0x00010000];
 }
 
 uint32 CPS2OS::GetCurrentThreadId()
 {
-	return *(uint32*)&CPS2VM::m_pRAM[0x00000000];
+	return *(uint32*)&m_ram[0x00000000];
 }
 
 void CPS2OS::SetCurrentThreadId(uint32 nThread)
 {
-	*(uint32*)&CPS2VM::m_pRAM[0x00000000] = nThread;
+	*(uint32*)&m_ram[0x00000000] = nThread;
 }
 
 uint32 CPS2OS::GetNextAvailableThreadId()
@@ -862,7 +841,7 @@ uint32 CPS2OS::GetNextAvailableThreadId()
 
 CPS2OS::THREAD* CPS2OS::GetThread(uint32 nID)
 {
-	return &((THREAD*)&CPS2VM::m_pRAM[0x00011000])[nID];
+	return &((THREAD*)&m_ram[0x00011000])[nID];
 }
 
 void CPS2OS::ThreadShakeAndBake()
@@ -871,7 +850,7 @@ void CPS2OS::ThreadShakeAndBake()
 	unsigned int nId;
 
 	//Don't play with fire (don't switch if we're in exception mode)
-	if(CPS2VM::m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & 0x02)
+	if(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & 0x02)
 	{
 		return;
 	}
@@ -958,7 +937,7 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 	if(nID == GetCurrentThreadId()) return;
 
 	pThread = GetThread(GetCurrentThreadId());
-	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
+	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
 
 	//Save the context
 	for(uint32 i = 0; i < 0x20; i++)
@@ -966,31 +945,32 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-		pContext->nGPR[i] = m_pCtx->m_State.nGPR[i];
+		pContext->nGPR[i] = m_ee.m_State.nGPR[i];
 	}
 
-	pThread->nEPC = m_pCtx->m_State.nPC;
+	pThread->nEPC = m_ee.m_State.nPC;
 
 	SetCurrentThreadId(nID);
 	pThread = GetThread(GetCurrentThreadId());
-	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
+	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
 
 	//Load the context
 
-	m_pCtx->m_State.nPC = pThread->nEPC;
+	m_ee.m_State.nPC = pThread->nEPC;
 
 	for(uint32 i = 0; i < 0x20; i++)
 	{
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-		m_pCtx->m_State.nGPR[i] = pContext->nGPR[i];
+		m_ee.m_State.nGPR[i] = pContext->nGPR[i];
 	}
 
-	if(CPS2VM::m_Logging.GetOSLoggingStatus())
-	{
-		printf("PS2OS: New thread elected (id = %i).\r\n", nID);
-	}
+//	if(CPS2VM::m_Logging.GetOSLoggingStatus())
+//	{
+//		printf("PS2OS: New thread elected (id = %i).\r\n", nID);
+//	}
+    CLog::GetInstance().Print("ps2os", "New thread elected (id = %i).\r\n", nID);
 }
 
 /*
@@ -1102,7 +1082,7 @@ uint32 CPS2OS::GetNextAvailableSemaphoreId()
 CPS2OS::SEMAPHORE* CPS2OS::GetSemaphore(uint32 nID)
 {
 	nID--;
-	return &((SEMAPHORE*)&CPS2VM::m_pRAM[0x0000E000])[nID];
+	return &((SEMAPHORE*)&m_ram[0x0000E000])[nID];
 }
 
 uint32 CPS2OS::GetNextAvailableDmacHandlerId()
@@ -1125,7 +1105,7 @@ uint32 CPS2OS::GetNextAvailableDmacHandlerId()
 CPS2OS::DMACHANDLER* CPS2OS::GetDmacHandler(uint32 nID)
 {
 	nID--;
-	return &((DMACHANDLER*)&CPS2VM::m_pRAM[0x0000C000])[nID];
+	return &((DMACHANDLER*)&m_ram[0x0000C000])[nID];
 }
 
 uint32 CPS2OS::GetNextAvailableIntcHandlerId()
@@ -1148,7 +1128,7 @@ uint32 CPS2OS::GetNextAvailableIntcHandlerId()
 CPS2OS::INTCHANDLER* CPS2OS::GetIntcHandler(uint32 nID)
 {
 	nID--;
-	return &((INTCHANDLER*)&CPS2VM::m_pRAM[0x0000A000])[nID];
+	return &((INTCHANDLER*)&m_ram[0x0000A000])[nID];
 }
 
 uint32 CPS2OS::GetNextAvailableDeci2HandlerId()
@@ -1171,13 +1151,13 @@ uint32 CPS2OS::GetNextAvailableDeci2HandlerId()
 CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 nID)
 {
 	nID--;
-	return &((DECI2HANDLER*)&CPS2VM::m_pRAM[0x00008000])[nID];
+	return &((DECI2HANDLER*)&m_ram[0x00008000])[nID];
 }
 
 void CPS2OS::ExceptionHandler()
 {
 	ThreadShakeAndBake();
-	m_pCtx->GenerateInterrupt(0x1FC00200);
+	m_ee.GenerateInterrupt(0x1FC00200);
 }
 
 uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrHI, uint32 nVAddrLO)
@@ -1196,7 +1176,7 @@ uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrHI, uint32 nVAddrLO)
 
 void CPS2OS::sc_Unhandled()
 {
-	printf("PS2OS: Unknown system call (%X) called from 0x%0.8X.\r\n", m_pCtx->m_State.nGPR[3].nV[0], m_pCtx->m_State.nPC);
+	printf("PS2OS: Unknown system call (%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
 }
 
 //02
@@ -1206,11 +1186,11 @@ void CPS2OS::sc_GsSetCrt()
 	bool nIsInterlaced;
 	bool nIsFrameMode;
 
-	nIsInterlaced	= (m_pCtx->m_State.nGPR[SC_PARAM0].nV[0] != 0);
-	nMode			= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
-	nIsFrameMode	= (m_pCtx->m_State.nGPR[SC_PARAM2].nV[0] != 0);
+	nIsInterlaced	= (m_ee.m_State.nGPR[SC_PARAM0].nV[0] != 0);
+	nMode			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	nIsFrameMode	= (m_ee.m_State.nGPR[SC_PARAM2].nV[0] != 0);
 
-	CPS2VM::m_pGS->SetCrt(nIsInterlaced, nMode, nIsFrameMode);
+	m_gs->SetCrt(nIsInterlaced, nMode, nIsFrameMode);
 }
 
 //10
@@ -1219,10 +1199,10 @@ void CPS2OS::sc_AddIntcHandler()
 	uint32 nAddress, nCause, nNext, nArg, nID;
 	INTCHANDLER* pHandler;
 
-	nCause		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nAddress	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
-	nNext		= m_pCtx->m_State.nGPR[SC_PARAM2].nV[0];
-	nArg		= m_pCtx->m_State.nGPR[SC_PARAM3].nV[0];
+	nCause		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	nNext		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+	nArg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
 	/*
 	if(nNext != 0)
@@ -1234,8 +1214,8 @@ void CPS2OS::sc_AddIntcHandler()
 	nID = GetNextAvailableIntcHandlerId();
 	if(nID == 0xFFFFFFFF)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1244,10 +1224,10 @@ void CPS2OS::sc_AddIntcHandler()
 	pHandler->nAddress	= nAddress;
 	pHandler->nCause	= nCause;
 	pHandler->nArg		= nArg;
-	pHandler->nGP		= m_pCtx->m_State.nGPR[CMIPS::GP].nV[0];
+	pHandler->nGP		= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //11
@@ -1256,21 +1236,21 @@ void CPS2OS::sc_RemoveIntcHandler()
 	uint32 nCause, nID;
 	INTCHANDLER* pHandler;
 
-	nCause		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nID			= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nCause		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nID			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	pHandler = GetIntcHandler(nID);
 	if(pHandler->nValid != 1)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
 	pHandler->nValid = 0;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //12
@@ -1279,10 +1259,10 @@ void CPS2OS::sc_AddDmacHandler()
 	uint32 nAddress, nChannel, nNext, nArg, nID;
 	DMACHANDLER* pHandler;
 
-	nChannel	= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nAddress	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
-	nNext		= m_pCtx->m_State.nGPR[SC_PARAM2].nV[0];
-	nArg		= m_pCtx->m_State.nGPR[SC_PARAM3].nV[0];
+	nChannel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	nNext		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+	nArg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
 	//The Next parameter indicates at which moment we'd want our DMAC handler to be called.
 	//-1 -> At the end
@@ -1297,8 +1277,8 @@ void CPS2OS::sc_AddDmacHandler()
 	nID = GetNextAvailableDmacHandlerId();
 	if(nID == 0xFFFFFFFF)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1307,10 +1287,10 @@ void CPS2OS::sc_AddDmacHandler()
 	pHandler->nAddress	= nAddress;
 	pHandler->nChannel	= nChannel;
 	pHandler->nArg		= nArg;
-	pHandler->nGP		= m_pCtx->m_State.nGPR[CMIPS::GP].nV[0];
+	pHandler->nGP		= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //13
@@ -1319,14 +1299,14 @@ void CPS2OS::sc_RemoveDmacHandler()
 	uint32 nChannel, nID;
 	DMACHANDLER* pHandler;
 
-	nChannel	= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nID			= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nChannel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nID			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	pHandler = GetDmacHandler(nID);
 	pHandler->nValid = 0x00;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //14
@@ -1334,16 +1314,17 @@ void CPS2OS::sc_EnableIntc()
 {
 	uint32 nCause, nMask;
 
-	nCause = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	nMask = 1 << nCause;
-	if(!(CINTC::GetRegister(CINTC::INTC_MASK) & nMask))
-	{
-		CINTC::SetRegister(CINTC::INTC_MASK, nMask);
-	}
+    assert(0);
+//	if(!(CINTC::GetRegister(CINTC::INTC_MASK) & nMask))
+//	{
+//		CINTC::SetRegister(CINTC::INTC_MASK, nMask);
+//	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //15
@@ -1351,24 +1332,27 @@ void CPS2OS::sc_DisableIntc()
 {
 	uint32 nCause, nMask;
 
-	nCause = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	nMask = 1 << nCause;
-	if(CINTC::GetRegister(CINTC::INTC_MASK) & nMask)
-	{
-		CINTC::SetRegister(CINTC::INTC_MASK, nMask);
-	}
+    assert(0);
+//	if(CINTC::GetRegister(CINTC::INTC_MASK) & nMask)
+//	{
+//		CINTC::SetRegister(CINTC::INTC_MASK, nMask);
+//	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //16
 void CPS2OS::sc_EnableDmac()
 {
+    throw std::runtime_error("Not implemented.");
+/*
 	uint32 nChannel, nRegister;
 
-	nChannel = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	nRegister = 0x10000 << nChannel;
 
@@ -1383,16 +1367,19 @@ void CPS2OS::sc_EnableDmac()
 		CINTC::SetRegister(CINTC::INTC_MASK, 0x02);
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+*/
 }
 
 //17
 void CPS2OS::sc_DisableDmac()
 {
+    throw std::runtime_error("Not implemented.");
+/*
 	uint32 nChannel, nRegister;
 
-	nChannel = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	nRegister = 0x10000 << nChannel;
 
@@ -1401,8 +1388,9 @@ void CPS2OS::sc_DisableDmac()
 		CDMAC::SetRegister(CDMAC::D_STAT, nRegister);
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+*/
 }
 
 //20
@@ -1413,13 +1401,13 @@ void CPS2OS::sc_CreateThread()
 	THREADCONTEXT* pContext;
 	uint32 nID, nStackAddr, nHeapBase;
 
-	pThreadParam = (THREADPARAM*)&CPS2VM::m_pRAM[m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]];
+	pThreadParam = (THREADPARAM*)&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]];
 
 	nID = GetNextAvailableThreadId();
 	if(nID == 0xFFFFFFFF)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 		return;
 	}
 
@@ -1443,7 +1431,7 @@ void CPS2OS::sc_CreateThread()
 
 	assert(sizeof(THREADCONTEXT) == STACKRES);
 
-	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
+	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
 	memset(pContext, 0, sizeof(THREADCONTEXT));
 
 	pContext->nGPR[CMIPS::SP].nV0 = nStackAddr;
@@ -1451,8 +1439,8 @@ void CPS2OS::sc_CreateThread()
 	pContext->nGPR[CMIPS::GP].nV0 = pThreadParam->nGP;
 	pContext->nGPR[CMIPS::RA].nV0 = 0x1FC03000;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //21
@@ -1461,13 +1449,13 @@ void CPS2OS::sc_DeleteThread()
 	uint32 nID;
 	THREAD* pThread;
 
-	nID = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1475,8 +1463,8 @@ void CPS2OS::sc_DeleteThread()
 
 	pThread->nValid = 0;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //22
@@ -1486,24 +1474,24 @@ void CPS2OS::sc_StartThread()
 	THREAD* pThread;
 	THREADCONTEXT* pContext;
 
-	nID		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nArg	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nArg	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
 	pThread->nStatus = THREAD_RUNNING;
 
-	pContext = (THREADCONTEXT*)&CPS2VM::m_pRAM[pThread->nContextPtr];
+	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
 	pContext->nGPR[CMIPS::A0].nV0 = nArg;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //23
@@ -1523,20 +1511,20 @@ void CPS2OS::sc_TerminateThread()
 	uint32 nID;
 	THREAD* pThread;
 
-	nID = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
 	pThread->nStatus = THREAD_ZOMBIE;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //29
@@ -1545,22 +1533,22 @@ void CPS2OS::sc_ChangeThreadPriority()
 	uint32 nID, nPrio, nPrevPrio;
 	THREAD* pThread;
 
-	nID		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nPrio	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nPrio	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
 	nPrevPrio = pThread->nPriority;
 	pThread->nPriority = nPrio;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nPrevPrio;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nPrevPrio;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 	//Reschedule?
 	m_pThreadSchedule->Remove(pThread->nScheduleID);
@@ -1575,7 +1563,7 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 	uint32 nPrio, nID;
 	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
 
-	nPrio = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nPrio = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	//TODO: Rescheduling isn't always necessary and will cause the current thread's priority queue to be
 	//rotated too since each time a thread is picked to be executed it's placed at the end of the queue...
@@ -1596,8 +1584,8 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 		}
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nPrio;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nPrio;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 	if(!itThread.IsEnd())
 	{
@@ -1609,8 +1597,8 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 //2F
 void CPS2OS::sc_GetThreadId()
 {
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = GetCurrentThreadId();
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = GetCurrentThreadId();
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //30
@@ -1620,14 +1608,14 @@ void CPS2OS::sc_ReferThreadStatus()
 	uint32 nID, nStatusPtr, nRet;
 	THREAD* pThread;
 
-	nID			= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nStatusPtr	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nID			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nStatusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1650,15 +1638,15 @@ void CPS2OS::sc_ReferThreadStatus()
 	{
 		THREADPARAM* pThreadParam;
 
-		pThreadParam = (THREADPARAM*)(&CPS2VM::m_pRAM[nStatusPtr]);
+		pThreadParam = (THREADPARAM*)(&m_ram[nStatusPtr]);
 		pThreadParam->nStatus		= nRet;
 		pThreadParam->nPriority		= pThread->nPriority;
 		pThreadParam->nStackBase	= pThread->nStackBase;
 		pThreadParam->nStackSize	= pThread->nStackSize;
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nRet;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nRet;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //32
@@ -1685,8 +1673,8 @@ void CPS2OS::sc_WakeupThread()
 	uint32 nID;
 	bool nInt;
 
-	nID		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nInt	= m_pCtx->m_State.nGPR[3].nV[0] == 0x34;
+	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nInt	= m_ee.m_State.nGPR[3].nV[0] == 0x34;
 
 	pThread = GetThread(nID);
 
@@ -1707,8 +1695,8 @@ void CPS2OS::sc_RFU060()
 	uint32 nStackBase, nStackSize, nStackAddr;
 	THREAD* pThread;
 
-	nStackBase = m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
-	nStackSize = m_pCtx->m_State.nGPR[SC_PARAM2].nV[0];
+	nStackBase = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	nStackSize = m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 
 	if(nStackBase == 0xFFFFFFFF)
 	{
@@ -1735,8 +1723,8 @@ void CPS2OS::sc_RFU060()
 
 	SetCurrentThreadId(1);
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nStackAddr;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nStackAddr;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //3D
@@ -1747,8 +1735,8 @@ void CPS2OS::sc_RFU061()
 
 	pThread = GetThread(GetCurrentThreadId());
 
-	nHeapBase = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nHeapSize = m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nHeapBase = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nHeapSize = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	if(nHeapSize == 0xFFFFFFFF)
 	{
@@ -1759,8 +1747,8 @@ void CPS2OS::sc_RFU061()
 		pThread->nHeapBase = nHeapBase + nHeapSize;
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = pThread->nHeapBase;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = pThread->nHeapBase;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //3E
@@ -1770,8 +1758,8 @@ void CPS2OS::sc_EndOfHeap()
 
 	pThread = GetThread(GetCurrentThreadId());
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = pThread->nHeapBase;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = pThread->nHeapBase;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //40
@@ -1781,13 +1769,13 @@ void CPS2OS::sc_CreateSema()
 	SEMAPHORE* pSema;
 	uint32 nID;
 
-	pSemaParam = (SEMAPHOREPARAM*)(CPS2VM::m_pRAM + m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+	pSemaParam = (SEMAPHOREPARAM*)(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 
 	nID = GetNextAvailableSemaphoreId();
 	if(nID == 0xFFFFFFFF)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1797,8 +1785,8 @@ void CPS2OS::sc_CreateSema()
 	pSema->nMaxCount	= pSemaParam->nMaxCount;
 	pSema->nWaitCount	= 0;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //41
@@ -1807,13 +1795,13 @@ void CPS2OS::sc_DeleteSema()
 	uint32 nID;
 	SEMAPHORE* pSema;
 
-	nID = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1825,8 +1813,8 @@ void CPS2OS::sc_DeleteSema()
 
 	pSema->nValid = 0;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //42
@@ -1838,14 +1826,14 @@ void CPS2OS::sc_SignalSema()
 	SEMAPHORE* pSema;
 	THREAD* pThread;
 
-	nInt	= m_pCtx->m_State.nGPR[3].nV[0] == 0x43;
-	nID		= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nInt	= m_ee.m_State.nGPR[3].nV[0] == 0x43;
+	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 	
@@ -1869,8 +1857,8 @@ void CPS2OS::sc_SignalSema()
 			}
 		}
 
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 		if(!nInt)
 		{
@@ -1882,8 +1870,8 @@ void CPS2OS::sc_SignalSema()
 		pSema->nCount++;
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //44
@@ -1893,13 +1881,13 @@ void CPS2OS::sc_WaitSema()
 	THREAD* pThread;
 	uint32 nID;
 
-	nID = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1922,8 +1910,8 @@ void CPS2OS::sc_WaitSema()
 		pSema->nCount--;
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 	//REMOVE
 	//Force reschedule
@@ -1940,27 +1928,27 @@ void CPS2OS::sc_PollSema()
 	uint32 nID;
 	SEMAPHORE* pSema;
 
-	nID = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
 	if(pSema->nCount == 0)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
 	pSema->nCount--;
 	
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //48
@@ -1970,14 +1958,14 @@ void CPS2OS::sc_ReferSemaStatus()
 	SEMAPHORE* pSema;
 	SEMAPHOREPARAM *pSemaParam;
 
-	nID = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	pSemaParam = (SEMAPHOREPARAM*)(CPS2VM::m_pRAM + (m_pCtx->m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
+	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	pSemaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
 
 	pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
@@ -1985,8 +1973,8 @@ void CPS2OS::sc_ReferSemaStatus()
 	pSemaParam->nMaxCount		= pSema->nMaxCount;
 	pSemaParam->nWaitThreads	= pSema->nWaitCount;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //64
@@ -2000,36 +1988,34 @@ void CPS2OS::sc_GsPutIMR()
 {
 	uint32 nIMR;
 
-	nIMR = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nIMR = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	CPS2VM::m_pGS->WritePrivRegister(CGSHandler::GS_IMR, nIMR);
+	m_gs->WritePrivRegister(CGSHandler::GS_IMR, nIMR);
 }
 
 //73
 void CPS2OS::sc_SetVSyncFlag()
 {
 	uint32 nPtr1, nPtr2;
-	CGSHandler* pGsHandler;
 
-	nPtr1	= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nPtr2	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nPtr1	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nPtr2	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	*(uint32*)&CPS2VM::m_pRAM[nPtr1] = 0x01;
+	*(uint32*)&m_ram[nPtr1] = 0x01;
 
-	pGsHandler = CPS2VM::GetGSHandler();
-	if(pGsHandler != NULL)
+	if(m_gs != NULL)
 	{
-		//*(uint32*)&CPS2VM::m_pRAM[nPtr2] = 0x2000;
-		*(uint32*)&CPS2VM::m_pRAM[nPtr2] = pGsHandler->ReadPrivRegister(CGSHandler::GS_CSR) & 0x2000;
+		//*(uint32*)&m_ram[nPtr2] = 0x2000;
+		*(uint32*)&m_ram[nPtr2] = m_gs->ReadPrivRegister(CGSHandler::GS_CSR) & 0x2000;
 	}
 	else
 	{
 		//Humm...
-		*(uint32*)&CPS2VM::m_pRAM[nPtr2] = 0;
+		*(uint32*)&m_ram[nPtr2] = 0;
 	}
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 	//REMOVE
 	//Force reschedule
@@ -2042,26 +2028,28 @@ void CPS2OS::sc_SetSyscall()
 	uint32 nAddress;
 	uint8 nNumber;
 
-	nNumber		= (uint8)(m_pCtx->m_State.nGPR[SC_PARAM0].nV[0] & 0xFF);
-	nAddress	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nNumber		= (uint8)(m_ee.m_State.nGPR[SC_PARAM0].nV[0] & 0xFF);
+	nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	GetCustomSyscallTable()[nNumber]	= nAddress;
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //76
 void CPS2OS::sc_SifDmaStat()
 {
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 }
 
 //77
 void CPS2OS::sc_SifSetDma()
 {
-	struct DMAREG
+    throw std::runtime_error("Not implemented.");
+/*
+    struct DMAREG
 	{
 		uint32 nSrcAddr;
 		uint32 nDstAddr;
@@ -2072,13 +2060,13 @@ void CPS2OS::sc_SifSetDma()
 	DMAREG* pXfer;
 	uint32 nCount, i, nSize;
 
-	pXfer	= (DMAREG*)(CPS2VM::m_pRAM + m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
-	nCount	= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	pXfer	= (DMAREG*)(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+	nCount	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	//Returns count
 	//DMA might call an interrupt handler
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nCount;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nCount;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 	//REMOVE
 	//Force reschedule
@@ -2093,6 +2081,7 @@ void CPS2OS::sc_SifSetDma()
 		CDMAC::SetRegister(CDMAC::D6_QWC,	nSize);
 		CDMAC::SetRegister(CDMAC::D6_CHCR,	0x00000100);
 	}
+*/
 }
 
 //78
@@ -2106,13 +2095,14 @@ void CPS2OS::sc_SifSetReg()
 {
 	uint32 nRegister, nValue;
 
-	nRegister	= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nValue		= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nRegister	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nValue		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	CSIF::SetRegister(nRegister, nValue);
+    assert(0);
+//	CSIF::SetRegister(nRegister, nValue);
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //7A
@@ -2120,10 +2110,11 @@ void CPS2OS::sc_SifGetReg()
 {
 	uint32 nRegister;
 
-	nRegister = m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
+	nRegister = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = CSIF::GetRegister(nRegister);
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+    assert(0);
+//	m_ee.m_State.nGPR[SC_RETURN].nV[0] = CSIF::GetRegister(nRegister);
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //7C
@@ -2133,8 +2124,8 @@ void CPS2OS::sc_Deci2Call()
 	uint8* sString;
 	DECI2HANDLER* pHandler;
 
-	nFunction	= m_pCtx->m_State.nGPR[SC_PARAM0].nV[0];
-	nParam		= m_pCtx->m_State.nGPR[SC_PARAM1].nV[0];
+	nFunction	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	nParam		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 	
 	switch(nFunction)
 	{
@@ -2144,56 +2135,56 @@ void CPS2OS::sc_Deci2Call()
 
 		pHandler = GetDeci2Handler(nID);
 		pHandler->nValid		= 1;
-		pHandler->nDevice		= *(uint32*)&CPS2VM::m_pRAM[nParam + 0x00];
-		pHandler->nBufferAddr	= *(uint32*)&CPS2VM::m_pRAM[nParam + 0x04];
+		pHandler->nDevice		= *(uint32*)&m_ram[nParam + 0x00];
+		pHandler->nBufferAddr	= *(uint32*)&m_ram[nParam + 0x04];
 
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = nID;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 		break;
 	case 0x03:
 		//Deci2Send
-		nID = *(uint32*)&CPS2VM::m_pRAM[nParam + 0x00];
+		nID = *(uint32*)&m_ram[nParam + 0x00];
 
 		pHandler = GetDeci2Handler(nID);
 
 		if(pHandler->nValid != 0)
 		{
-			nParam  = *(uint32*)&CPS2VM::m_pRAM[pHandler->nBufferAddr + 0x10];
+			nParam  = *(uint32*)&m_ram[pHandler->nBufferAddr + 0x10];
 			nParam &= (CPS2VM::RAMSIZE - 1);
 
-			nLength = CPS2VM::m_pRAM[nParam + 0x00] - 0x0C;
-			sString = &CPS2VM::m_pRAM[nParam + 0x0C];
+			nLength = m_ram[nParam + 0x00] - 0x0C;
+			sString = &m_ram[nParam + 0x0C];
 
-			CSIF::GetFileIO()->Write(1, nLength, sString);
+//			CSIF::GetFileIO()->Write(1, nLength, sString);
 		}
 
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 1;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 		break;
 	case 0x04:
 		//Deci2Poll
-		nID = *(uint32*)&CPS2VM::m_pRAM[nParam + 0x00];
+		nID = *(uint32*)&m_ram[nParam + 0x00];
 		
 		pHandler = GetDeci2Handler(nID);
 		if(pHandler->nValid != 0)
 		{
-			*(uint32*)&CPS2VM::m_pRAM[pHandler->nBufferAddr + 0x0C] = 0;
+			*(uint32*)&m_ram[pHandler->nBufferAddr + 0x0C] = 0;
 		}
 
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = 1;
-		m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 		break;
 	case 0x10:
 		//kPuts
-		nParam = *(uint32*)&CPS2VM::m_pRAM[nParam];
-		sString = &CPS2VM::m_pRAM[nParam];
-		CSIF::GetFileIO()->Write(1, (uint32)strlen((char*)sString), sString);
+		nParam = *(uint32*)&m_ram[nParam];
+		sString = &m_ram[nParam];
+//		CSIF::GetFileIO()->Write(1, (uint32)strlen((char*)sString), sString);
 		break;
 	default:
-		printf("PS2OS: Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", nFunction, m_pCtx->m_State.nPC);
+		printf("PS2OS: Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", nFunction, m_ee.m_State.nPC);
 		break;
 	}
 
@@ -2202,8 +2193,8 @@ void CPS2OS::sc_Deci2Call()
 //7F
 void CPS2OS::sc_GetMemorySize()
 {
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[0] = CPS2VM::RAMSIZE;
-	m_pCtx->m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = CPS2VM::RAMSIZE;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //////////////////////////////////////////////////
@@ -2217,51 +2208,62 @@ void CPS2OS::SysCallHandler()
 	CProfiler::GetInstance().EndZone();
 #endif
 
-	uint32 nFunc;
+    uint32 searchAddress = m_ee.m_State.nCOP0[CCOP_SCU::EPC];
+    uint32 callInstruction = m_ee.m_pMemoryMap->GetWord(searchAddress);
+    if(callInstruction != 0x0000000C)
+    {
+        throw runtime_error("Not a SYSCALL.");
+    }
 
-	nFunc = m_pCtx->m_State.nGPR[3].nV[0];
+    uint32 nFunc;
+
+	nFunc = m_ee.m_State.nGPR[3].nV[0];
 	if(nFunc & 0x80000000)
 	{
 		nFunc = 0 - nFunc;
 	}
 	//Save for custom handler
-	m_pCtx->m_State.nGPR[3].nV[0] = nFunc;
+	m_ee.m_State.nGPR[3].nV[0] = nFunc;
 
 	if(GetCustomSyscallTable()[nFunc] == NULL)
 	{
 #ifdef _DEBUG
 		DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
-		if(CPS2VM::m_Logging.GetOSRecordingStatus())
-		{
-			RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
-		}
+//		if(CPS2VM::m_Logging.GetOSRecordingStatus())
+//		{
+//			RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
+//		}
 #endif
 		if(nFunc < 0x80)
 		{
-			m_pSysCall[nFunc & 0xFF]();
+            ((this)->*(m_pSysCall[nFunc & 0xFF]))();
 		}
 	}
 	else
 	{
-		m_pCtx->GenerateException(0x1FC00100);
+		m_ee.GenerateException(0x1FC00100);
 	}
 
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
 #endif
 
+    m_ee.m_State.nHasException = 0;
 }
 
 void CPS2OS::DisassembleSysCall(uint8 nFunc)
 {
-	if(!CPS2VM::m_Logging.GetOSLoggingStatus()) return;
+#ifdef _DEBUG
+//	if(!CPS2VM::m_Logging.GetOSLoggingStatus()) return;
 
 	string sDescription(GetSysCallDescription(nFunc));
 
 	if(sDescription.length() != 0)
 	{
-		printf("PS2OS: %s\r\n", sDescription.c_str());
+//		printf("PS2OS: %s\r\n", sDescription.c_str());
+        CLog::GetInstance().Print("ps2os", "%s\r\n", sDescription.c_str());
 	}
+#endif
 }
 
 void CPS2OS::RecordSysCall(uint8 nFunction)
@@ -2272,7 +2274,7 @@ void CPS2OS::RecordSysCall(uint8 nFunction)
 
 	Event.nThreadId		= GetCurrentThreadId();
 	Event.nEventType	= nFunction;
-	Event.nAddress		= m_pCtx->m_State.nGPR[CMIPS::RA].nV0 - 8;
+	Event.nAddress		= m_ee.m_State.nGPR[CMIPS::RA].nV0 - 8;
 	Event.sDescription	= (sDescription.length() != 0) ? sDescription : ("Unknown (" + lexical_cast<string>(nFunction) + ")");
 
 	COsEventManager::GetInstance().InsertEvent(Event);
@@ -2288,71 +2290,71 @@ string CPS2OS::GetSysCallDescription(uint8 nFunction)
 	{
 	case 0x02:
 		sprintf(sDescription, "GsSetCrt(interlace = %i, mode = %i, field = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM2].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x11:
 		sprintf(sDescription, "RemoveIntcHandler(cause = %i, id = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x12:
 		sprintf(sDescription, "AddDmacHandler(channel = %i, address = 0x%0.8X, next = %i, arg = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM2].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM3].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x13:
 		sprintf(sDescription, "RemoveDmacHandler(channel = %i, handler = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x14:
 		sprintf(sDescription, "EnableIntc(cause = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x15:
 		sprintf(sDescription, "DisableIntc(cause = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x16:
 		sprintf(sDescription, "EnableDmac(channel = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x17:
 		sprintf(sDescription, "DisableDmac(channel = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x20:
 		sprintf(sDescription, "CreateThread(thread = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x21:
 		sprintf(sDescription, "DeleteThread(id = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x22:
 		sprintf(sDescription, "StartThread(id = 0x%0.8X, a0 = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x23:
 		sprintf(sDescription, "ExitThread();");
 		break;
 	case 0x25:
 		sprintf(sDescription, "TerminateThread(id = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x29:
 		sprintf(sDescription, "ChangeThreadPriority(id = 0x%0.8X, priority = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2B:
 		sprintf(sDescription, "RotateThreadReadyQueue(prio = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2F:
 		sprintf(sDescription, "GetThreadId();");
@@ -2362,60 +2364,60 @@ string CPS2OS::GetSysCallDescription(uint8 nFunction)
 		break;
 	case 0x33:
 		sprintf(sDescription, "WakeupThread(id = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x34:
 		sprintf(sDescription, "iWakeupThread(id = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
 		sprintf(sDescription, "RFU060(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM2].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM3].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM4].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM3].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM4].nV[0]);
 		break;
 	case 0x3D:
 		sprintf(sDescription, "RFU061(heap_start = 0x%0.8X, heap_size = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x3E:
 		sprintf(sDescription, "EndOfHeap();");
 		break;
 	case 0x40:
 		sprintf(sDescription, "CreateSema(sema = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x41:
 		sprintf(sDescription, "DeleteSema(semaid = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x42:
 		sprintf(sDescription, "SignalSema(semaid = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x43:
 		sprintf(sDescription, "iSignalSema(semaid = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x44:
 		sprintf(sDescription, "WaitSema(semaid = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x45:
 		sprintf(sDescription, "PollSema(semaid = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x46:
 		sprintf(sDescription, "iPollSema(semaid = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x48:
 		sprintf(sDescription, "iReferSemaStatus(semaid = %i, status = 0x%0.8X);",
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0],
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x64:
 	case 0x68:
@@ -2425,42 +2427,42 @@ string CPS2OS::GetSysCallDescription(uint8 nFunction)
 		break;
 	case 0x71:
 		sprintf(sDescription, "GsPutIMR(GS_IMR = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x73:
 		sprintf(sDescription, "SetVSyncFlag(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x74:
 		sprintf(sDescription, "SetSyscall(num = 0x%0.2X, address = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x76:
 		sprintf(sDescription, "SifDmaStat();");
 		break;
 	case 0x77:
 		sprintf(sDescription, "SifSetDma(list = 0x%0.8X, count = %i);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x78:
 		sprintf(sDescription, "SifSetDChain();");
 		break;
 	case 0x79:
 		sprintf(sDescription, "SifSetReg(register = 0x%0.8X, value = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7A:
 		sprintf(sDescription, "SifGetReg(register = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x7C:
 		sprintf(sDescription, "Deci2Call(func = 0x%0.8X, param = 0x%0.8X);", \
-			m_pCtx->m_State.nGPR[SC_PARAM0].nV[0], \
-			m_pCtx->m_State.nGPR[SC_PARAM1].nV[0]);
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7F:
 		sprintf(sDescription, "GetMemorySize();");
@@ -2474,40 +2476,41 @@ string CPS2OS::GetSysCallDescription(uint8 nFunction)
 //System Call Handlers Table
 //////////////////////////////////////////////////
 
-void (*CPS2OS::m_pSysCall[0x80])() = 
+//void (*CPS2OS::m_pSysCall[0x80])() = 
+CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 {
 	//0x00
-	sc_Unhandled,			sc_Unhandled,				sc_GsSetCrt,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+    &CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x08
-	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x10
-	sc_AddIntcHandler,		sc_RemoveIntcHandler,		sc_AddDmacHandler,	sc_RemoveDmacHandler,		sc_EnableIntc,		sc_DisableIntc,		sc_EnableDmac,		sc_DisableDmac,
+	&CPS2OS::sc_AddIntcHandler,		&CPS2OS::sc_RemoveIntcHandler,		&CPS2OS::sc_AddDmacHandler,	&CPS2OS::sc_RemoveDmacHandler,		&CPS2OS::sc_EnableIntc,		&CPS2OS::sc_DisableIntc,	&CPS2OS::sc_EnableDmac,		&CPS2OS::sc_DisableDmac,
 	//0x18
-	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x20
-	sc_CreateThread,		sc_DeleteThread,			sc_StartThread,		sc_ExitThread,				sc_Unhandled,		sc_TerminateThread,	sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_CreateThread,		&CPS2OS::sc_DeleteThread,			&CPS2OS::sc_StartThread,	&CPS2OS::sc_ExitThread,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_TerminateThread,&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x28
-	sc_Unhandled,			sc_ChangeThreadPriority,	sc_Unhandled,		sc_RotateThreadReadyQueue,	sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_GetThreadId,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_RotateThreadReadyQueue,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetThreadId,
 	//0x30
-	sc_ReferThreadStatus,	sc_Unhandled,				sc_SleepThread,		sc_WakeupThread,			sc_WakeupThread,	sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SleepThread,	&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x38
-	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_RFU060,			sc_RFU061,			sc_EndOfHeap,		sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_RFU060,			&CPS2OS::sc_RFU061,			&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
 	//0x40
-	sc_CreateSema,			sc_DeleteSema,				sc_SignalSema,		sc_SignalSema,				sc_WaitSema,		sc_PollSema,		sc_PollSema,		sc_Unhandled,
+	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,		&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_Unhandled,
 	//0x48
-	sc_ReferSemaStatus,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_ReferSemaStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x50
-	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x58
-	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x60
-	sc_Unhandled,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_FlushCache,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_FlushCache,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x68
-	sc_FlushCache,			sc_Unhandled,				sc_Unhandled,		sc_Unhandled,				sc_Unhandled,		sc_Unhandled,		sc_Unhandled,		sc_Unhandled,
+	&CPS2OS::sc_FlushCache,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x70
-	sc_Unhandled,			sc_GsPutIMR,				sc_Unhandled,		sc_SetVSyncFlag,			sc_SetSyscall,		sc_Unhandled,		sc_SifDmaStat,		sc_SifSetDma,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_GsPutIMR,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SetVSyncFlag,			&CPS2OS::sc_SetSyscall,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SifDmaStat,		&CPS2OS::sc_SifSetDma,
 	//0x78
-	sc_SifSetDChain,		sc_SifSetReg,				sc_SifGetReg,		sc_Unhandled,				sc_Deci2Call,		sc_Unhandled,		sc_Unhandled,		sc_GetMemorySize,
+	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetMemorySize,
 };
 
 //////////////////////////////////////////////////

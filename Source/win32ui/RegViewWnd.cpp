@@ -12,7 +12,7 @@
 using namespace Framework;
 using namespace boost;
 
-CRegViewWnd::CRegViewWnd(HWND hParent, CMIPS* pCtx)
+CRegViewWnd::CRegViewWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 {
 	RECT rc;
 
@@ -34,10 +34,10 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CMIPS* pCtx)
 	Create(NULL, CLSNAME, _T("Registers"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pRegView[0] = new CRegViewGeneral(m_hWnd, &rc, pCtx);
-	m_pRegView[1] = new CRegViewSCU(m_hWnd, &rc, pCtx);
-	m_pRegView[2] = new CRegViewFPU(m_hWnd, &rc, pCtx);
-	m_pRegView[3] = new CRegViewVU(m_hWnd, &rc, pCtx);
+	m_pRegView[0] = new CRegViewGeneral(m_hWnd, &rc, virtualMachine, pCtx);
+	m_pRegView[1] = new CRegViewSCU(m_hWnd, &rc, virtualMachine, pCtx);
+	m_pRegView[2] = new CRegViewFPU(m_hWnd, &rc, virtualMachine, pCtx);
+	m_pRegView[3] = new CRegViewVU(m_hWnd, &rc, virtualMachine, pCtx);
 
 	m_pRegView[0]->Enable(false);
 	m_pRegView[1]->Enable(false);

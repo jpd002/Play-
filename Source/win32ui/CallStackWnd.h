@@ -5,13 +5,14 @@
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
 #include "Types.h"
+#include "../VirtualMachine.h"
 
 class CMIPS;
 
 class CCallStackWnd : public Framework::Win32::CMDIChild, public boost::signals::trackable
 {
 public:
-									CCallStackWnd(HWND, CMIPS*);
+									CCallStackWnd(HWND, CVirtualMachine&, CMIPS*);
 	virtual							~CCallStackWnd();
 	boost::signal<void (uint32)>	m_OnFunctionDblClick;
 
@@ -29,7 +30,8 @@ private:
 	void							OnMachineStateChange();
 	void							OnRunningStateChange();
 
-	CMIPS*							m_pCtx;
+    CVirtualMachine&                m_virtualMachine;
+    CMIPS*							m_pCtx;
 	Framework::Win32::CListView*	m_pList;
 };
 

@@ -100,7 +100,7 @@ uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrHI, uint32 nVAddrLO)
 	return nVAddrLO & 0x1FFFFFFF;
 }
 
-void CMIPS::DefaultSysCallHandler()
+void CMIPS::DefaultSysCallHandler(CMIPS* context)
 {
 	printf("MIPS: Unhandled SYSCALL encountered.\r\n");
 }

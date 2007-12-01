@@ -33,8 +33,9 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CM
 
 	if(m_nOpcode & 0x40000000)
 	{
-		m_pB->PushRef(m_pCtx);
-		m_pB->Call(CVIF::StopVU, 1, false);
+        assert(0);
+//		m_pB->PushRef(m_pCtx);
+//		m_pB->Call(CVIF::StopVU, 1, false);
 
 		m_pB->PushImm(1);
 		m_pB->PullAddr(&m_pCtx->m_nQuota);

@@ -6,13 +6,13 @@
 using namespace Framework;
 using namespace boost;
 
-CRegViewVU::CRegViewVU(HWND hParent, RECT* pR, CMIPS* pCtx) :
+CRegViewVU::CRegViewVU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
 CRegViewPage(hParent, pR)
 {
 	m_pCtx = pCtx;
 
-	CPS2VM::m_OnMachineStateChange.connect(bind(&CRegViewVU::Update, this));
-	CPS2VM::m_OnRunningStateChange.connect(bind(&CRegViewVU::Update, this));
+	virtualMachine.m_OnMachineStateChange.connect(bind(&CRegViewVU::Update, this));
+	virtualMachine.m_OnRunningStateChange.connect(bind(&CRegViewVU::Update, this));
 
 	Update();
 }

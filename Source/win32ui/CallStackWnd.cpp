@@ -4,7 +4,6 @@
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "../MIPS.h"
-#include "../PS2VM.h"
 
 #define CLSNAME		_T("CallStackWnd")
 
@@ -12,11 +11,11 @@ using namespace Framework;
 using namespace boost;
 using namespace std;
 
-CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* pCtx)
+CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
+m_virtualMachine(virtualMachine),
+m_pCtx(pCtx)
 {
 	RECT rc;
-
-	m_pCtx = pCtx;
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -41,8 +40,8 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* pCtx)
 	m_pList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	CPS2VM::m_OnMachineStateChange.connect(bind(&CCallStackWnd::OnMachineStateChange, this));
-	CPS2VM::m_OnRunningStateChange.connect(bind(&CCallStackWnd::OnRunningStateChange, this));
+	m_virtualMachine.m_OnMachineStateChange.connect(bind(&CCallStackWnd::OnMachineStateChange, this));
+	m_virtualMachine.m_OnRunningStateChange.connect(bind(&CCallStackWnd::OnRunningStateChange, this));
 
 	CreateColumns();
 

@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <exception>
 #include "PS2VM.h"
-#include "DMAC.h"
 #include "INTC.h"
 #include "IPU.h"
-#include "GIF.h"
 #include "SIF.h"
 #include "VIF.h"
 #include "Timer.h"
@@ -19,6 +17,7 @@
 #include "VolumeStream.h"
 #include "Config.h"
 #include "Profiler.h"
+#include "BasicBlock.h"
 
 #ifdef _DEBUG
 
@@ -30,39 +29,47 @@
 
 #else
 
+#define		SCREENTICKS		10000000
 //#define		SCREENTICKS		4833333
-#define		SCREENTICKS		2000000
+//#define		SCREENTICKS		2000000
 //#define		SCREENTICKS		1000000
-#define		VBLANKTICKS		100000
+#define		VBLANKTICKS		10000
 
 #endif
 
 using namespace Framework;
 using namespace boost;
 using namespace std;
+using namespace std::tr1;
 
-uint8*			CPS2VM::m_pRAM						= NULL;
-uint8*			CPS2VM::m_pBIOS						= NULL;
-uint8*			CPS2VM::m_pSPR						= NULL;
-uint8*			CPS2VM::m_pVUMem0					= NULL;
-uint8*			CPS2VM::m_pMicroMem0				= NULL;
-uint8*			CPS2VM::m_pVUMem1					= NULL;
-uint8*			CPS2VM::m_pMicroMem1				= NULL;
-thread*			CPS2VM::m_pThread					= NULL;
-CMIPS			CPS2VM::m_EE(MEMORYMAP_ENDIAN_LSBF,		0x00000000, 0x20000000);
-CMIPS			CPS2VM::m_VU1(MEMORYMAP_ENDIAN_LSBF,	0x00000000, 0x00008000);
-CThreadMsg		CPS2VM::m_MsgBox;
-PS2VM_STATUS	CPS2VM::m_nStatus					= PS2VM_STATUS_PAUSED;
-CGSHandler*		CPS2VM::m_pGS						= NULL;
-CPadHandler*	CPS2VM::m_pPad						= NULL;
-unsigned int	CPS2VM::m_nVBlankTicks				= SCREENTICKS;
-bool			CPS2VM::m_nInVBlank					= false;
-signal<void ()>	CPS2VM::m_OnMachineStateChange;
-signal<void ()>	CPS2VM::m_OnRunningStateChange;
-signal<void ()>	CPS2VM::m_OnNewFrame;
-CLogControl		CPS2VM::m_Logging;
-CPS2OS*			CPS2VM::m_pOS						= NULL;
-CISO9660*		CPS2VM::m_pCDROM0					= NULL;
+CPS2VM::CPS2VM() :
+m_pRAM(new uint8[RAMSIZE]),
+m_pBIOS(new uint8[BIOSSIZE]),
+m_pSPR(new uint8[SPRSIZE]),
+m_pVUMem0(NULL),
+m_pMicroMem0(NULL),
+m_pVUMem1(NULL),
+m_pMicroMem1(NULL),
+m_pThread(NULL),
+m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
+m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
+m_nStatus(PAUSED),
+m_pGS(NULL),
+m_pPad(NULL),
+m_singleStep(false),
+m_nVBlankTicks(SCREENTICKS),
+m_nInVBlank(false),
+m_pCDROM0(NULL),
+m_dmac(m_pRAM, m_pSPR),
+m_gif(m_pGS, m_pRAM, m_pSPR)
+{
+    m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS);
+}
+
+CPS2VM::~CPS2VM()
+{
+    delete m_os;
+}
 
 //////////////////////////////////////////////////
 //Various Message Functions
@@ -107,15 +114,27 @@ void CPS2VM::DestroyPadHandler()
 	SendMessage(PS2VM_MSG_DESTROYPAD);
 }
 
+CVirtualMachine::STATUS CPS2VM::GetStatus() const
+{
+    return m_nStatus;
+}
+
+void CPS2VM::Step()
+{
+    if(GetStatus() == RUNNING) return;
+    m_singleStep = true;
+    SendMessage(PS2VM_MSG_RESUME);
+}
+
 void CPS2VM::Resume()
 {
-	if(m_nStatus == PS2VM_STATUS_RUNNING) return;
+    if(m_nStatus == RUNNING) return;
 	SendMessage(PS2VM_MSG_RESUME);
 }
 
 void CPS2VM::Pause()
 {
-	if(m_nStatus == PS2VM_STATUS_PAUSED) return;
+	if(m_nStatus == PAUSED) return;
 	SendMessage(PS2VM_MSG_PAUSE);
 }
 
@@ -126,29 +145,29 @@ void CPS2VM::Reset()
 
 void CPS2VM::DumpEEThreadSchedule()
 {
-	if(m_pOS == NULL) return;
-	if(m_nStatus != PS2VM_STATUS_PAUSED) return;
-	m_pOS->DumpThreadSchedule();
+//	if(m_pOS == NULL) return;
+	if(m_nStatus != PAUSED) return;
+	m_os->DumpThreadSchedule();
 }
 
 void CPS2VM::DumpEEIntcHandlers()
 {
-	if(m_pOS == NULL) return;
-	if(m_nStatus != PS2VM_STATUS_PAUSED) return;
-	m_pOS->DumpIntcHandlers();
+//	if(m_pOS == NULL) return;
+	if(m_nStatus != PAUSED) return;
+	m_os->DumpIntcHandlers();
 }
 
 void CPS2VM::DumpEEDmacHandlers()
 {
-	if(m_pOS == NULL) return;
-	if(m_nStatus != PS2VM_STATUS_PAUSED) return;
-	m_pOS->DumpDmacHandlers();
+//	if(m_pOS == NULL) return;
+	if(m_nStatus != PAUSED) return;
+	m_os->DumpDmacHandlers();
 }
 
 void CPS2VM::Initialize()
 {
 	CreateVM();
-	m_pThread = new thread(&EmuThread);
+    m_pThread = new thread(bind(&CPS2VM::EmuThread, this));
 }
 
 void CPS2VM::Destroy()
@@ -182,53 +201,56 @@ void CPS2VM::CreateVM()
 {
 	printf("PS2VM: Virtual Machine Memory Usage: RAM: %i MBs, BIOS: %i MBs, SPR: %i KBs.\r\n", RAMSIZE / 0x100000, BIOSSIZE / 0x100000, SPRSIZE / 0x1000);
 	
-	m_pRAM			= (uint8*)malloc(RAMSIZE);
-	m_pBIOS			= (uint8*)malloc(BIOSSIZE);
-	m_pSPR			= (uint8*)malloc(SPRSIZE);
+//	m_pRAM			= (uint8*)malloc(RAMSIZE);
+//	m_pBIOS			= (uint8*)malloc(BIOSSIZE);
+//	m_pSPR			= (uint8*)malloc(SPRSIZE);
 	m_pVUMem1		= (uint8*)malloc(VUMEM1SIZE);
 	m_pMicroMem1	= (uint8*)malloc(MICROMEM1SIZE);
 
 	//EmotionEngine context setup
-	m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_pRAM,				MEMORYMAP_TYPE_MEMORY,		0x00);
-	m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_pSPR,				MEMORYMAP_TYPE_MEMORY,		0x01);
-	m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, IOPortReadHandler,		MEMORYMAP_TYPE_FUNCTION,	0x02);
-	m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, IOPortReadHandler,		MEMORYMAP_TYPE_FUNCTION,	0x03);
-	m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				MEMORYMAP_TYPE_MEMORY,		0x04);
+	m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
+	m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_pSPR,				                        0x01);
+    m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, _1),    0x02);
+    m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, _1),    0x03);
+	m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				                        0x04);
 
-	m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_pRAM,				MEMORYMAP_TYPE_MEMORY,		0x00);
-	m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_pSPR,				MEMORYMAP_TYPE_MEMORY,		0x01);
-	m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, IOPortWriteHandler,	MEMORYMAP_TYPE_FUNCTION,	0x02);
-	m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, IOPortWriteHandler,	MEMORYMAP_TYPE_FUNCTION,	0x03);
+	m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_pRAM,				                            0x00);
+	m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_pSPR,				                            0x01);
+    m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortWriteHandler, this, _1, _2),	0x02);
+    m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortWriteHandler,	this, _1, _2),  0x03);
 
-	m_EE.m_pMemoryMap->SetWriteNotifyHandler(EEMemWriteHandler);
+    m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, _1));
 
 	m_EE.m_pArch			= &g_MAEE;
 	m_EE.m_pCOP[0]			= &g_COPSCU;
 	m_EE.m_pCOP[1]			= &g_COPFPU;
 	m_EE.m_pCOP[2]			= &g_COPVU;
 
-	m_EE.m_pAddrTranslator	= CPS2OS::TranslateAddress;
-
+    m_EE.m_handlerParam     = this;
+    m_EE.m_pAddrTranslator	= CPS2OS::TranslateAddress;
+    m_EE.m_pSysCallHandler  = EESysCallHandlerStub;
 #ifdef DEBUGGER_INCLUDED
-	m_EE.m_pTickFunction	= EETickFunction;
+    m_EE.m_pTickFunction	= EETickFunctionStub;
 #else
 	m_EE.m_pTickFunction	= NULL;
 #endif
 
 	//Vector Unit 1 context setup
-	m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	MEMORYMAP_TYPE_MEMORY,			0x00);
-	m_VU1.m_pMemoryMap->InsertReadMap(0x00004000, 0x00007FFF, m_pMicroMem1,	MEMORYMAP_TYPE_MEMORY,			0x01);
+	m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	0x00);
+	m_VU1.m_pMemoryMap->InsertReadMap(0x00004000, 0x00007FFF, m_pMicroMem1,	0x01);
 
-	m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	MEMORYMAP_TYPE_MEMORY,			0x00);
+	m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	0x00);
 
 	m_VU1.m_pArch			= &g_MAVU;
 	m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
 
 #ifdef DEBUGGER_INCLUDED
-	m_VU1.m_pTickFunction	= VU1TickFunction;
+	m_VU1.m_pTickFunction	= VU1TickFunctionStub;
 #else
 	m_VU1.m_pTickFunction	= NULL;
 #endif
+
+    m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, _1, _2, _3));
 
 	CDROM0_Initialize();
 
@@ -256,25 +278,27 @@ void CPS2VM::ResetVM()
 
 	m_VU1.m_State.nPC		= 0x4000;
 
-	m_nStatus = PS2VM_STATUS_PAUSED;
+	m_nStatus = PAUSED;
 	
 	//Reset subunits
 	CDROM0_Reset();
-	CSIF::Reset();
-	CIPU::Reset();
-	CGIF::Reset();
-	CVIF::Reset();
-	CDMAC::Reset();
-	CINTC::Reset();
-	CTimer::Reset();
+//	CSIF::Reset();
+//	CIPU::Reset();
+    m_gif.Reset();
+//	CVIF::Reset();
+    m_dmac.Reset();
+//	CINTC::Reset();
+//	CTimer::Reset();
 
 	if(m_pGS != NULL)
 	{
 		m_pGS->Reset();
 	}
 
-	DELETEPTR(m_pOS);
-	m_pOS = new CPS2OS;
+//	DELETEPTR(m_pOS);
+//	m_pOS = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS);
+    m_os->Release();
+    m_os->Initialize();
 
 	RegisterModulesInPadHandler();
 }
@@ -285,7 +309,6 @@ void CPS2VM::DestroyVM()
 
 	FREEPTR(m_pRAM);
 	FREEPTR(m_pBIOS);
-	DELETEPTR(m_pOS);
 }
 
 unsigned int CPS2VM::SaveVMState(const char* sPath)
@@ -316,10 +339,10 @@ unsigned int CPS2VM::SaveVMState(const char* sPath)
 	pS->Write(CPS2VM::m_pMicroMem1, MICROMEM1SIZE);
 
 	m_pGS->SaveState(pS);
-	CINTC::SaveState(pS);
-	CDMAC::SaveState(pS);
-	CSIF::SaveState(pS);
-	CVIF::SaveState(pS);
+//	CINTC::SaveState(pS);
+	m_dmac.SaveState(pS);
+//	CSIF::SaveState(pS);
+//	CVIF::SaveState(pS);
 
 	delete pS;
 
@@ -356,10 +379,10 @@ unsigned int CPS2VM::LoadVMState(const char* sPath)
 	pS->Read(CPS2VM::m_pMicroMem1,	MICROMEM1SIZE);
 
 	m_pGS->LoadState(pS);
-	CINTC::LoadState(pS);
-	CDMAC::LoadState(pS);
-	CSIF::LoadState(pS);
-	CVIF::LoadState(pS);
+//	CINTC::LoadState(pS);
+	m_dmac.LoadState(pS);
+//	CSIF::LoadState(pS);
+//	CVIF::LoadState(pS);
 
 	delete pS;
 
@@ -429,8 +452,8 @@ void CPS2VM::RegisterModulesInPadHandler()
 	if(m_pPad == NULL) return;
 
 	m_pPad->RemoveAllListeners();
-	m_pPad->InsertListener(CSIF::GetPadMan());
-	m_pPad->InsertListener(CSIF::GetDbcMan());
+//	m_pPad->InsertListener(CSIF::GetPadMan());
+//	m_pPad->InsertListener(CSIF::GetDbcMan());
 }
 
 uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
@@ -444,23 +467,23 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	nReturn = 0;
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
-		nReturn = CTimer::GetRegister(nAddress);
+//		nReturn = CTimer::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
-		nReturn = CIPU::GetRegister(nAddress);
+//		nReturn = CIPU::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
-		nReturn = CDMAC::GetRegister(nAddress);
+		nReturn = m_dmac.GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
 	{
-		nReturn = CINTC::GetRegister(nAddress);
+//		nReturn = CINTC::GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
 	{
-		nReturn = CDMAC::GetRegister(nAddress);
+		nReturn = m_dmac.GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
@@ -478,7 +501,7 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	return nReturn;
 }
 
-void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
+uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 {
 #ifdef PROFILE
 	CProfiler::GetInstance().EndZone();
@@ -486,32 +509,32 @@ void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
-		CTimer::SetRegister(nAddress, nData);
+//		CTimer::SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
-		CIPU::SetRegister(nAddress, nData);
+//		CIPU::SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
 	{
-		CIPU::SetRegister(nAddress, nData);
+//		CIPU::SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
-		CDMAC::SetRegister(nAddress, nData);
-	}
+		m_dmac.SetRegister(nAddress, nData);
+    }
 	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
 	{
-		CINTC::SetRegister(nAddress, nData);
+//		CINTC::SetRegister(nAddress, nData);
 	}
 	else if(nAddress == 0x1000F180)
 	{
 		//stdout data
-		CSIF::GetFileIO()->Write(1, 1, &nData);
+//		CSIF::GetFileIO()->Write(1, 1, &nData);
 	}
 	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
 	{
-		CDMAC::SetRegister(nAddress, nData);
+		m_dmac.SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
@@ -525,6 +548,8 @@ void CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
 #endif
+
+    return 0;
 }
 
 void CPS2VM::EEMemWriteHandler(uint32 nAddress)
@@ -548,6 +573,22 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 #endif
 		}
 	}
+}
+
+void CPS2VM::EESysCallHandlerStub(CMIPS* context)
+{
+//    CPS2VM& vm = *reinterpret_cast<CPS2VM*>(context->m_handlerParam);
+//    vm.m_os.SysCallHandler();
+}
+
+unsigned int CPS2VM::EETickFunctionStub(unsigned int ticks, CMIPS* context)
+{
+    return reinterpret_cast<CPS2VM*>(context->m_handlerParam)->EETickFunction(ticks);
+}
+
+unsigned int CPS2VM::VU1TickFunctionStub(unsigned int ticks, CMIPS* context)
+{
+    return reinterpret_cast<CPS2VM*>(context->m_handlerParam)->VU1TickFunction(ticks);
 }
 
 unsigned int CPS2VM::EETickFunction(unsigned int nTicks)
@@ -621,15 +662,15 @@ void CPS2VM::EmuThread()
 			switch(Msg.nMsg)
 			{
 			case PS2VM_MSG_PAUSE:
-				m_nStatus = PS2VM_STATUS_PAUSED;
+				m_nStatus = PAUSED;
 				m_OnMachineStateChange();
 				m_OnRunningStateChange();
-				printf("PS2VM: Virtual Machine paused.\r\n");
+//				printf("PS2VM: Virtual Machine paused.\r\n");
 				break;
 			case PS2VM_MSG_RESUME:
-				m_nStatus = PS2VM_STATUS_RUNNING;
+				m_nStatus = RUNNING;
 				m_OnRunningStateChange();
-				printf("PS2VM: Virtual Machine started.\r\n");
+//				printf("PS2VM: Virtual Machine started.\r\n");
 				break;
 			case PS2VM_MSG_DESTROY:
 				DELETEPTR(m_pGS);
@@ -639,6 +680,7 @@ void CPS2VM::EmuThread()
 				CREATEGSHANDLERPARAM* pCreateGSParam;
 				pCreateGSParam = (CREATEGSHANDLERPARAM*)Msg.pParam;
 				m_pGS = pCreateGSParam->pFactory(pCreateGSParam->pParam);
+                m_pGS->Initialize();
 				break;
 			case PS2VM_MSG_DESTROYGS:
 				DELETEPTR(m_pGS);
@@ -666,12 +708,67 @@ void CPS2VM::EmuThread()
 			m_MsgBox.FlushMessage(nRetValue);
 		}
 		if(nEnd) break;
-		if(m_nStatus == PS2VM_STATUS_PAUSED)
+		if(m_nStatus == PAUSED)
 		{
 			Sleep(100);
 		}
-		if(m_nStatus == PS2VM_STATUS_RUNNING)
+		if(m_nStatus == RUNNING)
 		{
+            {
+                CBasicBlock basicBlock(m_EE, 0x201AE0, 0x201AEC);
+                basicBlock.Compile();
+                basicBlock.Execute();
+            }
+            {
+                CBasicBlock basicBlock(m_EE, 0x201AF0, 0x201B04);
+                basicBlock.Compile();
+                for(unsigned int i = 0; i < 0x8057; i++)
+                {
+                    basicBlock.Execute();
+                }
+            }
+            throw runtime_error("HAHAHA!");
+            RET_CODE returnCode;
+			if(static_cast<int>(m_nVBlankTicks) <= 0)
+			{
+				m_nInVBlank = !m_nInVBlank;
+				if(m_nInVBlank)
+				{
+					m_nVBlankTicks += VBLANKTICKS;
+					m_pGS->SetVBlank();
+
+					//Old Flipping Method
+					//m_pGS->Flip();
+					//m_OnNewFrame.Notify(NULL);
+					//////
+
+					m_pPad->Update();
+				}
+				else
+				{
+					m_nVBlankTicks += SCREENTICKS;
+					m_pGS->ResetVBlank();
+				}
+			}
+            if(!m_EE.m_State.nHasException)
+            {
+                int executeQuota = m_singleStep ? 1 : 5000;
+                returnCode = m_EE.Execute(executeQuota);
+				m_nVBlankTicks -= (executeQuota - m_EE.m_nQuota);
+            }
+            if(m_EE.m_State.nHasException)
+            {
+                m_os->SysCallHandler();
+                assert(!m_EE.m_State.nHasException);
+            }
+            if(returnCode == RET_CODE_BREAKPOINT || m_singleStep)
+            {
+                m_nStatus = PAUSED;
+                m_singleStep = false;
+                m_OnRunningStateChange();
+                m_OnMachineStateChange();
+            }
+/*
 			RET_CODE nRet;
 
 #ifdef PROFILE
@@ -702,7 +799,7 @@ void CPS2VM::EmuThread()
 				{
 					nRet = m_EE.Execute(5000);
 					m_nVBlankTicks -= (5000 - m_EE.m_nQuota);
-					CTimer::Count(5000 - m_EE.m_nQuota);
+//					CTimer::Count(5000 - m_EE.m_nQuota);
 					if((int)m_nVBlankTicks <= 0)
 					{
 						m_nInVBlank = !m_nInVBlank;
@@ -734,12 +831,13 @@ void CPS2VM::EmuThread()
 				if(nRet == RET_CODE_BREAKPOINT)
 				{
 					printf("PS2VM: (EmotionEngine) Breakpoint encountered at 0x%0.8X.\r\n", m_EE.m_State.nPC);
-					m_nStatus = PS2VM_STATUS_PAUSED;
+					m_nStatus = PAUSED;
 					m_OnMachineStateChange();
 					m_OnRunningStateChange();
 					continue;
 				}
 			}
+*/
 		}
 	}
 }

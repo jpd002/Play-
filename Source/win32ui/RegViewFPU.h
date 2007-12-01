@@ -5,11 +5,12 @@
 #include "RegViewPage.h"
 #include "EventHandler.h"
 #include "../MIPS.h"
+#include "../VirtualMachine.h"
 
 class CRegViewFPU : public CRegViewPage, public boost::signals::trackable
 {
 public:
-									CRegViewFPU(HWND, RECT*, CMIPS*);
+									CRegViewFPU(HWND, RECT*, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewFPU();
 
 	enum VIEWMODE

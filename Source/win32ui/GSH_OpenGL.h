@@ -2,6 +2,7 @@
 #define _GSH_OPENGL_H_
 
 #include "../GSHandler.h"
+#include "../PS2VM.h"
 #include "win32/Window.h"
 #include "opengl/OpenGl.h"
 #include "opengl/Program.h"
@@ -18,15 +19,13 @@ public:
 									CGSH_OpenGL(Framework::Win32::CWindow*);
 	virtual                         ~CGSH_OpenGL();
 
-	static void						CreateGSHandler(Framework::Win32::CWindow*);
+	static void						CreateGSHandler(CPS2VM&, Framework::Win32::CWindow*);
 
 	virtual void					LoadState(Framework::CStream*);
 
-	void							WriteRegister(uint8, uint64);
 	void							ProcessImageTransfer(uint32, uint32);
 
 	virtual void					SetVBlank();
-	virtual void					Flip();
 	CSettingsDialogProvider*		GetSettingsDialogProvider();
 
 	CModalWindow*					CreateSettingsDialog(HWND);
@@ -81,14 +80,18 @@ private:
 
 	static CGSHandler*				GSHandlerFactory(void*);
 
-	void							LoadSettings();
+    void                            InitializeImpl();
+	virtual void					FlipImpl();
+    void							WriteRegisterImpl(uint8, uint64);
+
+    void							LoadSettings();
 
 	void							InitializeRC();
 	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const TCHAR*);
 	void							SetViewport(int, int);
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(double, double, double, double);
-	void							UpdateViewport();
+	void							UpdateViewportImpl();
 	unsigned int					GetCurrentReadCircuit();
 	unsigned int					LoadTexture(GSTEX0*, GSTEX1*, CLAMP*);
 

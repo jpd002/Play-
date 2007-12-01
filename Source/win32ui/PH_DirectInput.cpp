@@ -26,9 +26,9 @@ CPH_DirectInput::~CPH_DirectInput()
 	}
 }
 
-void CPH_DirectInput::CreatePadHandler(HWND hWnd)
+void CPH_DirectInput::CreatePadHandler(CPS2VM& virtualMachine, HWND hWnd)
 {
-	CPS2VM::CreatePadHandler(PadHandlerFactory, (void*)hWnd);
+	virtualMachine.CreatePadHandler(PadHandlerFactory, (void*)hWnd);
 }
 
 CPadHandler* CPH_DirectInput::PadHandlerFactory(void* pParam)

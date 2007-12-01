@@ -3,6 +3,7 @@
 #include "uint128.h"
 #include "PS2VM.h"
 #include "Profiler.h"
+#include "Log.h"
 
 using namespace Framework;
 
@@ -10,13 +11,25 @@ using namespace Framework;
 #define PROFILE_GIFZONE		"GIF"
 #endif
 
-uint16	CGIF::m_nLoops		= 0;
-uint8	CGIF::m_nCmd		= 0;
-uint8	CGIF::m_nRegs		= 0;
-uint8	CGIF::m_nRegsTemp	= 0;
-uint64	CGIF::m_nRegList	= 0;
-bool	CGIF::m_nEOP		= false;
-uint32	CGIF::m_nQTemp		= 0;
+CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr) :
+m_gs(gs),
+m_ram(ram),
+m_spr(spr),
+m_nLoops(0),
+m_nCmd(0),
+m_nRegs(0),
+m_nRegsTemp(0),
+m_nRegList(0),
+m_nEOP(false),
+m_nQTemp(0)
+{
+
+}
+
+CGIF::~CGIF()
+{
+
+}
 
 void CGIF::Reset()
 {
@@ -53,18 +66,18 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				nTemp |= (nPacket.nV[2] & 0xFF) << 16;
 				nTemp |= (nPacket.nV[3] & 0xFF) << 24;
 				nTemp |= ((uint64)m_nQTemp << 32);
-				CPS2VM::m_pGS->WriteRegister(GS_REG_RGBAQ, nTemp);
+				m_gs->WriteRegister(GS_REG_RGBAQ, nTemp);
 				break;
 			case 0x02:
 				//ST
 				m_nQTemp = nPacket.nV2;
-				CPS2VM::m_pGS->WriteRegister(GS_REG_ST, nPacket.nD0);
+				m_gs->WriteRegister(GS_REG_ST, nPacket.nD0);
 				break;
 			case 0x03:
 				//UV
 				nTemp  = (nPacket.nV[0] & 0x7FFF);
 				nTemp |= (nPacket.nV[1] & 0x7FFF) << 16;
-				CPS2VM::m_pGS->WriteRegister(GS_REG_UV, nTemp);
+				m_gs->WriteRegister(GS_REG_UV, nTemp);
 				break;
 			case 0x04:
 				//XYZF2
@@ -74,11 +87,11 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				nTemp |= (uint64)(nPacket.nV[3] & 0x00000FF0) << 52;
 				if(nPacket.nV[3] & 0x8000)
 				{
-					CPS2VM::m_pGS->WriteRegister(GS_REG_XYZF3, nTemp);
+					m_gs->WriteRegister(GS_REG_XYZF3, nTemp);
 				}
 				else
 				{
-					CPS2VM::m_pGS->WriteRegister(GS_REG_XYZF2, nTemp);
+					m_gs->WriteRegister(GS_REG_XYZF2, nTemp);
 				}
 				break;
 			case 0x05:
@@ -88,20 +101,20 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				nTemp |= (uint64)(nPacket.nV[2] & 0xFFFFFFFF) << 32;
 				if(nPacket.nV[3] & 0x8000)
 				{
-					CPS2VM::m_pGS->WriteRegister(GS_REG_XYZ3, nTemp);
+					m_gs->WriteRegister(GS_REG_XYZ3, nTemp);
 				}
 				else
 				{
-					CPS2VM::m_pGS->WriteRegister(GS_REG_XYZ2, nTemp);
+					m_gs->WriteRegister(GS_REG_XYZ2, nTemp);
 				}
 				break;
 			case 0x06:
 				//TEX0_1
-				CPS2VM::m_pGS->WriteRegister(GS_REG_TEX0_1, nPacket.nD0);
+				m_gs->WriteRegister(GS_REG_TEX0_1, nPacket.nD0);
 				break;
 			case 0x0E:
 				//A + D
-				CPS2VM::m_pGS->WriteRegister((uint8)nPacket.nD1, nPacket.nD0);
+				m_gs->WriteRegister((uint8)nPacket.nD1, nPacket.nD0);
 				break;
 			default:
 				assert(0);
@@ -141,7 +154,7 @@ uint32 CGIF::ProcessRegList(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 			if(nRegDesc == 0x0F) continue;
 
-			CPS2VM::m_pGS->WriteRegister((uint8)nRegDesc, nPacket.nD0);
+			m_gs->WriteRegister((uint8)nRegDesc, nPacket.nD0);
 		}
 
 		m_nLoops--;
@@ -163,7 +176,7 @@ uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 	nTotalLoops = (uint16)((nEnd - nAddress) / 0x10);
 	nTotalLoops = min(nTotalLoops, m_nLoops);
 
-	CPS2VM::m_pGS->FeedImageData(pMemory + nAddress, nTotalLoops * 0x10);
+	m_gs->FeedImageData(pMemory + nAddress, nTotalLoops * 0x10);
 
 	m_nLoops -= nTotalLoops;
 
@@ -180,10 +193,9 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 	uint128 nPacket;
 	uint32 nStart;
 
-	if(CPS2VM::m_Logging.GetGSLoggingStatus())
-	{
-		printf("GIF: Processed GIF packet at 0x%0.8X, PC: 0x%0.8X.\r\n", nAddress, CPS2VM::m_EE.m_State.nPC);
-	}
+#ifdef _DEBUG
+    CLog::GetInstance().Print("gif", "Processed GIF packet at 0x%0.8X.\r\n", nAddress);
+#endif
 
 	nStart = nAddress;
 	while(nAddress < nEnd)
@@ -210,7 +222,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			{
 				if(nPacket.nV1 & 0x4000)
 				{
-					CPS2VM::m_pGS->WriteRegister(GS_REG_PRIM, (uint16)(nPacket.nV1 >> 15) & 0x3FF);
+					m_gs->WriteRegister(GS_REG_PRIM, (uint16)(nPacket.nV1 >> 15) & 0x3FF);
 				}
 			}
 
@@ -257,12 +269,12 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 
 	if(nAddress & 0x80000000)
 	{
-		pMemory = CPS2VM::m_pSPR;
+		pMemory = m_spr;
 		nAddress &= CPS2VM::SPRSIZE - 1;
 	}
 	else
 	{
-		pMemory = CPS2VM::m_pRAM;
+		pMemory = m_ram;
 	}
 	
 	nSize = nQWC * 0x10;

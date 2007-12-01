@@ -1,15 +1,17 @@
 #ifndef _DEBUGVIEW_H_
 #define _DEBUGVIEW_H_
 
+#include <string>
 #include "DisAsmWnd.h"
 #include "MemoryViewMIPSWnd.h"
 #include "RegViewWnd.h"
 #include "CallStackWnd.h"
+#include "../VirtualMachine.h"
 
 class CDebugView : public boost::signals::trackable
 {
 public:
-							CDebugView(HWND, CMIPS*, const char*);
+							CDebugView(HWND, CVirtualMachine&, CMIPS*, const char*);
 	virtual					~CDebugView();
 	CMIPS*					GetContext();
 	CDisAsmWnd*				GetDisassemblyWindow();
@@ -24,7 +26,7 @@ protected:
 	void					OnCallStackWndFunctionDblClick(uint32);
 
 private:
-	const char*				m_sName;
+    std::string 			m_name;
 
 	CMIPS*					m_pCtx;
 	CDisAsmWnd*				m_pDisAsmWnd;

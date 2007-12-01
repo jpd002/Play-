@@ -5,16 +5,15 @@
 using namespace Framework;
 using namespace boost;
 
-CDebugView::CDebugView(HWND hParent, CMIPS* pCtx, const char* sName)
+CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, const char* sName) :
+m_pCtx(pCtx),
+m_name(sName)
 {
-	m_pCtx				= pCtx;
-	m_sName				= sName;
+	m_pDisAsmWnd		= new CDisAsmWnd(hParent, virtualMachine, m_pCtx);
+	m_pRegViewWnd		= new CRegViewWnd(hParent, virtualMachine, m_pCtx);
+	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, virtualMachine, m_pCtx);
 
-	m_pDisAsmWnd		= new CDisAsmWnd(hParent, m_pCtx);
-	m_pRegViewWnd		= new CRegViewWnd(hParent, m_pCtx);
-	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, m_pCtx);
-
-	m_pCallStackWnd		= new CCallStackWnd(hParent, m_pCtx);
+	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx);
 	m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
 
 	Hide();
@@ -30,7 +29,7 @@ CDebugView::~CDebugView()
 
 const char* CDebugView::GetName() const
 {
-	return m_sName;
+	return m_name.c_str();
 }
 
 void CDebugView::Hide()

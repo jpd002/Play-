@@ -3,18 +3,17 @@
 #include <boost/bind.hpp>
 #include "RegViewSCU.h"
 #include "../COP_SCU.h"
-#include "../PS2VM.h"
 
 using namespace Framework;
 using namespace boost;
 
-CRegViewSCU::CRegViewSCU(HWND hParent, RECT* pR, CMIPS* pC) :
+CRegViewSCU::CRegViewSCU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) :
 CRegViewPage(hParent, pR)
 {
 	m_pCtx = pC;
 
-	CPS2VM::m_OnMachineStateChange.connect(bind(&CRegViewSCU::Update, this));
-	CPS2VM::m_OnRunningStateChange.connect(bind(&CRegViewSCU::Update, this));
+	virtualMachine.m_OnMachineStateChange.connect(bind(&CRegViewSCU::Update, this));
+	virtualMachine.m_OnRunningStateChange.connect(bind(&CRegViewSCU::Update, this));
 }
 
 CRegViewSCU::~CRegViewSCU()

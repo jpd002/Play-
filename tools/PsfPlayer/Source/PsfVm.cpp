@@ -39,8 +39,8 @@ m_singleStep(false)
 
     m_cpu.m_pArch = &g_MAMIPSIV;
     m_cpu.m_pAddrTranslator = m_cpu.TranslateAddress64;
-    m_cpu.m_pTickFunction = reinterpret_cast<TickFunctionType>(TickFunctionStub);
-    m_cpu.m_pSysCallHandler = reinterpret_cast<SysCallHandlerType>(SysCallHandlerStub);
+    m_cpu.m_pTickFunction = TickFunctionStub;
+    m_cpu.m_pSysCallHandler = SysCallHandlerStub;
     m_cpu.m_handlerParam = this;
 
 #ifdef _DEBUG

@@ -5,7 +5,7 @@
 
 using namespace Framework;
 
-CDisAsmWnd::CDisAsmWnd(HWND hParent, CMIPS* pCtx)
+CDisAsmWnd::CDisAsmWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 {
 	RECT rc;
 
@@ -27,10 +27,9 @@ CDisAsmWnd::CDisAsmWnd(HWND hParent, CMIPS* pCtx)
 	Create(NULL, CLSNAME, _T("Disassembly"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pDisAsm = new CDisAsm(m_hWnd, &rc, pCtx);
+	m_pDisAsm = new CDisAsm(m_hWnd, &rc, virtualMachine, pCtx);
 
 	RefreshLayout();
-
 }
 
 CDisAsmWnd::~CDisAsmWnd()

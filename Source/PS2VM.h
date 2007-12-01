@@ -5,12 +5,15 @@
 #include <boost/signal.hpp>
 #include "Types.h"
 #include "PS2OS.h"
+#include "DMAC.h"
+#include "GIF.h"
 #include "MIPS.h"
 #include "ThreadMsg.h"
 #include "GSHandler.h"
 #include "PadHandler.h"
 #include "LogControl.h"
 #include "iso9660/ISO9660.h"
+#include "VirtualMachine.h"
 
 enum PS2VM_MSG
 {
@@ -26,12 +29,6 @@ enum PS2VM_MSG
 	PS2VM_MSG_RESET,
 };
 
-enum PS2VM_STATUS
-{
-	PS2VM_STATUS_PAUSED,
-	PS2VM_STATUS_RUNNING,
-};
-
 #define VERSION_MAJOR		(0)
 #define VERSION_MINOR		(20)
 
@@ -42,7 +39,7 @@ enum PS2VM_STATUS
 typedef CGSHandler*			(*GSHANDLERFACTORY)(void*); 
 typedef CPadHandler*		(*PADHANDLERFACTORY)(void*);
 
-class CPS2VM
+class CPS2VM : public CVirtualMachine
 {
 public:
 	enum PS2VM_RAMSIZE
@@ -70,58 +67,66 @@ public:
 		MICROMEM1SIZE = 0x00004000,
 	};
 
-	static void						Initialize();
-	static void						Destroy();
+                                CPS2VM();
+    virtual                     ~CPS2VM();
 
-	static void						Resume();
-	static void						Pause();
-	static void						Reset();
+	void						Initialize();
+	void						Destroy();
 
-	static void						DumpEEThreadSchedule();
-	static void						DumpEEIntcHandlers();
-	static void						DumpEEDmacHandlers();
+    void                        Step();
+	void						Resume();
+	void						Pause();
+	void						Reset();
 
-	static void						CreateGSHandler(GSHANDLERFACTORY, void*);
-	static CGSHandler*				GetGSHandler();
-	static void						DestroyGSHandler();
+    STATUS                      GetStatus() const;
 
-	static void						CreatePadHandler(PADHANDLERFACTORY, void*);
-	static void						DestroyPadHandler();
+	void						DumpEEThreadSchedule();
+	void						DumpEEIntcHandlers();
+	void						DumpEEDmacHandlers();
 
-	static unsigned int				SaveState(const char*);
-	static unsigned int				LoadState(const char*);
+	void						CreateGSHandler(GSHANDLERFACTORY, void*);
+	CGSHandler*				    GetGSHandler();
+	void						DestroyGSHandler();
 
-	static uint32					IOPortReadHandler(uint32);
-	static void						IOPortWriteHandler(uint32, uint32);
+	void						CreatePadHandler(PADHANDLERFACTORY, void*);
+	void						DestroyPadHandler();
 
-	static void						EEMemWriteHandler(uint32);
+	unsigned int				SaveState(const char*);
+	unsigned int				LoadState(const char*);
 
-	static CGSHandler*				m_pGS;
-	static CPadHandler*				m_pPad;
+	uint32                      IOPortReadHandler(uint32);
+	uint32                      IOPortWriteHandler(uint32, uint32);
 
-	static uint8*					m_pRAM;
-	static uint8*					m_pBIOS;
-	static uint8*					m_pSPR;
+	void                        EEMemWriteHandler(uint32);
 
-	static uint8*					m_pVUMem0;
-	static uint8*					m_pMicroMem0;
+	CGSHandler*				    m_pGS;
+	CPadHandler*				m_pPad;
 
-	static uint8*					m_pVUMem1;
-	static uint8*					m_pMicroMem1;
+	uint8*					    m_pRAM;
+	uint8*					    m_pBIOS;
+	uint8*					    m_pSPR;
 
-	static CMIPS					m_EE;
-	static CMIPS					m_VU1;
-	static PS2VM_STATUS				m_nStatus;
-	static unsigned int				m_nVBlankTicks;
-	static bool						m_nInVBlank;
+    CDMAC                       m_dmac;
+    CGIF                        m_gif;
+	CPS2OS*                     m_os;
 
-	static boost::signal<void ()>	m_OnMachineStateChange;
-	static boost::signal<void ()>	m_OnRunningStateChange;
-	static boost::signal<void ()>	m_OnNewFrame;
+	uint8*					    m_pVUMem0;
+	uint8*					    m_pMicroMem0;
 
-	static CLogControl				m_Logging;
+	uint8*					    m_pVUMem1;
+	uint8*                      m_pMicroMem1;
 
-	static CISO9660*				m_pCDROM0;
+    CMIPS                       m_EE;
+    CMIPS                       m_VU1;
+    unsigned int				m_nVBlankTicks;
+    bool						m_nInVBlank;
+    bool                        m_singleStep;
+
+	boost::signal<void ()>      m_OnNewFrame;
+
+	CLogControl				    m_Logging;
+
+	CISO9660*				    m_pCDROM0;
 
 private:
 	struct CREATEGSHANDLERPARAM
@@ -136,29 +141,31 @@ private:
 		void*						pParam;
 	};
 
-	static void						CreateVM();
-	static void						ResetVM();
-	static void						DestroyVM();
-	static unsigned int				SaveVMState(const char*);
-	static unsigned int				LoadVMState(const char*);
+	void						CreateVM();
+	void						ResetVM();
+	void						DestroyVM();
+	unsigned int				SaveVMState(const char*);
+	unsigned int				LoadVMState(const char*);
 
-	static unsigned int				EETickFunction(unsigned int);
-	static unsigned int				VU1TickFunction(unsigned int);
+	unsigned int                EETickFunction(unsigned int);
+	unsigned int                VU1TickFunction(unsigned int);
+    static unsigned int         EETickFunctionStub(unsigned int, CMIPS*);
+    static unsigned int         VU1TickFunctionStub(unsigned int, CMIPS*);
+    static void                 EESysCallHandlerStub(CMIPS*);
 
-	static void						CDROM0_Initialize();
-	static void						CDROM0_Mount(const char*);
-	static void						CDROM0_Reset();
-	static void						CDROM0_Destroy();
+	void						CDROM0_Initialize();
+	void						CDROM0_Mount(const char*);
+	void						CDROM0_Reset();
+	void						CDROM0_Destroy();
 
-	static void						LoadBIOS();
-	static void						RegisterModulesInPadHandler();
+	void						LoadBIOS();
+	void						RegisterModulesInPadHandler();
 
-	static unsigned int				SendMessage(PS2VM_MSG, void* = NULL);
-	static void						EmuThread();
-	static boost::thread*			m_pThread;
-	static CThreadMsg				m_MsgBox;
-
-	static CPS2OS*					m_pOS;
+	unsigned int				SendMessage(PS2VM_MSG, void* = NULL);
+	void						EmuThread();
+	boost::thread*			    m_pThread;
+	CThreadMsg				    m_MsgBox;
+    STATUS                      m_nStatus;
 };
 
 #endif

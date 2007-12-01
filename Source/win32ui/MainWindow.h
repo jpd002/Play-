@@ -10,11 +10,12 @@
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
 #endif
+#include "../PS2VM.h"
 
 class CMainWindow : public Framework::Win32::CWindow, public boost::signals::trackable
 {
 public:
-									CMainWindow(char*);
+									CMainWindow(CPS2VM&, char*);
 									~CMainWindow();
 	int								Loop();
 
@@ -58,7 +59,9 @@ private:
 
 	Framework::CEventHandler<int>*	m_pOnOutputWndSizeChangeHandler;
 
-	unsigned int					m_nFrames;
+    CPS2VM&                         m_virtualMachine;
+
+    unsigned int					m_nFrames;
 	HACCEL							m_nAccTable;
 
 	unsigned int					m_nStateSlot;

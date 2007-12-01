@@ -2,6 +2,7 @@
 #include "MA_EE.h"
 #include "CodeGen_VUI128.h"
 #include "MIPS.h"
+#include "MipsCodeGen.h"
 #include "PS2OS.h"
 
 using namespace CodeGen;
@@ -92,27 +93,23 @@ void CMA_EE::LQ()
 //1F
 void CMA_EE::SQ()
 {
-	CCodeGen::Begin(m_pB);
+	ComputeMemAccessAddrEx();
+
+	for(unsigned int i = 0; i < 4; i++)
 	{
-		ComputeMemAccessAddrEx();
+		m_codeGen->PushRef(m_pCtx);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushIdx(2);
+		m_codeGen->Call(&CCacheBlock::SetWordProxy, 3, false);
 
-		for(unsigned int i = 0; i < 4; i++)
+		if(i != 3)
 		{
-			CCodeGen::PushRef(m_pCtx);
-			CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
-			CCodeGen::PushIdx(2);
-			CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
-
-			if(i != 3)
-			{
-				CCodeGen::PushCst(4);
-				CCodeGen::Add();
-			}
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
 		}
-
-		CCodeGen::PullTop();
 	}
-	CCodeGen::End();
+
+	m_codeGen->PullTop();
 }
 
 //////////////////////////////////////////////////

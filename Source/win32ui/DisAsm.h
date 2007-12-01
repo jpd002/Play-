@@ -5,6 +5,7 @@
 #include "win32/CustomDrawn.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
+#include "win32/GdiObj.h"
 
 class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::trackable
 {
@@ -48,7 +49,7 @@ private:
 	uint32							GetInstruction(uint32);
 	unsigned int					GetLineCount();
 	unsigned int					GetFontHeight();
-	HFONT							GetFont();
+//	HFONT							GetFont();
 	bool							IsAddressVisible(uint32);
     SelectionRangeType              GetSelectionRange();
     void							HistoryReset();
@@ -73,6 +74,7 @@ private:
     uint32                          m_nSelectionEnd;
 	int								m_nFontCX;
 	bool							m_nFocus;
+    Framework::Win32::CFont         m_font;
 
 	uint32							m_nHistory[HISTORY_STACK_MAX];
 	unsigned int					m_nHistoryPosition;

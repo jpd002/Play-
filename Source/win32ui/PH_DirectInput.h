@@ -4,6 +4,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include "../PadHandler.h"
+#include "../PS2VM.h"
 
 class CPH_DirectInput : public CPadHandler
 {
@@ -12,7 +13,7 @@ public:
 							~CPH_DirectInput();
 	void					Update();
 
-	static void				CreatePadHandler(HWND);
+	static void				CreatePadHandler(CPS2VM&, HWND);
 
 private:
 	static CPadHandler*		PadHandlerFactory(void*);

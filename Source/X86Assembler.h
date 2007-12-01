@@ -2,7 +2,7 @@
 #define _X86ASSEMBLER_H_
 
 #include "Types.h"
-#include <boost/function.hpp>
+#include <functional>
 #include <map>
 
 class CX86Assembler
@@ -28,9 +28,9 @@ public:
         r15,
     };
 
-    typedef boost::function<void (uint8)>               WriteFunctionType;
-    typedef boost::function<void (unsigned int, uint8)> WriteAtFunctionType;
-    typedef boost::function<size_t ()>                  TellFunctionType;
+    typedef std::tr1::function<void (uint8)>                WriteFunctionType;
+    typedef std::tr1::function<void (unsigned int, uint8)>  WriteAtFunctionType;
+    typedef std::tr1::function<size_t ()>                   TellFunctionType;
     typedef unsigned int LABEL;
 
     class CAddress
@@ -64,6 +64,7 @@ public:
     virtual                                 ~CX86Assembler();
 
     static CAddress                         MakeRegisterAddress(REGISTER);
+    static CAddress                         MakeByteRegisterAddress(REGISTER);
     static CAddress                         MakeIndRegOffAddress(REGISTER, uint32);
 
     LABEL                                   CreateLabel();
@@ -71,19 +72,32 @@ public:
     void                                    ResolveLabelReferences();
 
     void                                    AddId(const CAddress&, uint32);
+    void                                    CallEd(const CAddress&);
+    void                                    CmpEd(REGISTER, const CAddress&);
     void                                    CmpEq(REGISTER, const CAddress&);
     void                                    CmpId(const CAddress&, uint32);
     void                                    CmpIq(const CAddress&, uint64);
     void                                    JeJb(LABEL);
+    void                                    JmpJb(LABEL);
     void                                    JneJb(LABEL);
     void                                    Nop();
     void                                    MovEd(REGISTER, const CAddress&);
     void                                    MovEq(REGISTER, const CAddress&);
     void                                    MovGd(const CAddress&, REGISTER);
     void                                    MovId(REGISTER, uint32);
+    void                                    MovzxEb(REGISTER, const CAddress&);
+    void                                    PushEd(const CAddress&);
+    void                                    Push(REGISTER);
+    void                                    PushId(uint32);
     void                                    Ret();
+    void                                    SarEd(const CAddress&, uint8);
+    void                                    SetbEb(const CAddress&);
+    void                                    SetbeEb(const CAddress&);
+    void                                    SeteEb(const CAddress&);
+    void                                    SetlEb(const CAddress&);
     void                                    SubEd(REGISTER, const CAddress&);
     void                                    SubId(const CAddress&, uint32);
+    void                                    TestEd(REGISTER, const CAddress&);
     void                                    XorGd(const CAddress&, REGISTER);
     void                                    XorGq(const CAddress&, REGISTER);
 
@@ -99,6 +113,7 @@ private:
 
     void                                    WriteRexByte(bool, const CAddress&);
     void                                    WriteRexByte(bool, const CAddress&, REGISTER&);
+    void                                    WriteEvOp(uint8, uint8, bool, const CAddress&);
     void                                    WriteEvGvOp(uint8, bool, const CAddress&, REGISTER);
     void                                    WriteEvId(uint8, const CAddress&, uint32);
     void                                    WriteEvIq(uint8, const CAddress&, uint64);

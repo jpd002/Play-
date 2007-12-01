@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
+#include <functional>
 #include "GSHandler.h"
 #include "PS2VM.h"
 #include "INTC.h"
 #include "PtrMacro.h"
+#include "Log.h"
 
 #define R_REG(a, v, r)					\
 	if((a) & 0x4)						\
@@ -28,6 +30,8 @@
 	}
 
 using namespace Framework;
+using namespace std::tr1;
+using namespace boost;
 
 int CGSHandler::STORAGEPSMCT32::m_nBlockSwizzleTable[4][8] =
 {
@@ -123,7 +127,8 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 	},
 };
 
-CGSHandler::CGSHandler()
+CGSHandler::CGSHandler() :
+m_thread(NULL)
 {
 	m_pRAM = (uint8*)malloc(RAMSIZE);
 
@@ -142,6 +147,8 @@ CGSHandler::CGSHandler()
 	m_pTransferHandler[PSMT4HH]					= &CGSHandler::TrxHandlerPSMT4H<28, 0xF0000000>;
 
 	Reset();
+
+    m_thread = new thread(bind(&CGSHandler::ThreadProc, this));
 }
 
 CGSHandler::~CGSHandler()
@@ -205,7 +212,7 @@ void CGSHandler::SetVBlank()
 {
 	m_nCSR |= 0x08;
 
-	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
+//	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
 }
 
 void CGSHandler::ResetVBlank()
@@ -215,7 +222,7 @@ void CGSHandler::ResetVBlank()
 	//Alternate current field
 	m_nCSR ^= 0x2000;
 
-	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_END);
+//	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_END);
 }
 
 uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
@@ -255,17 +262,27 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nDISPFB1);
 		if(nAddress & 0x04)
 		{
-			if(CPS2VM::m_Logging.GetGSLoggingStatus())
-			{
-				DISPFB* dispfb;
-				dispfb = GetDispFb(0);
-				printf("GS: DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
-					dispfb->GetBufPtr(), \
-					dispfb->GetBufWidth(), \
-					dispfb->nPSM, \
-					dispfb->nX, \
-					dispfb->nY);
-			}
+//			if(CPS2VM::m_Logging.GetGSLoggingStatus())
+//			{
+//				DISPFB* dispfb;
+//				dispfb = GetDispFb(0);
+//				printf("GS: DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+//					dispfb->GetBufPtr(), \
+//					dispfb->GetBufWidth(), \
+//					dispfb->nPSM, \
+//					dispfb->nX, \
+//					dispfb->nY);
+//			}
+#ifdef _DEBUG
+			DISPFB* dispfb;
+			dispfb = GetDispFb(0);
+            CLog::GetInstance().Print("gs", "DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+				dispfb->GetBufPtr(), \
+				dispfb->GetBufWidth(), \
+				dispfb->nPSM, \
+				dispfb->nX, \
+				dispfb->nY);
+#endif
 		}
 		break;
 	case 0x1200008:
@@ -279,17 +296,27 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nDISPFB2);
 		if(nAddress & 0x04)
 		{
-			if(CPS2VM::m_Logging.GetGSLoggingStatus())
-			{
-				DISPFB* dispfb;
-				dispfb = GetDispFb(1);
-				printf("GS: DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
-					dispfb->GetBufPtr(), \
-					dispfb->GetBufWidth(), \
-					dispfb->nPSM, \
-					dispfb->nX, \
-					dispfb->nY);
-			}
+//			if(CPS2VM::m_Logging.GetGSLoggingStatus())
+//			{
+//				DISPFB* dispfb;
+//				dispfb = GetDispFb(1);
+//				printf("GS: DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+//					dispfb->GetBufPtr(), \
+//					dispfb->GetBufWidth(), \
+//					dispfb->nPSM, \
+//					dispfb->nX, \
+//					dispfb->nY);
+//			}
+#ifdef _DEBUG
+			DISPFB* dispfb;
+			dispfb = GetDispFb(1);
+            CLog::GetInstance().Print("gs", "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+				dispfb->GetBufPtr(), \
+				dispfb->GetBufWidth(), \
+				dispfb->nPSM, \
+				dispfb->nX, \
+				dispfb->nY);
+#endif
 			Flip();
 		}
 		break;
@@ -319,7 +346,32 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 	}
 }
 
-void CGSHandler::WriteRegister(uint8 nRegister, uint64 nData)
+void CGSHandler::Initialize()
+{
+    m_mailBox.SendCall(bind(&CGSHandler::InitializeImpl, this));
+}
+
+void CGSHandler::Flip()
+{
+    m_mailBox.SendCall(bind(&CGSHandler::FlipImpl, this));
+}
+
+void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
+{
+    m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
+}
+
+void CGSHandler::FeedImageData(void* data, uint32 length)
+{
+    m_mailBox.SendCall(bind(&CGSHandler::FeedImageDataImpl, this, data, length));
+}
+
+void CGSHandler::UpdateViewport()
+{
+    m_mailBox.SendCall(bind(&CGSHandler::UpdateViewportImpl, this));
+}
+
+void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	m_nReg[nRegister] = nData;
 
@@ -367,10 +419,12 @@ void CGSHandler::WriteRegister(uint8 nRegister, uint64 nData)
 		break;
 	}
 
+#ifdef _DEBUG
 	DisassembleWrite(nRegister, nData);
+#endif
 }
 
-void CGSHandler::FeedImageData(void* pData, uint32 nLength)
+void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 {
 	BITBLTBUF* pBuf;
 
@@ -834,7 +888,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	double nU, nV;
 	double nS, nT;
 
-	if(!CPS2VM::m_Logging.GetGSLoggingStatus()) return;
+//	if(!CPS2VM::m_Logging.GetGSLoggingStatus()) return;
 
 	//Filtering
 	//if(!((nRegister == GS_REG_FRAME_1) || (nRegister == GS_REG_FRAME_2))) return;
@@ -1105,4 +1159,13 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		printf("GS: Unknown command (0x%X).\r\n", nRegister); 
 		break;
 	}
+}
+
+void CGSHandler::ThreadProc()
+{
+    while(1)
+    {
+        m_mailBox.WaitForCall();
+        m_mailBox.ReceiveCall();
+    }
 }

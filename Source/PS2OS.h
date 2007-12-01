@@ -4,35 +4,35 @@
 #include <string>
 #include <boost/signal.hpp>
 #include "ELF.h"
-#include "List.h"
 #include "MIPS.h"
+#include "GSHandler.h"
 
 class CPS2OS
 {
 public:
-												CPS2OS();
-												~CPS2OS();
+                                                CPS2OS(CMIPS&, CMIPS&, uint8*, uint8*, CGSHandler*&);
+    virtual                                     ~CPS2OS();
 
-	static void									Initialize();
-	static void									Release();
-	static bool									IsInitialized();
+	void									    Initialize();
+	void									    Release();
 
-	static void									DumpThreadSchedule();
-	static void									DumpIntcHandlers();
-	static void									DumpDmacHandlers();
+	void									    DumpThreadSchedule();
+	void									    DumpIntcHandlers();
+	void									    DumpDmacHandlers();
 
-	static void									BootFromFile(const char*);
-	static void									BootFromCDROM();
-	static CELF*								GetELF();
-	static const char*							GetExecutableName();
+	void									    BootFromFile(const char*);
+	void									    BootFromCDROM();
+	CELF*                                       GetELF();
+	const char*                                 GetExecutableName();
 
-	static void									ThreadShakeAndBake();
+	void                                        ThreadShakeAndBake();
 
-	static void									ExceptionHandler();
-	static uint32								TranslateAddress(CMIPS*, uint32, uint32);
+	void                                        ExceptionHandler();
+	void									    SysCallHandler();
+    static uint32                               TranslateAddress(CMIPS*, uint32, uint32);
 
-	static boost::signal<void ()>				m_OnExecutableChange;
-	static boost::signal<void ()>				m_OnExecutableUnloading;
+	boost::signal<void ()>                      m_OnExecutableChange;
+	boost::signal<void ()>                      m_OnExecutableUnloading;
 
 private:
 	class CRoundRibbon
@@ -191,104 +191,107 @@ private:
 		THREAD_ZOMBIE		= 0x04,
 	};
 
-	static void									LoadELF(Framework::CStream*, const char*);
+    typedef void (CPS2OS::*SystemCallHandler)();
 
-	static void									LoadExecutable();
-	static void									UnloadExecutable();
+	void									LoadELF(Framework::CStream*, const char*);
 
-	static void									SaveExecutableConfig();
-	static void									LoadExecutableConfig();
+	void									LoadExecutable();
+	void									UnloadExecutable();
 
-	static void									ApplyPatches();
+	void									SaveExecutableConfig();
+	void									LoadExecutableConfig();
 
-	static void									SysCallHandler();
-	static void									DisassembleSysCall(uint8);
-	static void									RecordSysCall(uint8);
-	static std::string							GetSysCallDescription(uint8);
+	void									ApplyPatches();
 
-	static void									(*m_pSysCall[0x80])();
+	void									DisassembleSysCall(uint8);
+	void									RecordSysCall(uint8);
+	std::string                             GetSysCallDescription(uint8);
 
-	static void									AssembleCustomSyscallHandler();
-	static void									AssembleInterruptHandler();
-	static void									AssembleDmacHandler();
-	static void									AssembleIntcHandler();
-	static void									AssembleThreadEpilog();
-	static void									AssembleWaitThreadProc();
+	static SystemCallHandler                m_pSysCall[0x80];
 
-	static uint32*								GetCustomSyscallTable();
+	void									AssembleCustomSyscallHandler();
+	void									AssembleInterruptHandler();
+	void									AssembleDmacHandler();
+	void									AssembleIntcHandler();
+	void									AssembleThreadEpilog();
+	void									AssembleWaitThreadProc();
 
-	static void									CreateWaitThread();
-	static uint32								GetCurrentThreadId();
-	static void									SetCurrentThreadId(uint32);
-	static uint32								GetNextAvailableThreadId();
-	static THREAD*								GetThread(uint32);
+	uint32*                                 GetCustomSyscallTable();
+
+	void                                    CreateWaitThread();
+	uint32                                  GetCurrentThreadId();
+	void                                    SetCurrentThreadId(uint32);
+	uint32                                  GetNextAvailableThreadId();
+	THREAD*                                 GetThread(uint32);
 	//static void								ElectThread(uint32);
 	//static uint32								GetNextReadyThread();
-	static bool									ThreadHasAllQuotasExpired();
-	static void									ThreadSwitchContext(unsigned int);
+	bool									ThreadHasAllQuotasExpired();
+	void									ThreadSwitchContext(unsigned int);
 
-	static uint32								GetNextAvailableSemaphoreId();
-	static SEMAPHORE*							GetSemaphore(uint32);
+	uint32                                  GetNextAvailableSemaphoreId();
+	SEMAPHORE*                              GetSemaphore(uint32);
 
-	static uint32								GetNextAvailableDmacHandlerId();
-	static DMACHANDLER*							GetDmacHandler(uint32);
+	uint32                                  GetNextAvailableDmacHandlerId();
+	DMACHANDLER*                            GetDmacHandler(uint32);
 
-	static uint32								GetNextAvailableIntcHandlerId();
-	static INTCHANDLER*							GetIntcHandler(uint32);
+	uint32                                  GetNextAvailableIntcHandlerId();
+	INTCHANDLER*                            GetIntcHandler(uint32);
 
-	static uint32								GetNextAvailableDeci2HandlerId();
-	static DECI2HANDLER*						GetDeci2Handler(uint32);
+	uint32                                  GetNextAvailableDeci2HandlerId();
+	DECI2HANDLER*                           GetDeci2Handler(uint32);
 
 	//Various system calls
-	static void									sc_GsSetCrt();
-	static void									sc_AddIntcHandler();
-	static void									sc_RemoveIntcHandler();
-	static void									sc_AddDmacHandler();
-	static void									sc_RemoveDmacHandler();
-	static void									sc_EnableIntc();
-	static void									sc_DisableIntc();
-	static void									sc_EnableDmac();
-	static void									sc_DisableDmac();
-	static void									sc_CreateThread();
-	static void									sc_DeleteThread();
-	static void									sc_StartThread();
-	static void									sc_ExitThread();
-	static void									sc_TerminateThread();
-	static void									sc_ChangeThreadPriority();
-	static void									sc_RotateThreadReadyQueue();
-	static void									sc_GetThreadId();
-	static void									sc_ReferThreadStatus();
-	static void									sc_SleepThread();
-	static void									sc_WakeupThread();
-	static void									sc_RFU060();
-	static void									sc_RFU061();
-	static void									sc_EndOfHeap();
-	static void									sc_CreateSema();
-	static void									sc_DeleteSema();
-	static void									sc_SignalSema();
-	static void									sc_WaitSema();
-	static void									sc_PollSema();
-	static void									sc_ReferSemaStatus();
-	static void									sc_FlushCache();
-	static void									sc_GsPutIMR();
-	static void									sc_SetVSyncFlag();
-	static void									sc_SetSyscall();
-	static void									sc_SifDmaStat();
-	static void									sc_SifSetDma();
-	static void									sc_SifSetDChain();
-	static void									sc_SifSetReg();
-	static void									sc_SifGetReg();
-	static void									sc_Deci2Call();
-	static void									sc_GetMemorySize();
-	static void									sc_Unhandled();
+	void									sc_GsSetCrt();
+	void									sc_AddIntcHandler();
+	void									sc_RemoveIntcHandler();
+	void									sc_AddDmacHandler();
+	void									sc_RemoveDmacHandler();
+	void									sc_EnableIntc();
+	void									sc_DisableIntc();
+	void									sc_EnableDmac();
+	void									sc_DisableDmac();
+	void									sc_CreateThread();
+	void									sc_DeleteThread();
+	void									sc_StartThread();
+	void									sc_ExitThread();
+	void									sc_TerminateThread();
+	void									sc_ChangeThreadPriority();
+	void									sc_RotateThreadReadyQueue();
+	void									sc_GetThreadId();
+	void									sc_ReferThreadStatus();
+	void									sc_SleepThread();
+	void									sc_WakeupThread();
+	void									sc_RFU060();
+	void									sc_RFU061();
+	void									sc_EndOfHeap();
+	void									sc_CreateSema();
+	void									sc_DeleteSema();
+	void									sc_SignalSema();
+	void									sc_WaitSema();
+	void									sc_PollSema();
+	void									sc_ReferSemaStatus();
+	void									sc_FlushCache();
+	void									sc_GsPutIMR();
+	void									sc_SetVSyncFlag();
+	void									sc_SetSyscall();
+	void									sc_SifDmaStat();
+	void									sc_SifSetDma();
+	void									sc_SifSetDChain();
+	void									sc_SifSetReg();
+	void									sc_SifGetReg();
+	void									sc_Deci2Call();
+	void									sc_GetMemorySize();
+	void									sc_Unhandled();
 
-	static bool									m_nInitialized;
+	CELF*                                   m_pELF;
+	CMIPS&                                  m_ee;
+    CMIPS&                                  m_vu1;
+	CRoundRibbon*                           m_pThreadSchedule;
 
-	static CELF*								m_pELF;
-	static CMIPS*								m_pCtx;
-	static CRoundRibbon*						m_pThreadSchedule;
-
-	static std::string							m_sExecutableName;
+	std::string                             m_sExecutableName;
+    uint8*                                  m_ram;
+    uint8*                                  m_bios;
+    CGSHandler*&                            m_gs;
 };
 
 #endif

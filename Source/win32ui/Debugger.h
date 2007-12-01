@@ -8,11 +8,12 @@
 #include "OsEventViewWnd.h"
 #include "DebugView.h"
 #include "TestEngineWnd.h"
+#include "../PS2VM.h"
 
 class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals::trackable
 {
 public:
-									CDebugger();
+									CDebugger(CPS2VM&);
 	virtual							~CDebugger();
 	HACCEL							GetAccelerators();
 	static void						InitializeConsole();
@@ -85,6 +86,7 @@ private:
     CTestEngineWnd*                 m_pTestEngineView;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
 	unsigned int					m_nCurrentView;
+    CPS2VM&                         m_virtualMachine;
 };
 
 #endif

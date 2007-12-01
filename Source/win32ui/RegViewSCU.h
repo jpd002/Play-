@@ -4,11 +4,12 @@
 #include <boost/signal.hpp>
 #include "RegViewPage.h"
 #include "../MIPS.h"
+#include "../VirtualMachine.h"
 
 class CRegViewSCU : public CRegViewPage, public boost::signals::trackable
 {
 public:
-									CRegViewSCU(HWND, RECT*, CMIPS*);
+									CRegViewSCU(HWND, RECT*, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewSCU();
 
 private:

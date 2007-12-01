@@ -4,11 +4,12 @@
 #include "win32/MDIChild.h"
 #include "win32/StatusBar.h"
 #include "MemoryViewMIPS.h"
+#include "../VirtualMachine.h"
 
 class CMemoryViewMIPSWnd : public Framework::Win32::CMDIChild
 {
 public:
-						            CMemoryViewMIPSWnd(HWND, CMIPS*);
+						            CMemoryViewMIPSWnd(HWND, CVirtualMachine&, CMIPS*);
 						            ~CMemoryViewMIPSWnd();
 
 protected:

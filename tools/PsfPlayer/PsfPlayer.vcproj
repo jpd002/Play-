@@ -251,10 +251,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Log.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\win32ui\MemoryView.cpp"
 				>
 			</File>
@@ -386,10 +382,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\IopBios.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Log.h"
 				>
 			</File>
 			<File

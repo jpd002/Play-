@@ -37,6 +37,17 @@ CGSH_OpenGL::CGSH_OpenGL(Win32::CWindow* pOutputWnd)
 	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
 
 	LoadSettings();
+}
+
+CGSH_OpenGL::~CGSH_OpenGL()
+{
+	FREEPTR(m_pCvtBuffer);
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(m_hRC);
+}
+
+void CGSH_OpenGL::InitializeImpl()
+{
 	InitializeRC();
 
 	m_nVtxCount = 0;
@@ -47,16 +58,9 @@ CGSH_OpenGL::CGSH_OpenGL(Win32::CWindow* pOutputWnd)
 	m_nMaxZ = 32768.0;
 }
 
-CGSH_OpenGL::~CGSH_OpenGL()
+void CGSH_OpenGL::CreateGSHandler(CPS2VM& virtualMachine, Win32::CWindow* pOutputWnd)
 {
-	FREEPTR(m_pCvtBuffer);
-	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(m_hRC);
-}
-
-void CGSH_OpenGL::CreateGSHandler(Win32::CWindow* pOutputWnd)
-{
-	CPS2VM::CreateGSHandler(GSHandlerFactory, pOutputWnd);
+	virtualMachine.CreateGSHandler(GSHandlerFactory, pOutputWnd);
 }
 
 void CGSH_OpenGL::LoadState(CStream* pStream)
@@ -211,7 +215,7 @@ void CGSH_OpenGL::LinearZOrtho(double nLeft, double nRight, double nBottom, doub
 	glMultMatrixd(nMatrix);
 }
 
-void CGSH_OpenGL::UpdateViewport()
+void CGSH_OpenGL::UpdateViewportImpl()
 {
 	GSDISPLAY d;
 	unsigned int nW, nH;
@@ -946,9 +950,9 @@ void CGSH_OpenGL::Prim_Sprite()
 // Other Functions
 /////////////////////////////////////////////////////////////
 
-void CGSH_OpenGL::WriteRegister(uint8 nRegister, uint64 nData)
+void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
-	CGSHandler::WriteRegister(nRegister, nData);
+	CGSHandler::WriteRegisterImpl(nRegister, nData);
 	
 	switch(nRegister)
 	{
@@ -1200,9 +1204,9 @@ void CGSH_OpenGL::SetVBlank()
 	}
 }
 
-void CGSH_OpenGL::Flip()
+void CGSH_OpenGL::FlipImpl()
 {
-	CPS2VM::m_OnNewFrame();
+//	CPS2VM::m_OnNewFrame();
 	SwapBuffers(m_hDC);
 }
 
