@@ -550,7 +550,7 @@ protected:
 
 			nColumnNum = (nY / Storage::COLUMNHEIGHT);
 
-			nY %= Storage.COLUMNHEIGHT;
+			nY %= Storage::COLUMNHEIGHT;
 
 			return (m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE)) & (RAMSIZE - 1);
 		}

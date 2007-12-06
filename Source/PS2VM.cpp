@@ -14,7 +14,9 @@
 #include "PtrMacro.h"
 #include "StdStream.h"
 #include "GZipStream.h"
+#ifdef WIN32
 #include "VolumeStream.h"
+#endif
 #include "Config.h"
 #include "Profiler.h"
 
@@ -409,6 +411,7 @@ void CPS2VM::CDROM0_Reset()
 
 void CPS2VM::CDROM0_Mount(const char* sPath)
 {
+#ifdef WIN32
 	CStream* pStream;
 
 	//Check if there's an m_pCDROM0 already
@@ -436,6 +439,9 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 	}
 
 	CConfig::GetInstance()->SetPreferenceString("ps2.cdrom0.path", sPath);
+#else
+	throw runtime_error("Not implemented.");
+#endif
 }
 
 void CPS2VM::CDROM0_Destroy()
@@ -712,7 +718,11 @@ void CPS2VM::EmuThread()
 		if(nEnd) break;
 		if(m_nStatus == PAUSED)
 		{
-			Sleep(100);
+            //Sleep during 100ms
+            xtime xt;
+            xtime_get(&xt, boost::TIME_UTC);
+            xt.nsec += 100 * 1000000;
+			thread::sleep(xt);
 		}
 		if(m_nStatus == RUNNING)
         {

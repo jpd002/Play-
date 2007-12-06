@@ -1,8 +1,8 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#include <string>
 #include "List.h"
-#include "Str.h"
 #include "Semaphore.h"
 #include "xml/Node.h"
 
@@ -44,7 +44,7 @@ private:
 		virtual	void					Serialize(Framework::Xml::CNode*);
 
 	private:
-		Framework::CStrA				m_sName;
+		std::string						m_sName;
 		PREFERENCE_TYPE					m_nType;
 	};
 
@@ -84,7 +84,7 @@ private:
 		virtual void					Serialize(Framework::Xml::CNode*);
 
 	private:
-		Framework::CStrA				m_sValue;
+		std::string						m_sValue;
 	};
 
 										CConfig();
