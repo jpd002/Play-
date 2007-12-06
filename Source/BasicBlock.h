@@ -6,17 +6,21 @@
 class CBasicBlock
 {
 public:
-                CBasicBlock(CMIPS&, uint32, uint32);
-    virtual     ~CBasicBlock();
-    void        Execute();
-    void        Compile();
+                    CBasicBlock(CMIPS&, uint32, uint32);
+    virtual         ~CBasicBlock();
+    unsigned int    Execute();
+    void            Compile();
+
+    uint32          GetBeginAddress() const;
+    uint32          GetEndAddress() const;
+    bool            IsCompiled() const;
 
 private:
 
-    uint8*      m_text;
-    uint32      m_begin;
-    uint32      m_end;
-    CMIPS&      m_context;
+    uint8*          m_text;
+    uint32          m_begin;
+    uint32          m_end;
+    CMIPS&          m_context;
 };
 
 #endif

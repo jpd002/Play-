@@ -58,6 +58,7 @@ m_D6_TADR(0),
 m_D9(*this, 1, DummyTransfertFunction, NULL),
 m_D9_SADR(0)
 {
+    Reset();
     m_thread = new thread(bind(&CDMAC::Execute, this));
 }
 

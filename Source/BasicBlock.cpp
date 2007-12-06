@@ -10,7 +10,7 @@ m_end(end),
 m_context(context),
 m_text(NULL)
 {
-    assert(m_end > m_begin);
+    assert(m_end >= m_begin);
 }
 
 CBasicBlock::~CBasicBlock()
@@ -45,7 +45,7 @@ void CBasicBlock::Compile()
         //Sanity check
         assert(codeGen.IsStackEmpty());
     }
-    codeGen.DumpVariables();
+    codeGen.DumpVariables(0);
     codeGen.m_Assembler.Ret();
     codeGen.End();
 
@@ -54,7 +54,7 @@ void CBasicBlock::Compile()
     memcpy(m_text, stream.GetBuffer(), stream.GetSize());
 }
 
-void CBasicBlock::Execute()
+unsigned int CBasicBlock::Execute()
 {
     void* function = m_text;
     CMIPS* context = &m_context;
@@ -62,11 +62,44 @@ void CBasicBlock::Execute()
     __asm
     {
         push    ebp
+        push    ebx
+        push    esi
+        push    edi
 
         mov     eax, [function] 
 		mov		ebp, [context]
         call    eax
 
+        pop     edi
+        pop     esi
+        pop     ebx
         pop     ebp
     }
+
+    if(m_context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
+    {
+        m_context.m_State.nPC = m_context.m_State.nDelayedJumpAddr;
+        m_context.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
+    }
+    else
+    {
+        m_context.m_State.nPC = m_end + 4;
+    }
+
+    return ((m_end - m_begin) / 4) + 1;
+}
+
+uint32 CBasicBlock::GetBeginAddress() const
+{
+    return m_begin;
+}
+
+uint32 CBasicBlock::GetEndAddress() const
+{
+    return m_end;
+}
+
+bool CBasicBlock::IsCompiled() const
+{
+    return m_text != NULL;
 }

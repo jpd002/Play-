@@ -154,9 +154,10 @@ void CMIPSInstructionFactory::BranchEx(bool nCondition)
 
 	m_codeGen->BeginIf(nCondition);
 	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
-		m_codeGen->PushCst(CMIPS::GetBranch(nImmediate));
-		m_codeGen->Add();
+//		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+//		m_codeGen->PushCst(CMIPS::GetBranch(nImmediate));
+//		m_codeGen->Add();
+        m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->EndIf();

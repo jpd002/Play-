@@ -437,10 +437,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\win32ui\Log.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\win32ui\MainWindow.h"
 					>
 				</File>
@@ -630,10 +626,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\win32ui\IconView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\win32ui\Log.cpp"
 					>
 				</File>
 				<File
@@ -1289,6 +1281,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MipsExecutor.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MIPSInstructionFactory.cpp"
 					>
 				</File>
@@ -1460,6 +1456,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\CodeGen_FPU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\CodeGen_StackPatterns.h"
 					>
 				</File>
 				<File
@@ -1652,6 +1652,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\MIPSCoprocessor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\MipsExecutor.h"
 					>
 				</File>
 				<File

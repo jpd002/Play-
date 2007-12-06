@@ -38,6 +38,7 @@ void CMipsCodeGen::PushRel(size_t offset)
 
 void CMipsCodeGen::PullRel(size_t offset)
 {
+    InvalidateVariableStatus(offset);
     uint32 opType = m_Shadow.Pull();
     switch(opType)
     {
@@ -47,16 +48,27 @@ void CMipsCodeGen::PullRel(size_t offset)
             status.operandType = CONSTANT;
             status.operandValue = m_Shadow.Pull();
             status.isDirty = true;
+            status.ifStackLevel = m_IfStack.GetCount();
             SetVariableStatus(offset, status);
         }
         break;
     case REGISTER:
         {
-            VARIABLESTATUS status;
-            status.operandType = REGISTER;
-            status.operandValue = m_Shadow.Pull();
-            status.isDirty = true;
-            SetVariableStatus(offset, status);
+            m_Shadow.Push(REGISTER);
+            CCodeGen::PullRel(offset);
+//            VARIABLESTATUS status;
+//            status.operandType = REGISTER;
+//            status.operandValue = m_Shadow.Pull();
+//            status.isDirty = true;
+//            status.ifStackLevel = m_IfStack.GetCount();
+//            SetVariableStatus(offset, status);
+        }
+        break;
+    case RELATIVE:
+        {
+            //Don't try to make an alias, it could lead to some problems...
+            m_Shadow.Push(RELATIVE);
+            CCodeGen::PullRel(offset);
         }
         break;
     default:
@@ -65,36 +77,76 @@ void CMipsCodeGen::PullRel(size_t offset)
     }
 }
 
+void CMipsCodeGen::EndIf()
+{
+    assert(m_Shadow.GetCount() == 0);
+    DumpVariables(m_IfStack.GetCount());
+    CCodeGen::EndIf();
+}
+
+void CMipsCodeGen::Call(void* function, unsigned int paramCount, bool saveResult)
+{
+    //We need to dump any variable aliased with a register that won't be saved across the call
+/*
+    for(VariableStatusMap::iterator statusIterator(m_variableStatus.begin());
+        m_variableStatus.end() != statusIterator; )
+    {
+        size_t variableId(statusIterator->first);
+        const VARIABLESTATUS& status(statusIterator->second);
+        if(status.isDirty && status.operandType == REGISTER && !IsRegisterSaved(status.operandValue))
+        {
+            PushReg(status.operandValue);
+            CCodeGen::PullRel(variableId);
+            m_variableStatus.erase(statusIterator++);
+        }
+        else
+        {
+            statusIterator++;
+        }
+    }
+*/
+    CCodeGen::Call(function, paramCount, saveResult);
+}
+
 void CMipsCodeGen::SetVariableAsConstant(size_t variableId, uint32 value)
 {
     VARIABLESTATUS status;
     status.operandType = CONSTANT;
     status.operandValue = value;
     status.isDirty = false;
+    status.ifStackLevel = 0;
     SetVariableStatus(variableId, status);
 }
 
-void CMipsCodeGen::DumpVariables()
+void CMipsCodeGen::DumpVariables(unsigned int ifStackLevel)
 {
-    for(VariableStatusMap::const_iterator statusIterator(m_variableStatus.begin());
-        m_variableStatus.end() != statusIterator; statusIterator++)
+    for(VariableStatusMap::iterator statusIterator(m_variableStatus.begin());
+        m_variableStatus.end() != statusIterator; )
     {
         size_t variableId(statusIterator->first);
         const VARIABLESTATUS& status(statusIterator->second);
-        if(status.isDirty == false) continue;
-        switch(status.operandType)
+        assert(status.ifStackLevel <= ifStackLevel);
+        if(status.isDirty && status.ifStackLevel == ifStackLevel)
         {
-        case CONSTANT:
-            PushCst(status.operandValue);
-            CCodeGen::PullRel(variableId);
-            break;
-        case REGISTER:
-            PushReg(status.operandValue);
-            CCodeGen::PullRel(variableId);
-            break;
-        default:
-            throw runtime_error("Unsupported operand type.");
-            break;
+            switch(status.operandType)
+            {
+            case CONSTANT:
+                PushCst(status.operandValue);
+                CCodeGen::PullRel(variableId);
+                break;
+            case REGISTER:
+                PushReg(status.operandValue);
+                CCodeGen::PullRel(variableId);
+                break;
+            default:
+                throw runtime_error("Unsupported operand type.");
+                break;
+            }
+            m_variableStatus.erase(statusIterator++);
+        }
+        else
+        {
+            statusIterator++;
         }
     }
 }
@@ -105,7 +157,7 @@ CMipsCodeGen::VARIABLESTATUS* CMipsCodeGen::GetVariableStatus(size_t variableId)
     return statusIterator == m_variableStatus.end() ? NULL : &statusIterator->second;
 }
 
-void CMipsCodeGen::SetVariableStatus(size_t variableId, const VARIABLESTATUS& status)
+void CMipsCodeGen::InvalidateVariableStatus(size_t variableId)
 {
     VARIABLESTATUS* oldVariableStatus = GetVariableStatus(variableId);
     if(oldVariableStatus != NULL)
@@ -119,6 +171,12 @@ void CMipsCodeGen::SetVariableStatus(size_t variableId, const VARIABLESTATUS& st
             throw runtime_error("Unsupported operand type.");
             break;
         }
+        m_variableStatus.erase(m_variableStatus.find(variableId));
     }
+}
+
+void CMipsCodeGen::SetVariableStatus(size_t variableId, const VARIABLESTATUS& status)
+{
+    assert(GetVariableStatus(variableId) == NULL);
     m_variableStatus[variableId] = status;
 }

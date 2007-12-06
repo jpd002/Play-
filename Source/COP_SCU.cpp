@@ -4,6 +4,7 @@
 #include "COP_SCU.h"
 #include "MIPS.h"
 #include "CodeGen.h"
+#include "MipsCodeGen.h"
 
 uint8		CCOP_SCU::m_nRT;
 uint8		CCOP_SCU::m_nRD;
@@ -145,15 +146,11 @@ void CCOP_SCU::ERET()
 //38
 void CCOP_SCU::EI()
 {
-    CCodeGen::Begin(m_pB);
-    {
-        CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-    	//Should check for pending interrupts here
-        CCodeGen::PushCst(0x00010001);
-        CCodeGen::Or();
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-    }
-    CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+	//Should check for pending interrupts here
+    m_codeGen->PushCst(0x00010001);
+    m_codeGen->Or();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 }
 
 //39

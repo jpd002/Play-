@@ -31,7 +31,19 @@ public:
 		CONDITION_LE,
 	};
 
-	friend class					CodeGen::CFPU;
+	enum SYMBOLS
+	{
+		VARIABLE = 0x8000,
+		REGISTER,
+		CONSTANT,
+		REFERENCE,
+		RELATIVE,
+#ifdef AMD64
+		REGISTER64,
+#endif
+	};
+
+    friend class					CodeGen::CFPU;
 
 	static void						Begin(CCacheBlock*);
 	static void						End();
@@ -82,20 +94,10 @@ public:
     static CX86Assembler            m_Assembler;
 
 protected:
-	enum SYMBOLS
-	{
-		VARIABLE = 0x8000,
-		REGISTER,
-		CONSTANT,
-		REFERENCE,
-		RELATIVE,
-#ifdef AMD64
-		REGISTER64,
-#endif
-	};
-
     static CArrayStack<uint32>		m_Shadow;
+	static CArrayStack<uint32>		m_IfStack;
 	static void						PushReg(unsigned int);
+    static bool                     IsRegisterSaved(unsigned int);
 
 private:
 	enum MAX_STACK
@@ -162,7 +164,6 @@ private:
 	static uint8					MakeRegRegRm(unsigned int, unsigned int);
 	static uint8					MakeRegFunRm(unsigned int, unsigned int);
 
-	static bool						IsTopRegCstPairCom();
 	static bool						IsTopRegZeroPairCom();
     static bool                     IsTopContRelPair64();
     static bool                     IsTopContRelCstPair64();
@@ -184,6 +185,18 @@ private:
 		m_Shadow.Push(REGISTER);
 
 		Function();
+    }
+
+    template <typename StackPattern>
+    static bool                     FitsPattern()
+    {
+        return StackPattern().Fits(m_Shadow);
+    }
+
+    template <typename StackPattern>
+    static typename StackPattern::PatternValue GetPattern()
+    {
+        return StackPattern().Get(m_Shadow);
     }
 
 #ifdef AMD64
@@ -210,7 +223,6 @@ private:
     static CX86Assembler::REGISTER  m_nRegisterLookupEx[MAX_REGISTER];
 	static CCacheBlock*				m_pBlock;
 
-	static CArrayStack<uint32>		m_IfStack;
     static Framework::CStream*      m_stream;
 };
 

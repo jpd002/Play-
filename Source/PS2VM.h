@@ -14,6 +14,7 @@
 #include "LogControl.h"
 #include "iso9660/ISO9660.h"
 #include "VirtualMachine.h"
+#include "MipsExecutor.h"
 
 enum PS2VM_MSG
 {
@@ -118,6 +119,7 @@ public:
 
     CMIPS                       m_EE;
     CMIPS                       m_VU1;
+    CMipsExecutor               m_executor;
     unsigned int				m_nVBlankTicks;
     bool						m_nInVBlank;
     bool                        m_singleStep;

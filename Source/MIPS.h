@@ -65,6 +65,7 @@ public:
     typedef unsigned int        (*TickFunctionType)(unsigned int, CMIPS*);
     typedef void                (*SysCallHandlerType)(CMIPS*);
     typedef uint32              (*AddressTranslator)(CMIPS*, uint32, uint32);
+    typedef std::set<uint32>    BreakpointSet;
 
                                 CMIPS(MEMORYMAP_ENDIANESS, uint32, uint32);
 								~CMIPS();
@@ -89,7 +90,7 @@ public:
 	CMIPSCoprocessor*			m_pCOP[4];
 	CMemoryMap*					m_pMemoryMap;
 	CExecMap*					m_pExecMap;
-    std::set<uint32>            m_breakpoints;
+    BreakpointSet               m_breakpoints;
 
 	CMIPSAnalysis*				m_pAnalysis;
 	CMIPSTags					m_Comments;

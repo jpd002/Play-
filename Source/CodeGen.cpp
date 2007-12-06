@@ -4,6 +4,7 @@
 #include "CodeGen_VUF128.h"
 #include "CodeGen_FPU.h"
 #include "PtrMacro.h"
+#include "CodeGen_StackPatterns.h"
 #include <boost/bind.hpp>
 
 using namespace boost;
@@ -350,25 +351,15 @@ void CCodeGen::LoadRelativeInRegister(unsigned int nRegister, uint32 nOffset)
 
 void CCodeGen::LoadConstantInRegister(unsigned int nRegister, uint32 nConstant)
 {
-	unsigned int nRegIndex;
-
-	nRegIndex = m_nRegisterLookup[nRegister];
-
-#ifdef AMD64
-
-	if(nRegIndex > 7)
-	{
-		//REX byte
-		m_pBlock->StreamWrite(1, 0x41);
-
-		nRegIndex &= 0x07;
-	}
-
-#endif
-
-	//mov reg, nConstant
-	m_pBlock->StreamWrite(1, 0xB8 | nRegIndex);
-	m_pBlock->StreamWriteWord(nConstant);
+    if(nConstant == 0)
+    {
+        m_Assembler.XorGd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
+            m_nRegisterLookupEx[nRegister]);
+    }
+    else
+    {
+        m_Assembler.MovId(m_nRegisterLookupEx[nRegister], nConstant);
+    }
 }
 
 void CCodeGen::CopyRegister(unsigned int nDst, unsigned int nSrc)
@@ -559,6 +550,23 @@ void CCodeGen::PushReg(unsigned int nRegister)
 {
 	m_Shadow.Push(nRegister);
 	m_Shadow.Push(REGISTER);
+}
+
+bool CCodeGen::IsRegisterSaved(unsigned int registerId)
+{
+#ifdef AMD64
+    throw runtime_error("Not implemented.");
+#else
+    CX86Assembler::REGISTER registerName = m_nRegisterLookupEx[registerId];
+    return
+        (
+        registerName == CX86Assembler::rBX || 
+        registerName == CX86Assembler::rBP ||
+        registerName == CX86Assembler::rSP ||
+        registerName == CX86Assembler::rDI ||
+        registerName == CX86Assembler::rSI
+        );
+#endif
 }
 
 #ifdef AMD64
@@ -758,108 +766,44 @@ void CCodeGen::PullRel(size_t nOffset)
 
 void CCodeGen::PullTop()
 {
-	m_Shadow.Pull();
-	m_Shadow.Pull();
+    uint32 type = m_Shadow.Pull();
+    uint32 value = m_Shadow.Pull();
+    if(type == REGISTER)
+    {
+        if(!RegisterHasNextUse(value))
+        {
+            FreeRegister(value);
+        }
+    }
 }
 
 void CCodeGen::Add()
 {
-	if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == VARIABLE))
+	if(FitsPattern<CommutativeRelativeConstant>())
 	{
-		uint32 nVariable, nConstant, nRegister;
+        CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
 
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
+		unsigned int registerId = AllocateRegister();
 
-		nRegister = AllocateRegister();
-		
-		//mov reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable);
-
-		if(GetMinimumConstantSize(nConstant) == 1)
-		{
-			//add reg, Immediate
-			m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
-		}
-		else
-		{
-			//add reg, Immediate
-			m_pBlock->StreamWrite(2, 0x81, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-			m_pBlock->StreamWriteWord(nConstant);
-		}
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-	}
-	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
-	{
-		uint32 nRelative, nConstant, nRegister;
-
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-
-		//No point in adding zero
-		if(nConstant == 0) return;
-
-		m_Shadow.Pull();
-		nRelative = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-
-		LoadRelativeInRegister(nRegister, nRelative);
+		LoadRelativeInRegister(registerId, ops.first);
 
         //add reg, Immediate
         m_Assembler.AddId(
-            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
-            nConstant);
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]),
+            ops.second);
 
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);		
+        PushReg(registerId);
 	}
-	else if((m_Shadow.GetAt(0) == VARIABLE) && (m_Shadow.GetAt(2) == VARIABLE))
+	else if(FitsPattern<RelativeRelative>())
 	{
-		uint32 nVariable1, nVariable2, nRegister;
+        RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+        unsigned int resultRegister = AllocateRegister();
 
-		m_Shadow.Pull();
-		nVariable2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable1 = m_Shadow.Pull();
+        LoadRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.AddEd(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
 
-		nRegister	= AllocateRegister();
-
-		//mov reg, dword ptr[Variable1]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable1);
-
-		//add reg, dword ptr[Variable2]
-		m_pBlock->StreamWrite(2, 0x03, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable2);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-	}
-	else if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
-	{
-        uint32 nRelative1, nRelative2, nRegister;
-
-        m_Shadow.Pull();
-        nRelative2 = m_Shadow.Pull();
-        m_Shadow.Pull();
-        nRelative1 = m_Shadow.Pull();
-
-        nRegister = AllocateRegister();
-
-        LoadRelativeInRegister(nRegister, nRelative1);
-
-        //add reg, dword ptr[nRelative1]
-        m_pBlock->StreamWrite(1, 0x03);
-        WriteRelativeRmRegister(nRegister, nRelative2);
-
-        m_Shadow.Push(nRegister);
-        m_Shadow.Push(REGISTER);
+        PushReg(resultRegister);
     }
 	else if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
 	{
@@ -921,6 +865,7 @@ void CCodeGen::Add()
 
 void CCodeGen::Add64()
 {
+/*
 	if(\
 		(m_Shadow.GetAt(0) == RELATIVE) && \
 		(m_Shadow.GetAt(2) == RELATIVE) && \
@@ -994,6 +939,36 @@ void CCodeGen::Add64()
 	{
 		assert(0);
 	}
+*/
+
+
+    if(FitsPattern<ConstantConstant64>())
+    {
+        ConstantConstant64::PatternValue ops(GetPattern<ConstantConstant64>());
+        uint64 result = ops.second.q + ops.first.q;
+        
+        PushCst(static_cast<uint32>(result));
+        PushCst(static_cast<uint32>(result >> 32));
+    }
+    else if(FitsPattern<CommutativeRelativeConstant64>())
+    {
+        CommutativeRelativeConstant64::PatternValue ops(GetPattern<CommutativeRelativeConstant64>());
+
+        if(ops.second.q == 0)
+        {
+            //Simple copy
+            PushRel(ops.first.d0);
+            PushRel(ops.first.d1);
+        }
+        else
+        {
+            assert(0);
+        }
+    }
+	else
+	{
+		assert(0);
+	}
 }
 
 void CCodeGen::And()
@@ -1026,103 +1001,30 @@ void CCodeGen::And()
 		m_Shadow.Push(nRegister1);
 		m_Shadow.Push(REGISTER);
 	}
-	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == REGISTER))
+	else if(FitsPattern<CommutativeRegisterConstant>())
 	{
-		uint32 nConstant;
-		unsigned int nRegister;
+        CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
 
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
+        m_Assembler.AndId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[ops.first]), ops.second);
 
-		if(GetMinimumConstantSize(nConstant) == 1)
-		{
-			//and reg, Immediate
-			m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x04 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
-		}
-		else
-		{
-			//and reg, Immediate
-			m_pBlock->StreamWrite(2, 0x81, 0xC0 | (0x04 << 3) | (m_nRegisterLookup[nRegister]));
-			m_pBlock->StreamWriteWord(nConstant);
-		}
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        PushReg(ops.first);
 	}
-	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == VARIABLE))
+	else if(FitsPattern<CommutativeRelativeConstant>())
 	{
-		uint32 nVariable, nConstant;
-		unsigned int nRegister;
+        CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
 
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
+		unsigned int nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, ops.first);
 
-		nRegister = AllocateRegister();
-		LoadVariableInRegister(nRegister, nVariable);
+        PushReg(nRegister);
+        PushCst(ops.second);
 
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		m_Shadow.Push(nConstant);
-		m_Shadow.Push(CONSTANT);
-
-		And();
+        And();
 	}
-	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
+	else if(FitsPattern<ConstantConstant>())
 	{
-		uint32 nRelative, nConstant;
-		unsigned int nRegister;
-
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, nRelative);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		m_Shadow.Push(nConstant);
-		m_Shadow.Push(CONSTANT);
-
-		And();
-	}
-	else if((m_Shadow.GetAt(0) == VARIABLE) && (m_Shadow.GetAt(2) == VARIABLE))
-	{
-		uint32 nVariable1, nVariable2;
-		uint32 nRegister;
-
-		m_Shadow.Pull();
-		nVariable2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable1 = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadVariableInRegister(nRegister, nVariable1);
-
-		//and reg, [nVariable2]
-		m_pBlock->StreamWrite(2, 0x23, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable2);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-	}
-	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == CONSTANT))
-	{
-		uint32 nConstant1, nConstant2;
-	
-		m_Shadow.Pull();
-		nConstant2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nConstant1 = m_Shadow.Pull();
-
-		PushCst(nConstant2 & nConstant1);
+        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+		PushCst(ops.first & ops.second);
 	}
 	else
 	{
@@ -1167,6 +1069,24 @@ void CCodeGen::And64()
 		PushReg(nRegister1);
 		PushReg(nRegister2);
 	}
+    else if(FitsPattern<CommutativeRelativeConstant64>())
+    {
+        CommutativeRelativeConstant64::PatternValue ops(GetPattern<CommutativeRelativeConstant64>());
+
+        for(unsigned int i = 0; i < 2; i++)
+        {
+            if(ops.second.d[i] == 0)
+            {
+                //x & 0 = 0
+                PushCst(0);
+                continue;
+            }
+            unsigned int registerId = AllocateRegister();
+            LoadRelativeInRegister(registerId, ops.first.d[i]);
+            m_Assembler.AndId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]), ops.second.d[i]);
+            PushReg(registerId);
+        }
+    }
 	else
 	{
 		assert(0);
@@ -1357,7 +1277,61 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 
 void CCodeGen::Cmp(CONDITION nCondition)
 {
-	if((m_Shadow.GetAt(0) == VARIABLE) && (m_Shadow.GetAt(2) == VARIABLE))
+    if(
+        nCondition == CONDITION_EQ &&
+        FitsPattern<CommutativeRelativeConstant>()
+        )
+    {
+        CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
+        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
+
+        //cmp [relative], $constant
+        m_Assembler.CmpId(
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first),
+            ops.second);
+
+        //sete reg[l]
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+
+		//movzx reg, reg[l]
+        m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+
+        PushReg(resultRegister);
+    }
+    else if(
+        nCondition == CONDITION_EQ &&
+        FitsPattern<ConstantConstant>()
+        )
+    {
+        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+        unsigned int resultRegister = AllocateRegister();
+        LoadConstantInRegister(resultRegister, ops.first == ops.second ? 1 : 0);
+        PushReg(resultRegister);
+    }
+	else if(IsTopRegZeroPairCom() && (nCondition == CONDITION_EQ))
+	{
+		unsigned int valueRegister;
+
+		GetRegCstPairCom(&valueRegister, NULL);
+
+        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
+
+		//test reg, reg
+        m_Assembler.TestEd(m_nRegisterLookupEx[valueRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[valueRegister]));
+		
+		//sete reg[l]
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+
+		//movzx reg, reg[l]
+        m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+		
+        PushReg(resultRegister);
+	}
+/*
+    if((m_Shadow.GetAt(0) == VARIABLE) && (m_Shadow.GetAt(2) == VARIABLE))
 	{
 		uint32 nVariable1, nVariable2, nRegister;
 
@@ -1426,27 +1400,6 @@ void CCodeGen::Cmp(CONDITION nCondition)
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
 	}
-	else if(IsTopRegZeroPairCom() && (nCondition == CONDITION_EQ))
-	{
-		unsigned int valueRegister;
-
-		GetRegCstPairCom(&valueRegister, NULL);
-
-        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
-
-		//test reg, reg
-        m_Assembler.TestEd(m_nRegisterLookupEx[valueRegister],
-            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[valueRegister]));
-		
-		//sete reg[l]
-        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
-
-		//movzx reg, reg[l]
-        m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],
-            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
-		
-        PushReg(resultRegister);
-	}
 	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT))
 	{
 		uint32 nConstant;
@@ -1474,6 +1427,7 @@ void CCodeGen::Cmp(CONDITION nCondition)
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
 	}
+*/
 	else
 	{
 		assert(0);
@@ -1593,33 +1547,41 @@ _done:
 
 void CCodeGen::MultS()
 {
-	if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
-	{
-        uint32 nRelative1, nRelative2, nRegister;
-
-        m_Shadow.Pull();
-        nRelative2 = m_Shadow.Pull();
-        m_Shadow.Pull();
-        nRelative1 = m_Shadow.Pull();
+    if(FitsPattern<CommutativeRelativeConstant>())
+    {
+        CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
 
         //We need eax and edx for this
         assert(!m_nRegisterAllocated[REGISTER_EAX] && !m_nRegisterAllocated[REGISTER_EDX]);
         m_nRegisterAllocated[REGISTER_EAX] = true;
         m_nRegisterAllocated[REGISTER_EDX] = true;
-        nRegister = REGISTER_EAX;
+        unsigned int lowRegister = REGISTER_EAX;
+        unsigned int highRegister = REGISTER_EDX;
 
-        LoadRelativeInRegister(nRegister, nRelative1);
+        LoadRelativeInRegister(lowRegister, ops.first);
+        LoadConstantInRegister(highRegister, ops.second);
+        m_Assembler.ImulEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[highRegister]));
 
-        //imul eax, [Relative2]
-        m_pBlock->StreamWrite(1, 0xF7);
-        WriteRelativeRmFunction(5, nRelative2);
+        PushReg(highRegister);
+        PushReg(lowRegister);
+    }
+    else if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
 
-        m_Shadow.Push(REGISTER_EDX);
-        m_Shadow.Push(REGISTER);
+        //We need eax and edx for this
+        assert(!m_nRegisterAllocated[REGISTER_EAX] && !m_nRegisterAllocated[REGISTER_EDX]);
+        m_nRegisterAllocated[REGISTER_EAX] = true;
+        m_nRegisterAllocated[REGISTER_EDX] = true;
+        unsigned int lowRegister = REGISTER_EAX;
+        unsigned int highRegister = REGISTER_EDX;
 
-        m_Shadow.Push(nRegister);
-        m_Shadow.Push(REGISTER);
-	}
+        LoadRelativeInRegister(lowRegister, ops.first);
+        m_Assembler.ImulEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+
+        PushReg(highRegister);
+        PushReg(lowRegister);
+    }
     else
     {
         assert(0);
@@ -1656,76 +1618,43 @@ void CCodeGen::Or()
 		m_Shadow.Push(nRegister1);
 		m_Shadow.Push(REGISTER);
 	}
-	else if(IsTopRegCstPairCom())
-	{
-		uint32 nConstant;
-		unsigned int nRegister;
+    else if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
 
-		GetRegCstPairCom(&nRegister, &nConstant);
+        unsigned int nRegister = AllocateRegister();
+        LoadRelativeInRegister(nRegister, ops.first);
+
+        m_Assembler.OrEd(m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+
+        PushReg(nRegister);
+    }
+    else if(FitsPattern<ConstantConstant>())
+    {
+        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+        PushCst(ops.first | ops.second);
+    }
+    else if(FitsPattern<CommutativeRegisterConstant>())
+	{
+        CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
 
 		//or reg, const
-		m_pBlock->StreamWrite(2, 0x81, 0xC0 | (0x01 << 3) | (m_nRegisterLookup[nRegister]));
-		m_pBlock->StreamWriteWord(nConstant);
+        m_Assembler.OrId(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[ops.first]),
+            ops.second);
 
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        PushReg(ops.first);
 	}
-	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == VARIABLE))
+	else if(FitsPattern<CommutativeRelativeConstant>())
 	{
-		unsigned int nRegister;
-		uint32 nConstant, nVariable;
+        CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
 
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadVariableInRegister(nRegister, nVariable);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		m_Shadow.Push(nConstant);
-		m_Shadow.Push(CONSTANT);
-
-		Or();
-	}
-    else if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
-    {
-        uint32 nRelative1, nRelative2, nRegister;
-
-        m_Shadow.Pull();
-        nRelative2 = m_Shadow.Pull();
-        m_Shadow.Pull();
-        nRelative1 = m_Shadow.Pull();
-
-        nRegister = AllocateRegister();
-
-        LoadRelativeInRegister(nRegister, nRelative1);
-
-        //or reg, dword ptr[nRelative1]
-        m_pBlock->StreamWrite(1, 0x0B);
-        WriteRelativeRmRegister(nRegister, nRelative2);
-
-        m_Shadow.Push(nRegister);
-        m_Shadow.Push(REGISTER);
-    }
-	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == RELATIVE))
-	{
-		unsigned int nRegister;
-		uint32 nConstant, nRelative;
-
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, nRelative);
+		unsigned int nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, ops.first);
 
 		PushReg(nRegister);
-		PushCst(nConstant);
+		PushCst(ops.second);
 
 		Or();
 	}
@@ -1782,49 +1711,20 @@ void CCodeGen::SeX()
 
 void CCodeGen::Shl(uint8 nAmount)
 {
-	if(m_Shadow.GetAt(0) == REGISTER)
+	if(FitsPattern<SingleRegister>())
 	{
-		uint32 nRegister;
-
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
-
-		//shr nRegister, nAmount
-		m_pBlock->StreamWrite(3, 0xC1, 0xE0 | (m_nRegisterLookup[nRegister]), nAmount);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        SingleRegister::PatternValue op = GetPattern<SingleRegister>();
+        m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[op]), nAmount);
+        PushReg(op);
 	}
-	else if(m_Shadow.GetAt(0) == RELATIVE)
+	else if(FitsPattern<SingleRelative>())
 	{
         UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Shl, nAmount));
 	}
-	else if(m_Shadow.GetAt(0) == VARIABLE)
+	else if(FitsPattern<SingleConstant>())
 	{
-		uint32 nVariable;
-		unsigned int nRegister;
-
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadVariableInRegister(nRegister, nVariable);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		Shl(nAmount);
-	}
-	else if(m_Shadow.GetAt(0) == CONSTANT)
-	{
-		uint32 nConstant;
-
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-
-		nConstant <<= nAmount;
-
-		PushCst(nConstant);
+        SingleConstant::PatternValue op = GetPattern<SingleConstant>();
+		PushCst(op << nAmount);
 	}
 	else
 	{
@@ -1940,17 +1840,11 @@ void CCodeGen::Shl64()
 
 void CCodeGen::Shl64(uint8 nAmount)
 {
-	if(\
-		(m_Shadow.GetAt(0) == RELATIVE) && \
-		(m_Shadow.GetAt(2) == RELATIVE))
-	{
-
-		uint32 nRelative1, nRelative2;
-
-		m_Shadow.Pull();
-		nRelative2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative1 = m_Shadow.Pull();
+	if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+		uint32 nRelative1 = ops.first;
+        uint32 nRelative2 = ops.second;
 
 		assert(nAmount < 0x40);
 
@@ -2005,7 +1899,7 @@ void CCodeGen::Shl64(uint8 nAmount)
 				LoadRelativeInRegister(nRegister, nRelative1);
 
 				//shl reg, amount
-				m_pBlock->StreamWrite(3, 0xC1, MakeRegFunRm(nRegister, 0x04), nAmount & 0x1F);
+                m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]), nAmount & 0x1F);
 
 				PushCst(0);
 				PushReg(nRegister);
@@ -2021,10 +1915,12 @@ void CCodeGen::Shl64(uint8 nAmount)
 				LoadRelativeInRegister(nRegister2, nRelative2);
 
 				//shld nReg2, nReg1, nAmount
-				m_pBlock->StreamWrite(4, 0x0F, 0xA4, MakeRegRegRm(nRegister2, nRegister1), nAmount);
+                m_Assembler.ShldEd(
+                    CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister2]),
+                    m_nRegisterLookupEx[nRegister1], nAmount);
 
 				//shl nReg1, nAmount
-				m_pBlock->StreamWrite(3, 0xC1, MakeRegFunRm(nRegister1, 0x04), nAmount);
+                m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister1]), nAmount);
 
 				PushReg(nRegister1);
 				PushReg(nRegister2);
@@ -2032,6 +1928,39 @@ void CCodeGen::Shl64(uint8 nAmount)
 		}
 
 	}
+    else if(FitsPattern<RelativeConstant>())
+    {
+        RelativeConstant::PatternValue ops(GetPattern<RelativeConstant>());
+
+        if(nAmount < 32)
+        {
+            unsigned int register1 = AllocateRegister();
+            unsigned int register2 = AllocateRegister();
+
+            LoadRelativeInRegister(register1, ops.first);
+            LoadConstantInRegister(register2, ops.second);
+
+            m_Assembler.ShldEd(
+                CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[register2]),
+                m_nRegisterLookupEx[register1], nAmount);
+
+            m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[register1]), nAmount);
+
+            PushReg(register1);
+            PushReg(register2);
+        } 
+        else
+        {
+            assert(0);
+        }
+    }
+    else if(FitsPattern<SingleConstant64>())
+    {
+        SingleConstant64::PatternValue ops(GetPattern<SingleConstant64>());
+        ops.q <<= nAmount;
+        PushCst(ops.d0);
+        PushCst(ops.d1);
+    }
 	else
 	{
 		assert(0);
@@ -2040,20 +1969,13 @@ void CCodeGen::Shl64(uint8 nAmount)
 
 void CCodeGen::Sra(uint8 nAmount)
 {
-	if(m_Shadow.GetAt(0) == REGISTER)
+	if(FitsPattern<SingleRegister>())
 	{
-		uint32 nRegister;
-
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
-
-        //sar nRegister, nAmount
-		m_pBlock->StreamWrite(3, 0xC1, 0xF8 | (m_nRegisterLookup[nRegister]), nAmount);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        SingleRegister::PatternValue registerId(GetPattern<SingleRegister>());
+        m_Assembler.SarEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]), nAmount);
+        PushReg(registerId);
 	}
-	else if(m_Shadow.GetAt(0) == RELATIVE)
+	else if(FitsPattern<SingleRelative>())
 	{
         UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Sra, nAmount));
 	}
@@ -2102,20 +2024,16 @@ void CCodeGen::Sra64(uint8 nAmount)
 
 void CCodeGen::Srl(uint8 nAmount)
 {
-	if(m_Shadow.GetAt(0) == REGISTER)
+	if(FitsPattern<SingleRegister>())
 	{
-		uint32 nRegister;
-
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
+        SingleRegister::PatternValue registerId = GetPattern<SingleRegister>();
 
         //shr nRegister, nAmount
-		m_pBlock->StreamWrite(3, 0xC1, 0xE8 | (m_nRegisterLookup[nRegister]), nAmount);
+        m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]), nAmount);
 
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        PushReg(registerId);
 	}
-	else if(m_Shadow.GetAt(0) == RELATIVE)
+	else if(FitsPattern<SingleRelative>())
 	{
         UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Srl, nAmount));
 	}
@@ -2234,16 +2152,11 @@ void CCodeGen::Srl64()
 
 void CCodeGen::Srl64(uint8 nAmount)
 {
-	if(\
-		(m_Shadow.GetAt(0) == RELATIVE) && \
-		(m_Shadow.GetAt(2) == RELATIVE))
+	if(FitsPattern<RelativeRelative>())
 	{
-		uint32 nRelative1, nRelative2;
-
-		m_Shadow.Pull();
-		nRelative2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative1 = m_Shadow.Pull();
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+		uint32 nRelative1 = ops.first;
+        uint32 nRelative2 = ops.second;
 
 		assert(nAmount < 0x40);
 
@@ -2286,24 +2199,46 @@ void CCodeGen::Srl64(uint8 nAmount)
 		}
 		else
 		{
-			uint32 nRegister1, nRegister2;
-
-			nRegister1 = AllocateRegister();
-			nRegister2 = AllocateRegister();
+			unsigned int nRegister1 = AllocateRegister();
+			unsigned int nRegister2 = AllocateRegister();
 
 			LoadRelativeInRegister(nRegister1, nRelative1);
 			LoadRelativeInRegister(nRegister2, nRelative2);
 
 			//shrd nReg1, nReg2, nAmount
-			m_pBlock->StreamWrite(4, 0x0F, 0xAC, MakeRegRegRm(nRegister1, nRegister2), nAmount);
+            m_Assembler.ShrdEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister1]),
+                m_nRegisterLookupEx[nRegister2],
+                nAmount);
 
 			//shr nReg2, nAmount
-			m_pBlock->StreamWrite(3, 0xC1, MakeRegFunRm(nRegister2, 0x05), nAmount);
+            m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister2]), nAmount);
 
 			PushReg(nRegister1);
 			PushReg(nRegister2);
 		}
 	}
+    else if(FitsPattern<ConstantRelative>())
+    {
+        //HI = Relative
+        //LO = Constant
+        ConstantRelative::PatternValue ops(GetPattern<ConstantRelative>());
+
+        if(nAmount == 32)
+        {
+            unsigned int resultRegister = AllocateRegister();
+            LoadRelativeInRegister(resultRegister, ops.second);
+            PushReg(resultRegister);
+            PushCst(0);
+        }
+        else
+        {
+            assert(0);
+        }
+    }
+    else
+    {
+        assert(0);
+    }
 }
 
 void CCodeGen::Sub()
@@ -2419,14 +2354,6 @@ void CCodeGen::Xor()
 
 void CCodeGen::Cmp64Eq()
 {
-    uint32 operandType[4];
-    uint32 operandValue[4];
-
-    for(int i = 3; i >= 0; i--)
-    {
-        operandType[i] = m_Shadow.Pull();
-        operandValue[i] = m_Shadow.Pull();
-    }
 /*
 	if(
 		(operandType[0] == RELATIVE) &&
@@ -2487,19 +2414,47 @@ void CCodeGen::Cmp64Eq()
     else 
 */
     if(
-        //If both top values are constants and have the same value
-        (operandType[3] == CONSTANT) &&
-        (operandType[1] == CONSTANT) &&
-        (operandValue[1] == operandValue[3])
+        m_Shadow.GetAt(4) == CONSTANT &&
+        m_Shadow.GetAt(0) == CONSTANT &&
+        m_Shadow.GetAt(1) == m_Shadow.GetAt(5)
         )
     {
-        m_Shadow.Push(operandValue[0]);
-        m_Shadow.Push(operandType[0]);
+        m_Shadow.Pull();
+        m_Shadow.Pull();
+        uint32 type1 = m_Shadow.Pull();
+        uint32 value1 = m_Shadow.Pull();
+        m_Shadow.Pull();
+        m_Shadow.Pull();
+        uint32 type0 = m_Shadow.Pull();
+        uint32 value0 = m_Shadow.Pull();
 
-        m_Shadow.Push(operandValue[2]);
-        m_Shadow.Push(operandType[2]);
+        m_Shadow.Push(value0);
+        m_Shadow.Push(type0);
+        m_Shadow.Push(value1);
+        m_Shadow.Push(type1);
 
         Cmp(CONDITION_EQ);
+    }
+    else if(FitsPattern<CommutativeRelativeConstant64>())
+    {
+        CommutativeRelativeConstant64::PatternValue ops = GetPattern<CommutativeRelativeConstant64>();
+
+        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
+        unsigned int tempRegister = AllocateRegister(REGISTER_HASLOW);
+
+        m_Assembler.CmpId(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first.d1),
+            ops.second.d1);
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        m_Assembler.CmpId(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first.d0),
+            ops.second.d0);
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+        m_Assembler.AndEd(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+        m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+
+        FreeRegister(tempRegister);
+        PushReg(resultRegister);
     }
 	else
 	{
@@ -2790,12 +2745,6 @@ void CCodeGen::Cmp64Cont(CONDITION nCondition)
 	m_Shadow.Push(nRegister);
 	m_Shadow.Push(REGISTER);
 #endif
-}
-
-bool CCodeGen::IsTopRegCstPairCom()
-{
-	return ((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == REGISTER)) ||
-		((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == CONSTANT));
 }
 
 bool CCodeGen::IsTopRegZeroPairCom()

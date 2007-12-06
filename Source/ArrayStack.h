@@ -16,7 +16,7 @@ public:
 		m_nStackPointer = MAXSIZE;
 	}
 
-	Type GetAt(unsigned int nAddress)
+	Type GetAt(unsigned int nAddress) const
 	{
 		if(m_nStackPointer + nAddress >= MAXSIZE)
 		{

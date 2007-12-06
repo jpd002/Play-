@@ -110,9 +110,24 @@ void CX86Assembler::ResolveLabelReferences()
     m_labelReferences.clear();
 }
 
+void CX86Assembler::AddEd(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x03, false, address, registerId);
+}
+
 void CX86Assembler::AddId(const CAddress& Address, uint32 nConstant)
 {
     WriteEvId(0x00, Address, nConstant);
+}
+
+void CX86Assembler::AndEd(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x23, false, address, registerId);
+}
+
+void CX86Assembler::AndId(const CAddress& address, uint32 constant)
+{
+    WriteEvId(0x04, address, constant);
 }
 
 void CX86Assembler::CallEd(const CAddress& address)
@@ -140,6 +155,11 @@ void CX86Assembler::CmpIq(const CAddress& Address, uint64 nConstant)
     WriteEvIq(0x07, Address, nConstant);
 }
 
+void CX86Assembler::ImulEd(const CAddress& address)
+{
+    WriteEvOp(0xF7, 0x05, false, address);
+}
+
 void CX86Assembler::JeJb(LABEL label)
 {
     WriteByte(0x74);
@@ -159,11 +179,6 @@ void CX86Assembler::JneJb(LABEL label)
     WriteByte(0x75);
     CreateLabelReference(label, 1);
     WriteByte(0x00);
-}
-
-void CX86Assembler::Nop()
-{
-    WriteByte(0x90);
 }
 
 void CX86Assembler::MovEd(REGISTER nRegister, const CAddress& Address)
@@ -193,6 +208,21 @@ void CX86Assembler::MovzxEb(REGISTER registerId, const CAddress& address)
 {
     WriteByte(0x0F);
     WriteEvGvOp(0xB6, false, address, registerId);
+}
+
+void CX86Assembler::Nop()
+{
+    WriteByte(0x90);
+}
+
+void CX86Assembler::OrEd(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x0B, false, address, registerId);
+}
+
+void CX86Assembler::OrId(const CAddress& address, uint32 constant)
+{
+    WriteEvId(0x01, address, constant);
 }
 
 void CX86Assembler::Push(REGISTER registerId)
@@ -246,6 +276,32 @@ void CX86Assembler::SetlEb(const CAddress& address)
 {
     WriteByte(0x0F);
     WriteEvOp(0x9C, 0x00, false, address);
+}
+
+void CX86Assembler::ShlEd(const CAddress& address, uint8 amount)
+{
+    WriteEvOp(0xC1, 0x04, false, address);
+    WriteByte(amount);
+}
+
+void CX86Assembler::ShrEd(const CAddress& address, uint8 amount)
+{
+    WriteEvOp(0xC1, 0x05, false, address);
+    WriteByte(amount);
+}
+
+void CX86Assembler::ShldEd(const CAddress& address, REGISTER registerId, uint8 amount)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0xA4, false, address, registerId);
+    WriteByte(amount);
+}
+
+void CX86Assembler::ShrdEd(const CAddress& address, REGISTER registerId, uint8 amount)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0xAC, false, address, registerId);
+    WriteByte(amount);
 }
 
 void CX86Assembler::SubEd(REGISTER nRegister, const CAddress& Address)

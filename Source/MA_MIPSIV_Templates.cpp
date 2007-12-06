@@ -1,68 +1,55 @@
 #include "MA_MIPSIV.h"
 #include "CodeGen.h"
+#include "MipsCodeGen.h"
 #include "MIPS.h"
-
-#undef offsetof
-#define offsetof(a, b) (reinterpret_cast<uint8*>(&reinterpret_cast<a*>(0x10)->b) - reinterpret_cast<uint8*>(0x10))
+#include "offsetof_def.h"
 
 void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
 {
-    CCodeGen::Begin(m_pB);
-    {
-        ComputeMemAccessAddrEx();
+    ComputeMemAccessAddrEx();
 
-		CCodeGen::PushRef(m_pCtx);
-		CCodeGen::PushIdx(1);
-		CCodeGen::Call(pProxyFunction, 2, true);
+	m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushIdx(1);
+	m_codeGen->Call(pProxyFunction, 2, true);
 
-		CCodeGen::SeX();
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->SeX();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
-        CCodeGen::PullTop();
-    }
-    CCodeGen::End();
+    m_codeGen->PullTop();
 }
 
 void CMA_MIPSIV::Template_ShiftCst32::operator()(OperationFunctionType Function)
 {
-    CCodeGen::Begin(m_pB);
-    {
-        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-        Function(m_nSA);
-        
-        CCodeGen::SeX();
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-    }
-    CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    Function(m_nSA);
+    
+    m_codeGen->SeX();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 void CMA_MIPSIV::Template_Mult32::operator()(OperationFunctionType Function)
 {
-    CCodeGen::Begin(m_pB);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    Function();
+
+    m_codeGen->SeX();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
+
+    m_codeGen->SeX();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
+
+    if(m_nRD != 0)
     {
-        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-        Function();
+		//Wierd EE MIPS spinoff...
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[1]));
 
-        CCodeGen::SeX();
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nLO[1]));
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nLO[0]));
-
-        CCodeGen::SeX();
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nHI[1]));
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nHI[0]));
-
-        if(m_nRD != 0)
-        {
-    		//Wierd EE MIPS spinoff...
-            CCodeGen::PushRel(offsetof(CMIPS, m_State.nLO[0]));
-            CCodeGen::PushRel(offsetof(CMIPS, m_State.nLO[1]));
-
-            CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-            CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-        }
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
     }
-    CCodeGen::End();
 }

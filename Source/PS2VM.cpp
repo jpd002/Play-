@@ -17,7 +17,6 @@
 #include "VolumeStream.h"
 #include "Config.h"
 #include "Profiler.h"
-#include "BasicBlock.h"
 
 #ifdef _DEBUG
 
@@ -29,7 +28,7 @@
 
 #else
 
-#define		SCREENTICKS		10000000
+#define		SCREENTICKS		1000000
 //#define		SCREENTICKS		4833333
 //#define		SCREENTICKS		2000000
 //#define		SCREENTICKS		1000000
@@ -53,6 +52,7 @@ m_pMicroMem1(NULL),
 m_pThread(NULL),
 m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
 m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
+m_executor(m_EE),
 m_nStatus(PAUSED),
 m_pGS(NULL),
 m_pPad(NULL),
@@ -271,6 +271,8 @@ void CPS2VM::ResetVM()
 	//Reset Context
 	memset(&m_EE.m_State, 0, sizeof(MIPSSTATE));
 	memset(&m_VU1.m_State, 0, sizeof(MIPSSTATE));
+    m_EE.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
+    m_VU1.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
 
 	//Set VF0[w] to 1.0
 	m_EE.m_State.nCOP2[0].nV3	= 0x3F800000;
@@ -568,8 +570,8 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 		else
 		{
 #ifdef _DEBUG
-			printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n",
-				m_EE.m_State.nPC);
+//			printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n",
+//				m_EE.m_State.nPC);
 #endif
 		}
 	}
@@ -713,22 +715,7 @@ void CPS2VM::EmuThread()
 			Sleep(100);
 		}
 		if(m_nStatus == RUNNING)
-		{
-            {
-                CBasicBlock basicBlock(m_EE, 0x201AE0, 0x201AEC);
-                basicBlock.Compile();
-                basicBlock.Execute();
-            }
-            {
-                CBasicBlock basicBlock(m_EE, 0x201AF0, 0x201B04);
-                basicBlock.Compile();
-                for(unsigned int i = 0; i < 0x8057; i++)
-                {
-                    basicBlock.Execute();
-                }
-            }
-            throw runtime_error("HAHAHA!");
-            RET_CODE returnCode;
+        {
 			if(static_cast<int>(m_nVBlankTicks) <= 0)
 			{
 				m_nInVBlank = !m_nInVBlank;
@@ -739,7 +726,7 @@ void CPS2VM::EmuThread()
 
 					//Old Flipping Method
 					//m_pGS->Flip();
-					//m_OnNewFrame.Notify(NULL);
+					m_OnNewFrame();
 					//////
 
 					m_pPad->Update();
@@ -753,15 +740,14 @@ void CPS2VM::EmuThread()
             if(!m_EE.m_State.nHasException)
             {
                 int executeQuota = m_singleStep ? 1 : 5000;
-                returnCode = m_EE.Execute(executeQuota);
-				m_nVBlankTicks -= (executeQuota - m_EE.m_nQuota);
+				m_nVBlankTicks -= (executeQuota - m_executor.Execute(executeQuota));
             }
             if(m_EE.m_State.nHasException)
             {
                 m_os->SysCallHandler();
                 assert(!m_EE.m_State.nHasException);
             }
-            if(returnCode == RET_CODE_BREAKPOINT || m_singleStep)
+            if(m_executor.MustBreak() || m_singleStep)
             {
                 m_nStatus = PAUSED;
                 m_singleStep = false;
