@@ -338,7 +338,7 @@ CConfig::CPreference::~CPreference()
 
 const char* CConfig::CPreference::GetName()
 {
-	return m_sName;
+	return m_sName.c_str();
 }
 
 CConfig::PREFERENCE_TYPE CConfig::CPreference::GetType()
@@ -365,7 +365,7 @@ const char* CConfig::CPreference::GetTypeString()
 
 void CConfig::CPreference::Serialize(Xml::CNode* pNode)
 {
-	pNode->InsertAttribute(Xml::CreateAttributeStringValue("Name", m_sName));
+	pNode->InsertAttribute(Xml::CreateAttributeStringValue("Name", m_sName.c_str()));
 	pNode->InsertAttribute(Xml::CreateAttributeStringValue("Type", GetTypeString()));
 }
 
@@ -450,7 +450,7 @@ CConfig::CPreferenceString::~CPreferenceString()
 
 const char* CConfig::CPreferenceString::GetValue()
 {
-	return m_sValue;
+	return m_sValue.c_str();
 }
 
 void CConfig::CPreferenceString::SetValue(const char* sValue)
@@ -462,5 +462,5 @@ void CConfig::CPreferenceString::Serialize(Xml::CNode* pNode)
 {
 	CPreference::Serialize(pNode);
 
-	pNode->InsertAttribute(Xml::CreateAttributeStringValue("Value", m_sValue));
+	pNode->InsertAttribute(Xml::CreateAttributeStringValue("Value", m_sValue.c_str()));
 }
