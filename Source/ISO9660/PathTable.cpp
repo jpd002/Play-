@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "PathTable.h"
 #include "PtrMacro.h"
+#include "stricmp.h"
 
 using namespace Framework;
 using namespace ISO9660;
@@ -68,7 +69,7 @@ unsigned int CPathTable::FindDirectory(const char* sName, unsigned int nParent)
 		pRecord = m_Record.Find(i);
 		if(pRecord == NULL) continue;
 		if(nParent != pRecord->GetParentRecord()) continue;
-		if(_stricmp(sName, pRecord->GetName())) continue;
+		if(stricmp(sName, pRecord->GetName())) continue;
 		break;
 	}
 

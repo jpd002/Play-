@@ -181,7 +181,7 @@ void CPS2OS::BootFromFile(const char* sPath)
 void CPS2OS::BootFromCDROM()
 {
 	CStream* pFile;
-	CStrA sLine;
+	string sLine;
 	const char* sExecPath;
 	const char* sExecName;
 
@@ -189,7 +189,7 @@ void CPS2OS::BootFromCDROM()
 //	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, "cdrom0:SYSTEM.CNF");
 	if(pFile == NULL)
 	{
-		throw exception("No 'SYSTEM.CNF' file found on the cdrom0 device.");
+		throw runtime_error("No 'SYSTEM.CNF' file found on the cdrom0 device.");
 	}
 
 	sExecPath = NULL;
@@ -197,9 +197,9 @@ void CPS2OS::BootFromCDROM()
 	Utils::GetLine(pFile, &sLine);
 	while(!pFile->IsEOF())
 	{
-		if(!strncmp(sLine, "BOOT2", 5))
+		if(!strncmp(sLine.c_str(), "BOOT2", 5))
 		{
-			sExecPath = strstr(sLine, "=");
+			sExecPath = strstr(sLine.c_str(), "=");
 			if(sExecPath != NULL)
 			{
 				sExecPath++;
@@ -214,7 +214,7 @@ void CPS2OS::BootFromCDROM()
 
 	if(sExecPath == NULL)
 	{
-		throw exception("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
+		throw runtime_error("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
 	}
 
 //	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, sExecPath);
@@ -254,13 +254,13 @@ void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
 	if(pELF->m_Header.nCPU != 8)
 	{
 		DELETEPTR(pELF);
-		throw exception("Invalid target CPU. Must be MIPS.");
+		throw runtime_error("Invalid target CPU. Must be MIPS.");
 	}
 
 	if(pELF->m_Header.nType != 2)
 	{
 		DELETEPTR(pELF);
-		throw exception("Not an executable ELF file.");
+		throw runtime_error("Not an executable ELF file.");
 	}
 	
 //	CPS2VM::Pause();

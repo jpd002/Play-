@@ -5,6 +5,7 @@
 #include "VUShared.h"
 #include "CodeGen.h"
 #include "CodeGen_FPU.h"
+#include "offsetof_def.h"
 
 using namespace CodeGen;
 
@@ -148,7 +149,7 @@ void CMA_VU::CLower::LQ()
 			///////////////////////////////
 			// Call
 
-			CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
+			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
 			///////////////////////////////
 			// Store value
@@ -192,7 +193,7 @@ void CMA_VU::CLower::SQ()
 			///////////////////////////////
 			// Call
 
-			CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
+			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 		}
 
 	}
@@ -209,7 +210,7 @@ void CMA_VU::CLower::ILW()
 	m_pB->AddImm(GetDestOffset(m_nDest));
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nCOP2VI[m_nIT]);
 }
 
@@ -226,7 +227,7 @@ void CMA_VU::CLower::ISW()
 	m_pB->AndImm(0xFFFF);
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 }
 
 //08
@@ -577,7 +578,7 @@ void CMA_VU::CLower::LQI()
 			///////////////////////////////
 			// Call
 
-			CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
+			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
 			///////////////////////////////
 			// Store result
@@ -683,7 +684,7 @@ void CMA_VU::CLower::SQI()
 			///////////////////////////////
 			// Call
 
-			CCodeGen::Call(&CCacheBlock::SetWordProxy, 3, false);
+			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 		}
 
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -746,7 +747,7 @@ void CMA_VU::CLower::ILWR()
 		CCodeGen::PushCst(GetDestOffset(m_nDest));
 		CCodeGen::Add();
 
-		CCodeGen::Call(&CCacheBlock::GetWordProxy, 2, true);
+		CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
 		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 	}

@@ -4,6 +4,7 @@
 #include "MIPS.h"
 #include "MipsCodeGen.h"
 #include "PS2OS.h"
+#include "offsetof_def.h"
 
 using namespace CodeGen;
 
@@ -71,22 +72,22 @@ void CMA_EE::LQ()
 
 	//Load the word
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 1, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
 	m_pB->AddImm(4);
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 1, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
 	m_pB->AddImm(4);
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 1, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[2]);
 	m_pB->AddImm(4);
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[3]);
 }
 
@@ -100,7 +101,7 @@ void CMA_EE::SQ()
 		m_codeGen->PushRef(m_pCtx);
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 		m_codeGen->PushIdx(2);
-		m_codeGen->Call(&CCacheBlock::SetWordProxy, 3, false);
+		m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 
 		if(i != 3)
 		{

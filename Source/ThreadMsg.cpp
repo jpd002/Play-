@@ -3,16 +3,21 @@
 CThreadMsg::CThreadMsg()
 {
 	m_nMessage = false;
+#ifdef WIN32
 	m_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+#endif
 }
 
 CThreadMsg::~CThreadMsg()
 {
+#ifdef WIN32
 	CloseHandle(m_hEvent);
+#endif
 }
 
 unsigned int CThreadMsg::SendMessage(unsigned int nMsg, void* pParam)
 {
+#ifdef WIN32
 	unsigned long nStatus;
 	MSG wmmsg;
 
@@ -35,25 +40,31 @@ unsigned int CThreadMsg::SendMessage(unsigned int nMsg, void* pParam)
 	}
 
 	return m_Msg.nRetValue;
+#endif
+	return 0;
 }
 
 bool CThreadMsg::GetMessage(MESSAGE* pMsg)
 {
+#ifdef WIN32
 	if(!m_nMessage) return false;
 	if(pMsg != NULL)
 	{
 		pMsg->nMsg		= m_Msg.nMsg;
 		pMsg->pParam	= m_Msg.pParam;
 	}
+#endif
 	return true;
 }
 
 void CThreadMsg::FlushMessage(unsigned int nRetValue)
 {
+#ifdef WIN32
 	if(!m_nMessage) return;
 	m_nMessage = false;
 	m_Msg.nRetValue = nRetValue;
 	SetEvent(m_hEvent);
+#endif
 }
 
 bool CThreadMsg::IsMessagePending()

@@ -1,5 +1,5 @@
 #include <string.h>
-#include <exception>
+#include <stdexcept>
 #include "VolumeDescriptor.h"
 
 using namespace Framework;
@@ -14,7 +14,7 @@ CVolumeDescriptor::CVolumeDescriptor(CStream* pStream)
 
 	if(m_nType != 0x01)
 	{
-		throw exception("Invalid ISO9660 Volume Descriptor.");
+		throw runtime_error("Invalid ISO9660 Volume Descriptor.");
 	}
 
 	pStream->Read(m_sStdId, 5);
@@ -22,7 +22,7 @@ CVolumeDescriptor::CVolumeDescriptor(CStream* pStream)
 
 	if(strcmp(m_sStdId, "CD001"))
 	{
-		throw exception("Invalid ISO9660 Volume Descriptor.");
+		throw runtime_error("Invalid ISO9660 Volume Descriptor.");
 	}
 
 	pStream->Seek(34, STREAM_SEEK_CUR);

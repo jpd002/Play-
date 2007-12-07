@@ -9,7 +9,7 @@
 class COsEventManager : public CSingleton<COsEventManager>
 {
 public:
-	friend					CSingleton;
+	friend class CSingleton<COsEventManager>;
 
 	class COsEvent
 	{

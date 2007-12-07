@@ -4,6 +4,7 @@
 #include "StdStream.h"
 #include "File.h"
 #include "DirectoryRecord.h"
+#include "stricmp.h"
 
 using namespace Framework;
 using namespace ISO9660;
@@ -76,7 +77,7 @@ bool CISO9660::GetFileRecordFromDirectory(CDirectoryRecord* pRecord, uint32 nAdd
 
 		if(Entry.GetLength() == 0) break;
 		if(Entry.IsDirectory()) continue;
-		if(_strnicmp(Entry.GetName(), sFilename, strlen(sFilename))) continue;
+		if(strnicmp(Entry.GetName(), sFilename, strlen(sFilename))) continue;
 
 		(*pRecord) = Entry;
 		return true;

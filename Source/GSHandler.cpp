@@ -20,12 +20,12 @@
 #define W_REG(a, v, r)				\
 	if((a) & 0x4)					\
 	{								\
-		(r) &= 0x00000000FFFFFFFF;	\
+		(r) &= 0x00000000FFFFFFFFLLU;	\
 		(r) |= (uint64)(v) << 32;	\
 	}								\
 	else							\
 	{								\
-		(r) &= 0xFFFFFFFF00000000;	\
+		(r) &= 0xFFFFFFFF00000000LLU;	\
 		(r) |= (v);					\
 	}
 
@@ -1168,4 +1168,46 @@ void CGSHandler::ThreadProc()
         m_mailBox.WaitForCall();
         m_mailBox.ReceiveCall();
     }
+}
+
+template <> uint8* CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT8>::GetPixelAddress(unsigned int nX, unsigned int nY)
+{
+	typedef CGSHandler::STORAGEPSMT8 Storage;
+
+	unsigned int nByte, nTable;
+	uint32 nColumnNum, nOffset;
+
+	nColumnNum = (nY / Storage::COLUMNHEIGHT) & 0x01;
+	nOffset = GetColumnAddress(nX, nY);
+
+	nTable			=	(nY & 0x02) >> 1;
+	nByte			=	(nX & 0x08) >> 2;
+	nByte			+=	(nY & 0x02) >> 1;
+	nTable			^=	(nColumnNum);
+
+	nX &= 0x7;
+	nY &= 0x1;
+
+	return reinterpret_cast<uint8*>(&((uint32*)&m_pMemory[nOffset])[Storage::m_nColumnWordTable[nTable][nY][nX]]) + nByte;
+}
+
+template <> uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::GetPixel(unsigned int nX, unsigned int nY)
+{
+	typedef STORAGEPSMT4 Storage;
+
+	uint32 nAddress;
+	unsigned int nColumnNum, nSubTable, nShiftAmount;
+
+	nColumnNum = (nY / Storage::COLUMNHEIGHT) & 0x01;
+	nAddress = GetColumnAddress(nX, nY);
+
+	nShiftAmount	=	(nX & 0x18);
+	nShiftAmount	+=	(nY & 0x02) << 1;
+	nSubTable		=	(nY & 0x02) >> 1;
+	nSubTable		^=	(nColumnNum);
+
+	nX &= 0x07;
+	nY &= 0x01;
+
+	return (uint8)(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]] >> nShiftAmount) & 0x0F;
 }

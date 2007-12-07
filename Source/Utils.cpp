@@ -2,8 +2,9 @@
 #include "Utils.h"
 
 using namespace Framework;
+using namespace std;
 
-void Utils::GetLine(CStream* pS, CStrA* pStr, bool nIgnoreCR)
+void Utils::GetLine(CStream* pS, string* pStr, bool nIgnoreCR)
 {
 	unsigned char nChar;
 

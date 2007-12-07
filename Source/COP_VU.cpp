@@ -70,22 +70,22 @@ void CCOP_VU::LQC2()
 
 	//Load the word
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 1, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV0);
 	m_pB->AddImm(4);
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 1, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV1);
 	m_pB->AddImm(4);
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 1, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV2);
 	m_pB->AddImm(4);
 
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV3);
 }
 
@@ -97,22 +97,22 @@ void CCOP_VU::SQC2()
 	//Write the words
 	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV0);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 2, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 2, false);
 	m_pB->AddImm(4);
 
 	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV1);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 2, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 2, false);
 	m_pB->AddImm(4);
 
 	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV2);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 2, false);
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 2, false);
 	m_pB->AddImm(4);
 
 	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV3);
 	m_pB->PushRef(m_pCtx);
-	m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);	
+	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);	
 }
 
 //////////////////////////////////////////////////

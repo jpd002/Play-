@@ -2,7 +2,7 @@
 #include "MIPS.h"
 #include "CodeGen_FPU.h"
 #include "CodeGen_VUF128.h"
-#include <stddef.h>
+#include "offsetof_def.h"
 
 using namespace VUShared;
 using namespace CodeGen;

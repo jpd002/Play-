@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <algorithm>
 #include "GIF.h"
 #include "uint128.h"
 #include "PS2VM.h"
@@ -6,6 +7,7 @@
 #include "Log.h"
 
 using namespace Framework;
+using namespace std;
 
 #ifdef	PROFILE
 #define PROFILE_GIFZONE		"GIF"

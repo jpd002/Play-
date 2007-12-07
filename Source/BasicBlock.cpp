@@ -1,6 +1,7 @@
 #include "BasicBlock.h"
 #include "MipsCodeGen.h"
 #include "MemStream.h"
+#include "offsetof_def.h"
 
 using namespace Framework;
 

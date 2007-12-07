@@ -4,6 +4,7 @@
 #include "MIPSReflection.h"
 #include "CacheBlock.h"
 #include "uint128.h"
+#include <string.h>
 
 namespace VUShared
 {

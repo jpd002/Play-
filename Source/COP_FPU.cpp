@@ -468,7 +468,7 @@ void CCOP_FPU::LWC1()
 
 		//Load the word
 		m_pB->PushRef(m_pCtx);
-		m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
+//		m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
 		m_pB->PullAddr(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
 	}
 	CCodeGen::End();
@@ -484,7 +484,7 @@ void CCOP_FPU::SWC1()
 		//Write the words
 		m_pB->PushAddr(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
 		m_pB->PushRef(m_pCtx);
-		m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
+//		m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
 	}
 	CCodeGen::End();
 }

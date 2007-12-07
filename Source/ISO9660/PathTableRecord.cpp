@@ -1,4 +1,4 @@
-#include <malloc.h>
+#include <stdlib.h>
 #include "PathTableRecord.h"
 #include "PtrMacro.h"
 

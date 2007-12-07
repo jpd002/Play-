@@ -5,6 +5,7 @@
 #include "MIPS.h"
 #include "CodeGen.h"
 #include "MipsCodeGen.h"
+#include "offsetof_def.h"
 
 uint8		CCOP_SCU::m_nRT;
 uint8		CCOP_SCU::m_nRD;

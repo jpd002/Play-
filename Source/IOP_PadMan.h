@@ -164,20 +164,9 @@ namespace IOP
 		static void			Log(const char*, ...);
 	};
 
-	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int)
-	{
-
-	}
-
-	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int)
-	{
-
-	}
-
-	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int)
-	{
-		
-	}
+	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int);
+	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int);
+	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int);
 }
 
 #endif
