@@ -440,7 +440,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 
 	CConfig::GetInstance()->SetPreferenceString("ps2.cdrom0.path", sPath);
 #else
-	throw runtime_error("Not implemented.");
+//	throw runtime_error("Not implemented.");
 #endif
 }
 

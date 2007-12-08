@@ -1,9 +1,8 @@
 #import <Cocoa/Cocoa.h>
-#import "../PS2VM.h"
+#import "Globals.h"
 
 int main(int argc, char *argv[])
 {
-//	CPS2VM* virtualMachine = new CPS2VM();
-//	virtualMachine->Initialize();
+	g_virtualMachine = new CPS2VM();
     return NSApplicationMain(argc,  (const char **) argv);
 }

@@ -86,6 +86,8 @@
 		7E947AC00D09F49A00A2AE15 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7E947ABC0D09F49A00A2AE15 /* icon.icns */; };
 		7E947AC10D09F49A00A2AE15 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E947ABD0D09F49A00A2AE15 /* main.mm */; };
 		7E947B010D09F79B00A2AE15 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7E947B000D09F79B00A2AE15 /* Info.plist */; };
+		7E947B190D09F95600A2AE15 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947B180D09F95600A2AE15 /* Globals.cpp */; };
+		7E947B300D0A063200A2AE15 /* ApplicationDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -250,6 +252,10 @@
 		7E947ABD0D09F49A00A2AE15 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = Source/macosxui/main.mm; sourceTree = "<group>"; };
 		7E947AC40D09F52B00A2AE15 /* Purei_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Purei_Prefix.pch; path = Source/macosxui/Purei_Prefix.pch; sourceTree = "<group>"; };
 		7E947B000D09F79B00A2AE15 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Source/macosxui/Info.plist; sourceTree = "<group>"; };
+		7E947B160D09F8F100A2AE15 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Globals.h; path = Source/macosxui/Globals.h; sourceTree = "<group>"; };
+		7E947B180D09F95600A2AE15 /* Globals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Globals.cpp; path = Source/macosxui/Globals.cpp; sourceTree = "<group>"; };
+		7E947B2E0D0A063200A2AE15 /* ApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationDelegate.h; path = Source/macosxui/ApplicationDelegate.h; sourceTree = "<group>"; };
+		7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ApplicationDelegate.mm; path = Source/macosxui/ApplicationDelegate.mm; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Purei.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Purei.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -274,6 +280,10 @@
 			isa = PBXGroup;
 			children = (
 				7E947ABD0D09F49A00A2AE15 /* main.mm */,
+				7E947B160D09F8F100A2AE15 /* Globals.h */,
+				7E947B180D09F95600A2AE15 /* Globals.cpp */,
+				7E947B2E0D0A063200A2AE15 /* ApplicationDelegate.h */,
+				7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -651,6 +661,8 @@
 				7E898A9C0D08C9880077F9ED /* PathTableRecord.cpp in Sources */,
 				7E898A9D0D08C9880077F9ED /* VolumeDescriptor.cpp in Sources */,
 				7E947AC10D09F49A00A2AE15 /* main.mm in Sources */,
+				7E947B190D09F95600A2AE15 /* Globals.cpp in Sources */,
+				7E947B300D0A063200A2AE15 /* ApplicationDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
