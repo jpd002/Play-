@@ -88,6 +88,9 @@
 		7E947B010D09F79B00A2AE15 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7E947B000D09F79B00A2AE15 /* Info.plist */; };
 		7E947B190D09F95600A2AE15 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947B180D09F95600A2AE15 /* Globals.cpp */; };
 		7E947B300D0A063200A2AE15 /* ApplicationDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */; };
+		7E947C3C0D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */; };
+		7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */; };
+		7E947C400D0B4EFB00A2AE15 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -256,6 +259,11 @@
 		7E947B180D09F95600A2AE15 /* Globals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Globals.cpp; path = Source/macosxui/Globals.cpp; sourceTree = "<group>"; };
 		7E947B2E0D0A063200A2AE15 /* ApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationDelegate.h; path = Source/macosxui/ApplicationDelegate.h; sourceTree = "<group>"; };
 		7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ApplicationDelegate.mm; path = Source/macosxui/ApplicationDelegate.mm; sourceTree = "<group>"; };
+		7E947C380D0B4E3800A2AE15 /* GSHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSHandler.h; path = Source/GSHandler.h; sourceTree = "<group>"; };
+		7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Texture.cpp; path = Source/GSH_OpenGL_Texture.cpp; sourceTree = "<group>"; };
+		7E947C3A0D0B4E3800A2AE15 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = Source/GSH_OpenGL.h; sourceTree = "<group>"; };
+		7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = Source/GSH_OpenGL.cpp; sourceTree = "<group>"; };
+		7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Purei.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Purei.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -270,6 +278,7 @@
 				7E898A880D08C9520077F9ED /* libboost_signals-mt.a in Frameworks */,
 				7E898A890D08C9520077F9ED /* libboost_thread-mt.a in Frameworks */,
 				7E898AC70D08CB350077F9ED /* libboost_filesystem-mt.a in Frameworks */,
+				7E947C400D0B4EFB00A2AE15 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +326,7 @@
 		29B97314FDCFA39411CA2CEA /* Purei */ = {
 			isa = PBXGroup;
 			children = (
+				7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */,
 				7E898AC60D08CB350077F9ED /* libboost_filesystem-mt.a */,
 				7E898A860D08C9520077F9ED /* libboost_signals-mt.a */,
 				7E898A870D08C9520077F9ED /* libboost_thread-mt.a */,
@@ -363,6 +373,10 @@
 		7E8987060D08B4480077F9ED /* Purei Core */ = {
 			isa = PBXGroup;
 			children = (
+				7E947C380D0B4E3800A2AE15 /* GSHandler.h */,
+				7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */,
+				7E947C3A0D0B4E3800A2AE15 /* GSH_OpenGL.h */,
+				7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */,
 				7E898A8B0D08C9760077F9ED /* ISO9660 */,
 				7E8987B10D08BD090077F9ED /* ArrayStack.h */,
 				7E8987B20D08BD090077F9ED /* BasicBlock.cpp */,
@@ -663,6 +677,8 @@
 				7E947AC10D09F49A00A2AE15 /* main.mm in Sources */,
 				7E947B190D09F95600A2AE15 /* Globals.cpp in Sources */,
 				7E947B300D0A063200A2AE15 /* ApplicationDelegate.mm in Sources */,
+				7E947C3C0D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp in Sources */,
+				7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

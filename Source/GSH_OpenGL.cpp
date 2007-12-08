@@ -52,7 +52,9 @@ void CGSH_OpenGL::LoadSettings()
 
 void CGSH_OpenGL::InitializeRC()
 {
+#ifdef WIN32
 	glewInit();
+#endif
 
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -122,10 +124,9 @@ void CGSH_OpenGL::InitializeRC()
 
     FlipImpl();
 }
-
+/*
 void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const TCHAR* sResourceName)
 {
-/*
 	const char* sSource;
 	HGLOBAL nResourcePtr;
 	HRSRC nResource;
@@ -137,9 +138,8 @@ void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const T
 	nSize			= SizeofResource(GetModuleHandle(NULL), nResource);
 
 	pShader->SetSource(sSource, nSize);
-*/
 }
-
+*/
 void CGSH_OpenGL::VerifyRGBA5551Support()
 {
 	unsigned int nTexture;
@@ -966,7 +966,7 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	case GS_REG_TEX2_2:
 		{
 			unsigned int nContext;
-			const uint64 nMask = 0xFFFFFFE003F00000;
+			const uint64 nMask = 0xFFFFFFE003F00000ULL;
 			GSTEX0 Tex0;
 
 			nContext = nRegister - GS_REG_TEX2_1;
@@ -1000,7 +1000,7 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 
 	if(nFog)
 	{
-		m_VtxBuffer[m_nVtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFF;
+		m_VtxBuffer[m_nVtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
 		m_VtxBuffer[m_nVtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
 		m_VtxBuffer[m_nVtxCount - 1].nUV		= m_nReg[GS_REG_UV];
 		m_VtxBuffer[m_nVtxCount - 1].nST		= m_nReg[GS_REG_ST];

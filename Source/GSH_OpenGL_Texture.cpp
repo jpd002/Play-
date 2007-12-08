@@ -1,10 +1,12 @@
 #include <assert.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <algorithm>
 #include "GSH_OpenGL.h"
 #include "StdStream.h"
 #include "BMP.h"
 
+using namespace std;
 using namespace Framework;
 
 /////////////////////////////////////////////////////////////
@@ -43,7 +45,7 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		{
 			//We gotta use the shader
 
-			glUseProgram((*m_pProgram));
+			glUseProgram(*m_pProgram);
 
 			unsigned int nMode[2];
 			unsigned int nMin[2];
@@ -222,6 +224,7 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 
 void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 {
+#ifdef WIN32
 	char sFilename[256];
 	unsigned int i;
 	struct _stat Stat;
@@ -236,6 +239,7 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_BYTE, Bitmap.GetPixels());
 	CBMP::ToBMP(&Bitmap, &CStdStream(fopen(sFilename, "wb")));
+#endif
 }
 
 void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
@@ -413,7 +417,7 @@ void CGSH_OpenGL::TexUploader_Psm8_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 				nPalette[nPos + j] = pCLUT[j];
 
 				nAlpha = *((uint8*)&nPalette[nPos + j] + 3);
-				nAlpha = (uint8)min((unsigned int)nAlpha * 2, 0xFF);
+				nAlpha = (uint8)min<uint8>((unsigned int)nAlpha * 2, 0xFF);
 				*((uint8*)&nPalette[nPos + j] + 3) = nAlpha;
 			}
 			pCLUT += 0x08;
@@ -423,7 +427,7 @@ void CGSH_OpenGL::TexUploader_Psm8_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 				nPalette[nPos + j + 0x10] = pCLUT[j];
 
 				nAlpha = *((uint8*)&nPalette[nPos + j + 0x10] + 3);
-				nAlpha = (uint8)min((unsigned int)nAlpha * 2, 0xFF);
+				nAlpha = (uint8)min<uint8>((unsigned int)nAlpha * 2, 0xFF);
 				*((uint8*)&nPalette[nPos + j + 0x10] + 3) = nAlpha;
 			}
 			pCLUT += 0x08;

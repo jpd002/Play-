@@ -79,7 +79,7 @@ private:
     void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
-	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const TCHAR*);
+//	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const TCHAR*);
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(double, double, double, double);
 	void							UpdateViewportImpl();
