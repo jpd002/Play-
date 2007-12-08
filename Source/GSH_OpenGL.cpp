@@ -1,35 +1,15 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
-#include "../PS2VM.h"
-#include "../Config.h"
+#include "PS2VM.h"
+#include "Config.h"
 #include "GSH_OpenGL.h"
 #include "PtrMacro.h"
-#include "RendererSettingsWnd.h"
 
 using namespace Framework;
 
-PIXELFORMATDESCRIPTOR		CGSH_OpenGL::m_PFD =
+CGSH_OpenGL::CGSH_OpenGL()
 {
-	sizeof(PIXELFORMATDESCRIPTOR),
-	1,
-	PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-	PFD_TYPE_RGBA,
-	32,
-	0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0,
-	0,
-	32,
-	0,
-	0,
-	PFD_MAIN_PLANE,
-	0,
-	0, 0, 0
-};
-
-CGSH_OpenGL::CGSH_OpenGL(Win32::CWindow* pOutputWnd)
-{
-	m_pOutputWnd = pOutputWnd;
 	m_pCvtBuffer = NULL;
 
 	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
@@ -42,8 +22,6 @@ CGSH_OpenGL::CGSH_OpenGL(Win32::CWindow* pOutputWnd)
 CGSH_OpenGL::~CGSH_OpenGL()
 {
 	FREEPTR(m_pCvtBuffer);
-	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(m_hRC);
 }
 
 void CGSH_OpenGL::InitializeImpl()
@@ -56,11 +34,6 @@ void CGSH_OpenGL::InitializeImpl()
 	m_nTexCacheIndex = 0;
 
 	m_nMaxZ = 32768.0;
-}
-
-void CGSH_OpenGL::CreateGSHandler(CPS2VM& virtualMachine, Win32::CWindow* pOutputWnd)
-{
-	virtualMachine.CreateGSHandler(GSHandlerFactory, pOutputWnd);
 }
 
 void CGSH_OpenGL::LoadState(CStream* pStream)
@@ -79,14 +52,6 @@ void CGSH_OpenGL::LoadSettings()
 
 void CGSH_OpenGL::InitializeRC()
 {
-	unsigned int pf;
-
-	m_hDC = GetDC(m_pOutputWnd->m_hWnd);
-	pf = ChoosePixelFormat(m_hDC, &m_PFD);
-	SetPixelFormat(m_hDC, pf, &m_PFD);
-	m_hRC = wglCreateContext(m_hDC);
-	wglMakeCurrent(m_hDC, m_hRC);
-
 	glewInit();
 
 	//Initialize basic stuff
@@ -127,7 +92,8 @@ void CGSH_OpenGL::InitializeRC()
 	//Create shaders/program
 	if((glCreateProgram != NULL) && (glCreateShader != NULL))
 	{
-		m_pProgram		= new OpenGl::CProgram();
+/*
+        m_pProgram		= new OpenGl::CProgram();
 		m_pVertShader	= new OpenGl::CShader(GL_VERTEX_SHADER);
 		m_pFragShader	= new OpenGl::CShader(GL_FRAGMENT_SHADER);
 
@@ -141,6 +107,7 @@ void CGSH_OpenGL::InitializeRC()
 		m_pProgram->AttachShader((*m_pFragShader));
 
 		m_pProgram->Link();
+*/
 	}
 
 	m_pCvtBuffer = (uint8*)malloc(CVTBUFFERSIZE);
@@ -153,13 +120,12 @@ void CGSH_OpenGL::InitializeRC()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	SwapBuffers(m_hDC);
-
-	//wglMakeCurrent(NULL, NULL);
+    FlipImpl();
 }
 
 void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const TCHAR* sResourceName)
 {
+/*
 	const char* sSource;
 	HGLOBAL nResourcePtr;
 	HRSRC nResource;
@@ -171,6 +137,7 @@ void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const T
 	nSize			= SizeofResource(GetModuleHandle(NULL), nResource);
 
 	pShader->SetSource(sSource, nSize);
+*/
 }
 
 void CGSH_OpenGL::VerifyRGBA5551Support()
@@ -266,12 +233,6 @@ unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 
 void CGSH_OpenGL::SetViewport(int nWidth, int nHeight)
 {
-	RECT rc;
-
-	SetRect(&rc, 0, 0, nWidth, nHeight);
-	AdjustWindowRect(&rc, GetWindowLong(m_pOutputWnd->m_hWnd, GWL_STYLE), FALSE);
-	m_pOutputWnd->SetSize((rc.right - rc.left), (rc.bottom - rc.top));
-
 	glViewport(0, 0, nWidth, nHeight);
 }
 
@@ -1204,28 +1165,6 @@ void CGSH_OpenGL::SetVBlank()
 	}
 }
 
-void CGSH_OpenGL::FlipImpl()
-{
-//	CPS2VM::m_OnNewFrame();
-	SwapBuffers(m_hDC);
-}
-
-CSettingsDialogProvider* CGSH_OpenGL::GetSettingsDialogProvider()
-{
-	return this;
-}
-
-CModalWindow* CGSH_OpenGL::CreateSettingsDialog(HWND hParent)
-{
-	return new CRendererSettingsWnd(hParent, this);
-}
-
-void CGSH_OpenGL::OnSettingsDialogDestroyed()
-{
-	LoadSettings();
-	TexCache_Flush();
-}
-
 bool CGSH_OpenGL::IsColorTableExtSupported()
 {
 	return glColorTableEXT != NULL;
@@ -1249,9 +1188,4 @@ bool CGSH_OpenGL::IsRGBA5551ExtSupported()
 bool CGSH_OpenGL::IsFogCoordfExtSupported()
 {
 	return glFogCoordfEXT != NULL;
-}
-
-CGSHandler* CGSH_OpenGL::GSHandlerFactory(void* pParam)
-{
-	return new CGSH_OpenGL((Win32::CWindow*)pParam);
 }

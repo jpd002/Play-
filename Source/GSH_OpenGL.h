@@ -1,41 +1,39 @@
 #ifndef _GSH_OPENGL_H_
 #define _GSH_OPENGL_H_
 
-#include "../GSHandler.h"
-#include "../PS2VM.h"
-#include "win32/Window.h"
+#include "GSHandler.h"
+#include "PS2VM.h"
 #include "opengl/OpenGl.h"
 #include "opengl/Program.h"
 #include "opengl/Shader.h"
-#include "SettingsDialogProvider.h"
 
 #define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
 #define PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC			"renderer.opengl.forceflippingvsync"
 
-class CGSH_OpenGL : public CGSHandler, public CSettingsDialogProvider
+class CGSH_OpenGL : public CGSHandler
 {
 public:
-									CGSH_OpenGL(Framework::Win32::CWindow*);
+									CGSH_OpenGL();
 	virtual                         ~CGSH_OpenGL();
-
-	static void						CreateGSHandler(CPS2VM&, Framework::Win32::CWindow*);
 
 	virtual void					LoadState(Framework::CStream*);
 
 	void							ProcessImageTransfer(uint32, uint32);
 
 	virtual void					SetVBlank();
-	CSettingsDialogProvider*		GetSettingsDialogProvider();
-
-	CModalWindow*					CreateSettingsDialog(HWND);
-	void							OnSettingsDialogDestroyed();
 
 	bool							IsColorTableExtSupported();
 	bool							IsBlendColorExtSupported();
 	bool							IsBlendEquationExtSupported();
 	bool							IsRGBA5551ExtSupported();
 	bool							IsFogCoordfExtSupported();
+
+protected:
+	void							TexCache_Flush();
+    void							LoadSettings();
+    virtual void                    InitializeImpl();
+    virtual void					SetViewport(int, int);
 
 private:
 	enum MAXCACHE
@@ -78,17 +76,10 @@ private:
 		unsigned int				m_nTexture;
 	};
 
-	static CGSHandler*				GSHandlerFactory(void*);
-
-    void                            InitializeImpl();
-	virtual void					FlipImpl();
     void							WriteRegisterImpl(uint8, uint64);
-
-    void							LoadSettings();
 
 	void							InitializeRC();
 	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const TCHAR*);
-	void							SetViewport(int, int);
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(double, double, double, double);
 	void							UpdateViewportImpl();
@@ -161,7 +152,6 @@ private:
 	unsigned int					TexCache_Search(GSTEX0*);
 	void							TexCache_Insert(GSTEX0*, unsigned int);
 	void							TexCache_InvalidateTextures(uint32, uint32);
-	void							TexCache_Flush();
 
 	CTexture						m_TexCache[MAXCACHE];
 	unsigned int					m_nTexCacheIndex;
@@ -175,15 +165,9 @@ private:
 	TEXTUREUPLOADER					m_pTexUploader_Psm8;
 	TEXTUREUPLOADER					m_pTexUploader_Psm16;
 
-	Framework::Win32::CWindow*		m_pOutputWnd;
-
 	Framework::OpenGl::CProgram*	m_pProgram;
 	Framework::OpenGl::CShader*		m_pVertShader;
 	Framework::OpenGl::CShader*		m_pFragShader;
-
-	HGLRC							m_hRC;
-	HDC								m_hDC;
-	static PIXELFORMATDESCRIPTOR	m_PFD;
 };
 
 #endif

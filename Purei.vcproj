@@ -425,7 +425,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\win32ui\GSH_OpenGL.h"
+					RelativePath=".\Source\win32ui\GSH_OpenGLWin32.h"
 					>
 				</File>
 				<File
@@ -613,11 +613,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\win32ui\GSH_OpenGL.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\win32ui\GSH_OpenGL_Texture.cpp"
+					RelativePath=".\Source\win32ui\GSH_OpenGLWin32.cpp"
 					>
 				</File>
 				<File
@@ -934,6 +930,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\GSH_Null.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_OpenGL.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_OpenGL_Texture.cpp"
 					>
 				</File>
 				<File
@@ -1508,6 +1512,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\GSH_Null.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_OpenGL.h"
 					>
 				</File>
 				<File
