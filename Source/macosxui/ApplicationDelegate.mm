@@ -1,4 +1,5 @@
 #import "ApplicationDelegate.h"
+#import "GSH_OpenGLMacOSX.h"
 #import "Globals.h"
 
 using namespace std;
@@ -8,6 +9,9 @@ using namespace std;
 -(void)applicationDidFinishLaunching : (NSNotification*)notification
 {
 	g_virtualMachine->Initialize();
+	NSOpenGLContext* context = [m_openGlView openGLContext];
+	void* lowLevelContext = [context CGLContextObj];
+	CGSH_OpenGLMacOSX::CreateGSHandler(*g_virtualMachine, reinterpret_cast<CGLContextObj>(lowLevelContext));
 }
 
 -(void)BootElf : (id)sender
@@ -24,6 +28,7 @@ using namespace std;
 	{
 		CPS2OS* os = g_virtualMachine->m_os;
 		os->BootFromFile([fileName fileSystemRepresentation]);
+		g_virtualMachine->Resume();
 	}
 	catch(const exception& excep)
 	{

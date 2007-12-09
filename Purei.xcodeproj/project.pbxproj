@@ -65,7 +65,6 @@
 		7E8988840D08BD090077F9ED /* PadHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89882A0D08BD090077F9ED /* PadHandler.cpp */; };
 		7E8988850D08BD090077F9ED /* Profiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89882D0D08BD090077F9ED /* Profiler.cpp */; };
 		7E8988860D08BD090077F9ED /* PS2OS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89882F0D08BD090077F9ED /* PS2OS.cpp */; };
-		7E8988880D08BD090077F9ED /* ThreadMsg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988340D08BD090077F9ED /* ThreadMsg.cpp */; };
 		7E89888A0D08BD090077F9ED /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988380D08BD090077F9ED /* Utils.cpp */; };
 		7E89888D0D08BD090077F9ED /* VUShared.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89883E0D08BD090077F9ED /* VUShared.cpp */; };
 		7E89888E0D08BD090077F9ED /* VUShared_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988400D08BD090077F9ED /* VUShared_Reflection.cpp */; };
@@ -91,6 +90,7 @@
 		7E947C3C0D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */; };
 		7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */; };
 		7E947C400D0B4EFB00A2AE15 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */; };
+		7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -220,7 +220,6 @@
 		7E89882F0D08BD090077F9ED /* PS2OS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PS2OS.cpp; path = Source/PS2OS.cpp; sourceTree = "<group>"; };
 		7E8988300D08BD090077F9ED /* PS2OS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PS2OS.h; path = Source/PS2OS.h; sourceTree = "<group>"; };
 		7E8988310D08BD090077F9ED /* RangeList16.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RangeList16.h; path = Source/RangeList16.h; sourceTree = "<group>"; };
-		7E8988340D08BD090077F9ED /* ThreadMsg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadMsg.cpp; path = Source/ThreadMsg.cpp; sourceTree = "<group>"; };
 		7E8988370D08BD090077F9ED /* uint128.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uint128.h; path = Source/uint128.h; sourceTree = "<group>"; };
 		7E8988380D08BD090077F9ED /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Utils.cpp; path = Source/Utils.cpp; sourceTree = "<group>"; };
 		7E8988390D08BD090077F9ED /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = Source/Utils.h; sourceTree = "<group>"; };
@@ -264,6 +263,8 @@
 		7E947C3A0D0B4E3800A2AE15 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = Source/GSH_OpenGL.h; sourceTree = "<group>"; };
 		7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = Source/GSH_OpenGL.cpp; sourceTree = "<group>"; };
 		7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLMacOSX.h; path = Source/macosxui/GSH_OpenGLMacOSX.h; sourceTree = "<group>"; };
+		7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLMacOSX.cpp; path = Source/macosxui/GSH_OpenGLMacOSX.cpp; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Purei.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Purei.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -293,6 +294,8 @@
 				7E947B180D09F95600A2AE15 /* Globals.cpp */,
 				7E947B2E0D0A063200A2AE15 /* ApplicationDelegate.h */,
 				7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */,
+				7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */,
+				7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -489,7 +492,6 @@
 				7E89882F0D08BD090077F9ED /* PS2OS.cpp */,
 				7E8988300D08BD090077F9ED /* PS2OS.h */,
 				7E8988310D08BD090077F9ED /* RangeList16.h */,
-				7E8988340D08BD090077F9ED /* ThreadMsg.cpp */,
 				7E8988370D08BD090077F9ED /* uint128.h */,
 				7E8988380D08BD090077F9ED /* Utils.cpp */,
 				7E8988390D08BD090077F9ED /* Utils.h */,
@@ -663,7 +665,6 @@
 				7E8988840D08BD090077F9ED /* PadHandler.cpp in Sources */,
 				7E8988850D08BD090077F9ED /* Profiler.cpp in Sources */,
 				7E8988860D08BD090077F9ED /* PS2OS.cpp in Sources */,
-				7E8988880D08BD090077F9ED /* ThreadMsg.cpp in Sources */,
 				7E89888A0D08BD090077F9ED /* Utils.cpp in Sources */,
 				7E89888D0D08BD090077F9ED /* VUShared.cpp in Sources */,
 				7E89888E0D08BD090077F9ED /* VUShared_Reflection.cpp in Sources */,
@@ -679,6 +680,7 @@
 				7E947B300D0A063200A2AE15 /* ApplicationDelegate.mm in Sources */,
 				7E947C3C0D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp in Sources */,
 				7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */,
+				7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

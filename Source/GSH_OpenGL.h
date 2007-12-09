@@ -3,7 +3,7 @@
 
 #include "GSHandler.h"
 #include "PS2VM.h"
-#include "opengl/OpenGl.h"
+#include "opengl/OpenGlDef.h"
 #include "opengl/Program.h"
 #include "opengl/Shader.h"
 

@@ -543,7 +543,10 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
-		nReturn = m_pGS->ReadPrivRegister(nAddress);
+		if(m_pGS != NULL)
+		{
+			nReturn = m_pGS->ReadPrivRegister(nAddress);		
+		}
 	}
 	else
 	{
@@ -594,7 +597,10 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
-		m_pGS->WritePrivRegister(nAddress, nData);
+		if(m_pGS != NULL)
+		{
+			m_pGS->WritePrivRegister(nAddress, nData);
+		}
 	}
 	else
 	{
@@ -791,7 +797,10 @@ void CPS2VM::EmuThread()
 				else
 				{
 					m_nVBlankTicks += SCREENTICKS;
-					m_pGS->ResetVBlank();
+					if(m_pGS != NULL)
+					{
+						m_pGS->ResetVBlank();
+					}
 				}
 			}
             if(!m_EE.m_State.nHasException)

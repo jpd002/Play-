@@ -116,7 +116,10 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				break;
 			case 0x0E:
 				//A + D
-				m_gs->WriteRegister((uint8)nPacket.nD1, nPacket.nD0);
+				if(m_gs != NULL)
+				{
+					m_gs->WriteRegister((uint8)nPacket.nD1, nPacket.nD0);
+				}
 				break;
 			default:
 				assert(0);
@@ -178,7 +181,10 @@ uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 	nTotalLoops = (uint16)((nEnd - nAddress) / 0x10);
 	nTotalLoops = min(nTotalLoops, m_nLoops);
 
-	m_gs->FeedImageData(pMemory + nAddress, nTotalLoops * 0x10);
+	if(m_gs != NULL)
+	{
+		m_gs->FeedImageData(pMemory + nAddress, nTotalLoops * 0x10);
+	}
 
 	m_nLoops -= nTotalLoops;
 

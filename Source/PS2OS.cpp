@@ -1190,7 +1190,10 @@ void CPS2OS::sc_GsSetCrt()
 	nMode			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 	nIsFrameMode	= (m_ee.m_State.nGPR[SC_PARAM2].nV[0] != 0);
 
-	m_gs->SetCrt(nIsInterlaced, nMode, nIsFrameMode);
+	if(m_gs != NULL)
+	{
+		m_gs->SetCrt(nIsInterlaced, nMode, nIsFrameMode);
+	}
 }
 
 //10
@@ -1990,7 +1993,10 @@ void CPS2OS::sc_GsPutIMR()
 
 	nIMR = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	m_gs->WritePrivRegister(CGSHandler::GS_IMR, nIMR);
+	if(m_gs != NULL)
+	{
+		m_gs->WritePrivRegister(CGSHandler::GS_IMR, nIMR);	
+	}
 }
 
 //73

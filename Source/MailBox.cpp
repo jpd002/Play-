@@ -30,11 +30,13 @@ void CMailBox::WaitForCall()
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 {
     {
+#ifdef WIN32
         if(waitForCompletion)
         {
             assert(!m_callDone);
             m_callDone = false;
         }
+#endif		
         mutex::scoped_lock waitLock(m_waitMutex);
         m_calls.push_back(function);
         m_waitCondition.notify_all();
