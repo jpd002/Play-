@@ -8,7 +8,7 @@
 #include "DMAC.h"
 #include "GIF.h"
 #include "MIPS.h"
-#include "ThreadMsg.h"
+#include "MailBox.h"
 #include "GSHandler.h"
 #include "PadHandler.h"
 #include "LogControl.h"
@@ -149,6 +149,12 @@ private:
 	unsigned int				SaveVMState(const char*);
 	unsigned int				LoadVMState(const char*);
 
+    void                        ResumeImpl();
+    void                        PauseImpl();
+    void                        DestroyImpl();
+    void                        CreateGsImpl(CREATEGSHANDLERPARAM*);
+    void                        DestroyGsImpl();
+
 	unsigned int                EETickFunction(unsigned int);
 	unsigned int                VU1TickFunction(unsigned int);
     static unsigned int         EETickFunctionStub(unsigned int, CMIPS*);
@@ -163,11 +169,13 @@ private:
 	void						LoadBIOS();
 	void						RegisterModulesInPadHandler();
 
-	unsigned int				SendMessage(PS2VM_MSG, void* = NULL);
+//	unsigned int				SendMessage(PS2VM_MSG, void* = NULL);
 	void						EmuThread();
 	boost::thread*			    m_pThread;
-	CThreadMsg				    m_MsgBox;
+//	CThreadMsg				    m_MsgBox;
+    CMailBox                    m_mailBox;
     STATUS                      m_nStatus;
+    bool                        m_nEnd;
 };
 
 #endif

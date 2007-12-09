@@ -56,6 +56,7 @@ m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
 m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
 m_executor(m_EE),
 m_nStatus(PAUSED),
+m_nEnd(false),
 m_pGS(NULL),
 m_pPad(NULL),
 m_singleStep(false),
@@ -79,13 +80,14 @@ CPS2VM::~CPS2VM()
 
 void CPS2VM::CreateGSHandler(GSHANDLERFACTORY pF, void* pParam)
 {
-	CREATEGSHANDLERPARAM Param;
 	if(m_pGS != NULL) return;
 
-	Param.pFactory	= pF;
+	CREATEGSHANDLERPARAM Param;
+    Param.pFactory	= pF;
 	Param.pParam	= pParam;
 
-	SendMessage(PS2VM_MSG_CREATEGS, &Param);
+//	SendMessage(PS2VM_MSG_CREATEGS, &Param);
+    m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, &Param), true);
 }
 
 CGSHandler* CPS2VM::GetGSHandler()
@@ -96,11 +98,13 @@ CGSHandler* CPS2VM::GetGSHandler()
 void CPS2VM::DestroyGSHandler()
 {
 	if(m_pGS == NULL) return;
-	SendMessage(PS2VM_MSG_DESTROYGS);
+//	SendMessage(PS2VM_MSG_DESTROYGS);
+    m_mailBox.SendCall(bind(&CPS2VM::DestroyGsImpl, this), true);
 }
 
 void CPS2VM::CreatePadHandler(PADHANDLERFACTORY pF, void* pParam)
 {
+/*
 	CREATEPADHANDLERPARAM Param;
 	if(m_pPad != NULL) return;
 
@@ -108,12 +112,15 @@ void CPS2VM::CreatePadHandler(PADHANDLERFACTORY pF, void* pParam)
 	Param.pParam	= pParam;
 
 	SendMessage(PS2VM_MSG_CREATEPAD, &Param);
+*/
 }
 
 void CPS2VM::DestroyPadHandler()
 {
+/*
 	if(m_pPad == NULL) return;
 	SendMessage(PS2VM_MSG_DESTROYPAD);
+*/
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -125,24 +132,33 @@ void CPS2VM::Step()
 {
     if(GetStatus() == RUNNING) return;
     m_singleStep = true;
-    SendMessage(PS2VM_MSG_RESUME);
+//    SendMessage(PS2VM_MSG_RESUME);
+    m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
 }
 
 void CPS2VM::Resume()
 {
     if(m_nStatus == RUNNING) return;
-	SendMessage(PS2VM_MSG_RESUME);
+//	SendMessage(PS2VM_MSG_RESUME);
+    m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
+    m_OnRunningStateChange();
 }
 
 void CPS2VM::Pause()
 {
 	if(m_nStatus == PAUSED) return;
-	SendMessage(PS2VM_MSG_PAUSE);
+//	SendMessage(PS2VM_MSG_PAUSE);
+    m_mailBox.SendCall(bind(&CPS2VM::PauseImpl, this), true);
+    m_OnMachineStateChange();
+    m_OnRunningStateChange();
 }
 
 void CPS2VM::Reset()
 {
-	SendMessage(PS2VM_MSG_RESET);
+    assert(m_nStatus == PAUSED);
+    ResetVM();
+//	SendMessage(PS2VM_MSG_RESET);
+//    m_mailBox.SendCall(bind(&CPS2VM::ResetVM, this), true);
 }
 
 void CPS2VM::DumpEEThreadSchedule()
@@ -174,7 +190,8 @@ void CPS2VM::Initialize()
 
 void CPS2VM::Destroy()
 {
-	SendMessage(PS2VM_MSG_DESTROY);
+    m_mailBox.SendCall(bind(&CPS2VM::DestroyImpl, this));
+//	SendMessage(PS2VM_MSG_DESTROY);
 	m_pThread->join();
 	DELETEPTR(m_pThread);
 	DestroyVM();
@@ -182,18 +199,20 @@ void CPS2VM::Destroy()
 
 unsigned int CPS2VM::SaveState(const char* sPath)
 {
-	return SendMessage(PS2VM_MSG_SAVESTATE, (void*)sPath);
+    throw runtime_error("Not implemented.");
+//	return SendMessage(PS2VM_MSG_SAVESTATE, (void*)sPath);
 }
 
 unsigned int CPS2VM::LoadState(const char* sPath)
 {
-	return SendMessage(PS2VM_MSG_LOADSTATE, (void*)sPath);
+    throw runtime_error("Not implemented.");
+//    return SendMessage(PS2VM_MSG_LOADSTATE, (void*)sPath);
 }
 
-unsigned int CPS2VM::SendMessage(PS2VM_MSG nMsg, void* pParam)
-{
-	return m_MsgBox.SendMessage(nMsg, pParam);
-}
+//unsigned int CPS2VM::SendMessage(PS2VM_MSG nMsg, void* pParam)
+//{
+//	return m_MsgBox.SendMessage(nMsg, pParam);
+//}
 
 //////////////////////////////////////////////////
 //Non extern callable methods
@@ -395,6 +414,35 @@ unsigned int CPS2VM::LoadVMState(const char* sPath)
 	m_OnMachineStateChange();
 
 	return 0;
+}
+
+void CPS2VM::PauseImpl()
+{
+    m_nStatus = PAUSED;
+//    printf("PS2VM: Virtual Machine paused.\r\n");
+}
+
+void CPS2VM::ResumeImpl()
+{
+    m_nStatus = RUNNING;
+//    printf("PS2VM: Virtual Machine started.\r\n");
+}
+
+void CPS2VM::DestroyImpl()
+{
+    DELETEPTR(m_pGS);
+    m_nEnd = true;
+}
+
+void CPS2VM::CreateGsImpl(CREATEGSHANDLERPARAM* param)
+{
+    m_pGS = param->pFactory(param->pParam);
+    m_pGS->Initialize();
+}
+
+void CPS2VM::DestroyGsImpl()
+{
+    DELETEPTR(m_pGS);
 }
 
 void CPS2VM::CDROM0_Initialize()
@@ -617,7 +665,8 @@ unsigned int CPS2VM::EETickFunction(unsigned int nTicks)
 	}
 
 	//TODO: Check if we can remove this if there's no debugger around
-	if(m_MsgBox.IsMessagePending())
+//	if(m_MsgBox.IsMessagePending())
+    if(m_mailBox.IsPending())
 	{
 		return 1;
 	}
@@ -643,8 +692,9 @@ unsigned int CPS2VM::VU1TickFunction(unsigned int nTicks)
 	}
 
 	//TODO: Check if we can remove this if there's no debugger around
-	if(m_MsgBox.IsMessagePending())
-	{
+//	if(m_MsgBox.IsMessagePending())
+    if(m_mailBox.IsPending())
+    {
 		return 1;
 	}
 
@@ -655,43 +705,29 @@ unsigned int CPS2VM::VU1TickFunction(unsigned int nTicks)
 
 void CPS2VM::EmuThread()
 {
-	bool nEnd;
-	CThreadMsg::MESSAGE Msg;
-	unsigned int nRetValue;
+//	CThreadMsg::MESSAGE Msg;
+//	unsigned int nRetValue;
 
-	nEnd = false;
+	m_nEnd = false;
 
 	while(1)
 	{
-		if(m_MsgBox.GetMessage(&Msg))
+/*
+        if(m_MsgBox.GetMessage(&Msg))
 		{
 			nRetValue = 0;
 
 			switch(Msg.nMsg)
 			{
 			case PS2VM_MSG_PAUSE:
-				m_nStatus = PAUSED;
-				m_OnMachineStateChange();
-				m_OnRunningStateChange();
-//				printf("PS2VM: Virtual Machine paused.\r\n");
 				break;
 			case PS2VM_MSG_RESUME:
-				m_nStatus = RUNNING;
-				m_OnRunningStateChange();
-//				printf("PS2VM: Virtual Machine started.\r\n");
 				break;
 			case PS2VM_MSG_DESTROY:
-				DELETEPTR(m_pGS);
-				nEnd = true;
 				break;
 			case PS2VM_MSG_CREATEGS:
-				CREATEGSHANDLERPARAM* pCreateGSParam;
-				pCreateGSParam = (CREATEGSHANDLERPARAM*)Msg.pParam;
-				m_pGS = pCreateGSParam->pFactory(pCreateGSParam->pParam);
-                m_pGS->Initialize();
 				break;
 			case PS2VM_MSG_DESTROYGS:
-				DELETEPTR(m_pGS);
 				break;
 			case PS2VM_MSG_CREATEPAD:
 				CREATEPADHANDLERPARAM* pCreatePadParam;
@@ -715,7 +751,12 @@ void CPS2VM::EmuThread()
 
 			m_MsgBox.FlushMessage(nRetValue);
 		}
-		if(nEnd) break;
+*/
+        while(m_mailBox.IsPending())
+        {
+            m_mailBox.ReceiveCall();
+        }
+		if(m_nEnd) break;
 		if(m_nStatus == PAUSED)
 		{
             //Sleep during 100ms
@@ -732,14 +773,20 @@ void CPS2VM::EmuThread()
 				if(m_nInVBlank)
 				{
 					m_nVBlankTicks += VBLANKTICKS;
-					m_pGS->SetVBlank();
+                    if(m_pGS != NULL)
+                    {
+					    m_pGS->SetVBlank();
+                    }
 
 					//Old Flipping Method
 					//m_pGS->Flip();
 					m_OnNewFrame();
 					//////
 
-					m_pPad->Update();
+                    if(m_pPad != NULL)
+                    {
+                        m_pPad->Update();
+                    }
 				}
 				else
 				{
