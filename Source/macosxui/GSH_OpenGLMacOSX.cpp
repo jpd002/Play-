@@ -24,7 +24,6 @@ void CGSH_OpenGLMacOSX::InitializeImpl()
 
 void CGSH_OpenGLMacOSX::FlipImpl()
 {
-	glFlush();
 	CGLFlushDrawable(m_context);
 }
 
