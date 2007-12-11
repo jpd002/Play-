@@ -9,6 +9,7 @@ using namespace std;
 -(void)applicationDidFinishLaunching : (NSNotification*)notification
 {
 	g_virtualMachine->Initialize();
+	[m_outputWindow setContentSize:NSMakeSize(640.0, 480.0)];
 	NSOpenGLContext* context = [m_openGlView openGLContext];
 	void* lowLevelContext = [context CGLContextObj];
 	CGSH_OpenGLMacOSX::CreateGSHandler(*g_virtualMachine, reinterpret_cast<CGLContextObj>(lowLevelContext));

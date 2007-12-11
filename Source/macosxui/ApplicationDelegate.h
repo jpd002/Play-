@@ -3,6 +3,7 @@
 @interface CApplicationDelegate : NSObject 
 {
 	IBOutlet NSOpenGLView* m_openGlView;
+	IBOutlet NSWindow* m_outputWindow;
 }
 
 -(void)applicationDidFinishLaunching : (NSNotification*)notification;

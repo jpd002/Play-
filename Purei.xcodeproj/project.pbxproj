@@ -91,6 +91,7 @@
 		7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */; };
 		7E947C400D0B4EFB00A2AE15 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */; };
 		7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */; };
+		7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -265,6 +266,7 @@
 		7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLMacOSX.h; path = Source/macosxui/GSH_OpenGLMacOSX.h; sourceTree = "<group>"; };
 		7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLMacOSX.cpp; path = Source/macosxui/GSH_OpenGLMacOSX.cpp; sourceTree = "<group>"; };
+		7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler_Fpu.cpp; path = Source/X86Assembler_Fpu.cpp; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Purei.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Purei.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -376,6 +378,7 @@
 		7E8987060D08B4480077F9ED /* Purei Core */ = {
 			isa = PBXGroup;
 			children = (
+				7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */,
 				7E947C380D0B4E3800A2AE15 /* GSHandler.h */,
 				7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */,
 				7E947C3A0D0B4E3800A2AE15 /* GSH_OpenGL.h */,
@@ -681,6 +684,7 @@
 				7E947C3C0D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp in Sources */,
 				7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */,
 				7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */,
+				7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -770,8 +774,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (
-					ppc,
 					i386,
+					ppc,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -782,6 +786,7 @@
 				);
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
 		};

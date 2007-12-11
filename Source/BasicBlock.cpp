@@ -57,8 +57,8 @@ void CBasicBlock::Compile()
 
 unsigned int CBasicBlock::Execute()
 {
-    void* function = m_text;
-    CMIPS* context = &m_context;
+    volatile void* function = m_text;
+    volatile CMIPS* context = &m_context;
 
     __asm
     {
@@ -67,8 +67,8 @@ unsigned int CBasicBlock::Execute()
         push    esi
         push    edi
 
-        mov     eax, [function] 
-		mov		ebp, [context]
+        mov     eax, function
+		mov		ebp, context
         call    eax
 
         pop     edi
@@ -76,6 +76,17 @@ unsigned int CBasicBlock::Execute()
         pop     ebx
         pop     ebp
     }
+
+//	asm("pushl %%ebx\n\t"
+//		"movl %%edi, %%eax\n\t"
+//		"movl %%ecx, %%ebp\n\t"
+//		"pushl %%eax\n\t"
+//		"call (%%esp)\n\t"
+//		"popl %%eax\n\t"
+//		"popl %%ebx\n\t"
+//		:
+//		: "D" (function), "c" (context)
+//		: "%ebp", "%esi");
 
     if(m_context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
     {

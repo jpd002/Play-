@@ -69,7 +69,7 @@ RET_CODE CCacheBlock::Execute(CMIPS* pCtx)
 	nRet = _CCacheBlock_Execute(pEntry, pCtx);
 
 #else
-
+/*
 	__asm
 	{
 		push	ebx
@@ -88,7 +88,7 @@ RET_CODE CCacheBlock::Execute(CMIPS* pCtx)
 
 		mov		[nRet], eax;
 	}
-
+*/
 #endif
 
 	return nRet;
