@@ -773,16 +773,18 @@ void CPS2VM::EmuThread()
 		}
 		if(m_nStatus == RUNNING)
         {
+            //Synchonization methods
+            //1984.elf - CSR = CSR & 0x08; while(CSR & 0x08 == 0);
 			if(static_cast<int>(m_nVBlankTicks) <= 0)
 			{
 				m_nInVBlank = !m_nInVBlank;
 				if(m_nInVBlank)
 				{
 					m_nVBlankTicks += VBLANKTICKS;
-                    if(m_pGS != NULL)
-                    {
-					    m_pGS->SetVBlank();
-                    }
+//                    if(m_pGS != NULL)
+//                    {
+//					    m_pGS->SetVBlank();
+//                    }
 
 					//Old Flipping Method
 					//m_pGS->Flip();

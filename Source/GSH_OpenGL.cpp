@@ -1164,6 +1164,7 @@ void CGSH_OpenGL::SetVBlank()
 	{
 	    Flip();
 	}
+
 /*
     while(m_mailBox.IsPending())
     {
