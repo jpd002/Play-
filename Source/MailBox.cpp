@@ -67,13 +67,14 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 
 void CMailBox::ReceiveCall()
 {
+    FunctionType function;
     {
         mutex::scoped_lock waitLock(m_waitMutex);
         if(!IsPending()) return;
-        FunctionType function = *m_calls.begin();
+        function = *m_calls.begin();
         m_calls.pop_front();
-        function();
     }
+    function();
     {
         mutex::scoped_lock doneLock(m_doneNotifyMutex);
         m_callFinished.notify_all();

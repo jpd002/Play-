@@ -84,6 +84,13 @@ void CMipsCodeGen::EndIf()
     CCodeGen::EndIf();
 }
 
+void CMipsCodeGen::BeginIfElseAlt()
+{
+    assert(m_Shadow.GetCount() == 0);
+    DumpVariables(m_IfStack.GetCount());
+    CCodeGen::BeginIfElseAlt();
+}
+
 void CMipsCodeGen::Call(void* function, unsigned int paramCount, bool saveResult)
 {
     //We need to dump any variable aliased with a register that won't be saved across the call

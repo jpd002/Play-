@@ -3,6 +3,8 @@
 #include "COP_FPU.h"
 #include "MIPS.h"
 #include "CodeGen_FPU.h"
+#include "MipsCodeGen.h"
+#include "offsetof_def.h"
 
 using namespace CodeGen;
 
@@ -93,24 +95,17 @@ void CCOP_FPU::TestCCBit(uint32 nMask)
 //00
 void CCOP_FPU::MFC1()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		SignExtendTop32(m_nFT);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nFT].nV[0]);
-	}
-	CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->SeX();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 }
 
 //04
 void CCOP_FPU::MTC1()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nFT].nV[0]);
-		m_pB->PullAddr(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-	}
-	CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
 }
 
 //06
@@ -217,67 +212,51 @@ void CCOP_FPU::BC1TL()
 //00
 void CCOP_FPU::ADD_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CFPU::Add();
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-	}
-	CCodeGen::End();
+    m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FPU_Add();
+    m_codeGen->FPU_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //01
 void CCOP_FPU::SUB_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CFPU::Sub();
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-	}
-	CCodeGen::End();
+    m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FPU_Sub();
+    m_codeGen->FPU_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //02
 void CCOP_FPU::MUL_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CFPU::Mul();
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-	}
-	CCodeGen::End();
+    m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FPU_Mul();
+    m_codeGen->FPU_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //03
 void CCOP_FPU::DIV_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		//Check if FT equals to 0
-		CCodeGen::PushVar(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CCodeGen::PushCst(0);
-		CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
+	//Check if FT equals to 0
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->PushCst(0);
+    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-		CCodeGen::BeginIfElse(true);
-		{
-			CCodeGen::PushCst(0x7F7FFFFF);
-			CCodeGen::PullVar(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-		}
-		CCodeGen::BeginIfElseAlt();
-		{
-			CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-			CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-			CFPU::Div();
-			CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-		}
-		CCodeGen::EndIf();
+	m_codeGen->BeginIfElse(true);
+	{
+        m_codeGen->PushCst(0x7F7FFFFF);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 	}
-	CCodeGen::End();
+	m_codeGen->BeginIfElseAlt();
+	{
+        m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+        m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+        m_codeGen->FPU_Div();
+        m_codeGen->FPU_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
+	}
+	m_codeGen->EndIf();
 }
 
 //04
@@ -386,16 +365,10 @@ void CCOP_FPU::MSUB_S()
 //24
 void CCOP_FPU::CVT_W_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		//Load the rounding mode from FCSR?
-		CFPU::PushRoundingMode();
-		CFPU::SetRoundingMode(CFPU::ROUND_TRUNCATE);
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::PullWord(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-		CFPU::PullRoundingMode();
-	}
-	CCodeGen::End();
+	//Load the rounding mode from FCSR?
+    //PS2 only supports truncate rounding mode
+    m_codeGen->FPU_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FPU_PullWordTruncate(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //32
@@ -447,12 +420,8 @@ void CCOP_FPU::C_LE_S()
 //20
 void CCOP_FPU::CVT_S_W()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushWord(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-	}
-	CCodeGen::End();
+	m_codeGen->FPU_PushWord(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+	m_codeGen->FPU_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //////////////////////////////////////////////////
@@ -462,31 +431,28 @@ void CCOP_FPU::CVT_S_W()
 //31
 void CCOP_FPU::LWC1()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		ComputeMemAccessAddr();
+    ComputeMemAccessAddrEx();
 
-		//Load the word
-		m_pB->PushRef(m_pCtx);
-//		m_pB->Call(&CCacheBlock::GetWordProxy, 2, true);
-		m_pB->PullAddr(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-	}
-	CCodeGen::End();
+	m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushIdx(1);
+	m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+
+    m_codeGen->PullTop();
 }
 
 //39
 void CCOP_FPU::SWC1()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		ComputeMemAccessAddr();
+	ComputeMemAccessAddrEx();
 
-		//Write the words
-		m_pB->PushAddr(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		m_pB->PushRef(m_pCtx);
-//		m_pB->Call(&CCacheBlock::SetWordProxy, 3, false);
-	}
-	CCodeGen::End();
+	m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+	m_codeGen->PushIdx(2);
+	m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+
+	m_codeGen->PullTop();
 }
 
 //////////////////////////////////////////////////

@@ -3,14 +3,6 @@
 
 #include "CodeGen.h"
 
-class CVariableStatusInfo
-{
-public:
-
-private:
-
-};
-
 class CMipsCodeGen : public CCodeGen
 {
 public:
@@ -21,6 +13,7 @@ public:
     virtual void        PullRel(size_t);
 
     virtual void        EndIf();
+    virtual void        BeginIfElseAlt();
 
     virtual void        Call(void*, unsigned int, bool);
 

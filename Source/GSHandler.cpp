@@ -1166,6 +1166,9 @@ void CGSHandler::ThreadProc()
     while(1)
     {
         m_mailBox.WaitForCall();
-        m_mailBox.ReceiveCall();
+        while(m_mailBox.IsPending())
+        {
+            m_mailBox.ReceiveCall();
+        }
     }
 }

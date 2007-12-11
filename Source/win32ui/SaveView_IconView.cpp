@@ -2,7 +2,7 @@
 #include "resource.h"
 #include "SaveView.h"
 #include "win32/ClientDeviceContext.h"
-#include "opengl/OpenGl.h"
+#include "opengl/OpenGlDef.h"
 #include "PtrMacro.h"
 
 #define CLSNAME		_T("CSaveView_CIconView")

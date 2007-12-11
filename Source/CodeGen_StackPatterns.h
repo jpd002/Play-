@@ -230,52 +230,67 @@ struct GenericCommutative64
         return patternValue;
     }
 };
-/*
-struct RelativeRelative64ConstantHighOrder
-{
-    enum 
-    {
-        Symbol = CCodeGen::RELATIVE,
-    };
 
+struct ZeroWithSomethingCommutative64
+{
     typedef std::pair<INTEGER64, INTEGER64> PatternValue;
+
+    bool ZeroIsOp1(const ShadowStack& shadowStack) const
+    {
+        return
+            shadowStack.GetAt(0) == CCodeGen::CONSTANT &&
+            shadowStack.GetAt(1) == 0 &&
+            shadowStack.GetAt(2) == CCodeGen::CONSTANT &&
+            shadowStack.GetAt(3) == 0;
+    }
+
+    bool ZeroIsOp2(const ShadowStack& shadowStack) const
+    {
+        return
+            shadowStack.GetAt(4) == CCodeGen::CONSTANT &&
+            shadowStack.GetAt(5) == 0 &&
+            shadowStack.GetAt(6) == CCodeGen::CONSTANT &&
+            shadowStack.GetAt(7) == 0;
+    }
 
     bool Fits(const ShadowStack& shadowStack) const
     {
-        return 
-            shadowStack.GetAt(0) == Symbol &&
-            shadowStack.GetAt(2) == CCodeGen::CONSTANT &&
-            shadowStack.GetAt(4) == Symbol &&
-            shadowStack.GetAt(6) == CCodeGen::CONSTANT;
+        return ZeroIsOp1(shadowStack) || ZeroIsOp2(shadowStack);
     }
 
     PatternValue Get(ShadowStack& shadowStack) const
     {
         PatternValue value;
-        if(shadowStack.Pull() != CCodeGen::CONSTANT)
+        if(ZeroIsOp1(shadowStack))
+        {
+            for(unsigned int i = 0; i < 4; i++)
+            {
+                shadowStack.Pull();
+            }
+	        value.second.d1 = shadowStack.Pull();
+	        value.second.d0 = shadowStack.Pull();
+	        value.first.d1 = shadowStack.Pull();
+	        value.first.d0 = shadowStack.Pull();
+        }
+        else if(ZeroIsOp2(shadowStack))
+        {
+	        value.second.d1 = shadowStack.Pull();
+	        value.second.d0 = shadowStack.Pull();
+	        value.first.d1 = shadowStack.Pull();
+	        value.first.d0 = shadowStack.Pull();
+            for(unsigned int i = 0; i < 4; i++)
+            {
+                shadowStack.Pull();
+            }
+        }
+        else
         {
             throw std::runtime_error("Stack consistency error.");
         }
-	    value.second.d1 = shadowStack.Pull();
-        if(shadowStack.Pull() != Symbol)
-        {
-            throw std::runtime_error("Stack consistency error.");
-        }
-	    value.second.d0 = shadowStack.Pull();
-        if(shadowStack.Pull() != CCodeGen::CONSTANT)
-        {
-            throw std::runtime_error("Stack consistency error.");
-        }
-	    value.first.d1 = shadowStack.Pull();
-        if(shadowStack.Pull() != Symbol)
-        {
-            throw std::runtime_error("Stack consistency error.");
-        }
-	    value.first.d0 = shadowStack.Pull();
         return value;        
     }
 };
-*/
+
 typedef GenericOneArgument<CCodeGen::RELATIVE> SingleRelative;
 typedef GenericOneArgument<CCodeGen::REGISTER> SingleRegister;
 typedef GenericOneArgument<CCodeGen::CONSTANT> SingleConstant;

@@ -27,7 +27,7 @@ CX86Assembler           CCodeGen::m_Assembler
 bool                    CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
 CStream*                CCodeGen::m_stream = NULL;
 
-const CX86Assembler::REGISTER g_nBaseRegister = CX86Assembler::rBP;
+CX86Assembler::REGISTER CCodeGen::g_nBaseRegister = CX86Assembler::rBP;
 
 #ifdef AMD64
 
@@ -179,27 +179,31 @@ void CCodeGen::EndIf()
 
 void CCodeGen::BeginIfElse(bool nCondition)
 {
-	if(m_Shadow.GetAt(0) == REGISTER)
+	if(FitsPattern<SingleRegister>())
 	{
-		uint32 nRegister, nPosition;
+        SingleRegister::PatternValue valueRegister(GetPattern<SingleRegister>());
 
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
-
-		if(!RegisterHasNextUse(nRegister))
+        if(!RegisterHasNextUse(valueRegister))
 		{
-			FreeRegister(nRegister);
+			FreeRegister(valueRegister);
 		}
 
-		//test reg, reg
-		m_pBlock->StreamWrite(2, 0x85, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
+        m_Assembler.TestEd(m_nRegisterLookupEx[valueRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[valueRegister]));
 
-		//jcc label
-		m_pBlock->StreamWrite(1, nCondition ? 0x74 : 0x75);
-		nPosition = m_pBlock->StreamGetSize();
-		m_pBlock->StreamWrite(1, 0x00);
+        CX86Assembler::LABEL ifLabel = m_Assembler.CreateLabel();
 
-		m_IfStack.Push(nPosition);
+        //jcc label
+        if(nCondition)
+        {
+            m_Assembler.JeJb(ifLabel);
+        }
+        else
+        {
+            m_Assembler.JneJb(ifLabel);
+        }
+
+		m_IfStack.Push(ifLabel);
 		m_IfStack.Push(IFELSEBLOCK);
 	}
 	else
@@ -210,24 +214,18 @@ void CCodeGen::BeginIfElse(bool nCondition)
 
 void CCodeGen::BeginIfElseAlt()
 {
-	uint32 nPosition1, nPosition2, nSize;
-
 	assert(m_IfStack.GetAt(0) == IFELSEBLOCK);
 
 	m_IfStack.Pull();
-	nPosition1 = m_IfStack.Pull();
+    CX86Assembler::LABEL ifLabel = m_IfStack.Pull();
 
-	//jmp label
-	m_pBlock->StreamWrite(1, 0xEB);
-	nPosition2 = m_pBlock->StreamGetSize();
-	m_pBlock->StreamWrite(1, 0x00);
+    CX86Assembler::LABEL doneLabel = m_Assembler.CreateLabel();
 
-	nSize = m_pBlock->StreamGetSize() - nPosition1 - 1;
-	assert(nSize <= 0xFF);
+    //jmp label
+    m_Assembler.JmpJb(doneLabel);
+    m_Assembler.MarkLabel(ifLabel);
 
-	m_pBlock->StreamWriteAt(nPosition1, (uint8)nSize);
-
-	m_IfStack.Push(nPosition2);
+	m_IfStack.Push(doneLabel);
 	m_IfStack.Push(IFBLOCK);
 }
 
@@ -965,6 +963,16 @@ void CCodeGen::Add64()
             assert(0);
         }
     }
+    else if(FitsPattern<ZeroWithSomethingCommutative64>())
+    {
+        ZeroWithSomethingCommutative64::PatternValue ops(GetPattern<ZeroWithSomethingCommutative64>());
+        //We have something like : op + 0
+        //We just need to copy it over
+        m_Shadow.Push(ops.first.d0);
+        m_Shadow.Push(ops.first.d1);
+        m_Shadow.Push(ops.second.d0);
+        m_Shadow.Push(ops.second.d1);
+    }
 	else
 	{
 		assert(0);
@@ -1664,24 +1672,6 @@ void CCodeGen::Or()
 	}
 }
 
-void CCodeGen::SeX16()
-{
-	ReduceToRegister();
-
-	uint32 nRegister;
-
-	m_Shadow.Pull();
-	nRegister = m_Shadow.Pull();
-
-	assert(nRegister == 0);
-
-	//cwde
-	m_pBlock->StreamWrite(1, 0x98);
-
-	m_Shadow.Push(0);
-	m_Shadow.Push(REGISTER);
-}
-
 void CCodeGen::SeX()
 {
     if(m_Shadow.GetAt(0) == CONSTANT)
@@ -1707,6 +1697,35 @@ void CCodeGen::SeX()
         PushReg(valueRegister);
         PushReg(resultRegister);
     }
+}
+
+void CCodeGen::SeX8()
+{
+    if(FitsPattern<SingleRegister>())
+    {
+        SingleRegister::PatternValue registerId(GetPattern<SingleRegister>());
+        assert(!RegisterHasNextUse(registerId));
+        m_Assembler.MovsxEb(m_nRegisterLookupEx[registerId],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[registerId]));
+        PushReg(registerId);
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
+void CCodeGen::SeX16()
+{
+    ReduceToRegister();
+
+    m_Shadow.Pull();
+    uint32 nRegister = m_Shadow.Pull();
+
+    m_Assembler.MovsxEw(m_nRegisterLookupEx[nRegister],
+        CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]));
+
+    PushReg(nRegister);
 }
 
 void CCodeGen::Shl(uint8 nAmount)
@@ -1840,6 +1859,8 @@ void CCodeGen::Shl64()
 
 void CCodeGen::Shl64(uint8 nAmount)
 {
+    nAmount &= 0x3F;
+
 	if(FitsPattern<RelativeRelative>())
     {
         RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
@@ -1949,6 +1970,16 @@ void CCodeGen::Shl64(uint8 nAmount)
             PushReg(register1);
             PushReg(register2);
         } 
+        else if(nAmount == 32)
+        {
+            PushCst(0);
+            PushCst(ops.second);
+        }
+        else if(nAmount > 32)
+        {
+            PushCst(0);
+            PushCst(ops.second << (nAmount - 32));
+        }
         else
         {
             assert(0);
@@ -1987,27 +2018,41 @@ void CCodeGen::Sra(uint8 nAmount)
 
 void CCodeGen::Sra64(uint8 nAmount)
 {
-    if(
-		(m_Shadow.GetAt(0) == RELATIVE) && \
-		(m_Shadow.GetAt(2) == RELATIVE))
+    if(FitsPattern<RelativeRelative>())
     {
-		uint32 nRelative1, nRelative2;
-
-		m_Shadow.Pull();
-		nRelative2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative1 = m_Shadow.Pull();
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
 
         nAmount &= 0x3F;
 
         if(nAmount == 32)
         {
-            PushRel(nRelative2);
+            PushRel(ops.second);
             SeX();
         }
         else if(nAmount > 32)
         {
-            PushRel(nRelative2);
+            PushRel(ops.second);
+            Sra(nAmount - 32);
+            SeX();
+        }
+        else
+        {
+            assert(0);
+        }
+    }
+    else if(FitsPattern<ConstantRelative>())
+    {
+        ConstantRelative::PatternValue ops(GetPattern<ConstantRelative>());
+
+        nAmount &= 0x3F;
+        if(nAmount == 32)
+        {
+            PushRel(ops.second);
+            SeX();
+        }
+        else if(nAmount > 32)
+        {
+            PushRel(ops.second);
             Sra(nAmount - 32);
             SeX();
         }
@@ -2299,6 +2344,15 @@ void CCodeGen::Sub()
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
+    }
+    else if(FitsPattern<ConstantRelative>())
+    {
+        ConstantRelative::PatternValue ops(GetPattern<ConstantRelative>());
+        unsigned int resultRegister = AllocateRegister();
+        LoadConstantInRegister(resultRegister, ops.first);
+        m_Assembler.SubEd(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        PushReg(resultRegister);
     }
 	else
 	{

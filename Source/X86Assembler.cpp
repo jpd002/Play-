@@ -46,17 +46,44 @@ CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER register
     return MakeRegisterAddress(registerId);
 }
 
+CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
+{
+    CAddress Address;
+
+    if(registerId == rSP)
+    {
+        registerId = static_cast<REGISTER>(4);
+        Address.sib.scale = 0;
+        Address.sib.index = 4;
+        Address.sib.base = 4;
+    }
+    else
+    {
+        assert(0);
+    }
+
+    Address.ModRm.nMod = 0;
+    Address.ModRm.nRM = registerId;
+    return Address;
+}
+
 CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, uint32 nOffset)
 {
     CAddress Address;
+
+    if(nRegister == rSP)
+    {
+        nRegister = static_cast<REGISTER>(4);
+        Address.sib.scale = 0;
+        Address.sib.index = 4;
+        Address.sib.base = 4;
+    }
 
     if(nRegister > 7)
     {
         Address.nIsExtendedModRM = true;
         nRegister = static_cast<REGISTER>(nRegister & 7);
     }
-
-    assert(nRegister != rSP);
 
     if(GetMinimumConstantSize(nOffset) == 1)
     {
@@ -204,6 +231,18 @@ void CX86Assembler::MovId(REGISTER nRegister, uint32 nConstant)
     WriteDWord(nConstant);
 }
 
+void CX86Assembler::MovsxEb(REGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0xBE, false, address, registerId);
+}
+
+void CX86Assembler::MovsxEw(REGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0xBF, false, address, registerId);
+}
+
 void CX86Assembler::MovzxEb(REGISTER registerId, const CAddress& address)
 {
     WriteByte(0x0F);
@@ -223,6 +262,13 @@ void CX86Assembler::OrEd(REGISTER registerId, const CAddress& address)
 void CX86Assembler::OrId(const CAddress& address, uint32 constant)
 {
     WriteEvId(0x01, address, constant);
+}
+
+void CX86Assembler::Pop(REGISTER registerId)
+{
+    CAddress Address(MakeRegisterAddress(registerId));
+    WriteRexByte(false, Address);
+    WriteByte(0x58 | Address.ModRm.nRM);
 }
 
 void CX86Assembler::Push(REGISTER registerId)
@@ -464,12 +510,18 @@ void CX86Assembler::WriteDWord(uint32 nDWord)
 CX86Assembler::CAddress::CAddress()
 {
     ModRm.nByte = 0;
+    sib.byteValue = 0;
     nIsExtendedModRM = false;
 }
 
 void CX86Assembler::CAddress::Write(const WriteFunctionType& WriteFunction)
 {
     WriteFunction(ModRm.nByte);
+
+    if(HasSib())
+    {
+        WriteFunction(sib.byteValue);
+    }
 
     if(ModRm.nMod == 1)
     {
@@ -483,4 +535,10 @@ void CX86Assembler::CAddress::Write(const WriteFunctionType& WriteFunction)
         WriteFunction(pByte[2]);
         WriteFunction(pByte[3]);
     }
+}
+
+bool CX86Assembler::CAddress::HasSib() const
+{
+    if(ModRm.nMod == 3) return false;
+    return ModRm.nRM == 4;
 }

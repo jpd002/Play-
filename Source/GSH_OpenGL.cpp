@@ -7,6 +7,7 @@
 #include "PtrMacro.h"
 
 using namespace Framework;
+using namespace boost;
 
 CGSH_OpenGL::CGSH_OpenGL()
 {
@@ -1161,8 +1162,18 @@ void CGSH_OpenGL::SetVBlank()
 
 	if(m_nForceFlippingVSync)
 	{
-		Flip();
+	    Flip();
 	}
+/*
+    while(m_mailBox.IsPending())
+    {
+        //Flush all commands
+        xtime xt;
+        xtime_get(&xt, boost::TIME_UTC);
+        xt.nsec += 10 * 1000000;
+		thread::sleep(xt);
+    }
+*/
 }
 
 bool CGSH_OpenGL::IsColorTableExtSupported()

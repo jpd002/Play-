@@ -43,6 +43,14 @@ public:
 #endif
 	};
 
+	enum ROUNDMODE
+	{
+		ROUND_NEAREST = 0,
+		ROUND_PLUSINFINITY = 1,
+		ROUND_MINUSINFINITY = 2,
+		ROUND_TRUNCATE = 3
+	};
+
     friend class					CodeGen::CFPU;
 
 	static void						Begin(CCacheBlock*);
@@ -70,14 +78,15 @@ public:
 	static void						Add();
 	static void						Add64();
 	static void						And();
-	static void						And64();
+    void                            And64();
 	static void						Call(void*, unsigned int, bool);
 	static void						Cmp(CONDITION);
 	static void						Cmp64(CONDITION);
 	static void						Lzc();
     static void                     MultS();
-	static void						Or();
+    static void                     Or();
 	static void						SeX();
+    static void                     SeX8();
 	static void						SeX16();
 	static void						Shl(uint8);
 	static void						Shl64();
@@ -87,8 +96,24 @@ public:
     static void                     Srl(uint8);
 	static void						Srl64();
 	static void						Srl64(uint8);
-	static void						Sub();
+    static void                     Sub();
 	static void						Xor();
+
+    //FPU
+    void                            FPU_PushWord(size_t);
+    void                            FPU_PushSingle(size_t);
+    void                            FPU_PullWord(size_t);
+    void                            FPU_PullWordTruncate(size_t);
+    void                            FPU_PullSingle(size_t);
+
+    void                            FPU_Add();
+    void                            FPU_Sub();
+    void                            FPU_Mul();
+    void                            FPU_Div();
+
+    void                            FPU_PushRoundingMode();
+    void                            FPU_PullRoundingMode();
+    void                            FPU_SetRoundingMode(ROUNDMODE);
 
     void                            SetStream(Framework::CStream*);
     static CX86Assembler            m_Assembler;
@@ -224,6 +249,7 @@ private:
 	static CCacheBlock*				m_pBlock;
 
     static Framework::CStream*      m_stream;
+    static CX86Assembler::REGISTER  g_nBaseRegister;
 };
 
 #endif

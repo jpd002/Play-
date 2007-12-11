@@ -44,12 +44,12 @@ void CFPU::PushSingleImm(float nValue)
 	}
 }
 
-void CFPU::PushWord(void* pAddr)
-{
-	//fild dword ptr[pAddr]
-	m_pBlock->StreamWrite(2, 0xDB, 0x00 | (0x00 << 3) | 0x05);
-	m_pBlock->StreamWriteWord((uint32)((uint8*)pAddr - (uint8*)0));
-}
+//void CFPU::PushWord(void* pAddr)
+//{
+//	//fild dword ptr[pAddr]
+//	m_pBlock->StreamWrite(2, 0xDB, 0x00 | (0x00 << 3) | 0x05);
+//	m_pBlock->StreamWriteWord((uint32)((uint8*)pAddr - (uint8*)0));
+//}
 
 void CFPU::PullSingle(void* pAddr)
 {
@@ -58,12 +58,13 @@ void CFPU::PullSingle(void* pAddr)
 	m_pBlock->StreamWriteWord((uint32)((uint8*)pAddr - (uint8*)0));
 }
 
-void CFPU::PullWord(void* pAddr)
-{
-	//fistp dword ptr[pAddr]
-	m_pBlock->StreamWrite(2, 0xDB, 0x00 | (0x03 << 3) | 0x05);
-	m_pBlock->StreamWriteWord((uint32)((uint8*)pAddr - (uint8*)0));
-}
+//void CFPU::PullWord(void* pAddr)
+//{
+//	//fistp dword ptr[pAddr]
+//	m_pBlock->StreamWrite(2, 0xDB, 0x00 | (0x03 << 3) | 0x05);
+//	m_pBlock->StreamWriteWord((uint32)((uint8*)pAddr - (uint8*)0));
+//}
+
 
 void CFPU::PushRoundingMode()
 {
@@ -76,6 +77,7 @@ void CFPU::PushRoundingMode()
 	//fnstcw word ptr [esp]
 	m_pBlock->StreamWrite(3, 0xD9, 0x3C, 0x24);
 }
+
 
 void CFPU::PullRoundingMode()
 {
@@ -220,4 +222,80 @@ void CFPU::Round()
 {
 	//frndint
 	m_pBlock->StreamWrite(2, 0xD9, 0xFC);
+}
+
+//New stuff
+
+void CCodeGen::FPU_PushSingle(size_t offset)
+{
+    m_Assembler.FldEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+}
+
+void CCodeGen::FPU_PushWord(size_t offset)
+{
+    m_Assembler.FildEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+}
+
+void CCodeGen::FPU_PullSingle(size_t offset)
+{
+    m_Assembler.FstpEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+}
+
+void CCodeGen::FPU_PullWord(size_t offset)
+{
+    m_Assembler.FistpEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+}
+
+void CCodeGen::FPU_PullWordTruncate(size_t offset)
+{
+    m_Assembler.FisttpEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+}
+
+void CCodeGen::FPU_PushRoundingMode()
+{
+    m_Assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
+    m_Assembler.Fwait();
+    m_Assembler.FnstcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
+}
+
+void CCodeGen::FPU_PullRoundingMode()
+{
+    m_Assembler.FldcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
+    m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
+}
+
+void CCodeGen::FPU_SetRoundingMode(ROUNDMODE roundingMode)
+{
+    //Load current control word
+    m_Assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
+    m_Assembler.Fwait();
+    m_Assembler.FnstcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
+    //Set new rounding mode
+    m_Assembler.AndId(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP),
+        0xFFFFF3FF);
+    m_Assembler.OrId(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP),
+        roundingMode << 10);
+    //Save control word
+    m_Assembler.FldcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
+    m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
+}
+
+void CCodeGen::FPU_Add()
+{
+    m_Assembler.FaddpSt(1);
+}
+
+void CCodeGen::FPU_Sub()
+{
+    m_Assembler.FsubpSt(1);
+}
+
+void CCodeGen::FPU_Mul()
+{
+    m_Assembler.FmulpSt(1);
+}
+
+void CCodeGen::FPU_Div()
+{
+    m_Assembler.FdivpSt(1);
 }

@@ -39,6 +39,7 @@ public:
                         CAddress();
 
         bool            nIsExtendedModRM;
+        bool            nIsExtendedSib;
 
         union MODRMBYTE
         {
@@ -51,9 +52,22 @@ public:
             uint8 nByte;
         };
 
+        union SIB
+        {
+            struct
+            {
+                unsigned int base : 3;
+                unsigned int index : 3;
+                unsigned int scale : 2;
+            };
+            uint8 byteValue;
+        };
+
         MODRMBYTE       ModRm;
+        SIB             sib;
         uint32          nOffset;
 
+        bool            HasSib() const;
         void            Write(const WriteFunctionType&);
     };
 
@@ -65,6 +79,7 @@ public:
 
     static CAddress                         MakeRegisterAddress(REGISTER);
     static CAddress                         MakeByteRegisterAddress(REGISTER);
+    static CAddress                         MakeIndRegAddress(REGISTER);
     static CAddress                         MakeIndRegOffAddress(REGISTER, uint32);
 
     LABEL                                   CreateLabel();
@@ -88,10 +103,13 @@ public:
     void                                    MovEq(REGISTER, const CAddress&);
     void                                    MovGd(const CAddress&, REGISTER);
     void                                    MovId(REGISTER, uint32);
+    void                                    MovsxEb(REGISTER, const CAddress&);
+    void                                    MovsxEw(REGISTER, const CAddress&);
     void                                    MovzxEb(REGISTER, const CAddress&);
     void                                    Nop();
     void                                    OrEd(REGISTER, const CAddress&);
     void                                    OrId(const CAddress&, uint32);
+    void                                    Pop(REGISTER);
     void                                    Push(REGISTER);
     void                                    PushEd(const CAddress&);
     void                                    PushId(uint32);
@@ -111,6 +129,20 @@ public:
     void                                    XorGd(const CAddress&, REGISTER);
     void                                    XorGq(const CAddress&, REGISTER);
 
+    //FPU
+    void                                    FldEd(const CAddress&);
+    void                                    FildEd(const CAddress&);
+    void                                    FstpEd(const CAddress&);
+    void                                    FistpEd(const CAddress&);
+    void                                    FisttpEd(const CAddress&);
+    void                                    FaddpSt(uint8);
+    void                                    FsubpSt(uint8);
+    void                                    FmulpSt(uint8);
+    void                                    FdivpSt(uint8);
+    void                                    Fwait();
+    void                                    FnstcwEw(const CAddress&);
+    void                                    FldcwEw(const CAddress&);
+
 private:
     struct LABELREF
     {
@@ -127,6 +159,7 @@ private:
     void                                    WriteEvGvOp(uint8, bool, const CAddress&, REGISTER);
     void                                    WriteEvId(uint8, const CAddress&, uint32);
     void                                    WriteEvIq(uint8, const CAddress&, uint64);
+    void                                    WriteStOp(uint8, uint8, uint8);
 
     void                                    CreateLabelReference(LABEL, unsigned int);
 

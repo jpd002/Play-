@@ -1436,6 +1436,10 @@
 					RelativePath=".\Source\X86Assembler.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\Source\X86Assembler_Fpu.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Header Files"
