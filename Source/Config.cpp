@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <pwd.h>
 #include "Config.h"
 #include "StdStream.h"
 #include "xml/Writer.h"
@@ -7,9 +8,10 @@
 #include "xml/Utils.h"
 #include "xml/FilteringNodeIterator.h"
 
-#define CONFIGPATH "config.xml"
+#define DEFAULT_CONFIG_PATH "config.xml"
 
 using namespace Framework;
+using namespace std;
 
 CConfig*		CConfig::m_pInstance = NULL;
 
@@ -211,6 +213,17 @@ bool CConfig::SetPreferenceString(const char* sName, const char* sValue)
 	return true;
 }
 
+string CConfig::GetConfigPath() const
+{
+#ifdef MACOSX
+	passwd* userInfo = getpwuid(getuid());
+	if(userInfo == NULL) return DEFAULT_CONFIG_PATH;
+	return string(userInfo->pw_dir) + "/Library/Preferences/com.vapps.Purei.xml";
+#else
+	return DEFAULT_CONFIG_PATH;
+#endif
+}
+
 void CConfig::Load()
 {
 	Xml::CNode* pDocument;
@@ -218,7 +231,8 @@ void CConfig::Load()
 
 	try
 	{
-		pDocument = Xml::CParser::ParseDocument(&CStdStream(fopen(CONFIGPATH, "rb")));
+		CStdStream configFile(fopen(GetConfigPath().c_str(), "rb"));
+		pDocument = Xml::CParser::ParseDocument(&configFile);
 	}
 	catch(...)
 	{
@@ -286,7 +300,7 @@ void CConfig::Save()
 
 	try
 	{
-		pStream = new CStdStream(fopen(CONFIGPATH, "wb"));
+		pStream = new CStdStream(fopen(GetConfigPath().c_str(), "wb"));
 	}
 	catch(...)
 	{

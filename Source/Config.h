@@ -90,6 +90,7 @@ private:
 										CConfig();
 										~CConfig();
 	void								Load();
+	std::string							GetConfigPath() const;
 	template <typename Type> Type*		FindPreference(const char*);
 	template <typename Type> Type*		CastPreference(CPreference*);
 	void								InsertPreference(CPreference*);
