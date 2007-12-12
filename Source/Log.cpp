@@ -19,6 +19,7 @@ CLog::~CLog()
 
 void CLog::Print(const char* logName, const char* format, ...)
 {
+#ifdef _DEBUG
     CStdStream* log(GetLog(logName));
     if(log == NULL) return;
     va_list args;
@@ -26,6 +27,7 @@ void CLog::Print(const char* logName, const char* format, ...)
     vfprintf(*log, format, args);
     va_end(args);
     log->Flush();
+#endif
 }
 
 CStdStream* CLog::GetLog(const char* logName)

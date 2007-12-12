@@ -49,6 +49,7 @@ int CMipsExecutor::Execute(int cycles)
 
 bool CMipsExecutor::MustBreak()
 {
+#ifdef DEBUGGER_INCLUDED
     uint32 currentPc = m_context.m_State.nPC;
     CBasicBlock* block = FindBlockAt(currentPc);
     for(CMIPS::BreakpointSet::const_iterator breakPointIterator(m_context.m_breakpoints.begin());
@@ -61,7 +62,7 @@ bool CMipsExecutor::MustBreak()
             if(breakPointAddress >= block->GetBeginAddress() && breakPointAddress <= block->GetEndAddress()) return true;
         }
     }
-
+#endif
     return false;
 }
 
