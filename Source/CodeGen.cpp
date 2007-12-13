@@ -1973,12 +1973,15 @@ void CCodeGen::Shl64(uint8 nAmount)
         else if(nAmount == 32)
         {
             PushCst(0);
-            PushCst(ops.second);
+            PushRel(ops.first);
         }
         else if(nAmount > 32)
         {
+            unsigned int resultRegister = AllocateRegister();
+            LoadRelativeInRegister(resultRegister, ops.first);
+            m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]), nAmount - 32);
             PushCst(0);
-            PushCst(ops.second << (nAmount - 32));
+            PushReg(resultRegister);
         }
         else
         {

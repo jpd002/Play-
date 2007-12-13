@@ -1167,10 +1167,7 @@ void CGSH_OpenGL::SetVBlank()
     while(m_mailBox.IsPending())
     {
         //Flush all commands
-        xtime xt;
-        xtime_get(&xt, boost::TIME_UTC);
-        xt.nsec += 10 * 1000000;
-		thread::sleep(xt);
+        thread::yield();
     }
 }
 
