@@ -368,6 +368,11 @@ void CGSHandler::FeedImageData(void* data, uint32 length)
     m_mailBox.SendCall(bind(&CGSHandler::FeedImageDataImpl, this, data, length));
 }
 
+void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count)
+{
+    m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterMassivelyImpl, this, writeList, count));
+}
+
 void CGSHandler::UpdateViewport()
 {
     m_mailBox.SendCall(bind(&CGSHandler::UpdateViewportImpl, this));
@@ -467,6 +472,17 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 			ProcessImageTransfer(pBuf->GetDstPtr(), nSize);
 		}
 	}
+}
+
+void CGSHandler::WriteRegisterMassivelyImpl(const RegisterWrite* writeList, unsigned int count)
+{
+    const RegisterWrite* writeIterator = writeList;
+    for(unsigned int i = 0; i < count; i++)
+    {
+        WriteRegisterImpl(writeIterator->first, writeIterator->second);
+        writeIterator++;
+    }
+    delete [] writeList;
 }
 
 void CGSHandler::FetchImagePSMCT16(uint16* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)

@@ -67,7 +67,9 @@ void CChannel::WriteCHCR(uint32 nValue)
 	}
 
     //Wake up DMAC thread
-    m_dmac.m_waitCondition.notify_all();
+    Execute();
+//    m_CHCR.nSTR = 0;
+//    m_dmac.m_waitCondition.notify_all();
 }
 
 void CChannel::Execute()

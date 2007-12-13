@@ -1,6 +1,12 @@
 #include <string.h>
 #include <stdlib.h>
+#ifdef MACOSX
 #include <pwd.h>
+#endif
+#ifdef WIN32
+#include <shlobj.h>
+#include <boost/filesystem/operations.hpp>
+#endif
 #include "Config.h"
 #include "StdStream.h"
 #include "xml/Writer.h"
@@ -12,11 +18,11 @@
 
 using namespace Framework;
 using namespace std;
+using namespace boost;
 
 CConfig*		CConfig::m_pInstance = NULL;
 
-CConfig::CConfig() :
-m_Mutex(1)
+CConfig::CConfig()
 {
 	Load();
 }
@@ -89,19 +95,18 @@ template <typename Type> Type* CConfig::FindPreference(const char* sName)
 
 	pRet = NULL;
 
-	m_Mutex.Wait();
-
-	for(itPref = m_Preference.Begin(); itPref.HasNext(); itPref++)
-	{
-		pPref = (*itPref);
-		if(!strcmp(pPref->GetName(), sName))
-		{
-			pRet = pPref;
-			break;
-		}
-	}
-
-	m_Mutex.Signal();
+    {
+        mutex::scoped_lock mutexLock(m_mutex);
+        for(itPref = m_Preference.Begin(); itPref.HasNext(); itPref++)
+        {
+            pPref = (*itPref);
+            if(!strcmp(pPref->GetName(), sName))
+            {
+	            pRet = pPref;
+	            break;
+            }
+        }
+    }
 
 	if(pRet == NULL) return NULL;
 
@@ -215,10 +220,26 @@ bool CConfig::SetPreferenceString(const char* sName, const char* sValue)
 
 string CConfig::GetConfigPath() const
 {
-#ifdef MACOSX
+#if defined(MACOSX)
 	passwd* userInfo = getpwuid(getuid());
 	if(userInfo == NULL) return DEFAULT_CONFIG_PATH;
 	return string(userInfo->pw_dir) + "/Library/Preferences/com.vapps.Purei.xml";
+#elif defined(WIN32)
+    char userPathString[MAX_PATH];
+    SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, userPathString);
+    filesystem::path userPath(userPathString, filesystem::native);
+    filesystem::path companyPath = userPath / "Virtual Applications";
+    filesystem::path productPath = companyPath / "Purei";
+    try
+    {
+        filesystem::create_directory(companyPath);
+        filesystem::create_directory(productPath);
+    }
+    catch(...)
+    {
+        //Creation failed (maybe because it already exists)
+    }
+    return (productPath / "Config.xml").string();
 #else
 	return DEFAULT_CONFIG_PATH;
 #endif
@@ -330,9 +351,8 @@ void CConfig::Save()
 
 void CConfig::InsertPreference(CPreference* pPref)
 {
-	m_Mutex.Wait();
-	m_Preference.Insert(pPref);
-	m_Mutex.Signal();
+    mutex::scoped_lock mutexLock(m_mutex);
+    m_Preference.Insert(pPref);
 }
 
 /////////////////////////////////////////////////////////

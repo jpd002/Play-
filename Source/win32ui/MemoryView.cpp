@@ -402,6 +402,7 @@ void CMemoryView::UpdateCaretPosition()
         nAddress);
 
     if(
+        (nBytes != 0) &&
         (m_nSelectionStart >= nAddress) && 
         (m_nSelectionStart <= (nAddress + (nLines * nBytes)))
         )

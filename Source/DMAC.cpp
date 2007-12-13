@@ -59,12 +59,12 @@ m_D9(*this, 1, DummyTransfertFunction, NULL),
 m_D9_SADR(0)
 {
     Reset();
-    m_thread = new thread(bind(&CDMAC::Execute, this));
+//    m_thread = new thread(bind(&CDMAC::Execute, this));
 }
 
 CDMAC::~CDMAC()
 {
-    delete m_thread;
+//    delete m_thread;
 }
 
 void CDMAC::Reset()

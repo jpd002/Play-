@@ -2,8 +2,8 @@
 #define _CONFIG_H_
 
 #include <string>
+#include <boost/thread.hpp>
 #include "List.h"
-#include "Semaphore.h"
 #include "xml/Node.h"
 
 class CConfig
@@ -99,7 +99,7 @@ private:
 	static CConfig*						m_pInstance;
 
 	Framework::CList<CPreference>		m_Preference;
-	Framework::CSemaphore				m_Mutex;
+    boost::mutex                        m_mutex;
 };
 
 #endif

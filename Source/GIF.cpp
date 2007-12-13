@@ -13,6 +13,8 @@ using namespace std;
 #define PROFILE_GIFZONE		"GIF"
 #endif
 
+CGSHandler::RegisterWriteList g_writeList;
+
 CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr) :
 m_gs(gs),
 m_ram(ram),
@@ -118,7 +120,8 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				//A + D
 				if(m_gs != NULL)
 				{
-					m_gs->WriteRegister((uint8)nPacket.nD1, nPacket.nD0);
+//					m_gs->WriteRegister((uint8)nPacket.nD1, nPacket.nD0);
+                    g_writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));
 				}
 				break;
 			default:
@@ -273,7 +276,9 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 	uint32 nEnd, nSize;
 	uint8* pMemory;
 
-	assert(nTagIncluded == false);
+    g_writeList.clear();
+
+    assert(nTagIncluded == false);
 
 	if(nAddress & 0x80000000)
 	{
@@ -292,6 +297,13 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 	{
 		nAddress += ProcessPacket(pMemory, nAddress, nEnd);
 	}
+
+    if(m_gs != NULL && g_writeList.size() != 0)
+    {
+        CGSHandler::RegisterWrite* writeList = new CGSHandler::RegisterWrite[g_writeList.size()];
+        memcpy(writeList, &g_writeList[0], sizeof(CGSHandler::RegisterWrite) * g_writeList.size());
+        m_gs->WriteRegisterMassively(writeList, static_cast<unsigned int>(g_writeList.size()));
+    }
 
 	return nQWC;
 }

@@ -1164,8 +1164,6 @@ void CGSH_OpenGL::SetVBlank()
 	{
 	    Flip();
 	}
-
-/*
     while(m_mailBox.IsPending())
     {
         //Flush all commands
@@ -1174,7 +1172,6 @@ void CGSH_OpenGL::SetVBlank()
         xt.nsec += 10 * 1000000;
 		thread::sleep(xt);
     }
-*/
 }
 
 bool CGSH_OpenGL::IsColorTableExtSupported()

@@ -4,6 +4,7 @@
 #include "Types.h"
 #include "Stream.h"
 #include <boost/thread.hpp>
+#include <vector>
 #include "MailBox.h"
 
 #pragma pack(push, 1)
@@ -220,6 +221,9 @@ struct GSTEST
 class CGSHandler
 {
 public:
+    typedef std::pair<uint8, uint64> RegisterWrite;
+    typedef std::vector<RegisterWrite> RegisterWriteList;
+
 											CGSHandler();
 	virtual									~CGSHandler();
 
@@ -236,6 +240,7 @@ public:
 
 	void                                    WriteRegister(uint8, uint64);
 	void                                    FeedImageData(void*, uint32);
+    void                                    WriteRegisterMassively(const RegisterWrite*, unsigned int);
 
 	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
 	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
@@ -605,6 +610,7 @@ protected:
     virtual void                            UpdateViewportImpl() = 0;
 	virtual void                            WriteRegisterImpl(uint8, uint64);
 	virtual void                            FeedImageDataImpl(void*, uint32);
+    virtual void                            WriteRegisterMassivelyImpl(const RegisterWrite*, unsigned int);
 
 	TRANSFERHANDLER							m_pTransferHandler[PSM_MAX];
 
