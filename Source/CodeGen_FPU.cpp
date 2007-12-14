@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "CodeGen_FPU.h"
+#include "CodeGen_StackPatterns.h"
 #include "PtrMacro.h"
 
 using namespace CodeGen;
@@ -226,76 +227,129 @@ void CFPU::Round()
 
 //New stuff
 
-void CCodeGen::FPU_PushSingle(size_t offset)
+void CCodeGen::FP_PushSingleReg(XMMREGISTER registerId)
 {
-    m_Assembler.FldEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+    m_Shadow.Push(registerId);
+    m_Shadow.Push(FP_SINGLE_REGISTER);
 }
 
-void CCodeGen::FPU_PushWord(size_t offset)
+void CCodeGen::FP_PushSingle(size_t offset)
 {
-    m_Assembler.FildEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+    m_Shadow.Push(static_cast<uint32>(offset));
+    m_Shadow.Push(FP_SINGLE_RELATIVE);
 }
 
-void CCodeGen::FPU_PullSingle(size_t offset)
+void CCodeGen::FP_LoadSingleRelativeInRegister(XMMREGISTER destination, uint32 source)
 {
-    m_Assembler.FstpEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+    m_Assembler.MovssEd(destination,
+        CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, source));
 }
 
-void CCodeGen::FPU_PullWord(size_t offset)
+void CCodeGen::FP_PushWord(size_t offset)
 {
-    m_Assembler.FistpEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+    XMMREGISTER resultRegister = AllocateXmmRegister();
+    m_Assembler.Cvtsi2ssEd(resultRegister,
+        CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+    FP_PushSingleReg(resultRegister);
 }
 
-void CCodeGen::FPU_PullWordTruncate(size_t offset)
+void CCodeGen::FP_PullSingle(size_t offset)
 {
-    m_Assembler.FisttpEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+    if(FitsPattern<SingleFpSingleRegister>())
+    {
+        XMMREGISTER valueRegister = static_cast<XMMREGISTER>(GetPattern<SingleFpSingleRegister>());
+        m_Assembler.MovssEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)),
+            valueRegister);
+        FreeXmmRegister(valueRegister);
+    }
+    else
+    {
+        assert(0);
+    }
 }
 
-void CCodeGen::FPU_PushRoundingMode()
+void CCodeGen::FP_PullWordTruncate(size_t offset)
 {
-    m_Assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
-    m_Assembler.Fwait();
-    m_Assembler.FnstcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
+    if(FitsPattern<SingleFpSingleRelative>())
+    {
+        SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
+        unsigned int valueRegister = AllocateRegister();
+        m_Assembler.Cvttss2siEd(m_nRegisterLookupEx[valueRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
+        m_Assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)),
+            m_nRegisterLookupEx[valueRegister]);
+        FreeRegister(valueRegister);
+    }
+    else
+    {
+        assert(0);
+    }
 }
 
-void CCodeGen::FPU_PullRoundingMode()
+void CCodeGen::FP_Add()
 {
-    m_Assembler.FldcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
-    m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
+    if(FitsPattern<DualFpSingleRelative>())
+    {
+        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.AddssEd(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
 }
 
-void CCodeGen::FPU_SetRoundingMode(ROUNDMODE roundingMode)
+void CCodeGen::FP_Sub()
 {
-    //Load current control word
-    m_Assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
-    m_Assembler.Fwait();
-    m_Assembler.FnstcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
-    //Set new rounding mode
-    m_Assembler.AndId(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP),
-        0xFFFFF3FF);
-    m_Assembler.OrId(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP),
-        roundingMode << 10);
-    //Save control word
-    m_Assembler.FldcwEw(CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
-    m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
+    if(FitsPattern<DualFpSingleRelative>())
+    {
+        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.SubssEd(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
 }
 
-void CCodeGen::FPU_Add()
+void CCodeGen::FP_Mul()
 {
-    m_Assembler.FaddpSt(1);
+    if(FitsPattern<DualFpSingleRelative>())
+    {
+        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.MulssEd(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
 }
 
-void CCodeGen::FPU_Sub()
+void CCodeGen::FP_Div()
 {
-    m_Assembler.FsubpSt(1);
-}
-
-void CCodeGen::FPU_Mul()
-{
-    m_Assembler.FmulpSt(1);
-}
-
-void CCodeGen::FPU_Div()
-{
-    m_Assembler.FdivpSt(1);
+    if(FitsPattern<DualFpSingleRelative>())
+    {
+        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.DivssEd(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
 }

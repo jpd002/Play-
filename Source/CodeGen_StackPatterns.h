@@ -294,11 +294,15 @@ struct ZeroWithSomethingCommutative64
 typedef GenericOneArgument<CCodeGen::RELATIVE> SingleRelative;
 typedef GenericOneArgument<CCodeGen::REGISTER> SingleRegister;
 typedef GenericOneArgument<CCodeGen::CONSTANT> SingleConstant;
+typedef GenericOneArgument<CCodeGen::FP_SINGLE_REGISTER> SingleFpSingleRegister;
+typedef GenericOneArgument<CCodeGen::FP_SINGLE_RELATIVE> SingleFpSingleRelative;
 typedef GenericTwoArguments<CCodeGen::RELATIVE, CCodeGen::CONSTANT> RelativeConstant;
 typedef GenericTwoArguments<CCodeGen::REGISTER, CCodeGen::CONSTANT> RegisterConstant;
 typedef GenericTwoArguments<CCodeGen::CONSTANT, CCodeGen::RELATIVE> ConstantRelative;
 typedef GenericTwoArguments<CCodeGen::CONSTANT, CCodeGen::CONSTANT> ConstantConstant;
 typedef GenericTwoArguments<CCodeGen::RELATIVE, CCodeGen::RELATIVE> RelativeRelative;
+typedef GenericTwoArguments<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_REGISTER> DualFpSingleRegister;
+typedef GenericTwoArguments<CCodeGen::FP_SINGLE_RELATIVE, CCodeGen::FP_SINGLE_RELATIVE> DualFpSingleRelative;
 typedef GenericCommutative<CCodeGen::REGISTER, CCodeGen::CONSTANT> CommutativeRegisterConstant;
 typedef GenericCommutative<CCodeGen::RELATIVE, CCodeGen::CONSTANT> CommutativeRelativeConstant;
 typedef GenericOneArgument64<CCodeGen::CONSTANT> SingleConstant64;

@@ -69,6 +69,62 @@ void CX86Assembler::FldcwEw(const CAddress& address)
     WriteEvOp(0xD9, 0x05, false, address);
 }
 
+void CX86Assembler::MovssEd(const CAddress& address, XMMREGISTER registerId)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x11, address, registerId);
+}
+
+void CX86Assembler::MovssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x10, address, registerId);
+}
+
+void CX86Assembler::AddssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x58, address, registerId);
+}
+
+void CX86Assembler::SubssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5C, address, registerId);
+}
+
+void CX86Assembler::MulssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x59, address, registerId);
+}
+
+void CX86Assembler::DivssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5E, address, registerId);
+}
+
+void CX86Assembler::Cvtsi2ssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x2A, address, registerId);
+}
+
+void CX86Assembler::Cvttss2siEd(REGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEvGvOp(0x2C, false, address, registerId);
+}
+
 void CX86Assembler::WriteStOp(uint8 opcode, uint8 subOpcode, uint8 stackId)
 {
     CAddress address;
@@ -77,4 +133,14 @@ void CX86Assembler::WriteStOp(uint8 opcode, uint8 subOpcode, uint8 stackId)
     address.ModRm.nRM = stackId;
     WriteByte(opcode);
     WriteByte(address.ModRm.nByte);
+}
+
+void CX86Assembler::WriteEdVdOp(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)
+{
+    REGISTER registerId = static_cast<REGISTER>(xmmRegisterId);
+    WriteRexByte(false, address, registerId);
+    CAddress NewAddress(address);
+    NewAddress.ModRm.nFnReg = registerId;
+    WriteByte(opcode);
+    NewAddress.Write(m_WriteFunction);
 }

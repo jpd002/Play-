@@ -624,7 +624,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	}
 
 #ifdef _DEBUG
-	DisassembleSet(nAddress, nData);
+//	DisassembleSet(nAddress, nData);
 #endif
 
 #ifdef PROFILE

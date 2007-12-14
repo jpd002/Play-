@@ -427,7 +427,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 
 #ifdef _DEBUG
-	DisassembleWrite(nRegister, nData);
+//	DisassembleWrite(nRegister, nData);
 #endif
 }
 

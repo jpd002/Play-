@@ -19,7 +19,9 @@ namespace CodeGen
 class CCodeGen
 {
 public:
-	enum CONDITION
+    typedef CX86Assembler::XMMREGISTER XMMREGISTER;
+
+    enum CONDITION
 	{
 		CONDITION_EQ,
 		CONDITION_NE,
@@ -41,6 +43,8 @@ public:
 #ifdef AMD64
 		REGISTER64,
 #endif
+        FP_SINGLE_RELATIVE,
+        FP_SINGLE_REGISTER,
 	};
 
 	enum ROUNDMODE
@@ -52,6 +56,9 @@ public:
 	};
 
     friend class					CodeGen::CFPU;
+
+                                    CCodeGen();
+    virtual                         ~CCodeGen();
 
 	static void						Begin(CCacheBlock*);
 	static void						End();
@@ -100,20 +107,17 @@ public:
 	static void						Xor();
 
     //FPU
-    void                            FPU_PushWord(size_t);
-    void                            FPU_PushSingle(size_t);
-    void                            FPU_PullWord(size_t);
-    void                            FPU_PullWordTruncate(size_t);
-    void                            FPU_PullSingle(size_t);
+    void                            FP_PushWord(size_t);
+    void                            FP_PushSingle(size_t);
+    void                            FP_PullWordTruncate(size_t);
+    void                            FP_PullSingle(size_t);
+    void                            FP_PushSingleReg(XMMREGISTER);
+    void                            FP_LoadSingleRelativeInRegister(XMMREGISTER, uint32);
 
-    void                            FPU_Add();
-    void                            FPU_Sub();
-    void                            FPU_Mul();
-    void                            FPU_Div();
-
-    void                            FPU_PushRoundingMode();
-    void                            FPU_PullRoundingMode();
-    void                            FPU_SetRoundingMode(ROUNDMODE);
+    void                            FP_Add();
+    void                            FP_Sub();
+    void                            FP_Mul();
+    void                            FP_Div();
 
     void                            SetStream(Framework::CStream*);
     static CX86Assembler            m_Assembler;
@@ -138,6 +142,15 @@ private:
 		MAX_REGISTER = 6,
 #endif
 	};
+
+    enum MAX_XMM_REGISTER
+    {
+#ifdef AMD64
+        MAX_XMM_REGISTER = 16,
+#else
+        MAX_XMM_REGISTER = 8,
+#endif
+    };
 
 	enum REL_REGISTER
 	{
@@ -177,6 +190,9 @@ private:
 	static void						LoadRelativeInRegister64(unsigned int, uint32);
 	static void						LoadConstantInRegister64(unsigned int, uint64);
 #endif
+
+    XMMREGISTER                     AllocateXmmRegister();
+    void                            FreeXmmRegister(XMMREGISTER);
 
 	static void						LoadConditionInRegister(unsigned int, CONDITION);
 
@@ -247,6 +263,7 @@ private:
 	static unsigned int				m_nRegisterLookup[MAX_REGISTER];
     static CX86Assembler::REGISTER  m_nRegisterLookupEx[MAX_REGISTER];
 	static CCacheBlock*				m_pBlock;
+    static bool                     m_xmmRegisterAllocated[MAX_XMM_REGISTER];
 
     static Framework::CStream*      m_stream;
     static CX86Assembler::REGISTER  g_nBaseRegister;

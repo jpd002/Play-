@@ -9,6 +9,7 @@
 
 using namespace boost;
 using namespace Framework;
+using namespace std;
 
 bool					CCodeGen::m_nBlockStarted = false;
 CCacheBlock*			CCodeGen::m_pBlock = NULL;
@@ -25,6 +26,7 @@ CX86Assembler           CCodeGen::m_Assembler
                                             );
 
 bool                    CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
+bool                    CCodeGen::m_xmmRegisterAllocated[MAX_XMM_REGISTER];
 CStream*                CCodeGen::m_stream = NULL;
 
 CX86Assembler::REGISTER CCodeGen::g_nBaseRegister = CX86Assembler::rBP;
@@ -91,6 +93,16 @@ CX86Assembler::REGISTER CCodeGen::m_nRegisterLookupEx[MAX_REGISTER] =
 
 #endif
 
+CCodeGen::CCodeGen()
+{
+
+}
+
+CCodeGen::~CCodeGen()
+{
+    
+}
+
 void CCodeGen::SetStream(CStream* stream)
 {
     m_stream = stream;
@@ -112,6 +124,11 @@ void CCodeGen::Begin(CCacheBlock* pBlock)
 	{
 		m_nRegisterAllocated[i] = false;		
 	}
+
+    for(unsigned int i = 0; i < MAX_XMM_REGISTER; i++)
+    {
+        m_xmmRegisterAllocated[i] = false;
+    }
 }
 
 void CCodeGen::End()
@@ -330,6 +347,25 @@ unsigned int CCodeGen::AllocateRegister(REGISTER_TYPE nPreference)
 void CCodeGen::FreeRegister(unsigned int nRegister)
 {
 	m_nRegisterAllocated[nRegister] = false;
+}
+
+CCodeGen::XMMREGISTER CCodeGen::AllocateXmmRegister()
+{
+    for(unsigned int i = 0; i < MAX_XMM_REGISTER; i++)
+    {
+        if(!m_xmmRegisterAllocated[i])
+        {
+            m_xmmRegisterAllocated[i] = true;
+            return static_cast<XMMREGISTER>(i);
+        }
+    }
+
+    throw runtime_error("All registers exhausted.");
+}
+
+void CCodeGen::FreeXmmRegister(XMMREGISTER registerId)
+{
+    m_xmmRegisterAllocated[registerId] = false;
 }
 
 void CCodeGen::LoadVariableInRegister(unsigned int nRegister, uint32 nVariable)

@@ -28,6 +28,26 @@ public:
         r15,
     };
 
+    enum XMMREGISTER
+    {
+        xMM0 = 0,
+        xMM1,
+        xMM2,
+        xMM3,
+        xMM4,
+        xMM5,
+        xMM6,
+        xMM7,
+        xMM8,
+        xMM9,
+        xMM10,
+        xMM11,
+        xMM12,
+        xMM13,
+        xMM14,
+        xMM15,
+    };
+
     typedef std::tr1::function<void (uint8)>                WriteFunctionType;
     typedef std::tr1::function<void (unsigned int, uint8)>  WriteAtFunctionType;
     typedef std::tr1::function<size_t ()>                   TellFunctionType;
@@ -143,6 +163,16 @@ public:
     void                                    FnstcwEw(const CAddress&);
     void                                    FldcwEw(const CAddress&);
 
+    //SSE
+    void                                    MovssEd(const CAddress&, XMMREGISTER);
+    void                                    MovssEd(XMMREGISTER, const CAddress&);
+    void                                    AddssEd(XMMREGISTER, const CAddress&);
+    void                                    SubssEd(XMMREGISTER, const CAddress&);
+    void                                    MulssEd(XMMREGISTER, const CAddress&);
+    void                                    DivssEd(XMMREGISTER, const CAddress&);
+    void                                    Cvtsi2ssEd(XMMREGISTER, const CAddress&);
+    void                                    Cvttss2siEd(REGISTER, const CAddress&);
+
 private:
     struct LABELREF
     {
@@ -159,6 +189,7 @@ private:
     void                                    WriteEvGvOp(uint8, bool, const CAddress&, REGISTER);
     void                                    WriteEvId(uint8, const CAddress&, uint32);
     void                                    WriteEvIq(uint8, const CAddress&, uint64);
+    void                                    WriteEdVdOp(uint8, const CAddress&, XMMREGISTER); 
     void                                    WriteStOp(uint8, uint8, uint8);
 
     void                                    CreateLabelReference(LABEL, unsigned int);
