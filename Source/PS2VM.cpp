@@ -17,8 +17,17 @@
 #ifdef WIN32
 #include "VolumeStream.h"
 #endif
+#include "MemoryStateFile.h"
+#include "zip/ZipArchiveWriter.h"
 #include "Config.h"
 #include "Profiler.h"
+
+#define STATE_EE        ("ee")
+#define STATE_VU1       ("vu1")
+#define STATE_RAM       ("ram")
+#define STATE_SPR       ("spr")
+#define STATE_VUMEM1    ("vumem1")
+#define STATE_MICROMEM1 ("micromem1")
 
 #ifdef _DEBUG
 
@@ -191,7 +200,6 @@ void CPS2VM::Initialize()
 void CPS2VM::Destroy()
 {
     m_mailBox.SendCall(bind(&CPS2VM::DestroyImpl, this));
-//	SendMessage(PS2VM_MSG_DESTROY);
 	m_pThread->join();
 	DELETEPTR(m_pThread);
 	DestroyVM();
@@ -199,14 +207,16 @@ void CPS2VM::Destroy()
 
 unsigned int CPS2VM::SaveState(const char* sPath)
 {
-    throw runtime_error("Not implemented.");
-//	return SendMessage(PS2VM_MSG_SAVESTATE, (void*)sPath);
+    unsigned int result = 0;
+    m_mailBox.SendCall(bind(&CPS2VM::SaveVMState, this, sPath, ref(result)), true);
+    return result;
 }
 
 unsigned int CPS2VM::LoadState(const char* sPath)
 {
-    throw runtime_error("Not implemented.");
-//    return SendMessage(PS2VM_MSG_LOADSTATE, (void*)sPath);
+    unsigned int result = 0;
+    m_mailBox.SendCall(bind(&CPS2VM::LoadVMState, this, sPath, ref(result)), true);
+    return result;
 }
 
 //unsigned int CPS2VM::SendMessage(PS2VM_MSG nMsg, void* pParam)
@@ -282,6 +292,8 @@ void CPS2VM::CreateVM()
 
 void CPS2VM::ResetVM()
 {
+    m_executor.Clear();
+
 	memset(m_pRAM,			0, RAMSIZE);
 	memset(m_pSPR,			0, SPRSIZE);
 	memset(m_pVUMem1,		0, VUMEM1SIZE);
@@ -334,86 +346,88 @@ void CPS2VM::DestroyVM()
 	FREEPTR(m_pBIOS);
 }
 
-unsigned int CPS2VM::SaveVMState(const char* sPath)
+void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 {
-	CStream* pS;
-
 	if(m_pGS == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot save state.\r\n");
-		return 1;
+        result = 1;
+        return;
 	}
+    
+    try
+    {
+        CStdStream stateStream(sPath, "wb");
+        CZipArchiveWriter archive;
 
-	try
-	{
-		pS = new CGZipStream(sPath, "wb");
-	}
-	catch(...)
-	{
-		return 1;
-	}
+        archive.InsertFile(new CMemoryStateFile(STATE_EE,           &m_EE.m_State,  sizeof(MIPSSTATE)));
+        archive.InsertFile(new CMemoryStateFile(STATE_VU1,          &m_VU1.m_State, sizeof(MIPSSTATE)));
+        archive.InsertFile(new CMemoryStateFile(STATE_RAM,          m_pRAM,         RAMSIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_SPR,          m_pSPR,         SPRSIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,       m_pVUMem1,      VUMEM1SIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,    m_pMicroMem1,   MICROMEM1SIZE));
 
-	pS->Write(&CPS2VM::m_EE.m_State, sizeof(MIPSSTATE));
-	pS->Write(&CPS2VM::m_VU1.m_State, sizeof(MIPSSTATE));
+        m_pGS->SaveState(archive);
+        m_dmac.SaveState(archive);
 
-	pS->Write(CPS2VM::m_pRAM,		RAMSIZE);
-	pS->Write(CPS2VM::m_pSPR,		SPRSIZE);
-	pS->Write(CPS2VM::m_pVUMem1,	VUMEM1SIZE);
-	pS->Write(CPS2VM::m_pMicroMem1, MICROMEM1SIZE);
-
-	m_pGS->SaveState(pS);
 //	CINTC::SaveState(pS);
-	m_dmac.SaveState(pS);
 //	CSIF::SaveState(pS);
 //	CVIF::SaveState(pS);
 
-	delete pS;
+        archive.Write(stateStream);
+    }
+    catch(...)
+    {
+        result = 1;
+        return;
+    }
 
-	printf("PS2VM: Saved state to file '%s'.\r\n", sPath);
+    printf("PS2VM: Saved state to file '%s'.\r\n", sPath);
 
-	return 0;
+    result = 0;
 }
 
-unsigned int CPS2VM::LoadVMState(const char* sPath)
+void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 {
-	CStream* pS;
-
 	if(m_pGS == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot load state.\r\n");
-		return 1;
+        result = 1;
+        return;
 	}
 
-	try
-	{
-		pS = new CGZipStream(sPath, "rb");
-	}
-	catch(...)
-	{
-		return 1;
-	}
+    try
+    {
+        CStdStream stateStream(sPath, "rb");
+        CZipArchiveReader archive(stateStream);
 
-	pS->Read(&CPS2VM::m_EE.m_State, sizeof(MIPSSTATE));
-	pS->Read(&CPS2VM::m_VU1.m_State, sizeof(MIPSSTATE));
+        archive.BeginReadFile(STATE_EE          )->Read(&m_EE.m_State,  sizeof(MIPSSTATE));
+        archive.BeginReadFile(STATE_VU1         )->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
+        archive.BeginReadFile(STATE_RAM         )->Read(m_pRAM,         RAMSIZE);
+        archive.BeginReadFile(STATE_SPR         )->Read(m_pSPR,         SPRSIZE);
+        archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      VUMEM1SIZE);
+        archive.BeginReadFile(STATE_MICROMEM1   )->Read(m_pMicroMem1,   MICROMEM1SIZE);
 
-	pS->Read(CPS2VM::m_pRAM,		RAMSIZE);
-	pS->Read(CPS2VM::m_pSPR,		SPRSIZE);
-	pS->Read(CPS2VM::m_pVUMem1,		VUMEM1SIZE);
-	pS->Read(CPS2VM::m_pMicroMem1,	MICROMEM1SIZE);
+        m_pGS->LoadState(archive);
+        m_dmac.LoadState(archive);
 
-	m_pGS->LoadState(pS);
 //	CINTC::LoadState(pS);
-	m_dmac.LoadState(pS);
 //	CSIF::LoadState(pS);
 //	CVIF::LoadState(pS);
 
-	delete pS;
+    }
+    catch(...)
+    {
+        result = 1;
+        return;
+    }
 
-	printf("PS2VM: Loaded state from file '%s'.\r\n", sPath);
+    printf("PS2VM: Loaded state from file '%s'.\r\n", sPath);
 
+    m_executor.Clear();
 	m_OnMachineStateChange();
 
-	return 0;
+    result = 0;
 }
 
 void CPS2VM::PauseImpl()
@@ -621,19 +635,19 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 		//Check if the block we're about to invalidate is the same
 		//as the one we're executing in
 
-		CCacheBlock* pBlock;
-		pBlock = m_EE.m_pExecMap->FindBlock(nAddress);
-		if(m_EE.m_pExecMap->FindBlock(m_EE.m_State.nPC) != pBlock)
-		{
-			m_EE.m_pExecMap->InvalidateBlock(nAddress);
-		}
-		else
-		{
+//		CCacheBlock* pBlock;
+//		pBlock = m_EE.m_pExecMap->FindBlock(nAddress);
+//		if(m_EE.m_pExecMap->FindBlock(m_EE.m_State.nPC) != pBlock)
+//		{
+//			m_EE.m_pExecMap->InvalidateBlock(nAddress);
+//		}
+//		else
+//		{
 #ifdef _DEBUG
 //			printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n",
 //				m_EE.m_State.nPC);
 #endif
-		}
+//		}
 	}
 }
 
@@ -711,11 +725,7 @@ unsigned int CPS2VM::VU1TickFunction(unsigned int nTicks)
 
 void CPS2VM::EmuThread()
 {
-//	CThreadMsg::MESSAGE Msg;
-//	unsigned int nRetValue;
-
 	m_nEnd = false;
-
 	while(1)
 	{
 /*
@@ -822,76 +832,6 @@ void CPS2VM::EmuThread()
                 m_OnRunningStateChange();
                 m_OnMachineStateChange();
             }
-/*
-			RET_CODE nRet;
-
-#ifdef PROFILE
-			CProfiler::GetInstance().BeginIteration();
-			CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
-#endif
-
-#if (DEBUGGER_INCLUDED && VU_DEBUG)
-			if(CVIF::IsVU1Running())
-			{
-				nRet = m_VU1.Execute(100000);
-				if(nRet == RET_CODE_BREAKPOINT)
-				{
-					printf("PS2VM: (VectorUnit1) Breakpoint encountered at 0x%0.8X.\r\n", m_VU1.m_State.nPC);
-					m_nStatus = PS2VM_STATUS_PAUSED;
-					m_OnMachineStateChange.Notify(0);
-					m_OnRunningStateChange.Notify(0);
-				}
-			}
-			else
-#endif
-			{
-				if(m_EE.MustBreak())
-				{
-					nRet = RET_CODE_BREAKPOINT;
-				}
-				else
-				{
-					nRet = m_EE.Execute(5000);
-					m_nVBlankTicks -= (5000 - m_EE.m_nQuota);
-//					CTimer::Count(5000 - m_EE.m_nQuota);
-					if((int)m_nVBlankTicks <= 0)
-					{
-						m_nInVBlank = !m_nInVBlank;
-						if(m_nInVBlank)
-						{
-							m_nVBlankTicks = VBLANKTICKS;
-							m_pGS->SetVBlank();
-
-							//Old Flipping Method
-							//m_pGS->Flip();
-							//m_OnNewFrame.Notify(NULL);
-							//////
-
-							m_pPad->Update();
-						}
-						else
-						{
-							m_nVBlankTicks = SCREENTICKS;
-							m_pGS->ResetVBlank();
-						}
-					}
-				}
-
-#ifdef PROFILE
-			CProfiler::GetInstance().EndZone();
-			CProfiler::GetInstance().EndIteration();
-#endif
-
-				if(nRet == RET_CODE_BREAKPOINT)
-				{
-					printf("PS2VM: (EmotionEngine) Breakpoint encountered at 0x%0.8X.\r\n", m_EE.m_State.nPC);
-					m_nStatus = PAUSED;
-					m_OnMachineStateChange();
-					m_OnRunningStateChange();
-					continue;
-				}
-			}
-*/
 		}
 	}
 }

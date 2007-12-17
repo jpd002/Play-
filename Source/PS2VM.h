@@ -143,11 +143,11 @@ private:
 		void*						pParam;
 	};
 
-	void						CreateVM();
-	void						ResetVM();
-	void						DestroyVM();
-	unsigned int				SaveVMState(const char*);
-	unsigned int				LoadVMState(const char*);
+    void						CreateVM();
+    void						ResetVM();
+    void						DestroyVM();
+    void                        SaveVMState(const char*, unsigned int&);
+    void                        LoadVMState(const char*, unsigned int&);
 
     void                        ResumeImpl();
     void                        PauseImpl();

@@ -49,7 +49,7 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
         {
             xtime xt;
             xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += 10 * 1000000;
+            xt.nsec += 100 * 1000000;
             m_callFinished.timed_wait(doneLock, xt);
 	        MSG wmmsg;
             while(PeekMessage(&wmmsg, NULL, 0, 0, PM_REMOVE))

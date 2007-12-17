@@ -2,10 +2,11 @@
 #define _GS_H_
 
 #include "Types.h"
-#include "Stream.h"
 #include <boost/thread.hpp>
 #include <vector>
 #include "MailBox.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 #pragma pack(push, 1)
 
@@ -229,8 +230,8 @@ public:
 
 	void									Reset();
 
-	virtual void							SaveState(Framework::CStream*);
-	virtual void							LoadState(Framework::CStream*);
+	virtual void							SaveState(CZipArchiveWriter&);
+	virtual void							LoadState(CZipArchiveReader&);
 
 	virtual void							WritePrivRegister(uint32, uint32);
 	virtual uint32							ReadPrivRegister(uint32);

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
-#include "PS2VM.h"
 #include "Config.h"
 #include "GSH_OpenGL.h"
 #include "PtrMacro.h"
@@ -37,9 +36,9 @@ void CGSH_OpenGL::InitializeImpl()
 	m_nMaxZ = 32768.0;
 }
 
-void CGSH_OpenGL::LoadState(CStream* pStream)
+void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
 {
-	CGSHandler::LoadState(pStream);
+	CGSHandler::LoadState(archive);
 
 	TexCache_InvalidateTextures(0, RAMSIZE);
 }

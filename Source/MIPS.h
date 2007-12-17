@@ -3,7 +3,6 @@
 
 #include "Types.h"
 #include "MemoryMap.h"
-#include "ExecMap.h"
 #include "MIPSArchitecture.h"
 #include "MIPSCoprocessor.h"
 #include "MIPSAnalysis.h"
@@ -70,9 +69,6 @@ public:
                                 CMIPS(MEMORYMAP_ENDIANESS, uint32, uint32);
 								~CMIPS();
 	void						ToggleBreakpoint(uint32);
-	void						InvalidateCache();
-	void						Step();
-	RET_CODE					Execute(int);
 	bool						MustBreak();
 	bool						IsBranch(uint32);
 	static long					GetBranch(uint16);
@@ -89,7 +85,6 @@ public:
 	CMIPSArchitecture*			m_pArch;
 	CMIPSCoprocessor*			m_pCOP[4];
 	CMemoryMap*					m_pMemoryMap;
-	CExecMap*					m_pExecMap;
     BreakpointSet               m_breakpoints;
 
 	CMIPSAnalysis*				m_pAnalysis;

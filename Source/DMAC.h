@@ -2,7 +2,8 @@
 #define _DMAC_H_
 
 #include "Types.h"
-#include "Stream.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 #include "Dmac_Channel.h"
 #include <boost/thread.hpp>
 
@@ -73,8 +74,8 @@ public:
     uint32              GetRegister(uint32);
 	void                SetRegister(uint32, uint32);
 
-	void                LoadState(Framework::CStream*);
-	void                SaveState(Framework::CStream*);
+	void                LoadState(CZipArchiveReader&);
+	void                SaveState(CZipArchiveWriter&);
 
 	void                DisassembleGet(uint32);
 	void                DisassembleSet(uint32, uint32);

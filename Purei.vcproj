@@ -1257,6 +1257,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MemoryStateFile.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MIPS.cpp"
 					>
 				</File>
@@ -1338,6 +1342,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\PS2VM.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\RegisterStateFile.cpp"
 					>
 				</File>
 				<File
@@ -1639,6 +1647,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\MemoryStateFile.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\MIPS.h"
 					>
 				</File>
@@ -1716,6 +1728,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\RangeList16.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\RegisterStateFile.h"
 					>
 				</File>
 				<File

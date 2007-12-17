@@ -6,6 +6,8 @@
 #include "INTC.h"
 #include "PtrMacro.h"
 #include "Log.h"
+#include "MemoryStateFile.h"
+#include "RegisterStateFile.h"
 
 #define R_REG(a, v, r)					\
 	if((a) & 0x4)						\
@@ -28,6 +30,22 @@
 		(r) &= 0xFFFFFFFF00000000ULL;	\
 		(r) |= (v);					\
 	}
+
+#define STATE_RAM       ("gs/ram")
+#define STATE_REGS      ("gs/regs")
+#define STATE_TRXCTX    ("gs/trxcontext")
+#define STATE_PRIVREGS  ("gs/privregs.xml")
+
+#define STATE_PRIVREGS_PMODE            ("PMODE")
+#define STATE_PRIVREGS_DISPFB1          ("DISPFB1")
+#define STATE_PRIVREGS_DISPLAY1         ("DISPLAY1")
+#define STATE_PRIVREGS_DISPFB2          ("DISPFB2")
+#define STATE_PRIVREGS_DISPLAY2         ("DISPLAY2")
+#define STATE_PRIVREGS_CSR              ("CSR")
+#define STATE_PRIVREGS_IMR              ("IMR")
+#define STATE_PRIVREGS_CRTINTERLACED    ("CrtInterlated")
+#define STATE_PRIVREGS_CRTMODE          ("CrtMode")
+#define STATE_PRIVREGS_CRTFRAMEMODE     ("CrtFrameMode")
 
 using namespace Framework;
 using namespace std::tr1;
@@ -162,48 +180,60 @@ void CGSHandler::Reset()
 	m_nReg[GS_REG_PRMODECONT] = 1;
 	memset(m_pRAM, 0, RAMSIZE);
 	m_nPMODE = 0;
+    m_nDISPFB1 = 0;
+    m_nDISPLAY1 = 0;
+    m_nDISPFB2 = 0;
+    m_nDISPLAY2 = 0;
+    m_nCSR = 0;
+    m_nIMR = 0;
+    m_nCrtIsInterlaced = false;
+    m_nCrtMode = 0;
+    m_nCrtIsFrameMode = false;
 }
 
-void CGSHandler::SaveState(CStream* pS)
+void CGSHandler::SaveState(CZipArchiveWriter& archive)
 {
-	pS->Write(m_nReg, sizeof(uint64) * 0x80);
+    archive.InsertFile(new CMemoryStateFile(STATE_RAM,      m_pRAM,     RAMSIZE));
+    archive.InsertFile(new CMemoryStateFile(STATE_REGS,     m_nReg,     sizeof(uint64) * 0x80));
+    archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX,   &m_TrxCtx,  sizeof(TRXCONTEXT)));
 
-	pS->Write(&m_nPMODE,			8);
-	pS->Write(&m_nDISPFB1,			8);
-	pS->Write(&m_nDISPLAY1,			8);
-	pS->Write(&m_nDISPFB2,			8);
-	pS->Write(&m_nDISPLAY2,			8);
-	pS->Write(&m_nCSR,				8);
-	pS->Write(&m_nIMR,				8);
+    {
+        CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PRIVREGS);
 
-	pS->Write(&m_nCrtIsInterlaced,	4);
-	pS->Write(&m_nCrtMode,			4);
-	pS->Write(&m_nCrtIsFrameMode,	4);
+        registerFile->SetRegister64(STATE_PRIVREGS_PMODE,          m_nPMODE);
+        registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1,        m_nDISPFB1);
+        registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1,       m_nDISPLAY1);
+        registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2,        m_nDISPFB2);
+        registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,       m_nDISPLAY2);
+        registerFile->SetRegister64(STATE_PRIVREGS_CSR,            m_nCSR);
+        registerFile->SetRegister64(STATE_PRIVREGS_IMR,            m_nIMR);
+        registerFile->SetRegister32(STATE_PRIVREGS_CRTINTERLACED,  m_nCrtIsInterlaced);
+        registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE,        m_nCrtMode);
+        registerFile->SetRegister32(STATE_PRIVREGS_CRTFRAMEMODE,   m_nCrtIsFrameMode);
 
-	pS->Write(&m_TrxCtx,			sizeof(TRXCONTEXT));
-
-	pS->Write(m_pRAM,				RAMSIZE);
+        archive.InsertFile(registerFile);
+    }
 }
 
-void CGSHandler::LoadState(CStream* pS)
+void CGSHandler::LoadState(CZipArchiveReader& archive)
 {
-	pS->Read(m_nReg, sizeof(uint64) * 0x80);
+    archive.BeginReadFile(STATE_RAM     )->Read(m_pRAM,     RAMSIZE);
+    archive.BeginReadFile(STATE_REGS    )->Read(m_nReg,     sizeof(uint64) * 0x80);
+    archive.BeginReadFile(STATE_TRXCTX  )->Read(&m_TrxCtx,  sizeof(TRXCONTEXT));
 
-	pS->Read(&m_nPMODE,				8);
-	pS->Read(&m_nDISPFB1,			8);
-	pS->Read(&m_nDISPLAY1,			8);
-	pS->Read(&m_nDISPFB2,			8);
-	pS->Read(&m_nDISPLAY2,			8);
-	pS->Read(&m_nCSR,				8);
-	pS->Read(&m_nIMR,				8);
-
-	pS->Read(&m_nCrtIsInterlaced,	4);
-	pS->Read(&m_nCrtMode,			4);
-	pS->Read(&m_nCrtIsFrameMode,	4);
-
-	pS->Read(&m_TrxCtx,				sizeof(TRXCONTEXT));
-
-	pS->Read(m_pRAM,				RAMSIZE);
+    {
+        CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PRIVREGS));
+        m_nPMODE            = registerFile.GetRegister64(STATE_PRIVREGS_PMODE);
+        m_nDISPFB1          = registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
+        m_nDISPLAY1         = registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
+        m_nDISPFB2          = registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
+        m_nDISPLAY2         = registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
+        m_nCSR              = registerFile.GetRegister64(STATE_PRIVREGS_CSR);
+        m_nIMR              = registerFile.GetRegister64(STATE_PRIVREGS_IMR);
+        m_nCrtIsInterlaced  = registerFile.GetRegister32(STATE_PRIVREGS_CRTINTERLACED) != 0;
+        m_nCrtMode          = registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
+        m_nCrtIsFrameMode   = registerFile.GetRegister32(STATE_PRIVREGS_CRTFRAMEMODE) != 0;
+    }
 
 	UpdateViewport();
 }

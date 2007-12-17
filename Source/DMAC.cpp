@@ -6,10 +6,13 @@
 #include "SIF.h"
 #include "Profiler.h"
 #include "Log.h"
+#include "RegisterStateFile.h"
 
 #ifdef	PROFILE
 #define	PROFILE_DMACZONE "DMAC"
 #endif
+
+#define STATE_REGS_XML ("dmac/regs.xml")
 
 using namespace Framework;
 using namespace std;
@@ -633,14 +636,21 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 }
 
-void CDMAC::LoadState(CStream* pStream)
+void CDMAC::LoadState(CZipArchiveReader& archive)
 {
-	pStream->Read(&m_D_STAT, 4);
+    {
+        CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+        m_D_STAT = registerFile.GetRegister32("D_STAT");
+    }
 }
 
-void CDMAC::SaveState(CStream* pStream)
+void CDMAC::SaveState(CZipArchiveWriter& archive)
 {
-	pStream->Write(&m_D_STAT, 4);
+    {
+        CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+        registerFile->SetRegister32("D_STAT",   m_D_STAT);
+        archive.InsertFile(registerFile);
+    }
 }
 
 void CDMAC::DisassembleGet(uint32 nAddress)

@@ -340,8 +340,6 @@ void CPS2OS::LoadExecutable()
 	unsigned int i;
 	uint32 nMinAddr;
 
-    m_ee.InvalidateCache();
-
 	nMinAddr = 0xFFFFFFF0;
 
 	for(i = 0; i < m_pELF->m_Header.nProgHeaderCount; i++)

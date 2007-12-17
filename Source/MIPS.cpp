@@ -30,7 +30,6 @@ CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd)
 	m_pCOP[2] = NULL;
 	m_pCOP[3] = NULL;
 
-	m_pExecMap = new CExecMap(nExecStart, nExecEnd, 0x1000);
 	m_nIllOpcode = MIPS_INVALID_PC;
 	m_pSysCallHandler = DefaultSysCallHandler;
 }
@@ -38,7 +37,6 @@ CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd)
 CMIPS::~CMIPS()
 {
 	DELETEPTR(m_pMemoryMap);
-	DELETEPTR(m_pExecMap);
 	DELETEPTR(m_pAnalysis);
 }
 
@@ -52,28 +50,28 @@ void CMIPS::ToggleBreakpoint(uint32 address)
     m_breakpoints.insert(address);
 }
 
-void CMIPS::Step()
-{
-	Execute(1);
-}
+//void CMIPS::Step()
+//{
+//	Execute(1);
+//}
 
-RET_CODE CMIPS::Execute(int nQuota)
-{
-	uint32 nPC;
-	CCacheBlock* pB;
-
-	m_nQuota = nQuota;
-
-	nPC = m_State.nPC;
-	nPC = m_pAddrTranslator(this, 0x00000000, nPC);
-
-	pB = m_pExecMap->FindBlock(nPC);
-	if(pB == NULL)
-	{
-		pB = m_pExecMap->CreateBlock(nPC);
-	}
-	return pB->Execute(this);
-}
+//RET_CODE CMIPS::Execute(int nQuota)
+//{
+//	uint32 nPC;
+//	CCacheBlock* pB;
+//
+//	m_nQuota = nQuota;
+//
+//	nPC = m_State.nPC;
+//	nPC = m_pAddrTranslator(this, 0x00000000, nPC);
+//
+//	pB = m_pExecMap->FindBlock(nPC);
+//	if(pB == NULL)
+//	{
+//		pB = m_pExecMap->CreateBlock(nPC);
+//	}
+//	return pB->Execute(this);
+//}
 
 long CMIPS::GetBranch(uint16 nData)
 {
@@ -142,10 +140,10 @@ bool CMIPS::GenerateException(uint32 nAddress)
 	return true;
 }
 
-void CMIPS::InvalidateCache()
-{
-	m_pExecMap->InvalidateBlocks();
-}
+//void CMIPS::InvalidateCache()
+//{
+//	m_pExecMap->InvalidateBlocks();
+//}
 
 bool CMIPS::MustBreak()
 {

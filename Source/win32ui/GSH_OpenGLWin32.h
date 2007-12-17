@@ -2,6 +2,7 @@
 #define _GSH_OPENGLWIN32_H_
 
 #include "../GSH_OpenGL.h"
+#include "../PS2VM.h"
 #include "win32/Window.h"
 #include "SettingsDialogProvider.h"
 

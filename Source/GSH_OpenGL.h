@@ -2,7 +2,6 @@
 #define _GSH_OPENGL_H_
 
 #include "GSHandler.h"
-#include "PS2VM.h"
 #include "opengl/OpenGlDef.h"
 #include "opengl/Program.h"
 #include "opengl/Shader.h"
@@ -17,7 +16,7 @@ public:
 									CGSH_OpenGL();
 	virtual                         ~CGSH_OpenGL();
 
-	virtual void					LoadState(Framework::CStream*);
+	virtual void					LoadState(CZipArchiveReader&);
 
 	void							ProcessImageTransfer(uint32, uint32);
 

@@ -10,7 +10,19 @@ m_context(context)
 
 CMipsExecutor::~CMipsExecutor()
 {
+    Clear();
+}
 
+void CMipsExecutor::Clear()
+{
+    for(BlockList::iterator blockIterator(m_blocks.begin());
+        blockIterator != m_blocks.end(); blockIterator++)
+    {
+        delete *blockIterator;
+    }
+    m_blocks.clear();
+    m_blockBegin.clear();
+    m_blockEnd.clear();
 }
 
 int CMipsExecutor::Execute(int cycles)

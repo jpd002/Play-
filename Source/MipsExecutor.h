@@ -13,6 +13,7 @@ public:
     bool            MustBreak();
     CBasicBlock*    FindBlockAt(uint32);
     CBasicBlock*    FindBlockStartingAt(uint32);
+    void            Clear();
 
 private:
     typedef std::list<CBasicBlock*> BlockList;
