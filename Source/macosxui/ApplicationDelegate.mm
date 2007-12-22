@@ -13,9 +13,26 @@ using namespace std;
 	NSOpenGLContext* context = [m_openGlView openGLContext];
 	void* lowLevelContext = [context CGLContextObj];
 	CGSH_OpenGLMacOSX::CreateGSHandler(*g_virtualMachine, reinterpret_cast<CGLContextObj>(lowLevelContext));
+	
+	//Check arguments
+	NSArray* args = [[NSProcessInfo processInfo] arguments];
+	
+	NSString* bootFromElfPath = nil;
+	if([args count] > 1)
+	{
+		bootFromElfPath = [args objectAtIndex:1];
+	}
+		
+	if(bootFromElfPath != nil)
+	{
+		[self BootFromElf:bootFromElfPath];
+	}
+	
+	//Initialize debugger
+	[m_debuggerWindow Initialize];
 }
 
--(void)BootElf : (id)sender
+-(void)OnBootElf : (id)sender
 {
 	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 	NSArray* fileTypes = [NSArray arrayWithObject:@"elf"];
@@ -24,12 +41,17 @@ using namespace std;
 		return;
 	}
 	NSString* fileName = [openPanel filename];
+	[self BootFromElf:fileName];
+}
+
+-(void)BootFromElf : (NSString*)fileName
+{
 	g_virtualMachine->Reset();
 	try
 	{
 		CPS2OS* os = g_virtualMachine->m_os;
 		os->BootFromFile([fileName fileSystemRepresentation]);
-		g_virtualMachine->Resume();
+//		g_virtualMachine->Resume();
 	}
 	catch(const exception& excep)
 	{
