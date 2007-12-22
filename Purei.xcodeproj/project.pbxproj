@@ -80,6 +80,11 @@
 		7E898A9C0D08C9880077F9ED /* PathTableRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A940D08C9880077F9ED /* PathTableRecord.cpp */; };
 		7E898A9D0D08C9880077F9ED /* VolumeDescriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A960D08C9880077F9ED /* VolumeDescriptor.cpp */; };
 		7E898AC70D08CB350077F9ED /* libboost_filesystem-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E898AC60D08CB350077F9ED /* libboost_filesystem-mt.a */; };
+		7E8BEF120D171D6300CBEDE8 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */; };
+		7E8BEF130D171D6300CBEDE8 /* MemoryStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */; };
+		7E8BEF660D17542300CBEDE8 /* DisAsmView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */; };
+		7E91AB6B0D1B32EA00B20FB7 /* RegView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */; };
+		7E91DBE40D18662400557AC7 /* DebuggerWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91DBE30D18662400557AC7 /* DebuggerWindow.mm */; };
 		7E947ABE0D09F49A00A2AE15 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7E947AB80D09F49A00A2AE15 /* InfoPlist.strings */; };
 		7E947ABF0D09F49A00A2AE15 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 7E947ABA0D09F49A00A2AE15 /* MainMenu.nib */; };
 		7E947AC00D09F49A00A2AE15 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7E947ABC0D09F49A00A2AE15 /* icon.icns */; };
@@ -249,6 +254,16 @@
 		7E898A960D08C9880077F9ED /* VolumeDescriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeDescriptor.cpp; path = Source/ISO9660/VolumeDescriptor.cpp; sourceTree = "<group>"; };
 		7E898A970D08C9880077F9ED /* VolumeDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VolumeDescriptor.h; path = Source/ISO9660/VolumeDescriptor.h; sourceTree = "<group>"; };
 		7E898AC60D08CB350077F9ED /* libboost_filesystem-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_filesystem-mt.a"; path = "../../Libraries/boost_1_34_1/stage/lib/libboost_filesystem-mt.a"; sourceTree = SOURCE_ROOT; };
+		7E8BEF0E0D171D6300CBEDE8 /* RegisterStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegisterStateFile.h; path = Source/RegisterStateFile.h; sourceTree = "<group>"; };
+		7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterStateFile.cpp; path = Source/RegisterStateFile.cpp; sourceTree = "<group>"; };
+		7E8BEF100D171D6300CBEDE8 /* MemoryStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStateFile.h; path = Source/MemoryStateFile.h; sourceTree = "<group>"; };
+		7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryStateFile.cpp; path = Source/MemoryStateFile.cpp; sourceTree = "<group>"; };
+		7E8BEF640D17542300CBEDE8 /* DisAsmView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisAsmView.h; path = Source/macosxui/DisAsmView.h; sourceTree = "<group>"; };
+		7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DisAsmView.mm; path = Source/macosxui/DisAsmView.mm; sourceTree = "<group>"; };
+		7E91AB690D1B32EA00B20FB7 /* RegView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegView.h; path = Source/macosxui/RegView.h; sourceTree = "<group>"; };
+		7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RegView.mm; path = Source/macosxui/RegView.mm; sourceTree = "<group>"; };
+		7E91DBE20D18662400557AC7 /* DebuggerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DebuggerWindow.h; path = Source/macosxui/DebuggerWindow.h; sourceTree = "<group>"; };
+		7E91DBE30D18662400557AC7 /* DebuggerWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DebuggerWindow.mm; path = Source/macosxui/DebuggerWindow.mm; sourceTree = "<group>"; };
 		7E947AB90D09F49A00A2AE15 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
 		7E947ABB0D09F49A00A2AE15 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = MainMenu.nib; sourceTree = "<group>"; };
 		7E947ABC0D09F49A00A2AE15 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = Source/macosxui/icon.icns; sourceTree = "<group>"; };
@@ -264,6 +279,7 @@
 		7E947C3A0D0B4E3800A2AE15 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = Source/GSH_OpenGL.h; sourceTree = "<group>"; };
 		7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = Source/GSH_OpenGL.cpp; sourceTree = "<group>"; };
 		7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		7EB6F45D0D1B033700A53B0B /* ObjCCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjCCall.h; path = Source/macosxui/ObjCCall.h; sourceTree = "<group>"; };
 		7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLMacOSX.h; path = Source/macosxui/GSH_OpenGLMacOSX.h; sourceTree = "<group>"; };
 		7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLMacOSX.cpp; path = Source/macosxui/GSH_OpenGLMacOSX.cpp; sourceTree = "<group>"; };
 		7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler_Fpu.cpp; path = Source/X86Assembler_Fpu.cpp; sourceTree = "<group>"; };
@@ -291,13 +307,20 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				7E947ABD0D09F49A00A2AE15 /* main.mm */,
-				7E947B160D09F8F100A2AE15 /* Globals.h */,
-				7E947B180D09F95600A2AE15 /* Globals.cpp */,
 				7E947B2E0D0A063200A2AE15 /* ApplicationDelegate.h */,
 				7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */,
-				7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */,
+				7E91DBE20D18662400557AC7 /* DebuggerWindow.h */,
+				7E91DBE30D18662400557AC7 /* DebuggerWindow.mm */,
+				7E8BEF640D17542300CBEDE8 /* DisAsmView.h */,
+				7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */,
+				7E947B180D09F95600A2AE15 /* Globals.cpp */,
+				7E947B160D09F8F100A2AE15 /* Globals.h */,
 				7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */,
+				7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */,
+				7E947ABD0D09F49A00A2AE15 /* main.mm */,
+				7EB6F45D0D1B033700A53B0B /* ObjCCall.h */,
+				7E91AB690D1B32EA00B20FB7 /* RegView.h */,
+				7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -378,12 +401,6 @@
 		7E8987060D08B4480077F9ED /* Purei Core */ = {
 			isa = PBXGroup;
 			children = (
-				7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */,
-				7E947C380D0B4E3800A2AE15 /* GSHandler.h */,
-				7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */,
-				7E947C3A0D0B4E3800A2AE15 /* GSH_OpenGL.h */,
-				7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */,
-				7E898A8B0D08C9760077F9ED /* ISO9660 */,
 				7E8987B10D08BD090077F9ED /* ArrayStack.h */,
 				7E8987B20D08BD090077F9ED /* BasicBlock.cpp */,
 				7E8987B30D08BD090077F9ED /* BasicBlock.h */,
@@ -398,9 +415,8 @@
 				7E8987BC0D08BD090077F9ED /* CodeGen_VUF128.h */,
 				7E8987BD0D08BD090077F9ED /* CodeGen_VUI128.cpp */,
 				7E8987BE0D08BD090077F9ED /* CodeGen_VUI128.h */,
-				7E8988E80D08C2CF0077F9ED /* Config.h */,
-				7E8988E90D08C2CF0077F9ED /* MemoryMap.h */,
 				7E8987BF0D08BD090077F9ED /* Config.cpp */,
+				7E8988E80D08C2CF0077F9ED /* Config.h */,
 				7E8987C00D08BD090077F9ED /* COP_FPU.cpp */,
 				7E8987C10D08BD090077F9ED /* COP_FPU.h */,
 				7E8987C20D08BD090077F9ED /* COP_FPU_Reflection.cpp */,
@@ -421,7 +437,11 @@
 				7E8987D10D08BD090077F9ED /* GIF.h */,
 				7E8987D20D08BD090077F9ED /* GSH_Null.cpp */,
 				7E8987D30D08BD090077F9ED /* GSH_Null.h */,
+				7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */,
+				7E947C3A0D0B4E3800A2AE15 /* GSH_OpenGL.h */,
+				7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */,
 				7E8987D40D08BD090077F9ED /* GSHandler.cpp */,
+				7E947C380D0B4E3800A2AE15 /* GSHandler.h */,
 				7E8987D50D08BD090077F9ED /* HashTable.h */,
 				7E8987DC0D08BD090077F9ED /* IOP_Dummy.cpp */,
 				7E8987DD0D08BD090077F9ED /* IOP_Dummy.h */,
@@ -442,6 +462,7 @@
 				7E8987F70D08BD090077F9ED /* IPU_MacroblockTypePTable.h */,
 				7E8987F80D08BD090077F9ED /* IPU_MotionCodeTable.cpp */,
 				7E8987F90D08BD090077F9ED /* IPU_MotionCodeTable.h */,
+				7E898A8B0D08C9760077F9ED /* ISO9660 */,
 				7E8987FB0D08BD090077F9ED /* Log.cpp */,
 				7E8987FC0D08BD090077F9ED /* Log.h */,
 				7E8987FD0D08BD090077F9ED /* LogControl.cpp */,
@@ -462,6 +483,9 @@
 				7E89880C0D08BD090077F9ED /* MailBox.cpp */,
 				7E89880D0D08BD090077F9ED /* MailBox.h */,
 				7E89880E0D08BD090077F9ED /* MemoryMap.cpp */,
+				7E8988E90D08C2CF0077F9ED /* MemoryMap.h */,
+				7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */,
+				7E8BEF100D171D6300CBEDE8 /* MemoryStateFile.h */,
 				7E89880F0D08BD090077F9ED /* MIPS.cpp */,
 				7E8988100D08BD090077F9ED /* MIPS.h */,
 				7E8988110D08BD090077F9ED /* MIPSAnalysis.cpp */,
@@ -494,7 +518,11 @@
 				7E89882E0D08BD090077F9ED /* Profiler.h */,
 				7E89882F0D08BD090077F9ED /* PS2OS.cpp */,
 				7E8988300D08BD090077F9ED /* PS2OS.h */,
+				7E8987070D08B4640077F9ED /* PS2VM.cpp */,
+				7E8987080D08B4640077F9ED /* PS2VM.h */,
 				7E8988310D08BD090077F9ED /* RangeList16.h */,
+				7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */,
+				7E8BEF0E0D171D6300CBEDE8 /* RegisterStateFile.h */,
 				7E8988370D08BD090077F9ED /* uint128.h */,
 				7E8988380D08BD090077F9ED /* Utils.cpp */,
 				7E8988390D08BD090077F9ED /* Utils.h */,
@@ -504,8 +532,7 @@
 				7E8988400D08BD090077F9ED /* VUShared_Reflection.cpp */,
 				7E8988410D08BD090077F9ED /* X86Assembler.cpp */,
 				7E8988420D08BD090077F9ED /* X86Assembler.h */,
-				7E8987070D08B4640077F9ED /* PS2VM.cpp */,
-				7E8987080D08B4640077F9ED /* PS2VM.h */,
+				7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */,
 			);
 			name = "Purei Core";
 			sourceTree = "<group>";
@@ -685,6 +712,11 @@
 				7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */,
 				7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */,
 				7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */,
+				7E8BEF120D171D6300CBEDE8 /* RegisterStateFile.cpp in Sources */,
+				7E8BEF130D171D6300CBEDE8 /* MemoryStateFile.cpp in Sources */,
+				7E8BEF660D17542300CBEDE8 /* DisAsmView.mm in Sources */,
+				7E91DBE40D18662400557AC7 /* DebuggerWindow.mm in Sources */,
+				7E91AB6B0D1B32EA00B20FB7 /* RegView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
