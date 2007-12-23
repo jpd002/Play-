@@ -788,6 +788,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUGGER_INCLUDED,
 					MACOSX,
 					_DEBUG,
 				);

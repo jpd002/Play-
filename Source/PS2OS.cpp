@@ -46,7 +46,7 @@
 #define BIOS_ADDRESS_BASE			0x1FC00000
 #define BIOS_ADDRESS_WAITTHREADPROC	0x1FC03100
 
-#define CONFIGPATH ".\\config\\"
+#define CONFIGPATH "./config/"
 #define PATCHESPATH "patches.xml"
 
 #define THREAD_INIT_QUOTA			(15)
