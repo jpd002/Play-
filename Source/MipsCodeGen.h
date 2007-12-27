@@ -9,6 +9,8 @@ public:
                         CMipsCodeGen();
     virtual             ~CMipsCodeGen();
 
+	virtual void		EndQuota();
+	
     virtual void        PushRel(size_t);
     virtual void        PullRel(size_t);
 

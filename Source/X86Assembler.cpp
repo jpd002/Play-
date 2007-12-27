@@ -137,6 +137,11 @@ void CX86Assembler::ResolveLabelReferences()
     m_labelReferences.clear();
 }
 
+void CX86Assembler::AdcId(const CAddress& address, uint32 constant)
+{
+	WriteEvId(0x02, address, constant);
+}
+
 void CX86Assembler::AddEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x03, false, address, registerId);
@@ -363,6 +368,11 @@ void CX86Assembler::SubId(const CAddress& Address, uint32 nConstant)
 void CX86Assembler::TestEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x85, false, address, registerId);
+}
+
+void CX86Assembler::XorId(const CAddress& address, uint32 constant)
+{
+	WriteEvId(0x06, address, constant);
 }
 
 void CX86Assembler::XorGd(const CAddress& Address, REGISTER nRegister)

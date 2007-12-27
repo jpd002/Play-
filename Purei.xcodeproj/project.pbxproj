@@ -83,6 +83,7 @@
 		7E8BEF120D171D6300CBEDE8 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */; };
 		7E8BEF130D171D6300CBEDE8 /* MemoryStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */; };
 		7E8BEF660D17542300CBEDE8 /* DisAsmView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */; };
+		7E90A4FB0D1F57A2003095A6 /* InputBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E90A4F90D1F57A2003095A6 /* InputBox.m */; };
 		7E91AB6B0D1B32EA00B20FB7 /* RegView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */; };
 		7E91DBE40D18662400557AC7 /* DebuggerWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91DBE30D18662400557AC7 /* DebuggerWindow.mm */; };
 		7E947ABE0D09F49A00A2AE15 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7E947AB80D09F49A00A2AE15 /* InfoPlist.strings */; };
@@ -95,6 +96,7 @@
 		7E947C3C0D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */; };
 		7E947C3D0D0B4E3800A2AE15 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */; };
 		7E947C400D0B4EFB00A2AE15 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */; };
+		7EE5842B0D23176400AF9DA3 /* PathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */; };
 		7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */; };
 		7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -260,6 +262,8 @@
 		7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryStateFile.cpp; path = Source/MemoryStateFile.cpp; sourceTree = "<group>"; };
 		7E8BEF640D17542300CBEDE8 /* DisAsmView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisAsmView.h; path = Source/macosxui/DisAsmView.h; sourceTree = "<group>"; };
 		7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DisAsmView.mm; path = Source/macosxui/DisAsmView.mm; sourceTree = "<group>"; };
+		7E90A4F90D1F57A2003095A6 /* InputBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = InputBox.m; path = Source/macosxui/InputBox.m; sourceTree = "<group>"; };
+		7E90A4FA0D1F57A2003095A6 /* InputBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputBox.h; path = Source/macosxui/InputBox.h; sourceTree = "<group>"; };
 		7E91AB690D1B32EA00B20FB7 /* RegView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegView.h; path = Source/macosxui/RegView.h; sourceTree = "<group>"; };
 		7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RegView.mm; path = Source/macosxui/RegView.mm; sourceTree = "<group>"; };
 		7E91DBE20D18662400557AC7 /* DebuggerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DebuggerWindow.h; path = Source/macosxui/DebuggerWindow.h; sourceTree = "<group>"; };
@@ -280,6 +284,8 @@
 		7E947C3B0D0B4E3800A2AE15 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = Source/GSH_OpenGL.cpp; sourceTree = "<group>"; };
 		7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		7EB6F45D0D1B033700A53B0B /* ObjCCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjCCall.h; path = Source/macosxui/ObjCCall.h; sourceTree = "<group>"; };
+		7EE584290D23176400AF9DA3 /* PathUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathUtils.h; path = Source/PathUtils.h; sourceTree = "<group>"; };
+		7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathUtils.cpp; path = Source/PathUtils.cpp; sourceTree = "<group>"; };
 		7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLMacOSX.h; path = Source/macosxui/GSH_OpenGLMacOSX.h; sourceTree = "<group>"; };
 		7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLMacOSX.cpp; path = Source/macosxui/GSH_OpenGLMacOSX.cpp; sourceTree = "<group>"; };
 		7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler_Fpu.cpp; path = Source/X86Assembler_Fpu.cpp; sourceTree = "<group>"; };
@@ -307,6 +313,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				7E90A4F90D1F57A2003095A6 /* InputBox.m */,
+				7E90A4FA0D1F57A2003095A6 /* InputBox.h */,
 				7E947B2E0D0A063200A2AE15 /* ApplicationDelegate.h */,
 				7E947B2F0D0A063200A2AE15 /* ApplicationDelegate.mm */,
 				7E91DBE20D18662400557AC7 /* DebuggerWindow.h */,
@@ -533,6 +541,8 @@
 				7E8988410D08BD090077F9ED /* X86Assembler.cpp */,
 				7E8988420D08BD090077F9ED /* X86Assembler.h */,
 				7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */,
+				7EE584290D23176400AF9DA3 /* PathUtils.h */,
+				7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */,
 			);
 			name = "Purei Core";
 			sourceTree = "<group>";
@@ -717,6 +727,8 @@
 				7E8BEF660D17542300CBEDE8 /* DisAsmView.mm in Sources */,
 				7E91DBE40D18662400557AC7 /* DebuggerWindow.mm in Sources */,
 				7E91AB6B0D1B32EA00B20FB7 /* RegView.mm in Sources */,
+				7E90A4FB0D1F57A2003095A6 /* InputBox.m in Sources */,
+				7EE5842B0D23176400AF9DA3 /* PathUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

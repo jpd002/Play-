@@ -44,6 +44,28 @@ using namespace std;
 	[self BootFromElf:fileName];
 }
 
+-(void)OnPauseResume: (id)sender
+{
+	if(g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
+	{
+		g_virtualMachine->Pause();	
+	}
+	else
+	{
+		g_virtualMachine->Resume();
+	}
+}
+
+-(void)OnSaveState: (id)sender
+{
+	g_virtualMachine->SaveState("state.st0.zip");
+}
+
+-(void)OnLoadState: (id)sender
+{
+	g_virtualMachine->LoadState("state.st0.zip");
+}
+
 -(void)BootFromElf : (NSString*)fileName
 {
 	g_virtualMachine->Reset();

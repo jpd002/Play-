@@ -29,6 +29,7 @@ protected:
 
 	static void				ComputeMemAccessAddrEx();
 	static void				BranchEx(bool);
+	static void				BranchLikelyEx(bool);
 
 	static void				Illegal();
 	static void				SetupQuickVariables(uint32, CCacheBlock*, CMIPS*);

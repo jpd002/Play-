@@ -8,8 +8,11 @@
 	IBOutlet CDebuggerWindow* m_debuggerWindow;
 }
 
--(void)applicationDidFinishLaunching : (NSNotification*)notification;
--(void)OnBootElf : (id)sender;
--(void)BootFromElf : (NSString*)fileName;
+-(void)applicationDidFinishLaunching: (NSNotification*)notification;
+-(void)OnBootElf: (id)sender;
+-(void)OnPauseResume: (id)sender;
+-(void)OnSaveState: (id)sender;
+-(void)OnLoadState: (id)sender;
+-(void)BootFromElf: (NSString*)fileName;
 
 @end

@@ -307,6 +307,7 @@ typedef GenericCommutative<CCodeGen::REGISTER, CCodeGen::CONSTANT> CommutativeRe
 typedef GenericCommutative<CCodeGen::RELATIVE, CCodeGen::CONSTANT> CommutativeRelativeConstant;
 typedef GenericOneArgument64<CCodeGen::CONSTANT> SingleConstant64;
 typedef GenericTwoArguments64<CCodeGen::CONSTANT, CCodeGen::CONSTANT> ConstantConstant64;
+typedef GenericTwoArguments64<CCodeGen::RELATIVE, CCodeGen::RELATIVE> RelativeRelative64;
 typedef GenericCommutative64<CCodeGen::RELATIVE, CCodeGen::CONSTANT> CommutativeRelativeConstant64;
 
 #endif

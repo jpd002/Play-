@@ -145,24 +145,38 @@ void CMIPSInstructionFactory::ComputeMemAccessAddrEx()
 
 void CMIPSInstructionFactory::BranchEx(bool nCondition)
 {
-	uint16 nImmediate;
-
-	nImmediate = (uint16)(m_nOpcode & 0xFFFF);
+	uint16 nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 
 	m_codeGen->PushCst(MIPS_INVALID_PC);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 	m_codeGen->BeginIf(nCondition);
 	{
-//		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
-//		m_codeGen->PushCst(CMIPS::GetBranch(nImmediate));
-//		m_codeGen->Add();
         m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->EndIf();
+}
 
-//	m_pB->SetDelayedJumpCheck();
+void CMIPSInstructionFactory::BranchLikelyEx(bool conditionValue)
+{
+	uint16 nImmediate = (uint16)(m_nOpcode & 0xFFFF);
+
+	m_codeGen->PushCst(MIPS_INVALID_PC);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+
+	m_codeGen->BeginIfElse(conditionValue);
+	{
+        m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+	}
+	m_codeGen->BeginIfElseAlt();
+	{
+        m_codeGen->PushCst(m_nAddress + 8);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->EndQuota();
+	}
+	m_codeGen->EndIf();
 }
 
 void CMIPSInstructionFactory::Illegal()

@@ -64,7 +64,8 @@ public:
 	static void						End();
 
     bool                            IsStackEmpty();
-
+	virtual void					EndQuota();
+	
     static void						BeginIf(bool);
 	static void						EndIf();
 

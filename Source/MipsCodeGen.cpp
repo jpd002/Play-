@@ -12,6 +12,13 @@ CMipsCodeGen::~CMipsCodeGen()
 
 }
 
+void CMipsCodeGen::EndQuota()
+{
+    assert(m_Shadow.GetCount() == 0);
+    DumpVariables(m_IfStack.GetCount());
+	CCodeGen::EndQuota();
+}
+
 void CMipsCodeGen::PushRel(size_t offset)
 {
     VARIABLESTATUS* status = GetVariableStatus(offset);

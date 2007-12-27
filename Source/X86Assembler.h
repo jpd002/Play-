@@ -106,6 +106,7 @@ public:
     void                                    MarkLabel(LABEL);
     void                                    ResolveLabelReferences();
 
+	void									AdcId(const CAddress&, uint32);
     void                                    AddEd(REGISTER, const CAddress&);
     void                                    AddId(const CAddress&, uint32);
     void                                    AndEd(REGISTER, const CAddress&);
@@ -146,6 +147,7 @@ public:
     void                                    SubEd(REGISTER, const CAddress&);
     void                                    SubId(const CAddress&, uint32);
     void                                    TestEd(REGISTER, const CAddress&);
+	void									XorId(const CAddress&, uint32);
     void                                    XorGd(const CAddress&, REGISTER);
     void                                    XorGq(const CAddress&, REGISTER);
 
