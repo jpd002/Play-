@@ -62,13 +62,23 @@ unsigned int CBasicBlock::Execute()
 
     __asm
     {
-		pusha
+        push    ebx
+        push    ecx
+        push    edx
+        push    esi
+        push    edi
+        push    ebp
 		
         mov     eax, function
 		mov		ebp, context
         call    eax
 		
-		popa
+        pop     ebp
+        pop     edi
+        pop     esi
+        pop     edx
+        pop     ecx
+        pop     ebx
     }
 
 //	asm("pushl %%ebx\n\t"
