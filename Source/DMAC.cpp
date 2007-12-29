@@ -219,7 +219,7 @@ uint32 CDMAC::ReceiveSPRDMA(uint32 nSrcAddress, uint32 nCount, bool nTagIncluded
 uint32 CDMAC::GetRegister(uint32 nAddress)
 {
 #ifdef _DEBUG
-	DisassembleGet(nAddress);
+//	DisassembleGet(nAddress);
 #endif
 
 	switch(nAddress)

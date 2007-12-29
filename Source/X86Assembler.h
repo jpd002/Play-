@@ -98,6 +98,7 @@ public:
     virtual                                 ~CX86Assembler();
 
     static CAddress                         MakeRegisterAddress(REGISTER);
+    static CAddress                         MakeXmmRegisterAddress(XMMREGISTER);
     static CAddress                         MakeByteRegisterAddress(REGISTER);
     static CAddress                         MakeIndRegAddress(REGISTER);
     static CAddress                         MakeIndRegOffAddress(REGISTER, uint32);
@@ -147,6 +148,7 @@ public:
     void                                    SubEd(REGISTER, const CAddress&);
     void                                    SubId(const CAddress&, uint32);
     void                                    TestEd(REGISTER, const CAddress&);
+    void                                    XorEd(REGISTER, const CAddress&);
 	void									XorId(const CAddress&, uint32);
     void                                    XorGd(const CAddress&, REGISTER);
     void                                    XorGq(const CAddress&, REGISTER);
@@ -166,12 +168,26 @@ public:
     void                                    FldcwEw(const CAddress&);
 
     //SSE
+
+    enum SSE_CMP_TYPE
+    {
+        SSE_CMP_EQ = 0,
+        SSE_CMP_LT = 1,
+        SSE_CMP_LE = 2,
+        SSE_CMP_UNORD = 3,
+        SSE_CMP_NEQ = 4,
+        SSE_CMP_NLT = 5,
+        SSE_CMP_NLE = 6,
+        SSE_CMP_ORD = 7,
+    };
+
     void                                    MovssEd(const CAddress&, XMMREGISTER);
     void                                    MovssEd(XMMREGISTER, const CAddress&);
     void                                    AddssEd(XMMREGISTER, const CAddress&);
     void                                    SubssEd(XMMREGISTER, const CAddress&);
     void                                    MulssEd(XMMREGISTER, const CAddress&);
     void                                    DivssEd(XMMREGISTER, const CAddress&);
+    void                                    CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
     void                                    Cvtsi2ssEd(XMMREGISTER, const CAddress&);
     void                                    Cvttss2siEd(REGISTER, const CAddress&);
 

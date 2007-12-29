@@ -36,6 +36,11 @@ CX86Assembler::CAddress CX86Assembler::MakeRegisterAddress(REGISTER nRegister)
     return Address;
 }
 
+CX86Assembler::CAddress CX86Assembler::MakeXmmRegisterAddress(XMMREGISTER registerId)
+{
+    return MakeRegisterAddress(static_cast<REGISTER>(registerId));
+}
+
 CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER registerId)
 {
     if(registerId > 3)
@@ -368,6 +373,11 @@ void CX86Assembler::SubId(const CAddress& Address, uint32 nConstant)
 void CX86Assembler::TestEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x85, false, address, registerId);
+}
+
+void CX86Assembler::XorEd(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x33, false, address, registerId);
 }
 
 void CX86Assembler::XorId(const CAddress& address, uint32 constant)

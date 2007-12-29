@@ -53,3 +53,64 @@ void CMA_MIPSIV::Template_Mult32::operator()(OperationFunctionType Function)
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
     }
 }
+
+void CMA_MIPSIV::Template_MovEqual::operator()(bool isEqual) const
+{
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+
+    m_codeGen->PushCst(0);
+    m_codeGen->PushCst(0);
+
+    m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
+
+    m_codeGen->BeginIf(isEqual);
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+    }
+    m_codeGen->EndIf();
+}
+
+void CMA_MIPSIV::Template_BranchGez::operator()(bool condition, bool likely) const
+{
+    m_codeGen->PushCst(0);
+
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+    m_codeGen->PushCst(0x80000000);
+    m_codeGen->And();
+
+    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+
+    if(likely)
+    {
+        BranchLikelyEx(condition);
+    }
+    else
+    {
+        BranchEx(condition);
+    }
+}
+
+void CMA_MIPSIV::Template_BranchLez::operator()(bool condition, bool likely) const
+{
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+
+    m_codeGen->PushCst(0);
+    m_codeGen->PushCst(0);
+
+    m_codeGen->Cmp64(CCodeGen::CONDITION_LE);
+
+    if(likely)
+    {
+        BranchLikelyEx(condition);
+    }
+    else
+    {
+        BranchEx(condition);
+    }
+}

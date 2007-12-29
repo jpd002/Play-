@@ -318,43 +318,15 @@ void CMA_MIPSIV::BNE()
 //06
 void CMA_MIPSIV::BLEZ()
 {
-    CCodeGen::Begin(m_pB);
-    {
-        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-        CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-        CCodeGen::PushCst(0);
-        CCodeGen::PushCst(0);
-
-        CCodeGen::Cmp64(CCodeGen::CONDITION_LE);
-
-        BranchEx(true);
-    }
-    CCodeGen::End();
+    //Less/Equal & Not Likely
+    Template_BranchLez()(true, false);
 }
 
 //07
 void CMA_MIPSIV::BGTZ()
 {
-	//Check sign bit
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	//Check if parts aren't equal to zero
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->Or();
-	m_pB->And();
-
-	Branch(true);
+    //Not Less/Equal & Not Likely
+    Template_BranchLez()(false, false);
 }
 
 //08
@@ -549,49 +521,15 @@ void CMA_MIPSIV::BNEL()
 //16
 void CMA_MIPSIV::BLEZL()
 {
-	//Check sign bit
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	//Check if parts aren't equal to zero
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->Or();
-	m_pB->And();
-
-	BranchLikely(false);
+    //Less/Equal & Likely
+    Template_BranchLez()(true, true);
 }
 
 //17
 void CMA_MIPSIV::BGTZL()
 {
-	//Check sign bit
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	//Check if parts aren't equal to zero
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushImm(0x00000000);
-	m_pB->Cmp(JCC_CONDITION_NE);
-
-	m_pB->Or();
-	m_pB->And();
-
-	BranchLikely(true);
+    //Not Less/Equal & Likely
+    Template_BranchLez()(false, true);
 }
 
 //19
@@ -1568,37 +1506,13 @@ void CMA_MIPSIV::JALR()
 //0A
 void CMA_MIPSIV::MOVZ()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushImm(0);
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	m_pB->BeginJcc(true);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-
-		m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	}
-	m_pB->EndJcc();
+    Template_MovEqual()(true);
 }
 
 //0B
 void CMA_MIPSIV::MOVN()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushImm(0);
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	m_pB->BeginJcc(false);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-
-		m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	}
-	m_pB->EndJcc();
+    Template_MovEqual()(false);
 }
 
 //0C
@@ -1839,15 +1753,15 @@ void CMA_MIPSIV::OR()
 //26
 void CMA_MIPSIV::XOR()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->Xor();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    for(unsigned int i = 0; i < 2; i++)
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->Xor();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
+        m_codeGen->Xor();
+
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+    }
 }
 
 //27
@@ -1869,23 +1783,19 @@ void CMA_MIPSIV::NOR()
 //2A
 void CMA_MIPSIV::SLT()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-		CCodeGen::Cmp64(CCodeGen::CONDITION_LT);
+	m_codeGen->Cmp64(CCodeGen::CONDITION_LT);
 
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
-		//Clear higher 32-bits
-		CCodeGen::PushCst(0);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	}
-	CCodeGen::End();
+	//Clear higher 32-bits
+	m_codeGen->PushCst(0);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 }
 
 //2B
@@ -2024,51 +1934,29 @@ void CMA_MIPSIV::DSRA32()
 //00
 void CMA_MIPSIV::BLTZ()
 {
-	m_pB->PushImm(0);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
-
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	Branch(false);
+    //Not greater/equal & not likely
+    Template_BranchGez()(false, false);
 }
 
 //01
 void CMA_MIPSIV::BGEZ()
 {
-    m_codeGen->PushCst(0);
-
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-    m_codeGen->PushCst(0x80000000);
-    m_codeGen->And();
-
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
-
-    BranchEx(true);
+    //Greater/equal & not likely
+    Template_BranchGez()(true, false);
 }
 
 //02
 void CMA_MIPSIV::BLTZL()
 {
-	m_pB->PushImm(0);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
-
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	BranchLikely(false);
+    //Not greater/equal & likely
+    Template_BranchGez()(false, true);
 }
 
 //03
 void CMA_MIPSIV::BGEZL()
 {
-	m_pB->PushImm(0);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->AndImm(0x80000000);
-
-	m_pB->Cmp(JCC_CONDITION_EQ);
-
-	BranchLikely(true);
+    //Greater/equal & likely
+    Template_BranchGez()(true, true);
 }
 
 //////////////////////////////////////////////////

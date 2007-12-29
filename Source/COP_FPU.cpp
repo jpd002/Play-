@@ -63,29 +63,28 @@ void CCOP_FPU::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* p
 
 void CCOP_FPU::SetCCBit(bool nCondition, uint32 nMask)
 {
-	CCodeGen::BeginIfElse(nCondition);
+	m_codeGen->BeginIfElse(nCondition);
 	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nFCSR);
-		CCodeGen::PushCst(nMask);
-		CCodeGen::Or();
-		CCodeGen::PullVar(&m_pCtx->m_State.nFCSR);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
+		m_codeGen->PushCst(nMask);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nFCSR));
 	}
-	CCodeGen::BeginIfElseAlt();
+	m_codeGen->BeginIfElseAlt();
 	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nFCSR);
-		CCodeGen::PushCst(~nMask);
-		CCodeGen::And();
-		CCodeGen::PullVar(&m_pCtx->m_State.nFCSR);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
+		m_codeGen->PushCst(~nMask);
+		m_codeGen->And();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nFCSR));
 	}
-	CCodeGen::EndIf();
+	m_codeGen->EndIf();
 }
 
 void CCOP_FPU::TestCCBit(uint32 nMask)
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nFCSR);
-	m_pB->AndImm(nMask);
-	m_pB->PushImm(0);
-	m_pB->Cmp(JCC_CONDITION_NE);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
+    m_codeGen->PushCst(nMask);
+    m_codeGen->And();
 }
 
 //////////////////////////////////////////////////
@@ -164,12 +163,8 @@ void CCOP_FPU::W()
 //00
 void CCOP_FPU::BC1F()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-		Branch(false);
-	}
-	CCodeGen::End();
+	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
+	BranchEx(false);
 }
 
 //01
@@ -374,15 +369,12 @@ void CCOP_FPU::CVT_W_S()
 //32
 void CCOP_FPU::C_EQ_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
 
-		SetCCBit(true, m_nCCMask[((m_nOpcode >> 8) & 0x07)]);
-	}
-	CCodeGen::End();
+    m_codeGen->FP_Cmp(CCodeGen::CONDITION_EQ);
+
+    SetCCBit(true, m_nCCMask[((m_nOpcode >> 8) & 0x07)]);
 }
 
 //34

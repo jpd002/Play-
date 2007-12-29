@@ -100,12 +100,23 @@ CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address)
 
 void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 {
-    assert(FindBlockAt(start) == NULL);
+    {
+        CBasicBlock* block = FindBlockAt(start);
+        if(block != NULL)
+        {
+            //If the block starts and ends at the same place, block already exists and doesn't need
+            //to be re-created
+            assert((block->GetBeginAddress() == start) && (block->GetEndAddress() == end));
+            return;
+        }
+    }
     assert(FindBlockAt(end) == NULL);
-    CBasicBlock* block = new CBasicBlock(m_context, start, end);
-    m_blocks.push_back(block);
-    m_blockBegin[start] = block;
-    m_blockEnd[end] = block;
+    {
+        CBasicBlock* block = new CBasicBlock(m_context, start, end);
+        m_blocks.push_back(block);
+        m_blockBegin[start] = block;
+        m_blockEnd[end] = block;
+    }
 }
 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)

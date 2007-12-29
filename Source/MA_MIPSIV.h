@@ -213,6 +213,20 @@ private:
         void operator()(OperationFunctionType);
     };
 
+    struct Template_MovEqual
+    {
+        void operator()(bool) const;
+    };
+
+    struct Template_BranchGez
+    {
+        void operator()(bool, bool) const;
+    };
+
+    struct Template_BranchLez
+    {
+        void operator()(bool, bool) const;
+    };
 };
 
 extern CMA_MIPSIV g_MAMIPSIV;

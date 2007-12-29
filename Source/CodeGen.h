@@ -119,6 +119,7 @@ public:
     void                            FP_Sub();
     void                            FP_Mul();
     void                            FP_Div();
+    void                            FP_Cmp(CONDITION);
 
     void                            SetStream(Framework::CStream*);
     static CX86Assembler            m_Assembler;
@@ -199,9 +200,9 @@ private:
 
 	static void						ReduceToRegister();
 
-	static void						WriteRelativeRm(unsigned int, uint32);
-	static void						WriteRelativeRmRegister(unsigned int, uint32);
-	static void						WriteRelativeRmFunction(unsigned int, uint32);
+//	static void						WriteRelativeRm(unsigned int, uint32);
+//	static void						WriteRelativeRmRegister(unsigned int, uint32);
+//	static void						WriteRelativeRmFunction(unsigned int, uint32);
 
 	static uint8					MakeRegRegRm(unsigned int, unsigned int);
 	static uint8					MakeRegFunRm(unsigned int, unsigned int);

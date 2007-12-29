@@ -505,29 +505,6 @@ void CCodeGen::ReduceToRegister()
 	}
 }
 
-void CCodeGen::WriteRelativeRm(unsigned int nIndex, uint32 nOffset)
-{
-	if(nOffset <= 0x7F)
-	{
-		m_pBlock->StreamWrite(2, (0x01 << 6) | (nIndex << 3) | 0x05, (uint8)nOffset);
-	}
-	else
-	{
-		m_pBlock->StreamWrite(1, (0x02 << 6) | (nIndex << 3) | 0x05);
-		m_pBlock->StreamWriteWord(nOffset);
-	}
-}
-
-void CCodeGen::WriteRelativeRmRegister(unsigned int nRegister, uint32 nOffset)
-{
-	WriteRelativeRm(m_nRegisterLookup[nRegister] & 0x07, nOffset);
-}
-
-void CCodeGen::WriteRelativeRmFunction(unsigned int nFunction, uint32 nOffset)
-{
-	WriteRelativeRm(nFunction, nOffset);
-}
-
 uint8 CCodeGen::MakeRegFunRm(unsigned int nDst, unsigned int nFunction)
 {
 	assert(m_nRegisterLookup[nDst] < 8);
@@ -1094,37 +1071,21 @@ void CCodeGen::And()
 
 void CCodeGen::And64()
 {
-	if(\
-		(m_Shadow.GetAt(0) == RELATIVE) && \
-		(m_Shadow.GetAt(2) == RELATIVE) && \
-		(m_Shadow.GetAt(4) == RELATIVE) && \
-		(m_Shadow.GetAt(6) == RELATIVE))
-	{
-		uint32 nRelative1, nRelative2, nRelative3, nRelative4;
-		uint32 nRegister1, nRegister2;
+	if(FitsPattern<RelativeRelative64>())
+    {
+        RelativeRelative64::PatternValue ops(GetPattern<RelativeRelative64>());
 
-		m_Shadow.Pull();
-		nRelative4 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative3 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative1 = m_Shadow.Pull();
+		uint32 nRegister1 = AllocateRegister();
+		uint32 nRegister2 = AllocateRegister();
 
-		nRegister1 = AllocateRegister();
-		nRegister2 = AllocateRegister();
+		LoadRelativeInRegister(nRegister1, ops.first.d0);
+		LoadRelativeInRegister(nRegister2, ops.first.d1);
 
-		LoadRelativeInRegister(nRegister1, nRelative1);
-		LoadRelativeInRegister(nRegister2, nRelative2);
+        m_Assembler.AndEd(m_nRegisterLookupEx[nRegister1],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second.d0));
 
-		//and reg1, dword ptr[Relative3]
-		m_pBlock->StreamWrite(1, 0x23);
-		WriteRelativeRmRegister(nRegister1, nRelative3);
-
-		//and reg2, dword ptr[Relative4]
-		m_pBlock->StreamWrite(1, 0x23);
-		WriteRelativeRmRegister(nRegister2, nRelative4);
+        m_Assembler.AndEd(m_nRegisterLookupEx[nRegister2],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second.d1));
 
 		PushReg(nRegister1);
 		PushReg(nRegister2);
@@ -2442,24 +2403,17 @@ void CCodeGen::Sub()
 
 void CCodeGen::Xor()
 {
-	if((m_Shadow.GetAt(0) == RELATIVE) && (m_Shadow.GetAt(2) == RELATIVE))
+	if(FitsPattern<RelativeRelative>())
 	{
-		uint32 nRelative1, nRelative2, nRegister;
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
 
-		m_Shadow.Pull();
-		nRelative2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRelative1 = m_Shadow.Pull();
+        unsigned int nRegister = AllocateRegister();
+		LoadRelativeInRegister(nRegister, ops.first);
 
-		nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, nRelative1);
+        m_Assembler.XorEd(m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
 
-		//xor reg, dword ptr[base + rel]
-		m_pBlock->StreamWrite(1, 0x33);
-		WriteRelativeRmRegister(nRegister, nRelative2);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        PushReg(nRegister);
 	}
 	else if(FitsPattern<CommutativeRelativeConstant>())
 	{
@@ -2585,164 +2539,101 @@ void CCodeGen::Cmp64Lt(bool nSigned, bool nOrEqual)
         }
     };
 
-    if(\
-		(m_Shadow.GetAt(0) == VARIABLE) && \
-		(m_Shadow.GetAt(2) == VARIABLE) && \
-		(m_Shadow.GetAt(4) == VARIABLE) && \
-		(m_Shadow.GetAt(6) == VARIABLE))
+    struct EmitLoad
+    {
+        void operator ()(uint32 valueType, uint32 value, unsigned int registerId, CX86Assembler& assembler)
+        {
+            switch(valueType)
+            {
+            case CONSTANT:
+                LoadConstantInRegister(registerId, value);
+                break;
+            case RELATIVE:
+                LoadRelativeInRegister(registerId, value);
+                break;
+            default:
+                assert(0);
+                break;
+            }
+        }
+    };
+
+    uint32 nValue[4];
+    uint32 nValueType[4];
+
+    for(int i = 3; i >= 0; i--)
+    {
+        nValueType[i]   = m_Shadow.Pull();
+        nValue[i]       = m_Shadow.Pull();
+    }
+
+	uint32 nRegister = AllocateRegister();
+
 	{
-		uint32 nVariable1, nVariable2, nVariable3, nVariable4;
-		uint32 nRegister;
+        CX86Assembler::LABEL highOrderEqualLabel = m_Assembler.CreateLabel();
+        CX86Assembler::LABEL doneLabel = m_Assembler.CreateLabel();
 
-		m_Shadow.Pull();
-		nVariable4 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable3 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable1 = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-
-		/////////////////////////////////////////
+        /////////////////////////////////////////
 		//Check high order word if equal
 
-		//mov reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable2);
+		//mov reg, dword ptr[base + rel2]
+        EmitLoad()(nValueType[1], nValue[1], nRegister, m_Assembler);
+        EmitComparaison()(nValueType[3], nValue[3], nRegister, m_Assembler);
 
-		//cmp reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x3B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable4);
-
-		//je +0x08
-		m_pBlock->StreamWrite(2, 0x74, 0x08);
+        //je highOrderEqual
+        m_Assembler.JeJb(highOrderEqualLabel);
 
 		///////////////////////////////////////////////////////////
-		//If they aren't equal, next comparaison decides of result
+		//If they aren't equal, this comparaison decides of result
 
 		//setb/l reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, nSigned ? 0x9C : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-
-		//movzx reg, reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-
-		//jmp +0x12
-		m_pBlock->StreamWrite(2, 0xEB, 0x12);
-
-		////////////////////////////////////////////////////////////
-		//If they are equal, next comparaison decides of result
-
-		//mov reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable1);
-
-		//cmp reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x3B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable3);
-
-		//setb/be reg[l]
-        m_pBlock->StreamWrite(3, 0x0F, nOrEqual ? 0x96 : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-
-		//movzx reg, reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-	}
-    else
-    {
-        uint32 nValue[4];
-        uint32 nValueType[4];
-
-        for(int i = 3; i >= 0; i--)
+        if(nSigned)
         {
-            nValueType[i]   = m_Shadow.Pull();
-            nValue[i]       = m_Shadow.Pull();
+            m_Assembler.SetlEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
+        }
+        else
+        {
+            m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
         }
 
-        assert(nValueType[3] == CONSTANT || nValueType[3] == RELATIVE);
-        assert(nValueType[2] == CONSTANT || nValueType[2] == RELATIVE);
+		//movzx reg, reg[l]
+        m_Assembler.MovzxEb(
+            m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
 
-        assert(nValueType[0] == RELATIVE);
-        assert(nValueType[1] == RELATIVE);
+		//jmp done
+        m_Assembler.JmpJb(doneLabel);
 
-		uint32 nRegister;
+		//highOrderEqual: /////////////////////////////////////
+        m_Assembler.MarkLabel(highOrderEqualLabel);
+        //If they are equal, next comparaison decides of result
 
-		nRegister = AllocateRegister();
+        EmitLoad()(nValueType[0], nValue[0], nRegister, m_Assembler);
+        EmitComparaison()(nValueType[2], nValue[2], nRegister, m_Assembler);
 
-		{
-            CX86Assembler::LABEL highOrderEqualLabel = m_Assembler.CreateLabel();
-            CX86Assembler::LABEL doneLabel = m_Assembler.CreateLabel();
+	    //setb/be reg[l]
+        if(nOrEqual)
+        {
+            m_Assembler.SetbeEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
+        }
+        else
+        {
+            m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
+        }
 
-            /////////////////////////////////////////
-			//Check high order word if equal
+		//movzx reg, reg[l]
+        m_Assembler.MovzxEb(
+            m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
 
-			//mov reg, dword ptr[base + rel2]
-			LoadRelativeInRegister(nRegister, nValue[1]);
+        //done: ///////////////////////////////////////////////
+        m_Assembler.MarkLabel(doneLabel);
 
-            EmitComparaison()(nValueType[3], nValue[3], nRegister, m_Assembler);
-
-            //je highOrderEqual
-            m_Assembler.JeJb(highOrderEqualLabel);
-
-			///////////////////////////////////////////////////////////
-			//If they aren't equal, this comparaison decides of result
-
-			//setb/l reg[l]
-//			m_pBlock->StreamWrite(3, 0x0F, nSigned ? 0x9C : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-            if(nSigned)
-            {
-                m_Assembler.SetlEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
-            }
-            else
-            {
-                m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
-            }
-
-			//movzx reg, reg[l]
-            m_Assembler.MovzxEb(
-                m_nRegisterLookupEx[nRegister],
-                CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
-
-			//jmp done
-            m_Assembler.JmpJb(doneLabel);
-
-			//highOrderEqual: /////////////////////////////////////
-            m_Assembler.MarkLabel(highOrderEqualLabel);
-            //If they are equal, next comparaison decides of result
-
-			//mov reg, dword ptr[base + rel1]
-			LoadRelativeInRegister(nRegister, nValue[0]);
-
-            EmitComparaison()(nValueType[2], nValue[2], nRegister, m_Assembler);
-
-		    //setb/be reg[l]
-//            m_pBlock->StreamWrite(3, 0x0F, nOrEqual ? 0x96 : 0x92, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-            if(nOrEqual)
-            {
-                m_Assembler.SetbeEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
-            }
-            else
-            {
-                m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
-            }
-
-			//movzx reg, reg[l]
-            m_Assembler.MovzxEb(
-                m_nRegisterLookupEx[nRegister],
-                CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[nRegister]));
-
-            //done: ///////////////////////////////////////////////
-            m_Assembler.MarkLabel(doneLabel);
-
-            m_Assembler.ResolveLabelReferences();
-		}
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+        m_Assembler.ResolveLabelReferences();
 	}
+
+	m_Shadow.Push(nRegister);
+	m_Shadow.Push(REGISTER);
 }
 
 void CCodeGen::Cmp64Cont(CONDITION nCondition)

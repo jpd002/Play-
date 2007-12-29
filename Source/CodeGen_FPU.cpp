@@ -353,3 +353,38 @@ void CCodeGen::FP_Div()
         assert(0);
     }
 }
+
+void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
+{
+    if(FitsPattern<DualFpSingleRelative>())
+    {
+        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
+        CX86Assembler::SSE_CMP_TYPE conditionCode;
+        switch(condition)
+        {
+        case CONDITION_EQ:
+            conditionCode = CX86Assembler::SSE_CMP_EQ;
+            break;
+        default:
+            assert(0);
+            break;
+        }
+        XMMREGISTER tempResultRegister = AllocateXmmRegister();
+        unsigned int resultRegister = AllocateRegister();
+        FP_LoadSingleRelativeInRegister(tempResultRegister, ops.first);
+        m_Assembler.CmpssEd(tempResultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second),
+            conditionCode);
+        //Can't move directly to register using MOVSS, so we use CVTTSS2SI
+        //0x00000000 -- CVT -> zero
+        //0xFFFFFFFF -- CVT -> not zero
+        m_Assembler.Cvttss2siEd(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeXmmRegisterAddress(tempResultRegister));
+        FreeXmmRegister(tempResultRegister);
+        PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}
