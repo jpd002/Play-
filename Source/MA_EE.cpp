@@ -7,6 +7,7 @@
 #include "offsetof_def.h"
 
 using namespace CodeGen;
+using namespace std::tr1;
 
 //CCacheBlock::CVUI128::PushImm(0xA3A2A1A0, 0xA7A6A5A4, 0xABAAA9A8, 0xAFAEADAC);
 //CCacheBlock::CVUI128::PushImm(0xB3B2B1B0, 0xB7B6B5B4, 0xBBBAB9B8, 0xBFBEBDBC);
@@ -262,24 +263,7 @@ void CMA_EE::MTLO1()
 //18
 void CMA_EE::MULT1()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->MultS();
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[0]);
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[0]);
-
-	if(m_nRD != 0)
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nLO1[0]);
-		SignExtendTop32(m_nRD);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-	}
+    Template_Mult32()(bind(&CCodeGen::MultS, m_codeGen), 1);
 }
 
 //19

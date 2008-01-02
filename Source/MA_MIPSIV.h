@@ -1,6 +1,7 @@
 #ifndef _MA_MIPSIV_H_
 #define _MA_MIPSIV_H_
 
+#include <functional>
 #include "MIPSArchitecture.h"
 #include "MIPSReflection.h"
 
@@ -59,35 +60,42 @@ protected:
 	static uint8						m_nSA;
 	static uint16						m_nImmediate;
 
+protected:
+    //Instruction compiler templates
+
+    struct Template_LoadUnsigned32
+    {
+        void operator()(void*);
+    };
+
+    struct Template_ShiftCst32
+    {
+        typedef void (*OperationFunctionType)(uint8);
+        void operator()(OperationFunctionType);
+    };
+
+    struct Template_Mult32
+    {
+        typedef std::tr1::function<void ()> OperationFunctionType;
+        void operator()(const OperationFunctionType&, unsigned int) const;
+    };
+
+    struct Template_MovEqual
+    {
+        void operator()(bool) const;
+    };
+
+    struct Template_BranchGez
+    {
+        void operator()(bool, bool) const;
+    };
+
+    struct Template_BranchLez
+    {
+        void operator()(bool, bool) const;
+    };
+
 private:
-	static uint32						m_nLWLMask[4];
-	static uint32						m_nLWLShift[4];
-
-	static uint32						m_nLWRMask[4];
-	static uint32						m_nLWRShift[4];
-
-	static uint32						m_nSWLMask[4];
-	static uint32						m_nSWLShift[4];
-
-	static uint32						m_nSWRMask[4];
-	static uint32						m_nSWRShift[4];
-
-	static uint32						m_nLDLMaskLo[8];
-	static uint32						m_nLDLMaskHi[8];
-	static uint32						m_nLDLShift[8];
-
-	static uint32						m_nLDRMaskLo[8];
-	static uint32						m_nLDRMaskHi[8];
-	static uint32						m_nLDRShift[8];
-
-	static uint32						m_nSDLMaskLo[8];
-	static uint32						m_nSDLMaskHi[8];
-	static uint32						m_nSDLShift[8];
-
-	static uint32						m_nSDRMaskLo[8];
-	static uint32						m_nSDRMaskHi[8];
-	static uint32						m_nSDRShift[8];
-
 	static void							SPECIAL();
 	static void							SPECIAL2();
 	static void							REGIMM();
@@ -152,6 +160,7 @@ private:
 	static void							MOVZ();
 	static void							MOVN();
 	static void							SYSCALL();
+    static void                         BREAK();
 	static void							SYNC();
 	static void							DSLLV();
 	static void							DSRLV();
@@ -193,40 +202,6 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
 	static MIPSReflection::INSTRUCTION	m_cReflSpecial[64];
 	static MIPSReflection::INSTRUCTION	m_cReflRegImm[32];
-
-    //Instruction compiler templates
-
-    struct Template_LoadUnsigned32
-    {
-        void operator()(void*);
-    };
-
-    struct Template_ShiftCst32
-    {
-        typedef void (*OperationFunctionType)(uint8);
-        void operator()(OperationFunctionType);
-    };
-
-    struct Template_Mult32
-    {
-        typedef void (*OperationFunctionType)();
-        void operator()(OperationFunctionType);
-    };
-
-    struct Template_MovEqual
-    {
-        void operator()(bool) const;
-    };
-
-    struct Template_BranchGez
-    {
-        void operator()(bool, bool) const;
-    };
-
-    struct Template_BranchLez
-    {
-        void operator()(bool, bool) const;
-    };
 };
 
 extern CMA_MIPSIV g_MAMIPSIV;

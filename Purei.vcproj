@@ -1547,6 +1547,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Integer64.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\IOP_Cdvdfsv.h"
 					>
 				</File>

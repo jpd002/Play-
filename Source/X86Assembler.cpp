@@ -106,6 +106,52 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, 
     return Address;
 }
 
+CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, REGISTER index, uint8 scale)
+{
+    CAddress address;
+    address.ModRm.nRM = 4;
+    if(base == rBP || base == r13)
+    {
+        throw runtime_error("Invalid base.");
+    }
+    if(index == rSP)
+    {
+        throw runtime_error("Invalid index.");
+    }
+    if(base > 7)
+    {
+        address.nIsExtendedModRM = true;
+        base = static_cast<REGISTER>(base & 7);
+    }
+    if(index > 7)
+    {
+        address.nIsExtendedSib = true;
+        index = static_cast<REGISTER>(index & 7);
+    }
+    address.sib.base = base;
+    address.sib.index = index;
+    switch(scale)
+    {
+    case 1:
+        address.sib.scale = 0;
+        break;
+    case 2:
+        address.sib.scale = 1;
+        break;
+    case 4:
+        address.sib.scale = 2;
+        break;
+    case 8:
+        address.sib.scale = 3;
+        break;
+    default:
+        throw runtime_error("Invalid scale.");
+        break;
+    }
+
+    return address;
+}
+
 CX86Assembler::LABEL CX86Assembler::CreateLabel()
 {
     return m_nextLabelId++;
@@ -142,6 +188,11 @@ void CX86Assembler::ResolveLabelReferences()
     m_labelReferences.clear();
 }
 
+void CX86Assembler::AdcEd(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x13, false, address, registerId);
+}
+
 void CX86Assembler::AdcId(const CAddress& address, uint32 constant)
 {
 	WriteEvId(0x02, address, constant);
@@ -160,6 +211,11 @@ void CX86Assembler::AddId(const CAddress& Address, uint32 nConstant)
 void CX86Assembler::AndEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x23, false, address, registerId);
+}
+
+void CX86Assembler::AndIb(const CAddress& address, uint8 constant)
+{
+    WriteEvIb(0x04, address, constant);
 }
 
 void CX86Assembler::AndId(const CAddress& address, uint32 constant)
@@ -182,6 +238,11 @@ void CX86Assembler::CmpEq(REGISTER nRegister, const CAddress& Address)
     WriteEvGvOp(0x3B, true, Address, nRegister);
 }
 
+void CX86Assembler::CmpIb(const CAddress& address, uint8 constant)
+{
+    WriteEvIb(0x07, address, constant);
+}
+
 void CX86Assembler::CmpId(const CAddress& address, uint32 constant)
 {
     WriteEvId(0x07, address, constant);
@@ -192,9 +253,26 @@ void CX86Assembler::CmpIq(const CAddress& Address, uint64 nConstant)
     WriteEvIq(0x07, Address, nConstant);
 }
 
+void CX86Assembler::Cdq()
+{
+    WriteByte(0x99);
+}
+
+void CX86Assembler::IdivEd(const CAddress& address)
+{
+    WriteEvOp(0xF7, 0x07, false, address);
+}
+
 void CX86Assembler::ImulEd(const CAddress& address)
 {
     WriteEvOp(0xF7, 0x05, false, address);
+}
+
+void CX86Assembler::JaeJb(LABEL label)
+{
+    WriteByte(0x73);
+    CreateLabelReference(label, 1);
+    WriteByte(0x00);
 }
 
 void CX86Assembler::JeJb(LABEL label)
@@ -259,6 +337,11 @@ void CX86Assembler::MovzxEb(REGISTER registerId, const CAddress& address)
     WriteEvGvOp(0xB6, false, address, registerId);
 }
 
+void CX86Assembler::MulEd(const CAddress& address)
+{
+    WriteEvOp(0xF7, 0x04, false, address);
+}
+
 void CX86Assembler::Nop()
 {
     WriteByte(0x90);
@@ -310,6 +393,16 @@ void CX86Assembler::SarEd(const CAddress& address, uint8 amount)
     WriteByte(amount);
 }
 
+void CX86Assembler::SbbEd(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x1B, false, address, registerId);
+}
+
+void CX86Assembler::SbbId(const CAddress& Address, uint32 nConstant)
+{
+    WriteEvId(0x03, Address, nConstant);
+}
+
 void CX86Assembler::SetbEb(const CAddress& address)
 {
     WriteByte(0x0F);
@@ -334,10 +427,20 @@ void CX86Assembler::SetlEb(const CAddress& address)
     WriteEvOp(0x9C, 0x00, false, address);
 }
 
+void CX86Assembler::ShlEd(const CAddress& address)
+{
+    WriteEvOp(0xD3, 0x04, false, address);
+}
+
 void CX86Assembler::ShlEd(const CAddress& address, uint8 amount)
 {
     WriteEvOp(0xC1, 0x04, false, address);
     WriteByte(amount);
+}
+
+void CX86Assembler::ShrEd(const CAddress& address)
+{
+    WriteEvOp(0xD3, 0x05, false, address);
 }
 
 void CX86Assembler::ShrEd(const CAddress& address, uint8 amount)
@@ -346,11 +449,23 @@ void CX86Assembler::ShrEd(const CAddress& address, uint8 amount)
     WriteByte(amount);
 }
 
+void CX86Assembler::ShldEd(const CAddress& address, REGISTER registerId)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0xA5, false, address, registerId);
+}
+
 void CX86Assembler::ShldEd(const CAddress& address, REGISTER registerId, uint8 amount)
 {
     WriteByte(0x0F);
     WriteEvGvOp(0xA4, false, address, registerId);
     WriteByte(amount);
+}
+
+void CX86Assembler::ShrdEd(const CAddress& address, REGISTER registerId)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0xAD, false, address, registerId);
 }
 
 void CX86Assembler::ShrdEd(const CAddress& address, REGISTER registerId, uint8 amount)
@@ -368,6 +483,15 @@ void CX86Assembler::SubEd(REGISTER nRegister, const CAddress& Address)
 void CX86Assembler::SubId(const CAddress& Address, uint32 nConstant)
 {
     WriteEvId(0x05, Address, nConstant);
+}
+
+void CX86Assembler::TestEb(REGISTER registerId, const CAddress& address)
+{
+    if(registerId > 3)
+    {
+        throw runtime_error("Unsupported byte register index.");
+    }
+    WriteEvGvOp(0x84, false, address, registerId);
 }
 
 void CX86Assembler::TestEd(REGISTER registerId, const CAddress& address)
@@ -432,6 +556,16 @@ void CX86Assembler::WriteEvGvOp(uint8 nOp, bool nIs64, const CAddress& Address, 
     NewAddress.ModRm.nFnReg = nRegister;
     WriteByte(nOp);
     NewAddress.Write(m_WriteFunction);
+}
+
+void CX86Assembler::WriteEvIb(uint8 op, const CAddress& address, uint8 constant)
+{
+    WriteRexByte(false, address);
+    CAddress newAddress(address);
+    newAddress.ModRm.nFnReg = op;
+    WriteByte(0x80);
+    newAddress.Write(m_WriteFunction);
+    WriteByte(constant);
 }
 
 void CX86Assembler::WriteEvId(uint8 nOp, const CAddress& Address, uint32 nConstant)

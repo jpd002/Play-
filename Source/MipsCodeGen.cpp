@@ -119,6 +119,7 @@ void CMipsCodeGen::Call(void* function, unsigned int paramCount, bool saveResult
         }
     }
 */
+    DumpVariables(m_IfStack.GetCount());
     CCodeGen::Call(function, paramCount, saveResult);
 }
 

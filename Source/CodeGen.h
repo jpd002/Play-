@@ -21,6 +21,18 @@ class CCodeGen
 public:
     typedef CX86Assembler::XMMREGISTER XMMREGISTER;
 
+    struct GenericOp
+    {
+        typedef void (CX86Assembler::*RelativeOpPtr)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+        typedef void (CX86Assembler::*ConstantOpPtr)(const CX86Assembler::CAddress&, uint32);
+
+        GenericOp(const RelativeOpPtr& relativeOp, const ConstantOpPtr& constantOp)
+            : relativeOp(relativeOp), constantOp(constantOp) {}
+
+        ConstantOpPtr   constantOp;
+        RelativeOpPtr   relativeOp;
+    };
+
     enum CONDITION
 	{
 		CONDITION_EQ,
@@ -90,8 +102,11 @@ public:
 	static void						Call(void*, unsigned int, bool);
 	static void						Cmp(CONDITION);
 	static void						Cmp64(CONDITION);
-	static void						Lzc();
-    static void                     MultS();
+    void                            DivS();
+    void                            Lookup(uint32*);
+    static void						Lzc();
+    void                            Mult();
+    void                            MultS();
     static void                     Or();
 	static void						SeX();
     static void                     SeX8();
@@ -105,6 +120,7 @@ public:
 	static void						Srl64();
 	static void						Srl64(uint8);
     static void                     Sub();
+    void                            Sub64();
 	static void						Xor();
 
     //FPU
@@ -179,7 +195,7 @@ private:
 		REGISTER_SHIFTAMOUNT,
 	};
 
-	static unsigned int				AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
+    static unsigned int				AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
 	static void						FreeRegister(unsigned int);
 	static unsigned int				GetMinimumConstantSize(uint32);
     static unsigned int             GetMinimumConstantSize64(uint64);
@@ -199,13 +215,6 @@ private:
 	static void						LoadConditionInRegister(unsigned int, CONDITION);
 
 	static void						ReduceToRegister();
-
-//	static void						WriteRelativeRm(unsigned int, uint32);
-//	static void						WriteRelativeRmRegister(unsigned int, uint32);
-//	static void						WriteRelativeRmFunction(unsigned int, uint32);
-
-	static uint8					MakeRegRegRm(unsigned int, unsigned int);
-	static uint8					MakeRegFunRm(unsigned int, unsigned int);
 
 	static bool						IsTopRegZeroPairCom();
     static bool                     IsTopContRelPair64();
@@ -251,10 +260,16 @@ private:
 	static void						Cmp64Lt(bool, bool);
     static void                     Cmp64Cont(CONDITION);
 
-    static void                     X86_RegImmOp(unsigned int, uint32, unsigned int);
+    typedef std::tr1::function<void (const CX86Assembler::CAddress&)> MultFunction;
+
+    void                            Mult_Base(const MultFunction&);
+
     static void                     StreamWriteByte(uint8);
     static void                     StreamWriteAt(unsigned int, uint8);
     static size_t                   StreamTell();
+
+    static void                     EmitLoad(uint32, uint32, unsigned int);
+    static void                     EmitOp(const GenericOp&, uint32, uint32, unsigned int);
 
     static bool						m_nBlockStarted;
 

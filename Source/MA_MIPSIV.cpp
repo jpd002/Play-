@@ -5,6 +5,9 @@
 #include "COP_SCU.h"
 #include "MipsCodeGen.h"
 #include "offsetof_def.h"
+#include "Integer64.h"
+
+using namespace std::tr1;
 
 CMA_MIPSIV			g_MAMIPSIV(MIPS_REGSIZE_64);
 
@@ -14,213 +17,113 @@ uint8				CMA_MIPSIV::m_nRD;
 uint8				CMA_MIPSIV::m_nSA;
 uint16				CMA_MIPSIV::m_nImmediate;
 
-uint32				CMA_MIPSIV::m_nLWLMask[4] =
+void LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	0x00FFFFFF,
-	0x0000FFFF,
-	0x000000FF,
-	0x00000000,
-};
+    uint32 alignedAddress = address & ~0x03;
+    uint32 byteOffset = address & 0x03;
+    uint32 accessType = 3 - byteOffset;
+    uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
+    memory <<= accessType * 8;
+    context->m_State.nGPR[rt].nV0 &= 0xFFFFFFFFULL >> ((byteOffset + 1) * 8);
+    context->m_State.nGPR[rt].nV0 |= memory;
+    context->m_State.nGPR[rt].nV1 = context->m_State.nGPR[rt].nV0 & 0x80000000 ? 0xFFFFFFFF : 0x00000000;
+}
 
-uint32				CMA_MIPSIV::m_nLWLShift[4] =
+void LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	24,
-	16,
-	 8,
-	 0,
-};
+    uint32 alignedAddress = address & ~0x03;
+    uint32 byteOffset = address & 0x03;
+    uint32 accessType = 3 - byteOffset;
+    uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
+    memory >>= byteOffset * 8;
+    context->m_State.nGPR[rt].nV0 &= 0xFFFFFFFFULL << ((accessType + 1) * 8);
+    context->m_State.nGPR[rt].nV0 |= memory;
+    context->m_State.nGPR[rt].nV1 = context->m_State.nGPR[rt].nV0 & 0x80000000 ? 0xFFFFFFFF : 0x00000000;
+}
 
-uint32				CMA_MIPSIV::m_nLWRMask[4] =
+void LDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	0x00000000,
-	0xFF000000,
-	0xFFFF0000,
-	0xFFFFFF00,
-};
+    uint32 alignedAddress = address & ~0x07;
+    uint32 byteOffset = address & 0x07;
+    uint32 accessType = 7 - byteOffset;
+    INTEGER64 memory;
+    memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
+    memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
+    memory.q <<= accessType * 8;
+    context->m_State.nGPR[rt].nD0 &= 0xFFFFFFFFFFFFFFFF >> ((byteOffset + 1) * 8);
+    context->m_State.nGPR[rt].nD0 |= memory.q;
+}
 
-uint32				CMA_MIPSIV::m_nLWRShift[4] =
+void LDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	0,
-	8,
-	16,
-	24,
-};
+    uint32 alignedAddress = address & ~0x07;
+    uint32 byteOffset = address & 0x07;
+    uint32 accessType = 7 - byteOffset;
+    INTEGER64 memory;
+    memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
+    memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
+    memory.q >>= byteOffset * 8;
+    context->m_State.nGPR[rt].nD0 &= 0xFFFFFFFFFFFFFFFF << ((accessType + 1) * 8);
+    context->m_State.nGPR[rt].nD0 |= memory.q;
+}
 
-uint32				CMA_MIPSIV::m_nSWLMask[4] =
+void SWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	0xFFFFFF00,
-	0xFFFF0000,
-	0xFF000000,
-	0x00000000,
-};
+    uint32 alignedAddress = address & ~0x03;
+    uint32 byteOffset = address & 0x03;
+    uint32 accessType = 3 - byteOffset;
+    uint32 reg = context->m_State.nGPR[rt].nV0;
+    reg >>= accessType * 8;
+    uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
+    memory &= 0xFFFFFFFF << ((byteOffset + 1) * 8);
+    memory |= reg;
+    CCacheBlock::SetWordProxy(context, memory, alignedAddress);
+}
 
-uint32				CMA_MIPSIV::m_nSWLShift[4] =
+void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	24,
-	16,
-	 8,
-	 0,
-};
+    uint32 alignedAddress = address & ~0x03;
+    uint32 byteOffset = address & 0x03;
+    uint32 accessType = 3 - byteOffset;
+    uint32 reg = context->m_State.nGPR[rt].nV0;
+    reg <<= byteOffset * 8;
+    uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
+    memory &= 0xFFFFFFFF >> ((accessType + 1) * 8);
+    memory |= reg;
+    CCacheBlock::SetWordProxy(context, memory, alignedAddress);
+}
 
-uint32				CMA_MIPSIV::m_nSWRMask[4] =
+void SDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	0x00000000,
-	0x000000FF,
-	0x0000FFFF,
-	0x00FFFFFF,
-};
+    uint32 alignedAddress = address & ~0x07;
+    uint32 byteOffset = address & 0x07;
+    uint32 accessType = 7 - byteOffset;
+    uint64 reg = context->m_State.nGPR[rt].nD0;
+    reg >>= accessType * 8;
+    INTEGER64 memory;
+    memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
+    memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
+    memory.q &= 0xFFFFFFFFFFFFFFFF << ((byteOffset + 1) * 8);
+    memory.q |= reg;
+    CCacheBlock::SetWordProxy(context, memory.d0, alignedAddress + 0);
+    CCacheBlock::SetWordProxy(context, memory.d1, alignedAddress + 4);
+}
 
-uint32				CMA_MIPSIV::m_nSWRShift[4] =
+void SDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-	 0,
-	 8,
-	16,
-	24,
-};
-
-uint32				CMA_MIPSIV::m_nLDLMaskLo[8] =
-{
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0x00FFFFFF,
-	0x0000FFFF,
-	0x000000FF,
-	0x00000000,
-};
-
-uint32				CMA_MIPSIV::m_nLDLMaskHi[8] =
-{
-	0x00FFFFFF,
-	0x0000FFFF,
-	0x000000FF,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-};
-
-uint32				CMA_MIPSIV::m_nLDLShift[8] =
-{
-	56,
-	48,
-	40,
-	32,
-	24,
-	16,
-	 8,
-	 0
-};
-
-uint32				CMA_MIPSIV::m_nLDRMaskLo[8] =
-{
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0xFF000000,
-	0xFFFF0000,
-	0xFFFFFF00,
-};
-
-uint32				CMA_MIPSIV::m_nLDRMaskHi[8] = 
-{
-	0x00000000,
-	0xFF000000,
-	0xFFFF0000,
-	0xFFFFFF00,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-};
-
-uint32				CMA_MIPSIV::m_nLDRShift[8] =
-{
-	 0,
-	 8,
-	16,
-	24,
-	32,
-	40,
-	48,
-	56,
-};
-
-uint32				CMA_MIPSIV::m_nSDLMaskLo[8] =
-{
-	0xFFFFFF00,
-	0xFFFF0000,
-	0xFF000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-};
-
-uint32				CMA_MIPSIV::m_nSDLMaskHi[8] =
-{
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFF00,
-	0xFFFF0000,
-	0xFF000000,
-	0x00000000,
-};
-
-uint32				CMA_MIPSIV::m_nSDLShift[8] =
-{
-	56,
-	48,
-	40,
-	32,
-	24,
-	16,
-	 8,
-	 0,
-};
-
-uint32				CMA_MIPSIV::m_nSDRMaskLo[8] =
-{
-	0x00000000,
-	0x000000FF,
-	0x0000FFFF,
-	0x00FFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-	0xFFFFFFFF,
-};
-
-uint32				CMA_MIPSIV::m_nSDRMaskHi[8] =
-{
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x000000FF,
-	0x0000FFFF,
-	0x00FFFFFF,
-};
-
-uint32				CMA_MIPSIV::m_nSDRShift[8] =
-{
-	 0,
-	 8,
-	16,
-	24,
-	32,
-	40,
-	48,
-	56,
-};
+    uint32 alignedAddress = address & ~0x07;
+    uint32 byteOffset = address & 0x07;
+    uint32 accessType = 7 - byteOffset;
+    uint64 reg = context->m_State.nGPR[rt].nD0;
+    reg <<= byteOffset * 8;
+    INTEGER64 memory;
+    memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
+    memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
+    memory.q &= 0xFFFFFFFFFFFFFFFF >> ((accessType + 1) * 8);
+    memory.q |= reg;
+    CCacheBlock::SetWordProxy(context, memory.d0, alignedAddress + 0);
+    CCacheBlock::SetWordProxy(context, memory.d1, alignedAddress + 4);
+}
 
 CMA_MIPSIV::CMA_MIPSIV(MIPS_REGSIZE nRegSize) :
 CMIPSArchitecture(nRegSize)
@@ -550,187 +453,19 @@ void CMA_MIPSIV::DADDIU()
 //1A
 void CMA_MIPSIV::LDL()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000007);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000007);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the lower word
-	m_pB->PushValueAt(0);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOWORD
-
-	//Get the high word
-	m_pB->PushValueAt(1);
-	m_pB->AddImm(4);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOWORD
-	//0 - HIWORD
-
-	//Shift the 64-bits word left
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nLDLShift);
-	m_pB->Sll64();
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOWORD SHIFTED
-	//0 - HIWORD SHIFTED
-
-	////////////////////////
-	//Higher 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nLDLMaskHi);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - LOWORD SHIFTED
-	//1 - HIWORD SHIFTED
-	//0 - HIMASK
-
-	//Obtain the value of the register, mask, or with the value, sign extend, save
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->And();
-	m_pB->Or();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOWORD SHIFTED
-
-	////////////////////////
-	//Lower 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nLDLMaskLo);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOWORD SHIFTED
-	//0 - LOMASK
-
-	//Obtain the value of the register, mask, or with the value and save
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->And();
-	m_pB->Or();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&LDL_Proxy), 3, false);
 }
 
 //1B
 void CMA_MIPSIV::LDR()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000007);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000007);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the lower word
-	m_pB->PushValueAt(0);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOWORD
-
-	//Get the high word
-	m_pB->PushValueAt(1);
-	m_pB->AddImm(4);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOWORD
-	//0 - HIWORD
-
-	//Shift the 64-bits word right
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nLDRShift);
-	m_pB->Srl64();
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOWORD SHIFTED
-	//0 - HIWORD SHIFTED
-
-	////////////////////////
-	//Higher 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nLDRMaskHi);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - LOWORD SHIFTED
-	//1 - HIWORD SHIFTED
-	//0 - HIMASK
-
-	//Obtain the value of the register, mask, or with the value, sign extend, save
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->And();
-	m_pB->Or();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOWORD SHIFTED
-
-	////////////////////////
-	//Lower 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nLDRMaskLo);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOWORD SHIFTED
-	//0 - LOMASK
-
-	//Obtain the value of the register, mask, or with the value and save
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->And();
-	m_pB->Or();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&LDR_Proxy), 3, false);
 }
 
 //20
@@ -770,55 +505,10 @@ void CMA_MIPSIV::LH()
 //22
 void CMA_MIPSIV::LWL()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000003);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000003);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the word
-	m_pB->PushValueAt(0);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - WORD
-
-	//Shift the word left
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nLWLShift);
-	m_pB->Sll();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - WORD SHIFTED
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nLWLMask);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - WORD SHIFTED
-	//0 - MASK
-
-	//Obtain the value of the register, mask, or with the value, sign extend, save
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->And();
-	m_pB->Or();
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&LWL_Proxy), 3, false);
 }
 
 //23
@@ -842,55 +532,10 @@ void CMA_MIPSIV::LHU()
 //26
 void CMA_MIPSIV::LWR()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000003);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000003);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the word
-	m_pB->PushValueAt(0);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - WORD
-
-	//Shift the word right
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nLWRShift);
-	m_pB->Srl();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - WORD SHIFTED
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nLWRMask);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - WORD SHIFTED
-	//0 - MASK
-
-	//Obtain the value of the register, mask, or with the value, sign extend, save
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->And();
-	m_pB->Or();
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&LWR_Proxy), 3, false);
 }
 
 //27
@@ -937,69 +582,10 @@ void CMA_MIPSIV::SH()
 //2A
 void CMA_MIPSIV::SWL()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000003);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000003);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the reg value
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - REG
-
-	//Get shift the register right
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nSWLShift);
-	m_pB->Srl();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - REG SHIFTED
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nSWLMask);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - REG SHIFTED
-	//0 - MASK
-
-	//Obtain the value of memory, mask, or with the value and save
-	m_pB->PushValueAt(2);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - REG SHIFTED
-	//1 - MASK
-	//0 - WORD
-
-	m_pB->And();
-	m_pB->Or();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - WORD VALUE
-
-	m_pB->PushValueAt(1);
-	m_pB->Swap();
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&SWL_Proxy), 3, false);
 }
 
 //2B
@@ -1018,309 +604,28 @@ void CMA_MIPSIV::SW()
 //2C
 void CMA_MIPSIV::SDL()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000007);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000007);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the lo/hi reg values
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG
-	//0 - HIREG
-
-	//Get shift the register right
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nSDLShift);
-	m_pB->Srl64();
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG SHIFTED
-	//0 - HIREG SHIFTED
-
-	////////////////////////
-	//Higher 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nSDLMaskHi);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - LOREG SHIFTED
-	//1 - HIREG SHIFTED
-	//0 - HIMASK
-
-	//Obtain the value of memory, mask, or with the value and save
-	m_pB->PushValueAt(3);
-	m_pB->AddImm(4);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//6 - BYTE EA
-	//5 - OFFSET
-	//4 - EA
-	//3 - LOREG SHIFTED
-	//2 - HIREG SHIFTED
-	//1 - HIMASK
-	//0 - HIWORD
-
-	m_pB->And();
-	m_pB->Or();
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG SHIFTED
-	//0 - HIWORD VALUE
-
-	m_pB->PushValueAt(2);
-	m_pB->AddImm(4);
-	m_pB->Swap();
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOREG SHIFTED
-
-	////////////////////////
-	//Lower 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nSDLMaskLo);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG SHIFTED
-	//0 - LOMASK
-
-	//Obtain the value of memory, mask, or with the value and save
-	m_pB->PushValueAt(2);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - LOREG SHIFTED
-	//1 - LOMASK
-	//0 - LOWORD
-
-	m_pB->And();
-	m_pB->Or();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOWORD VALUE
-
-	m_pB->PushValueAt(1);
-	m_pB->Swap();
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&SDL_Proxy), 3, false);
 }
 
 //2D
 void CMA_MIPSIV::SDR()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000007);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000007);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the lo/hi reg values
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG
-	//0 - HIREG
-
-	//Get shift the register left
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nSDRShift);
-	m_pB->Sll64();
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG SHIFTED
-	//0 - HIREG SHIFTED
-
-	////////////////////////
-	//Higher 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(3);
-	m_pB->Lookup(m_nSDRMaskHi);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - LOREG SHIFTED
-	//1 - HIREG SHIFTED
-	//0 - HIMASK
-
-	//Obtain the value of memory, mask, or with the value and save
-	m_pB->PushValueAt(3);
-	m_pB->AddImm(4);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//6 - BYTE EA
-	//5 - OFFSET
-	//4 - EA
-	//3 - LOREG SHIFTED
-	//2 - HIREG SHIFTED
-	//1 - HIMASK
-	//0 - HIWORD
-
-	m_pB->And();
-	m_pB->Or();
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG SHIFTED
-	//0 - HIWORD VALUE
-
-	m_pB->PushValueAt(2);
-	m_pB->AddImm(4);
-	m_pB->Swap();
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOREG SHIFTED
-
-	////////////////////////
-	//Lower 32-bits
-	////////////////////////
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nSDRMaskLo);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - LOREG SHIFTED
-	//0 - LOMASK
-
-	//Obtain the value of memory, mask, or with the value and save
-	m_pB->PushValueAt(2);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - LOREG SHIFTED
-	//1 - LOMASK
-	//0 - LOWORD
-
-	m_pB->And();
-	m_pB->Or();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - LOWORD VALUE
-
-	m_pB->PushValueAt(1);
-	m_pB->Swap();
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&SDR_Proxy), 3, false);
 }
 
 //2E
 void CMA_MIPSIV::SWR()
 {
-	ComputeMemAccessAddr();
-
-	m_pB->PushValueAt(0);
-	m_pB->AndImm(0x00000003);
-	m_pB->PushValueAt(1);
-	m_pB->AndImm(~0x00000003);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Get the reg value
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - REG
-
-	//Get shift the register left
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nSWRShift);
-	m_pB->Sll();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - REG SHIFTED
-
-	//Get the mask for this register
-	m_pB->PushValueAt(2);
-	m_pB->Lookup(m_nSWRMask);
-	//4 - BYTE EA
-	//3 - OFFSET
-	//2 - EA
-	//1 - REG SHIFTED
-	//0 - MASK
-
-	//Obtain the value of memory, mask, or with the value and save
-	m_pB->PushValueAt(2);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	//5 - BYTE EA
-	//4 - OFFSET
-	//3 - EA
-	//2 - REG SHIFTED
-	//1 - MASK
-	//0 - WORD
-
-	m_pB->And();
-	m_pB->Or();
-	//3 - BYTE EA
-	//2 - OFFSET
-	//1 - EA
-	//0 - WORD VALUE
-
-	m_pB->PushValueAt(1);
-	m_pB->Swap();
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-	//2 - BYTE EA
-	//1 - OFFSET
-	//0 - EA
-
-	//Done, free the stack
-	m_pB->Free(3);
+    ComputeMemAccessAddrEx();
+    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRef(m_pCtx);
+    m_codeGen->Call(reinterpret_cast<void*>(&SWR_Proxy), 3, false);
 }
 
 //2F
@@ -1527,6 +832,12 @@ void CMA_MIPSIV::SYSCALL()
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 
+//0D
+void CMA_MIPSIV::BREAK()
+{
+    //NOP
+}
+
 //0F
 void CMA_MIPSIV::SYNC()
 {
@@ -1536,15 +847,11 @@ void CMA_MIPSIV::SYNC()
 //10
 void CMA_MIPSIV::MFHI()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nHI[0]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nHI[1]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	}
-	CCodeGen::End();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 }
 
 //11
@@ -1560,15 +867,11 @@ void CMA_MIPSIV::MTHI()
 //12
 void CMA_MIPSIV::MFLO()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nLO[0]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nLO[1]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	}
-	CCodeGen::End();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 }
 
 //13
@@ -1602,65 +905,43 @@ void CMA_MIPSIV::DSLLV()
 //16
 void CMA_MIPSIV::DSRLV()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 
-		CCodeGen::Srl64();
+	m_codeGen->Srl64();
 
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-	}
-	CCodeGen::End();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //18
 void CMA_MIPSIV::MULT()
 {
-    Template_Mult32()(&CCodeGen::MultS);
+    Template_Mult32()(bind(&CCodeGen::MultS, m_codeGen), 0);
 }
 
 //19
 void CMA_MIPSIV::MULTU()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->Mult();
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[0]);
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[0]);
-
-	if(m_nRD != 0)
-	{
-		//Wierd EE MIPS spinoff...
-		m_pB->PushAddr(&m_pCtx->m_State.nLO[0]);
-		SignExtendTop32(m_nRD);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-	}
+    Template_Mult32()(bind(&CCodeGen::Mult, m_codeGen), 0);
 }
 
 //1A
 void CMA_MIPSIV::DIV()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->DivS();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->DivS();
 
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[0]);
+    m_codeGen->SeX();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
 
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[0]);
+	m_codeGen->SeX();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
 }
 
 //1B
@@ -1834,19 +1115,16 @@ void CMA_MIPSIV::DADDU()
 //2F
 void CMA_MIPSIV::DSUBU()
 {
-	//First 32-bits half
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->SubC();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 
-	//2nd 32-bits half
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->Sub();
-	m_pB->Swap();
-	m_pB->Sub();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+
+	m_codeGen->Sub64();
+
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //38
@@ -1988,7 +1266,7 @@ void (*CMA_MIPSIV::m_pOpSpecial[0x40])() =
 	//0x00
 	SLL,			Illegal,		SRL,			SRA,			SLLV,			Illegal,		SRLV,			SRAV,
 	//0x08
-	JR,				JALR,			MOVZ,			MOVN,			SYSCALL,		Illegal,		Illegal,		SYNC,
+	JR,				JALR,			MOVZ,			MOVN,			SYSCALL,		BREAK,	    	Illegal,		SYNC,
 	//0x10
 	MFHI,			MTHI,			MFLO,			MTLO,			DSLLV,			Illegal,		DSRLV,			Illegal,
 	//0x18

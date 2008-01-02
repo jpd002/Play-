@@ -281,12 +281,8 @@ void CCOP_FPU::ABS_S()
 //06
 void CCOP_FPU::MOV_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-	}
-	CCodeGen::End();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //07

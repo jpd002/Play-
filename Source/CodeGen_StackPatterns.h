@@ -1,21 +1,9 @@
 #ifndef _CODEGEN_STACKPATTERNS_H_
 #define _CODEGEN_STACKPATTERNS_H_
 
-typedef CArrayStack<uint32> ShadowStack;
+#include "Integer64.h"
 
-struct INTEGER64
-{
-    union
-    {
-        uint64 q;
-        struct
-        {
-            uint32 d0;
-            uint32 d1;
-        };
-        uint32 d[2];
-    };
-};
+typedef CArrayStack<uint32> ShadowStack;
 
 template <CCodeGen::SYMBOLS Symbol>
 struct GenericOneArgument
