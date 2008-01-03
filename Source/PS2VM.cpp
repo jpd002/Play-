@@ -798,7 +798,7 @@ void CPS2VM::EmuThread()
 
 					//Old Flipping Method
 					//m_pGS->Flip();
-					m_OnNewFrame();
+					//m_OnNewFrame();
                     //////
 
                     if(m_pPad != NULL)

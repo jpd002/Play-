@@ -106,8 +106,17 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
         {
             //If the block starts and ends at the same place, block already exists and doesn't need
             //to be re-created
-            assert((block->GetBeginAddress() == start) && (block->GetEndAddress() == end));
-            return;
+            uint32 otherBegin = block->GetBeginAddress();
+            uint32 otherEnd = block->GetEndAddress();
+            if((otherBegin == start) && (otherEnd == end))
+            {
+                return;
+            }
+            //Otherwise, repartition the existing block
+            assert(otherEnd == end);
+            DeleteBlock(block);
+            CreateBlock(otherBegin, start - 4);
+            assert(FindBlockAt(start) == NULL);
         }
     }
     assert(FindBlockAt(end) == NULL);
@@ -117,6 +126,16 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
         m_blockBegin[start] = block;
         m_blockEnd[end] = block;
     }
+}
+
+void CMipsExecutor::DeleteBlock(CBasicBlock* block)
+{
+    m_blocks.remove(block);
+    m_blockBegin.erase(block->GetBeginAddress());
+    m_blockEnd.erase(block->GetEndAddress());
+    assert(m_blocks.size() == m_blockBegin.size());
+    assert(m_blockBegin.size() == m_blockEnd.size());
+    delete block;
 }
 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)

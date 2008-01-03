@@ -14,6 +14,9 @@ public:
     virtual void        PushRel(size_t);
     virtual void        PullRel(size_t);
 
+    virtual void        FP_PushSingle(size_t);
+    virtual void        FP_PushWord(size_t);
+
     virtual void        EndIf();
     virtual void        BeginIfElseAlt();
 
@@ -33,6 +36,7 @@ private:
 
     typedef std::map< size_t, VARIABLESTATUS > VariableStatusMap;
 
+    void                DumpVariable(size_t);
     VARIABLESTATUS*     GetVariableStatus(size_t);
     void                SetVariableStatus(size_t, const VARIABLESTATUS&);
     void                InvalidateVariableStatus(size_t);

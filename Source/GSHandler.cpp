@@ -348,6 +348,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 				dispfb->nY);
 #endif
 			Flip();
+            OnNewFrame();
 		}
 		break;
 	case 0x120000A:

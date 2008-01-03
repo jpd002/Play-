@@ -365,6 +365,9 @@ void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
         case CONDITION_EQ:
             conditionCode = CX86Assembler::SSE_CMP_EQ;
             break;
+        case CONDITION_BL:
+            conditionCode = CX86Assembler::SSE_CMP_LT;
+            break;
         default:
             assert(0);
             break;

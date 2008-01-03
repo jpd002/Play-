@@ -124,8 +124,8 @@ public:
 	static void						Xor();
 
     //FPU
-    void                            FP_PushWord(size_t);
-    void                            FP_PushSingle(size_t);
+    virtual void                    FP_PushWord(size_t);
+    virtual void                    FP_PushSingle(size_t);
     void                            FP_PullWordTruncate(size_t);
     void                            FP_PullSingle(size_t);
     void                            FP_PushSingleReg(XMMREGISTER);

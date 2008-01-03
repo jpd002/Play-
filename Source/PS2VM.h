@@ -2,7 +2,6 @@
 #define _PS2VM_H_
 
 #include <boost/thread.hpp>
-#include <boost/signal.hpp>
 #include "Types.h"
 #include "PS2OS.h"
 #include "DMAC.h"
@@ -123,8 +122,6 @@ public:
     unsigned int				m_nVBlankTicks;
     bool						m_nInVBlank;
     bool                        m_singleStep;
-
-	boost::signal<void ()>      m_OnNewFrame;
 
 	CLogControl				    m_Logging;
 

@@ -84,6 +84,18 @@ void CMipsCodeGen::PullRel(size_t offset)
     }
 }
 
+void CMipsCodeGen::FP_PushSingle(size_t offset)
+{
+    DumpVariable(offset);
+    CCodeGen::FP_PushSingle(offset);
+}
+
+void CMipsCodeGen::FP_PushWord(size_t offset)
+{
+    DumpVariable(offset);
+    CCodeGen::FP_PushWord(offset);
+}
+
 void CMipsCodeGen::EndIf()
 {
     assert(m_Shadow.GetCount() == 0);
@@ -131,6 +143,29 @@ void CMipsCodeGen::SetVariableAsConstant(size_t variableId, uint32 value)
     status.isDirty = false;
     status.ifStackLevel = 0;
     SetVariableStatus(variableId, status);
+}
+
+void CMipsCodeGen::DumpVariable(size_t variableId)
+{
+    VariableStatusMap::iterator statusIterator(m_variableStatus.find(variableId));
+    if(statusIterator == m_variableStatus.end()) return;
+    const VARIABLESTATUS& status(statusIterator->second);
+    if(!status.isDirty) return;
+    switch(status.operandType)
+    {
+    case CONSTANT:
+        PushCst(status.operandValue);
+        CCodeGen::PullRel(variableId);
+        break;
+    case REGISTER:
+        PushReg(status.operandValue);
+        CCodeGen::PullRel(variableId);
+        break;
+    default:
+        throw runtime_error("Unsupported operand type.");
+        break;
+    }
+    m_variableStatus.erase(statusIterator++);
 }
 
 void CMipsCodeGen::DumpVariables(unsigned int ifStackLevel)

@@ -376,15 +376,12 @@ void CCOP_FPU::C_EQ_S()
 //34
 void CCOP_FPU::C_LT_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::Cmp(CCodeGen::CONDITION_BL);
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
 
-		SetCCBit(true, m_nCCMask[((m_nOpcode >> 8) & 0x07)]);
-	}
-	CCodeGen::End();
+    m_codeGen->FP_Cmp(CCodeGen::CONDITION_BL);
+
+    SetCCBit(true, m_nCCMask[((m_nOpcode >> 8) & 0x07)]);
 }
 
 //36

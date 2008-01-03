@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include <boost/thread.hpp>
+#include <boost/signal.hpp>
 #include <vector>
 #include "MailBox.h"
 #include "zip/ZipArchiveWriter.h"
@@ -253,7 +254,9 @@ public:
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
     void                                    Flip();
 
-	enum PRIVATE_REGISTER
+	boost::signal<void ()>                  OnNewFrame;
+
+    enum PRIVATE_REGISTER
 	{
 		GS_CSR = 0x12001000,
 		GS_IMR = 0x12001010,

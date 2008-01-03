@@ -1161,8 +1161,9 @@ void CGSH_OpenGL::SetVBlank()
 
 	if(m_nForceFlippingVSync)
 	{
-	    Flip();
-	}
+        Flip();
+        OnNewFrame();
+    }
     while(m_mailBox.IsPending())
     {
         //Flush all commands

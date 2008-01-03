@@ -21,6 +21,7 @@ private:
     typedef std::map<uint32, CBasicBlock*> BlockEndMap;
 
     void            CreateBlock(uint32, uint32);
+    void            DeleteBlock(CBasicBlock*);
     void            PartitionFunction(uint32);
 
     BlockList       m_blocks;
