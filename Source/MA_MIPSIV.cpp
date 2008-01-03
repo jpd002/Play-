@@ -17,6 +17,46 @@ uint8				CMA_MIPSIV::m_nRD;
 uint8				CMA_MIPSIV::m_nSA;
 uint16				CMA_MIPSIV::m_nImmediate;
 
+uint32 g_LWMaskRight[4] =
+{
+    0x00FFFFFF,
+    0x0000FFFF,
+    0x000000FF,
+    0x00000000,
+};
+
+uint32 g_LWMaskLeft[4] =
+{
+    0xFFFFFF00,
+    0xFFFF0000,
+    0xFF000000,
+    0x00000000,
+};
+
+uint64 g_LDMaskRight[8] =
+{
+    0x00FFFFFFFFFFFFFFULL,
+    0x0000FFFFFFFFFFFFULL,
+    0x000000FFFFFFFFFFULL,
+    0x00000000FFFFFFFFULL,
+    0x0000000000FFFFFFULL,
+    0x000000000000FFFFULL,
+    0x00000000000000FFULL,
+    0x0000000000000000ULL,
+};
+
+uint64 g_LDMaskLeft[8] =
+{
+    0xFFFFFFFFFFFFFF00ULL,
+    0xFFFFFFFFFFFF0000ULL,
+    0xFFFFFFFFFF000000ULL,
+    0xFFFFFFFF00000000ULL,
+    0xFFFFFF0000000000ULL,
+    0xFFFF000000000000ULL,
+    0xFF00000000000000ULL,
+    0x0000000000000000ULL,
+};
+
 void LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
     uint32 alignedAddress = address & ~0x03;
@@ -24,7 +64,7 @@ void LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 accessType = 3 - byteOffset;
     uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
     memory <<= accessType * 8;
-    context->m_State.nGPR[rt].nV0 &= 0xFFFFFFFFULL >> ((byteOffset + 1) * 8);
+    context->m_State.nGPR[rt].nV0 &= g_LWMaskRight[byteOffset];
     context->m_State.nGPR[rt].nV0 |= memory;
     context->m_State.nGPR[rt].nV1 = context->m_State.nGPR[rt].nV0 & 0x80000000 ? 0xFFFFFFFF : 0x00000000;
 }
@@ -36,7 +76,7 @@ void LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 accessType = 3 - byteOffset;
     uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
     memory >>= byteOffset * 8;
-    context->m_State.nGPR[rt].nV0 &= 0xFFFFFFFFULL << ((accessType + 1) * 8);
+    context->m_State.nGPR[rt].nV0 &= g_LWMaskLeft[accessType];
     context->m_State.nGPR[rt].nV0 |= memory;
     context->m_State.nGPR[rt].nV1 = context->m_State.nGPR[rt].nV0 & 0x80000000 ? 0xFFFFFFFF : 0x00000000;
 }
@@ -50,7 +90,7 @@ void LDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
     memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
     memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
     memory.q <<= accessType * 8;
-    context->m_State.nGPR[rt].nD0 &= 0xFFFFFFFFFFFFFFFF >> ((byteOffset + 1) * 8);
+    context->m_State.nGPR[rt].nD0 &= g_LDMaskRight[byteOffset];
     context->m_State.nGPR[rt].nD0 |= memory.q;
 }
 
@@ -63,7 +103,7 @@ void LDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
     memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
     memory.q >>= byteOffset * 8;
-    context->m_State.nGPR[rt].nD0 &= 0xFFFFFFFFFFFFFFFF << ((accessType + 1) * 8);
+    context->m_State.nGPR[rt].nD0 &= g_LDMaskLeft[accessType];
     context->m_State.nGPR[rt].nD0 |= memory.q;
 }
 
@@ -75,7 +115,7 @@ void SWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 reg = context->m_State.nGPR[rt].nV0;
     reg >>= accessType * 8;
     uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
-    memory &= 0xFFFFFFFFULL << ((byteOffset + 1) * 8);
+    memory &= g_LWMaskLeft[byteOffset];
     memory |= reg;
     CCacheBlock::SetWordProxy(context, memory, alignedAddress);
 }
@@ -88,7 +128,7 @@ void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 reg = context->m_State.nGPR[rt].nV0;
     reg <<= byteOffset * 8;
     uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
-    memory &= 0xFFFFFFFFULL >> ((accessType + 1) * 8);
+    memory &= g_LWMaskRight[accessType];
     memory |= reg;
     CCacheBlock::SetWordProxy(context, memory, alignedAddress);
 }
@@ -103,7 +143,7 @@ void SDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
     INTEGER64 memory;
     memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
     memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
-    memory.q &= 0xFFFFFFFFFFFFFFFF << ((byteOffset + 1) * 8);
+    memory.q &= g_LDMaskLeft[byteOffset];
     memory.q |= reg;
     CCacheBlock::SetWordProxy(context, memory.d0, alignedAddress + 0);
     CCacheBlock::SetWordProxy(context, memory.d1, alignedAddress + 4);
@@ -119,7 +159,7 @@ void SDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     INTEGER64 memory;
     memory.d0 = CCacheBlock::GetWordProxy(context, alignedAddress + 0);
     memory.d1 = CCacheBlock::GetWordProxy(context, alignedAddress + 4);
-    memory.q &= 0xFFFFFFFFFFFFFFFF >> ((accessType + 1) * 8);
+    memory.q &= g_LDMaskRight[accessType];
     memory.q |= reg;
     CCacheBlock::SetWordProxy(context, memory.d0, alignedAddress + 0);
     CCacheBlock::SetWordProxy(context, memory.d1, alignedAddress + 4);
