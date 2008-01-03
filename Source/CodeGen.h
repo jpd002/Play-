@@ -126,8 +126,8 @@ public:
     //FPU
     virtual void                    FP_PushWord(size_t);
     virtual void                    FP_PushSingle(size_t);
-    void                            FP_PullWordTruncate(size_t);
-    void                            FP_PullSingle(size_t);
+    virtual void                    FP_PullWordTruncate(size_t);
+    virtual void                    FP_PullSingle(size_t);
     void                            FP_PushSingleReg(XMMREGISTER);
     void                            FP_LoadSingleRelativeInRegister(XMMREGISTER, uint32);
 

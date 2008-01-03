@@ -75,7 +75,7 @@ void SWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 reg = context->m_State.nGPR[rt].nV0;
     reg >>= accessType * 8;
     uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
-    memory &= 0xFFFFFFFF << ((byteOffset + 1) * 8);
+    memory &= 0xFFFFFFFFULL << ((byteOffset + 1) * 8);
     memory |= reg;
     CCacheBlock::SetWordProxy(context, memory, alignedAddress);
 }
@@ -88,7 +88,7 @@ void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 reg = context->m_State.nGPR[rt].nV0;
     reg <<= byteOffset * 8;
     uint32 memory = CCacheBlock::GetWordProxy(context, alignedAddress);
-    memory &= 0xFFFFFFFF >> ((accessType + 1) * 8);
+    memory &= 0xFFFFFFFFULL >> ((accessType + 1) * 8);
     memory |= reg;
     CCacheBlock::SetWordProxy(context, memory, alignedAddress);
 }

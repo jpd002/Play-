@@ -16,6 +16,8 @@ public:
 
     virtual void        FP_PushSingle(size_t);
     virtual void        FP_PushWord(size_t);
+    virtual void        FP_PullSingle(size_t);
+    virtual void        FP_PullWordTruncate(size_t);
 
     virtual void        EndIf();
     virtual void        BeginIfElseAlt();

@@ -96,6 +96,18 @@ void CMipsCodeGen::FP_PushWord(size_t offset)
     CCodeGen::FP_PushWord(offset);
 }
 
+void CMipsCodeGen::FP_PullSingle(size_t offset)
+{
+    assert(GetVariableStatus(offset) == NULL);
+    CCodeGen::FP_PullSingle(offset);
+}
+
+void CMipsCodeGen::FP_PullWordTruncate(size_t offset)
+{
+    assert(GetVariableStatus(offset) == NULL);
+    CCodeGen::FP_PullWordTruncate(offset);
+}
+
 void CMipsCodeGen::EndIf()
 {
     assert(m_Shadow.GetCount() == 0);
