@@ -9,6 +9,7 @@
 #define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
 #define PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC			"renderer.opengl.forceflippingvsync"
+#define PREF_CGSH_OPENGL_FIXSMALLZVALUES            "renderer.opengl.fixsmallzvalues"
 
 class CGSH_OpenGL : public CGSHandler
 {
@@ -139,6 +140,7 @@ private:
 	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;
 	bool							m_nForceFlippingVSync;
+    bool                            m_fixSmallZValues;
 
 	uint8*							m_pCvtBuffer;
 	void*							m_pCLUT;

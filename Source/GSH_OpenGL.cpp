@@ -15,6 +15,7 @@ CGSH_OpenGL::CGSH_OpenGL()
 	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
 	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
+    CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
 	LoadSettings();
 }
@@ -48,6 +49,7 @@ void CGSH_OpenGL::LoadSettings()
 	m_nLinesAsQuads				= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
 	m_nForceFlippingVSync		= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
+    m_fixSmallZValues           = CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
 
 void CGSH_OpenGL::InitializeRC()
@@ -264,12 +266,12 @@ double CGSH_OpenGL::GetZ(double nZ)
 		return -1;
 	}
 	
-	//if(nZ < 256)
-	//{
-	//	//The number is small, so scale to a smaller ratio (65536)
-	//	return (nZ - 32768.0) / 32768.0;
-	//}
-	//else
+	if(m_fixSmallZValues && (nZ < 256))
+	{
+		//The number is small, so scale to a smaller ratio (65536)
+		return (nZ - 32768.0) / 32768.0;
+	}
+	else
 	{
 		nZ -= m_nMaxZ;
 		if(nZ > m_nMaxZ) return 1.0;
