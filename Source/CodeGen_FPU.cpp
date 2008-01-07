@@ -391,3 +391,21 @@ void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
         assert(0);
     }
 }
+
+void CCodeGen::FP_Neg()
+{
+    if(FitsPattern<SingleFpSingleRelative>())
+    {
+        SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        m_Assembler.PxorVo(resultRegister, 
+            CX86Assembler::MakeXmmRegisterAddress(resultRegister));
+        m_Assembler.SubssEd(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}

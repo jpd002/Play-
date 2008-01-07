@@ -1418,7 +1418,7 @@ void CCodeGen::Cmp64(CONDITION nCondition)
     }
 }
 
-void CCodeGen::DivS()
+void CCodeGen::Div_Base(const MultFunction& function)
 {
     if(FitsPattern<RelativeConstant>())
     {
@@ -1435,9 +1435,28 @@ void CCodeGen::DivS()
         LoadRelativeInRegister(lowRegister, ops.first);
         LoadConstantInRegister(tempRegister, ops.second);
         m_Assembler.Cdq();
-        m_Assembler.IdivEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+        function(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
 
         FreeRegister(tempRegister);
+
+        PushReg(highRegister);
+        PushReg(lowRegister);
+    }
+    else if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+
+        //We need eax and edx for this
+        assert(!m_nRegisterAllocated[REGISTER_EAX] && !m_nRegisterAllocated[REGISTER_EDX]);
+        m_nRegisterAllocated[REGISTER_EAX] = true;
+        m_nRegisterAllocated[REGISTER_EDX] = true;
+        unsigned int lowRegister = REGISTER_EAX;
+        unsigned int highRegister = REGISTER_EDX;
+
+        LoadRelativeInRegister(lowRegister, ops.first);
+        m_Assembler.Cdq();
+        function(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+
 
         PushReg(highRegister);
         PushReg(lowRegister);
@@ -1446,6 +1465,16 @@ void CCodeGen::DivS()
     {
         assert(0);
     }
+}
+
+void CCodeGen::Div()
+{
+    Div_Base(bind(&CX86Assembler::DivEd, &m_Assembler, _1));
+}
+
+void CCodeGen::DivS()
+{
+    Div_Base(bind(&CX86Assembler::IdivEd, &m_Assembler, _1));
 }
 
 void CCodeGen::Lookup(uint32* table)
@@ -1551,15 +1580,15 @@ _done:
 
 void CCodeGen::Mult()
 {
-    Mult_Base(bind(&CX86Assembler::MulEd, &m_Assembler, _1));
+    Mult_Base(bind(&CX86Assembler::MulEd, &m_Assembler, _1), false);
 }
 
 void CCodeGen::MultS()
 {
-    Mult_Base(bind(&CX86Assembler::ImulEd, &m_Assembler, _1));
+    Mult_Base(bind(&CX86Assembler::ImulEd, &m_Assembler, _1), true);
 }
 
-void CCodeGen::Mult_Base(const MultFunction& multFunction)
+void CCodeGen::Mult_Base(const MultFunction& multFunction, bool isSigned)
 {
     if(FitsPattern<CommutativeRelativeConstant>())
     {
@@ -1595,6 +1624,21 @@ void CCodeGen::Mult_Base(const MultFunction& multFunction)
 
         PushReg(highRegister);
         PushReg(lowRegister);
+    }
+    else if(FitsPattern<ConstantConstant>())
+    {
+        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+        INTEGER64 result;
+        if(isSigned)
+        {
+            result.q = static_cast<int32>(ops.first) * static_cast<int32>(ops.second);
+        }
+        else
+        {
+            result.q = static_cast<uint32>(ops.first) * static_cast<uint32>(ops.second);
+        }
+        PushCst(result.d1);
+        PushCst(result.d0);
     }
     else
     {
@@ -2031,6 +2075,25 @@ void CCodeGen::Sra64(uint8 nAmount)
     }
 }
 
+void CCodeGen::Srl()
+{
+    if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+        unsigned int shiftAmount = AllocateRegister(REGISTER_SHIFTAMOUNT);
+        unsigned int resultRegister = AllocateRegister();
+        LoadRelativeInRegister(resultRegister, ops.first);
+        LoadRelativeInRegister(shiftAmount, ops.second);
+        m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        FreeRegister(shiftAmount);
+        PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
 void CCodeGen::Srl(uint8 nAmount)
 {
 	if(FitsPattern<SingleRegister>())
@@ -2044,7 +2107,7 @@ void CCodeGen::Srl(uint8 nAmount)
 	}
 	else if(FitsPattern<SingleRelative>())
 	{
-        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Srl, nAmount));
+        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Srl, this, nAmount));
 	}
 	else
 	{
@@ -2414,7 +2477,33 @@ void CCodeGen::Cmp64Eq()
     }
 	else
 	{
-		assert(0);
+        uint32 value[4];
+        uint32 valueType[4];
+
+        for(int i = 3; i >= 0; i--)
+        {
+            valueType[i]   = m_Shadow.Pull();
+            value[i]       = m_Shadow.Pull();
+        }
+
+        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
+        unsigned int tempRegister = AllocateRegister(REGISTER_HASLOW);
+
+        EmitLoad(valueType[0], value[0], resultRegister);
+        EmitOp(Op_Cmp, valueType[2], value[2], resultRegister);
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+
+        EmitLoad(valueType[1], value[1], tempRegister);
+        EmitOp(Op_Cmp, valueType[3], value[3], tempRegister);
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+
+        m_Assembler.AndEd(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+        m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+
+        FreeRegister(tempRegister);
+        PushReg(resultRegister);
 	}
 }
 

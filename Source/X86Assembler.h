@@ -122,6 +122,7 @@ public:
     void                                    CmpId(const CAddress&, uint32);
     void                                    CmpIq(const CAddress&, uint64);
     void                                    Cdq();
+    void                                    DivEd(const CAddress&);
     void                                    IdivEd(const CAddress&);
     void                                    ImulEd(const CAddress&);
     void                                    JaeJb(LABEL);
@@ -195,6 +196,8 @@ public:
         SSE_CMP_NLE = 6,
         SSE_CMP_ORD = 7,
     };
+
+    void                                    PxorVo(XMMREGISTER, const CAddress&);
 
     void                                    MovssEd(const CAddress&, XMMREGISTER);
     void                                    MovssEd(XMMREGISTER, const CAddress&);

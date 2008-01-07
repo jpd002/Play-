@@ -102,6 +102,7 @@ public:
 	static void						Call(void*, unsigned int, bool);
 	static void						Cmp(CONDITION);
 	static void						Cmp64(CONDITION);
+    void                            Div();
     void                            DivS();
     void                            Lookup(uint32*);
     static void						Lzc();
@@ -116,7 +117,8 @@ public:
 	static void						Shl64(uint8);
     static void                     Sra(uint8);
     static void                     Sra64(uint8);
-    static void                     Srl(uint8);
+    void                            Srl();
+    void                            Srl(uint8);
 	static void						Srl64();
 	static void						Srl64(uint8);
     static void                     Sub();
@@ -136,6 +138,7 @@ public:
     void                            FP_Mul();
     void                            FP_Div();
     void                            FP_Cmp(CONDITION);
+    void                            FP_Neg();
 
     void                            SetStream(Framework::CStream*);
     static CX86Assembler            m_Assembler;
@@ -262,7 +265,8 @@ private:
 
     typedef std::tr1::function<void (const CX86Assembler::CAddress&)> MultFunction;
 
-    void                            Mult_Base(const MultFunction&);
+    void                            Div_Base(const MultFunction&);
+    void                            Mult_Base(const MultFunction&, bool);
 
     static void                     StreamWriteByte(uint8);
     static void                     StreamWriteAt(unsigned int, uint8);

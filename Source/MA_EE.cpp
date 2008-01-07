@@ -69,27 +69,24 @@ void CMA_EE::PullVector(unsigned int nReg)
 //1E
 void CMA_EE::LQ()
 {
-	ComputeMemAccessAddr();
+    ComputeMemAccessAddrEx();
 
-	//Load the word
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->AddImm(4);
+    for(unsigned int i = 0; i < 4; i++)
+    {
+	    m_codeGen->PushRef(m_pCtx);
+	    m_codeGen->PushIdx(1);
+	    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->AddImm(4);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[2]);
-	m_pB->AddImm(4);
+        if(i != 3)
+        {
+            m_codeGen->PushCst(4);
+            m_codeGen->Add();
+        }
+    }
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[3]);
+    m_codeGen->PullTop();
 }
 
 //1F

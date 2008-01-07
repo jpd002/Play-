@@ -181,6 +181,18 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
         {
             partitionPoints.insert(address + 4);
         }
+        //Check if there's a block already exising that this address
+        if(address != endAddress)
+        {
+            CBasicBlock* possibleBlock = FindBlockStartingAt(address);
+            if(possibleBlock != NULL)
+            {
+                assert(possibleBlock->GetEndAddress() <= endAddress);
+                //Add its beginning and end in the partition points
+                partitionPoints.insert(possibleBlock->GetBeginAddress());
+                partitionPoints.insert(possibleBlock->GetEndAddress() + 4);
+            }
+        }
     }
 
     uint32 currentPoint = 0;

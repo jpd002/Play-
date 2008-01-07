@@ -288,13 +288,9 @@ void CCOP_FPU::MOV_S()
 //07
 void CCOP_FPU::NEG_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::Neg();
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-	}
-	CCodeGen::End();
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FP_Neg();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //18

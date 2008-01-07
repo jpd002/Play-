@@ -581,16 +581,17 @@ void CMA_MIPSIV::LWR()
 //27
 void CMA_MIPSIV::LWU()
 {
-	ComputeMemAccessAddr();
+    ComputeMemAccessAddrEx();
 
-	//Load the word
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+	m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushIdx(1);
+	m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
-	//Zero extend the value
-	m_pB->PushImm(0);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
+    m_codeGen->PushCst(0);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+
+    m_codeGen->PullTop();
 }
 
 //28
@@ -784,7 +785,7 @@ void CMA_MIPSIV::SLL()
 //02
 void CMA_MIPSIV::SRL()
 {
-    Template_ShiftCst32()(&CCodeGen::Srl);
+    Template_ShiftCst32()(bind(&CCodeGen::Srl, m_codeGen, _1));
 }
 
 //03
@@ -806,11 +807,7 @@ void CMA_MIPSIV::SLLV()
 //06
 void CMA_MIPSIV::SRLV()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->Srl();
-	SignExtendTop32(m_nRD);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    Template_ShiftVar32()(bind(&CCodeGen::Srl, m_codeGen));
 }
 
 //07
@@ -971,33 +968,13 @@ void CMA_MIPSIV::MULTU()
 //1A
 void CMA_MIPSIV::DIV()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->DivS();
-
-    m_codeGen->SeX();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
-
-	m_codeGen->SeX();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
+    Template_Div32()(bind(&CCodeGen::DivS, m_codeGen));
 }
 
 //1B
 void CMA_MIPSIV::DIVU()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->Div();
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[0]);
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[0]);
+    Template_Div32()(bind(&CCodeGen::Div, m_codeGen));
 }
 
 //20

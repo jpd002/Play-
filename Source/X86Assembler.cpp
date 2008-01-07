@@ -258,6 +258,11 @@ void CX86Assembler::Cdq()
     WriteByte(0x99);
 }
 
+void CX86Assembler::DivEd(const CAddress& address)
+{
+    WriteEvOp(0xF7, 0x06, false, address);
+}
+
 void CX86Assembler::IdivEd(const CAddress& address)
 {
     WriteEvOp(0xF7, 0x07, false, address);

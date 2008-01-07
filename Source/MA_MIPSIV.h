@@ -70,14 +70,26 @@ protected:
 
     struct Template_ShiftCst32
     {
-        typedef void (*OperationFunctionType)(uint8);
-        void operator()(OperationFunctionType);
+        typedef std::tr1::function<void (uint8)> OperationFunctionType;
+        void operator()(const OperationFunctionType&) const;
+    };
+
+    struct Template_ShiftVar32
+    {
+        typedef std::tr1::function<void ()> OperationFunctionType;
+        void operator()(const OperationFunctionType&) const;
     };
 
     struct Template_Mult32
     {
         typedef std::tr1::function<void ()> OperationFunctionType;
         void operator()(const OperationFunctionType&, unsigned int) const;
+    };
+
+    struct Template_Div32
+    {
+        typedef std::tr1::function<void ()> OperationFunctionType;
+        void operator()(const OperationFunctionType&) const;
     };
 
     struct Template_MovEqual

@@ -8,6 +8,8 @@ using namespace std;
 
 void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
 {
+    //TODO: Need to check if this used correctly... LBU, LHU and LW uses this (why LW? and why sign extend on LBU and LHU?)
+
     ComputeMemAccessAddrEx();
 
 	m_codeGen->PushRef(m_pCtx);
@@ -21,11 +23,22 @@ void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
     m_codeGen->PullTop();
 }
 
-void CMA_MIPSIV::Template_ShiftCst32::operator()(OperationFunctionType Function)
+void CMA_MIPSIV::Template_ShiftCst32::operator()(const OperationFunctionType& Function) const
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     Function(m_nSA);
     
+    m_codeGen->SeX();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
+void CMA_MIPSIV::Template_ShiftVar32::operator()(const OperationFunctionType& function) const
+{
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    function();
+
     m_codeGen->SeX();
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -76,6 +89,21 @@ void CMA_MIPSIV::Template_Mult32::operator()(const OperationFunctionType& Functi
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
     }
+}
+
+void CMA_MIPSIV::Template_Div32::operator()(const OperationFunctionType& function) const
+{
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    function();
+
+    m_codeGen->SeX();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
+
+	m_codeGen->SeX();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
 }
 
 void CMA_MIPSIV::Template_MovEqual::operator()(bool isEqual) const
