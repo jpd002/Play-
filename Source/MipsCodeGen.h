@@ -39,8 +39,10 @@ private:
     typedef std::map< size_t, VARIABLESTATUS > VariableStatusMap;
 
     void                DumpVariable(size_t);
+    void                DumpAllVariablesAndKeepState();
     VARIABLESTATUS*     GetVariableStatus(size_t);
     void                SetVariableStatus(size_t, const VARIABLESTATUS&);
+    void                SaveVariableStatus(size_t, const VARIABLESTATUS&);
     void                InvalidateVariableStatus(size_t);
 
     VariableStatusMap   m_variableStatus;

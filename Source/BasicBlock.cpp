@@ -25,30 +25,32 @@ CBasicBlock::~CBasicBlock()
 void CBasicBlock::Compile()
 {
     CMemStream stream;
-    CMipsCodeGen codeGen;
+    {
+        CMipsCodeGen codeGen;
 
-    for(unsigned int i = 0; i < 4; i++)
-    {
-        codeGen.SetVariableAsConstant(
-            offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
-            0
-            );
+        for(unsigned int i = 0; i < 4; i++)
+        {
+            codeGen.SetVariableAsConstant(
+                offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
+                0
+                );
+        }
+        codeGen.SetStream(&stream);
+        codeGen.Begin(NULL);
+        for(uint32 address = m_begin; address <= m_end; address += 4)
+        {
+            m_context.m_pArch->CompileInstruction(
+                address, 
+                reinterpret_cast<CCacheBlock*>(&codeGen),
+                &m_context,
+                true);
+            //Sanity check
+            assert(codeGen.IsStackEmpty());
+        }
+        codeGen.DumpVariables(0);
+        codeGen.m_Assembler.Ret();
+        codeGen.End();
     }
-    codeGen.SetStream(&stream);
-    codeGen.Begin(NULL);
-    for(uint32 address = m_begin; address <= m_end; address += 4)
-    {
-        m_context.m_pArch->CompileInstruction(
-            address, 
-            reinterpret_cast<CCacheBlock*>(&codeGen),
-            &m_context,
-            true);
-        //Sanity check
-        assert(codeGen.IsStackEmpty());
-    }
-    codeGen.DumpVariables(0);
-    codeGen.m_Assembler.Ret();
-    codeGen.End();
 
     //Save text
     m_text = new uint8[stream.GetSize()];

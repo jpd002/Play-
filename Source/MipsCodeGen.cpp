@@ -16,6 +16,7 @@ void CMipsCodeGen::EndQuota()
 {
     assert(m_Shadow.GetCount() == 0);
     DumpVariables(m_IfStack.GetCount());
+    DumpAllVariablesAndKeepState();
 	CCodeGen::EndQuota();
 }
 
@@ -163,20 +164,7 @@ void CMipsCodeGen::DumpVariable(size_t variableId)
     if(statusIterator == m_variableStatus.end()) return;
     const VARIABLESTATUS& status(statusIterator->second);
     if(!status.isDirty) return;
-    switch(status.operandType)
-    {
-    case CONSTANT:
-        PushCst(status.operandValue);
-        CCodeGen::PullRel(variableId);
-        break;
-    case REGISTER:
-        PushReg(status.operandValue);
-        CCodeGen::PullRel(variableId);
-        break;
-    default:
-        throw runtime_error("Unsupported operand type.");
-        break;
-    }
+    SaveVariableStatus(variableId, status);
     m_variableStatus.erase(statusIterator++);
 }
 
@@ -190,25 +178,26 @@ void CMipsCodeGen::DumpVariables(unsigned int ifStackLevel)
         assert(status.ifStackLevel <= ifStackLevel);
         if(status.isDirty && status.ifStackLevel == ifStackLevel)
         {
-            switch(status.operandType)
-            {
-            case CONSTANT:
-                PushCst(status.operandValue);
-                CCodeGen::PullRel(variableId);
-                break;
-            case REGISTER:
-                PushReg(status.operandValue);
-                CCodeGen::PullRel(variableId);
-                break;
-            default:
-                throw runtime_error("Unsupported operand type.");
-                break;
-            }
+            SaveVariableStatus(variableId, status);
             m_variableStatus.erase(statusIterator++);
         }
         else
         {
             statusIterator++;
+        }
+    }
+}
+
+void CMipsCodeGen::DumpAllVariablesAndKeepState()
+{
+    for(VariableStatusMap::iterator statusIterator(m_variableStatus.begin());
+        m_variableStatus.end() != statusIterator; statusIterator++)
+    {
+        size_t variableId(statusIterator->first);
+        const VARIABLESTATUS& status(statusIterator->second);
+        if(status.isDirty)
+        {
+            SaveVariableStatus(variableId, status);
         }
     }
 }
@@ -241,4 +230,22 @@ void CMipsCodeGen::SetVariableStatus(size_t variableId, const VARIABLESTATUS& st
 {
     assert(GetVariableStatus(variableId) == NULL);
     m_variableStatus[variableId] = status;
+}
+
+void CMipsCodeGen::SaveVariableStatus(size_t variableId, const VARIABLESTATUS& status)
+{
+    switch(status.operandType)
+    {
+    case CONSTANT:
+        PushCst(status.operandValue);
+        CCodeGen::PullRel(variableId);
+        break;
+    case REGISTER:
+        PushReg(status.operandValue);
+        CCodeGen::PullRel(variableId);
+        break;
+    default:
+        throw runtime_error("Unsupported operand type.");
+        break;
+    }
 }
