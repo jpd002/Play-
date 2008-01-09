@@ -112,11 +112,19 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
             {
                 return;
             }
-            //Otherwise, repartition the existing block
-            assert(otherEnd == end);
-            DeleteBlock(block);
-            CreateBlock(otherBegin, start - 4);
-            assert(FindBlockAt(start) == NULL);
+            if(otherEnd == end)
+            {
+                //Repartition the existing block if end of both blocks are the same
+                DeleteBlock(block);
+                CreateBlock(otherBegin, start - 4);
+                assert(FindBlockAt(start) == NULL);
+            }
+            else
+            {
+                //Delete the currently existing block otherwise
+                printf("MipsExecutor: Warning. Deleting block at %0.8X.\r\n", block->GetEndAddress());
+                DeleteBlock(block);
+            }
         }
     }
     assert(FindBlockAt(end) == NULL);
