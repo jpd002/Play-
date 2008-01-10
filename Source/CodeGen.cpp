@@ -2176,108 +2176,7 @@ void CCodeGen::Srl64()
 
 void CCodeGen::Srl64(uint8 nAmount)
 {
-	if(FitsPattern<RelativeRelative>())
-	{
-        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
-		uint32 nRelative1 = ops.first;
-        uint32 nRelative2 = ops.second;
-
-		assert(nAmount < 0x40);
-
-		if(nAmount == 0)
-		{
-			uint32 nRegister1, nRegister2;
-
-			nRegister1 = AllocateRegister();
-			nRegister2 = AllocateRegister();
-
-			LoadRelativeInRegister(nRegister1, nRelative1);
-			LoadRelativeInRegister(nRegister2, nRelative2);
-
-			PushReg(nRegister1);
-			PushReg(nRegister2);
-		}
-		else if(nAmount == 32)
-		{
-			uint32 nRegister;
-
-			nRegister = AllocateRegister();
-			LoadRelativeInRegister(nRegister, nRelative2);
-
-			PushReg(nRegister);
-			PushCst(0);
-		}
-		else if(nAmount > 32)
-		{
-			uint32 nRegister = AllocateRegister();
-			
-			LoadRelativeInRegister(nRegister, nRelative2);
-
-			//shr reg, amount
-			m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]),
-				nAmount & 0x1F);
-
-			PushReg(nRegister);
-			PushCst(0);
-		}
-		else
-		{
-			unsigned int nRegister1 = AllocateRegister();
-			unsigned int nRegister2 = AllocateRegister();
-
-			LoadRelativeInRegister(nRegister1, nRelative1);
-			LoadRelativeInRegister(nRegister2, nRelative2);
-
-			//shrd nReg1, nReg2, nAmount
-            m_Assembler.ShrdEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister1]),
-                m_nRegisterLookupEx[nRegister2],
-                nAmount);
-
-			//shr nReg2, nAmount
-            m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister2]), nAmount);
-
-			PushReg(nRegister1);
-			PushReg(nRegister2);
-		}
-	}
-    else if(FitsPattern<ConstantRelative>())
-    {
-        //HI = Relative
-        //LO = Constant
-        ConstantRelative::PatternValue ops(GetPattern<ConstantRelative>());
-
-        if(nAmount == 32)
-        {
-            unsigned int resultRegister = AllocateRegister();
-            LoadRelativeInRegister(resultRegister, ops.second);
-            PushReg(resultRegister);
-            PushCst(0);
-		}
-		else if(nAmount < 32)
-		{
-			unsigned int register1 = AllocateRegister();
-			unsigned int register2 = AllocateRegister();
-
-			LoadConstantInRegister(register1, ops.first);
-			LoadRelativeInRegister(register2, ops.second);
-
-			//shrd nReg1, nReg2, nAmount
-            m_Assembler.ShrdEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[register1]),
-                m_nRegisterLookupEx[register2],
-                nAmount);
-
-			//shr nReg2, nAmount
-            m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[register2]), nAmount);
-
-			PushReg(register1);
-			PushReg(register2);		
-        }
-        else
-        {
-            assert(0);
-        }
-    }
-	else if(FitsPattern<SingleConstant64>())
+	if(FitsPattern<SingleConstant64>())
 	{
         SingleConstant64::PatternValue ops(GetPattern<SingleConstant64>());
         ops.q >>= nAmount;
@@ -2286,7 +2185,54 @@ void CCodeGen::Srl64(uint8 nAmount)
 	}
     else
     {
-        assert(0);
+        uint32 value[2];
+        uint32 valueType[2];
+
+        for(int i = 1; i >= 0; i--)
+        {
+            valueType[i]   = m_Shadow.Pull();
+            value[i]       = m_Shadow.Pull();
+        }
+
+		assert(nAmount < 0x40);
+
+		if(nAmount >= 32)
+		{
+			uint32 resultLow = AllocateRegister();
+			EmitLoad(valueType[1], value[1], resultLow);
+
+            if(nAmount != 32)
+            {
+			    //shr reg, amount
+			    m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultLow]),
+				    nAmount & 0x1F);
+            }
+
+			PushReg(resultLow);
+			PushCst(0);
+		}
+		else //Amount < 32
+		{
+			unsigned int resultLow = AllocateRegister();
+			unsigned int resultHigh = AllocateRegister();
+
+            EmitLoad(valueType[0], value[0], resultLow);
+            EmitLoad(valueType[1], value[1], resultHigh);
+
+            if(nAmount != 0)
+            {
+			    //shrd nReg1, nReg2, nAmount
+                m_Assembler.ShrdEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultLow]),
+                    m_nRegisterLookupEx[resultHigh],
+                    nAmount);
+
+			    //shr nReg2, nAmount
+                m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultHigh]), nAmount);
+            }
+
+			PushReg(resultLow);
+			PushReg(resultHigh);
+		}
     }
 }
 
