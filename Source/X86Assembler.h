@@ -138,6 +138,7 @@ public:
     void                                    MovzxEb(REGISTER, const CAddress&);
     void                                    MulEd(const CAddress&);
     void                                    Nop();
+    void                                    NotEd(const CAddress&);
     void                                    OrEd(REGISTER, const CAddress&);
     void                                    OrId(const CAddress&, uint32);
     void                                    Pop(REGISTER);

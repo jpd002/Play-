@@ -96,7 +96,7 @@ public:
 	static void						PullTop();
 
 	static void						Add();
-	static void						Add64();
+	void						    Add64();
 	static void						And();
     void                            And64();
 	static void						Call(void*, unsigned int, bool);
@@ -108,13 +108,15 @@ public:
     static void						Lzc();
     void                            Mult();
     void                            MultS();
-    static void                     Or();
+    void                            Not();
+    void                            Or();
 	static void						SeX();
     static void                     SeX8();
 	static void						SeX16();
-	static void						Shl(uint8);
+    void                            Shl();
+	void                            Shl(uint8);
 	static void						Shl64();
-	static void						Shl64(uint8);
+	void                            Shl64(uint8);
     static void                     Sra(uint8);
     static void                     Sra64(uint8);
     void                            Srl();

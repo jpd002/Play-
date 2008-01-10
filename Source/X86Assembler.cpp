@@ -352,6 +352,11 @@ void CX86Assembler::Nop()
     WriteByte(0x90);
 }
 
+void CX86Assembler::NotEd(const CAddress& address)
+{
+    WriteEvOp(0xF7, 0x02, false, address);
+}
+
 void CX86Assembler::OrEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x0B, false, address, registerId);

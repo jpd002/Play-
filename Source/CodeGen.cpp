@@ -1646,6 +1646,21 @@ void CCodeGen::Mult_Base(const MultFunction& multFunction, bool isSigned)
     }
 }
 
+void CCodeGen::Not()
+{
+    if(FitsPattern<SingleRegister>())
+    {
+        SingleRegister::PatternValue resultRegister = GetPattern<SingleRegister>();
+        assert(!RegisterHasNextUse(resultRegister));
+        m_Assembler.NotEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
 void CCodeGen::Or()
 {
 	if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
@@ -1710,11 +1725,13 @@ void CCodeGen::Or()
 
 		unsigned int nRegister = AllocateRegister();
 		LoadRelativeInRegister(nRegister, ops.first);
+	    PushReg(nRegister);
 
-		PushReg(nRegister);
-		PushCst(ops.second);
-
-		Or();
+        if(ops.second != 0)
+        {
+		    PushCst(ops.second);
+		    Or();
+        }
 	}
 	else
 	{
@@ -1778,6 +1795,25 @@ void CCodeGen::SeX16()
     PushReg(nRegister);
 }
 
+void CCodeGen::Shl()
+{
+    if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+        unsigned int shiftAmount = AllocateRegister(REGISTER_SHIFTAMOUNT);
+        unsigned int resultRegister = AllocateRegister();
+        LoadRelativeInRegister(resultRegister, ops.first);
+        LoadRelativeInRegister(shiftAmount, ops.second);
+        m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        FreeRegister(shiftAmount);
+        PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
 void CCodeGen::Shl(uint8 nAmount)
 {
 	if(FitsPattern<SingleRegister>())
@@ -1788,7 +1824,7 @@ void CCodeGen::Shl(uint8 nAmount)
 	}
 	else if(FitsPattern<SingleRelative>())
 	{
-        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Shl, nAmount));
+        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Shl, this, nAmount));
 	}
 	else if(FitsPattern<SingleConstant>())
 	{

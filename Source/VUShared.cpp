@@ -162,7 +162,7 @@ void VUShared::CLIP(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFt)
 	{
 		//Create some space for the new test results
 		CCodeGen::PushVar(&pCtx->m_State.nCOP2CF);
-		CCodeGen::Shl(6);
+		//Decomment -> CCodeGen::Shl(6);
 		CCodeGen::PullVar(&pCtx->m_State.nCOP2CF);
 
 		for(unsigned int i = 0; i < 3; i++)
@@ -177,7 +177,7 @@ void VUShared::CLIP(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFt)
 			{
 				CCodeGen::PushVar(&pCtx->m_State.nCOP2CF);
 				CCodeGen::PushCst(1 << ((i * 2) + 0));
-				CCodeGen::Or();
+				//Decomment -> CCodeGen::Or();
 				CCodeGen::PullVar(&pCtx->m_State.nCOP2CF);
 			}
 			CCodeGen::EndIf();
@@ -193,7 +193,7 @@ void VUShared::CLIP(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFt)
 			{
 				CCodeGen::PushVar(&pCtx->m_State.nCOP2CF);
 				CCodeGen::PushCst(1 << ((i * 2) + 1));
-				CCodeGen::Or();
+				//Decomment -> CCodeGen::Or();
 				CCodeGen::PullVar(&pCtx->m_State.nCOP2CF);
 			}
 			CCodeGen::EndIf();
@@ -222,7 +222,7 @@ void VUShared::DIV(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf, uint8 nF
 			CCodeGen::Xor();
 			CCodeGen::PushCst(0x80000000);
 			CCodeGen::And();
-			CCodeGen::Or();
+			//Decomment -> CCodeGen::Or();
 			CCodeGen::PullVar(&pCtx->m_State.nCOP2Q);
 		}
 		CCodeGen::BeginIfElseAlt();

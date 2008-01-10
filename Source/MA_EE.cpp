@@ -525,25 +525,25 @@ void CMA_EE::PEXT5()
 			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
 			CCodeGen::PushCst(0x001F);
 			CCodeGen::And();
-			CCodeGen::Shl(3);
+			m_codeGen->Shl(3);
 
 			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
 			CCodeGen::PushCst(0x03E0);
 			CCodeGen::And();
-			CCodeGen::Shl(6);
-			CCodeGen::Or();
+			m_codeGen->Shl(6);
+			m_codeGen->Or();
 
 			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
 			CCodeGen::PushCst(0x7C00);
 			CCodeGen::And();
-			CCodeGen::Shl(9);
-			CCodeGen::Or();
+			m_codeGen->Shl(9);
+			m_codeGen->Or();
 
 			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
 			CCodeGen::PushCst(0x8000);
 			CCodeGen::And();
-			CCodeGen::Shl(16);
-			CCodeGen::Or();
+			m_codeGen->Shl(16);
+			m_codeGen->Or();
 
 			CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[i]);
 		}

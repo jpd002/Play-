@@ -779,7 +779,7 @@ void CMA_MIPSIV::SD()
 //00
 void CMA_MIPSIV::SLL()
 {
-    Template_ShiftCst32()(&CCodeGen::Shl);
+    Template_ShiftCst32()(bind(&CCodeGen::Shl, m_codeGen, _1));
 }
 
 //02
@@ -797,11 +797,7 @@ void CMA_MIPSIV::SRA()
 //04
 void CMA_MIPSIV::SLLV()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->Sll();
-	SignExtendTop32(m_nRD);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    Template_ShiftVar32()(bind(&CCodeGen::Shl, m_codeGen));
 }
 
 //06
@@ -834,15 +830,12 @@ void CMA_MIPSIV::JALR()
 	//TODO: 64-bits addresses
 
 	//Set the jump address
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 	//Save address in register
-	m_pB->PushAddr(&m_pCtx->m_State.nPC);
-	m_pB->AddImm(4);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-
-	m_pB->SetDelayedJumpCheck();
+    m_codeGen->PushCst(m_nAddress + 8);
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //0A
@@ -1065,17 +1058,16 @@ void CMA_MIPSIV::XOR()
 //27
 void CMA_MIPSIV::NOR()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->Or();
-	m_pB->Not();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    for(unsigned int i = 0; i < 2; i++)
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->Or();
-	m_pB->Not();
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
+        m_codeGen->Or();
+        m_codeGen->Not();
+
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+    }
 }
 
 //2A

@@ -141,7 +141,7 @@ void CMA_VU::CLower::LQ()
 			PushIntegerRegister(m_nIS);
 			CCodeGen::PushCst((uint32)VUShared::GetImm11Offset(m_nImm11));
 			CCodeGen::Add();
-			CCodeGen::Shl(4);
+			//Decomment -> CCodeGen::Shl(4);
 
 			CCodeGen::PushCst(i * 4);
 			CCodeGen::Add();
@@ -185,7 +185,7 @@ void CMA_VU::CLower::SQ()
 			PushIntegerRegister(m_nIT);
 			CCodeGen::PushCst((uint32)VUShared::GetImm11Offset(m_nImm11));
 			CCodeGen::Add();
-			CCodeGen::Shl(4);
+			//Decomment -> CCodeGen::Shl(4);
 
 			CCodeGen::PushCst(i * 4);
 			CCodeGen::Add();
@@ -338,7 +338,7 @@ void CMA_VU::CLower::JALR()
 
 		//Compute new PC
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-		CCodeGen::Shl(3);
+		//Decomment -> CCodeGen::Shl(3);
 		CCodeGen::PushCst(0x4000);
 		CCodeGen::Add();
 		CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
@@ -570,7 +570,7 @@ void CMA_VU::CLower::LQI()
 			// Compute address
 
 			PushIntegerRegister(m_nIS);
-			CCodeGen::Shl(4);
+			//Decomment -> CCodeGen::Shl(4);
 
 			CCodeGen::PushCst(i * 4);
 			CCodeGen::Add();
@@ -676,7 +676,7 @@ void CMA_VU::CLower::SQI()
 			// Compute address
 
 			PushIntegerRegister(m_nIT);
-			CCodeGen::Shl(4);
+			//Decomment -> CCodeGen::Shl(4);
 
 			CCodeGen::PushCst(i * 4);
 			CCodeGen::Add();
@@ -743,7 +743,7 @@ void CMA_VU::CLower::ILWR()
 
 		//Compute Address
 		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-		CCodeGen::Shl(4);
+		//Decomment -> CCodeGen::Shl(4);
 		CCodeGen::PushCst(GetDestOffset(m_nDest));
 		CCodeGen::Add();
 
