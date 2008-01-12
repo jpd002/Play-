@@ -877,6 +877,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\CodeGen_MD.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\CodeGen_VUF128.cpp"
 					>
 				</File>
@@ -951,20 +955,6 @@
 				<File
 					RelativePath=".\Source\INTC.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\IOP_Cdvdfsv.cpp"
@@ -1361,20 +1351,6 @@
 				<File
 					RelativePath=".\Source\SIF.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\ThreadMsg.cpp"
@@ -1442,6 +1418,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\X86Assembler_Fpu.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\X86Assembler_Sse.cpp"
 					>
 				</File>
 			</Filter>

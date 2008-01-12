@@ -284,6 +284,7 @@ typedef GenericOneArgument<CCodeGen::REGISTER> SingleRegister;
 typedef GenericOneArgument<CCodeGen::CONSTANT> SingleConstant;
 typedef GenericOneArgument<CCodeGen::FP_SINGLE_REGISTER> SingleFpSingleRegister;
 typedef GenericOneArgument<CCodeGen::FP_SINGLE_RELATIVE> SingleFpSingleRelative;
+typedef GenericOneArgument<CCodeGen::REGISTER128> SingleRegister128;
 typedef GenericTwoArguments<CCodeGen::RELATIVE, CCodeGen::CONSTANT> RelativeConstant;
 typedef GenericTwoArguments<CCodeGen::REGISTER, CCodeGen::CONSTANT> RegisterConstant;
 typedef GenericTwoArguments<CCodeGen::CONSTANT, CCodeGen::RELATIVE> ConstantRelative;
@@ -292,6 +293,7 @@ typedef GenericTwoArguments<CCodeGen::RELATIVE, CCodeGen::RELATIVE> RelativeRela
 typedef GenericTwoArguments<CCodeGen::REGISTER, CCodeGen::REGISTER> RegisterRegister;
 typedef GenericTwoArguments<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_REGISTER> DualFpSingleRegister;
 typedef GenericTwoArguments<CCodeGen::FP_SINGLE_RELATIVE, CCodeGen::FP_SINGLE_RELATIVE> DualFpSingleRelative;
+typedef GenericTwoArguments<CCodeGen::RELATIVE128, CCodeGen::RELATIVE128> RelativeRelative128;
 typedef GenericCommutative<CCodeGen::REGISTER, CCodeGen::CONSTANT> CommutativeRegisterConstant;
 typedef GenericCommutative<CCodeGen::RELATIVE, CCodeGen::CONSTANT> CommutativeRelativeConstant;
 typedef GenericOneArgument64<CCodeGen::CONSTANT> SingleConstant64;

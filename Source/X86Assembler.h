@@ -198,6 +198,12 @@ public:
         SSE_CMP_ORD = 7,
     };
 
+    void                                    MovdquVo(const CAddress&, XMMREGISTER);
+    void                                    MovdquVo(XMMREGISTER, const CAddress&);
+    void                                    PandVo(XMMREGISTER, const CAddress&);
+    void                                    PcmpeqdVo(XMMREGISTER, const CAddress&);
+    void                                    PorVo(XMMREGISTER, const CAddress&);
+    void                                    PsubbVo(XMMREGISTER, const CAddress&);
     void                                    PxorVo(XMMREGISTER, const CAddress&);
 
     void                                    MovssEd(const CAddress&, XMMREGISTER);

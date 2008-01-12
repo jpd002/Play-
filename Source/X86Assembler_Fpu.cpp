@@ -133,13 +133,6 @@ void CX86Assembler::Cvttss2siEd(REGISTER registerId, const CAddress& address)
     WriteEvGvOp(0x2C, false, address, registerId);
 }
 
-void CX86Assembler::PxorVo(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0x66);
-    WriteByte(0x0F);
-    WriteEdVdOp(0xEF, address, registerId);
-}
-
 void CX86Assembler::WriteStOp(uint8 opcode, uint8 subOpcode, uint8 stackId)
 {
     CAddress address;

@@ -54,12 +54,12 @@ CMA_EE::~CMA_EE()
 
 void CMA_EE::PushVector(unsigned int nReg)
 {
-	CVUI128::Push(&m_pCtx->m_State.nGPR[nReg]);
+	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[nReg]));
 }
 
 void CMA_EE::PullVector(unsigned int nReg)
 {
-	CVUI128::Pull(&m_pCtx->m_State.nGPR[nReg]);
+    m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[nReg]));
 }
 
 //////////////////////////////////////////////////
@@ -408,14 +408,10 @@ void CMA_EE::PMAXH()
 //09
 void CMA_EE::PSUBB()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::SubB();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+    m_codeGen->MD_SubB();
+	PullVector(m_nRD);
 }
 
 //10
@@ -641,14 +637,10 @@ void CMA_EE::PCPYLD()
 //12
 void CMA_EE::PAND()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRS]);
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRT]);
-		CVUI128::And();
-		CVUI128::Pull(&m_pCtx->m_State.nGPR[m_nRD]);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_And();
+    PullVector(m_nRD);
 }
 
 //13
@@ -672,18 +664,18 @@ void CMA_EE::PXOR()
 void CMA_EE::PCPYUD()
 {
 	//A
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[2]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[3]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
 	
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
 	//B
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[2]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[3]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
 	
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[3]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[2]);	
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));	
 }
 
 //12
@@ -702,15 +694,11 @@ void CMA_EE::POR()
 //13
 void CMA_EE::PNOR()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRS]);
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRT]);
-		CVUI128::Or();
-		CVUI128::Not();
-		CVUI128::Pull(&m_pCtx->m_State.nGPR[m_nRD]);
-	}
-	CCodeGen::End();
+	PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_Or();
+    m_codeGen->MD_Not();
+    PullVector(m_nRD);
 }
 
 //1B

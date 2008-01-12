@@ -57,6 +57,8 @@ public:
 #endif
         FP_SINGLE_RELATIVE,
         FP_SINGLE_REGISTER,
+        RELATIVE128,
+        REGISTER128,
 	};
 
 	enum ROUNDMODE
@@ -142,6 +144,16 @@ public:
     void                            FP_Cmp(CONDITION);
     void                            FP_Neg();
 
+    //SIMD (128-bits only)
+    void                            MD_PushRel(size_t);
+    void                            MD_PullRel(size_t);
+    void                            MD_PushReg(XMMREGISTER);
+
+    void                            MD_And();
+    void                            MD_Not();
+    void                            MD_Or();
+    void                            MD_SubB();
+
     void                            SetStream(Framework::CStream*);
     static CX86Assembler            m_Assembler;
 
@@ -205,9 +217,11 @@ private:
 	static unsigned int				GetMinimumConstantSize(uint32);
     static unsigned int             GetMinimumConstantSize64(uint64);
 	static bool						RegisterHasNextUse(unsigned int);
+    bool                            Register128HasNextUse(XMMREGISTER);
 	static void						LoadVariableInRegister(unsigned int, uint32);
 	static void						LoadRelativeInRegister(unsigned int, uint32);
 	static void						LoadConstantInRegister(unsigned int, uint32);
+    void                            LoadRelative128InRegister(XMMREGISTER, uint32);
 	static void						CopyRegister(unsigned int, unsigned int);
 #ifdef AMD64
 	static void						LoadRelativeInRegister64(unsigned int, uint32);
