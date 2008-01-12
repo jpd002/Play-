@@ -1,35 +1,46 @@
 #ifndef _SIF_H_
 #define _SIF_H_
 
-#include "List.h"
+#include <map>
 #include "Stream.h"
 #include "IOP_Module.h"
-#include "IOP_PadMan.h"
-#include "IOP_DbcMan.h"
-#include "IOP_FileIO.h"
+#include "DMAC.h"
+
+namespace IOP
+{
+    class CPadMan;
+    class CDbcMan;
+    class CFileIO;
+};
 
 class CSIF
 {
 public:
-	static void								Reset();
+                                    CSIF(CDMAC&, uint8*);
+    virtual                         ~CSIF();
+
+	void							Reset();
 	
-	static uint32							ReceiveDMA(uint32, uint32, uint32);
-	static void								SendDMA(void*, uint32);
+    uint32                          ReceiveDMA5(uint32, uint32, uint32, bool);
+	uint32							ReceiveDMA6(uint32, uint32, uint32, bool);
+	void							SendDMA(void*, uint32);
 
-	static uint32							GetRegister(uint32);
-	static void								SetRegister(uint32, uint32);
+	uint32							GetRegister(uint32);
+	void							SetRegister(uint32, uint32);
 
-	static void								LoadState(Framework::CStream*);
-	static void								SaveState(Framework::CStream*);
+	void							LoadState(Framework::CStream*);
+	void							SaveState(Framework::CStream*);
 
-	static IOP::CPadMan*					GetPadMan();
-	static IOP::CDbcMan*					GetDbcMan();
-	static IOP::CFileIO*					GetFileIO();
+	IOP::CPadMan*					GetPadMan();
+	IOP::CDbcMan*					GetDbcMan();
+	IOP::CFileIO*					GetFileIO();
 
 	//This will eventually be moved in the IOP
-	static uint8							m_pRAM[0x1000];
+	uint8							m_pRAM[0x1000];
 
 private:
+    typedef std::map<uint32, IOP::CModule*> ModuleMap;
+
 	enum CONST_MAX_USERREG
 	{
 		MAX_USERREG = 0x10,
@@ -45,79 +56,79 @@ private:
 
 	struct PACKETHDR
 	{
-		uint32								nSize;
-		uint32								nDest;
-		uint32								nCID;
-		uint32								nOptional;
+		uint32						nSize;
+		uint32						nDest;
+		uint32						nCID;
+		uint32						nOptional;
 	};
 
 	struct RPCREQUESTEND
 	{
-		PACKETHDR							Header;
-		uint32								nRecordID;
-		uint32								nPacketAddr;
-		uint32								nRPCID;
-		uint32								nClientDataAddr;
-		uint32								nCID;
-		uint32								nServerDataAddr;
-		uint32								nBuffer;
-		uint32								nClientBuffer;
+		PACKETHDR					Header;
+		uint32						nRecordID;
+		uint32						nPacketAddr;
+		uint32						nRPCID;
+		uint32						nClientDataAddr;
+		uint32						nCID;
+		uint32						nServerDataAddr;
+		uint32						nBuffer;
+		uint32						nClientBuffer;
 	};
 
 	struct RPCBIND
 	{
-		PACKETHDR							Header;
-		uint32								nRecordID;
-		uint32								nPacketAddr;
-		uint32								nRPCID;
-		uint32								nClientDataAddr;
-		uint32								nSID;
+		PACKETHDR					Header;
+		uint32						nRecordID;
+		uint32						nPacketAddr;
+		uint32						nRPCID;
+		uint32						nClientDataAddr;
+		uint32						nSID;
 	};
 
 	struct RPCCALL
 	{
-		PACKETHDR							Header;
-		uint32								nRecordID;
-		uint32								nPacketAddr;
-		uint32								nRPCID;
-		uint32								nClientDataAddr;
-		uint32								nRPCNumber;
-		uint32								nSendSize;
-		uint32								nRecv;
-		uint32								nRecvSize;
-		uint32								nRecvMode;
-		uint32								nServerDataAddr;
+		PACKETHDR					Header;
+		uint32						nRecordID;
+		uint32						nPacketAddr;
+		uint32						nRPCID;
+		uint32						nClientDataAddr;
+		uint32						nRPCNumber;
+		uint32						nSendSize;
+		uint32						nRecv;
+		uint32						nRecvSize;
+		uint32						nRecvMode;
+		uint32						nServerDataAddr;
 	};
 
 	struct SETSREG
 	{
-		PACKETHDR							Header;
-		uint32								nRegister;
-		uint32								nValue;
+		PACKETHDR					Header;
+		uint32						nRegister;
+		uint32						nValue;
 	};
 
-	static void								DeleteModules();
+	void							DeleteModules();
 
-	static void								Cmd_SetEERecvAddr(PACKETHDR*);
-	static void								Cmd_Initialize(PACKETHDR*);
-	static void								Cmd_Bind(PACKETHDR*);
-	static void								Cmd_Call(PACKETHDR*);
+	void							Cmd_SetEERecvAddr(PACKETHDR*);
+	void							Cmd_Initialize(PACKETHDR*);
+	void							Cmd_Bind(PACKETHDR*);
+	void							Cmd_Call(PACKETHDR*);
 
-	static void								Log(const char*, ...);
+    uint8*                          m_eeRam;
+    CDMAC&                          m_dmac;
 
-	static uint32							m_nMAINADDR;
-	static uint32							m_nSUBADDR;
-	static uint32							m_nMSFLAG;
-	static uint32							m_nSMFLAG;
+	uint32							m_nMAINADDR;
+	uint32							m_nSUBADDR;
+	uint32							m_nMSFLAG;
+	uint32							m_nSMFLAG;
 
-	static uint32							m_nEERecvAddr;
-	static uint32							m_nDataAddr;
+	uint32							m_nEERecvAddr;
+	uint32							m_nDataAddr;
 
-	static uint32							m_nUserReg[MAX_USERREG];
+	uint32							m_nUserReg[MAX_USERREG];
 
-	static IOP::CPadMan*					m_pPadMan;
-	static Framework::CList<IOP::CModule>	m_Module;
-
+	IOP::CPadMan*					m_pPadMan;
+	ModuleMap	                    m_modules;
 };
 
 #endif

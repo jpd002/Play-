@@ -111,7 +111,7 @@ void CChannel::ExecuteNormal()
 {
 	uint32 nRecv;
 
-	nRecv = m_pReceive(m_nMADR, m_nQWC, false);
+	nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
 
 	m_nMADR	+= nRecv * 0x10;
 	m_nQWC	-= nRecv;
@@ -136,7 +136,7 @@ void CChannel::ExecuteSourceChain()
 	//Execute current
 	if(m_nQWC != 0)
 	{
-		nRecv = m_pReceive(m_nMADR, m_nQWC, false);
+		nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
 
 		m_nMADR	+= nRecv * 0x10;
 		m_nQWC	-= nRecv;
@@ -179,7 +179,7 @@ void CChannel::ExecuteSourceChain()
 
 		if(m_CHCR.nTTE == 1)
 		{
-			m_pReceive(m_nTADR, 1, true);
+			m_pReceive(m_nTADR, 1, 0, true);
 		}
 
 		nTag = m_dmac.FetchDMATag(m_nTADR);
@@ -248,7 +248,7 @@ void CChannel::ExecuteSourceChain()
 
 		if(m_nQWC != 0)
 		{
-			nRecv = m_pReceive(m_nMADR, m_nQWC, false);
+			nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
 
 			m_nMADR		+= nRecv * 0x10;
 			m_nQWC		-= nRecv;

@@ -55,14 +55,15 @@ using namespace Framework;
 using namespace std;
 using namespace boost;
 
-CPS2OS::CPS2OS(CMIPS& ee, CMIPS& vu1, uint8* ram, uint8* bios, CGSHandler*& gs) :
+CPS2OS::CPS2OS(CMIPS& ee, CMIPS& vu1, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif) :
 m_ee(ee),
 m_vu1(vu1),
 m_gs(gs),
 m_pELF(NULL),
 m_ram(ram),
 m_bios(bios),
-m_pThreadSchedule(NULL)
+m_pThreadSchedule(NULL),
+m_sif(sif)
 {
 	Initialize();
 }
@@ -654,6 +655,12 @@ void CPS2OS::AssembleDmacHandler()
 	Asm.SD(CMIPS::S0, 0x0008, CMIPS::SP);
 	Asm.SD(CMIPS::S1, 0x0010, CMIPS::SP);
 	Asm.SD(CMIPS::S2, 0x0018, CMIPS::SP);
+
+    //Clear INTC cause
+	Asm.LUI(CMIPS::T1, 0x1000);
+	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xF000);
+    Asm.ADDIU(CMIPS::T0, CMIPS::R0, 0x0002);
+	Asm.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Load the DMA interrupt status
 	Asm.LUI(CMIPS::T0, 0x1000);
@@ -1349,28 +1356,22 @@ void CPS2OS::sc_DisableIntc()
 //16
 void CPS2OS::sc_EnableDmac()
 {
-    throw std::runtime_error("Not implemented.");
-/*
-	uint32 nChannel, nRegister;
+	uint32 nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nRegister = 0x10000 << nChannel;
 
-	nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	nRegister = 0x10000 << nChannel;
-
-	if(!(CDMAC::GetRegister(CDMAC::D_STAT) & nRegister))
+	if(!(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & nRegister))
 	{
-		CDMAC::SetRegister(CDMAC::D_STAT, nRegister);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, nRegister);
 	}
 
 	//Enable INT1
-	if(!(CINTC::GetRegister(CINTC::INTC_MASK) & 0x02))
+	if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & 0x02))
 	{
-		CINTC::SetRegister(CINTC::INTC_MASK, 0x02);
+		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, 0x02);
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-*/
 }
 
 //17
@@ -2051,8 +2052,6 @@ void CPS2OS::sc_SifDmaStat()
 //77
 void CPS2OS::sc_SifSetDma()
 {
-    throw std::runtime_error("Not implemented.");
-/*
     struct DMAREG
 	{
 		uint32 nSrcAddr;
@@ -2061,31 +2060,26 @@ void CPS2OS::sc_SifSetDma()
 		uint32 nFlags;
 	};
 
-	DMAREG* pXfer;
-	uint32 nCount, i, nSize;
-
-	pXfer	= (DMAREG*)(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
-	nCount	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	DMAREG* pXfer = (DMAREG*)(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+	uint32 nCount = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	//Returns count
 	//DMA might call an interrupt handler
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nCount;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(nCount);
 
 	//REMOVE
 	//Force reschedule
 	//ThreadShakeAndBake();
 
-	for(i = 0; i < nCount; i++)
+	for(unsigned int i = 0; i < nCount; i++)
 	{
-		nSize = (pXfer[i].nSize + 0x0F) / 0x10;
+		uint32 nSize = (pXfer[i].nSize + 0x0F) / 0x10;
 
-		CDMAC::SetRegister(CDMAC::D6_MADR,	pXfer[i].nSrcAddr);
-		CDMAC::SetRegister(CDMAC::D6_TADR,	pXfer[i].nDstAddr);
-		CDMAC::SetRegister(CDMAC::D6_QWC,	nSize);
-		CDMAC::SetRegister(CDMAC::D6_CHCR,	0x00000100);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_MADR,	pXfer[i].nSrcAddr);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_TADR,	pXfer[i].nDstAddr);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_QWC,	nSize);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_CHCR,	0x00000100);
 	}
-*/
 }
 
 //78
@@ -2097,28 +2091,19 @@ void CPS2OS::sc_SifSetDChain()
 //79
 void CPS2OS::sc_SifSetReg()
 {
-	uint32 nRegister, nValue;
+	uint32 nRegister	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nValue		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	nRegister	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nValue		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+    m_sif.SetRegister(nRegister, nValue);
 
-    assert(0);
-//	CSIF::SetRegister(nRegister, nValue);
-
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;
 }
 
 //7A
 void CPS2OS::sc_SifGetReg()
 {
-	uint32 nRegister;
-
-	nRegister = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-    assert(0);
-//	m_ee.m_State.nGPR[SC_RETURN].nV[0] = CSIF::GetRegister(nRegister);
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	uint32 nRegister = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(m_sif.GetRegister(nRegister));
 }
 
 //7C

@@ -6,11 +6,12 @@
 #include "ELF.h"
 #include "MIPS.h"
 #include "GSHandler.h"
+#include "SIF.h"
 
 class CPS2OS
 {
 public:
-                                                CPS2OS(CMIPS&, CMIPS&, uint8*, uint8*, CGSHandler*&);
+                                                CPS2OS(CMIPS&, CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&);
     virtual                                     ~CPS2OS();
 
 	void									    Initialize();
@@ -292,6 +293,7 @@ private:
     uint8*                                  m_ram;
     uint8*                                  m_bios;
     CGSHandler*&                            m_gs;
+    CSIF&                                   m_sif;
 };
 
 #endif

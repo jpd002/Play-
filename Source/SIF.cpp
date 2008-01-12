@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "PS2VM.h"
 #include "SIF.h"
-#include "DMAC.h"
 #include "PtrMacro.h"
+#include "IOP_PadMan.h"
 #include "IOP_LoadFile.h"
 #include "IOP_FileIO.h"
 #include "IOP_SysMem.h"
@@ -13,9 +13,12 @@
 #include "IOP_Dummy.h"
 #include "IOP_Unknown.h"
 #include "Profiler.h"
+#include "Log.h"
 
 #define		CMD_RECVADDR		0x00001000
 #define		RPC_RECVADDR		0xDEADBEEF
+
+#define LOG_NAME "sif"
 
 #ifdef	PROFILE
 #define	PROFILE_SIFZONE "SIF"
@@ -23,20 +26,24 @@
 
 using namespace Framework;
 
-uint32					CSIF::m_nMAINADDR	= 0;
-uint32					CSIF::m_nSUBADDR	= 0;
-uint32					CSIF::m_nMSFLAG		= 0;
-uint32					CSIF::m_nSMFLAG		= 0;
-uint32					CSIF::m_nUserReg[MAX_USERREG];
+CSIF::CSIF(CDMAC& dmac, uint8* eeRam) :
+m_nMAINADDR(0),
+m_nSUBADDR(0),
+m_nMSFLAG(0),
+m_nSMFLAG(0),
+m_nEERecvAddr(0),
+m_nDataAddr(0),
+m_pPadMan(NULL),
+m_dmac(dmac),
+m_eeRam(eeRam)
+{
 
-uint8					CSIF::m_pRAM[0x1000];
+}
 
-uint32					CSIF::m_nEERecvAddr = 0;
-uint32					CSIF::m_nDataAddr = 0;
+CSIF::~CSIF()
+{
 
-IOP::CPadMan*			CSIF::m_pPadMan = NULL;
-
-CList<IOP::CModule>		CSIF::m_Module;
+}
 
 void CSIF::Reset()
 {
@@ -52,39 +59,46 @@ void CSIF::Reset()
 	DeleteModules();
 
 	//Create modules that have multiple RPC IDs
-	m_pPadMan = new IOP::CPadMan();
+//	m_pPadMan = new IOP::CPadMan();
 
-	m_Module.Insert(new IOP::CDummy,								IOP::CDummy::MODULE_ID);
-	m_Module.Insert(new IOP::CUnknown,								IOP::CUnknown::MODULE_ID);
-	m_Module.Insert(new IOP::CFileIO,								IOP::CFileIO::MODULE_ID);
-	m_Module.Insert(new IOP::CSysMem,								IOP::CSysMem::MODULE_ID);
-	m_Module.Insert(new IOP::CLoadFile,								IOP::CLoadFile::MODULE_ID);
-	m_Module.Insert(m_pPadMan,										IOP::CPadMan::MODULE_ID_1);
-	m_Module.Insert(m_pPadMan,										IOP::CPadMan::MODULE_ID_3);
-	m_Module.Insert(new IOP::CMcServ,								IOP::CMcServ::MODULE_ID);
-	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_1),	IOP::CCdvdfsv::MODULE_ID_1);
-	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_2),	IOP::CCdvdfsv::MODULE_ID_2);
-	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_4),	IOP::CCdvdfsv::MODULE_ID_4);
-	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_6),	IOP::CCdvdfsv::MODULE_ID_6);
-	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_7),	IOP::CCdvdfsv::MODULE_ID_7);
-	m_Module.Insert(new IOP::CLibSD,								IOP::CLibSD::MODULE_ID);
-	m_Module.Insert(new IOP::CDbcMan,								IOP::CDbcMan::MODULE_ID);
+//	m_Module.Insert(new IOP::CDummy,								IOP::CDummy::MODULE_ID);
+//	m_Module.Insert(new IOP::CUnknown,								IOP::CUnknown::MODULE_ID);
+//	m_Module.Insert(new IOP::CFileIO,								IOP::CFileIO::MODULE_ID);
+//	m_Module.Insert(new IOP::CSysMem,								IOP::CSysMem::MODULE_ID);
+//	m_Module.Insert(new IOP::CLoadFile,								IOP::CLoadFile::MODULE_ID);
+//	m_Module.Insert(m_pPadMan,										IOP::CPadMan::MODULE_ID_1);
+//	m_Module.Insert(m_pPadMan,										IOP::CPadMan::MODULE_ID_3);
+//	m_Module.Insert(new IOP::CMcServ,								IOP::CMcServ::MODULE_ID);
+//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_1),	IOP::CCdvdfsv::MODULE_ID_1);
+//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_2),	IOP::CCdvdfsv::MODULE_ID_2);
+//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_4),	IOP::CCdvdfsv::MODULE_ID_4);
+//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_6),	IOP::CCdvdfsv::MODULE_ID_6);
+//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_7),	IOP::CCdvdfsv::MODULE_ID_7);
+//	m_Module.Insert(new IOP::CLibSD,								IOP::CLibSD::MODULE_ID);
+//	m_Module.Insert(new IOP::CDbcMan,								IOP::CDbcMan::MODULE_ID);
 }
 
 void CSIF::DeleteModules()
 {
-	m_Module.Remove(IOP::CPadMan::MODULE_ID_1);
-	m_Module.Remove(IOP::CPadMan::MODULE_ID_3);
+    m_modules.erase(IOP::CPadMan::MODULE_ID_1);
+	m_modules.erase(IOP::CPadMan::MODULE_ID_3);
 
 	DELETEPTR(m_pPadMan);
 
-	while(m_Module.Count() != 0)
-	{
-		delete m_Module.Pull();
-	}
+    for(ModuleMap::iterator moduleIterator(m_modules.begin());
+        m_modules.end() != moduleIterator; moduleIterator++)
+    {
+        delete moduleIterator->second;
+    }
 }
 
-uint32 CSIF::ReceiveDMA(uint32 nSrcAddr, uint32 nDstAddr, uint32 nSize)
+uint32 CSIF::ReceiveDMA5(uint32 srcAddress, uint32 size, uint32 unused, bool isTagIncluded)
+{
+    memcpy(m_eeRam + srcAddress, CSIF::m_pRAM, size);
+    return size;
+}
+
+uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool isTagIncluded)
 {
 
 #ifdef PROFILE
@@ -108,7 +122,7 @@ uint32 CSIF::ReceiveDMA(uint32 nSrcAddr, uint32 nDstAddr, uint32 nSize)
 		return nSize;
 	}
 
-	pHDR = (PACKETHDR*)(CPS2VM::m_pRAM + nSrcAddr);
+	pHDR = (PACKETHDR*)(m_eeRam + nSrcAddr);
 
 	//This is kinda odd...
 	//plasma_tunnel.elf does this
@@ -119,7 +133,7 @@ uint32 CSIF::ReceiveDMA(uint32 nSrcAddr, uint32 nDstAddr, uint32 nSize)
 		pHDR->nCID |= 0x80000000;
 	}
 */
-	Log("Received command 0x%0.8X.\r\n", pHDR->nCID);
+    CLog::GetInstance().Print(LOG_NAME, "Received command 0x%0.8X.\r\n", pHDR->nCID);
 
 	switch(pHDR->nCID)
 	{
@@ -154,13 +168,14 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 	nQuads = nSize / 0x10;
 	if((nSize & 0x0F) != 0) nQuads++;
 
-	CDMAC::SetRegister(CDMAC::D5_MADR, m_nEERecvAddr);
-	CDMAC::SetRegister(CDMAC::D5_QWC,  nQuads);
-	CDMAC::SetRegister(CDMAC::D5_CHCR, 0x00000100);
+	m_dmac.SetRegister(CDMAC::D5_MADR, m_nEERecvAddr);
+	m_dmac.SetRegister(CDMAC::D5_QWC,  nQuads);
+	m_dmac.SetRegister(CDMAC::D5_CHCR, 0x00000100);
 }
 
 void CSIF::LoadState(CStream* pStream)
 {
+/*
 	pStream->Read(&m_nMAINADDR,		4);
 	pStream->Read(&m_nSUBADDR,		4);
 	pStream->Read(&m_nMSFLAG,		4);
@@ -173,10 +188,12 @@ void CSIF::LoadState(CStream* pStream)
 	m_Module.Find(IOP::CCdvdfsv::MODULE_ID_1)->LoadState(pStream);
 	m_Module.Find(IOP::CDbcMan::MODULE_ID)->LoadState(pStream);
 	m_pPadMan->LoadState(pStream);
+*/
 }
 
 void CSIF::SaveState(CStream* pStream)
 {
+/*
 	pStream->Write(&m_nMAINADDR,	4);
 	pStream->Write(&m_nSUBADDR,		4);
 	pStream->Write(&m_nMSFLAG,		4);
@@ -189,6 +206,7 @@ void CSIF::SaveState(CStream* pStream)
 	m_Module.Find(IOP::CCdvdfsv::MODULE_ID_1)->SaveState(pStream);
 	m_Module.Find(IOP::CDbcMan::MODULE_ID)->SaveState(pStream);
 	m_pPadMan->SaveState(pStream);
+*/
 }
 
 IOP::CPadMan* CSIF::GetPadMan()
@@ -198,12 +216,14 @@ IOP::CPadMan* CSIF::GetPadMan()
 
 IOP::CDbcMan* CSIF::GetDbcMan()
 {
-	return (IOP::CDbcMan*)m_Module.Find(IOP::CDbcMan::MODULE_ID);
+    ModuleMap::iterator moduleIterator(m_modules.find(IOP::CDbcMan::MODULE_ID));
+    return moduleIterator == m_modules.end() ? NULL : static_cast<IOP::CDbcMan*>(moduleIterator->second);
 }
 
 IOP::CFileIO* CSIF::GetFileIO()
 {
-	return (IOP::CFileIO*)m_Module.Find(IOP::CFileIO::MODULE_ID);
+    ModuleMap::iterator moduleIterator(m_modules.find(IOP::CFileIO::MODULE_ID));
+    return moduleIterator == m_modules.end() ? NULL : static_cast<IOP::CFileIO*>(moduleIterator->second);
 }
 
 /////////////////////////////////////////////////////////
@@ -261,7 +281,7 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 
 	//Maybe check what it wants to bind?
 
-	Log("Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
+	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
 
 	//Fill in the request end 
 	rend.Header.nSize		= sizeof(RPCREQUESTEND);
@@ -286,23 +306,23 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 	RPCCALL* pCall;
 	RPCREQUESTEND rend;
 
-	IOP::CModule* pModule;
 	uint32 nRecvAddr;
 
 	pCall = (RPCCALL*)pHDR;
 
-	Log("Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
+	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
 
 	nRecvAddr = (pCall->nRecv & (CPS2VM::RAMSIZE - 1));
 
-	pModule = m_Module.Find(pCall->nServerDataAddr);
-	if(pModule != NULL)
+    ModuleMap::iterator moduleIterator(m_modules.find(pCall->nServerDataAddr));
+	if(moduleIterator != m_modules.end())
 	{
-		pModule->Invoke(pCall->nRPCNumber, CPS2VM::m_pRAM + m_nDataAddr, pCall->nSendSize, CPS2VM::m_pRAM + nRecvAddr, pCall->nRecvSize);
+	    IOP::CModule* pModule(moduleIterator->second);
+        pModule->Invoke(pCall->nRPCNumber, m_eeRam + m_nDataAddr, pCall->nSendSize, m_eeRam + nRecvAddr, pCall->nRecvSize);
 	}
 	else
 	{
-		Log("Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
+		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
 	}
 
 	memset(&rend, 0, sizeof(RPCREQUESTEND));
@@ -364,7 +384,7 @@ uint32 CSIF::GetRegister(uint32 nRegister)
 			return 1;
 			break;
 		default:
-			Log("Warning. Trying to read an invalid system register (0x%0.8X).\r\n", nRegister);
+			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to read an invalid system register (0x%0.8X).\r\n", nRegister);
 			return 0;
 			break;
 		}
@@ -401,23 +421,8 @@ void CSIF::SetRegister(uint32 nRegister, uint32 nValue)
 			//Set by RPC library (initialized state?)
 			break;
 		default:
-			Log("Warning. Trying to write to an invalid system register (0x%0.8X).\r\n", nRegister);
+			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to write to an invalid system register (0x%0.8X).\r\n", nRegister);
 			break;
 		}
 	}
-}
-
-void CSIF::Log(const char* sFormat, ...)
-{
-#ifdef _DEBUG
-
-	if(!CPS2VM::m_Logging.GetSIFLoggingStatus()) return;
-
-	va_list Args;
-	printf("SIF: ");
-	va_start(Args, sFormat);
-	vprintf(sFormat, Args);
-	va_end(Args);
-
-#endif
 }

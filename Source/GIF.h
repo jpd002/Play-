@@ -11,7 +11,7 @@ public:
     virtual         ~CGIF();
 
     void			Reset();
-    uint32          ReceiveDMA(uint32, uint32, bool);
+    uint32          ReceiveDMA(uint32, uint32, uint32, bool);
     uint32          ProcessPacket(uint8*, uint32, uint32);
 
 private:

@@ -6,6 +6,8 @@
 #include "PS2OS.h"
 #include "DMAC.h"
 #include "GIF.h"
+#include "SIF.h"
+#include "INTC.h"
 #include "MIPS.h"
 #include "MailBox.h"
 #include "GSHandler.h"
@@ -14,6 +16,8 @@
 #include "iso9660/ISO9660.h"
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
+
+class CSIF;
 
 enum PS2VM_MSG
 {
@@ -108,6 +112,8 @@ public:
 
     CDMAC                       m_dmac;
     CGIF                        m_gif;
+    CSIF                        m_sif;
+    CINTC                       m_intc;
 	CPS2OS*                     m_os;
 
 	uint8*					    m_pVUMem0;

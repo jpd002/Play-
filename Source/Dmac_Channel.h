@@ -8,7 +8,7 @@ class CDMAC;
 
 namespace Dmac
 {
-    typedef std::tr1::function<uint32 (uint32, uint32, bool)> DmaReceiveHandler;
+    typedef std::tr1::function<uint32 (uint32, uint32, uint32, bool)> DmaReceiveHandler;
 
 //	typedef uint32				(*DMARECEIVEMETHOD)(uint32, uint32, bool);
 	typedef	void				(*DMASLICEDONECALLBACK)();

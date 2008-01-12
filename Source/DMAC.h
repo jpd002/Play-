@@ -122,6 +122,9 @@ private:
     boost::thread*      m_thread;
     boost::mutex        m_waitMutex;
     boost::condition    m_waitCondition;
+
+    Dmac::DmaReceiveHandler m_receiveDma5;
+    Dmac::DmaReceiveHandler m_receiveDma6;
 };
 
 #endif

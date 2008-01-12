@@ -1,12 +1,22 @@
-#include <stdio.h>
 #include "INTC.h"
-#include "DMAC.h"
-#include "PS2OS.h"
+#include "Log.h"
 
-uint32 CINTC::m_INTC_STAT = 0;
-uint32 CINTC::m_INTC_MASK = 0;
+#define LOG_NAME "intc"
 
 using namespace Framework;
+
+CINTC::CINTC(CDMAC& dmac) :
+m_INTC_STAT(0),
+m_INTC_MASK(0),
+m_dmac(dmac)
+{
+
+}
+
+CINTC::~CINTC()
+{
+
+}
 
 void CINTC::Reset()
 {
@@ -14,18 +24,14 @@ void CINTC::Reset()
 	m_INTC_MASK = 0;
 }
 
-void CINTC::CheckInterrupts()
+bool CINTC::IsInterruptPending()
 {
-	if(CDMAC::IsInterruptPending())
+	if(m_dmac.IsInterruptPending())
 	{
 		m_INTC_STAT |= 0x02;
 	}
 
-	if((m_INTC_STAT & m_INTC_MASK) != 0)
-	{
-		//Trigger an interrupt on the EE, but for now, we're gonna call the OS
-		CPS2OS::ExceptionHandler();
-	}
+	return (m_INTC_STAT & m_INTC_MASK) != 0;
 }
 
 uint32 CINTC::GetRegister(uint32 nAddress)
@@ -39,7 +45,7 @@ uint32 CINTC::GetRegister(uint32 nAddress)
 		return m_INTC_MASK;
 		break;
 	default:
-		printf("INTC: Read an unhandled register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled register (0x%0.8X).\r\n", nAddress);
 		break;
 	}
 
@@ -55,10 +61,9 @@ void CINTC::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 	case 0x1000F010:
 		m_INTC_MASK ^= nValue;
-		CheckInterrupts();
 		break;
 	default:
-		printf("INTC: Wrote to an unhandled register (0x%0.8X).\r\n", nAddress);
+        CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled register (0x%0.8X).\r\n", nAddress);
 		break;
 	}
 }
@@ -66,7 +71,6 @@ void CINTC::SetRegister(uint32 nAddress, uint32 nValue)
 void CINTC::AssertLine(uint32 nLine)
 {
 	m_INTC_STAT |= (1 << nLine);
-	CheckInterrupts();
 }
 
 void CINTC::LoadState(CStream* pStream)

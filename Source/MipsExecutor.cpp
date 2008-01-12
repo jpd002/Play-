@@ -159,7 +159,13 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
     for(uint32 address = functionAddress; ; address += 4)
     {
         //Probably going too far...
-        assert((address - functionAddress) <= 0x100000);
+        if((address - functionAddress) > 0x10000)
+        {
+            printf("MipsExecutor: Warning. Found no JR after a big distance.\r\n");
+            endAddress = address;
+            partitionPoints.insert(endAddress);
+            break;
+        }
         uint32 opcode = m_context.m_pMemoryMap->GetWord(address);
         if(opcode == 0x03E00008)
         {
@@ -184,8 +190,8 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
                 partitionPoints.insert(target);
             }
         }
-        //SYSCALL
-        if(opcode == 0x0000000C)
+        //SYSCALL or ERET
+        if(opcode == 0x0000000C || opcode == 0x42000018)
         {
             partitionPoints.insert(address + 4);
         }

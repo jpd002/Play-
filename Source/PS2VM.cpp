@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <exception>
 #include "PS2VM.h"
-#include "INTC.h"
 #include "IPU.h"
-#include "SIF.h"
 #include "VIF.h"
 #include "Timer.h"
 #include "MA_EE.h"
@@ -21,6 +19,7 @@
 #include "zip/ZipArchiveWriter.h"
 #include "Config.h"
 #include "Profiler.h"
+#include "IOP_FileIO.h"
 
 #define STATE_EE        ("ee")
 #define STATE_VU1       ("vu1")
@@ -73,9 +72,11 @@ m_nVBlankTicks(SCREENTICKS),
 m_nInVBlank(false),
 m_pCDROM0(NULL),
 m_dmac(m_pRAM, m_pSPR),
-m_gif(m_pGS, m_pRAM, m_pSPR)
+m_gif(m_pGS, m_pRAM, m_pSPR),
+m_sif(m_dmac, m_pRAM),
+m_intc(m_dmac)
 {
-    m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS);
+    m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif);
 }
 
 CPS2VM::~CPS2VM()
@@ -281,8 +282,9 @@ void CPS2VM::CreateVM()
 	m_VU1.m_pTickFunction	= NULL;
 #endif
 
-    m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, _1, _2, _3));
-
+    m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, _1, _2, _3, _4));
+    m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, _1, _2, _3, _4));
+    m_dmac.SetChannelTransferFunction(6, bind(&CSIF::ReceiveDMA6, &m_sif, _1, _2, _3, _4));
 	CDROM0_Initialize();
 
 	ResetVM();
@@ -317,12 +319,12 @@ void CPS2VM::ResetVM()
 	
 	//Reset subunits
 	CDROM0_Reset();
-//	CSIF::Reset();
+    m_sif.Reset();
 //	CIPU::Reset();
     m_gif.Reset();
 //	CVIF::Reset();
     m_dmac.Reset();
-//	CINTC::Reset();
+	m_intc.Reset();
 //	CTimer::Reset();
 
 	if(m_pGS != NULL)
@@ -549,7 +551,7 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	}
 	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
 	{
-//		nReturn = CINTC::GetRegister(nAddress);
+		nReturn = m_intc.GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
 	{
@@ -598,12 +600,13 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
     }
 	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
 	{
-//		CINTC::SetRegister(nAddress, nData);
+		m_intc.SetRegister(nAddress, nData);
 	}
 	else if(nAddress == 0x1000F180)
 	{
 		//stdout data
-//		CSIF::GetFileIO()->Write(1, 1, &nData);
+        throw runtime_error("Not implemented.");
+//        m_sif.GetFileIO()->Write(1, 1, &nData);
 	}
 	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
 	{
@@ -815,6 +818,15 @@ void CPS2VM::EmuThread()
 					}
 				}
 			}
+            if(!m_EE.m_State.nHasException)
+            {
+                if(m_intc.IsInterruptPending())
+                {
+                    m_os->ExceptionHandler();
+                    //Do we need to do some special treatment when we're serving an interrupt?
+                    //m_EE.m_State.nHasException = 1;
+                }
+            }
             if(!m_EE.m_State.nHasException)
             {
                 int executeQuota = m_singleStep ? 1 : 5000;

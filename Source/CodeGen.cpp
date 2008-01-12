@@ -358,6 +358,7 @@ unsigned int CCodeGen::AllocateRegister(REGISTER_TYPE nPreference)
 
 void CCodeGen::FreeRegister(unsigned int nRegister)
 {
+    assert(!RegisterHasNextUse(nRegister));
 	m_nRegisterAllocated[nRegister] = false;
 }
 
@@ -487,18 +488,6 @@ void CCodeGen::ReduceToRegister()
 
 		nRegister = AllocateRegister();
 		LoadRelativeInRegister(nRegister, nRelative);
-
-		PushReg(nRegister);
-	}
-	else if(m_Shadow.GetAt(0) == VARIABLE)
-	{
-		uint32 nVariable, nRegister;
-
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-		LoadVariableInRegister(nRegister, nVariable);
 
 		PushReg(nRegister);
 	}
@@ -683,7 +672,10 @@ void CCodeGen::PullRel(size_t nOffset)
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(nOffset)),
             m_nRegisterLookupEx[nRegister]);
 
-		FreeRegister(nRegister);
+        if(!RegisterHasNextUse(nRegister))
+        {
+		    FreeRegister(nRegister);
+        }
 	}
 	else if(m_Shadow.GetAt(0) == CONSTANT)
 	{
@@ -1663,14 +1655,11 @@ void CCodeGen::Not()
 
 void CCodeGen::Or()
 {
-	if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
+	if(FitsPattern<RegisterRegister>())
 	{
-		uint32 nRegister1, nRegister2;
-
-		m_Shadow.Pull();
-		nRegister2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRegister1 = m_Shadow.Pull();
+        RegisterRegister::PatternValue ops(GetPattern<RegisterRegister>());
+		uint32 nRegister1 = ops.first;
+        uint32 nRegister2 = ops.second;
 
 		//This register will change... Make sure there's no next uses
 		if(RegisterHasNextUse(nRegister1))
@@ -1685,11 +1674,10 @@ void CCodeGen::Or()
 			FreeRegister(nRegister2);
 		}
 
-		//or reg1, reg2
-		m_pBlock->StreamWrite(2, 0x0B, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
+        m_Assembler.OrEd(m_nRegisterLookupEx[nRegister1], 
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister2]));
 
-		m_Shadow.Push(nRegister1);
-		m_Shadow.Push(REGISTER);
+        PushReg(nRegister1);
 	}
     else if(FitsPattern<RelativeRelative>())
     {
@@ -1808,6 +1796,17 @@ void CCodeGen::Shl()
         FreeRegister(shiftAmount);
         PushReg(resultRegister);
     }
+    else if(FitsPattern<ConstantRelative>())
+    {
+        ConstantRelative::PatternValue ops = GetPattern<ConstantRelative>();
+        unsigned int shiftAmount = AllocateRegister(REGISTER_SHIFTAMOUNT);
+        unsigned int resultRegister = AllocateRegister();
+        LoadConstantInRegister(resultRegister, ops.first);
+        LoadRelativeInRegister(shiftAmount, ops.second);
+        m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        FreeRegister(shiftAmount);
+        PushReg(resultRegister);
+    }
     else
     {
         assert(0);
@@ -1819,8 +1818,19 @@ void CCodeGen::Shl(uint8 nAmount)
 	if(FitsPattern<SingleRegister>())
 	{
         SingleRegister::PatternValue op = GetPattern<SingleRegister>();
-        m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[op]), nAmount);
-        PushReg(op);
+        unsigned int resultRegister;
+        if(RegisterHasNextUse(op))
+        {
+            resultRegister = AllocateRegister();
+            CopyRegister(resultRegister, op);
+        }
+        else
+        {
+            resultRegister = op;
+        }
+
+        m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]), nAmount);
+        PushReg(resultRegister);
 	}
 	else if(FitsPattern<SingleRelative>())
 	{

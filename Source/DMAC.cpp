@@ -31,7 +31,7 @@ using namespace boost;
 //8 - SPR (incoming)
 //9 - SPR (outgoing)
 
-uint32 DummyTransfertFunction(uint32, uint32, bool)
+uint32 DummyTransfertFunction(uint32, uint32, uint32, bool)
 {
     throw runtime_error("Not implemented.");
 }
@@ -111,6 +111,12 @@ void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHan
     {
     case 2:
         m_D2.SetReceiveHandler(handler);
+        break;
+    case 5:
+        m_receiveDma5 = handler;
+        break;
+    case 6:
+        m_receiveDma6 = handler;
         break;
     default:
         throw runtime_error("Unsupported channel.");
@@ -471,19 +477,19 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	//D5_CHCR
-//	case 0x1000C000:
-//		m_D5_CHCR = nData;
-//		if(m_D5_CHCR & 0x100)
-//		{
-//			memcpy(CPS2VM::m_pRAM + m_D5_MADR, CSIF::m_pRAM, m_D5_QWC * 0x10);
-//			m_D5_CHCR	&= ~0x100;
-//			m_D_STAT	|= 0x20;
+	case 0x1000C000:
+		m_D5_CHCR = nData;
+		if(m_D5_CHCR & 0x100)
+		{
+            m_receiveDma5(m_D5_MADR, m_D5_QWC * 0x10, 0, false);
+			m_D5_CHCR	&= ~0x100;
+			m_D_STAT	|= 0x20;
 //			if(IsInterruptPending())
 //			{
 //				CINTC::CheckInterrupts();
 //			}
-//		}
-//		break;
+		}
+		break;
 	case 0x1000C004:
 	case 0x1000C008:
 	case 0x1000C00C:
@@ -507,14 +513,14 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	//D6_CHCR
-//	case 0x1000C400:
-//		m_D6_CHCR = nData;
-//		if(m_D6_CHCR & 0x100)
-//		{
-//			CSIF::ReceiveDMA(m_D6_MADR, m_D6_TADR, m_D6_QWC * 0x10);
-//			m_D6_CHCR &= ~0x100;
-//		}
-//		break;
+	case 0x1000C400:
+		m_D6_CHCR = nData;
+		if(m_D6_CHCR & 0x100)
+		{
+            m_receiveDma6(m_D6_MADR, m_D6_QWC * 0x10, m_D6_TADR, false);
+			m_D6_CHCR &= ~0x100;
+		}
+		break;
 	case 0x1000C404:
 	case 0x1000C408:
 	case 0x1000C40C:

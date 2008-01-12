@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include "Stream.h"
+#include "DMAC.h"
 
 class CINTC
 {
@@ -21,20 +22,24 @@ public:
 		INTC_LINE_TIMER2		= 11,
 	};
 
-	static void		Reset();
-	static void		CheckInterrupts();
+                CINTC(CDMAC&);
+    virtual     ~CINTC();
 
-	static uint32	GetRegister(uint32);
-	static void		SetRegister(uint32, uint32);
+	void		Reset();
+	bool		IsInterruptPending();
 
-	static void		AssertLine(uint32);
+	uint32      GetRegister(uint32);
+	void        SetRegister(uint32, uint32);
 
-	static void		LoadState(Framework::CStream*);
-	static void		SaveState(Framework::CStream*);
+	void        AssertLine(uint32);
+
+	void        LoadState(Framework::CStream*);
+	void        SaveState(Framework::CStream*);
 
 private:
-	static uint32	m_INTC_STAT;
-	static uint32	m_INTC_MASK;
+	uint32	    m_INTC_STAT;
+	uint32	    m_INTC_MASK;
+    CDMAC&      m_dmac;
 };
 
 #endif
