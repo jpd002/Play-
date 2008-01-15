@@ -89,7 +89,7 @@ protected:
     struct Template_Div32
     {
         typedef std::tr1::function<void ()> OperationFunctionType;
-        void operator()(const OperationFunctionType&) const;
+        void operator()(const OperationFunctionType&, unsigned int) const;
     };
 
     struct Template_MovEqual

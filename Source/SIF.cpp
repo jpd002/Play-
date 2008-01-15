@@ -1,17 +1,7 @@
 #include <stdio.h>
-#include "PS2VM.h"
+#include "Ps2Const.h"
 #include "SIF.h"
 #include "PtrMacro.h"
-#include "IOP_PadMan.h"
-#include "IOP_LoadFile.h"
-#include "IOP_FileIO.h"
-#include "IOP_SysMem.h"
-#include "IOP_McServ.h"
-#include "IOP_DbcMan.h"
-#include "IOP_LibSD.h"
-#include "IOP_Cdvdfsv.h"
-#include "IOP_Dummy.h"
-#include "IOP_Unknown.h"
 #include "Profiler.h"
 #include "Log.h"
 
@@ -25,6 +15,7 @@
 #endif
 
 using namespace Framework;
+using namespace std;
 
 CSIF::CSIF(CDMAC& dmac, uint8* eeRam) :
 m_nMAINADDR(0),
@@ -33,9 +24,10 @@ m_nMSFLAG(0),
 m_nSMFLAG(0),
 m_nEERecvAddr(0),
 m_nDataAddr(0),
-m_pPadMan(NULL),
 m_dmac(dmac),
-m_eeRam(eeRam)
+m_eeRam(eeRam),
+m_dmaBuffer(NULL),
+m_dmaBufferSize(0)
 {
 
 }
@@ -78,23 +70,29 @@ void CSIF::Reset()
 //	m_Module.Insert(new IOP::CDbcMan,								IOP::CDbcMan::MODULE_ID);
 }
 
+void CSIF::SetDmaBuffer(uint8* buffer, uint32 size)
+{
+    m_dmaBuffer = buffer;
+    m_dmaBufferSize = size;
+}
+
+void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
+{
+    m_modules[moduleId] = module;
+}
+
 void CSIF::DeleteModules()
 {
-    m_modules.erase(IOP::CPadMan::MODULE_ID_1);
-	m_modules.erase(IOP::CPadMan::MODULE_ID_3);
-
-	DELETEPTR(m_pPadMan);
-
-    for(ModuleMap::iterator moduleIterator(m_modules.begin());
-        m_modules.end() != moduleIterator; moduleIterator++)
-    {
-        delete moduleIterator->second;
-    }
+    m_modules.clear();
 }
 
 uint32 CSIF::ReceiveDMA5(uint32 srcAddress, uint32 size, uint32 unused, bool isTagIncluded)
 {
-    memcpy(m_eeRam + srcAddress, CSIF::m_pRAM, size);
+    if(size > m_dmaBufferSize)
+    {
+        throw runtime_error("Packet too big.");
+    }
+    memcpy(m_eeRam + srcAddress, m_dmaBuffer, size);
     return size;
 }
 
@@ -108,7 +106,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	PACKETHDR* pHDR;
 
 	//Humm, this is kinda odd, but it ors the address with 0x20000000
-	nSrcAddr &= (CPS2VM::RAMSIZE - 1);
+	nSrcAddr &= (PS2::EERAMSIZE - 1);
 
 	if(nDstAddr == RPC_RECVADDR)
 	{
@@ -163,10 +161,13 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 	//Humm, the DMAC doesn't know about our addresses on this side...
 	uint32 nQuads;
 
-	memcpy(m_pRAM, pData, nSize);
+    if(nSize > m_dmaBufferSize)
+    {
+        throw runtime_error("Packet too big.");
+    }
 
-	nQuads = nSize / 0x10;
-	if((nSize & 0x0F) != 0) nQuads++;
+	memcpy(m_dmaBuffer, pData, nSize);
+	nQuads = (nSize + 0x0F) / 0x10;
 
 	m_dmac.SetRegister(CDMAC::D5_MADR, m_nEERecvAddr);
 	m_dmac.SetRegister(CDMAC::D5_QWC,  nQuads);
@@ -209,23 +210,6 @@ void CSIF::SaveState(CStream* pStream)
 */
 }
 
-IOP::CPadMan* CSIF::GetPadMan()
-{
-	return m_pPadMan;
-}
-
-IOP::CDbcMan* CSIF::GetDbcMan()
-{
-    ModuleMap::iterator moduleIterator(m_modules.find(IOP::CDbcMan::MODULE_ID));
-    return moduleIterator == m_modules.end() ? NULL : static_cast<IOP::CDbcMan*>(moduleIterator->second);
-}
-
-IOP::CFileIO* CSIF::GetFileIO()
-{
-    ModuleMap::iterator moduleIterator(m_modules.find(IOP::CFileIO::MODULE_ID));
-    return moduleIterator == m_modules.end() ? NULL : static_cast<IOP::CFileIO*>(moduleIterator->second);
-}
-
 /////////////////////////////////////////////////////////
 //SIF Commands
 /////////////////////////////////////////////////////////
@@ -250,7 +234,7 @@ void CSIF::Cmd_Initialize(PACKETHDR* pHDR)
 	if(pInit->Header.nOptional == 0)
 	{
 		m_nEERecvAddr =  pInit->nEEAddress;
-		m_nEERecvAddr &= (CPS2VM::RAMSIZE - 1);
+		m_nEERecvAddr &= (PS2::EERAMSIZE - 1);
 	}
 	else if(pInit->Header.nOptional == 1)
 	{
@@ -312,13 +296,16 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
 
-	nRecvAddr = (pCall->nRecv & (CPS2VM::RAMSIZE - 1));
+	nRecvAddr = (pCall->nRecv & (PS2::EERAMSIZE - 1));
 
     ModuleMap::iterator moduleIterator(m_modules.find(pCall->nServerDataAddr));
 	if(moduleIterator != m_modules.end())
 	{
-	    IOP::CModule* pModule(moduleIterator->second);
-        pModule->Invoke(pCall->nRPCNumber, m_eeRam + m_nDataAddr, pCall->nSendSize, m_eeRam + nRecvAddr, pCall->nRecvSize);
+	    CSifModule* pModule(moduleIterator->second);
+        pModule->Invoke(pCall->nRPCNumber, 
+            reinterpret_cast<uint32*>(m_eeRam + m_nDataAddr), pCall->nSendSize, 
+            reinterpret_cast<uint32*>(m_eeRam + nRecvAddr), pCall->nRecvSize,
+            m_eeRam);
 	}
 	else
 	{

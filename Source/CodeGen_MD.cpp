@@ -119,3 +119,37 @@ void CCodeGen::MD_SubB()
         assert(0);
     }
 }
+
+void CCodeGen::MD_SubW()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, ops.first);
+        m_Assembler.PsubdVo(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
+void CCodeGen::MD_Xor()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, ops.first);
+        m_Assembler.PxorVo(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}

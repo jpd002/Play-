@@ -791,7 +791,7 @@ void CMA_MIPSIV::SRL()
 //03
 void CMA_MIPSIV::SRA()
 {
-    Template_ShiftCst32()(&CCodeGen::Sra);
+    Template_ShiftCst32()(bind(&CCodeGen::Sra, m_codeGen, _1));
 }
 
 //04
@@ -809,11 +809,7 @@ void CMA_MIPSIV::SRLV()
 //07
 void CMA_MIPSIV::SRAV()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->Sra();
-	SignExtendTop32(m_nRD);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+    Template_ShiftVar32()(bind(&CCodeGen::Sra, m_codeGen));
 }
 
 //08
@@ -907,11 +903,11 @@ void CMA_MIPSIV::MFLO()
 //13
 void CMA_MIPSIV::MTLO()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[0]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[1]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
 }
 
 //14
@@ -961,13 +957,13 @@ void CMA_MIPSIV::MULTU()
 //1A
 void CMA_MIPSIV::DIV()
 {
-    Template_Div32()(bind(&CCodeGen::DivS, m_codeGen));
+    Template_Div32()(bind(&CCodeGen::DivS, m_codeGen), 0);
 }
 
 //1B
 void CMA_MIPSIV::DIVU()
 {
-    Template_Div32()(bind(&CCodeGen::Div, m_codeGen));
+    Template_Div32()(bind(&CCodeGen::Div, m_codeGen), 0);
 }
 
 //20

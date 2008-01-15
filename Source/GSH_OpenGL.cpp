@@ -1155,6 +1155,8 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
 	glDeleteTextures(1, &nTexture);
+
+    FlipImpl();
 }
 
 void CGSH_OpenGL::SetVBlank()

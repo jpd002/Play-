@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <exception>
 #include "PS2VM.h"
+#include "Ps2Const.h"
 #include "IPU.h"
 #include "VIF.h"
 #include "Timer.h"
@@ -19,7 +20,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "Config.h"
 #include "Profiler.h"
-#include "IOP_FileIO.h"
+#include "iop/IopBios.h"
+#include "iop/DirectoryDevice.h"
 
 #define STATE_EE        ("ee")
 #define STATE_VU1       ("vu1")
@@ -27,6 +29,13 @@
 #define STATE_SPR       ("spr")
 #define STATE_VUMEM1    ("vumem1")
 #define STATE_MICROMEM1 ("micromem1")
+
+#define PREF_PS2_HOST_DIRECTORY             ("ps2.host.directory")
+#define PREF_PS2_MC0_DIRECTORY              ("ps2.mc0.directory")
+#define PREF_PS2_MC1_DIRECTORY              ("ps2.mc1.directory")
+#define PREF_PS2_HOST_DIRECTORY_DEFAULT     ("./vfs/host")
+#define PREF_PS2_MC0_DIRECTORY_DEFAULT      ("./vfs/mc0")
+#define PREF_PS2_MC1_DIRECTORY_DEFAULT      ("./vfs/mc1")
 
 #ifdef _DEBUG
 
@@ -52,9 +61,10 @@ using namespace std;
 using namespace std::tr1;
 
 CPS2VM::CPS2VM() :
-m_pRAM(new uint8[RAMSIZE]),
-m_pBIOS(new uint8[BIOSSIZE]),
-m_pSPR(new uint8[SPRSIZE]),
+m_pRAM(new uint8[PS2::EERAMSIZE]),
+m_pBIOS(new uint8[PS2::EEBIOSSIZE]),
+m_pSPR(new uint8[PS2::SPRSIZE]),
+m_iopRam(new uint8[PS2::IOPRAMSIZE]),
 m_pVUMem0(NULL),
 m_pMicroMem0(NULL),
 m_pVUMem1(NULL),
@@ -62,6 +72,7 @@ m_pMicroMem1(NULL),
 m_pThread(NULL),
 m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
 m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
+m_iop(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00400000),
 m_executor(m_EE),
 m_nStatus(PAUSED),
 m_nEnd(false),
@@ -76,12 +87,18 @@ m_gif(m_pGS, m_pRAM, m_pSPR),
 m_sif(m_dmac, m_pRAM),
 m_intc(m_dmac)
 {
+	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
+	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
+	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
+
     m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif);
+    m_iopOs = new CIopBios(0x100, m_iop, m_iopRam, PS2::IOPRAMSIZE, m_sif);
 }
 
 CPS2VM::~CPS2VM()
 {
     delete m_os;
+    delete m_iopOs;
 }
 
 //////////////////////////////////////////////////
@@ -231,13 +248,11 @@ unsigned int CPS2VM::LoadState(const char* sPath)
 
 void CPS2VM::CreateVM()
 {
-	printf("PS2VM: Virtual Machine Memory Usage: RAM: %i MBs, BIOS: %i MBs, SPR: %i KBs.\r\n", RAMSIZE / 0x100000, BIOSSIZE / 0x100000, SPRSIZE / 0x1000);
+    printf("PS2VM: Virtual Machine Memory Usage: RAM: %i MBs, BIOS: %i MBs, SPR: %i KBs.\r\n", 
+        PS2::EERAMSIZE / 0x100000, PS2::EEBIOSSIZE / 0x100000, PS2::SPRSIZE / 0x1000);
 	
-//	m_pRAM			= (uint8*)malloc(RAMSIZE);
-//	m_pBIOS			= (uint8*)malloc(BIOSSIZE);
-//	m_pSPR			= (uint8*)malloc(SPRSIZE);
-	m_pVUMem1		= (uint8*)malloc(VUMEM1SIZE);
-	m_pMicroMem1	= (uint8*)malloc(MICROMEM1SIZE);
+    m_pVUMem1		= (uint8*)malloc(PS2::VUMEM1SIZE);
+    m_pMicroMem1	= (uint8*)malloc(PS2::MICROMEM1SIZE);
 
 	//EmotionEngine context setup
 	m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
@@ -296,10 +311,10 @@ void CPS2VM::ResetVM()
 {
     m_executor.Clear();
 
-	memset(m_pRAM,			0, RAMSIZE);
-	memset(m_pSPR,			0, SPRSIZE);
-	memset(m_pVUMem1,		0, VUMEM1SIZE);
-	memset(m_pMicroMem1,	0, MICROMEM1SIZE);
+    memset(m_pRAM,			0, PS2::EERAMSIZE);
+    memset(m_pSPR,			0, PS2::SPRSIZE);
+    memset(m_pVUMem1,		0, PS2::VUMEM1SIZE);
+    memset(m_pMicroMem1,	0, PS2::MICROMEM1SIZE);
 
 	//LoadBIOS();
 
@@ -336,8 +351,13 @@ void CPS2VM::ResetVM()
 //	m_pOS = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS);
     m_os->Release();
     m_os->Initialize();
+    m_iopOs->Reset();
 
-	RegisterModulesInPadHandler();
+    m_iopOs->GetIoman()->RegisterDevice("host", new CDirectoryDevice(PREF_PS2_HOST_DIRECTORY));
+    m_iopOs->GetIoman()->RegisterDevice("mc0", new CDirectoryDevice(PREF_PS2_MC0_DIRECTORY));
+    m_iopOs->GetIoman()->RegisterDevice("mc1", new CDirectoryDevice(PREF_PS2_MC1_DIRECTORY));
+
+    RegisterModulesInPadHandler();
 }
 
 void CPS2VM::DestroyVM()
@@ -364,10 +384,10 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 
         archive.InsertFile(new CMemoryStateFile(STATE_EE,           &m_EE.m_State,  sizeof(MIPSSTATE)));
         archive.InsertFile(new CMemoryStateFile(STATE_VU1,          &m_VU1.m_State, sizeof(MIPSSTATE)));
-        archive.InsertFile(new CMemoryStateFile(STATE_RAM,          m_pRAM,         RAMSIZE));
-        archive.InsertFile(new CMemoryStateFile(STATE_SPR,          m_pSPR,         SPRSIZE));
-        archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,       m_pVUMem1,      VUMEM1SIZE));
-        archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,    m_pMicroMem1,   MICROMEM1SIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_RAM,          m_pRAM,         PS2::EERAMSIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_SPR,          m_pSPR,         PS2::SPRSIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,       m_pVUMem1,      PS2::VUMEM1SIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,    m_pMicroMem1,   PS2::MICROMEM1SIZE));
 
         m_pGS->SaveState(archive);
         m_dmac.SaveState(archive);
@@ -405,10 +425,10 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 
         archive.BeginReadFile(STATE_EE          )->Read(&m_EE.m_State,  sizeof(MIPSSTATE));
         archive.BeginReadFile(STATE_VU1         )->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
-        archive.BeginReadFile(STATE_RAM         )->Read(m_pRAM,         RAMSIZE);
-        archive.BeginReadFile(STATE_SPR         )->Read(m_pSPR,         SPRSIZE);
-        archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      VUMEM1SIZE);
-        archive.BeginReadFile(STATE_MICROMEM1   )->Read(m_pMicroMem1,   MICROMEM1SIZE);
+        archive.BeginReadFile(STATE_RAM         )->Read(m_pRAM,         PS2::EERAMSIZE);
+        archive.BeginReadFile(STATE_SPR         )->Read(m_pSPR,         PS2::SPRSIZE);
+        archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      PS2::VUMEM1SIZE);
+        archive.BeginReadFile(STATE_MICROMEM1   )->Read(m_pMicroMem1,   PS2::MICROMEM1SIZE);
 
         m_pGS->LoadState(archive);
         m_dmac.LoadState(archive);
@@ -516,7 +536,7 @@ void CPS2VM::CDROM0_Destroy()
 void CPS2VM::LoadBIOS()
 {
 	CStdStream BiosStream(fopen("./vfs/rom0/scph10000.bin", "rb"));
-	BiosStream.Read(m_pBIOS, BIOSSIZE);
+    BiosStream.Read(m_pBIOS, PS2::EEBIOSSIZE);
 }
 
 void CPS2VM::RegisterModulesInPadHandler()
@@ -633,7 +653,7 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 
 void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 {
-	if(nAddress < RAMSIZE)
+    if(nAddress < PS2::EERAMSIZE)
 	{
 		//Check if the block we're about to invalidate is the same
 		//as the one we're executing in

@@ -397,6 +397,11 @@ void CX86Assembler::Ret()
     WriteByte(0xC3);
 }
 
+void CX86Assembler::SarEd(const CAddress& address)
+{
+    WriteEvOp(0xD3, 0x07, false, address);
+}
+
 void CX86Assembler::SarEd(const CAddress& address, uint8 amount)
 {
     WriteEvOp(0xC1, 0x07, false, address);

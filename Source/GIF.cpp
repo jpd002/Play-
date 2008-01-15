@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "GIF.h"
 #include "uint128.h"
-#include "PS2VM.h"
+#include "Ps2Const.h"
 #include "Profiler.h"
 #include "Log.h"
 
@@ -283,7 +283,7 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIn
 	if(nAddress & 0x80000000)
 	{
 		pMemory = m_spr;
-		nAddress &= CPS2VM::SPRSIZE - 1;
+		nAddress &= PS2::SPRSIZE - 1;
 	}
 	else
 	{

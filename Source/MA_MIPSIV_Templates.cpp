@@ -91,19 +91,41 @@ void CMA_MIPSIV::Template_Mult32::operator()(const OperationFunctionType& Functi
     }
 }
 
-void CMA_MIPSIV::Template_Div32::operator()(const OperationFunctionType& function) const
+void CMA_MIPSIV::Template_Div32::operator()(const OperationFunctionType& function, unsigned int unit) const
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    size_t lo[2];
+    size_t hi[2];
+
+    switch(unit)
+    {
+    case 0:
+        lo[0] = offsetof(CMIPS, m_State.nLO[0]);
+        lo[1] = offsetof(CMIPS, m_State.nLO[1]);
+        hi[0] = offsetof(CMIPS, m_State.nHI[0]);
+        hi[1] = offsetof(CMIPS, m_State.nHI[1]);
+        break;
+    case 1:
+        lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
+        lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
+        hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
+        hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
+        break;
+    default:
+        throw runtime_error("Invalid unit number.");
+        break;
+    }
+
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     function();
 
     m_codeGen->SeX();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
+	m_codeGen->PullRel(lo[1]);
+	m_codeGen->PullRel(lo[0]);
 
 	m_codeGen->SeX();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
+	m_codeGen->PullRel(hi[1]);
+	m_codeGen->PullRel(hi[0]);
 }
 
 void CMA_MIPSIV::Template_MovEqual::operator()(bool isEqual) const

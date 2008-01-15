@@ -4,7 +4,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 #include "PS2OS.h"
-#include "PS2VM.h"
+#include "Ps2Const.h"
 #include "StdStream.h"
 #include "PtrMacro.h"
 #include "Utils.h"
@@ -2140,7 +2140,7 @@ void CPS2OS::sc_Deci2Call()
 		if(pHandler->nValid != 0)
 		{
 			nParam  = *(uint32*)&m_ram[pHandler->nBufferAddr + 0x10];
-			nParam &= (CPS2VM::RAMSIZE - 1);
+			nParam &= (PS2::EERAMSIZE - 1);
 
 			nLength = m_ram[nParam + 0x00] - 0x0C;
 			sString = &m_ram[nParam + 0x0C];
@@ -2182,7 +2182,7 @@ void CPS2OS::sc_Deci2Call()
 //7F
 void CPS2OS::sc_GetMemorySize()
 {
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = CPS2VM::RAMSIZE;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = PS2::EERAMSIZE;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 

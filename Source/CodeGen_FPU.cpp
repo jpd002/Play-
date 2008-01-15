@@ -368,15 +368,18 @@ void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
         case CONDITION_BL:
             conditionCode = CX86Assembler::SSE_CMP_LT;
             break;
+        case CONDITION_BE:
+            conditionCode = CX86Assembler::SSE_CMP_LE;
+            break;
         default:
             assert(0);
             break;
         }
         XMMREGISTER tempResultRegister = AllocateXmmRegister();
         unsigned int resultRegister = AllocateRegister();
-        FP_LoadSingleRelativeInRegister(tempResultRegister, ops.first);
+        FP_LoadSingleRelativeInRegister(tempResultRegister, ops.second);
         m_Assembler.CmpssEd(tempResultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second),
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first),
             conditionCode);
         //Can't move directly to register using MOVSS, so we use CVTTSS2SI
         //0x00000000 -- CVT -> zero

@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "PS2VM.h"
 #include "DMAC.h"
 #include "INTC.h"
 #include "GIF.h"
 #include "SIF.h"
+#include "Ps2Const.h"
 #include "Profiler.h"
 #include "Log.h"
 #include "RegisterStateFile.h"
@@ -143,11 +143,11 @@ uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
 
 	if(m_D3_MADR & 0x80000000)
 	{
-		pDst = m_spr + (m_D3_MADR & (CPS2VM::SPRSIZE - 1));
+		pDst = m_spr + (m_D3_MADR & (PS2::SPRSIZE - 1));
 	}
 	else
 	{
-		pDst = m_ram + (m_D3_MADR & (CPS2VM::RAMSIZE - 1));
+		pDst = m_ram + (m_D3_MADR & (PS2::EERAMSIZE - 1));
 	}
 
 	memcpy(pDst, pBuffer, nSize * 0x10);
@@ -212,8 +212,8 @@ uint32 CDMAC::ReceiveSPRDMA(uint32 nSrcAddress, uint32 nCount, bool nTagIncluded
 	assert(nTagIncluded == false);
 
 	nDstAddress = m_D9_SADR;
-	nDstAddress &= (CPS2VM::SPRSIZE - 1);
-	nSrcAddress &= (CPS2VM::RAMSIZE - 1);
+	nDstAddress &= (PS2::SPRSIZE - 1);
+	nSrcAddress &= (PS2::EERAMSIZE - 1);
 
 	memcpy(m_spr + nDstAddress, m_ram + nSrcAddress, nCount * 0x10);
 

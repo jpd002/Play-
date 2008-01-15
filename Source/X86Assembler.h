@@ -146,6 +146,7 @@ public:
     void                                    PushEd(const CAddress&);
     void                                    PushId(uint32);
     void                                    Ret();
+    void                                    SarEd(const CAddress&);
     void                                    SarEd(const CAddress&, uint8);
     void                                    SbbEd(REGISTER, const CAddress&);
     void                                    SbbId(const CAddress&, uint32);
@@ -204,6 +205,7 @@ public:
     void                                    PcmpeqdVo(XMMREGISTER, const CAddress&);
     void                                    PorVo(XMMREGISTER, const CAddress&);
     void                                    PsubbVo(XMMREGISTER, const CAddress&);
+    void                                    PsubdVo(XMMREGISTER, const CAddress&);
     void                                    PxorVo(XMMREGISTER, const CAddress&);
 
     void                                    MovssEd(const CAddress&, XMMREGISTER);

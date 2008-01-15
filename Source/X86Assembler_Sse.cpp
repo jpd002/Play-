@@ -42,6 +42,13 @@ void CX86Assembler::PsubbVo(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0xF8, address, registerId);
 }
 
+void CX86Assembler::PsubdVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0xFA, address, registerId);
+}
+
 void CX86Assembler::PxorVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x66);

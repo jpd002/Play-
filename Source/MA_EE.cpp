@@ -272,33 +272,13 @@ void CMA_EE::MULTU1()
 //1A
 void CMA_EE::DIV1()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->DivS();
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[0]);
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[0]);
+    Template_Div32()(bind(&CCodeGen::DivS, m_codeGen), 1);
 }
 
 //1B
 void CMA_EE::DIVU1()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->Div();
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[0]);
-
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[0]);
+    Template_Div32()(bind(&CCodeGen::Div, m_codeGen), 1);
 }
 
 //28
@@ -356,14 +336,10 @@ void CMA_EE::PSRAH()
 //01
 void CMA_EE::PSUBW()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::SubW();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_SubW();
+    PullVector(m_nRD);
 }
 
 //04
@@ -646,14 +622,10 @@ void CMA_EE::PAND()
 //13
 void CMA_EE::PXOR()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRS]);
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRT]);
-		CVUI128::Xor();
-		CVUI128::Pull(&m_pCtx->m_State.nGPR[m_nRD]);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_Xor();
+    PullVector(m_nRD);
 }
 
 //////////////////////////////////////////////////

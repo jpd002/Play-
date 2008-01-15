@@ -119,8 +119,9 @@ public:
 	void                            Shl(uint8);
 	static void						Shl64();
 	void                            Shl64(uint8);
-    static void                     Sra(uint8);
-    static void                     Sra64(uint8);
+    void                            Sra();
+    void                            Sra(uint8);
+    void                            Sra64(uint8);
     void                            Srl();
     void                            Srl(uint8);
 	static void						Srl64();
@@ -145,14 +146,16 @@ public:
     void                            FP_Neg();
 
     //SIMD (128-bits only)
-    void                            MD_PushRel(size_t);
-    void                            MD_PullRel(size_t);
+    virtual void                    MD_PushRel(size_t);
+    virtual void                    MD_PullRel(size_t);
     void                            MD_PushReg(XMMREGISTER);
 
     void                            MD_And();
     void                            MD_Not();
     void                            MD_Or();
     void                            MD_SubB();
+    void                            MD_SubW();
+    void                            MD_Xor();
 
     void                            SetStream(Framework::CStream*);
     static CX86Assembler            m_Assembler;

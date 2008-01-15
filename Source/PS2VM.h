@@ -17,7 +17,7 @@
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
 
-class CSIF;
+class CIopBios;
 
 enum PS2VM_MSG
 {
@@ -46,31 +46,6 @@ typedef CPadHandler*		(*PADHANDLERFACTORY)(void*);
 class CPS2VM : public CVirtualMachine
 {
 public:
-	enum PS2VM_RAMSIZE
-	{
-		RAMSIZE = 0x02000000,
-	};
-
-	enum PS2VM_BIOSSIZE
-	{
-		BIOSSIZE = 0x00400000,
-	};
-
-	enum PS2VM_SPRSIZE
-	{
-		SPRSIZE = 0x00004000,
-	};
-
-	enum PS2VM_VUMEM1SIZE
-	{
-		VUMEM1SIZE = 0x00004000,
-	};
-
-	enum PS2VM_MICROMEM1SIZE
-	{
-		MICROMEM1SIZE = 0x00004000,
-	};
-
                                 CPS2VM();
     virtual                     ~CPS2VM();
 
@@ -109,12 +84,14 @@ public:
 	uint8*					    m_pRAM;
 	uint8*					    m_pBIOS;
 	uint8*					    m_pSPR;
+    uint8*                      m_iopRam;
 
     CDMAC                       m_dmac;
     CGIF                        m_gif;
     CSIF                        m_sif;
     CINTC                       m_intc;
 	CPS2OS*                     m_os;
+    CIopBios*                   m_iopOs;
 
 	uint8*					    m_pVUMem0;
 	uint8*					    m_pMicroMem0;
@@ -124,6 +101,7 @@ public:
 
     CMIPS                       m_EE;
     CMIPS                       m_VU1;
+    CMIPS                       m_iop;
     CMipsExecutor               m_executor;
     unsigned int				m_nVBlankTicks;
     bool						m_nInVBlank;

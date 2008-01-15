@@ -2052,6 +2052,36 @@ void CCodeGen::Shl64(uint8 nAmount)
 	}
 }
 
+void CCodeGen::Sra()
+{
+    if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+        unsigned int shiftAmount = AllocateRegister(REGISTER_SHIFTAMOUNT);
+        unsigned int resultRegister = AllocateRegister();
+        LoadRelativeInRegister(resultRegister, ops.first);
+        LoadRelativeInRegister(shiftAmount, ops.second);
+        m_Assembler.SarEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        FreeRegister(shiftAmount);
+        PushReg(resultRegister);
+    }
+    else if(FitsPattern<ConstantRelative>())
+    {
+        ConstantRelative::PatternValue ops = GetPattern<ConstantRelative>();
+        unsigned int shiftAmount = AllocateRegister(REGISTER_SHIFTAMOUNT);
+        unsigned int resultRegister = AllocateRegister();
+        LoadConstantInRegister(resultRegister, ops.first);
+        LoadRelativeInRegister(shiftAmount, ops.second);
+        m_Assembler.SarEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        FreeRegister(shiftAmount);
+        PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
 void CCodeGen::Sra(uint8 nAmount)
 {
 	if(FitsPattern<SingleRegister>())
@@ -2062,7 +2092,7 @@ void CCodeGen::Sra(uint8 nAmount)
 	}
 	else if(FitsPattern<SingleRelative>())
 	{
-        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Sra, nAmount));
+        UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Sra, this, nAmount));
 	}
 	else
 	{

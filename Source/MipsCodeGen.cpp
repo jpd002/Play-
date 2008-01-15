@@ -109,6 +109,25 @@ void CMipsCodeGen::FP_PullWordTruncate(size_t offset)
     CCodeGen::FP_PullWordTruncate(offset);
 }
 
+void CMipsCodeGen::MD_PushRel(size_t offset)
+{
+    //Dump all four 32-bits of the variable
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        DumpVariable(offset + (i * 4));
+    }
+    CCodeGen::MD_PushRel(offset);
+}
+
+void CMipsCodeGen::MD_PullRel(size_t offset)
+{
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        assert(GetVariableStatus(offset + (i * 4)) == NULL);
+    }
+    CCodeGen::MD_PullRel(offset);
+}
+
 void CMipsCodeGen::EndIf()
 {
     assert(m_Shadow.GetCount() == 0);

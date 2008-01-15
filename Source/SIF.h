@@ -3,15 +3,8 @@
 
 #include <map>
 #include "Stream.h"
-#include "IOP_Module.h"
+#include "SifModule.h"
 #include "DMAC.h"
-
-namespace IOP
-{
-    class CPadMan;
-    class CDbcMan;
-    class CFileIO;
-};
 
 class CSIF
 {
@@ -21,6 +14,9 @@ public:
 
 	void							Reset();
 	
+    void                            RegisterModule(uint32, CSifModule*);
+    void                            SetDmaBuffer(uint8*, uint32);
+
     uint32                          ReceiveDMA5(uint32, uint32, uint32, bool);
 	uint32							ReceiveDMA6(uint32, uint32, uint32, bool);
 	void							SendDMA(void*, uint32);
@@ -31,15 +27,8 @@ public:
 	void							LoadState(Framework::CStream*);
 	void							SaveState(Framework::CStream*);
 
-	IOP::CPadMan*					GetPadMan();
-	IOP::CDbcMan*					GetDbcMan();
-	IOP::CFileIO*					GetFileIO();
-
-	//This will eventually be moved in the IOP
-	uint8							m_pRAM[0x1000];
-
 private:
-    typedef std::map<uint32, IOP::CModule*> ModuleMap;
+    typedef std::map<uint32, CSifModule*> ModuleMap;
 
 	enum CONST_MAX_USERREG
 	{
@@ -115,6 +104,8 @@ private:
 	void							Cmd_Call(PACKETHDR*);
 
     uint8*                          m_eeRam;
+    uint8*                          m_dmaBuffer;
+    uint32                          m_dmaBufferSize;
     CDMAC&                          m_dmac;
 
 	uint32							m_nMAINADDR;
@@ -127,7 +118,6 @@ private:
 
 	uint32							m_nUserReg[MAX_USERREG];
 
-	IOP::CPadMan*					m_pPadMan;
 	ModuleMap	                    m_modules;
 };
 
