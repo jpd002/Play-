@@ -94,6 +94,11 @@ unsigned int CBasicBlock::Execute()
 //		: "D" (function), "c" (context)
 //		: "%ebp", "%esi");
 
+    if((m_context.m_State.nGPR[CMIPS::RA].nV0 & 3) != 0)
+    {
+        assert(0);
+    }
+
     if(m_context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
     {
         m_context.m_State.nPC = m_context.m_State.nDelayedJumpAddr;

@@ -777,6 +777,23 @@ void CCodeGen::PullTop()
     }
 }
 
+void CCodeGen::Swap()
+{
+    uint32 value[2];
+    uint32 valueType[2];
+
+    for(int i = 1; i >= 0; i--)
+    {
+        valueType[i]   = m_Shadow.Pull();
+        value[i]       = m_Shadow.Pull();
+    }
+    for(int i = 1; i >= 0; i--)
+    {
+        m_Shadow.Push(value[i]);
+        m_Shadow.Push(valueType[i]);
+    }
+}
+
 void CCodeGen::Add()
 {
 	if(FitsPattern<CommutativeRelativeConstant>())
@@ -2826,6 +2843,11 @@ void CCodeGen::EmitLoad(uint32 valueType, uint32 value, unsigned int registerId)
         break;
     case RELATIVE:
         LoadRelativeInRegister(registerId, value);
+        break;
+    case REGISTER:
+        assert(!RegisterHasNextUse(value));
+        CopyRegister(registerId, value);
+        FreeRegister(value);
         break;
     default:
         assert(0);

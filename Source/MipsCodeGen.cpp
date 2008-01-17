@@ -128,6 +128,12 @@ void CMipsCodeGen::MD_PullRel(size_t offset)
     CCodeGen::MD_PullRel(offset);
 }
 
+void CMipsCodeGen::BeginIf(bool condition)
+{
+    DumpVariables(m_IfStack.GetCount());
+    CCodeGen::BeginIf(condition);
+}
+
 void CMipsCodeGen::EndIf()
 {
     assert(m_Shadow.GetCount() == 0);

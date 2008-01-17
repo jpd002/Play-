@@ -7,6 +7,7 @@
 #include "offsetof_def.h"
 
 using namespace CodeGen;
+using namespace std;
 using namespace std::tr1;
 
 //CCacheBlock::CVUI128::PushImm(0xA3A2A1A0, 0xA7A6A5A4, 0xABAAA9A8, 0xAFAEADAC);
@@ -157,37 +158,59 @@ void CMA_EE::REEXCPT()
 //00
 void CMA_EE::MADD()
 {
-	//Multiply
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->MultS();
+    //prod = (HI || LO) + (RS * RT)
+    //LO = sex(prod[0])
+    //HI = sex(prod[1])
+    //RD = LO
 
-	//Add LO
-	m_pB->PushAddr(&m_pCtx->m_State.nLO[0]);
-	m_pB->AddC();
+    size_t lo[2];
+    size_t hi[2];
 
-	//Save LO/RD
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[1]);
+    unsigned int unit = 0;
+    switch(unit)
+    {
+    case 0:
+        lo[0] = offsetof(CMIPS, m_State.nLO[0]);
+        lo[1] = offsetof(CMIPS, m_State.nLO[1]);
+        hi[0] = offsetof(CMIPS, m_State.nHI[0]);
+        hi[1] = offsetof(CMIPS, m_State.nHI[1]);
+        break;
+    case 1:
+        lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
+        lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
+        hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
+        hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
+        break;
+    default:
+        throw runtime_error("Invalid unit number.");
+        break;
+    }
 
-	if(m_nRD != 0)
-	{
-		m_pB->PushTop();
-		SignExtendTop32(m_nRD);
-		m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-	}
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->MultS();     //gives Stack(0) = LO, Stack(1) = HI
+    m_codeGen->Swap();
 
-	m_pB->PullAddr(&m_pCtx->m_State.nLO[0]);
+    m_codeGen->PushRel(lo[0]);
+    m_codeGen->PushRel(hi[0]);
+    m_codeGen->Add64();
 
-	//Add HI
-	m_pB->PushAddr(&m_pCtx->m_State.nHI[0]);
-	m_pB->Add();
-	m_pB->Add();
+    m_codeGen->SeX();
+    m_codeGen->PullRel(hi[1]);
+    m_codeGen->PullRel(hi[0]);
 
-	//Save HI
-	m_pB->SeX32();
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[0]);
+    m_codeGen->SeX();
+    m_codeGen->PullRel(lo[1]);
+    m_codeGen->PullRel(lo[0]);
+
+    if(m_nRD != 0)
+    {
+        m_codeGen->PushRel(lo[0]);
+        m_codeGen->PushRel(lo[1]);
+
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+    }
 }
 
 //04

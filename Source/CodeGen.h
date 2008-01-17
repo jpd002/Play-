@@ -96,6 +96,7 @@ public:
 	static void						PullVar(uint32*);
 	static void						PullRel(size_t);
 	static void						PullTop();
+    void                            Swap();
 
 	static void						Add();
 	void						    Add64();

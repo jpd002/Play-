@@ -22,6 +22,7 @@ public:
     virtual void        MD_PushRel(size_t);
     virtual void        MD_PullRel(size_t);
 
+    virtual void        BeginIf(bool);
     virtual void        EndIf();
     virtual void        BeginIfElseAlt();
 
