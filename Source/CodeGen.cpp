@@ -2435,6 +2435,11 @@ void CCodeGen::Xor()
 		
 		PushReg(resultRegister);
 	}
+    else if(FitsPattern<ConstantConstant>())
+    {
+        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+        PushCst(ops.first ^ ops.second);
+    }
 	else
 	{
 		assert(0);

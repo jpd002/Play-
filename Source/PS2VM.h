@@ -3,7 +3,6 @@
 
 #include <boost/thread.hpp>
 #include "Types.h"
-#include "PS2OS.h"
 #include "DMAC.h"
 #include "GIF.h"
 #include "SIF.h"
@@ -18,6 +17,7 @@
 #include "MipsExecutor.h"
 
 class CIopBios;
+class CPS2OS;
 
 enum PS2VM_MSG
 {

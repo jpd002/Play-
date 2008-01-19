@@ -50,6 +50,42 @@ void CCodeGen::MD_PushReg(XMMREGISTER registerId)
     m_Shadow.Push(REGISTER128);
 }
 
+void CCodeGen::MD_AddWUS()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        unsigned int tempRegister = AllocateRegister();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        for(int i = 3; i >= 0; i--)
+        {
+            CX86Assembler::LABEL overflowLabel = m_Assembler.CreateLabel();
+            CX86Assembler::LABEL doneLabel = m_Assembler.CreateLabel();
+            m_Assembler.MovEd(m_nRegisterLookupEx[tempRegister],
+                CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first + (i * 4)));
+            m_Assembler.AddEd(m_nRegisterLookupEx[tempRegister],
+                CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second + (i * 4)));
+            m_Assembler.JcJb(overflowLabel);
+            m_Assembler.PushEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+            m_Assembler.JmpJb(doneLabel);
+            m_Assembler.MarkLabel(overflowLabel);
+            m_Assembler.PushId(0xFFFFFFFF);
+            m_Assembler.MarkLabel(doneLabel);
+        }
+        FreeRegister(tempRegister);
+        m_Assembler.ResolveLabelReferences();
+        m_Assembler.MovdquVo(resultRegister,
+            CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
+        m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP),
+            0x10);
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        assert(0);
+    }
+}
+
 void CCodeGen::MD_And()
 {
     if(FitsPattern<RelativeRelative128>())

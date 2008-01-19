@@ -20,6 +20,7 @@
 #include "xml/Parser.h"
 #include "xml/FilteringNodeIterator.h"
 #include "Log.h"
+#include "iop/IopBios.h"
 
 // PS2OS Memory Allocation
 // Start        End             Description
@@ -55,7 +56,7 @@ using namespace Framework;
 using namespace std;
 using namespace boost;
 
-CPS2OS::CPS2OS(CMIPS& ee, CMIPS& vu1, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif) :
+CPS2OS::CPS2OS(CMIPS& ee, CMIPS& vu1, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) :
 m_ee(ee),
 m_vu1(vu1),
 m_gs(gs),
@@ -63,7 +64,8 @@ m_pELF(NULL),
 m_ram(ram),
 m_bios(bios),
 m_pThreadSchedule(NULL),
-m_sif(sif)
+m_sif(sif),
+m_iopBios(iopBios)
 {
 	Initialize();
 }
@@ -176,54 +178,72 @@ void CPS2OS::DumpDmacHandlers()
 void CPS2OS::BootFromFile(const char* sPath)
 {
 	filesystem::path ExecPath(sPath, filesystem::native);
-	LoadELF(new CStdStream(fopen(ExecPath.string().c_str(), "rb")), ExecPath.leaf().c_str());
+    CStdStream stream(fopen(ExecPath.string().c_str(), "rb"));
+	LoadELF(stream, ExecPath.leaf().c_str());
 }
 
 void CPS2OS::BootFromCDROM()
 {
-	CStream* pFile;
-	string sLine;
-	const char* sExecPath;
-	const char* sExecName;
+    string executablePath;
+    Iop::CIoman* ioman = m_iopBios.GetIoman();
 
-    assert(0);
-//	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, "cdrom0:SYSTEM.CNF");
-	if(pFile == NULL)
-	{
-		throw runtime_error("No 'SYSTEM.CNF' file found on the cdrom0 device.");
-	}
+    {
+        uint32 handle = ioman->Open(Iop::Ioman::CDevice::O_RDONLY, "cdrom0:SYSTEM.CNF");
+        if(static_cast<int32>(handle) < 0)
+        {
+		    throw runtime_error("No 'SYSTEM.CNF' file found on the cdrom0 device.");
+        }
 
-	sExecPath = NULL;
+        {
+            CStream* file(ioman->GetFileStream(handle));
+        	string line;
 
-	Utils::GetLine(pFile, &sLine);
-	while(!pFile->IsEOF())
-	{
-		if(!strncmp(sLine.c_str(), "BOOT2", 5))
-		{
-			sExecPath = strstr(sLine.c_str(), "=");
-			if(sExecPath != NULL)
-			{
-				sExecPath++;
-				if(sExecPath[0] == ' ') sExecPath++;
-				break;
-			}
-		}
-		Utils::GetLine(pFile, &sLine);
-	}
+	        Utils::GetLine(file, &line);
+	        while(!file->IsEOF())
+	        {
+		        if(!strncmp(line.c_str(), "BOOT2", 5))
+		        {
+                    const char* tempPath = strstr(line.c_str(), "=");
+			        if(tempPath != NULL)
+			        {
+				        tempPath++;
+				        if(tempPath[0] == ' ') tempPath++;
+                        executablePath = tempPath;
+				        break;
+			        }
+		        }
+		        Utils::GetLine(file, &line);
+	        }
+        }
 
-	delete pFile;
+        ioman->Close(handle);
+    }
 
-	if(sExecPath == NULL)
+	if(executablePath.length() == 0)
 	{
 		throw runtime_error("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
 	}
 
-//	pFile = CSIF::GetFileIO()->GetFile(IOP::CFileIO::O_RDONLY, sExecPath);
+    {
+	    uint32 handle = ioman->Open(Iop::Ioman::CDevice::O_RDONLY, executablePath.c_str());
+        if(static_cast<int32>(handle) < 0)
+        {
+		    throw runtime_error("Couldn't open executable specified in SYSTEM.CNF.");
+        }
 
-	sExecName = strchr(sExecPath, ':') + 1;
-	if(sExecName[0] == '/' || sExecName[0] == '\\') sExecName++;
+        try
+        {
+            const char* executableName = strchr(executablePath.c_str(), ':') + 1;
+            if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
+            CStream* file(ioman->GetFileStream(handle));
+            LoadELF(*file, executableName);
+        }
+        catch(...)
+        {
 
-	LoadELF(pFile, sExecName);
+        }
+        ioman->Close(handle);
+    }
 }
 
 CELF* CPS2OS::GetELF()
@@ -236,18 +256,16 @@ const char* CPS2OS::GetExecutableName()
 	return m_sExecutableName.c_str();
 }
 
-void CPS2OS::LoadELF(CStream* pStream, const char* sExecName)
+void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 {
 	CELF* pELF;
 
 	try
 	{
-		pELF = new CELF(pStream);
-		delete pStream;
+		pELF = new CELF(&stream);
 	}
 	catch(const exception& Exception)
 	{
-		delete pStream;
 		throw Exception;
 	}
 

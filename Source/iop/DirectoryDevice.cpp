@@ -4,6 +4,7 @@
 
 using namespace Framework;
 using namespace std;
+using namespace Iop::Ioman;
 
 CDirectoryDevice::CDirectoryDevice(const char* basePathPreferenceName) :
 m_basePathPreferenceName(basePathPreferenceName)

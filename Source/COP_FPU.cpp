@@ -110,15 +110,15 @@ void CCOP_FPU::MTC1()
 //06
 void CCOP_FPU::CTC1()
 {
-	CCodeGen::Begin(m_pB);
+	if(m_nFS == 31)
 	{
-		if(m_nFS == 31)
-		{
-			m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nFT].nV[0]);
-			m_pB->PullAddr(&m_pCtx->m_State.nFCSR);
-		}
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nFCSR));
 	}
-	CCodeGen::End();
+    else
+    {
+        assert(0);
+    }
 }
 
 //08
@@ -284,14 +284,10 @@ void CCOP_FPU::NEG_S()
 //18
 void CCOP_FPU::ADDA_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFS * 2]);
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CFPU::Add();
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP1A);
-	}
-	CCodeGen::End();
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+	m_codeGen->FP_Add();
+	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1A));
 }
 
 //1A

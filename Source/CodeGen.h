@@ -151,6 +151,7 @@ public:
     virtual void                    MD_PullRel(size_t);
     void                            MD_PushReg(XMMREGISTER);
 
+    void                            MD_AddWUS();
     void                            MD_And();
     void                            MD_Not();
     void                            MD_Or();

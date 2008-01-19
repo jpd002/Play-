@@ -883,11 +883,11 @@ void CMA_MIPSIV::MFHI()
 //11
 void CMA_MIPSIV::MTHI()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[0]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI[1]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
 }
 
 //12

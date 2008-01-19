@@ -126,6 +126,7 @@ public:
     void                                    IdivEd(const CAddress&);
     void                                    ImulEd(const CAddress&);
     void                                    JaeJb(LABEL);
+    void                                    JcJb(LABEL);
     void                                    JeJb(LABEL);
     void                                    JmpJb(LABEL);
     void                                    JneJb(LABEL);

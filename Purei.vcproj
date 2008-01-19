@@ -1838,6 +1838,14 @@
 					RelativePath=".\Source\iop\IopBios.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Source\iop\IsoDevice.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\IsoDevice.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<File

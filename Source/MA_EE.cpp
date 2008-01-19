@@ -132,14 +132,13 @@ void CMA_EE::MTSAB()
 //19
 void CMA_EE::MTSAH()
 {
-	m_pB->PushImm(m_nImmediate & 0x07);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-
-	m_pB->AndImm(0x07);
-	m_pB->Xor();
-	m_pB->SllImm(0x04);
-
-	m_pB->PullAddr(&m_pCtx->m_State.nSA);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushCst(0x07);
+    m_codeGen->And();
+    m_codeGen->PushCst(m_nImmediate & 0x07);
+    m_codeGen->Xor();
+    m_codeGen->Shl(0x04);
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nSA));
 }
 
 //////////////////////////////////////////////////
@@ -253,11 +252,11 @@ void CMA_EE::MFHI1()
 //11
 void CMA_EE::MTHI1()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[0]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI1[0]));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nHI1[1]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI1[1]));
 }
 
 //12
@@ -273,11 +272,11 @@ void CMA_EE::MFLO1()
 //13
 void CMA_EE::MTLO1()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[0]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO1[0]));
 
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nLO1[1]);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO1[1]));
 }
 
 //18
@@ -562,14 +561,10 @@ void CMA_EE::PMINH()
 //10
 void CMA_EE::PADDUW()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::AddWUS();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_AddWUS();
+    PullVector(m_nRD);
 }
 
 //12

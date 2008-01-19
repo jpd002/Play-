@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <exception>
 #include "PS2VM.h"
+#include "PS2OS.h"
 #include "Ps2Const.h"
 #include "IPU.h"
 #include "VIF.h"
@@ -22,6 +23,7 @@
 #include "Profiler.h"
 #include "iop/IopBios.h"
 #include "iop/DirectoryDevice.h"
+#include "iop/IsoDevice.h"
 
 #define STATE_EE        ("ee")
 #define STATE_VU1       ("vu1")
@@ -91,8 +93,8 @@ m_intc(m_dmac)
 	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
 	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
 
-    m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif);
     m_iopOs = new CIopBios(0x100, m_iop, m_iopRam, PS2::IOPRAMSIZE, m_sif);
+    m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
 }
 
 CPS2VM::~CPS2VM()
@@ -353,9 +355,10 @@ void CPS2VM::ResetVM()
     m_os->Initialize();
     m_iopOs->Reset();
 
-    m_iopOs->GetIoman()->RegisterDevice("host", new CDirectoryDevice(PREF_PS2_HOST_DIRECTORY));
-    m_iopOs->GetIoman()->RegisterDevice("mc0", new CDirectoryDevice(PREF_PS2_MC0_DIRECTORY));
-    m_iopOs->GetIoman()->RegisterDevice("mc1", new CDirectoryDevice(PREF_PS2_MC1_DIRECTORY));
+    m_iopOs->GetIoman()->RegisterDevice("host", new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY));
+    m_iopOs->GetIoman()->RegisterDevice("mc0", new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY));
+    m_iopOs->GetIoman()->RegisterDevice("mc1", new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY));
+    m_iopOs->GetIoman()->RegisterDevice("cdrom0", new Iop::Ioman::CIsoDevice(m_pCDROM0));
 
     RegisterModulesInPadHandler();
 }

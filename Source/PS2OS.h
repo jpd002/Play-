@@ -8,10 +8,12 @@
 #include "GSHandler.h"
 #include "SIF.h"
 
+class CIopBios;
+
 class CPS2OS
 {
 public:
-                                                CPS2OS(CMIPS&, CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&);
+                                                CPS2OS(CMIPS&, CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
     virtual                                     ~CPS2OS();
 
 	void									    Initialize();
@@ -194,7 +196,7 @@ private:
 
     typedef void (CPS2OS::*SystemCallHandler)();
 
-	void									LoadELF(Framework::CStream*, const char*);
+	void									LoadELF(Framework::CStream&, const char*);
 
 	void									LoadExecutable();
 	void									UnloadExecutable();
@@ -294,6 +296,7 @@ private:
     uint8*                                  m_bios;
     CGSHandler*&                            m_gs;
     CSIF&                                   m_sif;
+    CIopBios&                               m_iopBios;
 };
 
 #endif
