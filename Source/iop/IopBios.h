@@ -10,11 +10,12 @@
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
+#include "Iop_Cdvdfsv.h"
 
 class CIopBios
 {
 public:
-                            CIopBios(uint32, CMIPS&, uint8*, uint32, CSIF&);
+                            CIopBios(uint32, CMIPS&, uint8*, uint32, CSIF&, CISO9660*&);
     virtual                 ~CIopBios();
 
     void                    LoadAndStartModule(const char*, const char*, unsigned int);
@@ -121,6 +122,7 @@ private:
 
     CMIPS&                  m_cpu;
     CSIF&                   m_sif;
+    CISO9660*&              m_iso;
     uint8*                  m_ram;
     uint32                  m_ramSize;
     uint32                  m_baseAddress;
@@ -137,6 +139,7 @@ private:
     Iop::CIoman*            m_ioman;
     Iop::CSysmem*           m_sysmem;
     Iop::CModload*          m_modload;
+    Iop::CCdvdfsv*          m_cdvdfsv;
 };
 
 #endif

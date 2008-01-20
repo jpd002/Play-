@@ -232,12 +232,11 @@ void CIoman::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, u
         assert(retSize == 4);
         *ret = Open(*args, reinterpret_cast<char*>(args) + 4);
         break;
-/*
-	case 0x00000001:
-		assert(nRetSize == 4);
-		*(uint32*)pRet = Close(*(uint32*)pArgs);
+	case 1:
+        assert(0);
+        assert(retSize == 4);
+        *ret = Close(*args);
 		break;
-*/
     case 2:
 		assert(retSize == 4);
 		*ret = Read(args[0], args[2], reinterpret_cast<void*>(ram + args[1]));

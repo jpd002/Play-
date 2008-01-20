@@ -1395,22 +1395,15 @@ void CPS2OS::sc_EnableDmac()
 //17
 void CPS2OS::sc_DisableDmac()
 {
-    throw std::runtime_error("Not implemented.");
-/*
-	uint32 nChannel, nRegister;
+    uint32 nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+    uint32 nRegister = 0x10000 << nChannel;
 
-	nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+    if(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & nRegister)
+    {
+	    m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, nRegister);
+    }
 
-	nRegister = 0x10000 << nChannel;
-
-	if(CDMAC::GetRegister(CDMAC::D_STAT) & nRegister)
-	{
-		CDMAC::SetRegister(CDMAC::D_STAT, nRegister);
-	}
-
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-*/
+    m_ee.m_State.nGPR[SC_RETURN].nD0 = 1;
 }
 
 //20

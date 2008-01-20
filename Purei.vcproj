@@ -1543,6 +1543,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\SifModuleAdapter.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\ThreadMsg.h"
 					>
 				</File>
@@ -1720,6 +1724,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\iop\Ioman_Device.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_Cdvdfsv.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_Cdvdfsv.h"
 					>
 				</File>
 				<File

@@ -16,12 +16,13 @@
 using namespace std;
 using namespace Framework;
 
-CIopBios::CIopBios(uint32 baseAddress, CMIPS& cpu, uint8* ram, uint32 ramSize, CSIF& sif) :
+CIopBios::CIopBios(uint32 baseAddress, CMIPS& cpu, uint8* ram, uint32 ramSize, CSIF& sif, CISO9660*& iso) :
 m_baseAddress(baseAddress),
 m_cpu(cpu),
 m_ram(ram),
 m_ramSize(ramSize),
 m_sif(sif),
+m_iso(iso),
 m_nextThreadId(1),
 m_nextSemaphoreId(1),
 m_stdio(NULL),
@@ -64,6 +65,10 @@ void CIopBios::Reset()
     {
         m_modload = new Iop::CModload(*this, m_ram);
         RegisterModule(m_modload);
+    }
+    {
+        m_cdvdfsv = new Iop::CCdvdfsv(m_iso, m_sif);
+        RegisterModule(m_cdvdfsv);
     }
     {
         RegisterModule(new Iop::CSysclib(m_ram, *m_stdio));

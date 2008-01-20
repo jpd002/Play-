@@ -170,8 +170,8 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
         if(opcode == 0x03E00008)
         {
             //+4 for delay slot
-            endAddress = address + 8;
-            partitionPoints.insert(endAddress);
+            endAddress = address + 4;
+            partitionPoints.insert(endAddress + 4);
             break;
         }
     }

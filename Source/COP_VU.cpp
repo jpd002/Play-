@@ -3,6 +3,7 @@
 #include "VUShared.h"
 #include "MIPS.h"
 #include "CodeGen.h"
+#include "MipsCodeGen.h"
 
 CCOP_VU			g_COPVU(MIPS_REGSIZE_64);
 
@@ -138,44 +139,40 @@ void CCOP_VU::QMFC2()
 //02
 void CCOP_VU::CFC2()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		if(m_nFS < 16)
-		{
-			CCodeGen::PushVar(&m_pCtx->m_State.nCOP2VI[m_nFS]);
-			CCodeGen::PushCst(0xFFFF);
-			CCodeGen::And();
-		}
-		else
-		{
-			switch(m_nFS)
-			{
-			case 16:	//STATUS
-			case 17:	//MAC flag
-			case 18:	//Clipping flag
-			case 20:	//R
-			case 26:	//TPC
-			case 28:	//FBRST
-			case 29:	//VPU-STAT
-				CCodeGen::PushVar(&m_pCtx->m_State.nGPR[0].nV[0]);
-				break;
-			case 21:
-				CCodeGen::PushVar(&m_pCtx->m_State.nCOP2I);
-				break;
-			case 22:
-				CCodeGen::PushVar(&m_pCtx->m_State.nCOP2Q);
-				break;
-			default:
-				assert(0);
-				break;
-			}
-		}
+    if(m_nFS < 16)
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nFS]));
+        m_codeGen->PushCst(0xFFFF);
+        m_codeGen->And();
+    }
+    else
+    {
+	    switch(m_nFS)
+	    {
+	    case 16:	//STATUS
+	    case 17:	//MAC flag
+	    case 18:	//Clipping flag
+	    case 20:	//R
+	    case 26:	//TPC
+	    case 28:	//FBRST
+	    case 29:	//VPU-STAT
+		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
+		    break;
+	    case 21:
+		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
+		    break;
+	    case 22:
+		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2Q));
+		    break;
+	    default:
+		    assert(0);
+		    break;
+	    }
+    }
 
-		CCodeGen::SeX();
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nFT].nV[1]);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nFT].nV[0]);
-	}
-	CCodeGen::End();
+	m_codeGen->SeX();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 }
 
 //05
