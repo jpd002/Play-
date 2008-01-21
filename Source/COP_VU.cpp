@@ -4,6 +4,7 @@
 #include "MIPS.h"
 #include "CodeGen.h"
 #include "MipsCodeGen.h"
+#include "offsetof_def.h"
 
 CCOP_VU			g_COPVU(MIPS_REGSIZE_64);
 

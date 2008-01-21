@@ -1,6 +1,7 @@
 #import "ApplicationDelegate.h"
 #import "GSH_OpenGLMacOSX.h"
 #import "Globals.h"
+#import "../PS2OS.h"
 
 using namespace std;
 

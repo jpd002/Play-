@@ -64,23 +64,17 @@ unsigned int CBasicBlock::Execute()
 
     __asm
     {
-        push    ebx
-        push    ecx
-        push    edx
-        push    esi
-        push    edi
-        push    ebp
-		
+#ifdef MACOSX
+		pusha
+#endif
+
         mov     eax, function
 		mov		ebp, context
         call    eax
 		
-        pop     ebp
-        pop     edi
-        pop     esi
-        pop     edx
-        pop     ecx
-        pop     ebx
+#ifdef MACOSX
+		popa
+#endif
     }
 
 //	asm("pushl %%ebx\n\t"
