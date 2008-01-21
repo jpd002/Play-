@@ -7,6 +7,21 @@ using namespace CodeGen;
 
 CCacheBlock*	CFPU::m_pBlock = NULL;
 
+bool CCodeGen::RegisterFpSingleHasNextUse(XMMREGISTER registerId)
+{
+	unsigned int nCount = m_Shadow.GetCount();
+
+	for(unsigned int i = 0; i < nCount; i += 2)
+	{
+		if(m_Shadow.GetAt(i) == FP_SINGLE_REGISTER)
+		{
+			if(m_Shadow.GetAt(i + 1) == registerId) return true;
+		}
+	}
+
+	return false;
+}
+
 void CFPU::Begin(CCacheBlock* pBlock)
 {
 	m_pBlock = pBlock;
@@ -297,6 +312,15 @@ void CCodeGen::FP_Add()
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
         FP_PushSingleReg(resultRegister);
     }
+    else if(FitsPattern<CommutativeFpSingleRegisterRelative>())
+    {
+        CommutativeFpSingleRegisterRelative::PatternValue ops = GetPattern<CommutativeFpSingleRegisterRelative>();
+        XMMREGISTER destinationRegister = static_cast<XMMREGISTER>(ops.first);
+        XMMREGISTER resultRegister = RegisterFpSingleHasNextUse(destinationRegister) ? AllocateXmmRegister() : destinationRegister;
+        m_Assembler.AddssEd(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        FP_PushSingleReg(resultRegister);
+    }
     else
     {
         assert(0);
@@ -312,6 +336,20 @@ void CCodeGen::FP_Sub()
         FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
         m_Assembler.SubssEd(resultRegister,
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        FP_PushSingleReg(resultRegister);
+    }
+    else if(FitsPattern<FpSingleRelativeRegister>())
+    {
+        FpSingleRelativeRegister::PatternValue ops = GetPattern<FpSingleRelativeRegister>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        XMMREGISTER sourceRegister = static_cast<XMMREGISTER>(ops.second);
+        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.SubssEd(resultRegister,
+            CX86Assembler::MakeXmmRegisterAddress(sourceRegister));
+        if(!RegisterFpSingleHasNextUse(sourceRegister))
+        {
+            FreeXmmRegister(sourceRegister);
+        }
         FP_PushSingleReg(resultRegister);
     }
     else

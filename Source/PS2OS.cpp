@@ -766,7 +766,14 @@ void CPS2OS::AssembleIntcHandler()
 	Asm.SD(CMIPS::S0, 0x0008, CMIPS::SP);
 	Asm.SD(CMIPS::S1, 0x0010, CMIPS::SP);
 
-	//Initialize INTC handler loop
+    //Clear INTC cause
+	Asm.LUI(CMIPS::T1, 0x1000);
+	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xF000);
+    Asm.ADDIU(CMIPS::T0, CMIPS::R0, 0x0001);
+    Asm.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::A0);
+	Asm.SW(CMIPS::T0, 0x0000, CMIPS::T1);
+
+    //Initialize INTC handler loop
 	Asm.ADDU(CMIPS::S0, CMIPS::R0, CMIPS::R0);
 	Asm.ADDU(CMIPS::S1, CMIPS::A0, CMIPS::R0);
 
@@ -1338,16 +1345,13 @@ void CPS2OS::sc_RemoveDmacHandler()
 //14
 void CPS2OS::sc_EnableIntc()
 {
-	uint32 nCause, nMask;
+	uint32 nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nMask = 1 << nCause;
 
-	nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	nMask = 1 << nCause;
-    assert(0);
-//	if(!(CINTC::GetRegister(CINTC::INTC_MASK) & nMask))
-//	{
-//		CINTC::SetRegister(CINTC::INTC_MASK, nMask);
-//	}
+	if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & nMask))
+	{
+		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, nMask);
+	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;

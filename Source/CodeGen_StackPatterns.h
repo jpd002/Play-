@@ -293,9 +293,12 @@ typedef GenericTwoArguments<CCodeGen::RELATIVE, CCodeGen::RELATIVE> RelativeRela
 typedef GenericTwoArguments<CCodeGen::REGISTER, CCodeGen::REGISTER> RegisterRegister;
 typedef GenericTwoArguments<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_REGISTER> DualFpSingleRegister;
 typedef GenericTwoArguments<CCodeGen::FP_SINGLE_RELATIVE, CCodeGen::FP_SINGLE_RELATIVE> DualFpSingleRelative;
+typedef GenericTwoArguments<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_RELATIVE> FpSingleRegisterRelative;
+typedef GenericTwoArguments<CCodeGen::FP_SINGLE_RELATIVE, CCodeGen::FP_SINGLE_REGISTER> FpSingleRelativeRegister;
 typedef GenericTwoArguments<CCodeGen::RELATIVE128, CCodeGen::RELATIVE128> RelativeRelative128;
 typedef GenericCommutative<CCodeGen::REGISTER, CCodeGen::CONSTANT> CommutativeRegisterConstant;
 typedef GenericCommutative<CCodeGen::RELATIVE, CCodeGen::CONSTANT> CommutativeRelativeConstant;
+typedef GenericCommutative<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_RELATIVE> CommutativeFpSingleRegisterRelative;
 typedef GenericOneArgument64<CCodeGen::CONSTANT> SingleConstant64;
 typedef GenericTwoArguments64<CCodeGen::CONSTANT, CCodeGen::CONSTANT> ConstantConstant64;
 typedef GenericTwoArguments64<CCodeGen::RELATIVE, CCodeGen::RELATIVE> RelativeRelative64;

@@ -59,7 +59,7 @@ void CIopBios::Reset()
         RegisterModule(m_ioman);
     }
     {
-        m_sysmem = new Iop::CSysmem(0x1000, m_ramSize, *m_stdio);
+        m_sysmem = new Iop::CSysmem(0x1000, m_ramSize, *m_stdio, m_sif);
         RegisterModule(m_sysmem);
     }
     {
@@ -74,7 +74,7 @@ void CIopBios::Reset()
         RegisterModule(new Iop::CSysclib(m_ram, *m_stdio));
     }
     {
-        RegisterModule(new Iop::CLoadcore(*this, m_ram));
+        RegisterModule(new Iop::CLoadcore(*this, m_ram, m_sif));
     }
     {
         RegisterModule(new Iop::CThbase(*this, m_ram));

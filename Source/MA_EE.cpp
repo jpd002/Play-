@@ -671,14 +671,10 @@ void CMA_EE::PCPYUD()
 //12
 void CMA_EE::POR()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRS]);
-		CVUI128::Push(&m_pCtx->m_State.nGPR[m_nRT]);
-		CVUI128::Or();
-		CVUI128::Pull(&m_pCtx->m_State.nGPR[m_nRD]);
-	}
-	CCodeGen::End();
+	PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_Or();
+    PullVector(m_nRD);
 }
 
 //13

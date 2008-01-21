@@ -223,6 +223,7 @@ private:
     static unsigned int             GetMinimumConstantSize64(uint64);
 	static bool						RegisterHasNextUse(unsigned int);
     bool                            Register128HasNextUse(XMMREGISTER);
+    bool                            RegisterFpSingleHasNextUse(XMMREGISTER);
 	static void						LoadVariableInRegister(unsigned int, uint32);
 	static void						LoadRelativeInRegister(unsigned int, uint32);
 	static void						LoadConstantInRegister(unsigned int, uint32);

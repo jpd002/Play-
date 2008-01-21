@@ -817,10 +817,12 @@ void CPS2VM::EmuThread()
 				if(m_nInVBlank)
 				{
 					m_nVBlankTicks += VBLANKTICKS;
-//                    if(m_pGS != NULL)
-//                    {
-//					    m_pGS->SetVBlank();
-//                    }
+                    m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
+                    if(m_pGS != NULL)
+                    {
+					    m_pGS->SetVBlank();
+                    }
+
 
 					//Old Flipping Method
 					//m_pGS->Flip();
@@ -835,6 +837,7 @@ void CPS2VM::EmuThread()
 				else
 				{
 					m_nVBlankTicks += SCREENTICKS;
+                    m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
 					if(m_pGS != NULL)
 					{
 						m_pGS->ResetVBlank();

@@ -1155,7 +1155,15 @@ void CMA_MIPSIV::DSRL()
 //3B
 void CMA_MIPSIV::DSRA()
 {
-	//TODO: Fix that! Run-time shift algorithm selection is used
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+
+    m_codeGen->Sra64(m_nSA);
+
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+/*
+    //TODO: Fix that! Run-time shift algorithm selection is used
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
 	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
 	m_pB->PushImm(m_nSA);
@@ -1164,6 +1172,7 @@ void CMA_MIPSIV::DSRA()
 
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
 	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
+*/
 }
 
 //3C

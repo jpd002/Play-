@@ -2119,6 +2119,62 @@ void CCodeGen::Sra(uint8 nAmount)
 
 void CCodeGen::Sra64(uint8 nAmount)
 {
+	if(FitsPattern<SingleConstant64>())
+	{
+        assert(0);
+	}
+    else
+    {
+        uint32 value[2];
+        uint32 valueType[2];
+
+        for(int i = 1; i >= 0; i--)
+        {
+            valueType[i]   = m_Shadow.Pull();
+            value[i]       = m_Shadow.Pull();
+        }
+
+		assert(nAmount < 0x40);
+
+		if(nAmount >= 32)
+		{
+			uint32 resultLow = AllocateRegister();
+			EmitLoad(valueType[1], value[1], resultLow);
+
+            if(nAmount != 32)
+            {
+			    //sar reg, amount
+			    m_Assembler.SarEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultLow]),
+				    nAmount & 0x1F);
+            }
+
+			PushReg(resultLow);
+            SeX();
+		}
+		else //Amount < 32
+		{
+			unsigned int resultLow = AllocateRegister();
+			unsigned int resultHigh = AllocateRegister();
+
+            EmitLoad(valueType[0], value[0], resultLow);
+            EmitLoad(valueType[1], value[1], resultHigh);
+
+            if(nAmount != 0)
+            {
+			    //shrd nReg1, nReg2, nAmount
+                m_Assembler.ShrdEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultLow]),
+                    m_nRegisterLookupEx[resultHigh],
+                    nAmount);
+
+			    //sar nReg2, nAmount
+                m_Assembler.SarEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultHigh]), nAmount);
+            }
+
+			PushReg(resultLow);
+			PushReg(resultHigh);
+		}
+    }
+/*
     if(FitsPattern<RelativeRelative>())
     {
         RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
@@ -2166,6 +2222,7 @@ void CCodeGen::Sra64(uint8 nAmount)
     {
         assert(0);
     }
+*/
 }
 
 void CCodeGen::Srl()

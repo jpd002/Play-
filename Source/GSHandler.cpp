@@ -362,12 +362,12 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nCSR);
 		if(!(nAddress & 0x04))
 		{
-            SetVBlank();
+//          SetVBlank();
 //          Flip();
-//          if(nData & 0x08)
-//			{
-//				ResetVBlank();
-//			}
+            if(nData & 0x08)
+            {
+                ResetVBlank();
+            }
 		}
 		break;
 	case 0x1200101:

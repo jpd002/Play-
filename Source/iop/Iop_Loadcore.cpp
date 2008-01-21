@@ -1,15 +1,18 @@
 #include "Iop_Loadcore.h"
 #include "Iop_Dynamic.h"
 #include "IopBios.h"
+#include "../Log.h"
 
 using namespace Iop;
 using namespace std;
 
-CLoadcore::CLoadcore(CIopBios& bios, uint8* ram) :
+#define LOG_NAME "iop_loadcore"
+
+CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSIF& sif) :
 m_bios(bios),
 m_ram(ram)
 {
-
+    sif.RegisterModule(MODULE_ID, this);
 }
 
 CLoadcore::~CLoadcore()
@@ -37,8 +40,52 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
     }
 }
 
+void CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	switch(method)
+	{
+	case 0x00:
+		LoadModule(args, argsSize, ret, retSize);
+		break;
+	case 0xFF:
+		//This is sometimes called after binding this server with a client
+		Initialize(args, argsSize, ret, retSize);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)
 {
     m_bios.RegisterModule(new CDynamic(exportTable));
     return 1;    
+}
+
+void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	char sModuleName[253];
+
+	assert(argsSize == 512);
+
+	//Sometimes called with 4, sometimes 8
+	assert(retSize >= 4);
+
+	memset(sModuleName, 0, 253);
+	strncpy(sModuleName, &(reinterpret_cast<const char*>(args))[8], 252);
+
+	//Load the module???
+	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received.\r\n", sModuleName);
+
+	//This function returns something negative upon failure
+	ret[0] = 0x00000000;
+}
+
+void CLoadcore::Initialize(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	assert(argsSize == 0);
+	assert(retSize == 4);
+
+	ret[0] = 0x2E2E2E2E;
 }

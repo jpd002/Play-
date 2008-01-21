@@ -1,9 +1,12 @@
 #include "Iop_Sysmem.h"
+#include "../Log.h"
 
 using namespace Iop;
 using namespace std;
 
-CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio) :
+#define LOG_NAME ("iop_sysmem")
+
+CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio, CSIF& sif) :
 m_memoryBegin(memoryBegin),
 m_memoryEnd(memoryEnd),
 m_stdio(stdio),
@@ -11,6 +14,9 @@ m_memorySize(memoryEnd - memoryBegin)
 {
     //Initialize block map
     m_blockMap[m_memorySize] = 0;
+
+    //Register sif module
+    sif.RegisterModule(MODULE_ID, this);
 }
 
 CSysmem::~CSysmem()
@@ -42,9 +48,27 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
         m_stdio.__printf(context);
         break;
     default:
-        printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+        CLog::GetInstance().Print(LOG_NAME, "%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
         break;
     }
+}
+
+void CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	switch(method)
+	{
+	case 0x01:
+		assert(retSize == 4);
+		ret[0] = SifAllocate(args[0]);
+		break;
+	case 0x04:
+		assert(retSize == 4);
+		ret[0] = SifAllocateSystemMemory(args[0], args[1], args[2]);
+		break;
+	default:
+        CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
+		break;
+	}
 }
 
 uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags)
@@ -80,7 +104,21 @@ uint32 CSysmem::FreeMemory(uint32 address)
     }
     else
     {
-        printf("%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
+        CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
     }
     return 0;
+}
+
+uint32 CSysmem::SifAllocate(uint32 nSize)
+{
+	CLog::GetInstance().Print(LOG_NAME, "Allocate(size = 0x%0.8X);\r\n", nSize);
+	//return 0x01;
+	return nSize;
+}
+
+uint32 CSysmem::SifAllocateSystemMemory(uint32 nFlags, uint32 nSize, uint32 nPtr)
+{
+	//Ys 1&2 Eternal Story calls this
+	CLog::GetInstance().Print(LOG_NAME, "AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", nFlags, nSize, nPtr);
+	return 0x01;
 }
