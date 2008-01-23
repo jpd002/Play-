@@ -1735,6 +1735,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\iop\Iop_DbcMan.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_DbcMan.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\iop\Iop_Dynamic.cpp"
 					>
 				</File>
@@ -1767,11 +1775,27 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\iop\Iop_LibSd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_LibSd.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\iop\Iop_Loadcore.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\iop\Iop_Loadcore.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_McServ.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_McServ.h"
 					>
 				</File>
 				<File

@@ -3,6 +3,9 @@
 #include "../Log.h"
 #include "Iop_Sysclib.h"
 #include "Iop_Loadcore.h"
+#include "Iop_LibSd.h"
+#include "Iop_McServ.h"
+#include "Iop_DbcMan.h"
 #include "Iop_Thbase.h"
 #include "Iop_Thsema.h"
 #include "Iop_Thevent.h"
@@ -90,6 +93,15 @@ void CIopBios::Reset()
     }
     {
         RegisterModule(new Iop::CIntrman(m_ram));
+    }
+    {
+        RegisterModule(new Iop::CLibSd(m_sif));
+    }
+    {
+        RegisterModule(new Iop::CMcServ(m_sif));
+    }
+    {
+        RegisterModule(new Iop::CDbcMan(m_sif));
     }
 
     const int sifDmaBufferSize = 0x1000;

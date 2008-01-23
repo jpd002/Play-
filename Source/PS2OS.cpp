@@ -2160,6 +2160,7 @@ void CPS2OS::sc_Deci2Call()
 			nLength = m_ram[nParam + 0x00] - 0x0C;
 			sString = &m_ram[nParam + 0x0C];
 
+            throw runtime_error("Not implemented.");
 //			CSIF::GetFileIO()->Write(1, nLength, sString);
 		}
 
@@ -2185,7 +2186,7 @@ void CPS2OS::sc_Deci2Call()
 		//kPuts
 		nParam = *(uint32*)&m_ram[nParam];
 		sString = &m_ram[nParam];
-//		CSIF::GetFileIO()->Write(1, (uint32)strlen((char*)sString), sString);
+        m_iopBios.GetIoman()->Write(1, static_cast<uint32>(strlen(reinterpret_cast<char*>(sString))), sString);
 		break;
 	default:
 		printf("PS2OS: Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", nFunction, m_ee.m_State.nPC);
