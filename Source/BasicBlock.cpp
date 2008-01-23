@@ -62,18 +62,23 @@ unsigned int CBasicBlock::Execute()
     volatile void* function = m_text;
     volatile CMIPS* context = &m_context;
 
+    //Should change pre-proc definitions used here (MACOSX to GCC?)
     __asm
     {
-#ifdef MACOSX
+#if defined(MACOSX)
 		pusha
+#elif defined(_MSVC)
+        pushad
 #endif
 
         mov     eax, function
 		mov		ebp, context
         call    eax
 		
-#ifdef MACOSX
+#if defined(MACOSX)
 		popa
+#elif defined(_MSVC)
+        popad
 #endif
     }
 
