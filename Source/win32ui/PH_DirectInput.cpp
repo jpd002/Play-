@@ -1,9 +1,8 @@
 #include "PH_DirectInput.h"
-#include "../PS2VM.h"
 
 #define DIBUFFERSIZE	(10)
 
-using namespace Framework;
+using namespace std::tr1;
 
 CPH_DirectInput::CPH_DirectInput(HWND hWnd)
 {
@@ -26,14 +25,14 @@ CPH_DirectInput::~CPH_DirectInput()
 	}
 }
 
-void CPH_DirectInput::CreatePadHandler(CPS2VM& virtualMachine, HWND hWnd)
+CPadHandler::FactoryFunction CPH_DirectInput::GetFactoryFunction(HWND hWnd)
 {
-	virtualMachine.CreatePadHandler(PadHandlerFactory, (void*)hWnd);
+    return bind(&CPH_DirectInput::PadHandlerFactory, hWnd);
 }
 
-CPadHandler* CPH_DirectInput::PadHandlerFactory(void* pParam)
+CPadHandler* CPH_DirectInput::PadHandlerFactory(HWND hWnd)
 {
-	return new CPH_DirectInput((HWND)pParam);
+	return new CPH_DirectInput(hWnd);
 }
 
 void CPH_DirectInput::Initialize()
@@ -64,8 +63,6 @@ void CPH_DirectInput::Update()
 	HRESULT hRet;
 	CPadListener::BUTTON nButton;
 	DIDEVICEOBJECTDATA d[DIBUFFERSIZE];
-	CList<CPadListener>::ITERATOR itListener;
-	CPadListener* pListener;
 
 	nElements = DIBUFFERSIZE;
 	hRet = m_pKeyboard->GetDeviceData(sizeof(DIDEVICEOBJECTDATA), d, &nElements, 0);
@@ -79,9 +76,10 @@ void CPH_DirectInput::Update()
 	{
 		if(TranslateKey(d[i].dwOfs, &nButton))
 		{
-			for(itListener = m_Listener.Begin(); itListener.HasNext(); itListener++)
+            for(ListenerList::iterator listenerIterator(m_listeners.begin()); 
+                listenerIterator != m_listeners.end(); listenerIterator++)
 			{
-				pListener = (*itListener);
+	            CPadListener* pListener(*listenerIterator);
 				pListener->SetButtonState(0, nButton, (d[i].dwData & 0x80) ? true : false);
 			}
 		}

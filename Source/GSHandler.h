@@ -5,6 +5,7 @@
 #include <boost/thread.hpp>
 #include <boost/signal.hpp>
 #include <vector>
+#include <functional>
 #include "MailBox.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -225,6 +226,7 @@ class CGSHandler
 public:
     typedef std::pair<uint8, uint64> RegisterWrite;
     typedef std::vector<RegisterWrite> RegisterWriteList;
+    typedef std::tr1::function<CGSHandler* (void)> FactoryFunction;
 
 											CGSHandler();
 	virtual									~CGSHandler();

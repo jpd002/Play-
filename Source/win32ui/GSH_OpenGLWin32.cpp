@@ -2,6 +2,7 @@
 #include "RendererSettingsWnd.h"
 
 using namespace Framework;
+using namespace std::tr1;
 
 PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_PFD =
 {
@@ -33,9 +34,9 @@ CGSH_OpenGLWin32::~CGSH_OpenGLWin32()
 	wglDeleteContext(m_hRC);
 }
 
-void CGSH_OpenGLWin32::CreateGSHandler(CPS2VM& virtualMachine, Win32::CWindow* pOutputWnd)
+CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Win32::CWindow* pOutputWnd)
 {
-	virtualMachine.CreateGSHandler(GSHandlerFactory, pOutputWnd);
+    return bind(&CGSH_OpenGLWin32::GSHandlerFactory, pOutputWnd);
 }
 
 void CGSH_OpenGLWin32::InitializeImpl()
@@ -84,7 +85,7 @@ void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
 	TexCache_Flush();
 }
 
-CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(void* pParam)
+CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Win32::CWindow* pParam)
 {
-	return new CGSH_OpenGLWin32((Win32::CWindow*)pParam);
+	return new CGSH_OpenGLWin32(pParam);
 }

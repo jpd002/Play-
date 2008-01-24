@@ -2,7 +2,6 @@
 #include <string.h>
 #include <functional>
 #include "GSHandler.h"
-#include "PS2VM.h"
 #include "INTC.h"
 #include "PtrMacro.h"
 #include "Log.h"

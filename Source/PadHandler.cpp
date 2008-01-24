@@ -12,13 +12,10 @@ CPadHandler::~CPadHandler()
 
 void CPadHandler::InsertListener(CPadListener* pListener)
 {
-	m_Listener.Insert(pListener);
+	m_listeners.push_back(pListener);
 }
 
 void CPadHandler::RemoveAllListeners()
 {
-	while(m_Listener.Count() != 0)
-	{
-		m_Listener.Pull();
-	}
+    m_listeners.clear();
 }

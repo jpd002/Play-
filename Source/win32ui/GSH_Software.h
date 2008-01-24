@@ -12,10 +12,10 @@ public:
                                     CGSH_Software(Framework::Win32::CWindow*);
     virtual                         ~CGSH_Software();
 
-	static void                     CreateGSHandler(CPS2VM&, Framework::Win32::CWindow*);
+    static FactoryFunction          GetFactoryFunction(Framework::Win32::CWindow*);
 
 private:
-   	static CGSHandler*              GSHandlerFactory(void*);
+   	static CGSHandler*              GSHandlerFactory(Framework::Win32::CWindow*);
 
     virtual void                    InitializeImpl();
     virtual void                    UpdateViewportImpl();

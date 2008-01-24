@@ -107,16 +107,10 @@ CPS2VM::~CPS2VM()
 //Various Message Functions
 //////////////////////////////////////////////////
 
-void CPS2VM::CreateGSHandler(GSHANDLERFACTORY pF, void* pParam)
+void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
 	if(m_pGS != NULL) return;
-
-	CREATEGSHANDLERPARAM Param;
-    Param.pFactory	= pF;
-	Param.pParam	= pParam;
-
-//	SendMessage(PS2VM_MSG_CREATEGS, &Param);
-    m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, &Param), true);
+    m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, factoryFunction), true);
 }
 
 CGSHandler* CPS2VM::GetGSHandler()
@@ -127,29 +121,19 @@ CGSHandler* CPS2VM::GetGSHandler()
 void CPS2VM::DestroyGSHandler()
 {
 	if(m_pGS == NULL) return;
-//	SendMessage(PS2VM_MSG_DESTROYGS);
     m_mailBox.SendCall(bind(&CPS2VM::DestroyGsImpl, this), true);
 }
 
-void CPS2VM::CreatePadHandler(PADHANDLERFACTORY pF, void* pParam)
+void CPS2VM::CreatePadHandler(const CPadHandler::FactoryFunction& factoryFunction)
 {
-/*
-	CREATEPADHANDLERPARAM Param;
-	if(m_pPad != NULL) return;
-
-	Param.pFactory	= pF;
-	Param.pParam	= pParam;
-
-	SendMessage(PS2VM_MSG_CREATEPAD, &Param);
-*/
+    if(m_pPad != NULL) return;
+    m_mailBox.SendCall(bind(&CPS2VM::CreatePadHandlerImpl, this, factoryFunction), true);
 }
 
 void CPS2VM::DestroyPadHandler()
 {
-/*
 	if(m_pPad == NULL) return;
-	SendMessage(PS2VM_MSG_DESTROYPAD);
-*/
+    m_mailBox.SendCall(bind(&CPS2VM::DestroyPadHandlerImpl, this), true);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -161,14 +145,12 @@ void CPS2VM::Step()
 {
     if(GetStatus() == RUNNING) return;
     m_singleStep = true;
-//    SendMessage(PS2VM_MSG_RESUME);
     m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
 }
 
 void CPS2VM::Resume()
 {
     if(m_nStatus == RUNNING) return;
-//	SendMessage(PS2VM_MSG_RESUME);
     m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
     m_OnRunningStateChange();
 }
@@ -176,7 +158,6 @@ void CPS2VM::Resume()
 void CPS2VM::Pause()
 {
 	if(m_nStatus == PAUSED) return;
-//	SendMessage(PS2VM_MSG_PAUSE);
     m_mailBox.SendCall(bind(&CPS2VM::PauseImpl, this), true);
     m_OnMachineStateChange();
     m_OnRunningStateChange();
@@ -186,8 +167,6 @@ void CPS2VM::Reset()
 {
     assert(m_nStatus == PAUSED);
     ResetVM();
-//	SendMessage(PS2VM_MSG_RESET);
-//    m_mailBox.SendCall(bind(&CPS2VM::ResetVM, this), true);
 }
 
 void CPS2VM::DumpEEThreadSchedule()
@@ -473,15 +452,26 @@ void CPS2VM::DestroyImpl()
     m_nEnd = true;
 }
 
-void CPS2VM::CreateGsImpl(CREATEGSHANDLERPARAM* param)
+void CPS2VM::CreateGsImpl(const CGSHandler::FactoryFunction& factoryFunction)
 {
-    m_pGS = param->pFactory(param->pParam);
+    m_pGS = factoryFunction();
     m_pGS->Initialize();
 }
 
 void CPS2VM::DestroyGsImpl()
 {
     DELETEPTR(m_pGS);
+}
+
+void CPS2VM::CreatePadHandlerImpl(const CPadHandler::FactoryFunction& factoryFunction)
+{
+    m_pPad = factoryFunction();
+    RegisterModulesInPadHandler();
+}
+
+void CPS2VM::DestroyPadHandlerImpl()
+{
+    DELETEPTR(m_pPad);
 }
 
 void CPS2VM::CDROM0_Initialize()
@@ -754,46 +744,6 @@ void CPS2VM::EmuThread()
 	m_nEnd = false;
 	while(1)
 	{
-/*
-        if(m_MsgBox.GetMessage(&Msg))
-		{
-			nRetValue = 0;
-
-			switch(Msg.nMsg)
-			{
-			case PS2VM_MSG_PAUSE:
-				break;
-			case PS2VM_MSG_RESUME:
-				break;
-			case PS2VM_MSG_DESTROY:
-				break;
-			case PS2VM_MSG_CREATEGS:
-				break;
-			case PS2VM_MSG_DESTROYGS:
-				break;
-			case PS2VM_MSG_CREATEPAD:
-				CREATEPADHANDLERPARAM* pCreatePadParam;
-				pCreatePadParam = (CREATEPADHANDLERPARAM*)Msg.pParam;
-				m_pPad = pCreatePadParam->pFactory(pCreatePadParam->pParam);
-				RegisterModulesInPadHandler();
-				break;
-			case PS2VM_MSG_DESTROYPAD:
-				DELETEPTR(m_pPad);
-				break;
-			case PS2VM_MSG_SAVESTATE:
-				nRetValue = SaveVMState((const char*)Msg.pParam);
-				break;
-			case PS2VM_MSG_LOADSTATE:
-				nRetValue = LoadVMState((const char*)Msg.pParam);
-				break;
-			case PS2VM_MSG_RESET:
-				ResetVM();
-				break;
-			}
-
-			m_MsgBox.FlushMessage(nRetValue);
-		}
-*/
         while(m_mailBox.IsPending())
         {
             m_mailBox.ReceiveCall();

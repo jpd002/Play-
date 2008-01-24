@@ -2,7 +2,6 @@
 #define _GSH_OPENGLWIN32_H_
 
 #include "../GSH_OpenGL.h"
-#include "../PS2VM.h"
 #include "win32/Window.h"
 #include "SettingsDialogProvider.h"
 
@@ -12,7 +11,7 @@ public:
     							    CGSH_OpenGLWin32(Framework::Win32::CWindow*);
     virtual                         ~CGSH_OpenGLWin32();
 
-	static void						CreateGSHandler(CPS2VM&, Framework::Win32::CWindow*);
+    static FactoryFunction          GetFactoryFunction(Framework::Win32::CWindow*);
 
     virtual void                    InitializeImpl();
 	virtual void					FlipImpl();
@@ -25,7 +24,7 @@ public:
 private:
     virtual void                    SetViewport(int, int);
 
-	static CGSHandler*				GSHandlerFactory(void*);
+    static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
     Framework::Win32::CWindow*		m_pOutputWnd;
 

@@ -1,5 +1,6 @@
 #include "GSH_Null.h"
-#include "PS2VM.h"
+
+using namespace std::tr1;
 
 CGSH_Null::CGSH_Null()
 {
@@ -31,12 +32,12 @@ void CGSH_Null::FlipImpl()
 //    CPS2VM::m_OnNewFrame();
 }
 
-void CGSH_Null::CreateGSHandler(CPS2VM& virtualMachine)
+CGSHandler::FactoryFunction CGSH_Null::GetFactoryFunction()
 {
-	virtualMachine.CreateGSHandler(GSHandlerFactory, NULL);
+    return bind(&CGSH_Null::GSHandlerFactory);
 }
 
-CGSHandler* CGSH_Null::GSHandlerFactory(void* pParam)
+CGSHandler* CGSH_Null::GSHandlerFactory()
 {
 	return new CGSH_Null();
 }

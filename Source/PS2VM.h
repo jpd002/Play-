@@ -40,9 +40,6 @@ enum PS2VM_MSG
 #define	PROFILE_EEZONE "EE"
 #endif
 
-typedef CGSHandler*			(*GSHANDLERFACTORY)(void*); 
-typedef CPadHandler*		(*PADHANDLERFACTORY)(void*);
-
 class CPS2VM : public CVirtualMachine
 {
 public:
@@ -63,11 +60,11 @@ public:
 	void						DumpEEIntcHandlers();
 	void						DumpEEDmacHandlers();
 
-	void						CreateGSHandler(GSHANDLERFACTORY, void*);
+    void						CreateGSHandler(const CGSHandler::FactoryFunction&);
 	CGSHandler*				    GetGSHandler();
 	void						DestroyGSHandler();
 
-	void						CreatePadHandler(PADHANDLERFACTORY, void*);
+    void						CreatePadHandler(const CPadHandler::FactoryFunction&);
 	void						DestroyPadHandler();
 
 	unsigned int				SaveState(const char*);
@@ -112,18 +109,6 @@ public:
 	CISO9660*				    m_pCDROM0;
 
 private:
-	struct CREATEGSHANDLERPARAM
-	{
-		GSHANDLERFACTORY			pFactory;
-		void*						pParam;
-	};
-
-	struct CREATEPADHANDLERPARAM
-	{
-		PADHANDLERFACTORY			pFactory;
-		void*						pParam;
-	};
-
     void						CreateVM();
     void						ResetVM();
     void						DestroyVM();
@@ -133,8 +118,11 @@ private:
     void                        ResumeImpl();
     void                        PauseImpl();
     void                        DestroyImpl();
-    void                        CreateGsImpl(CREATEGSHANDLERPARAM*);
+    void                        CreateGsImpl(const CGSHandler::FactoryFunction&);
     void                        DestroyGsImpl();
+
+    void                        CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
+    void                        DestroyPadHandlerImpl();
 
 	unsigned int                EETickFunction(unsigned int);
 	unsigned int                VU1TickFunction(unsigned int);

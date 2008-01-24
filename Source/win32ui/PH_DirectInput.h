@@ -3,20 +3,20 @@
 
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
+#include "Types.h"
 #include "../PadHandler.h"
-#include "../PS2VM.h"
 
 class CPH_DirectInput : public CPadHandler
 {
 public:
 							CPH_DirectInput(HWND);
-							~CPH_DirectInput();
+    virtual                 ~CPH_DirectInput();
 	void					Update();
 
-	static void				CreatePadHandler(CPS2VM&, HWND);
+    static FactoryFunction  GetFactoryFunction(HWND);
 
 private:
-	static CPadHandler*		PadHandlerFactory(void*);
+	static CPadHandler*		PadHandlerFactory(HWND);
 	void					Initialize();
 	bool					TranslateKey(uint32, CPadListener::BUTTON*);
 

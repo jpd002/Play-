@@ -3,6 +3,7 @@
 
 using namespace Framework;
 using namespace std;
+using namespace std::tr1;
 
 CGSH_Software::CGSH_Software(Win32::CWindow* pOutputWnd) :
 m_pOutputWnd(pOutputWnd),
@@ -58,14 +59,14 @@ void CGSH_Software::InitializeImpl()
 
 }
 
-void CGSH_Software::CreateGSHandler(CPS2VM& virtualMachine, Win32::CWindow* pOutputWnd)
+CGSHandler::FactoryFunction CGSH_Software::GetFactoryFunction(Win32::CWindow* pOutputWnd)
 {
-	virtualMachine.CreateGSHandler(GSHandlerFactory, pOutputWnd);
+    return bind(&CGSH_Software::GSHandlerFactory, pOutputWnd);
 }
 
-CGSHandler* CGSH_Software::GSHandlerFactory(void* pParam)
+CGSHandler* CGSH_Software::GSHandlerFactory(Win32::CWindow* pOutputWnd)
 {
-    return new CGSH_Software(reinterpret_cast<Win32::CWindow*>(pParam));
+    return new CGSH_Software(pOutputWnd);
 }
 
 void CGSH_Software::UpdateViewportImpl()
