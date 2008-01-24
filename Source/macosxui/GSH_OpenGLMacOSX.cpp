@@ -1,5 +1,7 @@
 #include "GSH_OpenGLMacOSX.h"
 
+using namespace std::tr1;
+
 CGSH_OpenGLMacOSX::CGSH_OpenGLMacOSX(CGLContextObj context) :
 m_context(context)
 {
@@ -11,9 +13,9 @@ CGSH_OpenGLMacOSX::~CGSH_OpenGLMacOSX()
 
 }
 
-void CGSH_OpenGLMacOSX::CreateGSHandler(CPS2VM& virtualMachine, CGLContextObj context)
+CGSHandler::FactoryFunction CGSH_OpenGLMacOSX::GetFactoryFunction(CGLContextObj context)
 {
-	virtualMachine.CreateGSHandler(GSHandlerFactory, context);
+	return bind(&CGSH_OpenGLMacOSX::GSHandlerFactory, context);
 }
 
 void CGSH_OpenGLMacOSX::InitializeImpl()
@@ -27,7 +29,7 @@ void CGSH_OpenGLMacOSX::FlipImpl()
 	CGLFlushDrawable(m_context);
 }
 
-CGSHandler* CGSH_OpenGLMacOSX::GSHandlerFactory(void* param)
+CGSHandler* CGSH_OpenGLMacOSX::GSHandlerFactory(CGLContextObj context)
 {
-	return new CGSH_OpenGLMacOSX(reinterpret_cast<CGLContextObj>(param));
+	return new CGSH_OpenGLMacOSX(context);
 }

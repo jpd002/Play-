@@ -115,6 +115,10 @@
 		7E9E4FCB0D4531FF003321D8 /* Iop_Timrman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E9E4FB60D4531FF003321D8 /* Iop_Timrman.cpp */; };
 		7E9E4FCC0D4531FF003321D8 /* IopBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E9E4FB80D4531FF003321D8 /* IopBios.cpp */; };
 		7E9E4FCD0D4531FF003321D8 /* IsoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E9E4FBA0D4531FF003321D8 /* IsoDevice.cpp */; };
+		7EAD8BE50D4846DE002CC1C1 /* Posix_VolumeStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EAD8BE40D4846DE002CC1C1 /* Posix_VolumeStream.cpp */; };
+		7EAD8CE30D48528A002CC1C1 /* Iop_McServ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EAD8CDE0D48528A002CC1C1 /* Iop_McServ.cpp */; };
+		7EAD8CE40D48528A002CC1C1 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EAD8CE00D48528A002CC1C1 /* Iop_LibSd.cpp */; };
+		7EAD8CE50D48528A002CC1C1 /* Iop_DbcMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EAD8CE20D48528A002CC1C1 /* Iop_DbcMan.cpp */; };
 		7EE5842B0D23176400AF9DA3 /* PathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */; };
 		7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */; };
 		7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */; };
@@ -343,6 +347,14 @@
 		7E9E4FB90D4531FF003321D8 /* IopBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IopBios.h; path = Source/iop/IopBios.h; sourceTree = "<group>"; };
 		7E9E4FBA0D4531FF003321D8 /* IsoDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IsoDevice.cpp; path = Source/iop/IsoDevice.cpp; sourceTree = "<group>"; };
 		7E9E4FBB0D4531FF003321D8 /* IsoDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IsoDevice.h; path = Source/iop/IsoDevice.h; sourceTree = "<group>"; };
+		7EAD8BE30D4846DE002CC1C1 /* Posix_VolumeStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Posix_VolumeStream.h; path = Source/Posix_VolumeStream.h; sourceTree = "<group>"; };
+		7EAD8BE40D4846DE002CC1C1 /* Posix_VolumeStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Posix_VolumeStream.cpp; path = Source/Posix_VolumeStream.cpp; sourceTree = "<group>"; };
+		7EAD8CDD0D48528A002CC1C1 /* Iop_McServ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_McServ.h; path = Source/iop/Iop_McServ.h; sourceTree = "<group>"; };
+		7EAD8CDE0D48528A002CC1C1 /* Iop_McServ.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_McServ.cpp; path = Source/iop/Iop_McServ.cpp; sourceTree = "<group>"; };
+		7EAD8CDF0D48528A002CC1C1 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_LibSd.h; path = Source/iop/Iop_LibSd.h; sourceTree = "<group>"; };
+		7EAD8CE00D48528A002CC1C1 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_LibSd.cpp; path = Source/iop/Iop_LibSd.cpp; sourceTree = "<group>"; };
+		7EAD8CE10D48528A002CC1C1 /* Iop_DbcMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_DbcMan.h; path = Source/iop/Iop_DbcMan.h; sourceTree = "<group>"; };
+		7EAD8CE20D48528A002CC1C1 /* Iop_DbcMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_DbcMan.cpp; path = Source/iop/Iop_DbcMan.cpp; sourceTree = "<group>"; };
 		7EB6F45D0D1B033700A53B0B /* ObjCCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjCCall.h; path = Source/macosxui/ObjCCall.h; sourceTree = "<group>"; };
 		7EE584290D23176400AF9DA3 /* PathUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathUtils.h; path = Source/PathUtils.h; sourceTree = "<group>"; };
 		7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathUtils.cpp; path = Source/PathUtils.cpp; sourceTree = "<group>"; };
@@ -582,6 +594,8 @@
 				7E89882C0D08BD090077F9ED /* PadListener.h */,
 				7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */,
 				7EE584290D23176400AF9DA3 /* PathUtils.h */,
+				7EAD8BE40D4846DE002CC1C1 /* Posix_VolumeStream.cpp */,
+				7EAD8BE30D4846DE002CC1C1 /* Posix_VolumeStream.h */,
 				7E89882D0D08BD090077F9ED /* Profiler.cpp */,
 				7E89882E0D08BD090077F9ED /* Profiler.h */,
 				7E9E4F890D4531BE003321D8 /* Ps2Const.h */,
@@ -648,6 +662,8 @@
 				7E9E4F9A0D4531FF003321D8 /* Ioman_Device.h */,
 				7E9E4F9B0D4531FF003321D8 /* Iop_Cdvdfsv.cpp */,
 				7E9E4F9C0D4531FF003321D8 /* Iop_Cdvdfsv.h */,
+				7EAD8CE20D48528A002CC1C1 /* Iop_DbcMan.cpp */,
+				7EAD8CE10D48528A002CC1C1 /* Iop_DbcMan.h */,
 				7E9E4F9D0D4531FF003321D8 /* Iop_Dynamic.cpp */,
 				7E9E4F9E0D4531FF003321D8 /* Iop_Dynamic.h */,
 				7E9E4F9F0D4531FF003321D8 /* Iop_Intc.cpp */,
@@ -656,8 +672,12 @@
 				7E9E4FA20D4531FF003321D8 /* Iop_Intrman.h */,
 				7E9E4FA30D4531FF003321D8 /* Iop_Ioman.cpp */,
 				7E9E4FA40D4531FF003321D8 /* Iop_Ioman.h */,
+				7EAD8CE00D48528A002CC1C1 /* Iop_LibSd.cpp */,
+				7EAD8CDF0D48528A002CC1C1 /* Iop_LibSd.h */,
 				7E9E4FA50D4531FF003321D8 /* Iop_Loadcore.cpp */,
 				7E9E4FA60D4531FF003321D8 /* Iop_Loadcore.h */,
+				7EAD8CDE0D48528A002CC1C1 /* Iop_McServ.cpp */,
+				7EAD8CDD0D48528A002CC1C1 /* Iop_McServ.h */,
 				7E9E4FA70D4531FF003321D8 /* Iop_Modload.cpp */,
 				7E9E4FA80D4531FF003321D8 /* Iop_Modload.h */,
 				7E9E4FA90D4531FF003321D8 /* Iop_Module.h */,
@@ -857,6 +877,10 @@
 				7E9E4FCB0D4531FF003321D8 /* Iop_Timrman.cpp in Sources */,
 				7E9E4FCC0D4531FF003321D8 /* IopBios.cpp in Sources */,
 				7E9E4FCD0D4531FF003321D8 /* IsoDevice.cpp in Sources */,
+				7EAD8BE50D4846DE002CC1C1 /* Posix_VolumeStream.cpp in Sources */,
+				7EAD8CE30D48528A002CC1C1 /* Iop_McServ.cpp in Sources */,
+				7EAD8CE40D48528A002CC1C1 /* Iop_LibSd.cpp in Sources */,
+				7EAD8CE50D48528A002CC1C1 /* Iop_DbcMan.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

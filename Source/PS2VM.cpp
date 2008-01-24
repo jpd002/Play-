@@ -16,6 +16,8 @@
 #include "GZipStream.h"
 #ifdef WIN32
 #include "VolumeStream.h"
+#else
+#include "Posix_VolumeStream.h"
 #endif
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
@@ -488,7 +490,6 @@ void CPS2VM::CDROM0_Reset()
 
 void CPS2VM::CDROM0_Mount(const char* sPath)
 {
-#ifdef WIN32
 	CStream* pStream;
 
 	//Check if there's an m_pCDROM0 already
@@ -499,6 +500,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 		try
 		{
 			//Gotta think of something better than that...
+#ifdef WIN32
 			if(sPath[0] == '\\')
 			{
 				pStream = new Win32::CVolumeStream(sPath[4]);
@@ -507,6 +509,9 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 			{
 				pStream = new CStdStream(fopen(sPath, "rb"));
 			}
+#else
+			pStream = new Posix::CVolumeStream(sPath);
+#endif
 			m_pCDROM0 = new CISO9660(pStream);
 		}
 		catch(const exception& Exception)
@@ -516,9 +521,6 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 	}
 
 	CConfig::GetInstance()->SetPreferenceString("ps2.cdrom0.path", sPath);
-#else
-//	throw runtime_error("Not implemented.");
-#endif
 }
 
 void CPS2VM::CDROM0_Destroy()
