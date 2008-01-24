@@ -10,9 +10,11 @@
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification;
 -(void)OnBootElf: (id)sender;
+-(void)OnBootCdrom0 : (id)sender;
 -(void)OnPauseResume: (id)sender;
 -(void)OnSaveState: (id)sender;
 -(void)OnLoadState: (id)sender;
 -(void)BootFromElf: (NSString*)fileName;
+-(void)BootFromCdrom0;
 
 @end

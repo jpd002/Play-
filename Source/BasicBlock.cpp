@@ -67,6 +67,7 @@ unsigned int CBasicBlock::Execute()
     {
 #if defined(MACOSX)
 		pusha
+		sub esp, 0x0C		//Keep stack aligned on 0x10 bytes
 #elif defined(_MSVC)
         pushad
 #endif
@@ -76,6 +77,7 @@ unsigned int CBasicBlock::Execute()
         call    eax
 		
 #if defined(MACOSX)
+		add esp, 0x0C
 		popa
 #elif defined(_MSVC)
         popad

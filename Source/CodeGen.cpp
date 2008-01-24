@@ -1076,6 +1076,17 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 
 #endif
 
+	unsigned int additionalStack = 0;
+#ifdef MACOSX
+	//MacOS requires us to keep esp aligned on 16 bytes boundaries...
+	additionalStack = (4 - (nParamCount & 3)) & 3;
+	if(additionalStack != 0)
+	{
+		m_Assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP),
+			additionalStack * 4);
+	}
+#endif
+
 	for(unsigned int i = 0; i < nParamCount; i++)
 	{
 		if(m_Shadow.GetAt(0) == VARIABLE)
@@ -1221,7 +1232,7 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 	{
 		//add esp, nParams * 4;
         m_Assembler.AddId(
-            CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), nParamCount * 4);
+            CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), (nParamCount + additionalStack) * 4);
 	}
 
 #endif

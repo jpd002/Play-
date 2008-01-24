@@ -45,6 +45,11 @@ using namespace std;
 	[self BootFromElf:fileName];
 }
 
+-(void)OnBootCdrom0: (id)sender
+{
+	[self BootFromCdrom0];
+}
+
 -(void)OnPauseResume: (id)sender
 {
 	if(g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
@@ -74,7 +79,27 @@ using namespace std;
 	{
 		CPS2OS* os = g_virtualMachine->m_os;
 		os->BootFromFile([fileName fileSystemRepresentation]);
-//		g_virtualMachine->Resume();
+#ifndef DEBUGGER_INCLUDED
+		g_virtualMachine->Resume();
+#endif
+	}
+	catch(const exception& excep)
+	{
+		NSString* errorMessage = [[NSString alloc] initWithCString:excep.what()];
+		NSRunCriticalAlertPanel(@"Load ELF error:", errorMessage, NULL, NULL, NULL);
+	}
+}
+
+-(void)BootFromCdrom0
+{
+	g_virtualMachine->Reset();
+	try
+	{
+		CPS2OS* os = g_virtualMachine->m_os;
+		os->BootFromCDROM();
+#ifndef DEBUGGER_INCLUDED
+		g_virtualMachine->Resume();
+#endif
 	}
 	catch(const exception& excep)
 	{
