@@ -1,6 +1,8 @@
 #ifndef _PADLISTENER_H_
 #define _PADLISTENER_H_
 
+#include "Types.h"
+
 class CPadListener
 {
 public:
@@ -19,7 +21,7 @@ public:
 	};
 
 	virtual			~CPadListener() {}
-	virtual void	SetButtonState(unsigned int, BUTTON, bool) = 0;
+	virtual void	SetButtonState(unsigned int, BUTTON, bool, uint8*) = 0;
 };
 
 #endif

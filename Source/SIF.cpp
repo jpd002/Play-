@@ -4,11 +4,14 @@
 #include "PtrMacro.h"
 #include "Profiler.h"
 #include "Log.h"
+#include "RegisterStateFile.h"
 
 #define		CMD_RECVADDR		0x00001000
 #define		RPC_RECVADDR		0xDEADBEEF
 
-#define LOG_NAME "sif"
+#define LOG_NAME        ("sif")
+
+#define STATE_REGS_XML  ("sif/regs.xml")
 
 #ifdef	PROFILE
 #define	PROFILE_SIFZONE "SIF"
@@ -174,40 +177,27 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 	m_dmac.SetRegister(CDMAC::D5_CHCR, 0x00000100);
 }
 
-void CSIF::LoadState(CStream* pStream)
+void CSIF::LoadState(CZipArchiveReader& archive)
 {
-/*
-	pStream->Read(&m_nMAINADDR,		4);
-	pStream->Read(&m_nSUBADDR,		4);
-	pStream->Read(&m_nMSFLAG,		4);
-	pStream->Read(&m_nSMFLAG,		4);
-	
-	pStream->Read(&m_nEERecvAddr,	4);
-	pStream->Read(&m_nDataAddr,		4);
-
-	//Load the state of individual modules
-	m_Module.Find(IOP::CCdvdfsv::MODULE_ID_1)->LoadState(pStream);
-	m_Module.Find(IOP::CDbcMan::MODULE_ID)->LoadState(pStream);
-	m_pPadMan->LoadState(pStream);
-*/
+    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+    m_nMAINADDR     = registerFile.GetRegister32("MAINADDR");
+    m_nSUBADDR      = registerFile.GetRegister32("SUBADDR");
+    m_nMSFLAG       = registerFile.GetRegister32("MSFLAG");
+    m_nSMFLAG       = registerFile.GetRegister32("SMFLAG");
+    m_nEERecvAddr   = registerFile.GetRegister32("EERecvAddr");
+    m_nDataAddr     = registerFile.GetRegister32("DataAddr");
 }
 
-void CSIF::SaveState(CStream* pStream)
+void CSIF::SaveState(CZipArchiveWriter& archive)
 {
-/*
-	pStream->Write(&m_nMAINADDR,	4);
-	pStream->Write(&m_nSUBADDR,		4);
-	pStream->Write(&m_nMSFLAG,		4);
-	pStream->Write(&m_nSMFLAG,		4);
-	
-	pStream->Write(&m_nEERecvAddr,	4);
-	pStream->Write(&m_nDataAddr,	4);
-
-	//Save the state of individual modules
-	m_Module.Find(IOP::CCdvdfsv::MODULE_ID_1)->SaveState(pStream);
-	m_Module.Find(IOP::CDbcMan::MODULE_ID)->SaveState(pStream);
-	m_pPadMan->SaveState(pStream);
-*/
+    CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+    registerFile->SetRegister32("MAINADDR",     m_nMAINADDR);
+    registerFile->SetRegister32("SUBADDR",      m_nSUBADDR);
+    registerFile->SetRegister32("MSFLAG",       m_nMSFLAG);
+    registerFile->SetRegister32("SMFLAG",       m_nSMFLAG);
+    registerFile->SetRegister32("EERecvAddr",   m_nEERecvAddr);
+    registerFile->SetRegister32("DataAddr",     m_nDataAddr);
+    archive.InsertFile(registerFile);
 }
 
 /////////////////////////////////////////////////////////

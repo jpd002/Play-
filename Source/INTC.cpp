@@ -1,7 +1,10 @@
 #include "INTC.h"
 #include "Log.h"
+#include "RegisterStateFile.h"
 
-#define LOG_NAME "intc"
+#define LOG_NAME        ("intc")
+
+#define STATE_REGS_XML  ("intc/regs.xml")
 
 using namespace Framework;
 
@@ -73,14 +76,17 @@ void CINTC::AssertLine(uint32 nLine)
 	m_INTC_STAT |= (1 << nLine);
 }
 
-void CINTC::LoadState(CStream* pStream)
+void CINTC::LoadState(CZipArchiveReader& archive)
 {
-	pStream->Read(&m_INTC_STAT, 4);
-	pStream->Read(&m_INTC_MASK, 4);
+    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+    m_INTC_STAT = registerFile.GetRegister32("INTC_STAT");
+    m_INTC_MASK = registerFile.GetRegister32("INTC_MASK");
 }
 
-void CINTC::SaveState(CStream* pStream)
+void CINTC::SaveState(CZipArchiveWriter& archive)
 {
-	pStream->Write(&m_INTC_STAT, 4);
-	pStream->Write(&m_INTC_MASK, 4);
+    CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+    registerFile->SetRegister32("INTC_STAT", m_INTC_STAT);
+    registerFile->SetRegister32("INTC_MASK", m_INTC_MASK);
+    archive.InsertFile(registerFile);
 }

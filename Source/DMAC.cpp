@@ -644,19 +644,15 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 void CDMAC::LoadState(CZipArchiveReader& archive)
 {
-    {
-        CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-        m_D_STAT = registerFile.GetRegister32("D_STAT");
-    }
+    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+    m_D_STAT = registerFile.GetRegister32("D_STAT");
 }
 
 void CDMAC::SaveState(CZipArchiveWriter& archive)
 {
-    {
-        CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-        registerFile->SetRegister32("D_STAT",   m_D_STAT);
-        archive.InsertFile(registerFile);
-    }
+    CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+    registerFile->SetRegister32("D_STAT",   m_D_STAT);
+    archive.InsertFile(registerFile);
 }
 
 void CDMAC::DisassembleGet(uint32 nAddress)

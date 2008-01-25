@@ -12,7 +12,7 @@ public:
 
                                         CPadHandler();
     virtual								~CPadHandler();
-    virtual void						Update() = 0;
+    virtual void						Update(uint8*) = 0;
     void								InsertListener(CPadListener*);
     void								RemoveAllListeners();
 

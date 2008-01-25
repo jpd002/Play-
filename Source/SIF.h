@@ -2,9 +2,10 @@
 #define _SIF_H_
 
 #include <map>
-#include "Stream.h"
 #include "SifModule.h"
 #include "DMAC.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 class CSIF
 {
@@ -24,8 +25,8 @@ public:
 	uint32							GetRegister(uint32);
 	void							SetRegister(uint32, uint32);
 
-	void							LoadState(Framework::CStream*);
-	void							SaveState(Framework::CStream*);
+	void							LoadState(CZipArchiveReader&);
+	void							SaveState(CZipArchiveWriter&);
 
 private:
     typedef std::map<uint32, CSifModule*> ModuleMap;

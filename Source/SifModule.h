@@ -1,6 +1,8 @@
 #ifndef _SIFMODULE_H_
 #define _SIFMODULE_H_
 
+#include "Types.h"
+
 class CSifModule
 {
 public:

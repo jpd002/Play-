@@ -1,15 +1,21 @@
 #include <assert.h>
+#include <boost/lexical_cast.hpp>
 #include "IOP_DbcMan.h"
 #include "../Log.h"
+#include "../RegisterStateFile.h"
 
 #define LOG_NAME ("iop_dbcman")
+
+#define SOCKET_STATE_BASE_PATH ("iop_dbcman/socket_")
+#define SOCKET_STATE_EXTENSION (".xml")
 
 using namespace Iop;
 using namespace std;
 using namespace Framework;
+using namespace boost;
 
 CDbcMan::CDbcMan(CSIF& sif) :
-m_nextSocketId(1)
+m_nextSocketId(0)
 {
     sif.RegisterModule(MODULE_ID, this);
 }
@@ -50,47 +56,45 @@ void CDbcMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		break;
 	}
 }
-/*
-void CDbcMan::SaveState(CStream* pStream)
+
+void CDbcMan::SaveState(CZipArchiveWriter& archive)
 {
-	uint32 nCount, nID;
-	SOCKET* pSocket;
-	CList<SOCKET>::ITERATOR itSocket;
-
-	nCount = m_Socket.Count();
-	pStream->Write(&nCount, 4);
-
-	for(itSocket = m_Socket.Begin(); itSocket.HasNext(); itSocket++)
-	{
-		nID = itSocket.GetKey();
-		pSocket = (*itSocket);
-
-		pStream->Write(&nID,	4);
-		pStream->Write(pSocket, sizeof(SOCKET));
-	}
+    for(SocketMap::const_iterator socketIterator(m_sockets.begin());
+        socketIterator != m_sockets.end(); socketIterator++)
+    {
+        uint32 id = socketIterator->first;
+        const SOCKET& socket = socketIterator->second;
+        string path = SOCKET_STATE_BASE_PATH + lexical_cast<string>(id) + SOCKET_STATE_EXTENSION;
+        CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
+        registerFile->SetRegister32("id", id);
+        registerFile->SetRegister32("port", socket.nPort);
+        registerFile->SetRegister32("slot", socket.nSlot);
+        registerFile->SetRegister32("buffer1", socket.buf1);
+        registerFile->SetRegister32("buffer2", socket.buf2);
+        archive.InsertFile(registerFile);
+    }
 }
 
-void CDbcMan::LoadState(CStream* pStream)
+void CDbcMan::LoadState(CZipArchiveReader& archive)
 {
-	uint32 nCount, nID, i;
-	SOCKET* pSocket;
-
-	DeleteAllSockets();
-	
-	pStream->Read(&nCount, 4);
-	
-	for(i = 0; i < nCount; i++)
-	{
-		pSocket = new SOCKET;
-
-		pStream->Read(&nID,		4);
-		pStream->Read(pSocket,	sizeof(SOCKET));
-
-		m_Socket.Insert(pSocket, nID);
-	}
+    string regexString = SOCKET_STATE_BASE_PATH + string(".*") + SOCKET_STATE_EXTENSION;
+    CZipArchiveReader::FileNameList fileList = archive.GetFileNameList(regexString.c_str());
+    for(CZipArchiveReader::FileNameList::const_iterator fileIterator(fileList.begin());
+        fileIterator != fileList.end(); fileIterator++)
+    {
+        CRegisterStateFile registerFile(*archive.BeginReadFile(fileIterator->c_str()));
+        SOCKET socket;
+        uint32 id = registerFile.GetRegister32("id");
+        socket.nPort = registerFile.GetRegister32("port");
+        socket.nSlot = registerFile.GetRegister32("slot");
+        socket.buf1 = registerFile.GetRegister32("buffer1");
+        socket.buf2 = registerFile.GetRegister32("buffer2");
+        m_sockets[id] = socket;
+        m_nextSocketId = max(id + 1, m_nextSocketId);
+    }
 }
-*/
-void CDbcMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButton, bool nPressed)
+
+void CDbcMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButton, bool nPressed, uint8* ram)
 {
     for(SocketMap::const_iterator socketIterator(m_sockets.begin());
         socketIterator != m_sockets.end(); socketIterator++)
@@ -98,15 +102,16 @@ void CDbcMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButt
 		const SOCKET& socket = socketIterator->second;
 		if(socket.nPort != nPadNumber) continue;
 
-        uint16 nStatus = (socket.buf1[0x1C] << 8) | (socket.buf1[0x1D]);
+        uint8* buffer = &ram[socket.buf1];
+        uint16 nStatus = (buffer[0x1C] << 8) | (buffer[0x1D]);
 		nStatus &= (~nButton);
 		if(!nPressed)
 		{
 			nStatus |= nButton;
 		}
 
-		socket.buf1[0x1C] = static_cast<uint8>(nStatus >> 8);
-		socket.buf1[0x1D] = static_cast<uint8>(nStatus >> 0);
+		buffer[0x1C] = static_cast<uint8>(nStatus >> 8);
+		buffer[0x1D] = static_cast<uint8>(nStatus >> 0);
 
 //		*(uint16*)&CPS2VM::m_pRAM[pSocket->nBuf1 + 0x1C] ^= 0x2010;
 	}
@@ -129,8 +134,8 @@ void CDbcMan::CreateSocket(uint32* args, uint32 argsSize, uint32* ret, uint32 re
     SOCKET socket;
 	socket.nPort    = nPort;
 	socket.nSlot    = nSlot;
-	socket.buf1     = &ram[nBuf1];
-	socket.buf2     = &ram[nBuf2];
+	socket.buf1     = nBuf1;
+	socket.buf2     = nBuf2;
 
     uint32 id = m_nextSocketId++;
     m_sockets[id] = socket;
@@ -181,8 +186,9 @@ void CDbcMan::ReceiveData(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	if(socketIterator != m_sockets.end())
 	{
         SOCKET& socket(socketIterator->second);
-		socket.buf1[0x02] = 0x20;
-		*reinterpret_cast<uint32*>(&socket.buf1[0x04]) = 0x01;
+        uint8* buffer = &ram[socket.buf1];
+		buffer[0x02] = 0x20;
+		*reinterpret_cast<uint32*>(&buffer[0x04]) = 0x01;
 	}
 
 	//Return frame

@@ -5,6 +5,8 @@
 #include "Iop_Module.h"
 #include "../SIF.h"
 #include "../PadListener.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -17,9 +19,9 @@ namespace Iop
         std::string                 GetId() const;
         void                        Invoke(CMIPS&, unsigned int);
         virtual void				Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-//		virtual void				SaveState(Framework::CStream*);
-//		virtual void				LoadState(Framework::CStream*);
-		virtual void				SetButtonState(unsigned int, CPadListener::BUTTON, bool);
+		virtual void				SaveState(CZipArchiveWriter&);
+		virtual void				LoadState(CZipArchiveReader&);
+		virtual void				SetButtonState(unsigned int, CPadListener::BUTTON, bool, uint8*);
 
 	private:
 		enum MODULE_ID
@@ -31,8 +33,8 @@ namespace Iop
 		{
 			uint32 nPort;
 			uint32 nSlot;
-			uint8* buf1;
-			uint8* buf2;
+			uint32 buf1;
+			uint32 buf2;
 		};
 
         typedef std::map<uint32, SOCKET> SocketMap;

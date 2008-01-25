@@ -2,8 +2,9 @@
 #define _INTC_H_
 
 #include "Types.h"
-#include "Stream.h"
 #include "DMAC.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 class CINTC
 {
@@ -33,8 +34,8 @@ public:
 
 	void        AssertLine(uint32);
 
-	void        LoadState(Framework::CStream*);
-	void        SaveState(Framework::CStream*);
+	void        LoadState(CZipArchiveReader&);
+	void        SaveState(CZipArchiveWriter&);
 
 private:
 	uint32	    m_INTC_STAT;

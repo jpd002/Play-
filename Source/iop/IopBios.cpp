@@ -4,8 +4,8 @@
 #include "Iop_Sysclib.h"
 #include "Iop_Loadcore.h"
 #include "Iop_LibSd.h"
+#include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
-#include "Iop_DbcMan.h"
 #include "Iop_Thbase.h"
 #include "Iop_Thsema.h"
 #include "Iop_Thevent.h"
@@ -32,6 +32,7 @@ m_stdio(NULL),
 m_sysmem(NULL),
 m_ioman(NULL),
 m_modload(NULL),
+m_dbcman(NULL),
 m_rescheduleNeeded(false),
 m_currentThreadId(-1)
 {
@@ -70,8 +71,7 @@ void CIopBios::Reset()
         RegisterModule(m_modload);
     }
     {
-        m_cdvdfsv = new Iop::CCdvdfsv(m_iso, m_sif);
-        RegisterModule(m_cdvdfsv);
+        RegisterModule(new Iop::CCdvdfsv(m_iso, m_sif));
     }
     {
         RegisterModule(new Iop::CSysclib(m_ram, *m_stdio));
@@ -101,7 +101,8 @@ void CIopBios::Reset()
         RegisterModule(new Iop::CMcServ(m_sif));
     }
     {
-        RegisterModule(new Iop::CDbcMan(m_sif));
+        m_dbcman = new Iop::CDbcMan(m_sif);
+        RegisterModule(m_dbcman);
     }
 
     const int sifDmaBufferSize = 0x1000;
@@ -472,6 +473,11 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 Iop::CIoman* CIopBios::GetIoman()
 {
     return m_ioman;
+}
+
+Iop::CDbcMan* CIopBios::GetDbcman()
+{
+    return m_dbcman;
 }
 
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)

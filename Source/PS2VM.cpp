@@ -375,9 +375,10 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 
         m_pGS->SaveState(archive);
         m_dmac.SaveState(archive);
+        m_intc.SaveState(archive);
+        m_sif.SaveState(archive);
+        m_iopOs->GetDbcman()->SaveState(archive);
 
-//	CINTC::SaveState(pS);
-//	CSIF::SaveState(pS);
 //	CVIF::SaveState(pS);
 
         archive.Write(stateStream);
@@ -416,9 +417,9 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 
         m_pGS->LoadState(archive);
         m_dmac.LoadState(archive);
-
-//	CINTC::LoadState(pS);
-//	CSIF::LoadState(pS);
+        m_intc.LoadState(archive);
+        m_sif.LoadState(archive);
+        m_iopOs->GetDbcman()->LoadState(archive);
 //	CVIF::LoadState(pS);
 
     }
@@ -539,7 +540,7 @@ void CPS2VM::RegisterModulesInPadHandler()
 	if(m_pPad == NULL) return;
 
 	m_pPad->RemoveAllListeners();
-//	m_pPad->InsertListener(CSIF::GetPadMan());
+	m_pPad->InsertListener(m_iopOs->GetDbcman());
 //	m_pPad->InsertListener(CSIF::GetDbcMan());
 }
 
@@ -783,7 +784,7 @@ void CPS2VM::EmuThread()
 
                     if(m_pPad != NULL)
                     {
-                        m_pPad->Update();
+                        m_pPad->Update(m_pRAM);
                     }
 				}
 				else

@@ -57,7 +57,7 @@ void CPH_DirectInput::Initialize()
 	m_pKeyboard->Acquire();
 }
 
-void CPH_DirectInput::Update()
+void CPH_DirectInput::Update(uint8* ram)
 {
 	DWORD nElements, i;
 	HRESULT hRet;
@@ -80,7 +80,7 @@ void CPH_DirectInput::Update()
                 listenerIterator != m_listeners.end(); listenerIterator++)
 			{
 	            CPadListener* pListener(*listenerIterator);
-				pListener->SetButtonState(0, nButton, (d[i].dwData & 0x80) ? true : false);
+				pListener->SetButtonState(0, nButton, (d[i].dwData & 0x80) ? true : false, ram);
 			}
 		}
 	}	

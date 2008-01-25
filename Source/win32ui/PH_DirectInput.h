@@ -11,7 +11,7 @@ class CPH_DirectInput : public CPadHandler
 public:
 							CPH_DirectInput(HWND);
     virtual                 ~CPH_DirectInput();
-	void					Update();
+	void					Update(uint8*);
 
     static FactoryFunction  GetFactoryFunction(HWND);
 

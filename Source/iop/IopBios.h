@@ -6,11 +6,12 @@
 #include "../MIPS.h"
 #include "../ELF.h"
 #include "../SIF.h"
+#include "../ISO9660/ISO9660.h"
 #include "Iop_Ioman.h"
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
-#include "Iop_Cdvdfsv.h"
+#include "Iop_DbcMan.h"
 
 class CIopBios
 {
@@ -24,6 +25,7 @@ public:
     void                    Reset();
 
     Iop::CIoman*            GetIoman();
+    Iop::CDbcMan*           GetDbcman();
     void                    RegisterModule(Iop::CModule*);
 
     uint32                  CreateThread(uint32, uint32);
@@ -139,7 +141,7 @@ private:
     Iop::CIoman*            m_ioman;
     Iop::CSysmem*           m_sysmem;
     Iop::CModload*          m_modload;
-    Iop::CCdvdfsv*          m_cdvdfsv;
+    Iop::CDbcMan*           m_dbcman;
 };
 
 #endif
