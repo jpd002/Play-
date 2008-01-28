@@ -1,5 +1,6 @@
 #import "ApplicationDelegate.h"
 #import "GSH_OpenGLMacOSX.h"
+#import "PH_HidMacOSX.h"
 #import "Globals.h"
 #import "../PS2OS.h"
 
@@ -14,10 +15,11 @@ using namespace std;
 	NSOpenGLContext* context = [m_openGlView openGLContext];
 	void* lowLevelContext = [context CGLContextObj];
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLMacOSX::GetFactoryFunction(reinterpret_cast<CGLContextObj>(lowLevelContext)));
-	
+	g_virtualMachine->CreatePadHandler(CPH_HidMacOSX::GetFactoryFunction());
+#ifdef _DEBUG	
 	//Check arguments
 	NSArray* args = [[NSProcessInfo processInfo] arguments];
-	
+
 	NSString* bootFromElfPath = nil;
 	if([args count] > 1)
 	{
@@ -31,6 +33,7 @@ using namespace std;
 	
 	//Initialize debugger
 	[m_debuggerWindow Initialize];
+#endif
 }
 
 -(void)OnBootElf : (id)sender
