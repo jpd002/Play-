@@ -3,10 +3,18 @@
 
 #include "Types.h"
 #include "BitStream.h"
+#include <boost/thread.hpp>
+#include <functional>
+#include "MailBox.h"
 
 class CIPU
 {
 public:
+    typedef std::tr1::function<uint32 (void*, uint32)> Dma3ReceiveHandler;
+
+                        CIPU();
+    virtual             ~CIPU();
+
 	enum REGISTER
 	{
 		IPU_CMD			= 0x10002000,
@@ -17,11 +25,12 @@ public:
 		IPU_IN_FIFO		= 0x10007010,
 	};
 
-	static void			Reset();
-	static uint32		GetRegister(uint32);
-	static void			SetRegister(uint32, uint32);
-	static uint32		ReceiveDMA(uint32, uint32, bool);
-	static void			DMASliceDoneCallback();
+	void                Reset();
+	uint32              GetRegister(uint32);
+	void                SetRegister(uint32, uint32);
+    void                SetDMA3ReceiveHandler(const Dma3ReceiveHandler&);
+    uint32              ReceiveDMA4(uint32, uint32, bool, uint8*);
+//	void                DMASliceDoneCallback();
 
 private:
 	class COutFifoBase
@@ -39,6 +48,7 @@ private:
 		virtual			~COUTFIFO();
 		virtual void	Write(void*, unsigned int);
 		virtual void	Flush();
+        void            SetReceiveHandler(const Dma3ReceiveHandler&);
 
 	private:
 		void			RequestGrow(unsigned int);
@@ -48,9 +58,10 @@ private:
 			GROWSIZE = 0x200,
 		};
 
-		unsigned int	m_nSize;
-		unsigned int	m_nAlloc;
-		uint8*			m_pBuffer;
+		unsigned int	    m_nSize;
+		unsigned int	    m_nAlloc;
+		uint8*			    m_pBuffer;
+        Dma3ReceiveHandler  m_receiveHandler;
 	};
 
 	class CIDecFifo : public Framework::CBitStream, public COutFifoBase
@@ -82,20 +93,20 @@ private:
 	class CINFIFO : public Framework::CBitStream
 	{
 	public:
-						CINFIFO();
-		virtual			~CINFIFO();
-		void			Write(void*, unsigned int);
-		uint32			GetBits_MSBF(uint8);
-		uint32			GetBits_LSBF(uint8);
-		uint32			PeekBits_LSBF(uint8);
-		uint32			PeekBits_MSBF(uint8);
-		void			SkipBits(uint8);
+                        CINFIFO();
+		virtual         ~CINFIFO();
+		void            Write(void*, unsigned int);
+		uint32          GetBits_MSBF(uint8);
+		uint32          GetBits_LSBF(uint8);
+		uint32          PeekBits_LSBF(uint8);
+		uint32          PeekBits_MSBF(uint8);
+		void            SkipBits(uint8);
 		void			SeekToByteAlign();
-		bool			IsOnByteBoundary();
-		unsigned int	GetBitPosition();
-		void			SetBitPosition(unsigned int);
-		unsigned int	GetSize();
-		void			Reset();
+		bool            IsOnByteBoundary();
+		unsigned int    GetBitPosition();
+		void            SetBitPosition(unsigned int);
+		unsigned int    GetSize();
+		void            Reset();
 
 		enum BUFFERSIZE
 		{
@@ -103,58 +114,61 @@ private:
 		};
 
 	private:
-		uint8			m_nBuffer[BUFFERSIZE];
+		uint8			    m_nBuffer[BUFFERSIZE];
 
-		unsigned int	m_nSize;
-		unsigned int	m_nBitPosition;
+		unsigned int        m_nSize;
+		unsigned int        m_nBitPosition;
+        boost::mutex        m_accessMutex;
+        boost::condition    m_dataNeededCondition;
 	};
 
-	static void			ExecuteCommand(uint32);
-	static void			DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
-	static void			DecodeBlock(COutFifoBase*, uint8, uint8, uint8, uint8, uint8);
-	static void			VariableLengthDecode(uint8, uint8);
-	static void			FixedLengthDecode(uint8);
-	static void			LoadIQMatrix(uint8*);
-	static void			LoadVQCLUT();
-	static void			ColorSpaceConversion(Framework::CBitStream*, uint8, uint8, uint16);
-	static void			SetThresholdValues(uint32);
-	
-	static bool			IsExecutionRisky(unsigned int);
+    void                CommandThread();
+    void                ExecuteCommand(uint32);
+    void                DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
+    void                DecodeBlock(COutFifoBase*, uint8, uint8, uint8, uint8, uint8);
+    void                VariableLengthDecode(uint8, uint8);
+    void                FixedLengthDecode(uint8);
+    void                LoadIQMatrix(uint8*);
+    void                LoadVQCLUT();
+    void                ColorSpaceConversion(Framework::CBitStream*, uint8, uint8, uint16);
+    void                SetThresholdValues(uint32);
 
-	static uint32		GetPictureType();
-	static uint32		GetDcPrecision();
-	static bool			GetIsMPEG2();
-	static bool			GetIsLinearQScale();
-	static bool			GetIsZigZagScan();
-	static bool			GetIsMPEG1CoeffVLCTable();
+//    bool                IsExecutionRisky(unsigned int);
 
-	static void			DecodeDctCoefficients(unsigned int, int16*, uint8);
-	static void			DequantiseBlock(int16*, uint8, uint8);
-	static void			InverseScan(int16*);
-	static int16		GetDcDifferential(unsigned int);
+    uint32              GetPictureType();
+    uint32              GetDcPrecision();
+    bool                GetIsMPEG2();
+    bool                GetIsLinearQScale();
+    bool                GetIsZigZagScan();
+    bool                GetIsMPEG1CoeffVLCTable();
 
-	static void			GenerateCbCrMap();
+    void                DecodeDctCoefficients(unsigned int, int16*, uint8);
+    void                DequantiseBlock(int16*, uint8, uint8);
+    void                InverseScan(int16*);
+    int16               GetDcDifferential(unsigned int);
 
-	static void			DisassembleGet(uint32);
-	static void			DisassembleSet(uint32, uint32);
-	static void			DisassembleCommand(uint32);
+    void                GenerateCbCrMap();
 
-	static uint32		m_nPendingCommand;
+    void                DisassembleGet(uint32);
+    void                DisassembleSet(uint32, uint32);
+    void                DisassembleCommand(uint32);
 
-	static unsigned int m_nCbCrMap[0x100];
+    unsigned int        m_nCbCrMap[0x100];
 
-	static uint8		m_nIntraIQ[0x40];
-	static uint8		m_nNonIntraIQ[0x40];
-	static uint16		m_nVQCLUT[0x10];
-	static uint16		m_nTH0;
-	static uint16		m_nTH1;
+    uint8               m_nIntraIQ[0x40];
+    uint8               m_nNonIntraIQ[0x40];
+    uint16              m_nVQCLUT[0x10];
+    uint16              m_nTH0;
+    uint16              m_nTH1;
 
-	static int16		m_nDcPredictor[3];
+    int16               m_nDcPredictor[3];
 
-	static uint32		m_IPU_CMD[2];
-	static uint32		m_IPU_CTRL;
-	static COUTFIFO		m_OUT_FIFO;
-	static CINFIFO		m_IN_FIFO;
+    uint32              m_IPU_CMD[2];
+    uint32              m_IPU_CTRL;
+    COUTFIFO            m_OUT_FIFO;
+    CINFIFO             m_IN_FIFO;
+    boost::thread*      m_cmdThread;
+    CMailBox            m_cmdThreadMail;
 };
 
 #endif

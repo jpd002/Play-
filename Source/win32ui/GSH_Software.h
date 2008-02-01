@@ -2,7 +2,6 @@
 #define _GSH_SOFTWARE_H_
 
 #include "../GSHandler.h"
-#include "../PS2VM.h"
 #include "win32/Window.h"
 #include <ddraw.h>
 

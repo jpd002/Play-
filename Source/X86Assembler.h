@@ -202,9 +202,13 @@ public:
 
     void                                    MovdquVo(const CAddress&, XMMREGISTER);
     void                                    MovdquVo(XMMREGISTER, const CAddress&);
+    void                                    Packuswb(XMMREGISTER, const CAddress&);
     void                                    PandVo(XMMREGISTER, const CAddress&);
     void                                    PcmpeqdVo(XMMREGISTER, const CAddress&);
+    void                                    PmaxswVo(XMMREGISTER, const CAddress&);
+    void                                    PminswVo(XMMREGISTER, const CAddress&);
     void                                    PorVo(XMMREGISTER, const CAddress&);
+    void                                    PsrlwVo(XMMREGISTER, uint8);
     void                                    PsubbVo(XMMREGISTER, const CAddress&);
     void                                    PsubdVo(XMMREGISTER, const CAddress&);
     void                                    PxorVo(XMMREGISTER, const CAddress&);
@@ -237,6 +241,7 @@ private:
     void                                    WriteEvId(uint8, const CAddress&, uint32);
     void                                    WriteEvIq(uint8, const CAddress&, uint64);
     void                                    WriteEdVdOp(uint8, const CAddress&, XMMREGISTER); 
+    void                                    WriteVrOp(uint8, uint8, XMMREGISTER);
     void                                    WriteStOp(uint8, uint8, uint8);
 
     void                                    CreateLabelReference(LABEL, unsigned int);

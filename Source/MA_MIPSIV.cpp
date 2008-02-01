@@ -275,10 +275,12 @@ void CMA_MIPSIV::BGTZ()
 //08
 void CMA_MIPSIV::ADDI()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-	m_pB->AddImm((int16)m_nImmediate);
-	SignExtendTop32(m_nRT);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
+    m_codeGen->Add();
+    m_codeGen->SeX();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
 
 //09
@@ -298,7 +300,7 @@ void CMA_MIPSIV::ADDIU()
     }
 */
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushCst((int16)m_nImmediate);
+    m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
     m_codeGen->Add();
     m_codeGen->SeX();
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
@@ -965,16 +967,14 @@ void CMA_MIPSIV::DIVU()
 //20
 void CMA_MIPSIV::ADD()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[0]);
-		CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-		CCodeGen::Add();
-		CCodeGen::SeX();
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-		CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-	}
-	CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+    m_codeGen->Add();
+    m_codeGen->SeX();
+
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //21
@@ -1162,17 +1162,6 @@ void CMA_MIPSIV::DSRA()
 
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-/*
-    //TODO: Fix that! Run-time shift algorithm selection is used
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[0]);
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[m_nRT].nV[1]);
-	m_pB->PushImm(m_nSA);
-
-	m_pB->Sra64();
-
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[1]);
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[m_nRD].nV[0]);
-*/
 }
 
 //3C

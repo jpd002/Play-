@@ -152,3 +152,12 @@ void CX86Assembler::WriteEdVdOp(uint8 opcode, const CAddress& address, XMMREGIST
     WriteByte(opcode);
     NewAddress.Write(m_WriteFunction);
 }
+
+void CX86Assembler::WriteVrOp(uint8 opcode, uint8 subOpcode, XMMREGISTER registerId)
+{
+    CAddress address(MakeXmmRegisterAddress(registerId));
+    WriteRexByte(false, address);
+    address.ModRm.nFnReg = subOpcode;
+    WriteByte(opcode);
+    address.Write(m_WriteFunction);
+}

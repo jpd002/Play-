@@ -153,8 +153,11 @@ public:
 
     void                            MD_AddWUS();
     void                            MD_And();
+    void                            MD_MaxH();
+    void                            MD_MinH();
     void                            MD_Not();
     void                            MD_Or();
+    void                            MD_PackHB();
     void                            MD_SubB();
     void                            MD_SubW();
     void                            MD_Xor();

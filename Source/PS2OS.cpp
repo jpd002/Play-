@@ -1360,16 +1360,12 @@ void CPS2OS::sc_EnableIntc()
 //15
 void CPS2OS::sc_DisableIntc()
 {
-	uint32 nCause, nMask;
-
-	nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	nMask = 1 << nCause;
-    assert(0);
-//	if(CINTC::GetRegister(CINTC::INTC_MASK) & nMask)
-//	{
-//		CINTC::SetRegister(CINTC::INTC_MASK, nMask);
-//	}
+    uint32 nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+    uint32 nMask = 1 << nCause;
+	if(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & nMask)
+	{
+		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, nMask);
+	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -2160,8 +2156,7 @@ void CPS2OS::sc_Deci2Call()
 			nLength = m_ram[nParam + 0x00] - 0x0C;
 			sString = &m_ram[nParam + 0x0C];
 
-            throw runtime_error("Not implemented.");
-//			CSIF::GetFileIO()->Write(1, nLength, sString);
+            m_iopBios.GetIoman()->Write(1, nLength, sString);
 		}
 
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;

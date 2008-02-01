@@ -3,7 +3,6 @@
 #include "PS2VM.h"
 #include "PS2OS.h"
 #include "Ps2Const.h"
-#include "IPU.h"
 #include "VIF.h"
 #include "Timer.h"
 #include "MA_EE.h"
@@ -281,8 +280,12 @@ void CPS2VM::CreateVM()
 #endif
 
     m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, _1, _2, _3, _4));
+    m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, _1, _2, _4, m_pRAM));
     m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, _1, _2, _3, _4));
     m_dmac.SetChannelTransferFunction(6, bind(&CSIF::ReceiveDMA6, &m_sif, _1, _2, _3, _4));
+
+    m_ipu.SetDMA3ReceiveHandler(bind(&CDMAC::ResumeDMA3, &m_dmac, _1, _2));
+
 	CDROM0_Initialize();
 
 	ResetVM();
@@ -318,7 +321,7 @@ void CPS2VM::ResetVM()
 	//Reset subunits
 	CDROM0_Reset();
     m_sif.Reset();
-//	CIPU::Reset();
+    m_ipu.Reset();
     m_gif.Reset();
 //	CVIF::Reset();
     m_dmac.Reset();
@@ -559,7 +562,7 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
-//		nReturn = CIPU::GetRegister(nAddress);
+        nReturn = m_ipu.GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
@@ -604,11 +607,11 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
-//		CIPU::SetRegister(nAddress, nData);
+        m_ipu.SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
 	{
-//		CIPU::SetRegister(nAddress, nData);
+        m_ipu.SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
@@ -797,6 +800,7 @@ void CPS2VM::EmuThread()
 					}
 				}
 			}
+            m_dmac.ResumeDMA4();
             if(!m_EE.m_State.nHasException)
             {
                 if(m_intc.IsInterruptPending())

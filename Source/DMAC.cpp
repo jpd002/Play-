@@ -48,7 +48,6 @@ m_D2(*this, 1, DummyTransfertFunction, NULL),
 m_D3_CHCR(0),
 m_D3_MADR(0),
 m_D3_QWC(0),
-//m_D4(4, CIPU::ReceiveDMA, CIPU::DMASliceDoneCallback),
 m_D4(*this, 1, DummyTransfertFunction, NULL),
 m_D5_CHCR(0),
 m_D5_MADR(0),
@@ -111,6 +110,9 @@ void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHan
     {
     case 2:
         m_D2.SetReceiveHandler(handler);
+        break;
+    case 4:
+        m_D4.SetReceiveHandler(handler);
         break;
     case 5:
         m_receiveDma5 = handler;

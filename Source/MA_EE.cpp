@@ -393,14 +393,10 @@ void CMA_EE::PCGTH()
 //07
 void CMA_EE::PMAXH()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::MaxH();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_MaxH();
+    PullVector(m_nRD);
 }
 
 //09
@@ -480,14 +476,10 @@ void CMA_EE::PEXTLB()
 //1B
 void CMA_EE::PPACB()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::PackHB();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_PackHB();
+	PullVector(m_nRD);
 }
 
 //1E
@@ -548,14 +540,10 @@ void CMA_EE::PCEQW()
 //07
 void CMA_EE::PMINH()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::MinH();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+    m_codeGen->MD_MinH();
+	PullVector(m_nRD);
 }
 
 //10

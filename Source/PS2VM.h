@@ -6,6 +6,7 @@
 #include "DMAC.h"
 #include "GIF.h"
 #include "SIF.h"
+#include "IPU.h"
 #include "INTC.h"
 #include "MIPS.h"
 #include "MailBox.h"
@@ -87,6 +88,7 @@ public:
     CGIF                        m_gif;
     CSIF                        m_sif;
     CINTC                       m_intc;
+    CIPU                        m_ipu;
 	CPS2OS*                     m_os;
     CIopBios*                   m_iopOs;
 

@@ -7,6 +7,8 @@
 #include "PtrMacro.h"
 #include "offsetof_def.h"
 
+using namespace std;
+
 CMIPS*				CMIPSInstructionFactory::m_pCtx		= NULL;
 CCacheBlock*		CMIPSInstructionFactory::m_pB		= NULL;
 CMipsCodeGen*       CMIPSInstructionFactory::m_codeGen  = NULL;
@@ -181,9 +183,5 @@ void CMIPSInstructionFactory::BranchLikelyEx(bool conditionValue)
 
 void CMIPSInstructionFactory::Illegal()
 {
-#ifdef _DEBUG
-	m_pB->PushAddr(&m_pCtx->m_State.nPC);
-	m_pB->SubImm(4);
-	m_pB->PullAddr(&m_pCtx->m_nIllOpcode);
-#endif
+    throw runtime_error("Illegal instruction.");
 }

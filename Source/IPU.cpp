@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <exception>
+#include <functional>
 #include "IPU.h"
 #include "IPU_MacroblockAddressIncrementTable.h"
 #include "IPU_MacroblockTypeITable.h"
@@ -17,41 +18,43 @@
 #include "idct/TrivialC.h"
 #include "idct/IEEE1180.h"
 #include "DMAC.h"
-#include "PS2VM.h"
+#include "Log.h"
 #include "PtrMacro.h"
+
+#define LOG_NAME ("ipu")
 
 using namespace IPU;
 using namespace MPEG2;
 using namespace Framework;
 using namespace std;
+using namespace boost;
 
-uint8			CIPU::m_nIntraIQ[0x40];
-uint8			CIPU::m_nNonIntraIQ[0x40];
-uint16			CIPU::m_nVQCLUT[0x10];
-uint16			CIPU::m_nTH0;
-uint16			CIPU::m_nTH1;
-int16			CIPU::m_nDcPredictor[3];
-uint32			CIPU::m_IPU_CMD[2];
-uint32			CIPU::m_IPU_CTRL = 0;
-uint32			CIPU::m_nPendingCommand = 0;
-unsigned int	CIPU::m_nCbCrMap[0x100];
+CIPU::CIPU() :
+m_IPU_CTRL(0),
+m_cmdThread(NULL)
+{
+    m_cmdThread = new thread(bind(&CIPU::CommandThread, this));
+}
 
-CIPU::COUTFIFO	CIPU::m_OUT_FIFO;
-CIPU::CINFIFO	CIPU::m_IN_FIFO;
+CIPU::~CIPU()
+{
+    DELETEPTR(m_cmdThread);
+}
 
 void CIPU::Reset()
 {
 	m_IPU_CTRL			= 0;
 	m_IPU_CMD[0]		= 0;
 	m_IPU_CMD[1]		= 0;
-	m_nPendingCommand	= 0;
 
-	GenerateCbCrMap();
+    GenerateCbCrMap();
 }
 
 uint32 CIPU::GetRegister(uint32 nAddress)
 {
+#ifdef _DEBUG
 	DisassembleGet(nAddress);
+#endif
 
 	switch(nAddress)
 	{
@@ -91,7 +94,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		printf("IPU: Reading an unhandled register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Reading an unhandled register (0x%0.8X).\r\n", nAddress);
 		break;
 	}
 
@@ -100,12 +103,17 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 
 void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 {
+#ifdef _DEBUG
 	DisassembleSet(nAddress, nValue);
+#endif
 
 	switch(nAddress)
 	{
 	case IPU_CMD + 0x0:
-		ExecuteCommand(nValue);
+	    //Set BUSY states
+	    m_IPU_CTRL		|= 0x80000000;
+	    m_IPU_CMD[1]	|= 0x80000000;
+        m_cmdThreadMail.SendCall(bind(&CIPU::ExecuteCommand, this, nValue));
 		break;
 	case IPU_CMD + 0x4:
 	case IPU_CMD + 0x8:
@@ -130,33 +138,39 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	default:
-		printf("IPU: Writing 0x%0.8X to an unhandled register (0x%0.8X).\r\n", nValue, nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Writing 0x%0.8X to an unhandled register (0x%0.8X).\r\n", nValue, nAddress);
 		break;
 	}
 }
 
+void CIPU::CommandThread()
+{
+    while(1)
+    {
+        m_cmdThreadMail.WaitForCall();
+        while(m_cmdThreadMail.IsPending())
+        {
+            m_cmdThreadMail.ReceiveCall();
+        }
+    }
+}
+
 void CIPU::ExecuteCommand(uint32 nValue)
 {
-	unsigned int nCmd;
+	unsigned int nCmd = (nValue >> 28);
 
-	nCmd = (nValue >> 28);
-
-	//Clear BUSY states
-	m_IPU_CTRL		&= ~0x80000000;
-	m_IPU_CMD[1]	&= ~0x80000000;
-
-	if((nCmd == 2) || (nCmd == 3) || (nCmd == 4))
-	{
-		if(IsExecutionRisky(nCmd))
-		{
-			//Command will wait because we're probably gonna be out of data
-			//even though this scheme will probably fail at the end...
-			m_IPU_CTRL			|= 0x80000000;
-			m_IPU_CMD[1]		|= 0x80000000;
-			m_nPendingCommand	= nValue;
-			return;
-		}
-	}
+//	if((nCmd == 2) || (nCmd == 3) || (nCmd == 4))
+//	{
+//		if(IsExecutionRisky(nCmd))
+//		{
+//			//Command will wait because we're probably gonna be out of data
+//			//even though this scheme will probably fail at the end...
+//			m_IPU_CTRL			|= 0x80000000;
+//			m_IPU_CMD[1]		|= 0x80000000;
+//			m_nPendingCommand	= nValue;
+//			return;
+//		}
+//	}
 
 	switch(nCmd)
 	{
@@ -219,40 +233,47 @@ void CIPU::ExecuteCommand(uint32 nValue)
 		SetThresholdValues(nValue);
 		break;
 	default:
-		printf("IPU: Unhandled command execution requested (%i).\r\n", nValue >> 28);
+		CLog::GetInstance().Print(LOG_NAME, "Unhandled command execution requested (%i).\r\n", nValue >> 28);
 		break;
 	}
 
-	DisassembleCommand(nValue);
+	//Clear BUSY states
+	m_IPU_CTRL		&= ~0x80000000;
+	m_IPU_CMD[1]	&= ~0x80000000;
+
+    DisassembleCommand(nValue);
 }
 
-uint32 CIPU::ReceiveDMA(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
+void CIPU::SetDMA3ReceiveHandler(const Dma3ReceiveHandler& receiveHandler)
 {
-	uint32 nSize;
-
-	assert(nTagIncluded == false);
-
-	nSize = min(nQWC * 0x10, CINFIFO::BUFFERSIZE - m_IN_FIFO.GetSize());
-
-	if(nSize == 0) return 0;
-
-	m_IN_FIFO.Write(CPS2VM::m_pRAM + nAddress, nSize);
-
-	return nSize / 0x10;
+    m_OUT_FIFO.SetReceiveHandler(receiveHandler);
 }
 
-void CIPU::DMASliceDoneCallback()
+uint32 CIPU::ReceiveDMA4(uint32 nAddress, uint32 nQWC, bool nTagIncluded, uint8* ram)
 {
-	uint32 nCommand;
+    assert(nTagIncluded == false);
 
-	//Execute pending commands
-	if(m_nPendingCommand != 0)
-	{
-		nCommand = m_nPendingCommand;
-		m_nPendingCommand = 0;
-		ExecuteCommand(nCommand);
-	}
+    uint32 nSize = min<uint32>(nQWC * 0x10, CINFIFO::BUFFERSIZE - m_IN_FIFO.GetSize());
+
+    if(nSize == 0) return 0;
+
+    m_IN_FIFO.Write(ram + nAddress, nSize);
+
+    return nSize / 0x10;
 }
+
+//void CIPU::DMASliceDoneCallback()
+//{
+//	uint32 nCommand;
+//
+//	//Execute pending commands
+//	if(m_nPendingCommand != 0)
+//	{
+//		nCommand = m_nPendingCommand;
+//		m_nPendingCommand = 0;
+//		ExecuteCommand(nCommand);
+//	}
+//}
 
 void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQSC, uint8 nFB)
 {
@@ -463,28 +484,13 @@ void CIPU::VariableLengthDecode(uint8 nTBL, uint8 nFB)
 
 void CIPU::FixedLengthDecode(uint8 nFB)
 {
-	/*
-	//Clear error code
-	m_IPU_CTRL		&= ~0x80000000;
-	m_IPU_CMD[1]	&= ~0x80000000;
-
-	if(m_IN_FIFO.GetSize() == 0)
-	{
-		m_IPU_CTRL			|= 0x80000000;
-		m_IPU_CMD[1]		|= 0x80000000;
-		m_nPendingCommand	 = 0x40000000 | nFB;
-		return;
-	}
-*/
-	m_IN_FIFO.SkipBits(nFB);
-	m_IPU_CMD[0] = m_IN_FIFO.PeekBits_MSBF(32);
+    m_IN_FIFO.SkipBits(nFB);
+    m_IPU_CMD[0] = m_IN_FIFO.PeekBits_MSBF(32);
 }
 
 void CIPU::LoadIQMatrix(uint8* pMatrix)
 {
-	unsigned int i;
-
-	for(i = 0; i < 0x40; i++)
+	for(unsigned int i = 0; i < 0x40; i++)
 	{
 		pMatrix[i] = (uint8)m_IN_FIFO.GetBits_MSBF(8);
 	}
@@ -492,9 +498,7 @@ void CIPU::LoadIQMatrix(uint8* pMatrix)
 
 void CIPU::LoadVQCLUT()
 {
-	unsigned int i;
-
-	for(i = 0; i < 0x10; i++)
+	for(unsigned int i = 0; i < 0x10; i++)
 	{
 		m_nVQCLUT[i] = (uint16)m_IN_FIFO.GetBits_MSBF(16);
 	}
@@ -603,26 +607,28 @@ void CIPU::SetThresholdValues(uint32 nValue)
 	m_nTH1 = (uint16)(nValue >> 16) & 0x1FF;
 }
 
-bool CIPU::IsExecutionRisky(unsigned int nCmd)
-{
-	if(nCmd == 2)
-	{
-		uint32 nCHCR;
-
-		nCHCR = CDMAC::GetRegister(CDMAC::D4_CHCR);
-		if((nCHCR & CDMAC::CHCR_STR) == 0) return true;
-
-		if(CDMAC::IsEndTagId(nCHCR))
-		{
-			if(CDMAC::GetRegister(CDMAC::D4_QWC) < 0x10) return true;
-		}
-	}
-	else
-	{
-		if(m_IN_FIFO.GetSize() < 0x20) return true;
-	}
-	return false;
-}
+//bool CIPU::IsExecutionRisky(unsigned int nCmd)
+//{
+//
+//  if(nCmd == 2)
+//	{
+//		uint32 nCHCR;
+//
+//		nCHCR = CDMAC::GetRegister(CDMAC::D4_CHCR);
+//		if((nCHCR & CDMAC::CHCR_STR) == 0) return true;
+//
+//		if(CDMAC::IsEndTagId(nCHCR))
+//		{
+//			if(CDMAC::GetRegister(CDMAC::D4_QWC) < 0x10) return true;
+//		}
+//	}
+//	else
+//	{
+//		if(m_IN_FIFO.GetSize() < 0x20) return true;
+//	}
+//
+//	return false;
+//}
 
 uint32 CIPU::GetPictureType()
 {
@@ -894,33 +900,29 @@ void CIPU::GenerateCbCrMap()
 
 void CIPU::DisassembleGet(uint32 nAddress)
 {
-	if(!CPS2VM::m_Logging.GetIPULoggingStatus()) return;
-
 	switch(nAddress)
 	{
 	case IPU_CMD:
-		printf("IPU: = IPU_CMD (PC: 0x%0.8X).\r\n", CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_CMD\r\n");
 		break;
 	case IPU_CTRL:
-		printf("IPU: = IPU_CTRL (PC: 0x%0.8X).\r\n", CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_CTRL\r\n");
 		break;
 	case IPU_BP:
-		printf("IPU: = IPU_BP (PC: 0x%0.8X).\r\n", CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_BP\r\n");
 		break;
 	case IPU_TOP:
-		printf("IPU: = IPU_TOP (PC: 0x%0.8X).\r\n", CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_TOP\r\n");
 		break;
 	}
 }
 
 void CIPU::DisassembleSet(uint32 nAddress, uint32 nValue)
 {
-	if(!CPS2VM::m_Logging.GetIPULoggingStatus()) return;
-
 	switch(nAddress)
 	{
 	case IPU_CMD + 0x0:
-		printf("IPU: IPU_CMD = 0x%0.8X (PC: 0x%0.8X).\r\n", nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_CMD = 0x%0.8X\r\n", nValue);
 		break;
 	case IPU_CMD + 0x4:
 	case IPU_CMD + 0x8:
@@ -928,7 +930,7 @@ void CIPU::DisassembleSet(uint32 nAddress, uint32 nValue)
 		break;
 
 	case IPU_CTRL + 0x0:
-		printf("IPU: IPU_CTRL = 0x%0.8X (PC: 0x%0.8X).\r\n", nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_CTRL = 0x%0.8X\r\n", nValue);
 		break;
 	case IPU_CTRL + 0x4:
 	case IPU_CTRL + 0x8:
@@ -939,7 +941,7 @@ void CIPU::DisassembleSet(uint32 nAddress, uint32 nValue)
 	case IPU_IN_FIFO + 0x4:
 	case IPU_IN_FIFO + 0x8:
 	case IPU_IN_FIFO + 0xC:
-		printf("IPU: IPU_IN_FIFO = 0x%0.8X (PC: 0x%0.8X).\r\n", nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_IN_FIFO = 0x%0.8X\r\n", nValue);
 		break;
 	}
 
@@ -947,15 +949,13 @@ void CIPU::DisassembleSet(uint32 nAddress, uint32 nValue)
 
 void CIPU::DisassembleCommand(uint32 nValue)
 {
-	if(!CPS2VM::m_Logging.GetIPULoggingStatus()) return;
-
 	switch(nValue >> 28)
 	{
 	case 0:
-		printf("IPU: BCLR(bp = %i);\r\n", nValue & 0x7F);
+		CLog::GetInstance().Print(LOG_NAME, "BCLR(bp = %i);\r\n", nValue & 0x7F);
 		break;
 	case 2:
-		printf("IPU: BDEC(mbi = %i, dcr = %i, dt = %i, qsc = %i, fb = %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "BDEC(mbi = %i, dcr = %i, dt = %i, qsc = %i, fb = %i);\r\n", \
 			(nValue >> 27) & 1, \
 			(nValue >> 26) & 1, \
 			(nValue >> 25) & 1, \
@@ -963,25 +963,25 @@ void CIPU::DisassembleCommand(uint32 nValue)
 			nValue & 0x3F);
 		break;
 	case 3:
-		printf("IPU: VDEC(tbl = %i, bp = %i);\r\n", (nValue >> 26) & 0x3, nValue & 0x3F);
+		CLog::GetInstance().Print(LOG_NAME, "VDEC(tbl = %i, bp = %i);\r\n", (nValue >> 26) & 0x3, nValue & 0x3F);
 		break;
 	case 4:
-		printf("IPU: FDEC(bp = %i);\r\n", nValue & 0x3F);
+		CLog::GetInstance().Print(LOG_NAME, "FDEC(bp = %i);\r\n", nValue & 0x3F);
 		break;
 	case 5:
-		printf("IPU: SETIQ(iqm = %i, bp = %i);\r\n", (nValue & 0x08000000) != 0 ? 1 : 0, nValue & 0x7F);
+		CLog::GetInstance().Print(LOG_NAME, "SETIQ(iqm = %i, bp = %i);\r\n", (nValue & 0x08000000) != 0 ? 1 : 0, nValue & 0x7F);
 		break;
 	case 6:
-		printf("IPU: SETVQ();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "SETVQ();\r\n");
 		break;
 	case 7:
-		printf("IPU: CSC(ofm = %i, dte = %i, mbc = %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "CSC(ofm = %i, dte = %i, mbc = %i);\r\n", \
 			(nValue >> 27) & 1, \
 			(nValue >> 26) & 1, \
 			(nValue >>  0) & 0x7FF);
 		break;
 	case 9:
-		printf("IPU: SETTH(th0 = 0x%0.4X, th1 = 0x%0.4X);\r\n", nValue & 0x1FF, (nValue >> 16) & 0x1FF);
+		CLog::GetInstance().Print(LOG_NAME, "SETTH(th0 = 0x%0.4X, th1 = 0x%0.4X);\r\n", nValue & 0x1FF, (nValue >> 16) & 0x1FF);
 		break;
 	}
 }
@@ -1011,6 +1011,11 @@ CIPU::COUTFIFO::~COUTFIFO()
 	DELETEPTR(m_pBuffer);
 }
 
+void CIPU::COUTFIFO::SetReceiveHandler(const Dma3ReceiveHandler& handler)
+{
+    m_receiveHandler = handler;
+}
+
 void CIPU::COUTFIFO::Write(void* pData, unsigned int nSize)
 {
 	RequestGrow(nSize);
@@ -1021,10 +1026,8 @@ void CIPU::COUTFIFO::Write(void* pData, unsigned int nSize)
 
 void CIPU::COUTFIFO::Flush()
 {
-	uint32 nCopied;
-
 	//Write to memory through DMA channel 3
-	nCopied = CDMAC::ResumeDMA3(m_pBuffer, m_nSize / 0x10);
+	uint32 nCopied = m_receiveHandler(m_pBuffer, m_nSize / 0x10);
 	nCopied *= 0x10;
 
 	memmove(m_pBuffer, m_pBuffer + nCopied, m_nSize - nCopied);
@@ -1057,10 +1060,18 @@ CIPU::CINFIFO::~CINFIFO()
 
 void CIPU::CINFIFO::Write(void* pData, unsigned int nSize)
 {
-	if(nSize + m_nSize > BUFFERSIZE) return;
+    mutex::scoped_lock accessLock(m_accessMutex);
+
+	if(nSize + m_nSize > BUFFERSIZE) 
+    {
+        assert(0);
+        return;
+    }
 
 	memcpy(m_nBuffer + m_nSize, pData, nSize);
 	m_nSize += nSize;
+
+    m_dataNeededCondition.notify_all();
 }
 
 uint32 CIPU::CINFIFO::GetBits_LSBF(uint8 nBits)
@@ -1087,25 +1098,23 @@ uint32 CIPU::CINFIFO::PeekBits_LSBF(uint8 nBits)
 
 uint32 CIPU::CINFIFO::PeekBits_MSBF(uint8 nBits)
 {
-	unsigned int i, nBitPosition;
-	uint8 nByte, nBit;
-	uint32 nTemp;
+    mutex::scoped_lock accessLock(m_accessMutex);
 
-	if(m_nSize < 16)
+    unsigned int requiredSize = (nBits + 7) / 8;
+	while(m_nSize < requiredSize)
 	{
-		assert(0);
-		return 0;
+        m_dataNeededCondition.wait(accessLock);
 	}
 
-	nBitPosition = m_nBitPosition;
-	nTemp = 0;
+	unsigned int nBitPosition = m_nBitPosition;
+	uint32 nTemp = 0;
 
-	for(i = 0; i < nBits; i++)
+	for(unsigned int i = 0; i < nBits; i++)
 	{
-		nTemp	<<= 1;
-		nByte	  = *(m_nBuffer + (nBitPosition / 8));
-		nBit	  = (nByte >> (7 - (nBitPosition & 7))) & 1;
-		nTemp	 |= nBit;
+        nTemp       <<= 1;
+		uint8 nByte   = *(m_nBuffer + (nBitPosition / 8));
+		uint8 nBit    = (nByte >> (7 - (nBitPosition & 7))) & 1;
+		nTemp        |= nBit;
 
 		nBitPosition++;
 	}
@@ -1115,9 +1124,11 @@ uint32 CIPU::CINFIFO::PeekBits_MSBF(uint8 nBits)
 
 void CIPU::CINFIFO::SkipBits(uint8 nBits)
 {
-	if(nBits == 0) return;
+    mutex::scoped_lock accessLock(m_accessMutex);
 
-	m_nBitPosition += nBits;
+    if(nBits == 0) return;
+
+    m_nBitPosition += nBits;
 
 	while(m_nBitPosition >= 128)
 	{
@@ -1125,20 +1136,19 @@ void CIPU::CINFIFO::SkipBits(uint8 nBits)
 		{
 			assert(0);
 		}
-		//if((m_nSize == 0) && (m_nBitPosition != 0))
-		//{
+
+		if((m_nSize == 0) && (m_nBitPosition != 0))
+		{
 			//Humm, this seems to happen when the DMA4 has done the transfer
 			//but we need more data...
-		//	break;
-		//}
+            assert(0);
+            m_dataNeededCondition.wait(accessLock);
+        }
 
 		//Discard the read bytes
 		memmove(m_nBuffer, m_nBuffer + 16, m_nSize - 16);
 		m_nSize -= 16;
 		m_nBitPosition -= 128;
-
-		//Get some more data from the DMA
-		CDMAC::ResumeDMA4();
 	}
 }
 
