@@ -12,7 +12,8 @@
 #define	PROFILE_DMACZONE "DMAC"
 #endif
 
-#define STATE_REGS_XML ("dmac/regs.xml")
+#define LOG_NAME        ("dmac")
+#define STATE_REGS_XML  ("dmac/regs.xml")
 
 using namespace Framework;
 using namespace std;
@@ -44,11 +45,11 @@ m_D_ENABLE(0),
 //m_D1(1, CVIF::ReceiveDMA1, NULL),
 //m_D2(2, CGIF::ReceiveDMA, NULL),
 m_D1(*this, 1, DummyTransfertFunction, NULL),
-m_D2(*this, 1, DummyTransfertFunction, NULL),
+m_D2(*this, 2, DummyTransfertFunction, NULL),
 m_D3_CHCR(0),
 m_D3_MADR(0),
 m_D3_QWC(0),
-m_D4(*this, 1, DummyTransfertFunction, NULL),
+m_D4(*this, 4, DummyTransfertFunction, NULL),
 m_D5_CHCR(0),
 m_D5_MADR(0),
 m_D5_QWC(0),
@@ -57,7 +58,7 @@ m_D6_MADR(0),
 m_D6_QWC(0),
 m_D6_TADR(0),
 //m_D9(9, ReceiveSPRDMA, NULL),
-m_D9(*this, 1, DummyTransfertFunction, NULL),
+m_D9(*this, 9, DummyTransfertFunction, NULL),
 m_D9_SADR(0)
 {
     Reset();
@@ -161,10 +162,6 @@ uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
 	{
 		m_D3_CHCR &= ~CHCR_STR;
 		m_D_STAT |= 0x08;
-		if(IsInterruptPending())
-		{
-//			CINTC::CheckInterrupts();
-		}
 	}
 
 	return nSize;
@@ -329,7 +326,7 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 	default:
 //		printf("DMAC: Read to an unhandled IO port (0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, CPS2VM::m_EE.m_State.nPC);
-        CLog::GetInstance().Print("dmac", "Read to an unhandled IO port (0x%0.8X).\r\n", nAddress);
+        CLog::GetInstance().Print(LOG_NAME, "Read to an unhandled IO port (0x%0.8X).\r\n", nAddress);
         break;
 	}
 
@@ -601,19 +598,10 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		nMask = nData & 0xFFFF0000;
 
 		//Set the masks
-//		m_D_STAT &= 0x0000FFFF;
-//		m_D_STAT |= nMask;
 		m_D_STAT ^= nMask;
 
 		//Clear the interrupt status
 		m_D_STAT &= ~nStat;
-
-		//Trigger interrupts
-		if(IsInterruptPending())
-		{
-//			CINTC::CheckInterrupts();
-		}
-
 		break;
 	case 0x1000E014:
 	case 0x1000E018:
@@ -629,8 +617,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	default:
-//		printf("DMAC: Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, nData, CPS2VM::m_EE.m_State.nPC);
-        CLog::GetInstance().Print("dmac", "Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
+        CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
         break;
 	}
 

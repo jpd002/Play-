@@ -272,8 +272,4 @@ void CChannel::ClearSTR()
 
 	//Set interrupt
 	m_dmac.m_D_STAT |= (1 << m_nNumber);
-	if(m_dmac.IsInterruptPending())
-	{
-//		CINTC::CheckInterrupts();
-	}
 }
