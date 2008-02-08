@@ -151,15 +151,21 @@ public:
     virtual void                    MD_PullRel(size_t);
     void                            MD_PushReg(XMMREGISTER);
 
+    void                            MD_AddH();
     void                            MD_AddWUS();
     void                            MD_And();
+    void                            MD_CmpGtH();
     void                            MD_MaxH();
     void                            MD_MinH();
     void                            MD_Not();
     void                            MD_Or();
     void                            MD_PackHB();
+    void                            MD_SrlH(uint8);
+    void                            MD_Srl256();
     void                            MD_SubB();
     void                            MD_SubW();
+    void                            MD_UnpackLowerBH();
+    void                            MD_UnpackUpperBH();
     void                            MD_Xor();
 
     void                            SetStream(Framework::CStream*);

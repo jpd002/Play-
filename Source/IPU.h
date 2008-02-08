@@ -113,9 +113,8 @@ private:
 			BUFFERSIZE = 0xF0,
 		};
 
-	private:
-		uint8			    m_nBuffer[BUFFERSIZE];
-
+    private:
+        uint8			    m_nBuffer[BUFFERSIZE];
 		unsigned int        m_nSize;
 		unsigned int        m_nBitPosition;
         boost::mutex        m_accessMutex;
@@ -149,6 +148,8 @@ private:
 
     void                GenerateCbCrMap();
 
+    uint32              GetBusyBit(bool) const;
+
     void                DisassembleGet(uint32);
     void                DisassembleSet(uint32, uint32);
     void                DisassembleCommand(uint32);
@@ -169,6 +170,9 @@ private:
     CINFIFO             m_IN_FIFO;
     boost::thread*      m_cmdThread;
     CMailBox            m_cmdThreadMail;
+    bool                m_isBusy;
+    bool                m_busyWhileReadingCMD;
+    bool                m_busyWhileReadingTOP;
 };
 
 #endif

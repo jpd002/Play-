@@ -17,6 +17,7 @@
 
 using namespace Framework;
 using namespace std;
+using namespace std::tr1;
 using namespace Dmac;
 using namespace boost;
 
@@ -57,8 +58,7 @@ m_D6_CHCR(0),
 m_D6_MADR(0),
 m_D6_QWC(0),
 m_D6_TADR(0),
-//m_D9(9, ReceiveSPRDMA, NULL),
-m_D9(*this, 9, DummyTransfertFunction, NULL),
+m_D9(*this, 9, bind(&CDMAC::ReceiveSPRDMA, this, _1, _2, _3, _4), NULL),
 m_D9_SADR(0)
 {
     Reset();
@@ -140,6 +140,7 @@ uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
 {
 	void* pDst;
 
+    assert(m_D3_CHCR & CHCR_STR);
 	if(!(m_D3_CHCR & CHCR_STR)) return 0;
 
 	nSize = min(nSize, m_D3_QWC);
@@ -169,21 +170,7 @@ uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
 
 void CDMAC::ResumeDMA4()
 {
-//	if(!(m_D4.m_CHCR & CHCR_STR)) return;
-	if(m_D4.m_CHCR.nSTR == 0) return;
-
-	switch(m_D4.m_CHCR.nMOD)
-	{
-	case 0x00:
-		m_D4.ExecuteNormal();
-		break;
-	case 0x01:
-		m_D4.ExecuteSourceChain();
-		break;
-	default:
-		assert(0);
-		break;
-	}
+    m_D4.Execute();
 }
 
 uint64 CDMAC::FetchDMATag(uint32 nAddress)
@@ -204,7 +191,7 @@ bool CDMAC::IsEndTagId(uint32 nTag)
 	return ((nTag == 0x00) || (nTag == 0x07));
 }
 
-uint32 CDMAC::ReceiveSPRDMA(uint32 nSrcAddress, uint32 nCount, bool nTagIncluded)
+uint32 CDMAC::ReceiveSPRDMA(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
 {
 	uint32 nDstAddress;
 
@@ -258,7 +245,25 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-	case D3_QWC + 0x0:
+    case D3_CHCR + 0x0:
+        return m_D3_CHCR;
+        break;
+    case D3_CHCR + 0x4:
+	case D3_CHCR + 0x8:
+	case D3_CHCR + 0xC:
+        return 0;
+        break;
+
+    case D3_MADR + 0x0:
+        return m_D3_MADR;
+        break;
+    case D3_MADR + 0x4:
+	case D3_MADR + 0x8:
+	case D3_MADR + 0xC:
+        return 0;
+        break;
+
+    case D3_QWC + 0x0:
 		return m_D3_QWC;
 		break;
 	case D3_QWC + 0x4:
@@ -325,7 +330,6 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-//		printf("DMAC: Read to an unhandled IO port (0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, CPS2VM::m_EE.m_State.nPC);
         CLog::GetInstance().Print(LOG_NAME, "Read to an unhandled IO port (0x%0.8X).\r\n", nAddress);
         break;
 	}
@@ -622,7 +626,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	}
 
 #ifdef _DEBUG
-//	DisassembleSet(nAddress, nData);
+	DisassembleSet(nAddress, nData);
 #endif
 
 #ifdef PROFILE
@@ -670,86 +674,82 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 
 void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 {
-//	if(!CPS2VM::m_Logging.GetDMACLoggingStatus()) return;
-
 	switch(nAddress)
 	{
 	case 0x1000A000:
-		printf("DMAC: D2_CHCR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D2_CHCR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000A010:
-		printf("DMAC: D2_MADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D2_MADR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000A020:
-		printf("DMAC: D2_SIZE = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D2_SIZE = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000A030:
-		printf("DMAC: D2_TADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D2_TADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D3_CHCR:
-		printf("DMAC: D3_CHCR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D3_CHCR = 0x%0.8X.\r\n", nData);
 		break;
 	case D3_MADR:
-		printf("DMAC: D3_MADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D3_MADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D3_QWC:
-		printf("DMAC: D3_QWC = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D3_QWC = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000B400:
-		printf("DMAC: D4_CHCR = 0x%0.8X.\r\n", nData);
+	case D4_CHCR:
+		CLog::GetInstance().Print(LOG_NAME, "D4_CHCR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000B410:
-		printf("DMAC: D4_MADR = 0x%0.8X.\r\n", nData);
+	case D4_MADR:
+		CLog::GetInstance().Print(LOG_NAME, "D4_MADR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000B420:
-		printf("DMAC: D4_QWC = 0x%0.8X.\r\n", nData);
+	case D4_QWC:
+		CLog::GetInstance().Print(LOG_NAME, "D4_QWC = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000B430:
-		printf("DMAC: D4_TADR = 0x%0.8X.\r\n", nData);
+	case D4_TADR:
+		CLog::GetInstance().Print(LOG_NAME, "D4_TADR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000C000:
-		printf("DMAC: D5_CHCR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D5_CHCR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000C010:
-		printf("DMAC: D5_MADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D5_MADR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000C020:
-		printf("DMAC: D5_QWC = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D5_QWC = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000C400:
-		printf("DMAC: D6_CHCR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D6_CHCR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000C410:
-		printf("DMAC: D6_MADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D6_MADR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000C420:
-		printf("DMAC: D6_QWC = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D6_QWC = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000C430:
-		printf("DMAC: D6_TADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D6_TADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D9_CHCR:
-		printf("DMAC: D9_CHCR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D9_CHCR = 0x%0.8X.\r\n", nData);
 		break;
 	case D9_MADR:
-		printf("DMAC: D9_MADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D9_MADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D9_QWC:
-		printf("DMAC: D9_QWC = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D9_QWC = 0x%0.8X.\r\n", nData);
 		break;
 	case D9_TADR:
-		printf("DMAC: D9_TADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D9_TADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D9_SADR:
-		printf("DMAC: D9_SADR = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D9_SADR = 0x%0.8X.\r\n", nData);
 		break;
 	case 0x1000E010:
-//		printf("DMAC: D_STAT = 0x%0.8X. (PC = 0x%0.8X)\r\n", nData, CPS2VM::m_EE.m_State.nPC);
-		printf("DMAC: D_STAT = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D_STAT = 0x%0.8X.\r\n", nData);
         break;
 	case D_ENABLEW:
-//		printf("DMAC: D_ENABLEW = 0x%0.8X. (PC = 0x%0.8X)\r\n", nData, CPS2VM::m_EE.m_State.nPC);
-		printf("DMAC: D_ENABLEW = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D_ENABLEW = 0x%0.8X.\r\n", nData);
         break;
 	}
 }

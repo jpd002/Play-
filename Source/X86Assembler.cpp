@@ -308,6 +308,11 @@ void CX86Assembler::JneJb(LABEL label)
     WriteByte(0x00);
 }
 
+void CX86Assembler::LeaGd(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x8D, false, address, registerId);
+}
+
 void CX86Assembler::MovEd(REGISTER nRegister, const CAddress& Address)
 {
     WriteEvGvOp(0x8B, false, Address, nRegister);
@@ -397,6 +402,12 @@ void CX86Assembler::PushId(uint32 value)
 {
     WriteByte(0x68);
     WriteDWord(value);
+}
+
+void CX86Assembler::RepMovsb()
+{
+    WriteByte(0xF3);
+    WriteByte(0xA4);
 }
 
 void CX86Assembler::Ret()

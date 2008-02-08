@@ -2503,6 +2503,18 @@ void CCodeGen::Xor()
 		
 		PushReg(resultRegister);
 	}
+    else if(FitsPattern<CommutativeRegisterConstant>())
+    {
+        CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
+        unsigned int resultRegister = ops.first;
+        assert(!RegisterHasNextUse(resultRegister));
+        if(ops.second != 0)
+        {
+            m_Assembler.XorId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]),
+                ops.second);
+        }
+        PushReg(resultRegister);
+    }
     else if(FitsPattern<ConstantConstant>())
     {
         ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());

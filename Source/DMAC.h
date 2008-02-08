@@ -89,7 +89,7 @@ private:
     void                Execute();
     uint64				FetchDMATag(uint32);
 
-	uint32				ReceiveSPRDMA(uint32, uint32, bool);
+	uint32				ReceiveSPRDMA(uint32, uint32, uint32, bool);
 
 	uint32				m_D_STAT;
 	uint32				m_D_ENABLE;

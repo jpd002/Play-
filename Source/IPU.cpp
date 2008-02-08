@@ -31,7 +31,8 @@ using namespace boost;
 
 CIPU::CIPU() :
 m_IPU_CTRL(0),
-m_cmdThread(NULL)
+m_cmdThread(NULL),
+m_isBusy(false)
 {
     m_cmdThread = new thread(bind(&CIPU::CommandThread, this));
 }
@@ -47,29 +48,33 @@ void CIPU::Reset()
 	m_IPU_CMD[0]		= 0;
 	m_IPU_CMD[1]		= 0;
 
+    m_busyWhileReadingCMD = false;
+    m_busyWhileReadingTOP = false;
+
     GenerateCbCrMap();
 }
 
 uint32 CIPU::GetRegister(uint32 nAddress)
 {
 #ifdef _DEBUG
-	DisassembleGet(nAddress);
+//	DisassembleGet(nAddress);
 #endif
 
 	switch(nAddress)
 	{
 	case IPU_CMD + 0x0:
+        m_busyWhileReadingCMD = m_isBusy;
 		return m_IPU_CMD[0];
 		break;
 	case IPU_CMD + 0x4:
-		return m_IPU_CMD[1];
+        return GetBusyBit(m_busyWhileReadingCMD);
 		break;
 	case IPU_CMD + 0x8:
 	case IPU_CMD + 0xC:
 		break;
 
 	case IPU_CTRL + 0x0:
-		return m_IPU_CTRL;
+		return m_IPU_CTRL | GetBusyBit(m_isBusy);
 		break;
 	case IPU_CTRL + 0x4:
 	case IPU_CTRL + 0x8:
@@ -77,6 +82,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_BP + 0x0:
+        assert(!m_isBusy);
 		return ((m_IN_FIFO.GetSize() / 0x10) << 8) | (m_IN_FIFO.GetBitPosition());
 		break;
 
@@ -86,9 +92,25 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_TOP + 0x0:
-		return m_IN_FIFO.PeekBits_MSBF(32);
+        m_busyWhileReadingTOP = m_isBusy;
+        if(!m_isBusy)
+        {
+            if(m_IN_FIFO.GetSize() < 4)
+            {
+                throw runtime_error("Not enough data...");
+            }
+            return m_IN_FIFO.PeekBits_MSBF(32);
+        }
+        else
+        {
+            return 0;
+        }
 		break;
+
 	case IPU_TOP + 0x4:
+        return GetBusyBit(m_busyWhileReadingTOP);
+        break;
+
 	case IPU_TOP + 0x8:
 	case IPU_TOP + 0xC:
 		break;
@@ -111,8 +133,8 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 	{
 	case IPU_CMD + 0x0:
 	    //Set BUSY states
-	    m_IPU_CTRL		|= 0x80000000;
-	    m_IPU_CMD[1]	|= 0x80000000;
+        assert(m_isBusy == false);
+        m_isBusy = true;
         m_cmdThreadMail.SendCall(bind(&CIPU::ExecuteCommand, this, nValue));
 		break;
 	case IPU_CMD + 0x4:
@@ -121,6 +143,10 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	case IPU_CTRL + 0x0:
+        if((nValue & 0x40000000) && m_isBusy)
+        {
+            throw runtime_error("Humm...");
+        }
 		nValue &= 0x3FFF0000;
 		m_IPU_CTRL &= ~0x3FFF0000;
 		m_IPU_CTRL |= nValue;
@@ -157,20 +183,7 @@ void CIPU::CommandThread()
 
 void CIPU::ExecuteCommand(uint32 nValue)
 {
-	unsigned int nCmd = (nValue >> 28);
-
-//	if((nCmd == 2) || (nCmd == 3) || (nCmd == 4))
-//	{
-//		if(IsExecutionRisky(nCmd))
-//		{
-//			//Command will wait because we're probably gonna be out of data
-//			//even though this scheme will probably fail at the end...
-//			m_IPU_CTRL			|= 0x80000000;
-//			m_IPU_CMD[1]		|= 0x80000000;
-//			m_nPendingCommand	= nValue;
-//			return;
-//		}
-//	}
+    unsigned int nCmd = (nValue >> 28);
 
 	switch(nCmd)
 	{
@@ -238,8 +251,7 @@ void CIPU::ExecuteCommand(uint32 nValue)
 	}
 
 	//Clear BUSY states
-	m_IPU_CTRL		&= ~0x80000000;
-	m_IPU_CMD[1]	&= ~0x80000000;
+    m_isBusy = false;
 
     DisassembleCommand(nValue);
 }
@@ -331,7 +343,6 @@ void CIPU::DecodeBlock(COutFifoBase* pOutput, uint8 nMBI, uint8 nDCR, uint8 nDT,
 		unsigned int	nChannel;
 	};
 
-	unsigned int i;
 	int16 nResetValue;
 	uint8 nCodedBlockPattern;
 
@@ -387,7 +398,7 @@ void CIPU::DecodeBlock(COutFifoBase* pOutput, uint8 nMBI, uint8 nDCR, uint8 nDT,
 		m_nDcPredictor[2] = nResetValue;
 	}
 
-	for(i = 0; i < 6; i++)
+	for(unsigned int i = 0; i < 6; i++)
 	{
 		memset(Block[i].pBlock, 0, sizeof(int16) * 64);
 
@@ -409,13 +420,13 @@ void CIPU::DecodeBlock(COutFifoBase* pOutput, uint8 nMBI, uint8 nDCR, uint8 nDT,
 	}
 
 	//Write blocks into out FIFO
-	for(i = 0; i < 8; i++)
+	for(unsigned int i = 0; i < 8; i++)
 	{
 		pOutput->Write(Block[0].pBlock + (i * 8), sizeof(int16) * 0x8);
 		pOutput->Write(Block[1].pBlock + (i * 8), sizeof(int16) * 0x8);
 	}
 
-	for(i = 0; i < 8; i++)
+	for(unsigned int i = 0; i < 8; i++)
 	{
 		pOutput->Write(Block[2].pBlock + (i * 8), sizeof(int16) * 0x8);
 		pOutput->Write(Block[3].pBlock + (i * 8), sizeof(int16) * 0x8);
@@ -480,12 +491,14 @@ void CIPU::VariableLengthDecode(uint8 nTBL, uint8 nFB)
 
 	m_IN_FIFO.SkipBits(nFB);
 	m_IPU_CMD[0] = pTable->Decode(&m_IN_FIFO);
+//    CLog::GetInstance().Print(LOG_NAME, "VDEC result: %0.8X.\r\n", m_IPU_CMD[0]);
 }
 
 void CIPU::FixedLengthDecode(uint8 nFB)
 {
     m_IN_FIFO.SkipBits(nFB);
     m_IPU_CMD[0] = m_IN_FIFO.PeekBits_MSBF(32);
+//    CLog::GetInstance().Print(LOG_NAME, "FDEC result: %0.8X.\r\n", m_IPU_CMD[0]);
 }
 
 void CIPU::LoadIQMatrix(uint8* pMatrix)
@@ -515,6 +528,8 @@ void CIPU::ColorSpaceConversion(CBitStream* pInput, uint8 nOFM, uint8 nDTE, uint
 	uint8 nBlockCb[0x40];
 	uint8 nBlockCr[0x40];
 	unsigned int i, j;
+
+    assert(nMBC != 0);
 
 	while(nMBC != 0)
 	{
@@ -898,6 +913,11 @@ void CIPU::GenerateCbCrMap()
 	}
 }
 
+uint32 CIPU::GetBusyBit(bool condition) const
+{
+    return condition ? 0x80000000 : 0x00000000;
+}
+
 void CIPU::DisassembleGet(uint32 nAddress)
 {
 	switch(nAddress)
@@ -1068,7 +1088,7 @@ void CIPU::CINFIFO::Write(void* pData, unsigned int nSize)
         return;
     }
 
-	memcpy(m_nBuffer + m_nSize, pData, nSize);
+    memcpy(m_nBuffer + m_nSize, pData, nSize);
 	m_nSize += nSize;
 
     m_dataNeededCondition.notify_all();
@@ -1124,9 +1144,9 @@ uint32 CIPU::CINFIFO::PeekBits_MSBF(uint8 nBits)
 
 void CIPU::CINFIFO::SkipBits(uint8 nBits)
 {
-    mutex::scoped_lock accessLock(m_accessMutex);
-
     if(nBits == 0) return;
+
+    mutex::scoped_lock accessLock(m_accessMutex);
 
     m_nBitPosition += nBits;
 
@@ -1165,22 +1185,26 @@ bool CIPU::CINFIFO::IsOnByteBoundary()
 
 unsigned int CIPU::CINFIFO::GetBitPosition()
 {
+    mutex::scoped_lock accessLock(m_accessMutex);
 	return m_nBitPosition;
 }
 
 void CIPU::CINFIFO::SetBitPosition(unsigned int nPosition)
 {
-	m_nBitPosition = nPosition;
+    mutex::scoped_lock accessLock(m_accessMutex);
+    m_nBitPosition = nPosition;
 }
 
 unsigned int CIPU::CINFIFO::GetSize()
 {
-	return m_nSize;
+    mutex::scoped_lock accessLock(m_accessMutex);
+    return m_nSize;
 }
 
 void CIPU::CINFIFO::Reset()
 {
-	m_nSize = 0;
+    mutex::scoped_lock accessLock(m_accessMutex);
+    m_nSize = 0;
 }
 
 /////////////////////////////////////////////

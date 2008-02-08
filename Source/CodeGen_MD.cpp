@@ -51,6 +51,23 @@ void CCodeGen::MD_PushReg(XMMREGISTER registerId)
     m_Shadow.Push(REGISTER128);
 }
 
+void CCodeGen::MD_AddH()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, ops.first);
+        m_Assembler.PaddwVo(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
 void CCodeGen::MD_AddWUS()
 {
     if(FitsPattern<RelativeRelative128>())
@@ -95,6 +112,23 @@ void CCodeGen::MD_And()
         XMMREGISTER resultRegister = AllocateXmmRegister();
         LoadRelative128InRegister(resultRegister, ops.first);
         m_Assembler.PandVo(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
+void CCodeGen::MD_CmpGtH()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, ops.first);
+        m_Assembler.PcmpgtwVo(resultRegister,
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
         MD_PushReg(resultRegister);
     }
@@ -211,6 +245,76 @@ void CCodeGen::MD_PackHB()
     }
 }
 
+void CCodeGen::MD_SrlH(uint8 amount)
+{
+    if(FitsPattern<SingleRelative128>())
+    {
+        SingleRelative128::PatternValue op(GetPattern<SingleRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, op);
+        m_Assembler.PsrlwVo(resultRegister, amount);
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
+void CCodeGen::MD_Srl256()
+{
+    if(m_Shadow.Pull() != RELATIVE) assert(0);
+    uint32 shiftAmount = m_Shadow.Pull();
+    if(m_Shadow.Pull() != RELATIVE128) assert(0);
+    uint32 operand2 = m_Shadow.Pull();
+    if(m_Shadow.Pull() != RELATIVE128) assert(0);
+    uint32 operand1 = m_Shadow.Pull();
+
+    assert(m_nRegisterAllocated[1] == false);       //eCX
+    assert(m_nRegisterAllocated[4] == false);       //eSI
+    assert(m_nRegisterAllocated[5] == false);       //eDI
+
+    XMMREGISTER resultRegister = AllocateXmmRegister();
+
+	//Copy both registers on the stack
+	//-----------------------------
+    m_Assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x30);
+    m_Assembler.MovGd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rDI), CX86Assembler::rSP);
+    m_Assembler.LeaGd(CX86Assembler::rSI, CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, operand2));
+    m_Assembler.MovId(CX86Assembler::rCX, 0x10);
+    m_Assembler.RepMovsb();
+    m_Assembler.LeaGd(CX86Assembler::rSI, CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, operand1));
+    m_Assembler.MovId(CX86Assembler::rCX, 0x10);
+    m_Assembler.RepMovsb();
+
+	//Setup SA
+	//-----------------------------
+    m_Assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, shiftAmount));
+    m_Assembler.AndId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), 0x7F);
+    m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), 0x03);
+
+	//Setup ESI
+	//-----------------------------
+    m_Assembler.LeaGd(CX86Assembler::rSI, 
+        CX86Assembler::MakeBaseIndexScaleAddress(CX86Assembler::rSP, CX86Assembler::rAX, 1));
+
+	//Setup ECX
+	//-----------------------------
+    m_Assembler.MovId(CX86Assembler::rCX, 0x10);
+
+	//Generate result
+	//-----------------------------
+    m_Assembler.RepMovsb();
+
+	//Load result and free Stack
+	//-----------------------------
+    m_Assembler.MovdquVo(resultRegister, 
+        CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, 0x20));
+    m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x30);
+
+    MD_PushReg(resultRegister);
+}
+
 void CCodeGen::MD_SubB()
 {
     if(FitsPattern<RelativeRelative128>())
@@ -237,6 +341,40 @@ void CCodeGen::MD_SubW()
         LoadRelative128InRegister(resultRegister, ops.first);
         m_Assembler.PsubdVo(resultRegister,
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
+void CCodeGen::MD_UnpackLowerBH()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, ops.second);
+        m_Assembler.PunpcklbwVo(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first));
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
+void CCodeGen::MD_UnpackUpperBH()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, ops.second);
+        m_Assembler.PunpckhbwVo(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first));
         MD_PushReg(resultRegister);
     }
     else

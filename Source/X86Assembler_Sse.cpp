@@ -21,6 +21,13 @@ void CX86Assembler::Packuswb(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0x67, address, registerId);
 }
 
+void CX86Assembler::PaddwVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0xFD, address, registerId);
+}
+
 void CX86Assembler::PandVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x66);
@@ -33,6 +40,13 @@ void CX86Assembler::PcmpeqdVo(XMMREGISTER registerId, const CAddress& address)
     WriteByte(0x66);
     WriteByte(0x0F);
     WriteEdVdOp(0x76, address, registerId);
+}
+
+void CX86Assembler::PcmpgtwVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x65, address, registerId);
 }
 
 void CX86Assembler::PmaxswVo(XMMREGISTER registerId, const CAddress& address)
@@ -76,6 +90,20 @@ void CX86Assembler::PsubdVo(XMMREGISTER registerId, const CAddress& address)
     WriteByte(0x66);
     WriteByte(0x0F);
     WriteEdVdOp(0xFA, address, registerId);
+}
+
+void CX86Assembler::PunpcklbwVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x60, address, registerId);
+}
+
+void CX86Assembler::PunpckhbwVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x68, address, registerId);
 }
 
 void CX86Assembler::PxorVo(XMMREGISTER registerId, const CAddress& address)

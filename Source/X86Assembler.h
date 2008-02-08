@@ -130,6 +130,7 @@ public:
     void                                    JeJb(LABEL);
     void                                    JmpJb(LABEL);
     void                                    JneJb(LABEL);
+    void                                    LeaGd(REGISTER, const CAddress&);
     void                                    MovEd(REGISTER, const CAddress&);
     void                                    MovEq(REGISTER, const CAddress&);
     void                                    MovGd(const CAddress&, REGISTER);
@@ -146,6 +147,7 @@ public:
     void                                    Push(REGISTER);
     void                                    PushEd(const CAddress&);
     void                                    PushId(uint32);
+    void                                    RepMovsb();
     void                                    Ret();
     void                                    SarEd(const CAddress&);
     void                                    SarEd(const CAddress&, uint8);
@@ -203,14 +205,18 @@ public:
     void                                    MovdquVo(const CAddress&, XMMREGISTER);
     void                                    MovdquVo(XMMREGISTER, const CAddress&);
     void                                    Packuswb(XMMREGISTER, const CAddress&);
+    void                                    PaddwVo(XMMREGISTER, const CAddress&);
     void                                    PandVo(XMMREGISTER, const CAddress&);
     void                                    PcmpeqdVo(XMMREGISTER, const CAddress&);
+    void                                    PcmpgtwVo(XMMREGISTER, const CAddress&);
     void                                    PmaxswVo(XMMREGISTER, const CAddress&);
     void                                    PminswVo(XMMREGISTER, const CAddress&);
     void                                    PorVo(XMMREGISTER, const CAddress&);
     void                                    PsrlwVo(XMMREGISTER, uint8);
     void                                    PsubbVo(XMMREGISTER, const CAddress&);
     void                                    PsubdVo(XMMREGISTER, const CAddress&);
+    void                                    PunpcklbwVo(XMMREGISTER, const CAddress&);
+    void                                    PunpckhbwVo(XMMREGISTER, const CAddress&);
     void                                    PxorVo(XMMREGISTER, const CAddress&);
 
     void                                    MovssEd(const CAddress&, XMMREGISTER);

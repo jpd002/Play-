@@ -3,6 +3,7 @@
 #include "Dmac_Channel.h"
 #include "DMAC.h"
 
+using namespace std;
 using namespace Dmac;
 
 CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive, DMASLICEDONECALLBACK pSliceDone) :
@@ -34,30 +35,24 @@ uint32 CChannel::ReadCHCR()
 
 void CChannel::WriteCHCR(uint32 nValue)
 {
-	bool nSuspend;
-
-	nSuspend = false;
+	bool nSuspend = false;
 
 	//We need to check if the purpose of this write is to suspend the current transfer
     if(m_dmac.m_D_ENABLE & CDMAC::ENABLE_CPND)
 	{
         nSuspend = (m_CHCR.nSTR != 0) && ((nValue & CDMAC::CHCR_STR) == 0);
-		//nSuspend = (((m_nCHCR & CHCR_STR) != 0) & ((nValue & CHCR_STR) == 0));
 	}
 
 	if(m_CHCR.nSTR == 1)
 	{
 		m_CHCR.nSTR = ~m_CHCR.nSTR;
         m_CHCR.nSTR = ((nValue & CDMAC::CHCR_STR) != 0) ? 1 : 0;
-		//m_nCHCR &= ~CHCR_STR;
-		//m_nCHCR |= (nValue & CHCR_STR);
 	}
 	else
 	{
 		m_CHCR = *(CHCR*)&nValue;
-		//m_nCHCR = nValue;
 	}
-
+/*
 	if(m_CHCR.nSTR == 0)
 	{
 		if(nSuspend)
@@ -65,18 +60,31 @@ void CChannel::WriteCHCR(uint32 nValue)
 			m_nSCCTRL |= SCCTRL_SUSPENDED;
 		}
 	}
-
-    //Wake up DMAC thread
-    Execute();
-//    m_CHCR.nSTR = 0;
-//    m_dmac.m_waitCondition.notify_all();
+    else
+    {
+        Execute();
+    }
+*/
+    if(m_CHCR.nSTR != 0)
+    {
+        m_nSCCTRL |= SCCTRL_INITXFER;
+        Execute();
+    }
 }
 
 void CChannel::Execute()
 {
 	if(m_CHCR.nSTR != 0)
 	{
-		switch(m_CHCR.nMOD)
+        if(m_dmac.m_D_ENABLE)
+        {
+            if(m_nNumber != 4)
+            {
+                throw runtime_error("Need to check that case.");
+            }
+            return;
+        }
+        switch(m_CHCR.nMOD)
 		{
 		case 0x00:
 			ExecuteNormal();
@@ -89,14 +97,14 @@ void CChannel::Execute()
 			//m_D4_CHCR |= CHCR_INITXFER;
 
 			//If transfer was suspended
-			if(m_nSCCTRL & SCCTRL_SUSPENDED)
-			{
-				m_nSCCTRL &= (~SCCTRL_SUSPENDED);
-			}
-			else
-			{
-				m_nSCCTRL |= SCCTRL_INITXFER;
-			}
+//			if(m_nSCCTRL & SCCTRL_SUSPENDED)
+//			{
+//				m_nSCCTRL &= (~SCCTRL_SUSPENDED);
+//			}
+//			else
+//			{
+//				m_nSCCTRL |= SCCTRL_INITXFER;
+//			}
 
 			ExecuteSourceChain();
 			break;

@@ -284,6 +284,7 @@ typedef GenericOneArgument<CCodeGen::REGISTER> SingleRegister;
 typedef GenericOneArgument<CCodeGen::CONSTANT> SingleConstant;
 typedef GenericOneArgument<CCodeGen::FP_SINGLE_REGISTER> SingleFpSingleRegister;
 typedef GenericOneArgument<CCodeGen::FP_SINGLE_RELATIVE> SingleFpSingleRelative;
+typedef GenericOneArgument<CCodeGen::RELATIVE128> SingleRelative128;
 typedef GenericOneArgument<CCodeGen::REGISTER128> SingleRegister128;
 typedef GenericTwoArguments<CCodeGen::RELATIVE, CCodeGen::CONSTANT> RelativeConstant;
 typedef GenericTwoArguments<CCodeGen::REGISTER, CCodeGen::CONSTANT> RegisterConstant;
