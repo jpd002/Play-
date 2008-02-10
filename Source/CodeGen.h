@@ -160,6 +160,8 @@ public:
     void                            MD_Not();
     void                            MD_Or();
     void                            MD_PackHB();
+    void                            MD_SllH(uint8);
+    void                            MD_SraH(uint8);
     void                            MD_SrlH(uint8);
     void                            MD_Srl256();
     void                            MD_SubB();
@@ -295,9 +297,12 @@ private:
     static void                     Cmp64Cont(CONDITION);
 
     typedef std::tr1::function<void (const CX86Assembler::CAddress&)> MultFunction;
+    typedef std::tr1::function<void (XMMREGISTER, uint8)> PackedShiftFunction;
 
     void                            Div_Base(const MultFunction&);
     void                            Mult_Base(const MultFunction&, bool);
+
+    void                            MD_GenericPackedShift(const PackedShiftFunction&, uint8);
 
     static void                     StreamWriteByte(uint8);
     static void                     StreamWriteAt(unsigned int, uint8);

@@ -105,4 +105,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		AMDCaProjectFile = C:\Projects\Purei\CodeAnalyst\Purei.caw
+	EndGlobalSection
 EndGlobal

@@ -212,6 +212,8 @@ public:
     void                                    PmaxswVo(XMMREGISTER, const CAddress&);
     void                                    PminswVo(XMMREGISTER, const CAddress&);
     void                                    PorVo(XMMREGISTER, const CAddress&);
+    void                                    PsllwVo(XMMREGISTER, uint8);
+    void                                    PsrawVo(XMMREGISTER, uint8);
     void                                    PsrlwVo(XMMREGISTER, uint8);
     void                                    PsubbVo(XMMREGISTER, const CAddress&);
     void                                    PsubdVo(XMMREGISTER, const CAddress&);

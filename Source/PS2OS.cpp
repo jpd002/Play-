@@ -345,6 +345,10 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 //	*(uint32*)&m_ram[0x0029B768] = 0;
 //	*(uint32*)&m_ram[0x0029B774] = 0;
 
+    //REMOVE
+    //*reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC]) = 0x700B53F7;
+    //------
+
 	ApplyPatches();
 
 	m_OnExecutableChange();

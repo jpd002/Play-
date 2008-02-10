@@ -317,13 +317,9 @@ void CMA_EE::MMI3()
 //34
 void CMA_EE::PSLLH()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRT);
-		CVUI128::SllH(m_nSA);
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRT);
+    m_codeGen->MD_SllH(m_nSA);
+    PullVector(m_nRD);
 }
 
 //36
@@ -337,13 +333,9 @@ void CMA_EE::PSRLH()
 //37
 void CMA_EE::PSRAH()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRT);
-		CVUI128::SraH(m_nSA);
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRT);
+    m_codeGen->MD_SraH(m_nSA);
+    PullVector(m_nRD);
 }
 
 //////////////////////////////////////////////////

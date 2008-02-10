@@ -70,6 +70,22 @@ void CX86Assembler::PorVo(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0xEB, address, registerId);
 }
 
+void CX86Assembler::PsllwVo(XMMREGISTER registerId, uint8 amount)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteVrOp(0x71, 0x06, registerId);
+    WriteByte(amount);
+}
+
+void CX86Assembler::PsrawVo(XMMREGISTER registerId, uint8 amount)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteVrOp(0x71, 0x04, registerId);
+    WriteByte(amount);
+}
+
 void CX86Assembler::PsrlwVo(XMMREGISTER registerId, uint8 amount)
 {
     WriteByte(0x66);

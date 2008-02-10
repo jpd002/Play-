@@ -245,20 +245,35 @@ void CCodeGen::MD_PackHB()
     }
 }
 
-void CCodeGen::MD_SrlH(uint8 amount)
+void CCodeGen::MD_GenericPackedShift(const PackedShiftFunction& instruction, uint8 amount)
 {
     if(FitsPattern<SingleRelative128>())
     {
         SingleRelative128::PatternValue op(GetPattern<SingleRelative128>());
         XMMREGISTER resultRegister = AllocateXmmRegister();
         LoadRelative128InRegister(resultRegister, op);
-        m_Assembler.PsrlwVo(resultRegister, amount);
+        instruction(resultRegister, amount);
         MD_PushReg(resultRegister);
     }
     else
     {
         throw exception();
     }
+}
+
+void CCodeGen::MD_SllH(uint8 amount)
+{
+    MD_GenericPackedShift(bind(&CX86Assembler::PsllwVo, &m_Assembler, _1, _2), amount);
+}
+
+void CCodeGen::MD_SraH(uint8 amount)
+{
+    MD_GenericPackedShift(bind(&CX86Assembler::PsrawVo, &m_Assembler, _1, _2), amount);
+}
+
+void CCodeGen::MD_SrlH(uint8 amount)
+{
+    MD_GenericPackedShift(bind(&CX86Assembler::PsrlwVo, &m_Assembler, _1, _2), amount);
 }
 
 void CCodeGen::MD_Srl256()

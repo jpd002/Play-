@@ -27,6 +27,7 @@ void CMipsExecutor::Clear()
 
 int CMipsExecutor::Execute(int cycles)
 {
+    unsigned int blockExecCount = 0;
     CBasicBlock* block = NULL;
     while(cycles > 0)
     {
@@ -48,6 +49,7 @@ int CMipsExecutor::Execute(int cycles)
             {
                 block->Compile();
             }
+            blockExecCount = 0;
         }
         
         cycles -= block->Execute();
@@ -55,6 +57,8 @@ int CMipsExecutor::Execute(int cycles)
 #ifdef DEBUGGER_INCLUDED
         if(MustBreak()) break;
 #endif
+//        blockExecCount++;
+//        if(blockExecCount > 10) break;
     }
     return cycles;
 }
