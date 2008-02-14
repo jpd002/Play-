@@ -123,6 +123,7 @@
 		7EE1BC880D4D4F9000B502BD /* PH_HidMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE1BC870D4D4F8F00B502BD /* PH_HidMacOSX.cpp */; };
 		7EE1BC970D4D512800B502BD /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EE1BC960D4D512800B502BD /* IOKit.framework */; };
 		7EE1BC990D4D513500B502BD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EE1BC980D4D513500B502BD /* CoreFoundation.framework */; };
+		7EE362C20D5FA35800C21032 /* IPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE362C00D5FA35800C21032 /* IPU.cpp */; };
 		7EE5842B0D23176400AF9DA3 /* PathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */; };
 		7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */; };
 		7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */; };
@@ -365,6 +366,8 @@
 		7EE1BC870D4D4F8F00B502BD /* PH_HidMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_HidMacOSX.cpp; path = Source/macosxui/PH_HidMacOSX.cpp; sourceTree = "<group>"; };
 		7EE1BC960D4D512800B502BD /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		7EE1BC980D4D513500B502BD /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		7EE362C00D5FA35800C21032 /* IPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPU.cpp; path = Source/IPU.cpp; sourceTree = "<group>"; };
+		7EE362C10D5FA35800C21032 /* IPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPU.h; path = Source/IPU.h; sourceTree = "<group>"; };
 		7EE584290D23176400AF9DA3 /* PathUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathUtils.h; path = Source/PathUtils.h; sourceTree = "<group>"; };
 		7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathUtils.cpp; path = Source/PathUtils.cpp; sourceTree = "<group>"; };
 		7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLMacOSX.h; path = Source/macosxui/GSH_OpenGLMacOSX.h; sourceTree = "<group>"; };
@@ -545,6 +548,8 @@
 				7E9E4F870D4531BE003321D8 /* INTC.h */,
 				7E9E4F880D4531BE003321D8 /* Integer64.h */,
 				7E9E4F950D4531E1003321D8 /* IOP */,
+				7EE362C00D5FA35800C21032 /* IPU.cpp */,
+				7EE362C10D5FA35800C21032 /* IPU.h */,
 				7E8987EE0D08BD090077F9ED /* IPU_DmVectorTable.cpp */,
 				7E8987EF0D08BD090077F9ED /* IPU_DmVectorTable.h */,
 				7E8987F00D08BD090077F9ED /* IPU_MacroblockAddressIncrementTable.cpp */,
@@ -899,6 +904,7 @@
 				7EAD8CE40D48528A002CC1C1 /* Iop_LibSd.cpp in Sources */,
 				7EAD8CE50D48528A002CC1C1 /* Iop_DbcMan.cpp in Sources */,
 				7EE1BC880D4D4F9000B502BD /* PH_HidMacOSX.cpp in Sources */,
+				7EE362C20D5FA35800C21032 /* IPU.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
