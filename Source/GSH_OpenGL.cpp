@@ -809,7 +809,7 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	if(m_PrimitiveMode.nAlpha)
 	{
-		glEnable(GL_BLEND);
+        glEnable(GL_BLEND);
 	}
 
 	if(m_PrimitiveMode.nTexture)
@@ -824,12 +824,6 @@ void CGSH_OpenGL::Prim_Sprite()
 		{
 			DECODE_UV(m_VtxBuffer[1].nUV, nU1, nV1);
 			DECODE_UV(m_VtxBuffer[0].nUV, nU2, nV2);
-
-			//nU1 /= (double)m_nTexWidth;
-			//nU2 /= (double)m_nTexWidth;
-
-			//nV1 /= (double)m_nTexHeight;
-			//nV2 /= (double)m_nTexHeight;
 
 			nS[0] = nU1 / (double)m_nTexWidth;
 			nS[1] = nU2 / (double)m_nTexWidth;
@@ -861,7 +855,7 @@ void CGSH_OpenGL::Prim_Sprite()
 		glBegin(GL_QUADS);
 		{
 			//REMOVE
-			//glColor4d(1.0, 1.0, 1.0, 1.0);
+            //glColor4d(1.0, 1.0, 1.0, 1.0);
 
 			glTexCoord2d(nS[0], nT[0]);
 			glVertex3d(nX1, nY1, nZ1);
@@ -870,13 +864,14 @@ void CGSH_OpenGL::Prim_Sprite()
 			glVertex3d(nX2, nY1, nZ2);
 
 			//REMOVE
-			//glColor4d(0.5, 0.5, 0.5, 1.0);
+			//glColor4d(1.0, 1.0, 1.0, 1.0);
 
 			glTexCoord2d(nS[1], nT[1]);
 			glVertex3d(nX2, nY2, nZ1);
 
 			glTexCoord2d(nS[0], nT[1]);
 			glVertex3d(nX1, nY2, nZ2);
+
 		}
 		glEnd();
 
