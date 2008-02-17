@@ -245,13 +245,9 @@ void CCOP_FPU::DIV_S()
 //04
 void CCOP_FPU::SQRT_S()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		CFPU::PushSingle(&m_pCtx->m_State.nCOP10[m_nFT * 2]);
-		CFPU::Sqrt();
-		CFPU::PullSingle(&m_pCtx->m_State.nCOP10[m_nFD * 2]);
-	}
-	CCodeGen::End();
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FP_Sqrt();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
 //05

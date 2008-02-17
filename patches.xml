@@ -1,8 +1,6 @@
 <Patches>
 	<Executable Name="SLPS_252.06;1">
-		<!--
 		<Patch Address="0x002F6F64" Value="0x00000000" Description="Skip movies" />
-		-->
 	</Executable>
 	<Executable Name="SLPM_660.81;1">
 		<Patch Address="0x002E5900" Value="0x8000033C" Description="Removes VU1 MAC flag check for world map" />

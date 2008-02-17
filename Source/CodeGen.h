@@ -145,6 +145,7 @@ public:
     void                            FP_Div();
     void                            FP_Cmp(CONDITION);
     void                            FP_Neg();
+    void                            FP_Sqrt();
 
     //SIMD (128-bits only)
     virtual void                    MD_PushRel(size_t);

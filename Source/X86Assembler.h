@@ -227,6 +227,7 @@ public:
     void                                    SubssEd(XMMREGISTER, const CAddress&);
     void                                    MulssEd(XMMREGISTER, const CAddress&);
     void                                    DivssEd(XMMREGISTER, const CAddress&);
+    void                                    SqrtssEd(XMMREGISTER, const CAddress&);
     void                                    CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
     void                                    Cvtsi2ssEd(XMMREGISTER, const CAddress&);
     void                                    Cvttss2siEd(REGISTER, const CAddress&);

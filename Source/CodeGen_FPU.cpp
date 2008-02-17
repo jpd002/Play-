@@ -4,6 +4,7 @@
 #include "PtrMacro.h"
 
 using namespace CodeGen;
+using namespace std;
 
 CCacheBlock*	CFPU::m_pBlock = NULL;
 
@@ -448,5 +449,21 @@ void CCodeGen::FP_Neg()
     else
     {
         assert(0);
+    }
+}
+
+void CCodeGen::FP_Sqrt()
+{
+    if(FitsPattern<SingleFpSingleRelative>())
+    {
+        SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        m_Assembler.SqrtssEd(resultRegister, 
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        throw runtime_error("Not implemented.");
     }
 }
