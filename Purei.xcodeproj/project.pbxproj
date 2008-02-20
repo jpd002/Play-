@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7E19A9980D6C887D00B0C6A6 /* patches.xml in Resources */ = {isa = PBXBuildFile; fileRef = 7E19A9970D6C887D00B0C6A6 /* patches.xml */; };
 		7E8987090D08B4640077F9ED /* PS2VM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987070D08B4640077F9ED /* PS2VM.cpp */; };
 		7E8988430D08BD090077F9ED /* BasicBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B20D08BD090077F9ED /* BasicBlock.cpp */; };
 		7E8988440D08BD090077F9ED /* CacheBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B40D08BD090077F9ED /* CacheBlock.cpp */; };
@@ -145,6 +146,7 @@
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		7E19A9970D6C887D00B0C6A6 /* patches.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = patches.xml; sourceTree = "<group>"; };
 		7E8987070D08B4640077F9ED /* PS2VM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PS2VM.cpp; path = Source/PS2VM.cpp; sourceTree = "<group>"; };
 		7E8987080D08B4640077F9ED /* PS2VM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PS2VM.h; path = Source/PS2VM.h; sourceTree = "<group>"; };
 		7E8987B10D08BD090077F9ED /* ArrayStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArrayStack.h; path = Source/ArrayStack.h; sourceTree = "<group>"; };
@@ -481,6 +483,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7E19A9970D6C887D00B0C6A6 /* patches.xml */,
 				7E947B000D09F79B00A2AE15 /* Info.plist */,
 				7E947ABC0D09F49A00A2AE15 /* icon.icns */,
 				7E947ABA0D09F49A00A2AE15 /* MainMenu.nib */,
@@ -788,6 +791,7 @@
 				7E947ABF0D09F49A00A2AE15 /* MainMenu.nib in Resources */,
 				7E947AC00D09F49A00A2AE15 /* icon.icns in Resources */,
 				7E947B010D09F79B00A2AE15 /* Info.plist in Resources */,
+				7E19A9980D6C887D00B0C6A6 /* patches.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

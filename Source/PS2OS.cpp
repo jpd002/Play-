@@ -21,6 +21,9 @@
 #include "xml/FilteringNodeIterator.h"
 #include "Log.h"
 #include "iop/IopBios.h"
+#ifdef MACOSX
+#include "CoreFoundation/CoreFoundation.h"
+#endif
 
 // PS2OS Memory Allocation
 // Start        End             Description
@@ -468,9 +471,26 @@ void CPS2OS::ApplyPatches()
 	Xml::CNode* pDocument;
 	Xml::CNode* pPatches;
 
+	string patchesPath = PATCHESPATH;
+	
+#ifdef MACOSX
+	CFBundleRef bundle = CFBundleGetMainBundle();
+	CFURLRef url = CFBundleCopyResourceURL(bundle, CFSTR("patches"), CFSTR("xml"), NULL);
+	if(url != NULL)
+	{
+		CFStringRef pathString = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+		const char* pathCString = CFStringGetCStringPtr(pathString, kCFStringEncodingMacRoman);
+		if(pathCString != NULL) 
+		{
+			patchesPath = pathCString;		
+		}
+	}
+#endif
+
 	try
 	{
-		pDocument = Xml::CParser::ParseDocument(&CStdStream(fopen(PATCHESPATH, "rb")));
+		CStdStream patchesStream(fopen(patchesPath.c_str(), "rb"));
+		pDocument = Xml::CParser::ParseDocument(&patchesStream);
 		if(pDocument == NULL) return;
 	}
 	catch(...)
