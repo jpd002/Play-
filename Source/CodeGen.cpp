@@ -1288,14 +1288,18 @@ void CCodeGen::Cmp(CONDITION nCondition)
 		unsigned int valueRegister;
 
 		GetRegCstPairCom(&valueRegister, NULL);
-
-        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
+        if(!RegisterHasNextUse(valueRegister))
+        {
+            FreeRegister(valueRegister);
+        }
 
 		//test reg, reg
         m_Assembler.TestEd(m_nRegisterLookupEx[valueRegister],
             CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[valueRegister]));
 		
-		//sete reg[l]
+        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
+
+        //sete reg[l]
         m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
 
 		//movzx reg, reg[l]
@@ -1615,7 +1619,10 @@ void CCodeGen::Mult_Base(const MultFunction& multFunction, bool isSigned)
         CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
 
         //We need eax and edx for this
-        assert(!m_nRegisterAllocated[REGISTER_EAX] && !m_nRegisterAllocated[REGISTER_EDX]);
+        if(m_nRegisterAllocated[REGISTER_EAX] || m_nRegisterAllocated[REGISTER_EDX])
+        {
+            throw runtime_error("Needed registers are allocated.");
+        }
         m_nRegisterAllocated[REGISTER_EAX] = true;
         m_nRegisterAllocated[REGISTER_EDX] = true;
         unsigned int lowRegister = REGISTER_EAX;
@@ -1633,7 +1640,10 @@ void CCodeGen::Mult_Base(const MultFunction& multFunction, bool isSigned)
         RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
 
         //We need eax and edx for this
-        assert(!m_nRegisterAllocated[REGISTER_EAX] && !m_nRegisterAllocated[REGISTER_EDX]);
+        if(m_nRegisterAllocated[REGISTER_EAX] || m_nRegisterAllocated[REGISTER_EDX])
+        {
+            throw runtime_error("Needed registers are allocated.");
+        }
         m_nRegisterAllocated[REGISTER_EAX] = true;
         m_nRegisterAllocated[REGISTER_EDX] = true;
         unsigned int lowRegister = REGISTER_EAX;
