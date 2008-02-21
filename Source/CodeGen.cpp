@@ -1685,9 +1685,14 @@ void CCodeGen::Not()
         m_Assembler.NotEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
         PushReg(resultRegister);
     }
+    else if(FitsPattern<SingleConstant>())
+    {
+        SingleConstant::PatternValue constant = GetPattern<SingleConstant>();
+        PushCst(~constant);
+    }
     else
     {
-        assert(0);
+        throw runtime_error("Unhandled case.");
     }
 }
 
