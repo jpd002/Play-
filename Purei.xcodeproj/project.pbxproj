@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7E19A9980D6C887D00B0C6A6 /* patches.xml in Resources */ = {isa = PBXBuildFile; fileRef = 7E19A9970D6C887D00B0C6A6 /* patches.xml */; };
+		7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */; };
 		7E8987090D08B4640077F9ED /* PS2VM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987070D08B4640077F9ED /* PS2VM.cpp */; };
 		7E8988430D08BD090077F9ED /* BasicBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B20D08BD090077F9ED /* BasicBlock.cpp */; };
 		7E8988440D08BD090077F9ED /* CacheBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B40D08BD090077F9ED /* CacheBlock.cpp */; };
@@ -147,6 +148,8 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		7E19A9970D6C887D00B0C6A6 /* patches.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = patches.xml; sourceTree = "<group>"; };
+		7E47E3210D6DEA15003F7AC1 /* MainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainWindow.h; path = Source/macosxui/MainWindow.h; sourceTree = "<group>"; };
+		7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainWindow.mm; path = Source/macosxui/MainWindow.mm; sourceTree = "<group>"; };
 		7E8987070D08B4640077F9ED /* PS2VM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PS2VM.cpp; path = Source/PS2VM.cpp; sourceTree = "<group>"; };
 		7E8987080D08B4640077F9ED /* PS2VM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PS2VM.h; path = Source/PS2VM.h; sourceTree = "<group>"; };
 		7E8987B10D08BD090077F9ED /* ArrayStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArrayStack.h; path = Source/ArrayStack.h; sourceTree = "<group>"; };
@@ -415,6 +418,8 @@
 				7E90A4FA0D1F57A2003095A6 /* InputBox.h */,
 				7E90A4F90D1F57A2003095A6 /* InputBox.m */,
 				7E947ABD0D09F49A00A2AE15 /* main.mm */,
+				7E47E3210D6DEA15003F7AC1 /* MainWindow.h */,
+				7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */,
 				7EB6F45D0D1B033700A53B0B /* ObjCCall.h */,
 				7EE1BC870D4D4F8F00B502BD /* PH_HidMacOSX.cpp */,
 				7EE1BC860D4D4F8F00B502BD /* PH_HidMacOSX.h */,
@@ -909,6 +914,7 @@
 				7EAD8CE50D48528A002CC1C1 /* Iop_DbcMan.cpp in Sources */,
 				7EE1BC880D4D4F9000B502BD /* PH_HidMacOSX.cpp in Sources */,
 				7EE362C20D5FA35800C21032 /* IPU.cpp in Sources */,
+				7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
