@@ -300,7 +300,7 @@ private:
     typedef std::tr1::function<void (const CX86Assembler::CAddress&)> MultFunction;
     typedef std::tr1::function<void (XMMREGISTER, uint8)> PackedShiftFunction;
 
-    void                            Div_Base(const MultFunction&);
+    void                            Div_Base(const MultFunction&, bool);
     void                            Mult_Base(const MultFunction&, bool);
 
     void                            MD_GenericPackedShift(const PackedShiftFunction&, uint8);

@@ -1442,7 +1442,7 @@ void CCodeGen::Cmp64(CONDITION nCondition)
     }
 }
 
-void CCodeGen::Div_Base(const MultFunction& function)
+void CCodeGen::Div_Base(const MultFunction& function, bool isSigned)
 {
     if(FitsPattern<RelativeConstant>())
     {
@@ -1458,7 +1458,15 @@ void CCodeGen::Div_Base(const MultFunction& function)
 
         LoadRelativeInRegister(lowRegister, ops.first);
         LoadConstantInRegister(tempRegister, ops.second);
-        m_Assembler.Cdq();
+        if(isSigned)
+        {
+            m_Assembler.Cdq();
+        }
+        else
+        {
+            m_Assembler.XorEd(m_nRegisterLookupEx[highRegister],
+                CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[highRegister]));
+        }
         function(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
 
         FreeRegister(tempRegister);
@@ -1478,7 +1486,15 @@ void CCodeGen::Div_Base(const MultFunction& function)
         unsigned int highRegister = REGISTER_EDX;
 
         LoadRelativeInRegister(lowRegister, ops.first);
-        m_Assembler.Cdq();
+        if(isSigned)
+        {
+            m_Assembler.Cdq();
+        }
+        else
+        {
+            m_Assembler.XorEd(m_nRegisterLookupEx[highRegister],
+                CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[highRegister]));
+        }
         function(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
 
 
@@ -1493,12 +1509,12 @@ void CCodeGen::Div_Base(const MultFunction& function)
 
 void CCodeGen::Div()
 {
-    Div_Base(bind(&CX86Assembler::DivEd, &m_Assembler, _1));
+    Div_Base(bind(&CX86Assembler::DivEd, &m_Assembler, _1), false);
 }
 
 void CCodeGen::DivS()
 {
-    Div_Base(bind(&CX86Assembler::IdivEd, &m_Assembler, _1));
+    Div_Base(bind(&CX86Assembler::IdivEd, &m_Assembler, _1), true);
 }
 
 void CCodeGen::Lookup(uint32* table)
