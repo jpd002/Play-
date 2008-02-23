@@ -941,7 +941,7 @@ void CPS2OS::ThreadShakeAndBake()
 		pThread = GetThread(nId);
 
 		if(pThread->nStatus != THREAD_RUNNING) continue;
-		if(pThread->nQuota == 0) continue;
+//		if(pThread->nQuota == 0) continue;
 		break;
 	}
 
@@ -1710,14 +1710,10 @@ void CPS2OS::sc_SleepThread()
 //34
 void CPS2OS::sc_WakeupThread()
 {
-	THREAD* pThread;
-	uint32 nID;
-	bool nInt;
+	uint32 nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	bool nInt       = m_ee.m_State.nGPR[3].nV[0] == 0x34;
 
-	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nInt	= m_ee.m_State.nGPR[3].nV[0] == 0x34;
-
-	pThread = GetThread(nID);
+	THREAD* pThread = GetThread(nID);
 
 	if(pThread->nStatus == THREAD_SUSPENDED)
 	{
