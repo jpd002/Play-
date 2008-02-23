@@ -956,7 +956,7 @@ void CPS2OS::ThreadShakeAndBake()
 	{
 		//Remove and readd the thread into the queue
 		m_pThreadSchedule->Remove(pThread->nScheduleID);
-		m_pThreadSchedule->Insert(nId, pThread->nPriority);
+		pThread->nScheduleID = m_pThreadSchedule->Insert(nId, pThread->nPriority);
 	}
 
 	ThreadSwitchContext(nId);
@@ -1598,6 +1598,9 @@ void CPS2OS::sc_ChangeThreadPriority()
 //2B
 void CPS2OS::sc_RotateThreadReadyQueue()
 {
+    //TODO: Need to set the thread's new ScheduleId to the return value of ThreadSchedule->Insert
+    throw runtime_error("Recheck needed.");
+
 	uint32 nPrio, nID;
 	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
 
@@ -1950,14 +1953,6 @@ void CPS2OS::sc_WaitSema()
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-
-	//REMOVE
-	//Force reschedule
-	//nID = GetNextReadyThread();
-	//if(nID != GetCurrentThreadId())
-	//{
-	//	ElectThread(nID);
-	//}
 }
 
 //45
@@ -2057,10 +2052,6 @@ void CPS2OS::sc_SetVSyncFlag()
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-
-	//REMOVE
-	//Force reschedule
-	//ElectThread(GetNextReadyThread());
 }
 
 //74
@@ -2102,10 +2093,6 @@ void CPS2OS::sc_SifSetDma()
 	//Returns count
 	//DMA might call an interrupt handler
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(nCount);
-
-	//REMOVE
-	//Force reschedule
-	//ThreadShakeAndBake();
 
 	for(unsigned int i = 0; i < nCount; i++)
 	{
@@ -2624,6 +2611,7 @@ void CPS2OS::CRoundRibbon::Remove(unsigned int nIndex)
 	while(1)
 	{
 		if(pNode == NULL) break;
+        assert(pNode->nValid);
 
 		if(pNode->nIndexNext == nIndex)
 		{
