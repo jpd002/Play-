@@ -643,6 +643,7 @@ protected:
 
 	uint8*									m_pRAM;
 
+    unsigned int                            m_frameCount;
 	unsigned int							m_nCrtMode;
 	bool									m_nCrtIsInterlaced;
 	bool									m_nCrtIsFrameMode;

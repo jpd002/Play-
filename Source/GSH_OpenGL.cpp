@@ -912,6 +912,8 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	CGSHandler::WriteRegisterImpl(nRegister, nData);
 	
+//    if(m_frameCount % 5 != 0) return;
+
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:

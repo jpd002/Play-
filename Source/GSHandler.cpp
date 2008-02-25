@@ -145,7 +145,8 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 };
 
 CGSHandler::CGSHandler() :
-m_thread(NULL)
+m_thread(NULL),
+m_frameCount(0)
 {
 	m_pRAM = (uint8*)malloc(RAMSIZE);
 

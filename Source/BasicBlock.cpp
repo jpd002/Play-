@@ -62,6 +62,12 @@ unsigned int CBasicBlock::Execute()
     volatile void* function = m_text;
     volatile CMIPS* context = &m_context;
 
+#ifdef AMD64
+
+    
+
+#else
+
     //Should change pre-proc definitions used here (MACOSX to GCC?)
     __asm
     {
@@ -83,17 +89,7 @@ unsigned int CBasicBlock::Execute()
         popad
 #endif
     }
-
-//	asm("pushl %%ebx\n\t"
-//		"movl %%edi, %%eax\n\t"
-//		"movl %%ecx, %%ebp\n\t"
-//		"pushl %%eax\n\t"
-//		"call (%%esp)\n\t"
-//		"popl %%eax\n\t"
-//		"popl %%ebx\n\t"
-//		:
-//		: "D" (function), "c" (context)
-//		: "%ebp", "%esi");
+#endif
 
     if((m_context.m_State.nGPR[CMIPS::RA].nV0 & 3) != 0)
     {

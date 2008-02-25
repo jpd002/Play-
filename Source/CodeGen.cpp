@@ -731,6 +731,8 @@ void CCodeGen::PullRel(size_t nOffset)
 #ifdef AMD64
 	else if(m_Shadow.GetAt(0) == REGISTER64)
 	{
+        throw runtime_error("Not implemented");
+/*
 		if(m_PullReg64Stack.GetCount() == 0)
 		{
 			//Save the provided offset for the next time
@@ -756,6 +758,7 @@ void CCodeGen::PullRel(size_t nOffset)
 
 			FreeRegister(nRegister);
 		}
+*/
 	}
 #endif
 	else
@@ -1980,7 +1983,8 @@ void CCodeGen::Shl64(uint8 nAmount)
 		assert(nAmount < 0x40);
 
 #ifdef AMD64
-		
+        throw runtime_error("Not implemented.");
+/*
 		if((nRelative2 - nRelative1) == 4)
 		{
 			unsigned int nRegister;
@@ -1996,6 +2000,7 @@ void CCodeGen::Shl64(uint8 nAmount)
 			PushReg64(nRegister);
 		}
 		else
+*/
 #endif
 		{
 			if(nAmount == 0)

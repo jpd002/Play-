@@ -56,6 +56,7 @@ void CGSH_OpenGLWin32::FlipImpl()
 {
 //	CPS2VM::m_OnNewFrame();
 	SwapBuffers(m_hDC);
+    m_frameCount++;
 }
 
 void CGSH_OpenGLWin32::SetViewport(int nWidth, int nHeight)
