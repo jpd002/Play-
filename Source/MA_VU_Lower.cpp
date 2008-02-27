@@ -8,6 +8,7 @@
 #include "offsetof_def.h"
 
 using namespace CodeGen;
+using namespace std;
 
 uint32			CMA_VU::CLower::m_nOpcode;
 uint8			CMA_VU::CLower::m_nImm5;
@@ -650,7 +651,8 @@ void CMA_VU::CLower::XGKICK()
 //0C
 void CMA_VU::CLower::MR32()
 {
-	VUShared::MR32(m_pB, m_pCtx, m_nDest, m_nIT, m_nIS);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MR32(m_pB, m_pCtx, m_nDest, m_nIT, m_nIS);
 }
 
 //0D

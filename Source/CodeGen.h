@@ -150,12 +150,16 @@ public:
     //SIMD (128-bits only)
     virtual void                    MD_PushRel(size_t);
     virtual void                    MD_PullRel(size_t);
+    virtual void                    MD_PullRel(size_t, size_t, size_t, size_t);
     void                            MD_PushReg(XMMREGISTER);
 
     void                            MD_AddH();
     void                            MD_AddWUS();
+    void                            MD_AddS();
     void                            MD_And();
     void                            MD_CmpGtH();
+    void                            MD_IsNegative();
+    void                            MD_IsZero();
     void                            MD_MaxH();
     void                            MD_MinH();
     void                            MD_Not();
@@ -167,7 +171,9 @@ public:
     void                            MD_Srl256();
     void                            MD_SubB();
     void                            MD_SubW();
+    void                            MD_SubS();
     void                            MD_UnpackLowerBH();
+    void                            MD_UnpackLowerHW();
     void                            MD_UnpackUpperBH();
     void                            MD_Xor();
 
@@ -241,6 +247,7 @@ private:
 	static void						LoadConstantInRegister(unsigned int, uint32);
     void                            LoadRelative128InRegister(XMMREGISTER, uint32);
 	static void						CopyRegister(unsigned int, unsigned int);
+    static void                     CopyRegister128(XMMREGISTER, XMMREGISTER);
 #ifdef AMD64
 	static void						LoadRelativeInRegister64(unsigned int, uint32);
 	static void						LoadConstantInRegister64(unsigned int, uint64);
@@ -299,11 +306,14 @@ private:
 
     typedef std::tr1::function<void (const CX86Assembler::CAddress&)> MultFunction;
     typedef std::tr1::function<void (XMMREGISTER, uint8)> PackedShiftFunction;
+    typedef std::tr1::function<void (XMMREGISTER, const CX86Assembler::CAddress&)> MdTwoOperandFunction;
 
     void                            Div_Base(const MultFunction&, bool);
     void                            Mult_Base(const MultFunction&, bool);
 
     void                            MD_GenericPackedShift(const PackedShiftFunction&, uint8);
+    void                            MD_GenericTwoOperand(const MdTwoOperandFunction&);
+    void                            MD_GenericTwoOperandReversed(const MdTwoOperandFunction&);
 
     static void                     StreamWriteByte(uint8);
     static void                     StreamWriteAt(unsigned int, uint8);

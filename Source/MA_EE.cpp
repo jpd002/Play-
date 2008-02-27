@@ -416,14 +416,10 @@ void CMA_EE::PEXTLW()
 //16
 void CMA_EE::PEXTLH()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::UnpackLowerHW();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_UnpackLowerHW();
+    PullVector(m_nRD);
 }
 
 //17
@@ -460,39 +456,33 @@ void CMA_EE::PPACB()
 //1E
 void CMA_EE::PEXT5()
 {
-	unsigned int i;
-
-	CCodeGen::Begin(m_pB);
+	for(unsigned int i = 0; i < 4; i++)
 	{
-		for(i = 0; i < 4; i++)
-		{
-			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
-			CCodeGen::PushCst(0x001F);
-			CCodeGen::And();
-			m_codeGen->Shl(3);
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+        m_codeGen->PushCst(0x001F);
+        m_codeGen->And();
+        m_codeGen->Shl(3);
 
-			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
-			CCodeGen::PushCst(0x03E0);
-			CCodeGen::And();
-			m_codeGen->Shl(6);
-			m_codeGen->Or();
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+        m_codeGen->PushCst(0x03E0);
+        m_codeGen->And();
+        m_codeGen->Shl(6);
+        m_codeGen->Or();
 
-			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
-			CCodeGen::PushCst(0x7C00);
-			CCodeGen::And();
-			m_codeGen->Shl(9);
-			m_codeGen->Or();
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+        m_codeGen->PushCst(0x7C00);
+        m_codeGen->And();
+        m_codeGen->Shl(9);
+        m_codeGen->Or();
 
-			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRT].nV[i]);
-			CCodeGen::PushCst(0x8000);
-			CCodeGen::And();
-			m_codeGen->Shl(16);
-			m_codeGen->Or();
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+        m_codeGen->PushCst(0x8000);
+        m_codeGen->And();
+        m_codeGen->Shl(16);
+        m_codeGen->Or();
 
-			CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[i]);
-		}
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
 	}
-	CCodeGen::End();
 }
 
 //////////////////////////////////////////////////

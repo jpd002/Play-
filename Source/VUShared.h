@@ -3,6 +3,7 @@
 
 #include "MIPSReflection.h"
 #include "CacheBlock.h"
+#include "CodeGen.h"
 #include "uint128.h"
 #include <string.h>
 
@@ -25,10 +26,11 @@ namespace VUShared
 	uint32*				GetAccumulatorElement(CMIPS*, unsigned int);
 
 	void				PullVector(uint8, uint128*);
+    void                PullVectorEx(CCodeGen*, uint8, size_t);
 
 	//Shared instructions
 	void				ABS(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				ADD(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				ADDbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
 	void				ADDi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				ADDq(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
@@ -49,7 +51,7 @@ namespace VUShared
 	void				MINIbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
 	void				MINIi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MOVE(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				MR32(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				MR32(CCodeGen*, uint8, uint8, uint8);
 	void				MSUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MSUBAi(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				MUL(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
@@ -65,7 +67,7 @@ namespace VUShared
 	void				RSQRT(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				RXOR(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				SQRT(CCacheBlock*, CMIPS*, uint8, uint8);
-	void				SUB(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
 	void				SUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 

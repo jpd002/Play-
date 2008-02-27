@@ -14,6 +14,12 @@ void CX86Assembler::MovdquVo(const CAddress& address, XMMREGISTER registerId)
     WriteEdVdOp(0x7F, address, registerId);
 }
 
+void CX86Assembler::MovapsVo(const CAddress& address, XMMREGISTER registerId)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x29, address, registerId);
+}
+
 void CX86Assembler::Packuswb(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x66);
@@ -33,6 +39,13 @@ void CX86Assembler::PandVo(XMMREGISTER registerId, const CAddress& address)
     WriteByte(0x66);
     WriteByte(0x0F);
     WriteEdVdOp(0xDB, address, registerId);
+}
+
+void CX86Assembler::PandnVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0xDF, address, registerId);
 }
 
 void CX86Assembler::PcmpeqdVo(XMMREGISTER registerId, const CAddress& address)
@@ -78,6 +91,14 @@ void CX86Assembler::PsllwVo(XMMREGISTER registerId, uint8 amount)
     WriteByte(amount);
 }
 
+void CX86Assembler::PslldVo(XMMREGISTER registerId, uint8 amount)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteVrOp(0x72, 0x06, registerId);
+    WriteByte(amount);
+}
+
 void CX86Assembler::PsrawVo(XMMREGISTER registerId, uint8 amount)
 {
     WriteByte(0x66);
@@ -115,6 +136,13 @@ void CX86Assembler::PunpcklbwVo(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0x60, address, registerId);
 }
 
+void CX86Assembler::PunpcklwdVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x61, address, registerId);
+}
+
 void CX86Assembler::PunpckhbwVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x66);
@@ -127,4 +155,23 @@ void CX86Assembler::PxorVo(XMMREGISTER registerId, const CAddress& address)
     WriteByte(0x66);
     WriteByte(0x0F);
     WriteEdVdOp(0xEF, address, registerId);
+}
+
+void CX86Assembler::AddpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x58, address, registerId);
+}
+
+void CX86Assembler::SubpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5C, address, registerId);
+}
+
+void CX86Assembler::ShufpsVo(XMMREGISTER registerId, const CAddress& address, uint8 shuffleByte)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0xC6, address, registerId);
+    WriteByte(shuffleByte);
 }

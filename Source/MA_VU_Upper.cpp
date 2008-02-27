@@ -3,6 +3,8 @@
 #include "VUShared.h"
 #include "VIF.h"
 
+using namespace std;
+
 uint32			CMA_VU::CUpper::m_nOpcode;
 uint8			CMA_VU::CUpper::m_nFT;
 uint8			CMA_VU::CUpper::m_nFS;
@@ -151,7 +153,8 @@ void CMA_VU::CUpper::MSUBi()
 //28
 void CMA_VU::CUpper::ADD()
 {
-	VUShared::ADD(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+    throw new runtime_error("Reimplement.");
+//	VUShared::ADD(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //29
@@ -175,7 +178,8 @@ void CMA_VU::CUpper::MAX()
 //2C
 void CMA_VU::CUpper::SUB()
 {
-	VUShared::SUB(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+    throw new runtime_error("Reimplement.");
+//	VUShared::SUB(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //2E

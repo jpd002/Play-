@@ -94,27 +94,23 @@ void CCOP_VU::LQC2()
 //3E
 void CCOP_VU::SQC2()
 {
-	ComputeMemAccessAddr();
+	ComputeMemAccessAddrEx();
 
-	//Write the words
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV0);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 2, false);
-	m_pB->AddImm(4);
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRef(m_pCtx);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFT].nV[i]));
+		m_codeGen->PushIdx(2);
+		m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV1);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 2, false);
-	m_pB->AddImm(4);
+		if(i != 3)
+		{
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
+		}
+	}
 
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV2);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 2, false);
-	m_pB->AddImm(4);
-
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV3);
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);	
+	m_codeGen->PullTop();
 }
 
 //////////////////////////////////////////////////
@@ -263,7 +259,7 @@ void CCOP_VU::VADDq()
 //28
 void CCOP_VU::VADD()
 {
-	VUShared::ADD(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::ADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //2A
@@ -281,7 +277,7 @@ void CCOP_VU::VMAX()
 //2C
 void CCOP_VU::VSUB()
 {
-	VUShared::SUB(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::SUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //2E
@@ -377,7 +373,7 @@ void CCOP_VU::VFTOI4()
 //0C
 void CCOP_VU::VMR32()
 {
-	VUShared::MR32(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+	VUShared::MR32(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
 //0E

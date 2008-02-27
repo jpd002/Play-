@@ -204,20 +204,24 @@ public:
 
     void                                    MovdquVo(const CAddress&, XMMREGISTER);
     void                                    MovdquVo(XMMREGISTER, const CAddress&);
+    void                                    MovapsVo(const CAddress&, XMMREGISTER);
     void                                    Packuswb(XMMREGISTER, const CAddress&);
     void                                    PaddwVo(XMMREGISTER, const CAddress&);
     void                                    PandVo(XMMREGISTER, const CAddress&);
+    void                                    PandnVo(XMMREGISTER, const CAddress&);
     void                                    PcmpeqdVo(XMMREGISTER, const CAddress&);
     void                                    PcmpgtwVo(XMMREGISTER, const CAddress&);
     void                                    PmaxswVo(XMMREGISTER, const CAddress&);
     void                                    PminswVo(XMMREGISTER, const CAddress&);
     void                                    PorVo(XMMREGISTER, const CAddress&);
     void                                    PsllwVo(XMMREGISTER, uint8);
+    void                                    PslldVo(XMMREGISTER, uint8);
     void                                    PsrawVo(XMMREGISTER, uint8);
     void                                    PsrlwVo(XMMREGISTER, uint8);
     void                                    PsubbVo(XMMREGISTER, const CAddress&);
     void                                    PsubdVo(XMMREGISTER, const CAddress&);
     void                                    PunpcklbwVo(XMMREGISTER, const CAddress&);
+    void                                    PunpcklwdVo(XMMREGISTER, const CAddress&);
     void                                    PunpckhbwVo(XMMREGISTER, const CAddress&);
     void                                    PxorVo(XMMREGISTER, const CAddress&);
 
@@ -231,6 +235,10 @@ public:
     void                                    CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
     void                                    Cvtsi2ssEd(XMMREGISTER, const CAddress&);
     void                                    Cvttss2siEd(REGISTER, const CAddress&);
+
+    void                                    AddpsVo(XMMREGISTER, const CAddress&);
+    void                                    SubpsVo(XMMREGISTER, const CAddress&);
+    void                                    ShufpsVo(XMMREGISTER, const CAddress&, uint8);
 
 private:
     struct LABELREF

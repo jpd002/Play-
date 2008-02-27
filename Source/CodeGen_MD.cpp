@@ -18,6 +18,12 @@ bool CCodeGen::Register128HasNextUse(XMMREGISTER registerId)
 	return false;
 }
 
+void CCodeGen::CopyRegister128(XMMREGISTER destination, XMMREGISTER source)
+{
+    m_Assembler.MovapsVo(CX86Assembler::MakeXmmRegisterAddress(destination),
+        source);
+}
+
 void CCodeGen::LoadRelative128InRegister(XMMREGISTER registerId, uint32 offset)
 {
     m_Assembler.MovdquVo(registerId,
@@ -45,20 +51,90 @@ void CCodeGen::MD_PullRel(size_t offset)
     }
 }
 
+void CCodeGen::MD_PullRel(size_t offset0, size_t offset1, size_t offset2, size_t offset3)
+{
+    if(FitsPattern<SingleRegister128>())
+    {
+        XMMREGISTER valueRegister = static_cast<XMMREGISTER>(GetPattern<SingleRegister128>());
+
+	    if(
+            offset0 != SIZE_MAX && 
+            offset1 != SIZE_MAX &&
+            offset2 != SIZE_MAX &&
+            offset3 != SIZE_MAX
+            )
+	    {
+		    //All elements are non-null
+		    if((offset1 == offset0 + 4) && (offset2 == offset1 + 4) && (offset3 == offset2 + 4))
+		    {
+                m_Assembler.MovapsVo(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset0)),
+                    valueRegister);
+		    }
+	    }
+        else
+        {
+	        size_t offset[4];
+	        uint8 shuffle[4] = { 0x00, 0xE5, 0xEA, 0xFF };
+
+	        offset[0] = offset0;
+	        offset[1] = offset1;
+	        offset[2] = offset2;
+	        offset[3] = offset3;
+
+            for(unsigned int i = 0; i < 4; i++)
+	        {
+		        if(offset[i] != SIZE_MAX)
+		        {
+			        if(i != 0)
+			        {
+                        m_Assembler.ShufpsVo(valueRegister,
+                            CX86Assembler::MakeXmmRegisterAddress(valueRegister), shuffle[i]);
+			        }
+
+                    m_Assembler.MovssEd(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset[i])),
+                        valueRegister);
+		        }
+	        }
+        }
+
+        FreeXmmRegister(valueRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
 void CCodeGen::MD_PushReg(XMMREGISTER registerId)
 {
     m_Shadow.Push(registerId);
     m_Shadow.Push(REGISTER128);
 }
 
-void CCodeGen::MD_AddH()
+void CCodeGen::MD_GenericPackedShift(const PackedShiftFunction& instruction, uint8 amount)
+{
+    if(FitsPattern<SingleRelative128>())
+    {
+        SingleRelative128::PatternValue op(GetPattern<SingleRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, op);
+        instruction(resultRegister, amount);
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
+void CCodeGen::MD_GenericTwoOperand(const MdTwoOperandFunction& instruction)
 {
     if(FitsPattern<RelativeRelative128>())
     {
         RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
         XMMREGISTER resultRegister = AllocateXmmRegister();
         LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PaddwVo(resultRegister,
+        instruction(resultRegister,
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
         MD_PushReg(resultRegister);
     }
@@ -66,6 +142,28 @@ void CCodeGen::MD_AddH()
     {
         throw exception();
     }
+}
+
+void CCodeGen::MD_GenericTwoOperandReversed(const MdTwoOperandFunction& instruction)
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(resultRegister, ops.second);
+        instruction(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first));
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
+void CCodeGen::MD_AddH()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::PaddwVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_AddWUS()
@@ -104,72 +202,88 @@ void CCodeGen::MD_AddWUS()
     }
 }
 
+void CCodeGen::MD_AddS()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::AddpsVo, m_Assembler, _1, _2));
+}
+
 void CCodeGen::MD_And()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PandVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperand(bind(&CX86Assembler::PandVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_CmpGtH()
 {
-    if(FitsPattern<RelativeRelative128>())
+    MD_GenericTwoOperand(bind(&CX86Assembler::PcmpgtwVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_IsNegative()
+{
+    if(FitsPattern<SingleRegister128>())
     {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PcmpgtwVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        XMMREGISTER valueRegister = static_cast<XMMREGISTER>(GetPattern<SingleRegister128>());
+        XMMREGISTER resultRegister;
+        if(Register128HasNextUse(valueRegister))
+        {
+            resultRegister = AllocateXmmRegister();
+            CopyRegister128(resultRegister, valueRegister);
+        }
+        else
+        {
+            resultRegister = valueRegister;
+        }
+        XMMREGISTER maskRegister = AllocateXmmRegister();
+        m_Assembler.PcmpeqdVo(maskRegister,
+            CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+        m_Assembler.PslldVo(maskRegister, 31);
+        m_Assembler.PandVo(resultRegister,
+            CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+        FreeXmmRegister(maskRegister);
         MD_PushReg(resultRegister);
     }
     else
     {
         throw exception();
     }
+}
+
+void CCodeGen::MD_IsZero()
+{
+    if(FitsPattern<SingleRegister128>())
+    {
+        XMMREGISTER valueRegister = static_cast<XMMREGISTER>(GetPattern<SingleRegister128>());
+        XMMREGISTER resultRegister;
+        if(Register128HasNextUse(valueRegister))
+        {
+            resultRegister = AllocateXmmRegister();
+            CopyRegister128(resultRegister, valueRegister);
+        }
+        else
+        {
+            resultRegister = valueRegister;
+        }
+        XMMREGISTER zeroRegister = AllocateXmmRegister();
+        m_Assembler.PandnVo(zeroRegister,
+            CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+        m_Assembler.PcmpeqdVo(resultRegister,
+            CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+        FreeXmmRegister(zeroRegister);
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }    
 }
 
 void CCodeGen::MD_MaxH()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PmaxswVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperand(bind(&CX86Assembler::PmaxswVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_MinH()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PminswVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperand(bind(&CX86Assembler::PminswVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_Not()
@@ -193,19 +307,7 @@ void CCodeGen::MD_Not()
 
 void CCodeGen::MD_Or()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PorVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperand(bind(&CX86Assembler::PorVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_PackHB()
@@ -237,22 +339,6 @@ void CCodeGen::MD_PackHB()
         FreeXmmRegister(maskRegister);
         FreeXmmRegister(tempRegister);
 
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
-}
-
-void CCodeGen::MD_GenericPackedShift(const PackedShiftFunction& instruction, uint8 amount)
-{
-    if(FitsPattern<SingleRelative128>())
-    {
-        SingleRelative128::PatternValue op(GetPattern<SingleRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, op);
-        instruction(resultRegister, amount);
         MD_PushReg(resultRegister);
     }
     else
@@ -332,85 +418,35 @@ void CCodeGen::MD_Srl256()
 
 void CCodeGen::MD_SubB()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PsubbVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperand(bind(&CX86Assembler::PsubbVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_SubW()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PsubdVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperand(bind(&CX86Assembler::PsubdVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_SubS()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::SubpsVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_UnpackLowerBH()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.second);
-        m_Assembler.PunpcklbwVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpcklbwVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_UnpackLowerHW()
+{
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpcklwdVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_UnpackUpperBH()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.second);
-        m_Assembler.PunpckhbwVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckhbwVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_Xor()
 {
-    if(FitsPattern<RelativeRelative128>())
-    {
-        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        LoadRelative128InRegister(resultRegister, ops.first);
-        m_Assembler.PxorVo(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        MD_PushReg(resultRegister);
-    }
-    else
-    {
-        throw exception();
-    }
+    MD_GenericTwoOperand(bind(&CX86Assembler::PxorVo, m_Assembler, _1, _2));
 }
