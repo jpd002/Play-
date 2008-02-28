@@ -205,6 +205,7 @@ public:
     void                                    MovdquVo(const CAddress&, XMMREGISTER);
     void                                    MovdquVo(XMMREGISTER, const CAddress&);
     void                                    MovapsVo(const CAddress&, XMMREGISTER);
+    void                                    MovapsVo(XMMREGISTER, const CAddress&);
     void                                    Packuswb(XMMREGISTER, const CAddress&);
     void                                    PaddwVo(XMMREGISTER, const CAddress&);
     void                                    PandVo(XMMREGISTER, const CAddress&);
@@ -237,6 +238,7 @@ public:
     void                                    Cvttss2siEd(REGISTER, const CAddress&);
 
     void                                    AddpsVo(XMMREGISTER, const CAddress&);
+    void                                    MulpsVo(XMMREGISTER, const CAddress&);
     void                                    SubpsVo(XMMREGISTER, const CAddress&);
     void                                    ShufpsVo(XMMREGISTER, const CAddress&, uint8);
 

@@ -68,27 +68,24 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pC
 //36
 void CCOP_VU::LQC2()
 {
-	ComputeMemAccessAddr();
+    ComputeMemAccessAddrEx();
 
-	//Load the word
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV0);
-	m_pB->AddImm(4);
+    for(unsigned int i = 0; i < 4; i++)
+    {
+	    m_codeGen->PushRef(m_pCtx);
+	    m_codeGen->PushIdx(1);
+	    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV1);
-	m_pB->AddImm(4);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT].nV[i]));
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 1, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV2);
-	m_pB->AddImm(4);
+        if(i != 3)
+        {
+            m_codeGen->PushCst(4);
+            m_codeGen->Add();
+        }
+    }
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2[m_nFT].nV3);
+    m_codeGen->PullTop();
 }
 
 //3E
@@ -222,7 +219,7 @@ void CCOP_VU::VSUBbc()
 //0B
 void CCOP_VU::VMADDbc()
 {
-	VUShared::MADDbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //10
@@ -283,7 +280,7 @@ void CCOP_VU::VSUB()
 //2E
 void CCOP_VU::VOPMSUB()
 {
-	VUShared::OPMSUB(m_pB, m_pCtx, m_nFD, m_nFS, m_nFT);
+	VUShared::OPMSUB(m_codeGen, m_nFD, m_nFS, m_nFT);
 }
 
 //2F
@@ -323,13 +320,13 @@ void CCOP_VU::VX3()
 //
 void CCOP_VU::VMULAbc()
 {
-	VUShared::MULAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //
 void CCOP_VU::VMADDAbc()
 {
-	VUShared::MADDAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //////////////////////////////////////////////////
@@ -389,7 +386,7 @@ void CCOP_VU::VSQRT()
 //0B
 void CCOP_VU::VOPMULA()
 {
-	VUShared::OPMULA(m_pB, m_pCtx, m_nFS, m_nFT);
+    VUShared::OPMULA(m_codeGen, m_nFS, m_nFT);
 }
 
 //0E

@@ -78,7 +78,8 @@ void CMA_VU::CUpper::SUBbc()
 //0B
 void CMA_VU::CUpper::MADDbc()
 {
-	VUShared::MADDbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MADDbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //10
@@ -185,7 +186,8 @@ void CMA_VU::CUpper::SUB()
 //2E
 void CMA_VU::CUpper::OPMSUB()
 {
-	VUShared::OPMSUB(m_pB, m_pCtx, m_nFD, m_nFS, m_nFT);
+    throw new runtime_error("Reimplement.");
+//	VUShared::OPMSUB(m_pB, m_pCtx, m_nFD, m_nFS, m_nFT);
 }
 
 //3C
@@ -225,13 +227,15 @@ void CMA_VU::CUpper::ADDAbc()
 //02
 void CMA_VU::CUpper::MADDAbc()
 {
-	VUShared::MADDAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MADDAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //06
 void CMA_VU::CUpper::MULAbc()
 {
-	VUShared::MULAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MULAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //////////////////////////////////////////////////
@@ -291,7 +295,8 @@ void CMA_VU::CUpper::MULA()
 //0B
 void CMA_VU::CUpper::OPMULA()
 {
-	VUShared::OPMULA(m_pB, m_pCtx, m_nFS, m_nFT);
+    throw new runtime_error("Reimplement.");
+//	VUShared::OPMULA(m_pB, m_pCtx, m_nFS, m_nFT);
 }
 
 //////////////////////////////////////////////////

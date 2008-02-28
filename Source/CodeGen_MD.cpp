@@ -26,7 +26,7 @@ void CCodeGen::CopyRegister128(XMMREGISTER destination, XMMREGISTER source)
 
 void CCodeGen::LoadRelative128InRegister(XMMREGISTER registerId, uint32 offset)
 {
-    m_Assembler.MovdquVo(registerId,
+    m_Assembler.MovapsVo(registerId,
         CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, offset));
 }
 
@@ -34,6 +34,19 @@ void CCodeGen::MD_PushRel(size_t offset)
 {
     m_Shadow.Push(static_cast<uint32>(offset));
     m_Shadow.Push(RELATIVE128);
+}
+
+void CCodeGen::MD_PushRelExpand(size_t offset)
+{
+    //Need to convert to a register
+
+    XMMREGISTER valueRegister = AllocateXmmRegister();
+    m_Assembler.MovssEd(valueRegister,
+        CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)));
+    m_Assembler.ShufpsVo(valueRegister,
+        CX86Assembler::MakeXmmRegisterAddress(valueRegister), 0x00);
+
+    MD_PushReg(valueRegister);
 }
 
 void CCodeGen::MD_PullRel(size_t offset)
@@ -136,6 +149,22 @@ void CCodeGen::MD_GenericTwoOperand(const MdTwoOperandFunction& instruction)
         LoadRelative128InRegister(resultRegister, ops.first);
         instruction(resultRegister,
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        MD_PushReg(resultRegister);
+    }
+    else if(FitsPattern<RelativeRegister128>())
+    {
+        RelativeRegister128::PatternValue ops(GetPattern<RelativeRegister128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        {
+            XMMREGISTER valueRegister = static_cast<XMMREGISTER>(ops.second);
+            LoadRelative128InRegister(resultRegister, ops.first);
+            instruction(resultRegister,
+                CX86Assembler::MakeXmmRegisterAddress(valueRegister));
+            if(!Register128HasNextUse(valueRegister))
+            {
+                FreeXmmRegister(valueRegister);
+            }
+        }
         MD_PushReg(resultRegister);
     }
     else
@@ -284,6 +313,11 @@ void CCodeGen::MD_MaxH()
 void CCodeGen::MD_MinH()
 {
     MD_GenericTwoOperand(bind(&CX86Assembler::PminswVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_MulS()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::MulpsVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_Not()

@@ -149,6 +149,7 @@ public:
 
     //SIMD (128-bits only)
     virtual void                    MD_PushRel(size_t);
+    virtual void                    MD_PushRelExpand(size_t);
     virtual void                    MD_PullRel(size_t);
     virtual void                    MD_PullRel(size_t, size_t, size_t, size_t);
     void                            MD_PushReg(XMMREGISTER);
@@ -162,6 +163,7 @@ public:
     void                            MD_IsZero();
     void                            MD_MaxH();
     void                            MD_MinH();
+    void                            MD_MulS();
     void                            MD_Not();
     void                            MD_Or();
     void                            MD_PackHB();

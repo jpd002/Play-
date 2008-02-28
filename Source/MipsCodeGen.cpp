@@ -119,6 +119,12 @@ void CMipsCodeGen::MD_PushRel(size_t offset)
     CCodeGen::MD_PushRel(offset);
 }
 
+void CMipsCodeGen::MD_PushRelExpand(size_t offset)
+{
+    DumpVariable(offset);
+    CCodeGen::MD_PushRelExpand(offset);
+}
+
 void CMipsCodeGen::MD_PullRel(size_t offset)
 {
     for(unsigned int i = 0; i < 4; i++)

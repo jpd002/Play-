@@ -24,6 +24,7 @@ namespace VUShared
 	uint32*				GetVectorElement(CMIPS*, unsigned int, unsigned int);
 	size_t				GetVectorElement(unsigned int, unsigned int);
 	uint32*				GetAccumulatorElement(CMIPS*, unsigned int);
+    size_t              GetAccumulatorElement(unsigned int);
 
 	void				PullVector(uint8, uint128*);
     void                PullVectorEx(CCodeGen*, uint8, size_t);
@@ -41,9 +42,9 @@ namespace VUShared
 	void				FTOI4(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				ITOF0(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MADD(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
-	void				MADDbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
+	void				MADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MADDA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				MADDAbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				MADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MADDAi(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				MAX(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				MAXbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
@@ -59,10 +60,10 @@ namespace VUShared
 	void				MULi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MULq(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MULA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				MULAbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				MULAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULAi(CCacheBlock*, CMIPS*, uint8, uint8);
-	void				OPMSUB(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				OPMULA(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
+	void				OPMULA(CCodeGen*, uint8, uint8);
 	void				RINIT(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				RSQRT(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				RXOR(CCacheBlock*, CMIPS*, uint8, uint8);

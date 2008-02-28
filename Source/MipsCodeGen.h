@@ -20,6 +20,7 @@ public:
     virtual void        FP_PullWordTruncate(size_t);
 
     virtual void        MD_PushRel(size_t);
+    virtual void        MD_PushRelExpand(size_t);
     virtual void        MD_PullRel(size_t);
 
     virtual void        BeginIf(bool);

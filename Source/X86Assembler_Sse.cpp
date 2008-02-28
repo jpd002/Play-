@@ -20,6 +20,12 @@ void CX86Assembler::MovapsVo(const CAddress& address, XMMREGISTER registerId)
     WriteEdVdOp(0x29, address, registerId);
 }
 
+void CX86Assembler::MovapsVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x28, address, registerId);
+}
+
 void CX86Assembler::Packuswb(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x66);
@@ -161,6 +167,12 @@ void CX86Assembler::AddpsVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x0F);
     WriteEdVdOp(0x58, address, registerId);
+}
+
+void CX86Assembler::MulpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x59, address, registerId);
 }
 
 void CX86Assembler::SubpsVo(XMMREGISTER registerId, const CAddress& address)
