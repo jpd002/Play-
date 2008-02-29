@@ -41,6 +41,8 @@ __attribute__((aligned(16)))
 	//COP2
 #ifdef WIN32
 __declspec(align(16))
+#else
+__attribute__((aligned(16)))
 #endif
 	uint128		nCOP2[32];
 
