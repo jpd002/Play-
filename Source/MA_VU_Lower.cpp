@@ -550,7 +550,8 @@ void CMA_VU::CLower::VECTOR3()
 //0C
 void CMA_VU::CLower::MOVE()
 {
-	VUShared::MOVE(m_pB, m_pCtx, m_nDest, m_nIT, m_nIS);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MOVE(m_pB, m_pCtx, m_nDest, m_nIT, m_nIS);
 }
 
 //0D
@@ -598,7 +599,8 @@ void CMA_VU::CLower::LQI()
 //0E
 void CMA_VU::CLower::DIV()
 {
-	VUShared::DIV(m_pB, m_pCtx, m_nIS, m_nFSF, m_nIT, m_nFTF);
+    throw new runtime_error("Reimplement.");
+//	VUShared::DIV(m_pB, m_pCtx, m_nIS, m_nFSF, m_nIT, m_nFTF);
 }
 
 //0F

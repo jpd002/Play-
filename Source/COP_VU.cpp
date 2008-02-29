@@ -117,17 +117,11 @@ void CCOP_VU::SQC2()
 //01
 void CCOP_VU::QMFC2()
 {
-	unsigned int i;
-
-	CCodeGen::Begin(m_pB);
-	{
-		for(i = 0; i < 4; i++)
-		{
-			CCodeGen::PushVar(&m_pCtx->m_State.nCOP2[m_nFS].nV[i]);
-			CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nFT].nV[i]);
-		}
-	}
-	CCodeGen::End();
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFS].nV[i]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[i]));
+    }
 }
 
 //02
@@ -172,17 +166,11 @@ void CCOP_VU::CFC2()
 //05
 void CCOP_VU::QMTC2()
 {
-	unsigned int i;
-
-	CCodeGen::Begin(m_pB);
-	{
-		for(i = 0; i < 4; i++)
-		{
-			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nFT].nV[i]);
-			CCodeGen::PullVar(&m_pCtx->m_State.nCOP2[m_nFS].nV[i]);
-		}
-	}
-	CCodeGen::End();
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[i]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFS].nV[i]));
+    }
 }
 
 //06
@@ -207,7 +195,7 @@ void CCOP_VU::V()
 //03
 void CCOP_VU::VADDbc()
 {
-	VUShared::ADDbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::ADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //04
@@ -244,13 +232,13 @@ void CCOP_VU::VMULbc()
 //1C
 void CCOP_VU::VMULq()
 {
-	VUShared::MULq(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //20
 void CCOP_VU::VADDq()
 {
-	VUShared::ADDq(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //28
@@ -262,7 +250,7 @@ void CCOP_VU::VADD()
 //2A
 void CCOP_VU::VMUL()
 {
-	VUShared::MUL(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MUL(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //2B
@@ -348,13 +336,13 @@ void CCOP_VU::VFTOI0()
 //0C
 void CCOP_VU::VMOVE()
 {
-	VUShared::MOVE(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+    VUShared::MOVE(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
 //0E
 void CCOP_VU::VDIV()
 {
-	VUShared::DIV(m_pB, m_pCtx, m_nFS, m_nFSF, m_nFT, m_nFTF);
+	VUShared::DIV(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF);
 }
 
 //////////////////////////////////////////////////
@@ -376,7 +364,7 @@ void CCOP_VU::VMR32()
 //0E
 void CCOP_VU::VSQRT()
 {
-	VUShared::SQRT(m_pB, m_pCtx, m_nFT, m_nFTF);
+	VUShared::SQRT(m_codeGen, m_nFT, m_nFTF);
 }
 
 //////////////////////////////////////////////////

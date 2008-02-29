@@ -70,7 +70,6 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				nTemp |= (nPacket.nV[2] & 0xFF) << 16;
 				nTemp |= (nPacket.nV[3] & 0xFF) << 24;
 				nTemp |= ((uint64)m_nQTemp << 32);
-//				m_gs->WriteRegister(GS_REG_RGBAQ, nTemp);
                 g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_RGBAQ, nTemp));
 				break;
 			case 0x02:
@@ -83,7 +82,6 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				//UV
 				nTemp  = (nPacket.nV[0] & 0x7FFF);
 				nTemp |= (nPacket.nV[1] & 0x7FFF) << 16;
-//				m_gs->WriteRegister(GS_REG_UV, nTemp);
                 g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_UV, nTemp));
 				break;
 			case 0x04:
@@ -94,40 +92,35 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				nTemp |= (uint64)(nPacket.nV[3] & 0x00000FF0) << 52;
 				if(nPacket.nV[3] & 0x8000)
 				{
-//					m_gs->WriteRegister(GS_REG_XYZF3, nTemp);
                     g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZF3, nTemp));
 				}
 				else
 				{
-//					m_gs->WriteRegister(GS_REG_XYZF2, nTemp);
                     g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZF2, nTemp));
 				}
 				break;
 			case 0x05:
 				//XYZ2
-                throw exception();
 				nTemp  = (nPacket.nV[0] & 0xFFFF);
 				nTemp |= (nPacket.nV[1] & 0xFFFF) << 16;
 				nTemp |= (uint64)(nPacket.nV[2] & 0xFFFFFFFF) << 32;
 				if(nPacket.nV[3] & 0x8000)
 				{
-					m_gs->WriteRegister(GS_REG_XYZ3, nTemp);
+                    g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nTemp));
 				}
 				else
 				{
-					m_gs->WriteRegister(GS_REG_XYZ2, nTemp);
+                    g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ2, nTemp));
 				}
 				break;
 			case 0x06:
 				//TEX0_1
-                throw exception();
-				m_gs->WriteRegister(GS_REG_TEX0_1, nPacket.nD0);
+                g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_1, nPacket.nD0));
 				break;
 			case 0x0E:
 				//A + D
 				if(m_gs != NULL)
 				{
-//					m_gs->WriteRegister((uint8)nPacket.nD1, nPacket.nD0);
                     g_writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));
 				}
 				break;
@@ -150,20 +143,16 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 uint32 CGIF::ProcessRegList(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
-    throw exception();
-
-	uint32 nRegDesc, j, nStart;
-	uint128 nPacket;
-
-	nStart = nAddress;
+    uint32 nStart = nAddress;
 
 	while(m_nLoops != 0)
 	{
-		for(j = 0; j < m_nRegs; j++)
+		for(uint32 j = 0; j < m_nRegs; j++)
 		{
 			assert(nAddress < nEnd);
 
-			nRegDesc = (uint32)((m_nRegList >> (j * 4)) & 0x0F);
+	        uint128 nPacket;
+			uint32 nRegDesc = (uint32)((m_nRegList >> (j * 4)) & 0x0F);
 
  			nPacket.nV[0] = *(uint32*)&pMemory[nAddress + 0x00];
 			nPacket.nV[1] = *(uint32*)&pMemory[nAddress + 0x04];
@@ -171,7 +160,7 @@ uint32 CGIF::ProcessRegList(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 			if(nRegDesc == 0x0F) continue;
 
-			m_gs->WriteRegister((uint8)nRegDesc, nPacket.nD0);
+            g_writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nRegDesc), nPacket.nD0));
 		}
 
 		m_nLoops--;
@@ -242,7 +231,6 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			{
 				if(nPacket.nV1 & 0x4000)
 				{
-//					m_gs->WriteRegister(GS_REG_PRIM, (uint16)(nPacket.nV1 >> 15) & 0x3FF);
                     g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, (uint16)(nPacket.nV1 >> 15) & 0x3FF));
 				}
 			}

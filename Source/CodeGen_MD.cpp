@@ -475,9 +475,19 @@ void CCodeGen::MD_UnpackLowerHW()
     MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpcklwdVo, m_Assembler, _1, _2));
 }
 
+void CCodeGen::MD_UnpackLowerWD()
+{
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckldqVo, m_Assembler, _1, _2));
+}
+
 void CCodeGen::MD_UnpackUpperBH()
 {
     MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckhbwVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_UnpackUpperWD()
+{
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckhdqVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_Xor()

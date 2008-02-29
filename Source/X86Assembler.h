@@ -223,7 +223,9 @@ public:
     void                                    PsubdVo(XMMREGISTER, const CAddress&);
     void                                    PunpcklbwVo(XMMREGISTER, const CAddress&);
     void                                    PunpcklwdVo(XMMREGISTER, const CAddress&);
+    void                                    PunpckldqVo(XMMREGISTER, const CAddress&);
     void                                    PunpckhbwVo(XMMREGISTER, const CAddress&);
+    void                                    PunpckhdqVo(XMMREGISTER, const CAddress&);
     void                                    PxorVo(XMMREGISTER, const CAddress&);
 
     void                                    MovssEd(const CAddress&, XMMREGISTER);

@@ -403,14 +403,10 @@ void CMA_EE::PADDSW()
 //12
 void CMA_EE::PEXTLW()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::UnpackLowerWD();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_UnpackLowerWD();
+    PullVector(m_nRD);
 }
 
 //16
@@ -523,14 +519,10 @@ void CMA_EE::PADDUW()
 //12
 void CMA_EE::PEXTUW()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::UnpackUpperWD();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_UnpackUpperWD();
+    PullVector(m_nRD);
 }
 
 //1A

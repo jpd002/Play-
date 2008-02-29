@@ -911,7 +911,8 @@ void CGSH_OpenGL::Prim_Sprite()
 void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	CGSHandler::WriteRegisterImpl(nRegister, nData);
-	
+
+    //Frameskip
 //    if(m_frameCount % 5 != 0) return;
 
 	switch(nRegister)

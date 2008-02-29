@@ -32,12 +32,12 @@ namespace VUShared
 	//Shared instructions
 	void				ABS(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				ADDbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
+	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				ADDi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				ADDq(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				ADDq(CCodeGen*, uint8, uint8, uint8);
 	void				ADDAbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				CLIP(CCacheBlock*, CMIPS*, uint8, uint8);
-	void				DIV(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				FTOI0(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				FTOI4(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				ITOF0(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
@@ -51,14 +51,14 @@ namespace VUShared
 	void				MINI(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				MINIbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
 	void				MINIi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				MOVE(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				MOVE(CCodeGen*, uint8, uint8, uint8);
 	void				MR32(CCodeGen*, uint8, uint8, uint8);
 	void				MSUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MSUBAi(CCacheBlock*, CMIPS*, uint8, uint8);
-	void				MUL(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				MUL(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
 	void				MULi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				MULq(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				MULq(CCodeGen*, uint8, uint8, uint8);
 	void				MULA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MULAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULAi(CCacheBlock*, CMIPS*, uint8, uint8);
@@ -67,7 +67,7 @@ namespace VUShared
 	void				RINIT(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				RSQRT(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				RXOR(CCacheBlock*, CMIPS*, uint8, uint8);
-	void				SQRT(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				SQRT(CCodeGen*, uint8, uint8);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
 	void				SUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);

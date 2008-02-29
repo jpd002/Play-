@@ -176,7 +176,9 @@ public:
     void                            MD_SubS();
     void                            MD_UnpackLowerBH();
     void                            MD_UnpackLowerHW();
+    void                            MD_UnpackLowerWD();
     void                            MD_UnpackUpperBH();
+    void                            MD_UnpackUpperWD();
     void                            MD_Xor();
 
     void                            SetStream(Framework::CStream*);
