@@ -467,16 +467,12 @@ void VUShared::MUL(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 n
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::MULbc(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc)
+void VUShared::MULbc(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFt].nV[nBc]);
-		CVUF128::Mul();
-		PullVector(nDest, &pCtx->m_State.nCOP2[nFd]);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
+    codeGen->MD_MulS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
 void VUShared::MULi(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs)
@@ -627,17 +623,13 @@ void VUShared::RINIT(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf)
 	CCodeGen::End();
 }
 
-void VUShared::RSQRT(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf)
+void VUShared::RSQRT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf)
 {
-	CCodeGen::Begin(pB);
-	{
-		CFPU::PushSingle(GetVectorElement(pCtx, nFs, nFsf));
-		CFPU::PushSingle(GetVectorElement(pCtx, nFt, nFtf));
-		CFPU::Sqrt();
-		CFPU::Div();
-		CFPU::PullSingle(&pCtx->m_State.nCOP2Q);
-	}
-	CCodeGen::End();
+    codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
+    codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
+    codeGen->FP_Rsqrt();
+    codeGen->FP_Mul();
+    codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2Q));
 }
 
 void VUShared::RXOR(CCacheBlock* pB, CMIPS* pCtx, uint8 nFs, uint8 nFsf)

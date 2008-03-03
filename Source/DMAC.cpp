@@ -33,9 +33,10 @@ using namespace boost;
 //8 - SPR (incoming)
 //9 - SPR (outgoing)
 
-uint32 DummyTransfertFunction(uint32, uint32, uint32, bool)
+uint32 DummyTransfertFunction(uint32 address, uint32 size, uint32, bool)
 {
-    throw runtime_error("Not implemented.");
+    return size;
+//    throw runtime_error("Not implemented.");
 }
 
 CDMAC::CDMAC(uint8* ram, uint8* spr) :

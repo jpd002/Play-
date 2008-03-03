@@ -12,6 +12,7 @@
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
 #include "Iop_DbcMan.h"
+#include "Iop_PadMan.h"
 
 class CIopBios
 {
@@ -26,6 +27,7 @@ public:
 
     Iop::CIoman*            GetIoman();
     Iop::CDbcMan*           GetDbcman();
+    Iop::CPadMan*           GetPadman();
     void                    RegisterModule(Iop::CModule*);
 
     uint32                  CreateThread(uint32, uint32);
@@ -142,6 +144,7 @@ private:
     Iop::CSysmem*           m_sysmem;
     Iop::CModload*          m_modload;
     Iop::CDbcMan*           m_dbcman;
+    Iop::CPadMan*           m_padman;
 };
 
 #endif

@@ -107,7 +107,8 @@ void CMA_VU::CUpper::MINIbc()
 //1B
 void CMA_VU::CUpper::MULbc()
 {
-	VUShared::MULbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MULbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //1C

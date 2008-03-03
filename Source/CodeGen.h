@@ -146,6 +146,7 @@ public:
     void                            FP_Cmp(CONDITION);
     void                            FP_Neg();
     void                            FP_Sqrt();
+    void                            FP_Rsqrt();
 
     //SIMD (128-bits only)
     virtual void                    MD_PushRel(size_t);
@@ -314,6 +315,8 @@ private:
 
     void                            Div_Base(const MultFunction&, bool);
     void                            Mult_Base(const MultFunction&, bool);
+
+    void                            FP_GenericTwoOperand(const MdTwoOperandFunction&);
 
     void                            MD_GenericPackedShift(const PackedShiftFunction&, uint8);
     void                            MD_GenericTwoOperand(const MdTwoOperandFunction&);

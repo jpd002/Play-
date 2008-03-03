@@ -226,7 +226,7 @@ void CCOP_VU::VMINIbc()
 //1B
 void CCOP_VU::VMULbc()
 {
-	VUShared::MULbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::MULbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //1C
@@ -380,7 +380,7 @@ void CCOP_VU::VOPMULA()
 //0E
 void CCOP_VU::VRSQRT()
 {
-	VUShared::RSQRT(m_pB, m_pCtx, m_nFS, m_nFSF, m_nFT, m_nFTF);
+	VUShared::RSQRT(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF);
 }
 
 //10

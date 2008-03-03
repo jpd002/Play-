@@ -56,7 +56,7 @@ namespace VUShared
 	void				MSUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MSUBAi(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				MUL(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MULbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
+	void				MULbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MULi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MULq(CCodeGen*, uint8, uint8, uint8);
 	void				MULA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
@@ -65,7 +65,7 @@ namespace VUShared
 	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
 	void				OPMULA(CCodeGen*, uint8, uint8);
 	void				RINIT(CCacheBlock*, CMIPS*, uint8, uint8);
-	void				RSQRT(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				RXOR(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				SQRT(CCodeGen*, uint8, uint8);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);

@@ -302,6 +302,39 @@ void CCodeGen::FP_PullWordTruncate(size_t offset)
     }
 }
 
+void CCodeGen::FP_GenericTwoOperand(const MdTwoOperandFunction& instruction)
+{
+    if(FitsPattern<DualFpSingleRelative>())
+    {
+        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
+        instruction(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        FP_PushSingleReg(resultRegister);
+    }
+    else if(FitsPattern<FpSingleRelativeRegister>())
+    {
+        FpSingleRelativeRegister::PatternValue ops = GetPattern<FpSingleRelativeRegister>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        {
+            XMMREGISTER sourceRegister = static_cast<XMMREGISTER>(ops.second);
+            FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
+            instruction(resultRegister,
+                CX86Assembler::MakeXmmRegisterAddress(sourceRegister));
+            if(!RegisterFpSingleHasNextUse(sourceRegister))
+            {
+                FreeXmmRegister(sourceRegister);
+            }
+        }
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
 void CCodeGen::FP_Add()
 {
     if(FitsPattern<DualFpSingleRelative>())
@@ -330,50 +363,12 @@ void CCodeGen::FP_Add()
 
 void CCodeGen::FP_Sub()
 {
-    if(FitsPattern<DualFpSingleRelative>())
-    {
-        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
-        m_Assembler.SubssEd(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        FP_PushSingleReg(resultRegister);
-    }
-    else if(FitsPattern<FpSingleRelativeRegister>())
-    {
-        FpSingleRelativeRegister::PatternValue ops = GetPattern<FpSingleRelativeRegister>();
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        XMMREGISTER sourceRegister = static_cast<XMMREGISTER>(ops.second);
-        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
-        m_Assembler.SubssEd(resultRegister,
-            CX86Assembler::MakeXmmRegisterAddress(sourceRegister));
-        if(!RegisterFpSingleHasNextUse(sourceRegister))
-        {
-            FreeXmmRegister(sourceRegister);
-        }
-        FP_PushSingleReg(resultRegister);
-    }
-    else
-    {
-        assert(0);
-    }
+    FP_GenericTwoOperand(bind(&CX86Assembler::SubssEd, m_Assembler, _1, _2));
 }
 
 void CCodeGen::FP_Mul()
 {
-    if(FitsPattern<DualFpSingleRelative>())
-    {
-        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
-        m_Assembler.MulssEd(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        FP_PushSingleReg(resultRegister);
-    }
-    else
-    {
-        assert(0);
-    }
+    FP_GenericTwoOperand(bind(&CX86Assembler::MulssEd, m_Assembler, _1, _2));
 }
 
 void CCodeGen::FP_Div()
@@ -389,7 +384,7 @@ void CCodeGen::FP_Div()
     }
     else
     {
-        assert(0);
+        throw runtime_error("Not implemented.");
     }
 }
 
@@ -430,7 +425,7 @@ void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
     }
     else
     {
-        assert(0);
+        throw runtime_error("Not implemented.");
     }
 }
 
@@ -448,7 +443,7 @@ void CCodeGen::FP_Neg()
     }
     else
     {
-        assert(0);
+        throw runtime_error("Not implemented.");
     }
 }
 
@@ -459,6 +454,22 @@ void CCodeGen::FP_Sqrt()
         SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
         XMMREGISTER resultRegister = AllocateXmmRegister();
         m_Assembler.SqrtssEd(resultRegister, 
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        throw runtime_error("Not implemented.");
+    }
+}
+
+void CCodeGen::FP_Rsqrt()
+{
+    if(FitsPattern<SingleFpSingleRelative>())
+    {
+        SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        m_Assembler.RsqrtssEd(resultRegister, 
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
         FP_PushSingleReg(resultRegister);
     }

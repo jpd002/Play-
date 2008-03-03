@@ -349,7 +349,7 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 //	*(uint32*)&m_ram[0x0029B774] = 0;
 
     //REMOVE
-//    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x00]) = 0x24030064;
+//    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x00]) = 0x4A6503BE;
 //    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x04]) = 0x0043001B;
 //    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x08]) = 0x0000000C;
     //------
@@ -1599,13 +1599,9 @@ void CPS2OS::sc_ChangeThreadPriority()
 //2B
 void CPS2OS::sc_RotateThreadReadyQueue()
 {
-    //TODO: Need to set the thread's new ScheduleId to the return value of ThreadSchedule->Insert
-    throw runtime_error("Recheck needed.");
-
-	uint32 nPrio, nID;
 	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
 
-	nPrio = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nPrio = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	//TODO: Rescheduling isn't always necessary and will cause the current thread's priority queue to be
 	//rotated too since each time a thread is picked to be executed it's placed at the end of the queue...
@@ -1616,11 +1612,13 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 	{
 		if(itThread.GetWeight() == nPrio)
 		{
-			nID = itThread.GetValue();
+			uint32 nID = itThread.GetValue();
 			if(nID == GetCurrentThreadId())
 			{
+                throw runtime_error("Need to reverify that.");
+                THREAD* thread(GetThread(nID));
 				m_pThreadSchedule->Remove(itThread.GetIndex());
-				m_pThreadSchedule->Insert(nID, nPrio);
+                thread->nScheduleID = m_pThreadSchedule->Insert(nID, nPrio);
 			}
 			break;
 		}

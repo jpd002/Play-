@@ -6,6 +6,7 @@
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "WinUtils.h"
+#include "../Ps2Const.h"
 #include "win32/DeviceContext.h"
 #include "win32/ClientDeviceContext.h"
 
@@ -223,21 +224,19 @@ void CDisAsm::FindCallers()
 
 	printf("Searching callers...\r\n");
 
-//	for(int i = 0; i < CPS2VM::RAMSIZE / 4; i++)
-//	{
-//    	uint32 nVal;
-//		nVal = ((uint32*)CPS2VM::m_pRAM)[i];
-//		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
-//		{
-//			nVal &= 0x3FFFFFF;
-//			nVal *= 4;
-//			if(nVal == m_nSelected)
-//			{
-//				printf("JAL: 0x%0.8X\r\n", i * 4);
-//			}
-//		}
-//	}
-    printf("Reimplement needed.\r\n");
+    for(int i = 0; i < PS2::EERAMSIZE; i += 4)
+    {
+	    uint32 nVal = m_pCtx->m_pMemoryMap->GetWord(i);
+	    if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
+	    {
+		    nVal &= 0x3FFFFFF;
+		    nVal *= 4;
+		    if(nVal == m_nSelected)
+		    {
+			    printf("JAL: 0x%0.8X\r\n", i);
+		    }
+	    }
+    }
 	printf("Done.\r\n");
 }
 

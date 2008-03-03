@@ -1869,9 +1869,14 @@ void CCodeGen::Shl()
         FreeRegister(shiftAmount);
         PushReg(resultRegister);
     }
+    else if(FitsPattern<ConstantConstant>())
+    {
+        ConstantConstant::PatternValue ops = GetPattern<ConstantConstant>();
+        PushCst(ops.first << ops.second);
+    }
     else
     {
-        assert(0);
+        throw exception();
     }
 }
 
@@ -1905,7 +1910,7 @@ void CCodeGen::Shl(uint8 nAmount)
 	}
 	else
 	{
-		assert(0);
+        throw exception();
 	}
 }
 

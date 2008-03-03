@@ -381,6 +381,7 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
         m_intc.SaveState(archive);
         m_sif.SaveState(archive);
         m_iopOs->GetDbcman()->SaveState(archive);
+        m_iopOs->GetPadman()->SaveState(archive);
 
 //	CVIF::SaveState(pS);
 
@@ -423,6 +424,7 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
         m_intc.LoadState(archive);
         m_sif.LoadState(archive);
         m_iopOs->GetDbcman()->LoadState(archive);
+        m_iopOs->GetPadman()->LoadState(archive);
 //	CVIF::LoadState(pS);
 
     }
@@ -544,7 +546,7 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 	m_pPad->RemoveAllListeners();
 	m_pPad->InsertListener(m_iopOs->GetDbcman());
-//	m_pPad->InsertListener(CSIF::GetDbcMan());
+    m_pPad->InsertListener(m_iopOs->GetPadman());
 }
 
 uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)

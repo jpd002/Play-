@@ -1843,6 +1843,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\iop\Iop_PadMan.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_PadMan.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\iop\Iop_Stdio.cpp"
 					>
 				</File>

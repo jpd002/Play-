@@ -104,6 +104,10 @@ void CIopBios::Reset()
         m_dbcman = new Iop::CDbcMan(m_sif);
         RegisterModule(m_dbcman);
     }
+    {
+        m_padman = new Iop::CPadMan(m_sif);
+        RegisterModule(m_padman);
+    }
 
     const int sifDmaBufferSize = 0x1000;
     uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0);
@@ -478,6 +482,11 @@ Iop::CIoman* CIopBios::GetIoman()
 Iop::CDbcMan* CIopBios::GetDbcman()
 {
     return m_dbcman;
+}
+
+Iop::CPadMan* CIopBios::GetPadman()
+{
+    return m_padman;
 }
 
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
