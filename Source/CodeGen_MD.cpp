@@ -49,6 +49,20 @@ void CCodeGen::MD_PushRelExpand(size_t offset)
     MD_PushReg(valueRegister);
 }
 
+void CCodeGen::MD_PushCstExpand(float constant)
+{
+    XMMREGISTER valueRegister = AllocateXmmRegister();
+    unsigned int tempRegister = AllocateRegister();
+    m_Assembler.MovId(m_nRegisterLookupEx[tempRegister],
+        *reinterpret_cast<uint32*>(&constant));
+    m_Assembler.MovdVo(valueRegister,
+        CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+    m_Assembler.ShufpsVo(valueRegister,
+        CX86Assembler::MakeXmmRegisterAddress(valueRegister), 0x00);
+    MD_PushReg(valueRegister);
+    FreeRegister(tempRegister);
+}
+
 void CCodeGen::MD_PullRel(size_t offset)
 {
     if(FitsPattern<SingleRegister128>())
@@ -463,6 +477,30 @@ void CCodeGen::MD_SubW()
 void CCodeGen::MD_SubS()
 {
     MD_GenericTwoOperand(bind(&CX86Assembler::SubpsVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_ToWordTruncate()
+{
+    if(FitsPattern<SingleRelative128>())
+    {
+        SingleRelative128::PatternValue op = GetPattern<SingleRelative128>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        m_Assembler.Cvttps2dqVo(resultRegister,
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
+        MD_PushReg(resultRegister);
+    }
+    else if(FitsPattern<SingleRegister128>())
+    {
+        XMMREGISTER valueRegister = static_cast<XMMREGISTER>(GetPattern<SingleRegister128>());
+        assert(!Register128HasNextUse(valueRegister));
+        m_Assembler.Cvttps2dqVo(valueRegister,
+            CX86Assembler::MakeXmmRegisterAddress(valueRegister));
+        MD_PushReg(valueRegister);
+    }
+    else
+    {
+        throw exception();
+    }
 }
 
 void CCodeGen::MD_UnpackLowerBH()

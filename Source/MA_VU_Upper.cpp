@@ -256,7 +256,8 @@ void CMA_VU::CUpper::ITOF0()
 //05
 void CMA_VU::CUpper::FTOI0()
 {
-	VUShared::FTOI0(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+    throw new runtime_error("Reimplement.");
+//	VUShared::FTOI0(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
 }
 
 //////////////////////////////////////////////////
@@ -266,7 +267,8 @@ void CMA_VU::CUpper::FTOI0()
 //05
 void CMA_VU::CUpper::FTOI4()
 {
-	VUShared::FTOI4(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+    throw new runtime_error("Reimplement.");
+//	VUShared::FTOI4(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
 }
 
 //07

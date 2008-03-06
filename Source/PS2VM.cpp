@@ -314,7 +314,7 @@ void CPS2VM::ResetVM()
 	m_EE.m_State.nCOP2[0].nV3	= 0x3F800000;
 	m_VU1.m_State.nCOP2[0].nV3	= 0x3F800000;
 
-	m_VU1.m_State.nPC		= 0x4000;
+    m_VU1.m_State.nPC		= 0x4000;
 
 	m_nStatus = PAUSED;
 	

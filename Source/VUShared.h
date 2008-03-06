@@ -38,8 +38,8 @@ namespace VUShared
 	void				ADDAbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				CLIP(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				FTOI0(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				FTOI4(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
+	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
 	void				ITOF0(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MADD(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				MADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);

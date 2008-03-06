@@ -361,6 +361,27 @@ void CCodeGen::FP_Add()
     }
 }
 
+void CCodeGen::FP_Abs()
+{
+    if(FitsPattern<SingleFpSingleRelative>())
+    {
+        SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        unsigned int tempRegister = AllocateRegister();
+        m_Assembler.MovId(m_nRegisterLookupEx[tempRegister], 0x7FFFFFFF);
+        m_Assembler.AndEd(m_nRegisterLookupEx[tempRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
+        m_Assembler.MovdVo(resultRegister,
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+        FreeRegister(tempRegister);
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        throw runtime_error("Not implemented.");
+    }
+}
+
 void CCodeGen::FP_Sub()
 {
     FP_GenericTwoOperand(bind(&CX86Assembler::SubssEd, m_Assembler, _1, _2));

@@ -1,5 +1,12 @@
 #include "X86Assembler.h"
 
+void CX86Assembler::MovdVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x6E, address, registerId);
+}
+
 void CX86Assembler::MovdquVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0xF3);
@@ -121,6 +128,14 @@ void CX86Assembler::PsrlwVo(XMMREGISTER registerId, uint8 amount)
     WriteByte(amount);
 }
 
+void CX86Assembler::PsrldVo(XMMREGISTER registerId, uint8 amount)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+    WriteVrOp(0x72, 0x02, registerId);
+    WriteByte(amount);
+}
+
 void CX86Assembler::PsubbVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x66);
@@ -181,6 +196,13 @@ void CX86Assembler::AddpsVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x0F);
     WriteEdVdOp(0x58, address, registerId);
+}
+
+void CX86Assembler::Cvttps2dqVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5B, address, registerId);
 }
 
 void CX86Assembler::MulpsVo(XMMREGISTER registerId, const CAddress& address)

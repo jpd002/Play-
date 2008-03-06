@@ -1547,10 +1547,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\RangeList16.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\RegisterStateFile.h"
 					>
 				</File>

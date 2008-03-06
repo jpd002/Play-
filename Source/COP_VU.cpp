@@ -330,7 +330,7 @@ void CCOP_VU::VITOF0()
 //05
 void CCOP_VU::VFTOI0()
 {
-	VUShared::FTOI0(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+	VUShared::FTOI0(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
 //0C
@@ -352,7 +352,7 @@ void CCOP_VU::VDIV()
 //05
 void CCOP_VU::VFTOI4()
 {
-	VUShared::FTOI4(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+	VUShared::FTOI4(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
 //0C

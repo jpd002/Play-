@@ -202,6 +202,7 @@ public:
         SSE_CMP_ORD = 7,
     };
 
+    void                                    MovdVo(XMMREGISTER, const CAddress&);
     void                                    MovdquVo(const CAddress&, XMMREGISTER);
     void                                    MovdquVo(XMMREGISTER, const CAddress&);
     void                                    MovapsVo(const CAddress&, XMMREGISTER);
@@ -219,6 +220,7 @@ public:
     void                                    PslldVo(XMMREGISTER, uint8);
     void                                    PsrawVo(XMMREGISTER, uint8);
     void                                    PsrlwVo(XMMREGISTER, uint8);
+    void                                    PsrldVo(XMMREGISTER, uint8);
     void                                    PsubbVo(XMMREGISTER, const CAddress&);
     void                                    PsubdVo(XMMREGISTER, const CAddress&);
     void                                    PunpcklbwVo(XMMREGISTER, const CAddress&);
@@ -238,6 +240,7 @@ public:
     void                                    SqrtssEd(XMMREGISTER, const CAddress&);
     void                                    CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
     void                                    Cvtsi2ssEd(XMMREGISTER, const CAddress&);
+    void                                    Cvttps2dqVo(XMMREGISTER, const CAddress&);
     void                                    Cvttss2siEd(REGISTER, const CAddress&);
 
     void                                    AddpsVo(XMMREGISTER, const CAddress&);

@@ -236,44 +236,20 @@ void VUShared::DIV(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nF
     codeGen->EndIf();
 }
 
-void VUShared::FTOI0(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFt, uint8 nFs)
+void VUShared::FTOI0(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::ToWordTruncate();
-		PullVector(nDest, &pCtx->m_State.nCOP2[nFt]);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_ToWordTruncate();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
-void VUShared::FTOI4(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFt, uint8 nFs)
+void VUShared::FTOI4(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		//Get the fractional part
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Truncate();
-		CVUF128::Sub();
-
-		CVUF128::PushImm(16.0f);
-		CVUF128::Mul();
-
-		//Get the whole part
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Truncate();
-		CVUF128::PushImm(16.0f);
-		CVUF128::Mul();
-
-		//Add both parts
-		CVUF128::Add();
-
-		//Save result
-		CVUF128::ToWordTruncate();
-		PullVector(nDest, &pCtx->m_State.nCOP2[nFt]);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushCstExpand(16.0f);
+    codeGen->MD_MulS();
+    codeGen->MD_ToWordTruncate();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
 void VUShared::ITOF0(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFt, uint8 nFs)

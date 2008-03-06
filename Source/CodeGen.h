@@ -140,6 +140,7 @@ public:
     void                            FP_LoadSingleRelativeInRegister(XMMREGISTER, uint32);
 
     void                            FP_Add();
+    void                            FP_Abs();
     void                            FP_Sub();
     void                            FP_Mul();
     void                            FP_Div();
@@ -151,6 +152,7 @@ public:
     //SIMD (128-bits only)
     virtual void                    MD_PushRel(size_t);
     virtual void                    MD_PushRelExpand(size_t);
+    void                            MD_PushCstExpand(float);
     virtual void                    MD_PullRel(size_t);
     virtual void                    MD_PullRel(size_t, size_t, size_t, size_t);
     void                            MD_PushReg(XMMREGISTER);
@@ -175,6 +177,7 @@ public:
     void                            MD_SubB();
     void                            MD_SubW();
     void                            MD_SubS();
+    void                            MD_ToWordTruncate();
     void                            MD_UnpackLowerBH();
     void                            MD_UnpackLowerHW();
     void                            MD_UnpackLowerWD();
