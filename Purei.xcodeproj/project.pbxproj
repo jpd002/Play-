@@ -129,6 +129,7 @@
 		7EE5842B0D23176400AF9DA3 /* PathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */; };
 		7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */; };
 		7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */; };
+		7EF251B20D83124D00D90D20 /* Iop_PadMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EF251B00D83124D00D90D20 /* Iop_PadMan.cpp */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -253,7 +254,6 @@
 		7E89882E0D08BD090077F9ED /* Profiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Profiler.h; path = Source/Profiler.h; sourceTree = "<group>"; };
 		7E89882F0D08BD090077F9ED /* PS2OS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PS2OS.cpp; path = Source/PS2OS.cpp; sourceTree = "<group>"; };
 		7E8988300D08BD090077F9ED /* PS2OS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PS2OS.h; path = Source/PS2OS.h; sourceTree = "<group>"; };
-		7E8988310D08BD090077F9ED /* RangeList16.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RangeList16.h; path = Source/RangeList16.h; sourceTree = "<group>"; };
 		7E8988370D08BD090077F9ED /* uint128.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uint128.h; path = Source/uint128.h; sourceTree = "<group>"; };
 		7E8988380D08BD090077F9ED /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Utils.cpp; path = Source/Utils.cpp; sourceTree = "<group>"; };
 		7E8988390D08BD090077F9ED /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = Source/Utils.h; sourceTree = "<group>"; };
@@ -378,6 +378,8 @@
 		7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLMacOSX.h; path = Source/macosxui/GSH_OpenGLMacOSX.h; sourceTree = "<group>"; };
 		7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLMacOSX.cpp; path = Source/macosxui/GSH_OpenGLMacOSX.cpp; sourceTree = "<group>"; };
 		7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler_Fpu.cpp; path = Source/X86Assembler_Fpu.cpp; sourceTree = "<group>"; };
+		7EF251B00D83124D00D90D20 /* Iop_PadMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_PadMan.cpp; path = Source/iop/Iop_PadMan.cpp; sourceTree = "<group>"; };
+		7EF251B10D83124D00D90D20 /* Iop_PadMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_PadMan.h; path = Source/iop/Iop_PadMan.h; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Purei.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Purei.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -633,7 +635,6 @@
 				7E8988300D08BD090077F9ED /* PS2OS.h */,
 				7E8987070D08B4640077F9ED /* PS2VM.cpp */,
 				7E8987080D08B4640077F9ED /* PS2VM.h */,
-				7E8988310D08BD090077F9ED /* RangeList16.h */,
 				7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */,
 				7E8BEF0E0D171D6300CBEDE8 /* RegisterStateFile.h */,
 				7E9E4F8A0D4531BE003321D8 /* SIF.cpp */,
@@ -711,6 +712,8 @@
 				7E9E4FA70D4531FF003321D8 /* Iop_Modload.cpp */,
 				7E9E4FA80D4531FF003321D8 /* Iop_Modload.h */,
 				7E9E4FA90D4531FF003321D8 /* Iop_Module.h */,
+				7EF251B00D83124D00D90D20 /* Iop_PadMan.cpp */,
+				7EF251B10D83124D00D90D20 /* Iop_PadMan.h */,
 				7E9E4FAA0D4531FF003321D8 /* Iop_Stdio.cpp */,
 				7E9E4FAB0D4531FF003321D8 /* Iop_Stdio.h */,
 				7E9E4FAC0D4531FF003321D8 /* Iop_Sysclib.cpp */,
@@ -915,6 +918,7 @@
 				7EE1BC880D4D4F9000B502BD /* PH_HidMacOSX.cpp in Sources */,
 				7EE362C20D5FA35800C21032 /* IPU.cpp in Sources */,
 				7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */,
+				7EF251B20D83124D00D90D20 /* Iop_PadMan.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

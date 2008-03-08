@@ -194,3 +194,18 @@ void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, BUTTON nButton, bo
 	pPadData->SetData(0, 0);
 	pPadData->SetData(1, MODE << 4);
 }
+
+template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int) 
+{
+
+}
+
+template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int)
+{
+
+}
+
+template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int)
+{
+
+}

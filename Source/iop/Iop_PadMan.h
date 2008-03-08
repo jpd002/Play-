@@ -167,9 +167,9 @@ namespace Iop
 		static void			PDF_SetButtonState(CPadDataInterface*, BUTTON, bool);
 	};
 
-    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int) { }
-    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int) { }
-    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int) { }
+    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int);
+    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int);
+    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int);
 }
 
 #endif
