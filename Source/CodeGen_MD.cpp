@@ -209,6 +209,56 @@ void CCodeGen::MD_AddH()
     MD_GenericTwoOperand(bind(&CX86Assembler::PaddwVo, m_Assembler, _1, _2));
 }
 
+void CCodeGen::MD_AddWSS()
+{
+    if(FitsPattern<RelativeRelative128>())
+    {
+        RelativeRelative128::PatternValue ops(GetPattern<RelativeRelative128>());
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+
+        {
+            unsigned int tempRegister = AllocateRegister();
+            unsigned int positiveValueRegister = AllocateRegister();
+            unsigned int negativeValueRegister = AllocateRegister();
+
+            //Prepare registers
+            m_Assembler.MovId(m_nRegisterLookupEx[positiveValueRegister],
+                0x7FFFFFFF);
+            m_Assembler.MovId(m_nRegisterLookupEx[negativeValueRegister],
+                0x80000000);
+            for(int i = 3; i >= 0; i--)
+            {
+                CX86Assembler::LABEL doneLabel = m_Assembler.CreateLabel();
+                m_Assembler.MovEd(m_nRegisterLookupEx[tempRegister],
+                    CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first + (i * 4)));
+                m_Assembler.AddEd(m_nRegisterLookupEx[tempRegister],
+                    CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second + (i * 4)));
+                m_Assembler.JnoJb(doneLabel);
+                m_Assembler.CmovsEd(m_nRegisterLookupEx[tempRegister],
+                    CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[negativeValueRegister]));
+                m_Assembler.CmovnsEd(m_nRegisterLookupEx[tempRegister],
+                    CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[positiveValueRegister]));
+                m_Assembler.MarkLabel(doneLabel);
+                m_Assembler.Push(m_nRegisterLookupEx[tempRegister]);
+            }
+
+            FreeRegister(tempRegister);
+            FreeRegister(positiveValueRegister);
+            FreeRegister(negativeValueRegister);
+        }
+        m_Assembler.ResolveLabelReferences();
+        m_Assembler.MovdquVo(resultRegister,
+            CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP));
+        m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP),
+            0x10);
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
 void CCodeGen::MD_AddWUS()
 {
     if(FitsPattern<RelativeRelative128>())

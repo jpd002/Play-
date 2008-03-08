@@ -228,6 +228,18 @@ void CX86Assembler::CallEd(const CAddress& address)
     WriteEvOp(0xFF, 0x02, false, address);
 }
 
+void CX86Assembler::CmovsEd(REGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0x48, false, address, registerId);
+}
+
+void CX86Assembler::CmovnsEd(REGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEvGvOp(0x49, false, address, registerId);
+}
+
 void CX86Assembler::CmpEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x3B, false, address, registerId);
@@ -304,6 +316,13 @@ void CX86Assembler::JmpJb(LABEL label)
 void CX86Assembler::JneJb(LABEL label)
 {
     WriteByte(0x75);
+    CreateLabelReference(label, 1);
+    WriteByte(0x00);
+}
+
+void CX86Assembler::JnoJb(LABEL label)
+{
+    WriteByte(0x71);
     CreateLabelReference(label, 1);
     WriteByte(0x00);
 }

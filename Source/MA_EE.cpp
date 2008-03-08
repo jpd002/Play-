@@ -390,14 +390,10 @@ void CMA_EE::PSUBB()
 //10
 void CMA_EE::PADDSW()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::AddWSS();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_AddWSS();
+    PullVector(m_nRD);
 }
 
 //12

@@ -148,13 +148,13 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
         switch(whence)
         {
         case 0:
-            whence = STREAM_SEEK_SET;
+            whence = Framework::STREAM_SEEK_SET;
             break;
         case 1:
-            whence = STREAM_SEEK_CUR;
+            whence = Framework::STREAM_SEEK_CUR;
             break;
         case 2:
-            whence = STREAM_SEEK_END;
+            whence = Framework::STREAM_SEEK_END;
             break;
         }
 

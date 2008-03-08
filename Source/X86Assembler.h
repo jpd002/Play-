@@ -116,6 +116,8 @@ public:
     void                                    AndIb(const CAddress&, uint8);
     void                                    AndId(const CAddress&, uint32);
     void                                    CallEd(const CAddress&);
+    void                                    CmovsEd(REGISTER, const CAddress&);
+    void                                    CmovnsEd(REGISTER, const CAddress&);
     void                                    CmpEd(REGISTER, const CAddress&);
     void                                    CmpEq(REGISTER, const CAddress&);
     void                                    CmpIb(const CAddress&, uint8);
@@ -130,6 +132,7 @@ public:
     void                                    JeJb(LABEL);
     void                                    JmpJb(LABEL);
     void                                    JneJb(LABEL);
+    void                                    JnoJb(LABEL);
     void                                    LeaGd(REGISTER, const CAddress&);
     void                                    MovEd(REGISTER, const CAddress&);
     void                                    MovEq(REGISTER, const CAddress&);

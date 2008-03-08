@@ -16,57 +16,15 @@
 using namespace Framework;
 using namespace std;
 
-//------------------------------------------------------
-//Some definitions from the DDK (and +)
-//------------------------------------------------------
-
-#pragma pack(push, 4)
-
-typedef enum _STORAGE_QUERY_TYPE 
+const char* GetVendorId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
 {
-	PropertyStandardQuery = 0,
-	PropertyExistsQuery,
-	PropertyMaskQuery,
-	PropertyQueryMaxDefined
-} STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
+    return descriptor->VendorIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->VendorIdOffset : NULL;
+}
 
-typedef enum _STORAGE_PROPERTY_ID
+const char* GetProductId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
 {
-	StorageDeviceProperty = 0,
-	StorageAdapterProperty
-} STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
-
-typedef struct _STORAGE_PROPERTY_QUERY
-{
-	STORAGE_PROPERTY_ID			PropertyId;
-	STORAGE_QUERY_TYPE			QueryType;
-	UCHAR						AdditionalParameters[1];
-} STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
-
-#define IOCTL_STORAGE_QUERY_PROPERTY   CTL_CODE(IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-typedef struct _STORAGE_DEVICE_DESCRIPTOR
-{
-	ULONG						Version;
-	ULONG						Size;
-	UCHAR						DeviceType;
-	UCHAR						DeviceTypeModifier;
-	BOOLEAN						RemovableMedia;
-	BOOLEAN						CommandQueueing;
-	ULONG						VendorIdOffset;
-	ULONG						ProductIdOffset;
-	ULONG						ProductRevisionOffset;
-	ULONG						SerialNumberOffset;
-	STORAGE_BUS_TYPE			BusType;
-	ULONG						RawPropertiesLength;
-	UCHAR						RawDeviceProperties[1];
-	const char* GetVendorId()	{ return VendorIdOffset != 0 ? (char*)this + VendorIdOffset : NULL; }
-	const char* GetProductId()	{ return ProductIdOffset != 0 ? (char*)this + ProductIdOffset : NULL; }
-} STORAGE_DEVICE_DESCRIPTOR, *PSTORAGE_DEVICE_DESCRIPTOR;
-
-#pragma pack(pop)
-
-//------------------------------------------------------
+    return descriptor->ProductIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->ProductIdOffset : NULL;
+}
 
 CCdromSelectionWnd::CCdromSelectionWnd(HWND hParent, const TCHAR* sTitle, CDROMBINDING* pInitBinding) :
 CModalWindow(hParent)
@@ -283,10 +241,10 @@ void CCdromSelectionWnd::PopulateDeviceList()
 			{
 				pDesc = (STORAGE_DEVICE_DESCRIPTOR*)nBuffer;
 
-				_tcsncpy(sVendorId, pDesc->GetVendorId() != NULL ? string_cast<tstring>(pDesc->GetVendorId()).c_str() : _T(""), 256);
-				_tcsncpy(sProductId, pDesc->GetProductId() != NULL ? string_cast<tstring>(pDesc->GetProductId()).c_str() : _T(""), 256);
+				_tcsncpy(sVendorId, GetVendorId(pDesc) != NULL ? string_cast<tstring>(GetVendorId(pDesc)).c_str() : _T(""), 256);
+				_tcsncpy(sProductId, GetProductId(pDesc) != NULL ? string_cast<tstring>(GetProductId(pDesc)).c_str() : _T(""), 256);
 
-				if(pDesc->GetVendorId() != NULL)
+				if(GetVendorId(pDesc) != NULL)
 				{
 					_tcscat(sVendorId, _T(" "));
 				}

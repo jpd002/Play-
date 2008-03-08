@@ -158,6 +158,7 @@ public:
     void                            MD_PushReg(XMMREGISTER);
 
     void                            MD_AddH();
+    void                            MD_AddWSS();
     void                            MD_AddWUS();
     void                            MD_AddS();
     void                            MD_And();
