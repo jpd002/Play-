@@ -807,7 +807,7 @@ void CGSH_OpenGL::Prim_Sprite()
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
 
-	if(m_PrimitiveMode.nAlpha)
+    if(m_PrimitiveMode.nAlpha)
 	{
         glEnable(GL_BLEND);
 	}

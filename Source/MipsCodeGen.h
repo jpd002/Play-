@@ -25,6 +25,7 @@ public:
 
     virtual void        BeginIf(bool);
     virtual void        EndIf();
+    virtual void        BeginIfElse(bool);
     virtual void        BeginIfElseAlt();
 
     virtual void        Call(void*, unsigned int, bool);

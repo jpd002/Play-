@@ -143,10 +143,16 @@ void CPadMan::ExecutePadDataFunction(PadDataFunction Function, void* pBase, size
 	switch(m_nPadDataType)
 	{
 	case 0:
-		Function(&CPadDataHandler<PADDATA>(reinterpret_cast<PADDATA*>(pBase) + nOffset));
+        {
+            CPadDataHandler<PADDATA> padData(reinterpret_cast<PADDATA*>(pBase) + nOffset);
+		    Function(&padData);
+        }
 		break;
 	case 1:
-		Function(&CPadDataHandler<PADDATAEX>(reinterpret_cast<PADDATAEX*>(pBase) + nOffset));
+        {
+            CPadDataHandler<PADDATAEX> padData(reinterpret_cast<PADDATAEX*>(pBase) + nOffset);
+            Function(&padData);
+        }
 		break;
 	}
 }

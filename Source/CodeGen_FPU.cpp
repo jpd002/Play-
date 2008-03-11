@@ -394,19 +394,7 @@ void CCodeGen::FP_Mul()
 
 void CCodeGen::FP_Div()
 {
-    if(FitsPattern<DualFpSingleRelative>())
-    {
-        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
-        m_Assembler.DivssEd(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        FP_PushSingleReg(resultRegister);
-    }
-    else
-    {
-        throw runtime_error("Not implemented.");
-    }
+    FP_GenericTwoOperand(bind(&CX86Assembler::DivssEd, m_Assembler, _1, _2));
 }
 
 void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)

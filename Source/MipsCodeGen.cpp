@@ -147,6 +147,12 @@ void CMipsCodeGen::EndIf()
     CCodeGen::EndIf();
 }
 
+void CMipsCodeGen::BeginIfElse(bool condition)
+{
+    DumpVariables(m_IfStack.GetCount());
+    CCodeGen::BeginIfElse(condition);
+}
+
 void CMipsCodeGen::BeginIfElseAlt()
 {
     assert(m_Shadow.GetCount() == 0);
