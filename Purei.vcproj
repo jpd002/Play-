@@ -417,6 +417,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\IszImageStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\IszImageStream.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Log.cpp"
 				>
 			</File>
