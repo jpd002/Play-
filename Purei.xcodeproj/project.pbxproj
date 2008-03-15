@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		7E19A9980D6C887D00B0C6A6 /* patches.xml in Resources */ = {isa = PBXBuildFile; fileRef = 7E19A9970D6C887D00B0C6A6 /* patches.xml */; };
 		7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */; };
+		7E6F94920D8B4B0D0060B97B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E6F94910D8B4B0D0060B97B /* libbz2.dylib */; };
+		7E6F94C20D8B4B350060B97B /* IszImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6F94C00D8B4B350060B97B /* IszImageStream.cpp */; };
 		7E8987090D08B4640077F9ED /* PS2VM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987070D08B4640077F9ED /* PS2VM.cpp */; };
 		7E8988430D08BD090077F9ED /* BasicBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B20D08BD090077F9ED /* BasicBlock.cpp */; };
 		7E8988440D08BD090077F9ED /* CacheBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B40D08BD090077F9ED /* CacheBlock.cpp */; };
@@ -151,6 +153,9 @@
 		7E19A9970D6C887D00B0C6A6 /* patches.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = patches.xml; sourceTree = "<group>"; };
 		7E47E3210D6DEA15003F7AC1 /* MainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainWindow.h; path = Source/macosxui/MainWindow.h; sourceTree = "<group>"; };
 		7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainWindow.mm; path = Source/macosxui/MainWindow.mm; sourceTree = "<group>"; };
+		7E6F94910D8B4B0D0060B97B /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = /usr/lib/libbz2.dylib; sourceTree = "<absolute>"; };
+		7E6F94C00D8B4B350060B97B /* IszImageStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IszImageStream.cpp; path = Source/IszImageStream.cpp; sourceTree = "<group>"; };
+		7E6F94C10D8B4B350060B97B /* IszImageStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IszImageStream.h; path = Source/IszImageStream.h; sourceTree = "<group>"; };
 		7E8987070D08B4640077F9ED /* PS2VM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PS2VM.cpp; path = Source/PS2VM.cpp; sourceTree = "<group>"; };
 		7E8987080D08B4640077F9ED /* PS2VM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PS2VM.h; path = Source/PS2VM.h; sourceTree = "<group>"; };
 		7E8987B10D08BD090077F9ED /* ArrayStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArrayStack.h; path = Source/ArrayStack.h; sourceTree = "<group>"; };
@@ -398,6 +403,7 @@
 				7EE1BC360D4D4B0600B502BD /* libboost_regex-mt.a in Frameworks */,
 				7EE1BC970D4D512800B502BD /* IOKit.framework in Frameworks */,
 				7EE1BC990D4D513500B502BD /* CoreFoundation.framework in Frameworks */,
+				7E6F94920D8B4B0D0060B97B /* libbz2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,6 +466,7 @@
 		29B97314FDCFA39411CA2CEA /* Purei */ = {
 			isa = PBXGroup;
 			children = (
+				7E6F94910D8B4B0D0060B97B /* libbz2.dylib */,
 				7EE1BC980D4D513500B502BD /* CoreFoundation.framework */,
 				7EE1BC960D4D512800B502BD /* IOKit.framework */,
 				7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */,
@@ -573,6 +580,8 @@
 				7E8987F80D08BD090077F9ED /* IPU_MotionCodeTable.cpp */,
 				7E8987F90D08BD090077F9ED /* IPU_MotionCodeTable.h */,
 				7E898A8B0D08C9760077F9ED /* ISO9660 */,
+				7E6F94C00D8B4B350060B97B /* IszImageStream.cpp */,
+				7E6F94C10D8B4B350060B97B /* IszImageStream.h */,
 				7E8987FB0D08BD090077F9ED /* Log.cpp */,
 				7E8987FC0D08BD090077F9ED /* Log.h */,
 				7E8987FD0D08BD090077F9ED /* LogControl.cpp */,
@@ -919,6 +928,7 @@
 				7EE362C20D5FA35800C21032 /* IPU.cpp in Sources */,
 				7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */,
 				7EF251B20D83124D00D90D20 /* Iop_PadMan.cpp in Sources */,
+				7E6F94C20D8B4B350060B97B /* IszImageStream.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
