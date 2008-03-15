@@ -17,5 +17,6 @@ CIsoDevice::~CIsoDevice()
 CStream* CIsoDevice::GetFile(uint32 mode, const char* devicePath)
 {
 	if(mode != O_RDONLY) return NULL;
+    if(m_iso == NULL) return NULL;
 	return m_iso->Open(devicePath);
 }

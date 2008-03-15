@@ -263,10 +263,8 @@ void CCdromSelectionWnd::PopulateDeviceList()
 void CCdromSelectionWnd::SelectImage()
 {
 	Win32::CFileDialog Dialog;
-	CISO9660* pISO;
-	CStdStream* pStream;
 
-	Dialog.m_OFN.lpstrFilter = _T("ISO9660 Disk Images (*.iso; *.bin)\0*.iso;*.bin\0All files (*.*)\0*.*\0");
+	Dialog.m_OFN.lpstrFilter = _T("ISO9660 Disk Images (*.iso; *.bin)\0*.iso;*.bin\0UltraISO Compressed Disk Images (*.isz)\0*.isz\0All files (*.*)\0*.*\0");
 
 	if(Dialog.Summon(m_hWnd) != IDOK)
 	{
@@ -274,10 +272,11 @@ void CCdromSelectionWnd::SelectImage()
 	}
 
     string sPath(string_cast<string>(Dialog.m_sFile));
-
+/*
+	CStdStream* pStream;
 	try
 	{
-		pStream = new CStdStream(fopen(sPath.c_str(), "rb"));
+        pStream = new CStdStream(fopen(sPath.c_str(), "rb"));
 	}
 	catch(...)
 	{
@@ -285,7 +284,8 @@ void CCdromSelectionWnd::SelectImage()
 		return;
 	}
 
-	try
+	CISO9660* pISO;
+    try
 	{
 		pISO = new CISO9660(pStream);
 	}
@@ -297,6 +297,6 @@ void CCdromSelectionWnd::SelectImage()
 	}
 
 	delete pISO;
-
+*/
 	m_sImagePath = sPath.c_str();
 }

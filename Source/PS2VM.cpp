@@ -18,6 +18,8 @@
 #else
 #include "Posix_VolumeStream.h"
 #endif
+#include "stricmp.h"
+#include "IszImageStream.h"
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
 #include "Config.h"
@@ -496,28 +498,44 @@ void CPS2VM::CDROM0_Reset()
 
 void CPS2VM::CDROM0_Mount(const char* sPath)
 {
-	CStream* pStream;
-
 	//Check if there's an m_pCDROM0 already
 	//Check if files are linked to this m_pCDROM0 too and do something with them
 
-	if(strlen(sPath) != 0)
+    size_t pathLength = strlen(sPath);
+	if(pathLength != 0)
 	{
 		try
 		{
+	        CStream* pStream(NULL);
+            const char* extension = "";
+            if(pathLength >= 4)
+            {
+                extension = sPath + pathLength - 4;
+            }
+
 			//Gotta think of something better than that...
+            if(!stricmp(extension, ".isz"))
+            {
+                pStream = new CIszImageStream(new CStdStream(sPath, "rb"));
+            }
 #ifdef WIN32
-			if(sPath[0] == '\\')
-			{
-				pStream = new Win32::CVolumeStream(sPath[4]);
-			}
-			else
-			{
-				pStream = new CStdStream(fopen(sPath, "rb"));
-			}
+            else if(sPath[0] == '\\')
+            {
+	            pStream = new Win32::CVolumeStream(sPath[4]);
+            }
 #else
-			pStream = new Posix::CVolumeStream(sPath);
+            else
+            {
+			    pStream = new Posix::CVolumeStream(sPath);
+            }
 #endif
+
+            //If it's null after all that, just feed it to a StdStream
+            if(pStream == NULL)
+            {
+                pStream = new CStdStream(sPath, "rb");
+            }
+
 			m_pCDROM0 = new CISO9660(pStream);
 		}
 		catch(const exception& Exception)
