@@ -47,9 +47,9 @@ namespace VUShared
 	void				MADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MADDAi(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				MAX(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
-	void				MAXbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
+	void				MAXbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MINI(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
-	void				MINIbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
+	void				MINIbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MINIi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MOVE(CCodeGen*, uint8, uint8, uint8);
 	void				MR32(CCodeGen*, uint8, uint8, uint8);
@@ -69,7 +69,7 @@ namespace VUShared
 	void				RXOR(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				SQRT(CCodeGen*, uint8, uint8);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				SUBbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8, uint8);
+	void				SUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				SUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 
 	//Shared addressing modes

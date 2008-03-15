@@ -374,9 +374,19 @@ void CCodeGen::MD_MaxH()
     MD_GenericTwoOperand(bind(&CX86Assembler::PmaxswVo, m_Assembler, _1, _2));
 }
 
+void CCodeGen::MD_MaxS()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::MaxpsVo, m_Assembler, _1, _2));
+}
+
 void CCodeGen::MD_MinH()
 {
     MD_GenericTwoOperand(bind(&CX86Assembler::PminswVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_MinS()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::MinpsVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_MulS()

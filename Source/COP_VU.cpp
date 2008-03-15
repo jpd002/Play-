@@ -201,7 +201,7 @@ void CCOP_VU::VADDbc()
 //04
 void CCOP_VU::VSUBbc()
 {
-	VUShared::SUBbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //0B
@@ -213,13 +213,13 @@ void CCOP_VU::VMADDbc()
 //10
 void CCOP_VU::VMAXbc()
 {
-	VUShared::MAXbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    VUShared::MAXbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //14
 void CCOP_VU::VMINIbc()
 {
-	VUShared::MINIbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    VUShared::MINIbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //18

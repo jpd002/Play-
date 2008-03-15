@@ -247,6 +247,8 @@ public:
     void                                    Cvttss2siEd(REGISTER, const CAddress&);
 
     void                                    AddpsVo(XMMREGISTER, const CAddress&);
+    void                                    MaxpsVo(XMMREGISTER, const CAddress&);
+    void                                    MinpsVo(XMMREGISTER, const CAddress&);
     void                                    MulpsVo(XMMREGISTER, const CAddress&);
     void                                    SubpsVo(XMMREGISTER, const CAddress&);
     void                                    ShufpsVo(XMMREGISTER, const CAddress&, uint8);

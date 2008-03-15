@@ -70,7 +70,8 @@ void CMA_VU::CUpper::ADDbc()
 //07
 void CMA_VU::CUpper::SUBbc()
 {
-	VUShared::SUBbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    throw new runtime_error("Reimplement.");
+//	VUShared::SUBbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //08
@@ -89,7 +90,8 @@ void CMA_VU::CUpper::MADDbc()
 //13
 void CMA_VU::CUpper::MAXbc()
 {
-	VUShared::MAXbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MAXbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //14
@@ -98,7 +100,8 @@ void CMA_VU::CUpper::MAXbc()
 //17
 void CMA_VU::CUpper::MINIbc()
 {
-	VUShared::MINIbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MINIbc(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //18

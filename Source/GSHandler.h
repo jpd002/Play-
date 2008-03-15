@@ -232,6 +232,7 @@ public:
 	virtual									~CGSHandler();
 
 	void									Reset();
+    unsigned int                            GetFrameCount() const;
 
 	virtual void							SaveState(CZipArchiveWriter&);
 	virtual void							LoadState(CZipArchiveReader&);

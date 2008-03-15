@@ -205,6 +205,18 @@ void CX86Assembler::Cvttps2dqVo(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0x5B, address, registerId);
 }
 
+void CX86Assembler::MaxpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5F, address, registerId);
+}
+
+void CX86Assembler::MinpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5D, address, registerId);
+}
+
 void CX86Assembler::MulpsVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x0F);

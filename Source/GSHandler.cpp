@@ -191,6 +191,11 @@ void CGSHandler::Reset()
     m_nCrtIsFrameMode = false;
 }
 
+unsigned int CGSHandler::GetFrameCount() const
+{
+    return m_frameCount;
+}
+
 void CGSHandler::SaveState(CZipArchiveWriter& archive)
 {
     archive.InsertFile(new CMemoryStateFile(STATE_RAM,      m_pRAM,     RAMSIZE));

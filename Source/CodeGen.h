@@ -166,7 +166,9 @@ public:
     void                            MD_IsNegative();
     void                            MD_IsZero();
     void                            MD_MaxH();
+    void                            MD_MaxS();
     void                            MD_MinH();
+    void                            MD_MinS();
     void                            MD_MulS();
     void                            MD_Not();
     void                            MD_Or();
