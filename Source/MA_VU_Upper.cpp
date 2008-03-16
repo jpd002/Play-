@@ -181,7 +181,8 @@ void CMA_VU::CUpper::MUL()
 //2B
 void CMA_VU::CUpper::MAX()
 {
-	VUShared::MAX(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+    throw new runtime_error("Reimplement.");
+//	VUShared::MAX(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //2C
@@ -253,7 +254,8 @@ void CMA_VU::CUpper::MULAbc()
 //04
 void CMA_VU::CUpper::ITOF0()
 {
-	VUShared::ITOF0(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+    throw new runtime_error("Reimplement.");
+//	VUShared::ITOF0(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
 }
 
 //05

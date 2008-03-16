@@ -74,9 +74,8 @@ uint32 CGIF::ProcessPacked(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 				break;
 			case 0x02:
 				//ST
-                throw exception();
 				m_nQTemp = nPacket.nV2;
-				m_gs->WriteRegister(GS_REG_ST, nPacket.nD0);
+                g_writeList.push_back(CGSHandler::RegisterWrite(GS_REG_ST, nPacket.nD0));
 				break;
 			case 0x03:
 				//UV

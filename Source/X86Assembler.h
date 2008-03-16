@@ -210,7 +210,8 @@ public:
     void                                    MovdquVo(XMMREGISTER, const CAddress&);
     void                                    MovapsVo(const CAddress&, XMMREGISTER);
     void                                    MovapsVo(XMMREGISTER, const CAddress&);
-    void                                    Packuswb(XMMREGISTER, const CAddress&);
+    void                                    PackssdwVo(XMMREGISTER, const CAddress&);
+    void                                    PackuswbVo(XMMREGISTER, const CAddress&);
     void                                    PaddwVo(XMMREGISTER, const CAddress&);
     void                                    PandVo(XMMREGISTER, const CAddress&);
     void                                    PandnVo(XMMREGISTER, const CAddress&);
@@ -222,6 +223,7 @@ public:
     void                                    PsllwVo(XMMREGISTER, uint8);
     void                                    PslldVo(XMMREGISTER, uint8);
     void                                    PsrawVo(XMMREGISTER, uint8);
+    void                                    PsradVo(XMMREGISTER, uint8);
     void                                    PsrlwVo(XMMREGISTER, uint8);
     void                                    PsrldVo(XMMREGISTER, uint8);
     void                                    PsubbVo(XMMREGISTER, const CAddress&);
@@ -243,8 +245,9 @@ public:
     void                                    SqrtssEd(XMMREGISTER, const CAddress&);
     void                                    CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
     void                                    Cvtsi2ssEd(XMMREGISTER, const CAddress&);
-    void                                    Cvttps2dqVo(XMMREGISTER, const CAddress&);
     void                                    Cvttss2siEd(REGISTER, const CAddress&);
+    void                                    Cvtdq2psVo(XMMREGISTER, const CAddress&);
+    void                                    Cvttps2dqVo(XMMREGISTER, const CAddress&);
 
     void                                    AddpsVo(XMMREGISTER, const CAddress&);
     void                                    MaxpsVo(XMMREGISTER, const CAddress&);

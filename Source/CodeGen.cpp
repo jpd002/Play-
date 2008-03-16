@@ -1,6 +1,5 @@
 #include <assert.h>
 #include "CodeGen.h"
-#include "CodeGen_VUI128.h"
 #include "CodeGen_VUF128.h"
 #include "CodeGen_FPU.h"
 #include "PtrMacro.h"
@@ -121,7 +120,6 @@ void CCodeGen::Begin(CCacheBlock* pBlock)
 	m_nBlockStarted = true;
 
 	CodeGen::CFPU::Begin(pBlock);
-	CodeGen::CVUI128::Begin(pBlock);
 	CodeGen::CVUF128::Begin(pBlock);
 
 	m_Shadow.Reset();
@@ -144,7 +142,6 @@ void CCodeGen::End()
 	m_nBlockStarted = false;
 
 	CodeGen::CFPU::End();
-	CodeGen::CVUI128::End();
 	CodeGen::CVUF128::End();
 }
 

@@ -40,15 +40,15 @@ namespace VUShared
 	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
 	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
-	void				ITOF0(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				ITOF0(CCodeGen*, uint8, uint8, uint8);
 	void				MADD(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				MADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MADDA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MADDAi(CCacheBlock*, CMIPS*, uint8, uint8);
-	void				MAX(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				MAX(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MAXbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MINI(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				MINI(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MINIbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MINIi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MOVE(CCodeGen*, uint8, uint8, uint8);

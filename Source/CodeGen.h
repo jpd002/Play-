@@ -162,6 +162,7 @@ public:
     void                            MD_AddWUS();
     void                            MD_AddS();
     void                            MD_And();
+    void                            MD_CmpEqW();
     void                            MD_CmpGtH();
     void                            MD_IsNegative();
     void                            MD_IsZero();
@@ -173,6 +174,7 @@ public:
     void                            MD_Not();
     void                            MD_Or();
     void                            MD_PackHB();
+    void                            MD_PackWH();
     void                            MD_SllH(uint8);
     void                            MD_SraH(uint8);
     void                            MD_SrlH(uint8);
@@ -180,6 +182,7 @@ public:
     void                            MD_SubB();
     void                            MD_SubW();
     void                            MD_SubS();
+    void                            MD_ToSingle();
     void                            MD_ToWordTruncate();
     void                            MD_UnpackLowerBH();
     void                            MD_UnpackLowerHW();
@@ -325,6 +328,7 @@ private:
     void                            FP_GenericTwoOperand(const MdTwoOperandFunction&);
 
     void                            MD_GenericPackedShift(const PackedShiftFunction&, uint8);
+    void                            MD_GenericOneOperand(const MdTwoOperandFunction&);
     void                            MD_GenericTwoOperand(const MdTwoOperandFunction&);
     void                            MD_GenericTwoOperandReversed(const MdTwoOperandFunction&);
 

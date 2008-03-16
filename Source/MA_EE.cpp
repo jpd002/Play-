@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include "MA_EE.h"
-#include "CodeGen_VUI128.h"
 #include "MIPS.h"
 #include "MipsCodeGen.h"
 #include "PS2OS.h"
@@ -9,9 +8,6 @@
 using namespace CodeGen;
 using namespace std;
 using namespace std::tr1;
-
-//CCacheBlock::CVUI128::PushImm(0xA3A2A1A0, 0xA7A6A5A4, 0xABAAA9A8, 0xAFAEADAC);
-//CCacheBlock::CVUI128::PushImm(0xB3B2B1B0, 0xB7B6B5B4, 0xBBBAB9B8, 0xBFBEBDBC);
 
 CMA_EE g_MAEE;
 
@@ -417,14 +413,10 @@ void CMA_EE::PEXTLH()
 //17
 void CMA_EE::PPACH()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::PackWH();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_PackWH();
+    PullVector(m_nRD);
 }
 
 //1A
@@ -484,14 +476,10 @@ void CMA_EE::PEXT5()
 //02
 void CMA_EE::PCEQW()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		PushVector(m_nRS);
-		PushVector(m_nRT);
-		CVUI128::CmpEqW();
-		PullVector(m_nRD);
-	}
-	CCodeGen::End();
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_CmpEqW();
+    PullVector(m_nRD);
 }
 
 //07

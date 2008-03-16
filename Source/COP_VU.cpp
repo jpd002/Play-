@@ -256,7 +256,7 @@ void CCOP_VU::VMUL()
 //2B
 void CCOP_VU::VMAX()
 {
-	VUShared::MAX(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MAX(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //2C
@@ -274,7 +274,7 @@ void CCOP_VU::VOPMSUB()
 //2F
 void CCOP_VU::VMINI()
 {
-	VUShared::MINI(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MINI(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //3C
@@ -324,7 +324,7 @@ void CCOP_VU::VMADDAbc()
 //04
 void CCOP_VU::VITOF0()
 {
-	VUShared::ITOF0(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+	VUShared::ITOF0(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
 //05

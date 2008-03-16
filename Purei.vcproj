@@ -229,14 +229,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\CodeGen_VUI128.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CodeGen_VUI128.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Config.cpp"
 				>
 			</File>
