@@ -42,7 +42,7 @@ uint32 CINTC::GetRegister(uint32 nAddress)
 	switch(nAddress)
 	{
 	case 0x1000F000:
-		return m_INTC_STAT;
+		return m_INTC_STAT | 0x04;
 		break;
 	case 0x1000F010:
 		return m_INTC_MASK;
