@@ -3,7 +3,7 @@
 
 #include "PathTableRecord.h"
 #include "Types.h"
-#include "List.h"
+#include <map>
 
 namespace ISO9660
 {
@@ -14,13 +14,14 @@ namespace ISO9660
 											CPathTable(Framework::CStream*, uint32);
 											~CPathTable();
 
-		unsigned int						FindRoot();
-		unsigned int						FindDirectory(const char*, unsigned int);
-		uint32								GetDirectoryAddress(unsigned int);
+		unsigned int						FindRoot() const;
+		unsigned int						FindDirectory(const char*, unsigned int) const;
+		uint32								GetDirectoryAddress(unsigned int) const;
 
 	private:
-		Framework::CList<CPathTableRecord>	m_Record;
+        typedef std::map<size_t, CPathTableRecord> RecordMapType;
 
+        RecordMapType                       m_records;
 	};
 
 }

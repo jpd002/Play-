@@ -1,22 +1,26 @@
 #include <stdlib.h>
 #include "PathTableRecord.h"
 #include "PtrMacro.h"
+#include "alloca_def.h"
 
 using namespace Framework;
 using namespace ISO9660;
 
 CPathTableRecord::CPathTableRecord(CStream* pStream)
 {
-	pStream->Read(&m_nNameLenght, 1);
-	pStream->Read(&m_nExLenght, 1);
+	pStream->Read(&m_nNameLength, 1);
+	pStream->Read(&m_nExLength, 1);
 	pStream->Read(&m_nLocation, 4);
 	pStream->Read(&m_nParentDir, 2);
 
-	m_sDirectory = (char*)malloc(m_nNameLenght + 1);
-	pStream->Read(m_sDirectory, m_nNameLenght);
-	m_sDirectory[m_nNameLenght] = 0;
+    {
+        char* directoryTemp = reinterpret_cast<char*>(alloca(m_nNameLength + 1));
+	    pStream->Read(directoryTemp, m_nNameLength);
+	    directoryTemp[m_nNameLength] = 0;
+        m_sDirectory = directoryTemp;
+    }
 
-	if(m_nNameLenght & 1)
+	if(m_nNameLength & 1)
 	{
 		pStream->Seek(1, STREAM_SEEK_CUR);
 	}
@@ -24,12 +28,12 @@ CPathTableRecord::CPathTableRecord(CStream* pStream)
 
 CPathTableRecord::~CPathTableRecord()
 {
-	FREEPTR(m_sDirectory);
+
 }
 
-uint8 CPathTableRecord::GetNameLenght() const
+uint8 CPathTableRecord::GetNameLength() const
 {
-	return m_nNameLenght;
+	return m_nNameLength;
 }
 
 uint32 CPathTableRecord::GetAddress() const
@@ -44,5 +48,5 @@ uint32 CPathTableRecord::GetParentRecord() const
 
 const char* CPathTableRecord::GetName() const
 {
-	return m_sDirectory;
+	return m_sDirectory.c_str();
 }

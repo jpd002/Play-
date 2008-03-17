@@ -8,18 +8,18 @@
 
 using namespace Framework;
 using namespace ISO9660;
+using namespace std;
 
-CISO9660::CISO9660(CStream* pStream)
+CISO9660::CISO9660(CStream* pStream) :
+m_pStream(pStream),
+m_volumeDescriptor(pStream),
+m_pathTable(pStream, m_volumeDescriptor.GetLPathTableAddress())
 {
-	m_pStream = pStream;
-	m_pVolumeDescriptor = new CVolumeDescriptor(pStream);
-	m_pPathTable = new CPathTable(pStream, m_pVolumeDescriptor->GetLPathTableAddress());
+
 }
 
 CISO9660::~CISO9660()
 {
-	DELETEPTR(m_pVolumeDescriptor);
-	DELETEPTR(m_pPathTable);
 	DELETEPTR(m_pStream);
 }
 
@@ -33,15 +33,13 @@ void CISO9660::ReadBlock(uint32 nAddress, void* pData)
 bool CISO9660::GetFileRecord(CDirectoryRecord* pRecord, const char* sFilename)
 {
 	const char* sNext;
-	char sDir[257];
 	unsigned int nRecord;
 	unsigned int nAddress;
-	size_t nLenght;
 
 	//Remove the first '/'
 	if(sFilename[0] == '/' || sFilename[0] == '\\') sFilename++;
 
-	nRecord = m_pPathTable->FindRoot();
+	nRecord = m_pathTable.FindRoot();
 
 	while(1)
 	{
@@ -49,11 +47,10 @@ bool CISO9660::GetFileRecord(CDirectoryRecord* pRecord, const char* sFilename)
 		sNext = strchr(sFilename, '/');
 		if(sNext == NULL) break;
 
-		nLenght = sNext - sFilename;
-		strncpy(sDir, sFilename, nLenght);
-		sDir[nLenght] = 0x00;
+		size_t nLength = sNext - sFilename;
+        string sDir(sFilename, sFilename + nLength);
 
-		nRecord = m_pPathTable->FindDirectory(sDir, nRecord);
+		nRecord = m_pathTable.FindDirectory(sDir.c_str(), nRecord);
 		if(nRecord == 0)
 		{
 			return false;
@@ -62,7 +59,7 @@ bool CISO9660::GetFileRecord(CDirectoryRecord* pRecord, const char* sFilename)
 		sFilename = sNext + 1;
 	}
 
-	nAddress = m_pPathTable->GetDirectoryAddress(nRecord);
+	nAddress = m_pathTable.GetDirectoryAddress(nRecord);
 
 	return GetFileRecordFromDirectory(pRecord, nAddress, sFilename);
 }

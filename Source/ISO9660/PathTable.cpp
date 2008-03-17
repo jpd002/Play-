@@ -5,78 +5,66 @@
 
 using namespace Framework;
 using namespace ISO9660;
+using namespace std;
 
 CPathTable::CPathTable(CStream* pStream, uint32 nAddress)
 {
-	CPathTableRecord* pRecord;
 	pStream->Seek(nAddress * 0x800, STREAM_SEEK_SET);
 
 	while(1)
 	{
-		pRecord = new CPathTableRecord(pStream);
-		if(pRecord->GetNameLenght() == 0)
+        CPathTableRecord record(pStream);
+		if(record.GetNameLength() == 0)
 		{
-			DELETEPTR(pRecord);
 			break;
 		}
-		m_Record.Insert(pRecord, m_Record.Count());
+        m_records.insert(RecordMapType::value_type(m_records.size(), record));
 	}
 }
 
 CPathTable::~CPathTable()
 {
-	while(m_Record.Count())
-	{
-		delete m_Record.Pull();
-	}
+
 }
 
-uint32 CPathTable::GetDirectoryAddress(unsigned int nRecord)
+uint32 CPathTable::GetDirectoryAddress(unsigned int nRecord) const
 {
-	CPathTableRecord* pRecord;
-
 	nRecord--;
-	assert(nRecord < m_Record.Count());
+    RecordMapType::const_iterator recordIterator(m_records.find(nRecord));
 
-	pRecord = m_Record.Find(nRecord);
-	return pRecord->GetAddress();
+    if(recordIterator == m_records.end())
+    {
+        throw exception();
+    }
+    const CPathTableRecord& record(recordIterator->second);
+	return record.GetAddress();
 }
 
-unsigned int CPathTable::FindRoot()
+unsigned int CPathTable::FindRoot() const
 {
-	unsigned int nCount, i;
-	CPathTableRecord* pRecord;
+    for(RecordMapType::const_iterator recordIterator(m_records.begin());
+        m_records.end() != recordIterator; recordIterator++)
+    {
+        const CPathTableRecord& record(recordIterator->second);
+        if(record.GetNameLength() == 1)
+        {
+            return static_cast<unsigned int>(recordIterator->first) + 1;
+        }
+    }
 
-	nCount = m_Record.Count();
-	for(i = 0; i < nCount; i++)
-	{
-		pRecord = m_Record.Find(i);
-		if(pRecord == NULL) continue;
-		if(pRecord->GetNameLenght() == 1) break;
-	}
-
-	return i + 1;
+    return 0;
 }
 
-unsigned int CPathTable::FindDirectory(const char* sName, unsigned int nParent)
+unsigned int CPathTable::FindDirectory(const char* sName, unsigned int nParent) const
 {
-	unsigned int nCount, i;
-	CPathTableRecord* pRecord;
+    for(RecordMapType::const_iterator recordIterator(m_records.begin());
+        m_records.end() != recordIterator; recordIterator++)
+    {
+        const CPathTableRecord& record(recordIterator->second);
+        if(record.GetParentRecord() != nParent) continue;
+		if(stricmp(sName, record.GetName())) continue;
+        return static_cast<unsigned int>(recordIterator->first) + 1;
+    }
 
-	nCount = m_Record.Count();
-	for(i = 0; i < nCount; i++)
-	{
-		pRecord = m_Record.Find(i);
-		if(pRecord == NULL) continue;
-		if(nParent != pRecord->GetParentRecord()) continue;
-		if(stricmp(sName, pRecord->GetName())) continue;
-		break;
-	}
-
-	if(i == nCount) 
-	{
-		return 0;
-	}
-
-	return i + 1;
+    return 0;
 }

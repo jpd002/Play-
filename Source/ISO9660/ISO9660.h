@@ -10,26 +10,25 @@
 class CISO9660
 {
 public:
-								CISO9660(Framework::CStream*);
-								~CISO9660();
+                                CISO9660(Framework::CStream*);
+                                ~CISO9660();
 
-	void						ReadBlock(uint32, void*);
+    void                        ReadBlock(uint32, void*);
 
-	Framework::CStream*			Open(const char*);
-	bool						GetFileRecord(ISO9660::CDirectoryRecord*, const char*);
+    Framework::CStream*         Open(const char*);
+    bool                        GetFileRecord(ISO9660::CDirectoryRecord*, const char*);
 
-	enum BLOCKSIZE
-	{
-		BLOCKSIZE = 0x800
-	};
+    enum BLOCKSIZE
+    {
+        BLOCKSIZE = 0x800
+    };
 
 private:
-	bool						GetFileRecordFromDirectory(ISO9660::CDirectoryRecord*, uint32, const char*);
+    bool                        GetFileRecordFromDirectory(ISO9660::CDirectoryRecord*, uint32, const char*);
 
-	ISO9660::CVolumeDescriptor*	m_pVolumeDescriptor;
-	ISO9660::CPathTable*		m_pPathTable;
-	Framework::CStream*			m_pStream;
-
+    ISO9660::CVolumeDescriptor  m_volumeDescriptor;
+    ISO9660::CPathTable         m_pathTable;
+    Framework::CStream*         m_pStream;
 };
 
 #endif
