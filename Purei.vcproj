@@ -337,10 +337,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\HashTable.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\INTC.cpp"
 				>
 			</File>
