@@ -225,7 +225,7 @@ CVFSManagerWnd::CDirectoryDevice::CDirectoryDevice(const char* sName, const char
 {
 	m_sName			= sName;
 	m_sPreference	= sPreference;
-	m_sValue		= CConfig::GetInstance()->GetPreferenceString(m_sPreference);
+	m_sValue		= CConfig::GetInstance().GetPreferenceString(m_sPreference);
 }
 
 CVFSManagerWnd::CDirectoryDevice::~CDirectoryDevice()
@@ -284,7 +284,7 @@ bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
 
 void CVFSManagerWnd::CDirectoryDevice::Save()
 {
-	CConfig::GetInstance()->SetPreferenceString(m_sPreference, m_sValue);
+	CConfig::GetInstance().SetPreferenceString(m_sPreference, m_sValue);
 }
 
 int CVFSManagerWnd::CDirectoryDevice::BrowseCallback(HWND hFrom, unsigned int nMsg, LPARAM lParam, LPARAM pData)
@@ -312,7 +312,7 @@ CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 	const char* sPath;
 	char sDevicePath[32];
 
-	sPath = CConfig::GetInstance()->GetPreferenceString(CDROM0PATH);
+	sPath = CConfig::GetInstance().GetPreferenceString(CDROM0PATH);
 	
 	//Detect the binding type from the path format
 	if(!strcmp(sPath, ""))
@@ -409,11 +409,11 @@ void CVFSManagerWnd::CCdrom0Device::Save()
 
 	if(m_nBindingType == CCdromSelectionWnd::BINDING_IMAGE)
 	{
-		CConfig::GetInstance()->SetPreferenceString(CDROM0PATH, m_sImagePath);
+		CConfig::GetInstance().SetPreferenceString(CDROM0PATH, m_sImagePath);
 	}
 	if(m_nBindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
 	{
 		sprintf(sDevicePath, "\\\\.\\%c:", ((const char*)m_sDevicePath)[0]);
-		CConfig::GetInstance()->SetPreferenceString(CDROM0PATH, sDevicePath);
+		CConfig::GetInstance().SetPreferenceString(CDROM0PATH, sDevicePath);
 	}
 }

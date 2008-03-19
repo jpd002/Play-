@@ -92,9 +92,9 @@ m_gif(m_pGS, m_pRAM, m_pSPR),
 m_sif(m_dmac, m_pRAM),
 m_intc(m_dmac)
 {
-	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
-	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
-	CConfig::GetInstance()->RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
+	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
+	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
+	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
 
     m_iopOs = new CIopBios(0x100, m_iop, m_iopRam, PS2::IOPRAMSIZE, m_sif, m_pCDROM0);
     m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
@@ -486,14 +486,14 @@ void CPS2VM::DestroyPadHandlerImpl()
 
 void CPS2VM::CDROM0_Initialize()
 {
-	CConfig::GetInstance()->RegisterPreferenceString("ps2.cdrom0.path", "");
+	CConfig::GetInstance().RegisterPreferenceString("ps2.cdrom0.path", "");
 	m_pCDROM0 = NULL;
 }
 
 void CPS2VM::CDROM0_Reset()
 {
 	DELETEPTR(m_pCDROM0);
-	CDROM0_Mount(CConfig::GetInstance()->GetPreferenceString("ps2.cdrom0.path"));
+	CDROM0_Mount(CConfig::GetInstance().GetPreferenceString("ps2.cdrom0.path"));
 }
 
 void CPS2VM::CDROM0_Mount(const char* sPath)
@@ -544,7 +544,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 		}
 	}
 
-	CConfig::GetInstance()->SetPreferenceString("ps2.cdrom0.path", sPath);
+	CConfig::GetInstance().SetPreferenceString("ps2.cdrom0.path", sPath);
 }
 
 void CPS2VM::CDROM0_Destroy()

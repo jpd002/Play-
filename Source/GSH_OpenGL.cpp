@@ -12,10 +12,10 @@ CGSH_OpenGL::CGSH_OpenGL()
 {
 	m_pCvtBuffer = NULL;
 
-	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
-	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
-	CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
-    CConfig::GetInstance()->RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
+	CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
+	CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
+	CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
+    CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
 	LoadSettings();
 }
@@ -46,10 +46,10 @@ void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
 
 void CGSH_OpenGL::LoadSettings()
 {
-	m_nLinesAsQuads				= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
-	m_nForceBilinearTextures	= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_nForceFlippingVSync		= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
-    m_fixSmallZValues           = CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
+	m_nLinesAsQuads				= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
+	m_nForceBilinearTextures	= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	m_nForceFlippingVSync		= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
+    m_fixSmallZValues           = CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
 
 void CGSH_OpenGL::InitializeRC()

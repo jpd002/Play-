@@ -18,8 +18,8 @@ using namespace std;
 
 CMcManagerWnd::CMcManagerWnd(HWND hParent) :
 CModalWindow(hParent),
-m_MemoryCard0(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.mc0.directory"), filesystem::native)),
-m_MemoryCard1(filesystem::path(CConfig::GetInstance()->GetPreferenceString("ps2.mc1.directory"), filesystem::native))
+m_MemoryCard0(filesystem::path(CConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"), filesystem::native)),
+m_MemoryCard1(filesystem::path(CConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"), filesystem::native))
 {
 	RECT rc;
 

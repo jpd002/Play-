@@ -22,7 +22,7 @@ CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* devicePath)
 	const char* mode(NULL);
     string path;
 
-	const char* basePath = CConfig::GetInstance()->GetPreferenceString(m_basePathPreferenceName.c_str());
+	const char* basePath = CConfig::GetInstance().GetPreferenceString(m_basePathPreferenceName.c_str());
 
     path = basePath;
 	if(devicePath[0] != '/')

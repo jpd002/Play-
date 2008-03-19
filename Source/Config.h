@@ -3,11 +3,12 @@
 
 #include <string>
 #include <boost/thread.hpp>
+#include <boost/utility.hpp>
 #include "Singleton.h"
 #include <map>
 #include "xml/Node.h"
 
-class CConfig : public CSingleton<CConfig>
+class CConfig : public CSingleton<CConfig>, boost::noncopyable
 {
 public:
     friend class CSingleton<CConfig>;

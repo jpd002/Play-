@@ -149,7 +149,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 	try
 	{
-		Path = filesystem::path(CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
+		Path = filesystem::path(CConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
 		Path /= pCmd->sName;
 	}
 	catch(const exception& Exception)
@@ -266,7 +266,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	try
 	{
-		filesystem::path McPath(CConfig::GetInstance()->GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
+		filesystem::path McPath(CConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
 		McPath = filesystem::complete(McPath);
 
 		if(filesystem::exists(McPath))

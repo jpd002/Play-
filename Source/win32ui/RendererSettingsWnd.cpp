@@ -50,9 +50,9 @@ CModalWindow(hParent)
 	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
 	pSubLayout0->SetVerticalStretch(0);
 
-	m_nLinesAsQuads				= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
-	m_nForceBilinearTextures	= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_nForceFlippingVSync		= CConfig::GetInstance()->GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
+	m_nLinesAsQuads				= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
+	m_nForceBilinearTextures	= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	m_nForceFlippingVSync		= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
 
 	m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
 	m_pLineCheck->SetCheck(m_nLinesAsQuads);
@@ -184,9 +184,9 @@ void CRendererSettingsWnd::UpdateExtList()
 
 void CRendererSettingsWnd::Save()
 {
-	CConfig::GetInstance()->SetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, m_nLinesAsQuads);
-	CConfig::GetInstance()->SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
-	CConfig::GetInstance()->SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, m_nForceFlippingVSync);
+	CConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, m_nLinesAsQuads);
+	CConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
+	CConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, m_nForceFlippingVSync);
 }
 
 bool CRendererSettingsWnd::ProcessCheckBoxMessage(HWND hSender, Win32::CButton* pCheckBox, bool* pFlag)
