@@ -12,7 +12,6 @@
 #include "MailBox.h"
 #include "GSHandler.h"
 #include "PadHandler.h"
-#include "LogControl.h"
 #include "iso9660/ISO9660.h"
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
@@ -105,8 +104,6 @@ public:
     unsigned int				m_nVBlankTicks;
     bool						m_nInVBlank;
     bool                        m_singleStep;
-
-	CLogControl				    m_Logging;
 
 	CISO9660*				    m_pCDROM0;
 

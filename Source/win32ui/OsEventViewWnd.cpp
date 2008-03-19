@@ -6,7 +6,6 @@
 #include "win32/Rect.h"
 #include "xml/FilteringNodeIterator.h"
 #include "xml/Utils.h"
-#include "../OsEventManager.h"
 #include "../PS2VM.h"
 #include "resource.h"
 
@@ -132,7 +131,7 @@ long COsEventViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
 void COsEventViewWnd::Update()
 {
 	m_ListItems.clear();
-
+/*
 	Xml::CNode* pRootNode;
 
 	pRootNode = COsEventManager::GetInstance().GetEvents();
@@ -171,6 +170,7 @@ void COsEventViewWnd::Update()
 	{
 		m_pList->SetItemCount(0);
 	}
+*/
 }
 
 void COsEventViewWnd::RefreshLayout()

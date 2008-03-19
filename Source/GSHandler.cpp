@@ -297,7 +297,6 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nDISPFB1);
 		if(nAddress & 0x04)
 		{
-//			if(CPS2VM::m_Logging.GetGSLoggingStatus())
 //			{
 //				DISPFB* dispfb;
 //				dispfb = GetDispFb(0);
@@ -331,7 +330,6 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nDISPFB2);
 		if(nAddress & 0x04)
 		{
-//			if(CPS2VM::m_Logging.GetGSLoggingStatus())
 //			{
 //				DISPFB* dispfb;
 //				dispfb = GetDispFb(1);
@@ -941,8 +939,6 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	double nX, nY, nZ;
 	double nU, nV;
 	double nS, nT;
-
-//	if(!CPS2VM::m_Logging.GetGSLoggingStatus()) return;
 
 	//Filtering
 	//if(!((nRegister == GS_REG_FRAME_1) || (nRegister == GS_REG_FRAME_2))) return;

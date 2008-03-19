@@ -651,8 +651,6 @@ void CDMAC::SaveState(CZipArchiveWriter& archive)
 
 void CDMAC::DisassembleGet(uint32 nAddress)
 {
-//	if(!CPS2VM::m_Logging.GetDMACLoggingStatus()) return;
-
 	switch(nAddress)
 	{
 	case D2_CHCR:

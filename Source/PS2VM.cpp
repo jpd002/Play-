@@ -767,9 +767,11 @@ unsigned int CPS2VM::VU1TickFunction(unsigned int nTicks)
 
 void CPS2VM::EmuThread()
 {
-    unsigned int lastFrameCount = 0;
-    xtime lastFrameTime;
-    xtime_get(&lastFrameTime, boost::TIME_UTC);
+    //BEGIN: Frame limiter init
+//    unsigned int lastFrameCount = 0;
+//    xtime lastFrameTime;
+//    xtime_get(&lastFrameTime, boost::TIME_UTC);
+    //END
 	m_nEnd = false;
 	while(1)
 	{
@@ -843,19 +845,28 @@ void CPS2VM::EmuThread()
                 m_os->SysCallHandler();
                 assert(!m_EE.m_State.nHasException);
             }
-            if(m_pGS != NULL && lastFrameCount != m_pGS->GetFrameCount())
             {
-                xtime currentTime;
-                xtime_get(&currentTime, boost::TIME_UTC);
-                xtime::xtime_nsec_t timeDiff = currentTime.nsec - lastFrameTime.nsec;
-                if((currentTime.sec == lastFrameTime.sec) && (timeDiff < (1000000 * 8)))
+                CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+                if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
                 {
-                    currentTime.nsec += (1000000 * 8) - timeDiff;
-                    thread::sleep(currentTime);
+                    m_nVBlankTicks = 0;
                 }
-                lastFrameCount = m_pGS->GetFrameCount();
-                xtime_get(&lastFrameTime, boost::TIME_UTC);
             }
+            //BEGIN: Frame limiter
+//            if(m_pGS != NULL && lastFrameCount != m_pGS->GetFrameCount())
+//            {
+//                xtime currentTime;
+//                xtime_get(&currentTime, boost::TIME_UTC);
+//                xtime::xtime_nsec_t timeDiff = currentTime.nsec - lastFrameTime.nsec;
+//                if((currentTime.sec == lastFrameTime.sec) && (timeDiff < (1000000 * 8)))
+//                {
+//                    currentTime.nsec += (1000000 * 8) - timeDiff;
+//                    thread::sleep(currentTime);
+//                }
+//                lastFrameCount = m_pGS->GetFrameCount();
+//                xtime_get(&lastFrameTime, boost::TIME_UTC);
+//            }
+            //END
             if(m_executor.MustBreak() || m_singleStep)
             {
                 m_nStatus = PAUSED;

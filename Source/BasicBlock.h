@@ -14,6 +14,8 @@ public:
     uint32          GetBeginAddress() const;
     uint32          GetEndAddress() const;
     bool            IsCompiled() const;
+    unsigned int    GetSelfLoopCount() const;
+    void            SetSelfLoopCount(unsigned int);
 
 private:
 
@@ -21,6 +23,7 @@ private:
     uint32          m_begin;
     uint32          m_end;
     CMIPS&          m_context;
+    unsigned int    m_selfLoopCount;
 };
 
 #endif

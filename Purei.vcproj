@@ -421,14 +421,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\LogControl.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\LogControl.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\MA_EE.cpp"
 				>
 			</File>
@@ -602,14 +594,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\offsetof_def.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\OsEventManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\OsEventManager.h"
 				>
 			</File>
 			<File

@@ -207,7 +207,6 @@ private:
 	void									ApplyPatches();
 
 	void									DisassembleSysCall(uint8);
-	void									RecordSysCall(uint8);
 	std::string                             GetSysCallDescription(uint8);
 
 	static SystemCallHandler                m_pSysCall[0x80];

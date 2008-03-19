@@ -9,7 +9,8 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end) :
 m_begin(begin),
 m_end(end),
 m_context(context),
-m_text(NULL)
+m_text(NULL),
+m_selfLoopCount(0)
 {
     assert(m_end >= m_begin);
 }
@@ -122,4 +123,14 @@ uint32 CBasicBlock::GetEndAddress() const
 bool CBasicBlock::IsCompiled() const
 {
     return m_text != NULL;
+}
+
+unsigned int CBasicBlock::GetSelfLoopCount() const
+{
+    return m_selfLoopCount;
+}
+
+void CBasicBlock::SetSelfLoopCount(unsigned int selfLoopCount)
+{
+    m_selfLoopCount = selfLoopCount;
 }

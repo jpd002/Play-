@@ -15,7 +15,6 @@
 #include "uint128.h"
 #include "MIPSAssembler.h"
 #include "Profiler.h"
-#include "OsEventManager.h"
 #include "xml/Node.h"
 #include "xml/Parser.h"
 #include "xml/FilteringNodeIterator.h"
@@ -50,8 +49,9 @@
 #define BIOS_ADDRESS_BASE			0x1FC00000
 #define BIOS_ADDRESS_WAITTHREADPROC	0x1FC03100
 
-#define CONFIGPATH "./config/"
-#define PATCHESPATH "patches.xml"
+#define CONFIGPATH      "./config/"
+#define PATCHESPATH     "patches.xml"
+#define LOG_NAME        ("ps2os")
 
 #define THREAD_INIT_QUOTA			(15)
 
@@ -357,7 +357,6 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 	ApplyPatches();
 
 	m_OnExecutableChange();
-	COsEventManager::GetInstance().Begin(m_sExecutableName.c_str());
 
 	printf("PS2OS: Loaded '%s' executable file.\r\n", sExecName);
 }
@@ -410,7 +409,6 @@ void CPS2OS::LoadExecutable()
 void CPS2OS::UnloadExecutable()
 {
 	m_OnExecutableUnloading();
-	COsEventManager::GetInstance().Flush();
 
 	if(m_pELF == NULL) return;
 
@@ -1022,11 +1020,7 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 		m_ee.m_State.nGPR[i] = pContext->nGPR[i];
 	}
 
-//	if(CPS2VM::m_Logging.GetOSLoggingStatus())
-//	{
-//		printf("PS2OS: New thread elected (id = %i).\r\n", nID);
-//	}
-    CLog::GetInstance().Print("ps2os", "New thread elected (id = %i).\r\n", nID);
+    CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", nID);
 }
 
 /*
@@ -2236,10 +2230,6 @@ void CPS2OS::SysCallHandler()
 	{
 #ifdef _DEBUG
 		DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
-//		if(CPS2VM::m_Logging.GetOSRecordingStatus())
-//		{
-//			RecordSysCall(static_cast<uint8>(nFunc & 0xFF));
-//		}
 #endif
 		if(nFunc < 0x80)
 		{
@@ -2261,30 +2251,14 @@ void CPS2OS::SysCallHandler()
 void CPS2OS::DisassembleSysCall(uint8 nFunc)
 {
 #ifdef _DEBUG
-//	if(!CPS2VM::m_Logging.GetOSLoggingStatus()) return;
 
 	string sDescription(GetSysCallDescription(nFunc));
 
 	if(sDescription.length() != 0)
 	{
-//		printf("PS2OS: %s\r\n", sDescription.c_str());
-        CLog::GetInstance().Print("ps2os", "%s\r\n", sDescription.c_str());
+        CLog::GetInstance().Print(LOG_NAME, "%s\r\n", sDescription.c_str());
 	}
 #endif
-}
-
-void CPS2OS::RecordSysCall(uint8 nFunction)
-{
-	COsEventManager::COsEvent Event;
-
-	string sDescription(GetSysCallDescription(nFunction));
-
-	Event.nThreadId		= GetCurrentThreadId();
-	Event.nEventType	= nFunction;
-	Event.nAddress		= m_ee.m_State.nGPR[CMIPS::RA].nV0 - 8;
-	Event.sDescription	= (sDescription.length() != 0) ? sDescription : ("Unknown (" + lexical_cast<string>(nFunction) + ")");
-
-	COsEventManager::GetInstance().InsertEvent(Event);
 }
 
 string CPS2OS::GetSysCallDescription(uint8 nFunction)
