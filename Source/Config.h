@@ -3,13 +3,14 @@
 
 #include <string>
 #include <boost/thread.hpp>
-#include "List.h"
+#include "Singleton.h"
+#include <map>
 #include "xml/Node.h"
 
-class CConfig
+class CConfig : public CSingleton<CConfig>
 {
 public:
-	static CConfig*						GetInstance();
+    friend class CSingleton<CConfig>;
 
 	void								RegisterPreferenceInteger(const char*, int);
 	void								RegisterPreferenceBoolean(const char*, bool);
@@ -87,6 +88,8 @@ private:
 		std::string						m_sValue;
 	};
 
+    typedef std::map<std::string, CPreference*> PreferenceMapType;
+
 										CConfig();
 										~CConfig();
 	void								Load();
@@ -94,11 +97,8 @@ private:
 	template <typename Type> Type*		FindPreference(const char*);
 	template <typename Type> Type*		CastPreference(CPreference*);
 	void								InsertPreference(CPreference*);
-	static void							DeleteInstance();
 
-	static CConfig*						m_pInstance;
-
-	Framework::CList<CPreference>		m_Preference;
+	PreferenceMapType                   m_preferences;
     boost::mutex                        m_mutex;
 };
 

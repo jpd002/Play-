@@ -20,8 +20,6 @@ using namespace Framework;
 using namespace std;
 using namespace boost;
 
-CConfig*		CConfig::m_pInstance = NULL;
-
 CConfig::CConfig()
 {
 	Load();
@@ -29,29 +27,12 @@ CConfig::CConfig()
 
 CConfig::~CConfig()
 {
-	Save();
-	while(m_Preference.Count() != 0)
-	{
-		delete m_Preference.Pull();
-	}
-}
-
-CConfig* CConfig::GetInstance()
-{
-	if(m_pInstance == NULL)
-	{
-		m_pInstance = new CConfig();
-		atexit(DeleteInstance);
-	}
-	return m_pInstance;
-}
-
-void CConfig::DeleteInstance()
-{
-	if(m_pInstance != NULL)
-	{
-		delete m_pInstance;
-	}
+    Save();
+    for(PreferenceMapType::iterator preferenceIterator(m_preferences.begin());
+        preferenceIterator != m_preferences.end(); preferenceIterator++)
+    {
+        delete preferenceIterator->second;
+    }
 }
 
 template <> CConfig::CPreference* CConfig::CastPreference<CConfig::CPreference>(CPreference* pPreference)
@@ -88,31 +69,21 @@ template <> CConfig::CPreferenceString* CConfig::CastPreference<CConfig::CPrefer
 
 template <typename Type> Type* CConfig::FindPreference(const char* sName)
 {
-	CList<CPreference>::ITERATOR itPref;
-	CPreference* pPref;
-	CPreference* pRet;
-	Type* pPrefCast;
-
-	pRet = NULL;
+    CPreference* pRet = NULL;
 
     {
         mutex::scoped_lock mutexLock(m_mutex);
-        for(itPref = m_Preference.Begin(); itPref.HasNext(); itPref++)
+        PreferenceMapType::iterator preferenceIterator(m_preferences.find(sName));
+        if(preferenceIterator != m_preferences.end())
         {
-            pPref = (*itPref);
-            if(!strcmp(pPref->GetName(), sName))
-            {
-	            pRet = pPref;
-	            break;
-            }
+            pRet = preferenceIterator->second;
         }
     }
 
-	if(pRet == NULL) return NULL;
+    if(pRet == NULL) return NULL;
 
-	pPrefCast = CastPreference<Type>(pRet);
-
-	return pPrefCast;
+    Type* pPrefCast = CastPreference<Type>(pRet);
+    return pPrefCast;
 }
 
 void CConfig::RegisterPreferenceInteger(const char* sName, int nValue)
@@ -247,112 +218,102 @@ string CConfig::GetConfigPath() const
 
 void CConfig::Load()
 {
-	Xml::CNode* pDocument;
-	Xml::CNode* pConfig;
+    Xml::CNode* pDocument;
 
-	try
-	{
-		CStdStream configFile(fopen(GetConfigPath().c_str(), "rb"));
-		pDocument = Xml::CParser::ParseDocument(&configFile);
-	}
-	catch(...)
-	{
-		return;
-	}
+    try
+    {
+        CStdStream configFile(fopen(GetConfigPath().c_str(), "rb"));
+        pDocument = Xml::CParser::ParseDocument(&configFile);
+    }
+    catch(...)
+    {
+        return;
+    }
 
-	pConfig = pDocument->Select("Config");
-	if(pConfig == NULL)
-	{
-		delete pDocument;
-		return;
-	}
+    Xml::CNode* pConfig = pDocument->Select("Config");
+    if(pConfig == NULL)
+    {
+        delete pDocument;
+        return;
+    }
 
-	for(Xml::CFilteringNodeIterator itNode(pConfig, "Preference"); !itNode.IsEnd(); itNode++)
-	{
-		Xml::CNode* pPref;
-		const char* sType;
-		const char* sName;
+    for(Xml::CFilteringNodeIterator itNode(pConfig, "Preference"); !itNode.IsEnd(); itNode++)
+    {
+        Xml::CNode* pPref = (*itNode);
 
-		pPref = (*itNode);
+        const char* sType = pPref->GetAttribute("Type");
+        const char* sName = pPref->GetAttribute("Name");
 
-		sType = pPref->GetAttribute("Type");
-		sName = pPref->GetAttribute("Name");
+        if(sType == NULL) continue;
+        if(sName == NULL) continue;
 
-		if(sType == NULL) continue;
-		if(sName == NULL) continue;
+        if(!strcmp(sType, "integer"))
+        {
+            int nValue;
+            if(Xml::GetAttributeIntValue(pPref, "Value", &nValue))
+            {
+                RegisterPreferenceInteger(sName, nValue);
+            }
+        }
+        else if(!strcmp(sType, "boolean"))
+        {
+            bool nValue;
+            if(Xml::GetAttributeBoolValue(pPref, "Value", &nValue))
+            {
+	            RegisterPreferenceBoolean(sName, nValue);
+            }
+        }
+        else if(!strcmp(sType, "string"))
+        {
+            const char* sValue;
+            if(Xml::GetAttributeStringValue(pPref, "Value", &sValue))
+            {
+	            RegisterPreferenceString(sName, sValue);
+            }
+        }
+    }
 
-		if(!strcmp(sType, "integer"))
-		{
-			int nValue;
-			if(Xml::GetAttributeIntValue(pPref, "Value", &nValue))
-			{
-				RegisterPreferenceInteger(sName, nValue);
-			}
-		}
-		else if(!strcmp(sType, "boolean"))
-		{
-			bool nValue;
-			if(Xml::GetAttributeBoolValue(pPref, "Value", &nValue))
-			{
-				RegisterPreferenceBoolean(sName, nValue);
-			}
-		}
-		else if(!strcmp(sType, "string"))
-		{
-			const char* sValue;
-			if(Xml::GetAttributeStringValue(pPref, "Value", &sValue))
-			{
-				RegisterPreferenceString(sName, sValue);
-			}
-		}
-	}
-
-	delete pDocument;
+    delete pDocument;
 }
 
 void CConfig::Save()
 {
-	CStdStream* pStream;
-	Xml::CNode*	pConfig;
-	Xml::CNode* pDocument;
-	Xml::CNode* pPrefNode;
-	CPreference* pPref;
-	CList<CPreference>::ITERATOR itPref;
+    try
+    {
+        CStdStream stream(fopen(GetConfigPath().c_str(), "wb"));
 
-	try
-	{
-		pStream = new CStdStream(fopen(GetConfigPath().c_str(), "wb"));
-	}
-	catch(...)
-	{
-		return;
-	}
+        Xml::CNode*	pConfig = new Xml::CNode("Config", true);
 
-	pConfig = new Xml::CNode("Config", true);
+        for(PreferenceMapType::const_iterator preferenceIterator(m_preferences.begin());
+            preferenceIterator != m_preferences.end(); preferenceIterator++)
+        {
+            CPreference* pPref = (preferenceIterator->second);
 
-	for(itPref = m_Preference.Begin(); itPref.HasNext(); itPref++)
-	{
-		pPref = (*itPref);
+            Xml::CNode* pPrefNode = new Xml::CNode("Preference", true);
+            pPref->Serialize(pPrefNode);
 
-		pPrefNode = new Xml::CNode("Preference", true);
-		pPref->Serialize(pPrefNode);
+            pConfig->InsertNode(pPrefNode);
+        }
 
-		pConfig->InsertNode(pPrefNode);
-	}
+        {
+            Xml::CNode* pDocument = new Xml::CNode;
+            pDocument->InsertNode(pConfig);
 
-	pDocument = new Xml::CNode;
-	pDocument->InsertNode(pConfig);
+            Xml::CWriter::WriteDocument(&stream, pDocument);
 
-	Xml::CWriter::WriteDocument(pStream, pDocument);
-
-	delete pDocument;
-	delete pStream;
+            delete pDocument;
+        }
+    }
+    catch(...)
+    {
+        return;
+    }
 }
 
 void CConfig::InsertPreference(CPreference* pPref)
 {
     mutex::scoped_lock mutexLock(m_mutex);
-    m_Preference.Insert(pPref);
+    m_preferences[pPref->GetName()] = pPref;
 }
 
 /////////////////////////////////////////////////////////

@@ -47,9 +47,7 @@ bool CISO9660::GetFileRecord(CDirectoryRecord* pRecord, const char* sFilename)
 		sNext = strchr(sFilename, '/');
 		if(sNext == NULL) break;
 
-		size_t nLength = sNext - sFilename;
-        string sDir(sFilename, sFilename + nLength);
-
+        string sDir(sFilename, sNext);
 		nRecord = m_pathTable.FindDirectory(sDir.c_str(), nRecord);
 		if(nRecord == 0)
 		{
