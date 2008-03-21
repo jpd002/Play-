@@ -1,8 +1,8 @@
 #include <assert.h>
 #include "VIF.h"
 #include "GIF.h"
-#include "PS2VM.h"
 #include "Profiler.h"
+#include "Ps2Const.h"
 
 #ifdef	PROFILE
 #define	PROFILE_VIFZONE "VIF"
@@ -10,36 +10,47 @@
 #endif
 
 using namespace Framework;
-
-uint32		CVIF::m_VPU_STAT;
+using namespace std;
+using namespace boost;
 
 //REMOVE
 static int nExecTimes = 0;
 
-CVIF::CVPU*		CVIF::m_pVPU[2] =
+CVIF::CVIF(CGIF& gif, uint8* ram, const VPUINIT& vpu0Init, const VPUINIT& vpu1Init) :
+m_gif(gif),
+m_ram(ram),
+m_pauseNeeded(false)
 {
-	new CVPU(&CPS2VM::m_pMicroMem0, &CPS2VM::m_pVUMem0, NULL),
-	new CVPU1(&CPS2VM::m_pMicroMem1, &CPS2VM::m_pVUMem1, &CPS2VM::m_VU1),
-};
+    m_pVPU[0] = new CVPU(*this, vpu0Init);
+    m_pVPU[1] = new CVPU1(*this, vpu1Init);
+}
+
+CVIF::~CVIF()
+{
+    for(unsigned int i = 0; i < 2; i++)
+    {
+        delete m_pVPU[i];
+    }
+}
 
 void CVIF::Reset()
 {
-	m_pVPU[0]->Reset();
-	m_pVPU[1]->Reset();
-	m_VPU_STAT = 0;
+    m_pVPU[0]->Reset();
+    m_pVPU[1]->Reset();
+    m_VPU_STAT = 0;
 }
 
 void CVIF::SaveState(CStream* pStream)
 {
-	pStream->Write(&m_VPU_STAT,		4);
+    pStream->Write(&m_VPU_STAT,     4);
 
-	m_pVPU[0]->SaveState(pStream);
-	m_pVPU[1]->SaveState(pStream);
+    m_pVPU[0]->SaveState(pStream);
+    m_pVPU[1]->SaveState(pStream);
 }
 
 void CVIF::LoadState(CStream* pStream)
 {
-	pStream->Read(&m_VPU_STAT,		4);
+	pStream->Read(&m_VPU_STAT,  4);
 
 	m_pVPU[0]->LoadState(pStream);
 	m_pVPU[1]->LoadState(pStream);
@@ -75,10 +86,10 @@ uint32* CVIF::GetTop1Address()
 
 void CVIF::StopVU(CMIPS* pCtx)
 {
-	if(pCtx == &CPS2VM::m_VU1)
-	{
+    if(pCtx == &m_pVPU[1]->GetContext())
+    {
 		m_VPU_STAT &= ~STAT_VBS1;
-	}
+    }
 }
 
 void CVIF::ProcessXGKICK(uint32 nAddress)
@@ -86,7 +97,7 @@ void CVIF::ProcessXGKICK(uint32 nAddress)
 	nAddress &= 0xFFFF;
 	nAddress *= 0x10;
 
-	CGIF::ProcessPacket(CPS2VM::m_pVUMem1, nAddress, CPS2VM::VUMEM1SIZE);
+	m_gif.ProcessPacket(m_pVPU[1]->GetVuMemory(), nAddress, PS2::VUMEM1SIZE);
 }
 
 bool CVIF::IsVU1Running()
@@ -94,19 +105,59 @@ bool CVIF::IsVU1Running()
 	return (m_VPU_STAT & STAT_VBS1) != 0;
 }
 
+bool CVIF::IsPauseNeeded() const
+{
+    return m_pauseNeeded;
+}
+
+void CVIF::SetPauseNeeded(bool value)
+{
+    m_pauseNeeded = value;
+}
+
+uint8* CVIF::GetRam() const
+{
+    return m_ram;
+}
+
+CGIF& CVIF::GetGif() const
+{
+    return m_gif;
+}
+
+uint32 CVIF::GetStat() const
+{
+    return m_VPU_STAT;
+}
+
+void CVIF::SetStat(uint32 stat)
+{
+    m_VPU_STAT = stat;
+}
+
 ////////////////////////////////////////////////////////////
 // VPU Class Implementation
 
-CVIF::CVPU::CVPU(uint8** pMicroMem, uint8** pVUMem, CMIPS* pCtx)
+CVIF::CVPU::CVPU(CVIF& vif, const VPUINIT& vpuInit) :
+m_vif(vif),
+m_pMicroMem(vpuInit.microMem),
+m_pVUMem(vpuInit.vuMem),
+m_pCtx(vpuInit.context),
+m_execThread(NULL),
+m_endThread(false)
 {
-	m_pMicroMem		= pMicroMem;
-	m_pVUMem		= pVUMem;
-	m_pCtx			= pCtx;
+//    m_execThread = new thread(bind(&CVPU::ExecuteThreadProc, this));
 }
 
 CVIF::CVPU::~CVPU()
 {
-
+    if(m_execThread != NULL)
+    {
+        m_endThread = true;
+        m_execCondition.notify_all();
+        m_execThread->join();
+        delete m_execThread;
+    }
 }
 
 void CVIF::CVPU::Reset()
@@ -139,33 +190,40 @@ uint32* CVIF::CVPU::GetTOP()
 	return NULL;
 }
 
+uint8* CVIF::CVPU::GetVuMemory() const
+{
+    return m_pVUMem;
+}
+
+CMIPS& CVIF::CVPU::GetContext() const
+{
+    return *m_pCtx;
+}
+
 void CVIF::CVPU::ProcessPacket(uint32 nAddress, uint32 nSize)
 {
-	CODE Code;
-	uint32 nEnd;
+    uint32 nEnd = nAddress + nSize;
 
-	nEnd = nAddress + nSize;
+    while(nAddress < nEnd)
+    {
+        if(m_STAT.nVPS == 1)
+        {
+	        //Command is waiting for more data...
+	        nAddress += ExecuteCommand(m_CODE, nAddress, (nEnd - nAddress));
+	        continue;
+        }
 
-	while(nAddress < nEnd)
-	{
-		if(m_STAT.nVPS == 1)
-		{
-			//Command is waiting for more data...
-			nAddress += ExecuteCommand(m_CODE, nAddress, (nEnd - nAddress));
-			continue;
-		}
+        CODE Code = *reinterpret_cast<CODE*>(m_vif.GetRam() + nAddress);
 
-		Code = *(CODE*)&CPS2VM::m_pRAM[nAddress];
+        nAddress += 4;
 
-		nAddress	+= 4;
+        assert(Code.nI == 0);
 
-		assert(Code.nI == 0);
+        m_NUM = Code.nNUM;
+        m_CODE = Code;
 
-		m_NUM = Code.nNUM;
-		m_CODE = Code;
-
-		nAddress += ExecuteCommand(Code, nAddress, (nEnd - nAddress));
-	}
+        nAddress += ExecuteCommand(Code, nAddress, (nEnd - nAddress));
+    }
 }
 
 uint32 CVIF::CVPU::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
@@ -226,15 +284,16 @@ void CVIF::CVPU::ExecuteMicro(uint32 nAddress, uint32 nMask)
 #endif
 
 	m_pCtx->m_State.nPC = nAddress;
-	m_VPU_STAT |= nMask;
+    m_vif.SetStat(m_vif.GetStat() | nMask);
+    m_vif.SetPauseNeeded(true);
 
 #ifndef VU_DEBUG
 
-	while(m_VPU_STAT & nMask)
-	{
-		RET_CODE nRet;
-		nRet = m_pCtx->Execute(100000);
-	}
+//	while(m_vif.GetStat() & nMask)
+//	{
+//		RET_CODE nRet;
+//		nRet = m_pCtx->Execute(100000);
+//	}
 
 #endif
 
@@ -257,10 +316,10 @@ uint32 CVIF::CVPU::Cmd_MPG(CODE nCommand, uint32 nAddress, uint32 nSize)
 	nDstAddr = (m_CODE.nIMM * 8) + nTransfered;
 
 	//Check if there's a change
-	if(memcmp((*m_pMicroMem) + nDstAddr, CPS2VM::m_pRAM + nAddress, nSize) != 0)
+	if(memcmp(m_pMicroMem + nDstAddr, m_vif.GetRam() + nAddress, nSize) != 0)
 	{
-		m_pCtx->m_pExecMap->InvalidateBlocks();
-		memcpy((*m_pMicroMem) + nDstAddr, CPS2VM::m_pRAM + nAddress, nSize);
+//		m_pCtx->m_pExecMap->InvalidateBlocks();
+        memcpy(m_pMicroMem + nDstAddr, m_vif.GetRam() + nAddress, nSize);
 	}
 
 	m_NUM -= (uint8)(nSize / 8);
@@ -284,37 +343,33 @@ uint32 CVIF::CVPU::Cmd_UNPACK(CODE nCommand, uint32 nAddress, uint32 nSize)
 
 uint32 CVIF::CVPU::Unpack_V45(uint32 nDstAddr, uint32 nSrcAddr, uint32 nSize)
 {
-	unsigned int i, nPackets;
-	uint16 nColor;
-	uint32 nAddress;
+    assert(m_CYCLE.nCL == m_CYCLE.nWL);
 
-	assert(m_CYCLE.nCL == m_CYCLE.nWL);
+    unsigned int nPackets = min(nSize / 2, m_NUM);
+    uint32 nAddress = nSrcAddr;
 
-	nPackets = min(nSize / 2, m_NUM);
-	nAddress = nSrcAddr;
+    for(unsigned int i = 0; i < nPackets; i++)
+    {
+	    uint16 nColor = *reinterpret_cast<uint16*>(m_vif.GetRam() + nAddress);
 
-	for(i = 0; i < nPackets; i++)
-	{
-		nColor = *(uint16*)&CPS2VM::m_pRAM[nAddress];
+	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0x0]) = ((nColor >>  0) & 0x1F) << 3;
+	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0x4]) = ((nColor >>  5) & 0x1F) << 3;
+	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0x8]) = ((nColor >> 10) & 0x1F) << 3;
+	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0xC]) = ((nColor >> 15) & 0x01) << 7;
 
-		*(uint32*)&((*m_pVUMem)[nDstAddr + 0x0]) = ((nColor >>  0) & 0x1F) << 3;
-		*(uint32*)&((*m_pVUMem)[nDstAddr + 0x4]) = ((nColor >>  5) & 0x1F) << 3;
-		*(uint32*)&((*m_pVUMem)[nDstAddr + 0x8]) = ((nColor >> 10) & 0x1F) << 3;
-		*(uint32*)&((*m_pVUMem)[nDstAddr + 0xC]) = ((nColor >> 15) & 0x01) << 7;
+	    nDstAddr += 0x10;
+	    nAddress += 0x02;
 
-		nDstAddr += 0x10;
-		nAddress += 0x02;
+	    m_NUM--;
+    }
 
-		m_NUM--;
-	}
+    //Force word alignment
+    if(nAddress & 0x03)
+    {
+        nAddress += 0x02;
+    }
 
-	//Force word alignment
-	if(nAddress & 0x03)
-	{
-		nAddress += 0x02;
-	}
-
-	return nAddress - nSrcAddr;
+    return nAddress - nSrcAddr;
 }
 
 uint32 CVIF::CVPU::Unpack_V432(uint32 nDstAddr, uint32 nSrcAddr, uint32 nSize)
@@ -330,7 +385,7 @@ uint32 CVIF::CVPU::Unpack_V432(uint32 nDstAddr, uint32 nSrcAddr, uint32 nSize)
 
 	if(nCL == nWL)
 	{
-		memcpy((*m_pVUMem) + nDstAddr, CPS2VM::m_pRAM + nSrcAddr, nSize);
+		memcpy(m_pVUMem + nDstAddr, m_vif.GetRam() + nSrcAddr, nSize);
 		m_NUM -= (uint8)(nSize / 0x10);
 	}
 	else if(nCL > nWL)
@@ -342,7 +397,7 @@ uint32 CVIF::CVPU::Unpack_V432(uint32 nDstAddr, uint32 nSrcAddr, uint32 nSize)
 			nWritten = m_CODE.nNUM - m_NUM;
 			nAddrInc = (nCL * (nWritten / nWL) + (nWritten % nWL)) * 0x10;
 			
-			memcpy((*m_pVUMem) + nDstAddr + nAddrInc, CPS2VM::m_pRAM + nSrcAddr, 0x10);
+			memcpy(m_pVUMem + nDstAddr + nAddrInc, m_vif.GetRam() + nSrcAddr, 0x10);
 
 			nSrcAddr += 0x10;
 			m_NUM -= 1;
@@ -359,8 +414,8 @@ uint32 CVIF::CVPU::Unpack_V432(uint32 nDstAddr, uint32 nSrcAddr, uint32 nSize)
 ////////////////////////////////////////////////////////////
 // VPU1 Class Implementation
 
-CVIF::CVPU1::CVPU1(uint8** pMicroMem, uint8** pVUMem, CMIPS* pCtx) :
-CVPU(pMicroMem, pVUMem, pCtx)
+CVIF::CVPU1::CVPU1(CVIF& vif, const VPUINIT& vpuInit) :
+CVPU(vif, vpuInit)
 {
 
 }
@@ -442,7 +497,7 @@ uint32 CVIF::CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
 		}
 		m_STAT.nDBF = ~m_STAT.nDBF;
 
-		ExecuteMicro(nCommand.nIMM + CPS2VM::VUMEM1SIZE, STAT_VBS1);
+		ExecuteMicro(nCommand.nIMM + PS2::VUMEM1SIZE, STAT_VBS1);
 		return 0;
 		break;
 	case 0x17:
@@ -477,7 +532,7 @@ uint32 CVIF::CVPU1::Cmd_DIRECT(CODE nCommand, uint32 nAddress, uint32 nSize)
 {
 	nSize = min(m_CODE.nIMM * 0x10, nSize);
 
-	CGIF::ProcessPacket(CPS2VM::m_pRAM, nAddress, nAddress + nSize);
+	m_vif.GetGif().ProcessPacket(m_vif.GetRam(), nAddress, nAddress + nSize);
 
 	m_CODE.nIMM -= (nSize / 0x10);
 	if((m_CODE.nIMM == 0) && (nSize != 0))

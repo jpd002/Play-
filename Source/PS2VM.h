@@ -6,6 +6,7 @@
 #include "DMAC.h"
 #include "GIF.h"
 #include "SIF.h"
+#include "VIF.h"
 #include "IPU.h"
 #include "INTC.h"
 #include "MIPS.h"
@@ -83,19 +84,20 @@ public:
 	uint8*					    m_pSPR;
     uint8*                      m_iopRam;
 
-    CDMAC                       m_dmac;
-    CGIF                        m_gif;
-    CSIF                        m_sif;
-    CINTC                       m_intc;
-    CIPU                        m_ipu;
-	CPS2OS*                     m_os;
-    CIopBios*                   m_iopOs;
-
 	uint8*					    m_pVUMem0;
 	uint8*					    m_pMicroMem0;
 
 	uint8*					    m_pVUMem1;
 	uint8*                      m_pMicroMem1;
+
+    CDMAC                       m_dmac;
+    CGIF                        m_gif;
+    CSIF                        m_sif;
+    CVIF                        m_vif;
+    CINTC                       m_intc;
+    CIPU                        m_ipu;
+	CPS2OS*                     m_os;
+    CIopBios*                   m_iopOs;
 
     CMIPS                       m_EE;
     CMIPS                       m_VU1;

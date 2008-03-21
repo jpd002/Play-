@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include "DMAC.h"
-#include "INTC.h"
-#include "GIF.h"
-#include "SIF.h"
 #include "Ps2Const.h"
 #include "Profiler.h"
 #include "Log.h"
@@ -35,8 +32,8 @@ using namespace boost;
 
 uint32 DummyTransfertFunction(uint32 address, uint32 size, uint32, bool)
 {
-    return size;
-//    throw runtime_error("Not implemented.");
+//    return size;
+    throw runtime_error("Not implemented.");
 }
 
 CDMAC::CDMAC(uint8* ram, uint8* spr) :
@@ -44,8 +41,6 @@ m_ram(ram),
 m_spr(spr),
 m_D_STAT(0),
 m_D_ENABLE(0),
-//m_D1(1, CVIF::ReceiveDMA1, NULL),
-//m_D2(2, CGIF::ReceiveDMA, NULL),
 m_D1(*this, 1, DummyTransfertFunction, NULL),
 m_D2(*this, 2, DummyTransfertFunction, NULL),
 m_D3_CHCR(0),
@@ -63,12 +58,11 @@ m_D9(*this, 9, bind(&CDMAC::ReceiveSPRDMA, this, _1, _2, _3, _4), NULL),
 m_D9_SADR(0)
 {
     Reset();
-//    m_thread = new thread(bind(&CDMAC::Execute, this));
 }
 
 CDMAC::~CDMAC()
 {
-//    delete m_thread;
+
 }
 
 void CDMAC::Reset()
@@ -90,26 +84,13 @@ void CDMAC::Reset()
 	m_D9_SADR = 0;
 }
 
-void CDMAC::Execute()
-{
-    while(1)
-    {
-        m_D2.Execute();
-        {
-            //Sleep during 100ms
-            mutex::scoped_lock waitLock(m_waitMutex);
-            xtime xt;
-            xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += 100 * 1000000;
-            m_waitCondition.timed_wait(waitLock, xt);
-        }
-    }
-}
-
 void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHandler& handler)
 {
     switch(channel)
     {
+    case 1:
+        m_D1.SetReceiveHandler(handler);
+        break;
     case 2:
         m_D2.SetReceiveHandler(handler);
         break;

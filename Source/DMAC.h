@@ -5,7 +5,6 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 #include "Dmac_Channel.h"
-#include <boost/thread.hpp>
 
 class CDMAC
 {
@@ -86,7 +85,6 @@ public:
 	static bool         IsEndTagId(uint32);
 
 private:
-    void                Execute();
     uint64				FetchDMATag(uint32);
 
 	uint32				ReceiveSPRDMA(uint32, uint32, uint32, bool);
@@ -118,10 +116,6 @@ private:
 
     uint8*              m_ram;
     uint8*              m_spr;
-
-    boost::thread*      m_thread;
-    boost::mutex        m_waitMutex;
-    boost::condition    m_waitCondition;
 
     Dmac::DmaReceiveHandler m_receiveDma5;
     Dmac::DmaReceiveHandler m_receiveDma6;

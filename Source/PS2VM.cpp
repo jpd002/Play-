@@ -72,8 +72,8 @@ m_pSPR(new uint8[PS2::SPRSIZE]),
 m_iopRam(new uint8[PS2::IOPRAMSIZE]),
 m_pVUMem0(NULL),
 m_pMicroMem0(NULL),
-m_pVUMem1(NULL),
-m_pMicroMem1(NULL),
+m_pVUMem1(new uint8[PS2::VUMEM1SIZE]),
+m_pMicroMem1(new uint8[PS2::MICROMEM1SIZE]),
 m_pThread(NULL),
 m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
 m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
@@ -90,6 +90,7 @@ m_pCDROM0(NULL),
 m_dmac(m_pRAM, m_pSPR),
 m_gif(m_pGS, m_pRAM, m_pSPR),
 m_sif(m_dmac, m_pRAM),
+m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, NULL), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
 m_intc(m_dmac)
 {
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
@@ -235,9 +236,6 @@ void CPS2VM::CreateVM()
     printf("PS2VM: Virtual Machine Memory Usage: RAM: %i MBs, BIOS: %i MBs, SPR: %i KBs.\r\n", 
         PS2::EERAMSIZE / 0x100000, PS2::EEBIOSSIZE / 0x100000, PS2::SPRSIZE / 0x1000);
 	
-    m_pVUMem1		= (uint8*)malloc(PS2::VUMEM1SIZE);
-    m_pMicroMem1	= (uint8*)malloc(PS2::MICROMEM1SIZE);
-
 	//EmotionEngine context setup
 	m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
 	m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_pSPR,				                        0x01);
@@ -281,6 +279,7 @@ void CPS2VM::CreateVM()
 	m_VU1.m_pTickFunction	= NULL;
 #endif
 
+    m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, _1, _2, _4));
     m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, _1, _2, _3, _4));
     m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, _1, _2, _4, m_pRAM));
     m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, _1, _2, _3, _4));
@@ -325,7 +324,7 @@ void CPS2VM::ResetVM()
     m_sif.Reset();
     m_ipu.Reset();
     m_gif.Reset();
-//	CVIF::Reset();
+    m_vif.Reset();
     m_dmac.Reset();
 	m_intc.Reset();
 //	CTimer::Reset();
@@ -867,6 +866,14 @@ void CPS2VM::EmuThread()
 //                xtime_get(&lastFrameTime, boost::TIME_UTC);
 //            }
             //END
+#ifdef _DEBUG
+            if(m_vif.IsPauseNeeded())
+            {
+                //Force pause
+                m_vif.SetPauseNeeded(false);
+                m_singleStep = true;
+            }
+#endif
             if(m_executor.MustBreak() || m_singleStep)
             {
                 m_nStatus = PAUSED;

@@ -689,6 +689,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\VIF.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\VIF.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\VirtualMachine.h"
 				>
 			</File>

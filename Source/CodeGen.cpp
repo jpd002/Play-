@@ -2308,6 +2308,11 @@ void CCodeGen::Srl(uint8 nAmount)
 	{
         UnaryRelativeSelfCallAsRegister(bind(&CCodeGen::Srl, this, nAmount));
 	}
+    else if(FitsPattern<SingleConstant>())
+    {
+        SingleConstant::PatternValue op = GetPattern<SingleConstant>();
+        PushCst(op >> nAmount);
+    }
 	else
 	{
 		assert(0);
@@ -2484,9 +2489,14 @@ void CCodeGen::Sub()
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
         PushReg(resultRegister);
     }
+    else if(FitsPattern<ConstantConstant>())
+    {
+        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+        PushCst(ops.first - ops.second);
+    }
 	else
 	{
-		assert(0);
+        throw exception();
 	}
 }
 
