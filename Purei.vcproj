@@ -709,6 +709,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\VPU.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\VPU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\VPU1.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\VPU1.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\VUShared.cpp"
 				>
 			</File>

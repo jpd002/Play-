@@ -132,8 +132,6 @@ private:
 		static void							(*m_pOpVector2[0x20])();
 		static void							(*m_pOpVector3[0x20])();
 
-		static uint32						m_nOpcode;
-		static uint32						m_nAddress;
 		static uint8						m_nIT;
 		static uint8						m_nIS;
 		static uint8						m_nID;

@@ -11,6 +11,11 @@ CMIPSArchitecture(MIPS_REGSIZE_64)
 
 void CMA_VU::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx, bool nParent)
 {
+    if(nParent)
+    {
+        SetupQuickVariables(nAddress, pBlock, pCtx);
+    }
+
 	if(nAddress & 0x04)
 	{
 		m_Upper.CompileInstruction(nAddress, pBlock, pCtx, nParent);

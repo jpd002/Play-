@@ -381,10 +381,10 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
         m_dmac.SaveState(archive);
         m_intc.SaveState(archive);
         m_sif.SaveState(archive);
+        m_vif.SaveState(archive);
         m_iopOs->GetDbcman()->SaveState(archive);
         m_iopOs->GetPadman()->SaveState(archive);
-
-//	CVIF::SaveState(pS);
+        //TODO: Save CDVDFSV state
 
         archive.Write(stateStream);
     }
@@ -424,9 +424,9 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
         m_dmac.LoadState(archive);
         m_intc.LoadState(archive);
         m_sif.LoadState(archive);
+        m_vif.LoadState(archive);
         m_iopOs->GetDbcman()->LoadState(archive);
         m_iopOs->GetPadman()->LoadState(archive);
-//	CVIF::LoadState(pS);
 
     }
     catch(...)
@@ -824,6 +824,12 @@ void CPS2VM::EmuThread()
 					}
 				}
 			}
+#ifdef _DEBUG
+            if(m_vif.IsVU1Running())
+            {
+                m_vif.SingleStepVU1();
+            }
+#endif
             m_dmac.ResumeDMA4();
             if(!m_EE.m_State.nHasException)
             {
@@ -867,10 +873,9 @@ void CPS2VM::EmuThread()
 //            }
             //END
 #ifdef _DEBUG
-            if(m_vif.IsPauseNeeded())
+            if(m_vif.IsVU1Running())
             {
                 //Force pause
-                m_vif.SetPauseNeeded(false);
                 m_singleStep = true;
             }
 #endif
