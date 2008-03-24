@@ -89,7 +89,7 @@ uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 	return nQWC;
 }
 
-uint32* CVIF::GetTop1Address()
+uint32 CVIF::GetTop1()
 {
 	return m_pVPU[1]->GetTOP();
 }

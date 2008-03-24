@@ -53,9 +53,9 @@ void CVPU1::LoadState(CZipArchiveReader& archive)
     m_OFST  = registerFile.GetRegister32(STATE_REGS_OFST);
 }
 
-uint32* CVPU1::GetTOP()
+uint32 CVPU1::GetTOP()
 {
-	return &m_TOP;
+	return m_TOP;
 }
 
 uint32 CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
@@ -81,10 +81,12 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
 		break;
 	case 0x11:
 		//FLUSH
+        assert(!m_vif.IsVU1Running());
 		return 0;
 		break;
 	case 0x13:
 		//FLUSHA
+        assert(!m_vif.IsVU1Running());
 		return 0;
 		break;
 	case 0x14:

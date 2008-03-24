@@ -9,7 +9,7 @@ public:
                     CVPU1(CVIF&, unsigned int, const CVIF::VPUINIT&);
     virtual void    SaveState(CZipArchiveWriter&);
     virtual void    LoadState(CZipArchiveReader&);
-    virtual uint32* GetTOP();
+    virtual uint32  GetTOP();
     virtual void    Reset();
 
 protected:

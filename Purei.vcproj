@@ -725,6 +725,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\VuExecutor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\VUExecutor.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\VUShared.cpp"
 				>
 			</File>

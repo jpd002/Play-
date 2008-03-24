@@ -15,14 +15,14 @@ public:
     CBasicBlock*    FindBlockStartingAt(uint32);
     void            Clear();
 
-private:
+protected:
     typedef std::list<CBasicBlock*> BlockList;
     typedef std::map<uint32, CBasicBlock*, std::greater<uint32> > BlockBeginMap;
     typedef std::map<uint32, CBasicBlock*> BlockEndMap;
 
     void            CreateBlock(uint32, uint32);
     void            DeleteBlock(CBasicBlock*);
-    void            PartitionFunction(uint32);
+    virtual void    PartitionFunction(uint32);
 
     BlockList       m_blocks;
     BlockBeginMap   m_blockBegin;

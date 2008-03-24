@@ -74,6 +74,8 @@ public:
 	uint32                      IOPortReadHandler(uint32);
 	uint32                      IOPortWriteHandler(uint32, uint32);
 
+    uint32                      Vu1IoPortReadHandler(uint32);
+
 	void                        EEMemWriteHandler(uint32);
 
 	CGSHandler*				    m_pGS;

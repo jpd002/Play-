@@ -4,7 +4,7 @@
 #include "Types.h"
 #include "VIF.h"
 #include "MIPS.h"
-#include "MipsExecutor.h"
+#include "VuExecutor.h"
 #include <boost/thread.hpp>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -16,7 +16,7 @@ public:
     virtual             ~CVPU();
     void                SingleStep();
     virtual void        Reset();
-    virtual uint32*     GetTOP();
+    virtual uint32      GetTOP();
     virtual void        SaveState(CZipArchiveWriter&);
     virtual void        LoadState(CZipArchiveReader&);
     virtual void        ProcessPacket(uint32, uint32);
@@ -122,7 +122,7 @@ protected:
     boost::thread*      m_execThread;
     boost::condition    m_execCondition;
     boost::mutex        m_execMutex;
-    CMipsExecutor       m_executor;
+    CVuExecutor         m_executor;
 };
 
 #endif

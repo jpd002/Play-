@@ -25,38 +25,32 @@ uint8			CMA_VU::CLower::m_nDest;
 
 void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx, bool nParent)
 {
-	uint32 nPrevOpcode = pCtx->m_pMemoryMap->GetWord(nAddress - 8);
-	uint32 nNextOpcode = pCtx->m_pMemoryMap->GetWord(nAddress + 4);
+    uint32 nPrevOpcode = pCtx->m_pMemoryMap->GetWord(nAddress - 8);
+    uint32 nNextOpcode = pCtx->m_pMemoryMap->GetWord(nAddress + 4);
 
-	if(IsInstructionBranch(pCtx, nAddress - 8, nPrevOpcode))
-	{
-		m_pB->SetDelayedJumpCheck();
-	}
+    if(nNextOpcode & 0x80000000)
+    {
+	    return;
+    }
 
-	if(nNextOpcode & 0x80000000)
-	{
-//		LOI();
-		return;
-	}
+    m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
 
-	m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
+    m_nFSF		= ((m_nDest >> 0) & 0x03);
+    m_nFTF		= ((m_nDest >> 2) & 0x03);
 
-	m_nFSF		= ((m_nDest >> 0) & 0x03);
-	m_nFTF		= ((m_nDest >> 2) & 0x03);
+    m_nIT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
+    m_nIS		= (uint8 )((m_nOpcode >> 11) & 0x001F);
+    m_nID		= (uint8 )((m_nOpcode >>  6) & 0x001F);
+    m_nImm5		= m_nID;
+    m_nImm11	= (uint16)((m_nOpcode >>  0) & 0x07FF);
+    m_nImm15	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
+    m_nImm15S	= m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
+    m_nImm24	= m_nOpcode & 0x00FFFFFF;
 
-	m_nIT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
-	m_nIS		= (uint8 )((m_nOpcode >> 11) & 0x001F);
-	m_nID		= (uint8 )((m_nOpcode >>  6) & 0x001F);
-	m_nImm5		= m_nID;
-	m_nImm11	= (uint16)((m_nOpcode >>  0) & 0x07FF);
-	m_nImm15	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
-	m_nImm15S	= m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
-	m_nImm24	= m_nOpcode & 0x00FFFFFF;
-
-	if(m_nOpcode != 0x8000033C)
-	{
-		m_pOpGeneral[m_nOpcode >> 25]();
-	}
+    if(m_nOpcode != 0x8000033C)
+    {
+	    m_pOpGeneral[m_nOpcode >> 25]();
+    }
 }
 
 void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
@@ -75,19 +69,17 @@ void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
 
 void CMA_VU::CLower::SetBranchAddressEx(bool nCondition, int32 nOffset)
 {
-	CCodeGen::BeginIfElse(nCondition);
-	{
-		CCodeGen::PushVar(&m_pCtx->m_State.nPC);
-		CCodeGen::PushCst(nOffset);
-		CCodeGen::Add();
-		CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
-	}
-	CCodeGen::BeginIfElseAlt();
-	{
-		CCodeGen::PushCst(MIPS_INVALID_PC);
-		CCodeGen::PullVar(&m_pCtx->m_State.nDelayedJumpAddr);
-	}
-	CCodeGen::EndIf();
+    m_codeGen->BeginIfElse(nCondition);
+    {
+        m_codeGen->PushCst(m_nAddress + nOffset + 4);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+    }
+    m_codeGen->BeginIfElseAlt();
+    {
+        m_codeGen->PushCst(MIPS_INVALID_PC);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+    }
+    m_codeGen->EndIf();
 }
 
 void CMA_VU::CLower::PushIntegerRegister(unsigned int nRegister)
@@ -119,80 +111,71 @@ uint32 CMA_VU::CLower::GetDestOffset(uint8 nDest)
 //00
 void CMA_VU::CLower::LQ()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		for(unsigned int i = 0; i < 4; i++)
-		{
-			if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
-			///////////////////////////////
-			// Push context
+        ///////////////////////////////
+        // Push context
 
-			CCodeGen::PushRef(m_pCtx);
+        m_codeGen->PushRef(m_pCtx);
 
-			///////////////////////////////
-			// Compute address
+        ///////////////////////////////
+        // Compute address
 
-			PushIntegerRegister(m_nIS);
-			CCodeGen::PushCst((uint32)VUShared::GetImm11Offset(m_nImm11));
-			CCodeGen::Add();
-			//Decomment -> CCodeGen::Shl(4);
+        PushIntegerRegister(m_nIS);
+        m_codeGen->PushCst(static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)));
+        m_codeGen->Add();
+        m_codeGen->Shl(4);
 
-			CCodeGen::PushCst(i * 4);
-			CCodeGen::Add();
+        m_codeGen->PushCst(i * 4);
+        m_codeGen->Add();
 
-			///////////////////////////////
-			// Call
+        ///////////////////////////////
+        // Call
 
-			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
-			///////////////////////////////
-			// Store value
+        ///////////////////////////////
+        // Store value
 
-			CCodeGen::PullRel(VUShared::GetVectorElement(m_nIT, i));
-		}
-	}
-	CCodeGen::End();
+        m_codeGen->PullRel(VUShared::GetVectorElement(m_nIT, i));
+    }
 }
 
 //01
 void CMA_VU::CLower::SQ()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		for(unsigned int i = 0; i < 4; i++)
-		{
-			if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
-			///////////////////////////////
-			// Push context
+        ///////////////////////////////
+        // Push context
 
-			CCodeGen::PushRef(m_pCtx);
+        m_codeGen->PushRef(m_pCtx);
 
-			///////////////////////////////
-			// Push value
+        ///////////////////////////////
+        // Push value
 
-			CCodeGen::PushRel(VUShared::GetVectorElement(m_nIS, i));
+        m_codeGen->PushRel(VUShared::GetVectorElement(m_nIS, i));
 
-			///////////////////////////////
-			// Compute address
+        ///////////////////////////////
+        // Compute address
 
-			PushIntegerRegister(m_nIT);
-			CCodeGen::PushCst((uint32)VUShared::GetImm11Offset(m_nImm11));
-			CCodeGen::Add();
-			//Decomment -> CCodeGen::Shl(4);
+        PushIntegerRegister(m_nIT);
+        m_codeGen->PushCst(static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)));
+        m_codeGen->Add();
+        m_codeGen->Shl(4);
 
-			CCodeGen::PushCst(i * 4);
-			CCodeGen::Add();
+        m_codeGen->PushCst(i * 4);
+        m_codeGen->Add();
 
-			///////////////////////////////
-			// Call
+        ///////////////////////////////
+        // Call
 
-			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-		}
-
-	}
-	CCodeGen::End();
+        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+    }
 }
 
 //04
@@ -235,7 +218,7 @@ void CMA_VU::CLower::ISW()
 void CMA_VU::CLower::IADDIU()
 {
     PushIntegerRegister(m_nIS);
-    m_codeGen->PushCst((uint16)m_nImm15);
+    m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
     m_codeGen->Add();
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
@@ -243,9 +226,10 @@ void CMA_VU::CLower::IADDIU()
 //09
 void CMA_VU::CLower::ISUBIU()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	m_pB->SubImm((uint16)m_nImm15);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2VI[m_nIT]);
+    PushIntegerRegister(m_nIS);
+    m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
+    m_codeGen->Sub();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //11
@@ -368,23 +352,19 @@ void CMA_VU::CLower::IBEQ()
 //29
 void CMA_VU::CLower::IBNE()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		//Operand 1
-		PushIntegerRegister(m_nIS);
-		CCodeGen::PushCst(0xFFFF);
-		CCodeGen::And();
+    //Operand 1
+    PushIntegerRegister(m_nIS);
+    m_codeGen->PushCst(0xFFFF);
+    m_codeGen->And();
 
-		//Operand 2
-		PushIntegerRegister(m_nIT);
-		CCodeGen::PushCst(0xFFFF);
-		CCodeGen::And();
+    //Operand 2
+    PushIntegerRegister(m_nIT);
+    m_codeGen->PushCst(0xFFFF);
+    m_codeGen->And();
 
-		CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-		SetBranchAddressEx(false, VUShared::GetBranch(m_nImm11) + 4);
-	}
-	CCodeGen::End();
+    SetBranchAddressEx(false, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2C
@@ -461,10 +441,10 @@ void CMA_VU::CLower::LOWEROP()
 //30
 void CMA_VU::CLower::IADD()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIT]);
-	m_pB->Add();
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2VI[m_nID]);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+    m_codeGen->Add();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
 }
 
 //31
@@ -553,50 +533,45 @@ void CMA_VU::CLower::MOVE()
 //0D
 void CMA_VU::CLower::LQI()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		for(unsigned int i = 0; i < 4; i++)
-		{
-			if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
-			///////////////////////////////
-			// Push context
+        ///////////////////////////////
+        // Push context
 
-			CCodeGen::PushRef(m_pCtx);
+        m_codeGen->PushRef(m_pCtx);
 
-			///////////////////////////////
-			// Compute address
+        ///////////////////////////////
+        // Compute address
 
-			PushIntegerRegister(m_nIS);
-			//Decomment -> CCodeGen::Shl(4);
+        PushIntegerRegister(m_nIS);
+        m_codeGen->Shl(4);
 
-			CCodeGen::PushCst(i * 4);
-			CCodeGen::Add();
+        m_codeGen->PushCst(i * 4);
+        m_codeGen->Add();
 
-			///////////////////////////////
-			// Call
+        ///////////////////////////////
+        // Call
 
-			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
 
-			///////////////////////////////
-			// Store result
+        ///////////////////////////////
+        // Store result
 
-			CCodeGen::PullRel(VUShared::GetVectorElement(m_nIT, i)); 
-		}
+        m_codeGen->PullRel(VUShared::GetVectorElement(m_nIT, i)); 
+    }
 
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-		CCodeGen::PushCst(1);
-		CCodeGen::Add();
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	}
-	CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushCst(1);
+    m_codeGen->Add();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 }
 
 //0E
 void CMA_VU::CLower::DIV()
 {
-    throw new runtime_error("Reimplement.");
-//	VUShared::DIV(m_pB, m_pCtx, m_nIS, m_nFSF, m_nIT, m_nFTF);
+    VUShared::DIV(m_codeGen, m_nIS, m_nFSF, m_nIT, m_nFTF);
 }
 
 //0F
@@ -638,9 +613,16 @@ void CMA_VU::CLower::XTOP()
 //1B
 void CMA_VU::CLower::XGKICK()
 {
-    assert(0);
-//	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-//	m_pB->Call(CVIF::ProcessXGKICK, 1, false);
+    //Push context
+    m_codeGen->PushRef(m_pCtx);
+
+    //Compute Address
+    m_codeGen->PushCst(CVIF::VU1_XGKICK);
+
+    //Push value
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+
+    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 }
 
 //////////////////////////////////////////////////
@@ -657,43 +639,39 @@ void CMA_VU::CLower::MR32()
 //0D
 void CMA_VU::CLower::SQI()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		for(unsigned int i = 0; i < 4; i++)
-		{
-			if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
-			///////////////////////////////
-			// Push context
+        ///////////////////////////////
+        // Push context
 
-			CCodeGen::PushRef(m_pCtx);
+        m_codeGen->PushRef(m_pCtx);
 
-			///////////////////////////////
-			// Push value
+        ///////////////////////////////
+        // Push value
 
-			CCodeGen::PushRel(VUShared::GetVectorElement(m_nIS, i)); 
+        m_codeGen->PushRel(VUShared::GetVectorElement(m_nIS, i)); 
 
-			///////////////////////////////
-			// Compute address
+        ///////////////////////////////
+        // Compute address
 
-			PushIntegerRegister(m_nIT);
-			//Decomment -> CCodeGen::Shl(4);
+        PushIntegerRegister(m_nIT);
+        m_codeGen->Shl(4);
 
-			CCodeGen::PushCst(i * 4);
-			CCodeGen::Add();
+        m_codeGen->PushCst(i * 4);
+        m_codeGen->Add();
 
-			///////////////////////////////
-			// Call
+        ///////////////////////////////
+        // Call
 
-			CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
-		}
+        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+    }
 
-		CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		CCodeGen::PushCst(1);
-		CCodeGen::Add();
-		CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+    m_codeGen->PushCst(1);
+    m_codeGen->Add();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //0F

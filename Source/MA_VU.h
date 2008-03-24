@@ -34,7 +34,6 @@ private:
 		static void							(*m_pOpVector2[0x20])();
 		static void							(*m_pOpVector3[0x20])();
 
-		static uint32						m_nOpcode;
 		static uint8						m_nFT;
 		static uint8						m_nFS;
 		static uint8						m_nFD;

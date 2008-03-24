@@ -28,7 +28,7 @@ CMIPSInstructionFactory::~CMIPSInstructionFactory()
 void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx)
 {
 	m_pCtx			= pCtx;
-//	m_pB			= pBlock;
+    m_pB            = NULL;
     m_codeGen       = reinterpret_cast<CMipsCodeGen*>(pBlock);
 	m_nAddress		= nAddress;
 

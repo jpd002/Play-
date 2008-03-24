@@ -57,7 +57,7 @@ namespace VUShared
 	void				MSUBAi(CCacheBlock*, CMIPS*, uint8, uint8);
 	void				MUL(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MULi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				MULi(CCodeGen*, uint8, uint8, uint8);
 	void				MULq(CCodeGen*, uint8, uint8, uint8);
 	void				MULA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MULAbc(CCodeGen*, uint8, uint8, uint8, uint8);

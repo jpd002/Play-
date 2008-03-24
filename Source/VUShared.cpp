@@ -431,16 +431,12 @@ void VUShared::MULbc(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::MULi(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::MULi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2I);
-		CVUF128::Mul();
-		PullVector(nDest, &pCtx->m_State.nCOP2[nFd]);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_MulS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
 void VUShared::MULq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)

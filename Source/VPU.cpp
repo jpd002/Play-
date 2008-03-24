@@ -73,10 +73,9 @@ void CVPU::LoadState(CZipArchiveReader& archive)
     m_NUM   = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
 }
 
-uint32* CVPU::GetTOP()
+uint32 CVPU::GetTOP()
 {
-	assert(0);
-	return NULL;
+    throw exception();
 }
 
 uint8* CVPU::GetVuMemory() const
@@ -235,7 +234,7 @@ uint32 CVPU::Cmd_MPG(CODE nCommand, uint32 nAddress, uint32 nSize)
 	//Check if there's a change
 	if(memcmp(m_pMicroMem + nDstAddr, m_vif.GetRam() + nAddress, nSize) != 0)
 	{
-//		m_pCtx->m_pExecMap->InvalidateBlocks();
+        m_executor.Clear();
         memcpy(m_pMicroMem + nDstAddr, m_vif.GetRam() + nAddress, nSize);
 	}
 

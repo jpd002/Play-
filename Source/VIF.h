@@ -29,8 +29,8 @@ public:
 
     enum VU1REGISTERS
     {
-        VU1_TOP     = 0x4400,
-        VU1_XGKICK  = 0x4410,
+        VU1_TOP     = 0x8400,
+        VU1_XGKICK  = 0x8410,
     };
 
     enum STAT_BITS
@@ -48,7 +48,7 @@ public:
 
     uint32      ReceiveDMA1(uint32, uint32, bool);
 
-    uint32*     GetTop1Address();
+    uint32      GetTop1();
 
     void        StopVU(CMIPS*);
     void        ProcessXGKICK(uint32);

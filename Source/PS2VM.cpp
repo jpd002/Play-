@@ -27,6 +27,9 @@
 #include "iop/IopBios.h"
 #include "iop/DirectoryDevice.h"
 #include "iop/IsoDevice.h"
+#include "Log.h"
+
+#define LOG_NAME        ("ps2vm")
 
 #define STATE_EE        ("ee")
 #define STATE_VU1       ("vu1")
@@ -265,8 +268,9 @@ void CPS2VM::CreateVM()
 #endif
 
 	//Vector Unit 1 context setup
-	m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	0x00);
-	m_VU1.m_pMemoryMap->InsertReadMap(0x00004000, 0x00007FFF, m_pMicroMem1,	0x01);
+	m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                    0x00);
+	m_VU1.m_pMemoryMap->InsertReadMap(0x00004000, 0x00007FFF, m_pMicroMem1,                                     0x01);
+    m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortReadHandler, this, _1),    0x02);
 
 	m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	0x00);
 
@@ -667,6 +671,21 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 #endif
 
     return 0;
+}
+
+uint32 CPS2VM::Vu1IoPortReadHandler(uint32 address)
+{
+    uint32 result = 0xCCCCCCCC;
+    switch(address)
+    {
+    case CVIF::VU1_TOP:
+        result = m_vif.GetTop1();
+        break;
+    default:
+        CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU IO port (0x%0.8X).\r\n", address);
+        break;
+    }
+    return result;
 }
 
 void CPS2VM::EEMemWriteHandler(uint32 nAddress)
