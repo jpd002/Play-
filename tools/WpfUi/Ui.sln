@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui", "Ui\Ui.csproj", "{927D7216-FE4A-4C5D-B177-18DEA5AF0DC5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{68488C1B-6DE1-4407-BCEB-DC14A0E4AD81} = {68488C1B-6DE1-4407-BCEB-DC14A0E4AD81}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ps2Vm", "Ps2Vm\Ps2Vm.csproj", "{68488C1B-6DE1-4407-BCEB-DC14A0E4AD81}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{927D7216-FE4A-4C5D-B177-18DEA5AF0DC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{927D7216-FE4A-4C5D-B177-18DEA5AF0DC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{927D7216-FE4A-4C5D-B177-18DEA5AF0DC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{927D7216-FE4A-4C5D-B177-18DEA5AF0DC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68488C1B-6DE1-4407-BCEB-DC14A0E4AD81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68488C1B-6DE1-4407-BCEB-DC14A0E4AD81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68488C1B-6DE1-4407-BCEB-DC14A0E4AD81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68488C1B-6DE1-4407-BCEB-DC14A0E4AD81}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
