@@ -616,11 +616,11 @@ void CMA_VU::CLower::XGKICK()
     //Push context
     m_codeGen->PushRef(m_pCtx);
 
-    //Compute Address
-    m_codeGen->PushCst(CVIF::VU1_XGKICK);
-
     //Push value
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+
+    //Compute Address
+    m_codeGen->PushCst(CVIF::VU1_XGKICK);
 
     m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 }

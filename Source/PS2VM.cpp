@@ -272,7 +272,8 @@ void CPS2VM::CreateVM()
 	m_VU1.m_pMemoryMap->InsertReadMap(0x00004000, 0x00007FFF, m_pMicroMem1,                                     0x01);
     m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortReadHandler, this, _1),    0x02);
 
-	m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	0x00);
+	m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                        0x00);
+    m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortWriteHandler, this, _1, _2),  0x01);
 
 	m_VU1.m_pArch			= &g_MAVU;
 	m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
@@ -686,6 +687,20 @@ uint32 CPS2VM::Vu1IoPortReadHandler(uint32 address)
         break;
     }
     return result;
+}
+
+uint32 CPS2VM::Vu1IoPortWriteHandler(uint32 address, uint32 value)
+{
+    switch(address)
+    {
+    case CVIF::VU1_XGKICK:
+        m_vif.ProcessXGKICK(value);
+        break;
+    default:
+        CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU IO port (0x%0.8X).\r\n", address);
+        break;
+    }
+    return 0;
 }
 
 void CPS2VM::EEMemWriteHandler(uint32 nAddress)

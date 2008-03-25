@@ -28,11 +28,12 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CM
         LOI(pCtx->m_pMemoryMap->GetWord(nAddress - 4));
     }
 
-//    if(m_nOpcode & 0x40000000)
-//    {
-//        m_pB->PushImm(1);
-//        m_pB->PullAddr(&m_pCtx->m_nQuota);
-//    }
+    if(m_nOpcode & 0x40000000)
+    {
+        //Force exception checking if microprogram is done
+        m_codeGen->PushCst(1);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
+    }
 }
 
 void CMA_VU::CUpper::LOI(uint32 nValue)
