@@ -45,6 +45,7 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -90,6 +91,9 @@
       <SubType>Code</SubType>
       <DependentUpon>VfsManager.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VfsManager_Device.cs" />
+    <Compile Include="VfsManager_DeviceList.cs" />
+    <Compile Include="VfsManager_DirectoryDevice.cs" />
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

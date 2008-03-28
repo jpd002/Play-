@@ -1,12 +1,12 @@
 ﻿<Window x:Class="Ui.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Ui" Width="500" Height="500" WindowStartupLocation="CenterScreen"
+    Title="プレイ!" Width="500" Height="500" WindowStartupLocation="CenterScreen"
     >
   <DockPanel>
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="_File">
-        <MenuItem Header="Load .ELF" InputGestureText="Ctrl+O" />
+        <MenuItem Header="Load .ELF" Click="mnuLoadElf_Click" InputGestureText="Ctrl+O" />
         <Separator />
         <MenuItem Header="Quit" Click="mnuQuit_Click" InputGestureText="Alt+F4" />
       </MenuItem>
@@ -21,8 +21,8 @@
       </MenuItem>
     </Menu>
     <StatusBar DockPanel.Dock="Bottom">
-      <StatusBarItem>
-        <TextBlock>Hello</TextBlock>
+      <StatusBarItem x:Name="statusPanel_Primary">
+        <TextBlock>Primary</TextBlock>
       </StatusBarItem>
     </StatusBar>
     <Rectangle Fill="Black" />
