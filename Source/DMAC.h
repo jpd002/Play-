@@ -80,6 +80,7 @@ public:
 	void                DisassembleSet(uint32, uint32);
 
 	bool                IsInterruptPending();
+    void                ResumeDMA1();
 	uint32				ResumeDMA3(void*, uint32);
 	void                ResumeDMA4();
 	static bool         IsEndTagId(uint32);

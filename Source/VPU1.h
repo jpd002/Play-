@@ -13,9 +13,9 @@ public:
     virtual void    Reset();
 
 protected:
-    virtual uint32  ExecuteCommand(CODE, uint32, uint32);
-    virtual uint32  Cmd_DIRECT(CODE, uint32, uint32);
-    virtual uint32  Cmd_UNPACK(CODE, uint32, uint32);
+    virtual uint32  ExecuteCommand(CODE, CVIF::CFifoStream&);
+    virtual uint32  Cmd_DIRECT(CODE, CVIF::CFifoStream&);
+    virtual uint32  Cmd_UNPACK(CODE, CVIF::CFifoStream&);
 
 private:
     uint32          m_BASE;

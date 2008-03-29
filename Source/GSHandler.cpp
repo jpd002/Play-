@@ -46,6 +46,8 @@
 #define STATE_PRIVREGS_CRTMODE          ("CrtMode")
 #define STATE_PRIVREGS_CRTFRAMEMODE     ("CrtFrameMode")
 
+#define LOG_NAME    ("gs")
+
 using namespace Framework;
 using namespace std::tr1;
 using namespace boost;
@@ -271,7 +273,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 		R_REG(nAddress, nData, m_nCSR);
 		break;
 	default:
-		printf("GS: Read an unhandled priviledged register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled priviledged register (0x%0.8X).\r\n", nAddress);
 		nData = 0xCCCCCCCC;
 		break;
 	}
@@ -288,7 +290,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		{
 			if((m_nPMODE & 0x01) && (m_nPMODE & 0x02))
 			{
-				printf("GS: Warning. Both read circuits were enabled. Using RC1 for display.\r\n");
+				CLog::GetInstance().Print(LOG_NAME, "Warning. Both read circuits were enabled. Using RC1 for display.\r\n");
 				m_nPMODE &= ~0x02;
 			}
 		}
@@ -297,20 +299,10 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nDISPFB1);
 		if(nAddress & 0x04)
 		{
-//			{
-//				DISPFB* dispfb;
-//				dispfb = GetDispFb(0);
-//				printf("GS: DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
-//					dispfb->GetBufPtr(), \
-//					dispfb->GetBufWidth(), \
-//					dispfb->nPSM, \
-//					dispfb->nX, \
-//					dispfb->nY);
-//			}
 #ifdef _DEBUG
 			DISPFB* dispfb;
 			dispfb = GetDispFb(0);
-            CLog::GetInstance().Print("gs", "DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+            CLog::GetInstance().Print(LOG_NAME, "DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
 				dispfb->GetBufPtr(), \
 				dispfb->GetBufWidth(), \
 				dispfb->nPSM, \
@@ -330,20 +322,10 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nDISPFB2);
 		if(nAddress & 0x04)
 		{
-//			{
-//				DISPFB* dispfb;
-//				dispfb = GetDispFb(1);
-//				printf("GS: DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
-//					dispfb->GetBufPtr(), \
-//					dispfb->GetBufWidth(), \
-//					dispfb->nPSM, \
-//					dispfb->nX, \
-//					dispfb->nY);
-//			}
 #ifdef _DEBUG
 			DISPFB* dispfb;
 			dispfb = GetDispFb(1);
-            CLog::GetInstance().Print("gs", "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+            CLog::GetInstance().Print(LOG_NAME, "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
 				dispfb->GetBufPtr(), \
 				dispfb->GetBufWidth(), \
 				dispfb->nPSM, \
@@ -377,7 +359,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nIMR);
 		break;
 	default:
-		printf("GS: Wrote to an unhandled priviledged register (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled priviledged register (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
 		break;
 	}
 }
@@ -461,7 +443,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 
 #ifdef _DEBUG
-//	DisassembleWrite(nRegister, nData);
+//    DisassembleWrite(nRegister, nData);
 #endif
 }
 
@@ -472,7 +454,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 	if(m_TrxCtx.nSize == 0)
 	{
 #ifdef _DEBUG
-		printf("GS: Warning. Received image data when no transfer was expected.\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "Warning. Received image data when no transfer was expected.\r\n");
 #endif
 		return;
 	}
@@ -948,7 +930,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	{
 	case GS_REG_PRIM:
 		DECODE_PRIM(nData, pr);
-		printf("GS: PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
+        CLog::GetInstance().Print(LOG_NAME, "PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
 			pr.nType, \
 			pr.nShading, \
 			pr.nTexture, \
@@ -962,7 +944,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_RGBAQ:
 		GSRGBAQ rgbaq;
 		DECODE_RGBAQ(nData, rgbaq);
-		printf("GS: RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f);\r\n", \
 			rgbaq.nR,
 			rgbaq.nG,
 			rgbaq.nB,
@@ -971,19 +953,19 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_ST:
 		DECODE_ST(nData, nS, nT);
-		printf("GS: ST(S: %f, T: %f);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "ST(S: %f, T: %f);\r\n", \
 			nS, \
 			nT);
 		break;
 	case GS_REG_UV:
 		DECODE_UV(nData, nU, nV);
-		printf("GS: UV(U: %f, V: %f);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "UV(U: %f, V: %f);\r\n", \
 			nU, \
 			nV);
 		break;
 	case GS_REG_XYZ2:
 		DECODE_XYZ2(nData, nX, nY, nZ);
-		printf("GS: XYZ2(%f, %f, %f);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "XYZ2(%f, %f, %f);\r\n", \
 			nX, \
 			nY, \
 			nZ);
@@ -992,7 +974,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		{
 			XYZF xyzf;
 			xyzf = *reinterpret_cast<XYZF*>(&nData);
-			printf("GS: XYZF2(%f, %f, %i, %i);\r\n", \
+			CLog::GetInstance().Print(LOG_NAME, "XYZF2(%f, %f, %i, %i);\r\n", \
 				xyzf.GetX(),
 				xyzf.GetY(),
 				xyzf.nZ,
@@ -1001,7 +983,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_XYZ3:
 		DECODE_XYZ2(nData, nX, nY, nZ);
-		printf("GS: XYZ3(%f, %f, %f);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "XYZ3(%f, %f, %f);\r\n", \
 			nX, \
 			nY, \
 			nZ);
@@ -1011,7 +993,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		{
 			GSTEX0 tex;
 			DECODE_TEX0(nData, tex);
-			printf("GS: TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
+			CLog::GetInstance().Print(LOG_NAME, "TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
 				nRegister == GS_REG_TEX0_1 ? 1 : 2, \
 				tex.GetBufPtr(), \
 				tex.GetBufWidth(), \
@@ -1032,7 +1014,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		{
 			CLAMP clamp;
 			clamp = *(CLAMP*)&nData;
-			printf("GS: CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i);\r\n", \
+			CLog::GetInstance().Print(LOG_NAME, "CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i);\r\n", \
 				nRegister == GS_REG_CLAMP_1 ? 1 : 2, \
 				clamp.nWMS, \
 				clamp.nWMT, \
@@ -1047,7 +1029,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		{
 			GSTEX1 tex1;
 			DECODE_TEX1(nData, tex1);
-			printf("GS: TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i);\r\n", \
+			CLog::GetInstance().Print(LOG_NAME, "TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i);\r\n", \
 				nRegister == GS_REG_TEX1_1 ? 1 : 2, \
 				tex1.nLODMethod, \
 				tex1.nMaxMip, \
@@ -1062,7 +1044,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_TEX2_2:
 		TEX2 tex2;
 		tex2 = *(TEX2*)&nData;
-		printf("GS: TEX2_%i(PSM: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "TEX2_%i(PSM: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
 			nRegister == GS_REG_TEX2_1 ? 1 : 2, \
 			tex2.nPsm, \
 			tex2.GetCLUTPtr(), \
@@ -1073,19 +1055,19 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_XYOFFSET_1:
 	case GS_REG_XYOFFSET_2:
-		printf("GS: XYOFFSET_%i(%i, %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "XYOFFSET_%i(%i, %i);\r\n", \
 			nRegister == GS_REG_XYOFFSET_1 ? 1 : 2, \
 			(uint32)((nData >>  0) & 0xFFFFFFFF), \
 			(uint32)((nData >> 32) & 0xFFFFFFFF));
 		break;
 	case GS_REG_PRMODECONT:
-		printf("GS: PRMODECONT(AC = %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "PRMODECONT(AC = %i);\r\n", \
 			nData & 1);
 		break;
 	case GS_REG_PRMODE:
 		GSPRMODE prm;
 		DECODE_PRMODE(nData, prm);
-		printf("GS: PMMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "PMMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
 			prm.nShading, \
 			prm.nTexture, \
 			prm.nFog, \
@@ -1098,7 +1080,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_TEXCLUT:
 		TEXCLUT clut;
 		clut = *(TEXCLUT*)&nData;
-		printf("GS: TEXCLUT(CBW: %i, COU: %i, COV: %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "TEXCLUT(CBW: %i, COU: %i, COV: %i);\r\n", \
 			clut.nCBW,
 			clut.nCOU,
 			clut.nCOV);
@@ -1106,7 +1088,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_FOGCOL:
 		FOGCOL fogcol;
 		fogcol = *(FOGCOL*)&nData;
-		printf("GS: FOGCOL(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "FOGCOL(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X);\r\n", \
 			fogcol.nFCR,
 			fogcol.nFCG,
 			fogcol.nFCB);
@@ -1114,19 +1096,19 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_TEXA:
 		GSTEXA TexA;
 		DECODE_TEXA(nData, TexA);
-		printf("GS: TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X);\r\n", \
 			TexA.nTA0,
 			TexA.nAEM,
 			TexA.nTA1);
 		break;
 	case GS_REG_TEXFLUSH:
-		printf("GS: TEXFLUSH();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "TEXFLUSH();\r\n");
 		break;
 	case GS_REG_ALPHA_1:
 	case GS_REG_ALPHA_2:
 		GSALPHA alpha;
 		DECODE_ALPHA(nData, alpha);
-		printf("GS: ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X);\r\n", \
 			nRegister == GS_REG_ALPHA_1 ? 1 : 2, \
 			alpha.nA, \
 			alpha.nB, \
@@ -1135,7 +1117,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			alpha.nFix);
 		break;
 	case GS_REG_SCISSOR_1:
-		printf("GS: SCISSOR_1(%i, %i, %i, %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "SCISSOR_1(%i, %i, %i, %i);\r\n", \
 			(uint32)((nData >>  0) & 0xFFFF), \
 			(uint32)((nData >> 16) & 0xFFFF), \
 			(uint32)((nData >> 32) & 0xFFFF), \
@@ -1145,7 +1127,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_TEST_2:
 		GSTEST tst;
 		DECODE_TEST(nData, tst);
-		printf("GS: TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i);\r\n", \
 			nRegister == GS_REG_TEST_1 ? 1 : 2, \
 			tst.nAlphaEnabled, \
 			tst.nAlphaMethod, \
@@ -1160,7 +1142,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_FRAME_2:
 		FRAME fr;
 		fr = *(FRAME*)&nData;
-		printf("GS: FRAME_%i(FBP: 0x%0.8X, FBW: %i, PSM: %i, FBMSK: %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "FRAME_%i(FBP: 0x%0.8X, FBW: %i, PSM: %i, FBMSK: %i);\r\n", \
 			nRegister == GS_REG_FRAME_1 ? 1 : 2, \
 			fr.GetBasePtr(), \
 			fr.GetWidth(), \
@@ -1171,7 +1153,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_ZBUF_2:
 		ZBUF zbuf;
 		zbuf = *(ZBUF*)&nData;
-		printf("GS: ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i);\r\n", \
 			nRegister == GS_REG_ZBUF_1 ? 1 : 2, \
 			zbuf.GetBasePtr(), \
 			zbuf.nPsm, \
@@ -1180,7 +1162,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_BITBLTBUF:
 		BITBLTBUF buf;
 		buf = *(BITBLTBUF*)&nData;
-		printf("GS: BITBLTBUF(0x%0.8X, %i, %i, 0x%0.8X, %i, %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "BITBLTBUF(0x%0.8X, %i, %i, 0x%0.8X, %i, %i);\r\n", \
 			buf.GetSrcPtr(), \
 			buf.GetSrcWidth(), \
 			buf.nSrcPsm, \
@@ -1189,7 +1171,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			buf.nDstPsm);
 		break;
 	case GS_REG_TRXPOS:
-		printf("GS: TRXPOS(%i, %i, %i, %i, %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "TRXPOS(%i, %i, %i, %i, %i);\r\n", \
 			(uint32)((nData >>  0) & 0xFFFF), \
 			(uint32)((nData >> 16) & 0xFFFF), \
 			(uint32)((nData >> 32) & 0xFFFF), \
@@ -1197,16 +1179,16 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			(uint32)((nData >> 59) & 0x1));
 		break;
 	case GS_REG_TRXREG:
-		printf("GS: TRXREG(%i, %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "TRXREG(%i, %i);\r\n", \
 			(uint32)((nData >>  0) & 0xFFFFFFFF),
 			(uint32)((nData >> 32) & 0xFFFFFFFF));
 		break;
 	case GS_REG_TRXDIR:
-		printf("GS: TRXDIR(%i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "TRXDIR(%i);\r\n", \
 			(uint32)((nData >>  0) & 0xFFFFFFFF));
 		break;
 	default:
-		printf("GS: Unknown command (0x%X).\r\n", nRegister); 
+		CLog::GetInstance().Print(LOG_NAME, "Unknown command (0x%X).\r\n", nRegister); 
 		break;
 	}
 }

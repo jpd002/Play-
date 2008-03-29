@@ -9,8 +9,10 @@
 #define	PROFILE_DMACZONE "DMAC"
 #endif
 
-#define LOG_NAME        ("dmac")
-#define STATE_REGS_XML  ("dmac/regs.xml")
+#define LOG_NAME            ("dmac")
+#define STATE_REGS_XML      ("dmac/regs.xml")
+#define STATE_REGS_STAT     ("D_STAT")
+#define STATE_REGS_D9_SADR  ("D9_SADR")
 
 using namespace Framework;
 using namespace std;
@@ -41,12 +43,12 @@ m_ram(ram),
 m_spr(spr),
 m_D_STAT(0),
 m_D_ENABLE(0),
-m_D1(*this, 1, DummyTransfertFunction, NULL),
-m_D2(*this, 2, DummyTransfertFunction, NULL),
+m_D1(*this, 1, DummyTransfertFunction),
+m_D2(*this, 2, DummyTransfertFunction),
 m_D3_CHCR(0),
 m_D3_MADR(0),
 m_D3_QWC(0),
-m_D4(*this, 4, DummyTransfertFunction, NULL),
+m_D4(*this, 4, DummyTransfertFunction),
 m_D5_CHCR(0),
 m_D5_MADR(0),
 m_D5_QWC(0),
@@ -54,7 +56,7 @@ m_D6_CHCR(0),
 m_D6_MADR(0),
 m_D6_QWC(0),
 m_D6_TADR(0),
-m_D9(*this, 9, bind(&CDMAC::ReceiveSPRDMA, this, _1, _2, _3, _4), NULL),
+m_D9(*this, 9, bind(&CDMAC::ReceiveSPRDMA, this, _1, _2, _3, _4)),
 m_D9_SADR(0)
 {
     Reset();
@@ -116,6 +118,11 @@ bool CDMAC::IsInterruptPending()
 	nStatus = (uint16)((m_D_STAT & 0x0000E3FF) >>  0);
 
 	return ((nMask & nStatus) != 0);
+}
+
+void CDMAC::ResumeDMA1()
+{
+    m_D1.Execute();
 }
 
 uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
@@ -620,14 +627,26 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 void CDMAC::LoadState(CZipArchiveReader& archive)
 {
     CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-    m_D_STAT = registerFile.GetRegister32("D_STAT");
+    m_D_STAT    = registerFile.GetRegister32(STATE_REGS_STAT);
+    m_D9_SADR   = registerFile.GetRegister32(STATE_REGS_D9_SADR);
+
+    m_D1.LoadState(archive);
+    m_D2.LoadState(archive);
+    m_D4.LoadState(archive);
+    m_D9.LoadState(archive);
 }
 
 void CDMAC::SaveState(CZipArchiveWriter& archive)
 {
     CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-    registerFile->SetRegister32("D_STAT",   m_D_STAT);
+    registerFile->SetRegister32(STATE_REGS_STAT,    m_D_STAT);
+    registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
     archive.InsertFile(registerFile);
+
+    m_D1.SaveState(archive);
+    m_D2.SaveState(archive);
+    m_D4.SaveState(archive);
+    m_D9.SaveState(archive);
 }
 
 void CDMAC::DisassembleGet(uint32 nAddress)

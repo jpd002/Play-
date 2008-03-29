@@ -3,15 +3,14 @@
 
 #include "Types.h"
 #include <functional>
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 class CDMAC;
 
 namespace Dmac
 {
     typedef std::tr1::function<uint32 (uint32, uint32, uint32, bool)> DmaReceiveHandler;
-
-//	typedef uint32				(*DMARECEIVEMETHOD)(uint32, uint32, bool);
-	typedef	void				(*DMASLICEDONECALLBACK)();
 
 	class CChannel
 	{
@@ -27,11 +26,26 @@ namespace Dmac
 			unsigned int		nSTR		: 1;
 			unsigned int		nReserved1	: 7;
 			unsigned int		nTAG		: 16;
+
+            operator uint32()
+            {
+                return *reinterpret_cast<uint32*>(this);
+            }
+
+            CHCR& operator =(uint32 value)
+            {
+                *reinterpret_cast<uint32*>(this) = value;
+                return *this;
+            }
 		};
 
 
-								CChannel(CDMAC&, unsigned int, const DmaReceiveHandler&, DMASLICEDONECALLBACK);
+								CChannel(CDMAC&, unsigned int, const DmaReceiveHandler&);
         virtual                 ~CChannel();
+
+        void                    SaveState(CZipArchiveWriter&);
+        void                    LoadState(CZipArchiveReader&);
+
 		void					Reset();
 		uint32					ReadCHCR();
 		void					WriteCHCR(uint32);
@@ -58,7 +72,6 @@ namespace Dmac
 		unsigned int			m_nNumber;
 		uint32					m_nSCCTRL;
 		DmaReceiveHandler		m_pReceive;
-		DMASLICEDONECALLBACK	m_pSliceDone;
         CDMAC&                  m_dmac;
     };
 };

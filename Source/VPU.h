@@ -19,7 +19,7 @@ public:
     virtual uint32      GetTOP();
     virtual void        SaveState(CZipArchiveWriter&);
     virtual void        LoadState(CZipArchiveReader&);
-    virtual void        ProcessPacket(uint32, uint32);
+    virtual void        ProcessPacket(CVIF::CFifoStream&);
 
     CMIPS&              GetContext() const;
     uint8*              GetVuMemory() const;
@@ -95,13 +95,13 @@ protected:
 
     void                ExecuteThreadProc();
     void                ExecuteMicro(uint32, uint32);
-    virtual uint32      ExecuteCommand(CODE, uint32, uint32);
-    virtual uint32      Cmd_UNPACK(CODE, uint32, uint32);
+    virtual uint32      ExecuteCommand(CODE, CVIF::CFifoStream&);
+    virtual uint32      Cmd_UNPACK(CODE, CVIF::CFifoStream&);
 
-    uint32              Cmd_MPG(CODE, uint32, uint32);
+    uint32              Cmd_MPG(CODE, CVIF::CFifoStream&);
 
-    uint32              Unpack_V45(uint32, uint32, uint32);
-    uint32              Unpack_V432(uint32, uint32, uint32);
+    void                Unpack_V45(uint32, CVIF::CFifoStream&);
+    void                Unpack_V432(uint32, CVIF::CFifoStream&);
 
     uint32              GetVbs() const;
 
@@ -109,6 +109,8 @@ protected:
     CYCLE               m_CYCLE;
     CODE                m_CODE;
     uint8               m_NUM;
+
+    uint128             m_buffer;
 
     uint8*              m_pMicroMem;
     uint8*              m_pVUMem;

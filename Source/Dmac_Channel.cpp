@@ -1,17 +1,28 @@
 #include <string.h>
 #include <assert.h>
+#include <boost/lexical_cast.hpp>
 #include "Dmac_Channel.h"
 #include "DMAC.h"
+#include "RegisterStateFile.h"
+
+#define STATE_PREFIX            ("dmac/channel_")
+#define STATE_SUFFIX            (".xml")
+#define STATE_REGS_CHCR         ("CHCR")
+#define STATE_REGS_MADR         ("MADR")
+#define STATE_REGS_QWC          ("QWC")
+#define STATE_REGS_TADR         ("TADR")
+#define STATE_REGS_SCCTRL       ("SCCTRL")
 
 using namespace std;
 using namespace Dmac;
+using namespace boost;
 
-CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive, DMASLICEDONECALLBACK pSliceDone) :
-m_dmac(dmac)
+CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive) :
+m_dmac(dmac),
+m_nNumber(nNumber),
+m_pReceive(pReceive)
 {
-	m_nNumber		= nNumber;
-	m_pReceive		= pReceive;
-	m_pSliceDone	= pSliceDone;
+
 }
 
 CChannel::~CChannel()
@@ -26,6 +37,29 @@ void CChannel::Reset()
 	m_nQWC		= 0;
 	m_nTADR		= 0;
 	m_nSCCTRL	= 0;
+}
+
+void CChannel::SaveState(CZipArchiveWriter& archive)
+{
+    string path = STATE_PREFIX + lexical_cast<string>(m_nNumber) + STATE_SUFFIX;
+    CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
+    registerFile->SetRegister32(STATE_REGS_CHCR,    m_CHCR);
+    registerFile->SetRegister32(STATE_REGS_MADR,    m_nMADR);
+    registerFile->SetRegister32(STATE_REGS_QWC,     m_nQWC);
+    registerFile->SetRegister32(STATE_REGS_TADR,    m_nTADR);
+    registerFile->SetRegister32(STATE_REGS_SCCTRL,  m_nSCCTRL);
+    archive.InsertFile(registerFile);
+}
+
+void CChannel::LoadState(CZipArchiveReader& archive)
+{
+    string path = STATE_PREFIX + lexical_cast<string>(m_nNumber) + STATE_SUFFIX;
+    CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
+    m_CHCR       = registerFile.GetRegister32(STATE_REGS_CHCR);
+    m_nMADR      = registerFile.GetRegister32(STATE_REGS_MADR);
+    m_nQWC       = registerFile.GetRegister32(STATE_REGS_QWC);
+    m_nTADR      = registerFile.GetRegister32(STATE_REGS_TADR);
+    m_nSCCTRL    = registerFile.GetRegister32(STATE_REGS_SCCTRL);
 }
 
 uint32 CChannel::ReadCHCR()
@@ -52,19 +86,7 @@ void CChannel::WriteCHCR(uint32 nValue)
 	{
 		m_CHCR = *(CHCR*)&nValue;
 	}
-/*
-	if(m_CHCR.nSTR == 0)
-	{
-		if(nSuspend)
-		{
-			m_nSCCTRL |= SCCTRL_SUSPENDED;
-		}
-	}
-    else
-    {
-        Execute();
-    }
-*/
+
     if(m_CHCR.nSTR != 0)
     {
         m_nSCCTRL |= SCCTRL_INITXFER;
@@ -90,22 +112,6 @@ void CChannel::Execute()
 			ExecuteNormal();
 			break;
 		case 0x01:
-			//if(m_D4_QWC == 0)
-			//{
-			//	m_D4_CHCR |= CHCR_INITXFER;
-			//}
-			//m_D4_CHCR |= CHCR_INITXFER;
-
-			//If transfer was suspended
-//			if(m_nSCCTRL & SCCTRL_SUSPENDED)
-//			{
-//				m_nSCCTRL &= (~SCCTRL_SUSPENDED);
-//			}
-//			else
-//			{
-//				m_nSCCTRL |= SCCTRL_INITXFER;
-//			}
-
 			ExecuteSourceChain();
 			break;
 		default:
@@ -128,11 +134,6 @@ void CChannel::ExecuteNormal()
 	{
 		ClearSTR();
 	}
-
-	if(m_pSliceDone != NULL)
-	{
-		m_pSliceDone();
-	}
 }
 
 void CChannel::ExecuteSourceChain()
@@ -152,10 +153,6 @@ void CChannel::ExecuteSourceChain()
 		if(m_nQWC != 0)
 		{
 			//Transfer isn't finished, suspend for now
-			if(m_pSliceDone != NULL)
-			{
-				m_pSliceDone();
-			}
 			return;
 		}
 	}
@@ -261,11 +258,6 @@ void CChannel::ExecuteSourceChain()
 			m_nMADR		+= nRecv * 0x10;
 			m_nQWC		-= nRecv;
 		}
-	}
-
-	if(m_pSliceDone != NULL)
-	{
-		m_pSliceDone();
 	}
 }
 

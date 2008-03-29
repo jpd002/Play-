@@ -53,6 +53,8 @@ public:
     void        StopVU(CMIPS*);
     void        ProcessXGKICK(uint32);
 
+    bool        IsVuDebuggingEnabled() const;
+
     bool        IsVU1Running();
     void        SingleStepVU1();
 
@@ -61,8 +63,36 @@ public:
     uint32      GetStat() const;
     void        SetStat(uint32);
 
-private:
+    class CFifoStream
+    {
+    public:
+                        CFifoStream(uint8*);
+        virtual         ~CFifoStream();
 
+        uint32          GetAddress() const;
+        uint32          GetSize() const;
+        void            Read(void*, uint32);
+        void            Flush();
+        void            Align32();
+        void            SetDmaParams(uint32, uint32);
+
+    private:
+        void            SyncBuffer();
+
+        enum
+        {
+            BUFFERSIZE = 0x10
+        };
+
+        uint128         m_buffer;
+        uint32          m_position;
+        uint8*          m_ram;
+        uint32          m_address;
+        uint32          m_nextAddress;
+        uint32          m_endAddress;
+    };
+
+private:
     enum STAT1_BITS
     {
         STAT1_DBF   = 0x80,
@@ -72,6 +102,7 @@ private:
     CVPU*       m_pVPU[2];
     CGIF&       m_gif;
     uint8*      m_ram;
+    CFifoStream m_stream;
 };
 
 #endif

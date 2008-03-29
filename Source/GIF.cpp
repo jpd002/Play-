@@ -205,7 +205,9 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
     CLog::GetInstance().Print("gif", "Processed GIF packet at 0x%0.8X.\r\n", nAddress);
 #endif
 
-	nStart = nAddress;
+    g_writeList.clear();
+
+    nStart = nAddress;
 	while(nAddress < nEnd)
 	{
 		if(m_nLoops == 0)
@@ -265,15 +267,20 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 	CProfiler::GetInstance().EndZone();
 #endif
 
-	return nAddress - nStart;
+    if(m_gs != NULL && g_writeList.size() != 0)
+    {
+        CGSHandler::RegisterWrite* writeList = new CGSHandler::RegisterWrite[g_writeList.size()];
+        memcpy(writeList, &g_writeList[0], sizeof(CGSHandler::RegisterWrite) * g_writeList.size());
+        m_gs->WriteRegisterMassively(writeList, static_cast<unsigned int>(g_writeList.size()));
+    }
+
+    return nAddress - nStart;
 }
 
 uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIncluded)
 {
 	uint32 nEnd, nSize;
 	uint8* pMemory;
-
-    g_writeList.clear();
 
     assert(nTagIncluded == false);
 
@@ -294,13 +301,6 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIn
 	{
 		nAddress += ProcessPacket(pMemory, nAddress, nEnd);
 	}
-
-    if(m_gs != NULL && g_writeList.size() != 0)
-    {
-        CGSHandler::RegisterWrite* writeList = new CGSHandler::RegisterWrite[g_writeList.size()];
-        memcpy(writeList, &g_writeList[0], sizeof(CGSHandler::RegisterWrite) * g_writeList.size());
-        m_gs->WriteRegisterMassively(writeList, static_cast<unsigned int>(g_writeList.size()));
-    }
 
 	return nQWC;
 }

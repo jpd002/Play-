@@ -864,6 +864,7 @@ void CPS2VM::EmuThread()
                 m_vif.SingleStepVU1();
             }
 #endif
+            m_dmac.ResumeDMA1();
             m_dmac.ResumeDMA4();
             if(!m_EE.m_State.nHasException)
             {
@@ -907,7 +908,7 @@ void CPS2VM::EmuThread()
 //            }
             //END
 #ifdef _DEBUG
-            if(m_vif.IsVU1Running())
+            if(m_vif.IsVuDebuggingEnabled() && m_vif.IsVU1Running())
             {
                 //Force pause
                 m_singleStep = true;

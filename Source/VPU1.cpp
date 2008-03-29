@@ -58,7 +58,7 @@ uint32 CVPU1::GetTOP()
 	return m_TOP;
 }
 
-uint32 CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
+uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 {
 	switch(nCommand.nCMD)
 	{
@@ -91,19 +91,27 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
 		break;
 	case 0x14:
 		//MSCAL
-		m_TOP = m_TOPS;
+        {
+            if(m_vif.IsVU1Running())
+            {
+                m_STAT.nVEW = 1;
+                return 0;
+            }
 
-		if(m_STAT.nDBF == 1)
-		{
-			m_TOPS = m_BASE;
-		}
-		else
-		{
-			m_TOPS = m_BASE + m_OFST;
-		}
-		m_STAT.nDBF = ~m_STAT.nDBF;
+		    m_TOP = m_TOPS;
 
-        ExecuteMicro(nCommand.nIMM + PS2::VUMEM1SIZE, CVIF::STAT_VBS1);
+		    if(m_STAT.nDBF == 1)
+		    {
+			    m_TOPS = m_BASE;
+		    }
+		    else
+		    {
+			    m_TOPS = m_BASE + m_OFST;
+		    }
+		    m_STAT.nDBF = ~m_STAT.nDBF;
+
+            ExecuteMicro(nCommand.nIMM + PS2::VUMEM1SIZE, CVIF::STAT_VBS1);
+        }
 		return 0;
 		break;
 	case 0x17:
@@ -126,76 +134,76 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, uint32 nAddress, uint32 nSize)
 	case 0x50:
 	case 0x51:
 		//DIRECT/DIRECTHL
-		return Cmd_DIRECT(nCommand, nAddress, nSize);
+		return Cmd_DIRECT(nCommand, stream);
 		break;
 	default:
-		return CVPU::ExecuteCommand(nCommand, nAddress, nSize);
+		return CVPU::ExecuteCommand(nCommand, stream);
 		break;
 	}
 }
 
-uint32 CVPU1::Cmd_DIRECT(CODE nCommand, uint32 nAddress, uint32 nSize)
+uint32 CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
 {
-	nSize = min(m_CODE.nIMM * 0x10, nSize);
+    uint32 nSize = stream.GetSize();
+    nSize = min(m_CODE.nIMM * 0x10, nSize);
 
-	m_vif.GetGif().ProcessPacket(m_vif.GetRam(), nAddress, nAddress + nSize);
+    uint8* packet = reinterpret_cast<uint8*>(alloca(nSize));
+    stream.Read(packet, nSize);
 
-	m_CODE.nIMM -= (nSize / 0x10);
-	if((m_CODE.nIMM == 0) && (nSize != 0))
-	{
-		m_STAT.nVPS = 0;
-	}
-	else
-	{
-		m_STAT.nVPS = 1;
-	}
+    m_vif.GetGif().ProcessPacket(packet, 0, nSize);
 
-	return nSize;
+    m_CODE.nIMM -= (nSize / 0x10);
+    if((m_CODE.nIMM == 0) && (nSize != 0))
+    {
+        m_STAT.nVPS = 0;
+    }
+    else
+    {
+        m_STAT.nVPS = 1;
+    }
+
+    return nSize;
 }
 
-uint32 CVPU1::Cmd_UNPACK(CODE nCommand, uint32 nAddress, uint32 nSize)
+uint32 CVPU1::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream)
 {
-	bool nUsn, nFlg;
-	uint32 nDstAddr, nTransfered;
+    bool nFlg       = (m_CODE.nIMM & 0x8000) != 0;
+    bool nUsn       = (m_CODE.nIMM & 0x4000) != 0;
+    uint32 nDstAddr = (m_CODE.nIMM & 0x03FF);
 
-	nFlg		= (m_CODE.nIMM & 0x8000) != 0;
-	nUsn		= (m_CODE.nIMM & 0x4000) != 0;
-	nDstAddr	= (m_CODE.nIMM & 0x03FF);
+    if(nFlg) 
+    {
+        nDstAddr += m_TOPS;
+    }
 
-	if(nFlg) 
-	{
-		nDstAddr += m_TOPS;
-	}
+    uint32 nTransfered = m_CODE.nNUM - m_NUM;
+    nDstAddr += nTransfered;
 
-	nTransfered = m_CODE.nNUM - m_NUM;
-	nDstAddr += nTransfered;
+    nDstAddr *= 0x10;
 
-	nDstAddr *= 0x10;
+    switch(nCommand.nCMD & 0x0F)
+    {
+    case 0x0C:
+        //V4-32
+        Unpack_V432(nDstAddr, stream);
+        break;
+    case 0x0F:
+        //V4-5
+        Unpack_V45(nDstAddr, stream);
+        break;
+    default:
+        assert(0);
+        break;
+    }
 
-	switch(nCommand.nCMD & 0x0F)
-	{
-	case 0x0C:
-		//V4-32
-		nSize = Unpack_V432(nDstAddr, nAddress, nSize);
-		break;
-	case 0x0F:
-		//V4-5
-		nSize = Unpack_V45(nDstAddr, nAddress, nSize);
-		break;
-	default:
-		assert(0);
-		nSize = 0;
-		break;
-	}
+    if(m_NUM != 0)
+    {
+        m_STAT.nVPS = 1;
+    }
+    else
+    {
+        m_STAT.nVPS = 0;
+    }
 
-	if(m_NUM != 0)
-	{
-		m_STAT.nVPS = 1;
-	}
-	else
-	{
-		m_STAT.nVPS = 0;
-	}
-
-	return nSize;
+    return 0;
 }
