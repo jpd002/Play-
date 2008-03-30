@@ -110,7 +110,7 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		    }
 		    m_STAT.nDBF = ~m_STAT.nDBF;
 
-            ExecuteMicro(nCommand.nIMM + PS2::VUMEM1SIZE, CVIF::STAT_VBS1);
+            ExecuteMicro(nCommand.nIMM + PS2::VUMEM1SIZE);
         }
 		return 0;
 		break;
@@ -128,7 +128,7 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		}
 		m_STAT.nDBF = ~m_STAT.nDBF;
 
-        ExecuteMicro(m_pCtx->m_State.nPC, CVIF::STAT_VBS1);
+        ExecuteMicro(m_pCtx->m_State.nPC);
 		return 0;
 		break;
 	case 0x50:

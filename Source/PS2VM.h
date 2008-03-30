@@ -16,6 +16,7 @@
 #include "iso9660/ISO9660.h"
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
+#include "MA_VU.h"
 
 class CIopBios;
 class CPS2OS;
@@ -149,6 +150,7 @@ private:
     CMailBox                    m_mailBox;
     STATUS                      m_nStatus;
     bool                        m_nEnd;
+    CMA_VU                      m_MAVU;
 };
 
 #endif

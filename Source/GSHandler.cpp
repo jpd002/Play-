@@ -49,6 +49,7 @@
 #define LOG_NAME    ("gs")
 
 using namespace Framework;
+using namespace std;
 using namespace std::tr1;
 using namespace boost;
 
@@ -347,8 +348,9 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nCSR);
 		if(!(nAddress & 0x04))
 		{
-//          SetVBlank();
-//          Flip();
+            SetVBlank();
+            Flip();
+            OnNewFrame();
             if(nData & 0x08)
             {
                 ResetVBlank();

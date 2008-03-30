@@ -6,7 +6,6 @@
 #include "VIF.h"
 #include "Timer.h"
 #include "MA_EE.h"
-#include "MA_VU.h"
 #include "COP_SCU.h"
 #include "COP_FPU.h"
 #include "COP_VU.h"
@@ -275,7 +274,7 @@ void CPS2VM::CreateVM()
 	m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                        0x00);
     m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortWriteHandler, this, _1, _2),  0x01);
 
-	m_VU1.m_pArch			= &g_MAVU;
+	m_VU1.m_pArch			= &m_MAVU;
 	m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
 
 #ifdef DEBUGGER_INCLUDED
@@ -339,8 +338,6 @@ void CPS2VM::ResetVM()
 		m_pGS->Reset();
 	}
 
-//	DELETEPTR(m_pOS);
-//	m_pOS = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS);
     m_os->Release();
     m_os->Initialize();
     m_iopOs->Reset();

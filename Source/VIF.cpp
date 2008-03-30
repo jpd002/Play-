@@ -72,6 +72,7 @@ uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 {
     if(IsVU1Running())
     {
+        thread::yield();
         return 0;
     }
 

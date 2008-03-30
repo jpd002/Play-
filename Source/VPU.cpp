@@ -1,10 +1,13 @@
 #include "VPU.h"
+#include "Log.h"
 #include "RegisterStateFile.h"
 #include <boost/static_assert.hpp>
 
 using namespace Framework;
 using namespace boost;
 using namespace std;
+
+#define LOG_NAME                ("vpu")
 
 #define STATE_PREFIX            ("vif/vpu_")
 #define STATE_SUFFIX            (".xml")
@@ -34,7 +37,9 @@ CVPU::~CVPU()
     if(m_execThread != NULL)
     {
         m_endThread = true;
-        m_execCondition.notify_all();
+#ifdef _DEBUG
+        m_execDoneCondition.notify_all();
+#endif
         m_execThread->join();
         delete m_execThread;
     }
@@ -44,7 +49,9 @@ void CVPU::SingleStep()
 {
     mutex::scoped_lock lock(m_execMutex);
     m_paused = false;
-    m_execCondition.wait(m_execMutex);
+#ifdef _DEBUG
+    m_execDoneCondition.wait(m_execMutex);
+#endif
 }
 
 void CVPU::Reset()
@@ -150,44 +157,23 @@ uint32 CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 	}
 }
 
-void CVPU::ExecuteMicro(uint32 nAddress, uint32 nMask)
+void CVPU::ExecuteMicro(uint32 nAddress)
 {
-	//REMOVE
-/*
-	nExecTimes++;
-	if(nExecTimes > 0x7E)
-	{
-		if(!CPS2VM::m_EE.MustBreak())
-		{
-			CPS2VM::m_EE.ToggleBreakpoint(CPS2VM::m_EE.m_State.nPC);
-		}
-		return;
-	}
-*/
-
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_VU1ZONE);
 #endif
 
+    CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
+
 	m_pCtx->m_State.nPC = nAddress;
     m_paused = true;
-    m_vif.SetStat(m_vif.GetStat() | nMask);
+    m_vif.SetStat(m_vif.GetStat() | GetVbs());
+    m_execCondition.notify_all();
     m_STAT.nVEW = 0;
-
-#ifndef VU_DEBUG
-
-//	while(m_vif.GetStat() & nMask)
-//	{
-//		RET_CODE nRet;
-//		nRet = m_pCtx->Execute(100000);
-//	}
-
-#endif
 
 #ifdef PROFILE
 	CProfiler::GetInstance().EndZone();
 #endif
-
 }
 
 void CVPU::ExecuteThreadProc()
@@ -200,14 +186,17 @@ void CVPU::ExecuteThreadProc()
 #ifdef _DEBUG
             (m_paused && m_vif.IsVuDebuggingEnabled())
 #else
-            true
+            false
 #endif
             )
         {
+            mutex::scoped_lock execLock(m_execMutex);
             xtime xt;
             xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += 100 * 1000000;
-			thread::sleep(xt);
+            xt.nsec += 16 * 1000000;
+            m_execCondition.timed_wait(m_execMutex, xt);
+//			thread::sleep(xt);
+//            thread::yield();
         }
         else
         {
@@ -220,7 +209,7 @@ void CVPU::ExecuteThreadProc()
                 m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
             }
 #ifdef _DEBUG
-            m_execCondition.notify_one();
+            m_execDoneCondition.notify_one();
 #endif
         }
     }

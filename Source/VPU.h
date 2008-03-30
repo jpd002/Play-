@@ -94,7 +94,7 @@ protected:
 #pragma pack(pop)
 
     void                ExecuteThreadProc();
-    void                ExecuteMicro(uint32, uint32);
+    void                ExecuteMicro(uint32);
     virtual uint32      ExecuteCommand(CODE, CVIF::CFifoStream&);
     virtual uint32      Cmd_UNPACK(CODE, CVIF::CFifoStream&);
 
@@ -123,6 +123,9 @@ protected:
     bool                m_paused;
     boost::thread*      m_execThread;
     boost::condition    m_execCondition;
+#ifdef _DEBUG
+    boost::condition    m_execDoneCondition;
+#endif
     boost::mutex        m_execMutex;
     CVuExecutor         m_executor;
 };

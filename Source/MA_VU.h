@@ -8,6 +8,7 @@ class CMA_VU : public CMIPSArchitecture
 {
 public:
 											CMA_VU();
+    virtual                                 ~CMA_VU();
 	virtual void							CompileInstruction(uint32, CCacheBlock*, CMIPS*, bool);
 	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
@@ -256,7 +257,5 @@ private:
 	CUpper									m_Upper;
 	CLower									m_Lower;
 };
-
-extern CMA_VU g_MAVU;
 
 #endif
