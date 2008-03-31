@@ -17,7 +17,6 @@
 		7E8988450D08BD090077F9ED /* CodeGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B60D08BD090077F9ED /* CodeGen.cpp */; };
 		7E8988460D08BD090077F9ED /* CodeGen_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */; };
 		7E8988470D08BD090077F9ED /* CodeGen_VUF128.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */; };
-		7E8988480D08BD090077F9ED /* CodeGen_VUI128.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987BD0D08BD090077F9ED /* CodeGen_VUI128.cpp */; };
 		7E8988490D08BD090077F9ED /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987BF0D08BD090077F9ED /* Config.cpp */; };
 		7E89884A0D08BD090077F9ED /* COP_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C00D08BD090077F9ED /* COP_FPU.cpp */; };
 		7E89884B0D08BD090077F9ED /* COP_FPU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C20D08BD090077F9ED /* COP_FPU_Reflection.cpp */; };
@@ -38,7 +37,6 @@
 		7E8988660D08BD090077F9ED /* IPU_MacroblockTypePTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987F60D08BD090077F9ED /* IPU_MacroblockTypePTable.cpp */; };
 		7E8988670D08BD090077F9ED /* IPU_MotionCodeTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987F80D08BD090077F9ED /* IPU_MotionCodeTable.cpp */; };
 		7E8988690D08BD090077F9ED /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987FB0D08BD090077F9ED /* Log.cpp */; };
-		7E89886A0D08BD090077F9ED /* LogControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987FD0D08BD090077F9ED /* LogControl.cpp */; };
 		7E89886B0D08BD090077F9ED /* MA_EE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987FF0D08BD090077F9ED /* MA_EE.cpp */; };
 		7E89886C0D08BD090077F9ED /* MA_EE_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988010D08BD090077F9ED /* MA_EE_Reflection.cpp */; };
 		7E89886D0D08BD090077F9ED /* MA_MIPSIV.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988020D08BD090077F9ED /* MA_MIPSIV.cpp */; };
@@ -62,7 +60,6 @@
 		7E89887F0D08BD090077F9ED /* MIPSInstructionFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89881F0D08BD090077F9ED /* MIPSInstructionFactory.cpp */; };
 		7E8988800D08BD090077F9ED /* MIPSReflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988210D08BD090077F9ED /* MIPSReflection.cpp */; };
 		7E8988810D08BD090077F9ED /* MIPSTags.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988230D08BD090077F9ED /* MIPSTags.cpp */; };
-		7E8988830D08BD090077F9ED /* OsEventManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988280D08BD090077F9ED /* OsEventManager.cpp */; };
 		7E8988840D08BD090077F9ED /* PadHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89882A0D08BD090077F9ED /* PadHandler.cpp */; };
 		7E8988850D08BD090077F9ED /* Profiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89882D0D08BD090077F9ED /* Profiler.cpp */; };
 		7E8988860D08BD090077F9ED /* PS2OS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E89882F0D08BD090077F9ED /* PS2OS.cpp */; };
@@ -72,21 +69,27 @@
 		7E89888F0D08BD090077F9ED /* X86Assembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8988410D08BD090077F9ED /* X86Assembler.cpp */; };
 		7E8989100D08C3B10077F9ED /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E89890F0D08C3910077F9ED /* libFramework.a */; };
 		7E898A360D08C61A0077F9ED /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E898A350D08C61A0077F9ED /* libz.dylib */; };
-		7E898A880D08C9520077F9ED /* libboost_signals-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E898A860D08C9520077F9ED /* libboost_signals-mt.a */; };
-		7E898A890D08C9520077F9ED /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E898A870D08C9520077F9ED /* libboost_thread-mt.a */; };
 		7E898A980D08C9880077F9ED /* DirectoryRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A8C0D08C9880077F9ED /* DirectoryRecord.cpp */; };
 		7E898A990D08C9880077F9ED /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A8E0D08C9880077F9ED /* File.cpp */; };
 		7E898A9A0D08C9880077F9ED /* ISO9660.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A900D08C9880077F9ED /* ISO9660.cpp */; };
 		7E898A9B0D08C9880077F9ED /* PathTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A920D08C9880077F9ED /* PathTable.cpp */; };
 		7E898A9C0D08C9880077F9ED /* PathTableRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A940D08C9880077F9ED /* PathTableRecord.cpp */; };
 		7E898A9D0D08C9880077F9ED /* VolumeDescriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E898A960D08C9880077F9ED /* VolumeDescriptor.cpp */; };
-		7E898AC70D08CB350077F9ED /* libboost_filesystem-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E898AC60D08CB350077F9ED /* libboost_filesystem-mt.a */; };
 		7E8BEF120D171D6300CBEDE8 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */; };
 		7E8BEF130D171D6300CBEDE8 /* MemoryStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */; };
 		7E8BEF660D17542300CBEDE8 /* DisAsmView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */; };
 		7E90A4FB0D1F57A2003095A6 /* InputBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E90A4F90D1F57A2003095A6 /* InputBox.m */; };
 		7E91AB6B0D1B32EA00B20FB7 /* RegView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */; };
 		7E91DBE40D18662400557AC7 /* DebuggerWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91DBE30D18662400557AC7 /* DebuggerWindow.mm */; };
+		7E93A99F0DA0496500F19184 /* VIF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E93A9970DA0496500F19184 /* VIF.cpp */; };
+		7E93A9A00DA0496500F19184 /* VPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E93A9990DA0496500F19184 /* VPU.cpp */; };
+		7E93A9A10DA0496500F19184 /* VPU1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E93A99B0DA0496500F19184 /* VPU1.cpp */; };
+		7E93A9A20DA0496500F19184 /* VuExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E93A99D0DA0496500F19184 /* VuExecutor.cpp */; };
+		7E93AAD40DA0935300F19184 /* libboost_filesystem-mt-1_35.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E93AAD00DA0935300F19184 /* libboost_filesystem-mt-1_35.dylib */; };
+		7E93AAD50DA0935300F19184 /* libboost_regex-mt-1_35.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E93AAD10DA0935300F19184 /* libboost_regex-mt-1_35.dylib */; };
+		7E93AAD60DA0935300F19184 /* libboost_signals-mt-1_35.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E93AAD20DA0935300F19184 /* libboost_signals-mt-1_35.dylib */; };
+		7E93AAD70DA0935300F19184 /* libboost_thread-mt-1_35.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E93AAD30DA0935300F19184 /* libboost_thread-mt-1_35.dylib */; };
+		7E93ABC70DA093B100F19184 /* libboost_system-mt-1_35.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E93ABC60DA093B100F19184 /* libboost_system-mt-1_35.dylib */; };
 		7E947ABE0D09F49A00A2AE15 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7E947AB80D09F49A00A2AE15 /* InfoPlist.strings */; };
 		7E947ABF0D09F49A00A2AE15 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 7E947ABA0D09F49A00A2AE15 /* MainMenu.nib */; };
 		7E947AC00D09F49A00A2AE15 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7E947ABC0D09F49A00A2AE15 /* icon.icns */; };
@@ -123,7 +126,6 @@
 		7EAD8CE30D48528A002CC1C1 /* Iop_McServ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EAD8CDE0D48528A002CC1C1 /* Iop_McServ.cpp */; };
 		7EAD8CE40D48528A002CC1C1 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EAD8CE00D48528A002CC1C1 /* Iop_LibSd.cpp */; };
 		7EAD8CE50D48528A002CC1C1 /* Iop_DbcMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EAD8CE20D48528A002CC1C1 /* Iop_DbcMan.cpp */; };
-		7EE1BC360D4D4B0600B502BD /* libboost_regex-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EE1BC350D4D4B0600B502BD /* libboost_regex-mt.a */; };
 		7EE1BC880D4D4F9000B502BD /* PH_HidMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE1BC870D4D4F8F00B502BD /* PH_HidMacOSX.cpp */; };
 		7EE1BC970D4D512800B502BD /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EE1BC960D4D512800B502BD /* IOKit.framework */; };
 		7EE1BC990D4D513500B502BD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EE1BC980D4D513500B502BD /* CoreFoundation.framework */; };
@@ -170,8 +172,6 @@
 		7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_StackPatterns.h; path = Source/CodeGen_StackPatterns.h; sourceTree = "<group>"; };
 		7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_VUF128.cpp; path = Source/CodeGen_VUF128.cpp; sourceTree = "<group>"; };
 		7E8987BC0D08BD090077F9ED /* CodeGen_VUF128.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_VUF128.h; path = Source/CodeGen_VUF128.h; sourceTree = "<group>"; };
-		7E8987BD0D08BD090077F9ED /* CodeGen_VUI128.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_VUI128.cpp; path = Source/CodeGen_VUI128.cpp; sourceTree = "<group>"; };
-		7E8987BE0D08BD090077F9ED /* CodeGen_VUI128.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_VUI128.h; path = Source/CodeGen_VUI128.h; sourceTree = "<group>"; };
 		7E8987BF0D08BD090077F9ED /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Config.cpp; path = Source/Config.cpp; sourceTree = "<group>"; };
 		7E8987C00D08BD090077F9ED /* COP_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_FPU.cpp; path = Source/COP_FPU.cpp; sourceTree = "<group>"; };
 		7E8987C10D08BD090077F9ED /* COP_FPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_FPU.h; path = Source/COP_FPU.h; sourceTree = "<group>"; };
@@ -194,7 +194,6 @@
 		7E8987D20D08BD090077F9ED /* GSH_Null.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_Null.cpp; path = Source/GSH_Null.cpp; sourceTree = "<group>"; };
 		7E8987D30D08BD090077F9ED /* GSH_Null.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_Null.h; path = Source/GSH_Null.h; sourceTree = "<group>"; };
 		7E8987D40D08BD090077F9ED /* GSHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSHandler.cpp; path = Source/GSHandler.cpp; sourceTree = "<group>"; };
-		7E8987D50D08BD090077F9ED /* HashTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HashTable.h; path = Source/HashTable.h; sourceTree = "<group>"; };
 		7E8987EE0D08BD090077F9ED /* IPU_DmVectorTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPU_DmVectorTable.cpp; path = Source/IPU_DmVectorTable.cpp; sourceTree = "<group>"; };
 		7E8987EF0D08BD090077F9ED /* IPU_DmVectorTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPU_DmVectorTable.h; path = Source/IPU_DmVectorTable.h; sourceTree = "<group>"; };
 		7E8987F00D08BD090077F9ED /* IPU_MacroblockAddressIncrementTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPU_MacroblockAddressIncrementTable.cpp; path = Source/IPU_MacroblockAddressIncrementTable.cpp; sourceTree = "<group>"; };
@@ -209,8 +208,6 @@
 		7E8987F90D08BD090077F9ED /* IPU_MotionCodeTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPU_MotionCodeTable.h; path = Source/IPU_MotionCodeTable.h; sourceTree = "<group>"; };
 		7E8987FB0D08BD090077F9ED /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Log.cpp; path = Source/Log.cpp; sourceTree = "<group>"; };
 		7E8987FC0D08BD090077F9ED /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Log.h; path = Source/Log.h; sourceTree = "<group>"; };
-		7E8987FD0D08BD090077F9ED /* LogControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogControl.cpp; path = Source/LogControl.cpp; sourceTree = "<group>"; };
-		7E8987FE0D08BD090077F9ED /* LogControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogControl.h; path = Source/LogControl.h; sourceTree = "<group>"; };
 		7E8987FF0D08BD090077F9ED /* MA_EE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_EE.cpp; path = Source/MA_EE.cpp; sourceTree = "<group>"; };
 		7E8988000D08BD090077F9ED /* MA_EE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MA_EE.h; path = Source/MA_EE.h; sourceTree = "<group>"; };
 		7E8988010D08BD090077F9ED /* MA_EE_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_EE_Reflection.cpp; path = Source/MA_EE_Reflection.cpp; sourceTree = "<group>"; };
@@ -250,8 +247,6 @@
 		7E8988230D08BD090077F9ED /* MIPSTags.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSTags.cpp; path = Source/MIPSTags.cpp; sourceTree = "<group>"; };
 		7E8988240D08BD090077F9ED /* MIPSTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSTags.h; path = Source/MIPSTags.h; sourceTree = "<group>"; };
 		7E8988270D08BD090077F9ED /* offsetof_def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = offsetof_def.h; path = Source/offsetof_def.h; sourceTree = "<group>"; };
-		7E8988280D08BD090077F9ED /* OsEventManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OsEventManager.cpp; path = Source/OsEventManager.cpp; sourceTree = "<group>"; };
-		7E8988290D08BD090077F9ED /* OsEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OsEventManager.h; path = Source/OsEventManager.h; sourceTree = "<group>"; };
 		7E89882A0D08BD090077F9ED /* PadHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PadHandler.cpp; path = Source/PadHandler.cpp; sourceTree = "<group>"; };
 		7E89882B0D08BD090077F9ED /* PadHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PadHandler.h; path = Source/PadHandler.h; sourceTree = "<group>"; };
 		7E89882C0D08BD090077F9ED /* PadListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PadListener.h; path = Source/PadListener.h; sourceTree = "<group>"; };
@@ -272,8 +267,6 @@
 		7E8988E90D08C2CF0077F9ED /* MemoryMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryMap.h; path = Source/MemoryMap.h; sourceTree = "<group>"; };
 		7E89890A0D08C3910077F9ED /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../Framework/Framework.xcodeproj; sourceTree = SOURCE_ROOT; };
 		7E898A350D08C61A0077F9ED /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
-		7E898A860D08C9520077F9ED /* libboost_signals-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_signals-mt.a"; path = "../../Libraries/boost_1_34_1/stage/lib/libboost_signals-mt.a"; sourceTree = SOURCE_ROOT; };
-		7E898A870D08C9520077F9ED /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "../../Libraries/boost_1_34_1/stage/lib/libboost_thread-mt.a"; sourceTree = SOURCE_ROOT; };
 		7E898A8C0D08C9880077F9ED /* DirectoryRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DirectoryRecord.cpp; path = Source/ISO9660/DirectoryRecord.cpp; sourceTree = "<group>"; };
 		7E898A8D0D08C9880077F9ED /* DirectoryRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DirectoryRecord.h; path = Source/ISO9660/DirectoryRecord.h; sourceTree = "<group>"; };
 		7E898A8E0D08C9880077F9ED /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = File.cpp; path = Source/ISO9660/File.cpp; sourceTree = "<group>"; };
@@ -286,7 +279,6 @@
 		7E898A950D08C9880077F9ED /* PathTableRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathTableRecord.h; path = Source/ISO9660/PathTableRecord.h; sourceTree = "<group>"; };
 		7E898A960D08C9880077F9ED /* VolumeDescriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeDescriptor.cpp; path = Source/ISO9660/VolumeDescriptor.cpp; sourceTree = "<group>"; };
 		7E898A970D08C9880077F9ED /* VolumeDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VolumeDescriptor.h; path = Source/ISO9660/VolumeDescriptor.h; sourceTree = "<group>"; };
-		7E898AC60D08CB350077F9ED /* libboost_filesystem-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_filesystem-mt.a"; path = "../../Libraries/boost_1_34_1/stage/lib/libboost_filesystem-mt.a"; sourceTree = SOURCE_ROOT; };
 		7E8BEF0E0D171D6300CBEDE8 /* RegisterStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegisterStateFile.h; path = Source/RegisterStateFile.h; sourceTree = "<group>"; };
 		7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterStateFile.cpp; path = Source/RegisterStateFile.cpp; sourceTree = "<group>"; };
 		7E8BEF100D171D6300CBEDE8 /* MemoryStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStateFile.h; path = Source/MemoryStateFile.h; sourceTree = "<group>"; };
@@ -299,6 +291,19 @@
 		7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RegView.mm; path = Source/macosxui/RegView.mm; sourceTree = "<group>"; };
 		7E91DBE20D18662400557AC7 /* DebuggerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DebuggerWindow.h; path = Source/macosxui/DebuggerWindow.h; sourceTree = "<group>"; };
 		7E91DBE30D18662400557AC7 /* DebuggerWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DebuggerWindow.mm; path = Source/macosxui/DebuggerWindow.mm; sourceTree = "<group>"; };
+		7E93A9970DA0496500F19184 /* VIF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VIF.cpp; path = Source/VIF.cpp; sourceTree = "<group>"; };
+		7E93A9980DA0496500F19184 /* VIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VIF.h; path = Source/VIF.h; sourceTree = "<group>"; };
+		7E93A9990DA0496500F19184 /* VPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VPU.cpp; path = Source/VPU.cpp; sourceTree = "<group>"; };
+		7E93A99A0DA0496500F19184 /* VPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VPU.h; path = Source/VPU.h; sourceTree = "<group>"; };
+		7E93A99B0DA0496500F19184 /* VPU1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VPU1.cpp; path = Source/VPU1.cpp; sourceTree = "<group>"; };
+		7E93A99C0DA0496500F19184 /* VPU1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VPU1.h; path = Source/VPU1.h; sourceTree = "<group>"; };
+		7E93A99D0DA0496500F19184 /* VuExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VuExecutor.cpp; path = Source/VuExecutor.cpp; sourceTree = "<group>"; };
+		7E93A99E0DA0496500F19184 /* VUExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VUExecutor.h; path = Source/VUExecutor.h; sourceTree = "<group>"; };
+		7E93AAD00DA0935300F19184 /* libboost_filesystem-mt-1_35.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_filesystem-mt-1_35.dylib"; path = "/usr/local/lib/libboost_filesystem-mt-1_35.dylib"; sourceTree = "<absolute>"; };
+		7E93AAD10DA0935300F19184 /* libboost_regex-mt-1_35.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_regex-mt-1_35.dylib"; path = "/usr/local/lib/libboost_regex-mt-1_35.dylib"; sourceTree = "<absolute>"; };
+		7E93AAD20DA0935300F19184 /* libboost_signals-mt-1_35.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_signals-mt-1_35.dylib"; path = "/usr/local/lib/libboost_signals-mt-1_35.dylib"; sourceTree = "<absolute>"; };
+		7E93AAD30DA0935300F19184 /* libboost_thread-mt-1_35.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt-1_35.dylib"; path = "/usr/local/lib/libboost_thread-mt-1_35.dylib"; sourceTree = "<absolute>"; };
+		7E93ABC60DA093B100F19184 /* libboost_system-mt-1_35.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_system-mt-1_35.dylib"; path = "/usr/local/lib/libboost_system-mt-1_35.dylib"; sourceTree = "<absolute>"; };
 		7E947AB90D09F49A00A2AE15 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
 		7E947ABB0D09F49A00A2AE15 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = MainMenu.nib; sourceTree = "<group>"; };
 		7E947ABC0D09F49A00A2AE15 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = Source/macosxui/icon.icns; sourceTree = "<group>"; };
@@ -371,7 +376,6 @@
 		7EAD8CE10D48528A002CC1C1 /* Iop_DbcMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_DbcMan.h; path = Source/iop/Iop_DbcMan.h; sourceTree = "<group>"; };
 		7EAD8CE20D48528A002CC1C1 /* Iop_DbcMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_DbcMan.cpp; path = Source/iop/Iop_DbcMan.cpp; sourceTree = "<group>"; };
 		7EB6F45D0D1B033700A53B0B /* ObjCCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObjCCall.h; path = Source/macosxui/ObjCCall.h; sourceTree = "<group>"; };
-		7EE1BC350D4D4B0600B502BD /* libboost_regex-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_regex-mt.a"; path = "../../Libraries/boost_1_34_1/stage/lib/libboost_regex-mt.a"; sourceTree = SOURCE_ROOT; };
 		7EE1BC860D4D4F8F00B502BD /* PH_HidMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_HidMacOSX.h; path = Source/macosxui/PH_HidMacOSX.h; sourceTree = "<group>"; };
 		7EE1BC870D4D4F8F00B502BD /* PH_HidMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_HidMacOSX.cpp; path = Source/macosxui/PH_HidMacOSX.cpp; sourceTree = "<group>"; };
 		7EE1BC960D4D512800B502BD /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
@@ -396,14 +400,15 @@
 				7E8989100D08C3B10077F9ED /* libFramework.a in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				7E898A360D08C61A0077F9ED /* libz.dylib in Frameworks */,
-				7E898A880D08C9520077F9ED /* libboost_signals-mt.a in Frameworks */,
-				7E898A890D08C9520077F9ED /* libboost_thread-mt.a in Frameworks */,
-				7E898AC70D08CB350077F9ED /* libboost_filesystem-mt.a in Frameworks */,
 				7E947C400D0B4EFB00A2AE15 /* OpenGL.framework in Frameworks */,
-				7EE1BC360D4D4B0600B502BD /* libboost_regex-mt.a in Frameworks */,
 				7EE1BC970D4D512800B502BD /* IOKit.framework in Frameworks */,
 				7EE1BC990D4D513500B502BD /* CoreFoundation.framework in Frameworks */,
 				7E6F94920D8B4B0D0060B97B /* libbz2.dylib in Frameworks */,
+				7E93AAD40DA0935300F19184 /* libboost_filesystem-mt-1_35.dylib in Frameworks */,
+				7E93AAD50DA0935300F19184 /* libboost_regex-mt-1_35.dylib in Frameworks */,
+				7E93AAD60DA0935300F19184 /* libboost_signals-mt-1_35.dylib in Frameworks */,
+				7E93AAD70DA0935300F19184 /* libboost_thread-mt-1_35.dylib in Frameworks */,
+				7E93ABC70DA093B100F19184 /* libboost_system-mt-1_35.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,22 +471,13 @@
 		29B97314FDCFA39411CA2CEA /* Purei */ = {
 			isa = PBXGroup;
 			children = (
-				7E6F94910D8B4B0D0060B97B /* libbz2.dylib */,
-				7EE1BC980D4D513500B502BD /* CoreFoundation.framework */,
-				7EE1BC960D4D512800B502BD /* IOKit.framework */,
-				7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */,
-				7E898AC60D08CB350077F9ED /* libboost_filesystem-mt.a */,
-				7EE1BC350D4D4B0600B502BD /* libboost_regex-mt.a */,
-				7E898A860D08C9520077F9ED /* libboost_signals-mt.a */,
-				7E898A870D08C9520077F9ED /* libboost_thread-mt.a */,
-				7E898A350D08C61A0077F9ED /* libz.dylib */,
-				7E89890A0D08C3910077F9ED /* Framework.xcodeproj */,
-				7E8987060D08B4480077F9ED /* Purei Core */,
 				080E96DDFE201D6D7F000001 /* Classes */,
-				29B97315FDCFA39411CA2CEA /* Other Sources */,
-				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				7E93AAD80DA0936300F19184 /* Libraries */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				7E8987060D08B4480077F9ED /* Purei Core */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
 			);
 			name = Purei;
 			sourceTree = "<group>";
@@ -531,8 +527,6 @@
 				7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */,
 				7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */,
 				7E8987BC0D08BD090077F9ED /* CodeGen_VUF128.h */,
-				7E8987BD0D08BD090077F9ED /* CodeGen_VUI128.cpp */,
-				7E8987BE0D08BD090077F9ED /* CodeGen_VUI128.h */,
 				7E8987BF0D08BD090077F9ED /* Config.cpp */,
 				7E8988E80D08C2CF0077F9ED /* Config.h */,
 				7E8987C00D08BD090077F9ED /* COP_FPU.cpp */,
@@ -560,7 +554,6 @@
 				7E947C390D0B4E3800A2AE15 /* GSH_OpenGL_Texture.cpp */,
 				7E8987D40D08BD090077F9ED /* GSHandler.cpp */,
 				7E947C380D0B4E3800A2AE15 /* GSHandler.h */,
-				7E8987D50D08BD090077F9ED /* HashTable.h */,
 				7E9E4F860D4531BE003321D8 /* INTC.cpp */,
 				7E9E4F870D4531BE003321D8 /* INTC.h */,
 				7E9E4F880D4531BE003321D8 /* Integer64.h */,
@@ -584,8 +577,6 @@
 				7E6F94C10D8B4B350060B97B /* IszImageStream.h */,
 				7E8987FB0D08BD090077F9ED /* Log.cpp */,
 				7E8987FC0D08BD090077F9ED /* Log.h */,
-				7E8987FD0D08BD090077F9ED /* LogControl.cpp */,
-				7E8987FE0D08BD090077F9ED /* LogControl.h */,
 				7E8987FF0D08BD090077F9ED /* MA_EE.cpp */,
 				7E8988000D08BD090077F9ED /* MA_EE.h */,
 				7E8988010D08BD090077F9ED /* MA_EE_Reflection.cpp */,
@@ -628,8 +619,6 @@
 				7E8988230D08BD090077F9ED /* MIPSTags.cpp */,
 				7E8988240D08BD090077F9ED /* MIPSTags.h */,
 				7E8988270D08BD090077F9ED /* offsetof_def.h */,
-				7E8988280D08BD090077F9ED /* OsEventManager.cpp */,
-				7E8988290D08BD090077F9ED /* OsEventManager.h */,
 				7E89882A0D08BD090077F9ED /* PadHandler.cpp */,
 				7E89882B0D08BD090077F9ED /* PadHandler.h */,
 				7E89882C0D08BD090077F9ED /* PadListener.h */,
@@ -653,7 +642,15 @@
 				7E8988370D08BD090077F9ED /* uint128.h */,
 				7E8988380D08BD090077F9ED /* Utils.cpp */,
 				7E8988390D08BD090077F9ED /* Utils.h */,
+				7E93A9970DA0496500F19184 /* VIF.cpp */,
+				7E93A9980DA0496500F19184 /* VIF.h */,
 				7E89883C0D08BD090077F9ED /* VirtualMachine.h */,
+				7E93A9990DA0496500F19184 /* VPU.cpp */,
+				7E93A99A0DA0496500F19184 /* VPU.h */,
+				7E93A99B0DA0496500F19184 /* VPU1.cpp */,
+				7E93A99C0DA0496500F19184 /* VPU1.h */,
+				7E93A99D0DA0496500F19184 /* VuExecutor.cpp */,
+				7E93A99E0DA0496500F19184 /* VUExecutor.h */,
 				7E89883E0D08BD090077F9ED /* VUShared.cpp */,
 				7E89883F0D08BD090077F9ED /* VUShared.h */,
 				7E8988400D08BD090077F9ED /* VUShared_Reflection.cpp */,
@@ -690,6 +687,24 @@
 				7E898A970D08C9880077F9ED /* VolumeDescriptor.h */,
 			);
 			name = ISO9660;
+			sourceTree = "<group>";
+		};
+		7E93AAD80DA0936300F19184 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				7EE1BC980D4D513500B502BD /* CoreFoundation.framework */,
+				7E89890A0D08C3910077F9ED /* Framework.xcodeproj */,
+				7EE1BC960D4D512800B502BD /* IOKit.framework */,
+				7E93AAD00DA0935300F19184 /* libboost_filesystem-mt-1_35.dylib */,
+				7E93AAD10DA0935300F19184 /* libboost_regex-mt-1_35.dylib */,
+				7E93AAD20DA0935300F19184 /* libboost_signals-mt-1_35.dylib */,
+				7E93ABC60DA093B100F19184 /* libboost_system-mt-1_35.dylib */,
+				7E93AAD30DA0935300F19184 /* libboost_thread-mt-1_35.dylib */,
+				7E6F94910D8B4B0D0060B97B /* libbz2.dylib */,
+				7E898A350D08C61A0077F9ED /* libz.dylib */,
+				7E947C3F0D0B4EFB00A2AE15 /* OpenGL.framework */,
+			);
+			name = Libraries;
 			sourceTree = "<group>";
 		};
 		7E9E4F950D4531E1003321D8 /* IOP */ = {
@@ -825,7 +840,6 @@
 				7E8988450D08BD090077F9ED /* CodeGen.cpp in Sources */,
 				7E8988460D08BD090077F9ED /* CodeGen_FPU.cpp in Sources */,
 				7E8988470D08BD090077F9ED /* CodeGen_VUF128.cpp in Sources */,
-				7E8988480D08BD090077F9ED /* CodeGen_VUI128.cpp in Sources */,
 				7E8988490D08BD090077F9ED /* Config.cpp in Sources */,
 				7E89884A0D08BD090077F9ED /* COP_FPU.cpp in Sources */,
 				7E89884B0D08BD090077F9ED /* COP_FPU_Reflection.cpp in Sources */,
@@ -846,7 +860,6 @@
 				7E8988660D08BD090077F9ED /* IPU_MacroblockTypePTable.cpp in Sources */,
 				7E8988670D08BD090077F9ED /* IPU_MotionCodeTable.cpp in Sources */,
 				7E8988690D08BD090077F9ED /* Log.cpp in Sources */,
-				7E89886A0D08BD090077F9ED /* LogControl.cpp in Sources */,
 				7E89886B0D08BD090077F9ED /* MA_EE.cpp in Sources */,
 				7E89886C0D08BD090077F9ED /* MA_EE_Reflection.cpp in Sources */,
 				7E89886D0D08BD090077F9ED /* MA_MIPSIV.cpp in Sources */,
@@ -870,7 +883,6 @@
 				7E89887F0D08BD090077F9ED /* MIPSInstructionFactory.cpp in Sources */,
 				7E8988800D08BD090077F9ED /* MIPSReflection.cpp in Sources */,
 				7E8988810D08BD090077F9ED /* MIPSTags.cpp in Sources */,
-				7E8988830D08BD090077F9ED /* OsEventManager.cpp in Sources */,
 				7E8988840D08BD090077F9ED /* PadHandler.cpp in Sources */,
 				7E8988850D08BD090077F9ED /* Profiler.cpp in Sources */,
 				7E8988860D08BD090077F9ED /* PS2OS.cpp in Sources */,
@@ -929,6 +941,10 @@
 				7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */,
 				7EF251B20D83124D00D90D20 /* Iop_PadMan.cpp in Sources */,
 				7E6F94C20D8B4B350060B97B /* IszImageStream.cpp in Sources */,
+				7E93A99F0DA0496500F19184 /* VIF.cpp in Sources */,
+				7E93A9A00DA0496500F19184 /* VPU.cpp in Sources */,
+				7E93A9A10DA0496500F19184 /* VPU1.cpp in Sources */,
+				7E93A9A20DA0496500F19184 /* VuExecutor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1008,12 +1024,12 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_34_1/boost/tr1/tr1",
-					"~/Libraries/boost_1_34_1/",
+					"/usr/local/include/boost-1_35/boost/tr1/tr1",
+					"/usr/local/include/boost-1_35/",
 					"~/Projects/Framework/include",
 				);
 				INFOPLIST_FILE = "";
-				LIBRARY_SEARCH_PATHS = "~/Libraries/boost_1_34_1/stage/lib";
+				LIBRARY_SEARCH_PATHS = "";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
@@ -1033,10 +1049,11 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_34_1/boost/tr1/tr1",
-					"~/Libraries/boost_1_34_1/",
+					"/usr/local/include/boost-1_35/boost/tr1/tr1",
+					"/usr/local/include/boost-1_35/",
 					"~/Projects/Framework/include",
 				);
+				LIBRARY_SEARCH_PATHS = "";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				VALID_ARCHS = "i386 x86_64";

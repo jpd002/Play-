@@ -1,6 +1,7 @@
 #include "VPU1.h"
 #include "Ps2Const.h"
 #include "RegisterStateFile.h"
+#include <boost/lexical_cast.hpp>
 
 #define STATE_PREFIX         ("vif/vpu1_")
 #define STATE_SUFFIX         (".xml")
@@ -145,7 +146,7 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 uint32 CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
 {
     uint32 nSize = stream.GetSize();
-    nSize = min(m_CODE.nIMM * 0x10, nSize);
+    nSize = min<uint32>(m_CODE.nIMM * 0x10, nSize);
 
     uint8* packet = reinterpret_cast<uint8*>(alloca(nSize));
     stream.Read(packet, nSize);

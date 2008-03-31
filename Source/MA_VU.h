@@ -4,6 +4,9 @@
 #include "MIPSArchitecture.h"
 #include "MIPSReflection.h"
 
+#undef MAX
+#undef ABS
+
 class CMA_VU : public CMIPSArchitecture
 {
 public:

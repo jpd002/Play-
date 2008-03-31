@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "RegisterStateFile.h"
 #include <boost/static_assert.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace Framework;
 using namespace boost;
@@ -268,7 +269,7 @@ void CVPU::Unpack_V45(uint32 nDstAddr, CVIF::CFifoStream& stream)
 
     uint32 nSize = stream.GetSize();
 
-    unsigned int nPackets = min(nSize / 2, m_NUM);
+    unsigned int nPackets = min<uint32>(nSize / 2, m_NUM);
 
     for(unsigned int i = 0; i < nPackets; i++)
     {
