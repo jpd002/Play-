@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include "GSHandler.h"
+#include <boost/thread.hpp>
 
 class CGIF
 {
@@ -29,6 +30,7 @@ private:
     uint8*          m_ram;
     uint8*          m_spr;
     CGSHandler*&    m_gs;
+    boost::mutex    m_pathMutex;
 };
 
 #endif

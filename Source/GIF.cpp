@@ -8,6 +8,7 @@
 
 using namespace Framework;
 using namespace std;
+using namespace boost;
 
 #ifdef	PROFILE
 #define PROFILE_GIFZONE		"GIF"
@@ -193,13 +194,11 @@ uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
+    mutex::scoped_lock pathLock(m_pathMutex);
 
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_GIFZONE);
 #endif
-
-	uint128 nPacket;
-	uint32 nStart;
 
 #ifdef _DEBUG
     CLog::GetInstance().Print("gif", "Processed GIF packet at 0x%0.8X.\r\n", nAddress);
@@ -207,7 +206,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
     g_writeList.clear();
 
-    nStart = nAddress;
+    uint32 nStart = nAddress;
 	while(nAddress < nEnd)
 	{
 		if(m_nLoops == 0)
@@ -219,7 +218,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			}
 
 			//We need to update the registers
-			nPacket = *(uint128*)&pMemory[nAddress];
+			uint128 nPacket = *reinterpret_cast<uint128*>(&pMemory[nAddress]);
 			nAddress += 0x10;
 
 			m_nLoops	= (uint16)((nPacket.nV0 >>  0) & 0x7FFF);
