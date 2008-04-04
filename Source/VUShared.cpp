@@ -81,22 +81,11 @@ void VUShared::PullVectorEx(CCodeGen* codeGen, uint8 dest, size_t vector)
         DestinationHasElement(dest, 3) ? vector + 0xC : SIZE_MAX);
 }
 
-void VUShared::ABS(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFt, uint8 nFs)
+void VUShared::ABS(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		unsigned int i;
-
-		for(i = 0; i < 4; i++)
-		{
-			if(!DestinationHasElement(nDest, i)) continue;
-
-			CFPU::PushSingle(GetVectorElement(pCtx, nFs, i));
-			CFPU::Abs();
-			CFPU::PullSingle(GetVectorElement(pCtx, nFt, i));
-		}
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_AbsS();
+	PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
 void VUShared::ADD(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
@@ -259,18 +248,14 @@ void VUShared::ITOF0(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
-void VUShared::MADD(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
+void VUShared::MADD(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2A);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFt]);
-		CVUF128::Mul();
-		CVUF128::Add();
-		PullVector(nDest, &pCtx->m_State.nCOP2[nFd]);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFt]));
+    codeGen->MD_MulS();
+    codeGen->MD_AddS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
 void VUShared::MADDbc(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc)
@@ -283,18 +268,14 @@ void VUShared::MADDbc(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::MADDA(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFs, uint8 nFt)
+void VUShared::MADDA(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2A);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFt]);
-		CVUF128::Mul();
-		CVUF128::Add();
-		PullVector(nDest, &pCtx->m_State.nCOP2A);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFt]));
+    codeGen->MD_MulS();
+    codeGen->MD_AddS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::MADDAbc(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt, uint8 nBc)
@@ -307,18 +288,14 @@ void VUShared::MADDAbc(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt, uin
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
-void VUShared::MADDAi(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFs)
+void VUShared::MADDAi(CCodeGen* codeGen, uint8 nDest, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2A);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2I);
-		CVUF128::Mul();
-		CVUF128::Add();
-		PullVector(nDest, &pCtx->m_State.nCOP2A);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_MulS();
+    codeGen->MD_AddS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::MAX(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
@@ -387,32 +364,24 @@ void VUShared::MR32(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
     }
 }
 
-void VUShared::MSUBi(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::MSUBi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2A);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2I);
-		CVUF128::Mul();
-		CVUF128::Sub();
-		PullVector(nDest, &pCtx->m_State.nCOP2[nFd]);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_MulS();
+    codeGen->MD_SubS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::MSUBAi(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFs)
+void VUShared::MSUBAi(CCodeGen* codeGen, uint8 nDest, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2A);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2I);
-		CVUF128::Mul();
-		CVUF128::Sub();
-		PullVector(nDest, &pCtx->m_State.nCOP2A);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_MulS();
+    codeGen->MD_SubS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::MUL(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
@@ -447,16 +416,12 @@ void VUShared::MULq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::MULA(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFs, uint8 nFt)
+void VUShared::MULA(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFt]);
-		CVUF128::Mul();
-		PullVector(nDest, &pCtx->m_State.nCOP2A);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFt]));
+    codeGen->MD_MulS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::MULAbc(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt, uint8 nBc)
@@ -467,16 +432,12 @@ void VUShared::MULAbc(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt, uint
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
-void VUShared::MULAi(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFs)
+void VUShared::MULAi(CCodeGen* codeGen, uint8 nDest, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2I);
-		CVUF128::Mul();
-		PullVector(nDest, &pCtx->m_State.nCOP2A);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_MulS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::OPMULA(CCodeGen* codeGen, uint8 nFs, uint8 nFt)
@@ -621,14 +582,10 @@ void VUShared::SUBbc(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8
     PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::SUBi(CCacheBlock* pB, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::SUBi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
-	CCodeGen::Begin(pB);
-	{
-		CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-		CVUF128::Push(&pCtx->m_State.nCOP2I);
-		CVUF128::Sub();
-		PullVector(nDest, &pCtx->m_State.nCOP2[nFd]);
-	}
-	CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_SubS();
+    PullVectorEx(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }

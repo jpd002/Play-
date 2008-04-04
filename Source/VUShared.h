@@ -30,7 +30,7 @@ namespace VUShared
     void                PullVectorEx(CCodeGen*, uint8, size_t);
 
 	//Shared instructions
-	void				ABS(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				ABS(CCodeGen*, uint8, uint8, uint8);
 	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				ADDi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
@@ -41,11 +41,11 @@ namespace VUShared
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
 	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
 	void				ITOF0(CCodeGen*, uint8, uint8, uint8);
-	void				MADD(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				MADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MADDA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				MADDA(CCodeGen*, uint8, uint8, uint8);
 	void				MADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MADDAi(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				MADDAi(CCodeGen*, uint8, uint8);
 	void				MAX(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MAXbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MINI(CCodeGen*, uint8, uint8, uint8, uint8);
@@ -53,15 +53,15 @@ namespace VUShared
 	void				MINIi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
 	void				MOVE(CCodeGen*, uint8, uint8, uint8);
 	void				MR32(CCodeGen*, uint8, uint8, uint8);
-	void				MSUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
-	void				MSUBAi(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				MSUBi(CCodeGen*, uint8, uint8, uint8);
+	void				MSUBAi(CCodeGen*, uint8, uint8);
 	void				MUL(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MULi(CCodeGen*, uint8, uint8, uint8);
 	void				MULq(CCodeGen*, uint8, uint8, uint8);
-	void				MULA(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				MULA(CCodeGen*, uint8, uint8, uint8);
 	void				MULAbc(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MULAi(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				MULAi(CCodeGen*, uint8, uint8);
 	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
 	void				OPMULA(CCodeGen*, uint8, uint8);
 	void				RINIT(CCacheBlock*, CMIPS*, uint8, uint8);
@@ -70,7 +70,7 @@ namespace VUShared
 	void				SQRT(CCodeGen*, uint8, uint8);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				SUBi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				SUBi(CCodeGen*, uint8, uint8, uint8);
 
 	//Shared addressing modes
 	void				ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

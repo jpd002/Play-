@@ -133,13 +133,13 @@ void CMA_VU::CUpper::ADDi()
 //26
 void CMA_VU::CUpper::SUBi()
 {
-	VUShared::SUBi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+	VUShared::SUBi(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //27
 void CMA_VU::CUpper::MSUBi()
 {
-	VUShared::MSUBi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //28
@@ -151,7 +151,7 @@ void CMA_VU::CUpper::ADD()
 //29
 void CMA_VU::CUpper::MADD()
 {
-	VUShared::MADD(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
 //2A
@@ -253,13 +253,13 @@ void CMA_VU::CUpper::FTOI4()
 //07
 void CMA_VU::CUpper::ABS()
 {
-	VUShared::ABS(m_pB, m_pCtx, m_nDest, m_nFT, m_nFS);
+	VUShared::ABS(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
 //0A
 void CMA_VU::CUpper::MADDA()
 {
-	VUShared::MADDA(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT);
+	VUShared::MADDA(m_codeGen, m_nDest, m_nFS, m_nFT);
 }
 
 //////////////////////////////////////////////////
@@ -269,13 +269,13 @@ void CMA_VU::CUpper::MADDA()
 //07
 void CMA_VU::CUpper::MULAi()
 {
-	VUShared::MULAi(m_pB, m_pCtx, m_nDest, m_nFS);
+	VUShared::MULAi(m_codeGen, m_nDest, m_nFS);
 }
 
 //0A
 void CMA_VU::CUpper::MULA()
 {
-	VUShared::MULA(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT);
+	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT);
 }
 
 //0B
@@ -297,13 +297,13 @@ void CMA_VU::CUpper::CLIP()
 //08
 void CMA_VU::CUpper::MADDAi()
 {
-	VUShared::MADDAi(m_pB, m_pCtx, m_nDest, m_nFS);
+	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS);
 }
 
 //09
 void CMA_VU::CUpper::MSUBAi()
 {
-	VUShared::MSUBAi(m_pB, m_pCtx, m_nDest, m_nFS);
+	VUShared::MSUBAi(m_codeGen, m_nDest, m_nFS);
 }
 
 //0B

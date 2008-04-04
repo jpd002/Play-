@@ -228,6 +228,32 @@ void CCodeGen::MD_GenericTwoOperandReversed(const MdTwoOperandFunction& instruct
     }
 }
 
+void CCodeGen::MD_AbsS()
+{
+    if(FitsPattern<SingleRelative128>())
+    {
+        SingleRelative128::PatternValue op(GetPattern<SingleRelative128>());
+        XMMREGISTER maskRegister = AllocateXmmRegister();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        
+        LoadRelative128InRegister(resultRegister, op);
+        
+        m_Assembler.PcmpeqdVo(maskRegister,
+            CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+        m_Assembler.PsrldVo(maskRegister, 1);
+        
+        m_Assembler.PandVo(resultRegister,
+            CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+        
+        FreeXmmRegister(maskRegister);
+        MD_PushReg(resultRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+}
+
 void CCodeGen::MD_AddH()
 {
     MD_GenericTwoOperand(bind(&CX86Assembler::PaddwVo, m_Assembler, _1, _2));
