@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ELFProgramView.h"
 #include "PtrMacro.h"
-#include "LayoutStretch.h"
+#include "layout/LayoutStretch.h"
 #include "win32/Static.h"
 #include "win32/LayoutWindow.h"
 

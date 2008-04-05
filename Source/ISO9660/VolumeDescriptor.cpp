@@ -9,7 +9,7 @@ using namespace std;
 CVolumeDescriptor::CVolumeDescriptor(CStream* stream)
 {
     //Starts at LBA 16
-    stream->Seek(0x8000, STREAM_SEEK_SET);
+    stream->Seek(0x8000, Framework::STREAM_SEEK_SET);
     stream->Read(&m_nType, 1);
 
     if(m_nType != 0x01)
@@ -25,12 +25,12 @@ CVolumeDescriptor::CVolumeDescriptor(CStream* stream)
         throw runtime_error("Invalid ISO9660 Volume Descriptor.");
     }
 
-    stream->Seek(34, STREAM_SEEK_CUR);
+    stream->Seek(34, Framework::STREAM_SEEK_CUR);
 
     stream->Read(m_sVolumeId, 32);
     m_sVolumeId[32] = 0x00;
 
-    stream->Seek(68, STREAM_SEEK_CUR);
+    stream->Seek(68, Framework::STREAM_SEEK_CUR);
 
     stream->Read(&m_nLPathTableAddress, 4);
     stream->Read(&m_nMPathTableAddress, 4);

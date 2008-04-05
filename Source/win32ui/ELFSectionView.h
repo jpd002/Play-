@@ -3,7 +3,7 @@
 
 #include "win32/Window.h"
 #include "win32/Edit.h"
-#include "VerticalLayout.h"
+#include "layout/VerticalLayout.h"
 #include "Types.h"
 #include "MemoryViewPtr.h"
 #include "../ELF.h"

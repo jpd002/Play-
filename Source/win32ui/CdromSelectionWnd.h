@@ -5,7 +5,7 @@
 #include "win32/Button.h"
 #include "win32/Edit.h"
 #include "win32/ComboBox.h"
-#include "VerticalLayout.h"
+#include "layout/VerticalLayout.h"
 #include "Str.h"
 
 class CCdromSelectionWnd : public CModalWindow

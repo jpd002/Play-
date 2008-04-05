@@ -4,7 +4,7 @@
 #include "win32/Window.h"
 #include "win32/TreeView.h"
 #include "win32/Static.h"
-#include "HorizontalLayout.h"
+#include "layout/HorizontalLayout.h"
 
 template <typename T> class COptionWnd : public T
 {

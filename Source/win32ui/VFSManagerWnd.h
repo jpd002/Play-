@@ -5,7 +5,7 @@
 #include "win32/Button.h"
 #include "win32/ListView.h"
 #include "List.h"
-#include "VerticalLayout.h"
+#include "layout/VerticalLayout.h"
 #include "Str.h"
 
 class CVFSManagerWnd : public CModalWindow

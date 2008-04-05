@@ -4,7 +4,7 @@
 #include "win32/Window.h"
 #include "win32/Static.h"
 #include "win32/ListBox.h"
-#include "VerticalLayout.h"
+#include "layout/VerticalLayout.h"
 
 class CSysInfoWnd : public Framework::Win32::CWindow
 {

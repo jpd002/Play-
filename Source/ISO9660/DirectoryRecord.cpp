@@ -16,12 +16,12 @@ CDirectoryRecord::CDirectoryRecord(CStream* pStream)
     pStream->Read(&m_nLength,		1);
     pStream->Read(&m_nExLength,		1);
     pStream->Read(&m_nPosition,		4);
-    pStream->Seek(4, STREAM_SEEK_CUR);
+    pStream->Seek(4, Framework::STREAM_SEEK_CUR);
     pStream->Read(&m_nDataLength,	4);
-    pStream->Seek(4, STREAM_SEEK_CUR);
-    pStream->Seek(7, STREAM_SEEK_CUR);
+    pStream->Seek(4, Framework::STREAM_SEEK_CUR);
+    pStream->Seek(7, Framework::STREAM_SEEK_CUR);
     pStream->Read(&m_nFlags,		1);
-    pStream->Seek(6, STREAM_SEEK_CUR);
+    pStream->Seek(6, Framework::STREAM_SEEK_CUR);
     pStream->Read(&nNameSize, 1);
     pStream->Read(m_sName, nNameSize);
     m_sName[nNameSize] = 0x00;
@@ -29,7 +29,7 @@ CDirectoryRecord::CDirectoryRecord(CStream* pStream)
     nSkip = m_nLength - (0x21 + nNameSize);
     if(nSkip > 0)
     {
-        pStream->Seek(nSkip, STREAM_SEEK_CUR);
+        pStream->Seek(nSkip, Framework::STREAM_SEEK_CUR);
     }
 }
 

@@ -3,7 +3,7 @@
 
 #include "win32/Window.h"
 #include "win32/Edit.h"
-#include "GridLayout.h"
+#include "layout/GridLayout.h"
 #include "../ELF.h"
 
 class CELFHeaderView : public Framework::Win32::CWindow

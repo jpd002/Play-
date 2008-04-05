@@ -22,7 +22,7 @@ CPathTableRecord::CPathTableRecord(CStream* pStream)
 
 	if(m_nNameLength & 1)
 	{
-		pStream->Seek(1, STREAM_SEEK_CUR);
+		pStream->Seek(1, Framework::STREAM_SEEK_CUR);
 	}
 }
 

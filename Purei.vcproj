@@ -46,9 +46,11 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="$(ProjectDir)Source\win32ui\StdAfx.h"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				ForcedIncludeFiles="$(ProjectDir)Source\win32ui\StdAfx.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -122,9 +124,11 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;GLEW_STATIC"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="$(ProjectDir)Source\win32ui\StdAfx.h"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				ForcedIncludeFiles="$(ProjectDir)Source\win32ui\StdAfx.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1378,6 +1382,30 @@
 			</File>
 			<File
 				RelativePath=".\Source\win32ui\SettingsDialogProvider.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\win32ui\StdAfx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Source\win32ui\StdAfx.h"
 				>
 			</File>
 			<File

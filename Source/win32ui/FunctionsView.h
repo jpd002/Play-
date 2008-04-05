@@ -5,7 +5,7 @@
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
 #include "win32/Button.h"
-#include "VerticalLayout.h"
+#include "layout/VerticalLayout.h"
 #include "../MIPS.h"
 #include "../ELF.h"
 

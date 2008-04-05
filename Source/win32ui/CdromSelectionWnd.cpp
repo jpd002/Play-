@@ -1,6 +1,6 @@
 #include "CdromSelectionWnd.h"
-#include "HorizontalLayout.h"
-#include "LayoutStretch.h"
+#include "layout/HorizontalLayout.h"
+#include "layout/LayoutStretch.h"
 #include "win32/LayoutWindow.h"
 #include "win32/FileDialog.h"
 #include "../ISO9660/ISO9660.h"

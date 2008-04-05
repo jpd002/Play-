@@ -26,7 +26,7 @@ CISO9660::~CISO9660()
 void CISO9660::ReadBlock(uint32 nAddress, void* pData)
 {
 	//Caching mechanism?
-	m_pStream->Seek(nAddress * BLOCKSIZE, STREAM_SEEK_SET);
+	m_pStream->Seek(nAddress * BLOCKSIZE, Framework::STREAM_SEEK_SET);
 	m_pStream->Read(pData, BLOCKSIZE);
 }
 

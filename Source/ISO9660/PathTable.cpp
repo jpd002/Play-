@@ -9,7 +9,7 @@ using namespace std;
 
 CPathTable::CPathTable(CStream* pStream, uint32 nAddress)
 {
-	pStream->Seek(nAddress * 0x800, STREAM_SEEK_SET);
+	pStream->Seek(nAddress * 0x800, Framework::STREAM_SEEK_SET);
 
 	while(1)
 	{

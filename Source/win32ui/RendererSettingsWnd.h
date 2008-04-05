@@ -2,7 +2,7 @@
 #define _RENDERERSETTINGSWND_H_
 
 #include "ModalWindow.h"
-#include "VerticalLayout.h"
+#include "layout/VerticalLayout.h"
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "../GSH_OpenGL.h"

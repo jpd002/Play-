@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ELFSectionView.h"
 #include "PtrMacro.h"
-#include "GridLayout.h"
+#include "layout/GridLayout.h"
 #include "win32/Static.h"
 #include "win32/LayoutWindow.h"
 

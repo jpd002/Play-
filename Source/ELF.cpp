@@ -10,14 +10,14 @@ CELF::CELF(CStream* pS)
 {
 	unsigned int nCount, i;
 
-	pS->Seek(0, STREAM_SEEK_END);
+    pS->Seek(0, Framework::STREAM_SEEK_END);
 	m_nLenght = (unsigned int)pS->Tell();
 
 	m_pData = new char[m_nLenght];
-	pS->Seek(0, STREAM_SEEK_SET);
+	pS->Seek(0, Framework::STREAM_SEEK_SET);
 	pS->Read(m_pData, m_nLenght);
 
-    pS->Seek(0, STREAM_SEEK_SET);
+    pS->Seek(0, Framework::STREAM_SEEK_SET);
 	pS->Read(&m_Header, sizeof(ELFHEADER));
 	
 	if(m_Header.nId[0] != 0x7F || m_Header.nId[1] != 'E' || m_Header.nId[2] != 'L' || m_Header.nId[3] != 'F')
@@ -33,7 +33,7 @@ CELF::CELF(CStream* pS)
 	nCount = m_Header.nProgHeaderCount;
 	m_pProgram = new ELFPROGRAMHEADER[nCount];
 
-	pS->Seek(m_Header.nProgHeaderStart, STREAM_SEEK_SET);
+	pS->Seek(m_Header.nProgHeaderStart, Framework::STREAM_SEEK_SET);
 	for(i = 0; i < nCount; i++)
 	{
 		pS->Read(&m_pProgram[i], sizeof(ELFPROGRAMHEADER));
@@ -42,7 +42,7 @@ CELF::CELF(CStream* pS)
 	nCount = m_Header.nSectHeaderCount;
 	m_pSection = new ELFSECTIONHEADER[nCount];
 
-	pS->Seek(m_Header.nSectHeaderStart, STREAM_SEEK_SET);
+	pS->Seek(m_Header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
 	for(i = 0; i < nCount; i++)
 	{
 		pS->Read(&m_pSection[i], sizeof(ELFSECTIONHEADER));

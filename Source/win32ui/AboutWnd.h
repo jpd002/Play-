@@ -4,7 +4,7 @@
 #include "win32/Window.h"
 #include "win32/Static.h"
 #include "win32/Button.h"
-#include "VerticalLayout.h"
+#include "layout/VerticalLayout.h"
 
 class CAboutWnd : public Framework::Win32::CWindow
 {

@@ -23,13 +23,13 @@ void CFile::Seek(int64 nAmount, STREAM_SEEK_DIRECTION nWhence)
 {
 	switch(nWhence)
 	{
-	case STREAM_SEEK_SET:
+	case Framework::STREAM_SEEK_SET:
 		m_nPosition = nAmount;
 		break;
-	case STREAM_SEEK_CUR:
+	case Framework::STREAM_SEEK_CUR:
 		m_nPosition += nAmount;
 		break;
-	case STREAM_SEEK_END:
+	case Framework::STREAM_SEEK_END:
 		m_nPosition = m_nEnd + 1;
 		break;
 	}

@@ -3,7 +3,7 @@
 
 #include "win32/Window.h"
 #include "win32/Edit.h"
-#include "GridLayout.h"
+#include "layout/GridLayout.h"
 #include "Types.h"
 #include "../ELF.h"
 

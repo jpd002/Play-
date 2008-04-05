@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <boost/lexical_cast.hpp>
+#include "Types.h"
 #include "string_cast.h"
 #include "SysInfoWnd.h"
 #include "PtrMacro.h"

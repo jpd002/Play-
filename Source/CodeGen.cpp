@@ -2954,9 +2954,9 @@ void CCodeGen::StreamWriteAt(unsigned int position, uint8 value)
 {
     if(m_stream == NULL) return;
     uint64 currentPosition = m_stream->Tell();
-    m_stream->Seek(position, STREAM_SEEK_SET);
+    m_stream->Seek(position, Framework::STREAM_SEEK_SET);
     m_stream->Write(&value, 1);
-    m_stream->Seek(currentPosition, STREAM_SEEK_SET);
+    m_stream->Seek(currentPosition, Framework::STREAM_SEEK_SET);
 //    m_pBlock->StreamWriteAt(position, value);
 }
 

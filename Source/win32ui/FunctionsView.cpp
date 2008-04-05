@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "FunctionsView.h"
-#include "HorizontalLayout.h"
+#include "layout/HorizontalLayout.h"
+#include "layout/LayoutStretch.h"
 #include "win32/LayoutWindow.h"
 #include "win32/InputBox.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
-#include "LayoutStretch.h"
 #include "PtrMacro.h"
 
 #define CLSNAME _T("FunctionsView")

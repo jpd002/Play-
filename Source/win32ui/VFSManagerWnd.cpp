@@ -1,8 +1,8 @@
 #include <shlobj.h>
 #include <stdio.h>
 #include "VFSManagerWnd.h"
-#include "LayoutStretch.h"
-#include "HorizontalLayout.h"
+#include "layout/LayoutStretch.h"
+#include "layout/HorizontalLayout.h"
 #include "win32/LayoutWindow.h"
 #include "win32/Static.h"
 #include "PtrMacro.h"
