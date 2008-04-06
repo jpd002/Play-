@@ -201,17 +201,24 @@ void CMA_VU::CLower::ILW()
 //05
 void CMA_VU::CLower::ISW()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	m_pB->AddImm((uint32)VUShared::GetImm11Offset(m_nImm11));
+    //Push context
+    m_codeGen->PushRef(m_pCtx);
 
-	m_pB->SllImm(4);
-	m_pB->AddImm(GetDestOffset(m_nDest));
+    //Compute value
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+    m_codeGen->PushCst(0xFFFF);
+    m_codeGen->And();
 
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIT]);
-	m_pB->AndImm(0xFFFF);
+    //Compute address
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushCst(static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)));
+    m_codeGen->Add();
 
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+    m_codeGen->Shl(4);
+    m_codeGen->PushCst(GetDestOffset(m_nDest));
+    m_codeGen->Add();
+
+    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
 }
 
 //08
@@ -273,24 +280,23 @@ void CMA_VU::CLower::FCAND()
 //1A
 void CMA_VU::CLower::FMAND()
 {
-	unsigned int i;
+    printf("Warning: Using FMAND.\r\n");
 
-	//MAC flag temp
-	m_pB->PushImm(0);
+    //MAC flag temp
+    m_codeGen->PushCst(0);
 
-	//Check sign flags
-	for(i = 0; i < 4; i++)
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nCOP2SF.nV[3 - i]);
-		m_pB->PushImm(0);
-		m_pB->Cmp(JCC_CONDITION_NE);
-		m_pB->SllImm(4 + i);
-		m_pB->Or();
-	}
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF.nV[3 - i]));
+        m_codeGen->PushCst(0);
+        m_codeGen->Cmp(CCodeGen::CONDITION_NE);
+        m_codeGen->Shl(4 + i);
+        m_codeGen->Or();
+    }
 
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	m_pB->And();
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2VI[m_nIT]);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->And();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //20
@@ -330,23 +336,19 @@ void CMA_VU::CLower::JALR()
 //28
 void CMA_VU::CLower::IBEQ()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		//Operand 1
-		PushIntegerRegister(m_nIS);
-		CCodeGen::PushCst(0xFFFF);
-		CCodeGen::And();
+    //Operand 1
+    PushIntegerRegister(m_nIS);
+    m_codeGen->PushCst(0xFFFF);
+    m_codeGen->And();
 
-		//Operand 2
-		PushIntegerRegister(m_nIT);
-		CCodeGen::PushCst(0xFFFF);
-		CCodeGen::And();
+    //Operand 2
+    PushIntegerRegister(m_nIT);
+    m_codeGen->PushCst(0xFFFF);
+    m_codeGen->And();
 
-		CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-		SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
-	}
-	CCodeGen::End();
+    SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //29
@@ -419,13 +421,15 @@ void CMA_VU::CLower::IBLEZ()
 //2F
 void CMA_VU::CLower::IBGEZ()
 {
-	m_pB->PushImm(0);
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	m_pB->AndImm(0x8000);
+    m_codeGen->PushCst(0);
+    
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushCst(0x8000);
+    m_codeGen->And();
 
-	m_pB->Cmp(JCC_CONDITION_EQ);
+    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
+    SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //40
@@ -489,10 +493,10 @@ void CMA_VU::CLower::IAND()
 //35
 void CMA_VU::CLower::IOR()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2VI[m_nIT]);
-	m_pB->Or();
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2VI[m_nID]);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+    m_codeGen->Or();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
 }
 
 //3C
@@ -577,8 +581,8 @@ void CMA_VU::CLower::DIV()
 //0F
 void CMA_VU::CLower::MTIR()
 {
-	m_pB->PushAddr(&m_pCtx->m_State.nCOP2[m_nIS].nV[m_nFSF]);
-	m_pB->PullAddr(&m_pCtx->m_State.nCOP2VI[m_nIT]);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //19

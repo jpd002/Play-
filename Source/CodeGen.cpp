@@ -1252,7 +1252,7 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 void CCodeGen::Cmp(CONDITION nCondition)
 {
     if(
-        nCondition == CONDITION_EQ &&
+        (nCondition == CONDITION_EQ || nCondition == CONDITION_NE) &&
         FitsPattern<CommutativeRelativeConstant>()
         )
     {
@@ -1264,8 +1264,20 @@ void CCodeGen::Cmp(CONDITION nCondition)
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first),
             ops.second);
 
-        //sete reg[l]
-        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        if(nCondition == CONDITION_EQ)
+        {
+            //sete reg[l]
+            m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        }
+        else if(nCondition == CONDITION_NE)
+        {
+            //setne reg[l]
+            m_Assembler.SetneEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        }
+        else
+        {
+            throw exception();
+        }
 
 		//movzx reg, reg[l]
         m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],

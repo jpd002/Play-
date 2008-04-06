@@ -473,6 +473,12 @@ void CX86Assembler::SeteEb(const CAddress& address)
     WriteEvOp(0x94, 0x00, false, address);
 }
 
+void CX86Assembler::SetneEb(const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEvOp(0x95, 0x00, false, address);
+}
+
 void CX86Assembler::SetlEb(const CAddress& address)
 {
     WriteByte(0x0F);

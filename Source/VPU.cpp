@@ -203,14 +203,17 @@ void CVPU::ExecuteThreadProc()
         {
             m_pCtx->m_State.nHasException = 0;
             m_executor.Execute(quota);
-            m_paused = true;
             if(m_pCtx->m_State.nHasException)
             {
                 //E bit encountered
                 m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
             }
 #ifdef _DEBUG
-            m_execDoneCondition.notify_one();
+//            if(m_executor.MustBreak())
+            {
+                m_paused = true;
+                m_execDoneCondition.notify_one();
+            }
 #endif
         }
     }
