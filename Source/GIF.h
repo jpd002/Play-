@@ -16,8 +16,8 @@ public:
     uint32          ProcessPacket(uint8*, uint32, uint32);
 
 private:
-    uint32			ProcessPacked(uint8*, uint32, uint32);
-    uint32			ProcessRegList(uint8*, uint32, uint32);
+    uint32			ProcessPacked(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
+    uint32			ProcessRegList(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
     uint32			ProcessImage(uint8*, uint32, uint32);
 
     uint16			m_nLoops;

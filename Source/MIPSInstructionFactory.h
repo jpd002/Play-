@@ -34,11 +34,11 @@ protected:
 	static void				Illegal();
 	static void				SetupQuickVariables(uint32, CCacheBlock*, CMIPS*);
 
-	static CCacheBlock*		m_pB;
+    static CCacheBlock*		m_pB;
     static CMipsCodeGen*    m_codeGen;
-	static CMIPS*			m_pCtx;
-	static uint32			m_nOpcode;
-	static uint32			m_nAddress;
+    static CMIPS*			m_pCtx;
+    static uint32			m_nOpcode;
+    static uint32			m_nAddress;
 };
 
 #endif

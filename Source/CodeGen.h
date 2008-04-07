@@ -74,62 +74,60 @@ public:
                                     CCodeGen();
     virtual                         ~CCodeGen();
 
-	static void						Begin(CCacheBlock*);
-	static void						End();
+    void                            Begin(CCacheBlock*);
+    void                            End();
 
     bool                            IsStackEmpty();
 	virtual void					EndQuota();
 	
-    static void						BeginIf(bool);
-	static void						EndIf();
+    void                            BeginIf(bool);
+    void                            EndIf();
 
-	static void						BeginIfElse(bool);
-	static void						BeginIfElseAlt();
+    void                            BeginIfElse(bool);
+    void                            BeginIfElseAlt();
 
-	static void						PushVar(uint32*);
-	static void						PushCst(uint32);
-	static void						PushRef(void*);
-	static void						PushRel(size_t);
-	static void						PushTop();
-	static void						PushIdx(unsigned int);
+    void                            PushCst(uint32);
+    void                            PushRef(void*);
+    void                            PushRel(size_t);
+    void                            PushTop();
+    void                            PushIdx(unsigned int);
 
-	static void						PullVar(uint32*);
-	static void						PullRel(size_t);
-	static void						PullTop();
+    void                            PullRel(size_t);
+    void                            PullTop();
     void                            Swap();
 
-	static void						Add();
-	void						    Add64();
-	static void						And();
+    void                            Add();
+    void						    Add64();
+    void                            And();
     void                            And64();
-	static void						Call(void*, unsigned int, bool);
-	static void						Cmp(CONDITION);
-	static void						Cmp64(CONDITION);
+    void                            Call(void*, unsigned int, bool);
+    void                            Cmp(CONDITION);
+    void                            Cmp64(CONDITION);
     void                            Div();
     void                            DivS();
     void                            Lookup(uint32*);
-    static void						Lzc();
+    void                            Lzc();
     void                            Mult();
     void                            MultS();
     void                            Not();
     void                            Or();
-	static void						SeX();
+    void                            SeX();
     void                            SeX8();
-	static void						SeX16();
+    void                            SeX16();
     void                            Shl();
-	void                            Shl(uint8);
+    void                            Shl(uint8);
     void                            Shl64();
-	void                            Shl64(uint8);
+    void                            Shl64(uint8);
     void                            Sra();
     void                            Sra(uint8);
     void                            Sra64(uint8);
     void                            Srl();
     void                            Srl(uint8);
-	void                            Srl64();
-	void                            Srl64(uint8);
-    static void                     Sub();
+    void                            Srl64();
+    void                            Srl64(uint8);
+    void                            Sub();
     void                            Sub64();
-	static void						Xor();
+    void                            Xor();
 
     //FPU
     virtual void                    FP_PushWord(size_t);
@@ -193,12 +191,12 @@ public:
     void                            MD_Xor();
 
     void                            SetStream(Framework::CStream*);
-    static CX86Assembler            m_Assembler;
+    CX86Assembler                   m_Assembler;
 
 protected:
-    static CArrayStack<uint32>		m_Shadow;
-	static CArrayStack<uint32>		m_IfStack;
-	static void						PushReg(unsigned int);
+    CArrayStack<uint32>	            m_Shadow;
+    CArrayStack<uint32>             m_IfStack;
+    void                            PushReg(unsigned int);
     static bool                     IsRegisterSaved(unsigned int);
 
 private:
@@ -250,19 +248,18 @@ private:
 		REGISTER_SHIFTAMOUNT,
 	};
 
-    static unsigned int				AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
-	static void						FreeRegister(unsigned int);
+    unsigned int                    AllocateRegister(REGISTER_TYPE = REGISTER_NORMAL);
+	void                            FreeRegister(unsigned int);
 	static unsigned int				GetMinimumConstantSize(uint32);
     static unsigned int             GetMinimumConstantSize64(uint64);
-	static bool						RegisterHasNextUse(unsigned int);
+	bool                            RegisterHasNextUse(unsigned int);
     bool                            Register128HasNextUse(XMMREGISTER);
     bool                            RegisterFpSingleHasNextUse(XMMREGISTER);
-	static void						LoadVariableInRegister(unsigned int, uint32);
-	static void						LoadRelativeInRegister(unsigned int, uint32);
-	static void						LoadConstantInRegister(unsigned int, uint32);
+    void                            LoadRelativeInRegister(unsigned int, uint32);
+    void                            LoadConstantInRegister(unsigned int, uint32);
     void                            LoadRelative128InRegister(XMMREGISTER, uint32);
-	static void						CopyRegister(unsigned int, unsigned int);
-    static void                     CopyRegister128(XMMREGISTER, XMMREGISTER);
+	void                            CopyRegister(unsigned int, unsigned int);
+    void                            CopyRegister128(XMMREGISTER, XMMREGISTER);
 #ifdef AMD64
 	static void						LoadRelativeInRegister64(unsigned int, uint32);
 	static void						LoadConstantInRegister64(unsigned int, uint64);
@@ -271,17 +268,15 @@ private:
     XMMREGISTER                     AllocateXmmRegister();
     void                            FreeXmmRegister(XMMREGISTER);
 
-	static void						LoadConditionInRegister(unsigned int, CONDITION);
+    void                            ReduceToRegister();
 
-	static void						ReduceToRegister();
-
-	static bool						IsTopRegZeroPairCom();
-    static bool                     IsTopContRelPair64();
-    static bool                     IsTopContRelCstPair64();
-	static void						GetRegCstPairCom(unsigned int*, uint32*);
+    bool                            IsTopRegZeroPairCom();
+    bool                            IsTopContRelPair64();
+    bool                            IsTopContRelCstPair64();
+    void                            GetRegCstPairCom(unsigned int*, uint32*);
     
     template <typename T> 
-    static void                     UnaryRelativeSelfCallAsRegister(const T& Function)
+    void UnaryRelativeSelfCallAsRegister(const T& Function)
     {
 		uint32 nRelative;
 		unsigned int nRegister;
@@ -299,13 +294,13 @@ private:
     }
 
     template <typename StackPattern>
-    static bool                     FitsPattern()
+    bool FitsPattern()
     {
         return StackPattern().Fits(m_Shadow);
     }
 
     template <typename StackPattern>
-    static typename StackPattern::PatternValue GetPattern()
+    typename StackPattern::PatternValue GetPattern()
     {
         return StackPattern().Get(m_Shadow);
     }
@@ -313,11 +308,11 @@ private:
 #ifdef AMD64
 	static void						PushReg64(unsigned int);
 #endif
-	static void						ReplaceRegisterInStack(unsigned int, unsigned int);
+	void                            ReplaceRegisterInStack(unsigned int, unsigned int);
 
-	static void						Cmp64Eq();
-	static void						Cmp64Lt(bool, bool);
-    static void                     Cmp64Cont(CONDITION);
+	void                            Cmp64Eq();
+	void                            Cmp64Lt(bool, bool);
+    void                            Cmp64Cont(CONDITION);
 
     typedef std::tr1::function<void (const CX86Assembler::CAddress&)> MultFunction;
     typedef std::tr1::function<void (XMMREGISTER, uint8)> PackedShiftFunction;
@@ -333,25 +328,25 @@ private:
     void                            MD_GenericTwoOperand(const MdTwoOperandFunction&);
     void                            MD_GenericTwoOperandReversed(const MdTwoOperandFunction&);
 
-    static void                     StreamWriteByte(uint8);
-    static void                     StreamWriteAt(unsigned int, uint8);
-    static size_t                   StreamTell();
+    void                            StreamWriteByte(uint8);
+    void                            StreamWriteAt(unsigned int, uint8);
+    size_t                          StreamTell();
 
-    static void                     EmitLoad(uint32, uint32, unsigned int);
-    static void                     EmitOp(const GenericOp&, uint32, uint32, unsigned int);
+    void                            EmitLoad(uint32, uint32, unsigned int);
+    void                            EmitOp(const GenericOp&, uint32, uint32, unsigned int);
 
-    static bool						m_nBlockStarted;
+    bool						    m_nBlockStarted;
 
 #ifdef AMD64
 	static CArrayStack<uint32, 2>	m_PullReg64Stack;
 #endif
-	static bool						m_nRegisterAllocated[MAX_REGISTER];
+	bool						    m_nRegisterAllocated[MAX_REGISTER];
 	static unsigned int				m_nRegisterLookup[MAX_REGISTER];
     static CX86Assembler::REGISTER  m_nRegisterLookupEx[MAX_REGISTER];
-	static CCacheBlock*				m_pBlock;
-    static bool                     m_xmmRegisterAllocated[MAX_XMM_REGISTER];
+	CCacheBlock*				    m_pBlock;
+    bool                            m_xmmRegisterAllocated[MAX_XMM_REGISTER];
 
-    static Framework::CStream*      m_stream;
+    Framework::CStream*             m_stream;
     static CX86Assembler::REGISTER  g_nBaseRegister;
 };
 

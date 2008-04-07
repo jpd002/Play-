@@ -210,16 +210,12 @@ void CMA_EE::MADD()
 //04
 void CMA_EE::PLZCW()
 {
-	CCodeGen::Begin(m_pB);
-	{
-		for(unsigned int i = 0; i < 2; i++)
-		{
-			CCodeGen::PushVar(&m_pCtx->m_State.nGPR[m_nRS].nV[i]);
-			CCodeGen::Lzc();
-			CCodeGen::PullVar(&m_pCtx->m_State.nGPR[m_nRD].nV[i]);
-		}
-	}
-	CCodeGen::End();
+    for(unsigned int i = 0; i < 2; i++)
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+        m_codeGen->Lzc();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+    }
 }
 
 //08

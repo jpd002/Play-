@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "COP_FPU.h"
 #include "MIPS.h"
-#include "CodeGen_FPU.h"
 #include "MipsCodeGen.h"
 #include "offsetof_def.h"
 

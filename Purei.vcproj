@@ -213,10 +213,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\CodeGen_FPU.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\CodeGen_MD.cpp"
 				>
 			</File>

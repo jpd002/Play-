@@ -1,32 +1,13 @@
 #include <assert.h>
 #include "CodeGen.h"
 #include "CodeGen_VUF128.h"
-#include "CodeGen_FPU.h"
 #include "PtrMacro.h"
 #include "CodeGen_StackPatterns.h"
-#include <boost/bind.hpp>
 
 using namespace boost;
 using namespace Framework;
 using namespace std;
-
-bool					CCodeGen::m_nBlockStarted = false;
-CCacheBlock*			CCodeGen::m_pBlock = NULL;
-CArrayStack<uint32>		CCodeGen::m_Shadow;
-#ifdef AMD64
-CArrayStack<uint32, 2>	CCodeGen::m_PullReg64Stack;
-#endif
-CArrayStack<uint32>		CCodeGen::m_IfStack;
-CX86Assembler           CCodeGen::m_Assembler
-                                            (
-                                                &CCodeGen::StreamWriteByte, 
-                                                &CCodeGen::StreamWriteAt,
-                                                &CCodeGen::StreamTell
-                                            );
-
-bool                    CCodeGen::m_nRegisterAllocated[MAX_REGISTER];
-bool                    CCodeGen::m_xmmRegisterAllocated[MAX_XMM_REGISTER];
-CStream*                CCodeGen::m_stream = NULL;
+using namespace std::tr1;
 
 CX86Assembler::REGISTER CCodeGen::g_nBaseRegister = CX86Assembler::rBP;
 
@@ -99,7 +80,15 @@ CX86Assembler::REGISTER CCodeGen::m_nRegisterLookupEx[MAX_REGISTER] =
 
 #endif
 
-CCodeGen::CCodeGen()
+CCodeGen::CCodeGen() :
+m_stream(NULL),
+m_nBlockStarted(false),
+m_pBlock(NULL),
+m_Assembler(
+        bind(&CCodeGen::StreamWriteByte, this, _1),
+        bind(&CCodeGen::StreamWriteAt, this, _1, _2),
+        bind(&CCodeGen::StreamTell, this)
+        )
 {
 
 }
@@ -119,7 +108,6 @@ void CCodeGen::Begin(CCacheBlock* pBlock)
 	assert(m_nBlockStarted == false);
 	m_nBlockStarted = true;
 
-	CodeGen::CFPU::Begin(pBlock);
 	CodeGen::CVUF128::Begin(pBlock);
 
 	m_Shadow.Reset();
@@ -141,7 +129,6 @@ void CCodeGen::End()
 	assert(m_nBlockStarted == true);
 	m_nBlockStarted = false;
 
-	CodeGen::CFPU::End();
 	CodeGen::CVUF128::End();
 }
 
@@ -378,13 +365,6 @@ void CCodeGen::FreeXmmRegister(XMMREGISTER registerId)
     m_xmmRegisterAllocated[registerId] = false;
 }
 
-void CCodeGen::LoadVariableInRegister(unsigned int nRegister, uint32 nVariable)
-{
-	//mov reg, dword ptr[Variable]
-	m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-	m_pBlock->StreamWriteWord(nVariable);
-}
-
 void CCodeGen::LoadRelativeInRegister(unsigned int nRegister, uint32 nOffset)
 {
 	//mov reg, [base + rel]
@@ -444,35 +424,6 @@ void CCodeGen::LoadConstantInRegister64(unsigned int nRegister, uint64 nConstant
 
 #endif
 
-void CCodeGen::LoadConditionInRegister(unsigned int nRegister, CONDITION nCondition)
-{
-	//setcc reg[l]
-	m_pBlock->StreamWrite(1, 0x0F);
-	switch(nCondition)
-	{
-	case CONDITION_BL:
-		m_pBlock->StreamWrite(1, 0x92);
-		break;
-	case CONDITION_EQ:
-		m_pBlock->StreamWrite(1, 0x94);
-		break;
-	case CONDITION_LE:
-		m_pBlock->StreamWrite(1, 0x9E);
-		break;
-	case CONDITION_GT:
-		m_pBlock->StreamWrite(1, 0x9F);
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	m_pBlock->StreamWrite(1, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-
-	//movzx reg, reg[l]
-	m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-}
-
 void CCodeGen::ReduceToRegister()
 {
 	if(m_Shadow.GetAt(0) == RELATIVE)
@@ -496,12 +447,6 @@ void CCodeGen::ReduceToRegister()
 	{
 		assert(0);
 	}
-}
-
-void CCodeGen::PushVar(uint32* pValue)
-{
-	m_Shadow.Push(*(uint32*)&pValue);
-	m_Shadow.Push(VARIABLE);
 }
 
 void CCodeGen::PushCst(uint32 nValue)
@@ -586,72 +531,6 @@ void CCodeGen::ReplaceRegisterInStack(unsigned int nDst, unsigned int nSrc)
 				m_Shadow.SetAt(i + 1, nDst);
 			}
 		}
-	}
-}
-
-void CCodeGen::PullVar(uint32* pValue)
-{
-	if(m_Shadow.GetAt(0) == REGISTER)
-	{
-		uint32 nRegister;
-
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
-
-		//mov dword ptr[pValue], reg
-		m_pBlock->StreamWrite(2, 0x89, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(*(uint32*)&pValue);
-
-		FreeRegister(nRegister);
-	}
-	else if(m_Shadow.GetAt(0) == CONSTANT)
-	{
-		uint32 nConstant, nRegister;
-
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-
-		if(nConstant == 0)
-		{
-			//xor reg, reg
-			m_pBlock->StreamWrite(2, 0x33, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-		}
-		else
-		{
-			//mov reg, $Constant
-			m_pBlock->StreamWrite(1, 0xB8 | (m_nRegisterLookup[nRegister]));
-			m_pBlock->StreamWriteWord(nConstant);
-		}
-
-		//mov dword ptr[pValue], reg
-		m_pBlock->StreamWrite(2, 0x89, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(*(uint32*)&pValue);
-
-		FreeRegister(nRegister);
-	}
-	else if(m_Shadow.GetAt(0) == VARIABLE)
-	{
-		uint32 nVariable, nRegister;
-
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-
-		//mov reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-
-		PullVar(pValue);
-	}
-	else
-	{
-		assert(0);
 	}
 }
 
@@ -1551,6 +1430,8 @@ void CCodeGen::Lookup(uint32* table)
 
 void CCodeGen::Lzc()
 {
+    throw exception();
+/*
 	if(m_Shadow.GetAt(0) == VARIABLE)
 	{
 		uint32 nVariable;
@@ -1601,6 +1482,7 @@ void CCodeGen::Lzc()
 
 		m_Shadow.Push(nRegister);
 		m_Shadow.Push(REGISTER);
+*/
 /*
 		__asm
 		{
@@ -1623,11 +1505,13 @@ _done:
 
 		}
 */
+/*
 	}
 	else
 	{
 		assert(0);
 	}
+*/
 }
 
 void CCodeGen::Mult()
@@ -2959,7 +2843,6 @@ void CCodeGen::StreamWriteByte(uint8 nByte)
 {
     if(m_stream == NULL) return;
     m_stream->Write(&nByte, 1);
-//    m_pBlock->StreamWriteByte(nByte);
 }
 
 void CCodeGen::StreamWriteAt(unsigned int position, uint8 value)
@@ -2969,13 +2852,11 @@ void CCodeGen::StreamWriteAt(unsigned int position, uint8 value)
     m_stream->Seek(position, Framework::STREAM_SEEK_SET);
     m_stream->Write(&value, 1);
     m_stream->Seek(currentPosition, Framework::STREAM_SEEK_SET);
-//    m_pBlock->StreamWriteAt(position, value);
 }
 
 size_t CCodeGen::StreamTell()
 {
     if(m_stream == NULL) return 0;
-//    return m_pBlock->StreamGetSize();
     return static_cast<size_t>(m_stream->Tell());
 }
 
