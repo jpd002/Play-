@@ -168,7 +168,6 @@
 		7E8987B60D08BD090077F9ED /* CodeGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen.cpp; path = Source/CodeGen.cpp; sourceTree = "<group>"; };
 		7E8987B70D08BD090077F9ED /* CodeGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen.h; path = Source/CodeGen.h; sourceTree = "<group>"; };
 		7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_FPU.cpp; path = Source/CodeGen_FPU.cpp; sourceTree = "<group>"; };
-		7E8987B90D08BD090077F9ED /* CodeGen_FPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_FPU.h; path = Source/CodeGen_FPU.h; sourceTree = "<group>"; };
 		7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_StackPatterns.h; path = Source/CodeGen_StackPatterns.h; sourceTree = "<group>"; };
 		7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_VUF128.cpp; path = Source/CodeGen_VUF128.cpp; sourceTree = "<group>"; };
 		7E8987BC0D08BD090077F9ED /* CodeGen_VUF128.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_VUF128.h; path = Source/CodeGen_VUF128.h; sourceTree = "<group>"; };
@@ -522,7 +521,6 @@
 				7E8987B60D08BD090077F9ED /* CodeGen.cpp */,
 				7E8987B70D08BD090077F9ED /* CodeGen.h */,
 				7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */,
-				7E8987B90D08BD090077F9ED /* CodeGen_FPU.h */,
 				7E9E4F850D4531BE003321D8 /* CodeGen_MD.cpp */,
 				7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */,
 				7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */,
