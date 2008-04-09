@@ -11,12 +11,11 @@
 		7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */; };
 		7E6F94920D8B4B0D0060B97B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E6F94910D8B4B0D0060B97B /* libbz2.dylib */; };
 		7E6F94C20D8B4B350060B97B /* IszImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6F94C00D8B4B350060B97B /* IszImageStream.cpp */; };
+		7E801A7F0DAC674A004A293D /* MemoryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E801A7D0DAC674A004A293D /* MemoryUtils.cpp */; };
 		7E8987090D08B4640077F9ED /* PS2VM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987070D08B4640077F9ED /* PS2VM.cpp */; };
 		7E8988430D08BD090077F9ED /* BasicBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B20D08BD090077F9ED /* BasicBlock.cpp */; };
-		7E8988440D08BD090077F9ED /* CacheBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B40D08BD090077F9ED /* CacheBlock.cpp */; };
 		7E8988450D08BD090077F9ED /* CodeGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B60D08BD090077F9ED /* CodeGen.cpp */; };
 		7E8988460D08BD090077F9ED /* CodeGen_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */; };
-		7E8988470D08BD090077F9ED /* CodeGen_VUF128.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */; };
 		7E8988490D08BD090077F9ED /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987BF0D08BD090077F9ED /* Config.cpp */; };
 		7E89884A0D08BD090077F9ED /* COP_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C00D08BD090077F9ED /* COP_FPU.cpp */; };
 		7E89884B0D08BD090077F9ED /* COP_FPU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C20D08BD090077F9ED /* COP_FPU_Reflection.cpp */; };
@@ -26,7 +25,6 @@
 		7E89884F0D08BD090077F9ED /* DMAC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C80D08BD090077F9ED /* DMAC.cpp */; };
 		7E8988500D08BD090077F9ED /* Dmac_Channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987CA0D08BD090077F9ED /* Dmac_Channel.cpp */; };
 		7E8988510D08BD090077F9ED /* ELF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987CC0D08BD090077F9ED /* ELF.cpp */; };
-		7E8988520D08BD090077F9ED /* ExecMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987CE0D08BD090077F9ED /* ExecMap.cpp */; };
 		7E8988530D08BD090077F9ED /* GIF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987D00D08BD090077F9ED /* GIF.cpp */; };
 		7E8988540D08BD090077F9ED /* GSH_Null.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987D20D08BD090077F9ED /* GSH_Null.cpp */; };
 		7E8988550D08BD090077F9ED /* GSHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987D40D08BD090077F9ED /* GSHandler.cpp */; };
@@ -158,19 +156,17 @@
 		7E6F94910D8B4B0D0060B97B /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = /usr/lib/libbz2.dylib; sourceTree = "<absolute>"; };
 		7E6F94C00D8B4B350060B97B /* IszImageStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IszImageStream.cpp; path = Source/IszImageStream.cpp; sourceTree = "<group>"; };
 		7E6F94C10D8B4B350060B97B /* IszImageStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IszImageStream.h; path = Source/IszImageStream.h; sourceTree = "<group>"; };
+		7E801A7D0DAC674A004A293D /* MemoryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryUtils.cpp; path = Source/MemoryUtils.cpp; sourceTree = "<group>"; };
+		7E801A7E0DAC674A004A293D /* MemoryUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryUtils.h; path = Source/MemoryUtils.h; sourceTree = "<group>"; };
 		7E8987070D08B4640077F9ED /* PS2VM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PS2VM.cpp; path = Source/PS2VM.cpp; sourceTree = "<group>"; };
 		7E8987080D08B4640077F9ED /* PS2VM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PS2VM.h; path = Source/PS2VM.h; sourceTree = "<group>"; };
 		7E8987B10D08BD090077F9ED /* ArrayStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArrayStack.h; path = Source/ArrayStack.h; sourceTree = "<group>"; };
 		7E8987B20D08BD090077F9ED /* BasicBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicBlock.cpp; path = Source/BasicBlock.cpp; sourceTree = "<group>"; };
 		7E8987B30D08BD090077F9ED /* BasicBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicBlock.h; path = Source/BasicBlock.h; sourceTree = "<group>"; };
-		7E8987B40D08BD090077F9ED /* CacheBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CacheBlock.cpp; path = Source/CacheBlock.cpp; sourceTree = "<group>"; };
-		7E8987B50D08BD090077F9ED /* CacheBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CacheBlock.h; path = Source/CacheBlock.h; sourceTree = "<group>"; };
 		7E8987B60D08BD090077F9ED /* CodeGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen.cpp; path = Source/CodeGen.cpp; sourceTree = "<group>"; };
 		7E8987B70D08BD090077F9ED /* CodeGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen.h; path = Source/CodeGen.h; sourceTree = "<group>"; };
 		7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_FPU.cpp; path = Source/CodeGen_FPU.cpp; sourceTree = "<group>"; };
 		7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_StackPatterns.h; path = Source/CodeGen_StackPatterns.h; sourceTree = "<group>"; };
-		7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_VUF128.cpp; path = Source/CodeGen_VUF128.cpp; sourceTree = "<group>"; };
-		7E8987BC0D08BD090077F9ED /* CodeGen_VUF128.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_VUF128.h; path = Source/CodeGen_VUF128.h; sourceTree = "<group>"; };
 		7E8987BF0D08BD090077F9ED /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Config.cpp; path = Source/Config.cpp; sourceTree = "<group>"; };
 		7E8987C00D08BD090077F9ED /* COP_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_FPU.cpp; path = Source/COP_FPU.cpp; sourceTree = "<group>"; };
 		7E8987C10D08BD090077F9ED /* COP_FPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_FPU.h; path = Source/COP_FPU.h; sourceTree = "<group>"; };
@@ -186,8 +182,6 @@
 		7E8987CB0D08BD090077F9ED /* Dmac_Channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dmac_Channel.h; path = Source/Dmac_Channel.h; sourceTree = "<group>"; };
 		7E8987CC0D08BD090077F9ED /* ELF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ELF.cpp; path = Source/ELF.cpp; sourceTree = "<group>"; };
 		7E8987CD0D08BD090077F9ED /* ELF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ELF.h; path = Source/ELF.h; sourceTree = "<group>"; };
-		7E8987CE0D08BD090077F9ED /* ExecMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecMap.cpp; path = Source/ExecMap.cpp; sourceTree = "<group>"; };
-		7E8987CF0D08BD090077F9ED /* ExecMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExecMap.h; path = Source/ExecMap.h; sourceTree = "<group>"; };
 		7E8987D00D08BD090077F9ED /* GIF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GIF.cpp; path = Source/GIF.cpp; sourceTree = "<group>"; };
 		7E8987D10D08BD090077F9ED /* GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GIF.h; path = Source/GIF.h; sourceTree = "<group>"; };
 		7E8987D20D08BD090077F9ED /* GSH_Null.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_Null.cpp; path = Source/GSH_Null.cpp; sourceTree = "<group>"; };
@@ -516,15 +510,11 @@
 				7E8987B10D08BD090077F9ED /* ArrayStack.h */,
 				7E8987B20D08BD090077F9ED /* BasicBlock.cpp */,
 				7E8987B30D08BD090077F9ED /* BasicBlock.h */,
-				7E8987B40D08BD090077F9ED /* CacheBlock.cpp */,
-				7E8987B50D08BD090077F9ED /* CacheBlock.h */,
 				7E8987B60D08BD090077F9ED /* CodeGen.cpp */,
 				7E8987B70D08BD090077F9ED /* CodeGen.h */,
 				7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */,
 				7E9E4F850D4531BE003321D8 /* CodeGen_MD.cpp */,
 				7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */,
-				7E8987BB0D08BD090077F9ED /* CodeGen_VUF128.cpp */,
-				7E8987BC0D08BD090077F9ED /* CodeGen_VUF128.h */,
 				7E8987BF0D08BD090077F9ED /* Config.cpp */,
 				7E8988E80D08C2CF0077F9ED /* Config.h */,
 				7E8987C00D08BD090077F9ED /* COP_FPU.cpp */,
@@ -541,8 +531,6 @@
 				7E8987CB0D08BD090077F9ED /* Dmac_Channel.h */,
 				7E8987CC0D08BD090077F9ED /* ELF.cpp */,
 				7E8987CD0D08BD090077F9ED /* ELF.h */,
-				7E8987CE0D08BD090077F9ED /* ExecMap.cpp */,
-				7E8987CF0D08BD090077F9ED /* ExecMap.h */,
 				7E8987D00D08BD090077F9ED /* GIF.cpp */,
 				7E8987D10D08BD090077F9ED /* GIF.h */,
 				7E8987D20D08BD090077F9ED /* GSH_Null.cpp */,
@@ -594,6 +582,8 @@
 				7E8988E90D08C2CF0077F9ED /* MemoryMap.h */,
 				7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */,
 				7E8BEF100D171D6300CBEDE8 /* MemoryStateFile.h */,
+				7E801A7D0DAC674A004A293D /* MemoryUtils.cpp */,
+				7E801A7E0DAC674A004A293D /* MemoryUtils.h */,
 				7E89880F0D08BD090077F9ED /* MIPS.cpp */,
 				7E8988100D08BD090077F9ED /* MIPS.h */,
 				7E8988110D08BD090077F9ED /* MIPSAnalysis.cpp */,
@@ -834,10 +824,8 @@
 			files = (
 				7E8987090D08B4640077F9ED /* PS2VM.cpp in Sources */,
 				7E8988430D08BD090077F9ED /* BasicBlock.cpp in Sources */,
-				7E8988440D08BD090077F9ED /* CacheBlock.cpp in Sources */,
 				7E8988450D08BD090077F9ED /* CodeGen.cpp in Sources */,
 				7E8988460D08BD090077F9ED /* CodeGen_FPU.cpp in Sources */,
-				7E8988470D08BD090077F9ED /* CodeGen_VUF128.cpp in Sources */,
 				7E8988490D08BD090077F9ED /* Config.cpp in Sources */,
 				7E89884A0D08BD090077F9ED /* COP_FPU.cpp in Sources */,
 				7E89884B0D08BD090077F9ED /* COP_FPU_Reflection.cpp in Sources */,
@@ -847,7 +835,6 @@
 				7E89884F0D08BD090077F9ED /* DMAC.cpp in Sources */,
 				7E8988500D08BD090077F9ED /* Dmac_Channel.cpp in Sources */,
 				7E8988510D08BD090077F9ED /* ELF.cpp in Sources */,
-				7E8988520D08BD090077F9ED /* ExecMap.cpp in Sources */,
 				7E8988530D08BD090077F9ED /* GIF.cpp in Sources */,
 				7E8988540D08BD090077F9ED /* GSH_Null.cpp in Sources */,
 				7E8988550D08BD090077F9ED /* GSHandler.cpp in Sources */,
@@ -943,6 +930,7 @@
 				7E93A9A00DA0496500F19184 /* VPU.cpp in Sources */,
 				7E93A9A10DA0496500F19184 /* VPU1.cpp in Sources */,
 				7E93A9A20DA0496500F19184 /* VuExecutor.cpp in Sources */,
+				7E801A7F0DAC674A004A293D /* MemoryUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
