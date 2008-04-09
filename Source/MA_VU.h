@@ -12,7 +12,7 @@ class CMA_VU : public CMIPSArchitecture
 public:
 											CMA_VU();
     virtual                                 ~CMA_VU();
-	virtual void							CompileInstruction(uint32, CCacheBlock*, CMIPS*, bool);
+	virtual void							CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
 	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual bool							IsInstructionBranch(CMIPS*, uint32, uint32);
@@ -25,7 +25,7 @@ private:
 	{
 	public:
 		void								SetupReflectionTables();
-		void								CompileInstruction(uint32, CCacheBlock*, CMIPS*, bool);
+		void								CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
@@ -121,7 +121,7 @@ private:
 	{
 	public:
 		void								SetupReflectionTables();
-		void								CompileInstruction(uint32, CCacheBlock*, CMIPS*, bool);
+		void								CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
@@ -149,7 +149,6 @@ private:
 
 		static uint32						GetDestOffset(uint8);
 		static void							SetBranchAddress(bool, int32);
-		static void							SetBranchAddressEx(bool, int32);
 		static void							PushIntegerRegister(unsigned int);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -259,6 +258,11 @@ private:
 
 	CUpper									m_Upper;
 	CLower									m_Lower;
+
+    static CCodeGen*                        m_codeGen;
+    static CMIPS*                           m_pCtx;
+    static uint32                           m_nOpcode;
+    static uint32                           m_nAddress;
 };
 
 #endif

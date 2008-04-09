@@ -2,10 +2,9 @@
 #include <stdio.h>
 #include "COP_FPU.h"
 #include "MIPS.h"
-#include "MipsCodeGen.h"
+#include "CodeGen.h"
 #include "offsetof_def.h"
-
-using namespace CodeGen;
+#include "MemoryUtils.h"
 
 CCOP_FPU			g_COPFPU(MIPS_REGSIZE_64);
 
@@ -31,11 +30,11 @@ CMIPSCoprocessor(nRegSize)
 	SetupReflectionTables();
 }
 
-void CCOP_FPU::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx, bool nParent)
+void CCOP_FPU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
 {
 	if(nParent)
 	{
-		SetupQuickVariables(nAddress, pBlock, pCtx);
+		SetupQuickVariables(nAddress, codeGen, pCtx);
 	}
 
 	m_nFT			= (uint8)((m_nOpcode >> 16) & 0x1F);
@@ -163,28 +162,28 @@ void CCOP_FPU::W()
 void CCOP_FPU::BC1F()
 {
 	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	BranchEx(false);
+	Branch(false);
 }
 
 //01
 void CCOP_FPU::BC1T()
 {
 	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	BranchEx(true);
+	Branch(true);
 }
 
 //02
 void CCOP_FPU::BC1FL()
 {
 	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	BranchLikelyEx(false);
+	BranchLikely(false);
 }
 
 //03
 void CCOP_FPU::BC1TL()
 {
 	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	BranchLikelyEx(true);
+	BranchLikely(true);
 }
 
 //////////////////////////////////////////////////
@@ -372,11 +371,11 @@ void CCOP_FPU::CVT_S_W()
 //31
 void CCOP_FPU::LWC1()
 {
-    ComputeMemAccessAddrEx();
+    ComputeMemAccessAddr();
 
 	m_codeGen->PushRef(m_pCtx);
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
 
@@ -386,12 +385,12 @@ void CCOP_FPU::LWC1()
 //39
 void CCOP_FPU::SWC1()
 {
-	ComputeMemAccessAddrEx();
+	ComputeMemAccessAddr();
 
 	m_codeGen->PushRef(m_pCtx);
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
 	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
 
 	m_codeGen->PullTop();
 }

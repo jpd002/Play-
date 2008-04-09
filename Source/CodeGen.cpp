@@ -1,6 +1,5 @@
 #include <assert.h>
 #include "CodeGen.h"
-#include "CodeGen_VUF128.h"
 #include "PtrMacro.h"
 #include "CodeGen_StackPatterns.h"
 
@@ -83,7 +82,6 @@ CX86Assembler::REGISTER CCodeGen::m_nRegisterLookupEx[MAX_REGISTER] =
 CCodeGen::CCodeGen() :
 m_stream(NULL),
 m_nBlockStarted(false),
-m_pBlock(NULL),
 m_Assembler(
         bind(&CCodeGen::StreamWriteByte, this, _1),
         bind(&CCodeGen::StreamWriteAt, this, _1, _2),
@@ -103,17 +101,14 @@ void CCodeGen::SetStream(CStream* stream)
     m_stream = stream;
 }
 
-void CCodeGen::Begin(CCacheBlock* pBlock)
+void CCodeGen::Begin()
 {
 	assert(m_nBlockStarted == false);
 	m_nBlockStarted = true;
 
-	CodeGen::CVUF128::Begin(pBlock);
-
 	m_Shadow.Reset();
-	m_pBlock = pBlock;
 
-	for(unsigned int i = 0; i < MAX_REGISTER; i++)
+    for(unsigned int i = 0; i < MAX_REGISTER; i++)
 	{
 		m_nRegisterAllocated[i] = false;		
 	}
@@ -128,8 +123,6 @@ void CCodeGen::End()
 {
 	assert(m_nBlockStarted == true);
 	m_nBlockStarted = false;
-
-	CodeGen::CVUF128::End();
 }
 
 bool CCodeGen::IsStackEmpty()
@@ -701,27 +694,27 @@ void CCodeGen::Add()
 
         PushReg(resultRegister);
     }
-	else if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
-	{
-		uint32 nRegister1, nRegister2;
-	
-		m_Shadow.Pull();
-		nRegister2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRegister1 = m_Shadow.Pull();
+	//else if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
+	//{
+	//	uint32 nRegister1, nRegister2;
+	//
+	//	m_Shadow.Pull();
+	//	nRegister2 = m_Shadow.Pull();
+	//	m_Shadow.Pull();
+	//	nRegister1 = m_Shadow.Pull();
 
-		//Can free this register
-		if(!RegisterHasNextUse(nRegister2))
-		{
-			FreeRegister(nRegister2);
-		}
+	//	//Can free this register
+	//	if(!RegisterHasNextUse(nRegister2))
+	//	{
+	//		FreeRegister(nRegister2);
+	//	}
 
-		//add reg1, reg2
-		m_pBlock->StreamWrite(2, 0x03, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
+	//	//add reg1, reg2
+	//	m_pBlock->StreamWrite(2, 0x03, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
 
-		m_Shadow.Push(nRegister1);
-		m_Shadow.Push(REGISTER);
-	}
+	//	m_Shadow.Push(nRegister1);
+	//	m_Shadow.Push(REGISTER);
+	//}
 	else if((m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(2) == REGISTER))
 	{
 		uint32 nRegister, nConstant;
@@ -832,35 +825,35 @@ void CCodeGen::Add64()
 
 void CCodeGen::And()
 {
-	if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
-	{
-		uint32 nRegister1, nRegister2;
+	//if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
+	//{
+	//	uint32 nRegister1, nRegister2;
 
-		m_Shadow.Pull();
-		nRegister2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRegister1 = m_Shadow.Pull();
+	//	m_Shadow.Pull();
+	//	nRegister2 = m_Shadow.Pull();
+	//	m_Shadow.Pull();
+	//	nRegister1 = m_Shadow.Pull();
 
-		//This register will change... Make sure there's no next uses
-		if(RegisterHasNextUse(nRegister1))
-		{
-			//Must save or something...
-			assert(0);
-		}
+	//	//This register will change... Make sure there's no next uses
+	//	if(RegisterHasNextUse(nRegister1))
+	//	{
+	//		//Must save or something...
+	//		assert(0);
+	//	}
 
-		//Can free this register
-		if(!RegisterHasNextUse(nRegister2))
-		{
-			FreeRegister(nRegister2);
-		}
+	//	//Can free this register
+	//	if(!RegisterHasNextUse(nRegister2))
+	//	{
+	//		FreeRegister(nRegister2);
+	//	}
 
-		//and reg1, reg2
-		m_pBlock->StreamWrite(2, 0x23, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
+	//	//and reg1, reg2
+	//	m_pBlock->StreamWrite(2, 0x23, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
 
-		m_Shadow.Push(nRegister1);
-		m_Shadow.Push(REGISTER);
-	}
-	else if(FitsPattern<CommutativeRegisterConstant>())
+	//	m_Shadow.Push(nRegister1);
+	//	m_Shadow.Push(REGISTER);
+	//}
+    if(FitsPattern<CommutativeRegisterConstant>())
 	{
         CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
 
@@ -968,18 +961,7 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 
 	for(unsigned int i = 0; i < nParamCount; i++)
 	{
-		if(m_Shadow.GetAt(0) == VARIABLE)
-		{
-			uint32 nVariable;
-
-			m_Shadow.Pull();
-			nVariable = m_Shadow.Pull();
-
-			//push [nVariable]
-			m_pBlock->StreamWrite(2, 0xFF, 0x35);
-			m_pBlock->StreamWriteWord(nVariable);
-		}
-		else if(m_Shadow.GetAt(0) == RELATIVE)
+		if(m_Shadow.GetAt(0) == RELATIVE)
 		{
 			uint32 nRelative;
 

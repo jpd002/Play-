@@ -1,8 +1,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include "MIPSInstructionFactory.h"
-#include "MipsCodeGen.h"
-#include "CacheBlock.h"
+#include "CodeGen.h"
 #include "MIPS.h"
 #include "PtrMacro.h"
 #include "offsetof_def.h"
@@ -10,8 +9,7 @@
 using namespace std;
 
 CMIPS*				CMIPSInstructionFactory::m_pCtx		= NULL;
-CCacheBlock*		CMIPSInstructionFactory::m_pB		= NULL;
-CMipsCodeGen*       CMIPSInstructionFactory::m_codeGen  = NULL;
+CCodeGen*           CMIPSInstructionFactory::m_codeGen  = NULL;
 uint32				CMIPSInstructionFactory::m_nAddress = 0;
 uint32				CMIPSInstructionFactory::m_nOpcode	= 0;
 
@@ -25,97 +23,16 @@ CMIPSInstructionFactory::~CMIPSInstructionFactory()
 
 }
 
-void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx)
+void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
 {
 	m_pCtx			= pCtx;
-    m_pB            = NULL;
-    m_codeGen       = reinterpret_cast<CMipsCodeGen*>(pBlock);
+    m_codeGen       = codeGen;
 	m_nAddress		= nAddress;
 
 	m_nOpcode		= m_pCtx->m_pMemoryMap->GetWord(m_nAddress);
 }
 
 void CMIPSInstructionFactory::ComputeMemAccessAddr()
-{
-	uint8 nRS;
-	uint16 nImmediate;
-
-	nRS			= (uint8) ((m_nOpcode >> 21) & 0x1F);
-	nImmediate	= (uint16)(m_nOpcode & 0xFFFF);
-
-	//TODO: Compute the complete 64-bit address (carry)
-
-	//Translate the address
-	//Push low part of address
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[nRS].nV[0]);
-	m_pB->AddImm((int16)nImmediate);
-	//Push high part of address
-	m_pB->PushAddr(&m_pCtx->m_State.nGPR[nRS].nV[1]);
-	//Push context address
-	m_pB->PushRef(m_pCtx);
-	m_pB->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);	
-}
-
-void CMIPSInstructionFactory::SignExtendTop32(unsigned int nTarget)
-{
-	//64-bits only here
-	m_pB->SeX32();
-	
-	m_pB->PullAddr(&m_pCtx->m_State.nGPR[nTarget].nV[1]);
-}
-
-void CMIPSInstructionFactory::Branch(bool nCondition)
-{
-	uint16 nImmediate;
-
-	nImmediate	= (uint16)(m_nOpcode & 0xFFFF);
-
-	m_pB->PushImm(MIPS_INVALID_PC);
-	m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
-
-	m_pB->BeginJcc(nCondition);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nPC);
-		m_pB->AddImm(CMIPS::GetBranch(nImmediate));
-		m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
-	}
-	m_pB->EndJcc();
-
-	m_pB->SetDelayedJumpCheck();
-}
-
-void CMIPSInstructionFactory::BranchLikely(bool nCondition)
-{
-	uint16 nImmediate;
-
-	nImmediate	= (uint16)(m_nOpcode & 0xFFFF);
-
-	m_pB->PushImm(MIPS_INVALID_PC);
-	m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
-
-	m_pB->PushTop();
-
-	m_pB->BeginJcc(nCondition);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nPC);
-		m_pB->AddImm(CMIPS::GetBranch(nImmediate));
-		m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
-	}
-	m_pB->EndJcc();
-
-	m_pB->BeginJcc(!nCondition);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nPC);
-		m_pB->AddImm(4);
-		m_pB->PullAddr(&m_pCtx->m_State.nPC);
-	}
-	m_pB->EndJcc();
-
-	m_pB->SetProgramCounterChanged();
-	m_pB->SetDelayedJumpCheck();
-}
-
-void CMIPSInstructionFactory::ComputeMemAccessAddrEx()
 {
 	uint8 nRS;
 	uint16 nImmediate;
@@ -145,7 +62,7 @@ void CMIPSInstructionFactory::ComputeMemAccessAddrEx()
 	m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);
 }
 
-void CMIPSInstructionFactory::BranchEx(bool nCondition)
+void CMIPSInstructionFactory::Branch(bool nCondition)
 {
 	uint16 nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 
@@ -160,7 +77,7 @@ void CMIPSInstructionFactory::BranchEx(bool nCondition)
 	m_codeGen->EndIf();
 }
 
-void CMIPSInstructionFactory::BranchLikelyEx(bool conditionValue)
+void CMIPSInstructionFactory::BranchLikely(bool conditionValue)
 {
 	uint16 nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 

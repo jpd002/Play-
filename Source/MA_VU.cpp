@@ -1,6 +1,11 @@
 #include "MA_VU.h"
 #include "MIPS.h"
 
+CCodeGen*           CMA_VU::m_codeGen   = NULL;
+CMIPS*              CMA_VU::m_pCtx      = NULL;
+uint32              CMA_VU::m_nOpcode   = 0;
+uint32              CMA_VU::m_nAddress  = 0;
+
 CMA_VU::CMA_VU() :
 CMIPSArchitecture(MIPS_REGSIZE_64)
 {
@@ -12,20 +17,25 @@ CMA_VU::~CMA_VU()
 
 }
 
-void CMA_VU::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx, bool nParent)
+void CMA_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
 {
     if(nParent)
     {
-        SetupQuickVariables(nAddress, pBlock, pCtx);
+        //SetupQuickVariables(nAddress, pBlock, pCtx);
+        //TODO: Get rid of static storage...
+	    m_pCtx			= pCtx;
+        m_codeGen       = codeGen;
+	    m_nAddress		= nAddress;
+	    m_nOpcode		= m_pCtx->m_pMemoryMap->GetWord(m_nAddress);
     }
 
 	if(nAddress & 0x04)
 	{
-		m_Upper.CompileInstruction(nAddress, pBlock, pCtx, nParent);
+		m_Upper.CompileInstruction(nAddress, codeGen, pCtx, nParent);
 	}
 	else
 	{
-		m_Lower.CompileInstruction(nAddress, pBlock, pCtx, nParent);
+		m_Lower.CompileInstruction(nAddress, codeGen, pCtx, nParent);
 	}
 }
 

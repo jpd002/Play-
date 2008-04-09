@@ -37,12 +37,12 @@ void CBasicBlock::Compile()
                 );
         }
         codeGen.SetStream(&stream);
-        codeGen.Begin(NULL);
+        codeGen.Begin();
         for(uint32 address = m_begin; address <= m_end; address += 4)
         {
             m_context.m_pArch->CompileInstruction(
                 address, 
-                reinterpret_cast<CCacheBlock*>(&codeGen),
+                &codeGen,
                 &m_context,
                 true);
             //Sanity check

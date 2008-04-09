@@ -4,10 +4,9 @@
 #include "MIPS.h"
 #include "VUShared.h"
 #include "CodeGen.h"
-#include "MipsCodeGen.h"
 #include "offsetof_def.h"
+#include "MemoryUtils.h"
 
-using namespace CodeGen;
 using namespace std;
 
 uint8			CMA_VU::CLower::m_nImm5;
@@ -22,7 +21,7 @@ uint8			CMA_VU::CLower::m_nFSF;
 uint8			CMA_VU::CLower::m_nFTF;
 uint8			CMA_VU::CLower::m_nDest;
 
-void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx, bool nParent)
+void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
 {
     uint32 nPrevOpcode = pCtx->m_pMemoryMap->GetWord(nAddress - 8);
     uint32 nNextOpcode = pCtx->m_pMemoryMap->GetWord(nAddress + 4);
@@ -53,20 +52,6 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CM
 }
 
 void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
-{
-	m_pB->PushImm(MIPS_INVALID_PC);
-	m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
-
-	m_pB->BeginJcc(nCondition);
-	{
-		m_pB->PushAddr(&m_pCtx->m_State.nPC);
-		m_pB->AddImm(nOffset);
-		m_pB->PullAddr(&m_pCtx->m_State.nDelayedJumpAddr);
-	}
-	m_pB->EndJcc();
-}
-
-void CMA_VU::CLower::SetBranchAddressEx(bool nCondition, int32 nOffset)
 {
     m_codeGen->BeginIfElse(nCondition);
     {
@@ -133,7 +118,7 @@ void CMA_VU::CLower::LQ()
         ///////////////////////////////
         // Call
 
-        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+        m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
         ///////////////////////////////
         // Store value
@@ -173,7 +158,7 @@ void CMA_VU::CLower::SQ()
         ///////////////////////////////
         // Call
 
-        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+        m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
     }
 }
 
@@ -193,7 +178,7 @@ void CMA_VU::CLower::ILW()
     m_codeGen->Add();
 
     //Read memory
-    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -217,7 +202,7 @@ void CMA_VU::CLower::ISW()
     m_codeGen->PushCst(GetDestOffset(m_nDest));
     m_codeGen->Add();
 
-    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
 }
 
 //08
@@ -351,7 +336,7 @@ void CMA_VU::CLower::IBEQ()
 
     m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-    SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
+    SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //29
@@ -369,7 +354,7 @@ void CMA_VU::CLower::IBNE()
 
     m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-    SetBranchAddressEx(false, VUShared::GetBranch(m_nImm11) + 4);
+    SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2C
@@ -385,7 +370,7 @@ void CMA_VU::CLower::IBLTZ()
 	//	CCodeGen::PushCst(0);
 	//	CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
 
-	//	SetBranchAddressEx(false, VUShared::GetBranch(m_nImm11) + 4);
+	//	SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
 	//}
 	//CCodeGen::End();
 }
@@ -402,7 +387,7 @@ void CMA_VU::CLower::IBGTZ()
 	//	CCodeGen::PushCst(0);
 	//	CCodeGen::Cmp(CCodeGen::CONDITION_GT);
 	//
-	//	SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
+	//	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 	//}
 	//CCodeGen::End();
 }
@@ -419,7 +404,7 @@ void CMA_VU::CLower::IBLEZ()
 	//	CCodeGen::PushCst(0);
 	//	CCodeGen::Cmp(CCodeGen::CONDITION_LE);
 	//
-	//	SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
+	//	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 	//}
 	//CCodeGen::End();
 }
@@ -435,7 +420,7 @@ void CMA_VU::CLower::IBGEZ()
 
     m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-    SetBranchAddressEx(true, VUShared::GetBranch(m_nImm11) + 4);
+    SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //40
@@ -567,7 +552,7 @@ void CMA_VU::CLower::LQI()
         ///////////////////////////////
         // Call
 
-        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+        m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
         ///////////////////////////////
         // Store result
@@ -620,7 +605,7 @@ void CMA_VU::CLower::XTOP()
     //Compute Address
     m_codeGen->PushCst(CVIF::VU1_TOP);
 
-    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -636,7 +621,7 @@ void CMA_VU::CLower::XGKICK()
     //Compute Address
     m_codeGen->PushCst(CVIF::VU1_XGKICK);
 
-    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
 }
 
 //////////////////////////////////////////////////
@@ -679,7 +664,7 @@ void CMA_VU::CLower::SQI()
         ///////////////////////////////
         // Call
 
-        m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+        m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
     }
 
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -743,7 +728,7 @@ void CMA_VU::CLower::ILWR()
 	//	CCodeGen::PushCst(GetDestOffset(m_nDest));
 	//	CCodeGen::Add();
 
-	//	CCodeGen::Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+	//	CCodeGen::Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
 	//	CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 	//}
@@ -753,7 +738,8 @@ void CMA_VU::CLower::ILWR()
 //10
 void CMA_VU::CLower::RINIT()
 {
-	VUShared::RINIT(m_pB, m_pCtx, m_nIS, m_nFSF);
+    throw runtime_error("Reimplement.");
+//	VUShared::RINIT(m_pB, m_pCtx, m_nIS, m_nFSF);
 }
 
 //1E

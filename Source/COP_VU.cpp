@@ -3,8 +3,10 @@
 #include "VUShared.h"
 #include "MIPS.h"
 #include "CodeGen.h"
-#include "MipsCodeGen.h"
 #include "offsetof_def.h"
+#include "MemoryUtils.h"
+
+using namespace std;
 
 CCOP_VU			g_COPVU(MIPS_REGSIZE_64);
 
@@ -23,11 +25,11 @@ CMIPSCoprocessor(nRegSize)
 	SetupReflectionTables();
 }
 
-void CCOP_VU::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx, bool nParent)
+void CCOP_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
 {
 	if(nParent)
 	{
-		SetupQuickVariables(nAddress, pBlock, pCtx);
+		SetupQuickVariables(nAddress, codeGen, pCtx);
 	}
 
 	m_nDest			= (uint8)((m_nOpcode >> 21) & 0x0F);
@@ -68,13 +70,13 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pC
 //36
 void CCOP_VU::LQC2()
 {
-    ComputeMemAccessAddrEx();
+    ComputeMemAccessAddr();
 
     for(unsigned int i = 0; i < 4; i++)
     {
 	    m_codeGen->PushRef(m_pCtx);
 	    m_codeGen->PushIdx(1);
-	    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+	    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT].nV[i]));
 
@@ -91,14 +93,14 @@ void CCOP_VU::LQC2()
 //3E
 void CCOP_VU::SQC2()
 {
-	ComputeMemAccessAddrEx();
+	ComputeMemAccessAddr();
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRef(m_pCtx);
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFT].nV[i]));
 		m_codeGen->PushIdx(2);
-		m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+		m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
 
 		if(i != 3)
 		{
@@ -386,7 +388,8 @@ void CCOP_VU::VRSQRT()
 //10
 void CCOP_VU::VRINIT()
 {
-	VUShared::RINIT(m_pB, m_pCtx, m_nFS, m_nFSF);
+    throw runtime_error("Reimplement.");
+//	VUShared::RINIT(m_pB, m_pCtx, m_nFS, m_nFSF);
 }
 
 //////////////////////////////////////////////////
@@ -408,7 +411,8 @@ void CCOP_VU::VWAITQ()
 //10
 void CCOP_VU::VRXOR()
 {
-	VUShared::RXOR(m_pB, m_pCtx, m_nFS, m_nFSF);
+    throw runtime_error("Reimplement.");
+//	VUShared::RXOR(m_pB, m_pCtx, m_nFS, m_nFSF);
 }
 
 //////////////////////////////////////////////////

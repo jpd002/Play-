@@ -4,7 +4,6 @@
 #include "COP_SCU.h"
 #include "MIPS.h"
 #include "CodeGen.h"
-#include "MipsCodeGen.h"
 #include "offsetof_def.h"
 
 uint8		CCOP_SCU::m_nRT;
@@ -54,11 +53,11 @@ CMIPSCoprocessor(nRegSize)
 
 }
 
-void CCOP_SCU::CompileInstruction(uint32 nAddress, CCacheBlock* pC, CMIPS* pCtx, bool nParent)
+void CCOP_SCU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
 {
 	if(nParent)
 	{
-		SetupQuickVariables(nAddress, pC, pCtx);
+		SetupQuickVariables(nAddress, codeGen, pCtx);
 	}
 
 	m_nRT	= (uint8)((m_nOpcode >> 16) & 0x1F);

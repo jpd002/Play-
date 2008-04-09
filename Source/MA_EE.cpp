@@ -1,11 +1,11 @@
 #include <stddef.h>
 #include "MA_EE.h"
 #include "MIPS.h"
-#include "MipsCodeGen.h"
+#include "CodeGen.h"
 #include "PS2OS.h"
 #include "offsetof_def.h"
+#include "MemoryUtils.h"
 
-using namespace CodeGen;
 using namespace std;
 using namespace std::tr1;
 
@@ -66,13 +66,13 @@ void CMA_EE::PullVector(unsigned int nReg)
 //1E
 void CMA_EE::LQ()
 {
-    ComputeMemAccessAddrEx();
+    ComputeMemAccessAddr();
 
     for(unsigned int i = 0; i < 4; i++)
     {
 	    m_codeGen->PushRef(m_pCtx);
 	    m_codeGen->PushIdx(1);
-	    m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::GetWordProxy), 2, true);
+	    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 
@@ -89,14 +89,14 @@ void CMA_EE::LQ()
 //1F
 void CMA_EE::SQ()
 {
-	ComputeMemAccessAddrEx();
+	ComputeMemAccessAddr();
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRef(m_pCtx);
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 		m_codeGen->PushIdx(2);
-		m_codeGen->Call(reinterpret_cast<void*>(&CCacheBlock::SetWordProxy), 3, false);
+		m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
 
 		if(i != 3)
 		{

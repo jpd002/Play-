@@ -1,7 +1,6 @@
 #include "CodeGen.h"
 #include "CodeGen_StackPatterns.h"
 
-using namespace CodeGen;
 using namespace std;
 
 bool CCodeGen::RegisterFpSingleHasNextUse(XMMREGISTER registerId)

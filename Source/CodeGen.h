@@ -1,7 +1,6 @@
 #ifndef _CODEGEN_H_
 #define _CODEGEN_H_
 
-#include "CacheBlock.h"
 #include "ArrayStack.h"
 #include "X86Assembler.h"
 #include "Stream.h"
@@ -10,11 +9,6 @@
 #undef RELATIVE
 #undef CONDITION
 #endif
-
-namespace CodeGen
-{
-	class CFPU;
-}
 
 class CCodeGen
 {
@@ -69,30 +63,28 @@ public:
 		ROUND_TRUNCATE = 3
 	};
 
-    friend class					CodeGen::CFPU;
-
                                     CCodeGen();
     virtual                         ~CCodeGen();
 
-    void                            Begin(CCacheBlock*);
+    void                            Begin();
     void                            End();
 
     bool                            IsStackEmpty();
 	virtual void					EndQuota();
 	
-    void                            BeginIf(bool);
-    void                            EndIf();
+    virtual void                    BeginIf(bool);
+    virtual void                    EndIf();
 
-    void                            BeginIfElse(bool);
-    void                            BeginIfElseAlt();
+    virtual void                    BeginIfElse(bool);
+    virtual void                    BeginIfElseAlt();
 
     void                            PushCst(uint32);
     void                            PushRef(void*);
-    void                            PushRel(size_t);
+    virtual void                    PushRel(size_t);
     void                            PushTop();
     void                            PushIdx(unsigned int);
 
-    void                            PullRel(size_t);
+    virtual void                    PullRel(size_t);
     void                            PullTop();
     void                            Swap();
 
@@ -100,7 +92,7 @@ public:
     void						    Add64();
     void                            And();
     void                            And64();
-    void                            Call(void*, unsigned int, bool);
+    virtual void                    Call(void*, unsigned int, bool);
     void                            Cmp(CONDITION);
     void                            Cmp64(CONDITION);
     void                            Div();
@@ -343,7 +335,6 @@ private:
 	bool						    m_nRegisterAllocated[MAX_REGISTER];
 	static unsigned int				m_nRegisterLookup[MAX_REGISTER];
     static CX86Assembler::REGISTER  m_nRegisterLookupEx[MAX_REGISTER];
-	CCacheBlock*				    m_pBlock;
     bool                            m_xmmRegisterAllocated[MAX_XMM_REGISTER];
 
     Framework::CStream*             m_stream;

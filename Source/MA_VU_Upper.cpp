@@ -2,7 +2,7 @@
 #include "MIPS.h"
 #include "VUShared.h"
 #include "VIF.h"
-#include "MipsCodeGen.h"
+#include "CodeGen.h"
 
 using namespace std;
 
@@ -12,7 +12,7 @@ uint8			CMA_VU::CUpper::m_nFD;
 uint8			CMA_VU::CUpper::m_nBc;
 uint8			CMA_VU::CUpper::m_nDest;
 
-void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCacheBlock* pBlock, CMIPS* pCtx, bool nParent)
+void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
 {
     m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
     m_nFT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
@@ -115,7 +115,8 @@ void CMA_VU::CUpper::MULi()
 //1F
 void CMA_VU::CUpper::MINIi()
 {
-	VUShared::MINIi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+    throw runtime_error("Reimplement.");
+//	VUShared::MINIi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
 }
 
 //20
@@ -127,7 +128,8 @@ void CMA_VU::CUpper::ADDq()
 //22
 void CMA_VU::CUpper::ADDi()
 {
-	VUShared::ADDi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+    throw runtime_error("Reimplement.");
+//	VUShared::ADDi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
 }
 
 //26
@@ -209,7 +211,8 @@ void CMA_VU::CUpper::VECTOR3()
 //00
 void CMA_VU::CUpper::ADDAbc()
 {
-	VUShared::ADDAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
+    throw runtime_error("Reimplement.");
+//	VUShared::ADDAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //02
@@ -291,7 +294,8 @@ void CMA_VU::CUpper::OPMULA()
 //07
 void CMA_VU::CUpper::CLIP()
 {
-	VUShared::CLIP(m_pB, m_pCtx, m_nFS, m_nFT);
+    throw runtime_error("Reimplement.");
+//	VUShared::CLIP(m_pB, m_pCtx, m_nFS, m_nFT);
 }
 
 //08

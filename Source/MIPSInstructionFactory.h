@@ -4,8 +4,7 @@
 #include "Types.h"
 
 class CMIPS;
-class CMipsCodeGen;
-class CCacheBlock;
+class CCodeGen;
 
 enum MIPS_REGSIZE
 {
@@ -18,24 +17,17 @@ class CMIPSInstructionFactory
 public:
 							CMIPSInstructionFactory(MIPS_REGSIZE);
 	virtual					~CMIPSInstructionFactory();
-	virtual void			CompileInstruction(uint32, CCacheBlock*, CMIPS*, bool) = 0;
+	virtual void			CompileInstruction(uint32, CCodeGen*, CMIPS*, bool) = 0;
 
 protected:
-	static void				SignExtendTop32(unsigned int);
 	static void				ComputeMemAccessAddr();
-
 	static void				Branch(bool);
 	static void				BranchLikely(bool);
 
-	static void				ComputeMemAccessAddrEx();
-	static void				BranchEx(bool);
-	static void				BranchLikelyEx(bool);
-
 	static void				Illegal();
-	static void				SetupQuickVariables(uint32, CCacheBlock*, CMIPS*);
+	static void				SetupQuickVariables(uint32, CCodeGen*, CMIPS*);
 
-    static CCacheBlock*		m_pB;
-    static CMipsCodeGen*    m_codeGen;
+    static CCodeGen*        m_codeGen;
     static CMIPS*			m_pCtx;
     static uint32			m_nOpcode;
     static uint32			m_nAddress;

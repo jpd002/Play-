@@ -2,7 +2,6 @@
 #define _VUSHARED_H_
 
 #include "MIPSReflection.h"
-#include "CacheBlock.h"
 #include "CodeGen.h"
 #include "uint128.h"
 #include <string.h>
@@ -26,17 +25,16 @@ namespace VUShared
 	uint32*				GetAccumulatorElement(CMIPS*, unsigned int);
     size_t              GetAccumulatorElement(unsigned int);
 
-	void				PullVector(uint8, uint128*);
-    void                PullVectorEx(CCodeGen*, uint8, size_t);
+    void                PullVector(CCodeGen*, uint8, size_t);
 
 	//Shared instructions
 	void				ABS(CCodeGen*, uint8, uint8, uint8);
 	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				ADDi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				ADDi(CCodeGen*, CMIPS*, uint8, uint8, uint8);
 	void				ADDq(CCodeGen*, uint8, uint8, uint8);
-	void				ADDAbc(CCacheBlock*, CMIPS*, uint8, uint8, uint8, uint8);
-	void				CLIP(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				ADDAbc(CCodeGen*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				CLIP(CCodeGen*, CMIPS*, uint8, uint8);
 	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
 	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
@@ -50,7 +48,7 @@ namespace VUShared
 	void				MAXbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MINI(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MINIbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MINIi(CCacheBlock*, CMIPS*, uint8, uint8, uint8);
+	void				MINIi(CCodeGen*, CMIPS*, uint8, uint8, uint8);
 	void				MOVE(CCodeGen*, uint8, uint8, uint8);
 	void				MR32(CCodeGen*, uint8, uint8, uint8);
 	void				MSUBi(CCodeGen*, uint8, uint8, uint8);
@@ -64,9 +62,9 @@ namespace VUShared
 	void				MULAi(CCodeGen*, uint8, uint8);
 	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
 	void				OPMULA(CCodeGen*, uint8, uint8);
-	void				RINIT(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				RINIT(CCodeGen*, CMIPS*, uint8, uint8);
 	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				RXOR(CCacheBlock*, CMIPS*, uint8, uint8);
+	void				RXOR(CCodeGen*, CMIPS*, uint8, uint8);
 	void				SQRT(CCodeGen*, uint8, uint8);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);

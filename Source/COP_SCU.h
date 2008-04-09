@@ -14,7 +14,7 @@ public:
 	};
 
 						CCOP_SCU(MIPS_REGSIZE);
-	virtual void		CompileInstruction(uint32, CCacheBlock*, CMIPS*, bool);
+	virtual void		CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
 	virtual void		GetInstruction(uint32, char*);
 	virtual void		GetArguments(uint32, uint32, char*);
 	virtual uint32		GetEffectiveAddress(uint32, uint32);

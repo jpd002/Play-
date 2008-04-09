@@ -1,6 +1,5 @@
 #include "MA_MIPSIV.h"
 #include "CodeGen.h"
-#include "MipsCodeGen.h"
 #include "MIPS.h"
 #include "offsetof_def.h"
 
@@ -10,7 +9,7 @@ void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
 {
     //TODO: Need to check if this used correctly... LBU, LHU and LW uses this (why LW? and why sign extend on LBU and LHU?)
 
-    ComputeMemAccessAddrEx();
+    ComputeMemAccessAddr();
 
 	m_codeGen->PushRef(m_pCtx);
 	m_codeGen->PushIdx(1);
@@ -161,11 +160,11 @@ void CMA_MIPSIV::Template_BranchGez::operator()(bool condition, bool likely) con
 
     if(likely)
     {
-        BranchLikelyEx(condition);
+        BranchLikely(condition);
     }
     else
     {
-        BranchEx(condition);
+        Branch(condition);
     }
 }
 
@@ -181,10 +180,10 @@ void CMA_MIPSIV::Template_BranchLez::operator()(bool condition, bool likely) con
 
     if(likely)
     {
-        BranchLikelyEx(condition);
+        BranchLikely(condition);
     }
     else
     {
-        BranchEx(condition);
+        Branch(condition);
     }
 }
