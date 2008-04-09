@@ -42,6 +42,8 @@ public:
                 CVIF(CGIF&, uint8*, const VPUINIT&, const VPUINIT&);
     virtual     ~CVIF();
 
+    void        JoinThreads();
+
     void        Reset();
     void        SaveState(CZipArchiveWriter&);
     void        LoadState(CZipArchiveReader&);

@@ -39,6 +39,12 @@ CVIF::~CVIF()
     }
 }
 
+void CVIF::JoinThreads()
+{
+    m_pVPU[0]->JoinThread();
+    m_pVPU[1]->JoinThread();
+}
+
 void CVIF::Reset()
 {
     m_pVPU[0]->Reset();

@@ -14,6 +14,9 @@ class CVPU
 public:
                         CVPU(CVIF&, unsigned int, const CVIF::VPUINIT&);
     virtual             ~CVPU();
+
+    void                JoinThread();
+
     void                SingleStep();
     virtual void        Reset();
     virtual uint32      GetTOP();

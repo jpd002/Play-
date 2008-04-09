@@ -37,12 +37,21 @@ CVPU::~CVPU()
 {
     if(m_execThread != NULL)
     {
+        JoinThread();
+    }
+}
+
+void CVPU::JoinThread()
+{
+    if(m_execThread != NULL)
+    {
         m_endThread = true;
 #ifdef _DEBUG
         m_execDoneCondition.notify_all();
 #endif
         m_execThread->join();
         delete m_execThread;
+        m_execThread = NULL;
     }
 }
 

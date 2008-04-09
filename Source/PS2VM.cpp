@@ -459,6 +459,7 @@ void CPS2VM::ResumeImpl()
 
 void CPS2VM::DestroyImpl()
 {
+    m_vif.JoinThreads();
     DELETEPTR(m_pGS);
     m_nEnd = true;
 }
