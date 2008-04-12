@@ -12,7 +12,6 @@ using namespace Framework;
 CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 {
 	RECT rc;
-	CGridLayout* pSubLayout0;
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -47,7 +46,7 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 
 	m_pData = new CMemoryViewPtr(m_hWnd, &rc);
 
-	pSubLayout0 = new CGridLayout(2, 9);
+    GridLayoutPtr pSubLayout0 = CGridLayout::Create(2, 9);
 
 	pSubLayout0->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
 	pSubLayout0->SetObject(0, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
@@ -71,9 +70,9 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 
 	pSubLayout0->SetVerticalStretch(0);
 
-	m_pLayout = new CVerticalLayout;
+    m_pLayout = CVerticalLayout::Create();
 	m_pLayout->InsertObject(pSubLayout0);
-	m_pLayout->InsertObject(new Win32::CLayoutWindow(200, 200, 1, 1, m_pData));
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(200, 200, 1, 1, m_pData));
 
 	FillInformation();
 
@@ -82,8 +81,7 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 
 CELFSectionView::~CELFSectionView()
 {
-	Destroy();
-	DELETEPTR(m_pLayout);
+    Destroy();
 }
 
 long CELFSectionView::OnSize(unsigned int nType, unsigned int nWidth, unsigned int nHeight)

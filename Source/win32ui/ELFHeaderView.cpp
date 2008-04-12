@@ -51,7 +51,7 @@ CELFHeaderView::CELFHeaderView(HWND hParent, CELF* pELF)
 	m_pSize		= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
 	m_pSHStrTab = new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
 
-	m_pLayout = new CGridLayout(2, 14);
+    m_pLayout = CGridLayout::Create(2, 14);
 
 	m_pLayout->SetObject(0,  0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
 	m_pLayout->SetObject(0,  1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Machine:"))));
@@ -80,7 +80,7 @@ CELFHeaderView::CELFHeaderView(HWND hParent, CELF* pELF)
 	m_pLayout->SetObject(1, 10, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pSHSize));
 	m_pLayout->SetObject(1, 11, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pSHCount));
 	m_pLayout->SetObject(1, 12, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pSHStrTab));
-	m_pLayout->SetObject(1, 13, new CLayoutStretch);
+    m_pLayout->SetObject(1, 13, CLayoutStretch::Create());
 
 	FillInformation();
 	
@@ -90,7 +90,6 @@ CELFHeaderView::CELFHeaderView(HWND hParent, CELF* pELF)
 CELFHeaderView::~CELFHeaderView()
 {
 	Destroy();
-	DELETEPTR(m_pLayout);
 }
 
 void CELFHeaderView::FillInformation()

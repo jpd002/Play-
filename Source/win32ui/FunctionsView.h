@@ -44,7 +44,7 @@ private:
 	Framework::Win32::CButton*		m_pDelete;
 	Framework::Win32::CButton*		m_pImport;
 
-	Framework::CVerticalLayout*		m_pLayout;
+    Framework::FlatLayoutPtr        m_pLayout;
 	CMIPS*							m_pCtx;
 	CELF*							m_pELF;
 };

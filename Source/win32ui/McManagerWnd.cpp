@@ -66,44 +66,38 @@ m_MemoryCard1(filesystem::path(CConfig::GetInstance().GetPreferenceString("ps2.m
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 1 (mc1)")), 1);
 	m_pMemoryCardList->SetSelection(0);
 
-	CHorizontalLayout* pSubLayout0;
+    FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 23, m_pMemoryCardList));
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImportButton));
+    pSubLayout0->InsertObject(CLayoutStretch::Create());
 
-	pSubLayout0 = new CHorizontalLayout();
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 23, m_pMemoryCardList));
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImportButton));
-	pSubLayout0->InsertObject(new CLayoutStretch());
+    FlatLayoutPtr pSubLayout1 = CHorizontalLayout::Create();
+    pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(130, 23, m_pMemoryCardView));
+    pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(100, 100, 1, 1, m_pSaveView));
+    pSubLayout1->SetVerticalStretch(1);
 
-	CHorizontalLayout* pSubLayout1;
+    FlatLayoutPtr pSubLayout2 = CHorizontalLayout::Create();
+    pSubLayout2->InsertObject(CLayoutStretch::Create());
+    pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCloseButton));
 
-	pSubLayout1 = new CHorizontalLayout();
-	pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(130, 23, m_pMemoryCardView));
-	pSubLayout1->InsertObject(new Win32::CLayoutWindow(100, 100, 1, 1, m_pSaveView));
-	pSubLayout1->SetVerticalStretch(1);
+    m_pLayout = CVerticalLayout::Create();
+    m_pLayout->InsertObject(pSubLayout0);
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
+    m_pLayout->InsertObject(pSubLayout1);
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
+    m_pLayout->InsertObject(pSubLayout2);
 
-	CHorizontalLayout* pSubLayout2;
+    RefreshLayout();
 
-	pSubLayout2 = new CHorizontalLayout();
-	pSubLayout2->InsertObject(new CLayoutStretch());
-	pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCloseButton));
+    UpdateMemoryCardSelection();
 
-	m_pLayout = new CVerticalLayout();
-	m_pLayout->InsertObject(pSubLayout0);
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
-	m_pLayout->InsertObject(pSubLayout1);
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
-	m_pLayout->InsertObject(pSubLayout2);
-
-	RefreshLayout();
-
-	UpdateMemoryCardSelection();
-
-	Center();
-	Show(SW_SHOW);
+    Center();
+    Show(SW_SHOW);
 }
 
 CMcManagerWnd::~CMcManagerWnd()
 {
-	delete m_pLayout;
+
 }
 
 void CMcManagerWnd::RefreshLayout()

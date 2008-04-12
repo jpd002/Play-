@@ -33,7 +33,7 @@ private:
 	Framework::Win32::CStatic*		m_pThreads;
 	Framework::Win32::CListBox*		m_pFeatures;
 
-	Framework::CVerticalLayout*		m_pLayout;
+	Framework::FlatLayoutPtr		m_pLayout;
 };
 
 #endif

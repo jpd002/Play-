@@ -58,17 +58,14 @@ CSaveView::CSaveView(HWND hParent)
 	m_CommandSink.RegisterCallback(m_pExport->m_hWnd,		bind(&CSaveView::Export, this));
 	m_CommandSink.RegisterCallback(m_pDelete->m_hWnd,		bind(&CSaveView::Delete, this));
 
-	CHorizontalLayout* pSubLayout0;
+    FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
 	{
-		pSubLayout0 = new CHorizontalLayout();
 		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pId));
 		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOpenFolder));
 	}
 
-	CGridLayout* pSubLayout1;
+    GridLayoutPtr pSubLayout1 = CGridLayout::Create(2, 5);
 	{
-		pSubLayout1 = new CGridLayout(2, 5);
-
 		pSubLayout1->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Name:"))));
 		pSubLayout1->SetObject(0, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Size:"))));
 		pSubLayout1->SetObject(0, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Id:"))));
@@ -83,33 +80,30 @@ CSaveView::CSaveView(HWND hParent)
 		pSubLayout1->SetVerticalStretch(0);
 	}
 
-	CHorizontalLayout* pSubLayout2;
+    FlatLayoutPtr pSubLayout2 = CHorizontalLayout::Create();
 	{
-		pSubLayout2 = new CHorizontalLayout();
 		pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pExport));
 		pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
 		pSubLayout2->SetVerticalStretch(0);
 	}
 
-	CHorizontalLayout* pSubLayout3;
+    FlatLayoutPtr pSubLayout3 = CHorizontalLayout::Create();
 	{
-		pSubLayout3 = new CHorizontalLayout();
-		pSubLayout3->InsertObject(new Win32::CLayoutWindow(50, 50, 1, 1, m_pIconViewWnd));
+        pSubLayout3->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 50, 1, 1, m_pIconViewWnd));
 		pSubLayout3->SetVerticalStretch(1);
 	}
 
-	CHorizontalLayout* pSubLayout4;
-	{
-		pSubLayout4 = new CHorizontalLayout();
-		pSubLayout4->InsertObject(new Win32::CLayoutWindow(50, 23, 1, 0, m_pNormalIcon));
-		pSubLayout4->InsertObject(new Win32::CLayoutWindow(50, 23, 1, 0, m_pCopyingIcon));
-		pSubLayout4->InsertObject(new Win32::CLayoutWindow(50, 23, 1, 0, m_pDeletingIcon));
-		pSubLayout4->SetVerticalStretch(0);
-	}
+    FlatLayoutPtr pSubLayout4 = CHorizontalLayout::Create();
+    {
+        pSubLayout4->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pNormalIcon));
+        pSubLayout4->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pCopyingIcon));
+        pSubLayout4->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pDeletingIcon));
+        pSubLayout4->SetVerticalStretch(0);
+    }
 
 	SetIconType(ICON_NORMAL);
 
-	m_pLayout = new CVerticalLayout();
+    m_pLayout = CVerticalLayout::Create();
 	m_pLayout->InsertObject(pSubLayout1);
 	m_pLayout->InsertObject(pSubLayout2);
 	m_pLayout->InsertObject(pSubLayout3);
@@ -120,7 +114,7 @@ CSaveView::CSaveView(HWND hParent)
 
 CSaveView::~CSaveView()
 {
-	delete m_pLayout;
+
 }
 
 void CSaveView::SetSave(const CSave* pSave)

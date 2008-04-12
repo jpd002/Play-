@@ -16,7 +16,6 @@ CRendererSettingsWnd::CRendererSettingsWnd(HWND hParent, CGSH_OpenGL* pRenderer)
 CModalWindow(hParent)
 {
 	RECT rc;
-	CHorizontalLayout* pSubLayout0;
 
 	m_pRenderer = pRenderer;
 
@@ -44,47 +43,47 @@ CModalWindow(hParent)
 	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, &rc);
 	m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, &rc);
 
-	pSubLayout0 = new CHorizontalLayout;
-	pSubLayout0->InsertObject(new CLayoutStretch);
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
-	pSubLayout0->SetVerticalStretch(0);
+    m_nLinesAsQuads				= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
+    m_nForceBilinearTextures	= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+    m_nForceFlippingVSync		= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
 
-	m_nLinesAsQuads				= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
-	m_nForceBilinearTextures	= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_nForceFlippingVSync		= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
+    m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
+    m_pLineCheck->SetCheck(m_nLinesAsQuads);
 
-	m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
-	m_pLineCheck->SetCheck(m_nLinesAsQuads);
+    m_pForceBilinearCheck = new Win32::CButton(_T("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
+    m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
 
-	m_pForceBilinearCheck = new Win32::CButton(_T("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
-	m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
+    m_pForceFlippingCheck = new Win32::CButton(_T("Force buffer flipping at V-Sync"), m_hWnd, &rc, BS_CHECKBOX);
+    m_pForceFlippingCheck->SetCheck(m_nForceFlippingVSync);
 
-	m_pForceFlippingCheck = new Win32::CButton(_T("Force buffer flipping at V-Sync"), m_hWnd, &rc, BS_CHECKBOX);
-	m_pForceFlippingCheck->SetCheck(m_nForceFlippingVSync);
+    m_pExtList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
+    m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_pExtList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
-	m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
+    FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
+    pSubLayout0->InsertObject(CLayoutStretch::Create());
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
+    pSubLayout0->SetVerticalStretch(0);
 
-	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pLineCheck));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceFlippingCheck));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
-	m_pLayout->InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pExtList));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _T("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
-	m_pLayout->InsertObject(pSubLayout0);
+    m_pLayout = CVerticalLayout::Create();
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pLineCheck));
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceFlippingCheck));
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, &rc, SS_ETCHEDHORZ)));
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pExtList));
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _T("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
+    m_pLayout->InsertObject(pSubLayout0);
 
-	RefreshLayout();
+    RefreshLayout();
 
-	CreateExtListColumns();
-	UpdateExtList();
+    CreateExtListColumns();
+    UpdateExtList();
 }
 
 CRendererSettingsWnd::~CRendererSettingsWnd()
 {
-	DELETEPTR(m_pLayout);
+
 }
 
 long CRendererSettingsWnd::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)

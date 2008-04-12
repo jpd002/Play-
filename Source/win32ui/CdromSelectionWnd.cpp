@@ -1,6 +1,6 @@
 #include "CdromSelectionWnd.h"
-#include "layout/HorizontalLayout.h"
 #include "layout/LayoutStretch.h"
+#include "layout/LayoutEngine.h"
 #include "win32/LayoutWindow.h"
 #include "win32/FileDialog.h"
 #include "../ISO9660/ISO9660.h"
@@ -30,8 +30,6 @@ CCdromSelectionWnd::CCdromSelectionWnd(HWND hParent, const TCHAR* sTitle, CDROMB
 CModalWindow(hParent)
 {
 	RECT rc;
-	CHorizontalLayout* pSubLayout0;
-	CHorizontalLayout* pSubLayout1;
 
 	if(pInitBinding != NULL)
 	{
@@ -78,24 +76,22 @@ CModalWindow(hParent)
 
 	PopulateDeviceList();
 
-	pSubLayout0 = new CHorizontalLayout;
-	pSubLayout0->InsertObject(new CLayoutStretch);
-    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
-    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
-	pSubLayout0->SetVerticalStretch(0);
-
-	pSubLayout1 = new CHorizontalLayout;
-    pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 21, m_pImageEdit));
-    pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(20, 21, m_pImageBrowse));
-	pSubLayout1->SetVerticalStretch(0);
-
-	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pImageRadio));
-	m_pLayout->InsertObject(pSubLayout1);
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pDeviceRadio));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pDeviceCombo));
-	m_pLayout->InsertObject(new CLayoutStretch);
-	m_pLayout->InsertObject(pSubLayout0);
+    m_pLayout =
+        VerticalLayoutContainer(
+            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pImageRadio)) +
+            HorizontalLayoutContainer(
+                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 21, m_pImageEdit)) +
+                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(20, 21, m_pImageBrowse))
+            ) +
+            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pDeviceRadio)) +
+            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pDeviceCombo)) +
+            LayoutExpression(CLayoutStretch::Create()) +
+            HorizontalLayoutContainer(
+                LayoutExpression(CLayoutStretch::Create()) +
+                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk)) +
+                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel))
+            )
+        );
 
 	UpdateControls();
 
@@ -105,7 +101,7 @@ CModalWindow(hParent)
 
 CCdromSelectionWnd::~CCdromSelectionWnd()
 {
-	DELETEPTR(m_pLayout);
+
 }
 
 bool CCdromSelectionWnd::WasConfirmed()
@@ -118,7 +114,7 @@ void CCdromSelectionWnd::GetBindingInfo(CDROMBINDING* pBinding)
 	if(pBinding == NULL) return;
 
 	pBinding->nType				= m_nType;
-	pBinding->sImagePath		= m_sImagePath;
+	pBinding->sImagePath		= m_sImagePath.c_str();
 	pBinding->nPhysicalDevice	= m_nPhysicalDevice;
 }
 
@@ -128,7 +124,7 @@ long CCdromSelectionWnd::OnCommand(unsigned short nID, unsigned short nCmd, HWND
 	{
 		if(m_nType == BINDING_IMAGE)
 		{
-			if(strlen(m_sImagePath) == 0)
+			if(m_sImagePath.length() == 0)
 			{
 				MessageBox(m_hWnd, _T("Please select a disk image to bind with this device."), NULL, 16);
 				return FALSE;
@@ -178,7 +174,7 @@ void CCdromSelectionWnd::UpdateControls()
 	m_pImageRadio->SetCheck(m_nType == BINDING_IMAGE);
 	m_pImageEdit->Enable(m_nType == BINDING_IMAGE);
 	m_pImageBrowse->Enable(m_nType == BINDING_IMAGE);
-	m_pImageEdit->SetTextA(m_sImagePath);
+	m_pImageEdit->SetTextA(m_sImagePath.c_str());
 
 	m_pDeviceRadio->SetCheck(m_nType == BINDING_PHYSICAL);
 	m_pDeviceCombo->Enable(m_nType == BINDING_PHYSICAL);

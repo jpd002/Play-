@@ -37,7 +37,7 @@ private:
 	Framework::Win32::CComboBox*			m_pMemoryCardList;
 	Framework::Win32::CButton*				m_pCloseButton;
 	Framework::Win32::CButton*				m_pImportButton;
-	Framework::CVerticalLayout*				m_pLayout;
+	Framework::FlatLayoutPtr                m_pLayout;
 };
 
 #endif

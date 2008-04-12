@@ -43,7 +43,7 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
 	m_pFlags	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
 	m_pAlign	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
 
-	m_pLayout = new CGridLayout(2, 9);
+    m_pLayout = CGridLayout::Create(2, 9);
 
 	m_pLayout->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
 	m_pLayout->SetObject(0, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Offset:"))));
@@ -62,7 +62,7 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
 	m_pLayout->SetObject(1, 5, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pMemSize));
 	m_pLayout->SetObject(1, 6, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFlags));
 	m_pLayout->SetObject(1, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAlign));
-	m_pLayout->SetObject(1, 8, new CLayoutStretch);
+    m_pLayout->SetObject(1, 8, CLayoutStretch::Create());
 
 	FillInformation();
 
@@ -72,8 +72,7 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
 
 CELFProgramView::~CELFProgramView()
 {
-	Destroy();
-	DELETEPTR(m_pLayout);
+    Destroy();
 }
 
 long CELFProgramView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)

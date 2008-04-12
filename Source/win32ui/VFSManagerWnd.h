@@ -1,12 +1,12 @@
 #ifndef _VFSMANAGERWND_H_
 #define _VFSMANAGERWND_H_
 
+#include <string>
+#include <map>
 #include "ModalWindow.h"
 #include "win32/Button.h"
 #include "win32/ListView.h"
-#include "List.h"
-#include "layout/VerticalLayout.h"
-#include "Str.h"
+#include "layout/LayoutObject.h"
 
 class CVFSManagerWnd : public CModalWindow
 {
@@ -44,9 +44,9 @@ private:
 	private:
 		static int WINAPI			BrowseCallback(HWND, unsigned int, LPARAM, LPARAM);
 
-		const char*					m_sName;
-		const char*					m_sPreference;
-		Framework::CStrA			m_sValue;
+		const char*                 m_sName;
+		const char*                 m_sPreference;
+        std::string                 m_sValue;
 	};
 
 	class CCdrom0Device : public CDevice
@@ -61,22 +61,24 @@ private:
 		virtual void				Save();
 
 	private:
-		Framework::CStrA			m_sImagePath;
-		Framework::CStrA			m_sDevicePath;
-		unsigned int				m_nBindingType;
+        std::string                 m_sImagePath;
+        std::string                 m_sDevicePath;
+		unsigned int                m_nBindingType;
 	};
 
-	void							RefreshLayout();
+    typedef std::map<unsigned int, CDevice*> DeviceList;
+
+    void							RefreshLayout();
 	void							CreateListColumns();
 	void							UpdateList();
 	void							Save();
 
-	Framework::CVerticalLayout*		m_pLayout;
-	Framework::Win32::CButton*		m_pOk;
-	Framework::Win32::CButton*		m_pCancel;
-	Framework::Win32::CListView*	m_pList;
+    Framework::LayoutObjectPtr      m_pLayout;
+	Framework::Win32::CButton*      m_pOk;
+	Framework::Win32::CButton*      m_pCancel;
+	Framework::Win32::CListView*    m_pList;
 
-	Framework::CList<CDevice>		m_Device;
+	DeviceList                      m_devices;
 };
 
 #endif

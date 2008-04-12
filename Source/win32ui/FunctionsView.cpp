@@ -16,7 +16,6 @@ using namespace std;
 CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 {
 	RECT rc;
-	CHorizontalLayout* pSubLayout0;
 
 	m_pCtx = pCtx;
 	m_pELF = NULL;
@@ -51,27 +50,27 @@ CFunctionsView::CFunctionsView(HWND hParent, CMIPS* pCtx)
 	m_pDelete	= new Win32::CButton(_T("Delete"), m_hWnd, &rc);
 	m_pImport	= new Win32::CButton(_T("Load ELF symbols"), m_hWnd, &rc);
 
-	pSubLayout0 = new CHorizontalLayout;
-	pSubLayout0->InsertObject(new CLayoutStretch);
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pNew));
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pRename));
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
-	pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImport));
+    FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
+    pSubLayout0->InsertObject(CLayoutStretch::Create());
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pNew));
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pRename));
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
+    pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImport));
 
-	m_pLayout = new CVerticalLayout;
-	m_pLayout->InsertObject(new Win32::CLayoutWindow(1, 1, 1, 1, m_pList));
-	m_pLayout->InsertObject(pSubLayout0);
+    m_pLayout = CVerticalLayout::Create();
+    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pList));
+    m_pLayout->InsertObject(pSubLayout0);
 
-	SetSize(469, 612);
+    SetSize(469, 612);
 
-	SetELF(NULL);
+    SetELF(NULL);
 
-	RefreshLayout();
+    RefreshLayout();
 }
 
 CFunctionsView::~CFunctionsView()
 {
-	DELETEPTR(m_pLayout);
+
 }
 
 void CFunctionsView::Refresh()

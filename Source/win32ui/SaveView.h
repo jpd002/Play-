@@ -96,7 +96,7 @@ private:
 	CCommandSink						m_CommandSink;
 
 	const CSave*						m_pSave;
-	Framework::CVerticalLayout*			m_pLayout;
+    Framework::FlatLayoutPtr			m_pLayout;
 	Framework::Win32::CEdit*			m_pNameLine1;
 	Framework::Win32::CEdit*			m_pNameLine2;
 	Framework::Win32::CEdit*			m_pSize;

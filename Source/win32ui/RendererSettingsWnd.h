@@ -24,7 +24,7 @@ private:
 
 	bool							ProcessCheckBoxMessage(HWND, Framework::Win32::CButton*, bool*);
 
-	Framework::CVerticalLayout*		m_pLayout;
+	Framework::FlatLayoutPtr        m_pLayout;
 	Framework::Win32::CListView*	m_pExtList;
 	Framework::Win32::CButton*		m_pLineCheck;
 	Framework::Win32::CButton*		m_pForceBilinearCheck;

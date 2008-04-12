@@ -19,8 +19,8 @@ private:
 	void							RefreshLayout();
     std::tstring                    GetBoostVersion();
 
-	Framework::CVerticalLayout*		m_pLayout;
-	Framework::Win32::CStatic*		m_pImage;
+    Framework::FlatLayoutPtr        m_pLayout;
+	Framework::Win32::CStatic*      m_pImage;
 };
 
 #endif
