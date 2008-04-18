@@ -104,17 +104,12 @@ void VUShared::ADDbc(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::ADDi(CCodeGen* codeGen, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::ADDi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(pB);
-	//{
-	//	CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-	//	CVUF128::Push(&pCtx->m_State.nCOP2I);
-	//	CVUF128::Add();
-	//	PullVector(nDest, &pCtx->m_State.nCOP2[nFd]);
-	//}
-	//CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_AddS();
+    PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
 void VUShared::ADDq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)

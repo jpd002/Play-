@@ -12,6 +12,8 @@
 #define STATE_REGS_QWC          ("QWC")
 #define STATE_REGS_TADR         ("TADR")
 #define STATE_REGS_SCCTRL       ("SCCTRL")
+#define STATE_REGS_ASR0         ("ASR0")
+#define STATE_REGS_ASR1         ("ASR1")
 
 using namespace std;
 using namespace Dmac;
@@ -48,6 +50,8 @@ void CChannel::SaveState(CZipArchiveWriter& archive)
     registerFile->SetRegister32(STATE_REGS_QWC,     m_nQWC);
     registerFile->SetRegister32(STATE_REGS_TADR,    m_nTADR);
     registerFile->SetRegister32(STATE_REGS_SCCTRL,  m_nSCCTRL);
+    registerFile->SetRegister32(STATE_REGS_ASR0,    m_nASR[0]);
+    registerFile->SetRegister32(STATE_REGS_ASR1,    m_nASR[1]);
     archive.InsertFile(registerFile);
 }
 
@@ -55,11 +59,13 @@ void CChannel::LoadState(CZipArchiveReader& archive)
 {
     string path = STATE_PREFIX + lexical_cast<string>(m_nNumber) + STATE_SUFFIX;
     CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
-    m_CHCR       = registerFile.GetRegister32(STATE_REGS_CHCR);
-    m_nMADR      = registerFile.GetRegister32(STATE_REGS_MADR);
-    m_nQWC       = registerFile.GetRegister32(STATE_REGS_QWC);
-    m_nTADR      = registerFile.GetRegister32(STATE_REGS_TADR);
-    m_nSCCTRL    = registerFile.GetRegister32(STATE_REGS_SCCTRL);
+    m_CHCR      = registerFile.GetRegister32(STATE_REGS_CHCR);
+    m_nMADR     = registerFile.GetRegister32(STATE_REGS_MADR);
+    m_nQWC      = registerFile.GetRegister32(STATE_REGS_QWC);
+    m_nTADR     = registerFile.GetRegister32(STATE_REGS_TADR);
+    m_nSCCTRL   = registerFile.GetRegister32(STATE_REGS_SCCTRL);
+    m_nASR[0]   = registerFile.GetRegister32(STATE_REGS_ASR0);
+    m_nASR[1]   = registerFile.GetRegister32(STATE_REGS_ASR1);
 }
 
 uint32 CChannel::ReadCHCR()
@@ -184,7 +190,11 @@ void CChannel::ExecuteSourceChain()
 
 		if(m_CHCR.nTTE == 1)
 		{
-			m_pReceive(m_nTADR, 1, 0, true);
+            if(m_pReceive(m_nTADR, 1, 0, true) != 1)
+            {
+                //Device didn't receive DmaTag, break for now
+                break;
+            }
 		}
 
 		nTag = m_dmac.FetchDMATag(m_nTADR);

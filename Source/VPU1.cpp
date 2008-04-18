@@ -92,44 +92,12 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		break;
 	case 0x14:
 		//MSCAL
-        {
-            if(m_vif.IsVU1Running())
-            {
-                m_STAT.nVEW = 1;
-                return 0;
-            }
-
-		    m_TOP = m_TOPS;
-
-		    if(m_STAT.nDBF == 1)
-		    {
-			    m_TOPS = m_BASE;
-		    }
-		    else
-		    {
-			    m_TOPS = m_BASE + m_OFST;
-		    }
-		    m_STAT.nDBF = ~m_STAT.nDBF;
-
-            ExecuteMicro(nCommand.nIMM + PS2::VUMEM1SIZE);
-        }
+        StartMicroProgram(nCommand.nIMM + PS2::VUMEM1SIZE);
 		return 0;
 		break;
 	case 0x17:
 		//MSCNT
-		m_TOP = m_TOPS;
-
-		if(m_STAT.nDBF == 1)
-		{
-			m_TOPS = m_BASE;
-		}
-		else
-		{
-			m_TOPS = m_BASE + m_OFST;
-		}
-		m_STAT.nDBF = ~m_STAT.nDBF;
-
-        ExecuteMicro(m_pCtx->m_State.nPC);
+        StartMicroProgram(m_pCtx->m_State.nPC);
 		return 0;
 		break;
 	case 0x50:
@@ -207,4 +175,27 @@ uint32 CVPU1::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream)
     }
 
     return 0;
+}
+
+void CVPU1::StartMicroProgram(uint32 address)
+{
+    if(m_vif.IsVU1Running())
+    {
+        m_STAT.nVEW = 1;
+        return;
+    }
+
+    m_TOP = m_TOPS;
+
+    if(m_STAT.nDBF == 1)
+    {
+        m_TOPS = m_BASE;
+    }
+    else
+    {
+        m_TOPS = m_BASE + m_OFST;
+    }
+    m_STAT.nDBF = ~m_STAT.nDBF;
+
+    ExecuteMicro(address);
 }

@@ -128,8 +128,7 @@ void CMA_VU::CUpper::ADDq()
 //22
 void CMA_VU::CUpper::ADDi()
 {
-    throw runtime_error("Reimplement.");
-//	VUShared::ADDi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+    VUShared::ADDi(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //26

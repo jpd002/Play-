@@ -31,7 +31,7 @@ namespace VUShared
 	void				ABS(CCodeGen*, uint8, uint8, uint8);
 	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				ADDi(CCodeGen*, CMIPS*, uint8, uint8, uint8);
+	void				ADDi(CCodeGen*, uint8, uint8, uint8);
 	void				ADDq(CCodeGen*, uint8, uint8, uint8);
 	void				ADDAbc(CCodeGen*, CMIPS*, uint8, uint8, uint8, uint8);
 	void				CLIP(CCodeGen*, CMIPS*, uint8, uint8);

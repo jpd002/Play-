@@ -18,6 +18,8 @@ protected:
     virtual uint32  Cmd_UNPACK(CODE, CVIF::CFifoStream&);
 
 private:
+    void            StartMicroProgram(uint32);
+
     uint32          m_BASE;
     uint32          m_OFST;
     uint32          m_TOP;

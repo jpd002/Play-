@@ -212,6 +212,19 @@ void CCodeGen::BeginIfElse(bool nCondition)
 		m_IfStack.Push(ifLabel);
 		m_IfStack.Push(IFELSEBLOCK);
 	}
+    else if(FitsPattern<SingleConstant>())
+    {
+        SingleConstant::PatternValue constant(GetPattern<SingleConstant>());
+        //Skip the if block only if we have a "false" value
+        CX86Assembler::LABEL ifLabel = m_Assembler.CreateLabel();
+        if(!constant)
+        {
+            m_Assembler.JmpJb(ifLabel);
+        }
+
+        m_IfStack.Push(ifLabel);
+        m_IfStack.Push(IFELSEBLOCK);
+    }
 	else
 	{
 		assert(0);
@@ -825,34 +838,6 @@ void CCodeGen::Add64()
 
 void CCodeGen::And()
 {
-	//if((m_Shadow.GetAt(0) == REGISTER) && (m_Shadow.GetAt(2) == REGISTER))
-	//{
-	//	uint32 nRegister1, nRegister2;
-
-	//	m_Shadow.Pull();
-	//	nRegister2 = m_Shadow.Pull();
-	//	m_Shadow.Pull();
-	//	nRegister1 = m_Shadow.Pull();
-
-	//	//This register will change... Make sure there's no next uses
-	//	if(RegisterHasNextUse(nRegister1))
-	//	{
-	//		//Must save or something...
-	//		assert(0);
-	//	}
-
-	//	//Can free this register
-	//	if(!RegisterHasNextUse(nRegister2))
-	//	{
-	//		FreeRegister(nRegister2);
-	//	}
-
-	//	//and reg1, reg2
-	//	m_pBlock->StreamWrite(2, 0x23, 0xC0 | (m_nRegisterLookup[nRegister1] << 3) | (m_nRegisterLookup[nRegister2]));
-
-	//	m_Shadow.Push(nRegister1);
-	//	m_Shadow.Push(REGISTER);
-	//}
     if(FitsPattern<CommutativeRegisterConstant>())
 	{
         CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
@@ -873,6 +858,15 @@ void CCodeGen::And()
 
         And();
 	}
+    else if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+        unsigned int resultRegister = AllocateRegister();
+        LoadRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.AndEd(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+        PushReg(resultRegister);
+    }
 	else if(FitsPattern<ConstantConstant>())
 	{
         ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
@@ -1182,75 +1176,6 @@ void CCodeGen::Cmp(CONDITION nCondition)
         PushReg(resultRegister);
 	}
 /*
-    if((m_Shadow.GetAt(0) == VARIABLE) && (m_Shadow.GetAt(2) == VARIABLE))
-	{
-		uint32 nVariable1, nVariable2, nRegister;
-
-		m_Shadow.Pull();
-		nVariable2 = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable1 = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-
-		//mov reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable1);
-
-		//cmp reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x3B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable2);
-
-		//setcc reg[l]
-		m_pBlock->StreamWrite(1, 0x0F);
-		switch(nCondition)
-		{
-		case CONDITION_BL:
-			m_pBlock->StreamWrite(1, 0x92);
-			break;
-		case CONDITION_EQ:
-			m_pBlock->StreamWrite(1, 0x94);
-			break;
-		default:
-			assert(0);
-			break;
-		}
-
-		m_pBlock->StreamWrite(1, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-
-		//movzx reg, reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-	}
-	else if((m_Shadow.GetAt(2) == VARIABLE) && (m_Shadow.GetAt(0) == CONSTANT) && (m_Shadow.GetAt(1) == 0) && (nCondition == CONDITION_EQ))
-	{
-		uint32 nVariable, nRegister;
-
-		m_Shadow.Pull();
-		m_Shadow.Pull();
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
-
-		nRegister = AllocateRegister();
-
-		//mov reg, dword ptr[Variable]
-		m_pBlock->StreamWrite(2, 0x8B, 0x00 | (m_nRegisterLookup[nRegister] << 3) | (0x05));
-		m_pBlock->StreamWriteWord(nVariable);
-
-		//test reg, reg
-		m_pBlock->StreamWrite(2, 0x85, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-		
-		//sete reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0x94, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]));
-
-		//movzx reg, reg[l]
-		m_pBlock->StreamWrite(3, 0x0F, 0xB6, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-		
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-	}
 	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT))
 	{
 		uint32 nConstant;
@@ -1347,6 +1272,32 @@ void CCodeGen::Div_Base(const MultFunction& function, bool isSigned)
         PushReg(highRegister);
         PushReg(lowRegister);
     }
+    else if(FitsPattern<ConstantRelative>())
+    {
+        ConstantRelative::PatternValue ops(GetPattern<ConstantRelative>());
+
+        //We need eax and edx for this
+        assert(!m_nRegisterAllocated[REGISTER_EAX] && !m_nRegisterAllocated[REGISTER_EDX]);
+        m_nRegisterAllocated[REGISTER_EAX] = true;
+        m_nRegisterAllocated[REGISTER_EDX] = true;
+        unsigned int lowRegister = REGISTER_EAX;
+        unsigned int highRegister = REGISTER_EDX;
+
+        LoadConstantInRegister(lowRegister, ops.first);
+        if(isSigned)
+        {
+            m_Assembler.Cdq();
+        }
+        else
+        {
+            m_Assembler.XorEd(m_nRegisterLookupEx[highRegister],
+                CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[highRegister]));
+        }
+        function(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
+
+        PushReg(highRegister);
+        PushReg(lowRegister);
+    }
     else if(FitsPattern<RelativeRelative>())
     {
         RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
@@ -1370,13 +1321,29 @@ void CCodeGen::Div_Base(const MultFunction& function, bool isSigned)
         }
         function(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
 
-
         PushReg(highRegister);
         PushReg(lowRegister);
     }
+    else if(FitsPattern<ConstantConstant>())
+    {
+        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+        uint32 result = 0, remainder = 0;
+        if(isSigned)
+        {
+            result = static_cast<int32>(ops.first) / static_cast<int32>(ops.second);
+            remainder = static_cast<int32>(ops.first) % static_cast<int32>(ops.second);
+        }
+        else
+        {
+            result = ops.first / ops.second;
+            remainder = ops.first % ops.second;
+        }
+        PushCst(remainder);
+        PushCst(result);
+    }
     else
     {
-        assert(0);
+        throw exception();
     }
 }
 
@@ -1709,15 +1676,23 @@ void CCodeGen::SeX8()
 
 void CCodeGen::SeX16()
 {
-    ReduceToRegister();
+    if(FitsPattern<SingleConstant>())
+    {
+        SingleConstant::PatternValue op = GetPattern<SingleConstant>();
+        PushCst(static_cast<int16>(op));
+    }
+    else
+    {
+        ReduceToRegister();
 
-    m_Shadow.Pull();
-    uint32 nRegister = m_Shadow.Pull();
+        m_Shadow.Pull();
+        uint32 nRegister = m_Shadow.Pull();
 
-    m_Assembler.MovsxEw(m_nRegisterLookupEx[nRegister],
-        CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]));
+        m_Assembler.MovsxEw(m_nRegisterLookupEx[nRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]));
 
-    PushReg(nRegister);
+        PushReg(nRegister);
+    }
 }
 
 void CCodeGen::Shl()
