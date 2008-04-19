@@ -296,6 +296,8 @@ typedef GenericTwoArguments<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_RE
 typedef GenericTwoArguments<CCodeGen::FP_SINGLE_RELATIVE, CCodeGen::FP_SINGLE_RELATIVE> DualFpSingleRelative;
 typedef GenericTwoArguments<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_RELATIVE> FpSingleRegisterRelative;
 typedef GenericTwoArguments<CCodeGen::FP_SINGLE_RELATIVE, CCodeGen::FP_SINGLE_REGISTER> FpSingleRelativeRegister;
+typedef GenericTwoArguments<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::CONSTANT> FpSingleRegisterConstant;
+typedef GenericTwoArguments<CCodeGen::CONSTANT, CCodeGen::FP_SINGLE_REGISTER> FpSingleConstantRegister;
 typedef GenericTwoArguments<CCodeGen::RELATIVE128, CCodeGen::RELATIVE128> RelativeRelative128;
 typedef GenericTwoArguments<CCodeGen::REGISTER128, CCodeGen::RELATIVE128> RegisterRelative128;
 typedef GenericTwoArguments<CCodeGen::RELATIVE128, CCodeGen::REGISTER128> RelativeRegister128;

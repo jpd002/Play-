@@ -34,7 +34,7 @@ namespace VUShared
 	void				ADDi(CCodeGen*, uint8, uint8, uint8);
 	void				ADDq(CCodeGen*, uint8, uint8, uint8);
 	void				ADDAbc(CCodeGen*, CMIPS*, uint8, uint8, uint8, uint8);
-	void				CLIP(CCodeGen*, CMIPS*, uint8, uint8);
+	void				CLIP(CCodeGen*, uint8, uint8);
 	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
 	void				FTOI4(CCodeGen*, uint8, uint8, uint8);

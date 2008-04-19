@@ -293,8 +293,7 @@ void CMA_VU::CUpper::OPMULA()
 //07
 void CMA_VU::CUpper::CLIP()
 {
-    throw runtime_error("Reimplement.");
-//	VUShared::CLIP(m_pB, m_pCtx, m_nFS, m_nFT);
+    VUShared::CLIP(m_codeGen, m_nFS, m_nFT);
 }
 
 //08

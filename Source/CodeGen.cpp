@@ -1175,6 +1175,23 @@ void CCodeGen::Cmp(CONDITION nCondition)
 		
         PushReg(resultRegister);
 	}
+    else if(FitsPattern<RegisterRegister>() && (nCondition == CONDITION_EQ))
+    {
+        RegisterRegister::PatternValue ops = GetPattern<RegisterRegister>();
+        unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
+
+        //cmp op1, op2
+        m_Assembler.CmpEd(m_nRegisterLookupEx[ops.first],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[ops.second]));
+
+        //sete res[l]
+        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+
+        if(!RegisterHasNextUse(ops.first)) FreeRegister(ops.first);
+        if(!RegisterHasNextUse(ops.second)) FreeRegister(ops.second);
+
+        PushReg(resultRegister);
+    }
 /*
 	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT))
 	{
@@ -1206,7 +1223,7 @@ void CCodeGen::Cmp(CONDITION nCondition)
 */
 	else
 	{
-		assert(0);
+        throw exception();
 	}
 }
 

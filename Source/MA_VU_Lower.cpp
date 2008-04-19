@@ -739,39 +739,33 @@ void CMA_VU::CLower::WAITQ()
 //1C
 void CMA_VU::CLower::ERLENG()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	///////////////////////////////////////////////////
-	//	//Raise all components to the power of 2
+    ///////////////////////////////////////////////////
+    //Raise all components to the power of 2
 
-	//	CFPU::PushSingle(&m_pCtx->m_State.nCOP2[m_nIS].nV[0]);
-	//	CFPU::Dup();
-	//	CFPU::Mul();
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+    m_codeGen->PushTop();
+    m_codeGen->FP_Mul();
 
-	//	CFPU::PushSingle(&m_pCtx->m_State.nCOP2[m_nIS].nV[1]);
-	//	CFPU::Dup();
-	//	CFPU::Mul();
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+    m_codeGen->PushTop();
+    m_codeGen->FP_Mul();
 
-	//	CFPU::PushSingle(&m_pCtx->m_State.nCOP2[m_nIS].nV[2]);
-	//	CFPU::Dup();
-	//	CFPU::Mul();
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+    m_codeGen->PushTop();
+    m_codeGen->FP_Mul();
 
-	//	///////////////////////////////////////////////////
-	//	//Sum all components
+    ///////////////////////////////////////////////////
+    //Sum all components
 
-	//	CFPU::Add();
-	//	CFPU::Add();
+    m_codeGen->FP_Add();
+    m_codeGen->FP_Add();
 
-	//	///////////////////////////////////////////////////
-	//	//Extract root, inverse
+    ///////////////////////////////////////////////////
+    //Extract root, inverse
 
-	//	CFPU::Sqrt();
-	//	CFPU::Rcpl();
+    m_codeGen->FP_Rsqrt();
 
-	//	CFPU::PullSingle(&m_pCtx->m_State.nCOP2P);
-	//}
-	//CCodeGen::End();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
 
 //////////////////////////////////////////////////

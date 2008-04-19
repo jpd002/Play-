@@ -313,7 +313,11 @@ private:
     void                            Div_Base(const MultFunction&, bool);
     void                            Mult_Base(const MultFunction&, bool);
 
+    XMMREGISTER                     FP_GetResultRegister(uint32);
+    void                            FP_GenericOneOperand(const MdTwoOperandFunction&);
     void                            FP_GenericTwoOperand(const MdTwoOperandFunction&);
+
+    void                            FP_CmpHelper(XMMREGISTER, const CX86Assembler::CAddress&, CCodeGen::CONDITION);
 
     void                            MD_GenericPackedShift(const PackedShiftFunction&, uint8);
     void                            MD_GenericOneOperand(const MdTwoOperandFunction&);

@@ -133,52 +133,46 @@ void VUShared::ADDAbc(CCodeGen* codeGen, CMIPS* pCtx, uint8 nDest, uint8 nFs, ui
 	//CCodeGen::End();
 }
 
-void VUShared::CLIP(CCodeGen* codeGen, CMIPS* pCtx, uint8 nFs, uint8 nFt)
+void VUShared::CLIP(CCodeGen* codeGen, uint8 nFs, uint8 nFt)
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(pB);
-	//{
-	//	//Create some space for the new test results
-	//	CCodeGen::PushVar(&pCtx->m_State.nCOP2CF);
-	//	//Decomment -> CCodeGen::Shl(6);
-	//	CCodeGen::PullVar(&pCtx->m_State.nCOP2CF);
+    //Create some space for the new test results
+    codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+    codeGen->Shl(6);
+    codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
 
-	//	for(unsigned int i = 0; i < 3; i++)
-	//	{
-	//		//c > +|w|
-	//		CFPU::PushSingle(&pCtx->m_State.nCOP2[nFt].nV[3]);
-	//		CFPU::Abs();
-	//		CFPU::PushSingle(&pCtx->m_State.nCOP2[nFs].nV[i]);
-	//		CFPU::Cmp(CCodeGen::CONDITION_AB);
-	//		
-	//		CCodeGen::BeginIf(true);
-	//		{
-	//			CCodeGen::PushVar(&pCtx->m_State.nCOP2CF);
-	//			CCodeGen::PushCst(1 << ((i * 2) + 0));
-	//			//Decomment -> CCodeGen::Or();
-	//			CCodeGen::PullVar(&pCtx->m_State.nCOP2CF);
-	//		}
-	//		CCodeGen::EndIf();
+    for(unsigned int i = 0; i < 3; i++)
+    {
+        //c > +|w|
+        codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+        codeGen->FP_Abs();
+        codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+        codeGen->FP_Cmp(CCodeGen::CONDITION_AB);
 
-	//		//c < -|w|
-	//		CFPU::PushSingle(&pCtx->m_State.nCOP2[nFt].nV[3]);
-	//		CFPU::Abs();
-	//		CFPU::Neg();
-	//		CFPU::PushSingle(&pCtx->m_State.nCOP2[nFs].nV[i]);
-	//		CFPU::Cmp(CCodeGen::CONDITION_BL);
+        codeGen->BeginIf(true);
+        {
+            codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+            codeGen->PushCst(1 << ((i * 2) + 0));
+            codeGen->Or();
+            codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+        }
+        codeGen->EndIf();
 
-	//		CCodeGen::BeginIf(true);
-	//		{
-	//			CCodeGen::PushVar(&pCtx->m_State.nCOP2CF);
-	//			CCodeGen::PushCst(1 << ((i * 2) + 1));
-	//			//Decomment -> CCodeGen::Or();
-	//			CCodeGen::PullVar(&pCtx->m_State.nCOP2CF);
-	//		}
-	//		CCodeGen::EndIf();
-	//	}
+        //c < -|w|
+        codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+        codeGen->FP_Abs();
+        codeGen->FP_Neg();
+        codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+        codeGen->FP_Cmp(CCodeGen::CONDITION_BL);
 
-	//}
-	//CCodeGen::End();
+        codeGen->BeginIf(true);
+        {
+            codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+            codeGen->PushCst(1 << ((i * 2) + 1));
+            codeGen->Or();
+            codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+        }
+        codeGen->EndIf();
+    }
 }
 
 void VUShared::DIV(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf)
@@ -455,35 +449,28 @@ void VUShared::OPMSUB(CCodeGen* codeGen, uint8 nFd, uint8 nFs, uint8 nFt)
 		//Atelier Iris - OPMSUB with VF0 as FD...
 		//This is probably to set a flag which is tested a bit further
 		//The flag tested is Sz
-        throw runtime_error("Remimplement.");
-        /*
-		CCodeGen::Begin(pB);
+        codeGen->PushCst(0);
+
+		codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
+		codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
+		codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPY));
+		codeGen->FP_Mul();
+		codeGen->FP_Sub();
+
+		codeGen->FP_Cmp(CCodeGen::CONDITION_BL);
+		
+		codeGen->BeginIfElse(true);
 		{
-			CFPU::PushSingleImm(0.0);
-
-			CFPU::PushSingle(GetAccumulatorElement(pCtx, VECTOR_COMPZ));
-			CFPU::PushSingle(GetVectorElement(pCtx, nFs, VECTOR_COMPX));
-			CFPU::PushSingle(GetVectorElement(pCtx, nFt, VECTOR_COMPY));
-			CFPU::Mul();
-			CFPU::Sub();
-
-			CFPU::Cmp(CCodeGen::CONDITION_BL);
-			
-			CCodeGen::BeginIfElse(true);
-			{
-				CCodeGen::PushCst(0xFFFFFFFF);
-				CCodeGen::PullVar(&pCtx->m_State.nCOP2SF.nV[2]);
-			}
-			CCodeGen::BeginIfElseAlt();
-			{
-				CCodeGen::PushCst(0);
-				CCodeGen::PullVar(&pCtx->m_State.nCOP2SF.nV[2]);
-			}
-			CCodeGen::EndIf();
+			codeGen->PushCst(0xFFFFFFFF);
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF.nV[2]));
 		}
-		CCodeGen::End();
+		codeGen->BeginIfElseAlt();
+		{
+			codeGen->PushCst(0);
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF.nV[2]));
+		}
+		codeGen->EndIf();
 		return;
-        */
 	}
 
     //X

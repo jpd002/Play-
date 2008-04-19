@@ -77,6 +77,47 @@ void CCodeGen::FP_PullWordTruncate(size_t offset)
     }
 }
 
+CCodeGen::XMMREGISTER CCodeGen::FP_GetResultRegister(uint32 registerId)
+{
+    XMMREGISTER destRegister = static_cast<XMMREGISTER>(registerId);
+    XMMREGISTER resultRegister;
+    if(!RegisterFpSingleHasNextUse(destRegister))
+    {
+        resultRegister = destRegister;
+    }
+    else
+    {
+        resultRegister = AllocateXmmRegister();
+        CopyRegister128(resultRegister, destRegister);
+    }
+    return resultRegister;
+}
+
+void CCodeGen::FP_GenericOneOperand(const MdTwoOperandFunction& instruction)
+{
+    if(FitsPattern<SingleFpSingleRelative>())
+    {
+        SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
+        XMMREGISTER resultRegister = AllocateXmmRegister();
+        instruction(resultRegister, 
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
+        FP_PushSingleReg(resultRegister);
+    }
+    else if(FitsPattern<SingleFpSingleRegister>())
+    {
+        SingleFpSingleRegister::PatternValue op = GetPattern<SingleFpSingleRegister>();
+        XMMREGISTER resultRegister = FP_GetResultRegister(op);
+        XMMREGISTER sourceRegister = static_cast<XMMREGISTER>(op);
+        instruction(resultRegister, 
+            CX86Assembler::MakeXmmRegisterAddress(sourceRegister));
+        FP_PushSingleReg(resultRegister);
+    }
+    else
+    {
+        throw runtime_error("Not implemented.");
+    }
+}
+
 void CCodeGen::FP_GenericTwoOperand(const MdTwoOperandFunction& instruction)
 {
     if(FitsPattern<DualFpSingleRelative>())
@@ -104,6 +145,21 @@ void CCodeGen::FP_GenericTwoOperand(const MdTwoOperandFunction& instruction)
         }
         FP_PushSingleReg(resultRegister);
     }
+    else if(FitsPattern<DualFpSingleRegister>())
+    {
+        DualFpSingleRegister::PatternValue ops = GetPattern<DualFpSingleRegister>();
+        XMMREGISTER resultRegister = FP_GetResultRegister(ops.first);
+        {
+            XMMREGISTER sourceRegister = static_cast<XMMREGISTER>(ops.second);
+            instruction(resultRegister,
+                CX86Assembler::MakeXmmRegisterAddress(sourceRegister));
+            if(!RegisterFpSingleHasNextUse(sourceRegister))
+            {
+                FreeXmmRegister(sourceRegister);
+            }
+        }
+        FP_PushSingleReg(resultRegister);
+    }
     else
     {
         throw exception();
@@ -112,28 +168,7 @@ void CCodeGen::FP_GenericTwoOperand(const MdTwoOperandFunction& instruction)
 
 void CCodeGen::FP_Add()
 {
-    if(FitsPattern<DualFpSingleRelative>())
-    {
-        DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        FP_LoadSingleRelativeInRegister(resultRegister, ops.first);
-        m_Assembler.AddssEd(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        FP_PushSingleReg(resultRegister);
-    }
-    else if(FitsPattern<CommutativeFpSingleRegisterRelative>())
-    {
-        CommutativeFpSingleRegisterRelative::PatternValue ops = GetPattern<CommutativeFpSingleRegisterRelative>();
-        XMMREGISTER destinationRegister = static_cast<XMMREGISTER>(ops.first);
-        XMMREGISTER resultRegister = RegisterFpSingleHasNextUse(destinationRegister) ? AllocateXmmRegister() : destinationRegister;
-        m_Assembler.AddssEd(resultRegister,
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        FP_PushSingleReg(resultRegister);
-    }
-    else
-    {
-        assert(0);
-    }
+    FP_GenericTwoOperand(bind(&CX86Assembler::AddssEd, m_Assembler, _1, _2));
 }
 
 void CCodeGen::FP_Abs()
@@ -172,40 +207,65 @@ void CCodeGen::FP_Div()
     FP_GenericTwoOperand(bind(&CX86Assembler::DivssEd, m_Assembler, _1, _2));
 }
 
+void CCodeGen::FP_CmpHelper(XMMREGISTER dst, const CX86Assembler::CAddress& src, CCodeGen::CONDITION condition)
+{
+    CX86Assembler::SSE_CMP_TYPE conditionCode;
+    switch(condition)
+    {
+    case CONDITION_EQ:
+        conditionCode = CX86Assembler::SSE_CMP_EQ;
+        break;
+    case CONDITION_BL:
+        conditionCode = CX86Assembler::SSE_CMP_LT;
+        break;
+    case CONDITION_BE:
+        conditionCode = CX86Assembler::SSE_CMP_LE;
+        break;
+    default:
+        assert(0);
+        break;
+    }
+    unsigned int resultRegister = AllocateRegister();
+    assert(!RegisterFpSingleHasNextUse(dst));
+    m_Assembler.CmpssEd(dst, src, conditionCode);
+    //Can't move directly to register using MOVSS, so we use CVTTSS2SI
+    //0x00000000 -- CVT -> zero
+    //0xFFFFFFFF -- CVT -> not zero
+    m_Assembler.Cvttss2siEd(m_nRegisterLookupEx[resultRegister],
+        CX86Assembler::MakeXmmRegisterAddress(dst));
+    PushReg(resultRegister);
+}
+
 void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
 {
+    //Compare second - first
     if(FitsPattern<DualFpSingleRelative>())
     {
         DualFpSingleRelative::PatternValue ops = GetPattern<DualFpSingleRelative>();
-        CX86Assembler::SSE_CMP_TYPE conditionCode;
-        switch(condition)
-        {
-        case CONDITION_EQ:
-            conditionCode = CX86Assembler::SSE_CMP_EQ;
-            break;
-        case CONDITION_BL:
-            conditionCode = CX86Assembler::SSE_CMP_LT;
-            break;
-        case CONDITION_BE:
-            conditionCode = CX86Assembler::SSE_CMP_LE;
-            break;
-        default:
-            assert(0);
-            break;
-        }
         XMMREGISTER tempResultRegister = AllocateXmmRegister();
-        unsigned int resultRegister = AllocateRegister();
         FP_LoadSingleRelativeInRegister(tempResultRegister, ops.second);
-        m_Assembler.CmpssEd(tempResultRegister,
+        FP_CmpHelper(tempResultRegister, 
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first),
-            conditionCode);
-        //Can't move directly to register using MOVSS, so we use CVTTSS2SI
-        //0x00000000 -- CVT -> zero
-        //0xFFFFFFFF -- CVT -> not zero
-        m_Assembler.Cvttss2siEd(m_nRegisterLookupEx[resultRegister],
-            CX86Assembler::MakeXmmRegisterAddress(tempResultRegister));
+            condition);
         FreeXmmRegister(tempResultRegister);
-        PushReg(resultRegister);
+    }
+    else if(FitsPattern<FpSingleConstantRegister>())
+    {
+        FpSingleConstantRegister::PatternValue ops = GetPattern<FpSingleConstantRegister>();
+        XMMREGISTER tempRegister = AllocateXmmRegister();
+        if(ops.first == 0)
+        {
+            m_Assembler.PxorVo(tempRegister,
+                CX86Assembler::MakeXmmRegisterAddress(tempRegister));
+        }
+        else
+        {
+            throw runtime_error("Not zero constant.");
+        }
+
+        FP_CmpHelper(static_cast<XMMREGISTER>(ops.second), 
+            CX86Assembler::MakeXmmRegisterAddress(tempRegister), condition);
+        FreeXmmRegister(tempRegister);
     }
     else
     {
@@ -249,16 +309,5 @@ void CCodeGen::FP_Sqrt()
 
 void CCodeGen::FP_Rsqrt()
 {
-    if(FitsPattern<SingleFpSingleRelative>())
-    {
-        SingleFpSingleRelative::PatternValue op = GetPattern<SingleFpSingleRelative>();
-        XMMREGISTER resultRegister = AllocateXmmRegister();
-        m_Assembler.RsqrtssEd(resultRegister, 
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, op));
-        FP_PushSingleReg(resultRegister);
-    }
-    else
-    {
-        throw runtime_error("Not implemented.");
-    }
+    FP_GenericOneOperand(bind(&CX86Assembler::RsqrtssEd, m_Assembler, _1, _2));
 }
