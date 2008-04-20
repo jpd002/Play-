@@ -115,8 +115,7 @@ void CMA_VU::CUpper::MULi()
 //1F
 void CMA_VU::CUpper::MINIi()
 {
-    throw runtime_error("Reimplement.");
-//	VUShared::MINIi(m_pB, m_pCtx, m_nDest, m_nFD, m_nFS);
+    VUShared::MINIi(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //20
@@ -210,8 +209,7 @@ void CMA_VU::CUpper::VECTOR3()
 //00
 void CMA_VU::CUpper::ADDAbc()
 {
-    throw runtime_error("Reimplement.");
-//	VUShared::ADDAbc(m_pB, m_pCtx, m_nDest, m_nFS, m_nFT, m_nBc);
+    VUShared::ADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //02

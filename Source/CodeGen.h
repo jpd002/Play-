@@ -17,14 +17,27 @@ public:
 
     struct GenericOp
     {
-        typedef void (CX86Assembler::*RelativeOpPtr)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
-        typedef void (CX86Assembler::*ConstantOpPtr)(const CX86Assembler::CAddress&, uint32);
+        typedef void (CX86Assembler::*RegisterAddressOpPtr)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+        typedef void (CX86Assembler::*AddressConstantOpPtr)(const CX86Assembler::CAddress&, uint32);
+        typedef uint32 (*ConstantConstantOpPtr)(uint32, uint32);
+        typedef bool (*IsNullOpPtr)(uint32);
 
-        GenericOp(const RelativeOpPtr& relativeOp, const ConstantOpPtr& constantOp)
-            : relativeOp(relativeOp), constantOp(constantOp) {}
+        GenericOp(
+            const RegisterAddressOpPtr& registerAddressOp, 
+            const AddressConstantOpPtr& addressConstantOp,
+            const ConstantConstantOpPtr& constantConstantOp,
+            const IsNullOpPtr& isNullOp)
+            : 
+            registerAddressOp(registerAddressOp), 
+            addressConstantOp(addressConstantOp),
+            constantConstantOp(constantConstantOp),
+            isNullOp(isNullOp)
+            {}
 
-        ConstantOpPtr   constantOp;
-        RelativeOpPtr   relativeOp;
+        RegisterAddressOpPtr    registerAddressOp;
+        AddressConstantOpPtr    addressConstantOp;
+        ConstantConstantOpPtr   constantConstantOp;
+        IsNullOpPtr             isNullOp;
     };
 
     enum CONDITION
@@ -121,6 +134,8 @@ public:
     void                            Sub64();
     void                            Xor();
 
+    void                            GenericLogical(const GenericOp&);
+
     //FPU
     virtual void                    FP_PushWord(size_t);
     virtual void                    FP_PushSingle(size_t);
@@ -136,6 +151,7 @@ public:
     void                            FP_Div();
     void                            FP_Cmp(CONDITION);
     void                            FP_Neg();
+    void                            FP_Rcpl();
     void                            FP_Sqrt();
     void                            FP_Rsqrt();
 
@@ -318,6 +334,7 @@ private:
     void                            FP_GenericTwoOperand(const MdTwoOperandFunction&);
 
     void                            FP_CmpHelper(XMMREGISTER, const CX86Assembler::CAddress&, CCodeGen::CONDITION);
+    void                            FP_GenericNeg(XMMREGISTER, const CX86Assembler::CAddress&);
 
     void                            MD_GenericPackedShift(const PackedShiftFunction&, uint8);
     void                            MD_GenericOneOperand(const MdTwoOperandFunction&);

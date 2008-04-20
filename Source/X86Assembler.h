@@ -242,6 +242,7 @@ public:
     void                                    SubssEd(XMMREGISTER, const CAddress&);
     void                                    MulssEd(XMMREGISTER, const CAddress&);
     void                                    DivssEd(XMMREGISTER, const CAddress&);
+    void                                    RcpssEd(XMMREGISTER, const CAddress&);
     void                                    RsqrtssEd(XMMREGISTER, const CAddress&);
     void                                    SqrtssEd(XMMREGISTER, const CAddress&);
     void                                    CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);

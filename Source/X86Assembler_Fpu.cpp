@@ -111,6 +111,13 @@ void CX86Assembler::DivssEd(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0x5E, address, registerId);
 }
 
+void CX86Assembler::RcpssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x53, address, registerId);
+}
+
 void CX86Assembler::RsqrtssEd(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0xF3);

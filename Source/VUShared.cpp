@@ -120,17 +120,12 @@ void VUShared::ADDq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::ADDAbc(CCodeGen* codeGen, CMIPS* pCtx, uint8 nDest, uint8 nFs, uint8 nFt, uint8 nBc)
+void VUShared::ADDAbc(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt, uint8 nBc)
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(pB);
-	//{
-	//	CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-	//	CVUF128::Push(&pCtx->m_State.nCOP2[nFt].nV[nBc]);
-	//	CVUF128::Add();
-	//	PullVector(nDest, &pCtx->m_State.nCOP2A);
-	//}
-	//CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
+    codeGen->MD_AddS();
+    PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::CLIP(CCodeGen* codeGen, uint8 nFs, uint8 nFt)
@@ -310,17 +305,12 @@ void VUShared::MINIbc(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::MINIi(CCodeGen* codeGen, CMIPS* pCtx, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::MINIi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(pB);
-	//{
-	//	CVUF128::Push(&pCtx->m_State.nCOP2[nFs]);
-	//	CVUF128::Push(&pCtx->m_State.nCOP2I);
-	//	CVUF128::Min();
-	//	PullVector(nDest, &pCtx->m_State.nCOP2[nFd]);
-	//}
-	//CCodeGen::End();
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_MinS();
+    PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
 void VUShared::MOVE(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
@@ -498,17 +488,12 @@ void VUShared::OPMSUB(CCodeGen* codeGen, uint8 nFd, uint8 nFs, uint8 nFt)
     codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPZ));
 }
 
-void VUShared::RINIT(CCodeGen* codeGen, CMIPS* pCtx, uint8 nFs, uint8 nFsf)
+void VUShared::RINIT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf)
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(pB);
-	//{
-	//	CCodeGen::PushVar(&pCtx->m_State.nCOP2[nFs].nV[nFsf]);
-	//	CCodeGen::PushCst(0x007FFFFF);
-	//	CCodeGen::And();
-	//	CCodeGen::PullVar(&pCtx->m_State.nCOP2R);
-	//}
-	//CCodeGen::End();
+    codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[nFsf]));
+    codeGen->PushCst(0x007FFFFF);
+    codeGen->And();
+    codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 }
 
 void VUShared::RSQRT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf)

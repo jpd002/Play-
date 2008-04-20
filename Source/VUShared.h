@@ -33,7 +33,7 @@ namespace VUShared
 	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				ADDi(CCodeGen*, uint8, uint8, uint8);
 	void				ADDq(CCodeGen*, uint8, uint8, uint8);
-	void				ADDAbc(CCodeGen*, CMIPS*, uint8, uint8, uint8, uint8);
+	void				ADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				CLIP(CCodeGen*, uint8, uint8);
 	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
@@ -48,7 +48,7 @@ namespace VUShared
 	void				MAXbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MINI(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MINIbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MINIi(CCodeGen*, CMIPS*, uint8, uint8, uint8);
+	void				MINIi(CCodeGen*, uint8, uint8, uint8);
 	void				MOVE(CCodeGen*, uint8, uint8, uint8);
 	void				MR32(CCodeGen*, uint8, uint8, uint8);
 	void				MSUBi(CCodeGen*, uint8, uint8, uint8);
@@ -62,7 +62,7 @@ namespace VUShared
 	void				MULAi(CCodeGen*, uint8, uint8);
 	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
 	void				OPMULA(CCodeGen*, uint8, uint8);
-	void				RINIT(CCodeGen*, CMIPS*, uint8, uint8);
+	void				RINIT(CCodeGen*, uint8, uint8);
 	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				RXOR(CCodeGen*, CMIPS*, uint8, uint8);
 	void				SQRT(CCodeGen*, uint8, uint8);

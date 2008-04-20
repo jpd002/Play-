@@ -303,6 +303,7 @@ typedef GenericTwoArguments<CCodeGen::REGISTER128, CCodeGen::RELATIVE128> Regist
 typedef GenericTwoArguments<CCodeGen::RELATIVE128, CCodeGen::REGISTER128> RelativeRegister128;
 typedef GenericCommutative<CCodeGen::REGISTER, CCodeGen::CONSTANT> CommutativeRegisterConstant;
 typedef GenericCommutative<CCodeGen::RELATIVE, CCodeGen::CONSTANT> CommutativeRelativeConstant;
+typedef GenericCommutative<CCodeGen::RELATIVE, CCodeGen::REGISTER> CommutativeRelativeRegister;
 typedef GenericCommutative<CCodeGen::FP_SINGLE_REGISTER, CCodeGen::FP_SINGLE_RELATIVE> CommutativeFpSingleRegisterRelative;
 typedef GenericOneArgument64<CCodeGen::CONSTANT> SingleConstant64;
 typedef GenericTwoArguments64<CCodeGen::CONSTANT, CCodeGen::CONSTANT> ConstantConstant64;

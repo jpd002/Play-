@@ -233,29 +233,24 @@ void CMA_VU::CLower::FCSET()
 //12
 void CMA_VU::CLower::FCAND()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	CCodeGen::PushVar(&m_pCtx->m_State.nCOP2CF);
-	//	CCodeGen::PushCst(m_nImm24);
-	//	CCodeGen::And();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+    m_codeGen->PushCst(m_nImm24);
+    m_codeGen->And();
 
-	//	CCodeGen::PushCst(0);
-	//	CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->PushCst(0);
+    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-	//	CCodeGen::BeginIfElse(false);
-	//	{
-	//		CCodeGen::PushCst(1);
-	//		CCodeGen::PullVar(&m_pCtx->m_State.nCOP2VI[1]);
-	//	}
-	//	CCodeGen::BeginIfElseAlt();
-	//	{
-	//		CCodeGen::PushCst(0);
-	//		CCodeGen::PullVar(&m_pCtx->m_State.nCOP2VI[1]);
-	//	}
-	//	CCodeGen::EndIf();
-	//}
-	//CCodeGen::End();
+    m_codeGen->BeginIfElse(false);
+    {
+        m_codeGen->PushCst(1);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+    }
+    m_codeGen->BeginIfElseAlt();
+    {
+        m_codeGen->PushCst(0);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+    }
+    m_codeGen->EndIf();
 }
 
 //1A
@@ -433,15 +428,10 @@ void CMA_VU::CLower::IADD()
 //31
 void CMA_VU::CLower::ISUB()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	CCodeGen::PushVar(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	//	CCodeGen::PushVar(&m_pCtx->m_State.nCOP2VI[m_nIT]);
-	//	CCodeGen::Sub();
-	//	CCodeGen::PullVar(&m_pCtx->m_State.nCOP2VI[m_nID]);
-	//}
-	//CCodeGen::End();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+    m_codeGen->Sub();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
 }
 
 //32
@@ -559,18 +549,13 @@ void CMA_VU::CLower::MTIR()
 //19
 void CMA_VU::CLower::MFP()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	for(unsigned int i = 0; i < 4; i++)
-	//	{
-	//		if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
-	//		CCodeGen::PushVar(&m_pCtx->m_State.nCOP2P);
-	//		CCodeGen::PullVar(&m_pCtx->m_State.nCOP2[m_nIT].nV[i]);
-	//	}
-	//}
-	//CCodeGen::End();
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2P));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nIT].nV[i]));
+    }
 }
 
 //1A
@@ -665,19 +650,15 @@ void CMA_VU::CLower::MFIR()
 //10
 void CMA_VU::CLower::RGET()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	for(unsigned int i = 0; i < 4; i++)
-	//	{
-	//		if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
-	//		CCodeGen::PushVar(&m_pCtx->m_State.nCOP2R);
-	//		CCodeGen::PushCst(0x3F800000);
-	//		CCodeGen::PullVar(VUShared::GetVectorElement(m_pCtx, m_nIT, i));
-	//	}
-	//}
-	//CCodeGen::End();
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
+        m_codeGen->PushCst(0x3F800000);
+        m_codeGen->Or();
+        m_codeGen->PullRel(VUShared::GetVectorElement(m_nIT, i));
+    }
 }
 
 //////////////////////////////////////////////////
@@ -709,21 +690,15 @@ void CMA_VU::CLower::ILWR()
 //10
 void CMA_VU::CLower::RINIT()
 {
-    throw runtime_error("Reimplement.");
-//	VUShared::RINIT(m_pB, m_pCtx, m_nIS, m_nFSF);
+    VUShared::RINIT(m_codeGen, m_nIS, m_nFSF);
 }
 
 //1E
 void CMA_VU::CLower::ERCPR()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	CFPU::PushSingle(&m_pCtx->m_State.nCOP2[m_nIS].nV[m_nFSF]);
-	//	CFPU::Rcpl();
-	//	CFPU::PullSingle(&m_pCtx->m_State.nCOP2P);
-	//}
-	//CCodeGen::End();
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
+    m_codeGen->FP_Rcpl();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
 
 //////////////////////////////////////////////////

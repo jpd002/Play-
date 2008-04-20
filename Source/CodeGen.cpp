@@ -10,12 +10,33 @@ using namespace std::tr1;
 
 CX86Assembler::REGISTER CCodeGen::g_nBaseRegister = CX86Assembler::rBP;
 
-CCodeGen::GenericOp Op_Add(&CX86Assembler::AddEd, &CX86Assembler::AddId);
-CCodeGen::GenericOp Op_Adc(&CX86Assembler::AdcEd, &CX86Assembler::AdcId);
-CCodeGen::GenericOp Op_And(&CX86Assembler::AndEd, &CX86Assembler::AndId);
-CCodeGen::GenericOp Op_Cmp(&CX86Assembler::CmpEd, &CX86Assembler::CmpId);
-CCodeGen::GenericOp Op_Sub(&CX86Assembler::SubEd, &CX86Assembler::SubId);
-CCodeGen::GenericOp Op_Sbb(&CX86Assembler::SbbEd, &CX86Assembler::SbbId);
+uint32 ConstantConstantOp_NotImplemented(uint32 first, uint32 second)
+{
+    throw runtime_error("Not Implemented.");
+}
+
+uint32 ConstantConstantOp_And(uint32 first, uint32 second) { return first & second; }
+uint32 ConstantConstantOp_Or(uint32 first, uint32 second) { return first | second; }
+uint32 ConstantConstantOp_Xor(uint32 first, uint32 second) { return first ^ second; }
+
+bool IsNullOp_Zero(uint32 constant)
+{
+    return constant == 0;
+}
+
+bool IsNullOp_False(uint32 constant)
+{
+    return false;
+}
+
+CCodeGen::GenericOp Op_Add(&CX86Assembler::AddEd, &CX86Assembler::AddId, &ConstantConstantOp_NotImplemented, &IsNullOp_False);
+CCodeGen::GenericOp Op_Adc(&CX86Assembler::AdcEd, &CX86Assembler::AdcId, &ConstantConstantOp_NotImplemented, &IsNullOp_False);
+CCodeGen::GenericOp Op_And(&CX86Assembler::AndEd, &CX86Assembler::AndId, &ConstantConstantOp_And,            &IsNullOp_False);
+CCodeGen::GenericOp Op_Cmp(&CX86Assembler::CmpEd, &CX86Assembler::CmpId, &ConstantConstantOp_NotImplemented, &IsNullOp_False);
+CCodeGen::GenericOp Op_Or (&CX86Assembler::OrEd,  &CX86Assembler::OrId,  &ConstantConstantOp_Or,             &IsNullOp_Zero);
+CCodeGen::GenericOp Op_Sub(&CX86Assembler::SubEd, &CX86Assembler::SubId, &ConstantConstantOp_NotImplemented, &IsNullOp_False);
+CCodeGen::GenericOp Op_Sbb(&CX86Assembler::SbbEd, &CX86Assembler::SbbId, &ConstantConstantOp_NotImplemented, &IsNullOp_False);
+CCodeGen::GenericOp Op_Xor(&CX86Assembler::XorEd, &CX86Assembler::XorId, &ConstantConstantOp_Xor,            &IsNullOp_Zero);
 
 #ifdef AMD64
 
@@ -838,44 +859,7 @@ void CCodeGen::Add64()
 
 void CCodeGen::And()
 {
-    if(FitsPattern<CommutativeRegisterConstant>())
-	{
-        CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
-
-        m_Assembler.AndId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[ops.first]), ops.second);
-
-        PushReg(ops.first);
-	}
-	else if(FitsPattern<CommutativeRelativeConstant>())
-	{
-        CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
-
-		unsigned int nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, ops.first);
-
-        PushReg(nRegister);
-        PushCst(ops.second);
-
-        And();
-	}
-    else if(FitsPattern<RelativeRelative>())
-    {
-        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
-        unsigned int resultRegister = AllocateRegister();
-        LoadRelativeInRegister(resultRegister, ops.first);
-        m_Assembler.AndEd(m_nRegisterLookupEx[resultRegister],
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-        PushReg(resultRegister);
-    }
-	else if(FitsPattern<ConstantConstant>())
-	{
-        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
-		PushCst(ops.first & ops.second);
-	}
-	else
-	{
-		assert(0);
-	}
+    GenericLogical(Op_And);
 }
 
 void CCodeGen::And64()
@@ -1574,7 +1558,7 @@ void CCodeGen::Not()
     }
 }
 
-void CCodeGen::Or()
+void CCodeGen::GenericLogical(const GenericOp& operation)
 {
 	if(FitsPattern<RegisterRegister>())
 	{
@@ -1595,7 +1579,7 @@ void CCodeGen::Or()
 			FreeRegister(nRegister2);
 		}
 
-        m_Assembler.OrEd(m_nRegisterLookupEx[nRegister1], 
+        ((m_Assembler).*(operation.registerAddressOp))(m_nRegisterLookupEx[nRegister1], 
             CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister2]));
 
         PushReg(nRegister1);
@@ -1607,7 +1591,7 @@ void CCodeGen::Or()
         unsigned int nRegister = AllocateRegister();
         LoadRelativeInRegister(nRegister, ops.first);
 
-        m_Assembler.OrEd(m_nRegisterLookupEx[nRegister],
+        ((m_Assembler).*(operation.registerAddressOp))(m_nRegisterLookupEx[nRegister],
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
 
         PushReg(nRegister);
@@ -1615,14 +1599,14 @@ void CCodeGen::Or()
     else if(FitsPattern<ConstantConstant>())
     {
         ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
-        PushCst(ops.first | ops.second);
+        uint32 result = operation.constantConstantOp(ops.first, ops.second);
+        PushCst(result);
     }
     else if(FitsPattern<CommutativeRegisterConstant>())
 	{
         CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
 
-		//or reg, const
-        m_Assembler.OrId(
+        ((m_Assembler).*(operation.addressConstantOp))(
             CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[ops.first]),
             ops.second);
 
@@ -1636,16 +1620,37 @@ void CCodeGen::Or()
 		LoadRelativeInRegister(nRegister, ops.first);
 	    PushReg(nRegister);
 
-        if(ops.second != 0)
+        if(!operation.isNullOp(ops.second))
         {
 		    PushCst(ops.second);
-		    Or();
+		    GenericLogical(operation);
         }
 	}
+    else if(FitsPattern<CommutativeRelativeRegister>())
+    {
+        CommutativeRelativeRegister::PatternValue ops(GetPattern<CommutativeRelativeRegister>());
+        unsigned int resultRegister;
+        if(!RegisterHasNextUse(ops.second))
+        {
+            resultRegister = ops.second;
+        }
+        else
+        {
+            resultRegister = AllocateRegister();
+        }
+        ((m_Assembler).*(operation.registerAddressOp))(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first));
+        PushReg(resultRegister);
+    }
 	else
 	{
 		assert(0);
 	}
+}
+
+void CCodeGen::Or()
+{
+    GenericLogical(Op_Or);
 }
 
 void CCodeGen::SeX()
@@ -2397,51 +2402,7 @@ void CCodeGen::Sub64()
 
 void CCodeGen::Xor()
 {
-	if(FitsPattern<RelativeRelative>())
-	{
-        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
-
-        unsigned int nRegister = AllocateRegister();
-		LoadRelativeInRegister(nRegister, ops.first);
-
-        m_Assembler.XorEd(m_nRegisterLookupEx[nRegister],
-            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
-
-        PushReg(nRegister);
-	}
-	else if(FitsPattern<CommutativeRelativeConstant>())
-	{
-		CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
-		
-		unsigned int resultRegister = AllocateRegister();
-		LoadRelativeInRegister(resultRegister, ops.first);
-		
-		m_Assembler.XorId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]),
-			ops.second);
-		
-		PushReg(resultRegister);
-	}
-    else if(FitsPattern<CommutativeRegisterConstant>())
-    {
-        CommutativeRegisterConstant::PatternValue ops(GetPattern<CommutativeRegisterConstant>());
-        unsigned int resultRegister = ops.first;
-        assert(!RegisterHasNextUse(resultRegister));
-        if(ops.second != 0)
-        {
-            m_Assembler.XorId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]),
-                ops.second);
-        }
-        PushReg(resultRegister);
-    }
-    else if(FitsPattern<ConstantConstant>())
-    {
-        ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
-        PushCst(ops.first ^ ops.second);
-    }
-	else
-	{
-		assert(0);
-	}
+    GenericLogical(Op_Xor);
 }
 
 void CCodeGen::Cmp64Eq()
@@ -2860,11 +2821,11 @@ void CCodeGen::EmitOp(const GenericOp& operation, uint32 valueType, uint32 value
     switch(valueType)
     {
     case CONSTANT:
-        ((m_Assembler).*(operation.constantOp))(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]),
+        ((m_Assembler).*(operation.addressConstantOp))(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]),
             value);
         break;
     case RELATIVE:
-        ((m_Assembler).*(operation.relativeOp))(m_nRegisterLookupEx[registerId],
+        ((m_Assembler).*(operation.registerAddressOp))(m_nRegisterLookupEx[registerId],
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, value));
         break;
     default:
