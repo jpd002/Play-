@@ -61,6 +61,9 @@ uint32 CVPU1::GetTOP()
 
 uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 {
+#ifdef _DEBUG
+    DisassembleCommand(nCommand);
+#endif
 	switch(nCommand.nCMD)
 	{
 	case 0x02:
@@ -136,6 +139,8 @@ uint32 CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
 
 uint32 CVPU1::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream)
 {
+    assert((nCommand.nCMD & 0x60) == 0x60);
+
     bool nFlg       = (m_CODE.nIMM & 0x8000) != 0;
     bool nUsn       = (m_CODE.nIMM & 0x4000) != 0;
     uint32 nDstAddr = (m_CODE.nIMM & 0x03FF);

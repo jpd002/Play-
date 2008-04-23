@@ -108,6 +108,8 @@ protected:
 
     uint32              GetVbs() const;
 
+    void                DisassembleCommand(CODE);
+
     STAT                m_STAT;
     CYCLE               m_CYCLE;
     CODE                m_CODE;

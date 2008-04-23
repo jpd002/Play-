@@ -232,12 +232,15 @@ uint32 CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
 {
     uint32 nSize = stream.GetSize();
 
-    uint32 nNum		= (m_NUM == 0) ? (256 * 8) : (m_NUM * 8);
-    uint32 nCodeNum	= (m_CODE.nNUM == 0) ? (256 * 8) : (m_CODE.nNUM * 8);
+    uint32 nNum         = (m_NUM == 0) ? (256) : (m_NUM);
+    uint32 nCodeNum     = (m_CODE.nNUM == 0) ? (256) : (m_CODE.nNUM);
+    uint32 nTransfered  = (nCodeNum - nNum) * 8;
+
+    nCodeNum *= 8;
+    nNum *= 8;
 
     nSize = min(nNum, nSize);
 
-    uint32 nTransfered = (nCodeNum - nNum) * 8;
     uint32 nDstAddr = (m_CODE.nIMM * 8) + nTransfered;
 
     //Check if microprogram is running
@@ -312,6 +315,8 @@ void CVPU::Unpack_V432(uint32 nDstAddr, CVIF::CFifoStream& stream)
     uint32 nSize = stream.GetSize();
     nSize = min(nSize, static_cast<uint32>(m_NUM) * 0x10);
 
+    assert((nSize & 0x0F) == 0x00);
+
     if(nCL == nWL)
     {
         stream.Read(m_pVUMem + nDstAddr, nSize);
@@ -345,5 +350,65 @@ uint32 CVPU::GetVbs() const
         return CVIF::STAT_VBS1;
     default: 
         throw exception();
+    }
+}
+
+void CVPU::DisassembleCommand(CODE code)
+{
+    if(m_STAT.nVPS != 0) return;
+
+    if(code.nI)
+    {
+        CLog::GetInstance().Print(LOG_NAME, "(I) ");
+    }
+
+	if(code.nCMD >= 0x60)
+	{
+        CLog::GetInstance().Print(LOG_NAME, "UNPACK(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
+	}
+    else
+    {
+        switch(code.nCMD)
+        {
+        case 0x00:
+            CLog::GetInstance().Print(LOG_NAME, "NOP\r\n");
+            break;
+        case 0x01:
+            CLog::GetInstance().Print(LOG_NAME, "STCYCL(imm = 0x%x);\r\n", code.nIMM);
+            break;
+        case 0x02:
+            CLog::GetInstance().Print(LOG_NAME, "OFFSET(imm = 0x%x);\r\n", code.nIMM);
+            break;
+        case 0x03:
+            CLog::GetInstance().Print(LOG_NAME, "BASE(imm = 0x%x);\r\n", code.nIMM);
+            break;
+        case 0x06:
+            CLog::GetInstance().Print(LOG_NAME, "MSKPATH3();\r\n");
+            break;
+        case 0x11:
+            CLog::GetInstance().Print(LOG_NAME, "FLUSH();\r\n");
+            break;
+        case 0x13:
+            CLog::GetInstance().Print(LOG_NAME, "FLUSHA();\r\n");
+            break;
+        case 0x14:
+            CLog::GetInstance().Print(LOG_NAME, "MSCAL(imm = 0x%x);\r\n", code.nIMM);
+            break;
+        case 0x17:
+            CLog::GetInstance().Print(LOG_NAME, "MSCNT();\r\n");
+            break;
+        case 0x4A:
+            CLog::GetInstance().Print(LOG_NAME, "MPG(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
+            break;
+        case 0x50:
+            CLog::GetInstance().Print(LOG_NAME, "DIRECT(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
+            break;
+        case 0x51:
+            CLog::GetInstance().Print(LOG_NAME, "DIRECTHL(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
+            break;
+        default:
+            CLog::GetInstance().Print(LOG_NAME, "Unknown command (0x%x).\r\n", code.nCMD);
+            break;
+        }
     }
 }

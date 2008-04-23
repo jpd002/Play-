@@ -221,6 +221,7 @@ void CVIF::CFifoStream::SetDmaParams(uint32 address, uint32 qwc)
     m_address = address;
     m_nextAddress = address;
     m_endAddress = address + qwc;
+    SyncBuffer();
 }
 
 uint32 CVIF::CFifoStream::GetAddress() const
