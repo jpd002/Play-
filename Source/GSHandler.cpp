@@ -383,7 +383,9 @@ void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
 
 void CGSHandler::FeedImageData(void* data, uint32 length)
 {
-    m_mailBox.SendCall(bind(&CGSHandler::FeedImageDataImpl, this, data, length));
+    uint8* buffer = new uint8[length];
+    memcpy(buffer, data, length);
+    m_mailBox.SendCall(bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
 }
 
 void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count)
@@ -445,13 +447,13 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 
 #ifdef _DEBUG
-//    DisassembleWrite(nRegister, nData);
+    //DisassembleWrite(nRegister, nData);
 #endif
 }
 
 void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 {
-	BITBLTBUF* pBuf;
+    scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
 
 	if(m_TrxCtx.nSize == 0)
 	{
@@ -468,7 +470,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 		//return;
 	}
 
-	pBuf = GetBitBltBuf();
+	BITBLTBUF* pBuf(GetBitBltBuf());
 	if(pBuf->nDstPsm == 1) return;
 	m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[pBuf->nDstPsm]))(pData, nLength);
 
@@ -973,10 +975,12 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			nZ);
 		break;
 	case GS_REG_XYZF2:
+    case GS_REG_XYZF3:
 		{
 			XYZF xyzf;
 			xyzf = *reinterpret_cast<XYZF*>(&nData);
-			CLog::GetInstance().Print(LOG_NAME, "XYZF2(%f, %f, %i, %i);\r\n", \
+			CLog::GetInstance().Print(LOG_NAME, "%s(%f, %f, %i, %i);\r\n", \
+                (nRegister == GS_REG_XYZF2) ? "XYZF2" : "XYZF3",
 				xyzf.GetX(),
 				xyzf.GetY(),
 				xyzf.nZ,
@@ -1069,7 +1073,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_PRMODE:
 		GSPRMODE prm;
 		DECODE_PRMODE(nData, prm);
-		CLog::GetInstance().Print(LOG_NAME, "PMMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
+		CLog::GetInstance().Print(LOG_NAME, "PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
 			prm.nShading, \
 			prm.nTexture, \
 			prm.nFog, \

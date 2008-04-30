@@ -210,10 +210,8 @@ struct GSTEST
 	(z)  = (double)((v >> 32) & 0xFFFFFFFF);
 
 #define DECODE_XYOFFSET(v, x, y)				\
-	(x)  = (double)((v >>  4) & 0xFFF);			\
-	(x) += (double)((v >>  0) & 0xF) / 16.0f;	\
-	(y)  = (double)((v >> 36) & 0xFFF);			\
-	(y) += (double)((v >> 32) & 0xF) / 16.0f;	
+	(x)  = (double)((v >>  0) & 0xFFFF) / 16.0;	\
+	(y)  = (double)((v >> 32) & 0xFFFF) / 16.0;	\
 
 #define DECODE_ALPHA(v, alpha)					\
 	(alpha) = *(GSALPHA*)&(v);

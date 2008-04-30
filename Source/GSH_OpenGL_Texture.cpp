@@ -215,6 +215,8 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 	*/
 	//
 
+//    DumpTexture(nWidth, nHeight);
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	TexCache_Insert(pReg0, nTexture);
