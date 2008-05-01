@@ -119,10 +119,13 @@ uint32 CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
     uint32 nSize = stream.GetSize();
     nSize = min<uint32>(m_CODE.nIMM * 0x10, nSize);
 
-    uint8* packet = reinterpret_cast<uint8*>(alloca(nSize));
-    stream.Read(packet, nSize);
+    if(nSize != 0)
+    {
+        uint8* packet = reinterpret_cast<uint8*>(alloca(nSize));
+        stream.Read(packet, nSize);
 
-    m_vif.GetGif().ProcessPacket(packet, 0, nSize);
+        m_vif.GetGif().ProcessPacket(packet, 0, nSize);
+    }
 
     m_CODE.nIMM -= (nSize / 0x10);
     if((m_CODE.nIMM == 0) && (nSize != 0))
