@@ -249,14 +249,17 @@ uint32 CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
         throw exception();
     }
 
-    uint8* microProgram = reinterpret_cast<uint8*>(alloca(nSize));
-    stream.Read(microProgram, nSize);
-
-    //Check if there's a change
-    if(memcmp(m_pMicroMem + nDstAddr, microProgram, nSize) != 0)
+    if(nSize != 0)
     {
-        m_executor.Clear();
-        memcpy(m_pMicroMem + nDstAddr, microProgram, nSize);
+        uint8* microProgram = reinterpret_cast<uint8*>(alloca(nSize));
+        stream.Read(microProgram, nSize);
+
+        //Check if there's a change
+        if(memcmp(m_pMicroMem + nDstAddr, microProgram, nSize) != 0)
+        {
+            m_executor.Clear();
+            memcpy(m_pMicroMem + nDstAddr, microProgram, nSize);
+        }
     }
 
     m_NUM -= static_cast<uint8>(nSize / 8);
@@ -324,6 +327,9 @@ void CVPU::Unpack_V432(uint32 nDstAddr, CVIF::CFifoStream& stream)
     }
     else if(nCL > nWL)
     {
+        //If WL is > 1, the increment on i might be 0x10 * WL
+        assert(nWL == 1);
+
         for(unsigned int i = 0; i < nSize; i += 0x10)
         {
             uint32 nWritten = m_CODE.nNUM - m_NUM;

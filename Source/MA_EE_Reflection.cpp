@@ -218,7 +218,7 @@ INSTRUCTION CMA_EE::m_cReflMmi2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PROT3W",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 };
 
 INSTRUCTION CMA_EE::m_cReflMmi3[32] =

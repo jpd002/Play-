@@ -564,6 +564,26 @@ void CMA_EE::PXOR()
     PullVector(m_nRD);
 }
 
+//1F
+void CMA_EE::PROT3W()
+{
+    //3
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+
+    //2
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
+
+    //1
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+
+    //0
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
 //////////////////////////////////////////////////
 //MMI3 Opcodes
 //////////////////////////////////////////////////
@@ -660,7 +680,7 @@ void (*CMA_EE::m_pOpMmi2[0x20])() =
 	//0x10
 	Illegal,		Illegal,		PAND,			PXOR,			Illegal,		Illegal,		Illegal,		Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		PROT3W,
 };
 
 void (*CMA_EE::m_pOpMmi3[0x20])() = 

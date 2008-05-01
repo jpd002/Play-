@@ -93,6 +93,7 @@ private:
 	static void							PCPYLD();
 	static void							PAND();
 	static void							PXOR();
+    static void                         PROT3W();
 
 	//Mmi3
 	static void							PCPYUD();
