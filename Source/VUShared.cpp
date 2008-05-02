@@ -2,6 +2,18 @@
 #include "MIPS.h"
 #include "offsetof_def.h"
 
+#define LATENCY_DIV     (7)
+#define LATENCY_SQRT    (7)
+#define LATENCY_RSQRT   (13)
+
+const VUShared::PIPEINFO g_pipeInfoQ =
+{
+    offsetof(CMIPS, m_State.nCOP2Q),
+//    offsetof(CMIPS, m_State.pipeQ.heldValue),
+    offsetof(CMIPS, m_State.nCOP2Q),
+    offsetof(CMIPS, m_State.pipeQ.target)
+};
+
 using namespace VUShared;
 using namespace std;
 
@@ -112,8 +124,9 @@ void VUShared::ADDi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::ADDq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::ADDq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 address)
 {
+    VerifyPipeline(g_pipeInfoQ, codeGen, address);
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
     codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2Q));
     codeGen->MD_AddS();
@@ -170,8 +183,11 @@ void VUShared::CLIP(CCodeGen* codeGen, uint8 nFs, uint8 nFt)
     }
 }
 
-void VUShared::DIV(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf)
+void VUShared::DIV(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)
 {
+    size_t destination = g_pipeInfoQ.heldValue;
+    QueueInPipeline(g_pipeInfoQ, codeGen, address + (pipeMult * 4 * LATENCY_DIV));
+
     //Check for zero
     codeGen->PushRel(GetVectorElement(nFt, nFtf));
     codeGen->PushCst(0x7FFFFFFF);
@@ -188,14 +204,14 @@ void VUShared::DIV(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nF
         codeGen->PushCst(0x80000000);
         codeGen->And();
         codeGen->Or();
-        codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2Q));
+        codeGen->PullRel(destination);
     }
     codeGen->BeginIfElseAlt();
     {
         codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
         codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
         codeGen->FP_Div();
-        codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2Q));
+        codeGen->FP_PullSingle(destination);
     }
     codeGen->EndIf();
 }
@@ -379,8 +395,9 @@ void VUShared::MULi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::MULq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::MULq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 address)
 {
+    VerifyPipeline(g_pipeInfoQ, codeGen, address);
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
     codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2Q));
     codeGen->MD_MulS();
@@ -496,13 +513,16 @@ void VUShared::RINIT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf)
     codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 }
 
-void VUShared::RSQRT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf)
+void VUShared::RSQRT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)
 {
+    size_t destination = g_pipeInfoQ.heldValue;
+    QueueInPipeline(g_pipeInfoQ, codeGen, address + (pipeMult * 4 * LATENCY_RSQRT));
+
     codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
     codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
     codeGen->FP_Rsqrt();
     codeGen->FP_Mul();
-    codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2Q));
+    codeGen->FP_PullSingle(destination);
 }
 
 void VUShared::RXOR(CCodeGen* codeGen, CMIPS* pCtx, uint8 nFs, uint8 nFsf)
@@ -520,11 +540,14 @@ void VUShared::RXOR(CCodeGen* codeGen, CMIPS* pCtx, uint8 nFs, uint8 nFsf)
 	//CCodeGen::End();
 }
 
-void VUShared::SQRT(CCodeGen* codeGen, uint8 nFt, uint8 nFtf)
+void VUShared::SQRT(CCodeGen* codeGen, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)
 {
+    size_t destination = g_pipeInfoQ.heldValue;
+    QueueInPipeline(g_pipeInfoQ, codeGen, address + (pipeMult * 4 * LATENCY_SQRT));
+
     codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
     codeGen->FP_Sqrt();
-    codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2Q));
+    codeGen->FP_PullSingle(destination);
 }
 
 void VUShared::SUB(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
@@ -549,4 +572,60 @@ void VUShared::SUBi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
     codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
     codeGen->MD_SubS();
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+}
+
+void VUShared::WAITQ(CCodeGen* codeGen)
+{
+    FlushPipeline(g_pipeInfoQ, codeGen);
+}
+
+void VUShared::FlushPipeline(const PIPEINFO& pipeInfo, CCodeGen* codeGen)
+{
+    return;
+
+    //Dump the current value if one pending
+    codeGen->PushCst(MIPS_INVALID_PC);
+    codeGen->PushRel(pipeInfo.target);
+    codeGen->Cmp(CCodeGen::CONDITION_EQ);
+
+    codeGen->BeginIf(false);
+    {
+        codeGen->PushRel(pipeInfo.heldValue);
+        codeGen->PullRel(pipeInfo.value);
+
+        codeGen->PushCst(MIPS_INVALID_PC);
+        codeGen->PullRel(pipeInfo.target);
+    }
+    codeGen->EndIf();
+}
+
+void VUShared::QueueInPipeline(const PIPEINFO& pipeInfo, CCodeGen* codeGen, uint32 targetAddress)
+{
+    return;
+
+    FlushPipeline(pipeInfo, codeGen);
+
+    //Set target
+    codeGen->PushCst(targetAddress);
+    codeGen->PullRel(pipeInfo.target);
+}
+
+void VUShared::VerifyPipeline(const PIPEINFO& pipeInfo, CCodeGen* codeGen, uint32 currentAddress)
+{
+    return;
+
+    //Dump current value if it's ready
+    codeGen->PushCst(currentAddress);
+    codeGen->PushRel(pipeInfo.target);
+    codeGen->Cmp(CCodeGen::CONDITION_BL);
+
+    codeGen->BeginIf(false);
+    {
+        codeGen->PushRel(pipeInfo.heldValue);
+        codeGen->PullRel(pipeInfo.value);
+
+        codeGen->PushCst(MIPS_INVALID_PC);
+        codeGen->PullRel(pipeInfo.target);
+    }
+    codeGen->EndIf();
 }

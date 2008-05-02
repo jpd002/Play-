@@ -536,7 +536,7 @@ void CMA_VU::CLower::LQI()
 //0E
 void CMA_VU::CLower::DIV()
 {
-    VUShared::DIV(m_codeGen, m_nIS, m_nFSF, m_nIT, m_nFTF);
+    VUShared::DIV(m_codeGen, m_nIS, m_nFSF, m_nIT, m_nFTF, m_nAddress, 2);
 }
 
 //0F
@@ -708,7 +708,7 @@ void CMA_VU::CLower::ERCPR()
 //0E
 void CMA_VU::CLower::WAITQ()
 {
-
+    VUShared::WAITQ(m_codeGen);
 }
 
 //1C

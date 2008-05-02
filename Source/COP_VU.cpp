@@ -234,13 +234,13 @@ void CCOP_VU::VMULbc()
 //1C
 void CCOP_VU::VMULq()
 {
-	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
 }
 
 //20
 void CCOP_VU::VADDq()
 {
-	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
 }
 
 //28
@@ -344,7 +344,7 @@ void CCOP_VU::VMOVE()
 //0E
 void CCOP_VU::VDIV()
 {
-	VUShared::DIV(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF);
+	VUShared::DIV(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF, m_nAddress, 1);
 }
 
 //////////////////////////////////////////////////
@@ -366,7 +366,7 @@ void CCOP_VU::VMR32()
 //0E
 void CCOP_VU::VSQRT()
 {
-	VUShared::SQRT(m_codeGen, m_nFT, m_nFTF);
+	VUShared::SQRT(m_codeGen, m_nFT, m_nFTF, m_nAddress, 1);
 }
 
 //////////////////////////////////////////////////
@@ -382,7 +382,7 @@ void CCOP_VU::VOPMULA()
 //0E
 void CCOP_VU::VRSQRT()
 {
-	VUShared::RSQRT(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF);
+	VUShared::RSQRT(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF, m_nAddress, 1);
 }
 
 //10
@@ -405,7 +405,7 @@ void CCOP_VU::VNOP()
 //0E
 void CCOP_VU::VWAITQ()
 {
-	//Nothing to do
+    VUShared::WAITQ(m_codeGen);
 }
 
 //10

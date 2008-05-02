@@ -1159,7 +1159,7 @@ void CCodeGen::Cmp(CONDITION nCondition)
 		
         PushReg(resultRegister);
 	}
-    else if(FitsPattern<RegisterRegister>() && (nCondition == CONDITION_EQ))
+    else if(FitsPattern<RegisterRegister>())
     {
         RegisterRegister::PatternValue ops = GetPattern<RegisterRegister>();
         unsigned int resultRegister = AllocateRegister(REGISTER_HASLOW);
@@ -1168,13 +1168,43 @@ void CCodeGen::Cmp(CONDITION nCondition)
         m_Assembler.CmpEd(m_nRegisterLookupEx[ops.first],
             CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[ops.second]));
 
-        //sete res[l]
-        m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        switch(nCondition)
+        {
+        case CONDITION_EQ:
+            //sete res[l]
+            m_Assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+            break;
+        case CONDITION_BL:
+            //setb res[l]
+            m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+            break;
+        default:
+            throw exception();
+            break;
+        }
+
+		//movzx reg, reg[l]
+        m_Assembler.MovzxEb(m_nRegisterLookupEx[resultRegister],
+            CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
 
         if(!RegisterHasNextUse(ops.first)) FreeRegister(ops.first);
         if(!RegisterHasNextUse(ops.second)) FreeRegister(ops.second);
 
         PushReg(resultRegister);
+    }
+    else if(FitsPattern<ConstantRelative>())
+    {
+        ConstantRelative::PatternValue ops = GetPattern<ConstantRelative>();
+        unsigned int register1 = AllocateRegister();
+        unsigned int register2 = AllocateRegister();
+
+        LoadConstantInRegister(register1, ops.first);
+        LoadRelativeInRegister(register2, ops.second);
+
+        PushReg(register1);
+        PushReg(register2);
+
+        Cmp(nCondition);
     }
 /*
 	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT))

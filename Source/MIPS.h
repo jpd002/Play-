@@ -10,6 +10,12 @@
 #include "uint128.h"
 #include <set>
 
+struct REGISTER_PIPELINE
+{
+    uint32      target;
+    uint32      heldValue;
+};
+
 struct MIPSSTATE
 {
 	uint32		nPC;
@@ -58,6 +64,9 @@ __attribute__((aligned(16)))
 	uint32		nCOP2CF;
 
 	uint32		nCOP2VI[16];
+
+    REGISTER_PIPELINE pipeQ;
+    REGISTER_PIPELINE pipeP;
 };
 
 #define MIPS_INVALID_PC			(0x00000001)

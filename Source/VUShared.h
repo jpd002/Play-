@@ -16,7 +16,14 @@ namespace VUShared
 		VECTOR_COMPW = 3,
 	};
 
-	int32				GetImm11Offset(uint16);
+    struct PIPEINFO
+    {
+        size_t value;
+        size_t heldValue;
+        size_t target;
+    };
+
+    int32				GetImm11Offset(uint16);
 	int32				GetBranch(uint16);
 
 	bool				DestinationHasElement(uint8, unsigned int);
@@ -32,10 +39,10 @@ namespace VUShared
 	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				ADDi(CCodeGen*, uint8, uint8, uint8);
-	void				ADDq(CCodeGen*, uint8, uint8, uint8);
+	void				ADDq(CCodeGen*, uint8, uint8, uint8, uint32);
 	void				ADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				CLIP(CCodeGen*, uint8, uint8);
-	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8);
+	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
 	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
 	void				ITOF0(CCodeGen*, uint8, uint8, uint8);
@@ -56,21 +63,26 @@ namespace VUShared
 	void				MUL(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MULi(CCodeGen*, uint8, uint8, uint8);
-	void				MULq(CCodeGen*, uint8, uint8, uint8);
+	void				MULq(CCodeGen*, uint8, uint8, uint8, uint32);
 	void				MULA(CCodeGen*, uint8, uint8, uint8);
 	void				MULAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULAi(CCodeGen*, uint8, uint8);
 	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
 	void				OPMULA(CCodeGen*, uint8, uint8);
 	void				RINIT(CCodeGen*, uint8, uint8);
-	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8);
+	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
 	void				RXOR(CCodeGen*, CMIPS*, uint8, uint8);
-	void				SQRT(CCodeGen*, uint8, uint8);
+	void				SQRT(CCodeGen*, uint8, uint8, uint32, unsigned int);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				SUBi(CCodeGen*, uint8, uint8, uint8);
+    void                WAITQ(CCodeGen*);
 
-	//Shared addressing modes
+    void                FlushPipeline(const PIPEINFO&, CCodeGen*);
+    void                QueueInPipeline(const PIPEINFO&, CCodeGen*, uint32);
+    void                VerifyPipeline(const PIPEINFO&, CCodeGen*, uint32);
+
+    //Shared addressing modes
 	void				ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpFdFsQ(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpFdFsFt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

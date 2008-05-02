@@ -103,7 +103,7 @@ void CMA_VU::CUpper::MULbc()
 //1C
 void CMA_VU::CUpper::MULq()
 {
-    VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS);
+    VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
 }
 
 //1E
@@ -121,7 +121,7 @@ void CMA_VU::CUpper::MINIi()
 //20
 void CMA_VU::CUpper::ADDq()
 {
-    VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
+    VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
 }
 
 //22

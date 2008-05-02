@@ -312,8 +312,14 @@ void CPS2VM::ResetVM()
 	//Reset Context
 	memset(&m_EE.m_State, 0, sizeof(MIPSSTATE));
 	memset(&m_VU1.m_State, 0, sizeof(MIPSSTATE));
-    m_EE.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
-    m_VU1.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
+    m_EE.m_State.nDelayedJumpAddr   = MIPS_INVALID_PC;
+    m_EE.m_State.pipeQ.target       = MIPS_INVALID_PC;
+    m_EE.m_State.pipeP.target       = MIPS_INVALID_PC;
+
+    m_VU1.m_State.nDelayedJumpAddr  = MIPS_INVALID_PC;
+    m_VU1.m_State.pipeQ.target      = MIPS_INVALID_PC;
+    m_VU1.m_State.pipeP.target      = MIPS_INVALID_PC;
+
 
 	//Set VF0[w] to 1.0
 	m_EE.m_State.nCOP2[0].nV3	= 0x3F800000;
@@ -429,7 +435,6 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
         m_vif.LoadState(archive);
         m_iopOs->GetDbcman()->LoadState(archive);
         m_iopOs->GetPadman()->LoadState(archive);
-
     }
     catch(...)
     {
