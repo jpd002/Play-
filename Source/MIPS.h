@@ -88,6 +88,8 @@ public:
 	static uint32				TranslateAddress64(CMIPS*, uint32, uint32);
 	static void					DefaultSysCallHandler(CMIPS*);
 
+	void						Reset();
+
 	bool						GenerateInterrupt(uint32);
 	bool						GenerateException(uint32);
 

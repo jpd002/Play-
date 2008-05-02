@@ -12,7 +12,12 @@ const char* CMIPS::m_sGPRName[] =
 	"T8",	"T9",	"K0",	"K1",	"GP",	"SP",	"FP",	"RA"
 };
 
-CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd)
+CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd) :
+m_nQuota(0),
+m_pAddrTranslator(NULL),
+m_pTickFunction(NULL),
+m_pArch(NULL),
+m_handlerParam(NULL)
 {
 	m_pAnalysis = new CMIPSAnalysis(this);
 	switch(nEnd)
@@ -30,6 +35,8 @@ CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd)
 	m_pCOP[2] = NULL;
 	m_pCOP[3] = NULL;
 
+	Reset();
+
 	m_nIllOpcode = MIPS_INVALID_PC;
 	m_pSysCallHandler = DefaultSysCallHandler;
 }
@@ -38,6 +45,17 @@ CMIPS::~CMIPS()
 {
 	DELETEPTR(m_pMemoryMap);
 	DELETEPTR(m_pAnalysis);
+}
+
+void CMIPS::Reset()
+{
+	memset(&m_State, 0, sizeof(MIPSSTATE));
+	m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
+	m_State.pipeP.target = MIPS_INVALID_PC;
+	m_State.pipeQ.target = MIPS_INVALID_PC;
+
+	//Set VF0[w] to 1.0
+	m_State.nCOP2[0].nV3 = 0x3F800000;
 }
 
 void CMIPS::ToggleBreakpoint(uint32 address)
