@@ -900,9 +900,7 @@ void CGSH_OpenGL::TexCache_Insert(GSTEX0* pTex0, unsigned int nTexture)
 
 void CGSH_OpenGL::TexCache_InvalidateTextures(uint32 nStart, uint32 nSize)
 {
-	unsigned int i;
-
-	for(i = 0; i < MAXCACHE; i++)
+	for(unsigned int i = 0; i < MAXCACHE; i++)
 	{
 		m_TexCache[i].InvalidateFromMemorySpace(nStart, nSize);
 	}

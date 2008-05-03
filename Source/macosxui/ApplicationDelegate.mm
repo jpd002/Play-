@@ -72,7 +72,10 @@ using namespace std;
 
 -(void)OnLoadState: (id)sender
 {
-	g_virtualMachine->LoadState("state.st0.zip");
+	if(g_virtualMachine->LoadState("state.st0.zip"))
+	{
+		NSRunCriticalAlertPanel(@"Error occured while trying to load state.", @"", NULL, NULL, NULL);
+	}
 }
 
 -(void)BootFromElf : (NSString*)fileName

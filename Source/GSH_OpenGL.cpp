@@ -41,7 +41,7 @@ void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
 {
 	CGSHandler::LoadState(archive);
 
-	TexCache_InvalidateTextures(0, RAMSIZE);
+	m_mailBox.SendCall(bind(&CGSH_OpenGL::TexCache_InvalidateTextures, this, 0, RAMSIZE));
 }
 
 void CGSH_OpenGL::LoadSettings()

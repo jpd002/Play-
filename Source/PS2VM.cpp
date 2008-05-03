@@ -419,22 +419,31 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
     try
     {
         CStdStream stateStream(sPath, "rb");
-        CZipArchiveReader archive(stateStream);
+		CZipArchiveReader archive(stateStream);
+		
+		try
+		{
+			archive.BeginReadFile(STATE_EE          )->Read(&m_EE.m_State,  sizeof(MIPSSTATE));
+			archive.BeginReadFile(STATE_VU1         )->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
+			archive.BeginReadFile(STATE_RAM         )->Read(m_pRAM,         PS2::EERAMSIZE);
+			archive.BeginReadFile(STATE_SPR         )->Read(m_pSPR,         PS2::SPRSIZE);
+			archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      PS2::VUMEM1SIZE);
+			archive.BeginReadFile(STATE_MICROMEM1   )->Read(m_pMicroMem1,   PS2::MICROMEM1SIZE);
 
-        archive.BeginReadFile(STATE_EE          )->Read(&m_EE.m_State,  sizeof(MIPSSTATE));
-        archive.BeginReadFile(STATE_VU1         )->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
-        archive.BeginReadFile(STATE_RAM         )->Read(m_pRAM,         PS2::EERAMSIZE);
-        archive.BeginReadFile(STATE_SPR         )->Read(m_pSPR,         PS2::SPRSIZE);
-        archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      PS2::VUMEM1SIZE);
-        archive.BeginReadFile(STATE_MICROMEM1   )->Read(m_pMicroMem1,   PS2::MICROMEM1SIZE);
-
-        m_pGS->LoadState(archive);
-        m_dmac.LoadState(archive);
-        m_intc.LoadState(archive);
-        m_sif.LoadState(archive);
-        m_vif.LoadState(archive);
-        m_iopOs->GetDbcman()->LoadState(archive);
-        m_iopOs->GetPadman()->LoadState(archive);
+			m_pGS->LoadState(archive);
+			m_dmac.LoadState(archive);
+			m_intc.LoadState(archive);
+			m_sif.LoadState(archive);
+			m_vif.LoadState(archive);
+			m_iopOs->GetDbcman()->LoadState(archive);
+			m_iopOs->GetPadman()->LoadState(archive);
+		}
+		catch(...)
+		{
+			//Any error that occurs in the previous block is critical
+			PauseImpl();
+			throw;
+		}
     }
     catch(...)
     {
