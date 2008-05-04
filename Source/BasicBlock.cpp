@@ -73,8 +73,11 @@ unsigned int CBasicBlock::Execute()
     __asm
     {
 #if defined(MACOSX)
+		mov eax, esp
+		sub eax, 0x04
+		and eax, 0x0F
+		sub esp, eax		//Keep stack aligned on 0x10 bytes
 		pusha
-		sub esp, 0x0C		//Keep stack aligned on 0x10 bytes
 #elif defined(_MSVC)
         pushad
 #endif
@@ -84,8 +87,8 @@ unsigned int CBasicBlock::Execute()
         call    eax
 		
 #if defined(MACOSX)
-		add esp, 0x0C
 		popa
+		add esp, eax
 #elif defined(_MSVC)
         popad
 #endif
