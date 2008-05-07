@@ -22,6 +22,7 @@
 #include "PtrMacro.h"
 
 #define LOG_NAME ("ipu")
+//#define _DECODE_LOGGING
 
 using namespace IPU;
 using namespace MPEG2;
@@ -289,19 +290,17 @@ uint32 CIPU::ReceiveDMA4(uint32 nAddress, uint32 nQWC, bool nTagIncluded, uint8*
 
 void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQSC, uint8 nFB)
 {
-	bool nResetDc;
 	CIDecFifo IDecFifo;
 
 	m_IN_FIFO.SkipBits(nFB);
 
-	nResetDc = true;
+	bool nResetDc = true;
 
 	while(1)
 	{
-		uint32 nMBType, nMBAIncrement;
 		uint8 nDCTType;
 
-		nMBType = CMacroblockTypeITable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
+		uint32 nMBType = CMacroblockTypeITable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
 
 		if(nDTD != 0)
 		{
@@ -330,7 +329,7 @@ void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQS
 			break;
 		}
 		
-		nMBAIncrement = CMacroblockAddressIncrementTable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
+		uint32 nMBAIncrement = CMacroblockAddressIncrementTable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
 		assert(nMBAIncrement == 1);
 	}
 }
@@ -397,6 +396,11 @@ void CIPU::DecodeBlock(COutFifoBase* pOutput, uint8 nMBI, uint8 nDCR, uint8 nDT,
 		m_nDcPredictor[1] = nResetValue;
 		m_nDcPredictor[2] = nResetValue;
 	}
+
+#ifdef _DECODE_LOGGING
+    CLog::GetInstance().Print(LOG_NAME, "DecodeMacroBlock(mbi = %i, dcr = %i, cbp = %x, dt = %i, qsc = %i, fb = %i);\r\n",
+        nMBI, nDCR, nCodedBlockPattern, nDT, nQSC, nFB);
+#endif
 
 	for(unsigned int i = 0; i < 6; i++)
 	{
@@ -678,11 +682,13 @@ bool CIPU::GetIsZigZagScan()
 void CIPU::DecodeDctCoefficients(unsigned int nChannel, int16* pBlock, uint8 nMBI)
 {
 	unsigned int nIndex;
-
-	RUNLEVELPAIR RunLevelPair;
 	CDctCoefficientTable* pDctCoeffTable;
 
-	if(nMBI && !GetIsMPEG1CoeffVLCTable())
+#ifdef _DECODE_LOGGING
+    CLog::GetInstance().Print(LOG_NAME, "Block = ");
+#endif
+
+    if(nMBI && !GetIsMPEG1CoeffVLCTable())
 	{
 		pDctCoeffTable = CDctCoefficientTable1::GetInstance();
 	}
@@ -696,23 +702,30 @@ void CIPU::DecodeDctCoefficients(unsigned int nChannel, int16* pBlock, uint8 nMB
 	{
 		pBlock[0] = (int16)(m_nDcPredictor[nChannel] + GetDcDifferential(nChannel));
 		m_nDcPredictor[nChannel] = pBlock[0];
-
+#ifdef _DECODE_LOGGING
+        CLog::GetInstance().Print(LOG_NAME, "[%i]:%i ", 0, pBlock[0]);
+#endif
 		nIndex = 1;
 	}
 	else
 	{
+	    RUNLEVELPAIR RunLevelPair;
 		pDctCoeffTable->GetRunLevelPairDc(&m_IN_FIFO, &RunLevelPair, GetIsMPEG2());
 
 		nIndex = 0;
 
 		nIndex += RunLevelPair.nRun;
 		pBlock[nIndex] = (int16)RunLevelPair.nLevel;
-
+#ifdef _DECODE_LOGGING
+        CLog::GetInstance().Print(LOG_NAME, "[%i]:%i ", nIndex, RunLevelPair.nLevel);
+#endif
 		nIndex++;
 	}
 
-	while(!pDctCoeffTable->IsEndOfBlock(&m_IN_FIFO))
+    while(!pDctCoeffTable->IsEndOfBlock(&m_IN_FIFO))
 	{
+	    RUNLEVELPAIR RunLevelPair;
+
 		pDctCoeffTable->GetRunLevelPair(&m_IN_FIFO, &RunLevelPair, GetIsMPEG2());
 
 		nIndex += RunLevelPair.nRun;
@@ -720,6 +733,9 @@ void CIPU::DecodeDctCoefficients(unsigned int nChannel, int16* pBlock, uint8 nMB
 		if(nIndex < 0x40)
 		{
 			pBlock[nIndex] = (int16)RunLevelPair.nLevel;
+#ifdef _DECODE_LOGGING
+            CLog::GetInstance().Print(LOG_NAME, "[%i]:%i ", nIndex, RunLevelPair.nLevel);
+#endif
 		}
 		else
 		{
@@ -729,6 +745,10 @@ void CIPU::DecodeDctCoefficients(unsigned int nChannel, int16* pBlock, uint8 nMB
 
 		nIndex++;
 	}
+
+#ifdef _DECODE_LOGGING
+    CLog::GetInstance().Print(LOG_NAME, "\r\n");
+#endif
 
 	//Done decoding
 	pDctCoeffTable->SkipEndOfBlock(&m_IN_FIFO);
@@ -894,13 +914,10 @@ int16 CIPU::GetDcDifferential(unsigned int nChannel)
 
 void CIPU::GenerateCbCrMap()
 {
-	unsigned int* pCbCrMap;
-	unsigned int i, j;
-
-	pCbCrMap = m_nCbCrMap;
-	for(i = 0; i < 0x40; i += 0x8)
+	unsigned int* pCbCrMap = m_nCbCrMap;
+	for(unsigned int i = 0; i < 0x40; i += 0x8)
 	{
-		for(j = 0; j < 0x10; j += 2)
+		for(unsigned int j = 0; j < 0x10; j += 2)
 		{
 			pCbCrMap[j + 0x00] = (j / 2) + i;
 			pCbCrMap[j + 0x01] = (j / 2) + i;
@@ -1047,6 +1064,7 @@ void CIPU::COUTFIFO::Write(void* pData, unsigned int nSize)
 void CIPU::COUTFIFO::Flush()
 {
 	//Write to memory through DMA channel 3
+    assert((m_nSize & 0x0F) == 0);
 	uint32 nCopied = m_receiveHandler(m_pBuffer, m_nSize / 0x10);
 	nCopied *= 0x10;
 
@@ -1120,11 +1138,14 @@ uint32 CIPU::CINFIFO::PeekBits_MSBF(uint8 nBits)
 {
     mutex::scoped_lock accessLock(m_accessMutex);
 
-    unsigned int requiredSize = (nBits + 7) / 8;
-	while(m_nSize < requiredSize)
-	{
+    while(1)
+    {
+        int bitsAvailable = (m_nSize * 8) - m_nBitPosition;
+        int bitsNeeded = nBits;
+        assert(bitsAvailable >= 0);
+        if(bitsAvailable >= bitsNeeded) break;
         m_dataNeededCondition.wait(accessLock);
-	}
+    }
 
 	unsigned int nBitPosition = m_nBitPosition;
 	uint32 nTemp = 0;
