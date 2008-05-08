@@ -5,6 +5,8 @@
 #include "MIPS.h"
 #include "PsxBios.h"
 #include "Spu.h"
+#include "Dmac.h"
+#include "Intc.h"
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
 #include <boost/thread.hpp>
@@ -66,8 +68,10 @@ private:
 	void			ThreadProc();
 
 	STATUS			m_status;
-	CSpu			m_spu;
 	uint8*			m_ram;
+	Psx::CIntc		m_intc;
+	CSpu			m_spu;
+	Psx::CDmac		m_dmac;
 	CMIPS			m_cpu;
 	CMipsExecutor	m_executor;
 	CPsxBios		m_bios;

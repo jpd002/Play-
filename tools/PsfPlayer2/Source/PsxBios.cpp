@@ -5,6 +5,8 @@
 #define LOG_NAME	("psxbios")
 #define SC_PARAM0	(CMIPS::A0)
 #define SC_PARAM1	(CMIPS::A1)
+#define SC_PARAM2	(CMIPS::A2)
+#define SC_PARAM3	(CMIPS::A3)
 #define SC_RETURN	(CMIPS::V0)
 
 using namespace std;
@@ -30,6 +32,24 @@ void CPsxBios::Reset()
 		m_cpu.m_pMemoryMap->SetWord(syscallAddress[i] + 0x00, 0x0000000C);
 		m_cpu.m_pMemoryMap->SetWord(syscallAddress[i] + 0x04, 0x03E00008);
 	}
+
+	m_longJmpBuffer = 0;
+}
+
+void CPsxBios::LongJump(uint32 bufferAddress)
+{
+	m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x00);
+	m_cpu.m_State.nGPR[CMIPS::SP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x04);
+	m_cpu.m_State.nGPR[CMIPS::FP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x08);
+	m_cpu.m_State.nGPR[CMIPS::S0].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x0C);
+	m_cpu.m_State.nGPR[CMIPS::S1].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x10);
+	m_cpu.m_State.nGPR[CMIPS::S2].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x14);
+	m_cpu.m_State.nGPR[CMIPS::S3].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x18);
+	m_cpu.m_State.nGPR[CMIPS::S4].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x1C);
+	m_cpu.m_State.nGPR[CMIPS::S5].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x20);
+	m_cpu.m_State.nGPR[CMIPS::S6].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x24);
+	m_cpu.m_State.nGPR[CMIPS::S7].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x28);
+	m_cpu.m_State.nGPR[CMIPS::GP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x2C);
 }
 
 void CPsxBios::HandleException()
@@ -98,6 +118,9 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
+		case 0x70:
+			CLog::GetInstance().Print(LOG_NAME, "_bu_init();\r\n");
+			break;
 		case 0x72:
 			CLog::GetInstance().Print(LOG_NAME, "_96_remove();\r\n");
 			break;
@@ -119,6 +142,17 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			CLog::GetInstance().Print(LOG_NAME, "SysMalloc(size = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
+		case 0x08:
+			CLog::GetInstance().Print(LOG_NAME, "OpenEvent(class = 0x%X, spec = 0x%X, mode = 0x%X, func = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM2].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM3].nV0);
+			break;
+		case 0x0C:
+			CLog::GetInstance().Print(LOG_NAME, "EnableEvent(event = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
 		case 0x19:
 			CLog::GetInstance().Print(LOG_NAME, "HookEntryInt(address = 0x%0.8X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
@@ -137,6 +171,11 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		uint32 functionId = m_cpu.m_State.nGPR[CMIPS::T1].nV0;
 		switch(functionId)
 		{
+		case 0x03:
+			CLog::GetInstance().Print(LOG_NAME, "SysDeqIntRP(index = %i, queue = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
 		case 0x08:
 			CLog::GetInstance().Print(LOG_NAME, "SysInitMemory();\r\n");
 			break;
@@ -175,6 +214,12 @@ void CPsxBios::sc_InitHeap()
 	uint32 n = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
 }
 
+//A0 - 70
+void CPsxBios::sc_bu_init()
+{
+	
+}
+
 //A0 - 72
 void CPsxBios::sc_96_remove()
 {
@@ -195,16 +240,41 @@ void CPsxBios::sc_SysMalloc()
 	m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
 }
 
+//B0 - 08
+void CPsxBios::sc_OpenEvent()
+{
+	uint32 classId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 spec = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+	uint32 mode = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
+	uint32 func = m_cpu.m_State.nGPR[SC_PARAM3].nV0;
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0xDEADBEEF;
+}
+
+//B0 - 0C
+void CPsxBios::sc_EnableEvent()
+{
+	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+}
+
 //B0 - 19
 void CPsxBios::sc_HookEntryInt()
 {
 	uint32 address = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	m_longJmpBuffer = address;
 }
 
 //B0 - 5B
 void CPsxBios::sc_ChangeClearPad()
 {
 	uint32 param = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+}
+
+//C0 - 03
+void CPsxBios::sc_SysDeqIntRP()
+{
+	uint32 index = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 queue = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
 }
 
 //C0 - 08
@@ -266,7 +336,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 	//0x68
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x70
-	&sc_Illegal,		&sc_Illegal,		&sc_96_remove,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_bu_init,		&sc_Illegal,		&sc_96_remove,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x78
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x80
@@ -308,7 +378,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 	//0x00
 	&sc_SysMalloc,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x08
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_OpenEvent,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_EnableEvent,	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x10
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x18
@@ -342,7 +412,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 CPsxBios::SyscallHandler CPsxBios::m_handlerC0[MAX_HANDLER_C0] = 
 {
 	//0x00
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_SysDeqIntRP,	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x08
 	&sc_SysInitMemory,	&sc_Illegal,		&sc_ChangeClearRCnt,&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x10

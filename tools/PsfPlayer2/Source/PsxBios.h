@@ -15,21 +15,27 @@ public:
 private:
 	typedef void			(CPsxBios::*SyscallHandler)();
 
+	void					LongJump(uint32);
+
 	void					DisassembleSyscall(uint32);
 
 	void					ProcessSubFunction(SyscallHandler*, unsigned int);
 
 	//A0
 	void					sc_InitHeap();
+	void					sc_bu_init();
 	void					sc_96_remove();
 	void					sc_SetMem();
 
 	//B0
 	void					sc_SysMalloc();
+	void					sc_OpenEvent();
+	void					sc_EnableEvent();
 	void					sc_HookEntryInt();
 	void					sc_ChangeClearPad();
 
 	//C0
+	void					sc_SysDeqIntRP();
 	void					sc_SysInitMemory();
 	void					sc_ChangeClearRCnt();
 
@@ -45,6 +51,7 @@ private:
 	};
 
 	CMIPS&			m_cpu;
+	uint32			m_longJmpBuffer;
 
 	static SyscallHandler	m_handlerA0[MAX_HANDLER_A0];
 	static SyscallHandler	m_handlerB0[MAX_HANDLER_B0];

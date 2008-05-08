@@ -178,11 +178,35 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Source\Dmac.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Dmac.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\DmaChannel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\DmaChannel.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\FunctionsView.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\FunctionsView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Intc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Intc.h"
 				>
 			</File>
 			<File
@@ -198,11 +222,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\tools\PsfPlayer\Source\OffsetStream.cpp"
+				RelativePath="..\..\tools\PsfPlayer\Source\OffsetStream.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\tools\PsfPlayer\Source\OffsetStream.h"
+				RelativePath="..\..\tools\PsfPlayer\Source\OffsetStream.h"
 				>
 			</File>
 			<File
@@ -214,11 +238,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\tools\PsfPlayer\Source\PsfFs.cpp"
+				RelativePath="..\..\tools\PsfPlayer\Source\PsfFs.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\tools\PsfPlayer\Source\PsfFs.h"
+				RelativePath="..\..\tools\PsfPlayer\Source\PsfFs.h"
 				>
 			</File>
 			<File
@@ -249,260 +273,256 @@
 				RelativePath=".\Source\Spu.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\Framework\src\zip\ZipInflateStream.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Purei"
 			>
 			<File
-				RelativePath="..\..\Rawr\Source\BasicBlock.cpp"
+				RelativePath="..\..\Source\BasicBlock.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\BasicBlock.h"
+				RelativePath="..\..\Source\BasicBlock.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\CodeGen.cpp"
+				RelativePath="..\..\Source\CodeGen.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\CodeGen.h"
+				RelativePath="..\..\Source\CodeGen.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\CodeGen_FPU.cpp"
+				RelativePath="..\..\Source\CodeGen_FPU.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\CodeGen_MD.cpp"
+				RelativePath="..\..\Source\CodeGen_MD.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\CodeGen_StackPatterns.h"
+				RelativePath="..\..\Source\CodeGen_StackPatterns.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\DisAsm.cpp"
+				RelativePath="..\..\Source\win32ui\DisAsm.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\DisAsm.h"
+				RelativePath="..\..\Source\win32ui\DisAsm.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\DisAsmWnd.cpp"
+				RelativePath="..\..\Source\win32ui\DisAsmWnd.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\DisAsmWnd.h"
+				RelativePath="..\..\Source\win32ui\DisAsmWnd.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\ELF.cpp"
+				RelativePath="..\..\Source\ELF.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\ELF.h"
+				RelativePath="..\..\Source\ELF.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\Log.cpp"
+				RelativePath="..\..\Source\Log.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\Log.h"
+				RelativePath="..\..\Source\Log.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MA_MIPSIV.cpp"
+				RelativePath="..\..\Source\MA_MIPSIV.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MA_MIPSIV.h"
+				RelativePath="..\..\Source\MA_MIPSIV.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MA_MIPSIV_Reflection.cpp"
+				RelativePath="..\..\Source\MA_MIPSIV_Reflection.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MA_MIPSIV_Templates.cpp"
+				RelativePath="..\..\Source\MA_MIPSIV_Templates.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MemoryMap.cpp"
+				RelativePath="..\..\Source\MemoryMap.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\memorymap.h"
+				RelativePath="..\..\Source\memorymap.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MemoryUtils.cpp"
+				RelativePath="..\..\Source\MemoryUtils.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MemoryUtils.h"
+				RelativePath="..\..\Source\MemoryUtils.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryView.cpp"
+				RelativePath="..\..\Source\win32ui\MemoryView.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryView.h"
+				RelativePath="..\..\Source\win32ui\MemoryView.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryViewMIPS.cpp"
+				RelativePath="..\..\Source\win32ui\MemoryViewMIPS.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryViewMIPS.h"
+				RelativePath="..\..\Source\win32ui\MemoryViewMIPS.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryViewMIPSWnd.cpp"
+				RelativePath="..\..\Source\win32ui\MemoryViewMIPSWnd.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryViewMIPSWnd.h"
+				RelativePath="..\..\Source\win32ui\MemoryViewMIPSWnd.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryViewPtr.cpp"
+				RelativePath="..\..\Source\win32ui\MemoryViewPtr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\MemoryViewPtr.h"
+				RelativePath="..\..\Source\win32ui\MemoryViewPtr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPS.cpp"
+				RelativePath="..\..\Source\MIPS.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPS.h"
+				RelativePath="..\..\Source\MIPS.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSAnalysis.cpp"
+				RelativePath="..\..\Source\MIPSAnalysis.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSAnalysis.h"
+				RelativePath="..\..\Source\MIPSAnalysis.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSArchitecture.cpp"
+				RelativePath="..\..\Source\MIPSArchitecture.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSArchitecture.h"
+				RelativePath="..\..\Source\MIPSArchitecture.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSAssembler.cpp"
+				RelativePath="..\..\Source\MIPSAssembler.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSAssembler.h"
+				RelativePath="..\..\Source\MIPSAssembler.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MipsAssemblerDefinitions.cpp"
+				RelativePath="..\..\Source\MipsAssemblerDefinitions.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MipsAssemblerDefinitions.h"
+				RelativePath="..\..\Source\MipsAssemblerDefinitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MipsCodeGen.cpp"
+				RelativePath="..\..\Source\MipsCodeGen.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MipsCodeGen.h"
+				RelativePath="..\..\Source\MipsCodeGen.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSCoprocessor.cpp"
+				RelativePath="..\..\Source\MIPSCoprocessor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSCoprocessor.h"
+				RelativePath="..\..\Source\MIPSCoprocessor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MipsExecutor.cpp"
+				RelativePath="..\..\Source\MipsExecutor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MipsExecutor.h"
+				RelativePath="..\..\Source\MipsExecutor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSInstructionFactory.cpp"
+				RelativePath="..\..\Source\MIPSInstructionFactory.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSInstructionFactory.h"
+				RelativePath="..\..\Source\MIPSInstructionFactory.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSReflection.cpp"
+				RelativePath="..\..\Source\MIPSReflection.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSReflection.h"
+				RelativePath="..\..\Source\MIPSReflection.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSTags.cpp"
+				RelativePath="..\..\Source\MIPSTags.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\MIPSTags.h"
+				RelativePath="..\..\Source\MIPSTags.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\RegViewGeneral.cpp"
+				RelativePath="..\..\Source\win32ui\RegViewGeneral.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\RegViewGeneral.h"
+				RelativePath="..\..\Source\win32ui\RegViewGeneral.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\RegViewPage.cpp"
+				RelativePath="..\..\Source\win32ui\RegViewPage.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\RegViewPage.h"
+				RelativePath="..\..\Source\win32ui\RegViewPage.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\win32ui\WinUtils.cpp"
+				RelativePath="..\..\Source\win32ui\WinUtils.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\X86Assembler.cpp"
+				RelativePath="..\..\Source\X86Assembler.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\X86Assembler.h"
+				RelativePath="..\..\Source\X86Assembler.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\X86Assembler_Fpu.cpp"
+				RelativePath="..\..\Source\X86Assembler_Fpu.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Rawr\Source\X86Assembler_Sse.cpp"
+				RelativePath="..\..\Source\X86Assembler_Sse.cpp"
 				>
 			</File>
 		</Filter>
@@ -510,95 +530,95 @@
 			Name="zlib"
 			>
 			<File
-				RelativePath="..\..\zlib\adler32.c"
+				RelativePath="..\..\..\zlib\adler32.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\compress.c"
+				RelativePath="..\..\..\zlib\compress.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\crc32.c"
+				RelativePath="..\..\..\zlib\crc32.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\crc32.h"
+				RelativePath="..\..\..\zlib\crc32.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\deflate.c"
+				RelativePath="..\..\..\zlib\deflate.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\deflate.h"
+				RelativePath="..\..\..\zlib\deflate.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\gzio.c"
+				RelativePath="..\..\..\zlib\gzio.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\infback.c"
+				RelativePath="..\..\..\zlib\infback.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\inffast.c"
+				RelativePath="..\..\..\zlib\inffast.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\inffast.h"
+				RelativePath="..\..\..\zlib\inffast.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\inffixed.h"
+				RelativePath="..\..\..\zlib\inffixed.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\inflate.c"
+				RelativePath="..\..\..\zlib\inflate.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\inflate.h"
+				RelativePath="..\..\..\zlib\inflate.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\inftrees.c"
+				RelativePath="..\..\..\zlib\inftrees.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\inftrees.h"
+				RelativePath="..\..\..\zlib\inftrees.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\trees.c"
+				RelativePath="..\..\..\zlib\trees.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\trees.h"
+				RelativePath="..\..\..\zlib\trees.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\uncompr.c"
+				RelativePath="..\..\..\zlib\uncompr.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\zconf.h"
+				RelativePath="..\..\..\zlib\zconf.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\zconf.in.h"
+				RelativePath="..\..\..\zlib\zconf.in.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\zlib.h"
+				RelativePath="..\..\..\zlib\zlib.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\zutil.c"
+				RelativePath="..\..\..\zlib\zutil.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\zlib\zutil.h"
+				RelativePath="..\..\..\zlib\zutil.h"
 				>
 			</File>
 		</Filter>
@@ -606,203 +626,207 @@
 			Name="Framework"
 			>
 			<File
-				RelativePath="..\..\Framework\src\win32\Button.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Button.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ClientDeviceContext.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ClientDeviceContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ColumnTreeView.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ColumnTreeView.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ComboBox.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ComboBox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\CustomDrawn.cpp"
+				RelativePath="..\..\..\Framework\src\win32\CustomDrawn.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\DefaultFonts.cpp"
+				RelativePath="..\..\..\Framework\src\win32\DefaultFonts.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\DeviceContext.cpp"
+				RelativePath="..\..\..\Framework\src\win32\DeviceContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Edit.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Edit.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\FileDialog.cpp"
+				RelativePath="..\..\..\Framework\src\win32\FileDialog.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\FindFile.cpp"
+				RelativePath="..\..\..\Framework\src\win32\FindFile.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\FlatLayout.cpp"
+				RelativePath="..\..\..\Framework\src\layout\FlatLayout.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Font.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Font.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\GridLayout.cpp"
+				RelativePath="..\..\..\Framework\src\layout\GridLayout.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Header.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Header.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\HorizontalLayout.cpp"
+				RelativePath="..\..\..\Framework\src\layout\HorizontalLayout.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\HorizontalSplitter.cpp"
+				RelativePath="..\..\..\Framework\src\win32\HorizontalSplitter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\InputBox.cpp"
+				RelativePath="..\..\..\Framework\src\win32\InputBox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\LayoutBase.cpp"
+				RelativePath="..\..\..\Framework\src\layout\LayoutBase.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\LayoutBaseItem.cpp"
+				RelativePath="..\..\..\Framework\src\layout\LayoutBaseItem.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\LayoutObject.cpp"
+				RelativePath="..\..\..\Framework\src\layout\LayoutObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\LayoutStretch.cpp"
+				RelativePath="..\..\..\Framework\src\layout\LayoutStretch.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\LayoutWindow.cpp"
+				RelativePath="..\..\..\Framework\src\win32\LayoutWindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ListBox.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ListBox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ListView.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ListView.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\MDIChild.cpp"
+				RelativePath="..\..\..\Framework\src\win32\MDIChild.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\MDIClient.cpp"
+				RelativePath="..\..\..\Framework\src\win32\MDIClient.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\MDIFrame.cpp"
+				RelativePath="..\..\..\Framework\src\win32\MDIFrame.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\MemoryDeviceContext.cpp"
+				RelativePath="..\..\..\Framework\src\win32\MemoryDeviceContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\MemStream.cpp"
+				RelativePath="..\..\..\Framework\src\MemStream.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ModalWindow.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ModalWindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Rect.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Rect.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\RegistryTraits.cpp"
+				RelativePath="..\..\..\Framework\src\win32\RegistryTraits.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\RichTextEdit.cpp"
+				RelativePath="..\..\..\Framework\src\win32\RichTextEdit.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ScrollBar.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ScrollBar.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Splitter.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Splitter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Static.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Static.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\StatusBar.cpp"
+				RelativePath="..\..\..\Framework\src\win32\StatusBar.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\StdStream.cpp"
+				RelativePath="..\..\..\Framework\src\StdStream.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\Stream.cpp"
+				RelativePath="..\..\..\Framework\src\Stream.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\string_cast.cpp"
+				RelativePath="..\..\..\Framework\src\string_cast.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\StrPrimitives.cpp"
+				RelativePath="..\..\..\Framework\src\StrPrimitives.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Tab.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Tab.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ToolBar.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ToolBar.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\ToolTip.cpp"
+				RelativePath="..\..\..\Framework\src\win32\ToolTip.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\TrayIcon.cpp"
+				RelativePath="..\..\..\Framework\src\win32\TrayIcon.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\TrayIconServer.cpp"
+				RelativePath="..\..\..\Framework\src\win32\TrayIconServer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\TreeView.cpp"
+				RelativePath="..\..\..\Framework\src\win32\TreeView.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\layout\VerticalLayout.cpp"
+				RelativePath="..\..\..\Framework\src\layout\VerticalLayout.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\VerticalSplitter.cpp"
+				RelativePath="..\..\..\Framework\src\win32\VerticalSplitter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Framework\src\win32\Window.cpp"
+				RelativePath="..\..\..\Framework\src\win32\Window.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Framework\src\zip\ZipInflateStream.cpp"
 				>
 			</File>
 		</Filter>

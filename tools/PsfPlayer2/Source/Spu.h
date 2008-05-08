@@ -14,6 +14,8 @@ public:
 	uint16		ReadRegister(uint32);
 	void		WriteRegister(uint32, uint16);
 
+	void		ReceiveDma(uint32, uint8*);
+
 	enum
 	{
 		SPU_BEGIN	= 0x1F801C00,
@@ -105,8 +107,17 @@ private:
 	void		DisassembleRead(uint32);
 	void		DisassembleWrite(uint32, uint16);
 
-	uint16		m_statusLow;
-	uint16		m_statusHigh;
+	enum
+	{
+		RAMSIZE = 0x80000
+	};
+
+	uint32		m_bufferAddr;
+	uint16		m_ctrl;
+	uint16		m_status0;
+	uint16		m_status1;
+
+	uint8*		m_ram;
 };
 
 #endif

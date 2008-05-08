@@ -9,6 +9,7 @@
 using namespace std;
 using namespace std::tr1;
 using namespace boost;
+using namespace Psx;
 
 CPsxVm::CPsxVm() :
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
@@ -16,10 +17,10 @@ m_executor(m_cpu),
 m_bios(m_cpu),
 m_status(PAUSED),
 m_singleStep(false),
+m_ram(new uint8[RAMSIZE]),
+m_dmac(m_ram),
 m_thread(bind(&CPsxVm::ThreadProc, this))
 {
-	m_ram = new uint8[RAMSIZE];
-
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap(0,			RAMSIZE - 1,	m_ram,										0x01);
 	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::ReadIoRegister, this, _1),	0x02);
@@ -56,6 +57,14 @@ uint32 CPsxVm::ReadIoRegister(uint32 address)
 	{
 		return m_spu.ReadRegister(address);
 	}
+	else if(address >= CDmac::ADDR_BEGIN && address <= CDmac::ADDR_END)
+	{
+		return m_dmac.ReadRegister(address);
+	}
+	else if(address >= CIntc::ADDR_BEGIN && address <= CIntc::ADDR_END)
+	{
+		return m_intc.ReadRegister(address);
+	}
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown hardware register (0x%0.8X).\r\n", address);
@@ -68,6 +77,14 @@ uint32 CPsxVm::WriteIoRegister(uint32 address, uint32 value)
 	if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
 	{
 		m_spu.WriteRegister(address, static_cast<uint16>(value));
+	}
+	else if(address >= CDmac::ADDR_BEGIN && address <= CDmac::ADDR_END)
+	{
+		m_dmac.WriteRegister(address, value);
+	}
+	else if(address >= CIntc::ADDR_BEGIN && address <= CIntc::ADDR_END)
+	{
+		m_intc.WriteRegister(address, value);
 	}
 	else
 	{
@@ -130,8 +147,18 @@ void CPsxVm::Step()
 
 void CPsxVm::ExecuteCpu(bool singleStep)
 {
-	assert(!m_cpu.m_State.nHasException);
-	m_executor.Execute(singleStep ? 1 : 5000);
+    if(!m_cpu.m_State.nHasException)
+    {
+		if(m_intc.IsInterruptPending())
+		{
+			assert(0);
+            //m_os->ExceptionHandler();
+        }
+    }
+	if(!m_cpu.m_State.nHasException)
+	{
+		m_executor.Execute(singleStep ? 1 : 5000);
+	}
 	if(m_cpu.m_State.nHasException)
 	{
 		m_bios.HandleException();
