@@ -2,24 +2,36 @@
 #define _DMAC_H_
 
 #include "Types.h"
+#include "DmaChannel.h"
 
 namespace Psx
 {
+	class CIntc;
+
 	class CDmac
 	{
 	public:
-					CDmac(uint8*);
-		virtual		~CDmac();
+						CDmac(uint8*, CIntc&);
+		virtual			~CDmac();
 
-		uint32		ReadRegister(uint32);
-		void		WriteRegister(uint32, uint32);
+		void			Reset();
+		void			SetReceiveFunction(unsigned int, const CDmaChannel::ReceiveFunctionType&);
 
-		void		Reset();
+		uint8*			GetRam() const;
+		void			AssertLine(unsigned int);
+
+		uint32			ReadRegister(uint32);
+		void			WriteRegister(uint32, uint32);
 
 		enum
 		{
 			ADDR_BEGIN	= 0x1F801080,
 			ADDR_END	= 0x1F8010F7
+		};
+
+		enum
+		{
+			MAX_CHANNEL = 7
 		};
 
 		enum
@@ -40,24 +52,21 @@ namespace Psx
 
 		enum
 		{
-			CH_MADR		= 0x00,
-			CH_BCR		= 0x04,
-			CH_CHCR		= 0x08
-		};
-
-		enum
-		{
 			DPCR		= 0x1F8010F0,
 			DICR		= 0x1F8010F4
 		};
 
 	private:
-		void		DisassembleRead(uint32);
-		void		DisassembleWrite(uint32, uint32);
+		void			DisassembleRead(uint32);
+		void			DisassembleWrite(uint32, uint32);
 
-		uint8*		m_ram;
-		uint32		m_DPCR;
-		uint32		m_DICR;
+		CDmaChannel*	m_channel[MAX_CHANNEL];
+		CDmaChannel		m_channelSpu;
+
+		uint8*			m_ram;
+		CIntc&			m_intc;
+		uint32			m_DPCR;
+		uint32			m_DICR;
 	};
 }
 

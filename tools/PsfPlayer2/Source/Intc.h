@@ -13,14 +13,15 @@ namespace Psx
 
 		void		Reset();
 
-		bool		IsInterruptPending();
+		void		AssertLine(unsigned int);
+		bool		IsInterruptPending() const;
 
 		uint32		ReadRegister(uint32);
 		void		WriteRegister(uint32, uint32);
 
 		enum
 		{
-			LINE_DMAC	= 4
+			LINE_DMAC	= 3
 		};
 
 		enum

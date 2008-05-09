@@ -1,13 +1,19 @@
 #include "Dmac.h"
+#include "Intc.h"
 #include "Log.h"
 
 #define LOG_NAME ("psx_dmac")
 
 using namespace Psx;
+using namespace std;
 
-CDmac::CDmac(uint8* ram) :
-m_ram(ram)
+CDmac::CDmac(uint8* ram, CIntc& intc) :
+m_ram(ram),
+m_intc(intc),
+m_channelSpu(CH4_BASE, 4, *this)
 {
+	memset(m_channel, 0, sizeof(m_channel));
+	m_channel[4] = &m_channelSpu;
 	Reset();
 }
 
@@ -20,6 +26,35 @@ void CDmac::Reset()
 {
 	m_DPCR = 0;
 	m_DICR = 0;
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		CDmaChannel* channel(m_channel[i]);
+		if(channel == NULL) continue;
+		channel->Reset();
+	}
+}
+
+void CDmac::SetReceiveFunction(unsigned int channelNumber, const CDmaChannel::ReceiveFunctionType& handler)
+{
+	if(channelNumber >= MAX_CHANNEL)
+	{
+		throw runtime_error("Invalid channel number.");
+	}
+	CDmaChannel* channel(m_channel[channelNumber]);
+	if(channel != NULL)
+	{
+		channel->SetReceiveFunction(handler);
+	}
+}
+
+uint8* CDmac::GetRam() const
+{
+	return m_ram;
+}
+
+void CDmac::AssertLine(unsigned int line)
+{
+	m_intc.AssertLine(CIntc::LINE_DMAC);
 }
 
 uint32 CDmac::ReadRegister(uint32 address)
@@ -41,7 +76,11 @@ uint32 CDmac::ReadRegister(uint32 address)
 	}
 	else
 	{
-		
+		CDmaChannel* channel(m_channel[(address - CH0_BASE) / 0x10]);
+		if(channel != NULL)
+		{
+			return channel->ReadRegister(address);
+		}
 	}
 	return 0;
 }
@@ -65,7 +104,11 @@ void CDmac::WriteRegister(uint32 address, uint32 value)
 	}
 	else
 	{
-
+		CDmaChannel* channel(m_channel[(address - CH0_BASE) / 0x10]);
+		if(channel != NULL)
+		{
+			channel->WriteRegister(address, value);
+		}
 	}
 }
 
@@ -123,15 +166,15 @@ void CDmac::DisassembleWrite(uint32 address, uint32 value)
 		unsigned int registerId = address & 0x0F;
 		switch(registerId)
 		{
-		case CH_MADR:
+		case CDmaChannel::REG_MADR:
 			CLog::GetInstance().Print(LOG_NAME, "CH%i : MADR = 0x%0.8X.\r\n",
 				channel, value);
 			break;
-		case CH_BCR:
+		case CDmaChannel::REG_BCR:
 			CLog::GetInstance().Print(LOG_NAME, "CH%i : BCR = 0x%0.8X.\r\n",
 				channel, value);
 			break;
-		case CH_CHCR:
+		case CDmaChannel::REG_CHCR:
 			CLog::GetInstance().Print(LOG_NAME, "CH%i : CHCR = 0x%0.8X.\r\n",
 				channel, value);
 			break;

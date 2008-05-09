@@ -10,6 +10,7 @@ public:
 	virtual					~CPsxBios();
 
 	void					Reset();
+	void					HandleInterrupt();
 	void					HandleException();
 
 private:
@@ -31,6 +32,7 @@ private:
 	void					sc_SysMalloc();
 	void					sc_OpenEvent();
 	void					sc_EnableEvent();
+	void					sc_ReturnFromException();
 	void					sc_HookEntryInt();
 	void					sc_ChangeClearPad();
 

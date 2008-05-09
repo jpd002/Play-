@@ -14,7 +14,7 @@ public:
 	uint16		ReadRegister(uint32);
 	void		WriteRegister(uint32, uint16);
 
-	void		ReceiveDma(uint32, uint8*);
+	uint32		ReceiveDma(uint8*, uint32, uint32);
 
 	enum
 	{

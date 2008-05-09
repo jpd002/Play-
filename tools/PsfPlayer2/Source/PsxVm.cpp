@@ -18,7 +18,7 @@ m_bios(m_cpu),
 m_status(PAUSED),
 m_singleStep(false),
 m_ram(new uint8[RAMSIZE]),
-m_dmac(m_ram),
+m_dmac(m_ram, m_intc),
 m_thread(bind(&CPsxVm::ThreadProc, this))
 {
 	//Read memory map
@@ -34,6 +34,8 @@ m_thread(bind(&CPsxVm::ThreadProc, this))
 
 	m_cpu.m_Functions.Unserialize("rawr.functions");
 	m_cpu.m_Comments.Unserialize("rawr.comments");
+
+	m_dmac.SetReceiveFunction(4, bind(&CSpu::ReceiveDma, &m_spu, _1, _2, _3));
 }
 
 CPsxVm::~CPsxVm()
@@ -151,8 +153,7 @@ void CPsxVm::ExecuteCpu(bool singleStep)
     {
 		if(m_intc.IsInterruptPending())
 		{
-			assert(0);
-            //m_os->ExceptionHandler();
+			m_bios.HandleInterrupt();
         }
     }
 	if(!m_cpu.m_State.nHasException)

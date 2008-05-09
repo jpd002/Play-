@@ -1,6 +1,7 @@
 #include "PsxBios.h"
 #include "COP_SCU.h"
 #include "Log.h"
+#include "Intc.h"
 
 #define LOG_NAME	("psxbios")
 #define SC_PARAM0	(CMIPS::A0)
@@ -10,6 +11,7 @@
 #define SC_RETURN	(CMIPS::V0)
 
 using namespace std;
+using namespace Psx;
 
 CPsxBios::CPsxBios(CMIPS& cpu) :
 m_cpu(cpu)
@@ -38,6 +40,7 @@ void CPsxBios::Reset()
 
 void CPsxBios::LongJump(uint32 bufferAddress)
 {
+	bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, 0, bufferAddress);
 	m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x00);
 	m_cpu.m_State.nGPR[CMIPS::SP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x04);
 	m_cpu.m_State.nGPR[CMIPS::FP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x08);
@@ -50,6 +53,26 @@ void CPsxBios::LongJump(uint32 bufferAddress)
 	m_cpu.m_State.nGPR[CMIPS::S6].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x24);
 	m_cpu.m_State.nGPR[CMIPS::S7].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x28);
 	m_cpu.m_State.nGPR[CMIPS::GP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x2C);
+}
+
+void CPsxBios::HandleInterrupt()
+{
+	if(m_longJmpBuffer != 0)
+	{
+		//Clear all causes
+		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0);
+		if(!m_cpu.GenerateException(0xBFC00000))
+		{
+			throw exception();
+		}
+		LongJump(m_longJmpBuffer);
+		m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
+		m_cpu.m_State.nGPR[CMIPS::V0].nD0 = 1;
+	}
+	else
+	{
+		uint32 cause = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS) & m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
+	}
 }
 
 void CPsxBios::HandleException()
@@ -153,6 +176,9 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			CLog::GetInstance().Print(LOG_NAME, "EnableEvent(event = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
+		case 0x17:
+			CLog::GetInstance().Print(LOG_NAME, "ReturnFromException();\r\n");
+			break;
 		case 0x19:
 			CLog::GetInstance().Print(LOG_NAME, "HookEntryInt(address = 0x%0.8X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
@@ -255,6 +281,22 @@ void CPsxBios::sc_OpenEvent()
 void CPsxBios::sc_EnableEvent()
 {
 	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+}
+
+//B0 - 17
+void CPsxBios::sc_ReturnFromException()
+{
+	uint32& status = m_cpu.m_State.nCOP0[CCOP_SCU::STATUS];
+	if(status & CMIPS::STATUS_ERL)
+	{
+		m_cpu.m_State.nPC = m_cpu.m_State.nCOP0[CCOP_SCU::ERROREPC];
+		status &= ~CMIPS::STATUS_ERL;
+	}
+	else if(status & CMIPS::STATUS_EXL)
+	{
+		m_cpu.m_State.nPC = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+		status &= ~CMIPS::STATUS_EXL;
+	}
 }
 
 //B0 - 19
@@ -380,7 +422,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 	//0x08
 	&sc_OpenEvent,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_EnableEvent,	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x10
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_ReturnFromException,
 	//0x18
 	&sc_Illegal,		&sc_HookEntryInt,	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x20

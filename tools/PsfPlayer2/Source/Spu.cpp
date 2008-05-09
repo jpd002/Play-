@@ -113,6 +113,18 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 #endif
 }
 
+uint32 CSpu::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+{
+	unsigned int blocksTransfered = 0;
+	for(unsigned int i = 0; i < blockAmount; i++)
+	{
+		memcpy(m_ram + m_bufferAddr, buffer, blockSize);
+		m_bufferAddr += blockSize;
+		blocksTransfered++;
+	}
+	return blocksTransfered;
+}
+
 void CSpu::DisassembleRead(uint32 address)
 {
 	if(address >= SPU_GENERAL_BASE)

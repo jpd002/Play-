@@ -21,7 +21,12 @@ void CIntc::Reset()
 	m_status = 0;
 }
 
-bool CIntc::IsInterruptPending()
+void CIntc::AssertLine(unsigned int line)
+{
+	m_status |= (1 << line);
+}
+
+bool CIntc::IsInterruptPending() const
 {
 	return (m_mask & m_status) != 0;
 }
