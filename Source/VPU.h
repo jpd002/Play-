@@ -5,6 +5,7 @@
 #include "VIF.h"
 #include "MIPS.h"
 #include "VuExecutor.h"
+#include "Convertible.h"
 #include <boost/thread.hpp>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -28,7 +29,7 @@ public:
     uint8*              GetVuMemory() const;
 
 protected:
-    struct STAT
+    struct STAT : public convertible<uint32>
     {
         unsigned int    nVPS        : 2;
         unsigned int    nVEW        : 1;
@@ -44,55 +45,22 @@ protected:
         unsigned int    nReserved2  : 10;
         unsigned int    nFQC        : 4;
         unsigned int    nReserved3  : 4;
-
-        STAT& operator =(uint32 value)
-        {
-            (*this) = *reinterpret_cast<STAT*>(&value);
-            return (*this);
-        }
-
-        operator uint32()
-        {
-            return *reinterpret_cast<uint32*>(this);
-        }
     };
 
-    struct CYCLE
+    struct CYCLE : public convertible<uint32>
     {
         unsigned int    nCL         : 8;
         unsigned int    nWL         : 8;
         unsigned int    reserved    : 16;
-
-        CYCLE& operator =(uint32 value)
-        {
-            (*this) = *reinterpret_cast<CYCLE*>(&value);
-            return (*this);
-        }
-
-        operator uint32()
-        {
-            return *reinterpret_cast<uint32*>(this);
-        }
     };
 
 #pragma pack(push, 1)
-    struct CODE
+    struct CODE : public convertible<uint32>
     {
         unsigned int    nIMM	: 16;
         unsigned int    nNUM	: 8;
         unsigned int    nCMD	: 7;
         unsigned int    nI		: 1;
-
-        CODE& operator =(uint32 value)
-        {
-            (*this) = *reinterpret_cast<CODE*>(&value);
-            return (*this);
-        }
-
-        operator uint32()
-        {
-            return *reinterpret_cast<uint32*>(this);
-        }
     };
 #pragma pack(pop)
 

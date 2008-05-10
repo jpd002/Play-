@@ -87,10 +87,10 @@ void CVPU::LoadState(CZipArchiveReader& archive)
 {
     string path = STATE_PREFIX + lexical_cast<string>(m_vpuNumber) + STATE_SUFFIX;
     CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
-    m_STAT  = registerFile.GetRegister32(STATE_REGS_STAT);
-    m_CODE  = registerFile.GetRegister32(STATE_REGS_CODE);
-    m_CYCLE = registerFile.GetRegister32(STATE_REGS_CYCLE);
-    m_NUM   = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
+    m_STAT  <<= registerFile.GetRegister32(STATE_REGS_STAT);
+    m_CODE  <<= registerFile.GetRegister32(STATE_REGS_CODE);
+    m_CYCLE <<= registerFile.GetRegister32(STATE_REGS_CYCLE);
+    m_NUM     = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
 }
 
 uint32 CVPU::GetTOP()
@@ -143,7 +143,7 @@ uint32 CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		break;
 	case 0x01:
 		//STCYCL
-		m_CYCLE = nCommand.nIMM;
+		m_CYCLE <<= nCommand.nIMM;
 		return 0;
 		break;
 	case 0x14:

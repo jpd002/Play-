@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include <functional>
+#include "Convertible.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -15,7 +16,7 @@ namespace Dmac
 	class CChannel
 	{
 	public:
-		struct CHCR
+        struct CHCR : public convertible<uint32>
 		{
 			unsigned int		nDIR		: 1;
 			unsigned int		nReserved0	: 1;
@@ -26,17 +27,6 @@ namespace Dmac
 			unsigned int		nSTR		: 1;
 			unsigned int		nReserved1	: 7;
 			unsigned int		nTAG		: 16;
-
-            operator uint32()
-            {
-                return *reinterpret_cast<uint32*>(this);
-            }
-
-            CHCR& operator =(uint32 value)
-            {
-                *reinterpret_cast<uint32*>(this) = value;
-                return *this;
-            }
 		};
 
 
