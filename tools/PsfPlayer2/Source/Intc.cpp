@@ -59,7 +59,7 @@ void CIntc::WriteRegister(uint32 address, uint32 value)
 		m_mask = value;
 		break;
 	case STATUS:
-		m_status &= ~value;
+		m_status &= value;
 		break;
 	}
 }

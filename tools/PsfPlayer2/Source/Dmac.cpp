@@ -54,6 +54,7 @@ uint8* CDmac::GetRam() const
 
 void CDmac::AssertLine(unsigned int line)
 {
+	m_DICR |= 1 << (line + 24);
 	m_intc.AssertLine(CIntc::LINE_DMAC);
 }
 
@@ -98,7 +99,9 @@ void CDmac::WriteRegister(uint32 address, uint32 value)
 			m_DPCR = value;
 			break;
 		case DICR:
-			m_DICR = value;
+			m_DICR &= 0xFF000000;
+			m_DICR |= value;
+			m_DICR &= ~(value & 0xFF000000);
 			break;
 		}
 	}

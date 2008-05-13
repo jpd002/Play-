@@ -7,6 +7,7 @@
 #include "Spu.h"
 #include "Dmac.h"
 #include "Intc.h"
+#include "RootCounters.h"
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
 #include <boost/thread.hpp>
@@ -61,22 +62,23 @@ private:
 		HW_REG_END		= 0x1F802FFF
 	};
 
-	uint32			ReadIoRegister(uint32);
-	uint32			WriteIoRegister(uint32, uint32);
+	uint32				ReadIoRegister(uint32);
+	uint32				WriteIoRegister(uint32, uint32);
 
-	void			ExecuteCpu(bool);
-	void			ThreadProc();
+	void				ExecuteCpu(bool);
+	void				ThreadProc();
 
-	STATUS			m_status;
-	uint8*			m_ram;
-	Psx::CIntc		m_intc;
-	CSpu			m_spu;
-	Psx::CDmac		m_dmac;
-	CMIPS			m_cpu;
-	CMipsExecutor	m_executor;
-	CPsxBios		m_bios;
-	boost::thread	m_thread;
-	bool			m_singleStep;
+	STATUS				m_status;
+	uint8*				m_ram;
+	Psx::CIntc			m_intc;
+	CSpu				m_spu;
+	Psx::CRootCounters	m_counters;
+	Psx::CDmac			m_dmac;
+	CMIPS				m_cpu;
+	CMipsExecutor		m_executor;
+	CPsxBios			m_bios;
+	boost::thread		m_thread;
+	bool				m_singleStep;
 };
 
 #endif

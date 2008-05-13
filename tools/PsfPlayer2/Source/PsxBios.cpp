@@ -2,6 +2,7 @@
 #include "COP_SCU.h"
 #include "Log.h"
 #include "Intc.h"
+#include "MipsAssembler.h"
 
 #define LOG_NAME	("psxbios")
 #define SC_PARAM0	(CMIPS::A0)
@@ -13,8 +14,15 @@
 using namespace std;
 using namespace Psx;
 
-CPsxBios::CPsxBios(CMIPS& cpu) :
-m_cpu(cpu)
+#define INTR_HANDLER		(0x7000)
+#define KERNEL_STACK		(0x8000)
+#define EVENTS_BEGIN		(0x9000)
+#define EVENTS_SIZE			(sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
+
+CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram) :
+m_cpu(cpu),
+m_ram(ram),
+m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
 {
 
 }
@@ -30,55 +38,152 @@ void CPsxBios::Reset()
 
 	for(unsigned int i = 0; i < 3; i++)
 	{
-		//SYSCALL and JR RA
-		m_cpu.m_pMemoryMap->SetWord(syscallAddress[i] + 0x00, 0x0000000C);
-		m_cpu.m_pMemoryMap->SetWord(syscallAddress[i] + 0x04, 0x03E00008);
+		CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + syscallAddress[i]));
+		assembler.SYSCALL();
+		assembler.JR(CMIPS::RA);
 	}
 
+	//Setup kernel stack
+	m_cpu.m_State.nGPR[CMIPS::K0].nD0 = static_cast<int32>(KERNEL_STACK);
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
+
+	//Assemble interrupt handler
+	{
+		CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + INTR_HANDLER));
+		CMIPSAssembler::LABEL checkEventLabel = assembler.CreateLabel();
+		CMIPSAssembler::LABEL doneEventLabel = assembler.CreateLabel();
+		//Right now, just check any counter 2 events
+		unsigned int currentEvent = CMIPS::S0;
+		unsigned int eventMax = CMIPS::S1;
+		unsigned int eventToCheck = CMIPS::S2;
+		assembler.LI(currentEvent, EVENTS_BEGIN);
+		assembler.LI(eventMax, EVENTS_BEGIN + EVENTS_SIZE);
+		assembler.LI(eventToCheck, EVENT_ID_RCNT2);
+
+		//checkEvent
+		{
+			assembler.MarkLabel(checkEventLabel);
+			
+			//check if valid
+			assembler.LW(CMIPS::T0, offsetof(EVENT, isValid), currentEvent);
+			assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
+			assembler.NOP();
+			
+			//check if enabled
+			assembler.LW(CMIPS::T0, offsetof(EVENT, enabled), currentEvent);
+			assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
+			assembler.NOP();
+
+			//check if good event class
+			assembler.LW(CMIPS::T0, offsetof(EVENT, classId), currentEvent);
+			assembler.BNE(CMIPS::T0, eventToCheck, doneEventLabel);
+			assembler.NOP();
+
+			//Start handler if present
+			assembler.LW(CMIPS::T0, offsetof(EVENT, func), currentEvent);
+			assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
+			assembler.NOP();
+
+			assembler.JALR(CMIPS::T0);
+			assembler.NOP();
+		}
+
+		//doneEvent
+		assembler.MarkLabel(doneEventLabel);
+		assembler.ADDIU(currentEvent, currentEvent, sizeof(EVENT));
+		assembler.BNE(currentEvent, eventMax, checkEventLabel);
+		assembler.NOP();
+
+		//ReturnFromException
+		assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0xB0);
+		assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x17);
+		assembler.JR(CMIPS::T0);
+		assembler.NOP();
+	}
+
+	memset(m_events.GetBase(), 0, EVENTS_SIZE);
 	m_longJmpBuffer = 0;
 }
 
 void CPsxBios::LongJump(uint32 bufferAddress)
 {
 	bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, 0, bufferAddress);
-	m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x00);
-	m_cpu.m_State.nGPR[CMIPS::SP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x04);
-	m_cpu.m_State.nGPR[CMIPS::FP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x08);
-	m_cpu.m_State.nGPR[CMIPS::S0].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x0C);
-	m_cpu.m_State.nGPR[CMIPS::S1].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x10);
-	m_cpu.m_State.nGPR[CMIPS::S2].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x14);
-	m_cpu.m_State.nGPR[CMIPS::S3].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x18);
-	m_cpu.m_State.nGPR[CMIPS::S4].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x1C);
-	m_cpu.m_State.nGPR[CMIPS::S5].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x20);
-	m_cpu.m_State.nGPR[CMIPS::S6].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x24);
-	m_cpu.m_State.nGPR[CMIPS::S7].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x28);
-	m_cpu.m_State.nGPR[CMIPS::GP].nV0 = m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x2C);
+	m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x00));
+	m_cpu.m_State.nGPR[CMIPS::SP].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x04));
+	m_cpu.m_State.nGPR[CMIPS::FP].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x08));
+	m_cpu.m_State.nGPR[CMIPS::S0].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x0C));
+	m_cpu.m_State.nGPR[CMIPS::S1].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x10));
+	m_cpu.m_State.nGPR[CMIPS::S2].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x14));
+	m_cpu.m_State.nGPR[CMIPS::S3].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x18));
+	m_cpu.m_State.nGPR[CMIPS::S4].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x1C));
+	m_cpu.m_State.nGPR[CMIPS::S5].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x20));
+	m_cpu.m_State.nGPR[CMIPS::S6].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x24));
+	m_cpu.m_State.nGPR[CMIPS::S7].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x28));
+	m_cpu.m_State.nGPR[CMIPS::GP].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x2C));
+}
+
+void CPsxBios::SaveCpuState()
+{
+	uint32 address = m_cpu.m_State.nGPR[CMIPS::K0].nV0;
+	for(unsigned int i = 0; i < 32; i++)
+	{
+		if(i == CMIPS::R0) continue;
+		if(i == CMIPS::K0) continue;
+		if(i == CMIPS::K1) continue;
+		m_cpu.m_pMemoryMap->SetWord(address, m_cpu.m_State.nGPR[i].nV0);
+		address += 4;
+	}
+}
+
+void CPsxBios::LoadCpuState()
+{
+	uint32 address = m_cpu.m_State.nGPR[CMIPS::K0].nV0;
+	for(unsigned int i = 0; i < 32; i++)
+	{
+		if(i == CMIPS::R0) continue;
+		if(i == CMIPS::K0) continue;
+		if(i == CMIPS::K1) continue;
+		m_cpu.m_State.nGPR[i].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(address));
+		address += 4;
+	}
 }
 
 void CPsxBios::HandleInterrupt()
 {
-	if(m_longJmpBuffer != 0)
+	if(m_cpu.GenerateInterrupt(0xBFC00000))
 	{
-		//Clear all causes
-		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0);
-		if(!m_cpu.GenerateException(0xBFC00000))
+		SaveCpuState();
+		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS);
+		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
+		uint32 cause = status & mask;
+		if(cause & 0x40)
 		{
-			throw exception();
+			m_cpu.m_State.nPC = INTR_HANDLER;
+			m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
 		}
-		LongJump(m_longJmpBuffer);
-		m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
-		m_cpu.m_State.nGPR[CMIPS::V0].nD0 = 1;
-	}
-	else
-	{
-		uint32 cause = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS) & m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
+		else
+		{
+			if(m_longJmpBuffer != 0)
+			{
+				//Clear all causes
+				//m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0);
+				LongJump(m_longJmpBuffer);
+				m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
+				m_cpu.m_State.nGPR[CMIPS::V0].nD0 = 1;
+			}
+			else
+			{
+				assert(0);
+			}
+		}
 	}
 }
 
 void CPsxBios::HandleException()
 {
 	assert(m_cpu.m_State.nHasException);
-    uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+//    uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+	uint32 searchAddress = m_cpu.m_State.nGPR[CMIPS::K1].nV0;
     uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
     if(callInstruction != 0x0000000C)
     {
@@ -165,6 +270,11 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			CLog::GetInstance().Print(LOG_NAME, "SysMalloc(size = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
+		case 0x07:
+			CLog::GetInstance().Print(LOG_NAME, "DeliverEvent(class = 0x%X, event = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
 		case 0x08:
 			CLog::GetInstance().Print(LOG_NAME, "OpenEvent(class = 0x%X, spec = 0x%X, mode = 0x%X, func = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
@@ -172,8 +282,16 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 				m_cpu.m_State.nGPR[SC_PARAM2].nV0,
 				m_cpu.m_State.nGPR[SC_PARAM3].nV0);
 			break;
+		case 0x0A:
+			CLog::GetInstance().Print(LOG_NAME, "WaitEvent(event = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
 		case 0x0C:
 			CLog::GetInstance().Print(LOG_NAME, "EnableEvent(event = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x0D:
+			CLog::GetInstance().Print(LOG_NAME, "DisableEvent(event = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x17:
@@ -266,6 +384,13 @@ void CPsxBios::sc_SysMalloc()
 	m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
 }
 
+//B0 - 07
+void CPsxBios::sc_DeliverEvent()
+{
+	uint32 classId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+}
+
 //B0 - 08
 void CPsxBios::sc_OpenEvent()
 {
@@ -274,13 +399,46 @@ void CPsxBios::sc_OpenEvent()
 	uint32 mode = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
 	uint32 func = m_cpu.m_State.nGPR[SC_PARAM3].nV0;
 
-	m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0xDEADBEEF;
+	uint32 eventId = m_events.Allocate();
+	if(eventId == -1)
+	{
+		throw exception();
+	}
+	EVENT* eventPtr = m_events[eventId];
+	eventPtr->classId	= classId;
+	eventPtr->spec		= spec;
+	eventPtr->mode		= mode;
+	eventPtr->func		= func;
+
+	m_cpu.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(eventId);
+}
+
+//B0 - 0A
+void CPsxBios::sc_WaitEvent()
+{
+	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 }
 
 //B0 - 0C
 void CPsxBios::sc_EnableEvent()
 {
 	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	EVENT* eventPtr = m_events[eventId];
+	if(eventPtr != NULL)
+	{
+		eventPtr->enabled = true;
+	}
+}
+
+//B0 - 0D
+void CPsxBios::sc_DisableEvent()
+{
+	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	EVENT* eventPtr = m_events[eventId];
+	if(eventPtr != NULL)
+	{
+		eventPtr->enabled = false;
+	}
 }
 
 //B0 - 17
@@ -297,6 +455,7 @@ void CPsxBios::sc_ReturnFromException()
 		m_cpu.m_State.nPC = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
 		status &= ~CMIPS::STATUS_EXL;
 	}
+	LoadCpuState();
 }
 
 //B0 - 19
@@ -418,9 +577,9 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] = 
 {
 	//0x00
-	&sc_SysMalloc,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_SysMalloc,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_DeliverEvent,
 	//0x08
-	&sc_OpenEvent,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_EnableEvent,	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_OpenEvent,		&sc_Illegal,		&sc_WaitEvent,		&sc_Illegal,		&sc_EnableEvent,	&sc_DisableEvent,	&sc_Illegal,		&sc_Illegal,
 	//0x10
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_ReturnFromException,
 	//0x18

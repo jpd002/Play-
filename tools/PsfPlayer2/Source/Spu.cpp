@@ -145,7 +145,15 @@ void CSpu::DisassembleRead(uint32 address)
 	{
 		unsigned int channel = (address - SPU_BEGIN) / 0x10;
 		unsigned int registerId = address & 0x0F;
-		CLog::GetInstance().Print(LOG_NAME, "CH%i : Read an unknown register (0x%X).\r\n", channel, registerId);
+		if(address & 0x01)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "CH%i : Read an unknown register (0x%X).\r\n", channel, registerId);
+		}
+		else
+		{
+			CLog::GetInstance().Print(LOG_NAME, "CH%i : = %s\r\n", 
+				channel, g_channelRegisterName[registerId / 2]);
+		}
 	}
 }
 

@@ -2,23 +2,38 @@
 #define _MIPSASSEMBLER_H_
 
 #include "Types.h"
+#include <map>
 
 class CMIPSAssembler
 {
 public:
+	struct LABEL
+	{
+		unsigned int id;
+
+		bool operator < (const LABEL& rhs) const
+		{
+			return id < rhs.id;
+		};
+	};
+
 				        CMIPSAssembler(uint32*);
 				        ~CMIPSAssembler();
 
     unsigned int        GetProgramSize();
+    LABEL               CreateLabel();
+    void                MarkLabel(LABEL);
 
 	void		        ADDIU(unsigned int, unsigned int, uint16);
 	void		        ADDU(unsigned int, unsigned int, unsigned int);
 	void		        AND(unsigned int, unsigned int, unsigned int);
 	void		        ANDI(unsigned int, unsigned int, uint16);
 	void		        BEQ(unsigned int, unsigned int, uint16);
+	void		        BEQ(unsigned int, unsigned int, LABEL);
 	void		        BGEZ(unsigned int, uint16);
 	void		        BGTZ(unsigned int, uint16);
 	void		        BNE(unsigned int, unsigned int, uint16);
+	void				BNE(unsigned int, unsigned int, LABEL);
 	void		        BLEZ(unsigned int, uint16);
 	void		        BLTZ(unsigned int, uint16);
 	void		        DADDU(unsigned int, unsigned int, unsigned int);
@@ -40,6 +55,7 @@ public:
 	void		        LDL(unsigned int, uint16, unsigned int);
 	void		        LDR(unsigned int, uint16, unsigned int);
     void                LHU(unsigned int, uint16, unsigned int);
+	void				LI(unsigned int, uint32);
     void		        LUI(unsigned int, uint16);
 	void		        LW(unsigned int, uint16, unsigned int);
 	void		        LWL(unsigned int, uint16, unsigned int);
@@ -47,6 +63,7 @@ public:
 	void		        LQ(unsigned int, uint16, unsigned int);
 	void		        MFC0(unsigned int, unsigned int);
 	void		        MTC0(unsigned int, unsigned int);
+	void				MOV(unsigned int, unsigned int);
     void                MULT(unsigned int, unsigned int, unsigned int);
 	void		        MULTU(unsigned int, unsigned int, unsigned int);
 	void		        NOP();
@@ -71,8 +88,22 @@ public:
     static unsigned int GetRegisterIndex(const char*);
 
 private:
-	uint32*		        m_pPtr;
-    uint32*             m_pStartPtr;
+    void				ResolveLabelReferences();
+	void				CreateLabelReference(LABEL);
+
+	struct LABELREF
+    {
+        size_t address;
+    };
+
+    typedef std::map<LABEL, size_t> LabelMapType;
+    typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
+
+	uint32*					m_pPtr;
+    uint32*					m_pStartPtr;
+    LabelMapType            m_labels;
+    LabelReferenceMapType   m_labelReferences;
+    unsigned int            m_nextLabelId;
 };
 
 #endif

@@ -266,6 +266,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\RootCounters.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\RootCounters.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Spu.cpp"
 				>
 			</File>

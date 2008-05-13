@@ -21,7 +21,11 @@ namespace Psx
 
 		enum
 		{
-			LINE_DMAC	= 3
+			LINE_DMAC	= 3,
+			LINE_CNT0	= 4,
+			LINE_CNT1	= 5,
+			LINE_CNT2	= 6,
+			LINE_CNT3	= 7,
 		};
 
 		enum

@@ -119,6 +119,13 @@ public:
 		T8,		T9,	K0,	K1,	GP,	SP,	FP,	RA
 	};
 
+	enum
+	{
+		STATUS_INT = 0x01,
+		STATUS_EXL = 0x02,
+		STATUS_ERL = 0x04
+	};
+
 	static const char*			m_sGPRName[];
 };
 

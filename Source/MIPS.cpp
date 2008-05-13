@@ -124,10 +124,10 @@ void CMIPS::DefaultSysCallHandler(CMIPS* context)
 bool CMIPS::GenerateInterrupt(uint32 nAddress)
 {
 	//Check if interrupts are enabled
-	if(!(m_State.nCOP0[CCOP_SCU::STATUS] & 0x0001)) return false;
+	if(!(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_INT)) return false;
 
 	//Check if we're in exception mode (interrupts are disabled in exception mode)
-	if(m_State.nCOP0[CCOP_SCU::STATUS] & 0x0002) return false;
+	if(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_EXL) return false;
 
 	return CMIPS::GenerateException(nAddress);
 }

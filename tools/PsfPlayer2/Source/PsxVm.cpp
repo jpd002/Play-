@@ -14,11 +14,12 @@ using namespace Psx;
 CPsxVm::CPsxVm() :
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
 m_executor(m_cpu),
-m_bios(m_cpu),
+m_bios(m_cpu, m_ram),
 m_status(PAUSED),
 m_singleStep(false),
 m_ram(new uint8[RAMSIZE]),
 m_dmac(m_ram, m_intc),
+m_counters(m_intc),
 m_thread(bind(&CPsxVm::ThreadProc, this))
 {
 	//Read memory map
@@ -67,6 +68,10 @@ uint32 CPsxVm::ReadIoRegister(uint32 address)
 	{
 		return m_intc.ReadRegister(address);
 	}
+	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
+	{
+		return m_counters.ReadRegister(address);
+	}
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown hardware register (0x%0.8X).\r\n", address);
@@ -87,6 +92,10 @@ uint32 CPsxVm::WriteIoRegister(uint32 address, uint32 value)
 	else if(address >= CIntc::ADDR_BEGIN && address <= CIntc::ADDR_END)
 	{
 		m_intc.WriteRegister(address, value);
+	}
+	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
+	{
+		m_counters.WriteRegister(address, value);
 	}
 	else
 	{
@@ -159,6 +168,7 @@ void CPsxVm::ExecuteCpu(bool singleStep)
 	if(!m_cpu.m_State.nHasException)
 	{
 		m_executor.Execute(singleStep ? 1 : 5000);
+		m_counters.Update();
 	}
 	if(m_cpu.m_State.nHasException)
 	{

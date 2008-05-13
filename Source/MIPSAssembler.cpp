@@ -5,25 +5,71 @@
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
+#include <limits.h>
 #include "lexical_cast_ex.h"
 
 using namespace boost;
 using namespace std;
 
-CMIPSAssembler::CMIPSAssembler(uint32* pPtr)
+CMIPSAssembler::CMIPSAssembler(uint32* pPtr) :
+m_nextLabelId(1),
+m_pPtr(pPtr),
+m_pStartPtr(pPtr)
 {
-	m_pPtr = pPtr;
-    m_pStartPtr = pPtr;
+
 }
 
 CMIPSAssembler::~CMIPSAssembler()
 {
-
+	ResolveLabelReferences();
 }
 
 unsigned int CMIPSAssembler::GetProgramSize()
 {
     return static_cast<unsigned int>(m_pPtr - m_pStartPtr);
+}
+
+CMIPSAssembler::LABEL CMIPSAssembler::CreateLabel()
+{
+	LABEL newLabel;
+	newLabel.id = m_nextLabelId++;
+	return newLabel;
+}
+
+void CMIPSAssembler::MarkLabel(LABEL label)
+{
+    m_labels[label] = GetProgramSize();
+}
+
+void CMIPSAssembler::CreateLabelReference(LABEL label)
+{
+    LABELREF reference;
+    reference.address = GetProgramSize();
+    m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
+}
+
+void CMIPSAssembler::ResolveLabelReferences()
+{
+    for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
+        m_labelReferences.end() != labelRef; labelRef++)
+    {
+        LabelMapType::iterator label(m_labels.find(labelRef->first));
+        if(label == m_labels.end())
+        {
+            throw runtime_error("Invalid label.");
+        }
+        size_t referencePos = labelRef->second.address;
+        size_t labelPos = label->second;
+        int offset = static_cast<int>(labelPos - referencePos - 1);
+		if(offset > SHRT_MAX || offset < SHRT_MIN)
+		{
+			throw runtime_error("Jump length too long.");
+		}
+		uint32& instruction = m_pStartPtr[referencePos];
+		instruction &= 0xFFFF0000;
+		instruction |= static_cast<uint16>(offset);
+    }
+    m_labelReferences.clear();
 }
 
 void CMIPSAssembler::ADDIU(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
@@ -56,6 +102,12 @@ void CMIPSAssembler::BEQ(unsigned int nRS, unsigned int nRT, uint16 nImmediate)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::BEQ(unsigned int nRS, unsigned int nRT, LABEL label)
+{
+	CreateLabelReference(label);
+	BEQ(nRS, nRT, 0);
+}
+
 void CMIPSAssembler::BGEZ(unsigned int nRS, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x01) << 26) | (nRS << 21) | ((0x01) << 16) | nImmediate;
@@ -72,6 +124,12 @@ void CMIPSAssembler::BNE(unsigned int nRS, unsigned int nRT, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x05) << 26) | (nRS << 21) | (nRT << 16) | nImmediate;
 	m_pPtr++;
+}
+
+void CMIPSAssembler::BNE(unsigned int nRS, unsigned int nRT, LABEL label)
+{
+	CreateLabelReference(label);
+	BNE(nRS, nRT, 0);
 }
 
 void CMIPSAssembler::BLEZ(unsigned int nRS, uint16 nImmediate)
@@ -206,6 +264,17 @@ void CMIPSAssembler::LHU(unsigned int nRT, uint16 nOffset, unsigned int nBase)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::LI(unsigned int rt, uint32 immediate)
+{
+	uint16 low = static_cast<int16>(immediate);
+	uint16 high = static_cast<int16>(immediate >> 16);
+	LUI(rt, high);
+	if(low != 0)
+	{
+		ORI(rt, rt, low);
+	}
+}
+
 void CMIPSAssembler::LUI(unsigned int nRT, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x0F) << 26) | (nRT << 16) | nImmediate;
@@ -246,6 +315,11 @@ void CMIPSAssembler::MTC0(unsigned int nRT, unsigned int nRD)
 {
 	(*m_pPtr) = ((0x10) << 26) | ((0x04) << 21) | (nRT << 16) | (nRD << 11);
 	m_pPtr++;
+}
+
+void CMIPSAssembler::MOV(unsigned int rd, unsigned int rs)
+{
+	ADDU(rd, rs, 0);
 }
 
 void CMIPSAssembler::MULT(unsigned int nRD, unsigned int nRS, unsigned int nRT)
