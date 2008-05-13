@@ -93,17 +93,22 @@ namespace Iop
 		void				GetInfo(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Open(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Close(uint32*, uint32, uint32*, uint32, uint8*);
+        void                Seek(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Read(uint32*, uint32, uint32*, uint32, uint8*);
+        void                Write(uint32*, uint32, uint32*, uint32, uint8*);
+        void                ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
 		uint32				GenerateHandle();
+        FILE*               GetFileFromHandle(uint32);
 
 		typedef std::map<uint32, FILE*> HandleMap;
 
 		HandleMap			m_Handles;
 		static const char*	m_sMcPathPreference[2];
 		uint32				m_nNextHandle;
+        std::string         m_currentDirectory;
 	};
 
 }
