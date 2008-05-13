@@ -523,77 +523,72 @@ void CIPU::LoadVQCLUT()
 
 void CIPU::ColorSpaceConversion(CBitStream* pInput, uint8 nOFM, uint8 nDTE, uint16 nMBC)
 {
-	unsigned int* pCbCrMap;
-	uint8* pY;
-	uint32* pPixel;
-	double nY, nCb, nCr, nR, nG, nB;
-	uint8 nBlockY[0x100];
-	uint32 nPixel[0x100];
-	uint8 nBlockCb[0x40];
-	uint8 nBlockCr[0x40];
-	unsigned int i, j;
-
     assert(nMBC != 0);
 
 	while(nMBC != 0)
 	{
+	    uint8 nBlockY[0x100];
+	    uint32 nPixel[0x100];
+	    uint8 nBlockCb[0x40];
+	    uint8 nBlockCr[0x40];
+
 		//Get Y data (blocks 0 and 1)
-		for(i = 0; i < 0x80; i += 0x10)
+		for(unsigned int i = 0; i < 0x80; i += 0x10)
 		{
-			for(j = 0; j < 8; j++)
+			for(unsigned int j = 0; j < 8; j++)
 			{
 				nBlockY[i + j + 0x00] = (uint8)pInput->GetBits_MSBF(8);
 			}
-			for(j = 0; j < 8; j++)
+			for(unsigned int j = 0; j < 8; j++)
 			{
 				nBlockY[i + j + 0x08] = (uint8)pInput->GetBits_MSBF(8);
 			}
 		}
 
 		//Get Y data (blocks 2 and 3)
-		for(i = 0; i < 0x80; i += 0x10)
+		for(unsigned int i = 0; i < 0x80; i += 0x10)
 		{
-			for(j = 0; j < 8; j++)
+			for(unsigned int j = 0; j < 8; j++)
 			{
 				nBlockY[i + j + 0x80] = (uint8)pInput->GetBits_MSBF(8);
 			}
-			for(j = 0; j < 8; j++)
+			for(unsigned int j = 0; j < 8; j++)
 			{
 				nBlockY[i + j + 0x88] = (uint8)pInput->GetBits_MSBF(8);
 			}
 		}
 
 		//Get Cb data
-		for(i = 0; i < 0x40; i++)
+		for(unsigned int i = 0; i < 0x40; i++)
 		{
 			nBlockCb[i] = (uint8)pInput->GetBits_MSBF(8);
 		}
 
 		//Get Cr data
-		for(i = 0; i < 0x40; i++)
+		for(unsigned int i = 0; i < 0x40; i++)
 		{
 			nBlockCr[i] = (uint8)pInput->GetBits_MSBF(8);
 		}
 
-		pY			= nBlockY;
-		pPixel		= nPixel;
-		pCbCrMap	= m_nCbCrMap;
+		uint8* pY = nBlockY;
+		uint32* pPixel = nPixel;
+		unsigned int* pCbCrMap = m_nCbCrMap;
 
-		for(i = 0; i < 16; i++)
+		for(unsigned int i = 0; i < 16; i++)
 		{
-			for(j = 0; j < 16; j++)
+			for(unsigned int j = 0; j < 16; j++)
 			{
-				nY	= pY[j];
-				nCb	= nBlockCb[pCbCrMap[j]];
-				nCr = nBlockCr[pCbCrMap[j]];
+				double nY  = pY[j];
+				double nCb = nBlockCb[pCbCrMap[j]];
+				double nCr = nBlockCr[pCbCrMap[j]];
 
 				//nY = nBlockCb[pCbCrMap[j]];
 				//nCb = 128;
 				//nCr = 128;
 
-				nR = nY								+ 1.402		* (nCr - 128);
-				nG = nY - 0.34414	* (nCb - 128)	- 0.71414	* (nCr - 128);
-				nB = nY + 1.772		* (nCb - 128);
+				double nR = nY								+ 1.402		* (nCr - 128);
+				double nG = nY - 0.34414	* (nCb - 128)	- 0.71414	* (nCr - 128);
+				double nB = nY + 1.772		* (nCb - 128);
 
 				if(nR < 0) { nR = 0; } if(nR > 255) { nR = 255; }
 				if(nG < 0) { nG = 0; } if(nG > 255) { nG = 255; }
@@ -625,29 +620,6 @@ void CIPU::SetThresholdValues(uint32 nValue)
 	m_nTH0 = (uint16)(nValue >>  0) & 0x1FF;
 	m_nTH1 = (uint16)(nValue >> 16) & 0x1FF;
 }
-
-//bool CIPU::IsExecutionRisky(unsigned int nCmd)
-//{
-//
-//  if(nCmd == 2)
-//	{
-//		uint32 nCHCR;
-//
-//		nCHCR = CDMAC::GetRegister(CDMAC::D4_CHCR);
-//		if((nCHCR & CDMAC::CHCR_STR) == 0) return true;
-//
-//		if(CDMAC::IsEndTagId(nCHCR))
-//		{
-//			if(CDMAC::GetRegister(CDMAC::D4_QWC) < 0x10) return true;
-//		}
-//	}
-//	else
-//	{
-//		if(m_IN_FIFO.GetSize() < 0x20) return true;
-//	}
-//
-//	return false;
-//}
 
 uint32 CIPU::GetPictureType()
 {
@@ -857,22 +829,11 @@ void CIPU::DequantiseBlock(int16* pBlock, uint8 nMBI, uint8 nQSC)
 void CIPU::InverseScan(int16* pBlock)
 {
 	int16 nTemp[0x40];
-	unsigned int* pTable;
-	unsigned int i;
 
 	memcpy(nTemp, pBlock, sizeof(int16) * 0x40);
+    unsigned int* pTable = GetIsZigZagScan() ? CInverseScanTable::m_nTable0 : CInverseScanTable::m_nTable1;
 
-	if(GetIsZigZagScan())
-	{
-		pTable = CInverseScanTable::m_nTable0;
-	}
-	else
-	{
-		pTable = CInverseScanTable::m_nTable1;
-	}
-
-
-	for(i = 0; i < 64; i++)
+	for(unsigned int i = 0; i < 64; i++)
 	{
 		pBlock[i] = nTemp[pTable[i]];
 	}
