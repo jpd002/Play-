@@ -260,7 +260,11 @@ void CCdromSelectionWnd::SelectImage()
 {
 	Win32::CFileDialog Dialog;
 
-	Dialog.m_OFN.lpstrFilter = _T("ISO9660 Disk Images (*.iso; *.bin)\0*.iso;*.bin\0UltraISO Compressed Disk Images (*.isz)\0*.isz\0All files (*.*)\0*.*\0");
+	Dialog.m_OFN.lpstrFilter = 
+        _T("All supported types\0*.iso;*.bin;*.isz\0")
+        _T("ISO9660 Disk Images (*.iso; *.bin)\0*.iso;*.bin\0")
+        _T("UltraISO Compressed Disk Images (*.isz)\0*.isz\0")
+        _T("All files (*.*)\0*.*\0");
 
 	if(Dialog.Summon(m_hWnd) != IDOK)
 	{
