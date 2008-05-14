@@ -5,6 +5,7 @@
 
 using namespace Framework;
 using namespace boost;
+using namespace std;
 
 CRegViewFPU::CRegViewFPU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) :
 CRegViewPage(hParent, pR)
@@ -24,31 +25,33 @@ CRegViewFPU::~CRegViewFPU()
 
 void CRegViewFPU::Update()
 {
-	CStrA sText;
-	GetDisplayText(&sText);
-	SetDisplayText(sText);
+	SetDisplayText(GetDisplayText().c_str());
 	CRegViewPage::Update();
 }
 
-void CRegViewFPU::GetDisplayText(CStrA* pText)
+string CRegViewFPU::GetDisplayText()
 {
 	switch(m_nViewMode)
 	{
 	case VIEWMODE_WORD:
-		RenderWord(pText);
+		return RenderWord();
 		break;
 	case VIEWMODE_SINGLE:
-		RenderSingle(pText);
+		return RenderSingle();
 		break;
+    default:
+        return string();
+        break;
 	}
 }
 
-void CRegViewFPU::RenderFCSR(CStrA* pText)
+string CRegViewFPU::RenderFCSR()
 {
 	char sText[256];
+    string result;
 
 	sprintf(sText, "FCSR: 0x%0.8X\r\n", m_pCtx->m_State.nFCSR);
-	(*pText) += sText;
+    result += sText;
 
 	sprintf(sText, "CC  : %i%i%i%i%i%i%i%ib\r\n", \
 		(m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0, \
@@ -59,22 +62,21 @@ void CRegViewFPU::RenderFCSR(CStrA* pText)
 		(m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0, \
 		(m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0, \
 		(m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
+    result += sText;
 
-	(*pText) += sText;
+    return result;
 }
 
-void CRegViewFPU::RenderWord(CStrA* pText)
+string CRegViewFPU::RenderWord()
 {
-	char sText[256];
-	char sReg[256];
-	MIPSSTATE* s;
-	uint32 nData;
-	unsigned int i;
+    string result;
+	MIPSSTATE* s = &m_pCtx->m_State;
 
-	s = &m_pCtx->m_State;
-
-	for(i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < 32; i++)
 	{
+	    char sText[256];
+	    char sReg[256];
+
 		if(i < 10)
 		{
 			sprintf(sReg, "F%i  ", i);
@@ -84,28 +86,26 @@ void CRegViewFPU::RenderWord(CStrA* pText)
 			sprintf(sReg, "F%i ", i);
 		}
 
-		nData = ((uint32*)s->nCOP10)[i * 2];
+		uint32 nData = ((uint32*)s->nCOP10)[i * 2];
 
 		sprintf(sText, "%s: 0x%0.8X\r\n", sReg, nData);
-		(*pText) += sText;
+		result += sText;
 	}
 
-	RenderFCSR(pText);
+	result += RenderFCSR();
+    return result;
 }
 
-void CRegViewFPU::RenderSingle(CStrA* pText)
+string CRegViewFPU::RenderSingle()
 {
-	char sText[256];
-	char sReg[256];
-	MIPSSTATE* s;
-	float nValue;
-	uint32 nData;
-	unsigned int i;
+    char sText[256];
+    string result;
+	MIPSSTATE* s = &m_pCtx->m_State;
 
-	s = &m_pCtx->m_State;
-
-	for(i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < 32; i++)
 	{
+	    char sReg[256];
+
 		if(i < 10)
 		{
 			sprintf(sReg, "F%i  ", i);
@@ -115,19 +115,20 @@ void CRegViewFPU::RenderSingle(CStrA* pText)
 			sprintf(sReg, "F%i ", i);
 		}
 
-		nData = ((uint32*)s->nCOP10)[i * 2];
-		nValue = *(float*)(&nData);
+		uint32 nData = ((uint32*)s->nCOP10)[i * 2];
+		float nValue = *(float*)(&nData);
 
 		sprintf(sText, "%s: %+.24e\r\n", sReg, nValue);
 	
-		(*pText) += sText;
+		result += sText;
 	}
 	
-	nValue = *(float*)(&s->nCOP1A);
+	float nValue = *(float*)(&s->nCOP1A);
 	sprintf(sText, "ACC : %+.24e\r\n", nValue);
-	(*pText) += sText;
+    result += sText;
 
-	RenderFCSR(pText);
+	result += RenderFCSR();
+    return result;
 }
 
 long CRegViewFPU::OnRightButtonUp(int nX, int nY)

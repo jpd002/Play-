@@ -159,7 +159,6 @@ unsigned int CRegViewPage::GetVisibleLineCount()
 
 void CRegViewPage::Paint(HDC hDC)
 {
-	CStrA sText;
 	unsigned int nScrollPos, nCurrent, nTotal, nCount, nX, nY, nFontCY;
 	const char* sLine;
 	const char* sNext;
@@ -182,7 +181,7 @@ void CRegViewPage::Paint(HDC hDC)
 	nX = XMARGIN;
 	nY = YMARGIN;
 
-	sLine = m_sText;
+	sLine = m_sText.c_str();
 	while(sLine != NULL)
 	{
 		sNext = strchr(sLine, '\n');
@@ -216,11 +215,10 @@ void CRegViewPage::Paint(HDC hDC)
 
 void CRegViewPage::UpdateScroll()
 {
-	CStrA sText;
 	unsigned int nTotal;
 	SCROLLINFO si;
 
-	nTotal = GetLineCount(m_sText) - GetVisibleLineCount();
+	nTotal = GetLineCount(m_sText.c_str()) - GetVisibleLineCount();
 
 	if((int)nTotal < 0)
 	{

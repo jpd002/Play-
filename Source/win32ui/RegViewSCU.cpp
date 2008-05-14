@@ -6,6 +6,7 @@
 
 using namespace Framework;
 using namespace boost;
+using namespace std;
 
 CRegViewSCU::CRegViewSCU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) :
 CRegViewPage(hParent, pR)
@@ -23,23 +24,21 @@ CRegViewSCU::~CRegViewSCU()
 
 void CRegViewSCU::Update()
 {
-	CStrA sText;
-	GetDisplayText(&sText);
-	SetDisplayText(sText);
+	SetDisplayText(GetDisplayText().c_str());
 	CRegViewPage::Update();
 }
 
-void CRegViewSCU::GetDisplayText(CStrA* pText)
+string CRegViewSCU::GetDisplayText()
 {
-	char sTemp[256];
-	MIPSSTATE* s;
-	unsigned int i;
+	MIPSSTATE* s = &m_pCtx->m_State;
+    string result;
 
-	s = &m_pCtx->m_State;
-
-	for(i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < 32; i++)
 	{
+	    char sTemp[256];
 		sprintf(sTemp, "%10s : 0x%0.8X\r\n", CCOP_SCU::m_sRegName[i], s->nCOP0[i]);
-		(*pText) += sTemp;
+		result += sTemp;
 	}
+
+    return result;
 }

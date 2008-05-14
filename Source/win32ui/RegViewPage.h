@@ -2,7 +2,7 @@
 #define _REGVIEWPAGE_H_
 
 #include "win32/CustomDrawn.h"
-#include "Str.h"
+#include <string>
 
 class CRegViewPage : public Framework::Win32::CCustomDrawn
 {
@@ -31,7 +31,7 @@ private:
 	unsigned int					GetScrollPosition();
 	unsigned int					GetScrollThumbPosition();
 
-	Framework::CStrA				m_sText;
+    std::string                     m_sText;
 };
 
 #endif

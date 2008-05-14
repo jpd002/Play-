@@ -5,6 +5,7 @@
 
 using namespace Framework;
 using namespace boost;
+using namespace std;
 
 CRegViewVU::CRegViewVU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
 CRegViewPage(hParent, pR)
@@ -24,27 +25,24 @@ CRegViewVU::~CRegViewVU()
 
 void CRegViewVU::Update()
 {
-	CStrA sText;
-	GetDisplayText(&sText);
-	SetDisplayText(sText);
+	SetDisplayText(GetDisplayText().c_str());
 	CRegViewPage::Update();
 }
 
-void CRegViewVU::GetDisplayText(CStrA* pText)
+string CRegViewVU::GetDisplayText()
 {
 	char sLine[256];
-	char sReg1[32];
-	char sReg2[32];
-	unsigned int i;
-	MIPSSTATE* pState;
+    string result;
 
-	(*pText) += "              x               y       \r\n";
-	(*pText) += "              z               w       \r\n";
+	result += "              x               y       \r\n";
+	result += "              z               w       \r\n";
 
-	pState = &m_pCtx->m_State;
+	MIPSSTATE* pState = &m_pCtx->m_State;
 
-	for(i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < 32; i++)
 	{
+	    char sReg1[32];
+
 		if(i < 10)
 		{
 			sprintf(sReg1, "VF%i  ", i);
@@ -60,7 +58,7 @@ void CRegViewVU::GetDisplayText(CStrA* pText)
 			*(float*)&pState->nCOP2[i].nV2, \
 			*(float*)&pState->nCOP2[i].nV3);
 
-		(*pText) += sLine;
+		result += sLine;
 	}
 
 	sprintf(sLine, "ACC  : %+.7e %+.7e\r\n       %+.7e %+.7e\r\n", \
@@ -69,39 +67,42 @@ void CRegViewVU::GetDisplayText(CStrA* pText)
 		*(float*)&pState->nCOP2A.nV2, \
 		*(float*)&pState->nCOP2A.nV3);
 
-	(*pText) += sLine;
+	result += sLine;
 
 	sprintf(sLine, "Q    : %+.7e\r\n", *(float*)&pState->nCOP2Q);
-	(*pText) += sLine;
+	result += sLine;
 
 	sprintf(sLine, "I    : %+.7e\r\n", *(float*)&pState->nCOP2I);
-	(*pText) += sLine;
+	result += sLine;
 
 	sprintf(sLine, "P    : %+.7e\r\n", *(float*)&pState->nCOP2P);
-	(*pText) += sLine;
+	result += sLine;
 
 	sprintf(sLine, "R    : %+.7e (0x%0.8X)\r\n", *(float*)&pState->nCOP2R, pState->nCOP2R);
-	(*pText) += sLine;
+	result += sLine;
 
 	sprintf(sLine, "MACSF: %i%i%i%ib\r\n", \
 		(pState->nCOP2SF.nV0 != 0) ? 1 : 0, \
 		(pState->nCOP2SF.nV1 != 0) ? 1 : 0, \
 		(pState->nCOP2SF.nV2 != 0) ? 1 : 0, \
 		(pState->nCOP2SF.nV3 != 0) ? 1 : 0);
-	(*pText) += sLine;
+	result += sLine;
 
 	sprintf(sLine, "MACZF: %i%i%i%ib\r\n", \
 		(pState->nCOP2ZF.nV0 != 0) ? 1 : 0, \
 		(pState->nCOP2ZF.nV1 != 0) ? 1 : 0, \
 		(pState->nCOP2ZF.nV2 != 0) ? 1 : 0, \
 		(pState->nCOP2ZF.nV3 != 0) ? 1 : 0);
-	(*pText) += sLine;
+	result += sLine;
 
 	sprintf(sLine, "CLIP : 0x%0.6X\r\n", pState->nCOP2CF);
-	(*pText) += sLine;
+	result += sLine;
 
-	for(i = 0; i < 16; i += 2)
+	for(unsigned int i = 0; i < 16; i += 2)
 	{
+	    char sReg1[32];
+	    char sReg2[32];
+
 		if(i < 10)
 		{
 			sprintf(sReg1, "VI%i  ", i);
@@ -114,6 +115,8 @@ void CRegViewVU::GetDisplayText(CStrA* pText)
 		}
 
 		sprintf(sLine, "%s: 0x%0.4X    %s: 0x%0.4X\r\n", sReg1, pState->nCOP2VI[i] & 0xFFFF, sReg2, pState->nCOP2VI[i + 1] & 0xFFFF);
-		(*pText) += sLine;
+		result += sLine;
 	}
+
+    return result;
 }

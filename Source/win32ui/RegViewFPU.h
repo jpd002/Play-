@@ -2,6 +2,7 @@
 #define _REGVIEWFPU_H_
 
 #include <boost/signal.hpp>
+#include <string>
 #include "RegViewPage.h"
 #include "EventHandler.h"
 #include "../MIPS.h"
@@ -28,11 +29,11 @@ protected:
 
 private:
 	void							Update();
-	void							GetDisplayText(Framework::CStrA*);
+    std::string 					GetDisplayText();
 
-	void							RenderWord(Framework::CStrA*);
-	void							RenderSingle(Framework::CStrA*);
-	void							RenderFCSR(Framework::CStrA*);
+    std::string						RenderWord();
+    std::string						RenderSingle();
+    std::string						RenderFCSR();
 
 	void							OnMachineStateChange();
 	void							OnRunningStateChange();

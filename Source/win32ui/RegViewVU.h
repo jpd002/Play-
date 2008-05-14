@@ -14,7 +14,7 @@ public:
 
 private:
 	void							Update();
-	void							GetDisplayText(Framework::CStrA*);
+    std::string						GetDisplayText();
 
 	CMIPS*							m_pCtx;
 };
