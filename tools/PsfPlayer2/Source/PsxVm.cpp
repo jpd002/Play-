@@ -178,6 +178,7 @@ void CPsxVm::ExecuteCpu(bool singleStep)
 
 void CPsxVm::ThreadProc()
 {
+	time_t lastTime = 0;
 	while(1)
 	{
 		if(m_status == PAUSED)
@@ -191,6 +192,12 @@ void CPsxVm::ThreadProc()
 		else
 		{
 			ExecuteCpu(m_singleStep);
+			time_t currentTime = time(NULL);
+			if(currentTime - lastTime > 2)
+			{
+				m_spuHandler.Update(m_spu);
+				lastTime = currentTime;
+			}
 			if(m_executor.MustBreak() || m_singleStep)
 			{
 				m_status = PAUSED;

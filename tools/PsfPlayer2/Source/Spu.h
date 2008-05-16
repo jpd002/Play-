@@ -16,6 +16,8 @@ public:
 
 	uint32		ReceiveDma(uint8*, uint32, uint32);
 
+	void		Render(int16*, unsigned int, unsigned int);
+
 	enum
 	{
 		SPU_BEGIN	= 0x1F801C00,
@@ -103,21 +105,73 @@ public:
 		EXT_VOL_RIGHT	= 0x1F801DB6
 	};
 
+	enum CHANNEL_STATUS
+	{
+		STOPPED = 0,
+		KEY_ON = 1,
+	};
+
+	struct CHANNEL
+	{
+		uint16 volumeLeft;
+		uint16 volumeRight;
+		uint16 pitch;
+		uint16 address;
+		uint16 adsrLevel;
+		uint16 adsrRate;
+		uint16 adsrVolume;
+		uint16 repeat;
+		uint16 status;
+	};
+
 private:
-	void		DisassembleRead(uint32);
-	void		DisassembleWrite(uint32, uint16);
+	class CSampleReader
+	{
+	public:
+						CSampleReader();
+		virtual			~CSampleReader();
+
+		void			SetParams(uint8*, uint8*, uint16);
+		void			GetSamples(int16*, unsigned int, unsigned int);
+
+	private:
+		enum
+		{
+			BUFFER_SAMPLES = 28,
+		};
+
+		void			UnpackSamples();
+		int16			GetSample(double);
+		double			GetNextTime() const;
+		double			GetBufferStep() const;
+
+		unsigned int	m_sourceSamplingRate;
+		uint8*			m_nextSample;
+		uint8*			m_repeat;
+		int16			m_buffer[BUFFER_SAMPLES];
+		double			m_currentTime;
+		double			m_s1;
+		double			m_s2;
+		bool			m_done;
+	};
 
 	enum
 	{
 		RAMSIZE = 0x80000
 	};
 
-	uint32		m_bufferAddr;
-	uint16		m_ctrl;
-	uint16		m_status0;
-	uint16		m_status1;
+	void			DisassembleRead(uint32);
+	void			DisassembleWrite(uint32, uint16);
 
-	uint8*		m_ram;
+	uint32			m_bufferAddr;
+	uint16			m_ctrl;
+	uint16			m_status0;
+	uint16			m_status1;
+	uint16			m_voiceOn0;
+	uint16			m_channelOn0;
+	uint8*			m_ram;
+	CHANNEL			m_channel[MAX_CHANNEL];
+	CSampleReader	m_reader[MAX_CHANNEL];
 };
 
 #endif

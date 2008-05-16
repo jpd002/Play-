@@ -5,6 +5,7 @@
 #include "MIPS.h"
 #include "PsxBios.h"
 #include "Spu.h"
+#include "SH_OpenAL.h"
 #include "Dmac.h"
 #include "Intc.h"
 #include "RootCounters.h"
@@ -77,6 +78,7 @@ private:
 	CMIPS				m_cpu;
 	CMipsExecutor		m_executor;
 	CPsxBios			m_bios;
+	CSH_OpenAL			m_spuHandler;
 	boost::thread		m_thread;
 	bool				m_singleStep;
 };

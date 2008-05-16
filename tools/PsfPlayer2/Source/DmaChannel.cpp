@@ -34,7 +34,7 @@ void CDmaChannel::ResumeDma()
 	assert(m_CHCR.co == 1 && m_CHCR.dr == 1);
 	assert(m_receiveFunction);
 	uint32 address = m_MADR & 0x1FFFFFFF;
-	uint32 blocksTransfered = m_receiveFunction(m_dmac.GetRam() + address, m_BCR.bs, m_BCR.ba);
+	uint32 blocksTransfered = m_receiveFunction(m_dmac.GetRam() + address, m_BCR.bs * 4, m_BCR.ba);
 	assert(blocksTransfered <= m_BCR.ba);
 	m_BCR.ba -= blocksTransfered;
 

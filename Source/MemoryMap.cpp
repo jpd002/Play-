@@ -203,7 +203,10 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
-		*(uint16*)&((uint8*)e->pPointer)[nAddress - e->nStart] = nValue;
+		*reinterpret_cast<uint16*>(&reinterpret_cast<uint8*>(e->pPointer)[nAddress - e->nStart]) = nValue;
+		break;
+	case MEMORYMAP_TYPE_FUNCTION:
+		e->handler(nAddress, nValue);
 		break;
 	default:
 		assert(0);

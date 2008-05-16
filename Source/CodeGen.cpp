@@ -1206,6 +1206,20 @@ void CCodeGen::Cmp(CONDITION nCondition)
 
         Cmp(nCondition);
     }
+	else if(FitsPattern<RelativeRelative>())
+	{
+        RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+        unsigned int register1 = AllocateRegister();
+        unsigned int register2 = AllocateRegister();
+
+        LoadRelativeInRegister(register1, ops.first);
+        LoadRelativeInRegister(register2, ops.second);
+
+        PushReg(register1);
+        PushReg(register2);
+
+        Cmp(nCondition);
+	}
 /*
 	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT))
 	{

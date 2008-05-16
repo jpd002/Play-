@@ -31,7 +31,7 @@ void CRootCounters::Update()
 		COUNTER& counter = m_counter[i];
 		if(i == 2 && counter.mode.en) continue;
 		uint32 counterMax = counter.mode.tar ? counter.target : 0xFFFF;
-		counter.count = static_cast<uint16>(min<uint32>(counter.count + 0x300, counterMax));
+		counter.count = static_cast<uint16>(min<uint32>(counter.count + 0x800, counterMax));
 		if(counter.count == counter.target)
 		{
 			if(counter.mode.iq1 && counter.mode.iq2)
