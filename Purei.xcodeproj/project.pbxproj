@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		7E19A9980D6C887D00B0C6A6 /* patches.xml in Resources */ = {isa = PBXBuildFile; fileRef = 7E19A9970D6C887D00B0C6A6 /* patches.xml */; };
 		7E47E3230D6DEA15003F7AC1 /* MainWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */; };
+		7E50DADD0DE0C27B00717DF8 /* VfsManager.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7E50DADB0DE0C27B00717DF8 /* VfsManager.xib */; };
+		7E50DAE20DE0C2AB00717DF8 /* VfsManagerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E50DAE10DE0C2AB00717DF8 /* VfsManagerController.mm */; };
+		7E50DB530DE0DCC500717DF8 /* VfsManagerBindings.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E50DB520DE0DCC500717DF8 /* VfsManagerBindings.mm */; };
 		7E6F94920D8B4B0D0060B97B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E6F94910D8B4B0D0060B97B /* libbz2.dylib */; };
 		7E6F94C20D8B4B350060B97B /* IszImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6F94C00D8B4B350060B97B /* IszImageStream.cpp */; };
 		7E801A7F0DAC674A004A293D /* MemoryUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E801A7D0DAC674A004A293D /* MemoryUtils.cpp */; };
@@ -153,6 +156,11 @@
 		7E19A9970D6C887D00B0C6A6 /* patches.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = patches.xml; sourceTree = "<group>"; };
 		7E47E3210D6DEA15003F7AC1 /* MainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainWindow.h; path = Source/macosxui/MainWindow.h; sourceTree = "<group>"; };
 		7E47E3220D6DEA15003F7AC1 /* MainWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainWindow.mm; path = Source/macosxui/MainWindow.mm; sourceTree = "<group>"; };
+		7E50DADC0DE0C27B00717DF8 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Source/macosxui/English.lproj/VfsManager.xib; sourceTree = "<group>"; };
+		7E50DAE00DE0C2AB00717DF8 /* VfsManagerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VfsManagerController.h; path = Source/macosxui/VfsManagerController.h; sourceTree = "<group>"; };
+		7E50DAE10DE0C2AB00717DF8 /* VfsManagerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VfsManagerController.mm; path = Source/macosxui/VfsManagerController.mm; sourceTree = "<group>"; };
+		7E50DB510DE0DCC500717DF8 /* VfsManagerBindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VfsManagerBindings.h; path = Source/macosxui/VfsManagerBindings.h; sourceTree = "<group>"; };
+		7E50DB520DE0DCC500717DF8 /* VfsManagerBindings.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VfsManagerBindings.mm; path = Source/macosxui/VfsManagerBindings.mm; sourceTree = "<group>"; };
 		7E6F94910D8B4B0D0060B97B /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = /usr/lib/libbz2.dylib; sourceTree = "<absolute>"; };
 		7E6F94C00D8B4B350060B97B /* IszImageStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IszImageStream.cpp; path = Source/IszImageStream.cpp; sourceTree = "<group>"; };
 		7E6F94C10D8B4B350060B97B /* IszImageStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IszImageStream.h; path = Source/IszImageStream.h; sourceTree = "<group>"; };
@@ -431,6 +439,10 @@
 				7EE1BC860D4D4F8F00B502BD /* PH_HidMacOSX.h */,
 				7E91AB690D1B32EA00B20FB7 /* RegView.h */,
 				7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */,
+				7E50DAE00DE0C2AB00717DF8 /* VfsManagerController.h */,
+				7E50DAE10DE0C2AB00717DF8 /* VfsManagerController.mm */,
+				7E50DB510DE0DCC500717DF8 /* VfsManagerBindings.h */,
+				7E50DB520DE0DCC500717DF8 /* VfsManagerBindings.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -486,6 +498,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7E50DADB0DE0C27B00717DF8 /* VfsManager.xib */,
 				7E19A9970D6C887D00B0C6A6 /* patches.xml */,
 				7E947B000D09F79B00A2AE15 /* Info.plist */,
 				7E947ABC0D09F49A00A2AE15 /* icon.icns */,
@@ -812,6 +825,7 @@
 				7E947AC00D09F49A00A2AE15 /* icon.icns in Resources */,
 				7E947B010D09F79B00A2AE15 /* Info.plist in Resources */,
 				7E19A9980D6C887D00B0C6A6 /* patches.xml in Resources */,
+				7E50DADD0DE0C27B00717DF8 /* VfsManager.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -931,12 +945,22 @@
 				7E93A9A10DA0496500F19184 /* VPU1.cpp in Sources */,
 				7E93A9A20DA0496500F19184 /* VuExecutor.cpp in Sources */,
 				7E801A7F0DAC674A004A293D /* MemoryUtils.cpp in Sources */,
+				7E50DAE20DE0C2AB00717DF8 /* VfsManagerController.mm in Sources */,
+				7E50DB530DE0DCC500717DF8 /* VfsManagerBindings.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		7E50DADB0DE0C27B00717DF8 /* VfsManager.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7E50DADC0DE0C27B00717DF8 /* English */,
+			);
+			name = VfsManager.xib;
+			sourceTree = "<group>";
+		};
 		7E947AB80D09F49A00A2AE15 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (

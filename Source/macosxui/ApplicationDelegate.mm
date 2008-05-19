@@ -1,4 +1,5 @@
 #import "ApplicationDelegate.h"
+#import "VfsManagerController.h"
 #import "GSH_OpenGLMacOSX.h"
 #import "PH_HidMacOSX.h"
 #import "Globals.h"
@@ -76,6 +77,11 @@ using namespace std;
 	{
 		NSRunCriticalAlertPanel(@"Error occured while trying to load state.", @"", NULL, NULL, NULL);
 	}
+}
+
+-(void)OnVfsManager : (id)sender
+{
+	[[CVfsManagerController defaultController] showManager];
 }
 
 -(void)BootFromElf : (NSString*)fileName

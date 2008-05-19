@@ -14,6 +14,7 @@
 -(void)OnPauseResume: (id)sender;
 -(void)OnSaveState: (id)sender;
 -(void)OnLoadState: (id)sender;
+-(void)OnVfsManager: (id)sender;
 -(void)BootFromElf: (NSString*)fileName;
 -(void)BootFromCdrom0;
 
