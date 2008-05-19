@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <boost/static_assert.hpp>
 #include "COP_FPU.h"
 #include "MIPS.h"
 
@@ -389,11 +390,17 @@ INSTRUCTION CCOP_FPU::m_cReflW[64] =
 
 void CCOP_FPU::SetupReflectionTables()
 {
-	memcpy(m_ReflGeneral, m_cReflGeneral, sizeof(INSTRUCTION) * 64);
-	memcpy(m_ReflCop1, m_cReflCop1, sizeof(INSTRUCTION) * 32);
-	memcpy(m_ReflBc1, m_cReflBc1, sizeof(INSTRUCTION) * 4);
-	memcpy(m_ReflS, m_cReflS, sizeof(INSTRUCTION) * 64);
-	memcpy(m_ReflW, m_cReflW, sizeof(INSTRUCTION) * 64);
+    BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflCop1)      == sizeof(m_cReflCop1));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflBc1)       == sizeof(m_cReflBc1));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflS)         == sizeof(m_cReflS));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflW)         == sizeof(m_cReflW));
+
+	memcpy(m_ReflGeneral,   m_cReflGeneral, sizeof(m_cReflGeneral));
+	memcpy(m_ReflCop1,      m_cReflCop1,    sizeof(m_cReflCop1));
+	memcpy(m_ReflBc1,       m_cReflBc1,     sizeof(m_cReflBc1));
+	memcpy(m_ReflS,         m_cReflS,       sizeof(m_cReflS));
+	memcpy(m_ReflW,         m_cReflW,       sizeof(m_cReflW));
 
 	m_ReflGeneralTable.nShift	= 26;
 	m_ReflGeneralTable.nMask	= 0x3F;

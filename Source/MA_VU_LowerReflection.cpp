@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <boost/static_assert.hpp>
 #include "MIPS.h"
 #include "MA_VU.h"
 #include "VUShared.h"
@@ -683,12 +684,19 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
 
 void CMA_VU::CLower::SetupReflectionTables()
 {
-	memcpy(m_ReflGeneral,	m_cReflGeneral, sizeof(INSTRUCTION) * 128);
-	memcpy(m_ReflV,			m_cReflV,		sizeof(INSTRUCTION) * 64);
-	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(INSTRUCTION) * 32);
-	memcpy(m_ReflVX1,		m_cReflVX1,		sizeof(INSTRUCTION) * 32);
-	memcpy(m_ReflVX2,		m_cReflVX2,		sizeof(INSTRUCTION) * 32);
-	memcpy(m_ReflVX3,		m_cReflVX3,		sizeof(INSTRUCTION) * 32);
+    BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflV)         == sizeof(m_cReflV));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflVX0)       == sizeof(m_cReflVX0));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflVX1)       == sizeof(m_cReflVX1));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflVX2)       == sizeof(m_cReflVX2));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflVX3)       == sizeof(m_cReflVX3));
+
+	memcpy(m_ReflGeneral,	m_cReflGeneral, sizeof(m_cReflGeneral));
+	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
+	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
+	memcpy(m_ReflVX1,		m_cReflVX1,		sizeof(m_cReflVX1));
+	memcpy(m_ReflVX2,		m_cReflVX2,		sizeof(m_cReflVX2));
+	memcpy(m_ReflVX3,		m_cReflVX3,		sizeof(m_cReflVX3));
 
 	m_ReflGeneralTable.nShift		= 25;
 	m_ReflGeneralTable.nMask		= 0x7F;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <boost/static_assert.hpp>
 #include "MA_EE.h"
 #include "MIPS.h"
 
@@ -263,11 +264,17 @@ INSTRUCTION CMA_EE::m_cReflMmi3[32] =
 
 void CMA_EE::SetupReflectionTables()
 {
-	memcpy(m_ReflMmi, m_cReflMmi, sizeof(INSTRUCTION) * 64);
-	memcpy(m_ReflMmi0, m_cReflMmi0, sizeof(INSTRUCTION) * 32);
-	memcpy(m_ReflMmi1, m_cReflMmi1, sizeof(INSTRUCTION) * 32);
-	memcpy(m_ReflMmi2, m_cReflMmi2, sizeof(INSTRUCTION) * 32);
-	memcpy(m_ReflMmi3, m_cReflMmi3, sizeof(INSTRUCTION) * 32);
+    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi)   == sizeof(m_cReflMmi));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi0)  == sizeof(m_cReflMmi0));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi1)  == sizeof(m_cReflMmi1));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi2)  == sizeof(m_cReflMmi2));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi3)  == sizeof(m_cReflMmi3));
+
+	memcpy(m_ReflMmi,   m_cReflMmi,     sizeof(m_cReflMmi));
+	memcpy(m_ReflMmi0,  m_cReflMmi0,    sizeof(m_cReflMmi0));
+	memcpy(m_ReflMmi1,  m_cReflMmi1,    sizeof(m_cReflMmi1));
+	memcpy(m_ReflMmi2,  m_cReflMmi2,    sizeof(m_cReflMmi2));
+	memcpy(m_ReflMmi3,  m_cReflMmi3,    sizeof(m_cReflMmi3));
 
 	m_ReflMmiTable.pTable						= m_ReflMmi;
 	m_ReflMmiTable.nShift						= 0;

@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <boost/static_assert.hpp>
 #include "MA_MIPSIV.h"
 #include "MIPS.h"
 
@@ -422,9 +423,13 @@ INSTRUCTION CMA_MIPSIV::m_cReflRegImm[32] =
 
 void CMA_MIPSIV::SetupReflectionTables()
 {
-	memcpy(m_ReflGeneral, m_cReflGeneral, sizeof(INSTRUCTION) * 64);
-	memcpy(m_ReflSpecial, m_cReflSpecial, sizeof(INSTRUCTION) * 64);
-	memcpy(m_ReflRegImm, m_cReflRegImm, sizeof(INSTRUCTION) * 64);
+    BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflSpecial)   == sizeof(m_cReflSpecial));
+    BOOST_STATIC_ASSERT(sizeof(m_ReflRegImm)    == sizeof(m_cReflRegImm));
+
+	memcpy(m_ReflGeneral,   m_cReflGeneral, sizeof(m_cReflGeneral));
+	memcpy(m_ReflSpecial,   m_cReflSpecial, sizeof(m_cReflSpecial));
+	memcpy(m_ReflRegImm,    m_cReflRegImm,  sizeof(m_cReflRegImm));
 
 	m_ReflGeneralTable.nShift	= 26;
 	m_ReflGeneralTable.nMask	= 0x3F;
