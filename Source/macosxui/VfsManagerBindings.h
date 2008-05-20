@@ -1,5 +1,17 @@
 #import <Cocoa/Cocoa.h>
 
+@interface CVfsManagerBinding : NSObject
+{
+
+}
+
+-(NSString*)deviceName;
+-(NSString*)bindingType;
+-(NSString*)bindingValue;
+-(void)requestModification;
+
+@end
+
 @interface CVfsManagerBindings : NSObject
 {
 	NSMutableArray*		m_bindings;
@@ -9,17 +21,7 @@
 -(void)dealloc;
 -(int)numberOfRowsInTableView: (NSTableView*)tableView;
 -(id)tableView: (NSTableView*)tableView objectValueForTableColumn:(NSTableColumn*)tableColumn row:(int)row;
-
-@end
-
-@interface CVfsManagerBinding : NSObject
-{
-
-}
-
--(NSString*)deviceName;
--(NSString*)bindingType;
--(NSString*)bindingValue;
+-(CVfsManagerBinding*)getBindingAt: (unsigned int)index;
 
 @end
 
@@ -34,5 +36,6 @@
 -(NSString*)deviceName;
 -(NSString*)bindingType;
 -(NSString*)bindingValue;
+-(void)requestModification;
 
 @end

@@ -9,7 +9,7 @@
 	m_bindings = [[NSMutableArray alloc] init];
 	[m_bindings addObject: [[CVfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @"ps2.mc0.directory"]];
 	[m_bindings addObject: [[CVfsManagerDirectoryBinding alloc] init: @"mc1" preferenceName: @"ps2.mc1.directory"]];
-	[m_bindings addObject: [[CVfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @"ps2.host.directory"]];	
+	[m_bindings addObject: [[CVfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @"ps2.host.directory"]];
 	return result;
 }
 
@@ -43,6 +43,12 @@
 	return @"";
 }
 
+-(CVfsManagerBinding*)getBindingAt: (unsigned int)index
+{
+	if(index >= [m_bindings count]) return nil;
+	return [m_bindings objectAtIndex: index];
+}
+
 @end
 
 //---------------------------------------------------------------------------
@@ -65,6 +71,11 @@
 {
 	[self doesNotRecognizeSelector: _cmd];
 	return nil;
+}
+
+-(void)requestModification
+{
+	[self doesNotRecognizeSelector: _cmd];
 }
 
 @end
@@ -103,6 +114,16 @@
 -(NSString*)bindingValue
 {
 	return m_value;
+}
+
+-(void)requestModification
+{
+	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+	NSArray* fileTypes = [NSArray arrayWithObject:@"elf"];
+	if([openPanel runModalForTypes:fileTypes] != NSOKButton)
+	{
+		return;
+	}
 }
 
 @end
