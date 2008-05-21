@@ -9,6 +9,7 @@
 -(NSString*)bindingType;
 -(NSString*)bindingValue;
 -(void)requestModification;
+-(void)save;
 
 @end
 
@@ -18,7 +19,7 @@
 }
 
 -(CVfsManagerBindings*)init;
--(void)dealloc;
+-(void)save;
 -(int)numberOfRowsInTableView: (NSTableView*)tableView;
 -(id)tableView: (NSTableView*)tableView objectValueForTableColumn:(NSTableColumn*)tableColumn row:(int)row;
 -(CVfsManagerBinding*)getBindingAt: (unsigned int)index;
@@ -37,5 +38,6 @@
 -(NSString*)bindingType;
 -(NSString*)bindingValue;
 -(void)requestModification;
+-(void)save;
 
 @end

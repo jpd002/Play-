@@ -7,9 +7,21 @@
 {
 	CVfsManagerBindings* result = [super init];
 	m_bindings = [[NSMutableArray alloc] init];
-	[m_bindings addObject: [[CVfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @"ps2.mc0.directory"]];
-	[m_bindings addObject: [[CVfsManagerDirectoryBinding alloc] init: @"mc1" preferenceName: @"ps2.mc1.directory"]];
-	[m_bindings addObject: [[CVfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @"ps2.host.directory"]];
+	{
+		NSObject* objectToAdd = [[CVfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @"ps2.mc0.directory"];
+		[objectToAdd autorelease];
+		[m_bindings addObject: objectToAdd];
+	}
+	{
+		NSObject* objectToAdd = [[CVfsManagerDirectoryBinding alloc] init: @"mc1" preferenceName: @"ps2.mc1.directory"];
+		[objectToAdd autorelease];
+		[m_bindings addObject: objectToAdd];
+	}
+	{
+		NSObject* objectToAdd = [[CVfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @"ps2.host.directory"];
+		[objectToAdd autorelease];
+		[m_bindings addObject: objectToAdd];
+	}
 	return result;
 }
 
@@ -17,6 +29,16 @@
 {
 	[m_bindings release];
 	[super dealloc];
+}
+
+-(void)save
+{
+	NSEnumerator* bindingIterator = [m_bindings objectEnumerator];
+	CVfsManagerBinding* binding = nil;
+	while(binding = [bindingIterator nextObject])
+	{
+		[binding save];
+	}
 }
 
 -(int)numberOfRowsInTableView: (NSTableView*)tableView
@@ -78,6 +100,11 @@
 	[self doesNotRecognizeSelector: _cmd];
 }
 
+-(void)save
+{
+	[self doesNotRecognizeSelector: _cmd];
+}
+
 @end
 
 //---------------------------------------------------------------------------
@@ -101,6 +128,14 @@
 	return result;
 }
 
+-(void)dealloc
+{
+	[m_deviceName release];
+	[m_value release];
+	[m_preference release];
+	[super dealloc];
+}
+
 -(NSString*)deviceName
 {
 	return m_deviceName;
@@ -119,11 +154,22 @@
 -(void)requestModification
 {
 	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-	NSArray* fileTypes = [NSArray arrayWithObject:@"elf"];
-	if([openPanel runModalForTypes:fileTypes] != NSOKButton)
+	[openPanel setCanChooseDirectories: YES];
+	[openPanel setCanCreateDirectories: YES];
+	[openPanel setCanChooseFiles: NO];
+	if([openPanel runModal] != NSOKButton)
 	{
 		return;
 	}
+	NSString* filename = [openPanel filename];
+	[filename retain];
+	[m_value release];
+	m_value = filename;
+}
+
+-(void)save
+{
+	CConfig::GetInstance().SetPreferenceString([m_preference UTF8String], [m_value UTF8String]);
 }
 
 @end

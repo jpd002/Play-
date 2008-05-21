@@ -26,6 +26,7 @@ static CVfsManagerController* g_sharedInstance = nil;
 
 -(void)OnOk: (id)sender
 {
+	[m_bindings save];
 	[[self window] close];
 }
 
@@ -45,6 +46,8 @@ static CVfsManagerController* g_sharedInstance = nil;
 -(void)windowWillClose: (NSNotification*)notification
 {
 	[NSApp stopModal];
+	[self release];
+	g_sharedInstance = nil;
 }
 
 @end
