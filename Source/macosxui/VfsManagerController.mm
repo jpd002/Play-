@@ -20,7 +20,6 @@ static CVfsManagerController* g_sharedInstance = nil;
 
 -(void)showManager
 {
-	[[self window] makeKeyAndOrderFront: nil];
 	[NSApp runModalForWindow: [self window]];
 }
 

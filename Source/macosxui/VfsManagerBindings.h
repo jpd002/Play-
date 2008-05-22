@@ -41,3 +41,17 @@
 -(void)save;
 
 @end
+
+@interface CVfsManagerCdrom0Binding : CVfsManagerBinding
+{
+	NSString*	m_value;
+}
+
+-(CVfsManagerCdrom0Binding*)init;
+-(NSString*)deviceName;
+-(NSString*)bindingType;
+-(NSString*)bindingValue;
+-(void)requestModification;
+-(void)save;
+
+@end

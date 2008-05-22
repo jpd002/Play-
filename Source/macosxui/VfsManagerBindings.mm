@@ -1,12 +1,19 @@
 #import "VfsManagerBindings.h"
 #import "../Config.h"
 
+#define PREFERENCE_CDROM0_PATH ("ps2.cdrom0.path")
+
 @implementation CVfsManagerBindings
 
 -(CVfsManagerBindings*)init
 {
 	CVfsManagerBindings* result = [super init];
 	m_bindings = [[NSMutableArray alloc] init];
+	{
+		NSObject* objectToAdd = [[CVfsManagerCdrom0Binding alloc] init];
+		[objectToAdd autorelease];
+		[m_bindings addObject: objectToAdd];
+	}
 	{
 		NSObject* objectToAdd = [[CVfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @"ps2.mc0.directory"];
 		[objectToAdd autorelease];
@@ -170,6 +177,65 @@
 -(void)save
 {
 	CConfig::GetInstance().SetPreferenceString([m_preference UTF8String], [m_value UTF8String]);
+}
+
+@end
+
+@implementation CVfsManagerCdrom0Binding
+
+-(CVfsManagerCdrom0Binding*)init
+{
+	CVfsManagerCdrom0Binding* result = [super init];
+	const char* preferenceValue = CConfig::GetInstance().GetPreferenceString(PREFERENCE_CDROM0_PATH);
+	if(preferenceValue == NULL)
+	{
+		m_value = @"";
+	}
+	else
+	{
+		m_value = [[NSString alloc] initWithCString: preferenceValue];
+	}
+	return result;
+}
+
+-(void)dealloc
+{
+	[m_value release];
+	[super dealloc];
+}
+
+-(NSString*)deviceName
+{
+	return @"cdrom0";
+}
+
+-(NSString*)bindingType
+{
+	return @"Disk Image";
+}
+
+-(NSString*)bindingValue
+{
+	return m_value;
+}
+
+-(void)requestModification
+{
+	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", nil];
+	if([openPanel runModalForTypes:fileTypes] != NSOKButton)
+	{
+		return;
+	}
+	NSString* filename = [openPanel filename];
+	[filename retain];
+	[m_value release];
+	m_value = filename;	
+}
+
+-(void)save
+{
+	CConfig::GetInstance().SetPreferenceString(PREFERENCE_CDROM0_PATH, [m_value UTF8String]);
 }
 
 @end
