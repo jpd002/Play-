@@ -141,7 +141,7 @@ bool CPH_HidMacOSX::TranslateKey(uint32 scanCode, uint32& gameKey)
 		return true;
 		break;
 	case kHIDUsage_KeyboardS:
-		gameKey = CPadListener::BUTTON_CROSS;
+		gameKey = CPadListener::BUTTON_TRIANGLE;
 		return true;
 		break;
 	case kHIDUsage_KeyboardX:
