@@ -115,6 +115,7 @@ public:
     void                                    AndEd(REGISTER, const CAddress&);
     void                                    AndIb(const CAddress&, uint8);
     void                                    AndId(const CAddress&, uint32);
+    void                                    BsrEd(REGISTER, const CAddress&);
     void                                    CallEd(const CAddress&);
     void                                    CmovsEd(REGISTER, const CAddress&);
     void                                    CmovnsEd(REGISTER, const CAddress&);
@@ -133,6 +134,7 @@ public:
     void                                    JmpJb(LABEL);
     void                                    JneJb(LABEL);
     void                                    JnoJb(LABEL);
+    void                                    JnsJb(LABEL);
     void                                    LeaGd(REGISTER, const CAddress&);
     void                                    MovEd(REGISTER, const CAddress&);
     void                                    MovEq(REGISTER, const CAddress&);
@@ -142,6 +144,7 @@ public:
     void                                    MovsxEw(REGISTER, const CAddress&);
     void                                    MovzxEb(REGISTER, const CAddress&);
     void                                    MulEd(const CAddress&);
+    void                                    NegEd(const CAddress&);
     void                                    Nop();
     void                                    NotEd(const CAddress&);
     void                                    OrEd(REGISTER, const CAddress&);

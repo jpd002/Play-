@@ -1424,88 +1424,45 @@ void CCodeGen::Lookup(uint32* table)
 
 void CCodeGen::Lzc()
 {
-    throw exception();
-/*
-	if(m_Shadow.GetAt(0) == VARIABLE)
-	{
-		uint32 nVariable;
-		unsigned int nRegister;
+    if(FitsPattern<SingleRelative>())
+    {
+        SingleRelative::PatternValue op = GetPattern<SingleRelative>();
 
-		m_Shadow.Pull();
-		nVariable = m_Shadow.Pull();
+        uint32 registerId = AllocateRegister();
+        LoadRelativeInRegister(registerId, op);
 
-		nRegister = AllocateRegister();
-		LoadVariableInRegister(nRegister, nVariable);
+        CX86Assembler::LABEL set32Label = m_Assembler.CreateLabel();
+        CX86Assembler::LABEL startCountLabel = m_Assembler.CreateLabel();
+        CX86Assembler::LABEL doneLabel = m_Assembler.CreateLabel();
 
-		//cmp reg, -1
-		m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]), 0xFF);
+        m_Assembler.CmpId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]), -1);
+        m_Assembler.JeJb(set32Label);
+        m_Assembler.TestEd(m_nRegisterLookupEx[registerId],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]));
+        m_Assembler.JeJb(set32Label);
+        m_Assembler.JnsJb(startCountLabel);
+        m_Assembler.NotEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]));
+        //startCount:
+        m_Assembler.MarkLabel(startCountLabel);
+        m_Assembler.BsrEd(m_nRegisterLookupEx[registerId],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]));
+        m_Assembler.NegEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]));
+        m_Assembler.AddId(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]), 0x1E);
+        m_Assembler.JmpJb(doneLabel);
+        //set32
+        m_Assembler.MarkLabel(set32Label);
+        m_Assembler.MovId(m_nRegisterLookupEx[registerId], 0x1F);
+        //done
+        m_Assembler.MarkLabel(doneLabel);
 
-		//je __set32 (+0x12)
-		m_pBlock->StreamWrite(2, 0x74, 0x12);
+        m_Assembler.ResolveLabelReferences();
 
-		//test reg, reg
-		m_pBlock->StreamWrite(2, 0x85, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-
-		//je __set32 (+0x0E)
-		m_pBlock->StreamWrite(2, 0x74, 0x0E);
-
-		//jns __countzero (+0x02)
-		m_pBlock->StreamWrite(2, 0x79, 0x02);
-
-		//__countone
-		//not reg
-		m_pBlock->StreamWrite(2, 0xF7, 0xC0 | (0x02 << 3) | (m_nRegisterLookup[nRegister]));
-
-		//__countzero
-		//bsr reg, reg
-		m_pBlock->StreamWrite(3, 0x0F, 0xBD, 0xC0 | (m_nRegisterLookup[nRegister] << 3) | (m_nRegisterLookup[nRegister]));
-
-		//neg reg
-		m_pBlock->StreamWrite(2, 0xF7, 0xC0 | (0x03 << 3) | (m_nRegisterLookup[nRegister]));
-
-		//add reg, 0x1E
-		m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x00 << 3) | (m_nRegisterLookup[nRegister]), 0x1E);
-
-		//jmp __done (+0x05)
-		m_pBlock->StreamWrite(2, 0xEB, 0x05);
-
-		//__set32
-		//mov reg, 0x1F
-		m_pBlock->StreamWrite(1, 0xB8 | (m_nRegisterLookup[nRegister]));
-		m_pBlock->StreamWriteWord(0x0000001F);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
-*/
-/*
-		__asm
-		{
-			mov ebx, 0;
-			cmp ebx, -1;
-			je _set32;
-			test ebx, ebx;
-			jz _set32;
-			jns _countzero;
-_countone:
-			not ebx;
-_countzero:
-			bsr ebx, ebx;
-			neg ebx;
-			add ebx, 30;
-			jmp _done;
-_set32:
-			mov ebx, 31
-_done:
-
-		}
-*/
-/*
-	}
-	else
-	{
-		assert(0);
-	}
-*/
+        PushReg(registerId);
+    }
+    else
+    {
+        throw exception();
+    }
 }
 
 void CCodeGen::Mult()
