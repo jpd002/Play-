@@ -2,6 +2,7 @@
 #define _CSH_OPENAL_H_
 
 #include <deque>
+#include <time.h>
 #include "Spu.h"
 #include "openal/Device.h"
 #include "openal/Context.h"
@@ -29,6 +30,8 @@ private:
 	OpenAl::CSource		m_source;
 
 	BufferList			m_availableBuffers;
+	clock_t				m_lastUpdateTime;
+	bool				m_mustSync;
 };
 
 #endif

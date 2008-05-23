@@ -6,6 +6,19 @@
 class CSpu
 {
 public:
+	struct CHANNEL
+	{
+		uint16 volumeLeft;
+		uint16 volumeRight;
+		uint16 pitch;
+		uint16 address;
+		uint16 adsrLevel;
+		uint16 adsrRate;
+		uint16 adsrVolume;
+		uint16 repeat;
+		uint16 status;
+	};
+
 				CSpu();
 	virtual		~CSpu();
 
@@ -13,6 +26,11 @@ public:
 
 	uint16		ReadRegister(uint32);
 	void		WriteRegister(uint32, uint16);
+
+	uint32		GetVoiceOn() const;
+	uint32		GetChannelOn() const;
+
+	CHANNEL&	GetChannel(unsigned int);
 
 	uint32		ReceiveDma(uint8*, uint32, uint32);
 
@@ -111,19 +129,6 @@ public:
 		KEY_ON = 1,
 	};
 
-	struct CHANNEL
-	{
-		uint16 volumeLeft;
-		uint16 volumeRight;
-		uint16 pitch;
-		uint16 address;
-		uint16 adsrLevel;
-		uint16 adsrRate;
-		uint16 adsrVolume;
-		uint16 repeat;
-		uint16 status;
-	};
-
 private:
 	class CSampleReader
 	{
@@ -144,11 +149,13 @@ private:
 		int16			GetSample(double);
 		double			GetNextTime() const;
 		double			GetBufferStep() const;
+		double			GetSamplingRate() const;
 
 		unsigned int	m_sourceSamplingRate;
 		uint8*			m_nextSample;
 		uint8*			m_repeat;
 		int16			m_buffer[BUFFER_SAMPLES];
+		uint16			m_pitch;
 		double			m_currentTime;
 		double			m_s1;
 		double			m_s2;
@@ -168,7 +175,9 @@ private:
 	uint16			m_status0;
 	uint16			m_status1;
 	uint16			m_voiceOn0;
+	uint16			m_voiceOn1;
 	uint16			m_channelOn0;
+	uint16			m_channelOn1;
 	uint8*			m_ram;
 	CHANNEL			m_channel[MAX_CHANNEL];
 	CSampleReader	m_reader[MAX_CHANNEL];

@@ -69,17 +69,35 @@ void CSpu::Reset()
 	m_status1 = 0;
 	m_bufferAddr = 0;
 	m_voiceOn0 = 0;
+	m_voiceOn1 = 0;
 	m_channelOn0 = 0;
+	m_channelOn1 = 0;
 
 	memset(m_channel, 0, sizeof(m_channel));
 	memset(m_ram, 0, RAMSIZE);
+}
+
+uint32 CSpu::GetVoiceOn() const
+{
+	return m_voiceOn0 | (m_voiceOn1 << 16);
+}
+
+uint32 CSpu::GetChannelOn() const
+{
+	return m_channelOn0 | (m_channelOn1 << 16);
+}
+
+CSpu::CHANNEL& CSpu::GetChannel(unsigned int channelNumber)
+{
+	return m_channel[channelNumber];
 }
 
 void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
 	memset(samples, 0, sizeof(int16) * sampleCount);
 	int16* bufferTemp = reinterpret_cast<int16*>(_alloca(sizeof(int16) * sampleCount));
-	for(unsigned int i = 0; i < 24; i++)
+//	for(unsigned int i = 0; i < 24; i++)
+	for(unsigned int i = 0; i < 1; i++)
 	{
 		CHANNEL& channel(m_channel[i]);
 		CSampleReader& reader(m_reader[i]);
@@ -94,12 +112,15 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			//Mix samples
 			for(unsigned int j = 0; j < sampleCount; j++)
 			{
-				//int32 resultSample = (static_cast<int32>(bufferTemp[i]) + static_cast<int32>(samples[i])) / 2;
-				int32 resultSample = static_cast<int32>(bufferTemp[i]);
+				int32 resultSample = static_cast<int32>(bufferTemp[j]) + static_cast<int32>(samples[j]);
 				resultSample = max<int32>(resultSample, SHRT_MIN);
 				resultSample = min<int32>(resultSample, SHRT_MAX);
-				samples[i] = static_cast<int16>(resultSample);
+				samples[j] = static_cast<int16>(resultSample);
 			}
+		}
+		else
+		{
+			channel.status = STOPPED;
 		}
 	}
 }
@@ -197,8 +218,10 @@ uint32 CSpu::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)
 	{
-		memcpy(m_ram + m_bufferAddr, buffer, blockSize);
+		uint32 copySize = min<uint32>(RAMSIZE - m_bufferAddr, blockSize);
+		memcpy(m_ram + m_bufferAddr, buffer, copySize);
 		m_bufferAddr += blockSize;
+		m_bufferAddr &= RAMSIZE - 1;
 		buffer += blockSize;
 		blocksTransfered++;
 	}
@@ -287,9 +310,11 @@ void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat, uint16 pitch)
 	m_currentTime = 0;
 	m_nextSample = address;
 	m_repeat = repeat;
-	m_sourceSamplingRate = 22100;
+	m_sourceSamplingRate = 22050;
 	m_s1 = 0;
 	m_s2 = 0;
+//	m_pitch = pitch;
+	m_pitch = 0;
 	UnpackSamples();
 }
 
@@ -313,7 +338,7 @@ void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, u
 int16 CSpu::CSampleReader::GetSample(double time)
 {
 	time -= m_currentTime;
-	double sample = time * static_cast<double>(m_sourceSamplingRate);
+	double sample = time * static_cast<double>(GetSamplingRate());
 	double sampleInt = 0;
 	double alpha = modf(sample, &sampleInt);
 	unsigned int sampleIndex = static_cast<int>(sampleInt);
@@ -392,9 +417,14 @@ void CSpu::CSampleReader::UnpackSamples()
 	}
 }
 
+double CSpu::CSampleReader::GetSamplingRate() const
+{
+	return m_sourceSamplingRate + m_pitch;
+}
+
 double CSpu::CSampleReader::GetBufferStep() const
 {
-	return static_cast<double>(BUFFER_SAMPLES) / static_cast<double>(m_sourceSamplingRate);
+	return static_cast<double>(BUFFER_SAMPLES) / static_cast<double>(GetSamplingRate());
 }
 
 double CSpu::CSampleReader::GetNextTime() const

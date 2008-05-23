@@ -118,7 +118,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer\Source"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_MSVC"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -136,7 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="comctl32.lib OpenAL32.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\libs\Win32&quot;;C:\Components\boost_1_35_0\stage\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -230,6 +233,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PlayerWnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PlayerWnd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PsfBase.cpp"
 				>
 			</File>
@@ -287,6 +298,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\Spu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SpuRegView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SpuRegView.h"
 				>
 			</File>
 		</Filter>
@@ -367,6 +386,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\MA_MIPSIV_Templates.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MailBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MailBox.h"
 				>
 			</File>
 			<File

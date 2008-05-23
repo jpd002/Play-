@@ -1,6 +1,8 @@
 #include "SH_OpenAL.h"
 #include "alloca_def.h"
 
+#define LOGGING
+
 ALCint g_attrList[] = 
 {
 	ALC_FREQUENCY,	44100,
@@ -8,7 +10,9 @@ ALCint g_attrList[] =
 };
 
 CSH_OpenAL::CSH_OpenAL() :
-m_context(m_device, g_attrList)
+m_context(m_device, g_attrList),
+m_lastUpdateTime(0),
+m_mustSync(true)
 {
 	m_context.MakeCurrent();
 	ALuint bufferNames[MAX_BUFFERS];
@@ -24,10 +28,27 @@ CSH_OpenAL::~CSH_OpenAL()
 
 void CSH_OpenAL::Update(CSpu& spu)
 {
-	const unsigned int sampleCount = 44100;
+	if(m_lastUpdateTime == 0)
+	{
+		m_lastUpdateTime = clock();
+		return;
+	}
+
+	const unsigned int bufferLength = 50;
+
+	clock_t currentTime = clock();
+	if((currentTime - m_lastUpdateTime) < (CLOCKS_PER_SEC * bufferLength) / 1000)
+	{
+		return;
+	}
+	m_lastUpdateTime = currentTime;
+
+	//Update bufferLength worth of samples
+
+	const unsigned int sampleCount = (44100 * bufferLength) / 1000;
 	const unsigned int sampleRate = 44100;
 	int16 samples[sampleCount];
-	spu.Render(samples, sampleCount, 44100);
+	spu.Render(samples, sampleCount, sampleRate);
 
 	if(m_availableBuffers.size())
 	{
@@ -35,8 +56,25 @@ void CSH_OpenAL::Update(CSpu& spu)
 		m_availableBuffers.pop_front();
 
 		alBufferData(buffer, AL_FORMAT_MONO16, samples, sampleCount * sizeof(int16), sampleRate);
+#ifdef LOGGING
+		FILE* log = fopen("log.raw", "ab");
+		fwrite(samples, sampleCount * sizeof(int16), 1, log);
+		fclose(log);
+#endif
 		alSourceQueueBuffers(m_source, 1, &buffer);
-		m_source.Play();
+		if(m_mustSync)
+		{
+			m_mustSync = false;
+		}
+		else
+		{
+			ALint sourceState;
+			alGetSourcei(m_source, AL_SOURCE_STATE, &sourceState);
+			if(sourceState != AL_PLAYING)
+			{
+				m_source.Play();
+			}
+		}
 	}
 
 	//Recycle buffers

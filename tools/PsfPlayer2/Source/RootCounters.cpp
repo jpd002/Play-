@@ -8,7 +8,8 @@
 using namespace Psx;
 using namespace std;
 
-CRootCounters::CRootCounters(CIntc& intc) :
+CRootCounters::CRootCounters(unsigned int clockFreq, CIntc& intc) :
+m_clockFreq(clockFreq),
 m_intc(intc)
 {
 	Reset();
@@ -22,16 +23,25 @@ CRootCounters::~CRootCounters()
 void CRootCounters::Reset()
 {
 	memset(&m_counter, 0, sizeof(m_counter));
+	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
+	{
+		m_counter[i].clockRatio = 8;
+	}
 }
 
-void CRootCounters::Update()
+void CRootCounters::Update(unsigned int ticks)
 {
 	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
 	{
 		COUNTER& counter = m_counter[i];
 		if(i == 2 && counter.mode.en) continue;
+		//Compute count increment
+		unsigned int totalTicks = counter.clockRemain + ticks;
+		unsigned int countAdd = totalTicks / counter.clockRatio;
+		counter.clockRemain = totalTicks % counter.clockRatio;
+		//Update count
 		uint32 counterMax = counter.mode.tar ? counter.target : 0xFFFF;
-		counter.count = static_cast<uint16>(min<uint32>(counter.count + 0x800, counterMax));
+		counter.count = static_cast<uint16>(min<uint32>(counter.count + countAdd, counterMax));
 		if(counter.count == counter.target)
 		{
 			if(counter.mode.iq1 && counter.mode.iq2)
@@ -74,16 +84,17 @@ void CRootCounters::WriteRegister(uint32 address, uint32 value)
 	unsigned int counterId = (address - CNT0_BASE) / 0x10;
 	unsigned int registerId = address & 0x0F;
 	assert(counterId < MAX_COUNTERS);
+	COUNTER& counter = m_counter[counterId];
 	switch(registerId)
 	{
 	case CNT_COUNT:
-		m_counter[counterId].count = static_cast<uint16>(value);
+		counter.count = static_cast<uint16>(value);
 		break;
 	case CNT_MODE:
-		m_counter[counterId].mode <<= value;
+		counter.mode <<= value;
 		break;
 	case CNT_TARGET:
-		m_counter[counterId].target = static_cast<uint16>(value);
+		counter.target = static_cast<uint16>(value);
 		break;
 	}
 }

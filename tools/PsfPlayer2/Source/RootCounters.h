@@ -12,11 +12,11 @@ namespace Psx
 	class CRootCounters
 	{
 	public:
-					CRootCounters(CIntc&);
+					CRootCounters(unsigned int, CIntc&);
 		virtual		~CRootCounters();
 
 		void		Reset();
-		void		Update();
+		void		Update(unsigned int);
 
 		uint32		ReadRegister(uint32);
 		void		WriteRegister(uint32, uint32);
@@ -65,16 +65,19 @@ namespace Psx
 	
 		struct COUNTER
 		{
-			uint16		count;
-			MODE		mode;
-			uint16		target;
+			uint16			count;
+			MODE			mode;
+			uint16			target;
+			unsigned int	clockRatio;
+			unsigned int	clockRemain;
 		};
 
-		void		DisassembleRead(uint32);
-		void		DisassembleWrite(uint32, uint32);
+		void			DisassembleRead(uint32);
+		void			DisassembleWrite(uint32, uint32);
 
-		COUNTER		m_counter[MAX_COUNTERS];
-		CIntc&		m_intc;
+		COUNTER			m_counter[MAX_COUNTERS];
+		CIntc&			m_intc;
+		unsigned int	m_clockFreq;
 	};
 }
 

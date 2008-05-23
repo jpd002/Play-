@@ -34,6 +34,7 @@ CRegViewPage::~CRegViewPage()
 void CRegViewPage::SetDisplayText(const char* sText)
 {
 	m_sText = sText;
+	UpdateScroll();
 }
 
 void CRegViewPage::Update()

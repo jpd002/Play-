@@ -11,6 +11,9 @@ using namespace std::tr1;
 using namespace boost;
 using namespace Psx;
 
+#define CLOCK_FREQ		(44100 * 256 * 3)		//~33.8MHz
+#define FRAMES_PER_SEC	(60)
+
 CPsxVm::CPsxVm() :
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
 m_executor(m_cpu),
@@ -19,7 +22,7 @@ m_status(PAUSED),
 m_singleStep(false),
 m_ram(new uint8[RAMSIZE]),
 m_dmac(m_ram, m_intc),
-m_counters(m_intc),
+m_counters(CLOCK_FREQ, m_intc),
 m_thread(bind(&CPsxVm::ThreadProc, this))
 {
 	//Read memory map
@@ -133,6 +136,11 @@ CVirtualMachine::STATUS CPsxVm::GetStatus() const
 
 void CPsxVm::Pause()
 {
+	m_mailBox.SendCall(bind(&CPsxVm::PauseImpl, this), true);
+}
+
+void CPsxVm::PauseImpl()
+{
 	m_status = PAUSED;
 	m_OnRunningStateChange();
 	m_OnMachineStateChange();
@@ -149,6 +157,11 @@ CMIPS& CPsxVm::GetCpu()
 	return m_cpu;
 }
 
+CSpu& CPsxVm::GetSpu()
+{
+	return m_spu;
+}
+
 void CPsxVm::Step()
 {
 	m_singleStep = true;
@@ -156,8 +169,9 @@ void CPsxVm::Step()
 	m_OnRunningStateChange();
 }
 
-void CPsxVm::ExecuteCpu(bool singleStep)
+unsigned int CPsxVm::ExecuteCpu(bool singleStep)
 {
+	int ticks = 0;
     if(!m_cpu.m_State.nHasException)
     {
 		if(m_intc.IsInterruptPending())
@@ -167,20 +181,39 @@ void CPsxVm::ExecuteCpu(bool singleStep)
     }
 	if(!m_cpu.m_State.nHasException)
 	{
-		m_executor.Execute(singleStep ? 1 : 5000);
-		m_counters.Update();
+		int quota = singleStep ? 1 : 5000;
+		ticks = quota - m_executor.Execute(quota);
+		assert(ticks >= 0);
+        {
+            CBasicBlock* nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
+            if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+            {
+				//Go a little bit faster if we're "stuck"
+				ticks += 10000;
+            }
+        }
+		if(ticks > 0)
+		{
+			m_counters.Update(ticks);
+		}
 	}
 	if(m_cpu.m_State.nHasException)
 	{
 		m_bios.HandleException();
 	}
+	return ticks;
 }
 
 void CPsxVm::ThreadProc()
 {
-	time_t lastTime = 0;
+	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
+	clock_t frameClock = (CLOCKS_PER_SEC / FRAMES_PER_SEC);
 	while(1)
 	{
+		while(m_mailBox.IsPending())
+		{
+			m_mailBox.ReceiveCall();
+		}
 		if(m_status == PAUSED)
 		{
             //Sleep during 100ms
@@ -191,13 +224,29 @@ void CPsxVm::ThreadProc()
 		}
 		else
 		{
-			ExecuteCpu(m_singleStep);
-			time_t currentTime = time(NULL);
-			if(currentTime - lastTime > 2)
+			int ticks = ExecuteCpu(m_singleStep);
+
+			static int frameCounter = frameTicks;
+			static clock_t nextTime = clock() + frameClock;
+
+			frameCounter -= ticks;
+			if(frameCounter <= 0)
 			{
-				m_spuHandler.Update(m_spu);
-				lastTime = currentTime;
+				OnNewFrame();
+				frameCounter += frameTicks;
+				clock_t currentTime = clock();
+				int delay = nextTime - currentTime;
+				if(delay > 0)
+				{
+					xtime xt;
+					xtime_get(&xt, boost::TIME_UTC);
+					xt.nsec += delay * 1000000;
+					thread::sleep(xt);
+				}
+				nextTime = clock() + frameClock;
 			}
+
+			m_spuHandler.Update(m_spu);
 			if(m_executor.MustBreak() || m_singleStep)
 			{
 				m_status = PAUSED;

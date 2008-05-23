@@ -10,8 +10,10 @@
 #include "Intc.h"
 #include "RootCounters.h"
 #include "VirtualMachine.h"
+#include "MailBox.h"
 #include "MipsExecutor.h"
 #include <boost/thread.hpp>
+#include <boost/signal.hpp>
 
 class CPsxVm : public CVirtualMachine
 {
@@ -24,10 +26,13 @@ public:
 	void				Step();
 
 	CMIPS&				GetCpu();
+	CSpu&				GetSpu();
 
 	virtual STATUS		GetStatus() const;
     virtual void		Pause();
     virtual void		Resume();
+
+	boost::signal<void ()> OnNewFrame;
 
 private:
 	struct EXEHEADER
@@ -66,8 +71,10 @@ private:
 	uint32				ReadIoRegister(uint32);
 	uint32				WriteIoRegister(uint32, uint32);
 
-	void				ExecuteCpu(bool);
+	unsigned int		ExecuteCpu(bool);
 	void				ThreadProc();
+
+	void				PauseImpl();
 
 	STATUS				m_status;
 	uint8*				m_ram;
@@ -81,6 +88,7 @@ private:
 	CSH_OpenAL			m_spuHandler;
 	boost::thread		m_thread;
 	bool				m_singleStep;
+	CMailBox			m_mailBox;
 };
 
 #endif

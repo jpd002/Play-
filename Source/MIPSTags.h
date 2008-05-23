@@ -11,7 +11,6 @@ class CMIPSTags
 public:
 	typedef std::map<uint32, std::string>	TagMap;
 	typedef TagMap::const_iterator			TagIterator;
-    typedef boost::function<void ()>        TagListChangedHandler;
 
     boost::signal<void ()>                  m_OnTagListChanged;
 
