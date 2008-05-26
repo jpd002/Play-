@@ -99,6 +99,7 @@ private:
 		uint32									nStackSize;
 		uint32									nGP;
 		uint32									nPriority;
+        uint32                                  nCurrentPriority;
 	};
 
 	struct SEMAPHORE

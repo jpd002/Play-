@@ -301,21 +301,21 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 //	pELF = new CELF(pStream);
 //	memcpy(m_ram + 0x01000000, pELF->m_pData, pELF->m_nLenght);
 //	delete pELF;
-/*
-	int i;
-	uint32 nVal;
-	for(i = 0; i < 0x02000000 / 4; i++)
-	{
-		nVal = ((uint32*)m_ram)[i];
-		if((nVal & 0xFFFF) == 0x95B0)
-		{
-			//if((nVal & 0xFC000000) != 0x0C000000)
-			{
-				printf("Allo: 0x%0.8X\r\n", i * 4);
-			}
-		}
-	}
-*/
+
+//	int i;
+//	uint32 nVal;
+//	for(i = 0; i < 0x02000000 / 4; i++)
+//	{
+//		nVal = ((uint32*)m_ram)[i];
+//		if((nVal & 0xFFFF) == 0xE88C)
+//		{
+//			//if((nVal & 0xFC000000) != 0x0C000000)
+//			{
+//				printf("Allo: 0x%0.8X\r\n", i * 4);
+//			}
+//		}
+//	}
+
 /*
 	int i;
 	uint32 nVal;
@@ -1447,7 +1447,9 @@ void CPS2OS::sc_CreateThread()
 	pThread = GetThread(GetCurrentThreadId());
 	nHeapBase = pThread->nHeapBase;
 
-	pThread = GetThread(nID);
+    assert(pThreadParam->nPriority < 128);
+
+    pThread = GetThread(nID);
 	pThread->nValid			= 1;
 	pThread->nStatus		= THREAD_SUSPENDED;
 	pThread->nStackBase		= pThreadParam->nStackBase;
@@ -1670,13 +1672,13 @@ void CPS2OS::sc_ReferThreadStatus()
 
 	if(nStatusPtr != 0)
 	{
-		THREADPARAM* pThreadParam;
+		THREADPARAM* pThreadParam = reinterpret_cast<THREADPARAM*>(&m_ram[nStatusPtr]);
 
-		pThreadParam = (THREADPARAM*)(&m_ram[nStatusPtr]);
-		pThreadParam->nStatus		= nRet;
-		pThreadParam->nPriority		= pThread->nPriority;
-		pThreadParam->nStackBase	= pThread->nStackBase;
-		pThreadParam->nStackSize	= pThread->nStackSize;
+		pThreadParam->nStatus           = nRet;
+		pThreadParam->nPriority         = pThread->nPriority;
+        pThreadParam->nCurrentPriority  = pThread->nPriority;
+		pThreadParam->nStackBase        = pThread->nStackBase;
+		pThreadParam->nStackSize        = pThread->nStackSize;
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nRet;
@@ -2256,7 +2258,7 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 
 	if(sDescription.length() != 0)
 	{
-        CLog::GetInstance().Print(LOG_NAME, "%s\r\n", sDescription.c_str());
+        CLog::GetInstance().Print(LOG_NAME, "%i: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
 	}
 #endif
 }

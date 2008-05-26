@@ -285,6 +285,9 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		CLog::GetInstance().Print(LOG_NAME, "StreamSeek(pos = 0x%0.8X);\r\n", \
 			nSector);
 		break;
+    default:
+        CLog::GetInstance().Print(LOG_NAME, "Unknown stream command used.\r\n");
+        break;
 	}
 }
 

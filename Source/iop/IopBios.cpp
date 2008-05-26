@@ -11,6 +11,8 @@
 #include "Iop_Thevent.h"
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
+#include "Iop_Unknown.h"
+#include "Iop_Unknown2.h"
 #include <vector>
 #include <time.h>
 
@@ -107,6 +109,14 @@ void CIopBios::Reset()
     {
         m_padman = new Iop::CPadMan(m_sif);
         RegisterModule(m_padman);
+    }
+
+    //Custom modules
+    {
+        RegisterModule(new Iop::CUnknown(m_sif));
+    }
+    {
+        RegisterModule(new Iop::CUnknown2(m_sif));
     }
 
     const int sifDmaBufferSize = 0x1000;
