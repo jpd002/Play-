@@ -525,19 +525,14 @@ void VUShared::RSQRT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 
     codeGen->FP_PullSingle(destination);
 }
 
-void VUShared::RXOR(CCodeGen* codeGen, CMIPS* pCtx, uint8 nFs, uint8 nFsf)
+void VUShared::RXOR(CCodeGen* codeGen, uint8 nFs, uint8 nFsf)
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(pB);
-	//{
-	//	CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[nFsf]));
-	//	CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2R));
-	//	CCodeGen::Xor();
-	//	CCodeGen::PushCst(0x007FFFFF);
-	//	CCodeGen::And();
-	//	CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2R));
-	//}
-	//CCodeGen::End();
+    codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[nFsf]));
+    codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
+    codeGen->Xor();
+    codeGen->PushCst(0x007FFFFF);
+    codeGen->And();
+    codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 }
 
 void VUShared::SQRT(CCodeGen* codeGen, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)

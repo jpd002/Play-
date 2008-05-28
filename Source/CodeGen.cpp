@@ -1178,6 +1178,10 @@ void CCodeGen::Cmp(CONDITION nCondition)
             //setb res[l]
             m_Assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
             break;
+        case CONDITION_GT:
+            //setgt res[l]
+            m_Assembler.SetgEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+            break;
         default:
             throw exception();
             break;
@@ -1200,6 +1204,19 @@ void CCodeGen::Cmp(CONDITION nCondition)
 
         LoadConstantInRegister(register1, ops.first);
         LoadRelativeInRegister(register2, ops.second);
+
+        PushReg(register1);
+        PushReg(register2);
+
+        Cmp(nCondition);
+    }
+    else if(FitsPattern<RegisterConstant>())
+    {
+        RegisterConstant::PatternValue ops = GetPattern<RegisterConstant>();
+        unsigned int register1 = ops.first;
+        unsigned int register2 = AllocateRegister();
+
+        LoadConstantInRegister(register2, ops.second);
 
         PushReg(register1);
         PushReg(register2);

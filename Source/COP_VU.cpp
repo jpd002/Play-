@@ -388,8 +388,7 @@ void CCOP_VU::VRSQRT()
 //10
 void CCOP_VU::VRINIT()
 {
-    throw runtime_error("Reimplement.");
-//	VUShared::RINIT(m_pB, m_pCtx, m_nFS, m_nFSF);
+    VUShared::RINIT(m_codeGen, m_nFS, m_nFSF);
 }
 
 //////////////////////////////////////////////////
@@ -411,8 +410,7 @@ void CCOP_VU::VWAITQ()
 //10
 void CCOP_VU::VRXOR()
 {
-    throw runtime_error("Reimplement.");
-//	VUShared::RXOR(m_pB, m_pCtx, m_nFS, m_nFSF);
+    VUShared::RXOR(m_codeGen, m_nFS, m_nFSF);
 }
 
 //////////////////////////////////////////////////

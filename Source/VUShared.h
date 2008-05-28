@@ -71,7 +71,7 @@ namespace VUShared
 	void				OPMULA(CCodeGen*, uint8, uint8);
 	void				RINIT(CCodeGen*, uint8, uint8);
 	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
-	void				RXOR(CCodeGen*, CMIPS*, uint8, uint8);
+	void				RXOR(CCodeGen*, uint8, uint8);
 	void				SQRT(CCodeGen*, uint8, uint8, uint32, unsigned int);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);

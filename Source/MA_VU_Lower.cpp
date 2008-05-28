@@ -285,23 +285,16 @@ void CMA_VU::CLower::B()
 //25
 void CMA_VU::CLower::JALR()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	//Save PC
-	//	CCodeGen::PushRel(offsetof(CMIPS, m_State.nPC));
-	//	CCodeGen::PushCst(0x0C);
-	//	CCodeGen::Add();
-	//	CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+    //Save PC
+    m_codeGen->PushCst(m_nAddress + 0x0C);
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 
-	//	//Compute new PC
-	//	CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	//	//Decomment -> CCodeGen::Shl(3);
-	//	CCodeGen::PushCst(0x4000);
-	//	CCodeGen::Add();
-	//	CCodeGen::PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-	//}
-	//CCodeGen::End();
+    //Compute new PC
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->Shl(3);
+    m_codeGen->PushCst(0x4000);
+    m_codeGen->Add();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 }
 
 //28
@@ -343,53 +336,41 @@ void CMA_VU::CLower::IBNE()
 //2C
 void CMA_VU::CLower::IBLTZ()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	CCodeGen::PushVar(&m_pCtx->m_State.nCOP2VI[m_nIS]);
-	//	CCodeGen::PushCst(0x8000);
-	//	CCodeGen::And();
-	//	
-	//	CCodeGen::PushCst(0);
-	//	CCodeGen::Cmp(CCodeGen::CONDITION_EQ);
+    //TODO: Merge IBLTZ and IBGEZ
+    m_codeGen->PushCst(0);
+    
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushCst(0x8000);
+    m_codeGen->And();
 
-	//	SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
-	//}
-	//CCodeGen::End();
+    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+
+    SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2D
 void CMA_VU::CLower::IBGTZ()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	//	CCodeGen::SeX16();
+    //TODO: Merge IBGTZ and IBLEZ
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->SeX16();
 
-	//	CCodeGen::PushCst(0);
-	//	CCodeGen::Cmp(CCodeGen::CONDITION_GT);
-	//
-	//	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
-	//}
-	//CCodeGen::End();
+    m_codeGen->PushCst(0);
+    m_codeGen->Cmp(CCodeGen::CONDITION_GT);
+
+    SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2E
 void CMA_VU::CLower::IBLEZ()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	//	CCodeGen::SeX16();
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->SeX16();
 
-	//	CCodeGen::PushCst(0);
-	//	CCodeGen::Cmp(CCodeGen::CONDITION_LE);
-	//
-	//	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
-	//}
-	//CCodeGen::End();
+    m_codeGen->PushCst(0);
+    m_codeGen->Cmp(CCodeGen::CONDITION_GT);
+
+    SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2F
@@ -668,23 +649,18 @@ void CMA_VU::CLower::RGET()
 //0F
 void CMA_VU::CLower::ILWR()
 {
-    throw runtime_error("Reimplement.");
-	//CCodeGen::Begin(m_pB);
-	//{
-	//	Push context
-	//	CCodeGen::PushRef(m_pCtx);
+    //Push context
+    m_codeGen->PushRef(m_pCtx);
 
-	//	Compute Address
-	//	CCodeGen::PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	//	Decomment -> CCodeGen::Shl(4);
-	//	CCodeGen::PushCst(GetDestOffset(m_nDest));
-	//	CCodeGen::Add();
+    //Compute Address
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->Shl(4);
+    m_codeGen->PushCst(GetDestOffset(m_nDest));
+    m_codeGen->Add();
 
-	//	CCodeGen::Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
-	//	CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	//}
-	//CCodeGen::End();
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //10

@@ -164,6 +164,7 @@ public:
     void                                    SeteEb(const CAddress&);
     void                                    SetneEb(const CAddress&);
     void                                    SetlEb(const CAddress&);
+    void                                    SetgEb(const CAddress&);
     void                                    ShrEd(const CAddress&);
     void                                    ShrEd(const CAddress&, uint8);
     void                                    ShrdEd(const CAddress&, REGISTER);
