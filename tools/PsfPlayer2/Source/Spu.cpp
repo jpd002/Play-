@@ -56,6 +56,32 @@ CSpu::CSpu() :
 m_ram(new uint8[RAMSIZE])
 {
 	Reset();
+
+	//Init log table for ADSR
+	memset(m_adsrLogTable, 0, sizeof(m_adsrLogTable));
+
+	uint32 value = 3;
+	uint32 columnIncrement = 1;
+	uint32 column = 0;
+
+	for(unsigned int i = 32; i < 160; i++)
+	{
+		if(value < 0x3FFFFFFF)
+		{
+			value += columnIncrement;
+			column++;
+			if(column == 5)
+			{
+				column = 1;
+				columnIncrement *= 2;
+			}
+		}
+		else
+		{
+			value = 0x3FFFFFFF;
+		}
+		m_adsrLogTable[i] = value;
+	}
 }
 
 CSpu::~CSpu()
@@ -96,31 +122,33 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 {
 	memset(samples, 0, sizeof(int16) * sampleCount);
 	int16* bufferTemp = reinterpret_cast<int16*>(_alloca(sizeof(int16) * sampleCount));
-//	for(unsigned int i = 0; i < 24; i++)
-	for(unsigned int i = 0; i < 1; i++)
+	for(unsigned int i = 0; i < 24; i++)
+//	for(unsigned int i = 1; i < 2; i++)
 	{
 		CHANNEL& channel(m_channel[i]);
 		CSampleReader& reader(m_reader[i]);
-		if(m_voiceOn0 & (1 << i))
+		if(channel.status != STOPPED)
 		{
-			if(channel.status == STOPPED)
+			if(channel.status == KEY_ON)
 			{
-				reader.SetParams(m_ram + (channel.address * 8), m_ram + (channel.repeat * 8), channel.pitch);
-				channel.status = KEY_ON;
+				reader.SetParams(m_ram + (channel.address * 8), m_ram + (channel.repeat * 8));
+				channel.status = ATTACK;
 			}
+			reader.SetPitch(channel.pitch);
 			reader.GetSamples(bufferTemp, sampleCount, sampleRate);
 			//Mix samples
 			for(unsigned int j = 0; j < sampleCount; j++)
 			{
+				if(channel.status == STOPPED) break;
+				if(channel.status == RELEASE)
+				{
+					channel.status = STOPPED;					
+				}
 				int32 resultSample = static_cast<int32>(bufferTemp[j]) + static_cast<int32>(samples[j]);
 				resultSample = max<int32>(resultSample, SHRT_MIN);
 				resultSample = min<int32>(resultSample, SHRT_MAX);
 				samples[j] = static_cast<int16>(resultSample);
 			}
-		}
-		else
-		{
-			channel.status = STOPPED;
 		}
 	}
 }
@@ -130,17 +158,31 @@ uint16 CSpu::ReadRegister(uint32 address)
 #ifdef _DEBUG
 	DisassembleRead(address);
 #endif
-	switch(address)
+	if(address >= SPU_GENERAL_BASE)
 	{
-	case SPU_CTRL0:
-		return m_ctrl;
-		break;
-	case SPU_STATUS0:
-		return m_status0;
-		break;
-	case BUFFER_ADDR:
-		return static_cast<int16>(m_bufferAddr / 8);
-		break;
+		switch(address)
+		{
+		case SPU_CTRL0:
+			return m_ctrl;
+			break;
+		case SPU_STATUS0:
+			return m_status0;
+			break;
+		case BUFFER_ADDR:
+			return static_cast<int16>(m_bufferAddr / 8);
+			break;
+		}
+	}
+	else
+	{
+		unsigned int channel = (address - SPU_BEGIN) / 0x10;
+		unsigned int registerId = address & 0x0F;
+		switch(registerId)
+		{
+		case CH_ADSR_VOLUME:
+			return static_cast<uint16>(m_channel[channel].adsrVolume >> 16);
+			break;
+		}
 	}
 	return 0;
 }
@@ -166,10 +208,16 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			m_bufferAddr += 2;
 			break;
 		case VOICE_ON_0:
-			m_voiceOn0 = value;
+			SendKeyOn(value);
+			break;
+		case VOICE_ON_1:
+			SendKeyOn(value << 16);
 			break;
 		case VOICE_OFF_0:
-			m_voiceOn0 &= ~value;
+			SendKeyOff(value);
+			break;
+		case VOICE_OFF_1:
+			SendKeyOff(value << 16);
 			break;
 		case CHANNEL_ON_0:
 			m_channelOn0 = value;
@@ -198,13 +246,10 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			m_channel[channel].address = value;
 			break;
 		case CH_ADSR_LEVEL:
-			m_channel[channel].adsrLevel = value;
+			m_channel[channel].adsrLevel <<= value;
 			break;
 		case CH_ADSR_RATE:
-			m_channel[channel].adsrRate = value;
-			break;
-		case CH_ADSR_VOLUME:
-			m_channel[channel].adsrVolume = value;
+			m_channel[channel].adsrRate <<= value;
 			break;
 		case CH_REPEAT:
 			m_channel[channel].repeat = value;
@@ -226,6 +271,38 @@ uint32 CSpu::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 		blocksTransfered++;
 	}
 	return blocksTransfered;
+}
+
+void CSpu::SendKeyOn(uint32 channels)
+{
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		CHANNEL& channel = m_channel[i];
+		if(channels & (1 << i))
+		{
+			channel.status = KEY_ON;
+		}
+	}
+}
+
+void CSpu::SendKeyOff(uint32 channels)
+{
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		CHANNEL& channel = m_channel[i];
+		if(channels & (1 << i))
+		{
+			if(channel.status == STOPPED) continue;
+			if(channel.status == KEY_ON)
+			{
+				channel.status = STOPPED;
+			}
+			else
+			{
+				channel.status = RELEASE;
+			}
+		}
+	}
 }
 
 void CSpu::DisassembleRead(uint32 address)
@@ -298,6 +375,7 @@ CSpu::CSampleReader::CSampleReader() :
 m_nextSample(NULL)
 {
 	m_done = false;
+	m_nextValid = false;
 }
 
 CSpu::CSampleReader::~CSampleReader()
@@ -305,17 +383,24 @@ CSpu::CSampleReader::~CSampleReader()
 
 }
 
-void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat, uint16 pitch)
+void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat)
 {
 	m_currentTime = 0;
 	m_nextSample = address;
 	m_repeat = repeat;
-	m_sourceSamplingRate = 22050;
 	m_s1 = 0;
 	m_s2 = 0;
 //	m_pitch = pitch;
-	m_pitch = 0;
-	UnpackSamples();
+//	m_pitch = 0;
+	m_nextValid = false;
+	AdvanceBuffer();
+}
+
+void CSpu::CSampleReader::SetPitch(uint16 pitch)
+{
+//	pitch = 0x2000;
+//	m_sourceSamplingRate = 44100 * (pitch & 0x3FFF) / 0x4000;
+	m_sourceSamplingRate = 44100 * pitch / 4096;
 }
 
 void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)
@@ -325,11 +410,6 @@ void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, u
 	double dstTimeDelta = 1.0 / static_cast<double>(destSamplingRate);
 	for(unsigned int i = 0; i < sampleCount; i++)
 	{
-		while(currentDstTime > GetNextTime())
-		{
-			UnpackSamples();
-			m_currentTime += GetBufferStep();
-		}
 		samples[i] = GetSample(currentDstTime);
 		currentDstTime += dstTimeDelta;
 	}
@@ -342,19 +422,35 @@ int16 CSpu::CSampleReader::GetSample(double time)
 	double sampleInt = 0;
 	double alpha = modf(sample, &sampleInt);
 	unsigned int sampleIndex = static_cast<int>(sampleInt);
-	assert(sampleIndex < BUFFER_SAMPLES);
-	if(sampleIndex == BUFFER_SAMPLES - 1)
-	{
-		return m_buffer[sampleIndex];
-	}
 	int16 currentSample = m_buffer[sampleIndex];
 	int16 nextSample = m_buffer[sampleIndex + 1];
 	double resultSample = 
 		(static_cast<double>(currentSample) * (1 - alpha)) + (static_cast<double>(nextSample) * alpha);
+	if(sampleIndex >= BUFFER_SAMPLES)
+	{
+		AdvanceBuffer();
+	}
 	return static_cast<int16>(resultSample);
 }
 
-void CSpu::CSampleReader::UnpackSamples()
+void CSpu::CSampleReader::AdvanceBuffer()
+{
+	if(m_nextValid)
+	{
+		memmove(m_buffer, m_buffer + BUFFER_SAMPLES, sizeof(int16) * BUFFER_SAMPLES);
+		UnpackSamples(m_buffer + BUFFER_SAMPLES);
+		m_currentTime += GetBufferStep();
+	}
+	else
+	{
+		assert(m_currentTime == 0);
+		UnpackSamples(m_buffer);
+		UnpackSamples(m_buffer + BUFFER_SAMPLES);
+		m_nextValid = true;
+	}
+}
+
+void CSpu::CSampleReader::UnpackSamples(int16* dst)
 {
 	double workBuffer[28];
 
@@ -403,7 +499,7 @@ void CSpu::CSampleReader::UnpackSamples()
 				m_s2 * predictorTable[predictNumber][1];
 			m_s2 = m_s1;
 			m_s1 = workBuffer[i];
-			m_buffer[i] = static_cast<int16>(workBuffer[i] + 0.5);
+			dst[i] = static_cast<int16>(workBuffer[i] + 0.5);
 		}
 	}
 
@@ -419,7 +515,7 @@ void CSpu::CSampleReader::UnpackSamples()
 
 double CSpu::CSampleReader::GetSamplingRate() const
 {
-	return m_sourceSamplingRate + m_pitch;
+	return m_sourceSamplingRate;
 }
 
 double CSpu::CSampleReader::GetBufferStep() const

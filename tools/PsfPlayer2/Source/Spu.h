@@ -2,21 +2,43 @@
 #define _SPU_H_
 
 #include "Types.h"
+#include "convertible.h"
+#include <boost/static_assert.hpp>
 
 class CSpu
 {
 public:
+	struct ADSR_LEVEL : public convertible<uint16>
+	{
+		unsigned int	sustainLevel	: 4;
+		unsigned int	decayRate		: 4;
+		unsigned int	attackRate		: 7;
+		unsigned int	attackMode		: 1;
+	};
+	BOOST_STATIC_ASSERT(sizeof(ADSR_LEVEL) >= sizeof(uint16));
+
+	struct ADSR_RATE : public convertible<uint16>
+	{
+		unsigned int	releaseRate			: 5;
+		unsigned int	releaseMode			: 1;
+		unsigned int	sustainRate			: 7;
+		unsigned int	reserved0			: 1;
+		unsigned int	sustainDirection	: 1;
+		unsigned int	sustainMode			: 1;
+	};
+	BOOST_STATIC_ASSERT(sizeof(ADSR_RATE) >= sizeof(uint16));
+
 	struct CHANNEL
 	{
-		uint16 volumeLeft;
-		uint16 volumeRight;
-		uint16 pitch;
-		uint16 address;
-		uint16 adsrLevel;
-		uint16 adsrRate;
-		uint16 adsrVolume;
-		uint16 repeat;
-		uint16 status;
+		uint16		volumeLeft;
+		uint16		volumeRight;
+		uint16		pitch;
+		uint16		address;
+		ADSR_LEVEL	adsrLevel;
+		ADSR_RATE	adsrRate;
+		int32		adsrVolume;
+		uint16		repeat;
+		uint16		status;
 	};
 
 				CSpu();
@@ -127,6 +149,10 @@ public:
 	{
 		STOPPED = 0,
 		KEY_ON = 1,
+		ATTACK,
+		DECAY,
+		SUSTAIN,
+		RELEASE,
 	};
 
 private:
@@ -136,7 +162,8 @@ private:
 						CSampleReader();
 		virtual			~CSampleReader();
 
-		void			SetParams(uint8*, uint8*, uint16);
+		void			SetParams(uint8*, uint8*);
+		void			SetPitch(uint16);
 		void			GetSamples(int16*, unsigned int, unsigned int);
 
 	private:
@@ -145,7 +172,8 @@ private:
 			BUFFER_SAMPLES = 28,
 		};
 
-		void			UnpackSamples();
+		void			UnpackSamples(int16*);
+		void			AdvanceBuffer();
 		int16			GetSample(double);
 		double			GetNextTime() const;
 		double			GetBufferStep() const;
@@ -154,18 +182,22 @@ private:
 		unsigned int	m_sourceSamplingRate;
 		uint8*			m_nextSample;
 		uint8*			m_repeat;
-		int16			m_buffer[BUFFER_SAMPLES];
+		int16			m_buffer[BUFFER_SAMPLES * 2];
 		uint16			m_pitch;
 		double			m_currentTime;
 		double			m_s1;
 		double			m_s2;
 		bool			m_done;
+		bool			m_nextValid;
 	};
 
 	enum
 	{
 		RAMSIZE = 0x80000
 	};
+
+	void			SendKeyOn(uint32);
+	void			SendKeyOff(uint32);
 
 	void			DisassembleRead(uint32);
 	void			DisassembleWrite(uint32, uint16);
@@ -181,6 +213,8 @@ private:
 	uint8*			m_ram;
 	CHANNEL			m_channel[MAX_CHANNEL];
 	CSampleReader	m_reader[MAX_CHANNEL];
+
+	uint32			m_adsrLogTable[160];
 };
 
 #endif

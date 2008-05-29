@@ -13,9 +13,11 @@ public:
 
 protected:
 	long			OnSize(unsigned int, unsigned int, unsigned int);
+	long			OnCommand(unsigned short, unsigned short, HWND);
 	long			OnTimer();
 
 private:
+	void			Load(const char*);
 	void			OnNewFrame();
 
 	CPsxVm&			m_virtualMachine;

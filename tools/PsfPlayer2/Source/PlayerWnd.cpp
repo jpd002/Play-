@@ -1,5 +1,11 @@
 #include "PlayerWnd.h"
+#include "StdStream.h"
+#include "PsfBase.h"
 #include "win32/Rect.h"
+#include "win32/FileDialog.h"
+#include "string_cast.h"
+#include "resource.h"
+#include <afxres.h>
 #include <functional>
 
 #define CLSNAME		_T("PlayerWnd")
@@ -7,19 +13,23 @@
 #define WNDSTYLEEX	(0)
 
 using namespace Framework;
+using namespace std;
 using namespace std::tr1;
 
 CPlayerWnd::CPlayerWnd(CPsxVm& virtualMachine) :
 m_virtualMachine(virtualMachine),
-m_frames(0)
+m_frames(0),
+m_regView(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
-    Create(WNDSTYLEEX, CLSNAME, _T("PsfPlayer"), WNDSTYLE, Win32::CRect(0, 0, 470, 550), NULL, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("PsfPlayer"), WNDSTYLE, Win32::CRect(0, 0, 470, 570), NULL, NULL);
 	SetClassPtr();
+
+	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINMENU)));
 
 	SetTimer(m_hWnd, 0, 1000, NULL);
 
@@ -27,7 +37,6 @@ m_frames(0)
 	m_regView->Show(SW_SHOW);
 
 	m_virtualMachine.OnNewFrame.connect(bind(&CPlayerWnd::OnNewFrame, this));
-	m_virtualMachine.Resume();
 }
 
 CPlayerWnd::~CPlayerWnd()
@@ -38,8 +47,33 @@ CPlayerWnd::~CPlayerWnd()
 
 long CPlayerWnd::OnSize(unsigned int, unsigned int, unsigned int)
 {
-	RECT rect = GetClientRect();
-	m_regView->SetSize(rect.right, rect.bottom);
+	if(m_regView != NULL)
+	{
+		RECT rect = GetClientRect();
+		m_regView->SetSize(rect.right, rect.bottom);
+	}
+	return FALSE;
+}
+
+long CPlayerWnd::OnCommand(unsigned short id, unsigned short command, HWND hWndFrom)
+{
+	switch(id)
+	{
+	case ID_FILE_OPEN:
+		{
+			Win32::CFileDialog dialog;
+			const TCHAR* filter = _T("PlayStation Sound Files (*.psf)\0*.psf\0");
+			dialog.m_OFN.lpstrFilter = filter;
+			if(dialog.Summon(m_hWnd))
+			{
+				Load(string_cast<string>(dialog.m_sFile).c_str());
+			}
+		}
+		break;
+	case ID_FILE_EXIT:
+		Destroy();
+		break;
+	}
 	return FALSE;
 }
 
@@ -50,6 +84,16 @@ long CPlayerWnd::OnTimer()
 	SetText(fps);
 	m_frames = 0;
 	return FALSE;
+}
+
+void CPlayerWnd::Load(const char* path)
+{
+	CStdStream input(path, "rb");
+	CPsfBase psfFile(input);
+	m_virtualMachine.Pause();
+	m_virtualMachine.Reset();
+	m_virtualMachine.LoadExe(psfFile.GetProgram());
+	m_virtualMachine.Resume();
 }
 
 void CPlayerWnd::OnNewFrame()

@@ -54,6 +54,21 @@ END
 
 IDB_ARROW               BITMAP                  "images\\arrow.bmp"
 IDB_BREAKPOINT          BITMAP                  "images\\bpoint.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINMENU MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...",                    ID_FILE_OPEN
+        MENUITEM "Exit\tAlt+F4",                ID_FILE_EXIT
+    END
+END
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

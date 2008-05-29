@@ -36,7 +36,7 @@ void CSpuRegView::Render()
 			channel.address,
 			channel.adsrLevel,
 			channel.adsrRate,
-			channel.adsrVolume,
+			channel.adsrVolume >> 16,
 			channel.repeat);
 		text += temp;
 	}
