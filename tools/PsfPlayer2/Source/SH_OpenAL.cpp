@@ -1,7 +1,7 @@
 #include "SH_OpenAL.h"
 #include "alloca_def.h"
 
-#define LOGGING
+//#define LOGGING
 
 ALCint g_attrList[] = 
 {
@@ -45,7 +45,7 @@ void CSH_OpenAL::Update(CSpu& spu)
 
 	//Update bufferLength worth of samples
 
-	const unsigned int sampleCount = (44100 * bufferLength) / 1000;
+	const unsigned int sampleCount = (44100 * bufferLength * 2) / 1000;
 	const unsigned int sampleRate = 44100;
 	int16 samples[sampleCount];
 	spu.Render(samples, sampleCount, sampleRate);
@@ -55,7 +55,7 @@ void CSH_OpenAL::Update(CSpu& spu)
 		ALuint buffer = *m_availableBuffers.begin();
 		m_availableBuffers.pop_front();
 
-		alBufferData(buffer, AL_FORMAT_MONO16, samples, sampleCount * sizeof(int16), sampleRate);
+		alBufferData(buffer, AL_FORMAT_STEREO16, samples, sampleCount * sizeof(int16), sampleRate);
 #ifdef LOGGING
 		FILE* log = fopen("log.raw", "ab");
 		fwrite(samples, sampleCount * sizeof(int16), 1, log);

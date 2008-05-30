@@ -28,17 +28,45 @@ public:
 	};
 	BOOST_STATIC_ASSERT(sizeof(ADSR_RATE) >= sizeof(uint16));
 
+	struct CHANNEL_VOLUME : public convertible<uint16>
+	{
+		union
+		{
+			struct
+			{
+				unsigned int	unused0		: 15;
+				unsigned int	mode		: 1;
+			} mode;
+			struct
+			{
+				unsigned int	volume		: 14;
+				unsigned int	phase		: 1;
+				unsigned int	mode		: 1;
+			} volume;
+			struct
+			{
+				unsigned int	volume		: 7;
+				unsigned int	unused0		: 5;
+				unsigned int	phase		: 1;
+				unsigned int	decrease	: 1;
+				unsigned int	slope		: 1;
+				unsigned int	mode		: 1;
+			} sweep;
+		};
+	};
+	BOOST_STATIC_ASSERT(sizeof(CHANNEL_VOLUME) >= sizeof(uint16));
+
 	struct CHANNEL
 	{
-		uint16		volumeLeft;
-		uint16		volumeRight;
-		uint16		pitch;
-		uint16		address;
-		ADSR_LEVEL	adsrLevel;
-		ADSR_RATE	adsrRate;
-		int32		adsrVolume;
-		uint16		repeat;
-		uint16		status;
+		CHANNEL_VOLUME	volumeLeft;
+		CHANNEL_VOLUME	volumeRight;
+		uint16			pitch;
+		uint16			address;
+		ADSR_LEVEL		adsrLevel;
+		ADSR_RATE		adsrRate;
+		int32			adsrVolume;
+		uint16			repeat;
+		uint16			status;
 	};
 
 				CSpu();

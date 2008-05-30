@@ -120,8 +120,10 @@ CSpu::CHANNEL& CSpu::GetChannel(unsigned int channelNumber)
 
 void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
+	assert((sampleCount & 0x01) == 0);
+	unsigned int ticks = sampleCount / 2;
 	memset(samples, 0, sizeof(int16) * sampleCount);
-	int16* bufferTemp = reinterpret_cast<int16*>(_alloca(sizeof(int16) * sampleCount));
+	int16* bufferTemp = reinterpret_cast<int16*>(_alloca(sizeof(int16) * ticks));
 	for(unsigned int i = 0; i < 24; i++)
 //	for(unsigned int i = 1; i < 2; i++)
 	{
@@ -135,19 +137,33 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 				channel.status = ATTACK;
 			}
 			reader.SetPitch(channel.pitch);
-			reader.GetSamples(bufferTemp, sampleCount, sampleRate);
+			reader.GetSamples(bufferTemp, ticks, sampleRate);
 			//Mix samples
-			for(unsigned int j = 0; j < sampleCount; j++)
+			int16* samplePtr = samples;
+			for(unsigned int j = 0; j < ticks; j++)
 			{
 				if(channel.status == STOPPED) break;
 				if(channel.status == RELEASE)
 				{
 					channel.status = STOPPED;					
 				}
-				int32 resultSample = static_cast<int32>(bufferTemp[j]) + static_cast<int32>(samples[j]);
-				resultSample = max<int32>(resultSample, SHRT_MIN);
-				resultSample = min<int32>(resultSample, SHRT_MAX);
-				samples[j] = static_cast<int16>(resultSample);
+				int32 inputSample = static_cast<int32>(bufferTemp[j]);
+				struct SampleMixer
+				{
+					void operator() (int32 inputSample, const CHANNEL_VOLUME& volume, int16*& output) const
+					{
+						if(!volume.mode.mode)
+						{
+							inputSample = (inputSample * static_cast<int32>(volume.volume.volume)) / 0x3FFF;
+						}
+						int32 resultSample = inputSample + static_cast<int32>(*output);
+						resultSample = max<int32>(resultSample, SHRT_MIN);
+						resultSample = min<int32>(resultSample, SHRT_MAX);
+						(*output++) = static_cast<int16>(resultSample);
+					}
+				};
+				SampleMixer()(inputSample, channel.volumeLeft, samplePtr);
+				SampleMixer()(inputSample, channel.volumeRight, samplePtr);
 			}
 		}
 	}
@@ -234,10 +250,10 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 		switch(registerId)
 		{
 		case CH_VOL_LEFT:
-			m_channel[channel].volumeLeft = value;
+			m_channel[channel].volumeLeft <<= value;
 			break;
 		case CH_VOL_RIGHT:
-			m_channel[channel].volumeRight = value;
+			m_channel[channel].volumeRight <<= value;
 			break;
 		case CH_PITCH:
 			m_channel[channel].pitch = value;

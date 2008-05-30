@@ -52,9 +52,13 @@ CPsxVm::~CPsxVm()
 void CPsxVm::Reset()
 {
 	memset(m_ram, 0, RAMSIZE);
+	m_executor.Clear();
 	m_cpu.Reset();
 	m_bios.Reset();
 	m_spu.Reset();
+	m_counters.Reset();
+	m_dmac.Reset();
+	m_intc.Reset();
 }
 
 uint32 CPsxVm::ReadIoRegister(uint32 address)
