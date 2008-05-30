@@ -118,6 +118,15 @@ void CVPU::ProcessPacket(CVIF::CFifoStream& stream)
 	        ExecuteCommand(m_CODE, stream);
 	        continue;
         }
+        if(m_STAT.nVEW == 1)
+        {
+            //Command is waiting for micro-program to end.
+            ExecuteCommand(m_CODE, stream);
+            if(m_STAT.nVEW == 1)
+            {
+                break;
+            }
+        }
 
         stream.Read(&m_CODE, sizeof(CODE));
 

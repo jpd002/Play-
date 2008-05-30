@@ -13,6 +13,7 @@ public:
 
     static FactoryFunction          GetFactoryFunction(Framework::Win32::CWindow*);
 
+    virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER);
     virtual void                    InitializeImpl();
 	virtual void					FlipImpl();
 

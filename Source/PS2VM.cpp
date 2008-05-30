@@ -93,7 +93,8 @@ m_dmac(m_pRAM, m_pSPR),
 m_gif(m_pGS, m_pRAM, m_pSPR),
 m_sif(m_dmac, m_pRAM),
 m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, NULL), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
-m_intc(m_dmac)
+m_intc(m_dmac),
+m_timer(m_intc)
 {
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
@@ -325,7 +326,7 @@ void CPS2VM::ResetVM()
     m_vif.Reset();
     m_dmac.Reset();
 	m_intc.Reset();
-//	CTimer::Reset();
+    m_timer.Reset();
 
 	if(m_pGS != NULL)
 	{
@@ -582,7 +583,7 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	nReturn = 0;
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
-//		nReturn = CTimer::GetRegister(nAddress);
+//        nReturn = m_timer.GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
@@ -627,7 +628,7 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
-//		CTimer::SetRegister(nAddress, nData);
+//        m_timer.SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{

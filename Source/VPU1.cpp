@@ -90,7 +90,14 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		break;
 	case 0x13:
 		//FLUSHA
-        assert(!m_vif.IsVU1Running());
+        if(m_vif.IsVU1Running())
+        {
+            m_STAT.nVEW = 1;
+        }
+        else
+        {
+            m_STAT.nVEW = 0;
+        }
 		return 0;
 		break;
 	case 0x14:
@@ -192,6 +199,8 @@ void CVPU1::StartMicroProgram(uint32 address)
         m_STAT.nVEW = 1;
         return;
     }
+
+    assert(!m_STAT.nVEW);
 
     m_TOP = m_TOPS;
 

@@ -30,7 +30,13 @@ public:
 	bool							IsFogCoordfExtSupported();
 
 protected:
-	void							TexCache_Flush();
+    enum SHADER
+    {
+        SHADER_VERTEX = 1,
+        SHADER_FRAGMENT = 2
+    };
+
+    void							TexCache_Flush();
     void							LoadSettings();
     virtual void                    InitializeImpl();
     virtual void					SetViewport(int, int);
@@ -79,7 +85,7 @@ private:
     void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
-//	void							LoadShaderSourceFromResource(Framework::OpenGl::CShader*, const TCHAR*);
+    virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER) = 0;
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(double, double, double, double);
 	void							UpdateViewportImpl();

@@ -8,7 +8,10 @@
 using namespace Framework;
 using namespace boost;
 
-CGSH_OpenGL::CGSH_OpenGL()
+CGSH_OpenGL::CGSH_OpenGL() :
+m_pProgram(NULL),
+m_pVertShader(NULL),
+m_pFragShader(NULL)
 {
 	m_pCvtBuffer = NULL;
 
@@ -90,19 +93,19 @@ void CGSH_OpenGL::InitializeRC()
 		m_pTexUploader_Psm16 = &CGSH_OpenGL::TexUploader_Psm16_Hw;
 	}
 
-	m_pProgram = NULL;
-	m_pVertShader = m_pFragShader = NULL;
+    DELETEPTR(m_pProgram);
+    DELETEPTR(m_pVertShader);
+    DELETEPTR(m_pFragShader);
 
 	//Create shaders/program
 	if((glCreateProgram != NULL) && (glCreateShader != NULL))
 	{
-/*
         m_pProgram		= new OpenGl::CProgram();
 		m_pVertShader	= new OpenGl::CShader(GL_VERTEX_SHADER);
 		m_pFragShader	= new OpenGl::CShader(GL_FRAGMENT_SHADER);
 
-		LoadShaderSourceFromResource(m_pVertShader, _T("IDR_VERTSHADER"));
-		LoadShaderSourceFromResource(m_pFragShader, _T("IDR_FRAGSHADER"));
+		LoadShaderSource(m_pVertShader, SHADER_VERTEX);
+		LoadShaderSource(m_pFragShader, SHADER_FRAGMENT);
 
 		m_pVertShader->Compile();
 		m_pFragShader->Compile();
@@ -111,7 +114,6 @@ void CGSH_OpenGL::InitializeRC()
 		m_pProgram->AttachShader((*m_pFragShader));
 
 		m_pProgram->Link();
-*/
 	}
 
 	m_pCvtBuffer = (uint8*)malloc(CVTBUFFERSIZE);
@@ -126,22 +128,7 @@ void CGSH_OpenGL::InitializeRC()
 
     FlipImpl();
 }
-/*
-void CGSH_OpenGL::LoadShaderSourceFromResource(OpenGl::CShader* pShader, const TCHAR* sResourceName)
-{
-	const char* sSource;
-	HGLOBAL nResourcePtr;
-	HRSRC nResource;
-	DWORD nSize;
 
-	nResource		= FindResource(GetModuleHandle(NULL), sResourceName, _T("SHADER"));
-	nResourcePtr	= LoadResource(GetModuleHandle(NULL), nResource);
-	sSource			= const_cast<char*>(reinterpret_cast<char*>(LockResource(nResourcePtr)));
-	nSize			= SizeofResource(GetModuleHandle(NULL), nResource);
-
-	pShader->SetSource(sSource, nSize);
-}
-*/
 void CGSH_OpenGL::VerifyRGBA5551Support()
 {
 	unsigned int nTexture;

@@ -9,6 +9,7 @@
 #include "VIF.h"
 #include "IPU.h"
 #include "INTC.h"
+#include "Timer.h"
 #include "MIPS.h"
 #include "MailBox.h"
 #include "GSHandler.h"
@@ -100,6 +101,7 @@ public:
     CVIF                        m_vif;
     CINTC                       m_intc;
     CIPU                        m_ipu;
+    CTimer                      m_timer;
 	CPS2OS*                     m_os;
     CIopBios*                   m_iopOs;
 

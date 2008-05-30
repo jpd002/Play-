@@ -2,6 +2,7 @@
 #include "RendererSettingsWnd.h"
 
 using namespace Framework;
+using namespace std;
 using namespace std::tr1;
 
 PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_PFD =
@@ -84,6 +85,30 @@ void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
 {
 	LoadSettings();
 	TexCache_Flush();
+}
+
+void CGSH_OpenGLWin32::LoadShaderSource(OpenGl::CShader* pShader, SHADER shaderName)
+{
+    const TCHAR* sResourceName(NULL);
+    switch(shaderName)
+    {
+    case SHADER_VERTEX:
+        sResourceName = _T("IDR_VERTSHADER");
+        break;
+    case SHADER_FRAGMENT:
+        sResourceName = _T("IDR_FRAGSHADER");
+        break;
+    default:
+        throw runtime_error("Invalid shader name.");
+        break;
+    }
+
+	HRSRC nResource         = FindResource(GetModuleHandle(NULL), sResourceName, _T("SHADER"));
+	HGLOBAL nResourcePtr	= LoadResource(GetModuleHandle(NULL), nResource);
+	const char* sSource     = const_cast<char*>(reinterpret_cast<char*>(LockResource(nResourcePtr)));
+	DWORD nSize             = SizeofResource(GetModuleHandle(NULL), nResource);
+
+	pShader->SetSource(sSource, nSize);
 }
 
 CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Win32::CWindow* pParam)

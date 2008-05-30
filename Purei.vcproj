@@ -661,6 +661,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Timer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Timer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\uint128.h"
 				>
 			</File>

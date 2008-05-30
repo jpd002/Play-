@@ -1,9 +1,19 @@
 #include <stdio.h>
 #include "Timer.h"
-#include "PS2VM.h"
-#include "INTC.h"
+#include "Log.h"
 
-CTimer::TIMER		CTimer::m_Timer[4];
+#define LOG_NAME ("timer")
+
+CTimer::CTimer(CINTC& intc) :
+m_intc(intc)
+{
+    Reset();
+}
+
+CTimer::~CTimer()
+{
+
+}
 
 void CTimer::Reset()
 {
@@ -12,42 +22,38 @@ void CTimer::Reset()
 
 void CTimer::Count(unsigned int nCycles)
 {
-/*
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		TIMER* pTimer;
-		uint32 nPrevious, nNext, nCompare;
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        TIMER* pTimer = &m_Timer[i];
 
-		pTimer = &m_Timer[i];
+        if(!(pTimer->nMODE & 0x80)) continue;
 
-		if(!(pTimer->nMODE & 0x80)) continue;
+        uint32 nPrevious	= pTimer->nCOUNT;
+        uint32 nNext		= pTimer->nCOUNT;
 
-		nPrevious	= pTimer->nCOUNT;
-		nNext		= pTimer->nCOUNT;
+        switch(pTimer->nMODE & 0x03)
+        {
+        case 0x00:
+        case 0x03:
+            nNext += nCycles;
+            break;
+        case 0x01:
+            nNext += nCycles * 16;
+            break;
+        case 0x02:
+            nNext += nCycles * 256;
+            break;
+        }
 
-		switch(pTimer->nMODE & 0x03)
-		{
-		case 0x00:
-		case 0x03:
-			nNext += nCycles;
-			break;
-		case 0x01:
-			nNext += nCycles * 16;
-			break;
-		case 0x02:
-			nNext += nCycles * 256;
-			break;
-		}
+        uint32 nCompare = (pTimer->nCOMP == 0) ? 0x10000 : pTimer->nCOMP;
 
-		nCompare = (pTimer->nCOMP == 0) ? 0x10000 : pTimer->nCOMP;
+        //Check if it hit the reference value
+        if((nPrevious < nCompare) && (nNext >= nCompare))
+        {
+            pTimer->nMODE |= 0x400;
+        }
 
-		//Check if it hit the reference value
-		if((nPrevious < nCompare) && (nNext >= nCompare))
-		{
-			pTimer->nMODE |= 0x400;
-		}
-
-		pTimer->nCOUNT = nNext;
+        pTimer->nCOUNT = nNext;
 
 //		if(pTimer->nCOUNT >= 0xFFFF)
 //		{
@@ -55,17 +61,16 @@ void CTimer::Count(unsigned int nCycles)
 //			pTimer->nCOUNT &= 0xFFFF;
 //		}
 
-		if(i == 2)
-		{
-			uint32 nMask;
-			nMask = (pTimer->nMODE & 0x300) << 2;
-			if((pTimer->nMODE & nMask) != 0)
-			{
-				CINTC::AssertLine(CINTC::INTC_LINE_TIMER2);
-			}
-		}
-	}
-*/
+        if(i == 2)
+        {
+            uint32 nMask;
+            nMask = (pTimer->nMODE & 0x300) << 2;
+            if((pTimer->nMODE & nMask) != 0)
+            {
+                m_intc.AssertLine(CINTC::INTC_LINE_TIMER2);
+            }
+        }
+    }
 }
 
 uint32 CTimer::GetRegister(uint32 nAddress)
@@ -111,7 +116,7 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		printf("Timer: Read an unhandled IO port (0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, CPS2VM::m_EE.m_State.nPC);
+        CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
 		break;
 	}
 
@@ -163,7 +168,7 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	default:
-		printf("Timer: Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X).\r\n", nAddress, nValue);
 		break;
 	}
 }
@@ -177,19 +182,19 @@ void CTimer::DisassembleGet(uint32 nAddress)
 	switch(nAddress & 0x7FF)
 	{
 	case 0x00:
-		printf("Timer: = T%i_COUNT (PC: 0x%0.8X)\r\n", nTimerId, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "= T%i_COUNT\r\n", nTimerId);
 		break;
 
 	case 0x10:
-		printf("Timer: = T%i_MODE (PC: 0x%0.8X)\r\n", nTimerId, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "= T%i_MODE\r\n", nTimerId);
 		break;
 
 	case 0x20:
-		printf("Timer: = T%i_COMP (PC: 0x%0.8X)\r\n", nTimerId, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "= T%i_COMP\r\n", nTimerId);
 		break;
 
 	case 0x30:
-		printf("Timer: = T%i_HOLD (PC: 0x%0.8X)\r\n", nTimerId, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "= T%i_HOLD\r\n", nTimerId);
 		break;
 	}
 }
@@ -203,19 +208,19 @@ void CTimer::DisassembleSet(uint32 nAddress, uint32 nValue)
 	switch(nAddress & 0x7FF)
 	{
 	case 0x00:
-		printf("Timer: T%i_COUNT = 0x%0.8X (PC: 0x%0.8X)\r\n", nTimerId, nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_COUNT = 0x%0.8X\r\n", nTimerId, nValue);
 		break;
 
 	case 0x10:
-		printf("Timer: T%i_MODE = 0x%0.8X (PC: 0x%0.8X)\r\n", nTimerId, nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_MODE = 0x%0.8X\r\n", nTimerId, nValue);
 		break;
 
 	case 0x20:
-		printf("Timer: T%i_COMP = 0x%0.8X (PC: 0x%0.8X)\r\n", nTimerId, nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_COMP = 0x%0.8X\r\n", nTimerId, nValue);
 		break;
 
 	case 0x30:
-		printf("Timer: T%i_HOLD = 0x%0.8X (PC: 0x%0.8X)\r\n", nTimerId, nValue, CPS2VM::m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_HOLD = 0x%0.8X\r\n", nTimerId, nValue);
 		break;
 	}
 }
