@@ -13,6 +13,7 @@ public:
 	
 	virtual void			InitializeImpl();
 	virtual void			FlipImpl();
+    virtual void            LoadShaderSource(Framework::OpenGl::CShader*, SHADER);
 	
 private:
 	static CGSHandler*		GSHandlerFactory(CGLContextObj);

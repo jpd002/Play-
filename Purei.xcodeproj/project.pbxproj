@@ -79,6 +79,11 @@
 		7E8BEF120D171D6300CBEDE8 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF0F0D171D6300CBEDE8 /* RegisterStateFile.cpp */; };
 		7E8BEF130D171D6300CBEDE8 /* MemoryStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */; };
 		7E8BEF660D17542300CBEDE8 /* DisAsmView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */; };
+		7E908B520DF383AB00BAAB46 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E908B500DF383AB00BAAB46 /* Timer.cpp */; };
+		7E908B580DF383FA00BAAB46 /* Iop_Unknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E908B540DF383FA00BAAB46 /* Iop_Unknown.cpp */; };
+		7E908B590DF383FA00BAAB46 /* Iop_Unknown2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E908B560DF383FA00BAAB46 /* Iop_Unknown2.cpp */; };
+		7E908BD70DF3899A00BAAB46 /* TexClamp.frag in Resources */ = {isa = PBXBuildFile; fileRef = 7E908BD50DF3899A00BAAB46 /* TexClamp.frag */; };
+		7E908BD80DF3899A00BAAB46 /* TexClamp.vert in Resources */ = {isa = PBXBuildFile; fileRef = 7E908BD60DF3899A00BAAB46 /* TexClamp.vert */; };
 		7E90A4FB0D1F57A2003095A6 /* InputBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E90A4F90D1F57A2003095A6 /* InputBox.m */; };
 		7E91AB6B0D1B32EA00B20FB7 /* RegView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91AB6A0D1B32EA00B20FB7 /* RegView.mm */; };
 		7E91DBE40D18662400557AC7 /* DebuggerWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E91DBE30D18662400557AC7 /* DebuggerWindow.mm */; };
@@ -286,6 +291,14 @@
 		7E8BEF110D171D6300CBEDE8 /* MemoryStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryStateFile.cpp; path = Source/MemoryStateFile.cpp; sourceTree = "<group>"; };
 		7E8BEF640D17542300CBEDE8 /* DisAsmView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisAsmView.h; path = Source/macosxui/DisAsmView.h; sourceTree = "<group>"; };
 		7E8BEF650D17542300CBEDE8 /* DisAsmView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DisAsmView.mm; path = Source/macosxui/DisAsmView.mm; sourceTree = "<group>"; };
+		7E908B500DF383AB00BAAB46 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = Source/Timer.cpp; sourceTree = "<group>"; };
+		7E908B510DF383AB00BAAB46 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = Source/Timer.h; sourceTree = "<group>"; };
+		7E908B540DF383FA00BAAB46 /* Iop_Unknown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Unknown.cpp; path = Source/iop/Iop_Unknown.cpp; sourceTree = "<group>"; };
+		7E908B550DF383FA00BAAB46 /* Iop_Unknown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Unknown.h; path = Source/iop/Iop_Unknown.h; sourceTree = "<group>"; };
+		7E908B560DF383FA00BAAB46 /* Iop_Unknown2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Unknown2.cpp; path = Source/iop/Iop_Unknown2.cpp; sourceTree = "<group>"; };
+		7E908B570DF383FA00BAAB46 /* Iop_Unknown2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Unknown2.h; path = Source/iop/Iop_Unknown2.h; sourceTree = "<group>"; };
+		7E908BD50DF3899A00BAAB46 /* TexClamp.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TexClamp.frag; path = Source/shaders/TexClamp.frag; sourceTree = "<group>"; };
+		7E908BD60DF3899A00BAAB46 /* TexClamp.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TexClamp.vert; path = Source/shaders/TexClamp.vert; sourceTree = "<group>"; };
 		7E90A4F90D1F57A2003095A6 /* InputBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = InputBox.m; path = Source/macosxui/InputBox.m; sourceTree = "<group>"; };
 		7E90A4FA0D1F57A2003095A6 /* InputBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputBox.h; path = Source/macosxui/InputBox.h; sourceTree = "<group>"; };
 		7E91AB690D1B32EA00B20FB7 /* RegView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegView.h; path = Source/macosxui/RegView.h; sourceTree = "<group>"; };
@@ -498,6 +511,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7E908BD50DF3899A00BAAB46 /* TexClamp.frag */,
+				7E908BD60DF3899A00BAAB46 /* TexClamp.vert */,
 				7E50DADB0DE0C27B00717DF8 /* VfsManager.xib */,
 				7E19A9970D6C887D00B0C6A6 /* patches.xml */,
 				7E947B000D09F79B00A2AE15 /* Info.plist */,
@@ -640,6 +655,8 @@
 				7E9E4F8B0D4531BE003321D8 /* SIF.h */,
 				7E9E4F8C0D4531BE003321D8 /* SifModule.h */,
 				7E9E4F8D0D4531BE003321D8 /* SifModuleAdapter.h */,
+				7E908B500DF383AB00BAAB46 /* Timer.cpp */,
+				7E908B510DF383AB00BAAB46 /* Timer.h */,
 				7E8988370D08BD090077F9ED /* uint128.h */,
 				7E8988380D08BD090077F9ED /* Utils.cpp */,
 				7E8988390D08BD090077F9ED /* Utils.h */,
@@ -753,6 +770,10 @@
 				7E9E4FB50D4531FF003321D8 /* Iop_Thsema.h */,
 				7E9E4FB60D4531FF003321D8 /* Iop_Timrman.cpp */,
 				7E9E4FB70D4531FF003321D8 /* Iop_Timrman.h */,
+				7E908B540DF383FA00BAAB46 /* Iop_Unknown.cpp */,
+				7E908B550DF383FA00BAAB46 /* Iop_Unknown.h */,
+				7E908B560DF383FA00BAAB46 /* Iop_Unknown2.cpp */,
+				7E908B570DF383FA00BAAB46 /* Iop_Unknown2.h */,
 				7E9E4FB80D4531FF003321D8 /* IopBios.cpp */,
 				7E9E4FB90D4531FF003321D8 /* IopBios.h */,
 				7E9E4FBA0D4531FF003321D8 /* IsoDevice.cpp */,
@@ -826,6 +847,8 @@
 				7E947B010D09F79B00A2AE15 /* Info.plist in Resources */,
 				7E19A9980D6C887D00B0C6A6 /* patches.xml in Resources */,
 				7E50DADD0DE0C27B00717DF8 /* VfsManager.xib in Resources */,
+				7E908BD70DF3899A00BAAB46 /* TexClamp.frag in Resources */,
+				7E908BD80DF3899A00BAAB46 /* TexClamp.vert in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -947,6 +970,9 @@
 				7E801A7F0DAC674A004A293D /* MemoryUtils.cpp in Sources */,
 				7E50DAE20DE0C2AB00717DF8 /* VfsManagerController.mm in Sources */,
 				7E50DB530DE0DCC500717DF8 /* VfsManagerBindings.mm in Sources */,
+				7E908B520DF383AB00BAAB46 /* Timer.cpp in Sources */,
+				7E908B580DF383FA00BAAB46 /* Iop_Unknown.cpp in Sources */,
+				7E908B590DF383FA00BAAB46 /* Iop_Unknown2.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
