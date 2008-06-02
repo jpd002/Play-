@@ -178,8 +178,8 @@ IDI_PUREI               ICON                    "Images\\purei.ico"
 // SHADER
 //
 
-IDR_VERTSHADER          SHADER                  "shaders\\TexClamp.vert"
-IDR_FRAGSHADER          SHADER                  "shaders\\TexClamp.frag"
+IDR_VERTSHADER          SHADER                  "..\\shaders\\TexClamp.vert"
+IDR_FRAGSHADER          SHADER                  "..\\shaders\\TexClamp.frag"
 
 /////////////////////////////////////////////////////////////////////////////
 //
