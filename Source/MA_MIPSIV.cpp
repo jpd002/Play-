@@ -990,6 +990,19 @@ void CMA_MIPSIV::ADDU()
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
+//22
+void CMA_MIPSIV::SUB()
+{
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+    m_codeGen->Sub();
+    m_codeGen->SeX();
+
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
 //23
 void CMA_MIPSIV::SUBU()
 {
@@ -1271,7 +1284,7 @@ void (*CMA_MIPSIV::m_pOpSpecial[0x40])() =
 	//0x18
 	MULT,			MULTU,			DIV,			DIVU,			Illegal,		Illegal,		Illegal,		Illegal,
 	//0x20
-	ADD,			ADDU,			Illegal,		SUBU,			AND,			OR,				XOR,			NOR,
+	ADD,			ADDU,			SUB,	    	SUBU,			AND,			OR,				XOR,			NOR,
 	//0x28
 	Illegal,		Illegal,		SLT,			SLTU,			Illegal,		DADDU,			Illegal,		DSUBU,
 	//0x30

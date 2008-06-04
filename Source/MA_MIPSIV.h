@@ -186,6 +186,7 @@ private:
 	static void							DIVU();
 	static void							ADD();
 	static void							ADDU();
+    static void                         SUB();
 	static void							SUBU();
 	static void							AND();
 	static void							OR();
