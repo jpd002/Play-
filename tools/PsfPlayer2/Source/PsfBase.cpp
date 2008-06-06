@@ -49,6 +49,13 @@ uint8* CPsfBase::GetProgram() const
 	return m_program;
 }
 
+const char* CPsfBase::GetTagValue(const char* name) const
+{
+	TagMap::const_iterator tagIterator(m_tags.find(name));
+	if(tagIterator == m_tags.end()) return NULL;
+	return tagIterator->second.c_str();
+}
+
 void CPsfBase::ReadProgram(CStream& stream)
 {
 	assert(m_program == NULL);

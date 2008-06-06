@@ -97,7 +97,8 @@ private:
 
 	typedef void			(CPsxBios::*SyscallHandler)();
 
-	void					LongJump(uint32);
+	void					LongJump(uint32, uint32 = 0);
+	uint32&					LongJmpBuffer() const;
 
 	void					SaveCpuState();
 	void					LoadCpuState();
@@ -107,7 +108,10 @@ private:
 	void					ProcessSubFunction(SyscallHandler*, unsigned int);
 
 	//A0
+	void					sc_setjmp();
+	void					sc_longjmp();
 	void					sc_InitHeap();
+	void					sc_printf();
 	void					sc_bu_init();
 	void					sc_96_remove();
 	void					sc_SetMem();
@@ -141,7 +145,6 @@ private:
 
 	CMIPS&					m_cpu;
 	uint8*					m_ram;
-	uint32					m_longJmpBuffer;
 
 	CStructManager<EVENT>	m_events;
 

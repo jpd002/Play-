@@ -21,6 +21,7 @@ namespace Psx
 
 		enum
 		{
+			LINE_VBLANK	= 0,
 			LINE_DMAC	= 3,
 			LINE_CNT0	= 4,
 			LINE_CNT1	= 5,

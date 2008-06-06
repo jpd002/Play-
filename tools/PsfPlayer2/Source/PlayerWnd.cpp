@@ -1,6 +1,5 @@
 #include "PlayerWnd.h"
-#include "StdStream.h"
-#include "PsfBase.h"
+#include "PsfLoader.h"
 #include "win32/Rect.h"
 #include "win32/FileDialog.h"
 #include "string_cast.h"
@@ -12,6 +11,7 @@
 #define WNDSTYLE	(WS_CAPTION | WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(0)
 
+using namespace Psx;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
@@ -62,7 +62,7 @@ long CPlayerWnd::OnCommand(unsigned short id, unsigned short command, HWND hWndF
 	case ID_FILE_OPEN:
 		{
 			Win32::CFileDialog dialog;
-			const TCHAR* filter = _T("PlayStation Sound Files (*.psf)\0*.psf\0");
+			const TCHAR* filter = _T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0");
 			dialog.m_OFN.lpstrFilter = filter;
 			if(dialog.Summon(m_hWnd))
 			{
@@ -88,11 +88,9 @@ long CPlayerWnd::OnTimer()
 
 void CPlayerWnd::Load(const char* path)
 {
-	CStdStream input(path, "rb");
-	CPsfBase psfFile(input);
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
-	m_virtualMachine.LoadExe(psfFile.GetProgram());
+	CPsfLoader::LoadPsf(m_virtualMachine, path);
 	m_virtualMachine.Resume();
 }
 

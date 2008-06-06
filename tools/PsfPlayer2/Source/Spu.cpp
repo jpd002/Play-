@@ -409,6 +409,7 @@ void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat)
 //	m_pitch = pitch;
 //	m_pitch = 0;
 	m_nextValid = false;
+	m_done = false;
 	AdvanceBuffer();
 }
 
@@ -519,13 +520,18 @@ void CSpu::CSampleReader::UnpackSamples(int16* dst)
 		}
 	}
 
+	m_nextSample += 0x10;
+
 	if(flags & 0x01)
 	{
-		m_nextSample = m_repeat;
-	}
-	else
-	{
-		m_nextSample += 0x10;
+		if(flags == 0x03)
+		{
+			m_nextSample = m_repeat;
+		}
+		else
+		{
+			m_done = true;
+		}
 	}
 }
 

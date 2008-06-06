@@ -30,7 +30,7 @@ private:
 	OpenAl::CSource		m_source;
 
 	BufferList			m_availableBuffers;
-	clock_t				m_lastUpdateTime;
+	uint64				m_lastUpdateTime;
 	bool				m_mustSync;
 };
 

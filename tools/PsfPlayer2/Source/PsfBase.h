@@ -26,6 +26,7 @@ public:
 	};
 
 	uint8*		GetProgram() const;
+	const char*	GetTagValue(const char*) const;
 
 private:
 	typedef std::map<std::string, std::string> TagMap;

@@ -3,6 +3,7 @@
 #include "PsxVm.h"
 #include "Log.h"
 #include "MA_MIPSIV.h"
+#include "HighResTimer.h"
 
 #define LOG_NAME ("psxvm")
 
@@ -66,6 +67,10 @@ uint32 CPsxVm::ReadIoRegister(uint32 address)
 	if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
 	{
 		return m_spu.ReadRegister(address);
+	}
+	else if(address == 0x1F801814)
+	{
+		return 0x14802000;
 	}
 	else if(address >= CDmac::ADDR_BEGIN && address <= CDmac::ADDR_END)
 	{
@@ -211,7 +216,7 @@ unsigned int CPsxVm::ExecuteCpu(bool singleStep)
 void CPsxVm::ThreadProc()
 {
 	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
-	clock_t frameClock = (CLOCKS_PER_SEC / FRAMES_PER_SEC);
+	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -231,23 +236,24 @@ void CPsxVm::ThreadProc()
 			int ticks = ExecuteCpu(m_singleStep);
 
 			static int frameCounter = frameTicks;
-			static clock_t nextTime = clock() + frameClock;
+			static uint64 currentTime = CHighResTimer::GetTime();
 
 			frameCounter -= ticks;
 			if(frameCounter <= 0)
 			{
+				m_intc.AssertLine(CIntc::LINE_VBLANK);
 				OnNewFrame();
 				frameCounter += frameTicks;
-				clock_t currentTime = clock();
-				int delay = nextTime - currentTime;
+				uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
+				int64 delay = frameTime - elapsed;
 				if(delay > 0)
 				{
 					xtime xt;
 					xtime_get(&xt, boost::TIME_UTC);
-					xt.nsec += delay * 1000000;
+					xt.nsec += delay * 1000;
 					thread::sleep(xt);
 				}
-				nextTime = clock() + frameClock;
+				currentTime = CHighResTimer::GetTime();
 			}
 
 			m_spuHandler.Update(m_spu);

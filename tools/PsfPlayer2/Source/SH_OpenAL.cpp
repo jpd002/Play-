@@ -1,5 +1,6 @@
 #include "SH_OpenAL.h"
 #include "alloca_def.h"
+#include "HighResTimer.h"
 
 //#define LOGGING
 
@@ -30,24 +31,24 @@ void CSH_OpenAL::Update(CSpu& spu)
 {
 	if(m_lastUpdateTime == 0)
 	{
-		m_lastUpdateTime = clock();
+		m_lastUpdateTime = CHighResTimer::GetTime();
 		return;
 	}
 
-	const unsigned int bufferLength = 50;
+	const unsigned int minBufferLength = 50;
 
-	clock_t currentTime = clock();
-	if((currentTime - m_lastUpdateTime) < (CLOCKS_PER_SEC * bufferLength) / 1000)
+	uint64 elapsed = CHighResTimer::GetDiff(m_lastUpdateTime, CHighResTimer::MILLISECOND);
+	if(elapsed < minBufferLength)
 	{
 		return;
 	}
-	m_lastUpdateTime = currentTime;
+	m_lastUpdateTime = CHighResTimer::GetTime();
+	unsigned int bufferLength = minBufferLength;
 
 	//Update bufferLength worth of samples
-
-	const unsigned int sampleCount = (44100 * bufferLength * 2) / 1000;
-	const unsigned int sampleRate = 44100;
-	int16 samples[sampleCount];
+	unsigned int sampleCount = (44100 * bufferLength * 2) / 1000;
+	unsigned int sampleRate = 44100;
+	int16* samples = reinterpret_cast<int16*>(alloca(sampleCount * sizeof(int16)));
 	spu.Render(samples, sampleCount, sampleRate);
 
 	if(m_availableBuffers.size())

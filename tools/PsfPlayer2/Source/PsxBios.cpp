@@ -14,6 +14,7 @@
 using namespace std;
 using namespace Psx;
 
+#define LONGJMP_BUFFER		(0x0200)
 #define INTR_HANDLER		(0x7000)
 #define KERNEL_STACK		(0x8000)
 #define EVENTS_BEGIN		(0x9000)
@@ -94,7 +95,23 @@ void CPsxBios::Reset()
 		assembler.BNE(currentEvent, eventMax, checkEventLabel);
 		assembler.NOP();
 
+		//checkIntHook
+		CMIPSAssembler::LABEL returnExceptionLabel = assembler.CreateLabel();
+		assembler.LI(CMIPS::T0, LONGJMP_BUFFER);
+		assembler.LW(CMIPS::T0, 0, CMIPS::T0);
+		assembler.BEQ(CMIPS::T0, CMIPS::R0, returnExceptionLabel);
+		assembler.NOP();
+
+		//callIntHook
+		assembler.ADDIU(CMIPS::A0, CMIPS::T0, CMIPS::R0);
+		assembler.ADDIU(CMIPS::A1, CMIPS::R0, CMIPS::R0);
+		assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0xA0);
+		assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x14);
+		assembler.JR(CMIPS::T0);
+		assembler.NOP();
+
 		//ReturnFromException
+		assembler.MarkLabel(returnExceptionLabel);
 		assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0xB0);
 		assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x17);
 		assembler.JR(CMIPS::T0);
@@ -102,10 +119,10 @@ void CPsxBios::Reset()
 	}
 
 	memset(m_events.GetBase(), 0, EVENTS_SIZE);
-	m_longJmpBuffer = 0;
+	LongJmpBuffer() = 0;
 }
 
-void CPsxBios::LongJump(uint32 bufferAddress)
+void CPsxBios::LongJump(uint32 bufferAddress, uint32 value)
 {
 	bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, 0, bufferAddress);
 	m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x00));
@@ -120,6 +137,12 @@ void CPsxBios::LongJump(uint32 bufferAddress)
 	m_cpu.m_State.nGPR[CMIPS::S6].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x24));
 	m_cpu.m_State.nGPR[CMIPS::S7].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x28));
 	m_cpu.m_State.nGPR[CMIPS::GP].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x2C));
+	m_cpu.m_State.nGPR[CMIPS::V0].nD0 = value == 0 ? 1 : value;
+}
+
+uint32& CPsxBios::LongJmpBuffer() const
+{
+	return *reinterpret_cast<uint32*>(&m_ram[LONGJMP_BUFFER]);
 }
 
 void CPsxBios::SaveCpuState()
@@ -156,26 +179,25 @@ void CPsxBios::HandleInterrupt()
 		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS);
 		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
 		uint32 cause = status & mask;
-		if(cause & 0x40)
-		{
-			m_cpu.m_State.nPC = INTR_HANDLER;
-			m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
-		}
-		else
-		{
-			if(m_longJmpBuffer != 0)
-			{
-				//Clear all causes
-				//m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0);
-				LongJump(m_longJmpBuffer);
-				m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
-				m_cpu.m_State.nGPR[CMIPS::V0].nD0 = 1;
-			}
-			else
-			{
-				assert(0);
-			}
-		}
+		m_cpu.m_State.nPC = INTR_HANDLER;
+		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
+//		if(cause & 0x40)
+//		{
+//		}
+//		else
+//		{
+//			if(m_longJmpBuffer != 0)
+//			{
+//				//Clear all causes
+//				//m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0);
+//				LongJump(m_longJmpBuffer);
+//				m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
+//			}
+//			else
+//			{
+//				assert(0);
+//			}
+//		}
 	}
 }
 
@@ -241,10 +263,23 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		uint32 functionId = m_cpu.m_State.nGPR[CMIPS::T1].nV0;
 		switch(functionId)
 		{
+		case 0x13:
+			CLog::GetInstance().Print(LOG_NAME, "setjmp(buffer = 0x%0.8X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x14:
+			CLog::GetInstance().Print(LOG_NAME, "longjmp(buffer = 0x%0.8X, value = %i);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
 		case 0x39:
 			CLog::GetInstance().Print(LOG_NAME, "InitHeap(block = 0x%0.8X, n = 0x%0.8X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
+		case 0x3F:
+			CLog::GetInstance().Print(LOG_NAME, "printf(fmt = 0x%0.8X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x70:
 			CLog::GetInstance().Print(LOG_NAME, "_bu_init();\r\n");
@@ -351,11 +386,44 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 	}
 }
 
+//A0 - 13
+void CPsxBios::sc_setjmp()
+{
+	uint32 bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x00, m_cpu.m_State.nGPR[CMIPS::RA].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x04, m_cpu.m_State.nGPR[CMIPS::SP].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x08, m_cpu.m_State.nGPR[CMIPS::FP].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x0C, m_cpu.m_State.nGPR[CMIPS::S0].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x10, m_cpu.m_State.nGPR[CMIPS::S1].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x14, m_cpu.m_State.nGPR[CMIPS::S2].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x18, m_cpu.m_State.nGPR[CMIPS::S3].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x1C, m_cpu.m_State.nGPR[CMIPS::S4].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x20, m_cpu.m_State.nGPR[CMIPS::S5].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x24, m_cpu.m_State.nGPR[CMIPS::S6].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x28, m_cpu.m_State.nGPR[CMIPS::S7].nV0);
+	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x2C, m_cpu.m_State.nGPR[CMIPS::GP].nV0);
+	m_cpu.m_State.nGPR[CMIPS::V0].nD0 = 0;
+}
+
+//A0 - 14
+void CPsxBios::sc_longjmp()
+{
+	uint32 buffer = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 value = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+	LongJump(buffer, value);
+}
+
 //A0 - 39
 void CPsxBios::sc_InitHeap()
 {
 	uint32 block = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 	uint32 n = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+}
+
+//A0 - 3F
+void CPsxBios::sc_printf()
+{
+	uint32 formatAddress = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 }
 
 //A0 - 70
@@ -462,7 +530,7 @@ void CPsxBios::sc_ReturnFromException()
 void CPsxBios::sc_HookEntryInt()
 {
 	uint32 address = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
-	m_longJmpBuffer = address;
+	LongJmpBuffer() = address;
 }
 
 //B0 - 5B
@@ -513,7 +581,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 	//0x08
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x10
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_setjmp,			&sc_longjmp,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x18
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x20
@@ -523,7 +591,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 	//0x30
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x38
-	&sc_Illegal,		&sc_InitHeap,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_InitHeap,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_printf,
 	//0x40
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x48

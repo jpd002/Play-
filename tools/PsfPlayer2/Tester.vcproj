@@ -249,11 +249,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\tools\PsfPlayer\Source\PsfFs.cpp"
+				RelativePath=".\Source\PsfLoader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tools\PsfPlayer\Source\PsfFs.h"
+				RelativePath=".\Source\PsfLoader.h"
 				>
 			</File>
 			<File
@@ -362,6 +362,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\ELF.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\HighResTimer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\HighResTimer.h"
 				>
 			</File>
 			<File

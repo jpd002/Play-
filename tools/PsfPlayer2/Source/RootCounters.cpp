@@ -27,6 +27,7 @@ void CRootCounters::Reset()
 	{
 		m_counter[i].clockRatio = 8;
 	}
+	m_counter[1].clockRatio = 8;
 }
 
 void CRootCounters::Update(unsigned int ticks)
@@ -42,11 +43,11 @@ void CRootCounters::Update(unsigned int ticks)
 		//Update count
 		uint32 counterMax = counter.mode.tar ? counter.target : 0xFFFF;
 		counter.count = static_cast<uint16>(min<uint32>(counter.count + countAdd, counterMax));
-		if(counter.count == counter.target)
+		if(counter.count == counterMax)
 		{
+			counter.count = 0;
 			if(counter.mode.iq1 && counter.mode.iq2)
 			{
-				counter.count = 0;
 				m_intc.AssertLine(CIntc::LINE_CNT0 + i);
 			}
 		}
