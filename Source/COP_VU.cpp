@@ -201,15 +201,30 @@ void CCOP_VU::VADDbc()
 }
 
 //04
+//05
+//06
+//07
 void CCOP_VU::VSUBbc()
 {
     VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
+//08
+//09
+//0A
 //0B
 void CCOP_VU::VMADDbc()
 {
     VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+}
+
+//0C
+//0D
+//0E
+//0F
+void CCOP_VU::VMSUBbc()
+{
+    VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //10
@@ -225,6 +240,8 @@ void CCOP_VU::VMINIbc()
 }
 
 //18
+//19
+//1A
 //1B
 void CCOP_VU::VMULbc()
 {
@@ -308,15 +325,33 @@ void CCOP_VU::VX3()
 //////////////////////////////////////////////////
 
 //
-void CCOP_VU::VMULAbc()
+void CCOP_VU::VADDAbc()
 {
-	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+    VUShared::ADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+}
+
+//
+void CCOP_VU::VSUBAbc()
+{
+    VUShared::SUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //
 void CCOP_VU::VMADDAbc()
 {
 	VUShared::MADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+}
+
+//
+void CCOP_VU::VMSUBAbc()
+{
+    VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+}
+
+//
+void CCOP_VU::VMULAbc()
+{
+	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
 }
 
 //////////////////////////////////////////////////
@@ -335,6 +370,12 @@ void CCOP_VU::VFTOI0()
 	VUShared::FTOI0(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//0A
+void CCOP_VU::VADDA()
+{
+    VUShared::ADDA(m_codeGen, m_nDest, m_nFS, m_nFT);
+}
+
 //0C
 void CCOP_VU::VMOVE()
 {
@@ -345,6 +386,12 @@ void CCOP_VU::VMOVE()
 void CCOP_VU::VDIV()
 {
 	VUShared::DIV(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF, m_nAddress, 1);
+}
+
+//10
+void CCOP_VU::VRNEXT()
+{
+    VUShared::RNEXT(m_codeGen, m_nDest, m_nFT);
 }
 
 //////////////////////////////////////////////////
@@ -395,6 +442,12 @@ void CCOP_VU::VRINIT()
 //V3 Instructions
 //////////////////////////////////////////////////
 
+//07
+void CCOP_VU::VCLIP()
+{
+    VUShared::CLIP(m_codeGen, m_nFS, m_nFT);
+}
+
 //0B
 void CCOP_VU::VNOP()
 {
@@ -432,13 +485,13 @@ void (*CCOP_VU::m_pOpCop2[0x20])() =
 void (*CCOP_VU::m_pOpVector[0x40])() =
 {
 	//0x00
-	VADDbc,			VADDbc,			VADDbc,			VADDbc,			VSUBbc,			Illegal,		Illegal,		Illegal,
+	VADDbc,			VADDbc,			VADDbc,			VADDbc,			VSUBbc,			VSUBbc,		    VSUBbc,		    VSUBbc,
 	//0x08
-	Illegal,		Illegal,		VMADDbc,		VMADDbc,		Illegal,		Illegal,		Illegal,		Illegal,
+	VMADDbc,		VMADDbc,		VMADDbc,		VMADDbc,		VMSUBbc,		VMSUBbc,		VMSUBbc,		VMSUBbc,
 	//0x10
 	VMAXbc,			Illegal,		Illegal,		Illegal,		VMINIbc,		Illegal,		Illegal,		Illegal,
 	//0x18
-	VMULbc,			Illegal,		Illegal,		VMULbc,			VMULq,			Illegal,		Illegal,		Illegal,
+	VMULbc,			VMULbc,		    VMULbc,		    VMULbc,			VMULq,			Illegal,		Illegal,		Illegal,
 	//0x20
 	VADDq,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x28
@@ -452,11 +505,11 @@ void (*CCOP_VU::m_pOpVector[0x40])() =
 void (*CCOP_VU::m_pOpVx0[0x20])() =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		VITOF0,			VFTOI0,			VMULAbc,		Illegal,
+	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		VITOF0,			VFTOI0,			VMULAbc,		Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		VMOVE,			Illegal,		VDIV,			Illegal,
+	Illegal,		Illegal,		VADDA,	    	Illegal,		VMOVE,			Illegal,		VDIV,			Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	VRNEXT,		    Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x18
 	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 };
@@ -464,7 +517,7 @@ void (*CCOP_VU::m_pOpVx0[0x20])() =
 void (*CCOP_VU::m_pOpVx1[0x20])() =
 {
 	//0x00
-	Illegal,		Illegal,		VMADDAbc,		Illegal,		Illegal,		VFTOI4,			VMULAbc,		Illegal,
+	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		Illegal,		VFTOI4,			VMULAbc,		Illegal,
 	//0x08
 	Illegal,		Illegal,		Illegal,		Illegal,		VMR32,			Illegal,		VSQRT,			Illegal,
 	//0x10
@@ -476,7 +529,7 @@ void (*CCOP_VU::m_pOpVx1[0x20])() =
 void (*CCOP_VU::m_pOpVx2[0x20])() =
 {
 	//0x00
-	Illegal,		Illegal,		VMADDAbc,		Illegal,		Illegal,		Illegal,		VMULAbc,		Illegal,
+	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		Illegal,		Illegal,		VMULAbc,		Illegal,
 	//0x08
 	Illegal,		Illegal,		Illegal,		VOPMULA,		Illegal,		Illegal,		VRSQRT,			Illegal,
 	//0x10
@@ -488,7 +541,7 @@ void (*CCOP_VU::m_pOpVx2[0x20])() =
 void (*CCOP_VU::m_pOpVx3[0x20])() =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		Illegal,		Illegal,		VMULAbc,		VCLIP,
 	//0x08
 	Illegal,		Illegal,		Illegal,		VNOP,			Illegal,		Illegal,		VWAITQ,			Illegal,
 	//0x10

@@ -33,11 +33,13 @@ void CUnknown::Invoke(uint32 nMethod, uint32* pArgs, uint32 nArgsSize, uint32* p
 		{
 			if(nRetSize == 0x7C)
 			{
-				(reinterpret_cast<uint16*>(pRet))[0x30] |= 0x7;
-				(reinterpret_cast<uint16*>(pRet))[0x31] |= 0x7;
-
-				(reinterpret_cast<uint16*>(pRet))[0x30] ^= 0x8;
-				(reinterpret_cast<uint16*>(pRet))[0x31] ^= 0x8;
+//				(reinterpret_cast<uint16*>(pRet))[0x30] |= 0x7;
+//				(reinterpret_cast<uint16*>(pRet))[0x31] |= 0x7;
+//
+//				(reinterpret_cast<uint16*>(pRet))[0x30] ^= 0x8;
+//				(reinterpret_cast<uint16*>(pRet))[0x31] ^= 0x8;
+				(reinterpret_cast<uint16*>(pRet))[0x30] ^= 0xFF;
+				(reinterpret_cast<uint16*>(pRet))[0x31] ^= 0xFF;
 			}
 			break;
 		}

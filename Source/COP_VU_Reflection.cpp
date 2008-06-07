@@ -191,18 +191,18 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	//0x08
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+    {	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	//0x10
 	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -214,8 +214,8 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -262,10 +262,10 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 {
 	//0x00
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VITOF0",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VFTOI0",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
@@ -273,14 +273,14 @@ INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+    {	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VMOVE",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VDIV",		NULL,			CopyMnemonic,		ReflOpQFsfFtf,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x10
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VRNEXT",	NULL,			CopyMnemonic,		ReflOpFtR,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -302,13 +302,13 @@ INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 {
 	//0x00
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VFTOI4",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -342,13 +342,13 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 INSTRUCTION CCOP_VU::m_cReflVX2[32] =
 {
 	//0x00
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -382,14 +382,14 @@ INSTRUCTION CCOP_VU::m_cReflVX2[32] =
 INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 {
 	//0x00
+	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VCLIP",	NULL,			CopyMnemonic,		ReflOpClip, 		NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

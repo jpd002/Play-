@@ -95,6 +95,7 @@ void CChannel::WriteCHCR(uint32 nValue)
 
     if(m_CHCR.nSTR != 0)
     {
+        m_CHCR.nASP = 0;
         m_nSCCTRL |= SCCTRL_INITXFER;
         Execute();
     }

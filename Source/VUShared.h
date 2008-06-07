@@ -34,12 +34,16 @@ namespace VUShared
 
     void                PullVector(CCodeGen*, uint8, size_t);
 
+    void                ADDA_base(CCodeGen*, uint8, size_t, size_t, bool);
+    void                MSUB_base(CCodeGen*, uint8, size_t, size_t, size_t, bool);
+
 	//Shared instructions
 	void				ABS(CCodeGen*, uint8, uint8, uint8);
 	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				ADDi(CCodeGen*, uint8, uint8, uint8);
 	void				ADDq(CCodeGen*, uint8, uint8, uint8, uint32);
+    void                ADDA(CCodeGen*, uint8, uint8, uint8);
 	void				ADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				CLIP(CCodeGen*, uint8, uint8);
 	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
@@ -58,7 +62,9 @@ namespace VUShared
 	void				MINIi(CCodeGen*, uint8, uint8, uint8);
 	void				MOVE(CCodeGen*, uint8, uint8, uint8);
 	void				MR32(CCodeGen*, uint8, uint8, uint8);
+    void                MSUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MSUBi(CCodeGen*, uint8, uint8, uint8);
+    void                MSUBAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MSUBAi(CCodeGen*, uint8, uint8);
 	void				MUL(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MULbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
@@ -70,12 +76,15 @@ namespace VUShared
 	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
 	void				OPMULA(CCodeGen*, uint8, uint8);
 	void				RINIT(CCodeGen*, uint8, uint8);
+    void                RGET(CCodeGen*, uint8, uint8);
+    void                RNEXT(CCodeGen*, uint8, uint8);
 	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
 	void				RXOR(CCodeGen*, uint8, uint8);
 	void				SQRT(CCodeGen*, uint8, uint8, uint32, unsigned int);
 	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				SUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				SUBi(CCodeGen*, uint8, uint8, uint8);
+    void                SUBAbc(CCodeGen*, uint8, uint8, uint8, uint8);
     void                WAITQ(CCodeGen*);
 
     void                FlushPipeline(const PIPEINFO&, CCodeGen*);

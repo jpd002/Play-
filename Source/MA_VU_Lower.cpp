@@ -291,6 +291,8 @@ void CMA_VU::CLower::JALR()
 
     //Compute new PC
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushCst(0xFFFF);
+    m_codeGen->And();
     m_codeGen->Shl(3);
     m_codeGen->PushCst(0x4000);
     m_codeGen->Add();
@@ -631,15 +633,7 @@ void CMA_VU::CLower::MFIR()
 //10
 void CMA_VU::CLower::RGET()
 {
-    for(unsigned int i = 0; i < 4; i++)
-    {
-        if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
-
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
-        m_codeGen->PushCst(0x3F800000);
-        m_codeGen->Or();
-        m_codeGen->PullRel(VUShared::GetVectorElement(m_nIT, i));
-    }
+    VUShared::RGET(m_codeGen, m_nDest, m_nIT);
 }
 
 //////////////////////////////////////////////////

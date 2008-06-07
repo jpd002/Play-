@@ -81,6 +81,38 @@ void VUShared::PullVector(CCodeGen* codeGen, uint8 dest, size_t vector)
         DestinationHasElement(dest, 3) ? vector + 0xC : SIZE_MAX);
 }
 
+void VUShared::ADDA_base(CCodeGen* codeGen, uint8 dest, size_t fs, size_t ft, bool expand)
+{
+    codeGen->MD_PushRel(fs);
+    if(expand)
+    {
+        codeGen->MD_PushRelExpand(ft);
+    }
+    else
+    {
+        codeGen->MD_PushRel(ft);
+    }
+    codeGen->MD_AddS();
+    PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
+}
+
+void VUShared::MSUB_base(CCodeGen* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
+{
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
+    codeGen->MD_PushRel(fs);
+    if(expand)
+    {
+        codeGen->MD_PushRelExpand(ft);
+    }
+    else
+    {
+        codeGen->MD_PushRel(ft);
+    }
+    codeGen->MD_MulS();
+    codeGen->MD_SubS();
+    PullVector(codeGen, dest, fd);
+}
+
 void VUShared::ABS(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
@@ -133,12 +165,20 @@ void VUShared::ADDq(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
-void VUShared::ADDAbc(CCodeGen* codeGen, uint8 nDest, uint8 nFs, uint8 nFt, uint8 nBc)
+void VUShared::ADDA(CCodeGen* codeGen, uint8 dest, uint8 fs, uint8 ft)
 {
-    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
-    codeGen->MD_AddS();
-    PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
+    ADDA_base(codeGen, dest,
+        offsetof(CMIPS, m_State.nCOP2[fs]),
+        offsetof(CMIPS, m_State.nCOP2[ft]),
+        false);
+}
+
+void VUShared::ADDAbc(CCodeGen* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc)
+{
+    ADDA_base(codeGen, dest,
+        offsetof(CMIPS, m_State.nCOP2[fs]),
+        offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
+        true);
 }
 
 void VUShared::CLIP(CCodeGen* codeGen, uint8 nFs, uint8 nFt)
@@ -351,14 +391,32 @@ void VUShared::MR32(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
     }
 }
 
+void VUShared::MSUBbc(CCodeGen* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc)
+{
+    MSUB_base(codeGen, dest,
+        offsetof(CMIPS, m_State.nCOP2[fd]),
+        offsetof(CMIPS, m_State.nCOP2[fs]),
+        offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
+        true);
+}
+
 void VUShared::MSUBi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
+    MSUB_base(codeGen, nDest,
+        offsetof(CMIPS, m_State.nCOP2[nFd]),
+        offsetof(CMIPS, m_State.nCOP2[nFs]),
+        offsetof(CMIPS, m_State.nCOP2I),
+        true);
+}
+
+void VUShared::MSUBAbc(CCodeGen* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc)
+{
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
-    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]));
     codeGen->MD_MulS();
     codeGen->MD_SubS();
-    PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+    PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::MSUBAi(CCodeGen* codeGen, uint8 nDest, uint8 nFs)
@@ -513,6 +571,34 @@ void VUShared::RINIT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf)
     codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 }
 
+void VUShared::RGET(CCodeGen* codeGen, uint8 dest, uint8 ft)
+{
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        if(!VUShared::DestinationHasElement(dest, i)) continue;
+
+        codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
+        codeGen->PushCst(0x3F800000);
+        codeGen->Or();
+        codeGen->PullRel(VUShared::GetVectorElement(ft, i));
+    }
+}
+
+void VUShared::RNEXT(CCodeGen* codeGen, uint8 dest, uint8 ft)
+{
+    //Compute next R
+    codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
+    codeGen->PushCst(0xDEADBEEF);
+    codeGen->Xor();
+    codeGen->PushCst(0xDEADBEEF);
+    codeGen->Add();
+    codeGen->PushCst(0x007FFFFF);
+    codeGen->And();
+    codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
+
+    RGET(codeGen, dest, ft);
+}
+
 void VUShared::RSQRT(CCodeGen* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)
 {
     size_t destination = g_pipeInfoQ.heldValue;
@@ -567,6 +653,14 @@ void VUShared::SUBi(CCodeGen* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
     codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
     codeGen->MD_SubS();
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+}
+
+void VUShared::SUBAbc(CCodeGen* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc)
+{
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
+    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]));
+    codeGen->MD_SubS();
+    PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
 void VUShared::WAITQ(CCodeGen* codeGen)

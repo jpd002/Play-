@@ -64,6 +64,7 @@ private:
 	static void							VADDbc();
 	static void							VSUBbc();
 	static void							VMADDbc();
+    static void                         VMSUBbc();
 	static void							VMAXbc();
 	static void							VMINIbc();
 	static void							VMULbc();
@@ -81,14 +82,19 @@ private:
 	static void							VX3();
 
 	//Vx (Common)
+    static void                         VADDAbc();
+    static void                         VSUBAbc();
 	static void							VMULAbc();
 	static void							VMADDAbc();
+    static void                         VMSUBAbc();
 
 	//V0
 	static void							VITOF0();
 	static void							VFTOI0();
+    static void                         VADDA();
 	static void							VMOVE();
 	static void							VDIV();
+    static void                         VRNEXT();
 
 	//V1
 	static void							VFTOI4();
@@ -101,6 +107,7 @@ private:
 	static void							VRINIT();
 
 	//V3
+    static void                         VCLIP();
 	static void							VNOP();
 	static void							VWAITQ();
 	static void							VRXOR();
