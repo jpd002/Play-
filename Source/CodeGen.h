@@ -171,6 +171,7 @@ public:
     void                            MD_And();
     void                            MD_CmpEqW();
     void                            MD_CmpGtH();
+    void                            MD_DivS();
     void                            MD_IsNegative();
     void                            MD_IsZero();
     void                            MD_MaxH();
@@ -184,6 +185,7 @@ public:
     void                            MD_PackWH();
     void                            MD_SllH(uint8);
     void                            MD_SraH(uint8);
+    void                            MD_SraW(uint8);
     void                            MD_SrlH(uint8);
     void                            MD_Srl256();
     void                            MD_SubB();

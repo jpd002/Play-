@@ -50,6 +50,7 @@ namespace VUShared
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
 	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
 	void				ITOF0(CCodeGen*, uint8, uint8, uint8);
+    void                ITOF15(CCodeGen*, uint8, uint8, uint8);
 	void				MADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
 	void				MADDA(CCodeGen*, uint8, uint8, uint8);

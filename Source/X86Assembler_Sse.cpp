@@ -213,6 +213,12 @@ void CX86Assembler::AddpsVo(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0x58, address, registerId);
 }
 
+void CX86Assembler::DivpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5E, address, registerId);
+}
+
 void CX86Assembler::Cvtdq2psVo(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0x0F);

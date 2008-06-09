@@ -107,6 +107,7 @@ private:
 	static void							VRINIT();
 
 	//V3
+    static void                         VITOF15();
     static void                         VCLIP();
 	static void							VNOP();
 	static void							VWAITQ();

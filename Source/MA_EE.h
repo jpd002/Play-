@@ -66,6 +66,7 @@ private:
 	static void							PSLLH();
 	static void							PSRLH();
 	static void							PSRAH();
+    static void                         PSRAW();
 
 	//Mmi0
 	static void							PSUBW();

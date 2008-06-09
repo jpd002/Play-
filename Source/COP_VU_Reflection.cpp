@@ -386,7 +386,7 @@ INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VITOF15",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VCLIP",	NULL,			CopyMnemonic,		ReflOpClip, 		NULL,				NULL			},

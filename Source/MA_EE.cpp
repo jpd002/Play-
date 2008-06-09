@@ -40,6 +40,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpSpecial2[0x34] = PSLLH;
 	m_pOpSpecial2[0x36] = PSRLH;
 	m_pOpSpecial2[0x37] = PSRAH;
+    m_pOpSpecial2[0x3F] = PSRAW;
 
 	SetupReflectionTables();
 }
@@ -327,6 +328,14 @@ void CMA_EE::PSRAH()
 {
     PushVector(m_nRT);
     m_codeGen->MD_SraH(m_nSA);
+    PullVector(m_nRD);
+}
+
+//3F
+void CMA_EE::PSRAW()
+{
+    PushVector(m_nRT);
+    m_codeGen->MD_SraW(m_nSA);
     PullVector(m_nRD);
 }
 

@@ -256,6 +256,7 @@ public:
     void                                    Cvttps2dqVo(XMMREGISTER, const CAddress&);
 
     void                                    AddpsVo(XMMREGISTER, const CAddress&);
+    void                                    DivpsVo(XMMREGISTER, const CAddress&);
     void                                    MaxpsVo(XMMREGISTER, const CAddress&);
     void                                    MinpsVo(XMMREGISTER, const CAddress&);
     void                                    MulpsVo(XMMREGISTER, const CAddress&);

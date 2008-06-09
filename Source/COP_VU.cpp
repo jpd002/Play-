@@ -442,6 +442,12 @@ void CCOP_VU::VRINIT()
 //V3 Instructions
 //////////////////////////////////////////////////
 
+//04
+void CCOP_VU::VITOF15()
+{
+    VUShared::ITOF15(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //07
 void CCOP_VU::VCLIP()
 {
@@ -541,7 +547,7 @@ void (*CCOP_VU::m_pOpVx2[0x20])() =
 void (*CCOP_VU::m_pOpVx3[0x20])() =
 {
 	//0x00
-	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		Illegal,		Illegal,		VMULAbc,		VCLIP,
+	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		VITOF15,		Illegal,		VMULAbc,		VCLIP,
 	//0x08
 	Illegal,		Illegal,		Illegal,		VNOP,			Illegal,		Illegal,		VWAITQ,			Illegal,
 	//0x10

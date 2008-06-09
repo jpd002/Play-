@@ -189,6 +189,28 @@ void CCodeGen::MD_GenericTwoOperand(const MdTwoOperandFunction& instruction)
             CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second));
         MD_PushReg(resultRegister);
     }
+    else if(FitsPattern<RegisterRegister128>())
+    {
+        RegisterRegister128::PatternValue ops(GetPattern<RegisterRegister128>());
+        XMMREGISTER resultRegister;
+        XMMREGISTER dstRegister = static_cast<XMMREGISTER>(ops.first);
+        XMMREGISTER srcRegister = static_cast<XMMREGISTER>(ops.second);
+        if(!Register128HasNextUse(dstRegister))
+        {
+            resultRegister = dstRegister;
+        }
+        else
+        {
+            resultRegister = AllocateXmmRegister();
+        }
+        instruction(resultRegister,
+            CX86Assembler::MakeXmmRegisterAddress(srcRegister));
+        if(!Register128HasNextUse(srcRegister))
+        {
+            FreeXmmRegister(srcRegister);
+        }
+        MD_PushReg(resultRegister);
+    }
     else if(FitsPattern<RelativeRegister128>())
     {
         RelativeRegister128::PatternValue ops(GetPattern<RelativeRegister128>());
@@ -363,6 +385,11 @@ void CCodeGen::MD_CmpEqW()
 void CCodeGen::MD_CmpGtH()
 {
     MD_GenericTwoOperand(bind(&CX86Assembler::PcmpgtwVo, m_Assembler, _1, _2));
+}
+
+void CCodeGen::MD_DivS()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::DivpsVo, m_Assembler, _1, _2));
 }
 
 void CCodeGen::MD_IsNegative()
@@ -548,6 +575,11 @@ void CCodeGen::MD_SllH(uint8 amount)
 void CCodeGen::MD_SraH(uint8 amount)
 {
     MD_GenericPackedShift(bind(&CX86Assembler::PsrawVo, &m_Assembler, _1, _2), amount);
+}
+
+void CCodeGen::MD_SraW(uint8 amount)
+{
+    MD_GenericPackedShift(bind(&CX86Assembler::PsradVo, &m_Assembler, _1, _2), amount);
 }
 
 void CCodeGen::MD_SrlH(uint8 amount)
