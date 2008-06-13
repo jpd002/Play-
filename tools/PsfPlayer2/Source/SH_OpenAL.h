@@ -15,7 +15,9 @@ public:
 						CSH_OpenAL();
 	virtual				~CSH_OpenAL();
 
+	void				Reset();
 	void				Update(CSpu&);
+	bool				HasFreeBuffers();
 
 private:
 	typedef std::deque<ALuint> BufferList;
@@ -24,6 +26,8 @@ private:
 	{
 		MAX_BUFFERS = 10,
 	};
+
+	void				RecycleBuffers();
 
 	OpenAl::CDevice		m_device;
 	OpenAl::CContext	m_context;

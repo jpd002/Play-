@@ -60,6 +60,7 @@ void CPsxVm::Reset()
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
+	m_spuHandler.Reset();
 }
 
 uint32 CPsxVm::ReadIoRegister(uint32 address)
@@ -217,6 +218,7 @@ void CPsxVm::ThreadProc()
 {
 	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
 	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
+	int frameCounter = frameTicks;
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -233,36 +235,29 @@ void CPsxVm::ThreadProc()
 		}
 		else
 		{
-			int ticks = ExecuteCpu(m_singleStep);
-
-			static int frameCounter = frameTicks;
-			static uint64 currentTime = CHighResTimer::GetTime();
-
-			frameCounter -= ticks;
-			if(frameCounter <= 0)
+			if(m_spuHandler.HasFreeBuffers())
 			{
-				m_intc.AssertLine(CIntc::LINE_VBLANK);
-				OnNewFrame();
-				frameCounter += frameTicks;
-				uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
-				int64 delay = frameTime - elapsed;
-				if(delay > 0)
+				while(m_spuHandler.HasFreeBuffers() && !m_mailBox.IsPending())
 				{
-					xtime xt;
-					xtime_get(&xt, boost::TIME_UTC);
-					xt.nsec += delay * 1000;
-					thread::sleep(xt);
-				}
-				currentTime = CHighResTimer::GetTime();
-			}
+					while(frameCounter > 0)
+					{
+						int ticks = ExecuteCpu(false);
+						frameCounter -= ticks;
+					}
 
-			m_spuHandler.Update(m_spu);
-			if(m_executor.MustBreak() || m_singleStep)
+					m_intc.AssertLine(CIntc::LINE_VBLANK);
+					m_spuHandler.Update(m_spu);
+					OnNewFrame();
+					frameCounter += frameTicks;
+				}
+			}
+			else
 			{
-				m_status = PAUSED;
-				m_singleStep = false;
-				m_OnMachineStateChange();
-				m_OnRunningStateChange();
+				//Sleep during 16ms
+				xtime xt;
+				xtime_get(&xt, boost::TIME_UTC);
+				xt.nsec += 10 * 1000000;
+				thread::sleep(xt);
 			}
 		}
 	}

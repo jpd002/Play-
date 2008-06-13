@@ -145,7 +145,7 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 				if(channel.status == STOPPED) break;
 				if(channel.status == RELEASE)
 				{
-					channel.status = STOPPED;					
+					channel.status = STOPPED;
 				}
 				int32 inputSample = static_cast<int32>(bufferTemp[j]);
 				struct SampleMixer
@@ -402,6 +402,7 @@ CSpu::CSampleReader::~CSampleReader()
 void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat)
 {
 	m_currentTime = 0;
+	m_dstTime = 0;
 	m_nextSample = address;
 	m_repeat = repeat;
 	m_s1 = 0;
@@ -423,12 +424,11 @@ void CSpu::CSampleReader::SetPitch(uint16 pitch)
 void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)
 {
 	assert(m_nextSample != NULL);
-	double currentDstTime = m_currentTime;
 	double dstTimeDelta = 1.0 / static_cast<double>(destSamplingRate);
 	for(unsigned int i = 0; i < sampleCount; i++)
 	{
-		samples[i] = GetSample(currentDstTime);
-		currentDstTime += dstTimeDelta;
+		samples[i] = GetSample(m_dstTime);
+		m_dstTime += dstTimeDelta;
 	}
 }
 

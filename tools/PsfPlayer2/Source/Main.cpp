@@ -13,7 +13,8 @@ int main(int argc, char** argv)
 #ifdef _DEBUG
 	{
 		virtualMachine.Reset();
-		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\FF7_psf\\FF7 104 Anxious Heart.minipsf");
+		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\FF7_psf\\FF7 408 Hurry Faster!.minipsf");
+//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\vp-psf\\vp-201.minipsf");
 		CMiniDebugger debugger(virtualMachine);
 		debugger.Show(SW_SHOW);
 		debugger.Run();

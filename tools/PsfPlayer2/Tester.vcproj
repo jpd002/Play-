@@ -905,6 +905,10 @@
 			RelativePath=".\Source\resource.h"
 			>
 		</File>
+		<File
+			RelativePath=".\Todolist.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

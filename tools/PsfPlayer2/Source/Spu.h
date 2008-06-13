@@ -213,6 +213,7 @@ private:
 		int16			m_buffer[BUFFER_SAMPLES * 2];
 		uint16			m_pitch;
 		double			m_currentTime;
+		double			m_dstTime;
 		double			m_s1;
 		double			m_s2;
 		bool			m_done;
