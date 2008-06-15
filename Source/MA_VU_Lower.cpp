@@ -23,8 +23,8 @@ uint8			CMA_VU::CLower::m_nDest;
 
 void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
 {
-    uint32 nPrevOpcode = pCtx->m_pMemoryMap->GetWord(nAddress - 8);
-    uint32 nNextOpcode = pCtx->m_pMemoryMap->GetWord(nAddress + 4);
+    uint32 nPrevOpcode = pCtx->m_pMemoryMap->GetInstruction(nAddress - 8);
+    uint32 nNextOpcode = pCtx->m_pMemoryMap->GetInstruction(nAddress + 4);
 
     if(nNextOpcode & 0x80000000)
     {
@@ -282,11 +282,22 @@ void CMA_VU::CLower::B()
     SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 }
 
+//24
+void CMA_VU::CLower::JR()
+{
+    //Compute new PC
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+    m_codeGen->PushCst(0xFFFF);
+    m_codeGen->And();
+    m_codeGen->Shl(3);
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+}
+
 //25
 void CMA_VU::CLower::JALR()
 {
     //Save PC
-    m_codeGen->PushCst(m_nAddress + 0x0C);
+    m_codeGen->PushCst((m_nAddress + 0x10) / 0x8);
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 
     //Compute new PC
@@ -294,8 +305,8 @@ void CMA_VU::CLower::JALR()
     m_codeGen->PushCst(0xFFFF);
     m_codeGen->And();
     m_codeGen->Shl(3);
-    m_codeGen->PushCst(0x4000);
-    m_codeGen->Add();
+//    m_codeGen->PushCst(0x4000);
+//    m_codeGen->Add();
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 }
 
@@ -548,7 +559,7 @@ void CMA_VU::CLower::XTOP()
     m_codeGen->PushRef(m_pCtx);
 
     //Compute Address
-    m_codeGen->PushCst(CVIF::VU1_TOP);
+    m_codeGen->PushCst(CVIF::VU_TOP);
 
     m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -564,7 +575,7 @@ void CMA_VU::CLower::XGKICK()
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 
     //Compute Address
-    m_codeGen->PushCst(CVIF::VU1_XGKICK);
+    m_codeGen->PushCst(CVIF::VU_XGKICK);
 
     m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
 }
@@ -634,6 +645,19 @@ void CMA_VU::CLower::MFIR()
 void CMA_VU::CLower::RGET()
 {
     VUShared::RGET(m_codeGen, m_nDest, m_nIT);
+}
+
+//1A
+void CMA_VU::CLower::XITOP()
+{
+    //Push context
+    m_codeGen->PushRef(m_pCtx);
+
+    //Compute Address
+    m_codeGen->PushCst(CVIF::VU_ITOP);
+
+    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //////////////////////////////////////////////////
@@ -728,7 +752,7 @@ void (*CMA_VU::CLower::m_pOpGeneral[0x80])() =
 	//0x18
 	Illegal,		Illegal,		FMAND,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x20
-	B,				Illegal,		Illegal,		Illegal,		Illegal,		JALR,			Illegal,		Illegal,
+	B,				Illegal,		Illegal,		Illegal,		JR,     		JALR,			Illegal,		Illegal,
 	//0x28
 	IBEQ,			IBNE,			Illegal,		Illegal,		IBLTZ,			IBGTZ,			IBLEZ,			IBGEZ,
 	//0x30
@@ -794,7 +818,7 @@ void (*CMA_VU::CLower::m_pOpVector1[0x20])() =
 	//0x10
 	RGET,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	Illegal,		Illegal,		XITOP,	    	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 };
 
 void (*CMA_VU::CLower::m_pOpVector2[0x20])() =

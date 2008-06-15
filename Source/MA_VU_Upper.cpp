@@ -25,7 +25,7 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIP
 
     if(m_nOpcode & 0x80000000)
     {
-        LOI(pCtx->m_pMemoryMap->GetWord(nAddress - 4));
+        LOI(pCtx->m_pMemoryMap->GetInstruction(nAddress - 4));
     }
 
     if(m_nOpcode & 0x40000000)
@@ -244,6 +244,12 @@ void CMA_VU::CUpper::FTOI0()
 //Vector1 Instructions
 //////////////////////////////////////////////////
 
+//04
+void CMA_VU::CUpper::ITOF4()
+{
+    VUShared::ITOF4(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //05
 void CMA_VU::CUpper::FTOI4()
 {
@@ -265,6 +271,12 @@ void CMA_VU::CUpper::MADDA()
 //////////////////////////////////////////////////
 //Vector2 Instructions
 //////////////////////////////////////////////////
+
+//04
+void CMA_VU::CUpper::ITOF12()
+{
+    VUShared::ITOF12(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
 
 //07
 void CMA_VU::CUpper::MULAi()
@@ -351,7 +363,7 @@ void (*CMA_VU::CUpper::m_pOpVector0[0x20])() =
 void (*CMA_VU::CUpper::m_pOpVector1[0x20])() =
 {
 	//0x00
-	ADDAbc,			Illegal,		MADDAbc,		Illegal,		Illegal,		FTOI4,			Illegal,		ABS,
+	ADDAbc,			Illegal,		MADDAbc,		Illegal,		ITOF4,		    FTOI4,			Illegal,		ABS,
 	//0x08
 	Illegal,		Illegal,		MADDA,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x10
@@ -363,7 +375,7 @@ void (*CMA_VU::CUpper::m_pOpVector1[0x20])() =
 void (*CMA_VU::CUpper::m_pOpVector2[0x20])() =
 {
 	//0x00
-	Illegal,		Illegal,		MADDAbc,		Illegal,		Illegal,		Illegal,		Illegal,		MULAi,
+	Illegal,		Illegal,		MADDAbc,		Illegal,		ITOF12, 		Illegal,		Illegal,		MULAi,
 	//0x08
 	Illegal,		Illegal,		MULA,			OPMULA,			Illegal,		Illegal,		Illegal,		Illegal,
 	//0x10

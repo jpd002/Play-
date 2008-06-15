@@ -54,12 +54,12 @@ void CVPU1::LoadState(CZipArchiveReader& archive)
     m_OFST  = registerFile.GetRegister32(STATE_REGS_OFST);
 }
 
-uint32 CVPU1::GetTOP()
+uint32 CVPU1::GetTOP() const
 {
 	return m_TOP;
 }
 
-uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 {
 #ifdef _DEBUG
     DisassembleCommand(nCommand);
@@ -71,22 +71,22 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		m_OFST = nCommand.nIMM;
 		m_STAT.nDBF = 0;
 		m_TOPS = m_BASE;
-		return 0;
+//		return 0;
 		break;
 	case 0x03:
 		//BASE
 		m_BASE = nCommand.nIMM;
-		return 0;
+//		return 0;
 		break;
 	case 0x06:
 		//MSKPATH3
 		//Should mask bit somewhere...
-		return 0;
+//		return 0;
 		break;
 	case 0x11:
 		//FLUSH
         assert(!m_vif.IsVU1Running());
-		return 0;
+//		return 0;
 		break;
 	case 0x13:
 		//FLUSHA
@@ -98,17 +98,7 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
         {
             m_STAT.nVEW = 0;
         }
-		return 0;
-		break;
-	case 0x14:
-		//MSCAL
-        StartMicroProgram(nCommand.nIMM + PS2::VUMEM1SIZE);
-		return 0;
-		break;
-	case 0x17:
-		//MSCNT
-        StartMicroProgram(m_pCtx->m_State.nPC);
-		return 0;
+//		return 0;
 		break;
 	case 0x50:
 	case 0x51:
@@ -121,7 +111,7 @@ uint32 CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 	}
 }
 
-uint32 CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
 {
     uint32 nSize = stream.GetSize();
     nSize = min<uint32>(m_CODE.nIMM * 0x10, nSize);
@@ -144,57 +134,23 @@ uint32 CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
         m_STAT.nVPS = 1;
     }
 
-    return nSize;
+//    return nSize;
 }
 
-uint32 CVPU1::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU1::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr)
 {
-    assert((nCommand.nCMD & 0x60) == 0x60);
-
-    bool nFlg       = (m_CODE.nIMM & 0x8000) != 0;
-    bool nUsn       = (m_CODE.nIMM & 0x4000) != 0;
-    uint32 nDstAddr = (m_CODE.nIMM & 0x03FF);
-
+    bool nFlg = (m_CODE.nIMM & 0x8000) != 0;
     if(nFlg) 
     {
         nDstAddr += m_TOPS;
     }
 
-    uint32 nTransfered = m_CODE.nNUM - m_NUM;
-    nDstAddr += nTransfered;
-
-    nDstAddr *= 0x10;
-
-    switch(nCommand.nCMD & 0x0F)
-    {
-    case 0x0C:
-        //V4-32
-        Unpack_V432(nDstAddr, stream);
-        break;
-    case 0x0F:
-        //V4-5
-        Unpack_V45(nDstAddr, stream);
-        break;
-    default:
-        assert(0);
-        break;
-    }
-
-    if(m_NUM != 0)
-    {
-        m_STAT.nVPS = 1;
-    }
-    else
-    {
-        m_STAT.nVPS = 0;
-    }
-
-    return 0;
+    return CVPU::Cmd_UNPACK(nCommand, stream, nDstAddr);
 }
 
 void CVPU1::StartMicroProgram(uint32 address)
 {
-    if(m_vif.IsVU1Running())
+    if(IsRunning())
     {
         m_STAT.nVEW = 1;
         return;

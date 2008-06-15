@@ -106,7 +106,7 @@ long CMIPS::GetBranch(uint16 nData)
 bool CMIPS::IsBranch(uint32 nAddress)
 {
 	uint32 nOpcode;
-	nOpcode = m_pMemoryMap->GetWord(nAddress);
+	nOpcode = m_pMemoryMap->GetInstruction(nAddress);
 	return m_pArch->IsInstructionBranch(this, nAddress, nOpcode);
 }
 

@@ -29,7 +29,7 @@ void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CCodeGen* cod
     m_codeGen       = codeGen;
 	m_nAddress		= nAddress;
 
-	m_nOpcode		= m_pCtx->m_pMemoryMap->GetWord(m_nAddress);
+	m_nOpcode		= m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
 }
 
 void CMIPSInstructionFactory::ComputeMemAccessAddr()

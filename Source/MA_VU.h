@@ -83,11 +83,13 @@ private:
 		static void							FTOI0();
 
 		//Vector 1
+        static void                         ITOF4();
 		static void							FTOI4();
 		static void							ABS();
 		static void							MADDA();
 
 		//Vector 2
+        static void                         ITOF12();
 		static void							MULAi();
 		static void							MULA();
 		static void							OPMULA();
@@ -190,6 +192,7 @@ private:
 		static void							FCAND();
 		static void							FMAND();
 		static void							B();
+        static void                         JR();
 		static void							JALR();
 		static void							IBEQ();
 		static void							IBNE();
@@ -224,6 +227,7 @@ private:
 		static void							SQI();
 		static void							MFIR();
 		static void							RGET();
+        static void                         XITOP();
 
 		//Vector2
 		static void							ILWR();

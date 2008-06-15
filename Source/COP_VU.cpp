@@ -178,7 +178,10 @@ void CCOP_VU::QMTC2()
 //06
 void CCOP_VU::CTC2()
 {
-
+    if(m_nFS < 16)
+    {
+        throw runtime_error("Not implemented.");
+    }
 }
 
 //10-1F

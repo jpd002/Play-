@@ -2212,15 +2212,13 @@ void CPS2OS::SysCallHandler()
 #endif
 
     uint32 searchAddress = m_ee.m_State.nCOP0[CCOP_SCU::EPC];
-    uint32 callInstruction = m_ee.m_pMemoryMap->GetWord(searchAddress);
+    uint32 callInstruction = m_ee.m_pMemoryMap->GetInstruction(searchAddress);
     if(callInstruction != 0x0000000C)
     {
         throw runtime_error("Not a SYSCALL.");
     }
 
-    uint32 nFunc;
-
-	nFunc = m_ee.m_State.nGPR[3].nV[0];
+	uint32 nFunc = m_ee.m_State.nGPR[3].nV[0];
 	if(nFunc & 0x80000000)
 	{
 		nFunc = 0 - nFunc;
@@ -2253,13 +2251,11 @@ void CPS2OS::SysCallHandler()
 void CPS2OS::DisassembleSysCall(uint8 nFunc)
 {
 #ifdef _DEBUG
-
-	string sDescription(GetSysCallDescription(nFunc));
-
-	if(sDescription.length() != 0)
-	{
-        CLog::GetInstance().Print(LOG_NAME, "%i: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
-	}
+//    string sDescription(GetSysCallDescription(nFunc));
+//    if(sDescription.length() != 0)
+//    {
+//        CLog::GetInstance().Print(LOG_NAME, "%i: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
+//    }
 #endif
 }
 

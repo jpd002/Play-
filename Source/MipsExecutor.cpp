@@ -170,7 +170,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
             partitionPoints.insert(endAddress);
             break;
         }
-        uint32 opcode = m_context.m_pMemoryMap->GetWord(address);
+        uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
         if(opcode == 0x03E00008)
         {
             //+4 for delay slot
@@ -183,7 +183,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
     //Find partition points within the function
     for(uint32 address = functionAddress; address <= endAddress; address += 4)
     {
-        uint32 opcode = m_context.m_pMemoryMap->GetWord(address);
+        uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
         bool isBranch = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
         if(isBranch)
         {

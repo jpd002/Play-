@@ -16,6 +16,16 @@ using namespace std;
 #define STATE_REGS_CODE         ("CODE")
 #define STATE_REGS_CYCLE        ("CYCLE")
 #define STATE_REGS_NUM          ("NUM")
+#define STATE_REGS_MASK         ("MASK")
+#define STATE_REGS_MODE         ("MODE")
+#define STATE_REGS_ROW0         ("ROW0")
+#define STATE_REGS_ROW1         ("ROW1")
+#define STATE_REGS_ROW2         ("ROW2")
+#define STATE_REGS_ROW3         ("ROW3")
+#define STATE_REGS_ITOP         ("ITOP")
+#define STATE_REGS_ITOPS        ("ITOPS")
+#define STATE_REGS_READTICK     ("readTick")
+#define STATE_REGS_WRITETICK    ("writeTick")
 
 CVPU::CVPU(CVIF& vif, unsigned int vpuNumber, const CVIF::VPUINIT& vpuInit) :
 m_vif(vif),
@@ -66,20 +76,36 @@ void CVPU::SingleStep()
 
 void CVPU::Reset()
 {
+    m_executor.Clear();
 	memset(&m_STAT, 0, sizeof(STAT));
 	memset(&m_CODE, 0, sizeof(CODE));
 	memset(&m_CYCLE, 0, sizeof(CYCLE));
+    memset(&m_R, 0, sizeof(m_R));
+    m_MODE = 0;
 	m_NUM = 0;
+    m_MASK = 0;
+    m_ITOP = 0;
+    m_ITOPS = 0;
 }
 
 void CVPU::SaveState(CZipArchiveWriter& archive)
 {
     string path = STATE_PREFIX + lexical_cast<string>(m_vpuNumber) + STATE_SUFFIX;
     CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
-    registerFile->SetRegister32(STATE_REGS_STAT,    m_STAT);
-    registerFile->SetRegister32(STATE_REGS_CODE,    m_CODE);
-    registerFile->SetRegister32(STATE_REGS_CYCLE,   m_CYCLE);
-    registerFile->SetRegister32(STATE_REGS_NUM,     m_NUM);
+    registerFile->SetRegister32(STATE_REGS_STAT,        m_STAT);
+    registerFile->SetRegister32(STATE_REGS_CODE,        m_CODE);
+    registerFile->SetRegister32(STATE_REGS_CYCLE,       m_CYCLE);
+    registerFile->SetRegister32(STATE_REGS_NUM,         m_NUM);
+    registerFile->SetRegister32(STATE_REGS_MODE,        m_MODE);
+    registerFile->SetRegister32(STATE_REGS_MASK,        m_MASK);
+    registerFile->SetRegister32(STATE_REGS_ROW0,        m_R[0]);
+    registerFile->SetRegister32(STATE_REGS_ROW1,        m_R[1]);
+    registerFile->SetRegister32(STATE_REGS_ROW2,        m_R[2]);
+    registerFile->SetRegister32(STATE_REGS_ROW3,        m_R[3]);
+    registerFile->SetRegister32(STATE_REGS_ITOP,        m_ITOP);
+    registerFile->SetRegister32(STATE_REGS_ITOPS,       m_ITOPS);
+    registerFile->SetRegister32(STATE_REGS_READTICK,    m_readTick);
+    registerFile->SetRegister32(STATE_REGS_WRITETICK,   m_writeTick);
     archive.InsertFile(registerFile);
 }
 
@@ -87,15 +113,30 @@ void CVPU::LoadState(CZipArchiveReader& archive)
 {
     string path = STATE_PREFIX + lexical_cast<string>(m_vpuNumber) + STATE_SUFFIX;
     CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
-    m_STAT  <<= registerFile.GetRegister32(STATE_REGS_STAT);
-    m_CODE  <<= registerFile.GetRegister32(STATE_REGS_CODE);
-    m_CYCLE <<= registerFile.GetRegister32(STATE_REGS_CYCLE);
-    m_NUM     = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
+    m_STAT    <<= registerFile.GetRegister32(STATE_REGS_STAT);
+    m_CODE    <<= registerFile.GetRegister32(STATE_REGS_CODE);
+    m_CYCLE   <<= registerFile.GetRegister32(STATE_REGS_CYCLE);
+    m_NUM       = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
+    m_MODE      = registerFile.GetRegister32(STATE_REGS_MODE);
+    m_MASK      = registerFile.GetRegister32(STATE_REGS_MASK);
+    m_R[0]      = registerFile.GetRegister32(STATE_REGS_ROW0);
+    m_R[1]      = registerFile.GetRegister32(STATE_REGS_ROW1);
+    m_R[2]      = registerFile.GetRegister32(STATE_REGS_ROW2);
+    m_R[3]      = registerFile.GetRegister32(STATE_REGS_ROW3);
+    m_ITOP      = registerFile.GetRegister32(STATE_REGS_ITOP);
+    m_ITOPS     = registerFile.GetRegister32(STATE_REGS_ITOPS);
+    m_readTick  = registerFile.GetRegister32(STATE_REGS_READTICK);
+    m_writeTick = registerFile.GetRegister32(STATE_REGS_WRITETICK);
 }
 
-uint32 CVPU::GetTOP()
+uint32 CVPU::GetTOP() const
 {
     throw exception();
+}
+
+uint32 CVPU::GetITOP() const
+{
+    return m_ITOP;
 }
 
 uint8* CVPU::GetVuMemory() const
@@ -138,42 +179,77 @@ void CVPU::ProcessPacket(CVIF::CFifoStream& stream)
     }
 }
 
-uint32 CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 {
+#ifdef _DEBUG
+    if(m_vpuNumber == 0)
+    {
+        DisassembleCommand(nCommand);
+    }
+#endif
 	if(nCommand.nCMD >= 0x60)
 	{
-		return Cmd_UNPACK(nCommand, stream);
+		return Cmd_UNPACK(nCommand, stream, (nCommand.nIMM & 0x03FF));
 	}
 	switch(nCommand.nCMD)
 	{
 	case 0:
 		//NOP
-		return 0;
+//		return 0;
 		break;
 	case 0x01:
 		//STCYCL
 		m_CYCLE <<= nCommand.nIMM;
-		return 0;
+//		return 0;
 		break;
+    case 0x04:
+        m_ITOPS = nCommand.nIMM & 0x3FF;
+        break;
+    case 0x05:
+        //STMOD
+        m_MODE = nCommand.nIMM & 0x03;
+//      return 0;
+        break;
 	case 0x14:
 		//MSCAL
-		assert(0);
-		return 0;
+        StartMicroProgram(nCommand.nIMM * 8);
+//		return 0;
 		break;
 	case 0x17:
 		//MSCNT
-		assert(0);
-		return 0;
+        StartMicroProgram(m_pCtx->m_State.nPC);
+//		return 0;
 		break;
+    case 0x20:
+        //STMASK
+        return Cmd_STMASK(nCommand, stream);
+        break;
+    case 0x30:
+        //STROW
+        return Cmd_STROW(nCommand, stream);
+        break;
 	case 0x4A:
 		//MPG
 		return Cmd_MPG(nCommand, stream);
 		break;
 	default:
 		assert(0);
-		return 0;
+//		return 0;
 		break;
 	}
+}
+
+void CVPU::StartMicroProgram(uint32 address)
+{
+    if(IsRunning())
+    {
+        m_STAT.nVEW = 1;
+        return;
+    }
+
+    assert(!m_STAT.nVEW);
+
+    ExecuteMicro(address);
 }
 
 void CVPU::ExecuteMicro(uint32 nAddress)
@@ -181,6 +257,8 @@ void CVPU::ExecuteMicro(uint32 nAddress)
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_VU1ZONE);
 #endif
+
+    m_ITOP = m_ITOPS;
 
     CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
 
@@ -197,13 +275,14 @@ void CVPU::ExecuteMicro(uint32 nAddress)
 
 void CVPU::ExecuteThreadProc()
 {
-    unsigned int quota = m_vif.IsVuDebuggingEnabled() ? 1 : 5000;
+    bool isDebuggingEnabled = m_vpuNumber == 0 ? m_vif.IsVu0DebuggingEnabled() : m_vif.IsVu1DebuggingEnabled();
+    unsigned int quota = isDebuggingEnabled ? 1 : 5000;
     while(!m_endThread)
     {
         if(
             !(m_vif.GetStat() & GetVbs()) || 
 #ifdef _DEBUG
-            (m_paused && m_vif.IsVuDebuggingEnabled())
+            (m_paused && isDebuggingEnabled)
 #else
             false
 #endif
@@ -237,7 +316,7 @@ void CVPU::ExecuteThreadProc()
     }
 }
 
-uint32 CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
 {
     uint32 nSize = stream.GetSize();
 
@@ -253,9 +332,10 @@ uint32 CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
     uint32 nDstAddr = (m_CODE.nIMM * 8) + nTransfered;
 
     //Check if microprogram is running
-    if(m_vif.GetStat() & GetVbs())
+    if(IsRunning())
     {
-        throw exception();
+        m_STAT.nVEW = 1;
+        return;
     }
 
     if(nSize != 0)
@@ -281,18 +361,303 @@ uint32 CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
         m_STAT.nVPS = 1;
     }
 
-    return nSize;
+//    return nSize;
 }
 
-uint32 CVPU::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU::Cmd_STROW(CODE nCommand, CVIF::CFifoStream& stream)
 {
-	assert(0);
-	return 0;
+    if(m_NUM == 0)
+    {
+        m_NUM = 4;
+    }
+
+//    uint32 transfered = 0;
+    while(m_NUM != 0 && stream.GetSize())
+    {
+        assert(m_NUM <= 4);
+        stream.Read(&m_R[4 - m_NUM], 4);
+        m_NUM--;
+//        transfered += 4;
+    }
+
+    if(m_NUM == 0)
+    {
+        m_STAT.nVPS = 0;
+    }
+    else
+    {
+        m_STAT.nVPS = 1;
+    }
+
+//    return transfered;
 }
 
+void CVPU::Cmd_STMASK(CODE command, CVIF::CFifoStream& stream)
+{
+    if(m_NUM == 0)
+    {
+        m_NUM = 1;
+    }
+
+    while(m_NUM != 0 && stream.GetSize())
+    {
+        stream.Read(&m_MASK, 4);
+        m_NUM--;
+    }
+
+    if(m_NUM == 0)
+    {
+        m_STAT.nVPS = 0;
+    }
+    else
+    {
+        m_STAT.nVPS = 1;
+    }
+}
+
+void CVPU::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr)
+{
+    assert((nCommand.nCMD & 0x60) == 0x60);
+
+    bool usn = (m_CODE.nIMM & 0x4000) != 0;
+    bool useMask = (nCommand.nCMD & 0x10) != 0;
+    uint32 cl = m_CYCLE.nCL;
+    uint32 wl = m_CYCLE.nWL;
+
+    if(m_NUM == nCommand.nNUM)
+    {
+        m_readTick = 0;
+        m_writeTick = 0;
+    }
+
+    assert(m_NUM == nCommand.nNUM);
+//    uint32 nTransfered = m_CODE.nNUM - m_NUM;
+//    nDstAddr += nTransfered;
+
+    nDstAddr *= 0x10;
+
+    uint128* dst = reinterpret_cast<uint128*>(&m_pVUMem[nDstAddr]);
+
+    while(m_NUM != 0 && stream.GetSize())
+    {
+        bool mustWrite = false;
+        uint128 writeValue;
+
+        if(cl >= wl)
+        {
+            if(m_writeTick != wl || wl == 0)
+            {
+                bool success = false;
+                switch(nCommand.nCMD & 0x0F)
+                {
+                case 0x00:
+                    //S-32
+                    success = Unpack_S32(stream, writeValue);
+                    break;
+                case 0x01:
+                    //S-16
+                    success = Unpack_S16(stream, writeValue, usn);
+                    break;
+                case 0x05:
+                    //V2-16
+                    success = Unpack_V16(stream, writeValue, 2, usn);
+                    break;
+                case 0x08:
+                    //V3-32
+                    success = Unpack_V32(stream, writeValue, 3);
+                    break;
+                case 0x09:
+                    //V3-16
+                    success = Unpack_V16(stream, writeValue, 3, usn);
+                    break;
+                case 0x0C:
+                    //V4-32
+                    success = Unpack_V32(stream, writeValue, 4);
+                    break;
+                case 0x0D:
+                    //V4-16
+                    success = Unpack_V16(stream, writeValue, 4, usn);
+                    break;
+                case 0x0E:
+                    //V4-8
+                    success = Unpack_V8(stream, writeValue, 4, usn);
+                    break;
+                case 0x0F:
+                    //V4-5
+                    success = Unpack_V45(stream, writeValue);
+                    break;
+                default:
+                    assert(0);
+                    break;
+                }
+
+                if(!success) break;
+                mustWrite = true;
+            }
+        }
+        else
+        {
+            assert(0);
+        }
+
+        if(mustWrite)
+        {
+            for(unsigned int i = 0; i < 4; i++)
+            {
+                uint32 maskOp = useMask ? GetMaskOp(i, m_writeTick) : MASK_DATA;
+
+                if(maskOp == MASK_DATA)
+                {
+                    if(m_MODE == MODE_OFFSET)
+                    {
+                        writeValue.nV[i] += m_R[i];
+                    }
+                    else if(m_MODE == MODE_DIFFERENCE)
+                    {
+                        assert(0);
+                    }
+
+                    dst->nV[i] = writeValue.nV[i];
+                }
+                else if(maskOp == MASK_MASK)
+                {
+
+                }
+                else
+                {
+                    assert(0);
+                }
+            }
+            
+            m_NUM--;
+        }
+
+        m_writeTick = min<uint32>(m_writeTick + 1, wl);
+        m_readTick = min<uint32>(m_readTick + 1, cl);
+
+        if(m_writeTick == wl && m_readTick == cl)
+        {
+            m_writeTick = 0;
+            m_readTick = 0;
+        }
+
+        dst++;
+    }
+
+    if(m_NUM != 0)
+    {
+        m_STAT.nVPS = 1;
+    }
+    else
+    {
+        stream.Align32();
+        m_STAT.nVPS = 0;
+    }
+
+//    return 0;
+}
+
+bool CVPU::Unpack_S32(CVIF::CFifoStream& stream, uint128& result)
+{
+    if(stream.GetSize() < 4) return false;
+
+    uint32 word = 0;
+    stream.Read(&word, 4);
+
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        result.nV[i] = word;
+    }
+
+    return true;
+}
+
+bool CVPU::Unpack_S16(CVIF::CFifoStream& stream, uint128& result, bool zeroExtend)
+{
+    if(stream.GetSize() < 2) return false;
+
+    uint32 temp = 0;
+    stream.Read(&temp, 2);
+    if(!zeroExtend)
+    {
+        temp = static_cast<int16>(temp);
+    }
+
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        result.nV[i] = temp;
+    }
+
+    return true;
+}
+
+bool CVPU::Unpack_V8(CVIF::CFifoStream& stream, uint128& result, unsigned int fields, bool zeroExtend)
+{
+    if(stream.GetSize() < (fields)) return false;
+
+    for(unsigned int i = 0; i < fields; i++)
+    {
+        uint32 temp = 0;
+        stream.Read(&temp, 1);
+        if(!zeroExtend)
+        {
+            temp = static_cast<int8>(temp);
+        }
+
+        result.nV[i] = temp;
+    }
+
+    return true;
+}
+
+bool CVPU::Unpack_V16(CVIF::CFifoStream& stream, uint128& result, unsigned int fields, bool zeroExtend)
+{
+    if(stream.GetSize() < (fields * 2)) return false;
+
+    for(unsigned int i = 0; i < fields; i++)
+    {
+        uint32 temp = 0;
+        stream.Read(&temp, 2);
+        if(!zeroExtend)
+        {
+            temp = static_cast<int16>(temp);
+        }
+
+        result.nV[i] = temp;
+    }
+
+    return true;
+}
+
+bool CVPU::Unpack_V32(CVIF::CFifoStream& stream, uint128& result, unsigned int fields)
+{
+    if(stream.GetSize() < (fields * 4)) return false;
+
+    stream.Read(&result, (fields * 4));
+
+    return true;
+}
+
+bool CVPU::Unpack_V45(CVIF::CFifoStream& stream, uint128& result)
+{
+    if(stream.GetSize() < 2) return false;
+
+    uint16 nColor = 0;
+    stream.Read(&nColor, 2);
+
+    result.nV0 = ((nColor >>  0) & 0x1F) << 3;
+    result.nV1 = ((nColor >>  5) & 0x1F) << 3;
+    result.nV2 = ((nColor >> 10) & 0x1F) << 3;
+    result.nV3 = ((nColor >> 15) & 0x01) << 7;
+
+    return true;
+}
+
+/*
 void CVPU::Unpack_V45(uint32 nDstAddr, CVIF::CFifoStream& stream)
 {
     assert(m_CYCLE.nCL == m_CYCLE.nWL);
+    assert(m_MODE == 0);
 
     uint32 nSize = stream.GetSize();
 
@@ -323,6 +688,7 @@ void CVPU::Unpack_V432(uint32 nDstAddr, CVIF::CFifoStream& stream)
     uint32 nWL = m_CYCLE.nWL;
 
     assert(nCL >= nWL);
+    assert(m_MODE == 0);
 
     uint32 nSize = stream.GetSize();
     nSize = min(nSize, static_cast<uint32>(m_NUM) * 0x10);
@@ -355,6 +721,59 @@ void CVPU::Unpack_V432(uint32 nDstAddr, CVIF::CFifoStream& stream)
     }
 }
 
+void CVPU::Unpack_V416(uint32 dstAddr, CVIF::CFifoStream& stream, bool zeroExtend)
+{
+    uint32 cl = m_CYCLE.nCL;
+    uint32 wl = m_CYCLE.nWL;
+
+    assert(cl == wl);
+
+    //We need 8 bytes (4x 16-bits) to write 1 128-bits packet
+
+    uint32 nSize = stream.GetSize();
+    if(m_NUM >= (nSize / 8))
+    {
+        assert((nSize % 8) == 0);  
+    }
+
+    unsigned int packets = min<uint32>(nSize / 8, m_NUM);
+    uint128* dst = reinterpret_cast<uint128*>(&m_pVUMem[dstAddr]);
+
+    for(unsigned int i = 0; i < packets; i++)
+    {
+        uint16 src[4];
+        stream.Read(src, sizeof(src));
+
+        for(unsigned int j = 0; j < 4; j++)
+        {
+            uint32 result = src[j];
+            if(!zeroExtend)
+            {
+                result = static_cast<int16>(result);
+            }
+
+            if(m_MODE == MODE_NORMAL)
+            {
+
+            }
+            else if(m_MODE == MODE_OFFSET)
+            {
+                result += m_R[j];
+            }
+            else
+            {
+                assert(0);
+            }
+
+            dst->nV[j] = result;
+        }
+
+        dst++;
+        m_NUM--;
+    }
+}
+*/
+
 uint32 CVPU::GetVbs() const
 {
     switch(m_vpuNumber)
@@ -366,6 +785,19 @@ uint32 CVPU::GetVbs() const
     default: 
         throw exception();
     }
+}
+
+bool CVPU::IsRunning() const
+{
+    return (m_vif.GetStat() & GetVbs()) != 0;
+}
+
+uint32 CVPU::GetMaskOp(unsigned int row, unsigned int col) const
+{
+    if(col > 3) col = 3;
+    assert(row < 4);
+    unsigned int index = (col * 4) + row;
+    return (m_MASK >> (index * 2)) & 0x03;
 }
 
 void CVPU::DisassembleCommand(CODE code)
@@ -397,6 +829,12 @@ void CVPU::DisassembleCommand(CODE code)
         case 0x03:
             CLog::GetInstance().Print(LOG_NAME, "BASE(imm = 0x%x);\r\n", code.nIMM);
             break;
+        case 0x04:
+            CLog::GetInstance().Print(LOG_NAME, "ITOP(imm = 0x%x);\r\n", code.nIMM);
+            break;
+        case 0x05:
+            CLog::GetInstance().Print(LOG_NAME, "STMODE(imm = 0x%x);\r\n", code.nIMM);
+            break;
         case 0x06:
             CLog::GetInstance().Print(LOG_NAME, "MSKPATH3();\r\n");
             break;
@@ -411,6 +849,12 @@ void CVPU::DisassembleCommand(CODE code)
             break;
         case 0x17:
             CLog::GetInstance().Print(LOG_NAME, "MSCNT();\r\n");
+            break;
+        case 0x20:
+            CLog::GetInstance().Print(LOG_NAME, "STMASK();\r\n");
+            break;
+        case 0x30:
+            CLog::GetInstance().Print(LOG_NAME, "STROW();\r\n");
             break;
         case 0x4A:
             CLog::GetInstance().Print(LOG_NAME, "MPG(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);

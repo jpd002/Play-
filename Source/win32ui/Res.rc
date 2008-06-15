@@ -97,6 +97,7 @@ BEGIN
         MENUITEM "Test Engine Console\tCtrl+T", ID_VIEW_TESTENGINECONSOLE
         MENUITEM SEPARATOR
         MENUITEM "EmotionEngine View\tAlt+1",   ID_VIEW_EEVIEW
+        MENUITEM "Vector Unit 0 View\tAlt+2",   ID_VIEW_VU0VIEW
         MENUITEM "Vector Unit 1 View\tAlt+3",   ID_VIEW_VU1VIEW
     END
     POPUP "Logging"

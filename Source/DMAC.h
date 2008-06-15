@@ -13,6 +13,11 @@ public:
 
 	enum REGISTER
 	{
+		D0_CHCR		= 0x10008000,
+		D0_MADR		= 0x10008010,
+		D0_QWC		= 0x10008020,
+		D0_TADR		= 0x10008030,
+
 		D1_CHCR		= 0x10009000,
 		D1_MADR		= 0x10009010,
 		D1_QWC		= 0x10009020,
@@ -40,6 +45,11 @@ public:
 		D6_MADR		= 0x1000C410,
 		D6_QWC		= 0x1000C420,
 		D6_TADR		= 0x1000C430,
+
+        D8_CHCR     = 0x1000D000,
+        D8_MADR     = 0x1000D010,
+        D8_QWC      = 0x1000D020,
+        D8_SADR     = 0x1000D080,
 
 		D9_CHCR		= 0x1000D400,
 		D9_MADR		= 0x1000D410,
@@ -88,11 +98,13 @@ public:
 private:
     uint64				FetchDMATag(uint32);
 
-	uint32				ReceiveSPRDMA(uint32, uint32, uint32, bool);
+	uint32				ReceiveDMA8(uint32, uint32, uint32, bool);
+    uint32				ReceiveDMA9(uint32, uint32, uint32, bool);
 
 	uint32				m_D_STAT;
 	uint32				m_D_ENABLE;
 
+    Dmac::CChannel      m_D0;
     Dmac::CChannel      m_D1;
 
     Dmac::CChannel      m_D2;
@@ -111,6 +123,9 @@ private:
 	uint32				m_D6_MADR;
 	uint32				m_D6_QWC;
 	uint32				m_D6_TADR;
+
+    Dmac::CChannel      m_D8;
+    uint32              m_D8_SADR;
 
     Dmac::CChannel      m_D9;
 	uint32				m_D9_SADR;

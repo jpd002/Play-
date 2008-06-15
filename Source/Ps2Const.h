@@ -23,6 +23,16 @@ namespace PS2
 	    SPRSIZE = 0x00004000,
     };
 
+    enum VUMEM0SIZE
+    {
+        VUMEM0SIZE = 0x00001000,
+    };
+
+    enum MICROMEM0SIZE
+    {
+        MICROMEM0SIZE = 0x00001000,
+    };
+
     enum VUMEM1SIZE
     {
 	    VUMEM1SIZE = 0x00004000,

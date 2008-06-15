@@ -21,6 +21,7 @@ public:
 	uint8									GetByte(uint32);
 	virtual uint16							GetHalf(uint32) = 0;
 	virtual uint32							GetWord(uint32) = 0;
+    virtual uint32                          GetInstruction(uint32) = 0;
 	virtual void							SetByte(uint32, uint8);
 	virtual void							SetHalf(uint32, uint16) = 0;
 	virtual void							SetWord(uint32, uint32) = 0;
@@ -28,6 +29,7 @@ public:
     void                                    InsertReadMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
 	void									InsertWriteMap(uint32, uint32, void*, unsigned char);
     void                                    InsertWriteMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
+    void                                    InsertInstructionMap(uint32, uint32, void*, unsigned char);
 	void									SetWriteNotifyHandler(WriteNotifyHandlerType);
 
 protected:
@@ -50,8 +52,10 @@ protected:
 
     WriteNotifyHandlerType					m_WriteNotifyHandler;
 	static MEMORYMAPELEMENT*				GetMap(MemoryMapListType&, uint32);
-	MemoryMapListType		                m_Read;
-	MemoryMapListType		                m_Write;
+
+    MemoryMapListType                       m_instructionMap;
+	MemoryMapListType		                m_readMap;
+	MemoryMapListType		                m_writeMap;
 
 private:
 	static void								InsertMap(MemoryMapListType&, uint32, uint32, void*, unsigned char);
@@ -64,6 +68,7 @@ class CMemoryMap_LSBF : public CMemoryMap
 public:
 	uint16									GetHalf(uint32);
 	uint32									GetWord(uint32);
+    uint32                                  GetInstruction(uint32);
 	void									SetHalf(uint32, uint16);
 	void									SetWord(uint32, uint32);
 };

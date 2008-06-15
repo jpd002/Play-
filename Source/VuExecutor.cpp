@@ -13,7 +13,7 @@ CVuExecutor::~CVuExecutor()
 
 void CVuExecutor::PartitionFunction(uint32 functionAddress)
 {
-    const uint32 vuMaxAddress = 0x8000;
+    const uint32 vuMaxAddress = 0x4000;
     typedef std::set<uint32> PartitionPointSet;
     uint32 endAddress = 0;
     PartitionPointSet partitionPoints;
@@ -32,7 +32,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
             break;
         }
 
-        uint32 opcode = m_context.m_pMemoryMap->GetWord(address);
+        uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
         //If we find the E bit in an upper instruction
         if((address & 0x04) && (opcode & 0x40000000))
         {
@@ -45,7 +45,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
     //Find partition points within the function
     for(uint32 address = functionAddress; address <= endAddress; address += 4)
     {
-        uint32 opcode = m_context.m_pMemoryMap->GetWord(address);
+        uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
         bool isBranch = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
         if(isBranch)
         {
@@ -76,11 +76,11 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
         }
     }
 
-    uint32 currentPoint = 0;
+    uint32 currentPoint = MIPS_INVALID_PC;
     for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
         pointIterator != partitionPoints.end(); pointIterator++)
     {
-        if(currentPoint != 0)
+        if(currentPoint != MIPS_INVALID_PC)
         {
             uint32 beginAddress = currentPoint;
             uint32 endAddress = *pointIterator - 4;

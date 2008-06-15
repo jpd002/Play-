@@ -341,7 +341,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"JR",		NULL,			CopyMnemonic,		ReflOpIs,			IsBranch,			ReflEaIs		},
 	{	"JALR",		NULL,			CopyMnemonic,		ReflOpItIs,			IsBranch,			ReflEaIs		},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -594,7 +594,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX1[32] =
 	//0x18
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"XITOP",	NULL,			CopyMnemonic,		ReflOpIt,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -734,7 +734,7 @@ void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32
 {
 	INSTRUCTION Instr;
 
-	if(pCtx->m_pMemoryMap->GetWord(nAddress + 4) & 0x80000000)
+	if(pCtx->m_pMemoryMap->GetInstruction(nAddress + 4) & 0x80000000)
 	{
 		strncpy(sText, "LOI", nCount);
 		return;
@@ -755,7 +755,7 @@ void CMA_VU::CLower::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32
 {
 	INSTRUCTION Instr;
 
-	if(pCtx->m_pMemoryMap->GetWord(nAddress + 4) & 0x80000000)
+	if(pCtx->m_pMemoryMap->GetInstruction(nAddress + 4) & 0x80000000)
 	{
 		sprintf(sText, "$%0.8X", nOpcode);
 		return;

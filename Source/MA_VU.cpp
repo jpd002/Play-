@@ -26,7 +26,7 @@ void CMA_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx,
 	    m_pCtx			= pCtx;
         m_codeGen       = codeGen;
 	    m_nAddress		= nAddress;
-	    m_nOpcode		= m_pCtx->m_pMemoryMap->GetWord(m_nAddress);
+	    m_nOpcode		= m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
     }
 
 	if(nAddress & 0x04)

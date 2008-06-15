@@ -76,6 +76,9 @@ public:
 	uint32                      IOPortReadHandler(uint32);
 	uint32                      IOPortWriteHandler(uint32, uint32);
 
+    uint32                      Vu0IoPortReadHandler(uint32);
+    uint32                      Vu0IoPortWriteHandler(uint32, uint32);
+
     uint32                      Vu1IoPortReadHandler(uint32);
     uint32                      Vu1IoPortWriteHandler(uint32, uint32);
 
@@ -106,6 +109,7 @@ public:
     CIopBios*                   m_iopOs;
 
     CMIPS                       m_EE;
+    CMIPS                       m_VU0;
     CMIPS                       m_VU1;
     CMIPS                       m_iop;
     CMipsExecutor               m_executor;

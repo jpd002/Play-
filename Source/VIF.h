@@ -29,8 +29,9 @@ public:
 
     enum VU1REGISTERS
     {
-        VU1_TOP     = 0x8400,
-        VU1_XGKICK  = 0x8410,
+        VU_TOP      = 0x8400,
+        VU_XGKICK   = 0x8410,
+        VU_ITOP     = 0x8420,
     };
 
     enum STAT_BITS
@@ -48,16 +49,23 @@ public:
     void        SaveState(CZipArchiveWriter&);
     void        LoadState(CZipArchiveReader&);
 
+    uint32      ReceiveDMA0(uint32, uint32, bool);
     uint32      ReceiveDMA1(uint32, uint32, bool);
 
-    uint32      GetTop1();
+    uint32      GetITop0() const;
+    uint32      GetITop1() const;
+    uint32      GetTop1() const;
 
     void        StopVU(CMIPS*);
     void        ProcessXGKICK(uint32);
 
-    bool        IsVuDebuggingEnabled() const;
+    bool        IsVu0DebuggingEnabled() const;
+    bool        IsVu1DebuggingEnabled() const;
 
-    bool        IsVU1Running();
+    bool        IsVU0Running() const;
+    bool        IsVU1Running() const;
+
+    void        SingleStepVU0();
     void        SingleStepVU1();
 
     uint8*      GetRam() const;
@@ -100,11 +108,11 @@ private:
         STAT1_DBF   = 0x80,
     };
 
-    uint32      m_VPU_STAT;
-    CVPU*       m_pVPU[2];
-    CGIF&       m_gif;
-    uint8*      m_ram;
-    CFifoStream m_stream;
+    uint32          m_VPU_STAT;
+    CVPU*           m_pVPU[2];
+    CGIF&           m_gif;
+    uint8*          m_ram;
+    CFifoStream*    m_stream[2];
 };
 
 #endif

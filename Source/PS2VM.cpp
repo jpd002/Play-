@@ -31,9 +31,12 @@
 #define LOG_NAME        ("ps2vm")
 
 #define STATE_EE        ("ee")
+#define STATE_VU0       ("vu0")
 #define STATE_VU1       ("vu1")
 #define STATE_RAM       ("ram")
 #define STATE_SPR       ("spr")
+#define STATE_VUMEM0    ("vumem0")
+#define STATE_MICROMEM0 ("micromem0")
 #define STATE_VUMEM1    ("vumem1")
 #define STATE_MICROMEM1 ("micromem1")
 
@@ -72,12 +75,13 @@ m_pRAM(new uint8[PS2::EERAMSIZE]),
 m_pBIOS(new uint8[PS2::EEBIOSSIZE]),
 m_pSPR(new uint8[PS2::SPRSIZE]),
 m_iopRam(new uint8[PS2::IOPRAMSIZE]),
-m_pVUMem0(NULL),
-m_pMicroMem0(NULL),
+m_pVUMem0(new uint8[PS2::VUMEM0SIZE]),
+m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE]),
 m_pVUMem1(new uint8[PS2::VUMEM1SIZE]),
 m_pMicroMem1(new uint8[PS2::MICROMEM1SIZE]),
 m_pThread(NULL),
 m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
+m_VU0(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
 m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
 m_iop(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00400000),
 m_executor(m_EE),
@@ -92,7 +96,7 @@ m_pCDROM0(NULL),
 m_dmac(m_pRAM, m_pSPR),
 m_gif(m_pGS, m_pRAM, m_pSPR),
 m_sif(m_dmac, m_pRAM),
-m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, NULL), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
+m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
 m_intc(m_dmac),
 m_timer(m_intc)
 {
@@ -240,18 +244,25 @@ void CPS2VM::CreateVM()
         PS2::EERAMSIZE / 0x100000, PS2::EEBIOSSIZE / 0x100000, PS2::SPRSIZE / 0x1000);
 	
 	//EmotionEngine context setup
+
+    //Read map
 	m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
 	m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_pSPR,				                        0x01);
     m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, _1),    0x02);
     m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, _1),    0x03);
 	m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				                        0x04);
 
-	m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_pRAM,				                            0x00);
+    //Write map
+    m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_pRAM,				                            0x00);
 	m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_pSPR,				                            0x01);
     m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortWriteHandler, this, _1, _2),	0x02);
     m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortWriteHandler,	this, _1, _2),  0x03);
 
     m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, _1));
+
+	//Instruction map
+    m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
+	m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				                    0x01);
 
 	m_EE.m_pArch			= &g_MAEE;
 	m_EE.m_pCOP[0]			= &g_COPSCU;
@@ -267,15 +278,35 @@ void CPS2VM::CreateVM()
 	m_EE.m_pTickFunction	= NULL;
 #endif
 
-	//Vector Unit 1 context setup
-	m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                    0x00);
-	m_VU1.m_pMemoryMap->InsertReadMap(0x00004000, 0x00007FFF, m_pMicroMem1,                                     0x01);
-    m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortReadHandler, this, _1),    0x02);
+    //Vector Unit 0 context setup
+	m_VU0.m_pMemoryMap->InsertReadMap(0x00000000, 0x00000FFF, m_pVUMem0,                                            0x01);
+	m_VU0.m_pMemoryMap->InsertReadMap(0x00001000, 0x00001FFF, m_pVUMem0,                                            0x02);
+	m_VU0.m_pMemoryMap->InsertReadMap(0x00002000, 0x00002FFF, m_pVUMem0,                                            0x03);
+	m_VU0.m_pMemoryMap->InsertReadMap(0x00003000, 0x00003FFF, m_pVUMem0,                                            0x04);
+    m_VU0.m_pMemoryMap->InsertReadMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortReadHandler, this, _1),        0x05);
+
+	m_VU0.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00000FFF, m_pVUMem0,                                           0x01);
+	m_VU0.m_pMemoryMap->InsertWriteMap(0x00001000, 0x00001FFF, m_pVUMem0,                                           0x02);
+	m_VU0.m_pMemoryMap->InsertWriteMap(0x00002000, 0x00002FFF, m_pVUMem0,                                           0x03);
+	m_VU0.m_pMemoryMap->InsertWriteMap(0x00003000, 0x00003FFF, m_pVUMem0,                                           0x04);
+    m_VU0.m_pMemoryMap->InsertWriteMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortWriteHandler, this, _1, _2),  0x05);
+
+    m_VU0.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00000FFF, m_pMicroMem0,                                  0x00);
+
+	m_VU0.m_pArch			= &m_MAVU;
+	m_VU0.m_pAddrTranslator	= CMIPS::TranslateAddress64;
+    m_VU0.m_pTickFunction   = NULL;
+
+    //Vector Unit 1 context setup
+	m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                        0x00);
+    m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortReadHandler, this, _1),        0x01);
 
 	m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                        0x00);
     m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortWriteHandler, this, _1, _2),  0x01);
 
-	m_VU1.m_pArch			= &m_MAVU;
+	m_VU1.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_pMicroMem1,                                  0x01);
+
+    m_VU1.m_pArch			= &m_MAVU;
 	m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
 
 #ifdef DEBUGGER_INCLUDED
@@ -284,6 +315,7 @@ void CPS2VM::CreateVM()
 	m_VU1.m_pTickFunction	= NULL;
 #endif
 
+    m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, _1, _2, _4));
     m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, _1, _2, _4));
     m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, _1, _2, _3, _4));
     m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, _1, _2, _4, m_pRAM));
@@ -305,6 +337,8 @@ void CPS2VM::ResetVM()
 
     memset(m_pRAM,			0, PS2::EERAMSIZE);
     memset(m_pSPR,			0, PS2::SPRSIZE);
+    memset(m_pVUMem0,       0, PS2::VUMEM0SIZE);
+    memset(m_pMicroMem0,    0, PS2::MICROMEM0SIZE);
     memset(m_pVUMem1,		0, PS2::VUMEM1SIZE);
     memset(m_pMicroMem1,	0, PS2::MICROMEM1SIZE);
 
@@ -312,10 +346,10 @@ void CPS2VM::ResetVM()
 
 	//Reset Contexts
     m_EE.Reset();
+    m_VU0.Reset();
     m_VU1.Reset();
 
-    m_VU1.m_State.nPC		= 0x4000;
-
+    m_executor.Clear();
 	m_nStatus = PAUSED;
 	
 	//Reset subunits
@@ -368,9 +402,12 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
         CZipArchiveWriter archive;
 
         archive.InsertFile(new CMemoryStateFile(STATE_EE,           &m_EE.m_State,  sizeof(MIPSSTATE)));
+        archive.InsertFile(new CMemoryStateFile(STATE_VU0,          &m_VU0.m_State, sizeof(MIPSSTATE)));
         archive.InsertFile(new CMemoryStateFile(STATE_VU1,          &m_VU1.m_State, sizeof(MIPSSTATE)));
         archive.InsertFile(new CMemoryStateFile(STATE_RAM,          m_pRAM,         PS2::EERAMSIZE));
         archive.InsertFile(new CMemoryStateFile(STATE_SPR,          m_pSPR,         PS2::SPRSIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_VUMEM0,       m_pVUMem0,      PS2::VUMEM0SIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM0,    m_pMicroMem0,   PS2::MICROMEM0SIZE));
         archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,       m_pVUMem1,      PS2::VUMEM1SIZE));
         archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,    m_pMicroMem1,   PS2::MICROMEM1SIZE));
 
@@ -413,9 +450,12 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 		try
 		{
 			archive.BeginReadFile(STATE_EE          )->Read(&m_EE.m_State,  sizeof(MIPSSTATE));
+            archive.BeginReadFile(STATE_VU0         )->Read(&m_VU0.m_State, sizeof(MIPSSTATE));
 			archive.BeginReadFile(STATE_VU1         )->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
 			archive.BeginReadFile(STATE_RAM         )->Read(m_pRAM,         PS2::EERAMSIZE);
 			archive.BeginReadFile(STATE_SPR         )->Read(m_pSPR,         PS2::SPRSIZE);
+            archive.BeginReadFile(STATE_VUMEM0      )->Read(m_pVUMem0,      PS2::VUMEM0SIZE);
+            archive.BeginReadFile(STATE_MICROMEM0   )->Read(m_pMicroMem0,   PS2::MICROMEM0SIZE);
 			archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      PS2::VUMEM1SIZE);
 			archive.BeginReadFile(STATE_MICROMEM1   )->Read(m_pMicroMem1,   PS2::MICROMEM1SIZE);
 
@@ -574,13 +614,11 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 {
-	uint32 nReturn;
-
 #ifdef PROFILE
 	CProfiler::GetInstance().EndZone();
 #endif
 
-	nReturn = 0;
+	uint32 nReturn = 0;
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
 //        nReturn = m_timer.GetRegister(nAddress);
@@ -675,16 +713,46 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
     return 0;
 }
 
+uint32 CPS2VM::Vu0IoPortReadHandler(uint32 address)
+{
+    uint32 result = 0;
+    switch(address)
+    {
+    case CVIF::VU_ITOP:
+        result = m_vif.GetITop0();
+        break;
+    default:
+        CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU0 IO port (0x%0.8X).\r\n", address);
+        break;
+    }
+    return result;
+}
+
+uint32 CPS2VM::Vu0IoPortWriteHandler(uint32 address, uint32 value)
+{
+    switch(address)
+    {
+    default:
+        CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%0.8X, 0x%0.8X).\r\n", 
+            address, value);
+        break;
+    }
+    return 0;
+}
+
 uint32 CPS2VM::Vu1IoPortReadHandler(uint32 address)
 {
     uint32 result = 0xCCCCCCCC;
     switch(address)
     {
-    case CVIF::VU1_TOP:
+    case CVIF::VU_ITOP:
+        result = m_vif.GetITop1();
+        break;
+    case CVIF::VU_TOP:
         result = m_vif.GetTop1();
         break;
     default:
-        CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU IO port (0x%0.8X).\r\n", address);
+        CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%0.8X).\r\n", address);
         break;
     }
     return result;
@@ -694,11 +762,12 @@ uint32 CPS2VM::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 {
     switch(address)
     {
-    case CVIF::VU1_XGKICK:
+    case CVIF::VU_XGKICK:
         m_vif.ProcessXGKICK(value);
         break;
     default:
-        CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU IO port (0x%0.8X).\r\n", address);
+        CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%0.8X, 0x%0.8X).\r\n", 
+            address, value);
         break;
     }
     return 0;
@@ -860,6 +929,10 @@ void CPS2VM::EmuThread()
 				}
 			}
 #ifdef _DEBUG
+            if(m_vif.IsVU0Running())
+            {
+                m_vif.SingleStepVU0();
+            }
             if(m_vif.IsVU1Running())
             {
                 m_vif.SingleStepVU1();
@@ -909,7 +982,12 @@ void CPS2VM::EmuThread()
 //            }
             //END
 #ifdef _DEBUG
-            if(m_vif.IsVuDebuggingEnabled() && m_vif.IsVU1Running())
+            if(m_vif.IsVu0DebuggingEnabled() && m_vif.IsVU0Running())
+            {
+                //Force pause
+                m_singleStep = true;
+            }
+            if(m_vif.IsVu1DebuggingEnabled() && m_vif.IsVU1Running())
             {
                 //Force pause
                 m_singleStep = true;

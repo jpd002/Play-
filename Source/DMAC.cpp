@@ -43,6 +43,7 @@ m_ram(ram),
 m_spr(spr),
 m_D_STAT(0),
 m_D_ENABLE(0),
+m_D0(*this, 0, DummyTransfertFunction),
 m_D1(*this, 1, DummyTransfertFunction),
 m_D2(*this, 2, DummyTransfertFunction),
 m_D3_CHCR(0),
@@ -56,7 +57,9 @@ m_D6_CHCR(0),
 m_D6_MADR(0),
 m_D6_QWC(0),
 m_D6_TADR(0),
-m_D9(*this, 9, bind(&CDMAC::ReceiveSPRDMA, this, _1, _2, _3, _4)),
+m_D8(*this, 8, bind(&CDMAC::ReceiveDMA8, this, _1, _2, _3, _4)),
+m_D8_SADR(0),
+m_D9(*this, 9, bind(&CDMAC::ReceiveDMA9, this, _1, _2, _3, _4)),
 m_D9_SADR(0)
 {
     Reset();
@@ -72,6 +75,9 @@ void CDMAC::Reset()
 	m_D_STAT	= 0;
 	m_D_ENABLE	= 0;
 
+    //Reset Channel 0
+    m_D0.Reset();
+
 	//Reset Channel 1
 	m_D1.Reset();
 
@@ -80,6 +86,10 @@ void CDMAC::Reset()
 
 	//Reset Channel 4
 	m_D4.Reset();
+
+    //Reset Channel 8
+    m_D8.Reset();
+    m_D8_SADR = 0;
 
 	//Reset Channel 9
 	m_D9.Reset();
@@ -90,6 +100,9 @@ void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHan
 {
     switch(channel)
     {
+    case 0:
+        m_D0.SetReceiveHandler(handler);
+        break;
     case 1:
         m_D1.SetReceiveHandler(handler);
         break;
@@ -180,13 +193,26 @@ bool CDMAC::IsEndTagId(uint32 nTag)
 	return ((nTag == 0x00) || (nTag == 0x07));
 }
 
-uint32 CDMAC::ReceiveSPRDMA(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
+uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
 {
-	uint32 nDstAddress;
-
 	assert(nTagIncluded == false);
 
-	nDstAddress = m_D9_SADR;
+	uint32 nSrcAddress = m_D8_SADR;
+	nSrcAddress &= (PS2::SPRSIZE - 1);
+	nDstAddress &= (PS2::EERAMSIZE - 1);
+
+	memcpy(m_ram + nDstAddress, m_spr + nSrcAddress, nCount * 0x10);
+
+	m_D8_SADR += (nCount * 0x10);
+
+	return nCount;
+}
+
+uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
+{
+	assert(nTagIncluded == false);
+
+	uint32 nDstAddress = m_D9_SADR;
 	nDstAddress &= (PS2::SPRSIZE - 1);
 	nSrcAddress &= (PS2::EERAMSIZE - 1);
 
@@ -205,6 +231,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 	switch(nAddress)
 	{
+	case D0_CHCR + 0x0:
+		return m_D0.ReadCHCR();
+		break;
+	case D0_CHCR + 0x4:
+	case D0_CHCR + 0x8:
+	case D0_CHCR + 0xC:
+		return 0;
+		break;
+
 	case D1_CHCR + 0x0:
 		return m_D1.ReadCHCR();
 		break;
@@ -297,7 +332,27 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-	case D9_CHCR + 0x0:
+    //Channel 8
+	case D8_CHCR + 0x0:
+		return m_D8.ReadCHCR();
+		break;
+	case D8_CHCR + 0x4:
+	case D8_CHCR + 0x8:
+	case D8_CHCR + 0xC:
+		return 0;
+		break;
+
+    case D8_MADR + 0x0:
+        return m_D8.m_nMADR;
+        break;
+	case D8_MADR + 0x4:
+	case D8_MADR + 0x8:
+	case D8_MADR + 0xC:
+		return 0;
+		break;
+
+    //Channel 9
+    case D9_CHCR + 0x0:
 		return m_D9.ReadCHCR();
 		break;
 	case D9_CHCR + 0x4:
@@ -306,7 +361,17 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-	case 0x1000E010:
+    case D9_MADR + 0x0:
+        return m_D9.m_nMADR;
+        break;
+	case D9_MADR + 0x4:
+	case D9_MADR + 0x8:
+	case D9_MADR + 0xC:
+		return 0;
+		break;
+
+    //General Registers
+    case 0x1000E010:
 		return m_D_STAT;
 		break;
 
@@ -335,7 +400,41 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	switch(nAddress)
 	{
-	case D1_CHCR + 0x0:
+    //Channel 0
+	case D0_CHCR + 0x0:
+		m_D0.WriteCHCR(nData);
+		break;
+	case D0_CHCR + 0x4:
+	case D0_CHCR + 0x8:
+	case D0_CHCR + 0xC:
+		break;
+
+	case D0_MADR + 0x0:
+		m_D0.m_nMADR = nData;
+		break;
+	case D0_MADR + 0x4:
+	case D0_MADR + 0x8:
+	case D0_MADR + 0xC:
+		break;
+
+	case D0_QWC + 0x0:
+		m_D0.m_nQWC = nData;
+		break;
+	case D0_QWC + 0x4:
+	case D0_QWC + 0x8:
+	case D0_QWC + 0xC:
+		break;
+
+	case D0_TADR + 0x0:
+		m_D0.m_nTADR = nData;
+		break;
+	case D0_TADR + 0x4:
+	case D0_TADR + 0x8:
+	case D0_TADR + 0xC:
+		break;
+
+    //Channel 1
+    case D1_CHCR + 0x0:
 		m_D1.WriteCHCR(nData);
 		break;
 	case D1_CHCR + 0x4:
@@ -545,7 +644,41 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case 0x1000C43C:
 		break;
 
-	case D9_CHCR + 0x0:
+    //Channel 8
+	case D8_CHCR + 0x0:
+		m_D8.WriteCHCR(nData);
+		break;
+	case D8_CHCR + 0x4:
+	case D8_CHCR + 0x8:
+	case D8_CHCR + 0xC:
+		break;
+
+	case D8_MADR + 0x0:
+		m_D8.m_nMADR = nData;
+		break;
+	case D8_MADR + 0x4:
+	case D8_MADR + 0x8:
+	case D8_MADR + 0xC:
+		break;
+
+	case D8_QWC + 0x0:
+		m_D8.m_nQWC = nData;
+		break;
+	case D8_QWC + 0x4:
+	case D8_QWC + 0x8:
+	case D8_QWC + 0xC:
+		break;
+
+	case D8_SADR + 0x0:
+		m_D8_SADR = nData;
+		break;
+	case D8_SADR + 0x4:
+	case D8_SADR + 0x8:
+	case D8_SADR + 0xC:
+		break;
+
+    //Channel 9
+    case D9_CHCR + 0x0:
 		m_D9.WriteCHCR(nData);
 		break;
 	case D9_CHCR + 0x4:
@@ -728,6 +861,18 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		break;
 	case 0x1000C430:
 		CLog::GetInstance().Print(LOG_NAME, "D6_TADR = 0x%0.8X.\r\n", nData);
+		break;
+	case D8_CHCR:
+		CLog::GetInstance().Print(LOG_NAME, "D8_CHCR = 0x%0.8X.\r\n", nData);
+		break;
+	case D8_MADR:
+		CLog::GetInstance().Print(LOG_NAME, "D8_MADR = 0x%0.8X.\r\n", nData);
+		break;
+	case D8_QWC:
+		CLog::GetInstance().Print(LOG_NAME, "D8_QWC = 0x%0.8X.\r\n", nData);
+		break;
+	case D8_SADR:
+		CLog::GetInstance().Print(LOG_NAME, "D8_SADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D9_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "D9_CHCR = 0x%0.8X.\r\n", nData);

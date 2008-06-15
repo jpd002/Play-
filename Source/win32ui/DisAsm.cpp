@@ -226,7 +226,7 @@ void CDisAsm::FindCallers()
 
     for(int i = 0; i < PS2::EERAMSIZE; i += 4)
     {
-	    uint32 nVal = m_pCtx->m_pMemoryMap->GetWord(i);
+	    uint32 nVal = m_pCtx->m_pMemoryMap->GetInstruction(i);
 	    if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
 	    {
 		    nVal &= 0x3FFFFFF;
@@ -398,7 +398,7 @@ uint32 CDisAsm::GetAddressAtPosition(unsigned int nX, unsigned int nY)
 uint32 CDisAsm::GetInstruction(uint32 nAddress)
 {
 	//Address translation perhaps?
-	return m_pCtx->m_pMemoryMap->GetWord(nAddress);
+	return m_pCtx->m_pMemoryMap->GetInstruction(nAddress);
 }
 
 void CDisAsm::ToggleBreakpoint(uint32 nAddress)

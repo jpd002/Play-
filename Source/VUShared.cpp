@@ -279,6 +279,24 @@ void VUShared::ITOF0(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
+void VUShared::ITOF4(CCodeGen* codeGen, uint8 dest, uint8 ft, uint8 fs)
+{
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
+    codeGen->MD_ToSingle();
+    codeGen->MD_PushCstExpand(16.0f);
+    codeGen->MD_DivS();
+    PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
+}
+
+void VUShared::ITOF12(CCodeGen* codeGen, uint8 dest, uint8 ft, uint8 fs)
+{
+    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
+    codeGen->MD_ToSingle();
+    codeGen->MD_PushCstExpand(4096.0f);
+    codeGen->MD_DivS();
+    PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
+}
+
 void VUShared::ITOF15(CCodeGen* codeGen, uint8 dest, uint8 ft, uint8 fs)
 {
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));

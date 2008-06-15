@@ -59,7 +59,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 
 	while(nCandidate != nEnd)
 	{
-		nOp = m_pCtx->m_pMemoryMap->GetWord(nCandidate);
+		nOp = m_pCtx->m_pMemoryMap->GetInstruction(nCandidate);
 		if((nOp & 0xFFFF0000) == 0x27BD0000)
 		{
             //Found the head of a routine (stack allocation)
@@ -68,7 +68,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 			nTemp = nCandidate;
 			while(nTemp != nEnd)
 			{
-				nOp = m_pCtx->m_pMemoryMap->GetWord(nTemp);
+				nOp = m_pCtx->m_pMemoryMap->GetInstruction(nTemp);
 
 				//Check SD RA, 0x0000(SP)
 				if((nOp & 0xFFFF0000) == 0xFFBF0000)
@@ -85,7 +85,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 					//ADDIU SP, SP, 0x????
 					//JR RA
 					
-					nOp = m_pCtx->m_pMemoryMap->GetWord(nTemp - 4);
+					nOp = m_pCtx->m_pMemoryMap->GetInstruction(nTemp - 4);
 					if((nOp & 0xFFFF0000) == 0x27BD0000)
 					{
 						if(nStackAmount == (int16)(nOp & 0xFFFF))
@@ -102,7 +102,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 					//JR RA
 					//ADDIU SP, SP, 0x????
 
-					nOp = m_pCtx->m_pMemoryMap->GetWord(nTemp + 4);
+					nOp = m_pCtx->m_pMemoryMap->GetInstruction(nTemp + 4);
 					if((nOp & 0xFFFF0000) == 0x27BD0000)
 					{
 						if(nStackAmount == (int16)(nOp & 0xFFFF))

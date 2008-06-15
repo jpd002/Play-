@@ -20,13 +20,15 @@ public:
 
     void                SingleStep();
     virtual void        Reset();
-    virtual uint32      GetTOP();
+    virtual uint32      GetTOP() const;
+    virtual uint32      GetITOP() const;
     virtual void        SaveState(CZipArchiveWriter&);
     virtual void        LoadState(CZipArchiveReader&);
     virtual void        ProcessPacket(CVIF::CFifoStream&);
 
     CMIPS&              GetContext() const;
     uint8*              GetVuMemory() const;
+    bool                IsRunning() const;
 
 protected:
     struct STAT : public convertible<uint32>
@@ -64,17 +66,44 @@ protected:
     };
 #pragma pack(pop)
 
+    enum ADDMODE
+    {
+        MODE_NORMAL = 0,
+        MODE_OFFSET = 1,
+        MODE_DIFFERENCE = 2
+    };
+
+    enum MASKOP
+    {
+        MASK_DATA = 0,
+        MASK_ROW = 1,
+        MASK_COL = 2,
+        MASK_MASK = 3
+    };
+
     void                ExecuteThreadProc();
     void                ExecuteMicro(uint32);
-    virtual uint32      ExecuteCommand(CODE, CVIF::CFifoStream&);
-    virtual uint32      Cmd_UNPACK(CODE, CVIF::CFifoStream&);
+    virtual void        StartMicroProgram(uint32);
+    virtual void        ExecuteCommand(CODE, CVIF::CFifoStream&);
+    virtual void        Cmd_UNPACK(CODE, CVIF::CFifoStream&, uint32);
 
-    uint32              Cmd_MPG(CODE, CVIF::CFifoStream&);
+    void                Cmd_MPG(CODE, CVIF::CFifoStream&);
+    void                Cmd_STROW(CODE, CVIF::CFifoStream&);
+    void                Cmd_STMASK(CODE, CVIF::CFifoStream&);
 
-    void                Unpack_V45(uint32, CVIF::CFifoStream&);
-    void                Unpack_V432(uint32, CVIF::CFifoStream&);
+    bool                Unpack_S32(CVIF::CFifoStream&, uint128&);
+    bool                Unpack_S16(CVIF::CFifoStream&, uint128&, bool);
+    bool                Unpack_V16(CVIF::CFifoStream&, uint128&, unsigned int, bool);
+    bool                Unpack_V8(CVIF::CFifoStream&, uint128&, unsigned int, bool);
+    bool                Unpack_V32(CVIF::CFifoStream&, uint128&, unsigned int);
+    bool                Unpack_V45(CVIF::CFifoStream&, uint128&);
+
+//    void                Unpack_V45(uint32, CVIF::CFifoStream&);
+//    void                Unpack_V432(uint32, CVIF::CFifoStream&);
+//    void                Unpack_V416(uint32, CVIF::CFifoStream&, bool);
 
     uint32              GetVbs() const;
+    uint32              GetMaskOp(unsigned int, unsigned int) const;
 
     void                DisassembleCommand(CODE);
 
@@ -82,6 +111,13 @@ protected:
     CYCLE               m_CYCLE;
     CODE                m_CODE;
     uint8               m_NUM;
+    uint32              m_MODE;
+    uint32              m_R[4];
+    uint32              m_MASK;
+    uint32              m_ITOP;
+    uint32              m_ITOPS;
+    uint32              m_readTick;
+    uint32              m_writeTick;
 
     uint128             m_buffer;
 

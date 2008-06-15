@@ -217,9 +217,7 @@ void CSIF::Cmd_Initialize(PACKETHDR* pHDR)
 		uint32		nEEAddress;
 	};
 
-	INIT* pInit;
-
-	pInit = (INIT*)pHDR;
+	INIT* pInit = reinterpret_cast<INIT*>(pHDR);
 
 	if(pInit->Header.nOptional == 0)
 	{
