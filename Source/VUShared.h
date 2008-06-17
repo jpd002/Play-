@@ -35,6 +35,7 @@ namespace VUShared
     void                PullVector(CCodeGen*, uint8, size_t);
 
     void                ADDA_base(CCodeGen*, uint8, size_t, size_t, bool);
+    void                MADD_base(CCodeGen*, uint8, size_t, size_t, size_t, bool);
     void                MSUB_base(CCodeGen*, uint8, size_t, size_t, size_t, bool);
 
 	//Shared instructions
@@ -49,12 +50,14 @@ namespace VUShared
 	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
 	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
 	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
+    void                FTOI12(CCodeGen*, uint8, uint8, uint8);
 	void				ITOF0(CCodeGen*, uint8, uint8, uint8);
     void                ITOF4(CCodeGen*, uint8, uint8, uint8);
     void                ITOF12(CCodeGen*, uint8, uint8, uint8);
     void                ITOF15(CCodeGen*, uint8, uint8, uint8);
 	void				MADD(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
+    void                MADDq(CCodeGen*, uint8, uint8, uint8, uint32);
 	void				MADDA(CCodeGen*, uint8, uint8, uint8);
 	void				MADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
 	void				MADDAi(CCodeGen*, uint8, uint8);

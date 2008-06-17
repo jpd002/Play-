@@ -39,6 +39,14 @@ void CMA_VU::CLower::ReflOpIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 	sprintf(sText, "VI%i", nIT);
 }
 
+void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8   nIT     = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint16  nImm    = static_cast<uint16>(nOpcode & 0x0FFF);
+
+	sprintf(sText, "VI%i, 0x%0.3X", nIT, nImm);
+}
+
 void CMA_VU::CLower::ReflOpItIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nIT, nIS;
@@ -325,7 +333,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"FSAND",	NULL,			CopyMnemonic,		ReflOpItImm12,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

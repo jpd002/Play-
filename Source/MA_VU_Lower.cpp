@@ -11,6 +11,7 @@ using namespace std;
 
 uint8			CMA_VU::CLower::m_nImm5;
 uint16			CMA_VU::CLower::m_nImm11;
+uint16          CMA_VU::CLower::m_nImm12;
 uint16			CMA_VU::CLower::m_nImm15;
 uint16			CMA_VU::CLower::m_nImm15S;
 uint32			CMA_VU::CLower::m_nImm24;
@@ -41,6 +42,7 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIP
     m_nID		= (uint8 )((m_nOpcode >>  6) & 0x001F);
     m_nImm5		= m_nID;
     m_nImm11	= (uint16)((m_nOpcode >>  0) & 0x07FF);
+    m_nImm12    = (uint16)((m_nOpcode >>  0) & 0x0FFF);
     m_nImm15	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
     m_nImm15S	= m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
     m_nImm24	= m_nOpcode & 0x00FFFFFF;
@@ -251,6 +253,12 @@ void CMA_VU::CLower::FCAND()
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
     }
     m_codeGen->EndIf();
+}
+
+//16
+void CMA_VU::CLower::FSAND()
+{
+    printf("Warning: Using FSAND.\r\n");
 }
 
 //1A
@@ -748,7 +756,7 @@ void (*CMA_VU::CLower::m_pOpGeneral[0x80])() =
 	//0x08
 	IADDIU,			ISUBIU,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x10
-	Illegal,		FCSET,			FCAND,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	Illegal,		FCSET,			FCAND,			Illegal,		Illegal,		Illegal,		FSAND,		    Illegal,
 	//0x18
 	Illegal,		Illegal,		FMAND,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x20

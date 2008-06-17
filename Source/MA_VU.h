@@ -59,6 +59,7 @@ private:
 		static void							MULi();
 		static void							MINIi();
 		static void							ADDq();
+        static void                         MADDq();
 		static void							ADDi();
 		static void							SUBi();
 		static void							MSUBi();
@@ -68,6 +69,7 @@ private:
 		static void							MAX();
 		static void							SUB();
 		static void							OPMSUB();
+        static void                         MINI();
 		static void							VECTOR0();
 		static void							VECTOR1();
 		static void							VECTOR2();
@@ -76,6 +78,7 @@ private:
 		//Vector X Common
 		static void							ADDAbc();
 		static void							MADDAbc();
+        static void                         MSUBAbc();
 		static void							MULAbc();
 
 		//Vector 0
@@ -90,6 +93,7 @@ private:
 
 		//Vector 2
         static void                         ITOF12();
+        static void                         FTOI12();
 		static void							MULAi();
 		static void							MULA();
 		static void							OPMULA();
@@ -145,6 +149,7 @@ private:
 		static uint8						m_nDest;
 		static uint8						m_nImm5;
 		static uint16						m_nImm11;
+        static uint16                       m_nImm12;
 		static uint16						m_nImm15;
 		static uint16						m_nImm15S;
 		static uint32						m_nImm24;
@@ -156,6 +161,7 @@ private:
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+        static void                         ReflOpItImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -190,6 +196,7 @@ private:
 		static void							ISUBIU();
 		static void							FCSET();
 		static void							FCAND();
+        static void                         FSAND();
 		static void							FMAND();
 		static void							B();
         static void                         JR();
