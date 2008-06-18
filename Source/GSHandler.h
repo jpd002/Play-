@@ -2,8 +2,10 @@
 #define _GS_H_
 
 #include "Types.h"
+#include "Convertible.h"
 #include <boost/thread.hpp>
 #include <boost/signal.hpp>
+#include <boost/static_assert.hpp>
 #include <vector>
 #include <functional>
 #include "MailBox.h"
@@ -157,20 +159,6 @@ struct GSALPHA
 	unsigned int	nReserved1	: 24;
 };
 
-struct GSTEST
-{
-	unsigned int	nAlphaEnabled		: 1;
-	unsigned int	nAlphaMethod		: 3;
-	unsigned int	nAlphaRef			: 8;
-	unsigned int	nAlphaFail			: 2;
-	unsigned int	nDestAlphaEnabled	: 1;
-	unsigned int	nDestAlphaMode		: 1;
-	unsigned int	nDepthEnabled		: 1;
-	unsigned int	nDepthMethod		: 2;
-	unsigned int	nReserved0			: 13;
-	uint32			nReserved1;
-};
-
 #pragma pack(pop)
 
 #define DECODE_DISPLAY(v, d)					\
@@ -215,9 +203,6 @@ struct GSTEST
 
 #define DECODE_ALPHA(v, alpha)					\
 	(alpha) = *(GSALPHA*)&(v);
-
-#define DECODE_TEST(v, tst)						\
-	(tst) = *(GSTEST*)&(v);
 
 class CGSHandler
 {
@@ -367,7 +352,23 @@ protected:
 		uint32			GetOffsetV()	{ return nCOV; }
 	};
 
-	//Reg 0x4C/0x4D
+    //Reg 0x47/0x48
+    struct TEST : public convertible<uint64>
+    {
+	    unsigned int	nAlphaEnabled		: 1;
+	    unsigned int	nAlphaMethod		: 3;
+	    unsigned int	nAlphaRef			: 8;
+	    unsigned int	nAlphaFail			: 2;
+	    unsigned int	nDestAlphaEnabled	: 1;
+	    unsigned int	nDestAlphaMode		: 1;
+	    unsigned int	nDepthEnabled		: 1;
+	    unsigned int	nDepthMethod		: 2;
+	    unsigned int	nReserved0			: 13;
+	    uint32			nReserved1;
+    };
+    BOOST_STATIC_ASSERT(sizeof(TEST) == sizeof(uint64));
+
+    //Reg 0x4C/0x4D
 	struct FRAME
 	{
 		unsigned int	nPtr			: 16;

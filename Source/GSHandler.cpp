@@ -1131,8 +1131,8 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_TEST_1:
 	case GS_REG_TEST_2:
-		GSTEST tst;
-		DECODE_TEST(nData, tst);
+		TEST tst;
+        tst <<= nData;
 		CLog::GetInstance().Print(LOG_NAME, "TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i);\r\n", \
 			nRegister == GS_REG_TEST_1 ? 1 : 2, \
 			tst.nAlphaEnabled, \

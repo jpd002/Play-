@@ -368,14 +368,12 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 
 void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 {
-	GSTEST tst;
-	unsigned int nFunc;
-	float nValue;
-
-	DECODE_TEST(nData, tst);
+	TEST tst;
+    tst <<= nData;
 
 	if(tst.nAlphaEnabled)
 	{
+	    unsigned int nFunc = GL_NEVER;
 		switch(tst.nAlphaMethod)
 		{
 		case 0:
@@ -387,6 +385,9 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 		case 2:
 			nFunc = GL_LESS;
 			break;
+        case 5:
+            nFunc = GL_GEQUAL;
+            break;
 		case 6:
 			nFunc = GL_GREATER;
 			break;
@@ -398,7 +399,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 			break;
 		}
 
-		nValue = (float)tst.nAlphaRef / 255.0f;
+		float nValue = (float)tst.nAlphaRef / 255.0f;
 		glAlphaFunc(nFunc, nValue);
 
 		//REMOVE
@@ -412,6 +413,8 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 
 	if(tst.nDepthEnabled)
 	{
+	    unsigned int nFunc = GL_NEVER;
+
 		switch(tst.nDepthMethod)
 		{
 		case 0:
