@@ -15,15 +15,13 @@ using namespace Framework;
 
 unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClamp)
 {
-	unsigned int nTexture;
 	int nMagFilter, nMinFilter;
 	int nWrapS, nWrapT;
-	uint32 nPointer, nWidth, nHeight;
 	GSTEXA TexA;
 
-	nPointer	= pReg0->GetBufPtr();
-	nWidth		= pReg0->GetWidth();
-	nHeight		= pReg0->GetHeight();
+	uint32 nPointer     = pReg0->GetBufPtr();
+	uint32 nWidth		= pReg0->GetWidth();
+	uint32 nHeight		= pReg0->GetHeight();
 
 	//Set the right texture function
 	switch(pReg0->nFunction)
@@ -34,6 +32,11 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 	case 1:
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		break;
+    case 2:
+    case 3:
+        //Just use modulate for now, but we'd need to use a different combining mode ideally
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        break;
 	default:
 		assert(0);
 		break;
@@ -90,7 +93,7 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		}
 	}
 
-	nTexture = TexCache_Search(pReg0);
+	unsigned int nTexture = TexCache_Search(pReg0);
 	if(nTexture != 0) return nTexture;
 
 	DECODE_TEXA(m_nReg[GS_REG_TEXA], TexA);

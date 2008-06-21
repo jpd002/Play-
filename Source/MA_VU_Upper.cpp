@@ -73,6 +73,15 @@ void CMA_VU::CUpper::MADDbc()
     VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
+//0C
+//0D
+//0E
+//0F
+void CMA_VU::CUpper::MSUBbc()
+{
+    VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+}
+
 //10
 //11
 //12
@@ -258,6 +267,12 @@ void CMA_VU::CUpper::FTOI0()
     VUShared::FTOI0(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//0A
+void CMA_VU::CUpper::ADDA()
+{
+    VUShared::ADDA(m_codeGen, m_nDest, m_nFS, m_nFT);
+}
+
 //////////////////////////////////////////////////
 //Vector1 Instructions
 //////////////////////////////////////////////////
@@ -357,7 +372,7 @@ void (*CMA_VU::CUpper::m_pOpVector[0x40])() =
 	//0x00
 	ADDbc,			ADDbc,			ADDbc,			ADDbc,			Illegal,		SUBbc,			Illegal,		SUBbc,
 	//0x08
-	MADDbc,			MADDbc,			MADDbc,			MADDbc,			Illegal,		Illegal,		Illegal,		Illegal,
+	MADDbc,			MADDbc,			MADDbc,			MADDbc,			MSUBbc, 		MSUBbc,		    MSUBbc,		    MSUBbc,
 	//0x10
 	MAXbc,			Illegal,		Illegal,		MAXbc,			Illegal,		Illegal,		Illegal,		MINIbc,
 	//0x18
@@ -377,7 +392,7 @@ void (*CMA_VU::CUpper::m_pOpVector0[0x20])() =
 	//0x00
 	ADDAbc,			Illegal,		Illegal,		MSUBAbc,		ITOF0,			FTOI0,			MULAbc,			Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	Illegal,		Illegal,		ADDA,		    Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x10
 	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
 	//0x18
