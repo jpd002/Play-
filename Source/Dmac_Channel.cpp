@@ -95,7 +95,6 @@ void CChannel::WriteCHCR(uint32 nValue)
 
     if(m_CHCR.nSTR != 0)
     {
-        m_CHCR.nASP = 0;
         m_nSCCTRL |= SCCTRL_INITXFER;
         Execute();
     }
@@ -130,9 +129,7 @@ void CChannel::Execute()
 
 void CChannel::ExecuteNormal()
 {
-	uint32 nRecv;
-
-	nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+	uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
 
 	m_nMADR	+= nRecv * 0x10;
 	m_nQWC	-= nRecv;
