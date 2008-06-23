@@ -401,6 +401,12 @@ void CCOP_VU::VRNEXT()
 //V1 Instructions
 //////////////////////////////////////////////////
 
+//04
+void CCOP_VU::VITOF4()
+{
+    VUShared::ITOF4(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //05
 void CCOP_VU::VFTOI4()
 {
@@ -526,7 +532,7 @@ void (*CCOP_VU::m_pOpVx0[0x20])() =
 void (*CCOP_VU::m_pOpVx1[0x20])() =
 {
 	//0x00
-	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		Illegal,		VFTOI4,			VMULAbc,		Illegal,
+	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		VITOF4,	    	VFTOI4,			VMULAbc,		Illegal,
 	//0x08
 	Illegal,		Illegal,		Illegal,		Illegal,		VMR32,			Illegal,		VSQRT,			Illegal,
 	//0x10

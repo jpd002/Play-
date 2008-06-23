@@ -98,7 +98,9 @@ m_gif(m_pGS, m_pRAM, m_pSPR),
 m_sif(m_dmac, m_pRAM),
 m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
 m_intc(m_dmac),
-m_timer(m_intc)
+m_timer(m_intc),
+m_MAVU0(false),
+m_MAVU1(true)
 {
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
@@ -293,7 +295,7 @@ void CPS2VM::CreateVM()
 
     m_VU0.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00000FFF, m_pMicroMem0,                                  0x00);
 
-	m_VU0.m_pArch			= &m_MAVU;
+	m_VU0.m_pArch			= &m_MAVU0;
 	m_VU0.m_pAddrTranslator	= CMIPS::TranslateAddress64;
     m_VU0.m_pTickFunction   = NULL;
 
@@ -306,7 +308,7 @@ void CPS2VM::CreateVM()
 
 	m_VU1.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_pMicroMem1,                                  0x01);
 
-    m_VU1.m_pArch			= &m_MAVU;
+    m_VU1.m_pArch			= &m_MAVU1;
 	m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
 
 #ifdef DEBUGGER_INCLUDED

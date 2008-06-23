@@ -193,6 +193,7 @@ public:
     void                                    FmulpSt(uint8);
     void                                    FdivpSt(uint8);
     void                                    Fwait();
+    void                                    Fsin();
     void                                    FnstcwEw(const CAddress&);
     void                                    FldcwEw(const CAddress&);
 

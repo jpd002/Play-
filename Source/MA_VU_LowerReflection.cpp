@@ -79,6 +79,16 @@ void CMA_VU::CLower::ReflOpOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	sprintf(sText, "$%0.8X", nAddress + GetBranch(nImm));
 }
 
+void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint16 nImm = (uint16)((nOpcode >>  0) & 0x07FF);
+	uint8  nIT  = (uint8 )((nOpcode >> 16) & 0x001F);
+
+    nAddress += 8;
+
+	sprintf(sText, "VI%i, $%0.8X", nIT, nAddress + GetBranch(nImm));
+}
+
 void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nIT, nIS;
@@ -330,7 +340,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"FCSET",	NULL,			CopyMnemonic,		ReflOpImm24,		NULL,				NULL			},
 	{	"FCAND",	NULL,			CopyMnemonic,		ReflOpVi1Imm24,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"FCOR",		NULL,			CopyMnemonic,		ReflOpVi1Imm24,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"FSAND",	NULL,			CopyMnemonic,		ReflOpItImm12,		NULL,				NULL			},
@@ -340,13 +350,13 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"FMAND",	NULL,			CopyMnemonic,		ReflOpItIs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"FCGET",	NULL,			CopyMnemonic,		ReflOpIt,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x20
 	{	"B",		NULL,			CopyMnemonic,		ReflOpOfs,			IsBranch,			ReflEaOffset	},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+    {	"BAL",		NULL,			CopyMnemonic,		ReflOpItOfs,		IsBranch,			ReflEaOffset	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"JR",		NULL,			CopyMnemonic,		ReflOpIs,			IsBranch,			ReflEaIs		},
@@ -567,7 +577,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX0[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ESIN",	    NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 };
 
 INSTRUCTION CMA_VU::CLower::m_cReflVX1[32] =
@@ -628,7 +638,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"RSQRT",	NULL,			CopyMnemonic,		ReflOpQFsfFtf,		NULL,				NULL			},
 	{	"ILWR",		NULL,			CopyMnemonic,		ReflOpItIsDst,		NULL,				NULL			},
 	//0x10
 	{	"RINIT",	NULL,			CopyMnemonic,		ReflOpRFsf,			NULL,				NULL			},
@@ -686,7 +696,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"ERLENG",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"WAITP",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
 

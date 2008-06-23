@@ -141,6 +141,7 @@ public:
     virtual void                    FP_PushSingle(size_t);
     virtual void                    FP_PullWordTruncate(size_t);
     virtual void                    FP_PullSingle(size_t);
+    virtual void                    FP_PushCst(float);
     void                            FP_PushSingleReg(XMMREGISTER);
     void                            FP_LoadSingleRelativeInRegister(XMMREGISTER, uint32);
 

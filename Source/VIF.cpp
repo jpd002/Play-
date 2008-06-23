@@ -24,7 +24,8 @@ static int nExecTimes = 0;
 
 CVIF::CVIF(CGIF& gif, uint8* ram, const VPUINIT& vpu0Init, const VPUINIT& vpu1Init) :
 m_gif(gif),
-m_ram(ram)
+m_ram(ram),
+m_VPU_STAT(0)
 {
     m_pVPU[0] = new CVPU(*this, 0, vpu0Init);
     m_pVPU[1] = new CVPU1(*this, 1, vpu1Init);
@@ -32,6 +33,7 @@ m_ram(ram)
     {
         m_stream[i] = new CFifoStream(ram);
     }
+    Reset();
 }
 
 CVIF::~CVIF()
@@ -169,8 +171,10 @@ void CVIF::StopVU(CMIPS* pCtx)
 
 void CVIF::ProcessXGKICK(uint32 nAddress)
 {
-	nAddress &= 0xFFFF;
+	nAddress &= 0x3FF;
 	nAddress *= 0x10;
+
+//    assert(nAddress < PS2::VUMEM1SIZE);
 
 	m_gif.ProcessPacket(m_pVPU[1]->GetVuMemory(), nAddress, PS2::VUMEM1SIZE);
 }

@@ -156,7 +156,8 @@ private:
     CMailBox                    m_mailBox;
     STATUS                      m_nStatus;
     bool                        m_nEnd;
-    CMA_VU                      m_MAVU;
+    CMA_VU                      m_MAVU0;
+    CMA_VU                      m_MAVU1;
 };
 
 #endif

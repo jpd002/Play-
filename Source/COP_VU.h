@@ -97,6 +97,7 @@ private:
     static void                         VRNEXT();
 
 	//V1
+    static void                         VITOF4();
 	static void							VFTOI4();
 	static void							VMR32();
 	static void							VSQRT();

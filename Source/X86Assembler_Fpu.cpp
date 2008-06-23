@@ -57,6 +57,12 @@ void CX86Assembler::Fwait()
     WriteByte(0x9B);
 }
 
+void CX86Assembler::Fsin()
+{
+    WriteByte(0xD9);
+    WriteByte(0xFE);
+}
+
 void CX86Assembler::FnstcwEw(const CAddress& address)
 {
     if(address.ModRm.nMod == 3) throw runtime_error("Invalid address mod.");
@@ -69,91 +75,6 @@ void CX86Assembler::FldcwEw(const CAddress& address)
     WriteEvOp(0xD9, 0x05, false, address);
 }
 
-void CX86Assembler::MovssEd(const CAddress& address, XMMREGISTER registerId)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x11, address, registerId);
-}
-
-void CX86Assembler::MovssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x10, address, registerId);
-}
-
-void CX86Assembler::AddssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x58, address, registerId);
-}
-
-void CX86Assembler::SubssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x5C, address, registerId);
-}
-
-void CX86Assembler::MulssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x59, address, registerId);
-}
-
-void CX86Assembler::DivssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x5E, address, registerId);
-}
-
-void CX86Assembler::RcpssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x53, address, registerId);
-}
-
-void CX86Assembler::RsqrtssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x52, address, registerId);
-}
-
-void CX86Assembler::SqrtssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x51, address, registerId);
-}
-
-void CX86Assembler::CmpssEd(XMMREGISTER registerId, const CAddress& address, SSE_CMP_TYPE condition)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0xC2, address, registerId);
-    WriteByte(static_cast<uint8>(condition));
-}
-
-void CX86Assembler::Cvtsi2ssEd(XMMREGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x2A, address, registerId);
-}
-
-void CX86Assembler::Cvttss2siEd(REGISTER registerId, const CAddress& address)
-{
-    WriteByte(0xF3);
-    WriteByte(0x0F);
-    WriteEvGvOp(0x2C, false, address, registerId);
-}
-
 void CX86Assembler::WriteStOp(uint8 opcode, uint8 subOpcode, uint8 stackId)
 {
     CAddress address;
@@ -162,23 +83,4 @@ void CX86Assembler::WriteStOp(uint8 opcode, uint8 subOpcode, uint8 stackId)
     address.ModRm.nRM = stackId;
     WriteByte(opcode);
     WriteByte(address.ModRm.nByte);
-}
-
-void CX86Assembler::WriteEdVdOp(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)
-{
-    REGISTER registerId = static_cast<REGISTER>(xmmRegisterId);
-    WriteRexByte(false, address, registerId);
-    CAddress NewAddress(address);
-    NewAddress.ModRm.nFnReg = registerId;
-    WriteByte(opcode);
-    NewAddress.Write(m_WriteFunction);
-}
-
-void CX86Assembler::WriteVrOp(uint8 opcode, uint8 subOpcode, XMMREGISTER registerId)
-{
-    CAddress address(MakeXmmRegisterAddress(registerId));
-    WriteRexByte(false, address);
-    address.ModRm.nFnReg = subOpcode;
-    WriteByte(opcode);
-    address.Write(m_WriteFunction);
 }

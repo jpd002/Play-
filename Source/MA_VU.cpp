@@ -6,8 +6,9 @@ CMIPS*              CMA_VU::m_pCtx      = NULL;
 uint32              CMA_VU::m_nOpcode   = 0;
 uint32              CMA_VU::m_nAddress  = 0;
 
-CMA_VU::CMA_VU() :
-CMIPSArchitecture(MIPS_REGSIZE_64)
+CMA_VU::CMA_VU(bool maskDataAddress) :
+CMIPSArchitecture(MIPS_REGSIZE_64),
+m_Lower(maskDataAddress)
 {
 	SetupReflectionTables();
 }

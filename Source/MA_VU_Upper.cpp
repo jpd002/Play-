@@ -370,7 +370,7 @@ void CMA_VU::CUpper::NOP()
 void (*CMA_VU::CUpper::m_pOpVector[0x40])() =
 {
 	//0x00
-	ADDbc,			ADDbc,			ADDbc,			ADDbc,			Illegal,		SUBbc,			Illegal,		SUBbc,
+	ADDbc,			ADDbc,			ADDbc,			ADDbc,			SUBbc,		    SUBbc,			SUBbc,		    SUBbc,
 	//0x08
 	MADDbc,			MADDbc,			MADDbc,			MADDbc,			MSUBbc, 		MSUBbc,		    MSUBbc,		    MSUBbc,
 	//0x10

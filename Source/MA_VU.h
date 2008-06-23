@@ -10,7 +10,7 @@
 class CMA_VU : public CMIPSArchitecture
 {
 public:
-											CMA_VU();
+											CMA_VU(bool);
     virtual                                 ~CMA_VU();
 	virtual void							CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
 	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
@@ -52,6 +52,7 @@ private:
 		static void							ADDbc();
 		static void							SUBbc();
 		static void							MADDbc();
+        static void                         MSUBbc();
 		static void							MAXbc();
 		static void							MINIbc();
 		static void							MULbc();
@@ -84,6 +85,7 @@ private:
 		//Vector 0
 		static void							ITOF0();
 		static void							FTOI0();
+        static void                         ADDA();
 
 		//Vector 1
         static void                         ITOF4();
@@ -126,6 +128,9 @@ private:
 	class CLower
 	{
 	public:
+                                            CLower(bool);
+        virtual                             ~CLower();
+
 		void								SetupReflectionTables();
 		void								CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
@@ -157,6 +162,7 @@ private:
 		static uint32						GetDestOffset(uint8);
 		static void							SetBranchAddress(bool, int32);
 		static void							PushIntegerRegister(unsigned int);
+        static void                         ComputeMemAccessAddr(unsigned int, uint32, uint32);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -165,7 +171,8 @@ private:
 		static void							ReflOpItIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-		static void							ReflOpItIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+		static void							ReflOpItOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+        static void							ReflOpItIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsImm5(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIdIsIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -196,9 +203,12 @@ private:
 		static void							ISUBIU();
 		static void							FCSET();
 		static void							FCAND();
+        static void                         FCOR();
         static void                         FSAND();
 		static void							FMAND();
+        static void                         FCGET();
 		static void							B();
+        static void                         BAL();
         static void                         JR();
 		static void							JALR();
 		static void							IBEQ();
@@ -228,6 +238,7 @@ private:
 		static void							MFP();
 		static void							XTOP();
 		static void							XGKICK();
+        static void                         ESIN();
 
 		//Vector1
 		static void							MR32();
@@ -237,6 +248,7 @@ private:
         static void                         XITOP();
 
 		//Vector2
+        static void                         RSQRT();
 		static void							ILWR();
 		static void							RINIT();
 		static void							ERCPR();
@@ -244,6 +256,7 @@ private:
 		//Vector3
 		static void							WAITQ();
 		static void							ERLENG();
+        static void                         WAITP();
 
 		MIPSReflection::INSTRUCTION			m_ReflGeneral[128];
 		MIPSReflection::INSTRUCTION			m_ReflV[64];
@@ -265,6 +278,8 @@ private:
 		static MIPSReflection::INSTRUCTION	m_cReflVX1[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX2[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX3[32];
+
+        bool                                m_maskDataAddress;
 	};
 
 	CUpper									m_Upper;

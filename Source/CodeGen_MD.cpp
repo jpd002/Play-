@@ -97,6 +97,10 @@ void CCodeGen::MD_PullRel(size_t offset0, size_t offset1, size_t offset2, size_t
                 m_Assembler.MovapsVo(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset0)),
                     valueRegister);
 		    }
+            else
+            {
+                throw exception();
+            }
 	    }
         else
         {

@@ -59,6 +59,18 @@ void CCodeGen::FP_PullSingle(size_t offset)
     }
 }
 
+void CCodeGen::FP_PushCst(float constant)
+{
+    XMMREGISTER valueRegister = AllocateXmmRegister();
+    unsigned int tempRegister = AllocateRegister();
+    m_Assembler.MovId(m_nRegisterLookupEx[tempRegister],
+        *reinterpret_cast<uint32*>(&constant));
+    m_Assembler.MovdVo(valueRegister,
+        CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[tempRegister]));
+    FP_PushSingleReg(valueRegister);
+    FreeRegister(tempRegister);
+}
+
 void CCodeGen::FP_PullWordTruncate(size_t offset)
 {
     if(FitsPattern<SingleFpSingleRelative>())
@@ -153,7 +165,7 @@ void CCodeGen::FP_GenericTwoOperand(const MdTwoOperandFunction& instruction)
             XMMREGISTER sourceRegister = static_cast<XMMREGISTER>(ops.second);
             instruction(resultRegister,
                 CX86Assembler::MakeXmmRegisterAddress(sourceRegister));
-            if(!RegisterFpSingleHasNextUse(sourceRegister))
+            if(!RegisterFpSingleHasNextUse(sourceRegister) && resultRegister != sourceRegister)
             {
                 FreeXmmRegister(sourceRegister);
             }

@@ -195,12 +195,10 @@ void CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 	{
 	case 0:
 		//NOP
-//		return 0;
 		break;
 	case 0x01:
 		//STCYCL
 		m_CYCLE <<= nCommand.nIMM;
-//		return 0;
 		break;
     case 0x04:
         m_ITOPS = nCommand.nIMM & 0x3FF;
@@ -208,17 +206,14 @@ void CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
     case 0x05:
         //STMOD
         m_MODE = nCommand.nIMM & 0x03;
-//      return 0;
         break;
 	case 0x14:
 		//MSCAL
         StartMicroProgram(nCommand.nIMM * 8);
-//		return 0;
 		break;
 	case 0x17:
 		//MSCNT
         StartMicroProgram(m_pCtx->m_State.nPC);
-//		return 0;
 		break;
     case 0x20:
         //STMASK
@@ -234,7 +229,6 @@ void CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		break;
 	default:
 		assert(0);
-//		return 0;
 		break;
 	}
 }
@@ -653,127 +647,6 @@ bool CVPU::Unpack_V45(CVIF::CFifoStream& stream, uint128& result)
     return true;
 }
 
-/*
-void CVPU::Unpack_V45(uint32 nDstAddr, CVIF::CFifoStream& stream)
-{
-    assert(m_CYCLE.nCL == m_CYCLE.nWL);
-    assert(m_MODE == 0);
-
-    uint32 nSize = stream.GetSize();
-
-    unsigned int nPackets = min<uint32>(nSize / 2, m_NUM);
-
-    for(unsigned int i = 0; i < nPackets; i++)
-    {
-        uint16 nColor = 0;
-        stream.Read(&nColor, 2);
-
-	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0x0]) = ((nColor >>  0) & 0x1F) << 3;
-	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0x4]) = ((nColor >>  5) & 0x1F) << 3;
-	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0x8]) = ((nColor >> 10) & 0x1F) << 3;
-	    *reinterpret_cast<uint32*>(&m_pVUMem[nDstAddr + 0xC]) = ((nColor >> 15) & 0x01) << 7;
-
-	    nDstAddr += 0x10;
-
-        m_NUM--;
-    }
-
-    //Force word alignment
-    stream.Align32();
-}
-
-void CVPU::Unpack_V432(uint32 nDstAddr, CVIF::CFifoStream& stream)
-{
-    uint32 nCL = m_CYCLE.nCL;
-    uint32 nWL = m_CYCLE.nWL;
-
-    assert(nCL >= nWL);
-    assert(m_MODE == 0);
-
-    uint32 nSize = stream.GetSize();
-    nSize = min(nSize, static_cast<uint32>(m_NUM) * 0x10);
-
-    assert((nSize & 0x0F) == 0x00);
-
-    if(nCL == nWL)
-    {
-        stream.Read(m_pVUMem + nDstAddr, nSize);
-        m_NUM -= static_cast<uint8>(nSize / 0x10);
-    }
-    else if(nCL > nWL)
-    {
-        //If WL is > 1, the increment on i might be 0x10 * WL
-        assert(nWL == 1);
-
-        for(unsigned int i = 0; i < nSize; i += 0x10)
-        {
-            uint32 nWritten = m_CODE.nNUM - m_NUM;
-            uint32 nAddrInc = (nCL * (nWritten / nWL) + (nWritten % nWL)) * 0x10;
-
-            stream.Read(m_pVUMem + nDstAddr + nAddrInc, 0x10);
-
-            m_NUM -= 1;
-        }
-    }
-    else
-    {
-        assert(0);
-    }
-}
-
-void CVPU::Unpack_V416(uint32 dstAddr, CVIF::CFifoStream& stream, bool zeroExtend)
-{
-    uint32 cl = m_CYCLE.nCL;
-    uint32 wl = m_CYCLE.nWL;
-
-    assert(cl == wl);
-
-    //We need 8 bytes (4x 16-bits) to write 1 128-bits packet
-
-    uint32 nSize = stream.GetSize();
-    if(m_NUM >= (nSize / 8))
-    {
-        assert((nSize % 8) == 0);  
-    }
-
-    unsigned int packets = min<uint32>(nSize / 8, m_NUM);
-    uint128* dst = reinterpret_cast<uint128*>(&m_pVUMem[dstAddr]);
-
-    for(unsigned int i = 0; i < packets; i++)
-    {
-        uint16 src[4];
-        stream.Read(src, sizeof(src));
-
-        for(unsigned int j = 0; j < 4; j++)
-        {
-            uint32 result = src[j];
-            if(!zeroExtend)
-            {
-                result = static_cast<int16>(result);
-            }
-
-            if(m_MODE == MODE_NORMAL)
-            {
-
-            }
-            else if(m_MODE == MODE_OFFSET)
-            {
-                result += m_R[j];
-            }
-            else
-            {
-                assert(0);
-            }
-
-            dst->nV[j] = result;
-        }
-
-        dst++;
-        m_NUM--;
-    }
-}
-*/
-
 uint32 CVPU::GetVbs() const
 {
     switch(m_vpuNumber)
@@ -803,6 +676,8 @@ uint32 CVPU::GetMaskOp(unsigned int row, unsigned int col) const
 void CVPU::DisassembleCommand(CODE code)
 {
     if(m_STAT.nVPS != 0) return;
+
+    CLog::GetInstance().Print(LOG_NAME, "vpu%i : ", m_vpuNumber);
 
     if(code.nI)
     {
