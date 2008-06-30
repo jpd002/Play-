@@ -1,12 +1,12 @@
 #include "VPU.h"
 #include "Log.h"
 #include "RegisterStateFile.h"
-#include <boost/static_assert.hpp>
 #include <boost/lexical_cast.hpp>
 
 using namespace Framework;
 using namespace boost;
 using namespace std;
+using namespace std::tr1;
 
 #define LOG_NAME                ("vpu")
 
@@ -38,8 +38,6 @@ m_endThread(false),
 m_executor(*vpuInit.context),
 m_paused(true)
 {
-    BOOST_STATIC_ASSERT(sizeof(CODE) == 4);
-
     m_execThread = new thread(bind(&CVPU::ExecuteThreadProc, this));
 }
 

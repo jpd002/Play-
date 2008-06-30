@@ -28,6 +28,7 @@ using namespace IPU;
 using namespace MPEG2;
 using namespace Framework;
 using namespace std;
+using namespace std::tr1;
 using namespace boost;
 
 CIPU::CIPU() :

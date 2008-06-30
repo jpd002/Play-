@@ -7,6 +7,7 @@ using namespace Iop;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 #define LOG_NAME "iop_cdvdfsv"
 

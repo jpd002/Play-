@@ -6,6 +6,7 @@
 #include "PtrMacro.h"
 
 using namespace Framework;
+using namespace std::tr1;
 using namespace boost;
 
 CGSH_OpenGL::CGSH_OpenGL() :

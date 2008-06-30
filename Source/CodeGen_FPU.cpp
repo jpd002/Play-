@@ -2,6 +2,7 @@
 #include "CodeGen_StackPatterns.h"
 
 using namespace std;
+using namespace std::tr1::placeholders;
 
 bool CCodeGen::RegisterFpSingleHasNextUse(XMMREGISTER registerId)
 {

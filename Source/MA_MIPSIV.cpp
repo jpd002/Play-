@@ -8,6 +8,7 @@
 #include "Integer64.h"
 
 using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 CMA_MIPSIV			g_MAMIPSIV(MIPS_REGSIZE_64);
 

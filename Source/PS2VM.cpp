@@ -69,6 +69,7 @@ using namespace Framework;
 using namespace boost;
 using namespace std;
 using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 CPS2VM::CPS2VM() :
 m_pRAM(new uint8[PS2::EERAMSIZE]),
@@ -220,14 +221,14 @@ void CPS2VM::Destroy()
 unsigned int CPS2VM::SaveState(const char* sPath)
 {
     unsigned int result = 0;
-    m_mailBox.SendCall(bind(&CPS2VM::SaveVMState, this, sPath, ref(result)), true);
+    m_mailBox.SendCall(bind(&CPS2VM::SaveVMState, this, sPath, tr1::ref(result)), true);
     return result;
 }
 
 unsigned int CPS2VM::LoadState(const char* sPath)
 {
     unsigned int result = 0;
-    m_mailBox.SendCall(bind(&CPS2VM::LoadVMState, this, sPath, ref(result)), true);
+    m_mailBox.SendCall(bind(&CPS2VM::LoadVMState, this, sPath, tr1::ref(result)), true);
     return result;
 }
 
@@ -968,6 +969,13 @@ void CPS2VM::EmuThread()
                     m_nVBlankTicks = 0;
                 }
             }
+            //Castlevania speed hack
+//            {
+//                if(m_pRAM[0x00] == 0x01)
+//                {
+//                    m_nVBlankTicks = 0;
+//                }
+//            }
             //BEGIN: Frame limiter
 //            if(m_pGS != NULL && lastFrameCount != m_pGS->GetFrameCount())
 //            {

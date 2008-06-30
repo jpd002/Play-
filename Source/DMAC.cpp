@@ -17,6 +17,7 @@
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
+using namespace std::tr1::placeholders;
 using namespace Dmac;
 using namespace boost;
 

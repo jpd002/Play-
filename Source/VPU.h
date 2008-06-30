@@ -7,6 +7,7 @@
 #include "VuExecutor.h"
 #include "Convertible.h"
 #include <boost/thread.hpp>
+#include <boost/static_assert.hpp>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -64,6 +65,7 @@ protected:
         unsigned int    nCMD	: 7;
         unsigned int    nI		: 1;
     };
+    BOOST_STATIC_ASSERT(sizeof(CODE) == sizeof(uint32));
 #pragma pack(pop)
 
     enum ADDMODE

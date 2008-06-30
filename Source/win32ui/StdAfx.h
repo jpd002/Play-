@@ -12,6 +12,7 @@
 #include <boost/signal.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
+#include <boost/static_assert.hpp>
 
 #include "Types.h"
 

@@ -7,6 +7,7 @@ using namespace boost;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 CX86Assembler::REGISTER CCodeGen::g_nBaseRegister = CX86Assembler::rBP;
 
