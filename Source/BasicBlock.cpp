@@ -10,7 +10,8 @@ m_begin(begin),
 m_end(end),
 m_context(context),
 m_text(NULL),
-m_selfLoopCount(0)
+m_selfLoopCount(0),
+m_branchHint(NULL)
 {
     assert(m_end >= m_begin);
 }
@@ -151,4 +152,14 @@ unsigned int CBasicBlock::GetSelfLoopCount() const
 void CBasicBlock::SetSelfLoopCount(unsigned int selfLoopCount)
 {
     m_selfLoopCount = selfLoopCount;
+}
+
+CBasicBlock* CBasicBlock::GetBranchHint() const
+{
+    return m_branchHint;
+}
+
+void CBasicBlock::SetBranchHint(CBasicBlock* branchHint)
+{
+    m_branchHint = branchHint;
 }

@@ -33,16 +33,29 @@ int CMipsExecutor::Execute(int cycles)
         uint32 address = m_context.m_State.nPC;
         if(block == NULL || address != block->GetBeginAddress())
         {
-            block = FindBlockStartingAt(address);
-            if(block == NULL)
+            CBasicBlock* prevBlock = block;
+            //Check if we can use the hint instead of looking through the map
+            if(prevBlock != NULL)
             {
-                //We need to partition the space and compile the blocks
-                PartitionFunction(address);
+                block = prevBlock->GetBranchHint();
+            }
+            if(block == NULL || address != block->GetBeginAddress())
+            {
                 block = FindBlockStartingAt(address);
                 if(block == NULL)
                 {
-                    throw runtime_error("Couldn't create block starting at address.");
+                    //We need to partition the space and compile the blocks
+                    PartitionFunction(address);
+                    block = FindBlockStartingAt(address);
+                    if(block == NULL)
+                    {
+                        throw runtime_error("Couldn't create block starting at address.");
+                    }
                 }
+            }
+            if(prevBlock != NULL)
+            {
+                prevBlock->SetBranchHint(block);
             }
             if(!block->IsCompiled())
             {
@@ -142,6 +155,17 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 
 void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 {
+    //Clear any hints that point to this block
+    for(BlockList::const_iterator blockIterator(m_blocks.begin());
+        blockIterator != m_blocks.end(); blockIterator++)
+    {
+        CBasicBlock* currBlock = (*blockIterator);
+        if(currBlock->GetBranchHint() == block)
+        {
+            currBlock->SetBranchHint(NULL);
+        }
+    }
+    //Remove block from our lists
     m_blocks.remove(block);
     m_blockBegin.erase(block->GetBeginAddress());
     m_blockEnd.erase(block->GetEndAddress());
