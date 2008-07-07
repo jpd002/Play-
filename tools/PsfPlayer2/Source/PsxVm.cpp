@@ -34,6 +34,9 @@ m_thread(bind(&CPsxVm::ThreadProc, this))
 	m_cpu.m_pMemoryMap->InsertWriteMap(0,				RAMSIZE - 1,	m_ram,											0x01);
 	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::WriteIoRegister, this, _1, _2),	0x02);
 
+	//Instruction memory map
+	m_cpu.m_pMemoryMap->InsertInstructionMap(0,			RAMSIZE - 1,	m_ram,											0x01);
+
 	m_cpu.m_pArch = &g_MAMIPSIV;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 

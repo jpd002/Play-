@@ -19,6 +19,8 @@ using namespace Psx;
 #define KERNEL_STACK		(0x8000)
 #define EVENTS_BEGIN		(0x9000)
 #define EVENTS_SIZE			(sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
+#define C0TABLE_BEGIN		(EVENTS_BEGIN + EVENTS_SIZE)
+#define C0TABLE_SIZE		(0x1C * 4)
 
 CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram) :
 m_cpu(cpu),
