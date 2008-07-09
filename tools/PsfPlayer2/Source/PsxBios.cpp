@@ -14,13 +14,17 @@
 using namespace std;
 using namespace Psx;
 
-#define LONGJMP_BUFFER		(0x0200)
-#define INTR_HANDLER		(0x7000)
-#define KERNEL_STACK		(0x8000)
-#define EVENTS_BEGIN		(0x9000)
-#define EVENTS_SIZE			(sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
-#define C0TABLE_BEGIN		(EVENTS_BEGIN + EVENTS_SIZE)
-#define C0TABLE_SIZE		(0x1C * 4)
+#define LONGJMP_BUFFER				(0x0200)
+#define INTR_HANDLER				(0x1000)
+#define KERNEL_STACK				(0x2000)
+#define EVENTS_BEGIN				(0x3000)
+#define EVENTS_SIZE					(sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
+#define B0TABLE_BEGIN				(EVENTS_BEGIN + EVENTS_SIZE)
+#define B0TABLE_SIZE				(0x5D * 4)
+#define C0TABLE_BEGIN				(B0TABLE_BEGIN + B0TABLE_SIZE)
+#define C0TABLE_SIZE				(0x1C * 4)
+#define C0_EXCEPTIONHANDLER_BEGIN	(C0TABLE_BEGIN + C0TABLE_SIZE)
+#define C0_EXCEPTIONHANDLER_SIZE	(0x1000)
 
 CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram) :
 m_cpu(cpu),
@@ -118,6 +122,28 @@ void CPsxBios::Reset()
 		assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x17);
 		assembler.JR(CMIPS::T0);
 		assembler.NOP();
+	}
+
+	//Setup B0 table
+	{
+		uint32* table = reinterpret_cast<uint32*>(&m_ram[B0TABLE_BEGIN]);
+		table[0x5B] = C0_EXCEPTIONHANDLER_BEGIN;
+	}
+
+	//Setup C0 table
+	{
+		uint32* table = reinterpret_cast<uint32*>(&m_ram[C0TABLE_BEGIN]);
+		table[0x06] = C0_EXCEPTIONHANDLER_BEGIN;
+	}
+
+	//Assemble dummy exception handler
+	{
+		//0x70 = LUI
+		//0x74 = ADDIU
+		//Chrono Cross will overwrite the stuff present at the address that would be computed
+		//by these two instructions and use something else
+		CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + C0_EXCEPTIONHANDLER_BEGIN + 0x70));
+		assembler.LI(CMIPS::T0, C0_EXCEPTIONHANDLER_BEGIN);
 	}
 
 	memset(m_events.GetBase(), 0, EVENTS_SIZE);
@@ -283,6 +309,9 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			CLog::GetInstance().Print(LOG_NAME, "printf(fmt = 0x%0.8X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
+		case 0x44:
+			CLog::GetInstance().Print(LOG_NAME, "FlushCache();\r\n");
+			break;
 		case 0x70:
 			CLog::GetInstance().Print(LOG_NAME, "_bu_init();\r\n");
 			break;
@@ -337,6 +366,18 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		case 0x19:
 			CLog::GetInstance().Print(LOG_NAME, "HookEntryInt(address = 0x%0.8X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x4A:
+			CLog::GetInstance().Print(LOG_NAME, "InitCARD();\r\n");
+			break;
+		case 0x4B:
+			CLog::GetInstance().Print(LOG_NAME, "StartCARD();\r\n");
+			break;
+		case 0x56:
+			CLog::GetInstance().Print(LOG_NAME, "GetC0Table();\r\n");
+			break;
+		case 0x57:
+			CLog::GetInstance().Print(LOG_NAME, "GetB0Table();\r\n");
 			break;
 		case 0x5B:
 			CLog::GetInstance().Print(LOG_NAME, "ChangeClearPad(param = %i);\r\n",
@@ -426,6 +467,12 @@ void CPsxBios::sc_InitHeap()
 void CPsxBios::sc_printf()
 {
 	uint32 formatAddress = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+}
+
+//A0 - 44
+void CPsxBios::sc_FlushCache()
+{
+
 }
 
 //A0 - 70
@@ -535,6 +582,30 @@ void CPsxBios::sc_HookEntryInt()
 	LongJmpBuffer() = address;
 }
 
+//B0 - 4A
+void CPsxBios::sc_InitCARD()
+{
+	
+}
+
+//B0 - 4B
+void CPsxBios::sc_StartCARD()
+{
+	
+}
+
+//B0 - 56
+void CPsxBios::sc_GetC0Table()
+{
+	m_cpu.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(C0TABLE_BEGIN);
+}
+
+//B0 - 57
+void CPsxBios::sc_GetB0Table()
+{
+	m_cpu.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(B0TABLE_BEGIN);
+}
+
 //B0 - 5B
 void CPsxBios::sc_ChangeClearPad()
 {
@@ -595,7 +666,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 	//0x38
 	&sc_Illegal,		&sc_InitHeap,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_printf,
 	//0x40
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_FlushCache,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x48
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x50
@@ -665,9 +736,9 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 	//0x40
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x48
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_Illegal,		&sc_InitCARD,		&sc_StartCARD,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x50
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_GetC0Table,		&sc_GetB0Table,
 	//0x58
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_ChangeClearPad,	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x60

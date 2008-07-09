@@ -112,6 +112,7 @@ private:
 	void					sc_longjmp();
 	void					sc_InitHeap();
 	void					sc_printf();
+	void					sc_FlushCache();
 	void					sc_bu_init();
 	void					sc_96_remove();
 	void					sc_SetMem();
@@ -125,6 +126,10 @@ private:
 	void					sc_DisableEvent();
 	void					sc_ReturnFromException();
 	void					sc_HookEntryInt();
+	void					sc_InitCARD();
+	void					sc_StartCARD();
+	void					sc_GetC0Table();
+	void					sc_GetB0Table();
 	void					sc_ChangeClearPad();
 
 	//C0

@@ -238,6 +238,39 @@ void CPsxVm::ThreadProc()
 		}
 		else
 		{
+#ifdef _DEBUG
+			int ticks = ExecuteCpu(m_singleStep);
+
+			static int frameCounter = frameTicks;
+			static uint64 currentTime = CHighResTimer::GetTime();
+
+			frameCounter -= ticks;
+			if(frameCounter <= 0)
+			{
+				m_intc.AssertLine(CIntc::LINE_VBLANK);
+				OnNewFrame();
+				frameCounter += frameTicks;
+				uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
+				int64 delay = frameTime - elapsed;
+				if(delay > 0)
+				{
+					xtime xt;
+					xtime_get(&xt, boost::TIME_UTC);
+					xt.nsec += delay * 1000;
+					thread::sleep(xt);
+				}
+				currentTime = CHighResTimer::GetTime();
+			}
+
+//			m_spuHandler.Update(m_spu);
+			if(m_executor.MustBreak() || m_singleStep)
+			{
+				m_status = PAUSED;
+				m_singleStep = false;
+				m_OnMachineStateChange();
+				m_OnRunningStateChange();
+			}
+#else
 			if(m_spuHandler.HasFreeBuffers())
 			{
 				while(m_spuHandler.HasFreeBuffers() && !m_mailBox.IsPending())
@@ -262,6 +295,7 @@ void CPsxVm::ThreadProc()
 				xt.nsec += 10 * 1000000;
 				thread::sleep(xt);
 			}
+#endif
 		}
 	}
 }
