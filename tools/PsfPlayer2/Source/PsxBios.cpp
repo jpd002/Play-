@@ -539,22 +539,36 @@ void CPsxBios::sc_WaitEvent()
 //B0 - 0C
 void CPsxBios::sc_EnableEvent()
 {
-	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
-	EVENT* eventPtr = m_events[eventId];
-	if(eventPtr != NULL)
+	try
 	{
-		eventPtr->enabled = true;
+		uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+		EVENT* eventPtr = m_events[eventId];
+		if(eventPtr != NULL)
+		{
+			eventPtr->enabled = true;
+		}
+	}
+	catch(...)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nD0 = -1;
 	}
 }
 
 //B0 - 0D
 void CPsxBios::sc_DisableEvent()
 {
-	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
-	EVENT* eventPtr = m_events[eventId];
-	if(eventPtr != NULL)
+	try
 	{
-		eventPtr->enabled = false;
+		uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+		EVENT* eventPtr = m_events[eventId];
+		if(eventPtr != NULL)
+		{
+			eventPtr->enabled = false;
+		}
+	}
+	catch(...)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nD0 = -1;
 	}
 }
 

@@ -107,6 +107,9 @@ uint8 CMemoryMap::GetByte(uint32 nAddress)
 	case MEMORYMAP_TYPE_MEMORY:
 		return *(uint8*)&((uint8*)e->pPointer)[nAddress - e->nStart];
 		break;
+	case MEMORYMAP_TYPE_FUNCTION:
+        return static_cast<uint8>(e->handler(nAddress, 0));
+		break;
 	default:
 		assert(0);
 		return 0xCC;

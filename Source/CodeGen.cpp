@@ -2181,6 +2181,17 @@ void CCodeGen::Srl()
         FreeRegister(shiftAmount);
         PushReg(resultRegister);
     }
+	else if(FitsPattern<ConstantRelative>())
+	{
+        ConstantRelative::PatternValue ops = GetPattern<ConstantRelative>();
+        unsigned int shiftAmount = AllocateRegister(REGISTER_SHIFTAMOUNT);
+        unsigned int resultRegister = AllocateRegister();
+        LoadConstantInRegister(resultRegister, ops.first);
+        LoadRelativeInRegister(shiftAmount, ops.second);
+        m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+        FreeRegister(shiftAmount);
+        PushReg(resultRegister);
+	}
     else
     {
         assert(0);
