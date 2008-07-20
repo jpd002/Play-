@@ -34,7 +34,17 @@ void CMemoryMap::InsertInstructionMap(uint32 start, uint32 end, void* pointer, u
     InsertMap(m_instructionMap, start, end, pointer, key);
 }
 
-void CMemoryMap::SetWriteNotifyHandler(WriteNotifyHandlerType WriteNotifyHandler)
+CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetReadMap(uint32 address)
+{
+    return GetMap(m_readMap, address);
+}
+
+CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetWriteMap(uint32 address)
+{
+    return GetMap(m_writeMap, address);
+}
+
+void CMemoryMap::SetWriteNotifyHandler(const WriteNotifyHandlerType& WriteNotifyHandler)
 {
 	m_WriteNotifyHandler = WriteNotifyHandler;
 }
@@ -78,23 +88,6 @@ CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(MemoryMapListType& memoryMap, u
 		}
     }
     return NULL;
-/*
-	MEMORYMAPELEMENT* e;
-	CList<MEMORYMAPELEMENT>::ITERATOR It;
-	It = pMap->Begin();
-	e = (*It);
-	while(e != NULL)
-	{
-		if(nAddress <= e->nEnd)
-		{
-			if(!(nAddress >= e->nStart)) return NULL;
-			return e;
-		}
-		It++;
-		e = (*It);
-	}
-	return e;
-*/
 }
 
 uint8 CMemoryMap::GetByte(uint32 nAddress)

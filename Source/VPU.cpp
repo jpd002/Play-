@@ -38,7 +38,8 @@ m_endThread(false),
 m_executor(*vpuInit.context),
 m_paused(true)
 {
-    m_execThread = new thread(bind(&CVPU::ExecuteThreadProc, this));
+//    m_execThread = new thread(bind(&CVPU::ExecuteThreadProc, this));
+//    m_execThread = new thread(bind(&CVPU::CommandThreadProc, this));
 }
 
 CVPU::~CVPU()
@@ -147,20 +148,20 @@ CMIPS& CVPU::GetContext() const
     return *m_pCtx;
 }
 
-void CVPU::ProcessPacket(CVIF::CFifoStream& stream)
+void CVPU::ProcessPacket(StreamType& stream)
 {
-    while(stream.GetSize() != 0)
+    while(stream.GetAvailableReadBytes())
     {
         if(m_STAT.nVPS == 1)
         {
 	        //Command is waiting for more data...
-	        ExecuteCommand(m_CODE, stream);
+	        ExecuteCommand(stream, m_CODE);
 	        continue;
         }
         if(m_STAT.nVEW == 1)
         {
             //Command is waiting for micro-program to end.
-            ExecuteCommand(m_CODE, stream);
+            ExecuteCommand(stream, m_CODE);
             if(m_STAT.nVEW == 1)
             {
                 break;
@@ -173,11 +174,11 @@ void CVPU::ProcessPacket(CVIF::CFifoStream& stream)
 
         m_NUM = m_CODE.nNUM;
 
-        ExecuteCommand(m_CODE, stream);
+        ExecuteCommand(stream, m_CODE);
     }
 }
 
-void CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 {
 #ifdef _DEBUG
     if(m_vpuNumber == 0)
@@ -187,7 +188,7 @@ void CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 #endif
 	if(nCommand.nCMD >= 0x60)
 	{
-		return Cmd_UNPACK(nCommand, stream, (nCommand.nIMM & 0x03FF));
+		return Cmd_UNPACK(stream, nCommand, (nCommand.nIMM & 0x03FF));
 	}
 	switch(nCommand.nCMD)
 	{
@@ -215,15 +216,15 @@ void CVPU::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 		break;
     case 0x20:
         //STMASK
-        return Cmd_STMASK(nCommand, stream);
+        return Cmd_STMASK(stream, nCommand);
         break;
     case 0x30:
         //STROW
-        return Cmd_STROW(nCommand, stream);
+        return Cmd_STROW(stream, nCommand);
         break;
 	case 0x4A:
 		//MPG
-		return Cmd_MPG(nCommand, stream);
+		return Cmd_MPG(stream, nCommand);
 		break;
 	default:
 		assert(0);
@@ -246,25 +247,64 @@ void CVPU::StartMicroProgram(uint32 address)
 
 void CVPU::ExecuteMicro(uint32 nAddress)
 {
-#ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_VU1ZONE);
-#endif
-
     m_ITOP = m_ITOPS;
 
     CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
 
-	m_pCtx->m_State.nPC = nAddress;
+    m_pCtx->m_State.nPC = nAddress;
     m_paused = true;
-    m_vif.SetStat(m_vif.GetStat() | GetVbs());
-    m_execCondition.notify_all();
-    m_STAT.nVEW = 0;
+    
+    {
+        while(1)
+        {
+            unsigned int quota = 5000;
+            m_pCtx->m_State.nHasException = 0;
+            m_executor.Execute(quota);
+            if(m_pCtx->m_State.nHasException)
+            {
+                //E bit encountered
+                break;
+//                m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
+            }
+        }
+    }
 
-#ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
-#endif
+//    m_vif.SetStat(m_vif.GetStat() | GetVbs());
+//    m_STAT.nVEW = 0;
 }
-
+/*
+void CVPU::CommandThreadProc()
+{
+    bool isDebuggingEnabled = m_vpuNumber == 0 ? m_vif.IsVu0DebuggingEnabled() : m_vif.IsVu1DebuggingEnabled();
+    const int bufferSize = 2345;
+    uint8* readBuffer = reinterpret_cast<uint8*>(alloca(bufferSize));
+    while(!m_endThread)
+    {
+        if(m_cmdBuffer.IsEmpty() && !IsRunning())
+        {
+            m_cmdBuffer.WaitForNotEmpty(1);
+        }
+        else
+        {
+            if(IsRunning())
+            {
+                unsigned int quota = isDebuggingEnabled ? 1 : 5000;
+                m_pCtx->m_State.nHasException = 0;
+                m_executor.Execute(quota);
+                if(m_pCtx->m_State.nHasException)
+                {
+                    //E bit encountered
+                    m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
+                }
+            }
+            else
+            {
+                ProcessPacket();
+            }
+        }
+    }
+}
+*/
 void CVPU::ExecuteThreadProc()
 {
     bool isDebuggingEnabled = m_vpuNumber == 0 ? m_vif.IsVu0DebuggingEnabled() : m_vif.IsVu1DebuggingEnabled();
@@ -290,9 +330,9 @@ void CVPU::ExecuteThreadProc()
         }
         else
         {
-            m_pCtx->m_State.nHasException = 0;
-            m_executor.Execute(quota);
-            if(m_pCtx->m_State.nHasException)
+//            m_pCtx->m_State.nHasException = 0;
+//            m_executor.Execute(quota);
+//            if(m_pCtx->m_State.nHasException)
             {
                 //E bit encountered
                 m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
@@ -308,9 +348,9 @@ void CVPU::ExecuteThreadProc()
     }
 }
 
-void CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
 {
-    uint32 nSize = stream.GetSize();
+    uint32 nSize = stream.GetAvailableReadBytes();
 
     uint32 nNum         = (m_NUM == 0) ? (256) : (m_NUM);
     uint32 nCodeNum     = (m_CODE.nNUM == 0) ? (256) : (m_CODE.nNUM);
@@ -356,7 +396,7 @@ void CVPU::Cmd_MPG(CODE nCommand, CVIF::CFifoStream& stream)
 //    return nSize;
 }
 
-void CVPU::Cmd_STROW(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU::Cmd_STROW(StreamType& stream, CODE nCommand)
 {
     if(m_NUM == 0)
     {
@@ -364,7 +404,7 @@ void CVPU::Cmd_STROW(CODE nCommand, CVIF::CFifoStream& stream)
     }
 
 //    uint32 transfered = 0;
-    while(m_NUM != 0 && stream.GetSize())
+    while(m_NUM != 0 && stream.GetAvailableReadBytes())
     {
         assert(m_NUM <= 4);
         stream.Read(&m_R[4 - m_NUM], 4);
@@ -384,14 +424,14 @@ void CVPU::Cmd_STROW(CODE nCommand, CVIF::CFifoStream& stream)
 //    return transfered;
 }
 
-void CVPU::Cmd_STMASK(CODE command, CVIF::CFifoStream& stream)
+void CVPU::Cmd_STMASK(StreamType& stream, CODE command)
 {
     if(m_NUM == 0)
     {
         m_NUM = 1;
     }
 
-    while(m_NUM != 0 && stream.GetSize())
+    while(m_NUM != 0 && stream.GetAvailableReadBytes())
     {
         stream.Read(&m_MASK, 4);
         m_NUM--;
@@ -407,7 +447,7 @@ void CVPU::Cmd_STMASK(CODE command, CVIF::CFifoStream& stream)
     }
 }
 
-void CVPU::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr)
+void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
     assert((nCommand.nCMD & 0x60) == 0x60);
 
@@ -422,7 +462,7 @@ void CVPU::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr)
         m_writeTick = 0;
     }
 
-    assert(m_NUM == nCommand.nNUM);
+//    assert(m_NUM == nCommand.nNUM);
 //    uint32 nTransfered = m_CODE.nNUM - m_NUM;
 //    nDstAddr += nTransfered;
 
@@ -430,7 +470,24 @@ void CVPU::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr)
 
     uint128* dst = reinterpret_cast<uint128*>(&m_pVUMem[nDstAddr]);
 
-    while(m_NUM != 0 && stream.GetSize())
+    //REMOVE
+/*
+    uint32 address = stream.GetAddress();
+    uint128* src = reinterpret_cast<uint128*>(&stream.m_ram[address]);
+    uint32 toRead = min<uint32>(stream.GetAvailableReadBytes() / 0x10, m_NUM);
+    for(unsigned int i = 0; i < toRead; i++)
+    {
+        (*dst) = (*src);
+        dst += cl;
+        src += 1;
+    }
+//    uint32 toRead = min<uint32>(stream.GetSize() / 0x10, m_NUM);
+    stream.Read(NULL, toRead * 0x10);
+    m_NUM -= toRead;
+*/
+
+    //REMOVE
+    while(m_NUM != 0 && stream.GetAvailableReadBytes())
     {
         bool mustWrite = false;
         uint128 writeValue;
@@ -542,16 +599,16 @@ void CVPU::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr)
     }
     else
     {
+//        assert((m_cmdBuffer.GetReadCount() & 0x03) == 0);
         stream.Align32();
         m_STAT.nVPS = 0;
     }
-
 //    return 0;
 }
 
-bool CVPU::Unpack_S32(CVIF::CFifoStream& stream, uint128& result)
+bool CVPU::Unpack_S32(StreamType& stream, uint128& result)
 {
-    if(stream.GetSize() < 4) return false;
+    if(stream.GetAvailableReadBytes() < 4) return false;
 
     uint32 word = 0;
     stream.Read(&word, 4);
@@ -564,9 +621,9 @@ bool CVPU::Unpack_S32(CVIF::CFifoStream& stream, uint128& result)
     return true;
 }
 
-bool CVPU::Unpack_S16(CVIF::CFifoStream& stream, uint128& result, bool zeroExtend)
+bool CVPU::Unpack_S16(StreamType& stream, uint128& result, bool zeroExtend)
 {
-    if(stream.GetSize() < 2) return false;
+    if(stream.GetAvailableReadBytes() < 2) return false;
 
     uint32 temp = 0;
     stream.Read(&temp, 2);
@@ -583,9 +640,9 @@ bool CVPU::Unpack_S16(CVIF::CFifoStream& stream, uint128& result, bool zeroExten
     return true;
 }
 
-bool CVPU::Unpack_V8(CVIF::CFifoStream& stream, uint128& result, unsigned int fields, bool zeroExtend)
+bool CVPU::Unpack_V8(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
 {
-    if(stream.GetSize() < (fields)) return false;
+    if(stream.GetAvailableReadBytes() < (fields)) return false;
 
     for(unsigned int i = 0; i < fields; i++)
     {
@@ -602,9 +659,9 @@ bool CVPU::Unpack_V8(CVIF::CFifoStream& stream, uint128& result, unsigned int fi
     return true;
 }
 
-bool CVPU::Unpack_V16(CVIF::CFifoStream& stream, uint128& result, unsigned int fields, bool zeroExtend)
+bool CVPU::Unpack_V16(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
 {
-    if(stream.GetSize() < (fields * 2)) return false;
+    if(stream.GetAvailableReadBytes() < (fields * 2)) return false;
 
     for(unsigned int i = 0; i < fields; i++)
     {
@@ -621,18 +678,18 @@ bool CVPU::Unpack_V16(CVIF::CFifoStream& stream, uint128& result, unsigned int f
     return true;
 }
 
-bool CVPU::Unpack_V32(CVIF::CFifoStream& stream, uint128& result, unsigned int fields)
+bool CVPU::Unpack_V32(StreamType& stream, uint128& result, unsigned int fields)
 {
-    if(stream.GetSize() < (fields * 4)) return false;
+    if(stream.GetAvailableReadBytes() < (fields * 4)) return false;
 
     stream.Read(&result, (fields * 4));
 
     return true;
 }
 
-bool CVPU::Unpack_V45(CVIF::CFifoStream& stream, uint128& result)
+bool CVPU::Unpack_V45(StreamType& stream, uint128& result)
 {
-    if(stream.GetSize() < 2) return false;
+    if(stream.GetAvailableReadBytes() < 2) return false;
 
     uint16 nColor = 0;
     stream.Read(&nColor, 2);
@@ -684,7 +741,27 @@ void CVPU::DisassembleCommand(CODE code)
 
 	if(code.nCMD >= 0x60)
 	{
-        CLog::GetInstance().Print(LOG_NAME, "UNPACK(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
+        const char* packFormats[16] = 
+        {
+            "S-32",
+            "S-16",
+            "(Unknown)",
+            "(Unknown)",
+            "(Unknown)",
+            "V2-16",
+            "(Unknown)",
+            "(Unknown)",
+            "V3-32",
+            "V3-16",
+            "(Unknown)",
+            "(Unknown)",
+            "V4-32",
+            "V4-16",
+            "V4-8",
+            "V4-5"
+        };
+        CLog::GetInstance().Print(LOG_NAME, "UNPACK(format = %s, imm = 0x%x, num = 0x%x);\r\n",
+            packFormats[code.nCMD & 0x0F], code.nIMM, code.nNUM);
 	}
     else
     {

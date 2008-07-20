@@ -70,7 +70,7 @@ private:
 									~CTexture();
 		void						Invalidate();
 		void						InvalidateFromMemorySpace(uint32, uint32);
-		bool						IsValid();
+		bool						IsValid() const;
 
 		uint32						m_nStart;
 		uint32						m_nSize;

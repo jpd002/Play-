@@ -138,6 +138,9 @@ private:
 		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 
+        static void                         GetQuadWord(uint32, CMIPS*, uint32, uint32);
+        static void                         SetQuadWord(uint32, CMIPS*, uint32, uint32);
+
 	private:
 		static void							(*m_pOpGeneral[0x80])();
 		static void							(*m_pOpLower[0x40])();

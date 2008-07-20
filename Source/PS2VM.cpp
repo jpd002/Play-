@@ -514,6 +514,7 @@ void CPS2VM::CreateGsImpl(const CGSHandler::FactoryFunction& factoryFunction)
 {
     m_pGS = factoryFunction();
     m_pGS->Initialize();
+    m_pGS->OnNewFrame.connect(bind(&CPS2VM::OnGsNewFrame, this));
 }
 
 void CPS2VM::DestroyGsImpl()
@@ -530,6 +531,18 @@ void CPS2VM::CreatePadHandlerImpl(const CPadHandler::FactoryFunction& factoryFun
 void CPS2VM::DestroyPadHandlerImpl()
 {
     DELETEPTR(m_pPad);
+}
+
+void CPS2VM::OnGsNewFrame()
+{
+    m_frameNumber++;
+    bool drawFrame = (m_frameNumber & 7) == 0;
+//    bool drawFrame = false;
+    if(m_pGS != NULL)
+    {
+        m_pGS->SetEnabled(drawFrame);
+    }
+    m_vif.SetEnabled(drawFrame);
 }
 
 void CPS2VM::CDROM0_Initialize()
@@ -941,6 +954,7 @@ void CPS2VM::EmuThread()
                 m_vif.SingleStepVU1();
             }
 #endif
+            m_dmac.ResumeDMA0();
             m_dmac.ResumeDMA1();
             m_dmac.ResumeDMA4();
             if(!m_EE.m_State.nHasException)
@@ -970,12 +984,13 @@ void CPS2VM::EmuThread()
                 }
             }
             //Castlevania speed hack
-//            {
+            {
 //                if(m_pRAM[0x00] == 0x01)
 //                {
 //                    m_nVBlankTicks = 0;
+//                    thread::yield();
 //                }
-//            }
+            }
             //BEGIN: Frame limiter
 //            if(m_pGS != NULL && lastFrameCount != m_pGS->GetFrameCount())
 //            {

@@ -149,7 +149,7 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 
 CGSHandler::CGSHandler() :
 m_thread(NULL),
-m_frameCount(0)
+m_enabled(true)
 {
 	m_pRAM = (uint8*)malloc(RAMSIZE);
 
@@ -192,11 +192,12 @@ void CGSHandler::Reset()
     m_nCrtIsInterlaced = false;
     m_nCrtMode = 0;
     m_nCrtIsFrameMode = false;
+    m_enabled = true;
 }
 
-unsigned int CGSHandler::GetFrameCount() const
+void CGSHandler::SetEnabled(bool enabled)
 {
-    return m_frameCount;
+    m_enabled = enabled;
 }
 
 void CGSHandler::SaveState(CZipArchiveWriter& archive)
@@ -373,6 +374,7 @@ void CGSHandler::Initialize()
 
 void CGSHandler::Flip()
 {
+    if(!m_enabled) return;
     m_mailBox.SendCall(bind(&CGSHandler::FlipImpl, this));
 }
 

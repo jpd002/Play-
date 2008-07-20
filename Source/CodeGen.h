@@ -162,6 +162,7 @@ public:
     void                            MD_PushCstExpand(float);
     virtual void                    MD_PullRel(size_t);
     virtual void                    MD_PullRel(size_t, size_t, size_t, size_t);
+    virtual void                    MD_PullRel(size_t, bool, bool, bool, bool);
     void                            MD_PushReg(XMMREGISTER);
 
     void                            MD_AbsS();

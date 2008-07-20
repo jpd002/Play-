@@ -134,6 +134,11 @@ bool CDMAC::IsInterruptPending()
 	return ((nMask & nStatus) != 0);
 }
 
+void CDMAC::ResumeDMA0()
+{
+    m_D0.Execute();
+}
+
 void CDMAC::ResumeDMA1()
 {
     m_D1.Execute();

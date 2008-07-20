@@ -215,7 +215,7 @@ public:
 	virtual									~CGSHandler();
 
 	void									Reset();
-    unsigned int                            GetFrameCount() const;
+    void                                    SetEnabled(bool);
 
 	virtual void							SaveState(CZipArchiveWriter&);
 	virtual void							LoadState(CZipArchiveReader&);
@@ -643,12 +643,12 @@ protected:
 
 	uint8*									m_pRAM;
 
-    unsigned int                            m_frameCount;
 	unsigned int							m_nCrtMode;
 	bool									m_nCrtIsInterlaced;
 	bool									m_nCrtIsFrameMode;
     boost::thread*                          m_thread;
     CMailBox                                m_mailBox;
+    bool                                    m_enabled;
 };
 
 //////////////////////////////////////////////

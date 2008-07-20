@@ -10,10 +10,13 @@
 #include <boost/static_assert.hpp>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
+#include "CircularBuffer.h"
 
 class CVPU
 {
 public:
+    typedef CVIF::CFifoStream StreamType;
+
                         CVPU(CVIF&, unsigned int, const CVIF::VPUINIT&);
     virtual             ~CVPU();
 
@@ -25,11 +28,13 @@ public:
     virtual uint32      GetITOP() const;
     virtual void        SaveState(CZipArchiveWriter&);
     virtual void        LoadState(CZipArchiveReader&);
-    virtual void        ProcessPacket(CVIF::CFifoStream&);
+    virtual void        ProcessPacket(StreamType&);
 
     CMIPS&              GetContext() const;
     uint8*              GetVuMemory() const;
     bool                IsRunning() const;
+
+//    CCircularBuffer     m_cmdBuffer;
 
 protected:
     struct STAT : public convertible<uint32>
@@ -83,26 +88,28 @@ protected:
         MASK_MASK = 3
     };
 
+    enum
+    {
+        CMDBUFFER_SIZE = 0x10000,
+    };
+
     void                ExecuteThreadProc();
+    void                CommandThreadProc();
     void                ExecuteMicro(uint32);
     virtual void        StartMicroProgram(uint32);
-    virtual void        ExecuteCommand(CODE, CVIF::CFifoStream&);
-    virtual void        Cmd_UNPACK(CODE, CVIF::CFifoStream&, uint32);
+    virtual void        ExecuteCommand(StreamType&, CODE);
+    virtual void        Cmd_UNPACK(StreamType&, CODE, uint32);
 
-    void                Cmd_MPG(CODE, CVIF::CFifoStream&);
-    void                Cmd_STROW(CODE, CVIF::CFifoStream&);
-    void                Cmd_STMASK(CODE, CVIF::CFifoStream&);
+    void                Cmd_MPG(StreamType&, CODE);
+    void                Cmd_STROW(StreamType&, CODE);
+    void                Cmd_STMASK(StreamType&, CODE);
 
-    bool                Unpack_S32(CVIF::CFifoStream&, uint128&);
-    bool                Unpack_S16(CVIF::CFifoStream&, uint128&, bool);
-    bool                Unpack_V16(CVIF::CFifoStream&, uint128&, unsigned int, bool);
-    bool                Unpack_V8(CVIF::CFifoStream&, uint128&, unsigned int, bool);
-    bool                Unpack_V32(CVIF::CFifoStream&, uint128&, unsigned int);
-    bool                Unpack_V45(CVIF::CFifoStream&, uint128&);
-
-//    void                Unpack_V45(uint32, CVIF::CFifoStream&);
-//    void                Unpack_V432(uint32, CVIF::CFifoStream&);
-//    void                Unpack_V416(uint32, CVIF::CFifoStream&, bool);
+    bool                Unpack_S32(StreamType&, uint128&);
+    bool                Unpack_S16(StreamType&, uint128&, bool);
+    bool                Unpack_V16(StreamType&, uint128&, unsigned int, bool);
+    bool                Unpack_V8(StreamType&, uint128&, unsigned int, bool);
+    bool                Unpack_V32(StreamType&, uint128&, unsigned int);
+    bool                Unpack_V45(StreamType&, uint128&);
 
     uint32              GetVbs() const;
     uint32              GetMaskOp(unsigned int, unsigned int) const;

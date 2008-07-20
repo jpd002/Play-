@@ -903,10 +903,9 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	CGSHandler::WriteRegisterImpl(nRegister, nData);
 
-    //Frameskip
-//    if(m_frameCount % 5 != 0) return;
+    if(!m_enabled) return;
 
-	switch(nRegister)
+    switch(nRegister)
 	{
 	case GS_REG_PRIM:
 		m_nPrimitiveType = (unsigned int)(nData & 0x07);
@@ -1157,7 +1156,7 @@ void CGSH_OpenGL::SetVBlank()
         Flip();
         OnNewFrame();
     }
-    while(m_mailBox.IsPending())
+    while(m_mailBox.IsPending() && m_enabled)
     {
         //Flush all commands
         thread::yield();

@@ -137,6 +137,86 @@ void CCodeGen::MD_PullRel(size_t offset0, size_t offset1, size_t offset2, size_t
     }
 }
 
+void CCodeGen::MD_PullRel(size_t registerId, bool has0, bool has1, bool has2, bool has3)
+{
+    throw exception();
+
+    uint8 partCount = 
+        (has0 ? 1 : 0) + 
+        (has1 ? 1 : 0) +
+        (has2 ? 1 : 0) +
+        (has3 ? 1 : 0);
+
+    uint8 lonelySrcPart =
+        (has0 ? 1 : 0) +
+        (has1 ? 2 : 0) +
+        (has2 ? 3 : 0) +
+        (has3 ? 4 : 0) - 
+        1;
+
+    uint8 lonelyDstPart =
+        (has0 ? 0 : 1) +
+        (has1 ? 0 : 2) +
+        (has2 ? 0 : 3) +
+        (has3 ? 0 : 4) - 
+        1;
+/*
+    if(FitsPattern<SingleRegister128>())
+    {
+        XMMREGISTER valueRegister = static_cast<XMMREGISTER>(GetPattern<SingleRegister128>());
+        assert(!Register128HasNextUse(valueRegister));
+
+	    if(partCount == 4)
+	    {
+            m_Assembler.MovapsVo(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(registerId)),
+                valueRegister);
+	    }
+        else
+        {
+            XMMREGISTER tempRegister = AllocateXmmRegister();
+            m_Assembler.MovapsVo(tempRegister,
+                CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(registerId)));
+            //Check if we need to copy either 0 or 1
+            if(has0 || has1)
+            {
+                uint8 mask = (has0 ? 0x00)
+            }
+            m_Assembler.ShufpsVo(tempRegister,
+                CX86Assembler::MakeXmmRegisterAddress(valueRegister), shuffle[i]);
+            m_Assembler.MovapsVo(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(registerId)),
+                tempRegister);
+            }
+            FreeXmmRegister(tempRegister);
+        }
+        else
+        {
+            XMMREGISTER tempRegister = AllocateXmmRegister();
+            if(has3 || has2)
+            {
+
+            }
+            m_Assembler.MovapsVo(tempRegister,
+                CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(registerId)));
+            m_Assembler.ShufpsVo(tempRegister,
+                CX86Assembler::MakeXmmRegisterAddress(valueRegister), shuffle[i]);
+            FreeXmmRegister(tempRegister);
+            //has0 has1 has2 has3
+            //   0    0    0    0       -> Shouldn't happen
+            //   1    0    0    0       -> res[src0, dst1, dst2, dst3]
+            //   0    1    0    0       -> res[dst0, src1, dst2, dst3]
+            //   0    1    1    0       -> res[dst0, src1, src2, dst3]
+            //   1    1    0    1       -> res[src0, src1, dst2, src3]
+        }
+
+        FreeXmmRegister(valueRegister);
+    }
+    else
+    {
+        throw exception();
+    }
+*/
+}
+
 void CCodeGen::MD_PushReg(XMMREGISTER registerId)
 {
     m_Shadow.Push(registerId);

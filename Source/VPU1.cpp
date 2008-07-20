@@ -59,7 +59,7 @@ uint32 CVPU1::GetTOP() const
 	return m_TOP;
 }
 
-void CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 {
 #ifdef _DEBUG
     DisassembleCommand(nCommand);
@@ -103,17 +103,17 @@ void CVPU1::ExecuteCommand(CODE nCommand, CVIF::CFifoStream& stream)
 	case 0x50:
 	case 0x51:
 		//DIRECT/DIRECTHL
-		return Cmd_DIRECT(nCommand, stream);
+		return Cmd_DIRECT(stream, nCommand);
 		break;
 	default:
-		return CVPU::ExecuteCommand(nCommand, stream);
+		return CVPU::ExecuteCommand(stream, nCommand);
 		break;
 	}
 }
 
-void CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
+void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 {
-    uint32 nSize = stream.GetSize();
+    uint32 nSize = stream.GetAvailableReadBytes();
     nSize = min<uint32>(m_CODE.nIMM * 0x10, nSize);
 
     if(nSize != 0)
@@ -137,7 +137,7 @@ void CVPU1::Cmd_DIRECT(CODE nCommand, CVIF::CFifoStream& stream)
 //    return nSize;
 }
 
-void CVPU1::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr)
+void CVPU1::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
     bool nFlg = (m_CODE.nIMM & 0x8000) != 0;
     if(nFlg) 
@@ -145,7 +145,7 @@ void CVPU1::Cmd_UNPACK(CODE nCommand, CVIF::CFifoStream& stream, uint32 nDstAddr
         nDstAddr += m_TOPS;
     }
 
-    return CVPU::Cmd_UNPACK(nCommand, stream, nDstAddr);
+    return CVPU::Cmd_UNPACK(stream, nCommand, nDstAddr);
 }
 
 void CVPU1::StartMicroProgram(uint32 address)

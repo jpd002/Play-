@@ -17,22 +17,6 @@ public:
     typedef std::tr1::function<void (uint32)> WriteNotifyHandlerType;
     typedef std::tr1::function<uint32 (uint32, uint32)> MemoryMapHandlerType;
 
-	virtual									~CMemoryMap();
-	uint8									GetByte(uint32);
-	virtual uint16							GetHalf(uint32) = 0;
-	virtual uint32							GetWord(uint32) = 0;
-    virtual uint32                          GetInstruction(uint32) = 0;
-	virtual void							SetByte(uint32, uint8);
-	virtual void							SetHalf(uint32, uint16) = 0;
-	virtual void							SetWord(uint32, uint32) = 0;
-	void									InsertReadMap(uint32, uint32, void*, unsigned char);
-    void                                    InsertReadMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
-	void									InsertWriteMap(uint32, uint32, void*, unsigned char);
-    void                                    InsertWriteMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
-    void                                    InsertInstructionMap(uint32, uint32, void*, unsigned char);
-	void									SetWriteNotifyHandler(WriteNotifyHandlerType);
-
-protected:
     enum MEMORYMAP_TYPE
     {
 	    MEMORYMAP_TYPE_MEMORY,
@@ -50,6 +34,24 @@ protected:
 
     typedef std::map<unsigned char, MEMORYMAPELEMENT> MemoryMapListType;
 
+	virtual									~CMemoryMap();
+	uint8									GetByte(uint32);
+	virtual uint16							GetHalf(uint32) = 0;
+	virtual uint32							GetWord(uint32) = 0;
+    virtual uint32                          GetInstruction(uint32) = 0;
+	virtual void							SetByte(uint32, uint8);
+	virtual void							SetHalf(uint32, uint16) = 0;
+	virtual void							SetWord(uint32, uint32) = 0;
+	void									InsertReadMap(uint32, uint32, void*, unsigned char);
+    void                                    InsertReadMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
+	void									InsertWriteMap(uint32, uint32, void*, unsigned char);
+    void                                    InsertWriteMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
+    void                                    InsertInstructionMap(uint32, uint32, void*, unsigned char);
+    MEMORYMAPELEMENT*                       GetReadMap(uint32);
+    MEMORYMAPELEMENT*                       GetWriteMap(uint32);
+	void									SetWriteNotifyHandler(const WriteNotifyHandlerType&);
+
+protected:
     WriteNotifyHandlerType					m_WriteNotifyHandler;
 	static MEMORYMAPELEMENT*				GetMap(MemoryMapListType&, uint32);
 

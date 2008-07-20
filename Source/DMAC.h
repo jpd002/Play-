@@ -90,6 +90,7 @@ public:
 	void                DisassembleSet(uint32, uint32);
 
 	bool                IsInterruptPending();
+    void                ResumeDMA0();
     void                ResumeDMA1();
 	uint32				ResumeDMA3(void*, uint32);
 	void                ResumeDMA4();

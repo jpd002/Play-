@@ -13,9 +13,9 @@ public:
     virtual void    Reset();
 
 protected:
-    virtual void    ExecuteCommand(CODE, CVIF::CFifoStream&);
-    virtual void    Cmd_DIRECT(CODE, CVIF::CFifoStream&);
-    virtual void    Cmd_UNPACK(CODE, CVIF::CFifoStream&, uint32);
+    virtual void    ExecuteCommand(StreamType&, CODE);
+    virtual void    Cmd_DIRECT(StreamType&, CODE);
+    virtual void    Cmd_UNPACK(StreamType&, CODE, uint32);
 
 private:
     virtual void    StartMicroProgram(uint32);

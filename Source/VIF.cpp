@@ -6,12 +6,14 @@
 #include "Profiler.h"
 #include "Ps2Const.h"
 #include "RegisterStateFile.h"
+#include "Log.h"
 
 #ifdef	PROFILE
 #define	PROFILE_VIFZONE "VIF"
 #define PROFILE_VU1ZONE	"VU0"
 #endif
 
+#define LOG_NAME                ("vif")
 #define STATE_REGS_XML          ("vif/regs.xml")
 #define STATE_REGS_VPU_STAT     ("VPU_STAT")
 
@@ -25,7 +27,8 @@ static int nExecTimes = 0;
 CVIF::CVIF(CGIF& gif, uint8* ram, const VPUINIT& vpu0Init, const VPUINIT& vpu1Init) :
 m_gif(gif),
 m_ram(ram),
-m_VPU_STAT(0)
+m_VPU_STAT(0),
+m_enabled(true)
 {
     m_pVPU[0] = new CVPU(*this, 0, vpu0Init);
     m_pVPU[1] = new CVPU1(*this, 1, vpu1Init);
@@ -55,10 +58,16 @@ void CVIF::Reset()
 {
     for(unsigned int i = 0; i < 2; i++)
     {
-        m_stream[i]->Flush();
+//        m_stream[i]->Flush();
         m_pVPU[i]->Reset();
     }
     m_VPU_STAT = 0;
+    m_enabled = true;
+}
+
+void CVIF::SetEnabled(bool enabled)
+{
+    m_enabled = enabled;
 }
 
 void CVIF::SaveState(CZipArchiveWriter& archive)
@@ -91,29 +100,71 @@ uint32 CVIF::ReceiveDMA0(uint32 address, uint32 qwc, bool tagIncluded)
 //        return 0;
 //    }
 
-    m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
-    if(tagIncluded)
-    {
-        m_stream[vpuNumber]->Read(NULL, 8);
-    }
+ //   m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
+ //   if(tagIncluded)
+ //   {
+ //       m_stream[vpuNumber]->Read(NULL, 8);
+ //   }
 
-    m_pVPU[vpuNumber]->ProcessPacket(*m_stream[vpuNumber]);
+ //   m_pVPU[vpuNumber]->ProcessPacket(*m_stream[vpuNumber]);
 
-    uint32 remainingSize = m_stream[vpuNumber]->GetSize();
-    assert((remainingSize & 0x0F) == 0);
-    remainingSize /= 0x10;
-	return qwc - remainingSize;
+ //   uint32 remainingSize = m_stream[vpuNumber]->GetSize();
+ //   assert((remainingSize & 0x0F) == 0);
+ //   remainingSize /= 0x10;
+	//return qwc - remainingSize;
+
+    return qwc;
 }
 
 uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
 {
+    if(!m_enabled)
+    {
+        return nQWC;
+    }
+
     unsigned int vpuNumber = 1;
 
-    if(IsVU1Running())
+//    if(IsVU1Running())
+//    {
+//        thread::yield();
+//        return 0;
+//    }
+
+#ifdef _DEBUG
+//    CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = %X, tagIncluded = %i\r\n",
+//        vpuNumber, nAddress, nQWC, static_cast<int>(nTagIncluded));
+#endif
+
+#ifdef PROFILE
+	CProfiler::GetInstance().BeginZone(PROFILE_VIFZONE);
+#endif
+/*
+    uint32 availableSpace = m_pVPU[vpuNumber]->m_cmdBuffer.GetAvailableWriteBytes() & ~0x0F;
+    uint32 size = nQWC * 0x10;
+    size = min<uint32>(availableSpace, size);
+    if(size != 0)
     {
-        thread::yield();
-        return 0;
+        if(nTagIncluded)
+        {
+            nAddress += 8;
+            size -= 8;
+        }
+//        size_t written = m_pVPU[vpuNumber]->m_cmdBuffer.Write(m_ram + nAddress, size);
+        static uint8 currentValue = 0;
+        uint8* tempData = reinterpret_cast<uint8*>(alloca(size));
+        for(unsigned int i = 0; i < size; i++)
+        {
+            tempData[i] = currentValue;
+            currentValue++;
+        }
+        size_t written = m_pVPU[vpuNumber]->m_cmdBuffer.Write(tempData, size);
+        assert(written == size);
     }
+
+    uint32 writtenSize = (size + 0x0F) / 0x10;
+    return writtenSize;
+*/
 
     m_stream[vpuNumber]->SetDmaParams(nAddress, nQWC * 0x10);
     if(nTagIncluded)
@@ -124,26 +175,15 @@ uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
     m_pVPU[vpuNumber]->ProcessPacket(*m_stream[vpuNumber]);
 
 #ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_VIFZONE);
-#endif
-
-//	if(nTagIncluded)
-//	{
-//		nQWC = m_pVPU[1]->ProcessPacket(nAddress + 8, (nQWC * 0x10) - 8);
-//	}
-//	else
-//	{
-//		nQWC = m_pVPU[1]->ProcessPacket(nAddress, nQWC * 0x10);
-//	}
-	
-#ifdef PROFILE
 	CProfiler::GetInstance().EndZone();
 #endif
 
-    uint32 remainingSize = m_stream[vpuNumber]->GetSize();
+    uint32 remainingSize = m_stream[vpuNumber]->GetAvailableReadBytes();
     assert((remainingSize & 0x0F) == 0);
     remainingSize /= 0x10;
+
 	return nQWC - remainingSize;
+//    return nQWC;
 }
 
 uint32 CVIF::GetITop0() const
@@ -266,24 +306,31 @@ CVIF::CFifoStream::~CFifoStream()
 void CVIF::CFifoStream::Read(void* buffer, uint32 size)
 {
     uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
-    while(size != 0)
+//    while(size != 0)
     {
-        SyncBuffer();
-        uint32 read = min(size, BUFFERSIZE - m_position);
+//        SyncBuffer();
+//        uint32 read = min<uint32>(size, BUFFERSIZE - m_position);
+//        if(readBuffer != NULL)
+//        {
+//            memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_position, read);
+//            readBuffer += read;
+//        }
+//        m_position += read;
+//        size -= read;
+        uint32 available = m_endAddress - m_address;
+        assert(size <= available);
         if(readBuffer != NULL)
         {
-            memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_position, read);
-            readBuffer += read;
+            memcpy(readBuffer, &m_ram[m_address], size);
         }
-        m_position += read;
-        size -= read;
+        m_address += size;
     }
 }
 
-void CVIF::CFifoStream::Flush()
-{
-    m_position = BUFFERSIZE;
-}
+//void CVIF::CFifoStream::Flush()
+//{
+//    m_position = BUFFERSIZE;
+//}
 
 void CVIF::CFifoStream::SetDmaParams(uint32 address, uint32 qwc)
 {
@@ -295,10 +342,11 @@ void CVIF::CFifoStream::SetDmaParams(uint32 address, uint32 qwc)
 
 uint32 CVIF::CFifoStream::GetAddress() const
 {
-    return m_address + m_position;
+//    return m_address + m_position;
+    return m_address;
 }
 
-uint32 CVIF::CFifoStream::GetSize() const
+uint32 CVIF::CFifoStream::GetAvailableReadBytes() const
 {
     return m_endAddress - GetAddress();
 }
@@ -313,6 +361,7 @@ void CVIF::CFifoStream::Align32()
 
 void CVIF::CFifoStream::SyncBuffer()
 {
+/*
     if(m_position >= BUFFERSIZE)
     {
         if(m_nextAddress >= m_endAddress)
@@ -324,4 +373,5 @@ void CVIF::CFifoStream::SyncBuffer()
         m_nextAddress += 0x10;
         m_position = 0;
     }
+*/
 }

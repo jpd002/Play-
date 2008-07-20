@@ -135,6 +135,8 @@ private:
     void                        CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
     void                        DestroyPadHandlerImpl();
 
+    void                        OnGsNewFrame();
+
 	unsigned int                EETickFunction(unsigned int);
 	unsigned int                VU1TickFunction(unsigned int);
     static unsigned int         EETickFunctionStub(unsigned int, CMIPS*);
@@ -158,6 +160,7 @@ private:
     bool                        m_nEnd;
     CMA_VU                      m_MAVU0;
     CMA_VU                      m_MAVU1;
+    unsigned int                m_frameNumber;
 };
 
 #endif

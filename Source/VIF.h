@@ -43,6 +43,8 @@ public:
                 CVIF(CGIF&, uint8*, const VPUINIT&, const VPUINIT&);
     virtual     ~CVIF();
 
+    void        SetEnabled(bool);
+
     void        JoinThreads();
 
     void        Reset();
@@ -80,11 +82,13 @@ public:
         virtual         ~CFifoStream();
 
         uint32          GetAddress() const;
-        uint32          GetSize() const;
+        uint32          GetAvailableReadBytes() const;
         void            Read(void*, uint32);
-        void            Flush();
+//        void            Flush();
         void            Align32();
         void            SetDmaParams(uint32, uint32);
+
+        uint8*          m_ram;
 
     private:
         void            SyncBuffer();
@@ -96,7 +100,6 @@ public:
 
         uint128         m_buffer;
         uint32          m_position;
-        uint8*          m_ram;
         uint32          m_address;
         uint32          m_nextAddress;
         uint32          m_endAddress;
@@ -113,6 +116,7 @@ private:
     CGIF&           m_gif;
     uint8*          m_ram;
     CFifoStream*    m_stream[2];
+    bool            m_enabled;
 };
 
 #endif

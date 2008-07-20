@@ -42,7 +42,7 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		break;
 	}
 
-	if(m_pProgram != NULL)
+    if(m_pProgram != NULL)
 	{
 		if((pClamp->nWMS > 1) || (pClamp->nWMT > 1))
 		{
@@ -93,7 +93,7 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 		}
 	}
 
-	unsigned int nTexture = TexCache_Search(pReg0);
+    unsigned int nTexture = TexCache_Search(pReg0);
 	if(nTexture != 0) return nTexture;
 
 	DECODE_TEXA(m_nReg[GS_REG_TEXA], TexA);
@@ -850,7 +850,7 @@ void CGSH_OpenGL::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSiz
 	}
 }
 
-bool CGSH_OpenGL::CTexture::IsValid()
+bool CGSH_OpenGL::CTexture::IsValid() const
 {
 	return (m_nTexture != 0);
 }
@@ -861,21 +861,19 @@ bool CGSH_OpenGL::CTexture::IsValid()
 
 unsigned int CGSH_OpenGL::TexCache_Search(GSTEX0* pTex0)
 {
-	unsigned int i;
-
-	for(i = 0; i < MAXCACHE; i++)
+	for(unsigned int i = 0; i < MAXCACHE; i++)
 	{
-		if(!m_TexCache[i].IsValid()) continue;
-//		if(m_TexCache[i].m_nStart != pTex0->GetBufPtr()) continue;
-//		if(m_TexCache[i].m_nPSM != pTex0->nPsm) continue;
-//		if(m_TexCache[i].m_nCLUTAddress != pTex0->GetCLUTPtr()) continue;
-		if(*(uint64*)pTex0 != m_TexCache[i].m_nTex0) continue;
-		if(m_TexCache[i].m_nIsCSM2)
-		{
-			if(((*(uint64*)GetTexClut()) & 0x3FFFFF) != m_TexCache[i].m_nTexClut) continue;
-		}
-
-		return m_TexCache[i].m_nTexture;
+        const CTexture& texture = m_TexCache[i];
+        if(!texture.IsValid()) continue;
+        //if(m_TexCache[i].m_nStart != pTex0->GetBufPtr()) continue;
+        //if(m_TexCache[i].m_nPSM != pTex0->nPsm) continue;
+        //if(m_TexCache[i].m_nCLUTAddress != pTex0->GetCLUTPtr()) continue;
+	    if(*(uint64*)pTex0 != texture.m_nTex0) continue;
+	    if(texture.m_nIsCSM2)
+	    {
+		    if(((*(uint64*)GetTexClut()) & 0x3FFFFF) != texture.m_nTexClut) continue;
+	    }
+        return texture.m_nTexture;
 	}
 
 	return 0;
