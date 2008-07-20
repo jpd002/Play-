@@ -40,12 +40,10 @@
 #define STATE_VUMEM1    ("vumem1")
 #define STATE_MICROMEM1 ("micromem1")
 
-#define PREF_PS2_HOST_DIRECTORY             ("ps2.host.directory")
-#define PREF_PS2_MC0_DIRECTORY              ("ps2.mc0.directory")
-#define PREF_PS2_MC1_DIRECTORY              ("ps2.mc1.directory")
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT     ("./vfs/host")
 #define PREF_PS2_MC0_DIRECTORY_DEFAULT      ("./vfs/mc0")
 #define PREF_PS2_MC1_DIRECTORY_DEFAULT      ("./vfs/mc1")
+#define PREF_PS2_FRAMESKIP_DEFAULT          (0)
 
 #ifdef _DEBUG
 
@@ -106,6 +104,7 @@ m_MAVU1(true)
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
 	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
+    CConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
     m_iopOs = new CIopBios(0x100, m_iop, m_iopRam, PS2::IOPRAMSIZE, m_sif, m_pCDROM0);
     m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
@@ -230,6 +229,12 @@ unsigned int CPS2VM::LoadState(const char* sPath)
     unsigned int result = 0;
     m_mailBox.SendCall(bind(&CPS2VM::LoadVMState, this, sPath, tr1::ref(result)), true);
     return result;
+}
+
+void CPS2VM::SetFrameSkip(unsigned int frameSkip)
+{
+    m_frameSkip = frameSkip;
+    CConfig::GetInstance().SetPreferenceInteger(PREF_PS2_FRAMESKIP, m_frameSkip);
 }
 
 //unsigned int CPS2VM::SendMessage(PS2VM_MSG nMsg, void* pParam)
@@ -378,6 +383,8 @@ void CPS2VM::ResetVM()
     m_iopOs->GetIoman()->RegisterDevice("mc0", new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY));
     m_iopOs->GetIoman()->RegisterDevice("mc1", new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY));
     m_iopOs->GetIoman()->RegisterDevice("cdrom0", new Iop::Ioman::CIsoDevice(m_pCDROM0));
+
+    m_frameSkip = CConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
 
     RegisterModulesInPadHandler();
 }
@@ -536,8 +543,7 @@ void CPS2VM::DestroyPadHandlerImpl()
 void CPS2VM::OnGsNewFrame()
 {
     m_frameNumber++;
-    bool drawFrame = (m_frameNumber & 7) == 0;
-//    bool drawFrame = false;
+    bool drawFrame = (m_frameSkip == 0) ? true : (m_frameNumber % (m_frameSkip + 1)) == 0;
     if(m_pGS != NULL)
     {
         m_pGS->SetEnabled(drawFrame);

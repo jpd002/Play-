@@ -88,103 +88,78 @@ template <typename Type> Type* CConfig::FindPreference(const char* sName)
 
 void CConfig::RegisterPreferenceInteger(const char* sName, int nValue)
 {
-	CPreferenceInteger* pPref;
-
 	if(FindPreference<CPreference>(sName) != NULL)
 	{
 		return;
 	}
 
-	pPref = new CPreferenceInteger(sName, nValue);
-
+	CPreferenceInteger* pPref = new CPreferenceInteger(sName, nValue);
 	InsertPreference(pPref);
 }
 
 void CConfig::RegisterPreferenceBoolean(const char* sName, bool nValue)
 {
-	CPreferenceBoolean* pPref;
-
 	if(FindPreference<CPreference>(sName) != NULL)
 	{
 		return;
 	}
 
-	pPref = new CPreferenceBoolean(sName, nValue);
+	CPreferenceBoolean* pPref = new CPreferenceBoolean(sName, nValue);
 	InsertPreference(pPref);
 }
 
 void CConfig::RegisterPreferenceString(const char* sName, const char* sValue)
 {
-	CPreferenceString* pPref;
-
 	if(FindPreference<CPreference>(sName) != NULL)
 	{
 		return;
 	}
 
-	pPref = new CPreferenceString(sName, sValue);
+	CPreferenceString* pPref = new CPreferenceString(sName, sValue);
 	InsertPreference(pPref);
 }
 
 int CConfig::GetPreferenceInteger(const char* sName)
 {
-	CPreferenceInteger* pPref;
-
-	pPref = FindPreference<CPreferenceInteger>(sName);
+	CPreferenceInteger* pPref = FindPreference<CPreferenceInteger>(sName);
 	if(pPref == NULL) return 0;
-
 	return pPref->GetValue();
 }
 
 bool CConfig::GetPreferenceBoolean(const char* sName)
 {
-	CPreferenceBoolean* pPref;
-
-	pPref = FindPreference<CPreferenceBoolean>(sName);
+	CPreferenceBoolean* pPref = FindPreference<CPreferenceBoolean>(sName);
 	if(pPref == NULL) return false;
-
 	return pPref->GetValue();
 }
 
 const char* CConfig::GetPreferenceString(const char* sName)
 {
-	CPreferenceString* pPref;
-
-	pPref = FindPreference<CPreferenceString>(sName);
+	CPreferenceString* pPref = FindPreference<CPreferenceString>(sName);
 	if(pPref == NULL) return false;
-
 	return pPref->GetValue();
 }
 
 bool CConfig::SetPreferenceInteger(const char* sName, int nValue)
 {
-	CPreferenceInteger* pPref;
-
-	pPref = FindPreference<CPreferenceInteger>(sName);
+	CPreferenceInteger* pPref = FindPreference<CPreferenceInteger>(sName);
 	if(pPref == NULL) return false;
-
 	pPref->SetValue(nValue);
 	return true;
 }
 
 bool CConfig::SetPreferenceBoolean(const char* sName, bool nValue)
 {
-	CPreferenceBoolean* pPref;
-
-	pPref = FindPreference<CPreferenceBoolean>(sName);
+	CPreferenceBoolean* pPref = FindPreference<CPreferenceBoolean>(sName);
 	if(pPref == NULL) return false;
-
 	pPref->SetValue(nValue);
 	return true;
 }
 
 bool CConfig::SetPreferenceString(const char* sName, const char* sValue)
 {
-	CPreferenceString* pPref;
-
-	pPref = FindPreference<CPreferenceString>(sName);
+	CPreferenceString* pPref = FindPreference<CPreferenceString>(sName);
 	if(pPref == NULL) return false;
-
 	pPref->SetValue(sValue);
 	return true;
 }

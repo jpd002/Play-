@@ -10,7 +10,6 @@
 #include <boost/static_assert.hpp>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
-#include "CircularBuffer.h"
 
 class CVPU
 {
@@ -33,8 +32,6 @@ public:
     CMIPS&              GetContext() const;
     uint8*              GetVuMemory() const;
     bool                IsRunning() const;
-
-//    CCircularBuffer     m_cmdBuffer;
 
 protected:
     struct STAT : public convertible<uint32>

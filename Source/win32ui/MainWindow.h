@@ -32,6 +32,7 @@ private:
 	void							PauseWhenFocusLost();
 	void							SaveState();
 	void							LoadState();
+    void                            ChangeFrameskip(bool);
 	void							ChangeStateSlot(unsigned int);
 	void							ShowDebugger();
 	void							ShowSysInfo();

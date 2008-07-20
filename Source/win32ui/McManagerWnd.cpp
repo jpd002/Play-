@@ -206,22 +206,17 @@ void CMcManagerWnd::Import()
 
 void CMcManagerWnd::Delete(const CSave* pSave)
 {
-	int nReturn;
-
-	nReturn = MessageBox(m_hWnd, _T("Are you sure you want to delete the currently selected entry?"), NULL, MB_YESNO | MB_ICONQUESTION);
+	int nReturn = MessageBox(m_hWnd, _T("Are you sure you want to delete the currently selected entry?"), NULL, MB_YESNO | MB_ICONQUESTION);
 
 	if(nReturn == IDNO) return;
 
-	tstring sPath;
-	TCHAR* sFromList;
-
-	sPath = string_cast<tstring>(filesystem::complete(pSave->GetPath()).string());
+	tstring sPath = string_cast<tstring>(filesystem::complete(pSave->GetPath()).string());
 	m_pMemoryCardView->SetMemoryCard(NULL);
 
 	transform(sPath.begin(), sPath.end(), sPath.begin(), WinUtils::FixSlashes);
 
 	//Construct the file list
-	sFromList = (TCHAR*)_alloca((sPath.size() + 2) * sizeof(TCHAR));
+	TCHAR* sFromList = (TCHAR*)_alloca((sPath.size() + 2) * sizeof(TCHAR));
 	_tcscpy(sFromList, sPath.c_str());
 	sFromList[sPath.size() + 1] = 0;
 

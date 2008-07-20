@@ -43,6 +43,11 @@ enum PS2VM_MSG
 #define	PROFILE_EEZONE "EE"
 #endif
 
+#define PREF_PS2_HOST_DIRECTORY             ("ps2.host.directory")
+#define PREF_PS2_MC0_DIRECTORY              ("ps2.mc0.directory")
+#define PREF_PS2_MC1_DIRECTORY              ("ps2.mc1.directory")
+#define PREF_PS2_FRAMESKIP                  ("ps2.frameskip")
+
 class CPS2VM : public CVirtualMachine
 {
 public:
@@ -72,6 +77,8 @@ public:
 
 	unsigned int				SaveState(const char*);
 	unsigned int				LoadState(const char*);
+
+    void                        SetFrameSkip(unsigned int);
 
 	uint32                      IOPortReadHandler(uint32);
 	uint32                      IOPortWriteHandler(uint32, uint32);
@@ -161,6 +168,7 @@ private:
     CMA_VU                      m_MAVU0;
     CMA_VU                      m_MAVU1;
     unsigned int                m_frameNumber;
+    unsigned int                m_frameSkip;
 };
 
 #endif
