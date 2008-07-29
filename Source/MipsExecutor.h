@@ -1,6 +1,7 @@
 #ifndef _MIPSEXECUTOR_H_
 #define _MIPSEXECUTOR_H_
 
+#include <list>
 #include "MIPS.h"
 #include "BasicBlock.h"
 

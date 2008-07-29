@@ -13,10 +13,11 @@ int main(int argc, char** argv)
 #ifdef _DEBUG
 	{
 		virtualMachine.Reset();
-//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\FF7_psf\\FF7 408 Hurry Faster!.minipsf");
+		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\FF7_psf\\FF7 408 Hurry Faster!.minipsf");
 //		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\vp-psf\\vp-201.minipsf");
 //		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\Chrono Cross\\Chrono Cross 102 The Brink of Death.psf");
-		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\Xenogears_psf\\107 Steel Giant.PSF");
+//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\Xenogears_psf\\107 Steel Giant.PSF");
+//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\ToP_psf\\top 214 castle of the dhaos.minipsf");
 		CMiniDebugger debugger(virtualMachine);
 		debugger.Show(SW_SHOW);
 		debugger.Run();

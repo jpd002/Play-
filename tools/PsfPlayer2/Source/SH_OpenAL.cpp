@@ -54,12 +54,13 @@ bool CSH_OpenAL::HasFreeBuffers()
 
 void CSH_OpenAL::Update(CSpu& spu)
 {
-	const unsigned int minBufferLength = 16;
-	unsigned int bufferLength = minBufferLength;
+//	const unsigned int minBufferLength = 16;
+//	unsigned int bufferLength = minBufferLength;
 
 	//Update bufferLength worth of samples
 //	unsigned int sampleCount = (44100 * bufferLength * 2) / 1000;
-	unsigned int sampleCount = 1470;
+//	unsigned int sampleCount = 1470;
+	unsigned int sampleCount = 352;
 	unsigned int sampleRate = 44100;
 	int16* samples = reinterpret_cast<int16*>(alloca(sampleCount * sizeof(int16)));
 	spu.Render(samples, sampleCount, sampleRate);

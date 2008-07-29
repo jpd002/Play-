@@ -228,6 +228,12 @@ void CMIPSAssembler::ERET()
 	m_pPtr++;
 }
 
+void CMIPSAssembler::JAL(uint32 address)
+{
+	(*m_pPtr) = ((0x03) << 26) | ((address >> 2) & 0x03FFFFFF);
+	m_pPtr++;
+}
+
 void CMIPSAssembler::JALR(unsigned int nRS, unsigned int nRD)
 {
 	(*m_pPtr) = (nRS << 21) | (nRD << 11) | (0x09);
@@ -337,6 +343,12 @@ void CMIPSAssembler::MULTU(unsigned int nRS, unsigned int nRT, unsigned int nRD)
 void CMIPSAssembler::NOP()
 {
 	(*m_pPtr) = 0;
+	m_pPtr++;
+}
+
+void CMIPSAssembler::NOR(unsigned int nRD, unsigned int nRS, unsigned int nRT)
+{
+	(*m_pPtr) = (nRS << 21) | (nRT << 16) | (nRD << 11) | 0x27;
 	m_pPtr++;
 }
 

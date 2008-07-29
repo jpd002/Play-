@@ -27,7 +27,7 @@ void CRootCounters::Reset()
 	{
 		//VP need 16
 		//FF7/FF8/LoM needs 10
-		m_counter[i].clockRatio = 10;
+		m_counter[i].clockRatio = 8;
 	}
 	m_counter[1].clockRatio = 8;
 }
@@ -44,15 +44,16 @@ void CRootCounters::Update(unsigned int ticks)
 		counter.clockRemain = totalTicks % counter.clockRatio;
 		//Update count
 		uint32 counterMax = counter.mode.tar ? counter.target : 0xFFFF;
-		counter.count = static_cast<uint16>(min<uint32>(counter.count + countAdd, counterMax));
-		if(counter.count == counterMax)
+		uint32 counterTemp = counter.count + countAdd;
+		if(counterTemp >= counterMax)
 		{
-			counter.count = 0;
+			counterTemp -= counterMax;
 			if(counter.mode.iq1 && counter.mode.iq2)
 			{
 				m_intc.AssertLine(CIntc::LINE_CNT0 + i);
 			}
 		}
+		counter.count = static_cast<uint16>(counterTemp);
 	}
 }
 

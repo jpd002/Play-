@@ -83,6 +83,7 @@ private:
 		uint32 spec;
 		uint32 mode;
 		uint32 func;
+		uint32 fired;
 	};
 
 	enum
@@ -106,6 +107,8 @@ private:
 	void					DisassembleSyscall(uint32);
 
 	void					ProcessSubFunction(SyscallHandler*, unsigned int);
+	void					AssembleInterruptHandler();
+	void					AssembleEventChecker();
 
 	//A0
 	void					sc_setjmp();
@@ -122,6 +125,7 @@ private:
 	void					sc_DeliverEvent();
 	void					sc_OpenEvent();
 	void					sc_WaitEvent();
+	void					sc_TestEvent();
 	void					sc_EnableEvent();
 	void					sc_DisableEvent();
 	void					sc_ReturnFromException();

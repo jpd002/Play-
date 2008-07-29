@@ -16,6 +16,7 @@ using namespace Psx;
 
 #define LONGJMP_BUFFER				(0x0200)
 #define INTR_HANDLER				(0x1000)
+#define EVENT_CHECKER				(0x1200)
 #define KERNEL_STACK				(0x2000)
 #define EVENTS_BEGIN				(0x3000)
 #define EVENTS_SIZE					(sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
@@ -54,75 +55,8 @@ void CPsxBios::Reset()
 	m_cpu.m_State.nGPR[CMIPS::K0].nD0 = static_cast<int32>(KERNEL_STACK);
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
 
-	//Assemble interrupt handler
-	{
-		CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + INTR_HANDLER));
-		CMIPSAssembler::LABEL checkEventLabel = assembler.CreateLabel();
-		CMIPSAssembler::LABEL doneEventLabel = assembler.CreateLabel();
-		//Right now, just check any counter 2 events
-		unsigned int currentEvent = CMIPS::S0;
-		unsigned int eventMax = CMIPS::S1;
-		unsigned int eventToCheck = CMIPS::S2;
-		assembler.LI(currentEvent, EVENTS_BEGIN);
-		assembler.LI(eventMax, EVENTS_BEGIN + EVENTS_SIZE);
-		assembler.LI(eventToCheck, EVENT_ID_RCNT2);
-
-		//checkEvent
-		{
-			assembler.MarkLabel(checkEventLabel);
-			
-			//check if valid
-			assembler.LW(CMIPS::T0, offsetof(EVENT, isValid), currentEvent);
-			assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
-			assembler.NOP();
-			
-			//check if enabled
-			assembler.LW(CMIPS::T0, offsetof(EVENT, enabled), currentEvent);
-			assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
-			assembler.NOP();
-
-			//check if good event class
-			assembler.LW(CMIPS::T0, offsetof(EVENT, classId), currentEvent);
-			assembler.BNE(CMIPS::T0, eventToCheck, doneEventLabel);
-			assembler.NOP();
-
-			//Start handler if present
-			assembler.LW(CMIPS::T0, offsetof(EVENT, func), currentEvent);
-			assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
-			assembler.NOP();
-
-			assembler.JALR(CMIPS::T0);
-			assembler.NOP();
-		}
-
-		//doneEvent
-		assembler.MarkLabel(doneEventLabel);
-		assembler.ADDIU(currentEvent, currentEvent, sizeof(EVENT));
-		assembler.BNE(currentEvent, eventMax, checkEventLabel);
-		assembler.NOP();
-
-		//checkIntHook
-		CMIPSAssembler::LABEL returnExceptionLabel = assembler.CreateLabel();
-		assembler.LI(CMIPS::T0, LONGJMP_BUFFER);
-		assembler.LW(CMIPS::T0, 0, CMIPS::T0);
-		assembler.BEQ(CMIPS::T0, CMIPS::R0, returnExceptionLabel);
-		assembler.NOP();
-
-		//callIntHook
-		assembler.ADDIU(CMIPS::A0, CMIPS::T0, CMIPS::R0);
-		assembler.ADDIU(CMIPS::A1, CMIPS::R0, CMIPS::R0);
-		assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0xA0);
-		assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x14);
-		assembler.JR(CMIPS::T0);
-		assembler.NOP();
-
-		//ReturnFromException
-		assembler.MarkLabel(returnExceptionLabel);
-		assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0xB0);
-		assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x17);
-		assembler.JR(CMIPS::T0);
-		assembler.NOP();
-	}
+	AssembleEventChecker();
+	AssembleInterruptHandler();
 
 	//Setup B0 table
 	{
@@ -148,6 +82,127 @@ void CPsxBios::Reset()
 
 	memset(m_events.GetBase(), 0, EVENTS_SIZE);
 	LongJmpBuffer() = 0;
+}
+
+void CPsxBios::AssembleEventChecker()
+{
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + EVENT_CHECKER));
+	CMIPSAssembler::LABEL checkEventLabel = assembler.CreateLabel();
+	CMIPSAssembler::LABEL doneEventLabel = assembler.CreateLabel();
+
+	unsigned int currentEvent = CMIPS::S0;
+	unsigned int eventMax = CMIPS::S1;
+	unsigned int eventToCheck = CMIPS::S2;
+	int stackAlloc = 4 * 4;
+
+	//prolog
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
+	assembler.SW(CMIPS::RA, 0x00, CMIPS::SP);
+	assembler.SW(CMIPS::S0, 0x04, CMIPS::SP);
+	assembler.SW(CMIPS::S1, 0x08, CMIPS::SP);
+	assembler.SW(CMIPS::S2, 0x0C, CMIPS::SP);
+
+	assembler.LI(currentEvent, EVENTS_BEGIN);
+	assembler.LI(eventMax, EVENTS_BEGIN + EVENTS_SIZE);
+	assembler.MOV(eventToCheck, CMIPS::A0);
+
+	//checkEvent
+	{
+		assembler.MarkLabel(checkEventLabel);
+		
+		//check if valid
+		assembler.LW(CMIPS::T0, offsetof(EVENT, isValid), currentEvent);
+		assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
+		assembler.NOP();
+		
+		//check if enabled
+		assembler.LW(CMIPS::T0, offsetof(EVENT, enabled), currentEvent);
+		assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
+		assembler.NOP();
+
+		//check if good event class
+		assembler.LW(CMIPS::T0, offsetof(EVENT, classId), currentEvent);
+		assembler.BNE(CMIPS::T0, eventToCheck, doneEventLabel);
+		assembler.NOP();
+
+		//Start handler if present
+		assembler.LW(CMIPS::T0, offsetof(EVENT, func), currentEvent);
+		assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
+		assembler.NOP();
+
+		assembler.JALR(CMIPS::T0);
+		assembler.NOP();
+	}
+
+	//doneEvent
+	assembler.MarkLabel(doneEventLabel);
+	assembler.ADDIU(currentEvent, currentEvent, sizeof(EVENT));
+	assembler.BNE(currentEvent, eventMax, checkEventLabel);
+	assembler.NOP();
+
+	//epilog
+	assembler.LW(CMIPS::RA, 0x00, CMIPS::SP);
+	assembler.LW(CMIPS::S0, 0x04, CMIPS::SP);
+	assembler.LW(CMIPS::S1, 0x08, CMIPS::SP);
+	assembler.LW(CMIPS::S2, 0x0C, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
+
+	assembler.JR(CMIPS::RA);
+	assembler.NOP();
+}
+
+void CPsxBios::AssembleInterruptHandler()
+{
+	//Assemble interrupt handler
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + INTR_HANDLER));
+	CMIPSAssembler::LABEL returnExceptionLabel = assembler.CreateLabel();
+	CMIPSAssembler::LABEL skipRootCounter2EventLabel = assembler.CreateLabel();
+
+	//Get cause
+	unsigned int cause = CMIPS::S3;
+	assembler.LI(CMIPS::T0, CIntc::STATUS);
+	assembler.LW(CMIPS::T0, 0, CMIPS::T0);
+	assembler.LI(CMIPS::T1, CIntc::MASK);
+	assembler.LW(CMIPS::T1, 0, CMIPS::T1);
+	assembler.AND(cause, CMIPS::T0, CMIPS::T1);
+
+	//Check if cause is root counter 2
+	assembler.ANDI(CMIPS::T0, cause, 0x40);
+	assembler.BEQ(CMIPS::T0, CMIPS::R0, skipRootCounter2EventLabel);
+	assembler.NOP();
+
+	assembler.LI(CMIPS::A0, EVENT_ID_RCNT2);
+	assembler.JAL(EVENT_CHECKER);
+	assembler.NOP();
+
+	assembler.MarkLabel(skipRootCounter2EventLabel);
+
+	//Clear cause
+	assembler.LI(CMIPS::T0, CIntc::STATUS);
+//	assembler.NOR(CMIPS::T1, CMIPS::R0, cause);
+	assembler.LI(CMIPS::T1, ~0x40);
+	assembler.SW(CMIPS::T1, 0, CMIPS::T0);
+
+	//checkIntHook
+	assembler.LI(CMIPS::T0, LONGJMP_BUFFER);
+	assembler.LW(CMIPS::T0, 0, CMIPS::T0);
+	assembler.BEQ(CMIPS::T0, CMIPS::R0, returnExceptionLabel);
+	assembler.NOP();
+
+	//callIntHook
+	assembler.ADDIU(CMIPS::A0, CMIPS::T0, CMIPS::R0);
+	assembler.ADDIU(CMIPS::A1, CMIPS::R0, CMIPS::R0);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0xA0);
+	assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x14);
+	assembler.JR(CMIPS::T0);
+	assembler.NOP();
+
+	//ReturnFromException
+	assembler.MarkLabel(returnExceptionLabel);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0xB0);
+	assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x17);
+	assembler.JR(CMIPS::T0);
+	assembler.NOP();
 }
 
 void CPsxBios::LongJump(uint32 bufferAddress, uint32 value)
@@ -207,25 +262,17 @@ void CPsxBios::HandleInterrupt()
 		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS);
 		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
 		uint32 cause = status & mask;
+		for(unsigned int i = 1; i <= MAX_EVENT; i++)
+		{
+			EVENT* eventPtr = m_events[i];
+			if(eventPtr == NULL) continue;
+			if(cause & 0x08 && eventPtr->classId == 0xF0000009)
+			{
+				eventPtr->fired = 1;		
+			}
+		}
 		m_cpu.m_State.nPC = INTR_HANDLER;
-		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
-//		if(cause & 0x40)
-//		{
-//		}
-//		else
-//		{
-//			if(m_longJmpBuffer != 0)
-//			{
-//				//Clear all causes
-//				//m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0);
-//				LongJump(m_longJmpBuffer);
-//				m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
-//			}
-//			else
-//			{
-//				assert(0);
-//			}
-//		}
+//		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
 	}
 }
 
@@ -526,6 +573,7 @@ void CPsxBios::sc_OpenEvent()
 	eventPtr->spec		= spec;
 	eventPtr->mode		= mode;
 	eventPtr->func		= func;
+	eventPtr->fired		= 0;
 
 	m_cpu.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(eventId);
 }
@@ -534,6 +582,18 @@ void CPsxBios::sc_OpenEvent()
 void CPsxBios::sc_WaitEvent()
 {
 	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+}
+
+//B0 - 0B
+void CPsxBios::sc_TestEvent()
+{
+	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	EVENT* eventPtr = m_events[eventId];
+	if(eventPtr != NULL)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nD0 = eventPtr->fired;
+//		m_cpu.m_State.nGPR[SC_RETURN].nD0 = 0;
+	}
 }
 
 //B0 - 0C
@@ -546,6 +606,7 @@ void CPsxBios::sc_EnableEvent()
 		if(eventPtr != NULL)
 		{
 			eventPtr->enabled = true;
+			eventPtr->fired = 0;
 		}
 	}
 	catch(...)
@@ -734,7 +795,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 	//0x00
 	&sc_SysMalloc,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_DeliverEvent,
 	//0x08
-	&sc_OpenEvent,		&sc_Illegal,		&sc_WaitEvent,		&sc_Illegal,		&sc_EnableEvent,	&sc_DisableEvent,	&sc_Illegal,		&sc_Illegal,
+	&sc_OpenEvent,		&sc_Illegal,		&sc_WaitEvent,		&sc_TestEvent,		&sc_EnableEvent,	&sc_DisableEvent,	&sc_Illegal,		&sc_Illegal,
 	//0x10
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_ReturnFromException,
 	//0x18

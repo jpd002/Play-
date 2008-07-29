@@ -50,6 +50,7 @@ public:
 	void		        DSUBU(unsigned int, unsigned int, unsigned int);
 	void		        ERET();
 	void		        JR(unsigned int);
+	void				JAL(uint32);
 	void		        JALR(unsigned int, unsigned int = 31);
 	void		        LD(unsigned int, uint16, unsigned int);
 	void		        LDL(unsigned int, uint16, unsigned int);
@@ -67,6 +68,7 @@ public:
     void                MULT(unsigned int, unsigned int, unsigned int);
 	void		        MULTU(unsigned int, unsigned int, unsigned int);
 	void		        NOP();
+	void				NOR(unsigned int, unsigned int, unsigned int);
     void                OR(unsigned int, unsigned int, unsigned int);
 	void		        ORI(unsigned int, unsigned int, uint16);
 	void		        SD(unsigned int, uint16, unsigned int);

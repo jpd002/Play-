@@ -24,7 +24,7 @@ private:
 
 	enum
 	{
-		MAX_BUFFERS = 10,
+		MAX_BUFFERS = 25,
 	};
 
 	void				RecycleBuffers();

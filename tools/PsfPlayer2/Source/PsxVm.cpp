@@ -194,7 +194,7 @@ unsigned int CPsxVm::ExecuteCpu(bool singleStep)
     }
 	if(!m_cpu.m_State.nHasException)
 	{
-		int quota = singleStep ? 1 : 5000;
+		int quota = singleStep ? 1 : 500;
 		ticks = quota - m_executor.Execute(quota);
 		assert(ticks >= 0);
         {
@@ -202,7 +202,7 @@ unsigned int CPsxVm::ExecuteCpu(bool singleStep)
             if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
             {
 				//Go a little bit faster if we're "stuck"
-				ticks += 10000;
+				ticks += (quota * 2);
             }
         }
 		if(ticks > 0)
@@ -220,8 +220,10 @@ unsigned int CPsxVm::ExecuteCpu(bool singleStep)
 void CPsxVm::ThreadProc()
 {
 	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
+	const int spuUpdateTicks = (4 * CLOCK_FREQ / 1000);
 	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
 	int frameCounter = frameTicks;
+	int spuUpdateCounter = spuUpdateTicks;
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -275,16 +277,21 @@ void CPsxVm::ThreadProc()
 			{
 				while(m_spuHandler.HasFreeBuffers() && !m_mailBox.IsPending())
 				{
-					while(frameCounter > 0)
+					while(spuUpdateCounter > 0)
 					{
 						int ticks = ExecuteCpu(false);
+						spuUpdateCounter -= ticks;
 						frameCounter -= ticks;
+						if(frameCounter < 0)
+						{
+							frameCounter += frameTicks;
+							m_intc.AssertLine(CIntc::LINE_VBLANK);
+							OnNewFrame();
+						}
 					}
 
-					m_intc.AssertLine(CIntc::LINE_VBLANK);
 					m_spuHandler.Update(m_spu);
-					OnNewFrame();
-					frameCounter += frameTicks;
+					spuUpdateCounter += spuUpdateTicks;
 				}
 			}
 			else
@@ -294,6 +301,7 @@ void CPsxVm::ThreadProc()
 				xtime_get(&xt, boost::TIME_UTC);
 				xt.nsec += 10 * 1000000;
 				thread::sleep(xt);
+//				thread::yield();
 			}
 #endif
 		}
