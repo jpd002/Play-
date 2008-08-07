@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer\Source"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_MSVC;DEBUGGER_INCLUDED"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_MSVC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -181,6 +181,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Source\AcceleratorTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AcceleratorTable.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\CounterRegView.cpp"
 				>
 			</File>
@@ -202,6 +210,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\DmaChannel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\FileInformationWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\FileInformationWindow.h"
 				>
 			</File>
 			<File
@@ -684,6 +700,10 @@
 		<Filter
 			Name="Framework"
 			>
+			<File
+				RelativePath="..\..\..\Framework\src\win32\AcceleratorTableGenerator.cpp"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\Framework\src\openal\Buffer.cpp"
 				>

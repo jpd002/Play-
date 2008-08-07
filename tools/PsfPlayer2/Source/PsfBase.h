@@ -9,6 +9,9 @@
 class CPsfBase
 {
 public:
+	typedef std::map<std::string, std::string> TagMap;
+	typedef TagMap::const_iterator ConstTagIterator;
+
 				CPsfBase(Framework::CStream&);
 	virtual		~CPsfBase();
 
@@ -25,24 +28,25 @@ public:
 		VERSION_CAPCOMQSOUND	= 0x41
 	};
 
-	uint8*		GetProgram() const;
-	const char*	GetTagValue(const char*) const;
+	uint8*				GetProgram() const;
+	const char*			GetTagValue(const char*) const;
+	ConstTagIterator	GetTagsBegin() const;
+	ConstTagIterator	GetTagsEnd() const;
 
 private:
-	typedef std::map<std::string, std::string> TagMap;
 
-	void		ReadProgram(Framework::CStream&);
-	void		ReadTags(Framework::CStream&);
+	void				ReadProgram(Framework::CStream&);
+	void				ReadTags(Framework::CStream&);
 
-	uint8		m_version;
-	uint32		m_reservedSize;
-	uint32		m_programSize;
-	uint32		m_programCrc;
+	uint8				m_version;
+	uint32				m_reservedSize;
+	uint32				m_programSize;
+	uint32				m_programCrc;
 
-	uint8*		m_reserved;
-	uint8*		m_program;
+	uint8*				m_reserved;
+	uint8*				m_program;
 
-	TagMap		m_tags;
+	TagMap				m_tags;
 };
 
 #endif

@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 {
 	CPsxVm virtualMachine;
 
-#ifdef _DEBUG
+#ifdef DEBUGGER_INCLUDED
 	{
 		virtualMachine.Reset();
 		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\FF7_psf\\FF7 408 Hurry Faster!.minipsf");
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 		CPlayerWnd player(virtualMachine);
 		player.Center();
 		player.Show(SW_SHOW);
-		Win32::CWindow::StdMsgLoop(&player);
+		player.Run();
 	}
 #endif
 

@@ -65,6 +65,8 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&Open...",                    ID_FILE_OPEN
+        MENUITEM "&File Information...",        ID_FILE_FILEINFORMATION
+        MENUITEM "Pause/Resume",                ID_FILE_PAUSE
         MENUITEM "Exit\tAlt+F4",                ID_FILE_EXIT
     END
 END

@@ -1,17 +1,20 @@
 #include "PsfLoader.h"
 #include "StdStream.h"
-#include "PsfBase.h"
 #include <boost/filesystem.hpp>
 
 using namespace Framework;
 using namespace Psx;
 using namespace boost;
 
-void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString)
+void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
 	CStdStream input(pathString, "rb");
 	CPsfBase psfFile(input);
 	const char* libPath = psfFile.GetTagValue("_lib");
+	if(tags)
+	{
+		tags->insert(psfFile.GetTagsBegin(), psfFile.GetTagsEnd());
+	}
 	uint32 sp = 0, pc = 0;
 	if(libPath != NULL)
 	{

@@ -56,6 +56,16 @@ const char* CPsfBase::GetTagValue(const char* name) const
 	return tagIterator->second.c_str();
 }
 
+CPsfBase::ConstTagIterator CPsfBase::GetTagsBegin() const
+{
+	return m_tags.begin();
+}
+
+CPsfBase::ConstTagIterator CPsfBase::GetTagsEnd() const
+{
+	return m_tags.end();
+}
+
 void CPsfBase::ReadProgram(CStream& stream)
 {
 	assert(m_program == NULL);

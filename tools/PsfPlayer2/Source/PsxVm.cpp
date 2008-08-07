@@ -240,7 +240,7 @@ void CPsxVm::ThreadProc()
 		}
 		else
 		{
-#ifdef _DEBUG
+#ifdef DEBUGGER_INCLUDED
 			int ticks = ExecuteCpu(m_singleStep);
 
 			static int frameCounter = frameTicks;
