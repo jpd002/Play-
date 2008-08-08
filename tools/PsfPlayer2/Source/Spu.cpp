@@ -135,6 +135,7 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			{
 				reader.SetParams(m_ram + (channel.address * 8), m_ram + (channel.repeat * 8));
 				channel.status = ATTACK;
+				channel.adsrVolume = 0;
 			}
 			reader.SetPitch(channel.pitch);
 			reader.GetSamples(bufferTemp, ticks, sampleRate);
@@ -143,11 +144,13 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			for(unsigned int j = 0; j < ticks; j++)
 			{
 				if(channel.status == STOPPED) break;
-				if(channel.status == RELEASE)
-				{
-					channel.status = STOPPED;
-				}
+				UpdateAdsr(channel);
 				int32 inputSample = static_cast<int32>(bufferTemp[j]);
+				//Mix adsrVolume
+				{
+					int64 result = (static_cast<int64>(inputSample) * static_cast<int64>(channel.adsrVolume)) / static_cast<int64>(MAX_ADSR_VOLUME);
+					inputSample = static_cast<int32>(result);
+				}
 				struct SampleMixer
 				{
 					void operator() (int32 inputSample, const CHANNEL_VOLUME& volume, int16*& output) const
@@ -386,6 +389,111 @@ void CSpu::DisassembleWrite(uint32 address, uint16 value)
 	}
 }
 
+uint32 CSpu::GetAdsrDelta(unsigned int index) const
+{
+	return m_adsrLogTable[index + 32];
+}
+
+void CSpu::UpdateAdsr(CHANNEL& channel)
+{
+	static unsigned int logIndex[8] = { 0, 4, 6, 8, 9, 10, 11, 12 };
+	int64 currentAdsrLevel = channel.adsrVolume;
+	if(channel.status == ATTACK)
+	{
+		if(channel.adsrLevel.attackMode == 0)
+		{
+			//Linear mode
+			currentAdsrLevel += GetAdsrDelta((channel.adsrLevel.attackRate ^ 0x7F) - 0x10);
+		}
+		else
+		{
+			if(currentAdsrLevel < 0x60000000)
+			{
+				currentAdsrLevel += GetAdsrDelta((channel.adsrLevel.attackRate ^ 0x7F) - 0x10);
+			}
+			else
+			{
+				currentAdsrLevel += GetAdsrDelta((channel.adsrLevel.attackRate ^ 0x7F) - 0x18);
+			}
+		}
+		//Terminasion condition
+		if(currentAdsrLevel >= MAX_ADSR_VOLUME)
+		{
+			channel.status = DECAY;
+		}
+	}
+	else if(channel.status == DECAY)
+	{
+		unsigned int decayType = (static_cast<uint32>(currentAdsrLevel) >> 28) & 0x7;
+		currentAdsrLevel -= GetAdsrDelta((4 * (channel.adsrLevel.decayRate ^ 0x1F)) - 0x18 + logIndex[decayType]);
+		//Terminasion condition
+		if(((currentAdsrLevel >> 27) & 0xF) <= channel.adsrLevel.sustainLevel)
+		{
+			channel.status = SUSTAIN;
+		}
+	}
+	else if(channel.status == SUSTAIN)
+	{
+		if(channel.adsrRate.sustainDirection == 0)
+		{
+			//Increment
+			if(channel.adsrRate.sustainMode == 0)
+			{
+				currentAdsrLevel += GetAdsrDelta((channel.adsrRate.sustainRate ^ 0x7F) - 0x10);
+			}
+			else
+			{
+				if(currentAdsrLevel < 0x60000000)
+				{
+					currentAdsrLevel += GetAdsrDelta((channel.adsrRate.sustainRate ^ 0x7F) - 0x10);
+				}
+				else
+				{
+					currentAdsrLevel += GetAdsrDelta((channel.adsrRate.sustainRate ^ 0x7F) - 0x18);
+				}
+			}
+		}
+		else
+		{
+			//Decrement
+			if(channel.adsrRate.sustainMode == 0)
+			{
+				//Linear
+				currentAdsrLevel -= GetAdsrDelta((channel.adsrRate.sustainRate ^ 0x7F) - 0x0F);
+			}
+			else
+			{
+				unsigned int sustainType = (static_cast<uint32>(currentAdsrLevel) >> 28) & 0x7;
+				currentAdsrLevel -= GetAdsrDelta((channel.adsrRate.sustainRate ^ 0x7F) - 0x1B + logIndex[sustainType]);
+			}
+		}
+	}
+	else if(channel.status == RELEASE)
+	{
+		if(channel.adsrRate.releaseMode == 0)
+		{
+			//Linear
+			currentAdsrLevel -= GetAdsrDelta((4 * (channel.adsrRate.releaseRate ^ 0x1F)) - 0x0C);
+		}
+		else
+		{
+			unsigned int releaseType = (static_cast<uint32>(currentAdsrLevel) >> 28) & 0x7;
+			currentAdsrLevel -= GetAdsrDelta((4 * (channel.adsrRate.releaseRate ^ 0x1F)) - 0x18 + logIndex[releaseType]);
+		}
+
+		if(currentAdsrLevel <= 0)
+		{
+			channel.status = STOPPED;
+		}
+	}
+	currentAdsrLevel = min<int64>(currentAdsrLevel, MAX_ADSR_VOLUME);
+	currentAdsrLevel = max<int64>(currentAdsrLevel, 0);
+	channel.adsrVolume = static_cast<uint32>(currentAdsrLevel);
+}
+
+///////////////////////////////////////////////////////
+// CSampleReader
+///////////////////////////////////////////////////////
 
 CSpu::CSampleReader::CSampleReader() :
 m_nextSample(NULL)

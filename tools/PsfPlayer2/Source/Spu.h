@@ -64,7 +64,7 @@ public:
 		uint16			address;
 		ADSR_LEVEL		adsrLevel;
 		ADSR_RATE		adsrRate;
-		int32			adsrVolume;
+		uint32			adsrVolume;
 		uint16			repeat;
 		uint16			status;
 	};
@@ -225,11 +225,19 @@ private:
 		RAMSIZE = 0x80000
 	};
 
+	enum
+	{
+		MAX_ADSR_VOLUME = 0x7FFFFFFF,
+	};
+
 	void			SendKeyOn(uint32);
 	void			SendKeyOff(uint32);
 
 	void			DisassembleRead(uint32);
 	void			DisassembleWrite(uint32, uint16);
+
+	void			UpdateAdsr(CHANNEL&);
+	uint32			GetAdsrDelta(unsigned int) const;
 
 	uint32			m_bufferAddr;
 	uint16			m_ctrl;

@@ -6,7 +6,8 @@
 using namespace Framework;
 using namespace Psx;
 
-int main(int argc, char** argv)
+//int main(int argc, char** argv)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
 {
 	CPsxVm virtualMachine;
 
