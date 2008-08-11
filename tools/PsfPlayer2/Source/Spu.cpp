@@ -628,6 +628,11 @@ void CSpu::CSampleReader::UnpackSamples(int16* dst)
 		}
 	}
 
+	if(flags & 0x04)
+	{
+		m_repeat = m_nextSample;
+	}
+
 	m_nextSample += 0x10;
 
 	if(flags & 0x01)
