@@ -11,7 +11,7 @@
 #define EXBOTTOM	(EXTOP + EXHEIGHT)
 
 CNiceTabs::CNiceTabs(HWND hParent, RECT* pR) :
-m_ListIdx(&m_List)
+m_nSelected(0)
 {
 	if(!DoesWindowClassExist(CLASSNAME))
 	{
@@ -28,8 +28,6 @@ m_ListIdx(&m_List)
 	Create(NULL, CLASSNAME, CLASSNAME, WS_VISIBLE | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
-	m_nSelected = 0;
-
 	m_nEx	= LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_EX));
 	m_nExd	= LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_EXD));
 
@@ -39,44 +37,33 @@ m_ListIdx(&m_List)
 
 CNiceTabs::~CNiceTabs()
 {
-	TABITEM* t;
-	while(m_List.Count())
-	{
-		t = m_List.Pull();
-		free(t->sCaption);
-		free(t);
-	}
 	DeleteObject(m_nEx);
+    DeleteObject(m_nExd);
 }
 
 void CNiceTabs::InsertTab(const TCHAR* sCaption, unsigned long nFlags, unsigned int nID)
 {
-	TABITEM* t;
-	t = (TABITEM*)malloc(sizeof(TABITEM));
-	t->sCaption = (TCHAR*)malloc((_tcslen(sCaption) + 1) * sizeof(TCHAR));
-	_tcscpy(t->sCaption, sCaption);
-	t->nWidth	= MeasureString(t->sCaption);
-	t->nFlags	= nFlags; 
-	m_List.Insert(t, nID);
-	m_ListIdx.Reset();
+    TABITEM t;
+    t.sCaption  = sCaption;
+	t.nWidth	= MeasureString(sCaption);
+	t.nFlags	= nFlags; 
+    t.nID       = nID;
+    m_List.push_back(t);
 }
 
-unsigned long CNiceTabs::GetTabWidth(unsigned int nTab)
+unsigned long CNiceTabs::GetTabWidth(unsigned int index)
 {
-	TABITEM* t;
-	t = m_ListIdx.GetAt(nTab);
-	assert(t);
-	return t->nWidth + 24 + 5;
+	const TABITEM& t(m_List[index]);
+	return t.nWidth + 24 + 5;
 }
 
-unsigned long CNiceTabs::GetTabBase(unsigned int nTab)
+unsigned long CNiceTabs::GetTabBase(unsigned int index)
 {
-	unsigned long nBase, i;
-	nBase = 4;
-	for(i = 0; i < nTab; i++)
-	{
+	unsigned long nBase = 4;
+    for(unsigned int i = 0; i < index; i++)
+    {
 		nBase += GetTabWidth(i);
-	}
+    }
 	return nBase;
 }
 
@@ -111,9 +98,6 @@ void CNiceTabs::Paint(HDC hDC)
 	HPEN nPen;
 	HFONT nFont;
 	RECT rcli, rc;
-	unsigned long nBase, nWidth;
-	TABITEM* t;
-	unsigned int i;
 
 	GetClientRect(&rcli);
 
@@ -133,11 +117,12 @@ void CNiceTabs::Paint(HDC hDC)
 	DeleteObject(nPen);
 
 	//Draw the individual tabs
-	for(i = 0; i < m_List.Count(); i++)
+    for(unsigned int i = 0; i < m_List.size(); i++)
 	{
-		t = m_ListIdx.GetAt(i);
-		nWidth = GetTabWidth(i);
-		nBase = GetTabBase(i);
+	    TABITEM& t(m_List[i]);
+		unsigned long nWidth = GetTabWidth(i);
+		unsigned long nBase = GetTabBase(i);
+
 		if(i == m_nSelected)
 		{
 			SetRect(&rc, nBase, 0, nBase + nWidth, 19);
@@ -162,13 +147,13 @@ void CNiceTabs::Paint(HDC hDC)
 			DeleteObject(nPen);
 			
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x00));
-			TextOut(hDC, nBase + 24, 4, t->sCaption, (int)_tcslen(t->sCaption));
+			TextOut(hDC, nBase + 24, 4, t.sCaption.c_str(), t.sCaption.length());
 		}
 		else
 		{
 
 			SetTextColor(hDC, RGB(0x80, 0x80, 0x80));
-			TextOut(hDC, nBase + 24, 4, t->sCaption, (int)_tcslen(t->sCaption));
+			TextOut(hDC, nBase + 24, 4, t.sCaption.c_str(), t.sCaption.length());
 			if(i != (m_nSelected - 1))
 			{
 				//Draw the right line
@@ -182,60 +167,58 @@ void CNiceTabs::Paint(HDC hDC)
 		}
 	}
 
-	t = m_ListIdx.GetAt(m_nSelected);
-	if(t != NULL)
-	{
+    if(m_List.size() != 0)
+    {
+	    TABITEM& t(m_List[m_nSelected]);
+	    if(!(t.nFlags & TAB_FLAG_UNDELETEABLE))
+	    {
+		    hMem = CreateCompatibleDC(hDC);
+		    SelectObject(hMem, m_nEx);
+		    BitBlt(hDC, EXLEFT(rcli), EXTOP, EXWIDTH, EXHEIGHT, hMem, 0, 0, SRCCOPY);
+		    DeleteDC(hMem);
 
-		if(!(t->nFlags & TAB_FLAG_UNDELETEABLE))
-		{
-			hMem = CreateCompatibleDC(hDC);
-			SelectObject(hMem, m_nEx);
-			BitBlt(hDC, EXLEFT(rcli), EXTOP, EXWIDTH, EXHEIGHT, hMem, 0, 0, SRCCOPY);
-			DeleteDC(hMem);
+		    if(m_nHoverEx)
+		    {
+			    if(m_nLButtonEx)
+			    {
+				    nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
+			    }
+			    else
+			    {
+				    nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
+			    }
 
-			if(m_nHoverEx)
-			{
-				if(m_nLButtonEx)
-				{
-					nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
-				}
-				else
-				{
-					nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
-				}
+			    SelectObject(hDC, nPen);
 
-				SelectObject(hDC, nPen);
+			    MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
+			    LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
 
-				MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
-				LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
-
-				MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
-				LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
+			    MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
+			    LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
 			
-				DeleteObject(nPen);
+			    DeleteObject(nPen);
 
-				if(m_nLButtonEx)
-				{
-					nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
-				}
-				else
-				{
-					nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
-				}
+			    if(m_nLButtonEx)
+			    {
+				    nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
+			    }
+			    else
+			    {
+				    nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
+			    }
 
-				SelectObject(hDC, nPen);
+			    SelectObject(hDC, nPen);
 
-				MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
-				LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
+			    MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
+			    LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
 
-				MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
-				LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
+			    MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
+			    LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
 
-				DeleteObject(nPen);
-			}
-		}
-
-	}
+			    DeleteObject(nPen);
+		    }
+	    }
+    }
 
 	DeleteObject(nFont);
 
@@ -308,16 +291,14 @@ long CNiceTabs::OnMouseMove(WPARAM nButton, int nX, int nY)
 
 long CNiceTabs::OnLeftButtonDown(int nX, int nY)
 {
-	int nBase, nWidth;
-	
-	nBase = GetTabBase(0);
-	for(unsigned int i = 0; i < m_List.Count(); i++)
+	int nBase = GetTabBase(0);
+	for(unsigned int i = 0; i < m_List.size(); i++)
 	{
-		nWidth = GetTabWidth(i);
+		int nWidth = GetTabWidth(i);
 		if((nX > nBase) && (nX < (nBase + nWidth)))
 		{
 			m_nSelected = i;
-			m_OnTabChange(m_ListIdx.KeyAt(i));
+			m_OnTabChange(m_List[i].nID);
 			RedrawWindow(m_hWnd, NULL, NULL, RDW_INVALIDATE);
 			break;
 		}
@@ -337,26 +318,21 @@ long CNiceTabs::OnLeftButtonDown(int nX, int nY)
 
 long CNiceTabs::OnLeftButtonUp(int nX, int nY)
 {
-	if(m_nHoverEx == 1)
+	if(m_nHoverEx == 1 && m_nSelected != 0)
 	{
-		TABITEM* i;
 		m_nLButtonEx = 0;
 
-		i = m_ListIdx.GetAt(m_nSelected);
-		if(i->nFlags & TAB_FLAG_UNDELETEABLE)
+		TABITEM& t(m_List[m_nSelected]);
+		if(t.nFlags & TAB_FLAG_UNDELETEABLE)
 		{
 			return FALSE;
 		}
-		m_List.Remove(m_ListIdx.KeyAt(m_nSelected));
-		m_ListIdx.Reset();
+        m_List.erase(m_List.begin() + m_nSelected);
 
 		//Always safe to go back, since the first tab will never be deleted
 		m_nSelected--;
 
-		free(i->sCaption);
-		free(i);
-
-		m_OnTabChange(m_ListIdx.KeyAt(m_nSelected));
+		m_OnTabChange(m_List[m_nSelected].nID);
 		RedrawWindow(m_hWnd, NULL, NULL, RDW_INVALIDATE);
 	}
 	return FALSE;

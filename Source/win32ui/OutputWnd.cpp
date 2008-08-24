@@ -32,7 +32,7 @@ COutputWnd::~COutputWnd()
 
 long COutputWnd::OnSize(unsigned int nMode, unsigned int nX, unsigned int nY)
 {
-	m_OnSizeChange.Notify(0);
+	m_OnSizeChange();
 	return TRUE;
 }
 

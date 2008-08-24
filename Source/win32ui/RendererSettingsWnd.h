@@ -1,13 +1,13 @@
 #ifndef _RENDERERSETTINGSWND_H_
 #define _RENDERERSETTINGSWND_H_
 
-#include "ModalWindow.h"
+#include "win32/ModalWindow.h"
 #include "layout/VerticalLayout.h"
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "../GSH_OpenGL.h"
 
-class CRendererSettingsWnd : public CModalWindow
+class CRendererSettingsWnd : public Framework::Win32::CModalWindow
 {
 public:
 									CRendererSettingsWnd(HWND, CGSH_OpenGL*);

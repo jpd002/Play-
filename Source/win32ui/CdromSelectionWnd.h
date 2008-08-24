@@ -1,13 +1,13 @@
 #ifndef _CDROMSELECTIONWND_H_
 #define _CDROMSELECTIONWND_H_
 
-#include "ModalWindow.h"
+#include "win32/ModalWindow.h"
 #include "win32/Button.h"
 #include "win32/Edit.h"
 #include "win32/ComboBox.h"
 #include "layout/LayoutObject.h"
 
-class CCdromSelectionWnd : public CModalWindow
+class CCdromSelectionWnd : public Framework::Win32::CModalWindow
 {
 public:
     enum BINDINGTYPE

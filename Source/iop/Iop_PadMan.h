@@ -21,7 +21,8 @@ namespace Iop
         virtual void        Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
         virtual void		SaveState(CZipArchiveWriter&);
         virtual void		LoadState(CZipArchiveReader&);
-        virtual void		SetButtonState(unsigned int, CPadListener::BUTTON, bool, uint8*);
+        virtual void		SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
+        virtual void        SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*);
 
 		enum MODULE_ID
 		{
@@ -164,7 +165,8 @@ namespace Iop
 
 		static void			PDF_InitializeStruct0(CPadDataInterface*);
 		static void			PDF_InitializeStruct1(CPadDataInterface*);
-		static void			PDF_SetButtonState(CPadDataInterface*, BUTTON, bool);
+		static void			PDF_SetButtonState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, bool);
+        static void         PDF_SetAxisState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, uint8);
 	};
 
     template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int);

@@ -2,14 +2,14 @@
 #define _OUTPUTWND_H_
 
 #include "win32/Window.h"
-#include "Event.h"
+#include <boost/signal.hpp>
 
 class COutputWnd : public Framework::Win32::CWindow
 {
 public:
 									COutputWnd(HWND, RECT*);
 									~COutputWnd();
-	Framework::CEvent<int>			m_OnSizeChange;
+    boost::signal<void ()>          m_OnSizeChange;
 
 protected:
 	long							OnPaint();

@@ -1,11 +1,11 @@
 #include <boost/filesystem/operations.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 #include <fstream>
 #include "string_cast.h"
 #include "McManagerWnd.h"
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
-#include "../Config.h"
+#include "../AppConfig.h"
 #include "WinUtils.h"
 
 #define CLSNAME			_T("CMcManagerWnd")
@@ -15,11 +15,13 @@
 using namespace Framework;
 using namespace boost;
 using namespace std;
+using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 CMcManagerWnd::CMcManagerWnd(HWND hParent) :
 CModalWindow(hParent),
-m_MemoryCard0(filesystem::path(CConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"), filesystem::native)),
-m_MemoryCard1(filesystem::path(CConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"), filesystem::native))
+m_MemoryCard0(filesystem::path(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"), filesystem::native)),
+m_MemoryCard1(filesystem::path(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"), filesystem::native))
 {
 	RECT rc;
 
@@ -59,8 +61,8 @@ m_MemoryCard1(filesystem::path(CConfig::GetInstance().GetPreferenceString("ps2.m
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
-	m_pSaveView->m_OnDeleteClicked.InsertHandler(bind(&CMcManagerWnd::Delete, this, _1));
-	m_pMemoryCardView->m_OnSelectionChange.InsertHandler(bind(&CSaveView::SetSave, m_pSaveView, _1));
+	m_pSaveView->m_OnDeleteClicked.connect(bind(&CMcManagerWnd::Delete, this, _1));
+	m_pMemoryCardView->m_OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, _1));
 
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 0 (mc0)")), 0);
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 1 (mc1)")), 1);

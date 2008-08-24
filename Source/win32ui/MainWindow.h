@@ -5,8 +5,8 @@
 #include <string>
 #include "win32/Window.h"
 #include "win32/StatusBar.h"
+#include "SettingsDialogProvider.h"
 #include "OutputWnd.h"
-#include "EventHandler.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
 #endif
@@ -37,7 +37,9 @@ private:
 	void							ShowDebugger();
 	void							ShowSysInfo();
 	void							ShowAbout();
+    void                            ShowSettingsDialog(CSettingsDialogProvider*);
 	void							ShowRendererSettings();
+    void                            ShowControllerSettings();
 	void							ShowVfsManager();
 	void							ShowMcManager();
 
@@ -55,10 +57,8 @@ private:
 	void							UpdateUI();
 
 	void							OnNewFrame();
-	void							OnOutputWndSizeChange(int);
+	void							OnOutputWndSizeChange();
 	void							OnExecutableChange();
-
-	Framework::CEventHandler<int>*	m_pOnOutputWndSizeChangeHandler;
 
     CPS2VM&                         m_virtualMachine;
 

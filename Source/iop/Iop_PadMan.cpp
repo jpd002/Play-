@@ -9,9 +9,11 @@ using namespace Iop;
 using namespace Framework;
 using namespace boost;
 using namespace std;
+using namespace PS2;
 
 #define PADNUM			(1)
-#define MODE			(0x4)
+#define MODE			(0x7)       //DUAL SHOCK
+//#define MODE			(0x4)       //DIGITAL
 #define LOG_NAME        "iop_padman"
 
 #define STATE_PADDATA           ("iop_padman/paddata.xml")
@@ -82,12 +84,20 @@ void CPadMan::LoadState(CZipArchiveReader& archive)
     m_nPadDataType      = registerFile.GetRegister32(STATE_PADDATA_TYPE);
 }
 
-void CPadMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButton, bool nPressed, uint8* ram)
+void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nButton, bool nPressed, uint8* ram)
 {
 	if(m_nPadDataAddress == 0) return;
 
 	ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, _1, nButton, nPressed),
 		ram + m_nPadDataAddress, PADNUM);
+}
+
+void CPadMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
+{
+   if(m_nPadDataAddress == 0) return;
+
+   ExecutePadDataFunction(bind(&CPadMan::PDF_SetAxisState, _1, button, axisValue),
+       ram + m_nPadDataAddress, PADNUM);
 }
 
 void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -180,16 +190,15 @@ void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
 	pPadData->SetModeTable(0, MODE);
 }
 
-void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, BUTTON nButton, bool nPressed)
+void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, CControllerInfo::BUTTON nButton, bool nPressed)
 {
-	uint16 nStatus;
+	uint16 nStatus = (pPadData->GetData(2) << 8) | (pPadData->GetData(3));
+    uint32 buttonMask = GetButtonMask(nButton);
 
-	nStatus = (pPadData->GetData(2) << 8) | (pPadData->GetData(3));
-
-	nStatus &= ~nButton;
+	nStatus &= ~buttonMask;
 	if(!nPressed)
 	{
-		nStatus |= nButton;
+		nStatus |= buttonMask;
 	}
 
 	pPadData->SetReqState(0);
@@ -199,6 +208,31 @@ void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, BUTTON nButton, bo
 
 	pPadData->SetData(0, 0);
 	pPadData->SetData(1, MODE << 4);
+}
+
+void CPadMan::PDF_SetAxisState(CPadDataInterface* padData, CControllerInfo::BUTTON axis, uint8 axisValue)
+{
+    //rjoy_h 4;
+    //rjoy_v 5;
+    //ljoy_h 6;
+    //ljoy_v 7;
+
+    assert(axis < 4);
+
+    unsigned int axisIndex[4] =
+    {
+        6,
+        7,
+        4, 
+        5
+    };
+
+	padData->SetReqState(0);
+
+    padData->SetData(axisIndex[axis], axisValue);
+
+	padData->SetData(0, 0);
+	padData->SetData(1, MODE << 4);
 }
 
 template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int) 

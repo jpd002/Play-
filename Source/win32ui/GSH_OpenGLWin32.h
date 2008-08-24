@@ -19,8 +19,8 @@ public:
 
     CSettingsDialogProvider*		GetSettingsDialogProvider();
 
-	CModalWindow*					CreateSettingsDialog(HWND);
-	void							OnSettingsDialogDestroyed();
+    Framework::Win32::CModalWindow* CreateSettingsDialog(HWND);
+	void                            OnSettingsDialogDestroyed();
 
 private:
     virtual void                    SetViewport(int, int);

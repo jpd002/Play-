@@ -5,7 +5,6 @@
 #include "RegViewFPU.h"
 #include "RegViewVU.h"
 #include "PtrMacro.h"
-#include "EventHandler.h"
 
 #define CLSNAME		_T("CRegViewWnd")
 
@@ -50,10 +49,10 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* p
 	m_pRegView[3]->Show(SW_HIDE);
 
 	m_pTabs = new CNiceTabs(m_hWnd, &rc);
-	m_pTabs->InsertTab(_T("General"),	TAB_FLAG_UNDELETEABLE, 0);
-	m_pTabs->InsertTab(_T("SCU"),		TAB_FLAG_UNDELETEABLE, 1);
-	m_pTabs->InsertTab(_T("FPU"),		TAB_FLAG_UNDELETEABLE, 2);
-	m_pTabs->InsertTab(_T("VU"),		TAB_FLAG_UNDELETEABLE, 3);
+    m_pTabs->InsertTab(_T("General"),	CNiceTabs::TAB_FLAG_UNDELETEABLE, 0);
+	m_pTabs->InsertTab(_T("SCU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 1);
+	m_pTabs->InsertTab(_T("FPU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 2);
+	m_pTabs->InsertTab(_T("VU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 3);
 
 	m_pCurrent = NULL;
 	SetCurrentView(0);

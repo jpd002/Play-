@@ -1,5 +1,6 @@
 #include "MemoryCardView.h"
 #include "win32/DeviceContext.h"
+#include <boost/bind.hpp>
 #include <exception>
 #include <gl/gl.h>
 #include <gl/glu.h>
@@ -234,11 +235,11 @@ void CMemoryCardView::SetSelection(unsigned int nSelection)
 
 	if((m_ViewState.m_nSelection < m_nItemCount) && (m_pMemoryCard != NULL))
 	{
-		m_OnSelectionChange.Notify(m_pMemoryCard->GetSaveByIndex(m_ViewState.m_nSelection));
+		m_OnSelectionChange(m_pMemoryCard->GetSaveByIndex(m_ViewState.m_nSelection));
 	}
 	else
 	{
-		m_OnSelectionChange.Notify(NULL);
+		m_OnSelectionChange(NULL);
 	}
 }
 

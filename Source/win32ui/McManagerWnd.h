@@ -1,7 +1,7 @@
 #ifndef _MEMORYCARDMANAGER_H_
 #define _MEMORYCARDMANAGER_H_
 
-#include "ModalWindow.h"
+#include "win32/ModalWindow.h"
 #include "win32/ComboBox.h"
 #include "win32/Button.h"
 #include "win32/Layouts.h"
@@ -10,7 +10,7 @@
 #include "SaveView.h"
 #include "../saves/SaveImporter.h"
 
-class CMcManagerWnd : public CModalWindow
+class CMcManagerWnd : public Framework::Win32::CModalWindow, public boost::signals::trackable
 {
 public:
 											CMcManagerWnd(HWND);

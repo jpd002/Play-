@@ -3,12 +3,12 @@
 
 #include <string>
 #include <map>
-#include "ModalWindow.h"
+#include "win32/ModalWindow.h"
 #include "win32/Button.h"
 #include "win32/ListView.h"
 #include "layout/LayoutObject.h"
 
-class CVFSManagerWnd : public CModalWindow
+class CVFSManagerWnd : public Framework::Win32::CModalWindow
 {
 public:
 									CVFSManagerWnd(HWND);

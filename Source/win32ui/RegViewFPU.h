@@ -4,7 +4,6 @@
 #include <boost/signal.hpp>
 #include <string>
 #include "RegViewPage.h"
-#include "EventHandler.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
 

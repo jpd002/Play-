@@ -252,7 +252,7 @@ long CSaveView::Delete()
 {
 	if(m_pSave == NULL) return FALSE;
 
-	m_OnDeleteClicked.Notify(m_pSave);
+	m_OnDeleteClicked(m_pSave);
 
 	return FALSE;
 }

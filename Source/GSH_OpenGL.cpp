@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
-#include "Config.h"
+#include "AppConfig.h"
 #include "GSH_OpenGL.h"
 #include "PtrMacro.h"
 
@@ -16,10 +16,10 @@ m_pFragShader(NULL)
 {
 	m_pCvtBuffer = NULL;
 
-	CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
-	CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
-	CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
-    CConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
+    CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
 	LoadSettings();
 }
@@ -50,10 +50,10 @@ void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
 
 void CGSH_OpenGL::LoadSettings()
 {
-	m_nLinesAsQuads				= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
-	m_nForceBilinearTextures	= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_nForceFlippingVSync		= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
-    m_fixSmallZValues           = CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
+	m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
+	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	m_nForceFlippingVSync		= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
+    m_fixSmallZValues           = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
 
 void CGSH_OpenGL::InitializeRC()

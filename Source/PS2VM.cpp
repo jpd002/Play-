@@ -21,7 +21,7 @@
 #include "IszImageStream.h"
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
-#include "Config.h"
+#include "AppConfig.h"
 #include "Profiler.h"
 #include "iop/IopBios.h"
 #include "iop/DirectoryDevice.h"
@@ -101,10 +101,10 @@ m_timer(m_intc),
 m_MAVU0(false),
 m_MAVU1(true)
 {
-	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
-	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
-	CConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
-    CConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
+	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
+	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
+	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
+    CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
     m_iopOs = new CIopBios(0x100, m_iop, m_iopRam, PS2::IOPRAMSIZE, m_sif, m_pCDROM0);
     m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
@@ -234,7 +234,7 @@ unsigned int CPS2VM::LoadState(const char* sPath)
 void CPS2VM::SetFrameSkip(unsigned int frameSkip)
 {
     m_frameSkip = frameSkip;
-    CConfig::GetInstance().SetPreferenceInteger(PREF_PS2_FRAMESKIP, m_frameSkip);
+    CAppConfig::GetInstance().SetPreferenceInteger(PREF_PS2_FRAMESKIP, m_frameSkip);
 }
 
 //unsigned int CPS2VM::SendMessage(PS2VM_MSG nMsg, void* pParam)
@@ -384,7 +384,7 @@ void CPS2VM::ResetVM()
     m_iopOs->GetIoman()->RegisterDevice("mc1", new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY));
     m_iopOs->GetIoman()->RegisterDevice("cdrom0", new Iop::Ioman::CIsoDevice(m_pCDROM0));
 
-    m_frameSkip = CConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
+    m_frameSkip = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
 
     RegisterModulesInPadHandler();
 }
@@ -553,14 +553,14 @@ void CPS2VM::OnGsNewFrame()
 
 void CPS2VM::CDROM0_Initialize()
 {
-	CConfig::GetInstance().RegisterPreferenceString("ps2.cdrom0.path", "");
+	CAppConfig::GetInstance().RegisterPreferenceString("ps2.cdrom0.path", "");
 	m_pCDROM0 = NULL;
 }
 
 void CPS2VM::CDROM0_Reset()
 {
 	DELETEPTR(m_pCDROM0);
-	CDROM0_Mount(CConfig::GetInstance().GetPreferenceString("ps2.cdrom0.path"));
+	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString("ps2.cdrom0.path"));
 }
 
 void CPS2VM::CDROM0_Mount(const char* sPath)
@@ -611,7 +611,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 		}
 	}
 
-	CConfig::GetInstance().SetPreferenceString("ps2.cdrom0.path", sPath);
+	CAppConfig::GetInstance().SetPreferenceString("ps2.cdrom0.path", sPath);
 }
 
 void CPS2VM::CDROM0_Destroy()

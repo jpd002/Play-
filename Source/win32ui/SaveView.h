@@ -2,17 +2,17 @@
 #define _SAVEVIEW_H_
 
 #include <boost/thread.hpp>
+#include <boost/signal.hpp>
 #include "win32/Window.h"
 #include "win32/Edit.h"
 #include "win32/Button.h"
 #include "win32/Layouts.h"
 #include "IconView.h"
 #include "CommandSink.h"
-#include "EventEx.h"
 #include "../saves/Save.h"
 #include "../ThreadMsg.h"
 
-class CSaveView : public Framework::Win32::CWindow
+class CSaveView : public Framework::Win32::CWindow, public boost::signals::trackable
 {
 public:
 										CSaveView(HWND);
@@ -20,7 +20,7 @@ public:
 
 	void								SetSave(const CSave*);
 
-	Framework::CEventEx<const CSave*>	m_OnDeleteClicked;
+    boost::signal<void (const CSave*)>  m_OnDeleteClicked;
 
 protected:
 	long								OnSize(unsigned int, unsigned int, unsigned int);

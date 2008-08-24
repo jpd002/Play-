@@ -1,4 +1,4 @@
-#include "../Config.h"
+#include "../AppConfig.h"
 #include "Iop_Ioman.h"
 #include "StdStream.h"
 #include <stdexcept>
@@ -13,11 +13,11 @@ CIoman::CIoman(uint8* ram, CSIF& sif) :
 m_ram(ram),
 m_nextFileHandle(3)
 {
-	CConfig::GetInstance().RegisterPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING, false);
     sif.RegisterModule(SIF_MODULE_ID, this);
 
 	//Insert standard files if requested.
-	if(CConfig::GetInstance().GetPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING))
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING))
 	{
 		try
 		{

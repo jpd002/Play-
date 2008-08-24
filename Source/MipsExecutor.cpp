@@ -44,6 +44,13 @@ int CMipsExecutor::Execute(int cycles)
                 block = FindBlockStartingAt(address);
                 if(block == NULL)
                 {
+                    //REMOVE
+                    if(address == 0x00424bc0)
+                    {
+                        int i = 0;
+                        i++;
+                    }
+                    //REMOVE
                     //We need to partition the space and compile the blocks
                     PartitionFunction(address);
                     block = FindBlockStartingAt(address);
@@ -117,6 +124,26 @@ CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address)
 
 void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 {
+    //REMOVE
+    if(start == end && end == 0x00424bbc)
+    {
+        int i = 0;
+        i++;
+    }
+
+    if(start == 0x00424bc0 && end == 0x00424bc8)
+    {
+        int i = 0;
+        i++;
+    }
+
+    if(start == 0x00424bc8)
+    {
+        int i = 0;
+        i++;
+    }
+    //REMOVE
+
     {
         CBasicBlock* block = FindBlockAt(start);
         if(block != NULL)
@@ -136,6 +163,12 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
                 CreateBlock(otherBegin, start - 4);
                 assert(FindBlockAt(start) == NULL);
             }
+//            else if(otherBegin == start)
+//            {
+//                DeleteBlock(block);
+//                CreateBlock(end + 4, otherEnd);
+//                assert(FindBlockAt(end) == NULL);
+//            }
             else
             {
                 //Delete the currently existing block otherwise
@@ -145,12 +178,18 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
         }
     }
     assert(FindBlockAt(end) == NULL);
+    //REMOVE
+    assert(m_blockBegin.find(start) == m_blockBegin.end());
+    assert(m_blockEnd.find(end) == m_blockEnd.end());
+    //REMOVE
     {
         CBasicBlock* block = new CBasicBlock(m_context, start, end);
         m_blocks.push_back(block);
         m_blockBegin[start] = block;
         m_blockEnd[end] = block;
     }
+    assert(m_blocks.size() == m_blockBegin.size());
+    assert(m_blockBegin.size() == m_blockEnd.size());
 }
 
 void CMipsExecutor::DeleteBlock(CBasicBlock* block)
@@ -165,6 +204,14 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
             currBlock->SetBranchHint(NULL);
         }
     }
+    //REMOVE
+    if(block->GetBeginAddress() == 0x00424bc0)
+    {
+        int i = 0;
+        i++;
+    }
+    //REMOVE
+
     //Remove block from our lists
     m_blocks.remove(block);
     m_blockBegin.erase(block->GetBeginAddress());

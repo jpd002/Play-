@@ -4,7 +4,7 @@
 #include "layout/LayoutStretch.h"
 #include "win32/LayoutWindow.h"
 #include "win32/Static.h"
-#include "../Config.h"
+#include "../AppConfig.h"
 
 #define CLSNAME			_T("RendererSettingsWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -43,9 +43,9 @@ CModalWindow(hParent)
 	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, &rc);
 	m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, &rc);
 
-    m_nLinesAsQuads				= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
-    m_nForceBilinearTextures	= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-    m_nForceFlippingVSync		= CConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
+    m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
+    m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+    m_nForceFlippingVSync		= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
 
     m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
     m_pLineCheck->SetCheck(m_nLinesAsQuads);
@@ -183,9 +183,9 @@ void CRendererSettingsWnd::UpdateExtList()
 
 void CRendererSettingsWnd::Save()
 {
-	CConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, m_nLinesAsQuads);
-	CConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
-	CConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, m_nForceFlippingVSync);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, m_nLinesAsQuads);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, m_nForceFlippingVSync);
 }
 
 bool CRendererSettingsWnd::ProcessCheckBoxMessage(HWND hSender, Win32::CButton* pCheckBox, bool* pFlag)

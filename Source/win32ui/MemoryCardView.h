@@ -2,12 +2,12 @@
 #define _MEMORYCARDVIEW_H_
 
 #include <boost/thread.hpp>
+#include <boost/signal.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include "win32/Window.h"
 #include "win32/ClientDeviceContext.h"
 #include "MemoryCard.h"
 #include "IconView.h"
-#include "EventEx.h"
 #include "../ThreadMsg.h"
 
 class CMemoryCardView : public Framework::Win32::CWindow
@@ -18,7 +18,7 @@ public:
 
 	void								SetMemoryCard(CMemoryCard*);
 
-	Framework::CEventEx<const CSave*>	m_OnSelectionChange;
+    boost::signal<void (const CSave*)>  m_OnSelectionChange;
 
 protected:
 	long								OnPaint();

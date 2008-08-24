@@ -13,6 +13,7 @@ using namespace Iop;
 using namespace std;
 using namespace Framework;
 using namespace boost;
+using namespace PS2;
 
 CDbcMan::CDbcMan(CSIF& sif) :
 m_nextSocketId(0)
@@ -94,8 +95,10 @@ void CDbcMan::LoadState(CZipArchiveReader& archive)
     }
 }
 
-void CDbcMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButton, bool nPressed, uint8* ram)
+void CDbcMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nButton, bool nPressed, uint8* ram)
 {
+    uint32 buttonMask = GetButtonMask(nButton);
+
     for(SocketMap::const_iterator socketIterator(m_sockets.begin());
         socketIterator != m_sockets.end(); socketIterator++)
 	{
@@ -104,10 +107,10 @@ void CDbcMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButt
 
         uint8* buffer = &ram[socket.buf1];
         uint16 nStatus = (buffer[0x1C] << 8) | (buffer[0x1D]);
-		nStatus &= (~nButton);
+		nStatus &= (~buttonMask);
 		if(!nPressed)
 		{
-			nStatus |= nButton;
+			nStatus |= buttonMask;
 		}
 
 		buffer[0x1C] = static_cast<uint8>(nStatus >> 8);
@@ -115,6 +118,11 @@ void CDbcMan::SetButtonState(unsigned int nPadNumber, CPadListener::BUTTON nButt
 
 //		*(uint16*)&CPS2VM::m_pRAM[pSocket->nBuf1 + 0x1C] ^= 0x2010;
 	}
+}
+
+void CDbcMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON axis, uint8 axisValue, uint8* ram)
+{
+
 }
 
 void CDbcMan::CreateSocket(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

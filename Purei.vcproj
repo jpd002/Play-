@@ -181,6 +181,14 @@
 			Name="Core"
 			>
 			<File
+				RelativePath=".\Source\AppConfig.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AppConfig.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\ArrayStack.h"
 				>
 			</File>
@@ -213,11 +221,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Config.cpp"
+				RelativePath=".\Source\ControllerInfo.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Config.h"
+				RelativePath=".\Source\ControllerInfo.h"
 				>
 			</File>
 			<File
@@ -589,15 +597,11 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PadListener.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PadListener.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PathUtils.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PathUtils.h"
 				>
 			</File>
 			<File
@@ -1081,6 +1085,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\win32ui\ControllerSettingsWnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\win32ui\ControllerSettingsWnd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\win32ui\Debugger.cpp"
 				>
 			</File>
@@ -1193,6 +1205,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\win32ui\InputBindingSelectionWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\win32ui\InputBindingSelectionWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\win32ui\InputConfig.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\win32ui\InputConfig.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\win32ui\Main.cpp"
 				>
 			</File>
@@ -1258,14 +1286,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\win32ui\MemoryViewPtr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ModalWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ModalWindow.h"
 				>
 			</File>
 			<File
