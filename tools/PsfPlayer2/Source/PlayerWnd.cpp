@@ -1,17 +1,20 @@
+#include "AppDef.h"
 #include "PlayerWnd.h"
 #include "PsfLoader.h"
 #include "win32/Rect.h"
 #include "win32/FileDialog.h"
 #include "win32/AcceleratorTableGenerator.h"
 #include "FileInformationWindow.h"
+#include "AboutWindow.h"
 #include "string_cast.h"
 #include "resource.h"
 #include <afxres.h>
 #include <functional>
 
-#define CLSNAME		_T("PlayerWnd")
-#define WNDSTYLE	(WS_CAPTION | WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX	(0)
+#define CLSNAME			_T("PlayerWnd")
+#define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX)
+#define WNDSTYLEEX		(0)
+#define WM_UPDATEVIS	(WM_USER + 1)
 
 using namespace Psx;
 using namespace Framework;
@@ -30,7 +33,7 @@ m_accel(CreateAccelerators())
 		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("PsfPlayer"), WNDSTYLE, Win32::CRect(0, 0, 470, 570), NULL, NULL);
+	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 470, 570), NULL, NULL);
 	SetClassPtr();
 
 	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINMENU)));
@@ -41,6 +44,7 @@ m_accel(CreateAccelerators())
 	m_regView->Show(SW_SHOW);
 
 	UpdateUi();
+	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 
 	m_virtualMachine.OnNewFrame.connect(bind(&CPlayerWnd::OnNewFrame, this));
 }
@@ -49,6 +53,18 @@ CPlayerWnd::~CPlayerWnd()
 {
 	m_virtualMachine.Pause();
 	delete m_regView;
+}
+
+long CPlayerWnd::OnWndProc(unsigned int msg, WPARAM wparam, LPARAM lparam)
+{
+	switch(msg)
+	{
+	case WM_UPDATEVIS:
+		m_regView->Render();
+		m_regView->Redraw();
+		break;
+	}
+	return TRUE;
 }
 
 void CPlayerWnd::Run()
@@ -99,6 +115,9 @@ long CPlayerWnd::OnCommand(unsigned short id, unsigned short command, HWND hWndF
 	case ID_FILE_EXIT:
 		Destroy();
 		break;
+	case ID_HELP_ABOUT:
+		ShowAbout();
+		break;
 	}
 	return FALSE;
 }
@@ -139,15 +158,31 @@ void CPlayerWnd::ShowFileInformation()
 	fileInfo.DoModal();
 }
 
+void CPlayerWnd::ShowAbout()
+{
+	CAboutWindow about(m_hWnd);
+	about.DoModal();
+}
+
 void CPlayerWnd::Load(const char* path)
 {
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
 	m_tags.clear();
-	CPsfLoader::LoadPsf(m_virtualMachine, path, &m_tags);
-	m_virtualMachine.Resume();
+	try
+	{
+		CPsfLoader::LoadPsf(m_virtualMachine, path, &m_tags);
+		m_virtualMachine.Resume();
+		m_ready = true;
+	}
+	catch(const exception& except)
+	{
+		tstring errorString = _T("Couldn't load PSF file: \r\n\r\n");
+		errorString += string_cast<tstring>(except.what());
+		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
+		m_ready = false;
+	}
 	UpdateUi();
-	m_ready = true;
 }
 
 void CPlayerWnd::UpdateUi()
@@ -155,7 +190,7 @@ void CPlayerWnd::UpdateUi()
 	CPsfBase::ConstTagIterator titleTag = m_tags.find("title");
 	bool hasTitle = titleTag != m_tags.end();
 
-	tstring title = _T("PsfPlayer");
+	tstring title = APP_NAME;
 	if(hasTitle)
 	{
 		title += _T(" - [ ");
@@ -168,7 +203,6 @@ void CPlayerWnd::UpdateUi()
 
 void CPlayerWnd::OnNewFrame()
 {
-	m_regView->Render();
-	m_regView->Redraw();
+	PostMessage(m_hWnd, WM_UPDATEVIS, 0, 0);
 //	m_frames++;
 }

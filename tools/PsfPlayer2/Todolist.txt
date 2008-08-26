@@ -1,0 +1,15 @@
+TODO:
+- Exception for invalid PSFs
+- About box
+- 32-bits MA_MIPSIV support
+- Wild Arms
+- Castlevania SOTN
+
+
+Done:
+- Update to new Purei Core
+- Xenogears
+- Add ADSR support
+- Fix counter timing problem
+- Final Fantasy Tactics
+- Chrono Cross

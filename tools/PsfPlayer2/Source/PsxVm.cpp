@@ -40,16 +40,20 @@ m_thread(bind(&CPsxVm::ThreadProc, this))
 	m_cpu.m_pArch = &g_MAMIPSIV;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
+#ifdef _DEBUG
 	m_cpu.m_Functions.Unserialize("rawr.functions");
 	m_cpu.m_Comments.Unserialize("rawr.comments");
+#endif
 
 	m_dmac.SetReceiveFunction(4, bind(&CSpu::ReceiveDma, &m_spu, _1, _2, _3));
 }
 
 CPsxVm::~CPsxVm()
 {
+#ifdef _DEBUG
 	m_cpu.m_Functions.Serialize("rawr.functions");
 	m_cpu.m_Comments.Serialize("rawr.comments");
+#endif
 	delete [] m_ram;
 }
 

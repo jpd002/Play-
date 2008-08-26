@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer\Source"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_MSVC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_MSVC;_PSX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer\Source"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_MSVC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_MSVC;_PSX"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -138,6 +138,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="comctl32.lib OpenAL32.lib"
+				OutputFile="$(OutDir)\PsfPlayer.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\libs\Win32&quot;;C:\Components\boost_1_35_0\stage\lib"
 				GenerateDebugInformation="true"
@@ -181,11 +182,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Source\AboutWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AboutWindow.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\AcceleratorTable.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\AcceleratorTable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AppDef.h"
 				>
 			</File>
 			<File

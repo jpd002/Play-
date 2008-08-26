@@ -28,6 +28,7 @@ public:
 		VERSION_CAPCOMQSOUND	= 0x41
 	};
 
+	uint8				GetVersion() const;
 	uint8*				GetProgram() const;
 	const char*			GetTagValue(const char*) const;
 	ConstTagIterator	GetTagsBegin() const;

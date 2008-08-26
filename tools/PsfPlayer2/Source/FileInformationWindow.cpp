@@ -33,14 +33,14 @@ m_tags(tags)
 	Create(WNDSTYLEEX, CLSNAME, _T("File Information"), WNDSTYLE, Win32::CRect(0, 0, 400, 250), parent, NULL);
 	SetClassPtr();
 
-	m_title		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
-	m_artist	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
-	m_game		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
-	m_year		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
-	m_genre		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
-	m_comment	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
-	m_copyright	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
-	m_psfBy		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0));
+	m_title		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_artist	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_game		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_year		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_genre		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_comment	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_copyright	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_psfBy		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
 
 	m_layout = 
 		VerticalLayoutContainer

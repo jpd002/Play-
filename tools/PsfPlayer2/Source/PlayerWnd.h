@@ -16,6 +16,7 @@ public:
 	void									Run();
 
 protected:
+	long									OnWndProc(unsigned int, WPARAM, LPARAM);
 	long									OnSize(unsigned int, unsigned int, unsigned int);
 	long									OnCommand(unsigned short, unsigned short, HWND);
 	long									OnTimer();
@@ -26,9 +27,9 @@ private:
 	void									Load(const char*);
 	void									PauseResume();
 	void									ShowFileInformation();
+	void									ShowAbout();
 	void									OnNewFrame();
 	void									UpdateUi();
-
 
 	CPsxVm&									m_virtualMachine;
 	CSpuRegView*							m_regView;

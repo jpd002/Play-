@@ -5,11 +5,16 @@
 using namespace Framework;
 using namespace Psx;
 using namespace boost;
+using namespace std;
 
 void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
 	CStdStream input(pathString, "rb");
 	CPsfBase psfFile(input);
+	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATION)
+	{
+		throw runtime_error("Not a PlayStation psf.");
+	}
 	const char* libPath = psfFile.GetTagValue("_lib");
 	if(tags)
 	{

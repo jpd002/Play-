@@ -66,11 +66,24 @@ BEGIN
     BEGIN
         MENUITEM "&Open...",                    ID_FILE_OPEN
         MENUITEM "&File Information...",        ID_FILE_FILEINFORMATION
-        MENUITEM "Pause/Resume",                ID_FILE_PAUSE
+        MENUITEM "Pause/Resume\tF5",            ID_FILE_PAUSE
         MENUITEM "Exit\tAlt+F4",                ID_FILE_EXIT
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "&About",                      ID_HELP_ABOUT
     END
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_MAIN                ICON                    "images\\PsfPlayer.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -44,6 +44,11 @@ CPsfBase::~CPsfBase()
 	delete [] m_program;
 }
 
+uint8 CPsfBase::GetVersion() const
+{
+	return m_version;
+}
+
 uint8* CPsfBase::GetProgram() const
 {
 	return m_program;
