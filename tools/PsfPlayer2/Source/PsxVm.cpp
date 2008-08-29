@@ -27,15 +27,24 @@ m_counters(CLOCK_FREQ, m_intc),
 m_thread(bind(&CPsxVm::ThreadProc, this))
 {
 	//Read memory map
-	m_cpu.m_pMemoryMap->InsertReadMap(0,			RAMSIZE - 1,	m_ram,										0x01);
-	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::ReadIoRegister, this, _1),	0x02);
+	m_cpu.m_pMemoryMap->InsertReadMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x01);
+	m_cpu.m_pMemoryMap->InsertReadMap((1 * RAMSIZE), (1 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x02);
+	m_cpu.m_pMemoryMap->InsertReadMap((2 * RAMSIZE), (2 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x03);
+	m_cpu.m_pMemoryMap->InsertReadMap((3 * RAMSIZE), (3 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x04);
+	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::ReadIoRegister, this, _1),			0x05);
 
 	//Write memory map
-	m_cpu.m_pMemoryMap->InsertWriteMap(0,				RAMSIZE - 1,	m_ram,											0x01);
-	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::WriteIoRegister, this, _1, _2),	0x02);
+	m_cpu.m_pMemoryMap->InsertWriteMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x01);
+	m_cpu.m_pMemoryMap->InsertWriteMap((1 * RAMSIZE), (1 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x02);
+	m_cpu.m_pMemoryMap->InsertWriteMap((2 * RAMSIZE), (2 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x03);
+	m_cpu.m_pMemoryMap->InsertWriteMap((3 * RAMSIZE), (3 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x04);
+	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::WriteIoRegister, this, _1, _2),	0x05);
 
 	//Instruction memory map
-	m_cpu.m_pMemoryMap->InsertInstructionMap(0,			RAMSIZE - 1,	m_ram,											0x01);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x01);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((1 * RAMSIZE), (1 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x02);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((2 * RAMSIZE), (2 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x03);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * RAMSIZE), (3 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x04);
 
 	m_cpu.m_pArch = &g_MAMIPSIV;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;

@@ -113,6 +113,7 @@ private:
 	//A0
 	void					sc_setjmp();
 	void					sc_longjmp();
+	void					sc_bzero();
 	void					sc_InitHeap();
 	void					sc_printf();
 	void					sc_FlushCache();

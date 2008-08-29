@@ -18,6 +18,11 @@
 class CPsxVm : public CVirtualMachine
 {
 public:
+	enum RAMSIZE
+	{
+		RAMSIZE = 0x00200000
+	};
+
 						CPsxVm();
 	virtual				~CPsxVm();
 
@@ -55,11 +60,6 @@ private:
 		uint32	savedGp;
 		uint32	savedRa;
 		uint32	savedS0;
-	};
-
-	enum RAMSIZE
-	{
-		RAMSIZE = 0x00200000
 	};
 
 	enum

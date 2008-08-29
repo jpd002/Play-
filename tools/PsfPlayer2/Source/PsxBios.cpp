@@ -1,4 +1,5 @@
 #include "PsxBios.h"
+#include "PsxVm.h"
 #include "COP_SCU.h"
 #include "Log.h"
 #include "Intc.h"
@@ -347,6 +348,11 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
+		case 0x28:
+			CLog::GetInstance().Print(LOG_NAME, "bzero(address = 0x%0.8X, length = 0x%x);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
 		case 0x39:
 			CLog::GetInstance().Print(LOG_NAME, "InitHeap(block = 0x%0.8X, n = 0x%0.8X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
@@ -501,6 +507,18 @@ void CPsxBios::sc_longjmp()
 	uint32 buffer = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 	uint32 value = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
 	LongJump(buffer, value);
+}
+
+//A0 - 28
+void CPsxBios::sc_bzero()
+{
+	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint32 length = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+	if((address + length) > CPsxVm::RAMSIZE)
+	{
+		throw exception();
+	}
+	memset(m_ram + address, 0, length);
 }
 
 //A0 - 39
@@ -735,7 +753,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 	//0x20
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x28
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_bzero,			&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x30
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x38
