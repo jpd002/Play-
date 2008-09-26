@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "DmaChannel.h"
 #include "Dmac.h"
 
