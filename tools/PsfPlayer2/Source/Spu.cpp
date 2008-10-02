@@ -6,7 +6,7 @@
 using namespace std;
 
 #define LOG_NAME ("spu")
-#define MAX_GENERAL_REG_NAME (28)
+#define MAX_GENERAL_REG_NAME (64)
 
 static const char* g_channelRegisterName[8] = 
 {
@@ -49,7 +49,43 @@ static const char* g_generalRegisterName[MAX_GENERAL_REG_NAME] =
 	"CD_VOL_LEFT",
 	"CD_VOL_RIGHT",
 	"EXT_VOL_LEFT",
-	"EXT_VOL_RIGHT"
+	"EXT_VOL_RIGHT",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	"FB_SRC_A",
+	"FB_SRC_B",
+	"IIR_ALPHA",
+	"ACC_COEF_A",
+	"ACC_COEF_B",
+	"ACC_COEF_C",
+	"ACC_COEF_D",
+	"IIR_COEF",
+	"FB_ALPHA",
+	"FB_X",
+	"IIR_DEST_A0",
+	"IIR_DEST_A1",
+	"ACC_SRC_A0",
+	"ACC_SRC_A1",
+	"ACC_SRC_B0",
+	"ACC_SRC_B1",
+	"IIR_SRC_A0",
+	"IIR_SRC_A1",
+	"IIR_DEST_B0",
+	"IIR_DEST_B1",
+	"ACC_SRC_C0",
+	"ACC_SRC_C1",
+	"ACC_SRC_D0",
+	"ACC_SRC_D1",
+	"IIR_SRC_B1",
+	"IIR_SRC_B0",
+	"MIX_DEST_A0",
+	"MIX_DEST_A1",
+	"MIX_DEST_B0",
+	"MIX_DEST_B1",
+	"IN_COEF_L",
+	"IN_COEF_R"
 };
 
 CSpu::CSpu() :
@@ -94,23 +130,17 @@ void CSpu::Reset()
 	m_status0 = 0;
 	m_status1 = 0;
 	m_bufferAddr = 0;
-	m_voiceOn0 = 0;
-	m_voiceOn1 = 0;
-	m_channelOn0 = 0;
-	m_channelOn1 = 0;
+	m_channelOn.w = 0;
+	m_channelReverb.w = 0;
 
 	memset(m_channel, 0, sizeof(m_channel));
 	memset(m_ram, 0, RAMSIZE);
-}
-
-uint32 CSpu::GetVoiceOn() const
-{
-	return m_voiceOn0 | (m_voiceOn1 << 16);
+	memset(m_reverb, 0, sizeof(m_reverb));
 }
 
 uint32 CSpu::GetChannelOn() const
 {
-	return m_channelOn0 | (m_channelOn1 << 16);
+	return m_channelOn.w;
 }
 
 CSpu::CHANNEL& CSpu::GetChannel(unsigned int channelNumber)
@@ -211,7 +241,12 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 #ifdef _DEBUG
 	DisassembleWrite(address, value);
 #endif
-	if(address >= SPU_GENERAL_BASE)
+	if(address >= REVERB_START && address < REVERB_END)
+	{
+		uint32 registerId = (address - REVERB_START) / 2;
+		m_reverb[registerId] = value;
+	}
+	else if(address >= SPU_GENERAL_BASE)
 	{
 		switch(address)
 		{
@@ -239,7 +274,20 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			SendKeyOff(value << 16);
 			break;
 		case CHANNEL_ON_0:
-			m_channelOn0 = value;
+			m_channelOn.h0 = value;
+			break;
+		case CHANNEL_ON_1:
+			m_channelOn.h1 = value;
+			break;
+		case REVERB_0:
+			m_channelReverb.h0 = value;
+			break;
+		case REVERB_1:
+			m_channelReverb.h1 = value;
+			break;
+		case REVERB_WORK:
+			m_reverbWorkAddr = value * 8;
+			m_reverbCurrAddr = m_reverbWorkAddr;
 			break;
 		case BUFFER_ADDR:
 			m_bufferAddr = value * 8;

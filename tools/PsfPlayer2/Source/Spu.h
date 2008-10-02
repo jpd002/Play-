@@ -69,6 +69,19 @@ public:
 		uint16			status;
 	};
 
+	struct UNION32_16
+	{
+		union
+		{
+			struct
+			{
+				uint16 h0;
+				uint16 h1;
+			};
+			uint32 w;
+		};
+	};
+
 				CSpu();
 	virtual		~CSpu();
 
@@ -77,9 +90,7 @@ public:
 	uint16		ReadRegister(uint32);
 	void		WriteRegister(uint32, uint16);
 
-	uint32		GetVoiceOn() const;
 	uint32		GetChannelOn() const;
-
 	CHANNEL&	GetChannel(unsigned int);
 
 	uint32		ReceiveDma(uint8*, uint32, uint32);
@@ -170,7 +181,50 @@ public:
 		CD_VOL_LEFT		= 0x1F801DB0,
 		CD_VOL_RIGHT	= 0x1F801DB2,
 		EXT_VOL_LEFT	= 0x1F801DB4,
-		EXT_VOL_RIGHT	= 0x1F801DB6
+		EXT_VOL_RIGHT	= 0x1F801DB6,
+		REVERB_START	= 0x1F801DC0,
+		REVERB_END		= 0x1F801E00,
+	};
+
+	enum
+	{
+		FB_SRC_A,
+		FB_SRC_B,
+		IIR_ALPHA,
+		ACC_COEF_A,
+		ACC_COEF_B,
+		ACC_COEF_C,
+		ACC_COEF_D,
+		IIR_COEF,
+		FB_ALPHA,
+		FB_X,
+		IIR_DEST_A0,
+		IIR_DEST_A1,
+		ACC_SRC_A0,
+		ACC_SRC_A1,
+		ACC_SRC_B0,
+		ACC_SRC_B1,
+		IIR_SRC_A0,
+		IIR_SRC_A1,
+		IIR_DEST_B0,
+		IIR_DEST_B1,
+		ACC_SRC_C0,
+		ACC_SRC_C1,
+		ACC_SRC_D0,
+		ACC_SRC_D1,
+		IIR_SRC_B1,
+		IIR_SRC_B0,
+		MIX_DEST_A0,
+		MIX_DEST_A1,
+		MIX_DEST_B0,
+		MIX_DEST_B1,
+		IN_COEF_L,
+		IN_COEF_R
+	};
+
+	enum 
+	{
+		REVERB_REG_COUNT = (REVERB_END - REVERB_START) / 2,
 	};
 
 	enum CHANNEL_STATUS
@@ -243,10 +297,11 @@ private:
 	uint16			m_ctrl;
 	uint16			m_status0;
 	uint16			m_status1;
-	uint16			m_voiceOn0;
-	uint16			m_voiceOn1;
-	uint16			m_channelOn0;
-	uint16			m_channelOn1;
+	UNION32_16		m_channelOn;
+	UNION32_16		m_channelReverb;
+	uint16			m_reverbWorkAddr;
+	uint16			m_reverbCurrAddr;
+	uint16			m_reverb[REVERB_REG_COUNT];
 	uint8*			m_ram;
 	CHANNEL			m_channel[MAX_CHANNEL];
 	CSampleReader	m_reader[MAX_CHANNEL];
