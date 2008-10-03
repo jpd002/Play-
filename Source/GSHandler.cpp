@@ -645,22 +645,16 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 {
 	//Gotta rewrite this
-
-	uint8* pSrc;
-	TRXPOS* pTrxPos;
-	TRXREG* pTrxReg;
-	BITBLTBUF* pTrxBuf;
-
-	pTrxPos = GetTrxPos();
-	pTrxReg = GetTrxReg();
-	pTrxBuf = GetBitBltBuf();
+	TRXPOS* pTrxPos = GetTrxPos();
+	TRXREG* pTrxReg = GetTrxReg();
+	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
 	CPixelIndexorPSMT4 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
-	assert(0);
+//	assert(0);
 
-	pSrc = (uint8*)pData;
-/*
+	uint8* pSrc = (uint8*)pData;
+
 	for(unsigned int i = 0; i < nLength; i++)
 	{
 		uint8 nPixel[2];
@@ -670,10 +664,8 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 
 		for(unsigned int j = 0; j < 2; j++)
 		{
-			uint32 nX, nY;
-
-			nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-			nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+			uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
+			uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
 			Indexor.SetPixel(nX, nY, nPixel[j]);
 
@@ -685,7 +677,7 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 			}
 		}
 	}
-*/
+
 	return true;
 }
 

@@ -539,8 +539,7 @@ protected:
 
 		typename Storage::Unit* GetPixelAddress(unsigned int nX, unsigned int nY)
 		{
-			uint32 nAddress;
-			nAddress = GetColumnAddress(nX, nY);
+			uint32 nAddress = GetColumnAddress(nX, nY);
 			return &((typename Storage::Unit*)&m_pMemory[nAddress])[Storage::m_nColumnSwizzleTable[nY][nX]];
 		}
 
@@ -676,13 +675,11 @@ inline uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::GetPixel(unsig
 	return (uint8)(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]] >> nShiftAmount) & 0x0F;
 }
 
-/*
 template <> void CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::SetPixel(unsigned int nX, unsigned int nY, uint8 nPixel)
 {
 	typedef STORAGEPSMT4 Storage;
 
 	uint32 nAddress;
-	uint8* pPixel;
 	unsigned int nColumnNum, nSubTable, nShiftAmount;
 
 	nColumnNum = (nY / Storage::COLUMNHEIGHT) & 0x01;
@@ -696,12 +693,11 @@ template <> void CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::SetPixel(u
 	nX &= 0x07;
 	nY &= 0x01;
 
-	pPixel = reinterpret_cast<uint8*>(&(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]]));
+	uint32* pPixel = &(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]]);
 
-	(*pPixel) &= (0xF		<< nShiftAmount);
-	(*pPixel) |= (nPixel	<< nShiftAmount);
+    (*pPixel) &= ~(0xF		<< nShiftAmount);
+	(*pPixel) |=  (nPixel	<< nShiftAmount);
 }
-*/
 
 template <> 
 inline uint8* CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT8>::GetPixelAddress(unsigned int nX, unsigned int nY)
