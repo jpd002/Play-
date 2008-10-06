@@ -91,6 +91,7 @@ public:
 	void		WriteRegister(uint32, uint16);
 
 	uint32		GetChannelOn() const;
+	uint32		GetChannelReverb() const;
 	CHANNEL&	GetChannel(unsigned int);
 
 	uint32		ReceiveDma(uint8*, uint32, uint32);
@@ -292,6 +293,10 @@ private:
 
 	void			UpdateAdsr(CHANNEL&);
 	uint32			GetAdsrDelta(unsigned int) const;
+	float			GetReverbSample(uint32) const;
+	void			SetReverbSample(uint32, float);
+	uint32			GetReverbOffset(unsigned int) const;
+	float			GetReverbCoef(unsigned int) const;
 
 	uint32			m_bufferAddr;
 	uint16			m_ctrl;
@@ -299,8 +304,9 @@ private:
 	uint16			m_status1;
 	UNION32_16		m_channelOn;
 	UNION32_16		m_channelReverb;
-	uint16			m_reverbWorkAddr;
-	uint16			m_reverbCurrAddr;
+	uint32			m_reverbWorkAddr;
+	uint32			m_reverbCurrAddr;
+	int				m_reverbTicks;
 	uint16			m_reverb[REVERB_REG_COUNT];
 	uint8*			m_ram;
 	CHANNEL			m_channel[MAX_CHANNEL];
