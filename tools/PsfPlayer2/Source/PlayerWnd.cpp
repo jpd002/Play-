@@ -33,7 +33,7 @@ m_accel(CreateAccelerators())
 		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 470, 570), NULL, NULL);
+	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 470, 580), NULL, NULL);
 	SetClassPtr();
 
 	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINMENU)));

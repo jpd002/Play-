@@ -65,9 +65,25 @@ void CSpuRegView::Render()
 	channelStatus[CSpu::MAX_CHANNEL] = 0;
 
 	text += "\r\n";
-	char temp[256];
-	sprintf(temp, "CH_ON: 0x%0.8X CH_STAT: %s\r\n", m_spu.GetChannelOn(), channelStatus);
-	text += temp;
+	{
+		char temp[256];
+		sprintf(temp, "CH_STAT: %s\r\n", channelStatus);
+		text += temp;
+	}
+
+	{
+		char revbStat[CSpu::MAX_CHANNEL + 1];
+		char temp[256];
+		uint32 stat = m_spu.GetChannelReverb();
+		for(unsigned int i = 0; i < CSpu::MAX_CHANNEL; i++)
+		{
+			revbStat[i] = (stat & (1 << i)) ? '1' : '0';
+		}
+		revbStat[CSpu::MAX_CHANNEL] = 0;
+
+		sprintf(temp, "CH_REVB: %s\r\n", revbStat);
+		text += temp;
+	}
 
 	SetDisplayText(text.c_str());
 }
