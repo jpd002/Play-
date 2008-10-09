@@ -5,8 +5,9 @@
 #include "win32/Static.h"
 #include "win32/ListBox.h"
 #include "layout/VerticalLayout.h"
+#include "win32/ModalWindow.h"
 
-class CSysInfoWnd : public Framework::Win32::CWindow
+class CSysInfoWnd : public Framework::Win32::CModalWindow
 {
 public:
 									CSysInfoWnd(HWND);
@@ -14,7 +15,6 @@ public:
 
 protected:
 	long							OnTimer();
-	long							OnSysCommand(unsigned int, LPARAM);
 
 private:
 	void							UpdateSchedulerInfo();

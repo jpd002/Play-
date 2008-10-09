@@ -55,7 +55,8 @@ const TCHAR* CSysInfoWnd::m_sFeature[32] =
 	_T("PBE")
 };
 
-CSysInfoWnd::CSysInfoWnd(HWND hParent)
+CSysInfoWnd::CSysInfoWnd(HWND hParent) :
+Win32::CModalWindow(hParent)
 {
 	RECT rc;
 
@@ -117,21 +118,6 @@ long CSysInfoWnd::OnTimer()
 {
 	UpdateSchedulerInfo();
 	//UpdateProcessor();
-	return TRUE;
-}
-
-long CSysInfoWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
-{
-	switch(nCmd)
-	{
-	case SC_CLOSE:
-		if(GetParent() != NULL)
-		{
-			EnableWindow(GetParent(), TRUE);
-			SetForegroundWindow(GetParent());
-		}
-		break;
-	}
 	return TRUE;
 }
 

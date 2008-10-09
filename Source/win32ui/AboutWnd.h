@@ -4,16 +4,14 @@
 #include "win32/Window.h"
 #include "win32/Static.h"
 #include "win32/Button.h"
+#include "win32/ModalWindow.h"
 #include "layout/VerticalLayout.h"
 
-class CAboutWnd : public Framework::Win32::CWindow
+class CAboutWnd : public Framework::Win32::CModalWindow
 {
 public:
 									CAboutWnd(HWND);
 									~CAboutWnd();
-
-protected:
-	long							OnSysCommand(unsigned int, LPARAM);
 
 private:
 	void							RefreshLayout();
