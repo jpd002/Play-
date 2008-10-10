@@ -27,7 +27,7 @@ CModalWindow(parent)
 	aboutText += _T("\r\n");
 	aboutText += tstring(_T("By Jean-Philip Desjardins")) + _T("\r\n");
 	aboutText += _T("\r\n");
-	aboutText += tstring(_T("Thanks to Neill Corlett for creating the PSF format and also for his ADSR analysis.")) + _T("\r\n");
+	aboutText += tstring(_T("Thanks to Neill Corlett for creating the PSF format and also for his ADSR and reverb analysis.")) + _T("\r\n");
 
 	m_layout = Win32::CLayoutWindow::CreateTextBoxBehavior(100, 60, new Win32::CStatic(m_hWnd, aboutText.c_str()));
 

@@ -234,6 +234,14 @@ void CCodeGen::BeginIfElse(bool nCondition)
 		m_IfStack.Push(ifLabel);
 		m_IfStack.Push(IFELSEBLOCK);
 	}
+	else if(FitsPattern<SingleRelative>())
+	{
+        SingleRegister::PatternValue value(GetPattern<SingleRelative>());
+		unsigned int registerId = AllocateRegister();
+		LoadRelativeInRegister(registerId, value);
+		PushReg(registerId);
+		CCodeGen::BeginIfElse(nCondition);
+	}
     else if(FitsPattern<SingleConstant>())
     {
         SingleConstant::PatternValue constant(GetPattern<SingleConstant>());

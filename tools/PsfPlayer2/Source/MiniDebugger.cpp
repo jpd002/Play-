@@ -2,6 +2,9 @@
 #include "win32/Rect.h"
 #include "win32ui/resource.h"
 #include <boost/bind.hpp>
+#include <stdio.h>
+#include <io.h>
+#include <fcntl.h>
 
 #define CLSNAME		_T("MiniDebugger")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -9,6 +12,7 @@
 
 #define ID_VM_PAUSE (0xBEEF)
 
+using namespace std;
 using namespace Framework;
 using namespace boost;
 
@@ -59,6 +63,18 @@ m_memoryView(NULL)
     m_mainSplitter->SetChild(0, *m_subSplitter);
     m_mainSplitter->SetChild(1, *m_memoryView);
     m_disAsmView->SetAddress(m_virtualMachine.GetCpu().m_State.nPC);
+
+	InitializeConsole();
+
+//	CMIPS& context = m_virtualMachine.GetCpu();
+//	for(unsigned int i = 0; i < CPsxVm::RAMSIZE / 4; i++)
+//	{
+//		uint32 nVal = context.m_pMemoryMap->GetWord(i * 4);
+//		if((nVal & 0xFFFF) == 0x2910)
+//		{
+//			printf("Rawr: 0x%0.8X.\r\n", i * 4);
+//		}
+//	}
 }
 
 CMiniDebugger::~CMiniDebugger()
@@ -183,4 +199,22 @@ void CMiniDebugger::CreateAccelerators()
     Accel[10].fVirt = FVIRTKEY;
 
 	m_acceleratorTable = CreateAcceleratorTable(Accel, sizeof(Accel) / sizeof(ACCEL));
+}
+
+void CMiniDebugger::InitializeConsole()
+{
+	AllocConsole();
+
+	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
+
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ScreenBufferInfo);
+	ScreenBufferInfo.dwSize.Y = 1000;
+	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), ScreenBufferInfo.dwSize);
+
+	(*stdout) = *_fdopen(_open_osfhandle(
+		reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE)),
+		_O_TEXT), "w");
+
+	setvbuf(stdout, NULL, _IONBF, 0);
+	ios::sync_with_stdio();	
 }

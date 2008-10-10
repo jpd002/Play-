@@ -114,17 +114,38 @@ void CMA_MIPSIV::Template_Div32::operator()(const OperationFunctionType& functio
         break;
     }
 
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	//Check for zero
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    function();
+	m_codeGen->BeginIfElse(false);
+	{
+		m_codeGen->PushCst(~0);
 
-    m_codeGen->SeX();
-	m_codeGen->PullRel(lo[1]);
-	m_codeGen->PullRel(lo[0]);
+		m_codeGen->PushTop();
+		m_codeGen->PullRel(lo[1]);
 
-	m_codeGen->SeX();
-	m_codeGen->PullRel(hi[1]);
-	m_codeGen->PullRel(hi[0]);
+		m_codeGen->PushTop();
+		m_codeGen->PullRel(lo[0]);
+
+		m_codeGen->PushTop();
+		m_codeGen->PullRel(hi[1]);
+
+		m_codeGen->PullRel(hi[0]);
+	}
+	m_codeGen->BeginIfElseAlt();
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		function();
+
+		m_codeGen->SeX();
+		m_codeGen->PullRel(lo[1]);
+		m_codeGen->PullRel(lo[0]);
+
+		m_codeGen->SeX();
+		m_codeGen->PullRel(hi[1]);
+		m_codeGen->PullRel(hi[0]);
+	}
+	m_codeGen->EndIf();
 }
 
 void CMA_MIPSIV::Template_MovEqual::operator()(bool isEqual) const

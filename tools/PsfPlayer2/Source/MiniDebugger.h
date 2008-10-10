@@ -24,6 +24,7 @@ private:
     void                                        CreateAccelerators();
     void                                        StepCPU();
     void                                        OnFunctionDblClick(uint32);
+	void										InitializeConsole();
 
     CPsxVm&                                     m_virtualMachine;
     Framework::Win32::CHorizontalSplitter*      m_subSplitter;
