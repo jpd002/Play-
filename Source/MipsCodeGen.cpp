@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "MipsCodeGen.h"
 
 using namespace std;

@@ -95,6 +95,7 @@ void CInputBindingSelectionWindow::ProcessEvent(const GUID& device, uint32 id, u
     {
         if(objectInstance.dwType & DIDFT_AXIS)
         {
+            if(!CControllerInfo::IsAxis(m_button)) return;
             float axisValue = static_cast<float>(static_cast<int16>(value - 0x7FFF)) / 32768.f;
             if(abs(axisValue) < 0.85)
             {
@@ -103,6 +104,7 @@ void CInputBindingSelectionWindow::ProcessEvent(const GUID& device, uint32 id, u
         }
         else if(objectInstance.dwType & DIDFT_BUTTON)
         {
+            if(CControllerInfo::IsAxis(m_button)) return;
             if(!value) return;
         }
         else
