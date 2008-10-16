@@ -94,7 +94,8 @@ void CPsxBios::AssembleEventChecker()
 	unsigned int currentEvent = CMIPS::S0;
 	unsigned int eventMax = CMIPS::S1;
 	unsigned int eventToCheck = CMIPS::S2;
-	int stackAlloc = 4 * 4;
+	unsigned int needClearInt = CMIPS::S3;
+	int stackAlloc = 5 * 4;
 
 	//prolog
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
@@ -102,10 +103,12 @@ void CPsxBios::AssembleEventChecker()
 	assembler.SW(CMIPS::S0, 0x04, CMIPS::SP);
 	assembler.SW(CMIPS::S1, 0x08, CMIPS::SP);
 	assembler.SW(CMIPS::S2, 0x0C, CMIPS::SP);
+	assembler.SW(CMIPS::S3, 0x10, CMIPS::SP);
 
 	assembler.LI(currentEvent, EVENTS_BEGIN);
 	assembler.LI(eventMax, EVENTS_BEGIN + EVENTS_SIZE);
 	assembler.MOV(eventToCheck, CMIPS::A0);
+	assembler.ADDU(needClearInt, CMIPS::R0, CMIPS::R0);
 
 	//checkEvent
 	{
@@ -116,14 +119,17 @@ void CPsxBios::AssembleEventChecker()
 		assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
 		assembler.NOP();
 		
-		//check if enabled
-		assembler.LW(CMIPS::T0, offsetof(EVENT, enabled), currentEvent);
-		assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
-		assembler.NOP();
-
 		//check if good event class
 		assembler.LW(CMIPS::T0, offsetof(EVENT, classId), currentEvent);
 		assembler.BNE(CMIPS::T0, eventToCheck, doneEventLabel);
+		assembler.NOP();
+
+		//Tell that we need to clear interrupt later (experimental)
+		assembler.ADDIU(needClearInt, CMIPS::R0, 1);
+
+		//check if enabled
+		assembler.LW(CMIPS::T0, offsetof(EVENT, enabled), currentEvent);
+		assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
 		assembler.NOP();
 
 		//Start handler if present
@@ -141,11 +147,15 @@ void CPsxBios::AssembleEventChecker()
 	assembler.BNE(currentEvent, eventMax, checkEventLabel);
 	assembler.NOP();
 
+	//Result
+	assembler.ADDU(CMIPS::V0, needClearInt, CMIPS::R0);
+
 	//epilog
 	assembler.LW(CMIPS::RA, 0x00, CMIPS::SP);
 	assembler.LW(CMIPS::S0, 0x04, CMIPS::SP);
 	assembler.LW(CMIPS::S1, 0x08, CMIPS::SP);
 	assembler.LW(CMIPS::S2, 0x0C, CMIPS::SP);
+	assembler.LW(CMIPS::S3, 0x10, CMIPS::SP);
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
 
 	assembler.JR(CMIPS::RA);
@@ -176,13 +186,16 @@ void CPsxBios::AssembleInterruptHandler()
 	assembler.JAL(EVENT_CHECKER);
 	assembler.NOP();
 
-	assembler.MarkLabel(skipRootCounter2EventLabel);
+	assembler.BEQ(CMIPS::V0, CMIPS::R0, skipRootCounter2EventLabel);
+	assembler.NOP();
 
 	//Clear cause
 	assembler.LI(CMIPS::T0, CIntc::STATUS);
 //	assembler.NOR(CMIPS::T1, CMIPS::R0, cause);
 	assembler.LI(CMIPS::T1, ~0x40);
 	assembler.SW(CMIPS::T1, 0, CMIPS::T0);
+
+	assembler.MarkLabel(skipRootCounter2EventLabel);
 
 	//checkIntHook
 	assembler.LI(CMIPS::T0, LONGJMP_BUFFER);
@@ -348,10 +361,21 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
+		case 0x19:
+			CLog::GetInstance().Print(LOG_NAME, "strcpy(dst = 0x%0.8X, src = 0x%0.8X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
 		case 0x28:
 			CLog::GetInstance().Print(LOG_NAME, "bzero(address = 0x%0.8X, length = 0x%x);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
+		case 0x2B:
+			CLog::GetInstance().Print(LOG_NAME, "memset(address = 0x%0.8X, value = 0x%x, length = 0x%x);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM2].nV0);
 			break;
 		case 0x39:
 			CLog::GetInstance().Print(LOG_NAME, "InitHeap(block = 0x%0.8X, n = 0x%0.8X);\r\n",
@@ -405,6 +429,10 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			CLog::GetInstance().Print(LOG_NAME, "WaitEvent(event = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
+		case 0x0B:
+			CLog::GetInstance().Print(LOG_NAME, "TestEvent(event = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
 		case 0x0C:
 			CLog::GetInstance().Print(LOG_NAME, "EnableEvent(event = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
@@ -412,6 +440,9 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		case 0x0D:
 			CLog::GetInstance().Print(LOG_NAME, "DisableEvent(event = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x16:
+			CLog::GetInstance().Print(LOG_NAME, "PAD_dr();\r\n");
 			break;
 		case 0x17:
 			CLog::GetInstance().Print(LOG_NAME, "ReturnFromException();\r\n");
@@ -509,6 +540,20 @@ void CPsxBios::sc_longjmp()
 	LongJump(buffer, value);
 }
 
+//A0 - 19
+void CPsxBios::sc_strcpy()
+{
+	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+
+	strcpy(
+		reinterpret_cast<char*>(m_ram + dst),
+		reinterpret_cast<char*>(m_ram + src)
+		);
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = dst;
+}
+
 //A0 - 28
 void CPsxBios::sc_bzero()
 {
@@ -519,6 +564,21 @@ void CPsxBios::sc_bzero()
 		throw exception();
 	}
 	memset(m_ram + address, 0, length);
+}
+
+//A0 - 2B
+void CPsxBios::sc_memset()
+{
+	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint8 value = static_cast<uint8>(m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+	uint32 length = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
+	if((address + length) > CPsxVm::RAMSIZE)
+	{
+		throw exception();
+	}
+	memset(m_ram + address, value, length);
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = address;
 }
 
 //A0 - 39
@@ -651,6 +711,12 @@ void CPsxBios::sc_DisableEvent()
 	}
 }
 
+//B0 - 16
+void CPsxBios::sc_PAD_dr()
+{
+	
+}
+
 //B0 - 17
 void CPsxBios::sc_ReturnFromException()
 {
@@ -737,7 +803,9 @@ void CPsxBios::sc_ExitCriticalSection()
 
 void CPsxBios::sc_Illegal()
 {
+#ifdef _DEBUG
 	throw runtime_error("Illegal system call.");
+#endif
 }
 
 CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] = 
@@ -749,11 +817,11 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 	//0x10
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_setjmp,			&sc_longjmp,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x18
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_Illegal,		&sc_strcpy,			&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x20
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x28
-	&sc_bzero,			&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
+	&sc_bzero,			&sc_Illegal,		&sc_Illegal,		&sc_memset,			&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x30
 	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x38
@@ -815,7 +883,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 	//0x08
 	&sc_OpenEvent,		&sc_Illegal,		&sc_WaitEvent,		&sc_TestEvent,		&sc_EnableEvent,	&sc_DisableEvent,	&sc_Illegal,		&sc_Illegal,
 	//0x10
-	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_ReturnFromException,
+	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_PAD_dr,			&sc_ReturnFromException,
 	//0x18
 	&sc_Illegal,		&sc_HookEntryInt,	&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,		&sc_Illegal,
 	//0x20

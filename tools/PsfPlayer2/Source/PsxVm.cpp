@@ -23,6 +23,7 @@ m_bios(m_cpu, m_ram),
 m_status(PAUSED),
 m_singleStep(false),
 m_ram(new uint8[RAMSIZE]),
+m_scratchPad(new uint8[SCRATCHSIZE]),
 m_dmac(m_ram, m_intc),
 m_counters(CLOCK_FREQ, m_intc),
 m_thread(bind(&CPsxVm::ThreadProc, this))
@@ -32,14 +33,16 @@ m_thread(bind(&CPsxVm::ThreadProc, this))
 	m_cpu.m_pMemoryMap->InsertReadMap((1 * RAMSIZE), (1 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x02);
 	m_cpu.m_pMemoryMap->InsertReadMap((2 * RAMSIZE), (2 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x03);
 	m_cpu.m_pMemoryMap->InsertReadMap((3 * RAMSIZE), (3 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x04);
-	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::ReadIoRegister, this, _1),			0x05);
+	m_cpu.m_pMemoryMap->InsertReadMap(0x1F800000, 0x1F8003FF, m_scratchPad,												0x05);
+	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::ReadIoRegister, this, _1),			0x06);
 
 	//Write memory map
 	m_cpu.m_pMemoryMap->InsertWriteMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x01);
 	m_cpu.m_pMemoryMap->InsertWriteMap((1 * RAMSIZE), (1 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x02);
 	m_cpu.m_pMemoryMap->InsertWriteMap((2 * RAMSIZE), (2 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x03);
 	m_cpu.m_pMemoryMap->InsertWriteMap((3 * RAMSIZE), (3 * RAMSIZE) + RAMSIZE - 1,	m_ram,								0x04);
-	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::WriteIoRegister, this, _1, _2),	0x05);
+	m_cpu.m_pMemoryMap->InsertWriteMap(0x1F800000, 0x1F8003FF, m_scratchPad,											0x05);
+	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		bind(&CPsxVm::WriteIoRegister, this, _1, _2),	0x06);
 
 	//Instruction memory map
 	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x01);
@@ -65,11 +68,13 @@ CPsxVm::~CPsxVm()
 	m_cpu.m_Comments.Serialize("rawr.comments");
 #endif
 	delete [] m_ram;
+	delete [] m_scratchPad;
 }
 
 void CPsxVm::Reset()
 {
 	memset(m_ram, 0, RAMSIZE);
+	memset(m_scratchPad, 0, SCRATCHSIZE);
 	m_executor.Clear();
 	m_cpu.Reset();
 	m_bios.Reset();

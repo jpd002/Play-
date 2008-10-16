@@ -23,6 +23,11 @@ public:
 		RAMSIZE = 0x00200000
 	};
 
+	enum SCRATCHSIZE
+	{
+		SCRATCHSIZE = 0x00000400,
+	};
+
 						CPsxVm();
 	virtual				~CPsxVm();
 
@@ -78,6 +83,7 @@ private:
 
 	STATUS				m_status;
 	uint8*				m_ram;
+	uint8*				m_scratchPad;
 	Psx::CIntc			m_intc;
 	CSpu				m_spu;
 	Psx::CRootCounters	m_counters;

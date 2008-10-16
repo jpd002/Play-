@@ -113,7 +113,9 @@ private:
 	//A0
 	void					sc_setjmp();
 	void					sc_longjmp();
+	void					sc_strcpy();
 	void					sc_bzero();
+	void					sc_memset();
 	void					sc_InitHeap();
 	void					sc_printf();
 	void					sc_FlushCache();
@@ -129,6 +131,7 @@ private:
 	void					sc_TestEvent();
 	void					sc_EnableEvent();
 	void					sc_DisableEvent();
+	void					sc_PAD_dr();
 	void					sc_ReturnFromException();
 	void					sc_HookEntryInt();
 	void					sc_InitCARD();
