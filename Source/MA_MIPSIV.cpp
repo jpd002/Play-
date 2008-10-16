@@ -852,13 +852,16 @@ void CMA_MIPSIV::MOVN()
 //0C
 void CMA_MIPSIV::SYSCALL()
 {
-//    m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
-//    m_codeGen->PushCst(4);
-//    m_codeGen->Sub();
+	//Save current EPC
     m_codeGen->PushCst(m_nAddress);
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+#ifdef _PSX
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::K1]));
+#else
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+#endif
     m_codeGen->PushCst(1);
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
+
 }
 
 //0D
