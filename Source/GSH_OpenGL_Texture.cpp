@@ -231,11 +231,10 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 {
 #ifdef WIN32
 	char sFilename[256];
-	unsigned int i;
-	struct _stat Stat;
 
-	for(i = 0; i < UINT_MAX; i++)
+	for(unsigned int i = 0; i < UINT_MAX; i++)
 	{
+	    struct _stat Stat;
 		sprintf(sFilename, "./textures/tex_%0.8X.bmp", i);
 		if(_stat(sFilename, &Stat) == -1) break;
 	}

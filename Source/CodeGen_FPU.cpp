@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "CodeGen.h"
 #include "CodeGen_StackPatterns.h"
 

@@ -122,6 +122,9 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
                     writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));
 				}
 				break;
+            case 0x0F:
+                //NOP
+                break;
 			default:
 				assert(0);
 				break;

@@ -3,7 +3,6 @@
 #include "PtrMacro.h"
 #include "CodeGen_StackPatterns.h"
 
-using namespace boost;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
