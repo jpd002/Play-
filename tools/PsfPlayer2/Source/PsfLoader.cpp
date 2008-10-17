@@ -62,3 +62,13 @@ void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBas
 		}
 	}
 }
+
+void CPsfLoader::LoadPsf2(const char* pathString, CPsfBase::TagMap* tags)
+{
+	CStdStream input(pathString, "rb");
+	CPsfBase psfFile(input);
+	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATION2)
+	{
+		throw runtime_error("Not a PlayStation2 psf.");
+	}
+}
