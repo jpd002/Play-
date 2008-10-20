@@ -30,6 +30,8 @@ public:
 
 	uint8				GetVersion() const;
 	uint8*				GetProgram() const;
+    uint8*              GetReserved() const;
+    uint32              GetReservedSize() const;
 	const char*			GetTagValue(const char*) const;
 	ConstTagIterator	GetTagsBegin() const;
 	ConstTagIterator	GetTagsEnd() const;

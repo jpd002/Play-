@@ -1,5 +1,6 @@
 #include "PsfLoader.h"
 #include "StdStream.h"
+#include "ps2/PsfDevice.h"
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -63,12 +64,13 @@ void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBas
 	}
 }
 
-void CPsfLoader::LoadPsf2(const char* pathString, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsf2(PS2::CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
 	CStdStream input(pathString, "rb");
-	CPsfBase psfFile(input);
-	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATION2)
+    PS2::CPsfDevice::PsfFile psfFile(new CPsfBase(input));
+	if(psfFile->GetVersion() != CPsfBase::VERSION_PLAYSTATION2)
 	{
 		throw runtime_error("Not a PlayStation2 psf.");
 	}
+    virtualMachine.LoadPsf(psfFile);
 }

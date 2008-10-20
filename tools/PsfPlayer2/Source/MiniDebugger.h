@@ -8,12 +8,13 @@
 #include "win32ui/RegViewGeneral.h"
 #include "win32ui/MemoryViewMIPS.h"
 #include "FunctionsView.h"
-#include "PsxVm.h"
+#include "VirtualMachine.h"
+#include "Debuggable.h"
 
 class CMiniDebugger : public Framework::Win32::CWindow
 {
 public:
-                                                CMiniDebugger(CPsxVm&);
+                                                CMiniDebugger(CVirtualMachine&, const CDebuggable&);
     virtual                                     ~CMiniDebugger();
     void                                        Run();
 
@@ -26,7 +27,8 @@ private:
     void                                        OnFunctionDblClick(uint32);
 	void										InitializeConsole();
 
-    CPsxVm&                                     m_virtualMachine;
+    CVirtualMachine&                            m_virtualMachine;
+    CDebuggable                                 m_debuggable;
     Framework::Win32::CHorizontalSplitter*      m_subSplitter;
     Framework::Win32::CVerticalSplitter*        m_mainSplitter;
     CDisAsm*                                    m_disAsmView;

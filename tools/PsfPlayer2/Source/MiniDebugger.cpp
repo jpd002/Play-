@@ -16,8 +16,9 @@ using namespace std;
 using namespace Framework;
 using namespace boost;
 
-CMiniDebugger::CMiniDebugger(CPsxVm& virtualMachine) :
+CMiniDebugger::CMiniDebugger(CVirtualMachine& virtualMachine, const CDebuggable& debuggable) :
 m_virtualMachine(virtualMachine),
+m_debuggable(debuggable),
 m_functionsView(NULL),
 m_mainSplitter(NULL),
 m_subSplitter(NULL),
@@ -47,13 +48,13 @@ m_memoryView(NULL)
     m_mainSplitter = new Win32::CVerticalSplitter(m_hWnd, GetClientRect());
 
     m_subSplitter = new Win32::CHorizontalSplitter(m_mainSplitter->m_hWnd, GetClientRect());
-    m_memoryView = new CMemoryViewMIPS(m_mainSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_virtualMachine.GetCpu());
+    m_memoryView = new CMemoryViewMIPS(m_mainSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
 
-    m_disAsmView = new CDisAsm(m_subSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_virtualMachine.GetCpu());
-    m_registerView = new CRegViewGeneral(m_subSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_virtualMachine.GetCpu());
+    m_disAsmView = new CDisAsm(m_subSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
+    m_registerView = new CRegViewGeneral(m_subSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
     m_registerView->Show(SW_SHOW);
 
-    m_functionsView = new CFunctionsView(NULL, &m_virtualMachine.GetCpu());
+    m_functionsView = new CFunctionsView(NULL, &m_debuggable.GetCpu());
     m_functionsView->m_OnFunctionDblClick.connect(bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
     m_functionsView->Refresh();
 
@@ -62,7 +63,7 @@ m_memoryView(NULL)
     m_subSplitter->SetEdgePosition(0.675);
     m_mainSplitter->SetChild(0, *m_subSplitter);
     m_mainSplitter->SetChild(1, *m_memoryView);
-    m_disAsmView->SetAddress(m_virtualMachine.GetCpu().m_State.nPC);
+    m_disAsmView->SetAddress(m_debuggable.GetCpu().m_State.nPC);
 
 	InitializeConsole();
 
@@ -142,7 +143,7 @@ void CMiniDebugger::StepCPU()
     }
 
     m_disAsmView->SetFocus();
-    m_virtualMachine.Step();
+    m_debuggable.Step();
 }
 
 void CMiniDebugger::OnFunctionDblClick(uint32 address)

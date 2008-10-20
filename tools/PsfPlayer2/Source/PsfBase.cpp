@@ -54,6 +54,16 @@ uint8* CPsfBase::GetProgram() const
 	return m_program;
 }
 
+uint8* CPsfBase::GetReserved() const
+{
+    return m_reserved;
+}
+
+uint32 CPsfBase::GetReservedSize() const
+{
+    return m_reservedSize;
+}
+
 const char* CPsfBase::GetTagValue(const char* name) const
 {
 	TagMap::const_iterator tagIterator(m_tags.find(name));

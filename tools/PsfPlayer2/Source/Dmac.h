@@ -1,5 +1,5 @@
-#ifndef _DMAC_H_
-#define _DMAC_H_
+#ifndef _PSX_DMAC_H_
+#define _PSX_DMAC_H_
 
 #include "Types.h"
 #include "DmaChannel.h"

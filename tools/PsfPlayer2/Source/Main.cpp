@@ -9,13 +9,16 @@ using namespace Psx;
 //int main(int argc, char** argv)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
 {
-	CPsxVm virtualMachine;
+//	CPsxVm virtualMachine;
+    PS2::CPsfVm virtualMachine;
 
 #ifdef DEBUGGER_INCLUDED
 	{
 		virtualMachine.Reset();
-		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\C-SotN_psf\\Master Librarian.minipsf");
-		CMiniDebugger debugger(virtualMachine);
+//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\C-SotN_psf\\Master Librarian.minipsf");
+        CPsfLoader::LoadPsf2(virtualMachine, "D:\\Media\\PS2\\FF4\\ff4-01.psf2");
+
+		CMiniDebugger debugger(virtualMachine, virtualMachine.GetIopDebug());
 		debugger.Show(SW_SHOW);
 		debugger.Run();
 	}

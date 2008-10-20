@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;DEBUGGER_INCLUDED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -117,7 +117,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MSVC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MSVC;_PSX"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -179,7 +179,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\AboutWindow.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\AcceleratorTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AcceleratorTable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AppConfig.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AppConfig.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\AppDef.h"
 				>
 			</File>
 			<File
@@ -187,11 +207,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Dmac.cpp"
+				RelativePath=".\Source\CounterRegView.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\DmaChannel.cpp"
+				RelativePath=".\Source\Debuggable.h"
 				>
 			</File>
 			<File
@@ -199,7 +219,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\FileInformationWindow.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\FunctionsView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\FunctionsView.h"
 				>
 			</File>
 			<File
@@ -207,7 +235,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Intc.cpp"
+				RelativePath=".\Source\HighResTimer.h"
 				>
 			</File>
 			<File
@@ -219,89 +247,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PlayerWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsfBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsfLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsxBios.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsxVm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\RootCounters.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SH_OpenAL.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Spu.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SpuRegView.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath=".\Source\AboutWindow.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\AcceleratorTable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\AppDef.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CounterRegView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Dmac.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\DmaChannel.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\FileInformationWindow.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\FunctionsView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\HighResTimer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Intc.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\MiniDebugger.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PlayerWnd.cpp"
 				>
 			</File>
 			<File
@@ -309,7 +259,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PsfBase.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PsfBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfLoader.cpp"
 				>
 			</File>
 			<File
@@ -317,33 +275,105 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PsxBios.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsxVm.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\resource.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\RootCounters.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SH_OpenAL.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Spu.h"
+				RelativePath=".\Source\SpuRegView.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\SpuRegView.h"
 				>
 			</File>
+			<Filter
+				Name="ps2"
+				>
+				<File
+					RelativePath=".\Source\ps2\PsfDevice.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\PsfDevice.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\PsfVm.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\PsfVm.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="psx"
+				>
+				<File
+					RelativePath=".\Source\Dmac.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Dmac.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\DmaChannel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\DmaChannel.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Intc.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Intc.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsxBios.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsxBios.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsxVm.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsxVm.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\RootCounters.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\RootCounters.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\SH_OpenAL.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\SH_OpenAL.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Spu.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Spu.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -388,6 +418,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\ELF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ElfFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ElfFile.h"
 				>
 			</File>
 			<File
@@ -583,6 +621,150 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\win32ui\WinUtils.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="iop"
+				>
+				<File
+					RelativePath="..\..\Source\iop\ArgumentIterator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\ArgumentIterator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Ioman_Device.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Dynamic.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Dynamic.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Intc.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Intc.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Intrman.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Intrman.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Ioman.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Ioman.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Loadcore.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Loadcore.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Modload.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Modload.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Module.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Sifman.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SifManNull.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SifManNull.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Stdio.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Stdio.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Sysclib.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Sysclib.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Sysmem.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Sysmem.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Thbase.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Thbase.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Thevent.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Thevent.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Thsema.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Thsema.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Timrman.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Timrman.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\IopBios.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\IopBios.h"
 					>
 				</File>
 			</Filter>
