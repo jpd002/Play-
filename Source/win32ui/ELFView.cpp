@@ -21,17 +21,16 @@ CELFView::~CELFView()
 
 void CELFView::Delete()
 {
-	unsigned int i;
-
 	if(m_pELF != NULL)
 	{
-		for(i = 0; i < m_pELF->m_Header.nProgHeaderCount; i++)
+        const ELFHEADER& header = m_pELF->GetHeader();
+		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 		{
 			DELETEPTR(m_pProgramView[i]);
 		}
 		DELETEPTR(m_pProgramView);
 
-		for(i = 0; i < m_pELF->m_Header.nSectHeaderCount; i++)
+		for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 		{
 			DELETEPTR(m_pSectionView[i]);
 		}
@@ -44,9 +43,6 @@ void CELFView::Delete()
 
 void CELFView::SetELF(CELF* pELF)
 {
-	HWND hCont;
-	unsigned int i;
-
 	DeleteAllOptions();
 
 	Delete();
@@ -55,19 +51,21 @@ void CELFView::SetELF(CELF* pELF)
 
 	if(m_pELF == NULL) return;
 
-	hCont = GetContainer()->m_hWnd;
+	HWND hCont = GetContainer()->m_hWnd;
 
 	m_pHeaderView = new CELFHeaderView(hCont, m_pELF);
 	m_pSymbolView = new CELFSymbolView(hCont, m_pELF);
 
-	m_pSectionView = new CELFSectionView*[m_pELF->m_Header.nSectHeaderCount];
-	for(i = 0; i < m_pELF->m_Header.nSectHeaderCount; i++)
+    const ELFHEADER& header(m_pELF->GetHeader());
+
+	m_pSectionView = new CELFSectionView*[header.nSectHeaderCount];
+	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
 		m_pSectionView[i] = new CELFSectionView(hCont, m_pELF, i);
 	}
 
-	m_pProgramView = new CELFProgramView*[m_pELF->m_Header.nProgHeaderCount];
-	for(i = 0; i < m_pELF->m_Header.nProgHeaderCount; i++)
+	m_pProgramView = new CELFProgramView*[header.nProgHeaderCount];
+	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
 		m_pProgramView[i] = new CELFProgramView(hCont, m_pELF, i);
 	}
@@ -83,20 +81,17 @@ void CELFView::SetELF(CELF* pELF)
 
 void CELFView::PopulateList()
 {
-	ELFSECTIONHEADER* pSect;
-	HTREEITEM hItem;
-	const char* sName;
-	const char* sStrTab;
+    InsertOption(NULL, _T("Header"), m_pHeaderView->m_hWnd);
+	HTREEITEM hItem = InsertOption(NULL, _T("Sections"), NULL);
+    const ELFHEADER& header = m_pELF->GetHeader();
 
-	InsertOption(NULL, _T("Header"), m_pHeaderView->m_hWnd);
-	hItem = InsertOption(NULL, _T("Sections"), NULL);
-
-	sStrTab = (const char*)m_pELF->GetSectionData(m_pELF->m_Header.nSectHeaderStringTableIndex);
-	for(unsigned int i = 0; i < m_pELF->m_Header.nSectHeaderCount; i++)
+	const char* sStrTab = (const char*)m_pELF->GetSectionData(header.nSectHeaderStringTableIndex);
+	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
         tstring sDisplay;
+    	const char* sName;
 
-        pSect = m_pELF->GetSection(i);
+    	ELFSECTIONHEADER* pSect = m_pELF->GetSection(i);
 		
         if(sStrTab != NULL)
 		{
@@ -120,11 +115,11 @@ void CELFView::PopulateList()
 	}
 	GetTreeView()->Expand(hItem, TVE_EXPAND);
 
-	if(m_pELF->m_Header.nProgHeaderCount != 0)
+	if(header.nProgHeaderCount != 0)
 	{
 		hItem = InsertOption(NULL, _T("Segments"), NULL);
 
-		for(unsigned int i = 0; i < m_pELF->m_Header.nProgHeaderCount; i++)
+		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 		{
             tstring sDisplay(_T("Segment ") + lexical_cast<tstring>(i));
 			InsertOption(hItem, sDisplay.c_str(), m_pProgramView[i]->m_hWnd);

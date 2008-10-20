@@ -20,7 +20,7 @@
 using namespace Framework;
 using namespace std;
 
-CSIF::CSIF(CDMAC& dmac, uint8* eeRam) :
+CSIF::CSIF(CDMAC& dmac, uint8* eeRam, uint8* iopRam) :
 m_nMAINADDR(0),
 m_nSUBADDR(0),
 m_nMSFLAG(0),
@@ -29,6 +29,7 @@ m_nEERecvAddr(0),
 m_nDataAddr(0),
 m_dmac(dmac),
 m_eeRam(eeRam),
+m_iopRam(iopRam),
 m_dmaBuffer(NULL),
 m_dmaBufferSize(0)
 {
@@ -50,6 +51,8 @@ void CSIF::Reset()
 	m_nSMFLAG		= 0x60000;
 
 	memset(m_nUserReg, 0, sizeof(uint32) * MAX_USERREG);
+
+    m_packetQueue.clear();
 
 	DeleteModules();
 
@@ -106,7 +109,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	CProfiler::GetInstance().BeginZone(PROFILE_SIFZONE);
 #endif
 
-	PACKETHDR* pHDR;
+    assert(!isTagIncluded);
 
 	//Humm, this is kinda odd, but it ors the address with 0x20000000
 	nSrcAddr &= (PS2::EERAMSIZE - 1);
@@ -122,47 +125,75 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 #endif
 		return nSize;
 	}
+    else if(nDstAddr == CMD_RECVADDR)
+    {
+	    PACKETHDR* pHDR = (PACKETHDR*)(m_eeRam + nSrcAddr);
 
-	pHDR = (PACKETHDR*)(m_eeRam + nSrcAddr);
-
-	//This is kinda odd...
-	//plasma_tunnel.elf does this
+	    //This is kinda odd...
+	    //plasma_tunnel.elf does this
 /*
-	if((pHDR->nCID & 0xFF000000) == 0x08000000)
-	{
-		pHDR->nCID &= 0x00FFFFFF;
-		pHDR->nCID |= 0x80000000;
-	}
+	    if((pHDR->nCID & 0xFF000000) == 0x08000000)
+	    {
+		    pHDR->nCID &= 0x00FFFFFF;
+		    pHDR->nCID |= 0x80000000;
+	    }
 */
-    CLog::GetInstance().Print(LOG_NAME, "Received command 0x%0.8X.\r\n", pHDR->nCID);
+        CLog::GetInstance().Print(LOG_NAME, "Received command 0x%0.8X.\r\n", pHDR->nCID);
 
-	switch(pHDR->nCID)
-	{
-	case 0x80000000:
-		Cmd_SetEERecvAddr(pHDR);
-		break;
-	case SIF_CMD_INIT:
-		Cmd_Initialize(pHDR);
-		break;
-	case SIF_CMD_BIND:
-		Cmd_Bind(pHDR);
-		break;
-	case SIF_CMD_CALL:
-		Cmd_Call(pHDR);
-		break;
-	}
+	    switch(pHDR->nCID)
+	    {
+	    case 0x80000000:
+		    Cmd_SetEERecvAddr(pHDR);
+		    break;
+	    case SIF_CMD_INIT:
+		    Cmd_Initialize(pHDR);
+		    break;
+	    case SIF_CMD_BIND:
+		    Cmd_Bind(pHDR);
+		    break;
+	    case SIF_CMD_CALL:
+		    Cmd_Call(pHDR);
+		    break;
+	    }
 
 #ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
+	    CProfiler::GetInstance().EndZone();
 #endif
 
-	return nSize;
+	    return nSize;
+    }
+    else
+    {
+        assert(nDstAddr < PS2::IOPRAMSIZE);
+        memcpy(m_iopRam + nDstAddr, m_eeRam + nSrcAddr, nSize);
+        return nSize;
+    }
+}
+
+void CSIF::SendPacket(void* packet, uint32 size)
+{
+    m_packetQueue.insert(m_packetQueue.begin(), 
+        reinterpret_cast<uint8*>(packet), 
+        reinterpret_cast<uint8*>(packet) + size);
+    m_packetQueue.insert(m_packetQueue.begin(),
+        reinterpret_cast<uint8*>(&size),
+        reinterpret_cast<uint8*>(&size) + 4);
+}
+
+void CSIF::ProcessPackets()
+{
+    if(m_packetQueue.size() != 0)
+    {
+        assert(m_packetQueue.size() > 4);
+        uint32 size = *reinterpret_cast<uint32*>(&m_packetQueue[0]);
+        SendDMA(&m_packetQueue[4], size);
+        m_packetQueue.erase(m_packetQueue.begin(), m_packetQueue.begin() + 4 + size);
+    }
 }
 
 void CSIF::SendDMA(void* pData, uint32 nSize)
 {
 	//Humm, the DMAC doesn't know about our addresses on this side...
-	uint32 nQuads;
 
     if(nSize > m_dmaBufferSize)
     {
@@ -170,7 +201,7 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
     }
 
 	memcpy(m_dmaBuffer, pData, nSize);
-	nQuads = (nSize + 0x0F) / 0x10;
+	uint32 nQuads = (nSize + 0x0F) / 0x10;
 
 	m_dmac.SetRegister(CDMAC::D5_MADR, m_nEERecvAddr);
 	m_dmac.SetRegister(CDMAC::D5_QWC,  nQuads);
@@ -236,7 +267,8 @@ void CSIF::Cmd_Initialize(PACKETHDR* pHDR)
 		SReg.nRegister			= 0;
 		SReg.nValue				= 1;
 
-		SendDMA(&SReg, sizeof(SETSREG));
+        SendPacket(&SReg, sizeof(SETSREG));
+		//SendDMA(&SReg, sizeof(SETSREG));
 	}
 	else
 	{
@@ -246,16 +278,15 @@ void CSIF::Cmd_Initialize(PACKETHDR* pHDR)
 
 void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 {
-	RPCBIND* pBind;
-	RPCREQUESTEND rend;
-
-	pBind = (RPCBIND*)pHDR;
+	RPCBIND* pBind = reinterpret_cast<RPCBIND*>(pHDR);
 
 	//Maybe check what it wants to bind?
 
 	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
 
-	//Fill in the request end 
+	RPCREQUESTEND rend;
+
+    //Fill in the request end 
 	rend.Header.nSize		= sizeof(RPCREQUESTEND);
 	rend.Header.nDest		= pHDR->nDest;
 	rend.Header.nCID		= SIF_CMD_REND;
@@ -270,21 +301,17 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 	rend.nBuffer			= RPC_RECVADDR;
 	rend.nClientBuffer		= 0xDEADCAFE;
 
-	SendDMA(&rend, sizeof(RPCREQUESTEND));
+    SendPacket(&rend, sizeof(RPCREQUESTEND));
+	//SendDMA(&rend, sizeof(RPCREQUESTEND));
 }
 
 void CSIF::Cmd_Call(PACKETHDR* pHDR)
 {
-	RPCCALL* pCall;
-	RPCREQUESTEND rend;
-
-	uint32 nRecvAddr;
-
-	pCall = (RPCCALL*)pHDR;
+	RPCCALL* pCall = reinterpret_cast<RPCCALL*>(pHDR);
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
 
-	nRecvAddr = (pCall->nRecv & (PS2::EERAMSIZE - 1));
+	uint32 nRecvAddr = (pCall->nRecv & (PS2::EERAMSIZE - 1));
 
     ModuleMap::iterator moduleIterator(m_modules.find(pCall->nServerDataAddr));
 	if(moduleIterator != m_modules.end())
@@ -300,7 +327,8 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
 	}
 
-	memset(&rend, 0, sizeof(RPCREQUESTEND));
+	RPCREQUESTEND rend;
+    memset(&rend, 0, sizeof(RPCREQUESTEND));
 
 	//Fill in the request end 
 	rend.Header.nSize		= sizeof(RPCREQUESTEND);
@@ -314,7 +342,8 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 	rend.nClientDataAddr	= pCall->nClientDataAddr;
 	rend.nCID				= SIF_CMD_CALL;
 
-	SendDMA(&rend, sizeof(RPCREQUESTEND));
+    SendPacket(&rend, sizeof(RPCREQUESTEND));
+	//SendDMA(&rend, sizeof(RPCREQUESTEND));
 }
 
 /////////////////////////////////////////////////////////

@@ -2,6 +2,7 @@
 #define _SIF_H_
 
 #include <map>
+#include <vector>
 #include "SifModule.h"
 #include "DMAC.h"
 #include "zip/ZipArchiveWriter.h"
@@ -10,16 +11,29 @@
 class CSIF
 {
 public:
-                                    CSIF(CDMAC&, uint8*);
+	struct PACKETHDR
+	{
+		uint32						nSize;
+		uint32						nDest;
+		uint32						nCID;
+		uint32						nOptional;
+	};
+
+                                    CSIF(CDMAC&, uint8*, uint8*);
     virtual                         ~CSIF();
 
 	void							Reset();
 	
+    void                            ProcessPackets();
+
     void                            RegisterModule(uint32, CSifModule*);
     void                            SetDmaBuffer(uint8*, uint32);
 
     uint32                          ReceiveDMA5(uint32, uint32, uint32, bool);
 	uint32							ReceiveDMA6(uint32, uint32, uint32, bool);
+
+    void                            SendPacket(void*, uint32);
+
 	void							SendDMA(void*, uint32);
 
 	uint32							GetRegister(uint32);
@@ -30,6 +44,7 @@ public:
 
 private:
     typedef std::map<uint32, CSifModule*> ModuleMap;
+    typedef std::vector<uint8> PacketQueue;
 
 	enum CONST_MAX_USERREG
 	{
@@ -42,14 +57,6 @@ private:
 		SIF_CMD_REND = 0x80000008,
 		SIF_CMD_BIND = 0x80000009,
 		SIF_CMD_CALL = 0x8000000A,
-	};
-
-	struct PACKETHDR
-	{
-		uint32						nSize;
-		uint32						nDest;
-		uint32						nCID;
-		uint32						nOptional;
 	};
 
 	struct RPCREQUESTEND
@@ -105,6 +112,7 @@ private:
 	void							Cmd_Call(PACKETHDR*);
 
     uint8*                          m_eeRam;
+    uint8*                          m_iopRam;
     uint8*                          m_dmaBuffer;
     uint32                          m_dmaBufferSize;
     CDMAC&                          m_dmac;
@@ -120,6 +128,7 @@ private:
 	uint32							m_nUserReg[MAX_USERREG];
 
 	ModuleMap	                    m_modules;
+    PacketQueue                     m_packetQueue;
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include "DMAC.h"
 #include "INTC.h"
 #include "SIF.h"
+#include "ElfFile.h"
 #include "COP_SCU.h"
 #include "uint128.h"
 #include "MIPSAssembler.h"
@@ -265,21 +266,23 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 
 	try
 	{
-		pELF = new CELF(&stream);
+		pELF = new CElfFile(stream);
 	}
 	catch(const exception& Exception)
 	{
 		throw Exception;
 	}
 
+    const ELFHEADER& header = pELF->GetHeader();
+
 	//Check for MIPS CPU
-	if(pELF->m_Header.nCPU != 8)
+	if(header.nCPU != 8)
 	{
 		DELETEPTR(pELF);
 		throw runtime_error("Invalid target CPU. Must be MIPS.");
 	}
 
-	if(pELF->m_Header.nType != 2)
+	if(header.nType != 2)
 	{
 		DELETEPTR(pELF);
 		throw runtime_error("Not an executable ELF file.");
@@ -302,19 +305,37 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 //	memcpy(m_ram + 0x01000000, pELF->m_pData, pELF->m_nLenght);
 //	delete pELF;
 
-//	int i;
-//	uint32 nVal;
-//	for(i = 0; i < 0x02000000 / 4; i++)
-//	{
-//		nVal = ((uint32*)m_ram)[i];
-//		if((nVal & 0xFFFF) == 0xE88C)
-//		{
-//			//if((nVal & 0xFC000000) != 0x0C000000)
-//			{
-//				printf("Allo: 0x%0.8X\r\n", i * 4);
-//			}
-//		}
-//	}
+	for(int i = 0; i < 0x02000000 / 4; i++)
+	{
+		uint32 nVal = ((uint32*)m_ram)[i];
+		if((nVal & 0xFFFF) == 0x0180)
+		{
+/*
+            for(unsigned int j = i; j < i + 0x30; j += 4)
+            {
+		        uint32 nVal = ((uint32*)m_ram)[j];
+		        if((nVal & 0xFC000000) == 0x0C000000)
+		        {
+			        nVal &= 0x3FFFFFF;
+			        nVal *= 4;
+			        if(nVal == 0x2D0F40)
+			        {
+                        printf("Caller at %i:\r\n", j - i);
+			        }
+		        }
+            }
+			if((nVal & 0xFC000000) != 0x0C000000)
+            if((nVal & 0xFC000000) == 0x23 << 26)
+            {
+				printf("Ballo: 0x%0.8X\r\n", i * 4);
+            }
+*/
+            if((nVal & 0xFC000000) == 0x09 << 26)
+			{
+				printf("Allo: 0x%0.8X\r\n", i * 4);
+			}
+		}
+	}
 
 /*
 	int i;
@@ -337,21 +358,11 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 		}
 	}
 */
-//	*((uint32*)&m_ram[0x0010B5E4]) = 0;
-//	*((uint32*)&m_ram[0x002F6C58]) = 0;
-//	*((uint32*)&m_ram[0x00109208]) = 0x28840100;
-//	*((uint32*)&m_ram[0x0010922C]) = 0;
-//	*((uint32*)&m_ram[0x001067C4]) = 0;
-//	*((uint32*)&m_ram[0x001AC028]) = 0;
-
-//	*(uint32*)&m_ram[0x0029B758] = 0;
-//	*(uint32*)&m_ram[0x0029B768] = 0;
-//	*(uint32*)&m_ram[0x0029B774] = 0;
-
     //REMOVE
 //    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x00]) = 0x4BE5213C;
 //    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x04]) = 0x700845C8;
 //    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x08]) = 0x0000000C;
+//    *reinterpret_cast<uint32*>(&m_ram[0x002D2080]) = 0;
     //------
 
 	ApplyPatches();
@@ -363,22 +374,25 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 
 void CPS2OS::LoadExecutable()
 {
-	ELFPROGRAMHEADER* p;
-	unsigned int i;
-	uint32 nMinAddr;
+	uint32 nMinAddr = 0xFFFFFFF0;
+    uint32 nMaxAddr = 0x00000000;
+    const ELFHEADER& header = m_pELF->GetHeader();
 
-	nMinAddr = 0xFFFFFFF0;
-
-	for(i = 0; i < m_pELF->m_Header.nProgHeaderCount; i++)
+	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
-		p = m_pELF->GetProgram(i);
+		ELFPROGRAMHEADER* p = m_pELF->GetProgram(i);
 		if(p != NULL)
 		{
-			if(p->nVAddress < nMinAddr)
+            uint32 end = p->nVAddress + p->nFileSize;
+            if(p->nVAddress < nMinAddr)
 			{
 				nMinAddr = p->nVAddress;
 			}
-			memcpy(m_ram + p->nVAddress, (uint8*)m_pELF->m_pData + p->nOffset, p->nFileSize);
+            if(end > nMaxAddr)
+            {
+                nMaxAddr = end;
+            }
+			memcpy(m_ram + p->nVAddress, m_pELF->GetContent() + p->nOffset, p->nFileSize);
 		}
 	}
 
@@ -387,7 +401,7 @@ void CPS2OS::LoadExecutable()
 
 	//InsertFunctionSymbols();
 
-	m_ee.m_State.nPC = m_pELF->m_Header.nEntryPoint;
+	m_ee.m_State.nPC = header.nEntryPoint;
 	
 	*(uint32*)&m_bios[0x00000004] = 0x0000001D;
 	AssembleCustomSyscallHandler();
@@ -400,7 +414,7 @@ void CPS2OS::LoadExecutable()
 
 #ifdef DEBUGGER_INCLUDED
 	m_ee.m_pAnalysis->Clear();
-	m_ee.m_pAnalysis->Analyse(nMinAddr, (nMinAddr + m_pELF->m_nLenght) & ~0x3);
+	m_ee.m_pAnalysis->Analyse(nMinAddr, nMaxAddr & ~0x3);
 #endif
 
 //	CPS2VM::m_OnMachineStateChange();
@@ -900,65 +914,69 @@ CPS2OS::THREAD* CPS2OS::GetThread(uint32 nID)
 
 void CPS2OS::ThreadShakeAndBake()
 {
-	THREAD* pThread;
-	unsigned int nId;
-
 	//Don't play with fire (don't switch if we're in exception mode)
 	if(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & 0x02)
 	{
 		return;
 	}
 
-	if(GetCurrentThreadId() == 0)
-	{
-		return;
-	}
-
-	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
-
 	//First of all, revoke the current's thread right to execute itself
-	pThread = GetThread(GetCurrentThreadId());
-	pThread->nQuota--;
+    {
+        unsigned int nId = GetCurrentThreadId();
+        if(nId != 0)
+        {
+	        THREAD* pThread = GetThread(nId);
+	        pThread->nQuota--;
+        }
+    }
 
 	//Check if all quotas expired
 	if(ThreadHasAllQuotasExpired())
 	{
-		//If so, regive a quota to everyone
+	    CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
+
+        //If so, regive a quota to everyone
 		for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
 		{
-			nId = itThread.GetValue();
-			pThread = GetThread(nId);
+			unsigned int nId = itThread.GetValue();
+			THREAD* pThread = GetThread(nId);
 
 			pThread->nQuota = THREAD_INIT_QUOTA;
 		}
 	}
 
-	//Next, find the next suitable thread to execute
-	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
-	{
-		nId = itThread.GetValue();
-		pThread = GetThread(nId);
+    //Select thread to execute
+    {
+	    unsigned int nId = 0;
+        THREAD* pThread = NULL;
+	    CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
 
-		if(pThread->nStatus != THREAD_RUNNING) continue;
-//		if(pThread->nQuota == 0) continue;
-		break;
-	}
+        //Next, find the next suitable thread to execute
+	    for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+	    {
+		    nId = itThread.GetValue();
+		    pThread = GetThread(nId);
 
+		    if(pThread->nStatus != THREAD_RUNNING) continue;
+    //		if(pThread->nQuota == 0) continue;
+		    break;
+	    }
 
-	if(itThread.IsEnd())
-	{
-		//Deadlock or something here
-		assert(0);
-		nId = 0;
-	}
-	else
-	{
-		//Remove and readd the thread into the queue
-		m_pThreadSchedule->Remove(pThread->nScheduleID);
-		pThread->nScheduleID = m_pThreadSchedule->Insert(nId, pThread->nPriority);
-	}
+	    if(itThread.IsEnd())
+	    {
+		    //Deadlock or something here
+            printf("%s: Warning, no thread to execute.\r\n", LOG_NAME);
+		    nId = 0;
+	    }
+	    else
+	    {
+		    //Remove and readd the thread into the queue
+		    m_pThreadSchedule->Remove(pThread->nScheduleID);
+		    pThread->nScheduleID = m_pThreadSchedule->Insert(nId, pThread->nPriority);
+	    }
 
-	ThreadSwitchContext(nId);
+    	ThreadSwitchContext(nId);
+    }
 }
 
 bool CPS2OS::ThreadHasAllQuotasExpired()
@@ -967,11 +985,8 @@ bool CPS2OS::ThreadHasAllQuotasExpired()
 
 	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
 	{
-		THREAD* pThread;
-		unsigned int nId;
-
-		nId = itThread.GetValue();
-		pThread = GetThread(nId);
+		unsigned int nId = itThread.GetValue();
+		THREAD* pThread = GetThread(nId);
 
 		if(pThread->nStatus != THREAD_RUNNING) continue;
 		if(pThread->nQuota == 0) continue;
@@ -1429,12 +1444,11 @@ void CPS2OS::sc_DisableDmac()
 //20
 void CPS2OS::sc_CreateThread()
 {
-	THREADPARAM* pThreadParam;
 	THREAD* pThread;
 	THREADCONTEXT* pContext;
 	uint32 nID, nStackAddr, nHeapBase;
 
-	pThreadParam = (THREADPARAM*)&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]];
+	THREADPARAM* pThreadParam = (THREADPARAM*)&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]];
 
 	nID = GetNextAvailableThreadId();
 	if(nID == 0xFFFFFFFF)
@@ -1817,6 +1831,8 @@ void CPS2OS::sc_CreateSema()
 	pSema->nMaxCount	= pSemaParam->nMaxCount;
 	pSema->nWaitCount	= 0;
 
+    assert(pSema->nCount <= pSema->nMaxCount);
+
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
@@ -1853,15 +1869,10 @@ void CPS2OS::sc_DeleteSema()
 //43
 void CPS2OS::sc_SignalSema()
 {
-	bool nInt;
-	uint32 nID, i;
-	SEMAPHORE* pSema;
-	THREAD* pThread;
+	bool nInt	= m_ee.m_State.nGPR[3].nV[0] == 0x43;
+	uint32 nID	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	nInt	= m_ee.m_State.nGPR[3].nV[0] == 0x43;
-	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	pSema = GetSemaphore(nID);
+	SEMAPHORE* pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1872,9 +1883,9 @@ void CPS2OS::sc_SignalSema()
 	if(pSema->nWaitCount != 0)
 	{
 		//Unsleep all threads if they were waiting
-		for(i = 0; i < MAX_THREAD; i++)
+		for(uint32 i = 0; i < MAX_THREAD; i++)
 		{
-			pThread = GetThread(i);
+			THREAD* pThread = GetThread(i);
 			if(!pThread->nValid) continue;
 			if(pThread->nStatus != THREAD_WAITING) continue;
 			if(pThread->nSemaWait != nID) continue;
@@ -1949,12 +1960,9 @@ void CPS2OS::sc_WaitSema()
 //45
 void CPS2OS::sc_PollSema()
 {
-	uint32 nID;
-	SEMAPHORE* pSema;
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	pSema = GetSemaphore(nID);
+	SEMAPHORE* pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -2251,11 +2259,11 @@ void CPS2OS::SysCallHandler()
 void CPS2OS::DisassembleSysCall(uint8 nFunc)
 {
 #ifdef _DEBUG
-//    string sDescription(GetSysCallDescription(nFunc));
-//    if(sDescription.length() != 0)
-//    {
-//        CLog::GetInstance().Print(LOG_NAME, "%i: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
-//    }
+    string sDescription(GetSysCallDescription(nFunc));
+    if(sDescription.length() != 0)
+    {
+        CLog::GetInstance().Print(LOG_NAME, "%i: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
+    }
 #endif
 }
 
@@ -2455,7 +2463,6 @@ string CPS2OS::GetSysCallDescription(uint8 nFunction)
 //System Call Handlers Table
 //////////////////////////////////////////////////
 
-//void (*CPS2OS::m_pSysCall[0x80])() = 
 CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 {
 	//0x00

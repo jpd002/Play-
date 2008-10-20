@@ -285,6 +285,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\ElfFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ElfFile.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\GIF.cpp"
 				>
 			</File>
@@ -793,6 +801,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\iop\Iop_DbcMan.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_DbcMan320.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_DbcMan320.h"
 					>
 				</File>
 				<File

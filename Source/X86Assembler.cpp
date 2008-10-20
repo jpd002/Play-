@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "X86Assembler.h"
 
 using namespace std;

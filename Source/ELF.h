@@ -78,17 +78,21 @@ public:
         R_MIPS_LO16 = 6,
     };
 
-						CELF(Framework::CStream*);
-						~CELF();
-	ELFSECTIONHEADER*	GetSection(unsigned int);
+                        CELF(uint8*);
+    virtual             ~CELF();
+
+    uint8*              GetContent() const;
+    const ELFHEADER&    GetHeader() const;
+    ELFSECTIONHEADER*	GetSection(unsigned int);
 	ELFSECTIONHEADER*	FindSection(const char*);
 	const void*			GetSectionData(unsigned int);
 	const void*			FindSectionData(const char*);
 	ELFPROGRAMHEADER*	GetProgram(unsigned int);
-	ELFHEADER			m_Header;
-	char*				m_pData;
-	int					m_nLenght;
+
 private:
+	ELFHEADER			m_Header;
+    uint8*				m_content;
+
 	ELFSECTIONHEADER*	m_pSection;
 	ELFPROGRAMHEADER*	m_pProgram;
 };

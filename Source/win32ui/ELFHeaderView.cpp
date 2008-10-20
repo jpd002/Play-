@@ -95,9 +95,7 @@ CELFHeaderView::~CELFHeaderView()
 void CELFHeaderView::FillInformation()
 {
 	TCHAR sTemp[256];
-	ELFHEADER* pH;
-
-	pH = &m_pELF->m_Header;
+	const ELFHEADER* pH = &m_pELF->GetHeader();
 
 	switch(pH->nType)
 	{

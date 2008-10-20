@@ -152,13 +152,14 @@
 #define ID_MAIN_VM_FRAMESKIP_INCREMENT  40149
 #define ID_OPTIONS_INPUTSETTINGS        40150
 #define ID_MAIN_OPTIONS_CONTROLLER      40151
+#define ID_VIEW_IOPVIEW                 40152
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40152
+#define _APS_NEXT_COMMAND_VALUE         40153
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

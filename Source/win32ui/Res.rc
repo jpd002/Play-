@@ -99,6 +99,7 @@ BEGIN
         MENUITEM "EmotionEngine View\tAlt+1",   ID_VIEW_EEVIEW
         MENUITEM "Vector Unit 0 View\tAlt+2",   ID_VIEW_VU0VIEW
         MENUITEM "Vector Unit 1 View\tAlt+3",   ID_VIEW_VU1VIEW
+        MENUITEM "IOP View\tAlt+4",             ID_VIEW_IOPVIEW
     END
     POPUP "Logging"
     BEGIN

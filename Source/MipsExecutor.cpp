@@ -106,13 +106,36 @@ bool CMipsExecutor::MustBreak()
 CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address)
 {
     BlockBeginMap::const_iterator beginIterator = m_blockBegin.lower_bound(address);
-    BlockEndMap::const_iterator endIterator = m_blockEnd.lower_bound(address);
     if(beginIterator == m_blockBegin.end()) return NULL;
+
+    {
+        CBasicBlock* block = beginIterator->second;
+        if(
+            address >= block->GetBeginAddress() &&
+            address <= block->GetEndAddress())
+        {
+            return block;
+        }
+    }
+
+    BlockEndMap::const_iterator endIterator = m_blockEnd.lower_bound(address);
     if(endIterator == m_blockEnd.end()) return NULL;
+
+    {
+        CBasicBlock* block = endIterator->second;
+        if(
+            address >= block->GetBeginAddress() &&
+            address <= block->GetEndAddress())
+        {
+            return block;
+        }
+    }
+
     if(beginIterator->second != endIterator->second)
     {
         return NULL;
     }
+
     return beginIterator->second;
 }
 
@@ -144,12 +167,12 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
                 CreateBlock(otherBegin, start - 4);
                 assert(FindBlockAt(start) == NULL);
             }
-//            else if(otherBegin == start)
-//            {
-//                DeleteBlock(block);
-//                CreateBlock(end + 4, otherEnd);
-//                assert(FindBlockAt(end) == NULL);
-//            }
+            else if(otherBegin == start)
+            {
+                DeleteBlock(block);
+                CreateBlock(end + 4, otherEnd);
+                assert(FindBlockAt(end) == NULL);
+            }
             else
             {
                 //Delete the currently existing block otherwise
@@ -157,6 +180,8 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
                 DeleteBlock(block);
             }
         }
+        assert(m_blockBegin.find(start) == m_blockBegin.end());
+        assert(m_blockEnd.find(end) == m_blockEnd.end());
     }
     assert(FindBlockAt(end) == NULL);
     {

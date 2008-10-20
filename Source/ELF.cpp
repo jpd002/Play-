@@ -2,23 +2,17 @@
 #include <string.h>
 #include <stdexcept>
 #include "ELF.h"
+#include "PtrStream.h"
 
 using namespace Framework;
 using namespace std;
 
-CELF::CELF(CStream* pS)
+CELF::CELF(uint8* content) :
+m_content(content)
 {
-	unsigned int nCount, i;
+    CPtrStream stream(m_content, -1);
 
-    pS->Seek(0, Framework::STREAM_SEEK_END);
-	m_nLenght = (unsigned int)pS->Tell();
-
-	m_pData = new char[m_nLenght];
-	pS->Seek(0, Framework::STREAM_SEEK_SET);
-	pS->Read(m_pData, m_nLenght);
-
-    pS->Seek(0, Framework::STREAM_SEEK_SET);
-	pS->Read(&m_Header, sizeof(ELFHEADER));
+	stream.Read(&m_Header, sizeof(ELFHEADER));
 	
 	if(m_Header.nId[0] != 0x7F || m_Header.nId[1] != 'E' || m_Header.nId[2] != 'L' || m_Header.nId[3] != 'F')
 	{
@@ -30,30 +24,43 @@ CELF::CELF(CStream* pS)
 		throw runtime_error("This ELF file format is not supported. Only 32-bits LSB ordered ELFs are supported.");
 	}
 
-	nCount = m_Header.nProgHeaderCount;
-	m_pProgram = new ELFPROGRAMHEADER[nCount];
+    {
+	    unsigned int nCount = m_Header.nProgHeaderCount;
+	    m_pProgram = new ELFPROGRAMHEADER[nCount];
 
-	pS->Seek(m_Header.nProgHeaderStart, Framework::STREAM_SEEK_SET);
-	for(i = 0; i < nCount; i++)
-	{
-		pS->Read(&m_pProgram[i], sizeof(ELFPROGRAMHEADER));
-	}
+	    stream.Seek(m_Header.nProgHeaderStart, Framework::STREAM_SEEK_SET);
+	    for(unsigned int i = 0; i < nCount; i++)
+	    {
+		    stream.Read(&m_pProgram[i], sizeof(ELFPROGRAMHEADER));
+	    }
+    }
 
-	nCount = m_Header.nSectHeaderCount;
-	m_pSection = new ELFSECTIONHEADER[nCount];
+    {
+	    unsigned int nCount = m_Header.nSectHeaderCount;
+	    m_pSection = new ELFSECTIONHEADER[nCount];
 
-	pS->Seek(m_Header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
-	for(i = 0; i < nCount; i++)
-	{
-		pS->Read(&m_pSection[i], sizeof(ELFSECTIONHEADER));
-	}
+	    stream.Seek(m_Header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
+	    for(unsigned int i = 0; i < nCount; i++)
+	    {
+		    stream.Read(&m_pSection[i], sizeof(ELFSECTIONHEADER));
+	    }
+    }
 }
 
 CELF::~CELF()
 {
 	delete [] m_pProgram;
 	delete [] m_pSection;
-	delete [] m_pData;
+}
+
+uint8* CELF::GetContent() const
+{
+    return m_content;
+}
+
+const ELFHEADER& CELF::GetHeader() const
+{
+    return m_Header;
 }
 
 ELFSECTIONHEADER* CELF::GetSection(unsigned int nIndex)
@@ -67,33 +74,26 @@ ELFSECTIONHEADER* CELF::GetSection(unsigned int nIndex)
 
 const void* CELF::GetSectionData(unsigned int nIndex)
 {
-	ELFSECTIONHEADER* pSect;
-	pSect = GetSection(nIndex);
+	ELFSECTIONHEADER* pSect = GetSection(nIndex);
 	if(pSect == NULL) return NULL;
-	return (const uint8*)m_pData + pSect->nOffset;
+	return m_content + pSect->nOffset;
 }
 
 const void* CELF::FindSectionData(const char* sName)
 {
-	ELFSECTIONHEADER* pSect;
-	pSect = FindSection(sName);
+	ELFSECTIONHEADER* pSect = FindSection(sName);
 	if(pSect == NULL) return NULL;
-	return (const uint8*)m_pData + pSect->nOffset;
+	return m_content + pSect->nOffset;
 }
 
 ELFSECTIONHEADER* CELF::FindSection(const char* sName)
 {
-	unsigned int i;
-	ELFSECTIONHEADER* pTemp;
-	const char* sSectData;
-	const char* sSectName;
-
-	sSectData = (const char*)GetSectionData(m_Header.nSectHeaderStringTableIndex);
+	const char* sSectData = (const char*)GetSectionData(m_Header.nSectHeaderStringTableIndex);
 	if(sSectData == NULL) return NULL;
-	for(i = 0; i < m_Header.nSectHeaderCount; i++)
+	for(unsigned int i = 0; i < m_Header.nSectHeaderCount; i++)
 	{
-		pTemp = GetSection(i);
-		sSectName = sSectData + pTemp->nStringTableIndex;
+		ELFSECTIONHEADER* pTemp = GetSection(i);
+		const char* sSectName = sSectData + pTemp->nStringTableIndex;
 		if(!strcmp(sName, sSectName))
 		{
 			return pTemp;

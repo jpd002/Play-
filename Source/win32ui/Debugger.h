@@ -29,6 +29,7 @@ private:
 		DEBUGVIEW_EE	= 0,
 		DEBUGVIEW_VU0,
 		DEBUGVIEW_VU1,
+        DEBUGVIEW_IOP,
 		DEBUGVIEW_MAX,
 	};
 
