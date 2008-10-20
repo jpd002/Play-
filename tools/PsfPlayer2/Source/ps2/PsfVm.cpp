@@ -5,26 +5,33 @@
 using namespace PS2;
 using namespace std;
 using namespace std::tr1;
+using namespace boost;
 
 #define PSF_DEVICENAME "psf"
 
 CPsfVm::CPsfVm() :
 m_ram(new uint8[IOPRAMSIZE]),
-m_iop(MEMORYMAP_ENDIAN_LSBF, 0x00000000, IOPRAMSIZE),
-m_bios(0x1000, m_iop, m_ram, IOPRAMSIZE, *reinterpret_cast<CSIF*>(NULL), *reinterpret_cast<CISO9660**>(NULL))
+m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, IOPRAMSIZE),
+m_executor(m_cpu),
+m_status(PAUSED),
+m_singleStep(false),
+m_bios(0x1000, m_cpu, m_ram, IOPRAMSIZE, *reinterpret_cast<CSIF*>(NULL), *reinterpret_cast<CISO9660**>(NULL)),
+m_thread(bind(&CPsfVm::ThreadProc, this))
 {
     //IOP context setup
     {
         //Read map
-	    m_iop.m_pMemoryMap->InsertReadMap(0x00000000, IOPRAMSIZE - 1, m_ram,         0x00);
+	    m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, IOPRAMSIZE - 1, m_ram,         0x00);
 
         //Write map
-        m_iop.m_pMemoryMap->InsertWriteMap(0x00000000, IOPRAMSIZE -1, m_ram,		0x00);
+        m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, IOPRAMSIZE -1, m_ram,		0x00);
 
 	    //Instruction map
-        m_iop.m_pMemoryMap->InsertInstructionMap(0x00000000, IOPRAMSIZE - 1, m_ram,  0x00);
+        m_cpu.m_pMemoryMap->InsertInstructionMap(0x00000000, IOPRAMSIZE - 1, m_ram,  0x00);
 
-	    m_iop.m_pArch			= &g_MAMIPSIV;
+	    m_cpu.m_pArch			= &g_MAMIPSIV;
+
+		m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
     }
 }
 
@@ -33,9 +40,10 @@ CPsfVm::~CPsfVm()
 
 }
 
-CDebuggable CPsfVm::GetIopDebug() const
+CDebuggable CPsfVm::GetIopDebug()
 {
     CDebuggable debug;
+	debug.Step = bind(&CPsfVm::Step, this);
     debug.GetCpu = bind(&CPsfVm::GetCpu, this);
     return debug;
 }
@@ -57,20 +65,145 @@ void CPsfVm::Reset()
 
 CVirtualMachine::STATUS CPsfVm::GetStatus() const
 {
-    return PAUSED;
+    return m_status;
 }
 
 void CPsfVm::Resume()
 {
-
+	m_status = RUNNING;
 }
 
 void CPsfVm::Pause()
 {
+	m_status = PAUSED;
+}
 
+void CPsfVm::Step()
+{
+	m_singleStep = true;
+	m_status = RUNNING;
+	m_OnRunningStateChange();
 }
 
 CMIPS& CPsfVm::GetCpu()
 {
-    return m_iop;
+    return m_cpu;
+}
+
+unsigned int CPsfVm::ExecuteCpu(bool singleStep)
+{
+	int ticks = 0;
+    if(!m_cpu.m_State.nHasException)
+    {
+//		if(m_intc.IsInterruptPending())
+//		{
+//			m_bios.HandleInterrupt();
+//		}
+    }
+	if(!m_cpu.m_State.nHasException)
+	{
+		int quota = singleStep ? 1 : 500;
+		ticks = quota - m_executor.Execute(quota);
+		assert(ticks >= 0);
+        {
+            CBasicBlock* nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
+            if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+            {
+				//Go a little bit faster if we're "stuck"
+				ticks += (quota * 2);
+            }
+        }
+		if(ticks > 0)
+		{
+//			m_counters.Update(ticks);
+		}
+	}
+	if(m_cpu.m_State.nHasException)
+	{
+		m_bios.SysCallHandler();
+	}
+	return ticks;
+}
+
+void CPsfVm::ThreadProc()
+{
+	const int frameTicks = 20000;
+//	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
+//	const int spuUpdateTicks = (4 * CLOCK_FREQ / 1000);
+//	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
+//	int frameCounter = frameTicks;
+//	int spuUpdateCounter = spuUpdateTicks;
+	while(1)
+	{
+		while(m_mailBox.IsPending())
+		{
+			m_mailBox.ReceiveCall();
+		}
+		if(m_status == PAUSED)
+		{
+            //Sleep during 100ms
+            xtime xt;
+            xtime_get(&xt, boost::TIME_UTC);
+            xt.nsec += 100 * 1000000;
+			thread::sleep(xt);
+		}
+		else
+		{
+#ifdef DEBUGGER_INCLUDED
+			int ticks = ExecuteCpu(m_singleStep);
+
+			static int frameCounter = frameTicks;
+
+			frameCounter -= ticks;
+			if(frameCounter <= 0)
+			{
+//				m_intc.AssertLine(CIntc::LINE_VBLANK);
+				OnNewFrame();
+				frameCounter += frameTicks;
+			}
+
+//			m_spuHandler.Update(m_spu);
+			if(m_executor.MustBreak() || m_singleStep)
+			{
+				m_status = PAUSED;
+				m_singleStep = false;
+				m_OnMachineStateChange();
+				m_OnRunningStateChange();
+			}
+#else
+/*
+			if(m_spuHandler.HasFreeBuffers())
+			{
+				while(m_spuHandler.HasFreeBuffers() && !m_mailBox.IsPending())
+				{
+					while(spuUpdateCounter > 0)
+					{
+						int ticks = ExecuteCpu(false);
+						spuUpdateCounter -= ticks;
+						frameCounter -= ticks;
+						if(frameCounter < 0)
+						{
+							frameCounter += frameTicks;
+							m_intc.AssertLine(CIntc::LINE_VBLANK);
+							OnNewFrame();
+						}
+					}
+
+					m_spuHandler.Update(m_spu);
+					spuUpdateCounter += spuUpdateTicks;
+				}
+			}
+			else
+			{
+				//Sleep during 16ms
+				xtime xt;
+				xtime_get(&xt, boost::TIME_UTC);
+				xt.nsec += 10 * 1000000;
+				thread::sleep(xt);
+//				thread::yield();
+			}
+*/
+#endif
+		}
+	}
 }

@@ -273,6 +273,7 @@ void CPsxBios::HandleInterrupt()
 	if(m_cpu.GenerateInterrupt(0xBFC00000))
 	{
 		SaveCpuState();
+		m_cpu.m_State.nGPR[CMIPS::K1].nV0 = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
 		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS);
 		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
 		uint32 cause = status & mask;
@@ -293,8 +294,8 @@ void CPsxBios::HandleInterrupt()
 void CPsxBios::HandleException()
 {
 	assert(m_cpu.m_State.nHasException);
-//    uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
-	uint32 searchAddress = m_cpu.m_State.nGPR[CMIPS::K1].nV0;
+    uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+//	uint32 searchAddress = m_cpu.m_State.nGPR[CMIPS::K1].nV0;
     uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
     if(callInstruction != 0x0000000C)
     {
@@ -721,14 +722,14 @@ void CPsxBios::sc_PAD_dr()
 void CPsxBios::sc_ReturnFromException()
 {
 	uint32& status = m_cpu.m_State.nCOP0[CCOP_SCU::STATUS];
+	assert(status & (CMIPS::STATUS_ERL | CMIPS::STATUS_EXL));
+	m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::K1].nV0;
 	if(status & CMIPS::STATUS_ERL)
 	{
-		m_cpu.m_State.nPC = m_cpu.m_State.nCOP0[CCOP_SCU::ERROREPC];
 		status &= ~CMIPS::STATUS_ERL;
 	}
 	else if(status & CMIPS::STATUS_EXL)
 	{
-		m_cpu.m_State.nPC = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
 		status &= ~CMIPS::STATUS_EXL;
 	}
 	LoadCpuState();

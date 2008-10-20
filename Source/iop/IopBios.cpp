@@ -48,11 +48,9 @@ m_dbcman(NULL),
 m_padman(NULL),
 #endif
 m_rescheduleNeeded(false),
-m_currentThreadId(-1)
+m_currentThreadId(-1),
+m_threadFinishAddress(0)
 {
-    CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[m_baseAddress]));
-    m_threadFinishAddress = AssembleThreadFinish(assembler);
-
 #ifdef _NULL_SIFMAN
     m_sifMan = new Iop::CSifManNull();
 #else
@@ -71,6 +69,11 @@ CIopBios::~CIopBios()
 
 void CIopBios::Reset()
 {
+	{
+		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[m_baseAddress]));
+		m_threadFinishAddress = AssembleThreadFinish(assembler);
+	}
+
     DeleteModules();
 
     //Register built-in modules

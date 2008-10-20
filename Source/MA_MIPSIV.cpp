@@ -287,25 +287,24 @@ void CMA_MIPSIV::ADDI()
 //09
 void CMA_MIPSIV::ADDIU()
 {
-/*
-    if(m_nRT == 0) 
+    if(m_nRT == 0 && m_nRS == 0) 
     {
         //Hack: PS2 IOP uses ADDIU R0, R0, $x for dynamic linking
-        CCodeGen::PushRel(offsetof(CMIPS, m_State.nPC));
-        CCodeGen::PushCst(4);
-        CCodeGen::Sub();
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+		m_codeGen->PushCst(m_nAddress);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
 
-        CCodeGen::PushCst(1);
-        CCodeGen::PullRel(offsetof(CMIPS, m_State.nHasException));
+        m_codeGen->PushCst(1);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
     }
-*/
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
-    m_codeGen->Add();
-    m_codeGen->SeX();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
+		m_codeGen->Add();
+		m_codeGen->SeX();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	}
 }
 
 //0A
@@ -854,14 +853,9 @@ void CMA_MIPSIV::SYSCALL()
 {
 	//Save current EPC
     m_codeGen->PushCst(m_nAddress);
-#ifdef _PSX
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::K1]));
-#else
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
-#endif
     m_codeGen->PushCst(1);
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
-
 }
 
 //0D
