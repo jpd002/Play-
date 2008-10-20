@@ -6,7 +6,7 @@ using namespace std;
 
 #define LOG_NAME ("iop_sysmem")
 
-CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio, CSIF& sif) :
+CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio, CSifMan& sifMan) :
 m_memoryBegin(memoryBegin),
 m_memoryEnd(memoryEnd),
 m_stdio(stdio),
@@ -16,7 +16,7 @@ m_memorySize(memoryEnd - memoryBegin)
     m_blockMap[m_memorySize] = 0;
 
     //Register sif module
-    sif.RegisterModule(MODULE_ID, this);
+    sifMan.RegisterModule(MODULE_ID, this);
 }
 
 CSysmem::~CSysmem()
@@ -116,9 +116,10 @@ uint32 CSysmem::SifAllocate(uint32 nSize)
 	return nSize;
 }
 
-uint32 CSysmem::SifAllocateSystemMemory(uint32 nFlags, uint32 nSize, uint32 nPtr)
+uint32 CSysmem::SifAllocateSystemMemory(uint32 nSize, uint32 nFlags, uint32 nPtr)
 {
 	//Ys 1&2 Eternal Story calls this
+    uint32 result = AllocateMemory(nSize, nFlags);
 	CLog::GetInstance().Print(LOG_NAME, "AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", nFlags, nSize, nPtr);
-	return 0x01;
+	return result;
 }

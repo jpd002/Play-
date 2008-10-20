@@ -4,7 +4,7 @@
 #include "Iop_Module.h"
 #include "../SIF.h"
 #include "../PadListener.h"
-#include <boost/function.hpp>
+#include <functional>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -150,7 +150,7 @@ namespace Iop
 			T*		m_pPadData;
 		};
 
-		typedef boost::function< void (CPadDataInterface*) > PadDataFunction;
+        typedef std::tr1::function< void (CPadDataInterface*) > PadDataFunction;
 
 		PADDATA*			m_pPad;
 
@@ -161,7 +161,7 @@ namespace Iop
 		void				SetActuatorAlign(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Init(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetModuleVersion(uint32*, uint32, uint32*, uint32, uint8*);
-		void				ExecutePadDataFunction(PadDataFunction, void*, size_t);
+		void				ExecutePadDataFunction(const PadDataFunction&, void*, size_t);
 
 		static void			PDF_InitializeStruct0(CPadDataInterface*);
 		static void			PDF_InitializeStruct1(CPadDataInterface*);

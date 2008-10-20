@@ -1,18 +1,26 @@
 #include "IopBios.h"
 #include "../COP_SCU.h"
 #include "../Log.h"
-#include "Iop_Sysclib.h"
-#include "Iop_Loadcore.h"
+#include "../ElfFile.h"
+#include "PtrStream.h"
+
+#ifdef _IOP_EMULATE_MODULES
+#include "Iop_DbcMan320.h"
 #include "Iop_LibSd.h"
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
+#include "Iop_Unknown.h"
+#include "Iop_Unknown2.h"
+#endif
+
+#include "Iop_SifManNull.h"
+#include "Iop_Sysclib.h"
+#include "Iop_Loadcore.h"
 #include "Iop_Thbase.h"
 #include "Iop_Thsema.h"
 #include "Iop_Thevent.h"
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
-#include "Iop_Unknown.h"
-#include "Iop_Unknown2.h"
 #include <vector>
 #include <time.h>
 
@@ -27,6 +35,7 @@ m_cpu(cpu),
 m_ram(ram),
 m_ramSize(ramSize),
 m_sif(sif),
+m_sifMan(NULL),
 m_iso(iso),
 m_nextThreadId(1),
 m_nextSemaphoreId(1),
@@ -34,12 +43,21 @@ m_stdio(NULL),
 m_sysmem(NULL),
 m_ioman(NULL),
 m_modload(NULL),
+#ifdef _IOP_EMULATE_MODULES
 m_dbcman(NULL),
+m_padman(NULL),
+#endif
 m_rescheduleNeeded(false),
 m_currentThreadId(-1)
 {
     CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[m_baseAddress]));
     m_threadFinishAddress = AssembleThreadFinish(assembler);
+
+#ifdef _NULL_SIFMAN
+    m_sifMan = new Iop::CSifManNull();
+#else
+    int dasddasd +dak;l;
+#endif
 }
 
 CIopBios::~CIopBios()
@@ -61,11 +79,11 @@ void CIopBios::Reset()
         RegisterModule(m_stdio);
     }
     {
-        m_ioman = new Iop::CIoman(m_ram, m_sif);
+        m_ioman = new Iop::CIoman(m_ram, *m_sifMan);
         RegisterModule(m_ioman);
     }
     {
-        m_sysmem = new Iop::CSysmem(0x1000, m_ramSize, *m_stdio, m_sif);
+        m_sysmem = new Iop::CSysmem(0x1000, m_ramSize, *m_stdio, *m_sifMan);
         RegisterModule(m_sysmem);
     }
     {
@@ -73,13 +91,10 @@ void CIopBios::Reset()
         RegisterModule(m_modload);
     }
     {
-        RegisterModule(new Iop::CCdvdfsv(m_iso, m_sif));
-    }
-    {
         RegisterModule(new Iop::CSysclib(m_ram, *m_stdio));
     }
     {
-        RegisterModule(new Iop::CLoadcore(*this, m_ram, m_sif));
+        RegisterModule(new Iop::CLoadcore(*this, m_ram, *m_sifMan));
     }
     {
         RegisterModule(new Iop::CThbase(*this, m_ram));
@@ -96,6 +111,10 @@ void CIopBios::Reset()
     {
         RegisterModule(new Iop::CIntrman(m_ram));
     }
+#ifdef _IOP_EMULATE_MODULES
+    {
+        RegisterModule(new Iop::CCdvdfsv(m_iso, m_sif));
+    }
     {
         RegisterModule(new Iop::CLibSd(m_sif));
     }
@@ -105,6 +124,9 @@ void CIopBios::Reset()
     {
         m_dbcman = new Iop::CDbcMan(m_sif);
         RegisterModule(m_dbcman);
+    }
+    {
+        RegisterModule(new Iop::CDbcMan320(m_sif, *m_dbcman));
     }
     {
         m_padman = new Iop::CPadMan(m_sif);
@@ -118,16 +140,38 @@ void CIopBios::Reset()
     {
         RegisterModule(new Iop::CUnknown2(m_sif));
     }
+#endif
 
     const int sifDmaBufferSize = 0x1000;
     uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0);
+#ifndef _NULL_SIFMAN
     m_sif.SetDmaBuffer(m_ram + sifDmaBufferPtr, sifDmaBufferSize);
+#endif
 }
 
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
 {
+    uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::O_RDONLY, path);
+    if(handle & 0x80000000)
+    {
+        throw runtime_error("Couldn't open executable for reading.");
+    }
+    Iop::CIoman::CFile file(handle, *m_ioman);
+    CStream* stream = m_ioman->GetFileStream(file);
+    CELF* module = new CElfFile(*stream);
+    LoadAndStartModule(*module, path, args, argsLength);
+}
+
+void CIopBios::LoadAndStartModule(uint32 modulePtr, const char* args, unsigned int argsLength)
+{
+//    CELF module(m_ram + modulePtr);
+//    LoadAndStartModule(module, "", args, argsLength);
+}
+
+void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args, unsigned int argsLength)
+{
     ExecutableRange moduleRange;
-    uint32 entryPoint = LoadExecutable(path, moduleRange);
+    uint32 entryPoint = LoadExecutable(elf, moduleRange);
 
     LOADEDMODULE loadedModule;
     loadedModule.name = GetModuleNameFromPath(path);
@@ -169,8 +213,11 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
     }
 
 #ifdef _DEBUG
-    LoadModuleTags(loadedModule, m_cpu.m_Comments, "comments");
-    LoadModuleTags(loadedModule, m_cpu.m_Functions, "functions");
+    if(loadedModule.name.length())
+    {
+        LoadModuleTags(loadedModule, m_cpu.m_Comments, "comments");
+        LoadModuleTags(loadedModule, m_cpu.m_Functions, "functions");
+    }
     m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
 #endif
 
@@ -208,7 +255,7 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
 
 	}
 
-    *reinterpret_cast<uint32*>(&m_ram[0x41674]) = 0;
+//    *reinterpret_cast<uint32*>(&m_ram[0x41674]) = 0;
 }
 
 CIopBios::THREAD& CIopBios::GetThread(uint32 threadId)
@@ -489,6 +536,8 @@ Iop::CIoman* CIopBios::GetIoman()
     return m_ioman;
 }
 
+#ifdef _IOP_EMULATE_MODULES
+
 Iop::CDbcMan* CIopBios::GetDbcman()
 {
     return m_dbcman;
@@ -498,6 +547,8 @@ Iop::CPadMan* CIopBios::GetPadman()
 {
     return m_padman;
 }
+
+#endif
 
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 {
@@ -646,17 +697,8 @@ uint32 CIopBios::Push(uint32& address, const uint8* data, uint32 size)
     return address;
 }
 
-uint32 CIopBios::LoadExecutable(const char* path, ExecutableRange& executableRange)
+uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
 {
-    uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::O_RDONLY, path);
-    if(handle & 0x80000000)
-    {
-        throw runtime_error("Couldn't open executable for reading.");
-    }
-    Iop::CIoman::CFile file(handle, *m_ioman);
-    CStream* stream = m_ioman->GetFileStream(file);
-    CELF elf(stream);
-
     unsigned int programHeaderIndex = GetElfProgramToLoad(elf);
     if(programHeaderIndex == -1)
     {
@@ -669,18 +711,19 @@ uint32 CIopBios::LoadExecutable(const char* path, ExecutableRange& executableRan
 
     memcpy(
         m_ram + baseAddress, 
-        elf.m_pData + programHeader->nOffset, 
+        elf.GetContent() + programHeader->nOffset, 
         programHeader->nFileSize);
 
     executableRange.first = baseAddress;
     executableRange.second = baseAddress + programHeader->nMemorySize;
-    return baseAddress + elf.m_Header.nEntryPoint;
+    return baseAddress + elf.GetHeader().nEntryPoint;
 }
 
 unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 {
     unsigned int program = -1;
-    for(unsigned int i = 0; i < elf.m_Header.nProgHeaderCount; i++)
+    const ELFHEADER& header = elf.GetHeader();
+    for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
     {
         ELFPROGRAMHEADER* programHeader = elf.GetProgram(i);
         if(programHeader != NULL && programHeader->nType == 1)
@@ -698,7 +741,8 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 {
     //Process relocation
-    for(unsigned int i = 0; i < elf.m_Header.nSectHeaderCount; i++)
+    const ELFHEADER& header = elf.GetHeader();
+    for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
     {
         ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
         if(sectionHeader != NULL && sectionHeader->nType == CELF::SHT_REL)

@@ -8,11 +8,11 @@ using namespace std;
 
 #define LOG_NAME "iop_loadcore"
 
-CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSIF& sif) :
+CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSifMan& sifMan) :
 m_bios(bios),
 m_ram(ram)
 {
-    sif.RegisterModule(MODULE_ID, this);
+    sifMan.RegisterModule(MODULE_ID, this);
 }
 
 CLoadcore::~CLoadcore()
@@ -47,12 +47,15 @@ void CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 	case 0x00:
 		LoadModule(args, argsSize, ret, retSize);
 		break;
+    case 0x06:
+        LoadModuleFromMemory(args, argsSize, ret, retSize);
+        break;
 	case 0xFF:
 		//This is sometimes called after binding this server with a client
 		Initialize(args, argsSize, ret, retSize);
 		break;
 	default:
-		assert(0);
+        CLog::GetInstance().Print(LOG_NAME, "Invoking unknown function %d.\r\n", method);
 		break;
 	}
 }
@@ -80,6 +83,12 @@ void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 	//This function returns something negative upon failure
 	ret[0] = 0x00000000;
+}
+
+void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+    m_bios.LoadAndStartModule(args[0], NULL, 0);
+    ret[0] = 0x00000000;
 }
 
 void CLoadcore::Initialize(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

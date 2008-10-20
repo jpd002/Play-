@@ -11,8 +11,10 @@
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
+#ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan.h"
 #include "Iop_PadMan.h"
+#endif
 
 class CIopBios
 {
@@ -21,13 +23,16 @@ public:
     virtual                 ~CIopBios();
 
     void                    LoadAndStartModule(const char*, const char*, unsigned int);
+    void                    LoadAndStartModule(uint32, const char*, unsigned int);
     void                    SysCallHandler();
 
     void                    Reset();
 
     Iop::CIoman*            GetIoman();
+#ifdef _IOP_EMULATE_MODULES
     Iop::CDbcMan*           GetDbcman();
     Iop::CPadMan*           GetPadman();
+#endif
     void                    RegisterModule(Iop::CModule*);
 
     uint32                  CreateThread(uint32, uint32);
@@ -111,7 +116,8 @@ private:
 
     SEMAPHORE&              GetSemaphore(uint32);
 
-    uint32                  LoadExecutable(const char*, ExecutableRange&);
+    void                    LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
+    uint32                  LoadExecutable(CELF&, ExecutableRange&);
     unsigned int            GetElfProgramToLoad(CELF&);
     void                    RelocateElf(CELF&, uint32);
     std::string             ReadModuleName(uint32);
@@ -139,12 +145,15 @@ private:
     SemaphoreMapType        m_semaphores;
     IopModuleMapType        m_modules;
     LoadedModuleListType    m_loadedModules;
+    Iop::CSifMan*           m_sifMan;
     Iop::CStdio*            m_stdio;
     Iop::CIoman*            m_ioman;
     Iop::CSysmem*           m_sysmem;
     Iop::CModload*          m_modload;
+#ifdef _IOP_EMULATE_MODULES
     Iop::CDbcMan*           m_dbcman;
     Iop::CPadMan*           m_padman;
+#endif
 };
 
 #endif

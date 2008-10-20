@@ -3,14 +3,14 @@
 
 #include "Iop_Module.h"
 #include "Iop_Stdio.h"
-#include "../SIF.h"
+#include "Iop_SifMan.h"
 
 namespace Iop
 {
     class CSysmem : public CModule, public CSifModule
     {
     public:
-                                CSysmem(uint32, uint32, Iop::CStdio&, CSIF&);
+                                CSysmem(uint32, uint32, Iop::CStdio&, CSifMan&);
         virtual                 ~CSysmem();
 
         std::string             GetId() const;

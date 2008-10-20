@@ -2,8 +2,7 @@
 #define _IOP_LOADCORE_H_
 
 #include "Iop_Module.h"
-#include "../SifModule.h"
-#include "../SIF.h"
+#include "Iop_SifMan.h"
 
 class CIopBios;
 
@@ -12,7 +11,7 @@ namespace Iop
     class CLoadcore : public CModule, public CSifModule
     {
     public:
-                        CLoadcore(CIopBios&, uint8*, CSIF&);
+                        CLoadcore(CIopBios&, uint8*, CSifMan&);
         virtual         ~CLoadcore();
 
         std::string     GetId() const;
@@ -27,6 +26,7 @@ namespace Iop
 
         uint32          RegisterLibraryEntries(uint32*);
         void            LoadModule(uint32*, uint32, uint32*, uint32);
+        void            LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
         void            Initialize(uint32*, uint32, uint32*, uint32);
 
         CIopBios&       m_bios;

@@ -1,4 +1,5 @@
 #include "../AppConfig.h"
+#include "../SIF.h"
 #include "Iop_Ioman.h"
 #include "StdStream.h"
 #include <stdexcept>
@@ -9,12 +10,14 @@ using namespace Framework;
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
-CIoman::CIoman(uint8* ram, CSIF& sif) :
+CIoman::CIoman(uint8* ram, CSifMan& sifMan) :
 m_ram(ram),
+m_sifMan(sifMan),
+m_fileIoHandler(NULL),
 m_nextFileHandle(3)
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING, false);
-    sif.RegisterModule(SIF_MODULE_ID, this);
+    m_sifMan.RegisterModule(SIF_MODULE_ID, this);
 
 	//Insert standard files if requested.
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING))
@@ -42,6 +45,10 @@ CIoman::~CIoman()
         m_devices.end() != deviceIterator; deviceIterator++)
     {
         delete deviceIterator->second;
+    }
+    if(m_fileIoHandler != NULL)
+    {
+        delete m_fileIoHandler;
     }
 }
 
@@ -226,36 +233,22 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 //SIF Invoke
 void CIoman::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-    switch(method)
+    if(m_fileIoHandler == NULL)
     {
-    case 0:
-        assert(retSize == 4);
-        *ret = Open(*args, reinterpret_cast<char*>(args) + 4);
-        break;
-	case 1:
-        assert(0);
-        assert(retSize == 4);
-        *ret = Close(*args);
-		break;
-    case 2:
-		assert(retSize == 4);
-		*ret = Read(args[0], args[2], reinterpret_cast<void*>(ram + args[1]));
-        break;
-	case 3:
-		assert(retSize == 4);
-        *ret = Write(args[0], args[2], reinterpret_cast<void*>(ram + args[1]));
-		break;
-    case 4:
-        assert(retSize == 4);
-        *ret = Seek(args[0], args[1], args[2]);
-        break;
-    default:
-        printf("%s: Unknown function (%d) called.\r\n", __FUNCTION__, method);
-        break;
+        if(method == 0xFF)
+        {
+            m_fileIoHandler = new CFileIoHandler3100(this, m_sifMan);
+        }
+        else
+        {
+            m_fileIoHandler = new CFileIoHandlerBasic(this);
+        }
     }
+    m_fileIoHandler->Invoke(method, args, argsSize, ret, retSize, ram);
 }
 
 //--------------------------------------------------
+// CFile
 //--------------------------------------------------
 
 CIoman::CFile::CFile(uint32 handle, CIoman& ioman) :
@@ -273,4 +266,209 @@ CIoman::CFile::~CFile()
 CIoman::CFile::operator uint32()
 {
     return m_handle;
+}
+
+//--------------------------------------------------
+// CFileIoHandler
+//--------------------------------------------------
+
+CIoman::CFileIoHandler::CFileIoHandler(CIoman* ioman) :
+m_ioman(ioman)
+{
+
+}
+
+//--------------------------------------------------
+// CFileIoHandlerBasic
+//--------------------------------------------------
+
+CIoman::CFileIoHandlerBasic::CFileIoHandlerBasic(CIoman* ioman) :
+CFileIoHandler(ioman)
+{
+
+}
+
+void CIoman::CFileIoHandlerBasic::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+    switch(method)
+    {
+    case 0:
+        assert(retSize == 4);
+        *ret = m_ioman->Open(*args, reinterpret_cast<char*>(args) + 4);
+        break;
+	case 1:
+        assert(0);
+        assert(retSize == 4);
+        *ret = m_ioman->Close(*args);
+		break;
+    case 2:
+		assert(retSize == 4);
+		*ret = m_ioman->Read(args[0], args[2], reinterpret_cast<void*>(ram + args[1]));
+        break;
+	case 3:
+		assert(retSize == 4);
+        *ret = m_ioman->Write(args[0], args[2], reinterpret_cast<void*>(ram + args[1]));
+		break;
+    case 4:
+        assert(retSize == 4);
+        *ret = m_ioman->Seek(args[0], args[1], args[2]);
+        break;
+    default:
+        printf("%s: Unknown function (%d) called.\r\n", __FUNCTION__, method);
+        break;
+    }
+}
+
+//--------------------------------------------------
+// CFileIoHandler3100
+//--------------------------------------------------
+
+CIoman::CFileIoHandler3100::CFileIoHandler3100(CIoman* ioman, CSifMan& sifMan) :
+CFileIoHandler(ioman),
+m_sifMan(sifMan)
+{
+
+}
+
+void CIoman::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+    static uint32 resultPtr[2];
+    switch(method)
+    {
+    case 0:
+        {
+            assert(retSize == 4);
+            OPENCOMMAND* command = reinterpret_cast<OPENCOMMAND*>(args);
+            *ret = m_ioman->Open(command->flags, command->fileName);
+
+            //Send response
+            {
+                OPENREPLY reply;
+                reply.header.commandId = 0;
+                CopyHeader(reply.header, command->header);
+                reply.result = *ret;
+                reply.unknown2 = 0;
+                reply.unknown3 = 0;
+                reply.unknown4 = 0;
+                memcpy(ram + resultPtr[0], &reply, sizeof(OPENREPLY));
+            }
+
+            {
+                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
+                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                header->nCID = 0x80000011;
+                header->nSize = packetSize;
+                header->nDest = 0;
+                header->nOptional = 0;
+                m_sifMan.SendPacket(callbackPacket, packetSize);
+            }
+        }
+        break;
+    case 1:
+        {
+            assert(retSize == 4);
+            CLOSECOMMAND* command = reinterpret_cast<CLOSECOMMAND*>(args);
+            *ret = m_ioman->Close(command->fd);
+            //Send response
+            {
+                CLOSEREPLY reply;
+                reply.header.commandId = 1;
+                CopyHeader(reply.header, command->header);
+                reply.result = *ret;
+                reply.unknown2 = 0;
+                reply.unknown3 = 0;
+                reply.unknown4 = 0;
+                memcpy(ram + resultPtr[0], &reply, sizeof(reply));
+            }
+
+            {
+                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
+                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                header->nCID = 0x80000011;
+                header->nSize = packetSize;
+                header->nDest = 0;
+                header->nOptional = 0;
+                m_sifMan.SendPacket(callbackPacket, packetSize);
+            }
+        }
+        break;
+    case 2:
+        {
+            assert(retSize == 4);
+            READCOMMAND* command = reinterpret_cast<READCOMMAND*>(args);
+            *ret = m_ioman->Read(command->fd, command->size, reinterpret_cast<void*>(ram + command->buffer));
+            //Send response
+            {
+                READREPLY reply;
+                reply.header.commandId = 2;
+                CopyHeader(reply.header, command->header);
+                reply.result = *ret;
+                reply.unknown2 = 0;
+                reply.unknown3 = 0;
+                reply.unknown4 = 0;
+                memcpy(ram + resultPtr[0], &reply, sizeof(reply));
+            }
+
+            {
+                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
+                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                header->nCID = 0x80000011;
+                header->nSize = packetSize;
+                header->nDest = 0;
+                header->nOptional = 0;
+                m_sifMan.SendPacket(callbackPacket, packetSize);
+            }
+        }
+        break;
+    case 4:
+        {
+            assert(retSize == 4);
+            SEEKCOMMAND* command = reinterpret_cast<SEEKCOMMAND*>(args);
+            *ret = m_ioman->Seek(command->fd, command->offset, command->whence);
+
+            //Send response
+            {
+                SEEKREPLY reply;
+                reply.header.commandId = 4;
+                CopyHeader(reply.header, command->header);
+                reply.result = *ret;
+                reply.unknown2 = 0;
+                reply.unknown3 = 0;
+                reply.unknown4 = 0;
+                memcpy(ram + resultPtr[0], &reply, sizeof(reply));
+            }
+
+            {
+                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
+                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                header->nCID = 0x80000011;
+                header->nSize = packetSize;
+                header->nDest = 0;
+                header->nOptional = 0;
+                m_sifMan.SendPacket(callbackPacket, packetSize);
+            }
+        }
+        break;
+    case 255:
+        //Not really sure about that...
+        assert(retSize == 8);
+        memcpy(ret, "....rawr", 8);
+        resultPtr[0] = args[0];
+        resultPtr[1] = args[1];
+        break;
+    default:
+        printf("%s: Unknown function (%d) called.\r\n", __FUNCTION__, method);
+        break;
+    }
+}
+
+void CIoman::CFileIoHandler3100::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& command)
+{
+    reply.semaphoreId = command.semaphoreId;
+    reply.resultPtr = command.resultPtr;
+    reply.resultSize = command.resultSize;
 }

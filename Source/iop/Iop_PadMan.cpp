@@ -1,14 +1,14 @@
 #include <assert.h>
 #include <stdio.h>
-#include <boost/bind.hpp>
 #include "Iop_PadMan.h"
 #include "../Log.h"
 #include "../RegisterStateFile.h"
 
 using namespace Iop;
 using namespace Framework;
-using namespace boost;
 using namespace std;
+using namespace std::tr1;
+using namespace std::tr1::placeholders;
 using namespace PS2;
 
 #define PADNUM			(1)
@@ -148,7 +148,7 @@ void CPadMan::GetModuleVersion(uint32* args, uint32 argsSize, uint32* ret, uint3
 	ret[3] = 0x00000400;
 }
 
-void CPadMan::ExecutePadDataFunction(PadDataFunction Function, void* pBase, size_t nOffset)
+void CPadMan::ExecutePadDataFunction(const PadDataFunction& Function, void* pBase, size_t nOffset)
 {
 	switch(m_nPadDataType)
 	{
@@ -174,6 +174,12 @@ void CPadMan::PDF_InitializeStruct0(CPadDataInterface* pPadData)
 	pPadData->SetReqState(0);
 	pPadData->SetLength(32);
 	pPadData->SetOk(1);
+
+    //Reset analog sticks
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        pPadData->SetData(4 + i, 0x7F);
+    }
 }
 
 void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
@@ -183,6 +189,12 @@ void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
 	pPadData->SetReqState(0);
 	pPadData->SetLength(32);
 	pPadData->SetOk(1);
+
+    //Reset analog sticks
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        pPadData->SetData(4 + i, 0x7F);
+    }
 
 	//EX struct initialization
 	pPadData->SetModeCurId(MODE << 4);
