@@ -376,6 +376,22 @@
 					RelativePath=".\Source\ps2\PsfVm.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Source\ps2\Spu2.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Spu2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Spu2_Core.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Spu2_Core.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

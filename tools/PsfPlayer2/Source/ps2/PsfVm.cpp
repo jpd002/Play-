@@ -15,16 +15,19 @@ m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, IOPRAMSIZE),
 m_executor(m_cpu),
 m_status(PAUSED),
 m_singleStep(false),
+m_spu(SPU_BEGIN),
 m_bios(0x1000, m_cpu, m_ram, IOPRAMSIZE, *reinterpret_cast<CSIF*>(NULL), *reinterpret_cast<CISO9660**>(NULL)),
 m_thread(bind(&CPsfVm::ThreadProc, this))
 {
     //IOP context setup
     {
         //Read map
-	    m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, IOPRAMSIZE - 1, m_ram,         0x00);
+	    m_cpu.m_pMemoryMap->InsertReadMap(0x00000000,	IOPRAMSIZE - 1, m_ram,											0x00);
+	    m_cpu.m_pMemoryMap->InsertReadMap(SPU_BEGIN,    SPU_END - 1,    bind(&CSpu2::ReadRegister, &m_spu, _1),         0x01);
 
         //Write map
-        m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, IOPRAMSIZE -1, m_ram,		0x00);
+        m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, IOPRAMSIZE -1,	m_ram,											0x00);
+	    m_cpu.m_pMemoryMap->InsertWriteMap(SPU_BEGIN,  SPU_END - 1,		bind(&CSpu2::WriteRegister, &m_spu, _1, _2),    0x01);
 
 	    //Instruction map
         m_cpu.m_pMemoryMap->InsertInstructionMap(0x00000000, IOPRAMSIZE - 1, m_ram,  0x00);

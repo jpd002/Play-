@@ -9,6 +9,7 @@
 #include "../Debuggable.h"
 #include "MipsExecutor.h"
 #include "MailBox.h"
+#include "Spu2.h"
 
 namespace PS2
 {
@@ -33,9 +34,16 @@ namespace PS2
 		boost::signal<void ()>	OnNewFrame;
 
 	private:
+		enum SPUADDRESS
+		{
+			SPU_BEGIN = 0x1F800000,
+			SPU_END = 0x1F900800,
+		};
+
 		unsigned int			ExecuteCpu(bool);
 		void					ThreadProc();
 
+		CSpu2					m_spu;
 		CMipsExecutor			m_executor;
 		uint8*					m_ram;
         CMIPS					m_cpu;
