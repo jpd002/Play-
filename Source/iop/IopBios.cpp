@@ -194,10 +194,18 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
         static_cast<uint32>(strlen(path)) + 1));
     if(argsLength != 0 && args != NULL)
     {
-        paramList.push_back(Push(
-            thread.context.gpr[CMIPS::SP],
-            reinterpret_cast<const uint8*>(args),
-            static_cast<uint32>(strlen(args)) + 1));
+        unsigned int argsPos = 0;
+        while(argsPos < argsLength)
+        {
+            const char* arg = args + argsPos;
+            unsigned int argLength = strlen(arg) + 1;
+            argsPos += argLength;
+            uint32 argAddress = Push(
+                thread.context.gpr[CMIPS::SP],
+                reinterpret_cast<const uint8*>(arg),
+                static_cast<uint32>(argLength));
+            paramList.push_back(argAddress);
+        }
     }
     thread.context.gpr[CMIPS::A0] = static_cast<uint32>(paramList.size());
     for(ParamListType::reverse_iterator param(paramList.rbegin());
