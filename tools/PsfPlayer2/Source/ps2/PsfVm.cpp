@@ -5,6 +5,7 @@
 using namespace PS2;
 using namespace std;
 using namespace std::tr1;
+using namespace std::tr1::placeholders;
 using namespace boost;
 
 #define PSF_DEVICENAME "psf"
@@ -22,12 +23,12 @@ m_thread(bind(&CPsfVm::ThreadProc, this))
     //IOP context setup
     {
         //Read map
-	    m_cpu.m_pMemoryMap->InsertReadMap(0x00000000,	IOPRAMSIZE - 1, m_ram,											0x00);
-	    m_cpu.m_pMemoryMap->InsertReadMap(SPU_BEGIN,    SPU_END - 1,    bind(&CSpu2::ReadRegister, &m_spu, _1),         0x01);
+	    m_cpu.m_pMemoryMap->InsertReadMap(0x00000000,	        IOPRAMSIZE - 1,     m_ram,											0x00);
+        m_cpu.m_pMemoryMap->InsertReadMap(CSpu2::REGS_BEGIN,    CSpu2::REGS_END,    bind(&CSpu2::ReadRegister, &m_spu, _1),         0x01);
 
         //Write map
-        m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, IOPRAMSIZE -1,	m_ram,											0x00);
-	    m_cpu.m_pMemoryMap->InsertWriteMap(SPU_BEGIN,  SPU_END - 1,		bind(&CSpu2::WriteRegister, &m_spu, _1, _2),    0x01);
+        m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000,          IOPRAMSIZE - 1,	            m_ram,											0x00);
+	    m_cpu.m_pMemoryMap->InsertWriteMap(CSpu2::REGS_BEGIN,   CSpu2::REGS_END,	    	bind(&CSpu2::WriteRegister, &m_spu, _1, _2),    0x01);
 
 	    //Instruction map
         m_cpu.m_pMemoryMap->InsertInstructionMap(0x00000000, IOPRAMSIZE - 1, m_ram,  0x00);

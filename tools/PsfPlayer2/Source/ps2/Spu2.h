@@ -15,6 +15,12 @@ namespace PS2
 		uint32			ReadRegister(uint32);
 		uint32			WriteRegister(uint32, uint32);
 
+        enum
+        {
+            REGS_BEGIN  = 0x1F900000,
+            REGS_END    = 0x1F90FFFF,
+        };
+
 	private:
 		typedef std::vector<Spu2::CCore> CoreArrayType;
 
