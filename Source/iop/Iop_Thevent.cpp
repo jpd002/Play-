@@ -25,7 +25,9 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
     switch(functionId)
     {
     case 4:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateEventFlag());
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(
+            CreateEventFlag(reinterpret_cast<EVENT*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]))
+            );
         break;
     default:
         printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
@@ -33,7 +35,7 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
     }
 }
 
-uint32 CThevent::CreateEventFlag()
+uint32 CThevent::CreateEventFlag(EVENT* eventPtr)
 {
     return 3;
 }

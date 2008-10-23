@@ -289,6 +289,11 @@ CIopBios::ThreadMapType::iterator CIopBios::GetThreadPosition(uint32 threadId)
 
 uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: CreateThread(threadProc = 0x%0.8X, priority = %d);\r\n", 
+        m_currentThreadId, threadProc, priority);
+#endif
+
     THREAD thread;
     memset(&thread, 0, sizeof(thread));
     thread.context.delayJump = 1;
@@ -306,6 +311,11 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority)
 
 void CIopBios::StartThread(uint32 threadId, uint32* param)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: StartThread(threadId = %i, param = 0x%0.8X);\r\n", 
+        m_currentThreadId, threadId, param);
+#endif
+
     THREAD& thread = GetThread(threadId);
     if(thread.status != THREAD_STATUS_CREATED)
     {
@@ -321,6 +331,11 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 
 void CIopBios::DelayThread(uint32 delay)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: DelayThread(delay = %i);\r\n", 
+        m_currentThreadId, delay);
+#endif
+
     //TODO : Need to delay or something...
     THREAD& thread = GetThread(m_currentThreadId);
     thread.nextActivateTime = GetCurrentTime() + delay;
@@ -329,6 +344,11 @@ void CIopBios::DelayThread(uint32 delay)
 
 void CIopBios::SleepThread()
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: SleepThread();\r\n", 
+        m_currentThreadId);
+#endif
+
     THREAD& thread = GetThread(m_currentThreadId);
     if(thread.status != THREAD_STATUS_RUNNING)
     {
@@ -347,6 +367,11 @@ void CIopBios::SleepThread()
 
 uint32 CIopBios::WakeupThread(uint32 threadId)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: WakeupThread(threadId = %i);\r\n", 
+        m_currentThreadId, threadId);
+#endif
+
     THREAD& thread = GetThread(threadId);
     if(thread.status == THREAD_STATUS_SLEEPING)
     {
@@ -481,6 +506,11 @@ CIopBios::SEMAPHORE& CIopBios::GetSemaphore(uint32 semaphoreId)
 
 uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: CreateSemaphore(initialCount = %i, maxCount = %i);\r\n", 
+        m_currentThreadId, initialCount, maxCount);
+#endif
+
     SEMAPHORE semaphore;
     memset(&semaphore, 0, sizeof(SEMAPHORE));
     semaphore.count = initialCount;
@@ -493,6 +523,11 @@ uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
 
 uint32 CIopBios::SignalSemaphore(uint32 semaphoreId)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: SignalSemaphore(semaphoreId = %i);\r\n", 
+        m_currentThreadId, semaphoreId);
+#endif
+
     SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
     if(semaphore.waitCount != 0)
     {
@@ -526,6 +561,11 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId)
 
 uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: WaitSemaphore(semaphoreId = %i);\r\n", 
+        m_currentThreadId, semaphoreId);
+#endif
+
     SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
     if(semaphore.count == 0)
     {

@@ -17,7 +17,14 @@ namespace Iop
         void            Invoke(CMIPS&, unsigned int);
 
     private:
-        uint32          CreateEventFlag();
+        struct EVENT
+        {
+            uint32      attributes;
+            uint32      options;
+            uint32      initValue;
+        };
+
+        uint32          CreateEventFlag(EVENT*);
 
         uint8*          m_ram;
         CIopBios&       m_bios;
