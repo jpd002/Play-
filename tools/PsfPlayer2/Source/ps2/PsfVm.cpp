@@ -16,7 +16,7 @@ m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, IOPRAMSIZE),
 m_executor(m_cpu),
 m_status(PAUSED),
 m_singleStep(false),
-m_spu(SPU_BEGIN),
+m_spu(CSpu2::REGS_BEGIN),
 m_bios(0x1000, m_cpu, m_ram, IOPRAMSIZE, *reinterpret_cast<CSIF*>(NULL), *reinterpret_cast<CISO9660**>(NULL)),
 m_thread(bind(&CPsfVm::ThreadProc, this))
 {

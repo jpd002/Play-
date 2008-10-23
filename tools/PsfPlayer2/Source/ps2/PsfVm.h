@@ -34,12 +34,6 @@ namespace PS2
 		boost::signal<void ()>	OnNewFrame;
 
 	private:
-		enum SPUADDRESS
-		{
-			SPU_BEGIN = 0x1F800000,
-			SPU_END = 0x1F900800,
-		};
-
 		unsigned int			ExecuteCpu(bool);
 		void					ThreadProc();
 

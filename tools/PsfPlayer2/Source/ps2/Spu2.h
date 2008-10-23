@@ -2,6 +2,7 @@
 #define _SPU2_H_
 
 #include <vector>
+#include <functional>
 #include "Spu2_Core.h"
 
 namespace PS2
@@ -22,13 +23,30 @@ namespace PS2
         };
 
 	private:
+		typedef std::tr1::function<uint32 (uint32, uint32)> RegisterAccessFunction;
 		typedef std::vector<Spu2::CCore> CoreArrayType;
 
-		void            LogRead(uint32);
-		void			LogWrite(uint32, uint32);
+		enum
+		{
+			CORE_NUM = 2
+		};
 
-		uint32          m_baseAddress;
-		CoreArrayType   m_cores;
+		struct REGISTER_DISPATCH_INFO
+		{
+			RegisterAccessFunction global;
+			RegisterAccessFunction core[2];
+		};
+
+		uint32						ProcessRegisterAccess(const REGISTER_DISPATCH_INFO&, uint32, uint32);
+		uint32						ReadRegisterImpl(uint32, uint32);
+		uint32						WriteRegisterImpl(uint32, uint32);
+		void						LogRead(uint32);
+		void						LogWrite(uint32, uint32);
+
+		REGISTER_DISPATCH_INFO		m_readDispatchInfo;
+		REGISTER_DISPATCH_INFO		m_writeDispatchInfo;
+		uint32						m_baseAddress;
+		CoreArrayType				m_cores;
 	};
 }
 

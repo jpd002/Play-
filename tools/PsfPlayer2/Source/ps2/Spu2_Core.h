@@ -11,22 +11,24 @@ namespace PS2
 		class CCore
 		{
 		public:
-							CCore(unsigned int, uint32);
+							CCore(unsigned int);
 			virtual			~CCore();
 
-			uint16			ReadRegister(uint32);
-			void			WriteRegister(uint32, uint16);
+			uint32			ReadRegister(uint32, uint32);
+			uint32			WriteRegister(uint32, uint32);
 
 			enum REGISTERS
 			{
-				STATX = 0x344,
+				A_TSA_HI	= 0x1F9001A8,
+				A_TSA_LO	= 0x1F9001AA,
+				A_STD		= 0x1F9001AC,
+				STATX		= 0x1F900344,
 			};
 
 		private:
 			void            LogRead(uint32);
 			void			LogWrite(uint32, uint16);
 
-			uint32          m_baseAddress;
 			unsigned int    m_coreId;
 			std::string		m_logName;
 		};

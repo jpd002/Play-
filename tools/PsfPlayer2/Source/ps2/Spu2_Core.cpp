@@ -9,9 +9,8 @@ using namespace std;
 using namespace Framework;
 using namespace boost;
 
-CCore::CCore(unsigned int coreId, uint32 baseAddress) :
-m_coreId(coreId),
-m_baseAddress(baseAddress)
+CCore::CCore(unsigned int coreId) :
+m_coreId(coreId)
 {
 	m_logName = LOG_NAME_PREFIX + lexical_cast<string>(m_coreId);
 }
@@ -21,9 +20,8 @@ CCore::~CCore()
     
 }
 
-uint16 CCore::ReadRegister(uint32 address)
+uint32 CCore::ReadRegister(uint32 address, uint32 value)
 {
-    address -= m_baseAddress;
     uint16 result = 0;
     switch(address)
     {
@@ -39,10 +37,10 @@ uint16 CCore::ReadRegister(uint32 address)
     return result;
 }
 
-void CCore::WriteRegister(uint32 address, uint16 value)
+uint32 CCore::WriteRegister(uint32 address, uint32 value)
 {
-    address -= m_baseAddress;
 	LogWrite(address, value);
+	return 0;
 }
 
 void CCore::LogRead(uint32 address)
@@ -64,6 +62,15 @@ void CCore::LogWrite(uint32 address, uint16 value)
 	const char* logName = m_logName.c_str();
     switch(address)
     {
+	case A_TSA_HI:
+		CLog::GetInstance().Print(logName, "A_TSA_HI = 0x%0.4X\r\n", value);
+		break;
+	case A_TSA_LO:
+		CLog::GetInstance().Print(logName, "A_TSA_LO = 0x%0.4X\r\n", value);
+		break;
+	case A_STD:
+		CLog::GetInstance().Print(logName, "A_STD = 0x%0.4X\r\n", value);
+		break;
     default:
 		CLog::GetInstance().Print(logName, "Write 0x%0.4X to an unknown register 0x%0.4X.\r\n", value, address);
         break;

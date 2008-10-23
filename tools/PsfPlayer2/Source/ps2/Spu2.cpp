@@ -6,6 +6,7 @@
 using namespace PS2;
 using namespace PS2::Spu2;
 using namespace std;
+using namespace std::tr1;
 using namespace Framework;
 
 /*
@@ -197,8 +198,16 @@ enum
 CSpu2::CSpu2(uint32 baseAddress) :
 m_baseAddress(baseAddress)
 {
-    m_cores.push_back(CCore(0, 0x000));
-    m_cores.push_back(CCore(1, 0x400));
+    m_cores.push_back(CCore(0));
+    m_cores.push_back(CCore(1));
+
+	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, _1, _2);
+	m_writeDispatchInfo.global = bind(&CSpu2::WriteRegisterImpl, this, _1, _2);
+	for(unsigned int i = 0; i < CORE_NUM; i++)
+	{
+		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, &m_cores[i], _1, _2);
+		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, &m_cores[i], _1, _2);
+	}
 }
 
 CSpu2::~CSpu2()
@@ -208,50 +217,35 @@ CSpu2::~CSpu2()
 
 uint32 CSpu2::ReadRegister(uint32 address)
 {
-    uint32 tmpAddress = address - m_baseAddress;
-    if(tmpAddress < 0x760)
-    {
-        unsigned int core = (tmpAddress & 0x400);
-    }
-/*
-    address -= m_baseAddress;
-    if(address > CORE_BASE)
-    {
-        unsigned int coreId = (address - CORE_BASE) >> 10;
-        if(coreId >= m_cores.size())
-        {
-            throw runtime_error("Invalid core identification.");
-        }
-        CCore& core(m_cores[coreId]);
-        return core.ReadRegister(address);
-    }
-    else
-    {
-*/
-        LogRead(address);
-//    }
-    return 0;
+	return ProcessRegisterAccess(m_readDispatchInfo, address, 0);
 }
 
 uint32 CSpu2::WriteRegister(uint32 address, uint32 value)
 {
-/*
-	address -= m_baseAddress;
-	if(address > CORE_BASE)
-	{
-        unsigned int coreId = (address - CORE_BASE) >> 10;
-        if(coreId >= m_cores.size())
-        {
-            throw runtime_error("Invalid core identification.");
-        }
-        CCore& core(m_cores[coreId]);
-        core.WriteRegister(address, static_cast<uint16>(value));
-	}
-	else
-	{
-*/
-		LogWrite(address, value);
-//	}
+	return ProcessRegisterAccess(m_writeDispatchInfo, address, value);
+}
+
+uint32 CSpu2::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
+{
+    uint32 tmpAddress = address - m_baseAddress;
+    if(tmpAddress < 0x760)
+    {
+		unsigned int coreId = (tmpAddress & 0x400) ? 1 : 0;
+		address &= ~0x400;
+		return dispatchInfo.core[coreId](address, value);
+    }
+	return dispatchInfo.global(address, value);
+}
+
+uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
+{
+	LogRead(address);
+	return 0;
+}
+
+uint32 CSpu2::WriteRegisterImpl(uint32 address, uint32 value)
+{
+	LogWrite(address, value);
 	return 0;
 }
 
