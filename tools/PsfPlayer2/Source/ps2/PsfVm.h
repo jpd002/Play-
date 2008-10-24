@@ -10,6 +10,8 @@
 #include "MipsExecutor.h"
 #include "MailBox.h"
 #include "Spu2.h"
+#include "iop/Iop_Intc.h"
+#include "Iop_Dmac.h"
 
 namespace PS2
 {
@@ -38,6 +40,8 @@ namespace PS2
 		void					ThreadProc();
 
 		CSpu2					m_spu;
+        Iop::CDmac              m_dmac;
+        Iop::CIntc              m_intc;
 		CMipsExecutor			m_executor;
 		uint8*					m_ram;
         CMIPS					m_cpu;

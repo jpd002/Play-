@@ -7,6 +7,7 @@ using namespace PS2;
 using namespace PS2::Spu2;
 using namespace std;
 using namespace std::tr1;
+using namespace std::tr1::placeholders;
 using namespace Framework;
 
 /*

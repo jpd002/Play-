@@ -290,6 +290,14 @@
 				Name="ps2"
 				>
 				<File
+					RelativePath=".\Source\ps2\Iop_Dmac.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Iop_Dmac.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\ps2\PsfDevice.cpp"
 					>
 				</File>
