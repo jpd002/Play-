@@ -1,13 +1,13 @@
 #ifndef _SPU2_H_
 #define _SPU2_H_
 
-#include <vector>
+#include <boost/utility.hpp>
 #include <functional>
 #include "Spu2_Core.h"
 
 namespace PS2
 {
-	class CSpu2
+	class CSpu2 : boost::noncopyable
 	{
 	public:
 						CSpu2(uint32);
@@ -24,7 +24,6 @@ namespace PS2
 
 	private:
 		typedef std::tr1::function<uint32 (uint32, uint32)> RegisterAccessFunction;
-		typedef std::vector<Spu2::CCore> CoreArrayType;
 
 		enum
 		{
@@ -46,7 +45,7 @@ namespace PS2
 		REGISTER_DISPATCH_INFO		m_readDispatchInfo;
 		REGISTER_DISPATCH_INFO		m_writeDispatchInfo;
 		uint32						m_baseAddress;
-		CoreArrayType				m_cores;
+		Spu2::CCore*				m_core[CORE_NUM];
 	};
 }
 

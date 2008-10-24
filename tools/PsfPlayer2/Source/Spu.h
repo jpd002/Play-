@@ -2,6 +2,7 @@
 #define _SPU_H_
 
 #include "Types.h"
+#include "BasicUnions.h"
 #include "convertible.h"
 #include <boost/static_assert.hpp>
 
@@ -67,19 +68,6 @@ public:
 		uint32			adsrVolume;
 		uint16			repeat;
 		uint16			status;
-	};
-
-	struct UNION32_16
-	{
-		union
-		{
-			struct
-			{
-				uint16 h0;
-				uint16 h1;
-			};
-			uint32 w;
-		};
 	};
 
 				CSpu();

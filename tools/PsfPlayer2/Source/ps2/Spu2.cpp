@@ -199,15 +199,17 @@ enum
 CSpu2::CSpu2(uint32 baseAddress) :
 m_baseAddress(baseAddress)
 {
-    m_cores.push_back(CCore(0));
-    m_cores.push_back(CCore(1));
+	for(unsigned int i = 0; i < CORE_NUM; i++)
+	{
+		m_core[i] = new CCore(i);
+	}
 
 	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, _1, _2);
 	m_writeDispatchInfo.global = bind(&CSpu2::WriteRegisterImpl, this, _1, _2);
 	for(unsigned int i = 0; i < CORE_NUM; i++)
 	{
-		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, &m_cores[i], _1, _2);
-		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, &m_cores[i], _1, _2);
+		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, m_core[i], _1, _2);
+		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, m_core[i], _1, _2);
 	}
 }
 

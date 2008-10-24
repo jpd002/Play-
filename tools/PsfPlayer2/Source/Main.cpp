@@ -16,7 +16,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
 	{
 		virtualMachine.Reset();
 //		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\C-SotN_psf\\Master Librarian.minipsf");
-        CPsfLoader::LoadPsf2(virtualMachine, "D:\\Media\\PS2\\FF4\\ff4-01.psf2");
+        CPsfLoader::LoadPsf2(virtualMachine, "C:\\Media\\PS2\\FF4\\ff4-01.psf2");
 
 		CMiniDebugger debugger(virtualMachine, virtualMachine.GetIopDebug());
 		debugger.Show(SW_SHOW);
