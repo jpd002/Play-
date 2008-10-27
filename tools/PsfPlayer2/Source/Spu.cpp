@@ -130,8 +130,8 @@ void CSpu::Reset()
 	m_status0 = 0;
 	m_status1 = 0;
 	m_bufferAddr = 0;
-	m_channelOn.w = 0;
-	m_channelReverb.w = 0;
+	m_channelOn.f = 0;
+	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
 
 	m_reverbCurrAddr = 0;
@@ -144,12 +144,12 @@ void CSpu::Reset()
 
 uint32 CSpu::GetChannelOn() const
 {
-	return m_channelOn.w;
+	return m_channelOn.f;
 }
 
 uint32 CSpu::GetChannelReverb() const
 {
-	return m_channelReverb.w;
+	return m_channelReverb.f;
 }
 
 CSpu::CHANNEL& CSpu::GetChannel(unsigned int channelNumber)
@@ -208,7 +208,7 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			SampleMixer()(inputSample, channel.volumeLeft,	samples + 0);
 			SampleMixer()(inputSample, channel.volumeRight, samples + 1);
 			//Mix in reverb if enabled for this channel
-			if(m_channelReverb.w & (1 << i))
+			if(m_channelReverb.f & (1 << i))
 			{
 				SampleMixer()(inputSample, channel.volumeLeft,	reverbSample + 0);
 				SampleMixer()(inputSample, channel.volumeRight, reverbSample + 1);

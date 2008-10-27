@@ -1,14 +1,16 @@
 #include <assert.h>
 #include "Iop_Dmac.h"
 #include "Log.h"
+#include "iop/Iop_Intc.h"
 
 #define LOG_NAME ("iop_dmac")
 
 using namespace Iop;
 using namespace Iop::Dmac;
 
-CDmac::CDmac(uint8* ram) :
+CDmac::CDmac(uint8* ram, CIntc& intc) :
 m_ram(ram),
+m_intc(intc),
 m_channelSpu(CH4_BASE, 4, *this)
 {
     memset(m_channel, 0, sizeof(m_channel));
@@ -56,7 +58,8 @@ CChannel* CDmac::GetChannelFromAddress(uint32 address)
 void CDmac::AssertLine(unsigned int line)
 {
 	m_DICR |= 1 << (line + 24);
-	//m_intc.AssertLine(CIntc::LINE_DMAC);
+//	m_intc.AssertLine(CIntc::LINE_DMAC);
+	m_intc.AssertLine(CIntc::LINE_DMA_BASE + line);
 }
 
 uint8* CDmac::GetRam()

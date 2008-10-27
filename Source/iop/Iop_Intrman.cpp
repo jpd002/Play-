@@ -1,6 +1,7 @@
 #include "Iop_Intrman.h"
 #include "../Log.h"
 #include "../COP_SCU.h"
+#include "Iop_Intc.h"
 
 #define LOGNAME "iop_intrman"
 
@@ -42,11 +43,13 @@ void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
         break;
     case 6:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(EnableIntrLine(
+			context,
             context.m_State.nGPR[CMIPS::A0].nV0
             ));
         break;
     case 7:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DisableIntrLine(
+			context,
             context.m_State.nGPR[CMIPS::A0].nV0,
             context.m_State.nGPR[CMIPS::A1].nV0
             ));
@@ -97,22 +100,34 @@ uint32 CIntrman::ReleaseIntrHandler(uint32 line)
     return 0;
 }
 
-uint32 CIntrman::EnableIntrLine(uint32 line)
+uint32 CIntrman::EnableIntrLine(CMIPS& context, uint32 line)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "EnableIntrLine(line = %d);\r\n",
         line);
 #endif
-    return 0;
+	UNION64_32 mask(
+		context.m_pMemoryMap->GetWord(CIntc::MASK0),
+		context.m_pMemoryMap->GetWord(CIntc::MASK1));
+	mask.f |= 1LL << line;
+	context.m_pMemoryMap->SetWord(CIntc::MASK0, mask.h0);
+	context.m_pMemoryMap->SetWord(CIntc::MASK1, mask.h1);
+	return 0;
 }
 
-uint32 CIntrman::DisableIntrLine(uint32 line, uint32 res)
+uint32 CIntrman::DisableIntrLine(CMIPS& context, uint32 line, uint32 res)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "DisableIntrLine(line = %d, res = %0.8X);\r\n",
         line, res);
 #endif
-    return 0;
+	UNION64_32 mask(
+		context.m_pMemoryMap->GetWord(CIntc::MASK0),
+		context.m_pMemoryMap->GetWord(CIntc::MASK1));
+	mask.f &= ~(1LL << line);
+	context.m_pMemoryMap->SetWord(CIntc::MASK0, mask.h0);
+	context.m_pMemoryMap->SetWord(CIntc::MASK1, mask.h1);
+	return 0;
 }
 
 uint32 CIntrman::EnableInterrupts(CMIPS& context)

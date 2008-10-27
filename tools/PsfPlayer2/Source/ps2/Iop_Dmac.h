@@ -6,6 +6,8 @@
 
 namespace Iop
 {
+	class CIntc;
+
     class CDmac
     {
     public:
@@ -31,7 +33,7 @@ namespace Iop
             DMAC_ZONE1_END      = 0x1F8010FF,
         };
 
-                        CDmac(uint8*);
+                        CDmac(uint8*, CIntc&);
         virtual         ~CDmac();
 
         void            Reset();
@@ -59,6 +61,7 @@ namespace Iop
         uint32			m_DPCR;
 		uint32			m_DICR;
         uint8*          m_ram;
+		CIntc&			m_intc;
     };
 }
 

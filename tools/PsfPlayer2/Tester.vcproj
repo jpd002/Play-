@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer\Source"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer2\Source"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;_PSX;DEBUGGER_INCLUDED;_NULL_SIFMAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer\Source"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer2\Source"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_MSVC;_PSX;_NULL_SIFMAN"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -370,6 +370,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\ps2\Iop_Dmac.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Iop_DmacChannel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Iop_DmacChannel.h"
 					>
 				</File>
 				<File

@@ -41,8 +41,8 @@ namespace PS2
 
 		uint8*					m_ram;
         CSpu2					m_spu;
-        Iop::CDmac              m_dmac;
         Iop::CIntc              m_intc;
+		Iop::CDmac              m_dmac;
 		CMipsExecutor			m_executor;
         CMIPS					m_cpu;
         CIopBios				m_bios;

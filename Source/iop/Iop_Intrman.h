@@ -17,8 +17,8 @@ namespace Iop
     private:
         uint32          RegisterIntrHandler(uint32, uint32, uint32, uint32);
         uint32          ReleaseIntrHandler(uint32);
-        uint32          EnableIntrLine(uint32);
-        uint32          DisableIntrLine(uint32, uint32);
+        uint32          EnableIntrLine(CMIPS&, uint32);
+        uint32          DisableIntrLine(CMIPS&, uint32, uint32);
         uint32          EnableInterrupts(CMIPS&);
         uint32          SuspendInterrupts(CMIPS&, uint32*);
         uint32          ResumeInterrupts(CMIPS&, uint32);

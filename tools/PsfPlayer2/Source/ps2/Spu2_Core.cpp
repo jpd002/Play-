@@ -34,7 +34,7 @@ CCore::~CCore()
 void CCore::Reset()
 {
     memset(m_ram, 0, RAMSIZE);
-	m_transferAddress.w = 0;
+	m_transferAddress.f = 0;
 }
 
 uint32 CCore::ReadRegister(uint32 address, uint32 value)
@@ -49,7 +49,20 @@ uint32 CCore::WriteRegister(uint32 address, uint32 value)
 
 uint32 CCore::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 {
-    return blockAmount;
+	assert((blockSize & 1) == 0);
+	unsigned int blocksTransfered = 0;
+	uint32 dstAddress = m_transferAddress.f << 1;
+	for(unsigned int i = 0; i < blockAmount; i++)
+	{
+		uint32 copySize = min<uint32>(RAMSIZE - dstAddress, blockSize);
+		memcpy(m_ram + dstAddress, buffer, copySize);
+		dstAddress += blockSize;
+		dstAddress &= RAMSIZE - 1;
+		buffer += blockSize;
+		blocksTransfered++;
+	}
+	m_transferAddress.f = dstAddress >> 1;
+    return blocksTransfered;
 }
 
 uint32 CCore::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
@@ -96,10 +109,10 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 	{
     case A_STD:
         {
-            uint32 address = m_transferAddress.w << 1;
+            uint32 address = m_transferAddress.f << 1;
             address &= RAMSIZE - 1;
             *reinterpret_cast<uint16*>(m_ram + address) = static_cast<uint16>(value);
-            m_transferAddress.w++;
+            m_transferAddress.f++;
         }
         break;
 	case A_TSA_HI:
