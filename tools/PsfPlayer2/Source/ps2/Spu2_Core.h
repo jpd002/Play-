@@ -22,6 +22,7 @@ namespace PS2
 
 			uint32			ReadRegister(uint32, uint32);
 			uint32			WriteRegister(uint32, uint32);
+            uint32          ReceiveDma(uint8*, uint32, uint32);
 
 			enum REGISTERS
 			{
@@ -54,6 +55,11 @@ namespace PS2
 				MAX_CHANNEL = 24,
 			};
 
+	        enum
+	        {
+		        RAMSIZE = 0x80000
+	        };
+
 			struct REGISTER_DISPATCH_INFO
 			{
 				RegisterAccessFunction	core;
@@ -75,6 +81,7 @@ namespace PS2
 
 			REGISTER_DISPATCH_INFO	m_readDispatch;
 			REGISTER_DISPATCH_INFO	m_writeDispatch;
+            uint8*                  m_ram;
 			CChannel				m_channel[MAX_CHANNEL];
 			unsigned int			m_coreId;
 			UNION32_16				m_transferAddress;

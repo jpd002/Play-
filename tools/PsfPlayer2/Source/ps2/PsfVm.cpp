@@ -7,12 +7,14 @@ using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
 using namespace boost;
+using namespace Iop;
 
 #define PSF_DEVICENAME "psf"
 
 CPsfVm::CPsfVm() :
 m_ram(new uint8[IOPRAMSIZE]),
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0x00000000, IOPRAMSIZE),
+m_dmac(m_ram),
 m_executor(m_cpu),
 m_status(PAUSED),
 m_singleStep(false),
@@ -23,12 +25,14 @@ m_thread(bind(&CPsfVm::ThreadProc, this))
     //IOP context setup
     {
         //Read map
-	    m_cpu.m_pMemoryMap->InsertReadMap(0x00000000,	        IOPRAMSIZE - 1,     m_ram,											0x00);
-        m_cpu.m_pMemoryMap->InsertReadMap(CSpu2::REGS_BEGIN,    CSpu2::REGS_END,    bind(&CSpu2::ReadRegister, &m_spu, _1),         0x01);
+	    m_cpu.m_pMemoryMap->InsertReadMap(0x00000000,	               IOPRAMSIZE - 1,            m_ram,											0x00);
+        m_cpu.m_pMemoryMap->InsertReadMap(CDmac::DMAC_ZONE1_START,     CDmac::DMAC_ZONE1_END,     bind(&CDmac::ReadRegister, &m_dmac, _1),          0x01);
+        m_cpu.m_pMemoryMap->InsertReadMap(CSpu2::REGS_BEGIN,           CSpu2::REGS_END,           bind(&CSpu2::ReadRegister, &m_spu, _1),           0x02);
 
         //Write map
-        m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000,          IOPRAMSIZE - 1,	            m_ram,											0x00);
-	    m_cpu.m_pMemoryMap->InsertWriteMap(CSpu2::REGS_BEGIN,   CSpu2::REGS_END,	    	bind(&CSpu2::WriteRegister, &m_spu, _1, _2),    0x01);
+        m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000,                  IOPRAMSIZE - 1,	            m_ram,											0x00);
+        m_cpu.m_pMemoryMap->InsertWriteMap(CDmac::DMAC_ZONE1_START,     CDmac::DMAC_ZONE1_END,      bind(&CDmac::WriteRegister, &m_dmac, _1, _2),   0x01);
+        m_cpu.m_pMemoryMap->InsertWriteMap(CSpu2::REGS_BEGIN,           CSpu2::REGS_END,	    	bind(&CSpu2::WriteRegister, &m_spu, _1, _2),    0x02);
 
 	    //Instruction map
         m_cpu.m_pMemoryMap->InsertInstructionMap(0x00000000, IOPRAMSIZE - 1, m_ram,  0x00);
@@ -37,6 +41,8 @@ m_thread(bind(&CPsfVm::ThreadProc, this))
 
 		m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
     }
+
+    m_dmac.SetReceiveFunction(4, bind(&Spu2::CCore::ReceiveDma, m_spu.GetCore(0), _1, _2, _3));
 }
 
 CPsfVm::~CPsfVm()
@@ -65,6 +71,7 @@ void CPsfVm::Reset()
 {
     memset(m_ram, 0, IOPRAMSIZE);
     m_bios.Reset();
+    m_dmac.Reset();
 }
 
 CVirtualMachine::STATUS CPsfVm::GetStatus() const

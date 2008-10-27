@@ -1,4 +1,5 @@
 #include <boost/lexical_cast.hpp>
+#include <assert.h>
 #include "Spu2_Core.h"
 #include "Log.h"
 
@@ -11,7 +12,8 @@ using namespace Framework;
 using namespace boost;
 
 CCore::CCore(unsigned int coreId) :
-m_coreId(coreId)
+m_coreId(coreId),
+m_ram(new uint8[RAMSIZE])
 {
 	m_logName = LOG_NAME_PREFIX + lexical_cast<string>(m_coreId);
 
@@ -26,11 +28,12 @@ m_coreId(coreId)
 
 CCore::~CCore()
 {
-    
+    delete [] m_ram;
 }
 
 void CCore::Reset()
 {
+    memset(m_ram, 0, RAMSIZE);
 	m_transferAddress.w = 0;
 }
 
@@ -42,6 +45,11 @@ uint32 CCore::ReadRegister(uint32 address, uint32 value)
 uint32 CCore::WriteRegister(uint32 address, uint32 value)
 {
 	return ProcessRegisterAccess(m_writeDispatch, address, value);
+}
+
+uint32 CCore::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+{
+    return blockAmount;
 }
 
 uint32 CCore::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
@@ -86,6 +94,14 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 {
 	switch(address)
 	{
+    case A_STD:
+        {
+            uint32 address = m_transferAddress.w << 1;
+            address &= RAMSIZE - 1;
+            *reinterpret_cast<uint16*>(m_ram + address) = static_cast<uint16>(value);
+            m_transferAddress.w++;
+        }
+        break;
 	case A_TSA_HI:
 		m_transferAddress.h1 = static_cast<uint16>(value);
 		break;

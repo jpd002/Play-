@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "Spu2.h"
 #include "Log.h"
 
@@ -216,6 +217,13 @@ m_baseAddress(baseAddress)
 CSpu2::~CSpu2()
 {
 
+}
+
+CCore* CSpu2::GetCore(unsigned int coreId)
+{
+    assert(coreId < CORE_NUM);
+    if(coreId >= CORE_NUM) return NULL;
+    return m_core[coreId];
 }
 
 uint32 CSpu2::ReadRegister(uint32 address)

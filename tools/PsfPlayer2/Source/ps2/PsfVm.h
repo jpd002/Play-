@@ -39,11 +39,11 @@ namespace PS2
 		unsigned int			ExecuteCpu(bool);
 		void					ThreadProc();
 
-		CSpu2					m_spu;
+		uint8*					m_ram;
+        CSpu2					m_spu;
         Iop::CDmac              m_dmac;
         Iop::CIntc              m_intc;
 		CMipsExecutor			m_executor;
-		uint8*					m_ram;
         CMIPS					m_cpu;
         CIopBios				m_bios;
 		CMailBox				m_mailBox;

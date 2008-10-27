@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\BasicUnions.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\CounterRegView.cpp"
 				>
 			</File>
@@ -298,6 +302,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\ps2\Iop_DmacChannel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Iop_DmacChannel.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\ps2\PsfDevice.cpp"
 					>
 				</File>
@@ -319,6 +331,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\ps2\Spu2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Spu2_Channel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Spu2_Channel.h"
 					>
 				</File>
 				<File
