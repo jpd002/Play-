@@ -35,6 +35,7 @@ void CCore::Reset()
 {
     memset(m_ram, 0, RAMSIZE);
 	m_transferAddress.f = 0;
+	m_coreAttr = 0;
 }
 
 uint32 CCore::ReadRegister(uint32 address, uint32 value)
@@ -95,6 +96,13 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 	{
 	case STATX:
 		result = 0x0000;
+		if(m_coreAttr & CORE_DMA)
+		{
+			result |= 0x80;
+		}
+		break;
+	case CORE_ATTR:
+		result = m_coreAttr;
 		break;
 	}
 #ifdef _DEBUG
@@ -107,6 +115,9 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 {
 	switch(address)
 	{
+	case CORE_ATTR:
+		m_coreAttr = static_cast<uint16>(value);
+		break;
     case A_STD:
         {
             uint32 address = m_transferAddress.f << 1;
@@ -176,6 +187,9 @@ void CCore::LogRead(uint32 address)
 	const char* logName = m_logName.c_str();
     switch(address)
     {
+	case CORE_ATTR:
+		CLog::GetInstance().Print(logName, "= CORE_ATTR\r\n");
+		break;
     case STATX:
 		CLog::GetInstance().Print(logName, "= STATX\r\n");
         break;
@@ -190,6 +204,9 @@ void CCore::LogWrite(uint32 address, uint32 value)
 	const char* logName = m_logName.c_str();
     switch(address)
     {
+	case CORE_ATTR:
+		CLog::GetInstance().Print(logName, "CORE_ATTR = 0x%0.4X\r\n", value);
+		break;
 	case A_TSA_HI:
 		CLog::GetInstance().Print(logName, "A_TSA_HI = 0x%0.4X\r\n", value);
 		break;

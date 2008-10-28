@@ -35,6 +35,11 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
             context.m_State.nGPR[CMIPS::A0].nV0
             ));
         break;
+	case 7:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iSignalSemaphore(
+            context.m_State.nGPR[CMIPS::A0].nV0
+            ));
+		break;
     case 8:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(WaitSemaphore(
             context.m_State.nGPR[CMIPS::A0].nV0
@@ -53,7 +58,12 @@ uint32 CThsema::CreateSemaphore(const SEMAPHORE* semaphore)
 
 uint32 CThsema::SignalSemaphore(uint32 semaphoreId)
 {
-    return m_bios.SignalSemaphore(semaphoreId);
+    return m_bios.SignalSemaphore(semaphoreId, false);
+}
+
+uint32 CThsema::iSignalSemaphore(uint32 semaphoreId)
+{
+	return m_bios.SignalSemaphore(semaphoreId, true);
 }
 
 uint32 CThsema::WaitSemaphore(uint32 semaphoreId)

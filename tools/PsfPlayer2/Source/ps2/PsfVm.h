@@ -4,6 +4,7 @@
 #include <boost/thread.hpp>
 #include <boost/signal.hpp>
 #include "VirtualMachine.h"
+#include "../SH_OpenAL.h"
 #include "PsfDevice.h"
 #include "iop/IopBios.h"
 #include "../Debuggable.h"
@@ -50,6 +51,7 @@ namespace PS2
 		STATUS					m_status;
 		boost::thread			m_thread;
 		bool					m_singleStep;
+		CSH_OpenAL				m_spuHandler;
     };
 }
 

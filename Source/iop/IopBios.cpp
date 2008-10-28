@@ -73,6 +73,8 @@ void CIopBios::Reset()
 	{
 		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[m_baseAddress]));
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
+		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
+		m_idleFunctionAddress = AssembleIdleFunction(assembler);
 	}
 
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
@@ -448,15 +450,21 @@ void CIopBios::Reschedule()
     {
         //Try without checking activation time
         nextThreadId = GetNextReadyThread(false);
-        if(nextThreadId == -1)
-        {
-            throw runtime_error("No thread available for running.");
-        }
     }
 
-    LoadThreadContext(nextThreadId);
-    m_currentThreadId = nextThreadId;
-    m_cpu.m_nQuota = 1;
+    if(nextThreadId == -1)
+    {
+#ifdef _DEBUG
+		printf("Warning, no thread available for running.\r\n");
+#endif
+		m_cpu.m_State.nPC = m_idleFunctionAddress;
+    }
+	else
+	{
+		LoadThreadContext(nextThreadId);
+	}
+	m_currentThreadId = nextThreadId;
+	m_cpu.m_nQuota = 1;
 }
 
 uint32 CIopBios::GetNextReadyThread(bool checkActivateTime)
@@ -526,7 +534,7 @@ uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
     return semaphore.id;
 }
 
-uint32 CIopBios::SignalSemaphore(uint32 semaphoreId)
+uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: SignalSemaphore(semaphoreId = %i);\r\n", 
@@ -548,7 +556,10 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId)
                 }
                 thread.status = THREAD_STATUS_RUNNING;
                 thread.waitSemaphore = 0;
-                m_rescheduleNeeded = true;
+				if(!inInterrupt)
+				{
+					m_rescheduleNeeded = true;
+				}
                 semaphore.waitCount--;
                 if(semaphore.waitCount == 0)
                 {
@@ -627,8 +638,24 @@ bool CIopBios::ReleaseIntrHandler(uint32 line)
 
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 {
-    uint32 address = m_baseAddress + assembler.GetProgramSize();
+    uint32 address = m_baseAddress + assembler.GetProgramSize() * 4;
     assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0666);
+    assembler.SYSCALL();
+    return address;
+}
+
+uint32 CIopBios::AssembleReturnFromException(CMIPSAssembler& assembler)
+{
+    uint32 address = m_baseAddress + assembler.GetProgramSize() * 4;
+    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0667);
+    assembler.SYSCALL();
+    return address;
+}
+
+uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
+{
+    uint32 address = m_baseAddress + assembler.GetProgramSize() * 4;
+    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0668);
     assembler.SYSCALL();
     return address;
 }
@@ -639,9 +666,17 @@ void CIopBios::HandleException()
     uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
     if(callInstruction == 0x0000000C)
     {
-        if(m_cpu.m_State.nGPR[CMIPS::V0].nV0 == 0x666)
+        switch(m_cpu.m_State.nGPR[CMIPS::V0].nV0)
         {
+		case 0x666:
             ExitCurrentThread();
+			break;
+		case 0x667:
+			ReturnFromException();
+			break;
+		case 0x668:
+			Reschedule();
+			break;
         }
     }
     else
@@ -673,6 +708,7 @@ void CIopBios::HandleException()
 
     if(m_rescheduleNeeded)
     {
+		assert((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0);
         m_rescheduleNeeded = false;
         Reschedule();
     }
@@ -682,32 +718,71 @@ void CIopBios::HandleException()
 
 void CIopBios::HandleInterrupt()
 {
-	if(m_cpu.GenerateInterrupt(0xBFC00000))
+	if(m_cpu.GenerateInterrupt(m_cpu.m_State.nPC))
 	{
         //Find first concerned interrupt
         unsigned int line = -1;
-        UNION64_32 status;
+        UNION64_32 status(
+			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS0),
+			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS1));
+		UNION64_32 mask(
+			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK0),
+			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK1));
+		status.f &= mask.f;
         for(unsigned int i = 0; i < 0x40; i++)
         {
-            
+            if(status.f & (1LL << i))
+			{
+				line = i;
+				break;
+			}
         }
-//		SaveCpuState();
-//		m_cpu.m_State.nGPR[CMIPS::K1].nV0 = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
-//		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS);
-//		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
-//		uint32 cause = status & mask;
-//		for(unsigned int i = 1; i <= MAX_EVENT; i++)
-//		{
-//			EVENT* eventPtr = m_events[i];
-//			if(eventPtr == NULL) continue;
-//			if(cause & 0x08 && eventPtr->classId == 0xF0000009)
-//			{
-//				eventPtr->fired = 1;		
-//			}
-//		}
-//		m_cpu.m_State.nPC = INTR_HANDLER;
-//		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
+		assert(line != -1);
+		if(line == -1)
+		{
+			ReturnFromException();
+			return;
+		}
+		status.f = ~(1LL << line);
+		m_cpu.m_pMemoryMap->SetWord(Iop::CIntc::STATUS0, status.h0);
+		m_cpu.m_pMemoryMap->SetWord(Iop::CIntc::STATUS1, status.h1);
+		//Check if there's an handler to call
+		{
+			IntrHandlerMapType::const_iterator handlerIterator(m_intrHandlers.find(line));
+			if(handlerIterator == m_intrHandlers.end())
+			{
+				ReturnFromException();
+				return;
+			}
+			else
+			{
+				//Snap out of current thread
+				if(m_currentThreadId != -1)
+				{
+					SaveThreadContext(m_currentThreadId);
+				}
+				m_currentThreadId = -1;
+				m_cpu.m_State.nPC = handlerIterator->second.handler;
+				m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(handlerIterator->second.arg);
+				m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_returnFromExceptionAddress);
+			}
+		}
 	}
+}
+
+void CIopBios::ReturnFromException()
+{
+	uint32& status = m_cpu.m_State.nCOP0[CCOP_SCU::STATUS];
+	assert(status & (CMIPS::STATUS_ERL | CMIPS::STATUS_EXL));
+	if(status & CMIPS::STATUS_ERL)
+	{
+		status &= ~CMIPS::STATUS_ERL;
+	}
+	else if(status & CMIPS::STATUS_EXL)
+	{
+		status &= ~CMIPS::STATUS_EXL;
+	}
+	Reschedule();
 }
 
 string CIopBios::GetModuleNameFromPath(const std::string& path)

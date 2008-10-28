@@ -44,7 +44,7 @@ public:
     uint32                  WakeupThread(uint32);
 
     uint32                  CreateSemaphore(uint32, uint32);
-    uint32                  SignalSemaphore(uint32);
+    uint32                  SignalSemaphore(uint32, bool);
     uint32                  WaitSemaphore(uint32);
 
     bool                    RegisterIntrHandler(uint32, uint32, uint32, uint32);
@@ -126,6 +126,7 @@ private:
     void                    Reschedule();
     uint32                  GetNextReadyThread(bool);
     uint64                  GetCurrentTime();
+	void					ReturnFromException();
 
     SEMAPHORE&              GetSemaphore(uint32);
 
@@ -142,6 +143,8 @@ private:
     uint32                  Push(uint32&, const uint8*, uint32);
 
     uint32                  AssembleThreadFinish(CMIPSAssembler&);
+	uint32					AssembleReturnFromException(CMIPSAssembler&);
+	uint32					AssembleIdleFunction(CMIPSAssembler&);
 
     CMIPS&                  m_cpu;
     CSIF&                   m_sif;
@@ -150,6 +153,8 @@ private:
     uint32                  m_ramSize;
     uint32                  m_baseAddress;
     uint32                  m_threadFinishAddress;
+	uint32					m_returnFromExceptionAddress;
+	uint32					m_idleFunctionAddress;
     uint32                  m_nextThreadId;
     uint32                  m_nextSemaphoreId;
     uint32                  m_currentThreadId;

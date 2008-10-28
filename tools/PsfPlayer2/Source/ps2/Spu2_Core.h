@@ -35,6 +35,7 @@ namespace PS2
 				VP_VOLXL		= 0x1F90000C,
 				VP_VOLXR		= 0x1F90000E,
 				S_REG_BASE		= 0x1F900180,
+				CORE_ATTR		= 0x1F90019A,
 				A_TSA_HI		= 0x1F9001A8,
 				A_TSA_LO		= 0x1F9001AA,
 				A_STD			= 0x1F9001AC,
@@ -45,6 +46,11 @@ namespace PS2
 				VA_NAX			= 0x1F9001C8,
 				R_REG_BASE		= 0x1F9002E0,		//Reverb Base
 				STATX			= 0x1F900344,
+			};
+
+			enum
+			{
+				CORE_DMA		= 0x30,
 			};
 
 		private:
@@ -84,6 +90,7 @@ namespace PS2
             uint8*                  m_ram;
 			CChannel				m_channel[MAX_CHANNEL];
 			unsigned int			m_coreId;
+			uint16					m_coreAttr;
 			UNION32_16				m_transferAddress;
 			std::string				m_logName;
 		};

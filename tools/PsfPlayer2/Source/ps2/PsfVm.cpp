@@ -9,7 +9,9 @@ using namespace std::tr1::placeholders;
 using namespace boost;
 using namespace Iop;
 
-#define PSF_DEVICENAME "psf"
+#define PSF_DEVICENAME	"psf"
+#define CLOCK_FREQ		(44100 * 256 * 3)		//~33.8MHz
+#define FRAMES_PER_SEC	(60)
 
 CPsfVm::CPsfVm() :
 m_ram(new uint8[IOPRAMSIZE]),
@@ -141,12 +143,11 @@ unsigned int CPsfVm::ExecuteCpu(bool singleStep)
 
 void CPsfVm::ThreadProc()
 {
-	const int frameTicks = 20000;
-//	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
-//	const int spuUpdateTicks = (4 * CLOCK_FREQ / 1000);
+	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
+	const int spuUpdateTicks = (4 * CLOCK_FREQ / 1000);
 //	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
-//	int frameCounter = frameTicks;
-//	int spuUpdateCounter = spuUpdateTicks;
+	int frameCounter = frameTicks;
+	int spuUpdateCounter = spuUpdateTicks;
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -185,7 +186,6 @@ void CPsfVm::ThreadProc()
 				m_OnRunningStateChange();
 			}
 #else
-/*
 			if(m_spuHandler.HasFreeBuffers())
 			{
 				while(m_spuHandler.HasFreeBuffers() && !m_mailBox.IsPending())
@@ -216,7 +216,6 @@ void CPsfVm::ThreadProc()
 				thread::sleep(xt);
 //				thread::yield();
 			}
-*/
 #endif
 		}
 	}
