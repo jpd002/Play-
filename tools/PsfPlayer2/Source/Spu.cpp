@@ -157,6 +157,16 @@ CSpu::CHANNEL& CSpu::GetChannel(unsigned int channelNumber)
 	return m_channel[channelNumber];
 }
 
+uint32 CSpu::GetTransferAddress() const
+{
+	return m_bufferAddr;
+}
+
+void CSpu::SetTransferAddress(uint32 value)
+{
+	m_bufferAddr = value;
+}
+
 void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
 	struct SampleMixer

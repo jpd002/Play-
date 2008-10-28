@@ -6,6 +6,7 @@
 #include <boost/utility.hpp>
 #include "Types.h"
 #include "../BasicUnions.h"
+#include "../Spu.h"
 #include "Spu2_Channel.h"
 
 namespace PS2
@@ -87,12 +88,13 @@ namespace PS2
 
 			REGISTER_DISPATCH_INFO	m_readDispatch;
 			REGISTER_DISPATCH_INFO	m_writeDispatch;
-            uint8*                  m_ram;
-			CChannel				m_channel[MAX_CHANNEL];
+//            uint8*                  m_ram;
+//			CChannel				m_channel[MAX_CHANNEL];
 			unsigned int			m_coreId;
 			uint16					m_coreAttr;
-			UNION32_16				m_transferAddress;
+//			UNION32_16				m_transferAddress;
 			std::string				m_logName;
+			CSpu					m_spuBase;
 		};
 	};
 };

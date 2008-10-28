@@ -78,6 +78,9 @@ public:
 	uint16		ReadRegister(uint32);
 	void		WriteRegister(uint32, uint16);
 
+	uint32		GetTransferAddress() const;
+	void		SetTransferAddress(uint32);
+
 	uint32		GetChannelOn() const;
 	uint32		GetChannelReverb() const;
 	CHANNEL&	GetChannel(unsigned int);

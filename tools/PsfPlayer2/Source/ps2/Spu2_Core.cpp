@@ -12,8 +12,8 @@ using namespace Framework;
 using namespace boost;
 
 CCore::CCore(unsigned int coreId) :
-m_coreId(coreId),
-m_ram(new uint8[RAMSIZE])
+m_coreId(coreId)
+//m_ram(new uint8[RAMSIZE])
 {
 	m_logName = LOG_NAME_PREFIX + lexical_cast<string>(m_coreId);
 
@@ -28,13 +28,14 @@ m_ram(new uint8[RAMSIZE])
 
 CCore::~CCore()
 {
-    delete [] m_ram;
+//    delete [] m_ram;
 }
 
 void CCore::Reset()
 {
-    memset(m_ram, 0, RAMSIZE);
-	m_transferAddress.f = 0;
+	m_spuBase.Reset();
+//    memset(m_ram, 0, RAMSIZE);
+//	m_transferAddress.f = 0;
 	m_coreAttr = 0;
 }
 
@@ -50,6 +51,7 @@ uint32 CCore::WriteRegister(uint32 address, uint32 value)
 
 uint32 CCore::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 {
+/*
 	assert((blockSize & 1) == 0);
 	unsigned int blocksTransfered = 0;
 	uint32 dstAddress = m_transferAddress.f << 1;
@@ -63,7 +65,8 @@ uint32 CCore::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 		blocksTransfered++;
 	}
 	m_transferAddress.f = dstAddress >> 1;
-    return blocksTransfered;
+*/
+    return m_spuBase.ReceiveDma(buffer, blockSize, blockAmount);
 }
 
 uint32 CCore::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
@@ -120,17 +123,27 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		break;
     case A_STD:
         {
-            uint32 address = m_transferAddress.f << 1;
-            address &= RAMSIZE - 1;
-            *reinterpret_cast<uint16*>(m_ram + address) = static_cast<uint16>(value);
-            m_transferAddress.f++;
+//            uint32 address = m_transferAddress.f << 1;
+//            address &= RAMSIZE - 1;
+//            *reinterpret_cast<uint16*>(m_ram + address) = static_cast<uint16>(value);
+//            m_transferAddress.f++;
         }
         break;
 	case A_TSA_HI:
-		m_transferAddress.h1 = static_cast<uint16>(value);
+		{
+			uint32 transferAddress = m_spuBase.GetTransferAddress();
+			transferAddress &= 0xFFFF << 1;
+			transferAddress |= value << (1 + 16);
+			m_spuBase.SetTransferAddress(transferAddress);
+		}
 		break;
 	case A_TSA_LO:
-		m_transferAddress.h0 = static_cast<uint16>(value);
+		{
+			uint32 transferAddress = m_spuBase.GetTransferAddress();
+			transferAddress &= 0xFFFF << (1 + 16);
+			transferAddress |= value << 1;
+			m_spuBase.SetTransferAddress(transferAddress);
+		}
 		break;
 	}
 	LogWrite(address, value);
@@ -150,6 +163,53 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 	{
 		return 0;
 	}
+	CSpu::CHANNEL& channel(m_spuBase.GetChannel(channelId));
+	switch(address)
+	{
+	case VP_VOLL:
+		channel.volumeLeft <<= static_cast<uint16>(value);
+		break;
+	case VP_VOLR:
+		channel.volumeRight <<= static_cast<uint16>(value);
+		break;
+	case VP_PITCH:
+		channel.pitch = static_cast<uint16>(value);
+		break;
+	case VP_ADSR1:
+		channel.adsrLevel <<= static_cast<uint16>(value);
+		break;
+	case VP_ADSR2:
+		channel.adsrRate <<= static_cast<uint16>(value);
+		break;
+	case VP_ENVX:
+		channel.adsrVolume = static_cast<uint16>(value);
+		break;
+	case VP_VOLXL:
+//		channel.volxLeft = static_cast<uint16>(value);
+		break;
+	case VP_VOLXR:
+//		channel.volxRight = static_cast<uint16>(value);
+		break;
+	case VA_SSA_HI:
+		{
+			uint32 address = channel.address * 8;
+			address &= 0xFFFF << 1;
+			address |= value << (1 + 16);
+			assert((address & 0x7) == 0);
+			channel.address = address / 8;
+		}
+		break;
+	case VA_SSA_LO:
+		{
+			uint32 address = channel.address * 8;
+			address &= 0xFFFF << (1 + 16);
+			address |= value << 1;
+			assert((address & 0x7) == 0);
+			channel.address = address / 8;
+		}
+		break;
+	}
+/*
 	CChannel& channel(m_channel[channelId]);
 	switch(address)
 	{
@@ -178,6 +238,7 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 		channel.volxRight = static_cast<uint16>(value);
 		break;
 	}
+*/
 	LogChannelWrite(channelId, address, value);
 	return 0;
 }
