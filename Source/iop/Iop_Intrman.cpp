@@ -2,13 +2,15 @@
 #include "../Log.h"
 #include "../COP_SCU.h"
 #include "Iop_Intc.h"
+#include "IopBios.h"
 
 #define LOGNAME "iop_intrman"
 
 using namespace Iop;
 using namespace std;
 
-CIntrman::CIntrman(uint8* ram) :
+CIntrman::CIntrman(CIopBios& bios, uint8* ram) :
+m_bios(bios),
 m_ram(ram)
 {
 
@@ -88,7 +90,7 @@ uint32 CIntrman::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, u
     CLog::GetInstance().Print(LOGNAME, "RegisterIntrHandler(line = %d, mode = %d, handler = 0x%0.8X, arg = 0x%0.8X);\r\n",
         line, mode, handler, arg);
 #endif
-    return 0;
+    return m_bios.RegisterIntrHandler(line, mode, handler, arg) ? 1 : 0;
 }
 
 uint32 CIntrman::ReleaseIntrHandler(uint32 line)
@@ -97,7 +99,7 @@ uint32 CIntrman::ReleaseIntrHandler(uint32 line)
     CLog::GetInstance().Print(LOGNAME, "ReleaseIntrHandler(line = %d);\r\n",
         line);
 #endif
-    return 0;
+    return m_bios.ReleaseIntrHandler(line) ? 1 : 0;
 }
 
 uint32 CIntrman::EnableIntrLine(CMIPS& context, uint32 line)
@@ -137,7 +139,7 @@ uint32 CIntrman::EnableInterrupts(CMIPS& context)
 #endif
 
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-    statusRegister |= 1;
+    statusRegister |= CMIPS::STATUS_INT;
     return 0;
 }
 
@@ -147,8 +149,8 @@ uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32* state)
     CLog::GetInstance().Print(LOGNAME, "SuspendInterrupts();\r\n");
 #endif
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-    (*state) = statusRegister & 1;
-    statusRegister &= ~1;
+    (*state) = statusRegister & CMIPS::STATUS_INT;
+    statusRegister &= ~CMIPS::STATUS_INT;
     return 0;
 }
 
@@ -160,11 +162,11 @@ uint32 CIntrman::ResumeInterrupts(CMIPS& context, uint32 state)
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
     if(state)
     {
-        statusRegister |= 1;
+        statusRegister |= CMIPS::STATUS_INT;
     }
     else
     {
-        statusRegister &= ~1;
+        statusRegister &= ~CMIPS::STATUS_INT;
     }
     return 0;
 }
@@ -175,5 +177,5 @@ uint32 CIntrman::QueryIntrContext(CMIPS& context)
     CLog::GetInstance().Print(LOGNAME, "QueryIntrContext();\r\n");
 #endif
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-    return (statusRegister & 0x02 ? 1 : 0);
+    return (statusRegister & CMIPS::STATUS_EXL ? 1 : 0);
 }

@@ -3,12 +3,14 @@
 
 #include "Iop_Module.h"
 
+class CIopBios;
+
 namespace Iop
 {
     class CIntrman : public CModule
     {
     public:
-                        CIntrman(uint8*);
+                        CIntrman(CIopBios&, uint8*);
         virtual         ~CIntrman();
 
         std::string     GetId() const;
@@ -24,6 +26,7 @@ namespace Iop
         uint32          ResumeInterrupts(CMIPS&, uint32);
         uint32          QueryIntrContext(CMIPS&);
         uint8*          m_ram;
+        CIopBios&       m_bios;
     };
 }
 

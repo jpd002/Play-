@@ -109,10 +109,10 @@ unsigned int CPsfVm::ExecuteCpu(bool singleStep)
 	int ticks = 0;
     if(!m_cpu.m_State.nHasException)
     {
-//		if(m_intc.IsInterruptPending())
-//		{
-//			m_bios.HandleInterrupt();
-//		}
+		if(m_intc.HasPendingInterrupt())
+		{
+            m_bios.HandleInterrupt();
+		}
     }
 	if(!m_cpu.m_State.nHasException)
 	{
@@ -134,7 +134,7 @@ unsigned int CPsfVm::ExecuteCpu(bool singleStep)
 	}
 	if(m_cpu.m_State.nHasException)
 	{
-		m_bios.SysCallHandler();
+		m_bios.HandleException();
 	}
 	return ticks;
 }

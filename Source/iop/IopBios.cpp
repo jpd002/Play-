@@ -3,6 +3,7 @@
 #include "../Log.h"
 #include "../ElfFile.h"
 #include "PtrStream.h"
+#include "Iop_Intc.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan320.h"
@@ -74,6 +75,10 @@ void CIopBios::Reset()
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
 	}
 
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
+
+    m_intrHandlers.clear();
+
     DeleteModules();
 
     //Register built-in modules
@@ -112,7 +117,7 @@ void CIopBios::Reset()
         RegisterModule(new Iop::CTimrman());
     }
     {
-        RegisterModule(new Iop::CIntrman(m_ram));
+        RegisterModule(new Iop::CIntrman(*this, m_ram));
     }
 #ifdef _IOP_EMULATE_MODULES
     {
@@ -601,6 +606,25 @@ Iop::CPadMan* CIopBios::GetPadman()
 
 #endif
 
+bool CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
+{
+    INTRHANDLER intrHandler;
+    intrHandler.line = line;
+    intrHandler.mode = mode;
+    intrHandler.handler = handler;
+    intrHandler.arg = arg;
+    m_intrHandlers[line] = intrHandler;
+    return true;
+}
+
+bool CIopBios::ReleaseIntrHandler(uint32 line)
+{
+    IntrHandlerMapType::iterator handlerIterator(m_intrHandlers.find(line));
+    if(handlerIterator == m_intrHandlers.end()) return false;
+    m_intrHandlers.erase(handlerIterator);
+    return true;
+}
+
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 {
     uint32 address = m_baseAddress + assembler.GetProgramSize();
@@ -609,7 +633,7 @@ uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
     return address;
 }
 
-void CIopBios::SysCallHandler()
+void CIopBios::HandleException()
 {
     uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
     uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
@@ -654,6 +678,36 @@ void CIopBios::SysCallHandler()
     }
 
     m_cpu.m_State.nHasException = 0;
+}
+
+void CIopBios::HandleInterrupt()
+{
+	if(m_cpu.GenerateInterrupt(0xBFC00000))
+	{
+        //Find first concerned interrupt
+        unsigned int line = -1;
+        UNION64_32 status;
+        for(unsigned int i = 0; i < 0x40; i++)
+        {
+            
+        }
+//		SaveCpuState();
+//		m_cpu.m_State.nGPR[CMIPS::K1].nV0 = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+//		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS);
+//		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
+//		uint32 cause = status & mask;
+//		for(unsigned int i = 1; i <= MAX_EVENT; i++)
+//		{
+//			EVENT* eventPtr = m_events[i];
+//			if(eventPtr == NULL) continue;
+//			if(cause & 0x08 && eventPtr->classId == 0xF0000009)
+//			{
+//				eventPtr->fired = 1;		
+//			}
+//		}
+//		m_cpu.m_State.nPC = INTR_HANDLER;
+//		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
+	}
 }
 
 string CIopBios::GetModuleNameFromPath(const std::string& path)

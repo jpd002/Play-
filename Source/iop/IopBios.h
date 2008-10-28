@@ -24,7 +24,8 @@ public:
 
     void                    LoadAndStartModule(const char*, const char*, unsigned int);
     void                    LoadAndStartModule(uint32, const char*, unsigned int);
-    void                    SysCallHandler();
+    void                    HandleException();
+    void                    HandleInterrupt();
 
     void                    Reset();
 
@@ -45,6 +46,9 @@ public:
     uint32                  CreateSemaphore(uint32, uint32);
     uint32                  SignalSemaphore(uint32);
     uint32                  WaitSemaphore(uint32);
+
+    bool                    RegisterIntrHandler(uint32, uint32, uint32, uint32);
+    bool                    ReleaseIntrHandler(uint32);
 
 private:
     enum DEFAULT_STACKSIZE
@@ -83,6 +87,14 @@ private:
         uint32          waitCount;
     };
 
+    struct INTRHANDLER
+    {
+        uint32          line;
+        uint32          mode;
+        uint32          handler;
+        uint32          arg;
+    };
+
     struct LOADEDMODULE
     {
         std::string     name;
@@ -102,6 +114,7 @@ private:
     typedef std::multimap<uint32, THREAD, std::greater<uint32> > ThreadMapType;
     typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
     typedef std::map<uint32, SEMAPHORE> SemaphoreMapType;
+    typedef std::map<uint32, INTRHANDLER> IntrHandlerMapType;
     typedef std::list<LOADEDMODULE> LoadedModuleListType;
     typedef std::pair<uint32, uint32> ExecutableRange;
 
@@ -143,6 +156,7 @@ private:
     bool                    m_rescheduleNeeded;
     ThreadMapType           m_threads;
     SemaphoreMapType        m_semaphores;
+    IntrHandlerMapType      m_intrHandlers;
     IopModuleMapType        m_modules;
     LoadedModuleListType    m_loadedModules;
     Iop::CSifMan*           m_sifMan;
