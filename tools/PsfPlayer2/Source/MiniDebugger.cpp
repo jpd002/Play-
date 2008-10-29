@@ -26,7 +26,9 @@ m_disAsmView(NULL),
 m_registerView(NULL),
 m_memoryView(NULL)
 {
-	if(!DoesWindowClassExist(CLSNAME))
+	InitializeConsole();
+
+    if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
 		memset(&w, 0, sizeof(WNDCLASSEX));
@@ -64,8 +66,6 @@ m_memoryView(NULL)
     m_mainSplitter->SetChild(0, *m_subSplitter);
     m_mainSplitter->SetChild(1, *m_memoryView);
     m_disAsmView->SetAddress(m_debuggable.GetCpu().m_State.nPC);
-
-	InitializeConsole();
 
 //	CMIPS& context = m_virtualMachine.GetCpu();
 //	for(unsigned int i = 0; i < CPsxVm::RAMSIZE / 4; i++)

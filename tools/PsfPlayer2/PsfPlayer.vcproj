@@ -117,7 +117,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;&quot;$(ProjectDir)\Source&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MSVC;_PSX"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MSVC;_PSX;_NULL_SIFMAN;DEBUGGER_INCLUDED;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"

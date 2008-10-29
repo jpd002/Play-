@@ -85,7 +85,10 @@ public:
 	uint32		GetChannelReverb() const;
 	CHANNEL&	GetChannel(unsigned int);
 
-	uint32		ReceiveDma(uint8*, uint32, uint32);
+	void		SendKeyOn(uint32);
+	void		SendKeyOff(uint32);
+
+    uint32		ReceiveDma(uint8*, uint32, uint32);
 
 	void		Render(int16*, unsigned int, unsigned int);
 
@@ -275,9 +278,6 @@ private:
 	{
 		MAX_ADSR_VOLUME = 0x7FFFFFFF,
 	};
-
-	void			SendKeyOn(uint32);
-	void			SendKeyOff(uint32);
 
 	void			DisassembleRead(uint32);
 	void			DisassembleWrite(uint32, uint16);

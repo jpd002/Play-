@@ -122,11 +122,18 @@ unsigned int CPsfVm::ExecuteCpu(bool singleStep)
 		ticks = quota - m_executor.Execute(quota);
 		assert(ticks >= 0);
         {
-            CBasicBlock* nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
-            if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+            if(m_cpu.m_State.nPC == 0x1018)
             {
-				//Go a little bit faster if we're "stuck"
 				ticks += (quota * 2);
+            }
+            else
+            {
+                CBasicBlock* nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
+                if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+                {
+				    //Go a little bit faster if we're "stuck"
+				    ticks += (quota * 2);
+                }
             }
         }
 		if(ticks > 0)
@@ -203,7 +210,7 @@ void CPsfVm::ThreadProc()
 						}
 					}
 
-					m_spuHandler.Update(m_spu);
+					m_spuHandler.Update(m_spu.GetCore(0)->GetSpu());
 					spuUpdateCounter += spuUpdateTicks;
 				}
 			}

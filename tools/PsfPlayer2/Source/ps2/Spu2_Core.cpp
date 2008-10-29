@@ -39,6 +39,11 @@ void CCore::Reset()
 	m_coreAttr = 0;
 }
 
+CSpu& CCore::GetSpu()
+{
+    return m_spuBase;
+}
+
 uint32 CCore::ReadRegister(uint32 address, uint32 value)
 {
 	return ProcessRegisterAccess(m_readDispatch, address, value);
@@ -128,6 +133,18 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 //            *reinterpret_cast<uint16*>(m_ram + address) = static_cast<uint16>(value);
 //            m_transferAddress.f++;
         }
+        break;
+    case A_KON_HI:
+        m_spuBase.SendKeyOn(value);
+        break;
+    case A_KON_LO:
+        m_spuBase.SendKeyOn(value << 16);
+        break;
+    case A_KOFF_HI:
+        m_spuBase.SendKeyOff(value);
+        break;
+    case A_KOFF_LO:
+        m_spuBase.SendKeyOff(value << 16);
         break;
 	case A_TSA_HI:
 		{
@@ -268,6 +285,18 @@ void CCore::LogWrite(uint32 address, uint32 value)
 	case CORE_ATTR:
 		CLog::GetInstance().Print(logName, "CORE_ATTR = 0x%0.4X\r\n", value);
 		break;
+    case A_KON_HI:
+		CLog::GetInstance().Print(logName, "A_KON_HI = 0x%0.4X\r\n", value);
+        break;
+    case A_KON_LO:
+		CLog::GetInstance().Print(logName, "A_KON_LO = 0x%0.4X\r\n", value);
+        break;
+    case A_KOFF_HI:
+		CLog::GetInstance().Print(logName, "A_KOFF_HI = 0x%0.4X\r\n", value);
+        break;
+    case A_KOFF_LO:
+		CLog::GetInstance().Print(logName, "A_KOFF_LO = 0x%0.4X\r\n", value);
+        break;
 	case A_TSA_HI:
 		CLog::GetInstance().Print(logName, "A_TSA_HI = 0x%0.4X\r\n", value);
 		break;

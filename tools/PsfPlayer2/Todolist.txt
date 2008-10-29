@@ -1,11 +1,12 @@
 TODO:
+- Seperate Ioman and Fileio modules.
+- Move IOP (Dmac, DmacChannel, ect.) stuff to Purei.
+- Merge PsfVm and PsxVm.
 - Exception for invalid PSFs
-- About box
 - 32-bits MA_MIPSIV support
-- Castlevania SOTN
-- Parasite Eve
 
 Done:
+- About box
 - Update to new Purei Core
 - Xenogears
 - Add ADSR support
@@ -13,3 +14,5 @@ Done:
 - Final Fantasy Tactics
 - Chrono Cross
 - Wild Arms
+- Castlevania SOTN
+- Parasite Eve

@@ -25,6 +25,8 @@ namespace PS2
 			uint32			WriteRegister(uint32, uint32);
             uint32          ReceiveDma(uint8*, uint32, uint32);
 
+            CSpu&           GetSpu();
+
 			enum REGISTERS
 			{
 				VP_VOLL			= 0x1F900000,
@@ -37,6 +39,10 @@ namespace PS2
 				VP_VOLXR		= 0x1F90000E,
 				S_REG_BASE		= 0x1F900180,
 				CORE_ATTR		= 0x1F90019A,
+                A_KON_HI        = 0x1F9001A0,
+                A_KON_LO        = 0x1F9001A2,
+                A_KOFF_HI       = 0x1F9001A4,
+                A_KOFF_LO       = 0x1F9001A6,
 				A_TSA_HI		= 0x1F9001A8,
 				A_TSA_LO		= 0x1F9001AA,
 				A_STD			= 0x1F9001AC,

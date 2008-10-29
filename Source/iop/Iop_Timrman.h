@@ -15,7 +15,7 @@ namespace Iop
         void            Invoke(CMIPS&, unsigned int);
 
     private:
-        
+        int             AllocHardTimer(int, int, int);
     };
 }
 
