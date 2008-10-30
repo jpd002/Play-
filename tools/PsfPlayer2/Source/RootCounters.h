@@ -5,21 +5,24 @@
 #include "Convertible.h"
 #include <boost/static_assert.hpp>
 
-namespace Psx
+namespace Iop
 {
 	class CIntc;
+}
 
+namespace Psx
+{
 	class CRootCounters
 	{
 	public:
-					CRootCounters(unsigned int, CIntc&);
+					CRootCounters(unsigned int, Iop::CIntc&);
 		virtual		~CRootCounters();
 
 		void		Reset();
 		void		Update(unsigned int);
 
 		uint32		ReadRegister(uint32);
-		void		WriteRegister(uint32, uint32);
+		uint32		WriteRegister(uint32, uint32);
 
 		enum
 		{
@@ -76,7 +79,7 @@ namespace Psx
 		void			DisassembleWrite(uint32, uint32);
 
 		COUNTER			m_counter[MAX_COUNTERS];
-		CIntc&			m_intc;
+		Iop::CIntc&		m_intc;
 		unsigned int	m_clockFreq;
 	};
 }

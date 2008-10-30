@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "RootCounters.h"
-#include "Intc.h"
+//#include "Intc.h"
+#include "iop/Iop_Intc.h"
 #include "Log.h"
 
 #define LOG_NAME ("psx_counters")
@@ -8,7 +9,7 @@
 using namespace Psx;
 using namespace std;
 
-CRootCounters::CRootCounters(unsigned int clockFreq, CIntc& intc) :
+CRootCounters::CRootCounters(unsigned int clockFreq, Iop::CIntc& intc) :
 m_clockFreq(clockFreq),
 m_intc(intc)
 {
@@ -50,7 +51,7 @@ void CRootCounters::Update(unsigned int ticks)
 			counterTemp -= counterMax;
 			if(counter.mode.iq1 && counter.mode.iq2)
 			{
-				m_intc.AssertLine(CIntc::LINE_CNT0 + i);
+				m_intc.AssertLine(Iop::CIntc::LINE_RTC0 + i);
 			}
 		}
 		counter.count = static_cast<uint16>(counterTemp);
@@ -80,7 +81,7 @@ uint32 CRootCounters::ReadRegister(uint32 address)
 	return 0;
 }
 
-void CRootCounters::WriteRegister(uint32 address, uint32 value)
+uint32 CRootCounters::WriteRegister(uint32 address, uint32 value)
 {
 #ifdef _DEBUG
 	DisassembleWrite(address, value);
@@ -101,6 +102,7 @@ void CRootCounters::WriteRegister(uint32 address, uint32 value)
 		counter.target = static_cast<uint16>(value);
 		break;
 	}
+	return 0;
 }
 
 void CRootCounters::DisassembleRead(uint32 address)

@@ -116,7 +116,7 @@ void CIopBios::Reset()
         RegisterModule(new Iop::CThevent(*this, m_ram));
     }
     {
-        RegisterModule(new Iop::CTimrman());
+        RegisterModule(new Iop::CTimrman(*this));
     }
     {
         RegisterModule(new Iop::CIntrman(*this, m_ram));

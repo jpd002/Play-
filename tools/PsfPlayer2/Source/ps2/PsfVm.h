@@ -11,6 +11,7 @@
 #include "MipsExecutor.h"
 #include "MailBox.h"
 #include "Spu2.h"
+#include "RootCounters.h"
 #include "iop/Iop_Intc.h"
 #include "Iop_Dmac.h"
 
@@ -52,6 +53,7 @@ namespace PS2
 		boost::thread			m_thread;
 		bool					m_singleStep;
 		CSH_OpenAL				m_spuHandler;
+		Psx::CRootCounters		m_counters;
     };
 }
 

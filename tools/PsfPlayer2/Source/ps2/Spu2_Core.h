@@ -50,7 +50,8 @@ namespace PS2
 				VA_SSA_HI		= 0x1F9001C0,
 				VA_SSA_LO		= 0x1F9001C2,
 				VA_LSAX			= 0x1F9001C4,
-				VA_NAX			= 0x1F9001C8,
+				VA_NAX_HI		= 0x1F9001C8,
+				VA_NAX_LO		= 0x1F9001CA,
 				R_REG_BASE		= 0x1F9002E0,		//Reverb Base
 				STATX			= 0x1F900344,
 			};

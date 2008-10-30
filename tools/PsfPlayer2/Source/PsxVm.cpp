@@ -25,7 +25,7 @@ m_singleStep(false),
 m_ram(new uint8[RAMSIZE]),
 m_scratchPad(new uint8[SCRATCHSIZE]),
 m_dmac(m_ram, m_intc),
-m_counters(CLOCK_FREQ, m_intc),
+//m_counters(CLOCK_FREQ, m_intc),
 m_thread(bind(&CPsxVm::ThreadProc, this))
 {
 	//Read memory map
@@ -79,7 +79,7 @@ void CPsxVm::Reset()
 	m_cpu.Reset();
 	m_bios.Reset();
 	m_spu.Reset();
-	m_counters.Reset();
+//	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
 	m_spuHandler.Reset();
@@ -103,10 +103,10 @@ uint32 CPsxVm::ReadIoRegister(uint32 address)
 	{
 		return m_intc.ReadRegister(address);
 	}
-	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
-	{
-		return m_counters.ReadRegister(address);
-	}
+//	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
+//	{
+//		return m_counters.ReadRegister(address);
+//	}
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown hardware register (0x%0.8X).\r\n", address);
@@ -128,10 +128,10 @@ uint32 CPsxVm::WriteIoRegister(uint32 address, uint32 value)
 	{
 		m_intc.WriteRegister(address, value);
 	}
-	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
-	{
-		m_counters.WriteRegister(address, value);
-	}
+//	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
+//	{
+//		m_counters.WriteRegister(address, value);
+//	}
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown hardware register (0x%0.8X, 0x%0.8X).\r\n", address, value);
@@ -226,7 +226,7 @@ unsigned int CPsxVm::ExecuteCpu(bool singleStep)
         }
 		if(ticks > 0)
 		{
-			m_counters.Update(ticks);
+//			m_counters.Update(ticks);
 		}
 	}
 	if(m_cpu.m_State.nHasException)

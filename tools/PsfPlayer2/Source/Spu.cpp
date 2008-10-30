@@ -204,6 +204,11 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 				channel.status = ATTACK;
 				channel.adsrVolume = 0;
 			}
+			else
+			{
+				uint8* repeat = reader.GetRepeat();
+				channel.repeat = (repeat - m_ram) / 8;
+			}
 			int16 readSample = 0;
 			reader.SetPitch(channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
@@ -887,6 +892,11 @@ void CSpu::CSampleReader::UnpackSamples(int16* dst)
 			m_done = true;
 		}
 	}
+}
+
+uint8* CSpu::CSampleReader::GetRepeat() const
+{
+	return m_repeat;
 }
 
 double CSpu::CSampleReader::GetSamplingRate() const

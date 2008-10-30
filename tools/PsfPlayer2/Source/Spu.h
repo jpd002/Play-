@@ -242,6 +242,7 @@ private:
 		void			SetParams(uint8*, uint8*);
 		void			SetPitch(uint16);
 		void			GetSamples(int16*, unsigned int, unsigned int);
+		uint8*			GetRepeat() const;
 
 	private:
 		enum

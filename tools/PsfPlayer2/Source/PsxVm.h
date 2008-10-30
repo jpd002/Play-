@@ -8,7 +8,7 @@
 #include "SH_OpenAL.h"
 #include "Dmac.h"
 #include "Intc.h"
-#include "RootCounters.h"
+//#include "RootCounters.h"
 #include "VirtualMachine.h"
 #include "MailBox.h"
 #include "MipsExecutor.h"
@@ -86,7 +86,7 @@ private:
 	uint8*				m_scratchPad;
 	Psx::CIntc			m_intc;
 	CSpu				m_spu;
-	Psx::CRootCounters	m_counters;
+//	Psx::CRootCounters	m_counters;
 	Psx::CDmac			m_dmac;
 	CMIPS				m_cpu;
 	CMipsExecutor		m_executor;
