@@ -112,6 +112,12 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 	case CORE_ATTR:
 		result = m_coreAttr;
 		break;
+    case A_TSA_HI:
+        {
+		    uint32 transferAddress = m_spuBase.GetTransferAddress();
+            result = (transferAddress >> (16 + 1));
+        }
+        break;
 	}
 #ifdef _DEBUG
     LogRead(address);
@@ -181,10 +187,10 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 	switch(address)
 	{
 	case VA_NAX_HI:
-		return (static_cast<uint32>(channel.repeat) * 4) >> 16;
+		return ((channel.current) >> (16 + 1)) & 0xFFFF;
 		break;
 	case VA_NAX_LO:
-		return (static_cast<uint32>(channel.repeat) * 4) & 0xFFFF;
+		return ((channel.current) >> 1) & 0xFFFF;
 		break;
 	}
 
@@ -287,6 +293,9 @@ void CCore::LogRead(uint32 address)
 		break;
     case STATX:
 		CLog::GetInstance().Print(logName, "= STATX\r\n");
+        break;
+    case A_TSA_HI:
+        CLog::GetInstance().Print(logName, "= A_TSA_HI.\r\n");
         break;
     default:
 		CLog::GetInstance().Print(logName, "Read an unknown register 0x%0.4X.\r\n", address);

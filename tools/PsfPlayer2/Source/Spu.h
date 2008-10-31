@@ -68,6 +68,7 @@ public:
 		uint32			adsrVolume;
 		uint16			repeat;
 		uint16			status;
+        uint32          current;
 	};
 
 				CSpu();
@@ -243,6 +244,7 @@ private:
 		void			SetPitch(uint16);
 		void			GetSamples(int16*, unsigned int, unsigned int);
 		uint8*			GetRepeat() const;
+        uint8*          GetCurrent() const;
 
 	private:
 		enum

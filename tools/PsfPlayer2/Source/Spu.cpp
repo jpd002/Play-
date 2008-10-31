@@ -8,6 +8,9 @@ using namespace std;
 #define LOG_NAME ("spu")
 #define MAX_GENERAL_REG_NAME (64)
 
+//#define SAMPLE_RATE (44100)
+#define SAMPLE_RATE (48000)
+
 static const char* g_channelRegisterName[8] = 
 {
 	"VOL_LEFT",
@@ -212,6 +215,7 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			int16 readSample = 0;
 			reader.SetPitch(channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
+            channel.current = (reader.GetCurrent() - m_ram);
 			//Mix samples
 			UpdateAdsr(channel);
 			int32 inputSample = static_cast<int32>(readSample);
@@ -772,7 +776,7 @@ void CSpu::CSampleReader::SetPitch(uint16 pitch)
 {
 //	pitch = 0x2000;
 //	m_sourceSamplingRate = 44100 * (pitch & 0x3FFF) / 0x4000;
-	m_sourceSamplingRate = 44100 * pitch / 4096;
+	m_sourceSamplingRate = SAMPLE_RATE * pitch / 4096;
 }
 
 void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)
@@ -897,6 +901,11 @@ void CSpu::CSampleReader::UnpackSamples(int16* dst)
 uint8* CSpu::CSampleReader::GetRepeat() const
 {
 	return m_repeat;
+}
+
+uint8* CSpu::CSampleReader::GetCurrent() const
+{
+    return m_nextSample;
 }
 
 double CSpu::CSampleReader::GetSamplingRate() const
