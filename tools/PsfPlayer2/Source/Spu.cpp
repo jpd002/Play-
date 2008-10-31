@@ -136,6 +136,7 @@ void CSpu::Reset()
 	m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
+	m_ctrl = 0;
 
 	m_reverbCurrAddr = 0;
 	m_reverbWorkAddr = 0;
@@ -335,23 +336,26 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 				}
 			}
 
-			float sampleL = 0.333f * (GetReverbSample(GetReverbOffset(MIX_DEST_A0)) + GetReverbSample(GetReverbOffset(MIX_DEST_B0)));
-			float sampleR = 0.333f * (GetReverbSample(GetReverbOffset(MIX_DEST_A1)) + GetReverbSample(GetReverbOffset(MIX_DEST_B1)));
-
+			if(m_reverbWorkAddr != 0)
 			{
-				int16* output = samples + 0;
-				int32 resultSample = static_cast<int32>(sampleL) + static_cast<int32>(*output);
-				resultSample = max<int32>(resultSample, SHRT_MIN);
-				resultSample = min<int32>(resultSample, SHRT_MAX);
-				*output = static_cast<int16>(resultSample);
-			}
+				float sampleL = 0.333f * (GetReverbSample(GetReverbOffset(MIX_DEST_A0)) + GetReverbSample(GetReverbOffset(MIX_DEST_B0)));
+				float sampleR = 0.333f * (GetReverbSample(GetReverbOffset(MIX_DEST_A1)) + GetReverbSample(GetReverbOffset(MIX_DEST_B1)));
 
-			{
-				int16* output = samples + 1;
-				int32 resultSample = static_cast<int32>(sampleR) + static_cast<int32>(*output);
-				resultSample = max<int32>(resultSample, SHRT_MIN);
-				resultSample = min<int32>(resultSample, SHRT_MAX);
-				*output = static_cast<int16>(resultSample);
+				{
+					int16* output = samples + 0;
+					int32 resultSample = static_cast<int32>(sampleL) + static_cast<int32>(*output);
+					resultSample = max<int32>(resultSample, SHRT_MIN);
+					resultSample = min<int32>(resultSample, SHRT_MAX);
+					*output = static_cast<int16>(resultSample);
+				}
+
+				{
+					int16* output = samples + 1;
+					int32 resultSample = static_cast<int32>(sampleR) + static_cast<int32>(*output);
+					resultSample = max<int32>(resultSample, SHRT_MIN);
+					resultSample = min<int32>(resultSample, SHRT_MAX);
+					*output = static_cast<int16>(resultSample);
+				}
 			}
 
 			m_reverbTicks++;
@@ -475,6 +479,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			break;
 		case CH_ADDRESS:
 			m_channel[channel].address = value;
+			m_channel[channel].current = value * 8;
 			break;
 		case CH_ADSR_LEVEL:
 			m_channel[channel].adsrLevel <<= value;

@@ -119,9 +119,7 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
         }
         break;
 	}
-#ifdef _DEBUG
     LogRead(address);
-#endif
 	return result;
 }
 
@@ -180,21 +178,19 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 	{
 		return 0;
 	}
-#ifdef _DEBUG
-	LogChannelRead(channelId, address);
-#endif
+	uint32 result = 0;
 	CSpu::CHANNEL& channel(m_spuBase.GetChannel(channelId));
 	switch(address)
 	{
 	case VA_NAX_HI:
-		return ((channel.current) >> (16 + 1)) & 0xFFFF;
+		result = ((channel.current) >> (16 + 1)) & 0xFFFF;
 		break;
 	case VA_NAX_LO:
-		return ((channel.current) >> 1) & 0xFFFF;
+		result = ((channel.current) >> 1) & 0xFFFF;
 		break;
 	}
-
-	return 0;
+	LogChannelRead(channelId, address, result);
+	return result;
 }
 
 uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint32 value)
@@ -338,18 +334,18 @@ void CCore::LogWrite(uint32 address, uint32 value)
     }
 }
 
-void CCore::LogChannelRead(unsigned int channelId, uint32 address)
+void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 result)
 {
 	const char* logName = m_logName.c_str();
     switch(address)
     {
 	case VA_NAX_HI:
-		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_NAX_HI.\r\n", 
-			channelId);
+		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_NAX_HI = 0x%0.4X.\r\n", 
+			channelId, result);
 		break;
 	case VA_NAX_LO:
-		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_NAX_LO.\r\n", 
-			channelId);
+		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_NAX_LO = 0x%0.4X.\r\n", 
+			channelId, result);
 		break;
     default:
 		CLog::GetInstance().Print(logName, "ch%0.2i: Read an unknown register 0x%0.4X.\r\n", 

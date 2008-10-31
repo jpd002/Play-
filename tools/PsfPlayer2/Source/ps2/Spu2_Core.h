@@ -90,7 +90,7 @@ namespace PS2
 
 			void					LogRead(uint32);
 			void					LogWrite(uint32, uint32);
-			void					LogChannelRead(unsigned int, uint32);
+			void					LogChannelRead(unsigned int, uint32, uint32);
 			void					LogChannelWrite(unsigned int, uint32, uint32);
 
 			REGISTER_DISPATCH_INFO	m_readDispatch;
