@@ -11,7 +11,9 @@ m_bios(0x1000, cpu, ram, ramSize, *reinterpret_cast<CSIF*>(NULL), *reinterpret_c
 	m_bios.Reset();
 
     Iop::CIoman* ioman = m_bios.GetIoman();
-    ioman->RegisterDevice(PSF_DEVICENAME, new CPsfDevice(psfFile));
+	Iop::CIoman::DevicePtr device(new CPsfDevice(psfFile));
+    ioman->RegisterDevice(PSF_DEVICENAME, device);
+	ioman->RegisterDevice("host0", device);
 
     string execPath = string(PSF_DEVICENAME) + ":/psf2.irx";
     m_bios.LoadAndStartModule(execPath.c_str(), NULL, 0);

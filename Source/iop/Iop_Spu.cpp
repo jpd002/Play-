@@ -141,6 +141,7 @@ void CSpu::Reset()
 
 	m_reverbCurrAddr = 0;
 	m_reverbWorkAddr = 0;
+	m_baseSamplingRate = 44100;
 
 	memset(m_channel, 0, sizeof(m_channel));
 	memset(m_ram, 0, RAMSIZE);
@@ -150,6 +151,11 @@ void CSpu::Reset()
 	{
 		m_reader[i].Reset();
 	}
+}
+
+void CSpu::SetBaseSamplingRate(uint32 samplingRate)
+{
+	m_baseSamplingRate = samplingRate;
 }
 
 uint32 CSpu::GetChannelOn() const
@@ -220,7 +226,7 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 				channel.repeat = (repeat - m_ram) / 8;
 			}
 			int16 readSample = 0;
-			reader.SetPitch(channel.pitch);
+			reader.SetPitch(m_baseSamplingRate, channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
             channel.current = (reader.GetCurrent() - m_ram);
 			//Mix samples
@@ -790,18 +796,14 @@ void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat)
 	m_repeat = repeat;
 	m_s1 = 0;
 	m_s2 = 0;
-//	m_pitch = pitch;
-//	m_pitch = 0;
 	m_nextValid = false;
 	m_done = false;
 	AdvanceBuffer();
 }
 
-void CSpu::CSampleReader::SetPitch(uint16 pitch)
+void CSpu::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 {
-//	pitch = 0x2000;
-//	m_sourceSamplingRate = 44100 * (pitch & 0x3FFF) / 0x4000;
-	m_sourceSamplingRate = SAMPLE_RATE * pitch / 4096;
+	m_sourceSamplingRate = baseSamplingRate * pitch / 4096;
 }
 
 void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)

@@ -9,6 +9,12 @@
 class CSpu
 {
 public:
+	enum
+	{
+//		RAMSIZE = 0x80000
+		RAMSIZE = 0x200000,
+	};
+
 	struct ADSR_LEVEL : public convertible<uint16>
 	{
 		unsigned int	sustainLevel	: 4;
@@ -62,11 +68,11 @@ public:
 		CHANNEL_VOLUME	volumeLeft;
 		CHANNEL_VOLUME	volumeRight;
 		uint16			pitch;
-		uint16			address;
+		uint32			address;
 		ADSR_LEVEL		adsrLevel;
 		ADSR_RATE		adsrRate;
 		uint32			adsrVolume;
-		uint16			repeat;
+		uint32			repeat;
 		uint16			status;
         uint32          current;
 	};
@@ -75,6 +81,8 @@ public:
 	virtual		~CSpu();
 
 	void		Reset();
+
+	void		SetBaseSamplingRate(uint32);
 
 	uint16		ReadRegister(uint32);
 	void		WriteRegister(uint32, uint16);
@@ -243,7 +251,7 @@ private:
 		void			Reset();
 
 		void			SetParams(uint8*, uint8*);
-		void			SetPitch(uint16);
+		void			SetPitch(uint32, uint16);
 		void			GetSamples(int16*, unsigned int, unsigned int);
 		uint8*			GetRepeat() const;
         uint8*          GetCurrent() const;
@@ -276,11 +284,6 @@ private:
 
 	enum
 	{
-		RAMSIZE = 0x80000
-	};
-
-	enum
-	{
 		MAX_ADSR_VOLUME = 0x7FFFFFFF,
 	};
 
@@ -294,6 +297,7 @@ private:
 	uint32			GetReverbOffset(unsigned int) const;
 	float			GetReverbCoef(unsigned int) const;
 
+	uint32			m_baseSamplingRate;
 	uint32			m_bufferAddr;
 	uint16			m_ctrl;
 	uint16			m_status0;

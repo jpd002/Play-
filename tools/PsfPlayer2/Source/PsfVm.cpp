@@ -231,8 +231,9 @@ unsigned int CPsfVm::ExecuteCpu(bool singleStep)
 		assert(ticks >= 0);
         {
 #pragma message("TODO: Make something better here...")
-            if(m_cpu.m_State.nPC == 0x1018)
-            {
+//            if(m_cpu.m_State.nPC == 0x1018)
+			if(m_cpu.m_State.nPC == 0x0003D948)
+			{
 				ticks += (quota * 2);
             }
 			else

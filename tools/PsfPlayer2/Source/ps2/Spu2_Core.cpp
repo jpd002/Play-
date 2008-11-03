@@ -4,6 +4,7 @@
 #include "Log.h"
 
 #define LOG_NAME_PREFIX ("spu2_core_")
+#define SPU_BASE_SAMPLING_RATE (48000)
 
 using namespace PS2::Spu2;
 using namespace std;
@@ -122,9 +123,10 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 		result = m_coreAttr;
 		break;
     case A_TSA_HI:
-        {
-		    uint32 transferAddress = m_spuBase->GetTransferAddress();
-            result = (transferAddress >> (16 + 1));
+		if(m_spuBase)
+		{
+			uint32 transferAddress = m_spuBase->GetTransferAddress();
+			result = (transferAddress >> (16 + 1));
         }
         break;
 	}
@@ -137,6 +139,10 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 	switch(address)
 	{
 	case CORE_ATTR:
+		if(m_spuBase)
+		{
+			m_spuBase->SetBaseSamplingRate(SPU_BASE_SAMPLING_RATE);
+		}
 		m_coreAttr = static_cast<uint16>(value);
 		break;
     case A_STD:
@@ -177,6 +183,7 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 			uint32 transferAddress = m_spuBase->GetTransferAddress();
 			transferAddress &= 0xFFFF << 1;
 			transferAddress |= value << (1 + 16);
+			transferAddress &= RAMSIZE - 1;
 			m_spuBase->SetTransferAddress(transferAddress);
 		}
 		break;
@@ -186,6 +193,7 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 			uint32 transferAddress = m_spuBase->GetTransferAddress();
 			transferAddress &= 0xFFFF << (1 + 16);
 			transferAddress |= value << 1;
+			transferAddress &= RAMSIZE - 1;
 			m_spuBase->SetTransferAddress(transferAddress);
 		}
 		break;
@@ -269,6 +277,25 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 			assert((address & 0x7) == 0);
 			channel.address = address / 8;
 		}
+		break;
+	case VA_LSAX_HI:
+		{
+			uint32 address = channel.repeat * 8;
+			address &= 0xFFFF << 1;
+			address |= value << (1 + 16);
+			assert((address & 0x7) == 0);
+			channel.repeat = address / 8;
+		}
+		break;
+	case VA_LSAX_LO:
+		{
+			uint32 address = channel.repeat * 8;
+			address &= 0xFFFF << (1 + 16);
+			address |= value << 1;
+			assert((address & 0x7) == 0);
+			channel.repeat = address / 8;
+		}
+		break;
 	}
 /*
 	CChannel& channel(m_channel[channelId]);
@@ -416,7 +443,23 @@ void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value
 		CLog::GetInstance().Print(logName, "ch%0.2i: VP_VOLXR = %0.4X.\r\n", 
 			channelId, value);
 		break;
-    default:
+	case VA_SSA_HI:
+		CLog::GetInstance().Print(logName, "ch%0.2i: VA_SSA_HI = %0.4X.\r\n", 
+			channelId, value);
+		break;
+	case VA_SSA_LO:
+		CLog::GetInstance().Print(logName, "ch%0.2i: VA_SSA_LO = %0.4X.\r\n", 
+			channelId, value);
+		break;
+	case VA_LSAX_HI:
+		CLog::GetInstance().Print(logName, "ch%0.2i: VA_LSAX_HI = %0.4X.\r\n", 
+			channelId, value);
+		break;
+	case VA_LSAX_LO:
+		CLog::GetInstance().Print(logName, "ch%0.2i: VA_LSAX_LO = %0.4X.\r\n", 
+			channelId, value);
+		break;
+	default:
 		CLog::GetInstance().Print(logName, "ch%0.2i: Wrote %0.4X an unknown register 0x%0.4X.\r\n", 
 			channelId, value, address);
         break;

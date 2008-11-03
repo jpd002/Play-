@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer2\Source"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;_PSX;DEBUGGER_INCLUDED;_NULL_SIFMAN"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;_PSX;_NULL_SIFMAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer2\Source"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_MSVC;_PSX;_NULL_SIFMAN;DEBUGGER_INCLUDED"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_MSVC;_PSX;_NULL_SIFMAN"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -282,7 +282,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PsfVm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfVm.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Res.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SH_OpenAL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SH_OpenAL.h"
 				>
 			</File>
 			<File
@@ -297,30 +313,6 @@
 				Name="psx"
 				>
 				<File
-					RelativePath=".\Source\Dmac.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Dmac.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\DmaChannel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\DmaChannel.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Intc.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Intc.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\PsxBios.cpp"
 					>
 				</File>
@@ -328,56 +320,16 @@
 					RelativePath=".\Source\PsxBios.h"
 					>
 				</File>
-				<File
-					RelativePath=".\Source\PsxVm.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\PsxVm.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\RootCounters.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\RootCounters.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\SH_OpenAL.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\SH_OpenAL.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Spu.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Spu.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="ps2"
 				>
 				<File
-					RelativePath=".\Source\ps2\Iop_Dmac.cpp"
+					RelativePath=".\Source\ps2\PsfBios.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\ps2\Iop_Dmac.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Iop_DmacChannel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Iop_DmacChannel.h"
+					RelativePath=".\Source\ps2\PsfBios.h"
 					>
 				</File>
 				<File
@@ -386,14 +338,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\ps2\PsfDevice.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfVm.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfVm.h"
 					>
 				</File>
 				<File
@@ -713,6 +657,22 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Source\iop\Iop_Dmac.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Dmac.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_DmacChannel.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_DmacChannel.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\iop\Iop_Dynamic.cpp"
 					>
 				</File>
@@ -765,6 +725,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Source\iop\Iop_RootCounters.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_RootCounters.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\iop\Iop_Sifman.h"
 					>
 				</File>
@@ -774,6 +742,14 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\iop\Iop_SifManNull.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu.h"
 					>
 				</File>
 				<File
