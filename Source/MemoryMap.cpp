@@ -51,6 +51,7 @@ void CMemoryMap::SetWriteNotifyHandler(const WriteNotifyHandlerType& WriteNotify
 
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, void* pointer, unsigned char key)
 {
+    assert(memoryMap.find(key) == memoryMap.end());
     MEMORYMAPELEMENT element;
 	element.nStart      = start;
 	element.nEnd        = end;
@@ -61,6 +62,7 @@ void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 en
 
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
+    assert(memoryMap.find(key) == memoryMap.end());
     MEMORYMAPELEMENT element;
 	element.nStart      = start;
 	element.nEnd        = end;

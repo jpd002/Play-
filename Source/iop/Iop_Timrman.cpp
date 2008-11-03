@@ -3,7 +3,7 @@
 #include "Iop_Intc.h"
 #include "Log.h"
 #include "IopBios.h"
-#include "RootCounters.h"
+#include "Iop_RootCounters.h"
 
 #define LOG_NAME ("iop_timrman")
 
@@ -74,9 +74,9 @@ int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 unknown, uint
 	m_bios.RegisterIntrHandler(CIntc::LINE_RTC2, 0, handler, arg);
 	
 	//Enable timer
-	context.m_pMemoryMap->SetWord(Psx::CRootCounters::CNT2_BASE + Psx::CRootCounters::CNT_COUNT,	0x0000);
-	context.m_pMemoryMap->SetWord(Psx::CRootCounters::CNT2_BASE + Psx::CRootCounters::CNT_MODE,		0x0258);
-	context.m_pMemoryMap->SetWord(Psx::CRootCounters::CNT2_BASE + Psx::CRootCounters::CNT_TARGET,	0x8000);
+	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_COUNT,	0x0000);
+	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_MODE,	0x0258);
+	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_TARGET,	0x8000);
 
 	uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
 	mask |= (1 << CIntc::LINE_RTC2);

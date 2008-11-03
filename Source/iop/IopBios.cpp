@@ -239,39 +239,39 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
     m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
 #endif
 
-	for(int i = 0; i < 0x00400000 / 4; i++)
-	{
-		uint32 nVal = ((uint32*)m_ram)[i];
-//        if(nVal == 0x34C00)
+//	for(int i = 0; i < m_ramSize / 4; i++)
+//	{
+//		uint32 nVal = ((uint32*)m_ram)[i];
+////        if(nVal == 0x34C00)
+////        {
+////			printf("Allo: 0x%0.8X\r\n", i * 4);
+////        }
+///*
+//        if((nVal & 0xFFFF) == 0xB730)
 //        {
-//			printf("Allo: 0x%0.8X\r\n", i * 4);
+//            char mnemonic[256];
+//            m_cpu.m_pArch->GetInstructionMnemonic(&m_cpu, i * 4, nVal, mnemonic, 256);
+//            printf("Allo: %s, 0x%0.8X\r\n", mnemonic, i * 4);
 //        }
-/*
-        if((nVal & 0xFFFF) == 0xB730)
-        {
-            char mnemonic[256];
-            m_cpu.m_pArch->GetInstructionMnemonic(&m_cpu, i * 4, nVal, mnemonic, 256);
-            printf("Allo: %s, 0x%0.8X\r\n", mnemonic, i * 4);
-        }
-*/
-/*
-        if(nVal == 0x2F9B50)
-		{
-			printf("Allo: 0x%0.8X\r\n", i * 4);
-		}
-*/
-
-        if((nVal & 0xFC000000) == 0x0C000000)
-		{
-			nVal &= 0x3FFFFFF;
-			nVal *= 4;
-			if(nVal == 0x41410)
-			{
-				printf("Allo: 0x%0.8X\r\n", i * 4);
-			}
-		}
-
-	}
+//*/
+///*
+//        if(nVal == 0x2F9B50)
+//		{
+//			printf("Allo: 0x%0.8X\r\n", i * 4);
+//		}
+//*/
+//
+//        if((nVal & 0xFC000000) == 0x0C000000)
+//		{
+//			nVal &= 0x3FFFFFF;
+//			nVal *= 4;
+//			if(nVal == 0x41410)
+//			{
+//				printf("Allo: 0x%0.8X\r\n", i * 4);
+//			}
+//		}
+//
+//	}
 
 //    *reinterpret_cast<uint32*>(&m_ram[0x41674]) = 0;
 }
