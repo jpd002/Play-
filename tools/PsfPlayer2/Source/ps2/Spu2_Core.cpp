@@ -12,7 +12,8 @@ using namespace Framework;
 using namespace boost;
 
 CCore::CCore(unsigned int coreId) :
-m_coreId(coreId)
+m_coreId(coreId),
+m_spuBase(NULL)
 //m_ram(new uint8[RAMSIZE])
 {
 	m_logName = LOG_NAME_PREFIX + lexical_cast<string>(m_coreId);
@@ -33,16 +34,24 @@ CCore::~CCore()
 
 void CCore::Reset()
 {
-	m_spuBase.Reset();
+	if(m_spuBase)
+	{
+		m_spuBase->Reset();
+	}
 //    memset(m_ram, 0, RAMSIZE);
 //	m_transferAddress.f = 0;
 	m_coreAttr = 0;
 }
 
-CSpu& CCore::GetSpu()
+void CCore::SetSpu(CSpu* spu)
 {
-    return m_spuBase;
+	m_spuBase = spu;
 }
+
+//CSpu& CCore::GetSpu()
+//{
+//    return m_spuBase;
+//}
 
 uint32 CCore::ReadRegister(uint32 address, uint32 value)
 {
@@ -71,7 +80,7 @@ uint32 CCore::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	}
 	m_transferAddress.f = dstAddress >> 1;
 */
-    return m_spuBase.ReceiveDma(buffer, blockSize, blockAmount);
+    return m_spuBase->ReceiveDma(buffer, blockSize, blockAmount);
 }
 
 uint32 CCore::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
@@ -114,7 +123,7 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 		break;
     case A_TSA_HI:
         {
-		    uint32 transferAddress = m_spuBase.GetTransferAddress();
+		    uint32 transferAddress = m_spuBase->GetTransferAddress();
             result = (transferAddress >> (16 + 1));
         }
         break;
@@ -139,31 +148,45 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
         }
         break;
     case A_KON_HI:
-        m_spuBase.SendKeyOn(value);
+		if(m_spuBase)
+		{
+			m_spuBase->SendKeyOn(value);
+		}
         break;
     case A_KON_LO:
-        m_spuBase.SendKeyOn(value << 16);
+		if(m_spuBase)
+		{
+	        m_spuBase->SendKeyOn(value << 16);
+		}
         break;
     case A_KOFF_HI:
-        m_spuBase.SendKeyOff(value);
+		if(m_spuBase)
+		{
+	        m_spuBase->SendKeyOff(value);
+		}
         break;
     case A_KOFF_LO:
-        m_spuBase.SendKeyOff(value << 16);
+		if(m_spuBase)
+		{
+			m_spuBase->SendKeyOff(value << 16);
+		}
         break;
 	case A_TSA_HI:
+		if(m_spuBase)
 		{
-			uint32 transferAddress = m_spuBase.GetTransferAddress();
+			uint32 transferAddress = m_spuBase->GetTransferAddress();
 			transferAddress &= 0xFFFF << 1;
 			transferAddress |= value << (1 + 16);
-			m_spuBase.SetTransferAddress(transferAddress);
+			m_spuBase->SetTransferAddress(transferAddress);
 		}
 		break;
 	case A_TSA_LO:
+		if(m_spuBase)
 		{
-			uint32 transferAddress = m_spuBase.GetTransferAddress();
+			uint32 transferAddress = m_spuBase->GetTransferAddress();
 			transferAddress &= 0xFFFF << (1 + 16);
 			transferAddress |= value << 1;
-			m_spuBase.SetTransferAddress(transferAddress);
+			m_spuBase->SetTransferAddress(transferAddress);
 		}
 		break;
 	}
@@ -178,8 +201,9 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 	{
 		return 0;
 	}
+	if(!m_spuBase) return 0;
 	uint32 result = 0;
-	CSpu::CHANNEL& channel(m_spuBase.GetChannel(channelId));
+	CSpu::CHANNEL& channel(m_spuBase->GetChannel(channelId));
 	switch(address)
 	{
 	case VA_NAX_HI:
@@ -200,7 +224,8 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 	{
 		return 0;
 	}
-	CSpu::CHANNEL& channel(m_spuBase.GetChannel(channelId));
+	if(!m_spuBase) return 0;
+	CSpu::CHANNEL& channel(m_spuBase->GetChannel(channelId));
 	switch(address)
 	{
 	case VP_VOLL:

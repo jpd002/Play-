@@ -219,6 +219,14 @@ CSpu2::~CSpu2()
 
 }
 
+void CSpu2::Reset()
+{
+	for(unsigned int i = 0; i < CORE_NUM; i++)
+	{
+		m_core[i]->Reset();
+	}
+}
+
 CCore* CSpu2::GetCore(unsigned int coreId)
 {
     assert(coreId < CORE_NUM);

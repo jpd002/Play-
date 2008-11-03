@@ -2,7 +2,7 @@
 #define _SPUREGVIEW_H_
 
 #include "win32ui/RegViewPage.h"
-#include "Spu.h"
+#include "iop/Iop_Spu.h"
 
 class CSpuRegView : public CRegViewPage
 {

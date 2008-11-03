@@ -1,8 +1,7 @@
 #include "PsxBios.h"
-#include "PsxVm.h"
 #include "COP_SCU.h"
 #include "Log.h"
-#include "Intc.h"
+#include "iop/Iop_Intc.h"
 #include "MipsAssembler.h"
 
 #define LOG_NAME	("psxbios")
@@ -13,7 +12,7 @@
 #define SC_RETURN	(CMIPS::V0)
 
 using namespace std;
-using namespace Psx;
+using namespace Iop;
 
 #define LONGJMP_BUFFER				(0x0200)
 #define INTR_HANDLER				(0x1000)
@@ -28,12 +27,13 @@ using namespace Psx;
 #define C0_EXCEPTIONHANDLER_BEGIN	(C0TABLE_BEGIN + C0TABLE_SIZE)
 #define C0_EXCEPTIONHANDLER_SIZE	(0x1000)
 
-CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram) :
+CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram, uint32 ramSize) :
 m_cpu(cpu),
 m_ram(ram),
+m_ramSize(ramSize),
 m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
 {
-
+	Reset();
 }
 
 CPsxBios::~CPsxBios()
@@ -83,6 +83,28 @@ void CPsxBios::Reset()
 
 	memset(m_events.GetBase(), 0, EVENTS_SIZE);
 	LongJmpBuffer() = 0;
+}
+
+void CPsxBios::LoadExe(uint8* exe)
+{
+	EXEHEADER* exeHeader(reinterpret_cast<EXEHEADER*>(exe));
+	if(strncmp(reinterpret_cast<char*>(exeHeader->id), "PS-X EXE", 8))
+	{
+		throw runtime_error("Invalid PSX executable.");
+	}
+
+	m_cpu.m_State.nPC					= exeHeader->pc0 & 0x1FFFFFFF;
+	m_cpu.m_State.nGPR[CMIPS::GP].nD0	= exeHeader->gp0;
+	m_cpu.m_State.nGPR[CMIPS::SP].nD0	= exeHeader->stackAddr;
+
+	exe += 0x800;
+	if(exeHeader->textAddr != 0)
+	{
+		uint32 realAddr = exeHeader->textAddr & 0x1FFFFFFF;
+		assert(realAddr + exeHeader->textSize <= m_ramSize);
+		memcpy(m_ram + realAddr, exe, exeHeader->textSize);
+		exe += exeHeader->textSize;
+	}
 }
 
 void CPsxBios::AssembleEventChecker()
@@ -171,9 +193,9 @@ void CPsxBios::AssembleInterruptHandler()
 
 	//Get cause
 	unsigned int cause = CMIPS::S3;
-	assembler.LI(CMIPS::T0, CIntc::STATUS);
+	assembler.LI(CMIPS::T0, CIntc::STATUS0);
 	assembler.LW(CMIPS::T0, 0, CMIPS::T0);
-	assembler.LI(CMIPS::T1, CIntc::MASK);
+	assembler.LI(CMIPS::T1, CIntc::MASK0);
 	assembler.LW(CMIPS::T1, 0, CMIPS::T1);
 	assembler.AND(cause, CMIPS::T0, CMIPS::T1);
 
@@ -190,7 +212,7 @@ void CPsxBios::AssembleInterruptHandler()
 	assembler.NOP();
 
 	//Clear cause
-	assembler.LI(CMIPS::T0, CIntc::STATUS);
+	assembler.LI(CMIPS::T0, CIntc::STATUS0);
 //	assembler.NOR(CMIPS::T1, CMIPS::R0, cause);
 	assembler.LI(CMIPS::T1, ~0x40);
 	assembler.SW(CMIPS::T1, 0, CMIPS::T0);
@@ -274,8 +296,8 @@ void CPsxBios::HandleInterrupt()
 	{
 		SaveCpuState();
 		m_cpu.m_State.nGPR[CMIPS::K1].nV0 = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
-		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS);
-		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK);
+        uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS0);
+        uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK0);
 		uint32 cause = status & mask;
 		for(unsigned int i = 1; i <= MAX_EVENT; i++)
 		{
@@ -560,7 +582,7 @@ void CPsxBios::sc_bzero()
 {
 	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 	uint32 length = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
-	if((address + length) > CPsxVm::RAMSIZE)
+	if((address + length) > m_ramSize)
 	{
 		throw exception();
 	}
@@ -573,7 +595,7 @@ void CPsxBios::sc_memset()
 	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 	uint8 value = static_cast<uint8>(m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 	uint32 length = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
-	if((address + length) > CPsxVm::RAMSIZE)
+	if((address + length) > m_ramSize)
 	{
 		throw exception();
 	}

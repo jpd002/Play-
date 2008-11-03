@@ -3,7 +3,7 @@
 
 #include <deque>
 #include <time.h>
-#include "Spu.h"
+#include "iop/Iop_Spu.h"
 #include "openal/Device.h"
 #include "openal/Context.h"
 #include "openal/Source.h"

@@ -16,6 +16,7 @@ namespace PS2
 		uint32			ReadRegister(uint32);
 		uint32			WriteRegister(uint32, uint32);
 
+		void			Reset();
         Spu2::CCore*    GetCore(unsigned int);
 
         enum

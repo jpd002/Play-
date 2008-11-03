@@ -1,7 +1,7 @@
 #ifndef _PLAYERWND_H_
 #define _PLAYERWND_H_
 
-#include "PsxVm.h"
+#include "PsfVm.h"
 #include "win32/Window.h"
 #include "AcceleratorTable.h"
 #include "SpuRegView.h"
@@ -10,7 +10,7 @@
 class CPlayerWnd : public Framework::Win32::CWindow
 {
 public:
-											CPlayerWnd(CPsxVm&);
+											CPlayerWnd(CPsfVm&);
 	virtual									~CPlayerWnd();
 
 	void									Run();
@@ -31,7 +31,7 @@ private:
 	void									OnNewFrame();
 	void									UpdateUi();
 
-	CPsxVm&									m_virtualMachine;
+	CPsfVm&									m_virtualMachine;
 	CSpuRegView*							m_regView;
 	CPsfBase::TagMap						m_tags;
 	unsigned int							m_frames;

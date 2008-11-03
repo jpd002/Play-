@@ -1,21 +1,23 @@
-#ifndef _PSXVM_H_
-#define _PSXVM_H_
+#ifndef _PSFVM_H_
+#define _PSFVM_H_
 
 #include "Types.h"
 #include "MIPS.h"
-#include "PsxBios.h"
-#include "Spu.h"
+#include "Bios.h"
 #include "SH_OpenAL.h"
-#include "Dmac.h"
-#include "Intc.h"
-//#include "RootCounters.h"
+#include "iop/Iop_Spu.h"
+#include "iop/Iop_Dmac.h"
+#include "iop/Iop_Intc.h"
+#include "iop/Iop_RootCounters.h"
+#include "ps2/Spu2.h"
 #include "VirtualMachine.h"
+#include "Debuggable.h"
 #include "MailBox.h"
 #include "MipsExecutor.h"
 #include <boost/thread.hpp>
 #include <boost/signal.hpp>
 
-class CPsxVm : public CVirtualMachine
+class CPsfVm : public CVirtualMachine
 {
 public:
 	enum RAMSIZE
@@ -28,15 +30,19 @@ public:
 		SCRATCHSIZE = 0x00000400,
 	};
 
-						CPsxVm();
-	virtual				~CPsxVm();
+						CPsfVm();
+	virtual				~CPsfVm();
 
 	void				Reset();
-	void				LoadExe(uint8*);
 	void				Step();
 
 	CMIPS&				GetCpu();
 	CSpu&				GetSpu();
+    uint8*              GetRam();
+
+    void                SetBios(CBios*);
+
+    CDebuggable         GetDebugInfo();
 
 	virtual STATUS		GetStatus() const;
     virtual void		Pause();
@@ -45,52 +51,31 @@ public:
 	boost::signal<void ()> OnNewFrame;
 
 private:
-	struct EXEHEADER
-	{
-		uint8	id[8];
-		uint32	text;
-		uint32	data;
-		uint32	pc0;
-		uint32	gp0;
-		uint32	textAddr;
-		uint32	textSize;
-		uint32	dataAddr;
-		uint32	dataSize;
-		uint32	bssAddr;
-		uint32	bssSize;
-		uint32	stackAddr;
-		uint32	stackSize;
-		uint32	savedSp;
-		uint32	savedFp;
-		uint32	savedGp;
-		uint32	savedRa;
-		uint32	savedS0;
-	};
-
 	enum
 	{
 		HW_REG_BEGIN	= 0x1F801000,
-		HW_REG_END		= 0x1F802FFF
+		HW_REG_END		= 0x1F9FFFFF
 	};
-
-	uint32				ReadIoRegister(uint32);
-	uint32				WriteIoRegister(uint32, uint32);
 
 	unsigned int		ExecuteCpu(bool);
 	void				ThreadProc();
+
+	uint32				ReadIoRegister(uint32);
+	uint32				WriteIoRegister(uint32, uint32);
 
 	void				PauseImpl();
 
 	STATUS				m_status;
 	uint8*				m_ram;
 	uint8*				m_scratchPad;
-	Psx::CIntc			m_intc;
-	CSpu				m_spu;
-//	Psx::CRootCounters	m_counters;
-	Psx::CDmac			m_dmac;
-	CMIPS				m_cpu;
+	Iop::CIntc			m_intc;
+	Iop::CRootCounters	m_counters;
+	Iop::CDmac			m_dmac;
+    CSpu	    		m_spu;
+	PS2::CSpu2			m_spu2;
+    CMIPS				m_cpu;
 	CMipsExecutor		m_executor;
-	CPsxBios			m_bios;
+    CBios*              m_bios;
 	CSH_OpenAL			m_spuHandler;
 	boost::thread		m_thread;
 	bool				m_singleStep;

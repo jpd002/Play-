@@ -2,18 +2,43 @@
 #define _PSXBIOS_H_
 
 #include "MIPS.h"
+#include "Bios.h"
 
-class CPsxBios
+class CPsxBios : public CBios
 {
 public:
-							CPsxBios(CMIPS&, uint8*);
+							CPsxBios(CMIPS&, uint8*, uint32);
 	virtual					~CPsxBios();
 
 	void					Reset();
 	void					HandleInterrupt();
 	void					HandleException();
 
+    void                    LoadExe(uint8*);
+
 private:
+	struct EXEHEADER
+	{
+		uint8	id[8];
+		uint32	text;
+		uint32	data;
+		uint32	pc0;
+		uint32	gp0;
+		uint32	textAddr;
+		uint32	textSize;
+		uint32	dataAddr;
+		uint32	dataSize;
+		uint32	bssAddr;
+		uint32	bssSize;
+		uint32	stackAddr;
+		uint32	stackSize;
+		uint32	savedSp;
+		uint32	savedFp;
+		uint32	savedGp;
+		uint32	savedRa;
+		uint32	savedS0;
+	};
+
 	template<typename StructType>
 	class CStructManager
 	{
@@ -158,6 +183,7 @@ private:
 
 	CMIPS&					m_cpu;
 	uint8*					m_ram;
+    uint32                  m_ramSize;
 
 	CStructManager<EVENT>	m_events;
 

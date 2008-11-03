@@ -6,7 +6,7 @@
 #include <boost/utility.hpp>
 #include "Types.h"
 #include "../BasicUnions.h"
-#include "../Spu.h"
+#include "iop/Iop_Spu.h"
 #include "Spu2_Channel.h"
 
 namespace PS2
@@ -25,7 +25,8 @@ namespace PS2
 			uint32			WriteRegister(uint32, uint32);
             uint32          ReceiveDma(uint8*, uint32, uint32);
 
-            CSpu&           GetSpu();
+			void			SetSpu(CSpu*);
+//            CSpu&           GetSpu();
 
 			enum REGISTERS
 			{
@@ -101,7 +102,7 @@ namespace PS2
 			uint16					m_coreAttr;
 //			UNION32_16				m_transferAddress;
 			std::string				m_logName;
-			CSpu					m_spuBase;
+			CSpu*					m_spuBase;
 		};
 	};
 };

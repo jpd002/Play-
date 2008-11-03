@@ -1,15 +1,35 @@
 #include "PsfLoader.h"
 #include "StdStream.h"
-#include "ps2/PsfDevice.h"
+#include "PsxBios.h"
+#include "ps2/PsfBios.h"
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
 using namespace Framework;
-using namespace Psx;
 using namespace boost;
 using namespace std;
 
-void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
+{
+	size_t pathLength = strlen(pathString);
+	if(pathString[pathLength - 1] == '2')
+	{
+		LoadPs2(virtualMachine, pathString, tags);
+	}
+	else
+	{
+		LoadPsx(virtualMachine, pathString, tags);
+	}
+}
+
+void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
+{
+    CPsxBios* bios = new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), CPsfVm::RAMSIZE);
+    virtualMachine.SetBios(bios);
+    LoadPsxRecurse(virtualMachine, bios, pathString, tags);
+}
+
+void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const char* pathString, CPsfBase::TagMap* tags)
 {
 	CStdStream input(pathString, "rb");
 	CPsfBase psfFile(input);
@@ -28,11 +48,11 @@ void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBas
 		{
 			filesystem::path path(pathString); 
 			path = path.branch_path() / libPath;
-			LoadPsf(virtualMachine, path.string().c_str());
+			LoadPsxRecurse(virtualMachine, bios, path.string().c_str());
 			sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			pc = virtualMachine.GetCpu().m_State.nPC;
 		}
-		virtualMachine.LoadExe(psfFile.GetProgram());
+        bios->LoadExe(psfFile.GetProgram());
 		if(sp != 0)
 		{
 			virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nD0 = static_cast<int32>(sp);
@@ -56,7 +76,7 @@ void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBas
 			path = path.branch_path() / libPath;
 			uint32 sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			uint32 pc = virtualMachine.GetCpu().m_State.nPC;
-			LoadPsf(virtualMachine, path.string().c_str());
+			LoadPsxRecurse(virtualMachine, bios, path.string().c_str());
 			virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nD0 = static_cast<int32>(sp);
 			virtualMachine.GetCpu().m_State.nPC = pc;
 			currentLib++;
@@ -64,7 +84,7 @@ void CPsfLoader::LoadPsf(CPsxVm& virtualMachine, const char* pathString, CPsfBas
 	}
 }
 
-void CPsfLoader::LoadPsf2(PS2::CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
 	CStdStream input(pathString, "rb");
     PS2::CPsfDevice::PsfFile psfFile(new CPsfBase(input));
@@ -72,5 +92,10 @@ void CPsfLoader::LoadPsf2(PS2::CPsfVm& virtualMachine, const char* pathString, C
 	{
 		throw runtime_error("Not a PlayStation2 psf.");
 	}
-    virtualMachine.LoadPsf(psfFile);
+	if(tags != NULL)
+	{
+		tags->insert(psfFile->GetTagsBegin(), psfFile->GetTagsEnd());
+	}
+	CBios* bios = new PS2::CPsfBios(psfFile, virtualMachine.GetCpu(), virtualMachine.GetRam(), CPsfVm::RAMSIZE);
+    virtualMachine.SetBios(bios);
 }

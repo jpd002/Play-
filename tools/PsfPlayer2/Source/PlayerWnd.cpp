@@ -16,12 +16,11 @@
 #define WNDSTYLEEX		(0)
 #define WM_UPDATEVIS	(WM_USER + 1)
 
-using namespace Psx;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
 
-CPlayerWnd::CPlayerWnd(CPsxVm& virtualMachine) :
+CPlayerWnd::CPlayerWnd(CPsfVm& virtualMachine) :
 m_virtualMachine(virtualMachine),
 m_frames(0),
 m_regView(NULL),
@@ -98,7 +97,10 @@ long CPlayerWnd::OnCommand(unsigned short id, unsigned short command, HWND hWndF
 	case ID_FILE_OPEN:
 		{
 			Win32::CFileDialog dialog;
-			const TCHAR* filter = _T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0");
+			const TCHAR* filter = 
+				_T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2\0")
+				_T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
+				_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0");
 			dialog.m_OFN.lpstrFilter = filter;
 			if(dialog.Summon(m_hWnd))
 			{
