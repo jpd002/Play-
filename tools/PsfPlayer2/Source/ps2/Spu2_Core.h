@@ -55,6 +55,10 @@ namespace PS2
 				VA_NAX_HI		= 0x1F9001C8,
 				VA_NAX_LO		= 0x1F9001CA,
 				R_REG_BASE		= 0x1F9002E0,		//Reverb Base
+				A_ESA_HI		= 0x1F9002E0,
+				A_ESA_LO		= 0x1F9002E2,
+				A_EEA_HI		= 0x1F90033C,
+				A_EEA_LO		= 0x1F90033E,
 				STATX			= 0x1F900344,
 			};
 
@@ -90,7 +94,7 @@ namespace PS2
 			uint32					ReadRegisterChannel(unsigned int, uint32, uint32);
 			uint32					WriteRegisterChannel(unsigned int, uint32, uint32);
 
-			void					LogRead(uint32);
+			void					LogRead(uint32, uint32);
 			void					LogWrite(uint32, uint32);
 			void					LogChannelRead(unsigned int, uint32, uint32);
 			void					LogChannelWrite(unsigned int, uint32, uint32);
@@ -104,6 +108,8 @@ namespace PS2
 //			UNION32_16				m_transferAddress;
 			std::string				m_logName;
 			CSpu*					m_spuBase;
+			uint32					m_tempReverb;
+			uint32					m_tempReverbA;
 		};
 	};
 };

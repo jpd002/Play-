@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;&quot;$(ProjectDir)\Source&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;DEBUGGER_INCLUDED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

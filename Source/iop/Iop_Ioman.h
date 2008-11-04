@@ -2,6 +2,7 @@
 #define _IOP_IOMAN_H_
 
 #include <map>
+#include <memory>
 #include "Iop_SifMan.h"
 #include "Iop_Module.h"
 #include "Ioman_Device.h"
@@ -139,6 +140,8 @@ namespace Iop
 			SIF_MODULE_ID	= 0x80000001
 		};
 
+		typedef std::tr1::shared_ptr<Ioman::CDevice> DevicePtr;
+
                                 CIoman(uint8*, CSifMan&);
         virtual                 ~CIoman();
         
@@ -146,7 +149,7 @@ namespace Iop
         virtual void            Invoke(CMIPS&, unsigned int);
         virtual void            Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
-        void                    RegisterDevice(const char*, Ioman::CDevice*);
+        void                    RegisterDevice(const char*, const DevicePtr&);
 
         uint32                  Open(uint32, const char*);
         uint32                  Close(uint32);
@@ -159,7 +162,7 @@ namespace Iop
 
     private:
         typedef std::map<uint32, Framework::CStream*> FileMapType;
-        typedef std::map<std::string, Ioman::CDevice*> DeviceMapType;
+        typedef std::map<std::string, DevicePtr> DeviceMapType;
 
         void                    Open(CMIPS&);
 

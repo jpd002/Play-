@@ -41,11 +41,7 @@ CIoman::~CIoman()
     {
         delete fileIterator->second;
     }
-    for(DeviceMapType::iterator deviceIterator(m_devices.begin());
-        m_devices.end() != deviceIterator; deviceIterator++)
-    {
-        delete deviceIterator->second;
-    }
+	m_devices.clear();
     if(m_fileIoHandler != NULL)
     {
         delete m_fileIoHandler;
@@ -57,7 +53,7 @@ std::string CIoman::GetId() const
     return "ioman";
 }
 
-void CIoman::RegisterDevice(const char* name, Ioman::CDevice* device)
+void CIoman::RegisterDevice(const char* name, const DevicePtr& device)
 {
     m_devices[name] = device;
 }

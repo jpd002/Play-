@@ -222,8 +222,8 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			}
 			else
 			{
-				uint8* repeat = reader.GetRepeat();
-				channel.repeat = (repeat - m_ram) / 8;
+//				uint8* repeat = reader.GetRepeat();
+//				channel.repeat = (repeat - m_ram) / 8;
 			}
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
@@ -508,6 +508,10 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 
 uint32 CSpu::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 {
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%0.8X. Size = 0x%0.8X bytes.\r\n", 
+		m_bufferAddr, blockSize * blockAmount);
+#endif
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)
 	{
