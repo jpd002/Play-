@@ -13,7 +13,7 @@ namespace Iop
     public:
         enum
         {
-            MAX_CHANNEL = 7,
+            MAX_CHANNEL = 14,
         };
 
 		enum
@@ -24,14 +24,17 @@ namespace Iop
 			CH3_BASE	= 0x1F8010B0,
 			CH4_BASE	= 0x1F8010C0,
 			CH5_BASE	= 0x1F8010D0,
-			CH6_BASE	= 0x1F8010E0
+			CH6_BASE	= 0x1F8010E0,
+			CH8_BASE	= 0x1F801500,
 		};
 
         enum DMAC_ZONE1
         {
             DMAC_ZONE1_START    = 0x1F801080,
             DMAC_ZONE1_END      = 0x1F8010FF,
-        };
+			DMAC_ZONE2_START	= 0x1F801500,
+			DMAC_ZONE2_END		= 0x1F80150F,
+		};
 
                         CDmac(uint8*, CIntc&);
         virtual         ~CDmac();
@@ -51,11 +54,13 @@ namespace Iop
 		};
 
     private:
+		unsigned int	GetChannelIdFromAddress(uint32);
         Dmac::CChannel* GetChannelFromAddress(uint32);
         void            LogRead(uint32);
         void            LogWrite(uint32, uint32);
 
-        Dmac::CChannel  m_channelSpu;
+        Dmac::CChannel  m_channelSpu0;
+		Dmac::CChannel	m_channelSpu1;
         Dmac::CChannel* m_channel[MAX_CHANNEL];
 
         uint32			m_DPCR;

@@ -30,6 +30,11 @@ public:
 		SCRATCHSIZE = 0x00000400,
 	};
 
+	enum SPURAMSIZE
+	{
+		SPURAMSIZE = 0x00200000,
+	};
+
 						CPsfVm();
 	virtual				~CPsfVm();
 
@@ -68,10 +73,12 @@ private:
 	STATUS				m_status;
 	uint8*				m_ram;
 	uint8*				m_scratchPad;
+	uint8*				m_spuRam;
 	Iop::CIntc			m_intc;
 	Iop::CRootCounters	m_counters;
 	Iop::CDmac			m_dmac;
-    CSpu	    		m_spu;
+    CSpu	    		m_spuCore0;
+	CSpu				m_spuCore1;
 	PS2::CSpu2			m_spu2;
     CMIPS				m_cpu;
 	CMipsExecutor		m_executor;

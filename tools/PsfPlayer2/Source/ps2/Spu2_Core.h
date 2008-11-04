@@ -75,11 +75,6 @@ namespace PS2
 				MAX_CHANNEL = 24,
 			};
 
-	        enum
-	        {
-				RAMSIZE = CSpu::RAMSIZE
-	        };
-
 			struct REGISTER_DISPATCH_INFO
 			{
 				RegisterAccessFunction	core;

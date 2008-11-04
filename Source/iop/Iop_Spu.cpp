@@ -91,8 +91,9 @@ static const char* g_generalRegisterName[MAX_GENERAL_REG_NAME] =
 	"IN_COEF_R"
 };
 
-CSpu::CSpu() :
-m_ram(new uint8[RAMSIZE])
+CSpu::CSpu(uint8* ram, uint32 ramSize) :
+m_ram(ram),
+m_ramSize(ramSize)
 {
 	Reset();
 
@@ -125,7 +126,7 @@ m_ram(new uint8[RAMSIZE])
 
 CSpu::~CSpu()
 {
-	delete [] m_ram;
+
 }
 
 void CSpu::Reset()
@@ -144,7 +145,6 @@ void CSpu::Reset()
 	m_baseSamplingRate = 44100;
 
 	memset(m_channel, 0, sizeof(m_channel));
-	memset(m_ram, 0, RAMSIZE);
 	memset(m_reverb, 0, sizeof(m_reverb));
 
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
@@ -180,7 +180,7 @@ uint32 CSpu::GetTransferAddress() const
 
 void CSpu::SetTransferAddress(uint32 value)
 {
-	m_bufferAddr = value;
+	m_bufferAddr = value & (m_ramSize - 1);
 }
 
 void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
@@ -342,7 +342,7 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 					SetReverbSample(GetReverbOffset(MIX_DEST_B1), (fb_alpha * acc1) - fb_a1 * -fb_alpha - fb_b1 * fb_x);
 				}
 				m_reverbCurrAddr += 2;
-				if(m_reverbCurrAddr >= RAMSIZE)
+				if(m_reverbCurrAddr >= m_ramSize)
 				{
 					m_reverbCurrAddr = m_reverbWorkAddr;
 				}
@@ -437,7 +437,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			m_status0 = value;
 			break;
 		case SPU_DATA:
-			assert((m_bufferAddr + 1) < RAMSIZE);
+			assert((m_bufferAddr + 1) < m_ramSize);
 			*reinterpret_cast<uint16*>(&m_ram[m_bufferAddr]) = value;
 			m_bufferAddr += 2;
 			break;
@@ -515,10 +515,10 @@ uint32 CSpu::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)
 	{
-		uint32 copySize = min<uint32>(RAMSIZE - m_bufferAddr, blockSize);
+		uint32 copySize = min<uint32>(m_ramSize - m_bufferAddr, blockSize);
 		memcpy(m_ram + m_bufferAddr, buffer, copySize);
 		m_bufferAddr += blockSize;
-		m_bufferAddr &= RAMSIZE - 1;
+		m_bufferAddr &= m_ramSize - 1;
 		buffer += blockSize;
 		blocksTransfered++;
 	}
@@ -630,9 +630,9 @@ uint32 CSpu::GetAdsrDelta(unsigned int index) const
 float CSpu::GetReverbSample(uint32 address) const
 {
 	uint32 absoluteAddress = m_reverbCurrAddr + address;
-	while(absoluteAddress >= RAMSIZE)
+	while(absoluteAddress >= m_ramSize)
 	{
-		absoluteAddress -= RAMSIZE;
+		absoluteAddress -= m_ramSize;
 		absoluteAddress += m_reverbWorkAddr;
 	}
 	return static_cast<float>(*reinterpret_cast<int16*>(m_ram + absoluteAddress));
@@ -641,12 +641,12 @@ float CSpu::GetReverbSample(uint32 address) const
 void CSpu::SetReverbSample(uint32 address, float value)
 {
 	uint32 absoluteAddress = m_reverbCurrAddr + address;
-	while(absoluteAddress >= RAMSIZE)
+	while(absoluteAddress >= m_ramSize)
 	{
-		absoluteAddress -= RAMSIZE;
+		absoluteAddress -= m_ramSize;
 		absoluteAddress += m_reverbWorkAddr;
 	}
-	assert(absoluteAddress < RAMSIZE);
+	assert(absoluteAddress < m_ramSize);
 	value = max<float>(value, SHRT_MIN);
 	value = min<float>(value, SHRT_MAX);
 	int16 intValue = static_cast<int16>(value);

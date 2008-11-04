@@ -25,9 +25,7 @@ void CRootCounters::Reset()
 	memset(&m_counter, 0, sizeof(m_counter));
 	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
 	{
-		//VP need 16
-		//FF7/FF8/LoM needs 10
-		m_counter[i].clockRatio = 8;
+		m_counter[i].clockRatio = 4;
 	}
 	m_counter[1].clockRatio = 8;
 }

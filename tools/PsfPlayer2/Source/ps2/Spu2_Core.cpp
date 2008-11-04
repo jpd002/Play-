@@ -191,7 +191,7 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 			uint32 transferAddress = m_spuBase->GetTransferAddress();
 			transferAddress &= 0xFFFF << 1;
 			transferAddress |= value << (1 + 16);
-			transferAddress &= RAMSIZE - 1;
+//			transferAddress &= RAMSIZE - 1;
 			m_spuBase->SetTransferAddress(transferAddress);
 		}
 		break;
@@ -201,7 +201,7 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 			uint32 transferAddress = m_spuBase->GetTransferAddress();
 			transferAddress &= 0xFFFF << (1 + 16);
 			transferAddress |= value << 1;
-			transferAddress &= RAMSIZE - 1;
+//			transferAddress &= RAMSIZE - 1;
 			m_spuBase->SetTransferAddress(transferAddress);
 		}
 		break;

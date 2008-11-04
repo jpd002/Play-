@@ -6,6 +6,8 @@
 
 class CPsxBios;
 
+namespace PS2 { class CPsfBios; }
+
 class CPsfLoader
 {
 public:
@@ -16,6 +18,7 @@ private:
 	static void		LoadPsxRecurse(CPsfVm&, CPsxBios*, const char*, CPsfBase::TagMap* = NULL);
 
     static void		LoadPs2(CPsfVm&, const char*, CPsfBase::TagMap* = NULL);
+	static void		LoadPs2Recurse(CPsfVm&, PS2::CPsfBios*, const char*, CPsfBase::TagMap* = NULL);
 };
 
 #endif

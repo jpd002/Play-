@@ -3,8 +3,6 @@
 
 #include "iop/Ioman_Device.h"
 #include "../PsfBase.h"
-#include "PtrStream.h"
-#include <memory>
 #include <list>
 
 namespace PS2
@@ -12,16 +10,23 @@ namespace PS2
 	class CPsfDevice : public Iop::Ioman::CDevice
 	{
 	public:
-        typedef std::tr1::shared_ptr<CPsfBase> PsfFile;
-
-					                    CPsfDevice(const PsfFile&);
+					                    CPsfDevice();
 		virtual		                    ~CPsfDevice();
 
+		void							AppendArchive(const CPsfBase&);
         virtual Framework::CStream*     GetFile(uint32, const char*);
 
 	private:
         struct NODE
         {
+			NODE() :
+				offset(0),
+				size(0),
+				blockSize(0)
+			{
+				name[0] = 0;
+			}
+
             virtual ~NODE()
             {
 
@@ -87,8 +92,6 @@ namespace PS2
         const FILE*                     GetFileDetail(const DIRECTORY&, const char*) const;
         const NODE*                     GetFileFindNode(const DIRECTORY&, const char*) const;
 
-        Framework::CPtrStream           m_fsStream;
-        PsfFile                         m_psfFile;
         DIRECTORY                       m_root;
 	};
 }

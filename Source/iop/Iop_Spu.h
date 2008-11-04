@@ -9,12 +9,6 @@
 class CSpu
 {
 public:
-	enum
-	{
-//		RAMSIZE = 0x80000
-		RAMSIZE = 0x200000,
-	};
-
 	struct ADSR_LEVEL : public convertible<uint16>
 	{
 		unsigned int	sustainLevel	: 4;
@@ -77,7 +71,7 @@ public:
         uint32          current;
 	};
 
-				CSpu();
+				CSpu(uint8*, uint32);
 	virtual		~CSpu();
 
 	void		Reset();
@@ -309,6 +303,7 @@ private:
 	int				m_reverbTicks;
 	uint16			m_reverb[REVERB_REG_COUNT];
 	uint8*			m_ram;
+	uint32			m_ramSize;
 	CHANNEL			m_channel[MAX_CHANNEL];
 	CSampleReader	m_reader[MAX_CHANNEL];
 

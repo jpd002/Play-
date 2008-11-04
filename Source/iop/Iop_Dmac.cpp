@@ -11,10 +11,12 @@ using namespace Iop::Dmac;
 CDmac::CDmac(uint8* ram, CIntc& intc) :
 m_ram(ram),
 m_intc(intc),
-m_channelSpu(CH4_BASE, 4, *this)
+m_channelSpu0(CH4_BASE, 4, *this),
+m_channelSpu1(CH8_BASE, 8, *this)
 {
     memset(m_channel, 0, sizeof(m_channel));
-    m_channel[4] = &m_channelSpu;
+    m_channel[4] = &m_channelSpu0;
+	m_channel[8] = &m_channelSpu1;
     Reset();
 }
 
@@ -47,9 +49,24 @@ void CDmac::SetReceiveFunction(unsigned int channelId, const CChannel::ReceiveFu
     }
 }
 
+unsigned int CDmac::GetChannelIdFromAddress(uint32 address)
+{
+    unsigned int channelId = -1;
+	if(address >= DMAC_ZONE2_START)
+	{
+		channelId = (address - DMAC_ZONE2_START) / 0x10;
+		channelId += 8;
+	}
+	else if(address >= CH0_BASE && address < DPCR)
+	{
+		channelId = (address - DMAC_ZONE1_START) / 0x10;
+	}
+	return channelId;
+}
+
 CChannel* CDmac::GetChannelFromAddress(uint32 address)
 {
-    unsigned int channelId = (address - DMAC_ZONE1_START) / 0x10;
+    unsigned int channelId = GetChannelIdFromAddress(address);
     assert(channelId < MAX_CHANNEL);
     if(channelId >= MAX_CHANNEL) return NULL;
     return m_channel[channelId];
@@ -57,7 +74,10 @@ CChannel* CDmac::GetChannelFromAddress(uint32 address)
 
 void CDmac::AssertLine(unsigned int line)
 {
-	m_DICR |= 1 << (line + 24);
+	if(line < 7)
+	{
+		m_DICR |= 1 << (line + 24);
+	}
 	m_intc.AssertLine(CIntc::LINE_DMAC);
 	m_intc.AssertLine(CIntc::LINE_DMA_BASE + line);
 }
@@ -132,7 +152,7 @@ void CDmac::LogRead(uint32 address)
         break;
     default:
         {
-            unsigned int channelId = (address - DMAC_ZONE1_START) / 0x10;
+            unsigned int channelId = GetChannelIdFromAddress(address);
             unsigned int registerId = address & 0xF;
             switch(registerId)
             {
@@ -161,7 +181,7 @@ void CDmac::LogWrite(uint32 address, uint32 value)
         break;
     default:
         {
-            unsigned int channelId = (address - DMAC_ZONE1_START) / 0x10;
+            unsigned int channelId = GetChannelIdFromAddress(address);
             unsigned int registerId = address & 0xF;
             switch(registerId)
             {

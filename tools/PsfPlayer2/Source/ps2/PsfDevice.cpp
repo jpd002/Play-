@@ -1,20 +1,25 @@
 #include <zlib.h>
 #include "PsfDevice.h"
+#include "PtrStream.h"
 
 using namespace PS2;
 using namespace Framework;
 using namespace std;
 
-CPsfDevice::CPsfDevice(const PsfFile& psfFile) :
-m_psfFile(psfFile),
-m_fsStream(psfFile->GetReserved(), psfFile->GetReservedSize())
+CPsfDevice::CPsfDevice()
 {
-    ReadDirectory(m_fsStream, m_root);
+
 }
 
 CPsfDevice::~CPsfDevice()
 {
 
+}
+
+void CPsfDevice::AppendArchive(const CPsfBase& archive)
+{
+    CPtrStream fsStream(archive.GetReserved(), archive.GetReservedSize());
+	ReadDirectory(fsStream, m_root);
 }
 
 void CPsfDevice::ReadFile(CStream& stream, FILE& file)

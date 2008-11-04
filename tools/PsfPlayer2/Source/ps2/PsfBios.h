@@ -10,13 +10,17 @@ namespace PS2
 	class CPsfBios : public CBios
 	{
 	public:
-					CPsfBios(const CPsfDevice::PsfFile&, CMIPS&, uint8*, uint32);
-		virtual		~CPsfBios();
-	    void		HandleException();
-	    void		HandleInterrupt();
+								CPsfBios(CMIPS&, uint8*, uint32);
+		virtual					~CPsfBios();
+	    void					HandleException();
+	    void					HandleInterrupt();
+
+		void					AppendArchive(const CPsfBase&);
+		void					Start();
 
 	private:
-		CIopBios	m_bios;
+		Iop::CIoman::DevicePtr	m_psfDevice;
+		CIopBios				m_bios;
 	};
 }
 

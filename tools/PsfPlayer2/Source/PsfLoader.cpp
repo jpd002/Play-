@@ -86,16 +86,30 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 
 void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
+	PS2::CPsfBios* bios = new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), CPsfVm::RAMSIZE);
+    virtualMachine.SetBios(bios);
+	LoadPs2Recurse(virtualMachine, bios, pathString, tags);
+	bios->Start();
+}
+
+void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const char* pathString, CPsfBase::TagMap* tags)
+{
 	CStdStream input(pathString, "rb");
-    PS2::CPsfDevice::PsfFile psfFile(new CPsfBase(input));
-	if(psfFile->GetVersion() != CPsfBase::VERSION_PLAYSTATION2)
+	CPsfBase psfFile(input);
+	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATION2)
 	{
 		throw runtime_error("Not a PlayStation2 psf.");
 	}
+	const char* libPath = psfFile.GetTagValue("_lib");
 	if(tags != NULL)
 	{
-		tags->insert(psfFile->GetTagsBegin(), psfFile->GetTagsEnd());
+		tags->insert(psfFile.GetTagsBegin(), psfFile.GetTagsEnd());
 	}
-	CBios* bios = new PS2::CPsfBios(psfFile, virtualMachine.GetCpu(), virtualMachine.GetRam(), CPsfVm::RAMSIZE);
-    virtualMachine.SetBios(bios);
+	if(libPath != NULL)
+	{
+		filesystem::path path(pathString); 
+		path = path.branch_path() / libPath;
+		LoadPs2Recurse(virtualMachine, bios, path.string().c_str());
+	}
+	bios->AppendArchive(psfFile);
 }
