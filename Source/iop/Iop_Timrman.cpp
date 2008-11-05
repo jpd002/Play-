@@ -76,7 +76,7 @@ int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 unknown, uint
 	//Enable timer
 	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_COUNT,	0x0000);
 	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_MODE,	0x0258);
-	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_TARGET,	0x8000);
+	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_TARGET,	0x4400);
 
 	uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
 	mask |= (1 << CIntc::LINE_RTC2);

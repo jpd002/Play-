@@ -238,6 +238,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Iop_SpuBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_SpuBase.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Main.cpp"
 				>
 			</File>
