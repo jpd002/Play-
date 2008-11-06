@@ -13,10 +13,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
 #ifdef DEBUGGER_INCLUDED
 	{
 		virtualMachine.Reset();
-//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PSX\\C-SotN_psf\\Master Librarian.minipsf");
-//        CPsfLoader::LoadPsf2(virtualMachine, "D:\\Media\\PS2\\FF4\\ff4-02.psf2");
-        CPsfLoader::LoadPsf(virtualMachine, "C:\\Downloads\\vp-psf\\vp-114.minipsf");
-
+//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PS2\\FFXI_psf2\\FFXI_psf2\\104 Ronfaure.psf2");
+//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PS2\\FF4\\ff4-01.psf2");
+		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PS2\\FF10_psf\\102 In Zanarkand.minipsf2");
 		CMiniDebugger debugger(virtualMachine, virtualMachine.GetDebugInfo());
 		debugger.Show(SW_SHOW);
 		debugger.Run();

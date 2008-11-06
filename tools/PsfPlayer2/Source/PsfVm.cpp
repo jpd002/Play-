@@ -28,9 +28,10 @@ m_spuRam(new uint8[SPURAMSIZE]),
 m_dmac(m_ram, m_intc),
 m_counters(CLOCK_FREQ, m_intc),
 m_thread(bind(&CPsfVm::ThreadProc, this)),
-m_spu2(PS2::CSpu2::REGS_BEGIN),
 m_spuCore0(m_spuRam, SPURAMSIZE),
-m_spuCore1(m_spuRam, SPURAMSIZE)
+m_spuCore1(m_spuRam, SPURAMSIZE),
+m_spu(m_spuCore0),
+m_spu2(m_spuCore0, m_spuCore1)
 {
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	                m_ram,								                    0x01);
@@ -62,11 +63,8 @@ m_spuCore1(m_spuRam, SPURAMSIZE)
 	m_cpu.m_Comments.Unserialize("rawr.comments");
 #endif
 
-	m_dmac.SetReceiveFunction(4, bind(&CSpu::ReceiveDma, &m_spuCore0, _1, _2, _3));
-	m_dmac.SetReceiveFunction(8, bind(&CSpu::ReceiveDma, &m_spuCore1, _1, _2, _3));
-
-	m_spu2.GetCore(0)->SetSpu(&m_spuCore0);
-	m_spu2.GetCore(1)->SetSpu(&m_spuCore1);
+	m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, _1, _2, _3));
+	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, _1, _2, _3));
 }
 
 CPsfVm::~CPsfVm()
@@ -94,7 +92,7 @@ void CPsfVm::Reset()
 	m_cpu.Reset();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
-	m_spu2.Reset();
+//	m_spu2.Reset();
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
@@ -103,13 +101,13 @@ void CPsfVm::Reset()
 
 uint32 CPsfVm::ReadIoRegister(uint32 address)
 {
-	if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
-	{
-		return m_spuCore0.ReadRegister(address);
-	}
-	else if(address == 0x1F801814)
+	if(address == 0x1F801814)
 	{
 		return 0x14802000;
+	}
+	else if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
+	{
+		return m_spu.ReadRegister(address);
 	}
 	else if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
 	{
@@ -127,7 +125,7 @@ uint32 CPsfVm::ReadIoRegister(uint32 address)
 	{
 		return m_counters.ReadRegister(address);
 	}
-	else if(address >= PS2::CSpu2::REGS_BEGIN && address <= PS2::CSpu2::REGS_END)
+	else if(address >= CSpu2::REGS_BEGIN && address <= CSpu2::REGS_END)
 	{
 		return m_spu2.ReadRegister(address);
 	}
@@ -140,13 +138,13 @@ uint32 CPsfVm::ReadIoRegister(uint32 address)
 
 uint32 CPsfVm::WriteIoRegister(uint32 address, uint32 value)
 {
-	if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
-	{
-		m_spuCore0.WriteRegister(address, static_cast<uint16>(value));
-	}
-	else if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
+	if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
 	{
 		m_dmac.WriteRegister(address, value);
+	}
+	else if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
+	{
+		m_spu.WriteRegister(address, static_cast<uint16>(value));
 	}
 	else if(address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END)
 	{
@@ -160,7 +158,7 @@ uint32 CPsfVm::WriteIoRegister(uint32 address, uint32 value)
 	{
 		m_counters.WriteRegister(address, value);
 	}
-	else if(address >= PS2::CSpu2::REGS_BEGIN && address <= PS2::CSpu2::REGS_END)
+	else if(address >= CSpu2::REGS_BEGIN && address <= CSpu2::REGS_END)
 	{
 		return m_spu2.WriteRegister(address, value);
 	}
@@ -207,9 +205,16 @@ CMIPS& CPsfVm::GetCpu()
 	return m_cpu;
 }
 
-CSpu& CPsfVm::GetSpu()
+CSpuBase& CPsfVm::GetSpuCore(unsigned int coreId)
 {
-	return m_spuCore0;
+	if(coreId == 0)
+	{
+		return m_spuCore0;
+	}
+	else
+	{
+		return m_spuCore1;
+	}
 }
 
 uint8* CPsfVm::GetRam()
@@ -347,7 +352,7 @@ void CPsfVm::ThreadProc()
 						}
 					}
 
-					m_spuHandler.Update(m_spuCore0);
+					//m_spuHandler.Update(m_spuCore0);
 					spuUpdateCounter += spuUpdateTicks;
 				}
 			}

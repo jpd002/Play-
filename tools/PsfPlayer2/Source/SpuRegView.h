@@ -2,18 +2,18 @@
 #define _SPUREGVIEW_H_
 
 #include "win32ui/RegViewPage.h"
-#include "iop/Iop_Spu.h"
+#include "iop/Iop_SpuBase.h"
 
 class CSpuRegView : public CRegViewPage
 {
 public:
-					CSpuRegView(HWND, RECT*, CSpu&);
+					CSpuRegView(HWND, RECT*, Iop::CSpuBase&);
 	virtual			~CSpuRegView();
 
 	void			Render();
 
 private:
-	CSpu&			m_spu;
+	Iop::CSpuBase&	m_spu;
 };
 
 #endif

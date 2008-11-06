@@ -4,8 +4,8 @@
 
 #define LOG_NAME ("spu2")
 
-using namespace PS2;
-using namespace PS2::Spu2;
+using namespace Iop;
+using namespace Iop::Spu2;
 using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
@@ -132,77 +132,12 @@ using namespace Framework;
 #define SD_DMA_DIR_IOP2SPU				1
 */
 
-//Global stuff
-enum
-{
-    SD_VP_REG_BASE_0    = 0x1F900000,
-    SD_VP_REG_BASE_1    = 0x1F900400,
-    SD_S_REG_BASE_0     = 0x1F900180,
-    SD_S_REG_BASE_1     = 0x1F900580,
-    SD_A_REG_BASE_0     = 0x1F9001A0,
-    SD_A_REG_BASE_1     = 0x1F9005A0,
-    SD_P_REG_BASE_0     = 0x1F900760,
-    SD_P_REG_BASE_1     = 0x1F900760 + 40,
-    SD_C_SPDIF_OUT      = 0x1F9007C0,
-    SD_C_IRQINFO        = 0x1F9007C2,
-    SD_C_SPDIF_MODE     = 0x1F9007C6,
-    SD_C_SPDIF_MEDIA    = 0x1F9007C8,
-};
-
-//SD_S_REG
-enum
-{
-    SD_S_PMON_HI        = 0x00,
-    SD_S_PMON_LO        = 0x02,
-    SD_S_NON_HI         = 0x04,
-    SD_S_NON_LO         = 0x06,
-    SD_S_VMIXL_HI       = 0x08,
-    SD_S_VMIXL_LO       = 0x0A,
-    SD_S_VMIXEL_HI      = 0x0C,
-    SD_S_VMIXEL_LO      = 0x0E,
-    SD_S_VMIXR_HI       = 0x10,
-    SD_S_VMIXR_LO       = 0x12,
-    SD_S_VMIXER_HI      = 0x14,
-    SD_S_VMIXER_LO      = 0x16,
-    SD_P_MMIX           = 0x18,
-    SD_CORE_ATTR        = 0x1A,
-    SD_CORE_IRQA        = 0x1C,
-};
-
-//SD_A_REG
-enum
-{
-    SD_A_KON_HI     = 0x00,
-    SD_A_KON_LO     = 0x02,
-    SD_A_KOFF_HI    = 0x04,
-    SD_A_KOFF_LO    = 0x06,
-    SD_A_TSA_HI     = 0x08,
-    SD_A_TSA_LO     = 0x0A, 
-    SD_A_STD        = 0x0C,
-};
-
-//SD_P_REG
-enum
-{
-    SD_P_MVOLL      = 0x00,
-    SD_P_MVOLR      = 0x02,
-    SD_P_EVOLL      = 0x04,
-    SD_P_EVOLR      = 0x06,
-    SD_P_AVOLL      = 0x08,
-    SD_P_AVOLR      = 0x0A,
-    SD_P_BVOLL      = 0x0C,
-    SD_P_BVOLR      = 0x0E,
-    SD_P_MVOLXL     = 0x10,
-    SD_P_MVOLXR     = 0x12,
-};
-
-
-CSpu2::CSpu2(uint32 baseAddress) :
-m_baseAddress(baseAddress)
+CSpu2::CSpu2(CSpuBase& spuBase0, CSpuBase& spuBase1)
 {
 	for(unsigned int i = 0; i < CORE_NUM; i++)
 	{
-		m_core[i] = new CCore(i);
+		CSpuBase& base(i == 0 ? spuBase0 : spuBase1);
+		m_core[i] = new CCore(i, base);
 	}
 
 	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, _1, _2);
@@ -246,7 +181,7 @@ uint32 CSpu2::WriteRegister(uint32 address, uint32 value)
 
 uint32 CSpu2::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
 {
-    uint32 tmpAddress = address - m_baseAddress;
+    uint32 tmpAddress = address - REGS_BEGIN;
     if(tmpAddress < 0x760)
     {
 		unsigned int coreId = (tmpAddress & 0x400) ? 1 : 0;

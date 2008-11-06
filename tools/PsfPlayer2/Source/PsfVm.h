@@ -5,6 +5,7 @@
 #include "MIPS.h"
 #include "Bios.h"
 #include "SH_OpenAL.h"
+#include "iop/Iop_SpuBase.h"
 #include "iop/Iop_Spu.h"
 #include "iop/Iop_Dmac.h"
 #include "iop/Iop_Intc.h"
@@ -42,7 +43,7 @@ public:
 	void				Step();
 
 	CMIPS&				GetCpu();
-	CSpu&				GetSpu();
+	Iop::CSpuBase&		GetSpuCore(unsigned int);
     uint8*              GetRam();
 
     void                SetBios(CBios*);
@@ -77,10 +78,11 @@ private:
 	Iop::CIntc			m_intc;
 	Iop::CRootCounters	m_counters;
 	Iop::CDmac			m_dmac;
-    CSpu	    		m_spuCore0;
-	CSpu				m_spuCore1;
-	PS2::CSpu2			m_spu2;
-    CMIPS				m_cpu;
+	Iop::CSpuBase		m_spuCore0;
+	Iop::CSpuBase		m_spuCore1;
+	Iop::CSpu			m_spu;
+	Iop::CSpu2			m_spu2;
+	CMIPS				m_cpu;
 	CMipsExecutor		m_executor;
     CBios*              m_bios;
 	CSH_OpenAL			m_spuHandler;

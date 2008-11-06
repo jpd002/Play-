@@ -136,12 +136,27 @@ namespace Iop
 	    uint32		    GetTransferAddress() const;
 	    void		    SetTransferAddress(uint32);
 
-        uint32		    GetChannelOn() const;
-	    uint32		    GetChannelReverb() const;
+		void			SetReverbParam(unsigned int, uint16);
+		void			SetReverbWorkAddressStart(uint32);
+		void			SetReverbWorkAddressEnd(uint32);
+		void			SetReverbCurrentAddress(uint32);
+
+        UNION32_16	    GetChannelOn() const;
+		void			SetChannelOn(uint16, uint16);
+		void			SetChannelOnLo(uint16);
+		void			SetChannelOnHi(uint16);
+
+		UNION32_16	    GetChannelReverb() const;
+		void			SetChannelReverb(uint16, uint16);
+		void			SetChannelReverbLo(uint16);
+		void			SetChannelReverbHi(uint16);
+
         CHANNEL&		GetChannel(unsigned int);
 
 	    void		    SendKeyOn(uint32);
 	    void		    SendKeyOff(uint32);
+
+		void			WriteWord(uint16);
 
         uint32		    ReceiveDma(uint8*, uint32, uint32);
 
@@ -153,14 +168,21 @@ namespace Iop
 		    MAX_ADSR_VOLUME = 0x7FFFFFFF,
 	    };
 
-        uint8*          m_ram;
+		void			UpdateAdsr(CHANNEL&);
+		uint32			GetAdsrDelta(unsigned int) const;
+		float			GetReverbSample(uint32) const;
+		void			SetReverbSample(uint32, float);
+		uint32			GetReverbOffset(unsigned int) const;
+		float			GetReverbCoef(unsigned int) const;
+
+		uint8*          m_ram;
         uint32          m_ramSize;
 	    uint32			m_baseSamplingRate;
 	    uint32			m_bufferAddr;
 	    UNION32_16		m_channelOn;
 	    UNION32_16		m_channelReverb;
-	    uint32			m_reverbWorkStartAddr;
-        uint32          m_reverbWorkEndAddr;
+	    uint32			m_reverbWorkAddrStart;
+        uint32          m_reverbWorkAddrEnd;
 	    uint32			m_reverbCurrAddr;
 	    int				m_reverbTicks;
 	    uint16			m_reverb[REVERB_REG_COUNT];
@@ -170,3 +192,44 @@ namespace Iop
 }
 
 #endif
+/*
+		class CSampleReader
+		{
+		public:
+							CSampleReader();
+			virtual			~CSampleReader();
+
+			void			Reset();
+
+			void			SetParams(uint8*, uint8*);
+			void			SetPitch(uint32, uint16);
+			void			GetSamples(int16*, unsigned int, unsigned int);
+			uint8*			GetRepeat() const;
+			uint8*          GetCurrent() const;
+
+		private:
+			enum
+			{
+				BUFFER_SAMPLES = 28,
+			};
+
+			void			UnpackSamples(int16*);
+			void			AdvanceBuffer();
+			int16			GetSample(double);
+			double			GetNextTime() const;
+			double			GetBufferStep() const;
+			double			GetSamplingRate() const;
+
+			unsigned int	m_sourceSamplingRate;
+			uint8*			m_nextSample;
+			uint8*			m_repeat;
+			int16			m_buffer[BUFFER_SAMPLES * 2];
+			uint16			m_pitch;
+			double			m_currentTime;
+			double			m_dstTime;
+			double			m_s1;
+			double			m_s2;
+			bool			m_done;
+			bool			m_nextValid;
+		};
+*/

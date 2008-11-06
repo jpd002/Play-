@@ -6,16 +6,16 @@
 #define LOG_NAME_PREFIX ("spu2_core_")
 #define SPU_BASE_SAMPLING_RATE (48000)
 
-using namespace PS2::Spu2;
+using namespace Iop;
+using namespace Iop::Spu2;
 using namespace std;
 using namespace std::tr1;
 using namespace Framework;
 using namespace boost;
 
-CCore::CCore(unsigned int coreId) :
+CCore::CCore(unsigned int coreId, CSpuBase& spuBase) :
 m_coreId(coreId),
-m_spuBase(NULL)
-//m_ram(new uint8[RAMSIZE])
+m_spuBase(spuBase)
 {
 	m_logName = LOG_NAME_PREFIX + lexical_cast<string>(m_coreId);
 
@@ -30,31 +30,15 @@ m_spuBase(NULL)
 
 CCore::~CCore()
 {
-//    delete [] m_ram;
+
 }
 
 void CCore::Reset()
 {
-	if(m_spuBase)
-	{
-		m_spuBase->Reset();
-	}
-//    memset(m_ram, 0, RAMSIZE);
-//	m_transferAddress.f = 0;
 	m_tempReverb = 0;
 	m_tempReverbA = 0;
 	m_coreAttr = 0;
 }
-
-void CCore::SetSpu(CSpu* spu)
-{
-	m_spuBase = spu;
-}
-
-//CSpu& CCore::GetSpu()
-//{
-//    return m_spuBase;
-//}
 
 uint32 CCore::ReadRegister(uint32 address, uint32 value)
 {
@@ -64,26 +48,6 @@ uint32 CCore::ReadRegister(uint32 address, uint32 value)
 uint32 CCore::WriteRegister(uint32 address, uint32 value)
 {
 	return ProcessRegisterAccess(m_writeDispatch, address, value);
-}
-
-uint32 CCore::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
-{
-/*
-	assert((blockSize & 1) == 0);
-	unsigned int blocksTransfered = 0;
-	uint32 dstAddress = m_transferAddress.f << 1;
-	for(unsigned int i = 0; i < blockAmount; i++)
-	{
-		uint32 copySize = min<uint32>(RAMSIZE - dstAddress, blockSize);
-		memcpy(m_ram + dstAddress, buffer, copySize);
-		dstAddress += blockSize;
-		dstAddress &= RAMSIZE - 1;
-		buffer += blockSize;
-		blocksTransfered++;
-	}
-	m_transferAddress.f = dstAddress >> 1;
-*/
-    return m_spuBase->ReceiveDma(buffer, blockSize, blockAmount);
 }
 
 uint32 CCore::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
@@ -125,11 +89,10 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 		result = m_coreAttr;
 		break;
     case A_TSA_HI:
-		if(m_spuBase)
 		{
-			uint32 transferAddress = m_spuBase->GetTransferAddress();
+			uint32 transferAddress = m_spuBase.GetTransferAddress();
 			result = (transferAddress >> (16 + 1));
-        }
+		}
         break;
 	case A_ESA_LO:
 		result = (m_tempReverb & 0xFFFF);
@@ -147,62 +110,38 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 	switch(address)
 	{
 	case CORE_ATTR:
-		if(m_spuBase)
-		{
-			m_spuBase->SetBaseSamplingRate(SPU_BASE_SAMPLING_RATE);
-		}
+		m_spuBase.SetBaseSamplingRate(SPU_BASE_SAMPLING_RATE);
 		m_coreAttr = static_cast<uint16>(value);
 		break;
     case A_STD:
-        {
-//            uint32 address = m_transferAddress.f << 1;
-//            address &= RAMSIZE - 1;
-//            *reinterpret_cast<uint16*>(m_ram + address) = static_cast<uint16>(value);
-//            m_transferAddress.f++;
-        }
+		m_spuBase.WriteWord(static_cast<uint16>(value));
         break;
     case A_KON_HI:
-		if(m_spuBase)
-		{
-			m_spuBase->SendKeyOn(value);
-		}
+		m_spuBase.SendKeyOn(value);
         break;
     case A_KON_LO:
-		if(m_spuBase)
-		{
-	        m_spuBase->SendKeyOn(value << 16);
-		}
+        m_spuBase.SendKeyOn(value << 16);
         break;
     case A_KOFF_HI:
-		if(m_spuBase)
-		{
-	        m_spuBase->SendKeyOff(value);
-		}
+        m_spuBase.SendKeyOff(value);
         break;
     case A_KOFF_LO:
-		if(m_spuBase)
-		{
-			m_spuBase->SendKeyOff(value << 16);
-		}
+		m_spuBase.SendKeyOff(value << 16);
         break;
 	case A_TSA_HI:
-		if(m_spuBase)
 		{
-			uint32 transferAddress = m_spuBase->GetTransferAddress();
+			uint32 transferAddress = m_spuBase.GetTransferAddress();
 			transferAddress &= 0xFFFF << 1;
 			transferAddress |= value << (1 + 16);
-//			transferAddress &= RAMSIZE - 1;
-			m_spuBase->SetTransferAddress(transferAddress);
+			m_spuBase.SetTransferAddress(transferAddress);
 		}
 		break;
 	case A_TSA_LO:
-		if(m_spuBase)
 		{
-			uint32 transferAddress = m_spuBase->GetTransferAddress();
+			uint32 transferAddress = m_spuBase.GetTransferAddress();
 			transferAddress &= 0xFFFF << (1 + 16);
 			transferAddress |= value << 1;
-//			transferAddress &= RAMSIZE - 1;
-			m_spuBase->SetTransferAddress(transferAddress);
+			m_spuBase.SetTransferAddress(transferAddress);
 		}
 		break;
 	case A_ESA_HI:
@@ -226,9 +165,8 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 	{
 		return 0;
 	}
-	if(!m_spuBase) return 0;
 	uint32 result = 0;
-	CSpu::CHANNEL& channel(m_spuBase->GetChannel(channelId));
+	CSpuBase::CHANNEL& channel(m_spuBase.GetChannel(channelId));
 	switch(address)
 	{
 	case VP_ENVX:
@@ -253,8 +191,7 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 		return 0;
 	}
 	LogChannelWrite(channelId, address, value);
-	if(!m_spuBase) return 0;
-	CSpu::CHANNEL& channel(m_spuBase->GetChannel(channelId));
+	CSpuBase::CHANNEL& channel(m_spuBase.GetChannel(channelId));
 	switch(address)
 	{
 	case VP_VOLL:
@@ -283,71 +220,41 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 		break;
 	case VA_SSA_HI:
 		{
-			uint32 address = channel.address * 8;
+			uint32 address = channel.address;
 			address &= 0xFFFF << 1;
 			address |= value << (1 + 16);
 			assert((address & 0x7) == 0);
-			channel.address = address / 8;
+			channel.address = address;
 		}
 		break;
 	case VA_SSA_LO:
 		{
-			uint32 address = channel.address * 8;
+			uint32 address = channel.address;
 			address &= 0xFFFF << (1 + 16);
 			address |= value << 1;
 			assert((address & 0x7) == 0);
-			channel.address = address / 8;
+			channel.address = address;
 		}
 		break;
 	case VA_LSAX_HI:
 		{
-			uint32 address = channel.repeat * 8;
+			uint32 address = channel.repeat;
 			address &= 0xFFFF << 1;
 			address |= value << (1 + 16);
 			assert((address & 0x7) == 0);
-			channel.repeat = address / 8;
+			channel.repeat = address;
 		}
 		break;
 	case VA_LSAX_LO:
 		{
-			uint32 address = channel.repeat * 8;
+			uint32 address = channel.repeat;
 			address &= 0xFFFF << (1 + 16);
 			address |= value << 1;
 			assert((address & 0x7) == 0);
-			channel.repeat = address / 8;
+			channel.repeat = address;
 		}
 		break;
 	}
-/*
-	CChannel& channel(m_channel[channelId]);
-	switch(address)
-	{
-	case VP_VOLL:
-		channel.volLeft = static_cast<uint16>(value);
-		break;
-	case VP_VOLR:
-		channel.volRight = static_cast<uint16>(value);
-		break;
-	case VP_PITCH:
-		channel.pitch = static_cast<uint16>(value);
-		break;
-	case VP_ADSR1:
-		channel.adsr1 = static_cast<uint16>(value);
-		break;
-	case VP_ADSR2:
-		channel.adsr2 = static_cast<uint16>(value);
-		break;
-	case VP_ENVX:
-		channel.envx = static_cast<uint16>(value);
-		break;
-	case VP_VOLXL:
-		channel.volxLeft = static_cast<uint16>(value);
-		break;
-	case VP_VOLXR:
-		channel.volxRight = static_cast<uint16>(value);
-		break;
-	}
-*/
 	return 0;
 }
 

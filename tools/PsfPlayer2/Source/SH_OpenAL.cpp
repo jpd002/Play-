@@ -6,6 +6,7 @@
 //#define LOGGING
 
 using namespace boost;
+using namespace Iop;
 
 ALCint g_attrList[] = 
 {
@@ -52,7 +53,7 @@ bool CSH_OpenAL::HasFreeBuffers()
 	return m_availableBuffers.size() != 0;
 }
 
-void CSH_OpenAL::Update(CSpu& spu)
+void CSH_OpenAL::Update(CSpuBase& spu)
 {
 //	const unsigned int minBufferLength = 16;
 //	unsigned int bufferLength = minBufferLength;

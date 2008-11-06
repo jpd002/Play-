@@ -3,7 +3,7 @@
 
 #include <deque>
 #include <time.h>
-#include "iop/Iop_Spu.h"
+#include "iop/Iop_SpuBase.h"
 #include "openal/Device.h"
 #include "openal/Context.h"
 #include "openal/Source.h"
@@ -16,7 +16,7 @@ public:
 	virtual				~CSH_OpenAL();
 
 	void				Reset();
-	void				Update(CSpu&);
+	void				Update(Iop::CSpuBase&);
 	bool				HasFreeBuffers();
 
 private:

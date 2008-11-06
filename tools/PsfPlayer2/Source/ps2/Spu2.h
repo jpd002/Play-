@@ -5,12 +5,12 @@
 #include <functional>
 #include "Spu2_Core.h"
 
-namespace PS2
+namespace Iop
 {
 	class CSpu2 : boost::noncopyable
 	{
 	public:
-						CSpu2(uint32);
+						CSpu2(CSpuBase&, CSpuBase&);
 		virtual			~CSpu2();
 
 		uint32			ReadRegister(uint32);
@@ -47,7 +47,6 @@ namespace PS2
 
 		REGISTER_DISPATCH_INFO		m_readDispatchInfo;
 		REGISTER_DISPATCH_INFO		m_writeDispatchInfo;
-		uint32						m_baseAddress;
 		Spu2::CCore*				m_core[CORE_NUM];
 	};
 }

@@ -6,27 +6,22 @@
 #include <boost/utility.hpp>
 #include "Types.h"
 #include "../BasicUnions.h"
-#include "iop/Iop_Spu.h"
-#include "Spu2_Channel.h"
+#include "iop/Iop_SpuBase.h"
 
-namespace PS2
+namespace Iop
 {
 	namespace Spu2
 	{
 		class CCore : public boost::noncopyable
 		{
 		public:
-							CCore(unsigned int);
+							CCore(unsigned int, CSpuBase&);
 			virtual			~CCore();
 
 			void			Reset();
 
 			uint32			ReadRegister(uint32, uint32);
 			uint32			WriteRegister(uint32, uint32);
-            uint32          ReceiveDma(uint8*, uint32, uint32);
-
-			void			SetSpu(CSpu*);
-//            CSpu&           GetSpu();
 
 			enum REGISTERS
 			{
@@ -96,13 +91,10 @@ namespace PS2
 
 			REGISTER_DISPATCH_INFO	m_readDispatch;
 			REGISTER_DISPATCH_INFO	m_writeDispatch;
-//            uint8*                  m_ram;
-//			CChannel				m_channel[MAX_CHANNEL];
 			unsigned int			m_coreId;
 			uint16					m_coreAttr;
-//			UNION32_16				m_transferAddress;
 			std::string				m_logName;
-			CSpu*					m_spuBase;
+			CSpuBase&				m_spuBase;
 			uint32					m_tempReverb;
 			uint32					m_tempReverbA;
 		};

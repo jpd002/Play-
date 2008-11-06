@@ -39,7 +39,7 @@ m_accel(CreateAccelerators())
 
 	SetTimer(m_hWnd, 0, 1000, NULL);
 
-	m_regView = new CSpuRegView(m_hWnd, &GetClientRect(), m_virtualMachine.GetSpu());
+	m_regView = new CSpuRegView(m_hWnd, &GetClientRect(), m_virtualMachine.GetSpuCore(0));
 	m_regView->Show(SW_SHOW);
 
 	UpdateUi();

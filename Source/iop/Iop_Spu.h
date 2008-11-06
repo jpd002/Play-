@@ -1,313 +1,115 @@
-#ifndef _SPU_H_
-#define _SPU_H_
+#ifndef _IOP_SPU_H_
+#define _IOP_SPU_H_
 
-#include "Types.h"
-#include "BasicUnions.h"
-#include "convertible.h"
-#include <boost/static_assert.hpp>
+#include "Iop_SpuBase.h"
 
-class CSpu
+namespace Iop
 {
-public:
-	struct ADSR_LEVEL : public convertible<uint16>
-	{
-		unsigned int	sustainLevel	: 4;
-		unsigned int	decayRate		: 4;
-		unsigned int	attackRate		: 7;
-		unsigned int	attackMode		: 1;
-	};
-	BOOST_STATIC_ASSERT(sizeof(ADSR_LEVEL) >= sizeof(uint16));
-
-	struct ADSR_RATE : public convertible<uint16>
-	{
-		unsigned int	releaseRate			: 5;
-		unsigned int	releaseMode			: 1;
-		unsigned int	sustainRate			: 7;
-		unsigned int	reserved0			: 1;
-		unsigned int	sustainDirection	: 1;
-		unsigned int	sustainMode			: 1;
-	};
-	BOOST_STATIC_ASSERT(sizeof(ADSR_RATE) >= sizeof(uint16));
-
-	struct CHANNEL_VOLUME : public convertible<uint16>
-	{
-		union
-		{
-			struct
-			{
-				unsigned int	unused0		: 15;
-				unsigned int	mode		: 1;
-			} mode;
-			struct
-			{
-				unsigned int	volume		: 14;
-				unsigned int	phase		: 1;
-				unsigned int	mode		: 1;
-			} volume;
-			struct
-			{
-				unsigned int	volume		: 7;
-				unsigned int	unused0		: 5;
-				unsigned int	phase		: 1;
-				unsigned int	decrease	: 1;
-				unsigned int	slope		: 1;
-				unsigned int	mode		: 1;
-			} sweep;
-		};
-	};
-	BOOST_STATIC_ASSERT(sizeof(CHANNEL_VOLUME) >= sizeof(uint16));
-
-	struct CHANNEL
-	{
-		CHANNEL_VOLUME	volumeLeft;
-		CHANNEL_VOLUME	volumeRight;
-		uint16			pitch;
-		uint32			address;
-		ADSR_LEVEL		adsrLevel;
-		ADSR_RATE		adsrRate;
-		uint32			adsrVolume;
-		uint32			repeat;
-		uint16			status;
-        uint32          current;
-	};
-
-				CSpu(uint8*, uint32);
-	virtual		~CSpu();
-
-	void		Reset();
-
-	void		SetBaseSamplingRate(uint32);
-
-	uint16		ReadRegister(uint32);
-	void		WriteRegister(uint32, uint16);
-
-	uint32		GetTransferAddress() const;
-	void		SetTransferAddress(uint32);
-
-	uint32		GetChannelOn() const;
-	uint32		GetChannelReverb() const;
-	CHANNEL&	GetChannel(unsigned int);
-
-	void		SendKeyOn(uint32);
-	void		SendKeyOff(uint32);
-
-    uint32		ReceiveDma(uint8*, uint32, uint32);
-
-	void		Render(int16*, unsigned int, unsigned int);
-
-	enum
-	{
-		SPU_BEGIN	= 0x1F801C00,
-		SPU_END		= 0x1F801DFF
-	};
-
-	enum
-	{
-		MAX_CHANNEL = 24
-	};
-
-	enum
-	{
-		CH0_BASE	= 0x1F801C00,
-		CH1_BASE	= 0x1F801C10,
-		CH2_BASE	= 0x1F801C20,
-		CH3_BASE	= 0x1F801C30,
-		CH4_BASE	= 0x1F801C40,
-		CH5_BASE	= 0x1F801C50,
-		CH6_BASE	= 0x1F801C60,
-		CH7_BASE	= 0x1F801C70,
-		CH8_BASE	= 0x1F801C80,
-		CH9_BASE	= 0x1F801C90,
-		CH10_BASE	= 0x1F801CA0,
-		CH11_BASE	= 0x1F801CB0,
-		CH12_BASE	= 0x1F801CC0,
-		CH13_BASE	= 0x1F801CD0,
-		CH14_BASE	= 0x1F801CE0,
-		CH15_BASE	= 0x1F801CF0,
-		CH16_BASE	= 0x1F801D00,
-		CH17_BASE	= 0x1F801D10,
-		CH18_BASE	= 0x1F801D20,
-		CH19_BASE	= 0x1F801D30,
-		CH20_BASE	= 0x1F801D40,
-		CH21_BASE	= 0x1F801D50,
-		CH22_BASE	= 0x1F801D60,
-		CH23_BASE	= 0x1F801D70,
-	};
-
-	enum
-	{
-		CH_VOL_LEFT		= 0x00,
-		CH_VOL_RIGHT	= 0x02,
-		CH_PITCH		= 0x04,
-		CH_ADDRESS		= 0x06,
-		CH_ADSR_LEVEL	= 0x08,
-		CH_ADSR_RATE	= 0x0A,
-		CH_ADSR_VOLUME	= 0x0C,
-		CH_REPEAT		= 0x0E
-	};
-
-	enum
-	{
-		SPU_GENERAL_BASE = 0x1F801D80,
-	};
-
-	enum
-	{
-		MAIN_VOL_LEFT	= 0x1F801D80,
-		MAIN_VOL_RIGHT	= 0x1F801D82,
-		REVERB_LEFT		= 0x1F801D84,
-		REVERB_RIGHT	= 0x1F801D86,
-		VOICE_ON_0		= 0x1F801D88,
-		VOICE_ON_1		= 0x1F801D8A,
-		VOICE_OFF_0		= 0x1F801D8C,
-		VOICE_OFF_1		= 0x1F801D8E,
-		FM_0			= 0x1F801D90,
-		FM_1			= 0x1F801D92,
-		NOISE_0			= 0x1F801D94,
-		NOISE_1			= 0x1F801D96,
-		REVERB_0		= 0x1F801D98,
-		REVERB_1		= 0x1F801D9A,
-		CHANNEL_ON_0	= 0x1F801D9C,
-		CHANNEL_ON_1	= 0x1F801D9E,
-		REVERB_WORK		= 0x1F801DA2,
-		IRQ_ADDR		= 0x1F801DA4,
-		BUFFER_ADDR		= 0x1F801DA6,
-		SPU_DATA		= 0x1F801DA8,
-		SPU_CTRL0		= 0x1F801DAA,
-		SPU_STATUS0		= 0x1F801DAC,
-		SPU_STATUS1		= 0x1F801DAE,
-		CD_VOL_LEFT		= 0x1F801DB0,
-		CD_VOL_RIGHT	= 0x1F801DB2,
-		EXT_VOL_LEFT	= 0x1F801DB4,
-		EXT_VOL_RIGHT	= 0x1F801DB6,
-		REVERB_START	= 0x1F801DC0,
-		REVERB_END		= 0x1F801E00,
-	};
-
-	enum
-	{
-		FB_SRC_A,
-		FB_SRC_B,
-		IIR_ALPHA,
-		ACC_COEF_A,
-		ACC_COEF_B,
-		ACC_COEF_C,
-		ACC_COEF_D,
-		IIR_COEF,
-		FB_ALPHA,
-		FB_X,
-		IIR_DEST_A0,
-		IIR_DEST_A1,
-		ACC_SRC_A0,
-		ACC_SRC_A1,
-		ACC_SRC_B0,
-		ACC_SRC_B1,
-		IIR_SRC_A0,
-		IIR_SRC_A1,
-		IIR_DEST_B0,
-		IIR_DEST_B1,
-		ACC_SRC_C0,
-		ACC_SRC_C1,
-		ACC_SRC_D0,
-		ACC_SRC_D1,
-		IIR_SRC_B1,
-		IIR_SRC_B0,
-		MIX_DEST_A0,
-		MIX_DEST_A1,
-		MIX_DEST_B0,
-		MIX_DEST_B1,
-		IN_COEF_L,
-		IN_COEF_R
-	};
-
-	enum 
-	{
-		REVERB_REG_COUNT = (REVERB_END - REVERB_START) / 2,
-	};
-
-	enum CHANNEL_STATUS
-	{
-		STOPPED = 0,
-		KEY_ON = 1,
-		ATTACK,
-		DECAY,
-		SUSTAIN,
-		RELEASE,
-	};
-
-private:
-	class CSampleReader
+	class CSpu
 	{
 	public:
-						CSampleReader();
-		virtual			~CSampleReader();
+					CSpu(CSpuBase&);
+		virtual		~CSpu();
 
-		void			Reset();
+		void		Reset();
 
-		void			SetParams(uint8*, uint8*);
-		void			SetPitch(uint32, uint16);
-		void			GetSamples(int16*, unsigned int, unsigned int);
-		uint8*			GetRepeat() const;
-        uint8*          GetCurrent() const;
+		uint16		ReadRegister(uint32);
+		void		WriteRegister(uint32, uint16);
 
-	private:
 		enum
 		{
-			BUFFER_SAMPLES = 28,
+			SPU_BEGIN	= 0x1F801C00,
+			SPU_END		= 0x1F801DFF
 		};
 
-		void			UnpackSamples(int16*);
-		void			AdvanceBuffer();
-		int16			GetSample(double);
-		double			GetNextTime() const;
-		double			GetBufferStep() const;
-		double			GetSamplingRate() const;
+		enum
+		{
+			CH0_BASE	= 0x1F801C00,
+			CH1_BASE	= 0x1F801C10,
+			CH2_BASE	= 0x1F801C20,
+			CH3_BASE	= 0x1F801C30,
+			CH4_BASE	= 0x1F801C40,
+			CH5_BASE	= 0x1F801C50,
+			CH6_BASE	= 0x1F801C60,
+			CH7_BASE	= 0x1F801C70,
+			CH8_BASE	= 0x1F801C80,
+			CH9_BASE	= 0x1F801C90,
+			CH10_BASE	= 0x1F801CA0,
+			CH11_BASE	= 0x1F801CB0,
+			CH12_BASE	= 0x1F801CC0,
+			CH13_BASE	= 0x1F801CD0,
+			CH14_BASE	= 0x1F801CE0,
+			CH15_BASE	= 0x1F801CF0,
+			CH16_BASE	= 0x1F801D00,
+			CH17_BASE	= 0x1F801D10,
+			CH18_BASE	= 0x1F801D20,
+			CH19_BASE	= 0x1F801D30,
+			CH20_BASE	= 0x1F801D40,
+			CH21_BASE	= 0x1F801D50,
+			CH22_BASE	= 0x1F801D60,
+			CH23_BASE	= 0x1F801D70,
+		};
 
-		unsigned int	m_sourceSamplingRate;
-		uint8*			m_nextSample;
-		uint8*			m_repeat;
-		int16			m_buffer[BUFFER_SAMPLES * 2];
-		uint16			m_pitch;
-		double			m_currentTime;
-		double			m_dstTime;
-		double			m_s1;
-		double			m_s2;
-		bool			m_done;
-		bool			m_nextValid;
+		enum
+		{
+			CH_VOL_LEFT		= 0x00,
+			CH_VOL_RIGHT	= 0x02,
+			CH_PITCH		= 0x04,
+			CH_ADDRESS		= 0x06,
+			CH_ADSR_LEVEL	= 0x08,
+			CH_ADSR_RATE	= 0x0A,
+			CH_ADSR_VOLUME	= 0x0C,
+			CH_REPEAT		= 0x0E
+		};
+
+		enum
+		{
+			SPU_GENERAL_BASE = 0x1F801D80,
+		};
+
+		enum
+		{
+			MAIN_VOL_LEFT	= 0x1F801D80,
+			MAIN_VOL_RIGHT	= 0x1F801D82,
+			REVERB_LEFT		= 0x1F801D84,
+			REVERB_RIGHT	= 0x1F801D86,
+			VOICE_ON_0		= 0x1F801D88,
+			VOICE_ON_1		= 0x1F801D8A,
+			VOICE_OFF_0		= 0x1F801D8C,
+			VOICE_OFF_1		= 0x1F801D8E,
+			FM_0			= 0x1F801D90,
+			FM_1			= 0x1F801D92,
+			NOISE_0			= 0x1F801D94,
+			NOISE_1			= 0x1F801D96,
+			REVERB_0		= 0x1F801D98,
+			REVERB_1		= 0x1F801D9A,
+			CHANNEL_ON_0	= 0x1F801D9C,
+			CHANNEL_ON_1	= 0x1F801D9E,
+			REVERB_WORK		= 0x1F801DA2,
+			IRQ_ADDR		= 0x1F801DA4,
+			BUFFER_ADDR		= 0x1F801DA6,
+			SPU_DATA		= 0x1F801DA8,
+			SPU_CTRL0		= 0x1F801DAA,
+			SPU_STATUS0		= 0x1F801DAC,
+			SPU_STATUS1		= 0x1F801DAE,
+			CD_VOL_LEFT		= 0x1F801DB0,
+			CD_VOL_RIGHT	= 0x1F801DB2,
+			EXT_VOL_LEFT	= 0x1F801DB4,
+			EXT_VOL_RIGHT	= 0x1F801DB6,
+			REVERB_START	= 0x1F801DC0,
+			REVERB_END		= 0x1F801E00,
+		};
+
+	private:
+		void			DisassembleRead(uint32);
+		void			DisassembleWrite(uint32, uint16);
+
+		CSpuBase&		m_base;
+
+		uint16			m_ctrl;
+		uint16			m_status0;
+		uint16			m_status1;
 	};
-
-	enum
-	{
-		MAX_ADSR_VOLUME = 0x7FFFFFFF,
-	};
-
-	void			DisassembleRead(uint32);
-	void			DisassembleWrite(uint32, uint16);
-
-	void			UpdateAdsr(CHANNEL&);
-	uint32			GetAdsrDelta(unsigned int) const;
-	float			GetReverbSample(uint32) const;
-	void			SetReverbSample(uint32, float);
-	uint32			GetReverbOffset(unsigned int) const;
-	float			GetReverbCoef(unsigned int) const;
-
-	uint32			m_baseSamplingRate;
-	uint32			m_bufferAddr;
-	uint16			m_ctrl;
-	uint16			m_status0;
-	uint16			m_status1;
-	UNION32_16		m_channelOn;
-	UNION32_16		m_channelReverb;
-	uint32			m_reverbWorkAddr;
-	uint32			m_reverbCurrAddr;
-	int				m_reverbTicks;
-	uint16			m_reverb[REVERB_REG_COUNT];
-	uint8*			m_ram;
-	uint32			m_ramSize;
-	CHANNEL			m_channel[MAX_CHANNEL];
-	CSampleReader	m_reader[MAX_CHANNEL];
-
-	uint32			m_adsrLogTable[160];
-};
+}
 
 #endif
