@@ -1,6 +1,7 @@
 #ifndef _BASICUNIONS_H_
 #define _BASICUNIONS_H_
 
+#include "Types.h"
 #include <boost/static_assert.hpp>
 
 template <typename FullType, typename HalfType>

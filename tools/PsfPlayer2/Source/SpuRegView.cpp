@@ -20,7 +20,7 @@ void CSpuRegView::Render()
 	char channelStatus[CSpu::MAX_CHANNEL + 1];
 
 	//Header
-	text += "      VLEFT  VRIGH  PITCH  ADDRE  ADSRL  ADSRR  ADSRV  REPEA\r\n";
+	text += "      VLEFT  VRIGH  PITCH  ADDRE    ADSRL  ADSRR  ADSRV  REPEA  \r\n";
 	text += "\r\n";
 
 	//Channel detail
@@ -29,16 +29,16 @@ void CSpuRegView::Render()
 		CSpu::CHANNEL& channel(m_spu.GetChannel(i));
 		uint32 address = CSpu::CH0_BASE + (i * 0x10);
 		char temp[256];
-		sprintf(temp, "CH%0.2i  %0.4X   %0.4X   %0.4X   %0.4X   %0.4X   %0.4X   %0.4X   %0.4X\r\n", 
+		sprintf(temp, "CH%0.2i  %0.4X   %0.4X   %0.4X   %0.6X   %0.4X   %0.4X   %0.4X   %0.6X\r\n", 
 			i, 
 			channel.volumeLeft,
 			channel.volumeRight,
 			channel.pitch,
-			channel.address,
+			channel.address * 8,
 			channel.adsrLevel,
 			channel.adsrRate,
 			channel.adsrVolume >> 16,
-			channel.repeat);
+			channel.repeat * 8);
 		text += temp;
 
 		char status = '0';
