@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;&quot;$(ProjectDir)\Source&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;DEBUGGER_INCLUDED"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -247,14 +247,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Iop_SpuBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Iop_SpuBase.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Main.cpp"
 				>
 			</File>
@@ -351,14 +343,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\ps2\Spu2.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2_Channel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2_Channel.h"
 					>
 				</File>
 				<File
@@ -729,6 +713,14 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\iop\Iop_Spu.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SpuBase.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SpuBase.h"
 					>
 				</File>
 				<File

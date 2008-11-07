@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include "Log.h"
 #include "Iop_SpuBase.h"
 
@@ -48,18 +49,36 @@ CSpuBase::~CSpuBase()
 
 void CSpuBase::Reset()
 {
-	m_channelOn.f = 0;
+    m_ctrl = 0;
+
+    m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
 	m_bufferAddr = 0;
 
 	m_reverbCurrAddr = 0;
 	m_reverbWorkAddrStart = 0;
-    m_reverbWorkAddrEnd = 0x7FFFF;
+//    m_reverbWorkAddrEnd = 0x7FFFF;
+    m_reverbWorkAddrEnd = 0x80000;
 	m_baseSamplingRate = 44100;
 
 	memset(m_channel, 0, sizeof(m_channel));
 	memset(m_reverb, 0, sizeof(m_reverb));
+
+    for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+    {
+        m_reader[i].Reset();
+    }
+}
+
+uint16 CSpuBase::GetControl() const
+{
+    return m_ctrl;
+}
+
+void CSpuBase::SetControl(uint16 value)
+{
+    m_ctrl = value;
 }
 
 void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
@@ -82,9 +101,35 @@ UNION32_16 CSpuBase::GetChannelOn() const
 	return m_channelOn;
 }
 
+void CSpuBase::SetChannelOnLo(uint16 value)
+{
+    m_channelOn.h0 = value;
+}
+
+void CSpuBase::SetChannelOnHi(uint16 value)
+{
+    m_channelOn.h1 = value;
+}
+
 UNION32_16 CSpuBase::GetChannelReverb() const
 {
 	return m_channelReverb;
+}
+
+void CSpuBase::SetChannelReverbLo(uint16 value)
+{
+    m_channelReverb.h0 = value;
+}
+
+void CSpuBase::SetChannelReverbHi(uint16 value)
+{
+    m_channelReverb.h1 = value;
+}
+
+void CSpuBase::SetReverbParam(unsigned int param, uint16 value)
+{
+    assert(param < REVERB_PARAM_COUNT);
+    m_reverb[param] = value;
 }
 
 CSpuBase::CHANNEL& CSpuBase::GetChannel(unsigned int channelNumber)
@@ -167,8 +212,7 @@ void CSpuBase::WriteWord(uint16 value)
 	m_bufferAddr += 2;
 }
 
-/*
-void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
+void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
 	struct SampleMixer
 	{
@@ -201,14 +245,14 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			CSampleReader& reader(m_reader[i]);
 			if(channel.status == KEY_ON)
 			{
-				reader.SetParams(m_ram + (channel.address * 8), m_ram + (channel.repeat * 8));
+				reader.SetParams(m_ram + channel.address, m_ram + channel.repeat);
 				channel.status = ATTACK;
 				channel.adsrVolume = 0;
 			}
 			else
 			{
-//				uint8* repeat = reader.GetRepeat();
-//				channel.repeat = (repeat - m_ram) / 8;
+				uint8* repeat = reader.GetRepeat();
+				channel.repeat = repeat - m_ram;
 			}
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
@@ -236,7 +280,7 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 			//Feed samples to FIR filter
 			if(m_reverbTicks & 1)
 			{
-				if(m_ctrl & 0x80)
+				if(m_ctrl & CONTROL_REVERB)
 				{
 					//IIR_INPUT_A0 = buffer[IIR_SRC_A0] * IIR_COEF + INPUT_SAMPLE_L * IN_COEF_L;
 					//IIR_INPUT_A1 = buffer[IIR_SRC_A1] * IIR_COEF + INPUT_SAMPLE_R * IN_COEF_R;
@@ -327,13 +371,13 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 					SetReverbSample(GetReverbOffset(MIX_DEST_B1), (fb_alpha * acc1) - fb_a1 * -fb_alpha - fb_b1 * fb_x);
 				}
 				m_reverbCurrAddr += 2;
-				if(m_reverbCurrAddr >= m_ramSize)
+				if(m_reverbCurrAddr >= m_reverbWorkAddrEnd)
 				{
-					m_reverbCurrAddr = m_reverbWorkAddr;
+					m_reverbCurrAddr = m_reverbWorkAddrStart;
 				}
 			}
 
-			if(m_reverbWorkAddr != 0)
+			if(m_reverbWorkAddrStart != 0)
 			{
 				float sampleL = 0.333f * (GetReverbSample(GetReverbOffset(MIX_DEST_A0)) + GetReverbSample(GetReverbOffset(MIX_DEST_B0)));
 				float sampleR = 0.333f * (GetReverbSample(GetReverbOffset(MIX_DEST_A1)) + GetReverbSample(GetReverbOffset(MIX_DEST_B1)));
@@ -361,50 +405,49 @@ void CSpu::Render(int16* samples, unsigned int sampleCount, unsigned int sampleR
 	}
 }
 
-uint32 CSpu::GetAdsrDelta(unsigned int index) const
+uint32 CSpuBase::GetAdsrDelta(unsigned int index) const
 {
 	return m_adsrLogTable[index + 32];
 }
 
-float CSpu::GetReverbSample(uint32 address) const
+float CSpuBase::GetReverbSample(uint32 address) const
 {
 	uint32 absoluteAddress = m_reverbCurrAddr + address;
-	while(absoluteAddress >= m_ramSize)
+	while(absoluteAddress >= m_reverbWorkAddrEnd)
 	{
-		absoluteAddress -= m_ramSize;
-		absoluteAddress += m_reverbWorkAddr;
+		absoluteAddress -= m_reverbWorkAddrEnd;
+		absoluteAddress += m_reverbWorkAddrStart;
 	}
 	return static_cast<float>(*reinterpret_cast<int16*>(m_ram + absoluteAddress));
 }
 
-void CSpu::SetReverbSample(uint32 address, float value)
+void CSpuBase::SetReverbSample(uint32 address, float value)
 {
 	uint32 absoluteAddress = m_reverbCurrAddr + address;
-	while(absoluteAddress >= m_ramSize)
+	while(absoluteAddress >= m_reverbWorkAddrEnd)
 	{
-		absoluteAddress -= m_ramSize;
-		absoluteAddress += m_reverbWorkAddr;
+		absoluteAddress -= m_reverbWorkAddrEnd;
+		absoluteAddress += m_reverbWorkAddrStart;
 	}
-	assert(absoluteAddress < m_ramSize);
 	value = max<float>(value, SHRT_MIN);
 	value = min<float>(value, SHRT_MAX);
 	int16 intValue = static_cast<int16>(value);
 	*reinterpret_cast<int16*>(m_ram + absoluteAddress) = intValue;
 }
 
-uint32 CSpu::GetReverbOffset(unsigned int registerId) const
+uint32 CSpuBase::GetReverbOffset(unsigned int registerId) const
 {
 	uint16 value = m_reverb[registerId];
 	return value * 8;
 }
 
-float CSpu::GetReverbCoef(unsigned int registerId) const
+float CSpuBase::GetReverbCoef(unsigned int registerId) const
 {
 	int16 value = m_reverb[registerId];
 	return static_cast<float>(value) / static_cast<float>(0x8000);
 }
 
-void CSpu::UpdateAdsr(CHANNEL& channel)
+void CSpuBase::UpdateAdsr(CHANNEL& channel)
 {
 	static unsigned int logIndex[8] = { 0, 4, 6, 8, 9, 10, 11, 12 };
 	int64 currentAdsrLevel = channel.adsrVolume;
@@ -505,18 +548,18 @@ void CSpu::UpdateAdsr(CHANNEL& channel)
 // CSampleReader
 ///////////////////////////////////////////////////////
 
-CSpu::CSampleReader::CSampleReader() :
+CSpuBase::CSampleReader::CSampleReader() :
 m_nextSample(NULL)
 {
 	Reset();
 }
 
-CSpu::CSampleReader::~CSampleReader()
+CSpuBase::CSampleReader::~CSampleReader()
 {
 
 }
 
-void CSpu::CSampleReader::Reset()
+void CSpuBase::CSampleReader::Reset()
 {
 	m_sourceSamplingRate = 0;
 	m_nextSample = NULL;
@@ -531,7 +574,7 @@ void CSpu::CSampleReader::Reset()
 	m_nextValid = false;
 }
 
-void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat)
+void CSpuBase::CSampleReader::SetParams(uint8* address, uint8* repeat)
 {
 	m_currentTime = 0;
 	m_dstTime = 0;
@@ -544,12 +587,12 @@ void CSpu::CSampleReader::SetParams(uint8* address, uint8* repeat)
 	AdvanceBuffer();
 }
 
-void CSpu::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
+void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 {
 	m_sourceSamplingRate = baseSamplingRate * pitch / 4096;
 }
 
-void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)
+void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)
 {
 	assert(m_nextSample != NULL);
 	double dstTimeDelta = 1.0 / static_cast<double>(destSamplingRate);
@@ -560,7 +603,7 @@ void CSpu::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, u
 	}
 }
 
-int16 CSpu::CSampleReader::GetSample(double time)
+int16 CSpuBase::CSampleReader::GetSample(double time)
 {
 	time -= m_currentTime;
 	double sample = time * static_cast<double>(GetSamplingRate());
@@ -578,7 +621,7 @@ int16 CSpu::CSampleReader::GetSample(double time)
 	return static_cast<int16>(resultSample);
 }
 
-void CSpu::CSampleReader::AdvanceBuffer()
+void CSpuBase::CSampleReader::AdvanceBuffer()
 {
 	if(m_nextValid)
 	{
@@ -595,7 +638,7 @@ void CSpu::CSampleReader::AdvanceBuffer()
 	}
 }
 
-void CSpu::CSampleReader::UnpackSamples(int16* dst)
+void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 {
 	double workBuffer[28];
 
@@ -668,29 +711,27 @@ void CSpu::CSampleReader::UnpackSamples(int16* dst)
 	}
 }
 
-uint8* CSpu::CSampleReader::GetRepeat() const
+uint8* CSpuBase::CSampleReader::GetRepeat() const
 {
 	return m_repeat;
 }
 
-uint8* CSpu::CSampleReader::GetCurrent() const
+uint8* CSpuBase::CSampleReader::GetCurrent() const
 {
     return m_nextSample;
 }
 
-double CSpu::CSampleReader::GetSamplingRate() const
+double CSpuBase::CSampleReader::GetSamplingRate() const
 {
 	return m_sourceSamplingRate;
 }
 
-double CSpu::CSampleReader::GetBufferStep() const
+double CSpuBase::CSampleReader::GetBufferStep() const
 {
 	return static_cast<double>(BUFFER_SAMPLES) / static_cast<double>(GetSamplingRate());
 }
 
-double CSpu::CSampleReader::GetNextTime() const
+double CSpuBase::CSampleReader::GetNextTime() const
 {
 	return m_currentTime + GetBufferStep();
 }
-
-*/

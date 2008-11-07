@@ -35,9 +35,32 @@ CCore::~CCore()
 
 void CCore::Reset()
 {
-	m_tempReverb = 0;
-	m_tempReverbA = 0;
-	m_coreAttr = 0;
+    m_tempReverb = 0;
+    m_tempReverbA = 0;
+}
+
+uint16 CCore::GetAddressLo(uint32 address)
+{
+    return static_cast<uint16>((address >> 1) & 0xFFFF);
+}
+
+uint16 CCore::GetAddressHi(uint32 address)
+{
+    return static_cast<uint16>((address >> (16 + 1)) & 0xFFFF);
+}
+
+uint32 CCore::SetAddressLo(uint32 address, uint16 value)
+{
+    address &= 0xFFFF << (1 + 16);
+    address |= value << 1;
+    return address;
+}
+
+uint32 CCore::SetAddressHi(uint32 address, uint16 value)
+{
+    address &= 0xFFFF << 1;
+    address |= value << (1 + 16);
+    return address;
 }
 
 uint32 CCore::ReadRegister(uint32 address, uint32 value)
@@ -80,19 +103,16 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 	{
 	case STATX:
 		result = 0x0000;
-		if(m_coreAttr & CORE_DMA)
+        if(m_spuBase.GetControl() & CSpuBase::CONTROL_DMA)
 		{
 			result |= 0x80;
 		}
 		break;
 	case CORE_ATTR:
-		result = m_coreAttr;
+        result = m_spuBase.GetControl();
 		break;
     case A_TSA_HI:
-		{
-			uint32 transferAddress = m_spuBase.GetTransferAddress();
-			result = (transferAddress >> (16 + 1));
-		}
+        result = GetAddressHi(m_spuBase.GetTransferAddress());
         break;
 	case A_ESA_LO:
 		result = (m_tempReverb & 0xFFFF);
@@ -111,7 +131,7 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 	{
 	case CORE_ATTR:
 		m_spuBase.SetBaseSamplingRate(SPU_BASE_SAMPLING_RATE);
-		m_coreAttr = static_cast<uint16>(value);
+        m_spuBase.SetControl(static_cast<uint16>(value & ~CSpuBase::CONTROL_REVERB));
 		break;
     case A_STD:
 		m_spuBase.WriteWord(static_cast<uint16>(value));
@@ -129,20 +149,10 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		m_spuBase.SendKeyOff(value << 16);
         break;
 	case A_TSA_HI:
-		{
-			uint32 transferAddress = m_spuBase.GetTransferAddress();
-			transferAddress &= 0xFFFF << 1;
-			transferAddress |= value << (1 + 16);
-			m_spuBase.SetTransferAddress(transferAddress);
-		}
+        m_spuBase.SetTransferAddress(SetAddressHi(m_spuBase.GetTransferAddress(), static_cast<uint16>(value)));
 		break;
 	case A_TSA_LO:
-		{
-			uint32 transferAddress = m_spuBase.GetTransferAddress();
-			transferAddress &= 0xFFFF << (1 + 16);
-			transferAddress |= value << 1;
-			m_spuBase.SetTransferAddress(transferAddress);
-		}
+        m_spuBase.SetTransferAddress(SetAddressLo(m_spuBase.GetTransferAddress(), static_cast<uint16>(value)));
 		break;
 	case A_ESA_HI:
 		m_tempReverb = (m_tempReverb & 0xFFFF) | (value << 16);
@@ -173,10 +183,10 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 		return (channel.adsrVolume >> 16);
 		break;
 	case VA_NAX_HI:
-		result = ((channel.current) >> (16 + 1)) & 0xFFFF;
+        result = GetAddressHi(channel.current);
 		break;
 	case VA_NAX_LO:
-		result = ((channel.current) >> 1) & 0xFFFF;
+        result = GetAddressLo(channel.current);
 		break;
 	}
 	LogChannelRead(channelId, address, result);
@@ -219,40 +229,16 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 //		channel.volxRight = static_cast<uint16>(value);
 		break;
 	case VA_SSA_HI:
-		{
-			uint32 address = channel.address;
-			address &= 0xFFFF << 1;
-			address |= value << (1 + 16);
-			assert((address & 0x7) == 0);
-			channel.address = address;
-		}
+        channel.address = SetAddressHi(channel.address, static_cast<uint16>(value));
 		break;
 	case VA_SSA_LO:
-		{
-			uint32 address = channel.address;
-			address &= 0xFFFF << (1 + 16);
-			address |= value << 1;
-			assert((address & 0x7) == 0);
-			channel.address = address;
-		}
+        channel.address = SetAddressLo(channel.address, static_cast<uint16>(value));
 		break;
 	case VA_LSAX_HI:
-		{
-			uint32 address = channel.repeat;
-			address &= 0xFFFF << 1;
-			address |= value << (1 + 16);
-			assert((address & 0x7) == 0);
-			channel.repeat = address;
-		}
+        channel.repeat = SetAddressHi(channel.repeat, static_cast<uint16>(value));
 		break;
 	case VA_LSAX_LO:
-		{
-			uint32 address = channel.repeat;
-			address &= 0xFFFF << (1 + 16);
-			address |= value << 1;
-			assert((address & 0x7) == 0);
-			channel.repeat = address;
-		}
+        channel.repeat = SetAddressLo(channel.repeat, static_cast<uint16>(value));
 		break;
 	}
 	return 0;

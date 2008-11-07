@@ -57,11 +57,6 @@ namespace Iop
 				STATX			= 0x1F900344,
 			};
 
-			enum
-			{
-				CORE_DMA		= 0x30,
-			};
-
 		private:
 			typedef uint32 (CCore::*RegisterAccessFunction)(unsigned int, uint32, uint32);
 
@@ -89,14 +84,19 @@ namespace Iop
 			void					LogChannelRead(unsigned int, uint32, uint32);
 			void					LogChannelWrite(unsigned int, uint32, uint32);
 
+            uint16                  GetAddressLo(uint32);
+            uint16                  GetAddressHi(uint32);
+            uint32                  SetAddressLo(uint32, uint16);
+            uint32                  SetAddressHi(uint32, uint16);
+
 			REGISTER_DISPATCH_INFO	m_readDispatch;
 			REGISTER_DISPATCH_INFO	m_writeDispatch;
 			unsigned int			m_coreId;
-			uint16					m_coreAttr;
 			std::string				m_logName;
 			CSpuBase&				m_spuBase;
-			uint32					m_tempReverb;
-			uint32					m_tempReverbA;
+
+            uint32                  m_tempReverb;
+            uint32                  m_tempReverbA;
 		};
 	};
 };

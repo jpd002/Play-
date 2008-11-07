@@ -104,7 +104,6 @@ void CSpu::Reset()
 {
 	m_status0 = 0;
 	m_status1 = 0;
-	m_ctrl = 0;
 }
 
 uint16 CSpu::ReadRegister(uint32 address)
@@ -117,7 +116,7 @@ uint16 CSpu::ReadRegister(uint32 address)
 		switch(address)
 		{
 		case SPU_CTRL0:
-			return m_ctrl;
+			return m_base.GetControl();
 			break;
 		case SPU_STATUS0:
 			return m_status0;
@@ -163,7 +162,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 		switch(address)
 		{
 		case SPU_CTRL0:
-			m_ctrl = value;
+			m_base.SetControl(value);
 			break;
 		case SPU_STATUS0:
 			m_status0 = value;
@@ -231,7 +230,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			channel.adsrRate <<= value;
 			break;
 		case CH_REPEAT:
-			channel.repeat = value;
+			channel.repeat = value * 8;
 			break;
 		}
 	}

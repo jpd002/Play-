@@ -88,6 +88,8 @@ private:
 	CSH_OpenAL			m_spuHandler;
 	boost::thread		m_thread;
 	bool				m_singleStep;
+    int                 m_spuUpdateCounter;
+    int                 m_frameCounter;
 	CMailBox			m_mailBox;
 };
 

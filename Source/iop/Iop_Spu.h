@@ -106,7 +106,6 @@ namespace Iop
 
 		CSpuBase&		m_base;
 
-		uint16			m_ctrl;
 		uint16			m_status0;
 		uint16			m_status1;
 	};

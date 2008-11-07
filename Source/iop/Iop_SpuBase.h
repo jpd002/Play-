@@ -64,7 +64,18 @@ namespace Iop
 		    MAX_CHANNEL = 24
 	    };
 
-	    enum
+        enum
+        {
+            REVERB_PARAM_COUNT = 32
+        };
+
+        enum CONTROL
+        {
+            CONTROL_REVERB  = 0x80,
+            CONTROL_DMA     = 0x30,
+        };
+
+        enum
 	    {
 		    FB_SRC_A = 0,
 		    FB_SRC_B,
@@ -136,6 +147,9 @@ namespace Iop
 	    uint32		    GetTransferAddress() const;
 	    void		    SetTransferAddress(uint32);
 
+        uint16          GetControl() const;
+        void            SetControl(uint16);
+
 		void			SetReverbParam(unsigned int, uint16);
 		void			SetReverbWorkAddressStart(uint32);
 		void			SetReverbWorkAddressEnd(uint32);
@@ -163,36 +177,6 @@ namespace Iop
 	    void		    Render(int16*, unsigned int, unsigned int);
 
     private:
-	    enum
-	    {
-		    MAX_ADSR_VOLUME = 0x7FFFFFFF,
-	    };
-
-		void			UpdateAdsr(CHANNEL&);
-		uint32			GetAdsrDelta(unsigned int) const;
-		float			GetReverbSample(uint32) const;
-		void			SetReverbSample(uint32, float);
-		uint32			GetReverbOffset(unsigned int) const;
-		float			GetReverbCoef(unsigned int) const;
-
-		uint8*          m_ram;
-        uint32          m_ramSize;
-	    uint32			m_baseSamplingRate;
-	    uint32			m_bufferAddr;
-	    UNION32_16		m_channelOn;
-	    UNION32_16		m_channelReverb;
-	    uint32			m_reverbWorkAddrStart;
-        uint32          m_reverbWorkAddrEnd;
-	    uint32			m_reverbCurrAddr;
-	    int				m_reverbTicks;
-	    uint16			m_reverb[REVERB_REG_COUNT];
-    	CHANNEL			m_channel[MAX_CHANNEL];
-    	uint32			m_adsrLogTable[160];
-	};
-}
-
-#endif
-/*
 		class CSampleReader
 		{
 		public:
@@ -232,4 +216,35 @@ namespace Iop
 			bool			m_done;
 			bool			m_nextValid;
 		};
-*/
+
+	    enum
+	    {
+		    MAX_ADSR_VOLUME = 0x7FFFFFFF,
+	    };
+
+		void			UpdateAdsr(CHANNEL&);
+		uint32			GetAdsrDelta(unsigned int) const;
+		float			GetReverbSample(uint32) const;
+		void			SetReverbSample(uint32, float);
+		uint32			GetReverbOffset(unsigned int) const;
+		float			GetReverbCoef(unsigned int) const;
+
+		uint8*          m_ram;
+        uint32          m_ramSize;
+	    uint32			m_baseSamplingRate;
+	    uint32			m_bufferAddr;
+	    UNION32_16		m_channelOn;
+	    UNION32_16		m_channelReverb;
+	    uint32			m_reverbWorkAddrStart;
+        uint32          m_reverbWorkAddrEnd;
+	    uint32			m_reverbCurrAddr;
+        uint16          m_ctrl;
+	    int				m_reverbTicks;
+	    uint16			m_reverb[REVERB_REG_COUNT];
+    	CHANNEL			m_channel[MAX_CHANNEL];
+        CSampleReader   m_reader[MAX_CHANNEL];
+    	uint32			m_adsrLogTable[160];
+	};
+}
+
+#endif

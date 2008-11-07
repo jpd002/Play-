@@ -16,6 +16,9 @@ using namespace Iop;
 #define CLOCK_FREQ		(44100 * 256 * 3)		//~33.8MHz
 #define FRAMES_PER_SEC	(60)
 
+const int g_frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
+const int g_spuUpdateTicks = (4 * CLOCK_FREQ / 1000);
+
 CPsfVm::CPsfVm() :
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
 m_executor(m_cpu),
@@ -31,7 +34,9 @@ m_thread(bind(&CPsfVm::ThreadProc, this)),
 m_spuCore0(m_spuRam, SPURAMSIZE),
 m_spuCore1(m_spuRam, SPURAMSIZE),
 m_spu(m_spuCore0),
-m_spu2(m_spuCore0, m_spuCore1)
+m_spu2(m_spuCore0, m_spuCore1),
+m_spuUpdateCounter(g_spuUpdateTicks),
+m_frameCounter(g_frameTicks)
 {
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	                m_ram,								                    0x01);
@@ -92,11 +97,14 @@ void CPsfVm::Reset()
 	m_cpu.Reset();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
-//	m_spu2.Reset();
+    m_spu.Reset();
+    m_spu2.Reset();
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
 	m_spuHandler.Reset();
+    m_frameCounter = g_frameTicks;
+    m_spuUpdateCounter = g_spuUpdateTicks;
 }
 
 uint32 CPsfVm::ReadIoRegister(uint32 address)
@@ -281,11 +289,9 @@ unsigned int CPsfVm::ExecuteCpu(bool singleStep)
 
 void CPsfVm::ThreadProc()
 {
-	const int frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
-	const int spuUpdateTicks = (4 * CLOCK_FREQ / 1000);
-	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
-	int frameCounter = frameTicks;
-	int spuUpdateCounter = spuUpdateTicks;
+#ifdef DEBUGGER_INCLUDED
+    uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
+#endif
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -339,21 +345,21 @@ void CPsfVm::ThreadProc()
 			{
 				while(m_spuHandler.HasFreeBuffers() && !m_mailBox.IsPending())
 				{
-					while(spuUpdateCounter > 0)
+					while(m_spuUpdateCounter > 0)
 					{
 						int ticks = ExecuteCpu(false);
-						spuUpdateCounter -= ticks;
-						frameCounter -= ticks;
-						if(frameCounter < 0)
+						m_spuUpdateCounter -= ticks;
+						m_frameCounter -= ticks;
+						if(m_frameCounter < 0)
 						{
-							frameCounter += frameTicks;
+							m_frameCounter += g_frameTicks;
 							m_intc.AssertLine(CIntc::LINE_VBLANK);
 							OnNewFrame();
 						}
 					}
 
-					//m_spuHandler.Update(m_spuCore0);
-					spuUpdateCounter += spuUpdateTicks;
+					m_spuHandler.Update(m_spuCore0);
+					m_spuUpdateCounter += g_spuUpdateTicks;
 				}
 			}
 			else
