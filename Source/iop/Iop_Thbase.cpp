@@ -46,12 +46,22 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(WakeupThread(
             context.m_State.nGPR[CMIPS::A0].nV0
             ));
-        break;        
+        break;
+	case 26:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iWakeupThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
     case 33:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelayThread(
             context.m_State.nGPR[CMIPS::A0].nV0
             ));
         break;
+	case 34:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetSystemTime(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
     default:
         printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
         break;
@@ -88,5 +98,24 @@ uint32 CThbase::SleepThread()
 
 uint32 CThbase::WakeupThread(uint32 threadId)
 {
-    return m_bios.WakeupThread(threadId);
+    return m_bios.WakeupThread(threadId, false);
+}
+
+uint32 CThbase::iWakeupThread(uint32 threadId)
+{
+	return m_bios.WakeupThread(threadId, true);
+}
+
+uint32 CThbase::GetSystemTime(uint32 resultAddr)
+{
+	uint64* result = NULL;
+	if(resultAddr != 0)
+	{
+		result = reinterpret_cast<uint64*>(&m_ram[resultAddr]);
+	}
+	if(result != NULL)
+	{
+		(*result) = m_bios.GetCurrentTime();
+	}
+	return 1;
 }

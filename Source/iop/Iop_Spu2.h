@@ -3,7 +3,7 @@
 
 #include <boost/utility.hpp>
 #include <functional>
-#include "Spu2_Core.h"
+#include "Iop_Spu2_Core.h"
 
 namespace Iop
 {

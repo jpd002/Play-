@@ -1,7 +1,7 @@
 #include "PsfLoader.h"
 #include "StdStream.h"
 #include "PsxBios.h"
-#include "ps2/PsfBios.h"
+#include "PsfBios.h"
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 

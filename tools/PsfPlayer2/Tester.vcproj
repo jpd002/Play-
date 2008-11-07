@@ -274,6 +274,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PsfBios.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfBios.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfDevice.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfDevice.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PsfLoader.cpp"
 				>
 			</File>
@@ -287,6 +303,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfVm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsxBios.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsxBios.h"
 				>
 			</File>
 			<File
@@ -309,54 +333,6 @@
 				RelativePath=".\Source\SpuRegView.h"
 				>
 			</File>
-			<Filter
-				Name="psx"
-				>
-				<File
-					RelativePath=".\Source\PsxBios.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\PsxBios.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ps2"
-				>
-				<File
-					RelativePath=".\Source\ps2\PsfBios.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfBios.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfDevice.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfDevice.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2_Core.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2_Core.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Purei"
@@ -742,6 +718,22 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\iop\Iop_Spu.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2_Core.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2_Core.h"
 					>
 				</File>
 				<File

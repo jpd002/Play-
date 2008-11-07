@@ -13,11 +13,10 @@ using namespace std::tr1::placeholders;
 using namespace boost;
 using namespace Iop;
 
-#define CLOCK_FREQ		(44100 * 256 * 3)		//~33.8MHz
 #define FRAMES_PER_SEC	(60)
 
-const int g_frameTicks = (CLOCK_FREQ / FRAMES_PER_SEC);
-const int g_spuUpdateTicks = (4 * CLOCK_FREQ / 1000);
+const int g_frameTicks = (CPsfVm::CLOCK_FREQ / FRAMES_PER_SEC);
+const int g_spuUpdateTicks = (4 * CPsfVm::CLOCK_FREQ / 1000);
 
 CPsfVm::CPsfVm() :
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
@@ -278,6 +277,7 @@ unsigned int CPsfVm::ExecuteCpu(bool singleStep)
 		if(ticks > 0)
 		{
 			m_counters.Update(ticks);
+			m_bios->CountTicks(ticks);
 		}
 	}
 	if(m_cpu.m_State.nHasException)
@@ -311,7 +311,7 @@ void CPsfVm::ThreadProc()
 #ifdef DEBUGGER_INCLUDED
 			int ticks = ExecuteCpu(m_singleStep);
 
-			static int frameCounter = frameTicks;
+			static int frameCounter = g_frameTicks;
 			static uint64 currentTime = CHighResTimer::GetTime();
 
 			frameCounter -= ticks;
@@ -319,7 +319,7 @@ void CPsfVm::ThreadProc()
 			{
 				m_intc.AssertLine(CIntc::LINE_VBLANK);
 				OnNewFrame();
-				frameCounter += frameTicks;
+				frameCounter += g_frameTicks;
 				uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
 				int64 delay = frameTime - elapsed;
 				if(delay > 0)

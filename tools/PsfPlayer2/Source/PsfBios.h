@@ -1,7 +1,7 @@
 #ifndef _PS2_PSFBIOS_H_
 #define _PS2_PSFBIOS_H_
 
-#include "../Bios.h"
+#include "Bios.h"
 #include "iop/IopBios.h"
 #include "PsfDevice.h"
 
@@ -14,6 +14,7 @@ namespace PS2
 		virtual					~CPsfBios();
 	    void					HandleException();
 	    void					HandleInterrupt();
+		void					CountTicks(uint32);
 
 		void					AppendArchive(const CPsfBase&);
 		void					Start();

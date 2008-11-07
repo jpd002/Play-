@@ -1,8 +1,8 @@
 #include <assert.h>
-#include "Spu2.h"
+#include "Iop_Spu2.h"
 #include "Log.h"
 
-#define LOG_NAME ("spu2")
+#define LOG_NAME ("iop_spu2")
 
 using namespace Iop;
 using namespace Iop::Spu2;

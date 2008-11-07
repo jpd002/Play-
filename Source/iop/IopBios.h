@@ -19,13 +19,16 @@
 class CIopBios
 {
 public:
-                            CIopBios(uint32, CMIPS&, uint8*, uint32, CSIF&, CISO9660*&);
+                            CIopBios(uint32, uint32, CMIPS&, uint8*, uint32, CSIF&, CISO9660*&);
     virtual                 ~CIopBios();
 
     void                    LoadAndStartModule(const char*, const char*, unsigned int);
     void                    LoadAndStartModule(uint32, const char*, unsigned int);
     void                    HandleException();
     void                    HandleInterrupt();
+
+	void					CountTicks(uint32);
+    uint64                  GetCurrentTime();
 
     void                    Reset();
 
@@ -41,7 +44,7 @@ public:
     void                    DelayThread(uint32);
     uint32                  GetThreadId();
     void                    SleepThread();
-    uint32                  WakeupThread(uint32);
+    uint32                  WakeupThread(uint32, bool);
 
     uint32                  CreateSemaphore(uint32, uint32);
     uint32                  SignalSemaphore(uint32, bool);
@@ -125,7 +128,8 @@ private:
     void                    SaveThreadContext(uint32);
     void                    Reschedule();
     uint32                  GetNextReadyThread(bool);
-    uint64                  GetCurrentTime();
+	uint64					MilliSecToClock(uint32);
+	uint64					MicroSecToClock(uint32);
 	void					ReturnFromException();
 
     SEMAPHORE&              GetSemaphore(uint32);
@@ -158,6 +162,8 @@ private:
     uint32                  m_nextThreadId;
     uint32                  m_nextSemaphoreId;
     uint32                  m_currentThreadId;
+	uint32					m_clockFrequency;
+	uint64					m_currentTime;
     bool                    m_rescheduleNeeded;
     ThreadMapType           m_threads;
     SemaphoreMapType        m_semaphores;

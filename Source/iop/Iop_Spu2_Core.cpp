@@ -1,9 +1,9 @@
 #include <boost/lexical_cast.hpp>
 #include <assert.h>
-#include "Spu2_Core.h"
+#include "Iop_Spu2_Core.h"
 #include "Log.h"
 
-#define LOG_NAME_PREFIX ("spu2_core_")
+#define LOG_NAME_PREFIX ("iop_spu2_core_")
 #define SPU_BASE_SAMPLING_RATE (48000)
 
 using namespace Iop;

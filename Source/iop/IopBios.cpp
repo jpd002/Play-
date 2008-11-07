@@ -23,14 +23,13 @@
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
 #include <vector>
-#include <time.h>
 
 #define LOGNAME "iop_bios"
 
 using namespace std;
 using namespace Framework;
 
-CIopBios::CIopBios(uint32 baseAddress, CMIPS& cpu, uint8* ram, uint32 ramSize, CSIF& sif, CISO9660*& iso) :
+CIopBios::CIopBios(uint32 baseAddress, uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize, CSIF& sif, CISO9660*& iso) :
 m_baseAddress(baseAddress),
 m_cpu(cpu),
 m_ram(ram),
@@ -50,7 +49,9 @@ m_padman(NULL),
 #endif
 m_rescheduleNeeded(false),
 m_currentThreadId(-1),
-m_threadFinishAddress(0)
+m_threadFinishAddress(0),
+m_clockFrequency(clockFrequency),
+m_currentTime(0)
 {
 #ifdef _NULL_SIFMAN
     m_sifMan = new Iop::CSifManNull();
@@ -77,6 +78,7 @@ void CIopBios::Reset()
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
 	}
 
+	m_currentTime = 0;
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
 
     m_intrHandlers.clear();
@@ -345,7 +347,7 @@ void CIopBios::DelayThread(uint32 delay)
 
     //TODO : Need to delay or something...
     THREAD& thread = GetThread(m_currentThreadId);
-    thread.nextActivateTime = GetCurrentTime() + delay;
+    thread.nextActivateTime = GetCurrentTime() + MicroSecToClock(delay);
     m_rescheduleNeeded = true;
 }
 
@@ -372,7 +374,7 @@ void CIopBios::SleepThread()
     }
 }
 
-uint32 CIopBios::WakeupThread(uint32 threadId)
+uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: WakeupThread(threadId = %i);\r\n", 
@@ -383,7 +385,10 @@ uint32 CIopBios::WakeupThread(uint32 threadId)
     if(thread.status == THREAD_STATUS_SLEEPING)
     {
         thread.status = THREAD_STATUS_RUNNING;
-        m_rescheduleNeeded = true;
+		if(!inInterrupt)
+		{
+			m_rescheduleNeeded = true;
+		}
     }
     else
     {
@@ -446,11 +451,11 @@ void CIopBios::Reschedule()
     }
 
     uint32 nextThreadId = GetNextReadyThread(true);
-    if(nextThreadId == -1)
-    {
-        //Try without checking activation time
-        nextThreadId = GetNextReadyThread(false);
-    }
+//    if(nextThreadId == -1)
+//    {
+//        //Try without checking activation time
+//        nextThreadId = GetNextReadyThread(false);
+//    }
 
     if(nextThreadId == -1)
     {
@@ -504,7 +509,22 @@ uint32 CIopBios::GetNextReadyThread(bool checkActivateTime)
 
 uint64 CIopBios::GetCurrentTime()
 {
-    return (clock() * 1000) / CLOCKS_PER_SEC;
+	return m_currentTime;
+}
+
+uint64 CIopBios::MilliSecToClock(uint32 value)
+{
+	return (static_cast<uint64>(value) * static_cast<uint64>(m_clockFrequency)) / 1000;
+}
+
+uint64 CIopBios::MicroSecToClock(uint32 value)
+{
+	return (static_cast<uint64>(value) * static_cast<uint64>(m_clockFrequency)) / 1000000;
+}
+
+void CIopBios::CountTicks(uint32 ticks)
+{
+	m_currentTime += ticks;
 }
 
 CIopBios::SEMAPHORE& CIopBios::GetSemaphore(uint32 semaphoreId)
@@ -699,6 +719,9 @@ void CIopBios::HandleException()
         }
         else
         {
+			//Hack for FFX PSF ---------------------
+			//m_cpu.m_State.nGPR[CMIPS::V0].nD0 = 1;
+			//Hack for FFX PSF ---------------------
 #ifdef _DEBUG
             CLog::GetInstance().Print(LOGNAME, "%0.8X: Trying to call a function from non-existing module (%s, %d).\r\n", 
                 m_cpu.m_State.nPC, moduleName.c_str(), functionId);

@@ -107,6 +107,11 @@ void CPsxBios::LoadExe(uint8* exe)
 	}
 }
 
+void CPsxBios::CountTicks(uint32 ticks)
+{
+
+}
+
 void CPsxBios::AssembleEventChecker()
 {
 	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + EVENT_CHECKER));

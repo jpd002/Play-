@@ -2,7 +2,7 @@
 #define _PSFDEVICE_H_
 
 #include "iop/Ioman_Device.h"
-#include "../PsfBase.h"
+#include "PsfBase.h"
 #include <list>
 
 namespace PS2

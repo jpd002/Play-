@@ -13,6 +13,7 @@ public:
 	void					Reset();
 	void					HandleInterrupt();
 	void					HandleException();
+	void					CountTicks(uint32);
 
     void                    LoadExe(uint8*);
 

@@ -7,10 +7,10 @@
 #include "SH_OpenAL.h"
 #include "iop/Iop_SpuBase.h"
 #include "iop/Iop_Spu.h"
+#include "iop/Iop_Spu2.h"
 #include "iop/Iop_Dmac.h"
 #include "iop/Iop_Intc.h"
 #include "iop/Iop_RootCounters.h"
-#include "ps2/Spu2.h"
 #include "VirtualMachine.h"
 #include "Debuggable.h"
 #include "MailBox.h"
@@ -34,6 +34,11 @@ public:
 	enum SPURAMSIZE
 	{
 		SPURAMSIZE = 0x00200000,
+	};
+
+	enum
+	{
+		CLOCK_FREQ		= (44100 * 256 * 3)		//~33.8MHz
 	};
 
 						CPsfVm();
