@@ -3,6 +3,7 @@
 #include "PS2VM.h"
 #include "PS2OS.h"
 #include "Ps2Const.h"
+#include "iop/Iop_SifManPs2.h"
 #include "VIF.h"
 #include "Timer.h"
 #include "MA_EE.h"
@@ -106,7 +107,7 @@ m_MAVU1(true)
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
     CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
-    m_iopOs = new CIopBios(0x100, m_iop, m_iopRam, PS2::IOPRAMSIZE, m_sif, m_pCDROM0);
+    m_iopOs = new CIopBios(0x100, PS2::IOP_CLOCK_FREQUENCY, m_iop, m_iopRam, PS2::IOPRAMSIZE, new Iop::CSifManPs2(m_sif));
     m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
 }
 
@@ -382,7 +383,6 @@ void CPS2VM::ResetVM()
 	m_nStatus = PAUSED;
 	
 	//Reset subunits
-	CDROM0_Reset();
     m_sif.Reset();
     m_ipu.Reset();
     m_gif.Reset();
@@ -400,10 +400,12 @@ void CPS2VM::ResetVM()
     m_os->Initialize();
     m_iopOs->Reset();
 
-    m_iopOs->GetIoman()->RegisterDevice("host", new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY));
-    m_iopOs->GetIoman()->RegisterDevice("mc0", new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY));
-    m_iopOs->GetIoman()->RegisterDevice("mc1", new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY));
-    m_iopOs->GetIoman()->RegisterDevice("cdrom0", new Iop::Ioman::CIsoDevice(m_pCDROM0));
+	CDROM0_Reset();
+
+    m_iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
+    m_iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
+    m_iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
+    m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_pCDROM0)));
 
     m_frameSkip = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
 
@@ -625,6 +627,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
             }
 
 			m_pCDROM0 = new CISO9660(pStream);
+            m_iopOs->GetCdvdfsv()->SetIsoImage(m_pCDROM0);
 		}
 		catch(const exception& Exception)
 		{
@@ -637,7 +640,8 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 
 void CPS2VM::CDROM0_Destroy()
 {
-	DELETEPTR(m_pCDROM0);
+    m_iopOs->GetCdvdfsv()->SetIsoImage(NULL);
+    DELETEPTR(m_pCDROM0);
 }
 
 void CPS2VM::LoadBIOS()

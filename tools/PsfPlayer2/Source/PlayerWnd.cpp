@@ -23,7 +23,6 @@ using namespace std::tr1;
 CPlayerWnd::CPlayerWnd(CPsfVm& virtualMachine) :
 m_virtualMachine(virtualMachine),
 m_frames(0),
-m_regView(NULL),
 m_ready(false),
 m_accel(CreateAccelerators())
 {
@@ -32,15 +31,25 @@ m_accel(CreateAccelerators())
 		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 470, 580), NULL, NULL);
+	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 470 * MAX_CORE, 580), NULL, NULL);
 	SetClassPtr();
 
 	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINMENU)));
 
 	SetTimer(m_hWnd, 0, 1000, NULL);
 
-	m_regView = new CSpuRegView(m_hWnd, &GetClientRect(), m_virtualMachine.GetSpuCore(0));
-	m_regView->Show(SW_SHOW);
+    {
+        Win32::CRect clientRect(GetClientRect());
+        unsigned int left = 0;
+        unsigned int increment = clientRect.Right() / MAX_CORE;
+        for(unsigned int i = 0; i < MAX_CORE; i++)
+        {
+            Win32::CRect rect(left, 0, left + increment, clientRect.Bottom()); 
+	        m_regView[i] = new CSpuRegView(m_hWnd, rect, m_virtualMachine.GetSpuCore(i));
+	        m_regView[i]->Show(SW_SHOW);
+            left += increment;
+        }
+    }
 
 	UpdateUi();
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
@@ -51,7 +60,10 @@ m_accel(CreateAccelerators())
 CPlayerWnd::~CPlayerWnd()
 {
 	m_virtualMachine.Pause();
-	delete m_regView;
+    for(unsigned int i = 0; i < MAX_CORE; i++)
+    {
+	    delete m_regView[i];
+    }
 }
 
 long CPlayerWnd::OnWndProc(unsigned int msg, WPARAM wparam, LPARAM lparam)
@@ -59,8 +71,11 @@ long CPlayerWnd::OnWndProc(unsigned int msg, WPARAM wparam, LPARAM lparam)
 	switch(msg)
 	{
 	case WM_UPDATEVIS:
-		m_regView->Render();
-		m_regView->Redraw();
+        for(unsigned int i = 0; i < MAX_CORE; i++)
+        {
+		    m_regView[i]->Render();
+		    m_regView[i]->Redraw();
+        }
 		break;
 	}
 	return TRUE;
@@ -84,8 +99,8 @@ long CPlayerWnd::OnSize(unsigned int, unsigned int, unsigned int)
 {
 	if(m_regView != NULL)
 	{
-		RECT rect = GetClientRect();
-		m_regView->SetSize(rect.right, rect.bottom);
+		//RECT rect = GetClientRect();
+		//m_regView->SetSize(rect.right, rect.bottom);
 	}
 	return FALSE;
 }

@@ -5,8 +5,7 @@
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
 #include "../ELF.h"
-#include "../SIF.h"
-#include "../ISO9660/ISO9660.h"
+#include "Iop_SifMan.h"
 #include "Iop_Ioman.h"
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
@@ -14,12 +13,13 @@
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan.h"
 #include "Iop_PadMan.h"
+#include "Iop_Cdvdfsv.h"
 #endif
 
 class CIopBios
 {
 public:
-                            CIopBios(uint32, uint32, CMIPS&, uint8*, uint32, CSIF&, CISO9660*&);
+                            CIopBios(uint32, uint32, CMIPS&, uint8*, uint32, Iop::CSifMan*);
     virtual                 ~CIopBios();
 
     void                    LoadAndStartModule(const char*, const char*, unsigned int);
@@ -36,6 +36,7 @@ public:
 #ifdef _IOP_EMULATE_MODULES
     Iop::CDbcMan*           GetDbcman();
     Iop::CPadMan*           GetPadman();
+    Iop::CCdvdfsv*          GetCdvdfsv();
 #endif
     void                    RegisterModule(Iop::CModule*);
 
@@ -151,8 +152,6 @@ private:
 	uint32					AssembleIdleFunction(CMIPSAssembler&);
 
     CMIPS&                  m_cpu;
-    CSIF&                   m_sif;
-    CISO9660*&              m_iso;
     uint8*                  m_ram;
     uint32                  m_ramSize;
     uint32                  m_baseAddress;
@@ -178,6 +177,7 @@ private:
 #ifdef _IOP_EMULATE_MODULES
     Iop::CDbcMan*           m_dbcman;
     Iop::CPadMan*           m_padman;
+    Iop::CCdvdfsv*          m_cdvdfsv;
 #endif
 };
 

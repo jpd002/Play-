@@ -2,7 +2,7 @@
 #define _IOP_MCSERV_H_
 
 #include "Iop_Module.h"
-#include "../SIF.h"
+#include "Iop_SifMan.h"
 #include <string>
 #include <map>
 #include <boost/filesystem/path.hpp>
@@ -13,7 +13,7 @@ namespace Iop
 	class CMcServ : public CModule, public CSifModule
 	{
 	public:
-							CMcServ(CSIF&);
+							CMcServ(CSifMan&);
 		virtual				~CMcServ();
         std::string         GetId() const;
         void                Invoke(CMIPS&, unsigned int);

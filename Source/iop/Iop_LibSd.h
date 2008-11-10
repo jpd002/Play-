@@ -2,14 +2,14 @@
 #define _IOP_LIBSD_H_
 
 #include "Iop_Module.h"
-#include "../SIF.h"
+#include "Iop_SifMan.h"
 
 namespace Iop
 {
     class CLibSd : public CModule, public CSifModule
     {
     public:
-                        CLibSd(CSIF&);
+                        CLibSd(CSifMan&);
         virtual         ~CLibSd();
 
         std::string     GetId() const;

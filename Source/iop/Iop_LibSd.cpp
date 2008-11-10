@@ -6,7 +6,7 @@
 using namespace Iop;
 using namespace std;
 
-CLibSd::CLibSd(CSIF& sif)
+CLibSd::CLibSd(CSifMan& sif)
 {
     sif.RegisterModule(MODULE_ID, this);
 }

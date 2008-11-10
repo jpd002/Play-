@@ -13,6 +13,11 @@ namespace PS2
         IOPRAMSIZE = 0x00400000,
     };
 
+    enum
+    {
+        IOP_CLOCK_FREQUENCY = (44100 * 256 * 3),
+    };
+
     enum EEBIOSSIZE
     {
 	    EEBIOSSIZE = 0x00400000,

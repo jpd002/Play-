@@ -5,7 +5,6 @@
 #include <functional>
 #include <boost/utility.hpp>
 #include "Types.h"
-#include "BasicUnions.h"
 #include "iop/Iop_SpuBase.h"
 
 namespace Iop

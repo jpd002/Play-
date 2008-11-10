@@ -19,7 +19,7 @@ const char* CMcServ::m_sMcPathPreference[2] =
 	"ps2.mc1.directory",
 };
 
-CMcServ::CMcServ(CSIF& sif) :
+CMcServ::CMcServ(CSifMan& sif) :
 m_nNextHandle(1)
 {
 	BOOST_STATIC_ASSERT(sizeof(CMD) == 0x414);

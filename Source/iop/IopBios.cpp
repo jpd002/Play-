@@ -29,14 +29,12 @@
 using namespace std;
 using namespace Framework;
 
-CIopBios::CIopBios(uint32 baseAddress, uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize, CSIF& sif, CISO9660*& iso) :
+CIopBios::CIopBios(uint32 baseAddress, uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize, Iop::CSifMan* sifMan) :
 m_baseAddress(baseAddress),
 m_cpu(cpu),
 m_ram(ram),
 m_ramSize(ramSize),
-m_sif(sif),
-m_sifMan(NULL),
-m_iso(iso),
+m_sifMan(sifMan),
 m_nextThreadId(1),
 m_nextSemaphoreId(1),
 m_stdio(NULL),
@@ -53,11 +51,10 @@ m_threadFinishAddress(0),
 m_clockFrequency(clockFrequency),
 m_currentTime(0)
 {
-#ifdef _NULL_SIFMAN
-    m_sifMan = new Iop::CSifManNull();
-#else
-    int dasddasd +dak;l;
-#endif
+    if(m_sifMan == NULL)
+    {
+        m_sifMan = new Iop::CSifManNull();
+    }
 }
 
 CIopBios::~CIopBios()
@@ -67,6 +64,7 @@ CIopBios::~CIopBios()
     SaveAllModulesTags(m_cpu.m_Functions, "functions");
 #endif
     DeleteModules();
+    delete m_sifMan;
 }
 
 void CIopBios::Reset()
@@ -125,39 +123,40 @@ void CIopBios::Reset()
     }
 #ifdef _IOP_EMULATE_MODULES
     {
-        RegisterModule(new Iop::CCdvdfsv(m_iso, m_sif));
+        m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan);
+        RegisterModule(m_cdvdfsv);
     }
     {
-        RegisterModule(new Iop::CLibSd(m_sif));
+        RegisterModule(new Iop::CLibSd(*m_sifMan));
     }
     {
-        RegisterModule(new Iop::CMcServ(m_sif));
+        RegisterModule(new Iop::CMcServ(*m_sifMan));
     }
     {
-        m_dbcman = new Iop::CDbcMan(m_sif);
+        m_dbcman = new Iop::CDbcMan(*m_sifMan);
         RegisterModule(m_dbcman);
     }
     {
-        RegisterModule(new Iop::CDbcMan320(m_sif, *m_dbcman));
+        RegisterModule(new Iop::CDbcMan320(*m_sifMan, *m_dbcman));
     }
     {
-        m_padman = new Iop::CPadMan(m_sif);
+        m_padman = new Iop::CPadMan(*m_sifMan);
         RegisterModule(m_padman);
     }
 
     //Custom modules
     {
-        RegisterModule(new Iop::CUnknown(m_sif));
+        RegisterModule(new Iop::CUnknown(*m_sifMan));
     }
     {
-        RegisterModule(new Iop::CUnknown2(m_sif));
+        RegisterModule(new Iop::CUnknown2(*m_sifMan));
     }
 #endif
 
     const int sifDmaBufferSize = 0x1000;
     uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0);
 #ifndef _NULL_SIFMAN
-    m_sif.SetDmaBuffer(m_ram + sifDmaBufferPtr, sifDmaBufferSize);
+    m_sifMan->SetDmaBuffer(m_ram + sifDmaBufferPtr, sifDmaBufferSize);
 #endif
 }
 
@@ -239,6 +238,8 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
         LoadModuleTags(loadedModule, m_cpu.m_Functions, "functions");
     }
     m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
+    CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%0.8X.\r\n", 
+        path, moduleRange.first);
 #endif
 
 //	for(int i = 0; i < m_ramSize / 4; i++)
@@ -404,6 +405,9 @@ uint32 CIopBios::GetThreadId()
 
 void CIopBios::ExitCurrentThread()
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%d : ExitCurrentThread();\r\n", m_currentThreadId);
+#endif
     ThreadMapType::iterator thread = GetThreadPosition(m_currentThreadId);
     m_threads.erase(thread);
     m_currentThreadId = -1;
@@ -633,6 +637,11 @@ Iop::CDbcMan* CIopBios::GetDbcman()
 Iop::CPadMan* CIopBios::GetPadman()
 {
     return m_padman;
+}
+
+Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
+{
+    return m_cdvdfsv;
 }
 
 #endif

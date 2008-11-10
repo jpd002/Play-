@@ -2,7 +2,7 @@
 #define _IOP_UNKNOWN_H_
 
 #include "Iop_Module.h"
-#include "../SIF.h"
+#include "Iop_SifMan.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -11,7 +11,7 @@ namespace Iop
 	class CUnknown : public CModule, public CSifModule
 	{
 	public:
-                            CUnknown(CSIF&);
+                            CUnknown(CSifMan&);
         virtual             ~CUnknown();
 
         std::string         GetId() const;

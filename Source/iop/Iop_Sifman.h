@@ -1,7 +1,7 @@
 #ifndef _IOP_SIFMAN_H_
 #define _IOP_SIFMAN_H_
 
-#include "SifModule.h"
+#include "../SifModule.h"
 
 namespace Iop
 {
@@ -12,6 +12,7 @@ namespace Iop
 
         virtual void    RegisterModule(uint32, CSifModule*) = 0;
         virtual void    SendPacket(void*, uint32) = 0;
+        virtual void    SetDmaBuffer(uint8*, uint32) = 0;
     };
 }
 

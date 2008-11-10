@@ -6,7 +6,7 @@
 using namespace Iop;
 using namespace std;
 
-CUnknown2::CUnknown2(CSIF& sif)
+CUnknown2::CUnknown2(CSifMan& sif)
 {
     sif.RegisterModule(MODULE_ID, this);
 }

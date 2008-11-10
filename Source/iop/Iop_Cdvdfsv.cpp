@@ -11,9 +11,9 @@ using namespace std::tr1::placeholders;
 
 #define LOG_NAME "iop_cdvdfsv"
 
-CCdvdfsv::CCdvdfsv(CISO9660*& iso, CSIF& sif) :
+CCdvdfsv::CCdvdfsv(CSifMan& sif) :
 m_nStreamPos(0),
-m_iso(iso)
+m_iso(NULL)
 {
     m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, _1, _2, _3, _4, _5, _6));
     m_module593 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke593, this, _1, _2, _3, _4, _5, _6));
@@ -36,6 +36,11 @@ CCdvdfsv::~CCdvdfsv()
 string CCdvdfsv::GetId() const
 {
     return "cdvdfsv";
+}
+
+void CCdvdfsv::SetIsoImage(CISO9660* iso)
+{
+    m_iso = iso;
 }
 
 void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)

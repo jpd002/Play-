@@ -2,7 +2,7 @@
 #define _IOP_PADMAN_H_
 
 #include "Iop_Module.h"
-#include "../SIF.h"
+#include "Iop_SifMan.h"
 #include "../PadListener.h"
 #include <functional>
 #include "zip/ZipArchiveWriter.h"
@@ -15,7 +15,7 @@ namespace Iop
 	class CPadMan : public CModule, public CPadListener, public CSifModule
 	{
 	public:
-                            CPadMan(CSIF&);
+                            CPadMan(CSifMan&);
         std::string         GetId() const;
         void                Invoke(CMIPS&, unsigned int);
         virtual void        Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);

@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUGGER_INCLUDED;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;GLEW_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUGGER_INCLUDED;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;GLEW_STATIC;_IOP_EMULATE_MODULES"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -121,7 +121,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;GLEW_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;GLEW_STATIC;_IOP_EMULATE_MODULES"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -885,6 +885,22 @@
 				</File>
 				<File
 					RelativePath=".\Source\iop\Iop_PadMan.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_SifManNull.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_SifManNull.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_SifManPs2.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_SifManPs2.h"
 					>
 				</File>
 				<File

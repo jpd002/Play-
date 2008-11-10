@@ -20,7 +20,7 @@ using namespace PS2;
 #define STATE_PADDATA_ADDRESS   ("address")
 #define STATE_PADDATA_TYPE      ("type")
 
-CPadMan::CPadMan(CSIF& sif)
+CPadMan::CPadMan(CSifMan& sif)
 {
 	m_nPadDataAddress = 0;
 	m_nPadDataType = 0;

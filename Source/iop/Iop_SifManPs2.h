@@ -2,7 +2,7 @@
 #define _IOP_SIFMANPS2_H_
 
 #include "Iop_SifMan.h"
-#include "./Sif.h"
+#include "../Sif.h"
 
 namespace Iop
 {
@@ -12,8 +12,9 @@ namespace Iop
                         CSifManPs2(CSIF&);
         virtual         ~CSifManPs2();
 
-        virtual void    RegisterModule(CSifModule*);
+        virtual void    RegisterModule(uint32, CSifModule*);
         virtual void    SendPacket(void*, uint32);
+        virtual void    SetDmaBuffer(uint8*, uint32);
 
     private:
         CSIF&           m_sif;

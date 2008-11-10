@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;&quot;$(ProjectDir)\Source&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;DEBUGGER_INCLUDED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -203,10 +203,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\BasicUnions.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Bios.h"
 				>
 			</File>
@@ -275,6 +271,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PsfBios.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfBios.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfDevice.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfDevice.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PsfLoader.cpp"
 				>
 			</File>
@@ -318,42 +330,6 @@
 				RelativePath=".\Source\SpuRegView.h"
 				>
 			</File>
-			<Filter
-				Name="ps2"
-				>
-				<File
-					RelativePath=".\Source\ps2\PsfBios.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfBios.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfDevice.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\PsfDevice.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2_Core.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\ps2\Spu2_Core.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -713,6 +689,22 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\iop\Iop_Spu.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2_Core.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Spu2_Core.h"
 					>
 				</File>
 				<File
