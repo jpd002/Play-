@@ -142,7 +142,9 @@ namespace Iop
 
 	    void		    Reset();
 
-        void		    SetBaseSamplingRate(uint32);
+		bool			IsEnabled() const;
+
+		void		    SetBaseSamplingRate(uint32);
 
 	    uint32		    GetTransferAddress() const;
 	    void		    SetTransferAddress(uint32);

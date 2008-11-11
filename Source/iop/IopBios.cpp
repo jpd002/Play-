@@ -224,6 +224,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
             reinterpret_cast<const uint8*>(&(*param)),
             4);
     }
+	thread.context.gpr[CMIPS::SP] -= 4;
 
     StartThread(threadId);
     if(m_currentThreadId == -1)

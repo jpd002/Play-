@@ -16,7 +16,7 @@ public:
 	virtual				~CSH_OpenAL();
 
 	void				Reset();
-	void				Update(Iop::CSpuBase&);
+	void				Update(Iop::CSpuBase&, Iop::CSpuBase&);
 	bool				HasFreeBuffers();
 
 private:

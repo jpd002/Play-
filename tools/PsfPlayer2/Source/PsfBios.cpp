@@ -7,7 +7,7 @@ using namespace std;
 #define PSF_DEVICENAME	"psf"
 
 CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize) :
-m_bios(0x1000, CPsfVm::CLOCK_FREQ, cpu, ram, ramSize, *reinterpret_cast<CSIF*>(NULL), *reinterpret_cast<CISO9660**>(NULL)),
+m_bios(0x1000, CPsfVm::CLOCK_FREQ, cpu, ram, ramSize, NULL),
 m_psfDevice(new CPsfDevice())
 {
 	m_bios.Reset();

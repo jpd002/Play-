@@ -71,6 +71,11 @@ void CSpuBase::Reset()
     }
 }
 
+bool CSpuBase::IsEnabled() const
+{
+	return (m_ctrl & 0x8000) != 0;
+}
+
 uint16 CSpuBase::GetControl() const
 {
     return m_ctrl;

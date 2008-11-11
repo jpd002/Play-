@@ -65,13 +65,6 @@ uint32 CIoman::Open(uint32 flags, const char* path)
     {
         string fullPath(path);
         string::size_type position = fullPath.find(":");
-		//Hack for Atelier Iris PSF ---------------------
-		//if(position == string::npos)
-		//{
-		//	fullPath = string("psf:/") + path;
-	    //	position = fullPath.find(":");
-		//}
-		//Hack for Atelier Iris PSF ---------------------
 		if(position == string::npos) 
         {
             throw runtime_error("Invalid path.");

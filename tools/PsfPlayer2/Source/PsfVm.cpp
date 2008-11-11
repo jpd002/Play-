@@ -358,7 +358,7 @@ void CPsfVm::ThreadProc()
 						}
 					}
 
-					m_spuHandler.Update(m_spuCore0);
+					m_spuHandler.Update(m_spuCore0, m_spuCore1);
 					m_spuUpdateCounter += g_spuUpdateTicks;
 				}
 			}
