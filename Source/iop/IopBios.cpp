@@ -10,6 +10,7 @@
 #include "Iop_LibSd.h"
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
+#include "Iop_FileIo.h"
 #include "Iop_Unknown.h"
 #include "Iop_Unknown2.h"
 #endif
@@ -89,7 +90,7 @@ void CIopBios::Reset()
         RegisterModule(m_stdio);
     }
     {
-        m_ioman = new Iop::CIoman(m_ram, *m_sifMan);
+        m_ioman = new Iop::CIoman(m_ram);
         RegisterModule(m_ioman);
     }
     {
@@ -122,6 +123,9 @@ void CIopBios::Reset()
         RegisterModule(new Iop::CIntrman(*this, m_ram));
     }
 #ifdef _IOP_EMULATE_MODULES
+    {
+        RegisterModule(new Iop::CFileIo(*m_sifMan, *m_ioman));
+    }
     {
         m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan);
         RegisterModule(m_cdvdfsv);

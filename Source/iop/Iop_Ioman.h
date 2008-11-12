@@ -3,14 +3,13 @@
 
 #include <map>
 #include <memory>
-#include "Iop_SifMan.h"
 #include "Iop_Module.h"
 #include "Ioman_Device.h"
 #include "Stream.h"
 
 namespace Iop
 {
-    class CIoman : public CModule, public CSifModule
+    class CIoman : public CModule
     {
     public:
         class CFile
@@ -25,129 +24,13 @@ namespace Iop
             CIoman&     m_ioman;
         };
 
-        class CFileIoHandler
-        {
-        public:
-                            CFileIoHandler(CIoman*);
-            virtual         ~CFileIoHandler() {}
-            virtual void    Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
-
-        protected:
-            CIoman*         m_ioman;
-        };
-
-        class CFileIoHandlerBasic : public CFileIoHandler
-        {
-        public:
-                            CFileIoHandlerBasic(CIoman*);
-            virtual void    Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-        };
-
-        class CFileIoHandler3100 : public CFileIoHandler
-        {
-        public:
-                            CFileIoHandler3100(CIoman*, CSifMan&);
-            virtual void    Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-
-        private:
-            struct COMMANDHEADER
-            {
-                uint32  semaphoreId;
-                uint32  resultPtr;
-                uint32  resultSize;
-            };
-
-            struct OPENCOMMAND
-            {
-                COMMANDHEADER   header;
-                uint32          flags;
-                uint32          somePtr1;
-                char            fileName[256];
-            };
-
-            struct CLOSECOMMAND
-            {
-                COMMANDHEADER   header;
-                uint32          fd;
-            };
-
-            struct READCOMMAND
-            {
-                COMMANDHEADER   header;
-                uint32          fd;
-                uint32          buffer;
-                uint32          size;
-            };
-
-            struct SEEKCOMMAND
-            {
-                COMMANDHEADER   header;
-                uint32          fd;
-                uint32          offset;
-                uint32          whence;
-            };
-
-            struct REPLYHEADER
-            {
-                uint32  semaphoreId;
-                uint32  commandId;
-                uint32  resultPtr;
-                uint32  resultSize;
-            };
-
-            struct OPENREPLY
-            {
-                REPLYHEADER     header;
-                uint32          result;
-                uint32          unknown2;
-                uint32          unknown3;
-                uint32          unknown4;
-            };
-
-            struct CLOSEREPLY
-            {
-                REPLYHEADER     header;
-                uint32          result;
-                uint32          unknown2;
-                uint32          unknown3;
-                uint32          unknown4;
-            };
-
-            struct READREPLY
-            {
-                REPLYHEADER     header;
-                uint32          result;
-                uint32          unknown2;
-                uint32          unknown3;
-                uint32          unknown4;
-            };
-
-            struct SEEKREPLY
-            {
-                REPLYHEADER     header;
-                uint32          result;
-                uint32          unknown2;
-                uint32          unknown3;
-                uint32          unknown4;
-            };
-
-            void            CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
-            CSifMan&        m_sifMan;
-        };
-
-		enum SIF_MODULE_ID
-		{
-			SIF_MODULE_ID	= 0x80000001
-		};
-
 		typedef std::tr1::shared_ptr<Ioman::CDevice> DevicePtr;
 
-                                CIoman(uint8*, CSifMan&);
+                                CIoman(uint8*);
         virtual                 ~CIoman();
         
         virtual std::string     GetId() const;
         virtual void            Invoke(CMIPS&, unsigned int);
-        virtual void            Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
         void                    RegisterDevice(const char*, const DevicePtr&);
 
@@ -169,9 +52,7 @@ namespace Iop
         FileMapType             m_files;
         DeviceMapType           m_devices;
         uint8*                  m_ram;
-        CSifMan&                m_sifMan;
         uint32                  m_nextFileHandle;
-        CFileIoHandler*         m_fileIoHandler;
     };
 }
 
