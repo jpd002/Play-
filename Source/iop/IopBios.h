@@ -43,7 +43,7 @@ public:
     uint32                  CreateThread(uint32, uint32);
     void                    StartThread(uint32, uint32* = NULL);
     void                    DelayThread(uint32);
-    uint32                  GetThreadId();
+    uint32                  GetCurrentThreadId();
     void                    SleepThread();
     uint32                  WakeupThread(uint32, bool);
 

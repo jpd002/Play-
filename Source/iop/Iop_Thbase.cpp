@@ -1,8 +1,11 @@
 #include "Iop_Thbase.h"
 #include "IopBios.h"
+#include "../Log.h"
 
 using namespace Iop;
 using namespace std;
+
+#define LOG_NAME ("iop_thbase")
 
 CThbase::CThbase(CIopBios& bios, uint8* ram) :
 m_ram(ram),
@@ -87,7 +90,7 @@ uint32 CThbase::DelayThread(uint32 delay)
 
 uint32 CThbase::GetThreadId()
 {
-    return m_bios.GetThreadId();
+    return m_bios.GetCurrentThreadId();
 }
 
 uint32 CThbase::SleepThread()
@@ -108,6 +111,10 @@ uint32 CThbase::iWakeupThread(uint32 threadId)
 
 uint32 CThbase::GetSystemTime(uint32 resultAddr)
 {
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : GetSystemTime(result);\r\n",
+		m_bios.GetCurrentThreadId());
+#endif
 	uint64* result = NULL;
 	if(resultAddr != 0)
 	{

@@ -65,7 +65,6 @@ CIopBios::~CIopBios()
     SaveAllModulesTags(m_cpu.m_Functions, "functions");
 #endif
     DeleteModules();
-    delete m_sifMan;
 }
 
 void CIopBios::Reset()
@@ -122,6 +121,9 @@ void CIopBios::Reset()
     {
         RegisterModule(new Iop::CIntrman(*this, m_ram));
     }
+	{
+		RegisterModule(m_sifMan);
+	}
 #ifdef _IOP_EMULATE_MODULES
     {
         RegisterModule(new Iop::CFileIo(*m_sifMan, *m_ioman));
@@ -403,7 +405,7 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
     return thread.wakeupCount;
 }
 
-uint32 CIopBios::GetThreadId()
+uint32 CIopBios::GetCurrentThreadId()
 {
     return m_currentThreadId;
 }
@@ -477,6 +479,12 @@ void CIopBios::Reschedule()
 	{
 		LoadThreadContext(nextThreadId);
 	}
+#ifdef _DEBUG
+	if(nextThreadId != m_currentThreadId)
+	{
+		CLog::GetInstance().Print(LOGNAME, "Switched over to thread %i.\r\n", nextThreadId);
+	}
+#endif
 	m_currentThreadId = nextThreadId;
 	m_cpu.m_nQuota = 1;
 }
@@ -733,9 +741,6 @@ void CIopBios::HandleException()
         }
         else
         {
-			//Hack for FFX PSF ---------------------
-			//m_cpu.m_State.nGPR[CMIPS::V0].nD0 = 1;
-			//Hack for FFX PSF ---------------------
 #ifdef _DEBUG
             CLog::GetInstance().Print(LOGNAME, "%0.8X: Trying to call a function from non-existing module (%s, %d).\r\n", 
                 m_cpu.m_State.nPC, moduleName.c_str(), functionId);

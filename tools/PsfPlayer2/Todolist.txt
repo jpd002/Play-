@@ -1,11 +1,9 @@
 TODO:
+- Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
 - Reverb for SPU2
 - Reverb enable option
-- Support for both SPU cores.
 - Fix nasty bug with PSX sound files and home computer.
-- Atelier Iris
 - Final Fantasy X
-- Seperate Ioman and Fileio modules.
 - Exception for invalid PSFs
 - 32-bits MA_MIPSIV support
 

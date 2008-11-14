@@ -192,6 +192,7 @@ namespace Iop
 			void			GetSamples(int16*, unsigned int, unsigned int);
 			uint8*			GetRepeat() const;
 			uint8*          GetCurrent() const;
+			bool			IsDone() const;
 
 		private:
 			enum

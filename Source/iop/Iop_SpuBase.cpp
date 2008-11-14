@@ -256,6 +256,12 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			}
 			else
 			{
+				if(reader.IsDone())
+				{
+					channel.status = STOPPED;
+					channel.adsrVolume = 0;
+					continue;
+				}
 				uint8* repeat = reader.GetRepeat();
 				channel.repeat = repeat - m_ram;
 			}
@@ -724,6 +730,11 @@ uint8* CSpuBase::CSampleReader::GetRepeat() const
 uint8* CSpuBase::CSampleReader::GetCurrent() const
 {
     return m_nextSample;
+}
+
+bool CSpuBase::CSampleReader::IsDone() const
+{
+	return m_done;
 }
 
 double CSpuBase::CSampleReader::GetSamplingRate() const
