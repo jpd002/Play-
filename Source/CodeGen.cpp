@@ -2199,6 +2199,12 @@ void CCodeGen::Srl()
         FreeRegister(shiftAmount);
         PushReg(resultRegister);
 	}
+	else if(FitsPattern<RelativeConstant>())
+	{
+        RelativeConstant::PatternValue ops = GetPattern<RelativeConstant>();
+		PushRel(ops.first);
+		Srl(static_cast<uint8>(ops.second));
+	}
     else
     {
         assert(0);

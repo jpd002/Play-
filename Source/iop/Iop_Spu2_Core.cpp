@@ -180,7 +180,7 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 	switch(address)
 	{
 	case VP_ENVX:
-		return (channel.adsrVolume >> 16);
+		result = (channel.adsrVolume >> 16);
 		break;
 	case VA_NAX_HI:
         result = GetAddressHi(channel.current);
