@@ -34,6 +34,8 @@ namespace Iop
         uint32          WakeupThread(uint32);
 		uint32			iWakeupThread(uint32);
 		uint32			GetSystemTime(uint32);
+		void			USecToSysClock(uint32, uint32);
+		void			SysClockToUSec(uint32, uint32, uint32);
 
         uint8*          m_ram;
         CIopBios&       m_bios;

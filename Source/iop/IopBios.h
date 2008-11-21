@@ -29,6 +29,9 @@ public:
 
 	void					CountTicks(uint32);
     uint64                  GetCurrentTime();
+	uint64					MilliSecToClock(uint32);
+	uint64					MicroSecToClock(uint32);
+	uint64					ClockToMicroSec(uint64);
 
     void                    Reset();
 
@@ -129,8 +132,6 @@ private:
     void                    SaveThreadContext(uint32);
     void                    Reschedule();
     uint32                  GetNextReadyThread(bool);
-	uint64					MilliSecToClock(uint32);
-	uint64					MicroSecToClock(uint32);
 	void					ReturnFromException();
 
     SEMAPHORE&              GetSemaphore(uint32);

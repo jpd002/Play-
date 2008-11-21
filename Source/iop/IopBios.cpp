@@ -539,6 +539,11 @@ uint64 CIopBios::MicroSecToClock(uint32 value)
 	return (static_cast<uint64>(value) * static_cast<uint64>(m_clockFrequency)) / 1000000;
 }
 
+uint64 CIopBios::ClockToMicroSec(uint64 clock)
+{
+	return (clock * 1000000) / m_clockFrequency;
+}
+
 void CIopBios::CountTicks(uint32 ticks)
 {
 	m_currentTime += ticks;

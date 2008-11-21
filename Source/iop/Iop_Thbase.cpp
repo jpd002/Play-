@@ -65,8 +65,19 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0
 			));
 		break;
+	case 39:
+		USecToSysClock(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 40:
+		SysClockToUSec(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0);
+		break;
     default:
-        printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
         break;
     }
 }
@@ -125,4 +136,40 @@ uint32 CThbase::GetSystemTime(uint32 resultAddr)
 		(*result) = m_bios.GetCurrentTime();
 	}
 	return 1;
+}
+
+void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : USecToSysClock(usec = 0x%0.8X, timePtr = 0x%0.8X);\r\n",
+		m_bios.GetCurrentThreadId(), usec, timePtr);
+#endif
+	uint64* time = (timePtr != 0) ? reinterpret_cast<uint64*>(&m_ram[timePtr]) : NULL;
+	if(time != NULL)
+	{
+		(*time) = m_bios.MicroSecToClock(usec);
+	}
+}
+
+void CThbase::SysClockToUSec(uint32 timePtr, uint32 secPtr, uint32 usecPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : SysClockToUSec(time = 0x%0.8X, sec = 0x%0.8X, usec = 0x%0.8X);\r\n",
+		m_bios.GetCurrentThreadId(), timePtr, secPtr, usecPtr);
+#endif
+	uint64* time = (timePtr != 0) ? reinterpret_cast<uint64*>(&m_ram[timePtr]) : NULL;
+	uint32* sec = (secPtr != 0) ? reinterpret_cast<uint32*>(&m_ram[secPtr]) : NULL;
+	uint32* usec = (usecPtr != 0) ? reinterpret_cast<uint32*>(&m_ram[usecPtr]) : NULL;
+	if(time != NULL)
+	{
+		uint64 totalusec = m_bios.ClockToMicroSec(*time);
+		if(sec != NULL)
+		{
+			*sec = static_cast<uint32>(totalusec / 1000000);
+		}
+		if(usec != NULL)
+		{
+			*usec = static_cast<uint32>(totalusec % 1000000);
+		}
+	}
 }

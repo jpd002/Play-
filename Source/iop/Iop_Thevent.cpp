@@ -1,4 +1,7 @@
 #include "Iop_Thevent.h"
+#include "../Log.h"
+
+#define LOG_NAME ("iop_thevent")
 
 using namespace Iop;
 using namespace std;
@@ -30,12 +33,15 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
             );
         break;
     default:
-        printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (%0.8X).\r\n", functionId, context.m_State.nPC);
         break;
     }
 }
 
 uint32 CThevent::CreateEventFlag(EVENT* eventPtr)
 {
-    return 3;
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "CreateEventFlag(eventPtr);.\r\n");
+#endif
+	return 3;
 }
