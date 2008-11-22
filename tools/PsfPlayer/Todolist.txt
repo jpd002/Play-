@@ -1,0 +1,23 @@
+TODO:
+- Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
+- Reverb for SPU2
+- Reverb enable option
+- Fix nasty bug with PSX sound files and home computer.
+- Final Fantasy X
+- Exception for invalid PSFs
+- 32-bits MA_MIPSIV support
+
+Done:
+- Move SPU2 to IOP
+- Move IOP (Dmac, DmacChannel, ect.) stuff to Purei.
+- Merge PsfVm and PsxVm.
+- About box
+- Update to new Purei Core
+- Xenogears
+- Add ADSR support
+- Fix counter timing problem
+- Final Fantasy Tactics
+- Chrono Cross
+- Wild Arms
+- Castlevania SOTN
+- Parasite Eve
