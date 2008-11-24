@@ -8,14 +8,19 @@ namespace PS2
 	    EERAMSIZE = 0x02000000,
     };
 
-    enum IOPRAMSIZE
+    enum IOP_RAM_SIZE
     {
-        IOPRAMSIZE = 0x00400000,
+        IOP_RAM_SIZE = 0x00200000,
+    };
+
+    enum IOP_SCRATCH_SIZE
+    {
+		IOP_SCRATCH_SIZE = 0x00000400,
     };
 
     enum
     {
-        IOP_CLOCK_FREQUENCY = (44100 * 256 * 3),
+        IOP_CLOCK_FREQ = (44100 * 256 * 3),
     };
 
     enum EEBIOSSIZE
@@ -46,6 +51,11 @@ namespace PS2
     enum MICROMEM1SIZE
     {
 	    MICROMEM1SIZE = 0x00004000,
+    };
+
+    enum
+    {
+        SPU_RAM_SIZE = 0x00200000,
     };
 }
 

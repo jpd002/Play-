@@ -2,6 +2,7 @@
 #define _MIPSTAGS_H_
 
 #include "Types.h"
+#include "xml/Node.h"
 #include <map>
 #include <string>
 #include <boost/signal.hpp>
@@ -19,6 +20,8 @@ public:
 	void						            InsertTag(uint32, const char*);
 	void						            RemoveTags();
 	const char*					            Find(uint32);
+    void                                    Serialize(Framework::Xml::CNode*);
+    void                                    Unserialize(Framework::Xml::CNode*);
 	void						            Serialize(const char*);
 	void						            Unserialize(const char*);
 

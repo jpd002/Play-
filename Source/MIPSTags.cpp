@@ -1,6 +1,7 @@
 #include "MIPSTags.h"
 #include "PtrMacro.h"
 #include "StdStream.h"
+#include "lexical_cast_ex.h"
 
 using namespace Framework;
 using namespace std;
@@ -105,6 +106,23 @@ void CMIPSTags::Unserialize(const char* sPath)
 	{
 		
 	}
+}
+
+void CMIPSTags::Serialize(Xml::CNode* parentNode)
+{
+	for(TagMap::const_iterator itTag(m_Tags.begin());
+		itTag != m_Tags.end(); itTag++)
+	{
+        Xml::CNode* node = new Xml::CNode("tag", true);
+        node->InsertAttribute("address", lexical_cast_hex<string>(itTag->first, 8).c_str());
+        node->InsertAttribute("value", itTag->second.c_str());
+        parentNode->InsertNode(node);
+	}
+}
+
+void CMIPSTags::Unserialize(Xml::CNode* parentNode)
+{
+
 }
 
 CMIPSTags::TagIterator CMIPSTags::GetTagsBegin() const

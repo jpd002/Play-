@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "Iop_Spu2.h"
-#include "Log.h"
+#include "../Log.h"
 
 #define LOG_NAME ("iop_spu2")
 

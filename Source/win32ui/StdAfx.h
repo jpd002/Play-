@@ -3,6 +3,7 @@
 
 #include <windows.h>
 
+#include <string>
 #include <vector>
 #include <list>
 #include <map>
@@ -15,5 +16,7 @@
 #include <boost/static_assert.hpp>
 
 #include "Types.h"
+#include "Stream.h"
+#include "xml/Node.h"
 
 #endif

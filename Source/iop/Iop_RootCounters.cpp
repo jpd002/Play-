@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "Iop_RootCounters.h"
 #include "Iop_Intc.h"
-#include "Log.h"
+#include "../Log.h"
 
 #define LOG_NAME ("iop_counters")
 

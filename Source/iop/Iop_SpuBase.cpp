@@ -1,6 +1,6 @@
 #include <cassert>
 #include <cmath>
-#include "Log.h"
+#include "../Log.h"
 #include "Iop_SpuBase.h"
 
 using namespace Iop;

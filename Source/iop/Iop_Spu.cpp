@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include "Iop_Spu.h"
-#include "Log.h"
+#include "../Log.h"
 
 using namespace std;
 using namespace Iop;

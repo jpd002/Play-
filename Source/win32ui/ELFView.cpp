@@ -9,9 +9,14 @@ using namespace std;
 using namespace boost;
 
 CELFView::CELFView(HWND hParent) :
-COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer"))
+COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer")),
+m_pELF(NULL),
+m_pHeaderView(NULL),
+m_pSymbolView(NULL),
+m_pSectionView(NULL),
+m_pProgramView(NULL)
 {
-	m_pELF = NULL;
+
 }
 
 CELFView::~CELFView()
