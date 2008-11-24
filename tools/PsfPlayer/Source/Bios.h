@@ -11,6 +11,11 @@ public:
     virtual void    HandleInterrupt() = 0;
 	virtual void	CountTicks(uint32) = 0;
 
+#ifdef DEBUGGER_INCLUDED
+	virtual void	SaveDebugTags(const char*) = 0;
+	virtual void	LoadDebugTags(const char*) = 0;
+#endif
+
 private:
 
 };

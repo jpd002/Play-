@@ -80,6 +80,7 @@ m_memoryView(NULL)
 
 CMiniDebugger::~CMiniDebugger()
 {
+	m_virtualMachine.Pause();
     delete m_functionsView;
     delete m_disAsmView;
     delete m_registerView;

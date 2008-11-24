@@ -3,6 +3,8 @@
 #include "Log.h"
 #include "iop/Iop_Intc.h"
 #include "MipsAssembler.h"
+#include "xml/Node.h"
+#include "xml/Writer.h"
 
 #define LOG_NAME	("psxbios")
 #define SC_PARAM0	(CMIPS::A0)
@@ -13,6 +15,7 @@
 
 using namespace std;
 using namespace Iop;
+using namespace Framework;
 
 #define LONGJMP_BUFFER				(0x0200)
 #define INTR_HANDLER				(0x1000)
@@ -106,6 +109,32 @@ void CPsxBios::LoadExe(uint8* exe)
 		exe += exeHeader->textSize;
 	}
 }
+
+#ifdef DEBUGGER_INCLUDED
+
+void CPsxBios::LoadDebugTags(const char* packagePath)
+{
+
+}
+
+void CPsxBios::SaveDebugTags(const char* packagePath)
+{
+	Xml::CNode* document = new Xml::CNode("tags", true);
+	{
+		Xml::CNode* functionsNode = new Xml::CNode("functions", true);
+		m_cpu.m_Functions.Serialize(functionsNode);
+		document->InsertNode(functionsNode);
+	}
+	{
+		Xml::CNode* commentsNode = new Xml::CNode("comments", true);
+		m_cpu.m_Comments.Serialize(commentsNode);
+		document->InsertNode(commentsNode);
+	}
+	Xml::CWriter::WriteDocument(&CStdStream(packagePath, "wb"), document);
+	delete document;
+}
+
+#endif
 
 void CPsxBios::CountTicks(uint32 ticks)
 {

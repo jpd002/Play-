@@ -2,8 +2,11 @@
 #include "PsfLoader.h"
 #include "PlayerWnd.h"
 #include "MiniDebugger.h"
+#include <boost/filesystem/path.hpp>
 
 using namespace Framework;
+using namespace std;
+namespace filesystem = boost::filesystem;
 
 //int main(int argc, char** argv)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
@@ -13,12 +16,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
 #ifdef DEBUGGER_INCLUDED
 	{
 		virtualMachine.Reset();
-//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PS2\\FFXI_psf2\\FFXI_psf2\\104 Ronfaure.psf2");
-//		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PS2\\FF4\\ff4-01.psf2");
-		CPsfLoader::LoadPsf(virtualMachine, "C:\\Media\\PS2\\FF10_psf\\102 In Zanarkand.minipsf2");
+//		filesystem::path loadPath("C:\\Media\\PS2\\Ys4_psf2\\13 - Blazing Sword.psf2", filesystem::native);
+		filesystem::path loadPath("C:\\Media\\PSX\\vp-psf\\vp-103.minipsf", filesystem::native);
+		CPsfLoader::LoadPsf(virtualMachine, loadPath.string().c_str());
+		string tagPackageName = loadPath.leaf();
+		virtualMachine.LoadDebugTags(tagPackageName.c_str());
 		CMiniDebugger debugger(virtualMachine, virtualMachine.GetDebugInfo());
 		debugger.Show(SW_SHOW);
 		debugger.Run();
+		virtualMachine.SaveDebugTags(tagPackageName.c_str());
 	}
 #else
 	{

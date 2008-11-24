@@ -47,3 +47,17 @@ void CPsfBios::CountTicks(uint32 ticks)
 {
 	m_bios.CountTicks(ticks);
 }
+
+#ifdef DEBUGGER_INCLUDED
+
+void CPsfBios::LoadDebugTags(const char* packagePath)
+{
+
+}
+
+void CPsfBios::SaveDebugTags(const char* packagePath)
+{
+
+}
+
+#endif

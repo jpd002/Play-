@@ -16,6 +16,11 @@ namespace PS2
 	    void					HandleInterrupt();
 		void					CountTicks(uint32);
 
+#ifdef DEBUGGER_INCLUDED
+		void					LoadDebugTags(const char*);
+		void					SaveDebugTags(const char*);
+#endif
+
 		void					AppendArchive(const CPsfBase&);
 		void					Start();
 

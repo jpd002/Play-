@@ -17,6 +17,11 @@ public:
 
     void                    LoadExe(uint8*);
 
+#ifdef DEBUGGER_INCLUDED
+	void					LoadDebugTags(const char*);
+	void					SaveDebugTags(const char*);
+#endif
+
 private:
 	struct EXEHEADER
 	{

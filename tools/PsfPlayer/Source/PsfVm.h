@@ -59,6 +59,12 @@ public:
     virtual void		Pause();
     virtual void		Resume();
 
+#ifdef DEBUGGER_INCLUDED
+	std::string			MakeTagPackagePath(const char*);
+	void				LoadDebugTags(const char*);
+	void				SaveDebugTags(const char*);
+#endif
+
 	boost::signal<void ()> OnNewFrame;
 
 private:

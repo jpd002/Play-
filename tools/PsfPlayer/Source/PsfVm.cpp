@@ -12,6 +12,7 @@ using namespace std::tr1;
 using namespace std::tr1::placeholders;
 using namespace boost;
 using namespace Iop;
+using namespace Framework;
 
 #define FRAMES_PER_SEC	(60)
 
@@ -62,21 +63,12 @@ m_frameCounter(g_frameTicks)
 	m_cpu.m_pArch = &g_MAMIPSIV;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
-#ifdef _DEBUG
-	m_cpu.m_Functions.Unserialize("rawr.functions");
-	m_cpu.m_Comments.Unserialize("rawr.comments");
-#endif
-
 	m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, _1, _2, _3));
 	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, _1, _2, _3));
 }
 
 CPsfVm::~CPsfVm()
 {
-#ifdef _DEBUG
-	m_cpu.m_Functions.Serialize("rawr.functions");
-	m_cpu.m_Comments.Serialize("rawr.comments");
-#endif
 	delete [] m_ram;
 	delete [] m_scratchPad;
 	delete [] m_spuRam;
@@ -105,6 +97,30 @@ void CPsfVm::Reset()
     m_frameCounter = g_frameTicks;
     m_spuUpdateCounter = g_spuUpdateTicks;
 }
+
+#ifdef DEBUGGER_INCLUDED
+
+string CPsfVm::MakeTagPackagePath(const char* packageName)
+{
+	return string(packageName) + ".tags.xml";
+}
+
+void CPsfVm::LoadDebugTags(const char* packageName)
+{
+	m_cpu.m_Functions.Unserialize("rawr.functions");
+	m_cpu.m_Comments.Unserialize("rawr.comments");
+}
+
+void CPsfVm::SaveDebugTags(const char* packageName)
+{
+	m_cpu.m_Functions.Serialize("rawr.functions");
+	m_cpu.m_Comments.Serialize("rawr.comments");
+
+	string packagePath = MakeTagPackagePath(packageName);
+	m_bios->SaveDebugTags(packagePath.c_str());
+}
+
+#endif
 
 uint32 CPsfVm::ReadIoRegister(uint32 address)
 {
