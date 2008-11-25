@@ -4,6 +4,7 @@
 #include "../ElfFile.h"
 #include "PtrStream.h"
 #include "Iop_Intc.h"
+#include "lexical_cast_ex.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan320.h"
@@ -30,14 +31,14 @@
 using namespace std;
 using namespace Framework;
 
-CIopBios::CIopBios(uint32 baseAddress, uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize, Iop::CSifMan* sifMan) :
+CIopBios::CIopBios(uint32 baseAddress, uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize) :
 m_baseAddress(baseAddress),
 m_cpu(cpu),
 m_ram(ram),
 m_ramSize(ramSize),
-m_sifMan(sifMan),
 m_nextThreadId(1),
 m_nextSemaphoreId(1),
+m_sifMan(NULL),
 m_stdio(NULL),
 m_sysmem(NULL),
 m_ioman(NULL),
@@ -52,10 +53,7 @@ m_threadFinishAddress(0),
 m_clockFrequency(clockFrequency),
 m_currentTime(0)
 {
-    if(m_sifMan == NULL)
-    {
-        m_sifMan = new Iop::CSifManNull();
-    }
+
 }
 
 CIopBios::~CIopBios()
@@ -67,7 +65,7 @@ CIopBios::~CIopBios()
     DeleteModules();
 }
 
-void CIopBios::Reset()
+void CIopBios::Reset(Iop::CSifMan* sifMan)
 {
 	{
 		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[m_baseAddress]));
@@ -82,6 +80,15 @@ void CIopBios::Reset()
     m_intrHandlers.clear();
 
     DeleteModules();
+
+    if(sifMan == NULL)
+    {
+        m_sifMan = new Iop::CSifManNull();
+    }
+    else
+    {
+        m_sifMan = sifMan;
+    }
 
     //Register built-in modules
     {
@@ -164,6 +171,8 @@ void CIopBios::Reset()
 #ifndef _NULL_SIFMAN
     m_sifMan->SetDmaBuffer(m_ram + sifDmaBufferPtr, sifDmaBufferSize);
 #endif
+
+    Reschedule();
 }
 
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
@@ -181,8 +190,8 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
 
 void CIopBios::LoadAndStartModule(uint32 modulePtr, const char* args, unsigned int argsLength)
 {
-//    CELF module(m_ram + modulePtr);
-//    LoadAndStartModule(module, "", args, argsLength);
+    CELF module(m_ram + modulePtr);
+    LoadAndStartModule(module, "", args, argsLength);
 }
 
 void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args, unsigned int argsLength)
@@ -857,6 +866,27 @@ const CIopBios::LOADEDMODULE& CIopBios::GetModuleAtAddress(uint32 address)
     throw runtime_error("No module at specified address.");
 }
 
+#define TAGS_COLLECTION_FUNCTIONS           ("functions")
+#define TAGS_COLLECTION_COMMENTS            ("comments")
+#define TAGS_SECTION_MODULE                 ("module")
+#define TAGS_SECTION_MODULE_BASEADDRESS     ("baseAddress")
+#define TAGS_SECTION_MODULE_GIVENNAME       ("givenName")
+
+#ifdef DEBUGGER_INCLUDED
+
+void CIopBios::LoadDebugTags(Xml::CNode* root)
+{
+
+}
+
+void CIopBios::SaveDebugTags(Xml::CNode* root)
+{
+    SaveAllModulesTags(root, m_cpu.m_Functions, TAGS_COLLECTION_FUNCTIONS);
+    SaveAllModulesTags(root, m_cpu.m_Comments, TAGS_COLLECTION_COMMENTS);
+}
+
+#endif
+
 void CIopBios::LoadModuleTags(const LOADEDMODULE& module, CMIPSTags& tags, const char* tagCollectionName)
 {
     CMIPSTags moduleTags;
@@ -889,6 +919,32 @@ void CIopBios::SaveAllModulesTags(CMIPSTags& tags, const char* tagCollectionName
     }
 }
 
+void CIopBios::SaveAllModulesTags(Framework::Xml::CNode* root, CMIPSTags& tags, const char* collectionName)
+{
+    for(LoadedModuleListType::const_iterator moduleIterator(m_loadedModules.begin());
+        m_loadedModules.end() != moduleIterator; moduleIterator++)
+    {
+        const LOADEDMODULE& module(*moduleIterator);
+        CMIPSTags moduleTags;
+        for(CMIPSTags::TagIterator tag(tags.GetTagsBegin());
+            tag != tags.GetTagsEnd(); tag++)
+        {
+            uint32 tagAddress = tag->first;
+            if(tagAddress >= module.begin && tagAddress <= module.end)
+            {
+                moduleTags.InsertTag(tagAddress - module.begin, tag->second.c_str());
+            }
+        }
+        {
+            Xml::CNode* tagsNode = new Xml::CNode(TAGS_SECTION_MODULE, true);
+            tagsNode->InsertAttribute(TAGS_SECTION_MODULE_BASEADDRESS,  lexical_cast_hex<string>(module.begin, 8).c_str());
+            tagsNode->InsertAttribute(TAGS_SECTION_MODULE_GIVENNAME,    module.name.c_str());
+            moduleTags.Serialize(tagsNode);
+            root->InsertNode(tagsNode);
+        }
+    }
+}
+
 void CIopBios::DeleteModules()
 {
     while(m_modules.size() != 0)
@@ -896,6 +952,17 @@ void CIopBios::DeleteModules()
         delete m_modules.begin()->second;
         m_modules.erase(m_modules.begin());
     }
+
+    m_sifMan = NULL;
+    m_stdio = NULL;
+    m_ioman = NULL;
+    m_sysmem = NULL;
+    m_modload = NULL;
+#ifdef _IOP_EMULATE_MODULES
+    m_dbcman = NULL;
+    m_padman = NULL;
+    m_cdvdfsv = NULL;
+#endif
 }
 
 string CIopBios::ReadModuleName(uint32 address)

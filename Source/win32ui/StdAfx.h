@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <functional>
+#include <memory>
 
 #include <boost/signal.hpp>
 #include <boost/lexical_cast.hpp>

@@ -305,11 +305,11 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 //	memcpy(m_ram + 0x01000000, pELF->m_pData, pELF->m_nLenght);
 //	delete pELF;
 
-	for(int i = 0; i < 0x02000000 / 4; i++)
-	{
-		uint32 nVal = ((uint32*)m_ram)[i];
-		if((nVal & 0xFFFF) == 0x0180)
-		{
+//	for(int i = 0; i < 0x02000000 / 4; i++)
+//	{
+//		uint32 nVal = ((uint32*)m_ram)[i];
+//		if((nVal & 0xFFFF) == 0x0180)
+//		{
 /*
             for(unsigned int j = i; j < i + 0x30; j += 4)
             {
@@ -330,12 +330,12 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 				printf("Ballo: 0x%0.8X\r\n", i * 4);
             }
 */
-            if((nVal & 0xFC000000) == 0x09 << 26)
-			{
-				printf("Allo: 0x%0.8X\r\n", i * 4);
-			}
-		}
-	}
+//            if((nVal & 0xFC000000) == 0x09 << 26)
+//			{
+//				printf("Allo: 0x%0.8X\r\n", i * 4);
+//			}
+//		}
+//	}
 
 /*
 	int i;
@@ -422,9 +422,9 @@ void CPS2OS::LoadExecutable()
 
 void CPS2OS::UnloadExecutable()
 {
-	m_OnExecutableUnloading();
-
 	if(m_pELF == NULL) return;
+
+	m_OnExecutableUnloading();
 
 	DELETEPTR(m_pELF);
 

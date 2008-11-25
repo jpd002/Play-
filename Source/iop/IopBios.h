@@ -5,21 +5,23 @@
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
 #include "../ELF.h"
+#include "Iop_BiosBase.h"
 #include "Iop_SifMan.h"
 #include "Iop_Ioman.h"
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
+#include "xml/Node.h"
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan.h"
 #include "Iop_PadMan.h"
 #include "Iop_Cdvdfsv.h"
 #endif
 
-class CIopBios
+class CIopBios : public Iop::CBiosBase
 {
 public:
-                            CIopBios(uint32, uint32, CMIPS&, uint8*, uint32, Iop::CSifMan*);
+                            CIopBios(uint32, uint32, CMIPS&, uint8*, uint32);
     virtual                 ~CIopBios();
 
     void                    LoadAndStartModule(const char*, const char*, unsigned int);
@@ -33,7 +35,11 @@ public:
 	uint64					MicroSecToClock(uint32);
 	uint64					ClockToMicroSec(uint64);
 
-    void                    Reset();
+    void                    Reset(Iop::CSifMan*);
+#ifdef DEBUGGER_INCLUDED
+    void                    LoadDebugTags(Framework::Xml::CNode*);
+    void                    SaveDebugTags(Framework::Xml::CNode*);
+#endif
 
     Iop::CIoman*            GetIoman();
 #ifdef _IOP_EMULATE_MODULES
@@ -145,6 +151,7 @@ private:
     const LOADEDMODULE&     GetModuleAtAddress(uint32);
     void                    LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
     void                    SaveAllModulesTags(CMIPSTags&, const char*);
+    void                    SaveAllModulesTags(Framework::Xml::CNode*, CMIPSTags&, const char*);
     void                    DeleteModules();
     uint32                  Push(uint32&, const uint8*, uint32);
 
