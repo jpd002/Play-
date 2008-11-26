@@ -129,6 +129,7 @@ private:
     typedef std::map<uint32, SEMAPHORE> SemaphoreMapType;
     typedef std::map<uint32, INTRHANDLER> IntrHandlerMapType;
     typedef std::list<LOADEDMODULE> LoadedModuleListType;
+    typedef LoadedModuleListType::iterator ModuleListIterator;
     typedef std::pair<uint32, uint32> ExecutableRange;
 
     THREAD&                 GetThread(uint32);
@@ -148,10 +149,13 @@ private:
     void                    RelocateElf(CELF&, uint32);
     std::string             ReadModuleName(uint32);
     std::string             GetModuleNameFromPath(const std::string&);
-    const LOADEDMODULE&     GetModuleAtAddress(uint32);
+    ModuleListIterator      FindModule(uint32, uint32);
     void                    LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
     void                    SaveAllModulesTags(CMIPSTags&, const char*);
-    void                    SaveAllModulesTags(Framework::Xml::CNode*, CMIPSTags&, const char*);
+#ifdef DEBUGGER_INCLUDED
+    void                    LoadLoadedModules(Framework::Xml::CNode*);
+    void                    SaveLoadedModules(Framework::Xml::CNode*);
+#endif
     void                    DeleteModules();
     uint32                  Push(uint32&, const uint8*, uint32);
 
