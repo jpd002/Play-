@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <exception>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <memory>
 #include "PS2VM.h"
 #include "PS2OS.h"
 #include "Ps2Const.h"
@@ -22,6 +25,9 @@
 #include "IszImageStream.h"
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
+#include "xml/Node.h"
+#include "xml/Writer.h"
+#include "xml/Parser.h"
 #include "AppConfig.h"
 #include "Profiler.h"
 #include "iop/IopBios.h"
@@ -30,6 +36,10 @@
 #include "Log.h"
 
 #define LOG_NAME        ("ps2vm")
+
+#ifdef DEBUGGER_INCLUDED
+#define TAGS_PATH       ("./tags/")
+#endif
 
 #define STATE_EE        ("ee")
 #define STATE_VU0       ("vu0")
@@ -65,37 +75,36 @@
 #endif
 
 using namespace Framework;
-using namespace boost;
 using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
+namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM() :
 m_pRAM(new uint8[PS2::EERAMSIZE]),
 m_pBIOS(new uint8[PS2::EEBIOSSIZE]),
 m_pSPR(new uint8[PS2::SPRSIZE]),
-m_iopRam(new uint8[PS2::IOPRAMSIZE]),
 m_pVUMem0(new uint8[PS2::VUMEM0SIZE]),
 m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE]),
 m_pVUMem1(new uint8[PS2::VUMEM1SIZE]),
 m_pMicroMem1(new uint8[PS2::MICROMEM1SIZE]),
-m_pThread(NULL),
+m_thread(NULL),
 m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
 m_VU0(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
 m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
-m_iop(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00400000),
 m_executor(m_EE),
 m_nStatus(PAUSED),
 m_nEnd(false),
 m_pGS(NULL),
 m_pPad(NULL),
-m_singleStep(false),
+m_singleStepEe(false),
+m_singleStepIop(false),
 m_nVBlankTicks(SCREENTICKS),
 m_nInVBlank(false),
 m_pCDROM0(NULL),
 m_dmac(m_pRAM, m_pSPR),
 m_gif(m_pGS, m_pRAM, m_pSPR),
-m_sif(m_dmac, m_pRAM, m_iopRam),
+m_sif(m_dmac, m_pRAM, m_iop.m_ram),
 m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
 m_intc(m_dmac),
 m_timer(m_intc),
@@ -107,8 +116,8 @@ m_MAVU1(true)
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
     CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
-    m_iopOs = new CIopBios(0x100, PS2::IOP_CLOCK_FREQUENCY, m_iop, m_iopRam, PS2::IOPRAMSIZE, new Iop::CSifManPs2(m_sif));
-    m_os = new CPS2OS(m_EE, m_VU1, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
+    m_iopOs = new CIopBios(0x100, PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE);
+    m_os = new CPS2OS(m_EE, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
 }
 
 CPS2VM::~CPS2VM()
@@ -155,10 +164,17 @@ CVirtualMachine::STATUS CPS2VM::GetStatus() const
     return m_nStatus;
 }
 
-void CPS2VM::Step()
+void CPS2VM::StepEe()
 {
     if(GetStatus() == RUNNING) return;
-    m_singleStep = true;
+    m_singleStepEe = true;
+    m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
+}
+
+void CPS2VM::StepIop()
+{
+    if(GetStatus() == RUNNING) return;
+    m_singleStepIop = true;
     m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
 }
 
@@ -207,14 +223,18 @@ void CPS2VM::DumpEEDmacHandlers()
 void CPS2VM::Initialize()
 {
 	CreateVM();
-    m_pThread = new thread(bind(&CPS2VM::EmuThread, this));
+	m_nEnd = false;
+    m_thread = new boost::thread(bind(&CPS2VM::EmuThread, this));
 }
 
 void CPS2VM::Destroy()
 {
     m_mailBox.SendCall(bind(&CPS2VM::DestroyImpl, this));
-	m_pThread->join();
-	DELETEPTR(m_pThread);
+    if(m_thread)
+    {
+	    m_thread->join();
+	    delete m_thread;
+    }
 	DestroyVM();
 }
 
@@ -232,16 +252,89 @@ unsigned int CPS2VM::LoadState(const char* sPath)
     return result;
 }
 
+#ifdef DEBUGGER_INCLUDED
+
+#define TAGS_SECTION_TAGS           ("tags")
+#define TAGS_SECTION_EE_FUNCTIONS   ("ee_functions")
+#define TAGS_SECTION_EE_COMMENTS    ("ee_comments")
+#define TAGS_SECTION_VU1_FUNCTIONS  ("vu1_functions")
+#define TAGS_SECTION_VU1_COMMENTS   ("vu1_comments")
+#define TAGS_SECTION_IOP            ("iop")
+#define TAGS_SECTION_IOP_FUNCTIONS  ("functions")
+#define TAGS_SECTION_IOP_COMMENTS   ("comments")
+
+string CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
+{
+    filesystem::path tagsPath(TAGS_PATH);
+    if(!filesystem::exists(tagsPath))
+    {
+        filesystem::create_directory(tagsPath);
+    }
+    return string(TAGS_PATH) + string(packageName) + string(".tags.xml");
+}
+
+void CPS2VM::LoadDebugTags(const char* packageName)
+{
+    try
+    {
+        string packagePath = MakeDebugTagsPackagePath(packageName);
+        CStdStream stream(packagePath.c_str(), "rb");
+        boost::scoped_ptr<Xml::CNode> document(Xml::CParser::ParseDocument(&stream));
+        Xml::CNode* tagsNode = document->Select(TAGS_SECTION_TAGS);
+        if(!tagsNode) return;
+        m_EE.m_Functions.Unserialize(tagsNode, TAGS_SECTION_EE_FUNCTIONS);
+        m_EE.m_Comments.Unserialize(tagsNode, TAGS_SECTION_EE_COMMENTS);
+        m_VU1.m_Functions.Unserialize(tagsNode, TAGS_SECTION_VU1_FUNCTIONS);
+        m_VU1.m_Comments.Unserialize(tagsNode, TAGS_SECTION_VU1_COMMENTS);
+        {
+            Xml::CNode* sectionNode = tagsNode->Select(TAGS_SECTION_IOP);
+            if(sectionNode)
+            {
+                m_iop.m_cpu.m_Functions.Unserialize(sectionNode, TAGS_SECTION_IOP_FUNCTIONS);
+                m_iop.m_cpu.m_Comments.Unserialize(sectionNode, TAGS_SECTION_IOP_COMMENTS);
+                m_iopOs->LoadDebugTags(sectionNode);
+            }
+        }
+    }
+    catch(...)
+    {
+
+    }
+}
+
+void CPS2VM::SaveDebugTags(const char* packageName)
+{
+    try
+    {
+        string packagePath = MakeDebugTagsPackagePath(packageName);
+        CStdStream stream(packagePath.c_str(), "wb");
+        boost::scoped_ptr<Xml::CNode> document(new Xml::CNode(TAGS_SECTION_TAGS, true)); 
+        m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
+        m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);
+        m_VU1.m_Functions.Serialize(document.get(), TAGS_SECTION_VU1_FUNCTIONS);
+        m_VU1.m_Comments.Serialize(document.get(), TAGS_SECTION_VU1_COMMENTS);
+        {
+            Xml::CNode* iopNode = new Xml::CNode(TAGS_SECTION_IOP, true);
+            m_iop.m_cpu.m_Functions.Serialize(iopNode, TAGS_SECTION_IOP_FUNCTIONS);
+            m_iop.m_cpu.m_Comments.Serialize(iopNode, TAGS_SECTION_IOP_COMMENTS);
+            m_iopOs->SaveDebugTags(iopNode);
+            document->InsertNode(iopNode);
+        }
+        Xml::CWriter::WriteDocument(&stream, document.get());
+    }
+    catch(...)
+    {
+
+    }
+}
+
+#endif
+
 void CPS2VM::SetFrameSkip(unsigned int frameSkip)
 {
     m_frameSkip = frameSkip;
     CAppConfig::GetInstance().SetPreferenceInteger(PREF_PS2_FRAMESKIP, m_frameSkip);
 }
-
-//unsigned int CPS2VM::SendMessage(PS2VM_MSG nMsg, void* pParam)
-//{
-//	return m_MsgBox.SendMessage(nMsg, pParam);
-//}
 
 //////////////////////////////////////////////////
 //Non extern callable methods
@@ -286,20 +379,6 @@ void CPS2VM::CreateVM()
 #else
 	    m_EE.m_pTickFunction	= NULL;
 #endif
-    }
-
-    //IOP context setup
-    {
-        //Read map
-	    m_iop.m_pMemoryMap->InsertReadMap(0x00000000, 0x001FFFFF, m_iopRam,         0x00);
-
-        //Write map
-        m_iop.m_pMemoryMap->InsertWriteMap(0x00000000, 0x001FFFFF, m_iopRam,		0x00);
-
-	    //Instruction map
-        m_iop.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x001FFFFF, m_iopRam,  0x00);
-
-	    m_iop.m_pArch			= &g_MAMIPSIV;
     }
 
     //Vector Unit 0 context setup
@@ -361,6 +440,7 @@ void CPS2VM::CreateVM()
 
 void CPS2VM::ResetVM()
 {
+    m_os->Release();
     m_executor.Clear();
 
     memset(m_pRAM,			0, PS2::EERAMSIZE);
@@ -369,7 +449,9 @@ void CPS2VM::ResetVM()
     memset(m_pMicroMem0,    0, PS2::MICROMEM0SIZE);
     memset(m_pVUMem1,		0, PS2::VUMEM1SIZE);
     memset(m_pMicroMem1,	0, PS2::MICROMEM1SIZE);
-    memset(m_iopRam,        0, PS2::IOPRAMSIZE);
+
+    m_iop.Reset();
+    m_iop.SetBios(m_iopOs);
 
 	//LoadBIOS();
 
@@ -377,7 +459,13 @@ void CPS2VM::ResetVM()
     m_EE.Reset();
     m_VU0.Reset();
     m_VU1.Reset();
-    m_iop.Reset();
+
+	m_EE.m_Comments.RemoveTags();
+	m_EE.m_Functions.RemoveTags();
+    m_VU0.m_Comments.RemoveTags();
+    m_VU0.m_Functions.RemoveTags();
+    m_VU1.m_Comments.RemoveTags();
+    m_VU1.m_Functions.RemoveTags();
 
     m_executor.Clear();
 	m_nStatus = PAUSED;
@@ -396,9 +484,8 @@ void CPS2VM::ResetVM()
 		m_pGS->Reset();
 	}
 
-    m_os->Release();
     m_os->Initialize();
-    m_iopOs->Reset();
+    m_iopOs->Reset(new Iop::CSifManPs2(m_sif));
 
 	CDROM0_Reset();
 
@@ -922,7 +1009,6 @@ void CPS2VM::EmuThread()
 //    xtime lastFrameTime;
 //    xtime_get(&lastFrameTime, boost::TIME_UTC);
     //END
-	m_nEnd = false;
 	while(1)
 	{
         while(m_mailBox.IsPending())
@@ -933,10 +1019,10 @@ void CPS2VM::EmuThread()
 		if(m_nStatus == PAUSED)
 		{
             //Sleep during 100ms
-            xtime xt;
-            xtime_get(&xt, boost::TIME_UTC);
+            boost::xtime xt;
+            boost::xtime_get(&xt, boost::TIME_UTC);
             xt.nsec += 100 * 1000000;
-			thread::sleep(xt);
+            boost::thread::sleep(xt);
 		}
 		if(m_nStatus == RUNNING)
         {
@@ -985,84 +1071,98 @@ void CPS2VM::EmuThread()
                 m_vif.SingleStepVU1();
             }
 #endif
-            m_dmac.ResumeDMA0();
-            m_dmac.ResumeDMA1();
-            m_dmac.ResumeDMA4();
-            if(!m_EE.m_State.nHasException)
+            //EE execution
             {
-                if((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0)
+                m_dmac.ResumeDMA0();
+                m_dmac.ResumeDMA1();
+                m_dmac.ResumeDMA4();
+                if(!m_EE.m_State.nHasException)
                 {
-                    m_sif.ProcessPackets();
+                    if((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0)
+                    {
+                        m_sif.ProcessPackets();
+                    }
                 }
-            }
-            if(!m_EE.m_State.nHasException)
-            {
-                if(m_intc.IsInterruptPending())
+                if(!m_EE.m_State.nHasException)
                 {
-                    m_os->ExceptionHandler();
-                    //Do we need to do some special treatment when we're serving an interrupt?
-                    //m_EE.m_State.nHasException = 1;
+                    if(m_intc.IsInterruptPending())
+                    {
+                        m_os->ExceptionHandler();
+                        //Do we need to do some special treatment when we're serving an interrupt?
+                        //m_EE.m_State.nHasException = 1;
+                    }
                 }
-            }
-            if(!m_EE.m_State.nHasException)
-            {
-                int executeQuota = m_singleStep ? 1 : 5000;
-				m_nVBlankTicks -= (executeQuota - m_executor.Execute(executeQuota));
-            }
-            if(m_EE.m_State.nHasException)
-            {
-                m_os->SysCallHandler();
-                assert(!m_EE.m_State.nHasException);
-            }
-            {
-                CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
-                if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+                if(!m_EE.m_State.nHasException)
                 {
-                    m_nVBlankTicks = 0;
+                    int executeQuota = m_singleStepEe ? 1 : 5000;
+				    m_nVBlankTicks -= (executeQuota - m_executor.Execute(executeQuota));
                 }
-            }
-            //Castlevania speed hack
-            {
-//                if(m_pRAM[0x00] == 0x01)
-//                {
-//                    m_nVBlankTicks = 0;
-//                    thread::yield();
-//                }
-            }
-            //BEGIN: Frame limiter
-//            if(m_pGS != NULL && lastFrameCount != m_pGS->GetFrameCount())
-//            {
-//                xtime currentTime;
-//                xtime_get(&currentTime, boost::TIME_UTC);
-//                xtime::xtime_nsec_t timeDiff = currentTime.nsec - lastFrameTime.nsec;
-//                if((currentTime.sec == lastFrameTime.sec) && (timeDiff < (1000000 * 8)))
-//                {
-//                    currentTime.nsec += (1000000 * 8) - timeDiff;
-//                    thread::sleep(currentTime);
-//                }
-//                lastFrameCount = m_pGS->GetFrameCount();
-//                xtime_get(&lastFrameTime, boost::TIME_UTC);
-//            }
-            //END
+                if(m_EE.m_State.nHasException)
+                {
+                    m_os->SysCallHandler();
+                    assert(!m_EE.m_State.nHasException);
+                }
+                {
+                    CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+                    if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+                    {
+                        m_nVBlankTicks = 0;
+                    }
+                }
+                //Castlevania speed hack
+                {
+    //                if(m_pRAM[0x00] == 0x01)
+    //                {
+    //                    m_nVBlankTicks = 0;
+    //                    thread::yield();
+    //                }
+                }
+                //BEGIN: Frame limiter
+    //            if(m_pGS != NULL && lastFrameCount != m_pGS->GetFrameCount())
+    //            {
+    //                xtime currentTime;
+    //                xtime_get(&currentTime, boost::TIME_UTC);
+    //                xtime::xtime_nsec_t timeDiff = currentTime.nsec - lastFrameTime.nsec;
+    //                if((currentTime.sec == lastFrameTime.sec) && (timeDiff < (1000000 * 8)))
+    //                {
+    //                    currentTime.nsec += (1000000 * 8) - timeDiff;
+    //                    thread::sleep(currentTime);
+    //                }
+    //                lastFrameCount = m_pGS->GetFrameCount();
+    //                xtime_get(&lastFrameTime, boost::TIME_UTC);
+    //            }
+                //END
 #ifdef _DEBUG
-            if(m_vif.IsVu0DebuggingEnabled() && m_vif.IsVU0Running())
-            {
-                //Force pause
-                m_singleStep = true;
-            }
-            if(m_vif.IsVu1DebuggingEnabled() && m_vif.IsVU1Running())
-            {
-                //Force pause
-                m_singleStep = true;
-            }
+                if(m_vif.IsVu0DebuggingEnabled() && m_vif.IsVU0Running())
+                {
+                    //Force pause
+                    m_singleStepEe = true;
+                }
+                if(m_vif.IsVu1DebuggingEnabled() && m_vif.IsVU1Running())
+                {
+                    //Force pause
+                    m_singleStepEe = true;
+                }
 #endif
-            if(m_executor.MustBreak() || m_singleStep)
+                //IOP Execution
+                if(m_singleStepIop)
+                {
+                    m_iop.ExecuteCpu(m_singleStepIop);
+                }
+            }
+#ifdef DEBUGGER_INCLUDED
+            if(
+                m_executor.MustBreak() || 
+                m_iop.m_executor.MustBreak() ||
+                m_singleStepEe || m_singleStepIop)
             {
                 m_nStatus = PAUSED;
-                m_singleStep = false;
+                m_singleStepEe = false;
+                m_singleStepIop = false;
                 m_OnRunningStateChange();
                 m_OnMachineStateChange();
             }
+#endif
 		}
 	}
 }

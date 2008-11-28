@@ -113,6 +113,20 @@ void CMIPSTags::Unserialize(const char* sPath)
 	}
 }
 
+void CMIPSTags::Serialize(Xml::CNode* parentNode, const char* sectionName)
+{
+    Xml::CNode* section = new Xml::CNode(sectionName, true);
+    Serialize(section);
+    parentNode->InsertNode(section);
+}
+
+void CMIPSTags::Unserialize(Xml::CNode* parentNode, const char* sectionName)
+{
+    Xml::CNode* section = parentNode->Select(sectionName);
+    if(!section) return;
+    Unserialize(section);
+}
+
 void CMIPSTags::Serialize(Xml::CNode* parentNode)
 {
 	for(TagMap::const_iterator itTag(m_Tags.begin());

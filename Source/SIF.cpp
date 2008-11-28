@@ -164,7 +164,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
     }
     else
     {
-        assert(nDstAddr < PS2::IOPRAMSIZE);
+        assert(nDstAddr < PS2::IOP_RAM_SIZE);
         memcpy(m_iopRam + nDstAddr, m_eeRam + nSrcAddr, nSize);
         return nSize;
     }

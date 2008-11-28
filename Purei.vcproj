@@ -262,22 +262,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\DMAC.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\DMAC.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Dmac_Channel.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Dmac_Channel.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\ELF.cpp"
 				>
 			</File>
@@ -291,14 +275,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\ElfFile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GIF.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GIF.h"
 				>
 			</File>
 			<File
@@ -330,71 +306,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\INTC.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\INTC.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Integer64.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_DmVectorTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_DmVectorTable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockAddressIncrementTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockAddressIncrementTable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockTypeBTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockTypeBTable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockTypeITable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockTypeITable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockTypePTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MacroblockTypePTable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MotionCodeTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\IPU_MotionCodeTable.h"
 				>
 			</File>
 			<File
@@ -411,18 +323,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\Log.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MA_EE.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MA_EE.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MA_EE_Reflection.cpp"
 				>
 			</File>
 			<File
@@ -626,14 +526,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PS2OS.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PS2OS.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\PS2VM.cpp"
 				>
 			</File>
@@ -647,14 +539,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\RegisterStateFile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SIF.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SIF.h"
 				>
 			</File>
 			<File
@@ -674,14 +558,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Timer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Timer.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\uint128.h"
 				>
 			</File>
@@ -694,14 +570,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\VIF.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VIF.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\VirtualMachine.h"
 				>
 			</File>
@@ -711,42 +579,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\VolumeStream.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VPU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VPU.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VPU1.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VPU1.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VuExecutor.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VUExecutor.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VUShared.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VUShared.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\VUShared_Reflection.cpp"
 				>
 			</File>
 			<File
@@ -774,6 +606,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\iop\ArgumentIterator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_SubSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\iop\Iop_SubSystem.h"
 					>
 				</File>
 				<File
@@ -885,6 +725,10 @@
 					</File>
 					<File
 						RelativePath=".\Source\iop\Iop_PadMan.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_SifMan.cpp"
 						>
 					</File>
 					<File
@@ -1004,11 +848,67 @@
 					Name="Hardware"
 					>
 					<File
+						RelativePath=".\Source\iop\Iop_Dmac.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Dmac.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_DmacChannel.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_DmacChannel.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\iop\Iop_Intc.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\Source\iop\Iop_Intc.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_RootCounters.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_RootCounters.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Spu.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Spu.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Spu2.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Spu2.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Spu2_Core.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Spu2_Core.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_SpuBase.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_SpuBase.h"
 						>
 					</File>
 				</Filter>
@@ -1098,6 +998,178 @@
 				</File>
 				<File
 					RelativePath=".\Source\saves\SaveImporter.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Ee"
+				>
+				<File
+					RelativePath=".\Source\DMAC.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\DMAC.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Dmac_Channel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Dmac_Channel.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GIF.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GIF.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\INTC.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\INTC.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_DmVectorTable.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_DmVectorTable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockAddressIncrementTable.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockAddressIncrementTable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockTypeBTable.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockTypeBTable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockTypeITable.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockTypeITable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockTypePTable.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MacroblockTypePTable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MotionCodeTable.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\IPU_MotionCodeTable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\MA_EE.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\MA_EE.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\MA_EE_Reflection.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PS2OS.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PS2OS.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\SIF.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\SIF.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Timer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Timer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VIF.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VIF.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VPU.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VPU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VPU1.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VPU1.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VuExecutor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VUExecutor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VUShared.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VUShared.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VUShared_Reflection.cpp"
 					>
 				</File>
 			</Filter>

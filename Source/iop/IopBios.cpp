@@ -5,6 +5,7 @@
 #include "PtrStream.h"
 #include "Iop_Intc.h"
 #include "lexical_cast_ex.h"
+#include "xml/FilteringNodeIterator.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan320.h"
@@ -78,6 +79,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
 
     m_intrHandlers.clear();
+    m_loadedModules.clear();
 
     DeleteModules();
 
@@ -875,7 +877,23 @@ CIopBios::ModuleListIterator CIopBios::FindModule(uint32 beginAddress, uint32 en
 
 void CIopBios::LoadDebugTags(Xml::CNode* root)
 {
+    Xml::CNode* moduleSection = root->Select(TAGS_SECTION_IOP_MODULES);
+    if(moduleSection == NULL) return;
 
+    for(Xml::CFilteringNodeIterator nodeIterator(moduleSection, TAGS_SECTION_IOP_MODULES_MODULE);
+        !nodeIterator.IsEnd(); nodeIterator++)
+    {
+        Xml::CNode* moduleNode(*nodeIterator);
+        const char* moduleName      = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME);
+        const char* beginAddress    = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
+        const char* endAddress      = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
+        if(!moduleName || !beginAddress || !endAddress) continue;
+        LOADEDMODULE module;
+        module.name     = moduleName;
+        module.begin    = lexical_cast_hex<string>(beginAddress);
+        module.end      = lexical_cast_hex<string>(endAddress);
+        m_loadedModules.push_back(module);
+    }
 }
 
 void CIopBios::SaveDebugTags(Xml::CNode* root)

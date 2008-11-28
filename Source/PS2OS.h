@@ -13,7 +13,7 @@ class CIopBios;
 class CPS2OS
 {
 public:
-                                                CPS2OS(CMIPS&, CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
+                                                CPS2OS(CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
     virtual                                     ~CPS2OS();
 
 	void									    Initialize();
@@ -202,8 +202,8 @@ private:
 	void									LoadExecutable();
 	void									UnloadExecutable();
 
-	void									SaveExecutableConfig();
-	void									LoadExecutableConfig();
+//	void									SaveExecutableConfig();
+//	void									LoadExecutableConfig();
 
 	void									ApplyPatches();
 
@@ -288,7 +288,6 @@ private:
 
 	CELF*                                   m_pELF;
 	CMIPS&                                  m_ee;
-    CMIPS&                                  m_vu1;
 	CRoundRibbon*                           m_pThreadSchedule;
 
 	std::string                             m_sExecutableName;

@@ -60,9 +60,8 @@ using namespace Framework;
 using namespace std;
 using namespace boost;
 
-CPS2OS::CPS2OS(CMIPS& ee, CMIPS& vu1, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) :
+CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) :
 m_ee(ee),
-m_vu1(vu1),
 m_gs(gs),
 m_pELF(NULL),
 m_ram(ram),
@@ -397,7 +396,7 @@ void CPS2OS::LoadExecutable()
 	}
 
 	//Load the comments maybe?
-	LoadExecutableConfig();
+    //LoadExecutableConfig();
 
 	//InsertFunctionSymbols();
 
@@ -428,57 +427,54 @@ void CPS2OS::UnloadExecutable()
 
 	DELETEPTR(m_pELF);
 
-	SaveExecutableConfig();
-
-	m_ee.m_Comments.RemoveTags();
-	m_ee.m_Functions.RemoveTags();
+//	SaveExecutableConfig();
 }
 
-void CPS2OS::LoadExecutableConfig()
-{
-
-#ifdef DEBUGGER_INCLUDED
-
-	string sPath;
-
-	//Functions
-	sPath = CONFIGPATH + m_sExecutableName + ".functions";
-	m_ee.m_Functions.Unserialize(sPath.c_str());
-
-	//Comments
-	sPath = CONFIGPATH + m_sExecutableName + ".comments";
-	m_ee.m_Comments.Unserialize(sPath.c_str());
-
-	//VU1 Comments
-	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
-	m_vu1.m_Comments.Unserialize(sPath.c_str());
-
-#endif
-
-}
-
-void CPS2OS::SaveExecutableConfig()
-{
-
-#ifdef DEBUGGER_INCLUDED
-
-	string sPath;
-
-	//Functions
-	sPath = CONFIGPATH + m_sExecutableName + ".functions";
-	m_ee.m_Functions.Serialize(sPath.c_str());
-
-	//Comments
-	sPath = CONFIGPATH + m_sExecutableName + ".comments";
-	m_ee.m_Comments.Serialize(sPath.c_str());
-
-	//VU1 Comments
-	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
-	m_vu1.m_Comments.Serialize(sPath.c_str());
-
-#endif
-
-}
+//void CPS2OS::LoadExecutableConfig()
+//{
+//
+//#ifdef DEBUGGER_INCLUDED
+//
+//	string sPath;
+//
+//	//Functions
+//	sPath = CONFIGPATH + m_sExecutableName + ".functions";
+//	m_ee.m_Functions.Unserialize(sPath.c_str());
+//
+//	//Comments
+//	sPath = CONFIGPATH + m_sExecutableName + ".comments";
+//	m_ee.m_Comments.Unserialize(sPath.c_str());
+//
+//	//VU1 Comments
+//	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
+//	m_vu1.m_Comments.Unserialize(sPath.c_str());
+//
+//#endif
+//
+//}
+//
+//void CPS2OS::SaveExecutableConfig()
+//{
+//
+//#ifdef DEBUGGER_INCLUDED
+//
+//	string sPath;
+//
+//	//Functions
+//	sPath = CONFIGPATH + m_sExecutableName + ".functions";
+//	m_ee.m_Functions.Serialize(sPath.c_str());
+//
+//	//Comments
+//	sPath = CONFIGPATH + m_sExecutableName + ".comments";
+//	m_ee.m_Comments.Serialize(sPath.c_str());
+//
+//	//VU1 Comments
+//	sPath = CONFIGPATH + m_sExecutableName + ".vu1comments";
+//	m_vu1.m_Comments.Serialize(sPath.c_str());
+//
+//#endif
+//
+//}
 
 void CPS2OS::ApplyPatches()
 {

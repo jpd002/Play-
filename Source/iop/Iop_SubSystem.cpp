@@ -78,6 +78,9 @@ void CSubSystem::Reset()
 	m_dmac.Reset();
 	m_intc.Reset();
 	m_bios = NULL;
+
+    m_cpu.m_Comments.RemoveTags();
+    m_cpu.m_Functions.RemoveTags();
 }
 
 uint32 CSubSystem::ReadIoRegister(uint32 address)

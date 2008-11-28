@@ -1,0 +1,153 @@
+<tags>
+	<ee_functions>
+		<tag address="001014F8" value="UpdatePad" />
+		<tag address="00101688" value="Pad_UpdateAnalog" />
+		<tag address="00119B40" value="Movie_Execute" />
+		<tag address="00119CD8" value="Movie_SetInfo" />
+		<tag address="0011AE58" value="ps2_send_texture" />
+		<tag address="0011C320" value="AllInit" />
+		<tag address="0011EC88" value="CreateFrameStartEndSema" />
+		<tag address="0011F528" value="report_error" />
+		<tag address="00220F50" value="init_module01010101" />
+		<tag address="00223428" value="ForeStellVoiceLoadST" />
+		<tag address="00224B78" value="InitPlayerVoice" />
+		<tag address="00225808" value="SomeMenuStuff" />
+		<tag address="00226F00" value="EndFontDraw" />
+		<tag address="00227128" value="SetRightPosPr" />
+		<tag address="002CD108" value="sceCdChgSys" />
+		<tag address="002CD460" value="libdbc_getversion" />
+		<tag address="002CD4B8" value="libdbc_init" />
+		<tag address="002CD9A0" value="libdbc_function1302" />
+		<tag address="002CDA60" value="libdbc_function1303" />
+		<tag address="002CE560" value="libdbc_receive" />
+		<tag address="002D0D20" value="os_CreateThread" />
+		<tag address="002D0D40" value="os_StartThread" />
+		<tag address="002D0DB0" value="os_ChangeThreadPriority" />
+		<tag address="002D0E10" value="os_GetThreadId" />
+		<tag address="002D0E20" value="os_ReferThreadStatus" />
+		<tag address="002D0F20" value="os_CreateSema" />
+		<tag address="002D0F30" value="os_DeleteSema" />
+		<tag address="002D0F40" value="os_SignalSema" />
+		<tag address="002D0F50" value="os_iSignalSema" />
+		<tag address="002D0F60" value="os_WaitSema" />
+		<tag address="002D0F70" value="os_PollSema" />
+		<tag address="002D0F80" value="os_iPollSema" />
+		<tag address="002D12E0" value="os_SifSetDma" />
+		<tag address="002D1818" value="InvalidateCache" />
+		<tag address="002D1C20" value="SceKerneltopThreadProc" />
+		<tag address="002D1CF8" value="SceCreateKerneltopThread" />
+		<tag address="002D39D0" value="printf" />
+		<tag address="002D3FB8" value="SifAddCmdHandler" />
+		<tag address="002D4080" value="_SifSendCmd" />
+		<tag address="002D41B8" value="SifSendCmd" />
+		<tag address="002D4380" value="os_FlushCache" />
+		<tag address="002D4730" value="SifCmdCallback" />
+		<tag address="002D4BD8" value="SifBindRpc" />
+		<tag address="002D4DB8" value="SifCallRpc" />
+		<tag address="002D4FF8" value="SifSetRpcQueue" />
+		<tag address="002D5090" value="SifRegisterRpc" />
+		<tag address="002D5660" value="SceStdioCallSif" />
+		<tag address="002D57C0" value="SceStdioSifCallbackHandler" />
+		<tag address="002D5B78" value="SceStdioCreateFioSema" />
+		<tag address="002D5BD0" value="SceStdioLockFioSema" />
+		<tag address="002D5C00" value="SceStdioUnlockFioSema" />
+		<tag address="002D5CF8" value="SceStdioInit" />
+		<tag address="002D5F00" value="SceStdioCheckVersion" />
+		<tag address="002D61F8" value="open" />
+		<tag address="002D6488" value="close" />
+		<tag address="002D6600" value="lseek" />
+		<tag address="002D6840" value="read" />
+		<tag address="002D9218" value="sysmem_allocate" />
+		<tag address="002DA6B0" value="os_DisableInterrupts" />
+		<tag address="002DA700" value="os_EnableInterrupts" />
+		<tag address="002EDE80" value="Pad_InitBuffer" />
+		<tag address="002EDFE0" value="Pad_CopyButtonInfo" />
+		<tag address="002EE188" value="GetPadData" />
+		<tag address="002EE3A8" value="Pad_ResetBuffer" />
+		<tag address="002EE420" value="Pad_Call1303" />
+		<tag address="002EE478" value="Pad_GetSocketWorkAddress" />
+		<tag address="002EE4E0" value="Pad_GetSocketWorkAddressX" />
+		<tag address="002EE5A8" value="Pad_CheckButtons?" />
+		<tag address="002F88B8" value="strncmp" />
+		<tag address="002F894C" value="memcpy" />
+		<tag address="002F89FC" value="memset" />
+	</ee_functions>
+	<ee_comments>
+		<tag address="001015A0" value="Checks some bits in here" />
+		<tag address="001016B8" value="A3 = analog stick pos?" />
+		<tag address="001017B0" value="Begin some loop" />
+		<tag address="001017D0" value="Switch" />
+		<tag address="001017F8" value="Switch" />
+		<tag address="00101810" value="Skips whole oring stuff if V0 &lt; 0x40" />
+		<tag address="00101818" value="Begin Oring" />
+		<tag address="00101850" value="End Oring" />
+		<tag address="00119B90" value="Movie_Execute Init Completed!" />
+		<tag address="00119C9C" value="Movie_Execute Finish" />
+		<tag address="00119D20" value="Movie_SetInfo" />
+		<tag address="00119F38" value="MODULE.CLS" />
+		<tag address="0011EA48" value="WARNING: max_spr_count overflow" />
+		<tag address="0011EA9C" value="max_spr_ptr overflow" />
+		<tag address="0011EBC8" value="ps2_send_texture(): abnormal return" />
+		<tag address="0011ECFC" value="FrameStartSemaID" />
+		<tag address="0011ED34" value="FrameEndSemaID" />
+		<tag address="0011EE04" value="WARNING: too many dma_tags" />
+		<tag address="0012EA88" value="Stack Addr [0x%x] Clear" />
+		<tag address="002213D4" value="Create Thread error!" />
+		<tag address="00223464" value="ForeStellVoiceLoadST" />
+		<tag address="00224DE4" value="InitPlayerVoice BOSS-INO" />
+		<tag address="00224EC0" value="InitPlayerVoice side..." />
+		<tag address="00225868" value="----TopMenu------" />
+		<tag address="00225880" value="Character Select" />
+		<tag address="00226200" value="----Debug----" />
+		<tag address="00227004" value="EndFontDraw uv NULL" />
+		<tag address="002271A8" value="SetRightPosPr uv NULL" />
+		<tag address="002B440C" value="ARC COMPANY LOGO START" />
+		<tag address="002B45CC" value="GM_Option" />
+		<tag address="002CB7DC" value="SceCdCallbackThread" />
+		<tag address="002D1D74" value="SceKerneltopThread" />
+		<tag address="002D1FE4" value="SceKernelDelayThread" />
+		<tag address="002D4C58" value="SceSifrpcBind" />
+		<tag address="002D4F08" value="V0 = SceSifrpcCall" />
+		<tag address="002D5524" value="SceStdioIobSema" />
+		<tag address="002D553C" value="SceStdioQueSema" />
+		<tag address="002D57DC" value="Getting optional" />
+		<tag address="002D57E8" value="V1 = optional * 0x440" />
+		<tag address="002D57F0" value="A1 = *39EBF8" />
+		<tag address="002D57F4" value="A0 = 4A6680" />
+		<tag address="002D57FC" value="V1 = 0x4A6680 + optional * 0x440" />
+		<tag address="002D5BB4" value="SceStdioFioSema" />
+		<tag address="002D6224" value="S1 = 4A5A00" />
+		<tag address="002D62D0" value="S2 = SP + 0x30" />
+		<tag address="002D6314" value="S2 = SP + 0x30" />
+		<tag address="002D634C" value="Writes some ptr" />
+		<tag address="002D6364" value="SceStdioOpenSema" />
+		<tag address="002D637C" value="Writes SemaId" />
+		<tag address="002D6380" value="Writes 4 in unknown" />
+		<tag address="002D66B8" value="SceStdioLseekSema" />
+		<tag address="002D6900" value="SceStdioReadSema" />
+		<tag address="002D84F8" value="SceStdioSyncSema" />
+		<tag address="002DD49C" value="sceMc2_sema_main" />
+		<tag address="002DD4C0" value="sceMc2_sema_start" />
+		<tag address="002DD4E4" value="sceMc2_sema_end" />
+		<tag address="002DD538" value="sceMc2_basic_thread" />
+		<tag address="002DD62C" value="libmc2: TerminateTread faild" />
+		<tag address="002EDEAC" value="libpad2: buffer addr is not 64 byte align" />
+	</ee_comments>
+	<vu1_functions />
+	<vu1_comments />
+	<iop>
+		<functions />
+		<comments />
+		<modules>
+			<module beginAddress="00003800" endAddress="00004470" name="" />
+			<module beginAddress="00014000" endAddress="00019CE0" name="" />
+			<module beginAddress="00025000" endAddress="00027D60" name="" />
+			<module beginAddress="00034000" endAddress="00037550" name="" />
+			<module beginAddress="00042400" endAddress="00044770" name="" />
+			<module beginAddress="00053800" endAddress="0005C900" name="" />
+			<module beginAddress="00070000" endAddress="00096FB0" name="" />
+			<module beginAddress="000A0400" endAddress="000A0930" name="" />
+			<module beginAddress="000AEC00" endAddress="000B1660" name="" />
+		</modules>
+	</iop>
+</tags>

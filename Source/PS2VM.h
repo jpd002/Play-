@@ -18,6 +18,7 @@
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
 #include "MA_VU.h"
+#include "iop/Iop_SubSystem.h"
 
 class CIopBios;
 class CPS2OS;
@@ -57,7 +58,9 @@ public:
 	void						Initialize();
 	void						Destroy();
 
-    void                        Step();
+    void                        StepEe();
+    void                        StepIop();
+
 	void						Resume();
 	void						Pause();
 	void						Reset();
@@ -78,6 +81,12 @@ public:
 	unsigned int				SaveState(const char*);
 	unsigned int				LoadState(const char*);
 
+#ifdef DEBUGGER_INCLUDED
+    std::string                 MakeDebugTagsPackagePath(const char*);
+    void                        LoadDebugTags(const char*);
+    void                        SaveDebugTags(const char*);
+#endif
+
     void                        SetFrameSkip(unsigned int);
 
 	uint32                      IOPortReadHandler(uint32);
@@ -94,10 +103,11 @@ public:
 	CGSHandler*				    m_pGS;
 	CPadHandler*				m_pPad;
 
-	uint8*					    m_pRAM;
+    Iop::CSubSystem             m_iop;
+
+    uint8*					    m_pRAM;
 	uint8*					    m_pBIOS;
 	uint8*					    m_pSPR;
-    uint8*                      m_iopRam;
 
 	uint8*					    m_pVUMem0;
 	uint8*					    m_pMicroMem0;
@@ -118,11 +128,10 @@ public:
     CMIPS                       m_EE;
     CMIPS                       m_VU0;
     CMIPS                       m_VU1;
-    CMIPS                       m_iop;
     CMipsExecutor               m_executor;
+
     unsigned int				m_nVBlankTicks;
     bool						m_nInVBlank;
-    bool                        m_singleStep;
 
 	CISO9660*				    m_pCDROM0;
 
@@ -158,10 +167,9 @@ private:
 	void						LoadBIOS();
 	void						RegisterModulesInPadHandler();
 
-//	unsigned int				SendMessage(PS2VM_MSG, void* = NULL);
 	void						EmuThread();
-	boost::thread*			    m_pThread;
-//	CThreadMsg				    m_MsgBox;
+
+	boost::thread*			    m_thread;
     CMailBox                    m_mailBox;
     STATUS                      m_nStatus;
     bool                        m_nEnd;
@@ -169,6 +177,8 @@ private:
     CMA_VU                      m_MAVU1;
     unsigned int                m_frameNumber;
     unsigned int                m_frameSkip;
+    bool                        m_singleStepEe;
+    bool                        m_singleStepIop;
 };
 
 #endif

@@ -20,6 +20,8 @@ public:
 	void						            InsertTag(uint32, const char*);
 	void						            RemoveTags();
 	const char*					            Find(uint32);
+    void                                    Serialize(Framework::Xml::CNode*, const char*);
+    void                                    Unserialize(Framework::Xml::CNode*, const char*);
     void                                    Serialize(Framework::Xml::CNode*);
     void                                    Unserialize(Framework::Xml::CNode*);
 	void						            Serialize(const char*);

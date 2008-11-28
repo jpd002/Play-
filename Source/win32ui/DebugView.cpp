@@ -5,9 +5,11 @@
 using namespace Framework;
 using namespace boost;
 
-CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, const char* sName) :
+CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, const StepFunction& stepFunction, const char* sName) :
+m_virtualMachine(virtualMachine),
 m_pCtx(pCtx),
-m_name(sName)
+m_name(sName),
+m_stepFunction(stepFunction)
 {
 	m_pDisAsmWnd		= new CDisAsmWnd(hParent, virtualMachine, m_pCtx);
 	m_pRegViewWnd		= new CRegViewWnd(hParent, virtualMachine, m_pCtx);
@@ -34,14 +36,17 @@ const char* CDebugView::GetName() const
 
 void CDebugView::Hide()
 {
-	int nMethod;
-
-	nMethod = SW_HIDE;
+	int nMethod = SW_HIDE;
 
 	m_pDisAsmWnd->Show(nMethod);
 	m_pMemoryViewWnd->Show(nMethod);
 	m_pRegViewWnd->Show(nMethod);
 	m_pCallStackWnd->Show(nMethod);
+}
+
+void CDebugView::Step()
+{
+    m_stepFunction();
 }
 
 CMIPS* CDebugView::GetContext()

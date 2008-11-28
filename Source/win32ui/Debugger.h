@@ -54,6 +54,8 @@ private:
 	void							Layout1024();
 	void							Layout1280();
     void                            Layout1600();
+    void                            LoadDebugTags();
+    void                            SaveDebugTags();
 
 	//View related functions
 	void							ActivateView(unsigned int);
