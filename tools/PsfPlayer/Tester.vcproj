@@ -250,14 +250,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\tools\PsfPlayer\Source\OffsetStream.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tools\PsfPlayer\Source\OffsetStream.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\PlayerWnd.cpp"
 				>
 			</File>
@@ -622,6 +614,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\iop\Ioman_Device.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_BiosBase.h"
 					>
 				</File>
 				<File

@@ -3,7 +3,6 @@
 
 #include "Types.h"
 #include "MIPS.h"
-#include "Bios.h"
 #include "SH_OpenAL.h"
 #include "iop/Iop_SpuBase.h"
 #include "iop/Iop_Spu.h"
@@ -11,6 +10,7 @@
 #include "iop/Iop_Dmac.h"
 #include "iop/Iop_Intc.h"
 #include "iop/Iop_RootCounters.h"
+#include "iop/Iop_BiosBase.h"
 #include "VirtualMachine.h"
 #include "Debuggable.h"
 #include "MailBox.h"
@@ -51,7 +51,7 @@ public:
 	Iop::CSpuBase&		GetSpuCore(unsigned int);
     uint8*              GetRam();
 
-    void                SetBios(CBios*);
+	void                SetBios(Iop::CBiosBase*);
 
     CDebuggable         GetDebugInfo();
 
@@ -95,7 +95,7 @@ private:
 	Iop::CSpu2			m_spu2;
 	CMIPS				m_cpu;
 	CMipsExecutor		m_executor;
-    CBios*              m_bios;
+	Iop::CBiosBase*     m_bios;
 	CSH_OpenAL			m_spuHandler;
 	boost::thread		m_thread;
 	bool				m_singleStep;

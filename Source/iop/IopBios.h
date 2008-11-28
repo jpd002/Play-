@@ -11,7 +11,6 @@
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
-#include "xml/Node.h"
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan.h"
 #include "Iop_PadMan.h"

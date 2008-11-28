@@ -1,13 +1,13 @@
 #ifndef _PS2_PSFBIOS_H_
 #define _PS2_PSFBIOS_H_
 
-#include "Bios.h"
+#include "iop/Iop_BiosBase.h"
 #include "iop/IopBios.h"
 #include "PsfDevice.h"
 
 namespace PS2
 {
-	class CPsfBios : public CBios
+	class CPsfBios : public Iop::CBiosBase
 	{
 	public:
 								CPsfBios(CMIPS&, uint8*, uint32);
@@ -17,8 +17,8 @@ namespace PS2
 		void					CountTicks(uint32);
 
 #ifdef DEBUGGER_INCLUDED
-		void					LoadDebugTags(const char*);
-		void					SaveDebugTags(const char*);
+		void					LoadDebugTags(Framework::Xml::CNode*);
+		void					SaveDebugTags(Framework::Xml::CNode*);
 #endif
 
 		void					AppendArchive(const CPsfBase&);

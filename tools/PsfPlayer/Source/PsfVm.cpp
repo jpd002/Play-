@@ -1,18 +1,21 @@
 #include <stdexcept>
 #include <assert.h>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 #include "PsfVm.h"
 #include "Log.h"
 #include "MA_MIPSIV.h"
 #include "HighResTimer.h"
-
+#include "xml/Writer.h"
+#include "xml/Parser.h"
 #define LOG_NAME ("psfvm")
 
 using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
-using namespace boost;
 using namespace Iop;
 using namespace Framework;
+namespace filesystem = boost::filesystem;
 
 #define FRAMES_PER_SEC	(60)
 
@@ -100,24 +103,66 @@ void CPsfVm::Reset()
 
 #ifdef DEBUGGER_INCLUDED
 
+#define TAGS_PATH				("./tags/")
+#define TAGS_SECTION_TAGS		("tags")
+#define TAGS_SECTION_FUNCTIONS	("functions")
+#define TAGS_SECTION_COMMENTS	("comments")
+
 string CPsfVm::MakeTagPackagePath(const char* packageName)
 {
-	return string(packageName) + ".tags.xml";
+	filesystem::path tagsPath(TAGS_PATH);
+	if(!filesystem::exists(tagsPath))
+	{
+		filesystem::create_directory(tagsPath);
+	}
+	return string(TAGS_PATH) + string(packageName) + ".tags.xml";
 }
 
 void CPsfVm::LoadDebugTags(const char* packageName)
 {
-	m_cpu.m_Functions.Unserialize("rawr.functions");
-	m_cpu.m_Comments.Unserialize("rawr.comments");
+	try
+	{
+		string packagePath = MakeTagPackagePath(packageName);
+		Xml::CNode* document = Xml::CParser::ParseDocument(&CStdStream(packagePath.c_str(), "rb"));
+		{
+			Xml::CNode* subNode = document->Select((TAGS_SECTION_TAGS + string("/") + TAGS_SECTION_FUNCTIONS).c_str());
+			if(subNode)
+			{
+				m_cpu.m_Functions.Unserialize(subNode);
+			}
+		}
+		{
+			Xml::CNode* subNode = document->Select((TAGS_SECTION_TAGS + string("/") + TAGS_SECTION_COMMENTS).c_str());
+			if(subNode)
+			{
+				m_cpu.m_Comments.Unserialize(subNode);
+			}
+		}
+		m_bios->LoadDebugTags(document);
+	}
+	catch(...)
+	{
+
+	}
 }
 
 void CPsfVm::SaveDebugTags(const char* packageName)
 {
-	m_cpu.m_Functions.Serialize("rawr.functions");
-	m_cpu.m_Comments.Serialize("rawr.comments");
-
 	string packagePath = MakeTagPackagePath(packageName);
-	m_bios->SaveDebugTags(packagePath.c_str());
+	Xml::CNode* document = new Xml::CNode(TAGS_SECTION_TAGS, true);
+	{
+		Xml::CNode* subNode = new Xml::CNode(TAGS_SECTION_FUNCTIONS, true);
+		m_cpu.m_Functions.Serialize(subNode);
+		document->InsertNode(subNode);
+	}
+	{
+		Xml::CNode* subNode = new Xml::CNode(TAGS_SECTION_COMMENTS, true);
+		m_cpu.m_Comments.Serialize(subNode);
+		document->InsertNode(subNode);
+	}
+	m_bios->SaveDebugTags(document);
+	Xml::CWriter::WriteDocument(&CStdStream(packagePath.c_str(), "wb"), document);
+	delete document;
 }
 
 #endif
@@ -245,7 +290,7 @@ uint8* CPsfVm::GetRam()
     return m_ram;
 }
 
-void CPsfVm::SetBios(CBios* bios)
+void CPsfVm::SetBios(Iop::CBiosBase* bios)
 {
     assert(m_bios == NULL);
     m_bios = bios;
@@ -317,10 +362,10 @@ void CPsfVm::ThreadProc()
 		if(m_status == PAUSED)
 		{
             //Sleep during 100ms
-            xtime xt;
-            xtime_get(&xt, boost::TIME_UTC);
+			boost::xtime xt;
+            boost::xtime_get(&xt, boost::TIME_UTC);
             xt.nsec += 100 * 1000000;
-			thread::sleep(xt);
+			boost::thread::sleep(xt);
 		}
 		else
 		{
@@ -340,10 +385,10 @@ void CPsfVm::ThreadProc()
 				int64 delay = frameTime - elapsed;
 				if(delay > 0)
 				{
-					xtime xt;
-					xtime_get(&xt, boost::TIME_UTC);
+					boost::xtime xt;
+					boost::xtime_get(&xt, boost::TIME_UTC);
 					xt.nsec += delay * 1000;
-					thread::sleep(xt);
+					boost::thread::sleep(xt);
 				}
 				currentTime = CHighResTimer::GetTime();
 			}

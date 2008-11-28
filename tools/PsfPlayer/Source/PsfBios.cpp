@@ -7,10 +7,10 @@ using namespace std;
 #define PSF_DEVICENAME	"psf"
 
 CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize) :
-m_bios(0x1000, CPsfVm::CLOCK_FREQ, cpu, ram, ramSize, NULL),
+m_bios(0x1000, CPsfVm::CLOCK_FREQ, cpu, ram, ramSize),
 m_psfDevice(new CPsfDevice())
 {
-	m_bios.Reset();
+	m_bios.Reset(NULL);
 
     Iop::CIoman* ioman = m_bios.GetIoman();
     ioman->RegisterDevice(PSF_DEVICENAME,	m_psfDevice);
@@ -50,14 +50,14 @@ void CPsfBios::CountTicks(uint32 ticks)
 
 #ifdef DEBUGGER_INCLUDED
 
-void CPsfBios::LoadDebugTags(const char* packagePath)
+void CPsfBios::LoadDebugTags(Framework::Xml::CNode* root)
 {
-
+	m_bios.LoadDebugTags(root);
 }
 
-void CPsfBios::SaveDebugTags(const char* packagePath)
+void CPsfBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
-
+	m_bios.SaveDebugTags(root);
 }
 
 #endif

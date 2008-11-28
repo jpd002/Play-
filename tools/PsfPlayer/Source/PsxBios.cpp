@@ -112,26 +112,14 @@ void CPsxBios::LoadExe(uint8* exe)
 
 #ifdef DEBUGGER_INCLUDED
 
-void CPsxBios::LoadDebugTags(const char* packagePath)
+void CPsxBios::LoadDebugTags(Framework::Xml::CNode* root)
 {
 
 }
 
-void CPsxBios::SaveDebugTags(const char* packagePath)
+void CPsxBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
-	Xml::CNode* document = new Xml::CNode("tags", true);
-	{
-		Xml::CNode* functionsNode = new Xml::CNode("functions", true);
-		m_cpu.m_Functions.Serialize(functionsNode);
-		document->InsertNode(functionsNode);
-	}
-	{
-		Xml::CNode* commentsNode = new Xml::CNode("comments", true);
-		m_cpu.m_Comments.Serialize(commentsNode);
-		document->InsertNode(commentsNode);
-	}
-	Xml::CWriter::WriteDocument(&CStdStream(packagePath, "wb"), document);
-	delete document;
+
 }
 
 #endif

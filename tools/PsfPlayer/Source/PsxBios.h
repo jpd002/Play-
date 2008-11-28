@@ -1,10 +1,10 @@
 #ifndef _PSXBIOS_H_
 #define _PSXBIOS_H_
 
+#include "iop/Iop_BiosBase.h"
 #include "MIPS.h"
-#include "Bios.h"
 
-class CPsxBios : public CBios
+class CPsxBios : public Iop::CBiosBase
 {
 public:
 							CPsxBios(CMIPS&, uint8*, uint32);
@@ -18,8 +18,8 @@ public:
     void                    LoadExe(uint8*);
 
 #ifdef DEBUGGER_INCLUDED
-	void					LoadDebugTags(const char*);
-	void					SaveDebugTags(const char*);
+	void					LoadDebugTags(Framework::Xml::CNode*);
+	void					SaveDebugTags(Framework::Xml::CNode*);
 #endif
 
 private:

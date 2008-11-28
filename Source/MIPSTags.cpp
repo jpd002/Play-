@@ -2,6 +2,11 @@
 #include "PtrMacro.h"
 #include "StdStream.h"
 #include "lexical_cast_ex.h"
+#include "xml/FilteringNodeIterator.h"
+
+#define TAG_ELEMENT_NAME				("tag")
+#define TAG_ELEMENT_ATTRIBUTE_ADDRESS	("address")
+#define TAG_ELEMENT_ATTRIBUTE_VALUE		("value")
 
 using namespace Framework;
 using namespace std;
@@ -113,16 +118,25 @@ void CMIPSTags::Serialize(Xml::CNode* parentNode)
 	for(TagMap::const_iterator itTag(m_Tags.begin());
 		itTag != m_Tags.end(); itTag++)
 	{
-        Xml::CNode* node = new Xml::CNode("tag", true);
-        node->InsertAttribute("address", lexical_cast_hex<string>(itTag->first, 8).c_str());
-        node->InsertAttribute("value", itTag->second.c_str());
+        Xml::CNode* node = new Xml::CNode(TAG_ELEMENT_NAME, true);
+        node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS, lexical_cast_hex<string>(itTag->first, 8).c_str());
+        node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE, itTag->second.c_str());
         parentNode->InsertNode(node);
 	}
 }
 
 void CMIPSTags::Unserialize(Xml::CNode* parentNode)
 {
-
+	for(Xml::CFilteringNodeIterator nodeIterator(parentNode, TAG_ELEMENT_NAME);
+		!nodeIterator.IsEnd(); nodeIterator++)
+	{
+		Xml::CNode* node = *nodeIterator;
+		const char* addressText = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS);
+		const char* valueText	= node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE);
+		if(!addressText || !valueText) continue;
+		uint32 address = lexical_cast_hex<string>(addressText);
+		InsertTag(address, valueText);
+	}
 }
 
 CMIPSTags::TagIterator CMIPSTags::GetTagsBegin() const
