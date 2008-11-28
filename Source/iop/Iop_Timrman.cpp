@@ -7,6 +7,9 @@
 
 #define LOG_NAME ("iop_timrman")
 
+#define FUNCTION_ALLOCHARDTIMER		"AllocHardTimer"
+#define FUNCTION_SETTIMERCALLBACK	"SetTimerCallback"
+
 using namespace Iop;
 using namespace std;
 
@@ -24,6 +27,22 @@ CTimrman::~CTimrman()
 string CTimrman::GetId() const
 {
     return "timrman";
+}
+
+string CTimrman::GetFunctionName(unsigned int functionId) const
+{
+	switch(functionId)
+	{
+	case 4:
+		return FUNCTION_ALLOCHARDTIMER;
+		break;
+	case 20:
+		return FUNCTION_SETTIMERCALLBACK;
+		break;
+	default:
+		return "unknown";
+		break;
+	}
 }
 
 void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
@@ -58,7 +77,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 int CTimrman::AllocHardTimer(int source, int size, int prescale)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, "AllocHardTimer(source = %d, size = %d, prescale = %d).\r\n",
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d).\r\n",
         source, size, prescale);
 #endif
     return TIMER_ID;
@@ -67,7 +86,7 @@ int CTimrman::AllocHardTimer(int source, int size, int prescale)
 int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 unknown, uint32 handler, uint32 arg)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "SetTimerCallback(timerId = %d, unknown = %d, handler = 0x%0.8X, arg = 0x%0.8X.\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, unknown = %d, handler = 0x%0.8X, arg = 0x%0.8X.\r\n",
 		timerId, unknown, handler, arg);
 #endif
 	assert(timerId == TIMER_ID);

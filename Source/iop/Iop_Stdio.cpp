@@ -22,6 +22,11 @@ string CStdio::GetId() const
     return "stdio";
 }
 
+string CStdio::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CStdio::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

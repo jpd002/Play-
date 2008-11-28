@@ -149,8 +149,8 @@ private:
     std::string             ReadModuleName(uint32);
     std::string             GetModuleNameFromPath(const std::string&);
     ModuleListIterator      FindModule(uint32, uint32);
-    void                    LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
-    void                    SaveAllModulesTags(CMIPSTags&, const char*);
+//    void                    LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
+//    void                    SaveAllModulesTags(CMIPSTags&, const char*);
 #ifdef DEBUGGER_INCLUDED
     void                    LoadLoadedModules(Framework::Xml::CNode*);
     void                    SaveLoadedModules(Framework::Xml::CNode*);

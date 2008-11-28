@@ -23,6 +23,11 @@ string CThevent::GetId() const
     return "thevent";
 }
 
+string CThevent::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

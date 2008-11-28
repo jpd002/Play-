@@ -45,6 +45,11 @@ std::string CIoman::GetId() const
     return "ioman";
 }
 
+string CIoman::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CIoman::RegisterDevice(const char* name, const DevicePtr& device)
 {
     m_devices[name] = device;

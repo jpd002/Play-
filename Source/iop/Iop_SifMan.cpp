@@ -21,6 +21,11 @@ string CSifMan::GetId() const
 	return "sifman";
 }
 
+string CSifMan::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)

@@ -13,6 +13,7 @@ namespace Iop
         virtual					~CSifMan();
 
         virtual std::string     GetId() const;
+		virtual std::string		GetFunctionName(unsigned int) const;
         virtual void            Invoke(CMIPS&, unsigned int);
 
 		virtual void			RegisterModule(uint32, CSifModule*) = 0;

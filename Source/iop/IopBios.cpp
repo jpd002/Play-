@@ -59,10 +59,6 @@ m_currentTime(0)
 
 CIopBios::~CIopBios()
 {
-#ifdef _DEBUG
-    SaveAllModulesTags(m_cpu.m_Comments, "comments");
-    SaveAllModulesTags(m_cpu.m_Functions, "functions");
-#endif
     DeleteModules();
 }
 
@@ -255,6 +251,42 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 
 #ifdef _DEBUG
     m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
+
+	bool functionAdded = false;
+	//Look for import tables
+	for(uint32 address = moduleRange.first; address < moduleRange.second; address += 4)
+	{
+		if(m_cpu.m_pMemoryMap->GetWord(address) == 0x41E00000)
+		{
+			if(m_cpu.m_pMemoryMap->GetWord(address + 4) != 0) continue;
+			
+			uint32 version = m_cpu.m_pMemoryMap->GetWord(address + 8);
+			string moduleName = ReadModuleName(address + 0xC);
+	        IopModuleMapType::iterator module(m_modules.find(moduleName));
+			if(module == m_modules.end()) continue;
+
+			size_t moduleNameLength = moduleName.length();
+			uint32 entryAddress = address + 0x0C + ((moduleNameLength + 3) & ~0x03);
+			while(m_cpu.m_pMemoryMap->GetWord(entryAddress) == 0x03E00008)
+			{
+				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
+				uint32 functionId = target & 0xFFFF;
+				string functionName = (module->second)->GetFunctionName(functionId);
+				if(m_cpu.m_Functions.Find(address) == NULL)
+				{
+					m_cpu.m_Functions.InsertTag(entryAddress, (string(moduleName) + "_" + functionName).c_str());
+					functionAdded = true;
+				}
+				entryAddress += 8;
+			}
+		}
+	}
+
+	if(functionAdded)
+	{
+		m_cpu.m_Functions.m_OnTagListChanged();
+	}
+
     CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%0.8X.\r\n", 
         path, moduleRange.first);
 #endif
@@ -916,37 +948,37 @@ void CIopBios::SaveDebugTags(Xml::CNode* root)
 
 #endif
 
-void CIopBios::LoadModuleTags(const LOADEDMODULE& module, CMIPSTags& tags, const char* tagCollectionName)
-{
-    CMIPSTags moduleTags;
-    moduleTags.Unserialize((module.name + "." + string(tagCollectionName)).c_str());
-    for(CMIPSTags::TagIterator tag(moduleTags.GetTagsBegin());
-        tag != moduleTags.GetTagsEnd(); tag++)
-    {
-        tags.InsertTag(tag->first + module.begin, tag->second.c_str());
-    }
-    tags.m_OnTagListChanged();
-}
-
-void CIopBios::SaveAllModulesTags(CMIPSTags& tags, const char* tagCollectionName)
-{
-    for(LoadedModuleListType::const_iterator moduleIterator(m_loadedModules.begin());
-        m_loadedModules.end() != moduleIterator; moduleIterator++)
-    {
-        const LOADEDMODULE& module(*moduleIterator);
-        CMIPSTags moduleTags;
-        for(CMIPSTags::TagIterator tag(tags.GetTagsBegin());
-            tag != tags.GetTagsEnd(); tag++)
-        {
-            uint32 tagAddress = tag->first;
-            if(tagAddress >= module.begin && tagAddress <= module.end)
-            {
-                moduleTags.InsertTag(tagAddress - module.begin, tag->second.c_str());
-            }
-        }
-        moduleTags.Serialize((module.name + "." + string(tagCollectionName)).c_str());
-    }
-}
+//void CIopBios::LoadModuleTags(const LOADEDMODULE& module, CMIPSTags& tags, const char* tagCollectionName)
+//{
+//    CMIPSTags moduleTags;
+//    moduleTags.Unserialize((module.name + "." + string(tagCollectionName)).c_str());
+//    for(CMIPSTags::TagIterator tag(moduleTags.GetTagsBegin());
+//        tag != moduleTags.GetTagsEnd(); tag++)
+//    {
+//        tags.InsertTag(tag->first + module.begin, tag->second.c_str());
+//    }
+//    tags.m_OnTagListChanged();
+//}
+//
+//void CIopBios::SaveAllModulesTags(CMIPSTags& tags, const char* tagCollectionName)
+//{
+//    for(LoadedModuleListType::const_iterator moduleIterator(m_loadedModules.begin());
+//        m_loadedModules.end() != moduleIterator; moduleIterator++)
+//    {
+//        const LOADEDMODULE& module(*moduleIterator);
+//        CMIPSTags moduleTags;
+//        for(CMIPSTags::TagIterator tag(tags.GetTagsBegin());
+//            tag != tags.GetTagsEnd(); tag++)
+//        {
+//            uint32 tagAddress = tag->first;
+//            if(tagAddress >= module.begin && tagAddress <= module.end)
+//            {
+//                moduleTags.InsertTag(tagAddress - module.begin, tag->second.c_str());
+//            }
+//        }
+//        moduleTags.Serialize((module.name + "." + string(tagCollectionName)).c_str());
+//    }
+//}
 
 void CIopBios::DeleteModules()
 {

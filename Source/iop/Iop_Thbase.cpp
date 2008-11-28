@@ -7,6 +7,17 @@ using namespace std;
 
 #define LOG_NAME ("iop_thbase")
 
+#define FUNCTION_CREATETHREAD	"CreateThread"
+#define FUNCTION_STARTTHREAD	"StartThread"
+#define FUNCTION_GETTHREADID	"GetThreadId"
+#define FUNCTION_SLEEPTHREAD	"SleepThread"
+#define FUNCTION_WAKEUPTHREAD	"WakeupThread"
+#define FUNCTION_IWAKEUPTHREAD	"iWakeupThread"
+#define FUNCTION_DELAYTHREAD	"DelayThread"
+#define FUNCTION_GETSYSTEMTIME	"GetSystemTime"
+#define FUNCTION_USECTOSYSCLOCK	"USecToSysClock"
+#define FUNCTION_SYSCLOCKTOUSEC	"SysClockToUSec"
+
 CThbase::CThbase(CIopBios& bios, uint8* ram) :
 m_ram(ram),
 m_bios(bios)
@@ -22,6 +33,46 @@ CThbase::~CThbase()
 string CThbase::GetId() const
 {
     return "thbase";
+}
+
+string CThbase::GetFunctionName(unsigned int functionId) const
+{
+	switch(functionId)
+	{
+	case 4:
+		return FUNCTION_CREATETHREAD;
+		break;
+	case 6:
+		return FUNCTION_STARTTHREAD;
+		break;
+	case 20:
+		return FUNCTION_GETTHREADID;
+		break;
+	case 24:
+		return FUNCTION_SLEEPTHREAD;
+		break;
+	case 25:
+		return FUNCTION_WAKEUPTHREAD;
+		break;
+	case 26:
+		return FUNCTION_IWAKEUPTHREAD;
+		break;
+	case 33:
+		return FUNCTION_DELAYTHREAD;
+		break;
+	case 34:
+		return FUNCTION_GETSYSTEMTIME;
+		break;
+	case 39:
+		return FUNCTION_USECTOSYSCLOCK;
+		break;
+	case 40:
+		return FUNCTION_SYSCLOCKTOUSEC;
+		break;
+	default:
+		return "unknown";
+		break;
+	}
 }
 
 void CThbase::Invoke(CMIPS& context, unsigned int functionId)

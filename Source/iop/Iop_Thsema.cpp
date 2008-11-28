@@ -21,6 +21,11 @@ string CThsema::GetId() const
     return "thsemap";
 }
 
+string CThsema::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

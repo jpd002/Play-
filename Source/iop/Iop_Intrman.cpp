@@ -26,6 +26,11 @@ string CIntrman::GetId() const
     return "intrman";
 }
 
+string CIntrman::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

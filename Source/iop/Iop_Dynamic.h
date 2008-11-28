@@ -12,6 +12,7 @@ namespace Iop
         virtual         ~CDynamic();
 
         std::string     GetId() const;
+		std::string		GetFunctionName(unsigned int) const;
         void            Invoke(CMIPS&, unsigned int);
 
     private:

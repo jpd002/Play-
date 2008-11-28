@@ -13,6 +13,7 @@ namespace Iop
         virtual         ~CThsema();
 
         std::string     GetId() const;
+		std::string		GetFunctionName(unsigned int) const;
         void            Invoke(CMIPS&, unsigned int);
 
     private:

@@ -25,6 +25,11 @@ string CLoadcore::GetId() const
     return "loadcore";
 }
 
+string CLoadcore::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

@@ -20,6 +20,11 @@ string CDynamic::GetId() const
     return m_name;
 }
 
+string CDynamic::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CDynamic::Invoke(CMIPS& context, unsigned int functionId)
 {
     uint32 functionAddress = m_exportTable[5 + functionId];

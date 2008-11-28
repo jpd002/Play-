@@ -29,6 +29,11 @@ string CSysmem::GetId() const
     return "sysmem";
 }
 
+string CSysmem::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

@@ -20,6 +20,11 @@ string CSysclib::GetId() const
     return "sysclib";
 }
 
+string CSysclib::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

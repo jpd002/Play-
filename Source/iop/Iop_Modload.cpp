@@ -22,6 +22,11 @@ string CModload::GetId() const
     return "modload";
 }
 
+string CModload::GetFunctionName(unsigned int functionId) const
+{
+	return "unknown";
+}
+
 void CModload::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)

@@ -13,7 +13,9 @@ namespace Iop
         virtual         ~CStdio();
         
         std::string     GetId() const;
+		std::string		GetFunctionName(unsigned int) const;
         void            Invoke(CMIPS&, unsigned int);
+
         void            __printf(CMIPS&);
         std::string     PrintFormatted(CArgumentIterator&);
 
