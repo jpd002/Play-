@@ -15,6 +15,7 @@ namespace Iop
         virtual             ~CUnknown();
 
         std::string         GetId() const;
+        std::string         GetFunctionName(unsigned int) const;
         void                Invoke(CMIPS&, unsigned int);
         virtual void        Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
         virtual void		SaveState(CZipArchiveWriter&);

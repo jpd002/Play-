@@ -37,6 +37,11 @@ string CPadMan::GetId() const
     return "padman";
 }
 
+string CPadMan::GetFunctionName(unsigned int) const
+{
+    return "unknown";
+}
+
 void CPadMan::Invoke(CMIPS& context, unsigned int functionId)
 {
     throw runtime_error("Not implemented.");

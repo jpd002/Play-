@@ -20,6 +20,11 @@ string CUnknown::GetId() const
     return "unknown";
 }
 
+string CUnknown::GetFunctionName(unsigned int) const
+{
+    return "unknown";
+}
+
 void CUnknown::Invoke(CMIPS&, unsigned int)
 {
     throw runtime_error("Not implemented.");

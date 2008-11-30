@@ -2,6 +2,7 @@
 #define _FUNCTIONSVIEW_H_
 
 #include <boost/signal.hpp>
+#include <functional>
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
 #include "win32/Button.h"
@@ -9,12 +10,26 @@
 #include "../MIPS.h"
 #include "../ELF.h"
 
-class CFunctionsView : public Framework::Win32::CMDIChild
+class CFunctionsView : public Framework::Win32::CMDIChild, boost::signals::trackable
 {
 public:
-									CFunctionsView(HWND, CMIPS*);
-									~CFunctionsView();
+    struct MODULE
+    {
+        std::string     name;
+        uint32          begin;
+        uint32          end;
+    };
+
+    typedef std::list<MODULE> ModuleList;
+    typedef std::tr1::function<ModuleList ()> ModuleListProvider;
+
+
+									CFunctionsView(HWND);
+	virtual							~CFunctionsView();
+
+    void                            SetContext(CMIPS*, const ModuleListProvider&);
 	void							SetELF(CELF*);
+
 	void							Refresh();
 
 	boost::signal<void (uint32)>	m_OnFunctionDblClick;
@@ -31,6 +46,8 @@ private:
 	void							ResizeListColumns();
 	void							RefreshLayout();
 	void							RefreshList();
+    void                            InitializeModuleGrouper();
+    uint32                          GetFunctionGroupId(uint32);
 
 	void							OnListDblClick();
 	void							OnNewClick();
@@ -45,8 +62,13 @@ private:
 	Framework::Win32::CButton*		m_pImport;
 
     Framework::FlatLayoutPtr        m_pLayout;
-	CMIPS*							m_pCtx;
+
+    boost::signals::connection      m_functionTagsChangeConnection;
+
+    CMIPS*							m_pCtx;
 	CELF*							m_pELF;
+    ModuleList                      m_modules;
+    ModuleListProvider              m_moduleListProvider;
 };
 
 #endif

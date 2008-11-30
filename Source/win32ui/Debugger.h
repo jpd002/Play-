@@ -56,6 +56,7 @@ private:
     void                            Layout1600();
     void                            LoadDebugTags();
     void                            SaveDebugTags();
+    CFunctionsView::ModuleList      GetIopModuleList();
 
 	//View related functions
 	void							ActivateView(unsigned int);

@@ -21,6 +21,11 @@ string CLibSd::GetId() const
     return "libsd";
 }
 
+string CLibSd::GetFunctionName(unsigned int) const
+{
+    return "unknown";
+}
+
 void CLibSd::Invoke(CMIPS& context, unsigned int functionId)
 {
     throw runtime_error("Not implemented.");

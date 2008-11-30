@@ -43,6 +43,11 @@ string CMcServ::GetId() const
     return "mcserv";
 }
 
+string CMcServ::GetFunctionName(unsigned int) const
+{
+    return "unknown";
+}
+
 void CMcServ::Invoke(CMIPS& context, unsigned int functionId)
 {
     throw runtime_error("Not implemented.");

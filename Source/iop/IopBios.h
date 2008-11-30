@@ -20,6 +20,16 @@
 class CIopBios : public Iop::CBiosBase
 {
 public:
+    struct MODULETAG
+    {
+        std::string     name;
+        uint32          begin;
+        uint32          end;
+    };
+
+    typedef std::list<MODULETAG> ModuleTagListType;
+    typedef ModuleTagListType::iterator ModuleTagIterator;
+
                             CIopBios(uint32, uint32, CMIPS&, uint8*, uint32);
     virtual                 ~CIopBios();
 
@@ -39,6 +49,9 @@ public:
     void                    LoadDebugTags(Framework::Xml::CNode*);
     void                    SaveDebugTags(Framework::Xml::CNode*);
 #endif
+
+    ModuleTagIterator       GetModuleTagsBegin();
+    ModuleTagIterator       GetModuleTagsEnd();
 
     Iop::CIoman*            GetIoman();
 #ifdef _IOP_EMULATE_MODULES
@@ -107,13 +120,6 @@ private:
         uint32          arg;
     };
 
-    struct LOADEDMODULE
-    {
-        std::string     name;
-        uint32          begin;
-        uint32          end;
-    };
-
     enum THREAD_STATUS
     {
         THREAD_STATUS_CREATED = 1,
@@ -127,8 +133,6 @@ private:
     typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
     typedef std::map<uint32, SEMAPHORE> SemaphoreMapType;
     typedef std::map<uint32, INTRHANDLER> IntrHandlerMapType;
-    typedef std::list<LOADEDMODULE> LoadedModuleListType;
-    typedef LoadedModuleListType::iterator ModuleListIterator;
     typedef std::pair<uint32, uint32> ExecutableRange;
 
     THREAD&                 GetThread(uint32);
@@ -148,7 +152,7 @@ private:
     void                    RelocateElf(CELF&, uint32);
     std::string             ReadModuleName(uint32);
     std::string             GetModuleNameFromPath(const std::string&);
-    ModuleListIterator      FindModule(uint32, uint32);
+    ModuleTagIterator       FindModule(uint32, uint32);
 //    void                    LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
 //    void                    SaveAllModulesTags(CMIPSTags&, const char*);
 #ifdef DEBUGGER_INCLUDED
@@ -179,7 +183,7 @@ private:
     SemaphoreMapType        m_semaphores;
     IntrHandlerMapType      m_intrHandlers;
     IopModuleMapType        m_modules;
-    LoadedModuleListType    m_loadedModules;
+    ModuleTagListType       m_moduleTags;
     Iop::CSifMan*           m_sifMan;
     Iop::CStdio*            m_stdio;
     Iop::CIoman*            m_ioman;

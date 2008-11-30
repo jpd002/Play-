@@ -38,6 +38,11 @@ string CCdvdfsv::GetId() const
     return "cdvdfsv";
 }
 
+string CCdvdfsv::GetFunctionName(unsigned int) const
+{
+    return "unknown";
+}
+
 void CCdvdfsv::SetIsoImage(CISO9660* iso)
 {
     m_iso = iso;

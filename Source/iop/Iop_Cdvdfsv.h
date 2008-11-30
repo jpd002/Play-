@@ -16,6 +16,7 @@ namespace Iop
 		virtual			    ~CCdvdfsv();
 
         virtual std::string GetId() const;
+        virtual std::string GetFunctionName(unsigned int) const;
         virtual void        Invoke(CMIPS&, unsigned int);
 //		virtual void	    SaveState(Framework::CStream*);
 //		virtual void	    LoadState(Framework::CStream*);

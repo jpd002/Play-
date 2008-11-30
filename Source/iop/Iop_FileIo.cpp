@@ -29,6 +29,11 @@ string CFileIo::GetId() const
     return "fileio";
 }
 
+string CFileIo::GetFunctionName(unsigned int) const
+{
+    return "unknown";
+}
+
 //IOP Invoke
 void CFileIo::Invoke(CMIPS& context, unsigned int functionId)
 {

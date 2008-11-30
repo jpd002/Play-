@@ -13,6 +13,7 @@ namespace Iop
         virtual         ~CLibSd();
 
         std::string     GetId() const;
+        std::string     GetFunctionName(unsigned int) const;
         void            Invoke(CMIPS&, unsigned int);
         void            Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
