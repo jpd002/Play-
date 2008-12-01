@@ -819,6 +819,14 @@
 						RelativePath=".\Source\iop\Iop_Unknown2.h"
 						>
 					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Vblank.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Vblank.h"
+						>
+					</File>
 					<Filter
 						Name="Ioman"
 						>

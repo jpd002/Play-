@@ -4,6 +4,11 @@
 using namespace Iop;
 using namespace std;
 
+#define FUNCTION_CREATESEMAPHORE    "CreateSemaphore"
+#define FUNCTION_SIGNALSEMAPHORE    "SignalSemaphore"
+#define FUNCTION_ISIGNALSEMAPHORE   "iSignalSemaphore"
+#define FUNCTION_WAITSEMAPHORE      "WaitSemaphore"
+
 CThsema::CThsema(CIopBios& bios, uint8* ram) :
 m_bios(bios),
 m_ram(ram)
@@ -23,7 +28,24 @@ string CThsema::GetId() const
 
 string CThsema::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+    switch(functionId)
+    {
+    case 4:
+        return FUNCTION_CREATESEMAPHORE;
+        break;
+    case 6:
+        return FUNCTION_SIGNALSEMAPHORE;
+        break;
+    case 7:
+        return FUNCTION_ISIGNALSEMAPHORE;
+        break;
+    case 8:
+        return FUNCTION_WAITSEMAPHORE; 
+        break;
+    default:
+    	return "unknown";
+        break;
+    }
 }
 
 void CThsema::Invoke(CMIPS& context, unsigned int functionId)

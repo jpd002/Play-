@@ -8,6 +8,8 @@ using namespace std;
 
 #define LOG_NAME "iop_loadcore"
 
+#define FUNCTION_REGISTERLIBRARYENTRIES "RegisterLibraryEntries"
+
 CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSifMan& sifMan) :
 m_bios(bios),
 m_ram(ram)
@@ -27,7 +29,15 @@ string CLoadcore::GetId() const
 
 string CLoadcore::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+    switch(functionId)
+    {
+    case 6:
+        return FUNCTION_REGISTERLIBRARYENTRIES;
+        break;
+    default:
+	    return "unknown";
+        break;
+    }
 }
 
 void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
@@ -40,7 +50,8 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
             ));
         break;
     default:
-        printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+        CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (PC: 0x%0.8X).\r\n", 
+            functionId, context.m_State.nPC);
         break;
     }
 }
@@ -67,8 +78,11 @@ void CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 
 uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)
 {
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(...);\r\n");
+#endif
     m_bios.RegisterModule(new CDynamic(exportTable));
-    return 1;    
+    return 0;    
 }
 
 void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

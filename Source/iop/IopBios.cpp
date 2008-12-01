@@ -25,6 +25,7 @@
 #include "Iop_Thevent.h"
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
+#include "Iop_Vblank.h"
 #include <vector>
 
 #define LOGNAME "iop_bios"
@@ -125,6 +126,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
     }
     {
         RegisterModule(new Iop::CIntrman(*this, m_ram));
+    }
+    {
+        RegisterModule(new Iop::CVblank(*this));
     }
 	{
 		RegisterModule(m_sifMan);
@@ -754,6 +758,8 @@ uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 
 void CIopBios::HandleException()
 {
+    m_rescheduleNeeded = false;
+
     uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
     uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
     if(callInstruction == 0x0000000C)
