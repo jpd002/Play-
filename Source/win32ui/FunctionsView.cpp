@@ -38,7 +38,11 @@ m_pELF(NULL)
 
 	SetRect(&rc, 0, 0, 320, 240);
 
-	Create(NULL, CLSNAME, _T("Functions"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	unsigned long windowStyle = WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX;
+#ifndef FUNCTIONSVIEW_STANDALONE
+	windowStyle |= WS_CHILD;
+#endif
+	Create(NULL, CLSNAME, _T("Functions"), windowStyle, &rc, hParent, NULL);
 	SetClassPtr();
 
 	SetRect(&rc, 0, 0, 0, 0);
@@ -184,7 +188,15 @@ void CFunctionsView::RefreshList()
 	m_pList->DeleteAllItems();
 
     if(m_pCtx == NULL) return;
-    bool groupingEnabled = m_moduleListProvider;
+	if(m_moduleListProvider)
+	{
+	    m_modules = m_moduleListProvider();
+	}
+	else
+	{
+		m_modules.clear();
+	}
+    bool groupingEnabled = m_modules.size() != 0;
 
     if(groupingEnabled)
     {
@@ -230,11 +242,10 @@ void CFunctionsView::InitializeModuleGrouper()
     m_pList->RemoveAllGroups();
     m_pList->EnableGroupView(true);
     m_pList->InsertGroup(DEFAULT_GROUPNAME, DEFAULT_GROUPID);
-    m_modules = m_moduleListProvider();
     for(ModuleList::const_iterator moduleIterator(m_modules.begin());
         m_modules.end() != moduleIterator; moduleIterator++)
     {
-        const MODULE& module(*moduleIterator);
+        const MIPSMODULE& module(*moduleIterator);
         m_pList->InsertGroup(
             string_cast<tstring>(module.name.c_str()).c_str(),
             module.begin);
@@ -246,7 +257,7 @@ uint32 CFunctionsView::GetFunctionGroupId(uint32 address)
     for(ModuleList::const_iterator moduleIterator(m_modules.begin());
         m_modules.end() != moduleIterator; moduleIterator++)
     {
-        const MODULE& module(*moduleIterator);
+        const MIPSMODULE& module(*moduleIterator);
         if(address >= module.begin && address < module.end) return module.begin;
     }
     return DEFAULT_GROUPID;

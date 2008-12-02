@@ -7,20 +7,20 @@
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "layout/VerticalLayout.h"
-#include "../MIPS.h"
-#include "../ELF.h"
+#include "MIPS.h"
+#include "MIPSModule.h"
+#include "ELF.h"
 
-class CFunctionsView : public Framework::Win32::CMDIChild, boost::signals::trackable
+class CFunctionsView : 
+#ifdef FUNCTIONSVIEW_STANDALONE
+	public Framework::Win32::CWindow,
+#else
+	public Framework::Win32::CMDIChild, 
+#endif
+	public boost::signals::trackable
 {
 public:
-    struct MODULE
-    {
-        std::string     name;
-        uint32          begin;
-        uint32          end;
-    };
-
-    typedef std::list<MODULE> ModuleList;
+    typedef std::list<MIPSMODULE> ModuleList;
     typedef std::tr1::function<ModuleList ()> ModuleListProvider;
 
 
