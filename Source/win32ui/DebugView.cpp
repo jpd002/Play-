@@ -1,9 +1,8 @@
-#include <boost/bind.hpp>
 #include "DebugView.h"
 #include "PtrMacro.h"
 
 using namespace Framework;
-using namespace boost;
+using namespace std::tr1;
 
 CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, const StepFunction& stepFunction, const char* sName) :
 m_virtualMachine(virtualMachine),
@@ -16,7 +15,7 @@ m_stepFunction(stepFunction)
 	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, virtualMachine, m_pCtx);
 
 	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx);
-	m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
+    m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, placeholders::_1));
 
 	Hide();
 }

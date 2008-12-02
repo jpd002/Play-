@@ -1,10 +1,14 @@
 #include "Iop_Stdio.h"
 #include <boost/lexical_cast.hpp>
 #include "lexical_cast_ex.h"
+#include "../Log.h"
+
+#define LOG_NAME            "iop_stdio"
+
+#define FUNCTION_PRINTF     "printf"
 
 using namespace Iop;
 using namespace std;
-using namespace boost;
 
 CStdio::CStdio(uint8* ram) :
 m_ram(ram)
@@ -24,7 +28,15 @@ string CStdio::GetId() const
 
 string CStdio::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+    switch(functionId)
+    {
+    case 4:
+        return FUNCTION_PRINTF;
+        break;
+    default:
+    	return "unknown";
+        break;
+    }
 }
 
 void CStdio::Invoke(CMIPS& context, unsigned int functionId)
@@ -35,7 +47,8 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
         __printf(context);
         break;
     default:
-        printf("%s(%0.8X): Unknown function (%d) called.", __FUNCTION__, context.m_State.nPC, functionId);
+        CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called. PC = (%0.8X).", 
+            functionId, context.m_State.nPC);
         break;
     }
 }
@@ -64,14 +77,14 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                 else if(type == 'd')
                 {
                     int number = args.GetNext();
-                    unsigned int precisionValue = precision.length() ? lexical_cast<unsigned int>(precision) : 0;
-                    output += lexical_cast<string>(number);
+                    unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
+                    output += boost::lexical_cast<string>(number);
                     paramDone = true;
                 }
                 else if(type == 'u')
                 {
                     unsigned int number = args.GetNext();
-                    unsigned int precisionValue = precision.length() ? lexical_cast<unsigned int>(precision) : 0;
+                    unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
                     output += lexical_cast_uint<string>(number, precisionValue);
                     paramDone = true;
                 }

@@ -80,6 +80,7 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
         break;
     default:
         printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+        assert(0);
         break;
     }
 }

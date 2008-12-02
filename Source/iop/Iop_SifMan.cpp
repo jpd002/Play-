@@ -48,4 +48,3 @@ uint32 CSifMan::SifSetDma(uint32 structAddr, uint32 length)
 		structAddr, length);
 	return 1;
 }
-

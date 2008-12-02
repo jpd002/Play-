@@ -9,6 +9,11 @@
 using namespace Iop;
 using namespace std;
 
+#define FUNCTION_REGISTERINTRHANDLER    "RegisterIntrHandler"
+#define FUNCTION_ENABLEINTRLINE         "EnableIntrLine"
+#define FUNCTION_SUSPENDINTERRUPTS      "SuspendInterrupts"
+#define FUNCTION_RESUMEINTERRUPTS       "ResumeInterrupts"
+
 CIntrman::CIntrman(CIopBios& bios, uint8* ram) :
 m_bios(bios),
 m_ram(ram)
@@ -28,7 +33,24 @@ string CIntrman::GetId() const
 
 string CIntrman::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+    switch(functionId)
+    {
+    case 4:
+        return FUNCTION_REGISTERINTRHANDLER;
+        break;
+    case 6:
+        return FUNCTION_ENABLEINTRLINE;
+        break;
+    case 17:
+        return FUNCTION_SUSPENDINTERRUPTS;
+        break;
+    case 18:
+        return FUNCTION_RESUMEINTERRUPTS;
+        break;
+    default:
+        return "unknown";
+        break;
+    }
 }
 
 void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
@@ -92,7 +114,7 @@ void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
 uint32 CIntrman::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "RegisterIntrHandler(line = %d, mode = %d, handler = 0x%0.8X, arg = 0x%0.8X);\r\n",
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_REGISTERINTRHANDLER "(line = %d, mode = %d, handler = 0x%0.8X, arg = 0x%0.8X);\r\n",
         line, mode, handler, arg);
 #endif
     return m_bios.RegisterIntrHandler(line, mode, handler, arg) ? 1 : 0;
@@ -110,7 +132,7 @@ uint32 CIntrman::ReleaseIntrHandler(uint32 line)
 uint32 CIntrman::EnableIntrLine(CMIPS& context, uint32 line)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "EnableIntrLine(line = %d);\r\n",
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_ENABLEINTRLINE "(line = %d);\r\n",
         line);
 #endif
 	UNION64_32 mask(
@@ -151,7 +173,7 @@ uint32 CIntrman::EnableInterrupts(CMIPS& context)
 uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32* state)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "SuspendInterrupts();\r\n");
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_SUSPENDINTERRUPTS "();\r\n");
 #endif
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
     (*state) = statusRegister & CMIPS::STATUS_INT;
@@ -162,7 +184,7 @@ uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32* state)
 uint32 CIntrman::ResumeInterrupts(CMIPS& context, uint32 state)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "ResumeInterrupts();\r\n");
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_RESUMEINTERRUPTS "();\r\n");
 #endif
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
     if(state)
