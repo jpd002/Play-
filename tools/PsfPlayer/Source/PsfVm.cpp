@@ -123,22 +123,12 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 	try
 	{
 		string packagePath = MakeTagPackagePath(packageName);
-		Xml::CNode* document = Xml::CParser::ParseDocument(&CStdStream(packagePath.c_str(), "rb"));
-		{
-			Xml::CNode* subNode = document->Select((TAGS_SECTION_TAGS + string("/") + TAGS_SECTION_FUNCTIONS).c_str());
-			if(subNode)
-			{
-				m_cpu.m_Functions.Unserialize(subNode);
-			}
-		}
-		{
-			Xml::CNode* subNode = document->Select((TAGS_SECTION_TAGS + string("/") + TAGS_SECTION_COMMENTS).c_str());
-			if(subNode)
-			{
-				m_cpu.m_Comments.Unserialize(subNode);
-			}
-		}
-		m_bios->LoadDebugTags(document);
+		boost::scoped_ptr<Xml::CNode> document(Xml::CParser::ParseDocument(&CStdStream(packagePath.c_str(), "rb")));
+		Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
+		if(tagsSection == NULL) return;
+		m_cpu.m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
+		m_cpu.m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
+		m_bios->LoadDebugTags(document.get());
 	}
 	catch(...)
 	{
@@ -149,20 +139,11 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 void CPsfVm::SaveDebugTags(const char* packageName)
 {
 	string packagePath = MakeTagPackagePath(packageName);
-	Xml::CNode* document = new Xml::CNode(TAGS_SECTION_TAGS, true);
-	{
-		Xml::CNode* subNode = new Xml::CNode(TAGS_SECTION_FUNCTIONS, true);
-		m_cpu.m_Functions.Serialize(subNode);
-		document->InsertNode(subNode);
-	}
-	{
-		Xml::CNode* subNode = new Xml::CNode(TAGS_SECTION_COMMENTS, true);
-		m_cpu.m_Comments.Serialize(subNode);
-		document->InsertNode(subNode);
-	}
-	m_bios->SaveDebugTags(document);
-	Xml::CWriter::WriteDocument(&CStdStream(packagePath.c_str(), "wb"), document);
-	delete document;
+	boost::scoped_ptr<Xml::CNode> document(new Xml::CNode(TAGS_SECTION_TAGS, true));
+	m_cpu.m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
+	m_cpu.m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
+	m_bios->SaveDebugTags(document.get());
+	Xml::CWriter::WriteDocument(&CStdStream(packagePath.c_str(), "wb"), document.get());
 }
 
 #endif
@@ -265,6 +246,7 @@ CDebuggable CPsfVm::GetDebugInfo()
     CDebuggable debug;
 	debug.Step = bind(&CPsfVm::Step, this);
     debug.GetCpu = bind(&CPsfVm::GetCpu, this);
+	debug.GetModules = bind(&Iop::CBiosBase::GetModuleList, m_bios);
     return debug;
 }
 

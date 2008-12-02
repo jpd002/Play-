@@ -20,6 +20,7 @@ public:
 #ifdef DEBUGGER_INCLUDED
 	void					LoadDebugTags(Framework::Xml::CNode*);
 	void					SaveDebugTags(Framework::Xml::CNode*);
+	MipsModuleList			GetModuleList();
 #endif
 
 private:

@@ -56,8 +56,9 @@ m_memoryView(NULL)
     m_registerView = new CRegViewGeneral(m_subSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
     m_registerView->Show(SW_SHOW);
 
-    m_functionsView = new CFunctionsView(NULL, &m_debuggable.GetCpu());
+    m_functionsView = new CFunctionsView(NULL);
     m_functionsView->m_OnFunctionDblClick.connect(bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
+	m_functionsView->SetContext(&m_debuggable.GetCpu(), m_debuggable.GetModules);
     m_functionsView->Refresh();
 
     m_subSplitter->SetChild(0, *m_disAsmView);

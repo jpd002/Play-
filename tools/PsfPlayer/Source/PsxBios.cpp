@@ -122,6 +122,11 @@ void CPsxBios::SaveDebugTags(Framework::Xml::CNode* root)
 
 }
 
+MipsModuleList CPsxBios::GetModuleList()
+{
+	return MipsModuleList();
+}
+
 #endif
 
 void CPsxBios::CountTicks(uint32 ticks)

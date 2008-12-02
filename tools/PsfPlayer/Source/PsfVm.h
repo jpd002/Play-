@@ -74,6 +74,7 @@ private:
 		HW_REG_END		= 0x1F9FFFFF
 	};
 
+	MipsModuleList		GetIopModules();
 	unsigned int		ExecuteCpu(bool);
 	void				ThreadProc();
 
