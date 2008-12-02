@@ -201,10 +201,10 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
     ExecutableRange moduleRange;
     uint32 entryPoint = LoadExecutable(elf, moduleRange);
 
-    ModuleTagIterator moduleIterator(FindModule(moduleRange.first, moduleRange.second));
+    ModuleListIterator moduleIterator(FindModule(moduleRange.first, moduleRange.second));
     if(moduleIterator == m_moduleTags.end())
     {
-        MODULETAG module;
+        MIPSMODULE module;
         module.name  = GetModuleNameFromPath(path);
         module.begin = moduleRange.first;
         module.end   = moduleRange.second;
@@ -894,12 +894,12 @@ string CIopBios::GetModuleNameFromPath(const std::string& path)
     return path;
 }
 
-CIopBios::ModuleTagIterator CIopBios::FindModule(uint32 beginAddress, uint32 endAddress)
+CIopBios::ModuleListIterator CIopBios::FindModule(uint32 beginAddress, uint32 endAddress)
 {
-    for(ModuleTagListType::iterator moduleIterator(m_moduleTags.begin());
+    for(ModuleListIterator moduleIterator(m_moduleTags.begin());
         m_moduleTags.end() != moduleIterator; moduleIterator++)
     {
-        MODULETAG& module(*moduleIterator);
+        MIPSMODULE& module(*moduleIterator);
         if(beginAddress == module.begin && endAddress == module.end)
         {
             return moduleIterator;
@@ -929,7 +929,7 @@ void CIopBios::LoadDebugTags(Xml::CNode* root)
         const char* beginAddress    = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
         const char* endAddress      = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
         if(!moduleName || !beginAddress || !endAddress) continue;
-        MODULETAG module;
+        MIPSMODULE module;
         module.name     = moduleName;
         module.begin    = lexical_cast_hex<string>(beginAddress);
         module.end      = lexical_cast_hex<string>(endAddress);
@@ -941,10 +941,10 @@ void CIopBios::SaveDebugTags(Xml::CNode* root)
 {
     Xml::CNode* moduleSection = new Xml::CNode(TAGS_SECTION_IOP_MODULES, true);
 
-    for(ModuleTagListType::const_iterator moduleIterator(m_moduleTags.begin());
+    for(MipsModuleList::const_iterator moduleIterator(m_moduleTags.begin());
         m_moduleTags.end() != moduleIterator; moduleIterator++)
     {
-        const MODULETAG& module(*moduleIterator);
+        const MIPSMODULE& module(*moduleIterator);
         Xml::CNode* moduleNode = new Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
         moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,   lexical_cast_hex<string>(module.begin, 8).c_str());
         moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,     lexical_cast_hex<string>(module.end, 8).c_str());
@@ -955,17 +955,12 @@ void CIopBios::SaveDebugTags(Xml::CNode* root)
     root->InsertNode(moduleSection);
 }
 
+MipsModuleList CIopBios::GetModuleList()
+{
+	return m_moduleTags;
+}
+
 #endif
-
-CIopBios::ModuleTagIterator CIopBios::GetModuleTagsBegin()
-{
-    return m_moduleTags.begin();
-}
-
-CIopBios::ModuleTagIterator CIopBios::GetModuleTagsEnd()
-{
-    return m_moduleTags.end();
-}
 
 //void CIopBios::LoadModuleTags(const MODULETAG& module, CMIPSTags& tags, const char* tagCollectionName)
 //{

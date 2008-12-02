@@ -4,6 +4,7 @@
 #include <list>
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
+#include "../MIPSModule.h"
 #include "../ELF.h"
 #include "Iop_BiosBase.h"
 #include "Iop_SifMan.h"
@@ -20,15 +21,7 @@
 class CIopBios : public Iop::CBiosBase
 {
 public:
-    struct MODULETAG
-    {
-        std::string     name;
-        uint32          begin;
-        uint32          end;
-    };
-
-    typedef std::list<MODULETAG> ModuleTagListType;
-    typedef ModuleTagListType::iterator ModuleTagIterator;
+    typedef MipsModuleList::iterator ModuleListIterator;
 
                             CIopBios(uint32, uint32, CMIPS&, uint8*, uint32);
     virtual                 ~CIopBios();
@@ -48,10 +41,8 @@ public:
 #ifdef DEBUGGER_INCLUDED
     void                    LoadDebugTags(Framework::Xml::CNode*);
     void                    SaveDebugTags(Framework::Xml::CNode*);
+	MipsModuleList			GetModuleList();
 #endif
-
-    ModuleTagIterator       GetModuleTagsBegin();
-    ModuleTagIterator       GetModuleTagsEnd();
 
     Iop::CIoman*            GetIoman();
 #ifdef _IOP_EMULATE_MODULES
@@ -152,7 +143,7 @@ private:
     void                    RelocateElf(CELF&, uint32);
     std::string             ReadModuleName(uint32);
     std::string             GetModuleNameFromPath(const std::string&);
-    ModuleTagIterator       FindModule(uint32, uint32);
+    ModuleListIterator      FindModule(uint32, uint32);
 //    void                    LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
 //    void                    SaveAllModulesTags(CMIPSTags&, const char*);
 #ifdef DEBUGGER_INCLUDED
@@ -183,7 +174,7 @@ private:
     SemaphoreMapType        m_semaphores;
     IntrHandlerMapType      m_intrHandlers;
     IopModuleMapType        m_modules;
-    ModuleTagListType       m_moduleTags;
+    MipsModuleList			m_moduleTags;
     Iop::CSifMan*           m_sifMan;
     Iop::CStdio*            m_stdio;
     Iop::CIoman*            m_ioman;
