@@ -7,9 +7,9 @@
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "layout/VerticalLayout.h"
-#include "MIPS.h"
-#include "MIPSModule.h"
-#include "ELF.h"
+#include "../MIPS.h"
+#include "../MIPSModule.h"
+#include "../ELF.h"
 
 class CFunctionsView : 
 #ifdef FUNCTIONSVIEW_STANDALONE

@@ -470,6 +470,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\MIPSModule.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\MIPSReflection.cpp"
 				>
 			</File>
@@ -609,6 +613,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\iop\Iop_BiosBase.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\iop\Iop_SubSystem.cpp"
 					>
 				</File>
@@ -737,6 +745,10 @@
 					</File>
 					<File
 						RelativePath=".\Source\iop\Iop_SifMan.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Sifman.h"
 						>
 					</File>
 					<File

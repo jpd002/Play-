@@ -18,6 +18,7 @@
 #endif
 
 #include "Iop_SifManNull.h"
+#include "Iop_SifCmd.h"
 #include "Iop_Sysclib.h"
 #include "Iop_Loadcore.h"
 #include "Iop_Thbase.h"
@@ -133,6 +134,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	{
 		RegisterModule(m_sifMan);
 	}
+    {
+        RegisterModule(new Iop::CSifCmd());
+    }
 #ifdef _IOP_EMULATE_MODULES
     {
         RegisterModule(new Iop::CFileIo(*m_sifMan, *m_ioman));

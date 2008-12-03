@@ -4,7 +4,7 @@
 #include "Types.h"
 #ifdef DEBUGGER_INCLUDED
 #include "xml/Node.h"
-#include "MipsModule.h"
+#include "../MipsModule.h"
 #endif
 
 namespace Iop
