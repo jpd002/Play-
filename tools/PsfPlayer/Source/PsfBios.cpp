@@ -48,11 +48,6 @@ void CPsfBios::CountTicks(uint32 ticks)
 	m_bios.CountTicks(ticks);
 }
 
-MipsModuleList CPsfBios::GetModuleList()
-{
-	return m_bios.GetModuleList();
-}
-
 #ifdef DEBUGGER_INCLUDED
 
 void CPsfBios::LoadDebugTags(Framework::Xml::CNode* root)
@@ -63,6 +58,11 @@ void CPsfBios::LoadDebugTags(Framework::Xml::CNode* root)
 void CPsfBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
 	m_bios.SaveDebugTags(root);
+}
+
+MipsModuleList CPsfBios::GetModuleList()
+{
+	return m_bios.GetModuleList();
 }
 
 #endif

@@ -7,7 +7,7 @@
 #include "win32ui/DisAsm.h"
 #include "win32ui/RegViewGeneral.h"
 #include "win32ui/MemoryViewMIPS.h"
-#include "FunctionsView.h"
+#include "win32ui/FunctionsView.h"
 #include "VirtualMachine.h"
 #include "Debuggable.h"
 

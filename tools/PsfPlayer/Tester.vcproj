@@ -232,14 +232,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\FunctionsView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\FunctionsView.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Main.cpp"
 				>
 			</File>
@@ -389,6 +381,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\ElfFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\FunctionsView.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\FunctionsView.h"
 				>
 			</File>
 			<File
@@ -700,6 +700,14 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\iop\Iop_RootCounters.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SifCmd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SifCmd.h"
 					>
 				</File>
 				<File

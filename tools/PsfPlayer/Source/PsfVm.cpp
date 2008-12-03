@@ -128,7 +128,7 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 		if(tagsSection == NULL) return;
 		m_cpu.m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
 		m_cpu.m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
-		m_bios->LoadDebugTags(document.get());
+		m_bios->LoadDebugTags(tagsSection);
 	}
 	catch(...)
 	{
@@ -246,8 +246,10 @@ CDebuggable CPsfVm::GetDebugInfo()
     CDebuggable debug;
 	debug.Step = bind(&CPsfVm::Step, this);
     debug.GetCpu = bind(&CPsfVm::GetCpu, this);
+#ifdef DEBUGGER_INCLUDED
 	debug.GetModules = bind(&Iop::CBiosBase::GetModuleList, m_bios);
-    return debug;
+#endif
+	return debug;
 }
 
 CMIPS& CPsfVm::GetCpu()
@@ -408,10 +410,10 @@ void CPsfVm::ThreadProc()
 			else
 			{
 				//Sleep during 16ms
-				xtime xt;
-				xtime_get(&xt, boost::TIME_UTC);
+				boost::xtime xt;
+				boost::xtime_get(&xt, boost::TIME_UTC);
 				xt.nsec += 10 * 1000000;
-				thread::sleep(xt);
+				boost::thread::sleep(xt);
 //				thread::yield();
 			}
 #endif
