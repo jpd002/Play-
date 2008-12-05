@@ -1,4 +1,5 @@
 #include "Iop_SifCmd.h"
+#include "IopBios.h"
 #include "../Log.h"
 
 using namespace Iop;
@@ -11,7 +12,8 @@ using namespace std;
 #define FUNCTION_SIFSETRPCQUEUE     "SifSetRpcQueue"
 #define FUNCTION_SIFRPCLOOP         "SifRpcLoop"
 
-CSifCmd::CSifCmd()
+CSifCmd::CSifCmd(CIopBios& bios) :
+m_bios(bios)
 {
 
 }
@@ -55,6 +57,9 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
     case 17:
         SifRegisterRpc(context);
         break;
+    case 22:
+        SifRpcLoop(context.m_State.nGPR[CMIPS::A0].nV0);
+        break;
     default:
         CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
             functionId);
@@ -72,7 +77,15 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
     uint32 cbuffer      = context.m_State.nGPR[CMIPS::T1].nV0;
     uint32 queue        = context.m_State.nGPR[CMIPS::T2].nV0;
 
+    CLog::GetInstance().Print(LOG_NAME, "SifRegisterRpc(serverData = 0x%0.8X, serverId = 0x%0.8X, function = 0x%0.8X, buffer = 0x%0.8X, cfunction = 0x%0.8X, cbuffer = 0x%0.8X, queue = 0x%0.8X);\r\n",
+        serverData, serverId, function, buffer, cfunction, cbuffer, queue);
+
     context.m_State.nGPR[CMIPS::V0].nD0 = 0;
-//void sceSifRegisterRpc(SifRpcServerData_t *sd, int sid, SifRpcFunc_t func, void *buf,
-//	SifRpcFunc_t cfunc, void *cbuf, SifRpcDataQueue_t *qd);
+}
+
+void CSifCmd::SifRpcLoop(uint32 queueAddr)
+{
+    CLog::GetInstance().Print(LOG_NAME, "SifRpcLoop(queue = 0x%0.8X);\r\n",
+        queueAddr);
+    m_bios.SleepThread();
 }

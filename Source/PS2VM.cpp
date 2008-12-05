@@ -1147,7 +1147,13 @@ void CPS2VM::EmuThread()
                 //IOP Execution
                 if(m_singleStepIop)
                 {
-                    m_iop.ExecuteCpu(m_singleStepIop);
+                    m_iop.ExecuteCpu(true);
+                }
+                else
+                {
+#ifdef _DEBUG
+                    m_iop.ExecuteCpu(false);
+#endif
                 }
             }
 #ifdef DEBUGGER_INCLUDED

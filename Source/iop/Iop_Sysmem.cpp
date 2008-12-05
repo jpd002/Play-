@@ -66,6 +66,10 @@ void CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		assert(retSize == 4);
 		ret[0] = SifAllocate(args[0]);
 		break;
+    case 0x02:
+        assert(argsSize == 4);
+        ret[0] = SifFreeMemory(args[0]);
+        break;
 	case 0x04:
 		assert(retSize == 4);
 		ret[0] = SifAllocateSystemMemory(args[0], args[1], args[2]);
@@ -96,6 +100,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags)
         m_blockMap[begin] = size;
         return begin + m_memoryBegin;
     }
+    assert(0);
     return NULL;
 }
 
@@ -127,4 +132,11 @@ uint32 CSysmem::SifAllocateSystemMemory(uint32 nSize, uint32 nFlags, uint32 nPtr
     uint32 result = AllocateMemory(nSize, nFlags);
 	CLog::GetInstance().Print(LOG_NAME, "AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", nFlags, nSize, nPtr);
 	return result;
+}
+
+uint32 CSysmem::SifFreeMemory(uint32 address)
+{
+	CLog::GetInstance().Print(LOG_NAME, "FreeMemory(address = 0x%0.8X);\r\n", address);
+    FreeMemory(address);
+    return 0;
 }

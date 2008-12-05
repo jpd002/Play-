@@ -3,12 +3,14 @@
 
 #include "Iop_Module.h"
 
+class CIopBios;
+
 namespace Iop
 {
     class CSifCmd : public CModule
     {
     public:
-                                CSifCmd();
+                                CSifCmd(CIopBios&);
         virtual                 ~CSifCmd();
 
         virtual std::string     GetId() const;
@@ -16,7 +18,10 @@ namespace Iop
         virtual void            Invoke(CMIPS&, unsigned int);
 
     private:
+        CIopBios&               m_bios;
+
         void                    SifRegisterRpc(CMIPS&);
+        void                    SifRpcLoop(uint32);
     };
 }
 

@@ -31,6 +31,7 @@ namespace Iop
 
 		uint32			        SifAllocate(uint32);
 		uint32			        SifAllocateSystemMemory(uint32, uint32, uint32);
+        uint32                  SifFreeMemory(uint32);
 
         BlockMapType            m_blockMap;
         uint32                  m_memoryBegin;

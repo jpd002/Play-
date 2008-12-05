@@ -135,7 +135,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_sifMan);
 	}
     {
-        RegisterModule(new Iop::CSifCmd());
+        RegisterModule(new Iop::CSifCmd(*this));
     }
 #ifdef _IOP_EMULATE_MODULES
     {
