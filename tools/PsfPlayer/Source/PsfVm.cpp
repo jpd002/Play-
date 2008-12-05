@@ -8,94 +8,39 @@
 #include "HighResTimer.h"
 #include "xml/Writer.h"
 #include "xml/Parser.h"
+#include "Ps2Const.h"
+
 #define LOG_NAME ("psfvm")
 
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 using namespace Iop;
 using namespace Framework;
 namespace filesystem = boost::filesystem;
 
 #define FRAMES_PER_SEC	(60)
 
-const int g_frameTicks = (CPsfVm::CLOCK_FREQ / FRAMES_PER_SEC);
-const int g_spuUpdateTicks = (4 * CPsfVm::CLOCK_FREQ / 1000);
+const int g_frameTicks = (PS2::IOP_CLOCK_FREQ / FRAMES_PER_SEC);
+const int g_spuUpdateTicks = (4 * PS2::IOP_CLOCK_FREQ / 1000);
 
 CPsfVm::CPsfVm() :
-m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
-m_executor(m_cpu),
 m_status(PAUSED),
-m_bios(NULL),
 m_singleStep(false),
-m_ram(new uint8[RAMSIZE]),
-m_scratchPad(new uint8[SCRATCHSIZE]),
-m_spuRam(new uint8[SPURAMSIZE]),
-m_dmac(m_ram, m_intc),
-m_counters(CLOCK_FREQ, m_intc),
 m_thread(bind(&CPsfVm::ThreadProc, this)),
-m_spuCore0(m_spuRam, SPURAMSIZE),
-m_spuCore1(m_spuRam, SPURAMSIZE),
-m_spu(m_spuCore0),
-m_spu2(m_spuCore0, m_spuCore1),
 m_spuUpdateCounter(g_spuUpdateTicks),
 m_frameCounter(g_frameTicks)
 {
-	//Read memory map
-	m_cpu.m_pMemoryMap->InsertReadMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	                m_ram,								                    0x01);
-	m_cpu.m_pMemoryMap->InsertReadMap((1 * RAMSIZE), (1 * RAMSIZE) + RAMSIZE - 1,	                m_ram,								                    0x02);
-	m_cpu.m_pMemoryMap->InsertReadMap((2 * RAMSIZE), (2 * RAMSIZE) + RAMSIZE - 1,	                m_ram,								                    0x03);
-	m_cpu.m_pMemoryMap->InsertReadMap((3 * RAMSIZE), (3 * RAMSIZE) + RAMSIZE - 1,	                m_ram,								                    0x04);
-	m_cpu.m_pMemoryMap->InsertReadMap(0x1F800000,                   0x1F8003FF,                     m_scratchPad,   									    0x05);
-	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,					HW_REG_END,						bind(&CPsfVm::ReadIoRegister, this, _1),				0x06);
 
-	//Write memory map
-	m_cpu.m_pMemoryMap->InsertWriteMap((0 * RAMSIZE),   (0 * RAMSIZE) + RAMSIZE - 1,	m_ram,											0x01);
-	m_cpu.m_pMemoryMap->InsertWriteMap((1 * RAMSIZE),   (1 * RAMSIZE) + RAMSIZE - 1,	m_ram,											0x02);
-	m_cpu.m_pMemoryMap->InsertWriteMap((2 * RAMSIZE),   (2 * RAMSIZE) + RAMSIZE - 1,	m_ram,											0x03);
-	m_cpu.m_pMemoryMap->InsertWriteMap((3 * RAMSIZE),   (3 * RAMSIZE) + RAMSIZE - 1,	m_ram,											0x04);
-	m_cpu.m_pMemoryMap->InsertWriteMap(0x1F800000,      0x1F8003FF,                     m_scratchPad,									0x05);
-	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		                bind(&CPsfVm::WriteIoRegister, this, _1, _2),	0x06);
-
-	//Instruction memory map
-	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * RAMSIZE), (0 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x01);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((1 * RAMSIZE), (1 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x02);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((2 * RAMSIZE), (2 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x03);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * RAMSIZE), (3 * RAMSIZE) + RAMSIZE - 1,	m_ram,						0x04);
-
-	m_cpu.m_pArch = &g_MAMIPSIV;
-	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
-
-	m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, _1, _2, _3));
-	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, _1, _2, _3));
 }
 
 CPsfVm::~CPsfVm()
 {
-	delete [] m_ram;
-	delete [] m_scratchPad;
-	delete [] m_spuRam;
+
 }
 
 void CPsfVm::Reset()
 {
-    if(m_bios != NULL)
-    {
-        delete m_bios;
-		m_bios = NULL;
-    }
-    memset(m_ram, 0, RAMSIZE);
-	memset(m_scratchPad, 0, SCRATCHSIZE);
-	memset(m_spuRam, 0, SPURAMSIZE);
-	m_executor.Clear();
-	m_cpu.Reset();
-	m_spuCore0.Reset();
-	m_spuCore1.Reset();
-    m_spu.Reset();
-    m_spu2.Reset();
-	m_counters.Reset();
-	m_dmac.Reset();
-	m_intc.Reset();
+	m_iop.Reset();
 	m_spuHandler.Reset();
     m_frameCounter = g_frameTicks;
     m_spuUpdateCounter = g_spuUpdateTicks;
@@ -126,9 +71,9 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 		boost::scoped_ptr<Xml::CNode> document(Xml::CParser::ParseDocument(&CStdStream(packagePath.c_str(), "rb")));
 		Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
 		if(tagsSection == NULL) return;
-		m_cpu.m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
-		m_cpu.m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
-		m_bios->LoadDebugTags(tagsSection);
+		m_iop.m_cpu.m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
+		m_iop.m_cpu.m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
+		m_iop.m_bios->LoadDebugTags(tagsSection);
 	}
 	catch(...)
 	{
@@ -140,83 +85,13 @@ void CPsfVm::SaveDebugTags(const char* packageName)
 {
 	string packagePath = MakeTagPackagePath(packageName);
 	boost::scoped_ptr<Xml::CNode> document(new Xml::CNode(TAGS_SECTION_TAGS, true));
-	m_cpu.m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
-	m_cpu.m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
-	m_bios->SaveDebugTags(document.get());
+	m_iop.m_cpu.m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
+	m_iop.m_cpu.m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
+	m_iop.m_bios->SaveDebugTags(document.get());
 	Xml::CWriter::WriteDocument(&CStdStream(packagePath.c_str(), "wb"), document.get());
 }
 
 #endif
-
-uint32 CPsfVm::ReadIoRegister(uint32 address)
-{
-	if(address == 0x1F801814)
-	{
-		return 0x14802000;
-	}
-	else if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
-	{
-		return m_spu.ReadRegister(address);
-	}
-	else if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
-	{
-		return m_dmac.ReadRegister(address);
-	}
-	else if(address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END)
-	{
-		return m_dmac.ReadRegister(address);
-	}
-	else if(address >= CIntc::ADDR_BEGIN && address <= CIntc::ADDR_END)
-	{
-		return m_intc.ReadRegister(address);
-	}
-	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
-	{
-		return m_counters.ReadRegister(address);
-	}
-	else if(address >= CSpu2::REGS_BEGIN && address <= CSpu2::REGS_END)
-	{
-		return m_spu2.ReadRegister(address);
-	}
-	else
-	{
-		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown hardware register (0x%0.8X).\r\n", address);
-	}
-	return 0;
-}
-
-uint32 CPsfVm::WriteIoRegister(uint32 address, uint32 value)
-{
-	if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
-	{
-		m_dmac.WriteRegister(address, value);
-	}
-	else if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
-	{
-		m_spu.WriteRegister(address, static_cast<uint16>(value));
-	}
-	else if(address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END)
-	{
-		m_dmac.WriteRegister(address, value);
-	}
-	else if(address >= CIntc::ADDR_BEGIN && address <= CIntc::ADDR_END)
-	{
-		m_intc.WriteRegister(address, value);
-	}
-	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
-	{
-		m_counters.WriteRegister(address, value);
-	}
-	else if(address >= CSpu2::REGS_BEGIN && address <= CSpu2::REGS_END)
-	{
-		return m_spu2.WriteRegister(address, value);
-	}
-	else
-	{
-		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown hardware register (0x%0.8X, 0x%0.8X).\r\n", address, value);
-	}
-	return 0;
-}
 
 CVirtualMachine::STATUS CPsfVm::GetStatus() const
 {
@@ -247,37 +122,36 @@ CDebuggable CPsfVm::GetDebugInfo()
 	debug.Step = bind(&CPsfVm::Step, this);
     debug.GetCpu = bind(&CPsfVm::GetCpu, this);
 #ifdef DEBUGGER_INCLUDED
-	debug.GetModules = bind(&Iop::CBiosBase::GetModuleList, m_bios);
+	debug.GetModules = bind(&Iop::CBiosBase::GetModuleList, m_iop.m_bios);
 #endif
 	return debug;
 }
 
 CMIPS& CPsfVm::GetCpu()
 {
-	return m_cpu;
+	return m_iop.m_cpu;
 }
 
 CSpuBase& CPsfVm::GetSpuCore(unsigned int coreId)
 {
 	if(coreId == 0)
 	{
-		return m_spuCore0;
+		return m_iop.m_spuCore0;
 	}
 	else
 	{
-		return m_spuCore1;
+		return m_iop.m_spuCore1;
 	}
 }
 
 uint8* CPsfVm::GetRam()
 {
-    return m_ram;
+    return m_iop.m_ram;
 }
 
 void CPsfVm::SetBios(Iop::CBiosBase* bios)
 {
-    assert(m_bios == NULL);
-    m_bios = bios;
+	m_iop.SetBios(bios);
 }
 
 void CPsfVm::Step()
@@ -285,51 +159,6 @@ void CPsfVm::Step()
 	m_singleStep = true;
 	m_status = RUNNING;
 	m_OnRunningStateChange();
-}
-
-unsigned int CPsfVm::ExecuteCpu(bool singleStep)
-{
-	int ticks = 0;
-    if(!m_cpu.m_State.nHasException)
-    {
-		if(m_intc.HasPendingInterrupt())
-		{
-			m_bios->HandleInterrupt();
-        }
-    }
-	if(!m_cpu.m_State.nHasException)
-	{
-		int quota = singleStep ? 1 : 500;
-		ticks = quota - m_executor.Execute(quota);
-		assert(ticks >= 0);
-        {
-#pragma message("TODO: Make something better here...")
-            if(m_cpu.m_State.nPC == 0x1018)
-//			if(m_cpu.m_State.nPC == 0x0003D948)
-			{
-				ticks += (quota * 2);
-            }
-			else
-			{
-				CBasicBlock* nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
-				if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
-				{
-					//Go a little bit faster if we're "stuck"
-					ticks += (quota * 2);
-				}
-			}
-        }
-		if(ticks > 0)
-		{
-			m_counters.Update(ticks);
-			m_bios->CountTicks(ticks);
-		}
-	}
-	if(m_cpu.m_State.nHasException)
-	{
-		m_bios->HandleException();
-	}
-	return ticks;
 }
 
 void CPsfVm::ThreadProc()
@@ -354,7 +183,7 @@ void CPsfVm::ThreadProc()
 		else
 		{
 #ifdef DEBUGGER_INCLUDED
-			int ticks = ExecuteCpu(m_singleStep);
+			int ticks = m_iop.ExecuteCpu(m_singleStep);
 
 			static int frameCounter = g_frameTicks;
 			static uint64 currentTime = CHighResTimer::GetTime();
@@ -362,7 +191,7 @@ void CPsfVm::ThreadProc()
 			frameCounter -= ticks;
 			if(frameCounter <= 0)
 			{
-				m_intc.AssertLine(CIntc::LINE_VBLANK);
+				m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
 				OnNewFrame();
 				frameCounter += g_frameTicks;
 				uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
@@ -378,7 +207,7 @@ void CPsfVm::ThreadProc()
 			}
 
 //			m_spuHandler.Update(m_spu);
-			if(m_executor.MustBreak() || m_singleStep)
+			if(m_iop.m_executor.MustBreak() || m_singleStep)
 			{
 				m_status = PAUSED;
 				m_singleStep = false;
@@ -392,18 +221,18 @@ void CPsfVm::ThreadProc()
 				{
 					while(m_spuUpdateCounter > 0)
 					{
-						int ticks = ExecuteCpu(false);
+						int ticks = m_iop.ExecuteCpu(false);
 						m_spuUpdateCounter -= ticks;
 						m_frameCounter -= ticks;
 						if(m_frameCounter < 0)
 						{
 							m_frameCounter += g_frameTicks;
-							m_intc.AssertLine(CIntc::LINE_VBLANK);
+							m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
 							OnNewFrame();
 						}
 					}
 
-					m_spuHandler.Update(m_spuCore0, m_spuCore1);
+					m_spuHandler.Update(m_iop.m_spuCore0, m_iop.m_spuCore1);
 					m_spuUpdateCounter += g_spuUpdateTicks;
 				}
 			}

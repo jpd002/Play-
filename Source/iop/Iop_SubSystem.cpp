@@ -5,7 +5,6 @@
 
 using namespace Iop;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 using namespace PS2;
 
 #define LOG_NAME ("iop_subsystem")

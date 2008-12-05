@@ -767,6 +767,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Source\iop\Iop_SubSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SubSystem.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\iop\Iop_Sysclib.cpp"
 					>
 				</File>

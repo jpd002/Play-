@@ -2,12 +2,13 @@
 #include "StdStream.h"
 #include "PsxBios.h"
 #include "PsfBios.h"
+#include "Ps2Const.h"
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
 using namespace Framework;
-using namespace boost;
 using namespace std;
+namespace filesystem = boost::filesystem;
 
 void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
@@ -24,7 +25,7 @@ void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const char* pathString, CPsfBas
 
 void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
-    CPsxBios* bios = new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), CPsfVm::RAMSIZE);
+    CPsxBios* bios = new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE);
     virtualMachine.SetBios(bios);
     LoadPsxRecurse(virtualMachine, bios, pathString, tags);
 }
@@ -66,7 +67,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 		unsigned int currentLib = 2;
 		while(1)
 		{
-			string libName = "_lib" + lexical_cast<string>(currentLib);
+			string libName = "_lib" + boost::lexical_cast<string>(currentLib);
 			const char* libPath = psfFile.GetTagValue(libName.c_str());
 			if(libPath == NULL)
 			{
@@ -86,7 +87,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 
 void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
-	PS2::CPsfBios* bios = new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), CPsfVm::RAMSIZE);
+	PS2::CPsfBios* bios = new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE);
     virtualMachine.SetBios(bios);
 	LoadPs2Recurse(virtualMachine, bios, pathString, tags);
 	bios->Start();
