@@ -73,7 +73,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
 	}
 
-	m_currentTime = 0;
+	//0xBE00000 = Stupid constant to make FFX PSF happy
+	m_currentTime = 0xBE00000;
+
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
 
     m_intrHandlers.clear();
