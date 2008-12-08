@@ -47,7 +47,7 @@ void CPadMan::Invoke(CMIPS& context, unsigned int functionId)
     throw runtime_error("Not implemented.");
 }
 
-void CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(method == 1);
 	method = args[0];
@@ -70,6 +70,7 @@ void CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
 		break;
 	}
+    return true;
 }
 
 void CPadMan::SaveState(CZipArchiveWriter& archive)

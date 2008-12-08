@@ -7,7 +7,7 @@ class CSifModule
 {
 public:
     virtual         ~CSifModule() {}
-    virtual void    Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
+    virtual bool    Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
 };
 
 #endif

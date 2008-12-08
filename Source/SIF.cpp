@@ -308,6 +308,7 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 void CSIF::Cmd_Call(PACKETHDR* pHDR)
 {
 	RPCCALL* pCall = reinterpret_cast<RPCCALL*>(pHDR);
+    bool sendReply = true;
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
 
@@ -317,7 +318,7 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 	if(moduleIterator != m_modules.end())
 	{
 	    CSifModule* pModule(moduleIterator->second);
-        pModule->Invoke(pCall->nRPCNumber, 
+        sendReply = pModule->Invoke(pCall->nRPCNumber, 
             reinterpret_cast<uint32*>(m_eeRam + m_nDataAddr), pCall->nSendSize, 
             reinterpret_cast<uint32*>(m_eeRam + nRecvAddr), pCall->nRecvSize,
             m_eeRam);
@@ -327,23 +328,26 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
 	}
 
-	RPCREQUESTEND rend;
-    memset(&rend, 0, sizeof(RPCREQUESTEND));
+    if(sendReply)
+    {
+	    RPCREQUESTEND rend;
+        memset(&rend, 0, sizeof(RPCREQUESTEND));
 
-	//Fill in the request end 
-	rend.Header.nSize		= sizeof(RPCREQUESTEND);
-	rend.Header.nDest		= pHDR->nDest;
-	rend.Header.nCID		= SIF_CMD_REND;
-	rend.Header.nOptional	= 0;
+	    //Fill in the request end 
+	    rend.Header.nSize		= sizeof(RPCREQUESTEND);
+	    rend.Header.nDest		= pHDR->nDest;
+	    rend.Header.nCID		= SIF_CMD_REND;
+	    rend.Header.nOptional	= 0;
 
-	rend.nRecordID			= pCall->nRecordID;
-	rend.nPacketAddr		= pCall->nPacketAddr;
-	rend.nRPCID				= pCall->nRPCID;
-	rend.nClientDataAddr	= pCall->nClientDataAddr;
-	rend.nCID				= SIF_CMD_CALL;
+	    rend.nRecordID			= pCall->nRecordID;
+	    rend.nPacketAddr		= pCall->nPacketAddr;
+	    rend.nRPCID				= pCall->nRPCID;
+	    rend.nClientDataAddr	= pCall->nClientDataAddr;
+	    rend.nCID				= SIF_CMD_CALL;
 
-    SendPacket(&rend, sizeof(RPCREQUESTEND));
-	//SendDMA(&rend, sizeof(RPCREQUESTEND));
+        SendPacket(&rend, sizeof(RPCREQUESTEND));
+	    //SendDMA(&rend, sizeof(RPCREQUESTEND));
+    }
 }
 
 /////////////////////////////////////////////////////////

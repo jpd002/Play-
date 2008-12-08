@@ -67,6 +67,7 @@ class CELF
 public:
     enum SECTION_HEADER_TYPE
     {
+        SHT_NOBITS = 8,
         SHT_REL = 9,
     };
 

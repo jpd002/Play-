@@ -30,7 +30,7 @@ void CUnknown::Invoke(CMIPS&, unsigned int)
     throw runtime_error("Not implemented.");
 }
 
-void CUnknown::Invoke(uint32 nMethod, uint32* pArgs, uint32 nArgsSize, uint32* pRet, uint32 nRetSize, uint8* ram)
+bool CUnknown::Invoke(uint32 nMethod, uint32* pArgs, uint32 nArgsSize, uint32* pRet, uint32 nRetSize, uint8* ram)
 {
 	switch(nMethod)
 	{
@@ -49,6 +49,7 @@ void CUnknown::Invoke(uint32 nMethod, uint32* pArgs, uint32 nArgsSize, uint32* p
 			break;
 		}
 	}
+    return true;
 }
 
 void CUnknown::SaveState(CZipArchiveWriter& archive)

@@ -137,7 +137,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_sifMan);
 	}
     {
-        RegisterModule(new Iop::CSifCmd(*this));
+        RegisterModule(new Iop::CSifCmd(*this, *m_sifMan, *m_sysmem, m_ram));
     }
 #ifdef _IOP_EMULATE_MODULES
     {
@@ -1065,6 +1065,20 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
 
     executableRange.first = baseAddress;
     executableRange.second = baseAddress + programHeader->nMemorySize;
+
+    //Clean BSS sections
+    {
+        const ELFHEADER& header(elf.GetHeader());
+        for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
+        {
+            ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
+            if(sectionHeader->nType == CELF::SHT_NOBITS && sectionHeader->nStart != 0)
+            {
+                memset(m_ram + baseAddress + sectionHeader->nStart, 0, sectionHeader->nSize);
+            }
+        }
+    }
+
     return baseAddress + elf.GetHeader().nEntryPoint;
 }
 

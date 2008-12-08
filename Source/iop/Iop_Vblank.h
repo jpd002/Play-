@@ -17,6 +17,7 @@ namespace Iop
         virtual void            Invoke(CMIPS&, unsigned int);
 
     private:
+        void                    WaitVblankStart();
         void                    WaitVblankEnd();
 
         CIopBios&               m_bios;

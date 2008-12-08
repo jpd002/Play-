@@ -24,9 +24,10 @@ public:
     
     }
 
-    virtual void Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+    virtual bool Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
     { 
         m_handler(method, args, argsSize, ret, retSize, ram);
+        return true;
     }
 
 private:

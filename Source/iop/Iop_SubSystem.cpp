@@ -24,20 +24,20 @@ m_spu(m_spuCore0),
 m_spu2(m_spuCore0, m_spuCore1)
 {
 	//Read memory map
-	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,								                0x01);
-	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                0x02);
-	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                0x03);
-	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                0x04);
-	m_cpu.m_pMemoryMap->InsertReadMap(0x1F800000,                   0x1F8003FF,                     m_scratchPad,   									0x05);
-	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,					HW_REG_END,						bind(&CSubSystem::ReadIoRegister, this, _1),		0x06);
+	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,								                        0x01);
+	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                        0x02);
+	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                        0x03);
+	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                        0x04);
+	m_cpu.m_pMemoryMap->InsertReadMap(0x1F800000,                   0x1F8003FF,                     m_scratchPad,   									        0x05);
+    m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,					HW_REG_END,						bind(&CSubSystem::ReadIoRegister, this, placeholders::_1),	0x06);
 
 	//Write memory map
-	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE),   (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											    0x01);
-	m_cpu.m_pMemoryMap->InsertWriteMap((1 * IOP_RAM_SIZE),   (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											    0x02);
-	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE),   (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											    0x03);
-	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE),   (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											    0x04);
-	m_cpu.m_pMemoryMap->InsertWriteMap(0x1F800000,      0x1F8003FF,                                 m_scratchPad,									    0x05);
-	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		                            bind(&CSubSystem::WriteIoRegister, this, _1, _2),	0x06);
+	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE),   (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											                                0x01);
+	m_cpu.m_pMemoryMap->InsertWriteMap((1 * IOP_RAM_SIZE),   (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											                                0x02);
+	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE),   (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											                                0x03);
+	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE),   (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											                                0x04);
+	m_cpu.m_pMemoryMap->InsertWriteMap(0x1F800000,      0x1F8003FF,                                 m_scratchPad,									                                0x05);
+    m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		                            bind(&CSubSystem::WriteIoRegister, this, placeholders::_1, placeholders::_2),	0x06);
 
 	//Instruction memory map
 	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x01);
@@ -48,8 +48,8 @@ m_spu2(m_spuCore0, m_spuCore1)
 	m_cpu.m_pArch = &g_MAMIPSIV;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
-	m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, _1, _2, _3));
-	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, _1, _2, _3));
+    m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, placeholders::_1, placeholders::_2, placeholders::_3));
+	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, placeholders::_1, placeholders::_2, placeholders::_3));
 }
 
 CSubSystem::~CSubSystem()

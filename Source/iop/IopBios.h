@@ -21,6 +21,24 @@
 class CIopBios : public Iop::CBiosBase
 {
 public:
+    struct THREADCONTEXT
+    {
+        uint32      gpr[0x20];
+        uint32      epc;
+        uint32      delayJump;
+    };
+
+    struct THREAD
+    {
+        uint32          id;
+        uint32          priority;
+        THREADCONTEXT   context;
+        uint32          status;
+        uint32          waitSemaphore;
+        uint32          wakeupCount;
+        uint64          nextActivateTime;
+    };
+
     typedef MipsModuleList::iterator ModuleListIterator;
 
                             CIopBios(uint32, uint32, CMIPS&, uint8*, uint32);
@@ -55,6 +73,7 @@ public:
     uint32                  CreateThread(uint32, uint32);
     void                    StartThread(uint32, uint32* = NULL);
     void                    DelayThread(uint32);
+    THREAD&                 GetThread(uint32);
     uint32                  GetCurrentThreadId();
     void                    SleepThread();
     uint32                  WakeupThread(uint32, bool);
@@ -75,24 +94,6 @@ private:
     enum DEFAULT_PRIORITY
     {
         DEFAULT_PRIORITY = 7,
-    };
-
-    struct THREADCONTEXT
-    {
-        uint32      gpr[0x20];
-        uint32      epc;
-        uint32      delayJump;
-    };
-
-    struct THREAD
-    {
-        uint32          id;
-        uint32          priority;
-        THREADCONTEXT   context;
-        uint32          status;
-        uint32          waitSemaphore;
-        uint32          wakeupCount;
-        uint64          nextActivateTime;
     };
 
     struct SEMAPHORE
@@ -126,7 +127,6 @@ private:
     typedef std::map<uint32, INTRHANDLER> IntrHandlerMapType;
     typedef std::pair<uint32, uint32> ExecutableRange;
 
-    THREAD&                 GetThread(uint32);
     ThreadMapType::iterator GetThreadPosition(uint32);
     void                    ExitCurrentThread();
     void                    LoadThreadContext(uint32);

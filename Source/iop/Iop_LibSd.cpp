@@ -31,7 +31,7 @@ void CLibSd::Invoke(CMIPS& context, unsigned int functionId)
     throw runtime_error("Not implemented.");
 }
 
-void CLibSd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CLibSd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -42,6 +42,7 @@ void CLibSd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, u
         CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
 		break;
 	}
+    return true;
 }
 
 void CLibSd::GetBufferSize(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

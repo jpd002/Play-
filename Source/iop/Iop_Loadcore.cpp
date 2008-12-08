@@ -56,7 +56,7 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
     }
 }
 
-void CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -74,6 +74,7 @@ void CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
         CLog::GetInstance().Print(LOG_NAME, "Invoking unknown function %d.\r\n", method);
 		break;
 	}
+    return true;
 }
 
 uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)

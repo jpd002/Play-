@@ -41,7 +41,7 @@ void CFileIo::Invoke(CMIPS& context, unsigned int functionId)
 }
 
 //SIF Invoke
-void CFileIo::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CFileIo::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
     if(m_fileIoHandler == NULL)
     {
@@ -55,6 +55,7 @@ void CFileIo::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
         }
     }
     m_fileIoHandler->Invoke(method, args, argsSize, ret, retSize, ram);
+    return true;
 }
 
 //--------------------------------------------------

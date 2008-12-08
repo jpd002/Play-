@@ -17,7 +17,7 @@ namespace Iop
         std::string     GetId() const;
 		std::string		GetFunctionName(unsigned int) const;
         void            Invoke(CMIPS&, unsigned int);
-        void            Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+        bool            Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
     private:
 		enum MODULE_ID

@@ -6,6 +6,8 @@ using namespace std;
 
 #define LOG_NAME ("iop_sysmem")
 
+#define MIN_BLOCK_SIZE  0x20
+
 CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio, CSifMan& sifMan) :
 m_memoryBegin(memoryBegin),
 m_memoryEnd(memoryEnd),
@@ -58,7 +60,7 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
     }
 }
 
-void CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -78,12 +80,13 @@ void CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
         CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
 		break;
 	}
+    return true;
 }
 
 uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags)
 {
     uint32 begin = 0;
-    const uint32 blockSize = 0x400;
+    const uint32 blockSize = MIN_BLOCK_SIZE;
     size = ((size + (blockSize - 1)) / blockSize) * blockSize;
     for(BlockMapType::iterator blockIterator(m_blockMap.begin());
         blockIterator != m_blockMap.end(); blockIterator++)

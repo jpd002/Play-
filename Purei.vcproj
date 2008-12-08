@@ -744,6 +744,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Source\iop\Iop_SifDynamic.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_SifDynamic.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\iop\Iop_SifMan.cpp"
 						>
 					</File>
