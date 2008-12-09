@@ -9,6 +9,7 @@ TODO:
 	- Happens on other computers too.
 - Exception for invalid PSFs
 - 32-bits MA_MIPSIV support
+- waveOut driver
 
 Done:
 - Move SPU2 to IOP

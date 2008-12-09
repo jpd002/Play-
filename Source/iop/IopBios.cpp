@@ -369,14 +369,15 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority)
     THREAD thread;
     memset(&thread, 0, sizeof(thread));
     thread.context.delayJump = 1;
-    uint32 stackBaseAddress = m_sysmem->AllocateMemory(DEFAULT_STACKSIZE, 0);
+	thread.stackSize = DEFAULT_STACKSIZE;
+    thread.stackBase = m_sysmem->AllocateMemory(thread.stackSize, 0);
     thread.id = m_nextThreadId++;
     thread.priority = priority;
     thread.status = THREAD_STATUS_CREATED;
     thread.context.epc = threadProc;
     thread.nextActivateTime = 0;
     thread.context.gpr[CMIPS::RA] = m_threadFinishAddress;
-    thread.context.gpr[CMIPS::SP] = stackBaseAddress;
+    thread.context.gpr[CMIPS::SP] = thread.stackBase + thread.stackSize;
     m_threads.insert(ThreadMapType::value_type(thread.priority, thread));
     return thread.id;
 }

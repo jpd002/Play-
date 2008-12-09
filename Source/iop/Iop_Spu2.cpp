@@ -188,6 +188,12 @@ uint32 CSpu2::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, 
 		address &= ~0x400;
 		return dispatchInfo.core[coreId](address, value);
     }
+	else if(tmpAddress < 0x7B0)
+	{
+		unsigned int coreId = (tmpAddress - 0x760) / 40;
+		address -= coreId * 40;
+		return dispatchInfo.core[coreId](address, value);
+	}
 	return dispatchInfo.global(address, value);
 }
 

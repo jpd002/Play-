@@ -36,6 +36,8 @@ public:
         uint32          status;
         uint32          waitSemaphore;
         uint32          wakeupCount;
+		uint32			stackBase;
+		uint32			stackSize;
         uint64          nextActivateTime;
     };
 

@@ -152,9 +152,15 @@ namespace Iop
         uint16          GetControl() const;
         void            SetControl(uint16);
 
-		void			SetReverbParam(unsigned int, uint16);
+		uint32			GetReverbParam(unsigned int) const;
+		void			SetReverbParam(unsigned int, uint32);
+
+		uint32			GetReverbWorkAddressStart() const;
 		void			SetReverbWorkAddressStart(uint32);
+
+		uint32			GetReverbWorkAddressEnd() const;
 		void			SetReverbWorkAddressEnd(uint32);
+
 		void			SetReverbCurrentAddress(uint32);
 
         UNION32_16	    GetChannelOn() const;
@@ -171,6 +177,9 @@ namespace Iop
 
 	    void		    SendKeyOn(uint32);
 	    void		    SendKeyOff(uint32);
+
+		UNION32_16		GetEndFlags() const;
+		void			ClearEndFlags();
 
 		void			WriteWord(uint16);
 
@@ -193,6 +202,8 @@ namespace Iop
 			uint8*			GetRepeat() const;
 			uint8*          GetCurrent() const;
 			bool			IsDone() const;
+			bool			GetEndFlag() const;
+			void			ClearEndFlag();
 
 		private:
 			enum
@@ -218,6 +229,7 @@ namespace Iop
 			double			m_s2;
 			bool			m_done;
 			bool			m_nextValid;
+			bool			m_endFlag;
 		};
 
 	    enum
@@ -243,7 +255,7 @@ namespace Iop
 	    uint32			m_reverbCurrAddr;
         uint16          m_ctrl;
 	    int				m_reverbTicks;
-	    uint16			m_reverb[REVERB_REG_COUNT];
+	    uint32			m_reverb[REVERB_REG_COUNT];
     	CHANNEL			m_channel[MAX_CHANNEL];
         CSampleReader   m_reader[MAX_CHANNEL];
     	uint32			m_adsrLogTable[160];

@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\include&quot;;C:\Projects\Rawr\Source;C:\Projects\zlib;C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0;C:\Projects\Framework\include;C:\Projects\Rawr\tools\PsfPlayer2\Source"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;_PSX;DEBUGGER_INCLUDED;FUNCTIONSVIEW_STANDALONE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;_PSX;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -708,6 +708,14 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\iop\Iop_SifCmd.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SifDynamic.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_SifDynamic.h"
 					>
 				</File>
 				<File

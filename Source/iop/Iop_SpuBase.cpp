@@ -131,10 +131,37 @@ void CSpuBase::SetChannelReverbHi(uint16 value)
     m_channelReverb.h1 = value;
 }
 
-void CSpuBase::SetReverbParam(unsigned int param, uint16 value)
+uint32 CSpuBase::GetReverbParam(unsigned int param) const
+{
+    assert(param < REVERB_PARAM_COUNT);
+	return m_reverb[param];
+}
+
+void CSpuBase::SetReverbParam(unsigned int param, uint32 value)
 {
     assert(param < REVERB_PARAM_COUNT);
     m_reverb[param] = value;
+}
+
+UNION32_16 CSpuBase::GetEndFlags() const
+{
+	UNION32_16 result(0);
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		if(m_reader[i].GetEndFlag())
+		{
+			result.f |= (1 << i);
+		}
+	}
+	return result;
+}
+
+void CSpuBase::ClearEndFlags()
+{
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		m_reader[i].ClearEndFlag();
+	}
 }
 
 CSpuBase::CHANNEL& CSpuBase::GetChannel(unsigned int channelNumber)
@@ -175,15 +202,28 @@ void CSpuBase::SendKeyOff(uint32 channels)
 	}
 }
 
+uint32 CSpuBase::GetReverbWorkAddressStart() const
+{
+	return m_reverbWorkAddrStart;
+}
+
 void CSpuBase::SetReverbWorkAddressStart(uint32 address)
 {
+	assert(address <= m_ramSize);
 	m_reverbWorkAddrStart = address;
+	m_reverbCurrAddr = address;
+}
+
+uint32 CSpuBase::GetReverbWorkAddressEnd() const
+{
+	return m_reverbWorkAddrEnd - 1;
 }
 
 void CSpuBase::SetReverbWorkAddressEnd(uint32 address)
 {
 	assert((address & 0xFFFF) == 0xFFFF);
-	m_reverbWorkAddrEnd = address;
+	assert(address <= m_ramSize);
+	m_reverbWorkAddrEnd = address + 1;
 }
 
 void CSpuBase::SetReverbCurrentAddress(uint32 address)
@@ -225,7 +265,16 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 		{
 			if(!volume.mode.mode)
 			{
-				inputSample = (inputSample * static_cast<int32>(volume.volume.volume)) / 0x3FFF;
+				int32 volumeLevel = 0;
+				if(volume.volume.phase)
+				{
+//					volumeLevel = 0x3FFF - volume.volume.volume;
+				}
+				else
+				{
+					volumeLevel = volume.volume.volume;
+				}
+				inputSample = (inputSample * volumeLevel) / 0x3FFF;
 			}
 			int32 resultSample = inputSample + static_cast<int32>(*output);
 			resultSample = max<int32>(resultSample, SHRT_MIN);
@@ -251,6 +300,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			if(channel.status == KEY_ON)
 			{
 				reader.SetParams(m_ram + channel.address, m_ram + channel.repeat);
+				reader.ClearEndFlag();
 				channel.status = ATTACK;
 				channel.adsrVolume = 0;
 			}
@@ -448,13 +498,12 @@ void CSpuBase::SetReverbSample(uint32 address, float value)
 
 uint32 CSpuBase::GetReverbOffset(unsigned int registerId) const
 {
-	uint16 value = m_reverb[registerId];
-	return value * 8;
+	return m_reverb[registerId];
 }
 
 float CSpuBase::GetReverbCoef(unsigned int registerId) const
 {
-	int16 value = m_reverb[registerId];
+	int16 value = static_cast<int16>(m_reverb[registerId]);
 	return static_cast<float>(value) / static_cast<float>(0x8000);
 }
 
@@ -583,6 +632,7 @@ void CSpuBase::CSampleReader::Reset()
 	m_s2 = 0;
 	m_done = false;
 	m_nextValid = false;
+	m_endFlag = false;
 }
 
 void CSpuBase::CSampleReader::SetParams(uint8* address, uint8* repeat)
@@ -711,6 +761,8 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	if(flags & 0x01)
 	{
+		m_endFlag = true;
+
 		if(flags == 0x03)
 		{
 			m_nextSample = m_repeat;
@@ -735,6 +787,16 @@ uint8* CSpuBase::CSampleReader::GetCurrent() const
 bool CSpuBase::CSampleReader::IsDone() const
 {
 	return m_done;
+}
+
+bool CSpuBase::CSampleReader::GetEndFlag() const
+{
+	return m_endFlag;
+}
+
+void CSpuBase::CSampleReader::ClearEndFlag()
+{
+	m_endFlag = false;
 }
 
 double CSpuBase::CSampleReader::GetSamplingRate() const

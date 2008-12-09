@@ -2,7 +2,7 @@
 #define _APPDEF_H_
 
 #define APP_NAME			_T("PsfPlayer")
-#define APP_VERSION			(17)
-#define APP_VERSIONSTR		_T("0.17")
+#define APP_VERSION			(18)
+#define APP_VERSIONSTR		_T("0.18")
 
 #endif

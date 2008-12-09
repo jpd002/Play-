@@ -33,6 +33,10 @@ namespace Iop
 				VP_VOLXL		= 0x1F90000C,
 				VP_VOLXR		= 0x1F90000E,
 				S_REG_BASE		= 0x1F900180,
+				S_VMIXL_HI		= 0x1F900188,
+				S_VMIXL_LO		= 0x1F90018A,
+				S_VMIXER_HI		= 0x1F900194,
+				S_VMIXER_LO		= 0x1F900196,
 				CORE_ATTR		= 0x1F90019A,
                 A_KON_HI        = 0x1F9001A0,
                 A_KON_LO        = 0x1F9001A2,
@@ -48,12 +52,18 @@ namespace Iop
 				VA_LSAX_LO		= 0x1F9001C6,
 				VA_NAX_HI		= 0x1F9001C8,
 				VA_NAX_LO		= 0x1F9001CA,
-				R_REG_BASE		= 0x1F9002E0,		//Reverb Base
+				R_REG_BASE		= 0x1F9002E0,
+				RVB_A_REG_BASE	= 0x1F9002E4,		//Reverb Base
+				RVB_A_REG_END	= 0x1F900338,
 				A_ESA_HI		= 0x1F9002E0,
 				A_ESA_LO		= 0x1F9002E2,
 				A_EEA_HI		= 0x1F90033C,
 				A_EEA_LO		= 0x1F90033E,
+				S_ENDX_HI		= 0x1F900340,
+				S_ENDX_LO		= 0x1F900342,
 				STATX			= 0x1F900344,
+				RVB_C_REG_BASE	= 0x1F900774,
+				RVB_C_REG_END	= 0x1F900788,
 			};
 
 		private:
@@ -93,9 +103,6 @@ namespace Iop
 			unsigned int			m_coreId;
 			std::string				m_logName;
 			CSpuBase&				m_spuBase;
-
-            uint32                  m_tempReverb;
-            uint32                  m_tempReverbA;
 		};
 	};
 };
