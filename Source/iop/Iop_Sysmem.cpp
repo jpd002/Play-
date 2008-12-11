@@ -6,6 +6,10 @@ using namespace std;
 
 #define LOG_NAME ("iop_sysmem")
 
+#define FUNCTION_ALLOCATEMEMORY     "AllocateMemory"
+#define FUNCTION_FREEMEMORY         "FreeMemory"
+#define FUNCTION_PRINTF             "printf"
+
 #define MIN_BLOCK_SIZE  0x20
 
 CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio, CSifMan& sifMan) :
@@ -33,7 +37,21 @@ string CSysmem::GetId() const
 
 string CSysmem::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+    switch(functionId)
+    {
+    case 4:
+        return FUNCTION_ALLOCATEMEMORY;
+        break;
+    case 5:
+        return FUNCTION_FREEMEMORY;
+        break;
+    case 14:
+        return FUNCTION_PRINTF;
+        break;
+    default:
+	    return "unknown";
+        break;
+    }
 }
 
 void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
