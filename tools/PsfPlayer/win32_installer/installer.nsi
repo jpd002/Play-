@@ -1,10 +1,12 @@
 !include "MUI2.nsh"
 
+!searchparse /file ../Source/AppDef.h '#define APP_VERSIONSTR _T("' APP_VERSION '")'
+
 ; The name of the installer
-Name "PsfPlayer"
+Name "PsfPlayer v${APP_VERSION}"
 
 ; The file to write
-OutFile "PsfPlayer.exe"
+OutFile "PsfPlayer-${APP_VERSION}.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\PsfPlayer
