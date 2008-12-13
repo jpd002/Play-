@@ -1,9 +1,11 @@
 #include "AppDef.h"
+#include "AppConfig.h"
 #include "PlayerWnd.h"
 #include "PsfLoader.h"
 #include "win32/Rect.h"
 #include "win32/FileDialog.h"
 #include "win32/AcceleratorTableGenerator.h"
+#include "win32/MenuItem.h"
 #include "FileInformationWindow.h"
 #include "AboutWindow.h"
 #include "string_cast.h"
@@ -16,6 +18,8 @@
 #define WNDSTYLEEX		(0)
 #define WM_UPDATEVIS	(WM_USER + 1)
 
+#define PREF_REVERB_ENABLED ("reverb.enabled")
+
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
@@ -26,6 +30,8 @@ m_frames(0),
 m_ready(false),
 m_accel(CreateAccelerators())
 {
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_REVERB_ENABLED, true);
+
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
@@ -51,7 +57,9 @@ m_accel(CreateAccelerators())
         }
     }
 
-	UpdateUi();
+	UpdateTitle();
+	UpdateFromConfig();
+
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 
 	m_virtualMachine.OnNewFrame.connect(bind(&CPlayerWnd::OnNewFrame, this));
@@ -132,6 +140,9 @@ long CPlayerWnd::OnCommand(unsigned short id, unsigned short command, HWND hWndF
 	case ID_FILE_EXIT:
 		Destroy();
 		break;
+	case ID_SETTINGS_ENABLEREVERB:
+		EnableReverb();
+		break;
 	case ID_HELP_ABOUT:
 		ShowAbout();
 		break;
@@ -151,7 +162,8 @@ long CPlayerWnd::OnTimer()
 HACCEL CPlayerWnd::CreateAccelerators()
 {
 	Win32::CAcceleratorTableGenerator tableGenerator;
-	tableGenerator.Insert(ID_FILE_PAUSE, VK_F5, FVIRTKEY);
+	tableGenerator.Insert(ID_FILE_PAUSE,			VK_F5,	FVIRTKEY);
+	tableGenerator.Insert(ID_SETTINGS_ENABLEREVERB,	'R',	FVIRTKEY | FCONTROL);	
 	return tableGenerator.Create();
 }
 
@@ -173,6 +185,14 @@ void CPlayerWnd::ShowFileInformation()
 	if(!m_ready) return;
 	CFileInformationWindow fileInfo(m_hWnd, m_tags);
 	fileInfo.DoModal();
+}
+
+void CPlayerWnd::EnableReverb()
+{
+	bool value = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_REVERB_ENABLED);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_REVERB_ENABLED, !value);
+	UpdateReverbStatus();
+	UpdateMenu();
 }
 
 void CPlayerWnd::ShowAbout()
@@ -199,10 +219,21 @@ void CPlayerWnd::Load(const char* path)
 		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
 		m_ready = false;
 	}
-	UpdateUi();
+	UpdateTitle();
 }
 
-void CPlayerWnd::UpdateUi()
+void CPlayerWnd::UpdateFromConfig()
+{
+	UpdateReverbStatus();
+	UpdateMenu();
+}
+
+void CPlayerWnd::UpdateReverbStatus()
+{
+	m_virtualMachine.SetReverbEnabled(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_REVERB_ENABLED));
+}
+
+void CPlayerWnd::UpdateTitle()
 {
 	CPsfBase::ConstTagIterator titleTag = m_tags.find("title");
 	bool hasTitle = titleTag != m_tags.end();
@@ -216,6 +247,12 @@ void CPlayerWnd::UpdateUi()
 	}
 
 	SetText(title.c_str());
+}
+
+void CPlayerWnd::UpdateMenu()
+{
+	Win32::CMenuItem reverbMenuItem = Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_SETTINGS_ENABLEREVERB);
+	reverbMenuItem.Check(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_REVERB_ENABLED));
 }
 
 void CPlayerWnd::OnNewFrame()

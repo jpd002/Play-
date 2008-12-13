@@ -3,11 +3,9 @@
 #include "win32/Window.h"
 #endif
 
-using namespace boost;
-
 CMailBox::CMailBox()
 {
-    m_callDone = false;
+
 }
 
 CMailBox::~CMailBox()
@@ -22,7 +20,7 @@ bool CMailBox::IsPending() const
 
 void CMailBox::WaitForCall()
 {
-    mutex::scoped_lock waitLock(m_waitMutex);
+	boost::mutex::scoped_lock waitLock(m_waitMutex);
     if(IsPending()) return;
     m_waitCondition.wait(waitLock);
 }
@@ -30,27 +28,26 @@ void CMailBox::WaitForCall()
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 {
     {
-#ifdef WIN32
-        if(waitForCompletion)
-        {
-            assert(!m_callDone);
-            m_callDone = false;
-        }
-#endif		
-        mutex::scoped_lock waitLock(m_waitMutex);
-        m_calls.push_back(function);
+        boost::mutex::scoped_lock waitLock(m_waitMutex);
+		MESSAGE message;
+		message.function = function;
+		message.sync = waitForCompletion;
+        m_calls.push_back(message);
         m_waitCondition.notify_all();
     }
     if(waitForCompletion)
     {
-        mutex::scoped_lock doneLock(m_doneNotifyMutex);
+        boost::mutex::scoped_lock doneLock(m_doneNotifyMutex);
 #ifdef WIN32
-        while(!m_callDone)
+		while(1)
         {
-            xtime xt;
-            xtime_get(&xt, boost::TIME_UTC);
+            boost::xtime xt;
+            boost::xtime_get(&xt, boost::TIME_UTC);
             xt.nsec += 100 * 1000000;
-            m_callFinished.timed_wait(doneLock, xt);
+            if(m_callFinished.timed_wait(doneLock, xt))
+			{
+				break;
+			}
 	        MSG wmmsg;
             while(PeekMessage(&wmmsg, NULL, 0, 0, PM_REMOVE))
 		    {
@@ -58,7 +55,6 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 			    DispatchMessage(&wmmsg);
 		    }
         }
-        m_callDone = false;
 #else
         m_callFinished.wait(doneLock);
 #endif
@@ -67,17 +63,17 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 
 void CMailBox::ReceiveCall()
 {
-    FunctionType function;
+    MESSAGE message;
     {
-        mutex::scoped_lock waitLock(m_waitMutex);
+        boost::mutex::scoped_lock waitLock(m_waitMutex);
         if(!IsPending()) return;
-        function = *m_calls.begin();
+        message = *m_calls.begin();
         m_calls.pop_front();
     }
-    function();
+    message.function();
+	if(message.sync)
     {
-        mutex::scoped_lock doneLock(m_doneNotifyMutex);
+        boost::mutex::scoped_lock doneLock(m_doneNotifyMutex);
         m_callFinished.notify_all();
-        m_callDone = true;
     }
 }

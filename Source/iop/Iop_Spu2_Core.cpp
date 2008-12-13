@@ -211,10 +211,10 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 			m_spuBase.WriteWord(static_cast<uint16>(value));
 			break;
 		case S_VMIXER_HI:
-			m_spuBase.SetChannelReverbLo(value);
+			m_spuBase.SetChannelReverbLo(static_cast<uint16>(value));
 			break;
 		case S_VMIXER_LO:
-			m_spuBase.SetChannelReverbHi(value);
+			m_spuBase.SetChannelReverbHi(static_cast<uint16>(value));
 			break;
 		case A_KON_HI:
 			m_spuBase.SendKeyOn(value);

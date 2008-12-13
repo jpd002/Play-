@@ -69,6 +69,10 @@ BEGIN
         MENUITEM "Pause/Resume\tF5",            ID_FILE_PAUSE
         MENUITEM "Exit\tAlt+F4",                ID_FILE_EXIT
     END
+    POPUP "&Settings"
+    BEGIN
+        MENUITEM "&Enable Reverb\tCtrl+R",      ID_SETTINGS_ENABLEREVERB
+    END
     POPUP "Help"
     BEGIN
         MENUITEM "&About",                      ID_HELP_ABOUT

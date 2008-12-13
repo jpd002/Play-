@@ -21,6 +21,8 @@ public:
 	void				Reset();
 	void				Step();
 
+	void				SetReverbEnabled(bool);
+
 	CMIPS&				GetCpu();
 	Iop::CSpuBase&		GetSpuCore(unsigned int);
     uint8*              GetRam();
@@ -45,6 +47,7 @@ private:
 	MipsModuleList		GetIopModules();
 	void				ThreadProc();
 
+	void				SetReverbEnabledImpl(bool);
 	void				PauseImpl();
 
 	STATUS				m_status;

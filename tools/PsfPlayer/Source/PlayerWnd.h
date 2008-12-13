@@ -32,9 +32,13 @@ private:
 	void									Load(const char*);
 	void									PauseResume();
 	void									ShowFileInformation();
+	void									EnableReverb();
 	void									ShowAbout();
 	void									OnNewFrame();
-	void									UpdateUi();
+	void									UpdateFromConfig();
+	void									UpdateReverbStatus();
+	void									UpdateTitle();
+	void									UpdateMenu();
 
 	CPsfVm&									m_virtualMachine;
 	CSpuRegView*							m_regView[MAX_CORE];

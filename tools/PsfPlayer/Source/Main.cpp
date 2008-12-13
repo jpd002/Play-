@@ -17,7 +17,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
 	{
 		virtualMachine.Reset();
 //		filesystem::path loadPath("C:\\Media\\PS2\\Ys4_psf2\\13 - Blazing Sword.psf2", filesystem::native);
-		filesystem::path loadPath("C:\\Media\\PSX\\vp-psf\\vp-103.minipsf", filesystem::native);
+//		filesystem::path loadPath("C:\\Media\\PSX\\vp-psf\\vp-103.minipsf", filesystem::native);
+		filesystem::path loadPath("C:\\Media\\PS2\\FF10_psf\\102 In Zanarkand.minipsf2", filesystem::native);
 		CPsfLoader::LoadPsf(virtualMachine, loadPath.string().c_str());
 		string tagPackageName = loadPath.leaf();
 		virtualMachine.LoadDebugTags(tagPackageName.c_str());

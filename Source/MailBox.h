@@ -20,14 +20,19 @@ public:
     void                WaitForCall();
 
 private:
-    typedef std::deque<FunctionType> FunctionCallQueue;
+	struct MESSAGE
+	{
+		FunctionType	function;
+		bool			sync;
+	};
+
+    typedef std::deque<MESSAGE> FunctionCallQueue;
 
     FunctionCallQueue   m_calls;
     boost::mutex        m_waitMutex;
     boost::mutex        m_doneNotifyMutex;
     boost::condition    m_callFinished;
     boost::condition    m_waitCondition;
-    bool                m_callDone;
 };
 
 #endif

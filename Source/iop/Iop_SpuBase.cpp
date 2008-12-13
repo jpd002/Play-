@@ -11,7 +11,8 @@ using namespace std;
 
 CSpuBase::CSpuBase(uint8* ram, uint32 ramSize) :
 m_ram(ram),
-m_ramSize(ramSize)
+m_ramSize(ramSize),
+m_reverbEnabled(true)
 {
     Reset();
 
@@ -74,6 +75,11 @@ void CSpuBase::Reset()
 bool CSpuBase::IsEnabled() const
 {
 	return (m_ctrl & 0x8000) != 0;
+}
+
+void CSpuBase::SetReverbEnabled(bool enabled)
+{
+	m_reverbEnabled = enabled;
 }
 
 uint16 CSpuBase::GetControl() const
@@ -313,12 +319,12 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					continue;
 				}
 				uint8* repeat = reader.GetRepeat();
-				channel.repeat = repeat - m_ram;
+				channel.repeat = static_cast<uint32>(repeat - m_ram);
 			}
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
-            channel.current = (reader.GetCurrent() - m_ram);
+            channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
 			//Mix samples
 			UpdateAdsr(channel);
 			int32 inputSample = static_cast<int32>(readSample);
@@ -337,6 +343,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			}
 		}
 		//Update reverb
+		if(m_reverbEnabled)
 		{
 			//Feed samples to FIR filter
 			if(m_reverbTicks & 1)

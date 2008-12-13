@@ -161,6 +161,17 @@ void CPsfVm::Step()
 	m_OnRunningStateChange();
 }
 
+void CPsfVm::SetReverbEnabled(bool enabled)
+{
+	m_mailBox.SendCall(bind(&CPsfVm::SetReverbEnabledImpl, this, enabled));
+}
+
+void CPsfVm::SetReverbEnabledImpl(bool enabled)
+{
+	m_iop.m_spuCore0.SetReverbEnabled(enabled);
+	m_iop.m_spuCore1.SetReverbEnabled(enabled);
+}
+
 void CPsfVm::ThreadProc()
 {
 #ifdef DEBUGGER_INCLUDED

@@ -144,6 +144,8 @@ namespace Iop
 
 		bool			IsEnabled() const;
 
+		void			SetReverbEnabled(bool);
+
 		void		    SetBaseSamplingRate(uint32);
 
 	    uint32		    GetTransferAddress() const;
@@ -259,6 +261,7 @@ namespace Iop
     	CHANNEL			m_channel[MAX_CHANNEL];
         CSampleReader   m_reader[MAX_CHANNEL];
     	uint32			m_adsrLogTable[160];
+		bool			m_reverbEnabled;
 	};
 }
 
