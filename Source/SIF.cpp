@@ -53,27 +53,10 @@ void CSIF::Reset()
 	memset(m_nUserReg, 0, sizeof(uint32) * MAX_USERREG);
 
     m_packetQueue.clear();
+    m_callReplies.clear();
+    m_bindReplies.clear();
 
 	DeleteModules();
-
-	//Create modules that have multiple RPC IDs
-//	m_pPadMan = new IOP::CPadMan();
-
-//	m_Module.Insert(new IOP::CDummy,								IOP::CDummy::MODULE_ID);
-//	m_Module.Insert(new IOP::CUnknown,								IOP::CUnknown::MODULE_ID);
-//	m_Module.Insert(new IOP::CFileIO,								IOP::CFileIO::MODULE_ID);
-//	m_Module.Insert(new IOP::CSysMem,								IOP::CSysMem::MODULE_ID);
-//	m_Module.Insert(new IOP::CLoadFile,								IOP::CLoadFile::MODULE_ID);
-//	m_Module.Insert(m_pPadMan,										IOP::CPadMan::MODULE_ID_1);
-//	m_Module.Insert(m_pPadMan,										IOP::CPadMan::MODULE_ID_3);
-//	m_Module.Insert(new IOP::CMcServ,								IOP::CMcServ::MODULE_ID);
-//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_1),	IOP::CCdvdfsv::MODULE_ID_1);
-//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_2),	IOP::CCdvdfsv::MODULE_ID_2);
-//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_4),	IOP::CCdvdfsv::MODULE_ID_4);
-//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_6),	IOP::CCdvdfsv::MODULE_ID_6);
-//	m_Module.Insert(new IOP::CCdvdfsv(IOP::CCdvdfsv::MODULE_ID_7),	IOP::CCdvdfsv::MODULE_ID_7);
-//	m_Module.Insert(new IOP::CLibSD,								IOP::CLibSD::MODULE_ID);
-//	m_Module.Insert(new IOP::CDbcMan,								IOP::CDbcMan::MODULE_ID);
 }
 
 void CSIF::SetDmaBuffer(uint8* buffer, uint32 size)
@@ -85,6 +68,13 @@ void CSIF::SetDmaBuffer(uint8* buffer, uint32 size)
 void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
 {
     m_modules[moduleId] = module;
+
+    BindReplyMap::iterator replyIterator(m_bindReplies.find(moduleId));
+    if(replyIterator != m_bindReplies.end())
+    {
+        SendPacket(&(replyIterator->second), sizeof(RPCREQUESTEND));
+        m_bindReplies.erase(replyIterator);
+    }
 }
 
 void CSIF::DeleteModules()
@@ -282,8 +272,6 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 
 	//Maybe check what it wants to bind?
 
-	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
-
 	RPCREQUESTEND rend;
 
     //Fill in the request end 
@@ -301,8 +289,18 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 	rend.nBuffer			= RPC_RECVADDR;
 	rend.nClientBuffer		= 0xDEADCAFE;
 
-    SendPacket(&rend, sizeof(RPCREQUESTEND));
-	//SendDMA(&rend, sizeof(RPCREQUESTEND));
+	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
+
+//    ModuleMap::iterator moduleIterator(m_modules.find(pBind->nSID));
+//    if(moduleIterator != m_modules.end() || (pBind->nSID & 0x80000000) != 0)
+    {
+        SendPacket(&rend, sizeof(RPCREQUESTEND));
+    }
+    //else
+    //{
+    //    assert(m_bindReplies.find(pBind->nSID) == m_bindReplies.end());
+    //    m_bindReplies[pBind->nSID] = rend;
+    //}
 }
 
 void CSIF::Cmd_Call(PACKETHDR* pHDR)
@@ -328,26 +326,53 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
 	}
 
-    if(sendReply)
     {
-	    RPCREQUESTEND rend;
+        RPCREQUESTEND rend;
         memset(&rend, 0, sizeof(RPCREQUESTEND));
 
-	    //Fill in the request end 
-	    rend.Header.nSize		= sizeof(RPCREQUESTEND);
-	    rend.Header.nDest		= pHDR->nDest;
-	    rend.Header.nCID		= SIF_CMD_REND;
-	    rend.Header.nOptional	= 0;
+        //Fill in the request end 
+        rend.Header.nSize		= sizeof(RPCREQUESTEND);
+        rend.Header.nDest		= pHDR->nDest;
+        rend.Header.nCID		= SIF_CMD_REND;
+        rend.Header.nOptional	= 0;
 
-	    rend.nRecordID			= pCall->nRecordID;
-	    rend.nPacketAddr		= pCall->nPacketAddr;
-	    rend.nRPCID				= pCall->nRPCID;
-	    rend.nClientDataAddr	= pCall->nClientDataAddr;
-	    rend.nCID				= SIF_CMD_CALL;
+        rend.nRecordID			= pCall->nRecordID;
+        rend.nPacketAddr		= pCall->nPacketAddr;
+        rend.nRPCID				= pCall->nRPCID;
+        rend.nClientDataAddr	= pCall->nClientDataAddr;
+        rend.nCID				= SIF_CMD_CALL;
 
-        SendPacket(&rend, sizeof(RPCREQUESTEND));
-	    //SendDMA(&rend, sizeof(RPCREQUESTEND));
+        if(sendReply)
+        {
+            SendPacket(&rend, sizeof(RPCREQUESTEND));
+        }
+        else
+        {
+            //Hold the packet
+            //We assume that there's only one call that
+            assert(m_callReplies.find(pCall->nServerDataAddr) == m_callReplies.end());
+            CALLREQUESTINFO requestInfo;
+            requestInfo.reply = rend;
+            requestInfo.call = *pCall;
+            m_callReplies[pCall->nServerDataAddr] = requestInfo;
+        }
     }
+}
+
+void CSIF::SendCallReply(uint32 serverId, void* returnData)
+{
+    CallReplyMap::iterator replyIterator(m_callReplies.find(serverId));
+    assert(replyIterator != m_callReplies.end());
+    if(replyIterator == m_callReplies.end()) return;
+
+    CALLREQUESTINFO& requestInfo(replyIterator->second);
+    assert(requestInfo.call.nRecv != 0);
+    if(requestInfo.call.nRecv != 0)
+    {
+        memcpy(m_eeRam + requestInfo.call.nRecv, returnData, requestInfo.call.nRecvSize);
+    }
+    SendPacket(&requestInfo.reply, sizeof(RPCREQUESTEND));
+    m_callReplies.erase(replyIterator);
 }
 
 /////////////////////////////////////////////////////////

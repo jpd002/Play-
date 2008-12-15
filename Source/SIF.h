@@ -28,6 +28,7 @@ public:
 
     void                            RegisterModule(uint32, CSifModule*);
     void                            SetDmaBuffer(uint8*, uint32);
+    void                            SendCallReply(uint32, void*);
 
     uint32                          ReceiveDMA5(uint32, uint32, uint32, bool);
 	uint32							ReceiveDMA6(uint32, uint32, uint32, bool);
@@ -43,9 +44,6 @@ public:
 	void							SaveState(CZipArchiveWriter&);
 
 private:
-    typedef std::map<uint32, CSifModule*> ModuleMap;
-    typedef std::vector<uint8> PacketQueue;
-
 	enum CONST_MAX_USERREG
 	{
 		MAX_USERREG = 0x10,
@@ -104,7 +102,18 @@ private:
 		uint32						nValue;
 	};
 
-	void							DeleteModules();
+    struct CALLREQUESTINFO
+    {
+        RPCCALL                     call;
+        RPCREQUESTEND               reply;
+    };
+
+    typedef std::map<uint32, CSifModule*> ModuleMap;
+    typedef std::vector<uint8> PacketQueue;
+    typedef std::map<uint32, CALLREQUESTINFO> CallReplyMap;
+    typedef std::map<uint32, RPCREQUESTEND> BindReplyMap;
+
+    void							DeleteModules();
 
 	void							Cmd_SetEERecvAddr(PACKETHDR*);
 	void							Cmd_Initialize(PACKETHDR*);
@@ -129,6 +138,8 @@ private:
 
 	ModuleMap	                    m_modules;
     PacketQueue                     m_packetQueue;
+    CallReplyMap                    m_callReplies;
+    BindReplyMap                    m_bindReplies;
 };
 
 #endif

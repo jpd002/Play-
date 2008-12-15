@@ -53,7 +53,7 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "%0.8X: Unknown function (%d) called.", context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "%0.8X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
         break;
 	}
 }

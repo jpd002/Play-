@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <exception>
 #include <boost/filesystem/path.hpp>
-#include <boost/lexical_cast.hpp>
 #include "PS2OS.h"
 #include "Ps2Const.h"
 #include "StdStream.h"
@@ -58,7 +57,7 @@
 
 using namespace Framework;
 using namespace std;
-using namespace boost;
+namespace filesystem = boost::filesystem;
 
 CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) :
 m_ee(ee),
@@ -961,7 +960,7 @@ void CPS2OS::ThreadShakeAndBake()
 	    if(itThread.IsEnd())
 	    {
 		    //Deadlock or something here
-            printf("%s: Warning, no thread to execute.\r\n", LOG_NAME);
+//            printf("%s: Warning, no thread to execute.\r\n", LOG_NAME);
 		    nId = 0;
 	    }
 	    else

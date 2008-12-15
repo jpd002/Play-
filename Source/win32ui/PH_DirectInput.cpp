@@ -5,7 +5,6 @@
 using namespace Framework;
 using namespace PS2;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 
 CPH_DirectInput::CPH_DirectInput(HWND hWnd) :
 m_hWnd(hWnd),
@@ -44,9 +43,11 @@ DirectInput::CManager* CPH_DirectInput::GetManager() const
 
 void CPH_DirectInput::Update(uint8* ram)
 {
-    CInputConfig::InputEventHandler eventHandler(bind(&CPH_DirectInput::ProcessEvents, this, _1, _2, ram));
+    CInputConfig::InputEventHandler eventHandler(bind(&CPH_DirectInput::ProcessEvents, this, 
+        placeholders::_1, placeholders::_2, ram));
     m_manager->ProcessEvents(
-        bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), _1, _2, _3, std::tr1::cref(eventHandler)));
+        bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), 
+        placeholders::_1, placeholders::_2, placeholders::_3, std::tr1::cref(eventHandler)));
 }
 
 void CPH_DirectInput::ProcessEvents(CControllerInfo::BUTTON button, uint32 value, uint8* ram)

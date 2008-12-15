@@ -8,7 +8,6 @@
 #include "Integer64.h"
 
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 
 CMA_MIPSIV			g_MAMIPSIV(MIPS_REGSIZE_64);
 
@@ -781,19 +780,19 @@ void CMA_MIPSIV::SD()
 //00
 void CMA_MIPSIV::SLL()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Shl, m_codeGen, _1));
+    Template_ShiftCst32()(bind(&CCodeGen::Shl, m_codeGen, placeholders::_1));
 }
 
 //02
 void CMA_MIPSIV::SRL()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Srl, m_codeGen, _1));
+    Template_ShiftCst32()(bind(&CCodeGen::Srl, m_codeGen, placeholders::_1));
 }
 
 //03
 void CMA_MIPSIV::SRA()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Sra, m_codeGen, _1));
+    Template_ShiftCst32()(bind(&CCodeGen::Sra, m_codeGen, placeholders::_1));
 }
 
 //04

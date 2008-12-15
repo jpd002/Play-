@@ -11,6 +11,7 @@ namespace Iop
         virtual void    RegisterModule(uint32, CSifModule*);
         virtual void    SendPacket(void*, uint32);
         virtual void    SetDmaBuffer(uint8*, uint32);
+        virtual void    SendCallReply(uint32, void*);
     };
 }
 

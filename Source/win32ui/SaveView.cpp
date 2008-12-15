@@ -2,7 +2,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/bind.hpp>
 #include "../saves/SaveExporter.h"
 #include "SaveView.h"
 #include "string_cast.h"
@@ -12,8 +11,9 @@
 #define CLSNAME _T("CSaveView")
 
 using namespace Framework;
-using namespace boost;
 using namespace std;
+using namespace std::tr1;
+namespace filesystem = boost::filesystem;
 
 CSaveView::CSaveView(HWND hParent)
 {
@@ -127,12 +127,12 @@ void CSaveView::SetSave(const CSave* pSave)
 
 		m_pNameLine1->SetText(sName.substr(0, m_pSave->GetSecondLineStartPosition()).c_str());
 		m_pNameLine2->SetText(sName.substr(m_pSave->GetSecondLineStartPosition()).c_str());
-		m_pSize->SetText((lexical_cast<tstring>(m_pSave->GetSize()) + _T(" bytes")).c_str());
+        m_pSize->SetText((boost::lexical_cast<tstring>(m_pSave->GetSize()) + _T(" bytes")).c_str());
 		m_pId->SetText(string_cast<tstring>(m_pSave->GetId()).c_str());
 		m_pLastModified->SetText(
 			string_cast<tstring>(
-			posix_time::to_simple_string(
-			posix_time::from_time_t(m_pSave->GetLastModificationTime()))).c_str());
+			boost::posix_time::to_simple_string(
+			boost::posix_time::from_time_t(m_pSave->GetLastModificationTime()))).c_str());
 	}
 	else
 	{

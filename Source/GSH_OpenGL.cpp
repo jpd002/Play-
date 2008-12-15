@@ -7,7 +7,6 @@
 
 using namespace Framework;
 using namespace std::tr1;
-using namespace boost;
 
 CGSH_OpenGL::CGSH_OpenGL() :
 m_pProgram(NULL),
@@ -1159,7 +1158,7 @@ void CGSH_OpenGL::SetVBlank()
     while(m_mailBox.IsPending() && m_enabled)
     {
         //Flush all commands
-        thread::yield();
+        boost::thread::yield();
     }
 }
 

@@ -3,8 +3,8 @@
 #include <exception>
 #include "Icon.h"
 
-using namespace boost;
 using namespace std;
+namespace iostreams = boost::iostreams;
 
 CIcon::CIcon(const char* sPath)
 {

@@ -1,7 +1,6 @@
 #include "InputBindingSelectionWindow.h"
 #include "win32/Rect.h"
 #include "layout/LayoutEngine.h"
-#include <boost/lexical_cast.hpp>
 #include "string_cast.h"
 
 #define CLSNAME     _T("CInputBindingSelectionWindow")
@@ -10,8 +9,6 @@
 
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
-using namespace boost;
 using namespace PS2;
 using namespace Framework;
 
@@ -65,7 +62,8 @@ long CInputBindingSelectionWindow::OnActivate(unsigned int activationType, bool 
 
 long CInputBindingSelectionWindow::OnTimer()
 {
-    m_directInputManager->ProcessEvents(bind(&CInputBindingSelectionWindow::ProcessEvent, this, _1, _2, _3));
+    m_directInputManager->ProcessEvents(bind(&CInputBindingSelectionWindow::ProcessEvent, this, 
+        placeholders::_1, placeholders::_2, placeholders::_3));
     if(m_selected)
     {
         CInputConfig::GetInstance().SetSimpleBinding(m_button, CInputConfig::BINDINGINFO(m_selectedDevice, m_selectedId));

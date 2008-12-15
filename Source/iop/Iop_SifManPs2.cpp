@@ -27,3 +27,8 @@ void CSifManPs2::SetDmaBuffer(uint8* buffer, uint32 size)
 {
     m_sif.SetDmaBuffer(buffer, size);
 }
+
+void CSifManPs2::SendCallReply(uint32 serverId, void* returnData)
+{
+    m_sif.SendCallReply(serverId, returnData);
+}

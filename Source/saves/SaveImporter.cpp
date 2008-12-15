@@ -5,7 +5,8 @@
 #include "SaveImporter.h"
 
 using namespace std;
-using namespace boost;
+namespace iostreams = boost::iostreams;
+namespace filesystem = boost::filesystem;
 
 CSaveImporter::CSaveImporter(OverwritePromptFunctionType OverwritePromptFunction)
 {

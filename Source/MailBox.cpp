@@ -21,8 +21,10 @@ bool CMailBox::IsPending() const
 void CMailBox::WaitForCall()
 {
 	boost::mutex::scoped_lock waitLock(m_waitMutex);
-    if(IsPending()) return;
-    m_waitCondition.wait(waitLock);
+    while(!IsPending())
+    {
+        m_waitCondition.wait(waitLock);
+    }
 }
 
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
@@ -38,26 +40,24 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
     if(waitForCompletion)
     {
         boost::mutex::scoped_lock doneLock(m_doneNotifyMutex);
-#ifdef WIN32
-		while(1)
+        m_callDone = false;
+		while(!m_callDone)
         {
-            boost::xtime xt;
-            boost::xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += 100 * 1000000;
-            if(m_callFinished.timed_wait(doneLock, xt))
-			{
-				break;
-			}
+#ifdef WIN32
 	        MSG wmmsg;
             while(PeekMessage(&wmmsg, NULL, 0, 0, PM_REMOVE))
 		    {
 			    TranslateMessage(&wmmsg);
 			    DispatchMessage(&wmmsg);
 		    }
-        }
+            boost::xtime xt;
+            boost::xtime_get(&xt, boost::TIME_UTC);
+            xt.nsec += 100 * 1000000;
+            m_callFinished.timed_wait(doneLock, xt);
 #else
-        m_callFinished.wait(doneLock);
+            m_callFinished.wait(doneLock);
 #endif
+        }
     }
 }
 
@@ -74,6 +74,7 @@ void CMailBox::ReceiveCall()
 	if(message.sync)
     {
         boost::mutex::scoped_lock doneLock(m_doneNotifyMutex);
+        m_callDone = true;
         m_callFinished.notify_all();
     }
 }

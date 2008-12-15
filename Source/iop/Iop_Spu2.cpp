@@ -8,7 +8,6 @@ using namespace Iop;
 using namespace Iop::Spu2;
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 using namespace Framework;
 
 /*
@@ -140,12 +139,12 @@ CSpu2::CSpu2(CSpuBase& spuBase0, CSpuBase& spuBase1)
 		m_core[i] = new CCore(i, base);
 	}
 
-	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, _1, _2);
-	m_writeDispatchInfo.global = bind(&CSpu2::WriteRegisterImpl, this, _1, _2);
+	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, placeholders::_1, placeholders::_2);
+	m_writeDispatchInfo.global = bind(&CSpu2::WriteRegisterImpl, this, placeholders::_1, placeholders::_2);
 	for(unsigned int i = 0; i < CORE_NUM; i++)
 	{
-		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, m_core[i], _1, _2);
-		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, m_core[i], _1, _2);
+		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, m_core[i], placeholders::_1, placeholders::_2);
+		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, m_core[i], placeholders::_1, placeholders::_2);
 	}
 }
 

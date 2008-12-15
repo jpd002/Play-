@@ -1,8 +1,8 @@
 #include <boost/filesystem/operations.hpp>
 #include "MemoryCard.h"
 
-using namespace boost;
 using namespace std;
+namespace filesystem = boost::filesystem;
 
 CMemoryCard::CMemoryCard(filesystem::path& BasePath) :
 m_BasePath(BasePath)

@@ -1,12 +1,12 @@
 #include "MipsAssemblerDefinitions.h"
 #include "MIPSAssembler.h"
 #include <stdexcept>
+#include <functional>
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 #include "lexical_cast_ex.h"
 
-using namespace boost;
 using namespace std;
+using namespace std::tr1;
 
 namespace MipsAssemblerDefinitions
 {
@@ -22,7 +22,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        void operator ()(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             unsigned int nRT, nRS;
             uint16 nImm;
@@ -39,7 +39,7 @@ namespace MipsAssemblerDefinitions
             if(nRT == -1) throw exception();
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, _1, _2, _3)(nRS, nRT, nImm);
+            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRS, nRT, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -57,7 +57,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        void operator ()(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             unsigned int nRT, nRS;
             uint16 nImm;
@@ -74,7 +74,7 @@ namespace MipsAssemblerDefinitions
             if(nRT == -1) throw exception();
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, _1, _2, _3)(nRT, nRS, nImm);
+            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRT, nRS, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -92,7 +92,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        void operator ()(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             unsigned int nRT, nRS, nRD;
 
@@ -109,7 +109,7 @@ namespace MipsAssemblerDefinitions
             if(nRS == -1) throw exception();
             if(nRD == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, _1, _2, _3)(nRD, nRS, nRT);
+            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRD, nRS, nRT);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -127,7 +127,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        void operator ()(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             unsigned int nRS;
             uint16 nImm;
@@ -140,7 +140,7 @@ namespace MipsAssemblerDefinitions
 
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, _1, _2)(nRS, nImm);
+            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2)(nRS, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -158,7 +158,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        void operator ()(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             unsigned int nRT;
             uint16 nImm;
@@ -171,7 +171,7 @@ namespace MipsAssemblerDefinitions
 
             if(nRT == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, _1, _2)(nRT, nImm);
+            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2)(nRT, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -189,7 +189,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        void operator()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        void operator()(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             unsigned int nRT, nRS, nSA;
 
@@ -200,12 +200,12 @@ namespace MipsAssemblerDefinitions
             nRS = CMIPSAssembler::GetRegisterIndex((*(++itToken)).c_str());
 
             if(itToken == Tokens.end()) throw exception();
-            nSA = lexical_cast<unsigned int>((*(++itToken)).c_str());
+            nSA = boost::lexical_cast<unsigned int>((*(++itToken)).c_str());
 
             if(nRT == -1) throw exception();
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, _1, _2, _3)(nRT, nRS, nSA);
+            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRT, nRS, nSA);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -223,7 +223,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        void operator ()(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        void operator ()(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             unsigned int nRT, nBase;
             uint16 nOfs;
@@ -256,7 +256,7 @@ namespace MipsAssemblerDefinitions
             
         }
 
-        virtual void Invoke(tokenizer<>& Tokens, tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
+        virtual void Invoke(boost::tokenizer<>& Tokens, boost::tokenizer<>::iterator& itToken, CMIPSAssembler* pAssembler)
         {
             m_Parser(Tokens, itToken, pAssembler);
         }

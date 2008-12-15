@@ -16,3 +16,8 @@ void CSifManNull::SetDmaBuffer(uint8*, uint32)
 {
 
 }
+
+void CSifManNull::SendCallReply(uint32, void*)
+{
+
+}

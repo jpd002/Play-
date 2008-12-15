@@ -4,6 +4,7 @@
 #include <functional>
 #include <deque>
 #include <boost/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 class CMailBox
 {
@@ -33,6 +34,7 @@ private:
     boost::mutex        m_doneNotifyMutex;
     boost::condition    m_callFinished;
     boost::condition    m_waitCondition;
+    bool                m_callDone;
 };
 
 #endif

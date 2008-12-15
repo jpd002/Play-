@@ -3,7 +3,7 @@
 #include "CodeGen_StackPatterns.h"
 
 using namespace std;
-using namespace std::tr1::placeholders;
+using namespace std::tr1;
 
 bool CCodeGen::RegisterFpSingleHasNextUse(XMMREGISTER registerId)
 {
@@ -224,7 +224,7 @@ void CCodeGen::FP_GenericNeg(XMMREGISTER dst, const CX86Assembler::CAddress& src
 
 void CCodeGen::FP_Add()
 {
-    FP_GenericTwoOperand(bind(&CX86Assembler::AddssEd, m_Assembler, _1, _2));
+    FP_GenericTwoOperand(bind(&CX86Assembler::AddssEd, m_Assembler, placeholders::_1, placeholders::_2));
 }
 
 void CCodeGen::FP_Abs()
@@ -250,17 +250,17 @@ void CCodeGen::FP_Abs()
 
 void CCodeGen::FP_Sub()
 {
-    FP_GenericTwoOperand(bind(&CX86Assembler::SubssEd, m_Assembler, _1, _2));
+    FP_GenericTwoOperand(bind(&CX86Assembler::SubssEd, m_Assembler, placeholders::_1, placeholders::_2));
 }
 
 void CCodeGen::FP_Mul()
 {
-    FP_GenericTwoOperand(bind(&CX86Assembler::MulssEd, m_Assembler, _1, _2));
+    FP_GenericTwoOperand(bind(&CX86Assembler::MulssEd, m_Assembler, placeholders::_1, placeholders::_2));
 }
 
 void CCodeGen::FP_Div()
 {
-    FP_GenericTwoOperand(bind(&CX86Assembler::DivssEd, m_Assembler, _1, _2));
+    FP_GenericTwoOperand(bind(&CX86Assembler::DivssEd, m_Assembler, placeholders::_1, placeholders::_2));
 }
 
 void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
@@ -323,20 +323,20 @@ void CCodeGen::FP_Cmp(CCodeGen::CONDITION condition)
 
 void CCodeGen::FP_Neg()
 {
-    FP_GenericOneOperand(bind(&CCodeGen::FP_GenericNeg, this, _1, _2));
+    FP_GenericOneOperand(bind(&CCodeGen::FP_GenericNeg, this, placeholders::_1, placeholders::_2));
 }
 
 void CCodeGen::FP_Rcpl()
 {
-    FP_GenericOneOperand(bind(&CX86Assembler::RcpssEd, m_Assembler, _1, _2));
+    FP_GenericOneOperand(bind(&CX86Assembler::RcpssEd, m_Assembler, placeholders::_1, placeholders::_2));
 }
 
 void CCodeGen::FP_Sqrt()
 {
-    FP_GenericOneOperand(bind(&CX86Assembler::SqrtssEd, m_Assembler, _1, _2));
+    FP_GenericOneOperand(bind(&CX86Assembler::SqrtssEd, m_Assembler, placeholders::_1, placeholders::_2));
 }
 
 void CCodeGen::FP_Rsqrt()
 {
-    FP_GenericOneOperand(bind(&CX86Assembler::RsqrtssEd, m_Assembler, _1, _2));
+    FP_GenericOneOperand(bind(&CX86Assembler::RsqrtssEd, m_Assembler, placeholders::_1, placeholders::_2));
 }

@@ -7,7 +7,6 @@ using namespace Iop;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 
 #define LOG_NAME "iop_cdvdfsv"
 
@@ -15,11 +14,16 @@ CCdvdfsv::CCdvdfsv(CSifMan& sif) :
 m_nStreamPos(0),
 m_iso(NULL)
 {
-    m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, _1, _2, _3, _4, _5, _6));
-    m_module593 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke593, this, _1, _2, _3, _4, _5, _6));
-    m_module595 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke595, this, _1, _2, _3, _4, _5, _6));
-    m_module597 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke597, this, _1, _2, _3, _4, _5, _6));
-    m_module59C = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59C, this, _1, _2, _3, _4, _5, _6));
+    m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, 
+        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+    m_module593 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke593, this,
+        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+    m_module595 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke595, this,
+        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+    m_module597 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke597, this,
+        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+    m_module59C = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59C, this,
+        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
 
     sif.RegisterModule(MODULE_ID_1, &m_module592);
     sif.RegisterModule(MODULE_ID_2, &m_module593);

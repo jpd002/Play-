@@ -5,7 +5,6 @@
 
 using namespace std;
 using namespace Framework;
-using namespace boost;
 using namespace PS2;
 
 #define CONFIG_PREFIX               ("input")
@@ -142,7 +141,7 @@ void CInputConfig::CSimpleBinding::Save(CConfig& config, const char* buttonBase)
     string prefBase = CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
     config.SetPreferenceString(
         CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), 
-        lexical_cast<string>(device).c_str());
+        boost::lexical_cast<string>(device).c_str());
     config.SetPreferenceInteger(
         CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 
         id);
@@ -151,7 +150,7 @@ void CInputConfig::CSimpleBinding::Save(CConfig& config, const char* buttonBase)
 void CInputConfig::CSimpleBinding::Load(CConfig& config, const char* buttonBase)
 {
     string prefBase = CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-    device = lexical_cast<GUID>(config.GetPreferenceString(CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+    device = boost::lexical_cast<GUID>(config.GetPreferenceString(CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
     id = config.GetPreferenceInteger(CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
 }
 
@@ -182,7 +181,7 @@ void CInputConfig::CSimpleBinding::RegisterPreferences(CConfig& config, const ch
     string prefBase = CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
     config.RegisterPreferenceString(
         CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), 
-        lexical_cast<string>(GUID()).c_str());
+        boost::lexical_cast<string>(GUID()).c_str());
     config.RegisterPreferenceInteger(
         CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 
         0);

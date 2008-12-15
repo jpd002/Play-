@@ -5,8 +5,9 @@
 #include <exception>
 #include "Save.h"
 
-using namespace boost;
 using namespace std;
+namespace iostreams = boost::iostreams;
+namespace filesystem = boost::filesystem;
 
 CSave::CSave(filesystem::path& BasePath) :
 m_BasePath(BasePath)

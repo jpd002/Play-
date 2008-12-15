@@ -8,7 +8,6 @@ using namespace Iop;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 using namespace PS2;
 
 #define PADNUM			(1)
@@ -94,7 +93,7 @@ void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nB
 {
 	if(m_nPadDataAddress == 0) return;
 
-	ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, _1, nButton, nPressed),
+    ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, placeholders::_1, nButton, nPressed),
 		ram + m_nPadDataAddress, PADNUM);
 }
 
@@ -102,7 +101,7 @@ void CPadMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON butto
 {
    if(m_nPadDataAddress == 0) return;
 
-   ExecutePadDataFunction(bind(&CPadMan::PDF_SetAxisState, _1, button, axisValue),
+   ExecutePadDataFunction(bind(&CPadMan::PDF_SetAxisState, placeholders::_1, button, axisValue),
        ram + m_nPadDataAddress, PADNUM);
 }
 

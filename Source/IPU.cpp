@@ -29,14 +29,13 @@ using namespace MPEG2;
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
-using namespace boost;
 
 CIPU::CIPU() :
 m_IPU_CTRL(0),
 m_cmdThread(NULL),
 m_isBusy(false)
 {
-    m_cmdThread = new thread(bind(&CIPU::CommandThread, this));
+    m_cmdThread = new boost::thread(bind(&CIPU::CommandThread, this));
 }
 
 CIPU::~CIPU()
@@ -1060,7 +1059,7 @@ CIPU::CINFIFO::~CINFIFO()
 
 void CIPU::CINFIFO::Write(void* pData, unsigned int nSize)
 {
-    mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(m_accessMutex);
 
 	if(nSize + m_nSize > BUFFERSIZE) 
     {
@@ -1098,7 +1097,7 @@ uint32 CIPU::CINFIFO::PeekBits_LSBF(uint8 nBits)
 
 uint32 CIPU::CINFIFO::PeekBits_MSBF(uint8 nBits)
 {
-    mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(m_accessMutex);
 
     while(1)
     {
@@ -1129,7 +1128,7 @@ void CIPU::CINFIFO::SkipBits(uint8 nBits)
 {
     if(nBits == 0) return;
 
-    mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(m_accessMutex);
 
     m_nBitPosition += nBits;
 
@@ -1168,25 +1167,25 @@ bool CIPU::CINFIFO::IsOnByteBoundary()
 
 unsigned int CIPU::CINFIFO::GetBitPosition()
 {
-    mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(m_accessMutex);
 	return m_nBitPosition;
 }
 
 void CIPU::CINFIFO::SetBitPosition(unsigned int nPosition)
 {
-    mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(m_accessMutex);
     m_nBitPosition = nPosition;
 }
 
 unsigned int CIPU::CINFIFO::GetSize()
 {
-    mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(m_accessMutex);
     return m_nSize;
 }
 
 void CIPU::CINFIFO::Reset()
 {
-    mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(m_accessMutex);
     m_nSize = 0;
 }
 

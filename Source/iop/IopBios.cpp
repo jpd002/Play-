@@ -217,7 +217,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
         m_moduleTags.push_back(module);
     }
 
-    uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY);
+    uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY, DEFAULT_STACKSIZE);
     THREAD& thread = GetThread(threadId);
 
     typedef vector<uint32> ParamListType;
@@ -359,18 +359,24 @@ CIopBios::ThreadMapType::iterator CIopBios::GetThreadPosition(uint32 threadId)
     throw runtime_error("Unexisting thread id.");
 }
 
-uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority)
+uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: CreateThread(threadProc = 0x%0.8X, priority = %d);\r\n", 
         m_currentThreadId, threadProc, priority);
 #endif
 
+    if(stackSize == 0)
+    {
+        stackSize = DEFAULT_STACKSIZE;
+    }
+
     THREAD thread;
     memset(&thread, 0, sizeof(thread));
     thread.context.delayJump = 1;
-	thread.stackSize = DEFAULT_STACKSIZE;
+	thread.stackSize = stackSize;
     thread.stackBase = m_sysmem->AllocateMemory(thread.stackSize, 0);
+    memset(m_ram + thread.stackBase, 0, thread.stackSize);
     thread.id = m_nextThreadId++;
     thread.priority = priority;
     thread.status = THREAD_STATUS_CREATED;

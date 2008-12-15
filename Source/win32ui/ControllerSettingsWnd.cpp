@@ -15,10 +15,8 @@
 
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 using namespace PS2;
 using namespace Framework;
-using namespace boost;
 
 CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, DirectInput::CManager* directInputManager) :
 CModalWindow(parent),
@@ -90,9 +88,10 @@ long CControllerSettingsWnd::OnTimer()
 {
     if(m_samplingEnabled)
     {
-        CInputConfig::InputEventHandler eventHandler(bind(&CControllerSettingsWnd::InputEventHandler, this, _1, _2));
+        CInputConfig::InputEventHandler eventHandler(bind(&CControllerSettingsWnd::InputEventHandler, this, placeholders::_1, placeholders::_2));
         m_directInputManager->ProcessEvents(
-            bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), _1, _2, _3, std::tr1::cref(eventHandler)));
+            bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), 
+            placeholders::_1, placeholders::_2, placeholders::_3, std::tr1::cref(eventHandler)));
     }
     return TRUE;
 }
@@ -165,7 +164,7 @@ void CControllerSettingsWnd::UpdateButtonValue(CControllerInfo::BUTTON button, u
     if(listViewIndex == -1) return;
     if(CControllerInfo::IsAxis(button))
     {
-        m_bindingList->SetItemText(listViewIndex, 2, lexical_cast<tstring>(value).c_str());
+        m_bindingList->SetItemText(listViewIndex, 2, boost::lexical_cast<tstring>(value).c_str());
     }
     else
     {

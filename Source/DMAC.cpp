@@ -17,9 +17,7 @@
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
 using namespace Dmac;
-using namespace boost;
 
 //DMA channels (EE side)
 //0 - VIF0
@@ -58,9 +56,9 @@ m_D6_CHCR(0),
 m_D6_MADR(0),
 m_D6_QWC(0),
 m_D6_TADR(0),
-m_D8(*this, 8, bind(&CDMAC::ReceiveDMA8, this, _1, _2, _3, _4)),
+m_D8(*this, 8, bind(&CDMAC::ReceiveDMA8, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)),
 m_D8_SADR(0),
-m_D9(*this, 9, bind(&CDMAC::ReceiveDMA9, this, _1, _2, _3, _4)),
+m_D9(*this, 9, bind(&CDMAC::ReceiveDMA9, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)),
 m_D9_SADR(0)
 {
     Reset();

@@ -135,7 +135,7 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 
 uint32 CThbase::CreateThread(const THREAD* thread)
 {
-    return m_bios.CreateThread(thread->threadProc, thread->priority);
+    return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize);
 }
 
 uint32 CThbase::StartThread(uint32 threadId, uint32 param)

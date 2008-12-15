@@ -13,10 +13,9 @@
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
 
 using namespace Framework;
-using namespace boost;
 using namespace std;
 using namespace std::tr1;
-using namespace std::tr1::placeholders;
+namespace filesystem = boost::filesystem;
 
 CMcManagerWnd::CMcManagerWnd(HWND hParent) :
 CModalWindow(hParent),
@@ -61,8 +60,8 @@ m_MemoryCard1(filesystem::path(CAppConfig::GetInstance().GetPreferenceString("ps
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
-	m_pSaveView->m_OnDeleteClicked.connect(bind(&CMcManagerWnd::Delete, this, _1));
-	m_pMemoryCardView->m_OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, _1));
+	m_pSaveView->m_OnDeleteClicked.connect(bind(&CMcManagerWnd::Delete, this, placeholders::_1));
+	m_pMemoryCardView->m_OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, placeholders::_1));
 
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 0 (mc0)")), 0);
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 1 (mc1)")), 1);
@@ -186,7 +185,7 @@ void CMcManagerWnd::Import()
 
 	try
 	{
-		CSaveImporter::ImportSave(Input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, _1));
+		CSaveImporter::ImportSave(Input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, placeholders::_1));
 		Input.close();
 	}
 	catch(const exception& Exception)

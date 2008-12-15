@@ -51,7 +51,6 @@
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
-using namespace boost;
 
 int CGSHandler::STORAGEPSMCT32::m_nBlockSwizzleTable[4][8] =
 {
@@ -169,7 +168,7 @@ m_enabled(true)
 
 	Reset();
 
-    m_thread = new thread(bind(&CGSHandler::ThreadProc, this));
+    m_thread = new boost::thread(bind(&CGSHandler::ThreadProc, this));
 }
 
 CGSHandler::~CGSHandler()
@@ -455,7 +454,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 {
-    scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
+    boost::scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
 
 	if(m_TrxCtx.nSize == 0)
 	{

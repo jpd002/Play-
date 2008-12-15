@@ -50,9 +50,12 @@ namespace Iop
             uint32      queueAddr;
         };
 
+        void                    BuildExportTable();
+
         void                    SifRegisterRpc(CMIPS&);
         void                    SifSetRpcQueue(uint32, uint32);
         void                    SifRpcLoop(uint32);
+        void                    ReturnFromRpcInvoke(CMIPS&);
 
         CIopBios&               m_bios;
         CSifMan&                m_sifMan;
@@ -61,6 +64,7 @@ namespace Iop
         uint32                  m_memoryBufferAddr;
         uint32                  m_invokeParamsAddr;
         uint32                  m_trampolineAddr;
+        uint32                  m_returnFromRpcInvokeAddr;
         DynamicModuleList       m_servers;
     };
 }

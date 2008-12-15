@@ -8,8 +8,8 @@
 
 using namespace Iop;
 using namespace Framework;
-using namespace boost;
 using namespace std;
+namespace filesystem = boost::filesystem;
 
 #define LOG_NAME ("iop_mcserv")
 

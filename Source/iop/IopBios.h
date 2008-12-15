@@ -72,7 +72,7 @@ public:
 #endif
     void                    RegisterModule(Iop::CModule*);
 
-    uint32                  CreateThread(uint32, uint32);
+    uint32                  CreateThread(uint32, uint32, uint32);
     void                    StartThread(uint32, uint32* = NULL);
     void                    DelayThread(uint32);
     THREAD&                 GetThread(uint32);
@@ -90,7 +90,7 @@ public:
 private:
     enum DEFAULT_STACKSIZE
     {
-        DEFAULT_STACKSIZE = 0x8000,
+        DEFAULT_STACKSIZE = 0x4000,
     };
 
     enum DEFAULT_PRIORITY

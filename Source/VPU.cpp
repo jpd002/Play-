@@ -4,7 +4,6 @@
 #include <boost/lexical_cast.hpp>
 
 using namespace Framework;
-using namespace boost;
 using namespace std;
 using namespace std::tr1;
 
@@ -66,7 +65,7 @@ void CVPU::JoinThread()
 
 void CVPU::SingleStep()
 {
-    mutex::scoped_lock lock(m_execMutex);
+    boost::mutex::scoped_lock lock(m_execMutex);
     m_paused = false;
 #ifdef _DEBUG
     m_execDoneCondition.wait(m_execMutex);
@@ -89,7 +88,7 @@ void CVPU::Reset()
 
 void CVPU::SaveState(CZipArchiveWriter& archive)
 {
-    string path = STATE_PREFIX + lexical_cast<string>(m_vpuNumber) + STATE_SUFFIX;
+    string path = STATE_PREFIX + boost::lexical_cast<string>(m_vpuNumber) + STATE_SUFFIX;
     CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
     registerFile->SetRegister32(STATE_REGS_STAT,        m_STAT);
     registerFile->SetRegister32(STATE_REGS_CODE,        m_CODE);
@@ -110,7 +109,7 @@ void CVPU::SaveState(CZipArchiveWriter& archive)
 
 void CVPU::LoadState(CZipArchiveReader& archive)
 {
-    string path = STATE_PREFIX + lexical_cast<string>(m_vpuNumber) + STATE_SUFFIX;
+    string path = STATE_PREFIX + boost::lexical_cast<string>(m_vpuNumber) + STATE_SUFFIX;
     CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
     m_STAT    <<= registerFile.GetRegister32(STATE_REGS_STAT);
     m_CODE    <<= registerFile.GetRegister32(STATE_REGS_CODE);
@@ -320,8 +319,8 @@ void CVPU::ExecuteThreadProc()
 #endif
             )
         {
-            mutex::scoped_lock execLock(m_execMutex);
-            xtime xt;
+            boost::mutex::scoped_lock execLock(m_execMutex);
+            boost::xtime xt;
             xtime_get(&xt, boost::TIME_UTC);
             xt.nsec += 16 * 1000000;
             m_execCondition.timed_wait(m_execMutex, xt);
