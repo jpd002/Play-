@@ -1,8 +1,6 @@
 TODO:
-- Raw mode view for tags
 - Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
 	- SPU updating for too long? (CPU/SPU desync)
-- Reverb enable option
 - Fix nasty bug with PSX sound files and home computer.
 	- Happens on other computers too.
 - Exception for invalid PSFs
@@ -10,6 +8,9 @@ TODO:
 - waveOut driver
 
 Done:
+- Reverb enable option
+- Raw mode view for tags
+- Disable "file information" when no PSF is loaded.
 - Problem with channel volumes in Ys 4, Phantasy Star 2
 - Reverb for SPU2
 - Move SPU2 to IOP

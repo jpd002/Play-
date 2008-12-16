@@ -30,7 +30,7 @@ m_tags(tags)
 		RegisterClassEx(&w);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("File Information"), WNDSTYLE, Win32::CRect(0, 0, 400, 250), parent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("File Information"), WNDSTYLE, Win32::CRect(0, 0, 400, 400), parent, NULL);
 	SetClassPtr();
 
 	m_title		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
@@ -41,6 +41,7 @@ m_tags(tags)
 	m_comment	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
 	m_copyright	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
 	m_psfBy		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
+	m_rawTags	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY | ES_MULTILINE | WS_VSCROLL);
 
 	m_layout = 
 		VerticalLayoutContainer
@@ -85,7 +86,9 @@ m_tags(tags)
 				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(LABEL_COLUMN_WIDTH, 12, new Win32::CStatic(m_hWnd, _T("Psf by:")))) +
 				LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_psfBy))
 			) +
-			LayoutExpression(CLayoutStretch::Create())
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, Win32::CRect(0, 0, 0, 0), SS_ETCHEDVERT))) +
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _T("Raw Tags View:")))) +
+			LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(100, 20, 1, 1, m_rawTags))
 		);
 
 	RefreshLayout();
@@ -121,4 +124,12 @@ void CFileInformationWindow::UpdateFields()
 	m_comment->SetText(string_cast<tstring>(GetTagValue("comment")).c_str());
 	m_copyright->SetText(string_cast<tstring>(GetTagValue("copyright")).c_str());
 	m_psfBy->SetText(string_cast<tstring>(GetTagValue("psfby")).c_str());
+
+	tstring rawTagsString;
+	for(CPsfBase::TagMap::const_iterator tagIterator(m_tags.begin());
+		tagIterator != m_tags.end(); tagIterator++)
+	{
+		rawTagsString += string_cast<tstring>(tagIterator->first) + _T("=") + string_cast<tstring>(tagIterator->second) + _T("\r\n");
+	}
+	m_rawTags->SetText(rawTagsString.c_str());
 }

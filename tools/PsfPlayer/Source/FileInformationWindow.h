@@ -28,6 +28,7 @@ private:
 	Framework::Win32::CEdit*	m_comment;
 	Framework::Win32::CEdit*	m_copyright;
 	Framework::Win32::CEdit*	m_psfBy;
+	Framework::Win32::CEdit*	m_rawTags;
 	Framework::LayoutObjectPtr	m_layout;
 };
 

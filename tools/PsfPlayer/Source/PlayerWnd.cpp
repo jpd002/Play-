@@ -220,6 +220,7 @@ void CPlayerWnd::Load(const char* path)
 		m_ready = false;
 	}
 	UpdateTitle();
+	UpdateMenu();
 }
 
 void CPlayerWnd::UpdateFromConfig()
@@ -251,8 +252,18 @@ void CPlayerWnd::UpdateTitle()
 
 void CPlayerWnd::UpdateMenu()
 {
-	Win32::CMenuItem reverbMenuItem = Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_SETTINGS_ENABLEREVERB);
-	reverbMenuItem.Check(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_REVERB_ENABLED));
+	{
+		Win32::CMenuItem reverbMenuItem = Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_SETTINGS_ENABLEREVERB);
+		reverbMenuItem.Check(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_REVERB_ENABLED));
+	}
+	{
+		Win32::CMenuItem fileInfoMenuItem = Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FILE_FILEINFORMATION);
+		fileInfoMenuItem.Enable(m_ready);
+	}
+	{
+		Win32::CMenuItem pauseMenuItem = Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FILE_PAUSE);
+		pauseMenuItem.Enable(m_ready);
+	}
 }
 
 void CPlayerWnd::OnNewFrame()
