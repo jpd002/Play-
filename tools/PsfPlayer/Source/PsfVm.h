@@ -3,7 +3,7 @@
 
 #include "Types.h"
 #include "MIPS.h"
-#include "SH_OpenAL.h"
+#include "SpuHandler.h"
 #include "iop/Iop_SubSystem.h"
 #include "VirtualMachine.h"
 #include "Debuggable.h"
@@ -52,7 +52,7 @@ private:
 
 	STATUS				m_status;
 	Iop::CSubSystem		m_iop;
-	CSH_OpenAL			m_spuHandler;
+	CSpuHandler*		m_spuHandler;
 	boost::thread		m_thread;
 	bool				m_singleStep;
     int                 m_spuUpdateCounter;

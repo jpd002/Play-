@@ -2,14 +2,13 @@
 #define _CSH_OPENAL_H_
 
 #include <deque>
-#include <time.h>
-#include "iop/Iop_SpuBase.h"
+#include "SpuHandler.h"
 #include "openal/Device.h"
 #include "openal/Context.h"
 #include "openal/Source.h"
 #include "openal/Buffer.h"
 
-class CSH_OpenAL
+class CSH_OpenAL : public CSpuHandler
 {
 public:
 						CSH_OpenAL();

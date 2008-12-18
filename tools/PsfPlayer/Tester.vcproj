@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib OpenAL32.lib"
+				AdditionalDependencies="comctl32.lib OpenAL32.lib winmm.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\libs\Win32&quot;;C:\Components\boost_1_35_0\stage\lib"
 				GenerateDebugInformation="true"
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib OpenAL32.lib"
+				AdditionalDependencies="comctl32.lib OpenAL32.lib winmm.lib"
 				OutputFile="$(OutDir)\PsfPlayer.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\OpenAL 1.1 SDK\libs\Win32&quot;;C:\Components\boost_1_35_0\stage\lib"
@@ -309,6 +309,22 @@
 			</File>
 			<File
 				RelativePath=".\Source\SH_OpenAL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SH_WaveOut.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SH_WaveOut.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SpuHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SpuHandler.h"
 				>
 			</File>
 			<File

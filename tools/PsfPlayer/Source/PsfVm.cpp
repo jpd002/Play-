@@ -4,6 +4,8 @@
 #include <boost/filesystem/operations.hpp>
 #include "PsfVm.h"
 #include "Log.h"
+#include "SH_OpenAL.h"
+#include "SH_WaveOut.h"
 #include "MA_MIPSIV.h"
 #include "HighResTimer.h"
 #include "xml/Writer.h"
@@ -30,18 +32,19 @@ m_thread(bind(&CPsfVm::ThreadProc, this)),
 m_spuUpdateCounter(g_spuUpdateTicks),
 m_frameCounter(g_frameTicks)
 {
-
+//	m_spuHandler = new CSH_OpenAL();
+	m_spuHandler = new CSH_WaveOut();
 }
 
 CPsfVm::~CPsfVm()
 {
-
+	delete m_spuHandler;
 }
 
 void CPsfVm::Reset()
 {
 	m_iop.Reset();
-	m_spuHandler.Reset();
+	m_spuHandler->Reset();
     m_frameCounter = g_frameTicks;
     m_spuUpdateCounter = g_spuUpdateTicks;
 }
@@ -226,9 +229,9 @@ void CPsfVm::ThreadProc()
 				m_OnRunningStateChange();
 			}
 #else
-			if(m_spuHandler.HasFreeBuffers())
+			if(m_spuHandler->HasFreeBuffers())
 			{
-				while(m_spuHandler.HasFreeBuffers() && !m_mailBox.IsPending())
+				while(m_spuHandler->HasFreeBuffers() && !m_mailBox.IsPending())
 				{
 					while(m_spuUpdateCounter > 0)
 					{
@@ -243,7 +246,7 @@ void CPsfVm::ThreadProc()
 						}
 					}
 
-					m_spuHandler.Update(m_iop.m_spuCore0, m_iop.m_spuCore1);
+					m_spuHandler->Update(m_iop.m_spuCore0, m_iop.m_spuCore1);
 					m_spuUpdateCounter += g_spuUpdateTicks;
 				}
 			}
