@@ -4,6 +4,7 @@
 #include <assert.h>
 
 //#define LOGGING
+#define SAMPLE_RATE 44100
 
 using namespace boost;
 using namespace Iop;
@@ -11,7 +12,7 @@ using namespace std;
 
 ALCint g_attrList[] = 
 {
-	ALC_FREQUENCY,	44100,
+	ALC_FREQUENCY,	SAMPLE_RATE,
 	0,				0
 };
 
@@ -63,30 +64,13 @@ void CSH_OpenAL::Update(CSpuBase& spu0, CSpuBase& spu1)
 //	unsigned int sampleCount = (44100 * bufferLength * 2) / 1000;
 //	unsigned int sampleCount = 1470;
 
-	CSpuBase* spu[2] = { &spu0, &spu1 };
-
-	unsigned int sampleCount = 352;
-	unsigned int sampleRate = 44100;
+	unsigned int sampleCount = SAMPLES_PER_UPDATE;
+	unsigned int sampleRate = SAMPLE_RATE;
 	size_t bufferSize = sampleCount * sizeof(int16);
 	int16* samples = reinterpret_cast<int16*>(alloca(bufferSize));
 	memset(samples, 0, bufferSize);
 
-	for(unsigned int i = 0; i < 2; i++)
-	{
-		if(spu[i]->IsEnabled())
-		{
-			int16* tempSamples = reinterpret_cast<int16*>(alloca(bufferSize));
-			spu[i]->Render(tempSamples, sampleCount, sampleRate);
-
-			for(unsigned int j = 0; j < sampleCount; j++)
-			{
-				int32 resultSample = static_cast<int32>(samples[j]) + static_cast<int32>(tempSamples[j]);
-				resultSample = max<int32>(resultSample, SHRT_MIN);
-				resultSample = min<int32>(resultSample, SHRT_MAX);
-				samples[j] = static_cast<int16>(resultSample);
-			}
-		}
-	}
+	MixInputs(samples, sampleCount, sampleRate, spu0, spu1);
 
 	assert(m_availableBuffers.size() != 0);
 	ALuint buffer = *m_availableBuffers.begin();

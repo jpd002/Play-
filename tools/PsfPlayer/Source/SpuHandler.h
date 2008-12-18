@@ -21,6 +21,7 @@ protected:
 	void				MixInputs(int16*, unsigned int, unsigned int, Iop::CSpuBase&, Iop::CSpuBase&);
 
 private:
+
 };
 
 #endif
