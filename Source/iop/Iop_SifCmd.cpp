@@ -18,7 +18,7 @@ using namespace std;
 #define FUNCTION_SIFRPCLOOP             "SifRpcLoop"
 #define FUNCTION_RETURNFROMRPCINVOKE    "ReturnFromRpcInvoke"
 
-#define INVOKE_PARAMS_SIZE          0x800
+#define INVOKE_PARAMS_SIZE          0x4000
 #define TRAMPOLINE_SIZE             0x800
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram) :

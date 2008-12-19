@@ -291,16 +291,16 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 
 	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
 
-//    ModuleMap::iterator moduleIterator(m_modules.find(pBind->nSID));
-//    if(moduleIterator != m_modules.end() || (pBind->nSID & 0x80000000) != 0)
+    ModuleMap::iterator moduleIterator(m_modules.find(pBind->nSID));
+    if(moduleIterator != m_modules.end() || (pBind->nSID & 0x80000000) != 0)
     {
         SendPacket(&rend, sizeof(RPCREQUESTEND));
     }
-    //else
-    //{
-    //    assert(m_bindReplies.find(pBind->nSID) == m_bindReplies.end());
-    //    m_bindReplies[pBind->nSID] = rend;
-    //}
+    else
+    {
+        assert(m_bindReplies.find(pBind->nSID) == m_bindReplies.end());
+        m_bindReplies[pBind->nSID] = rend;
+    }
 }
 
 void CSIF::Cmd_Call(PACKETHDR* pHDR)

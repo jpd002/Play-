@@ -1150,9 +1150,7 @@ void CPS2VM::EmuThread()
                 }
                 else
                 {
-#ifdef _DEBUG
                     m_iop.ExecuteCpu(false);
-#endif
                 }
             }
 #ifdef DEBUGGER_INCLUDED
