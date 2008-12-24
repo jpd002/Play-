@@ -19,7 +19,6 @@
 		7E8988430D08BD090077F9ED /* BasicBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B20D08BD090077F9ED /* BasicBlock.cpp */; };
 		7E8988450D08BD090077F9ED /* CodeGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B60D08BD090077F9ED /* CodeGen.cpp */; };
 		7E8988460D08BD090077F9ED /* CodeGen_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */; };
-		7E8988490D08BD090077F9ED /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987BF0D08BD090077F9ED /* Config.cpp */; };
 		7E89884A0D08BD090077F9ED /* COP_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C00D08BD090077F9ED /* COP_FPU.cpp */; };
 		7E89884B0D08BD090077F9ED /* COP_FPU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C20D08BD090077F9ED /* COP_FPU_Reflection.cpp */; };
 		7E89884C0D08BD090077F9ED /* COP_SCU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8987C30D08BD090077F9ED /* COP_SCU.cpp */; };
@@ -136,7 +135,6 @@
 		7EE1BC970D4D512800B502BD /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EE1BC960D4D512800B502BD /* IOKit.framework */; };
 		7EE1BC990D4D513500B502BD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EE1BC980D4D513500B502BD /* CoreFoundation.framework */; };
 		7EE362C20D5FA35800C21032 /* IPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE362C00D5FA35800C21032 /* IPU.cpp */; };
-		7EE5842B0D23176400AF9DA3 /* PathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */; };
 		7EEF338E0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */; };
 		7EEF350F0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */; };
 		7EF251B20D83124D00D90D20 /* Iop_PadMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EF251B00D83124D00D90D20 /* Iop_PadMan.cpp */; };
@@ -180,7 +178,6 @@
 		7E8987B70D08BD090077F9ED /* CodeGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen.h; path = Source/CodeGen.h; sourceTree = "<group>"; };
 		7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_FPU.cpp; path = Source/CodeGen_FPU.cpp; sourceTree = "<group>"; };
 		7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_StackPatterns.h; path = Source/CodeGen_StackPatterns.h; sourceTree = "<group>"; };
-		7E8987BF0D08BD090077F9ED /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Config.cpp; path = Source/Config.cpp; sourceTree = "<group>"; };
 		7E8987C00D08BD090077F9ED /* COP_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_FPU.cpp; path = Source/COP_FPU.cpp; sourceTree = "<group>"; };
 		7E8987C10D08BD090077F9ED /* COP_FPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_FPU.h; path = Source/COP_FPU.h; sourceTree = "<group>"; };
 		7E8987C20D08BD090077F9ED /* COP_FPU_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_FPU_Reflection.cpp; path = Source/COP_FPU_Reflection.cpp; sourceTree = "<group>"; };
@@ -269,7 +266,6 @@
 		7E8988400D08BD090077F9ED /* VUShared_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VUShared_Reflection.cpp; path = Source/VUShared_Reflection.cpp; sourceTree = "<group>"; };
 		7E8988410D08BD090077F9ED /* X86Assembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler.cpp; path = Source/X86Assembler.cpp; sourceTree = "<group>"; };
 		7E8988420D08BD090077F9ED /* X86Assembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = X86Assembler.h; path = Source/X86Assembler.h; sourceTree = "<group>"; };
-		7E8988E80D08C2CF0077F9ED /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Config.h; path = Source/Config.h; sourceTree = "<group>"; };
 		7E8988E90D08C2CF0077F9ED /* MemoryMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryMap.h; path = Source/MemoryMap.h; sourceTree = "<group>"; };
 		7E89890A0D08C3910077F9ED /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../Framework/Framework.xcodeproj; sourceTree = SOURCE_ROOT; };
 		7E898A350D08C61A0077F9ED /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
@@ -396,8 +392,6 @@
 		7EE1BC980D4D513500B502BD /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		7EE362C00D5FA35800C21032 /* IPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPU.cpp; path = Source/IPU.cpp; sourceTree = "<group>"; };
 		7EE362C10D5FA35800C21032 /* IPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPU.h; path = Source/IPU.h; sourceTree = "<group>"; };
-		7EE584290D23176400AF9DA3 /* PathUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathUtils.h; path = Source/PathUtils.h; sourceTree = "<group>"; };
-		7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathUtils.cpp; path = Source/PathUtils.cpp; sourceTree = "<group>"; };
 		7EEF338C0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLMacOSX.h; path = Source/macosxui/GSH_OpenGLMacOSX.h; sourceTree = "<group>"; };
 		7EEF338D0D0B8F63005FE2D8 /* GSH_OpenGLMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLMacOSX.cpp; path = Source/macosxui/GSH_OpenGLMacOSX.cpp; sourceTree = "<group>"; };
 		7EEF350E0D0E6E68005FE2D8 /* X86Assembler_Fpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler_Fpu.cpp; path = Source/X86Assembler_Fpu.cpp; sourceTree = "<group>"; };
@@ -543,8 +537,6 @@
 				7E8987B80D08BD090077F9ED /* CodeGen_FPU.cpp */,
 				7E9E4F850D4531BE003321D8 /* CodeGen_MD.cpp */,
 				7E8987BA0D08BD090077F9ED /* CodeGen_StackPatterns.h */,
-				7E8987BF0D08BD090077F9ED /* Config.cpp */,
-				7E8988E80D08C2CF0077F9ED /* Config.h */,
 				7E8987C00D08BD090077F9ED /* COP_FPU.cpp */,
 				7E8987C10D08BD090077F9ED /* COP_FPU.h */,
 				7E8987C20D08BD090077F9ED /* COP_FPU_Reflection.cpp */,
@@ -638,8 +630,6 @@
 				7E89882A0D08BD090077F9ED /* PadHandler.cpp */,
 				7E89882B0D08BD090077F9ED /* PadHandler.h */,
 				7E89882C0D08BD090077F9ED /* PadListener.h */,
-				7EE5842A0D23176400AF9DA3 /* PathUtils.cpp */,
-				7EE584290D23176400AF9DA3 /* PathUtils.h */,
 				7EAD8BE40D4846DE002CC1C1 /* Posix_VolumeStream.cpp */,
 				7EAD8BE30D4846DE002CC1C1 /* Posix_VolumeStream.h */,
 				7E89882D0D08BD090077F9ED /* Profiler.cpp */,
@@ -863,7 +853,6 @@
 				7E8988430D08BD090077F9ED /* BasicBlock.cpp in Sources */,
 				7E8988450D08BD090077F9ED /* CodeGen.cpp in Sources */,
 				7E8988460D08BD090077F9ED /* CodeGen_FPU.cpp in Sources */,
-				7E8988490D08BD090077F9ED /* Config.cpp in Sources */,
 				7E89884A0D08BD090077F9ED /* COP_FPU.cpp in Sources */,
 				7E89884B0D08BD090077F9ED /* COP_FPU_Reflection.cpp in Sources */,
 				7E89884C0D08BD090077F9ED /* COP_SCU.cpp in Sources */,
@@ -931,7 +920,6 @@
 				7E91DBE40D18662400557AC7 /* DebuggerWindow.mm in Sources */,
 				7E91AB6B0D1B32EA00B20FB7 /* RegView.mm in Sources */,
 				7E90A4FB0D1F57A2003095A6 /* InputBox.m in Sources */,
-				7EE5842B0D23176400AF9DA3 /* PathUtils.cpp in Sources */,
 				7E9E4F8F0D4531BE003321D8 /* CodeGen_MD.cpp in Sources */,
 				7E9E4F900D4531BE003321D8 /* INTC.cpp in Sources */,
 				7E9E4F910D4531BE003321D8 /* SIF.cpp in Sources */,

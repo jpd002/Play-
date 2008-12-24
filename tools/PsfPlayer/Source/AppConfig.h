@@ -7,7 +7,7 @@
 class CAppConfig : public Framework::CConfig, public CSingleton<CAppConfig>
 {
 public:
-    friend CSingleton<CAppConfig>;
+    friend class CSingleton<CAppConfig>;
 
 private:
                                 CAppConfig();

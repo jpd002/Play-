@@ -5,7 +5,7 @@
 #include "PsfVm.h"
 #include "Log.h"
 #include "SH_OpenAL.h"
-#include "SH_WaveOut.h"
+//#include "SH_WaveOut.h"
 #include "MA_MIPSIV.h"
 #include "HighResTimer.h"
 #include "xml/Writer.h"
@@ -32,8 +32,8 @@ m_thread(bind(&CPsfVm::ThreadProc, this)),
 m_spuUpdateCounter(g_spuUpdateTicks),
 m_frameCounter(g_frameTicks)
 {
-//	m_spuHandler = new CSH_OpenAL();
-	m_spuHandler = new CSH_WaveOut();
+	m_spuHandler = new CSH_OpenAL();
+//	m_spuHandler = new CSH_WaveOut();
 }
 
 CPsfVm::~CPsfVm()

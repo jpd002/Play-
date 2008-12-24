@@ -43,7 +43,7 @@ void CSH_OpenAL::RecycleBuffers()
 	unsigned int bufferCount = m_source.GetBuffersProcessed();
 	if(bufferCount != 0)
 	{
-		ALuint* bufferNames = reinterpret_cast<ALuint*>(_alloca(sizeof(ALuint) * bufferCount));
+		ALuint* bufferNames = reinterpret_cast<ALuint*>(alloca(sizeof(ALuint) * bufferCount));
 		alSourceUnqueueBuffers(m_source, bufferCount, bufferNames);
 		m_availableBuffers.insert(m_availableBuffers.begin(), bufferNames, bufferNames + bufferCount);
 	}

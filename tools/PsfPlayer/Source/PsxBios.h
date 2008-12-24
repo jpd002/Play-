@@ -94,7 +94,7 @@ private:
 		void Free(uint32 id) const
 		{
 			StructType* structPtr = (*this)[id];
-			if(!structPtr[i].isValid)
+			if(!structPtr[id].isValid)
 			{
 				throw std::exception();
 			}

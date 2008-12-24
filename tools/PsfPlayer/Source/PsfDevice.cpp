@@ -1,6 +1,8 @@
 #include <zlib.h>
+#include <stdexcept>
 #include "PsfDevice.h"
 #include "PtrStream.h"
+#include "stricmp.h"
 
 using namespace PS2;
 using namespace Framework;
@@ -104,7 +106,7 @@ const CPsfDevice::NODE* CPsfDevice::GetFileFindNode(const DIRECTORY& directory, 
         nodeIterator != directory.fileList.end(); nodeIterator++)
     {
         const NODE* node(*nodeIterator);
-        if(!_stricmp(node->name, path))
+        if(!stricmp(node->name, path))
         {
             return node;
         }
