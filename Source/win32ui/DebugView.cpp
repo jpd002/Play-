@@ -1,5 +1,6 @@
 #include "DebugView.h"
 #include "PtrMacro.h"
+#include "placeholder_def.h"
 
 using namespace Framework;
 using namespace std::tr1;
@@ -15,7 +16,7 @@ m_stepFunction(stepFunction)
 	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, virtualMachine, m_pCtx);
 
 	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx);
-    m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, placeholders::_1));
+    m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, PLACEHOLDER_1));
 
 	Hide();
 }

@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "Iop_Spu2.h"
 #include "../Log.h"
+#include "placeholder_def.h"
 
 #define LOG_NAME ("iop_spu2")
 
@@ -139,12 +140,12 @@ CSpu2::CSpu2(CSpuBase& spuBase0, CSpuBase& spuBase1)
 		m_core[i] = new CCore(i, base);
 	}
 
-	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, placeholders::_1, placeholders::_2);
-	m_writeDispatchInfo.global = bind(&CSpu2::WriteRegisterImpl, this, placeholders::_1, placeholders::_2);
+	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, PLACEHOLDER_1, PLACEHOLDER_2);
+	m_writeDispatchInfo.global = bind(&CSpu2::WriteRegisterImpl, this, PLACEHOLDER_1, PLACEHOLDER_2);
 	for(unsigned int i = 0; i < CORE_NUM; i++)
 	{
-		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, m_core[i], placeholders::_1, placeholders::_2);
-		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, m_core[i], placeholders::_1, placeholders::_2);
+		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, m_core[i], PLACEHOLDER_1, PLACEHOLDER_2);
+		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, m_core[i], PLACEHOLDER_1, PLACEHOLDER_2);
 	}
 }
 

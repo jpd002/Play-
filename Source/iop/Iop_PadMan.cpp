@@ -3,6 +3,7 @@
 #include "Iop_PadMan.h"
 #include "../Log.h"
 #include "../RegisterStateFile.h"
+#include "placeholder_def.h"
 
 using namespace Iop;
 using namespace Framework;
@@ -93,7 +94,7 @@ void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nB
 {
 	if(m_nPadDataAddress == 0) return;
 
-    ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, placeholders::_1, nButton, nPressed),
+    ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, nButton, nPressed),
 		ram + m_nPadDataAddress, PADNUM);
 }
 
@@ -101,7 +102,7 @@ void CPadMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON butto
 {
    if(m_nPadDataAddress == 0) return;
 
-   ExecutePadDataFunction(bind(&CPadMan::PDF_SetAxisState, placeholders::_1, button, axisValue),
+   ExecutePadDataFunction(bind(&CPadMan::PDF_SetAxisState, PLACEHOLDER_1, button, axisValue),
        ram + m_nPadDataAddress, PADNUM);
 }
 

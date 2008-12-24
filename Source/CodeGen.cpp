@@ -2,6 +2,7 @@
 #include "CodeGen.h"
 #include "PtrMacro.h"
 #include "CodeGen_StackPatterns.h"
+#include "placeholder_def.h"
 
 using namespace Framework;
 using namespace std;
@@ -103,8 +104,8 @@ CCodeGen::CCodeGen() :
 m_stream(NULL),
 m_nBlockStarted(false),
 m_Assembler(
-        bind(&CCodeGen::StreamWriteByte, this, placeholders::_1),
-        bind(&CCodeGen::StreamWriteAt, this, placeholders::_1, placeholders::_2),
+        bind(&CCodeGen::StreamWriteByte, this, PLACEHOLDER_1),
+        bind(&CCodeGen::StreamWriteAt, this, PLACEHOLDER_1, PLACEHOLDER_2),
         bind(&CCodeGen::StreamTell, this)
         )
 {
@@ -1418,12 +1419,12 @@ void CCodeGen::Div_Base(const MultFunction& function, bool isSigned)
 
 void CCodeGen::Div()
 {
-    Div_Base(bind(&CX86Assembler::DivEd, &m_Assembler, placeholders::_1), false);
+    Div_Base(bind(&CX86Assembler::DivEd, &m_Assembler, PLACEHOLDER_1), false);
 }
 
 void CCodeGen::DivS()
 {
-    Div_Base(bind(&CX86Assembler::IdivEd, &m_Assembler, placeholders::_1), true);
+    Div_Base(bind(&CX86Assembler::IdivEd, &m_Assembler, PLACEHOLDER_1), true);
 }
 
 void CCodeGen::Lookup(uint32* table)
@@ -1491,12 +1492,12 @@ void CCodeGen::Lzc()
 
 void CCodeGen::Mult()
 {
-    Mult_Base(bind(&CX86Assembler::MulEd, &m_Assembler, placeholders::_1), false);
+    Mult_Base(bind(&CX86Assembler::MulEd, &m_Assembler, PLACEHOLDER_1), false);
 }
 
 void CCodeGen::MultS()
 {
-    Mult_Base(bind(&CX86Assembler::ImulEd, &m_Assembler, placeholders::_1), true);
+    Mult_Base(bind(&CX86Assembler::ImulEd, &m_Assembler, PLACEHOLDER_1), true);
 }
 
 void CCodeGen::Mult_Base(const MultFunction& multFunction, bool isSigned)

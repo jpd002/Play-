@@ -1,13 +1,19 @@
 #include "Iop_SubSystem.h"
+#include "../MemoryStateFile.h"
 #include "../MA_MIPSIV.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
+#include "placeholder_def.h"
 
 using namespace Iop;
 using namespace std::tr1;
 using namespace PS2;
 
 #define LOG_NAME ("iop_subsystem")
+
+#define STATE_CPU       ("iop_cpu")
+#define STATE_RAM       ("iop_ram")
+#define STATE_SCRATCH   ("iop_scratch")
 
 CSubSystem::CSubSystem() :
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
@@ -29,7 +35,7 @@ m_spu2(m_spuCore0, m_spuCore1)
 	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                        0x03);
 	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,								                        0x04);
 	m_cpu.m_pMemoryMap->InsertReadMap(0x1F800000,                   0x1F8003FF,                     m_scratchPad,   									        0x05);
-    m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,					HW_REG_END,						bind(&CSubSystem::ReadIoRegister, this, placeholders::_1),	0x06);
+    m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,					HW_REG_END,						bind(&CSubSystem::ReadIoRegister, this, PLACEHOLDER_1),	    0x06);
 
 	//Write memory map
 	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE),   (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											                                0x01);
@@ -37,7 +43,7 @@ m_spu2(m_spuCore0, m_spuCore1)
 	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE),   (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											                                0x03);
 	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE),   (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,											                                0x04);
 	m_cpu.m_pMemoryMap->InsertWriteMap(0x1F800000,      0x1F8003FF,                                 m_scratchPad,									                                0x05);
-    m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		                            bind(&CSubSystem::WriteIoRegister, this, placeholders::_1, placeholders::_2),	0x06);
+    m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,		                            bind(&CSubSystem::WriteIoRegister, this, PLACEHOLDER_1, PLACEHOLDER_2),	        0x06);
 
 	//Instruction memory map
 	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x01);
@@ -48,8 +54,8 @@ m_spu2(m_spuCore0, m_spuCore1)
 	m_cpu.m_pArch = &g_MAMIPSIV;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
-    m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, placeholders::_1, placeholders::_2, placeholders::_3));
-	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, placeholders::_1, placeholders::_2, placeholders::_3));
+    m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
+	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
 }
 
 CSubSystem::~CSubSystem()
@@ -60,6 +66,20 @@ CSubSystem::~CSubSystem()
 void CSubSystem::SetBios(CBiosBase* bios)
 {
     m_bios = bios;
+}
+
+void CSubSystem::SaveState(CZipArchiveWriter& archive)
+{
+    archive.InsertFile(new CMemoryStateFile(STATE_CPU,      &m_cpu.m_State, sizeof(MIPSSTATE)));
+    archive.InsertFile(new CMemoryStateFile(STATE_RAM,      m_ram,          IOP_RAM_SIZE));
+    archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH,  m_scratchPad,   IOP_SCRATCH_SIZE));
+}
+
+void CSubSystem::LoadState(CZipArchiveReader& archive)
+{
+    archive.BeginReadFile(STATE_CPU         )->Read(&m_cpu.m_State, sizeof(MIPSSTATE));
+    archive.BeginReadFile(STATE_RAM         )->Read(m_ram,          IOP_RAM_SIZE);
+    archive.BeginReadFile(STATE_SCRATCH     )->Read(m_scratchPad,   IOP_SCRATCH_SIZE);
 }
 
 void CSubSystem::Reset()

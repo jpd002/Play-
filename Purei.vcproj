@@ -278,34 +278,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\GSH_Null.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GSH_Null.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GSH_OpenGL.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GSH_OpenGL.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GSH_OpenGL_Texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GSHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\GSHandler.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Integer64.h"
 				>
 			</File>
@@ -1062,6 +1034,34 @@
 				</File>
 				<File
 					RelativePath=".\Source\GIF.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_Null.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_Null.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_OpenGL.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_OpenGL.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSH_OpenGL_Texture.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\GSHandler.h"
 					>
 				</File>
 				<File

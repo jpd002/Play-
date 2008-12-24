@@ -1,6 +1,7 @@
 #include "PH_DirectInput.h"
 #include "ControllerSettingsWnd.h"
 #include "InputConfig.h"
+#include "placeholder_def.h"
 
 using namespace Framework;
 using namespace PS2;
@@ -44,10 +45,10 @@ DirectInput::CManager* CPH_DirectInput::GetManager() const
 void CPH_DirectInput::Update(uint8* ram)
 {
     CInputConfig::InputEventHandler eventHandler(bind(&CPH_DirectInput::ProcessEvents, this, 
-        placeholders::_1, placeholders::_2, ram));
+        PLACEHOLDER_1, PLACEHOLDER_2, ram));
     m_manager->ProcessEvents(
         bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), 
-        placeholders::_1, placeholders::_2, placeholders::_3, std::tr1::cref(eventHandler)));
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, std::tr1::cref(eventHandler)));
 }
 
 void CPH_DirectInput::ProcessEvents(CControllerInfo::BUTTON button, uint32 value, uint8* ram)

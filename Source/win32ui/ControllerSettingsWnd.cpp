@@ -8,6 +8,7 @@
 #include "layout/LayoutEngine.h"
 #include "string_cast.h"
 #include "Types.h"
+#include "placeholder_def.h"
 
 #define CLSNAME     _T("ContollerSettingsWnd")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -88,10 +89,10 @@ long CControllerSettingsWnd::OnTimer()
 {
     if(m_samplingEnabled)
     {
-        CInputConfig::InputEventHandler eventHandler(bind(&CControllerSettingsWnd::InputEventHandler, this, placeholders::_1, placeholders::_2));
+        CInputConfig::InputEventHandler eventHandler(bind(&CControllerSettingsWnd::InputEventHandler, this, PLACEHOLDER_1, PLACEHOLDER_2));
         m_directInputManager->ProcessEvents(
             bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), 
-            placeholders::_1, placeholders::_2, placeholders::_3, std::tr1::cref(eventHandler)));
+            PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, std::tr1::cref(eventHandler)));
     }
     return TRUE;
 }

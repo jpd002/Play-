@@ -4,6 +4,7 @@
 #include <functional>
 #include <boost/lexical_cast.hpp>
 #include "lexical_cast_ex.h"
+#include "placeholder_def.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -39,7 +40,7 @@ namespace MipsAssemblerDefinitions
             if(nRT == -1) throw exception();
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRS, nRT, nImm);
+            bind(m_Assembler, pAssembler, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3)(nRS, nRT, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -74,7 +75,7 @@ namespace MipsAssemblerDefinitions
             if(nRT == -1) throw exception();
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRT, nRS, nImm);
+            bind(m_Assembler, pAssembler, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3)(nRT, nRS, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -109,7 +110,7 @@ namespace MipsAssemblerDefinitions
             if(nRS == -1) throw exception();
             if(nRD == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRD, nRS, nRT);
+            bind(m_Assembler, pAssembler, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3)(nRD, nRS, nRT);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -140,7 +141,7 @@ namespace MipsAssemblerDefinitions
 
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2)(nRS, nImm);
+            bind(m_Assembler, pAssembler, PLACEHOLDER_1, PLACEHOLDER_2)(nRS, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -171,7 +172,7 @@ namespace MipsAssemblerDefinitions
 
             if(nRT == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2)(nRT, nImm);
+            bind(m_Assembler, pAssembler, PLACEHOLDER_1, PLACEHOLDER_2)(nRT, nImm);
         }
 
         AssemblerFunctionType m_Assembler;
@@ -205,7 +206,7 @@ namespace MipsAssemblerDefinitions
             if(nRT == -1) throw exception();
             if(nRS == -1) throw exception();
 
-            bind(m_Assembler, pAssembler, placeholders::_1, placeholders::_2, placeholders::_3)(nRT, nRS, nSA);
+            bind(m_Assembler, pAssembler, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3)(nRT, nRS, nSA);
         }
 
         AssemblerFunctionType m_Assembler;

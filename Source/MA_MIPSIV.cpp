@@ -6,6 +6,7 @@
 #include "COP_SCU.h"
 #include "offsetof_def.h"
 #include "Integer64.h"
+#include "placeholder_def.h"
 
 using namespace std::tr1;
 
@@ -780,19 +781,19 @@ void CMA_MIPSIV::SD()
 //00
 void CMA_MIPSIV::SLL()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Shl, m_codeGen, placeholders::_1));
+    Template_ShiftCst32()(bind(&CCodeGen::Shl, m_codeGen, PLACEHOLDER_1));
 }
 
 //02
 void CMA_MIPSIV::SRL()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Srl, m_codeGen, placeholders::_1));
+    Template_ShiftCst32()(bind(&CCodeGen::Srl, m_codeGen, PLACEHOLDER_1));
 }
 
 //03
 void CMA_MIPSIV::SRA()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Sra, m_codeGen, placeholders::_1));
+    Template_ShiftCst32()(bind(&CCodeGen::Sra, m_codeGen, PLACEHOLDER_1));
 }
 
 //04

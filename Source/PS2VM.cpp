@@ -25,6 +25,7 @@
 #include "IszImageStream.h"
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 #include "xml/Node.h"
 #include "xml/Writer.h"
 #include "xml/Parser.h"
@@ -34,6 +35,7 @@
 #include "iop/DirectoryDevice.h"
 #include "iop/IsoDevice.h"
 #include "Log.h"
+#include "placeholder_def.h"
 
 #define LOG_NAME        ("ps2vm")
 
@@ -349,17 +351,17 @@ void CPS2VM::CreateVM()
         //Read map
 	    m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_pRAM,				                                        0x00);
 	    m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_pSPR,				                                        0x01);
-        m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, placeholders::_1),      0x02);
-        m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, placeholders::_1),      0x03);
+        m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),         0x02);
+        m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),         0x03);
 	    m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				                                        0x04);
 
         //Write map
-        m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_pRAM,				                                                        0x00);
-	    m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_pSPR,				                                                        0x01);
-        m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortWriteHandler, this, placeholders::_1, placeholders::_2),	0x02);
-        m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortWriteHandler,	this, placeholders::_1, placeholders::_2),  0x03);
+        m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_pRAM,				                                                    0x00);
+	    m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_pSPR,				                                                    0x01);
+        m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x02);
+        m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),    0x03);
 
-        m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, placeholders::_1));
+        m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, PLACEHOLDER_1));
 
 	    //Instruction map
         m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
@@ -386,13 +388,13 @@ void CPS2VM::CreateVM()
 	    m_VU0.m_pMemoryMap->InsertReadMap(0x00001000, 0x00001FFF, m_pVUMem0,                                                    0x02);
 	    m_VU0.m_pMemoryMap->InsertReadMap(0x00002000, 0x00002FFF, m_pVUMem0,                                                    0x03);
 	    m_VU0.m_pMemoryMap->InsertReadMap(0x00003000, 0x00003FFF, m_pVUMem0,                                                    0x04);
-        m_VU0.m_pMemoryMap->InsertReadMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortReadHandler, this, placeholders::_1),  0x05);
+        m_VU0.m_pMemoryMap->InsertReadMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortReadHandler, this, PLACEHOLDER_1),     0x05);
 
-	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00000FFF, m_pVUMem0,                                                                       0x01);
-	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00001000, 0x00001FFF, m_pVUMem0,                                                                       0x02);
-	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00002000, 0x00002FFF, m_pVUMem0,                                                                       0x03);
-	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00003000, 0x00003FFF, m_pVUMem0,                                                                       0x04);
-        m_VU0.m_pMemoryMap->InsertWriteMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortWriteHandler, this, placeholders::_1, placeholders::_2),  0x05);
+	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00000FFF, m_pVUMem0,                                                                 0x01);
+	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00001000, 0x00001FFF, m_pVUMem0,                                                                 0x02);
+	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00002000, 0x00002FFF, m_pVUMem0,                                                                 0x03);
+	    m_VU0.m_pMemoryMap->InsertWriteMap(0x00003000, 0x00003FFF, m_pVUMem0,                                                                 0x04);
+        m_VU0.m_pMemoryMap->InsertWriteMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),  0x05);
 
         m_VU0.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00000FFF, m_pMicroMem0,                                  0x00);
 
@@ -403,11 +405,11 @@ void CPS2VM::CreateVM()
 
     //Vector Unit 1 context setup
     {
-	    m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                                        0x00);
-        m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortReadHandler, this, placeholders::_1),          0x01);
+	    m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                                     0x00);
+        m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortReadHandler, this, PLACEHOLDER_1),          0x01);
 
-	    m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                                                    0x00);
-        m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortWriteHandler, this, placeholders::_1, placeholders::_2),  0x01);
+	    m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                                              0x00);
+        m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),  0x01);
 
 	    m_VU1.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_pMicroMem1,                                  0x01);
 
@@ -421,14 +423,14 @@ void CPS2VM::CreateVM()
 #endif
     }
 
-    m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, placeholders::_1, placeholders::_2, placeholders::_4));
-    m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, placeholders::_1, placeholders::_2, placeholders::_4));
-    m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
-    m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, placeholders::_1, placeholders::_2, placeholders::_4, m_pRAM));
-    m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
-    m_dmac.SetChannelTransferFunction(6, bind(&CSIF::ReceiveDMA6, &m_sif, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
+    m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
+    m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
+    m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+    m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_pRAM));
+    m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+    m_dmac.SetChannelTransferFunction(6, bind(&CSIF::ReceiveDMA6, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 
-    m_ipu.SetDMA3ReceiveHandler(bind(&CDMAC::ResumeDMA3, &m_dmac, placeholders::_1, placeholders::_2));
+    m_ipu.SetDMA3ReceiveHandler(bind(&CDMAC::ResumeDMA3, &m_dmac, PLACEHOLDER_1, PLACEHOLDER_2));
 
 	CDROM0_Initialize();
 
@@ -530,6 +532,7 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
         archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,       m_pVUMem1,      PS2::VUMEM1SIZE));
         archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,    m_pMicroMem1,   PS2::MICROMEM1SIZE));
 
+        m_iop.SaveState(archive);
         m_pGS->SaveState(archive);
         m_dmac.SaveState(archive);
         m_intc.SaveState(archive);
@@ -578,6 +581,7 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 			archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      PS2::VUMEM1SIZE);
 			archive.BeginReadFile(STATE_MICROMEM1   )->Read(m_pMicroMem1,   PS2::MICROMEM1SIZE);
 
+            m_iop.LoadState(archive);
 			m_pGS->LoadState(archive);
 			m_dmac.LoadState(archive);
 			m_intc.LoadState(archive);

@@ -4,6 +4,7 @@
 #include "Profiler.h"
 #include "Log.h"
 #include "RegisterStateFile.h"
+#include "placeholder_def.h"
 
 #ifdef	PROFILE
 #define	PROFILE_DMACZONE "DMAC"
@@ -56,9 +57,9 @@ m_D6_CHCR(0),
 m_D6_MADR(0),
 m_D6_QWC(0),
 m_D6_TADR(0),
-m_D8(*this, 8, bind(&CDMAC::ReceiveDMA8, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)),
+m_D8(*this, 8, bind(&CDMAC::ReceiveDMA8, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4)),
 m_D8_SADR(0),
-m_D9(*this, 9, bind(&CDMAC::ReceiveDMA9, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)),
+m_D9(*this, 9, bind(&CDMAC::ReceiveDMA9, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4)),
 m_D9_SADR(0)
 {
     Reset();

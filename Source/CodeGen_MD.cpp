@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "CodeGen.h"
 #include "CodeGen_StackPatterns.h"
+#include "placeholder_def.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -364,7 +365,7 @@ void CCodeGen::MD_AbsS()
 
 void CCodeGen::MD_AddH()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PaddwVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PaddwVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_AddWSS()
@@ -455,27 +456,27 @@ void CCodeGen::MD_AddWUS()
 
 void CCodeGen::MD_AddS()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::AddpsVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::AddpsVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_And()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PandVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PandVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_CmpEqW()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PcmpeqdVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PcmpeqdVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_CmpGtH()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PcmpgtwVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PcmpgtwVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_DivS()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::DivpsVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::DivpsVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_IsNegative()
@@ -539,27 +540,27 @@ void CCodeGen::MD_IsZero()
 
 void CCodeGen::MD_MaxH()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PmaxswVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PmaxswVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_MaxS()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::MaxpsVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::MaxpsVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_MinH()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PminswVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PminswVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_MinS()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::MinpsVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::MinpsVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_MulS()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::MulpsVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::MulpsVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_Not()
@@ -583,7 +584,7 @@ void CCodeGen::MD_Not()
 
 void CCodeGen::MD_Or()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PorVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PorVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_PackHB()
@@ -655,22 +656,22 @@ void CCodeGen::MD_PackWH()
 
 void CCodeGen::MD_SllH(uint8 amount)
 {
-    MD_GenericPackedShift(bind(&CX86Assembler::PsllwVo, &m_Assembler, placeholders::_1, placeholders::_2), amount);
+    MD_GenericPackedShift(bind(&CX86Assembler::PsllwVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
 }
 
 void CCodeGen::MD_SraH(uint8 amount)
 {
-    MD_GenericPackedShift(bind(&CX86Assembler::PsrawVo, &m_Assembler, placeholders::_1, placeholders::_2), amount);
+    MD_GenericPackedShift(bind(&CX86Assembler::PsrawVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
 }
 
 void CCodeGen::MD_SraW(uint8 amount)
 {
-    MD_GenericPackedShift(bind(&CX86Assembler::PsradVo, &m_Assembler, placeholders::_1, placeholders::_2), amount);
+    MD_GenericPackedShift(bind(&CX86Assembler::PsradVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
 }
 
 void CCodeGen::MD_SrlH(uint8 amount)
 {
-    MD_GenericPackedShift(bind(&CX86Assembler::PsrlwVo, &m_Assembler, placeholders::_1, placeholders::_2), amount);
+    MD_GenericPackedShift(bind(&CX86Assembler::PsrlwVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
 }
 
 void CCodeGen::MD_Srl256()
@@ -729,55 +730,55 @@ void CCodeGen::MD_Srl256()
 
 void CCodeGen::MD_SubB()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PsubbVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PsubbVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_SubW()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PsubdVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PsubdVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_SubS()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::SubpsVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::SubpsVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_ToSingle()
 {
-    MD_GenericOneOperand(bind(&CX86Assembler::Cvtdq2psVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericOneOperand(bind(&CX86Assembler::Cvtdq2psVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_ToWordTruncate()
 {
-    MD_GenericOneOperand(bind(&CX86Assembler::Cvttps2dqVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericOneOperand(bind(&CX86Assembler::Cvttps2dqVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_UnpackLowerBH()
 {
-    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpcklbwVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpcklbwVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_UnpackLowerHW()
 {
-    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpcklwdVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpcklwdVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_UnpackLowerWD()
 {
-    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckldqVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckldqVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_UnpackUpperBH()
 {
-    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckhbwVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckhbwVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_UnpackUpperWD()
 {
-    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckhdqVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperandReversed(bind(&CX86Assembler::PunpckhdqVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
 void CCodeGen::MD_Xor()
 {
-    MD_GenericTwoOperand(bind(&CX86Assembler::PxorVo, m_Assembler, placeholders::_1, placeholders::_2));
+    MD_GenericTwoOperand(bind(&CX86Assembler::PxorVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }

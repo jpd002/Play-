@@ -7,6 +7,7 @@
 #include "win32/FileDialog.h"
 #include "../AppConfig.h"
 #include "WinUtils.h"
+#include "placeholder_def.h"
 
 #define CLSNAME			_T("CMcManagerWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -60,8 +61,8 @@ m_MemoryCard1(filesystem::path(CAppConfig::GetInstance().GetPreferenceString("ps
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
-	m_pSaveView->m_OnDeleteClicked.connect(bind(&CMcManagerWnd::Delete, this, placeholders::_1));
-	m_pMemoryCardView->m_OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, placeholders::_1));
+	m_pSaveView->m_OnDeleteClicked.connect(bind(&CMcManagerWnd::Delete, this, PLACEHOLDER_1));
+	m_pMemoryCardView->m_OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, PLACEHOLDER_1));
 
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 0 (mc0)")), 0);
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 1 (mc1)")), 1);
@@ -185,7 +186,7 @@ void CMcManagerWnd::Import()
 
 	try
 	{
-		CSaveImporter::ImportSave(Input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, placeholders::_1));
+		CSaveImporter::ImportSave(Input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, PLACEHOLDER_1));
 		Input.close();
 	}
 	catch(const exception& Exception)

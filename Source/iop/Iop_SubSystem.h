@@ -10,6 +10,8 @@
 #include "Iop_Intc.h"
 #include "Iop_RootCounters.h"
 #include "Iop_BiosBase.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -23,6 +25,9 @@ namespace Iop
     	unsigned int		ExecuteCpu(bool);
 
         void                SetBios(CBiosBase*);
+
+	    virtual void		SaveState(CZipArchiveWriter&);
+	    virtual void		LoadState(CZipArchiveReader&);
 
 	    uint8*				m_ram;
 	    uint8*				m_scratchPad;

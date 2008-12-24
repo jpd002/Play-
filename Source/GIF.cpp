@@ -117,6 +117,13 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 				break;
 			case 0x0E:
 				//A + D
+                //REMOVE
+                if(nPacket.nD0 == 0x000003e872a86a98)
+                {
+                    int i = 0;
+                    i++;
+                }
+                //REMOVE
 				if(m_gs != NULL)
 				{
                     writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));

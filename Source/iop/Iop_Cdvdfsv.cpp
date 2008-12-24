@@ -2,6 +2,7 @@
 #include "../Log.h"
 #include "../Ps2Const.h"
 #include "IOP_Cdvdfsv.h"
+#include "placeholder_def.h"
 
 using namespace Iop;
 using namespace Framework;
@@ -15,15 +16,15 @@ m_nStreamPos(0),
 m_iso(NULL)
 {
     m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, 
-        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
     m_module593 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke593, this,
-        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
     m_module595 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke595, this,
-        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
     m_module597 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke597, this,
-        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
     m_module59C = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59C, this,
-        placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6));
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
 
     sif.RegisterModule(MODULE_ID_1, &m_module592);
     sif.RegisterModule(MODULE_ID_2, &m_module593);

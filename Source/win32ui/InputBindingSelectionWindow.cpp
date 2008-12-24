@@ -2,6 +2,7 @@
 #include "win32/Rect.h"
 #include "layout/LayoutEngine.h"
 #include "string_cast.h"
+#include "placeholder_def.h"
 
 #define CLSNAME     _T("CInputBindingSelectionWindow")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -63,7 +64,7 @@ long CInputBindingSelectionWindow::OnActivate(unsigned int activationType, bool 
 long CInputBindingSelectionWindow::OnTimer()
 {
     m_directInputManager->ProcessEvents(bind(&CInputBindingSelectionWindow::ProcessEvent, this, 
-        placeholders::_1, placeholders::_2, placeholders::_3));
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
     if(m_selected)
     {
         CInputConfig::GetInstance().SetSimpleBinding(m_button, CInputConfig::BINDINGINFO(m_selectedDevice, m_selectedId));
