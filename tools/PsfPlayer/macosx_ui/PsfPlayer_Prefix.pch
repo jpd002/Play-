@@ -1,0 +1,13 @@
+//
+// Prefix header for all source files of the 'PsfPlayer' target in the 'PsfPlayer' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
+#include <functional>
+#include <list>
+#include <map>
+#include <vector>
+#include <string>

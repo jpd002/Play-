@@ -116,7 +116,10 @@ void CPsfVm::PauseImpl()
 void CPsfVm::Resume()
 {
 	m_status = RUNNING;
-	m_OnRunningStateChange();
+	if(!m_OnRunningStateChange.empty())
+	{
+		m_OnRunningStateChange();		
+	}
 }
 
 CDebuggable CPsfVm::GetDebugInfo()
@@ -242,7 +245,10 @@ void CPsfVm::ThreadProc()
 						{
 							m_frameCounter += g_frameTicks;
 							m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-							OnNewFrame();
+							if(!OnNewFrame.empty())
+							{
+								OnNewFrame();
+							}
 						}
 					}
 

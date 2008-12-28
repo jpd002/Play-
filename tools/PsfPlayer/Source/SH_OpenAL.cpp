@@ -83,7 +83,7 @@ void CSH_OpenAL::Update(CSpuBase& spu0, CSpuBase& spu1)
 	fclose(log);
 #endif
 	alSourceQueueBuffers(m_source, 1, &buffer);
-	if(m_availableBuffers.size() == 0)
+//	if(m_availableBuffers.size() == 0)
 	{
 		ALint sourceState;
 		alGetSourcei(m_source, AL_SOURCE_STATE, &sourceState);
