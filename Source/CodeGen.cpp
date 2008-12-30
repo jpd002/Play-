@@ -244,9 +244,9 @@ void CCodeGen::BeginIfElse(bool nCondition)
     else if(FitsPattern<SingleConstant>())
     {
         SingleConstant::PatternValue constant(GetPattern<SingleConstant>());
-        //Skip the if block only if we have a "false" value
+        //Skip the if block only if we have an non equal value
         CX86Assembler::LABEL ifLabel = m_Assembler.CreateLabel();
-        if(!constant)
+        if((!constant) == nCondition)
         {
             m_Assembler.JmpJb(ifLabel);
         }
