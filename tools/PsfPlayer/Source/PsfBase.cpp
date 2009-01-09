@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdexcept>
+#include <algorithm>
 #include <zlib.h>
 
 using namespace Framework;
@@ -150,6 +151,7 @@ void CPsfBase::ReadTags(CStream& stream)
 			{
 				string tagName = string(tagBegin, tagSeparator);
 				string tagValue = string(tagSeparator + 1, tagEnd);
+				transform(tagName.begin(), tagName.end(), tagName.begin(), tolower);
 				TagMap::iterator tagIterator(m_tags.find(tagName));
 				if(tagIterator != m_tags.end())
 				{

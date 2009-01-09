@@ -14,6 +14,8 @@ public:
 						CSH_OpenAL();
 	virtual				~CSH_OpenAL();
 
+	static CSpuHandler*	HandlerFactory();
+
 	void				Reset();
 	void				Update(Iop::CSpuBase&, Iop::CSpuBase&);
 	bool				HasFreeBuffers();

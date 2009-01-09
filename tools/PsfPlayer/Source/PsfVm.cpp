@@ -4,8 +4,6 @@
 #include <boost/filesystem/operations.hpp>
 #include "PsfVm.h"
 #include "Log.h"
-#include "SH_OpenAL.h"
-//#include "SH_WaveOut.h"
 #include "MA_MIPSIV.h"
 #include "HighResTimer.h"
 #include "xml/Writer.h"
@@ -30,10 +28,10 @@ m_status(PAUSED),
 m_singleStep(false),
 m_thread(bind(&CPsfVm::ThreadProc, this)),
 m_spuUpdateCounter(g_spuUpdateTicks),
+m_spuHandler(NULL),
 m_frameCounter(g_frameTicks)
 {
-	m_spuHandler = new CSH_OpenAL();
-//	m_spuHandler = new CSH_WaveOut();
+
 }
 
 CPsfVm::~CPsfVm()
@@ -44,7 +42,10 @@ CPsfVm::~CPsfVm()
 void CPsfVm::Reset()
 {
 	m_iop.Reset();
-	m_spuHandler->Reset();
+	if(m_spuHandler)
+	{
+		m_spuHandler->Reset();
+	}
     m_frameCounter = g_frameTicks;
     m_spuUpdateCounter = g_spuUpdateTicks;
 }
@@ -167,6 +168,21 @@ void CPsfVm::Step()
 	m_OnRunningStateChange();
 }
 
+void CPsfVm::SetSpuHandler(const SpuHandlerFactory& factory)
+{
+	m_mailBox.SendCall(bind(&CPsfVm::SetSpuHandlerImpl, this, factory));
+}
+
+void CPsfVm::SetSpuHandlerImpl(const SpuHandlerFactory& factory)
+{
+	if(m_spuHandler)
+	{
+		delete m_spuHandler;
+		m_spuHandler = NULL;
+	}
+	m_spuHandler = factory();
+}
+
 void CPsfVm::SetReverbEnabled(bool enabled)
 {
 	m_mailBox.SendCall(bind(&CPsfVm::SetReverbEnabledImpl, this, enabled));
@@ -232,7 +248,7 @@ void CPsfVm::ThreadProc()
 				m_OnRunningStateChange();
 			}
 #else
-			if(m_spuHandler->HasFreeBuffers())
+			if(m_spuHandler && m_spuHandler->HasFreeBuffers())
 			{
 				while(m_spuHandler->HasFreeBuffers() && !m_mailBox.IsPending())
 				{

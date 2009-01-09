@@ -32,6 +32,11 @@ CSH_OpenAL::~CSH_OpenAL()
 
 }
 
+CSpuHandler* CSH_OpenAL::HandlerFactory()
+{
+	return new CSH_OpenAL();
+}
+
 void CSH_OpenAL::Reset()
 {
 	m_source.Stop();

@@ -2,6 +2,8 @@
 #include "AppConfig.h"
 #include "PlayerWnd.h"
 #include "PsfLoader.h"
+#include "SH_WaveOut.h"
+#include "SH_OpenAL.h"
 #include "win32/Rect.h"
 #include "win32/FileDialog.h"
 #include "win32/AcceleratorTableGenerator.h"
@@ -9,7 +11,9 @@
 #include "FileInformationWindow.h"
 #include "AboutWindow.h"
 #include "string_cast.h"
+#include "string_cast_sjis.h"
 #include "resource.h"
+#include "Utf8.h"
 #include <afxres.h>
 #include <functional>
 
@@ -63,6 +67,8 @@ m_accel(CreateAccelerators())
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 
 	m_virtualMachine.OnNewFrame.connect(bind(&CPlayerWnd::OnNewFrame, this));
+//	m_virtualMachine.SetSpuHandler(&CSH_WaveOut::HandlerFactory);
+	m_virtualMachine.SetSpuHandler(&CSH_OpenAL::HandlerFactory);
 }
 
 CPlayerWnd::~CPlayerWnd()
@@ -243,6 +249,8 @@ void CPlayerWnd::UpdateTitle()
 	if(hasTitle)
 	{
 		title += _T(" - [ ");
+//		title += string_cast<tstring>(string_cast_sjis(titleTag->second));
+//		title += string_cast<tstring>(Utf8::ConvertFromSafe(titleTag->second));
 		title += string_cast<tstring>(titleTag->second);
 		title += _T(" ]");
 	}

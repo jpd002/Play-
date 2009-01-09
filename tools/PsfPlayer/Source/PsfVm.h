@@ -15,11 +15,14 @@
 class CPsfVm : public CVirtualMachine
 {
 public:
+	typedef std::tr1::function<CSpuHandler* ()> SpuHandlerFactory;
+
 						CPsfVm();
 	virtual				~CPsfVm();
 
 	void				Reset();
 	void				Step();
+	void				SetSpuHandler(const SpuHandlerFactory&);
 
 	void				SetReverbEnabled(bool);
 
@@ -49,6 +52,7 @@ private:
 
 	void				SetReverbEnabledImpl(bool);
 	void				PauseImpl();
+	void				SetSpuHandlerImpl(const SpuHandlerFactory&);
 
 	STATUS				m_status;
 	Iop::CSubSystem		m_iop;

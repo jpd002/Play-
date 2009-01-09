@@ -46,6 +46,11 @@ CSH_WaveOut::~CSH_WaveOut()
 	delete [] m_bufferMemory;
 }
 
+CSpuHandler* CSH_WaveOut::HandlerFactory()
+{
+	return new CSH_WaveOut();
+}
+
 void CSH_WaveOut::WaveOutProc(HWAVEOUT waveOut, UINT message, DWORD_PTR param1, DWORD_PTR param2)
 {
 	//switch(message)

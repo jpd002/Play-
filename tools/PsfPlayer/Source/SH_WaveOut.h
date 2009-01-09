@@ -11,6 +11,8 @@ public:
 							CSH_WaveOut();
 	virtual					~CSH_WaveOut();
 
+	static CSpuHandler*		HandlerFactory();
+
 	void					Reset();
 	void					Update(Iop::CSpuBase&, Iop::CSpuBase&);
 	bool					HasFreeBuffers();
