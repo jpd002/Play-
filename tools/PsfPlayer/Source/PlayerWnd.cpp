@@ -11,9 +11,9 @@
 #include "FileInformationWindow.h"
 #include "AboutWindow.h"
 #include "string_cast.h"
-#include "string_cast_sjis.h"
+//#include "string_cast_sjis.h"
 #include "resource.h"
-#include "Utf8.h"
+//#include "Utf8.h"
 #include <afxres.h>
 #include <functional>
 
