@@ -16,6 +16,8 @@ namespace Iop
             virtual Framework::CStream*     GetFile(uint32, const char*);
 
         private:
+            static char                     FixSlashes(char);
+
             CISO9660*&                      m_iso;
         };
     }

@@ -64,6 +64,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
             reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
             ));
         break;
+    case 29:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strncmp(
+            reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+            reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
+            context.m_State.nGPR[CMIPS::A2].nD0));
+        break;
     case 30:
         context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
         __strncpy(
@@ -112,6 +118,11 @@ uint32 CSysclib::__strlen(const char* string)
 void CSysclib::__strcpy(char* dst, const char* src)
 {
     strcpy(dst, src);
+}
+
+uint32 CSysclib::__strncmp(const char* s1, const char* s2, uint32 length)
+{
+    return static_cast<uint32>(strncmp(s1, s2, length));
 }
 
 void CSysclib::__strncpy(char* dst, const char* src, unsigned int count)

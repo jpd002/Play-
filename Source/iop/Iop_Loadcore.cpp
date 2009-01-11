@@ -101,6 +101,8 @@ void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//Load the module???
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received.\r\n", sModuleName);
 
+    m_bios.LoadAndStartModule(sModuleName, NULL, 0);
+
 	//This function returns something negative upon failure
 	ret[0] = 0x00000000;
 }

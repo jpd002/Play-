@@ -81,7 +81,9 @@ private:
 	void							OnExecutableChangeMsg();
 	void							OnExecutableUnloadingMsg();
 
-	HACCEL							m_nAccTable;
+    void                            ImportOldenTagsFile(const char*, CMIPSTags&);
+
+    HACCEL							m_nAccTable;
 
 	CELFView*						m_pELFView;
 	CFunctionsView*					m_pFunctionsView;
