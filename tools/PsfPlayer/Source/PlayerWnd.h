@@ -6,6 +6,7 @@
 #include "AcceleratorTable.h"
 #include "SpuRegView.h"
 #include "PsfBase.h"
+#include "PsfTags.h"
 
 class CPlayerWnd : public Framework::Win32::CWindow
 {
@@ -42,7 +43,7 @@ private:
 
 	CPsfVm&									m_virtualMachine;
 	CSpuRegView*							m_regView[MAX_CORE];
-	CPsfBase::TagMap						m_tags;
+	CPsfTags								m_tags;
 	unsigned int							m_frames;
 	bool									m_ready;
 	Framework::Win32::CAcceleratorTable		m_accel;

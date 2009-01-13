@@ -211,10 +211,11 @@ void CPlayerWnd::Load(const char* path)
 {
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
-	m_tags.clear();
 	try
 	{
-		CPsfLoader::LoadPsf(m_virtualMachine, path, &m_tags);
+		CPsfBase::TagMap tags;
+		CPsfLoader::LoadPsf(m_virtualMachine, path, &tags);
+		m_tags = CPsfTags(tags);
 		m_virtualMachine.Resume();
 		m_ready = true;
 	}
@@ -242,16 +243,14 @@ void CPlayerWnd::UpdateReverbStatus()
 
 void CPlayerWnd::UpdateTitle()
 {
-	CPsfBase::ConstTagIterator titleTag = m_tags.find("title");
-	bool hasTitle = titleTag != m_tags.end();
+	const char* titleTag = "title";
+	bool hasTitle = m_tags.HasTag("title");
 
 	tstring title = APP_NAME;
 	if(hasTitle)
 	{
 		title += _T(" - [ ");
-//		title += string_cast<tstring>(string_cast_sjis(titleTag->second));
-//		title += string_cast<tstring>(Utf8::ConvertFromSafe(titleTag->second));
-		title += string_cast<tstring>(titleTag->second);
+		title += string_cast<tstring>(m_tags.GetTagValue(titleTag));
 		title += _T(" ]");
 	}
 

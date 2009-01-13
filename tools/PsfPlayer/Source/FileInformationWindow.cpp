@@ -13,7 +13,7 @@
 using namespace Framework;
 using namespace std;
 
-CFileInformationWindow::CFileInformationWindow(HWND parent, const CPsfBase::TagMap& tags) :
+CFileInformationWindow::CFileInformationWindow(HWND parent, const CPsfTags& tags) :
 CModalWindow(parent),
 m_tags(tags)
 {
@@ -107,29 +107,25 @@ void CFileInformationWindow::RefreshLayout()
 	m_layout->RefreshGeometry();
 }
 
-string CFileInformationWindow::GetTagValue(const char* tagName)
-{
-	CPsfBase::TagMap::const_iterator tagIterator(m_tags.find(tagName));
-	if(tagIterator == m_tags.end()) return "";
-	return tagIterator->second;
-}
-
 void CFileInformationWindow::UpdateFields()
 {
-	m_title->SetText(string_cast<tstring>(GetTagValue("title")).c_str());
-	m_artist->SetText(string_cast<tstring>(GetTagValue("artist")).c_str());
-	m_game->SetText(string_cast<tstring>(GetTagValue("game")).c_str());
-	m_year->SetText(string_cast<tstring>(GetTagValue("year")).c_str());
-	m_genre->SetText(string_cast<tstring>(GetTagValue("genre")).c_str());
-	m_comment->SetText(string_cast<tstring>(GetTagValue("comment")).c_str());
-	m_copyright->SetText(string_cast<tstring>(GetTagValue("copyright")).c_str());
-	m_psfBy->SetText(string_cast<tstring>(GetTagValue("psfby")).c_str());
+	m_title->SetText(string_cast<tstring>(m_tags.GetTagValue("title")).c_str());
+	m_artist->SetText(string_cast<tstring>(m_tags.GetTagValue("artist")).c_str());
+	m_game->SetText(string_cast<tstring>(m_tags.GetTagValue("game")).c_str());
+	m_year->SetText(string_cast<tstring>(m_tags.GetTagValue("year")).c_str());
+	m_genre->SetText(string_cast<tstring>(m_tags.GetTagValue("genre")).c_str());
+	m_comment->SetText(string_cast<tstring>(m_tags.GetTagValue("comment")).c_str());
+	m_copyright->SetText(string_cast<tstring>(m_tags.GetTagValue("copyright")).c_str());
+	m_psfBy->SetText(string_cast<tstring>(m_tags.GetTagValue("psfby")).c_str());
 
 	tstring rawTagsString;
-	for(CPsfBase::TagMap::const_iterator tagIterator(m_tags.begin());
-		tagIterator != m_tags.end(); tagIterator++)
+	for(CPsfTags::ConstTagIterator tagIterator(m_tags.GetTagsBegin());
+		tagIterator != m_tags.GetTagsEnd(); tagIterator++)
 	{
-		rawTagsString += string_cast<tstring>(tagIterator->first) + _T("=") + string_cast<tstring>(tagIterator->second) + _T("\r\n");
+		rawTagsString += 
+			string_cast<tstring>(tagIterator->first) + 
+			_T("=") + 
+			string_cast<tstring>(m_tags.DecodeTagValue(tagIterator->second.c_str())) + _T("\r\n");
 	}
 	m_rawTags->SetText(rawTagsString.c_str());
 }
