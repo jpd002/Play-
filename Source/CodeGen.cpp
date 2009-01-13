@@ -1767,6 +1767,12 @@ void CCodeGen::Shl()
         FreeRegister(shiftAmount);
         PushReg(resultRegister);
     }
+    else if(FitsPattern<RelativeConstant>())
+    {
+        ConstantRelative::PatternValue ops = GetPattern<RelativeConstant>();
+        PushRel(ops.first);
+        Shl(ops.second);
+    }
     else if(FitsPattern<ConstantConstant>())
     {
         ConstantConstant::PatternValue ops = GetPattern<ConstantConstant>();
