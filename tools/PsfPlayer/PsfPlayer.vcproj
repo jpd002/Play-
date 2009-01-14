@@ -288,6 +288,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PsfTags.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfTags.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PsfVm.cpp"
 				>
 			</File>
