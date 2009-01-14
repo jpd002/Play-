@@ -274,7 +274,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				int32 volumeLevel = 0;
 				if(volume.volume.phase)
 				{
-//					volumeLevel = 0x3FFF - volume.volume.volume;
+					volumeLevel = 0x3FFF - volume.volume.volume;
 				}
 				else
 				{
