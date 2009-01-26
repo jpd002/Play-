@@ -110,6 +110,21 @@ void CPsxBios::LoadExe(uint8* exe)
 	}
 }
 
+void CPsxBios::SaveState(CZipArchiveWriter& archive)
+{
+
+}
+
+void CPsxBios::LoadState(CZipArchiveReader& archive)
+{
+
+}
+
+bool CPsxBios::IsIdle()
+{
+    return false;
+}
+
 #ifdef DEBUGGER_INCLUDED
 
 void CPsxBios::LoadDebugTags(Framework::Xml::CNode* root)

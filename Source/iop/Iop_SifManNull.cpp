@@ -12,7 +12,7 @@ void CSifManNull::SendPacket(void*, uint32)
 
 }
 
-void CSifManNull::SetDmaBuffer(uint8*, uint32)
+void CSifManNull::SetDmaBuffer(uint32, uint32)
 {
 
 }

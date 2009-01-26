@@ -73,6 +73,7 @@ void CSubSystem::SaveState(CZipArchiveWriter& archive)
     archive.InsertFile(new CMemoryStateFile(STATE_CPU,      &m_cpu.m_State, sizeof(MIPSSTATE)));
     archive.InsertFile(new CMemoryStateFile(STATE_RAM,      m_ram,          IOP_RAM_SIZE));
     archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH,  m_scratchPad,   IOP_SCRATCH_SIZE));
+    m_bios->SaveState(archive);
 }
 
 void CSubSystem::LoadState(CZipArchiveReader& archive)
@@ -80,6 +81,7 @@ void CSubSystem::LoadState(CZipArchiveReader& archive)
     archive.BeginReadFile(STATE_CPU         )->Read(&m_cpu.m_State, sizeof(MIPSSTATE));
     archive.BeginReadFile(STATE_RAM         )->Read(m_ram,          IOP_RAM_SIZE);
     archive.BeginReadFile(STATE_SCRATCH     )->Read(m_scratchPad,   IOP_SCRATCH_SIZE);
+    m_bios->LoadState(archive);
 }
 
 void CSubSystem::Reset()
@@ -188,7 +190,7 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
 		ticks = quota - m_executor.Execute(quota);
 		assert(ticks >= 0);
         {
-            if(m_cpu.m_State.nPC == 0x1018)
+            if(m_bios->IsIdle())
 			{
 				ticks += (quota * 2);
             }

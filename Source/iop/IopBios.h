@@ -21,6 +21,12 @@
 class CIopBios : public Iop::CBiosBase
 {
 public:
+    enum CONTROL_BLOCK
+    {
+        CONTROL_BLOCK_START = 0x10,
+        CONTROL_BLOCK_END   = 0x1000,
+    };
+
     struct THREADCONTEXT
     {
         uint32      gpr[0x20];
@@ -43,7 +49,7 @@ public:
 
     typedef MipsModuleList::iterator ModuleListIterator;
 
-                            CIopBios(uint32, uint32, CMIPS&, uint8*, uint32);
+                            CIopBios(uint32, CMIPS&, uint8*, uint32);
     virtual                 ~CIopBios();
 
     void                    LoadAndStartModule(const char*, const char*, unsigned int);
@@ -58,6 +64,12 @@ public:
 	uint64					ClockToMicroSec(uint64);
 
     void                    Reset(Iop::CSifMan*);
+
+	virtual void		    SaveState(CZipArchiveWriter&);
+	virtual void		    LoadState(CZipArchiveReader&);
+
+    bool                    IsIdle();
+
 #ifdef DEBUGGER_INCLUDED
     void                    LoadDebugTags(Framework::Xml::CNode*);
     void                    SaveDebugTags(Framework::Xml::CNode*);
@@ -137,6 +149,11 @@ private:
     uint32                  GetNextReadyThread(bool);
 	void					ReturnFromException();
 
+    uint32&                 NextThreadId() const;
+    uint32&                 NextSemaphoreId() const;
+    uint32&                 CurrentThreadId() const;
+    uint64&                 CurrentTime() const;
+
     SEMAPHORE&              GetSemaphore(uint32);
 
     void                    LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
@@ -162,19 +179,16 @@ private:
     CMIPS&                  m_cpu;
     uint8*                  m_ram;
     uint32                  m_ramSize;
-    uint32                  m_baseAddress;
     uint32                  m_threadFinishAddress;
 	uint32					m_returnFromExceptionAddress;
 	uint32					m_idleFunctionAddress;
-    uint32                  m_nextThreadId;
-    uint32                  m_nextSemaphoreId;
-    uint32                  m_currentThreadId;
 	uint32					m_clockFrequency;
-	uint64					m_currentTime;
+
     bool                    m_rescheduleNeeded;
     ThreadMapType           m_threads;
     SemaphoreMapType        m_semaphores;
     IntrHandlerMapType      m_intrHandlers;
+
     IopModuleMapType        m_modules;
     MipsModuleList			m_moduleTags;
     Iop::CSifMan*           m_sifMan;

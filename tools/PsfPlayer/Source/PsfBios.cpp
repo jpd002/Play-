@@ -7,7 +7,7 @@ using namespace std;
 #define PSF_DEVICENAME	"psf"
 
 CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize) :
-m_bios(0x1000, PS2::IOP_CLOCK_FREQ, cpu, ram, ramSize),
+m_bios(PS2::IOP_CLOCK_FREQ, cpu, ram, ramSize),
 m_psfDevice(new CPsfDevice())
 {
 	m_bios.Reset(NULL);
@@ -46,6 +46,21 @@ void CPsfBios::HandleInterrupt()
 void CPsfBios::CountTicks(uint32 ticks)
 {
 	m_bios.CountTicks(ticks);
+}
+
+void CPsfBios::SaveState(CZipArchiveWriter& archive)
+{
+
+}
+
+void CPsfBios::LoadState(CZipArchiveReader& archive)
+{
+
+}
+
+bool CPsfBios::IsIdle()
+{
+    return m_bios.IsIdle();
 }
 
 #ifdef DEBUGGER_INCLUDED

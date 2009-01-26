@@ -5,7 +5,9 @@
 #include "PtrStream.h"
 #include "Iop_Intc.h"
 #include "lexical_cast_ex.h"
+#include <boost/lexical_cast.hpp>
 #include "xml/FilteringNodeIterator.h"
+//#include "../StructCollectionStateFile.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan320.h"
@@ -31,16 +33,22 @@
 
 #define LOGNAME "iop_bios"
 
+#define STATE_THREADS_FILE              ("iopbios/threads")
+#define STATE_THREADS_PRIORITY_FIELD    ("priority")
+
+#define BIOS_NEXT_THREAD_ID_BASE        (CONTROL_BLOCK_START + 0x0000)
+#define BIOS_NEXT_SEMAPHORE_ID_BASE     (CONTROL_BLOCK_START + 0x0004)
+#define BIOS_CURRENT_THREAD_ID_BASE     (CONTROL_BLOCK_START + 0x0008)
+#define BIOS_CURRENT_TIME_BASE          (CONTROL_BLOCK_START + 0x0010)
+#define BIOS_HANDLERS_BASE              (CONTROL_BLOCK_START + 0x0800)
+
 using namespace std;
 using namespace Framework;
 
-CIopBios::CIopBios(uint32 baseAddress, uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize) :
-m_baseAddress(baseAddress),
+CIopBios::CIopBios(uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize) :
 m_cpu(cpu),
 m_ram(ram),
 m_ramSize(ramSize),
-m_nextThreadId(1),
-m_nextSemaphoreId(1),
 m_sifMan(NULL),
 m_stdio(NULL),
 m_sysmem(NULL),
@@ -51,10 +59,8 @@ m_dbcman(NULL),
 m_padman(NULL),
 #endif
 m_rescheduleNeeded(false),
-m_currentThreadId(-1),
 m_threadFinishAddress(0),
-m_clockFrequency(clockFrequency),
-m_currentTime(0)
+m_clockFrequency(clockFrequency)
 {
 
 }
@@ -67,17 +73,22 @@ CIopBios::~CIopBios()
 void CIopBios::Reset(Iop::CSifMan* sifMan)
 {
 	{
-		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[m_baseAddress]));
+		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[BIOS_HANDLERS_BASE]));
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
 		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
 	}
 
 	//0xBE00000 = Stupid constant to make FFX PSF happy
-	m_currentTime = 0xBE00000;
+	CurrentTime() = 0xBE00000;
+    NextThreadId() = 1;
+    NextSemaphoreId() = 1;
+    CurrentThreadId() = -1;
 
-	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
+    m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
 
+    m_threads.clear();
+    m_semaphores.clear();
     m_intrHandlers.clear();
     m_moduleTags.clear();
 
@@ -102,7 +113,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
         RegisterModule(m_ioman);
     }
     {
-        m_sysmem = new Iop::CSysmem(0x1000, m_ramSize, *m_stdio, *m_sifMan);
+        m_sysmem = new Iop::CSysmem(CONTROL_BLOCK_END, m_ramSize, *m_stdio, *m_sifMan);
         RegisterModule(m_sysmem);
     }
     {
@@ -177,10 +188,60 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
     const int sifDmaBufferSize = 0x1000;
     uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0);
 #ifndef _NULL_SIFMAN
-    m_sifMan->SetDmaBuffer(m_ram + sifDmaBufferPtr, sifDmaBufferSize);
+    m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
 #endif
 
     Reschedule();
+}
+
+uint32& CIopBios::NextThreadId() const
+{
+    return *reinterpret_cast<uint32*>(m_ram + BIOS_NEXT_THREAD_ID_BASE);
+}
+
+uint32& CIopBios::NextSemaphoreId() const
+{
+    return *reinterpret_cast<uint32*>(m_ram + BIOS_NEXT_SEMAPHORE_ID_BASE);
+}
+
+uint32& CIopBios::CurrentThreadId() const
+{
+    return *reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE);
+}
+
+uint64& CIopBios::CurrentTime() const
+{
+    return *reinterpret_cast<uint64*>(m_ram + BIOS_CURRENT_TIME_BASE);
+}
+
+void CIopBios::SaveState(CZipArchiveWriter& archive)
+{
+    //CStructCollectionStateFile* threadsFile = new CStructCollectionStateFile(STATE_THREADS_FILE);
+    //for(ThreadMapType::const_iterator threadIterator(m_threads.begin());
+    //    threadIterator != m_threads.end(); threadIterator++)
+    //{
+    //    const THREAD& thread(threadIterator->second);
+    //    CStructFile structFile;
+    //    structFile.SetRegister32(STATE_THREADS_PRIORITY_FIELD, thread.priority);
+    //    threadsFile->InsertStruct(("thread" + boost::lexical_cast<string>(threadIterator->first)).c_str(), structFile);
+    //}
+    //archive.InsertFile(threadsFile);
+}
+
+void CIopBios::LoadState(CZipArchiveReader& archive)
+{
+    //CStructCollectionStateFile threadsFile(*archive.BeginReadFile(STATE_THREADS_FILE));
+    //for(CStructCollectionStateFile::StructIterator threadIterator(threadsFile.GetStructBegin());
+    //    threadIterator != threadsFile.GetStructEnd(); threadIterator++)
+    //{
+    //    const CStructFile& structFile(threadIterator->second);
+    //    uint32 priority = structFile.GetRegister32(STATE_THREADS_PRIORITY_FIELD);
+    //}
+}
+
+bool CIopBios::IsIdle()
+{
+    return (m_cpu.m_State.nPC == m_idleFunctionAddress + 8);
 }
 
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
@@ -254,7 +315,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 	thread.context.gpr[CMIPS::SP] -= 4;
 
     StartThread(threadId);
-    if(m_currentThreadId == -1)
+    if(CurrentThreadId() == -1)
     {
         Reschedule();
     }
@@ -363,7 +424,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: CreateThread(threadProc = 0x%0.8X, priority = %d);\r\n", 
-        m_currentThreadId, threadProc, priority);
+        CurrentThreadId(), threadProc, priority);
 #endif
 
     if(stackSize == 0)
@@ -377,7 +438,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	thread.stackSize = stackSize;
     thread.stackBase = m_sysmem->AllocateMemory(thread.stackSize, 0);
     memset(m_ram + thread.stackBase, 0, thread.stackSize);
-    thread.id = m_nextThreadId++;
+    thread.id = NextThreadId()++;
     thread.priority = priority;
     thread.status = THREAD_STATUS_CREATED;
     thread.context.epc = threadProc;
@@ -392,7 +453,7 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: StartThread(threadId = %i, param = 0x%0.8X);\r\n", 
-        m_currentThreadId, threadId, param);
+        CurrentThreadId(), threadId, param);
 #endif
 
     THREAD& thread = GetThread(threadId);
@@ -412,11 +473,11 @@ void CIopBios::DelayThread(uint32 delay)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: DelayThread(delay = %i);\r\n", 
-        m_currentThreadId, delay);
+        CurrentThreadId(), delay);
 #endif
 
     //TODO : Need to delay or something...
-    THREAD& thread = GetThread(m_currentThreadId);
+    THREAD& thread = GetThread(CurrentThreadId());
     thread.nextActivateTime = GetCurrentTime() + MicroSecToClock(delay);
     m_rescheduleNeeded = true;
 }
@@ -425,10 +486,10 @@ void CIopBios::SleepThread()
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: SleepThread();\r\n", 
-        m_currentThreadId);
+        CurrentThreadId());
 #endif
 
-    THREAD& thread = GetThread(m_currentThreadId);
+    THREAD& thread = GetThread(CurrentThreadId());
     if(thread.status != THREAD_STATUS_RUNNING)
     {
         throw runtime_error("Thread isn't running.");
@@ -448,7 +509,7 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: WakeupThread(threadId = %i);\r\n", 
-        m_currentThreadId, threadId);
+        CurrentThreadId(), threadId);
 #endif
 
     THREAD& thread = GetThread(threadId);
@@ -469,17 +530,17 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 
 uint32 CIopBios::GetCurrentThreadId()
 {
-    return m_currentThreadId;
+    return CurrentThreadId();
 }
 
 void CIopBios::ExitCurrentThread()
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "%d : ExitCurrentThread();\r\n", m_currentThreadId);
+    CLog::GetInstance().Print(LOGNAME, "%d : ExitCurrentThread();\r\n", CurrentThreadId());
 #endif
-    ThreadMapType::iterator thread = GetThreadPosition(m_currentThreadId);
+    ThreadMapType::iterator thread = GetThreadPosition(CurrentThreadId());
     m_threads.erase(thread);
-    m_currentThreadId = -1;
+    CurrentThreadId() = -1;
     m_rescheduleNeeded = true;
 }
 
@@ -513,11 +574,11 @@ void CIopBios::SaveThreadContext(uint32 threadId)
 
 void CIopBios::Reschedule()
 {
-    if(m_currentThreadId != -1)
+    if(CurrentThreadId() != -1)
     {
-        SaveThreadContext(m_currentThreadId);
+        SaveThreadContext(CurrentThreadId());
         //Reinsert the thread into the map
-        ThreadMapType::iterator threadPosition = GetThreadPosition(m_currentThreadId);
+        ThreadMapType::iterator threadPosition = GetThreadPosition(CurrentThreadId());
         THREAD thread(threadPosition->second);
         m_threads.erase(threadPosition);
         m_threads.insert(ThreadMapType::value_type(thread.priority, thread));
@@ -542,12 +603,12 @@ void CIopBios::Reschedule()
 		LoadThreadContext(nextThreadId);
 	}
 #ifdef _DEBUG
-	if(nextThreadId != m_currentThreadId)
+	if(nextThreadId != CurrentThreadId())
 	{
 		CLog::GetInstance().Print(LOGNAME, "Switched over to thread %i.\r\n", nextThreadId);
 	}
 #endif
-	m_currentThreadId = nextThreadId;
+	CurrentThreadId() = nextThreadId;
 	m_cpu.m_nQuota = 1;
 }
 
@@ -588,7 +649,7 @@ uint32 CIopBios::GetNextReadyThread(bool checkActivateTime)
 
 uint64 CIopBios::GetCurrentTime()
 {
-	return m_currentTime;
+	return CurrentTime();
 }
 
 uint64 CIopBios::MilliSecToClock(uint32 value)
@@ -608,7 +669,7 @@ uint64 CIopBios::ClockToMicroSec(uint64 clock)
 
 void CIopBios::CountTicks(uint32 ticks)
 {
-	m_currentTime += ticks;
+	CurrentTime() += ticks;
 }
 
 CIopBios::SEMAPHORE& CIopBios::GetSemaphore(uint32 semaphoreId)
@@ -625,14 +686,14 @@ uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: CreateSemaphore(initialCount = %i, maxCount = %i);\r\n", 
-        m_currentThreadId, initialCount, maxCount);
+        CurrentThreadId(), initialCount, maxCount);
 #endif
 
     SEMAPHORE semaphore;
     memset(&semaphore, 0, sizeof(SEMAPHORE));
     semaphore.count = initialCount;
     semaphore.maxCount = maxCount;
-    semaphore.id = m_nextSemaphoreId++;
+    semaphore.id = NextSemaphoreId()++;
     semaphore.waitCount = 0;
     m_semaphores[semaphore.id] = semaphore;
     return semaphore.id;
@@ -642,7 +703,7 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: SignalSemaphore(semaphoreId = %i);\r\n", 
-        m_currentThreadId, semaphoreId);
+        CurrentThreadId(), semaphoreId);
 #endif
 
     SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
@@ -683,13 +744,13 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 {
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%i: WaitSemaphore(semaphoreId = %i);\r\n", 
-        m_currentThreadId, semaphoreId);
+        CurrentThreadId(), semaphoreId);
 #endif
 
     SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
     if(semaphore.count == 0)
     {
-        THREAD& thread = GetThread(m_currentThreadId);
+        THREAD& thread = GetThread(CurrentThreadId());
         thread.status           = THREAD_STATUS_WAITING;
         thread.waitSemaphore    = semaphoreId;
         semaphore.waitCount++;
@@ -747,7 +808,7 @@ bool CIopBios::ReleaseIntrHandler(uint32 line)
 
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 {
-    uint32 address = m_baseAddress + assembler.GetProgramSize() * 4;
+    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
     assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0666);
     assembler.SYSCALL();
     return address;
@@ -755,7 +816,7 @@ uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 
 uint32 CIopBios::AssembleReturnFromException(CMIPSAssembler& assembler)
 {
-    uint32 address = m_baseAddress + assembler.GetProgramSize() * 4;
+    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
     assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0667);
     assembler.SYSCALL();
     return address;
@@ -763,7 +824,7 @@ uint32 CIopBios::AssembleReturnFromException(CMIPSAssembler& assembler)
 
 uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 {
-    uint32 address = m_baseAddress + assembler.GetProgramSize() * 4;
+    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
     assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0668);
     assembler.SYSCALL();
     return address;
@@ -868,11 +929,11 @@ void CIopBios::HandleInterrupt()
 			else
 			{
 				//Snap out of current thread
-				if(m_currentThreadId != -1)
+				if(CurrentThreadId() != -1)
 				{
-					SaveThreadContext(m_currentThreadId);
+					SaveThreadContext(CurrentThreadId());
 				}
-				m_currentThreadId = -1;
+				CurrentThreadId() = -1;
 				m_cpu.m_State.nPC = handlerIterator->second.handler;
 				m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(handlerIterator->second.arg);
 				m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_returnFromExceptionAddress);

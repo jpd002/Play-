@@ -5,8 +5,9 @@
 #include "Profiler.h"
 #include "Log.h"
 #include "RegisterStateFile.h"
+#include "iop/IopBios.h"
 
-#define		CMD_RECVADDR		0x00001000
+#define		CMD_RECVADDR		(CIopBios::CONTROL_BLOCK_END)
 #define		RPC_RECVADDR		0xDEADBEEF
 
 #define LOG_NAME        ("sif")
@@ -59,9 +60,9 @@ void CSIF::Reset()
 	DeleteModules();
 }
 
-void CSIF::SetDmaBuffer(uint8* buffer, uint32 size)
+void CSIF::SetDmaBuffer(uint32 bufferAddress, uint32 size)
 {
-    m_dmaBuffer = buffer;
+    m_dmaBuffer = m_iopRam + bufferAddress;
     m_dmaBufferSize = size;
 }
 
@@ -155,7 +156,14 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
     else
     {
         assert(nDstAddr < PS2::IOP_RAM_SIZE);
-        memcpy(m_iopRam + nDstAddr, m_eeRam + nSrcAddr, nSize);
+        if(nDstAddr >= 0 && nDstAddr <= CMD_RECVADDR)
+        {
+            CLog::GetInstance().Print(LOG_NAME, "Warning: Trying to DMA in Bios Control Area.\r\n");
+        }
+        else
+        {
+            memcpy(m_iopRam + nDstAddr, m_eeRam + nSrcAddr, nSize);
+        }
         return nSize;
     }
 }
