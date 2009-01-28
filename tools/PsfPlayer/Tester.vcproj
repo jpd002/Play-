@@ -244,6 +244,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\OsStructManager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PlayerWnd.cpp"
 				>
 			</File>
@@ -281,6 +285,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfLoader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfTags.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfTags.h"
 				>
 			</File>
 			<File
@@ -453,6 +465,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\memorymap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MemoryStateFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MemoryStateFile.h"
 				>
 			</File>
 			<File
@@ -1168,6 +1188,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Framework\src\string_cast_sjis.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Framework\src\win32\Tab.cpp"
 				>
 			</File>
@@ -1192,6 +1216,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Framework\src\Utf8.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Framework\include\Utf8.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Framework\src\layout\VerticalLayout.cpp"
 				>
 			</File>
@@ -1201,10 +1233,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Framework\src\win32\Window.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\zip\ZipInflateStream.cpp"
 				>
 			</File>
 			<Filter
@@ -1228,6 +1256,30 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Framework\src\xml\Writer.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="zip"
+				>
+				<File
+					RelativePath="..\..\..\Framework\src\zip\ZipArchiveReader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Framework\src\zip\ZipArchiveWriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Framework\src\zip\ZipDeflateStream.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Framework\src\zip\ZipFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Framework\src\zip\ZipInflateStream.cpp"
 					>
 				</File>
 			</Filter>

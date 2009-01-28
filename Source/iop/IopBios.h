@@ -6,6 +6,7 @@
 #include "../MIPS.h"
 #include "../MIPSModule.h"
 #include "../ELF.h"
+#include "../OsStructManager.h"
 #include "Iop_BiosBase.h"
 #include "Iop_SifMan.h"
 #include "Iop_Ioman.h"
@@ -24,7 +25,7 @@ public:
     enum CONTROL_BLOCK
     {
         CONTROL_BLOCK_START = 0x10,
-        CONTROL_BLOCK_END   = 0x1000,
+        CONTROL_BLOCK_END   = 0x10000,
     };
 
     struct THREADCONTEXT
@@ -36,7 +37,8 @@ public:
 
     struct THREAD
     {
-        uint32          id;
+		uint32			isValid;
+		uint32          id;
         uint32          priority;
         THREADCONTEXT   context;
         uint32          status;
@@ -44,6 +46,7 @@ public:
         uint32          wakeupCount;
 		uint32			stackBase;
 		uint32			stackSize;
+		uint32			nextThreadId;
         uint64          nextActivateTime;
     };
 
@@ -86,6 +89,7 @@ public:
 
     uint32                  CreateThread(uint32, uint32, uint32);
     void                    StartThread(uint32, uint32* = NULL);
+	void					DeleteThread(uint32);
     void                    DelayThread(uint32);
     THREAD&                 GetThread(uint32);
     uint32                  GetCurrentThreadId();
@@ -109,6 +113,11 @@ private:
     {
         DEFAULT_PRIORITY = 7,
     };
+
+	enum
+	{
+		MAX_THREAD = 64,
+	};
 
     struct SEMAPHORE
     {
@@ -135,71 +144,74 @@ private:
         THREAD_STATUS_WAITING = 5,
     };
 
+	typedef COsStructManager<THREAD> ThreadList;
     typedef std::multimap<uint32, THREAD, std::greater<uint32> > ThreadMapType;
     typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
     typedef std::map<uint32, SEMAPHORE> SemaphoreMapType;
     typedef std::map<uint32, INTRHANDLER> IntrHandlerMapType;
     typedef std::pair<uint32, uint32> ExecutableRange;
 
-    ThreadMapType::iterator GetThreadPosition(uint32);
-    void                    ExitCurrentThread();
-    void                    LoadThreadContext(uint32);
-    void                    SaveThreadContext(uint32);
-    void                    Reschedule();
-    uint32                  GetNextReadyThread(bool);
-	void					ReturnFromException();
+    void						ExitCurrentThread();
+    void						LoadThreadContext(uint32);
+    void						SaveThreadContext(uint32);
+    void						Reschedule();
+    uint32						GetNextReadyThread();
+	void						ReturnFromException();
 
-    uint32&                 NextThreadId() const;
-    uint32&                 NextSemaphoreId() const;
-    uint32&                 CurrentThreadId() const;
-    uint64&                 CurrentTime() const;
+	void						LinkThread(uint32);
+	void						UnlinkThread(uint32);
 
-    SEMAPHORE&              GetSemaphore(uint32);
+	uint32&						ThreadLinkHead() const;
+    uint32&						NextSemaphoreId() const;
+    uint32&						CurrentThreadId() const;
+    uint64&						CurrentTime() const;
 
-    void                    LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
-    uint32                  LoadExecutable(CELF&, ExecutableRange&);
-    unsigned int            GetElfProgramToLoad(CELF&);
-    void                    RelocateElf(CELF&, uint32);
-    std::string             ReadModuleName(uint32);
-    std::string             GetModuleNameFromPath(const std::string&);
-    ModuleListIterator      FindModule(uint32, uint32);
-//    void                    LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
-//    void                    SaveAllModulesTags(CMIPSTags&, const char*);
+    SEMAPHORE&					GetSemaphore(uint32);
+
+    void						LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
+    uint32						LoadExecutable(CELF&, ExecutableRange&);
+    unsigned int				GetElfProgramToLoad(CELF&);
+    void						RelocateElf(CELF&, uint32);
+    std::string					ReadModuleName(uint32);
+    std::string					GetModuleNameFromPath(const std::string&);
+    ModuleListIterator			FindModule(uint32, uint32);
+//    void						LoadModuleTags(const LOADEDMODULE&, CMIPSTags&, const char*);
+//    void						SaveAllModulesTags(CMIPSTags&, const char*);
 #ifdef DEBUGGER_INCLUDED
-    void                    LoadLoadedModules(Framework::Xml::CNode*);
-    void                    SaveLoadedModules(Framework::Xml::CNode*);
+    void						LoadLoadedModules(Framework::Xml::CNode*);
+    void						SaveLoadedModules(Framework::Xml::CNode*);
 #endif
-    void                    DeleteModules();
-    uint32                  Push(uint32&, const uint8*, uint32);
+    void						DeleteModules();
+    uint32						Push(uint32&, const uint8*, uint32);
 
-    uint32                  AssembleThreadFinish(CMIPSAssembler&);
-	uint32					AssembleReturnFromException(CMIPSAssembler&);
-	uint32					AssembleIdleFunction(CMIPSAssembler&);
+    uint32						AssembleThreadFinish(CMIPSAssembler&);
+	uint32						AssembleReturnFromException(CMIPSAssembler&);
+	uint32						AssembleIdleFunction(CMIPSAssembler&);
 
-    CMIPS&                  m_cpu;
-    uint8*                  m_ram;
-    uint32                  m_ramSize;
-    uint32                  m_threadFinishAddress;
-	uint32					m_returnFromExceptionAddress;
-	uint32					m_idleFunctionAddress;
-	uint32					m_clockFrequency;
+    CMIPS&						m_cpu;
+    uint8*						m_ram;
+    uint32						m_ramSize;
+    uint32						m_threadFinishAddress;
+	uint32						m_returnFromExceptionAddress;
+	uint32						m_idleFunctionAddress;
+	uint32						m_clockFrequency;
 
-    bool                    m_rescheduleNeeded;
-    ThreadMapType           m_threads;
-    SemaphoreMapType        m_semaphores;
-    IntrHandlerMapType      m_intrHandlers;
+    bool						m_rescheduleNeeded;
+	ThreadList					m_threads;
+	SemaphoreMapType			m_semaphores;
+    IntrHandlerMapType			m_intrHandlers;
 
-    IopModuleMapType        m_modules;
-    MipsModuleList			m_moduleTags;
-    Iop::CSifMan*           m_sifMan;
-    Iop::CStdio*            m_stdio;
-    Iop::CIoman*            m_ioman;
-    Iop::CSysmem*           m_sysmem;
-    Iop::CModload*          m_modload;
+    IopModuleMapType			m_modules;
+    MipsModuleList				m_moduleTags;
+    Iop::CSifMan*				m_sifMan;
+    Iop::CStdio*				m_stdio;
+    Iop::CIoman*				m_ioman;
+    Iop::CSysmem*				m_sysmem;
+    Iop::CModload*				m_modload;
 #ifdef _IOP_EMULATE_MODULES
-    Iop::CDbcMan*           m_dbcman;
-    Iop::CPadMan*           m_padman;
-    Iop::CCdvdfsv*          m_cdvdfsv;
+    Iop::CDbcMan*				m_dbcman;
+    Iop::CPadMan*				m_padman;
+    Iop::CCdvdfsv*				m_cdvdfsv;
 #endif
 };
 

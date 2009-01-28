@@ -3,9 +3,9 @@ TODO:
 	- SPU updating for too long? (CPU/SPU desync)
 - Fix nasty bug with PSX sound files and home computer.
 	- Happens on other computers too.
+	- Happens on MacOSX too
 - Exception for invalid PSFs
 - 32-bits MA_MIPSIV support
-- waveOut driver
 
 Done:
 - Reverb enable option
@@ -28,3 +28,4 @@ Done:
 - Parasite Eve
 - Final Fantasy X
 - Use IOP subsystem
+- waveOut driver

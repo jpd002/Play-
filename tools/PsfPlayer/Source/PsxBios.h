@@ -2,6 +2,7 @@
 #define _PSXBIOS_H_
 
 #include "iop/Iop_BiosBase.h"
+#include "OsStructManager.h"
 #include "MIPS.h"
 
 class CPsxBios : public Iop::CBiosBase
@@ -49,67 +50,6 @@ private:
 		uint32	savedGp;
 		uint32	savedRa;
 		uint32	savedS0;
-	};
-
-	template<typename StructType>
-	class CStructManager
-	{
-	public:
-		CStructManager(StructType* structBase, uint32 idBase, uint32 structMax) :
-		  m_structBase(structBase),
-		  m_idBase(idBase),
-		  m_structMax(structMax)
-		{
-
-		}
-
-		StructType* GetBase() const
-		{
-			return m_structBase;
-		}
-
-		StructType* operator [](uint32 index)
-		{
-			index -= m_idBase;
-			if(index >= m_structMax)
-			{
-				throw std::exception();
-			}
-			StructType* structPtr = m_structBase + index;
-			if(!structPtr->isValid)
-			{
-				return NULL;
-			}
-			return structPtr;
-		}
-
-		uint32 Allocate() const
-		{
-			for(unsigned int i = 0; i < m_structMax; i++)
-			{
-				if(!m_structBase[i].isValid) 
-				{
-					m_structBase[i].isValid = true;
-					return (i + m_idBase);
-				}
-			}
-			return -1;
-		}
-
-		void Free(uint32 id) const
-		{
-			StructType* structPtr = (*this)[id];
-			if(!structPtr[id].isValid)
-			{
-				throw std::exception();
-			}
-			structPtr->isValid = false;
-		}
-
-	private:
-		StructType* m_structBase;
-		uint32		m_structMax;
-		uint32		m_idBase;
 	};
 
 	struct EVENT
@@ -197,7 +137,7 @@ private:
 	uint8*					m_ram;
     uint32                  m_ramSize;
 
-	CStructManager<EVENT>	m_events;
+	COsStructManager<EVENT>	m_events;
 
 	static SyscallHandler	m_handlerA0[MAX_HANDLER_A0];
 	static SyscallHandler	m_handlerB0[MAX_HANDLER_B0];

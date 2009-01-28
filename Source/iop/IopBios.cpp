@@ -33,14 +33,14 @@
 
 #define LOGNAME "iop_bios"
 
-#define STATE_THREADS_FILE              ("iopbios/threads")
-#define STATE_THREADS_PRIORITY_FIELD    ("priority")
-
-#define BIOS_NEXT_THREAD_ID_BASE        (CONTROL_BLOCK_START + 0x0000)
+#define BIOS_THREAD_LINK_HEAD_BASE		(CONTROL_BLOCK_START + 0x0000)
 #define BIOS_NEXT_SEMAPHORE_ID_BASE     (CONTROL_BLOCK_START + 0x0004)
 #define BIOS_CURRENT_THREAD_ID_BASE     (CONTROL_BLOCK_START + 0x0008)
 #define BIOS_CURRENT_TIME_BASE          (CONTROL_BLOCK_START + 0x0010)
-#define BIOS_HANDLERS_BASE              (CONTROL_BLOCK_START + 0x0800)
+#define BIOS_HANDLERS_BASE              (CONTROL_BLOCK_START + 0x0100)
+#define BIOS_HANDLERS_END				(BIOS_THREADS_BASE - 1)
+#define BIOS_THREADS_BASE				(CONTROL_BLOCK_START + 0x0200)
+#define BIOS_THREADS_SIZE				(sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
 
 using namespace std;
 using namespace Framework;
@@ -60,7 +60,8 @@ m_padman(NULL),
 #endif
 m_rescheduleNeeded(false),
 m_threadFinishAddress(0),
-m_clockFrequency(clockFrequency)
+m_clockFrequency(clockFrequency),
+m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
 {
 
 }
@@ -72,22 +73,24 @@ CIopBios::~CIopBios()
 
 void CIopBios::Reset(Iop::CSifMan* sifMan)
 {
+	//Assemble handlers
 	{
 		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[BIOS_HANDLERS_BASE]));
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
 		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
+		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
 	}
 
 	//0xBE00000 = Stupid constant to make FFX PSF happy
 	CurrentTime() = 0xBE00000;
-    NextThreadId() = 1;
+    ThreadLinkHead() = 0;
     NextSemaphoreId() = 1;
     CurrentThreadId() = -1;
 
     m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
 
-    m_threads.clear();
+    m_threads.FreeAll();
     m_semaphores.clear();
     m_intrHandlers.clear();
     m_moduleTags.clear();
@@ -194,9 +197,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
     Reschedule();
 }
 
-uint32& CIopBios::NextThreadId() const
+uint32& CIopBios::ThreadLinkHead() const
 {
-    return *reinterpret_cast<uint32*>(m_ram + BIOS_NEXT_THREAD_ID_BASE);
+    return *reinterpret_cast<uint32*>(m_ram + BIOS_THREAD_LINK_HEAD_BASE);
 }
 
 uint32& CIopBios::NextSemaphoreId() const
@@ -294,7 +297,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
         while(argsPos < argsLength)
         {
             const char* arg = args + argsPos;
-            unsigned int argLength = strlen(arg) + 1;
+            unsigned int argLength = static_cast<unsigned int>(strlen(arg)) + 1;
             argsPos += argLength;
             uint32 argAddress = Push(
                 thread.context.gpr[CMIPS::SP],
@@ -404,20 +407,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 
 CIopBios::THREAD& CIopBios::GetThread(uint32 threadId)
 {
-    return GetThreadPosition(threadId)->second;
-}
-
-CIopBios::ThreadMapType::iterator CIopBios::GetThreadPosition(uint32 threadId)
-{
-    for(ThreadMapType::iterator thread(m_threads.begin());
-        thread != m_threads.end(); thread++)
-    {
-        if(thread->second.id == threadId)
-        {
-            return thread;
-        }
-    }
-    throw runtime_error("Unexisting thread id.");
+    return *m_threads[threadId];
 }
 
 uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize)
@@ -432,21 +422,32 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
         stackSize = DEFAULT_STACKSIZE;
     }
 
-    THREAD thread;
-    memset(&thread, 0, sizeof(thread));
-    thread.context.delayJump = 1;
-	thread.stackSize = stackSize;
-    thread.stackBase = m_sysmem->AllocateMemory(thread.stackSize, 0);
-    memset(m_ram + thread.stackBase, 0, thread.stackSize);
-    thread.id = NextThreadId()++;
-    thread.priority = priority;
-    thread.status = THREAD_STATUS_CREATED;
-    thread.context.epc = threadProc;
-    thread.nextActivateTime = 0;
-    thread.context.gpr[CMIPS::RA] = m_threadFinishAddress;
-    thread.context.gpr[CMIPS::SP] = thread.stackBase + thread.stackSize;
-    m_threads.insert(ThreadMapType::value_type(thread.priority, thread));
-    return thread.id;
+	uint32 threadId = m_threads.Allocate();
+	assert(threadId != -1);
+
+    THREAD* thread = m_threads[threadId];
+    memset(&thread->context, 0, sizeof(thread->context));
+    thread->context.delayJump = 1;
+	thread->stackSize = stackSize;
+    thread->stackBase = m_sysmem->AllocateMemory(thread->stackSize, 0);
+    memset(m_ram + thread->stackBase, 0, thread->stackSize);
+	thread->id = threadId;
+    thread->priority = priority;
+    thread->status = THREAD_STATUS_CREATED;
+    thread->context.epc = threadProc;
+    thread->nextActivateTime = 0;
+    thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
+    thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+	LinkThread(thread->id);
+    return thread->id;
+}
+
+void CIopBios::DeleteThread(uint32 threadId)
+{
+	THREAD* thread = m_threads[threadId];
+	UnlinkThread(threadId);
+	m_sysmem->FreeMemory(thread->stackBase);
+	m_threads.Free(threadId);
 }
 
 void CIopBios::StartThread(uint32 threadId, uint32* param)
@@ -538,8 +539,7 @@ void CIopBios::ExitCurrentThread()
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOGNAME, "%d : ExitCurrentThread();\r\n", CurrentThreadId());
 #endif
-    ThreadMapType::iterator thread = GetThreadPosition(CurrentThreadId());
-    m_threads.erase(thread);
+	DeleteThread(CurrentThreadId());
     CurrentThreadId() = -1;
     m_rescheduleNeeded = true;
 }
@@ -572,25 +572,60 @@ void CIopBios::SaveThreadContext(uint32 threadId)
     thread.context.delayJump = m_cpu.m_State.nDelayedJumpAddr;
 }
 
+void CIopBios::LinkThread(uint32 threadId)
+{
+	THREAD* thread = m_threads[threadId];
+	uint32* nextThreadId = &ThreadLinkHead();
+	while(1)
+	{
+		if((*nextThreadId) == 0)
+		{
+			(*nextThreadId) = threadId;
+			thread->nextThreadId = 0;
+			break;
+		}
+		THREAD* currentThread = m_threads[(*nextThreadId)];
+		if(currentThread->priority < thread->priority)
+		{
+			thread->nextThreadId = (*nextThreadId);
+			(*nextThreadId) = threadId;
+			break;
+		}
+		nextThreadId = &currentThread->nextThreadId;
+	}
+}
+
+void CIopBios::UnlinkThread(uint32 threadId)
+{
+	THREAD* thread = m_threads[threadId];
+	uint32* nextThreadId = &ThreadLinkHead();
+	while(1)
+	{
+		if((*nextThreadId) == 0)
+		{
+			break;
+		}
+		THREAD* currentThread = m_threads[(*nextThreadId)];
+		if((*nextThreadId) == threadId)
+		{
+			(*nextThreadId) = thread->nextThreadId;
+			thread->nextThreadId = 0;
+			break;
+		}
+		nextThreadId = &currentThread->nextThreadId;
+	}
+}
+
 void CIopBios::Reschedule()
 {
     if(CurrentThreadId() != -1)
     {
         SaveThreadContext(CurrentThreadId());
-        //Reinsert the thread into the map
-        ThreadMapType::iterator threadPosition = GetThreadPosition(CurrentThreadId());
-        THREAD thread(threadPosition->second);
-        m_threads.erase(threadPosition);
-        m_threads.insert(ThreadMapType::value_type(thread.priority, thread));
+		UnlinkThread(CurrentThreadId());
+		LinkThread(CurrentThreadId());
     }
 
-    uint32 nextThreadId = GetNextReadyThread(true);
-//    if(nextThreadId == -1)
-//    {
-//        //Try without checking activation time
-//        nextThreadId = GetNextReadyThread(false);
-//    }
-
+    uint32 nextThreadId = GetNextReadyThread();
     if(nextThreadId == -1)
     {
 #ifdef _DEBUG
@@ -612,39 +647,20 @@ void CIopBios::Reschedule()
 	m_cpu.m_nQuota = 1;
 }
 
-uint32 CIopBios::GetNextReadyThread(bool checkActivateTime)
+uint32 CIopBios::GetNextReadyThread()
 {
-    if(checkActivateTime)
-    {
-        for(ThreadMapType::const_iterator thread(m_threads.begin()); 
-            thread != m_threads.end(); thread++)
+	uint32 nextThreadId = ThreadLinkHead();
+	while(nextThreadId != 0)
+	{
+        THREAD* nextThread = m_threads[nextThreadId];
+		nextThreadId = nextThread->nextThreadId;
+        if(GetCurrentTime() <= nextThread->nextActivateTime) continue;
+        if(nextThread->status == THREAD_STATUS_RUNNING)
         {
-            const THREAD& nextThread = thread->second;
-            if(GetCurrentTime() <= nextThread.nextActivateTime) continue;
-            if(nextThread.status == THREAD_STATUS_RUNNING)
-            {
-                return nextThread.id;
-            }
+            return nextThread->id;
         }
-        return -1;
-    }
-    else
-    {
-        //Find the thread with the earliest wakeup time
-        uint64 activateTime = -1;
-        uint32 nextThreadId = -1;
-        for(ThreadMapType::const_iterator thread(m_threads.begin()); 
-            thread != m_threads.end(); thread++)
-        {
-            const THREAD& nextThread = thread->second;
-            if(nextThread.status != THREAD_STATUS_RUNNING) continue;
-            if(nextThread.nextActivateTime < activateTime)
-            {
-                nextThreadId = nextThread.id;
-            }
-        }
-        return nextThreadId;
-    }
+	}
+	return -1;
 }
 
 uint64 CIopBios::GetCurrentTime()
@@ -709,18 +725,19 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
     SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
     if(semaphore.waitCount != 0)
     {
-        for(ThreadMapType::iterator threadIterator(m_threads.begin());
-            m_threads.end() != threadIterator; ++threadIterator)
-        {
-            THREAD& thread(threadIterator->second);
-            if(thread.waitSemaphore == semaphoreId)
+		for(ThreadList::iterator threadIterator(m_threads.Begin());
+			threadIterator != m_threads.End(); threadIterator++)
+		{
+            THREAD* thread(m_threads[threadIterator]);
+			if(thread == NULL) continue;
+            if(thread->waitSemaphore == semaphoreId)
             {
-                if(thread.status != THREAD_STATUS_WAITING)
+                if(thread->status != THREAD_STATUS_WAITING)
                 {
                     throw runtime_error("Thread not waiting (inconsistent state).");
                 }
-                thread.status = THREAD_STATUS_RUNNING;
-                thread.waitSemaphore = 0;
+                thread->status = THREAD_STATUS_RUNNING;
+                thread->waitSemaphore = 0;
 				if(!inInterrupt)
 				{
 					m_rescheduleNeeded = true;
