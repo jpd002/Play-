@@ -117,10 +117,13 @@ private:
 	enum
 	{
 		MAX_THREAD = 64,
+		MAX_SEMAPHORE = 64,
+		MAX_INTRHANDLER = 32,
 	};
 
     struct SEMAPHORE
     {
+		uint32			isValid;
         uint32          id;
         uint32          count;
         uint32          maxCount;
@@ -129,6 +132,7 @@ private:
 
     struct INTRHANDLER
     {
+		uint32			isValid;
         uint32          line;
         uint32          mode;
         uint32          handler;
@@ -145,10 +149,9 @@ private:
     };
 
 	typedef COsStructManager<THREAD> ThreadList;
-    typedef std::multimap<uint32, THREAD, std::greater<uint32> > ThreadMapType;
+	typedef COsStructManager<SEMAPHORE> SemaphoreList;
+	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
     typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
-    typedef std::map<uint32, SEMAPHORE> SemaphoreMapType;
-    typedef std::map<uint32, INTRHANDLER> IntrHandlerMapType;
     typedef std::pair<uint32, uint32> ExecutableRange;
 
     void						ExitCurrentThread();
@@ -158,15 +161,14 @@ private:
     uint32						GetNextReadyThread();
 	void						ReturnFromException();
 
+	uint32						FindIntrHandler(uint32);
+
 	void						LinkThread(uint32);
 	void						UnlinkThread(uint32);
 
 	uint32&						ThreadLinkHead() const;
-    uint32&						NextSemaphoreId() const;
     uint32&						CurrentThreadId() const;
     uint64&						CurrentTime() const;
-
-    SEMAPHORE&					GetSemaphore(uint32);
 
     void						LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
     uint32						LoadExecutable(CELF&, ExecutableRange&);
@@ -198,8 +200,8 @@ private:
 
     bool						m_rescheduleNeeded;
 	ThreadList					m_threads;
-	SemaphoreMapType			m_semaphores;
-    IntrHandlerMapType			m_intrHandlers;
+	SemaphoreList				m_semaphores;
+    IntrHandlerList				m_intrHandlers;
 
     IopModuleMapType			m_modules;
     MipsModuleList				m_moduleTags;

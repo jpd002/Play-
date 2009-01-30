@@ -34,13 +34,16 @@
 #define LOGNAME "iop_bios"
 
 #define BIOS_THREAD_LINK_HEAD_BASE		(CONTROL_BLOCK_START + 0x0000)
-#define BIOS_NEXT_SEMAPHORE_ID_BASE     (CONTROL_BLOCK_START + 0x0004)
 #define BIOS_CURRENT_THREAD_ID_BASE     (CONTROL_BLOCK_START + 0x0008)
 #define BIOS_CURRENT_TIME_BASE          (CONTROL_BLOCK_START + 0x0010)
 #define BIOS_HANDLERS_BASE              (CONTROL_BLOCK_START + 0x0100)
 #define BIOS_HANDLERS_END				(BIOS_THREADS_BASE - 1)
 #define BIOS_THREADS_BASE				(CONTROL_BLOCK_START + 0x0200)
 #define BIOS_THREADS_SIZE				(sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
+#define BIOS_SEMAPHORES_BASE			(BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
+#define BIOS_SEMAPHORES_SIZE			(sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
+#define BIOS_INTRHANDLER_BASE			(BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
+#define BIOS_INTRHANDLER_SIZE			(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
 
 using namespace std;
 using namespace Framework;
@@ -61,7 +64,9 @@ m_padman(NULL),
 m_rescheduleNeeded(false),
 m_threadFinishAddress(0),
 m_clockFrequency(clockFrequency),
-m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
+m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD),
+m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE),
+m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
 {
 
 }
@@ -85,14 +90,13 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	//0xBE00000 = Stupid constant to make FFX PSF happy
 	CurrentTime() = 0xBE00000;
     ThreadLinkHead() = 0;
-    NextSemaphoreId() = 1;
     CurrentThreadId() = -1;
 
     m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
 
     m_threads.FreeAll();
-    m_semaphores.clear();
-    m_intrHandlers.clear();
+	m_semaphores.FreeAll();
+    m_intrHandlers.FreeAll();
     m_moduleTags.clear();
 
     DeleteModules();
@@ -200,11 +204,6 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 uint32& CIopBios::ThreadLinkHead() const
 {
     return *reinterpret_cast<uint32*>(m_ram + BIOS_THREAD_LINK_HEAD_BASE);
-}
-
-uint32& CIopBios::NextSemaphoreId() const
-{
-    return *reinterpret_cast<uint32*>(m_ram + BIOS_NEXT_SEMAPHORE_ID_BASE);
 }
 
 uint32& CIopBios::CurrentThreadId() const
@@ -424,6 +423,10 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 
 	uint32 threadId = m_threads.Allocate();
 	assert(threadId != -1);
+	if(threadId == -1)
+	{
+		return -1;
+	}
 
     THREAD* thread = m_threads[threadId];
     memset(&thread->context, 0, sizeof(thread->context));
@@ -688,16 +691,6 @@ void CIopBios::CountTicks(uint32 ticks)
 	CurrentTime() += ticks;
 }
 
-CIopBios::SEMAPHORE& CIopBios::GetSemaphore(uint32 semaphoreId)
-{
-    SemaphoreMapType::iterator semaphore(m_semaphores.find(semaphoreId));
-    if(semaphore == m_semaphores.end())
-    {
-        throw runtime_error("Invalid semaphore id.");
-    }
-    return semaphore->second;
-}
-
 uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
 {
 #ifdef _DEBUG
@@ -705,14 +698,21 @@ uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
         CurrentThreadId(), initialCount, maxCount);
 #endif
 
-    SEMAPHORE semaphore;
-    memset(&semaphore, 0, sizeof(SEMAPHORE));
-    semaphore.count = initialCount;
-    semaphore.maxCount = maxCount;
-    semaphore.id = NextSemaphoreId()++;
-    semaphore.waitCount = 0;
-    m_semaphores[semaphore.id] = semaphore;
-    return semaphore.id;
+	uint32 semaphoreId = m_semaphores.Allocate();
+	assert(semaphoreId != -1);
+	if(semaphoreId == -1)
+	{
+		return -1;
+	}
+
+    SEMAPHORE* semaphore = m_semaphores[semaphoreId];
+
+	semaphore->count		= initialCount;
+    semaphore->maxCount		= maxCount;
+    semaphore->id			= semaphoreId;
+    semaphore->waitCount	= 0;
+
+	return semaphore->id;
 }
 
 uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
@@ -722,8 +722,15 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
         CurrentThreadId(), semaphoreId);
 #endif
 
-    SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
-    if(semaphore.waitCount != 0)
+    SEMAPHORE* semaphore = m_semaphores[semaphoreId];
+	if(semaphore == NULL)
+	{
+		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
+			CurrentThreadId(), semaphoreId);
+		return -1;
+	}
+
+    if(semaphore->waitCount != 0)
     {
 		for(ThreadList::iterator threadIterator(m_threads.Begin());
 			threadIterator != m_threads.End(); threadIterator++)
@@ -742,8 +749,8 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 				{
 					m_rescheduleNeeded = true;
 				}
-                semaphore.waitCount--;
-                if(semaphore.waitCount == 0)
+                semaphore->waitCount--;
+                if(semaphore->waitCount == 0)
                 {
                     break;
                 }
@@ -752,9 +759,9 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
     }
     else
     {
-        semaphore.count++;
+        semaphore->count++;
     }
-    return semaphore.count;
+    return semaphore->count;
 }
 
 uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
@@ -764,20 +771,27 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
         CurrentThreadId(), semaphoreId);
 #endif
 
-    SEMAPHORE& semaphore = GetSemaphore(semaphoreId);
-    if(semaphore.count == 0)
+    SEMAPHORE* semaphore = m_semaphores[semaphoreId];
+	if(semaphore == NULL)
+	{
+		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
+			CurrentThreadId(), semaphoreId);
+		return -1;
+	}
+
+    if(semaphore->count == 0)
     {
         THREAD& thread = GetThread(CurrentThreadId());
         thread.status           = THREAD_STATUS_WAITING;
         thread.waitSemaphore    = semaphoreId;
-        semaphore.waitCount++;
+        semaphore->waitCount++;
         m_rescheduleNeeded      = true;
     }
     else
     {
-        semaphore.count--;
+        semaphore->count--;
     }
-    return semaphore.count;
+    return semaphore->count;
 }
 
 Iop::CIoman* CIopBios::GetIoman()
@@ -806,21 +820,45 @@ Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 
 bool CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
 {
-    INTRHANDLER intrHandler;
-    intrHandler.line = line;
-    intrHandler.mode = mode;
-    intrHandler.handler = handler;
-    intrHandler.arg = arg;
-    m_intrHandlers[line] = intrHandler;
+	assert(FindIntrHandler(line) == -1);
+
+	uint32 handlerId = m_intrHandlers.Allocate();
+	assert(handlerId != -1);
+	if(handlerId == -1)
+	{
+		return false;
+	}
+
+    INTRHANDLER* intrHandler = m_intrHandlers[handlerId];
+    intrHandler->line		= line;
+    intrHandler->mode		= mode;
+    intrHandler->handler	= handler;
+    intrHandler->arg		= arg;
+
     return true;
 }
 
 bool CIopBios::ReleaseIntrHandler(uint32 line)
 {
-    IntrHandlerMapType::iterator handlerIterator(m_intrHandlers.find(line));
-    if(handlerIterator == m_intrHandlers.end()) return false;
-    m_intrHandlers.erase(handlerIterator);
+	uint32 handlerId = FindIntrHandler(line);
+	if(handlerId == -1)
+	{
+		return false;
+	}
+	m_intrHandlers.Free(handlerId);
     return true;
+}
+
+uint32 CIopBios::FindIntrHandler(uint32 line)
+{
+	for(IntrHandlerList::iterator handlerIterator(m_intrHandlers.Begin());
+		handlerIterator != m_intrHandlers.End(); handlerIterator++)
+	{
+		INTRHANDLER* handler = m_intrHandlers[handlerIterator];
+		if(handler == NULL) continue;
+		if(handler->line == line) return handlerIterator;
+	}
+	return -1;
 }
 
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
@@ -937,8 +975,8 @@ void CIopBios::HandleInterrupt()
 		m_cpu.m_pMemoryMap->SetWord(Iop::CIntc::STATUS1, status.h1);
 		//Check if there's an handler to call
 		{
-			IntrHandlerMapType::const_iterator handlerIterator(m_intrHandlers.find(line));
-			if(handlerIterator == m_intrHandlers.end())
+			uint32 handlerId = FindIntrHandler(line);
+			if(handlerId == -1)
 			{
 				ReturnFromException();
 				return;
@@ -951,8 +989,9 @@ void CIopBios::HandleInterrupt()
 					SaveThreadContext(CurrentThreadId());
 				}
 				CurrentThreadId() = -1;
-				m_cpu.m_State.nPC = handlerIterator->second.handler;
-				m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(handlerIterator->second.arg);
+				INTRHANDLER* handler = m_intrHandlers[handlerId];
+				m_cpu.m_State.nPC = handler->handler;
+				m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(handler->arg);
 				m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_returnFromExceptionAddress);
 			}
 		}
