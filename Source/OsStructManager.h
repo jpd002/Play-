@@ -25,7 +25,7 @@ public:
 		index -= m_idBase;
 		if(index >= m_structMax)
 		{
-			throw std::exception();
+            return NULL;
 		}
 		StructType* structPtr = m_structBase + index;
 		if(!structPtr->isValid)
