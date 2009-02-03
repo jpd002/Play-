@@ -12,14 +12,19 @@ using namespace std;
 
 #define MIN_BLOCK_SIZE  0x20
 
-CSysmem::CSysmem(uint32 memoryBegin, uint32 memoryEnd, CStdio& stdio, CSifMan& sifMan) :
+CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, uint32 blockBase, CStdio& stdio, CSifMan& sifMan) :
 m_memoryBegin(memoryBegin),
 m_memoryEnd(memoryEnd),
 m_stdio(stdio),
-m_memorySize(memoryEnd - memoryBegin)
+m_memorySize(memoryEnd - memoryBegin),
+m_blocks(reinterpret_cast<BLOCK*>(&ram[blockBase]), 1, MAX_BLOCKS)
 {
     //Initialize block map
-    m_blockMap[m_memorySize] = 0;
+	m_headBlockId = m_blocks.Allocate();
+	BLOCK* block = m_blocks[m_headBlockId];
+	block->address		= m_memorySize;
+	block->size			= 0;
+	block->nextBlock	= 0;
 
     //Register sif module
     sifMan.RegisterModule(MODULE_ID, this);
@@ -106,21 +111,37 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags)
     uint32 begin = 0;
     const uint32 blockSize = MIN_BLOCK_SIZE;
     size = ((size + (blockSize - 1)) / blockSize) * blockSize;
-    for(BlockMapType::iterator blockIterator(m_blockMap.begin());
-        blockIterator != m_blockMap.end(); blockIterator++)
-    {
-        uint32 end = blockIterator->first;
-        if((end - begin) >= size)
-        {
-            break;
-        }
-        begin = blockIterator->first + blockIterator->second;
-    }
-    if(begin != m_memorySize)
-    {
-        m_blockMap[begin] = size;
+
+	uint32* nextBlockId = &m_headBlockId;
+	BLOCK* nextBlock = m_blocks[*nextBlockId];
+	while(nextBlock != NULL)
+	{
+		uint32 end = nextBlock->address;
+		if((end - begin) >= size)
+		{
+			break;
+		}
+		begin = nextBlock->address + nextBlock->size;
+		nextBlockId = &nextBlock->nextBlock;
+		nextBlock = m_blocks[*nextBlockId];
+	}
+	
+	if(nextBlock != NULL)
+	{
+		uint32 newBlockId = m_blocks.Allocate();
+		assert(newBlockId != 0);
+		if(newBlockId == 0)
+		{
+			return 0;
+		}
+		BLOCK* newBlock = m_blocks[newBlockId];
+		newBlock->address	= begin;
+		newBlock->size		= size;
+		newBlock->nextBlock	= *nextBlockId;
+		*nextBlockId = newBlockId;
         return begin + m_memoryBegin;
-    }
+	}
+
     assert(0);
     return NULL;
 }
@@ -128,15 +149,28 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags)
 uint32 CSysmem::FreeMemory(uint32 address)
 {
     address -= m_memoryBegin;
-    BlockMapType::iterator block(m_blockMap.find(address));
-    if(block != m_blockMap.end())
-    {
-        m_blockMap.erase(block);
-    }
-    else
-    {
-        CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
-    }
+	//Search for block pointing at the address
+	uint32* nextBlockId = &m_headBlockId;
+	BLOCK* nextBlock = m_blocks[*nextBlockId];
+	while(nextBlock != NULL)
+	{
+		if(nextBlock->address == address)
+		{
+			break;
+		}
+		nextBlockId = &nextBlock->nextBlock;
+		nextBlock = m_blocks[*nextBlockId];
+	}
+
+	if(nextBlock != NULL)
+	{
+		m_blocks.Free(*nextBlockId);
+		*nextBlockId = nextBlock->nextBlock;
+	}
+	else
+	{
+		CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
+	}
     return 0;
 }
 

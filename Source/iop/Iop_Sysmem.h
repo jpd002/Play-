@@ -4,13 +4,27 @@
 #include "Iop_Module.h"
 #include "Iop_Stdio.h"
 #include "Iop_SifMan.h"
+#include "../OsStructManager.h"
 
 namespace Iop
 {
     class CSysmem : public CModule, public CSifModule
     {
     public:
-                                CSysmem(uint32, uint32, Iop::CStdio&, CSifMan&);
+		struct BLOCK
+		{
+			uint32	isValid;
+			uint32	nextBlock;
+			uint32	address;
+			uint32	size;
+		};
+
+		enum
+		{
+			MAX_BLOCKS = 256,
+		};
+
+                                CSysmem(uint8*, uint32, uint32, uint32, Iop::CStdio&, CSifMan&);
         virtual                 ~CSysmem();
 
         std::string             GetId() const;
@@ -27,17 +41,18 @@ namespace Iop
 			MODULE_ID = 0x80000003
 		};
 
-        typedef std::map<uint32, uint32> BlockMapType;
+		typedef COsStructManager<BLOCK> BlockListType;
 
 		uint32			        SifAllocate(uint32);
 		uint32			        SifAllocateSystemMemory(uint32, uint32, uint32);
         uint32                  SifFreeMemory(uint32);
 
-        BlockMapType            m_blockMap;
-        uint32                  m_memoryBegin;
-        uint32                  m_memoryEnd;
-        uint32                  m_memorySize;
-        Iop::CStdio&            m_stdio;
+		BlockListType			m_blocks;
+        uint32					m_memoryBegin;
+        uint32					m_memoryEnd;
+        uint32					m_memorySize;
+		uint32					m_headBlockId;
+        Iop::CStdio&			m_stdio;
     };
 }
 

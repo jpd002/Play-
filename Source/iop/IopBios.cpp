@@ -6,8 +6,9 @@
 #include "Iop_Intc.h"
 #include "lexical_cast_ex.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/static_assert.hpp>
+#include <vector>
 #include "xml/FilteringNodeIterator.h"
-//#include "../StructCollectionStateFile.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan320.h"
@@ -29,21 +30,23 @@
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
 #include "Iop_Vblank.h"
-#include <vector>
 
 #define LOGNAME "iop_bios"
 
-#define BIOS_THREAD_LINK_HEAD_BASE		(CONTROL_BLOCK_START + 0x0000)
-#define BIOS_CURRENT_THREAD_ID_BASE     (CONTROL_BLOCK_START + 0x0008)
-#define BIOS_CURRENT_TIME_BASE          (CONTROL_BLOCK_START + 0x0010)
-#define BIOS_HANDLERS_BASE              (CONTROL_BLOCK_START + 0x0100)
+#define BIOS_THREAD_LINK_HEAD_BASE		(CIopBios::CONTROL_BLOCK_START + 0x0000)
+#define BIOS_CURRENT_THREAD_ID_BASE     (CIopBios::CONTROL_BLOCK_START + 0x0008)
+#define BIOS_CURRENT_TIME_BASE          (CIopBios::CONTROL_BLOCK_START + 0x0010)
+#define BIOS_HANDLERS_BASE              (CIopBios::CONTROL_BLOCK_START + 0x0100)
 #define BIOS_HANDLERS_END				(BIOS_THREADS_BASE - 1)
-#define BIOS_THREADS_BASE				(CONTROL_BLOCK_START + 0x0200)
+#define BIOS_THREADS_BASE				(CIopBios::CONTROL_BLOCK_START + 0x0200)
 #define BIOS_THREADS_SIZE				(sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
 #define BIOS_SEMAPHORES_BASE			(BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
 #define BIOS_SEMAPHORES_SIZE			(sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
 #define BIOS_INTRHANDLER_BASE			(BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
 #define BIOS_INTRHANDLER_SIZE			(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
+#define BIOS_HEAPBLOCK_BASE				(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
+#define BIOS_HEAPBLOCK_SIZE				(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
+#define BIOS_CALCULATED_END				(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
 
 using namespace std;
 using namespace Framework;
@@ -68,7 +71,7 @@ m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD),
 m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE),
 m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
 {
-
+	BOOST_STATIC_ASSERT(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END);
 }
 
 CIopBios::~CIopBios()
@@ -120,7 +123,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
         RegisterModule(m_ioman);
     }
     {
-        m_sysmem = new Iop::CSysmem(CONTROL_BLOCK_END, m_ramSize, *m_stdio, *m_sifMan);
+        m_sysmem = new Iop::CSysmem(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_sifMan);
         RegisterModule(m_sysmem);
     }
     {
