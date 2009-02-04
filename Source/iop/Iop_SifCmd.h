@@ -5,6 +5,8 @@
 #include "Iop_SifMan.h"
 #include "Iop_SifDynamic.h"
 #include "Iop_SysMem.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 class CIopBios;
 
@@ -21,6 +23,9 @@ namespace Iop
         virtual void            Invoke(CMIPS&, unsigned int);
 
         void                    ProcessInvocation(uint32, uint32, uint32*, uint32);
+
+	    void					LoadState(CZipArchiveReader&);
+	    void					SaveState(CZipArchiveWriter&);
 
     private:
         typedef std::list<CSifDynamic*> DynamicModuleList;
@@ -50,6 +55,7 @@ namespace Iop
             uint32      queueAddr;
         };
 
+        void                    ClearServers();
         void                    BuildExportTable();
 
         void                    SifRegisterRpc(CMIPS&);

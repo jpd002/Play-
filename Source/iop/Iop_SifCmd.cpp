@@ -1,11 +1,17 @@
 #include "Iop_SifCmd.h"
 #include "IopBios.h"
 #include "../Log.h"
+#include "../StructCollectionStateFile.h"
+#include "../StructFile.h"
+#include <boost/lexical_cast.hpp>
 
 using namespace Iop;
 using namespace std;
 
-#define LOG_NAME                    ("iop_sifcmd")
+#define LOG_NAME                            ("iop_sifcmd")
+#define STATE_MODULES                       ("iop_sifcmd/modules.xml")
+#define STATE_MODULE                        ("Module")
+#define STATE_MODULE_SERVER_DATA_ADDRESS    ("ServerDataAddress")
 
 #define CUSTOM_RETURNFROMRPCINVOKE  0x666
 
@@ -36,12 +42,47 @@ m_ram(ram)
 
 CSifCmd::~CSifCmd()
 {
-    for(DynamicModuleList::iterator serverIterator(m_servers.begin());
-        m_servers.end() != serverIterator; serverIterator++)
+    ClearServers();
+}
+
+void CSifCmd::LoadState(CZipArchiveReader& archive)
+{
+    ClearServers();
+
+    CStructCollectionStateFile modulesFile(*archive.BeginReadFile(STATE_MODULES));
     {
-        delete (*serverIterator);
+        for(CStructCollectionStateFile::StructIterator structIterator(modulesFile.GetStructBegin());
+            structIterator != modulesFile.GetStructEnd(); structIterator++)
+        {
+            const CStructFile& structFile(structIterator->second);
+            uint32 serverDataAddress = structFile.GetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS);
+            SIFRPCSERVERDATA* serverData(reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddress));
+            CSifDynamic* module = new CSifDynamic(*this, serverDataAddress);
+            m_servers.push_back(module);
+            m_sifMan.RegisterModule(serverData->serverId, module);
+        }
     }
-    m_servers.clear();
+}
+
+void CSifCmd::SaveState(CZipArchiveWriter& archive)
+{
+    CStructCollectionStateFile* modulesFile = new CStructCollectionStateFile(STATE_MODULES);
+    {
+        int moduleIndex = 0;
+        for(DynamicModuleList::iterator serverIterator(m_servers.begin());
+            serverIterator != m_servers.end(); serverIterator++)
+        {
+            CSifDynamic* module(*serverIterator);
+            string moduleName = string(STATE_MODULE) + boost::lexical_cast<string>(moduleIndex++);
+            CStructFile moduleStruct;
+            {
+                uint32 serverDataAddress = module->GetServerDataAddress();
+                moduleStruct.SetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS, serverDataAddress); 
+            }
+            modulesFile->InsertStruct(moduleName.c_str(), moduleStruct);
+        }
+    }
+    archive.InsertFile(modulesFile);
 }
 
 string CSifCmd::GetId() const
@@ -96,6 +137,19 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
             functionId);
         break;
     }
+}
+
+void CSifCmd::ClearServers()
+{
+    for(DynamicModuleList::iterator serverIterator(m_servers.begin());
+        m_servers.end() != serverIterator; serverIterator++)
+    {
+        CSifDynamic* server(*serverIterator);
+        SIFRPCSERVERDATA* serverData(reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + server->GetServerDataAddress()));
+        m_sifMan.UnregisterModule(serverData->serverId);
+        delete (*serverIterator);
+    }
+    m_servers.clear();
 }
 
 void CSifCmd::BuildExportTable()

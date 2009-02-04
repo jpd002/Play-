@@ -21,7 +21,6 @@
 #endif
 
 #include "Iop_SifManNull.h"
-#include "Iop_SifCmd.h"
 #include "Iop_Sysclib.h"
 #include "Iop_Loadcore.h"
 #include "Iop_Thbase.h"
@@ -158,7 +157,8 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_sifMan);
 	}
     {
-        RegisterModule(new Iop::CSifCmd(*this, *m_sifMan, *m_sysmem, m_ram));
+        m_sifCmd = new Iop::CSifCmd(*this, *m_sifMan, *m_sysmem, m_ram);
+        RegisterModule(m_sifCmd);
     }
 #ifdef _IOP_EMULATE_MODULES
     {
@@ -221,27 +221,12 @@ uint64& CIopBios::CurrentTime() const
 
 void CIopBios::SaveState(CZipArchiveWriter& archive)
 {
-    //CStructCollectionStateFile* threadsFile = new CStructCollectionStateFile(STATE_THREADS_FILE);
-    //for(ThreadMapType::const_iterator threadIterator(m_threads.begin());
-    //    threadIterator != m_threads.end(); threadIterator++)
-    //{
-    //    const THREAD& thread(threadIterator->second);
-    //    CStructFile structFile;
-    //    structFile.SetRegister32(STATE_THREADS_PRIORITY_FIELD, thread.priority);
-    //    threadsFile->InsertStruct(("thread" + boost::lexical_cast<string>(threadIterator->first)).c_str(), structFile);
-    //}
-    //archive.InsertFile(threadsFile);
+    m_sifCmd->SaveState(archive);
 }
 
 void CIopBios::LoadState(CZipArchiveReader& archive)
 {
-    //CStructCollectionStateFile threadsFile(*archive.BeginReadFile(STATE_THREADS_FILE));
-    //for(CStructCollectionStateFile::StructIterator threadIterator(threadsFile.GetStructBegin());
-    //    threadIterator != threadsFile.GetStructEnd(); threadIterator++)
-    //{
-    //    const CStructFile& structFile(threadIterator->second);
-    //    uint32 priority = structFile.GetRegister32(STATE_THREADS_PRIORITY_FIELD);
-    //}
+    m_sifCmd->LoadState(archive);
 }
 
 bool CIopBios::IsIdle()

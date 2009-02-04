@@ -7,6 +7,11 @@ void CSifManNull::RegisterModule(uint32, CSifModule*)
 
 }
 
+void CSifManNull::UnregisterModule(uint32)
+{
+
+}
+
 void CSifManNull::SendPacket(void*, uint32)
 {
 

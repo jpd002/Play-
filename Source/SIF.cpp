@@ -78,6 +78,11 @@ void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
     }
 }
 
+void CSIF::UnregisterModule(uint32 moduleId)
+{
+    m_modules.erase(moduleId);
+}
+
 void CSIF::DeleteModules()
 {
     m_modules.clear();

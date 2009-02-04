@@ -14,6 +14,8 @@ namespace Iop
         virtual         ~CSifDynamic();
         virtual bool    Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
+        uint32          GetServerDataAddress() const;
+
     private:
         CSifCmd&        m_sifCmd;
         uint32          m_serverDataAddress;

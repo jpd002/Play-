@@ -9,6 +9,7 @@
 #include "../OsStructManager.h"
 #include "Iop_BiosBase.h"
 #include "Iop_SifMan.h"
+#include "Iop_SifCmd.h"
 #include "Iop_Ioman.h"
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
@@ -206,6 +207,7 @@ private:
     IopModuleMapType			m_modules;
     MipsModuleList				m_moduleTags;
     Iop::CSifMan*				m_sifMan;
+    Iop::CSifCmd*               m_sifCmd;
     Iop::CStdio*				m_stdio;
     Iop::CIoman*				m_ioman;
     Iop::CSysmem*				m_sysmem;

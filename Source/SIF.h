@@ -27,6 +27,7 @@ public:
     void                            ProcessPackets();
 
     void                            RegisterModule(uint32, CSifModule*);
+    void                            UnregisterModule(uint32);
     void                            SetDmaBuffer(uint32, uint32);
     void                            SendCallReply(uint32, void*);
 
