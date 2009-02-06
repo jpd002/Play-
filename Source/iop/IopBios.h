@@ -14,6 +14,7 @@
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
+#include "Iop_Dynamic.h"
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan.h"
 #include "Iop_PadMan.h"
@@ -86,7 +87,7 @@ public:
     Iop::CPadMan*           GetPadman();
     Iop::CCdvdfsv*          GetCdvdfsv();
 #endif
-    void                    RegisterModule(Iop::CModule*);
+    void                    RegisterDynamicModule(Iop::CDynamic*);
 
     uint32                  CreateThread(uint32, uint32, uint32);
     void                    StartThread(uint32, uint32* = NULL);
@@ -153,7 +154,11 @@ private:
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
     typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
+    typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
     typedef std::pair<uint32, uint32> ExecutableRange;
+
+    void                        RegisterModule(Iop::CModule*);
+    void                        ClearDynamicModules();
 
     void						ExitCurrentThread();
     void						LoadThreadContext(uint32);
@@ -205,6 +210,8 @@ private:
     IntrHandlerList				m_intrHandlers;
 
     IopModuleMapType			m_modules;
+    DynamicIopModuleListType    m_dynamicModules;
+
     MipsModuleList				m_moduleTags;
     Iop::CSifMan*				m_sifMan;
     Iop::CSifCmd*               m_sifCmd;

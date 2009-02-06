@@ -2,7 +2,6 @@
 #include "IopBios.h"
 #include "../Log.h"
 #include "../StructCollectionStateFile.h"
-#include "../StructFile.h"
 #include <boost/lexical_cast.hpp>
 
 using namespace Iop;

@@ -31,3 +31,8 @@ void CDynamic::Invoke(CMIPS& context, unsigned int functionId)
     context.m_State.nGPR[CMIPS::RA].nD0 = context.m_State.nPC;
     context.m_State.nPC = functionAddress;
 }
+
+uint32* CDynamic::GetExportTable() const
+{
+    return m_exportTable;
+}

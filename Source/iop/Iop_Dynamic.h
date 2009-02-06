@@ -15,6 +15,8 @@ namespace Iop
 		std::string		GetFunctionName(unsigned int) const;
         void            Invoke(CMIPS&, unsigned int);
 
+        uint32*         GetExportTable() const;
+
     private:
         uint32*         m_exportTable;
         std::string     m_name;

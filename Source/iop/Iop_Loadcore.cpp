@@ -82,7 +82,7 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(...);\r\n");
 #endif
-    m_bios.RegisterModule(new CDynamic(exportTable));
+    m_bios.RegisterDynamicModule(new CDynamic(exportTable));
     return 0;    
 }
 
