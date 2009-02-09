@@ -99,6 +99,7 @@ public:
     uint32                  WakeupThread(uint32, bool);
 
     uint32                  CreateSemaphore(uint32, uint32);
+    uint32                  DeleteSemaphore(uint32);
     uint32                  SignalSemaphore(uint32, bool);
     uint32                  WaitSemaphore(uint32);
 

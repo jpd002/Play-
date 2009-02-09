@@ -26,6 +26,7 @@ namespace Iop
         };
 
         uint32          CreateSemaphore(const SEMAPHORE*);
+        uint32          DeleteSemaphore(uint32);
         uint32          WaitSemaphore(uint32);
         uint32          SignalSemaphore(uint32);
 		uint32			iSignalSemaphore(uint32);

@@ -191,12 +191,12 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
     }
 
     //Custom modules
-    {
-        RegisterModule(new Iop::CUnknown(*m_sifMan));
-    }
-    {
-        RegisterModule(new Iop::CUnknown2(*m_sifMan));
-    }
+    //{
+    //    RegisterModule(new Iop::CUnknown(*m_sifMan));
+    //}
+    //{
+    //    RegisterModule(new Iop::CUnknown2(*m_sifMan));
+    //}
 #endif
 
     const int sifDmaBufferSize = 0x1000;
@@ -735,6 +735,27 @@ uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
     semaphore->waitCount	= 0;
 
 	return semaphore->id;
+}
+
+uint32 CIopBios::DeleteSemaphore(uint32 semaphoreId)
+{
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, "%i: DeleteSemaphore(semaphoreId = %i);\r\n",
+        CurrentThreadId(), semaphoreId);
+#endif
+
+    SEMAPHORE* semaphore = m_semaphores[semaphoreId];
+    if(semaphore == NULL)
+    {
+		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
+			CurrentThreadId(), semaphoreId);
+        return -1;
+    }
+
+    assert(semaphore->waitCount == 0);
+    m_semaphores.Free(semaphoreId);
+
+    return 0;
 }
 
 uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)

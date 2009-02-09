@@ -5,6 +5,7 @@ using namespace Iop;
 using namespace std;
 
 #define FUNCTION_CREATESEMAPHORE    "CreateSemaphore"
+#define FUNCTION_DELETESEMAPHORE    "DeleteSemaphore"
 #define FUNCTION_SIGNALSEMAPHORE    "SignalSemaphore"
 #define FUNCTION_ISIGNALSEMAPHORE   "iSignalSemaphore"
 #define FUNCTION_WAITSEMAPHORE      "WaitSemaphore"
@@ -33,6 +34,9 @@ string CThsema::GetFunctionName(unsigned int functionId) const
     case 4:
         return FUNCTION_CREATESEMAPHORE;
         break;
+    case 5:
+        return FUNCTION_DELETESEMAPHORE;
+        break;
     case 6:
         return FUNCTION_SIGNALSEMAPHORE;
         break;
@@ -55,6 +59,11 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
     case 4:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateSemaphore(
             reinterpret_cast<SEMAPHORE*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
+            ));
+        break;
+    case 5:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DeleteSemaphore(
+            context.m_State.nGPR[CMIPS::A0].nV0
             ));
         break;
     case 6:
@@ -81,6 +90,11 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 uint32 CThsema::CreateSemaphore(const SEMAPHORE* semaphore)
 {
     return m_bios.CreateSemaphore(semaphore->initialCount, semaphore->maxCount);
+}
+
+uint32 CThsema::DeleteSemaphore(uint32 semaphoreId)
+{
+    return m_bios.DeleteSemaphore(semaphoreId);
 }
 
 uint32 CThsema::SignalSemaphore(uint32 semaphoreId)
