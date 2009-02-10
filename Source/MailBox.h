@@ -19,6 +19,7 @@ public:
     bool                IsPending() const;
     void                ReceiveCall();
     void                WaitForCall();
+    void                WaitForCall(unsigned int);
 
 private:
 	struct MESSAGE

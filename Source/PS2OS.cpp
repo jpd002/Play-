@@ -863,10 +863,10 @@ void CPS2OS::AssembleWaitThreadProc()
 {
 	CMIPSAssembler Asm((uint32*)&m_bios[BIOS_ADDRESS_WAITTHREADPROC - BIOS_ADDRESS_BASE]);
 
-//	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x03);
-//	Asm.SYSCALL();
+	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x666);
+	Asm.SYSCALL();
 
-	Asm.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFF);
+	Asm.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFD);
 	Asm.NOP();
 }
 
@@ -2222,27 +2222,36 @@ void CPS2OS::SysCallHandler()
     }
 
 	uint32 nFunc = m_ee.m_State.nGPR[3].nV[0];
-	if(nFunc & 0x80000000)
-	{
-		nFunc = 0 - nFunc;
-	}
-	//Save for custom handler
-	m_ee.m_State.nGPR[3].nV[0] = nFunc;
+    
+    if(nFunc == 0x666)
+    {
+        //Reschedule
+        ThreadShakeAndBake();
+    }
+    else
+    {
+	    if(nFunc & 0x80000000)
+	    {
+		    nFunc = 0 - nFunc;
+	    }
+	    //Save for custom handler
+	    m_ee.m_State.nGPR[3].nV[0] = nFunc;
 
-	if(GetCustomSyscallTable()[nFunc] == NULL)
-	{
-#ifdef _DEBUG
-		DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
-#endif
-		if(nFunc < 0x80)
-		{
-            ((this)->*(m_pSysCall[nFunc & 0xFF]))();
-		}
-	}
-	else
-	{
-		m_ee.GenerateException(0x1FC00100);
-	}
+	    if(GetCustomSyscallTable()[nFunc] == NULL)
+	    {
+    #ifdef _DEBUG
+		    DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
+    #endif
+		    if(nFunc < 0x80)
+		    {
+                ((this)->*(m_pSysCall[nFunc & 0xFF]))();
+		    }
+	    }
+	    else
+	    {
+		    m_ee.GenerateException(0x1FC00100);
+	    }
+    }
 
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);

@@ -27,6 +27,16 @@ void CMailBox::WaitForCall()
     }
 }
 
+void CMailBox::WaitForCall(unsigned int timeOut)
+{
+    boost::mutex::scoped_lock waitLock(m_waitMutex);
+    if(IsPending()) return;
+    boost::xtime xt;
+    boost::xtime_get(&xt, boost::TIME_UTC);
+    xt.nsec += timeOut * 1000000;
+    m_waitCondition.timed_wait(waitLock, xt);
+}
+
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 {
     {
