@@ -86,7 +86,7 @@ int CTimrman::AllocHardTimer(int source, int size, int prescale)
 int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 unknown, uint32 handler, uint32 arg)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, unknown = %d, handler = 0x%0.8X, arg = 0x%0.8X.\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, unknown = %d, handler = 0x%0.8X, arg = 0x%0.8X).\r\n",
 		timerId, unknown, handler, arg);
 #endif
 	assert(timerId == TIMER_ID);
