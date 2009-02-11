@@ -144,6 +144,7 @@ namespace Iop
 
 		bool			IsEnabled() const;
 
+		void			SetVolumeAdjust(float);
 		void			SetReverbEnabled(bool);
 
 		void		    SetBaseSamplingRate(uint32);
@@ -262,6 +263,7 @@ namespace Iop
         CSampleReader   m_reader[MAX_CHANNEL];
     	uint32			m_adsrLogTable[160];
 		bool			m_reverbEnabled;
+		float			m_volumeAdjust;
 	};
 }
 

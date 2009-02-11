@@ -194,6 +194,17 @@ void CPsfVm::SetReverbEnabledImpl(bool enabled)
 	m_iop.m_spuCore1.SetReverbEnabled(enabled);
 }
 
+void CPsfVm::SetVolumeAdjust(float volumeAdjust)
+{
+	m_mailBox.SendCall(bind(&CPsfVm::SetVolumeAdjustImpl, this, volumeAdjust));
+}
+
+void CPsfVm::SetVolumeAdjustImpl(float volumeAdjust)
+{
+	m_iop.m_spuCore0.SetVolumeAdjust(volumeAdjust);
+	m_iop.m_spuCore1.SetVolumeAdjust(volumeAdjust);
+}
+
 void CPsfVm::ThreadProc()
 {
 #ifdef DEBUGGER_INCLUDED

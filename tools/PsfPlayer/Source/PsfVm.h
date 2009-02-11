@@ -25,6 +25,7 @@ public:
 	void				SetSpuHandler(const SpuHandlerFactory&);
 
 	void				SetReverbEnabled(bool);
+	void				SetVolumeAdjust(float);
 
 	CMIPS&				GetCpu();
 	Iop::CSpuBase&		GetSpuCore(unsigned int);
@@ -51,6 +52,7 @@ private:
 	void				ThreadProc();
 
 	void				SetReverbEnabledImpl(bool);
+	void				SetVolumeAdjustImpl(float);
 	void				PauseImpl();
 	void				SetSpuHandlerImpl(const SpuHandlerFactory&);
 

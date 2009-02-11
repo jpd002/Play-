@@ -52,6 +52,8 @@ void CSpuBase::Reset()
 {
     m_ctrl = 0;
 
+	m_volumeAdjust = 1.0f;
+
     m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
@@ -75,6 +77,11 @@ void CSpuBase::Reset()
 bool CSpuBase::IsEnabled() const
 {
 	return (m_ctrl & 0x8000) != 0;
+}
+
+void CSpuBase::SetVolumeAdjust(float volumeAdjust)
+{
+	m_volumeAdjust = volumeAdjust;
 }
 
 void CSpuBase::SetReverbEnabled(bool enabled)
@@ -267,7 +274,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 {
 	struct SampleMixer
 	{
-		void operator() (int32 inputSample, const CHANNEL_VOLUME& volume, int16* output) const
+		void operator() (int32 inputSample, const CHANNEL_VOLUME& volume, int16* output, float volumeAdjust) const
 		{
 			if(!volume.mode.mode)
 			{
@@ -280,6 +287,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				{
 					volumeLevel = volume.volume.volume;
 				}
+				volumeLevel = min<int32>(0x3FFF, static_cast<int32>(static_cast<float>(volumeLevel) * volumeAdjust));
 				inputSample = (inputSample * volumeLevel) / 0x3FFF;
 			}
 			int32 resultSample = inputSample + static_cast<int32>(*output);
@@ -333,13 +341,13 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				int64 result = (static_cast<int64>(inputSample) * static_cast<int64>(channel.adsrVolume)) / static_cast<int64>(MAX_ADSR_VOLUME);
 				inputSample = static_cast<int32>(result);
 			}
-			SampleMixer()(inputSample, channel.volumeLeft,	samples + 0);
-			SampleMixer()(inputSample, channel.volumeRight, samples + 1);
+			SampleMixer()(inputSample, channel.volumeLeft,	samples + 0, m_volumeAdjust);
+			SampleMixer()(inputSample, channel.volumeRight, samples + 1, m_volumeAdjust);
 			//Mix in reverb if enabled for this channel
 			if(m_channelReverb.f & (1 << i))
 			{
-				SampleMixer()(inputSample, channel.volumeLeft,	reverbSample + 0);
-				SampleMixer()(inputSample, channel.volumeRight, reverbSample + 1);
+				SampleMixer()(inputSample, channel.volumeLeft,	reverbSample + 0, m_volumeAdjust);
+				SampleMixer()(inputSample, channel.volumeRight, reverbSample + 1, m_volumeAdjust);
 			}
 		}
 		//Update reverb
@@ -739,7 +747,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	//Generate PCM samples
 	{
-		double predictorTable[5][2] = 
+		static double predictorTable[5][2] = 
 		{
 			{	0.0,			0.0				},
 			{   60.0 / 64.0,	0.0				},

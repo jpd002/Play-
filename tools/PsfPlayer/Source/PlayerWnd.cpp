@@ -216,6 +216,15 @@ void CPlayerWnd::Load(const char* path)
 		CPsfBase::TagMap tags;
 		CPsfLoader::LoadPsf(m_virtualMachine, path, &tags);
 		m_tags = CPsfTags(tags);
+		try
+		{
+			float volumeAdjust = boost::lexical_cast<float>(m_tags.GetTagValue("volume"));
+			m_virtualMachine.SetVolumeAdjust(volumeAdjust);
+		}
+		catch(...)
+		{
+
+		}
 		m_virtualMachine.Resume();
 		m_ready = true;
 	}
