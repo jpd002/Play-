@@ -849,6 +849,26 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="states"
+				>
+				<File
+					RelativePath="..\..\Source\StructCollectionStateFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\StructCollectionStateFile.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\StructFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\StructFile.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
