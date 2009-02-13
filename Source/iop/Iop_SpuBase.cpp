@@ -270,38 +270,53 @@ void CSpuBase::WriteWord(uint16 value)
 	m_bufferAddr += 2;
 }
 
+int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume)
+{
+	int32 volumeLevel = 0;
+	if(!volume.mode.mode)
+	{
+		if(volume.volume.phase)
+		{
+			volumeLevel = 0x3FFF - volume.volume.volume;
+		}
+		else
+		{
+			volumeLevel = volume.volume.volume;
+		}
+	}
+	else
+	{
+		assert(0);
+	}
+	volumeLevel = min<int32>(0x3FFF, static_cast<int32>(static_cast<float>(volumeLevel) * m_volumeAdjust));
+	return volumeLevel;
+}
+
+void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
+{
+	inputSample = (inputSample * volumeLevel) / 0x3FFF;
+	int32 resultSample = inputSample + static_cast<int32>(*output);
+	resultSample = max<int32>(resultSample, SHRT_MIN);
+	resultSample = min<int32>(resultSample, SHRT_MAX);
+	*output = static_cast<int16>(resultSample);
+}
+
 void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
-	struct SampleMixer
-	{
-		void operator() (int32 inputSample, const CHANNEL_VOLUME& volume, int16* output, float volumeAdjust) const
-		{
-			if(!volume.mode.mode)
-			{
-				int32 volumeLevel = 0;
-				if(volume.volume.phase)
-				{
-					volumeLevel = 0x3FFF - volume.volume.volume;
-				}
-				else
-				{
-					volumeLevel = volume.volume.volume;
-				}
-				volumeLevel = min<int32>(0x3FFF, static_cast<int32>(static_cast<float>(volumeLevel) * volumeAdjust));
-				inputSample = (inputSample * volumeLevel) / 0x3FFF;
-			}
-			int32 resultSample = inputSample + static_cast<int32>(*output);
-			resultSample = max<int32>(resultSample, SHRT_MIN);
-			resultSample = min<int32>(resultSample, SHRT_MAX);
-			*output = static_cast<int16>(resultSample);
-		}
-	};
-
 	assert((sampleCount & 0x01) == 0);
 	//ticks are 44100Hz ticks
 	unsigned int ticks = sampleCount / 2;
 	memset(samples, 0, sizeof(int16) * sampleCount);
 //	int16* bufferTemp = reinterpret_cast<int16*>(_alloca(sizeof(int16) * ticks));
+
+	//Precompute volume values
+	for(unsigned int i = 0; i < 24; i++)
+	{
+		CHANNEL& channel(m_channel[i]);
+		channel.volumeLeftAbs	= ComputeChannelVolume(channel.volumeLeft);
+		channel.volumeRightAbs	= ComputeChannelVolume(channel.volumeRight);
+	}
+
 	for(unsigned int j = 0; j < ticks; j++)
 	{
 		int16 reverbSample[2] = { 0, 0 };
@@ -338,16 +353,15 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			int32 inputSample = static_cast<int32>(readSample);
 			//Mix adsrVolume
 			{
-				int64 result = (static_cast<int64>(inputSample) * static_cast<int64>(channel.adsrVolume)) / static_cast<int64>(MAX_ADSR_VOLUME);
-				inputSample = static_cast<int32>(result);
+				inputSample = (inputSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
 			}
-			SampleMixer()(inputSample, channel.volumeLeft,	samples + 0, m_volumeAdjust);
-			SampleMixer()(inputSample, channel.volumeRight, samples + 1, m_volumeAdjust);
+			MixSamples(inputSample, channel.volumeLeftAbs,	samples + 0);
+			MixSamples(inputSample, channel.volumeRightAbs, samples + 1);
 			//Mix in reverb if enabled for this channel
 			if(m_channelReverb.f & (1 << i))
 			{
-				SampleMixer()(inputSample, channel.volumeLeft,	reverbSample + 0, m_volumeAdjust);
-				SampleMixer()(inputSample, channel.volumeRight, reverbSample + 1, m_volumeAdjust);
+				MixSamples(inputSample, channel.volumeLeftAbs,	reverbSample + 0);
+				MixSamples(inputSample, channel.volumeRightAbs, reverbSample + 1);
 			}
 		}
 		//Update reverb
@@ -671,7 +685,7 @@ void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)
 {
 	assert(m_nextSample != NULL);
-	double dstTimeDelta = 1.0 / static_cast<double>(destSamplingRate);
+	float dstTimeDelta = 1.0f / static_cast<float>(destSamplingRate);
 	for(unsigned int i = 0; i < sampleCount; i++)
 	{
 		samples[i] = GetSample(m_dstTime);
@@ -679,17 +693,17 @@ void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCoun
 	}
 }
 
-int16 CSpuBase::CSampleReader::GetSample(double time)
+int16 CSpuBase::CSampleReader::GetSample(float time)
 {
 	time -= m_currentTime;
-	double sample = time * static_cast<double>(GetSamplingRate());
-	double sampleInt = 0;
-	double alpha = modf(sample, &sampleInt);
+	float sample = time * static_cast<float>(GetSamplingRate());
+	float sampleInt = 0;
+	float alpha = modf(sample, &sampleInt);
 	unsigned int sampleIndex = static_cast<int>(sampleInt);
 	int16 currentSample = m_buffer[sampleIndex];
 	int16 nextSample = m_buffer[sampleIndex + 1];
-	double resultSample = 
-		(static_cast<double>(currentSample) * (1 - alpha)) + (static_cast<double>(nextSample) * alpha);
+	float resultSample = 
+		(static_cast<float>(currentSample) * (1 - alpha)) + (static_cast<float>(nextSample) * alpha);
 	if(sampleIndex >= BUFFER_SAMPLES)
 	{
 		AdvanceBuffer();
@@ -716,7 +730,7 @@ void CSpuBase::CSampleReader::AdvanceBuffer()
 
 void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 {
-	double workBuffer[28];
+	float workBuffer[28];
 
 	//Read header
 	uint8 shiftFactor = m_nextSample[0] & 0xF;
@@ -747,13 +761,13 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	//Generate PCM samples
 	{
-		static double predictorTable[5][2] = 
+		static float predictorTable[5][2] = 
 		{
-			{	0.0,			0.0				},
-			{   60.0 / 64.0,	0.0				},
-			{  115.0 / 64.0,	-52.0 / 64.0	},
-			{	98.0 / 64.0,	-55.0 / 64.0	},
-			{  122.0 / 64.0,	-60.0 / 64.0	},
+			{	0.0f,			0.0f			},
+			{   60.0f / 64.0f,	0.0f			},
+			{  115.0f / 64.0f,	-52.0f / 64.0f	},
+			{	98.0f / 64.0f,	-55.0f / 64.0f	},
+			{  122.0f / 64.0f,	-60.0f / 64.0f	},
 		};
 
 		for(unsigned int i = 0; i < 28; i++)
@@ -814,17 +828,17 @@ void CSpuBase::CSampleReader::ClearEndFlag()
 	m_endFlag = false;
 }
 
-double CSpuBase::CSampleReader::GetSamplingRate() const
+float CSpuBase::CSampleReader::GetSamplingRate() const
 {
-	return m_sourceSamplingRate;
+	return static_cast<float>(m_sourceSamplingRate);
 }
 
-double CSpuBase::CSampleReader::GetBufferStep() const
+float CSpuBase::CSampleReader::GetBufferStep() const
 {
-	return static_cast<double>(BUFFER_SAMPLES) / static_cast<double>(GetSamplingRate());
+	return static_cast<float>(BUFFER_SAMPLES) / static_cast<float>(GetSamplingRate());
 }
 
-double CSpuBase::CSampleReader::GetNextTime() const
+float CSpuBase::CSampleReader::GetNextTime() const
 {
 	return m_currentTime + GetBufferStep();
 }

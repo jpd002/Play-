@@ -126,6 +126,8 @@ namespace Iop
 		{
 			CHANNEL_VOLUME	volumeLeft;
 			CHANNEL_VOLUME	volumeRight;
+			int32			volumeLeftAbs;
+			int32			volumeRightAbs;
 			uint16			pitch;
 			uint32			address;
 			ADSR_LEVEL		adsrLevel;
@@ -216,20 +218,20 @@ namespace Iop
 
 			void			UnpackSamples(int16*);
 			void			AdvanceBuffer();
-			int16			GetSample(double);
-			double			GetNextTime() const;
-			double			GetBufferStep() const;
-			double			GetSamplingRate() const;
+			int16			GetSample(float);
+			float			GetNextTime() const;
+			float			GetBufferStep() const;
+			float			GetSamplingRate() const;
 
 			unsigned int	m_sourceSamplingRate;
 			uint8*			m_nextSample;
 			uint8*			m_repeat;
 			int16			m_buffer[BUFFER_SAMPLES * 2];
 			uint16			m_pitch;
-			double			m_currentTime;
-			double			m_dstTime;
-			double			m_s1;
-			double			m_s2;
+			float			m_currentTime;
+			float			m_dstTime;
+			float			m_s1;
+			float			m_s2;
 			bool			m_done;
 			bool			m_nextValid;
 			bool			m_endFlag;
@@ -246,6 +248,9 @@ namespace Iop
 		void			SetReverbSample(uint32, float);
 		uint32			GetReverbOffset(unsigned int) const;
 		float			GetReverbCoef(unsigned int) const;
+
+		static void		MixSamples(int32, int32, int16*);
+		int32			ComputeChannelVolume(const CHANNEL_VOLUME&);
 
 		uint8*          m_ram;
         uint32          m_ramSize;
