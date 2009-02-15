@@ -67,8 +67,8 @@ m_accel(CreateAccelerators())
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 
 	m_virtualMachine.OnNewFrame.connect(bind(&CPlayerWnd::OnNewFrame, this));
-//	m_virtualMachine.SetSpuHandler(&CSH_WaveOut::HandlerFactory);
-	m_virtualMachine.SetSpuHandler(&CSH_OpenAL::HandlerFactory);
+	m_virtualMachine.SetSpuHandler(&CSH_WaveOut::HandlerFactory);
+//	m_virtualMachine.SetSpuHandler(&CSH_OpenAL::HandlerFactory);
 }
 
 CPlayerWnd::~CPlayerWnd()
