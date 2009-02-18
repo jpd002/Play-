@@ -27,6 +27,7 @@ protected:
 private:
 	void							OpenELF();
 	void							BootCDROM();
+    void                            BootDiskImage();
 	void							ResumePause();
 	void							Reset();
 	void							PauseWhenFocusLost();

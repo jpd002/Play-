@@ -8,13 +8,13 @@
 #include "win32/Static.h"
 #include "PtrMacro.h"
 #include "../AppConfig.h"
+#include "../PS2VM_Preferences.h"
 #include "CdromSelectionWnd.h"
 #include "string_cast.h"
 
 #define CLSNAME			_T("VFSManagerWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
-#define CDROM0PATH		"ps2.cdrom0.path"
 
 using namespace Framework;
 using namespace std;
@@ -302,7 +302,7 @@ CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 	const char* sPath;
 	char sDevicePath[32];
 
-	sPath = CAppConfig::GetInstance().GetPreferenceString(CDROM0PATH);
+	sPath = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
 	
 	//Detect the binding type from the path format
 	if(!strcmp(sPath, ""))
@@ -397,12 +397,12 @@ void CVFSManagerWnd::CCdrom0Device::Save()
 {
     if(m_nBindingType == CCdromSelectionWnd::BINDING_IMAGE)
     {
-        CAppConfig::GetInstance().SetPreferenceString(CDROM0PATH, m_sImagePath.c_str());
+        CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, m_sImagePath.c_str());
     }
     if(m_nBindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
     {
         char sDevicePath[32];
         sprintf(sDevicePath, "\\\\.\\%c:", m_sDevicePath[0]);
-        CAppConfig::GetInstance().SetPreferenceString(CDROM0PATH, sDevicePath);
+        CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, sDevicePath);
     }
 }

@@ -354,14 +354,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\MemoryStateFile.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MemoryStateFile.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\MemoryUtils.cpp"
 				>
 			</File>
@@ -510,11 +502,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\RegisterStateFile.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\RegisterStateFile.h"
+				RelativePath=".\Source\PS2VM_Preferences.h"
 				>
 			</File>
 			<File
@@ -1209,6 +1197,42 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="StateFiles"
+				>
+				<File
+					RelativePath=".\Source\MemoryStateFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\MemoryStateFile.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\RegisterStateFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\RegisterStateFile.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\StructCollectionStateFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\StructCollectionStateFile.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\StructFile.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\StructFile.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Win32 UI"
@@ -1331,6 +1355,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\win32ui\ELFView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\win32ui\FileFilters.h"
 				>
 			</File>
 			<File
@@ -1658,6 +1686,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\todo.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

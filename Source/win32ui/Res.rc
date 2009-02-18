@@ -126,6 +126,7 @@ IDR_MAINWINDOW MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "Boot Disk Image...",          ID_MAIN_FILE_BOOTDISKIMAGE
         MENUITEM "Boot cdrom0",                 ID_MAIN_FILE_BOOTCDROM
         MENUITEM "Load .ELF...\tCtrl+O",        ID_MAIN_FILE_LOADELF
         MENUITEM SEPARATOR
