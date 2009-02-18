@@ -130,8 +130,9 @@ public:
     CMIPS                       m_VU1;
     CMipsExecutor               m_executor;
 
-    unsigned int				m_nVBlankTicks;
+    int	            			m_nVBlankTicks;
     bool						m_nInVBlank;
+    int                         m_spuUpdateTicks;
 
 	CISO9660*				    m_pCDROM0;
 
@@ -151,6 +152,7 @@ private:
     void                        CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
     void                        DestroyPadHandlerImpl();
 
+    void                        UpdateSpu();
     void                        OnGsNewFrame();
 
 	unsigned int                EETickFunction(unsigned int);

@@ -59,6 +59,11 @@ void CGSH_Software::InitializeImpl()
 
 }
 
+void CGSH_Software::ReleaseImpl()
+{
+
+}
+
 CGSHandler::FactoryFunction CGSH_Software::GetFactoryFunction(Win32::CWindow* pOutputWnd)
 {
     return bind(&CGSH_Software::GSHandlerFactory, pOutputWnd);

@@ -17,6 +17,7 @@ private:
    	static CGSHandler*              GSHandlerFactory(Framework::Win32::CWindow*);
 
     virtual void                    InitializeImpl();
+    virtual void                    ReleaseImpl();
     virtual void                    UpdateViewportImpl();
     virtual void                    FlipImpl();
     virtual void                    ProcessImageTransfer(uint32, uint32);

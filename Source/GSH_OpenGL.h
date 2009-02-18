@@ -21,7 +21,7 @@ public:
 
 	void							ProcessImageTransfer(uint32, uint32);
 
-	virtual void					SetVBlank();
+    virtual void                    ForcedFlip();
 
 	bool							IsColorTableExtSupported();
 	bool							IsBlendColorExtSupported();
@@ -39,18 +39,29 @@ protected:
     void							TexCache_Flush();
     void							LoadSettings();
     virtual void                    InitializeImpl();
+    virtual void                    ReleaseImpl();
     virtual void					SetViewport(int, int);
 
 private:
 	enum MAXCACHE
 	{
-		MAXCACHE = 50,
+		MAXCACHE = 256,
 	};
 
 	enum CVTBUFFERSIZE
 	{
 		CVTBUFFERSIZE = 0x400000,
 	};
+
+    enum MAX_PIXEL_BUFFERS
+    {
+        MAX_PIXEL_BUFFERS = 10,
+    };
+
+    enum PIXEL_BUFFER_SIZE
+    {
+        PIXEL_BUFFER_SIZE = CVTBUFFERSIZE,
+    };
 
 	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(GSTEX0*, GSTEXA*);
 
@@ -68,9 +79,8 @@ private:
 	public:
 									CTexture();
 									~CTexture();
-		void						Invalidate();
 		void						InvalidateFromMemorySpace(uint32, uint32);
-		bool						IsValid() const;
+        void                        Free();
 
 		uint32						m_nStart;
 		uint32						m_nSize;
@@ -80,6 +90,8 @@ private:
 		uint64						m_nTexClut;
 		bool						m_nIsCSM2;
 		unsigned int				m_nTexture;
+        uint32                      m_checksum;
+        bool                        m_live;
 	};
 
     void							WriteRegisterImpl(uint8, uint64);
@@ -132,6 +144,11 @@ private:
 	template <uint32> void			TexUploader_Psm4H_Cvt(GSTEX0*, GSTEXA*);
 	void							TexUploader_Psm8H_Cvt(GSTEX0*, GSTEXA*);
 
+    uint32                          ConvertTexturePsm4(GSTEX0*, GSTEXA*);
+    uint32                          ConvertTexturePsm8(GSTEX0*, GSTEXA*);
+    uint32                          ConvertTexturePsm8H(GSTEX0*, GSTEXA*);
+    void                            UploadTexturePsm8(GSTEX0*, GSTEXA*);
+
 	//Context variables (put this in a struct or something?)
 	double							m_nPrimOfsX;
 	double							m_nPrimOfsY;
@@ -156,8 +173,9 @@ private:
 	void							VerifyRGBA5551Support();
 	bool							m_nIsRGBA5551Supported;
 
-	unsigned int					TexCache_Search(GSTEX0*);
-	void							TexCache_Insert(GSTEX0*, unsigned int);
+    unsigned int					TexCache_SearchLive(GSTEX0*);
+    unsigned int                    TexCache_SearchDead(GSTEX0*, uint32);
+	void							TexCache_Insert(GSTEX0*, unsigned int, uint32);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 
 	CTexture						m_TexCache[MAXCACHE];
@@ -175,6 +193,9 @@ private:
 	Framework::OpenGl::CProgram*	m_pProgram;
 	Framework::OpenGl::CShader*		m_pVertShader;
 	Framework::OpenGl::CShader*		m_pFragShader;
+
+    //GLuint                          m_pixelBuffers[MAX_PIXEL_BUFFERS];
+    //unsigned int                    m_currentPixelBuffer;
 };
 
 #endif

@@ -216,6 +216,7 @@ public:
 
 	void									Reset();
     void                                    SetEnabled(bool);
+    bool                                    IsRenderDone() const;
 
 	virtual void							SaveState(CZipArchiveWriter&);
 	virtual void							LoadState(CZipArchiveReader&);
@@ -236,9 +237,11 @@ public:
 
     virtual void							SetCrt(bool, unsigned int, bool);
     void                                    Initialize();
+    void                                    Release();
     void        							UpdateViewport();
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
     void                                    Flip();
+    virtual void                            ForcedFlip();
 
 	boost::signal<void ()>                  OnNewFrame;
 
@@ -439,6 +442,7 @@ protected:
 		uint32			nSize;
 		uint32			nRRX;
 		uint32			nRRY;
+        uint32          checksum;
 		bool			nDirty;
 	};
 
@@ -611,6 +615,7 @@ protected:
 
     void                                    ThreadProc();
     virtual void                            InitializeImpl() = 0;
+    virtual void                            ReleaseImpl() = 0;
     virtual void                            FlipImpl() = 0;
     virtual void                            UpdateViewportImpl() = 0;
 	virtual void                            WriteRegisterImpl(uint8, uint64);
@@ -648,6 +653,8 @@ protected:
     boost::thread*                          m_thread;
     CMailBox                                m_mailBox;
     bool                                    m_enabled;
+    bool                                    m_renderDone;
+    bool                                    m_threadDone;
 };
 
 //////////////////////////////////////////////

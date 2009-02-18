@@ -15,6 +15,7 @@ public:
 
     virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER);
     virtual void                    InitializeImpl();
+    virtual void                    ReleaseImpl();
 	virtual void					FlipImpl();
 
     CSettingsDialogProvider*		GetSettingsDialogProvider();

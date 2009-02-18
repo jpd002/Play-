@@ -9,6 +9,7 @@ using namespace Framework;
 using namespace std::tr1;
 
 CGSH_OpenGL::CGSH_OpenGL() :
+//m_currentPixelBuffer(0),
 m_pProgram(NULL),
 m_pVertShader(NULL),
 m_pFragShader(NULL)
@@ -25,7 +26,8 @@ m_pFragShader(NULL)
 
 CGSH_OpenGL::~CGSH_OpenGL()
 {
-	FREEPTR(m_pCvtBuffer);
+    FREEPTR(m_pCLUT);
+    FREEPTR(m_pCvtBuffer);
 }
 
 void CGSH_OpenGL::InitializeImpl()
@@ -38,6 +40,12 @@ void CGSH_OpenGL::InitializeImpl()
 	m_nTexCacheIndex = 0;
 
 	m_nMaxZ = 32768.0;
+}
+
+void CGSH_OpenGL::ReleaseImpl()
+{
+    TexCache_Flush();
+//    glDeleteBuffers(MAX_PIXEL_BUFFERS, m_pixelBuffers);
 }
 
 void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
@@ -125,6 +133,14 @@ void CGSH_OpenGL::InitializeRC()
 	SetViewport(512, 384);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+//    glGenBuffers(MAX_PIXEL_BUFFERS, m_pixelBuffers);
+//    for(unsigned int i = 0; i < MAX_PIXEL_BUFFERS; i++)
+//    {
+//        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, m_pixelBuffers[i]);
+//        glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, PIXEL_BUFFER_SIZE, 0, GL_DYNAMIC_DRAW_ARB);
+//    }
+//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
 
     FlipImpl();
 }
@@ -979,13 +995,10 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 {
-	bool nFog;
-	bool nDrawingKick;
-
 	if(m_nVtxCount == 0) return;
 
-	nDrawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);
-	nFog = (nRegister == GS_REG_XYZF2) || (nRegister == GS_REG_XYZF3);
+	bool nDrawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);
+	bool nFog = (nRegister == GS_REG_XYZF2) || (nRegister == GS_REG_XYZF3);
 
 	if(nFog)
 	{
@@ -1008,7 +1021,6 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 
 	if(m_nVtxCount == 0)
 	{
-		//wglMakeCurrent(m_hDC, m_hRC);
 		{
 			if((m_nReg[GS_REG_PRMODECONT] & 1) != 0)
 			{
@@ -1055,7 +1067,6 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 				break;
 			}
 		}
-		//wglMakeCurrent(NULL, NULL);
 	}
 }
 
@@ -1146,19 +1157,11 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
     FlipImpl();
 }
 
-void CGSH_OpenGL::SetVBlank()
+void CGSH_OpenGL::ForcedFlip()
 {
-	CGSHandler::SetVBlank();
-
-	if(m_nForceFlippingVSync)
-	{
-        Flip();
-        OnNewFrame();
-    }
-    while(m_mailBox.IsPending() && m_enabled)
+    if(m_nForceFlippingVSync)
     {
-        //Flush all commands
-        boost::thread::yield();
+        Flip();
     }
 }
 

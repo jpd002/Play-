@@ -148,7 +148,9 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 
 CGSHandler::CGSHandler() :
 m_thread(NULL),
-m_enabled(true)
+m_enabled(true),
+m_renderDone(false),
+m_threadDone(false)
 {
 	m_pRAM = (uint8*)malloc(RAMSIZE);
 
@@ -173,6 +175,9 @@ m_enabled(true)
 
 CGSHandler::~CGSHandler()
 {
+    m_threadDone = true;
+    m_thread->join();
+    delete m_thread;
 	FREEPTR(m_pRAM);
 }
 
@@ -192,11 +197,17 @@ void CGSHandler::Reset()
     m_nCrtMode = 0;
     m_nCrtIsFrameMode = false;
     m_enabled = true;
+    m_renderDone = false;
 }
 
 void CGSHandler::SetEnabled(bool enabled)
 {
     m_enabled = enabled;
+}
+
+bool CGSHandler::IsRenderDone() const
+{
+    return m_renderDone;
 }
 
 void CGSHandler::SaveState(CZipArchiveWriter& archive)
@@ -249,7 +260,6 @@ void CGSHandler::LoadState(CZipArchiveReader& archive)
 void CGSHandler::SetVBlank()
 {
 	m_nCSR |= 0x08;
-
 //	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
 }
 
@@ -259,7 +269,6 @@ void CGSHandler::ResetVBlank()
 
 	//Alternate current field
 	m_nCSR ^= 0x2000;
-
 //	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_END);
 }
 
@@ -333,8 +342,8 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 				dispfb->nX, \
 				dispfb->nY);
 #endif
-			Flip();
-            OnNewFrame();
+            //Speed hack for Atelier Iris
+            Flip();
 		}
 		break;
 	case 0x120000A:
@@ -349,8 +358,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		if(!(nAddress & 0x04))
 		{
             SetVBlank();
-            Flip();
-            OnNewFrame();
+            //Flip();
             if(nData & 0x08)
             {
                 ResetVBlank();
@@ -371,10 +379,29 @@ void CGSHandler::Initialize()
     m_mailBox.SendCall(bind(&CGSHandler::InitializeImpl, this));
 }
 
+void CGSHandler::Release()
+{
+    m_mailBox.SendCall(bind(&CGSHandler::ReleaseImpl, this), true);
+}
+
 void CGSHandler::Flip()
 {
+    OnNewFrame();
     if(!m_enabled) return;
+    while(m_mailBox.IsPending())
+    {
+        //Flush all commands
+        boost::thread::yield();
+    }
     m_mailBox.SendCall(bind(&CGSHandler::FlipImpl, this));
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
+#endif
+}
+
+void CGSHandler::ForcedFlip()
+{
+    
 }
 
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
@@ -448,7 +475,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 
 #ifdef _DEBUG
-    //DisassembleWrite(nRegister, nData);
+    DisassembleWrite(nRegister, nData);
 #endif
 }
 
@@ -481,16 +508,16 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 	{
 		if(m_TrxCtx.nDirty)
 		{
-			BITBLTBUF* pBuf;
-			TRXREG* pReg;
-			uint32 nSize;
+			BITBLTBUF* pBuf = GetBitBltBuf();
+			TRXREG* pReg = GetTrxReg();
 
-			pBuf = GetBitBltBuf();
-			pReg = GetTrxReg();
-
-			nSize = (pBuf->GetDstWidth() * pReg->nRRH * GetPsmPixelSize(pBuf->nDstPsm)) / 8;
+			uint32 nSize = (pBuf->GetDstWidth() * pReg->nRRH * GetPsmPixelSize(pBuf->nDstPsm)) / 8;
 
 			ProcessImageTransfer(pBuf->GetDstPtr(), nSize);
+
+#ifdef _DEBUG
+            CLog::GetInstance().Print(LOG_NAME, "Dirty image transfer at 0x%0.8X.\r\n", pBuf->GetDstPtr());
+#endif
 		}
 	}
 }
@@ -644,6 +671,7 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 {
 	//Gotta rewrite this
+    bool dirty = false;
 	TRXPOS* pTrxPos = GetTrxPos();
 	TRXREG* pTrxReg = GetTrxReg();
 	BITBLTBUF* pTrxBuf = GetBitBltBuf();
@@ -666,7 +694,12 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 			uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
 			uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-			Indexor.SetPixel(nX, nY, nPixel[j]);
+            uint8 currentPixel = Indexor.GetPixel(nX, nY);
+            if(currentPixel != nPixel[j])
+            {
+			    Indexor.SetPixel(nX, nY, nPixel[j]);
+                dirty = true;
+            }
 
 			m_TrxCtx.nRRX++;
 			if(m_TrxCtx.nRRX == pTrxReg->nRRW)
@@ -677,7 +710,7 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 		}
 	}
 
-	return true;
+	return dirty;
 }
 
 template <uint32 nShift, uint32 nMask>
@@ -1194,9 +1227,9 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 
 void CGSHandler::ThreadProc()
 {
-    while(1)
+    while(!m_threadDone)
     {
-        m_mailBox.WaitForCall();
+        m_mailBox.WaitForCall(100);
         while(m_mailBox.IsPending())
         {
             m_mailBox.ReceiveCall();

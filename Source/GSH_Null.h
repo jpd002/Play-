@@ -16,6 +16,7 @@ public:
 
 private:
     virtual void                InitializeImpl();
+    virtual void                ReleaseImpl();
 	virtual void                FlipImpl();
     static CGSHandler*          GSHandlerFactory();
 };

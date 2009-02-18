@@ -17,6 +17,11 @@ void CGSH_Null::InitializeImpl()
 
 }
 
+void CGSH_Null::ReleaseImpl()
+{
+
+}
+
 void CGSH_Null::UpdateViewportImpl()
 {
 

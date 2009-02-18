@@ -4,6 +4,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <memory>
 #include "PS2VM.h"
+#include "PS2VM_Preferences.h"
 #include "PS2OS.h"
 #include "Ps2Const.h"
 #include "iop/Iop_SifManPs2.h"
@@ -58,23 +59,13 @@
 #define PREF_PS2_MC1_DIRECTORY_DEFAULT      ("./vfs/mc1")
 #define PREF_PS2_FRAMESKIP_DEFAULT          (0)
 
-#ifdef _DEBUG
+#define     CPU_FREQUENCY       (0x11940000)
 
-//#define		SCREENTICKS		10000
-//#define		VBLANKTICKS		1000
-//#define		SCREENTICKS		500000
-#define		SCREENTICKS		1000000
-#define		VBLANKTICKS		10000
+#define		FRAME_TICKS		    (CPU_FREQUENCY / 60)
+#define     ONSCREEN_TICKS      (FRAME_TICKS * 9 / 10)
+#define     VBLANK_TICKS        (FRAME_TICKS / 10)
 
-#else
-
-#define		SCREENTICKS		2000000
-//#define		SCREENTICKS		4833333
-//#define		SCREENTICKS		2000000
-//#define		SCREENTICKS		1000000
-#define		VBLANKTICKS		10000
-
-#endif
+#define     SPU_UPDATE_TICKS    (1000)
 
 using namespace Framework;
 using namespace std;
@@ -100,8 +91,9 @@ m_pGS(NULL),
 m_pPad(NULL),
 m_singleStepEe(false),
 m_singleStepIop(false),
-m_nVBlankTicks(SCREENTICKS),
+m_nVBlankTicks(0),
 m_nInVBlank(false),
+m_spuUpdateTicks(SPU_UPDATE_TICKS),
 m_pCDROM0(NULL),
 m_dmac(m_pRAM, m_pSPR),
 m_gif(m_pGS, m_pRAM, m_pSPR),
@@ -117,7 +109,7 @@ m_MAVU1(true)
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
     CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
-    m_iopOs = new CIopBios(0x100, PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE);
+    m_iopOs = new CIopBios(PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE);
     m_os = new CPS2OS(m_EE, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
 }
 
@@ -497,6 +489,9 @@ void CPS2VM::ResetVM()
 
     m_frameSkip = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
 
+    m_nVBlankTicks = ONSCREEN_TICKS;
+    m_nInVBlank = false;
+
     RegisterModulesInPadHandler();
 }
 
@@ -639,6 +634,7 @@ void CPS2VM::CreateGsImpl(const CGSHandler::FactoryFunction& factoryFunction)
 
 void CPS2VM::DestroyGsImpl()
 {
+    m_pGS->Release();
     DELETEPTR(m_pGS);
 }
 
@@ -664,16 +660,41 @@ void CPS2VM::OnGsNewFrame()
     m_vif.SetEnabled(drawFrame);
 }
 
+void CPS2VM::UpdateSpu()
+{
+    Iop::CSpuBase* spu[2] = { &m_iop.m_spuCore0, &m_iop.m_spuCore1 };
+    const int sampleRate = 44100;
+    const int sampleCount = 352;
+	size_t bufferSize = sampleCount * sizeof(int16);
+
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		if(spu[i]->IsEnabled())
+		{
+			int16* tempSamples = reinterpret_cast<int16*>(alloca(bufferSize));
+			spu[i]->Render(tempSamples, sampleCount, sampleRate);
+
+			//for(unsigned int j = 0; j < sampleCount; j++)
+			//{
+			//	int32 resultSample = static_cast<int32>(samples[j]) + static_cast<int32>(tempSamples[j]);
+			//	resultSample = max<int32>(resultSample, SHRT_MIN);
+			//	resultSample = min<int32>(resultSample, SHRT_MAX);
+			//	samples[j] = static_cast<int16>(resultSample);
+			//}
+		}
+	}
+}
+
 void CPS2VM::CDROM0_Initialize()
 {
-	CAppConfig::GetInstance().RegisterPreferenceString("ps2.cdrom0.path", "");
+	CAppConfig::GetInstance().RegisterPreferenceString(PS2VM_CDROM0PATH, "");
 	m_pCDROM0 = NULL;
 }
 
 void CPS2VM::CDROM0_Reset()
 {
 	DELETEPTR(m_pCDROM0);
-	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString("ps2.cdrom0.path"));
+	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 }
 
 void CPS2VM::CDROM0_Mount(const char* sPath)
@@ -725,7 +746,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 		}
 	}
 
-	CAppConfig::GetInstance().SetPreferenceString("ps2.cdrom0.path", sPath);
+	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, sPath);
 }
 
 void CPS2VM::CDROM0_Destroy()
@@ -1031,23 +1052,19 @@ void CPS2VM::EmuThread()
         {
             //Synchonization methods
             //1984.elf - CSR = CSR & 0x08; while(CSR & 0x08 == 0);
-			if(static_cast<int>(m_nVBlankTicks) <= 0)
+			if(m_nVBlankTicks <= 0)
 			{
 				m_nInVBlank = !m_nInVBlank;
 				if(m_nInVBlank)
 				{
-					m_nVBlankTicks += VBLANKTICKS;
+					m_nVBlankTicks += VBLANK_TICKS;
                     m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
+
                     if(m_pGS != NULL)
                     {
+                        m_pGS->ForcedFlip();
 					    m_pGS->SetVBlank();
                     }
-
-
-					//Old Flipping Method
-					//m_pGS->Flip();
-					//m_OnNewFrame();
-                    //////
 
                     if(m_pPad != NULL)
                     {
@@ -1056,7 +1073,7 @@ void CPS2VM::EmuThread()
 				}
 				else
 				{
-					m_nVBlankTicks += SCREENTICKS;
+					m_nVBlankTicks += ONSCREEN_TICKS;
                     m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
 					if(m_pGS != NULL)
 					{
@@ -1064,6 +1081,13 @@ void CPS2VM::EmuThread()
 					}
 				}
 			}
+
+            //if(m_spuUpdateTicks <= 0)
+            //{
+            //    UpdateSpu();
+            //    m_spuUpdateTicks += SPU_UPDATE_TICKS;
+            //}
+
 #ifdef _DEBUG
             if(m_vif.IsVU0Running())
             {
@@ -1098,7 +1122,9 @@ void CPS2VM::EmuThread()
                 if(!m_EE.m_State.nHasException)
                 {
                     int executeQuota = m_singleStepEe ? 1 : 5000;
-				    m_nVBlankTicks -= (executeQuota - m_executor.Execute(executeQuota));
+                    int executed = (executeQuota - m_executor.Execute(executeQuota));
+				    m_nVBlankTicks -= executed;
+                    m_spuUpdateTicks -= executed;
                 }
                 if(m_EE.m_State.nHasException)
                 {
@@ -1107,10 +1133,20 @@ void CPS2VM::EmuThread()
                 }
                 {
                     CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+                    const int skipAmount = 50000;
                     if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+                    {
+                        m_nVBlankTicks -= skipAmount;
+                    }
+                    else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
                     {
                         m_nVBlankTicks = 0;
                     }
+                    /*else if(m_pGS != NULL && m_pGS->IsRenderDone())
+                    {
+                        m_nVBlankTicks -= skipAmount;
+                        m_nVBlankTicks = 0;
+                    }*/
                 }
                 //Castlevania speed hack
                 {

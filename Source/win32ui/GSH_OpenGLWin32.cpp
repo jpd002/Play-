@@ -31,8 +31,7 @@ m_pOutputWnd(outputWindow)
 
 CGSH_OpenGLWin32::~CGSH_OpenGLWin32()
 {
-	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(m_hRC);
+
 }
 
 CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Win32::CWindow* pOutputWnd)
@@ -42,15 +41,21 @@ CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Win32::CWindow*
 
 void CGSH_OpenGLWin32::InitializeImpl()
 {
-	unsigned int pf;
-
 	m_hDC = GetDC(m_pOutputWnd->m_hWnd);
-	pf = ChoosePixelFormat(m_hDC, &m_PFD);
+	unsigned int pf = ChoosePixelFormat(m_hDC, &m_PFD);
 	SetPixelFormat(m_hDC, pf, &m_PFD);
 	m_hRC = wglCreateContext(m_hDC);
 	wglMakeCurrent(m_hDC, m_hRC);
 
     CGSH_OpenGL::InitializeImpl();
+}
+
+void CGSH_OpenGLWin32::ReleaseImpl()
+{
+    CGSH_OpenGL::ReleaseImpl();
+
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(m_hRC);
 }
 
 void CGSH_OpenGLWin32::FlipImpl()
