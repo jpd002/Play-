@@ -21,6 +21,7 @@ namespace Iop
         void            __memset(void*, int, unsigned int);
         uint32          __sprintf(CMIPS& context);
         uint32          __strlen(const char*);
+        uint32          __strcmp(const char*, const char*);
         void            __strcpy(char*, const char*);
         uint32          __strncmp(const char*, const char*, uint32);
         void            __strncpy(char*, const char*, unsigned int);

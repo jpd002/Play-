@@ -141,7 +141,7 @@ uint32 CThbase::CreateThread(const THREAD* thread)
 uint32 CThbase::StartThread(uint32 threadId, uint32 param)
 {
     m_bios.StartThread(threadId, &param);
-    return 1;
+    return 0;
 }
 
 uint32 CThbase::DelayThread(uint32 delay)

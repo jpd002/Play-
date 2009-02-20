@@ -142,6 +142,23 @@ private:
         uint32          arg;
     };
 
+    struct IOPMOD
+    {
+        uint32          module;
+        uint32          startAddress;
+        uint32          gp;
+        uint32          textSectionSize;
+        uint32          dataSectionSize;
+        uint32          bssSectionSize;
+        uint16          moduleStructAttr;
+        char            moduleName[256];
+    };
+
+    enum
+    {
+        IOPMOD_SECTION_ID = 0x70000080,
+    };
+
     enum THREAD_STATUS
     {
         THREAD_STATUS_CREATED = 1,

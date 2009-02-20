@@ -292,6 +292,16 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
     ExecutableRange moduleRange;
     uint32 entryPoint = LoadExecutable(elf, moduleRange);
 
+    //Find .iopmod section
+    const ELFHEADER& header(elf.GetHeader());
+    const IOPMOD* iopMod = NULL;
+    for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
+    {
+        ELFSECTIONHEADER* sectionHeader(elf.GetSection(i));
+        if(sectionHeader->nType != IOPMOD_SECTION_ID) continue;
+        iopMod = reinterpret_cast<const IOPMOD*>(elf.GetSectionData(i));
+    }
+
     ModuleListIterator moduleIterator(FindModule(moduleRange.first, moduleRange.second));
     if(moduleIterator == m_moduleTags.end())
     {
@@ -337,6 +347,10 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
             4);
     }
 	thread.context.gpr[CMIPS::SP] -= 4;
+    if(iopMod != NULL)
+    {
+        thread.context.gpr[CMIPS::GP] = iopMod->gp + moduleRange.first;
+    }
 
     StartThread(threadId);
     if(CurrentThreadId() == -1)
@@ -463,6 +477,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
     thread->nextActivateTime = 0;
     thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
     thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+    thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
 	LinkThread(thread->id);
     return thread->id;
 }
@@ -1134,38 +1149,6 @@ MipsModuleList CIopBios::GetModuleList()
 }
 
 #endif
-
-//void CIopBios::LoadModuleTags(const MODULETAG& module, CMIPSTags& tags, const char* tagCollectionName)
-//{
-//    CMIPSTags moduleTags;
-//    moduleTags.Unserialize((module.name + "." + string(tagCollectionName)).c_str());
-//    for(CMIPSTags::TagIterator tag(moduleTags.GetTagsBegin());
-//        tag != moduleTags.GetTagsEnd(); tag++)
-//    {
-//        tags.InsertTag(tag->first + module.begin, tag->second.c_str());
-//    }
-//    tags.m_OnTagListChanged();
-//}
-//
-//void CIopBios::SaveAllModulesTags(CMIPSTags& tags, const char* tagCollectionName)
-//{
-//    for(LoadedModuleListType::const_iterator moduleIterator(m_moduleTags.begin());
-//        m_moduleTags.end() != moduleIterator; moduleIterator++)
-//    {
-//        const MODULETAG& module(*moduleIterator);
-//        CMIPSTags moduleTags;
-//        for(CMIPSTags::TagIterator tag(tags.GetTagsBegin());
-//            tag != tags.GetTagsEnd(); tag++)
-//        {
-//            uint32 tagAddress = tag->first;
-//            if(tagAddress >= module.begin && tagAddress <= module.end)
-//            {
-//                moduleTags.InsertTag(tagAddress - module.begin, tag->second.c_str());
-//            }
-//        }
-//        moduleTags.Serialize((module.name + "." + string(tagCollectionName)).c_str());
-//    }
-//}
 
 void CIopBios::DeleteModules()
 {

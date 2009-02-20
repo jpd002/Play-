@@ -88,6 +88,13 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                     output += lexical_cast_uint<string>(number, precisionValue);
                     paramDone = true;
                 }
+                else if(type == 'x')
+                {
+                    uint32 number = args.GetNext();
+                    unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
+                    output += lexical_cast_hex<string>(number, precisionValue);
+                    paramDone = true;
+                }
                 else if(type == '.')
                 {
                     inPrecision = true;
