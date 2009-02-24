@@ -37,7 +37,13 @@ void CGSH_OpenGL::InitializeImpl()
 	m_nVtxCount = 0;
 	m_nWidth = -1;
 	m_nHeight = -1;
-	m_nTexCacheIndex = 0;
+
+    //
+	//m_nTexCacheIndex = 0;
+    for(unsigned int i = 0; i < MAXCACHE; i++)
+    {
+        m_TexCache.push_back(new CTexture());
+    }
 
 	m_nMaxZ = 32768.0;
 }
@@ -45,6 +51,12 @@ void CGSH_OpenGL::InitializeImpl()
 void CGSH_OpenGL::ReleaseImpl()
 {
     TexCache_Flush();
+    for(TextureList::iterator textureIterator(m_TexCache.begin());
+        textureIterator != m_TexCache.end(); textureIterator++)
+    {
+        CTexture* texture = *textureIterator;
+        delete texture;
+    }
 //    glDeleteBuffers(MAX_PIXEL_BUFFERS, m_pixelBuffers);
 }
 

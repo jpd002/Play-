@@ -1,6 +1,7 @@
 #ifndef _GSH_OPENGL_H_
 #define _GSH_OPENGL_H_
 
+#include <list>
 #include "GSHandler.h"
 #include "opengl/OpenGlDef.h"
 #include "opengl/Program.h"
@@ -94,6 +95,8 @@ private:
         bool                        m_live;
 	};
 
+    typedef std::list<CTexture*> TextureList;
+
     void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
@@ -178,8 +181,9 @@ private:
 	void							TexCache_Insert(GSTEX0*, unsigned int, uint32);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 
-	CTexture						m_TexCache[MAXCACHE];
-	unsigned int					m_nTexCacheIndex;
+//	CTexture						m_TexCache[MAXCACHE];
+//	unsigned int					m_nTexCacheIndex;
+    TextureList                     m_TexCache;
 
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;
