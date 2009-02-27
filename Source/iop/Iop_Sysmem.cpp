@@ -176,16 +176,17 @@ uint32 CSysmem::FreeMemory(uint32 address)
 
 uint32 CSysmem::SifAllocate(uint32 nSize)
 {
-	CLog::GetInstance().Print(LOG_NAME, "Allocate(size = 0x%0.8X);\r\n", nSize);
     uint32 result = AllocateMemory(nSize, 0); 
-	return result;
+	CLog::GetInstance().Print(LOG_NAME, "result = 0x%0.8X = Allocate(size = 0x%0.8X);\r\n", 
+        result, nSize);
+    return result;
 }
 
 uint32 CSysmem::SifAllocateSystemMemory(uint32 nSize, uint32 nFlags, uint32 nPtr)
 {
-	//Ys 1&2 Eternal Story calls this
     uint32 result = AllocateMemory(nSize, nFlags);
-	CLog::GetInstance().Print(LOG_NAME, "AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", nFlags, nSize, nPtr);
+	CLog::GetInstance().Print(LOG_NAME, "result = 0x%0.8X = AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", 
+        result, nFlags, nSize, nPtr);
 	return result;
 }
 

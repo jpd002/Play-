@@ -11,9 +11,10 @@ using namespace std::tr1;
 
 #define LOG_NAME "iop_cdvdfsv"
 
-CCdvdfsv::CCdvdfsv(CSifMan& sif) :
+CCdvdfsv::CCdvdfsv(CSifMan& sif, uint8* iopRam) :
 m_nStreamPos(0),
-m_iso(NULL)
+m_iso(NULL),
+m_iopRam(iopRam)
 {
     m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, 
         PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
@@ -163,6 +164,11 @@ void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		StreamCmd(args, argsSize, ret, retSize, ram);
 		break;
 
+    case 0x0D:
+        //ReadIopMem
+        ReadIopMem(args, argsSize, ret, retSize, ram);
+        break;
+
 	case 0x0E:
 		//DiskReady (returns 2 if ready, 6 if not ready)
 		assert(retSize >= 4);
@@ -211,12 +217,10 @@ void CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* r
 
 void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	uint32 nSector, nCount, nDstAddr, nMode;
-
-	nSector		= args[0x00];
-	nCount		= args[0x01];
-	nDstAddr	= args[0x02];
-	nMode		= args[0x04];
+	uint32 nSector		= args[0x00];
+	uint32 nCount		= args[0x01];
+	uint32 nDstAddr     = args[0x02];
+	uint32 nMode		= args[0x03];
 
 	CLog::GetInstance().Print(LOG_NAME, "Read(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n", \
 		nSector,
@@ -236,6 +240,34 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	{
 		ret[0] = 0;
 	}
+}
+
+void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	uint32 nSector		= args[0x00];
+	uint32 nCount		= args[0x01];
+	uint32 nDstAddr     = args[0x02];
+	uint32 nMode		= args[0x03];
+
+	CLog::GetInstance().Print(LOG_NAME, "ReadIopMem(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n", \
+		nSector,
+		nCount,
+		nDstAddr,
+		nMode);
+
+    if(m_iso != NULL)
+    {
+        for(unsigned int i = 0; i < nCount; i++)
+        {
+            m_iso->ReadBlock(nSector + i, m_iopRam + nDstAddr);
+            nDstAddr += 0x800;
+        }
+    }
+
+    if(retSize >= 4)
+    {
+        ret[0] = 0;
+    }
 }
 
 void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

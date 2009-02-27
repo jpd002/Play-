@@ -12,7 +12,7 @@ namespace Iop
 	class CCdvdfsv : public CModule
 	{
 	public:
-						    CCdvdfsv(CSifMan&);
+						    CCdvdfsv(CSifMan&, uint8*);
 		virtual			    ~CCdvdfsv();
 
         virtual std::string GetId() const;
@@ -43,10 +43,12 @@ namespace Iop
 
 		//Methods
 		void			    Read(uint32*, uint32, uint32*, uint32, uint8*);
+        void                ReadIopMem(uint32*, uint32, uint32*, uint32, uint8*);
 		void			    StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
 		void			    SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
 		uint32              m_nStreamPos;
+        uint8*              m_iopRam;
         CISO9660*           m_iso;
 
         CSifModuleAdapter   m_module592;
