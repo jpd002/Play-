@@ -7,6 +7,8 @@
 #include "DMAC.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
+#include "RegisterStateFile.h"
+#include "StructFile.h"
 
 class CSIF
 {
@@ -115,6 +117,14 @@ private:
     typedef std::map<uint32, RPCREQUESTEND> BindReplyMap;
 
     void							DeleteModules();
+
+    void                            SaveState_Header(const std::string&, CStructFile&, const PACKETHDR&);
+    void                            SaveState_RpcCall(CStructFile&, const RPCCALL&);
+    void                            SaveState_RequestEnd(CStructFile&, const RPCREQUESTEND&);
+
+    void                            LoadState_Header(const std::string&, const CStructFile&, PACKETHDR&);
+    void                            LoadState_RpcCall(const CStructFile&, RPCCALL&);
+    void                            LoadState_RequestEnd(const CStructFile&, RPCREQUESTEND&);
 
 	void							Cmd_SetEERecvAddr(PACKETHDR*);
 	void							Cmd_Initialize(PACKETHDR*);
