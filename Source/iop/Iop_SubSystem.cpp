@@ -65,6 +65,11 @@ CSubSystem::~CSubSystem()
 
 void CSubSystem::SetBios(CBiosBase* bios)
 {
+    if(m_bios != NULL)
+    {
+        delete m_bios;
+        m_bios = NULL;
+    }
     m_bios = bios;
 }
 
@@ -98,7 +103,7 @@ void CSubSystem::Reset()
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
-	m_bios = NULL;
+    SetBios(NULL);
 
     m_cpu.m_Comments.RemoveTags();
     m_cpu.m_Functions.RemoveTags();
