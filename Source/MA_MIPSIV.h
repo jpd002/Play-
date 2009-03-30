@@ -9,19 +9,28 @@ class CMA_MIPSIV : public CMIPSArchitecture
 {
 public:
 										CMA_MIPSIV(MIPS_REGSIZE);
-	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
+	virtual								~CMA_MIPSIV();
+	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*);
 	virtual void						GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void						GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual bool						IsInstructionBranch(CMIPS*, uint32, uint32);
 	virtual uint32						GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 
 protected:
-	void								SetupReflectionTables();
+	enum
+	{
+		MAX_GENERAL_OPS = 0x40,
+		MAX_SPECIAL_OPS = 0x40,
+		MAX_SPECIAL2_OPS = 0x40,
+		MAX_REGIMM_OPS = 0x20,
+	};
 
-	static void							(*m_pOpGeneral[0x40])();
-	static void							(*m_pOpSpecial[0x40])();
-	static void							(*m_pOpSpecial2[0x40])();
-	static void							(*m_pOpRegImm[0x20])();
+	typedef std::tr1::function<void ()> InstructionFunction;
+
+	InstructionFunction					m_pOpGeneral[MAX_GENERAL_OPS];
+	InstructionFunction					m_pOpSpecial[MAX_SPECIAL_OPS];
+	InstructionFunction					m_pOpSpecial2[MAX_SPECIAL2_OPS];
+	InstructionFunction					m_pOpRegImm[MAX_REGIMM_OPS];
 
 	static void							ReflOpTarget(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRtRsImm(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -46,177 +55,157 @@ protected:
 	static bool							ReflCOPIsBranch(MIPSReflection::INSTRUCTION*, CMIPS*, uint32);
 	static uint32						ReflCOPEffeAddr(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
 
-	MIPSReflection::INSTRUCTION			m_ReflGeneral[64];
-	MIPSReflection::INSTRUCTION			m_ReflSpecial[64];
-	MIPSReflection::INSTRUCTION			m_ReflRegImm[32];
+	MIPSReflection::INSTRUCTION			m_ReflGeneral[MAX_GENERAL_OPS];
+	MIPSReflection::INSTRUCTION			m_ReflSpecial[MAX_SPECIAL_OPS];
+	MIPSReflection::INSTRUCTION			m_ReflRegImm[MAX_REGIMM_OPS];
 
 	MIPSReflection::SUBTABLE			m_ReflGeneralTable;
 	MIPSReflection::SUBTABLE			m_ReflSpecialTable;
 	MIPSReflection::SUBTABLE			m_ReflRegImmTable;
 
-	static uint8						m_nRS;
-	static uint8						m_nRT;
-	static uint8						m_nRD;
-	static uint8						m_nSA;
-	static uint16						m_nImmediate;
+	uint8								m_nRS;
+	uint8								m_nRT;
+	uint8								m_nRD;
+	uint8								m_nSA;
+	uint16								m_nImmediate;
 
 protected:
     //Instruction compiler templates
+    typedef std::tr1::function<void (uint8)> TemplateParamedOperationFunctionType;
+	typedef std::tr1::function<void ()> TemplateOperationFunctionType;
 
-    struct Template_LoadUnsigned32
-    {
-        void operator()(void*);
-    };
-
-    struct Template_ShiftCst32
-    {
-        typedef std::tr1::function<void (uint8)> OperationFunctionType;
-        void operator()(const OperationFunctionType&) const;
-    };
-
-    struct Template_ShiftVar32
-    {
-        typedef std::tr1::function<void ()> OperationFunctionType;
-        void operator()(const OperationFunctionType&) const;
-    };
-
-    struct Template_Mult32
-    {
-        typedef std::tr1::function<void ()> OperationFunctionType;
-        void operator()(const OperationFunctionType&, unsigned int) const;
-    };
-
-    struct Template_Div32
-    {
-        typedef std::tr1::function<void ()> OperationFunctionType;
-        void operator()(const OperationFunctionType&, unsigned int) const;
-    };
-
-    struct Template_MovEqual
-    {
-        void operator()(bool) const;
-    };
-
-    struct Template_BranchGez
-    {
-        void operator()(bool, bool) const;
-    };
-
-    struct Template_BranchLez
-    {
-        void operator()(bool, bool) const;
-    };
+	void Template_Add32(bool);
+	void Template_Sub32(bool);
+	void Template_LoadUnsigned32(void*);
+    void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
+	void Template_ShiftVar32(const TemplateOperationFunctionType&);
+	void Template_Mult32(const TemplateOperationFunctionType&, unsigned int); 
+	void Template_Div32(const TemplateOperationFunctionType&, unsigned int);
+	void Template_MovEqual(bool);
+	void Template_SetLessThanImm(bool);
+	void Template_SetLessThanReg(bool);
+	void Template_BranchEq(bool, bool);
+	void Template_BranchGez(bool, bool);
+    void Template_BranchLez(bool, bool);
 
 private:
-	static void							SPECIAL();
-	static void							SPECIAL2();
-	static void							REGIMM();
+	void							SetupInstructionTables();
+	void							SetupReflectionTables();
+
+	void							SPECIAL();
+	void							SPECIAL2();
+	void							REGIMM();
 
 	//General
-	static void							J();
-	static void							JAL();
-	static void							BEQ();
-	static void							BNE();
-	static void							BLEZ();
-	static void							BGTZ();
-	static void							ADDI();
-	static void							ADDIU();
-	static void							SLTI();
-	static void							SLTIU();
-	static void							ANDI();
-	static void							ORI();
-	static void							XORI();
-	static void							LUI();
-	static void							COP0();
-	static void							COP1();
-	static void							COP2();
-	static void							BEQL();
-	static void							BNEL();
-	static void							BLEZL();
-	static void							BGTZL();
-	static void							DADDIU();
-	static void							LDL();
-	static void							LDR();
-	static void							LB();
-	static void							LH();
-	static void							LWL();
-	static void							LW();
-	static void							LBU();
-	static void							LHU();
-	static void							LWR();
-	static void							LWU();
-	static void							SB();
-	static void							SH();
-	static void							SWL();
-	static void							SW();
-	static void							SDL();
-	static void							SDR();
-	static void							SWR();
-	static void							CACHE();
-	static void							LWC1();
-	static void							LDC2();
-	static void							LD();
-	static void							SWC1();
-	static void							SDC2();
-	static void							SD();
+	void							J();
+	void							JAL();
+	void							BEQ();
+	void							BNE();
+	void							BLEZ();
+	void							BGTZ();
+	void							ADDI();
+	void							ADDIU();
+	void							SLTI();
+	void							SLTIU();
+	void							ANDI();
+	void							ORI();
+	void							XORI();
+	void							LUI();
+	void							COP0();
+	void							COP1();
+	void							COP2();
+	void							BEQL();
+	void							BNEL();
+	void							BLEZL();
+	void							BGTZL();
+	void							DADDIU();
+	void							LDL();
+	void							LDR();
+	void							LB();
+	void							LH();
+	void							LWL();
+	void							LW();
+	void							LBU();
+	void							LHU();
+	void							LWR();
+	void							LWU();
+	void							SB();
+	void							SH();
+	void							SWL();
+	void							SW();
+	void							SDL();
+	void							SDR();
+	void							SWR();
+	void							CACHE();
+	void							LWC1();
+	void							LDC2();
+	void							LD();
+	void							SWC1();
+	void							SDC2();
+	void							SD();
 
 	//Special	
-	static void							SLL();
-	static void							SRL();
-	static void							SRA();
-	static void							SLLV();
-	static void							SRLV();
-	static void							SRAV();
-	static void							JR();
-	static void							JALR();
-	static void							MOVZ();
-	static void							MOVN();
-	static void							SYSCALL();
-    static void                         BREAK();
-	static void							SYNC();
-	static void							DSLLV();
-	static void							DSRLV();
-	static void							MFHI();
-	static void							MTHI();
-	static void							MFLO();
-	static void							MTLO();
-	static void							MULT();
-	static void							MULTU();
-	static void							DIV();
-	static void							DIVU();
-	static void							ADD();
-	static void							ADDU();
-    static void                         SUB();
-	static void							SUBU();
-	static void							AND();
-	static void							OR();
-	static void							XOR();
-	static void							NOR();
-	static void							SLT();
-	static void							SLTU();
-	static void							DADDU();
-	static void							DSUBU();
-	static void							DSLL();
-	static void							DSRL();
-	static void							DSRA();
-	static void							DSLL32();
-	static void							DSRL32();
-	static void							DSRA32();
+	void							SLL();
+	void							SRL();
+	void							SRA();
+	void							SLLV();
+	void							SRLV();
+	void							SRAV();
+	void							JR();
+	void							JALR();
+	void							MOVZ();
+	void							MOVN();
+	void							SYSCALL();
+    void							BREAK();
+	void							SYNC();
+	void							DSLLV();
+	void							DSRLV();
+	void							MFHI();
+	void							MTHI();
+	void							MFLO();
+	void							MTLO();
+	void							MULT();
+	void							MULTU();
+	void							DIV();
+	void							DIVU();
+	void							ADD();
+	void							ADDU();
+    void							SUB();
+	void							SUBU();
+	void							AND();
+	void							OR();
+	void							XOR();
+	void							NOR();
+	void							SLT();
+	void							SLTU();
+	void							DADDU();
+	void							DSUBU();
+	void							DSLL();
+	void							DSRL();
+	void							DSRA();
+	void							DSLL32();
+	void							DSRL32();
+	void							DSRA32();
 
 	//Special2
 
 	//RegImm
-	static void							BLTZ();
-	static void							BGEZ();
-	static void							BLTZL();
-	static void							BGEZL();
+	void							BLTZ();
+	void							BGEZ();
+	void							BLTZL();
+	void							BGEZL();
 
-    //Reflection tables
-	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
-	static MIPSReflection::INSTRUCTION	m_cReflSpecial[64];
-	static MIPSReflection::INSTRUCTION	m_cReflRegImm[32];
+	//Opcode tables
+	typedef void (CMA_MIPSIV::*InstructionFuncConstant)();
+
+	static InstructionFuncConstant		m_cOpGeneral[MAX_GENERAL_OPS];
+	static InstructionFuncConstant		m_cOpSpecial[MAX_SPECIAL_OPS];
+	static InstructionFuncConstant		m_cOpRegImm[MAX_REGIMM_OPS];
+
+	//Reflection tables
+	static MIPSReflection::INSTRUCTION	m_cReflGeneral[MAX_GENERAL_OPS];
+	static MIPSReflection::INSTRUCTION	m_cReflSpecial[MAX_SPECIAL_OPS];
+	static MIPSReflection::INSTRUCTION	m_cReflRegImm[MAX_REGIMM_OPS];
 };
-
-extern CMA_MIPSIV g_MAMIPSIV;
 
 #endif

@@ -44,8 +44,7 @@ void CBasicBlock::Compile()
             m_context.m_pArch->CompileInstruction(
                 address, 
                 &codeGen,
-                &m_context,
-                true);
+                &m_context);
             //Sanity check
             assert(codeGen.IsStackEmpty());
         }

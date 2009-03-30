@@ -2,6 +2,7 @@
 #define _IOP_SUBSYSTEM_H_
 
 #include "../MIPS.h"
+#include "../MA_MIPSIV.h"
 #include "../MipsExecutor.h"
 #include "Iop_SpuBase.h"
 #include "Iop_Spu.h"
@@ -18,13 +19,15 @@ namespace Iop
     class CSubSystem
     {
     public:
+        typedef std::tr1::shared_ptr<CBiosBase> BiosPtr;
+
                             CSubSystem();
         virtual             ~CSubSystem();
 
         void                Reset();
     	unsigned int		ExecuteCpu(bool);
 
-        void                SetBios(CBiosBase*);
+        void                SetBios(const BiosPtr&);
 
 	    virtual void		SaveState(CZipArchiveWriter&);
 	    virtual void		LoadState(CZipArchiveReader&);
@@ -40,8 +43,9 @@ namespace Iop
 	    CSpu			    m_spu;
 	    CSpu2			    m_spu2;
 	    CMIPS				m_cpu;
+		CMA_MIPSIV			m_cpuArch;
 	    CMipsExecutor		m_executor;
-        CBiosBase*          m_bios;
+        BiosPtr             m_bios;
 
     private:
 	    enum

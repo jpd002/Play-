@@ -9,13 +9,15 @@ class CCOP_VU : public CMIPSCoprocessor
 public:
 										CCOP_VU(MIPS_REGSIZE);
 
-	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
+	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*);
 	virtual void						GetInstruction(uint32, char*);
 	virtual void						GetArguments(uint32, uint32, char*);
 	virtual uint32						GetEffectiveAddress(uint32, uint32);
 	virtual bool						IsBranch(uint32);
 
 protected:
+	typedef void (CCOP_VU::*InstructionFuncConstant)();
+
 	void								SetupReflectionTables();
 
 	static void							ReflMnemI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, char*, unsigned int);
@@ -41,87 +43,87 @@ protected:
 	MIPSReflection::SUBTABLE			m_ReflVX2Table;
 	MIPSReflection::SUBTABLE			m_ReflVX3Table;
 
-	static void							(*m_pOpCop2[0x20])();
-	static void							(*m_pOpVector[0x40])();
-	static void							(*m_pOpVx0[0x20])();
-	static void							(*m_pOpVx1[0x20])();
-	static void							(*m_pOpVx2[0x20])();
-	static void							(*m_pOpVx3[0x20])();
+	static InstructionFuncConstant      m_pOpCop2[0x20];
+	static InstructionFuncConstant      m_pOpVector[0x40];
+	static InstructionFuncConstant      m_pOpVx0[0x20];
+	static InstructionFuncConstant      m_pOpVx1[0x20];
+	static InstructionFuncConstant      m_pOpVx2[0x20];
+	static InstructionFuncConstant      m_pOpVx3[0x20];
 
 private:
 	//General
-	static void							LQC2();
-	static void							SQC2();
+	void                                LQC2();
+	void                                SQC2();
 
 	//COP2
-	static void							QMFC2();
-	static void							CFC2();
-	static void							QMTC2();
-	static void							CTC2();
-	static void							V();
+	void                                QMFC2();
+	void                                CFC2();
+	void                                QMTC2();
+	void                                CTC2();
+	void                                V();
 
 	//Vector
-	static void							VADDbc();
-	static void							VSUBbc();
-	static void							VMADDbc();
-    static void                         VMSUBbc();
-	static void							VMAXbc();
-	static void							VMINIbc();
-	static void							VMULbc();
-	static void							VMULq();
-	static void							VADDq();
-	static void							VADD();
-	static void							VMUL();
-	static void							VMAX();
-	static void							VSUB();
-	static void							VOPMSUB();
-	static void							VMINI();
-	static void							VX0();
-	static void							VX1();
-	static void							VX2();
-	static void							VX3();
+	void                                VADDbc();
+	void                                VSUBbc();
+	void                                VMADDbc();
+    void                                VMSUBbc();
+	void                                VMAXbc();
+	void                                VMINIbc();
+	void                                VMULbc();
+	void                                VMULq();
+	void                                VADDq();
+	void                                VADD();
+	void                                VMUL();
+	void                                VMAX();
+	void                                VSUB();
+	void                                VOPMSUB();
+	void                                VMINI();
+	void                                VX0();
+	void                                VX1();
+	void                                VX2();
+	void                                VX3();
 
 	//Vx (Common)
-    static void                         VADDAbc();
-    static void                         VSUBAbc();
-	static void							VMULAbc();
-	static void							VMADDAbc();
-    static void                         VMSUBAbc();
+    void                                VADDAbc();
+    void                                VSUBAbc();
+	void                                VMULAbc();
+	void                                VMADDAbc();
+    void                                VMSUBAbc();
 
 	//V0
-	static void							VITOF0();
-	static void							VFTOI0();
-    static void                         VADDA();
-	static void							VMOVE();
-	static void							VDIV();
-    static void                         VRNEXT();
+	void                                VITOF0();
+	void                                VFTOI0();
+    void                                VADDA();
+	void                                VMOVE();
+	void                                VDIV();
+    void                                VRNEXT();
 
 	//V1
-    static void                         VITOF4();
-	static void							VFTOI4();
-	static void							VMR32();
-	static void							VSQRT();
+    void                                VITOF4();
+	void                                VFTOI4();
+	void                                VMR32();
+	void                                VSQRT();
 
 	//V2
-	static void							VOPMULA();
-	static void							VRSQRT();
-	static void							VRINIT();
+	void                                VOPMULA();
+	void                                VRSQRT();
+	void                                VRINIT();
 
 	//V3
-    static void                         VITOF15();
-    static void                         VCLIP();
-	static void							VNOP();
-	static void							VWAITQ();
-	static void							VRXOR();
+    void                                VITOF15();
+    void                                VCLIP();
+	void                                VNOP();
+	void                                VWAITQ();
+	void                                VRXOR();
 
-	static uint8						m_nBc;
-	static uint8						m_nDest;
-	static uint8						m_nFSF;
-	static uint8						m_nFTF;
+	uint8						        m_nBc;
+	uint8						        m_nDest;
+	uint8						        m_nFSF;
+	uint8						        m_nFTF;
 
-	static uint8						m_nFS;
-	static uint8						m_nFT;
-	static uint8						m_nFD;
+	uint8						        m_nFS;
+	uint8						        m_nFT;
+	uint8						        m_nFD;
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
@@ -133,7 +135,5 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflVX3[32];
 
 };
-
-extern CCOP_VU g_COPVU;
 
 #endif

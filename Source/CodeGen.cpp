@@ -714,16 +714,23 @@ void CCodeGen::Add()
 	{
         CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
 
-		unsigned int registerId = AllocateRegister();
+		if(ops.second == 0)
+		{
+			PushRel(ops.first);
+		}
+		else
+		{
+			unsigned int registerId = AllocateRegister();
 
-		LoadRelativeInRegister(registerId, ops.first);
+			LoadRelativeInRegister(registerId, ops.first);
 
-        //add reg, Immediate
-        m_Assembler.AddId(
-            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]),
-            ops.second);
+			//add reg, Immediate
+			m_Assembler.AddId(
+				CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[registerId]),
+				ops.second);
 
-        PushReg(registerId);
+			PushReg(registerId);
+		}
 	}
 	else if(FitsPattern<RelativeRelative>())
 	{
@@ -1190,6 +1197,14 @@ void CCodeGen::Cmp(CONDITION nCondition)
             //setgt res[l]
             m_Assembler.SetgEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
             break;
+		case CONDITION_LT:
+			//setl res[l]
+			m_Assembler.SetlEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+			break;
+		case CONDITION_LE:
+			//setle res[l]
+			m_Assembler.SetleEb(CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[resultRegister]));
+			break;
         default:
             throw exception();
             break;
@@ -1218,6 +1233,20 @@ void CCodeGen::Cmp(CONDITION nCondition)
 
         Cmp(nCondition);
     }
+	else if(FitsPattern<RelativeConstant>())
+	{
+        RelativeConstant::PatternValue ops = GetPattern<RelativeConstant>();
+        unsigned int register1 = AllocateRegister();
+        unsigned int register2 = AllocateRegister();
+
+        LoadRelativeInRegister(register1, ops.first);
+        LoadConstantInRegister(register2, ops.second);
+
+        PushReg(register1);
+        PushReg(register2);
+
+        Cmp(nCondition);
+	}
     else if(FitsPattern<RegisterConstant>())
     {
         RegisterConstant::PatternValue ops = GetPattern<RegisterConstant>();

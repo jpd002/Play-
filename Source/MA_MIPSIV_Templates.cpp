@@ -5,7 +5,39 @@
 
 using namespace std;
 
-void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
+void CMA_MIPSIV::Template_Add32(bool isSigned)
+{
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+    m_codeGen->Add();
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	}
+
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
+void CMA_MIPSIV::Template_Sub32(bool isSigned)
+{
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+    m_codeGen->Sub();
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+	    m_codeGen->SeX();
+	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	}
+
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
+void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 {
     //TODO: Need to check if this used correctly... LBU, LHU and LW uses this (why LW? and why sign extend on LBU and LHU?)
 
@@ -15,35 +47,46 @@ void CMA_MIPSIV::Template_LoadUnsigned32::operator()(void* pProxyFunction)
 	m_codeGen->PushIdx(1);
 	m_codeGen->Call(pProxyFunction, 2, true);
 
-	m_codeGen->SeX();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
     m_codeGen->PullTop();
 }
 
-void CMA_MIPSIV::Template_ShiftCst32::operator()(const OperationFunctionType& Function) const
+void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType& Function)
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     Function(m_nSA);
     
-    m_codeGen->SeX();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	}
+
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
-void CMA_MIPSIV::Template_ShiftVar32::operator()(const OperationFunctionType& function) const
+void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& function)
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
     function();
 
-    m_codeGen->SeX();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	}
+
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
-void CMA_MIPSIV::Template_Mult32::operator()(const OperationFunctionType& Function, unsigned int unit) const
+void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, unsigned int unit)
 {
     size_t lo[2];
     size_t hi[2];
@@ -90,7 +133,7 @@ void CMA_MIPSIV::Template_Mult32::operator()(const OperationFunctionType& Functi
     }
 }
 
-void CMA_MIPSIV::Template_Div32::operator()(const OperationFunctionType& function, unsigned int unit) const
+void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, unsigned int unit)
 {
     size_t lo[2];
     size_t hi[2];
@@ -148,32 +191,143 @@ void CMA_MIPSIV::Template_Div32::operator()(const OperationFunctionType& functio
 	m_codeGen->EndIf();
 }
 
-void CMA_MIPSIV::Template_MovEqual::operator()(bool isEqual) const
+void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_32)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	}
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-    m_codeGen->PushCst(0);
-    m_codeGen->PushCst(0);
+		m_codeGen->PushCst(0);
+		m_codeGen->PushCst(0);
 
-    m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
+		m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
+	}
 
     m_codeGen->BeginIf(isEqual);
     {
         m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		if(m_regSize == MIPS_REGSIZE_64)
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		}
     }
     m_codeGen->EndIf();
 }
 
-void CMA_MIPSIV::Template_BranchGez::operator()(bool condition, bool likely) const
+void CMA_MIPSIV::Template_SetLessThanImm(bool isSigned)
+{
+	CCodeGen::CONDITION condition = isSigned ? CCodeGen::CONDITION_LT : CCodeGen::CONDITION_BL;
+
+	if(m_regSize == MIPS_REGSIZE_32)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
+
+		m_codeGen->Cmp(condition);
+	}
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+
+		m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
+		m_codeGen->PushCst(m_nImmediate & 0x8000 ? 0xFFFFFFFF : 0x00000000);
+
+		m_codeGen->Cmp64(condition);
+	}
+
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		//Clear higher 32-bits
+		m_codeGen->PushCst(0);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	}
+}
+
+void CMA_MIPSIV::Template_SetLessThanReg(bool isSigned)
+{
+	CCodeGen::CONDITION condition = isSigned ? CCodeGen::CONDITION_LT : CCodeGen::CONDITION_BL;
+
+	if(m_regSize == MIPS_REGSIZE_32)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->Cmp(condition);
+	}
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+
+		m_codeGen->Cmp64(condition);
+	}
+
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		//Clear higher 32-bits
+		m_codeGen->PushCst(0);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	}
+}
+
+void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
+{
+	if(m_regSize == MIPS_REGSIZE_32)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+
+		m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+	}
+	else if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+
+		m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
+	}
+
+    if(likely)
+    {
+        BranchLikely(condition);
+    }
+    else
+    {
+        Branch(condition);
+    }
+}
+
+void CMA_MIPSIV::Template_BranchGez(bool condition, bool likely)
 {
     m_codeGen->PushCst(0);
 
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_32)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	}
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+	}
+
     m_codeGen->PushCst(0x80000000);
     m_codeGen->And();
 
@@ -189,15 +343,24 @@ void CMA_MIPSIV::Template_BranchGez::operator()(bool condition, bool likely) con
     }
 }
 
-void CMA_MIPSIV::Template_BranchLez::operator()(bool condition, bool likely) const
+void CMA_MIPSIV::Template_BranchLez(bool condition, bool likely)
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_32)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushCst(0);
+		m_codeGen->Cmp(CCodeGen::CONDITION_LE);
+	}
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 
-    m_codeGen->PushCst(0);
-    m_codeGen->PushCst(0);
+		m_codeGen->PushCst(0);
+		m_codeGen->PushCst(0);
 
-    m_codeGen->Cmp64(CCodeGen::CONDITION_LE);
+		m_codeGen->Cmp64(CCodeGen::CONDITION_LE);
+	}
 
     if(likely)
     {

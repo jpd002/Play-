@@ -17,20 +17,21 @@ class CMIPSInstructionFactory
 public:
 							CMIPSInstructionFactory(MIPS_REGSIZE);
 	virtual					~CMIPSInstructionFactory();
-	virtual void			CompileInstruction(uint32, CCodeGen*, CMIPS*, bool) = 0;
+	virtual void			CompileInstruction(uint32, CCodeGen*, CMIPS*) = 0;
 
 protected:
-	static void				ComputeMemAccessAddr();
-	static void				Branch(bool);
-	static void				BranchLikely(bool);
+	void					ComputeMemAccessAddr();
+	void					Branch(bool);
+	void					BranchLikely(bool);
 
-	static void				Illegal();
-	static void				SetupQuickVariables(uint32, CCodeGen*, CMIPS*);
+	void					Illegal();
+	void					SetupQuickVariables(uint32, CCodeGen*, CMIPS*);
 
-    static CCodeGen*        m_codeGen;
-    static CMIPS*			m_pCtx;
-    static uint32			m_nOpcode;
-    static uint32			m_nAddress;
+    CCodeGen*				m_codeGen;
+    CMIPS*					m_pCtx;
+    uint32					m_nOpcode;
+    uint32					m_nAddress;
+	MIPS_REGSIZE			m_regSize;
 };
 
 #endif

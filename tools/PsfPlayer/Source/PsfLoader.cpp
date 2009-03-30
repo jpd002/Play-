@@ -25,9 +25,9 @@ void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const char* pathString, CPsfBas
 
 void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
-    CPsxBios* bios = new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE);
+    Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
     virtualMachine.SetBios(bios);
-    LoadPsxRecurse(virtualMachine, bios, pathString, tags);
+    LoadPsxRecurse(virtualMachine, static_cast<CPsxBios*>(bios.get()), pathString, tags);
 }
 
 void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const char* pathString, CPsfBase::TagMap* tags)
@@ -87,10 +87,10 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 
 void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
-	PS2::CPsfBios* bios = new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE);
+	Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
     virtualMachine.SetBios(bios);
-	LoadPs2Recurse(virtualMachine, bios, pathString, tags);
-	bios->Start();
+    LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), pathString, tags);
+    static_cast<PS2::CPsfBios*>(bios.get())->Start();
 }
 
 void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const char* pathString, CPsfBase::TagMap* tags)

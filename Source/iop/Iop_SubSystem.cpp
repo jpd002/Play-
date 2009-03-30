@@ -1,6 +1,5 @@
 #include "Iop_SubSystem.h"
 #include "../MemoryStateFile.h"
-#include "../MA_MIPSIV.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "placeholder_def.h"
@@ -18,7 +17,6 @@ using namespace PS2;
 CSubSystem::CSubSystem() :
 m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
 m_executor(m_cpu),
-m_bios(NULL),
 m_ram(new uint8[IOP_RAM_SIZE]),
 m_scratchPad(new uint8[IOP_SCRATCH_SIZE]),
 m_spuRam(new uint8[SPU_RAM_SIZE]),
@@ -27,7 +25,8 @@ m_counters(IOP_CLOCK_FREQ, m_intc),
 m_spuCore0(m_spuRam, SPU_RAM_SIZE),
 m_spuCore1(m_spuRam, SPU_RAM_SIZE),
 m_spu(m_spuCore0),
-m_spu2(m_spuCore0, m_spuCore1)
+m_spu2(m_spuCore0, m_spuCore1),
+m_cpuArch(MIPS_REGSIZE_32)
 {
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,								                        0x01);
@@ -51,7 +50,7 @@ m_spu2(m_spuCore0, m_spuCore1)
 	m_cpu.m_pMemoryMap->InsertInstructionMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x03);
 	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x04);
 
-	m_cpu.m_pArch = &g_MAMIPSIV;
+	m_cpu.m_pArch = &m_cpuArch;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
     m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
@@ -63,13 +62,8 @@ CSubSystem::~CSubSystem()
 
 }
 
-void CSubSystem::SetBios(CBiosBase* bios)
+void CSubSystem::SetBios(const BiosPtr& bios)
 {
-    if(m_bios != NULL)
-    {
-        delete m_bios;
-        m_bios = NULL;
-    }
     m_bios = bios;
 }
 
@@ -103,7 +97,7 @@ void CSubSystem::Reset()
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
-    SetBios(NULL);
+    m_bios.reset();
 
     m_cpu.m_Comments.RemoveTags();
     m_cpu.m_Functions.RemoveTags();

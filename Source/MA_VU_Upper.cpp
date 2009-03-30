@@ -6,14 +6,21 @@
 
 using namespace std;
 
-uint8			CMA_VU::CUpper::m_nFT;
-uint8			CMA_VU::CUpper::m_nFS;
-uint8			CMA_VU::CUpper::m_nFD;
-uint8			CMA_VU::CUpper::m_nBc;
-uint8			CMA_VU::CUpper::m_nDest;
-
-void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
+CMA_VU::CUpper::CUpper() :
+CMIPSInstructionFactory(MIPS_REGSIZE_32),
+m_nFT(0),
+m_nFS(0),
+m_nFD(0),
+m_nBc(0),
+m_nDest(0)
 {
+
+}
+
+void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+{
+	SetupQuickVariables(nAddress, codeGen, pCtx);
+
     m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
     m_nFT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
     m_nFS		= (uint8 )((m_nOpcode >> 11) & 0x001F);
@@ -21,7 +28,7 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIP
 
     m_nBc		= (uint8 )((m_nOpcode >>  0) & 0x0003);
 
-    m_pOpVector[m_nOpcode & 0x3F]();
+    ((this)->*(m_pOpVector[m_nOpcode & 0x3F]))();
 
     if(m_nOpcode & 0x80000000)
     {
@@ -202,25 +209,25 @@ void CMA_VU::CUpper::MINI()
 //3C
 void CMA_VU::CUpper::VECTOR0()
 {
-	m_pOpVector0[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector0[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3D
 void CMA_VU::CUpper::VECTOR1()
 {
-	m_pOpVector1[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector1[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3E
 void CMA_VU::CUpper::VECTOR2()
 {
-	m_pOpVector2[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector2[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3F
 void CMA_VU::CUpper::VECTOR3()
 {
-	m_pOpVector3[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector3[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //////////////////////////////////////////////////
@@ -367,70 +374,70 @@ void CMA_VU::CUpper::NOP()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-void (*CMA_VU::CUpper::m_pOpVector[0x40])() =
+CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector[0x40] =
 {
 	//0x00
-	ADDbc,			ADDbc,			ADDbc,			ADDbc,			SUBbc,		    SUBbc,			SUBbc,		    SUBbc,
+	&ADDbc,			&ADDbc,			&ADDbc,			&ADDbc,			&SUBbc,		    &SUBbc,			&SUBbc,		    &SUBbc,
 	//0x08
-	MADDbc,			MADDbc,			MADDbc,			MADDbc,			MSUBbc, 		MSUBbc,		    MSUBbc,		    MSUBbc,
+	&MADDbc,		&MADDbc,		&MADDbc,		&MADDbc,		&MSUBbc, 		&MSUBbc,		&MSUBbc,		&MSUBbc,
 	//0x10
-	MAXbc,			Illegal,		Illegal,		MAXbc,			Illegal,		Illegal,		Illegal,		MINIbc,
+	&MAXbc,			&Illegal,		&Illegal,		&MAXbc,			&Illegal,		&Illegal,		&Illegal,		&MINIbc,
 	//0x18
-	MULbc,			MULbc,			MULbc,			MULbc,			MULq,			Illegal,		MULi,			MINIi,
+	&MULbc,			&MULbc,			&MULbc,			&MULbc,			&MULq,			&Illegal,		&MULi,			&MINIi,
 	//0x20
-	ADDq,			MADDq,		    ADDi,			Illegal,		Illegal,		Illegal,		SUBi,			MSUBi,
+	&ADDq,			&MADDq,		    &ADDi,			&Illegal,		&Illegal,		&Illegal,		&SUBi,			&MSUBi,
 	//0x28
-	ADD,			MADD,			MUL,			MAX,			SUB,			Illegal,		OPMSUB,			MINI,
+	&ADD,			&MADD,			&MUL,			&MAX,			&SUB,			&Illegal,		&OPMSUB,		&MINI,
 	//0x30
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x38
-	Illegal,		Illegal,		Illegal,		Illegal,		VECTOR0,		VECTOR1,		VECTOR2,		VECTOR3,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&VECTOR0,		&VECTOR1,		&VECTOR2,		&VECTOR3,
 };
 
-void (*CMA_VU::CUpper::m_pOpVector0[0x20])() =
+CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector0[0x20] =
 {
 	//0x00
-	ADDAbc,			Illegal,		Illegal,		MSUBAbc,		ITOF0,			FTOI0,			MULAbc,			Illegal,
+	&ADDAbc,		&Illegal,		&Illegal,		&MSUBAbc,		&ITOF0,			&FTOI0,			&MULAbc,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		ADDA,		    Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&ADDA,		    &Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CMA_VU::CUpper::m_pOpVector1[0x20])() =
+CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector1[0x20] =
 {
 	//0x00
-	ADDAbc,			Illegal,		MADDAbc,		MSUBAbc,		ITOF4,		    FTOI4,			MULAbc,		    ABS,
+	&ADDAbc,		&Illegal,		&MADDAbc,		&MSUBAbc,		&ITOF4,		    &FTOI4,			&MULAbc,		&ABS,
 	//0x08
-	Illegal,		Illegal,		MADDA,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&MADDA,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CMA_VU::CUpper::m_pOpVector2[0x20])() =
+CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector2[0x20] =
 {
 	//0x00
-	Illegal,		Illegal,		MADDAbc,		MSUBAbc,		ITOF12, 		FTOI12,		    MULAbc,		    MULAi,
+	&Illegal,		&Illegal,		&MADDAbc,		&MSUBAbc,		&ITOF12, 		&FTOI12,		&MULAbc,		&MULAi,
 	//0x08
-	Illegal,		Illegal,		MULA,			OPMULA,			Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&MULA,			&OPMULA,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CMA_VU::CUpper::m_pOpVector3[0x20])() =
+CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector3[0x20] =
 {
 	//0x00
-	Illegal,		Illegal,		MADDAbc,		MSUBAbc,		Illegal,		Illegal,		MULAbc,			CLIP,
+	&Illegal,		&Illegal,		&MADDAbc,		&MSUBAbc,		&Illegal,		&Illegal,		&MULAbc,		&CLIP,
 	//0x08
-	MADDAi,			MSUBAi,			Illegal,		NOP,			Illegal,		Illegal,		Illegal,		Illegal,
+	&MADDAi,		&MSUBAi,		&Illegal,		&NOP,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };

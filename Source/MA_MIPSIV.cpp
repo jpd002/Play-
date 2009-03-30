@@ -10,14 +10,6 @@
 
 using namespace std::tr1;
 
-CMA_MIPSIV			g_MAMIPSIV(MIPS_REGSIZE_64);
-
-uint8				CMA_MIPSIV::m_nRS;
-uint8				CMA_MIPSIV::m_nRT;
-uint8				CMA_MIPSIV::m_nRD;
-uint8				CMA_MIPSIV::m_nSA;
-uint16				CMA_MIPSIV::m_nImmediate;
-
 uint32 g_LWMaskRight[4] =
 {
     0x00FFFFFF,
@@ -169,15 +161,41 @@ void SDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 CMA_MIPSIV::CMA_MIPSIV(MIPS_REGSIZE nRegSize) :
 CMIPSArchitecture(nRegSize)
 {
+	SetupInstructionTables();
 	SetupReflectionTables();
 }
 
-void CMA_MIPSIV::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
+CMA_MIPSIV::~CMA_MIPSIV()
 {
-	if(nParent)
+
+}
+
+void CMA_MIPSIV::SetupInstructionTables()
+{
+	for(unsigned int i = 0; i < MAX_GENERAL_OPS; i++)
 	{
-		SetupQuickVariables(nAddress, codeGen, pCtx);
+		m_pOpGeneral[i] = bind(m_cOpGeneral[i], this);
 	}
+
+	for(unsigned int i = 0; i < MAX_SPECIAL_OPS; i++)
+	{
+		m_pOpSpecial[i] = bind(m_cOpSpecial[i], this);
+	}
+
+	for(unsigned int i = 0; i < MAX_SPECIAL2_OPS; i++)
+	{
+		m_pOpSpecial2[i] = bind(&CMA_MIPSIV::Illegal, this);
+	}
+
+	for(unsigned int i = 0; i < MAX_REGIMM_OPS; i++)
+	{
+		m_pOpRegImm[i] = bind(m_cOpRegImm[i], this);
+	}
+}
+
+void CMA_MIPSIV::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+{
+	SetupQuickVariables(nAddress, codeGen, pCtx);
 
 	m_nRS			= (uint8)((m_nOpcode >> 21) & 0x1F);
 	m_nRT			= (uint8)((m_nOpcode >> 16) & 0x1F);
@@ -234,43 +252,27 @@ void CMA_MIPSIV::JAL()
 //04
 void CMA_MIPSIV::BEQ()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
-
-	Branch(true);
+	Template_BranchEq(true, false);
 }
 
 //05
 void CMA_MIPSIV::BNE()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
-
-	Branch(false);
+	Template_BranchEq(false, false);
 }
 
 //06
 void CMA_MIPSIV::BLEZ()
 {
     //Less/Equal & Not Likely
-    Template_BranchLez()(true, false);
+    Template_BranchLez(true, false);
 }
 
 //07
 void CMA_MIPSIV::BGTZ()
 {
     //Not Less/Equal & Not Likely
-    Template_BranchLez()(false, false);
+    Template_BranchLez(false, false);
 }
 
 //08
@@ -301,8 +303,11 @@ void CMA_MIPSIV::ADDIU()
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
 		m_codeGen->Add();
-		m_codeGen->SeX();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		if(m_regSize == MIPS_REGSIZE_64)
+		{
+			m_codeGen->SeX();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		}
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	}
 }
@@ -310,37 +315,13 @@ void CMA_MIPSIV::ADDIU()
 //0A
 void CMA_MIPSIV::SLTI()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-    m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
-    m_codeGen->PushCst(m_nImmediate & 0x8000 ? 0xFFFFFFFF : 0x00000000);
-
-    m_codeGen->Cmp64(CCodeGen::CONDITION_LT);
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-	//Clear higher 32-bits
-	m_codeGen->PushCst(0);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	Template_SetLessThanImm(true);
 }
 
 //0B
 void CMA_MIPSIV::SLTIU()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
-	m_codeGen->PushCst(m_nImmediate & 0x8000 ? 0xFFFFFFFF : 0x00000000);
-
-	m_codeGen->Cmp64(CCodeGen::CONDITION_BL);
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-	//Clear higher 32-bits
-	m_codeGen->PushCst(0);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	Template_SetLessThanImm(false);
 }
 
 //0C
@@ -391,8 +372,11 @@ void CMA_MIPSIV::XORI()
 void CMA_MIPSIV::LUI()
 {
 	m_codeGen->PushCst(m_nImmediate << 16);
-	m_codeGen->PushCst((m_nImmediate & 0x8000) ? 0xFFFFFFFF : 0x00000000);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->PushCst((m_nImmediate & 0x8000) ? 0xFFFFFFFF : 0x00000000);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
 
@@ -401,7 +385,7 @@ void CMA_MIPSIV::COP0()
 {
 	if(m_pCtx->m_pCOP[0] != NULL)
 	{
-		m_pCtx->m_pCOP[0]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, false);
+		m_pCtx->m_pCOP[0]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
 	}
 	else
 	{
@@ -414,7 +398,7 @@ void CMA_MIPSIV::COP1()
 {
 	if(m_pCtx->m_pCOP[1] != NULL)
 	{
-		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, false);
+		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
 	}
 	else
 	{
@@ -427,7 +411,7 @@ void CMA_MIPSIV::COP2()
 {
 	if(m_pCtx->m_pCOP[2] != NULL)
 	{
-		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, false);
+		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
 	}
 	else
 	{
@@ -438,43 +422,27 @@ void CMA_MIPSIV::COP2()
 //14
 void CMA_MIPSIV::BEQL()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
-
-	BranchLikely(true);
+	Template_BranchEq(true, true);
 }
 
 //15
 void CMA_MIPSIV::BNEL()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
-
-	BranchLikely(false);
+	Template_BranchEq(false, true);
 }
 
 //16
 void CMA_MIPSIV::BLEZL()
 {
     //Less/Equal & Likely
-    Template_BranchLez()(true, true);
+    Template_BranchLez(true, true);
 }
 
 //17
 void CMA_MIPSIV::BGTZL()
 {
     //Not Less/Equal & Likely
-    Template_BranchLez()(false, true);
+    Template_BranchLez(false, true);
 }
 
 //19
@@ -556,19 +524,19 @@ void CMA_MIPSIV::LWL()
 //23
 void CMA_MIPSIV::LW()
 {
-    Template_LoadUnsigned32()(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy));
+    Template_LoadUnsigned32(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy));
 }
 
 //24
 void CMA_MIPSIV::LBU()
 {
-    Template_LoadUnsigned32()(reinterpret_cast<void*>(&CMemoryUtils::GetByteProxy));
+    Template_LoadUnsigned32(reinterpret_cast<void*>(&CMemoryUtils::GetByteProxy));
 }
 
 //25
 void CMA_MIPSIV::LHU()
 {
-    Template_LoadUnsigned32()(reinterpret_cast<void*>(&CMemoryUtils::GetHalfProxy));
+    Template_LoadUnsigned32(reinterpret_cast<void*>(&CMemoryUtils::GetHalfProxy));
 }
 
 //26
@@ -682,7 +650,7 @@ void CMA_MIPSIV::LWC1()
 {
 	if(m_pCtx->m_pCOP[1] != NULL)
 	{
-		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, false);
+		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
 	}
 	else
 	{
@@ -695,7 +663,7 @@ void CMA_MIPSIV::LDC2()
 {
 	if(m_pCtx->m_pCOP[2] != NULL)
 	{
-		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, false);
+		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
 	}
 	else
 	{
@@ -731,7 +699,7 @@ void CMA_MIPSIV::SWC1()
 {
 	if(m_pCtx->m_pCOP[1] != NULL)
 	{
-		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, false);
+		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
 	}
 	else
 	{
@@ -744,7 +712,7 @@ void CMA_MIPSIV::SDC2()
 {
 	if(m_pCtx->m_pCOP[2] != NULL)
 	{
-		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, false);
+		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
 	}
 	else
 	{
@@ -781,37 +749,37 @@ void CMA_MIPSIV::SD()
 //00
 void CMA_MIPSIV::SLL()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Shl, m_codeGen, PLACEHOLDER_1));
+    Template_ShiftCst32(bind(&CCodeGen::Shl, m_codeGen, PLACEHOLDER_1));
 }
 
 //02
 void CMA_MIPSIV::SRL()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Srl, m_codeGen, PLACEHOLDER_1));
+    Template_ShiftCst32(bind(&CCodeGen::Srl, m_codeGen, PLACEHOLDER_1));
 }
 
 //03
 void CMA_MIPSIV::SRA()
 {
-    Template_ShiftCst32()(bind(&CCodeGen::Sra, m_codeGen, PLACEHOLDER_1));
+    Template_ShiftCst32(bind(&CCodeGen::Sra, m_codeGen, PLACEHOLDER_1));
 }
 
 //04
 void CMA_MIPSIV::SLLV()
 {
-    Template_ShiftVar32()(bind(&CCodeGen::Shl, m_codeGen));
+    Template_ShiftVar32(bind(&CCodeGen::Shl, m_codeGen));
 }
 
 //06
 void CMA_MIPSIV::SRLV()
 {
-    Template_ShiftVar32()(bind(&CCodeGen::Srl, m_codeGen));
+    Template_ShiftVar32(bind(&CCodeGen::Srl, m_codeGen));
 }
 
 //07
 void CMA_MIPSIV::SRAV()
 {
-    Template_ShiftVar32()(bind(&CCodeGen::Sra, m_codeGen));
+    Template_ShiftVar32(bind(&CCodeGen::Sra, m_codeGen));
 }
 
 //08
@@ -839,13 +807,13 @@ void CMA_MIPSIV::JALR()
 //0A
 void CMA_MIPSIV::MOVZ()
 {
-    Template_MovEqual()(true);
+    Template_MovEqual(true);
 }
 
 //0B
 void CMA_MIPSIV::MOVN()
 {
-    Template_MovEqual()(false);
+    Template_MovEqual(false);
 }
 
 //0C
@@ -941,77 +909,49 @@ void CMA_MIPSIV::DSRLV()
 //18
 void CMA_MIPSIV::MULT()
 {
-    Template_Mult32()(bind(&CCodeGen::MultS, m_codeGen), 0);
+    Template_Mult32(bind(&CCodeGen::MultS, m_codeGen), 0);
 }
 
 //19
 void CMA_MIPSIV::MULTU()
 {
-    Template_Mult32()(bind(&CCodeGen::Mult, m_codeGen), 0);
+    Template_Mult32(bind(&CCodeGen::Mult, m_codeGen), 0);
 }
 
 //1A
 void CMA_MIPSIV::DIV()
 {
-    Template_Div32()(bind(&CCodeGen::DivS, m_codeGen), 0);
+    Template_Div32(bind(&CCodeGen::DivS, m_codeGen), 0);
 }
 
 //1B
 void CMA_MIPSIV::DIVU()
 {
-    Template_Div32()(bind(&CCodeGen::Div, m_codeGen), 0);
+    Template_Div32(bind(&CCodeGen::Div, m_codeGen), 0);
 }
 
 //20
 void CMA_MIPSIV::ADD()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-    m_codeGen->Add();
-    m_codeGen->SeX();
-
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	Template_Add32(true);
 }
 
 //21
 void CMA_MIPSIV::ADDU()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-    m_codeGen->Add();
-    m_codeGen->SeX();
-
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	Template_Add32(false);
 }
 
 //22
 void CMA_MIPSIV::SUB()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-    m_codeGen->Sub();
-    m_codeGen->SeX();
-
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	Template_Sub32(true);
 }
 
 //23
 void CMA_MIPSIV::SUBU()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-    m_codeGen->Sub();
-    m_codeGen->SeX();
-
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	Template_Sub32(false);
 }
 
 //24
@@ -1076,37 +1016,13 @@ void CMA_MIPSIV::NOR()
 //2A
 void CMA_MIPSIV::SLT()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->Cmp64(CCodeGen::CONDITION_LT);
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-
-	//Clear higher 32-bits
-	m_codeGen->PushCst(0);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	Template_SetLessThanReg(true);
 }
 
 //2B
 void CMA_MIPSIV::SLTU()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->Cmp64(CCodeGen::CONDITION_BL);
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-
-	//Clear higher 32-bits
-	m_codeGen->PushCst(0);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+	Template_SetLessThanReg(false);
 }
 
 //2D
@@ -1223,102 +1139,82 @@ void CMA_MIPSIV::DSRA32()
 void CMA_MIPSIV::BLTZ()
 {
     //Not greater/equal & not likely
-    Template_BranchGez()(false, false);
+    Template_BranchGez(false, false);
 }
 
 //01
 void CMA_MIPSIV::BGEZ()
 {
     //Greater/equal & not likely
-    Template_BranchGez()(true, false);
+    Template_BranchGez(true, false);
 }
 
 //02
 void CMA_MIPSIV::BLTZL()
 {
     //Not greater/equal & likely
-    Template_BranchGez()(false, true);
+    Template_BranchGez(false, true);
 }
 
 //03
 void CMA_MIPSIV::BGEZL()
 {
     //Greater/equal & likely
-    Template_BranchGez()(true, true);
+    Template_BranchGez(true, true);
 }
 
 //////////////////////////////////////////////////
 //Opcode Tables
 //////////////////////////////////////////////////
 
-void (*CMA_MIPSIV::m_pOpGeneral[0x40])() =
+CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpGeneral[MAX_GENERAL_OPS] =
 {
 	//0x00
-	SPECIAL,		REGIMM,			J,				JAL,			BEQ,			BNE,			BLEZ,			BGTZ,
+	&SPECIAL,		&REGIMM,		&J,				&JAL,			&BEQ,			&BNE,			&BLEZ,			&BGTZ,
 	//0x08
-	ADDI,			ADDIU,			SLTI,			SLTIU,			ANDI,			ORI,			XORI,			LUI,
+	&ADDI,			&ADDIU,			&SLTI,			&SLTIU,			&ANDI,			&ORI,			&XORI,			&LUI,
 	//0x10
-	COP0,			COP1,			COP2,			Illegal,		BEQL,			BNEL,			BLEZL,			BGTZL,
+	&COP0,			&COP1,			&COP2,			&Illegal,		&BEQL,			&BNEL,			&BLEZL,			&BGTZL,
 	//0x18
-	Illegal,		DADDIU,			LDL,			LDR,			SPECIAL2,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&DADDIU,		&LDL,			&LDR,			&SPECIAL2,		&Illegal,		&Illegal,		&Illegal,
 	//0x20
-	LB,				LH,				LWL,			LW,				LBU,			LHU,			LWR,			LWU,
+	&LB,			&LH,			&LWL,			&LW,			&LBU,			&LHU,			&LWR,			&LWU,
 	//0x28
-	SB,				SH,				SWL,			SW,				SDL,			SDR,			SWR,			CACHE,
+	&SB,			&SH,			&SWL,			&SW,			&SDL,			&SDR,			&SWR,			&CACHE,
 	//0x30
-	Illegal,		LWC1,			Illegal,		Illegal,		Illegal,		Illegal,		LDC2,			LD,
+	&Illegal,		&LWC1,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&LDC2,			&LD,
 	//0x38
-	Illegal,		SWC1,			Illegal,		Illegal,		Illegal,		Illegal,		SDC2,			SD,
+	&Illegal,		&SWC1,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&SDC2,			&SD,
 };
 
-void (*CMA_MIPSIV::m_pOpSpecial[0x40])() = 
+CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpSpecial[MAX_SPECIAL_OPS] = 
 {
 	//0x00
-	SLL,			Illegal,		SRL,			SRA,			SLLV,			Illegal,		SRLV,			SRAV,
+	&SLL,			&Illegal,		&SRL,			&SRA,			&SLLV,			&Illegal,		&SRLV,			&SRAV,
 	//0x08
-	JR,				JALR,			MOVZ,			MOVN,			SYSCALL,		BREAK,	    	Illegal,		SYNC,
+	&JR,			&JALR,			&MOVZ,			&MOVN,			&SYSCALL,		&BREAK,	    	&Illegal,		&SYNC,
 	//0x10
-	MFHI,			MTHI,			MFLO,			MTLO,			DSLLV,			Illegal,		DSRLV,			Illegal,
+	&MFHI,			&MTHI,			&MFLO,			&MTLO,			&DSLLV,			&Illegal,		&DSRLV,			&Illegal,
 	//0x18
-	MULT,			MULTU,			DIV,			DIVU,			Illegal,		Illegal,		Illegal,		Illegal,
+	&MULT,			&MULTU,			&DIV,			&DIVU,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x20
-	ADD,			ADDU,			SUB,	    	SUBU,			AND,			OR,				XOR,			NOR,
+	&ADD,			&ADDU,			&SUB,	    	&SUBU,			&AND,			&OR,			&XOR,			&NOR,
 	//0x28
-	Illegal,		Illegal,		SLT,			SLTU,			Illegal,		DADDU,			Illegal,		DSUBU,
+	&Illegal,		&Illegal,		&SLT,			&SLTU,			&Illegal,		&DADDU,			&Illegal,		&DSUBU,
 	//0x30
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x38
-	DSLL,			Illegal,		DSRL,			DSRA,			DSLL32,			Illegal,		DSRL32,			DSRA32,
+	&DSLL,			&Illegal,		&DSRL,			&DSRA,			&DSLL32,		&Illegal,		&DSRL32,		&DSRA32,
 };
 
-void (*CMA_MIPSIV::m_pOpSpecial2[0x40])() = 
+CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpRegImm[MAX_REGIMM_OPS] = 
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&BLTZ,			&BGEZ,			&BLTZL,			&BGEZL,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
-	//0x20
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
-	//0x28
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
-	//0x30
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
-	//0x38
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
-};
-
-void (*CMA_MIPSIV::m_pOpRegImm[0x20])() = 
-{
-	//0x00
-	BLTZ,			BGEZ,			BLTZL,			BGEZL,			Illegal,		Illegal,		Illegal,		Illegal,
-	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
-	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
-	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };

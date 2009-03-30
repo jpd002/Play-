@@ -6,12 +6,6 @@
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 
-CCOP_FPU			g_COPFPU(MIPS_REGSIZE_64);
-
-uint8				CCOP_FPU::m_nFT;
-uint8				CCOP_FPU::m_nFS;
-uint8				CCOP_FPU::m_nFD;
-
 uint32				CCOP_FPU::m_nCCMask[8] =
 {
 	0x00800000,
@@ -25,17 +19,17 @@ uint32				CCOP_FPU::m_nCCMask[8] =
 };
 
 CCOP_FPU::CCOP_FPU(MIPS_REGSIZE nRegSize) :
-CMIPSCoprocessor(nRegSize)
+CMIPSCoprocessor(nRegSize),
+m_nFT(0),
+m_nFS(0),
+m_nFD(0)
 {
 	SetupReflectionTables();
 }
 
-void CCOP_FPU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
+void CCOP_FPU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
 {
-	if(nParent)
-	{
-		SetupQuickVariables(nAddress, codeGen, pCtx);
-	}
+	SetupQuickVariables(nAddress, codeGen, pCtx);
 
 	m_nFT			= (uint8)((m_nOpcode >> 16) & 0x1F);
 	m_nFS			= (uint8)((m_nOpcode >> 11) & 0x1F);
@@ -45,7 +39,7 @@ void CCOP_FPU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCt
 	{
 	case 0x11:
 		//COP1
-		m_pOpGeneral[(m_nOpcode >> 21) & 0x1F]();
+		((this)->*(m_pOpGeneral[(m_nOpcode >> 21) & 0x1F]))();
 		break;
 	case 0x31:
 		LWC1();
@@ -145,13 +139,13 @@ void CCOP_FPU::BC1()
 //10
 void CCOP_FPU::S()
 {
-	m_pOpSingle[(m_nOpcode & 0x3F)]();
+	((this)->*(m_pOpSingle[(m_nOpcode & 0x3F)]))();
 }
 
 //14
 void CCOP_FPU::W()
 {
-	m_pOpWord[(m_nOpcode & 0x3F)]();
+	((this)->*(m_pOpWord[(m_nOpcode & 0x3F)]))();
 }
 
 //////////////////////////////////////////////////
@@ -399,54 +393,54 @@ void CCOP_FPU::SWC1()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-void (*CCOP_FPU::m_pOpGeneral[0x20])() = 
+CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpGeneral[0x20] = 
 {
 	//0x00
-	MFC1,			Illegal,		Illegal,		Illegal,		MTC1,			Illegal,		CTC1,			Illegal,
+	&MFC1,			&Illegal,		&Illegal,		&Illegal,		&MTC1,			&Illegal,		&CTC1,			&Illegal,
 	//0x08
-	BC1,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&BC1,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	S,				Illegal,		Illegal,		Illegal,		W,				Illegal,		Illegal,		Illegal,
+	&S,				&Illegal,		&Illegal,		&Illegal,		&W,				&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CCOP_FPU::m_pOpSingle[0x40])() =
+CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpSingle[0x40] =
 {
 	//0x00
-	ADD_S,			SUB_S,			MUL_S,			DIV_S,			SQRT_S,			ABS_S,			MOV_S,			NEG_S,
+	&ADD_S,			&SUB_S,			&MUL_S,			&DIV_S,			&SQRT_S,		&ABS_S,			&MOV_S,			&NEG_S,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	ADDA_S,			Illegal,		MULA_S,			Illegal,		MADD_S,			MSUB_S,			Illegal,		Illegal,
+	&ADDA_S,		&Illegal,		&MULA_S,		&Illegal,		&MADD_S,		&MSUB_S,		&Illegal,		&Illegal,
 	//0x20
-	Illegal,		Illegal,		Illegal,		Illegal,		CVT_W_S,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&CVT_W_S,		&Illegal,		&Illegal,		&Illegal,
 	//0x28
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x30
-	Illegal,		Illegal,		C_EQ_S,			Illegal,		C_LT_S,			Illegal,		C_LE_S,			Illegal,
+	&Illegal,		&Illegal,		&C_EQ_S,		&Illegal,		&C_LT_S,		&Illegal,		&C_LE_S,		&Illegal,
 	//0x38
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CCOP_FPU::m_pOpWord[0x40])() =
+CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpWord[0x40] =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x20
-	CVT_S_W,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&CVT_S_W,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x28
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x30
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x38
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };

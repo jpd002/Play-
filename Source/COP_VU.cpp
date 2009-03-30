@@ -8,29 +8,22 @@
 
 using namespace std;
 
-CCOP_VU			g_COPVU(MIPS_REGSIZE_64);
-
-uint8			CCOP_VU::m_nFT		= 0;
-uint8			CCOP_VU::m_nFS		= 0;
-uint8			CCOP_VU::m_nFD		= 0;
-
-uint8			CCOP_VU::m_nDest	= 0;
-uint8			CCOP_VU::m_nFTF		= 0;
-uint8			CCOP_VU::m_nFSF		= 0;
-uint8			CCOP_VU::m_nBc		= 0;
-
 CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) :
-CMIPSCoprocessor(nRegSize)
+CMIPSCoprocessor(nRegSize),
+m_nFT(0),
+m_nFS(0),
+m_nFD(0),
+m_nDest(0),
+m_nFTF(0),
+m_nFSF(0),
+m_nBc(0)
 {
 	SetupReflectionTables();
 }
 
-void CCOP_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
+void CCOP_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
 {
-	if(nParent)
-	{
-		SetupQuickVariables(nAddress, codeGen, pCtx);
-	}
+	SetupQuickVariables(nAddress, codeGen, pCtx);
 
 	m_nDest			= (uint8)((m_nOpcode >> 21) & 0x0F);
 	
@@ -47,7 +40,7 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx
 	{
 	case 0x12:
 		//COP2
-		m_pOpCop2[(m_nOpcode >> 21) & 0x1F]();
+		((this)->*(m_pOpCop2[(m_nOpcode >> 21) & 0x1F]))();
 		break;
 	case 0x36:
 		//LQC2
@@ -187,7 +180,7 @@ void CCOP_VU::CTC2()
 //10-1F
 void CCOP_VU::V()
 {
-	m_pOpVector[(m_nOpcode & 0x3F)]();
+	((this)->*(m_pOpVector[(m_nOpcode & 0x3F)]))();
 }
 
 //////////////////////////////////////////////////
@@ -302,25 +295,25 @@ void CCOP_VU::VMINI()
 //3C
 void CCOP_VU::VX0()
 {
-	m_pOpVx0[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVx0[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3D
 void CCOP_VU::VX1()
 {
-	m_pOpVx1[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVx1[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3E
 void CCOP_VU::VX2()
 {
-	m_pOpVx2[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVx2[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3F
 void CCOP_VU::VX3()
 {
-	m_pOpVx3[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVx3[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //////////////////////////////////////////////////
@@ -485,82 +478,82 @@ void CCOP_VU::VRXOR()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-void (*CCOP_VU::m_pOpCop2[0x20])() =
+CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpCop2[0x20] =
 {
 	//0x00
-	Illegal,		QMFC2,			CFC2,			Illegal,		Illegal,		QMTC2,			CTC2,			Illegal,
+	&Illegal,		&QMFC2,			&CFC2,			&Illegal,		&Illegal,		&QMTC2,			&CTC2,			&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	V,				V,				V,				V,				V,				V,				V,				V,
+	&V,				&V,				&V,				&V,				&V,				&V,				&V,				&V,
 	//0x18
-	V,				V,				V,				V,				V,				V,				V,				V,
+	&V,				&V,				&V,				&V,				&V,				&V,				&V,				&V,
 };
 
-void (*CCOP_VU::m_pOpVector[0x40])() =
+CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 {
 	//0x00
-	VADDbc,			VADDbc,			VADDbc,			VADDbc,			VSUBbc,			VSUBbc,		    VSUBbc,		    VSUBbc,
+	&VADDbc,		&VADDbc,		&VADDbc,		&VADDbc,		&VSUBbc,		&VSUBbc,		&VSUBbc,        &VSUBbc,
 	//0x08
-	VMADDbc,		VMADDbc,		VMADDbc,		VMADDbc,		VMSUBbc,		VMSUBbc,		VMSUBbc,		VMSUBbc,
+	&VMADDbc,		&VMADDbc,		&VMADDbc,		&VMADDbc,		&VMSUBbc,		&VMSUBbc,		&VMSUBbc,		&VMSUBbc,
 	//0x10
-	VMAXbc,			Illegal,		Illegal,		Illegal,		VMINIbc,		Illegal,		Illegal,		Illegal,
+	&VMAXbc,		&Illegal,		&Illegal,		&Illegal,		&VMINIbc,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	VMULbc,			VMULbc,		    VMULbc,		    VMULbc,			VMULq,			Illegal,		Illegal,		Illegal,
+	&VMULbc,		&VMULbc,		&VMULbc,        &VMULbc,		&VMULq,			&Illegal,		&Illegal,		&Illegal,
 	//0x20
-	VADDq,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&VADDq,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x28
-	VADD,			Illegal,		VMUL,			VMAX,			VSUB,			Illegal,		VOPMSUB,		VMINI,
+	&VADD,			&Illegal,		&VMUL,			&VMAX,			&VSUB,			&Illegal,		&VOPMSUB,		&VMINI,
 	//0x30
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x38
-	Illegal,		Illegal,		Illegal,		Illegal,		VX0,			VX1,			VX2,			VX3,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&VX0,			&VX1,			&VX2,			&VX3,
 };
 
-void (*CCOP_VU::m_pOpVx0[0x20])() =
+CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 {
 	//0x00
-	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		VITOF0,			VFTOI0,			VMULAbc,		Illegal,
+	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&VITOF0,		&VFTOI0,		&VMULAbc,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		VADDA,	    	Illegal,		VMOVE,			Illegal,		VDIV,			Illegal,
+	&Illegal,		&Illegal,		&VADDA,	    	&Illegal,		&VMOVE,			&Illegal,		&VDIV,			&Illegal,
 	//0x10
-	VRNEXT,		    Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&VRNEXT,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CCOP_VU::m_pOpVx1[0x20])() =
+CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 {
 	//0x00
-	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		VITOF4,	    	VFTOI4,			VMULAbc,		Illegal,
+	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&VITOF4,	    &VFTOI4,		&VMULAbc,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		VMR32,			Illegal,		VSQRT,			Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&VMR32,			&Illegal,		&VSQRT,			&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CCOP_VU::m_pOpVx2[0x20])() =
+CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
 {
 	//0x00
-	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		Illegal,		Illegal,		VMULAbc,		Illegal,
+	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&Illegal,		&Illegal,		&VMULAbc,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		VOPMULA,		Illegal,		Illegal,		VRSQRT,			Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&VOPMULA,		&Illegal,		&Illegal,		&VRSQRT,		&Illegal,
 	//0x10
-	VRINIT,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&VRINIT,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CCOP_VU::m_pOpVx3[0x20])() =
+CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx3[0x20] =
 {
 	//0x00
-	VADDAbc,		VSUBAbc,		VMADDAbc,		VMSUBAbc,		VITOF15,		Illegal,		VMULAbc,		VCLIP,
+	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&VITOF15,		&Illegal,		&VMULAbc,		&VCLIP,
 	//0x08
-	Illegal,		Illegal,		Illegal,		VNOP,			Illegal,		Illegal,		VWAITQ,			Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&VNOP,			&Illegal,		&Illegal,		&VWAITQ,		&Illegal,
 	//0x10
-	VRXOR,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&VRXOR,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };

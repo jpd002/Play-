@@ -9,21 +9,21 @@
 
 using namespace std;
 
-uint8			CMA_VU::CLower::m_nImm5;
-uint16			CMA_VU::CLower::m_nImm11;
-uint16          CMA_VU::CLower::m_nImm12;
-uint16			CMA_VU::CLower::m_nImm15;
-uint16			CMA_VU::CLower::m_nImm15S;
-uint32			CMA_VU::CLower::m_nImm24;
-uint8			CMA_VU::CLower::m_nIT;
-uint8			CMA_VU::CLower::m_nIS;
-uint8			CMA_VU::CLower::m_nID;
-uint8			CMA_VU::CLower::m_nFSF;
-uint8			CMA_VU::CLower::m_nFTF;
-uint8			CMA_VU::CLower::m_nDest;
-
 CMA_VU::CLower::CLower(bool maskDataAddress) :
-m_maskDataAddress(maskDataAddress)
+CMIPSInstructionFactory(MIPS_REGSIZE_32),
+m_maskDataAddress(maskDataAddress),
+m_nImm5(0),
+m_nImm11(0),
+m_nImm12(0),
+m_nImm15(0),
+m_nImm15S(0),
+m_nImm24(0),
+m_nIT(0),
+m_nIS(0),
+m_nID(0),
+m_nFSF(0),
+m_nFTF(0),
+m_nDest(0)
 {
 
 }
@@ -108,8 +108,10 @@ void CMA_VU::CLower::ComputeMemAccessAddr(unsigned int baseRegister, uint32 base
     }
 }
 
-void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
+void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
 {
+	SetupQuickVariables(nAddress, codeGen, pCtx);
+
     uint32 nPrevOpcode = pCtx->m_pMemoryMap->GetInstruction(nAddress - 8);
     uint32 nNextOpcode = pCtx->m_pMemoryMap->GetInstruction(nAddress + 4);
 
@@ -135,7 +137,7 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIP
 
     if(m_nOpcode != 0x8000033C)
     {
-	    m_pOpGeneral[m_nOpcode >> 25]();
+	    ((this)->*(m_pOpGeneral[m_nOpcode >> 25]))();
     }
 }
 
@@ -496,7 +498,7 @@ void CMA_VU::CLower::IBGEZ()
 //40
 void CMA_VU::CLower::LOWEROP()
 {
-	m_pOpLower[m_nOpcode & 0x3F]();
+	((this)->*(m_pOpLower[m_nOpcode & 0x3F]))();
 }
 
 //////////////////////////////////////////////////
@@ -551,25 +553,25 @@ void CMA_VU::CLower::IOR()
 //3C
 void CMA_VU::CLower::VECTOR0()
 {
-	m_pOpVector0[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector0[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3D
 void CMA_VU::CLower::VECTOR1()
 {
-	m_pOpVector1[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector1[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3E
 void CMA_VU::CLower::VECTOR2()
 {
-	m_pOpVector2[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector2[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //3F
 void CMA_VU::CLower::VECTOR3()
 {
-	m_pOpVector3[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpVector3[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //////////////////////////////////////////////////
@@ -843,106 +845,106 @@ void CMA_VU::CLower::WAITP()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-void (*CMA_VU::CLower::m_pOpGeneral[0x80])() =
+CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpGeneral[0x80] =
 {
 	//0x00
-	LQ,				SQ,				Illegal,		Illegal,		ILW,			ISW,			Illegal,		Illegal,
+	&LQ,			&SQ,			&Illegal,		&Illegal,		&ILW,			&ISW,			&Illegal,		&Illegal,
 	//0x08
-	IADDIU,			ISUBIU,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&IADDIU,		&ISUBIU,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		FCSET,			FCAND,			FCOR,		    Illegal,		Illegal,		FSAND,		    Illegal,
+	&Illegal,		&FCSET,			&FCAND,			&FCOR,		    &Illegal,		&Illegal,		&FSAND,		    &Illegal,
 	//0x18
-	Illegal,		Illegal,		FMAND,			Illegal,		FCGET,		    Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&FMAND,			&Illegal,		&FCGET,		    &Illegal,		&Illegal,		&Illegal,
 	//0x20
-	B,				BAL,		    Illegal,		Illegal,		JR,     		JALR,			Illegal,		Illegal,
+	&B,				&BAL,		    &Illegal,		&Illegal,		&JR,     		&JALR,			&Illegal,		&Illegal,
 	//0x28
-	IBEQ,			IBNE,			Illegal,		Illegal,		IBLTZ,			IBGTZ,			IBLEZ,			IBGEZ,
+	&IBEQ,			&IBNE,			&Illegal,		&Illegal,		&IBLTZ,			&IBGTZ,			&IBLEZ,			&IBGEZ,
 	//0x30
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x38
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x40
-	LOWEROP,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&LOWEROP,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x48
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x50
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x58
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x60
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x68
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x70
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x78
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CMA_VU::CLower::m_pOpLower[0x40])() =
+CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpLower[0x40] =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x20
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x28
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x30
-	IADD,			ISUB,			IADDI,			Illegal,		IAND,			IOR,			Illegal,		Illegal,
+	&IADD,			&ISUB,			&IADDI,			&Illegal,		&IAND,			&IOR,			&Illegal,		&Illegal,
 	//0x38
-	Illegal,		Illegal,		Illegal,		Illegal,		VECTOR0,		VECTOR1,		VECTOR2,		VECTOR3,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&VECTOR0,		&VECTOR1,		&VECTOR2,		&VECTOR3,
 };
 
-void (*CMA_VU::CLower::m_pOpVector0[0x20])() =
+CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector0[0x20] =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		MOVE,			LQI,			DIV,			MTIR,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&MOVE,			&LQI,			&DIV,			&MTIR,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		MFP,			XTOP,			XGKICK,			Illegal,		Illegal,		Illegal,		ESIN,
+	&Illegal,		&MFP,			&XTOP,			&XGKICK,		&Illegal,		&Illegal,		&Illegal,		&ESIN,
 };
 
-void (*CMA_VU::CLower::m_pOpVector1[0x20])() =
+CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		MR32,			SQI,			Illegal,		MFIR,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&MR32,			&SQI,			&Illegal,		&MFIR,
 	//0x10
-	RGET,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&RGET,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		XITOP,	    	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&XITOP,	    	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CMA_VU::CLower::m_pOpVector2[0x20])() =
+CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector2[0x20] =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		RSQRT,		    ILWR,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&RSQRT,		    &ILWR,
 	//0x10
-	RINIT,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&RINIT,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		ERCPR,			Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&ERCPR,			&Illegal,
 };
 
-void (*CMA_VU::CLower::m_pOpVector3[0x20])() =
+CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		WAITQ,			Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&WAITQ,			&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		ERLENG,			Illegal,		WAITP,		    Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&ERLENG,		&Illegal,		&WAITP,		    &Illegal,
 };

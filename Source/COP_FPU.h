@@ -8,7 +8,7 @@ class CCOP_FPU : public CMIPSCoprocessor
 {
 public:
 										CCOP_FPU(MIPS_REGSIZE);
-	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
+	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*);
 	virtual void						GetInstruction(uint32, char*);
 	virtual void						GetArguments(uint32, uint32, char*);
 	virtual uint32						GetEffectiveAddress(uint32, uint32);
@@ -42,57 +42,59 @@ protected:
 	MIPSReflection::SUBTABLE			m_ReflWTable;
 
 private:
-	static uint8						m_nFT;
-	static uint8						m_nFS;
-	static uint8						m_nFD;
+	typedef void (CCOP_FPU::*InstructionFuncConstant)();
+
+	uint8						        m_nFT;
+	uint8						        m_nFS;
+	uint8						        m_nFD;
 
 	static uint32						m_nCCMask[8];
 
-	static void							SetCCBit(bool, uint32);
-	static void							TestCCBit(uint32);
+	void							    SetCCBit(bool, uint32);
+	void							    TestCCBit(uint32);
 
-	static void							(*m_pOpGeneral[0x20])();
-	static void							(*m_pOpSingle[0x40])();
-	static void							(*m_pOpWord[0x40])();
+	static InstructionFuncConstant      m_pOpGeneral[0x20];
+	static InstructionFuncConstant      m_pOpSingle[0x40];
+	static InstructionFuncConstant      m_pOpWord[0x40];
 
 	//General
-	static void							MFC1();
-	static void							MTC1();
-	static void							CTC1();
-	static void							BC1();
-	static void							S();
-	static void							W();
+	void							    MFC1();
+	void							    MTC1();
+	void							    CTC1();
+	void							    BC1();
+	void							    S();
+	void							    W();
 
 	//Branch
-	static void							BC1F();
-	static void							BC1T();
-	static void							BC1FL();
-	static void							BC1TL();
+	void							    BC1F();
+	void							    BC1T();
+	void							    BC1FL();
+	void							    BC1TL();
 
 	//Single
-	static void							ADD_S();
-	static void							SUB_S();
-	static void							MUL_S();
-	static void							DIV_S();
-	static void							SQRT_S();
-	static void							ABS_S();
-	static void							MOV_S();
-	static void							NEG_S();
-	static void							ADDA_S();
-	static void							MULA_S();
-	static void							MADD_S();
-	static void							MSUB_S();
-	static void							CVT_W_S();
-	static void							C_EQ_S();
-	static void							C_LT_S();
-	static void							C_LE_S();
+	void							    ADD_S();
+	void							    SUB_S();
+	void							    MUL_S();
+	void							    DIV_S();
+	void							    SQRT_S();
+	void							    ABS_S();
+	void							    MOV_S();
+	void							    NEG_S();
+	void							    ADDA_S();
+	void							    MULA_S();
+	void							    MADD_S();
+	void							    MSUB_S();
+	void							    CVT_W_S();
+	void							    C_EQ_S();
+	void							    C_LT_S();
+	void							    C_LE_S();
 
 	//Word
-	static void							CVT_S_W();
+	void							    CVT_S_W();
 
 	//Misc
-	static void							LWC1();
-	static void							SWC1();
+	void							    LWC1();
+	void							    SWC1();
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
@@ -101,7 +103,5 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflS[64];
 	static MIPSReflection::INSTRUCTION	m_cReflW[64];
 };
-
-extern CCOP_FPU g_COPFPU;
 
 #endif

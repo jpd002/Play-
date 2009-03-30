@@ -18,6 +18,10 @@
 #include "VirtualMachine.h"
 #include "MipsExecutor.h"
 #include "MA_VU.h"
+#include "MA_EE.h"
+#include "COP_SCU.h"
+#include "COP_FPU.h"
+#include "COP_VU.h"
 #include "iop/Iop_SubSystem.h"
 
 class CIopBios;
@@ -124,6 +128,7 @@ public:
     CTimer                      m_timer;
 	CPS2OS*                     m_os;
     CIopBios*                   m_iopOs;
+    Iop::CSubSystem::BiosPtr    m_iopOsPtr;
 
     CMIPS                       m_EE;
     CMIPS                       m_VU0;
@@ -177,6 +182,10 @@ private:
     bool                        m_nEnd;
     CMA_VU                      m_MAVU0;
     CMA_VU                      m_MAVU1;
+    CMA_EE                      m_EEArch;
+    CCOP_SCU                    m_COP_SCU;
+    CCOP_FPU                    m_COP_FPU;
+    CCOP_VU                     m_COP_VU;
     unsigned int                m_frameNumber;
     unsigned int                m_frameSkip;
     bool                        m_singleStepEe;

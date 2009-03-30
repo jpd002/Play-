@@ -8,14 +8,14 @@
 
 using namespace std;
 
-CMIPS*				CMIPSInstructionFactory::m_pCtx		= NULL;
-CCodeGen*           CMIPSInstructionFactory::m_codeGen  = NULL;
-uint32				CMIPSInstructionFactory::m_nAddress = 0;
-uint32				CMIPSInstructionFactory::m_nOpcode	= 0;
-
-CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
+CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize) :
+m_pCtx(NULL),
+m_codeGen(NULL),
+m_nAddress(0),
+m_nOpcode(0),
+m_regSize(nRegSize)
 {
-	assert(nRegSize == MIPS_REGSIZE_64);
+
 }
 
 CMIPSInstructionFactory::~CMIPSInstructionFactory()

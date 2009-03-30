@@ -12,7 +12,7 @@ class CMA_VU : public CMIPSArchitecture
 public:
 											CMA_VU(bool);
     virtual                                 ~CMA_VU();
-	virtual void							CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
+	virtual void							CompileInstruction(uint32, CCodeGen*, CMIPS*);
 	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual bool							IsInstructionBranch(CMIPS*, uint32, uint32);
@@ -21,90 +21,94 @@ public:
 private:
 	void									SetupReflectionTables();
 
-	class CUpper
+    class CUpper : public CMIPSInstructionFactory
 	{
 	public:
+                                            CUpper();
+
 		void								SetupReflectionTables();
-		void								CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
+		void								CompileInstruction(uint32, CCodeGen*, CMIPS*);
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 	
 	private:
-		static void							(*m_pOpVector[0x40])();
-		static void							(*m_pOpVector0[0x20])();
-		static void							(*m_pOpVector1[0x20])();
-		static void							(*m_pOpVector2[0x20])();
-		static void							(*m_pOpVector3[0x20])();
+    	typedef void (CUpper::*InstructionFuncConstant)();
 
-		static uint8						m_nFT;
-		static uint8						m_nFS;
-		static uint8						m_nFD;
-		static uint8						m_nBc;
-		static uint8						m_nDest;
+		static InstructionFuncConstant		m_pOpVector[0x40];
+		static InstructionFuncConstant		m_pOpVector0[0x20];
+		static InstructionFuncConstant		m_pOpVector1[0x20];
+		static InstructionFuncConstant		m_pOpVector2[0x20];
+		static InstructionFuncConstant		m_pOpVector3[0x20];
+
+		uint8						        m_nFT;
+		uint8						        m_nFS;
+		uint8						        m_nFD;
+		uint8						        m_nBc;
+		uint8						        m_nDest;
 
 		static void							ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
-		static void							LOI(uint32);
+		void							    LOI(uint32);
 
 		//Vector
-		static void							ADDbc();
-		static void							SUBbc();
-		static void							MADDbc();
-        static void                         MSUBbc();
-		static void							MAXbc();
-		static void							MINIbc();
-		static void							MULbc();
-		static void							MULq();
-		static void							MULi();
-		static void							MINIi();
-		static void							ADDq();
-        static void                         MADDq();
-		static void							ADDi();
-		static void							SUBi();
-		static void							MSUBi();
-		static void							ADD();
-		static void							MADD();
-		static void							MUL();
-		static void							MAX();
-		static void							SUB();
-		static void							OPMSUB();
-        static void                         MINI();
-		static void							VECTOR0();
-		static void							VECTOR1();
-		static void							VECTOR2();
-		static void							VECTOR3();
+		void							    ADDbc();
+		void							    SUBbc();
+		void							    MADDbc();
+        void                                MSUBbc();
+		void							    MAXbc();
+		void							    MINIbc();
+		void							    MULbc();
+		void							    MULq();
+		void							    MULi();
+		void							    MINIi();
+		void							    ADDq();
+        void                                MADDq();
+		void							    ADDi();
+		void							    SUBi();
+		void							    MSUBi();
+		void							    ADD();
+		void							    MADD();
+		void							    MUL();
+		void							    MAX();
+		void							    SUB();
+		void							    OPMSUB();
+        void                                MINI();
+		void							    VECTOR0();
+		void							    VECTOR1();
+		void							    VECTOR2();
+		void							    VECTOR3();
 
 		//Vector X Common
-		static void							ADDAbc();
-		static void							MADDAbc();
-        static void                         MSUBAbc();
-		static void							MULAbc();
+		void							    ADDAbc();
+		void							    MADDAbc();
+        void                                MSUBAbc();
+		void							    MULAbc();
 
 		//Vector 0
-		static void							ITOF0();
-		static void							FTOI0();
-        static void                         ADDA();
+		void							    ITOF0();
+		void							    FTOI0();
+        void                                ADDA();
 
 		//Vector 1
-        static void                         ITOF4();
-		static void							FTOI4();
-		static void							ABS();
-		static void							MADDA();
+        void                                ITOF4();
+		void							    FTOI4();
+		void							    ABS();
+		void							    MADDA();
 
 		//Vector 2
-        static void                         ITOF12();
-        static void                         FTOI12();
-		static void							MULAi();
-		static void							MULA();
-		static void							OPMULA();
+        void                                ITOF12();
+        void                                FTOI12();
+		void							    MULAi();
+		void							    MULA();
+		void							    OPMULA();
 
 		//Vector 3
-		static void							CLIP();
-		static void							MADDAi();
-		static void							MSUBAi();
-		static void							NOP();
+		void							    CLIP();
+		void							    MADDAi();
+		void							    MSUBAi();
+		void							    NOP();
 
 		MIPSReflection::INSTRUCTION			m_ReflV[64];
 		MIPSReflection::INSTRUCTION			m_ReflVX0[32];
@@ -125,14 +129,14 @@ private:
 		static MIPSReflection::INSTRUCTION	m_cReflVX3[32];
 	};
 
-	class CLower
+    class CLower : public CMIPSInstructionFactory
 	{
 	public:
                                             CLower(bool);
         virtual                             ~CLower();
 
 		void								SetupReflectionTables();
-		void								CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
+		void								CompileInstruction(uint32, CCodeGen*, CMIPS*);
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
@@ -142,30 +146,32 @@ private:
         static void                         SetQuadWord(uint32, CMIPS*, uint32, uint32);
 
 	private:
-		static void							(*m_pOpGeneral[0x80])();
-		static void							(*m_pOpLower[0x40])();
-		static void							(*m_pOpVector0[0x20])();
-		static void							(*m_pOpVector1[0x20])();
-		static void							(*m_pOpVector2[0x20])();
-		static void							(*m_pOpVector3[0x20])();
+    	typedef void (CLower::*InstructionFuncConstant)();
 
-		static uint8						m_nIT;
-		static uint8						m_nIS;
-		static uint8						m_nID;
-		static uint8						m_nFSF;
-		static uint8						m_nFTF;
-		static uint8						m_nDest;
-		static uint8						m_nImm5;
-		static uint16						m_nImm11;
-        static uint16                       m_nImm12;
-		static uint16						m_nImm15;
-		static uint16						m_nImm15S;
-		static uint32						m_nImm24;
+		static InstructionFuncConstant      m_pOpGeneral[0x80];
+		static InstructionFuncConstant      m_pOpLower[0x40];
+		static InstructionFuncConstant      m_pOpVector0[0x20];
+		static InstructionFuncConstant      m_pOpVector1[0x20];
+		static InstructionFuncConstant      m_pOpVector2[0x20];
+		static InstructionFuncConstant      m_pOpVector3[0x20];
 
-		static uint32						GetDestOffset(uint8);
-		static void							SetBranchAddress(bool, int32);
-		static void							PushIntegerRegister(unsigned int);
-        static void                         ComputeMemAccessAddr(unsigned int, uint32, uint32);
+		uint8						        m_nIT;
+		uint8						        m_nIS;
+		uint8						        m_nID;
+		uint8						        m_nFSF;
+		uint8						        m_nFTF;
+		uint8						        m_nDest;
+		uint8						        m_nImm5;
+		uint16						        m_nImm11;
+        uint16                              m_nImm12;
+		uint16						        m_nImm15;
+		uint16						        m_nImm15S;
+		uint32						        m_nImm24;
+
+		uint32						        GetDestOffset(uint8);
+		void							    SetBranchAddress(bool, int32);
+		void							    PushIntegerRegister(unsigned int);
+        void                                ComputeMemAccessAddr(unsigned int, uint32, uint32);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -198,68 +204,68 @@ private:
 		static uint32						ReflEaIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
 
 		//General
-		static void							LQ();
-		static void							SQ();
-		static void							ILW();
-		static void							ISW();
-		static void							IADDIU();
-		static void							ISUBIU();
-		static void							FCSET();
-		static void							FCAND();
-        static void                         FCOR();
-        static void                         FSAND();
-		static void							FMAND();
-        static void                         FCGET();
-		static void							B();
-        static void                         BAL();
-        static void                         JR();
-		static void							JALR();
-		static void							IBEQ();
-		static void							IBNE();
-		static void							IBLTZ();
-		static void							IBGTZ();
-		static void							IBLEZ();
-		static void							IBGEZ();
-		static void							LOWEROP();
+		void							    LQ();
+		void							    SQ();
+		void							    ILW();
+		void							    ISW();
+		void							    IADDIU();
+		void							    ISUBIU();
+		void							    FCSET();
+		void							    FCAND();
+        void                                FCOR();
+        void                                FSAND();
+		void							    FMAND();
+        void                                FCGET();
+		void							    B();
+        void                                BAL();
+        void                                JR();
+		void							    JALR();
+		void							    IBEQ();
+		void							    IBNE();
+		void							    IBLTZ();
+		void							    IBGTZ();
+		void							    IBLEZ();
+		void							    IBGEZ();
+		void							    LOWEROP();
 
 		//LowerOp
-		static void							IADD();
-		static void							ISUB();
-		static void							IADDI();
-		static void							IAND();
-		static void							IOR();
-		static void							VECTOR0();
-		static void							VECTOR1();
-		static void							VECTOR2();
-		static void							VECTOR3();
+		void							    IADD();
+		void							    ISUB();
+		void							    IADDI();
+		void							    IAND();
+		void							    IOR();
+		void							    VECTOR0();
+		void							    VECTOR1();
+		void							    VECTOR2();
+		void							    VECTOR3();
 
 		//Vector0
-		static void							MOVE();
-		static void							LQI();
-		static void							DIV();
-		static void							MTIR();
-		static void							MFP();
-		static void							XTOP();
-		static void							XGKICK();
-        static void                         ESIN();
+		void							    MOVE();
+		void							    LQI();
+		void							    DIV();
+		void							    MTIR();
+		void							    MFP();
+		void							    XTOP();
+		void							    XGKICK();
+        void                                ESIN();
 
 		//Vector1
-		static void							MR32();
-		static void							SQI();
-		static void							MFIR();
-		static void							RGET();
-        static void                         XITOP();
+		void							    MR32();
+		void							    SQI();
+		void							    MFIR();
+		void							    RGET();
+        void                                XITOP();
 
 		//Vector2
-        static void                         RSQRT();
-		static void							ILWR();
-		static void							RINIT();
-		static void							ERCPR();
+        void                                RSQRT();
+		void							    ILWR();
+		void							    RINIT();
+		void							    ERCPR();
 
 		//Vector3
-		static void							WAITQ();
-		static void							ERLENG();
-        static void                         WAITP();
+		void							    WAITQ();
+		void							    ERLENG();
+        void                                WAITP();
 
 		MIPSReflection::INSTRUCTION			m_ReflGeneral[128];
 		MIPSReflection::INSTRUCTION			m_ReflV[64];
@@ -287,11 +293,6 @@ private:
 
 	CUpper									m_Upper;
 	CLower									m_Lower;
-
-    static CCodeGen*                        m_codeGen;
-    static CMIPS*                           m_pCtx;
-    static uint32                           m_nOpcode;
-    static uint32                           m_nAddress;
 };
 
 #endif

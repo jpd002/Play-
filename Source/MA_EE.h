@@ -7,15 +7,17 @@ class CMA_EE : public CMA_MIPSIV
 {
 public:
 										CMA_EE();
-										~CMA_EE();
+	virtual                             ~CMA_EE();
 
 protected:
+	typedef void (CMA_EE::*InstructionFuncConstant)();
+
 	void								SetupReflectionTables();
 
-	static void							(*m_pOpMmi0[0x20])();
-	static void							(*m_pOpMmi1[0x20])();
-	static void							(*m_pOpMmi2[0x20])();
-	static void							(*m_pOpMmi3[0x20])();
+	static InstructionFuncConstant      m_pOpMmi0[0x20];
+	static InstructionFuncConstant      m_pOpMmi1[0x20];
+	static InstructionFuncConstant      m_pOpMmi2[0x20];
+	static InstructionFuncConstant      m_pOpMmi3[0x20];
 
 	static void							ReflOpRdRt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRsImm(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -34,73 +36,73 @@ protected:
 
 private:
 
-	static void							PushVector(unsigned int);
-	static void							PullVector(unsigned int);
+	void							    PushVector(unsigned int);
+	void							    PullVector(unsigned int);
 
 	//General
-	static void							LQ();
-	static void							SQ();
+	void							    LQ();
+	void							    SQ();
 
 	//Special
-	static void							REEXCPT();
+	void							    REEXCPT();
 
 	//RegImm
-	static void							MTSAB();
-	static void							MTSAH();
+	void							    MTSAB();
+	void							    MTSAH();
 
 	//Special2
-	static void							MADD();
-	static void							PLZCW();
-	static void							MMI0();
-	static void							MMI2();
-	static void							MFHI1();
-	static void							MTHI1();
-	static void							MFLO1();
-	static void							MTLO1();
-	static void							MULT1();
-	static void							MULTU1();
-	static void							DIV1();
-	static void							DIVU1();
-	static void							MMI1();
-	static void							MMI3();
-	static void							PSLLH();
-	static void							PSRLH();
-	static void							PSRAH();
-    static void                         PSRAW();
+	void							    MADD();
+	void							    PLZCW();
+	void							    MMI0();
+	void							    MMI2();
+	void							    MFHI1();
+	void							    MTHI1();
+	void							    MFLO1();
+	void							    MTLO1();
+	void							    MULT1();
+	void							    MULTU1();
+	void							    DIV1();
+	void							    DIVU1();
+	void							    MMI1();
+	void							    MMI3();
+	void							    PSLLH();
+	void							    PSRLH();
+	void							    PSRAH();
+    void                                PSRAW();
 
 	//Mmi0
-	static void							PSUBW();
-	static void							PADDH();
-	static void							PCGTH();
-	static void							PMAXH();
-	static void							PSUBB();
-	static void							PADDSW();
-	static void							PEXTLW();
-	static void							PEXTLH();
-	static void							PPACH();
-	static void							PEXTLB();
-	static void							PPACB();
-	static void							PEXT5();
+	void							    PSUBW();
+	void							    PADDH();
+	void							    PCGTH();
+	void							    PMAXH();
+	void							    PSUBB();
+	void							    PADDSW();
+	void							    PEXTLW();
+	void							    PEXTLH();
+	void							    PPACH();
+	void							    PEXTLB();
+	void							    PPACB();
+	void							    PEXT5();
 
 	//Mmi1
-	static void							PCEQW();
-	static void							PMINH();
-	static void							PADDUW();
-	static void							PEXTUW();
-	static void							PEXTUB();
-	static void							QFSRV();
+	void							    PCEQW();
+	void							    PMINH();
+	void							    PADDUW();
+	void							    PEXTUW();
+	void							    PEXTUB();
+	void							    QFSRV();
 
 	//Mmi2
-	static void							PCPYLD();
-	static void							PAND();
-	static void							PXOR();
-    static void                         PROT3W();
+	void							    PCPYLD();
+	void							    PAND();
+	void							    PXOR();
+    void                                PROT3W();
 
 	//Mmi3
-	static void							PCPYUD();
-	static void							POR();
-	static void							PNOR();
-	static void							PCPYH();
+	void							    PCPYUD();
+	void							    POR();
+	void							    PNOR();
+	void							    PCPYH();
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflMmi[64];
@@ -109,7 +111,5 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflMmi2[32];
 	static MIPSReflection::INSTRUCTION	m_cReflMmi3[32];
 };
-
-extern CMA_EE g_MAEE;
 
 #endif

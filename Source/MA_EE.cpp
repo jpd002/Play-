@@ -9,38 +9,36 @@
 using namespace std;
 using namespace std::tr1;
 
-CMA_EE g_MAEE;
-
 CMA_EE::CMA_EE() :
 CMA_MIPSIV(MIPS_REGSIZE_64)
 {
-	m_pOpGeneral[0x1E] = LQ;
-	m_pOpGeneral[0x1F] = SQ;
+    m_pOpGeneral[0x1E] = bind(&CMA_EE::LQ, this);
+    m_pOpGeneral[0x1F] = bind(&CMA_EE::SQ, this);
 
 	//OS special instructions
-	m_pOpSpecial[0x1D] = REEXCPT;
+    m_pOpSpecial[0x1D] = bind(&CMA_EE::REEXCPT, this);
 
-	m_pOpRegImm[0x18] = MTSAB;
-	m_pOpRegImm[0x19] = MTSAH;
+    m_pOpRegImm[0x18] = bind(&CMA_EE::MTSAB, this);
+    m_pOpRegImm[0x19] = bind(&CMA_EE::MTSAH, this);
 
-	m_pOpSpecial2[0x00] = MADD;
-	m_pOpSpecial2[0x04] = PLZCW;
-	m_pOpSpecial2[0x08] = MMI0;
-	m_pOpSpecial2[0x09] = MMI2;
-	m_pOpSpecial2[0x10] = MFHI1;
-	m_pOpSpecial2[0x11] = MTHI1;
-	m_pOpSpecial2[0x12] = MFLO1;
-	m_pOpSpecial2[0x13] = MTLO1;
-	m_pOpSpecial2[0x18] = MULT1;
-	m_pOpSpecial2[0x19] = MULTU1;
-	m_pOpSpecial2[0x1A] = DIV1;
-	m_pOpSpecial2[0x1B] = DIVU1;
-	m_pOpSpecial2[0x28] = MMI1;
-	m_pOpSpecial2[0x29] = MMI3;
-	m_pOpSpecial2[0x34] = PSLLH;
-	m_pOpSpecial2[0x36] = PSRLH;
-	m_pOpSpecial2[0x37] = PSRAH;
-    m_pOpSpecial2[0x3F] = PSRAW;
+	m_pOpSpecial2[0x00] = bind(&CMA_EE::MADD, this);
+	m_pOpSpecial2[0x04] = bind(&CMA_EE::PLZCW, this);
+	m_pOpSpecial2[0x08] = bind(&CMA_EE::MMI0, this);
+	m_pOpSpecial2[0x09] = bind(&CMA_EE::MMI2, this);
+	m_pOpSpecial2[0x10] = bind(&CMA_EE::MFHI1, this);
+	m_pOpSpecial2[0x11] = bind(&CMA_EE::MTHI1, this);
+	m_pOpSpecial2[0x12] = bind(&CMA_EE::MFLO1, this);
+	m_pOpSpecial2[0x13] = bind(&CMA_EE::MTLO1, this);
+	m_pOpSpecial2[0x18] = bind(&CMA_EE::MULT1, this);
+	m_pOpSpecial2[0x19] = bind(&CMA_EE::MULTU1, this);
+	m_pOpSpecial2[0x1A] = bind(&CMA_EE::DIV1, this);
+	m_pOpSpecial2[0x1B] = bind(&CMA_EE::DIVU1, this);
+	m_pOpSpecial2[0x28] = bind(&CMA_EE::MMI1, this);
+	m_pOpSpecial2[0x29] = bind(&CMA_EE::MMI3, this);
+	m_pOpSpecial2[0x34] = bind(&CMA_EE::PSLLH, this);
+	m_pOpSpecial2[0x36] = bind(&CMA_EE::PSRLH, this);
+	m_pOpSpecial2[0x37] = bind(&CMA_EE::PSRAH, this);
+    m_pOpSpecial2[0x3F] = bind(&CMA_EE::PSRAW, this);
 
 	SetupReflectionTables();
 }
@@ -222,13 +220,13 @@ void CMA_EE::PLZCW()
 //08
 void CMA_EE::MMI0()
 {
-	m_pOpMmi0[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpMmi0[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //09
 void CMA_EE::MMI2()
 {
-	m_pOpMmi2[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpMmi2[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //10
@@ -274,37 +272,37 @@ void CMA_EE::MTLO1()
 //18
 void CMA_EE::MULT1()
 {
-    Template_Mult32()(bind(&CCodeGen::MultS, m_codeGen), 1);
+    Template_Mult32(bind(&CCodeGen::MultS, m_codeGen), 1);
 }
 
 //19
 void CMA_EE::MULTU1()
 {
-    Template_Mult32()(bind(&CCodeGen::Mult, m_codeGen), 1);
+    Template_Mult32(bind(&CCodeGen::Mult, m_codeGen), 1);
 }
 
 //1A
 void CMA_EE::DIV1()
 {
-    Template_Div32()(bind(&CCodeGen::DivS, m_codeGen), 1);
+    Template_Div32(bind(&CCodeGen::DivS, m_codeGen), 1);
 }
 
 //1B
 void CMA_EE::DIVU1()
 {
-    Template_Div32()(bind(&CCodeGen::Div, m_codeGen), 1);
+    Template_Div32(bind(&CCodeGen::Div, m_codeGen), 1);
 }
 
 //28
 void CMA_EE::MMI1()
 {
-	m_pOpMmi1[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpMmi1[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //29
 void CMA_EE::MMI3()
 {
-	m_pOpMmi3[(m_nOpcode >> 6) & 0x1F]();
+	((this)->*(m_pOpMmi3[(m_nOpcode >> 6) & 0x1F]))();
 }
 
 //34
@@ -656,50 +654,50 @@ void CMA_EE::PCPYH()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-void (*CMA_EE::m_pOpMmi0[0x20])() = 
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
 {
 	//0x00
-	Illegal,		PSUBW,			Illegal,		Illegal,		PADDH,			Illegal,		PCGTH,			PMAXH,
+	&Illegal,		&PSUBW,			&Illegal,		&Illegal,		&PADDH,			&Illegal,		&PCGTH,			&PMAXH,
 	//0x08
-	Illegal,		PSUBB,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&PSUBB,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	PADDSW,			Illegal,		PEXTLW,			Illegal,		Illegal,		Illegal,		PEXTLH,			PPACH,
+	&PADDSW,		&Illegal,		&PEXTLW,		&Illegal,		&Illegal,		&Illegal,		&PEXTLH,		&PPACH,
 	//0x18
-	Illegal,		Illegal,		PEXTLB,			PPACB,			Illegal,		Illegal,		PEXT5,			Illegal,
+	&Illegal,		&Illegal,		&PEXTLB,		&PPACB,			&Illegal,		&Illegal,		&PEXT5,			&Illegal,
 };
 
-void (*CMA_EE::m_pOpMmi1[0x20])() = 
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 
 {
 	//0x00
-	Illegal,		Illegal,		PCEQW,			Illegal,		Illegal,		Illegal,		Illegal,		PMINH,
+	&Illegal,		&Illegal,		&PCEQW,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PMINH,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	PADDUW,			Illegal,		PEXTUW,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&PADDUW,		&Illegal,		&PEXTUW,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		PEXTUB,			QFSRV,			Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&PEXTUB,		&QFSRV,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CMA_EE::m_pOpMmi2[0x20])() = 
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] = 
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		PCPYLD,			Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PCPYLD,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		PAND,			PXOR,			Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&PAND,			&PXOR,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		PROT3W,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PROT3W,
 };
 
-void (*CMA_EE::m_pOpMmi3[0x20])() = 
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		PCPYUD,			Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PCPYUD,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		POR,			PNOR,			Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&POR,			&PNOR,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		PCPYH,			Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&PCPYH,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };

@@ -6,9 +6,6 @@
 #include "CodeGen.h"
 #include "offsetof_def.h"
 
-uint8		CCOP_SCU::m_nRT;
-uint8		CCOP_SCU::m_nRD;
-
 char*		CCOP_SCU::m_sRegName[] = 
 {
 	"Index",
@@ -45,25 +42,22 @@ char*		CCOP_SCU::m_sRegName[] =
 	"*RESERVED*"
 };
 
-CCOP_SCU			g_COPSCU(MIPS_REGSIZE_64);
-
 CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize) :
-CMIPSCoprocessor(nRegSize)
+CMIPSCoprocessor(nRegSize),
+m_nRT(0),
+m_nRD(0)
 {
 
 }
 
-void CCOP_SCU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx, bool nParent)
+void CCOP_SCU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
 {
-	if(nParent)
-	{
-		SetupQuickVariables(nAddress, codeGen, pCtx);
-	}
+	SetupQuickVariables(nAddress, codeGen, pCtx);
 
 	m_nRT	= (uint8)((m_nOpcode >> 16) & 0x1F);
 	m_nRD	= (uint8)((m_nOpcode >> 11) & 0x1F);
 
-	m_pOpGeneral[(m_nOpcode >> 21) & 0x1F]();
+	((this)->*(m_pOpGeneral[(m_nOpcode >> 21) & 0x1F]))();
 }
 
 //////////////////////////////////////////////////
@@ -89,7 +83,7 @@ void CCOP_SCU::MTC0()
 //10
 void CCOP_SCU::CO()
 {
-	m_pOpCO[(m_nOpcode & 0x3F)]();
+	((this)->*(m_pOpCO[(m_nOpcode & 0x3F)]))();
 }
 
 //////////////////////////////////////////////////
@@ -158,36 +152,36 @@ void CCOP_SCU::DI()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-void (*CCOP_SCU::m_pOpGeneral[0x20])() = 
+CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpGeneral[0x20] = 
 {
 	//0x00
-	MFC0,			Illegal,		Illegal,		Illegal,		MTC0,			Illegal,		Illegal,		Illegal,
+	&MFC0,			&Illegal,		&Illegal,		&Illegal,		&MTC0,			&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	CO,				Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&CO,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-void (*CCOP_SCU::m_pOpCO[0x40])() =
+CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpCO[0x40] =
 {
 	//0x00
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
-	ERET,			Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&ERET,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x20
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x28
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x30
-	Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x38
-	EI,				DI,				Illegal,		Illegal,		Illegal,		Illegal,		Illegal,		Illegal,
+	&EI,			&DI,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
 void CCOP_SCU::GetInstruction(uint32 nOpcode, char* sText)

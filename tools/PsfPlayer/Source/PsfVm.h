@@ -31,7 +31,7 @@ public:
 	Iop::CSpuBase&		GetSpuCore(unsigned int);
     uint8*              GetRam();
 
-	void                SetBios(Iop::CBiosBase*);
+    void                SetBios(const Iop::CSubSystem::BiosPtr&);
 
     CDebuggable         GetDebugInfo();
 

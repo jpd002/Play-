@@ -10,10 +10,6 @@
 #include "iop/Iop_SifManPs2.h"
 #include "VIF.h"
 #include "Timer.h"
-#include "MA_EE.h"
-#include "COP_SCU.h"
-#include "COP_FPU.h"
-#include "COP_VU.h"
 #include "PtrMacro.h"
 #include "StdStream.h"
 #include "GZipStream.h"
@@ -101,6 +97,9 @@ m_sif(m_dmac, m_pRAM, m_iop.m_ram),
 m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
 m_intc(m_dmac),
 m_timer(m_intc),
+m_COP_SCU(MIPS_REGSIZE_64),
+m_COP_FPU(MIPS_REGSIZE_64),
+m_COP_VU(MIPS_REGSIZE_64),
 m_MAVU0(false),
 m_MAVU1(true)
 {
@@ -109,14 +108,20 @@ m_MAVU1(true)
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
     CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
-    m_iopOs = new CIopBios(PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE);
+    m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
+    m_iopOs = static_cast<CIopBios*>(m_iopOsPtr.get());
     m_os = new CPS2OS(m_EE, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
 }
 
 CPS2VM::~CPS2VM()
 {
     delete m_os;
-    delete m_iopOs;
+    {
+        //Big hack to force deletion of the IopBios
+        m_iop.SetBios(Iop::CSubSystem::BiosPtr());
+        m_iopOs = NULL;
+        m_iopOsPtr.reset();
+    }
 }
 
 //////////////////////////////////////////////////
@@ -359,10 +364,10 @@ void CPS2VM::CreateVM()
         m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
 	    m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				                    0x01);
 
-	    m_EE.m_pArch			= &g_MAEE;
-	    m_EE.m_pCOP[0]			= &g_COPSCU;
-	    m_EE.m_pCOP[1]			= &g_COPFPU;
-	    m_EE.m_pCOP[2]			= &g_COPVU;
+	    m_EE.m_pArch			= &m_EEArch;
+	    m_EE.m_pCOP[0]			= &m_COP_SCU;
+	    m_EE.m_pCOP[1]			= &m_COP_FPU;
+	    m_EE.m_pCOP[2]			= &m_COP_VU;
 
         m_EE.m_handlerParam     = this;
         m_EE.m_pAddrTranslator	= CPS2OS::TranslateAddress;
@@ -444,7 +449,7 @@ void CPS2VM::ResetVM()
     memset(m_pMicroMem1,	0, PS2::MICROMEM1SIZE);
 
     m_iop.Reset();
-    m_iop.SetBios(m_iopOs);
+    m_iop.SetBios(m_iopOsPtr);
 
 	//LoadBIOS();
 

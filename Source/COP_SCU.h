@@ -14,7 +14,7 @@ public:
 	};
 
 						CCOP_SCU(MIPS_REGSIZE);
-	virtual void		CompileInstruction(uint32, CCodeGen*, CMIPS*, bool);
+	virtual void		CompileInstruction(uint32, CCodeGen*, CMIPS*);
 	virtual void		GetInstruction(uint32, char*);
 	virtual void		GetArguments(uint32, uint32, char*);
 	virtual uint32		GetEffectiveAddress(uint32, uint32);
@@ -23,24 +23,23 @@ public:
 	static char*		m_sRegName[];
 
 private:
+	typedef void (CCOP_SCU::*InstructionFuncConstant)();
 
-	static void			(*m_pOpGeneral[0x20])();
-	static void			(*m_pOpCO[0x40])();
+	static InstructionFuncConstant	m_pOpGeneral[0x20];
+	static InstructionFuncConstant  m_pOpCO[0x40];
 
-	static uint8		m_nRT;
-	static uint8		m_nRD;
+	uint8		    m_nRT;
+	uint8           m_nRD;
 
 	//General
-	static void			MFC0();
-	static void			MTC0();
-	static void			CO();
+	void			MFC0();
+	void			MTC0();
+	void			CO();
 
 	//CO
-	static void			ERET();
-	static void			EI();
-	static void			DI();
+	void			ERET();
+	void			EI();
+	void			DI();
 };
-
-extern CCOP_SCU g_COPSCU;
 
 #endif
