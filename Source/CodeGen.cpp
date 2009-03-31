@@ -1274,35 +1274,23 @@ void CCodeGen::Cmp(CONDITION nCondition)
 
         Cmp(nCondition);
 	}
-/*
-	else if((m_Shadow.GetAt(2) == REGISTER) && (m_Shadow.GetAt(0) == CONSTANT))
+	else if(FitsPattern<ConstantConstant>())
 	{
-		uint32 nConstant;
-		unsigned int nRegister;
+		ConstantConstant::PatternValue ops = GetPattern<ConstantConstant>();
+		bool result = false;
 
-		m_Shadow.Pull();
-		nConstant = m_Shadow.Pull();
-		m_Shadow.Pull();
-		nRegister = m_Shadow.Pull();
-
-		if(GetMinimumConstantSize(nConstant) == 1)
+		switch(nCondition)
 		{
-			//cmp reg, Immediate
-			m_pBlock->StreamWrite(3, 0x83, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]), (uint8)nConstant);
-		}
-		else
-		{
-			//cmp reg, Immediate
-			m_pBlock->StreamWrite(2, 0x81, 0xC0 | (0x07 << 3) | (m_nRegisterLookup[nRegister]));
-			m_pBlock->StreamWriteWord(nConstant);
+		case CONDITION_BL:
+			result = (uint32)ops.first < (uint32)ops.second;
+			break;
+		default:
+			throw exception();
+			break;
 		}
 
-		LoadConditionInRegister(nRegister, nCondition);
-
-		m_Shadow.Push(nRegister);
-		m_Shadow.Push(REGISTER);
+		PushCst(result);
 	}
-*/
 	else
 	{
         throw exception();
