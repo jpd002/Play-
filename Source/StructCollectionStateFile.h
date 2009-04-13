@@ -9,8 +9,8 @@
 class CStructCollectionStateFile : public CZipFile
 {
 public:
-    typedef std::map<std::string, CStructFile> StructMap;
-    typedef StructMap::const_iterator StructIterator;
+    typedef std::map<std::string, CStructFile> StructMap;	
+    typedef StructMap::const_iterator StructIterator;	
 
                         CStructCollectionStateFile(const char*);
                         CStructCollectionStateFile(Framework::CStream&);
@@ -24,8 +24,6 @@ public:
     StructIterator      GetStructEnd() const;
 
 private:
-    typedef std::map<std::string, CStructFile> StructMap;
-
     StructMap           m_structs;
 };
 
