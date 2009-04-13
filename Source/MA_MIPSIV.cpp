@@ -957,16 +957,26 @@ void CMA_MIPSIV::SUBU()
 //24
 void CMA_MIPSIV::AND()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->And64();
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	if(m_regSize == MIPS_REGSIZE_32)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->And();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+		
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		
+		m_codeGen->And64();
+		
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
 }
 
 //25
@@ -1170,51 +1180,51 @@ void CMA_MIPSIV::BGEZL()
 CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpGeneral[MAX_GENERAL_OPS] =
 {
 	//0x00
-	&SPECIAL,		&REGIMM,		&J,				&JAL,			&BEQ,			&BNE,			&BLEZ,			&BGTZ,
+	&CMA_MIPSIV::SPECIAL,		&CMA_MIPSIV::REGIMM,		&CMA_MIPSIV::J,				&CMA_MIPSIV::JAL,			&CMA_MIPSIV::BEQ,			&CMA_MIPSIV::BNE,			&CMA_MIPSIV::BLEZ,			&CMA_MIPSIV::BGTZ,
 	//0x08
-	&ADDI,			&ADDIU,			&SLTI,			&SLTIU,			&ANDI,			&ORI,			&XORI,			&LUI,
+	&CMA_MIPSIV::ADDI,			&CMA_MIPSIV::ADDIU,			&CMA_MIPSIV::SLTI,			&CMA_MIPSIV::SLTIU,			&CMA_MIPSIV::ANDI,			&CMA_MIPSIV::ORI,			&CMA_MIPSIV::XORI,			&CMA_MIPSIV::LUI,
 	//0x10
-	&COP0,			&COP1,			&COP2,			&Illegal,		&BEQL,			&BNEL,			&BLEZL,			&BGTZL,
+	&CMA_MIPSIV::COP0,			&CMA_MIPSIV::COP1,			&CMA_MIPSIV::COP2,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::BEQL,			&CMA_MIPSIV::BNEL,			&CMA_MIPSIV::BLEZL,			&CMA_MIPSIV::BGTZL,
 	//0x18
-	&Illegal,		&DADDIU,		&LDL,			&LDR,			&SPECIAL2,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DADDIU,		&CMA_MIPSIV::LDL,			&CMA_MIPSIV::LDR,			&CMA_MIPSIV::SPECIAL2,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x20
-	&LB,			&LH,			&LWL,			&LW,			&LBU,			&LHU,			&LWR,			&LWU,
+	&CMA_MIPSIV::LB,			&CMA_MIPSIV::LH,			&CMA_MIPSIV::LWL,			&CMA_MIPSIV::LW,			&CMA_MIPSIV::LBU,			&CMA_MIPSIV::LHU,			&CMA_MIPSIV::LWR,			&CMA_MIPSIV::LWU,
 	//0x28
-	&SB,			&SH,			&SWL,			&SW,			&SDL,			&SDR,			&SWR,			&CACHE,
+	&CMA_MIPSIV::SB,			&CMA_MIPSIV::SH,			&CMA_MIPSIV::SWL,			&CMA_MIPSIV::SW,			&CMA_MIPSIV::SDL,			&CMA_MIPSIV::SDR,			&CMA_MIPSIV::SWR,			&CMA_MIPSIV::CACHE,
 	//0x30
-	&Illegal,		&LWC1,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&LDC2,			&LD,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::LWC1,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::LDC2,			&CMA_MIPSIV::LD,
 	//0x38
-	&Illegal,		&SWC1,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&SDC2,			&SD,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SWC1,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SDC2,			&CMA_MIPSIV::SD,
 };
 
 CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpSpecial[MAX_SPECIAL_OPS] = 
 {
 	//0x00
-	&SLL,			&Illegal,		&SRL,			&SRA,			&SLLV,			&Illegal,		&SRLV,			&SRAV,
+	&CMA_MIPSIV::SLL,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SRL,			&CMA_MIPSIV::SRA,			&CMA_MIPSIV::SLLV,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SRLV,			&CMA_MIPSIV::SRAV,
 	//0x08
-	&JR,			&JALR,			&MOVZ,			&MOVN,			&SYSCALL,		&BREAK,	    	&Illegal,		&SYNC,
+	&CMA_MIPSIV::JR,			&CMA_MIPSIV::JALR,			&CMA_MIPSIV::MOVZ,			&CMA_MIPSIV::MOVN,			&CMA_MIPSIV::SYSCALL,		&CMA_MIPSIV::BREAK,	    	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SYNC,
 	//0x10
-	&MFHI,			&MTHI,			&MFLO,			&MTLO,			&DSLLV,			&Illegal,		&DSRLV,			&Illegal,
+	&CMA_MIPSIV::MFHI,			&CMA_MIPSIV::MTHI,			&CMA_MIPSIV::MFLO,			&CMA_MIPSIV::MTLO,			&CMA_MIPSIV::DSLLV,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSRLV,			&CMA_MIPSIV::Illegal,
 	//0x18
-	&MULT,			&MULTU,			&DIV,			&DIVU,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_MIPSIV::MULT,			&CMA_MIPSIV::MULTU,			&CMA_MIPSIV::DIV,			&CMA_MIPSIV::DIVU,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x20
-	&ADD,			&ADDU,			&SUB,	    	&SUBU,			&AND,			&OR,			&XOR,			&NOR,
+	&CMA_MIPSIV::ADD,			&CMA_MIPSIV::ADDU,			&CMA_MIPSIV::SUB,	    	&CMA_MIPSIV::SUBU,			&CMA_MIPSIV::AND,			&CMA_MIPSIV::OR,			&CMA_MIPSIV::XOR,			&CMA_MIPSIV::NOR,
 	//0x28
-	&Illegal,		&Illegal,		&SLT,			&SLTU,			&Illegal,		&DADDU,			&Illegal,		&DSUBU,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SLT,			&CMA_MIPSIV::SLTU,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DADDU,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSUBU,
 	//0x30
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x38
-	&DSLL,			&Illegal,		&DSRL,			&DSRA,			&DSLL32,		&Illegal,		&DSRL32,		&DSRA32,
+	&CMA_MIPSIV::DSLL,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSRL,			&CMA_MIPSIV::DSRA,			&CMA_MIPSIV::DSLL32,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSRL32,		&CMA_MIPSIV::DSRA32,
 };
 
 CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpRegImm[MAX_REGIMM_OPS] = 
 {
 	//0x00
-	&BLTZ,			&BGEZ,			&BLTZL,			&BGEZL,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_MIPSIV::BLTZ,			&CMA_MIPSIV::BGEZ,			&CMA_MIPSIV::BLTZL,			&CMA_MIPSIV::BGEZL,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x10
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 };
