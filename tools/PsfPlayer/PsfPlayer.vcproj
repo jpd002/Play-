@@ -176,22 +176,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\Source\AboutWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\AboutWindow.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\AcceleratorTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\AcceleratorTable.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\AppConfig.cpp"
 				>
 			</File>
@@ -208,23 +192,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\CounterRegView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CounterRegView.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Debuggable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\FileInformationWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\FileInformationWindow.h"
 				>
 			</File>
 			<File
@@ -233,26 +201,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\HighResTimer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Main.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MiniDebugger.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MiniDebugger.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PlayerWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PlayerWnd.h"
 				>
 			</File>
 			<File
@@ -312,23 +260,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\resource.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\SH_OpenAL.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\SH_OpenAL.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SH_WaveOut.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SH_WaveOut.h"
 				>
 			</File>
 			<File
@@ -339,24 +275,86 @@
 				RelativePath=".\Source\SpuHandler.h"
 				>
 			</File>
-			<File
-				RelativePath=".\Source\SpuRegView.cpp"
+			<Filter
+				Name="ui"
 				>
-			</File>
-			<File
-				RelativePath=".\Source\SpuRegView.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
-			<File
-				RelativePath=".\Source\Res.rc"
-				>
-			</File>
+				<File
+					RelativePath=".\Source\win32_ui\AboutWindow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\AboutWindow.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\AcceleratorTable.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\AcceleratorTable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\CounterRegView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\CounterRegView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\FileInformationWindow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\FileInformationWindow.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\Main.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\MiniDebugger.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\MiniDebugger.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\PlayerWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\PlayerWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\Res.rc"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\resource.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\SH_WaveOut.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\SH_WaveOut.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\SpuRegView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\SpuRegView.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Purei Core"
