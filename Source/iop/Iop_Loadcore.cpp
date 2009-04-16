@@ -8,6 +8,7 @@ using namespace std;
 
 #define LOG_NAME "iop_loadcore"
 
+#define FUNCTION_FLUSHDCACHE            "FlushDcache"
 #define FUNCTION_REGISTERLIBRARYENTRIES "RegisterLibraryEntries"
 
 CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSifMan& sifMan) :
@@ -31,6 +32,9 @@ string CLoadcore::GetFunctionName(unsigned int functionId) const
 {
     switch(functionId)
     {
+    case 5:
+        return FUNCTION_FLUSHDCACHE;
+        break;
     case 6:
         return FUNCTION_REGISTERLIBRARYENTRIES;
         break;
@@ -44,6 +48,9 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 {
     switch(functionId)
     {
+    case 5:
+        //FlushDCache
+        break;
     case 6:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(RegisterLibraryEntries(
             reinterpret_cast<uint32*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])

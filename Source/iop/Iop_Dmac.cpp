@@ -108,6 +108,7 @@ uint32 CDmac::ReadRegister(uint32 address)
                 return channel->ReadRegister(address);
             }
         }
+        break;
     }
     return 0;
 }
@@ -156,6 +157,9 @@ void CDmac::LogRead(uint32 address)
             unsigned int registerId = address & 0xF;
             switch(registerId)
             {
+            case CChannel::REG_MADR:
+                CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: = MADR.\r\n", channelId);
+                break;
             case CChannel::REG_CHCR:
                 CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: = CHCR.\r\n", channelId);
                 break;
