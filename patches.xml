@@ -28,7 +28,5 @@
 		<Patch Address="0x0011F528" Value="0x080B4E74" Description="Redirect calls from trace stub to real printf" />
 		<Patch Address="0x0011F52C" Value="0x00000000" Description="Redirect calls from trace stub to real printf" />
 		<Patch Address="0x00119C84" Value="0x00000000" Description="Cancels movie playing." />
-		<Patch Address="0x00103614" Value="0x00000000" Description="Test" />
-		<Patch Address="0x00103618" Value="0x00000000" Description="Test" />
 	</Executable>
 </Patches>

@@ -12,7 +12,8 @@ using namespace std;
 CSpuBase::CSpuBase(uint8* ram, uint32 ramSize) :
 m_ram(ram),
 m_ramSize(ramSize),
-m_reverbEnabled(true)
+m_reverbEnabled(true),
+m_dmaDisabled(false)
 {
     Reset();
 
@@ -50,6 +51,7 @@ CSpuBase::~CSpuBase()
 
 void CSpuBase::Reset()
 {
+    m_dmaDisabled = false;
     m_ctrl = 0;
 
 	m_volumeAdjust = 1.0f;
@@ -87,6 +89,11 @@ void CSpuBase::SetVolumeAdjust(float volumeAdjust)
 void CSpuBase::SetReverbEnabled(bool enabled)
 {
 	m_reverbEnabled = enabled;
+}
+
+void CSpuBase::SetDmaDisabled(bool disabled)
+{
+    m_dmaDisabled = disabled;
 }
 
 uint16 CSpuBase::GetControl() const
@@ -250,6 +257,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%0.8X. Size = 0x%0.8X bytes.\r\n", 
 		m_bufferAddr, blockSize * blockAmount);
 #endif
+    if(m_dmaDisabled) return 0;
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)
 	{

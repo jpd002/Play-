@@ -124,7 +124,7 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
         }
     }
 
-	glGenTextures(1, &nTexture);
+    glGenTextures(1, &nTexture);
 
 	glBindTexture(GL_TEXTURE_2D, nTexture);
 
@@ -1066,11 +1066,9 @@ void CGSH_OpenGL::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSiz
 
 unsigned int CGSH_OpenGL::TexCache_SearchLive(GSTEX0* pTex0)
 {
-//	for(unsigned int i = 0; i < MAXCACHE; i++)
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
 	{
-//        const CTexture& texture = m_TexCache[i];
         CTexture* texture = *textureIterator;
         if(!texture->m_live) continue;
         //if(!texture.IsValid()) continue;
@@ -1092,18 +1090,13 @@ unsigned int CGSH_OpenGL::TexCache_SearchLive(GSTEX0* pTex0)
 
 unsigned int CGSH_OpenGL::TexCache_SearchDead(GSTEX0* pTex0, uint32 checksum)
 {
-//    for(unsigned int i = 0; i < MAXCACHE; i++)
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
     {
-        //CTexture& texture = m_TexCache[i];
         CTexture* texture = *textureIterator;
         if(texture->m_nTexture == 0) continue;
         if(texture->m_checksum != checksum) continue;
         if(texture->m_nTex0 != *reinterpret_cast<uint64*>(pTex0)) continue;
-//        GSTEX0* candidateTex0 = reinterpret_cast<GSTEX0*>(&texture.m_nTex0);
-//        if(candidateTex0->GetWidth() != pTex0->GetWidth()) continue;
-//        if(candidateTex0->GetHeight() != pTex0->GetHeight()) continue;
         texture->m_live = true;
         m_TexCache.erase(textureIterator);
         m_TexCache.push_front(texture);
@@ -1115,18 +1108,6 @@ unsigned int CGSH_OpenGL::TexCache_SearchDead(GSTEX0* pTex0, uint32 checksum)
 
 void CGSH_OpenGL::TexCache_Insert(GSTEX0* pTex0, unsigned int nTexture, uint32 checksum)
 {
-    //unsigned int targetTexIndex = m_nTexCacheIndex;
-    //for(unsigned int i = 0; i < MAXCACHE; i++)
-    //{
-    //    if(!m_TexCache[m_nTexCacheIndex].m_live)
-    //    {
-    //        break;
-    //    }
-    //    m_nTexCacheIndex++;
-    //    m_nTexCacheIndex %= MAXCACHE;
-    //}
-
-//	CTexture* pTexture = &m_TexCache[m_nTexCacheIndex++];
     CTexture* pTexture = *m_TexCache.rbegin();
     pTexture->Free();
 
@@ -1143,29 +1124,22 @@ void CGSH_OpenGL::TexCache_Insert(GSTEX0* pTex0, unsigned int nTexture, uint32 c
 
     m_TexCache.pop_back();
     m_TexCache.push_front(pTexture);
-
-//	m_nTexCacheIndex++;
-//	m_nTexCacheIndex %= MAXCACHE;
 }
 
 void CGSH_OpenGL::TexCache_InvalidateTextures(uint32 nStart, uint32 nSize)
 {
-//	for(unsigned int i = 0; i < MAXCACHE; i++)
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
 	{
-//		m_TexCache[i].InvalidateFromMemorySpace(nStart, nSize);
         (*textureIterator)->InvalidateFromMemorySpace(nStart, nSize);
 	}
 }
 
 void CGSH_OpenGL::TexCache_Flush()
 {
-//	for(unsigned int i = 0; i < MAXCACHE; i++)
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
 	{
-//        m_TexCache[i].Free();
         (*textureIterator)->Free();
 	}
 }

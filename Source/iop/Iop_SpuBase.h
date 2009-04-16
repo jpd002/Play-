@@ -149,6 +149,8 @@ namespace Iop
 		void			SetVolumeAdjust(float);
 		void			SetReverbEnabled(bool);
 
+        void            SetDmaDisabled(bool);
+
 		void		    SetBaseSamplingRate(uint32);
 
 	    uint32		    GetTransferAddress() const;
@@ -268,6 +270,7 @@ namespace Iop
         CSampleReader   m_reader[MAX_CHANNEL];
     	uint32			m_adsrLogTable[160];
 		bool			m_reverbEnabled;
+        bool            m_dmaDisabled;
 		float			m_volumeAdjust;
 	};
 }
