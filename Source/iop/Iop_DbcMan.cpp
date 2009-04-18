@@ -15,8 +15,10 @@ using namespace Framework;
 using namespace boost;
 using namespace PS2;
 
-CDbcMan::CDbcMan(CSIF& sif) :
-m_nextSocketId(0)
+CDbcMan::CDbcMan(CSifMan& sif) :
+m_nextSocketId(0),
+m_workAddress(0),
+m_buttonStatIndex(0x1C)
 {
     sif.RegisterModule(MODULE_ID, this);
 }
@@ -31,12 +33,17 @@ string CDbcMan::GetId() const
     return "dbcman";
 }
 
+string CDbcMan::GetFunctionName(unsigned int) const
+{
+    return "unknown";
+}
+
 void CDbcMan::Invoke(CMIPS& context, unsigned int functionId)
 {
     throw runtime_error("Not implemented.");
 }
 
-void CDbcMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CDbcMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -56,6 +63,7 @@ void CDbcMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
 		break;
 	}
+    return true;
 }
 
 void CDbcMan::SaveState(CZipArchiveWriter& archive)
@@ -98,6 +106,7 @@ void CDbcMan::LoadState(CZipArchiveReader& archive)
 void CDbcMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nButton, bool nPressed, uint8* ram)
 {
     uint32 buttonMask = GetButtonMask(nButton);
+    uint32 buttonStatIndex = m_buttonStatIndex;
 
     for(SocketMap::const_iterator socketIterator(m_sockets.begin());
         socketIterator != m_sockets.end(); socketIterator++)
@@ -106,17 +115,18 @@ void CDbcMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nB
 		if(socket.nPort != nPadNumber) continue;
 
         uint8* buffer = &ram[socket.buf1];
-        uint16 nStatus = (buffer[0x1C] << 8) | (buffer[0x1D]);
+        uint16 nStatus = (buffer[buttonStatIndex + 0] << 8) | (buffer[buttonStatIndex + 1]);
 		nStatus &= (~buttonMask);
 		if(!nPressed)
 		{
 			nStatus |= buttonMask;
 		}
 
-		buffer[0x1C] = static_cast<uint8>(nStatus >> 8);
-		buffer[0x1D] = static_cast<uint8>(nStatus >> 0);
+		buffer[buttonStatIndex + 0] = static_cast<uint8>(nStatus >> 8);
+		buffer[buttonStatIndex + 1] = static_cast<uint8>(nStatus >> 0);
 
 //		*(uint16*)&CPS2VM::m_pRAM[pSocket->nBuf1 + 0x1C] ^= 0x2010;
+//		*(uint16*)&ram[socket.buf1 + 0x3C] ^= 0xFFFF;
 	}
 }
 
@@ -127,17 +137,15 @@ void CDbcMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON axis,
 
 void CDbcMan::CreateSocket(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	uint32 nType1, nType2, nPort, nSlot, nBuf1, nBuf2;
-
 	assert(argsSize >= 0x30);
 	assert(retSize >= 0x04);
 
-	nType1	= args[0x00];
-	nType2	= args[0x01];
-	nPort	= args[0x02];
-	nSlot	= args[0x03];
-	nBuf1	= args[0x0A];
-	nBuf2	= args[0x0B];
+	uint32 nType1   = args[0x00];
+	uint32 nType2   = args[0x01];
+	uint32 nPort    = args[0x02];
+	uint32 nSlot    = args[0x03];
+	uint32 nBuf1    = args[0x0A];
+	uint32 nBuf2    = args[0x0B];
 
     SOCKET socket;
 	socket.nPort    = nPort;
@@ -150,7 +158,10 @@ void CDbcMan::CreateSocket(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 	ret[0x09] = id;
 
-	CLog::GetInstance().Print(LOG_NAME, "CreateSocket(type1 = 0x%0.8X, type2 = 0x%0.8X, port = %i, slot = %i, buf1 = 0x%0.8X, buf2 = 0x%0.8X);\r\n", \
+    assert(m_workAddress != 0);
+    *(reinterpret_cast<uint32*>(&ram[m_workAddress]) + id) = 1;
+
+    CLog::GetInstance().Print(LOG_NAME, "CreateSocket(type1 = 0x%0.8X, type2 = 0x%0.8X, port = %i, slot = %i, buf1 = 0x%0.8X, buf2 = 0x%0.8X);\r\n", \
 		nType1, \
 		nType2, \
 		nPort, \
@@ -161,43 +172,46 @@ void CDbcMan::CreateSocket(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 void CDbcMan::SetWorkAddr(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	assert(argsSize == 0x400);
-	assert(retSize == 0x400);
+	assert(argsSize >= 0x90);
+	assert(retSize >= 0x90);
 
 	//0 - Some number (0x0200) (size?)
 	//1 - Address to bind with
 
-	uint32 nAddress = args[1];
+	m_workAddress = args[1];
 
 	//Set Ready (?) status
-	ram[nAddress] = 1;
+	*reinterpret_cast<uint32*>(&ram[m_workAddress]) = 1;
 
 	ret[0] = 0x00000000;
 
-	CLog::GetInstance().Print(LOG_NAME, "SetWorkAddr(addr = 0x%0.8X);\r\n", nAddress);
+	CLog::GetInstance().Print(LOG_NAME, "SetWorkAddr(addr = 0x%0.8X);\r\n", m_workAddress);
 }
 
 void CDbcMan::ReceiveData(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	uint32 nParam, nFlags, nSocket;
-
 	//Param Frame
 	//0 - Socket ID
 	//1 - Value passed in parameter to the library
 	//2 - Some parameter (0x01, or some address)
 
-	nSocket = args[0];
-	nFlags	= args[1];
-	nParam	= args[2];
+	uint32 nSocket  = args[0];
+	uint32 nFlags   = args[1];
+	uint32 nParam	= args[2];
 
     SocketMap::iterator socketIterator = m_sockets.find(nSocket);
 	if(socketIterator != m_sockets.end())
 	{
         SOCKET& socket(socketIterator->second);
         uint8* buffer = &ram[socket.buf1];
+
 		buffer[0x02] = 0x20;
-		*reinterpret_cast<uint32*>(&buffer[0x04]) = 0x01;
-	}
+
+        *reinterpret_cast<uint32*>(&buffer[0x04]) = 0x01;
+
+        //For Guilty Gear
+		*reinterpret_cast<uint32*>(&buffer[0x7C]) = 0x01;
+    }
 
 	//Return frame
 	//0  - Success Status
@@ -220,4 +234,16 @@ void CDbcMan::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, 
 	ret[0] = 0x00000200;
 
 	CLog::GetInstance().Print(LOG_NAME, "GetVersionInformation();\r\n");
+}
+
+CDbcMan::SOCKET* CDbcMan::GetSocket(uint32 socketId)
+{
+    SocketMap::iterator socketIterator = m_sockets.find(socketId);
+	if(socketIterator == m_sockets.end()) return NULL;
+    return &socketIterator->second;
+}
+
+void CDbcMan::SetButtonStatIndex(uint32 buttonStatIndex)
+{
+    m_buttonStatIndex = buttonStatIndex;
 }
