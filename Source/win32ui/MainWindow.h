@@ -3,6 +3,7 @@
 
 #include <boost/signal.hpp>
 #include <string>
+#include <memory>
 #include "win32/Window.h"
 #include "win32/StatusBar.h"
 #include "SettingsDialogProvider.h"
@@ -25,6 +26,31 @@ protected:
 	long							OnActivateApp(bool, unsigned long);
 
 private:
+    class COpenCommand
+    {
+    public:
+        virtual         ~COpenCommand() {}
+        virtual void    Execute(CMainWindow*) = 0;
+    };
+
+    class CBootCdRomOpenCommand : public COpenCommand
+    {
+    public:
+        virtual void    Execute(CMainWindow*); 
+    };
+
+    class CLoadElfOpenCommand : public COpenCommand
+    {
+    public:
+                        CLoadElfOpenCommand(const char*);
+        virtual void    Execute(CMainWindow*);
+
+    private:
+        std::string     m_fileName;
+    };
+
+    typedef std::tr1::shared_ptr<COpenCommand> OpenCommandPtr;
+
 	void							OpenELF();
 	void							BootCDROM();
     void                            BootDiskImage();
@@ -70,6 +96,8 @@ private:
 
 	bool							m_nPauseFocusLost;
 	bool							m_nDeactivatePause;
+
+    OpenCommandPtr                  m_lastOpenCommand;
 
 	Framework::Win32::CStatusBar*	m_pStatusBar;
 	COutputWnd*						m_pOutputWnd;

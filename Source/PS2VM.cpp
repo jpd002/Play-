@@ -438,6 +438,8 @@ void CPS2VM::CreateVM()
 
 void CPS2VM::ResetVM()
 {
+    Pause();
+
     m_os->Release();
     m_executor.Clear();
 
@@ -465,9 +467,6 @@ void CPS2VM::ResetVM()
     m_VU1.m_Comments.RemoveTags();
     m_VU1.m_Functions.RemoveTags();
 
-    m_executor.Clear();
-	m_nStatus = PAUSED;
-	
 	//Reset subunits
     m_sif.Reset();
     m_ipu.Reset();
