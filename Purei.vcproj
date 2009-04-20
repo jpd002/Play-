@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\AppDef.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\ArrayStack.h"
 				>
 			</File>

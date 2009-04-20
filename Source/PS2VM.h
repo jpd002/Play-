@@ -2,6 +2,7 @@
 #define _PS2VM_H_
 
 #include <boost/thread.hpp>
+#include "AppDef.h"
 #include "Types.h"
 #include "DMAC.h"
 #include "GIF.h"
@@ -40,9 +41,6 @@ enum PS2VM_MSG
 	PS2VM_MSG_LOADSTATE,
 	PS2VM_MSG_RESET,
 };
-
-#define VERSION_MAJOR		(0)
-#define VERSION_MINOR		(20)
 
 #ifdef	PROFILE
 #define	PROFILE_EEZONE "EE"
