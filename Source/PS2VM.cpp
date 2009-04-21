@@ -27,6 +27,7 @@
 #include "xml/Writer.h"
 #include "xml/Parser.h"
 #include "AppConfig.h"
+#include "PathUtils.h"
 #include "Profiler.h"
 #include "iop/IopBios.h"
 #include "iop/DirectoryDevice.h"
@@ -50,9 +51,9 @@
 #define STATE_VUMEM1    ("vumem1")
 #define STATE_MICROMEM1 ("micromem1")
 
-#define PREF_PS2_HOST_DIRECTORY_DEFAULT     ("./vfs/host")
-#define PREF_PS2_MC0_DIRECTORY_DEFAULT      ("./vfs/mc0")
-#define PREF_PS2_MC1_DIRECTORY_DEFAULT      ("./vfs/mc1")
+#define PREF_PS2_HOST_DIRECTORY_DEFAULT     ("vfs/host")
+#define PREF_PS2_MC0_DIRECTORY_DEFAULT      ("vfs/mc0")
+#define PREF_PS2_MC1_DIRECTORY_DEFAULT      ("vfs/mc1")
 #define PREF_PS2_FRAMESKIP_DEFAULT          (0)
 
 #define     CPU_FREQUENCY       (0x11940000)
@@ -103,9 +104,30 @@ m_COP_VU(MIPS_REGSIZE_64),
 m_MAVU0(false),
 m_MAVU1(true)
 {
-	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
-	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
-	CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
+    const char* basicDirectorySettings[] =
+    {
+        PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT,
+        PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT,
+        PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT,
+        NULL, NULL
+    };
+
+    for(unsigned int i = 0; basicDirectorySettings[i] != NULL; i += 2)
+    {
+        const char* setting = basicDirectorySettings[i + 0];
+        const char* path = basicDirectorySettings[i + 1];
+
+        CConfig::PathType relativePath = CAppConfig::Utf8ToPath(path);
+        CConfig::PathType absolutePath = CAppConfig::GetBasePath() / relativePath;
+        PathUtils::EnsurePathExists(absolutePath);
+        string absoluteStringPath = CAppConfig::PathToUtf8(absolutePath);
+        CAppConfig::GetInstance().RegisterPreferenceString(setting, absoluteStringPath.c_str());
+    }
+
+//  CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
+//  CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
+//  CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
+ 
     CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
     m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
