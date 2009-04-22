@@ -18,6 +18,15 @@
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
     
+	//int pageSize = sysconf(_SC_PAGE_SIZE);
+	//char* buffer = malloc(pageSize);
+	//kern_return_t result = vm_protect(mach_task_self(), (vm_address_t)buffer, pageSize, 0, VM_PROT_READ | VM_PROT_EXECUTE);
+	
+	//__asm__ ("mov r0, %0" : : "r"(buffer));
+	//__asm__ ("blx r0");
+	//	int result = mprotect(buffer, pageSize, PROT_READ | PROT_EXEC);
+	//	int error = errno;
+	
     // Add the tab bar controller's current view as a subview of the window
     [window addSubview:tabBarController.view];
 	
