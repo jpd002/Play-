@@ -26,7 +26,8 @@ private:
 	typedef void (CCOP_SCU::*InstructionFuncConstant)();
 
 	static InstructionFuncConstant	m_pOpGeneral[0x20];
-	static InstructionFuncConstant  m_pOpCO[0x40];
+    static InstructionFuncConstant  m_pOpBC0[0x20];
+	static InstructionFuncConstant  m_pOpC0[0x40];
 
 	uint8		    m_nRT;
 	uint8           m_nRD;
@@ -34,9 +35,14 @@ private:
 	//General
 	void			MFC0();
 	void			MTC0();
-	void			CO();
+    void            BC0();
+	void			C0();
 
-	//CO
+    //BC0
+    void            BC0F();
+    void            BC0T();
+
+	//C0
 	void			ERET();
 	void			EI();
 	void			DI();

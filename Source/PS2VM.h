@@ -168,6 +168,7 @@ private:
 	void						CDROM0_Mount(const char*);
 	void						CDROM0_Reset();
 	void						CDROM0_Destroy();
+    void                        SetIopCdImage(CISO9660*);
 
 	void						LoadBIOS();
 	void						RegisterModulesInPadHandler();

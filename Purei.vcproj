@@ -608,6 +608,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Source\iop\Iop_Cdvdman.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\iop\Iop_Cdvdman.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\iop\Iop_DbcMan.cpp"
 						>
 					</File>

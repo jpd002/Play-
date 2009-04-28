@@ -80,10 +80,32 @@ void CCOP_SCU::MTC0()
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
 }
 
-//10
-void CCOP_SCU::CO()
+//08
+void CCOP_SCU::BC0()
 {
-	((this)->*(m_pOpCO[(m_nOpcode & 0x3F)]))();
+	((this)->*(m_pOpBC0[m_nRT]))();
+}
+
+//10
+void CCOP_SCU::C0()
+{
+	((this)->*(m_pOpC0[(m_nOpcode & 0x3F)]))();
+}
+
+//////////////////////////////////////////////////
+//Branches
+//////////////////////////////////////////////////
+
+//00
+void CCOP_SCU::BC0F()
+{
+
+}
+
+//01
+void CCOP_SCU::BC0T()
+{
+
 }
 
 //////////////////////////////////////////////////
@@ -157,14 +179,26 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpGeneral[0x20] =
 	//0x00
 	&MFC0,			&Illegal,		&Illegal,		&Illegal,		&MTC0,			&Illegal,		&Illegal,		&Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&BC0,   		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x10
-	&CO,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&C0,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x18
 	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 };
 
-CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpCO[0x40] =
+CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpBC0[0x20] = 
+{
+	//0x00
+	&BC0F,		    &BC0T,  		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	//0x08
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	//0x10
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	//0x18
+	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+};
+
+CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpC0[0x40] =
 {
 	//0x00
 	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
@@ -194,6 +228,20 @@ void CCOP_SCU::GetInstruction(uint32 nOpcode, char* sText)
 	case 0x04:
 		strcpy(sText, "MTC0");
 		break;
+    case 0x08:
+        switch((nOpcode >> 16) & 0x1F)
+        {
+        case 0x00:
+            strcpy(sText, "BC0F");
+            break;
+        case 0x01:
+            strcpy(sText, "BC0T");
+            break;
+        default:
+            strcpy(sText, "???");
+            break;
+        }
+        break;
 	case 0x10:
 		switch(nOpcode & 0x3F)
 		{
@@ -222,27 +270,65 @@ void CCOP_SCU::GetInstruction(uint32 nOpcode, char* sText)
 
 void CCOP_SCU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 {
-	unsigned char nRD, nRT;
-	nRT = (unsigned char)((nOpcode >> 16) & 0x1F);
-	nRD = (unsigned char)((nOpcode >> 11) & 0x1F);
+	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x1F);
+	uint8 nRD = static_cast<uint8>((nOpcode >> 11) & 0x1F);
+    uint16 nImm = static_cast<uint16>(nOpcode);
 	switch((nOpcode >> 21) & 0x1F)
 	{
 	case 0x00:
 	case 0x04:
 		sprintf(sText, "%s, %s", CMIPS::m_sGPRName[nRT], m_sRegName[nRD]);
 		break;
+    case 0x08:
+        switch((nOpcode >> 16) & 0x1F)
+        {
+        case 0x00:
+        case 0x01:
+            sprintf(sText, "0x%0.8X", nAddress + CMIPS::GetBranch(nImm) + 4);
+            break;
+        default:
+            strcpy(sText, "");
+            break;
+        }
+        break;
 	default:
 		strcpy(sText, "");
 		break;
 	}
 }
 
-uint32 CCOP_SCU::GetEffectiveAddress(uint32 nAddress, uint32 nData)
+uint32 CCOP_SCU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
 {
-	return false;
+    if(((nOpcode >> 21) & 0x1F) == 0x08)
+    {
+        switch((nOpcode >> 16) & 0x1F)
+        {
+        case 0x00:
+        case 0x01:
+	        return (nAddress + CMIPS::GetBranch(static_cast<uint16>(nOpcode)) + 4);
+            break;
+        default:
+            return 0;
+            break;
+        }
+    }
+    return 0;
 }
 
-bool CCOP_SCU::IsBranch(uint32 nData)
+bool CCOP_SCU::IsBranch(uint32 nOpcode)
 {
-	return 0;
+    if(((nOpcode >> 21) & 0x1F) == 0x08)
+    {
+        switch((nOpcode >> 16) & 0x1F)
+        {
+        case 0x00:
+        case 0x01:
+            return true;
+            break;
+        default:
+            return false;
+            break;
+        }
+    }
+    return false;
 }

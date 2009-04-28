@@ -5,6 +5,7 @@
 
 #define FUNCTION_SIFINIT        "SifInit"
 #define FUNCTION_SIFSETDMA      "SifSetDma"
+#define FUNCTION_SIFDMASTAT     "SifDmaStat"
 #define FUNCTION_SIFCHECKINIT   "SifCheckInit"
 
 using namespace Iop;
@@ -35,6 +36,9 @@ string CSifMan::GetFunctionName(unsigned int functionId) const
     case 7:
         return FUNCTION_SIFSETDMA;
         break;
+    case 8:
+        return FUNCTION_SIFDMASTAT;
+        break;
     case 29:
         return FUNCTION_SIFCHECKINIT;
         break;
@@ -52,6 +56,9 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0
 			));
 		break;
+    case 8:
+        context.m_State.nGPR[CMIPS::V0].nV0 = SifDmaStat(context.m_State.nGPR[CMIPS::A0].nV0);
+        break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "%0.8X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
         break;
@@ -62,5 +69,12 @@ uint32 CSifMan::SifSetDma(uint32 structAddr, uint32 length)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETDMA "(structAddr = 0x%0.8X, length = %X);\r\n",
 		structAddr, length);
-	return 1;
+	return length;
+}
+
+uint32 CSifMan::SifDmaStat(uint32 transferId)
+{
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
+        transferId);
+    return -1;
 }

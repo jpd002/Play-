@@ -2,8 +2,10 @@
 
 using namespace Iop;
 
-CSifManPs2::CSifManPs2(CSIF& sif) :
-m_sif(sif)
+CSifManPs2::CSifManPs2(CSIF& sif, uint8* eeRam, uint8* iopRam) :
+m_sif(sif),
+m_eeRam(eeRam),
+m_iopRam(iopRam)
 {
 
 }
@@ -36,4 +38,32 @@ void CSifManPs2::SetDmaBuffer(uint32 bufferAddress, uint32 size)
 void CSifManPs2::SendCallReply(uint32 serverId, void* returnData)
 {
     m_sif.SendCallReply(serverId, returnData);
+}
+
+uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
+{
+    CSifMan::SifSetDma(structAddr, count);
+
+    struct DMAREG
+	{
+		uint32 nSrcAddr;
+		uint32 nDstAddr;
+		uint32 nSize;
+		uint32 nFlags;
+	};
+
+    if(structAddr == 0)
+    {
+        return 0;
+    }
+
+	DMAREG* pXfer = reinterpret_cast<DMAREG*>(m_iopRam + structAddr);
+	for(unsigned int i = 0; i < count; i++)
+	{
+        uint8* src = m_iopRam + pXfer[i].nSrcAddr;
+        uint8* dst = m_eeRam + pXfer[i].nDstAddr;
+        memcpy(dst, src, pXfer[i].nSize);
+	}
+
+    return count;
 }

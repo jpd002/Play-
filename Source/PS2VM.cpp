@@ -504,7 +504,7 @@ void CPS2VM::ResetVM()
 	}
 
     m_os->Initialize();
-    m_iopOs->Reset(new Iop::CSifManPs2(m_sif));
+    m_iopOs->Reset(new Iop::CSifManPs2(m_sif, m_pRAM, m_iop.m_ram));
 
 	CDROM0_Reset();
 
@@ -764,7 +764,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
             }
 
 			m_pCDROM0 = new CISO9660(pStream);
-            m_iopOs->GetCdvdfsv()->SetIsoImage(m_pCDROM0);
+            SetIopCdImage(m_pCDROM0);
 		}
 		catch(const exception& Exception)
 		{
@@ -777,8 +777,14 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 
 void CPS2VM::CDROM0_Destroy()
 {
-    m_iopOs->GetCdvdfsv()->SetIsoImage(NULL);
+    SetIopCdImage(NULL);
     DELETEPTR(m_pCDROM0);
+}
+
+void CPS2VM::SetIopCdImage(CISO9660* image)
+{
+    m_iopOs->GetCdvdfsv()->SetIsoImage(image);
+    m_iopOs->GetCdvdman()->SetIsoImage(image);
 }
 
 void CPS2VM::LoadBIOS()

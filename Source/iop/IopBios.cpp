@@ -157,6 +157,10 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
     {
         RegisterModule(new Iop::CVblank(*this));
     }
+    {
+        m_cdvdman = new Iop::CCdvdman(m_ram);
+        RegisterModule(m_cdvdman);
+    }
 	{
 		RegisterModule(m_sifMan);
 	}
@@ -855,6 +859,11 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 Iop::CIoman* CIopBios::GetIoman()
 {
     return m_ioman;
+}
+
+Iop::CCdvdman* CIopBios::GetCdvdman()
+{
+    return m_cdvdman;
 }
 
 #ifdef _IOP_EMULATE_MODULES

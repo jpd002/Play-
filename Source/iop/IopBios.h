@@ -11,6 +11,7 @@
 #include "Iop_SifMan.h"
 #include "Iop_SifCmd.h"
 #include "Iop_Ioman.h"
+#include "Iop_Cdvdman.h"
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
@@ -82,6 +83,7 @@ public:
 #endif
 
     Iop::CIoman*            GetIoman();
+    Iop::CCdvdman*          GetCdvdman();
 #ifdef _IOP_EMULATE_MODULES
     Iop::CDbcMan*           GetDbcman();
     Iop::CPadMan*           GetPadman();
@@ -235,6 +237,7 @@ private:
     Iop::CSifCmd*               m_sifCmd;
     Iop::CStdio*				m_stdio;
     Iop::CIoman*				m_ioman;
+    Iop::CCdvdman*              m_cdvdman;
     Iop::CSysmem*				m_sysmem;
     Iop::CModload*				m_modload;
 #ifdef _IOP_EMULATE_MODULES

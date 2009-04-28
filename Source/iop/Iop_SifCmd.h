@@ -58,6 +58,8 @@ namespace Iop
         void                    ClearServers();
         void                    BuildExportTable();
 
+        uint32                  SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
+        uint32                  SifBindRpc(uint32, uint32, uint32);
         void                    SifRegisterRpc(CMIPS&);
         void                    SifSetRpcQueue(uint32, uint32);
         void                    SifRpcLoop(uint32);

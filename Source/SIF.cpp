@@ -511,7 +511,7 @@ void CSIF::SendCallReply(uint32 serverId, void* returnData)
     if(replyIterator == m_callReplies.end()) return;
 
     CALLREQUESTINFO& requestInfo(replyIterator->second);
-    assert(requestInfo.call.nRecv != 0);
+    //assert(requestInfo.call.nRecv != 0);
     if(requestInfo.call.nRecv != 0)
     {
         memcpy(m_eeRam + requestInfo.call.nRecv, returnData, requestInfo.call.nRecvSize);

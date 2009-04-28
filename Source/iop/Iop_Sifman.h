@@ -22,8 +22,9 @@ namespace Iop
         virtual void			SetDmaBuffer(uint32, uint32) = 0;
         virtual void            SendCallReply(uint32, void*) = 0;
 
-	private:
-		uint32					SifSetDma(uint32, uint32);
+	protected:
+		virtual uint32			SifSetDma(uint32, uint32);
+        virtual uint32          SifDmaStat(uint32);
     };
 }
 
