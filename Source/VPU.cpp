@@ -79,6 +79,7 @@ void CVPU::Reset()
 	memset(&m_CODE, 0, sizeof(CODE));
 	memset(&m_CYCLE, 0, sizeof(CYCLE));
     memset(&m_R, 0, sizeof(m_R));
+    memset(&m_C, 0, sizeof(m_C));
     m_MODE = 0;
 	m_NUM = 0;
     m_MASK = 0;
@@ -220,6 +221,10 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
     case 0x30:
         //STROW
         return Cmd_STROW(stream, nCommand);
+        break;
+    case 0x31:
+        //STCOL
+        return Cmd_STCOL(stream, nCommand);
         break;
 	case 0x4A:
 		//MPG
@@ -421,6 +426,30 @@ void CVPU::Cmd_STROW(StreamType& stream, CODE nCommand)
     }
 
 //    return transfered;
+}
+
+void CVPU::Cmd_STCOL(StreamType& stream, CODE nCommand)
+{
+    if(m_NUM == 0)
+    {
+        m_NUM = 4;
+    }
+
+    while(m_NUM != 0 && stream.GetAvailableReadBytes())
+    {
+        assert(m_NUM <= 4);
+        stream.Read(&m_C[4 - m_NUM], 4);
+        m_NUM--;
+    }
+
+    if(m_NUM == 0)
+    {
+        m_STAT.nVPS = 0;
+    }
+    else
+    {
+        m_STAT.nVPS = 1;
+    }
 }
 
 void CVPU::Cmd_STMASK(StreamType& stream, CODE command)
@@ -804,6 +833,9 @@ void CVPU::DisassembleCommand(CODE code)
             break;
         case 0x30:
             CLog::GetInstance().Print(LOG_NAME, "STROW();\r\n");
+            break;
+        case 0x31:
+            CLog::GetInstance().Print(LOG_NAME, "STCOL();\r\n");
             break;
         case 0x4A:
             CLog::GetInstance().Print(LOG_NAME, "MPG(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);

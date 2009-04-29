@@ -254,23 +254,23 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-	case D2_CHCR:
+	case D2_CHCR + 0x0:
 		return m_D2.ReadCHCR();
 		break;
 
-	case 0x1000A004:
-	case 0x1000A008:
-	case 0x1000A00C:
+	case D2_CHCR + 0x4:
+	case D2_CHCR + 0x8:
+	case D2_CHCR + 0xC:
 		return 0;
 		break;
 
-	case 0x1000A030:
+	case D2_TADR + 0x0:
 		return m_D2.m_nTADR;
 		break;
 
-	case 0x1000A034:
-	case 0x1000A038:
-	case 0x1000A03C:
+	case D2_TADR + 0x4:
+	case D2_TADR + 0x8:
+	case D2_TADR + 0xC:
 		return 0;
 		break;
 
@@ -472,39 +472,39 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	//D2_CHCR
-	case 0x1000A000:
+	case D2_CHCR + 0x0:
 		m_D2.WriteCHCR(nData);
 		break;
-	case 0x1000A004:
-	case 0x1000A008:
-	case 0x1000A00C:
+	case D2_CHCR + 0x4:
+	case D2_CHCR + 0x8:
+	case D2_CHCR + 0xC:
 		break;
 
 	//D2_MADR
-	case 0x1000A010:
+	case D2_MADR + 0x0:
 		m_D2.m_nMADR = nData;
 		break;
-	case 0x1000A014:
-	case 0x1000A018:
-	case 0x1000A01C:
+	case D2_MADR + 0x4:
+	case D2_MADR + 0x8:
+	case D2_MADR + 0xC:
 		break;
 
 	//D2_QWC
-	case 0x1000A020:
+	case D2_QWC + 0x0:
 		m_D2.m_nQWC = nData;
 		break;
-	case 0x1000A024:
-	case 0x1000A028:
-	case 0x1000A02C:
+	case D2_QWC + 0x4:
+	case D2_QWC + 0x8:
+	case D2_QWC + 0xC:
 		break;
 
 	//D2_TADR
-	case 0x1000A030:
+	case D2_TADR + 0x0:
 		m_D2.m_nTADR = nData;
 		break;
-	case 0x1000A034:
-	case 0x1000A038:
-	case 0x1000A03C:
+	case D2_TADR + 0x4:
+	case D2_TADR + 0x8:
+	case D2_TADR + 0xC:
 		break;
 
 	//D3_CHCR
@@ -537,43 +537,43 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	//D4_CHCR
-	case 0x1000B400:
+	case D4_CHCR + 0x0:
 		m_D4.WriteCHCR(nData);
 		break;
-	case 0x1000B404:
-	case 0x1000B408:
-	case 0x1000B40C:
+	case D4_CHCR + 0x4:
+	case D4_CHCR + 0x8:
+	case D4_CHCR + 0xC:
 		break;
 
 	//D4_MADR
-	case 0x1000B410:
+	case D4_MADR + 0x0:
 		m_D4.m_nMADR = nData;
 		break;
-	case 0x1000B414:
-	case 0x1000B418:
-	case 0x1000B41C:
+	case D4_MADR + 0x4:
+	case D4_MADR + 0x8:
+	case D4_MADR + 0xC:
 		break;
 
 	//D4_QWC
-	case 0x1000B420:
+	case D4_QWC + 0x0:
 		m_D4.m_nQWC = nData;
 		break;
-	case 0x1000B424:
-	case 0x1000B428:
-	case 0x1000B42C:
+	case D4_QWC + 0x4:
+	case D4_QWC + 0x8:
+	case D4_QWC + 0xC:
 		break;
 
 	//D4_TADR
-	case 0x1000B430:
+	case D4_TADR + 0x0:
 		m_D4.m_nTADR = nData;
 		break;
-	case 0x1000B434:
-	case 0x1000B438:
-	case 0x1000B43C:
+	case D4_TADR + 0x4:
+	case D4_TADR + 0x8:
+    case D4_TADR + 0xC:
 		break;
 
 	//D5_CHCR
-	case 0x1000C000:
+	case D5_CHCR + 0x0:
 		m_D5_CHCR = nData;
 		if(m_D5_CHCR & 0x100)
 		{
@@ -586,30 +586,31 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 //			}
 		}
 		break;
-	case 0x1000C004:
-	case 0x1000C008:
-	case 0x1000C00C:
+	case D5_CHCR + 0x4:
+	case D5_CHCR + 0x8:
+	case D5_CHCR + 0xC:
 		break;
 
 	//D5_MADR
-	case 0x1000C010:
+	case D5_MADR + 0x0:
 		m_D5_MADR = nData;
 		break;
-	case 0x1000C014:
-	case 0x1000C018:
-	case 0x1000C01C:
+	case D5_MADR + 0x4:
+	case D5_MADR + 0x8:
+	case D5_MADR + 0xC:
 		break;
 
 	//D5_QWC
-	case 0x1000C020:
+	case D5_QWC + 0x0:
 		m_D5_QWC = nData;
-	case 0x1000C024:
-	case 0x1000C028:
-	case 0x1000C02C:
+        break;
+	case D5_QWC + 0x4:
+	case D5_QWC + 0x8:
+	case D5_QWC + 0xC:
 		break;
 
 	//D6_CHCR
-	case 0x1000C400:
+	case D6_CHCR + 0x0:
 		m_D6_CHCR = nData;
 		if(m_D6_CHCR & 0x100)
 		{
@@ -617,36 +618,36 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 			m_D6_CHCR &= ~0x100;
 		}
 		break;
-	case 0x1000C404:
-	case 0x1000C408:
-	case 0x1000C40C:
+	case D6_CHCR + 0x4:
+	case D6_CHCR + 0x8:
+	case D6_CHCR + 0xC:
 		break;
 
 	//D6_MADR
-	case 0x1000C410:
+	case D6_MADR + 0x0:
 		m_D6_MADR = nData;
 		break;
-	case 0x1000C414:
-	case 0x1000C418:
-	case 0x1000C41C:
+	case D6_MADR + 0x4:
+	case D6_MADR + 0x8:
+	case D6_MADR + 0xC:
 		break;
 
 	//D6_QWC
-	case 0x1000C420:
+	case D6_QWC + 0x0:
 		m_D6_QWC = nData;
 		break;
-	case 0x1000C424:
-	case 0x1000C428:
-	case 0x1000C42C:
+	case D6_QWC + 0x4:
+	case D6_QWC + 0x8:
+	case D6_QWC + 0xC:
 		break;
 
 	//D6_TADR
-	case 0x1000C430:
+	case D6_TADR + 0x0:
 		m_D6_TADR = nData;
 		break;
-	case 0x1000C434:
-	case 0x1000C438:
-	case 0x1000C43C:
+	case D6_TADR + 0x4:
+	case D6_TADR + 0x8:
+	case D6_TADR + 0xC:
 		break;
 
     //Channel 8
@@ -723,7 +724,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D9_SADR + 0xC:
 		break;
 
-	case 0x1000E010:
+	case D_STAT + 0x0:
 		uint32 nStat, nMask;
 		nStat = nData & 0x0000FFFF;
 		nMask = nData & 0xFFFF0000;
@@ -734,9 +735,9 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		//Clear the interrupt status
 		m_D_STAT &= ~nStat;
 		break;
-	case 0x1000E014:
-	case 0x1000E018:
-	case 0x1000E01C:
+	case D_STAT + 0x4:
+	case D_STAT + 0x8:
+	case D_STAT + 0xC:
 		break;
 
 	case D_ENABLEW + 0x0:
@@ -813,16 +814,28 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 {
 	switch(nAddress)
 	{
-	case 0x1000A000:
+	case D1_CHCR:
+		CLog::GetInstance().Print(LOG_NAME, "D1_CHCR = 0x%0.8X.\r\n", nData);
+		break;
+	case D1_MADR:
+		CLog::GetInstance().Print(LOG_NAME, "D1_MADR = 0x%0.8X.\r\n", nData);
+		break;
+	case D1_QWC:
+		CLog::GetInstance().Print(LOG_NAME, "D1_SIZE = 0x%0.8X.\r\n", nData);
+		break;
+	case D1_TADR:
+		CLog::GetInstance().Print(LOG_NAME, "D1_TADR = 0x%0.8X.\r\n", nData);
+		break;
+	case D2_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "D2_CHCR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000A010:
+	case D2_MADR:
 		CLog::GetInstance().Print(LOG_NAME, "D2_MADR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000A020:
+	case D2_QWC:
 		CLog::GetInstance().Print(LOG_NAME, "D2_SIZE = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000A030:
+	case D2_TADR:
 		CLog::GetInstance().Print(LOG_NAME, "D2_TADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D3_CHCR:
@@ -846,25 +859,25 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 	case D4_TADR:
 		CLog::GetInstance().Print(LOG_NAME, "D4_TADR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000C000:
+	case D5_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "D5_CHCR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000C010:
+	case D5_MADR:
 		CLog::GetInstance().Print(LOG_NAME, "D5_MADR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000C020:
+	case D5_QWC:
 		CLog::GetInstance().Print(LOG_NAME, "D5_QWC = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000C400:
+	case D6_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "D6_CHCR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000C410:
+	case D6_MADR:
 		CLog::GetInstance().Print(LOG_NAME, "D6_MADR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000C420:
+	case D6_QWC:
 		CLog::GetInstance().Print(LOG_NAME, "D6_QWC = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000C430:
+	case D6_TADR:
 		CLog::GetInstance().Print(LOG_NAME, "D6_TADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D8_CHCR:
@@ -894,7 +907,7 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 	case D9_SADR:
 		CLog::GetInstance().Print(LOG_NAME, "D9_SADR = 0x%0.8X.\r\n", nData);
 		break;
-	case 0x1000E010:
+	case D_STAT:
 		CLog::GetInstance().Print(LOG_NAME, "D_STAT = 0x%0.8X.\r\n", nData);
         break;
 	case D_ENABLEW:

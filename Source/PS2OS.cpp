@@ -2285,6 +2285,13 @@ string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
+    case 0x10:
+        sprintf(sDescription, "AddIntcHandler(cause = %i, address = 0x%0.8X, next = 0x%0.8X, arg = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+            m_ee.m_State.nGPR[SC_PARAM2].nV[0],
+            m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
+        break;
 	case 0x11:
 		sprintf(sDescription, "RemoveIntcHandler(cause = %i, id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \

@@ -99,6 +99,7 @@ protected:
 
     void                Cmd_MPG(StreamType&, CODE);
     void                Cmd_STROW(StreamType&, CODE);
+    void                Cmd_STCOL(StreamType&, CODE);
     void                Cmd_STMASK(StreamType&, CODE);
 
     bool                Unpack_S32(StreamType&, uint128&);
@@ -119,6 +120,7 @@ protected:
     uint8               m_NUM;
     uint32              m_MODE;
     uint32              m_R[4];
+    uint32              m_C[4];
     uint32              m_MASK;
     uint32              m_ITOP;
     uint32              m_ITOPS;
