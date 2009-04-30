@@ -227,17 +227,14 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
     assert(srcExtraPtr == 0);
     assert(dstExtraPtr == 0);
     assert(sizeExtra == 0);
+    assert(packetSize >= 0x10);
 
     uint8* packetData = m_ram + packetPtr;
-    size_t sentPacketSize = sizeof(CSIF::PACKETHDR) + packetSize;
-    uint8* sentPacket = reinterpret_cast<uint8*>(alloca(sentPacketSize));
-    CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(sentPacket);
+    CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(packetData);
     header->nCID = commandId;
     header->nSize = packetSize;
     header->nDest = 0;
-    header->nOptional = 0;
-    memcpy(sentPacket + sizeof(CSIF::PACKETHDR), packetData, packetSize);
-    m_sifMan.SendPacket(sentPacket, sentPacketSize);
+    m_sifMan.SendPacket(packetData, packetSize);
 
     return 0;
 }
