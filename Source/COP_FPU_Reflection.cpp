@@ -284,8 +284,8 @@ INSTRUCTION CCOP_FPU::m_cReflS[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x28
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"MAX.S",	NULL,			CopyMnemonic,   	ReflOpFdFsFt,		NULL,				NULL			},
+	{	"MIN.S",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

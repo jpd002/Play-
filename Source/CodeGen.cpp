@@ -1247,6 +1247,19 @@ void CCodeGen::Cmp(CONDITION nCondition)
 
         Cmp(nCondition);
 	}
+    else if(FitsPattern<ConstantRegister>())
+    {
+        RegisterConstant::PatternValue ops = GetPattern<ConstantRegister>();
+        unsigned int register1 = AllocateRegister();
+        unsigned int register2 = ops.second;
+
+        LoadConstantInRegister(register1, ops.first);
+
+        PushReg(register1);
+        PushReg(register2);
+
+        Cmp(nCondition);
+    }
     else if(FitsPattern<RegisterConstant>())
     {
         RegisterConstant::PatternValue ops = GetPattern<RegisterConstant>();
@@ -2035,6 +2048,34 @@ void CCodeGen::Shl64(uint8 nAmount)
         ops.q <<= nAmount;
         PushCst(ops.d0);
         PushCst(ops.d1);
+    }
+    else if(FitsPattern<ConstantRelative>())
+    {
+        //Upper = Relative
+        //Lower = Constant
+        ConstantRelative::PatternValue ops(GetPattern<ConstantRelative>());
+
+        if(nAmount < 32)
+        {
+            unsigned int register1 = AllocateRegister();
+            unsigned int register2 = AllocateRegister();
+
+            LoadConstantInRegister(register1, ops.first);
+            LoadRelativeInRegister(register2, ops.second);
+
+            m_Assembler.ShldEd(
+                CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[register2]),
+                m_nRegisterLookupEx[register1], nAmount);
+
+            m_Assembler.ShlEd(CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[register1]), nAmount);
+
+            PushReg(register1);
+            PushReg(register2);
+        }
+        else
+        {
+            assert(0);
+        }
     }
 	else
 	{

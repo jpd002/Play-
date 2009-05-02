@@ -152,6 +152,8 @@ public:
     void                            FP_Add();
     void                            FP_Abs();
     void                            FP_Sub();
+    void                            FP_Max();
+    void                            FP_Min();
     void                            FP_Mul();
     void                            FP_Div();
     void                            FP_Cmp(CONDITION);

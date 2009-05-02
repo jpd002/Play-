@@ -314,6 +314,24 @@ void CCOP_FPU::CVT_W_S()
     m_codeGen->FP_PullWordTruncate(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
+//28
+void CCOP_FPU::MAX_S()
+{
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FP_Max();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
+}
+
+//29
+void CCOP_FPU::MIN_S()
+{
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FP_Min();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
+}
+
 //32
 void CCOP_FPU::C_EQ_S()
 {
@@ -418,7 +436,7 @@ CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpSingle[0x40] =
 	//0x20
 	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&CVT_W_S,		&Illegal,		&Illegal,		&Illegal,
 	//0x28
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&MAX_S,		    &MIN_S,	    	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
 	//0x30
 	&Illegal,		&Illegal,		&C_EQ_S,		&Illegal,		&C_LT_S,		&Illegal,		&C_LE_S,		&Illegal,
 	//0x38

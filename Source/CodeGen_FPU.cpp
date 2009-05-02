@@ -254,6 +254,16 @@ void CCodeGen::FP_Sub()
     FP_GenericTwoOperand(bind(&CX86Assembler::SubssEd, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
+void CCodeGen::FP_Max()
+{
+    FP_GenericTwoOperand(bind(&CX86Assembler::MaxssEd, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
+}
+
+void CCodeGen::FP_Min()
+{
+    FP_GenericTwoOperand(bind(&CX86Assembler::MinssEd, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
+}
+
 void CCodeGen::FP_Mul()
 {
     FP_GenericTwoOperand(bind(&CX86Assembler::MulssEd, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));

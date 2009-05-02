@@ -32,6 +32,20 @@ void CX86Assembler::SubssEd(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0x5C, address, registerId);
 }
 
+void CX86Assembler::MaxssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5F, address, registerId);
+}
+
+void CX86Assembler::MinssEd(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0xF3);
+    WriteByte(0x0F);
+    WriteEdVdOp(0x5D, address, registerId);
+}
+
 void CX86Assembler::MulssEd(XMMREGISTER registerId, const CAddress& address)
 {
     WriteByte(0xF3);

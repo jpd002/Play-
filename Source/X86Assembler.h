@@ -246,6 +246,8 @@ public:
     void                                    MovssEd(XMMREGISTER, const CAddress&);
     void                                    AddssEd(XMMREGISTER, const CAddress&);
     void                                    SubssEd(XMMREGISTER, const CAddress&);
+    void                                    MaxssEd(XMMREGISTER, const CAddress&);
+    void                                    MinssEd(XMMREGISTER, const CAddress&);
     void                                    MulssEd(XMMREGISTER, const CAddress&);
     void                                    DivssEd(XMMREGISTER, const CAddress&);
     void                                    RcpssEd(XMMREGISTER, const CAddress&);

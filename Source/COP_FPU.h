@@ -85,6 +85,8 @@ private:
 	void							    MADD_S();
 	void							    MSUB_S();
 	void							    CVT_W_S();
+    void                                MAX_S();
+    void                                MIN_S();
 	void							    C_EQ_S();
 	void							    C_LT_S();
 	void							    C_LE_S();
