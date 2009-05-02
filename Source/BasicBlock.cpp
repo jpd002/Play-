@@ -2,6 +2,11 @@
 #include "MipsCodeGen.h"
 #include "MemStream.h"
 #include "offsetof_def.h"
+#ifdef ARM
+#include <mach/mach_init.h>
+#include <mach/vm_map.h>
+extern "C" void __clear_cache(void* begin, void* end);
+#endif
 
 using namespace Framework;
 
@@ -46,16 +51,29 @@ void CBasicBlock::Compile()
                 &codeGen,
                 &m_context);
             //Sanity check
-            assert(codeGen.IsStackEmpty());
+			//assert(codeGen.AreAllRegistersFreed());
+			assert(codeGen.IsStackEmpty());
         }
         codeGen.DumpVariables(0);
-        codeGen.m_Assembler.Ret();
+		codeGen.EndQuota();
         codeGen.End();
     }
 
+#ifdef ARM
+	vm_size_t page_size = 0;
+	host_page_size(mach_task_self(), &page_size);
+	unsigned int allocSize = ((stream.GetSize() + page_size - 1) / page_size) * page_size;
+	vm_allocate(mach_task_self(), reinterpret_cast<vm_address_t*>(&m_text), allocSize, TRUE); 
+	memcpy(m_text, stream.GetBuffer(), stream.GetSize());
+	__clear_cache(m_text, m_text + stream.GetSize());
+	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_text), 
+									  stream.GetSize(), 0, VM_PROT_READ | VM_PROT_EXECUTE);
+	assert(result == 0);
+#else
     //Save text
     m_text = new uint8[stream.GetSize()];
-    memcpy(m_text, stream.GetBuffer(), stream.GetSize());
+    memcpy(m_text, stream.GetBuffer(), stream.GetSize());	
+#endif
 }
 
 unsigned int CBasicBlock::Execute()
@@ -65,8 +83,12 @@ unsigned int CBasicBlock::Execute()
 
 #ifdef AMD64
 
-    
-
+#elif defined(ARM)
+	
+	__asm__ ("mov r11, %0" : : "r"(context));
+	__asm__ ("mov r0, %0" : : "r"(function));
+	__asm__ ("blx r0");
+	
 #else
 
     //Should change pre-proc definitions used here (MACOSX to GCC?)
