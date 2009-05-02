@@ -14,7 +14,7 @@ CMipsCodeGen::~CMipsCodeGen()
 }
 
 void CMipsCodeGen::EndQuota()
-{
+{	
     assert(m_Shadow.GetCount() == 0);
     DumpVariables(m_IfStack.GetCount());
     DumpAllVariablesAndKeepState();

@@ -34,11 +34,8 @@ void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CCodeGen* cod
 
 void CMIPSInstructionFactory::ComputeMemAccessAddr()
 {
-	uint8 nRS;
-	uint16 nImmediate;
-
-	nRS			= (uint8) ((m_nOpcode >> 21) & 0x001F);
-	nImmediate	= (uint16)((m_nOpcode >>  0) & 0xFFFF);
+	uint8 nRS			= (uint8) ((m_nOpcode >> 21) & 0x001F);
+	uint16 nImmediate	= (uint16)((m_nOpcode >>  0) & 0xFFFF);
 
 	//TODO: Compute the complete 64-bit address
 
