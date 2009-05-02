@@ -1,6 +1,7 @@
 #ifndef _MIPSCODEGEN_H_
 #define _MIPSCODEGEN_H_
 
+#include <map>
 #include "CodeGen.h"
 
 class CMipsCodeGen : public CCodeGen
