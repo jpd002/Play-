@@ -49,10 +49,12 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
         bool isBranch = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
         if(isBranch)
         {
+            assert((address & 0x07) == 0x00);
             partitionPoints.insert(address + 0x10);
             uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, address, opcode);
             if(target > functionAddress && target < endAddress)
             {
+                assert((target & 0x07) == 0x00);
                 partitionPoints.insert(target);
             }
         }

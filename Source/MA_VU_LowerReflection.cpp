@@ -359,8 +359,8 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
     {	"BAL",		NULL,			CopyMnemonic,		ReflOpItOfs,		IsBranch,			ReflEaOffset	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"JR",		NULL,			CopyMnemonic,		ReflOpIs,			IsBranch,			ReflEaIs		},
-	{	"JALR",		NULL,			CopyMnemonic,		ReflOpItIs,			IsBranch,			ReflEaIs		},
+	{	"JR",		NULL,			CopyMnemonic,		ReflOpIs,			IsBranch,			NULL    		},
+	{	"JALR",		NULL,			CopyMnemonic,		ReflOpItIs,			IsBranch,			NULL    		},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x28

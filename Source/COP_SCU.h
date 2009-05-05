@@ -8,6 +8,7 @@ class CCOP_SCU : public CMIPSCoprocessor
 public:
 	enum REGISTER
 	{
+        COUNT       = 0x09,
 		STATUS		= 0x0C,
 		EPC			= 0x0E,
 		ERROREPC	= 0x1E,
