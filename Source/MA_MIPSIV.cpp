@@ -488,8 +488,11 @@ void CMA_MIPSIV::LB()
 	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetByteProxy), 2, true);
 
     m_codeGen->SeX8();
-	m_codeGen->SeX();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
     m_codeGen->PullTop();
@@ -505,8 +508,11 @@ void CMA_MIPSIV::LH()
 	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetHalfProxy), 2, true);
 
     m_codeGen->SeX16();
-	m_codeGen->SeX();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
     m_codeGen->PullTop();

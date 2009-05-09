@@ -114,12 +114,18 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     Function();
 
-    m_codeGen->SeX();
-    m_codeGen->PullRel(lo[1]);
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+		m_codeGen->PullRel(lo[1]);
+	}
     m_codeGen->PullRel(lo[0]);
 
-    m_codeGen->SeX();
-    m_codeGen->PullRel(hi[1]);
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->SeX();
+		m_codeGen->PullRel(hi[1]);
+	}
     m_codeGen->PullRel(hi[0]);
 
     if(m_nRD != 0)
@@ -180,12 +186,18 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		function();
 
-		m_codeGen->SeX();
-		m_codeGen->PullRel(lo[1]);
+		if(m_regSize == MIPS_REGSIZE_64)
+		{
+			m_codeGen->SeX();
+			m_codeGen->PullRel(lo[1]);
+		}
 		m_codeGen->PullRel(lo[0]);
 
-		m_codeGen->SeX();
-		m_codeGen->PullRel(hi[1]);
+		if(m_regSize == MIPS_REGSIZE_64)
+		{
+			m_codeGen->SeX();
+			m_codeGen->PullRel(hi[1]);
+		}
 		m_codeGen->PullRel(hi[0]);
 	}
 	m_codeGen->EndIf();
