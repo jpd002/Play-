@@ -25,7 +25,12 @@ CBasicBlock::~CBasicBlock()
 {
     if(m_text != NULL)
     {
+#ifdef ARM
+		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_text), m_textSize); 
+#else
         delete [] m_text;
+#endif
+		
     }
 }
 
@@ -51,7 +56,7 @@ void CBasicBlock::Compile()
                 &codeGen,
                 &m_context);
             //Sanity check
-			//assert(codeGen.AreAllRegistersFreed());
+			assert(codeGen.AreAllRegistersFreed());
 			assert(codeGen.IsStackEmpty());
         }
         codeGen.DumpVariables(0);
@@ -69,10 +74,12 @@ void CBasicBlock::Compile()
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_text), 
 									  stream.GetSize(), 0, VM_PROT_READ | VM_PROT_EXECUTE);
 	assert(result == 0);
+	m_textSize = allocSize;
 #else
     //Save text
     m_text = new uint8[stream.GetSize()];
-    memcpy(m_text, stream.GetBuffer(), stream.GetSize());	
+	m_textSize = stream.GetSize();
+    memcpy(m_text, stream.GetBuffer(), stream.GetSize());
 #endif
 }
 
@@ -85,9 +92,12 @@ unsigned int CBasicBlock::Execute()
 
 #elif defined(ARM)
 	
-	__asm__ ("mov r11, %0" : : "r"(context));
-	__asm__ ("mov r0, %0" : : "r"(function));
+	__asm__ ("mov r1, %0" : : "r"(context) : "r1");
+	__asm__ ("mov r0, %0" : : "r"(function) : "r0");
+	__asm__ ("stmdb sp!, {r2, r3, r4, r5, r6, r7, r11, ip}");
+	__asm__ ("mov r11, r1");
 	__asm__ ("blx r0");
+	__asm__ ("ldmia sp!, {r2, r3, r4, r5, r6, r7, r11, ip}");
 	
 #else
 
