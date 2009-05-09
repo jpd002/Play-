@@ -23,6 +23,16 @@ CArmAssembler::REGISTER CCodeGen::g_usableRegisters[MAX_USABLE_REGISTERS] =
 	CArmAssembler::r10,
 };
 
+static int32 sdiv_stub(int32 op1, int32 op2)
+{
+	return op1 / op2;
+}
+
+static int32 smod_stub(int32 op1, int32 op2)
+{
+	return op1 % op2;
+}
+
 CCodeGen::CCodeGen() :
 m_assembler(
 		tr1::bind(&CCodeGen::StreamWriteByte, this, PLACEHOLDER_1),
@@ -67,8 +77,8 @@ void CCodeGen::Begin()
 	m_lastLiteralPtr = 0;
 	
 	//Save return address
-	m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(4, 0));
-	m_assembler.Str(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0));
+	m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04, 0));
+	m_assembler.Str(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0x00));
 }
 
 void CCodeGen::End()
@@ -78,29 +88,87 @@ void CCodeGen::End()
 
 void CCodeGen::EndQuota()
 {
-	m_assembler.Ldr(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0));
-	m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(4, 0));
+	m_assembler.Ldr(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0x00));
+	m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04, 0));
 	m_assembler.Blx(CArmAssembler::rLR);
 }
 
 void CCodeGen::BeginIf(bool nCondition)
 {
-	throw std::exception();
+	if(FitsPattern<SingleRegister>())
+	{
+		SingleRegister::PatternValue op = GetPattern<SingleRegister>();
+		CArmAssembler::REGISTER registerId = static_cast<CArmAssembler::REGISTER>(op);
+		
+		m_assembler.Teq(registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		
+		if(!RegisterHasNextUse(registerId))
+		{
+			FreeRegister(registerId);
+		}
+		
+		CArmAssembler::LABEL ifLabel = m_assembler.CreateLabel();
+		m_assembler.BCc(nCondition ? CArmAssembler::CONDITION_EQ : CArmAssembler::CONDITION_NE, ifLabel);
+	
+		m_IfStack.Push(ifLabel);
+		m_IfStack.Push(IFBLOCK);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::EndIf()
 {
-	throw std::exception();
+	assert(m_IfStack.GetAt(0) == IFBLOCK);
+	
+	m_IfStack.Pull();
+	CArmAssembler::LABEL ifLabel = static_cast<CArmAssembler::LABEL>(m_IfStack.Pull());
+	
+	m_assembler.MarkLabel(ifLabel);
+	m_assembler.ResolveLabelReferences();
 }
 
 void CCodeGen::BeginIfElse(bool nCondition)
 {
-	throw std::exception();
+	if(FitsPattern<SingleRelative>())
+	{
+		SingleRelative::PatternValue op = GetPattern<SingleRelative>();
+
+		CArmAssembler::REGISTER registerId = AllocateRegister();
+
+		LoadRelativeInRegister(registerId, op);
+		m_assembler.Teq(registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		FreeRegister(registerId);
+		
+		CArmAssembler::LABEL ifLabel = m_assembler.CreateLabel();
+		m_assembler.BCc(nCondition ? CArmAssembler::CONDITION_EQ : CArmAssembler::CONDITION_NE, ifLabel);
+		
+		m_IfStack.Push(ifLabel);
+		m_IfStack.Push(IFELSEBLOCK);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::BeginIfElseAlt()
 {
-	throw std::exception();
+	assert(m_IfStack.GetAt(0) == IFELSEBLOCK);
+	
+	m_IfStack.Pull();
+    CArmAssembler::LABEL ifLabel = m_IfStack.Pull();
+	
+    CArmAssembler::LABEL doneLabel = m_assembler.CreateLabel();
+	
+    //jmp label
+    m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+    m_assembler.MarkLabel(ifLabel);
+	
+	m_IfStack.Push(doneLabel);
+	m_IfStack.Push(IFBLOCK);
 }
 
 void CCodeGen::PushReg(unsigned int registerId)
@@ -190,6 +258,22 @@ void CCodeGen::Add()
 			FreeRegister(srcReg);
 		}
 	}
+	else if(FitsPattern<RelativeRelative>())
+	{
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+		
+		CArmAssembler::REGISTER dstReg = AllocateRegister();
+		CArmAssembler::REGISTER srcReg = AllocateRegister();
+			
+		LoadRelativeInRegister(dstReg, ops.first);
+		LoadRelativeInRegister(srcReg, ops.second);
+			
+		//add reg, Immediate
+		m_assembler.Add(dstReg, dstReg, srcReg);
+			
+		PushReg(dstReg);
+		FreeRegister(srcReg);
+	}
 	else if(FitsPattern<ConstantConstant>())
 	{
 		ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
@@ -208,7 +292,10 @@ void CCodeGen::Add64()
 
 void CCodeGen::And()
 {
-	throw std::exception();
+	GenericCommutativeOperation(
+								tr1::bind(&CArmAssembler::And, &m_assembler, _1, _2, _3),
+								tr1::bind(&CCodeGen::Const_And, _1, _2)
+	);
 }
 
 void CCodeGen::And64()
@@ -269,7 +356,117 @@ void CCodeGen::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 
 void CCodeGen::Cmp(CONDITION nCondition)
 {
-	throw std::exception();
+	if(FitsPattern<RegisterRegister>())
+	{
+        RegisterRegister::PatternValue ops(GetPattern<RegisterRegister>());
+		
+		CArmAssembler::REGISTER dstReg = static_cast<CArmAssembler::REGISTER>(ops.first);
+		CArmAssembler::REGISTER srcReg = static_cast<CArmAssembler::REGISTER>(ops.second);
+		CArmAssembler::REGISTER resultReg;
+		
+		if(!RegisterHasNextUse(dstReg))
+		{
+			resultReg = dstReg;
+		}
+		else
+		{
+			resultReg = AllocateRegister();
+		}
+
+		if(!RegisterHasNextUse(srcReg))
+		{
+			FreeRegister(srcReg);
+		}
+		
+		CArmAssembler::CONDITION conditionCode = CArmAssembler::CONDITION_AL;
+		
+		switch(nCondition)
+		{
+			case CONDITION_LT:
+				conditionCode = CArmAssembler::CONDITION_LT;
+				break;
+			case CONDITION_LE:
+				conditionCode = CArmAssembler::CONDITION_LE;
+				break;
+			case CONDITION_EQ:
+				conditionCode = CArmAssembler::CONDITION_EQ;
+				break;
+			case CONDITION_BL:
+				conditionCode = CArmAssembler::CONDITION_CC;
+				break;
+			default:
+				throw std::exception();
+				break;
+		}
+		
+		m_assembler.Cmp(dstReg, srcReg);
+		m_assembler.Eor(resultReg, resultReg, resultReg);
+		m_assembler.MovCc(conditionCode, resultReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		
+		PushReg(resultReg);
+	}
+	else if(FitsPattern<RelativeConstant>())
+	{
+        RelativeConstant::PatternValue ops(GetPattern<RelativeConstant>());
+		
+		CArmAssembler::REGISTER dstReg = AllocateRegister();
+		CArmAssembler::REGISTER srcReg = AllocateRegister();
+			
+		LoadRelativeInRegister(dstReg, ops.first);
+		LoadConstantInRegister(srcReg, ops.second);
+
+		PushReg(dstReg);
+		PushReg(srcReg);
+		
+		Cmp(nCondition);
+	}
+	else if(FitsPattern<ConstantRelative>())
+	{
+        ConstantRelative::PatternValue ops(GetPattern<ConstantRelative>());
+		
+		CArmAssembler::REGISTER dstReg = AllocateRegister();
+		CArmAssembler::REGISTER srcReg = AllocateRegister();
+		
+		LoadConstantInRegister(dstReg, ops.first);
+		LoadRelativeInRegister(srcReg, ops.second);
+		
+		PushReg(dstReg);
+		PushReg(srcReg);
+		
+		Cmp(nCondition);
+	}
+	else if(FitsPattern<RelativeRelative>())
+	{
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+		
+		CArmAssembler::REGISTER dstReg = AllocateRegister();
+		CArmAssembler::REGISTER srcReg = AllocateRegister();
+		
+		LoadRelativeInRegister(dstReg, ops.first);
+		LoadRelativeInRegister(srcReg, ops.second);
+		
+		PushReg(dstReg);
+		PushReg(srcReg);
+		
+		Cmp(nCondition);
+	}
+	else if(FitsPattern<ConstantRegister>())
+	{
+        ConstantRegister::PatternValue ops(GetPattern<ConstantRegister>());
+		
+		CArmAssembler::REGISTER dstReg = AllocateRegister();
+		
+		LoadConstantInRegister(dstReg, ops.first);
+		
+		PushReg(dstReg);
+		PushReg(ops.second);
+		
+		Cmp(nCondition);
+	}
+	else
+	{
+		throw std::exception();
+	}	
 }
 
 void CCodeGen::Cmp64(CONDITION nCondition)
@@ -284,7 +481,42 @@ void CCodeGen::Div()
 
 void CCodeGen::DivS()
 {
-	throw std::exception();
+	if(FitsPattern<RelativeRelative>())
+	{
+		RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+		void* divFunc = reinterpret_cast<void*>(sdiv_stub);
+		void* modFunc = reinterpret_cast<void*>(smod_stub);
+
+		CArmAssembler::REGISTER lowRegister = AllocateRegister();
+		CArmAssembler::REGISTER highRegister = AllocateRegister();
+		CArmAssembler::REGISTER tempRegister = AllocateRegister();
+
+		LoadRelativeInRegister(lowRegister, ops.first);
+		LoadRelativeInRegister(highRegister, ops.second);
+		
+		m_assembler.Mov(CArmAssembler::r0, lowRegister);
+		m_assembler.Mov(CArmAssembler::r1, highRegister);
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(divFunc));
+		m_assembler.Blx(CArmAssembler::r2);
+		m_assembler.Mov(tempRegister, CArmAssembler::r0);
+
+		m_assembler.Mov(CArmAssembler::r0, lowRegister);
+		m_assembler.Mov(CArmAssembler::r1, highRegister);
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(modFunc));
+		m_assembler.Blx(CArmAssembler::r2);
+
+		m_assembler.Mov(lowRegister, tempRegister);
+		m_assembler.Mov(highRegister, CArmAssembler::r0);
+		
+		FreeRegister(tempRegister);
+
+		PushReg(highRegister);
+		PushReg(lowRegister);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::Lookup(uint32* table)
@@ -304,17 +536,75 @@ void CCodeGen::Mult()
 
 void CCodeGen::MultS()
 {
-	throw std::exception();
+	if(FitsPattern<RelativeRelative>())
+	{
+		RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+		
+		CArmAssembler::REGISTER lowRegister = AllocateRegister();
+		CArmAssembler::REGISTER highRegister = AllocateRegister();
+
+		LoadRelativeInRegister(lowRegister, ops.first);
+		LoadRelativeInRegister(highRegister, ops.second);
+		
+		m_assembler.Smull(lowRegister, highRegister, lowRegister, highRegister);
+		
+		PushReg(highRegister);
+		PushReg(lowRegister);
+	}
+	else if(FitsPattern<CommutativeRelativeConstant>())
+	{
+		CommutativeRelativeConstant::PatternValue ops = GetPattern<CommutativeRelativeConstant>();
+		
+		CArmAssembler::REGISTER lowRegister = AllocateRegister();
+		CArmAssembler::REGISTER highRegister = AllocateRegister();
+		
+		LoadRelativeInRegister(lowRegister, ops.first);
+		LoadConstantInRegister(highRegister, ops.second);
+		
+		m_assembler.Smull(lowRegister, highRegister, lowRegister, highRegister);
+		
+		PushReg(highRegister);
+		PushReg(lowRegister);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::Not()
 {
-	throw std::exception();
+	if(FitsPattern<SingleRegister>())
+	{
+		SingleRegister::PatternValue op = GetPattern<SingleRegister>();
+		
+		CArmAssembler::REGISTER sourceRegister = static_cast<CArmAssembler::REGISTER>(op);
+		CArmAssembler::REGISTER resultRegister;
+		if(!RegisterHasNextUse(sourceRegister))
+		{
+			resultRegister = sourceRegister;
+		}
+		else
+		{
+			resultRegister = AllocateRegister();
+		}
+		
+		m_assembler.Mvn(resultRegister, sourceRegister);
+		
+		PushReg(resultRegister);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::Or()
 {
-	throw std::exception();
+	GenericCommutativeOperation(
+								tr1::bind(&CArmAssembler::Or, &m_assembler, _1, _2, _3),
+								tr1::bind(&CCodeGen::Const_Or, _1, _2)
+	);
 }
 
 void CCodeGen::SeX()
@@ -324,22 +614,84 @@ void CCodeGen::SeX()
 
 void CCodeGen::SeX8()
 {
-	throw std::exception();
+	if(FitsPattern<SingleRegister>())
+	{
+		SingleRegister::PatternValue op = GetPattern<SingleRegister>();
+		CArmAssembler::REGISTER srcRegister = static_cast<CArmAssembler::REGISTER>(op);
+		CArmAssembler::REGISTER dstRegister;
+		
+		if(!RegisterHasNextUse(srcRegister))
+		{
+			dstRegister = srcRegister;
+		}
+		else
+		{
+			dstRegister = AllocateRegister();
+		}
+		
+		m_assembler.Mov(dstRegister, 
+						CArmAssembler::MakeRegisterAluOperand(srcRegister,
+															  CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSL, 24)
+															  )
+						);
+		m_assembler.Mov(dstRegister, 
+						CArmAssembler::MakeRegisterAluOperand(dstRegister,
+															  CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_ASR, 24)
+															  )
+						);
+		
+		PushReg(dstRegister);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::SeX16()
 {
-	throw std::exception();
+	if(FitsPattern<SingleRegister>())
+	{
+		SingleRegister::PatternValue op = GetPattern<SingleRegister>();
+		CArmAssembler::REGISTER srcRegister = static_cast<CArmAssembler::REGISTER>(op);
+		CArmAssembler::REGISTER dstRegister;
+		
+		if(!RegisterHasNextUse(srcRegister))
+		{
+			dstRegister = srcRegister;
+		}
+		else
+		{
+			dstRegister = AllocateRegister();
+		}
+		
+		m_assembler.Mov(dstRegister, 
+						CArmAssembler::MakeRegisterAluOperand(srcRegister,
+															  CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSL, 16)
+															  )
+						);
+		m_assembler.Mov(dstRegister, 
+						CArmAssembler::MakeRegisterAluOperand(dstRegister,
+															  CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_ASR, 16)
+															  )
+						);
+		
+		PushReg(dstRegister);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::Shl()
 {
-	throw std::exception();
+	GenericVariableShift(CArmAssembler::SHIFT_LSL);
 }
 
 void CCodeGen::Shl(uint8 nAmount)
 {
-	throw std::exception();
+	GenericConstantShift(CArmAssembler::SHIFT_LSL, nAmount);
 }
 
 void CCodeGen::Shl64()
@@ -359,7 +711,7 @@ void CCodeGen::Sra()
 
 void CCodeGen::Sra(uint8 nAmount)
 {
-	throw std::exception();
+	GenericConstantShift(CArmAssembler::SHIFT_ASR, nAmount);
 }
 
 void CCodeGen::Sra64(uint8 nAmount)
@@ -369,12 +721,12 @@ void CCodeGen::Sra64(uint8 nAmount)
 
 void CCodeGen::Srl()
 {
-	throw std::exception();
+	GenericVariableShift(CArmAssembler::SHIFT_LSR);
 }
 
 void CCodeGen::Srl(uint8 nAmount)
 {
-	throw std::exception();
+	GenericConstantShift(CArmAssembler::SHIFT_LSR, nAmount);
 }
 
 void CCodeGen::Srl64()
@@ -389,7 +741,40 @@ void CCodeGen::Srl64(uint8 nAmount)
 
 void CCodeGen::Sub()
 {
-	throw std::exception();
+	if(FitsPattern<ConstantRelative>())
+	{
+		ConstantRelative::PatternValue ops = GetPattern<ConstantRelative>();
+		
+		CArmAssembler::REGISTER dstRegister = AllocateRegister();
+		CArmAssembler::REGISTER srcRegister = AllocateRegister();
+		
+		LoadConstantInRegister(dstRegister, ops.first);
+		LoadRelativeInRegister(srcRegister, ops.second);
+		
+		m_assembler.Sub(dstRegister, dstRegister, srcRegister);
+		
+		FreeRegister(srcRegister);
+		PushReg(dstRegister);
+	}
+	else if(FitsPattern<RelativeRelative>())
+	{
+		RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+		
+		CArmAssembler::REGISTER dstRegister = AllocateRegister();
+		CArmAssembler::REGISTER srcRegister = AllocateRegister();
+		
+		LoadRelativeInRegister(dstRegister, ops.first);
+		LoadRelativeInRegister(srcRegister, ops.second);
+		
+		m_assembler.Sub(dstRegister, dstRegister, srcRegister);
+		
+		FreeRegister(srcRegister);
+		PushReg(dstRegister);
+	}
+	else
+	{
+		throw std::exception();
+	}
 }
 
 void CCodeGen::Sub64()
@@ -399,7 +784,139 @@ void CCodeGen::Sub64()
 
 void CCodeGen::Xor()
 {
-	throw std::exception();
+	GenericCommutativeOperation(
+								tr1::bind(&CArmAssembler::Eor, &m_assembler, _1, _2, _3),
+								tr1::bind(&CCodeGen::Const_Xor, _1, _2)
+								);
+}
+
+void CCodeGen::GenericCommutativeOperation(const TriRegOp& regOp, const ConstConstOp& constOp)
+{
+	if(FitsPattern<CommutativeRelativeConstant>())
+	{
+        CommutativeRelativeConstant::PatternValue ops(GetPattern<CommutativeRelativeConstant>());
+		
+		CArmAssembler::REGISTER dstReg = AllocateRegister();
+		CArmAssembler::REGISTER srcReg = AllocateRegister();
+		
+		LoadRelativeInRegister(dstReg, ops.first);
+		LoadConstantInRegister(srcReg, ops.second);
+		
+		regOp(dstReg, dstReg, srcReg);
+		
+		PushReg(dstReg);
+		FreeRegister(srcReg);
+	}
+	else if(FitsPattern<RelativeRelative>())
+	{
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+		
+		CArmAssembler::REGISTER dstReg = AllocateRegister();
+		CArmAssembler::REGISTER srcReg = AllocateRegister();
+		
+		LoadRelativeInRegister(dstReg, ops.first);
+		LoadRelativeInRegister(srcReg, ops.second);
+		
+		regOp(dstReg, dstReg, srcReg);
+		
+		PushReg(dstReg);
+		FreeRegister(srcReg);
+	}
+	else if(FitsPattern<ConstantConstant>())
+	{
+		ConstantConstant::PatternValue ops(GetPattern<ConstantConstant>());
+		uint32 result = constOp(ops.first, ops.second);
+		PushCst(result);
+	}
+	else
+	{
+		throw std::exception();
+	}
+}
+
+void CCodeGen::GenericVariableShift(CArmAssembler::SHIFT shiftType)
+{
+	if(FitsPattern<ConstantRelative>())
+	{
+		ConstantRelative::PatternValue ops = GetPattern<ConstantRelative>();
+		
+		CArmAssembler::REGISTER resultRegister = AllocateRegister();
+		CArmAssembler::REGISTER shiftRegister = AllocateRegister();
+		
+		LoadConstantInRegister(resultRegister, ops.first);
+		LoadRelativeInRegister(shiftRegister, ops.second);
+		
+		m_assembler.Mov(resultRegister, 
+						CArmAssembler::MakeRegisterAluOperand(resultRegister,
+															  CArmAssembler::MakeVariableShift(shiftType, shiftRegister)
+															  )
+						);
+	
+		FreeRegister(shiftRegister);
+		PushReg(resultRegister);
+	}
+	else if(FitsPattern<RelativeRelative>())
+	{
+		RelativeRelative::PatternValue ops = GetPattern<RelativeRelative>();
+		
+		CArmAssembler::REGISTER resultRegister = AllocateRegister();
+		CArmAssembler::REGISTER shiftRegister = AllocateRegister();
+		
+		LoadRelativeInRegister(resultRegister, ops.first);
+		LoadRelativeInRegister(shiftRegister, ops.second);
+		
+		m_assembler.Mov(resultRegister, 
+						CArmAssembler::MakeRegisterAluOperand(resultRegister,
+															  CArmAssembler::MakeVariableShift(shiftType, shiftRegister)
+															  )
+						);
+		
+		FreeRegister(shiftRegister);
+		PushReg(resultRegister);
+	}
+	else
+	{
+		throw std::exception();
+	}
+}
+
+void CCodeGen::GenericConstantShift(CArmAssembler::SHIFT shiftType, uint8 nAmount)
+{
+	if(FitsPattern<SingleRelative>())
+	{
+		SingleRelative::PatternValue op = GetPattern<SingleRelative>();
+		
+		CArmAssembler::REGISTER resultReg = AllocateRegister();
+		
+		LoadRelativeInRegister(resultReg, op);
+		
+		m_assembler.Mov(resultReg, 
+						CArmAssembler::MakeRegisterAluOperand(resultReg,
+															  CArmAssembler::MakeConstantShift(shiftType, nAmount)
+															  )
+						);
+		
+		PushReg(resultReg);
+	}
+	else
+	{
+		throw std::exception();
+	}
+}
+
+uint32 CCodeGen::Const_And(uint32 op1, uint32 op2)
+{
+	return op1 & op2;
+}
+
+uint32 CCodeGen::Const_Or(uint32 op1, uint32 op2)
+{
+	return op1 | op2;
+}
+
+uint32 CCodeGen::Const_Xor(uint32 op1, uint32 op2)
+{
+	return op1 ^ op2;
 }
 
 CArmAssembler::REGISTER CCodeGen::AllocateRegister()

@@ -4,6 +4,7 @@
 #include "CodeGenBase.h"
 #include "ArmAssembler.h"
 #include <list>
+#include <functional>
 
 class CCodeGen : public CCodeGenBase
 {
@@ -143,6 +144,16 @@ private:
 	};
 
 	typedef std::list<LITERAL_POOL_REF> LiteralPoolRefList;
+	typedef std::tr1::function<void (CArmAssembler::REGISTER, CArmAssembler::REGISTER, CArmAssembler::REGISTER)> TriRegOp;
+	typedef std::tr1::function<uint32 (uint32, uint32)> ConstConstOp;
+	
+	void							GenericCommutativeOperation(const TriRegOp&, const ConstConstOp&);
+	void							GenericConstantShift(CArmAssembler::SHIFT, uint8);
+	void							GenericVariableShift(CArmAssembler::SHIFT);
+	
+	static uint32					Const_And(uint32, uint32);
+	static uint32					Const_Or(uint32, uint32);
+	static uint32					Const_Xor(uint32, uint32);
 	
 	CArmAssembler::REGISTER			AllocateRegister();
 	void							FreeRegister(CArmAssembler::REGISTER);
