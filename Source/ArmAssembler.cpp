@@ -218,6 +218,11 @@ void CArmAssembler::Mov(REGISTER rd, const RegisterAluOperand& operand)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Mov(REGISTER rd, const ImmediateAluOperand& operand)
+{
+	MovCc(CONDITION_AL, rd, operand);
+}
+
 void CArmAssembler::MovCc(CONDITION condition, REGISTER rd, const ImmediateAluOperand& operand)
 {
 	InstructionAlu instruction;

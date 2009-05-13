@@ -964,33 +964,69 @@ void CCodeGen::LoadRelativeInRegister(CArmAssembler::REGISTER registerId, uint32
 	m_assembler.Ldr(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(relative));
 }
 
+uint32 CCodeGen::RotateRight(uint32 value)
+{
+	uint32 carry = value & 1;
+	value >>= 1;
+	value |= carry << 31;
+	return value;
+}
+
+uint32 CCodeGen::RotateLeft(uint32 value)
+{
+	uint32 carry = value >> 31;
+	value <<= 1;
+	value |= carry;
+	return value;
+}
+
 void CCodeGen::LoadConstantInRegister(CArmAssembler::REGISTER registerId, uint32 constant)
 {
-	//Search for an existing literal
-	unsigned int literalPtr = -1;
-	for(unsigned int i = 0; i < m_lastLiteralPtr; i++)
+	uint32 shadowConstant = constant;
+	int shiftAmount = -1;
+	for(unsigned int i = 0; i < 16; i++)
 	{
-		if(m_literalPool[i] == constant) 
+		if((shadowConstant & 0xFF) == shadowConstant)
 		{
-			literalPtr = i;
+			shiftAmount = i;
 			break;
 		}
+		shadowConstant = RotateLeft(shadowConstant);
+		shadowConstant = RotateLeft(shadowConstant);
 	}
-	if(literalPtr == -1)
+	
+	if(shiftAmount != -1)
 	{
-		assert(m_lastLiteralPtr != LITERAL_POOL_SIZE);
-		literalPtr = m_lastLiteralPtr++;
-		m_literalPool[literalPtr] = constant;
+		m_assembler.Mov(registerId, CArmAssembler::MakeImmediateAluOperand(shadowConstant, shiftAmount));
 	}
-	
-	LITERAL_POOL_REF reference;
-	reference.poolPtr = literalPtr;
-	reference.dstRegister = registerId;
-	reference.offset = m_stream->Tell();
-	m_literalPoolRefs.push_back(reference);
-	
-	//Write a blank instruction
-	m_stream->Write32(0);
+	else
+	{
+		//Search for an existing literal
+		unsigned int literalPtr = -1;
+		for(unsigned int i = 0; i < m_lastLiteralPtr; i++)
+		{
+			if(m_literalPool[i] == constant) 
+			{
+				literalPtr = i;
+				break;
+			}
+		}
+		if(literalPtr == -1)
+		{
+			assert(m_lastLiteralPtr != LITERAL_POOL_SIZE);
+			literalPtr = m_lastLiteralPtr++;
+			m_literalPool[literalPtr] = constant;
+		}
+		
+		LITERAL_POOL_REF reference;
+		reference.poolPtr = literalPtr;
+		reference.dstRegister = registerId;
+		reference.offset = m_stream->Tell();
+		m_literalPoolRefs.push_back(reference);
+		
+		//Write a blank instruction
+		m_stream->Write32(0);
+	}
 }
 
 void CCodeGen::DumpLiteralPool()

@@ -177,6 +177,7 @@ public:
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
 	void									Mov(REGISTER, const RegisterAluOperand&);
+	void									Mov(REGISTER, const ImmediateAluOperand&);
 	void									MovCc(CONDITION, REGISTER, const ImmediateAluOperand&);
 	void									Mvn(REGISTER, REGISTER);
 	void									Or(REGISTER, REGISTER, REGISTER);

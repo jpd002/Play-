@@ -161,6 +161,9 @@ private:
 	
 	void							PushReg(CArmAssembler::REGISTER);
 	
+	uint32							RotateRight(uint32);
+	uint32							RotateLeft(uint32);
+	
 	void							LoadRelativeInRegister(CArmAssembler::REGISTER, uint32);
 	void							LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
 	
