@@ -167,6 +167,9 @@ void CIszImageStream::SyncCache()
     case ADI_ZERO:
         ReadZeroBlock(blockDescriptor.size);
         break;
+	case ADI_DATA:
+		ReadDataBlock(blockDescriptor.size);
+		break;
     case ADI_ZLIB:
         ReadGzipBlock(blockDescriptor.size);
         break;
@@ -186,6 +189,15 @@ void CIszImageStream::ReadZeroBlock(uint32 compressedBlockSize)
     {
         throw runtime_error("Invalid zero block.");
     }
+}
+
+void CIszImageStream::ReadDataBlock(uint32 compressedBlockSize)
+{
+    if(compressedBlockSize != m_header.blockSize)
+    {
+        throw runtime_error("Invalid data block.");
+    }
+	m_baseStream->Read(m_cachedBlock, compressedBlockSize);
 }
 
 void CIszImageStream::ReadGzipBlock(uint32 compressedBlockSize)

@@ -75,6 +75,7 @@ private:
     void                    SyncCache();
 
     void                    ReadZeroBlock(uint32);
+	void					ReadDataBlock(uint32);
     void                    ReadGzipBlock(uint32);
     void                    ReadBz2Block(uint32);
 
