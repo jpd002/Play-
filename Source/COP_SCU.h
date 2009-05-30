@@ -11,6 +11,7 @@ public:
         COUNT       = 0x09,
 		STATUS		= 0x0C,
 		EPC			= 0x0E,
+		CPCOND0		= 0x15,
 		ERROREPC	= 0x1E,
 	};
 

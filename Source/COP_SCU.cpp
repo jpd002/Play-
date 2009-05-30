@@ -29,7 +29,7 @@ char*		CCOP_SCU::m_sRegName[] =
 	"WatchLo",
 	"WatchHi",
 	"XContext",
-	"*RESERVED*",
+	"CPCOND0",
 	"*RESERVED*",
 	"*RESERVED*",
 	"*RESERVED*",
@@ -99,13 +99,19 @@ void CCOP_SCU::C0()
 //00
 void CCOP_SCU::BC0F()
 {
-
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[CPCOND0]));
+	m_codeGen->PushCst(0);
+	m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+	Branch(true);
 }
 
 //01
 void CCOP_SCU::BC0T()
 {
-
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[CPCOND0]));
+	m_codeGen->PushCst(0);
+	m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+	Branch(false);
 }
 
 //////////////////////////////////////////////////
