@@ -215,7 +215,7 @@ void CFunctionsView::RefreshList()
 		tstring sTag(string_cast<tstring>(itTag->second));
 
 		memset(&it, 0, sizeof(LVITEM));
-		it.pszText	= const_cast<LPWSTR>(sTag.c_str());
+		it.pszText	= const_cast<LPTSTR>(sTag.c_str());
 		it.lParam	= itTag->first;
 		it.mask		= LVIF_PARAM | LVIF_TEXT;
         if(groupingEnabled)
