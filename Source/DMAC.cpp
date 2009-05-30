@@ -5,6 +5,8 @@
 #include "Log.h"
 #include "RegisterStateFile.h"
 #include "placeholder_def.h"
+#include "MIPS.h"
+#include "COP_SCU.h"
 
 #ifdef	PROFILE
 #define	PROFILE_DMACZONE "DMAC"
@@ -38,9 +40,10 @@ uint32 DummyTransfertFunction(uint32 address, uint32 size, uint32, bool)
     throw runtime_error("Not implemented.");
 }
 
-CDMAC::CDMAC(uint8* ram, uint8* spr) :
+CDMAC::CDMAC(uint8* ram, uint8* spr, CMIPS& ee) :
 m_ram(ram),
 m_spr(spr),
+m_ee(ee),
 m_D_STAT(0),
 m_D_ENABLE(0),
 m_D0(*this, 0, DummyTransfertFunction),
@@ -74,6 +77,7 @@ void CDMAC::Reset()
 {
 	m_D_STAT	= 0;
 	m_D_ENABLE	= 0;
+	m_D_PCR		= 0;
 
     //Reset Channel 0
     m_D0.Reset();
@@ -231,7 +235,7 @@ uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool
 uint32 CDMAC::GetRegister(uint32 nAddress)
 {
 #ifdef _DEBUG
-//	DisassembleGet(nAddress);
+	DisassembleGet(nAddress);
 #endif
 
 	switch(nAddress)
@@ -376,8 +380,12 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		break;
 
     //General Registers
-    case 0x1000E010:
+    case D_STAT:
 		return m_D_STAT;
+		break;
+
+	case D_PCR:
+		return m_D_PCR;
 		break;
 
 	case D_ENABLER + 0x0:
@@ -448,6 +456,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D1_MADR + 0x0:
+		assert(m_D1.m_CHCR.nSTR == 0);
 		m_D1.m_nMADR = nData;
 		break;
 	case D1_MADR + 0x4:
@@ -725,19 +734,30 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D_STAT + 0x0:
-		uint32 nStat, nMask;
-		nStat = nData & 0x0000FFFF;
-		nMask = nData & 0xFFFF0000;
+		{
+			uint32 nStat = nData & 0x0000FFFF;
+			uint32 nMask = nData & 0xFFFF0000;
 
-		//Set the masks
-		m_D_STAT ^= nMask;
+			//Set the masks
+			m_D_STAT ^= nMask;
 
-		//Clear the interrupt status
-		m_D_STAT &= ~nStat;
+			//Clear the interrupt status
+			m_D_STAT &= ~nStat;
+
+			UpdateCpCond();
+		}
 		break;
 	case D_STAT + 0x4:
 	case D_STAT + 0x8:
 	case D_STAT + 0xC:
+		break;
+
+	case D_PCR + 0x0:
+		m_D_PCR = nData;
+		break;
+	case D_PCR + 0x4:
+	case D_PCR + 0x8:
+	case D_PCR + 0xC:
 		break;
 
 	case D_ENABLEW + 0x0:
@@ -788,24 +808,45 @@ void CDMAC::SaveState(CZipArchiveWriter& archive)
     m_D9.SaveState(archive);
 }
 
+void CDMAC::UpdateCpCond()
+{
+	bool condValue = true;
+	for(unsigned int i = 0; i < 10; i++)
+	{
+		if(!(m_D_PCR & (1 << i))) continue;
+		if(!(m_D_STAT & (1 << i)))
+		{
+			condValue = false;
+		}
+	}
+
+	m_ee.m_State.nCOP0[CCOP_SCU::CPCOND0] = condValue;
+}
+
 void CDMAC::DisassembleGet(uint32 nAddress)
 {
 	switch(nAddress)
 	{
 	case D2_CHCR:
-		printf("DMAC: = D2_CHCR.\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "= D2_CHCR.\r\n");
 		break;
 	case D2_TADR:
-		printf("DMAC: = D2_TADR.\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "= D2_TADR.\r\n");
 		break;
 	case D3_QWC:
-		printf("DMAC: = D3_QWC.\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "= D3_QWC.\r\n");
 		break;
 	case D_STAT:
-		printf("DMAC: = D_STAT.\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "= D_STAT.\r\n");
+		break;
+	case D_PCR:
+		CLog::GetInstance().Print(LOG_NAME, "= D_PCR.\r\n");
 		break;
 	case D_ENABLER:
-		printf("DMAC: = D_ENABLER.\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "= D_ENABLER.\r\n");
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", nAddress);
 		break;
 	}
 }
@@ -910,6 +951,9 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 	case D_STAT:
 		CLog::GetInstance().Print(LOG_NAME, "D_STAT = 0x%0.8X.\r\n", nData);
         break;
+	case D_PCR:
+		CLog::GetInstance().Print(LOG_NAME, "D_PCR = 0x%0.8X.\r\n", nData);
+		break;
 	case D_ENABLEW:
 		CLog::GetInstance().Print(LOG_NAME, "D_ENABLEW = 0x%0.8X.\r\n", nData);
         break;

@@ -195,6 +195,13 @@ void CChannel::ExecuteSourceChain()
             }
 		}
 
+        //Half-Life does this...
+        if(m_nTADR == 0)
+        {
+            ClearSTR();
+            continue;
+        }
+
 		nTag = m_dmac.FetchDMATag(m_nTADR);
 
 		//Save higher 16 bits of tag into CHCR
@@ -280,4 +287,6 @@ void CChannel::ClearSTR()
 
 	//Set interrupt
 	m_dmac.m_D_STAT |= (1 << m_nNumber);
+
+	m_dmac.UpdateCpCond();
 }

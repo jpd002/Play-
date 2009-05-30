@@ -6,6 +6,8 @@
 #include "zip/ZipArchiveReader.h"
 #include "Dmac_Channel.h"
 
+class CMIPS;
+
 class CDMAC
 {
 public:
@@ -58,6 +60,7 @@ public:
 		D9_SADR		= 0x1000D480,
 
 		D_STAT		= 0x1000E010,
+		D_PCR		= 0x1000E020,
 
 		D_ENABLER	= 0x1000F520,
 		D_ENABLEW	= 0x1000F590,
@@ -73,7 +76,7 @@ public:
 		ENABLE_CPND		= 0x10000,
 	};
 
-                        CDMAC(uint8*, uint8*);
+                        CDMAC(uint8*, uint8*, CMIPS&);
     virtual             ~CDMAC();
 
 	void                Reset();
@@ -102,8 +105,11 @@ private:
 	uint32				ReceiveDMA8(uint32, uint32, uint32, bool);
     uint32				ReceiveDMA9(uint32, uint32, uint32, bool);
 
+	void				UpdateCpCond();
+
 	uint32				m_D_STAT;
 	uint32				m_D_ENABLE;
+	uint32				m_D_PCR;
 
     Dmac::CChannel      m_D0;
     Dmac::CChannel      m_D1;
@@ -133,6 +139,8 @@ private:
 
     uint8*              m_ram;
     uint8*              m_spr;
+
+	CMIPS&				m_ee;
 
     Dmac::DmaReceiveHandler m_receiveDma5;
     Dmac::DmaReceiveHandler m_receiveDma6;
