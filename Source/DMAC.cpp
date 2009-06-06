@@ -15,6 +15,7 @@
 #define LOG_NAME            ("dmac")
 #define STATE_REGS_XML      ("dmac/regs.xml")
 #define STATE_REGS_STAT     ("D_STAT")
+#define STATE_REGS_PCR		("D_PCR")
 #define STATE_REGS_D9_SADR  ("D9_SADR")
 
 using namespace Framework;
@@ -787,6 +788,7 @@ void CDMAC::LoadState(CZipArchiveReader& archive)
 {
     CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
     m_D_STAT    = registerFile.GetRegister32(STATE_REGS_STAT);
+	m_D_PCR		= registerFile.GetRegister32(STATE_REGS_PCR);
     m_D9_SADR   = registerFile.GetRegister32(STATE_REGS_D9_SADR);
 
     m_D1.LoadState(archive);
@@ -799,6 +801,7 @@ void CDMAC::SaveState(CZipArchiveWriter& archive)
 {
     CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
     registerFile->SetRegister32(STATE_REGS_STAT,    m_D_STAT);
+	registerFile->SetRegister32(STATE_REGS_PCR,		m_D_PCR);
     registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
     archive.InsertFile(registerFile);
 

@@ -112,7 +112,6 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIP
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-    uint32 nPrevOpcode = pCtx->m_pMemoryMap->GetInstruction(nAddress - 8);
     uint32 nNextOpcode = pCtx->m_pMemoryMap->GetInstruction(nAddress + 4);
 
     if(nNextOpcode & 0x80000000)

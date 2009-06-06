@@ -62,6 +62,10 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 
 			switch(nRegDesc)
 			{
+            case 0x00:
+                //PRIM
+                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, nPacket.nV0));
+                break;
 			case 0x01:
 				//RGBA
 				nTemp  = (nPacket.nV[0] & 0xFF);
@@ -117,13 +121,6 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 				break;
 			case 0x0E:
 				//A + D
-                //REMOVE
-                if(nPacket.nD0 == 0x000003e872a86a98)
-                {
-                    int i = 0;
-                    i++;
-                }
-                //REMOVE
 				if(m_gs != NULL)
 				{
                     writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));

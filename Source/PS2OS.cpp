@@ -335,27 +335,15 @@ void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 //		}
 //	}
 
-/*
-	int i;
-	uint32 nVal;
-	for(i = 0; i < 0x02000000 / 4; i++)
-	{
-		nVal = ((uint32*)m_ram)[i];
-		if(nVal == 0x2F9B50)
-		{
-			printf("Allo: 0x%0.8X\r\n", i * 4);
-		}
-		if((nVal & 0xFC000000) == 0x0C000000)
-		{
-			nVal &= 0x3FFFFFF;
-			nVal *= 4;
-			if(nVal == 0x109D38)
-			{
-				printf("Allo: 0x%0.8X\r\n", i * 4);
-			}
-		}
-	}
-*/
+//    for(int i = 0; i < 0x02000000 / 4; i++)
+//    {
+//        uint32 nVal = ((uint32*)m_ram)[i];
+//        if((nVal & 0xFFFF) == 0x5500)
+//        {
+//            printf("Allo: 0x%0.8X\r\n", i * 4);
+//        }
+//    }
+
     //REMOVE
 //    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x00]) = 0x4BE5213C;
 //    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x04]) = 0x700845C8;
@@ -1226,7 +1214,10 @@ uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrHI, uint32 nVAddrLO)
 	{
 		return (nVAddrLO - 0x6E000000);
 	}
-
+    if(nVAddrLO >= 0x30100000 && nVAddrLO <= 0x31FFFFFF)
+    {
+        return (nVAddrLO - 0x30000000);
+    }
 	return nVAddrLO & 0x1FFFFFFF;
 }
 

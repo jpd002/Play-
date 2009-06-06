@@ -75,6 +75,15 @@ void CCodeGen::MD_PullRel(size_t offset)
             valueRegister);
         FreeXmmRegister(valueRegister);
     }
+	else if(FitsPattern<SingleRelative128>())
+	{
+        uint32 op = GetPattern<SingleRelative128>();
+		XMMREGISTER valueRegister = AllocateXmmRegister();
+        LoadRelative128InRegister(valueRegister, op);
+        m_Assembler.MovdquVo(CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, static_cast<uint32>(offset)),
+            valueRegister);
+        FreeXmmRegister(valueRegister);
+	}
     else
     {
         throw exception();

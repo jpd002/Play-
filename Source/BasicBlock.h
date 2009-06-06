@@ -3,6 +3,8 @@
 
 #include "MIPS.h"
 
+class CCodeGen;
+
 class CBasicBlock
 {
 public:
@@ -19,12 +21,16 @@ public:
     CBasicBlock*    GetBranchHint() const;
     void            SetBranchHint(CBasicBlock*);
 
-private:
-    uint8*          m_text;
-	uint32			m_textSize;
+protected:
     uint32          m_begin;
     uint32          m_end;
     CMIPS&          m_context;
+
+	virtual void	CompileRange(CCodeGen&);
+
+private:
+    uint8*          m_text;
+	uint32			m_textSize;
     CBasicBlock*    m_branchHint;
     unsigned int    m_selfLoopCount;
 };

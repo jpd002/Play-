@@ -80,3 +80,15 @@ uint32 CMA_VU::GetInstructionEffectiveAddress(CMIPS* pCtx, uint32 nAddress, uint
 		return m_Lower.GetInstructionEffectiveAddress(pCtx, nAddress, nOpcode);
 	}
 }
+
+VUShared::OPERANDSET CMA_VU::GetAffectedOperands(CMIPS* context, uint32 address, uint32 opcode)
+{
+	if(address & 0x04)
+	{
+		return m_Upper.GetAffectedOperands(context, address, opcode);
+	}
+	else
+	{
+		return m_Lower.GetAffectedOperands(context, address, opcode);
+	}
+}

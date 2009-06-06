@@ -6,13 +6,12 @@
 class CVuExecutor : public CMipsExecutor
 {
 public:
-                    CVuExecutor(CMIPS&);
-    virtual         ~CVuExecutor();
+							CVuExecutor(CMIPS&);
+    virtual					~CVuExecutor();
 
-
-
-private:
-    virtual void    PartitionFunction(uint32);
+protected:
+	virtual CBasicBlock*	BlockFactory(CMIPS&, uint32, uint32);
+    virtual void			PartitionFunction(uint32);
 
 };
 

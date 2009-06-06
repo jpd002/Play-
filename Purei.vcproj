@@ -1189,6 +1189,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\VuBasicBlock.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\VuBasicBlock.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\VuExecutor.cpp"
 					>
 				</File>

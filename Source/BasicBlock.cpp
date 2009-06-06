@@ -15,6 +15,7 @@ m_begin(begin),
 m_end(end),
 m_context(context),
 m_text(NULL),
+m_textSize(0),
 m_selfLoopCount(0),
 m_branchHint(NULL)
 {
@@ -49,16 +50,7 @@ void CBasicBlock::Compile()
         }
         codeGen.SetStream(&stream);
         codeGen.Begin();
-        for(uint32 address = m_begin; address <= m_end; address += 4)
-        {
-            m_context.m_pArch->CompileInstruction(
-                address, 
-                &codeGen,
-                &m_context);
-            //Sanity check
-			assert(codeGen.AreAllRegistersFreed());
-			assert(codeGen.IsStackEmpty());
-        }
+		CompileRange(codeGen);
         codeGen.DumpVariables(0);
 		codeGen.EndQuota();
         codeGen.End();
@@ -81,6 +73,20 @@ void CBasicBlock::Compile()
 	m_textSize = stream.GetSize();
     memcpy(m_text, stream.GetBuffer(), stream.GetSize());
 #endif
+}
+
+void CBasicBlock::CompileRange(CCodeGen& codeGen)
+{
+	for(uint32 address = m_begin; address <= m_end; address += 4)
+	{
+		m_context.m_pArch->CompileInstruction(
+			address, 
+			&codeGen,
+			&m_context);
+		//Sanity check
+		//assert(codeGen.AreAllRegistersFreed());
+		assert(codeGen.IsStackEmpty());
+	}
 }
 
 unsigned int CBasicBlock::Execute()

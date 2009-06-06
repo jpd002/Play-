@@ -316,6 +316,87 @@ uint32 CMA_VU::CLower::ReflEaIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 	return pCtx->m_State.nCOP2VI[nIS] & 0xFFFF;
 }
 
+/////////////////////////////////////////////////
+// Extended Reflection Stuff
+/////////////////////////////////////////////////
+
+void CMA_VU::CLower::ReflOpAffFtDstOfsIs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
+	uint8 nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	operandSet.writeF = nFT;
+	operandSet.readI0 = nIS;
+}
+
+void CMA_VU::CLower::ReflOpAffFsDstOfsIt(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nIT		= (uint8 )((nOpcode >> 16) & 0x001F);
+	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	operandSet.readF0 = nFS;
+	operandSet.readI0 = nIT;
+}
+
+void CMA_VU::CLower::ReflOpAffFtDstFsDst(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
+	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	operandSet.readF0 = nFS;
+	operandSet.writeF = nFT;
+}
+
+void CMA_VU::CLower::ReflOpAffFsDstItInc(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nIT		= (uint8 )((nOpcode >> 16) & 0x001F);
+	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	operandSet.readI0 = nIT;
+	operandSet.writeI = nIT;
+	operandSet.readF0 = nFS;
+}
+
+void CMA_VU::CLower::ReflOpAffFtIs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
+	uint8 nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	operandSet.readI0 = nIS;
+	operandSet.writeF = nFT;
+}
+
+void CMA_VU::CLower::ReflOpAffFtDstIsInc(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
+	uint8 nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+
+	operandSet.writeF = nFT;
+	operandSet.readI0 = nIS;
+	operandSet.writeI = nIS;
+}
+
+void CMA_VU::CLower::ReflOpAffItFsf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nIT		= (uint8)((nOpcode >> 16) & 0x001F);
+	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
+
+	operandSet.writeI = nIT;
+	operandSet.readF0 = nFS;
+}
+
+void CMA_VU::CLower::ReflOpAffPFs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	operandSet.readF0 = nFS;
+}
+
+void CMA_VU::CLower::ReflOpAffPFsf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	operandSet.readF0 = nFS;
+}
+
 INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 {
 	//0x00
@@ -700,6 +781,390 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
 
+VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
+{
+	//0x00
+	{	"LQ",		NULL,			ReflOpAffFtDstOfsIs	},
+	{	"SQ",		NULL,			ReflOpAffFsDstOfsIt	},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"ILW",		NULL,			NULL				},
+	{	"ISW",		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x08
+	{	"IADDIU",	NULL,			NULL				},
+	{	"ISUBIU",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x10
+	{	NULL,		NULL,			NULL				},
+	{	"FCSET",	NULL,			NULL				},
+	{	"FCAND",	NULL,			NULL				},
+	{	"FCOR",		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"FSAND",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x18
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"FMAND",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"FCGET",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x20
+	{	"B",		NULL,			NULL				},
+    {	"BAL",		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"JR",		NULL,			NULL				},
+	{	"JALR",		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x28
+	{	"IBEQ",		NULL,			NULL				},
+	{	"IBNE",		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"IBLTZ",	NULL,			NULL				},
+	{	"IBGTZ",	NULL,			NULL				},
+	{	"IBLEZ",	NULL,			NULL				},
+	{	"IBGEZ",	NULL,			NULL				},
+	//0x30
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x38
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x40
+	{	"LowerOP",	NULL,			SubTableAffectedOperands	},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x48
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x50
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x58
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x60
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x68
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x70
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x78
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+};
+
+VUINSTRUCTION CMA_VU::CLower::m_cVuReflV[64] =
+{
+	//0x00
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x08
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x10
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x18
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x20
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x28
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x30
+	{	"IADD",		NULL,			NULL				},
+	{	"ISUB",		NULL,			NULL				},
+	{	"IADDI",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"IAND",		NULL,			NULL				},
+	{	"IOR",		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x38
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"Vx0",		NULL,			SubTableAffectedOperands	},
+	{	"Vx1",		NULL,			SubTableAffectedOperands	},
+	{	"Vx2",		NULL,			SubTableAffectedOperands	},
+	{	"Vx3",		NULL,			SubTableAffectedOperands	},
+};
+
+VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
+{
+	//0x00
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x08
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"MOVE",		NULL,			ReflOpAffFtDstFsDst	},
+	{	"LQI",		NULL,			ReflOpAffFtDstIsInc	},
+	{	"DIV",		NULL,			ReflOpAffQFsfFtf	},
+	{	"MTIR",		NULL,			ReflOpAffItFsf		},
+	//0x10
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x18
+	{	NULL,		NULL,			NULL				},
+	{	"MFP",		NULL,			NULL				},
+	{	"XTOP",		NULL,			NULL				},
+	{	"XGKICK",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"ESIN",	    NULL,			ReflOpAffPFsf		},
+};
+
+VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
+{
+	//0x00
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x08
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"MR32",		NULL,			ReflOpAffFtDstFsDst	},
+	{	"SQI",		NULL,			ReflOpAffFsDstItInc	},
+	{	NULL,		NULL,			NULL				},
+	{	"MFIR",		NULL,			ReflOpAffFtIs		},
+	//0x10
+	{	"RGET",		NULL,			ReflOpAffFtR		},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x18
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"XITOP",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+};
+
+VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
+{
+	//0x00
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x08
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"RSQRT",	NULL,			ReflOpAffQFsfFtf	},
+	{	"ILWR",		NULL,			NULL				},
+	//0x10
+	{	"RINIT",	NULL,			ReflOpAffRFsf		},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x18
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"ERCPR",	NULL,			ReflOpAffPFsf		},
+	{	NULL,		NULL,			NULL				},
+};
+
+VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
+{
+	//0x00
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x08
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"WAITQ",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x10
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	//0x18
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+	{	"ERLENG",	NULL,			ReflOpAffPFs		},
+	{	NULL,		NULL,			NULL				},
+	{	"WAITP",	NULL,			NULL				},
+	{	NULL,		NULL,			NULL				},
+};
+
 void CMA_VU::CLower::SetupReflectionTables()
 {
     BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
@@ -709,6 +1174,13 @@ void CMA_VU::CLower::SetupReflectionTables()
     BOOST_STATIC_ASSERT(sizeof(m_ReflVX2)       == sizeof(m_cReflVX2));
     BOOST_STATIC_ASSERT(sizeof(m_ReflVX3)       == sizeof(m_cReflVX3));
 
+    BOOST_STATIC_ASSERT(sizeof(m_VuReflGeneral)	== sizeof(m_cVuReflGeneral));
+    BOOST_STATIC_ASSERT(sizeof(m_VuReflV)       == sizeof(m_cVuReflV));
+    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX0)     == sizeof(m_cVuReflVX0));
+    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX1)     == sizeof(m_cVuReflVX1));
+    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX2)     == sizeof(m_cVuReflVX2));
+    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX3)     == sizeof(m_cVuReflVX3));
+
 	memcpy(m_ReflGeneral,	m_cReflGeneral, sizeof(m_cReflGeneral));
 	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
 	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
@@ -716,36 +1188,78 @@ void CMA_VU::CLower::SetupReflectionTables()
 	memcpy(m_ReflVX2,		m_cReflVX2,		sizeof(m_cReflVX2));
 	memcpy(m_ReflVX3,		m_cReflVX3,		sizeof(m_cReflVX3));
 
-	m_ReflGeneralTable.nShift		= 25;
-	m_ReflGeneralTable.nMask		= 0x7F;
-	m_ReflGeneralTable.pTable		= m_ReflGeneral;
+	memcpy(m_VuReflGeneral,	m_cVuReflGeneral,	sizeof(m_cVuReflGeneral));
+	memcpy(m_VuReflV,		m_cVuReflV,			sizeof(m_cVuReflV));
+	memcpy(m_VuReflVX0,		m_cVuReflVX0,		sizeof(m_cVuReflVX0));
+	memcpy(m_VuReflVX1,		m_cVuReflVX1,		sizeof(m_cVuReflVX1));
+	memcpy(m_VuReflVX2,		m_cVuReflVX2,		sizeof(m_cVuReflVX2));
+	memcpy(m_VuReflVX3,		m_cVuReflVX3,		sizeof(m_cVuReflVX3));
 
-	m_ReflVTable.nShift				= 0;
-	m_ReflVTable.nMask				= 0x3F;
-	m_ReflVTable.pTable				= m_ReflV;
+	{
+		m_ReflGeneralTable.nShift		= 25;
+		m_ReflGeneralTable.nMask		= 0x7F;
+		m_ReflGeneralTable.pTable		= m_ReflGeneral;
 
-	m_ReflVX0Table.nShift			= 6;
-	m_ReflVX0Table.nMask			= 0x1F;
-	m_ReflVX0Table.pTable			= m_ReflVX0;
+		m_ReflVTable.nShift				= 0;
+		m_ReflVTable.nMask				= 0x3F;
+		m_ReflVTable.pTable				= m_ReflV;
 
-	m_ReflVX1Table.nShift			= 6;
-	m_ReflVX1Table.nMask			= 0x1F;
-	m_ReflVX1Table.pTable			= m_ReflVX1;
+		m_ReflVX0Table.nShift			= 6;
+		m_ReflVX0Table.nMask			= 0x1F;
+		m_ReflVX0Table.pTable			= m_ReflVX0;
 
-	m_ReflVX2Table.nShift			= 6;
-	m_ReflVX2Table.nMask			= 0x1F;
-	m_ReflVX2Table.pTable			= m_ReflVX2;
+		m_ReflVX1Table.nShift			= 6;
+		m_ReflVX1Table.nMask			= 0x1F;
+		m_ReflVX1Table.pTable			= m_ReflVX1;
 
-	m_ReflVX3Table.nShift			= 6;
-	m_ReflVX3Table.nMask			= 0x1F;
-	m_ReflVX3Table.pTable			= m_ReflVX3;
+		m_ReflVX2Table.nShift			= 6;
+		m_ReflVX2Table.nMask			= 0x1F;
+		m_ReflVX2Table.pTable			= m_ReflVX2;
 
-	m_ReflGeneral[0x40].pSubTable	= &m_ReflVTable;
+		m_ReflVX3Table.nShift			= 6;
+		m_ReflVX3Table.nMask			= 0x1F;
+		m_ReflVX3Table.pTable			= m_ReflVX3;
 
-	m_ReflV[0x3C].pSubTable			= &m_ReflVX0Table;
-	m_ReflV[0x3D].pSubTable			= &m_ReflVX1Table;
-	m_ReflV[0x3E].pSubTable			= &m_ReflVX2Table;
-	m_ReflV[0x3F].pSubTable			= &m_ReflVX3Table;
+		m_ReflGeneral[0x40].pSubTable	= &m_ReflVTable;
+
+		m_ReflV[0x3C].pSubTable			= &m_ReflVX0Table;
+		m_ReflV[0x3D].pSubTable			= &m_ReflVX1Table;
+		m_ReflV[0x3E].pSubTable			= &m_ReflVX2Table;
+		m_ReflV[0x3F].pSubTable			= &m_ReflVX3Table;
+	}
+
+	{
+		m_VuReflGeneralTable.nShift			= 25;
+		m_VuReflGeneralTable.nMask			= 0x7F;
+		m_VuReflGeneralTable.pTable			= m_VuReflGeneral;
+
+		m_VuReflVTable.nShift				= 0;
+		m_VuReflVTable.nMask				= 0x3F;
+		m_VuReflVTable.pTable				= m_VuReflV;
+
+		m_VuReflVX0Table.nShift				= 6;
+		m_VuReflVX0Table.nMask				= 0x1F;
+		m_VuReflVX0Table.pTable				= m_VuReflVX0;
+
+		m_VuReflVX1Table.nShift				= 6;
+		m_VuReflVX1Table.nMask				= 0x1F;
+		m_VuReflVX1Table.pTable				= m_VuReflVX1;
+
+		m_VuReflVX2Table.nShift				= 6;
+		m_VuReflVX2Table.nMask				= 0x1F;
+		m_VuReflVX2Table.pTable				= m_VuReflVX2;
+
+		m_VuReflVX3Table.nShift				= 6;
+		m_VuReflVX3Table.nMask				= 0x1F;
+		m_VuReflVX3Table.pTable				= m_VuReflVX3;
+
+		m_VuReflGeneral[0x40].subTable		= &m_VuReflVTable;
+
+		m_VuReflV[0x3C].subTable			= &m_VuReflVX0Table;
+		m_VuReflV[0x3D].subTable			= &m_VuReflVX1Table;
+		m_VuReflV[0x3E].subTable			= &m_VuReflVX2Table;
+		m_VuReflV[0x3F].subTable			= &m_VuReflVX3Table;
+	}
 }
 
 void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -816,4 +1330,16 @@ uint32 CMA_VU::CLower::GetInstructionEffectiveAddress(CMIPS* pCtx, uint32 nAddre
 	Instr.pGetEffectiveAddress	= SubTableEffAddr;
 	Instr.pSubTable				= &m_ReflGeneralTable;
 	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);
+}
+
+VUShared::OPERANDSET CMA_VU::CLower::GetAffectedOperands(CMIPS* context, uint32 address, uint32 opcode)
+{
+	OPERANDSET result;
+	memset(&result, 0, sizeof(OPERANDSET));
+
+	VUINSTRUCTION instr;
+	instr.pGetAffectedOperands	= SubTableAffectedOperands;
+	instr.subTable				= &m_VuReflGeneralTable;
+	instr.pGetAffectedOperands(&instr, context, address, opcode, result);
+	return result;
 }

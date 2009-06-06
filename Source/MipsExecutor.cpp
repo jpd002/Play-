@@ -80,7 +80,7 @@ int CMipsExecutor::Execute(int cycles)
     return cycles;
 }
 
-bool CMipsExecutor::MustBreak()
+bool CMipsExecutor::MustBreak() const
 {
 #ifdef DEBUGGER_INCLUDED
 #ifdef _PSX
@@ -103,7 +103,7 @@ bool CMipsExecutor::MustBreak()
     return false;
 }
 
-CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address)
+CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
 {
     BlockBeginMap::const_iterator beginIterator = m_blockBegin.lower_bound(address);
     if(beginIterator == m_blockBegin.end()) return NULL;
@@ -185,7 +185,7 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
     }
     assert(FindBlockAt(end) == NULL);
     {
-        CBasicBlock* block = new CBasicBlock(m_context, start, end);
+        CBasicBlock* block = BlockFactory(m_context, start, end);
         m_blocks.push_back(block);
         m_blockBegin[start] = block;
         m_blockEnd[end] = block;
@@ -214,6 +214,11 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
     assert(m_blocks.size() == m_blockBegin.size());
     assert(m_blockBegin.size() == m_blockEnd.size());
     delete block;
+}
+
+CBasicBlock* CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
+{
+	return new CBasicBlock(context, start, end);
 }
 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)
@@ -271,7 +276,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
             CBasicBlock* possibleBlock = FindBlockStartingAt(address);
             if(possibleBlock != NULL)
             {
-                assert(possibleBlock->GetEndAddress() <= endAddress);
+                //assert(possibleBlock->GetEndAddress() <= endAddress);
                 //Add its beginning and end in the partition points
                 partitionPoints.insert(possibleBlock->GetBeginAddress());
                 partitionPoints.insert(possibleBlock->GetEndAddress() + 4);

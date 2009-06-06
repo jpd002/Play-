@@ -57,6 +57,9 @@ __attribute__((aligned(16)))
 	uint128		nCOP2ZF;
 	uint128		nCOP2SF;
 
+	uint128		nCOP2VF_PreUp;
+	uint128		nCOP2VF_UpRes;
+
 	uint32		nCOP2Q;
 	uint32		nCOP2I;
 	uint32		nCOP2P;

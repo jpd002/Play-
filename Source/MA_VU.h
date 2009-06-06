@@ -3,6 +3,7 @@
 
 #include "MIPSArchitecture.h"
 #include "MIPSReflection.h"
+#include "VUShared.h"
 
 #undef MAX
 #undef ABS
@@ -17,6 +18,7 @@ public:
 	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual bool							IsInstructionBranch(CMIPS*, uint32, uint32);
 	virtual uint32							GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
+	VUShared::OPERANDSET					GetAffectedOperands(CMIPS*, uint32, uint32);
 
 private:
 	void									SetupReflectionTables();
@@ -30,9 +32,10 @@ private:
 		void								CompileInstruction(uint32, CCodeGen*, CMIPS*);
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
+		VUShared::OPERANDSET				GetAffectedOperands(CMIPS*, uint32, uint32);
 		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
-	
+
 	private:
     	typedef void (CUpper::*InstructionFuncConstant)();
 
@@ -116,17 +119,35 @@ private:
 		MIPSReflection::INSTRUCTION			m_ReflVX2[32];
 		MIPSReflection::INSTRUCTION			m_ReflVX3[32];
 
+		VUShared::VUINSTRUCTION				m_VuReflV[64];
+		VUShared::VUINSTRUCTION				m_VuReflVX0[32];
+		VUShared::VUINSTRUCTION				m_VuReflVX1[32];
+		VUShared::VUINSTRUCTION				m_VuReflVX2[32];
+		VUShared::VUINSTRUCTION				m_VuReflVX3[32];
+
 		MIPSReflection::SUBTABLE			m_ReflVTable;
 		MIPSReflection::SUBTABLE			m_ReflVX0Table;
 		MIPSReflection::SUBTABLE			m_ReflVX1Table;
 		MIPSReflection::SUBTABLE			m_ReflVX2Table;
 		MIPSReflection::SUBTABLE			m_ReflVX3Table;
 
+		VUShared::VUSUBTABLE				m_VuReflVTable;
+		VUShared::VUSUBTABLE				m_VuReflVX0Table;
+		VUShared::VUSUBTABLE				m_VuReflVX1Table;
+		VUShared::VUSUBTABLE				m_VuReflVX2Table;
+		VUShared::VUSUBTABLE				m_VuReflVX3Table;
+
 		static MIPSReflection::INSTRUCTION	m_cReflV[64];
 		static MIPSReflection::INSTRUCTION	m_cReflVX0[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX1[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX2[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX3[32];
+
+		static VUShared::VUINSTRUCTION		m_cVuReflV[64];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX0[32];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX1[32];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX2[32];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX3[32];
 	};
 
     class CLower : public CMIPSInstructionFactory
@@ -141,6 +162,7 @@ private:
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
+		VUShared::OPERANDSET				GetAffectedOperands(CMIPS*, uint32, uint32);
 
         static void                         GetQuadWord(uint32, CMIPS*, uint32, uint32);
         static void                         SetQuadWord(uint32, CMIPS*, uint32, uint32);
@@ -202,6 +224,16 @@ private:
 
 		static uint32						ReflEaOffset(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
 		static uint32						ReflEaIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
+
+		static void							ReflOpAffItFsf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffFtIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffFtDstOfsIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffFtDstFsDst(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffFsDstOfsIt(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffFsDstItInc(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffFtDstIsInc(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffPFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void							ReflOpAffPFsf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 
 		//General
 		void							    LQ();
@@ -274,6 +306,13 @@ private:
 		MIPSReflection::INSTRUCTION			m_ReflVX2[32];
 		MIPSReflection::INSTRUCTION			m_ReflVX3[32];
 
+		VUShared::VUINSTRUCTION				m_VuReflGeneral[128];
+		VUShared::VUINSTRUCTION				m_VuReflV[64];
+		VUShared::VUINSTRUCTION				m_VuReflVX0[32];
+		VUShared::VUINSTRUCTION				m_VuReflVX1[32];
+		VUShared::VUINSTRUCTION				m_VuReflVX2[32];
+		VUShared::VUINSTRUCTION				m_VuReflVX3[32];
+
 		MIPSReflection::SUBTABLE			m_ReflGeneralTable;
 		MIPSReflection::SUBTABLE			m_ReflVTable;
 		MIPSReflection::SUBTABLE			m_ReflVX0Table;
@@ -281,12 +320,26 @@ private:
 		MIPSReflection::SUBTABLE			m_ReflVX2Table;
 		MIPSReflection::SUBTABLE			m_ReflVX3Table;
 
+		VUShared::VUSUBTABLE				m_VuReflGeneralTable;
+		VUShared::VUSUBTABLE				m_VuReflVTable;
+		VUShared::VUSUBTABLE				m_VuReflVX0Table;
+		VUShared::VUSUBTABLE				m_VuReflVX1Table;
+		VUShared::VUSUBTABLE				m_VuReflVX2Table;
+		VUShared::VUSUBTABLE				m_VuReflVX3Table;
+
 		static MIPSReflection::INSTRUCTION	m_cReflGeneral[128];
 		static MIPSReflection::INSTRUCTION	m_cReflV[64];
 		static MIPSReflection::INSTRUCTION	m_cReflVX0[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX1[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX2[32];
 		static MIPSReflection::INSTRUCTION	m_cReflVX3[32];
+
+		static VUShared::VUINSTRUCTION		m_cVuReflGeneral[128];
+		static VUShared::VUINSTRUCTION		m_cVuReflV[64];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX0[32];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX1[32];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX2[32];
+		static VUShared::VUINSTRUCTION		m_cVuReflVX3[32];
 
         bool                                m_maskDataAddress;
 	};

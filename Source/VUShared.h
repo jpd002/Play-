@@ -23,6 +23,32 @@ namespace VUShared
         size_t target;
     };
 
+	struct OPERANDSET
+	{
+		unsigned int writeF;
+		unsigned int readF0;
+		unsigned int readF1;
+		unsigned int writeI;
+		unsigned int readI0;
+		unsigned int readI1;
+	};
+
+	struct VUINSTRUCTION;
+
+	struct VUSUBTABLE
+	{
+		uint32			nShift;
+		uint32			nMask;
+		VUINSTRUCTION*	pTable;	
+	};
+
+	struct VUINSTRUCTION
+	{
+		const char*		name;
+		VUSUBTABLE*		subTable;
+		void			(*pGetAffectedOperands)(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32, uint32, OPERANDSET&);
+	};
+
     int32				GetImm11Offset(uint16);
 	int32				GetBranch(uint16);
 
@@ -111,6 +137,21 @@ namespace VUShared
 	void				ReflOpFtR(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpQFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void				ReflOpQFsfFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+
+	void				ReflOpAffAccFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffAccFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffAccFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffFdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffFdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffFdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffFdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffRFsf(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffFtR(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void				ReflOpAffQFsfFtf(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+
+	VUINSTRUCTION*		DereferenceInstruction(VUSUBTABLE*, uint32);
+	void				SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32, uint32, OPERANDSET&);
 
 	extern const char*	m_sBroadcast[4];
 	extern const char*	m_sDestination[16];
