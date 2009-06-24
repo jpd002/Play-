@@ -125,19 +125,6 @@ struct GSPRIM
 	unsigned int	nUseFloat		: 1;
 };
 
-struct GSPRMODE
-{
-	unsigned int	nReserved0		: 3;
-	unsigned int	nShading		: 1;
-	unsigned int	nTexture		: 1;
-	unsigned int	nFog			: 1;
-	unsigned int	nAlpha			: 1;
-	unsigned int 	nAntiAliasing	: 1;
-	unsigned int	nUseUV			: 1;
-	unsigned int	nContext		: 1;
-	unsigned int	nUseFloat		: 1;
-};
-
 struct GSTEXA
 {
 	unsigned int	nTA0			: 8;
@@ -167,9 +154,6 @@ struct GSALPHA
 #define DECODE_PRIM(v, pr)						\
 	(pr) = *(GSPRIM*)&(v);
 
-#define DECODE_PRMODE(v, prm)					\
-	(prm) = *(GSPRMODE*)&(v);
-
 #define DECODE_TEXA(v, texa)					\
 	(texa) = *(GSTEXA*)&(v);
 
@@ -196,10 +180,6 @@ struct GSALPHA
 	(x)  = (double)(((v >>  0) & 0xFFFF)) / 16.0;	\
 	(y)  = (double)(((v >> 16) & 0xFFFF)) / 16.0;	\
 	(z)  = (double)((v >> 32) & 0xFFFFFFFF);
-
-#define DECODE_XYOFFSET(v, x, y)				\
-	(x)  = (double)((v >>  0) & 0xFFFF) / 16.0;	\
-	(y)  = (double)((v >> 32) & 0xFFFF) / 16.0;	\
 
 #define DECODE_ALPHA(v, alpha)					\
 	(alpha) = *(GSALPHA*)&(v);
@@ -300,6 +280,19 @@ protected:
 		double			GetY()			{ return (double)nY / 16.0; }
 	};
 
+	//Reg 0x05/0x0D
+	struct XYZ : public convertible<uint64>
+	{
+		unsigned int	nX				: 16;
+		unsigned int	nY				: 16;
+		uint32			nZ;
+
+		float			GetX()			{ return static_cast<float>(nX) / 16.0f; }
+		float			GetY()			{ return static_cast<float>(nY) / 16.0f; }
+		float			GetZ()			{ return static_cast<float>(nZ); }
+	};
+    BOOST_STATIC_ASSERT(sizeof(XYZ) == sizeof(uint64));
+
 	//Reg 0x08/0x09
 	struct CLAMP
 	{
@@ -331,6 +324,35 @@ protected:
 		unsigned int	nCLD			: 3;
 		uint32			GetCLUTPtr()	{ return nCBP * 256; }
 	};
+
+	//Reg 0x18/0x19
+	struct XYOFFSET : public convertible<uint64>
+	{
+		uint16			nOffsetX;
+		uint16			nReserved0;
+		uint16			nOffsetY;
+		uint16			nReserved1;
+		float			GetX()			{ return static_cast<float>(nOffsetX) / 16.0f; }
+		float			GetY()			{ return static_cast<float>(nOffsetY) / 16.0f; }
+	};
+    BOOST_STATIC_ASSERT(sizeof(XYOFFSET) == sizeof(uint64));
+
+	//Reg 0x1B
+	struct PRMODE : public convertible<uint64>
+	{
+		unsigned int	nReserved0		: 3;
+		unsigned int	nShading		: 1;
+		unsigned int	nTexture		: 1;
+		unsigned int	nFog			: 1;
+		unsigned int	nAlpha			: 1;
+		unsigned int 	nAntiAliasing	: 1;
+		unsigned int	nUseUV			: 1;
+		unsigned int	nContext		: 1;
+		unsigned int	nUseFloat		: 1;
+		unsigned int	nReserved1		: 21;
+		uint32			nReserved2;
+	};
+    BOOST_STATIC_ASSERT(sizeof(PRMODE) == sizeof(uint64));
 
 	//Reg 0x3D
 	struct FOGCOL

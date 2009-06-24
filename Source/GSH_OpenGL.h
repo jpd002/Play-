@@ -41,6 +41,7 @@ protected:
     void							LoadSettings();
     virtual void                    InitializeImpl();
     virtual void                    ReleaseImpl();
+	virtual void					FlipImpl();
     virtual void					SetViewport(int, int);
 
 private:
@@ -153,8 +154,8 @@ private:
     void                            UploadTexturePsm8(GSTEX0*, GSTEXA*);
 
 	//Context variables (put this in a struct or something?)
-	double							m_nPrimOfsX;
-	double							m_nPrimOfsY;
+	float							m_nPrimOfsX;
+	float							m_nPrimOfsY;
 	uint32							m_nTexWidth;
 	uint32							m_nTexHeight;
 	unsigned int					m_nTexHandle;
@@ -188,7 +189,7 @@ private:
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;
 
-	GSPRMODE						m_PrimitiveMode;
+	PRMODE							m_PrimitiveMode;
 	unsigned int					m_nPrimitiveType;
 
 	TEXTUREUPLOADER					m_pTexUploader_Psm8;

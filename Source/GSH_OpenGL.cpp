@@ -4,9 +4,12 @@
 #include "AppConfig.h"
 #include "GSH_OpenGL.h"
 #include "PtrMacro.h"
+#include "Log.h"
 
 using namespace Framework;
 using namespace std::tr1;
+
+//#define _WIREFRAME
 
 CGSH_OpenGL::CGSH_OpenGL() :
 //m_currentPixelBuffer(0),
@@ -58,6 +61,13 @@ void CGSH_OpenGL::ReleaseImpl()
         delete texture;
     }
 //    glDeleteBuffers(MAX_PIXEL_BUFFERS, m_pixelBuffers);
+}
+
+void CGSH_OpenGL::FlipImpl()
+{
+#ifdef _WIREFRAME
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
 }
 
 void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
@@ -153,6 +163,11 @@ void CGSH_OpenGL::InitializeRC()
 //        glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, PIXEL_BUFFER_SIZE, 0, GL_DYNAMIC_DRAW_ARB);
 //    }
 //    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+
+#ifdef _WIREFRAME
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDisable(GL_TEXTURE_2D);
+#endif
 
     FlipImpl();
 }
@@ -311,7 +326,10 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 	SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
 	SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
 	
-	DECODE_XYOFFSET(m_nReg[GS_REG_XYOFFSET_1 + nContext], m_nPrimOfsX, m_nPrimOfsY);
+	XYOFFSET offset;
+	offset <<= m_nReg[GS_REG_XYOFFSET_1 + nContext];
+	m_nPrimOfsX = offset.GetX();
+	m_nPrimOfsY = offset.GetY();
 	
 	if(GetCrtIsInterlaced() && GetCrtIsFrameMode())
 	{
@@ -382,6 +400,14 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 	{
 		//Cs * Ad + Cd
 		glBlendFunc(GL_DST_ALPHA, GL_ONE);
+	}
+	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
+	{
+		//Cd * As
+//		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+	//REMOVE
+		glBlendFunc(GL_ZERO, GL_ONE);
+	//REMOVE
 	}
 	else
 	{
@@ -664,6 +690,9 @@ void CGSH_OpenGL::Prim_Triangle()
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
 	nZ3 = GetZ(nZ3);
+
+	static int vertexIndex = 0;
+	CLog::GetInstance().Print("GLLOG", "Triangle%0.5i: %f, %f, %f\r\n", vertexIndex++, nX1, nX2, nX3);
 
 	if(m_PrimitiveMode.nShading)
 	{
@@ -1036,11 +1065,11 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 		{
 			if((m_nReg[GS_REG_PRMODECONT] & 1) != 0)
 			{
-				DECODE_PRMODE(m_nReg[GS_REG_PRIM], m_PrimitiveMode);
+				m_PrimitiveMode <<= m_nReg[GS_REG_PRIM];
 			}
 			else
 			{
-				DECODE_PRMODE(m_nReg[GS_REG_PRMODE], m_PrimitiveMode);
+				m_PrimitiveMode <<= m_nReg[GS_REG_PRMODE];
 			}
 
 			SetRenderingContext(m_PrimitiveMode.nContext);

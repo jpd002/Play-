@@ -145,6 +145,9 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
 	case 1:
 		nMinFilter = GL_LINEAR;
 		break;
+    case 5:
+        nMinFilter = GL_LINEAR_MIPMAP_LINEAR;
+        break;
 	default:
 		assert(0);
 		break;

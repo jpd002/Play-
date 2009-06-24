@@ -1097,8 +1097,8 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			nData & 1);
 		break;
 	case GS_REG_PRMODE:
-		GSPRMODE prm;
-		DECODE_PRMODE(nData, prm);
+		PRMODE prm;
+		prm <<= nData;
 		CLog::GetInstance().Print(LOG_NAME, "PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
 			prm.nShading, \
 			prm.nTexture, \
