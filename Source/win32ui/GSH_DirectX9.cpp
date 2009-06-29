@@ -17,18 +17,23 @@ struct CUSTOMVERTEX
 {
 	float x, y, z; 
 	DWORD color;
+	float u, v;
 };
 
-#define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE)
+#define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 CGSH_DirectX9::CGSH_DirectX9(Win32::CWindow* outputWindow) :
 m_pOutputWnd(dynamic_cast<COutputWnd*>(outputWindow)),
 m_d3d(NULL),
 m_device(NULL),
 m_triangleVb(NULL),
+m_pCvtBuffer(NULL),
 m_nWidth(0),
 m_nHeight(0),
-m_sceneBegun(false)
+m_sceneBegun(false),
+m_nTexWidth(0),
+m_nTexHeight(0),
+m_nTexHandle(NULL)
 {
 
 }
@@ -54,10 +59,19 @@ void CGSH_DirectX9::InitializeImpl()
 	SetViewport(512, 384);
 	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 	FlipImpl();
+
+    for(unsigned int i = 0; i < MAXCACHE; i++)
+    {
+        m_TexCache.push_back(new CTexture());
+    }
+
+	m_pCvtBuffer = reinterpret_cast<uint8*>(malloc(CVTBUFFERSIZE));
 }
 
 void CGSH_DirectX9::ReleaseImpl()
 {
+	FREEPTR(m_pCvtBuffer);
+	TexCache_Flush();
 	FREECOM(m_triangleVb);
 	FREECOM(m_device);
 	FREECOM(m_d3d);
@@ -89,17 +103,6 @@ void CGSH_DirectX9::FlipImpl()
 	if(m_device != NULL)
 	{
 		HRESULT result;
-
-		//result = m_device->SetFVF(CUSTOMFVF);
-		//assert(result == S_OK);
-
-		//// select the vertex buffer to display
-		//result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
-		//assert(result == S_OK);
-
-		//// copy the vertex buffer to the back buffer
-		//result = m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
-		//assert(result == S_OK);
 
 		EndScene();
 		result = m_device->Present(NULL, NULL, NULL, NULL);
@@ -222,13 +225,9 @@ void CGSH_DirectX9::UpdateViewportImpl()
 
 void CGSH_DirectX9::Prim_Triangle()
 {
-	float nU1, nU2, nU3;
-	float nV1, nV2, nV3;
-
-	float nS1, nS2, nS3;
-	float nT1, nT2, nT3;
-
-	float nF1, nF2, nF3;
+	float nU1 = 0, nU2 = 0, nU3 = 0;
+	float nV1 = 0, nV2 = 0, nV3 = 0;
+	float nF1 = 0, nF2 = 0, nF3 = 0;
 
 	GSRGBAQ rgbaq[3];
 
@@ -256,9 +255,6 @@ void CGSH_DirectX9::Prim_Triangle()
 	//nZ1 = GetZ(nZ1);
 	//nZ2 = GetZ(nZ2);
 	//nZ3 = GetZ(nZ3);
-
-	static int vertexIndex = 0;
-	CLog::GetInstance().Print("DXLOG", "Triangle%0.5i: %f, %f, %f\r\n", vertexIndex++, nX1, nX2, nX3);
 
 	if(m_PrimitiveMode.nShading)
 	{
@@ -328,44 +324,29 @@ void CGSH_DirectX9::Prim_Triangle()
 		}
 		else
 		{
-			//glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
+			m_device->SetTexture(0, m_nTexHandle);
 
-			DECODE_ST(m_VtxBuffer[2].nST, nS1, nT1);
-			DECODE_ST(m_VtxBuffer[1].nST, nS2, nT2);
-			DECODE_ST(m_VtxBuffer[0].nST, nS3, nT3);
+			ST st[3];
+			st[0] <<= m_VtxBuffer[2].nST;
+			st[1] <<= m_VtxBuffer[1].nST;
+			st[2] <<= m_VtxBuffer[0].nST;
 
-			nS1 /= rgbaq[0].nQ;
-			nS2 /= rgbaq[1].nQ;
-			nS3 /= rgbaq[2].nQ;
+			nU1 = st[0].nS, nU2 = st[1].nS, nU3 = st[2].nS;
+			nV1 = st[0].nT, nV2 = st[1].nT, nV3 = st[2].nT;
 
-			nT1 /= rgbaq[0].nQ;
-			nT2 /= rgbaq[1].nQ;
-			nT3 /= rgbaq[2].nQ;
+			nU1 /= rgbaq[0].nQ;
+			nU2 /= rgbaq[1].nQ;
+			nU3 /= rgbaq[2].nQ;
 
-			//glBegin(GL_TRIANGLES);
-			//{
-			//	glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-			//	glTexCoord2d(nS1, nT1);
-			//	if(glFogCoordfEXT) glFogCoordfEXT(nF1);
-			//	glVertex3d(nX1, nY1, nZ1);
-
-			//	glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-			//	glTexCoord2d(nS2, nT2);
-			//	if(glFogCoordfEXT) glFogCoordfEXT(nF2);
-			//	glVertex3d(nX2, nY2, nZ2);
-
-			//	glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-			//	glTexCoord2d(nS3, nT3);
-			//	if(glFogCoordfEXT) glFogCoordfEXT(nF3);
-			//	glVertex3d(nX3, nY3, nZ3);
-			//}
-			//glEnd();
-
-			//glBindTexture(GL_TEXTURE_2D, NULL);	
+			nV1 /= rgbaq[0].nQ;
+			nV2 /= rgbaq[1].nQ;
+			nV3 /= rgbaq[2].nQ;
 		}
 	}
 	else
 	{
+		m_device->SetTexture(0, NULL);
+
 		//Non Textured Triangle
 		//glBegin(GL_TRIANGLES);
 		//	
@@ -385,9 +366,9 @@ void CGSH_DirectX9::Prim_Triangle()
 
     CUSTOMVERTEX vertices[] =
     {
-        { nX1,	nY1,	0.5f, D3DCOLOR_XRGB(0, 0, 255), },
-        { nX2,	nY2,	0.5f, D3DCOLOR_XRGB(0, 255, 0), },
-        { nX3,	nY3,	0.5f, D3DCOLOR_XRGB(255, 0, 0), },
+        { nX1,	nY1,	0.5f, D3DCOLOR_XRGB(255, 255, 255), nU1, nV1 },
+        { nX2,	nY2,	0.5f, D3DCOLOR_XRGB(255, 255, 255), nU2, nV2 },
+        { nX3,	nY3,	0.5f, D3DCOLOR_XRGB(255, 255, 255), nU3, nV3 },
     };
 
 	uint8* buffer = NULL;
@@ -427,7 +408,7 @@ void CGSH_DirectX9::SetRenderingContext(unsigned int nContext)
 	//SetupBlendingFunction(m_nReg[GS_REG_ALPHA_1 + nContext]);
 	//SetupTestFunctions(m_nReg[GS_REG_TEST_1 + nContext]);
 	//SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
-	//SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
+	SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
 	
 	XYOFFSET offset;
 	offset <<= m_nReg[GS_REG_XYOFFSET_1 + nContext];
@@ -441,6 +422,90 @@ void CGSH_DirectX9::SetRenderingContext(unsigned int nContext)
 			m_nPrimOfsY += 0.5;
 		}
 	}
+}
+
+void CGSH_DirectX9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
+{
+	TEX0 tex0;
+	TEX1 tex1;
+	CLAMP clamp;
+
+	if(nTex0 == 0)
+	{
+		m_nTexHandle = 0;
+		return;
+	}
+
+	tex0 <<= nTex0;
+	tex1 <<= nTex1;
+	clamp <<= nClamp;
+
+	m_nTexWidth		= tex0.GetWidth();
+	m_nTexHeight	= tex0.GetHeight();
+	m_nTexHandle	= LoadTexture(&tex0, &tex1, &clamp);
+
+	int nMagFilter = D3DTEXF_NONE, nMinFilter = D3DTEXF_NONE, nMipFilter = D3DTEXF_NONE;
+	int nWrapS = 0, nWrapT = 0;
+
+	if(tex1.nMagFilter == 0)
+	{
+		nMagFilter = D3DTEXF_POINT;
+	}
+	else
+	{
+		nMagFilter = D3DTEXF_LINEAR;
+	}
+
+	switch(tex1.nMinFilter)
+	{
+	case 0:
+		nMinFilter = D3DTEXF_POINT;
+		break;
+	case 1:
+		nMinFilter = D3DTEXF_LINEAR;
+		break;
+    case 5:
+		nMinFilter = D3DTEXF_LINEAR;
+		nMipFilter = D3DTEXF_LINEAR;
+        break;
+	default:
+		assert(0);
+		break;
+	}
+
+	//if(m_nForceBilinearTextures)
+	//{
+	//	nMagFilter = D3DTEXF_LINEAR;
+	//	nMinFilter = D3DTEXF_LINEAR;
+	//}
+
+	//switch(pClamp->nWMS)
+	//{
+	//case 0:
+	//case 2:
+	//case 3:
+	//	nWrapS = GL_REPEAT;
+	//	break;
+	//case 1:
+	//	nWrapS = GL_CLAMP_TO_EDGE;
+	//	break;
+	//}
+
+	//switch(pClamp->nWMT)
+	//{
+	//case 0:
+	//case 2:
+	//case 3:
+	//	nWrapT = GL_REPEAT;
+	//	break;
+	//case 1:
+	//	nWrapT = GL_CLAMP_TO_EDGE;
+	//	break;
+	//}
+
+	m_device->SetSamplerState(0, D3DSAMP_MINFILTER, nMinFilter);
+	m_device->SetSamplerState(0, D3DSAMP_MAGFILTER, nMagFilter);
+	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);
 }
 
 void CGSH_DirectX9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
