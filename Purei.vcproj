@@ -1390,15 +1390,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\GSH_DirectX9.cpp"
+				RelativePath=".\Source\win32ui\GSH_Direct3D9.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\GSH_DirectX9.h"
+				RelativePath=".\Source\win32ui\GSH_Direct3D9.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\GSH_DirectX9_Texture.cpp"
+				RelativePath=".\Source\win32ui\GSH_Direct3D9_Texture.cpp"
 				>
 			</File>
 			<File

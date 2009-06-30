@@ -1,5 +1,5 @@
-#ifndef _GSH_DIRECTX9_H_
-#define _GSH_DIRECTX9_H_
+#ifndef _GSH_DIRECT3D9_H_
+#define _GSH_DIRECT3D9_H_
 
 #include "../GSHandler.h"
 #include "win32/Window.h"
@@ -10,11 +10,11 @@
 #endif
 #include <d3d9.h>
 
-class CGSH_DirectX9 : public CGSHandler
+class CGSH_Direct3D9 : public CGSHandler
 {
 public:
-									CGSH_DirectX9(Framework::Win32::CWindow*);
-	virtual                         ~CGSH_DirectX9();
+									CGSH_Direct3D9(Framework::Win32::CWindow*);
+	virtual                         ~CGSH_Direct3D9();
 
 	void							ProcessImageTransfer(uint32, uint32);
 

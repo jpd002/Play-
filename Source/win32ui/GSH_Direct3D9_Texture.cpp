@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <zlib.h>
-#include "GSH_DirectX9.h"
+#include "GSH_Direct3D9.h"
 
-LPDIRECT3DTEXTURE9 CGSH_DirectX9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
+LPDIRECT3DTEXTURE9 CGSH_Direct3D9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
 {
 	LPDIRECT3DTEXTURE9 result(NULL);
 
@@ -152,7 +152,7 @@ LPDIRECT3DTEXTURE9 CGSH_DirectX9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* p
 	return result;
 }
 
-uint32 CGSH_DirectX9::Color_Ps2ToDx9(uint32 color)
+uint32 CGSH_Direct3D9::Color_Ps2ToDx9(uint32 color)
 {
 	return D3DCOLOR_ARGB(
 		(color >> 24) & 0xFF, 
@@ -161,7 +161,7 @@ uint32 CGSH_DirectX9::Color_Ps2ToDx9(uint32 color)
 		(color >> 16) & 0xFF);
 }
 
-void CGSH_DirectX9::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTURE9 texture)
+void CGSH_Direct3D9::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTURE9 texture)
 {
 	uint32 nPointer			= pReg0->GetBufPtr();
 	unsigned int nWidth		= pReg0->GetWidth();
@@ -196,7 +196,7 @@ void CGSH_DirectX9::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTUR
 	//glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
-void CGSH_DirectX9::ReadCLUT8(TEX0* pTex0)
+void CGSH_Direct3D9::ReadCLUT8(TEX0* pTex0)
 {
 	uint8 nIndex;
 
@@ -238,7 +238,7 @@ void CGSH_DirectX9::ReadCLUT8(TEX0* pTex0)
 	}
 }
 
-uint32 CGSH_DirectX9::ConvertTexturePsm8(TEX0* pReg0, TEXA* pTexA)
+uint32 CGSH_Direct3D9::ConvertTexturePsm8(TEX0* pReg0, TEXA* pTexA)
 {
 	uint32 nPointer         = pReg0->GetBufPtr();
 	unsigned int nWidth		= pReg0->GetWidth();
@@ -289,7 +289,7 @@ uint32 CGSH_DirectX9::ConvertTexturePsm8(TEX0* pReg0, TEXA* pTexA)
     return checksum;
 }
 
-void CGSH_DirectX9::UploadConversionBuffer(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTURE9 texture)
+void CGSH_Direct3D9::UploadConversionBuffer(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTURE9 texture)
 {
 	unsigned int nWidth		= pReg0->GetWidth();
 	unsigned int nHeight	= pReg0->GetHeight();
@@ -310,7 +310,7 @@ void CGSH_DirectX9::UploadConversionBuffer(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DT
 // Texture
 /////////////////////////////////////////////////////////////
 
-CGSH_DirectX9::CTexture::CTexture() :
+CGSH_Direct3D9::CTexture::CTexture() :
 m_nStart(0),
 m_nSize(0),
 m_nPSM(0),
@@ -325,12 +325,12 @@ m_live(false)
 
 }
 
-CGSH_DirectX9::CTexture::~CTexture()
+CGSH_Direct3D9::CTexture::~CTexture()
 {
     Free();
 }
 
-void CGSH_DirectX9::CTexture::Free()
+void CGSH_Direct3D9::CTexture::Free()
 {
 	if(m_texture != NULL)
 	{
@@ -340,7 +340,7 @@ void CGSH_DirectX9::CTexture::Free()
 	}
 }
 
-void CGSH_DirectX9::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSize)
+void CGSH_Direct3D9::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSize)
 {
     if(!m_live) return;
 
@@ -368,7 +368,7 @@ void CGSH_DirectX9::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nS
 // Texture Caching
 /////////////////////////////////////////////////////////////
 
-LPDIRECT3DTEXTURE9 CGSH_DirectX9::TexCache_SearchLive(TEX0* pTex0)
+LPDIRECT3DTEXTURE9 CGSH_Direct3D9::TexCache_SearchLive(TEX0* pTex0)
 {
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
@@ -392,7 +392,7 @@ LPDIRECT3DTEXTURE9 CGSH_DirectX9::TexCache_SearchLive(TEX0* pTex0)
 	return 0;
 }
 
-LPDIRECT3DTEXTURE9 CGSH_DirectX9::TexCache_SearchDead(TEX0* pTex0, uint32 checksum)
+LPDIRECT3DTEXTURE9 CGSH_Direct3D9::TexCache_SearchDead(TEX0* pTex0, uint32 checksum)
 {
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
@@ -410,7 +410,7 @@ LPDIRECT3DTEXTURE9 CGSH_DirectX9::TexCache_SearchDead(TEX0* pTex0, uint32 checks
     return 0;
 }
 
-void CGSH_DirectX9::TexCache_Insert(TEX0* pTex0, LPDIRECT3DTEXTURE9 nTexture, uint32 checksum)
+void CGSH_Direct3D9::TexCache_Insert(TEX0* pTex0, LPDIRECT3DTEXTURE9 nTexture, uint32 checksum)
 {
     CTexture* pTexture = *m_TexCache.rbegin();
     pTexture->Free();
@@ -430,7 +430,7 @@ void CGSH_DirectX9::TexCache_Insert(TEX0* pTex0, LPDIRECT3DTEXTURE9 nTexture, ui
     m_TexCache.push_front(pTexture);
 }
 
-void CGSH_DirectX9::TexCache_InvalidateTextures(uint32 nStart, uint32 nSize)
+void CGSH_Direct3D9::TexCache_InvalidateTextures(uint32 nStart, uint32 nSize)
 {
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
@@ -439,7 +439,7 @@ void CGSH_DirectX9::TexCache_InvalidateTextures(uint32 nStart, uint32 nSize)
 	}
 }
 
-void CGSH_DirectX9::TexCache_Flush()
+void CGSH_Direct3D9::TexCache_Flush()
 {
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)

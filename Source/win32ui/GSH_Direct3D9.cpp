@@ -1,4 +1,4 @@
-#include "GSH_DirectX9.h"
+#include "GSH_Direct3D9.h"
 #include "PtrMacro.h"
 #include "../Log.h"
 #include <d3dx9math.h>
@@ -22,7 +22,7 @@ struct CUSTOMVERTEX
 
 #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
-CGSH_DirectX9::CGSH_DirectX9(Win32::CWindow* outputWindow) :
+CGSH_Direct3D9::CGSH_Direct3D9(Win32::CWindow* outputWindow) :
 m_pOutputWnd(dynamic_cast<COutputWnd*>(outputWindow)),
 m_d3d(NULL),
 m_device(NULL),
@@ -38,22 +38,22 @@ m_nTexHandle(NULL)
 
 }
 
-CGSH_DirectX9::~CGSH_DirectX9()
+CGSH_Direct3D9::~CGSH_Direct3D9()
 {
 
 }
 
-CGSHandler::FactoryFunction CGSH_DirectX9::GetFactoryFunction(Win32::CWindow* pOutputWnd)
+CGSHandler::FactoryFunction CGSH_Direct3D9::GetFactoryFunction(Win32::CWindow* pOutputWnd)
 {
-    return bind(&CGSH_DirectX9::GSHandlerFactory, pOutputWnd);
+    return bind(&CGSH_Direct3D9::GSHandlerFactory, pOutputWnd);
 }
 
-void CGSH_DirectX9::ProcessImageTransfer(uint32 nAddress, uint32 nLenght)
+void CGSH_Direct3D9::ProcessImageTransfer(uint32 nAddress, uint32 nLenght)
 {
 
 }
 
-void CGSH_DirectX9::InitializeImpl()
+void CGSH_Direct3D9::InitializeImpl()
 {
 	m_d3d = Direct3DCreate9(D3D_SDK_VERSION);
 	SetViewport(512, 384);
@@ -72,7 +72,7 @@ void CGSH_DirectX9::InitializeImpl()
 	m_pCLUT16	= reinterpret_cast<uint16*>(m_pCLUT);
 }
 
-void CGSH_DirectX9::ReleaseImpl()
+void CGSH_Direct3D9::ReleaseImpl()
 {
 	FREEPTR(m_pCLUT);
 	FREEPTR(m_pCvtBuffer);
@@ -82,7 +82,7 @@ void CGSH_DirectX9::ReleaseImpl()
 	FREECOM(m_d3d);
 }
 
-void CGSH_DirectX9::BeginScene()
+void CGSH_Direct3D9::BeginScene()
 {
 	if(!m_sceneBegun)
 	{
@@ -93,7 +93,7 @@ void CGSH_DirectX9::BeginScene()
 	}
 }
 
-void CGSH_DirectX9::EndScene()
+void CGSH_Direct3D9::EndScene()
 {
 	if(m_sceneBegun)
 	{
@@ -103,7 +103,7 @@ void CGSH_DirectX9::EndScene()
 	}
 }
 
-void CGSH_DirectX9::FlipImpl()
+void CGSH_Direct3D9::FlipImpl()
 {
 	if(m_device != NULL)
 	{
@@ -116,7 +116,7 @@ void CGSH_DirectX9::FlipImpl()
 	}
 }
 
-void CGSH_DirectX9::SetReadCircuitMatrix(int nWidth, int nHeight)
+void CGSH_Direct3D9::SetReadCircuitMatrix(int nWidth, int nHeight)
 {
 	//Setup projection matrix
 	{
@@ -144,7 +144,7 @@ void CGSH_DirectX9::SetReadCircuitMatrix(int nWidth, int nHeight)
 	}
 }
 
-void CGSH_DirectX9::SetViewport(int nWidth, int nHeight)
+void CGSH_Direct3D9::SetViewport(int nWidth, int nHeight)
 {
 	RECT rc;
 	SetRect(&rc, 0, 0, nWidth, nHeight);
@@ -153,7 +153,7 @@ void CGSH_DirectX9::SetViewport(int nWidth, int nHeight)
 	ReCreateDevice(nWidth, nHeight);
 }
 
-void CGSH_DirectX9::ReCreateDevice(int nWidth, int nHeight)
+void CGSH_Direct3D9::ReCreateDevice(int nWidth, int nHeight)
 {
 	FREECOM(m_triangleVb);
 	FREECOM(m_device);
@@ -188,12 +188,12 @@ void CGSH_DirectX9::ReCreateDevice(int nWidth, int nHeight)
 	BeginScene();
 }
 
-CGSHandler* CGSH_DirectX9::GSHandlerFactory(Win32::CWindow* pParam)
+CGSHandler* CGSH_Direct3D9::GSHandlerFactory(Win32::CWindow* pParam)
 {
-	return new CGSH_DirectX9(pParam);
+	return new CGSH_Direct3D9(pParam);
 }
 
-void CGSH_DirectX9::UpdateViewportImpl()
+void CGSH_Direct3D9::UpdateViewportImpl()
 {
 	GSDISPLAY d;
 
@@ -228,7 +228,7 @@ void CGSH_DirectX9::UpdateViewportImpl()
 	SetReadCircuitMatrix(m_nWidth, m_nHeight);
 }
 
-void CGSH_DirectX9::Prim_Triangle()
+void CGSH_Direct3D9::Prim_Triangle()
 {
 	float nU1 = 0, nU2 = 0, nU3 = 0;
 	float nV1 = 0, nV2 = 0, nV3 = 0;
@@ -408,7 +408,7 @@ void CGSH_DirectX9::Prim_Triangle()
 	}
 }
 
-void CGSH_DirectX9::SetRenderingContext(unsigned int nContext)
+void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 {
 	SetupBlendingFunction(m_nReg[GS_REG_ALPHA_1 + nContext]);
 	//SetupTestFunctions(m_nReg[GS_REG_TEST_1 + nContext]);
@@ -429,7 +429,7 @@ void CGSH_DirectX9::SetRenderingContext(unsigned int nContext)
 	}
 }
 
-void CGSH_DirectX9::SetupBlendingFunction(uint64 nData)
+void CGSH_Direct3D9::SetupBlendingFunction(uint64 nData)
 {
 	if(nData == 0) return;
 
@@ -510,7 +510,7 @@ void CGSH_DirectX9::SetupBlendingFunction(uint64 nData)
 	//}
 }
 
-void CGSH_DirectX9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
+void CGSH_Direct3D9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
 {
 	TEX0 tex0;
 	TEX1 tex1;
@@ -594,7 +594,7 @@ void CGSH_DirectX9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
 	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);
 }
 
-void CGSH_DirectX9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
+void CGSH_Direct3D9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	CGSHandler::WriteRegisterImpl(nRegister, nData);
 
@@ -671,7 +671,7 @@ void CGSH_DirectX9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 }
 
-void CGSH_DirectX9::VertexKick(uint8 nRegister, uint64 nValue)
+void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 {
 	if(m_nVtxCount == 0) return;
 
