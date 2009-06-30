@@ -79,6 +79,7 @@ private:
 	void							VertexKick(uint8, uint64);
 
 	void							SetRenderingContext(unsigned int);
+	void							SetupBlendingFunction(uint64);
 	void							SetupTexture(uint64, uint64, uint64);
 	LPDIRECT3DTEXTURE9				LoadTexture(TEX0*, TEX1*, CLAMP*);
 
@@ -87,6 +88,12 @@ private:
     static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
 	void							TexUploader_Psm32(TEX0*, TEXA*, LPDIRECT3DTEXTURE9);
+	void							UploadConversionBuffer(TEX0*, TEXA*, LPDIRECT3DTEXTURE9);
+
+	void							ReadCLUT8(TEX0*);
+	uint32							ConvertTexturePsm8(TEX0*, TEXA*);
+
+	uint32							Color_Ps2ToDx9(uint32);
 
     LPDIRECT3DTEXTURE9				TexCache_SearchLive(TEX0*);
     LPDIRECT3DTEXTURE9				TexCache_SearchDead(TEX0*, uint32);
@@ -104,6 +111,9 @@ private:
 	LPDIRECT3DTEXTURE9				m_nTexHandle;
 
 	uint8*							m_pCvtBuffer;
+	void*							m_pCLUT;
+	uint16*							m_pCLUT16;
+	uint32*							m_pCLUT32;
 
 	PRMODE							m_PrimitiveMode;
 	unsigned int					m_nPrimitiveType;

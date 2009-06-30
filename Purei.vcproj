@@ -1398,6 +1398,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\win32ui\GSH_DirectX9_Texture.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\win32ui\GSH_OpenGLWin32.cpp"
 				>
 			</File>

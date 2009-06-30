@@ -14,11 +14,10 @@ using namespace Framework;
 // Texture Loading
 /////////////////////////////////////////////////////////////
 
-unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClamp)
+unsigned int CGSH_OpenGL::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
 {
 	int nMagFilter, nMinFilter;
 	int nWrapS, nWrapT;
-	GSTEXA TexA;
 
 	uint32 nPointer     = pReg0->GetBufPtr();
 	uint32 nWidth		= pReg0->GetWidth();
@@ -97,7 +96,8 @@ unsigned int CGSH_OpenGL::LoadTexture(GSTEX0* pReg0, GSTEX1* pReg1, CLAMP* pClam
     unsigned int nTexture = TexCache_SearchLive(pReg0);
 	if(nTexture != 0) return nTexture;
 
-	DECODE_TEXA(m_nReg[GS_REG_TEXA], TexA);
+	TEXA TexA;
+	TexA <<= m_nReg[GS_REG_TEXA];
 
     //Test code
     uint32 textureChecksum = 0; 
@@ -278,7 +278,7 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 #endif
 }
 
-void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
+void CGSH_OpenGL::ReadCLUT4(TEX0* pTex0)
 {
 	//assert(pTex0->nCSA == 0);
 	//assert(pTex0->nCLD == 1);
@@ -349,7 +349,7 @@ void CGSH_OpenGL::ReadCLUT4(GSTEX0* pTex0)
 	}
 }
 
-void CGSH_OpenGL::ReadCLUT8(GSTEX0* pTex0)
+void CGSH_OpenGL::ReadCLUT8(TEX0* pTex0)
 {
 	uint8 nIndex;
 
@@ -391,7 +391,7 @@ void CGSH_OpenGL::ReadCLUT8(GSTEX0* pTex0)
 	}
 }
 
-void CGSH_OpenGL::TexUploader_Psm32(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth, nHeight, nDstPitch, i, j;
 	uint32 nPointer;
@@ -420,7 +420,7 @@ void CGSH_OpenGL::TexUploader_Psm32(GSTEX0* pReg0, GSTEXA* pTexA)
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
-void CGSH_OpenGL::TexUploader_Psm8_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm8_Hw(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth, nHeight;
 	uint32 nPointer;
@@ -495,7 +495,7 @@ void CGSH_OpenGL::TexUploader_Psm8_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT, nWidth, nHeight, 0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, m_pRAM + nPointer);
 }
 
-void CGSH_OpenGL::TexUploader_Psm8_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm8_Cvt(TEX0* pReg0, TEXA* pTexA)
 {
 	uint32 nPointer         = pReg0->GetBufPtr();
 	unsigned int nWidth		= pReg0->GetWidth();
@@ -547,7 +547,7 @@ void CGSH_OpenGL::TexUploader_Psm8_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
     glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dstBuffer);
 }
 
-uint32 CGSH_OpenGL::ConvertTexturePsm8(GSTEX0* pReg0, GSTEXA* pTexA)
+uint32 CGSH_OpenGL::ConvertTexturePsm8(TEX0* pReg0, TEXA* pTexA)
 {
 	uint32 nPointer         = pReg0->GetBufPtr();
 	unsigned int nWidth		= pReg0->GetWidth();
@@ -598,7 +598,7 @@ uint32 CGSH_OpenGL::ConvertTexturePsm8(GSTEX0* pReg0, GSTEXA* pTexA)
     return checksum;
 }
 
-uint32 CGSH_OpenGL::ConvertTexturePsm8H(GSTEX0* pReg0, GSTEXA* pTexA)
+uint32 CGSH_OpenGL::ConvertTexturePsm8H(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int i, j;
 	uint32 nPixel;
@@ -652,7 +652,7 @@ uint32 CGSH_OpenGL::ConvertTexturePsm8H(GSTEX0* pReg0, GSTEXA* pTexA)
     return checksum;
 }
 
-uint32 CGSH_OpenGL::ConvertTexturePsm4(GSTEX0* pReg0, GSTEXA* pTexA)
+uint32 CGSH_OpenGL::ConvertTexturePsm4(TEX0* pReg0, TEXA* pTexA)
 {
     uint32 nPointer         = pReg0->GetBufPtr();
 	unsigned int nWidth     = pReg0->GetWidth();
@@ -702,7 +702,7 @@ uint32 CGSH_OpenGL::ConvertTexturePsm4(GSTEX0* pReg0, GSTEXA* pTexA)
     return checksum;
 }
 
-void CGSH_OpenGL::UploadTexturePsm8(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::UploadTexturePsm8(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth		= pReg0->GetWidth();
 	unsigned int nHeight	= pReg0->GetHeight();
@@ -712,7 +712,7 @@ void CGSH_OpenGL::UploadTexturePsm8(GSTEX0* pReg0, GSTEXA* pTexA)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
-void CGSH_OpenGL::TexUploader_Psm16_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm16_Hw(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth, nHeight;
 	uint32 nPointer;
@@ -738,7 +738,7 @@ void CGSH_OpenGL::TexUploader_Psm16_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
 }
 
-void CGSH_OpenGL::TexUploader_Psm16_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm16_Cvt(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth, nHeight, nSrcPitch, nDstPitch, i, j;
 	uint8 nTA0, nTA1;
@@ -801,7 +801,7 @@ void CGSH_OpenGL::TexUploader_Psm16_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
-void CGSH_OpenGL::TexUploader_Psm16S_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm16S_Hw(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth, nHeight;
 	uint32 nPointer;
@@ -826,7 +826,7 @@ void CGSH_OpenGL::TexUploader_Psm16S_Hw(GSTEX0* pReg0, GSTEXA* pTexA)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
 }
 
-void CGSH_OpenGL::TexUploader_Psm4_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm4_Cvt(TEX0* pReg0, TEXA* pTexA)
 {
     uint32 nPointer         = pReg0->GetBufPtr();
 	unsigned int nWidth     = pReg0->GetWidth();
@@ -894,7 +894,7 @@ void CGSH_OpenGL::TexUploader_Psm4_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 }
 
 template <uint32 nShift>
-void CGSH_OpenGL::TexUploader_Psm4H_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm4H_Cvt(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth, nHeight, nDstPitch, i, j;
 	uint32 nPointer;
@@ -950,7 +950,7 @@ void CGSH_OpenGL::TexUploader_Psm4H_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
-void CGSH_OpenGL::TexUploader_Psm8H_Cvt(GSTEX0* pReg0, GSTEXA* pTexA)
+void CGSH_OpenGL::TexUploader_Psm8H_Cvt(TEX0* pReg0, TEXA* pTexA)
 {
 	unsigned int nWidth, nHeight, nDstPitch, i, j;
 	uint32 nPointer;
@@ -1067,7 +1067,7 @@ void CGSH_OpenGL::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSiz
 // Texture Caching
 /////////////////////////////////////////////////////////////
 
-unsigned int CGSH_OpenGL::TexCache_SearchLive(GSTEX0* pTex0)
+unsigned int CGSH_OpenGL::TexCache_SearchLive(TEX0* pTex0)
 {
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
@@ -1091,7 +1091,7 @@ unsigned int CGSH_OpenGL::TexCache_SearchLive(GSTEX0* pTex0)
 	return 0;
 }
 
-unsigned int CGSH_OpenGL::TexCache_SearchDead(GSTEX0* pTex0, uint32 checksum)
+unsigned int CGSH_OpenGL::TexCache_SearchDead(TEX0* pTex0, uint32 checksum)
 {
     for(TextureList::iterator textureIterator(m_TexCache.begin());
         textureIterator != m_TexCache.end(); textureIterator++)
@@ -1109,7 +1109,7 @@ unsigned int CGSH_OpenGL::TexCache_SearchDead(GSTEX0* pTex0, uint32 checksum)
     return 0;
 }
 
-void CGSH_OpenGL::TexCache_Insert(GSTEX0* pTex0, unsigned int nTexture, uint32 checksum)
+void CGSH_OpenGL::TexCache_Insert(TEX0* pTex0, unsigned int nTexture, uint32 checksum)
 {
     CTexture* pTexture = *m_TexCache.rbegin();
     pTexture->Free();

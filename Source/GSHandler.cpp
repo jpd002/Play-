@@ -1023,8 +1023,8 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:
 		{
-			GSTEX0 tex;
-			DECODE_TEX0(nData, tex);
+			TEX0 tex;
+			tex <<= nData;
 			CLog::GetInstance().Print(LOG_NAME, "TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
 				nRegister == GS_REG_TEX0_1 ? 1 : 2, \
 				tex.GetBufPtr(), \
@@ -1045,7 +1045,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_CLAMP_2:
 		{
 			CLAMP clamp;
-			clamp = *(CLAMP*)&nData;
+			clamp <<= nData;
 			CLog::GetInstance().Print(LOG_NAME, "CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i);\r\n", \
 				nRegister == GS_REG_CLAMP_1 ? 1 : 2, \
 				clamp.nWMS, \
@@ -1059,8 +1059,8 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_TEX1_1:
 	case GS_REG_TEX1_2:
 		{
-			GSTEX1 tex1;
-			DECODE_TEX1(nData, tex1);
+			TEX1 tex1;
+			tex1 <<= nData;
 			CLog::GetInstance().Print(LOG_NAME, "TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i);\r\n", \
 				nRegister == GS_REG_TEX1_1 ? 1 : 2, \
 				tex1.nLODMethod, \
@@ -1126,8 +1126,8 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			fogcol.nFCB);
 		break;
 	case GS_REG_TEXA:
-		GSTEXA TexA;
-		DECODE_TEXA(nData, TexA);
+		TEXA TexA;
+		TexA <<= nData;
 		CLog::GetInstance().Print(LOG_NAME, "TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X);\r\n", \
 			TexA.nTA0,
 			TexA.nAEM,
@@ -1138,8 +1138,8 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_ALPHA_1:
 	case GS_REG_ALPHA_2:
-		GSALPHA alpha;
-		DECODE_ALPHA(nData, alpha);
+		ALPHA alpha;
+		alpha <<= nData;
 		CLog::GetInstance().Print(LOG_NAME, "ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X);\r\n", \
 			nRegister == GS_REG_ALPHA_1 ? 1 : 2, \
 			alpha.nA, \

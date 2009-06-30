@@ -342,14 +342,12 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 {
-	GSALPHA alpha;
-	int nFunction;
-
 	if(nData == 0) return;
 
-	nFunction = GL_FUNC_ADD_EXT;
+	int nFunction = GL_FUNC_ADD_EXT;
 
-	DECODE_ALPHA(nData, alpha);
+	ALPHA alpha;
+	alpha <<= nData;
 
 	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
@@ -404,10 +402,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cd * As
-//		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
-	//REMOVE
-		glBlendFunc(GL_ZERO, GL_ONE);
-	//REMOVE
+		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
 	}
 	else
 	{
@@ -514,8 +509,8 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 
 void CGSH_OpenGL::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
 {
-	GSTEX0 tex0;
-	GSTEX1 tex1;
+	TEX0 tex0;
+	TEX1 tex1;
 	CLAMP clamp;
 
 	if(nTex0 == 0)
@@ -524,9 +519,9 @@ void CGSH_OpenGL::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
 		return;
 	}
 
-	DECODE_TEX0(nTex0, tex0);
-	DECODE_TEX1(nTex1, tex1);
-	clamp = *(CLAMP*)&nClamp;
+	tex0 <<= nTex0;
+	tex1 <<= nTex1;
+	clamp <<= nClamp;
 
 	m_nTexWidth		= tex0.GetWidth();
 	m_nTexHeight	= tex0.GetHeight();
@@ -690,9 +685,6 @@ void CGSH_OpenGL::Prim_Triangle()
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
 	nZ3 = GetZ(nZ3);
-
-	static int vertexIndex = 0;
-	CLog::GetInstance().Print("GLLOG", "Triangle%0.5i: %f, %f, %f\r\n", vertexIndex++, nX1, nX2, nX3);
 
 	if(m_PrimitiveMode.nShading)
 	{
@@ -1013,11 +1005,11 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		{
 			unsigned int nContext;
 			const uint64 nMask = 0xFFFFFFE003F00000ULL;
-			GSTEX0 Tex0;
+			TEX0 Tex0;
 
 			nContext = nRegister - GS_REG_TEX2_1;
 
-			Tex0 = *(GSTEX0*)&m_nReg[GS_REG_TEX0_1 + nContext];
+			Tex0 = *(TEX0*)&m_nReg[GS_REG_TEX0_1 + nContext];
 			if(Tex0.nCLD == 1 && Tex0.nCPSM == 0)
 			{
 				ReadCLUT8(&Tex0);

@@ -66,10 +66,15 @@ void CGSH_DirectX9::InitializeImpl()
     }
 
 	m_pCvtBuffer = reinterpret_cast<uint8*>(malloc(CVTBUFFERSIZE));
+
+	m_pCLUT		= malloc(0x400);
+	m_pCLUT32	= reinterpret_cast<uint32*>(m_pCLUT);
+	m_pCLUT16	= reinterpret_cast<uint16*>(m_pCLUT);
 }
 
 void CGSH_DirectX9::ReleaseImpl()
 {
+	FREEPTR(m_pCLUT);
 	FREEPTR(m_pCvtBuffer);
 	TexCache_Flush();
 	FREECOM(m_triangleVb);
@@ -267,7 +272,7 @@ void CGSH_DirectX9::Prim_Triangle()
 
 	if(m_PrimitiveMode.nAlpha)
 	{
-		//glEnable(GL_BLEND);
+		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	}
 
 	if(m_PrimitiveMode.nFog)
@@ -399,13 +404,13 @@ void CGSH_DirectX9::Prim_Triangle()
 
 	if(m_PrimitiveMode.nAlpha)
 	{
-		//glDisable(GL_BLEND);
+		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
 }
 
 void CGSH_DirectX9::SetRenderingContext(unsigned int nContext)
 {
-	//SetupBlendingFunction(m_nReg[GS_REG_ALPHA_1 + nContext]);
+	SetupBlendingFunction(m_nReg[GS_REG_ALPHA_1 + nContext]);
 	//SetupTestFunctions(m_nReg[GS_REG_TEST_1 + nContext]);
 	//SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
 	SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
@@ -422,6 +427,87 @@ void CGSH_DirectX9::SetRenderingContext(unsigned int nContext)
 			m_nPrimOfsY += 0.5;
 		}
 	}
+}
+
+void CGSH_DirectX9::SetupBlendingFunction(uint64 nData)
+{
+	if(nData == 0) return;
+
+	ALPHA alpha;
+	alpha <<= nData;
+
+	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	}
+	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	}
+	//else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
+	//{
+	//	glBlendFunc(GL_ONE, GL_ZERO);
+	//}
+	//else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
+	//{
+	//	//Source alpha value is implied in the formula
+	//	//As = FIX / 0x80
+	//	if(glBlendColorEXT != NULL)
+	//	{
+	//		glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
+	//		glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
+	//	}
+	//}
+	//else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
+	//{
+	//	nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
+	//	if(glBlendColorEXT != NULL)
+	//	{
+	//		glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
+	//		glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT);
+	//	}
+	//}
+	//else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
+	//{
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	//}
+	//else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
+	//{
+	//	//Cs * As
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+	//}
+	//else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
+	//{
+	//	//Cs * Ad + Cd * (1 - Ad)
+	//	glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+	//}
+	//else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 1) && (alpha.nD == 1))
+	//{
+	//	//Cs * Ad + Cd
+	//	glBlendFunc(GL_DST_ALPHA, GL_ONE);
+	//}
+	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
+	{
+		//Cd * As
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
+
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+
+//		glBlendFunc(GL_ZERO, GL_ONE);
+	}
+	else
+	{
+		printf("GSH_DirectX9: Unknown color blending formula.\r\n");
+	}
+
+	//if(glBlendEquationEXT != NULL)
+	//{
+	//	glBlendEquationEXT(nFunction);
+	//}
 }
 
 void CGSH_DirectX9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)

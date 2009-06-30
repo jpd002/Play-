@@ -56,43 +56,6 @@ enum GS_REGS
 	GS_REG_TRXDIR		= 0x53,
 };
 
-struct GSTEX0
-{
-	unsigned int	nBufPtr			: 14;
-	unsigned int	nBufWidth		: 6;
-	unsigned int	nPsm			: 6;
-	unsigned int	nWidth			: 4;
-	unsigned int	nPad0			: 2;
-	unsigned int	nPad1			: 2;
-	unsigned int	nColorComp		: 1;
-	unsigned int	nFunction		: 2;
-	unsigned int	nCBP			: 14;
-	unsigned int	nCPSM			: 4;
-	unsigned int	nCSM			: 1;
-	unsigned int	nCSA			: 5;
-	unsigned int	nCLD			: 3;
-	uint32			GetBufPtr()		{ return nBufPtr * 256; }
-	uint32			GetBufWidth()	{ return nBufWidth * 64; }
-	uint32			GetWidth()		{ return (1 << nWidth); }
-	uint32			GetHeight()		{ return (1 << (nPad0 | (nPad1 << 2))); }
-	uint32			GetCLUTPtr()	{ return nCBP * 256; }
-};
-
-struct GSTEX1
-{
-	unsigned int	nLODMethod		: 1;
-	unsigned int	nReserved0		: 1;
-	unsigned int	nMaxMip			: 3;
-	unsigned int	nMagFilter		: 1;
-	unsigned int	nMinFilter		: 3;
-	unsigned int	nMipBaseAddr	: 1;
-	unsigned int	nReserved1		: 9;
-	unsigned int	nLODL			: 2;
-	unsigned int	nReserved2		: 11;
-	unsigned int	nLODK			: 7;
-	unsigned int	nReserved3		: 25;
-};
-
 struct GSRGBAQ
 {
 	uint8			nR;
@@ -125,27 +88,6 @@ struct GSPRIM
 	unsigned int	nUseFloat		: 1;
 };
 
-struct GSTEXA
-{
-	unsigned int	nTA0			: 8;
-	unsigned int	nReserved0		: 7;
-	unsigned int	nAEM			: 1;
-	unsigned int	nReserved1		: 16;
-	unsigned int	nTA1			: 8;
-	unsigned int	nReserved2		: 24;
-};
-
-struct GSALPHA
-{
-	unsigned int	nA			: 2;
-	unsigned int	nB			: 2;
-	unsigned int	nC			: 2;
-	unsigned int	nD			: 2;
-	unsigned int	nReserved0	: 24;
-	unsigned int	nFix		: 8;
-	unsigned int	nReserved1	: 24;
-};
-
 #pragma pack(pop)
 
 #define DECODE_DISPLAY(v, d)					\
@@ -153,15 +95,6 @@ struct GSALPHA
 
 #define DECODE_PRIM(v, pr)						\
 	(pr) = *(GSPRIM*)&(v);
-
-#define DECODE_TEXA(v, texa)					\
-	(texa) = *(GSTEXA*)&(v);
-
-#define DECODE_TEX0(v, tex)						\
-	(tex) = *(GSTEX0*)&(v);
-
-#define DECODE_TEX1(v, tex)						\
-	(tex) = *(GSTEX1*)&(v);
 
 #define DECODE_RGBAQ(v, rgbaq)					\
 	(rgbaq) = *(GSRGBAQ*)&(v);
@@ -180,9 +113,6 @@ struct GSALPHA
 	(x)  = (double)(((v >>  0) & 0xFFFF)) / 16.0;	\
 	(y)  = (double)(((v >> 16) & 0xFFFF)) / 16.0;	\
 	(z)  = (double)((v >> 32) & 0xFFFFFFFF);
-
-#define DECODE_ALPHA(v, alpha)					\
-	(alpha) = *(GSALPHA*)&(v);
 
 class CGSHandler
 {
@@ -268,6 +198,14 @@ protected:
 		uint32			GetBufWidth()	{ return nBufWidth * 64; };
 	};
 
+	//Reg 0x02
+	struct ST : public convertible<uint64>
+	{
+		float			nS;
+		float			nT;
+	};
+    BOOST_STATIC_ASSERT(sizeof(ST) == sizeof(uint64));
+
 	//Reg 0x04/0x0C
 	struct XYZF
 	{
@@ -293,8 +231,32 @@ protected:
 	};
     BOOST_STATIC_ASSERT(sizeof(XYZ) == sizeof(uint64));
 
+	//Reg 0x06/0x07
+	struct TEX0 : public convertible<uint64>
+	{
+		unsigned int	nBufPtr			: 14;
+		unsigned int	nBufWidth		: 6;
+		unsigned int	nPsm			: 6;
+		unsigned int	nWidth			: 4;
+		unsigned int	nPad0			: 2;
+		unsigned int	nPad1			: 2;
+		unsigned int	nColorComp		: 1;
+		unsigned int	nFunction		: 2;
+		unsigned int	nCBP			: 14;
+		unsigned int	nCPSM			: 4;
+		unsigned int	nCSM			: 1;
+		unsigned int	nCSA			: 5;
+		unsigned int	nCLD			: 3;
+		uint32			GetBufPtr()		{ return nBufPtr * 256; }
+		uint32			GetBufWidth()	{ return nBufWidth * 64; }
+		uint32			GetWidth()		{ return (1 << nWidth); }
+		uint32			GetHeight()		{ return (1 << (nPad0 | (nPad1 << 2))); }
+		uint32			GetCLUTPtr()	{ return nCBP * 256; }
+	};
+    BOOST_STATIC_ASSERT(sizeof(TEX0) == sizeof(uint64));
+
 	//Reg 0x08/0x09
-	struct CLAMP
+	struct CLAMP : public convertible<uint64>
 	{
 		unsigned int	nWMS			: 2;
 		unsigned int	nWMT			: 2;
@@ -303,12 +265,30 @@ protected:
 		unsigned int	nReserved0		: 8;
 		unsigned int	nReserved1		: 2;
 		unsigned int	nMAXV			: 10;
-		unsigned int	nReserved2		: 22;
+		unsigned int	nReserved2		: 20;
 		unsigned int	GetMinU()		{ return nMINU;	}
 		unsigned int	GetMaxU()		{ return nMAXU;	}
 		unsigned int	GetMinV()		{ return (nReserved0) | (nReserved1 << 8); }
 		unsigned int	GetMaxV()		{ return nMAXV; }
 	};
+    BOOST_STATIC_ASSERT(sizeof(CLAMP) == sizeof(uint64));
+
+	//Reg 0x14/0x15
+	struct TEX1 : public convertible<uint64>
+	{
+		unsigned int	nLODMethod		: 1;
+		unsigned int	nReserved0		: 1;
+		unsigned int	nMaxMip			: 3;
+		unsigned int	nMagFilter		: 1;
+		unsigned int	nMinFilter		: 3;
+		unsigned int	nMipBaseAddr	: 1;
+		unsigned int	nReserved1		: 9;
+		unsigned int	nLODL			: 2;
+		unsigned int	nReserved2		: 11;
+		unsigned int	nLODK			: 7;
+		unsigned int	nReserved3		: 25;
+	};
+    BOOST_STATIC_ASSERT(sizeof(TEX1) == sizeof(uint64));
 
 	//Reg 0x16/0x17
 	struct TEX2
@@ -354,6 +334,18 @@ protected:
 	};
     BOOST_STATIC_ASSERT(sizeof(PRMODE) == sizeof(uint64));
 
+	//Reg 0x3B
+	struct TEXA : public convertible<uint64>
+	{
+		unsigned int	nTA0			: 8;
+		unsigned int	nReserved0		: 7;
+		unsigned int	nAEM			: 1;
+		unsigned int	nReserved1		: 16;
+		unsigned int	nTA1			: 8;
+		unsigned int	nReserved2		: 24;
+	};
+    BOOST_STATIC_ASSERT(sizeof(TEXA) == sizeof(uint64));
+
 	//Reg 0x3D
 	struct FOGCOL
 	{
@@ -376,6 +368,19 @@ protected:
 		uint32			GetOffsetU()	{ return nCOU * 16; }
 		uint32			GetOffsetV()	{ return nCOV; }
 	};
+
+	//Reg 0x42/0x43
+	struct ALPHA : public convertible<uint64>
+	{
+		unsigned int	nA			: 2;
+		unsigned int	nB			: 2;
+		unsigned int	nC			: 2;
+		unsigned int	nD			: 2;
+		unsigned int	nReserved0	: 24;
+		unsigned int	nFix		: 8;
+		unsigned int	nReserved1	: 24;
+	};
+    BOOST_STATIC_ASSERT(sizeof(ALPHA) == sizeof(uint64));
 
     //Reg 0x47/0x48
     struct TEST : public convertible<uint64>

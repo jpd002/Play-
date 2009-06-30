@@ -65,7 +65,7 @@ private:
         PIXEL_BUFFER_SIZE = CVTBUFFERSIZE,
     };
 
-	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(GSTEX0*, GSTEXA*);
+	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(TEX0*, TEXA*);
 
 	struct VERTEX
 	{
@@ -106,10 +106,10 @@ private:
 	void							LinearZOrtho(double, double, double, double);
 	void							UpdateViewportImpl();
 	unsigned int					GetCurrentReadCircuit();
-	unsigned int					LoadTexture(GSTEX0*, GSTEX1*, CLAMP*);
+	unsigned int					LoadTexture(TEX0*, TEX1*, CLAMP*);
 
-	void							ReadCLUT4(GSTEX0*);
-	void							ReadCLUT8(GSTEX0*);
+	void							ReadCLUT4(TEX0*);
+	void							ReadCLUT8(TEX0*);
 
 	uint32							RGBA16ToRGBA32(uint16);
 	uint8							MulBy2Clamp(uint8);
@@ -134,24 +134,24 @@ private:
 
 	void							DisplayTransferedImage(uint32);
 
-	void							TexUploader_Psm32(GSTEX0*, GSTEXA*);
+	void							TexUploader_Psm32(TEX0*, TEXA*);
 
-	void							TexUploader_Psm8_Cvt(GSTEX0*, GSTEXA*);
-	void							TexUploader_Psm8_Hw(GSTEX0*, GSTEXA*);
+	void							TexUploader_Psm8_Cvt(TEX0*, TEXA*);
+	void							TexUploader_Psm8_Hw(TEX0*, TEXA*);
 
-	void							TexUploader_Psm16_Cvt(GSTEX0*, GSTEXA*);
-	void							TexUploader_Psm16_Hw(GSTEX0*, GSTEXA*);
+	void							TexUploader_Psm16_Cvt(TEX0*, TEXA*);
+	void							TexUploader_Psm16_Hw(TEX0*, TEXA*);
 
-	void							TexUploader_Psm16S_Hw(GSTEX0*, GSTEXA*);
+	void							TexUploader_Psm16S_Hw(TEX0*, TEXA*);
 
-	void							TexUploader_Psm4_Cvt(GSTEX0*, GSTEXA*);
-	template <uint32> void			TexUploader_Psm4H_Cvt(GSTEX0*, GSTEXA*);
-	void							TexUploader_Psm8H_Cvt(GSTEX0*, GSTEXA*);
+	void							TexUploader_Psm4_Cvt(TEX0*, TEXA*);
+	template <uint32> void			TexUploader_Psm4H_Cvt(TEX0*, TEXA*);
+	void							TexUploader_Psm8H_Cvt(TEX0*, TEXA*);
 
-    uint32                          ConvertTexturePsm4(GSTEX0*, GSTEXA*);
-    uint32                          ConvertTexturePsm8(GSTEX0*, GSTEXA*);
-    uint32                          ConvertTexturePsm8H(GSTEX0*, GSTEXA*);
-    void                            UploadTexturePsm8(GSTEX0*, GSTEXA*);
+    uint32                          ConvertTexturePsm4(TEX0*, TEXA*);
+    uint32                          ConvertTexturePsm8(TEX0*, TEXA*);
+    uint32                          ConvertTexturePsm8H(TEX0*, TEXA*);
+    void                            UploadTexturePsm8(TEX0*, TEXA*);
 
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
@@ -177,9 +177,9 @@ private:
 	void							VerifyRGBA5551Support();
 	bool							m_nIsRGBA5551Supported;
 
-    unsigned int					TexCache_SearchLive(GSTEX0*);
-    unsigned int                    TexCache_SearchDead(GSTEX0*, uint32);
-	void							TexCache_Insert(GSTEX0*, unsigned int, uint32);
+    unsigned int					TexCache_SearchLive(TEX0*);
+    unsigned int                    TexCache_SearchDead(TEX0*, uint32);
+	void							TexCache_Insert(TEX0*, unsigned int, uint32);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 
 //	CTexture						m_TexCache[MAXCACHE];
