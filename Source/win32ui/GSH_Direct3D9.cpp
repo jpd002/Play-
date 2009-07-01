@@ -27,6 +27,7 @@ m_pOutputWnd(dynamic_cast<COutputWnd*>(outputWindow)),
 m_d3d(NULL),
 m_device(NULL),
 m_triangleVb(NULL),
+m_quadVb(NULL),
 m_pCvtBuffer(NULL),
 m_nWidth(0),
 m_nHeight(0),
@@ -78,6 +79,7 @@ void CGSH_Direct3D9::ReleaseImpl()
 	FREEPTR(m_pCvtBuffer);
 	TexCache_Flush();
 	FREECOM(m_triangleVb);
+	FREECOM(m_quadVb);
 	FREECOM(m_device);
 	FREECOM(m_d3d);
 }
@@ -86,7 +88,9 @@ void CGSH_Direct3D9::BeginScene()
 {
 	if(!m_sceneBegun)
 	{
-		m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+#ifdef _WIREFRAME
+		m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 0.0f, 0);
+#endif
 		HRESULT result = m_device->BeginScene();
 		assert(result == S_OK);
 		m_sceneBegun = true;
@@ -121,7 +125,7 @@ void CGSH_Direct3D9::SetReadCircuitMatrix(int nWidth, int nHeight)
 	//Setup projection matrix
 	{
 		D3DXMATRIX projMatrix;
-		D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 0, 100);
+		D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 1.0f, 0.0f);
 		m_device->SetTransform(D3DTS_PROJECTION, &projMatrix);
 	}
 
@@ -156,16 +160,19 @@ void CGSH_Direct3D9::SetViewport(int nWidth, int nHeight)
 void CGSH_Direct3D9::ReCreateDevice(int nWidth, int nHeight)
 {
 	FREECOM(m_triangleVb);
+	FREECOM(m_quadVb);
 	FREECOM(m_device);
 
     D3DPRESENT_PARAMETERS d3dpp;
 	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
-    d3dpp.Windowed			= TRUE;
-    d3dpp.SwapEffect		= D3DSWAPEFFECT_DISCARD;
-    d3dpp.hDeviceWindow		= m_pOutputWnd->m_hWnd;
-    d3dpp.BackBufferFormat	= D3DFMT_X8R8G8B8;
-    d3dpp.BackBufferWidth	= nWidth;
-    d3dpp.BackBufferHeight	= nHeight;
+    d3dpp.Windowed					= TRUE;
+    d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
+    d3dpp.hDeviceWindow				= m_pOutputWnd->m_hWnd;
+    d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
+    d3dpp.BackBufferWidth			= nWidth;
+    d3dpp.BackBufferHeight			= nHeight;
+	d3dpp.EnableAutoDepthStencil	= TRUE;
+	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
 
     m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
                       D3DDEVTYPE_HAL,
@@ -183,6 +190,7 @@ void CGSH_Direct3D9::ReCreateDevice(int nWidth, int nHeight)
     m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	m_device->CreateVertexBuffer(3 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_triangleVb, NULL);
+	m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
 
 	m_sceneBegun = false;
 	BeginScene();
@@ -191,6 +199,27 @@ void CGSH_Direct3D9::ReCreateDevice(int nWidth, int nHeight)
 CGSHandler* CGSH_Direct3D9::GSHandlerFactory(Win32::CWindow* pParam)
 {
 	return new CGSH_Direct3D9(pParam);
+}
+
+uint8 CGSH_Direct3D9::MulBy2Clamp(uint8 nValue)
+{
+	return (nValue > 0x7F) ? 0xFF : (nValue << 1);
+}
+
+float CGSH_Direct3D9::GetZ(float nZ)
+{
+	if(nZ < 256)
+	{
+		//The number is small, so scale to a smaller ratio (65536)
+		return nZ / 32768.0f;
+	}
+	else
+	{
+//		nZ -= m_nMaxZ;
+		if(nZ > m_nMaxZ) return 1.0;
+//		if(nZ < -m_nMaxZ) return -1.0;
+		return nZ / m_nMaxZ;
+	}
 }
 
 void CGSH_Direct3D9::UpdateViewportImpl()
@@ -234,8 +263,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 	float nV1 = 0, nV2 = 0, nV3 = 0;
 	float nF1 = 0, nF2 = 0, nF3 = 0;
 
-	GSRGBAQ rgbaq[3];
-
 	XYZ vertex[3];
 	vertex[0] <<= m_VtxBuffer[2].nPosition;
 	vertex[1] <<= m_VtxBuffer[1].nPosition;
@@ -245,9 +272,10 @@ void CGSH_Direct3D9::Prim_Triangle()
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY(), nY3 = vertex[2].GetY();
 	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ(), nZ3 = vertex[2].GetZ();
 
-	DECODE_RGBAQ(m_VtxBuffer[2].nRGBAQ, rgbaq[0]);
-	DECODE_RGBAQ(m_VtxBuffer[1].nRGBAQ, rgbaq[1]);
-	DECODE_RGBAQ(m_VtxBuffer[0].nRGBAQ, rgbaq[2]);
+	RGBAQ rgbaq[3];
+	rgbaq[0] <<= m_VtxBuffer[2].nRGBAQ;
+	rgbaq[1] <<= m_VtxBuffer[1].nRGBAQ;
+	rgbaq[2] <<= m_VtxBuffer[0].nRGBAQ;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -257,9 +285,9 @@ void CGSH_Direct3D9::Prim_Triangle()
 	nY2 -= m_nPrimOfsY;
 	nY3 -= m_nPrimOfsY;
 
-	//nZ1 = GetZ(nZ1);
-	//nZ2 = GetZ(nZ2);
-	//nZ3 = GetZ(nZ3);
+	nZ1 = GetZ(nZ1);
+	nZ2 = GetZ(nZ2);
+	nZ3 = GetZ(nZ3);
 
 	if(m_PrimitiveMode.nShading)
 	{
@@ -367,35 +395,38 @@ void CGSH_Direct3D9::Prim_Triangle()
 		//glEnd();
 	}
 
-	HRESULT result;
-
-    CUSTOMVERTEX vertices[] =
-    {
-        { nX1,	nY1,	0.5f, D3DCOLOR_XRGB(255, 255, 255), nU1, nV1 },
-        { nX2,	nY2,	0.5f, D3DCOLOR_XRGB(255, 255, 255), nU2, nV2 },
-        { nX3,	nY3,	0.5f, D3DCOLOR_XRGB(255, 255, 255), nU3, nV3 },
-    };
-
-	uint8* buffer = NULL;
-	result = m_triangleVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
-	assert(result == S_OK);
+	//Build vertex buffer
 	{
-	    memcpy(buffer, vertices, sizeof(vertices));
+		HRESULT result;
+
+		CUSTOMVERTEX vertices[] =
+		{
+			{	nX1,	nY1,	nZ1,	D3DCOLOR_XRGB(255, 255, 255),	nU1,	nV1 },
+			{	nX2,	nY2,	nZ2,	D3DCOLOR_XRGB(255, 255, 255),	nU2,	nV2 },
+			{	nX3,	nY3,	nZ3,	D3DCOLOR_XRGB(255, 255, 255),	nU3,	nV3 },
+		};
+
+		uint8* buffer = NULL;
+		result = m_triangleVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		assert(result == S_OK);
+		{
+			memcpy(buffer, vertices, sizeof(vertices));
+		}
+		result = m_triangleVb->Unlock();
+		assert(result == S_OK);
+
+		// select which vertex format we are using
+		result = m_device->SetFVF(CUSTOMFVF);
+		assert(result == S_OK);
+
+		// select the vertex buffer to display
+		result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
+		assert(result == S_OK);
+
+		// copy the vertex buffer to the back buffer
+		result = m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
+		assert(result == S_OK);
 	}
-	result = m_triangleVb->Unlock();
-	assert(result == S_OK);
-
-    // select which vertex format we are using
-    result = m_device->SetFVF(CUSTOMFVF);
-	assert(result == S_OK);
-
-    // select the vertex buffer to display
-    result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
-	assert(result == S_OK);
-
-    // copy the vertex buffer to the back buffer
-    result = m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
-	assert(result == S_OK);
 
 	if(m_PrimitiveMode.nFog)
 	{
@@ -408,11 +439,173 @@ void CGSH_Direct3D9::Prim_Triangle()
 	}
 }
 
+void CGSH_Direct3D9::Prim_Sprite()
+{
+	float nU1 = 0, nU2 = 0;
+	float nV1 = 0, nV2 = 0;
+	float nF1 = 0, nF2 = 0;
+
+	XYZ vertex[2];
+	vertex[0] <<= m_VtxBuffer[1].nPosition;
+	vertex[1] <<= m_VtxBuffer[0].nPosition;
+
+	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX();
+	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY();
+	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ();
+
+	RGBAQ rgbaq[2];
+	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
+	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
+
+	nX1 -= m_nPrimOfsX;
+	nX2 -= m_nPrimOfsX;
+
+	nY1 -= m_nPrimOfsY;
+	nY2 -= m_nPrimOfsY;
+
+//	assert(nZ1 == nZ2);
+
+	nZ1 = GetZ(nZ1);
+	nZ2 = GetZ(nZ2);
+
+	//if(m_PrimitiveMode.nAlpha)
+	//{
+	//	glEnable(GL_BLEND);
+	//}
+
+	//if(m_PrimitiveMode.nTexture)
+	//{
+	//	double nS[2], nT[2];
+
+	//	glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
+
+	//	glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+
+	//	if(m_PrimitiveMode.nUseUV)
+	//	{
+	//		DECODE_UV(m_VtxBuffer[1].nUV, nU1, nV1);
+	//		DECODE_UV(m_VtxBuffer[0].nUV, nU2, nV2);
+
+	//		nS[0] = nU1 / (double)m_nTexWidth;
+	//		nS[1] = nU2 / (double)m_nTexWidth;
+
+	//		nT[0] = nV1 / (double)m_nTexHeight;
+	//		nT[1] = nV2 / (double)m_nTexHeight;
+	//	}
+	//	else
+	//	{
+	//		double nS1, nS2;
+	//		double nT1, nT2;
+	//		double nQ1, nQ2;
+
+	//		DECODE_ST(m_VtxBuffer[1].nST, nS1, nT1);
+	//		DECODE_ST(m_VtxBuffer[0].nST, nS2, nT2);
+
+	//		nQ1 = rgbaq[1].nQ;
+	//		nQ2 = rgbaq[0].nQ;
+	//		if(nQ1 == 0) nQ1 = 1;
+	//		if(nQ2 == 0) nQ2 = 1;
+
+	//		nS[0] = nS1 / nQ1;
+	//		nS[1] = nS2 / nQ2;
+
+	//		nT[0] = nT1 / nQ1;
+	//		nT[1] = nT2 / nQ2;
+	//	}
+
+	//	glBegin(GL_QUADS);
+	//	{
+	//		//REMOVE
+	//		//glColor4d(1.0, 1.0, 1.0, 1.0);
+
+	//		glTexCoord2d(nS[0], nT[0]);
+	//		glVertex3d(nX1, nY1, nZ1);
+
+	//		glTexCoord2d(nS[1], nT[0]);
+	//		glVertex3d(nX2, nY1, nZ2);
+
+	//		//REMOVE
+	//		//glColor4d(1.0, 1.0, 1.0, 1.0);
+
+	//		glTexCoord2d(nS[1], nT[1]);
+	//		glVertex3d(nX2, nY2, nZ1);
+
+	//		glTexCoord2d(nS[0], nT[1]);
+	//		glVertex3d(nX1, nY2, nZ2);
+
+	//	}
+	//	glEnd();
+
+	//	glBindTexture(GL_TEXTURE_2D, 0);
+	//}
+	//else if(!m_PrimitiveMode.nTexture)
+	//{
+	//	//REMOVE
+	//	//Humm? Would it be possible to have a gradient using those registers?
+	//	glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+	//	//glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
+
+	//	glBegin(GL_QUADS);
+
+	//		glVertex3d(nX1, nY1, nZ1);
+	//		glVertex3d(nX2, nY1, nZ2);
+	//		glVertex3d(nX2, nY2, nZ1);
+	//		glVertex3d(nX1, nY2, nZ2);
+
+	//	glEnd();
+	//}
+	//else
+	//{
+	//	assert(0);
+	//}
+
+	{
+		HRESULT result;
+
+		DWORD color0 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[0].nA),	MulBy2Clamp(rgbaq[0].nR),	MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB));
+		DWORD color1 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[1].nA),	MulBy2Clamp(rgbaq[1].nR),	MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB));
+
+		CUSTOMVERTEX vertices[] =
+		{
+			{	nX1,	nY2,	nZ1,	color0,		nU1,	nV2 },
+			{	nX1,	nY1,	nZ1,	color0,		nU1,	nV1 },
+			{	nX2,	nY2,	nZ2,	color1,		nU2,	nV2 },
+			{	nX2,	nY1,	nZ2,	color1,		nU2,	nV1 },
+		};
+
+		uint8* buffer = NULL;
+		result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		assert(result == S_OK);
+		{
+			memcpy(buffer, vertices, sizeof(vertices));
+		}
+		result = m_triangleVb->Unlock();
+		assert(result == S_OK);
+
+		// select which vertex format we are using
+		result = m_device->SetFVF(CUSTOMFVF);
+		assert(result == S_OK);
+
+		// select the vertex buffer to display
+		result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
+		assert(result == S_OK);
+
+		// copy the vertex buffer to the back buffer
+		result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		assert(result == S_OK);
+	}
+
+	//if(m_PrimitiveMode.nAlpha)
+	//{
+	//	glDisable(GL_BLEND);
+	//}
+}
+
 void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 {
 	SetupBlendingFunction(m_nReg[GS_REG_ALPHA_1 + nContext]);
-	//SetupTestFunctions(m_nReg[GS_REG_TEST_1 + nContext]);
-	//SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
+	SetupTestFunctions(m_nReg[GS_REG_TEST_1 + nContext]);
+	SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
 	SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
 	
 	XYOFFSET offset;
@@ -508,6 +701,94 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 nData)
 	//{
 	//	glBlendEquationEXT(nFunction);
 	//}
+}
+
+void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
+{
+	TEST tst;
+    tst <<= nData;
+
+	if(tst.nAlphaEnabled)
+	{
+		//unsigned int nFunc = GL_NEVER;
+		//switch(tst.nAlphaMethod)
+		//{
+		//case 0:
+		//	nFunc = GL_NEVER;
+		//	break;
+		//case 1:
+		//	nFunc = GL_ALWAYS;
+		//	break;
+		//case 2:
+		//	nFunc = GL_LESS;
+		//	break;
+		//case 5:
+		//	nFunc = GL_GEQUAL;
+		//	break;
+		//case 6:
+		//	nFunc = GL_GREATER;
+		//	break;
+		//case 7:
+		//	nFunc = GL_NOTEQUAL;
+		//	break;
+		//default:
+		//	assert(0);
+		//	break;
+		//}
+
+		//float nValue = (float)tst.nAlphaRef / 255.0f;
+		//glAlphaFunc(nFunc, nValue);
+
+		//glEnable(GL_ALPHA_TEST);
+	}
+	else
+	{
+		//glDisable(GL_ALPHA_TEST);
+	}
+
+	if(tst.nDepthEnabled)
+	{
+		unsigned int nFunc = D3DCMP_NEVER;
+
+		switch(tst.nDepthMethod)
+		{
+		case 0:
+			nFunc = D3DCMP_NEVER;
+			break;
+		case 1:
+			nFunc = D3DCMP_ALWAYS;
+			break;
+		case 2:
+			nFunc = D3DCMP_GREATEREQUAL;
+			break;
+		case 3:
+			nFunc = D3DCMP_GREATER;
+			break;
+		}
+
+		m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+		m_device->SetRenderState(D3DRS_ZFUNC, nFunc);
+	}
+	else
+	{
+		m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+	}
+}
+
+void CGSH_Direct3D9::SetupDepthBuffer(uint64 nData)
+{
+	ZBUF zbuf;
+	zbuf <<= nData;
+
+	switch(GetPsmPixelSize(zbuf.nPsm))
+	{
+	case 16:
+		m_nMaxZ = 32768.0f;
+		break;
+	case 32:
+		m_nMaxZ = 2147483647.0f;
+		break;
+	}
 }
 
 void CGSH_Direct3D9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
@@ -740,7 +1021,7 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 				m_nVtxCount = 1;
 				break;
 			case 6:
-				//if(nDrawingKick) Prim_Sprite();
+				if(nDrawingKick) Prim_Sprite();
 				m_nVtxCount = 2;
 				break;
 			}

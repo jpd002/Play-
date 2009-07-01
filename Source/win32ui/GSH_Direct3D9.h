@@ -80,10 +80,16 @@ private:
 
 	void							SetRenderingContext(unsigned int);
 	void							SetupBlendingFunction(uint64);
+	void							SetupTestFunctions(uint64);
+	void							SetupDepthBuffer(uint64);
 	void							SetupTexture(uint64, uint64, uint64);
 	LPDIRECT3DTEXTURE9				LoadTexture(TEX0*, TEX1*, CLAMP*);
 
+	float							GetZ(float);
+	uint8							MulBy2Clamp(uint8);
+
 	void							Prim_Triangle();
+	void							Prim_Sprite();
 
     static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
@@ -109,6 +115,7 @@ private:
 	uint32							m_nTexWidth;
 	uint32							m_nTexHeight;
 	LPDIRECT3DTEXTURE9				m_nTexHandle;
+	float							m_nMaxZ;
 
 	uint8*							m_pCvtBuffer;
 	void*							m_pCLUT;
@@ -129,6 +136,7 @@ private:
 	LPDIRECT3DDEVICE9				m_device;
 
 	LPDIRECT3DVERTEXBUFFER9			m_triangleVb;
+	LPDIRECT3DVERTEXBUFFER9			m_quadVb;
 	bool							m_sceneBegun;
 };
 

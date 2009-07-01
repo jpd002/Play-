@@ -551,7 +551,6 @@ void CGSH_OpenGL::SetupFogColor()
 void CGSH_OpenGL::Prim_Point()
 {
 	double nX, nY, nZ;
-	GSRGBAQ rgbaq;
 	
 	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX, nY, nZ);
 
@@ -560,7 +559,8 @@ void CGSH_OpenGL::Prim_Point()
 
 	if(!m_PrimitiveMode.nUseUV && !m_PrimitiveMode.nTexture)
 	{
-		DECODE_RGBAQ(m_VtxBuffer[0].nRGBAQ, rgbaq);
+		RGBAQ rgbaq;
+		rgbaq <<= m_VtxBuffer[0].nRGBAQ;
 
 		glBegin(GL_QUADS);
 
@@ -586,7 +586,6 @@ void CGSH_OpenGL::Prim_Line()
 	double nX1, nX2;
 	double nY1, nY2;
 	double nZ;
-	GSRGBAQ rgbaq[2];
 	
 	DECODE_XYZ2(m_VtxBuffer[1].nPosition, nX1, nY1, nZ);
 	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX2, nY2, nZ);
@@ -604,9 +603,9 @@ void CGSH_OpenGL::Prim_Line()
 
 	if(!m_PrimitiveMode.nUseUV && !m_PrimitiveMode.nTexture)
 	{
-
-		DECODE_RGBAQ(m_VtxBuffer[1].nRGBAQ, rgbaq[0]);
-		DECODE_RGBAQ(m_VtxBuffer[0].nRGBAQ, rgbaq[1]);
+		RGBAQ rgbaq[2];
+		rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
+		rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
 
 		if(m_nLinesAsQuads)
 		{
@@ -664,15 +663,15 @@ void CGSH_OpenGL::Prim_Triangle()
 
 	float nF1, nF2, nF3;
 
-	GSRGBAQ rgbaq[3];
+	RGBAQ rgbaq[3];
 
 	DECODE_XYZ2(m_VtxBuffer[2].nPosition, nX1, nY1, nZ1);
 	DECODE_XYZ2(m_VtxBuffer[1].nPosition, nX2, nY2, nZ2);
 	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX3, nY3, nZ3);
 
-	DECODE_RGBAQ(m_VtxBuffer[2].nRGBAQ, rgbaq[0]);
-	DECODE_RGBAQ(m_VtxBuffer[1].nRGBAQ, rgbaq[1]);
-	DECODE_RGBAQ(m_VtxBuffer[0].nRGBAQ, rgbaq[2]);
+	rgbaq[0] <<= m_VtxBuffer[2].nRGBAQ;
+	rgbaq[1] <<= m_VtxBuffer[1].nRGBAQ;
+	rgbaq[2] <<= m_VtxBuffer[0].nRGBAQ;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -827,13 +826,13 @@ void CGSH_OpenGL::Prim_Sprite()
 	double nU1, nU2;
 	double nV1, nV2;
 
-	GSRGBAQ rgbaq[2];
+	RGBAQ rgbaq[2];
 
 	DECODE_XYZ2(m_VtxBuffer[1].nPosition, nX1, nY1, nZ1);
 	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX2, nY2, nZ2);
 
-	DECODE_RGBAQ(m_VtxBuffer[1].nRGBAQ, rgbaq[0]);
-	DECODE_RGBAQ(m_VtxBuffer[0].nRGBAQ, rgbaq[1]);
+	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
+	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;

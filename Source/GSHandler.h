@@ -56,15 +56,6 @@ enum GS_REGS
 	GS_REG_TRXDIR		= 0x53,
 };
 
-struct GSRGBAQ
-{
-	uint8			nR;
-	uint8			nG;
-	uint8			nB;
-	uint8			nA;
-	float			nQ;
-};
-
 struct GSDISPLAY
 {
 	unsigned int	nX			: 12;
@@ -95,9 +86,6 @@ struct GSPRIM
 
 #define DECODE_PRIM(v, pr)						\
 	(pr) = *(GSPRIM*)&(v);
-
-#define DECODE_RGBAQ(v, rgbaq)					\
-	(rgbaq) = *(GSRGBAQ*)&(v);
 
 #define DECODE_UV(p, u, v)						\
 	(u)  = (double)((p >>  4) & 0xFFF);			\
@@ -197,6 +185,17 @@ protected:
 		uint32			GetBufPtr()		{ return nBufPtr * 8192; };
 		uint32			GetBufWidth()	{ return nBufWidth * 64; };
 	};
+
+	//Reg 0x01
+	struct RGBAQ : public convertible<uint64>
+	{
+		uint8			nR;
+		uint8			nG;
+		uint8			nB;
+		uint8			nA;
+		float			nQ;
+	};
+    BOOST_STATIC_ASSERT(sizeof(RGBAQ) == sizeof(uint64));
 
 	//Reg 0x02
 	struct ST : public convertible<uint64>
@@ -410,15 +409,17 @@ protected:
 	};
 
 	//Reg 0x4E/0x4F
-	struct ZBUF
+	struct ZBUF : public convertible<uint64>
 	{
 		unsigned int	nPtr			: 9;
 		unsigned int	nReserved0		: 15;
 		unsigned int	nPsm			: 4;
 		unsigned int	nReserved1		: 4;
 		unsigned int	nMask			: 1;
+		unsigned int	nReserved2		: 31;
 		uint32			GetBasePtr()	{ return nPtr * 2048; }
 	};
+    BOOST_STATIC_ASSERT(sizeof(ZBUF) == sizeof(uint64));
 
 	//Reg 0x50
 	struct BITBLTBUF

@@ -972,8 +972,8 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			pr.nUseFloat);
 		break;
 	case GS_REG_RGBAQ:
-		GSRGBAQ rgbaq;
-		DECODE_RGBAQ(nData, rgbaq);
+		RGBAQ rgbaq;
+		rgbaq <<= nData;
 		CLog::GetInstance().Print(LOG_NAME, "RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f);\r\n", \
 			rgbaq.nR,
 			rgbaq.nG,
