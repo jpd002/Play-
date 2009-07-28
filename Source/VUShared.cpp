@@ -442,11 +442,30 @@ void VUShared::MOVE(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 
 void VUShared::MR32(CCodeGen* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
+    size_t offset[4];
+
+    if(nFs == nFt)
+    {
+        offset[0] = offsetof(CMIPS, m_State.nCOP2[nFs].nV[1]);
+        offset[1] = offsetof(CMIPS, m_State.nCOP2[nFs].nV[2]);
+        offset[2] = offsetof(CMIPS, m_State.nCOP2[nFs].nV[3]);
+        offset[3] = offsetof(CMIPS, m_State.nCOP2T);
+
+        codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[0]));
+        codeGen->PullRel(offset[3]);
+    }
+    else
+    {
+        offset[0] = offsetof(CMIPS, m_State.nCOP2[nFs].nV[1]);
+        offset[1] = offsetof(CMIPS, m_State.nCOP2[nFs].nV[2]);
+        offset[2] = offsetof(CMIPS, m_State.nCOP2[nFs].nV[3]);
+        offset[3] = offsetof(CMIPS, m_State.nCOP2[nFs].nV[0]);
+    }
+
     for(unsigned int i = 0; i < 4; i++)
     {
         if(!DestinationHasElement(nDest, i)) continue;
-
-        codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[(i + 1) & 3]));
+        codeGen->PushRel(offset[i]);
         codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFt].nV[i]));
     }
 }
