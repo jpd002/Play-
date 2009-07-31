@@ -24,8 +24,8 @@ namespace Iop
 
         void                    ProcessInvocation(uint32, uint32, uint32*, uint32);
 
-	    void					LoadState(CZipArchiveReader&);
-	    void					SaveState(CZipArchiveWriter&);
+	    void					LoadState(Framework::CZipArchiveReader&);
+	    void					SaveState(Framework::CZipArchiveWriter&);
 
     private:
         typedef std::list<CSifDynamic*> DynamicModuleList;

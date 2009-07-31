@@ -18,8 +18,8 @@ namespace Iop
         std::string         GetFunctionName(unsigned int) const;
         void                Invoke(CMIPS&, unsigned int);
         virtual bool        Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-        virtual void		SaveState(CZipArchiveWriter&);
-        virtual void		LoadState(CZipArchiveReader&);
+        virtual void		SaveState(Framework::CZipArchiveWriter&);
+        virtual void		LoadState(Framework::CZipArchiveReader&);
 
 		enum MODULE_ID
 		{

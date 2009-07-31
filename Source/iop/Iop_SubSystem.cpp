@@ -67,7 +67,7 @@ void CSubSystem::SetBios(const BiosPtr& bios)
     m_bios = bios;
 }
 
-void CSubSystem::SaveState(CZipArchiveWriter& archive)
+void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 {
     archive.InsertFile(new CMemoryStateFile(STATE_CPU,      &m_cpu.m_State, sizeof(MIPSSTATE)));
     archive.InsertFile(new CMemoryStateFile(STATE_RAM,      m_ram,          IOP_RAM_SIZE));
@@ -75,7 +75,7 @@ void CSubSystem::SaveState(CZipArchiveWriter& archive)
     m_bios->SaveState(archive);
 }
 
-void CSubSystem::LoadState(CZipArchiveReader& archive)
+void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 {
     archive.BeginReadFile(STATE_CPU         )->Read(&m_cpu.m_State, sizeof(MIPSSTATE));
     archive.BeginReadFile(STATE_RAM         )->Read(m_ram,          IOP_RAM_SIZE);

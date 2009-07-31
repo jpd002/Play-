@@ -71,8 +71,8 @@ public:
 
     void                    Reset(Iop::CSifMan*);
 
-	virtual void		    SaveState(CZipArchiveWriter&);
-	virtual void		    LoadState(CZipArchiveReader&);
+	virtual void		    SaveState(Framework::CZipArchiveWriter&);
+	virtual void		    LoadState(Framework::CZipArchiveReader&);
 
     bool                    IsIdle();
 

@@ -116,8 +116,8 @@ public:
     void                                    SetEnabled(bool);
     bool                                    IsRenderDone() const;
 
-	virtual void							SaveState(CZipArchiveWriter&);
-	virtual void							LoadState(CZipArchiveReader&);
+	virtual void							SaveState(Framework::CZipArchiveWriter&);
+	virtual void							LoadState(Framework::CZipArchiveReader&);
 
 	virtual void							WritePrivRegister(uint32, uint32);
 	virtual uint32							ReadPrivRegister(uint32);

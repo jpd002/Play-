@@ -21,8 +21,8 @@ namespace Iop
 
         virtual bool                IsIdle() = 0;
 
-	    virtual void		        SaveState(CZipArchiveWriter&) = 0;
-	    virtual void		        LoadState(CZipArchiveReader&) = 0;
+	    virtual void		        SaveState(Framework::CZipArchiveWriter&) = 0;
+	    virtual void		        LoadState(Framework::CZipArchiveReader&) = 0;
 
 #ifdef DEBUGGER_INCLUDED
 		virtual void				SaveDebugTags(Framework::Xml::CNode*) = 0;

@@ -29,8 +29,8 @@ namespace Iop
 
         void                SetBios(const BiosPtr&);
 
-	    virtual void		SaveState(CZipArchiveWriter&);
-	    virtual void		LoadState(CZipArchiveReader&);
+	    virtual void		SaveState(Framework::CZipArchiveWriter&);
+	    virtual void		LoadState(Framework::CZipArchiveReader&);
 
 	    uint8*				m_ram;
 	    uint8*				m_scratchPad;

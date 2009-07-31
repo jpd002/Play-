@@ -34,8 +34,8 @@ public:
 
 	void        AssertLine(uint32);
 
-	void        LoadState(CZipArchiveReader&);
-	void        SaveState(CZipArchiveWriter&);
+	void        LoadState(Framework::CZipArchiveReader&);
+	void        SaveState(Framework::CZipArchiveWriter&);
 
 private:
 	uint32	    m_INTC_STAT;

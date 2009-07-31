@@ -52,12 +52,12 @@ bool CUnknown::Invoke(uint32 nMethod, uint32* pArgs, uint32 nArgsSize, uint32* p
     return true;
 }
 
-void CUnknown::SaveState(CZipArchiveWriter& archive)
+void CUnknown::SaveState(Framework::CZipArchiveWriter& archive)
 {	
 
 }
 
-void CUnknown::LoadState(CZipArchiveReader& archive)
+void CUnknown::LoadState(Framework::CZipArchiveReader& archive)
 {
 
 }
