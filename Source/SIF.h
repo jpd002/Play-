@@ -43,8 +43,8 @@ public:
 	uint32							GetRegister(uint32);
 	void							SetRegister(uint32, uint32);
 
-	void							LoadState(CZipArchiveReader&);
-	void							SaveState(CZipArchiveWriter&);
+	void							LoadState(Framework::CZipArchiveReader&);
+	void							SaveState(Framework::CZipArchiveWriter&);
 
 private:
 	enum CONST_MAX_USERREG
