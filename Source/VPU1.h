@@ -7,8 +7,8 @@ class CVPU1 : public CVPU
 {
 public:
                     CVPU1(CVIF&, unsigned int, const CVIF::VPUINIT&);
-    virtual void    SaveState(CZipArchiveWriter&);
-    virtual void    LoadState(CZipArchiveReader&);
+    virtual void    SaveState(Framework::CZipArchiveWriter&);
+    virtual void    LoadState(Framework::CZipArchiveReader&);
     virtual uint32  GetTOP() const;
     virtual void    Reset();
 

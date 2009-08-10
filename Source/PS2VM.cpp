@@ -88,14 +88,15 @@ m_pGS(NULL),
 m_pPad(NULL),
 m_singleStepEe(false),
 m_singleStepIop(false),
+m_singleStepVu1(false),
 m_nVBlankTicks(0),
 m_nInVBlank(false),
 m_spuUpdateTicks(SPU_UPDATE_TICKS),
 m_pCDROM0(NULL),
-m_dmac(m_pRAM, m_pSPR),
+m_dmac(m_pRAM, m_pSPR, m_EE),
 m_gif(m_pGS, m_pRAM, m_pSPR),
 m_sif(m_dmac, m_pRAM, m_iop.m_ram),
-m_vif(m_gif, m_pRAM, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
+m_vif(m_gif, m_pRAM, m_pSPR, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
 m_intc(m_dmac),
 m_timer(m_intc),
 m_COP_SCU(MIPS_REGSIZE_64),
@@ -195,6 +196,13 @@ void CPS2VM::StepIop()
 {
     if(GetStatus() == RUNNING) return;
     m_singleStepIop = true;
+    m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
+}
+
+void CPS2VM::StepVu1()
+{
+    if(GetStatus() == RUNNING) return;
+    m_singleStepVu1 = true;
     m_mailBox.SendCall(bind(&CPS2VM::ResumeImpl, this), true);
 }
 
@@ -646,7 +654,6 @@ void CPS2VM::ResumeImpl()
 
 void CPS2VM::DestroyImpl()
 {
-    m_vif.JoinThreads();
     DELETEPTR(m_pGS);
     m_nEnd = true;
 }
@@ -1120,20 +1127,16 @@ void CPS2VM::EmuThread()
             //    m_spuUpdateTicks += SPU_UPDATE_TICKS;
             //}
 
-#ifdef _DEBUG
-            if(m_vif.IsVU0Running())
-            {
-                m_vif.SingleStepVU0();
-            }
-            if(m_vif.IsVU1Running())
-            {
-                m_vif.SingleStepVU1();
-            }
-#endif
             //EE execution
             {
-                m_dmac.ResumeDMA0();
-                m_dmac.ResumeDMA1();
+                if(!m_vif.IsVu0Running() || (m_vif.IsVu0Running() && !m_vif.IsVu0WaitingForProgramEnd()))
+                {
+                    m_dmac.ResumeDMA0();
+                }
+                if(!m_vif.IsVu1Running() || (m_vif.IsVu1Running() && !m_vif.IsVu1WaitingForProgramEnd()))
+                {
+                    m_dmac.ResumeDMA1();
+                }
                 m_dmac.ResumeDMA4();
                 if(!m_EE.m_State.nHasException)
                 {
@@ -1155,6 +1158,7 @@ void CPS2VM::EmuThread()
                 {
                     int executeQuota = m_singleStepEe ? 1 : 5000;
                     int executed = (executeQuota - m_executor.Execute(executeQuota));
+                    m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += (executed * 100);
 				    m_nVBlankTicks -= executed;
                     m_spuUpdateTicks -= executed;
                 }
@@ -1203,37 +1207,22 @@ void CPS2VM::EmuThread()
     //                xtime_get(&lastFrameTime, boost::TIME_UTC);
     //            }
                 //END
-#ifdef _DEBUG
-                if(m_vif.IsVu0DebuggingEnabled() && m_vif.IsVU0Running())
-                {
-                    //Force pause
-                    m_singleStepEe = true;
-                }
-                if(m_vif.IsVu1DebuggingEnabled() && m_vif.IsVU1Running())
-                {
-                    //Force pause
-                    m_singleStepEe = true;
-                }
-#endif
+
                 //IOP Execution
-                if(m_singleStepIop)
-                {
-                    m_iop.ExecuteCpu(true);
-                }
-                else
-                {
-                    m_iop.ExecuteCpu(false);
-                }
+                m_iop.ExecuteCpu(m_singleStepIop);
+				m_vif.ExecuteVu1(m_singleStepVu1);
             }
 #ifdef DEBUGGER_INCLUDED
             if(
                 m_executor.MustBreak() || 
                 m_iop.m_executor.MustBreak() ||
-                m_singleStepEe || m_singleStepIop)
+				m_vif.MustVu1Break() ||
+                m_singleStepEe || m_singleStepIop || m_singleStepVu1)
             {
                 m_nStatus = PAUSED;
                 m_singleStepEe = false;
                 m_singleStepIop = false;
+				m_singleStepVu1 = false;
                 m_OnRunningStateChange();
                 m_OnMachineStateChange();
             }

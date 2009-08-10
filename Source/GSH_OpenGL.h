@@ -18,7 +18,7 @@ public:
 									CGSH_OpenGL();
 	virtual                         ~CGSH_OpenGL();
 
-	virtual void					LoadState(CZipArchiveReader&);
+	virtual void					LoadState(Framework::CZipArchiveReader&);
 
 	void							ProcessImageTransfer(uint32, uint32);
 

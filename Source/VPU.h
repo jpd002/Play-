@@ -6,7 +6,6 @@
 #include "MIPS.h"
 #include "VuExecutor.h"
 #include "Convertible.h"
-#include <boost/thread.hpp>
 #include <boost/static_assert.hpp>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -19,19 +18,19 @@ public:
                         CVPU(CVIF&, unsigned int, const CVIF::VPUINIT&);
     virtual             ~CVPU();
 
-    void                JoinThread();
-
-    void                SingleStep();
+    void                Execute(bool);
+	bool				MustBreak() const;
     virtual void        Reset();
     virtual uint32      GetTOP() const;
     virtual uint32      GetITOP() const;
-    virtual void        SaveState(CZipArchiveWriter&);
-    virtual void        LoadState(CZipArchiveReader&);
+    virtual void        SaveState(Framework::CZipArchiveWriter&);
+    virtual void        LoadState(Framework::CZipArchiveReader&);
     virtual void        ProcessPacket(StreamType&);
 
     CMIPS&              GetContext() const;
     uint8*              GetVuMemory() const;
     bool                IsRunning() const;
+    bool                IsWaitingForProgramEnd() const;
 
 protected:
     struct STAT : public convertible<uint32>
@@ -102,6 +101,7 @@ protected:
     void                Cmd_STCOL(StreamType&, CODE);
     void                Cmd_STMASK(StreamType&, CODE);
 
+	bool				Unpack_ReadValue(const CODE&, StreamType&, uint128&, bool);
     bool                Unpack_S32(StreamType&, uint128&);
     bool                Unpack_S16(StreamType&, uint128&, bool);
     bool                Unpack_V16(StreamType&, uint128&, unsigned int, bool);
@@ -135,15 +135,6 @@ protected:
     CVIF&               m_vif;
 
     unsigned int        m_vpuNumber;
-
-    bool                m_endThread;
-    bool                m_paused;
-    boost::thread*      m_execThread;
-    boost::condition    m_execCondition;
-#ifdef _DEBUG
-    boost::condition    m_execDoneCondition;
-#endif
-    boost::mutex        m_execMutex;
     CVuExecutor         m_executor;
 };
 

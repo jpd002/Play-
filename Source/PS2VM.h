@@ -62,6 +62,7 @@ public:
 
     void                        StepEe();
     void                        StepIop();
+	void						StepVu1();
 
 	void						Resume();
 	void						Pause();
@@ -189,6 +190,7 @@ private:
     unsigned int                m_frameSkip;
     bool                        m_singleStepEe;
     bool                        m_singleStepIop;
+	bool						m_singleStepVu1;
 };
 
 #endif

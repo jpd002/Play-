@@ -40,16 +40,14 @@ public:
         STAT_VBS1   = 0x0100,
     };
 
-                CVIF(CGIF&, uint8*, const VPUINIT&, const VPUINIT&);
+                CVIF(CGIF&, uint8*, uint8*, const VPUINIT&, const VPUINIT&);
     virtual     ~CVIF();
 
     void        SetEnabled(bool);
 
-    void        JoinThreads();
-
     void        Reset();
-    void        SaveState(CZipArchiveWriter&);
-    void        LoadState(CZipArchiveReader&);
+    void        SaveState(Framework::CZipArchiveWriter&);
+    void        LoadState(Framework::CZipArchiveReader&);
 
     uint32      ReceiveDMA0(uint32, uint32, bool);
     uint32      ReceiveDMA1(uint32, uint32, bool);
@@ -61,14 +59,17 @@ public:
     void        StopVU(CMIPS*);
     void        ProcessXGKICK(uint32);
 
-    bool        IsVu0DebuggingEnabled() const;
-    bool        IsVu1DebuggingEnabled() const;
+    bool        IsVu0Running() const;
+    bool        IsVu1Running() const;
 
-    bool        IsVU0Running() const;
-    bool        IsVU1Running() const;
+    bool        IsVu0WaitingForProgramEnd() const;
+    bool        IsVu1WaitingForProgramEnd() const;
 
-    void        SingleStepVU0();
-    void        SingleStepVU1();
+	void		ExecuteVu0(bool);
+	void		ExecuteVu1(bool);
+
+	bool		MustVu0Break() const;
+	bool		MustVu1Break() const;
 
     uint8*      GetRam() const;
     CGIF&       GetGif() const;
@@ -78,17 +79,19 @@ public:
     class CFifoStream
     {
     public:
-                        CFifoStream(uint8*);
+                        CFifoStream(uint8*, uint8*);
         virtual         ~CFifoStream();
 
         uint32          GetAddress() const;
         uint32          GetAvailableReadBytes() const;
+		uint32			GetAvailableReadQwords() const;
         void            Read(void*, uint32);
-//        void            Flush();
+        void            Flush();
         void            Align32();
         void            SetDmaParams(uint32, uint32);
 
         uint8*          m_ram;
+        uint8*          m_spr;
 
     private:
         void            SyncBuffer();
@@ -103,6 +106,7 @@ public:
         uint32          m_address;
         uint32          m_nextAddress;
         uint32          m_endAddress;
+        uint8*          m_source;
     };
 
 private:
@@ -115,6 +119,7 @@ private:
     CVPU*           m_pVPU[2];
     CGIF&           m_gif;
     uint8*          m_ram;
+    uint8*          m_spr;
     CFifoStream*    m_stream[2];
     bool            m_enabled;
 };

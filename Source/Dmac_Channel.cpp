@@ -41,7 +41,7 @@ void CChannel::Reset()
 	m_nSCCTRL	= 0;
 }
 
-void CChannel::SaveState(CZipArchiveWriter& archive)
+void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 {
     string path = STATE_PREFIX + lexical_cast<string>(m_nNumber) + STATE_SUFFIX;
     CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
@@ -55,7 +55,7 @@ void CChannel::SaveState(CZipArchiveWriter& archive)
     archive.InsertFile(registerFile);
 }
 
-void CChannel::LoadState(CZipArchiveReader& archive)
+void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 {
     string path = STATE_PREFIX + lexical_cast<string>(m_nNumber) + STATE_SUFFIX;
     CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
@@ -163,37 +163,54 @@ void CChannel::ExecuteSourceChain()
 
 	while(m_CHCR.nSTR == 1)
 	{
-		//Check if we've finished our DMA transfer
-		if(m_nQWC == 0)
-		{
-			if(m_nSCCTRL & SCCTRL_INITXFER)
-			{
-				//Clear this bit
-				m_nSCCTRL &= ~SCCTRL_INITXFER;
-			}
-			else
-			{
-                if(CDMAC::IsEndTagId((uint32)m_CHCR.nTAG << 16))
-				{
-					ClearSTR();
-					continue;
-				}
-			}
-		}
-		else
-		{
-			//Suspend transfer
-			break;
-		}
-
-		if(m_CHCR.nTTE == 1)
-		{
+        //Check if device received DMAtag
+        if(m_CHCR.nReserved0)
+        {
+            assert(m_CHCR.nTTE);
+            m_CHCR.nReserved0 = 0;
             if(m_pReceive(m_nTADR, 1, 0, true) != 1)
             {
                 //Device didn't receive DmaTag, break for now
+                m_CHCR.nReserved0 = 1;
                 break;
             }
-		}
+        }
+        else
+        {
+	        //Check if we've finished our DMA transfer
+	        if(m_nQWC == 0)
+	        {
+		        if(m_nSCCTRL & SCCTRL_INITXFER)
+		        {
+			        //Clear this bit
+			        m_nSCCTRL &= ~SCCTRL_INITXFER;
+		        }
+		        else
+		        {
+                    if(CDMAC::IsEndTagId((uint32)m_CHCR.nTAG << 16))
+			        {
+				        ClearSTR();
+				        continue;
+			        }
+		        }
+	        }
+	        else
+	        {
+		        //Suspend transfer
+		        break;
+	        }
+
+	        if(m_CHCR.nTTE == 1)
+	        {
+                m_CHCR.nReserved0 = 0;
+                if(m_pReceive(m_nTADR, 1, 0, true) != 1)
+                {
+                    //Device didn't receive DmaTag, break for now
+                    m_CHCR.nReserved0 = 1;
+                    break;
+                }
+	        }
+        }
 
         //Half-Life does this...
         if(m_nTADR == 0)

@@ -33,8 +33,8 @@ namespace Dmac
 								CChannel(CDMAC&, unsigned int, const DmaReceiveHandler&);
         virtual                 ~CChannel();
 
-        void                    SaveState(CZipArchiveWriter&);
-        void                    LoadState(CZipArchiveReader&);
+        void                    SaveState(Framework::CZipArchiveWriter&);
+        void                    LoadState(Framework::CZipArchiveReader&);
 
 		void					Reset();
 		uint32					ReadCHCR();

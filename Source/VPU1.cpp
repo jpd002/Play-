@@ -85,12 +85,18 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x11:
 		//FLUSH
-        assert(!m_vif.IsVU1Running());
-//		return 0;
+        if(m_vif.IsVu1Running())
+        {
+            m_STAT.nVEW = 1;
+        }
+        else
+        {
+            m_STAT.nVEW = 0;
+        }
 		break;
 	case 0x13:
 		//FLUSHA
-        if(m_vif.IsVU1Running())
+        if(m_vif.IsVu1Running())
         {
             m_STAT.nVEW = 1;
         }
@@ -114,6 +120,7 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 {
     uint32 nSize = stream.GetAvailableReadBytes();
+    assert((nSize & 0x0F) == 0);
     nSize = min<uint32>(m_CODE.nIMM * 0x10, nSize);
 
     if(nSize != 0)

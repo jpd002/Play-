@@ -26,7 +26,7 @@ using namespace std;
 #define FUNCTION_SIFRPCLOOP             "SifRpcLoop"
 #define FUNCTION_RETURNFROMRPCINVOKE    "ReturnFromRpcInvoke"
 
-#define INVOKE_PARAMS_SIZE          0x4000
+#define INVOKE_PARAMS_SIZE          0x8000
 #define TRAMPOLINE_SIZE             0x800
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram) :
@@ -47,7 +47,7 @@ CSifCmd::~CSifCmd()
     ClearServers();
 }
 
-void CSifCmd::LoadState(CZipArchiveReader& archive)
+void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 {
     ClearServers();
 
@@ -66,7 +66,7 @@ void CSifCmd::LoadState(CZipArchiveReader& archive)
     }
 }
 
-void CSifCmd::SaveState(CZipArchiveWriter& archive)
+void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive)
 {
     CStructCollectionStateFile* modulesFile = new CStructCollectionStateFile(STATE_MODULES);
     {

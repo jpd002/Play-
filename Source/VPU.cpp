@@ -21,6 +21,10 @@ using namespace std::tr1;
 #define STATE_REGS_ROW1         ("ROW1")
 #define STATE_REGS_ROW2         ("ROW2")
 #define STATE_REGS_ROW3         ("ROW3")
+#define STATE_REGS_COL0         ("COL0")
+#define STATE_REGS_COL1         ("COL1")
+#define STATE_REGS_COL2         ("COL2")
+#define STATE_REGS_COL3         ("COL3")
 #define STATE_REGS_ITOP         ("ITOP")
 #define STATE_REGS_ITOPS        ("ITOPS")
 #define STATE_REGS_READTICK     ("readTick")
@@ -32,44 +36,31 @@ m_vpuNumber(vpuNumber),
 m_pMicroMem(vpuInit.microMem),
 m_pVUMem(vpuInit.vuMem),
 m_pCtx(vpuInit.context),
-m_execThread(NULL),
-m_endThread(false),
-m_executor(*vpuInit.context),
-m_paused(true)
+m_executor(*vpuInit.context)
 {
-//    m_execThread = new thread(bind(&CVPU::ExecuteThreadProc, this));
-//    m_execThread = new thread(bind(&CVPU::CommandThreadProc, this));
+
 }
 
 CVPU::~CVPU()
 {
-    if(m_execThread != NULL)
-    {
-        JoinThread();
-    }
+
 }
 
-void CVPU::JoinThread()
+void CVPU::Execute(bool singleStep)
 {
-    if(m_execThread != NULL)
-    {
-        m_endThread = true;
-#ifdef _DEBUG
-        m_execDoneCondition.notify_all();
-#endif
-        m_execThread->join();
-        delete m_execThread;
-        m_execThread = NULL;
-    }
+    unsigned int quota = singleStep ? 1 : 5000;
+	assert(IsRunning());
+	m_executor.Execute(quota);
+	if(m_pCtx->m_State.nHasException)
+	{
+		//E bit encountered
+		m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
+	}
 }
 
-void CVPU::SingleStep()
+bool CVPU::MustBreak() const
 {
-    boost::mutex::scoped_lock lock(m_execMutex);
-    m_paused = false;
-#ifdef _DEBUG
-    m_execDoneCondition.wait(m_execMutex);
-#endif
+	return m_executor.MustBreak();
 }
 
 void CVPU::Reset()
@@ -101,6 +92,10 @@ void CVPU::SaveState(CZipArchiveWriter& archive)
     registerFile->SetRegister32(STATE_REGS_ROW1,        m_R[1]);
     registerFile->SetRegister32(STATE_REGS_ROW2,        m_R[2]);
     registerFile->SetRegister32(STATE_REGS_ROW3,        m_R[3]);
+    registerFile->SetRegister32(STATE_REGS_COL0,        m_C[0]);
+    registerFile->SetRegister32(STATE_REGS_COL1,        m_C[1]);
+    registerFile->SetRegister32(STATE_REGS_COL2,        m_C[2]);
+    registerFile->SetRegister32(STATE_REGS_COL3,        m_C[3]);
     registerFile->SetRegister32(STATE_REGS_ITOP,        m_ITOP);
     registerFile->SetRegister32(STATE_REGS_ITOPS,       m_ITOPS);
     registerFile->SetRegister32(STATE_REGS_READTICK,    m_readTick);
@@ -122,6 +117,10 @@ void CVPU::LoadState(CZipArchiveReader& archive)
     m_R[1]      = registerFile.GetRegister32(STATE_REGS_ROW1);
     m_R[2]      = registerFile.GetRegister32(STATE_REGS_ROW2);
     m_R[3]      = registerFile.GetRegister32(STATE_REGS_ROW3);
+    m_C[0]      = registerFile.GetRegister32(STATE_REGS_COL0);
+    m_C[1]      = registerFile.GetRegister32(STATE_REGS_COL1);
+    m_C[2]      = registerFile.GetRegister32(STATE_REGS_COL2);
+    m_C[3]      = registerFile.GetRegister32(STATE_REGS_COL3);
     m_ITOP      = registerFile.GetRegister32(STATE_REGS_ITOP);
     m_ITOPS     = registerFile.GetRegister32(STATE_REGS_ITOPS);
     m_readTick  = registerFile.GetRegister32(STATE_REGS_READTICK);
@@ -160,17 +159,15 @@ void CVPU::ProcessPacket(StreamType& stream)
         }
         if(m_STAT.nVEW == 1)
         {
-            //Command is waiting for micro-program to end.
+			if(IsRunning()) break;
+			m_STAT.nVEW = 0;
+			//Command is waiting for micro-program to end.
             ExecuteCommand(stream, m_CODE);
-            if(m_STAT.nVEW == 1)
-            {
-                break;
-            }
         }
 
         stream.Read(&m_CODE, sizeof(CODE));
 
-        assert(m_CODE.nI == 0);
+        //assert(m_CODE.nI == 0);
 
         m_NUM = m_CODE.nNUM;
 
@@ -256,100 +253,9 @@ void CVPU::ExecuteMicro(uint32 nAddress)
     CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
 
     m_pCtx->m_State.nPC = nAddress;
-    m_paused = true;
-    
-    {
-        while(1)
-        {
-            unsigned int quota = 5000;
-            m_pCtx->m_State.nHasException = 0;
-            m_executor.Execute(quota);
-            if(m_pCtx->m_State.nHasException)
-            {
-                //E bit encountered
-                break;
-//                m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
-            }
-        }
-    }
+	m_pCtx->m_State.nHasException = 0;
 
-//    m_vif.SetStat(m_vif.GetStat() | GetVbs());
-//    m_STAT.nVEW = 0;
-}
-/*
-void CVPU::CommandThreadProc()
-{
-    bool isDebuggingEnabled = m_vpuNumber == 0 ? m_vif.IsVu0DebuggingEnabled() : m_vif.IsVu1DebuggingEnabled();
-    const int bufferSize = 2345;
-    uint8* readBuffer = reinterpret_cast<uint8*>(alloca(bufferSize));
-    while(!m_endThread)
-    {
-        if(m_cmdBuffer.IsEmpty() && !IsRunning())
-        {
-            m_cmdBuffer.WaitForNotEmpty(1);
-        }
-        else
-        {
-            if(IsRunning())
-            {
-                unsigned int quota = isDebuggingEnabled ? 1 : 5000;
-                m_pCtx->m_State.nHasException = 0;
-                m_executor.Execute(quota);
-                if(m_pCtx->m_State.nHasException)
-                {
-                    //E bit encountered
-                    m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
-                }
-            }
-            else
-            {
-                ProcessPacket();
-            }
-        }
-    }
-}
-*/
-void CVPU::ExecuteThreadProc()
-{
-    bool isDebuggingEnabled = m_vpuNumber == 0 ? m_vif.IsVu0DebuggingEnabled() : m_vif.IsVu1DebuggingEnabled();
-    unsigned int quota = isDebuggingEnabled ? 1 : 5000;
-    while(!m_endThread)
-    {
-        if(
-            !(m_vif.GetStat() & GetVbs()) || 
-#ifdef _DEBUG
-            (m_paused && isDebuggingEnabled)
-#else
-            false
-#endif
-            )
-        {
-            boost::mutex::scoped_lock execLock(m_execMutex);
-            boost::xtime xt;
-            xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += 16 * 1000000;
-            m_execCondition.timed_wait(m_execMutex, xt);
-//			thread::sleep(xt);
-//            thread::yield();
-        }
-        else
-        {
-//            m_pCtx->m_State.nHasException = 0;
-//            m_executor.Execute(quota);
-//            if(m_pCtx->m_State.nHasException)
-            {
-                //E bit encountered
-                m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
-            }
-#ifdef _DEBUG
-//            if(m_executor.MustBreak())
-            {
-                m_paused = true;
-                m_execDoneCondition.notify_one();
-            }
-#endif
-        }
-    }
+    m_vif.SetStat(m_vif.GetStat() | GetVbs());
 }
 
 void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
@@ -513,8 +419,8 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
     stream.Read(NULL, toRead * 0x10);
     m_NUM -= toRead;
 */
-
     //REMOVE
+
     while(m_NUM != 0 && stream.GetAvailableReadBytes())
     {
         bool mustWrite = false;
@@ -522,59 +428,22 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
         if(cl >= wl)
         {
-            if(m_writeTick != wl || wl == 0)
+            if(m_readTick < wl || wl == 0)
             {
-                bool success = false;
-                switch(nCommand.nCMD & 0x0F)
-                {
-                case 0x00:
-                    //S-32
-                    success = Unpack_S32(stream, writeValue);
-                    break;
-                case 0x01:
-                    //S-16
-                    success = Unpack_S16(stream, writeValue, usn);
-                    break;
-                case 0x05:
-                    //V2-16
-                    success = Unpack_V16(stream, writeValue, 2, usn);
-                    break;
-                case 0x08:
-                    //V3-32
-                    success = Unpack_V32(stream, writeValue, 3);
-                    break;
-                case 0x09:
-                    //V3-16
-                    success = Unpack_V16(stream, writeValue, 3, usn);
-                    break;
-                case 0x0C:
-                    //V4-32
-                    success = Unpack_V32(stream, writeValue, 4);
-                    break;
-                case 0x0D:
-                    //V4-16
-                    success = Unpack_V16(stream, writeValue, 4, usn);
-                    break;
-                case 0x0E:
-                    //V4-8
-                    success = Unpack_V8(stream, writeValue, 4, usn);
-                    break;
-                case 0x0F:
-                    //V4-5
-                    success = Unpack_V45(stream, writeValue);
-                    break;
-                default:
-                    assert(0);
-                    break;
-                }
-
+                bool success = Unpack_ReadValue(nCommand, stream, writeValue, usn);
                 if(!success) break;
                 mustWrite = true;
             }
         }
         else
         {
-            assert(0);
+			if(m_writeTick < cl)
+			{
+                bool success = Unpack_ReadValue(nCommand, stream, writeValue, usn);
+				if(!success) break;
+			}
+
+            mustWrite = true;
         }
 
         if(mustWrite)
@@ -596,6 +465,15 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
                     dst->nV[i] = writeValue.nV[i];
                 }
+				else if(maskOp == MASK_ROW)
+				{
+					dst->nV[i] = m_R[i];
+				}
+				else if(maskOp == MASK_COL)
+				{
+					int index = (m_writeTick > 3) ? 3 : m_writeTick;
+					dst->nV[i] = m_C[index];
+				}
                 else if(maskOp == MASK_MASK)
                 {
 
@@ -609,14 +487,28 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
             m_NUM--;
         }
 
-        m_writeTick = min<uint32>(m_writeTick + 1, wl);
-        m_readTick = min<uint32>(m_readTick + 1, cl);
+		if(cl >= wl)
+		{
+			m_writeTick = min<uint32>(m_writeTick + 1, wl);
+			m_readTick = min<uint32>(m_readTick + 1, cl);
 
-        if(m_writeTick == wl && m_readTick == cl)
-        {
-            m_writeTick = 0;
-            m_readTick = 0;
-        }
+			if(m_readTick == cl)
+			{
+				m_writeTick = 0;
+				m_readTick = 0;
+			}
+		}
+		else
+		{
+			m_writeTick = min<uint32>(m_writeTick + 1, wl);
+			m_readTick = min<uint32>(m_readTick + 1, cl);
+
+			if(m_writeTick == wl)
+			{
+				m_writeTick = 0;
+				m_readTick = 0;
+			}
+		}
 
         dst++;
     }
@@ -632,6 +524,58 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
         m_STAT.nVPS = 0;
     }
 //    return 0;
+}
+
+bool CVPU::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& writeValue, bool usn)
+{
+	bool success = false;
+	switch(nCommand.nCMD & 0x0F)
+	{
+	case 0x00:
+		//S-32
+		success = Unpack_S32(stream, writeValue);
+		break;
+	case 0x01:
+		//S-16
+		success = Unpack_S16(stream, writeValue, usn);
+		break;
+	case 0x04:
+		//V2-32
+		success = Unpack_V32(stream, writeValue, 2);
+		break;
+	case 0x05:
+		//V2-16
+		success = Unpack_V16(stream, writeValue, 2, usn);
+		break;
+	case 0x08:
+		//V3-32
+		success = Unpack_V32(stream, writeValue, 3);
+		break;
+	case 0x09:
+		//V3-16
+		success = Unpack_V16(stream, writeValue, 3, usn);
+		break;
+	case 0x0C:
+		//V4-32
+		success = Unpack_V32(stream, writeValue, 4);
+		break;
+	case 0x0D:
+		//V4-16
+		success = Unpack_V16(stream, writeValue, 4, usn);
+		break;
+	case 0x0E:
+		//V4-8
+		success = Unpack_V8(stream, writeValue, 4, usn);
+		break;
+	case 0x0F:
+		//V4-5
+		success = Unpack_V45(stream, writeValue);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+	return success;
 }
 
 bool CVPU::Unpack_S32(StreamType& stream, uint128& result)
@@ -748,6 +692,11 @@ bool CVPU::IsRunning() const
     return (m_vif.GetStat() & GetVbs()) != 0;
 }
 
+bool CVPU::IsWaitingForProgramEnd() const
+{
+    return (m_STAT.nVEW != 0);
+}
+
 uint32 CVPU::GetMaskOp(unsigned int row, unsigned int col) const
 {
     if(col > 3) col = 3;
@@ -775,7 +724,7 @@ void CVPU::DisassembleCommand(CODE code)
             "S-16",
             "(Unknown)",
             "(Unknown)",
-            "(Unknown)",
+            "V2-32",
             "V2-16",
             "(Unknown)",
             "(Unknown)",

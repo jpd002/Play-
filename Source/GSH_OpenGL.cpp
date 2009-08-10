@@ -402,7 +402,10 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cd * As
-		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+		//glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+		//REMOVE
+		glBlendFunc(GL_ZERO, GL_ONE);
+		//REMOVE
 	}
 	else
 	{
@@ -758,6 +761,13 @@ void CGSH_OpenGL::Prim_Triangle()
 			DECODE_ST(m_VtxBuffer[2].nST, nS1, nT1);
 			DECODE_ST(m_VtxBuffer[1].nST, nS2, nT2);
 			DECODE_ST(m_VtxBuffer[0].nST, nS3, nT3);
+			
+			bool isQ0Neg = (rgbaq[0].nQ < 0);
+			bool isQ1Neg = (rgbaq[1].nQ < 0);
+			bool isQ2Neg = (rgbaq[2].nQ < 0);
+
+			assert(isQ0Neg == isQ1Neg);
+			assert(isQ1Neg == isQ2Neg);
 
 			nS1 /= rgbaq[0].nQ;
 			nS2 /= rgbaq[1].nQ;
@@ -770,17 +780,20 @@ void CGSH_OpenGL::Prim_Triangle()
 			glBegin(GL_TRIANGLES);
 			{
 				glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-				glTexCoord2d(nS1, nT1);
+                glTexCoord2d(nS1, nT1);
+				//glTexCoord4d(nS1, nT1, 0, rgbaq[0].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF1);
 				glVertex3d(nX1, nY1, nZ1);
 
 				glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-				glTexCoord2d(nS2, nT2);
+                glTexCoord2d(nS2, nT2);
+//				glTexCoord4d(nS2, nT2, 0, rgbaq[1].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF2);
 				glVertex3d(nX2, nY2, nZ2);
 
 				glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-				glTexCoord2d(nS3, nT3);
+                glTexCoord2d(nS3, nT3);
+//				glTexCoord4d(nS3, nT3, 0, rgbaq[2].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF3);
 				glVertex3d(nX3, nY3, nZ3);
 			}
