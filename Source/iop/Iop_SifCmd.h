@@ -61,6 +61,7 @@ namespace Iop
         uint32                  SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
         uint32                  SifBindRpc(uint32, uint32, uint32);
         void                    SifRegisterRpc(CMIPS&);
+        uint32                  SifCheckStatRpc(uint32);
         void                    SifSetRpcQueue(uint32, uint32);
         void                    SifRpcLoop(uint32);
         void                    ReturnFromRpcInvoke(CMIPS&);

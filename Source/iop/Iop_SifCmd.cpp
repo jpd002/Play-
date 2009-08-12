@@ -22,6 +22,7 @@ using namespace std;
 #define FUNCTION_SIFINITRPC             "SifInitRpc"
 #define FUNCTION_SIFBINDRPC             "SifBindRpc"
 #define FUNCTION_SIFREGISTERRPC         "SifRegisterRpc"
+#define FUNCTION_SIFCHECKSTATRPC        "SifCheckStatRpc"
 #define FUNCTION_SIFSETRPCQUEUE         "SifSetRpcQueue"
 #define FUNCTION_SIFRPCLOOP             "SifRpcLoop"
 #define FUNCTION_RETURNFROMRPCINVOKE    "ReturnFromRpcInvoke"
@@ -108,6 +109,9 @@ string CSifCmd::GetFunctionName(unsigned int functionId) const
     case 17:
         return FUNCTION_SIFREGISTERRPC;
         break;
+    case 18:
+        return FUNCTION_SIFCHECKSTATRPC;
+        break;
     case 19:
         return FUNCTION_SIFSETRPCQUEUE;
         break;
@@ -144,6 +148,10 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
         break;
     case 17:
         SifRegisterRpc(context);
+        break;
+    case 18:
+        context.m_State.nGPR[CMIPS::V0].nV0 = SifCheckStatRpc(
+            context.m_State.nGPR[CMIPS::A0].nV0);
         break;
     case 19:
         SifSetRpcQueue(context.m_State.nGPR[CMIPS::A0].nV0,
@@ -299,6 +307,13 @@ void CSifCmd::SifSetRpcQueue(uint32 queueAddr, uint32 threadId)
         SIFRPCDATAQUEUE* dataQueue = reinterpret_cast<SIFRPCDATAQUEUE*>(&m_ram[queueAddr]);
         dataQueue->threadId = threadId;
     }
+}
+
+uint32 CSifCmd::SifCheckStatRpc(uint32 clientDataAddress)
+{
+    CLog::GetInstance().Print(LOG_NAME, "SifCheckStatRpc(clientData = 0x%0.8X);\r\n",
+        clientDataAddress);
+    return 0;
 }
 
 void CSifCmd::SifRpcLoop(uint32 queueAddr)
