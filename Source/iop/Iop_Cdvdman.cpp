@@ -3,8 +3,9 @@
 
 #define LOG_NAME            "iop_cdvdman"
 
-#define FUNCTION_CDREAD     "CdRead"
-#define FUNCTION_CDSYNC     "CdSync"
+#define FUNCTION_CDREAD         "CdRead"
+#define FUNCTION_CDSYNC         "CdSync"
+#define FUNCTION_CDGETDISKTYPE  "CdGetDiskType"
 
 using namespace Iop;
 using namespace std;
@@ -36,6 +37,9 @@ string CCdvdman::GetFunctionName(unsigned int functionId) const
     case 11:
         return FUNCTION_CDSYNC;
         break;
+    case 12:
+        return FUNCTION_CDGETDISKTYPE;
+        break;
     default:
         return "unknown";
         break;
@@ -55,6 +59,9 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
         break;
     case 11:
         ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSync();
+        break;
+    case 12:
+        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetDiskType();
         break;
     default:
         CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
@@ -95,4 +102,11 @@ uint32 CCdvdman::CdSync()
 {
     CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "();\r\n");
     return 1;
+}
+
+uint32 CCdvdman::CdGetDiskType()
+{
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
+    //0x14 = PS2DVD
+    return 0x14;
 }

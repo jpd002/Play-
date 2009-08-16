@@ -130,7 +130,8 @@ void CMipsCodeGen::MD_PullRel(size_t offset)
 {
     for(unsigned int i = 0; i < 4; i++)
     {
-        assert(GetVariableStatus(offset + (i * 4)) == NULL);
+        //assert(GetVariableStatus(offset + (i * 4)) == NULL);
+        InvalidateVariableStatus(offset + (i * 4));
     }
     CCodeGen::MD_PullRel(offset);
 }

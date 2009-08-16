@@ -1969,17 +1969,15 @@ void CPS2OS::sc_PollSema()
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
+//47
 //48
 void CPS2OS::sc_ReferSemaStatus()
 {
-	uint32 nID;
-	SEMAPHORE* pSema;
-	SEMAPHOREPARAM *pSemaParam;
+    bool isInt = m_ee.m_State.nGPR[3].nV[0] != 0x47;
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	SEMAPHOREPARAM* pSemaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
 
-	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	pSemaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
-
-	pSema = GetSemaphore(nID);
+	SEMAPHORE* pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -2403,6 +2401,7 @@ string CPS2OS::GetSysCallDescription(uint8 nFunction)
 		sprintf(sDescription, "iPollSema(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
+    case 0x47:
 	case 0x48:
 		sprintf(sDescription, "iReferSemaStatus(semaid = %i, status = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
@@ -2484,7 +2483,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 	//0x38
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_RFU060,			&CPS2OS::sc_RFU061,			&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
 	//0x40
-	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,		&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,		&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_ReferSemaStatus,
 	//0x48
 	&CPS2OS::sc_ReferSemaStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x50
