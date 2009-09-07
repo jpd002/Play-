@@ -6,6 +6,9 @@
 #include "uint128.h"
 #include <string.h>
 
+#undef ABS
+#undef MAX
+
 namespace VUShared
 {
 	enum VECTOR_COMP

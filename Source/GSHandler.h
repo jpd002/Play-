@@ -710,7 +710,8 @@ inline uint8 CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::GetPixel(unsig
 	return (uint8)(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]] >> nShiftAmount) & 0x0F;
 }
 
-template <> void CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::SetPixel(unsigned int nX, unsigned int nY, uint8 nPixel)
+template <> 
+inline void CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::SetPixel(unsigned int nX, unsigned int nY, uint8 nPixel)
 {
 	typedef STORAGEPSMT4 Storage;
 

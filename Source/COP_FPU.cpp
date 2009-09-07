@@ -414,51 +414,51 @@ void CCOP_FPU::SWC1()
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpGeneral[0x20] = 
 {
 	//0x00
-	&MFC1,			&Illegal,		&Illegal,		&Illegal,		&MTC1,			&Illegal,		&CTC1,			&Illegal,
+	&CCOP_FPU::MFC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::MTC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::CTC1,		&CCOP_FPU::Illegal,
 	//0x08
-	&BC1,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::BC1,			&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x10
-	&S,				&Illegal,		&Illegal,		&Illegal,		&W,				&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::S,			&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::W,			&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 };
 
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpSingle[0x40] =
 {
 	//0x00
-	&ADD_S,			&SUB_S,			&MUL_S,			&DIV_S,			&SQRT_S,		&ABS_S,			&MOV_S,			&NEG_S,
+	&CCOP_FPU::ADD_S,		&CCOP_FPU::SUB_S,		&CCOP_FPU::MUL_S,		&CCOP_FPU::DIV_S,		&CCOP_FPU::SQRT_S,		&CCOP_FPU::ABS_S,		&CCOP_FPU::MOV_S,		&CCOP_FPU::NEG_S,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x10
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x18
-	&ADDA_S,		&Illegal,		&MULA_S,		&Illegal,		&MADD_S,		&MSUB_S,		&Illegal,		&Illegal,
+	&CCOP_FPU::ADDA_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::MULA_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::MADD_S,		&CCOP_FPU::MSUB_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x20
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&CVT_W_S,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::CVT_W_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x28
-	&MAX_S,		    &MIN_S,	    	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::MAX_S,		&CCOP_FPU::MIN_S,	    &CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x30
-	&Illegal,		&Illegal,		&C_EQ_S,		&Illegal,		&C_LT_S,		&Illegal,		&C_LE_S,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_EQ_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LE_S,		&CCOP_FPU::Illegal,
 	//0x38
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 };
 
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpWord[0x40] =
 {
 	//0x00
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x10
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x20
-	&CVT_S_W,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::CVT_S_W,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x28
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x30
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x38
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 };

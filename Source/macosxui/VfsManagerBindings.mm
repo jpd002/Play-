@@ -1,5 +1,5 @@
 #import "VfsManagerBindings.h"
-#import "../Config.h"
+#import "../AppConfig.h"
 
 #define PREFERENCE_CDROM0_PATH ("ps2.cdrom0.path")
 
@@ -123,7 +123,7 @@
 	CVfsManagerDirectoryBinding* result = [super init];
 	m_deviceName = deviceName;
 	m_preference = preferenceName;
-	const char* preferenceValue = CConfig::GetInstance().GetPreferenceString([preferenceName UTF8String]);
+	const char* preferenceValue = CAppConfig::GetInstance().GetPreferenceString([preferenceName UTF8String]);
 	if(preferenceValue == NULL)
 	{
 		m_value = @"";
@@ -176,7 +176,7 @@
 
 -(void)save
 {
-	CConfig::GetInstance().SetPreferenceString([m_preference UTF8String], [m_value UTF8String]);
+	CAppConfig::GetInstance().SetPreferenceString([m_preference UTF8String], [m_value UTF8String]);
 }
 
 @end
@@ -186,7 +186,7 @@
 -(CVfsManagerCdrom0Binding*)init
 {
 	CVfsManagerCdrom0Binding* result = [super init];
-	const char* preferenceValue = CConfig::GetInstance().GetPreferenceString(PREFERENCE_CDROM0_PATH);
+	const char* preferenceValue = CAppConfig::GetInstance().GetPreferenceString(PREFERENCE_CDROM0_PATH);
 	if(preferenceValue == NULL)
 	{
 		m_value = @"";
@@ -235,7 +235,7 @@
 
 -(void)save
 {
-	CConfig::GetInstance().SetPreferenceString(PREFERENCE_CDROM0_PATH, [m_value UTF8String]);
+	CAppConfig::GetInstance().SetPreferenceString(PREFERENCE_CDROM0_PATH, [m_value UTF8String]);
 }
 
 @end

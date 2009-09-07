@@ -20,8 +20,8 @@ namespace Iop
         std::string         GetFunctionName(unsigned int) const;
         void                Invoke(CMIPS&, unsigned int);
         virtual bool        Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-        virtual void		SaveState(CZipArchiveWriter&);
-        virtual void		LoadState(CZipArchiveReader&);
+        virtual void		SaveState(Framework::CZipArchiveWriter&);
+        virtual void		LoadState(Framework::CZipArchiveReader&);
         virtual void		SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
         virtual void        SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*);
 

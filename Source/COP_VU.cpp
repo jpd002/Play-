@@ -481,79 +481,79 @@ void CCOP_VU::VRXOR()
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpCop2[0x20] =
 {
 	//0x00
-	&Illegal,		&QMFC2,			&CFC2,			&Illegal,		&Illegal,		&QMTC2,			&CTC2,			&Illegal,
+	&CCOP_VU::Illegal,			&CCOP_VU::QMFC2,			&CCOP_VU::CFC2,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::QMTC2,			&CCOP_VU::CTC2,			&CCOP_VU::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::Illegal,			&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x10
-	&V,				&V,				&V,				&V,				&V,				&V,				&V,				&V,
+	&CCOP_VU::V,				&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,
 	//0x18
-	&V,				&V,				&V,				&V,				&V,				&V,				&V,				&V,
+	&CCOP_VU::V,				&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 {
 	//0x00
-	&VADDbc,		&VADDbc,		&VADDbc,		&VADDbc,		&VSUBbc,		&VSUBbc,		&VSUBbc,        &VSUBbc,
+	&CCOP_VU::VADDbc,		&CCOP_VU::VADDbc,		&CCOP_VU::VADDbc,		&CCOP_VU::VADDbc,		&CCOP_VU::VSUBbc,		&CCOP_VU::VSUBbc,		&CCOP_VU::VSUBbc,		&CCOP_VU::VSUBbc,
 	//0x08
-	&VMADDbc,		&VMADDbc,		&VMADDbc,		&VMADDbc,		&VMSUBbc,		&VMSUBbc,		&VMSUBbc,		&VMSUBbc,
+	&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,
 	//0x10
-	&VMAXbc,		&Illegal,		&Illegal,		&Illegal,		&VMINIbc,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::VMAXbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
-	&VMULbc,		&VMULbc,		&VMULbc,        &VMULbc,		&VMULq,			&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x20
-	&VADDq,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::VADDq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x28
-	&VADD,			&Illegal,		&VMUL,			&VMAX,			&VSUB,			&Illegal,		&VOPMSUB,		&VMINI,
+	&CCOP_VU::VADD,			&CCOP_VU::Illegal,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::Illegal,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
 	//0x30
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x38
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&VX0,			&VX1,			&VX2,			&VX3,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 {
 	//0x00
-	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&VITOF0,		&VFTOI0,		&VMULAbc,		&Illegal,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF0,		&CCOP_VU::VFTOI0,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&VADDA,	    	&Illegal,		&VMOVE,			&Illegal,		&VDIV,			&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,	    &CCOP_VU::Illegal,		&CCOP_VU::VMOVE,		&CCOP_VU::Illegal,		&CCOP_VU::VDIV,			&CCOP_VU::Illegal,
 	//0x10
-	&VRNEXT,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::VRNEXT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 {
 	//0x00
-	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&VITOF4,	    &VFTOI4,		&VMULAbc,		&Illegal,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,	    &CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&VMR32,			&Illegal,		&VSQRT,			&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMR32,		&CCOP_VU::Illegal,		&CCOP_VU::VSQRT,		&CCOP_VU::Illegal,
 	//0x10
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
 {
 	//0x00
-	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&Illegal,		&Illegal,		&VMULAbc,		&Illegal,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&VOPMULA,		&Illegal,		&Illegal,		&VRSQRT,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VRSQRT,		&CCOP_VU::Illegal,
 	//0x10
-	&VRINIT,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::VRINIT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx3[0x20] =
 {
 	//0x00
-	&VADDAbc,		&VSUBAbc,		&VMADDAbc,		&VMSUBAbc,		&VITOF15,		&Illegal,		&VMULAbc,		&VCLIP,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF15,		&CCOP_VU::Illegal,		&CCOP_VU::VMULAbc,		&CCOP_VU::VCLIP,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&VNOP,			&Illegal,		&Illegal,		&VWAITQ,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VNOP,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VWAITQ,		&CCOP_VU::Illegal,
 	//0x10
-	&VRXOR,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::VRXOR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 };

@@ -179,7 +179,7 @@ using namespace std;
 			break;
 		case L'f':
 			{
-				g_virtualMachine->Step();
+				g_virtualMachine->StepEe();
 				return;
 			}
 			break;

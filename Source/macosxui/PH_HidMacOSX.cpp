@@ -36,7 +36,7 @@ void CPH_HidMacOSX::Update(uint8* ram)
 			uint32 currentBit = m_currentState & (1 << i);
 			if(currentBit != previousBit)
 			{
-				listener->SetButtonState(0, static_cast<CPadListener::BUTTON>(1 << i), currentBit != 0, ram);
+				listener->SetButtonState(0, static_cast<PS2::CControllerInfo::BUTTON>(1 << i), currentBit != 0, ram);
 			}
 		}
 	}
@@ -108,44 +108,44 @@ bool CPH_HidMacOSX::TranslateKey(uint32 scanCode, uint32& gameKey)
 	switch(scanCode)
 	{
 	case kHIDUsage_KeyboardReturn:
-		gameKey = CPadListener::BUTTON_START;
+		gameKey = PS2::CControllerInfo::START;
 		return true;
 		break;
 	case kHIDUsage_KeyboardLeftShift:
 	case kHIDUsage_KeyboardRightShift:
-		gameKey = CPadListener::BUTTON_SELECT;
+		gameKey = PS2::CControllerInfo::SELECT;
 		return true;
 		break;
 	case kHIDUsage_KeyboardLeftArrow:
-		gameKey = CPadListener::BUTTON_LEFT;
+		gameKey = PS2::CControllerInfo::DPAD_LEFT;
 		return true;
 		break;
 	case kHIDUsage_KeyboardRightArrow:
-		gameKey = CPadListener::BUTTON_RIGHT;
+		gameKey = PS2::CControllerInfo::DPAD_RIGHT;
 		return true;
 		break;
 	case kHIDUsage_KeyboardUpArrow:
-		gameKey = CPadListener::BUTTON_UP;
+		gameKey = PS2::CControllerInfo::DPAD_UP;
 		return true;
 		break;
 	case kHIDUsage_KeyboardDownArrow:
-		gameKey = CPadListener::BUTTON_DOWN;
+		gameKey = PS2::CControllerInfo::DPAD_DOWN;
 		return true;
 		break;
 	case kHIDUsage_KeyboardA:
-		gameKey = CPadListener::BUTTON_SQUARE;
+		gameKey = PS2::CControllerInfo::SQUARE;
 		return true;
 		break;
 	case kHIDUsage_KeyboardZ:
-		gameKey = CPadListener::BUTTON_CROSS;
+		gameKey = PS2::CControllerInfo::CROSS;
 		return true;
 		break;
 	case kHIDUsage_KeyboardS:
-		gameKey = CPadListener::BUTTON_TRIANGLE;
+		gameKey = PS2::CControllerInfo::TRIANGLE;
 		return true;
 		break;
 	case kHIDUsage_KeyboardX:
-		gameKey = CPadListener::BUTTON_CIRCLE;
+		gameKey = PS2::CControllerInfo::CIRCLE;
 		return true;
 		break;
 	}

@@ -1,5 +1,6 @@
 #include "VuBasicBlock.h"
 #include "MA_VU.h"
+#include "offsetof_def.h"
 
 CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end) :
 CBasicBlock(context, begin, end)

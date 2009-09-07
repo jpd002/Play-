@@ -657,47 +657,47 @@ void CMA_EE::PCPYH()
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
 {
 	//0x00
-	&Illegal,		&PSUBW,			&Illegal,		&Illegal,		&PADDH,			&Illegal,		&PCGTH,			&PMAXH,
+	&CMA_EE::Illegal,		&CMA_EE::PSUBW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PADDH,			&CMA_EE::Illegal,		&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
 	//0x08
-	&Illegal,		&PSUBB,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::PSUBB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
-	&PADDSW,		&Illegal,		&PEXTLW,		&Illegal,		&Illegal,		&Illegal,		&PEXTLH,		&PPACH,
+	&CMA_EE::PADDSW,		&CMA_EE::Illegal,		&CMA_EE::PEXTLW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTLH,		&CMA_EE::PPACH,
 	//0x18
-	&Illegal,		&Illegal,		&PEXTLB,		&PPACB,			&Illegal,		&Illegal,		&PEXT5,			&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTLB,		&CMA_EE::PPACB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXT5,			&CMA_EE::Illegal,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 
 {
 	//0x00
-	&Illegal,		&Illegal,		&PCEQW,			&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PMINH,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMINH,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
-	&PADDUW,		&Illegal,		&PEXTUW,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::PADDUW,		&CMA_EE::Illegal,		&CMA_EE::PEXTUW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&PEXTUB,		&QFSRV,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTUB,		&CMA_EE::QFSRV,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] = 
 {
 	//0x00
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PCPYLD,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
 	//0x10
-	&Illegal,		&Illegal,		&PAND,			&PXOR,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PROT3W,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PROT3W,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 
 {
 	//0x00
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&Illegal,		&PCPYUD,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
 	//0x10
-	&Illegal,		&Illegal,		&POR,			&PNOR,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&Illegal,		&Illegal,		&Illegal,		&PCPYH,			&Illegal,		&Illegal,		&Illegal,		&Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYH,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 };

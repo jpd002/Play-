@@ -972,14 +972,16 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			pr.nUseFloat);
 		break;
 	case GS_REG_RGBAQ:
-		RGBAQ rgbaq;
-		rgbaq <<= nData;
-		CLog::GetInstance().Print(LOG_NAME, "RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f);\r\n", \
-			rgbaq.nR,
-			rgbaq.nG,
-			rgbaq.nB,
-			rgbaq.nA,
-			rgbaq.nQ);
+		{
+			RGBAQ rgbaq;
+			rgbaq <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f);\r\n", \
+									  rgbaq.nR,
+									  rgbaq.nG,
+									  rgbaq.nB,
+									  rgbaq.nA,
+									  rgbaq.nQ);
+		}
 		break;
 	case GS_REG_ST:
 		DECODE_ST(nData, nS, nT);
@@ -1097,17 +1099,19 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			nData & 1);
 		break;
 	case GS_REG_PRMODE:
-		PRMODE prm;
-		prm <<= nData;
-		CLog::GetInstance().Print(LOG_NAME, "PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
-			prm.nShading, \
-			prm.nTexture, \
-			prm.nFog, \
-			prm.nAlpha, \
-			prm.nAntiAliasing, \
-			prm.nUseUV, \
-			prm.nContext, \
-			prm.nUseFloat);
+		{
+			PRMODE prm;
+			prm <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
+									  prm.nShading, \
+									  prm.nTexture, \
+									  prm.nFog, \
+									  prm.nAlpha, \
+									  prm.nAntiAliasing, \
+									  prm.nUseUV, \
+									  prm.nContext, \
+									  prm.nUseFloat);
+		}
 		break;
 	case GS_REG_TEXCLUT:
 		TEXCLUT clut;
@@ -1126,27 +1130,31 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 			fogcol.nFCB);
 		break;
 	case GS_REG_TEXA:
-		TEXA TexA;
-		TexA <<= nData;
-		CLog::GetInstance().Print(LOG_NAME, "TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X);\r\n", \
-			TexA.nTA0,
-			TexA.nAEM,
-			TexA.nTA1);
+		{
+			TEXA TexA;
+			TexA <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X);\r\n", \
+									  TexA.nTA0,
+									  TexA.nAEM,
+									  TexA.nTA1);
+		}
 		break;
 	case GS_REG_TEXFLUSH:
 		CLog::GetInstance().Print(LOG_NAME, "TEXFLUSH();\r\n");
 		break;
 	case GS_REG_ALPHA_1:
 	case GS_REG_ALPHA_2:
-		ALPHA alpha;
-		alpha <<= nData;
-		CLog::GetInstance().Print(LOG_NAME, "ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X);\r\n", \
-			nRegister == GS_REG_ALPHA_1 ? 1 : 2, \
-			alpha.nA, \
-			alpha.nB, \
-			alpha.nC, \
-			alpha.nD, \
-			alpha.nFix);
+		{
+			ALPHA alpha;
+			alpha <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X);\r\n", \
+									  nRegister == GS_REG_ALPHA_1 ? 1 : 2, \
+									  alpha.nA, \
+									  alpha.nB, \
+									  alpha.nC, \
+									  alpha.nD, \
+									  alpha.nFix);
+		}
 		break;
 	case GS_REG_SCISSOR_1:
 		CLog::GetInstance().Print(LOG_NAME, "SCISSOR_1(%i, %i, %i, %i);\r\n", \
@@ -1157,18 +1165,20 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_TEST_1:
 	case GS_REG_TEST_2:
-		TEST tst;
-        tst <<= nData;
-		CLog::GetInstance().Print(LOG_NAME, "TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i);\r\n", \
-			nRegister == GS_REG_TEST_1 ? 1 : 2, \
-			tst.nAlphaEnabled, \
-			tst.nAlphaMethod, \
-			tst.nAlphaRef, \
-			tst.nAlphaFail, \
-			tst.nDestAlphaEnabled, \
-			tst.nDestAlphaMode, \
-			tst.nDepthEnabled, \
-			tst.nDepthMethod);
+		{
+			TEST tst;
+			tst <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i);\r\n", \
+									  nRegister == GS_REG_TEST_1 ? 1 : 2, \
+									  tst.nAlphaEnabled, \
+									  tst.nAlphaMethod, \
+									  tst.nAlphaRef, \
+									  tst.nAlphaFail, \
+									  tst.nDestAlphaEnabled, \
+									  tst.nDestAlphaMode, \
+									  tst.nDepthEnabled, \
+									  tst.nDepthMethod);
+		}
 		break;
 	case GS_REG_FRAME_1:
 	case GS_REG_FRAME_2:
@@ -1183,13 +1193,15 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_ZBUF_1:
 	case GS_REG_ZBUF_2:
-		ZBUF zbuf;
-		zbuf = *(ZBUF*)&nData;
-		CLog::GetInstance().Print(LOG_NAME, "ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i);\r\n", \
-			nRegister == GS_REG_ZBUF_1 ? 1 : 2, \
-			zbuf.GetBasePtr(), \
-			zbuf.nPsm, \
-			zbuf.nMask);
+		{
+			ZBUF zbuf;
+			zbuf = *(ZBUF*)&nData;
+			CLog::GetInstance().Print(LOG_NAME, "ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i);\r\n", \
+									  nRegister == GS_REG_ZBUF_1 ? 1 : 2, \
+									  zbuf.GetBasePtr(), \
+									  zbuf.nPsm, \
+									  zbuf.nMask);
+		}
 		break;
 	case GS_REG_BITBLTBUF:
 		BITBLTBUF buf;
