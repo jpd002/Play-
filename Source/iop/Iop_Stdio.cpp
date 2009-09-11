@@ -88,7 +88,7 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                     output += lexical_cast_uint<string>(number, precisionValue);
                     paramDone = true;
                 }
-                else if(type == 'x')
+                else if(type == 'x' || type == 'X')
                 {
                     uint32 number = args.GetNext();
                     unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
@@ -101,6 +101,7 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                 }
                 else
                 {
+                    assert(isdigit(type));
                     if(inPrecision)
                     {
                         precision += type;
