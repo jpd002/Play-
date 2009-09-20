@@ -33,6 +33,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpSpecial2[0x19] = bind(&CMA_EE::MULTU1, this);
 	m_pOpSpecial2[0x1A] = bind(&CMA_EE::DIV1, this);
 	m_pOpSpecial2[0x1B] = bind(&CMA_EE::DIVU1, this);
+    m_pOpSpecial2[0x20] = bind(&CMA_EE::MADD1, this);
 	m_pOpSpecial2[0x28] = bind(&CMA_EE::MMI1, this);
 	m_pOpSpecial2[0x29] = bind(&CMA_EE::MMI3, this);
 	m_pOpSpecial2[0x34] = bind(&CMA_EE::PSLLH, this);
@@ -151,59 +152,7 @@ void CMA_EE::REEXCPT()
 //00
 void CMA_EE::MADD()
 {
-    //prod = (HI || LO) + (RS * RT)
-    //LO = sex(prod[0])
-    //HI = sex(prod[1])
-    //RD = LO
-
-    size_t lo[2];
-    size_t hi[2];
-
-    unsigned int unit = 0;
-    switch(unit)
-    {
-    case 0:
-        lo[0] = offsetof(CMIPS, m_State.nLO[0]);
-        lo[1] = offsetof(CMIPS, m_State.nLO[1]);
-        hi[0] = offsetof(CMIPS, m_State.nHI[0]);
-        hi[1] = offsetof(CMIPS, m_State.nHI[1]);
-        break;
-    case 1:
-        lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
-        lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
-        hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
-        hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
-        break;
-    default:
-        throw runtime_error("Invalid unit number.");
-        break;
-    }
-
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->MultS();     //gives Stack(0) = LO, Stack(1) = HI
-    m_codeGen->Swap();
-
-    m_codeGen->PushRel(lo[0]);
-    m_codeGen->PushRel(hi[0]);
-    m_codeGen->Add64();
-
-    m_codeGen->SeX();
-    m_codeGen->PullRel(hi[1]);
-    m_codeGen->PullRel(hi[0]);
-
-    m_codeGen->SeX();
-    m_codeGen->PullRel(lo[1]);
-    m_codeGen->PullRel(lo[0]);
-
-    if(m_nRD != 0)
-    {
-        m_codeGen->PushRel(lo[0]);
-        m_codeGen->PushRel(lo[1]);
-
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-    }
+    Generic_MADD(0);
 }
 
 //04
@@ -291,6 +240,12 @@ void CMA_EE::DIV1()
 void CMA_EE::DIVU1()
 {
     Template_Div32(bind(&CCodeGen::Div, m_codeGen), 1);
+}
+
+//20
+void CMA_EE::MADD1()
+{
+    Generic_MADD(1);
 }
 
 //28
@@ -647,6 +602,66 @@ void CMA_EE::PCPYH()
 
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i + 0]));
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i + 1]));
+    }
+}
+
+//////////////////////////////////////////////////
+//Generic Stuff
+//////////////////////////////////////////////////
+
+void CMA_EE::Generic_MADD(unsigned int unit)
+{
+    //prod = (HI || LO) + (RS * RT)
+    //LO = sex(prod[0])
+    //HI = sex(prod[1])
+    //RD = LO
+
+    size_t lo[2];
+    size_t hi[2];
+
+    switch(unit)
+    {
+    case 0:
+        lo[0] = offsetof(CMIPS, m_State.nLO[0]);
+        lo[1] = offsetof(CMIPS, m_State.nLO[1]);
+        hi[0] = offsetof(CMIPS, m_State.nHI[0]);
+        hi[1] = offsetof(CMIPS, m_State.nHI[1]);
+        break;
+    case 1:
+        lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
+        lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
+        hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
+        hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
+        break;
+    default:
+        throw runtime_error("Invalid unit number.");
+        break;
+    }
+
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->MultS();     //gives Stack(0) = LO, Stack(1) = HI
+    m_codeGen->Swap();
+
+    m_codeGen->PushRel(lo[0]);
+    m_codeGen->PushRel(hi[0]);
+    m_codeGen->Add64();
+
+    m_codeGen->SeX();
+    m_codeGen->PullRel(hi[1]);
+    m_codeGen->PullRel(hi[0]);
+
+    m_codeGen->SeX();
+    m_codeGen->PullRel(lo[1]);
+    m_codeGen->PullRel(lo[0]);
+
+    if(m_nRD != 0)
+    {
+        m_codeGen->PushRel(lo[0]);
+        m_codeGen->PushRel(lo[1]);
+
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
     }
 }
 

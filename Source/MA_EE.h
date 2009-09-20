@@ -63,6 +63,7 @@ private:
 	void							    MULTU1();
 	void							    DIV1();
 	void							    DIVU1();
+    void                                MADD1();
 	void							    MMI1();
 	void							    MMI3();
 	void							    PSLLH();
@@ -103,6 +104,8 @@ private:
 	void							    POR();
 	void							    PNOR();
 	void							    PCPYH();
+
+    void                                Generic_MADD(unsigned int);
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflMmi[64];

@@ -2107,6 +2107,16 @@ void CCodeGen::Sra()
         FreeRegister(shiftAmount);
         PushReg(resultRegister);
     }
+    else if(FitsPattern<RelativeConstant>())
+    {
+        RelativeConstant::PatternValue ops = GetPattern<RelativeConstant>();
+        unsigned int resultRegister = AllocateRegister();
+        LoadRelativeInRegister(resultRegister, ops.first);
+        m_Assembler.SarEd(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[resultRegister]), 
+            ops.second);
+        PushReg(resultRegister);
+    }
     else
     {
         assert(0);
