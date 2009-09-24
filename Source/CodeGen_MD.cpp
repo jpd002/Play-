@@ -377,6 +377,11 @@ void CCodeGen::MD_AddH()
     MD_GenericTwoOperand(bind(&CX86Assembler::PaddwVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
 }
 
+void CCodeGen::MD_AddW()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::PadddVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
+}
+
 void CCodeGen::MD_AddWSS()
 {
     if(FitsPattern<RelativeRelative128>())

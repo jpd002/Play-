@@ -296,6 +296,15 @@ void CMA_EE::PSRAW()
 //MMI0 Opcodes
 //////////////////////////////////////////////////
 
+//00
+void CMA_EE::PADDW()
+{
+    PushVector(m_nRS);
+    PushVector(m_nRT);
+    m_codeGen->MD_AddW();
+    PullVector(m_nRD);
+}
+
 //01
 void CMA_EE::PSUBW()
 {
@@ -526,9 +535,87 @@ void CMA_EE::PXOR()
     PullVector(m_nRD);
 }
 
+//1C
+void CMA_EE::PMULTH()
+{
+    {
+        //A0xB0
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+        m_codeGen->MultSHL();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
+
+        //A1xB1
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+        m_codeGen->MultSHH();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
+    }
+
+    {
+        //A2xB2
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+        m_codeGen->MultSHL();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
+
+        //A3xB3
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+        m_codeGen->MultSHH();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
+    }
+
+    {
+        //A4xB4
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
+        m_codeGen->MultSHL();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO1[0]));
+
+        //A5xB5
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
+        m_codeGen->MultSHH();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO1[1]));
+    }
+
+    {
+        //A6xB6
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
+        m_codeGen->MultSHL();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI1[0]));
+
+        //A7xB7
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
+        m_codeGen->MultSHH();
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI1[1]));
+    }
+
+    if(m_nRD != 0)
+    {
+        //Copy to RD
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI[0]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO1[0]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
+
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[0]));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+    }
+}
+
 //1F
 void CMA_EE::PROT3W()
 {
+    assert(m_nRT != m_nRD);
+
     //3
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
@@ -672,7 +759,7 @@ void CMA_EE::Generic_MADD(unsigned int unit)
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
 {
 	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::PSUBW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PADDH,			&CMA_EE::Illegal,		&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
+	&CMA_EE::PADDW,		    &CMA_EE::PSUBW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PADDH,			&CMA_EE::Illegal,		&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::PSUBB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
@@ -702,7 +789,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PROT3W,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PROT3W,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 

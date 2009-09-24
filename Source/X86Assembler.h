@@ -127,6 +127,7 @@ public:
     void                                    Cdq();
     void                                    DivEd(const CAddress&);
     void                                    IdivEd(const CAddress&);
+    void                                    ImulEw(const CAddress&);
     void                                    ImulEd(const CAddress&);
     void                                    JaeJb(LABEL);
     void                                    JcJb(LABEL);
@@ -136,6 +137,7 @@ public:
     void                                    JnoJb(LABEL);
     void                                    JnsJb(LABEL);
     void                                    LeaGd(REGISTER, const CAddress&);
+    void                                    MovEw(REGISTER, const CAddress&);
     void                                    MovEd(REGISTER, const CAddress&);
     void                                    MovEq(REGISTER, const CAddress&);
     void                                    MovGd(const CAddress&, REGISTER);
@@ -220,6 +222,7 @@ public:
     void                                    PackssdwVo(XMMREGISTER, const CAddress&);
     void                                    PackuswbVo(XMMREGISTER, const CAddress&);
     void                                    PaddwVo(XMMREGISTER, const CAddress&);
+    void                                    PadddVo(XMMREGISTER, const CAddress&);
     void                                    PandVo(XMMREGISTER, const CAddress&);
     void                                    PandnVo(XMMREGISTER, const CAddress&);
     void                                    PcmpeqdVo(XMMREGISTER, const CAddress&);

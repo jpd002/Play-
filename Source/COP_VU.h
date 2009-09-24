@@ -105,6 +105,7 @@ private:
 	void                                VSQRT();
 
 	//V2
+    void                                VITOF12();
 	void                                VOPMULA();
 	void                                VRSQRT();
 	void                                VRINIT();

@@ -118,6 +118,8 @@ public:
     void                            Lzc();
     void                            Mult();
     void                            MultS();
+    void                            MultSHL();
+    void                            MultSHH();
     void                            Not();
     void                            Or();
     void                            SeX();
@@ -173,6 +175,7 @@ public:
 
     void                            MD_AbsS();
     void                            MD_AddH();
+    void                            MD_AddW();
     void                            MD_AddWSS();
     void                            MD_AddWUS();
     void                            MD_AddS();
@@ -338,6 +341,7 @@ private:
 
     void                            Div_Base(const MultFunction&, bool);
     void                            Mult_Base(const MultFunction&, bool);
+    void                            MultSH_Base(unsigned int);
 
     XMMREGISTER                     FP_GetResultRegister(uint32);
     void                            FP_GenericOneOperand(const MdTwoOperandFunction&);

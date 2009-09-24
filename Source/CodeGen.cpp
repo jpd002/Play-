@@ -1594,6 +1594,55 @@ void CCodeGen::Mult_Base(const MultFunction& multFunction, bool isSigned)
     }
 }
 
+void CCodeGen::MultSHL()
+{
+    MultSH_Base(0);
+}
+
+void CCodeGen::MultSHH()
+{
+    MultSH_Base(2);
+}
+
+void CCodeGen::MultSH_Base(unsigned int offset)
+{
+    if(FitsPattern<RelativeRelative>())
+    {
+        RelativeRelative::PatternValue ops(GetPattern<RelativeRelative>());
+
+        //We need eax and edx for this
+        if(m_nRegisterAllocated[REGISTER_EAX] || m_nRegisterAllocated[REGISTER_EDX])
+        {
+            throw runtime_error("Needed registers are allocated.");
+        }
+        m_nRegisterAllocated[REGISTER_EAX] = true;
+        m_nRegisterAllocated[REGISTER_EDX] = true;
+        unsigned int lowRegister = REGISTER_EAX;
+        unsigned int highRegister = REGISTER_EDX;
+
+        m_Assembler.MovEw(
+            m_nRegisterLookupEx[lowRegister],
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.first + offset));
+        m_Assembler.ImulEw(
+            CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, ops.second + offset));
+        m_Assembler.AndId(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[lowRegister]), 0xFFFF);
+        m_Assembler.ShlEd(
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[highRegister]), 16);
+        m_Assembler.OrEd(
+            m_nRegisterLookupEx[lowRegister],
+            CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[highRegister]));
+
+        FreeRegister(highRegister);
+
+        PushReg(lowRegister);
+    }
+    else
+    {
+        throw std::exception();
+    }
+}
+
 void CCodeGen::Not()
 {
     if(FitsPattern<SingleRegister>())

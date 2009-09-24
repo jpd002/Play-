@@ -72,6 +72,7 @@ private:
     void                                PSRAW();
 
 	//Mmi0
+    void                                PADDW();
 	void							    PSUBW();
 	void							    PADDH();
 	void							    PCGTH();
@@ -97,6 +98,7 @@ private:
 	void							    PCPYLD();
 	void							    PAND();
 	void							    PXOR();
+    void                                PMULTH();
     void                                PROT3W();
 
 	//Mmi3

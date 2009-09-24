@@ -422,6 +422,12 @@ void CCOP_VU::VSQRT()
 //V2 Instructions
 //////////////////////////////////////////////////
 
+//04
+void CCOP_VU::VITOF12()
+{
+	VUShared::ITOF12(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //0B
 void CCOP_VU::VOPMULA()
 {
@@ -537,7 +543,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
 {
 	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF12,		&CCOP_VU::Illegal,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
 	//0x08
 	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VRSQRT,		&CCOP_VU::Illegal,
 	//0x10

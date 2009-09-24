@@ -287,6 +287,12 @@ void CX86Assembler::IdivEd(const CAddress& address)
     WriteEvOp(0xF7, 0x07, false, address);
 }
 
+void CX86Assembler::ImulEw(const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteEvOp(0xF7, 0x05, false, address);
+}
+
 void CX86Assembler::ImulEd(const CAddress& address)
 {
     WriteEvOp(0xF7, 0x05, false, address);
@@ -344,6 +350,12 @@ void CX86Assembler::JnsJb(LABEL label)
 void CX86Assembler::LeaGd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x8D, false, address, registerId);
+}
+
+void CX86Assembler::MovEw(REGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteEvGvOp(0x8B, false, address, registerId);
 }
 
 void CX86Assembler::MovEd(REGISTER nRegister, const CAddress& Address)
