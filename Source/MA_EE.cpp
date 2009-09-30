@@ -39,6 +39,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpSpecial2[0x34] = bind(&CMA_EE::PSLLH, this);
 	m_pOpSpecial2[0x36] = bind(&CMA_EE::PSRLH, this);
 	m_pOpSpecial2[0x37] = bind(&CMA_EE::PSRAH, this);
+    m_pOpSpecial2[0x3E] = bind(&CMA_EE::PSRLW, this);
     m_pOpSpecial2[0x3F] = bind(&CMA_EE::PSRAW, this);
 
 	SetupReflectionTables();
@@ -284,6 +285,14 @@ void CMA_EE::PSRAH()
     PullVector(m_nRD);
 }
 
+//3E
+void CMA_EE::PSRLW()
+{
+    PushVector(m_nRT);
+    m_codeGen->MD_SrlW(m_nSA);
+    PullVector(m_nRD);
+}
+
 //3F
 void CMA_EE::PSRAW()
 {
@@ -366,6 +375,32 @@ void CMA_EE::PEXTLW()
     PushVector(m_nRT);
     m_codeGen->MD_UnpackLowerWD();
     PullVector(m_nRD);
+}
+
+//13
+void CMA_EE::PPACW()
+{
+    //RS = A
+    //RT = B
+    //RD = A2 A0 B2 B0
+    assert(m_nRS != m_nRD);
+    assert(m_nRT != m_nRD);
+
+    //0
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+
+    //1
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+
+    //2
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
+
+    //3
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
+    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 }
 
 //16
@@ -614,23 +649,31 @@ void CMA_EE::PMULTH()
 //1F
 void CMA_EE::PROT3W()
 {
-    assert(m_nRT != m_nRD);
+    size_t offset[4];
 
-    //3
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+    if(m_nRT == m_nRD)
+    {
+        offset[0] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]);
+        offset[1] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]);
+        offset[2] = offsetof(CMIPS, m_State.nCOP2T);
+        offset[3] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]);
 
-    //2
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+        m_codeGen->PullRel(offset[2]);
+    }
+    else
+    {
+        offset[0] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]);
+        offset[1] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]);
+        offset[2] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]);
+        offset[3] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]);
+    }
 
-    //1
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-
-    //0
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        m_codeGen->PushRel(offset[i]);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+    }
 }
 
 //////////////////////////////////////////////////
@@ -763,7 +806,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::PSUBB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
-	&CMA_EE::PADDSW,		&CMA_EE::Illegal,		&CMA_EE::PEXTLW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTLH,		&CMA_EE::PPACH,
+	&CMA_EE::PADDSW,		&CMA_EE::Illegal,		&CMA_EE::PEXTLW,		&CMA_EE::PPACW,		    &CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTLH,		&CMA_EE::PPACH,
 	//0x18
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTLB,		&CMA_EE::PPACB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXT5,			&CMA_EE::Illegal,
 };

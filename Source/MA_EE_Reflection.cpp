@@ -98,7 +98,7 @@ INSTRUCTION CMA_EE::m_cReflMmi[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PSRLW",	NULL,			CopyMnemonic,		ReflOpRdRtSa,		NULL,				NULL			},
 	{	"PSRAW",	NULL,			CopyMnemonic,		ReflOpRdRtSa,		NULL,				NULL			},
 };
 
@@ -126,7 +126,7 @@ INSTRUCTION CMA_EE::m_cReflMmi0[32] =
 	{	"PADDSW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PEXTLW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PPACW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PEXTLH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},

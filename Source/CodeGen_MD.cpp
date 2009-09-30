@@ -688,6 +688,11 @@ void CCodeGen::MD_SrlH(uint8 amount)
     MD_GenericPackedShift(bind(&CX86Assembler::PsrlwVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
 }
 
+void CCodeGen::MD_SrlW(uint8 amount)
+{
+    MD_GenericPackedShift(bind(&CX86Assembler::PsrldVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
+}
+
 void CCodeGen::MD_Srl256()
 {
     if(m_Shadow.Pull() != RELATIVE) assert(0);

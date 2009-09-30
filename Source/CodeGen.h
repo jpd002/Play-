@@ -198,6 +198,7 @@ public:
     void                            MD_SraH(uint8);
     void                            MD_SraW(uint8);
     void                            MD_SrlH(uint8);
+    void                            MD_SrlW(uint8);
     void                            MD_Srl256();
     void                            MD_SubB();
     void                            MD_SubW();

@@ -69,6 +69,7 @@ private:
 	void							    PSLLH();
 	void							    PSRLH();
 	void							    PSRAH();
+    void                                PSRLW();
     void                                PSRAW();
 
 	//Mmi0
@@ -80,6 +81,7 @@ private:
 	void							    PSUBB();
 	void							    PADDSW();
 	void							    PEXTLW();
+    void                                PPACW();
 	void							    PEXTLH();
 	void							    PPACH();
 	void							    PEXTLB();
