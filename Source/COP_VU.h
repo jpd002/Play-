@@ -101,6 +101,7 @@ private:
 	//V1
     void                                VITOF4();
 	void                                VFTOI4();
+    void                                VABS();
 	void                                VMR32();
 	void                                VSQRT();
 

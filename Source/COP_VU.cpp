@@ -132,10 +132,18 @@ void CCOP_VU::CFC2()
     {
 	    switch(m_nFS)
 	    {
-	    case 16:	//STATUS
-	    case 17:	//MAC flag
 	    case 18:	//Clipping flag
+            m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+            break;
+	    case 16:	//STATUS
 	    case 20:	//R
+            assert(0);
+		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
+            break;
+	    case 17:	//MAC flag
+#ifdef _DEBUG
+            printf("Warning: Reading contents of MAC flag through CFC2.\r\n");
+#endif
 	    case 26:	//TPC
 	    case 28:	//FBRST
 	    case 29:	//VPU-STAT
@@ -406,6 +414,12 @@ void CCOP_VU::VFTOI4()
 	VUShared::FTOI4(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//07
+void CCOP_VU::VABS()
+{
+    VUShared::ABS(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //0C
 void CCOP_VU::VMR32()
 {
@@ -531,7 +545,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 {
 	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,	    &CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,	    &CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::VABS,
 	//0x08
 	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMR32,		&CCOP_VU::Illegal,		&CCOP_VU::VSQRT,		&CCOP_VU::Illegal,
 	//0x10

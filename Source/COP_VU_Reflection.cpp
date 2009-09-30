@@ -309,7 +309,7 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 	{	"VITOF4",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VFTOI4",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VABS",		NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -350,7 +350,7 @@ INSTRUCTION CCOP_VU::m_cReflVX2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	//0x08
+    //0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
