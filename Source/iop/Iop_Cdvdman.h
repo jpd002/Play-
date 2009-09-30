@@ -20,8 +20,10 @@ namespace Iop
 
     private:
         uint32                  CdRead(uint32, uint32, uint32, uint32);
-        uint32                  CdSync();
+        uint32                  CdGetError();
+        uint32                  CdSync(uint32);
         uint32                  CdGetDiskType();
+        uint32                  CdDiskReady(uint32);
 
         CISO9660*               m_image;
         uint8*                  m_ram;

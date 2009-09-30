@@ -31,7 +31,8 @@ namespace Iop
 			MODULE_ID_4 = 0x80000595,
 			MODULE_ID_5 = 0x80000596,
 			MODULE_ID_6 = 0x80000597,
-			MODULE_ID_7 = 0x8000059C,
+            MODULE_ID_7 = 0x8000059A,
+			MODULE_ID_8 = 0x8000059C,
 		};
 
 	private:
@@ -39,6 +40,7 @@ namespace Iop
 		void			    Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		void			    Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		void			    Invoke597(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+        void                Invoke59A(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		void			    Invoke59C(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
 		//Methods
@@ -55,6 +57,7 @@ namespace Iop
         CSifModuleAdapter   m_module593;
         CSifModuleAdapter   m_module595;
         CSifModuleAdapter   m_module597;
+        CSifModuleAdapter   m_module59A;
         CSifModuleAdapter   m_module59C;
 	};
 

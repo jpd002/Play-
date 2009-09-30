@@ -4,8 +4,10 @@
 #define LOG_NAME            "iop_cdvdman"
 
 #define FUNCTION_CDREAD         "CdRead"
+#define FUNCTION_CDGETERROR     "CdGetError"
 #define FUNCTION_CDSYNC         "CdSync"
 #define FUNCTION_CDGETDISKTYPE  "CdGetDiskType"
+#define FUNCTION_CDDISKREADY    "CdDiskReady"
 
 using namespace Iop;
 using namespace std;
@@ -34,11 +36,17 @@ string CCdvdman::GetFunctionName(unsigned int functionId) const
     case 6:
         return FUNCTION_CDREAD;
         break;
+    case 8:
+        return FUNCTION_CDGETERROR;
+        break;
     case 11:
         return FUNCTION_CDSYNC;
         break;
     case 12:
         return FUNCTION_CDGETDISKTYPE;
+        break;
+    case 13:
+        return FUNCTION_CDDISKREADY;
         break;
     default:
         return "unknown";
@@ -57,11 +65,17 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
             ctx.m_State.nGPR[CMIPS::A2].nV0,
             ctx.m_State.nGPR[CMIPS::A3].nV0);
         break;
+    case 8:
+        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetError();
+        break;
     case 11:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSync();
+        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSync(ctx.m_State.nGPR[CMIPS::A0].nV0);
         break;
     case 12:
         ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetDiskType();
+        break;
+    case 13:
+        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdDiskReady(ctx.m_State.nGPR[CMIPS::A0].nV0);
         break;
     default:
         CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
@@ -98,10 +112,17 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
     return 1;
 }
 
-uint32 CCdvdman::CdSync()
+uint32 CCdvdman::CdGetError()
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "();\r\n");
-    return 1;
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETERROR "();\r\n");
+    return 0;
+}
+
+uint32 CCdvdman::CdSync(uint32 mode)
+{
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "(mode = %i);\r\n",
+        mode);
+    return 0;
 }
 
 uint32 CCdvdman::CdGetDiskType()
@@ -109,4 +130,11 @@ uint32 CCdvdman::CdGetDiskType()
     CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
     //0x14 = PS2DVD
     return 0x14;
+}
+
+uint32 CCdvdman::CdDiskReady(uint32 mode)
+{
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %i);\r\n",
+        mode);
+    return 2;
 }

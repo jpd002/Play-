@@ -24,6 +24,8 @@ m_iopRam(iopRam)
         PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
     m_module597 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke597, this,
         PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+    m_module59A = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59A, this,
+        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
     m_module59C = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59C, this,
         PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
 
@@ -31,7 +33,8 @@ m_iopRam(iopRam)
     sif.RegisterModule(MODULE_ID_2, &m_module593);
     sif.RegisterModule(MODULE_ID_4, &m_module595);
     sif.RegisterModule(MODULE_ID_6, &m_module597);
-    sif.RegisterModule(MODULE_ID_7, &m_module59C);
+    sif.RegisterModule(MODULE_ID_7, &m_module59A);
+    sif.RegisterModule(MODULE_ID_8, &m_module59C);
 }
 
 CCdvdfsv::~CCdvdfsv()
@@ -193,6 +196,11 @@ void CCdvdfsv::Invoke597(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x597, method);
 		break;
 	}
+}
+
+void CCdvdfsv::Invoke59A(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+    Invoke59C(method, args, argsSize, ret, retSize, ram);
 }
 
 void CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
