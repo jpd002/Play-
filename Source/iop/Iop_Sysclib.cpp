@@ -22,7 +22,21 @@ string CSysclib::GetId() const
 
 string CSysclib::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+    switch(functionId)
+    {
+    case 19:
+        return "sprintf";
+        break;
+    case 23:
+        return "strcpy";
+        break;
+    case 27:
+        return "strlen";
+        break;
+    default:
+        return "unknown";
+        break;
+    }
 }
 
 void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
