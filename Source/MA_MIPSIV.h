@@ -75,6 +75,7 @@ protected:
 	typedef std::tr1::function<void ()> TemplateOperationFunctionType;
 
 	void Template_Add32(bool);
+    void Template_Add64(bool);
 	void Template_Sub32(bool);
 	void Template_LoadUnsigned32(void*);
     void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
@@ -178,6 +179,7 @@ private:
 	void							NOR();
 	void							SLT();
 	void							SLTU();
+    void                            DADD();
 	void							DADDU();
 	void							DSUBU();
 	void							DSLL();

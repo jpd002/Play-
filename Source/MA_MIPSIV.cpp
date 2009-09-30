@@ -1041,19 +1041,16 @@ void CMA_MIPSIV::SLTU()
 	Template_SetLessThanReg(false);
 }
 
+//2C
+void CMA_MIPSIV::DADD()
+{
+    Template_Add64(true);
+}
+
 //2D
 void CMA_MIPSIV::DADDU()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->Add64();
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+    Template_Add64(false);
 }
 
 //2F
@@ -1216,7 +1213,7 @@ CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpSpecial[MAX_SPECIAL_OPS] =
 	//0x20
 	&CMA_MIPSIV::ADD,			&CMA_MIPSIV::ADDU,			&CMA_MIPSIV::SUB,	    	&CMA_MIPSIV::SUBU,			&CMA_MIPSIV::AND,			&CMA_MIPSIV::OR,			&CMA_MIPSIV::XOR,			&CMA_MIPSIV::NOR,
 	//0x28
-	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SLT,			&CMA_MIPSIV::SLTU,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DADDU,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSUBU,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SLT,			&CMA_MIPSIV::SLTU,			&CMA_MIPSIV::DADD,  		&CMA_MIPSIV::DADDU,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSUBU,
 	//0x30
 	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x38

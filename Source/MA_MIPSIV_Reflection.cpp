@@ -357,7 +357,7 @@ INSTRUCTION CMA_MIPSIV::m_cReflSpecial[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"SLT",		NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"SLTU",		NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	"DADD",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
+	{	"DADD",		NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"DADDU",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"DSUB",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	"DSUBU",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
