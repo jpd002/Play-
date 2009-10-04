@@ -39,6 +39,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpSpecial2[0x34] = bind(&CMA_EE::PSLLH, this);
 	m_pOpSpecial2[0x36] = bind(&CMA_EE::PSRLH, this);
 	m_pOpSpecial2[0x37] = bind(&CMA_EE::PSRAH, this);
+    m_pOpSpecial2[0x3C] = bind(&CMA_EE::PSLLW, this);
     m_pOpSpecial2[0x3E] = bind(&CMA_EE::PSRLW, this);
     m_pOpSpecial2[0x3F] = bind(&CMA_EE::PSRAW, this);
 
@@ -282,6 +283,14 @@ void CMA_EE::PSRAH()
 {
     PushVector(m_nRT);
     m_codeGen->MD_SraH(m_nSA);
+    PullVector(m_nRD);
+}
+
+//3C
+void CMA_EE::PSLLW()
+{
+    PushVector(m_nRT);
+    m_codeGen->MD_SllW(m_nSA);
     PullVector(m_nRD);
 }
 

@@ -96,7 +96,7 @@ INSTRUCTION CMA_EE::m_cReflMmi[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PSLLW",	NULL,			CopyMnemonic,		ReflOpRdRtSa,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PSRLW",	NULL,			CopyMnemonic,		ReflOpRdRtSa,		NULL,				NULL			},
 	{	"PSRAW",	NULL,			CopyMnemonic,		ReflOpRdRtSa,		NULL,				NULL			},

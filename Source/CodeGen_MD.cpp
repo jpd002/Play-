@@ -673,6 +673,11 @@ void CCodeGen::MD_SllH(uint8 amount)
     MD_GenericPackedShift(bind(&CX86Assembler::PsllwVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
 }
 
+void CCodeGen::MD_SllW(uint8 amount)
+{
+    MD_GenericPackedShift(bind(&CX86Assembler::PslldVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
+}
+
 void CCodeGen::MD_SraH(uint8 amount)
 {
     MD_GenericPackedShift(bind(&CX86Assembler::PsrawVo, &m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2), amount);
@@ -695,8 +700,8 @@ void CCodeGen::MD_SrlW(uint8 amount)
 
 void CCodeGen::MD_Srl256()
 {
-    if(m_Shadow.Pull() != RELATIVE) assert(0);
-    uint32 shiftAmount = m_Shadow.Pull();
+    uint32 shiftAmountType  = m_Shadow.Pull();
+    uint32 shiftAmount      = m_Shadow.Pull();
     if(m_Shadow.Pull() != RELATIVE128) assert(0);
     uint32 operand2 = m_Shadow.Pull();
     if(m_Shadow.Pull() != RELATIVE128) assert(0);
@@ -721,9 +726,20 @@ void CCodeGen::MD_Srl256()
 
 	//Setup SA
 	//-----------------------------
-    m_Assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, shiftAmount));
-    m_Assembler.AndId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), 0x7F);
-    m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), 0x03);
+    if(shiftAmountType == RELATIVE)
+    {
+        m_Assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(g_nBaseRegister, shiftAmount));
+        m_Assembler.AndId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), 0x7F);
+        m_Assembler.ShrEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), 0x03);
+    }
+    else if(shiftAmountType == CONSTANT)
+    {
+        m_Assembler.MovId(CX86Assembler::rAX, (shiftAmount & 0x7F) >> 3);
+    }
+    else
+    {
+        throw std::exception();
+    }
 
 	//Setup ESI
 	//-----------------------------

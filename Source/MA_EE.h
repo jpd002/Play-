@@ -69,6 +69,7 @@ private:
 	void							    PSLLH();
 	void							    PSRLH();
 	void							    PSRAH();
+    void                                PSLLW();
     void                                PSRLW();
     void                                PSRAW();
 

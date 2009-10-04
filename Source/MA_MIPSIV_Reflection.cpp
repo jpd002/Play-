@@ -73,6 +73,16 @@ void CMA_MIPSIV::ReflOpRtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	sprintf(sText, "%s, $%0.4X(%s)", CMIPS::m_sGPRName[nRT], nImm, CMIPS::m_sGPRName[nRS]);
 }
 
+void CMA_MIPSIV::ReflOpHintOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8 nRS       = (uint8) ((nOpcode >> 21) & 0x001F);
+	uint8 nHint     = (uint8) ((nOpcode >> 16) & 0x001F);
+	uint16 nImm     = (uint16)((nOpcode >>  0) & 0xFFFF);
+
+	nAddress += 4;
+	sprintf(sText, "%i, $%0.4X(%s)", nHint, nImm, CMIPS::m_sGPRName[nRS]);
+}
+
 void CMA_MIPSIV::ReflOpIdOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nRS, nRT;
@@ -289,7 +299,7 @@ INSTRUCTION CMA_MIPSIV::m_cReflGeneral[64] =
 	{	"LL",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	"LWC1",		(SUBTABLE*)1,	ReflCOPMnemonic,	ReflCOPOperands,	ReflCOPIsBranch,	ReflCOPEffeAddr	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"PREF",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
+	{	"PREF",		NULL,			CopyMnemonic,		ReflOpHintOffRs,	NULL,				NULL			},
 	{	"LLD",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"LDC2",		(SUBTABLE*)2,	ReflCOPMnemonic,	ReflCOPOperands,	ReflCOPIsBranch,	ReflCOPEffeAddr	},

@@ -195,6 +195,7 @@ public:
     void                            MD_PackHB();
     void                            MD_PackWH();
     void                            MD_SllH(uint8);
+    void                            MD_SllW(uint8);
     void                            MD_SraH(uint8);
     void                            MD_SraW(uint8);
     void                            MD_SrlH(uint8);
