@@ -71,6 +71,7 @@ private:
 	void                                VMINIbc();
 	void                                VMULbc();
 	void                                VMULq();
+    void                                VMINIi();
 	void                                VADDq();
 	void                                VADD();
 	void                                VMUL();

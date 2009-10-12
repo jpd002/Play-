@@ -183,6 +183,24 @@ void CCOP_VU::CTC2()
     {
         throw runtime_error("Not implemented.");
     }
+    else
+    {
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
+
+        switch(m_nFS)
+        {
+	    case 21:
+		    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
+		    break;
+        case 28:
+            //FBRST - Don't care
+            m_codeGen->PullTop();
+            break;
+        default:
+            throw runtime_error("Not implemented.");
+            break;
+        }
+    }
 }
 
 //10-1F
@@ -256,6 +274,12 @@ void CCOP_VU::VMULbc()
 void CCOP_VU::VMULq()
 {
 	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
+}
+
+//1F
+void CCOP_VU::VMINIi()
+{
+    VUShared::MINIi(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //20
@@ -519,7 +543,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x10
 	&CCOP_VU::VMAXbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
-	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIi,
 	//0x20
 	&CCOP_VU::VADDq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x28

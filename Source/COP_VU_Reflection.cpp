@@ -220,7 +220,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+    {	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
 	//0x20
 	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
