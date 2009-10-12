@@ -279,6 +279,7 @@ private:
 		void							    MFP();
 		void							    XTOP();
 		void							    XGKICK();
+        void                                ESQRT();
         void                                ESIN();
 
 		//Vector1
@@ -292,6 +293,7 @@ private:
         void                                RSQRT();
 		void							    ILWR();
 		void							    RINIT();
+        void                                ELENG();
 		void							    ERCPR();
 
 		//Vector3

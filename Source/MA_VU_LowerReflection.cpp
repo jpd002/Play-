@@ -657,7 +657,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX0[32] =
 	{	"XGKICK",	NULL,			CopyMnemonic,		ReflOpIs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ESQRT",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 	{	"ESIN",	    NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 };
 
@@ -735,7 +735,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ELENG",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"ERCPR",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

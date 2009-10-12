@@ -651,6 +651,14 @@ void CMA_VU::CLower::XGKICK()
     m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
 }
 
+//1E
+void CMA_VU::CLower::ESQRT()
+{
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
+    m_codeGen->FP_Sqrt();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+}
+
 //1F
 void CMA_VU::CLower::ESIN()
 {
@@ -784,6 +792,38 @@ void CMA_VU::CLower::RINIT()
     VUShared::RINIT(m_codeGen, m_nIS, m_nFSF);
 }
 
+//1C
+void CMA_VU::CLower::ELENG()
+{
+    ///////////////////////////////////////////////////
+    //Raise all components to the power of 2
+
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+    m_codeGen->PushTop();
+    m_codeGen->FP_Mul();
+
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+    m_codeGen->PushTop();
+    m_codeGen->FP_Mul();
+
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+    m_codeGen->PushTop();
+    m_codeGen->FP_Mul();
+
+    ///////////////////////////////////////////////////
+    //Sum all components
+
+    m_codeGen->FP_Add();
+    m_codeGen->FP_Add();
+
+    ///////////////////////////////////////////////////
+    //Extract root
+
+    m_codeGen->FP_Sqrt();
+
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+}
+
 //1E
 void CMA_VU::CLower::ERCPR()
 {
@@ -909,7 +949,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector0[0x20] =
 	//0x10
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFP,			&CMA_VU::CLower::XTOP,			&CMA_VU::CLower::XGKICK,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ESIN,
+    &CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFP,			&CMA_VU::CLower::XTOP,			&CMA_VU::CLower::XGKICK,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ESQRT, 		&CMA_VU::CLower::ESIN,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =
@@ -933,7 +973,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector2[0x20] =
 	//0x10
 	&CMA_VU::CLower::RINIT,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ERCPR,			&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ELENG,		    &CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ERCPR,			&CMA_VU::CLower::Illegal,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
