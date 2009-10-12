@@ -5,7 +5,7 @@
 #include "uint128.h"
 #include <map>
 
-class CRegisterStateFile : public CZipFile
+class CRegisterStateFile : public Framework::CZipFile
 {
 public:
                         CRegisterStateFile(const char*);

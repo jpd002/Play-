@@ -6,7 +6,7 @@
 #include "StructFile.h"
 #include "uint128.h"
 
-class CStructCollectionStateFile : public CZipFile
+class CStructCollectionStateFile : public Framework::CZipFile
 {
 public:
     typedef std::map<std::string, CStructFile> StructMap;	

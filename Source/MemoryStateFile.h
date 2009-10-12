@@ -3,7 +3,7 @@
 
 #include "zip/ZipFile.h"
 
-class CMemoryStateFile : public CZipFile
+class CMemoryStateFile : public Framework::CZipFile
 {
 public:
                     CMemoryStateFile(const char*, void*, size_t);
