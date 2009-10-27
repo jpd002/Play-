@@ -61,7 +61,7 @@ void CPsfDevice::ReadDirectory(CStream& stream, DIRECTORY& baseDirectory)
         node.blockSize = stream.Read32();
 
         uint64 currentPosition = stream.Tell();
-        stream.Seek(node.offset, STREAM_SEEK_SET);
+		stream.Seek(node.offset, Framework::STREAM_SEEK_SET);
         if(node.IsDirectory())
         {
             DIRECTORY* directory = new DIRECTORY(node);
@@ -74,7 +74,7 @@ void CPsfDevice::ReadDirectory(CStream& stream, DIRECTORY& baseDirectory)
             ReadFile(stream, *file);
             baseDirectory.fileList.push_back(file);
         }
-        stream.Seek(currentPosition, STREAM_SEEK_SET);
+		stream.Seek(currentPosition, Framework::STREAM_SEEK_SET);
     }
 }
 

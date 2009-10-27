@@ -3,6 +3,7 @@
 
 using namespace PS2;
 using namespace std;
+using namespace Framework;
 
 #define PSF_DEVICENAME	"psf"
 
