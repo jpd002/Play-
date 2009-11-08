@@ -1,7 +1,9 @@
 #include <stdexcept>
+#include <assert.h>
 #include "SH_WaveOut.h"
 
 #define SAMPLE_RATE 44100
+//#define SAMPLES_PER_UPDATE	(44 * 2)
 
 using namespace std;
 
@@ -10,13 +12,13 @@ m_waveOut(NULL)
 {
 	WAVEFORMATEX waveFormat;
 	memset(&waveFormat, 0, sizeof(WAVEFORMATEX));
-	waveFormat.nSamplesPerSec = SAMPLE_RATE;
-	waveFormat.wBitsPerSample = 16;
-	waveFormat.nChannels = 2;
-	waveFormat.cbSize = 0;
-	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
-	waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+	waveFormat.nSamplesPerSec   = SAMPLE_RATE;
+	waveFormat.wBitsPerSample   = 16;
+	waveFormat.nChannels        = 2;
+	waveFormat.cbSize           = 0;
+	waveFormat.wFormatTag       = WAVE_FORMAT_PCM;
+	waveFormat.nBlockAlign      = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
+	waveFormat.nAvgBytesPerSec  = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
 
 	if(waveOutOpen(&m_waveOut, WAVE_MAPPER, &waveFormat, 
 		reinterpret_cast<DWORD_PTR>(&CSH_WaveOut::WaveOutProcStub), 
@@ -26,15 +28,15 @@ m_waveOut(NULL)
 		throw runtime_error("Couldn't initialize WaveOut device.");
 	}
 
-	m_bufferMemory = new int16[MAX_BUFFERS * SAMPLES_PER_UPDATE];
-	memset(m_bufferMemory, 0, sizeof(int16) * MAX_BUFFERS * SAMPLES_PER_UPDATE);
+//	m_bufferMemory = new int16[MAX_BUFFERS * SAMPLES_PER_UPDATE];
+//	memset(m_bufferMemory, 0, sizeof(int16) * MAX_BUFFERS * SAMPLES_PER_UPDATE);
 
 	for(unsigned int i = 0; i < MAX_BUFFERS; i++)
 	{
 		WAVEHDR& buffer(m_buffer[i]);
 		memset(&buffer, 0, sizeof(WAVEHDR));
-		buffer.dwBufferLength	= sizeof(int16) * SAMPLES_PER_UPDATE;
-		buffer.lpData			= reinterpret_cast<LPSTR>(m_bufferMemory + (i * SAMPLES_PER_UPDATE));
+//		buffer.dwBufferLength	= sizeof(int16) * SAMPLES_PER_UPDATE;
+//		buffer.lpData			= reinterpret_cast<LPSTR>(m_bufferMemory + (i * SAMPLES_PER_UPDATE));
 		buffer.dwFlags			= WHDR_DONE;
 	}
 }
@@ -43,10 +45,18 @@ CSH_WaveOut::~CSH_WaveOut()
 {
 	waveOutReset(m_waveOut);
 	waveOutClose(m_waveOut);
-	delete [] m_bufferMemory;
+    for(unsigned int i = 0; i < MAX_BUFFERS; i++)
+    {
+		WAVEHDR& buffer(m_buffer[i]);
+        if(buffer.lpData != NULL)
+        {
+            delete [] buffer.lpData;
+        }
+    }
+//	delete [] m_bufferMemory;
 }
 
-CSpuHandler* CSH_WaveOut::HandlerFactory()
+CSoundHandler* CSH_WaveOut::HandlerFactory()
 {
 	return new CSH_WaveOut();
 }
@@ -85,12 +95,17 @@ void CSH_WaveOut::Reset()
 	waveOutReset(m_waveOut);
 }
 
+void CSH_WaveOut::RecycleBuffers()
+{
+
+}
+
 bool CSH_WaveOut::HasFreeBuffers()
 {
 	return GetFreeBuffer() != NULL;
 }
 
-void CSH_WaveOut::Update(Iop::CSpuBase& spu0, Iop::CSpuBase& spu1)
+void CSH_WaveOut::Write(int16* buffer, unsigned int sampleCount, unsigned int sampleRate)
 {
 	WAVEHDR* waveHeader = GetFreeBuffer();
 	if(waveHeader == NULL) return;
@@ -99,15 +114,21 @@ void CSH_WaveOut::Update(Iop::CSpuBase& spu0, Iop::CSpuBase& spu1)
 	{
 		waveOutUnprepareHeader(m_waveOut, waveHeader, sizeof(WAVEHDR));
 		waveHeader->dwFlags = 0;
+        delete [] waveHeader->lpData;
+        waveHeader->lpData = NULL;
 	}
 
-	unsigned int sampleCount = SAMPLES_PER_UPDATE;
-	unsigned int sampleRate = SAMPLE_RATE;
-	size_t bufferSize = sampleCount * sizeof(int16);
-	int16* samples = reinterpret_cast<int16*>(waveHeader->lpData);
-	memset(samples, 0, bufferSize);
+	//assert((sampleCount * 2) == SAMPLES_PER_UPDATE);
 
-	MixInputs(samples, sampleCount, sampleRate, spu0, spu1);
+//    size_t bufferSize = sampleCount * sizeof(int16) * 2;
+    size_t bufferSize = sampleCount * sizeof(int16);
+//	int16* samples = reinterpret_cast<int16*>(waveHeader->lpData);
+//	memcpy(samples, buffer, bufferSize);
+
+    waveHeader->dwBufferLength  = bufferSize;
+    waveHeader->lpData          = new CHAR[bufferSize];
+//    waveHeader->lpData          = reinterpret_cast<LPSTR>(buffer);
+    memcpy(waveHeader->lpData, buffer, bufferSize);
 
 	waveOutPrepareHeader(m_waveOut, waveHeader, sizeof(WAVEHDR));
 	waveOutWrite(m_waveOut, waveHeader, sizeof(WAVEHDR));

@@ -18,8 +18,8 @@ public:
 
     void                    LoadExe(uint8*);
 
-    void                    SaveState(CZipArchiveWriter&);
-    void                    LoadState(CZipArchiveReader&);
+    void                    SaveState(Framework::CZipArchiveWriter&);
+    void                    LoadState(Framework::CZipArchiveReader&);
 
     bool                    IsIdle();
 

@@ -21,22 +21,32 @@ namespace filesystem = boost::filesystem;
 #define FRAMES_PER_SEC	(60)
 
 const int g_frameTicks = (PS2::IOP_CLOCK_FREQ / FRAMES_PER_SEC);
-const int g_spuUpdateTicks = (4 * PS2::IOP_CLOCK_FREQ / 1000);
+const int g_spuUpdateTicks = (1 * PS2::IOP_CLOCK_FREQ / 1000);
 
 CPsfVm::CPsfVm() :
 m_status(PAUSED),
 m_singleStep(false),
-m_thread(bind(&CPsfVm::ThreadProc, this)),
 m_spuUpdateCounter(g_spuUpdateTicks),
 m_spuHandler(NULL),
 m_frameCounter(g_frameTicks)
 {
-
+    m_isThreadOver = false;
+    m_thread = new boost::thread(bind(&CPsfVm::ThreadProc, this));
 }
 
 CPsfVm::~CPsfVm()
 {
-	delete m_spuHandler;
+    if(m_thread)
+    {
+        Pause();
+        m_isThreadOver = true;
+        m_thread->join();
+
+        delete m_thread;
+        m_thread = NULL;
+
+        assert(m_spuHandler == NULL);
+    }
 }
 
 void CPsfVm::Reset()
@@ -210,7 +220,16 @@ void CPsfVm::ThreadProc()
 #ifdef DEBUGGER_INCLUDED
     uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
 #endif
-	while(1)
+
+//    const int sampleCount = 176;
+    const int sampleCount = 44;
+    const int blockSize = sampleCount * 2;
+    const int blockCount = 10;
+    int16 samples[blockSize * blockCount];
+    int16 samplesSpu1[blockSize];
+    int currentBlock = 0;
+
+	while(!m_isThreadOver)
 	{
 		while(m_mailBox.IsPending())
 		{
@@ -219,10 +238,7 @@ void CPsfVm::ThreadProc()
 		if(m_status == PAUSED)
 		{
             //Sleep during 100ms
-			boost::xtime xt;
-            boost::xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += 100 * 1000000;
-			boost::thread::sleep(xt);
+            boost::this_thread::sleep(boost::posix_time::milliseconds(16));
 		}
 		else
 		{
@@ -259,40 +275,90 @@ void CPsfVm::ThreadProc()
 				m_OnRunningStateChange();
 			}
 #else
-			if(m_spuHandler && m_spuHandler->HasFreeBuffers())
-			{
-				while(m_spuHandler->HasFreeBuffers() && !m_mailBox.IsPending())
-				{
-					while(m_spuUpdateCounter > 0)
-					{
-						int ticks = m_iop.ExecuteCpu(false);
-						m_spuUpdateCounter -= ticks;
-						m_frameCounter -= ticks;
-						if(m_frameCounter < 0)
-						{
-							m_frameCounter += g_frameTicks;
-							m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-							if(!OnNewFrame.empty())
-							{
-								OnNewFrame();
-							}
-						}
-					}
+            if(!m_spuHandler || !m_spuHandler->HasFreeBuffers())
+            {
+                boost::this_thread::sleep(boost::posix_time::milliseconds(16));
+                m_spuHandler->RecycleBuffers();
+            }
+            else
+            {
+                int ticks = m_iop.ExecuteCpu(false);
+                //if(!OnBufferWrite.empty()) OnBufferWrite(ticks);
+                m_spuUpdateCounter -= ticks;
+                m_frameCounter -= ticks;
+                if(m_spuUpdateCounter < 0)
+                {
+                    m_spuUpdateCounter += g_spuUpdateTicks;
+                    unsigned int blockOffset = (blockSize * currentBlock);
+                    int16* samplesSpu0 = samples + blockOffset;
+                    
+                    memset(samplesSpu0, 0, blockSize * 2);
+                    m_iop.m_spuCore0.Render(samplesSpu0, blockSize, 44100);
 
-					m_spuHandler->Update(m_iop.m_spuCore0, m_iop.m_spuCore1);
-					m_spuUpdateCounter += g_spuUpdateTicks;
-				}
-			}
-			else
-			{
-				//Sleep during 16ms
-				boost::xtime xt;
-				boost::xtime_get(&xt, boost::TIME_UTC);
-				xt.nsec += 10 * 1000000;
-				boost::thread::sleep(xt);
-//				thread::yield();
-			}
+                    memset(samplesSpu1, 0, blockSize * 2);
+                    m_iop.m_spuCore1.Render(samplesSpu1, blockSize, 44100);
+
+                    for(unsigned int i = 0; i < blockSize; i++)
+                    {
+	                    int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
+	                    resultSample = max<int32>(resultSample, SHRT_MIN);
+	                    resultSample = min<int32>(resultSample, SHRT_MAX);
+	                    samplesSpu0[i] = static_cast<int16>(resultSample);
+                    }
+                    //if(!OnBufferWrite.empty()) OnBufferWrite(blockSize / 2);
+                    currentBlock++;
+                    if(currentBlock == blockCount)
+                    {
+                        m_spuHandler->Write(samples, blockSize * blockCount, 44100);
+                        currentBlock = 0;
+                    }
+                }
+                if(m_frameCounter < 0)
+                {
+				    m_frameCounter += g_frameTicks;
+				    m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
+				    if(!OnNewFrame.empty())
+				    {
+					    OnNewFrame();
+				    }
+                }
+            }
+            //if(m_spuHandler && m_spuHandler->HasFreeBuffers())
+			//{
+			//	while(m_spuHandler->HasFreeBuffers() && !m_mailBox.IsPending())
+			//	{
+			//		while(m_spuUpdateCounter > 0)
+			//		{
+			//			int ticks = m_iop.ExecuteCpu(false);
+			//			m_spuUpdateCounter -= ticks;
+			//			m_frameCounter -= ticks;
+			//			if(m_frameCounter < 0)
+			//			{
+			//				m_frameCounter += g_frameTicks;
+			//				m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
+			//				if(!OnNewFrame.empty())
+			//				{
+			//					OnNewFrame();
+			//				}
+			//			}
+			//		}
+
+			//		m_spuHandler->Update(m_iop.m_spuCore0, m_iop.m_spuCore1);
+			//		m_spuUpdateCounter += g_spuUpdateTicks;
+			//	}
+			//}
+			//else
+			//{
+			//	//Sleep during 16ms
+   //             boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			//}
 #endif
 		}
 	}
+
+    if(m_spuHandler != NULL)
+    {
+        delete m_spuHandler;
+        m_spuHandler = NULL;
+    }
 }

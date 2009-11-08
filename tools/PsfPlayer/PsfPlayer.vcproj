@@ -41,14 +41,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;&quot;$(ProjectDir)\Source&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				ForcedIncludeFiles="StdAfx.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib winmm.lib OpenAL32.lib"
+				AdditionalDependencies="comctl32.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -116,13 +117,14 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;&quot;$(ProjectDir)\Source&quot;"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MSVC;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				ForcedIncludeFiles="StdAfx.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -135,7 +137,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib OpenAL32.lib winmm.lib"
+				AdditionalDependencies="comctl32.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -260,19 +262,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\SH_OpenAL.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SH_OpenAL.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SpuHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SpuHandler.h"
+				RelativePath=".\Source\SoundHandler.h"
 				>
 			</File>
 			<Filter
@@ -315,6 +305,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\win32_ui\MainWindow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\MainWindow.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\win32_ui\MiniDebugger.cpp"
 					>
 				</File>
@@ -339,19 +337,35 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\win32_ui\SH_WaveOut.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\win32_ui\SH_WaveOut.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\win32_ui\SpuRegView.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\win32_ui\SpuRegView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\StdAfx.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="1"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="1"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\StdAfx.h"
 					>
 				</File>
 			</Filter>
@@ -627,6 +641,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Source\iop\Iop_Cdvdman.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\iop\Iop_Cdvdman.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\iop\Iop_Dmac.cpp"
 					>
 				</File>
@@ -867,7 +889,71 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="iso9660"
+				>
+				<File
+					RelativePath="..\..\Source\ISO9660\DirectoryRecord.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\DirectoryRecord.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\File.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\File.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\ISO9660.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\ISO9660.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\PathTable.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\PathTable.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\PathTableRecord.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\PathTableRecord.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\VolumeDescriptor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ISO9660\VolumeDescriptor.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
+		<File
+			RelativePath=".\Source\win32_ui\images\arrow.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\win32_ui\images\bpoint.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\win32_ui\images\PsfPlayer.ico"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -3,19 +3,20 @@
 
 #include <windows.h>
 #include <mmsystem.h>
-#include "SpuHandler.h"
+#include "..\SoundHandler.h"
 
-class CSH_WaveOut : public CSpuHandler
+class CSH_WaveOut : public CSoundHandler
 {
 public:
 							CSH_WaveOut();
 	virtual					~CSH_WaveOut();
 
-	static CSpuHandler*		HandlerFactory();
+	static CSoundHandler*	HandlerFactory();
 
 	void					Reset();
-	void					Update(Iop::CSpuBase&, Iop::CSpuBase&);
 	bool					HasFreeBuffers();
+    void                    RecycleBuffers();
+    void                    Write(int16*, unsigned int, unsigned int);
 
 private:
 	enum
@@ -29,7 +30,7 @@ private:
 
 	HWAVEOUT				m_waveOut;
 	WAVEHDR					m_buffer[MAX_BUFFERS];
-	int16*					m_bufferMemory;
+//	int16*					m_bufferMemory;
 };
 
 #endif

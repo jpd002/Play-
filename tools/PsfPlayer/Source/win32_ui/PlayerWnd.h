@@ -29,6 +29,7 @@ private:
     };
 
 	static HACCEL							CreateAccelerators();
+	static CSoundHandler*					CreateHandler(const TCHAR*);
 
 	void									Load(const char*);
 	void									PauseResume();

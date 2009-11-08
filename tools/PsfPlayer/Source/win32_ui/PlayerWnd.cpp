@@ -2,8 +2,6 @@
 #include "AppConfig.h"
 #include "PlayerWnd.h"
 #include "PsfLoader.h"
-#include "SH_WaveOut.h"
-#include "SH_OpenAL.h"
 #include "win32/Rect.h"
 #include "win32/FileDialog.h"
 #include "win32/AcceleratorTableGenerator.h"
@@ -67,8 +65,9 @@ m_accel(CreateAccelerators())
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 
 	m_virtualMachine.OnNewFrame.connect(bind(&CPlayerWnd::OnNewFrame, this));
-	m_virtualMachine.SetSpuHandler(&CSH_WaveOut::HandlerFactory);
-//	m_virtualMachine.SetSpuHandler(&CSH_OpenAL::HandlerFactory);
+	
+//	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CPlayerWnd::CreateHandler, _T("SH_WaveOut.dll")));
+	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CPlayerWnd::CreateHandler, _T("SH_OpenAL.dll")));
 }
 
 CPlayerWnd::~CPlayerWnd()
@@ -171,6 +170,15 @@ HACCEL CPlayerWnd::CreateAccelerators()
 	tableGenerator.Insert(ID_FILE_PAUSE,			VK_F5,	FVIRTKEY);
 	tableGenerator.Insert(ID_SETTINGS_ENABLEREVERB,	'R',	FVIRTKEY | FCONTROL);	
 	return tableGenerator.Create();
+}
+
+CSoundHandler* CPlayerWnd::CreateHandler(const TCHAR* libraryPath)
+{
+	typedef CSoundHandler* (*HandlerFactoryFunction)();
+	HMODULE module = LoadLibrary(libraryPath);
+	HandlerFactoryFunction handlerFactory = reinterpret_cast<HandlerFactoryFunction>(GetProcAddress(module, "HandlerFactory"));
+	CSoundHandler* result = handlerFactory();
+	return result;
 }
 
 void CPlayerWnd::PauseResume()

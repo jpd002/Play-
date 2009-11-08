@@ -3,7 +3,7 @@
 
 #include "Types.h"
 #include "MIPS.h"
-#include "SpuHandler.h"
+#include "SoundHandler.h"
 #include "iop/Iop_SubSystem.h"
 #include "VirtualMachine.h"
 #include "Debuggable.h"
@@ -15,7 +15,7 @@
 class CPsfVm : public CVirtualMachine
 {
 public:
-	typedef std::tr1::function<CSpuHandler* ()> SpuHandlerFactory;
+	typedef std::tr1::function<CSoundHandler* ()> SpuHandlerFactory;
 
 						CPsfVm();
 	virtual				~CPsfVm();
@@ -46,6 +46,7 @@ public:
 #endif
 
 	boost::signal<void ()> OnNewFrame;
+    boost::signal<void (int)> OnBufferWrite;
 
 private:
 	MipsModuleList		GetIopModules();
@@ -58,11 +59,12 @@ private:
 
 	STATUS				m_status;
 	Iop::CSubSystem		m_iop;
-	CSpuHandler*		m_spuHandler;
-	boost::thread		m_thread;
+	CSoundHandler*		m_spuHandler;
+	boost::thread*		m_thread;
 	bool				m_singleStep;
     int                 m_spuUpdateCounter;
     int                 m_frameCounter;
+    bool                m_isThreadOver;
 	CMailBox			m_mailBox;
 };
 

@@ -92,6 +92,35 @@ IDI_MAIN                ICON                    "images\\PsfPlayer.ico"
 /////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////
+// French (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
+#ifdef _WIN32
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_TRAY_POPUP MENU 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Audio Plugin",                ID_FILE_AUDIOPLUGIN
+        MENUITEM SEPARATOR
+        MENUITEM "About",                       ID_FILE_ABOUT
+        MENUITEM "Quit",                        ID_FILE_EXIT
+    END
+END
+
+#endif    // French (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
