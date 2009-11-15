@@ -547,7 +547,7 @@ float CSpuBase::GetReverbCoef(unsigned int registerId) const
 void CSpuBase::UpdateAdsr(CHANNEL& channel)
 {
 	static unsigned int logIndex[8] = { 0, 4, 6, 8, 9, 10, 11, 12 };
-	int64 currentAdsrLevel = channel.adsrVolume;
+	int32 currentAdsrLevel = channel.adsrVolume;
 	if(channel.status == ATTACK)
 	{
 		if(channel.adsrLevel.attackMode == 0)
@@ -567,8 +567,9 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 			}
 		}
 		//Terminasion condition
-		if(currentAdsrLevel >= MAX_ADSR_VOLUME)
+		if(currentAdsrLevel < 0)
 		{
+			currentAdsrLevel = MAX_ADSR_VOLUME;
 			channel.status = DECAY;
 		}
 	}
@@ -577,7 +578,7 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 		unsigned int decayType = (static_cast<uint32>(currentAdsrLevel) >> 28) & 0x7;
 		currentAdsrLevel -= GetAdsrDelta((4 * (channel.adsrLevel.decayRate ^ 0x1F)) - 0x18 + logIndex[decayType]);
 		//Terminasion condition
-		if(((currentAdsrLevel >> 27) & 0xF) <= channel.adsrLevel.sustainLevel)
+		if(static_cast<unsigned int>((currentAdsrLevel >> 27) & 0xF) <= channel.adsrLevel.sustainLevel)
 		{
 			channel.status = SUSTAIN;
 		}
@@ -602,6 +603,11 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 					currentAdsrLevel += GetAdsrDelta((channel.adsrRate.sustainRate ^ 0x7F) - 0x18);
 				}
 			}
+
+			if(currentAdsrLevel < 0)
+			{
+				currentAdsrLevel = MAX_ADSR_VOLUME;
+			}
 		}
 		else
 		{
@@ -615,6 +621,11 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 			{
 				unsigned int sustainType = (static_cast<uint32>(currentAdsrLevel) >> 28) & 0x7;
 				currentAdsrLevel -= GetAdsrDelta((channel.adsrRate.sustainRate ^ 0x7F) - 0x1B + logIndex[sustainType]);
+			}
+
+			if(currentAdsrLevel < 0)
+			{
+				currentAdsrLevel = 0;
 			}
 		}
 	}
@@ -631,13 +642,12 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 			currentAdsrLevel -= GetAdsrDelta((4 * (channel.adsrRate.releaseRate ^ 0x1F)) - 0x18 + logIndex[releaseType]);
 		}
 
-		if(currentAdsrLevel <= 0)
+		if(currentAdsrLevel < 0)
 		{
+			currentAdsrLevel = 0;
 			channel.status = STOPPED;
 		}
 	}
-	currentAdsrLevel = min<int64>(currentAdsrLevel, MAX_ADSR_VOLUME);
-	currentAdsrLevel = max<int64>(currentAdsrLevel, 0);
 	channel.adsrVolume = static_cast<uint32>(currentAdsrLevel);
 }
 
