@@ -50,6 +50,10 @@ int CMipsExecutor::Execute(int cycles)
                 {
                     //We need to partition the space and compile the blocks
                     PartitionFunction(address);
+
+                    //Invalidate prevBlock because it might have been deleted by PartitionFunction
+                    prevBlock = NULL;
+
                     block = FindBlockStartingAt(address);
                     if(block == NULL)
                     {
