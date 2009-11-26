@@ -275,7 +275,7 @@ void CPsfVm::ThreadProc()
 				m_OnRunningStateChange();
 			}
 #else
-            if(!m_spuHandler || !m_spuHandler->HasFreeBuffers())
+            if(m_spuHandler && !m_spuHandler->HasFreeBuffers())
             {
                 boost::this_thread::sleep(boost::posix_time::milliseconds(16));
                 m_spuHandler->RecycleBuffers();
@@ -309,7 +309,10 @@ void CPsfVm::ThreadProc()
                     currentBlock++;
                     if(currentBlock == blockCount)
                     {
-                        m_spuHandler->Write(samples, blockSize * blockCount, 44100);
+                        if(m_spuHandler)
+                        {
+                            m_spuHandler->Write(samples, blockSize * blockCount, 44100);
+                        }
                         currentBlock = 0;
                     }
                 }

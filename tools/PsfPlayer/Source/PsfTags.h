@@ -22,10 +22,12 @@ public:
 							CPsfTags(const TagMap&);
 	virtual					~CPsfTags();
 	void					SetDefaultCharEncoding(const CHAR_ENCODING&);
-	bool					HasTag(const char*);
-	std::string				GetRawTagValue(const char*);
-	std::wstring			GetTagValue(const char*);
-	std::wstring			DecodeTagValue(const char*);
+	bool					HasTag(const char*) const;
+	std::string				GetRawTagValue(const char*) const;
+	std::wstring			GetTagValue(const char*) const;
+	std::wstring			DecodeTagValue(const char*) const;
+
+    static double           ConvertTimeString(const wchar_t*);
 
 	ConstTagIterator		GetTagsBegin() const;
 	ConstTagIterator		GetTagsEnd() const;

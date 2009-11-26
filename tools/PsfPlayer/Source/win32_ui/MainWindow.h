@@ -4,11 +4,14 @@
 #include "../PsfVm.h"
 #include "../PsfBase.h"
 #include "../PsfTags.h"
+#include "../Playlist.h"
 #include "win32/Window.h"
 #include "win32/Static.h"
 #include "win32/Button.h"
 #include "win32/Layouts.h"
 #include "win32/TrayIconServer.h"
+#include "Panel.h"
+#include "PlaylistPanel.h"
 
 class CMainWindow : public Framework::Win32::CWindow
 {
@@ -24,6 +27,11 @@ protected:
     long                                OnTimer();
 
 private:
+    enum
+    {
+        MAX_PANELS = 1,
+    };
+
     struct SPUHANDLER_INFO
     {
         int             id;
@@ -31,7 +39,7 @@ private:
         const TCHAR*    dllName;
     };
 
-	static CSoundHandler*				CreateHandler(const TCHAR*);
+	CSoundHandler*				        CreateHandler(const TCHAR*);
 
     void                                OnNewFrame();
     void                                OnBufferWrite(int);
@@ -41,6 +49,7 @@ private:
     void                                OnAbout();
     void                                Load(const char*);
 
+    void                                OnPlaylistItemDblClick(const char*);
     void                                OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
     void                                DisplayTrayMenu();
     void                                UpdateTimer();
@@ -55,6 +64,8 @@ private:
     Framework::Win32::CStatic*          m_titleLabel;
 	Framework::LayoutObjectPtr	        m_layout;
 
+    Framework::Win32::CStatic*          m_placeHolder;
+
     Framework::Win32::CButton*          m_nextButton;
     Framework::Win32::CButton*          m_prevButton;
     Framework::Win32::CButton*          m_pauseButton;
@@ -63,10 +74,14 @@ private:
 
     Framework::Win32::CTrayIconServer   m_trayIconServer;
 
+    CPanel*                             m_panels[MAX_PANELS];
+    CPlaylistPanel*                     m_playlistPanel;
+
     HMENU                               m_popupMenu;
 
 	CPsfVm&								m_virtualMachine;
 	CPsfTags							m_tags;
+    CPlaylist                           m_playlist;
 	bool								m_ready;
     uint64                              m_frames;
     int                                 m_writes;

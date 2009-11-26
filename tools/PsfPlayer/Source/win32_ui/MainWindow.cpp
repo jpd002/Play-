@@ -22,9 +22,9 @@
 
 CMainWindow::SPUHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
-    {   1,      _T("Win32 WaveOut"),    _T("SH_WaveOut.dll")   },
-    {   2,      _T("OpenAL"),           _T("SH_OpenAL.dll")    },
-    {   NULL,   NULL,                   NULL                   },
+    {   1,      _T("Win32 WaveOut"),    _T("SH_WaveOut.dll")    },
+    {   2,      _T("OpenAL"),           _T("SH_OpenAL.dll")     },
+    {   NULL,   NULL,                   NULL                    },
 };
 
 using namespace Framework;
@@ -35,19 +35,27 @@ m_virtualMachine(virtualMachine),
 m_ready(false),
 m_frames(0),
 m_writes(0),
+m_selectedAudioHandler(0),
 m_ejectButton(NULL),
 m_pauseButton(NULL),
-m_aboutButton(NULL)
+m_aboutButton(NULL),
+m_playlistPanel(NULL)
 {
-    m_selectedAudioHandler = m_handlerInfo[0].id;
+    for(unsigned int i = 0; i < MAX_PANELS; i++)
+    {
+        m_panels[i] = NULL;
+    }
 
-	if(!DoesWindowClassExist(CLSNAME))
+    if(!DoesWindowClassExist(CLSNAME))
 	{
 		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
 //	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 320, 480), NULL, NULL);
-	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 200, 175), NULL, NULL);
+
+    Win32::CRect clientRect(0, 0, 320, 480);
+    AdjustWindowRectEx(clientRect, WNDSTYLE, FALSE, WNDSTYLEEX);
+    Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, clientRect, NULL, NULL);
     SetClassPtr();
 
 	SetTimer(m_hWnd, 0, 1000, NULL);
@@ -61,10 +69,12 @@ m_aboutButton(NULL)
     m_virtualMachine.OnNewFrame.connect(std::tr1::bind(&CMainWindow::OnNewFrame, this));
     m_virtualMachine.OnBufferWrite.connect(std::tr1::bind(&CMainWindow::OnBufferWrite, this, std::tr1::placeholders::_1));
 
-	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CMainWindow::CreateHandler, m_handlerInfo[0].dllName));
+    ChangeAudioPlugin(0);
 
     m_timerLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER);
     m_titleLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER | SS_NOPREFIX);
+
+    m_placeHolder = new Win32::CStatic(m_hWnd, Win32::CRect(0, 0, 1, 1), SS_BLACKRECT);
 
     m_nextButton = new Win32::CButton(_T(">>"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     m_prevButton = new Win32::CButton(_T("<<"), m_hWnd, Win32::CRect(0, 0, 1, 1));
@@ -77,7 +87,7 @@ m_aboutButton(NULL)
         VerticalLayoutContainer(
             LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_titleLabel)) +
             LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_timerLabel)) +
-            LayoutExpression(CLayoutStretch::Create()) +
+            LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_placeHolder)) +
             HorizontalLayoutContainer(
                 LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_prevButton)) +
                 LayoutExpression(CLayoutStretch::Create()) +
@@ -92,6 +102,7 @@ m_aboutButton(NULL)
             )
         );
 
+    //Create tray icon
     Win32::CTrayIcon* trayIcon = m_trayIconServer.Insert();
     trayIcon->SetIcon(LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
     trayIcon->SetTip(_T("PsfPlayer"));
@@ -99,12 +110,21 @@ m_aboutButton(NULL)
     m_trayIconServer.RegisterHandler(std::tr1::bind(&CMainWindow::OnTrayIconEvent, this, 
         std::tr1::placeholders::_1, std::tr1::placeholders::_2));
 
+    //Create play list panel
+    m_playlistPanel = new CPlaylistPanel(m_placeHolder->m_hWnd, m_playlist);
+    m_playlistPanel->OnItemDblClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistItemDblClick, this, std::tr1::placeholders::_1));
+
+    //Initialize panels    
+    m_panels[0] = m_playlistPanel;
+
     CreateAudioPluginMenu();
     UpdateAudioPluginMenu();
     UpdateTimer();
     UpdateTitle();
     UpdateButtons();
 	RefreshLayout();
+
+    m_panels[0]->Show(SW_SHOW);
 }
 
 CMainWindow::~CMainWindow()
@@ -117,14 +137,42 @@ void CMainWindow::RefreshLayout()
 	RECT rc = GetClientRect();
 	m_layout->SetRect(rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 	m_layout->RefreshGeometry();
+
+    for(unsigned int i = 0; i < MAX_PANELS; i++)
+    {
+        CPanel* panel(m_panels[i]);
+        if(panel != NULL)
+        {
+            panel->RefreshLayout();
+        }
+    }
 }
 
 CSoundHandler* CMainWindow::CreateHandler(const TCHAR* libraryPath)
 {
 	typedef CSoundHandler* (*HandlerFactoryFunction)();
-	HMODULE module = LoadLibrary(libraryPath);
-	HandlerFactoryFunction handlerFactory = reinterpret_cast<HandlerFactoryFunction>(GetProcAddress(module, "HandlerFactory"));
-	CSoundHandler* result = handlerFactory();
+    CSoundHandler* result = NULL;
+	try
+    {
+        HMODULE module = LoadLibrary(libraryPath);
+        if(module == NULL)
+        {
+            throw std::exception();
+        }
+
+        HandlerFactoryFunction handlerFactory = reinterpret_cast<HandlerFactoryFunction>(GetProcAddress(module, "HandlerFactory"));
+        if(handlerFactory == NULL)
+        {
+            throw std::exception();
+        }
+
+        result = handlerFactory();
+    }
+    catch(...)
+    {
+        tstring errorMessage = _T("Couldn't create sound handler present in '") + tstring(libraryPath) + _T("'.");
+        MessageBox(m_hWnd, errorMessage.c_str(), APP_NAME, 16);
+    }
 	return result;
 }
 
@@ -194,6 +242,11 @@ long CMainWindow::OnSize(unsigned int type, unsigned int width, unsigned int hei
         Show(SW_HIDE);
     }
     return TRUE;
+}
+
+void CMainWindow::OnPlaylistItemDblClick(const char* path)
+{
+    Load(path);
 }
 
 void CMainWindow::OnTrayIconEvent(Win32::CTrayIcon* icon, LPARAM param)
@@ -297,7 +350,7 @@ void CMainWindow::ChangeAudioPlugin(unsigned int pluginIdx)
 {
     SPUHANDLER_INFO* handlerInfo = m_handlerInfo + pluginIdx;
     m_selectedAudioHandler = handlerInfo->id;
-	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CMainWindow::CreateHandler, handlerInfo->dllName));
+	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CMainWindow::CreateHandler, this, handlerInfo->dllName));
     UpdateAudioPluginMenu();
 }
 
@@ -365,6 +418,9 @@ void CMainWindow::Load(const char* path)
 
 		}
 		m_virtualMachine.Resume();
+
+        m_playlist.AddItem(path, m_tags);
+
 		m_ready = true;
 	}
 	catch(const exception& except)
@@ -374,6 +430,7 @@ void CMainWindow::Load(const char* path)
 		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
 		m_ready = false;
 	}
+
 	UpdateTitle();
     UpdateButtons();
     UpdateTimer();
