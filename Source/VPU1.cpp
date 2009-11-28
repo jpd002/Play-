@@ -128,7 +128,14 @@ void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
         uint8* packet = reinterpret_cast<uint8*>(alloca(nSize));
         stream.Read(packet, nSize);
 
-        m_vif.GetGif().ProcessPacket(packet, 0, nSize);
+        int32 remainingLength = nSize;
+        while(remainingLength > 0)
+        {
+            uint32 processed = m_vif.GetGif().ProcessPacket(packet, 0, remainingLength);
+            packet += processed;
+            remainingLength -= processed;
+            assert(remainingLength >= 0);
+        }
     }
 
     m_CODE.nIMM -= (nSize / 0x10);
