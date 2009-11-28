@@ -110,6 +110,7 @@ protected:
     bool                Unpack_V45(StreamType&, uint128&);
 
     uint32              GetVbs() const;
+    bool                IsVuRunning() const;
     uint32              GetMaskOp(unsigned int, unsigned int) const;
 
     void                DisassembleCommand(CODE);
@@ -122,6 +123,7 @@ protected:
     uint32              m_R[4];
     uint32              m_C[4];
     uint32              m_MASK;
+    uint32              m_MARK;
     uint32              m_ITOP;
     uint32              m_ITOPS;
     uint32              m_readTick;

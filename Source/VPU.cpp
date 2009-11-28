@@ -25,6 +25,7 @@ using namespace std::tr1;
 #define STATE_REGS_COL1         ("COL1")
 #define STATE_REGS_COL2         ("COL2")
 #define STATE_REGS_COL3         ("COL3")
+#define STATE_REGS_MARK         ("MARK")
 #define STATE_REGS_ITOP         ("ITOP")
 #define STATE_REGS_ITOPS        ("ITOPS")
 #define STATE_REGS_READTICK     ("readTick")
@@ -74,6 +75,7 @@ void CVPU::Reset()
     m_MODE = 0;
 	m_NUM = 0;
     m_MASK = 0;
+    m_MARK = 0;
     m_ITOP = 0;
     m_ITOPS = 0;
 }
@@ -88,6 +90,7 @@ void CVPU::SaveState(CZipArchiveWriter& archive)
     registerFile->SetRegister32(STATE_REGS_NUM,         m_NUM);
     registerFile->SetRegister32(STATE_REGS_MODE,        m_MODE);
     registerFile->SetRegister32(STATE_REGS_MASK,        m_MASK);
+    registerFile->SetRegister32(STATE_REGS_MARK,        m_MARK);
     registerFile->SetRegister32(STATE_REGS_ROW0,        m_R[0]);
     registerFile->SetRegister32(STATE_REGS_ROW1,        m_R[1]);
     registerFile->SetRegister32(STATE_REGS_ROW2,        m_R[2]);
@@ -113,6 +116,7 @@ void CVPU::LoadState(CZipArchiveReader& archive)
     m_NUM       = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
     m_MODE      = registerFile.GetRegister32(STATE_REGS_MODE);
     m_MASK      = registerFile.GetRegister32(STATE_REGS_MASK);
+    m_MARK      = registerFile.GetRegister32(STATE_REGS_MARK);
     m_R[0]      = registerFile.GetRegister32(STATE_REGS_ROW0);
     m_R[1]      = registerFile.GetRegister32(STATE_REGS_ROW1);
     m_R[2]      = registerFile.GetRegister32(STATE_REGS_ROW2);
@@ -202,6 +206,21 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
     case 0x05:
         //STMOD
         m_MODE = nCommand.nIMM & 0x03;
+        break;
+    case 0x07:
+        //MARK
+        m_MARK = nCommand.nIMM;
+        break;
+    case 0x10:
+        //FLUSHE
+        if(IsVuRunning())
+        {
+            m_STAT.nVEW = 1;
+        }
+        else
+        {
+            m_STAT.nVEW = 0;
+        }
         break;
 	case 0x14:
 		//MSCAL
@@ -687,6 +706,18 @@ uint32 CVPU::GetVbs() const
     }
 }
 
+bool CVPU::IsVuRunning() const
+{
+    if(m_vpuNumber == 0)
+    {
+        return m_vif.IsVu0Running();
+    }
+    else
+    {
+        return m_vif.IsVu1Running();
+    }
+}
+
 bool CVPU::IsRunning() const
 {
     return (m_vif.GetStat() & GetVbs()) != 0;
@@ -764,6 +795,12 @@ void CVPU::DisassembleCommand(CODE code)
             break;
         case 0x06:
             CLog::GetInstance().Print(LOG_NAME, "MSKPATH3();\r\n");
+            break;
+        case 0x07:
+            CLog::GetInstance().Print(LOG_NAME, "MARK(imm = 0x%x);\r\n", code.nIMM);
+            break;
+        case 0x10:
+            CLog::GetInstance().Print(LOG_NAME, "FLUSHE();\r\n");
             break;
         case 0x11:
             CLog::GetInstance().Print(LOG_NAME, "FLUSH();\r\n");
