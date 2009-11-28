@@ -59,8 +59,11 @@ public:
 		D9_TADR		= 0x1000D430,
 		D9_SADR		= 0x1000D480,
 
+        D_CTRL      = 0x1000E000,
 		D_STAT		= 0x1000E010,
 		D_PCR		= 0x1000E020,
+        D_RBSR      = 0x1000E040,
+        D_RBOR      = 0x1000E050,
 
 		D_ENABLER	= 0x1000F520,
 		D_ENABLEW	= 0x1000F590,
@@ -100,6 +103,17 @@ public:
 	static bool         IsEndTagId(uint32);
 
 private:
+    struct D_CTRL_REG : public convertible<uint32>
+    {
+        unsigned int    dmae    : 1;
+        unsigned int    rele    : 1;
+        unsigned int    mfd     : 2;
+        unsigned int    sts     : 2;
+        unsigned int    std     : 2;
+        unsigned int    rcyc    : 3;
+    };
+    BOOST_STATIC_ASSERT(sizeof(D_CTRL) == sizeof(uint32));
+
     uint64				FetchDMATag(uint32);
 
 	uint32				ReceiveDMA8(uint32, uint32, uint32, bool);
@@ -107,9 +121,12 @@ private:
 
 	void				UpdateCpCond();
 
+    D_CTRL_REG          m_D_CTRL;
 	uint32				m_D_STAT;
 	uint32				m_D_ENABLE;
 	uint32				m_D_PCR;
+    uint32              m_D_RBSR;
+    uint32              m_D_RBOR;
 
     Dmac::CChannel      m_D0;
     Dmac::CChannel      m_D1;
