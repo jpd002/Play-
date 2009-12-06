@@ -13,7 +13,7 @@
 #include "Panel.h"
 #include "PlaylistPanel.h"
 
-class CMainWindow : public Framework::Win32::CWindow
+class CMainWindow : public Framework::Win32::CWindow, public boost::signals::trackable
 {
 public:
 				                        CMainWindow(CPsfVm&);
@@ -46,10 +46,18 @@ private:
 
     void                                OnFileOpen();
     void                                OnPause();
+    void                                OnPrev();
+    void                                OnNext();
     void                                OnAbout();
-    void                                Load(const char*);
+    bool                                PlayFile(const char*);
+    void                                LoadSingleFile(const char*);
+    void                                LoadPlaylist(const char*);
 
-    void                                OnPlaylistItemDblClick(const char*);
+    void                                OnPlaylistItemDblClick(unsigned int);
+    void                                OnPlaylistAddClick();
+    void                                OnPlaylistRemoveClick(unsigned int);
+    void                                OnPlaylistSaveClick();
+
     void                                OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
     void                                DisplayTrayMenu();
     void                                UpdateTimer();
@@ -70,7 +78,6 @@ private:
     Framework::Win32::CButton*          m_prevButton;
     Framework::Win32::CButton*          m_pauseButton;
     Framework::Win32::CButton*          m_ejectButton;
-    Framework::Win32::CButton*          m_aboutButton;
 
     Framework::Win32::CTrayIconServer   m_trayIconServer;
 
@@ -82,7 +89,8 @@ private:
 	CPsfVm&								m_virtualMachine;
 	CPsfTags							m_tags;
     CPlaylist                           m_playlist;
-	bool								m_ready;
+    unsigned int                        m_currentPlaylistItem;
+    bool								m_ready;
     uint64                              m_frames;
     int                                 m_writes;
     int                                 m_selectedAudioHandler;

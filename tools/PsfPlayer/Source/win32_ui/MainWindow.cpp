@@ -12,6 +12,7 @@
 #include "string_cast.h"
 #include "resource.h"
 #include <afxres.h>
+#include "stricmp.h"
 
 #define CLSNAME			                _T("MainWindow")
 #define WNDSTYLE		                (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX)
@@ -19,6 +20,9 @@
 #define WM_UPDATEVIS	                (WM_USER + 1)
 
 #define ID_FILE_AUDIOPLUGIN_PLUGIN_0    (0xBEEF)
+
+#define PLAYLIST_EXTENSION              _T("psfpl")
+#define PLAYLIST_FILTER                 _T("PsfPlayer Playlists (*.") PLAYLIST_EXTENSION _T(")\0*.") PLAYLIST_EXTENSION _T("\0")
 
 CMainWindow::SPUHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
@@ -38,8 +42,8 @@ m_writes(0),
 m_selectedAudioHandler(0),
 m_ejectButton(NULL),
 m_pauseButton(NULL),
-m_aboutButton(NULL),
-m_playlistPanel(NULL)
+m_playlistPanel(NULL),
+m_currentPlaylistItem(0)
 {
     for(unsigned int i = 0; i < MAX_PANELS; i++)
     {
@@ -51,17 +55,12 @@ m_playlistPanel(NULL)
 		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
-//	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, Win32::CRect(0, 0, 320, 480), NULL, NULL);
-
     Win32::CRect clientRect(0, 0, 320, 480);
     AdjustWindowRectEx(clientRect, WNDSTYLE, FALSE, WNDSTYLEEX);
     Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, clientRect, NULL, NULL);
     SetClassPtr();
 
 	SetTimer(m_hWnd, 0, 1000, NULL);
-
-	//UpdateTitle();
-	//UpdateFromConfig();
 
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
     m_popupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
@@ -81,7 +80,7 @@ m_playlistPanel(NULL)
     m_pauseButton = new Win32::CButton(_T("Pause"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     m_ejectButton = new Win32::CButton(_T("Eject"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     
-    m_aboutButton = new Win32::CButton(_T("About"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+    //m_aboutButton = new Win32::CButton(_T("About"), m_hWnd, Win32::CRect(0, 0, 1, 1));
 
     m_layout = 
         VerticalLayoutContainer(
@@ -96,9 +95,9 @@ m_playlistPanel(NULL)
                 LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_nextButton))
             ) +
             HorizontalLayoutContainer(
-                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_ejectButton)) +
-                LayoutExpression(CLayoutStretch::Create()) +
-                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_aboutButton))
+                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_ejectButton))
+//                LayoutExpression(CLayoutStretch::Create()) +
+//                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_aboutButton))
             )
         );
 
@@ -113,6 +112,9 @@ m_playlistPanel(NULL)
     //Create play list panel
     m_playlistPanel = new CPlaylistPanel(m_placeHolder->m_hWnd, m_playlist);
     m_playlistPanel->OnItemDblClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistItemDblClick, this, std::tr1::placeholders::_1));
+    m_playlistPanel->OnAddClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistAddClick, this));
+    m_playlistPanel->OnRemoveClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistRemoveClick, this, std::tr1::placeholders::_1));
+    m_playlistPanel->OnSaveClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistSaveClick, this));
 
     //Initialize panels    
     m_panels[0] = m_playlistPanel;
@@ -178,17 +180,21 @@ CSoundHandler* CMainWindow::CreateHandler(const TCHAR* libraryPath)
 
 long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hControl)
 {
-    if(m_ejectButton && m_ejectButton->m_hWnd == hControl)
+    if(CWindow::IsCommandSource(m_ejectButton, hControl))
     {
         OnFileOpen();
     }
-    else if(m_pauseButton && m_pauseButton->m_hWnd == hControl)
+    else if(CWindow::IsCommandSource(m_pauseButton, hControl))
     {
         OnPause();
     }
-    else if(m_aboutButton && m_aboutButton->m_hWnd == hControl)
+    else if(CWindow::IsCommandSource(m_nextButton, hControl))
     {
-        OnAbout();
+        OnNext();
+    }
+    else if(CWindow::IsCommandSource(m_prevButton, hControl))
+    {
+        OnPrev();
     }
     else
     {
@@ -244,9 +250,58 @@ long CMainWindow::OnSize(unsigned int type, unsigned int width, unsigned int hei
     return TRUE;
 }
 
-void CMainWindow::OnPlaylistItemDblClick(const char* path)
+void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 {
-    Load(path);
+    const CPlaylist::ITEM& item(m_playlist.GetItem(index));
+    if(PlayFile(item.path.c_str()))
+    {
+        CPlaylist::ITEM newItem(item);
+        CPlaylist::PopulateItemFromTags(newItem, m_tags);
+        m_playlist.UpdateItem(index, newItem);
+        m_currentPlaylistItem = index;
+    }
+}
+
+void CMainWindow::OnPlaylistAddClick()
+{
+    Win32::CFileDialog dialog(0x10000);
+    const TCHAR* filter = 
+	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2\0")
+	    _T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
+	    _T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0");
+    dialog.m_OFN.lpstrFilter = filter;
+    dialog.m_OFN.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
+    if(dialog.SummonOpen(m_hWnd))
+    {
+        Win32::CFileDialog::PathList paths(dialog.GetMultiPaths());
+        for(Win32::CFileDialog::PathList::const_iterator pathIterator(paths.begin());
+            paths.end() != pathIterator; pathIterator++)
+        {
+            const std::tstring path(*pathIterator);
+            CPlaylist::ITEM item;
+            item.path       = string_cast<string>(path);
+            item.title      = path.c_str();
+            item.length     = 0;
+            m_playlist.InsertItem(item);
+        }
+    }
+}
+
+void CMainWindow::OnPlaylistRemoveClick(unsigned int itemIdx)
+{
+    m_playlist.DeleteItem(itemIdx);
+}
+
+void CMainWindow::OnPlaylistSaveClick()
+{
+    Win32::CFileDialog dialog;
+    const TCHAR* filter = PLAYLIST_FILTER;
+    dialog.m_OFN.lpstrFilter = filter;
+    dialog.m_OFN.lpstrDefExt = PLAYLIST_EXTENSION;
+    if(dialog.SummonSave(m_hWnd))
+    {
+        m_playlist.Write(string_cast<string>(dialog.GetPath()).c_str());
+    }
 }
 
 void CMainWindow::OnTrayIconEvent(Win32::CTrayIcon* icon, LPARAM param)
@@ -368,13 +423,28 @@ void CMainWindow::OnFileOpen()
 {
     Win32::CFileDialog dialog;
     const TCHAR* filter = 
-	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2\0")
+	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2;*.") PLAYLIST_EXTENSION _T("\0")
+        PLAYLIST_FILTER
 	    _T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
 	    _T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0");
     dialog.m_OFN.lpstrFilter = filter;
-    if(dialog.Summon(m_hWnd))
+    if(dialog.SummonOpen(m_hWnd))
     {
-	    Load(string_cast<string>(dialog.m_sFile).c_str());
+        tstring file = dialog.GetPath();
+        tstring extension;
+        tstring::size_type dotPosition = file.find('.');
+        if(dotPosition != tstring::npos)
+        {
+            extension = tstring(file.begin() + dotPosition + 1, file.end());
+        }
+        if(!wcsicmp(extension.c_str(), PLAYLIST_EXTENSION))
+        {
+            LoadPlaylist(string_cast<string>(file).c_str());
+        }
+        else
+        {
+	        LoadSingleFile(string_cast<string>(file).c_str());
+        }
     }
 }
 
@@ -392,13 +462,58 @@ void CMainWindow::OnPause()
     UpdateButtons();
 }
 
+void CMainWindow::OnPrev()
+{
+    if(m_playlist.GetItemCount() == 0) return;
+    if(m_currentPlaylistItem != 0)
+    {
+        m_currentPlaylistItem--;        
+    }
+    OnPlaylistItemDblClick(m_currentPlaylistItem);
+}
+
+void CMainWindow::OnNext()
+{
+    if(m_playlist.GetItemCount() == 0) return;
+    unsigned int itemCount = m_playlist.GetItemCount();
+    if((m_currentPlaylistItem + 1) < itemCount)
+    {
+        m_currentPlaylistItem++;
+    }
+    OnPlaylistItemDblClick(m_currentPlaylistItem);
+}
+
 void CMainWindow::OnAbout()
 {
     CAboutWindow about(m_hWnd);
     about.DoModal();
 }
 
-void CMainWindow::Load(const char* path)
+void CMainWindow::LoadSingleFile(const char* path)
+{
+    if(PlayFile(path))
+    {
+        m_playlist.Clear();
+
+        CPlaylist::ITEM item;
+        item.path = path;
+        CPlaylist::PopulateItemFromTags(item, m_tags);
+        m_playlist.InsertItem(item);
+    }
+}
+
+void CMainWindow::LoadPlaylist(const char* path)
+{
+    m_playlist.Clear();
+    m_playlist.Read(path);
+    if(m_playlist.GetItemCount() > 0)
+    {
+        m_currentPlaylistItem = 0;
+        OnPlaylistItemDblClick(m_currentPlaylistItem);
+    }
+}
+
+bool CMainWindow::PlayFile(const char* path)
 {
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
@@ -418,9 +533,6 @@ void CMainWindow::Load(const char* path)
 
 		}
 		m_virtualMachine.Resume();
-
-        m_playlist.AddItem(path, m_tags);
-
 		m_ready = true;
 	}
 	catch(const exception& except)
@@ -435,4 +547,6 @@ void CMainWindow::Load(const char* path)
     UpdateButtons();
     UpdateTimer();
 //	UpdateMenu();
+
+    return m_ready;
 }

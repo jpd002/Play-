@@ -206,6 +206,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\path_uncomplete.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Playlist.cpp"
 				>
 			</File>

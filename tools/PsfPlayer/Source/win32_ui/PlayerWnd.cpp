@@ -130,9 +130,9 @@ long CPlayerWnd::OnCommand(unsigned short id, unsigned short command, HWND hWndF
 				_T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
 				_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0");
 			dialog.m_OFN.lpstrFilter = filter;
-			if(dialog.Summon(m_hWnd))
+			if(dialog.SummonOpen(m_hWnd))
 			{
-				Load(string_cast<string>(dialog.m_sFile).c_str());
+				Load(string_cast<string>(dialog.GetPath()).c_str());
 			}
 		}
 		break;
