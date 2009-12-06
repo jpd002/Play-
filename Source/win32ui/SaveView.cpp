@@ -211,13 +211,13 @@ long CSaveView::Export()
 	FileDialog.m_OFN.lpstrFilter = _T("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0");
 
 	EnableWindow(GetParent(), FALSE);
-	nRet = FileDialog.Summon(m_hWnd);
+	nRet = FileDialog.SummonSave(m_hWnd);
 	EnableWindow(GetParent(), TRUE);
 
 	if(nRet == 0) return FALSE;
 
 	FILE* pStream;
-	pStream = _tfopen(FileDialog.m_sFile, _T("wb"));
+	pStream = _tfopen(FileDialog.GetPath(), _T("wb"));
 
 	if(pStream == NULL)
 	{

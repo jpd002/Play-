@@ -263,12 +263,12 @@ void CCdromSelectionWnd::SelectImage()
 
 	Dialog.m_OFN.lpstrFilter = DISKIMAGE_FILTER;
 
-	if(Dialog.Summon(m_hWnd) != IDOK)
+	if(Dialog.SummonOpen(m_hWnd) != IDOK)
 	{
 		return;
 	}
 
-    string sPath(string_cast<string>(Dialog.m_sFile));
+    string sPath(string_cast<string>(Dialog.GetPath()));
 /*
 	CStdStream* pStream;
 	try

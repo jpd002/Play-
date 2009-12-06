@@ -168,14 +168,14 @@ void CMcManagerWnd::Import()
 	FileDialog.m_OFN.lpstrFilter = _T("All supported types\0*.psu;*.xps\0EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps(*.xps)\0*.xps\0All files (*.*)\0*.*\0");
 
 	Enable(FALSE);
-	nRet = FileDialog.Summon(m_hWnd);
+	nRet = FileDialog.SummonOpen(m_hWnd);
 	Enable(TRUE);
 
 	if(nRet == 0) return;
 
 	FILE* pStream;
 
-	pStream = _tfopen(FileDialog.m_sFile, _T("rb"));
+	pStream = _tfopen(FileDialog.GetPath(), _T("rb"));
 	if(pStream == NULL)
 	{
 		MessageBox(m_hWnd, _T("Couldn't open file for reading."), NULL, 16);
