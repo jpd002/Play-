@@ -61,6 +61,50 @@ void CMA_EE::PullVector(unsigned int nReg)
     m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[nReg]));
 }
 
+size_t CMA_EE::GetLoOffset(unsigned int index)
+{
+    switch(index)
+    {
+    case 0:
+        return offsetof(CMIPS, m_State.nLO[0]);
+        break;
+    case 1:
+        return offsetof(CMIPS, m_State.nLO[1]);
+        break;
+    case 2:
+        return offsetof(CMIPS, m_State.nLO1[0]);
+        break;
+    case 3:
+        return offsetof(CMIPS, m_State.nLO1[1]);
+        break;
+    default:
+        throw std::exception();
+        break;
+    }
+}
+
+size_t CMA_EE::GetHiOffset(unsigned int index)
+{
+    switch(index)
+    {
+    case 0:
+        return offsetof(CMIPS, m_State.nHI[0]);
+        break;
+    case 1:
+        return offsetof(CMIPS, m_State.nHI[1]);
+        break;
+    case 2:
+        return offsetof(CMIPS, m_State.nHI1[0]);
+        break;
+    case 3:
+        return offsetof(CMIPS, m_State.nHI1[1]);
+        break;
+    default:
+        throw std::exception();
+        break;
+    }
+}
+
 //////////////////////////////////////////////////
 //General Opcodes
 //////////////////////////////////////////////////
@@ -543,6 +587,39 @@ void CMA_EE::QFSRV()
 //MMI2 Opcodes
 //////////////////////////////////////////////////
 
+//09
+void CMA_EE::PMFLO()
+{
+    for(unsigned int i = 0; i < 4; i++)
+    {
+	    m_codeGen->PushRel(GetLoOffset(i));
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+    }
+}
+
+//0D
+void CMA_EE::PDIVW()
+{
+    for(unsigned int i = 0; i < 2; i++)
+    {
+        unsigned int regOffset = i * 2;
+
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
+        m_codeGen->DivS();
+
+        //Quotient
+	    m_codeGen->SeX();
+	    m_codeGen->PullRel(GetLoOffset(regOffset + 1));
+        m_codeGen->PullRel(GetLoOffset(regOffset + 0));
+
+        //Remainder
+        m_codeGen->SeX();
+	    m_codeGen->PullRel(GetHiOffset(regOffset + 1));
+	    m_codeGen->PullRel(GetHiOffset(regOffset + 0));
+    }
+}
+
 //0E
 void CMA_EE::PCPYLD()
 {
@@ -652,6 +729,36 @@ void CMA_EE::PMULTH()
 
         m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[0]));
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+    }
+}
+
+//1E
+void CMA_EE::PEXEW()
+{
+    size_t offset[4];
+
+    if(m_nRT == m_nRD)
+    {
+        offset[0] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]);
+        offset[1] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]);
+        offset[2] = offsetof(CMIPS, m_State.nCOP2T);
+        offset[3] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]);
+
+        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+        m_codeGen->PullRel(offset[2]);
+    }
+    else
+    {
+        offset[0] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]);
+        offset[1] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]);
+        offset[2] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]);
+        offset[3] = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]);
+    }
+
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        m_codeGen->PushRel(offset[i]);
+        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
     }
 }
 
@@ -837,11 +944,11 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x00
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
+    &CMA_EE::Illegal,		&CMA_EE::PMFLO,	    	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PDIVW,	    	&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PROT3W,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::PEXEW, 		&CMA_EE::PROT3W,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 

@@ -38,6 +38,8 @@ private:
 
 	void							    PushVector(unsigned int);
 	void							    PullVector(unsigned int);
+    size_t                              GetLoOffset(unsigned int);
+    size_t                              GetHiOffset(unsigned int);
 
 	//General
 	void							    LQ();
@@ -98,10 +100,13 @@ private:
 	void							    QFSRV();
 
 	//Mmi2
+    void                                PMFLO();
+    void                                PDIVW();
 	void							    PCPYLD();
 	void							    PAND();
 	void							    PXOR();
     void                                PMULTH();
+    void                                PEXEW();
     void                                PROT3W();
 
 	//Mmi3
