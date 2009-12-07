@@ -250,6 +250,7 @@ void CCOP_VU::VMSUBbc()
 }
 
 //10
+//11
 void CCOP_VU::VMAXbc()
 {
     VUShared::MAXbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
@@ -542,7 +543,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x08
 	&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,
 	//0x10
-	&CCOP_VU::VMAXbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,
+	&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,
 	//0x18
 	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIi,
 	//0x20
