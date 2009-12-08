@@ -281,8 +281,8 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
     }
     Iop::CIoman::CFile file(handle, *m_ioman);
     CStream* stream = m_ioman->GetFileStream(file);
-    CELF* module = new CElfFile(*stream);
-    LoadAndStartModule(*module, path, args, argsLength);
+    CElfFile module(*stream);
+    LoadAndStartModule(module, path, args, argsLength);
 }
 
 void CIopBios::LoadAndStartModule(uint32 modulePtr, const char* args, unsigned int argsLength)
