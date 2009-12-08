@@ -494,6 +494,7 @@ void CMainWindow::LoadSingleFile(const char* path)
     if(PlayFile(path))
     {
         m_playlist.Clear();
+        m_currentPlaylistItem = 0;
 
         CPlaylist::ITEM item;
         item.path = path;
