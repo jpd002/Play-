@@ -59,7 +59,9 @@ m_cpuArch(MIPS_REGSIZE_32)
 
 CSubSystem::~CSubSystem()
 {
-
+    delete [] m_ram;
+    delete [] m_scratchPad;
+    delete [] m_spuRam;
 }
 
 void CSubSystem::SetBios(const BiosPtr& bios)
