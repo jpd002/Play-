@@ -174,6 +174,7 @@ public:
     void                            MD_PushReg(XMMREGISTER);
 
     void                            MD_AbsS();
+    void                            MD_AddB();
     void                            MD_AddH();
     void                            MD_AddW();
     void                            MD_AddWSS();

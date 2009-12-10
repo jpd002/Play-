@@ -372,6 +372,11 @@ void CCodeGen::MD_AbsS()
     }
 }
 
+void CCodeGen::MD_AddB()
+{
+    MD_GenericTwoOperand(bind(&CX86Assembler::PaddbVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));
+}
+
 void CCodeGen::MD_AddH()
 {
     MD_GenericTwoOperand(bind(&CX86Assembler::PaddwVo, m_Assembler, PLACEHOLDER_1, PLACEHOLDER_2));

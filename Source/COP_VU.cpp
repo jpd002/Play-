@@ -189,6 +189,10 @@ void CCOP_VU::CTC2()
 
         switch(m_nFS)
         {
+        case 16:
+            //STATUS - Not implemented
+            m_codeGen->PullTop();
+            break;
 	    case 21:
 		    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
 		    break;

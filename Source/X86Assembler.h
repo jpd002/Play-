@@ -221,6 +221,7 @@ public:
     void                                    MovapsVo(XMMREGISTER, const CAddress&);
     void                                    PackssdwVo(XMMREGISTER, const CAddress&);
     void                                    PackuswbVo(XMMREGISTER, const CAddress&);
+    void                                    PaddbVo(XMMREGISTER, const CAddress&);
     void                                    PaddwVo(XMMREGISTER, const CAddress&);
     void                                    PadddVo(XMMREGISTER, const CAddress&);
     void                                    PandVo(XMMREGISTER, const CAddress&);
