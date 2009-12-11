@@ -390,14 +390,20 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	try
 	{
-		filesystem::path McPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
-		McPath = filesystem::complete(McPath);
+        if(pCmd->nFlags == 0)
+        {
+            m_pathFinder.Reset();
 
-		if(filesystem::exists(McPath))
-		{
-			CPathFinder PathFinder(McPath, reinterpret_cast<CPathFinder::ENTRY*>(&ram[pCmd->nTableAddress]), pCmd->nMaxEntries, pCmd->sName);
-			nRet = PathFinder.Search();
-		}
+		    filesystem::path McPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
+		    McPath = filesystem::complete(McPath);
+
+		    if(filesystem::exists(McPath))
+		    {
+                m_pathFinder.Search(McPath, pCmd->sName);
+		    }
+        }
+
+        nRet = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[pCmd->nTableAddress]), pCmd->nMaxEntries);
 	}
 	catch(const exception& Exception)
 	{
@@ -438,17 +444,10 @@ FILE* CMcServ::GetFileFromHandle(uint32 handle)
 //CPathFinder Implementation
 /////////////////////////////////////////////
 
-CMcServ::CPathFinder::CPathFinder(const filesystem::path& BasePath, ENTRY* pEntry, unsigned int nMax, const char* sFilter)
+CMcServ::CPathFinder::CPathFinder()
+: m_nIndex(0)
 {
-	m_BasePath	= BasePath;
-	m_pEntry	= pEntry;
-	m_nIndex	= 0;
-	m_nMax		= nMax;
-	m_sFilter	= sFilter;
-    if(m_sFilter[0] != '/')
-    {
-        m_sFilter = "/" + m_sFilter;
-    }
+
 }
 
 CMcServ::CPathFinder::~CPathFinder()
@@ -456,10 +455,44 @@ CMcServ::CPathFinder::~CPathFinder()
 	
 }
 
-unsigned int CMcServ::CPathFinder::Search()
+void CMcServ::CPathFinder::Reset()
 {
-	SearchRecurse(m_BasePath);
-	return m_nIndex;
+    m_entries.clear();
+    m_nIndex = 0;
+}
+
+void CMcServ::CPathFinder::Search(const boost::filesystem::path& BasePath, const char* sFilter)
+{
+	m_BasePath	= BasePath;
+	m_sFilter	= sFilter;
+
+    if(m_sFilter[0] != '/')
+    {
+        m_sFilter = "/" + m_sFilter;
+    }
+    if(m_sFilter.find('?') != string::npos)
+    {
+        m_matcher = &CPathFinder::QuestionMarkFilterMatcher;
+    }
+    else
+    {
+        m_matcher = &CPathFinder::StarFilterMatcher;
+    }
+
+    SearchRecurse(m_BasePath);
+}
+
+unsigned int CMcServ::CPathFinder::Read(ENTRY* pEntry, unsigned int nSize)
+{
+    assert(m_nIndex <= m_entries.size());
+    unsigned int remaining = m_entries.size() - m_nIndex;
+    unsigned int readCount = std::min<unsigned int>(remaining, nSize);
+    for(unsigned int i = 0; i < readCount; i++)
+    {
+        pEntry[i] = m_entries[i + m_nIndex];
+    }
+    m_nIndex += readCount;
+    return readCount;
 }
 
 void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& Path)
@@ -476,30 +509,27 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& Path)
 		sRelativePath.erase(0, m_BasePath.string().size());
 
 		//Attempt to match this against the filter
-		if(MatchesFilter(sRelativePath.c_str()))
+		if((*this.*m_matcher)(sRelativePath.c_str()))
 		{
-			//This fits... fill in the information
-            if(m_nIndex < m_nMax)
+			//Fill in the information
+            ENTRY entry;
+
+            //strncpy(reinterpret_cast<char*>(pEntry->sName), sRelativePath.c_str(), 0x1F);
+            strncpy(reinterpret_cast<char*>(entry.sName), (*itElement).leaf().c_str(), 0x1F);
+            entry.sName[0x1F] = 0;
+
+            if(filesystem::is_directory(*itElement))
             {
-                ENTRY* pEntry = &m_pEntry[m_nIndex];
-
-                //strncpy(reinterpret_cast<char*>(pEntry->sName), sRelativePath.c_str(), 0x1F);
-                strncpy(reinterpret_cast<char*>(pEntry->sName), (*itElement).leaf().c_str(), 0x1F);
-                pEntry->sName[0x1F] = 0;
-
-                if(filesystem::is_directory(*itElement))
-                {
-                    pEntry->nSize		= 0;
-                    pEntry->nAttributes	= 0x8427;
-                }
-                else
-                {
-                    pEntry->nSize		= static_cast<uint32>(filesystem::file_size(*itElement));
-                    pEntry->nAttributes = 0x8497;
-                }
-
-                m_nIndex++;
+                entry.nSize		    = 0;
+                entry.nAttributes	= 0x8427;
             }
+            else
+            {
+                entry.nSize		    = static_cast<uint32>(filesystem::file_size(*itElement));
+                entry.nAttributes   = 0x8497;
+            }
+
+            m_entries.push_back(entry);
 		}
 
 		if(filesystem::is_directory(*itElement))
@@ -510,7 +540,7 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& Path)
 }
 
 //Based on an algorithm found on http://xoomer.alice.it/acantato/dev/wildcard/wildmatch.html
-bool CMcServ::CPathFinder::MatchesFilter(const char* sPath)
+bool CMcServ::CPathFinder::StarFilterMatcher(const char* sPath)
 {
 	const char* sPattern;
 	const char* s;
@@ -549,4 +579,31 @@ _starCheck:
 	if(!nStar) return false;
 	sPath++;
 	goto _loopStart;
+}
+
+bool CMcServ::CPathFinder::QuestionMarkFilterMatcher(const char* path)
+{
+    const char* src = m_sFilter.c_str();
+    const char* dst = path;
+
+    while(1)
+    {
+        if(*src == 0 && *dst == 0)
+        {
+            return true;
+        }
+
+        if(*src == 0) return false;
+        if(*dst == 0) return false;
+
+        if(*src != '?')
+        {
+            if(*src != *dst) return false;
+        }
+
+        src++;
+        dst++;
+    }
+
+    return false;
 }

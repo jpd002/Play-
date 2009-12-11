@@ -50,45 +50,54 @@ namespace Iop
 			char	nData[16];
 		};
 
+		struct ENTRY
+		{
+			struct TIME
+			{
+				uint8	nUnknown;
+				uint8	nSecond;
+				uint8	nMinute;
+				uint8	nHour;
+				uint8	nDay;
+				uint8	nMonth;
+				uint16	nYear;
+			};
+
+			TIME	CreationTime;
+			TIME	ModificationTime;
+			uint32	nSize;
+			uint16	nAttributes;
+			uint16	nReserved0;
+			uint32	nReserved1[2];
+			uint8	sName[0x20];
+		};
+
 		class CPathFinder
 		{
 		public:
-			struct ENTRY
-			{
-				struct TIME
-				{
-					uint8	nUnknown;
-					uint8	nSecond;
-					uint8	nMinute;
-					uint8	nHour;
-					uint8	nDay;
-					uint8	nMonth;
-					uint16	nYear;
-				};
+										CPathFinder();
+			virtual                     ~CPathFinder();
 
-				TIME	CreationTime;
-				TIME	ModificationTime;
-				uint32	nSize;
-				uint16	nAttributes;
-				uint16	nReserved0;
-				uint32	nReserved1[2];
-				uint8	sName[0x20];
-			};
-										CPathFinder(const boost::filesystem::path&, ENTRY*, unsigned int, const char*);
-										~CPathFinder();
-
-			unsigned int				Search();
+            void                        Reset();
+			void        				Search(const boost::filesystem::path&, const char*);
+            unsigned int                Read(ENTRY*, unsigned int);
 
 		private:
-			void						SearchRecurse(const boost::filesystem::path&);
-			bool						MatchesFilter(const char*);
+            typedef std::vector<ENTRY> EntryList;
+            typedef bool (CPathFinder::*StringMatcher)(const char*);
 
-			ENTRY*						m_pEntry;
+			void						SearchRecurse(const boost::filesystem::path&);
+			bool						StarFilterMatcher(const char*);
+            bool                        QuestionMarkFilterMatcher(const char*);
+
+            EntryList                   m_entries;
+
+//          ENTRY*						m_pEntry;
 			boost::filesystem::path		m_BasePath;
 			std::string					m_sFilter;
 			unsigned int				m_nIndex;
-			unsigned int				m_nMax;
-
+//			unsigned int				m_nMax;
+            StringMatcher               m_matcher;
 		};
 
 		void				GetInfo(uint32*, uint32, uint32*, uint32, uint8*);
@@ -110,6 +119,7 @@ namespace Iop
 		static const char*	m_sMcPathPreference[2];
 		uint32				m_nNextHandle;
         std::string         m_currentDirectory;
+        CPathFinder         m_pathFinder;
 	};
 
 }
