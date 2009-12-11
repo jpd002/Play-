@@ -288,9 +288,15 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIncluded)
 {
-	uint8* pMemory;
+	uint8* pMemory(NULL);
+	uint32 nSize = nQWC * 0x10;
 
-    assert(nTagIncluded == false);
+    if(nTagIncluded)
+    {
+        assert(nQWC >= 0);
+        nSize -= 0x10;
+        nAddress += 0x10;
+    }
 
 	if(nAddress & 0x80000000)
 	{
@@ -302,7 +308,6 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIn
 		pMemory = m_ram;
 	}
 	
-	uint32 nSize = nQWC * 0x10;
 	uint32 nEnd = nAddress + nSize;
 
 	while(nAddress < nEnd)
