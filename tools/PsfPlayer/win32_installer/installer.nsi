@@ -63,6 +63,7 @@ Section "PsfPlayer (required)"
   File "..\Release\PsfPlayer.exe"
   File "..\Release\SH_WaveOut.dll"
   File "..\Release\SH_OpenAL.dll"
+  File "..\changelog.html"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\NSIS_PsfPlayer "Install_Dir" "$INSTDIR"
@@ -99,6 +100,7 @@ Section "Uninstall"
   Delete $INSTDIR\PsfPlayer.exe
   Delete $INSTDIR\SH_WaveOut.dll
   Delete $INSTDIR\SH_OpenAL.dll
+  Delete $INSTDIR\changelog.html
   Delete $INSTDIR\uninstall.exe
 
   ; Remove shortcuts, if any

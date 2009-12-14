@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="PsfPlayer"
 	ProjectGUID="{49C9E6A6-20BF-447B-8957-3CC7711977A3}"
 	RootNamespace="PsfPlayer"
@@ -976,6 +976,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\win32_ui\images\bpoint.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\changelog.html"
 			>
 		</File>
 		<File
