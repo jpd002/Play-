@@ -34,6 +34,7 @@ public:
     void                            InsertItem(const ITEM&);
     void                            UpdateItem(unsigned int, const ITEM&);
     void                            DeleteItem(unsigned int);
+	void							ExchangeItems(unsigned int, unsigned int);
     void                            Clear();
 
     OnItemInsertEvent               OnItemInsert;

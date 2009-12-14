@@ -114,6 +114,7 @@ CVirtualMachine::STATUS CPsfVm::GetStatus() const
 
 void CPsfVm::Pause()
 {
+	if(m_status == PAUSED) return;
 	m_mailBox.SendCall(bind(&CPsfVm::PauseImpl, this), true);
 }
 

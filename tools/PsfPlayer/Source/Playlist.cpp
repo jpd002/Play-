@@ -77,6 +77,16 @@ void CPlaylist::UpdateItem(unsigned int index, const CPlaylist::ITEM& item)
     OnItemUpdate(index, item);
 }
 
+void CPlaylist::ExchangeItems(unsigned int index1, unsigned int index2)
+{
+	assert(index1 < m_items.size());
+	assert(index2 < m_items.size());
+	ITEM item1 = GetItem(index1);
+	ITEM item2 = GetItem(index2);
+	UpdateItem(index1, item2);
+	UpdateItem(index2, item1);
+}
+
 void CPlaylist::Clear()
 {
     OnItemsClear();
@@ -113,7 +123,7 @@ void CPlaylist::Read(const char* inputPathString)
         item.path = itemPath.string().c_str();
         if(title != NULL)
         {
-            item.title = string_cast<std::wstring>(title);
+			item.title = Utf8::ConvertFrom(title);
         }
 
         if(length != NULL)

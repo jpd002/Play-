@@ -14,6 +14,8 @@ using namespace Framework;
 
 CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 : m_playlistView(NULL)
+, m_moveUpButton(NULL)
+, m_moveDownButton(NULL)
 , m_addButton(NULL)
 , m_removeButton(NULL)
 , m_saveButton(NULL)
@@ -30,14 +32,18 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
     m_playlistView = new Win32::CListView(m_hWnd, Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL);
 	m_playlistView->SetExtendedListViewStyle(m_playlistView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-    m_addButton     = new Win32::CButton(_T("+"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-    m_removeButton  = new Win32::CButton(_T("-"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-    m_saveButton    = new Win32::CButton(_T("S"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+	m_moveUpButton		= new Win32::CButton(_T("Up"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+	m_moveDownButton	= new Win32::CButton(_T("Dn"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+    m_addButton			= new Win32::CButton(_T("+"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+    m_removeButton		= new Win32::CButton(_T("-"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+    m_saveButton		= new Win32::CButton(_T("S"), m_hWnd, Win32::CRect(0, 0, 1, 1));
 
     m_layout = 
         VerticalLayoutContainer(
             LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_playlistView)) +
             HorizontalLayoutContainer(
+                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_moveUpButton)) +
+                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_moveDownButton)) +
                 LayoutExpression(CLayoutStretch::Create()) +
                 LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_addButton)) +
                 LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_removeButton)) +
@@ -60,7 +66,15 @@ CPlaylistPanel::~CPlaylistPanel()
 
 long CPlaylistPanel::OnCommand(unsigned short cmd, unsigned short id, HWND sender)
 {
-    if(CWindow::IsCommandSource(m_saveButton, sender))
+	if(CWindow::IsCommandSource(m_moveUpButton, sender))
+	{
+		OnMoveUpButtonClick();
+	}
+	else if(CWindow::IsCommandSource(m_moveDownButton, sender))
+	{
+		OnMoveDownButtonClick();
+	}
+    else if(CWindow::IsCommandSource(m_saveButton, sender))
     {
         OnSaveButtonClick();
     }
@@ -93,6 +107,22 @@ void CPlaylistPanel::OnPlaylistViewDblClick(NMITEMACTIVATE* itemActivate)
 {
     if(itemActivate->iItem == -1) return;
     OnItemDblClick(itemActivate->iItem);
+}
+
+void CPlaylistPanel::OnMoveUpButtonClick()
+{
+    int selection = m_playlistView->GetSelection();
+    if(selection == -1) return;
+	if(selection == 0) return;
+	ExchangeItems(selection - 1, selection);
+}
+
+void CPlaylistPanel::OnMoveDownButtonClick()
+{
+    int selection = m_playlistView->GetSelection();
+    if(selection == -1) return;
+	if(selection == m_playlistView->GetItemCount() - 1) return;
+	ExchangeItems(selection + 1, selection);
 }
 
 void CPlaylistPanel::OnAddButtonClick()
@@ -134,6 +164,15 @@ void CPlaylistPanel::ModifyItem(int index, const TCHAR* title, const TCHAR* leng
 
     m_playlistView->SetItemText(index, 0, title);
     m_playlistView->SetItemText(index, 1, length);
+}
+
+void CPlaylistPanel::ExchangeItems(unsigned int dst, unsigned int src)
+{
+	m_playlist.ExchangeItems(dst, src);
+	m_playlistView->SetSelection(dst);
+	m_playlistView->SetItemState(src,	0,								LVIS_FOCUSED | LVIS_SELECTED);
+	m_playlistView->SetItemState(dst,	LVIS_FOCUSED | LVIS_SELECTED,	LVIS_FOCUSED | LVIS_SELECTED);
+	m_playlistView->EnsureItemVisible(dst, true);
 }
 
 void CPlaylistPanel::CreateColumns()

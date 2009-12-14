@@ -37,6 +37,9 @@ private:
     void                                OnPlaylistItemsClear();
     void                                AddItem(const TCHAR*, const TCHAR*);
     void                                ModifyItem(int, const TCHAR*, const TCHAR*);
+	void								ExchangeItems(unsigned int, unsigned int);
+	void								OnMoveUpButtonClick();
+	void								OnMoveDownButtonClick();
     void                                OnAddButtonClick();
     void                                OnRemoveButtonClick();
     void                                OnSaveButtonClick();
@@ -46,9 +49,11 @@ private:
 
     CPlaylist&                          m_playlist;
     Framework::Win32::CListView*        m_playlistView;
-    Framework::Win32::CButton*          m_addButton;
+	Framework::Win32::CButton*			m_moveUpButton;
+	Framework::Win32::CButton*			m_moveDownButton;
+	Framework::Win32::CButton*          m_addButton;
     Framework::Win32::CButton*          m_removeButton;
-    Framework::Win32::CButton*          m_saveButton;
+	Framework::Win32::CButton*          m_saveButton;
 };
 
 #endif
