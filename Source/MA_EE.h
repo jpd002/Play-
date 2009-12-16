@@ -101,7 +101,9 @@ private:
 	void							    QFSRV();
 
 	//Mmi2
+	void								PMFHI();
     void                                PMFLO();
+	void								PMULTW();
     void                                PDIVW();
 	void							    PCPYLD();
 	void							    PAND();
@@ -115,6 +117,7 @@ private:
 	void							    POR();
 	void							    PNOR();
 	void							    PCPYH();
+	void								PEXCW();
 
     void                                Generic_MADD(unsigned int);
 

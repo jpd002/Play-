@@ -261,6 +261,7 @@ void CCOP_VU::VMAXbc()
 }
 
 //14
+//15
 //17
 void CCOP_VU::VMINIbc()
 {
@@ -472,6 +473,12 @@ void CCOP_VU::VITOF12()
 	VUShared::ITOF12(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//05
+void CCOP_VU::VFTOI12()
+{
+	VUShared::FTOI12(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //0B
 void CCOP_VU::VOPMULA()
 {
@@ -547,7 +554,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x08
 	&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,
 	//0x10
-	&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,
+	&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,
 	//0x18
 	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIi,
 	//0x20
@@ -587,7 +594,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
 {
 	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF12,		&CCOP_VU::Illegal,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF12,		&CCOP_VU::VFTOI12,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
 	//0x08
 	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VRSQRT,		&CCOP_VU::Illegal,
 	//0x10

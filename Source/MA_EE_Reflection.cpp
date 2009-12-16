@@ -194,11 +194,11 @@ INSTRUCTION CMA_EE::m_cReflMmi2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x08
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PMFHI",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
 	{	"PMFLO",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PMULTW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
     {	"PDIVW",	NULL,			CopyMnemonic,		ReflOpRsRt,			NULL,				NULL			},
 	{	"PCPYLD",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -258,7 +258,7 @@ INSTRUCTION CMA_EE::m_cReflMmi3[32] =
 	{	"PCPYH",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PEXCW",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
 
