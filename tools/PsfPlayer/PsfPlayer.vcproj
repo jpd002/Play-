@@ -297,19 +297,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\win32_ui\CounterRegView.cpp"
+					RelativePath=".\Source\win32_ui\FileInformationPanel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\win32_ui\CounterRegView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\win32_ui\FileInformationWindow.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\win32_ui\FileInformationWindow.h"
+					RelativePath=".\Source\win32_ui\FileInformationPanel.h"
 					>
 				</File>
 				<File
@@ -334,14 +326,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\win32_ui\Panel.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\win32_ui\PlayerWnd.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\win32_ui\PlayerWnd.h"
 					>
 				</File>
 				<File
@@ -984,6 +968,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\win32_ui\images\PsfPlayer.ico"
+			>
+		</File>
+		<File
+			RelativePath=".\Todolist.txt"
 			>
 		</File>
 	</Files>

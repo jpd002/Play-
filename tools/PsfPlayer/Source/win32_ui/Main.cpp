@@ -1,6 +1,5 @@
 #include "PsfVm.h"
 #include "PsfLoader.h"
-#include "PlayerWnd.h"
 #include "MainWindow.h"
 #include "MiniDebugger.h"
 #include <boost/filesystem/path.hpp>
@@ -34,7 +33,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
 		CMainWindow window(virtualMachine);
 		window.Center();
 		window.Show(SW_SHOW);
-		Win32::CWindow::StdMsgLoop(&window);
+		window.Run();
 //		CPlayerWnd player(virtualMachine);
 //		player.Center();
 //		player.Show(SW_SHOW);

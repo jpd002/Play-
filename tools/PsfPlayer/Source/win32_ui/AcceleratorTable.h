@@ -13,7 +13,7 @@ namespace Framework
 						CAcceleratorTable(HACCEL);
 			virtual		~CAcceleratorTable();
 
-						operator HACCEL();
+						operator HACCEL() const;
 		private:
 			HACCEL		m_accel;
 		};

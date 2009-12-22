@@ -6,6 +6,7 @@
 #include "win32/Rect.h"
 #include "win32/FileDialog.h"
 #include "win32/MenuItem.h"
+#include "win32/AcceleratorTableGenerator.h"
 #include "layout/LayoutEngine.h"
 #include "placeholder_def.h"
 #include "lexical_cast_ex.h"
@@ -17,7 +18,6 @@
 #define CLSNAME			                _T("MainWindow")
 #define WNDSTYLE		                (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX)
 #define WNDSTYLEEX		                (0)
-#define WM_UPDATEVIS	                (WM_USER + 1)
 
 #define ID_FILE_AUDIOPLUGIN_PLUGIN_0    (0xBEEF)
 
@@ -42,8 +42,13 @@ m_writes(0),
 m_selectedAudioHandler(0),
 m_ejectButton(NULL),
 m_pauseButton(NULL),
+m_repeatButton(NULL),
 m_playlistPanel(NULL),
-m_currentPlaylistItem(0)
+m_fileInformationPanel(NULL),
+m_nextPanelButton(NULL),
+m_prevPanelButton(NULL),
+m_currentPlaylistItem(0),
+m_accel(CreateAccelerators())
 {
     for(unsigned int i = 0; i < MAX_PANELS; i++)
     {
@@ -75,7 +80,11 @@ m_currentPlaylistItem(0)
 
     m_placeHolder = new Win32::CStatic(m_hWnd, Win32::CRect(0, 0, 1, 1), SS_BLACKRECT);
 
-    m_nextButton = new Win32::CButton(_T(">>"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+	m_nextPanelButton = new Win32::CButton(_T(">"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+	m_prevPanelButton = new Win32::CButton(_T("<"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+	m_repeatButton = new Win32::CButton(_T("Repeat"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+
+	m_nextButton = new Win32::CButton(_T(">>"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     m_prevButton = new Win32::CButton(_T("<<"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     m_pauseButton = new Win32::CButton(_T("Pause"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     m_ejectButton = new Win32::CButton(_T("Eject"), m_hWnd, Win32::CRect(0, 0, 1, 1));
@@ -86,7 +95,14 @@ m_currentPlaylistItem(0)
         VerticalLayoutContainer(
             LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_titleLabel)) +
             LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_timerLabel)) +
-            LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_placeHolder)) +
+            HorizontalLayoutContainer(
+                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_prevPanelButton)) +
+                LayoutExpression(CLayoutStretch::Create()) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_repeatButton)) +
+                LayoutExpression(CLayoutStretch::Create()) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_nextPanelButton))
+            ) +
+			LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_placeHolder)) +
             HorizontalLayoutContainer(
                 LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_prevButton)) +
                 LayoutExpression(CLayoutStretch::Create()) +
@@ -116,8 +132,12 @@ m_currentPlaylistItem(0)
     m_playlistPanel->OnRemoveClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistRemoveClick, this, std::tr1::placeholders::_1));
     m_playlistPanel->OnSaveClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistSaveClick, this));
 
+	//Create file information panel
+	m_fileInformationPanel = new CFileInformationPanel(m_placeHolder->m_hWnd);
+
     //Initialize panels    
     m_panels[0] = m_playlistPanel;
+	m_panels[1] = m_fileInformationPanel;
 
     CreateAudioPluginMenu();
     UpdateAudioPluginMenu();
@@ -126,12 +146,27 @@ m_currentPlaylistItem(0)
     UpdateButtons();
 	RefreshLayout();
 
-    m_panels[0]->Show(SW_SHOW);
+	m_currentPanel = -1;
+	ActivatePanel(0);
 }
 
 CMainWindow::~CMainWindow()
 {
 	m_virtualMachine.Pause();
+}
+
+void CMainWindow::Run()
+{
+    while(IsWindow())
+    {
+        MSG msg;
+        GetMessage(&msg, 0, 0, 0);
+        if(!TranslateAccelerator(m_hWnd, m_accel, &msg))
+        {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+        }
+    }
 }
 
 void CMainWindow::RefreshLayout()
@@ -196,6 +231,14 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
     {
         OnPrev();
     }
+	else if(CWindow::IsCommandSource(m_nextPanelButton, hControl))
+	{
+		OnNextPanel();
+	}
+	else if(CWindow::IsCommandSource(m_prevPanelButton, hControl))
+	{
+		OnPrevPanel();
+	}
     else
     {
 	    switch(nID)
@@ -206,6 +249,9 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
         case ID_FILE_EXIT:
 		    DestroyWindow(m_hWnd);
             break;
+		case ID_FILE_PAUSE:
+			OnPause();
+			break;
 	    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 0:
 	    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 1:
 	    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 2:
@@ -409,6 +455,14 @@ void CMainWindow::ChangeAudioPlugin(unsigned int pluginIdx)
     UpdateAudioPluginMenu();
 }
 
+HACCEL CMainWindow::CreateAccelerators()
+{
+	Win32::CAcceleratorTableGenerator tableGenerator;
+	tableGenerator.Insert(ID_FILE_PAUSE,			VK_F5,	FVIRTKEY);
+//	tableGenerator.Insert(ID_SETTINGS_ENABLEREVERB,	'R',	FVIRTKEY | FCONTROL);	
+	return tableGenerator.Create();
+}
+
 void CMainWindow::OnNewFrame()
 {
 	m_frames++;
@@ -483,6 +537,29 @@ void CMainWindow::OnNext()
     OnPlaylistItemDblClick(m_currentPlaylistItem);
 }
 
+void CMainWindow::OnPrevPanel()
+{
+	unsigned int newPanelIdx = (m_currentPanel == 0) ? (MAX_PANELS - 1) : (m_currentPanel - 1);
+	ActivatePanel(newPanelIdx);
+}
+
+void CMainWindow::OnNextPanel()
+{
+	unsigned int newPanelIdx = (m_currentPanel == MAX_PANELS - 1) ? 0 : (m_currentPanel + 1);
+	ActivatePanel(newPanelIdx);
+}
+
+void CMainWindow::ActivatePanel(unsigned int panelIdx)
+{
+	if(m_currentPanel != -1)
+	{
+		m_panels[m_currentPanel]->Show(SW_HIDE);
+	}
+	m_currentPanel = panelIdx;
+	m_panels[m_currentPanel]->RefreshLayout();
+	m_panels[m_currentPanel]->Show(SW_SHOW);
+}
+
 void CMainWindow::OnAbout()
 {
     CAboutWindow about(m_hWnd);
@@ -533,6 +610,7 @@ bool CMainWindow::PlayFile(const char* path)
 		{
 
 		}
+		m_fileInformationPanel->SetTags(m_tags);
 		m_virtualMachine.Resume();
 		m_ready = true;
 	}

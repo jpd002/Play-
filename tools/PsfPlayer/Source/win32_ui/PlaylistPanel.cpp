@@ -8,7 +8,6 @@
 #define CLSNAME			                _T("PlaylistPanel")
 #define WNDSTYLE		                (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CHILD)
 #define WNDSTYLEEX		                (0)
-#define WM_UPDATEVIS	                (WM_USER + 1)
 
 using namespace Framework;
 

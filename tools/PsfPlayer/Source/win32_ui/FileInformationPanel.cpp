@@ -1,37 +1,27 @@
-#include "FileInformationWindow.h"
+#include "FileInformationPanel.h"
 #include "win32/Rect.h"
 #include "win32/Static.h"
 #include "layout/LayoutEngine.h"
 #include "string_cast.h"
 
-#define CLSNAME		_T("FileInformationWindow")
-#define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
+#define CLSNAME			                _T("PlaylistPanel")
+#define WNDSTYLE		                (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CHILD)
+#define WNDSTYLEEX		                (0)
 
-#define LABEL_COLUMN_WIDTH	(50)
+#define LABEL_COLUMN_WIDTH	(70)
 
 using namespace Framework;
 using namespace std;
 
-CFileInformationWindow::CFileInformationWindow(HWND parent, const CPsfTags& tags) :
-CModalWindow(parent),
-m_tags(tags)
+CFileInformationPanel::CFileInformationPanel(HWND parentWnd)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
-		WNDCLASSEX w;
-		memset(&w, 0, sizeof(WNDCLASSEX));
-		w.cbSize		= sizeof(WNDCLASSEX);
-		w.lpfnWndProc	= CWindow::WndProc;
-		w.lpszClassName	= CLSNAME;
-		w.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
-		w.hInstance		= GetModuleHandle(NULL);
-		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
-		RegisterClassEx(&w);
+		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("File Information"), WNDSTYLE, Win32::CRect(0, 0, 400, 400), parent, NULL);
-	SetClassPtr();
+    Create(WNDSTYLEEX, CLSNAME, _T(""), WNDSTYLE, Win32::CRect(0, 0, 1, 1), parentWnd, NULL);
+    SetClassPtr();
 
 	m_title		= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
 	m_artist	= new Win32::CEdit(m_hWnd, Win32::CRect(0, 0, 0, 0), _T(""), ES_READONLY);
@@ -92,22 +82,46 @@ m_tags(tags)
 		);
 
 	RefreshLayout();
+}
+
+CFileInformationPanel::~CFileInformationPanel()
+{
+
+}
+
+void CFileInformationPanel::SetTags(const CPsfTags& tags)
+{
+	m_tags = tags;
 	UpdateFields();
 }
 
-CFileInformationWindow::~CFileInformationWindow()
+void CFileInformationPanel::RefreshLayout()
 {
+    //Resize panel
+    {
+        Win32::CRect clientRect(0, 0, 0, 0);
+        ::GetClientRect(GetParent(), clientRect);
+        SetSizePosition(clientRect);
+    }
 
+	{
+		RECT rc = GetClientRect();
+		m_layout->SetRect(rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
+		m_layout->RefreshGeometry();
+	}
 }
 
-void CFileInformationWindow::RefreshLayout()
+long CFileInformationPanel::OnCommand(unsigned short, unsigned short, HWND)
 {
-	RECT rc = GetClientRect();
-	m_layout->SetRect(rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
-	m_layout->RefreshGeometry();
+	return TRUE;    
 }
 
-void CFileInformationWindow::UpdateFields()
+long CFileInformationPanel::OnNotify(WPARAM, NMHDR*)
+{
+	return TRUE;
+}
+
+void CFileInformationPanel::UpdateFields()
 {
 	m_title->SetText(string_cast<tstring>(m_tags.GetTagValue("title")).c_str());
 	m_artist->SetText(string_cast<tstring>(m_tags.GetTagValue("artist")).c_str());

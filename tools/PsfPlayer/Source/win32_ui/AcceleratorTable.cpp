@@ -13,7 +13,7 @@ CAcceleratorTable::~CAcceleratorTable()
 	DestroyAcceleratorTable(m_accel);
 }
 
-CAcceleratorTable::operator HACCEL()
+CAcceleratorTable::operator HACCEL() const
 {
 	return m_accel;
 }
