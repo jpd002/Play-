@@ -84,7 +84,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 
 	case IPU_BP + 0x0:
         assert(!m_isBusy);
-		return ((m_IN_FIFO.GetSize() / 0x10) << 8) | (m_IN_FIFO.GetBitPosition());
+		return ((m_IN_FIFO.GetSize() / 0x10) << 8) | (m_IN_FIFO.GetBitIndex());
 		break;
 
 	case IPU_BP + 0x4:
@@ -292,7 +292,7 @@ void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQS
 {
 	CIDecFifo IDecFifo;
 
-	m_IN_FIFO.SkipBits(nFB);
+	m_IN_FIFO.Advance(nFB);
 
 	bool nResetDc = true;
 
@@ -300,7 +300,7 @@ void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQS
 	{
 		uint8 nDCTType;
 
-		uint32 nMBType = CMacroblockTypeITable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
+		uint32 nMBType = CMacroblockTypeITable::GetInstance()->GetSymbol(&m_IN_FIFO) >> 16;
 
 		if(nDTD != 0)
 		{
@@ -329,7 +329,7 @@ void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQS
 			break;
 		}
 		
-		uint32 nMBAIncrement = CMacroblockAddressIncrementTable::GetInstance()->Decode(&m_IN_FIFO) >> 16;
+		uint32 nMBAIncrement = CMacroblockAddressIncrementTable::GetInstance()->GetSymbol(&m_IN_FIFO) >> 16;
 		assert(nMBAIncrement == 1);
 	}
 }
@@ -360,12 +360,12 @@ void CIPU::DecodeBlock(COutFifoBase* pOutput, uint8 nMBI, uint8 nDCR, uint8 nDT,
 		{ nCrBlock,		2 },
 	};
 
-	m_IN_FIFO.SkipBits(nFB);
+	m_IN_FIFO.Advance(nFB);
 
 	if(nMBI == 0)
 	{
 		//Not an Intra Macroblock, so we need to fetch the pattern code
-		nCodedBlockPattern = (uint8)CCodedBlockPatternTable::GetInstance()->Decode(&m_IN_FIFO);
+		nCodedBlockPattern = (uint8)CCodedBlockPatternTable::GetInstance()->GetSymbol(&m_IN_FIFO);
 	}
 	else
 	{
@@ -493,14 +493,14 @@ void CIPU::VariableLengthDecode(uint8 nTBL, uint8 nFB)
 		break;
 	}
 
-	m_IN_FIFO.SkipBits(nFB);
-	m_IPU_CMD[0] = pTable->Decode(&m_IN_FIFO);
+	m_IN_FIFO.Advance(nFB);
+	m_IPU_CMD[0] = pTable->GetSymbol(&m_IN_FIFO);
 //    CLog::GetInstance().Print(LOG_NAME, "VDEC result: %0.8X.\r\n", m_IPU_CMD[0]);
 }
 
 void CIPU::FixedLengthDecode(uint8 nFB)
 {
-    m_IN_FIFO.SkipBits(nFB);
+    m_IN_FIFO.Advance(nFB);
     m_IPU_CMD[0] = m_IN_FIFO.PeekBits_MSBF(32);
 //    CLog::GetInstance().Print(LOG_NAME, "FDEC result: %0.8X.\r\n", m_IPU_CMD[0]);
 }
@@ -847,11 +847,11 @@ int16 CIPU::GetDcDifferential(unsigned int nChannel)
 	switch(nChannel)
 	{
 	case 0:
-		nDcSize = (uint8)CDcSizeLuminanceTable::GetInstance()->Decode(&m_IN_FIFO);
+		nDcSize = (uint8)CDcSizeLuminanceTable::GetInstance()->GetSymbol(&m_IN_FIFO);
 		break;
 	case 1:
 	case 2:
-		nDcSize = (uint8)CDcSizeChrominanceTable::GetInstance()->Decode(&m_IN_FIFO);
+		nDcSize = (uint8)CDcSizeChrominanceTable::GetInstance()->GetSymbol(&m_IN_FIFO);
 		break;
 	}
 
@@ -1084,18 +1084,18 @@ uint32 CIPU::CINFIFO::GetBits_MSBF(uint8 nBits)
 	uint32 nValue;
 
 	nValue = PeekBits_MSBF(nBits);
-	SkipBits(nBits);
+	Advance(nBits);
 
 	return nValue;
 }
 
-uint32 CIPU::CINFIFO::PeekBits_LSBF(uint8 nBits)
+bool CIPU::CINFIFO::TryPeekBits_LSBF(uint8 nBits, uint32& result)
 {
 	//Shouldn't be used
-	return 0;
+	return false;
 }
 
-uint32 CIPU::CINFIFO::PeekBits_MSBF(uint8 nBits)
+bool CIPU::CINFIFO::TryPeekBits_MSBF(uint8 nBits, uint32& result)
 {
     boost::mutex::scoped_lock accessLock(m_accessMutex);
 
@@ -1121,10 +1121,11 @@ uint32 CIPU::CINFIFO::PeekBits_MSBF(uint8 nBits)
 		nBitPosition++;
 	}
 
-	return nTemp;
+	result = nTemp;
+	return true;
 }
 
-void CIPU::CINFIFO::SkipBits(uint8 nBits)
+void CIPU::CINFIFO::Advance(uint8 nBits)
 {
     if(nBits == 0) return;
 
@@ -1165,9 +1166,9 @@ bool CIPU::CINFIFO::IsOnByteBoundary()
 	return false;
 }
 
-unsigned int CIPU::CINFIFO::GetBitPosition()
+uint8 CIPU::CINFIFO::GetBitIndex() const
 {
-    boost::mutex::scoped_lock accessLock(m_accessMutex);
+    boost::mutex::scoped_lock accessLock(const_cast<CINFIFO*>(this)->m_accessMutex);
 	return m_nBitPosition;
 }
 
@@ -1221,9 +1222,9 @@ void CIPU::CIDecFifo::Flush()
 	//Nothing to do
 }
 
-uint32 CIPU::CIDecFifo::PeekBits_MSBF(uint8 nLength)
+bool CIPU::CIDecFifo::TryPeekBits_MSBF(uint8 nLength, uint32& result)
 {
-	throw exception();
+	return false;
 }
 
 uint32 CIPU::CIDecFifo::GetBits_MSBF(uint8 nLength)
@@ -1233,9 +1234,9 @@ uint32 CIPU::CIDecFifo::GetBits_MSBF(uint8 nLength)
 	return m_nBuffer[m_nReadPtr++];
 }
 
-uint32 CIPU::CIDecFifo::PeekBits_LSBF(uint8 nLength)
+bool CIPU::CIDecFifo::TryPeekBits_LSBF(uint8 nLength, uint32& result)
 {
-	throw exception();
+	return false;
 }
 
 uint32 CIPU::CIDecFifo::GetBits_LSBF(uint8 nLength)
@@ -1251,4 +1252,15 @@ void CIPU::CIDecFifo::SeekToByteAlign()
 bool CIPU::CIDecFifo::IsOnByteBoundary()
 {
 	throw exception();
+}
+
+void CIPU::CIDecFifo::Advance(uint8)
+{
+
+}
+
+uint8 CIPU::CIDecFifo::GetBitIndex() const
+{
+	assert(0);
+	return 0;
 }

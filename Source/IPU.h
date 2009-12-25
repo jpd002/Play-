@@ -74,10 +74,12 @@ private:
 		virtual void	Flush();
 		virtual uint32	GetBits_LSBF(uint8);
 		virtual uint32	GetBits_MSBF(uint8);
-		virtual uint32	PeekBits_LSBF(uint8);
-		virtual uint32	PeekBits_MSBF(uint8);
+		virtual bool	TryPeekBits_LSBF(uint8, uint32&);
+		virtual bool	TryPeekBits_MSBF(uint8, uint32&);
 		virtual void	SeekToByteAlign();
 		virtual bool	IsOnByteBoundary();
+		virtual void	Advance(uint8);
+		virtual uint8	GetBitIndex() const;
 
 	private:
 		enum BUFFERSIZE
@@ -98,12 +100,12 @@ private:
 		void            Write(void*, unsigned int);
 		uint32          GetBits_MSBF(uint8);
 		uint32          GetBits_LSBF(uint8);
-		uint32          PeekBits_LSBF(uint8);
-		uint32          PeekBits_MSBF(uint8);
-		void            SkipBits(uint8);
+		bool	        TryPeekBits_LSBF(uint8, uint32&);
+		bool            TryPeekBits_MSBF(uint8, uint32&);
+		void            Advance(uint8);
 		void			SeekToByteAlign();
 		bool            IsOnByteBoundary();
-		unsigned int    GetBitPosition();
+		uint8		    GetBitIndex() const;
 		void            SetBitPosition(unsigned int);
 		unsigned int    GetSize();
 		void            Reset();
