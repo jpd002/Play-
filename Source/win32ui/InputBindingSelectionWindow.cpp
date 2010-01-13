@@ -61,7 +61,7 @@ long CInputBindingSelectionWindow::OnActivate(unsigned int activationType, bool 
     return TRUE;
 }
 
-long CInputBindingSelectionWindow::OnTimer()
+long CInputBindingSelectionWindow::OnTimer(WPARAM)
 {
     m_directInputManager->ProcessEvents(bind(&CInputBindingSelectionWindow::ProcessEvent, this, 
         PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));

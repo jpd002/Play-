@@ -15,7 +15,7 @@ public:
     virtual                         ~CInputBindingSelectionWindow();
 
 protected:
-    long                            OnTimer();
+    long                            OnTimer(WPARAM);
     long                            OnActivate(unsigned int, bool, HWND);
 
 private:

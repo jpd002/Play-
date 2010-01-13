@@ -114,7 +114,7 @@ CSysInfoWnd::~CSysInfoWnd()
 	WaitForSingleObject(m_nRDTSCThread, INFINITE);
 }
 
-long CSysInfoWnd::OnTimer()
+long CSysInfoWnd::OnTimer(WPARAM)
 {
 	UpdateSchedulerInfo();
 	//UpdateProcessor();

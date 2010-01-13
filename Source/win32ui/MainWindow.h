@@ -21,7 +21,7 @@ public:
 	int								Loop();
 
 protected:
-	long							OnTimer();
+	long							OnTimer(WPARAM);
 	long							OnCommand(unsigned short, unsigned short, HWND);
 	long							OnActivateApp(bool, unsigned long);
 
