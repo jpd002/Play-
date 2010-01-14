@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Purei"
 	ProjectGUID="{2A7B9B2D-FE38-468D-BA90-EE27EC0F49FA}"
 	RootNamespace="Purei"
@@ -251,18 +251,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\COP_SCU.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\COP_VU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\COP_VU.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\COP_VU_Reflection.cpp"
 				>
 			</File>
 			<File
@@ -1012,6 +1000,18 @@
 			<Filter
 				Name="Ee"
 				>
+				<File
+					RelativePath=".\Source\COP_VU.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\COP_VU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\COP_VU_Reflection.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\Source\DMAC.cpp"
 					>
