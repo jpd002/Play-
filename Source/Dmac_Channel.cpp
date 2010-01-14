@@ -163,6 +163,23 @@ void CChannel::ExecuteSourceChain()
 
 	while(m_CHCR.nSTR == 1)
 	{
+        //Check if MFIFO is enabled with this channel
+        if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
+        {
+            //Hold transfer if not ready
+            if(m_nTADR == m_dmac.m_D8.m_nMADR)
+            {
+                break;
+            }
+
+            uint32 currentPos = (m_nTADR & m_dmac.m_D_RBSR) + m_dmac.m_D_RBOR;
+            if(currentPos != m_nTADR)
+            {
+                int i = 0;
+                i++;
+            }
+        }
+
         //Check if device received DMAtag
         if(m_CHCR.nReserved0)
         {
