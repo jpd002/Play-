@@ -73,6 +73,12 @@ namespace Iop
                 uint32          whence;
             };
 
+            struct ACTIVATECOMMAND
+            {
+                COMMANDHEADER   header;
+                char            device[256];
+            };
+
             struct REPLYHEADER
             {
                 uint32  semaphoreId;
@@ -109,6 +115,15 @@ namespace Iop
             };
 
             struct SEEKREPLY
+            {
+                REPLYHEADER     header;
+                uint32          result;
+                uint32          unknown2;
+                uint32          unknown3;
+                uint32          unknown4;
+            };
+
+            struct ACTIVATEREPLY
             {
                 REPLYHEADER     header;
                 uint32          result;

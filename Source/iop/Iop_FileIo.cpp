@@ -243,10 +243,51 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
         }
         break;
+    case 23:
+        {
+            //No idea what that does...
+            assert(retSize == 4);
+            ACTIVATECOMMAND* command = reinterpret_cast<ACTIVATECOMMAND*>(args);
+            *ret = 0;
+
+            {
+                //Send response
+                ACTIVATEREPLY reply;
+                reply.header.commandId = 23;
+                CopyHeader(reply.header, command->header);
+                reply.result = *ret;
+                reply.unknown2 = 0;
+                reply.unknown3 = 0;
+                reply.unknown4 = 0;
+                memcpy(ram + resultPtr[0], &reply, sizeof(reply));
+            }
+
+            {
+                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
+                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                header->nCID = 0x80000011;
+                header->nSize = packetSize;
+                header->nDest = 0;
+                header->nOptional = 0;
+                m_sifMan.SendPacket(callbackPacket, packetSize);
+            }
+        }
+        break;
     case 255:
         //Not really sure about that...
-        assert(retSize == 8);
-        memcpy(ret, "....rawr", 8);
+        if(retSize == 8)
+        {
+            memcpy(ret, "....rawr", 8);
+        }
+        else if(retSize == 4)
+        {
+            memcpy(ret, "....", 4);
+        }
+        else
+        {
+            assert(0);
+        }
         resultPtr[0] = args[0];
         resultPtr[1] = args[1];
         break;
