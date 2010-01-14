@@ -95,6 +95,10 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                     output += lexical_cast_hex<string>(number, precisionValue);
                     paramDone = true;
                 }
+                else if(type == 'l')
+                {
+                    //Length specifier, don't bother about it.
+                }
                 else if(type == '.')
                 {
                     inPrecision = true;
