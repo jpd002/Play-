@@ -34,6 +34,32 @@ namespace Iop
 		};
 
 	private:
+		struct PADDATAEXEX
+		{
+			uint8			nData[32];			//+0x00
+			uint32			nReserved0;			//+0x20
+			uint32			nReserved1;			//+0x24
+			uint32			nReserved2;			//+0x28
+			uint32			nReserved3;			//+0x2C
+			uint8			nReserved4[0x20];	//+0x30
+			uint16			nModeTable[4];		//+0x50
+			uint32			nFrame;				//+0x58
+			uint32			nReserved5;			//+0x5C
+			uint32			nLength;			//+0x60
+			uint8			nModeOk;			//+0x64
+			uint8			nModeCurId;			//+0x65
+			uint8			nReserved6[2];		//+0x66
+			uint8			nNrOfModes;			//+0x68
+			uint8			nModeCurOffset;		//+0x69
+			uint8			nReserved7[0x6];	//+0x6A
+			uint8			nState;				//+0x70
+			uint8			nReqState;			//+0x71
+			uint8			nOk;				//+0x72
+			uint8			nReserved8;			//+0x73
+			uint32			nReserved9[3];		//+0x74
+		};
+		BOOST_STATIC_ASSERT(sizeof(PADDATAEXEX) == 0x80);
+
 		struct PADDATAEX
 		{
 			uint8			nData[32];
@@ -82,6 +108,7 @@ namespace Iop
 			virtual void		SetModeCurId(unsigned int) = 0;
 			virtual void		SetModeCurOffset(unsigned int) = 0;
 			virtual void		SetModeTable(unsigned int, unsigned int) = 0;
+			virtual void		SetNumberOfModes(unsigned int) = 0;
 		};
 
 		template <typename T> class CPadDataHandler : public CPadDataInterface
@@ -147,6 +174,11 @@ namespace Iop
 				m_pPadData->nModeTable[nIndex] = nValue;
 			}
 
+			virtual void SetNumberOfModes(unsigned int number)
+			{
+				m_pPadData->nNrOfModes = number;
+			}
+
 		private:
 			T*		m_pPadData;
 		};
@@ -173,6 +205,7 @@ namespace Iop
     template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int);
     template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int);
     template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int);
+	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetNumberOfModes(unsigned int);
 }
 
 #endif

@@ -166,7 +166,7 @@ void CPadMan::ExecutePadDataFunction(const PadDataFunction& Function, void* pBas
 		break;
 	case 1:
         {
-            CPadDataHandler<PADDATAEX> padData(reinterpret_cast<PADDATAEX*>(pBase) + nOffset);
+            CPadDataHandler<PADDATAEXEX> padData(reinterpret_cast<PADDATAEXEX*>(pBase) + nOffset);
             Function(&padData);
         }
 		break;
@@ -206,6 +206,7 @@ void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
 	pPadData->SetModeCurId(MODE << 4);
 	pPadData->SetModeCurOffset(0);
 	pPadData->SetModeTable(0, MODE);
+	pPadData->SetNumberOfModes(4);
 }
 
 void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, CControllerInfo::BUTTON nButton, bool nPressed)
@@ -264,6 +265,11 @@ template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(un
 }
 
 template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int)
+{
+
+}
+
+template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetNumberOfModes(unsigned int)
 {
 
 }
