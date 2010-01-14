@@ -15,7 +15,10 @@ CGSH_OpenGL::CGSH_OpenGL() :
 //m_currentPixelBuffer(0),
 m_pProgram(NULL),
 m_pVertShader(NULL),
-m_pFragShader(NULL)
+m_pFragShader(NULL),
+m_pCLUT(NULL),
+m_pCLUT16(NULL),
+m_pCLUT32(NULL)
 {
 	m_pCvtBuffer = NULL;
 
@@ -151,6 +154,8 @@ void CGSH_OpenGL::InitializeRC()
 	m_pCLUT		= malloc(0x400);
 	m_pCLUT32	= (uint32*)m_pCLUT;
 	m_pCLUT16	= (uint16*)m_pCLUT;
+	m_nCBP0		= 0;
+	m_nCBP1		= 0;
 
 	SetViewport(512, 384);
 
@@ -454,7 +459,6 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 		float nValue = (float)tst.nAlphaRef / 255.0f;
 		glAlphaFunc(nFunc, nValue);
 
-		//REMOVE
 		glEnable(GL_ALPHA_TEST);
 
 	}
@@ -832,17 +836,14 @@ void CGSH_OpenGL::Prim_Triangle()
 
 void CGSH_OpenGL::Prim_Sprite()
 {
-	double nX1, nX2;
-	double nY1, nY2;
-	double nZ1, nZ2;
-
-	double nU1, nU2;
-	double nV1, nV2;
-
 	RGBAQ rgbaq[2];
 
-	DECODE_XYZ2(m_VtxBuffer[1].nPosition, nX1, nY1, nZ1);
-	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX2, nY2, nZ2);
+	XYZ xyz[2];
+	xyz[0] <<= m_VtxBuffer[1].nPosition;
+	xyz[1] <<= m_VtxBuffer[0].nPosition;
+
+	float nX1 = xyz[0].GetX();	float nY1 = xyz[0].GetY();	float nZ1 = xyz[0].GetZ();
+	float nX2 = xyz[1].GetX();	float nY2 = xyz[1].GetY();	float nZ2 = xyz[1].GetZ();
 
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
 	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
@@ -865,7 +866,7 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	if(m_PrimitiveMode.nTexture)
 	{
-		double nS[2], nT[2];
+		float nS[2], nT[2];
 
 		glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
 
@@ -873,34 +874,33 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		if(m_PrimitiveMode.nUseUV)
 		{
-			DECODE_UV(m_VtxBuffer[1].nUV, nU1, nV1);
-			DECODE_UV(m_VtxBuffer[0].nUV, nU2, nV2);
+			UV uv[2];
+			uv[0] <<= m_VtxBuffer[1].nUV;
+			uv[1] <<= m_VtxBuffer[0].nUV;
 
-			nS[0] = nU1 / (double)m_nTexWidth;
-			nS[1] = nU2 / (double)m_nTexWidth;
+			nS[0] = uv[0].GetU() / static_cast<float>(m_nTexWidth);
+			nS[1] = uv[1].GetU() / static_cast<float>(m_nTexWidth);
 
-			nT[0] = nV1 / (double)m_nTexHeight;
-			nT[1] = nV2 / (double)m_nTexHeight;
+			nT[0] = uv[0].GetV() / static_cast<float>(m_nTexHeight);
+			nT[1] = uv[1].GetV() / static_cast<float>(m_nTexHeight);
 		}
 		else
 		{
-			double nS1, nS2;
-			double nT1, nT2;
-			double nQ1, nQ2;
+			ST st[2];
 
-			DECODE_ST(m_VtxBuffer[1].nST, nS1, nT1);
-			DECODE_ST(m_VtxBuffer[0].nST, nS2, nT2);
+			st[0] <<= m_VtxBuffer[1].nST;
+			st[1] <<= m_VtxBuffer[0].nST;
 
-			nQ1 = rgbaq[1].nQ;
-			nQ2 = rgbaq[0].nQ;
+			float nQ1 = rgbaq[1].nQ;
+			float nQ2 = rgbaq[0].nQ;
 			if(nQ1 == 0) nQ1 = 1;
 			if(nQ2 == 0) nQ2 = 1;
 
-			nS[0] = nS1 / nQ1;
-			nS[1] = nS2 / nQ2;
+			nS[0] = st[0].nS / nQ1;
+			nS[1] = st[1].nS / nQ2;
 
-			nT[0] = nT1 / nQ1;
-			nT[1] = nT2 / nQ2;
+			nT[0] = st[0].nT / nQ1;
+			nT[1] = st[1].nT / nQ2;
 		}
 
 		glBegin(GL_QUADS);
@@ -908,20 +908,20 @@ void CGSH_OpenGL::Prim_Sprite()
 			//REMOVE
             //glColor4d(1.0, 1.0, 1.0, 1.0);
 
-			glTexCoord2d(nS[0], nT[0]);
-			glVertex3d(nX1, nY1, nZ1);
+			glTexCoord2f(nS[0], nT[0]);
+			glVertex3f(nX1, nY1, nZ1);
 
-			glTexCoord2d(nS[1], nT[0]);
-			glVertex3d(nX2, nY1, nZ2);
+			glTexCoord2f(nS[1], nT[0]);
+			glVertex3f(nX2, nY1, nZ2);
 
 			//REMOVE
 			//glColor4d(1.0, 1.0, 1.0, 1.0);
 
-			glTexCoord2d(nS[1], nT[1]);
-			glVertex3d(nX2, nY2, nZ1);
+			glTexCoord2f(nS[1], nT[1]);
+			glVertex3f(nX2, nY2, nZ1);
 
-			glTexCoord2d(nS[0], nT[1]);
-			glVertex3d(nX1, nY2, nZ2);
+			glTexCoord2f(nS[0], nT[1]);
+			glVertex3f(nX1, nY2, nZ2);
 
 		}
 		glEnd();
@@ -937,10 +937,10 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		glBegin(GL_QUADS);
 
-			glVertex3d(nX1, nY1, nZ1);
-			glVertex3d(nX2, nY1, nZ2);
-			glVertex3d(nX2, nY2, nZ1);
-			glVertex3d(nX1, nY2, nZ2);
+			glVertex3f(nX1, nY1, nZ1);
+			glVertex3f(nX2, nY1, nZ2);
+			glVertex3f(nX2, nY2, nZ1);
+			glVertex3f(nX1, nY2, nZ2);
 
 		glEnd();
 	}
@@ -1012,23 +1012,31 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		VertexKick(nRegister, nData);
 		break;
 
+	case GS_REG_TEX0_1:
+	case GS_REG_TEX0_2:
+		{
+			unsigned int nContext = nRegister - GS_REG_TEX0_1;
+			assert(nContext == 0 || nContext == 1);
+			TEX0 tex0;
+			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
+			SyncCLUT(&tex0);
+		}
+		break;
+
 	case GS_REG_TEX2_1:
 	case GS_REG_TEX2_2:
 		{
-			unsigned int nContext;
+			//Update TEX0
+			unsigned int nContext = nRegister - GS_REG_TEX2_1;
+			assert(nContext == 0 || nContext == 1);
+
 			const uint64 nMask = 0xFFFFFFE003F00000ULL;
-			TEX0 Tex0;
-
-			nContext = nRegister - GS_REG_TEX2_1;
-
-			Tex0 = *(TEX0*)&m_nReg[GS_REG_TEX0_1 + nContext];
-			if(Tex0.nCLD == 1 && Tex0.nCPSM == 0)
-			{
-				ReadCLUT8(&Tex0);
-			}
-
 			m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
 			m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
+
+			TEX0 tex0;
+			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
+			SyncCLUT(&tex0);
 		}
 		break;
 
@@ -1115,22 +1123,19 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 	}
 }
 
-void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLenght)
+void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength)
 {
-	BITBLTBUF* pBuf;
-	FRAME* pFrame;
-	uint32 nFrameEnd;
+	FRAME* pFrame = GetFrame(0);
+	BITBLTBUF* pBuf = GetBitBltBuf();
 
-	pFrame = GetFrame(0);
-	pBuf = GetBitBltBuf();
+	TexCache_InvalidateTextures(nAddress, nLength);
 
-	TexCache_InvalidateTextures(nAddress, nLenght);
-
-	nFrameEnd = (pFrame->GetBasePtr() + (pFrame->GetWidth() * GetPsmPixelSize(pFrame->nPsm) / 8) * m_nHeight);
+	uint32 nFrameEnd = (pFrame->GetBasePtr() + (pFrame->GetWidth() * GetPsmPixelSize(pFrame->nPsm) / 8) * m_nHeight);
 	if(nAddress < nFrameEnd)
 	{
 		if((pFrame->nPsm == PSMCT24) && (pBuf->nDstPsm == PSMT4HH || pBuf->nDstPsm == PSMT4HL || pBuf->nDstPsm == PSMT8H)) return;
-
+        //This is for Atelier Iris
+        if(pBuf->nDstPsm == PSMCT24) return;
 		DisplayTransferedImage(nAddress);
 	}
 }

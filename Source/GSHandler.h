@@ -205,6 +205,18 @@ protected:
 	};
     BOOST_STATIC_ASSERT(sizeof(ST) == sizeof(uint64));
 
+	//Reg 0x03
+	struct UV : public convertible<uint64>
+	{
+		uint16			nU;
+		uint16			nV;
+		uint32			nReserved;
+
+		float			GetU()			{ return static_cast<float>(nU & 0x7FFF) / 16.0f; }
+		float			GetV()			{ return static_cast<float>(nV & 0x7FFF) / 16.0f; }
+	};
+    BOOST_STATIC_ASSERT(sizeof(UV) == sizeof(uint64));
+
 	//Reg 0x04/0x0C
 	struct XYZF
 	{
@@ -213,8 +225,8 @@ protected:
 		unsigned int	nZ				: 24;
 		unsigned int	nF				: 8;
 
-		double			GetX()			{ return (double)nX / 16.0; }
-		double			GetY()			{ return (double)nY / 16.0; }
+		float			GetX()			{ return static_cast<float>(nX) / 16.0f; }
+		float			GetY()			{ return static_cast<float>(nY) / 16.0f; }
 	};
 
 	//Reg 0x05/0x0D

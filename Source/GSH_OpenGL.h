@@ -107,6 +107,7 @@ private:
 	void							UpdateViewportImpl();
 	unsigned int					GetCurrentReadCircuit();
 	unsigned int					LoadTexture(TEX0*, TEX1*, CLAMP*);
+	void							SyncCLUT(TEX0*);
 
 	void							ReadCLUT4(TEX0*);
 	void							ReadCLUT8(TEX0*);
@@ -130,11 +131,12 @@ private:
 	void							SetupFogColor();
 	void							SetupTexture(uint64, uint64, uint64);
 
-	void							DumpTexture(unsigned int, unsigned int);
+	void							DumpTexture(unsigned int, unsigned int, uint32);
 
 	void							DisplayTransferedImage(uint32);
 
 	void							TexUploader_Psm32(TEX0*, TEXA*);
+    void                            TexUploader_Psm24(TEX0*, TEXA*);
 
 	void							TexUploader_Psm8_Cvt(TEX0*, TEXA*);
 	void							TexUploader_Psm8_Hw(TEX0*, TEXA*);
@@ -173,6 +175,8 @@ private:
 	void*							m_pCLUT;
 	uint16*							m_pCLUT16;
 	uint32*							m_pCLUT32;
+	uint32							m_nCBP0;
+	uint32							m_nCBP1;
 
 	void							VerifyRGBA5551Support();
 	bool							m_nIsRGBA5551Supported;

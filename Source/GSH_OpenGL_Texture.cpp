@@ -197,6 +197,12 @@ unsigned int CGSH_OpenGL::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
 	case PSMCT32:
 		TexUploader_Psm32(pReg0, &TexA);
 		break;
+    case 9:
+        TexUploader_Psm24(pReg0, &TexA);
+        break;
+    case PSMCT24:
+        TexUploader_Psm24(pReg0, &TexA);
+        break;
 	case PSMCT16:
 		((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
 		break;
@@ -250,7 +256,7 @@ unsigned int CGSH_OpenGL::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
 	*/
 	//
 
-//    DumpTexture(nWidth, nHeight);
+//    DumpTexture(nWidth, nHeight, textureChecksum);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -259,7 +265,29 @@ unsigned int CGSH_OpenGL::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
 	return nTexture;
 }
 
-void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
+void CGSH_OpenGL::SyncCLUT(TEX0* pReg0)
+{
+	//Sync clut
+	if(pReg0->nCLD != 0)
+	{
+		assert(pReg0->nPsm == PSMT8 || pReg0->nPsm == PSMT8H ||
+			pReg0->nPsm == PSMT4 || pReg0->nPsm == PSMT4HH || pReg0->nPsm == PSMT4HL);
+		switch(pReg0->nPsm)
+		{
+		case PSMT8:
+		case PSMT8H:
+			ReadCLUT8(pReg0);
+			break;
+		case PSMT4:
+		case PSMT4HH:
+		case PSMT4HL:
+			ReadCLUT4(pReg0);
+			break;
+		}
+	}
+}
+
+void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 checksum)
 {
 #ifdef WIN32
 	char sFilename[256];
@@ -267,7 +295,7 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight)
 	for(unsigned int i = 0; i < UINT_MAX; i++)
 	{
 	    struct _stat Stat;
-		sprintf(sFilename, "./textures/tex_%0.8X.bmp", i);
+		sprintf(sFilename, "./textures/tex_%0.8X_%0.8X.bmp", i, checksum);
 		if(_stat(sFilename, &Stat) == -1) break;
 	}
 
@@ -283,11 +311,16 @@ void CGSH_OpenGL::ReadCLUT4(TEX0* pTex0)
 	//assert(pTex0->nCSA == 0);
 	//assert(pTex0->nCLD == 1);
 
-	if(pTex0->nCLD != 1)
+//	if(pTex0->nCLD != 1)
+//	{
+//		memmove(m_pCLUT32, m_pCLUT32 + (pTex0->nCSA * 16), 0x40);
+//	}
+
+	if(pTex0->nCLD == 0)
 	{
-		memmove(m_pCLUT32, m_pCLUT32 + (pTex0->nCSA * 16), 0x40);
+
 	}
-	else
+	else if(pTex0->nCLD == 1)
 	{
 		if(pTex0->nCSM == 1)
 		{
@@ -347,15 +380,29 @@ void CGSH_OpenGL::ReadCLUT4(TEX0* pTex0)
 			}
 		}
 	}
+	else
+	{
+		assert(0);
+	}
 }
 
 void CGSH_OpenGL::ReadCLUT8(TEX0* pTex0)
 {
-	uint8 nIndex;
-
 	assert(pTex0->nCSA == 0);
-//	assert(pTex0->nCLD == 1);
 	assert(pTex0->nCSM == 0);
+
+	if(pTex0->nCLD == 1)
+	{
+		//Ok, load normally
+	}
+	else if(pTex0->nCLD == 2)
+	{
+		m_nCBP0 = pTex0->nCBP;
+	}
+	else
+	{
+		assert(0);
+	}
 
 	if(pTex0->nCPSM == PSMCT32)
 	{
@@ -365,7 +412,7 @@ void CGSH_OpenGL::ReadCLUT8(TEX0* pTex0)
 		{
 			for(unsigned int i = 0; i < 16; i++)
 			{
-				nIndex = i + (j * 16);
+				uint8 nIndex = i + (j * 16);
 				nIndex = (nIndex & ~0x18) | ((nIndex & 0x08) << 1) | ((nIndex & 0x10) >> 1);
 				m_pCLUT32[nIndex] = Indexor.GetPixel(i, j);
 			}
@@ -379,7 +426,7 @@ void CGSH_OpenGL::ReadCLUT8(TEX0* pTex0)
 		{
 			for(unsigned int i = 0; i < 16; i++)
 			{
-				nIndex = i + (j * 16);
+				uint8 nIndex = i + (j * 16);
 				nIndex = (nIndex & ~0x18) | ((nIndex & 0x08) << 1) | ((nIndex & 0x10) >> 1);
 				m_pCLUT16[nIndex] = Indexor.GetPixel(i, j);
 			}
@@ -393,21 +440,42 @@ void CGSH_OpenGL::ReadCLUT8(TEX0* pTex0)
 
 void CGSH_OpenGL::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA)
 {
-	unsigned int nWidth, nHeight, nDstPitch, i, j;
-	uint32 nPointer;
-	uint32* pDst;
-
-	nPointer	= pReg0->GetBufPtr();
-	nWidth		= pReg0->GetWidth();
-	nHeight		= pReg0->GetHeight();
-	nDstPitch	= nWidth;
-	pDst		= (uint32*)m_pCvtBuffer;
+	uint32 nPointer	        = pReg0->GetBufPtr();
+	unsigned int nWidth		= pReg0->GetWidth();
+	unsigned int nHeight	= pReg0->GetHeight();
+	unsigned int nDstPitch	= nWidth;
+	uint32* pDst		    = (uint32*)m_pCvtBuffer;
 
 	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
-	for(j = 0; j < nHeight; j++)
+	for(unsigned int j = 0; j < nHeight; j++)
 	{
-		for(i = 0; i < nWidth; i++)
+		for(unsigned int i = 0; i < nWidth; i++)
+		{
+			pDst[i] = Indexor.GetPixel(i, j);
+		}
+
+		pDst += nDstPitch;
+	}
+
+	glPixelTransferf(GL_ALPHA_SCALE, 2.0f);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, nWidth);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+}
+
+void CGSH_OpenGL::TexUploader_Psm24(TEX0* pReg0, TEXA* pTexA)
+{
+	uint32 nPointer	        = pReg0->GetBufPtr();
+	unsigned int nWidth		= pReg0->GetWidth();
+	unsigned int nHeight	= pReg0->GetHeight();
+	unsigned int nDstPitch	= nWidth;
+	uint32* pDst		    = (uint32*)m_pCvtBuffer;
+
+	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
+
+	for(unsigned int j = 0; j < nHeight; j++)
+	{
+		for(unsigned int i = 0; i < nWidth; i++)
 		{
 			pDst[i] = Indexor.GetPixel(i, j);
 		}
@@ -507,8 +575,7 @@ void CGSH_OpenGL::TexUploader_Psm8_Cvt(TEX0* pReg0, TEXA* pTexA)
 
 	CPixelIndexorPSMT8 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
-	ReadCLUT8(pReg0);
-
+	assert(pReg0->nCSA == 0);
 	if(pReg0->nCPSM == PSMCT32)
 	{
 		for(unsigned int j = 0; j < nHeight; j++)
@@ -559,8 +626,7 @@ uint32 CGSH_OpenGL::ConvertTexturePsm8(TEX0* pReg0, TEXA* pTexA)
 
 	CPixelIndexorPSMT8 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
-	ReadCLUT8(pReg0);
-
+	assert(pReg0->nCSA == 0);
 	if(pReg0->nCPSM == PSMCT32)
 	{
 		for(unsigned int j = 0; j < nHeight; j++)
@@ -612,8 +678,7 @@ uint32 CGSH_OpenGL::ConvertTexturePsm8H(TEX0* pReg0, TEXA* pTexA)
 
 	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
-	ReadCLUT8(pReg0);
-
+	assert(pReg0->nCSA == 0);
 	if(pReg0->nCPSM == PSMCT32)
 	{
 		for(j = 0; j < nHeight; j++)
@@ -664,16 +729,16 @@ uint32 CGSH_OpenGL::ConvertTexturePsm4(TEX0* pReg0, TEXA* pTexA)
 
     CPixelIndexorPSMT4 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
-	ReadCLUT4(pReg0);
-
 	if(pReg0->nCPSM == PSMCT32)
 	{
+		assert(pReg0->nCSA < 16);
+		uint32* clutBase = m_pCLUT32 + (pReg0->nCSA * 16);
 		for(unsigned int j = 0; j < nHeight; j++)
 		{
 			for(unsigned int i = 0; i < nWidth; i++)
 			{
 				uint32 nPixel = Indexor.GetPixel(i, j);
-				pDst[i] = m_pCLUT32[nPixel];
+				pDst[i] = clutBase[nPixel];
 			}
 
             checksum = crc32(checksum, reinterpret_cast<Bytef*>(pDst), sizeof(uint32) * nWidth);
@@ -844,10 +909,10 @@ void CGSH_OpenGL::TexUploader_Psm4_Cvt(TEX0* pReg0, TEXA* pTexA)
 
     uint32* pDst            = dstBuffer;
 
-    //////
-    CPixelIndexorPSMT4 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
+	assert(pReg0->nCSA == 0);
 
-	ReadCLUT4(pReg0);
+	//////
+    CPixelIndexorPSMT4 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
 	if(pReg0->nCPSM == PSMCT32)
 	{
@@ -909,8 +974,7 @@ void CGSH_OpenGL::TexUploader_Psm4H_Cvt(TEX0* pReg0, TEXA* pTexA)
 
 	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
-	ReadCLUT4(pReg0);
-
+	assert(pReg0->nCSA == 0);
 	if(pReg0->nCPSM == PSMCT32)
 	{
 		for(j = 0; j < nHeight; j++)
@@ -965,8 +1029,7 @@ void CGSH_OpenGL::TexUploader_Psm8H_Cvt(TEX0* pReg0, TEXA* pTexA)
 
 	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
 
-	ReadCLUT8(pReg0);
-
+	assert(pReg0->nCSA == 0);
 	if(pReg0->nCPSM == PSMCT32)
 	{
 		for(j = 0; j < nHeight; j++)

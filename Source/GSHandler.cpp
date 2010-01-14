@@ -301,7 +301,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			if((m_nPMODE & 0x01) && (m_nPMODE & 0x02))
 			{
 				CLog::GetInstance().Print(LOG_NAME, "Warning. Both read circuits were enabled. Using RC1 for display.\r\n");
-				m_nPMODE &= ~0x02;
+//				m_nPMODE &= ~0x02;
 			}
 		}
 		break;
@@ -343,7 +343,10 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 				dispfb->nY);
 #endif
             //Speed hack for Atelier Iris
-            Flip();
+			if((m_nPMODE & 0x03) != 0x03)
+			{
+				Flip();
+			}
 		}
 		break;
 	case 0x120000A:
@@ -428,7 +431,7 @@ void CGSHandler::UpdateViewport()
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
-	m_nReg[nRegister] = nData;
+    m_nReg[nRegister] = nData;
 
 	switch(nRegister)
 	{
@@ -499,7 +502,6 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 	}
 
 	BITBLTBUF* pBuf(GetBitBltBuf());
-	if(pBuf->nDstPsm == 1) return;
 	m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[pBuf->nDstPsm]))(pData, nLength);
 
 	m_TrxCtx.nSize -= nLength;
@@ -631,29 +633,21 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 
 bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 {
-	uint8* pSrc;
-	uint32* pDstPixel;
-	uint32 nSrcPixel;
-	uint32 nX, nY;
-	TRXPOS* pTrxPos;
-	TRXREG* pTrxReg;
-	BITBLTBUF* pTrxBuf;
-
-	pTrxPos = GetTrxPos();
-	pTrxReg = GetTrxReg();
-	pTrxBuf = GetBitBltBuf();
+	TRXPOS* pTrxPos = GetTrxPos();
+	TRXREG* pTrxReg = GetTrxReg();
+	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
 	CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
-	pSrc = (uint8*)pData;
+	uint8* pSrc = (uint8*)pData;
 
 	for(unsigned int i = 0; i < nLength; i += 3)
 	{
-		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-		pDstPixel = Indexor.GetPixelAddress(nX, nY);
-		nSrcPixel = (*(uint32*)&pSrc[i]) & 0x00FFFFFF;
+		uint32* pDstPixel = Indexor.GetPixelAddress(nX, nY);
+		uint32 nSrcPixel = (*(uint32*)&pSrc[i]) & 0x00FFFFFF;
 		(*pDstPixel) &= 0xFF000000;
 		(*pDstPixel) |= nSrcPixel;
 
@@ -670,15 +664,12 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 
 bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 {
-	//Gotta rewrite this
     bool dirty = false;
 	TRXPOS* pTrxPos = GetTrxPos();
 	TRXREG* pTrxReg = GetTrxReg();
 	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
 	CPixelIndexorPSMT4 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
-
-//	assert(0);
 
 	uint8* pSrc = (uint8*)pData;
 
@@ -926,6 +917,7 @@ unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
 		return 32;
 		break;
 	case PSMCT24:
+    case 9:
 		return 24;
 		break;
 	case PSMCT16:
