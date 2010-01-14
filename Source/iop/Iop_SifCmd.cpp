@@ -208,11 +208,14 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
     //Copy params
     assert(size <= INVOKE_PARAMS_SIZE);
     uint32 copySize = min<uint32>(size, INVOKE_PARAMS_SIZE);
-    memcpy(&m_ram[m_invokeParamsAddr], params, copySize);
+
+//    memcpy(&m_ram[m_invokeParamsAddr], params, copySize);
+    memcpy(&m_ram[serverData->buffer], params, copySize);
     CIopBios::THREAD& thread(m_bios.GetThread(dataQueue->threadId));
     thread.context.epc = serverData->function;
     thread.context.gpr[CMIPS::A0] = methodId;
-    thread.context.gpr[CMIPS::A1] = m_invokeParamsAddr;
+//    thread.context.gpr[CMIPS::A1] = m_invokeParamsAddr;
+    thread.context.gpr[CMIPS::A1] = serverData->buffer;
     thread.context.gpr[CMIPS::A2] = size;
     thread.context.gpr[CMIPS::S0] = serverDataAddr;
     thread.context.gpr[CMIPS::RA] = m_returnFromRpcInvokeAddr;
