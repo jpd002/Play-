@@ -60,16 +60,28 @@ public:
     class CSimulatedAxisBinding : public CBinding
     {
     public:
-        static void     RegisterPreferences(Framework::CConfig&, const char*);
+								CSimulatedAxisBinding(const BINDINGINFO&, const BINDINGINFO&);
+		virtual					~CSimulatedAxisBinding();
+
+        static void				RegisterPreferences(Framework::CConfig&, const char*);
+
+        virtual BINDINGTYPE     GetBindingType() const;
+        virtual void            ProcessEvent(const GUID&, uint32, uint32, PS2::CControllerInfo::BUTTON, const InputEventHandler&);
+        virtual void            Save(Framework::CConfig&, const char*) const;
+        virtual void            Load(Framework::CConfig&, const char*);
+        virtual std::tstring    GetDescription(DirectInput::CManager*) const;
 
     private:
-        BINDINGINFO     key1Binding;
-        BINDINGINFO     key2Binding;
+        BINDINGINFO				m_key1Binding;
+        BINDINGINFO				m_key2Binding;
+
+		uint32					m_key1State;
+		uint32					m_key2State;
     };
 
     const CBinding*         GetBinding(PS2::CControllerInfo::BUTTON) const;
     void                    SetSimpleBinding(PS2::CControllerInfo::BUTTON, const BINDINGINFO&);
-//    void                    SetSimulatedAxisBinding(Ps2::CControllerInfo::BUTTON, 
+    void                    SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON, const BINDINGINFO&, const BINDINGINFO&);
 
     void                    Load();
     void                    Save();

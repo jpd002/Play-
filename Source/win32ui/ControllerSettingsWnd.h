@@ -15,7 +15,7 @@ public:
     virtual                         ~CControllerSettingsWnd();
 
 protected:
-    long                            OnTimer();
+    long                            OnTimer(WPARAM);
     long                            OnCommand(unsigned short, unsigned short, HWND);
     long                            OnNotify(WPARAM, NMHDR*);
 

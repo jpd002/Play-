@@ -92,6 +92,15 @@ void CInputConfig::SetSimpleBinding(CControllerInfo::BUTTON button, const BINDIN
     m_bindings[button].reset(new CSimpleBinding(binding.device, binding.id));
 }
 
+void CInputConfig::SetSimulatedAxisBinding(CControllerInfo::BUTTON button, const BINDINGINFO& binding1, const BINDINGINFO& binding2)
+{
+	if(button >= CControllerInfo::MAX_BUTTONS)
+	{
+		throw exception();
+	}
+	m_bindings[button].reset(new CSimulatedAxisBinding(binding1, binding2));
+}
+
 void CInputConfig::TranslateInputEvent(const GUID& device, uint32 id, uint32 value, const InputEventHandler& eventHandler)
 {
     for(unsigned int i = 0; i < CControllerInfo::MAX_BUTTONS; i++)
@@ -191,6 +200,18 @@ void CInputConfig::CSimpleBinding::RegisterPreferences(CConfig& config, const ch
 // SimulatedAxisBinding
 ////////////////////////////////////////////////
 
+CInputConfig::CSimulatedAxisBinding::CSimulatedAxisBinding(const BINDINGINFO& binding1, const BINDINGINFO& binding2) :
+m_key1Binding(binding1),
+m_key2Binding(binding2)
+{
+
+}
+
+CInputConfig::CSimulatedAxisBinding::~CSimulatedAxisBinding()
+{
+
+}
+
 void CInputConfig::CSimulatedAxisBinding::RegisterPreferences(CConfig& config, const char* buttonBase)
 {
 //    string prefBase = string(buttonBase) + "." + string(CONFIG_SIMPLEBINDING_PREFIX);
@@ -198,4 +219,77 @@ void CInputConfig::CSimulatedAxisBinding::RegisterPreferences(CConfig& config, c
 //        (prefBase + "." + string(CONFIG_SIMPLEBINDING_DEVICE)).c_str(), lexical_cast<string>(GUID()).c_str());
 //    config.RegisterPreferenceInteger(
 //        (prefBase + "." + string(CONFIG_SIMPLEBINDING_ID)).c_str(), 0);
+}
+
+CInputConfig::BINDINGTYPE CInputConfig::CSimulatedAxisBinding::GetBindingType() const
+{
+    return BINDING_SIMULATEDAXIS;
+}
+
+void CInputConfig::CSimulatedAxisBinding::Save(CConfig& config, const char* buttonBase) const
+{
+    //string prefBase = CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
+    //config.SetPreferenceString(
+    //    CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), 
+    //    boost::lexical_cast<string>(device).c_str());
+    //config.SetPreferenceInteger(
+    //    CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 
+    //    id);
+}
+
+void CInputConfig::CSimulatedAxisBinding::Load(CConfig& config, const char* buttonBase)
+{
+    //string prefBase = CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
+    //device = boost::lexical_cast<GUID>(config.GetPreferenceString(CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+    //id = config.GetPreferenceInteger(CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
+}
+
+tstring CInputConfig::CSimulatedAxisBinding::GetDescription(DirectInput::CManager* directInputManager) const
+{
+    //DIDEVICEINSTANCE deviceInstance;
+    //DIDEVICEOBJECTINSTANCE objectInstance;
+    //if(!directInputManager->GetDeviceInfo(device, &deviceInstance))
+    //{
+    //    return _T("");
+    //}
+    //if(!directInputManager->GetDeviceObjectInfo(device, id, &objectInstance))
+    //{
+    //    return _T("");
+    //}
+    //return tstring(deviceInstance.tszInstanceName) + _T(": ") + tstring(objectInstance.tszName);
+	return tstring(_T("pwned!"));
+}
+
+void CInputConfig::CSimulatedAxisBinding::ProcessEvent(const GUID& device, uint32 id, uint32 value, PS2::CControllerInfo::BUTTON button, const InputEventHandler& eventHandler)
+{
+	bool update = false;
+	if(id == m_key1Binding.id && device == m_key1Binding.device)
+	{
+		m_key1State = value;
+		update = true;
+	}
+	else if(id == m_key2Binding.id && device == m_key2Binding.device)
+	{
+		m_key2State = value;
+		update = true;
+	}
+
+	if(update)
+	{
+		uint32 value = 0;
+		if(m_key1State && m_key2State)
+		{
+			value = 0;
+		}
+		if(m_key1State)
+		{
+			value = 0x7FFF;
+		}
+		else if(m_key2State)
+		{
+			value = 0x8000;
+		}
+
+	    eventHandler(button, value);
+	}
 }

@@ -85,7 +85,7 @@ void CControllerSettingsWnd::RefreshLayout()
     Redraw();
 }
 
-long CControllerSettingsWnd::OnTimer()
+long CControllerSettingsWnd::OnTimer(WPARAM)
 {
     if(m_samplingEnabled)
     {
@@ -141,7 +141,21 @@ void CControllerSettingsWnd::AutoConfigKeyboard()
     CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::TRIANGLE,     CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_S));
     CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::CIRCLE,       CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_X));
 
-    UpdateBindings();
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_X,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_Y,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
+
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_X,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_Y,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
+
+	UpdateBindings();
 }
 
 void CControllerSettingsWnd::InputEventHandler(CControllerInfo::BUTTON button, uint32 value)
