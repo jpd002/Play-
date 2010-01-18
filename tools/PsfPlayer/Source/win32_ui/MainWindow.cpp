@@ -48,6 +48,8 @@ m_fileInformationPanel(NULL),
 m_nextPanelButton(NULL),
 m_prevPanelButton(NULL),
 m_currentPlaylistItem(0),
+m_repeatMode(PLAYLIST_ONCE),
+m_trackLength(0),
 m_accel(CreateAccelerators())
 {
     for(unsigned int i = 0; i < MAX_PANELS; i++)
@@ -65,7 +67,8 @@ m_accel(CreateAccelerators())
     Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, clientRect, NULL, NULL);
     SetClassPtr();
 
-	SetTimer(m_hWnd, 0, 1000, NULL);
+	SetTimer(m_hWnd, TIMER_UPDATE_CLOCK, 200, NULL);
+	SetTimer(m_hWnd, TIMER_UPDATE_FADE, 50, NULL);
 
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
     m_popupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
@@ -83,6 +86,7 @@ m_accel(CreateAccelerators())
 	m_nextPanelButton = new Win32::CButton(_T(">"), m_hWnd, Win32::CRect(0, 0, 1, 1));
 	m_prevPanelButton = new Win32::CButton(_T("<"), m_hWnd, Win32::CRect(0, 0, 1, 1));
 	m_repeatButton = new Win32::CButton(_T("Repeat"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+	UpdateRepeatButton();
 
 	m_nextButton = new Win32::CButton(_T(">>"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     m_prevButton = new Win32::CButton(_T("<<"), m_hWnd, Win32::CRect(0, 0, 1, 1));
@@ -98,7 +102,7 @@ m_accel(CreateAccelerators())
             HorizontalLayoutContainer(
                 LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_prevPanelButton)) +
                 LayoutExpression(CLayoutStretch::Create()) +
-				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_repeatButton)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 20, m_repeatButton)) +
                 LayoutExpression(CLayoutStretch::Create()) +
 				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_nextPanelButton))
             ) +
@@ -141,7 +145,7 @@ m_accel(CreateAccelerators())
 
     CreateAudioPluginMenu();
     UpdateAudioPluginMenu();
-    UpdateTimer();
+    UpdateClock();
     UpdateTitle();
     UpdateButtons();
 	RefreshLayout();
@@ -239,6 +243,10 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 	{
 		OnPrevPanel();
 	}
+	else if(CWindow::IsCommandSource(m_repeatButton, hControl))
+	{
+		OnRepeat();
+	}
     else
     {
 	    switch(nID)
@@ -269,9 +277,16 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 	return TRUE;    
 }
 
-long CMainWindow::OnTimer()
+long CMainWindow::OnTimer(WPARAM timerId)
 {
-    UpdateTimer();
+	if(timerId == TIMER_UPDATE_CLOCK)
+	{
+		UpdateClock();
+	}
+	else if(timerId == TIMER_UPDATE_FADE)
+	{
+		UpdateFade();
+	}
     return TRUE;
 }
 
@@ -374,7 +389,41 @@ void CMainWindow::DisplayTrayMenu()
 	TrackPopupMenu(GetSubMenu(m_popupMenu, 0), 0, p.x, p.y, NULL, m_hWnd, NULL);
 }
 
-void CMainWindow::UpdateTimer()
+void CMainWindow::UpdateFade()
+{
+	if(m_trackLength != 0)
+	{
+		if(m_frames >= m_trackLength)
+		{
+			unsigned int itemCount = m_playlist.GetItemCount();
+			if((m_currentPlaylistItem + 1) == itemCount)
+			{
+				if(m_repeatMode == PLAYLIST_REPEAT)
+				{
+					m_currentPlaylistItem = 0;
+					OnPlaylistItemDblClick(m_currentPlaylistItem);
+				}
+				else
+				{
+					Reset();
+					UpdateButtons();
+				}
+			}
+			else
+			{
+				OnNext();
+			}
+		}
+		else if(m_frames >= m_fadePosition)
+		{
+			float currentRatio = static_cast<float>(m_frames - m_fadePosition) / static_cast<float>(m_trackLength - m_fadePosition);
+			float currentVolume = (1.0f - currentRatio) * m_volumeAdjust;
+			m_virtualMachine.SetVolumeAdjust(currentVolume);
+		}
+	}
+}
+
+void CMainWindow::UpdateClock()
 {
     const int fps = 60;
     int time = m_frames / fps;
@@ -416,6 +465,22 @@ void CMainWindow::UpdateButtons()
         m_pauseButton->Enable(m_ready ? TRUE : FALSE);
         m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? _T("Play") : _T("Pause"));
     }
+}
+
+void CMainWindow::UpdateRepeatButton()
+{
+	switch(m_repeatMode)
+	{
+	case PLAYLIST_ONCE:
+		m_repeatButton->SetText(_T("PL Once"));
+		break;
+	case PLAYLIST_REPEAT:
+		m_repeatButton->SetText(_T("PL Repeat"));
+		break;
+	case TRACK_REPEAT:
+		m_repeatButton->SetText(_T("Track Repeat"));
+		break;
+	}
 }
 
 void CMainWindow::CreateAudioPluginMenu()
@@ -549,6 +614,23 @@ void CMainWindow::OnNextPanel()
 	ActivatePanel(newPanelIdx);
 }
 
+void CMainWindow::OnRepeat()
+{
+	switch(m_repeatMode)
+	{
+	case PLAYLIST_ONCE:
+		m_repeatMode = PLAYLIST_REPEAT;
+		break;
+	case PLAYLIST_REPEAT:
+		m_repeatMode = TRACK_REPEAT;
+		break;
+	case TRACK_REPEAT:
+		m_repeatMode = PLAYLIST_ONCE;
+		break;
+	}
+	UpdateRepeatButton();
+}
+
 void CMainWindow::ActivatePanel(unsigned int panelIdx)
 {
 	if(m_currentPanel != -1)
@@ -591,11 +673,20 @@ void CMainWindow::LoadPlaylist(const char* path)
     }
 }
 
-bool CMainWindow::PlayFile(const char* path)
+void CMainWindow::Reset()
 {
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
     m_frames = 0;
+	m_trackLength = 0;
+	m_fadePosition = 0;
+	m_ready = false;
+	m_volumeAdjust = 1.0f;
+}
+
+bool CMainWindow::PlayFile(const char* path)
+{
+	Reset();
 	try
 	{
 		CPsfBase::TagMap tags;
@@ -603,8 +694,8 @@ bool CMainWindow::PlayFile(const char* path)
 		m_tags = CPsfTags(tags);
 		try
 		{
-			float volumeAdjust = boost::lexical_cast<float>(m_tags.GetTagValue("volume"));
-			m_virtualMachine.SetVolumeAdjust(volumeAdjust);
+			m_volumeAdjust = boost::lexical_cast<float>(m_tags.GetTagValue("volume"));
+			m_virtualMachine.SetVolumeAdjust(m_volumeAdjust);
 		}
 		catch(...)
 		{
@@ -613,18 +704,31 @@ bool CMainWindow::PlayFile(const char* path)
 		m_fileInformationPanel->SetTags(m_tags);
 		m_virtualMachine.Resume();
 		m_ready = true;
+		if(m_repeatMode == PLAYLIST_REPEAT || m_repeatMode == PLAYLIST_ONCE)
+		{
+			if(m_tags.HasTag("length"))
+			{
+				double length = CPsfTags::ConvertTimeString(m_tags.GetTagValue("length").c_str());
+				m_trackLength = static_cast<uint64>(length * 60.0);
+				m_fadePosition = m_trackLength - (10 * 60);
+			}
+			if(m_tags.HasTag("fade"))
+			{
+				double fade = CPsfTags::ConvertTimeString(m_tags.GetTagValue("fade").c_str());
+				m_fadePosition = m_trackLength - static_cast<uint64>(fade * 60.0);
+			}
+		}
 	}
 	catch(const exception& except)
 	{
 		tstring errorString = _T("Couldn't load PSF file: \r\n\r\n");
 		errorString += string_cast<tstring>(except.what());
 		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
-		m_ready = false;
 	}
 
 	UpdateTitle();
     UpdateButtons();
-    UpdateTimer();
+    UpdateClock();
 //	UpdateMenu();
 
     return m_ready;

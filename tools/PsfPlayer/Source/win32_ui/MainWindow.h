@@ -27,13 +27,26 @@ public:
 protected:
     long                                OnCommand(unsigned short, unsigned short, HWND);
     long                                OnSize(unsigned int, unsigned int, unsigned int);
-    long                                OnTimer();
+    long                                OnTimer(WPARAM);
 
 private:
     enum
     {
         MAX_PANELS = 2,
     };
+
+	enum
+	{
+		TIMER_UPDATE_CLOCK,
+		TIMER_UPDATE_FADE,
+	};
+
+	enum REPEAT_MODE
+	{
+		PLAYLIST_ONCE,
+		PLAYLIST_REPEAT,
+		TRACK_REPEAT,
+	};
 
     struct SPUHANDLER_INFO
     {
@@ -54,6 +67,7 @@ private:
 	void								OnPrevPanel();
 	void								OnNextPanel();
     void                                OnAbout();
+	void								OnRepeat();
     bool                                PlayFile(const char*);
     void                                LoadSingleFile(const char*);
     void                                LoadPlaylist(const char*);
@@ -65,12 +79,15 @@ private:
 
     void                                OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
     void                                DisplayTrayMenu();
-    void                                UpdateTimer();
+    void                                UpdateClock();
+	void								UpdateFade();
     void                                UpdateTitle();
     void                                UpdateButtons();
+	void								UpdateRepeatButton();
     void                                CreateAudioPluginMenu();
     void                                UpdateAudioPluginMenu();
 
+	void								Reset();
 	void								ActivatePanel(unsigned int);
 
 	void                                ChangeAudioPlugin(unsigned int);
@@ -108,8 +125,12 @@ private:
 	unsigned int						m_currentPanel;
     bool								m_ready;
     uint64                              m_frames;
+	uint64								m_trackLength;
+	uint64								m_fadePosition;
+	float								m_volumeAdjust;
     int                                 m_writes;
     int                                 m_selectedAudioHandler;
+	REPEAT_MODE							m_repeatMode;
 
     static SPUHANDLER_INFO              m_handlerInfo[];
 };
