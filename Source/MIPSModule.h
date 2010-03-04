@@ -11,6 +11,7 @@ struct MIPSMODULE
 	std::string		name;
 	uint32			begin;
 	uint32			end;
+	void*			param;
 };
 
 typedef std::list<MIPSMODULE> MipsModuleList;

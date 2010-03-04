@@ -222,6 +222,8 @@ void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushCst(0);
+		m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 	}
 	else
 	{
