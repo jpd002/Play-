@@ -471,13 +471,10 @@ void CCodeGen::ReduceToRegister()
 {
 	if(m_Shadow.GetAt(0) == RELATIVE)
 	{
-		uint32 nRelative;
-		unsigned int nRegister;
-
 		m_Shadow.Pull();
-		nRelative = m_Shadow.Pull();
+		uint32 nRelative = m_Shadow.Pull();
 
-		nRegister = AllocateRegister();
+		unsigned int nRegister = AllocateRegister();
 		LoadRelativeInRegister(nRegister, nRelative);
 
 		PushReg(nRegister);
@@ -1795,17 +1792,21 @@ void CCodeGen::SeX()
 
 void CCodeGen::SeX8()
 {
-    if(FitsPattern<SingleRegister>())
+    if(FitsPattern<SingleConstant>())
     {
-        SingleRegister::PatternValue registerId(GetPattern<SingleRegister>());
+		assert(0);
+    }
+    else
+    {
+        ReduceToRegister();
+
+        m_Shadow.Pull();
+        uint32 registerId = m_Shadow.Pull();
+
         assert(!RegisterHasNextUse(registerId));
         m_Assembler.MovsxEb(m_nRegisterLookupEx[registerId],
             CX86Assembler::MakeByteRegisterAddress(m_nRegisterLookupEx[registerId]));
         PushReg(registerId);
-    }
-    else
-    {
-        assert(0);
     }
 }
 
@@ -1823,6 +1824,7 @@ void CCodeGen::SeX16()
         m_Shadow.Pull();
         uint32 nRegister = m_Shadow.Pull();
 
+        assert(!RegisterHasNextUse(nRegister));
         m_Assembler.MovsxEw(m_nRegisterLookupEx[nRegister],
             CX86Assembler::MakeRegisterAddress(m_nRegisterLookupEx[nRegister]));
 
