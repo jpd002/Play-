@@ -5,6 +5,8 @@
 #include "StdStream.h"
 #include "PsfFsDescription.h"
 #include "PsfFsWriter.h"
+#include "PsfTagsDescription.h"
+#include "PsfTagsWriter.h"
 #include "xml/Node.h"
 #include "xml/Parser.h"
 #include "xml/Utils.h"
@@ -28,6 +30,7 @@ int main(int argc, const char** argv)
 	}
 
 	PsfFs::DirectoryPtr rootDir;
+	PsfTags::TagList tags;
 	{
 		std::tr1::shared_ptr<Framework::Xml::CNode> documentRoot;
 
@@ -48,6 +51,11 @@ int main(int argc, const char** argv)
 		}
 
 		{
+			Framework::Xml::CNode* tagsNode = documentRoot->Select("Package/Tags");
+			if(tagsNode != NULL)
+			{
+				tags = PsfTags::ParseTags(tagsNode);
+			}
 			Framework::Xml::CNode* filesystemNode = documentRoot->Select("Package/Filesystem");
 			if(filesystemNode != NULL)
 			{
@@ -94,6 +102,9 @@ int main(int argc, const char** argv)
 
 		output.Seek(0, Framework::STREAM_SEEK_SET);
 		output.Write(&header, sizeof(PSFHEADER));
+		output.Seek(0, Framework::STREAM_SEEK_END);
+
+		PsfTags::CWriter::Write(output, tags);
 	}
 	catch(const std::exception& exception)
 	{

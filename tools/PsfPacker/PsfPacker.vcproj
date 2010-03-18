@@ -184,6 +184,14 @@
 				RelativePath=".\Source\PsfFsWriter.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\Source\PsfTagsDescription.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfTagsWriter.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -196,6 +204,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfFsWriter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfTagsDescription.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfTagsWriter.h"
 				>
 			</File>
 		</Filter>

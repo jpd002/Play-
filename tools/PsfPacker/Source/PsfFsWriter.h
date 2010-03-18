@@ -1,7 +1,7 @@
 #ifndef _PSFFSWRITER_H_
 #define _PSFFSWRITER_H_
 
-#include "StdStream.h"
+#include "Stream.h"
 #include "PsfFsDescription.h"
 #include <boost/filesystem/path.hpp>
 
@@ -10,7 +10,7 @@ namespace PsfFs
 	class CWriter
 	{
 	public:
-		static void					Write(Framework::CStdStream&, const DirectoryPtr&, const boost::filesystem::path&);
+		static void					Write(Framework::CStream&, const DirectoryPtr&, const boost::filesystem::path&);
 
 	private:
 									CWriter(const boost::filesystem::path&, uint64);
@@ -24,8 +24,8 @@ namespace PsfFs
 			uint32		blockSize;
 		};
 
-		void						WriteFile(Framework::CStdStream&, const FilePtr&, DIRENTRY*);
-		void						WriteDirectory(Framework::CStdStream&, const DirectoryPtr&, DIRENTRY*);
+		void						WriteFile(Framework::CStream&, const FilePtr&, DIRENTRY*);
+		void						WriteDirectory(Framework::CStream&, const DirectoryPtr&, DIRENTRY*);
 
 		boost::filesystem::path		m_basePath;
 		uint64						m_baseOffset;

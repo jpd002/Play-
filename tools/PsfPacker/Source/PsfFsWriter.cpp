@@ -1,4 +1,5 @@
 #include "PsfFsWriter.h"
+#include "StdStream.h"
 #include <boost/filesystem/operations.hpp>
 #include <boost/shared_array.hpp>
 #include <zlib.h>
@@ -18,13 +19,13 @@ CWriter::~CWriter()
 
 }
 
-void CWriter::Write(Framework::CStdStream& output, const DirectoryPtr& directory, const boost::filesystem::path& basePath)
+void CWriter::Write(Framework::CStream& output, const DirectoryPtr& directory, const boost::filesystem::path& basePath)
 {
 	CWriter writer(basePath, output.Tell());
 	writer.WriteDirectory(output, directory, NULL);
 }
 
-void CWriter::WriteFile(Framework::CStdStream& output, const FilePtr& file, DIRENTRY* dirEntry)
+void CWriter::WriteFile(Framework::CStream& output, const FilePtr& file, DIRENTRY* dirEntry)
 {
 	assert(dirEntry != NULL);
 
@@ -75,7 +76,7 @@ void CWriter::WriteFile(Framework::CStdStream& output, const FilePtr& file, DIRE
 	}
 }
 
-void CWriter::WriteDirectory(Framework::CStdStream& output, const DirectoryPtr& directory, DIRENTRY* dirEntry)
+void CWriter::WriteDirectory(Framework::CStream& output, const DirectoryPtr& directory, DIRENTRY* dirEntry)
 {
 	std::vector<DIRENTRY> dirEntries;
 	dirEntries.reserve(directory->nodes.size());
