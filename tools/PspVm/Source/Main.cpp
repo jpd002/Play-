@@ -2,6 +2,8 @@
 #include "PspVm.h"
 #include "MiniDebugger.h"
 #include <boost/filesystem/path.hpp>
+#include "PsfBase.h"
+#include "StdStream.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
@@ -11,6 +13,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 //	boost::filesystem::path loadPath("H:\\PSP_GAME\\SYSDIR\\BOOT.BIN");
 
 	CPspVm virtualMachine;
+	CPsfBase psfFile(Framework::CStdStream("G:\\Projects\\Purei\\tools\\PsfPacker\\output\\Impression.psfp", "rb"));
+	virtualMachine.GetBios().GetPsfDevice()->AppendArchive(psfFile);
 
 #ifdef _DEBUG
 	std::string tagPackageName = loadPath.leaf();

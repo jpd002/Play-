@@ -33,9 +33,11 @@ public:
 
 	void				Step();
 	CMIPS&				GetCpu();
+	Psp::CBios&			GetBios();
 
 private:
 	std::string			MakeTagPackagePath(const char*);
+	void				PauseImpl();
 	void				ThreadProc();
 
 	CMIPS				m_cpu;

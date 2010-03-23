@@ -87,7 +87,21 @@ void CPspVm::Reset()
 
 void CPspVm::Pause()
 {
+	if(m_status == PAUSED) return;
+	m_mailBox.SendCall(std::tr1::bind(&CPspVm::PauseImpl, this), true);
+}
 
+void CPspVm::PauseImpl()
+{
+	m_status = PAUSED;
+	if(!m_OnRunningStateChange.empty())
+	{
+		m_OnRunningStateChange();
+	}
+	if(!m_OnMachineStateChange.empty())
+	{
+		m_OnMachineStateChange();
+	}
 }
 
 void CPspVm::Resume()
@@ -95,7 +109,7 @@ void CPspVm::Resume()
 	m_status = RUNNING;
 	if(!m_OnRunningStateChange.empty())
 	{
-		m_OnRunningStateChange();		
+		m_OnRunningStateChange();
 	}
 }
 
@@ -109,6 +123,11 @@ void CPspVm::Step()
 CMIPS& CPspVm::GetCpu()
 {
 	return m_cpu;
+}
+
+Psp::CBios& CPspVm::GetBios()
+{
+	return m_bios;
 }
 
 void CPspVm::ThreadProc()

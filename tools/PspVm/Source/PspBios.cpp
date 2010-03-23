@@ -6,9 +6,9 @@
 #include "COP_SCU.h"
 #include "Psp_ThreadManForUser.h"
 #include "Psp_StdioForUser.h"
-#include "Psp_IoFileMgrForUser.h"
 #include "Psp_SysMemUserForUser.h"
 #include "Psp_KernelLibrary.h"
+#include "Psp_SasCore.h"
 
 using namespace Psp;
 
@@ -19,6 +19,8 @@ using namespace Psp;
 #define BIOS_THREAD_LINK_HEAD_BASE		(Psp::CBios::CONTROL_BLOCK_START + 0x0000)
 #define BIOS_CURRENT_THREAD_ID_BASE     (Psp::CBios::CONTROL_BLOCK_START + 0x0008)
 #define BIOS_CURRENT_TIME_BASE          (Psp::CBios::CONTROL_BLOCK_START + 0x0010)
+#define BIOS_HANDLERS_BASE              (Psp::CBios::CONTROL_BLOCK_START + 0x0080)
+#define BIOS_HANDLERS_END				(BIOS_HEAPBLOCK_BASE - 1)
 #define BIOS_HEAPBLOCK_BASE				(Psp::CBios::CONTROL_BLOCK_START + 0x0100)
 #define BIOS_HEAPBLOCK_SIZE				(sizeof(Psp::CBios::HEAPBLOCK) * Psp::CBios::MAX_HEAPBLOCKS)
 #define BIOS_MODULE_TRAMPOLINE_BASE		(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
@@ -44,6 +46,9 @@ CBios::MODULEFUNCTION CBios::g_SysMemUserForUserFunctions[] =
 	{	0xF77D77CB,		"sceKernelSetCompilerVersion"		},
 	{	0x237DBD4F,		"sceKernelAllocPartitionMemory"		},
 	{	0x9D9A5BA1,		"sceKernelGetBlockHeadAddr"			},
+	{	0xFE707FDF,		"sceKernelAllocMemoryBlock"			},
+	{	0xDB83A952,		"sceKernelGetMemoryBlockAddr"		},
+	{	0x50F61D8A,		"sceKernelFreeMemoryBlock"			},
 };
 
 CBios::MODULEFUNCTION CBios::g_ThreadManForUserFunctions[] =
@@ -82,16 +87,20 @@ CBios::MODULEFUNCTION CBios::g_UtilsForUserFunctions[] =
 
 CBios::MODULEFUNCTION CBios::g_SasCoreFunctions[] =
 {
-	{	0x76F01ACA,		"sasSetKeyOn"		},
-	{	0xA0CF2FA4,		"sasSetKeyOff"		},
-	{	0x019B25EB,		"sasSetADSR"		},
-	{	0xCBCD4F79,		"sasSetSimpleADSR"	},
-	{	0xAD84D37F,		"sasSetPitch"		},
-	{	0x99944089,		"sasSetVoice"		},
-	{	0xE1CD9561,		"sasSetVoicePCM"	},
-	{	0x440CA7D8,		"sasSetVolume"		},
-	{	0xA3589D81,		"sasCore"			},
-	{	NULL,			NULL				},
+	{	0x76F01ACA,		"sasSetKeyOn"			},
+	{	0xA0CF2FA4,		"sasSetKeyOff"			},
+	{	0x019B25EB,		"sasSetADSR"			},
+	{	0xCBCD4F79,		"sasSetSimpleADSR"		},
+	{	0xAD84D37F,		"sasSetPitch"			},
+	{	0x99944089,		"sasSetVoice"			},
+	{	0xE1CD9561,		"sasSetVoicePCM"		},
+	{	0x440CA7D8,		"sasSetVolume"			},
+	{	0x2C8E6AB3,		"sasGetPauseFlag"		},
+	{	0x68A46B95,		"sasGetEndFlag"			},
+	{	0x07F58C24,		"sasGetAllEnvelope"		},
+	{	0xA3589D81,		"sasCore"				},
+	{	0x42778A9F,		"sasInit"				},
+	{	NULL,			NULL					},
 };
 
 CBios::MODULEFUNCTION CBios::g_WaveFunctions[] =
@@ -175,6 +184,15 @@ CBios::~CBios()
 
 void CBios::Reset()
 {
+	//Assemble handlers
+	{
+		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[BIOS_HANDLERS_BASE]));
+		m_threadFinishAddress = AssembleThreadFinish(assembler);
+//		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
+		m_idleFunctionAddress = AssembleIdleFunction(assembler);
+		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
+	}
+
 	if(m_module != NULL)
 	{
 		delete m_module;
@@ -189,16 +207,56 @@ void CBios::Reset()
     ThreadLinkHead() = 0;
     CurrentThreadId() = -1;
 
+	//Initialize modules
+	m_modules.clear();
+
+	m_ioFileMgrForUserModule = IoFileMgrForUserModulePtr(new CIoFileMgrForUser(m_ram)); 
+
 	InsertModule(ModulePtr(new CThreadManForUser(*this, m_ram)));
-	InsertModule(ModulePtr(new CIoFileMgrForUser(m_ram)));
+	InsertModule(m_ioFileMgrForUserModule);
 	InsertModule(ModulePtr(new CStdioForUser()));
-	InsertModule(ModulePtr(new CSysMemUserForUser()));
+	InsertModule(ModulePtr(new CSysMemUserForUser(*this, m_ram)));
 	InsertModule(ModulePtr(new CKernelLibrary()));
+	InsertModule(ModulePtr(new CSasCore()));
+
+	//Initialize Io devices
+	m_psfDevice = PsfDevicePtr(new CPsfDevice());
+
+	m_ioFileMgrForUserModule->RegisterDevice("host0", m_psfDevice);
+}
+
+uint32 CBios::AssembleThreadFinish(CMIPSAssembler& assembler)
+{
+    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0667);
+    assembler.SYSCALL();
+    return address;
+}
+
+uint32 CBios::AssembleReturnFromException(CMIPSAssembler& assembler)
+{
+    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0668);
+    assembler.SYSCALL();
+    return address;
+}
+
+uint32 CBios::AssembleIdleFunction(CMIPSAssembler& assembler)
+{
+    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0669);
+    assembler.SYSCALL();
+    return address;
 }
 
 void CBios::InsertModule(const ModulePtr& module)
 {
 	m_modules[module->GetName()] = module;
+}
+
+CPsfDevice* CBios::GetPsfDevice()
+{
+	return m_psfDevice.get();
 }
 
 void CBios::HandleLinkedModuleCall()
@@ -238,6 +296,12 @@ void CBios::HandleException()
         {
 		case 0x666:
 			HandleLinkedModuleCall();
+			break;
+		case 0x667:
+			ExitCurrentThread(0);
+			break;
+		default:
+			assert(0);
 			break;
         }
     }
@@ -280,7 +344,8 @@ void CBios::LoadModule(const char* path)
 		{
 			ELFPROGRAMHEADER* programHeader = m_module->GetProgram(i);
 			if(programHeader->nType == RELOC_SECTION_ID) continue;
-			moduleAllocSize += programHeader->nFileSize;
+			//Allocate a bit more for alignment computations later on
+			moduleAllocSize += programHeader->nFileSize + programHeader->nAlignment;
 		}
 	}
 
@@ -293,6 +358,13 @@ void CBios::LoadModule(const char* path)
 		{
 			ELFPROGRAMHEADER* programHeader = m_module->GetProgram(i);
 			if(programHeader->nType == RELOC_SECTION_ID) continue;
+
+			uint32 alignFixUp = (currentAddress & (programHeader->nAlignment - 1));
+			if(alignFixUp != 0)
+			{
+				currentAddress += programHeader->nAlignment - alignFixUp;
+			}
+
 			programHeader->nVAddress = currentAddress;
 
 			memcpy(
@@ -304,6 +376,11 @@ void CBios::LoadModule(const char* path)
 			currentAddress += programHeader->nFileSize;
 		}
 	}
+
+	*reinterpret_cast<uint32*>(m_ram + 0x0001323C) = 0x10400160;
+	*reinterpret_cast<uint32*>(m_ram + 0x000137C0) = 0x100000CD;
+	*reinterpret_cast<uint32*>(m_ram + 0x000137FC) = 0x1000FE0C;
+	*reinterpret_cast<uint32*>(m_ram + 0x0001032C) = 0x0C0000D3;
 
 	RelocateElf(*m_module);
 
@@ -482,6 +559,17 @@ void CBios::StartThread(uint32 threadId, uint32 argsSize, uint8* argsPtr)
         thread.context.gpr[CMIPS::A0] = sp;
     }
     m_rescheduleNeeded = true;
+}
+
+void CBios::ExitCurrentThread(uint32 exitCode)
+{
+	THREAD& thread = GetThread(CurrentThreadId());
+	if(thread.status != THREAD_STATUS_RUNNING)
+	{
+		throw std::runtime_error("Invalid thread state.");
+	}
+	thread.status = THREAD_STATUS_ZOMBIE;
+	m_rescheduleNeeded = true;
 }
 
 void CBios::LinkThread(uint32 threadId)
@@ -703,6 +791,44 @@ uint32 CBios::Heap_FreeMemory(uint32 address)
     return 0;
 }
 
+uint32 CBios::Heap_GetBlockId(uint32 address)
+{
+    address -= m_heapBegin;
+
+	//Search for block pointing at the address
+	uint32* nextBlockId = &m_heapHeadBlockId;
+	HEAPBLOCK* nextBlock = m_heapBlocks[*nextBlockId];
+	while(nextBlock != NULL)
+	{
+		if(nextBlock->address == address)
+		{
+			break;
+		}
+		nextBlockId = &nextBlock->nextBlock;
+		nextBlock = m_heapBlocks[*nextBlockId];
+	}
+
+	if(nextBlock != NULL)
+	{
+		return *nextBlockId;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+uint32 CBios::Heap_GetBlockAddress(uint32 blockId)
+{
+	HEAPBLOCK* block = m_heapBlocks[blockId];
+	assert(block != NULL);
+	if(block == NULL)
+	{
+		return 0;
+	}
+	return block->address + m_heapBegin;
+}
+
 CBios::MODULE* CBios::FindModule(const char* name)
 {
 	MODULE* currentModule = g_modules;
@@ -739,11 +865,9 @@ void CBios::RelocateElf(CELF& elf)
     {
         ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
         if(sectionHeader != NULL && 
-			(/*sectionHeader->nType == CELF::SHT_REL ||*/ sectionHeader->nType == RELOC_SECTION_ID)
+			(/*sectionHeader->nType == CELF::SHT_REL || */sectionHeader->nType == RELOC_SECTION_ID)
 			)
         {
-//            uint32 lastHi16 = -1;
-//            uint32 instructionHi16 = -1;
             unsigned int linkedSection = sectionHeader->nInfo;
             unsigned int recordCount = sectionHeader->nSize / 8;
             const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));

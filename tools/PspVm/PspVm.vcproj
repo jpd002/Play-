@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;G:\Projects\Purei\Source"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;G:\Projects\Purei\Source;G:\Projects\Purei\tools\PsfPlayer\Source"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_MSVC;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -191,7 +191,43 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\MailBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MailBox.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\PsfPlayer\Source\PsfBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\PsfPlayer\Source\PsfBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfDevice.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfDevice.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfFs.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfFs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Psp_IoDevice.h"
 				>
 			</File>
 			<File
@@ -208,6 +244,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\Psp_KernelLibrary.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Psp_SasCore.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Psp_SasCore.h"
 				>
 			</File>
 			<File
@@ -299,14 +343,6 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\win32ui\FunctionsView.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\MailBox.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\MailBox.h"
 					>
 				</File>
 				<File
@@ -496,6 +532,22 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\MIPSArchitecture.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSAssembler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSAssembler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MipsAssemblerDefinitions.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MipsAssemblerDefinitions.h"
 				>
 			</File>
 			<File

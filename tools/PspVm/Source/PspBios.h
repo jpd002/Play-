@@ -2,29 +2,40 @@
 #define _PSPBIOS_H_
 
 #include <map>
+#include "MIPSAssembler.h"
 #include "Types.h"
 #include "ELF.h"
 #include "MIPS.h"
 #include "MIPSModule.h"
 #include "OsStructManager.h"
 #include "PspModule.h"
+#include "PsfDevice.h"
+#include "Psp_IoFileMgrForUser.h"
 
 namespace Psp
 {
 	class CBios
 	{
 	public:
-						CBios(CMIPS&, uint8*, uint32);
-		virtual			~CBios();
+							CBios(CMIPS&, uint8*, uint32);
+		virtual				~CBios();
 
-		void			Reset();
-		void			LoadModule(const char*);
-		MipsModuleList	GetModuleList();
+		void				Reset();
+		void				LoadModule(const char*);
+		MipsModuleList		GetModuleList();
 
-		void			HandleException();
+		void				HandleException();
 
-		uint32			CreateThread(const char*, uint32, uint32, uint32, uint32, uint32);
-	    void			StartThread(uint32, uint32, uint8*);
+		uint32				CreateThread(const char*, uint32, uint32, uint32, uint32, uint32);
+	    void				StartThread(uint32, uint32, uint8*);
+		void				ExitCurrentThread(uint32);
+
+        uint32				Heap_AllocateMemory(uint32);
+        uint32				Heap_FreeMemory(uint32);
+		uint32				Heap_GetBlockId(uint32);
+		uint32				Heap_GetBlockAddress(uint32);
+
+		CPsfDevice*			GetPsfDevice();
 
 	private:
 		enum CONTROL_BLOCK
@@ -64,6 +75,13 @@ namespace Psp
 			uint64          nextActivateTime;
 		};
 
+		struct MEMORYBLOCK
+		{
+			uint32			isValid;
+			uint32			id;
+			uint32			ptr;
+		};
+
 		enum
 		{
 			MAX_HEAPBLOCKS = 256,
@@ -89,6 +107,7 @@ namespace Psp
 		{
 			THREAD_STATUS_CREATED,
 			THREAD_STATUS_RUNNING,
+			THREAD_STATUS_ZOMBIE,
 		};
 
 		struct LIBRARYENTRY
@@ -153,6 +172,10 @@ namespace Psp
 		typedef COsStructManager<MODULETRAMPOLINE> ModuleTrampolineListType;
 		typedef COsStructManager<THREAD> ThreadListType;
 
+		uint32						AssembleThreadFinish(CMIPSAssembler&);
+		uint32						AssembleReturnFromException(CMIPSAssembler&);
+		uint32						AssembleIdleFunction(CMIPSAssembler&);
+
 		void						InsertModule(const ModulePtr&);
 		void						HandleLinkedModuleCall();
 
@@ -173,8 +196,6 @@ namespace Psp
 		uint32&						CurrentThreadId() const;
 
 		void						Heap_Init();
-        uint32						Heap_AllocateMemory(uint32);
-        uint32						Heap_FreeMemory(uint32);
 
 		CELF*						m_module;
 		uint8*						m_ram;
@@ -195,6 +216,9 @@ namespace Psp
 
 		ModuleTrampolineListType	m_moduleTrampolines;
 		ThreadListType				m_threads;
+
+		PsfDevicePtr				m_psfDevice;
+		IoFileMgrForUserModulePtr	m_ioFileMgrForUserModule;
 
 		static MODULEFUNCTION		g_IoFileMgrForUserFunctions[];
 		static MODULEFUNCTION		g_SysMemUserForUserFunctions[];
