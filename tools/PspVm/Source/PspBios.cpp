@@ -9,6 +9,7 @@
 #include "Psp_SysMemUserForUser.h"
 #include "Psp_KernelLibrary.h"
 #include "Psp_SasCore.h"
+#include "Psp_Audio.h"
 
 using namespace Psp;
 
@@ -217,7 +218,8 @@ void CBios::Reset()
 	InsertModule(ModulePtr(new CStdioForUser()));
 	InsertModule(ModulePtr(new CSysMemUserForUser(*this, m_ram)));
 	InsertModule(ModulePtr(new CKernelLibrary()));
-	InsertModule(ModulePtr(new CSasCore()));
+	InsertModule(ModulePtr(new CSasCore(m_ram)));
+	InsertModule(ModulePtr(new CAudio(m_ram)));
 
 	//Initialize Io devices
 	m_psfDevice = PsfDevicePtr(new CPsfDevice());
@@ -330,10 +332,16 @@ MipsModuleList CBios::GetModuleList()
 
 void CBios::LoadModule(const char* path)
 {
+	//Open module
 	{
-		Framework::CStdStream stream(path, "rb");
-		assert(m_module == NULL);
-		m_module = new CElfFile(stream);
+		uint32 handle = m_ioFileMgrForUserModule->Open(path, CIoFileMgrForUser::OPEN_READ, 0);
+		if(handle & 0x80000000)
+		{
+			throw std::runtime_error("Couldn't open executable for reading.");
+		}
+		Framework::CStream* stream = m_ioFileMgrForUserModule->GetFileStream(handle);
+		m_module = new CElfFile(*stream);
+		m_ioFileMgrForUserModule->IoClose(handle);
 	}
 
 	const ELFHEADER& moduleHeader(m_module->GetHeader());
@@ -376,11 +384,6 @@ void CBios::LoadModule(const char* path)
 			currentAddress += programHeader->nFileSize;
 		}
 	}
-
-	*reinterpret_cast<uint32*>(m_ram + 0x0001323C) = 0x10400160;
-	*reinterpret_cast<uint32*>(m_ram + 0x000137C0) = 0x100000CD;
-	*reinterpret_cast<uint32*>(m_ram + 0x000137FC) = 0x1000FE0C;
-	*reinterpret_cast<uint32*>(m_ram + 0x0001032C) = 0x0C0000D3;
 
 	RelocateElf(*m_module);
 

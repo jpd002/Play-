@@ -9,11 +9,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 //	boost::filesystem::path loadPath("c:\\downloads\\ryukyu\\main.prx");
 //	boost::filesystem::path loadPath("c:\\downloads\\at3mix\\main.prx");
-	boost::filesystem::path loadPath("c:\\downloads\\playsmf\\main.prx.sym");
+//	boost::filesystem::path loadPath("c:\\downloads\\playsmf\\main.prx.sym");
 //	boost::filesystem::path loadPath("H:\\PSP_GAME\\SYSDIR\\BOOT.BIN");
+	boost::filesystem::path loadPath("G:\\Projects\\Purei\\tools\\PsfPacker\\output\\Impression.psfp");
 
 	CPspVm virtualMachine;
-	CPsfBase psfFile(Framework::CStdStream("G:\\Projects\\Purei\\tools\\PsfPacker\\output\\Impression.psfp", "rb"));
+	CPsfBase psfFile(Framework::CStdStream(loadPath.string().c_str(), "rb"));
 	virtualMachine.GetBios().GetPsfDevice()->AppendArchive(psfFile);
 
 #ifdef _DEBUG
@@ -21,7 +22,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	virtualMachine.LoadDebugTags(tagPackageName.c_str());
 #endif
 
-	virtualMachine.LoadModule(loadPath.string().c_str());
+	virtualMachine.LoadModule("host0:/PSP_GAME/SYSDIR/BOOT.BIN");
 
 	CMiniDebugger debugger(virtualMachine, virtualMachine.GetDebugInfo());
 	debugger.Center();

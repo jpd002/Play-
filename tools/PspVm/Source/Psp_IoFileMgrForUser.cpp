@@ -27,19 +27,8 @@ void CIoFileMgrForUser::RegisterDevice(const char* name, const IoDevicePtr& devi
 	m_devices[name] = device;
 }
 
-uint32 CIoFileMgrForUser::IoOpen(uint32 pathAddr, uint32 flags, uint32 mode)
+uint32 CIoFileMgrForUser::Open(const char* path, uint32 flags, uint32 mode)
 {
-	assert(pathAddr != 0);
-	char* path = NULL;
-	if(pathAddr != 0)
-	{
-		path = reinterpret_cast<char*>(m_ram + pathAddr);
-	}
-#ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "IoOpen(path = %s, flags = 0x%0.8X, mode = 0x%0.8X);\r\n",
-		path, flags, mode);
-#endif
-
 	std::string fullPath(path);
 	std::string::size_type position = fullPath.find(":");
 	if(position == std::string::npos) 
@@ -71,6 +60,32 @@ uint32 CIoFileMgrForUser::IoOpen(uint32 pathAddr, uint32 flags, uint32 mode)
 	int fileId = m_nextFileId++;
 	m_files[fileId] = StreamPtr(file);
 	return fileId;
+}
+
+Framework::CStream* CIoFileMgrForUser::GetFileStream(uint32 fd)
+{
+	FileList::iterator fileIterator = m_files.find(fd);
+	if(fileIterator == m_files.end())
+	{
+		return NULL;
+	}
+	return fileIterator->second.get();
+}
+
+uint32 CIoFileMgrForUser::IoOpen(uint32 pathAddr, uint32 flags, uint32 mode)
+{
+	assert(pathAddr != 0);
+	char* path = NULL;
+	if(pathAddr != 0)
+	{
+		path = reinterpret_cast<char*>(m_ram + pathAddr);
+	}
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "IoOpen(path = %s, flags = 0x%0.8X, mode = 0x%0.8X);\r\n",
+		path, flags, mode);
+#endif
+
+	return Open(path, flags, mode);
 }
 
 uint32 CIoFileMgrForUser::IoRead(uint32 fd, uint32 bufferAddr, uint32 bufferSize)

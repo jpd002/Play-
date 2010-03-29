@@ -117,7 +117,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;G:\Projects\Purei\Source;G:\Projects\Purei\tools\PsfPlayer\Source"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_MSVC;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -136,6 +137,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="comctl32.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -176,6 +178,14 @@
 			>
 			<File
 				RelativePath=".\Source\Debuggable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_SpuBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Iop_SpuBase.h"
 				>
 			</File>
 			<File
@@ -224,6 +234,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\PsfFs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Psp_Audio.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Psp_Audio.h"
 				>
 			</File>
 			<File
