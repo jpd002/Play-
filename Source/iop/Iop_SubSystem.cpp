@@ -187,12 +187,13 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
     }
 	if(!m_cpu.m_State.nHasException)
 	{
+		bool isIdle = false;
 		int quota = singleStep ? 1 : 500;
-		ticks = quota - m_executor.Execute(quota);
-		assert(ticks >= 0);
+
         {
             if(m_bios->IsIdle())
 			{
+				isIdle = true;
 				ticks += (quota * 2);
             }
 			else
@@ -201,10 +202,20 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
 				if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
 				{
 					//Go a little bit faster if we're "stuck"
+					isIdle = true;
 					ticks += (quota * 2);
 				}
 			}
         }
+
+		if(isIdle)
+		{
+			quota /= 50;
+		}
+
+		ticks += (quota - m_executor.Execute(quota));
+		assert(ticks >= 0);
+
 		if(ticks > 0)
 		{
 			m_counters.Update(ticks);

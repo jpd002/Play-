@@ -448,6 +448,8 @@ void CMA_MIPSIV::BGTZL()
 //19
 void CMA_MIPSIV::DADDIU()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 
@@ -463,6 +465,8 @@ void CMA_MIPSIV::DADDIU()
 //1A
 void CMA_MIPSIV::LDL()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
     ComputeMemAccessAddr();
     m_codeGen->PushCst(m_nRT);
     m_codeGen->PushRef(m_pCtx);
@@ -472,6 +476,8 @@ void CMA_MIPSIV::LDL()
 //1B
 void CMA_MIPSIV::LDR()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
     ComputeMemAccessAddr();
     m_codeGen->PushCst(m_nRT);
     m_codeGen->PushRef(m_pCtx);
@@ -621,6 +627,8 @@ void CMA_MIPSIV::SW()
 //2C
 void CMA_MIPSIV::SDL()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
     ComputeMemAccessAddr();
     m_codeGen->PushCst(m_nRT);
     m_codeGen->PushRef(m_pCtx);
@@ -630,7 +638,9 @@ void CMA_MIPSIV::SDL()
 //2D
 void CMA_MIPSIV::SDR()
 {
-    ComputeMemAccessAddr();
+	assert(m_regSize == MIPS_REGSIZE_64);
+
+	ComputeMemAccessAddr();
     m_codeGen->PushCst(m_nRT);
     m_codeGen->PushRef(m_pCtx);
     m_codeGen->Call(reinterpret_cast<void*>(&SDR_Proxy), 3, false);
@@ -686,6 +696,8 @@ void CMA_MIPSIV::LDC2()
 //37
 void CMA_MIPSIV::LD()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
     ComputeMemAccessAddr();
 
     for(unsigned int i = 0; i < 2; i++)
@@ -735,6 +747,8 @@ void CMA_MIPSIV::SDC2()
 //3F
 void CMA_MIPSIV::SD()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	ComputeMemAccessAddr();
 
 	for(unsigned int i = 0; i < 2; i++)
@@ -893,6 +907,8 @@ void CMA_MIPSIV::MTLO()
 //14
 void CMA_MIPSIV::DSLLV()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
@@ -907,6 +923,8 @@ void CMA_MIPSIV::DSLLV()
 //16
 void CMA_MIPSIV::DSRLV()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
@@ -1062,6 +1080,8 @@ void CMA_MIPSIV::DADDU()
 //2F
 void CMA_MIPSIV::DSUBU()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 
@@ -1077,6 +1097,8 @@ void CMA_MIPSIV::DSUBU()
 //38
 void CMA_MIPSIV::DSLL()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
@@ -1089,6 +1111,8 @@ void CMA_MIPSIV::DSLL()
 //3A
 void CMA_MIPSIV::DSRL()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
@@ -1101,6 +1125,8 @@ void CMA_MIPSIV::DSRL()
 //3B
 void CMA_MIPSIV::DSRA()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
@@ -1113,6 +1139,8 @@ void CMA_MIPSIV::DSRA()
 //3C
 void CMA_MIPSIV::DSLL32()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
@@ -1125,6 +1153,8 @@ void CMA_MIPSIV::DSLL32()
 //3E
 void CMA_MIPSIV::DSRL32()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
@@ -1137,6 +1167,8 @@ void CMA_MIPSIV::DSRL32()
 //3F
 void CMA_MIPSIV::DSRA32()
 {
+	assert(m_regSize == MIPS_REGSIZE_64);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 

@@ -269,7 +269,7 @@ void CIopBios::LoadState(CZipArchiveReader& archive)
 
 bool CIopBios::IsIdle()
 {
-    return (m_cpu.m_State.nPC == m_idleFunctionAddress + 8);
+	return (m_cpu.m_State.nPC == m_idleFunctionAddress);
 }
 
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
