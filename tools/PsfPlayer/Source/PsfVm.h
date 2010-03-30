@@ -46,7 +46,6 @@ public:
 #endif
 
 	boost::signal<void ()> OnNewFrame;
-    boost::signal<void (int)> OnBufferWrite;
 
 private:
 	MipsModuleList		GetIopModules();

@@ -58,7 +58,6 @@ private:
 	CSoundHandler*				        CreateHandler(const TCHAR*);
 
     void                                OnNewFrame();
-    void                                OnBufferWrite(int);
 
     void                                OnFileOpen();
     void                                OnPause();
@@ -128,7 +127,6 @@ private:
 	uint64								m_trackLength;
 	uint64								m_fadePosition;
 	float								m_volumeAdjust;
-    int                                 m_writes;
     int                                 m_selectedAudioHandler;
 	REPEAT_MODE							m_repeatMode;
 

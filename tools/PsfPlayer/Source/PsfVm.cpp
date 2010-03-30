@@ -227,7 +227,6 @@ void CPsfVm::ThreadProc()
     const int blockSize = sampleCount * 2;
     const int blockCount = 10;
     int16 samples[blockSize * blockCount];
-    int16 samplesSpu1[blockSize];
     int currentBlock = 0;
 
 	while(!m_isThreadOver)
@@ -284,7 +283,6 @@ void CPsfVm::ThreadProc()
             else
             {
                 int ticks = m_iop.ExecuteCpu(false);
-                //if(!OnBufferWrite.empty()) OnBufferWrite(ticks);
                 m_spuUpdateCounter -= ticks;
                 m_frameCounter -= ticks;
                 if(m_spuUpdateCounter < 0)
@@ -293,20 +291,22 @@ void CPsfVm::ThreadProc()
                     unsigned int blockOffset = (blockSize * currentBlock);
                     int16* samplesSpu0 = samples + blockOffset;
                     
-                    memset(samplesSpu0, 0, blockSize * 2);
                     m_iop.m_spuCore0.Render(samplesSpu0, blockSize, 44100);
 
-                    memset(samplesSpu1, 0, blockSize * 2);
-                    m_iop.m_spuCore1.Render(samplesSpu1, blockSize, 44100);
+					if(m_iop.m_spuCore1.IsEnabled())
+					{
+						int16 samplesSpu1[blockSize];
+						m_iop.m_spuCore1.Render(samplesSpu1, blockSize, 44100);
 
-                    for(unsigned int i = 0; i < blockSize; i++)
-                    {
-	                    int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
-	                    resultSample = max<int32>(resultSample, SHRT_MIN);
-	                    resultSample = min<int32>(resultSample, SHRT_MAX);
-	                    samplesSpu0[i] = static_cast<int16>(resultSample);
-                    }
-                    //if(!OnBufferWrite.empty()) OnBufferWrite(blockSize / 2);
+						for(unsigned int i = 0; i < blockSize; i++)
+						{
+							int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
+							resultSample = max<int32>(resultSample, SHRT_MIN);
+							resultSample = min<int32>(resultSample, SHRT_MAX);
+							samplesSpu0[i] = static_cast<int16>(resultSample);
+						}
+					}
+
                     currentBlock++;
                     if(currentBlock == blockCount)
                     {

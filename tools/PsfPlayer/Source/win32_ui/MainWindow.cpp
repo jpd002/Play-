@@ -38,7 +38,6 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine) :
 m_virtualMachine(virtualMachine),
 m_ready(false),
 m_frames(0),
-m_writes(0),
 m_selectedAudioHandler(0),
 m_ejectButton(NULL),
 m_pauseButton(NULL),
@@ -74,7 +73,6 @@ m_accel(CreateAccelerators())
     m_popupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
 
     m_virtualMachine.OnNewFrame.connect(std::tr1::bind(&CMainWindow::OnNewFrame, this));
-    m_virtualMachine.OnBufferWrite.connect(std::tr1::bind(&CMainWindow::OnBufferWrite, this, std::tr1::placeholders::_1));
 
     ChangeAudioPlugin(0);
 
@@ -431,10 +429,6 @@ void CMainWindow::UpdateClock()
     int minutes = time / 60;
     tstring timerText = lexical_cast_uint<tstring>(minutes, 2) + _T(":") + lexical_cast_uint<tstring>(seconds, 2);
     m_timerLabel->SetText(timerText.c_str());
-
-    //tstring timerText = lexical_cast_uint<tstring>(m_writes);
-    //m_timerLabel->SetText(timerText.c_str());
-    //m_writes = 0;
 }
 
 void CMainWindow::UpdateTitle()
@@ -531,11 +525,6 @@ HACCEL CMainWindow::CreateAccelerators()
 void CMainWindow::OnNewFrame()
 {
 	m_frames++;
-}
-
-void CMainWindow::OnBufferWrite(int writeSize)
-{
-    m_writes += writeSize;
 }
 
 void CMainWindow::OnFileOpen()
@@ -706,17 +695,18 @@ bool CMainWindow::PlayFile(const char* path)
 		m_ready = true;
 		if(m_repeatMode == PLAYLIST_REPEAT || m_repeatMode == PLAYLIST_ONCE)
 		{
+			double fade = 10;
 			if(m_tags.HasTag("length"))
 			{
 				double length = CPsfTags::ConvertTimeString(m_tags.GetTagValue("length").c_str());
 				m_trackLength = static_cast<uint64>(length * 60.0);
-				m_fadePosition = m_trackLength - (10 * 60);
 			}
 			if(m_tags.HasTag("fade"))
 			{
-				double fade = CPsfTags::ConvertTimeString(m_tags.GetTagValue("fade").c_str());
-				m_fadePosition = m_trackLength - static_cast<uint64>(fade * 60.0);
+				fade = CPsfTags::ConvertTimeString(m_tags.GetTagValue("fade").c_str());
 			}
+			m_fadePosition = m_trackLength;
+			m_trackLength +=  static_cast<uint64>(fade * 60.0);
 		}
 	}
 	catch(const exception& except)
