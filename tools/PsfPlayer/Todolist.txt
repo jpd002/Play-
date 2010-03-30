@@ -1,16 +1,23 @@
 TODO:
+- PSP
+	- Integrate PSP core in PsfPlayer
+- Add register view in new UI
 - Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
 	- SPU updating for too long? (CPU/SPU desync)
 - Xenosaga
 	- Sounds really bad
 	- June Mermaid, especially
+- Exception for invalid PSFs
+
+Done:
+- PSP
+	- Use sceAudio to output sound
+	- Integrate patched executable in psfp file for Impression.psfp
 - Fix nasty bug with PSX sound files and home computer.
 	- Happens on other computers too.
 	- Happens on MacOSX too
-- Exception for invalid PSFs
+- Fade time for PSF files is off (should fade after total length is played)
 - 32-bits MA_MIPSIV support
-
-Done:
 - Reverb enable option
 - Raw mode view for tags
 - Disable "file information" when no PSF is loaded.
