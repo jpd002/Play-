@@ -83,6 +83,7 @@ Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\PsfPlayer"
   CreateShortCut "$SMPROGRAMS\PsfPlayer\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\PsfPlayer\PsfPlayer.lnk" "$INSTDIR\PsfPlayer.exe" "" "$INSTDIR\PsfPlayer.exe" 0
+  CreateShortCut "$SMPROGRAMS\PsfPlayer\changelog.html.lnk" "$INSTDIR\changelog.html" "" "$INSTDIR\changelog.html" 0
   
 SectionEnd
 
