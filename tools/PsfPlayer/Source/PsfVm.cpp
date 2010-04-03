@@ -8,7 +8,6 @@
 #include "HighResTimer.h"
 #include "xml/Writer.h"
 #include "xml/Parser.h"
-#include "Ps2Const.h"
 
 #define LOG_NAME ("psfvm")
 
@@ -18,17 +17,10 @@ using namespace Iop;
 using namespace Framework;
 namespace filesystem = boost::filesystem;
 
-#define FRAMES_PER_SEC	(60)
-
-const int g_frameTicks = (PS2::IOP_CLOCK_FREQ / FRAMES_PER_SEC);
-const int g_spuUpdateTicks = (1 * PS2::IOP_CLOCK_FREQ / 1000);
-
 CPsfVm::CPsfVm() :
 m_status(PAUSED),
 m_singleStep(false),
-m_spuUpdateCounter(g_spuUpdateTicks),
-m_spuHandler(NULL),
-m_frameCounter(g_frameTicks)
+m_soundHandler(NULL)
 {
     m_isThreadOver = false;
     m_thread = new boost::thread(bind(&CPsfVm::ThreadProc, this));
@@ -45,19 +37,23 @@ CPsfVm::~CPsfVm()
         delete m_thread;
         m_thread = NULL;
 
-        assert(m_spuHandler == NULL);
+        assert(m_soundHandler == NULL);
     }
 }
 
 void CPsfVm::Reset()
 {
-	m_iop.Reset();
-	if(m_spuHandler)
+	m_subSystem.reset();
+	if(m_soundHandler)
 	{
-		m_spuHandler->Reset();
+		m_soundHandler->Reset();
 	}
-    m_frameCounter = g_frameTicks;
-    m_spuUpdateCounter = g_spuUpdateTicks;
+}
+
+void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
+{
+	m_subSystem = subSystem;
+	m_subSystem->OnNewFrame.connect(std::tr1::cref(OnNewFrame));
 }
 
 #ifdef DEBUGGER_INCLUDED
@@ -147,29 +143,17 @@ CDebuggable CPsfVm::GetDebugInfo()
 
 CMIPS& CPsfVm::GetCpu()
 {
-	return m_iop.m_cpu;
+	return m_subSystem->GetCpu();
 }
 
 CSpuBase& CPsfVm::GetSpuCore(unsigned int coreId)
 {
-	if(coreId == 0)
-	{
-		return m_iop.m_spuCore0;
-	}
-	else
-	{
-		return m_iop.m_spuCore1;
-	}
+	return m_subSystem->GetSpuCore(coreId);
 }
 
 uint8* CPsfVm::GetRam()
 {
-    return m_iop.m_ram;
-}
-
-void CPsfVm::SetBios(const Iop::CSubSystem::BiosPtr& bios)
-{
-	m_iop.SetBios(bios);
+	return m_subSystem->GetRam();
 }
 
 void CPsfVm::Step()
@@ -186,12 +170,12 @@ void CPsfVm::SetSpuHandler(const SpuHandlerFactory& factory)
 
 void CPsfVm::SetSpuHandlerImpl(const SpuHandlerFactory& factory)
 {
-	if(m_spuHandler)
+	if(m_soundHandler)
 	{
-		delete m_spuHandler;
-		m_spuHandler = NULL;
+		delete m_soundHandler;
+		m_soundHandler = NULL;
 	}
-	m_spuHandler = factory();
+	m_soundHandler = factory();
 }
 
 void CPsfVm::SetReverbEnabled(bool enabled)
@@ -201,8 +185,10 @@ void CPsfVm::SetReverbEnabled(bool enabled)
 
 void CPsfVm::SetReverbEnabledImpl(bool enabled)
 {
-	m_iop.m_spuCore0.SetReverbEnabled(enabled);
-	m_iop.m_spuCore1.SetReverbEnabled(enabled);
+	assert(m_subSystem != NULL);
+	if(m_subSystem == NULL) return;
+	m_subSystem->GetSpuCore(0).SetReverbEnabled(enabled);
+	m_subSystem->GetSpuCore(1).SetReverbEnabled(enabled);
 }
 
 void CPsfVm::SetVolumeAdjust(float volumeAdjust)
@@ -212,23 +198,14 @@ void CPsfVm::SetVolumeAdjust(float volumeAdjust)
 
 void CPsfVm::SetVolumeAdjustImpl(float volumeAdjust)
 {
-	m_iop.m_spuCore0.SetVolumeAdjust(volumeAdjust);
-	m_iop.m_spuCore1.SetVolumeAdjust(volumeAdjust);
+	assert(m_subSystem != NULL);
+	if(m_subSystem == NULL) return;
+	m_subSystem->GetSpuCore(0).SetVolumeAdjust(volumeAdjust);
+	m_subSystem->GetSpuCore(1).SetVolumeAdjust(volumeAdjust);
 }
 
 void CPsfVm::ThreadProc()
 {
-#ifdef DEBUGGER_INCLUDED
-    uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
-#endif
-
-//    const int sampleCount = 176;
-    const int sampleCount = 44;
-    const int blockSize = sampleCount * 2;
-    const int blockCount = 10;
-    int16 samples[blockSize * blockCount];
-    int currentBlock = 0;
-
 	while(!m_isThreadOver)
 	{
 		while(m_mailBox.IsPending())
@@ -242,127 +219,13 @@ void CPsfVm::ThreadProc()
 		}
 		else
 		{
-#ifdef DEBUGGER_INCLUDED
-			int ticks = m_iop.ExecuteCpu(m_singleStep);
-
-			static int frameCounter = g_frameTicks;
-			static uint64 currentTime = CHighResTimer::GetTime();
-
-			frameCounter -= ticks;
-			if(frameCounter <= 0)
-			{
-				m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-				OnNewFrame();
-				frameCounter += g_frameTicks;
-				uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
-				int64 delay = frameTime - elapsed;
-				if(delay > 0)
-				{
-					boost::xtime xt;
-					boost::xtime_get(&xt, boost::TIME_UTC);
-					xt.nsec += delay * 1000;
-					boost::thread::sleep(xt);
-				}
-				currentTime = CHighResTimer::GetTime();
-			}
-
-//			m_spuHandler.Update(m_spu);
-			if(m_iop.m_executor.MustBreak() || m_singleStep)
-			{
-				m_status = PAUSED;
-				m_singleStep = false;
-				m_OnMachineStateChange();
-				m_OnRunningStateChange();
-			}
-#else
-            if(m_spuHandler && !m_spuHandler->HasFreeBuffers())
-            {
-                boost::this_thread::sleep(boost::posix_time::milliseconds(16));
-                m_spuHandler->RecycleBuffers();
-            }
-            else
-            {
-                int ticks = m_iop.ExecuteCpu(false);
-                m_spuUpdateCounter -= ticks;
-                m_frameCounter -= ticks;
-                if(m_spuUpdateCounter < 0)
-                {
-                    m_spuUpdateCounter += g_spuUpdateTicks;
-                    unsigned int blockOffset = (blockSize * currentBlock);
-                    int16* samplesSpu0 = samples + blockOffset;
-                    
-                    m_iop.m_spuCore0.Render(samplesSpu0, blockSize, 44100);
-
-					if(m_iop.m_spuCore1.IsEnabled())
-					{
-						int16 samplesSpu1[blockSize];
-						m_iop.m_spuCore1.Render(samplesSpu1, blockSize, 44100);
-
-						for(unsigned int i = 0; i < blockSize; i++)
-						{
-							int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
-							resultSample = max<int32>(resultSample, SHRT_MIN);
-							resultSample = min<int32>(resultSample, SHRT_MAX);
-							samplesSpu0[i] = static_cast<int16>(resultSample);
-						}
-					}
-
-                    currentBlock++;
-                    if(currentBlock == blockCount)
-                    {
-                        if(m_spuHandler)
-                        {
-                            m_spuHandler->Write(samples, blockSize * blockCount, 44100);
-                        }
-                        currentBlock = 0;
-                    }
-                }
-                if(m_frameCounter < 0)
-                {
-				    m_frameCounter += g_frameTicks;
-				    m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-				    if(!OnNewFrame.empty())
-				    {
-					    OnNewFrame();
-				    }
-                }
-            }
-            //if(m_spuHandler && m_spuHandler->HasFreeBuffers())
-			//{
-			//	while(m_spuHandler->HasFreeBuffers() && !m_mailBox.IsPending())
-			//	{
-			//		while(m_spuUpdateCounter > 0)
-			//		{
-			//			int ticks = m_iop.ExecuteCpu(false);
-			//			m_spuUpdateCounter -= ticks;
-			//			m_frameCounter -= ticks;
-			//			if(m_frameCounter < 0)
-			//			{
-			//				m_frameCounter += g_frameTicks;
-			//				m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-			//				if(!OnNewFrame.empty())
-			//				{
-			//					OnNewFrame();
-			//				}
-			//			}
-			//		}
-
-			//		m_spuHandler->Update(m_iop.m_spuCore0, m_iop.m_spuCore1);
-			//		m_spuUpdateCounter += g_spuUpdateTicks;
-			//	}
-			//}
-			//else
-			//{
-			//	//Sleep during 16ms
-   //             boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-			//}
-#endif
+			m_subSystem->Update(false, m_soundHandler);
 		}
 	}
 
-    if(m_spuHandler != NULL)
+    if(m_soundHandler != NULL)
     {
-        delete m_spuHandler;
-        m_spuHandler = NULL;
+        delete m_soundHandler;
+        m_soundHandler = NULL;
     }
 }

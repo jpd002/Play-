@@ -1,30 +1,29 @@
 #include <zlib.h>
 #include <stdexcept>
-#include "PsfDevice.h"
+#include "PsfFs.h"
 #include "PtrStream.h"
 #include "stricmp.h"
 
-using namespace PS2;
 using namespace Framework;
 using namespace std;
 
-CPsfDevice::CPsfDevice()
+CPsfFs::CPsfFs()
 {
 
 }
 
-CPsfDevice::~CPsfDevice()
+CPsfFs::~CPsfFs()
 {
 
 }
 
-void CPsfDevice::AppendArchive(const CPsfBase& archive)
+void CPsfFs::AppendArchive(const CPsfBase& archive)
 {
     CPtrStream fsStream(archive.GetReserved(), archive.GetReservedSize());
 	ReadDirectory(fsStream, m_root);
 }
 
-void CPsfDevice::ReadFile(CStream& stream, FILE& file)
+void CPsfFs::ReadFile(CStream& stream, FILE& file)
 {
     unsigned int sizeTableEntryCount = (file.size + file.blockSize - 1) / file.blockSize;
     uint32* sizeTable = reinterpret_cast<uint32*>(alloca(sizeTableEntryCount * sizeof(uint32)));
@@ -48,7 +47,7 @@ void CPsfDevice::ReadFile(CStream& stream, FILE& file)
     }
 }
 
-void CPsfDevice::ReadDirectory(CStream& stream, DIRECTORY& baseDirectory)
+void CPsfFs::ReadDirectory(CStream& stream, DIRECTORY& baseDirectory)
 {
     uint32 entryCount = stream.Read32();
     for(uint32 entry = 0; entry < entryCount; entry++)
@@ -78,13 +77,8 @@ void CPsfDevice::ReadDirectory(CStream& stream, DIRECTORY& baseDirectory)
     }
 }
 
-CStream* CPsfDevice::GetFile(uint32 mode, const char* path)
+CStream* CPsfFs::GetFile(const char* path)
 {
-    if(mode != CDevice::O_RDONLY)
-    {
-        printf("%s: Attempting to open a file in non read mode.\r\n", __FUNCTION__);
-        return NULL;
-    }
     string transformPath(path);
     string::size_type position = transformPath.find('\\');
     while(position != string::npos)
@@ -100,7 +94,7 @@ CStream* CPsfDevice::GetFile(uint32 mode, const char* path)
     return new CPtrStream(file->data, file->size);
 }
 
-const CPsfDevice::NODE* CPsfDevice::GetFileFindNode(const DIRECTORY& directory, const char* path) const
+const CPsfFs::NODE* CPsfFs::GetFileFindNode(const DIRECTORY& directory, const char* path) const
 {
     for(DIRECTORY::FileListType::const_iterator nodeIterator(directory.fileList.begin());
         nodeIterator != directory.fileList.end(); nodeIterator++)
@@ -115,7 +109,7 @@ const CPsfDevice::NODE* CPsfDevice::GetFileFindNode(const DIRECTORY& directory, 
     return NULL;
 }
 
-const CPsfDevice::FILE* CPsfDevice::GetFileDetail(const DIRECTORY& directory, const char* path) const
+const CPsfFs::FILE* CPsfFs::GetFileDetail(const DIRECTORY& directory, const char* path) const
 {
     if(*path == '/') path++;
     const char* separator = strchr(path, '/');

@@ -23,6 +23,9 @@
 
 #define PLAYLIST_EXTENSION              _T("psfpl")
 #define PLAYLIST_FILTER                 _T("PsfPlayer Playlists (*.") PLAYLIST_EXTENSION _T(")\0*.") PLAYLIST_EXTENSION _T("\0")
+#define PSF_FILTER						_T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
+#define PSF2_FILTER						_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0")
+#define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
 
 CMainWindow::SPUHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
@@ -79,7 +82,7 @@ m_accel(CreateAccelerators())
     m_timerLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER);
     m_titleLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER | SS_NOPREFIX);
 
-    m_placeHolder = new Win32::CStatic(m_hWnd, Win32::CRect(0, 0, 1, 1), SS_BLACKRECT);
+    m_placeHolder = new Win32::CStatic(m_hWnd, Win32::CRect(0, 0, 1, 1));
 
 	m_nextPanelButton = new Win32::CButton(_T(">"), m_hWnd, Win32::CRect(0, 0, 1, 1));
 	m_prevPanelButton = new Win32::CButton(_T("<"), m_hWnd, Win32::CRect(0, 0, 1, 1));
@@ -325,9 +328,10 @@ void CMainWindow::OnPlaylistAddClick()
 {
     Win32::CFileDialog dialog(0x10000);
     const TCHAR* filter = 
-	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2\0")
-	    _T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
-	    _T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0");
+	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp\0")
+	    PSF_FILTER
+	    PSF2_FILTER
+		PSFP_FILTER;
     dialog.m_OFN.lpstrFilter = filter;
     dialog.m_OFN.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
     if(dialog.SummonOpen(m_hWnd))
@@ -531,10 +535,11 @@ void CMainWindow::OnFileOpen()
 {
     Win32::CFileDialog dialog;
     const TCHAR* filter = 
-	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2;*.") PLAYLIST_EXTENSION _T("\0")
+	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp*.") PLAYLIST_EXTENSION _T("\0")
         PLAYLIST_FILTER
-	    _T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
-	    _T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0");
+	    PSF_FILTER
+	    PSF2_FILTER
+		PSFP_FILTER;
     dialog.m_OFN.lpstrFilter = filter;
     if(dialog.SummonOpen(m_hWnd))
     {

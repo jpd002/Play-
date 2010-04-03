@@ -1,8 +1,13 @@
 #include "PsfLoader.h"
 #include "StdStream.h"
-#include "PsxBios.h"
-#include "PsfBios.h"
+
+#include "psx/PsxBios.h"
+#include "ps2/PsfBios.h"
+#include "Iop_PsfSubSystem.h"
 #include "Ps2Const.h"
+
+#include "psp/Psp_PsfSubSystem.h"
+
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -17,6 +22,10 @@ void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const char* pathString, CPsfBas
 	{
 		LoadPs2(virtualMachine, pathString, tags);
 	}
+	else if(pathString[pathLength - 1] == 'p')
+	{
+		LoadPsp(virtualMachine, pathString, tags);
+	}
 	else
 	{
 		LoadPsx(virtualMachine, pathString, tags);
@@ -25,9 +34,14 @@ void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const char* pathString, CPsfBas
 
 void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
-    Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
-    virtualMachine.SetBios(bios);
-    LoadPsxRecurse(virtualMachine, static_cast<CPsxBios*>(bios.get()), pathString, tags);
+	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem());
+	virtualMachine.SetSubSystem(subSystem);
+
+	{
+		Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
+		subSystem->SetBios(bios);
+		LoadPsxRecurse(virtualMachine, static_cast<CPsxBios*>(bios.get()), pathString, tags);
+	}
 }
 
 void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const char* pathString, CPsfBase::TagMap* tags)
@@ -87,10 +101,15 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 
 void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
-	Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
-    virtualMachine.SetBios(bios);
-    LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), pathString, tags);
-    static_cast<PS2::CPsfBios*>(bios.get())->Start();
+	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem());
+	virtualMachine.SetSubSystem(subSystem);
+
+	{
+		Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
+		subSystem->SetBios(bios);
+	    LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), pathString, tags);
+		static_cast<PS2::CPsfBios*>(bios.get())->Start();
+	}
 }
 
 void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const char* pathString, CPsfBase::TagMap* tags)
@@ -111,6 +130,40 @@ void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, con
 		filesystem::path path(pathString); 
 		path = path.branch_path() / libPath;
 		LoadPs2Recurse(virtualMachine, bios, path.string().c_str());
+	}
+	bios->AppendArchive(psfFile);
+}
+
+void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
+{
+	Psp::PsfSubSystemPtr subSystem = Psp::PsfSubSystemPtr(new Psp::CPsfSubSystem(0x00400000));
+	virtualMachine.SetSubSystem(subSystem);
+
+	{
+		Psp::CPsfBios* bios = &subSystem->GetBios();
+		LoadPspRecurse(virtualMachine, bios, pathString, tags);
+		bios->Start();
+	}
+}
+
+void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, const char* pathString, CPsfBase::TagMap* tags)
+{
+	CStdStream input(pathString, "rb");
+	CPsfBase psfFile(input);
+	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATIONPORTABLE)
+	{
+		throw runtime_error("Not a PlayStation Portable psf.");
+	}
+	const char* libPath = psfFile.GetTagValue("_lib");
+	if(tags != NULL)
+	{
+		tags->insert(psfFile.GetTagsBegin(), psfFile.GetTagsEnd());
+	}
+	if(libPath != NULL)
+	{
+		filesystem::path path(pathString); 
+		path = path.branch_path() / libPath;
+		LoadPspRecurse(virtualMachine, bios, path.string().c_str());
 	}
 	bios->AppendArchive(psfFile);
 }

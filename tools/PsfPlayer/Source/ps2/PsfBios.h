@@ -3,7 +3,7 @@
 
 #include "iop/Iop_BiosBase.h"
 #include "iop/IopBios.h"
-#include "PsfDevice.h"
+#include "Ps2_PsfDevice.h"
 
 namespace PS2
 {

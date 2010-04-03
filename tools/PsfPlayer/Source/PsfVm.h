@@ -4,15 +4,14 @@
 #include "Types.h"
 #include "MIPS.h"
 #include "SoundHandler.h"
-#include "iop/Iop_SubSystem.h"
+#include "PsfVmSubSystem.h"
 #include "VirtualMachine.h"
 #include "Debuggable.h"
 #include "MailBox.h"
-#include "MipsExecutor.h"
 #include <boost/thread.hpp>
 #include <boost/signal.hpp>
 
-class CPsfVm : public CVirtualMachine
+class CPsfVm : public CVirtualMachine, public boost::signals::trackable
 {
 public:
 	typedef std::tr1::function<CSoundHandler* ()> SpuHandlerFactory;
@@ -30,8 +29,7 @@ public:
 	CMIPS&				GetCpu();
 	Iop::CSpuBase&		GetSpuCore(unsigned int);
     uint8*              GetRam();
-
-    void                SetBios(const Iop::CSubSystem::BiosPtr&);
+	void				SetSubSystem(const PsfVmSubSystemPtr&);
 
     CDebuggable         GetDebugInfo();
 
@@ -57,12 +55,10 @@ private:
 	void				SetSpuHandlerImpl(const SpuHandlerFactory&);
 
 	STATUS				m_status;
-	Iop::CSubSystem		m_iop;
-	CSoundHandler*		m_spuHandler;
+	PsfVmSubSystemPtr	m_subSystem;
+	CSoundHandler*		m_soundHandler;
 	boost::thread*		m_thread;
 	bool				m_singleStep;
-    int                 m_spuUpdateCounter;
-    int                 m_frameCounter;
     bool                m_isThreadOver;
 	CMailBox			m_mailBox;
 };

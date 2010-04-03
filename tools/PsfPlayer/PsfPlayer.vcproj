@@ -226,19 +226,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PsfBios.cpp"
+				RelativePath=".\Source\PsfFs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PsfBios.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsfDevice.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsfDevice.h"
+				RelativePath=".\Source\PsfFs.h"
 				>
 			</File>
 			<File
@@ -266,11 +258,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PsxBios.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\PsxBios.h"
+				RelativePath=".\Source\PsfVmSubSystem.h"
 				>
 			</File>
 			<File
@@ -381,6 +369,166 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="psx"
+				>
+				<File
+					RelativePath=".\Source\psx\PsxBios.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psx\PsxBios.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="psp"
+				>
+				<File
+					RelativePath=".\Source\psp\MA_ALLEGREX.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\MA_ALLEGREX.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\MA_ALLEGREX_Reflection.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_IoDevice.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_IoDevice.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_PsfBios.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_PsfBios.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_PsfDevice.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_PsfDevice.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_PsfSubSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\Psp_PsfSubSystem.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\PspBios.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\PspBios.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\psp\PspModule.h"
+					>
+				</File>
+				<Filter
+					Name="Modules"
+					>
+					<File
+						RelativePath=".\Source\psp\Psp_Audio.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_Audio.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_IoFileMgrForUser.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_IoFileMgrForUser.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_KernelLibrary.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_KernelLibrary.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_SasCore.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_SasCore.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_StdioForUser.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_StdioForUser.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_SysMemUserForUser.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_SysMemUserForUser.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_ThreadManForUser.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\psp\Psp_ThreadManForUser.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="ps2"
+				>
+				<File
+					RelativePath=".\Source\Iop_PsfSubSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Iop_PsfSubSystem.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Ps2_PsfDevice.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\Ps2_PsfDevice.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\PsfBios.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\ps2\PsfBios.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Purei Core"
@@ -407,6 +555,26 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\CodeGen_MD.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\COP_FPU.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\COP_FPU.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\COP_FPU_Reflection.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\COP_SCU.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\COP_SCU.h"
 				>
 			</File>
 			<File
@@ -527,6 +695,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\MipsCodeGen.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSCoprocessor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\MIPSCoprocessor.h"
 				>
 			</File>
 			<File
