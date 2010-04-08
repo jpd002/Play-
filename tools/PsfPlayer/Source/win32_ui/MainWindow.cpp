@@ -543,7 +543,7 @@ void CMainWindow::OnFileOpen()
 {
     Win32::CFileDialog dialog;
     const TCHAR* filter = 
-	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp*.") PLAYLIST_EXTENSION _T("\0")
+	    _T("All Supported Files\0*.psfpl; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp*.") PLAYLIST_EXTENSION _T("\0")
         PLAYLIST_FILTER
 	    PSF_FILTER
 	    PSF2_FILTER
