@@ -13,6 +13,7 @@
 #include "Panel.h"
 #include "PlaylistPanel.h"
 #include "FileInformationPanel.h"
+#include "SpuRegViewPanel.h"
 #include "AcceleratorTable.h"
 
 class CMainWindow : public Framework::Win32::CWindow, public boost::signals::trackable
@@ -32,7 +33,7 @@ protected:
 private:
     enum
     {
-        MAX_PANELS = 2,
+        MAX_PANELS = 4,
     };
 
 	enum
@@ -113,6 +114,8 @@ private:
     CPanel*                             m_panels[MAX_PANELS];
     CPlaylistPanel*                     m_playlistPanel;
 	CFileInformationPanel*				m_fileInformationPanel;
+	CSpuRegViewPanel*					m_spu0RegViewPanel;
+	CSpuRegViewPanel*					m_spu1RegViewPanel;
 
     HMENU                               m_popupMenu;
 	Framework::Win32::CAcceleratorTable	m_accel;

@@ -285,6 +285,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\win32_ui\DirectXControl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\DirectXControl.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\win32_ui\FileInformationPanel.cpp"
 					>
 				</File>
@@ -338,6 +346,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\win32_ui\SpuRegView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\SpuRegViewPanel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\SpuRegViewPanel.h"
 					>
 				</File>
 				<File

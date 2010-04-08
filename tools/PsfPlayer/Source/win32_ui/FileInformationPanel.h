@@ -2,7 +2,6 @@
 #define _FILEINFORMATIONPANEL_H_
 
 #include "Panel.h"
-#include "win32/Layouts.h"
 #include "win32/Edit.h"
 #include "win32/Layouts.h"
 #include "PsfTags.h"

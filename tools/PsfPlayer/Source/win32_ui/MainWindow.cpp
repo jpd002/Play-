@@ -47,6 +47,8 @@ m_pauseButton(NULL),
 m_repeatButton(NULL),
 m_playlistPanel(NULL),
 m_fileInformationPanel(NULL),
+m_spu0RegViewPanel(NULL),
+m_spu1RegViewPanel(NULL),
 m_nextPanelButton(NULL),
 m_prevPanelButton(NULL),
 m_currentPlaylistItem(0),
@@ -140,9 +142,15 @@ m_accel(CreateAccelerators())
 	//Create file information panel
 	m_fileInformationPanel = new CFileInformationPanel(m_placeHolder->m_hWnd);
 
+	//Create RegView panels
+	m_spu0RegViewPanel = new CSpuRegViewPanel(m_placeHolder->m_hWnd);
+	m_spu1RegViewPanel = new CSpuRegViewPanel(m_placeHolder->m_hWnd);
+
     //Initialize panels    
     m_panels[0] = m_playlistPanel;
 	m_panels[1] = m_fileInformationPanel;
+	m_panels[2] = m_spu0RegViewPanel;
+	m_panels[3] = m_spu1RegViewPanel;
 
     CreateAudioPluginMenu();
     UpdateAudioPluginMenu();
@@ -669,6 +677,8 @@ void CMainWindow::LoadPlaylist(const char* path)
 
 void CMainWindow::Reset()
 {
+	m_spu0RegViewPanel->SetSpu(NULL);
+	m_spu1RegViewPanel->SetSpu(NULL);
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
     m_frames = 0;
@@ -696,6 +706,8 @@ bool CMainWindow::PlayFile(const char* path)
 
 		}
 		m_fileInformationPanel->SetTags(m_tags);
+		m_spu0RegViewPanel->SetSpu(&m_virtualMachine.GetSpuCore(0));
+		m_spu1RegViewPanel->SetSpu(&m_virtualMachine.GetSpuCore(1));
 		m_virtualMachine.Resume();
 		m_ready = true;
 		if(m_repeatMode == PLAYLIST_REPEAT || m_repeatMode == PLAYLIST_ONCE)

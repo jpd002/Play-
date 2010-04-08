@@ -1,19 +1,39 @@
 #ifndef _SPUREGVIEW_H_
 #define _SPUREGVIEW_H_
 
-#include "win32ui/RegViewPage.h"
+#include "DirectXControl.h"
 #include "iop/Iop_SpuBase.h"
 
-class CSpuRegView : public CRegViewPage
+class CSpuRegView : public CDirectXControl
 {
 public:
-					CSpuRegView(HWND, RECT*, Iop::CSpuBase&);
-	virtual			~CSpuRegView();
+							CSpuRegView(HWND);
+	virtual					~CSpuRegView();
 
-	void			Render();
+	void					SetSpu(Iop::CSpuBase*);
+
+protected:
+	virtual long			OnTimer(WPARAM);
+
+	virtual void			Refresh();
+	virtual void			RecreateDevice();
 
 private:
-	Iop::CSpuBase&	m_spu;
+	class CLineDrawer
+	{
+	public:
+						CLineDrawer(LPD3DXFONT, D3DCOLOR);
+		void			Draw(const TCHAR*, int = -1);
+		void			Feed();
+
+	private:
+		int				m_posY;
+		LPD3DXFONT		m_font;
+		D3DCOLOR		m_color;
+	};
+
+	Iop::CSpuBase*			m_spu;
+	LPD3DXFONT				m_font;
 };
 
 #endif
