@@ -11,6 +11,7 @@
 CDirectXControl::CDirectXControl(HWND parentWnd)
 : m_d3d(NULL)
 , m_device(NULL)
+, m_deviceLost(false)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -30,6 +31,8 @@ CDirectXControl::CDirectXControl(HWND parentWnd)
 
 	m_backgroundColor = ConvertSysColor(GetSysColor(COLOR_BTNFACE));
 	m_textColor = ConvertSysColor(GetSysColor(COLOR_WINDOWTEXT));
+
+	Initialize();
 }
 
 CDirectXControl::~CDirectXControl()
@@ -69,6 +72,7 @@ long CDirectXControl::OnPaint()
 long CDirectXControl::OnSize(unsigned int, unsigned int, unsigned int)
 {
 	RecreateDevice();
+	CreateResources();
 	return TRUE;
 }
 
@@ -86,19 +90,7 @@ void CDirectXControl::RecreateDevice()
 		m_device = NULL;
 	}
 
-	RECT clientRect = GetClientRect();
-
-    D3DPRESENT_PARAMETERS d3dpp;
-	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
-    d3dpp.Windowed					= TRUE;
-    d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
-    d3dpp.hDeviceWindow				= m_hWnd;
-    d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
-    d3dpp.BackBufferWidth			= clientRect.right;
-    d3dpp.BackBufferHeight			= clientRect.bottom;
-	d3dpp.EnableAutoDepthStencil	= TRUE;
-	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
-
+    D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
     m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
                       D3DDEVTYPE_HAL,
                       m_hWnd,
@@ -109,4 +101,43 @@ void CDirectXControl::RecreateDevice()
 	m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
     m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+
+	m_deviceLost = false;
+}
+
+bool CDirectXControl::TestDevice()
+{
+	HRESULT coopLevelResult = m_device->TestCooperativeLevel();
+	if(coopLevelResult == D3DERR_DEVICELOST)
+	{
+		m_deviceLost = true;
+	}
+	if(coopLevelResult == D3DERR_DEVICENOTRESET)
+	{
+	    D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
+		if(SUCCEEDED(m_device->Reset(&d3dpp)))
+		{
+			CreateResources();
+			m_deviceLost = false;
+		}
+	}
+
+	return !m_deviceLost;
+}
+
+D3DPRESENT_PARAMETERS CDirectXControl::CreatePresentParams()
+{
+	RECT clientRect = GetClientRect();
+
+	D3DPRESENT_PARAMETERS d3dpp;
+	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
+    d3dpp.Windowed					= TRUE;
+    d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
+    d3dpp.hDeviceWindow				= m_hWnd;
+    d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
+    d3dpp.BackBufferWidth			= clientRect.right;
+    d3dpp.BackBufferHeight			= clientRect.bottom;
+	d3dpp.EnableAutoDepthStencil	= TRUE;
+	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
+	return d3dpp;
 }

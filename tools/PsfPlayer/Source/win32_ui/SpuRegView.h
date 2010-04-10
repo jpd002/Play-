@@ -16,20 +16,20 @@ protected:
 	virtual long			OnTimer(WPARAM);
 
 	virtual void			Refresh();
-	virtual void			RecreateDevice();
+	virtual void			CreateResources();
 
 private:
 	class CLineDrawer
 	{
 	public:
-						CLineDrawer(LPD3DXFONT, D3DCOLOR);
-		void			Draw(const TCHAR*, int = -1);
-		void			Feed();
+							CLineDrawer(LPD3DXFONT, D3DCOLOR);
+		void				Draw(const TCHAR*, int = -1);
+		void				Feed();
 
 	private:
-		int				m_posY;
-		LPD3DXFONT		m_font;
-		D3DCOLOR		m_color;
+		int					m_posY;
+		LPD3DXFONT			m_font;
+		D3DCOLOR			m_color;
 	};
 
 	Iop::CSpuBase*			m_spu;

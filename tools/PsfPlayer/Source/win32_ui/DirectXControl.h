@@ -14,20 +14,27 @@ public:
 protected:
 	D3DCOLOR				ConvertSysColor(DWORD);
 
-	void					Initialize();
-	virtual void			RecreateDevice();
+	bool					TestDevice();
 
 	virtual void			Refresh() = 0;
+	virtual void			CreateResources() = 0;
 
 	virtual long			OnEraseBkgnd();
 	virtual long			OnPaint();
 	virtual long			OnSize(unsigned int, unsigned int, unsigned int);
 
-	LPDIRECT3D9				m_d3d;
 	LPDIRECT3DDEVICE9		m_device;
 
 	D3DCOLOR				m_backgroundColor;
 	D3DCOLOR				m_textColor;
+
+private:
+	void					Initialize();
+	void					RecreateDevice();
+	D3DPRESENT_PARAMETERS	CreatePresentParams();
+
+	LPDIRECT3D9				m_d3d;
+	bool					m_deviceLost;
 };
 
 #endif

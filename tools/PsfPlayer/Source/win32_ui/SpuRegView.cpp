@@ -6,8 +6,7 @@ CDirectXControl(parentWnd),
 m_spu(NULL),
 m_font(NULL)
 {
-	Initialize();
-
+	CreateResources();
 	SetTimer(m_hWnd, NULL, 16, NULL);
 }
 
@@ -29,10 +28,8 @@ long CSpuRegView::OnTimer(WPARAM param)
 	return TRUE;
 }
 
-void CSpuRegView::RecreateDevice()
+void CSpuRegView::CreateResources()
 {
-	CDirectXControl::RecreateDevice();
-
 	if(m_font)
 	{
 		m_font->Release();
@@ -50,6 +47,7 @@ void CSpuRegView::SetSpu(Iop::CSpuBase* spu)
 void CSpuRegView::Refresh()
 {
 	if(m_device == NULL) return;
+	if(!TestDevice()) return;
 
 	m_device->Clear(0, NULL, D3DCLEAR_TARGET, m_backgroundColor, 1.0f, 0);
 	m_device->BeginScene();
