@@ -413,10 +413,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\psp\Psp_IoDevice.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\psp\Psp_IoDevice.h"
 					>
 				</File>
