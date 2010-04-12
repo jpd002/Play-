@@ -5,7 +5,6 @@
 #include "PsfVm.h"
 #include "Log.h"
 #include "MA_MIPSIV.h"
-#include "HighResTimer.h"
 #include "xml/Writer.h"
 #include "xml/Parser.h"
 
@@ -81,9 +80,9 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 		boost::scoped_ptr<Xml::CNode> document(Xml::CParser::ParseDocument(&CStdStream(packagePath.c_str(), "rb")));
 		Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
 		if(tagsSection == NULL) return;
-		m_iop.m_cpu.m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
-		m_iop.m_cpu.m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
-		m_iop.m_bios->LoadDebugTags(tagsSection);
+		m_subSystem->GetCpu().m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
+		m_subSystem->GetCpu().m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
+		m_subSystem->LoadDebugTags(tagsSection);
 	}
 	catch(...)
 	{
@@ -95,9 +94,9 @@ void CPsfVm::SaveDebugTags(const char* packageName)
 {
 	string packagePath = MakeTagPackagePath(packageName);
 	boost::scoped_ptr<Xml::CNode> document(new Xml::CNode(TAGS_SECTION_TAGS, true));
-	m_iop.m_cpu.m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
-	m_iop.m_cpu.m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
-	m_iop.m_bios->SaveDebugTags(document.get());
+	m_subSystem->GetCpu().m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
+	m_subSystem->GetCpu().m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
+	m_subSystem->SaveDebugTags(document.get());
 	Xml::CWriter::WriteDocument(&CStdStream(packagePath.c_str(), "wb"), document.get());
 }
 
@@ -136,7 +135,7 @@ CDebuggable CPsfVm::GetDebugInfo()
 	debug.Step = bind(&CPsfVm::Step, this);
     debug.GetCpu = bind(&CPsfVm::GetCpu, this);
 #ifdef DEBUGGER_INCLUDED
-	debug.GetModules = bind(&Iop::CBiosBase::GetModuleList, m_iop.m_bios);
+	debug.GetModules = bind(&CPsfVmSubSystem::GetModuleList, m_subSystem.get());
 #endif
 	return debug;
 }
@@ -219,7 +218,16 @@ void CPsfVm::ThreadProc()
 		}
 		else
 		{
-			m_subSystem->Update(false, m_soundHandler);
+			m_subSystem->Update(m_singleStep, m_soundHandler);
+#ifdef DEBUGGER_INCLUDED
+			if(m_subSystem->MustBreak() || m_singleStep)
+			{
+				m_status = PAUSED;
+				m_singleStep = false;
+				m_OnMachineStateChange();
+				m_OnRunningStateChange();
+			}
+#endif
 		}
 	}
 

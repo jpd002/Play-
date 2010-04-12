@@ -88,6 +88,9 @@ int CPsfSubSystem::ExecuteCpu(bool singleStep)
 
 void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 {
+#ifdef DEBUGGER_INCLUDED
+	ExecuteCpu(singleStep);
+#else
 	if(soundHandler && !soundHandler->HasFreeBuffers())
 	{
 		boost::this_thread::sleep(boost::posix_time::milliseconds(16));
@@ -111,48 +114,30 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 				soundHandler->Write(buffer, bufferSamples, 44100);
 			}
 		}
-		//m_spuUpdateCounter -= ticks;
-		//m_frameCounter -= ticks;
-		//if(m_spuUpdateCounter < 0)
-		//{
-		//	m_spuUpdateCounter += g_spuUpdateTicks;
-		//	unsigned int blockOffset = (BLOCK_SIZE * m_currentBlock);
-		//	int16* samplesSpu0 = m_samples + blockOffset;
-		//       
-		//	m_iop.m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
-
-		//	if(m_iop.m_spuCore1.IsEnabled())
-		//	{
-		//		int16 samplesSpu1[BLOCK_SIZE];
-		//		m_iop.m_spuCore1.Render(samplesSpu1, BLOCK_SIZE, 44100);
-
-		//		for(unsigned int i = 0; i < BLOCK_SIZE; i++)
-		//		{
-		//			int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
-		//			resultSample = std::max<int32>(resultSample, SHRT_MIN);
-		//			resultSample = std::min<int32>(resultSample, SHRT_MAX);
-		//			samplesSpu0[i] = static_cast<int16>(resultSample);
-		//		}
-		//	}
-
-		//	m_currentBlock++;
-		//	if(m_currentBlock == BLOCK_COUNT)
-		//	{
-		//		if(soundHandler)
-		//		{
-		//			soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, 44100);
-		//		}
-		//		m_currentBlock = 0;
-		//	}
-		//}
-		//if(m_frameCounter < 0)
-		//{
-		//	m_frameCounter += g_frameTicks;
-		//	m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-		//	if(!OnNewFrame.empty())
-		//	{
-		//		OnNewFrame();
-		//	}
-		//}
 	}
+#endif
 }
+
+#ifdef DEBUGGER_INCLUDED
+
+bool CPsfSubSystem::MustBreak()
+{
+	return m_executor.MustBreak();
+}
+
+MipsModuleList CPsfSubSystem::GetModuleList()
+{
+	return MipsModuleList();
+}
+
+void CPsfSubSystem::LoadDebugTags(Framework::Xml::CNode* tagsNode)
+{
+
+}
+
+void CPsfSubSystem::SaveDebugTags(Framework::Xml::CNode* tagsNode)
+{
+
+}
+
+#endif

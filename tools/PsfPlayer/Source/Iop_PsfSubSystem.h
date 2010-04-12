@@ -17,6 +17,13 @@ namespace Iop
 		virtual uint8*				GetRam();
 		virtual Iop::CSpuBase&		GetSpuCore(unsigned int);
 
+#ifdef DEBUGGER_INCLUDED
+		virtual bool				MustBreak();
+		virtual MipsModuleList		GetModuleList();
+		virtual void				LoadDebugTags(Framework::Xml::CNode*);
+		virtual void				SaveDebugTags(Framework::Xml::CNode*);
+#endif
+
 		void						SetBios(const Iop::CSubSystem::BiosPtr&);
 
 		virtual void				Update(bool, CSoundHandler*);

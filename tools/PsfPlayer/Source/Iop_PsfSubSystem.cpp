@@ -1,5 +1,6 @@
 #include "Iop_PsfSubSystem.h"
 #include "Ps2Const.h"
+#include "HighResTimer.h"
 
 using namespace Iop;
 
@@ -60,10 +61,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 {
 #ifdef DEBUGGER_INCLUDED
     uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
-#endif
-
-#ifdef DEBUGGER_INCLUDED
-	int ticks = m_iop.ExecuteCpu(m_singleStep);
+	int ticks = m_iop.ExecuteCpu(singleStep);
 
 	static int frameCounter = g_frameTicks;
 	static uint64 currentTime = CHighResTimer::GetTime();
@@ -78,22 +76,12 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 		int64 delay = frameTime - elapsed;
 		if(delay > 0)
 		{
-			boost::xtime xt;
-			boost::xtime_get(&xt, boost::TIME_UTC);
-			xt.nsec += delay * 1000;
-			boost::thread::sleep(xt);
+			boost::this_thread::sleep(boost::posix_time::milliseconds(delay));
 		}
 		currentTime = CHighResTimer::GetTime();
 	}
 
 	//m_spuHandler.Update(m_spu);
-	if(m_iop.m_executor.MustBreak() || m_singleStep)
-	{
-		m_status = PAUSED;
-		m_singleStep = false;
-		m_OnMachineStateChange();
-		m_OnRunningStateChange();
-	}
 #else
 	if(soundHandler && !soundHandler->HasFreeBuffers())
 	{
@@ -178,3 +166,27 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 	//}
 #endif
 }
+
+#ifdef DEBUGGER_INCLUDED
+
+bool CPsfSubSystem::MustBreak()
+{
+	return m_iop.m_executor.MustBreak();
+}
+
+MipsModuleList CPsfSubSystem::GetModuleList()
+{
+	return m_iop.m_bios->GetModuleList();
+}
+
+void CPsfSubSystem::LoadDebugTags(Framework::Xml::CNode* tagsNode)
+{
+	m_iop.m_bios->LoadDebugTags(tagsNode);
+}
+
+void CPsfSubSystem::SaveDebugTags(Framework::Xml::CNode* tagsNode)
+{
+	m_iop.m_bios->SaveDebugTags(tagsNode);
+}
+
+#endif

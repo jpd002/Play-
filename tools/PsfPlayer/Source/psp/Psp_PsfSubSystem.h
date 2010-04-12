@@ -29,6 +29,13 @@ namespace Psp
 		virtual uint8*			GetRam();
 		virtual Iop::CSpuBase&	GetSpuCore(unsigned int);
 
+#ifdef DEBUGGER_INCLUDED
+		virtual MipsModuleList	GetModuleList();
+		virtual bool			MustBreak();
+		virtual void			LoadDebugTags(Framework::Xml::CNode*);
+		virtual void			SaveDebugTags(Framework::Xml::CNode*);
+#endif
+
 		virtual void			Update(bool, CSoundHandler*);
 
 		Psp::CPsfBios&			GetBios();

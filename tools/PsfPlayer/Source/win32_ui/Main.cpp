@@ -9,17 +9,14 @@ using namespace std;
 namespace filesystem = boost::filesystem;
 
 //int main(int argc, char** argv)
-int WINAPI WinMain(HINSTANCE, HINSTANCE, char*, int)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 {
     CPsfVm virtualMachine;
 
 #ifdef DEBUGGER_INCLUDED
 	{
 		virtualMachine.Reset();
-//		filesystem::path loadPath("C:\\Media\\PS2\\Ys4_psf2\\13 - Blazing Sword.psf2", filesystem::native);
-//		filesystem::path loadPath("C:\\Media\\PSX\\vp-psf\\vp-103.minipsf", filesystem::native);
-		filesystem::path loadPath("D:\\Media\\PS2\\FFX\\102 In Zanarkand.minipsf2", filesystem::native);
-//        filesystem::path loadPath("D:\\Media\\PS2\\Kingdom Hearts\\Kingdom Hearts (Sequences Only)\\101 - Dearly Beloved.psf2");
+		filesystem::path loadPath(commandLine);
 		CPsfLoader::LoadPsf(virtualMachine, loadPath.string().c_str());
 		string tagPackageName = loadPath.leaf();
 		virtualMachine.LoadDebugTags(tagPackageName.c_str());
