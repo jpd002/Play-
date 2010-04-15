@@ -17,7 +17,8 @@ protected:
 	bool					TestDevice();
 
 	virtual void			Refresh() = 0;
-	virtual void			CreateResources() = 0;
+	virtual void			OnDeviceLost() = 0;
+	virtual void			OnDeviceReset() = 0;
 
 	virtual long			OnEraseBkgnd();
 	virtual long			OnPaint();
@@ -30,7 +31,8 @@ protected:
 
 private:
 	void					Initialize();
-	void					RecreateDevice();
+	void					CreateDevice();
+	void					ResetDevice();
 	D3DPRESENT_PARAMETERS	CreatePresentParams();
 
 	LPDIRECT3D9				m_d3d;

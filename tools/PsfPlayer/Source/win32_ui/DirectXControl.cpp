@@ -71,25 +71,18 @@ long CDirectXControl::OnPaint()
 
 long CDirectXControl::OnSize(unsigned int, unsigned int, unsigned int)
 {
-	RecreateDevice();
-	CreateResources();
+	ResetDevice();
 	return TRUE;
 }
 
 void CDirectXControl::Initialize()
 {
 	m_d3d = Direct3DCreate9(D3D_SDK_VERSION);
-	RecreateDevice();
+	CreateDevice();
 }
 
-void CDirectXControl::RecreateDevice()
+void CDirectXControl::CreateDevice()
 {
-	if(m_device)
-	{
-		m_device->Release();
-		m_device = NULL;
-	}
-
     D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
     m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
                       D3DDEVTYPE_HAL,
@@ -105,20 +98,46 @@ void CDirectXControl::RecreateDevice()
 	m_deviceLost = false;
 }
 
+void CDirectXControl::ResetDevice()
+{
+	D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
+	HRESULT result = m_device->Reset(&d3dpp);
+	if(SUCCEEDED(result))
+	{
+		OnDeviceReset();
+		m_deviceLost = false;
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
 bool CDirectXControl::TestDevice()
 {
 	HRESULT coopLevelResult = m_device->TestCooperativeLevel();
-	if(coopLevelResult == D3DERR_DEVICELOST)
+	if(FAILED(coopLevelResult))
 	{
-		m_deviceLost = true;
-	}
-	if(coopLevelResult == D3DERR_DEVICENOTRESET)
-	{
-	    D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
-		if(SUCCEEDED(m_device->Reset(&d3dpp)))
+		if(coopLevelResult == D3DERR_DEVICELOST)
 		{
-			CreateResources();
-			m_deviceLost = false;
+			if(!m_deviceLost)
+			{
+				OnDeviceLost();
+				m_deviceLost = true;
+			}
+		}
+		else if(coopLevelResult == D3DERR_DEVICENOTRESET)
+		{
+			if(!m_deviceLost)
+			{
+				OnDeviceLost();
+				m_deviceLost = true;
+			}
+			ResetDevice();
+		}
+		else
+		{
+			assert(0);
 		}
 	}
 

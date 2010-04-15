@@ -30,13 +30,17 @@ long CSpuRegView::OnTimer(WPARAM param)
 
 void CSpuRegView::CreateResources()
 {
-	if(m_font)
-	{
-		m_font->Release();
-		m_font = NULL;
-	}
-
 	D3DXCreateFont(m_device, -11, 0, FW_NORMAL, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Courier New"), &m_font);
+}
+
+void CSpuRegView::OnDeviceLost()
+{
+	m_font->OnLostDevice();
+}
+
+void CSpuRegView::OnDeviceReset()
+{
+	m_font->OnResetDevice();
 }
 
 void CSpuRegView::SetSpu(Iop::CSpuBase* spu)

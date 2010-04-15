@@ -16,7 +16,8 @@ protected:
 	virtual long			OnTimer(WPARAM);
 
 	virtual void			Refresh();
-	virtual void			CreateResources();
+	virtual void			OnDeviceLost();
+	virtual void			OnDeviceReset();
 
 private:
 	class CLineDrawer
@@ -31,6 +32,8 @@ private:
 		LPD3DXFONT			m_font;
 		D3DCOLOR			m_color;
 	};
+
+	virtual void			CreateResources();
 
 	Iop::CSpuBase*			m_spu;
 	LPD3DXFONT				m_font;

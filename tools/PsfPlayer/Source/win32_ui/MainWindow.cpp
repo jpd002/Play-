@@ -166,6 +166,15 @@ m_accel(CreateAccelerators())
 CMainWindow::~CMainWindow()
 {
 	m_virtualMachine.Pause();
+
+	for(unsigned int i = 0; i < MAX_PANELS; i++)
+	{
+		if(m_panels[i] != NULL)
+		{
+			delete m_panels[i];
+			m_panels[i] = NULL;
+		}
+	}
 }
 
 void CMainWindow::Run()
