@@ -40,6 +40,9 @@ namespace Psp
 
 		uint32						AllocMemory(uint32);
 		void						FreeMemory(uint32);
+#ifdef _DEBUG
+		void						VerifyAllocationMap();
+#endif
 
 		Iop::CSpuBase::CHANNEL*		GetSpuChannel(uint32);
 

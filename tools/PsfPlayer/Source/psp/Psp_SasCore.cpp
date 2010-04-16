@@ -34,6 +34,7 @@ void CSasCore::SetSpuInfo(Iop::CSpuBase* spu0, Iop::CSpuBase* spu1, uint8* spuRa
 
 	m_spuRam = spuRam;
 	m_spuRamSize = spuRamSize;
+	m_spuRam[1] = 0x07;
 
 	SPUMEMBLOCK endBlock;
 	endBlock.address	= m_spuRamSize;
@@ -82,7 +83,7 @@ uint32 CSasCore::AllocMemory(uint32 size)
 			m_blocks.insert(blockIterator, newBlock);
 			return currentAddress;
 		}
-		currentAddress += block.size;
+		currentAddress = block.address + block.size;
 		blockIterator++;
 	}
 	assert(0);
@@ -103,6 +104,24 @@ void CSasCore::FreeMemory(uint32 address)
 	}
 	assert(0);
 }
+
+#ifdef _DEBUG
+
+void CSasCore::VerifyAllocationMap()
+{
+	for(MemBlockList::iterator blockIterator(m_blocks.begin());
+		blockIterator != m_blocks.end(); blockIterator++)
+	{
+		MemBlockList::iterator nextBlockIterator = blockIterator;
+		nextBlockIterator++;
+		if(nextBlockIterator == m_blocks.end()) break;
+		SPUMEMBLOCK& currBlock(*blockIterator);
+		SPUMEMBLOCK& nextBlock(*nextBlockIterator);
+		assert(currBlock.address + currBlock.size <= nextBlock.address);
+	}
+}
+
+#endif
 
 uint32 CSasCore::Init(uint32 contextAddr, uint32 grain, uint32 unknown2, uint32 unknown3, uint32 frequency)
 {
@@ -159,13 +178,16 @@ uint32 CSasCore::SetVoice(uint32 contextAddr, uint32 voice, uint32 dataPtr, uint
 		FreeMemory(currentAddress);
 	}
 
-	currentAddress = AllocMemory(dataSize);
+	currentAddress = AllocMemory(allocationSize);
+	assert((currentAddress + allocationSize) <= m_spuRamSize);
 	assert(currentAddress != 0);
 	if(currentAddress != 0)
 	{
 		memcpy(m_spuRam + currentAddress, samples, dataSize);
 	}
+
 	channel->address = currentAddress;
+	channel->repeat = currentAddress;
 
 	return 0;
 }
