@@ -63,9 +63,23 @@ void CPsfFs::ReadDirectory(CStream& stream, DIRECTORY& baseDirectory)
 		stream.Seek(node.offset, Framework::STREAM_SEEK_SET);
         if(node.IsDirectory())
         {
-            DIRECTORY* directory = new DIRECTORY(node);
-            ReadDirectory(stream, *directory);
-            baseDirectory.fileList.push_back(directory);
+			//Check if this already exists.
+			NODE* existingNode = GetFileFindNode(baseDirectory, node.name);
+			if(existingNode != NULL)
+			{
+				DIRECTORY* existingDir = dynamic_cast<DIRECTORY*>(existingNode);
+				assert(existingDir != NULL);
+				if(existingDir != NULL)
+				{
+					ReadDirectory(stream, *existingDir);
+				}
+			}
+			else
+			{
+				DIRECTORY* directory = new DIRECTORY(node);
+				ReadDirectory(stream, *directory);
+				baseDirectory.fileList.push_back(directory);
+			}
         }
         else
         {
@@ -94,12 +108,12 @@ CStream* CPsfFs::GetFile(const char* path)
     return new CPtrStream(file->data, file->size);
 }
 
-const CPsfFs::NODE* CPsfFs::GetFileFindNode(const DIRECTORY& directory, const char* path) const
+CPsfFs::NODE* CPsfFs::GetFileFindNode(const DIRECTORY& directory, const char* path)
 {
-    for(DIRECTORY::FileListType::const_iterator nodeIterator(directory.fileList.begin());
+	for(DIRECTORY::FileListType::const_iterator nodeIterator(directory.fileList.begin());
         nodeIterator != directory.fileList.end(); nodeIterator++)
     {
-        const NODE* node(*nodeIterator);
+        NODE* node(*nodeIterator);
         if(!stricmp(node->name, path))
         {
             return node;

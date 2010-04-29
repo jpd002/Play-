@@ -87,7 +87,7 @@ private:
     static void                     ReadDirectory(Framework::CStream&, DIRECTORY&);
 
     const FILE*                     GetFileDetail(const DIRECTORY&, const char*) const;
-    const NODE*                     GetFileFindNode(const DIRECTORY&, const char*) const;
+    static NODE*					GetFileFindNode(const DIRECTORY&, const char*);
 
     DIRECTORY                       m_root;
 };
