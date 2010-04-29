@@ -2,6 +2,8 @@
 
 using namespace Psp;
 
+#define SAMPLES_PER_FRAME	(44100 / 60)
+
 CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
 : m_ram(new uint8[ramSize])
 , m_ramSize(ramSize)
@@ -47,6 +49,8 @@ void CPsfSubSystem::Reset()
 
 	m_bios.GetSasCore()->SetSpuInfo(&m_spuCore0, &m_spuCore1, m_spuRam, SPURAMSIZE);
 	m_bios.GetAudio()->SetStream(&m_audioStream);
+
+	m_samplesToFrame = SAMPLES_PER_FRAME;
 }
 
 CMIPS& CPsfSubSystem::GetCpu()
@@ -112,6 +116,16 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			if(soundHandler)
 			{
 				soundHandler->Write(buffer, bufferSamples, 44100);
+			}
+
+			m_samplesToFrame -= (bufferSamples / 2);
+			if(m_samplesToFrame <= 0)
+			{
+				m_samplesToFrame += SAMPLES_PER_FRAME;
+				if(!OnNewFrame.empty())
+				{
+					OnNewFrame();
+				}
 			}
 		}
 	}

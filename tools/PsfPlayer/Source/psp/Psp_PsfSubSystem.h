@@ -59,6 +59,7 @@ namespace Psp
 		Iop::CSpuBase			m_spuCore0;
 		Iop::CSpuBase			m_spuCore1;
 		Framework::CMemStream	m_audioStream;
+		int						m_samplesToFrame;
 
 		Psp::CPsfBios			m_bios;
 	};
