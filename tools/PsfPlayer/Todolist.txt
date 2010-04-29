@@ -1,16 +1,18 @@
 TODO:
 - PSP
-	- Integrate PSP core in PsfPlayer
-- Add register view in new UI
+	- Find out why some voices are still cut off too early
 - Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
 	- SPU updating for too long? (CPU/SPU desync)
 - Xenosaga
 	- Sounds really bad
 	- June Mermaid, especially
+- Remove latency in PSX/PS2
+- Windows 7 stuff
 - Exception for invalid PSFs
 
 Done:
 - PSP
+	- Integrate PSP core in PsfPlayer
 	- Use sceAudio to output sound
 	- Integrate patched executable in psfp file for Impression.psfp
 - Fix nasty bug with PSX sound files and home computer.
