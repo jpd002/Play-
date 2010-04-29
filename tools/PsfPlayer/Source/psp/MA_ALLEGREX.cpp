@@ -117,8 +117,8 @@ void CMA_ALLEGREX::INS()
 	uint8 size	= static_cast<uint8>((m_nOpcode >> 11) & 0x001F);
 	uint8 pos	= static_cast<uint8>((m_nOpcode >>  6) & 0x001F);
 
-	assert(size != 0);
 	size = size - pos + 1;
+	assert(size != 0);
 
 	uint32 srcMsk = static_cast<uint32>(~0) >> (32 - size);
 	uint32 dstMsk = static_cast<uint32>(~0) & ~((srcMsk) << pos);
