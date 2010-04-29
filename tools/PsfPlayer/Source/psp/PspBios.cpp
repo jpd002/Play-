@@ -26,7 +26,11 @@ using namespace Psp;
 #define BIOS_MODULE_TRAMPOLINE_END		(sizeof(Psp::CBios::MODULETRAMPOLINE) * Psp::CBios::MAX_MODULETRAMPOLINES)
 #define BIOS_THREAD_BASE				(BIOS_MODULE_TRAMPOLINE_BASE + BIOS_MODULE_TRAMPOLINE_END)
 #define BIOS_THREAD_END					(sizeof(Psp::CBios::THREAD) * Psp::CBios::MAX_THREADS)
-#define BIOS_CALCULATED_END				(BIOS_THREAD_BASE + BIOS_THREAD_END)
+#define BIOS_MESSAGEBOX_BASE			(BIOS_THREAD_BASE + BIOS_THREAD_END)
+#define BIOS_MESSAGEBOX_END				(sizeof(Psp::CBios::MESSAGEBOX) * Psp::CBios::MAX_MESSAGEBOXES)
+#define BIOS_MESSAGE_BASE				(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_END)
+#define BIOS_MESSAGE_END				(sizeof(Psp::CBios::MESSAGE) * Psp::CBios::MAX_MESSAGES)
+#define BIOS_CALCULATED_END				(BIOS_MESSAGE_BASE + BIOS_MESSAGE_END)
 
 CBios::MODULEFUNCTION CBios::g_IoFileMgrForUserFunctions[] =
 {
@@ -63,6 +67,9 @@ CBios::MODULEFUNCTION CBios::g_ThreadManForUserFunctions[] =
 	{	0x4E3A1105,		"sceKernelWaitSema"			},
 	{	0x3F53E640,		"sceKernelSignalSema"		},
 	{	0x28B6489C,		"sceKernelDeleteSema"		},
+	{	0x8125221D,		"sceKernelCreateMbx"		},
+	{	0xE9B3061E,		"sceKernelSendMbx"			},
+	{	0x0D81716A,		"sceKernelPollMbx"			},
 	{	NULL,			NULL						},
 };
 
@@ -164,6 +171,8 @@ CBios::CBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_heapBlocks(reinterpret_cast<HEAPBLOCK*>(&ram[BIOS_HEAPBLOCK_BASE]), 1, MAX_HEAPBLOCKS)
 , m_moduleTrampolines(reinterpret_cast<MODULETRAMPOLINE*>(&ram[BIOS_MODULE_TRAMPOLINE_BASE]), 1, MAX_MODULETRAMPOLINES)
 , m_threads(reinterpret_cast<THREAD*>(&ram[BIOS_THREAD_BASE]), 1, MAX_THREADS)
+, m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOXES)
+, m_messages(reinterpret_cast<MESSAGE*>(&m_ram[BIOS_MESSAGE_BASE]), 1, MAX_MESSAGES)
 , m_rescheduleNeeded(false)
 , m_threadFinishAddress(0)
 , m_idleFunctionAddress(0)
@@ -714,6 +723,71 @@ void CBios::Reschedule()
 	m_cpu.m_nQuota = 1;
 }
 
+uint32 CBios::CreateMbx(const char* name, uint32 attr, uint32 optParam)
+{
+	uint32 mbxId = m_messageBoxes.Allocate();
+	assert(mbxId != -1);
+	if(mbxId == -1)
+	{
+		return -1;
+	}
+
+	MESSAGEBOX* mbx(m_messageBoxes[mbxId]);
+	strncpy(mbx->name, name, 0x1F);
+	mbx->name[0x1F] = 0;
+	
+	mbx->attr = attr;
+
+	return mbxId;
+}
+
+uint32 CBios::SendMbx(uint32 mbxId, uint32 messagePtr)
+{
+	MESSAGEBOX* mbx(m_messageBoxes[mbxId]);
+	if(mbx == NULL) return -1;
+
+	uint32 messageId = m_messages.Allocate();
+	assert(messageId != -1);
+	if(messageId == -1)
+	{
+		return -1;
+	}
+
+	MESSAGE* message(m_messages[messageId]);
+	message->mbxId	= mbxId;
+	message->value	= messagePtr;
+	message->id		= messageId;
+
+	return 0;
+}
+
+uint32 CBios::PollMbx(uint32 mbxId, uint32 messagePtr)
+{
+	MESSAGEBOX* mbx(m_messageBoxes[mbxId]);
+	if(mbx == NULL) return -1;
+
+	//Scan all messages to find one that is owned by this box. (gotta change that later on, totally not ordered)
+	MESSAGE* result(NULL);
+	for(unsigned int i = 0; i < MAX_MESSAGES; i++)
+	{
+		MESSAGE* message(m_messages.GetBase() + i);
+		if(!message->isValid) continue;
+		if(message->mbxId == mbxId)
+		{
+			result = message;
+			break;
+		}
+	}
+
+	if(result == NULL) return -1;
+
+	uint32* message = reinterpret_cast<uint32*>(m_ram + messagePtr);
+	(*message) = result->value;
+	m_messages.Free(result->id);
+
+	return 0;
+}
+
 void CBios::Heap_Init()
 {
 	m_heapBegin	= CONTROL_BLOCK_END;
@@ -969,3 +1043,52 @@ uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uin
 	}
 	return -1;
 }
+
+#ifdef _DEBUG
+
+uint32 CBios::FindRelocationAt(CELF& elf, uint32 address, uint32 programSection)
+{
+    const ELFHEADER& header = elf.GetHeader();
+    for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
+    {
+        ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
+        if(sectionHeader != NULL && 
+			(/*sectionHeader->nType == CELF::SHT_REL || */sectionHeader->nType == RELOC_SECTION_ID)
+			)
+        {
+            unsigned int linkedSection = sectionHeader->nInfo;
+            unsigned int recordCount = sectionHeader->nSize / 8;
+            const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
+            if(relocationRecord == NULL) continue;
+            for(unsigned int record = 0; record < recordCount; record++)
+            {
+                uint32 relocationType = relocationRecord[1] & 0xFF;
+				uint32 ofsBase = (relocationRecord[1] >> 8) & 0xFF;
+				uint32 addrBase = (relocationRecord[1] >> 16) & 0xFF;
+
+				if(ofsBase != programSection) continue;
+
+//				ELFPROGRAMHEADER* progOfsBase = elf.GetProgram(ofsBase);
+//				ELFPROGRAMHEADER* progAddrBase = elf.GetProgram(addrBase);
+//				assert(progOfsBase != NULL);
+//				assert(progAddrBase != NULL);
+//				assert(progOfsBase->nType != RELOC_SECTION_ID);
+//				assert(progAddrBase->nType != RELOC_SECTION_ID);
+//
+//				uint32 baseAddress = progAddrBase->nVAddress;
+                uint32 relocationAddress = relocationRecord[0];
+
+				if(relocationAddress == address)
+				{
+					return reinterpret_cast<const uint8*>(relocationRecord) - elf.GetContent();
+				}
+
+                relocationRecord += 2;
+			}
+        }
+    }
+
+	return -1;
+}
+
+#endif

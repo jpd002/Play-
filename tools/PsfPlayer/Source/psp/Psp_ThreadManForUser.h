@@ -19,6 +19,11 @@ namespace Psp
 	private:
 		uint32			CreateThread(uint32, uint32, uint32, uint32, uint32, uint32);
 		uint32			StartThread(uint32, uint32, uint32);
+		uint32			ExitThread(uint32);
+		
+		uint32			CreateMbx(uint32, uint32, uint32);
+		uint32			SendMbx(uint32, uint32);
+		uint32			PollMbx(uint32, uint32);
 
 		CBios&			m_bios;
 		uint8*			m_ram;

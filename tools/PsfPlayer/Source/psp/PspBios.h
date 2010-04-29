@@ -31,6 +31,10 @@ namespace Psp
 	    void						StartThread(uint32, uint32, uint8*);
 		void						ExitCurrentThread(uint32);
 
+		uint32						CreateMbx(const char*, uint32, uint32);
+		uint32						SendMbx(uint32, uint32);
+		uint32						PollMbx(uint32, uint32);
+
         uint32						Heap_AllocateMemory(uint32);
         uint32						Heap_FreeMemory(uint32);
 		uint32						Heap_GetBlockId(uint32);
@@ -78,6 +82,21 @@ namespace Psp
 			uint64          nextActivateTime;
 		};
 
+		struct MESSAGE
+		{
+			uint32			isValid;
+			uint32			id;
+			uint32			mbxId;
+			uint32			value;
+		};
+
+		struct MESSAGEBOX
+		{
+			uint32			isValid;
+			char			name[0x20];
+			uint32			attr;
+		};
+
 		struct MEMORYBLOCK
 		{
 			uint32			isValid;
@@ -99,6 +118,16 @@ namespace Psp
 		enum
 		{
 			MAX_THREADS = 32,
+		};
+
+		enum
+		{
+			MAX_MESSAGEBOXES = 8,
+		};
+
+		enum
+		{
+			MAX_MESSAGES = 128,
 		};
 
 		enum DEFAULT_STACKSIZE
@@ -174,6 +203,8 @@ namespace Psp
 		typedef COsStructManager<HEAPBLOCK> HeapBlockListType;
 		typedef COsStructManager<MODULETRAMPOLINE> ModuleTrampolineListType;
 		typedef COsStructManager<THREAD> ThreadListType;
+		typedef COsStructManager<MESSAGEBOX> MessageBoxListType;
+		typedef COsStructManager<MESSAGE> MessageListType;
 
 		uint32						AssembleThreadFinish(CMIPSAssembler&);
 		uint32						AssembleReturnFromException(CMIPSAssembler&);
@@ -186,6 +217,9 @@ namespace Psp
 		MODULEFUNCTION*				FindModuleFunction(MODULE*, uint32);
 		void						RelocateElf(CELF&);
 		uint32						FindNextRelocationTarget(CELF&, const uint32*, const uint32*);
+#ifdef _DEBUG
+		uint32						FindRelocationAt(CELF&, uint32, uint32);
+#endif
 
 		void						LinkThread(uint32);
 		void						UnlinkThread(uint32);
@@ -219,6 +253,8 @@ namespace Psp
 
 		ModuleTrampolineListType	m_moduleTrampolines;
 		ThreadListType				m_threads;
+		MessageBoxListType			m_messageBoxes;
+		MessageListType				m_messages;
 
 		IoFileMgrForUserModulePtr	m_ioFileMgrForUserModule;
 		SasCoreModulePtr			m_sasCoreModule;
