@@ -92,6 +92,22 @@ void CCOP_FPU::MFC1()
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 }
 
+//02
+void CCOP_FPU::CFC1()
+{
+	if(m_nFS == 31)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
+		m_codeGen->SeX();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
+	}
+    else
+    {
+        assert(0);
+    }
+}
+
 //04
 void CCOP_FPU::MTC1()
 {
@@ -265,6 +281,13 @@ void CCOP_FPU::NEG_S()
     m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
+//0D
+void CCOP_FPU::TRUNC_W_S()
+{
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FP_PullWordTruncate(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
+}
+
 //18
 void CCOP_FPU::ADDA_S()
 {
@@ -414,7 +437,7 @@ void CCOP_FPU::SWC1()
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpGeneral[0x20] = 
 {
 	//0x00
-	&CCOP_FPU::MFC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::MTC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::CTC1,		&CCOP_FPU::Illegal,
+	&CCOP_FPU::MFC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::CFC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::MTC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::CTC1,		&CCOP_FPU::Illegal,
 	//0x08
 	&CCOP_FPU::BC1,			&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x10
@@ -428,7 +451,7 @@ CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpSingle[0x40] =
 	//0x00
 	&CCOP_FPU::ADD_S,		&CCOP_FPU::SUB_S,		&CCOP_FPU::MUL_S,		&CCOP_FPU::DIV_S,		&CCOP_FPU::SQRT_S,		&CCOP_FPU::ABS_S,		&CCOP_FPU::MOV_S,		&CCOP_FPU::NEG_S,
 	//0x08
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::TRUNC_W_S,	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x10
 	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x18
@@ -440,7 +463,7 @@ CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpSingle[0x40] =
 	//0x30
 	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_EQ_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LE_S,		&CCOP_FPU::Illegal,
 	//0x38
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 };
 
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpWord[0x40] =

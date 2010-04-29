@@ -59,6 +59,7 @@ private:
 
 	//General
 	void							    MFC1();
+	void								CFC1();
 	void							    MTC1();
 	void							    CTC1();
 	void							    BC1();
@@ -80,6 +81,7 @@ private:
 	void							    ABS_S();
 	void							    MOV_S();
 	void							    NEG_S();
+	void								TRUNC_W_S();
 	void							    ADDA_S();
 	void							    MULA_S();
 	void							    MADD_S();
