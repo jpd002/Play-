@@ -136,7 +136,7 @@ void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, con
 
 void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const char* pathString, CPsfBase::TagMap* tags)
 {
-	Psp::PsfSubSystemPtr subSystem = Psp::PsfSubSystemPtr(new Psp::CPsfSubSystem(0x00400000));
+	Psp::PsfSubSystemPtr subSystem = Psp::PsfSubSystemPtr(new Psp::CPsfSubSystem(0x00800000));
 	virtualMachine.SetSubSystem(subSystem);
 
 	{
