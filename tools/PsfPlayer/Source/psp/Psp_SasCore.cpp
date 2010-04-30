@@ -212,8 +212,8 @@ uint32 CSasCore::SetVolume(uint32 contextAddr, uint32 voice, uint32 left, uint32
 #endif
 	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
 	if(channel == NULL) return -1;
-	channel->volumeLeft <<= left;
-	channel->volumeRight <<= right;
+	channel->volumeLeft <<= (left * 4);
+	channel->volumeRight <<= (right * 4);
 	return 0;
 }
 
