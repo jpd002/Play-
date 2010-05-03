@@ -145,10 +145,19 @@ uint32 CSasCore::Core(uint32 contextAddr, uint32 bufferAddr)
 		return -1;
 	}
 
-	int16* buffer = reinterpret_cast<int16*>(m_ram + bufferAddr);
-	for(unsigned int i = 0; i < 1; i++)
+	unsigned int sampleCount = m_grain * 2;
+	int16* samplesSpu0 = reinterpret_cast<int16*>(m_ram + bufferAddr);
+	int16* samplesSpu1 = reinterpret_cast<int16*>(alloca(sampleCount * sizeof(int16)));
+
+	m_spu[0]->Render(samplesSpu0, sampleCount, 44100);
+	m_spu[1]->Render(samplesSpu1, sampleCount, 44100);
+
+	for(unsigned int i = 0; i < sampleCount; i++)
 	{
-		m_spu[i]->Render(buffer, m_grain * 2, 44100);
+		int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
+		resultSample = std::max<int32>(resultSample, SHRT_MIN);
+		resultSample = std::min<int32>(resultSample, SHRT_MAX);
+		samplesSpu0[i] = static_cast<int16>(resultSample);
 	}
 
 	return 0;
@@ -200,7 +209,7 @@ uint32 CSasCore::SetPitch(uint32 contextAddr, uint32 voice, uint32 pitch)
 #endif
 	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
 	if(channel == NULL) return -1;
-	channel->pitch = pitch;
+	channel->pitch = static_cast<uint16>(pitch);
 	return 0;
 }
 
@@ -212,8 +221,8 @@ uint32 CSasCore::SetVolume(uint32 contextAddr, uint32 voice, uint32 left, uint32
 #endif
 	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
 	if(channel == NULL) return -1;
-	channel->volumeLeft <<= (left * 4);
-	channel->volumeRight <<= (right * 4);
+	channel->volumeLeft <<= static_cast<uint16>(left * 4);
+	channel->volumeRight <<= static_cast<uint16>(right * 4);
 	return 0;
 }
 
@@ -225,8 +234,8 @@ uint32 CSasCore::SetSimpleADSR(uint32 contextAddr, uint32 voice, uint32 adsr1, u
 #endif
 	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
 	if(channel == NULL) return -1;
-	channel->adsrLevel <<= adsr1;
-	channel->adsrRate <<= adsr2;
+	channel->adsrLevel <<= static_cast<uint16>(adsr1);
+	channel->adsrRate <<= static_cast<uint16>(adsr2);
 	return 0;
 }
 
@@ -319,7 +328,7 @@ uint32 CSasCore::GetEndFlag(uint32 contextAddr)
 	CLog::GetInstance().Print(LOGNAME, "GetEndFlag(contextAddr = 0x%0.8X);\r\n", contextAddr);
 #endif
 
-	uint32 result = m_spu[0]->GetEndFlags().f | (m_spu[1]->GetEndFlags().f << 24);
+	uint32 result = 0;
 	for(unsigned int i = 0; i < 32; i++)
 	{
 		const Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(i);
