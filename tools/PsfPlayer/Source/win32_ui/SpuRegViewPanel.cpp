@@ -6,7 +6,7 @@
 #define WNDSTYLE		                (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CHILD)
 #define WNDSTYLEEX		                (0)
 
-CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd)
+CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd, const TCHAR* title)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -16,7 +16,7 @@ CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd)
 	Create(WNDSTYLEEX, CLSNAME, _T(""), WNDSTYLE, Framework::Win32::CRect(0, 0, 1, 1), parentWnd, NULL);
     SetClassPtr();
 
-	m_regView = new CSpuRegView(m_hWnd);
+	m_regView = new CSpuRegView(m_hWnd, title);
 }
 
 CSpuRegViewPanel::~CSpuRegViewPanel()

@@ -8,7 +8,7 @@
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
-CDirectXControl::CDirectXControl(HWND parentWnd)
+CDirectXControl::CDirectXControl(HWND parentWnd, uint32 wndStyle)
 : m_d3d(NULL)
 , m_device(NULL)
 , m_deviceLost(false)
@@ -26,7 +26,7 @@ CDirectXControl::CDirectXControl(HWND parentWnd)
 		RegisterClassEx(&w);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T(""), WNDSTYLE, Framework::Win32::CRect(0, 0, 1, 1), parentWnd, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T(""), WNDSTYLE | wndStyle, Framework::Win32::CRect(0, 0, 1, 1), parentWnd, NULL);
 	SetClassPtr();
 
 	m_backgroundColor = ConvertSysColor(GetSysColor(COLOR_BTNFACE));

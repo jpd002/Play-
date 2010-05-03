@@ -8,7 +8,7 @@
 class CDirectXControl : public Framework::Win32::CWindow
 {
 public:
-							CDirectXControl(HWND);
+							CDirectXControl(HWND, uint32 = 0);
 	virtual					~CDirectXControl();
 
 protected:

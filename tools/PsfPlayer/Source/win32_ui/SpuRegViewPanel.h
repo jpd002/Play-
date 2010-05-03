@@ -5,13 +5,10 @@
 #include "iop/Iop_SpuBase.h"
 #include "SpuRegView.h"
 
-//#include "win32/Static.h"
-//#include "win32/GdiObj.h"
-
 class CSpuRegViewPanel : public CPanel
 {
 public:
-									CSpuRegViewPanel(HWND);
+									CSpuRegViewPanel(HWND, const TCHAR*);
 	virtual							~CSpuRegViewPanel();
 
 	void							RefreshLayout();

@@ -143,8 +143,8 @@ m_accel(CreateAccelerators())
 	m_fileInformationPanel = new CFileInformationPanel(m_placeHolder->m_hWnd);
 
 	//Create RegView panels
-	m_spu0RegViewPanel = new CSpuRegViewPanel(m_placeHolder->m_hWnd);
-	m_spu1RegViewPanel = new CSpuRegViewPanel(m_placeHolder->m_hWnd);
+	m_spu0RegViewPanel = new CSpuRegViewPanel(m_placeHolder->m_hWnd, _T("SPU0"));
+	m_spu1RegViewPanel = new CSpuRegViewPanel(m_placeHolder->m_hWnd, _T("SPU1"));
 
     //Initialize panels    
     m_panels[0] = m_playlistPanel;
