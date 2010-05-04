@@ -115,9 +115,14 @@ void CJitter::PushCst(uint32 nValue)
 
 void CJitter::PushRef(void* pAddr)
 {
-	if(sizeof(pAddr) == 4)
+	size_t addrSize = sizeof(pAddr);
+	if(addrSize == 4)
 	{
 		m_Shadow.Push(MakeSymbol(SYM_CONSTANT, *reinterpret_cast<uint32*>(&pAddr)));
+	}
+	else if(addrSize == 8)
+	{
+		m_Shadow.Push(MakeConstant64(*reinterpret_cast<uint64*>(&pAddr)));
 	}
 	else
 	{
@@ -200,10 +205,21 @@ void CJitter::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 		InsertStatement(paramStatement);
 	}
 
-	assert(sizeof(void*) == 4);
+	size_t addrSize = sizeof(pFunc);
 
 	STATEMENT callStatement;
-	callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, reinterpret_cast<uint32>(pFunc)));
+	if(addrSize == 4)
+	{
+		callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, reinterpret_cast<uint32>(pFunc)));
+	}
+	else if(addrSize == 8)
+	{
+		callStatement.src1 = MakeSymbolRef(MakeConstant64(reinterpret_cast<uint64>(pFunc)));
+	}
+	else
+	{
+		assert(0);
+	}
 	callStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nParamCount));
 	callStatement.op = OP_CALL;
 	InsertStatement(callStatement);

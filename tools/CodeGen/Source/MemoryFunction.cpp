@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "MemoryFunction.h"
 
 CMemoryFunction::CMemoryFunction(const void* code, size_t size)
@@ -18,6 +19,12 @@ void CMemoryFunction::operator()(void* context)
 	volatile const void* code = m_code;
 	volatile const void* dataPtr = context;
 
+#ifdef AMD64
+
+	assert(0);
+
+#else
+
 	__asm
 	{
 		push ebp
@@ -34,4 +41,7 @@ void CMemoryFunction::operator()(void* context)
 		pop ebx
 		pop ebp
 	}
+
+#endif
+
 }
