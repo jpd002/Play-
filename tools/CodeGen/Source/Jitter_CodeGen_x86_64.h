@@ -14,7 +14,19 @@ namespace Jitter
 		unsigned int	GetAvailableRegisterCount() const;
 
 	private:
+		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 
+		struct CONSTMATCHER
+		{
+			OPERATION				op;
+			MATCHTYPE				dstType;
+			MATCHTYPE				src1Type;
+			MATCHTYPE				src2Type;
+			ConstCodeEmitterType	emitter;
+		};
+
+		static CONSTMATCHER					g_constMatchers[];
+		static CX86Assembler::REGISTER		g_registers[];
 	};
 }
 

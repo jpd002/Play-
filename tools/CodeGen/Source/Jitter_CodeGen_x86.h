@@ -14,9 +14,8 @@ namespace Jitter
 
 		void			GenerateCode(const StatementList&, unsigned int);
 		void			SetStream(Framework::CStream*);
-		unsigned int	GetAvailableRegisterCount() const;
 
-	private:
+	protected:
 		typedef std::map<uint32, CX86Assembler::LABEL> LabelMapType;
 
 		enum MATCHTYPE
@@ -29,10 +28,10 @@ namespace Jitter
 			MATCH_TEMPORARY,
 			MATCH_RELATIVE64,
 			MATCH_TEMPORARY64,
+			MATCH_CONSTANT64,
 		};
 
-		typedef void (CCodeGen_x86::*CodeEmitterType)(const STATEMENT&);
-//		typedef std::tr1::function<void (CCodeGen_x86*, const STATEMENT&)> CodeEmitterType;
+		typedef std::tr1::function<void (const STATEMENT&)> CodeEmitterType;
 
 		struct MATCHER
 		{
@@ -75,6 +74,9 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::XorEd; }
 		};
 
+		virtual void				Emit_Prolog(unsigned int) = 0;
+		virtual void				Emit_Epilog(unsigned int) = 0;
+
 		bool						SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
 		CX86Assembler::LABEL		GetLabel(uint32);
 
@@ -113,18 +115,6 @@ namespace Jitter
 		void						Emit_Mov_RelCst(const STATEMENT&);
 		void						Emit_Mov_RelReg(const STATEMENT&);
 
-		//PARAM
-		void						Emit_Param_Rel(const STATEMENT&);
-		void						Emit_Param_Cst(const STATEMENT&);
-		void						Emit_Param_Reg(const STATEMENT&);
-		void						Emit_Param_Tmp(const STATEMENT&);
-
-		//CALL
-		void						Emit_Call(const STATEMENT&);
-
-		//RETURNVALUE
-		void						Emit_RetVal_Tmp(const STATEMENT&);
-
 		//JMP
 		void						Emit_Jmp(const STATEMENT&);
 
@@ -138,13 +128,25 @@ namespace Jitter
 		//EXTHIGH64
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
 
-		static MATCHER				g_matchers[];
-
 		CX86Assembler				m_assembler;
+		CX86Assembler::REGISTER*	m_registers;
 		LabelMapType				m_labels;
-		uint32						m_stackLevel;
-
+		
 		MatcherMapType				m_matchers;
+
+	private:
+		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
+
+		struct CONSTMATCHER
+		{
+			OPERATION				op;
+			MATCHTYPE				dstType;
+			MATCHTYPE				src1Type;
+			MATCHTYPE				src2Type;
+			ConstCodeEmitterType	emitter;
+		};
+
+		static CONSTMATCHER			g_constMatchers[];
 	};
 }
 
