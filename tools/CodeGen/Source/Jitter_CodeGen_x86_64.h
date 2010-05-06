@@ -13,6 +13,21 @@ namespace Jitter
 
 		unsigned int	GetAvailableRegisterCount() const;
 
+	protected:
+		virtual void						Emit_Prolog(unsigned int);
+		virtual void						Emit_Epilog(unsigned int);
+
+		//PARAM
+		void								Emit_Param_Rel(const STATEMENT&);
+		void								Emit_Param_Cst(const STATEMENT&);
+		void								Emit_Param_Cst64(const STATEMENT&);
+
+		//CALL
+		void								Emit_Call(const STATEMENT&);
+
+		//RETURNVALUE
+		void								Emit_RetVal_Tmp(const STATEMENT&);
+
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 
