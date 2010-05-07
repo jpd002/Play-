@@ -40,8 +40,16 @@ namespace Jitter
 			ConstCodeEmitterType	emitter;
 		};
 
+		enum MAX_PARAMS
+		{
+			MAX_PARAMS = 4,
+		};
+
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[];
+		static CX86Assembler::REGISTER		g_paramRegs[MAX_PARAMS];
+
+		uint32								m_currentParam;
 	};
 }
 

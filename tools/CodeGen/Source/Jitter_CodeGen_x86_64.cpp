@@ -13,6 +13,14 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[7] =
 	CX86Assembler::r15,
 };
 
+CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
+{
+	CX86Assembler::rCX,
+	CX86Assembler::rDX,
+	CX86Assembler::r8,
+	CX86Assembler::r9,
+};
+
 CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] = 
 { 
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst64		},
@@ -50,7 +58,7 @@ unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 
 void CCodeGen_x86_64::Emit_Prolog(unsigned int stackSize)
 {
-
+	m_currentParam = 0;
 }
 
 void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize)
@@ -60,7 +68,13 @@ void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize)
 
 void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 {
+	assert(m_currentParam < MAX_PARAMS);
 
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+//	m_assembler.MovIq(g_paramRegs[m_currentParam], 
+//		(static_cast<uint64>(src1->m_valueHigh) << 32) | static_cast<uint64>(src1->m_valueLow));
+	
+	m_currentParam++;
 }
 
 void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
