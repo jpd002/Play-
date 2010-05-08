@@ -6,7 +6,6 @@ TODO:
 - Xenosaga
 	- Sounds really bad
 	- June Mermaid, especially
-- Remove latency in PSX/PS2
 - Windows 7 stuff
 - Exception for invalid PSFs
 

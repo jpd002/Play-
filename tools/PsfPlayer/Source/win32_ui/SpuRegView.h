@@ -13,6 +13,7 @@ public:
 	void					SetSpu(Iop::CSpuBase*);
 
 protected:
+	virtual long			OnSize(unsigned int, unsigned int, unsigned int);
 	virtual long			OnTimer(WPARAM);
 
 	virtual long			OnHScroll(unsigned int, unsigned int);
@@ -38,6 +39,8 @@ private:
 	};
 
 	void					CreateResources();
+	void					InitializeScrollBars();
+
 	void					UpdateHorizontalScroll();
 	void					UpdateVerticalScroll();
 
@@ -48,6 +51,8 @@ private:
 
 	int						m_offsetX;
 	int						m_offsetY;
+	int						m_pageSizeX;
+	int						m_pageSizeY;
 	int						m_maxScrollX;
 	int						m_maxScrollY;
 };

@@ -1,10 +1,8 @@
 #include "SpuRegView.h"
 #include "win32/Rect.h"
 
-#define CANVAS_WIDTH		(188)
-#define CANVAS_HEIGHT		(45)
-
-#define PAGE_SIZE			(1)
+#define CANVAS_WIDTH		(470)
+#define CANVAS_HEIGHT		(350)
 
 CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title) :
 CDirectXControl(parentWnd, WS_VSCROLL | WS_HSCROLL),
@@ -13,12 +11,13 @@ m_font(NULL),
 m_title(title),
 m_offsetX(0),
 m_offsetY(0),
+m_pageSizeX(0),
+m_pageSizeY(0),
 m_maxScrollX(0),
 m_maxScrollY(0)
 {
 	CreateResources();
-	UpdateHorizontalScroll();
-	UpdateVerticalScroll();
+	InitializeScrollBars();
 	SetTimer(m_hWnd, NULL, 16, NULL);
 }
 
@@ -29,6 +28,13 @@ CSpuRegView::~CSpuRegView()
 		m_font->Release();
 		m_font = NULL;
 	}
+}
+
+
+long CSpuRegView::OnSize(unsigned int type, unsigned int x, unsigned int y)
+{
+	InitializeScrollBars();
+	return CDirectXControl::OnSize(type, x, y);
 }
 
 long CSpuRegView::OnTimer(WPARAM param)
@@ -42,8 +48,6 @@ long CSpuRegView::OnTimer(WPARAM param)
 
 long CSpuRegView::OnHScroll(unsigned int type, unsigned int position)
 {
-	bool update = true;
-
 	switch(type)
 	{
 	case SB_LINEDOWN:
@@ -53,14 +57,13 @@ long CSpuRegView::OnHScroll(unsigned int type, unsigned int position)
 		m_offsetX -= 1;
 		break;
 	case SB_PAGEDOWN:
-		m_offsetX += PAGE_SIZE;
+		m_offsetX += m_pageSizeX;
 		break;
 	case SB_PAGEUP:
-		m_offsetX -= PAGE_SIZE;
+		m_offsetX -= m_pageSizeX;
 		break;
 	case SB_THUMBTRACK:
 		m_offsetX = position;
-		update = false;
 		break;
 	case SB_THUMBPOSITION:
 		m_offsetX = position;
@@ -68,20 +71,15 @@ long CSpuRegView::OnHScroll(unsigned int type, unsigned int position)
 	}
 
 	if(m_offsetX < 0)				m_offsetX = 0;
-	if(m_offsetX > CANVAS_WIDTH)	m_offsetX = CANVAS_WIDTH;
+	if(m_offsetX > m_maxScrollX)	m_offsetX = m_maxScrollX;
 
-	if(update)
-	{
-		UpdateHorizontalScroll();
-	}
+	UpdateHorizontalScroll();
 
 	return FALSE;
 }
 
 long CSpuRegView::OnVScroll(unsigned int type, unsigned int position)
 {
-	bool update = true;
-
 	switch(type)
 	{
 	case SB_LINEDOWN:
@@ -91,14 +89,13 @@ long CSpuRegView::OnVScroll(unsigned int type, unsigned int position)
 		m_offsetY -= 1;
 		break;
 	case SB_PAGEDOWN:
-		m_offsetY += PAGE_SIZE;
+		m_offsetY += m_pageSizeY;
 		break;
 	case SB_PAGEUP:
-		m_offsetY -= PAGE_SIZE;
+		m_offsetY -= m_pageSizeY;
 		break;
 	case SB_THUMBTRACK:
 		m_offsetY = position;
-		update = false;
 		break;
 	case SB_THUMBPOSITION:
 		m_offsetY = position;
@@ -106,12 +103,9 @@ long CSpuRegView::OnVScroll(unsigned int type, unsigned int position)
 	}
 
 	if(m_offsetY < 0)				m_offsetY = 0;
-	if(m_offsetY > CANVAS_HEIGHT)	m_offsetY = CANVAS_HEIGHT;
+	if(m_offsetY > m_maxScrollY)	m_offsetY = m_maxScrollY;
 
-	if(update)
-	{
-		UpdateVerticalScroll();
-	}
+	UpdateVerticalScroll();
 
 	return FALSE;
 }
@@ -119,6 +113,64 @@ long CSpuRegView::OnVScroll(unsigned int type, unsigned int position)
 void CSpuRegView::CreateResources()
 {
 	D3DXCreateFont(m_device, -11, 0, FW_NORMAL, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Courier New"), &m_font);
+}
+
+void CSpuRegView::InitializeScrollBars()
+{
+	RECT clientRect = GetClientRect();
+
+	m_offsetX = 0;
+	m_offsetY = 0;
+
+	m_pageSizeX = clientRect.right;
+	m_maxScrollX = CANVAS_WIDTH - (m_pageSizeX - 1);
+
+	m_pageSizeY = clientRect.bottom;
+	m_maxScrollY = CANVAS_HEIGHT - (m_pageSizeY - 1);
+
+	{
+		SCROLLINFO scrollInfo;
+		memset(&scrollInfo, 0, sizeof(SCROLLINFO));
+		scrollInfo.cbSize		= sizeof(SCROLLINFO);
+		scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
+		scrollInfo.nMin			= 0;
+		scrollInfo.nMax			= CANVAS_WIDTH;
+		scrollInfo.nPos			= m_offsetX;
+		scrollInfo.nPage		= m_pageSizeX;
+		SetScrollInfo(m_hWnd, SB_HORZ, &scrollInfo, TRUE);
+	}
+
+	{
+		SCROLLINFO scrollInfo;
+		memset(&scrollInfo, 0, sizeof(SCROLLINFO));
+		scrollInfo.cbSize		= sizeof(SCROLLINFO);
+		scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
+		scrollInfo.nMin			= 0;
+		scrollInfo.nMax			= CANVAS_HEIGHT;
+		scrollInfo.nPos			= m_offsetY;
+		scrollInfo.nPage		= m_pageSizeY;
+		SetScrollInfo(m_hWnd, SB_VERT, &scrollInfo, TRUE);
+	}
+}
+
+void CSpuRegView::UpdateHorizontalScroll()
+{
+	SCROLLINFO scrollInfo;
+	memset(&scrollInfo, 0, sizeof(SCROLLINFO));
+	scrollInfo.cbSize		= sizeof(SCROLLINFO);
+	scrollInfo.fMask		= SIF_POS;
+	scrollInfo.nPos			= m_offsetX;
+	SetScrollInfo(m_hWnd, SB_HORZ, &scrollInfo, TRUE);
+}
+
+void CSpuRegView::UpdateVerticalScroll()
+{
+	SCROLLINFO scrollInfo;
+	memset(&scrollInfo, 0, sizeof(SCROLLINFO));
+	scrollInfo.cbSize		= sizeof(SCROLLINFO);
+	scrollInfo.fMask		= SIF_POS;
+	scrollInfo.nPos			= m_offsetY;
+	SetScrollInfo(m_hWnd, SB_VERT, &scrollInfo, TRUE);
 }
 
 void CSpuRegView::OnDeviceLost()
@@ -136,32 +188,6 @@ void CSpuRegView::SetSpu(Iop::CSpuBase* spu)
 	m_spu = spu;
 }
 
-void CSpuRegView::UpdateHorizontalScroll()
-{
-	SCROLLINFO scrollInfo;
-	memset(&scrollInfo, 0, sizeof(SCROLLINFO));
-	scrollInfo.cbSize		= sizeof(SCROLLINFO);
-	scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
-	scrollInfo.nMin			= 0;
-	scrollInfo.nMax			= CANVAS_WIDTH;
-	scrollInfo.nPos			= m_offsetX;
-	scrollInfo.nPage		= PAGE_SIZE;
-	SetScrollInfo(m_hWnd, SB_HORZ, &scrollInfo, TRUE);
-}
-
-void CSpuRegView::UpdateVerticalScroll()
-{
-	SCROLLINFO scrollInfo;
-	memset(&scrollInfo, 0, sizeof(SCROLLINFO));
-	scrollInfo.cbSize		= sizeof(SCROLLINFO);
-	scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
-	scrollInfo.nMin			= 0;
-	scrollInfo.nMax			= CANVAS_HEIGHT;
-	scrollInfo.nPos			= m_offsetY;
-	scrollInfo.nPage		= PAGE_SIZE;
-	SetScrollInfo(m_hWnd, SB_VERT, &scrollInfo, TRUE);
-}
-
 void CSpuRegView::Refresh()
 {
 	if(m_device == NULL) return;
@@ -173,7 +199,7 @@ void CSpuRegView::Refresh()
 	CLineDrawer drawer(m_font, m_textColor, -m_offsetX, -m_offsetY);
 
 	{
-		std::tstring text = m_title + _T("  VLEFT  VRIGH  PITCH  ADDRE    ADSRL  ADSRR  ADSRVOLU  REPEA  ");
+		std::tstring text = m_title + _T("  VLEFT  VRIGH  PITCH  ADDRE    ADSRL  ADSRR  ADSRVOLU   REPEA  ");
 		drawer.Draw(text.c_str(), text.length());
 		drawer.Feed();
 	}
