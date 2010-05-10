@@ -49,7 +49,7 @@ private:
 		TRACK_REPEAT,
 	};
 
-    struct SPUHANDLER_INFO
+    struct SOUNDHANDLER_INFO
     {
         int             id;
         const TCHAR*    name;
@@ -90,6 +90,8 @@ private:
 	void								Reset();
 	void								ActivatePanel(unsigned int);
 
+	void								LoadAudioPluginPreferences();
+	int									FindAudioPlugin(unsigned int);
 	void                                ChangeAudioPlugin(unsigned int);
 
 	HACCEL								CreateAccelerators();
@@ -130,10 +132,10 @@ private:
 	uint64								m_trackLength;
 	uint64								m_fadePosition;
 	float								m_volumeAdjust;
-    int                                 m_selectedAudioHandler;
+    int                                 m_selectedAudioPlugin;
 	REPEAT_MODE							m_repeatMode;
 
-    static SPUHANDLER_INFO              m_handlerInfo[];
+    static SOUNDHANDLER_INFO			m_handlerInfo[];
 };
 
 #endif

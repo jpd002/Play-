@@ -27,7 +27,10 @@
 #define PSF2_FILTER						_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0")
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
 
-CMainWindow::SPUHANDLER_INFO CMainWindow::m_handlerInfo[] =
+#define PREF_SOUNDHANDLER_ID			("soundhandler.id")
+#define DEFAULT_SOUND_HANDLER_ID		(1)
+
+CMainWindow::SOUNDHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
     {   1,      _T("Win32 WaveOut"),    _T("SH_WaveOut.dll")    },
     {   2,      _T("OpenAL"),           _T("SH_OpenAL.dll")     },
@@ -41,7 +44,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine) :
 m_virtualMachine(virtualMachine),
 m_ready(false),
 m_frames(0),
-m_selectedAudioHandler(0),
+m_selectedAudioPlugin(DEFAULT_SOUND_HANDLER_ID),
 m_ejectButton(NULL),
 m_pauseButton(NULL),
 m_repeatButton(NULL),
@@ -56,7 +59,10 @@ m_repeatMode(PLAYLIST_ONCE),
 m_trackLength(0),
 m_accel(CreateAccelerators())
 {
-    for(unsigned int i = 0; i < MAX_PANELS; i++)
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SOUNDHANDLER_ID, DEFAULT_SOUND_HANDLER_ID);
+	LoadAudioPluginPreferences();
+
+	for(unsigned int i = 0; i < MAX_PANELS; i++)
     {
         m_panels[i] = NULL;
     }
@@ -79,7 +85,7 @@ m_accel(CreateAccelerators())
 
     m_virtualMachine.OnNewFrame.connect(std::tr1::bind(&CMainWindow::OnNewFrame, this));
 
-    ChangeAudioPlugin(0);
+    ChangeAudioPlugin(FindAudioPlugin(m_selectedAudioPlugin));
 
     m_timerLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER);
     m_titleLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER | SS_NOPREFIX);
@@ -523,14 +529,38 @@ void CMainWindow::UpdateAudioPluginMenu()
     for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
     {
         Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i));
-        pluginSubMenuEntry.Check(m_handlerInfo[i].id == m_selectedAudioHandler);
+        pluginSubMenuEntry.Check(m_handlerInfo[i].id == m_selectedAudioPlugin);
     }
+}
+
+void CMainWindow::LoadAudioPluginPreferences()
+{
+	int audioHandlerId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_SOUNDHANDLER_ID);
+	int audioHandlerIdx = FindAudioPlugin(audioHandlerId);
+	if(audioHandlerIdx == -1)
+	{
+		m_selectedAudioPlugin = DEFAULT_SOUND_HANDLER_ID;
+	}
+	else
+	{
+		m_selectedAudioPlugin = audioHandlerId;
+	}
+}
+
+int CMainWindow::FindAudioPlugin(unsigned int pluginId)
+{
+	for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
+	{
+		if(m_handlerInfo[i].id == pluginId) return i;
+	}
+	return -1;
 }
 
 void CMainWindow::ChangeAudioPlugin(unsigned int pluginIdx)
 {
-    SPUHANDLER_INFO* handlerInfo = m_handlerInfo + pluginIdx;
-    m_selectedAudioHandler = handlerInfo->id;
+    SOUNDHANDLER_INFO* handlerInfo = m_handlerInfo + pluginIdx;
+    m_selectedAudioPlugin = handlerInfo->id;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SOUNDHANDLER_ID, m_selectedAudioPlugin);
 	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CMainWindow::CreateHandler, this, handlerInfo->dllName));
     UpdateAudioPluginMenu();
 }
