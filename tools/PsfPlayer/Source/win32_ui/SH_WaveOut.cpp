@@ -10,6 +10,26 @@ using namespace std;
 CSH_WaveOut::CSH_WaveOut() :
 m_waveOut(NULL)
 {
+	InitializeWaveOut();
+}
+
+CSH_WaveOut::~CSH_WaveOut()
+{
+	if(m_waveOut != NULL)
+	{
+		DestroyWaveOut();
+	}
+}
+
+CSoundHandler* CSH_WaveOut::HandlerFactory()
+{
+	return new CSH_WaveOut();
+}
+
+void CSH_WaveOut::InitializeWaveOut()
+{
+	assert(m_waveOut == NULL);
+
 	WAVEFORMATEX waveFormat;
 	memset(&waveFormat, 0, sizeof(WAVEFORMATEX));
 	waveFormat.nSamplesPerSec   = SAMPLE_RATE;
@@ -28,21 +48,18 @@ m_waveOut(NULL)
 		throw runtime_error("Couldn't initialize WaveOut device.");
 	}
 
-//	m_bufferMemory = new int16[MAX_BUFFERS * SAMPLES_PER_UPDATE];
-//	memset(m_bufferMemory, 0, sizeof(int16) * MAX_BUFFERS * SAMPLES_PER_UPDATE);
-
 	for(unsigned int i = 0; i < MAX_BUFFERS; i++)
 	{
 		WAVEHDR& buffer(m_buffer[i]);
 		memset(&buffer, 0, sizeof(WAVEHDR));
-//		buffer.dwBufferLength	= sizeof(int16) * SAMPLES_PER_UPDATE;
-//		buffer.lpData			= reinterpret_cast<LPSTR>(m_bufferMemory + (i * SAMPLES_PER_UPDATE));
-		buffer.dwFlags			= WHDR_DONE;
+		buffer.dwFlags = WHDR_DONE;
 	}
 }
 
-CSH_WaveOut::~CSH_WaveOut()
+void CSH_WaveOut::DestroyWaveOut()
 {
+	assert(m_waveOut != NULL);
+
 	waveOutReset(m_waveOut);
 	waveOutClose(m_waveOut);
     for(unsigned int i = 0; i < MAX_BUFFERS; i++)
@@ -53,12 +70,8 @@ CSH_WaveOut::~CSH_WaveOut()
             delete [] buffer.lpData;
         }
     }
-//	delete [] m_bufferMemory;
-}
 
-CSoundHandler* CSH_WaveOut::HandlerFactory()
-{
-	return new CSH_WaveOut();
+	m_waveOut = NULL;
 }
 
 void CSH_WaveOut::WaveOutProc(HWAVEOUT waveOut, UINT message, DWORD_PTR param1, DWORD_PTR param2)
@@ -92,7 +105,11 @@ WAVEHDR* CSH_WaveOut::GetFreeBuffer()
 
 void CSH_WaveOut::Reset()
 {
-	waveOutReset(m_waveOut);
+	if(m_waveOut != NULL)
+	{
+		DestroyWaveOut();
+	}
+	InitializeWaveOut();
 }
 
 void CSH_WaveOut::RecycleBuffers()
@@ -118,16 +135,10 @@ void CSH_WaveOut::Write(int16* buffer, unsigned int sampleCount, unsigned int sa
         waveHeader->lpData = NULL;
 	}
 
-	//assert((sampleCount * 2) == SAMPLES_PER_UPDATE);
-
-//    size_t bufferSize = sampleCount * sizeof(int16) * 2;
     size_t bufferSize = sampleCount * sizeof(int16);
-//	int16* samples = reinterpret_cast<int16*>(waveHeader->lpData);
-//	memcpy(samples, buffer, bufferSize);
 
     waveHeader->dwBufferLength  = bufferSize;
     waveHeader->lpData          = new CHAR[bufferSize];
-//    waveHeader->lpData          = reinterpret_cast<LPSTR>(buffer);
     memcpy(waveHeader->lpData, buffer, bufferSize);
 
 	waveOutPrepareHeader(m_waveOut, waveHeader, sizeof(WAVEHDR));

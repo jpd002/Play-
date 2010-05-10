@@ -24,6 +24,9 @@ private:
 		MAX_BUFFERS = 25,
 	};
 
+	void					InitializeWaveOut();
+	void					DestroyWaveOut();
+
 	WAVEHDR*				GetFreeBuffer();
 	void					WaveOutProc(HWAVEOUT, UINT, DWORD_PTR, DWORD_PTR);
 	static void	CALLBACK 	WaveOutProcStub(HWAVEOUT, UINT, DWORD_PTR, DWORD_PTR, DWORD_PTR);
