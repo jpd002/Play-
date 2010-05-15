@@ -56,6 +56,12 @@ private:
         const TCHAR*    dllName;
     };
 
+	struct CHARENCODING_INFO
+	{
+		int				id;
+		const TCHAR*	name;
+	};
+
 	CSoundHandler*				        CreateHandler(const TCHAR*);
 
     void                                OnNewFrame();
@@ -84,15 +90,21 @@ private:
     void                                UpdateTitle();
     void                                UpdateButtons();
 	void								UpdateRepeatButton();
-    void                                CreateAudioPluginMenu();
-    void                                UpdateAudioPluginMenu();
 
 	void								Reset();
 	void								ActivatePanel(unsigned int);
 
+    void                                CreateAudioPluginMenu();
+    void                                UpdateAudioPluginMenu();
+	void                                ChangeAudioPlugin(unsigned int);
 	void								LoadAudioPluginPreferences();
 	int									FindAudioPlugin(unsigned int);
-	void                                ChangeAudioPlugin(unsigned int);
+
+	void								CreateCharEncodingMenu();
+	void								UpdateCharEncodingMenu();
+	void								ChangeCharEncoding(unsigned int);
+	void								LoadCharEncodingPreferences();
+	int									FindCharEncoding(unsigned int);
 
 	HACCEL								CreateAccelerators();
 
@@ -133,9 +145,11 @@ private:
 	uint64								m_fadePosition;
 	float								m_volumeAdjust;
     int                                 m_selectedAudioPlugin;
+	int									m_selectedCharEncoding;
 	REPEAT_MODE							m_repeatMode;
 
     static SOUNDHANDLER_INFO			m_handlerInfo[];
+	static CHARENCODING_INFO			m_charEncodingInfo[];
 };
 
 #endif

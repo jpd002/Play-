@@ -20,6 +20,7 @@
 #define WNDSTYLEEX		                (0)
 
 #define ID_FILE_AUDIOPLUGIN_PLUGIN_0    (0xBEEF)
+#define ID_FILE_CHARENCODING_ENCODING_0	(0xCEEF)
 
 #define PLAYLIST_EXTENSION              _T("psfpl")
 #define PLAYLIST_FILTER                 _T("PsfPlayer Playlists (*.") PLAYLIST_EXTENSION _T(")\0*.") PLAYLIST_EXTENSION _T("\0")
@@ -30,11 +31,22 @@
 #define PREF_SOUNDHANDLER_ID			("soundhandler.id")
 #define DEFAULT_SOUND_HANDLER_ID		(1)
 
+#define PREF_CHAR_ENCODING_ID			("charencoding.id")
+#define DEFAULT_CHAR_ENCODING_ID		(CPsfTags::CE_WINDOWS_1252)
+
 CMainWindow::SOUNDHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
     {   1,      _T("Win32 WaveOut"),    _T("SH_WaveOut.dll")    },
     {   2,      _T("OpenAL"),           _T("SH_OpenAL.dll")     },
     {   NULL,   NULL,                   NULL                    },
+};
+
+CMainWindow::CHARENCODING_INFO CMainWindow::m_charEncodingInfo[] =
+{
+	{	CPsfTags::CE_WINDOWS_1252,	_T("Windows 1252")		},
+	{	CPsfTags::CE_SHIFT_JIS,		_T("Shift-JIS")			},
+	{	CPsfTags::CE_UTF8,			_T("UTF-8")				},
+    {   NULL,						NULL                    },
 };
 
 using namespace Framework;
@@ -45,6 +57,7 @@ m_virtualMachine(virtualMachine),
 m_ready(false),
 m_frames(0),
 m_selectedAudioPlugin(DEFAULT_SOUND_HANDLER_ID),
+m_selectedCharEncoding(DEFAULT_CHAR_ENCODING_ID),
 m_ejectButton(NULL),
 m_pauseButton(NULL),
 m_repeatButton(NULL),
@@ -60,7 +73,10 @@ m_trackLength(0),
 m_accel(CreateAccelerators())
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SOUNDHANDLER_ID, DEFAULT_SOUND_HANDLER_ID);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CHAR_ENCODING_ID, DEFAULT_CHAR_ENCODING_ID);
+
 	LoadAudioPluginPreferences();
+	LoadCharEncodingPreferences();
 
 	for(unsigned int i = 0; i < MAX_PANELS; i++)
     {
@@ -160,6 +176,10 @@ m_accel(CreateAccelerators())
 
     CreateAudioPluginMenu();
     UpdateAudioPluginMenu();
+
+	CreateCharEncodingMenu();
+	UpdateCharEncodingMenu();
+
     UpdateClock();
     UpdateTitle();
     UpdateButtons();
@@ -296,6 +316,18 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 	    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 9:
 		    ChangeAudioPlugin(nID - ID_FILE_AUDIOPLUGIN_PLUGIN_0);
 		    break;
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 0:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 1:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 2:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 3:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 4:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 5:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 6:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 7:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 8:
+	    case ID_FILE_CHARENCODING_ENCODING_0 + 9:
+		    ChangeCharEncoding(nID - ID_FILE_CHARENCODING_ENCODING_0);
+			break;
 	    }
     }
 	return TRUE;    
@@ -565,6 +597,66 @@ void CMainWindow::ChangeAudioPlugin(unsigned int pluginIdx)
     UpdateAudioPluginMenu();
 }
 
+void CMainWindow::CreateCharEncodingMenu()
+{
+    Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
+
+    for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
+    {
+        tstring caption = m_charEncodingInfo[i].name;
+        InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_CHARENCODING_ENCODING_0 + i, caption.c_str());
+    }
+
+    Win32::CMenuItem pluginMenu(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_CHARACTERENCODING));
+    MENUITEMINFO ItemInfo;
+	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
+	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
+	ItemInfo.fMask		= MIIM_SUBMENU;
+	ItemInfo.hSubMenu	= pluginSubMenu;
+
+	SetMenuItemInfo(pluginMenu, ID_FILE_CHARACTERENCODING, FALSE, &ItemInfo);
+}
+
+void CMainWindow::UpdateCharEncodingMenu()
+{
+    for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
+    {
+        Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_CHARENCODING_ENCODING_0 + i));
+        pluginSubMenuEntry.Check(m_charEncodingInfo[i].id == m_selectedCharEncoding);
+    }
+}
+
+void CMainWindow::ChangeCharEncoding(unsigned int encodingIdx)
+{
+	CHARENCODING_INFO* encodingInfo = m_charEncodingInfo + encodingIdx;
+	m_selectedCharEncoding = encodingInfo->id;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CHAR_ENCODING_ID, m_selectedCharEncoding);
+	UpdateCharEncodingMenu();
+}
+
+void CMainWindow::LoadCharEncodingPreferences()
+{
+	int charEncodingId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CHAR_ENCODING_ID);
+	int charEncodingIdx = FindCharEncoding(charEncodingId);
+	if(charEncodingIdx == -1)
+	{
+		m_selectedCharEncoding = DEFAULT_CHAR_ENCODING_ID;
+	}
+	else
+	{
+		m_selectedCharEncoding = charEncodingId;
+	}
+}
+
+int CMainWindow::FindCharEncoding(unsigned int encodingId)
+{
+	for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
+	{
+		if(m_charEncodingInfo[i].id == encodingId) return i;
+	}
+	return -1;
+}
+
 HACCEL CMainWindow::CreateAccelerators()
 {
 	Win32::CAcceleratorTableGenerator tableGenerator;
@@ -735,6 +827,7 @@ bool CMainWindow::PlayFile(const char* path)
 		CPsfBase::TagMap tags;
 		CPsfLoader::LoadPsf(m_virtualMachine, path, &tags);
 		m_tags = CPsfTags(tags);
+		m_tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));
 		try
 		{
 			m_volumeAdjust = boost::lexical_cast<float>(m_tags.GetTagValue("volume"));

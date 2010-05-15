@@ -13,9 +13,10 @@ public:
 
 	enum CHAR_ENCODING
 	{
-		INVALID,
-		SHIFT_JIS,
-		UTF8,
+		CE_INVALID = 0,
+		CE_WINDOWS_1252 = 1,
+		CE_SHIFT_JIS = 2,
+		CE_UTF8 = 3,
 	};
 
 							CPsfTags();

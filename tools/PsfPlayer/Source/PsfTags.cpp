@@ -1,5 +1,6 @@
 #include "PsfTags.h"
 #include "string_cast_sjis.h"
+#include "string_cast_win1252.h"
 #include "Utf8.h"
 
 using namespace Framework;
@@ -23,13 +24,13 @@ CPsfTags::~CPsfTags()
 
 void CPsfTags::Init()
 {
-	SetDefaultCharEncoding(SHIFT_JIS);
-	SetStringConverter(m_defaultEncoding);
+	SetDefaultCharEncoding(CE_WINDOWS_1252);
 }
 
 void CPsfTags::SetDefaultCharEncoding(const CHAR_ENCODING& encoding)
 {
 	m_defaultEncoding = encoding;
+	SetStringConverter(m_defaultEncoding);
 }
 
 bool CPsfTags::HasTag(const char* tagName) const
@@ -145,10 +146,13 @@ void CPsfTags::SetStringConverter(const CHAR_ENCODING& encoding)
 {
 	switch(encoding)
 	{
-	case SHIFT_JIS:
+	case CE_WINDOWS_1252:
+		m_stringConverter = string_cast_win1252;
+		break;
+	case CE_SHIFT_JIS:
 		m_stringConverter = string_cast_sjis;
 		break;
-	case UTF8:
+	case CE_UTF8:
 		m_stringConverter = Utf8::ConvertFromSafe;
 		break;
 	default:
