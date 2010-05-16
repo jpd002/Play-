@@ -216,6 +216,11 @@ void CX86Assembler::AddId(const CAddress& Address, uint32 nConstant)
     WriteEvId(0x00, Address, nConstant);
 }
 
+void CX86Assembler::AddIq(const CAddress& address, uint64 constant)
+{
+	WriteEvIq(0x00, address, constant);
+}
+
 void CX86Assembler::AndEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x23, false, address, registerId);
@@ -386,6 +391,15 @@ void CX86Assembler::MovId(REGISTER nRegister, uint32 nConstant)
     WriteRexByte(false, Address);
     WriteByte(0xB8 | Address.ModRm.nRM);
     WriteDWord(nConstant);
+}
+
+void CX86Assembler::MovIq(REGISTER registerId, uint64 constant)
+{
+    CAddress address(MakeRegisterAddress(registerId));
+    WriteRexByte(true, address);
+    WriteByte(0xB8 | address.ModRm.nRM);
+    WriteDWord(static_cast<uint32>(constant & 0xFFFFFFFF));
+    WriteDWord(static_cast<uint32>(constant >> 32));
 }
 
 void CX86Assembler::MovId(const CX86Assembler::CAddress& address, uint32 constant)
@@ -602,6 +616,11 @@ void CX86Assembler::SubEd(REGISTER nRegister, const CAddress& Address)
 void CX86Assembler::SubId(const CAddress& Address, uint32 nConstant)
 {
     WriteEvId(0x05, Address, nConstant);
+}
+
+void CX86Assembler::SubIq(const CAddress& address, uint64 constant)
+{
+	WriteEvIq(0x05, address, constant);
 }
 
 void CX86Assembler::TestEb(REGISTER registerId, const CAddress& address)

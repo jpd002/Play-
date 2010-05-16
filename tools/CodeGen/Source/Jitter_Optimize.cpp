@@ -1,7 +1,14 @@
 #include <assert.h>
-#include <iostream>
 #include <set>
 #include "Jitter.h"
+
+#ifdef _DEBUG
+#define DUMP_STATEMENTS
+#endif
+
+#ifdef DUMP_STATEMENTS
+#include <iostream>
+#endif
 
 using namespace std;
 using namespace Jitter;
@@ -138,8 +145,10 @@ void CJitter::Compile()
 
 	BASIC_BLOCK result = ConcatBlocks(m_basicBlocks);
 
+#ifdef DUMP_STATEMENTS
 	DumpStatementList(result.statements);
 	cout << endl;
+#endif
 
 	unsigned int stackSize = AllocateStack(result);
 	m_codeGen->GenerateCode(result.statements, stackSize);
@@ -147,6 +156,7 @@ void CJitter::Compile()
 
 void CJitter::DumpStatementList(const StatementList& statements)
 {
+#ifdef DUMP_STATEMENTS
 	for(StatementList::const_iterator statementIterator(statements.begin());
 		statements.end() != statementIterator; statementIterator++)
 	{
@@ -226,6 +236,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 
 		cout << endl;
 	}
+#endif
 }
 
 uint32 CJitter::CreateBlock()

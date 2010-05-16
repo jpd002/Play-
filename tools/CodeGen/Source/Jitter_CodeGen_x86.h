@@ -74,8 +74,8 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::XorEd; }
 		};
 
-		virtual void				Emit_Prolog(unsigned int) = 0;
-		virtual void				Emit_Epilog(unsigned int) = 0;
+		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
+		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
 		bool						SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
 		CX86Assembler::LABEL		GetLabel(uint32);
@@ -101,6 +101,7 @@ namespace Jitter
 		//MUL/MULS
 		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64RegReg(const STATEMENT&);
 
 		//AND
 		void						Emit_And_RelRelCst(const STATEMENT&);
@@ -127,10 +128,12 @@ namespace Jitter
 
 		//EXTHIGH64
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
+		void						Emit_ExtHigh64RelTmp64(const STATEMENT&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;
 		LabelMapType				m_labels;
+		uint32						m_stackLevel;
 		
 		MatcherMapType				m_matchers;
 

@@ -1,5 +1,9 @@
-#ifdef AMD64
+#ifdef WIN32
 #include <windows.h>
+#endif
+
+#ifdef AMD64
+extern "C" void _CMemoryFunction_Execute(void*, void*);
 #endif
 
 #include <stdlib.h>
@@ -9,34 +13,29 @@
 
 CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 {
-#ifdef AMD64
-	m_code = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-	memcpy(m_code, code, size);
-#else
 	m_code = malloc(size);
 	memcpy(m_code, code, size);
-#endif
+
+	DWORD oldProtect = 0;
+	BOOL result = VirtualProtect(m_code, size, PAGE_EXECUTE_READWRITE, &oldProtect);
+	assert(result == TRUE);
 }
 
 CMemoryFunction::~CMemoryFunction()
 {
-#ifdef AMD64
-	assert(0);
-#else
 	free(m_code);
-#endif
 }
 
 void CMemoryFunction::operator()(void* context)
 {
-	volatile const void* code = m_code;
-	volatile const void* dataPtr = context;
-
 #ifdef AMD64
 
-	assert(0);
+	_CMemoryFunction_Execute(m_code, context);
 
 #else
+
+	volatile const void* code = m_code;
+	volatile const void* dataPtr = context;
 
 	__asm
 	{

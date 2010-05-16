@@ -109,6 +109,7 @@ public:
 	void									AdcId(const CAddress&, uint32);
     void                                    AddEd(REGISTER, const CAddress&);
     void                                    AddId(const CAddress&, uint32);
+	void									AddIq(const CAddress&, uint64);
     void                                    AndEd(REGISTER, const CAddress&);
     void                                    AndIb(const CAddress&, uint8);
     void                                    AndId(const CAddress&, uint32);
@@ -139,6 +140,7 @@ public:
     void                                    MovEq(REGISTER, const CAddress&);
     void                                    MovGd(const CAddress&, REGISTER);
     void                                    MovId(REGISTER, uint32);
+	void									MovIq(REGISTER, uint64);
 	void									MovId(const CAddress&, uint32);
 	void                                    MovsxEb(REGISTER, const CAddress&);
     void                                    MovsxEw(REGISTER, const CAddress&);
@@ -176,6 +178,7 @@ public:
     void                                    ShldEd(const CAddress&, REGISTER, uint8);
     void                                    SubEd(REGISTER, const CAddress&);
     void                                    SubId(const CAddress&, uint32);
+	void									SubIq(const CAddress&, uint64);
     void                                    TestEb(REGISTER, const CAddress&);
     void                                    TestEd(REGISTER, const CAddress&);
     void                                    XorEd(REGISTER, const CAddress&);

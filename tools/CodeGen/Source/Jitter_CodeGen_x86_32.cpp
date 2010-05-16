@@ -22,7 +22,6 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 };
 
 CCodeGen_x86_32::CCodeGen_x86_32()
-: m_stackLevel(0)
 {
 	CCodeGen_x86::m_registers = g_registers;
 
@@ -43,10 +42,8 @@ CCodeGen_x86_32::~CCodeGen_x86_32()
 
 }
 
-void CCodeGen_x86_32::Emit_Prolog(unsigned int stackSize)
+void CCodeGen_x86_32::Emit_Prolog(unsigned int stackSize, uint32 registerUsage)
 {
-	m_stackLevel = 0;
-
 	//Allocate stack space
 	if(stackSize != 0)
 	{
@@ -54,7 +51,7 @@ void CCodeGen_x86_32::Emit_Prolog(unsigned int stackSize)
 	}
 }
 
-void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize)
+void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 {
 	if(stackSize != 0)
 	{

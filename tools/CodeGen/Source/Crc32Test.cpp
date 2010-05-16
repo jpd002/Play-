@@ -1,6 +1,8 @@
 #include "Crc32Test.h"
 #include "MemStream.h"
 
+#define VERIFY(a) if(!(a)) { int* p = 0; (*p) = 0; }
+
 bool		CCrc32Test::m_tableBuilt = false;
 uint32		CCrc32Test::m_table[0x100];
 
@@ -46,7 +48,7 @@ void CCrc32Test::Run()
 		(*function)(&m_context);
 	}
 
-	assert(m_context.currentCrc == m_result);
+	VERIFY(m_context.currentCrc == m_result);
 }
 
 void CCrc32Test::Compile(Jitter::CJitter& jitter)
