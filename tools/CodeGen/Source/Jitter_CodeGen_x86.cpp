@@ -189,6 +189,7 @@ bool CCodeGen_x86::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	if(match == MATCH_RELATIVE64)	{ if(symbol->m_type == SYM_RELATIVE64)		return true; else return false; }
 	if(match == MATCH_TEMPORARY64)	{ if(symbol->m_type == SYM_TEMPORARY64)		return true; else return false; }
 	if(match == MATCH_CONSTANT64)	{ if(symbol->m_type == SYM_CONSTANT64)		return true; else return false; }
+	if(match == MATCH_CONTEXT)		{ if(symbol->m_type == SYM_CONTEXT)			return true; else return false; }
 	return false;
 }
 

@@ -107,6 +107,11 @@ void CJitter::EndIf()
 	m_currentBlock = GetBlock(nextBlockId);
 }
 
+void CJitter::PushCtx()
+{
+	m_Shadow.Push(MakeSymbol(SYM_CONTEXT, 0));
+}
+
 void CJitter::PushCst(uint32 nValue)
 {
 	m_Shadow.Push(MakeSymbol(SYM_CONSTANT, nValue));

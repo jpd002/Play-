@@ -43,6 +43,7 @@ namespace Jitter
 		virtual void					Else();
 		virtual void					EndIf();
 
+		void							PushCtx();
 		void                            PushCst(uint32);
 		void                            PushRef(void*);
 		virtual void                    PushRel(size_t);

@@ -1,11 +1,11 @@
 #ifndef _CRC32TEST_H_
 #define _CRC32TEST_H_
 
-#include "Jitter.h"
+#include "Test.h"
 #include "MemoryFunction.h"
 #include <string>
 
-class CCrc32Test
+class CCrc32Test : public CTest
 {
 public:
 						CCrc32Test(const char*, uint32);
@@ -27,13 +27,16 @@ private:
 		uint32		nextByte;
 		uint32		currentCrc;
 		uint32		state;
+		CCrc32Test*	testCase;
 	};
 
 	void				CompileTestFunction(Jitter::CJitter&);
 	void				CompileComputeFunction(Jitter::CJitter&);
 
-	static uint32		GetNextByte(CCrc32Test*);
-	static uint32		GetTableValue(CCrc32Test*, uint32);
+	static uint32		GetNextByte(CONTEXT*);
+	uint32				GetNextByteImpl();
+
+	static uint32		GetTableValue(uint32);
 
 	CONTEXT				m_context;
 	CMemoryFunction*	m_testFunction;

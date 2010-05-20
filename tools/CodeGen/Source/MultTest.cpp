@@ -1,8 +1,6 @@
 #include "MultTest.h"
 #include "MemStream.h"
 
-#define VERIFY(a) if(!(a)) { int* p = 0; (*p) = 0; }
-
 CMultTest::CMultTest(bool isSigned)
 : m_function(NULL)
 , m_isSigned(isSigned)
@@ -26,19 +24,19 @@ void CMultTest::Run()
 
 	if(!m_isSigned)
 	{
-		VERIFY(m_context.cstResultLo == 0x30200000);
-		VERIFY(m_context.cstResultHi == 0x20205020);
+		TEST_VERIFY(m_context.cstResultLo == 0x30200000);
+		TEST_VERIFY(m_context.cstResultHi == 0x20205020);
 
-		VERIFY(m_context.relResultLo == 0x80008000);
-		VERIFY(m_context.relResultHi == 0x8000BFFE);
+		TEST_VERIFY(m_context.relResultLo == 0x80008000);
+		TEST_VERIFY(m_context.relResultHi == 0x8000BFFE);
 	}
 	else
 	{
-		VERIFY(m_context.cstResultLo == 0x30200000);
-		VERIFY(m_context.cstResultHi == 0xDFDFD020);
+		TEST_VERIFY(m_context.cstResultLo == 0x30200000);
+		TEST_VERIFY(m_context.cstResultHi == 0xDFDFD020);
 		
-		VERIFY(m_context.relResultLo == 0x80008000);
-		VERIFY(m_context.relResultHi == 0x00003FFF);
+		TEST_VERIFY(m_context.relResultLo == 0x80008000);
+		TEST_VERIFY(m_context.relResultHi == 0x00003FFF);
 	}
 }
 

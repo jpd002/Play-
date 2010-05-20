@@ -22,6 +22,7 @@ namespace Jitter
 		{
 			MATCH_ANY,
 			MATCH_NIL,
+			MATCH_CONTEXT,
 			MATCH_CONSTANT,
 			MATCH_REGISTER,
 			MATCH_RELATIVE,

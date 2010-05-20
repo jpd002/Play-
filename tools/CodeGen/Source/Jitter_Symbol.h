@@ -11,6 +11,7 @@ namespace Jitter
 {
 	enum SYM_TYPE
 	{
+		SYM_CONTEXT,
 		SYM_CONSTANT,
 		SYM_RELATIVE,
 		SYM_TEMPORARY,
@@ -47,6 +48,9 @@ namespace Jitter
 		{
 			switch(m_type)
 			{
+			case SYM_CONTEXT:
+				return "CTX";
+				break;
 			case SYM_CONSTANT:
 				return boost::lexical_cast<std::string>(m_valueLow);
 				break;

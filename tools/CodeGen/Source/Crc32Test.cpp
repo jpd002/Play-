@@ -1,8 +1,6 @@
 #include "Crc32Test.h"
 #include "MemStream.h"
 
-#define VERIFY(a) if(!(a)) { int* p = 0; (*p) = 0; }
-
 bool		CCrc32Test::m_tableBuilt = false;
 uint32		CCrc32Test::m_table[0x100];
 
@@ -27,7 +25,8 @@ void CCrc32Test::Run()
 	m_inputPtr = 0;
 
 	memset(&m_context, 0, sizeof(m_context));
-	m_context.state = STATE_TEST;
+	m_context.state		= STATE_TEST;
+	m_context.testCase	= this;
 	
 	while(m_context.state != STATE_DONE)
 	{
@@ -48,7 +47,7 @@ void CCrc32Test::Run()
 		(*function)(&m_context);
 	}
 
-	VERIFY(m_context.currentCrc == m_result);
+	TEST_VERIFY(m_context.currentCrc == m_result);
 }
 
 void CCrc32Test::Compile(Jitter::CJitter& jitter)
@@ -72,7 +71,7 @@ void CCrc32Test::CompileTestFunction(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
-		jitter.PushRef(this);
+		jitter.PushCtx();
 		jitter.Call(&CCrc32Test::GetNextByte, 1, true);
 		jitter.PullRel(offsetof(CONTEXT, nextByte));
 
@@ -109,13 +108,11 @@ void CCrc32Test::CompileComputeFunction(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
-		jitter.PushRef(this);
-
 		jitter.PushRel(offsetof(CONTEXT, nextByte));
 		jitter.PushRel(offsetof(CONTEXT, currentCrc));
 		jitter.Xor();
 
-		jitter.Call(&CCrc32Test::GetTableValue, 2, true);
+		jitter.Call(&CCrc32Test::GetTableValue, 1, true);
 
 		jitter.PushRel(offsetof(CONTEXT, currentCrc));
 		jitter.Srl(8);
@@ -131,13 +128,19 @@ void CCrc32Test::CompileComputeFunction(Jitter::CJitter& jitter)
 	m_computeFunction = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
-uint32 CCrc32Test::GetNextByte(CCrc32Test* context)
+uint32 CCrc32Test::GetNextByte(CONTEXT* context)
 {
-	return context->m_input[context->m_inputPtr++];
+	return context->testCase->GetNextByteImpl();
 }
 
-uint32 CCrc32Test::GetTableValue(CCrc32Test* context, uint32 index)
+uint32 CCrc32Test::GetNextByteImpl()
 {
+	return m_input[m_inputPtr++];
+}
+
+uint32 CCrc32Test::GetTableValue(uint32 index)
+{
+	assert(m_tableBuilt);
 	return m_table[index & 0xFF];
 }
 

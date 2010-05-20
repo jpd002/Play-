@@ -1,10 +1,10 @@
 #ifndef _MULTTEST_H_
 #define _MULTTEST_H_
 
-#include "Jitter.h"
+#include "Test.h"
 #include "MemoryFunction.h"
 
-class CMultTest
+class CMultTest : public CTest
 {
 public:
 						CMultTest(bool);
