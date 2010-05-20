@@ -797,13 +797,23 @@ void CMainWindow::LoadSingleFile(const char* path)
 
 void CMainWindow::LoadPlaylist(const char* path)
 {
-    m_playlist.Clear();
-    m_playlist.Read(path);
-    if(m_playlist.GetItemCount() > 0)
-    {
-        m_currentPlaylistItem = 0;
-        OnPlaylistItemDblClick(m_currentPlaylistItem);
-    }
+	try
+	{
+		m_playlist.Clear();
+		m_playlist.Read(path);
+		if(m_playlist.GetItemCount() > 0)
+		{
+			m_currentPlaylistItem = 0;
+			OnPlaylistItemDblClick(m_currentPlaylistItem);
+		}
+	}
+	catch(const std::exception& except)
+	{
+		std::tstring errorString = _T("Couldn't load playlist: \r\n\r\n");
+		errorString += string_cast<std::tstring>(except.what());
+		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
+	}
+
 }
 
 void CMainWindow::Reset()
