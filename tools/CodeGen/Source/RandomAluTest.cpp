@@ -1,11 +1,11 @@
 #include "RandomAluTest.h"
 
-RandomAluTest::RandomAluTest()
+CRandomAluTest::CRandomAluTest()
 {
 
 }
 
-RandomAluTest::~RandomAluTest()
+CRandomAluTest::~CRandomAluTest()
 {
 
 }

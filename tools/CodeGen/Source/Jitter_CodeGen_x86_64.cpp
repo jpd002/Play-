@@ -22,7 +22,8 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
 };
 
 CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] = 
-{ 
+{
+	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Ctx		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Tmp		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst64		},
 
@@ -103,6 +104,14 @@ void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 
 	m_assembler.Pop(CX86Assembler::rBP);
 	m_assembler.Ret();
+}
+
+void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)
+{
+	assert(m_params.size() < MAX_PARAMS);
+
+	m_params.push_back(std::tr1::bind(
+		&CX86Assembler::MovEq, &m_assembler, std::tr1::placeholders::_1, CX86Assembler::MakeRegisterAddress(CX86Assembler::rBP)));
 }
 
 void CCodeGen_x86_64::Emit_Param_Tmp(const STATEMENT& statement)

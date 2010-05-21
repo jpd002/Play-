@@ -19,6 +19,7 @@ namespace Jitter
 		virtual void						Emit_Epilog(unsigned int, uint32);
 
 		//PARAM
+		void								Emit_Param_Ctx(const STATEMENT&);
 		void								Emit_Param_Rel(const STATEMENT&);
 		void								Emit_Param_Cst(const STATEMENT&);
 		void								Emit_Param_Tmp(const STATEMENT&);

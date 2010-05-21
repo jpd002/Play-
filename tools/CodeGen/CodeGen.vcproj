@@ -475,6 +475,18 @@
 					RelativePath=".\Source\MultTest.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Source\RandomAluTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\RandomAluTest.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Test.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
