@@ -97,6 +97,17 @@ void CCodeGen_x86::Emit_Alu_RegTmpTmp(const STATEMENT& statement)
 }
 
 template <typename ALUOP>
+void CCodeGen_x86::Emit_Alu_RegTmpCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, src1->m_stackLocation + m_stackLevel));
+	((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), src2->m_valueLow);
+}
+
+template <typename ALUOP>
 void CCodeGen_x86::Emit_Alu_TmpRegReg(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -105,6 +116,18 @@ void CCodeGen_x86::Emit_Alu_TmpRegReg(const STATEMENT& statement)
 
 	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	((m_assembler).*(ALUOP::OpEd()))(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel), CX86Assembler::rAX);
+}
+
+template <typename ALUOP>
+void CCodeGen_x86::Emit_Alu_TmpTmpCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, src1->m_stackLocation + m_stackLevel));
+	((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), src2->m_valueLow);
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel), CX86Assembler::rAX);
 }
 
@@ -121,9 +144,12 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_ADD64,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86::Emit_Add64_RelRelRel				},
 
 	{ OP_SUB,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_SUB>	},
+	{ OP_SUB,		MATCH_TEMPORARY,	MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_TmpTmpCst<ALUOP_SUB>	},
 
 //	{ OP_AND,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_And_RelRelCst				},
 	{ OP_AND,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_AND>	},
+
+	{ OP_OR,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegTmpCst<ALUOP_OR>		},
 
 	{ OP_XOR,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_TEMPORARY,	&CCodeGen_x86::Emit_Alu_RegTmpTmp<ALUOP_XOR>	},
 	{ OP_XOR,		MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_TmpRegReg<ALUOP_XOR>	},

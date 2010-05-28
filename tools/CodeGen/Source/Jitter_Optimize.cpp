@@ -13,6 +13,39 @@
 using namespace std;
 using namespace Jitter;
 
+static bool IsPowerOfTwo(uint32 number)
+{
+	uint32 complement = number - 1;
+	return (number != 0) && ((number & complement) == 0);
+}
+
+static uint32 ones32(uint32 x)
+{
+	/* 32-bit recursive reduction using SWAR...
+	   but first step is mapping 2-bit values
+	   into sum of 2 1-bit values in sneaky way
+	*/
+	x -= ((x >> 1) & 0x55555555);
+	x = (((x >> 2) & 0x33333333) + (x & 0x33333333));
+	x = (((x >> 4) + x) & 0x0f0f0f0f);
+	x += (x >> 8);
+	x += (x >> 16);
+	return (x & 0x0000003f);
+}
+
+static uint32 GetPowerOf2(uint32 x)
+{
+	assert(IsPowerOfTwo(x));
+
+	x |= (x >> 1);
+	x |= (x >> 2);
+	x |= (x >> 4);
+	x |= (x >> 8);
+	x |= (x >> 16);
+
+	return ones32(x >> 1);
+}
+
 unsigned int CJitter::CRelativeVersionManager::GetRelativeVersion(uint32 relativeId)
 {
 	RelativeVersionMap::const_iterator versionIterator(m_relativeVersions.find(relativeId));
@@ -186,8 +219,14 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_MULS:
 			cout << " * ";
 			break;
+		case OP_DIV:
+			cout << " / ";
+			break;
 		case OP_AND:
 			cout << " & ";
+			break;
+		case OP_OR:
+			cout << " | ";
 			break;
 		case OP_XOR:
 			cout << " ^ ";
@@ -359,6 +398,14 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src1 = MakeSymbolRef(MakeConstant64(static_cast<uint64>(result)));
 			statement.src2.reset();
 			changed = true;
+		}
+	}
+	else if(statement.op == OP_DIV)
+	{
+		if(src2cst && IsPowerOfTwo(src2cst->m_valueLow))
+		{
+			statement.op = OP_SRL;
+			src2cst->m_valueLow = GetPowerOf2(src2cst->m_valueLow);
 		}
 	}
 	else if(statement.op == OP_CONDJMP)

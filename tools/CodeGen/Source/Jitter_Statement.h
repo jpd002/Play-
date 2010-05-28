@@ -10,14 +10,19 @@ namespace Jitter
 	{
 		OP_NOP = 0,
 		OP_MOV,
+		
 		OP_ADD,
-		OP_AND,
 		OP_SUB,
+
+		OP_AND,
+		OP_OR,
+		OP_XOR,
+
+		OP_SRL,
+
 		OP_MUL,
 		OP_MULS,
 		OP_DIV,
-		OP_XOR,
-		OP_SRL,
 
 		OP_ADD64,
 		OP_EXTLOW64,

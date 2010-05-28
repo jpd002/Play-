@@ -69,6 +69,12 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::SubEd; }
 		};
 
+		struct ALUOP_OR : public ALUOP_BASE
+		{
+			static OpIdType OpId() { return &CX86Assembler::OrId; }
+			static OpEdType OpEd() { return &CX86Assembler::OrEd; }
+		};
+
 		struct ALUOP_XOR : public ALUOP_BASE
 		{
 			static OpIdType OpId() { return &CX86Assembler::XorId; }
@@ -90,7 +96,9 @@ namespace Jitter
 		//ALU
 		template <typename> void	Emit_Alu_RegRegCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpTmp(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegTmpCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
 
 		//ADD
 		void						Emit_Add_RelRelRel(const STATEMENT&);
