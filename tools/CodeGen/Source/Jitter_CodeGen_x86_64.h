@@ -21,6 +21,7 @@ namespace Jitter
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);
 		void								Emit_Param_Rel(const STATEMENT&);
+		void								Emit_Param_Reg(const STATEMENT&);
 		void								Emit_Param_Cst(const STATEMENT&);
 		void								Emit_Param_Tmp(const STATEMENT&);
 		void								Emit_Param_Cst64(const STATEMENT&);
@@ -30,6 +31,7 @@ namespace Jitter
 
 		//RETURNVALUE
 		void								Emit_RetVal_Tmp(const STATEMENT&);
+		void								Emit_RetVal_Reg(const STATEMENT&);
 
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);

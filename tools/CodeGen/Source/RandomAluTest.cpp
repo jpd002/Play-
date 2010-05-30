@@ -22,7 +22,15 @@ void CRandomAluTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
-		jitter.PushRel(offsetof(CONTEXT, number));
+		if(m_useConstant)
+		{
+			jitter.PushCst(TEST_NUMBER);
+		}
+		else
+		{
+			jitter.PushRel(offsetof(CONTEXT, number));
+		}
+
 		jitter.PushCst(4);
 		jitter.Div();
 

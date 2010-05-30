@@ -25,11 +25,13 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 {
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Ctx		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Tmp		},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Reg		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst64		},
 
 	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_Call				},
 
 	{ OP_RETVAL,	MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Tmp		},
+	{ OP_RETVAL,	MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg		},
 };
 
 static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)
@@ -124,6 +126,16 @@ void CCodeGen_x86_64::Emit_Param_Tmp(const STATEMENT& statement)
 		&CX86Assembler::MovEd, &m_assembler, std::tr1::placeholders::_1, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, src1->m_stackLocation + m_stackLevel)));
 }
 
+void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
+{
+	assert(m_params.size() < MAX_PARAMS);
+
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(std::tr1::bind(
+		&CX86Assembler::MovEd, &m_assembler, std::tr1::placeholders::_1, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow])));
+}
+
 void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
@@ -157,4 +169,11 @@ void CCodeGen_x86_64::Emit_RetVal_Tmp(const STATEMENT& statement)
 	CSymbol* dst = statement.dst->GetSymbol().get();
 
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel), CX86Assembler::rAX);
+}
+
+void CCodeGen_x86_64::Emit_RetVal_Reg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+
+	m_assembler.MovGd(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), CX86Assembler::rAX);
 }

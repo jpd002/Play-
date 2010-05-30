@@ -95,6 +95,7 @@ namespace Jitter
 
 		//ALU
 		template <typename> void	Emit_Alu_RegRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpTmp(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
@@ -117,9 +118,11 @@ namespace Jitter
 
 		//SRL
 		void						Emit_Srl_TmpRegCst(const STATEMENT&);
+		void						Emit_Srl_RegRegCst(const STATEMENT&);
 
 		//MOV
 		void						Emit_Mov_RegRel(const STATEMENT&);
+		void						Emit_Mov_RegReg(const STATEMENT&);
 		void						Emit_Mov_RegCst(const STATEMENT&);
 		void						Emit_Mov_RegTmp(const STATEMENT&);
 		void						Emit_Mov_RelCst(const STATEMENT&);

@@ -172,6 +172,7 @@ void CJitter::Compile()
 		BASIC_BLOCK& basicBlock(blockIterator->second);
 		m_currentBlock = &basicBlock;
 
+		CoalesceTemporaries(basicBlock);
 		ComputeLivenessAndPruneSymbols(basicBlock);
 		AllocateRegisters(basicBlock);
 	}
@@ -378,6 +379,17 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			changed = true;
 		}
 	}
+	else if(statement.op == OP_OR)
+	{
+		if(src1cst && src2cst)
+		{
+			uint32 result = src1cst->m_valueLow | src2cst->m_valueLow;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
 	else if(statement.op == OP_MUL)
 	{
 		if(src1cst && src2cst)
@@ -402,7 +414,15 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	}
 	else if(statement.op == OP_DIV)
 	{
-		if(src2cst && IsPowerOfTwo(src2cst->m_valueLow))
+		if(src1cst && src2cst)
+		{
+			uint32 result = src1cst->m_valueLow / src2cst->m_valueLow;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(src2cst && IsPowerOfTwo(src2cst->m_valueLow))
 		{
 			statement.op = OP_SRL;
 			src2cst->m_valueLow = GetPowerOf2(src2cst->m_valueLow);
@@ -870,6 +890,119 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 	return changed;
 }
 
+void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
+{
+	typedef std::vector<CSymbol*> EncounteredTempList;
+	EncounteredTempList encounteredTemps;
+
+	for(StatementList::iterator outerStatementIterator(basicBlock.statements.begin());
+		basicBlock.statements.end() != outerStatementIterator; outerStatementIterator++)
+	{
+		STATEMENT& outerStatement(*outerStatementIterator);
+
+		CSymbol* tempSymbol = dynamic_symbolref_cast(SYM_TEMPORARY, outerStatement.dst);
+		if(tempSymbol == NULL) continue;
+
+		CSymbol* candidate = NULL;
+
+		//Check for a possible replacement
+		for(EncounteredTempList::const_iterator tempIterator(encounteredTemps.begin());
+			tempIterator != encounteredTemps.end(); tempIterator++)
+		{
+			//Look for any possible use of this symbol
+			CSymbol* encounteredTemp = *tempIterator;
+			bool used = false;
+
+			for(StatementList::iterator innerStatementIterator(outerStatementIterator);
+				basicBlock.statements.end() != innerStatementIterator; innerStatementIterator++)
+			{
+				if(outerStatementIterator == innerStatementIterator) continue;
+
+				STATEMENT& innerStatement(*innerStatementIterator);
+
+				if(innerStatement.dst)
+				{
+					SymbolPtr symbol(innerStatement.dst->GetSymbol());
+					if(symbol->Equals(encounteredTemp))
+					{
+						used = true;
+						break;
+					}
+				}
+				if(innerStatement.src1)
+				{
+					SymbolPtr symbol(innerStatement.src1->GetSymbol());
+					if(symbol->Equals(encounteredTemp))
+					{
+						used = true;
+						break;
+					}
+				}
+				if(innerStatement.src2)
+				{
+					SymbolPtr symbol(innerStatement.src2->GetSymbol());
+					if(symbol->Equals(encounteredTemp))
+					{
+						used = true;
+						break;
+					}
+				}
+			}
+
+			if(!used)
+			{
+				candidate = encounteredTemp;
+				break;
+			}
+		}
+
+		if(candidate == NULL)
+		{
+			encounteredTemps.push_back(tempSymbol);
+		}
+		else
+		{
+			SymbolPtr candidatePtr = MakeSymbol(candidate->m_type, candidate->m_valueLow);
+
+			outerStatement.dst = MakeSymbolRef(candidatePtr);
+
+			//Replace all occurences of this temp with the candidate
+			for(StatementList::iterator innerStatementIterator(outerStatementIterator);
+				basicBlock.statements.end() != innerStatementIterator; innerStatementIterator++)
+			{
+				if(outerStatementIterator == innerStatementIterator) continue;
+
+				STATEMENT& innerStatement(*innerStatementIterator);
+
+				if(innerStatement.dst)
+				{
+					SymbolPtr symbol(innerStatement.dst->GetSymbol());
+					if(symbol->Equals(tempSymbol))
+					{
+						innerStatement.dst = MakeSymbolRef(candidatePtr);
+					}
+				}
+				if(innerStatement.src1)
+				{
+					SymbolPtr symbol(innerStatement.src1->GetSymbol());
+					if(symbol->Equals(tempSymbol))
+					{
+						innerStatement.src1 = MakeSymbolRef(candidatePtr);
+					}
+				}
+				if(innerStatement.src2)
+				{
+					SymbolPtr symbol(innerStatement.src2->GetSymbol());
+					if(symbol->Equals(tempSymbol))
+					{
+						innerStatement.src2 = MakeSymbolRef(candidatePtr);
+					}
+				}
+			}
+		}
+	}
+}
+
 void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 {
 	CSymbolTable& symbolTable(basicBlock.symbolTable);
@@ -962,6 +1095,8 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
 	{
 		const SymbolPtr& symbol(*symbolIterator);
+		if(symbol->m_register != -1) continue;
+
 		if(symbol->m_type == SYM_TEMPORARY)
 		{
 			symbol->m_stackLocation = stackAlloc;
@@ -1024,7 +1159,10 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 		}
 
 		CSymbol* symbol(*symbolIterator);
-		if((symbol->m_type == SYM_RELATIVE) && (symbol->m_useCount != 0) && (!symbol->m_aliased))
+		if(
+			((symbol->m_type == SYM_RELATIVE) && (symbol->m_useCount != 0) && (!symbol->m_aliased)) ||
+			((symbol->m_type == SYM_TEMPORARY) && (symbol->m_useCount != 0))
+			)
 		{
 			symbol->m_register = currentRegister;
 
@@ -1073,6 +1211,7 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	{
 		const SymbolPtr& symbol(*symbolIterator);
 		if(symbol->m_register == -1) continue;
+		if(symbol->m_type == SYM_TEMPORARY) continue;
 
 		//We use this symbol before we define it, so we need to load it first
 		if(symbol->m_firstUse != -1 && symbol->m_firstUse <= symbol->m_firstDef)

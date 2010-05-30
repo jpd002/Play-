@@ -325,6 +325,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Source\ArmAssembler.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ArmAssembler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Main.cpp"
 				>
 			</File>
@@ -353,7 +361,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64 /c /Fo&quot;$(OutDir)\$(InputName).obj&quot; $(InputPath)"
+						CommandLine="ml64 /c /Fo&quot;$(OutDir)\$(InputName).obj&quot; $(InputPath)&#x0D;&#x0A;"
 						Outputs="&quot;$(OutDir)\$(InputName).obj&quot;"
 					/>
 				</FileConfiguration>
