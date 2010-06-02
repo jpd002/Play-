@@ -5,6 +5,7 @@
 
 #define FUNCTION_CDREAD         "CdRead"
 #define FUNCTION_CDGETERROR     "CdGetError"
+#define FUNCTION_CDSEARCHFILE	"CdSearchFile"
 #define FUNCTION_CDSYNC         "CdSync"
 #define FUNCTION_CDGETDISKTYPE  "CdGetDiskType"
 #define FUNCTION_CDDISKREADY    "CdDiskReady"
@@ -39,6 +40,9 @@ string CCdvdman::GetFunctionName(unsigned int functionId) const
     case 8:
         return FUNCTION_CDGETERROR;
         break;
+	case 10:
+		return FUNCTION_CDSEARCHFILE;
+		break;
     case 11:
         return FUNCTION_CDSYNC;
         break;
@@ -68,6 +72,11 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
     case 8:
         ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetError();
         break;
+	case 10:
+        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSearchFile(
+			ctx.m_State.nGPR[CMIPS::A0].nV0,
+			ctx.m_State.nGPR[CMIPS::A1].nV0);
+		break;
     case 11:
         ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSync(ctx.m_State.nGPR[CMIPS::A0].nV0);
         break;
@@ -116,6 +125,63 @@ uint32 CCdvdman::CdGetError()
 {
     CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETERROR "();\r\n");
     return 0;
+}
+
+uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
+{
+	struct FILEINFO
+	{
+		uint32		sector;
+		uint32		size;
+		char		name[16];
+		uint8		date[8];
+	};
+
+	const char* name = NULL;
+	FILEINFO* fileInfo = NULL;
+
+	if(namePtr != 0)
+	{
+		name = reinterpret_cast<const char*>(m_ram + namePtr);
+	}
+	if(fileInfoPtr != 0)
+	{
+		fileInfo = reinterpret_cast<FILEINFO*>(m_ram + fileInfoPtr);
+	}
+
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfo = 0x%0.8X, name = '%s');\r\n",
+        fileInfoPtr, name);
+#endif
+
+	uint32 result = 0;
+
+	if(m_image != NULL && name != NULL && fileInfo != NULL)
+	{
+		std::string fixedPath(name);
+
+		//Fix all slashes
+		std::string::size_type slashPos = fixedPath.find('\\');
+		while(slashPos != std::string::npos)
+		{
+			fixedPath[slashPos] = '/';
+			slashPos = fixedPath.find('\\', slashPos + 1);
+		}
+
+		ISO9660::CDirectoryRecord record;
+		if(m_image->GetFileRecord(&record, fixedPath.c_str()))
+		{
+			fileInfo->sector	= record.GetPosition();
+			fileInfo->size		= record.GetDataLength();
+			strncpy(fileInfo->name, record.GetName(), 16);
+			fileInfo->name[15] = 0;
+			memset(fileInfo->date, 0, 8);
+
+			result = 1;
+		}
+	}
+
+	return result;
 }
 
 uint32 CCdvdman::CdSync(uint32 mode)

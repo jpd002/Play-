@@ -349,11 +349,6 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 
 void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	char* sPath;
-	char* sTemp;
-	char sFixedPath[256];
-	ISO9660::CDirectoryRecord Record;
-
 	assert(argsSize >= 0x128);
 	assert(retSize == 4);
 
@@ -375,21 +370,23 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	//20 - Unknown
 	//24 - Path
 
-	sPath = reinterpret_cast<char*>(args) + 0x24;
-
-	strcpy(sFixedPath, sPath);
+	char* sPath = reinterpret_cast<char*>(args) + 0x24;
 
 	//Fix all slashes
-	sTemp = strchr(sFixedPath, '\\');
-	while(sTemp != NULL)
+	std::string fixedPath(sPath);
 	{
-		*sTemp = '/';
-		sTemp = strchr(sTemp + 1, '\\');
+		std::string::size_type slashPos = fixedPath.find('\\');
+		while(slashPos != std::string::npos)
+		{
+			fixedPath[slashPos] = '/';
+			slashPos = fixedPath.find('\\', slashPos + 1);
+		}
 	}
 
-	CLog::GetInstance().Print(LOG_NAME, "SearchFile(path = %s);\r\n", sFixedPath);
+	CLog::GetInstance().Print(LOG_NAME, "SearchFile(path = %s);\r\n", fixedPath.c_str());
 
-	if(!m_iso->GetFileRecord(&Record, sFixedPath))
+	ISO9660::CDirectoryRecord Record;
+	if(!m_iso->GetFileRecord(&Record, fixedPath.c_str()))
 	{
 		ret[0] = 0;
 		return;

@@ -21,6 +21,7 @@ namespace Iop
     private:
         uint32                  CdRead(uint32, uint32, uint32, uint32);
         uint32                  CdGetError();
+		uint32					CdSearchFile(uint32, uint32);
         uint32                  CdSync(uint32);
         uint32                  CdGetDiskType();
         uint32                  CdDiskReady(uint32);
