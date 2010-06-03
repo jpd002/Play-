@@ -305,7 +305,15 @@ void CJitter::MultS()
 
 void CJitter::Not()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_NOT;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Or()
@@ -322,19 +330,21 @@ void CJitter::Or()
 	m_Shadow.Push(tempSym);
 }
 
-void CJitter::SeX()
+void CJitter::SignExt()
 {
 	throw std::exception();
 }
 
-void CJitter::SeX8()
+void CJitter::SignExt8()
 {
-	throw std::exception();
+	Shl(24);
+	Sra(24);
 }
 
-void CJitter::SeX16()
+void CJitter::SignExt16()
 {
-	throw std::exception();
+	Shl(16);
+	Sra(16);
 }
 
 void CJitter::Shl()
@@ -344,7 +354,16 @@ void CJitter::Shl()
 
 void CJitter::Shl(uint8 nAmount)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SLL;
+	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Sra()
@@ -354,7 +373,16 @@ void CJitter::Sra()
 
 void CJitter::Sra(uint8 nAmount)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SRA;
+	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Srl()

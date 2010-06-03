@@ -66,9 +66,9 @@ namespace Jitter
 		void                            MultS();
 		void                            Not();
 		void                            Or();
-		void                            SeX();
-		void                            SeX8();
-		void                            SeX16();
+		void                            SignExt();
+		void                            SignExt8();
+		void                            SignExt16();
 		void                            Shl();
 		void                            Shl(uint8);
 		void                            Sra();

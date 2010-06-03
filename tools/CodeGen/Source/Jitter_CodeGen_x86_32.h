@@ -29,6 +29,7 @@ namespace Jitter
 
 		//RETURNVALUE
 		void								Emit_RetVal_Tmp(const STATEMENT&);
+		void								Emit_RetVal_Reg(const STATEMENT&);
 
 	private:
 		typedef void (CCodeGen_x86_32::*ConstCodeEmitterType)(const STATEMENT&);

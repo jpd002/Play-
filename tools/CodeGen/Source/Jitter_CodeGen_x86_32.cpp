@@ -20,6 +20,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Call				},
 
 	{ OP_RETVAL,	MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Tmp		},
+	{ OP_RETVAL,	MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Reg		},
 };
 
 CCodeGen_x86_32::CCodeGen_x86_32()
@@ -118,4 +119,11 @@ void CCodeGen_x86_32::Emit_RetVal_Tmp(const STATEMENT& statement)
 	CSymbol* dst = statement.dst->GetSymbol().get();
 
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation), CX86Assembler::rAX);
+}
+
+void CCodeGen_x86_32::Emit_RetVal_Reg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+
+	m_assembler.MovGd(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), CX86Assembler::rAX);
 }

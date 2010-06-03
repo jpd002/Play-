@@ -232,8 +232,17 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_XOR:
 			cout << " ^ ";
 			break;
+		case OP_NOT:
+			cout << " ! ";
+			break;
 		case OP_SRL:
 			cout << " >> ";
+			break;
+		case OP_SRA:
+			cout << " >>A ";
+			break;
+		case OP_SLL:
+			cout << " << ";
 			break;
 		case OP_NOP:
 			cout << " NOP ";
@@ -384,6 +393,39 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		if(src1cst && src2cst)
 		{
 			uint32 result = src1cst->m_valueLow | src2cst->m_valueLow;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(statement.op == OP_NOT)
+	{
+		if(src1cst)
+		{
+			uint32 result = ~src1cst->m_valueLow;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(statement.op == OP_SRA)
+	{
+		if(src1cst && src2cst)
+		{
+			uint32 result = static_cast<int32>(src1cst->m_valueLow) >> static_cast<int32>(src2cst->m_valueLow);
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(statement.op == OP_SLL)
+	{
+		if(src1cst && src2cst)
+		{
+			uint32 result = src1cst->m_valueLow << src2cst->m_valueLow;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();

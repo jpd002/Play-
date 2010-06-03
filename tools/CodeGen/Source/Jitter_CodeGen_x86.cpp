@@ -74,15 +74,45 @@ void CCodeGen_x86::Emit_Alu_RegRegCst(const STATEMENT& statement)
 	//We can optimize here if it's equal to zero
 	assert(src2->m_valueLow != 0);
 
-	if(dst->Equals(src1))
+	if(!dst->Equals(src1))
 	{
-		((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), src2->m_valueLow);
+		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+	}
+
+	((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), src2->m_valueLow);
+}
+
+template <typename ALUOP>
+void CCodeGen_x86::Emit_Alu_RegCstReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(statement.op == OP_SUB);
+
+	if(src1->m_valueLow)
+	{
+		m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
 	}
 	else
 	{
-		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-		((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), src2->m_valueLow);
+		m_assembler.XorEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	}
+
+	((m_assembler).*(ALUOP::OpEd()))(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+}
+
+template <typename ALUOP>
+void CCodeGen_x86::Emit_Alu_RegRelReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+	((m_assembler).*(ALUOP::OpEd()))(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
 }
 
 template <typename ALUOP>
@@ -149,60 +179,105 @@ void CCodeGen_x86::Emit_Alu_TmpTmpCst(const STATEMENT& statement)
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel), CX86Assembler::rAX);
 }
 
+template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_TmpRegCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+	((m_assembler).*(SHIFTOP::OpCst()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), static_cast<uint8>(src2->m_valueLow));
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel), CX86Assembler::rAX);
+}
+
+template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_RegRegCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	if(!dst->Equals(src1))
+	{
+		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+	}
+
+	((m_assembler).*(SHIFTOP::OpCst()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), static_cast<uint8>(src2->m_valueLow));
+}
+
+template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_RegRelCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+	((m_assembler).*(SHIFTOP::OpCst()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), static_cast<uint8>(src2->m_valueLow));
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] = 
 { 
-	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel						},
+	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel							},
 
-	{ OP_NOP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Nop							},
+	{ OP_NOP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Nop								},
 
-//	{ OP_ADD,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Add_RelRelRel				},
-//	{ OP_ADD,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Add_RelRelCst				},
-	{ OP_ADD,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_ADD>	},
+	{ OP_ADD,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_ADD>		},
+	{ OP_ADD,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_RegRegReg<ALUOP_ADD>		},
 
-	{ OP_ADD64,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86::Emit_Add64_RelRelRel				},
+	{ OP_ADD64,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86::Emit_Add64_RelRelRel					},
 
-	{ OP_SUB,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_SUB>	},
-	{ OP_SUB,		MATCH_TEMPORARY,	MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_TmpTmpCst<ALUOP_SUB>	},
+	{ OP_SUB,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_SUB>		},
+	{ OP_SUB,		MATCH_TEMPORARY,	MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_TmpTmpCst<ALUOP_SUB>		},
+	{ OP_SUB,		MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_RegCstReg<ALUOP_SUB>		},
 
-//	{ OP_AND,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_And_RelRelCst				},
-	{ OP_AND,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_AND>	},
+	{ OP_AND,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_AND>		},
 
-	{ OP_OR,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegTmpCst<ALUOP_OR>		},
-	{ OP_OR,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_OR>		},
+	{ OP_OR,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegTmpCst<ALUOP_OR>			},
+	{ OP_OR,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RegRegCst<ALUOP_OR>			},
 
-	{ OP_XOR,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_TEMPORARY,	&CCodeGen_x86::Emit_Alu_RegTmpTmp<ALUOP_XOR>	},
-	{ OP_XOR,		MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_TmpRegReg<ALUOP_XOR>	},
-	{ OP_XOR,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_RegRegReg<ALUOP_XOR>	},
+	{ OP_XOR,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_TEMPORARY,	&CCodeGen_x86::Emit_Alu_RegTmpTmp<ALUOP_XOR>		},
+	{ OP_XOR,		MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_TmpRegReg<ALUOP_XOR>		},
+	{ OP_XOR,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_RegRegReg<ALUOP_XOR>		},
+	{ OP_XOR,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_RegRelReg<ALUOP_XOR>		},
 
-	{ OP_SRL,		MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Srl_TmpRegCst				},
-	{ OP_SRL,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Srl_RegRegCst				},
+	{ OP_NOT,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_x86::Emit_Not_RegRel						},
 
-	{ OP_MOV,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegRel					},
-	{ OP_MOV,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegReg					},
-	{ OP_MOV,		MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegCst					},
-	{ OP_MOV,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegTmp					},
-	{ OP_MOV,		MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RelCst					},
-	{ OP_MOV,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RelReg					},
+	{ OP_SRL,		MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_TmpRegCst<SHIFTOP_SRL>	},
+	{ OP_SRL,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RegRegCst<SHIFTOP_SRL>	},
 
-	{ OP_JMP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Jmp							},
+	{ OP_SRA,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RegRegCst<SHIFTOP_SRA>	},
 
-//	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_RelCst				},
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_RegCst				},
+	{ OP_SLL,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RegRegCst<SHIFTOP_SLL>	},
+	{ OP_SLL,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RegRelCst<SHIFTOP_SLL>	},
 
-	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RegCst<false>		},
-	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RegRel<false>		},
-	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulTmp64RegReg<false>		},
+	{ OP_MOV,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegRel						},
+	{ OP_MOV,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegReg						},
+	{ OP_MOV,		MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegCst						},
+	{ OP_MOV,		MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RegTmp						},
+	{ OP_MOV,		MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RelCst						},
+	{ OP_MOV,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86::Emit_Mov_RelReg						},
 
-	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RegCst<true>		},
-	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RegRel<true>		},
-	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulTmp64RegReg<true>		},
+	{ OP_JMP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Jmp								},
 
-	{ OP_EXTLOW64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtLow64RegTmp64			},
+//	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_RelCst					},
+	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_RegCst					},
+
+	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RegCst<false>			},
+	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RegRel<false>			},
+	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulTmp64RegReg<false>			},
+
+	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RegCst<true>			},
+	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RegRel<true>			},
+	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulTmp64RegReg<true>			},
+
+	{ OP_EXTLOW64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtLow64RegTmp64				},
 	
-	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RegTmp64			},
-	{ OP_EXTHIGH64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RelTmp64			},
+	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RegTmp64				},
+	{ OP_EXTHIGH64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RelTmp64				},
 
-	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL											},
+	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
 
 CCodeGen_x86::CCodeGen_x86()
@@ -319,34 +394,14 @@ void CCodeGen_x86::Emit_Nop(const STATEMENT& statement)
 	
 }
 
-//void CCodeGen_x86::Emit_Add_RelRelRel(const STATEMENT& statement)
-//{
-//	CRelativeSymbol* dst = dynamic_symbolref_cast<CRelativeSymbol>(statement.dst);
-//	CRelativeSymbol* src1 = dynamic_symbolref_cast<CRelativeSymbol>(statement.src1);
-//	CRelativeSymbol* src2 = dynamic_symbolref_cast<CRelativeSymbol>(statement.src2);
-//
-//	cout << "mov eax, dword ptr[ebp + " << src1->m_valueLow << "]" << endl;
-//	cout << "add eax, dword ptr[ebp + " << src2->m_valueLow << "]" << endl;
-//	cout << "mov dword ptr[ebp + " << dst->m_valueLow << "], eax" << endl;
-//}
+void CCodeGen_x86::Emit_Not_RegRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
 
-//void CCodeGen_x86::Emit_Add_RelRelCst(const STATEMENT& statement)
-//{
-//	CRelativeSymbol* dst = dynamic_symbolref_cast<CRelativeSymbol>(statement.dst);
-//	CRelativeSymbol* src1 = dynamic_symbolref_cast<CRelativeSymbol>(statement.src1);
-//	CConstantSymbol* src2 = dynamic_symbolref_cast<CConstantSymbol>(statement.src2);
-//
-//	if(dst->Equals(src1))
-//	{
-//		cout << "add dword ptr[ebp + " << dst->m_valueLow << "], " << src2->m_valueLow << endl;
-//	}
-//	else
-//	{
-//		cout << "mov eax, dword ptr[ebp + " << src1->m_valueLow << "]" << endl;
-//		cout << "add eax, " << src2->m_valueLow << endl;
-//		cout << "mov dword ptr[ebp + " << dst->m_valueLow << "], eax" << endl;
-//	}
-//}
+	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+	m_assembler.NotEd(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]));
+}
 
 void CCodeGen_x86::Emit_Add64_RelRelRel(const STATEMENT& statement)
 {
@@ -365,52 +420,6 @@ void CCodeGen_x86::Emit_Add64_RelRelRel(const STATEMENT& statement)
 
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), CX86Assembler::rAX);
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), CX86Assembler::rDX);
-}
-
-//void CCodeGen_x86::Emit_And_RelRelCst(const STATEMENT& statement)
-//{
-//	CRelativeSymbol* dst = dynamic_symbolref_cast<CRelativeSymbol>(statement.dst);
-//	CRelativeSymbol* src1 = dynamic_symbolref_cast<CRelativeSymbol>(statement.src1);
-//	CConstantSymbol* src2 = dynamic_symbolref_cast<CConstantSymbol>(statement.src2);
-//
-//	if(dst->Equals(src1))
-//	{
-//		cout << "and dword ptr[ebp + " << dst->m_valueLow << "], " << src2->m_valueLow << endl;
-//	}
-//	else
-//	{
-//		cout << "mov eax, dword ptr[ebp + " << src1->m_valueLow << "]" << endl;
-//		cout << "and eax, " << src2->m_valueLow << endl;
-//		cout << "mov dword ptr[ebp + " << dst->m_valueLow << "], eax" << endl;
-//	}
-//}
-
-void CCodeGen_x86::Emit_Srl_TmpRegCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), static_cast<uint8>(src2->m_valueLow));
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel), CX86Assembler::rAX);
-}
-
-void CCodeGen_x86::Emit_Srl_RegRegCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	if(dst->Equals(src1))
-	{
-		assert(0);
-	}
-	else
-	{
-		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), static_cast<uint8>(src2->m_valueLow));
-	}
 }
 
 void CCodeGen_x86::Emit_Mov_RelCst(const STATEMENT& statement)

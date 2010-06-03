@@ -37,8 +37,8 @@ void CRandomAluTest::Compile(Jitter::CJitter& jitter)
 		jitter.PushCst(34);
 		jitter.Sub();
 
-		jitter.PushCst(0xFF00);
-		jitter.Or();
+		jitter.PushCst(0xFFFF00FF);
+		jitter.And();
 
 		jitter.PullRel(offsetof(CONTEXT, number));
 	}
@@ -52,5 +52,5 @@ void CRandomAluTest::Run()
 	memset(&m_context, 0, sizeof(CONTEXT));
 	m_context.number = TEST_NUMBER;
 	(*m_function)(&m_context);
-	TEST_VERIFY(m_context.number == 0xFFFFFFE3);
+	TEST_VERIFY(m_context.number == 0xFFFF00E3);
 }

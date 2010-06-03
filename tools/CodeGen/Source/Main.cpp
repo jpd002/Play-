@@ -12,11 +12,14 @@
 #include "Crc32Test.h"
 #include "MultTest.h"
 #include "RandomAluTest.h"
+#include "RandomAluTest2.h"
 
 typedef boost::function<CTest* ()> TestFactoryFunction;
 
 TestFactoryFunction s_factories[] =
 {
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), true)),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCrc32Test>(), "Hello World!", 0x67FCDACC)),

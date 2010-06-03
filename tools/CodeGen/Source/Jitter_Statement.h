@@ -17,8 +17,11 @@ namespace Jitter
 		OP_AND,
 		OP_OR,
 		OP_XOR,
+		OP_NOT,
 
+		OP_SRA,
 		OP_SRL,
+		OP_SLL,
 
 		OP_MUL,
 		OP_MULS,

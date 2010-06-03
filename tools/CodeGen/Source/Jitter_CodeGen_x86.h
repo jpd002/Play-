@@ -45,6 +45,7 @@ namespace Jitter
 
 		typedef std::multimap<OPERATION, MATCHER> MatcherMapType;
 
+		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
 		{
 			typedef void (CX86Assembler::*OpIdType)(const CX86Assembler::CAddress&, uint32);
@@ -81,6 +82,31 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::XorEd; }
 		};
 
+		//SHIFTOP -----------------------------------------------------------
+		struct SHIFTOP_BASE
+		{
+			typedef void (CX86Assembler::*OpCstType)(const CX86Assembler::CAddress&, uint8);
+			typedef void (CX86Assembler::*OpVarType)(const CX86Assembler::CAddress&);
+		};
+
+		struct SHIFTOP_SRL : public SHIFTOP_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::ShrEd; }
+			static OpVarType OpVar() { return &CX86Assembler::ShrEd; }
+		};
+
+		struct SHIFTOP_SRA : public SHIFTOP_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::SarEd; }
+			static OpVarType OpVar() { return &CX86Assembler::SarEd; }
+		};
+
+		struct SHIFTOP_SLL : public SHIFTOP_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::ShlEd; }
+			static OpVarType OpVar() { return &CX86Assembler::ShlEd; }
+		};
+
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
@@ -95,15 +121,21 @@ namespace Jitter
 
 		//ALU
 		template <typename> void	Emit_Alu_RegRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegRelReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpTmp(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegCstReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
 
-		//ADD
-		void						Emit_Add_RelRelRel(const STATEMENT&);
-		void						Emit_Add_RelRelCst(const STATEMENT&);
+		//SHIFT
+		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
+
+		//NOT
+		void						Emit_Not_RegRel(const STATEMENT&);
 
 		//ADD64
 		void						Emit_Add64_RelRelRel(const STATEMENT&);
@@ -112,13 +144,6 @@ namespace Jitter
 		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegReg(const STATEMENT&);
-
-		//AND
-		void						Emit_And_RelRelCst(const STATEMENT&);
-
-		//SRL
-		void						Emit_Srl_TmpRegCst(const STATEMENT&);
-		void						Emit_Srl_RegRegCst(const STATEMENT&);
 
 		//MOV
 		void						Emit_Mov_RegRel(const STATEMENT&);
