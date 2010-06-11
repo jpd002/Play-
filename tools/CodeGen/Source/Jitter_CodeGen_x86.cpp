@@ -217,6 +217,18 @@ void CCodeGen_x86::Emit_Shift_RegRelCst(const STATEMENT& statement)
 	((m_assembler).*(SHIFTOP::OpCst()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), static_cast<uint8>(src2->m_valueLow));
 }
 
+template <typename FPUOP>
+void CCodeGen_x86::Emit_Fpu_RelRelRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovssEd(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+	((m_assembler).*(FPUOP::OpEd()))(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
+	m_assembler.MovssEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::xMM0);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] = 
 { 
 	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel							},
@@ -277,6 +289,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RegTmp64				},
 	{ OP_EXTHIGH64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RelTmp64				},
 
+	{ OP_FP_ADD,	MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_ADD>		},
+	{ OP_FP_DIV,	MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_DIV>		},
+
 	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
 
@@ -305,14 +320,27 @@ bool CCodeGen_x86::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	if(match == MATCH_ANY) return true;
 	if(match == MATCH_NIL) { if(!symbolRef) return true; else return false; }
 	CSymbol* symbol = symbolRef->GetSymbol().get();
-	if(match == MATCH_RELATIVE)		{ if(symbol->m_type == SYM_RELATIVE)		return true; else return false; }
-	if(match == MATCH_CONSTANT)		{ if(symbol->m_type == SYM_CONSTANT)		return true; else return false; }
-	if(match == MATCH_REGISTER)		{ if(symbol->m_type == SYM_REGISTER)		return true; else return false; }
-	if(match == MATCH_TEMPORARY)	{ if(symbol->m_type == SYM_TEMPORARY)		return true; else return false; }
-	if(match == MATCH_RELATIVE64)	{ if(symbol->m_type == SYM_RELATIVE64)		return true; else return false; }
-	if(match == MATCH_TEMPORARY64)	{ if(symbol->m_type == SYM_TEMPORARY64)		return true; else return false; }
-	if(match == MATCH_CONSTANT64)	{ if(symbol->m_type == SYM_CONSTANT64)		return true; else return false; }
-	if(match == MATCH_CONTEXT)		{ if(symbol->m_type == SYM_CONTEXT)			return true; else return false; }
+	switch(match)
+	{
+	case MATCH_RELATIVE:
+		return symbol->m_type == SYM_RELATIVE;
+	case MATCH_CONSTANT:
+		return symbol->m_type == SYM_CONSTANT;
+	case MATCH_REGISTER:
+		return symbol->m_type == SYM_REGISTER;
+	case MATCH_TEMPORARY:
+		return symbol->m_type == SYM_TEMPORARY;
+	case MATCH_RELATIVE64:
+		return symbol->m_type == SYM_RELATIVE64;
+	case MATCH_TEMPORARY64:
+		return symbol->m_type == SYM_TEMPORARY64;
+	case MATCH_CONSTANT64:
+		return symbol->m_type == SYM_CONSTANT64;
+	case MATCH_RELATIVE_FP_SINGLE:
+		return symbol->m_type == SYM_FP_REL_SINGLE;
+	case MATCH_CONTEXT:
+		return symbol->m_type == SYM_CONTEXT;
+	}
 	return false;
 }
 

@@ -541,9 +541,58 @@ void CJitter::FP_PushCst(float)
 	throw std::exception();
 }
 
-void CJitter::FP_PushSingle(size_t)
+void CJitter::FP_PushSingle(size_t offset)
+{
+	m_Shadow.Push(MakeSymbol(SYM_FP_REL_SINGLE, static_cast<uint32>(offset)));
+}
+
+void CJitter::FP_PushWord(size_t)
 {
 	throw std::exception();
+}
+
+void CJitter::FP_PullSingle(size_t offset)
+{
+	STATEMENT statement;
+	statement.op		= OP_MOV;
+	statement.src1		= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_FP_REL_SINGLE, static_cast<uint32>(offset)));
+	InsertStatement(statement);
+
+	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
+}
+
+void CJitter::FP_PullWordTruncate(size_t)
+{
+	throw std::exception();
+}
+
+void CJitter::FP_Add()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_ADD;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
+}
+
+void CJitter::FP_Div()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_DIV;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_PullRel(size_t)
@@ -557,21 +606,6 @@ void CJitter::MD_PullRel(size_t, bool, bool, bool, bool)
 }
 
 void CJitter::MD_PullRel(size_t, size_t, size_t, size_t)
-{
-	throw std::exception();
-}
-
-void CJitter::FP_PushWord(size_t)
-{
-	throw std::exception();
-}
-
-void CJitter::FP_PullSingle(size_t)
-{
-	throw std::exception();
-}
-
-void CJitter::FP_PullWordTruncate(size_t)
 {
 	throw std::exception();
 }

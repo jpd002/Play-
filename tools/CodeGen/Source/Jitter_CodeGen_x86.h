@@ -22,14 +22,18 @@ namespace Jitter
 		{
 			MATCH_ANY,
 			MATCH_NIL,
+
 			MATCH_CONTEXT,
 			MATCH_CONSTANT,
 			MATCH_REGISTER,
 			MATCH_RELATIVE,
 			MATCH_TEMPORARY,
+
 			MATCH_RELATIVE64,
 			MATCH_TEMPORARY64,
 			MATCH_CONSTANT64,
+
+			MATCH_RELATIVE_FP_SINGLE,
 		};
 
 		typedef std::tr1::function<void (const STATEMENT&)> CodeEmitterType;
@@ -107,6 +111,22 @@ namespace Jitter
 			static OpVarType OpVar() { return &CX86Assembler::ShlEd; }
 		};
 
+		//FPUOP -----------------------------------------------------------
+		struct FPUOP_BASE
+		{
+			typedef void (CX86Assembler::*OpEdType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
+		};
+
+		struct FPUOP_ADD : public FPUOP_BASE
+		{
+			static OpEdType OpEd() { return &CX86Assembler::AddssEd; }
+		};
+
+		struct FPUOP_DIV : public FPUOP_BASE
+		{
+			static OpEdType OpEd() { return &CX86Assembler::DivssEd; }
+		};
+
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
@@ -166,6 +186,9 @@ namespace Jitter
 		//EXTHIGH64
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
 		void						Emit_ExtHigh64RelTmp64(const STATEMENT&);
+
+		//FPUOP
+		template <typename> void	Emit_Fpu_RelRelRel(const STATEMENT&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;

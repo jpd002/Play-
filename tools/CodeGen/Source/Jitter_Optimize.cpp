@@ -211,6 +211,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		{
 		case OP_ADD:
 		case OP_ADD64:
+		case OP_FP_ADD:
 			cout << " + ";
 			break;
 		case OP_SUB:
@@ -221,6 +222,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " * ";
 			break;
 		case OP_DIV:
+		case OP_FP_DIV:
 			cout << " / ";
 			break;
 		case OP_AND:
@@ -861,6 +863,10 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 			candidate = tempSymbol;
 		}
 		else if(CSymbol* tempSymbol = dynamic_symbolref_cast(SYM_TEMPORARY64, outerStatement.dst))
+		{
+			candidate = tempSymbol;
+		}
+		else if(CSymbol* tempSymbol = dynamic_symbolref_cast(SYM_FP_TMP_SINGLE, outerStatement.dst))
 		{
 			candidate = tempSymbol;
 		}

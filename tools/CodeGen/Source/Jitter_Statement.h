@@ -31,6 +31,9 @@ namespace Jitter
 		OP_EXTLOW64,
 		OP_EXTHIGH64,
 
+		OP_FP_ADD,
+		OP_FP_DIV,
+
 		OP_PARAM,
 		OP_CALL,
 		OP_RETVAL,
