@@ -217,18 +217,6 @@ void CCodeGen_x86::Emit_Shift_RegRelCst(const STATEMENT& statement)
 	((m_assembler).*(SHIFTOP::OpCst()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), static_cast<uint8>(src2->m_valueLow));
 }
 
-template <typename FPUOP>
-void CCodeGen_x86::Emit_Fpu_RelRelRel(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	m_assembler.MovssEd(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
-	((m_assembler).*(FPUOP::OpEd()))(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
-	m_assembler.MovssEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::xMM0);
-}
-
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] = 
 { 
 	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel							},
@@ -289,9 +277,6 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RegTmp64				},
 	{ OP_EXTHIGH64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RelTmp64				},
 
-	{ OP_FP_ADD,	MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_ADD>		},
-	{ OP_FP_DIV,	MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_DIV>		},
-
 	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
 
@@ -299,6 +284,17 @@ CCodeGen_x86::CCodeGen_x86()
 : m_registers(NULL)
 {
 	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
+	{
+		MATCHER matcher;
+		matcher.op			= constMatcher->op;
+		matcher.dstType		= constMatcher->dstType;
+		matcher.src1Type	= constMatcher->src1Type;
+		matcher.src2Type	= constMatcher->src2Type;
+		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
+	}
+
+	for(CONSTMATCHER* constMatcher = g_fpuConstMatchers; constMatcher->emitter != NULL; constMatcher++)
 	{
 		MATCHER matcher;
 		matcher.op			= constMatcher->op;

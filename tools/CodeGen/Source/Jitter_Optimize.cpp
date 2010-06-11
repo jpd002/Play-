@@ -275,6 +275,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_EXTHIGH64:
 			cout << " EXTHIGH64";
 			break;
+		case OP_FP_RCPL:
+			cout << " RCPL";
+			break;
 		default:
 			cout << " ?? ";
 			break;

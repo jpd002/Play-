@@ -126,6 +126,11 @@ namespace Jitter
 		{
 			static OpEdType OpEd() { return &CX86Assembler::DivssEd; }
 		};
+		
+		struct FPUOP_RCPL : public FPUOP_BASE
+		{
+			static OpEdType OpEd() { return &CX86Assembler::RcpssEd; }
+		};
 
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
@@ -188,6 +193,7 @@ namespace Jitter
 		void						Emit_ExtHigh64RelTmp64(const STATEMENT&);
 
 		//FPUOP
+		template <typename> void	Emit_Fpu_RelRel(const STATEMENT&);
 		template <typename> void	Emit_Fpu_RelRelRel(const STATEMENT&);
 
 		CX86Assembler				m_assembler;
@@ -210,6 +216,7 @@ namespace Jitter
 		};
 
 		static CONSTMATCHER			g_constMatchers[];
+		static CONSTMATCHER			g_fpuConstMatchers[];
 	};
 }
 

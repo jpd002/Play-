@@ -33,6 +33,7 @@ namespace Jitter
 
 		OP_FP_ADD,
 		OP_FP_DIV,
+		OP_FP_RCPL,
 
 		OP_PARAM,
 		OP_CALL,

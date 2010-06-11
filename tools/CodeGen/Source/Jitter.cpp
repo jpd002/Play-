@@ -595,6 +595,19 @@ void CJitter::FP_Div()
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::FP_Rcpl()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_RCPL;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
+}
+
 void CJitter::MD_PullRel(size_t)
 {
 	throw std::exception();
