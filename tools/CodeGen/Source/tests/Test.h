@@ -1,7 +1,7 @@
 #ifndef _TEST_H_
 #define _TEST_H_
 
-#include "Jitter.h"
+#include "../Jitter.h"
 
 #define TEST_VERIFY(a) if(!(a)) { int* p = 0; (*p) = 0; }
 

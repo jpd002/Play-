@@ -1,15 +1,9 @@
 #include <assert.h>
 #include "ArmAssembler.h"
 
-CArmAssembler::CArmAssembler(
-                             const WriteFunctionType& WriteFunction,
-                             const WriteAtFunctionType& WriteAtFunction,
-                             const TellFunctionType& TellFunction
-                             ) :
-m_WriteFunction(WriteFunction),
-m_WriteAtFunction(WriteAtFunction),
-m_TellFunction(TellFunction),
-m_nextLabelId(1)
+CArmAssembler::CArmAssembler() :
+m_nextLabelId(1),
+m_stream(NULL)
 {
     
 }
@@ -17,6 +11,11 @@ m_nextLabelId(1)
 CArmAssembler::~CArmAssembler()
 {
 	
+}
+
+void CArmAssembler::SetStream(Framework::CStream* stream)
+{
+	m_stream = stream;
 }
 
 CArmAssembler::LdrAddress CArmAssembler::MakeImmediateLdrAddress(uint32 immediate)
@@ -68,9 +67,14 @@ CArmAssembler::LABEL CArmAssembler::CreateLabel()
 	return m_nextLabelId++;
 }
 
+void CArmAssembler::ClearLabels()
+{
+	m_labels.clear();
+}
+
 void CArmAssembler::MarkLabel(LABEL label)
 {
-    m_labels[label] = m_TellFunction();
+    m_labels[label] = static_cast<size_t>(m_stream->Tell());
 }
 
 void CArmAssembler::ResolveLabelReferences()
@@ -88,16 +92,19 @@ void CArmAssembler::ResolveLabelReferences()
 		int offset = static_cast<int>(labelPos - referencePos) / 4;
 		assert(offset >= 2);
 		offset -= 2;
-        m_WriteAtFunction(static_cast<unsigned int>(referencePos + 0), static_cast<uint8>(offset >> 0));
-        m_WriteAtFunction(static_cast<unsigned int>(referencePos + 1), static_cast<uint8>(offset >> 8));
-        m_WriteAtFunction(static_cast<unsigned int>(referencePos + 2), static_cast<uint8>(offset >> 16));
+
+		m_stream->Seek(referencePos, Framework::STREAM_SEEK_SET);
+        m_stream->Write8(static_cast<uint8>(offset >> 0));
+        m_stream->Write8(static_cast<uint8>(offset >> 8));
+        m_stream->Write8(static_cast<uint8>(offset >> 16));
+		m_stream->Seek(0, Framework::STREAM_SEEK_END);
     }
     m_labelReferences.clear();
 }
 
 void CArmAssembler::CreateLabelReference(LABEL label)
 {
-    LABELREF reference = m_TellFunction();
+    LABELREF reference = static_cast<size_t>(m_stream->Tell());
     m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
 }
 
@@ -324,8 +331,5 @@ void CArmAssembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)
 
 void CArmAssembler::WriteWord(uint32 value)
 {
-	m_WriteFunction(reinterpret_cast<uint8*>(&value)[0]);
-	m_WriteFunction(reinterpret_cast<uint8*>(&value)[1]);
-	m_WriteFunction(reinterpret_cast<uint8*>(&value)[2]);
-	m_WriteFunction(reinterpret_cast<uint8*>(&value)[3]);	
+	m_stream->Write32(value);
 }

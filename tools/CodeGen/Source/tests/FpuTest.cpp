@@ -32,9 +32,9 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_Rcpl();
 		jitter.FP_PullSingle(offsetof(CONTEXT, number1));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-		jitter.FP_Neg();
-		jitter.FP_PullSingle(offsetof(CONTEXT, number2));
+//		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
+//		jitter.FP_Neg();
+//		jitter.FP_PullSingle(offsetof(CONTEXT, number2));
 	}
 	jitter.End();
 

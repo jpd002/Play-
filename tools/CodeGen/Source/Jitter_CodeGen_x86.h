@@ -160,6 +160,7 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
 
 		//NOT
+		void						Emit_Not_RegReg(const STATEMENT&);
 		void						Emit_Not_RegRel(const STATEMENT&);
 
 		//ADD64

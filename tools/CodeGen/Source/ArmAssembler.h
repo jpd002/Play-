@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <map>
+#include "Stream.h"
 #include "Types.h"
 
 class CArmAssembler
@@ -81,10 +82,6 @@ public:
 		SHIFT_ROR = 0x03,
 	};
 	
-    typedef std::tr1::function<void (uint8)>                WriteFunctionType;
-    typedef std::tr1::function<void (unsigned int, uint8)>  WriteAtFunctionType;
-    typedef std::tr1::function<size_t ()>                   TellFunctionType;
-	
 	struct InstructionAlu
 	{
 		InstructionAlu()
@@ -156,14 +153,13 @@ public:
 	typedef unsigned int LABEL;
 	
 	
-											CArmAssembler(
-														  const WriteFunctionType&, 
-														  const WriteAtFunctionType&,
-														  const TellFunctionType&);
-	
+											CArmAssembler();
 	virtual									~CArmAssembler();
 
+	void									SetStream(Framework::CStream*);
+
 	LABEL									CreateLabel();
+	void									ClearLabels();
 	void									MarkLabel(LABEL);
 	void									ResolveLabelReferences();
 	
@@ -207,9 +203,7 @@ private:
 	LabelMapType							m_labels;
 	LabelReferenceMapType					m_labelReferences;
 	
-    WriteFunctionType                       m_WriteFunction;
-    WriteAtFunctionType                     m_WriteAtFunction;
-    TellFunctionType                        m_TellFunction;
+	Framework::CStream*						m_stream;
 };
 
 #endif
