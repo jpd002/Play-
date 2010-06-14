@@ -2,7 +2,7 @@
 #define _CRC32TEST_H_
 
 #include "Test.h"
-#include "MemoryFunction.h"
+#include "../MemoryFunction.h"
 #include <string>
 
 class CCrc32Test : public CTest

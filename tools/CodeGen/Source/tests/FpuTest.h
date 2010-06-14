@@ -2,7 +2,7 @@
 #define _FPUTEST_H_
 
 #include "Test.h"
-#include "MemoryFunction.h"
+#include "../MemoryFunction.h"
 
 class CFpuTest : public CTest
 {

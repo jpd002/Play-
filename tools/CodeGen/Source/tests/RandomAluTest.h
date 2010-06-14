@@ -2,7 +2,7 @@
 #define _RANDOMALUTEST_H_
 
 #include "Test.h"
-#include "MemoryFunction.h"
+#include "../MemoryFunction.h"
 
 class CRandomAluTest : public CTest
 {

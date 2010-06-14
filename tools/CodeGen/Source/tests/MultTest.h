@@ -2,7 +2,7 @@
 #define _MULTTEST_H_
 
 #include "Test.h"
-#include "MemoryFunction.h"
+#include "../MemoryFunction.h"
 
 class CMultTest : public CTest
 {
