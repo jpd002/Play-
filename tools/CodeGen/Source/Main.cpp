@@ -20,7 +20,6 @@ typedef boost::function<CTest* ()> TestFactoryFunction;
 
 TestFactoryFunction s_factories[] =
 {
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpuTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), true)),
@@ -28,14 +27,15 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCrc32Test>(), "Hello World!", 0x67FCDACC)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), false)),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpuTest>())),
 	TestFactoryFunction(),
 };
 
 int main(int argc, char** argv)
 {
 #ifdef AMD64
-	Jitter::CJitter jitter(new Jitter::CCodeGen_x86_64());
-//	Jitter::CJitter jitter(new Jitter::CCodeGen_Arm());
+//	Jitter::CJitter jitter(new Jitter::CCodeGen_x86_64());
+	Jitter::CJitter jitter(new Jitter::CCodeGen_Arm());
 #elif defined(WIN32)
 	Jitter::CJitter jitter(new Jitter::CCodeGen_x86_32());
 #endif

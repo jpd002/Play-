@@ -398,7 +398,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Jitter_CodeGen.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Jitter_CodeGen.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Jitter_CodeGen_Arm.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Jitter_CodeGen_Arm.h"
 					>
 				</File>
 				<File
@@ -440,6 +452,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Jitter_CodeGen_x86_Fpu.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Jitter_Optimize.cpp"
 					>
 				</File>
@@ -468,31 +484,47 @@
 				Name="Tests"
 				>
 				<File
-					RelativePath=".\Source\Crc32Test.cpp"
+					RelativePath=".\Source\tests\Crc32Test.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Crc32Test.h"
+					RelativePath=".\Source\tests\Crc32Test.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\MultTest.cpp"
+					RelativePath=".\Source\tests\FpuTest.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\MultTest.h"
+					RelativePath=".\Source\tests\FpuTest.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\RandomAluTest.cpp"
+					RelativePath=".\Source\tests\MultTest.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\RandomAluTest.h"
+					RelativePath=".\Source\tests\MultTest.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Test.h"
+					RelativePath=".\Source\tests\RandomAluTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\tests\RandomAluTest.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\tests\RandomAluTest2.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\tests\RandomAluTest2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\tests\Test.h"
 					>
 				</File>
 			</Filter>

@@ -18,37 +18,6 @@ namespace Jitter
 	protected:
 		typedef std::map<uint32, CX86Assembler::LABEL> LabelMapType;
 
-		enum MATCHTYPE
-		{
-			MATCH_ANY,
-			MATCH_NIL,
-
-			MATCH_CONTEXT,
-			MATCH_CONSTANT,
-			MATCH_REGISTER,
-			MATCH_RELATIVE,
-			MATCH_TEMPORARY,
-
-			MATCH_RELATIVE64,
-			MATCH_TEMPORARY64,
-			MATCH_CONSTANT64,
-
-			MATCH_RELATIVE_FP_SINGLE,
-		};
-
-		typedef std::tr1::function<void (const STATEMENT&)> CodeEmitterType;
-
-		struct MATCHER
-		{
-			OPERATION			op;
-			MATCHTYPE			dstType;
-			MATCHTYPE			src1Type;
-			MATCHTYPE			src2Type;
-			CodeEmitterType		emitter;
-		};
-
-		typedef std::multimap<OPERATION, MATCHER> MatcherMapType;
-
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
 		{
@@ -135,7 +104,6 @@ namespace Jitter
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
-		bool						SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
 		CX86Assembler::LABEL		GetLabel(uint32);
 
 		//LABEL
@@ -202,8 +170,6 @@ namespace Jitter
 		LabelMapType				m_labels;
 		uint32						m_stackLevel;
 		
-		MatcherMapType				m_matchers;
-
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
 

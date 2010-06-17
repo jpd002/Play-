@@ -9,59 +9,64 @@ namespace Jitter
 	class CCodeGen_Arm : public CCodeGen
 	{
 	public:
-						CCodeGen_Arm();
-		virtual			~CCodeGen_Arm();
+										CCodeGen_Arm();
+		virtual							~CCodeGen_Arm();
 
-		void			GenerateCode(const StatementList&, unsigned int);
-		void			SetStream(Framework::CStream*);
-		unsigned int	GetAvailableRegisterCount() const;
+		void							GenerateCode(const StatementList&, unsigned int);
+		void							SetStream(Framework::CStream*);
+		unsigned int					GetAvailableRegisterCount() const;
 
 	private:
-		enum MATCHTYPE
-		{
-			MATCH_ANY,
-			MATCH_NIL,
-			MATCH_CONTEXT,
-			MATCH_CONSTANT,
-			MATCH_REGISTER,
-			MATCH_RELATIVE,
-			MATCH_TEMPORARY,
-			MATCH_RELATIVE64,
-			MATCH_TEMPORARY64,
-			MATCH_CONSTANT64,
-		};
-
-		typedef std::tr1::function<void (const STATEMENT&)> CodeEmitterType;
-
-		struct MATCHER
-		{
-			OPERATION			op;
-			MATCHTYPE			dstType;
-			MATCHTYPE			src1Type;
-			MATCHTYPE			src2Type;
-			CodeEmitterType		emitter;
-		};
-
-		typedef std::multimap<OPERATION, MATCHER> MatcherMapType;
-
 		typedef void (CCodeGen_Arm::*ConstCodeEmitterType)(const STATEMENT&);
+
+		enum
+		{
+			MAX_REGISTERS = 6,
+		};
+
+		enum
+		{
+			LITERAL_POOL_SIZE = 0x40,
+		};
+		
+		struct LITERAL_POOL_REF
+		{
+			unsigned int			poolPtr;
+			CArmAssembler::REGISTER	dstRegister;
+			unsigned int			offset;
+		};
+
+		typedef std::list<LITERAL_POOL_REF> LiteralPoolRefList;
 
 		struct CONSTMATCHER
 		{
-			OPERATION				op;
-			MATCHTYPE				dstType;
-			MATCHTYPE				src1Type;
-			MATCHTYPE				src2Type;
-			ConstCodeEmitterType	emitter;
+			OPERATION					op;
+			MATCHTYPE					dstType;
+			MATCHTYPE					src1Type;
+			MATCHTYPE					src2Type;
+			ConstCodeEmitterType		emitter;
 		};
 
-		static CONSTMATCHER			g_constMatchers[];
+		CArmAssembler::LABEL			GetLabel(uint32);
+		void							MarkLabel(const STATEMENT&);
 
-		bool						SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
-		CArmAssembler::LABEL		GetLabel(uint32);
+		uint32							RotateRight(uint32);
+		uint32							RotateLeft(uint32);
+		void							LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
+		void							DumpLiteralPool();
 
-		MatcherMapType				m_matchers;
-		CArmAssembler				m_assembler;
+		void							Emit_Mov_RegCst(const STATEMENT&);
+		void							Emit_Mov_RelReg(const STATEMENT&);
+
+		static CONSTMATCHER				g_constMatchers[];
+		static CArmAssembler::REGISTER	g_registers[MAX_REGISTERS];
+		static CArmAssembler::REGISTER	g_baseRegister;
+
+		Framework::CStream*				m_stream;
+		CArmAssembler					m_assembler;
+		uint32*							m_literalPool;
+		unsigned int					m_lastLiteralPtr;
+		LiteralPoolRefList				m_literalPoolRefs;
 	};
 };
 
