@@ -15,10 +15,13 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 {
 	m_code = malloc(size);
 	memcpy(m_code, code, size);
-
+#ifdef WIN32
 	DWORD oldProtect = 0;
 	BOOL result = VirtualProtect(m_code, size, PAGE_EXECUTE_READWRITE, &oldProtect);
 	assert(result == TRUE);
+#else
+	
+#endif
 }
 
 CMemoryFunction::~CMemoryFunction()

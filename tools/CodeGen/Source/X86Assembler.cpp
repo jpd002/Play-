@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdexcept>
 #include "X86Assembler.h"
 
 using namespace std;

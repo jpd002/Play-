@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdexcept>
 #include "ArmAssembler.h"
 
 CArmAssembler::CArmAssembler() :

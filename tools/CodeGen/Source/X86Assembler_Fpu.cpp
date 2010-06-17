@@ -1,4 +1,5 @@
 #include "X86Assembler.h"
+#include <stdexcept>
 
 using namespace std;
 

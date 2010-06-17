@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <set>
+#include <vector>
 #include "Jitter.h"
 
 #ifdef _DEBUG
@@ -690,9 +691,9 @@ void CJitter::HarmonizeBlocks()
 		if(nextBlockIterator == m_basicBlocks.end()) continue;
 
 		BASIC_BLOCK& basicBlock(blockIterator->second);
-		BASIC_BLOCK& nextBlock(nextBlockIterator->second);
+//		BASIC_BLOCK& nextBlock(nextBlockIterator->second);
 
-		StatementList::const_iterator lastStatementIterator(basicBlock.statements.end());
+		StatementList::iterator lastStatementIterator(basicBlock.statements.end());
 		lastStatementIterator--;
 		const STATEMENT& statement(*lastStatementIterator);
 		if(statement.op != OP_JMP) continue;
@@ -1062,7 +1063,7 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
 		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
 	{
-		SymbolPtr& symbol(*symbolIterator);
+		SymbolPtr& symbol(const_cast<SymbolPtr&>(*symbolIterator));
 		symbol->m_useCount = 0;
 
 		unsigned int statementIdx = 0;
@@ -1163,6 +1164,11 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 	return stackAlloc;
 }
 
+static bool UseCountSymbolComparator(const CSymbol* symbol1, const CSymbol* symbol2)
+{
+	return symbol1->m_useCount > symbol2->m_useCount;
+}
+
 void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 {
 	if(basicBlock.statements.size() == 0) return;
@@ -1172,13 +1178,6 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	CSymbolTable& symbolTable(basicBlock.symbolTable);
 	StatementList& statements(basicBlock.statements);
 
-	struct UseCountSymbolComparator
-	{
-		bool operator()(const CSymbol* symbol1, const CSymbol* symbol2)
-		{
-			return symbol1->m_useCount > symbol2->m_useCount;
-		}
-	};
 	typedef std::list<CSymbol*> UseCountSymbolSortedList;
 
 	UseCountSymbolSortedList sortedSymbols;
@@ -1187,7 +1186,7 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	{
 		sortedSymbols.push_back(symbolIterator->get());
 	}
-	sortedSymbols.sort(UseCountSymbolComparator());
+	sortedSymbols.sort(UseCountSymbolComparator);
 
 	for(unsigned int i = 0; i < regCount; i++)
 	{
@@ -1245,7 +1244,7 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	}
 
 	//Find the final instruction where to dump registers to
-	StatementList::const_iterator endInsertionPoint(statements.end());
+	StatementList::iterator endInsertionPoint(statements.end());
 	{
 		StatementList::const_iterator endInstructionIterator(statements.end());
 		endInstructionIterator--;

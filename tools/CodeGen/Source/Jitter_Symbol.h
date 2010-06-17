@@ -133,8 +133,8 @@ namespace Jitter
 			if(!symbol->IsRelative()) return false;
 			uint32 base1 = m_valueLow;
 			uint32 base2 = symbol->m_valueLow;
-			uint32 end1 = base1 + GetSize();
-			uint32 end2 = base2 + symbol->GetSize();
+//			uint32 end1 = base1 + GetSize();
+//			uint32 end2 = base2 + symbol->GetSize();
 			if(abs(static_cast<int32>(base2 - base1)) < GetSize()) return true;
 			if(abs(static_cast<int32>(base2 - base1)) < symbol->GetSize()) return true;
 			return false;

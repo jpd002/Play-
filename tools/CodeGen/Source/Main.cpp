@@ -1,9 +1,21 @@
-#ifdef AMD64
-#include "Jitter_CodeGen_x86_64.h"
-#else
-#include "Jitter_CodeGen_x86_32.h"
+#ifdef WIN32
+
+	#ifdef AMD64
+		#include "Jitter_CodeGen_x86_64.h"
+	#else
+		#include "Jitter_CodeGen_x86_32.h"
+	#endif
+
+#elif defined(__APPLE__)
+
+	#include "TargetConditionals.h"
+	#if !(TARGET_IPHONE_SIMULATOR)
+		#include "Jitter_CodeGen_Arm.h"
+	#else
+		#include "Jitter_CodeGen_x86_64.h"
+	#endif
+
 #endif
-#include "Jitter_CodeGen_Arm.h"
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -33,13 +45,24 @@ TestFactoryFunction s_factories[] =
 
 int main(int argc, char** argv)
 {
-#ifdef AMD64
-//	Jitter::CJitter jitter(new Jitter::CCodeGen_x86_64());
-	Jitter::CJitter jitter(new Jitter::CCodeGen_Arm());
-#elif defined(WIN32)
-	Jitter::CJitter jitter(new Jitter::CCodeGen_x86_32());
-#endif
+#ifdef WIN32
+	
+	#ifdef AMD64
+		Jitter::CJitter jitter(new Jitter::CCodeGen_x86_64());
+	#else
+		Jitter::CJitter jitter(new Jitter::CCodeGen_x86_32());
+	#endif
+	
+#elif defined(__APPLE__)
+	
+	#if !(TARGET_IPHONE_SIMULATOR)
+		Jitter::CJitter jitter(new Jitter::CCodeGen_Arm());
+	#else
+		Jitter::CJitter jitter(new Jitter::CCodeGen_x86_64());
+	#endif
 
+#endif
+	
 	TestFactoryFunction* currentTestFactory = s_factories;
 	while(!currentTestFactory->empty())
 	{

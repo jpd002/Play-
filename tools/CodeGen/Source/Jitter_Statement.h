@@ -2,6 +2,7 @@
 #define _JITTER_STATEMENT_H_
 
 #include <list>
+#include <functional>
 #include "Jitter_SymbolRef.h"
 
 namespace Jitter
