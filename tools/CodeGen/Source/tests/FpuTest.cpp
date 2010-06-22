@@ -32,9 +32,18 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_Rcpl();
 		jitter.FP_PullSingle(offsetof(CONTEXT, number1));
 
-//		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-//		jitter.FP_Neg();
-//		jitter.FP_PullSingle(offsetof(CONTEXT, number2));
+		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
+		jitter.FP_Neg();
+		jitter.FP_PullSingle(offsetof(CONTEXT, number2));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
+		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
+		jitter.FP_Mul();
+		jitter.FP_PullSingle(offsetof(CONTEXT, number3));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
+		jitter.FP_Sqrt();
+		jitter.FP_PullSingle(offsetof(CONTEXT, number3));
 	}
 	jitter.End();
 
@@ -47,5 +56,7 @@ void CFpuTest::Run()
 	m_context.number1 = 1.0;
 	m_context.number2 = 2.0;
 	(*m_function)(&m_context);
-	TEST_VERIFY(m_context.number1 == 1.5f);
+	TEST_VERIFY(m_context.number1 ==  1.5f);
+	TEST_VERIFY(m_context.number2 == -1.5f);
+	TEST_VERIFY(m_context.number1 == m_context.number3);
 }

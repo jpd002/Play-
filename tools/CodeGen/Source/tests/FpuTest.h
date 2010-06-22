@@ -18,6 +18,7 @@ private:
 	{
 		float number1;
 		float number2;
+		float number3;
 	};
 
 	bool				m_useConstant;

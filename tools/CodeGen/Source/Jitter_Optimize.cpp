@@ -220,6 +220,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MUL:
 		case OP_MULS:
+		case OP_FP_MUL:
 			cout << " * ";
 			break;
 		case OP_DIV:
@@ -275,6 +276,12 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_EXTHIGH64:
 			cout << " EXTHIGH64";
+			break;
+		case OP_FP_NEG:
+			cout << " NEG";
+			break;
+		case OP_FP_SQRT:
+			cout << " SQRT";
 			break;
 		case OP_FP_RCPL:
 			cout << " RCPL";

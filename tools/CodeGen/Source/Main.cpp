@@ -27,11 +27,13 @@
 #include "tests/RandomAluTest.h"
 #include "tests/RandomAluTest2.h"
 #include "tests/FpuTest.h"
+#include "tests/CompareTest.h"
 
 typedef boost::function<CTest* ()> TestFactoryFunction;
 
 TestFactoryFunction s_factories[] =
 {
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCompareTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), true)),
