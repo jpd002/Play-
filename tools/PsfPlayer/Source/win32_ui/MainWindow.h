@@ -83,9 +83,12 @@ private:
     void                                OnPlaylistRemoveClick(unsigned int);
     void                                OnPlaylistSaveClick();
 
+	void								OnClickReverbEnabled();
+
     void                                OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
     void                                DisplayTrayMenu();
-    void                                UpdateClock();
+	void								UpdateTrayMenu();
+	void                                UpdateClock();
 	void								UpdateFade();
     void                                UpdateTitle();
     void                                UpdateButtons();
@@ -147,6 +150,7 @@ private:
     int                                 m_selectedAudioPlugin;
 	int									m_selectedCharEncoding;
 	REPEAT_MODE							m_repeatMode;
+	bool								m_reverbEnabled;
 
     static SOUNDHANDLER_INFO			m_handlerInfo[];
 	static CHARENCODING_INFO			m_charEncodingInfo[];

@@ -28,6 +28,8 @@
 #define PSF2_FILTER						_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0")
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
 
+#define PREF_REVERB_ENABLED				("reverb.enabled")
+
 #define PREF_SOUNDHANDLER_ID			("soundhandler.id")
 #define DEFAULT_SOUND_HANDLER_ID		(1)
 
@@ -70,11 +72,14 @@ m_prevPanelButton(NULL),
 m_currentPlaylistItem(0),
 m_repeatMode(PLAYLIST_ONCE),
 m_trackLength(0),
-m_accel(CreateAccelerators())
+m_accel(CreateAccelerators()),
+m_reverbEnabled(true)
 {
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_REVERB_ENABLED, true);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SOUNDHANDLER_ID, DEFAULT_SOUND_HANDLER_ID);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CHAR_ENCODING_ID, DEFAULT_CHAR_ENCODING_ID);
 
+	m_reverbEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_REVERB_ENABLED);
 	LoadAudioPluginPreferences();
 	LoadCharEncodingPreferences();
 
@@ -183,6 +188,7 @@ m_accel(CreateAccelerators())
     UpdateClock();
     UpdateTitle();
     UpdateButtons();
+	UpdateTrayMenu();
 	RefreshLayout();
 
 	m_currentPanel = -1;
@@ -298,6 +304,9 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
         case ID_FILE_ABOUT:
             OnAbout();
             break;
+		case ID_FILE_ENABLEREVERB:
+			OnClickReverbEnabled();
+			break;
         case ID_FILE_EXIT:
 		    DestroyWindow(m_hWnd);
             break;
@@ -422,6 +431,17 @@ void CMainWindow::OnPlaylistSaveClick()
     }
 }
 
+void CMainWindow::OnClickReverbEnabled()
+{
+	m_reverbEnabled = !m_reverbEnabled;
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_REVERB_ENABLED, m_reverbEnabled);
+	UpdateTrayMenu();
+	if(m_ready)
+	{
+		m_virtualMachine.SetReverbEnabled(m_reverbEnabled);
+	}
+}
+
 void CMainWindow::OnTrayIconEvent(Win32::CTrayIcon* icon, LPARAM param)
 {
     switch(param)
@@ -444,6 +464,12 @@ void CMainWindow::DisplayTrayMenu()
 	SetForegroundWindow(m_trayIconServer.m_hWnd);
 	GetCursorPos(&p);
 	TrackPopupMenu(GetSubMenu(m_popupMenu, 0), 0, p.x, p.y, NULL, m_hWnd, NULL);
+}
+
+void CMainWindow::UpdateTrayMenu()
+{
+    Win32::CMenuItem reverbSubMenu(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_ENABLEREVERB));
+    reverbSubMenu.Check(m_reverbEnabled);
 }
 
 void CMainWindow::UpdateFade()
@@ -661,7 +687,7 @@ HACCEL CMainWindow::CreateAccelerators()
 {
 	Win32::CAcceleratorTableGenerator tableGenerator;
 	tableGenerator.Insert(ID_FILE_PAUSE,			VK_F5,	FVIRTKEY);
-//	tableGenerator.Insert(ID_SETTINGS_ENABLEREVERB,	'R',	FVIRTKEY | FCONTROL);	
+	tableGenerator.Insert(ID_FILE_ENABLEREVERB,		'R',	FVIRTKEY | FCONTROL);	
 	return tableGenerator.Create();
 }
 
@@ -850,6 +876,7 @@ bool CMainWindow::PlayFile(const char* path)
 		m_fileInformationPanel->SetTags(m_tags);
 		m_spu0RegViewPanel->SetSpu(&m_virtualMachine.GetSpuCore(0));
 		m_spu1RegViewPanel->SetSpu(&m_virtualMachine.GetSpuCore(1));
+		m_virtualMachine.SetReverbEnabled(m_reverbEnabled);
 		m_virtualMachine.Resume();
 		m_ready = true;
 		if(m_repeatMode == PLAYLIST_REPEAT || m_repeatMode == PLAYLIST_ONCE)

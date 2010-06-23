@@ -112,6 +112,7 @@ BEGIN
     BEGIN
         MENUITEM "Audio Plugin",                ID_FILE_AUDIOPLUGIN
         MENUITEM "Character Encoding",          ID_FILE_CHARACTERENCODING
+        MENUITEM "Reverb Enabled",              ID_FILE_ENABLEREVERB
         MENUITEM SEPARATOR
         MENUITEM "About",                       ID_FILE_ABOUT
         MENUITEM "Quit",                        ID_FILE_EXIT
