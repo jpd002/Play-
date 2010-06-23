@@ -106,6 +106,10 @@ CBios::MODULEFUNCTION CBios::g_SasCoreFunctions[] =
 	{	0x07F58C24,		"sasGetAllEnvelope"		},
 	{	0xA3589D81,		"sasCore"				},
 	{	0x42778A9F,		"sasInit"				},
+	{	0x33D4AB37,		"sasSetEffectType"		},
+	{	0x267A6DD2,		"sasSetEffectParam"		},
+	{	0xD5A229C9,		"sasSetEffectVolume"	},
+	{	0xF983B186,		"sasSetEffect"			},
 	{	NULL,			NULL					},
 };
 

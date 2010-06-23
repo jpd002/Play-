@@ -18,6 +18,26 @@ namespace Psp
 		void						SetSpuInfo(Iop::CSpuBase*, Iop::CSpuBase*, uint8*, uint32);
 
 	private:
+		enum REVERBTYPES
+		{
+			REVERB_OFF		= -1,
+			REVERB_ROOM		= 0,
+			REVERB_STUDIOA	= 1,
+			REVERB_STUDIOB	= 2,
+			REVERB_STUDIOC	= 3,
+			REVERB_HALL		= 4,
+			REVERB_SPACE	= 5,
+			REVERB_ECHO		= 6,
+			REVERB_DELAY	= 7,
+			REVERB_PIPE		= 8
+		};
+
+		struct REVERBINFO
+		{
+			uint32 workAreaSize;
+			uint16 params[Iop::CSpuBase::REVERB_PARAM_COUNT];
+		};
+
 		struct SPUMEMBLOCK
 		{
 			uint32		address;
@@ -37,12 +57,17 @@ namespace Psp
 		uint32						GetPauseFlag(uint32);
 		uint32						GetEndFlag(uint32);
 		uint32						GetAllEnvelope(uint32, uint32);
+		uint32						SetEffectType(uint32, uint32);
+		uint32						SetEffectParam(uint32, uint32, uint32);
+		uint32						SetEffectVolume(uint32, uint32, uint32);
+		uint32						SetEffect(uint32, uint32, uint32);
 
 		uint32						AllocMemory(uint32);
 		void						FreeMemory(uint32);
 #ifdef _DEBUG
 		void						VerifyAllocationMap();
 #endif
+		void						SetupReverb(const REVERBINFO&);
 
 		Iop::CSpuBase::CHANNEL*		GetSpuChannel(uint32);
 
@@ -53,6 +78,9 @@ namespace Psp
 		uint32						m_grain;
 
 		MemBlockList				m_blocks;
+		
+		static REVERBINFO			g_ReverbStudioC;
+		static REVERBINFO			g_ReverbSpace;
 	};
 
 	typedef std::tr1::shared_ptr<CSasCore> SasCoreModulePtr;

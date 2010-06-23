@@ -176,7 +176,6 @@ namespace Iop
 		void			SetChannelOnHi(uint16);
 
 		UNION32_16	    GetChannelReverb() const;
-		void			SetChannelReverb(uint16, uint16);
 		void			SetChannelReverbLo(uint16);
 		void			SetChannelReverbHi(uint16);
 
@@ -194,7 +193,9 @@ namespace Iop
 
 	    void		    Render(int16*, unsigned int, unsigned int);
 
-    private:
+		static bool		g_reverbParamIsAddress[REVERB_PARAM_COUNT];
+
+	private:
 		class CSampleReader
 		{
 		public:

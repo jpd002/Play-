@@ -89,42 +89,6 @@ static const char* g_generalRegisterName[MAX_GENERAL_REG_NAME] =
 	"IN_COEF_R"
 };
 
-static bool g_reverbParamIsAddress[CSpuBase::REVERB_PARAM_COUNT] =
-{
-	true,
-	true,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	false,
-	false
-};
-
 CSpu::CSpu(CSpuBase& base) :
 m_base(base)
 {
@@ -192,7 +156,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 	{
 		uint32 registerId = (address - REVERB_START) / 2;
 		uint32 result = value;
-		if(g_reverbParamIsAddress[registerId])
+		if(CSpuBase::g_reverbParamIsAddress[registerId])
 		{
 			result *= 8;
 		}

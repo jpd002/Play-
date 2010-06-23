@@ -5,6 +5,30 @@
 
 using namespace Psp;
 
+#define SPURAM_ALLOC_BASEADDRESS	(0x40000)
+
+CSasCore::REVERBINFO CSasCore::g_ReverbStudioC =
+{
+	0x6FE0,
+	{
+		0x00E3,  0x00A9,  0x6F60,  0x4FA8,  0xBCE0,  0x4510,  0xBEF0,  0xA680,
+		0x5680,  0x52C0,  0x0DFB,  0x0B58,  0x0D09,  0x0A3C,  0x0BD9,  0x0973,
+		0x0B59,  0x08DA,  0x08D9,  0x05E9,  0x07EC,  0x04B0,  0x06EF,  0x03D2,
+		0x05EA,  0x031D,  0x031C,  0x0238,  0x0154,  0x00AA,  0x8000,  0x8000,
+	}
+};
+
+CSasCore::REVERBINFO CSasCore::g_ReverbSpace =
+{
+	0xF6C0,
+	{
+		0x033D,  0x0231,  0x7E00,  0x5000,  0xB400,  0xB000,  0x4C00,  0xB000,
+		0x6000,  0x5400,  0x1ED6,  0x1A31,  0x1D14,  0x183B,  0x1BC2,  0x16B2,
+		0x1A32,  0x15EF,  0x15EE,  0x1055,  0x1334,  0x0F2D,  0x11F6,  0x0C5D,
+		0x1056,  0x0AE1,  0x0AE0,  0x07A2,  0x0464,  0x0232,  0x8000,  0x8000,
+	}
+};
+
 CSasCore::CSasCore(uint8* ram)
 : m_spuRam(NULL)
 , m_spuRamSize(0)
@@ -68,7 +92,7 @@ uint32 CSasCore::AllocMemory(uint32 size)
 {
 	assert(m_spuRamSize != 0);
 
-	const uint32 startAddress = 0x1000;
+	const uint32 startAddress = SPURAM_ALLOC_BASEADDRESS;
 	uint32 currentAddress = startAddress;
 	MemBlockList::iterator blockIterator(m_blocks.begin());
 	while(blockIterator != m_blocks.end())
@@ -122,6 +146,26 @@ void CSasCore::VerifyAllocationMap()
 }
 
 #endif
+
+void CSasCore::SetupReverb(const REVERBINFO& reverbInfo)
+{
+	for(unsigned int spuIdx = 0; spuIdx < 2; spuIdx++)
+	{
+		uint32 endAddress = 0x20000 + (spuIdx * 0x20000);
+		uint32 startAddress = endAddress - reverbInfo.workAreaSize;
+		m_spu[spuIdx]->SetReverbWorkAddressStart(startAddress);
+		m_spu[spuIdx]->SetReverbWorkAddressEnd(endAddress - 1);
+		for(unsigned int i = 0; i < Iop::CSpuBase::REVERB_PARAM_COUNT; i++)
+		{
+			uint32 param = reverbInfo.params[i];
+			if(Iop::CSpuBase::g_reverbParamIsAddress[i])
+			{
+				param *= 8;
+			}
+			m_spu[spuIdx]->SetReverbParam(i, param);
+		}
+	}
+}
 
 uint32 CSasCore::Init(uint32 contextAddr, uint32 grain, uint32 unknown2, uint32 unknown3, uint32 frequency)
 {
@@ -341,6 +385,60 @@ uint32 CSasCore::GetEndFlag(uint32 contextAddr)
 	return result;
 }
 
+uint32 CSasCore::SetEffectType(uint32 contextAddr, uint32 effectType)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "SetEffectType(contextAddr = 0x%0.8X, effectType = 0x%0.8X);\r\n",
+		contextAddr, effectType);
+#endif
+	switch(effectType)
+	{
+	case REVERB_STUDIOC:
+		SetupReverb(g_ReverbStudioC);
+		break;
+	case REVERB_SPACE:
+		SetupReverb(g_ReverbSpace);
+		break;
+	}
+	return 0;
+}
+
+uint32 CSasCore::SetEffectParam(uint32 contextAddr, uint32 dt, uint32 fb)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "SetEffectParam(contextAddr = 0x%0.8X, dt = 0x%0.2X, fb = 0x%0.2X);\r\n",
+		contextAddr, dt, fb);
+#endif
+	return 0;
+}
+
+uint32 CSasCore::SetEffectVolume(uint32 contextAddr, uint32 volumeLeft, uint32 volumeRight)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "SetEffectVolume(contextAddr = 0x%0.8X, left = 0x%0.2X, right = 0x%0.2X);\r\n",
+		contextAddr, volumeLeft, volumeRight);
+#endif
+	return 0;
+}
+
+uint32 CSasCore::SetEffect(uint32 contextAddr, uint32 drySwitch, uint32 wetSwitch)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "SetEffect(contextAddr = 0x%0.8X, dry = %d, wet = %d);\r\n",
+		contextAddr, drySwitch, wetSwitch);
+#endif
+	if(drySwitch)
+	{
+		for(unsigned int spuIdx = 0; spuIdx < 2; spuIdx++)
+		{
+			m_spu[spuIdx]->SetControl(Iop::CSpuBase::CONTROL_REVERB);
+			m_spu[spuIdx]->SetChannelReverbLo(0xFFFF);
+			m_spu[spuIdx]->SetChannelReverbHi(0xFFFF);
+		}
+	}
+	return 0;
+}
+
 void CSasCore::Invoke(uint32 methodId, CMIPS& context)
 {
 	switch(methodId)
@@ -410,6 +508,29 @@ void CSasCore::Invoke(uint32 methodId, CMIPS& context)
 	case 0x68A46B95:
 		context.m_State.nGPR[CMIPS::V0].nV0 = GetEndFlag(
 			context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 0x33D4AB37:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffectType(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 0x267A6DD2:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffectParam(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0);
+		break;
+	case 0xD5A229C9:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffectVolume(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0);
+		break;
+	case 0xF983B186:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffect(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	default:
 		CLog::GetInstance().Print(LOGNAME, "Unknown function called 0x%0.8X\r\n", methodId);
