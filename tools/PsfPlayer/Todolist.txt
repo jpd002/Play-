@@ -1,11 +1,12 @@
 TODO:
 - Fix autodetection of charset for tags
-- Fix deadlock problem happening when clicking "next" too much.
+- Fix deadlock problem happening when clicking "next" too much (Happens with FF4/PS2).
 - Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
 	- SPU updating for too long? (CPU/SPU desync)
 - Xenosaga
 	- Sounds really bad
 	- June Mermaid, especially
+- Display Reverb params in SPU views.
 - Windows 7 stuff
 - Exception for invalid PSFs
 
