@@ -241,9 +241,19 @@ void CJitter::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 	}
 }
 
-void CJitter::Cmp(CONDITION nCondition)
+void CJitter::Cmp(CONDITION condition)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op			= OP_CMP;
+	statement.src2			= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1			= MakeSymbolRef(m_Shadow.Pull());
+	statement.jmpCondition	= condition;
+	statement.dst			= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Div()
@@ -349,7 +359,16 @@ void CJitter::SignExt16()
 
 void CJitter::Shl()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SLL;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Shl(uint8 nAmount)

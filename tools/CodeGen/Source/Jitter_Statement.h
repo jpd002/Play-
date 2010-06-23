@@ -14,6 +14,7 @@ namespace Jitter
 		
 		OP_ADD,
 		OP_SUB,
+		OP_CMP,
 
 		OP_AND,
 		OP_OR,

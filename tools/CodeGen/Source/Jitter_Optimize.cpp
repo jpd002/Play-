@@ -218,6 +218,22 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_SUB:
 			cout << " - ";
 			break;
+		case OP_CMP:
+			cout << " CMP(";
+			switch(statement.jmpCondition)
+			{
+			case CONDITION_LT:
+				cout << "LT";
+				break;
+			case CONDITION_NE:
+				cout << "NE";
+				break;
+			default:
+				cout << "??";
+				break;
+			}
+			cout << ") ";
+			break;
 		case OP_MUL:
 		case OP_MULS:
 		case OP_FP_MUL:
@@ -849,6 +865,7 @@ bool CJitter::CopyPropagation(StatementList& statements)
 				innerStatement.op = outerStatement.op;
 				innerStatement.src1 = outerStatement.src1;
 				innerStatement.src2 = outerStatement.src2;
+				innerStatement.jmpCondition = outerStatement.jmpCondition;
 				changed = true;
 			}
 		}

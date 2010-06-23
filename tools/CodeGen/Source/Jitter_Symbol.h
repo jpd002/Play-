@@ -118,6 +118,11 @@ namespace Jitter
 			return (m_type == SYM_RELATIVE) || (m_type == SYM_RELATIVE64) || (m_type == SYM_FP_REL_SINGLE);
 		}
 
+		bool IsTemporary() const
+		{
+			return (m_type == SYM_TEMPORARY) || (m_type == SYM_TEMPORARY64) || (m_type == SYM_FP_TMP_SINGLE);
+		}
+
 		bool Equals(CSymbol* symbol) const
 		{
 			return 
