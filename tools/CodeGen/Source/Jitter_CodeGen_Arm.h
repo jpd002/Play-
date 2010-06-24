@@ -17,6 +17,7 @@ namespace Jitter
 		unsigned int					GetAvailableRegisterCount() const;
 
 	private:
+		typedef std::map<uint32, CArmAssembler::LABEL> LabelMapType;
 		typedef void (CCodeGen_Arm::*ConstCodeEmitterType)(const STATEMENT&);
 
 		enum
@@ -64,6 +65,7 @@ namespace Jitter
 
 		Framework::CStream*				m_stream;
 		CArmAssembler					m_assembler;
+		LabelMapType					m_labels;
 		uint32*							m_literalPool;
 		unsigned int					m_lastLiteralPtr;
 		LiteralPoolRefList				m_literalPoolRefs;

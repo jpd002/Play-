@@ -98,6 +98,7 @@ void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int st
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
+	m_labels.clear();
 
 	DumpLiteralPool();
 }
@@ -188,10 +189,26 @@ void CCodeGen_Arm::DumpLiteralPool()
 	m_lastLiteralPtr = 0;
 }
 
+CArmAssembler::LABEL CCodeGen_Arm::GetLabel(uint32 blockId)
+{
+	CArmAssembler::LABEL result;
+	LabelMapType::const_iterator labelIterator(m_labels.find(blockId));
+	if(labelIterator == m_labels.end())
+	{
+		result = m_assembler.CreateLabel();
+		m_labels[blockId] = result;
+	}
+	else
+	{
+		result = labelIterator->second;
+	}
+	return result;
+}
+
 void CCodeGen_Arm::MarkLabel(const STATEMENT& statement)
 {
-//	CArmAssembler::LABEL label = GetLabel(statement.jmpBlock);
-//	m_assembler.MarkLabel(label);
+	CArmAssembler::LABEL label = GetLabel(statement.jmpBlock);
+	m_assembler.MarkLabel(label);
 }
 
 void CCodeGen_Arm::Emit_Mov_RegCst(const STATEMENT& statement)

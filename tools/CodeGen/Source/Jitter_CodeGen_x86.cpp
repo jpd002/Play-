@@ -420,6 +420,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
+	m_labels.clear();
 
 	Emit_Epilog(stackSize, registerUsage);
 }

@@ -1,6 +1,7 @@
 #ifdef WIN32
 
 	#ifdef AMD64
+		#include "Jitter_CodeGen_Arm.h"
 		#include "Jitter_CodeGen_x86_64.h"
 	#else
 		#include "Jitter_CodeGen_x86_32.h"

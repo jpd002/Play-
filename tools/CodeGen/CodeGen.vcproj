@@ -484,6 +484,14 @@
 				Name="Tests"
 				>
 				<File
+					RelativePath=".\Source\tests\CompareTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\tests\CompareTest.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\tests\Crc32Test.cpp"
 					>
 				</File>
