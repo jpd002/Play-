@@ -751,8 +751,8 @@ int16 CSpuBase::CSampleReader::GetSample(float time)
 {
 	time -= m_currentTime;
 	float sample = time * static_cast<float>(GetSamplingRate());
-	float sampleInt = 0;
-	float alpha = modf(sample, &sampleInt);
+	float alpha = sample - (int)sample;
+	float sampleInt = sample - alpha;
 	unsigned int sampleIndex = static_cast<int>(sampleInt);
 	int16 currentSample = m_buffer[sampleIndex];
 	int16 nextSample = m_buffer[sampleIndex + 1];
