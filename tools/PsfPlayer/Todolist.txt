@@ -8,6 +8,7 @@ TODO:
 	- June Mermaid, especially
 - Display Reverb params in SPU views.
 - Windows 7 stuff
+- DiskOut sound handler.
 - Exception for invalid PSFs
 
 Done:
