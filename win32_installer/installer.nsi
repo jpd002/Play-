@@ -3,17 +3,17 @@
 !searchparse /file ../Source/AppDef.h '#define APP_VERSIONSTR _T("' APP_VERSION '")'
 
 ; The name of the installer
-Name "Purei! v${APP_VERSION}"
+Name "Play! v${APP_VERSION}"
 
 ; The file to write
-OutFile "Purei-${APP_VERSION}.exe"
+OutFile "Play-${APP_VERSION}.exe"
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\Purei
+InstallDir $PROGRAMFILES\Play
 
 ; Registry key to check for directory (so if you install again, it will 
 ; overwrite the old one automatically)
-InstallDirRegKey HKLM "Software\NSIS_Purei" "Install_Dir"
+InstallDirRegKey HKLM "Software\NSIS_Play" "Install_Dir"
 
 ; Request application privileges for Windows Vista
 RequestExecutionLevel admin
@@ -52,7 +52,7 @@ RequestExecutionLevel admin
 ;--------------------------------
 
 ; The stuff to install
-Section "Purei! (required)"
+Section "Play! (required)"
 
   SectionIn RO
   
@@ -60,18 +60,20 @@ Section "Purei! (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "..\Release\Purei.exe"
+  File "..\win32\Release\Play.exe"
   File "..\Readme.html"
   File "..\Patches.xml"
+  File "..\icudt34.dll"
+  File "..\icuuc34.dll"
   
   ; Write the installation path into the registry
-  WriteRegStr HKLM SOFTWARE\NSIS_Purei "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM SOFTWARE\NSIS_Play "Install_Dir" "$INSTDIR"
   
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Purei" "DisplayName" "Purei"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Purei" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Purei" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Purei" "NoRepair" 1
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "DisplayName" "Play"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
   
 SectionEnd
@@ -79,9 +81,9 @@ SectionEnd
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
-  CreateDirectory "$SMPROGRAMS\Purei!"
-  CreateShortCut "$SMPROGRAMS\Purei!\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Purei!\Purei!.lnk" "$INSTDIR\Purei.exe" "" "$INSTDIR\Purei.exe" 0
+  CreateDirectory "$SMPROGRAMS\Play!"
+  CreateShortCut "$SMPROGRAMS\Play!\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\Play!\Play!.lnk" "$INSTDIR\Play.exe" "" "$INSTDIR\Play.exe" 0
   
 SectionEnd
 
@@ -92,18 +94,22 @@ SectionEnd
 Section "Uninstall"
   
   ; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Purei"
-  DeleteRegKey HKLM SOFTWARE\NSIS_Purei
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play"
+  DeleteRegKey HKLM SOFTWARE\NSIS_Play
 
   ; Remove files and uninstaller
-  Delete $INSTDIR\Purei.exe
+  Delete $INSTDIR\Play.exe
+  Delete $INSTDIR\Readme.html
+  Delete $INSTDIR\Patches.xml
+  Delete $INSTDIR\icudt34.dll
+  Delete $INSTDIR\icuuc34.dll
   Delete $INSTDIR\uninstall.exe
 
   ; Remove shortcuts, if any
-  Delete "$SMPROGRAMS\Purei!\*.*"
+  Delete "$SMPROGRAMS\Play!\*.*"
 
   ; Remove directories used
-  RMDir "$SMPROGRAMS\Purei!"
+  RMDir "$SMPROGRAMS\Play!"
   RMDir "$INSTDIR"
 
 SectionEnd
