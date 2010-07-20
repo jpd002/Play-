@@ -28,8 +28,6 @@ public:
 	virtual							~CFunctionsView();
 
     void                            SetContext(CMIPS*, const ModuleListProvider&);
-	void							SetELF(CELF*);
-
 	void							Refresh();
 
 	boost::signal<void (uint32)>	m_OnFunctionDblClick;
@@ -66,7 +64,6 @@ private:
     boost::signals::connection      m_functionTagsChangeConnection;
 
     CMIPS*							m_pCtx;
-	CELF*							m_pELF;
     ModuleList                      m_modules;
     ModuleListProvider              m_moduleListProvider;
 };

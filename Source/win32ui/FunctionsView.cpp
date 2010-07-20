@@ -17,9 +17,8 @@ using namespace Framework;
 using namespace std;
 using namespace std::tr1;
 
-CFunctionsView::CFunctionsView(HWND hParent) :
-m_pCtx(NULL),
-m_pELF(NULL)
+CFunctionsView::CFunctionsView(HWND hParent) 
+: m_pCtx(NULL)
 {
 	RECT rc;
 
@@ -69,8 +68,6 @@ m_pELF(NULL)
     m_pLayout->InsertObject(pSubLayout0);
 
     SetSize(469, 612);
-
-    SetELF(NULL);
 
     RefreshLayout();
 }
@@ -263,19 +260,6 @@ uint32 CFunctionsView::GetFunctionGroupId(uint32 address)
     return DEFAULT_GROUPID;
 }
 
-void CFunctionsView::SetELF(CELF* pELF)
-{
-	m_pELF = pELF;
-	if(pELF == NULL)
-	{
-		m_pImport->Enable(false);
-	}
-	else
-	{
-		m_pImport->Enable(true);
-	}
-}
-
 void CFunctionsView::SetContext(CMIPS* context, const ModuleListProvider& moduleListProvider)
 {
     if(m_functionTagsChangeConnection.connected())
@@ -365,22 +349,32 @@ void CFunctionsView::OnRenameClick()
 
 void CFunctionsView::OnImportClick()
 {
-    if(m_pCtx == NULL) return;
-	if(m_pELF == NULL) return;
+	if(m_pCtx == NULL) return;
 
-	ELFSECTIONHEADER* pSymTab = m_pELF->FindSection(".symtab");
-	if(pSymTab == NULL) return;
+	for(ModuleList::const_iterator moduleIterator(m_modules.begin());
+        m_modules.end() != moduleIterator; moduleIterator++)
+    {
+		const MIPSMODULE& module(*moduleIterator);
+		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);
 
-	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
-	if(pStrTab == NULL) return;
+		if(moduleImage == NULL) return;
 
-	ELFSYMBOL* pSym = (ELFSYMBOL*)m_pELF->FindSectionData(".symtab");
-	unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+		ELFSECTIONHEADER* pSymTab = moduleImage->FindSection(".symtab");
+		if(pSymTab == NULL) return;
 
-	for(unsigned int i = 0; i < nCount; i++)
-	{
-		if((pSym[i].nInfo & 0x0F) != 0x02) continue;
-		m_pCtx->m_Functions.InsertTag(pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
+		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
+		if(pStrTab == NULL) return;
+
+		ELFSYMBOL* pSym = (ELFSYMBOL*)moduleImage->FindSectionData(".symtab");
+		unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+
+		for(unsigned int i = 0; i < nCount; i++)
+		{
+			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
+			ELFSECTIONHEADER* symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
+			if(symbolSection == NULL) continue;
+			m_pCtx->m_Functions.InsertTag(module.begin + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
+		}
 	}
 
 	RefreshList();
