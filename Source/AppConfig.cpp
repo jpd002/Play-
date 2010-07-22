@@ -5,7 +5,7 @@
 #include <pwd.h>
 #endif
 
-#define BASE_DATA_PATH          L"Purei Data Files"
+#define BASE_DATA_PATH          L"Play Data Files"
 #define DEFAULT_CONFIG_PATH     (L"config.xml")
 
 using namespace Framework;
@@ -57,7 +57,7 @@ CConfig::PathType CAppConfig::BuildConfigPath()
 #if defined(MACOSX)
 	passwd* userInfo = getpwuid(getuid());
 	if(userInfo == NULL) return DEFAULT_CONFIG_PATH;
-	return wstring(Utf8::ConvertFrom(userInfo->pw_dir)) + L"/Library/Preferences/com.vapps.Purei.xml";
+	return wstring(Utf8::ConvertFrom(userInfo->pw_dir)) + L"/Library/Preferences/com.vapps.Play.xml";
 #elif defined(WIN32)
     CConfig::PathType userPath(GetBasePath());
     PathUtils::EnsurePathExists(userPath);

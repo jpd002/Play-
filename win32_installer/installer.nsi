@@ -84,6 +84,7 @@ Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\Play!"
   CreateShortCut "$SMPROGRAMS\Play!\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Play!\Play!.lnk" "$INSTDIR\Play.exe" "" "$INSTDIR\Play.exe" 0
+  CreateShortCut "$SMPROGRAMS\Play!\Read Me.lnk" "$INSTDIR\Readme.html" "" "$INSTDIR\Readme.html" 0
   
 SectionEnd
 
