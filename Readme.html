@@ -70,6 +70,7 @@
 				<li><a href="#features">Technical Features</a></li>
 				<li><a href="#guide">Basic User Guide</a>
 					<ul>
+					    <li><a href="#home_directory">Home Directory</a></li>
 						<li><a href="#guide_playing">Playing a Game</a></li>
 						<li><a href="#guide_controls">Game Controls</a></li>
 						<li><a href="#guide_state">State Saving/Loading</a></li>
@@ -123,18 +124,12 @@
 
 			<h2 id="requirements">System Requirements</h2>
 			
-			<p>
-				A PC running Windows 2000/XP/2003 and a CPU supporting SSE should be enough to be able to run the emulator.
-			</p>
-
-			<p>
-				For interesting emulation speeds, a CPU clocked at at least 1GHz is required.
-			</p>
-
-			<p>
-				The emulator isn't really greedy memory wise, as 256MBs of RAM should be enough to prevent
-				any hardcore virtual memory page swapping.
-			</p>
+		    <ul>
+		        <li>OS: Windows XP/Vista/7</li>
+		        <li>CPU: x86 CPU running @ 2.0GHz and + is recommended. Doesn't take advantage of multi-core CPUs yet.</li>
+		        <li>RAM: 256MBs of RAM is recommended.</li>
+		        <li>Video Card: Any DirectX9 class GPU should be enough.</li>
+		    </ul>
 			
 		</div>
 		
@@ -148,8 +143,8 @@
 				<li>EmotionEngine:
 					<ul>
 						<li>Near complete emulation of the base MIPSIV core.</li>
-						<li>Basic emulation of the MMI instruction subset.</li>
-						<li>Basic COP0 (System Control Unit) / COP1 (Floating Point Unit) emulation.</li>
+						<li>Good COP0 (System Control Unit) / COP1 (Floating Point Unit) emulation.</li>
+						<li>Fair emulation of the MMI instruction subset.</li>
 						<li>CPU emulation done using an instruction caching/recompilation scheme.</li>
 					</ul>
 				</li>
@@ -157,9 +152,7 @@
 				<li>OS:
 					<ul>
 						<li>ELF binaries loading support.</li>
-						<li>Basic BIOS system calls implemented.</li>
-						<li>Basic interrupt servicing implemented.</li>
-						<li>Basic thread scheduling support.</li>
+						<li>BIOS emulation done in high-level</li>
 					</ul>
 				</li>
 				
@@ -173,37 +166,29 @@
 				
 				<li>VU/VIF:
 					<ul>
-						<li>Basic micromode support for the VU1.</li>
-						<li>Basic macromode support for the VU0.</li>
+						<li>Micromode support for the VU0/VU1.</li>
+						<li>Macromode support for the VU0.</li>
 						<li>Basic VIF transfers implemented.</li>
+						<li>VU flags emulation not very well supported.</li>
 					</ul>
 				</li>
-				<li>DMAC:
-					<ul>
-						<li>Channel 0, 2, 4, 5 and 7 support.</li>
-						<li>Channel 5 and 6 (SIF0 and SIF1) support using hacks. (should be using Source or Destination Chain modes)</li>
-					</ul>
-				</li>
-				
+		
 				<li>IPU:
 					<ul>
-						<li>Only supports MPEG-1 compatible macroblock decoding for now.</li>
-						<li>All commands emulated except for IDEC and PACK.</li>
+						<li>MPEG-1/2 macroblock decoding supported.</li>
+						<li>All commands emulated PACK.</li>
+						<li>Still very buggy, so it won't playback movies really well.</li>
 					</ul>
 				</li>
 				
 				<li>IOP/SIF:
 					<ul>
 						<li>High-level emulation of the IO processor done by intercepting SIF commands and routing them to native modules.</li>
-						<li>Basic support for CDVDFSV, PADMAN, DBCMAN, FILEIO and LOADFILE modules.</li>
+						<li>Common IOP modules emulated in high-level.</li>
+						<li>Can load and execute game specific IOP modules.</li>
 					</ul>
 				</li>
 				
-				<li>INTC:
-					<ul>
-						<li>DMAC and V-Blank Start interrupt emulation.</li>
-					</ul>
-				</li>
 			</ul>
 			
 		</div>
@@ -214,6 +199,13 @@
 		
 			<h2 id="guide">Basic User Guide</h2>
 
+            <h3 id="home_directory">Home Directory</h3>
+            
+            <p>
+                The first time you'll be running the emulator, it'll create a new "Play Data Files" folder in your "My Documents" folder.
+                This is going to be the place where the emulator will place saved games and the place it will look for homebrewn games data files.
+            </p>
+            
 			<h3 id="guide_playing">Playing a Game</h3>
 			
 		    <p>
@@ -221,9 +213,9 @@
 		    </p>
 		    
 		    <ul>
-				<li>Extract the contents of the archive containing the executable into the "/vfs/host" subdirectory present in the Purei! directory.</li>
-				<li>Select "File | Load ELF..." from the menu bar.</li>
-				<li>Select the ELF executable image file you've previously extracted.</li>
+				<li>Extract the contents of the archive containing the game or demo data into the "/vfs/host" subdirectory present the home directory.</li>
+				<li>In the emulator, select "File | Load ELF..." from the menu bar.</li>
+				<li>Select the ELF executable image file that should be present in the archive you've previously extracted.</li>
 				<li>After a successful loading, the virtual machine will start executing the program.</li>
 			</ul>
 			
@@ -250,6 +242,7 @@
 				</li>
 				<li>Select "File | Boot cdrom0" from the menu bar.</li>
 				<li>After a successful loading, the virtual machine will start executing the program.</li>
+				<li>Note: You can also use the "File | Boot Disk Image..." to load a disk image directly.</li>
 			</ul>
 		    
 		    <h3 id="guide_controls">Game Controls</h3>
@@ -309,10 +302,10 @@
 			<h3 id="guide_state">State Saving/Loading</h3>
 			
 			<p>
-				Since memory card support isn't there yet, you might find it more convenient to save your
-				games using saved states. To save a state, simply press F7 or select the "Virtual Machine | Save State" menu item.
+				To save a state, simply press F7 or select the "Virtual Machine | Save State" menu item.
 				To load a previously saved state, press F8 or select the "Virtual Machine | Load State" menu item. There's also 10 slots
-				available for you to place your saved states in, accessible through the "Virtual Machine | State Slot" submenu.
+				available for you to place your saved states in, accessible through the "Virtual Machine | State Slot" submenu. Please note that
+				saved states aren't very stable and could result in data loss. Prefer using the game's save mechanism if it's available.
 			</p>
 			
 		</div>
@@ -378,29 +371,85 @@
 					<td class="comp_header" colspan="2">Commercial Games</td>
 				</tr>
 				<tr>
-					<td>Ys I &amp; II: Eternal Story (SPLS_252.06)</td>
+					<td>Akumajou Dracula - Yami no Juin (SLPM_661.75)</td>
 					<td>
 						<ul>
-						<li>No particles when hitting enemies;</li>
-						<li>Might crash (rarely) when playing movies;</li>
-						<li>Flickering in some scenes.</li>
+				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
+				            <li>Only menus works. (Very slowly)</li>
 						</ul> 
 					</td>
 				</tr>
+				<tr>
+					<td>Atelier Iris - Eternal Mana (SLPM_660.81)</td>
+					<td>
+						<ul>
+						    <li>Sluggish 3D scenes.</li>
+						</ul> 
+					</td>
+				</tr>
+				<tr>
+					<td>Final Fantasy X (SLUS_203.12)</td>
+					<td>
+						<ul>
+						    <li>3D scenes are very slow and broken.</li>
+						</ul> 
+					</td>
+				</tr>
+				<tr>
+				    <td>Guilty Gear XX Accent Core Plus (SLPM_669.65)</td>
+				    <td>
+				        <ul>
+				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
+				            <li>Saved games doesn't work.</li>
+				        </ul>
+				    </td>
+				</tr>
+				<tr>
+				    <td>Half-Life (SLES_505.04)</td>
+				    <td>
+				        <ul>
+				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
+				            <li>Saved games doesn't work.</li>
+				            <li>Very sluggish and broken 3D scenes.</li>
+				        </ul>
+				    </td>
+				</tr>
+				<tr>
+					<td>Ys I &amp; II: Eternal Story (SPLS_252.06)</td>
+					<td>
+						<ul>
+						    <li>No particles when hitting enemies;</li>
+						    <li>Flickering in some scenes.</li>
+						    <li>Saved games doesn't work.</li>
+						</ul> 
+					</td>
+				</tr>
+				
 				<tr>
 					<td class="comp_header" colspan="2">Homebrewn</td>
 				</tr>
 				<tr>
 					<td>1987 (1987.elf)</td>
-					<td>Working.</td>
+					<td>
+						<ul>
+				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
+				            <li>Slow.</li>
+						</ul> 
+                    </td>
 				</tr>
 				<tr>
 					<td>By The Way (bytheway.elf)</td>
-					<td>Video output is cut in half.</td>
+					<td>
+						<ul>
+				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
+				            <li>Slow.</li>
+				            <li>Video output is cut in half.</li>
+						</ul> 
+                    </td>
 				</tr>
 				<tr>
 					<td>Cube Mastah (cubemastah.elf)</td>
-					<td>Working.</td>
+					<td>Broken.</td>
 				</tr>
 				<tr>
 					<td>FiRE (FiRE.elf)</td>
@@ -408,15 +457,15 @@
 				</tr>
 				<tr>
 					<td>Lobotomia (LOBOTOM.ELF)</td>
-					<td>Flickering in some scenes.</td>
+					<td>Broken.</td>
 				</tr>
 				<tr>
 					<td>Plasma Tunnel (plasma_tunnel.elf)</td>
-					<td>Rendering progress visible.</td>
+					<td>Working.</td>
 				</tr>
 				<tr>
 					<td>PS2 Invaders v1.6 (space.elf)</td>
-					<td>Working.</td>
+					<td>Broken.</td>
 				</tr>
 				<tr>
 					<td>Quake (quake.elf)</td>
@@ -424,7 +473,7 @@
 				</tr>
 				<tr>
 					<td>Slave of the VU (slave_of_the_vu.elf)</td>
-					<td>Working.</td>
+					<td>Broken.</td>
 				</tr>
 			</table>
 		</div>
@@ -439,12 +488,10 @@
 				e-mail: <a href="mailto:jean-philip.desjardins@polymtl.ca">jean-philip.desjardins@polymtl.ca</a>
 				<br />
 				WWW: <a href="http://purei.org">http://purei.org</a>
+				<br />
+				Forums: <a href="http://forum.purei.org">http://forum.purei.org</a>
 			</p>
 			
-			<p>
-				I'm not looking forward bug reports for now since I know it's buggy. And I'm not looking for source code patches to fix bugs either. Anything else should be fine though.
-			</p>
-
 		</div>
 		
 		<hr />
@@ -453,7 +500,7 @@
 			<h2 id="greetings">Special Thanks/Greetings</h2>
 			
 			<p>
-				ps2dev (great source for technical info/demos/source code), <a href="http://zlib.net">zlib</a>, Valnyan, Charles Verdon, Eric Bernard, 
+				<a href="http://ps2dev.org">ps2dev</a> (great source for technical info/demos/source code), <a href="http://boost.org">boost</a>, <a href="http://zlib.net">zlib</a>, <a href="http://bzip.org/">bzip2</a>, Valnyan, Charles Verdon, Eric Bernard, 
 				Brian Guthrie, thrended.
 			</p>
 			
