@@ -130,31 +130,7 @@ long CControllerSettingsWnd::OnNotify(WPARAM param, NMHDR* header)
 
 void CControllerSettingsWnd::AutoConfigKeyboard()
 {
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::START,        CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RETURN));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::SELECT,       CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LSHIFT));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::DPAD_LEFT,    CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::DPAD_RIGHT,   CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::DPAD_UP,      CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::DPAD_DOWN,    CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::SQUARE,       CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_A));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::CROSS,        CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_Z));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::TRIANGLE,     CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_S));
-    CInputConfig::GetInstance().SetSimpleBinding(CControllerInfo::CIRCLE,       CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_X));
-
-	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_X,
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
-	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_Y,
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
-
-	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_X,
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
-	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_Y,
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
-	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
-
+	CInputConfig::GetInstance().AutoConfigureKeyboard();
 	UpdateBindings();
 }
 

@@ -85,6 +85,7 @@ public:
 
     void                    Load();
     void                    Save();
+	void					AutoConfigureKeyboard();
     void                    TranslateInputEvent(const GUID&, uint32, uint32, const InputEventHandler&);
     std::tstring            GetBindingDescription(DirectInput::CManager*, PS2::CControllerInfo::BUTTON) const;
 

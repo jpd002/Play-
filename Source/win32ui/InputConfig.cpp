@@ -39,6 +39,7 @@ CInputConfig::~CInputConfig()
 
 void CInputConfig::Load()
 {
+	bool hasBindings = false;
     for(unsigned int i = 0; i < CControllerInfo::MAX_BUTTONS; i++)
     {
         BINDINGTYPE bindingType = BINDING_UNBOUND;
@@ -57,7 +58,12 @@ void CInputConfig::Load()
             binding->Load(CAppConfig::GetInstance(), prefBase.c_str());
         }
         m_bindings[i] = binding;
+		hasBindings = true;
     }
+	if(!hasBindings)
+	{
+		AutoConfigureKeyboard();
+	}
 }
 
 void CInputConfig::Save()
@@ -72,6 +78,34 @@ void CInputConfig::Save()
             binding->GetBindingType());
         binding->Save(CAppConfig::GetInstance(), prefBase.c_str());
     }
+}
+
+void CInputConfig::AutoConfigureKeyboard()
+{
+	SetSimpleBinding(CControllerInfo::START,        CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RETURN));
+	SetSimpleBinding(CControllerInfo::SELECT,       CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LSHIFT));
+	SetSimpleBinding(CControllerInfo::DPAD_LEFT,    CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT));
+	SetSimpleBinding(CControllerInfo::DPAD_RIGHT,   CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
+	SetSimpleBinding(CControllerInfo::DPAD_UP,      CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP));
+	SetSimpleBinding(CControllerInfo::DPAD_DOWN,    CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
+	SetSimpleBinding(CControllerInfo::SQUARE,       CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_A));
+	SetSimpleBinding(CControllerInfo::CROSS,        CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_Z));
+	SetSimpleBinding(CControllerInfo::TRIANGLE,     CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_S));
+	SetSimpleBinding(CControllerInfo::CIRCLE,       CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_X));
+
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_X,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_Y,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
+
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_X,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
+	//CInputConfig::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_Y,
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
+	//	CInputConfig::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
 }
 
 const CInputConfig::CBinding* CInputConfig::GetBinding(CControllerInfo::BUTTON button) const
