@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "COP_FPU.h"
 #include "MIPS.h"
-#include "CodeGen.h"
+#include "Jitter.h"
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 
@@ -27,7 +27,7 @@ m_nFD(0)
 	SetupReflectionTables();
 }
 
-void CCOP_FPU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+void CCOP_FPU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
@@ -55,14 +55,16 @@ void CCOP_FPU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCt
 
 void CCOP_FPU::SetCCBit(bool nCondition, uint32 nMask)
 {
-	m_codeGen->BeginIfElse(nCondition);
+	m_codeGen->PushCst(0);
+
+	m_codeGen->BeginIf(nCondition ? Jitter::CONDITION_NE : Jitter::CONDITION_EQ);
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
 		m_codeGen->PushCst(nMask);
 		m_codeGen->Or();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nFCSR));
 	}
-	m_codeGen->BeginIfElseAlt();
+	m_codeGen->Else();
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
 		m_codeGen->PushCst(~nMask);
@@ -72,7 +74,7 @@ void CCOP_FPU::SetCCBit(bool nCondition, uint32 nMask)
 	m_codeGen->EndIf();
 }
 
-void CCOP_FPU::TestCCBit(uint32 nMask)
+void CCOP_FPU::PushCCBit(uint32 nMask)
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
     m_codeGen->PushCst(nMask);
@@ -87,8 +89,11 @@ void CCOP_FPU::TestCCBit(uint32 nMask)
 void CCOP_FPU::MFC1()
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
-    m_codeGen->SeX();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+	    m_codeGen->SignExt();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
+	}
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 }
 
@@ -98,7 +103,7 @@ void CCOP_FPU::CFC1()
 	if(m_nFS == 31)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
-		m_codeGen->SeX();
+		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 	}
@@ -171,29 +176,33 @@ void CCOP_FPU::W()
 //00
 void CCOP_FPU::BC1F()
 {
-	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	Branch(false);
+	PushCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
+	m_codeGen->PushCst(0);
+	Branch(Jitter::CONDITION_EQ);
 }
 
 //01
 void CCOP_FPU::BC1T()
 {
-	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	Branch(true);
+	PushCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
+	m_codeGen->PushCst(0);
+	Branch(Jitter::CONDITION_NE);
 }
 
 //02
 void CCOP_FPU::BC1FL()
 {
-	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	BranchLikely(false);
+	PushCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
+	m_codeGen->PushCst(0);
+	BranchLikely(Jitter::CONDITION_EQ);
 }
 
 //03
 void CCOP_FPU::BC1TL()
 {
-	TestCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
-	BranchLikely(true);
+	PushCCBit(m_nCCMask[(m_nOpcode >> 18) & 0x07]);
+	m_codeGen->PushCst(0);
+	BranchLikely(Jitter::CONDITION_NE);
 }
 
 //////////////////////////////////////////////////
@@ -233,14 +242,13 @@ void CCOP_FPU::DIV_S()
 	//Check if FT equals to 0
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
     m_codeGen->PushCst(0);
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 
-	m_codeGen->BeginIfElse(true);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
         m_codeGen->PushCst(0x7F7FFFFF);
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 	}
-	m_codeGen->BeginIfElseAlt();
+	m_codeGen->Else();
 	{
         m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
         m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
@@ -361,7 +369,7 @@ void CCOP_FPU::C_EQ_S()
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
 
-    m_codeGen->FP_Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->FP_Cmp(Jitter::CONDITION_EQ);
 
     SetCCBit(true, m_nCCMask[((m_nOpcode >> 8) & 0x07)]);
 }
@@ -372,7 +380,7 @@ void CCOP_FPU::C_LT_S()
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
 
-    m_codeGen->FP_Cmp(CCodeGen::CONDITION_BL);
+    m_codeGen->FP_Cmp(Jitter::CONDITION_BL);
 
     SetCCBit(true, m_nCCMask[((m_nOpcode >> 8) & 0x07)]);
 }
@@ -383,7 +391,7 @@ void CCOP_FPU::C_LE_S()
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
 
-    m_codeGen->FP_Cmp(CCodeGen::CONDITION_BE);
+    m_codeGen->FP_Cmp(Jitter::CONDITION_BE);
 
     SetCCBit(true, m_nCCMask[((m_nOpcode >> 8) & 0x07)]);
 }
@@ -408,7 +416,7 @@ void CCOP_FPU::LWC1()
 {
     ComputeMemAccessAddr();
 
-	m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
 	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
@@ -422,7 +430,7 @@ void CCOP_FPU::SWC1()
 {
 	ComputeMemAccessAddr();
 
-	m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
 	m_codeGen->PushIdx(2);
 	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);

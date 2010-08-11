@@ -1,5 +1,5 @@
 #include "MA_MIPSIV.h"
-#include "CodeGen.h"
+#include "Jitter.h"
 #include "MIPS.h"
 #include "offsetof_def.h"
 
@@ -14,7 +14,7 @@ void CMA_MIPSIV::Template_Add32(bool isSigned)
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		m_codeGen->SeX();
+		m_codeGen->SignExt();
 	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
@@ -46,7 +46,7 @@ void CMA_MIPSIV::Template_Sub32(bool isSigned)
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-	    m_codeGen->SeX();
+	    m_codeGen->SignExt();
 	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
@@ -59,13 +59,13 @@ void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 
     ComputeMemAccessAddr();
 
-	m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
 	m_codeGen->Call(pProxyFunction, 2, true);
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		m_codeGen->SeX();
+		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -80,7 +80,7 @@ void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType&
     
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		m_codeGen->SeX();
+		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
@@ -95,7 +95,7 @@ void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& functi
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		m_codeGen->SeX();
+		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
@@ -130,16 +130,20 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     Function();
 
+	m_codeGen->PushTop();
+
+	m_codeGen->ExtLow64();
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		m_codeGen->SeX();
+		m_codeGen->SignExt();
 		m_codeGen->PullRel(lo[1]);
 	}
     m_codeGen->PullRel(lo[0]);
 
+	m_codeGen->ExtHigh64();
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		m_codeGen->SeX();
+		m_codeGen->SignExt();
 		m_codeGen->PullRel(hi[1]);
 	}
     m_codeGen->PullRel(hi[0]);
@@ -181,7 +185,8 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 
 	//Check for zero
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->BeginIfElse(false);
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		m_codeGen->PushCst(~0);
 
@@ -196,22 +201,26 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 
 		m_codeGen->PullRel(hi[0]);
 	}
-	m_codeGen->BeginIfElseAlt();
+	m_codeGen->Else();
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		function();
 
+		m_codeGen->PushTop();
+
+		m_codeGen->ExtLow64();
 		if(m_regSize == MIPS_REGSIZE_64)
 		{
-			m_codeGen->SeX();
+			m_codeGen->SignExt();
 			m_codeGen->PullRel(lo[1]);
 		}
 		m_codeGen->PullRel(lo[0]);
 
+		m_codeGen->ExtHigh64();
 		if(m_regSize == MIPS_REGSIZE_64)
 		{
-			m_codeGen->SeX();
+			m_codeGen->SignExt();
 			m_codeGen->PullRel(hi[1]);
 		}
 		m_codeGen->PullRel(hi[0]);
@@ -224,21 +233,22 @@ void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		m_codeGen->PushCst(0);
-		m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 	}
 	else
 	{
+		assert(0);
+
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
 		m_codeGen->PushCst(0);
 		m_codeGen->PushCst(0);
 
-		m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
+		m_codeGen->Cmp64(Jitter::CONDITION_EQ);
 	}
 
-    m_codeGen->BeginIf(isEqual);
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(isEqual ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE);
     {
         m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -254,7 +264,7 @@ void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 
 void CMA_MIPSIV::Template_SetLessThanImm(bool isSigned)
 {
-	CCodeGen::CONDITION condition = isSigned ? CCodeGen::CONDITION_LT : CCodeGen::CONDITION_BL;
+	Jitter::CONDITION condition = isSigned ? Jitter::CONDITION_LT : Jitter::CONDITION_BL;
 
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
@@ -286,7 +296,7 @@ void CMA_MIPSIV::Template_SetLessThanImm(bool isSigned)
 
 void CMA_MIPSIV::Template_SetLessThanReg(bool isSigned)
 {
-	CCodeGen::CONDITION condition = isSigned ? CCodeGen::CONDITION_LT : CCodeGen::CONDITION_BL;
+	Jitter::CONDITION condition = isSigned ? Jitter::CONDITION_LT : Jitter::CONDITION_BL;
 
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
@@ -321,8 +331,6 @@ void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-		m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
 	}
 	else if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -332,23 +340,24 @@ void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 
-		m_codeGen->Cmp64(CCodeGen::CONDITION_EQ);
+		m_codeGen->Cmp64(Jitter::CONDITION_NE);
+		m_codeGen->PushCst(0);
 	}
+
+	Jitter::CONDITION branchCondition = condition ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE;
 
     if(likely)
     {
-        BranchLikely(condition);
+		BranchLikely(branchCondition);
     }
     else
     {
-        Branch(condition);
+        Branch(branchCondition);
     }
 }
 
 void CMA_MIPSIV::Template_BranchGez(bool condition, bool likely)
 {
-    m_codeGen->PushCst(0);
-
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -361,25 +370,30 @@ void CMA_MIPSIV::Template_BranchGez(bool condition, bool likely)
     m_codeGen->PushCst(0x80000000);
     m_codeGen->And();
 
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->PushCst(0);
 
-    if(likely)
+	Jitter::CONDITION branchCondition = condition ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE;
+
+	if(likely)
     {
-        BranchLikely(condition);
+        BranchLikely(branchCondition);
     }
     else
     {
-        Branch(condition);
+        Branch(branchCondition);
     }
 }
 
 void CMA_MIPSIV::Template_BranchLez(bool condition, bool likely)
 {
+	Jitter::CONDITION branchCondition;
+
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushCst(0);
-		m_codeGen->Cmp(CCodeGen::CONDITION_LE);
+
+		branchCondition = condition ? Jitter::CONDITION_LE : Jitter::CONDITION_GT;
 	}
 	else
 	{
@@ -389,15 +403,18 @@ void CMA_MIPSIV::Template_BranchLez(bool condition, bool likely)
 		m_codeGen->PushCst(0);
 		m_codeGen->PushCst(0);
 
-		m_codeGen->Cmp64(CCodeGen::CONDITION_LE);
+		m_codeGen->Cmp64(condition ? Jitter::CONDITION_LE : Jitter::CONDITION_GT);
+		m_codeGen->PushCst(0);
+
+		branchCondition = Jitter::CONDITION_NE;
 	}
 
     if(likely)
     {
-        BranchLikely(condition);
+        BranchLikely(branchCondition);
     }
     else
     {
-        Branch(condition);
+        Branch(branchCondition);
     }
 }

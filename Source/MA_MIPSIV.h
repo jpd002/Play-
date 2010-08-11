@@ -10,7 +10,7 @@ class CMA_MIPSIV : public CMIPSArchitecture
 public:
 										CMA_MIPSIV(MIPS_REGSIZE);
 	virtual								~CMA_MIPSIV();
-	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*);
+	virtual void						CompileInstruction(uint32, CMipsJitter*, CMIPS*);
 	virtual void						GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void						GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual bool						IsInstructionBranch(CMIPS*, uint32, uint32);

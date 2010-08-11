@@ -1,12 +1,9 @@
 #include <assert.h>
 #include <stddef.h>
 #include "MIPSInstructionFactory.h"
-#include "CodeGen.h"
 #include "MIPS.h"
 #include "PtrMacro.h"
 #include "offsetof_def.h"
-
-using namespace std;
 
 CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize) :
 m_pCtx(NULL),
@@ -23,7 +20,7 @@ CMIPSInstructionFactory::~CMIPSInstructionFactory()
 
 }
 
-void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	m_pCtx			= pCtx;
     m_codeGen       = codeGen;
@@ -37,36 +34,50 @@ void CMIPSInstructionFactory::ComputeMemAccessAddr()
 	uint8 nRS			= (uint8) ((m_nOpcode >> 21) & 0x001F);
 	uint16 nImmediate	= (uint16)((m_nOpcode >>  0) & 0xFFFF);
 
-	//TODO: Compute the complete 64-bit address
-
-	//Translate the address
-
-	//Push context
-	m_codeGen->PushRef(m_pCtx);
-
-	//Push high part
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[1]));
-
-	//Push low part of address
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
-	if(nImmediate != 0)
+	if(m_pCtx->m_pAddrTranslator == &CMIPS::TranslateAddress64)
 	{
-		m_codeGen->PushCst((int16)nImmediate);
-		m_codeGen->Add();
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
+		if(nImmediate != 0)
+		{
+			m_codeGen->PushCst((int16)nImmediate);
+			m_codeGen->Add();
+		}
+		m_codeGen->PushCst(0x1FFFFFFF);
+		m_codeGen->And();
 	}
+	else
+	{
+		//TODO: Compute the complete 64-bit address
 
-	//Call
-	m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);
+		//Translate the address
+
+		//Push context
+		m_codeGen->PushCtx();
+
+		//Push high part
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[1]));
+
+		//Push low part of address
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
+		if(nImmediate != 0)
+		{
+			m_codeGen->PushCst((int16)nImmediate);
+			m_codeGen->Add();
+		}
+
+		//Call
+		m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);
+	}
 }
 
-void CMIPSInstructionFactory::Branch(bool nCondition)
+void CMIPSInstructionFactory::Branch(Jitter::CONDITION condition)
 {
 	uint16 nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 
 	m_codeGen->PushCst(MIPS_INVALID_PC);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-	m_codeGen->BeginIf(nCondition);
+	m_codeGen->BeginIf(condition);
 	{
         m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
@@ -74,28 +85,28 @@ void CMIPSInstructionFactory::Branch(bool nCondition)
 	m_codeGen->EndIf();
 }
 
-void CMIPSInstructionFactory::BranchLikely(bool conditionValue)
+void CMIPSInstructionFactory::BranchLikely(Jitter::CONDITION condition)
 {
 	uint16 nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 
 	m_codeGen->PushCst(MIPS_INVALID_PC);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-	m_codeGen->BeginIfElse(conditionValue);
+	m_codeGen->BeginIf(condition);
 	{
         m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
-	m_codeGen->BeginIfElseAlt();
+	m_codeGen->Else();
 	{
-        m_codeGen->PushCst(m_nAddress + 8);
+		m_codeGen->PushCst(m_nAddress + 8);
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nPC));
-		m_codeGen->EndQuota();
+		m_codeGen->Goto(m_codeGen->GetFinalBlockLabel());
 	}
 	m_codeGen->EndIf();
 }
 
 void CMIPSInstructionFactory::Illegal()
 {
-    throw runtime_error("Illegal instruction.");
+	throw std::runtime_error("Illegal instruction.");
 }

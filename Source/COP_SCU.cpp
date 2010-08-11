@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include "COP_SCU.h"
 #include "MIPS.h"
-#include "CodeGen.h"
+#include "Jitter.h"
 #include "offsetof_def.h"
 
 char*		CCOP_SCU::m_sRegName[] = 
@@ -50,7 +50,7 @@ m_nRD(0)
 
 }
 
-void CCOP_SCU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
@@ -68,7 +68,7 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCt
 void CCOP_SCU::MFC0()
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
-    m_codeGen->SeX();
+    m_codeGen->SignExt();
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
@@ -101,8 +101,7 @@ void CCOP_SCU::BC0F()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[CPCOND0]));
 	m_codeGen->PushCst(0);
-	m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
-	Branch(true);
+	Branch(Jitter::CONDITION_EQ);
 }
 
 //01
@@ -110,8 +109,7 @@ void CCOP_SCU::BC0T()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[CPCOND0]));
 	m_codeGen->PushCst(0);
-	m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
-	Branch(false);
+	Branch(Jitter::CONDITION_NE);
 }
 
 //////////////////////////////////////////////////
@@ -126,9 +124,7 @@ void CCOP_SCU::ERET()
 	m_codeGen->And();
 	
 	m_codeGen->PushCst(0x00);
-	m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
-
-	m_codeGen->BeginIfElse(false);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		//ERL bit was set
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[ERROREPC]));
@@ -141,7 +137,7 @@ void CCOP_SCU::ERET()
 		m_codeGen->And();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 	}
-	m_codeGen->BeginIfElseAlt();
+	m_codeGen->Else();
 	{
 		//EXL bit wasn't set, we assume ERL was (unsafe)
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[EPC]));

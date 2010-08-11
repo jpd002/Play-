@@ -8,7 +8,7 @@ class CCOP_FPU : public CMIPSCoprocessor
 {
 public:
 										CCOP_FPU(MIPS_REGSIZE);
-	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*);
+	virtual void						CompileInstruction(uint32, CMipsJitter*, CMIPS*);
 	virtual void						GetInstruction(uint32, char*);
 	virtual void						GetArguments(uint32, uint32, char*);
 	virtual uint32						GetEffectiveAddress(uint32, uint32);
@@ -51,7 +51,7 @@ private:
 	static uint32						m_nCCMask[8];
 
 	void							    SetCCBit(bool, uint32);
-	void							    TestCCBit(uint32);
+	void							    PushCCBit(uint32);
 
 	static InstructionFuncConstant      m_pOpGeneral[0x20];
 	static InstructionFuncConstant      m_pOpSingle[0x40];

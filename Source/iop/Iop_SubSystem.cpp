@@ -208,7 +208,7 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
 			}
         }
 
-		if(isIdle)
+		if(isIdle && !singleStep)
 		{
 			quota /= 50;
 		}

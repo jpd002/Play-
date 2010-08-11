@@ -2,9 +2,9 @@
 #define _MIPSINSTRUCTIONFACTORY_H_
 
 #include "Types.h"
+#include "MipsJitter.h"
 
 class CMIPS;
-class CCodeGen;
 
 enum MIPS_REGSIZE
 {
@@ -17,17 +17,17 @@ class CMIPSInstructionFactory
 public:
 							CMIPSInstructionFactory(MIPS_REGSIZE);
 	virtual					~CMIPSInstructionFactory();
-	virtual void			CompileInstruction(uint32, CCodeGen*, CMIPS*) = 0;
+	virtual void			CompileInstruction(uint32, CMipsJitter*, CMIPS*) = 0;
 
 protected:
 	void					ComputeMemAccessAddr();
-	void					Branch(bool);
-	void					BranchLikely(bool);
+	void					Branch(Jitter::CONDITION);
+	void					BranchLikely(Jitter::CONDITION);
 
 	void					Illegal();
-	void					SetupQuickVariables(uint32, CCodeGen*, CMIPS*);
+	void					SetupQuickVariables(uint32, CMipsJitter*, CMIPS*);
 
-    CCodeGen*				m_codeGen;
+    CMipsJitter*			m_codeGen;
     CMIPS*					m_pCtx;
     uint32					m_nOpcode;
     uint32					m_nAddress;

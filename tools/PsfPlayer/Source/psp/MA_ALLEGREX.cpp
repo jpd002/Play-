@@ -1,5 +1,5 @@
 #include "MA_ALLEGREX.h"
-#include "CodeGen.h"
+#include "Jitter.h"
 #include "MIPS.h"
 
 CMA_ALLEGREX::CMA_ALLEGREX()
@@ -52,14 +52,13 @@ void CMA_ALLEGREX::MAX()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->Cmp(CCodeGen::CONDITION_LE);
 
-	m_codeGen->BeginIfElse(true);
+	m_codeGen->BeginIf(Jitter::CONDITION_LE);
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 	}
-	m_codeGen->BeginIfElseAlt();
+	m_codeGen->Else();
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -72,14 +71,13 @@ void CMA_ALLEGREX::MIN()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->Cmp(CCodeGen::CONDITION_LE);
 
-	m_codeGen->BeginIfElse(true);
+	m_codeGen->BeginIf(Jitter::CONDITION_LE);
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 	}
-	m_codeGen->BeginIfElseAlt();
+	m_codeGen->Else();
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -151,7 +149,7 @@ void CMA_ALLEGREX::BSHFL()
 void CMA_ALLEGREX::SEB()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->SeX8();
+    m_codeGen->SignExt8();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
@@ -159,6 +157,6 @@ void CMA_ALLEGREX::SEB()
 void CMA_ALLEGREX::SEH()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->SeX16();
+    m_codeGen->SignExt16();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
