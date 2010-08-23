@@ -1,7 +1,5 @@
 #include "MipsExecutor.h"
 
-using namespace std;
-
 CMipsExecutor::CMipsExecutor(CMIPS& context) :
 m_context(context)
 {
@@ -57,7 +55,7 @@ int CMipsExecutor::Execute(int cycles)
                     block = FindBlockStartingAt(address);
                     if(block == NULL)
                     {
-                        throw runtime_error("Couldn't create block starting at address.");
+						throw std::runtime_error("Couldn't create block starting at address.");
                     }
                 }
             }
