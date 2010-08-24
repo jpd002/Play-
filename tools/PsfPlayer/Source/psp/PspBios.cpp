@@ -687,7 +687,7 @@ uint32 CBios::GetNextReadyThread()
 	{
         THREAD* nextThread = m_threads[nextThreadId];
 		nextThreadId = nextThread->nextThreadId;
-        if(GetCurrentTime() <= nextThread->nextActivateTime) continue;
+//        if(GetCurrentTime() <= nextThread->nextActivateTime) continue;
         if(nextThread->status == THREAD_STATUS_RUNNING)
         {
             return nextThread->id;
