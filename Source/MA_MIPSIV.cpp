@@ -50,28 +50,28 @@ uint64 g_LDMaskLeft[8] =
     0x0000000000000000ULL,
 };
 
-void LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
+uint32 LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
     uint32 alignedAddress = address & ~0x03;
     uint32 byteOffset = address & 0x03;
     uint32 accessType = 3 - byteOffset;
     uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
     memory <<= accessType * 8;
-    context->m_State.nGPR[rt].nV0 &= g_LWMaskRight[byteOffset];
-    context->m_State.nGPR[rt].nV0 |= memory;
-    context->m_State.nGPR[rt].nV1 = context->m_State.nGPR[rt].nV0 & 0x80000000 ? 0xFFFFFFFF : 0x00000000;
+    rt &= g_LWMaskRight[byteOffset];
+    rt |= memory;
+	return rt;
 }
 
-void LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
+uint32 LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
     uint32 alignedAddress = address & ~0x03;
     uint32 byteOffset = address & 0x03;
     uint32 accessType = 3 - byteOffset;
     uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
     memory >>= byteOffset * 8;
-    context->m_State.nGPR[rt].nV0 &= g_LWMaskLeft[accessType];
-    context->m_State.nGPR[rt].nV0 |= memory;
-    context->m_State.nGPR[rt].nV1 = context->m_State.nGPR[rt].nV0 & 0x80000000 ? 0xFFFFFFFF : 0x00000000;
+    rt &= g_LWMaskLeft[accessType];
+    rt |= memory;
+	return rt;
 }
 
 void LDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
@@ -105,11 +105,10 @@ void SWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 alignedAddress = address & ~0x03;
     uint32 byteOffset = address & 0x03;
     uint32 accessType = 3 - byteOffset;
-    uint32 reg = context->m_State.nGPR[rt].nV0;
-    reg >>= accessType * 8;
+    rt >>= accessType * 8;
     uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
     memory &= g_LWMaskLeft[byteOffset];
-    memory |= reg;
+    memory |= rt;
     CMemoryUtils::SetWordProxy(context, memory, alignedAddress);
 }
 
@@ -118,11 +117,10 @@ void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     uint32 alignedAddress = address & ~0x03;
     uint32 byteOffset = address & 0x03;
     uint32 accessType = 3 - byteOffset;
-    uint32 reg = context->m_State.nGPR[rt].nV0;
-    reg <<= byteOffset * 8;
+    rt <<= byteOffset * 8;
     uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
     memory &= g_LWMaskRight[accessType];
-    memory |= reg;
+    memory |= rt;
     CMemoryUtils::SetWordProxy(context, memory, alignedAddress);
 }
 
@@ -534,9 +532,16 @@ void CMA_MIPSIV::LH()
 void CMA_MIPSIV::LWL()
 {
     ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->PushCtx();
-    m_codeGen->Call(reinterpret_cast<void*>(&LWL_Proxy), 3, false);
+    m_codeGen->Call(reinterpret_cast<void*>(&LWL_Proxy), 3, true);
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		//TODO: Sign extend
+		assert(0);
+	}
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
 
 //23
@@ -561,9 +566,16 @@ void CMA_MIPSIV::LHU()
 void CMA_MIPSIV::LWR()
 {
     ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->PushCtx();
-    m_codeGen->Call(reinterpret_cast<void*>(&LWR_Proxy), 3, false);
+    m_codeGen->Call(reinterpret_cast<void*>(&LWR_Proxy), 3, true);
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		//TODO: Sign extend
+		assert(0);
+	}
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
 
 //27
@@ -612,7 +624,7 @@ void CMA_MIPSIV::SH()
 void CMA_MIPSIV::SWL()
 {
     ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
     m_codeGen->Call(reinterpret_cast<void*>(&SWL_Proxy), 3, false);
 }
@@ -656,7 +668,7 @@ void CMA_MIPSIV::SDR()
 void CMA_MIPSIV::SWR()
 {
     ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->PushCtx();
     m_codeGen->Call(reinterpret_cast<void*>(&SWR_Proxy), 3, false);
 }
