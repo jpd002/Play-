@@ -20,4 +20,6 @@
 #include "Stream.h"
 #include "xml/Node.h"
 
+#include "Jitter.h"
+
 #endif
