@@ -94,8 +94,7 @@ CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(MemoryMapListType& memoryMap, u
 
 uint8 CMemoryMap::GetByte(uint32 nAddress)
 {
-	MEMORYMAPELEMENT* e;
-	e = GetMap(m_readMap, nAddress);
+	MEMORYMAPELEMENT* e = GetMap(m_readMap, nAddress);
 	if(e == NULL) return 0xCC;
 	switch(e->nType)
 	{
@@ -114,8 +113,7 @@ uint8 CMemoryMap::GetByte(uint32 nAddress)
 
 void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 {
-	MEMORYMAPELEMENT* e;
-	e = GetMap(m_writeMap, nAddress);
+	MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
 	if(e == NULL)
 	{
 		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
@@ -146,13 +144,12 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 
 uint16 CMemoryMap_LSBF::GetHalf(uint32 nAddress)
 {
-	MEMORYMAPELEMENT* e;
 	if(nAddress & 0x01)
 	{
 		//Unaligned access (shouldn't happen)
 		assert(0);
 	}
-	e = GetMap(m_readMap, nAddress);
+	MEMORYMAPELEMENT* e = GetMap(m_readMap, nAddress);
 	if(e == NULL) return 0xCCCC;
 	switch(e->nType)
 	{
@@ -204,13 +201,12 @@ uint32 CMemoryMap_LSBF::GetInstruction(uint32 address)
 
 void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 {
-	MEMORYMAPELEMENT* e;
 	if(nAddress & 0x01)
 	{
         //Unaligned access (shouldn't happen)
 		assert(0);
 	}
-	e = GetMap(m_writeMap, nAddress);
+	MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
 	if(e == NULL) 
 	{
 		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
@@ -237,13 +233,12 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 
 void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 {
-	MEMORYMAPELEMENT* e;
 	if(nAddress & 0x03)
 	{
         //Unaligned access (shouldn't happen)
 		assert(0);
 	}
-	e = GetMap(m_writeMap, nAddress);
+	MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
 	if(e == NULL) 
 	{
 		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.8X).\r\n", nAddress, nValue);
