@@ -1,4 +1,5 @@
 !include "MUI2.nsh"
+!include "x64.nsh"
 
 !searchparse /file ../Source/AppDef.h '#define APP_VERSIONSTR _T("' APP_VERSION '")'
 
@@ -6,10 +7,10 @@
 Name "PsfPlayer v${APP_VERSION}"
 
 ; The file to write
-OutFile "PsfPlayer-${APP_VERSION}.exe"
+OutFile "PsfPlayer-${APP_VERSION}-64.exe"
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\PsfPlayer
+InstallDir $PROGRAMFILES64\PsfPlayer
 
 ; Registry key to check for directory (so if you install again, it will 
 ; overwrite the old one automatically)
@@ -60,9 +61,9 @@ Section "PsfPlayer (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "..\Win32\Release\PsfPlayer.exe"
-  File "..\Win32\Release\SH_WaveOut.dll"
-  File "..\Win32\Release\SH_OpenAL.dll"
+  File "..\x64\Release\PsfPlayer.exe"
+  File "..\x64\Release\SH_WaveOut.dll"
+  File "..\x64\Release\SH_OpenAL.dll"
   File "..\changelog.html"
   
   ; Write the installation path into the registry
@@ -112,3 +113,13 @@ Section "Uninstall"
   RMDir "$INSTDIR"
 
 SectionEnd
+
+# Installer functions
+Function .onInit
+	${If} ${RunningX64}
+	${Else}
+		MessageBox MB_OK "This installer is for the 64-bits version of Windows. Bailing out."
+		Abort
+	${EndIf}
+	SetRegView 64
+FunctionEnd
