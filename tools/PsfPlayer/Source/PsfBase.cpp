@@ -2,12 +2,12 @@
 #include "MemStream.h"
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdexcept>
 #include <algorithm>
 #include <zlib.h>
 
 using namespace Framework;
-using namespace std;
 
 CPsfBase::CPsfBase(CStream& stream) :
 m_reserved(NULL),
@@ -18,7 +18,7 @@ m_program(NULL)
     signature[3] = 0;
     if(strcmp(signature, "PSF"))
     {
-        throw runtime_error("Invalid PSF file (Invalid signature).");
+        throw std::runtime_error("Invalid PSF file (Invalid signature).");
     }
     m_version = stream.Read8();
     m_reservedSize = stream.Read32();
@@ -105,7 +105,7 @@ void CPsfBase::ReadProgram(CStream& stream)
 			int result = inflate(&zStream, 0);
 			if(result < 0)
 			{
-				throw runtime_error("Error occured while trying to decompress.");
+				throw std::runtime_error("Error occured while trying to decompress.");
 			}
 			outputStream.Write(buffer, bufferSize - zStream.avail_out);
 			if(result == Z_STREAM_END)
@@ -133,7 +133,7 @@ void CPsfBase::ReadTags(CStream& stream)
 	{
 		return;
 	}
-	string line = "";
+	std::string line = "";
 	while(1)
 	{
 		char nextCharacter = stream.Read8();
@@ -149,13 +149,13 @@ void CPsfBase::ReadTags(CStream& stream)
 			const char* tagEnd = tagBegin + line.length();
 			if(tagSeparator != NULL)
 			{
-				string tagName = string(tagBegin, tagSeparator);
-				string tagValue = string(tagSeparator + 1, tagEnd);
-				transform(tagName.begin(), tagName.end(), tagName.begin(), tolower);
+				std::string tagName = std::string(tagBegin, tagSeparator);
+				std::string tagValue = std::string(tagSeparator + 1, tagEnd);
+				std::transform(tagName.begin(), tagName.end(), tagName.begin(), tolower);
 				TagMap::iterator tagIterator(m_tags.find(tagName));
 				if(tagIterator != m_tags.end())
 				{
-					m_tags[tagName] += string("/n") + tagValue;
+					m_tags[tagName] += std::string("/n") + tagValue;
 				}
 				else
 				{
