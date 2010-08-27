@@ -1,6 +1,7 @@
 #include "Iop_PsfSubSystem.h"
 #include "Ps2Const.h"
 #include "HighResTimer.h"
+#include <boost/thread.hpp>
 
 using namespace Iop;
 

@@ -1,4 +1,5 @@
 #include "Psp_PsfSubSystem.h"
+#include <boost/thread.hpp>
 
 using namespace Psp;
 

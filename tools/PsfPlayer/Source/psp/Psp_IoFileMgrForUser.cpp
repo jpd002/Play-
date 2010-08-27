@@ -120,7 +120,7 @@ uint32 CIoFileMgrForUser::IoWrite(uint32 fd, uint32 bufferAddr, uint32 bufferSiz
 	uint8* buffer = m_ram + bufferAddr;
 	if(fd == FD_STDOUT)
 	{
-		char* data = reinterpret_cast<char*>(_alloca(bufferSize + 1));
+		char* data = reinterpret_cast<char*>(alloca(bufferSize + 1));
 		memcpy(data, buffer, bufferSize);
 		data[bufferSize] = 0;
 		printf("%s", data);		

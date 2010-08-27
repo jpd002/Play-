@@ -2,7 +2,7 @@
 #define _PSP_PSFDEVICE_H_
 
 #include "Psp_IoDevice.h"
-#include "PsfFs.h"
+#include "../PsfFs.h"
 
 namespace Psp
 {

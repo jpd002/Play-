@@ -1,6 +1,7 @@
 #include "MA_ALLEGREX.h"
 #include "Jitter.h"
 #include "MIPS.h"
+#include "offsetof_def.h"
 
 CMA_ALLEGREX::CMA_ALLEGREX()
 : CMA_MIPSIV(MIPS_REGSIZE_32)

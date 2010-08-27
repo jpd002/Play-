@@ -1,6 +1,7 @@
 #ifndef _PSP_IODEVICE_H_
 #define _PSP_IODEVICE_H_
 
+#include <memory>
 #include "Stream.h"
 
 namespace Psp

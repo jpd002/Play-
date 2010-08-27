@@ -1,8 +1,8 @@
 #ifndef _PSP_PSFBIOS_H_
 #define _PSP_PSFBIOS_H_
 
-#include "psp/PspBios.h"
-#include "psp/Psp_PsfDevice.h"
+#include "PspBios.h"
+#include "Psp_PsfDevice.h"
 
 namespace Psp
 {

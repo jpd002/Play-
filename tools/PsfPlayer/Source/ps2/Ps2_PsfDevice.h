@@ -3,7 +3,7 @@
 
 #include "iop/Ioman_Device.h"
 #include "PsfBase.h"
-#include "PsfFs.h"
+#include "../PsfFs.h"
 #include <list>
 
 namespace PS2
