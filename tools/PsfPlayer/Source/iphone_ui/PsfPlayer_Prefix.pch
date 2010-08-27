@@ -2,7 +2,24 @@
 // Prefix header for all source files of the 'PsfPlayer' target in the 'PsfPlayer' project
 //
 
+#include <assert.h>
+#include <string.h>
+
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import <UIKit/UIKit.h>
+#else
+	#include <string>
+	#include <list>
+	#include <vector>
+	#include <deque>
+	#include <map>
+	#include <functional>
+	#include <memory>
+	#include <stdexcept>
+	#include <algorithm>
+	#include "Jitter.h"
 #endif
+
+
+#include "Types.h"
