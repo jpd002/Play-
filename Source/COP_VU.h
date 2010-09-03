@@ -9,7 +9,7 @@ class CCOP_VU : public CMIPSCoprocessor
 public:
 										CCOP_VU(MIPS_REGSIZE);
 
-	virtual void						CompileInstruction(uint32, CCodeGen*, CMIPS*);
+	virtual void						CompileInstruction(uint32, CMipsJitter*, CMIPS*);
 	virtual void						GetInstruction(uint32, char*);
 	virtual void						GetArguments(uint32, uint32, char*);
 	virtual uint32						GetEffectiveAddress(uint32, uint32);

@@ -2,7 +2,7 @@
 #define _VUSHARED_H_
 
 #include "MIPSReflection.h"
-#include "CodeGen.h"
+#include "MipsJitter.h"
 #include "uint128.h"
 #include <string.h>
 
@@ -61,70 +61,70 @@ namespace VUShared
 	uint32*				GetAccumulatorElement(CMIPS*, unsigned int);
     size_t              GetAccumulatorElement(unsigned int);
 
-    void                PullVector(CCodeGen*, uint8, size_t);
+    void                PullVector(CMipsJitter*, uint8, size_t);
 
-    void                ADDA_base(CCodeGen*, uint8, size_t, size_t, bool);
-    void                MADD_base(CCodeGen*, uint8, size_t, size_t, size_t, bool);
-    void                MSUB_base(CCodeGen*, uint8, size_t, size_t, size_t, bool);
+    void                ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
+    void                MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
+    void                MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
 
 	//Shared instructions
-	void				ABS(CCodeGen*, uint8, uint8, uint8);
-	void				ADD(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				ADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				ADDi(CCodeGen*, uint8, uint8, uint8);
-	void				ADDq(CCodeGen*, uint8, uint8, uint8, uint32);
-    void                ADDA(CCodeGen*, uint8, uint8, uint8);
-	void				ADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				CLIP(CCodeGen*, uint8, uint8);
-	void				DIV(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
-	void				FTOI0(CCodeGen*, uint8, uint8, uint8);
-	void				FTOI4(CCodeGen*, uint8, uint8, uint8);
-    void                FTOI12(CCodeGen*, uint8, uint8, uint8);
-	void				ITOF0(CCodeGen*, uint8, uint8, uint8);
-    void                ITOF4(CCodeGen*, uint8, uint8, uint8);
-    void                ITOF12(CCodeGen*, uint8, uint8, uint8);
-    void                ITOF15(CCodeGen*, uint8, uint8, uint8);
-	void				MADD(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MADDbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-    void                MADDq(CCodeGen*, uint8, uint8, uint8, uint32);
-	void				MADDA(CCodeGen*, uint8, uint8, uint8);
-	void				MADDAbc(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MADDAi(CCodeGen*, uint8, uint8);
-	void				MAX(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MAXbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MINI(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MINIbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MINIi(CCodeGen*, uint8, uint8, uint8);
-	void				MOVE(CCodeGen*, uint8, uint8, uint8);
-	void				MR32(CCodeGen*, uint8, uint8, uint8);
-    void                MSUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MSUBi(CCodeGen*, uint8, uint8, uint8);
-    void                MSUBAbc(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MSUBAi(CCodeGen*, uint8, uint8);
-	void				MUL(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MULbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				MULi(CCodeGen*, uint8, uint8, uint8);
-	void				MULq(CCodeGen*, uint8, uint8, uint8, uint32);
-	void				MULA(CCodeGen*, uint8, uint8, uint8);
-	void				MULAbc(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				MULAi(CCodeGen*, uint8, uint8);
-	void				OPMSUB(CCodeGen*, uint8, uint8, uint8);
-	void				OPMULA(CCodeGen*, uint8, uint8);
-	void				RINIT(CCodeGen*, uint8, uint8);
-    void                RGET(CCodeGen*, uint8, uint8);
-    void                RNEXT(CCodeGen*, uint8, uint8);
-	void				RSQRT(CCodeGen*, uint8, uint8, uint8, uint8, uint32, unsigned int);
-	void				RXOR(CCodeGen*, uint8, uint8);
-	void				SQRT(CCodeGen*, uint8, uint8, uint32, unsigned int);
-	void				SUB(CCodeGen*, uint8, uint8, uint8, uint8);
-	void				SUBbc(CCodeGen*, uint8, uint8, uint8, uint8, uint8);
-	void				SUBi(CCodeGen*, uint8, uint8, uint8);
-    void                SUBAbc(CCodeGen*, uint8, uint8, uint8, uint8);
-    void                WAITQ(CCodeGen*);
+	void				ABS(CMipsJitter*, uint8, uint8, uint8);
+	void				ADD(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				ADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void				ADDi(CMipsJitter*, uint8, uint8, uint8);
+	void				ADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
+    void                ADDA(CMipsJitter*, uint8, uint8, uint8);
+	void				ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				CLIP(CMipsJitter*, uint8, uint8);
+	void				DIV(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, unsigned int);
+	void				FTOI0(CMipsJitter*, uint8, uint8, uint8);
+	void				FTOI4(CMipsJitter*, uint8, uint8, uint8);
+    void                FTOI12(CMipsJitter*, uint8, uint8, uint8);
+	void				ITOF0(CMipsJitter*, uint8, uint8, uint8);
+    void                ITOF4(CMipsJitter*, uint8, uint8, uint8);
+    void                ITOF12(CMipsJitter*, uint8, uint8, uint8);
+    void                ITOF15(CMipsJitter*, uint8, uint8, uint8);
+	void				MADD(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+    void                MADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void				MADDA(CMipsJitter*, uint8, uint8, uint8);
+	void				MADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				MADDAi(CMipsJitter*, uint8, uint8);
+	void				MAX(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				MAXbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void				MINI(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				MINIbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void				MINIi(CMipsJitter*, uint8, uint8, uint8);
+	void				MOVE(CMipsJitter*, uint8, uint8, uint8);
+	void				MR32(CMipsJitter*, uint8, uint8, uint8);
+    void                MSUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void				MSUBi(CMipsJitter*, uint8, uint8, uint8);
+    void                MSUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				MSUBAi(CMipsJitter*, uint8, uint8);
+	void				MUL(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				MULbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void				MULi(CMipsJitter*, uint8, uint8, uint8);
+	void				MULq(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void				MULA(CMipsJitter*, uint8, uint8, uint8);
+	void				MULAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				MULAi(CMipsJitter*, uint8, uint8);
+	void				OPMSUB(CMipsJitter*, uint8, uint8, uint8);
+	void				OPMULA(CMipsJitter*, uint8, uint8);
+	void				RINIT(CMipsJitter*, uint8, uint8);
+    void                RGET(CMipsJitter*, uint8, uint8);
+    void                RNEXT(CMipsJitter*, uint8, uint8);
+	void				RSQRT(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, unsigned int);
+	void				RXOR(CMipsJitter*, uint8, uint8);
+	void				SQRT(CMipsJitter*, uint8, uint8, uint32, unsigned int);
+	void				SUB(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void				SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void				SUBi(CMipsJitter*, uint8, uint8, uint8);
+    void                SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
+    void                WAITQ(CMipsJitter*);
 
-    void                FlushPipeline(const PIPEINFO&, CCodeGen*);
-    void                QueueInPipeline(const PIPEINFO&, CCodeGen*, uint32);
-    void                VerifyPipeline(const PIPEINFO&, CCodeGen*, uint32);
+    void                FlushPipeline(const PIPEINFO&, CMipsJitter*);
+    void                QueueInPipeline(const PIPEINFO&, CMipsJitter*, uint32);
+    void                VerifyPipeline(const PIPEINFO&, CMipsJitter*, uint32);
 
     //Shared addressing modes
 	void				ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

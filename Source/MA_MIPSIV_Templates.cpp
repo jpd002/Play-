@@ -14,6 +14,7 @@ void CMA_MIPSIV::Template_Add32(bool isSigned)
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 		m_codeGen->SignExt();
 	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
@@ -25,16 +26,10 @@ void CMA_MIPSIV::Template_Add64(bool isSigned)
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Add64();
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 void CMA_MIPSIV::Template_Sub32(bool isSigned)
@@ -65,6 +60,7 @@ void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}
@@ -80,6 +76,7 @@ void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType&
     
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
@@ -135,6 +132,7 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
 	m_codeGen->ExtLow64();
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(lo[1]);
 	}
@@ -143,6 +141,7 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
 	m_codeGen->ExtHigh64();
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(hi[1]);
 	}
@@ -306,12 +305,8 @@ void CMA_MIPSIV::Template_SetLessThanReg(bool isSigned)
 	}
 	else
 	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->Cmp64(condition);
 	}
 
@@ -334,13 +329,10 @@ void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
 	}
 	else if(m_regSize == MIPS_REGSIZE_64)
 	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->Cmp64(Jitter::CONDITION_NE);
+		
 		m_codeGen->PushCst(0);
 	}
 

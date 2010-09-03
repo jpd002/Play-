@@ -13,7 +13,7 @@ CVuBasicBlock::~CVuBasicBlock()
 
 }
 
-void CVuBasicBlock::CompileRange(CCodeGen& codeGen)
+void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	assert((m_begin & 0x07) == 0);
 	assert(((m_end + 4) & 0x07) == 0);
@@ -31,7 +31,7 @@ void CVuBasicBlock::CompileRange(CCodeGen& codeGen)
 
 		if(opcodeHi & 0x80000000)
 		{
-			arch->CompileInstruction(addressHi, &codeGen, &m_context);
+			arch->CompileInstruction(addressHi, jitter, &m_context);
 		}
 		else
 		{
@@ -46,32 +46,32 @@ void CVuBasicBlock::CompileRange(CCodeGen& codeGen)
 					)
 				{
 					savedReg = hiOps.writeF;
-					codeGen.MD_PushRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
-					codeGen.MD_PullRel(offsetof(CMIPS, m_State.nCOP2VF_PreUp));
+					jitter->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
+					jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2VF_PreUp));
 				}
 			}
 
-			arch->CompileInstruction(addressHi, &codeGen, &m_context);
+			arch->CompileInstruction(addressHi, jitter, &m_context);
 
 			if(savedReg != 0)
 			{
-				codeGen.MD_PushRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
-				codeGen.MD_PullRel(offsetof(CMIPS, m_State.nCOP2VF_UpRes));
+				jitter->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
+				jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2VF_UpRes));
 
-				codeGen.MD_PushRel(offsetof(CMIPS, m_State.nCOP2VF_PreUp));
-				codeGen.MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
+				jitter->MD_PushRel(offsetof(CMIPS, m_State.nCOP2VF_PreUp));
+				jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
 			}
 
-			arch->CompileInstruction(addressLo, &codeGen, &m_context);
+			arch->CompileInstruction(addressLo, jitter, &m_context);
 
 			if(savedReg != 0)
 			{
-				codeGen.MD_PushRel(offsetof(CMIPS, m_State.nCOP2VF_UpRes));
-				codeGen.MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
+				jitter->MD_PushRel(offsetof(CMIPS, m_State.nCOP2VF_UpRes));
+				jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
 			}
 		}
 
 		//Sanity check
-		assert(codeGen.IsStackEmpty());
+		assert(jitter->IsStackEmpty());
 	}
 }

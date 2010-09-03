@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include "MA_EE.h"
 #include "MIPS.h"
-#include "CodeGen.h"
 #include "PS2OS.h"
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
@@ -267,25 +266,25 @@ void CMA_EE::MTLO1()
 //18
 void CMA_EE::MULT1()
 {
-    Template_Mult32(bind(&CCodeGen::MultS, m_codeGen), 1);
+	Template_Mult32(bind(&Jitter::CJitter::MultS, m_codeGen), 1);
 }
 
 //19
 void CMA_EE::MULTU1()
 {
-    Template_Mult32(bind(&CCodeGen::Mult, m_codeGen), 1);
+    Template_Mult32(bind(&Jitter::CJitter::Mult, m_codeGen), 1);
 }
 
 //1A
 void CMA_EE::DIV1()
 {
-    Template_Div32(bind(&CCodeGen::DivS, m_codeGen), 1);
+    Template_Div32(bind(&Jitter::CJitter::DivS, m_codeGen), 1);
 }
 
 //1B
 void CMA_EE::DIVU1()
 {
-    Template_Div32(bind(&CCodeGen::Div, m_codeGen), 1);
+    Template_Div32(bind(&Jitter::CJitter::Div, m_codeGen), 1);
 }
 
 //20
@@ -628,12 +627,12 @@ void CMA_EE::PMULTW()
         m_codeGen->MultS();
 
         //LO
-	    m_codeGen->SeX();
+	    m_codeGen->SignExt();
 	    m_codeGen->PullRel(GetLoOffset(regOffset + 1));
         m_codeGen->PullRel(GetLoOffset(regOffset + 0));
 
         //HI
-        m_codeGen->SeX();
+        m_codeGen->SignExt();
 	    m_codeGen->PullRel(GetHiOffset(regOffset + 1));
 	    m_codeGen->PullRel(GetHiOffset(regOffset + 0));
 	}
@@ -665,12 +664,12 @@ void CMA_EE::PDIVW()
         m_codeGen->DivS();
 
         //Quotient
-	    m_codeGen->SeX();
+	    m_codeGen->SignExt();
 	    m_codeGen->PullRel(GetLoOffset(regOffset + 1));
         m_codeGen->PullRel(GetLoOffset(regOffset + 0));
 
         //Remainder
-        m_codeGen->SeX();
+        m_codeGen->SignExt();
 	    m_codeGen->PullRel(GetHiOffset(regOffset + 1));
 	    m_codeGen->PullRel(GetHiOffset(regOffset + 0));
     }
@@ -979,11 +978,11 @@ void CMA_EE::Generic_MADD(unsigned int unit)
     m_codeGen->PushRel(hi[0]);
     m_codeGen->Add64();
 
-    m_codeGen->SeX();
+    m_codeGen->SignExt();
     m_codeGen->PullRel(hi[1]);
     m_codeGen->PullRel(hi[0]);
 
-    m_codeGen->SeX();
+    m_codeGen->SignExt();
     m_codeGen->PullRel(lo[1]);
     m_codeGen->PullRel(lo[0]);
 

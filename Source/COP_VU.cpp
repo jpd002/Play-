@@ -2,7 +2,6 @@
 #include "COP_VU.h"
 #include "VUShared.h"
 #include "MIPS.h"
-#include "CodeGen.h"
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 
@@ -21,7 +20,7 @@ m_nBc(0)
 	SetupReflectionTables();
 }
 
-void CCOP_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
@@ -161,7 +160,7 @@ void CCOP_VU::CFC2()
 	    }
     }
 
-	m_codeGen->SeX();
+	m_codeGen->SignExt();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 }

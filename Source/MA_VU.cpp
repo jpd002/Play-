@@ -13,7 +13,7 @@ CMA_VU::~CMA_VU()
 
 }
 
-void CMA_VU::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+void CMA_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
     SetupQuickVariables(nAddress, codeGen, pCtx);
 

@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;;G:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUGGER_INCLUDED;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;GLEW_STATIC;_IOP_EMULATE_MODULES"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -203,26 +203,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\BasicBlock.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CodeGen.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CodeGen.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CodeGen_FPU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CodeGen_MD.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\CodeGen_StackPatterns.h"
 				>
 			</File>
 			<File
@@ -394,14 +374,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\MipsCodeGen.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\MipsCodeGen.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\MIPSCoprocessor.cpp"
 				>
 			</File>
@@ -423,6 +395,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\MIPSInstructionFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\MipsJitter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\MipsJitter.h"
 				>
 			</File>
 			<File
@@ -535,22 +515,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\VolumeStream.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\X86Assembler.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\X86Assembler.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\X86Assembler_Fpu.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\X86Assembler_Sse.cpp"
 				>
 			</File>
 			<Filter

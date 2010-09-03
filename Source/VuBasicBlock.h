@@ -10,7 +10,7 @@ public:
 	virtual			~CVuBasicBlock();
 
 protected:
-	virtual void	CompileRange(CCodeGen&);
+	virtual void	CompileRange(CMipsJitter*);
 
 private:
 

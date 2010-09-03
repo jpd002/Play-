@@ -3,7 +3,6 @@
 #include "VIF.h"
 #include "MIPS.h"
 #include "VUShared.h"
-#include "CodeGen.h"
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 
@@ -108,7 +107,7 @@ void CMA_VU::CLower::ComputeMemAccessAddr(unsigned int baseRegister, uint32 base
     }
 }
 
-void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
@@ -142,18 +141,21 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIP
 
 void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
 {
-    const uint32 maxIAddr = 0x3FFF;
-    m_codeGen->BeginIfElse(nCondition);
-    {
-        m_codeGen->PushCst((m_nAddress + nOffset + 4) & maxIAddr);
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-    }
-    m_codeGen->BeginIfElseAlt();
-    {
-        m_codeGen->PushCst(MIPS_INVALID_PC);
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-    }
-    m_codeGen->EndIf();
+	//Reimplement
+	assert(0);
+
+    //const uint32 maxIAddr = 0x3FFF;
+    //m_codeGen->BeginIfElse(nCondition);
+    //{
+    //    m_codeGen->PushCst((m_nAddress + nOffset + 4) & maxIAddr);
+    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+    //}
+    //m_codeGen->BeginIfElseAlt();
+    //{
+    //    m_codeGen->PushCst(MIPS_INVALID_PC);
+    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+    //}
+    //m_codeGen->EndIf();
 }
 
 void CMA_VU::CLower::PushIntegerRegister(unsigned int nRegister)
@@ -273,49 +275,55 @@ void CMA_VU::CLower::FCSET()
 //12
 void CMA_VU::CLower::FCAND()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-    m_codeGen->PushCst(m_nImm24);
-    m_codeGen->And();
+	//Reimplement
+	assert(0);
 
-    m_codeGen->PushCst(0);
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+    //m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+    //m_codeGen->PushCst(m_nImm24);
+    //m_codeGen->And();
 
-    m_codeGen->BeginIfElse(false);
-    {
-        m_codeGen->PushCst(1);
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    }
-    m_codeGen->BeginIfElseAlt();
-    {
-        m_codeGen->PushCst(0);
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    }
-    m_codeGen->EndIf();
+    //m_codeGen->PushCst(0);
+    //m_codeGen->Cmp(Jitter::CONDITION_EQ);
+
+    //m_codeGen->BeginIfElse(false);
+    //{
+    //    m_codeGen->PushCst(1);
+    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+    //}
+    //m_codeGen->BeginIfElseAlt();
+    //{
+    //    m_codeGen->PushCst(0);
+    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+    //}
+    //m_codeGen->EndIf();
 }
 
 //13
 void CMA_VU::CLower::FCOR()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-    m_codeGen->PushCst(m_nImm24);
-    m_codeGen->Or();
-    m_codeGen->PushCst(0xFFFFFF);
-    m_codeGen->And();
+	//Reimplement
+	assert(0);
 
-    m_codeGen->PushCst(0xFFFFFF);
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+    //m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+    //m_codeGen->PushCst(m_nImm24);
+    //m_codeGen->Or();
+    //m_codeGen->PushCst(0xFFFFFF);
+    //m_codeGen->And();
 
-    m_codeGen->BeginIfElse(true);
-    {
-        m_codeGen->PushCst(1);
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    }
-    m_codeGen->BeginIfElseAlt();
-    {
-        m_codeGen->PushCst(0);
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    }
-    m_codeGen->EndIf();
+    //m_codeGen->PushCst(0xFFFFFF);
+    //m_codeGen->Cmp(Jitter::CONDITION_EQ);
+
+    //m_codeGen->BeginIfElse(true);
+    //{
+    //    m_codeGen->PushCst(1);
+    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+    //}
+    //m_codeGen->BeginIfElseAlt();
+    //{
+    //    m_codeGen->PushCst(0);
+    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+    //}
+    //m_codeGen->EndIf();
 }
 
 //16
@@ -339,7 +347,7 @@ void CMA_VU::CLower::FMAND()
     {
         m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF.nV[3 - i]));
         m_codeGen->PushCst(0);
-        m_codeGen->Cmp(CCodeGen::CONDITION_NE);
+        m_codeGen->Cmp(Jitter::CONDITION_NE);
         m_codeGen->Shl(4 + i);
         m_codeGen->Or();
     }
@@ -417,7 +425,7 @@ void CMA_VU::CLower::IBEQ()
     m_codeGen->PushCst(0xFFFF);
     m_codeGen->And();
 
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
     SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 }
@@ -435,7 +443,7 @@ void CMA_VU::CLower::IBNE()
     m_codeGen->PushCst(0xFFFF);
     m_codeGen->And();
 
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
     SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
 }
@@ -450,7 +458,7 @@ void CMA_VU::CLower::IBLTZ()
     m_codeGen->PushCst(0x8000);
     m_codeGen->And();
 
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
     SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
 }
@@ -460,10 +468,10 @@ void CMA_VU::CLower::IBGTZ()
 {
     //TODO: Merge IBGTZ and IBLEZ
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-    m_codeGen->SeX16();
+    m_codeGen->SignExt16();
 
     m_codeGen->PushCst(0);
-    m_codeGen->Cmp(CCodeGen::CONDITION_GT);
+    m_codeGen->Cmp(Jitter::CONDITION_GT);
 
     SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 }
@@ -472,10 +480,10 @@ void CMA_VU::CLower::IBGTZ()
 void CMA_VU::CLower::IBLEZ()
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-    m_codeGen->SeX16();
+    m_codeGen->SignExt16();
 
     m_codeGen->PushCst(0);
-    m_codeGen->Cmp(CCodeGen::CONDITION_GT);
+    m_codeGen->Cmp(Jitter::CONDITION_GT);
 
     SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
 }
@@ -489,7 +497,7 @@ void CMA_VU::CLower::IBGEZ()
     m_codeGen->PushCst(0x8000);
     m_codeGen->And();
 
-    m_codeGen->Cmp(CCodeGen::CONDITION_EQ);
+    m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
     SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
 }
@@ -738,7 +746,7 @@ void CMA_VU::CLower::MFIR()
         if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
         PushIntegerRegister(m_nIS);
-        m_codeGen->SeX16();
+        m_codeGen->SignExt16();
         m_codeGen->PullRel(VUShared::GetVectorElement(m_nIT, i));
     }
 }

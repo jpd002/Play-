@@ -2,7 +2,6 @@
 #include "MIPS.h"
 #include "VUShared.h"
 #include "VIF.h"
-#include "CodeGen.h"
 
 using namespace std;
 
@@ -17,7 +16,7 @@ m_nDest(0)
 
 }
 
-void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CCodeGen* codeGen, CMIPS* pCtx)
+void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
