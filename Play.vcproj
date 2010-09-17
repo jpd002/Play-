@@ -121,7 +121,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)/include&quot;;G:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_MSVC;GLEW_STATIC;_IOP_EMULATE_MODULES"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

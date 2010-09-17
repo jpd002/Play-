@@ -68,8 +68,13 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* 
 void CCOP_SCU::MFC0()
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
-    m_codeGen->SignExt();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->PushTop();
+		m_codeGen->SignExt();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	}
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
 

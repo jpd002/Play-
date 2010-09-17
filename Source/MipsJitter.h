@@ -13,6 +13,7 @@ public:
 	virtual void		Begin();
 	virtual void		End();
     virtual void        PushRel(size_t);
+	virtual void		PushRel64(size_t);
 
     void                SetVariableAsConstant(size_t, uint32);
 	LABEL				GetFinalBlockLabel();

@@ -455,16 +455,10 @@ void CMA_MIPSIV::DADDIU()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
-	m_codeGen->PushCst((m_nImmediate & 0x8000) == 0 ? 0x00000000 : 0xFFFFFFFF);
-
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushCst64(static_cast<int16>(m_nImmediate));
 	m_codeGen->Add64();
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
 
 //1A
@@ -1098,16 +1092,10 @@ void CMA_MIPSIV::DSUBU()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Sub64();
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //38
@@ -1169,18 +1157,10 @@ void CMA_MIPSIV::DSRA32()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Sra64(m_nSA + 32);
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
-
-//////////////////////////////////////////////////
-//Special2 Opcodes
-//////////////////////////////////////////////////
 
 //////////////////////////////////////////////////
 //RegImm Opcodes

@@ -32,23 +32,45 @@ void CMipsJitter::End()
 
 void CMipsJitter::PushRel(size_t offset)
 {
-    VARIABLESTATUS* status = GetVariableStatus(offset);
-    if(status == NULL)
-    {
-        CJitter::PushRel(offset);
-    }
-    else
-    {
-        switch(status->operandType)
-        {
+	VARIABLESTATUS* status = GetVariableStatus(offset);
+	if(status == NULL)
+	{
+		CJitter::PushRel(offset);
+	}
+	else
+	{
+		switch(status->operandType)
+		{
 		case Jitter::SYM_CONSTANT:
-            CJitter::PushCst(status->operandValue);
-            break;
-        default:
+			CJitter::PushCst(status->operandValue);
+			break;
+		default:
 			throw std::runtime_error("Unsupported operand type.");
-            break;
-        }
-    }
+			break;
+		}
+	}
+}
+
+void CMipsJitter::PushRel64(size_t offset)
+{
+	VARIABLESTATUS* statusLo = GetVariableStatus(offset + 0);
+	VARIABLESTATUS* statusHi = GetVariableStatus(offset + 4);
+	if(statusLo == NULL || statusHi == NULL)
+	{
+		CJitter::PushRel64(offset);
+	}
+	else
+	{
+		if((statusLo->operandType == Jitter::SYM_CONSTANT) && (statusHi->operandType == Jitter::SYM_CONSTANT))
+		{
+			uint64 result = static_cast<uint64>(statusLo->operandValue) | (static_cast<uint64>(statusHi->operandValue) << 32);
+			CJitter::PushCst64(result);
+		}
+		else
+		{
+			throw std::runtime_error("Unsupported operand type.");
+		}
+	}
 }
 
 Jitter::CJitter::LABEL CMipsJitter::GetFinalBlockLabel()
