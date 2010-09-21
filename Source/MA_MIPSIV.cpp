@@ -495,6 +495,7 @@ void CMA_MIPSIV::LB()
     m_codeGen->SignExt8();
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}
@@ -515,6 +516,7 @@ void CMA_MIPSIV::LH()
     m_codeGen->SignExt16();
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}

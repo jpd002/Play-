@@ -125,33 +125,31 @@ void CCOP_SCU::BC0T()
 void CCOP_SCU::ERET()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-	m_codeGen->PushCst(0x04);
+	m_codeGen->PushCst(CMIPS::STATUS_ERL);
 	m_codeGen->And();
 	
-	m_codeGen->PushCst(0x00);
-	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		//ERL bit was set
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[ERROREPC]));
-//		m_codeGen->PullRel(offsetof(CMIPS, m_State.nPC));
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 		//Clear ERL bit
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-		m_codeGen->PushCst(~0x04);
+		m_codeGen->PushCst(~CMIPS::STATUS_ERL);
 		m_codeGen->And();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 	}
 	m_codeGen->Else();
 	{
-		//EXL bit wasn't set, we assume ERL was (unsafe)
+		//EXL bit was set
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[EPC]));
-//		m_codeGen->PullRel(offsetof(CMIPS, m_State.nPC));
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 		//Clear EXL bit
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-		m_codeGen->PushCst(~0x02);
+		m_codeGen->PushCst(~CMIPS::STATUS_EXL);
 		m_codeGen->And();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 	}

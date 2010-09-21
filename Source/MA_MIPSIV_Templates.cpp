@@ -237,15 +237,9 @@ void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 	}
 	else
 	{
-		assert(0);
-
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-		m_codeGen->PushCst(0);
-		m_codeGen->PushCst(0);
-
-		m_codeGen->Cmp64(Jitter::CONDITION_EQ);
+		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushCst64(0);
+		m_codeGen->Cmp64(Jitter::CONDITION_NE);
 	}
 
 	m_codeGen->PushCst(0);
