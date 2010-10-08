@@ -940,15 +940,10 @@ void CMA_MIPSIV::DSRLV()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-
 	m_codeGen->Srl64();
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //18

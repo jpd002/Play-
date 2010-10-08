@@ -91,6 +91,7 @@ void CCOP_FPU::MFC1()
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 	    m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
 	}
@@ -366,8 +367,8 @@ void CCOP_FPU::MIN_S()
 //32
 void CCOP_FPU::C_EQ_S()
 {
-    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
 
     m_codeGen->FP_Cmp(Jitter::CONDITION_EQ);
 
@@ -377,8 +378,8 @@ void CCOP_FPU::C_EQ_S()
 //34
 void CCOP_FPU::C_LT_S()
 {
-    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
 
     m_codeGen->FP_Cmp(Jitter::CONDITION_BL);
 
@@ -388,8 +389,8 @@ void CCOP_FPU::C_LT_S()
 //36
 void CCOP_FPU::C_LE_S()
 {
-    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
     m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
 
     m_codeGen->FP_Cmp(Jitter::CONDITION_BE);
 

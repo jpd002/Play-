@@ -213,6 +213,7 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 		m_codeGen->ExtLow64();
 		if(m_regSize == MIPS_REGSIZE_64)
 		{
+			m_codeGen->PushTop();
 			m_codeGen->SignExt();
 			m_codeGen->PullRel(lo[1]);
 		}
@@ -221,6 +222,7 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 		m_codeGen->ExtHigh64();
 		if(m_regSize == MIPS_REGSIZE_64)
 		{
+			m_codeGen->PushTop();
 			m_codeGen->SignExt();
 			m_codeGen->PullRel(hi[1]);
 		}

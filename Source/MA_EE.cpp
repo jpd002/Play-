@@ -969,31 +969,37 @@ void CMA_EE::Generic_MADD(unsigned int unit)
         break;
     }
 
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->MultS();     //gives Stack(0) = LO, Stack(1) = HI
-    m_codeGen->Swap();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->MultS();
 
-    m_codeGen->PushRel(lo[0]);
-    m_codeGen->PushRel(hi[0]);
-    m_codeGen->Add64();
+	m_codeGen->PushRel(lo[0]);
+	m_codeGen->PushRel(hi[0]);
+	m_codeGen->MergeTo64();
 
-    m_codeGen->SignExt();
-    m_codeGen->PullRel(hi[1]);
-    m_codeGen->PullRel(hi[0]);
+	m_codeGen->Add64();
 
-    m_codeGen->SignExt();
-    m_codeGen->PullRel(lo[1]);
-    m_codeGen->PullRel(lo[0]);
+	m_codeGen->PushTop();
+	m_codeGen->ExtHigh64();
+	m_codeGen->PushTop();
+	m_codeGen->SignExt();
+	m_codeGen->PullRel(hi[1]);
+	m_codeGen->PullRel(hi[0]);
 
-    if(m_nRD != 0)
-    {
-        m_codeGen->PushRel(lo[0]);
-        m_codeGen->PushRel(lo[1]);
+	m_codeGen->ExtLow64();
+	m_codeGen->PushTop();
+	m_codeGen->SignExt();
+	m_codeGen->PullRel(lo[1]);
+	m_codeGen->PullRel(lo[0]);
 
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-    }
+	if(m_nRD != 0)
+	{
+		m_codeGen->PushRel(lo[0]);
+		m_codeGen->PushRel(lo[1]);
+
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
 }
 
 //////////////////////////////////////////////////
