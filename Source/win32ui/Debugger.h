@@ -7,7 +7,6 @@
 #include "FunctionsView.h"
 #include "OsEventViewWnd.h"
 #include "DebugView.h"
-#include "TestEngineWnd.h"
 #include "../PS2VM.h"
 
 class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals::trackable
@@ -88,7 +87,6 @@ private:
 	CELFView*						m_pELFView;
 	CFunctionsView*					m_pFunctionsView;
 	COsEventViewWnd*				m_pOsEventView;
-    CTestEngineWnd*                 m_pTestEngineView;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
 	unsigned int					m_nCurrentView;
     CPS2VM&                         m_virtualMachine;
