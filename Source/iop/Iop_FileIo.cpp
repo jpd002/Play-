@@ -87,7 +87,6 @@ void CFileIo::CFileIoHandlerBasic::Invoke(uint32 method, uint32* args, uint32 ar
         *ret = m_ioman->Open(*args, reinterpret_cast<char*>(args) + 4);
         break;
 	case 1:
-        assert(0);
         assert(retSize == 4);
         *ret = m_ioman->Close(*args);
 		break;

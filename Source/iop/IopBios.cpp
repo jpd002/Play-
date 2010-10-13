@@ -277,7 +277,8 @@ void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned i
     uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::O_RDONLY, path);
     if(handle & 0x80000000)
     {
-        throw runtime_error("Couldn't open executable for reading.");
+		CLog::GetInstance().Print(LOGNAME, "Tried to load '%s' which couldn't be found.", path);
+		return;
     }
     Iop::CIoman::CFile file(handle, *m_ioman);
     CStream* stream = m_ioman->GetFileStream(file);
@@ -1306,7 +1307,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
             for(unsigned int record = 0; record < recordCount; record++)
             {
                 uint32 relocationAddress = relocationRecord[0] - sectionBase;
-                uint32 relocationType = relocationRecord[1];
+                uint32 relocationType = relocationRecord[1] & 0xFF;
                 if(relocationAddress < relocatedSection->nSize) 
                 {
                     uint32& instruction = *reinterpret_cast<uint32*>(&relocatedSectionData[relocationAddress]);

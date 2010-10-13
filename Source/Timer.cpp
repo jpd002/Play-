@@ -17,43 +17,54 @@ CTimer::~CTimer()
 
 void CTimer::Reset()
 {
-	memset(m_Timer, 0, sizeof(TIMER) * 4);
+	memset(m_timer, 0, sizeof(TIMER) * 4);
 }
 
-void CTimer::Count(unsigned int nCycles)
+void CTimer::Count(unsigned int ticks)
 {
     for(unsigned int i = 0; i < 4; i++)
     {
-        TIMER* pTimer = &m_Timer[i];
+        TIMER* timer = &m_timer[i];
 
-        if(!(pTimer->nMODE & 0x80)) continue;
+        if(!(timer->nMODE & 0x80)) continue;
 
-        uint32 nPrevious	= pTimer->nCOUNT;
-        uint32 nNext		= pTimer->nCOUNT;
+        uint32 previousCount	= timer->nCOUNT;
+        uint32 nextCount		= timer->nCOUNT;
 
-        switch(pTimer->nMODE & 0x03)
+		uint32 divider = 1;
+		switch(timer->nMODE & 0x03)
         {
         case 0x00:
         case 0x03:
-            nNext += nCycles;
+			divider = 1;
             break;
         case 0x01:
-            nNext += nCycles * 16;
+			divider = 16;
             break;
         case 0x02:
-            nNext += nCycles * 256;
+			divider = 256;
             break;
         }
 
-        uint32 nCompare = (pTimer->nCOMP == 0) ? 0x10000 : pTimer->nCOMP;
+		//Compute increment
+		uint32 totalTicks = timer->clockRemain + ticks;
+		uint32 countAdd = totalTicks / divider;
+		timer->clockRemain = totalTicks % divider;
+		nextCount = previousCount + countAdd;
+
+        uint32 compare = (timer->nCOMP == 0) ? 0x10000 : timer->nCOMP;
 
         //Check if it hit the reference value
-        if((nPrevious < nCompare) && (nNext >= nCompare))
+        if((previousCount < compare) && (nextCount >= compare))
         {
-            pTimer->nMODE |= 0x400;
+            timer->nMODE |= 0x400;
+			timer->nCOUNT = nextCount - compare;
         }
-
-        pTimer->nCOUNT = nNext;
+		else
+		{
+			timer->nMODE &= ~0x400;
+			timer->nCOUNT = nextCount;
+		}
 
 //		if(pTimer->nCOUNT >= 0xFFFF)
 //		{
@@ -61,15 +72,19 @@ void CTimer::Count(unsigned int nCycles)
 //			pTimer->nCOUNT &= 0xFFFF;
 //		}
 
-        if(i == 2)
-        {
-            uint32 nMask;
-            nMask = (pTimer->nMODE & 0x300) << 2;
-            if((pTimer->nMODE & nMask) != 0)
-            {
-                m_intc.AssertLine(CINTC::INTC_LINE_TIMER2);
-            }
-        }
+		uint32 nMask = (timer->nMODE & 0x300) << 2;
+		bool interruptPending = (timer->nMODE & nMask) != 0;
+		if(interruptPending)
+		{
+			if(i == 1)
+			{
+				m_intc.AssertLine(CINTC::INTC_LINE_TIMER1);
+			}
+			else if(i == 2)
+			{
+				m_intc.AssertLine(CINTC::INTC_LINE_TIMER2);
+			}
+		}
     }
 }
 
@@ -84,7 +99,7 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 	switch(nAddress & 0x7FF)
 	{
 	case 0x00:
-		return m_Timer[nTimerId].nCOUNT & 0xFFFF;
+		return m_timer[nTimerId].nCOUNT & 0xFFFF;
 		break;
 	case 0x04:
 	case 0x08:
@@ -92,7 +107,7 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 		break;
 
 	case 0x10:
-		return m_Timer[nTimerId].nMODE;
+		return m_timer[nTimerId].nMODE;
 		break;
 	case 0x14:
 	case 0x18:
@@ -100,7 +115,7 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 		break;
 
 	case 0x20:
-		return m_Timer[nTimerId].nCOMP;
+		return m_timer[nTimerId].nCOMP;
 		break;
 	case 0x24:
 	case 0x28:
@@ -108,7 +123,7 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 		break;
 
 	case 0x30:
-		return m_Timer[nTimerId].nHOLD;
+		return m_timer[nTimerId].nHOLD;
 		break;
 	case 0x34:
 	case 0x38:
@@ -134,7 +149,7 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 	switch(nAddress & 0x7FF)
 	{
 	case 0x00:
-		m_Timer[nTimerId].nCOUNT = nValue & 0xFFFF;
+		m_timer[nTimerId].nCOUNT = nValue & 0xFFFF;
 		break;
 	case 0x04:
 	case 0x08:
@@ -142,9 +157,9 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	case 0x10:
-		m_Timer[nTimerId].nMODE &= ~(nValue & 0xC00);
-		m_Timer[nTimerId].nMODE &= 0xC00;
-		m_Timer[nTimerId].nMODE |= nValue & ~0xC00;
+		m_timer[nTimerId].nMODE &= ~(nValue & 0xC00);
+		m_timer[nTimerId].nMODE &= 0xC00;
+		m_timer[nTimerId].nMODE |= nValue & ~0xC00;
 		break;
 	case 0x14:
 	case 0x18:
@@ -152,7 +167,7 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	case 0x20:
-		m_Timer[nTimerId].nCOMP = nValue & 0xFFFF;
+		m_timer[nTimerId].nCOMP = nValue & 0xFFFF;
 		break;
 	case 0x24:
 	case 0x28:
@@ -160,7 +175,7 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	case 0x30:
-		m_Timer[nTimerId].nHOLD = nValue & 0xFFFF;
+		m_timer[nTimerId].nHOLD = nValue & 0xFFFF;
 		break;
 	case 0x34:
 	case 0x38:

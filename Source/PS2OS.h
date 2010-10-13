@@ -7,6 +7,7 @@
 #include "MIPS.h"
 #include "GSHandler.h"
 #include "SIF.h"
+#include "MipsModule.h"
 
 class CIopBios;
 
@@ -27,6 +28,7 @@ public:
 	void									    BootFromCDROM();
 	CELF*                                       GetELF();
 	const char*                                 GetExecutableName();
+	MipsModuleList								GetModuleList();
 
 	void                                        ThreadShakeAndBake();
 

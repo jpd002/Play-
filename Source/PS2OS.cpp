@@ -258,6 +258,31 @@ const char* CPS2OS::GetExecutableName()
 	return m_sExecutableName.c_str();
 }
 
+MipsModuleList CPS2OS::GetModuleList()
+{
+	MipsModuleList result;
+
+	uint32 moduleStart = 0;
+
+	if(m_pELF)
+	{
+		ELFPROGRAMHEADER* programHeader = m_pELF->GetProgram(0);
+		if(programHeader != NULL)
+		{
+			moduleStart = 0 - programHeader->nVAddress;
+		}
+	}
+
+	MIPSMODULE module;
+    module.name		= m_sExecutableName;
+    module.begin	= moduleStart;
+    module.end		= 0;
+	module.param	= m_pELF;
+    result.push_back(module);
+
+	return result;
+}
+
 void CPS2OS::LoadELF(CStream& stream, const char* sExecName)
 {
 	CELF* pELF;
@@ -583,13 +608,12 @@ void CPS2OS::AssembleCustomSyscallHandler()
 void CPS2OS::AssembleInterruptHandler()
 {
 	CMIPSAssembler Asm((uint32*)&m_bios[0x200]);
-	unsigned int i;
 
 	//Epilogue (allocate 0x204 bytes)
 	Asm.ADDIU(CMIPS::K0, CMIPS::K0, 0xFDFC);
 	
 	//Save context
-	for(i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < 32; i++)
 	{
 		Asm.SQ(i, (i * 0x10), CMIPS::K0);
 	}
@@ -618,59 +642,81 @@ void CPS2OS::AssembleInterruptHandler()
 	//Asm.SW(CMIPS::S0, 0x0000, CMIPS::T0);
 	Asm.NOP();
 
-	//Check if INT1 (DMAC)
-	Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0002);
-	Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0005);
-	Asm.NOP();
+	{
+		//Check if INT1 (DMAC)
+		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0002);
+		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0005);
+		Asm.NOP();
 
-	//Go to DMAC interrupt handler
-	Asm.LUI(CMIPS::T0, 0x1FC0);
-	Asm.ORI(CMIPS::T0, CMIPS::T0, 0x1000);
-	Asm.JALR(CMIPS::T0);
-	Asm.NOP();
+		//Go to DMAC interrupt handler
+		Asm.LUI(CMIPS::T0, 0x1FC0);
+		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x1000);
+		Asm.JALR(CMIPS::T0);
+		Asm.NOP();
+	}
 
-	//Check if INT2 (Vblank Start)
-	Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0004);
-	Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-	Asm.NOP();
+	{
+		//Check if INT2 (Vblank Start)
+		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0004);
+		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
+		Asm.NOP();
 
-	//Process handlers
-	Asm.LUI(CMIPS::T0, 0x1FC0);
-	Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-	Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0002);
-	Asm.JALR(CMIPS::T0);
-	Asm.NOP();
+		//Process handlers
+		Asm.LUI(CMIPS::T0, 0x1FC0);
+		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0002);
+		Asm.JALR(CMIPS::T0);
+		Asm.NOP();
+	}
 
-	//Check if INT3 (Vblank End)
-	Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0008);
-	Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-	Asm.NOP();
+	{
+		//Check if INT3 (Vblank End)
+		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0008);
+		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
+		Asm.NOP();
 
-	//Process handlers
-	Asm.LUI(CMIPS::T0, 0x1FC0);
-	Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-	Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0003);
-	Asm.JALR(CMIPS::T0);
-	Asm.NOP();
+		//Process handlers
+		Asm.LUI(CMIPS::T0, 0x1FC0);
+		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0003);
+		Asm.JALR(CMIPS::T0);
+		Asm.NOP();
+	}
 
-	//Check if INT11 (Timer2)
-	Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0800);
-	Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-	Asm.NOP();
+	{
+		//Check if INT10 (Timer1)
+		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0400);
+		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
+		Asm.NOP();
 
-	//Process handlers
-	Asm.LUI(CMIPS::T0, 0x1FC0);
-	Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-	Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x000B);
-	Asm.JALR(CMIPS::T0);
-	Asm.NOP();
+		//Process handlers
+		Asm.LUI(CMIPS::T0, 0x1FC0);
+		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x000A);
+		Asm.JALR(CMIPS::T0);
+		Asm.NOP();
+	}
+
+	{
+		//Check if INT11 (Timer2)
+		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0800);
+		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
+		Asm.NOP();
+
+		//Process handlers
+		Asm.LUI(CMIPS::T0, 0x1FC0);
+		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x000B);
+		Asm.JALR(CMIPS::T0);
+		Asm.NOP();
+	}
 
 	//Restore EPC
 	Asm.LW(CMIPS::T0, 0x0200, CMIPS::K0);
 	Asm.MTC0(CMIPS::T0, CCOP_SCU::EPC);
 
 	//Restore Context
-	for(i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < 32; i++)
 	{
 		Asm.LQ(i, (i * 0x10), CMIPS::K0);
 	}

@@ -146,11 +146,11 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 	},
 };
 
-CGSHandler::CGSHandler() :
-m_thread(NULL),
-m_enabled(true),
-m_renderDone(false),
-m_threadDone(false)
+CGSHandler::CGSHandler()
+: m_thread(NULL)
+, m_enabled(true)
+, m_renderDone(false)
+, m_threadDone(false)
 {
 	m_pRAM = (uint8*)malloc(RAMSIZE);
 
@@ -259,13 +259,17 @@ void CGSHandler::LoadState(CZipArchiveReader& archive)
 
 void CGSHandler::SetVBlank()
 {
-	m_nCSR |= 0x08;
+	boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+
+	m_nCSR |= CSR_VSYNC_INT;
 //	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
 }
 
 void CGSHandler::ResetVBlank()
 {
-	m_nCSR &= ~0x08;
+	boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+
+	m_nCSR &= ~CSR_VSYNC_INT;
 
 	//Alternate current field
 	m_nCSR ^= 0x2000;
@@ -279,8 +283,11 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 	{
 	case 0x1200100:
 		//Force CSR to have the H-Blank bit set.
-		m_nCSR |= 0x04;
-		R_REG(nAddress, nData, m_nCSR);
+		{
+			boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+			m_nCSR |= 0x04;
+			R_REG(nAddress, nData, m_nCSR);
+		}
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled priviledged register (0x%0.8X).\r\n", nAddress);
@@ -357,15 +364,25 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		}
 		break;
 	case 0x1200100:
-		W_REG(nAddress, nData, m_nCSR);
-		if(!(nAddress & 0x04))
 		{
-            SetVBlank();
-            //Flip();
-            if(nData & 0x08)
-            {
-                ResetVBlank();
-            }
+			if(!(nAddress & 0x04))
+			{
+				boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+				SetVBlank();
+				//Flip();
+				if(nData & CSR_FINISH_EVENT)
+				{
+					m_nCSR &= ~CSR_FINISH_EVENT;
+				}
+				if(nData & CSR_VSYNC_INT)
+				{
+					ResetVBlank();
+				}
+				if(nData & CSR_RESET)
+				{
+					m_nCSR |= CSR_RESET;
+				}
+			}
 		}
 		break;
 	case 0x1200101:
@@ -474,6 +491,12 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		m_TrxCtx.nRRY	= 0;
 		m_TrxCtx.nDirty	= false;
 
+		break;
+	case GS_REG_FINISH:
+		{
+			boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+			m_nCSR |= CSR_FINISH_EVENT;
+		}
 		break;
 	}
 
@@ -1222,6 +1245,9 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_TRXDIR:
 		CLog::GetInstance().Print(LOG_NAME, "TRXDIR(%i);\r\n", \
 			(uint32)((nData >>  0) & 0xFFFFFFFF));
+		break;
+	case GS_REG_FINISH:
+		CLog::GetInstance().Print(LOG_NAME, "FINISH();\r\n");
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown command (0x%X).\r\n", nRegister); 

@@ -54,6 +54,7 @@ enum GS_REGS
 	GS_REG_TRXPOS		= 0x51,
 	GS_REG_TRXREG		= 0x52,
 	GS_REG_TRXDIR		= 0x53,
+	GS_REG_FINISH		= 0x61,
 };
 
 struct GSDISPLAY
@@ -147,6 +148,13 @@ public:
 	{
 		GS_CSR = 0x12001000,
 		GS_IMR = 0x12001010,
+	};
+
+	enum
+	{
+		CSR_FINISH_EVENT	= 0x0002,
+		CSR_VSYNC_INT		= 0x0008,
+		CSR_RESET			= 0x0200,
 	};
 
 protected:
@@ -691,6 +699,7 @@ protected:
 	bool									m_nCrtIsInterlaced;
 	bool									m_nCrtIsFrameMode;
     boost::thread*                          m_thread;
+	boost::recursive_mutex					m_csrMutex;
     CMailBox                                m_mailBox;
     bool                                    m_enabled;
     bool                                    m_renderDone;

@@ -64,15 +64,18 @@
 
 #define     SPU_UPDATE_TICKS    (1000)
 
+#define		FAKE_IOP_RAM_SIZE	(0x1000)
+
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
 namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM() :
-m_pRAM(new uint8[PS2::EERAMSIZE]),
-m_pBIOS(new uint8[PS2::EEBIOSSIZE]),
-m_pSPR(new uint8[PS2::SPRSIZE]),
+m_ram(new uint8[PS2::EERAMSIZE]),
+m_bios(new uint8[PS2::EEBIOSSIZE]),
+m_spr(new uint8[PS2::SPRSIZE]),
+m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE]),
 m_pVUMem0(new uint8[PS2::VUMEM0SIZE]),
 m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE]),
 m_pVUMem1(new uint8[PS2::VUMEM1SIZE]),
@@ -93,10 +96,10 @@ m_nVBlankTicks(0),
 m_nInVBlank(false),
 m_spuUpdateTicks(SPU_UPDATE_TICKS),
 m_pCDROM0(NULL),
-m_dmac(m_pRAM, m_pSPR, m_EE),
-m_gif(m_pGS, m_pRAM, m_pSPR),
-m_sif(m_dmac, m_pRAM, m_iop.m_ram),
-m_vif(m_gif, m_pRAM, m_pSPR, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
+m_dmac(m_ram, m_spr, m_EE),
+m_gif(m_pGS, m_ram, m_spr),
+m_sif(m_dmac, m_ram, m_iop.m_ram),
+m_vif(m_gif, m_ram, m_spr, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
 m_intc(m_dmac),
 m_timer(m_intc),
 m_COP_SCU(MIPS_REGSIZE_64),
@@ -133,7 +136,7 @@ m_MAVU1(true)
 
     m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
     m_iopOs = static_cast<CIopBios*>(m_iopOsPtr.get());
-    m_os = new CPS2OS(m_EE, m_pRAM, m_pBIOS, m_pGS, m_sif, *m_iopOs);
+    m_os = new CPS2OS(m_EE, m_ram, m_bios, m_pGS, m_sif, *m_iopOs);
 }
 
 CPS2VM::~CPS2VM()
@@ -376,23 +379,24 @@ void CPS2VM::CreateVM()
 	//EmotionEngine context setup
     {
         //Read map
-	    m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_pRAM,				                                        0x00);
-	    m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_pSPR,				                                        0x01);
+	    m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_ram,					                                        0x00);
+	    m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_spr,					                                        0x01);
         m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),         0x02);
         m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),         0x03);
-	    m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				                                        0x04);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000, 0x1C001000, m_fakeIopRam,													0x04);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_bios,				                                        0x05);
 
         //Write map
-        m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_pRAM,				                                                    0x00);
-	    m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_pSPR,				                                                    0x01);
+        m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_ram,				                                                    0x00);
+	    m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_spr,				                                                    0x01);
         m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x02);
         m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),    0x03);
 
         m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, PLACEHOLDER_1));
 
 	    //Instruction map
-        m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_pRAM,				                        0x00);
-	    m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_pBIOS,				                    0x01);
+        m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,			                        0x00);
+	    m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios,				                    0x01);
 
 	    m_EE.m_pArch			= &m_EEArch;
 	    m_EE.m_pCOP[0]			= &m_COP_SCU;
@@ -453,7 +457,7 @@ void CPS2VM::CreateVM()
     m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
     m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
     m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-    m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_pRAM));
+    m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_ram));
     m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
     m_dmac.SetChannelTransferFunction(6, bind(&CSIF::ReceiveDMA6, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 
@@ -473,9 +477,10 @@ void CPS2VM::ResetVM()
     m_os->Release();
     m_executor.Clear();
 
-    memset(m_pRAM,			0, PS2::EERAMSIZE);
-    memset(m_pSPR,			0, PS2::SPRSIZE);
-    memset(m_pVUMem0,       0, PS2::VUMEM0SIZE);
+    memset(m_ram,			0, PS2::EERAMSIZE);
+    memset(m_spr,			0, PS2::SPRSIZE);
+	memset(m_fakeIopRam,	0, FAKE_IOP_RAM_SIZE);
+	memset(m_pVUMem0,       0, PS2::VUMEM0SIZE);
     memset(m_pMicroMem0,    0, PS2::MICROMEM0SIZE);
     memset(m_pVUMem1,		0, PS2::VUMEM1SIZE);
     memset(m_pMicroMem1,	0, PS2::MICROMEM1SIZE);
@@ -512,7 +517,7 @@ void CPS2VM::ResetVM()
 	}
 
     m_os->Initialize();
-    m_iopOs->Reset(new Iop::CSifManPs2(m_sif, m_pRAM, m_iop.m_ram));
+    m_iopOs->Reset(new Iop::CSifManPs2(m_sif, m_ram, m_iop.m_ram));
 
 	CDROM0_Reset();
 
@@ -527,14 +532,16 @@ void CPS2VM::ResetVM()
     m_nInVBlank = false;
 
     RegisterModulesInPadHandler();
+	FillFakeIopRam();
 }
 
 void CPS2VM::DestroyVM()
 {
 	CDROM0_Destroy();
 
-	FREEPTR(m_pRAM);
-	FREEPTR(m_pBIOS);
+	FREEPTR(m_ram);
+	FREEPTR(m_bios);
+	FREEPTR(m_fakeIopRam);
 }
 
 void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
@@ -554,8 +561,8 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
         archive.InsertFile(new CMemoryStateFile(STATE_EE,           &m_EE.m_State,  sizeof(MIPSSTATE)));
         archive.InsertFile(new CMemoryStateFile(STATE_VU0,          &m_VU0.m_State, sizeof(MIPSSTATE)));
         archive.InsertFile(new CMemoryStateFile(STATE_VU1,          &m_VU1.m_State, sizeof(MIPSSTATE)));
-        archive.InsertFile(new CMemoryStateFile(STATE_RAM,          m_pRAM,         PS2::EERAMSIZE));
-        archive.InsertFile(new CMemoryStateFile(STATE_SPR,          m_pSPR,         PS2::SPRSIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_RAM,          m_ram,			PS2::EERAMSIZE));
+        archive.InsertFile(new CMemoryStateFile(STATE_SPR,          m_spr,			PS2::SPRSIZE));
         archive.InsertFile(new CMemoryStateFile(STATE_VUMEM0,       m_pVUMem0,      PS2::VUMEM0SIZE));
         archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM0,    m_pMicroMem0,   PS2::MICROMEM0SIZE));
         archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,       m_pVUMem1,      PS2::VUMEM1SIZE));
@@ -603,8 +610,8 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 			archive.BeginReadFile(STATE_EE          )->Read(&m_EE.m_State,  sizeof(MIPSSTATE));
             archive.BeginReadFile(STATE_VU0         )->Read(&m_VU0.m_State, sizeof(MIPSSTATE));
 			archive.BeginReadFile(STATE_VU1         )->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
-			archive.BeginReadFile(STATE_RAM         )->Read(m_pRAM,         PS2::EERAMSIZE);
-			archive.BeginReadFile(STATE_SPR         )->Read(m_pSPR,         PS2::SPRSIZE);
+			archive.BeginReadFile(STATE_RAM         )->Read(m_ram,			PS2::EERAMSIZE);
+			archive.BeginReadFile(STATE_SPR         )->Read(m_spr,			PS2::SPRSIZE);
             archive.BeginReadFile(STATE_VUMEM0      )->Read(m_pVUMem0,      PS2::VUMEM0SIZE);
             archive.BeginReadFile(STATE_MICROMEM0   )->Read(m_pMicroMem0,   PS2::MICROMEM0SIZE);
 			archive.BeginReadFile(STATE_VUMEM1      )->Read(m_pVUMem1,      PS2::VUMEM1SIZE);
@@ -797,7 +804,7 @@ void CPS2VM::SetIopCdImage(CISO9660* image)
 void CPS2VM::LoadBIOS()
 {
     CStdStream BiosStream(fopen("./vfs/rom0/scph10000.bin", "rb"));
-    BiosStream.Read(m_pBIOS, PS2::EEBIOSSIZE);
+    BiosStream.Read(m_bios, PS2::EEBIOSSIZE);
 }
 
 void CPS2VM::RegisterModulesInPadHandler()
@@ -809,6 +816,35 @@ void CPS2VM::RegisterModulesInPadHandler()
     m_pPad->InsertListener(m_iopOs->GetPadman());
 }
 
+void CPS2VM::FillFakeIopRam()
+{
+	struct IOPMODINFO
+	{
+		uint32 nextPtr;
+		uint32 namePtr;
+
+		uint16 version;
+		uint16 newFlags;
+		uint16 id;
+		uint16 flags;
+
+		uint32 entry;
+		uint32 gp;
+		uint32 textStart;
+		uint32 textSize;
+		uint32 dataSize;
+		uint32 bssSize;
+		uint32 unused1;
+		uint32 unused2;
+	};
+
+	IOPMODINFO* moduleInfo = reinterpret_cast<IOPMODINFO*>(m_fakeIopRam + 0x800);
+	moduleInfo->nextPtr = 0x0;
+	moduleInfo->namePtr = 0xC00;
+
+	strcpy(reinterpret_cast<char*>(m_fakeIopRam + 0xC00), "sio2man");
+}
+
 uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 {
 #ifdef PROFILE
@@ -818,7 +854,7 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	uint32 nReturn = 0;
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
-//        nReturn = m_timer.GetRegister(nAddress);
+		nReturn = m_timer.GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
@@ -863,7 +899,7 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
-//        m_timer.SetRegister(nAddress, nData);
+		m_timer.SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
@@ -1107,7 +1143,7 @@ void CPS2VM::EmuThread()
 
                     if(m_pPad != NULL)
                     {
-                        m_pPad->Update(m_pRAM);
+                        m_pPad->Update(m_ram);
                     }
 				}
 				else
@@ -1161,6 +1197,7 @@ void CPS2VM::EmuThread()
                     m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += (executed * 100);
 				    m_nVBlankTicks -= executed;
                     m_spuUpdateTicks -= executed;
+					m_timer.Count(executed);
                 }
                 if(m_EE.m_State.nHasException)
                 {
@@ -1186,7 +1223,7 @@ void CPS2VM::EmuThread()
                 }
                 //Castlevania speed hack
                 {
-    //                if(m_pRAM[0x00] == 0x01)
+    //                if(m_ram[0x00] == 0x01)
     //                {
     //                    m_nVBlankTicks = 0;
     //                    thread::yield();

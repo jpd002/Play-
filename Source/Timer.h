@@ -36,9 +36,11 @@ private:
         uint32	nMODE;
         uint32	nCOMP;
         uint32	nHOLD;
+
+		uint32	clockRemain;
     };
 
-    TIMER                   m_Timer[4];
+    TIMER                   m_timer[4];
     CINTC&                  m_intc;
 };
 

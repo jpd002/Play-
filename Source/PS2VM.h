@@ -108,9 +108,10 @@ public:
 
     Iop::CSubSystem             m_iop;
 
-    uint8*					    m_pRAM;
-	uint8*					    m_pBIOS;
-	uint8*					    m_pSPR;
+    uint8*					    m_ram;
+	uint8*					    m_bios;
+	uint8*					    m_spr;
+	uint8*						m_fakeIopRam;
 
 	uint8*					    m_pVUMem0;
 	uint8*					    m_pMicroMem0;
@@ -173,6 +174,7 @@ private:
 
 	void						LoadBIOS();
 	void						RegisterModulesInPadHandler();
+	void						FillFakeIopRam();
 
 	void						EmuThread();
 
