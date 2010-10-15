@@ -354,9 +354,6 @@ void CMemoryCardView::CRender::DrawScene()
 
 		if(nY > nUpperClip)
 		{
-			IconList::iterator itIcon;
-			CIconView* pIcon;
-
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			glViewport(0, 
@@ -401,7 +398,8 @@ void CMemoryCardView::CRender::DrawScene()
 			glLoadIdentity();
 			gluPerspective(45.0f, (float)m_pViewState->m_nItemWidth / (float)m_pViewState->m_nItemHeight, 0.1f, 100.0f);
 
-			itIcon = m_Icons.find(i);
+			CIconView* pIcon(NULL);
+			IconList::iterator itIcon = m_Icons.find(i);
 			if(itIcon == m_Icons.end())
 			{
 				const CSave* pSave;

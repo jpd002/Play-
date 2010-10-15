@@ -1,8 +1,8 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <unicode/ucnv.h>
 #include <exception>
+#include "string_cast_sjis.h"
 #include "Save.h"
 
 using namespace std;
@@ -65,9 +65,7 @@ const char* CSave::GetId() const
 unsigned int CSave::GetSize() const
 {
 	filesystem::directory_iterator itEnd;
-	unsigned int nSize;
-	
-	nSize = 0;
+	unsigned int nSize = 0;
 
 	for(filesystem::directory_iterator itElement(m_BasePath);
 		itElement != itEnd;
@@ -115,17 +113,6 @@ time_t CSave::GetLastModificationTime() const
 void CSave::ReadName(istream& Input)
 {
 	char sNameSJIS[68];
-	UChar sName[68];
-	UErrorCode nStatus;
-	UConverter* pConverter;
-
 	Input.read(sNameSJIS, 68);
-
-	nStatus = U_ZERO_ERROR;
-
-	pConverter = ucnv_open("shift_jis", &nStatus);
-	ucnv_toUChars(pConverter, sName, 68, sNameSJIS, 68, &nStatus);
-	ucnv_close(pConverter);
-
-	m_sName = sName;
+	m_sName = string_cast_sjis(sNameSJIS);
 }

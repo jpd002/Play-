@@ -159,12 +159,12 @@ void CSysInfoWnd::UpdateSchedulerInfo()
 
 void CSysInfoWnd::UpdateProcessorFeatures()
 {
-	uint32 nFeatures;
-	int i;
+	uint32 nFeatures = 0;
 
-#ifdef AMD64
+#ifdef _M_X64
 
-	nFeatures = _cpuid_GetCpuFeatures();
+//	nFeatures = _cpuid_GetCpuFeatures();
+	nFeatures = 0;
 
 #else
 
@@ -179,7 +179,7 @@ void CSysInfoWnd::UpdateProcessorFeatures()
 
 	m_pFeatures->ResetContent();
 
-	for(i = 0; i < 32; i++)
+	for(int i = 0; i < 32; i++)
 	{
 		//Reserved features
 		if(i == 10) continue;
@@ -217,7 +217,7 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 	QueryPerformanceFrequency(&nTime);
 	nDeltaTime = (nTime.QuadPart * CPUFREQDELAY) / 1000;
 
-#ifdef AMD64
+#ifdef _M_X64
 
 	nStamp1 = 0;
 
@@ -240,7 +240,7 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 		if((uint64)nTime.QuadPart >= nDone) break;
 	}
 
-#ifdef AMD64
+#ifdef _M_X64
 
 	nStamp2 = 0;
 
@@ -259,9 +259,9 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 
 	SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL);
 
-#ifdef AMD64
+#ifdef _M_X64
 
-	_cpuid_GetCpuIdString(sCpu);
+	//_cpuid_GetCpuIdString(sCpu);
 
 #else
 
