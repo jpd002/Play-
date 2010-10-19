@@ -191,7 +191,7 @@ void CMA_VU::CLower::LQ()
         m_nIS,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         0);
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
     m_codeGen->PushCst(m_nIT);
     m_codeGen->PushCst(m_nDest);
     m_codeGen->Call(reinterpret_cast<void*>(&GetQuadWord), 4, false);
@@ -204,7 +204,7 @@ void CMA_VU::CLower::SQ()
         m_nIT,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         0);
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
     m_codeGen->PushCst(m_nIS);
     m_codeGen->PushCst(m_nDest);
     m_codeGen->Call(reinterpret_cast<void*>(&SetQuadWord), 4, false);
@@ -214,7 +214,7 @@ void CMA_VU::CLower::SQ()
 void CMA_VU::CLower::ILW()
 {
     //Push context
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 
     //Compute address
     ComputeMemAccessAddr(
@@ -231,7 +231,7 @@ void CMA_VU::CLower::ILW()
 void CMA_VU::CLower::ISW()
 {
     //Push context
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 
     //Compute value
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -595,7 +595,7 @@ void CMA_VU::CLower::MOVE()
 void CMA_VU::CLower::LQI()
 {
     ComputeMemAccessAddr(m_nIS, 0, 0);
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
     m_codeGen->PushCst(m_nIT);
     m_codeGen->PushCst(m_nDest);
     m_codeGen->Call(reinterpret_cast<void*>(&GetQuadWord), 4, false);
@@ -635,7 +635,7 @@ void CMA_VU::CLower::MFP()
 void CMA_VU::CLower::XTOP()
 {
     //Push context
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 
     //Compute Address
     m_codeGen->PushCst(CVIF::VU_TOP);
@@ -648,7 +648,7 @@ void CMA_VU::CLower::XTOP()
 void CMA_VU::CLower::XGKICK()
 {
     //Push context
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 
     //Push value
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
@@ -727,7 +727,7 @@ void CMA_VU::CLower::MR32()
 void CMA_VU::CLower::SQI()
 {
     ComputeMemAccessAddr(m_nIT, 0, 0);
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
     m_codeGen->PushCst(m_nIS);
     m_codeGen->PushCst(m_nDest);
     m_codeGen->Call(reinterpret_cast<void*>(&SetQuadWord), 4, false);
@@ -761,7 +761,7 @@ void CMA_VU::CLower::RGET()
 void CMA_VU::CLower::XITOP()
 {
     //Push context
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 
     //Compute Address
     m_codeGen->PushCst(CVIF::VU_ITOP);
@@ -784,7 +784,7 @@ void CMA_VU::CLower::RSQRT()
 void CMA_VU::CLower::ILWR()
 {
     //Push context
-    m_codeGen->PushRef(m_pCtx);
+	m_codeGen->PushCtx();
 
     //Compute address
     ComputeMemAccessAddr(m_nIS, 0, GetDestOffset(m_nDest));

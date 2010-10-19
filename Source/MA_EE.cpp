@@ -115,7 +115,7 @@ void CMA_EE::LQ()
 
     for(unsigned int i = 0; i < 4; i++)
     {
-	    m_codeGen->PushRef(m_pCtx);
+		m_codeGen->PushCtx();
 	    m_codeGen->PushIdx(1);
 	    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
@@ -138,7 +138,7 @@ void CMA_EE::SQ()
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		m_codeGen->PushRef(m_pCtx);
+		m_codeGen->PushCtx();
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
 		m_codeGen->PushIdx(2);
 		m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
