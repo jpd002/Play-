@@ -9,6 +9,7 @@
 #include "../Ps2Const.h"
 #include "win32/DeviceContext.h"
 #include "win32/ClientDeviceContext.h"
+#include "DebugExpressionEvaluator.h"
 
 #define CLSNAME		_T("CDisAsm")
 #define YSPACE		3
@@ -111,9 +112,6 @@ HFONT CDisAsm::GetFont()
 */
 void CDisAsm::GotoAddress()
 {
-	const TCHAR* sValue;
-	uint32 nAddress;
-	
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
@@ -125,23 +123,31 @@ void CDisAsm::GotoAddress()
 		_T("Enter new address:"),
 		(_T("0x") + lexical_cast_hex<tstring>(m_nAddress, 8)).c_str());
 
-	sValue = i.GetValue(m_hWnd);
+	const TCHAR* sValue = i.GetValue(m_hWnd);
 	if(sValue != NULL)
 	{
-		_stscanf(sValue, _T("%x"), &nAddress);
-		if(nAddress & 0x03)
+		try
 		{
-			MessageBox(m_hWnd, _T("Invalid address"), NULL, 16);
-			return;
-		}
+			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(string_cast<std::string>(sValue).c_str(), m_pCtx);
+			if(nAddress & 0x03)
+			{
+				MessageBox(m_hWnd, _T("Invalid address"), NULL, 16);
+				return;
+			}
 
-		if(m_nAddress != nAddress)
+			if(m_nAddress != nAddress)
+			{
+				HistorySave(m_nAddress);
+			}
+
+			m_nAddress = nAddress;
+			Redraw();
+		}
+		catch(const std::exception& exception)
 		{
-			HistorySave(m_nAddress);
+			std::tstring message = std::tstring(_T("Error evaluating expression: ")) + string_cast<std::tstring>(exception.what());
+			MessageBox(m_hWnd, message.c_str(), NULL, 16);
 		}
-
-		m_nAddress = nAddress;
-		Redraw();
 	}
 }
 

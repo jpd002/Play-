@@ -15,7 +15,7 @@ m_pFrameBuffer(NULL),
 m_nWidth(0),
 m_nHeight(0)
 {
-    if(FAILED(DirectDrawCreate(NULL, &m_pDirectDraw, NULL)))
+//    if(FAILED(DirectDrawCreate(NULL, &m_pDirectDraw, NULL)))
     {
         throw runtime_error("Couldn't create DirectDraw object.");
     }

@@ -2,6 +2,8 @@
 #include <boost/bind.hpp>
 #include "MemoryViewMIPS.h"
 #include "win32/InputBox.h"
+#include "DebugExpressionEvaluator.h"
+#include "string_cast.h"
 
 #define ID_MEMORYVIEW_GOTOADDRESS	40001
 
@@ -69,9 +71,6 @@ void CMemoryViewMIPS::OnMachineStateChange()
 
 void CMemoryViewMIPS::GotoAddress()
 {
-	uint32 nAddress;
-	const TCHAR* sValue;
-
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
@@ -79,12 +78,20 @@ void CMemoryViewMIPS::GotoAddress()
 	}
 
 	Win32::CInputBox i(_T("Goto Address"), _T("Enter new address:"), _T("00000000"));
-	sValue = i.GetValue(m_hWnd);
+	const TCHAR* sValue = i.GetValue(m_hWnd);
 
 	if(sValue != NULL)
 	{
-		_stscanf(sValue, _T("%x"), &nAddress);
-		ScrollToAddress(nAddress);
-        SetSelectionStart(nAddress);
+		try
+		{
+			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(string_cast<std::string>(sValue).c_str(), m_pCtx);
+			ScrollToAddress(nAddress);
+			SetSelectionStart(nAddress);
+		}
+		catch(const std::exception& exception)
+		{
+			std::tstring message = std::tstring(_T("Error evaluating expression: ")) + string_cast<std::tstring>(exception.what());
+			MessageBox(m_hWnd, message.c_str(), NULL, 16);
+		}
 	}
 }
