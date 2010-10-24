@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;G:\Projects\CodeGen\include"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;G:\Projects\CodeGen\include"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -195,7 +195,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;G:\Projects\CodeGen\include"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -274,7 +274,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;G:\Projects\CodeGen\include"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -350,7 +350,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;G:\Projects\CodeGen\include"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -425,7 +425,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;G:\Projects\CodeGen\include"
+				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -1074,6 +1074,14 @@
 			<Filter
 				Name="win32"
 				>
+				<File
+					RelativePath="..\..\Source\win32ui\DebugExpressionEvaluator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\win32ui\DebugExpressionEvaluator.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\Source\win32ui\DisAsm.cpp"
 					>
