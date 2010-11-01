@@ -160,6 +160,7 @@ void CCOP_VU::CFC2()
 	    }
     }
 
+	m_codeGen->PushTop();
 	m_codeGen->SignExt();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));

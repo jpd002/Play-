@@ -74,20 +74,41 @@ uint32 LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 	return rt;
 }
 
-void LDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
+template <bool processLo>
+uint32 LDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
-    uint32 alignedAddress = address & ~0x07;
-    uint32 byteOffset = address & 0x07;
-    uint32 accessType = 7 - byteOffset;
-    INTEGER64 memory;
-    memory.d0 = CMemoryUtils::GetWordProxy(context, alignedAddress + 0);
-    memory.d1 = CMemoryUtils::GetWordProxy(context, alignedAddress + 4);
-    memory.q <<= accessType * 8;
-    context->m_State.nGPR[rt].nD0 &= g_LDMaskRight[byteOffset];
-    context->m_State.nGPR[rt].nD0 |= memory.q;
+	uint32 alignedAddress = address & ~0x07;
+	uint32 byteOffset = address & 0x07;
+	uint32 accessType = 7 - byteOffset;
+	INTEGER64 memory;
+	memory.d0 = CMemoryUtils::GetWordProxy(context, alignedAddress + 0);
+	memory.d1 = CMemoryUtils::GetWordProxy(context, alignedAddress + 4);
+	memory.q <<= accessType * 8;
+	INTEGER64 result;
+	if(processLo)
+	{
+		result.d0 = rt;
+		result.d1 = 0;
+	}
+	else
+	{
+		result.d0 = 0;
+		result.d1 = rt;
+	}
+	result.q &= g_LDMaskRight[byteOffset];
+	result.q |= memory.q;
+	if(processLo)
+	{
+		return result.d0;
+	}
+	else
+	{
+		return result.d1;
+	}
 }
 
-void LDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
+template <bool processLo>
+uint32 LDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
     uint32 alignedAddress = address & ~0x07;
     uint32 byteOffset = address & 0x07;
@@ -96,8 +117,27 @@ void LDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     memory.d0 = CMemoryUtils::GetWordProxy(context, alignedAddress + 0);
     memory.d1 = CMemoryUtils::GetWordProxy(context, alignedAddress + 4);
     memory.q >>= byteOffset * 8;
-    context->m_State.nGPR[rt].nD0 &= g_LDMaskLeft[accessType];
-    context->m_State.nGPR[rt].nD0 |= memory.q;
+	INTEGER64 result;
+	if(processLo)
+	{
+		result.d0 = rt;
+		result.d1 = 0;
+	}
+	else
+	{
+		result.d0 = 0;
+		result.d1 = rt;
+	}
+    result.q &= g_LDMaskLeft[accessType];
+    result.q |= memory.q;
+	if(processLo)
+	{
+		return result.d0;
+	}
+	else
+	{
+		return result.d1;
+	}
 }
 
 void SWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
@@ -124,36 +164,46 @@ void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
     CMemoryUtils::SetWordProxy(context, memory, alignedAddress);
 }
 
-void SDL_Proxy(uint32 address, uint32 rt, CMIPS* context)
+void SDL_Proxy(uint32 address, uint32 rtLo, uint32 rtHi, CMIPS* context)
 {
-    uint32 alignedAddress = address & ~0x07;
-    uint32 byteOffset = address & 0x07;
-    uint32 accessType = 7 - byteOffset;
-    uint64 reg = context->m_State.nGPR[rt].nD0;
-    reg >>= accessType * 8;
-    INTEGER64 memory;
-    memory.d0 = CMemoryUtils::GetWordProxy(context, alignedAddress + 0);
-    memory.d1 = CMemoryUtils::GetWordProxy(context, alignedAddress + 4);
-    memory.q &= g_LDMaskLeft[byteOffset];
-    memory.q |= reg;
-    CMemoryUtils::SetWordProxy(context, memory.d0, alignedAddress + 0);
-    CMemoryUtils::SetWordProxy(context, memory.d1, alignedAddress + 4);
+	uint32 alignedAddress = address & ~0x07;
+	uint32 byteOffset = address & 0x07;
+	uint32 accessType = 7 - byteOffset;
+
+	INTEGER64 registerValue;
+	registerValue.d0 = rtLo;
+	registerValue.d1 = rtHi;
+
+	registerValue.q >>= accessType * 8;
+
+	INTEGER64 memory;
+	memory.d0 = CMemoryUtils::GetWordProxy(context, alignedAddress + 0);
+	memory.d1 = CMemoryUtils::GetWordProxy(context, alignedAddress + 4);
+	memory.q &= g_LDMaskLeft[byteOffset];
+	memory.q |= registerValue.q;
+	CMemoryUtils::SetWordProxy(context, memory.d0, alignedAddress + 0);
+	CMemoryUtils::SetWordProxy(context, memory.d1, alignedAddress + 4);
 }
 
-void SDR_Proxy(uint32 address, uint32 rt, CMIPS* context)
+void SDR_Proxy(uint32 address, uint32 rtLo, uint32 rtHi, CMIPS* context)
 {
-    uint32 alignedAddress = address & ~0x07;
-    uint32 byteOffset = address & 0x07;
-    uint32 accessType = 7 - byteOffset;
-    uint64 reg = context->m_State.nGPR[rt].nD0;
-    reg <<= byteOffset * 8;
-    INTEGER64 memory;
-    memory.d0 = CMemoryUtils::GetWordProxy(context, alignedAddress + 0);
-    memory.d1 = CMemoryUtils::GetWordProxy(context, alignedAddress + 4);
-    memory.q &= g_LDMaskRight[accessType];
-    memory.q |= reg;
-    CMemoryUtils::SetWordProxy(context, memory.d0, alignedAddress + 0);
-    CMemoryUtils::SetWordProxy(context, memory.d1, alignedAddress + 4);
+	uint32 alignedAddress = address & ~0x07;
+	uint32 byteOffset = address & 0x07;
+	uint32 accessType = 7 - byteOffset;
+
+	INTEGER64 registerValue;
+	registerValue.d0 = rtLo;
+	registerValue.d1 = rtHi;
+
+	registerValue.q <<= byteOffset * 8;
+
+	INTEGER64 memory;
+	memory.d0 = CMemoryUtils::GetWordProxy(context, alignedAddress + 0);
+	memory.d1 = CMemoryUtils::GetWordProxy(context, alignedAddress + 4);
+	memory.q &= g_LDMaskRight[accessType];
+	memory.q |= registerValue.q;
+	CMemoryUtils::SetWordProxy(context, memory.d0, alignedAddress + 0);
+	CMemoryUtils::SetWordProxy(context, memory.d1, alignedAddress + 4);
 }
 
 CMA_MIPSIV::CMA_MIPSIV(MIPS_REGSIZE nRegSize) :
@@ -281,6 +331,7 @@ void CMA_MIPSIV::ADDI()
     m_codeGen->Add();
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
+		m_codeGen->PushTop();
 	    m_codeGen->SignExt();
 	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}
@@ -466,10 +517,22 @@ void CMA_MIPSIV::LDL()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
+	typedef uint32 (*LDL_Function)(uint32, uint32, CMIPS*);
+
+	LDL_Function functions[2];
+	functions[0] = LDL_Proxy<true>;
+	functions[1] = LDL_Proxy<false>;
+
     ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
-    m_codeGen->PushCtx();
-    m_codeGen->Call(reinterpret_cast<void*>(&LDL_Proxy), 3, false);
+	m_codeGen->PushTop();
+
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushCtx();
+		m_codeGen->Call(reinterpret_cast<void*>(functions[i]), 3, true);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+	}
 }
 
 //1B
@@ -477,10 +540,22 @@ void CMA_MIPSIV::LDR()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
+	typedef uint32 (*LDR_Function)(uint32, uint32, CMIPS*);
+
+	LDR_Function functions[2];
+	functions[0] = LDR_Proxy<true>;
+	functions[1] = LDR_Proxy<false>;
+
     ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
-    m_codeGen->PushCtx();
-    m_codeGen->Call(reinterpret_cast<void*>(&LDR_Proxy), 3, false);
+	m_codeGen->PushTop();
+
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushCtx();
+		m_codeGen->Call(reinterpret_cast<void*>(functions[i]), 3, true);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+	}
 }
 
 //20
@@ -535,8 +610,9 @@ void CMA_MIPSIV::LWL()
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		//TODO: Sign extend
-		assert(0);
+		m_codeGen->PushTop();
+		m_codeGen->SignExt();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
@@ -569,8 +645,9 @@ void CMA_MIPSIV::LWR()
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
-		//TODO: Sign extend
-		assert(0);
+		m_codeGen->PushTop();
+		m_codeGen->SignExt();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
@@ -645,9 +722,10 @@ void CMA_MIPSIV::SDL()
 	assert(m_regSize == MIPS_REGSIZE_64);
 
     ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
-    m_codeGen->PushCtx();
-    m_codeGen->Call(reinterpret_cast<void*>(&SDL_Proxy), 3, false);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+	m_codeGen->PushCtx();
+    m_codeGen->Call(reinterpret_cast<void*>(&SDL_Proxy), 4, false);
 }
 
 //2D
@@ -656,9 +734,10 @@ void CMA_MIPSIV::SDR()
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddr();
-    m_codeGen->PushCst(m_nRT);
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
     m_codeGen->PushCtx();
-    m_codeGen->Call(reinterpret_cast<void*>(&SDR_Proxy), 3, false);
+    m_codeGen->Call(reinterpret_cast<void*>(&SDR_Proxy), 4, false);
 }
 
 //2E
@@ -924,15 +1003,10 @@ void CMA_MIPSIV::DSLLV()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-
 	m_codeGen->Shl64();
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //16
@@ -1120,13 +1194,9 @@ void CMA_MIPSIV::DSRA()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
+    m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
     m_codeGen->Sra64(m_nSA);
-
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+    m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //3C

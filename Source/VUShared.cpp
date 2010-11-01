@@ -74,11 +74,11 @@ size_t VUShared::GetAccumulatorElement(unsigned int nElement)
 
 void VUShared::PullVector(CMipsJitter* codeGen, uint8 dest, size_t vector)
 {
-    codeGen->MD_PullRel(
-        DestinationHasElement(dest, 0) ? vector + 0x0 : SIZE_MAX,
-        DestinationHasElement(dest, 1) ? vector + 0x4 : SIZE_MAX,
-        DestinationHasElement(dest, 2) ? vector + 0x8 : SIZE_MAX,
-        DestinationHasElement(dest, 3) ? vector + 0xC : SIZE_MAX);
+    codeGen->MD_PullRel(vector,
+        DestinationHasElement(dest, 0),
+        DestinationHasElement(dest, 1),
+        DestinationHasElement(dest, 2),
+        DestinationHasElement(dest, 3));
 }
 
 void VUShared::ADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand)
@@ -245,38 +245,33 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 
 void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)
 {
-	//Reimplement
-	assert(0);
+	size_t destination = g_pipeInfoQ.heldValue;
+	QueueInPipeline(g_pipeInfoQ, codeGen, address + (pipeMult * 4 * LATENCY_DIV));
 
-    //size_t destination = g_pipeInfoQ.heldValue;
-    //QueueInPipeline(g_pipeInfoQ, codeGen, address + (pipeMult * 4 * LATENCY_DIV));
-
-    ////Check for zero
-    //codeGen->PushRel(GetVectorElement(nFt, nFtf));
-    //codeGen->PushCst(0x7FFFFFFF);
-    //codeGen->And();
-    //codeGen->PushCst(0);
-    //codeGen->Cmp(Jitter::CONDITION_EQ);
-
-    //codeGen->BeginIfElse(true);
-    //{
-    //    codeGen->PushCst(0x7F7FFFFF);
-    //    codeGen->PushRel(GetVectorElement(nFs, nFsf));
-    //    codeGen->PushRel(GetVectorElement(nFt, nFtf));
-    //    codeGen->Xor();
-    //    codeGen->PushCst(0x80000000);
-    //    codeGen->And();
-    //    codeGen->Or();
-    //    codeGen->PullRel(destination);
-    //}
-    //codeGen->BeginIfElseAlt();
-    //{
-    //    codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
-    //    codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
-    //    codeGen->FP_Div();
-    //    codeGen->FP_PullSingle(destination);
-    //}
-    //codeGen->EndIf();
+	//Check for zero
+	codeGen->PushRel(GetVectorElement(nFt, nFtf));
+	codeGen->PushCst(0x7FFFFFFF);
+	codeGen->And();
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		codeGen->PushCst(0x7F7FFFFF);
+		codeGen->PushRel(GetVectorElement(nFs, nFsf));
+		codeGen->PushRel(GetVectorElement(nFt, nFtf));
+		codeGen->Xor();
+		codeGen->PushCst(0x80000000);
+		codeGen->And();
+		codeGen->Or();
+		codeGen->PullRel(destination);
+	}
+	codeGen->Else();
+	{
+		codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
+		codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
+		codeGen->FP_Div();
+		codeGen->FP_PullSingle(destination);
+	}
+	codeGen->EndIf();
 }
 
 void VUShared::FTOI0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
@@ -594,61 +589,62 @@ void VUShared::OPMULA(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 
 void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 nFd, uint8 nFs, uint8 nFt)
 {
-	//Reimplement
-	assert(0);
+	if(nFd == 0)
+	{
+		//Gotta test this further
+		assert(0);
 
-	//if(nFd == 0) 
-	//{
-	//	//Atelier Iris - OPMSUB with VF0 as FD...
-	//	//This is probably to set a flag which is tested a bit further
-	//	//The flag tested is Sz
- //       codeGen->PushCst(0);
+		//Atelier Iris - OPMSUB with VF0 as FD...
+		//This is probably to set a flag which is tested a bit further
+		//The flag tested is Sz
+		codeGen->PushCst(0);
 
-	//	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
-	//	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
-	//	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPY));
-	//	codeGen->FP_Mul();
-	//	codeGen->FP_Sub();
+		codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
+		codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
+		codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPY));
+		codeGen->FP_Mul();
+		codeGen->FP_Sub();
 
-	//	codeGen->FP_Cmp(Jitter::CONDITION_BL);
-	//	
-	//	codeGen->BeginIfElse(true);
-	//	{
-	//		codeGen->PushCst(0xFFFFFFFF);
-	//		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF.nV[2]));
-	//	}
-	//	codeGen->BeginIfElseAlt();
-	//	{
-	//		codeGen->PushCst(0);
-	//		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF.nV[2]));
-	//	}
-	//	codeGen->EndIf();
-	//	return;
-	//}
+		codeGen->FP_Cmp(Jitter::CONDITION_BL);
 
- //   //X
- //   codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPX));
- //   codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPY));
- //   codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPZ));
- //   codeGen->FP_Mul();
- //   codeGen->FP_Sub();
- //   codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPX));
+		codeGen->PushCst(0);
+		codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			codeGen->PushCst(0xFFFFFFFF);
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF.nV[2]));
+		}
+		codeGen->Else();
+		{
+			codeGen->PushCst(0);
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF.nV[2]));
+		}
+		codeGen->EndIf();
+		return;
+	}
 
- //   //Y
- //   codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPY));
- //   codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPZ));
- //   codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPX));
- //   codeGen->FP_Mul();
- //   codeGen->FP_Sub();
- //   codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPY));
+	//X
+	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPX));
+	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPY));
+	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPZ));
+	codeGen->FP_Mul();
+	codeGen->FP_Sub();
+	codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPX));
 
- //   //Z
- //   codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
- //   codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
- //   codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPY));
- //   codeGen->FP_Mul();
- //   codeGen->FP_Sub();
- //   codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPZ));
+	//Y
+	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPY));
+	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPZ));
+	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPX));
+	codeGen->FP_Mul();
+	codeGen->FP_Sub();
+	codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPY));
+
+	//Z
+	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
+	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
+	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPY));
+	codeGen->FP_Mul();
+	codeGen->FP_Sub();
+	codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPZ));
 }
 
 void VUShared::RINIT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
@@ -758,25 +754,25 @@ void VUShared::WAITQ(CMipsJitter* codeGen)
 
 void VUShared::FlushPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen)
 {
+	return;
+
 	//Reimplement
 	assert(0);
 
-    //return;
+	//Dump the current value if one pending
+	//codeGen->PushCst(MIPS_INVALID_PC);
+	//codeGen->PushRel(pipeInfo.target);
+	//codeGen->Cmp(Jitter::CONDITION_EQ);
 
-    ////Dump the current value if one pending
-    //codeGen->PushCst(MIPS_INVALID_PC);
-    //codeGen->PushRel(pipeInfo.target);
-    //codeGen->Cmp(Jitter::CONDITION_EQ);
+	//codeGen->BeginIf(false);
+	//{
+	//	codeGen->PushRel(pipeInfo.heldValue);
+	//	codeGen->PullRel(pipeInfo.value);
 
-    //codeGen->BeginIf(false);
-    //{
-    //    codeGen->PushRel(pipeInfo.heldValue);
-    //    codeGen->PullRel(pipeInfo.value);
-
-    //    codeGen->PushCst(MIPS_INVALID_PC);
-    //    codeGen->PullRel(pipeInfo.target);
-    //}
-    //codeGen->EndIf();
+	//	codeGen->PushCst(MIPS_INVALID_PC);
+	//	codeGen->PullRel(pipeInfo.target);
+	//}
+	//codeGen->EndIf();
 }
 
 void VUShared::QueueInPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 targetAddress)
@@ -792,22 +788,23 @@ void VUShared::QueueInPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, u
 
 void VUShared::VerifyPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 currentAddress)
 {
+    return;
+
 	//Reimplement
 	assert(0);
-    //return;
 
-    ////Dump current value if it's ready
-    //codeGen->PushCst(currentAddress);
-    //codeGen->PushRel(pipeInfo.target);
-    //codeGen->Cmp(Jitter::CONDITION_BL);
+	//Dump current value if it's ready
+	//codeGen->PushCst(currentAddress);
+	//codeGen->PushRel(pipeInfo.target);
+	//codeGen->Cmp(Jitter::CONDITION_BL);
 
-    //codeGen->BeginIf(false);
-    //{
-    //    codeGen->PushRel(pipeInfo.heldValue);
-    //    codeGen->PullRel(pipeInfo.value);
+	//codeGen->BeginIf(false);
+	//{
+	//	codeGen->PushRel(pipeInfo.heldValue);
+	//	codeGen->PullRel(pipeInfo.value);
 
-    //    codeGen->PushCst(MIPS_INVALID_PC);
-    //    codeGen->PullRel(pipeInfo.target);
-    //}
-    //codeGen->EndIf();
+	//	codeGen->PushCst(MIPS_INVALID_PC);
+	//	codeGen->PullRel(pipeInfo.target);
+	//}
+	//codeGen->EndIf();
 }
