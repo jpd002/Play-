@@ -200,47 +200,46 @@ void VUShared::ADDAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint
 
 void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 {
-	//Reimplement
-	assert(0);
+	//Create some space for the new test results
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+	codeGen->Shl(6);
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
 
-  //  //Create some space for the new test results
-  //  codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-  //  codeGen->Shl(6);
-  //  codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+	for(unsigned int i = 0; i < 3; i++)
+	{
+		//c > +|w|
+		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+		codeGen->FP_Abs();
 
-  //  for(unsigned int i = 0; i < 3; i++)
-  //  {
-  //      //c > +|w|
-  //      codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
-  //      codeGen->FP_Abs();
-  //      codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		//codeGen->FP_Cmp(Jitter::CONDITION_AB);
+		codeGen->FP_Cmp(Jitter::CONDITION_AB);
+		codeGen->PushCst(0);
+		codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+			codeGen->PushCst(1 << ((i * 2) + 0));
+			codeGen->Or();
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+		}
+		codeGen->EndIf();
 
-  //      codeGen->BeginIf(true);
-  //      {
-  //          codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-  //          codeGen->PushCst(1 << ((i * 2) + 0));
-  //          codeGen->Or();
-  //          codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
-  //      }
-  //      codeGen->EndIf();
+		//c < -|w|
+		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+		codeGen->FP_Abs();
+		codeGen->FP_Neg();
 
-  //      //c < -|w|
-  //      codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
-  //      codeGen->FP_Abs();
-  //      codeGen->FP_Neg();
-  //      codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-  //      codeGen->FP_Cmp(Jitter::CONDITION_BL);
-
-  //      codeGen->BeginIf(true);
-  //      {
-  //          codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-  //          codeGen->PushCst(1 << ((i * 2) + 1));
-  //          codeGen->Or();
-  //          codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
-  //      }
-  //      codeGen->EndIf();
-  //  }
+		codeGen->FP_Cmp(Jitter::CONDITION_BL);
+		codeGen->PushCst(0);
+		codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+			codeGen->PushCst(1 << ((i * 2) + 1));
+			codeGen->Or();
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+		}
+		codeGen->EndIf();
+	}
 }
 
 void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)
@@ -591,13 +590,9 @@ void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 nFd, uint8 nFs, uint8 nFt)
 {
 	if(nFd == 0)
 	{
-		//Gotta test this further
-		assert(0);
-
 		//Atelier Iris - OPMSUB with VF0 as FD...
 		//This is probably to set a flag which is tested a bit further
 		//The flag tested is Sz
-		codeGen->PushCst(0);
 
 		codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
 		codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
@@ -605,6 +600,7 @@ void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 nFd, uint8 nFs, uint8 nFt)
 		codeGen->FP_Mul();
 		codeGen->FP_Sub();
 
+		codeGen->PushCst(0);
 		codeGen->FP_Cmp(Jitter::CONDITION_BL);
 
 		codeGen->PushCst(0);

@@ -141,21 +141,19 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 
 void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
 {
-	//Reimplement
-	assert(0);
-
-    //const uint32 maxIAddr = 0x3FFF;
-    //m_codeGen->BeginIfElse(nCondition);
-    //{
-    //    m_codeGen->PushCst((m_nAddress + nOffset + 4) & maxIAddr);
-    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-    //}
-    //m_codeGen->BeginIfElseAlt();
-    //{
-    //    m_codeGen->PushCst(MIPS_INVALID_PC);
-    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-    //}
-    //m_codeGen->EndIf();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(nCondition ? Jitter::CONDITION_NE : Jitter::CONDITION_EQ);
+	{
+		const uint32 maxIAddr = 0x3FFF;
+		m_codeGen->PushCst((m_nAddress + nOffset + 4) & maxIAddr);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+	}
+	m_codeGen->Else();
+	{
+		m_codeGen->PushCst(MIPS_INVALID_PC);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+	}
+	m_codeGen->EndIf();
 }
 
 void CMA_VU::CLower::PushIntegerRegister(unsigned int nRegister)
@@ -275,27 +273,22 @@ void CMA_VU::CLower::FCSET()
 //12
 void CMA_VU::CLower::FCAND()
 {
-	//Reimplement
-	assert(0);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+	m_codeGen->PushCst(m_nImm24);
+	m_codeGen->And();
 
-    //m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-    //m_codeGen->PushCst(m_nImm24);
-    //m_codeGen->And();
-
-    //m_codeGen->PushCst(0);
-    //m_codeGen->Cmp(Jitter::CONDITION_EQ);
-
-    //m_codeGen->BeginIfElse(false);
-    //{
-    //    m_codeGen->PushCst(1);
-    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    //}
-    //m_codeGen->BeginIfElseAlt();
-    //{
-    //    m_codeGen->PushCst(0);
-    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    //}
-    //m_codeGen->EndIf();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushCst(1);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+	}
+	m_codeGen->Else();
+	{
+		m_codeGen->PushCst(0);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+	}
+	m_codeGen->EndIf();
 }
 
 //13
