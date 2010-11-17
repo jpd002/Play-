@@ -44,7 +44,7 @@ void CPsfSubSystem::Reset()
 {
 	memset(m_ram, 0, m_ramSize);
 	memset(m_spuRam, 0, SPURAMSIZE);
-	m_executor.Clear();
+	m_executor.Reset();
 	m_bios.Reset();
 	m_audioStream.Truncate();
 

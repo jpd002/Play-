@@ -8,24 +8,32 @@ m_context(context)
 
 CMipsExecutor::~CMipsExecutor()
 {
-    Clear();
+
 }
 
-void CMipsExecutor::Clear()
+void CMipsExecutor::Reset()
+{
+	ClearActiveBlocks();
+}
+
+void CMipsExecutor::ClearActiveBlocks()
 {
     for(BlockList::iterator blockIterator(m_blocks.begin());
         blockIterator != m_blocks.end(); blockIterator++)
     {
-        delete *blockIterator;
+		//Clear the branch hint in case block isn't deleted.
+		BasicBlockPtr& currBlock = (*blockIterator);
+		currBlock->SetBranchHint(BasicBlockPtr());
     }
-    m_blocks.clear();
+	
+	m_blocks.clear();
     m_blockBegin.clear();
     m_blockEnd.clear();
 }
 
 int CMipsExecutor::Execute(int cycles)
 {
-    CBasicBlock* block = NULL;
+    BasicBlockPtr block;
     while(cycles > 0)
     {
 #ifdef _PSX
@@ -33,11 +41,11 @@ int CMipsExecutor::Execute(int cycles)
 #else
 		uint32 address = m_context.m_State.nPC;
 #endif
-        if(block == NULL || address != block->GetBeginAddress())
+        if(!block || address != block->GetBeginAddress())
         {
-            CBasicBlock* prevBlock = block;
+            BasicBlockPtr prevBlock = block;
             //Check if we can use the hint instead of looking through the map
-            if(prevBlock != NULL)
+            if(prevBlock)
             {
                 block = prevBlock->GetBranchHint();
             }
@@ -90,7 +98,7 @@ bool CMipsExecutor::MustBreak() const
 #else
 	uint32 currentPc = m_context.m_State.nPC;
 #endif
-    CBasicBlock* block = FindBlockAt(currentPc);
+    BasicBlockPtr block = FindBlockAt(currentPc);
     for(CMIPS::BreakpointSet::const_iterator breakPointIterator(m_context.m_breakpoints.begin());
         breakPointIterator != m_context.m_breakpoints.end(); breakPointIterator++)
     {
@@ -105,13 +113,13 @@ bool CMipsExecutor::MustBreak() const
     return false;
 }
 
-CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
+BasicBlockPtr CMipsExecutor::FindBlockAt(uint32 address) const
 {
     BlockBeginMap::const_iterator beginIterator = m_blockBegin.lower_bound(address);
     if(beginIterator == m_blockBegin.end()) return NULL;
 
     {
-        CBasicBlock* block = beginIterator->second;
+        const BasicBlockPtr& block = beginIterator->second;
         if(
             address >= block->GetBeginAddress() &&
             address <= block->GetEndAddress())
@@ -124,7 +132,7 @@ CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
     if(endIterator == m_blockEnd.end()) return NULL;
 
     {
-        CBasicBlock* block = endIterator->second;
+        const BasicBlockPtr& block = endIterator->second;
         if(
             address >= block->GetBeginAddress() &&
             address <= block->GetEndAddress())
@@ -141,7 +149,7 @@ CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
     return beginIterator->second;
 }
 
-CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address)
+BasicBlockPtr CMipsExecutor::FindBlockStartingAt(uint32 address)
 {
     BlockBeginMap::const_iterator beginIterator = m_blockBegin.find(address);
     if(beginIterator == m_blockBegin.end()) return NULL;
@@ -151,8 +159,8 @@ CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address)
 void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 {
     {
-        CBasicBlock* block = FindBlockAt(start);
-        if(block != NULL)
+        BasicBlockPtr block = FindBlockAt(start);
+        if(block)
         {
             //If the block starts and ends at the same place, block already exists and doesn't need
             //to be re-created
@@ -187,7 +195,7 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
     }
     assert(FindBlockAt(end) == NULL);
     {
-        CBasicBlock* block = BlockFactory(m_context, start, end);
+        BasicBlockPtr block = BlockFactory(m_context, start, end);
         m_blocks.push_back(block);
         m_blockBegin[start] = block;
         m_blockEnd[end] = block;
@@ -196,13 +204,13 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
     assert(m_blockBegin.size() == m_blockEnd.size());
 }
 
-void CMipsExecutor::DeleteBlock(CBasicBlock* block)
+void CMipsExecutor::DeleteBlock(const BasicBlockPtr& block)
 {
     //Clear any hints that point to this block
-    for(BlockList::const_iterator blockIterator(m_blocks.begin());
+    for(BlockList::iterator blockIterator(m_blocks.begin());
         blockIterator != m_blocks.end(); blockIterator++)
     {
-        CBasicBlock* currBlock = (*blockIterator);
+		BasicBlockPtr& currBlock = (*blockIterator);
         if(currBlock->GetBranchHint() == block)
         {
             currBlock->SetBranchHint(NULL);
@@ -215,12 +223,11 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
     m_blockEnd.erase(block->GetEndAddress());
     assert(m_blocks.size() == m_blockBegin.size());
     assert(m_blockBegin.size() == m_blockEnd.size());
-    delete block;
 }
 
-CBasicBlock* CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
+BasicBlockPtr CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
-	return new CBasicBlock(context, start, end);
+	return BasicBlockPtr(new CBasicBlock(context, start, end));
 }
 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)
@@ -275,8 +282,8 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
         //Check if there's a block already exising that this address
         if(address != endAddress)
         {
-            CBasicBlock* possibleBlock = FindBlockStartingAt(address);
-            if(possibleBlock != NULL)
+            BasicBlockPtr possibleBlock = FindBlockStartingAt(address);
+            if(possibleBlock)
             {
                 //assert(possibleBlock->GetEndAddress() <= endAddress);
                 //Add its beginning and end in the partition points

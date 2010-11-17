@@ -90,7 +90,7 @@ void CSubSystem::Reset()
     memset(m_ram, 0, IOP_RAM_SIZE);
 	memset(m_scratchPad, 0, IOP_SCRATCH_SIZE);
 	memset(m_spuRam, 0, SPU_RAM_SIZE);
-	m_executor.Clear();
+	m_executor.Reset();
 	m_cpu.Reset();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
@@ -198,8 +198,8 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
             }
 			else
 			{
-				CBasicBlock* nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
-				if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+				BasicBlockPtr nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
+				if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
 				{
 					//Go a little bit faster if we're "stuck"
 					isIdle = true;

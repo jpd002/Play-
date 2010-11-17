@@ -66,7 +66,7 @@ bool CVPU::MustBreak() const
 
 void CVPU::Reset()
 {
-    m_executor.Clear();
+    m_executor.Reset();
 	memset(&m_STAT, 0, sizeof(STAT));
 	memset(&m_CODE, 0, sizeof(CODE));
 	memset(&m_CYCLE, 0, sizeof(CYCLE));
@@ -307,7 +307,7 @@ void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
         //Check if there's a change
         if(memcmp(m_pMicroMem + nDstAddr, microProgram, nSize) != 0)
         {
-            m_executor.Clear();
+            m_executor.ClearActiveBlocks();
             memcpy(m_pMicroMem + nDstAddr, microProgram, nSize);
         }
     }

@@ -475,7 +475,7 @@ void CPS2VM::ResetVM()
     Pause();
 
     m_os->Release();
-    m_executor.Clear();
+    m_executor.Reset();
 
     memset(m_ram,			0, PS2::EERAMSIZE);
     memset(m_spr,			0, PS2::SPRSIZE);
@@ -641,7 +641,7 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 
     printf("PS2VM: Loaded state from file '%s'.\r\n", sPath);
 
-    m_executor.Clear();
+    m_executor.Reset();
 	m_OnMachineStateChange();
 
     result = 0;
@@ -1205,9 +1205,9 @@ void CPS2VM::EmuThread()
                     assert(!m_EE.m_State.nHasException);
                 }
                 {
-                    CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+                    BasicBlockPtr nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
                     const int skipAmount = 50000;
-                    if(nextBlock != NULL && nextBlock->GetSelfLoopCount() > 5000)
+                    if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
                     {
                         m_nVBlankTicks -= skipAmount;
                     }

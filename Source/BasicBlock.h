@@ -9,6 +9,9 @@ namespace Jitter
 	class CJitter;
 };
 
+class CBasicBlock;
+typedef boost::intrusive_ptr<CBasicBlock> BasicBlockPtr;
+
 class CBasicBlock
 {
 public:
@@ -22,8 +25,8 @@ public:
     bool				IsCompiled() const;
     unsigned int		GetSelfLoopCount() const;
     void				SetSelfLoopCount(unsigned int);
-    CBasicBlock*		GetBranchHint() const;
-    void				SetBranchHint(CBasicBlock*);
+    BasicBlockPtr		GetBranchHint() const;
+    void				SetBranchHint(const BasicBlockPtr&);
 
 protected:
     uint32				m_begin;
@@ -33,9 +36,28 @@ protected:
 	virtual void		CompileRange(CMipsJitter*);
 
 private:
+	friend void intrusive_ptr_add_ref(CBasicBlock*);
+	friend void intrusive_ptr_release(CBasicBlock*);
+
 	CMemoryFunction*	m_function;
-    CBasicBlock*		m_branchHint;
+    BasicBlockPtr		m_branchHint;
     unsigned int		m_selfLoopCount;
+
+	unsigned int		m_refCount;
 };
+
+static void intrusive_ptr_add_ref(CBasicBlock* block)
+{
+	block->m_refCount++;
+}
+
+static void intrusive_ptr_release(CBasicBlock* block)
+{
+	block->m_refCount--;
+	if(block->m_refCount == 0)
+	{
+		delete block;
+	}
+}
 
 #endif

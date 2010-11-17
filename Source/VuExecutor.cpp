@@ -1,5 +1,6 @@
 #include "VuExecutor.h"
 #include "VuBasicBlock.h"
+#include <zlib.h>
 
 CVuExecutor::CVuExecutor(CMIPS& context) :
 CMipsExecutor(context)
@@ -12,9 +13,51 @@ CVuExecutor::~CVuExecutor()
 
 }
 
-CBasicBlock* CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)
+void CVuExecutor::Reset()
 {
-	return new CVuBasicBlock(context, begin, end);
+	m_cachedBlocks.clear();
+	CMipsExecutor::Reset();
+}
+
+BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)
+{
+	uint32 blockSize = ((end - begin) + 4) / 4;
+	uint32 blockSizeByte = blockSize * 4;
+	uint32* blockMemory = reinterpret_cast<uint32*>(alloca(blockSizeByte));
+	for(uint32 address = begin; address <= end; address += 8)
+	{
+		uint32 index = (address - begin) / 4;
+
+		uint32 addressLo = address + 0;
+		uint32 addressHi = address + 4;
+
+		uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(addressLo);
+		uint32 opcodeHi = m_context.m_pMemoryMap->GetInstruction(addressHi);
+
+		assert((index + 0) < blockSize);
+		blockMemory[index + 0] = opcodeLo;
+		assert((index + 1) < blockSize);
+		blockMemory[index + 1] = opcodeHi;
+	}
+
+	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSizeByte);
+
+	std::pair<CachedBlockMap::iterator, CachedBlockMap::iterator> equalRange = m_cachedBlocks.equal_range(checksum);
+	for(; equalRange.first != equalRange.second; ++equalRange.first)
+	{
+		const BasicBlockPtr& basicBlock(equalRange.first->second);
+		if(basicBlock->GetBeginAddress() == begin)
+		{
+			if(basicBlock->GetEndAddress() == end)
+			{
+				return basicBlock;
+			}
+		}
+	}
+
+	BasicBlockPtr result(new CVuBasicBlock(context, begin, end));
+	m_cachedBlocks.insert(CachedBlockMap::value_type(checksum, result));
+	return result;
 }
 
 void CVuExecutor::PartitionFunction(uint32 functionAddress)
@@ -73,7 +116,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
         //Check if there's a block already exising that this address
         if(address != endAddress)
         {
-            CBasicBlock* possibleBlock = FindBlockStartingAt(address);
+            BasicBlockPtr possibleBlock = FindBlockStartingAt(address);
             if(possibleBlock != NULL)
             {
                 assert(possibleBlock->GetEndAddress() <= endAddress);
