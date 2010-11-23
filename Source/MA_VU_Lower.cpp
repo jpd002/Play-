@@ -32,58 +32,6 @@ CMA_VU::CLower::~CLower()
 
 }
 
-void CMA_VU::CLower::GetQuadWord(uint32 address, CMIPS* ctx, uint32 dstRegister, uint32 dstMask)
-{
-    assert((address & 0x0F) == 0x00);
-    uint128* destination = &ctx->m_State.nCOP2[dstRegister];
-    CMemoryMap::MEMORYMAPELEMENT* mapElement(ctx->m_pMemoryMap->GetReadMap(address));
-    if((mapElement == NULL) || (mapElement->nType != CMemoryMap::MEMORYMAP_TYPE_MEMORY))
-    {
-        destination->nV0 = 0xCCCCCCCC;
-        destination->nV1 = 0xCCCCCCCC;
-        destination->nV2 = 0xCCCCCCCC;
-        destination->nV3 = 0xCCCCCCCC;
-        return;
-    }
-    uint128* source = reinterpret_cast<uint128*>(&reinterpret_cast<uint8*>(mapElement->pPointer)[address - mapElement->nStart]);
-    if(dstMask == 0xF)
-    {
-        (*destination) = (*source);
-    }
-    else
-    {
-        for(unsigned int i = 0; i < 4; i++)
-        {
-            if(!VUShared::DestinationHasElement(static_cast<uint8>(dstMask), i)) continue;
-            destination->nV[i] = source->nV[i];
-        }
-    }
-}
-
-void CMA_VU::CLower::SetQuadWord(uint32 address, CMIPS* ctx, uint32 srcRegister, uint32 dstMask)
-{
-    assert((address & 0x0F) == 0x00);
-    CMemoryMap::MEMORYMAPELEMENT* mapElement(ctx->m_pMemoryMap->GetWriteMap(address));
-    if((mapElement == NULL) || (mapElement->nType != CMemoryMap::MEMORYMAP_TYPE_MEMORY))
-    {
-        return;
-    }
-    uint128* source = &ctx->m_State.nCOP2[srcRegister];
-    uint128* destination = reinterpret_cast<uint128*>(&reinterpret_cast<uint8*>(mapElement->pPointer)[address - mapElement->nStart]);
-    if(dstMask == 0xF)
-    {
-        (*destination) = (*source);
-    }
-    else
-    {
-        for(unsigned int i = 0; i < 4; i++)
-        {
-            if(!VUShared::DestinationHasElement(static_cast<uint8>(dstMask), i)) continue;
-            destination->nV[i] = source->nV[i];
-        }
-    }
-}
-
 void CMA_VU::CLower::ComputeMemAccessAddr(unsigned int baseRegister, uint32 baseOffset, uint32 destOffset)
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[baseRegister]));
@@ -189,10 +137,25 @@ void CMA_VU::CLower::LQ()
         m_nIS,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         0);
-	m_codeGen->PushCtx();
-    m_codeGen->PushCst(m_nIT);
-    m_codeGen->PushCst(m_nDest);
-    m_codeGen->Call(reinterpret_cast<void*>(&GetQuadWord), 4, false);
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
+		{
+			m_codeGen->PushCtx();
+			m_codeGen->PushIdx(1);
+			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nIT].nV[i]));
+		}
+
+		if(i != 3)
+		{
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
+		}
+	}
+
+    m_codeGen->PullTop();
 }
 
 //01
@@ -202,10 +165,25 @@ void CMA_VU::CLower::SQ()
         m_nIT,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         0);
-	m_codeGen->PushCtx();
-    m_codeGen->PushCst(m_nIS);
-    m_codeGen->PushCst(m_nDest);
-    m_codeGen->Call(reinterpret_cast<void*>(&SetQuadWord), 4, false);
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
+		{
+			m_codeGen->PushCtx();
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[i]));
+			m_codeGen->PushIdx(2);
+			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+		}
+
+		if(i != 3)
+		{
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
+		}
+	}
+
+	m_codeGen->PullTop();
 }
 
 //04
@@ -588,15 +566,30 @@ void CMA_VU::CLower::MOVE()
 void CMA_VU::CLower::LQI()
 {
     ComputeMemAccessAddr(m_nIS, 0, 0);
-	m_codeGen->PushCtx();
-    m_codeGen->PushCst(m_nIT);
-    m_codeGen->PushCst(m_nDest);
-    m_codeGen->Call(reinterpret_cast<void*>(&GetQuadWord), 4, false);
 
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-    m_codeGen->PushCst(1);
-    m_codeGen->Add();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
+		{
+			m_codeGen->PushCtx();
+			m_codeGen->PushIdx(1);
+			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nIT].nV[i]));
+		}
+
+		if(i != 3)
+		{
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
+		}
+	}
+
+	m_codeGen->PullTop();
+
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	m_codeGen->PushCst(1);
+	m_codeGen->Add();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 }
 
 //0E
@@ -719,16 +712,33 @@ void CMA_VU::CLower::MR32()
 //0D
 void CMA_VU::CLower::SQI()
 {
-    ComputeMemAccessAddr(m_nIT, 0, 0);
-	m_codeGen->PushCtx();
-    m_codeGen->PushCst(m_nIS);
-    m_codeGen->PushCst(m_nDest);
-    m_codeGen->Call(reinterpret_cast<void*>(&SetQuadWord), 4, false);
+	ComputeMemAccessAddr(m_nIT, 0, 0);
 
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-    m_codeGen->PushCst(1);
-    m_codeGen->Add();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
+		{
+			m_codeGen->PushCtx();
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[i]));
+			m_codeGen->PushIdx(2);
+			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+		}
+
+
+		if(i != 3)
+		{
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
+		}
+	}
+
+	m_codeGen->PullTop();
+
+	//Increment
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	m_codeGen->PushCst(1);
+	m_codeGen->Add();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //0F

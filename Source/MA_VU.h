@@ -164,9 +164,6 @@ private:
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 		VUShared::OPERANDSET				GetAffectedOperands(CMIPS*, uint32, uint32);
 
-        static void                         GetQuadWord(uint32, CMIPS*, uint32, uint32);
-        static void                         SetQuadWord(uint32, CMIPS*, uint32, uint32);
-
 	private:
     	typedef void (CLower::*InstructionFuncConstant)();
 
