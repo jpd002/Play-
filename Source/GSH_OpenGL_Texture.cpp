@@ -299,10 +299,11 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 
 		if(_stat(sFilename, &Stat) == -1) break;
 	}
 
-	CBitmap Bitmap(nWidth, nHeight, 32);
+	Framework::CBitmap bitmap(nWidth, nHeight, 32);
 
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_BYTE, Bitmap.GetPixels());
-	CBMP::ToBMP(&Bitmap, &CStdStream(fopen(sFilename, "wb")));
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap.GetPixels());
+	Framework::CStdStream outputStream(fopen(sFilename, "wb"));
+	CBMP::WriteBitmap(bitmap, outputStream);
 #endif
 }
 
