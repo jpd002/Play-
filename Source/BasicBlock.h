@@ -12,6 +12,9 @@ namespace Jitter
 class CBasicBlock;
 typedef boost::intrusive_ptr<CBasicBlock> BasicBlockPtr;
 
+static void intrusive_ptr_add_ref(CBasicBlock*);
+static void intrusive_ptr_release(CBasicBlock*);
+
 class CBasicBlock
 {
 public:
