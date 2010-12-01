@@ -185,24 +185,17 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
     }
 
 	//Check for zero
-//	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-//	m_codeGen->PushCst(0);
-//	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
-//	{
-//		m_codeGen->PushCst(~0);
-//
-//		m_codeGen->PushTop();
-//		m_codeGen->PullRel(lo[1]);
-//
-//		m_codeGen->PushTop();
-//		m_codeGen->PullRel(lo[0]);
-//
-//		m_codeGen->PushTop();
-//		m_codeGen->PullRel(hi[1]);
-//
-//		m_codeGen->PullRel(hi[0]);
-//	}
-//	m_codeGen->Else();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		m_codeGen->PushCst(~0);
+		m_codeGen->PullRel(lo[0]);
+
+		m_codeGen->PushCst(~0);
+		m_codeGen->PullRel(hi[0]);
+	}
+	m_codeGen->Else();
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -211,24 +204,23 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 		m_codeGen->PushTop();
 
 		m_codeGen->ExtLow64();
-		if(m_regSize == MIPS_REGSIZE_64)
-		{
-			m_codeGen->PushTop();
-			m_codeGen->SignExt();
-			m_codeGen->PullRel(lo[1]);
-		}
 		m_codeGen->PullRel(lo[0]);
 
 		m_codeGen->ExtHigh64();
-		if(m_regSize == MIPS_REGSIZE_64)
-		{
-			m_codeGen->PushTop();
-			m_codeGen->SignExt();
-			m_codeGen->PullRel(hi[1]);
-		}
 		m_codeGen->PullRel(hi[0]);
 	}
-//	m_codeGen->EndIf();
+	m_codeGen->EndIf();
+
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		m_codeGen->PushRel(hi[0]);
+		m_codeGen->SignExt();
+		m_codeGen->PullRel(hi[1]);
+
+		m_codeGen->PushRel(lo[0]);
+		m_codeGen->SignExt();
+		m_codeGen->PullRel(lo[1]);
+	}
 }
 
 void CMA_MIPSIV::Template_MovEqual(bool isEqual)
