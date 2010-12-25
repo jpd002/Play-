@@ -11,12 +11,16 @@
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
-		28216C970DB411BC00E5133A /* FirstViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 28216C960DB411BC00E5133A /* FirstViewController.mm */; };
-		282CCBFE0DB6C98000C4EA27 /* SecondView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 282CCBFD0DB6C98000C4EA27 /* SecondView.xib */; };
 		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
 		28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD73870D9D96C1002E5188 /* MainWindow.xib */; };
 		7E1A76500F898C750082129E /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A764F0F898C750082129E /* libz.1.2.3.dylib */; };
 		7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A77130F8993CE0082129E /* OpenAL.framework */; };
+		7E1C42891234292000BB4E9C /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42841234292000BB4E9C /* libboost_filesystem.a */; };
+		7E1C428A1234292100BB4E9C /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42851234292000BB4E9C /* libboost_regex.a */; };
+		7E1C428B1234292100BB4E9C /* libboost_signals.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42861234292000BB4E9C /* libboost_signals.a */; };
+		7E1C428C1234292100BB4E9C /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42871234292000BB4E9C /* libboost_system.a */; };
+		7E1C428D1234292100BB4E9C /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42881234292000BB4E9C /* libboost_thread.a */; };
+		7E1C4336123430FC00BB4E9C /* PlaylistSelectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E1C4335123430FC00BB4E9C /* PlaylistSelectViewController.m */; };
 		7E27214A1213B38D00C0DEBF /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721481213B38D00C0DEBF /* MipsJitter.cpp */; };
 		7E2721B21213B69A00C0DEBF /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E2721B11213B69300C0DEBF /* libCodeGen.a */; };
 		7E2721B91213B6B600C0DEBF /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E2721B81213B6AC00C0DEBF /* libFramework.a */; };
@@ -41,7 +45,6 @@
 		7E27229D1214FA7300C0DEBF /* COP_FPU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2722981214FA7300C0DEBF /* COP_FPU_Reflection.cpp */; };
 		7E27229E1214FA7300C0DEBF /* COP_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2722991214FA7300C0DEBF /* COP_FPU.cpp */; };
 		7E27229F1214FA7300C0DEBF /* COP_SCU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E27229B1214FA7300C0DEBF /* COP_SCU.cpp */; };
-		7E3730AA121A4C910055E1C0 /* FF9 317 Protecting my Devotion.psf in Resources */ = {isa = PBXBuildFile; fileRef = 7E3730A9121A4C910055E1C0 /* FF9 317 Protecting my Devotion.psf */; };
 		7E4B3CBD0F9E994E00675ED7 /* BasicBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3CB00F9E994E00675ED7 /* BasicBlock.cpp */; };
 		7E4B3CC20F9E994E00675ED7 /* ELF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3CB90F9E994E00675ED7 /* ELF.cpp */; };
 		7E4B3CC30F9E994E00675ED7 /* ElfFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3CBB0F9E994E00675ED7 /* ElfFile.cpp */; };
@@ -99,11 +102,6 @@
 		7E4B3D830F9E9A3D00675ED7 /* Iop_Timrman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3D640F9E9A3D00675ED7 /* Iop_Timrman.cpp */; };
 		7E4B3D840F9E9A3D00675ED7 /* Iop_Vblank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3D660F9E9A3D00675ED7 /* Iop_Vblank.cpp */; };
 		7E4B3D850F9E9A3D00675ED7 /* IopBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3D680F9E9A3D00675ED7 /* IopBios.cpp */; };
-		7E4B3D960F9E9B2600675ED7 /* 101 - Dearly Beloved.psf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7E4B3D940F9E9B2600675ED7 /* 101 - Dearly Beloved.psf2 */; };
-		7E4B3D970F9E9B2600675ED7 /* 220 - Hollow Bastion.psf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7E4B3D950F9E9B2600675ED7 /* 220 - Hollow Bastion.psf2 */; };
-		7E4B3DA90F9E9BAC00675ED7 /* libboost_signals-xgcc40-arm-mt-1_38.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E4B3DA60F9E9BAC00675ED7 /* libboost_signals-xgcc40-arm-mt-1_38.a */; };
-		7E4B3DAA0F9E9BAC00675ED7 /* libboost_system-xgcc40-arm-mt-1_38.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E4B3DA70F9E9BAC00675ED7 /* libboost_system-xgcc40-arm-mt-1_38.a */; };
-		7E4B3DAB0F9E9BAC00675ED7 /* libboost_thread-xgcc40-arm-mt-1_38.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E4B3DA80F9E9BAC00675ED7 /* libboost_thread-xgcc40-arm-mt-1_38.a */; };
 		7E6811420FB8F21100AC53B5 /* Iop_Cdvdman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6811400FB8F21100AC53B5 /* Iop_Cdvdman.cpp */; };
 		7E6811740FB8F32E00AC53B5 /* DirectoryRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6811680FB8F32D00AC53B5 /* DirectoryRecord.cpp */; };
 		7E6811750FB8F32E00AC53B5 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E68116A0FB8F32E00AC53B5 /* File.cpp */; };
@@ -111,6 +109,9 @@
 		7E6811770FB8F32E00AC53B5 /* PathTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E68116E0FB8F32E00AC53B5 /* PathTable.cpp */; };
 		7E6811780FB8F32E00AC53B5 /* PathTableRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6811700FB8F32E00AC53B5 /* PathTableRecord.cpp */; };
 		7E6811790FB8F32E00AC53B5 /* VolumeDescriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6811720FB8F32E00AC53B5 /* VolumeDescriptor.cpp */; };
+		7E844858123C9499003250D7 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E844856123C9499003250D7 /* Playlist.cpp */; };
+		7E8448EB123D41CC003250D7 /* PlaylistViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E8448EA123D41CC003250D7 /* PlaylistViewController.mm */; };
+		7EDF2BB512C675BC001CB546 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EDF2BB412C675BC001CB546 /* AVFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,15 +137,19 @@
 		1D3623250D0F684500981E51 /* PsfPlayerAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PsfPlayerAppDelegate.mm; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* PsfPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PsfPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		28216C950DB411BC00E5133A /* FirstViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirstViewController.h; sourceTree = "<group>"; };
-		28216C960DB411BC00E5133A /* FirstViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FirstViewController.mm; sourceTree = "<group>"; };
-		282CCBFD0DB6C98000C4EA27 /* SecondView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SecondView.xib; sourceTree = "<group>"; };
 		288765070DF74369002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28A0AB4B0D9B1048005BE974 /* PsfPlayer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PsfPlayer_Prefix.pch; sourceTree = "<group>"; };
 		28AD73870D9D96C1002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		7E1A764F0F898C750082129E /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.3.dylib; path = usr/lib/libz.1.2.3.dylib; sourceTree = SDKROOT; };
 		7E1A77130F8993CE0082129E /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = /System/Library/Frameworks/OpenAL.framework; sourceTree = "<absolute>"; };
+		7E1C42841234292000BB4E9C /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_filesystem.a; sourceTree = SOURCE_ROOT; };
+		7E1C42851234292000BB4E9C /* libboost_regex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_regex.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_regex.a; sourceTree = SOURCE_ROOT; };
+		7E1C42861234292000BB4E9C /* libboost_signals.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_signals.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_signals.a; sourceTree = SOURCE_ROOT; };
+		7E1C42871234292000BB4E9C /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_system.a; sourceTree = SOURCE_ROOT; };
+		7E1C42881234292000BB4E9C /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_thread.a; sourceTree = SOURCE_ROOT; };
+		7E1C4334123430FC00BB4E9C /* PlaylistSelectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistSelectViewController.h; sourceTree = "<group>"; };
+		7E1C4335123430FC00BB4E9C /* PlaylistSelectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaylistSelectViewController.m; sourceTree = "<group>"; };
 		7E2721481213B38D00C0DEBF /* MipsJitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsJitter.cpp; path = ../../../../Source/MipsJitter.cpp; sourceTree = SOURCE_ROOT; };
 		7E2721491213B38D00C0DEBF /* MipsJitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsJitter.h; path = ../../../../Source/MipsJitter.h; sourceTree = SOURCE_ROOT; };
 		7E2721AC1213B69300C0DEBF /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../../../../CodeGen/build_iphone/CodeGen.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -189,7 +194,6 @@
 		7E27229A1214FA7300C0DEBF /* COP_FPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_FPU.h; path = ../../../../Source/COP_FPU.h; sourceTree = SOURCE_ROOT; };
 		7E27229B1214FA7300C0DEBF /* COP_SCU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_SCU.cpp; path = ../../../../Source/COP_SCU.cpp; sourceTree = SOURCE_ROOT; };
 		7E27229C1214FA7300C0DEBF /* COP_SCU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_SCU.h; path = ../../../../Source/COP_SCU.h; sourceTree = SOURCE_ROOT; };
-		7E3730A9121A4C910055E1C0 /* FF9 317 Protecting my Devotion.psf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FF9 317 Protecting my Devotion.psf"; path = "../../../../../../Music/Psf/FF9_psf/FF9 317 Protecting my Devotion.psf"; sourceTree = SOURCE_ROOT; };
 		7E4B3CB00F9E994E00675ED7 /* BasicBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicBlock.cpp; path = ../../../../Source/BasicBlock.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3CB10F9E994E00675ED7 /* BasicBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicBlock.h; path = ../../../../Source/BasicBlock.h; sourceTree = SOURCE_ROOT; };
 		7E4B3CB90F9E994E00675ED7 /* ELF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ELF.cpp; path = ../../../../Source/ELF.cpp; sourceTree = SOURCE_ROOT; };
@@ -231,7 +235,6 @@
 		7E4B3CEA0F9E99A500675ED7 /* MIPSReflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSReflection.h; path = ../../../../Source/MIPSReflection.h; sourceTree = SOURCE_ROOT; };
 		7E4B3CEB0F9E99A500675ED7 /* MIPSTags.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSTags.cpp; path = ../../../../Source/MIPSTags.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3CEC0F9E99A500675ED7 /* MIPSTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSTags.h; path = ../../../../Source/MIPSTags.h; sourceTree = SOURCE_ROOT; };
-		7E4B3CED0F9E99A500675ED7 /* offsetof_def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = offsetof_def.h; path = ../../../../Source/offsetof_def.h; sourceTree = SOURCE_ROOT; };
 		7E4B3CEE0F9E99A500675ED7 /* OsStructManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OsStructManager.h; path = ../../../../Source/OsStructManager.h; sourceTree = SOURCE_ROOT; };
 		7E4B3D060F9E99C100675ED7 /* StructCollectionStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StructCollectionStateFile.cpp; path = ../../../../Source/StructCollectionStateFile.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3D070F9E99C100675ED7 /* StructCollectionStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StructCollectionStateFile.h; path = ../../../../Source/StructCollectionStateFile.h; sourceTree = SOURCE_ROOT; };
@@ -309,11 +312,6 @@
 		7E4B3D670F9E9A3D00675ED7 /* Iop_Vblank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Vblank.h; path = ../../../../Source/iop/Iop_Vblank.h; sourceTree = SOURCE_ROOT; };
 		7E4B3D680F9E9A3D00675ED7 /* IopBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IopBios.cpp; path = ../../../../Source/iop/IopBios.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3D690F9E9A3D00675ED7 /* IopBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IopBios.h; path = ../../../../Source/iop/IopBios.h; sourceTree = SOURCE_ROOT; };
-		7E4B3D940F9E9B2600675ED7 /* 101 - Dearly Beloved.psf2 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "101 - Dearly Beloved.psf2"; path = "../../../../../../Music/Psf/Kingdom Hearts/Kingdom Hearts (Sequences Only)/101 - Dearly Beloved.psf2"; sourceTree = SOURCE_ROOT; };
-		7E4B3D950F9E9B2600675ED7 /* 220 - Hollow Bastion.psf2 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "220 - Hollow Bastion.psf2"; path = "../../../../../../Music/Psf/Kingdom Hearts/Kingdom Hearts (Sequences Only)/220 - Hollow Bastion.psf2"; sourceTree = SOURCE_ROOT; };
-		7E4B3DA60F9E9BAC00675ED7 /* libboost_signals-xgcc40-arm-mt-1_38.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_signals-xgcc40-arm-mt-1_38.a"; path = "../../../../../../Libraries/boost_1_38_0/stage-iphone/lib/libboost_signals-xgcc40-arm-mt-1_38.a"; sourceTree = SOURCE_ROOT; };
-		7E4B3DA70F9E9BAC00675ED7 /* libboost_system-xgcc40-arm-mt-1_38.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-xgcc40-arm-mt-1_38.a"; path = "../../../../../../Libraries/boost_1_38_0/stage-iphone/lib/libboost_system-xgcc40-arm-mt-1_38.a"; sourceTree = SOURCE_ROOT; };
-		7E4B3DA80F9E9BAC00675ED7 /* libboost_thread-xgcc40-arm-mt-1_38.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-xgcc40-arm-mt-1_38.a"; path = "../../../../../../Libraries/boost_1_38_0/stage-iphone/lib/libboost_thread-xgcc40-arm-mt-1_38.a"; sourceTree = SOURCE_ROOT; };
 		7E6811400FB8F21100AC53B5 /* Iop_Cdvdman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Cdvdman.cpp; path = ../../../../Source/iop/Iop_Cdvdman.cpp; sourceTree = SOURCE_ROOT; };
 		7E6811410FB8F21100AC53B5 /* Iop_Cdvdman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Cdvdman.h; path = ../../../../Source/iop/Iop_Cdvdman.h; sourceTree = SOURCE_ROOT; };
 		7E6811680FB8F32D00AC53B5 /* DirectoryRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DirectoryRecord.cpp; path = ../../../../Source/ISO9660/DirectoryRecord.cpp; sourceTree = SOURCE_ROOT; };
@@ -328,6 +326,12 @@
 		7E6811710FB8F32E00AC53B5 /* PathTableRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathTableRecord.h; path = ../../../../Source/ISO9660/PathTableRecord.h; sourceTree = SOURCE_ROOT; };
 		7E6811720FB8F32E00AC53B5 /* VolumeDescriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeDescriptor.cpp; path = ../../../../Source/ISO9660/VolumeDescriptor.cpp; sourceTree = SOURCE_ROOT; };
 		7E6811730FB8F32E00AC53B5 /* VolumeDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VolumeDescriptor.h; path = ../../../../Source/ISO9660/VolumeDescriptor.h; sourceTree = SOURCE_ROOT; };
+		7E844856123C9499003250D7 /* Playlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Playlist.cpp; path = ../Playlist.cpp; sourceTree = SOURCE_ROOT; };
+		7E844857123C9499003250D7 /* Playlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Playlist.h; path = ../Playlist.h; sourceTree = SOURCE_ROOT; };
+		7E8448E9123D41CC003250D7 /* PlaylistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistViewController.h; sourceTree = "<group>"; };
+		7E8448EA123D41CC003250D7 /* PlaylistViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlaylistViewController.mm; sourceTree = "<group>"; };
+		7EDF2B2712C556C6001CB546 /* ObjCMemberFunctionPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCMemberFunctionPointer.h; sourceTree = "<group>"; };
+		7EDF2BB412C675BC001CB546 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -343,9 +347,12 @@
 				288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */,
 				7E1A76500F898C750082129E /* libz.1.2.3.dylib in Frameworks */,
 				7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */,
-				7E4B3DA90F9E9BAC00675ED7 /* libboost_signals-xgcc40-arm-mt-1_38.a in Frameworks */,
-				7E4B3DAA0F9E9BAC00675ED7 /* libboost_system-xgcc40-arm-mt-1_38.a in Frameworks */,
-				7E4B3DAB0F9E9BAC00675ED7 /* libboost_thread-xgcc40-arm-mt-1_38.a in Frameworks */,
+				7E1C42891234292000BB4E9C /* libboost_filesystem.a in Frameworks */,
+				7E1C428A1234292100BB4E9C /* libboost_regex.a in Frameworks */,
+				7E1C428B1234292100BB4E9C /* libboost_signals.a in Frameworks */,
+				7E1C428C1234292100BB4E9C /* libboost_system.a in Frameworks */,
+				7E1C428D1234292100BB4E9C /* libboost_thread.a in Frameworks */,
+				7EDF2BB512C675BC001CB546 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,8 +362,11 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				28216C950DB411BC00E5133A /* FirstViewController.h */,
-				28216C960DB411BC00E5133A /* FirstViewController.mm */,
+				7EDF2B2712C556C6001CB546 /* ObjCMemberFunctionPointer.h */,
+				7E1C4334123430FC00BB4E9C /* PlaylistSelectViewController.h */,
+				7E1C4335123430FC00BB4E9C /* PlaylistSelectViewController.m */,
+				7E8448E9123D41CC003250D7 /* PlaylistViewController.h */,
+				7E8448EA123D41CC003250D7 /* PlaylistViewController.mm */,
 				1D3623240D0F684500981E51 /* PsfPlayerAppDelegate.h */,
 				1D3623250D0F684500981E51 /* PsfPlayerAppDelegate.mm */,
 			);
@@ -374,20 +384,13 @@
 		29B97314FDCFA39411CA2CEA /* PsfPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				7E2721B31213B6AC00C0DEBF /* Framework.xcodeproj */,
-				7E2721AC1213B69300C0DEBF /* CodeGen.xcodeproj */,
-				7E4B3DA60F9E9BAC00675ED7 /* libboost_signals-xgcc40-arm-mt-1_38.a */,
-				7E4B3DA70F9E9BAC00675ED7 /* libboost_system-xgcc40-arm-mt-1_38.a */,
-				7E4B3DA80F9E9BAC00675ED7 /* libboost_thread-xgcc40-arm-mt-1_38.a */,
-				7E1A77130F8993CE0082129E /* OpenAL.framework */,
-				7E1A764F0F898C750082129E /* libz.1.2.3.dylib */,
-				7EE768430F89853C00BD0E72 /* Purei Core */,
-				7EE767D60F8981B300BD0E72 /* PsfPlayer Core */,
 				080E96DDFE201D6D7F000001 /* Classes */,
-				29B97315FDCFA39411CA2CEA /* Other Sources */,
-				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				7EE767D60F8981B300BD0E72 /* PsfPlayer Core */,
+				7EE768430F89853C00BD0E72 /* Purei Core */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
 			);
 			name = PsfPlayer;
 			sourceTree = "<group>";
@@ -404,10 +407,6 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				7E3730A9121A4C910055E1C0 /* FF9 317 Protecting my Devotion.psf */,
-				7E4B3D940F9E9B2600675ED7 /* 101 - Dearly Beloved.psf2 */,
-				7E4B3D950F9E9B2600675ED7 /* 220 - Hollow Bastion.psf2 */,
-				282CCBFD0DB6C98000C4EA27 /* SecondView.xib */,
 				28AD73870D9D96C1002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 			);
@@ -417,11 +416,29 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
-				1D30AB110D05D00D00671497 /* Foundation.framework */,
+				7E1C4257123427A700BB4E9C /* boost */,
+				7E2721AC1213B69300C0DEBF /* CodeGen.xcodeproj */,
 				288765070DF74369002DB57D /* CoreGraphics.framework */,
+				1D30AB110D05D00D00671497 /* Foundation.framework */,
+				7E2721B31213B6AC00C0DEBF /* Framework.xcodeproj */,
+				7E1A764F0F898C750082129E /* libz.1.2.3.dylib */,
+				7E1A77130F8993CE0082129E /* OpenAL.framework */,
+				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
+				7EDF2BB412C675BC001CB546 /* AVFoundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7E1C4257123427A700BB4E9C /* boost */ = {
+			isa = PBXGroup;
+			children = (
+				7E1C42841234292000BB4E9C /* libboost_filesystem.a */,
+				7E1C42851234292000BB4E9C /* libboost_regex.a */,
+				7E1C42861234292000BB4E9C /* libboost_signals.a */,
+				7E1C42871234292000BB4E9C /* libboost_system.a */,
+				7E1C42881234292000BB4E9C /* libboost_thread.a */,
+			);
+			name = boost;
 			sourceTree = "<group>";
 		};
 		7E2721AD1213B69300C0DEBF /* Products */ = {
@@ -516,6 +533,8 @@
 				7E4B3D100F9E99EB00675ED7 /* AppConfig.h */,
 				7E2722861214FA3200C0DEBF /* Iop_PsfSubSystem.cpp */,
 				7E2722871214FA3200C0DEBF /* Iop_PsfSubSystem.h */,
+				7E844856123C9499003250D7 /* Playlist.cpp */,
+				7E844857123C9499003250D7 /* Playlist.h */,
 				7E2721CD1213B6D700C0DEBF /* ps2 */,
 				7E4B3D110F9E99EB00675ED7 /* PsfBase.cpp */,
 				7E4B3D120F9E99EB00675ED7 /* PsfBase.h */,
@@ -590,7 +609,6 @@
 				7E4B3CEA0F9E99A500675ED7 /* MIPSReflection.h */,
 				7E4B3CEB0F9E99A500675ED7 /* MIPSTags.cpp */,
 				7E4B3CEC0F9E99A500675ED7 /* MIPSTags.h */,
-				7E4B3CED0F9E99A500675ED7 /* offsetof_def.h */,
 				7E4B3CEE0F9E99A500675ED7 /* OsStructManager.h */,
 				7E4B3D060F9E99C100675ED7 /* StructCollectionStateFile.cpp */,
 				7E4B3D070F9E99C100675ED7 /* StructCollectionStateFile.h */,
@@ -696,7 +714,14 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "PsfPlayer" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* PsfPlayer */;
 			projectDirPath = "";
 			projectReferences = (
@@ -739,10 +764,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */,
-				282CCBFE0DB6C98000C4EA27 /* SecondView.xib in Resources */,
-				7E4B3D960F9E9B2600675ED7 /* 101 - Dearly Beloved.psf2 in Resources */,
-				7E4B3D970F9E9B2600675ED7 /* 220 - Hollow Bastion.psf2 in Resources */,
-				7E3730AA121A4C910055E1C0 /* FF9 317 Protecting my Devotion.psf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -755,7 +776,6 @@
 			files = (
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* PsfPlayerAppDelegate.mm in Sources */,
-				28216C970DB411BC00E5133A /* FirstViewController.mm in Sources */,
 				7E4B3CBD0F9E994E00675ED7 /* BasicBlock.cpp in Sources */,
 				7E4B3CC20F9E994E00675ED7 /* ELF.cpp in Sources */,
 				7E4B3CC30F9E994E00675ED7 /* ElfFile.cpp in Sources */,
@@ -842,6 +862,9 @@
 				7E27229D1214FA7300C0DEBF /* COP_FPU_Reflection.cpp in Sources */,
 				7E27229E1214FA7300C0DEBF /* COP_FPU.cpp in Sources */,
 				7E27229F1214FA7300C0DEBF /* COP_SCU.cpp in Sources */,
+				7E1C4336123430FC00BB4E9C /* PlaylistSelectViewController.m in Sources */,
+				7E844858123C9499003250D7 /* Playlist.cpp in Sources */,
+				7E8448EB123D41CC003250D7 /* PlaylistViewController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -860,9 +883,7 @@
 				INFOPLIST_FILE = Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../Libraries/boost_1_38_0/stage-iphone/lib\"",
-					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_38_0/bin.v2/libs/signals/build/darwin-4.0.1~iphone/release/architecture-arm/link-static/macosx-version-iphone-2.2/target-os-iphone/threading-multi\"",
-					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_38_0/stage-iphone/lib\"",
+					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib\"",
 				);
 				PRODUCT_NAME = PsfPlayer;
 			};
@@ -878,9 +899,7 @@
 				INFOPLIST_FILE = Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../Libraries/boost_1_38_0/stage-iphone/lib\"",
-					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_38_0/bin.v2/libs/signals/build/darwin-4.0.1~iphone/release/architecture-arm/link-static/macosx-version-iphone-2.2/target-os-iphone/threading-multi\"",
-					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_38_0/stage-iphone/lib\"",
+					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib\"",
 				);
 				PRODUCT_NAME = PsfPlayer;
 			};
@@ -897,16 +916,17 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/usr/local/include/boost-1_38/boost/tr1/tr1",
-					"/usr/local/include/boost-1_38/",
+					"~/Libraries/boost_1_42_0/boost/tr1/tr1",
+					"~/Libraries/boost_1_42_0",
 					"~/Projects/Framework/include",
 					"~/Projects/CodeGen/include",
 					"~/Projects/Purei/Source",
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 4.1;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6778B0D3-5C36-4BE4-A3CF-F8B0760B8E4D";
-				SDKROOT = iphoneos4.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8108899B-ECEC-4545-8E7A-260211333E42";
+				SDKROOT = iphoneos4.2;
 			};
 			name = Debug;
 		};
@@ -921,15 +941,17 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/usr/local/include/boost-1_38/boost/tr1/tr1",
-					"/usr/local/include/boost-1_38/",
+					"~/Libraries/boost_1_42_0/boost/tr1/tr1",
+					"~/Libraries/boost_1_42_0",
 					"~/Projects/Framework/include",
 					"~/Projects/CodeGen/include",
 					"~/Projects/Purei/Source",
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 4.1;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6778B0D3-5C36-4BE4-A3CF-F8B0760B8E4D";
-				SDKROOT = iphoneos4.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8108899B-ECEC-4545-8E7A-260211333E42";
+				SDKROOT = iphoneos4.2;
 			};
 			name = Release;
 		};
