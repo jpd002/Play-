@@ -4,6 +4,9 @@
 #import "ObjCMemberFunctionPointer.h"
 #import <AVFoundation/AVAudioSession.h>
 
+#define PLAY_STRING		@"Play"
+#define PAUSE_STRING	@"Pause"
+
 @implementation PsfPlayerAppDelegate
 
 @synthesize m_window;
@@ -30,6 +33,9 @@
 	
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
+	
+	m_currentTime = 0;
+	m_playing = false;
 }
 
 -(void)dealloc 
@@ -44,6 +50,22 @@
 	UINavigationController* navigationController = [[UINavigationController alloc] initWithRootViewController: m_playlistSelectViewController];
 	[m_tabBarController presentModalViewController: navigationController animated: YES];
 	[navigationController release];	
+}
+
+-(IBAction)onPauseButtonClick: (id)sender
+{
+	if(m_playing)
+	{
+		[m_playButton setTitle: PLAY_STRING forState: UIControlStateNormal];
+		m_virtualMachine->Pause();
+		m_playing = false;
+	}
+	else
+	{
+		[m_playButton setTitle: PAUSE_STRING forState: UIControlStateNormal];
+		m_virtualMachine->Resume();
+		m_playing = true;
+	}
 }
 
 -(void)showPrebufferOverlay
@@ -105,21 +127,62 @@
 	[self performSelectorOnMainThread: @selector(onPlayStartedImpl) withObject: nil waitUntilDone: NO];
 }
 
--(void)onPlaylistItemSelected
+-(void)onNewFrameImpl
 {
-	m_tabBarController.selectedIndex = 1;
-	[self showPrebufferOverlay];
+	m_currentTime += 16;
 	
+	int seconds = (m_currentTime / 1000) % 60;
+	int minutes = m_currentTime / (1000 * 60);
+	
+	NSString* timeString = [NSString stringWithFormat: @"%0.2d:%0.2d", minutes, seconds];
+	
+	m_currentTimeLabel.text = timeString;
+}
+
+-(void)onNewFrame
+{
+	[self performSelectorOnMainThread: @selector(onNewFrameImpl) withObject: nil waitUntilDone: NO];
+}
+
+-(void)onPlaylistItemSelected
+{	
+	m_tabBarController.selectedIndex = 1;
+	[self showPrebufferOverlay];	
+
+	//Initialize UI
+	m_currentTime = 0;
+	[self onNewFrameImpl];
+	m_playing = false;
+	m_playButton.enabled = NO;
+	[m_playButton setTitle: PLAY_STRING forState: UIControlStateNormal];
+
 	NSString* filePath = [m_playlistViewController selectedPlaylistItemPath];
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
+	
 	try
 	{
 		CPsfBase::TagMap tags;
 		CPsfLoader::LoadPsf(*m_virtualMachine, [filePath fileSystemRepresentation], &tags);
 //		m_virtualMachine->SetReverbEnabled(false);
 		m_virtualMachine->OnPlayStarted.connect(ObjCMemberFunctionPointer(self, sel_getUid("onPlayStarted")));
+		m_virtualMachine->OnNewFrame.connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
 		m_virtualMachine->Resume();
+		
+		CPsfTags psfTags(tags);
+		if(psfTags.HasTag("title"))
+		{
+			std::wstring title = psfTags.DecodeTagValue(psfTags.GetRawTagValue("title").c_str());
+			NSString* titleString = [[NSString alloc] initWithBytes: title.c_str() 
+															 length: (title.length() * sizeof(wchar_t)) 
+														   encoding: NSUTF32LittleEndianStringEncoding];
+			m_trackTitleLabel.text = titleString;
+			[titleString release];
+		}
+		
+		m_playing = true;
+		m_playButton.enabled = YES;
+		[m_playButton setTitle: PAUSE_STRING forState: UIControlStateNormal];
 	}
 	catch(const std::exception& exception)
 	{
