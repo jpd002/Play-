@@ -179,6 +179,7 @@
 			m_trackTitleLabel.text = titleString;
 			[titleString release];
 		}
+		[m_fileInfoViewController setTags: psfTags];
 		
 		m_playing = true;
 		m_playButton.enabled = YES;

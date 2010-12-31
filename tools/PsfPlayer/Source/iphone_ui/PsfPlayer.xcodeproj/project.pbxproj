@@ -112,6 +112,7 @@
 		7E844858123C9499003250D7 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E844856123C9499003250D7 /* Playlist.cpp */; };
 		7E8448EB123D41CC003250D7 /* PlaylistViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E8448EA123D41CC003250D7 /* PlaylistViewController.mm */; };
 		7EDF2BB512C675BC001CB546 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EDF2BB412C675BC001CB546 /* AVFoundation.framework */; };
+		7EECCE8E12CBC333006251EB /* FileInfoViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7EECCE8D12CBC333006251EB /* FileInfoViewController.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -332,6 +333,8 @@
 		7E8448EA123D41CC003250D7 /* PlaylistViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlaylistViewController.mm; sourceTree = "<group>"; };
 		7EDF2B2712C556C6001CB546 /* ObjCMemberFunctionPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCMemberFunctionPointer.h; sourceTree = "<group>"; };
 		7EDF2BB412C675BC001CB546 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		7EECCE8C12CBC333006251EB /* FileInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileInfoViewController.h; sourceTree = "<group>"; };
+		7EECCE8D12CBC333006251EB /* FileInfoViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FileInfoViewController.mm; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -362,6 +365,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				7EECCE8C12CBC333006251EB /* FileInfoViewController.h */,
+				7EECCE8D12CBC333006251EB /* FileInfoViewController.mm */,
 				7EDF2B2712C556C6001CB546 /* ObjCMemberFunctionPointer.h */,
 				7E1C4334123430FC00BB4E9C /* PlaylistSelectViewController.h */,
 				7E1C4335123430FC00BB4E9C /* PlaylistSelectViewController.m */,
@@ -865,6 +870,7 @@
 				7E1C4336123430FC00BB4E9C /* PlaylistSelectViewController.m in Sources */,
 				7E844858123C9499003250D7 /* Playlist.cpp in Sources */,
 				7E8448EB123D41CC003250D7 /* PlaylistViewController.mm in Sources */,
+				7EECCE8E12CBC333006251EB /* FileInfoViewController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

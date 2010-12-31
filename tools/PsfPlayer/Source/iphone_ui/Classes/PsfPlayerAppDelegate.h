@@ -1,8 +1,9 @@
 #import <UIKit/UIKit.h>
-#include "PsfVm.h"
-#include "PlaylistSelectViewController.h"
-#include "PlaylistViewController.h"
-#include "Playlist.h"
+#import "PsfVm.h"
+#import "PlaylistSelectViewController.h"
+#import "PlaylistViewController.h"
+#import "FileInfoViewController.h"
+#import "Playlist.h"
 
 @interface PsfPlayerAppDelegate : NSObject <UIApplicationDelegate, UITabBarControllerDelegate, UIActionSheetDelegate> 
 {
@@ -10,7 +11,8 @@
     UITabBarController*						m_tabBarController;
 	IBOutlet PlaylistSelectViewController*	m_playlistSelectViewController;
 	IBOutlet PlaylistViewController*		m_playlistViewController;
-
+	IBOutlet FileInfoViewController*		m_fileInfoViewController;
+	
 	IBOutlet UILabel*						m_trackTitleLabel;
 	IBOutlet UILabel*						m_currentTimeLabel;
 	IBOutlet UIButton*						m_playButton;
