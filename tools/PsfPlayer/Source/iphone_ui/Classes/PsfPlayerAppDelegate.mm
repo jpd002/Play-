@@ -30,11 +30,15 @@
 	
 	m_virtualMachine = new CPsfVm();
 	m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
+
+	m_virtualMachine->OnNewFrame.connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
+	
+	[NSTimer scheduledTimerWithTimeInterval: 1 target: self selector: @selector(onTimer) userInfo: nil repeats: YES];
 	
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	
-	m_currentTime = 0;
+	m_frames = 0;
 	m_playing = false;
 }
 
@@ -115,24 +119,20 @@
 	[m_playlistViewController setPlaylist: m_playlist];
 }
 
--(void)onPlayStartedImpl
-{
-	[m_prebufferOverlay dismissWithClickedButtonIndex: 0 animated: YES];	
-	[m_prebufferOverlay release];
-	m_prebufferOverlay = nil;
-}
-
--(void)onPlayStarted
-{
-	[self performSelectorOnMainThread: @selector(onPlayStartedImpl) withObject: nil waitUntilDone: NO];
-}
-
--(void)onNewFrameImpl
-{
-	m_currentTime += 16;
+-(void)onTimer
+{	
+	const int fps = 60;
 	
-	int seconds = (m_currentTime / 1000) % 60;
-	int minutes = m_currentTime / (1000 * 60);
+	if((m_prebufferOverlay != nil) && m_frames > fps)
+	{
+		[m_prebufferOverlay dismissWithClickedButtonIndex: 0 animated: YES];	
+		[m_prebufferOverlay release];
+		m_prebufferOverlay = nil;		
+	}
+	
+	int time = m_frames / fps;
+	int seconds = time % 60;
+	int minutes = time / 60;
 	
 	NSString* timeString = [NSString stringWithFormat: @"%0.2d:%0.2d", minutes, seconds];
 	
@@ -141,21 +141,20 @@
 
 -(void)onNewFrame
 {
-	[self performSelectorOnMainThread: @selector(onNewFrameImpl) withObject: nil waitUntilDone: NO];
+	m_frames++;
 }
 
 -(void)onPlaylistItemSelected
 {	
-	m_tabBarController.selectedIndex = 1;
-	[self showPrebufferOverlay];	
-
 	//Initialize UI
-	m_currentTime = 0;
-	[self onNewFrameImpl];
+	m_frames = 0;
 	m_playing = false;
 	m_playButton.enabled = NO;
 	[m_playButton setTitle: PLAY_STRING forState: UIControlStateNormal];
 
+	m_tabBarController.selectedIndex = 1;
+	[self showPrebufferOverlay];	
+	
 	NSString* filePath = [m_playlistViewController selectedPlaylistItemPath];
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
@@ -165,8 +164,6 @@
 		CPsfBase::TagMap tags;
 		CPsfLoader::LoadPsf(*m_virtualMachine, [filePath fileSystemRepresentation], &tags);
 //		m_virtualMachine->SetReverbEnabled(false);
-		m_virtualMachine->OnPlayStarted.connect(ObjCMemberFunctionPointer(self, sel_getUid("onPlayStarted")));
-		m_virtualMachine->OnNewFrame.connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
 		m_virtualMachine->Resume();
 		
 		CPsfTags psfTags(tags);

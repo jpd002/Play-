@@ -102,6 +102,7 @@
 		7E4B3D830F9E9A3D00675ED7 /* Iop_Timrman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3D640F9E9A3D00675ED7 /* Iop_Timrman.cpp */; };
 		7E4B3D840F9E9A3D00675ED7 /* Iop_Vblank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3D660F9E9A3D00675ED7 /* Iop_Vblank.cpp */; };
 		7E4B3D850F9E9A3D00675ED7 /* IopBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E4B3D680F9E9A3D00675ED7 /* IopBios.cpp */; };
+		7E5A648D12CE704D00CBBA33 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E5A648C12CE704D00CBBA33 /* Icon.png */; };
 		7E6811420FB8F21100AC53B5 /* Iop_Cdvdman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6811400FB8F21100AC53B5 /* Iop_Cdvdman.cpp */; };
 		7E6811740FB8F32E00AC53B5 /* DirectoryRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6811680FB8F32D00AC53B5 /* DirectoryRecord.cpp */; };
 		7E6811750FB8F32E00AC53B5 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E68116A0FB8F32E00AC53B5 /* File.cpp */; };
@@ -313,6 +314,7 @@
 		7E4B3D670F9E9A3D00675ED7 /* Iop_Vblank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Vblank.h; path = ../../../../Source/iop/Iop_Vblank.h; sourceTree = SOURCE_ROOT; };
 		7E4B3D680F9E9A3D00675ED7 /* IopBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IopBios.cpp; path = ../../../../Source/iop/IopBios.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3D690F9E9A3D00675ED7 /* IopBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IopBios.h; path = ../../../../Source/iop/IopBios.h; sourceTree = SOURCE_ROOT; };
+		7E5A648C12CE704D00CBBA33 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		7E6811400FB8F21100AC53B5 /* Iop_Cdvdman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Cdvdman.cpp; path = ../../../../Source/iop/Iop_Cdvdman.cpp; sourceTree = SOURCE_ROOT; };
 		7E6811410FB8F21100AC53B5 /* Iop_Cdvdman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Cdvdman.h; path = ../../../../Source/iop/Iop_Cdvdman.h; sourceTree = SOURCE_ROOT; };
 		7E6811680FB8F32D00AC53B5 /* DirectoryRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DirectoryRecord.cpp; path = ../../../../Source/ISO9660/DirectoryRecord.cpp; sourceTree = SOURCE_ROOT; };
@@ -412,6 +414,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7E5A648C12CE704D00CBBA33 /* Icon.png */,
 				28AD73870D9D96C1002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 			);
@@ -769,6 +772,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */,
+				7E5A648D12CE704D00CBBA33 /* Icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

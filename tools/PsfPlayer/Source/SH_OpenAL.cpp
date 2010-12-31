@@ -67,12 +67,13 @@ void CSH_OpenAL::Write(int16* samples, unsigned int sampleCount, unsigned int sa
 	alBufferData(buffer, AL_FORMAT_STEREO16, samples, sampleCount * sizeof(int16), sampleRate);
 
 	alSourceQueueBuffers(m_source, 1, &buffer);
-//	if(m_availableBuffers.size() == 0)
+	if(m_availableBuffers.size() == 0)
 	{
 		ALint sourceState;
 		alGetSourcei(m_source, AL_SOURCE_STATE, &sourceState);
 		if(sourceState != AL_PLAYING)
 		{
+			RecycleBuffers();
 			m_source.Play();
 		}
 	}

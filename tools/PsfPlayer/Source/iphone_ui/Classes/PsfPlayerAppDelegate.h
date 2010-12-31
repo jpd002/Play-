@@ -22,7 +22,7 @@
 	
 	UIActionSheet*							m_prebufferOverlay;
 	
-	uint64									m_currentTime;
+	uint64									m_frames;
 	bool									m_playing;
 }
 
@@ -31,6 +31,7 @@
 
 -(IBAction)onOpenPlaylist: (id)sender;
 -(IBAction)onPauseButtonClick: (id)sender;
+-(void)onTimer;
 -(void)onPlaylistSelected;
 -(void)onPlaylistItemSelected;
 -(void)showPrebufferOverlay;
