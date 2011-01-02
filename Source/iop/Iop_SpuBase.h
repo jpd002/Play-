@@ -233,8 +233,8 @@ namespace Iop
 			uint16			m_pitch;
 			float			m_currentTime;
 			float			m_dstTime;
-			float			m_s1;
-			float			m_s2;
+			int32			m_s1;
+			int32			m_s2;
 			bool			m_done;
 			bool			m_nextValid;
 			bool			m_endFlag;
