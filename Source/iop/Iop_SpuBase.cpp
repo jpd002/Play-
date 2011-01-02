@@ -815,15 +815,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	//Generate PCM samples
 	{
-//		static float predictorTable[5][2] = 
-//		{
-//			{	0.0f,			0.0f			},
-//			{   60.0f / 64.0f,	0.0f			},
-//			{  115.0f / 64.0f,	-52.0f / 64.0f	},
-//			{	98.0f / 64.0f,	-55.0f / 64.0f	},
-//			{  122.0f / 64.0f,	-60.0f / 64.0f	},
-//		};
-		static int32 predictorTable[5][2] =
+		static const int32 predictorTable[5][2] =
 		{
 			{	0,		0		},
 			{   60,		0		},
@@ -837,9 +829,6 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 			int32 currentValue = workBuffer[i] * 64;
 			currentValue += (m_s1 * predictorTable[predictNumber][0]) / 64;
 			currentValue += (m_s2 * predictorTable[predictNumber][1]) / 64;
-//			workBuffer[i] = workBuffer[i] +
-//				m_s1 * predictorTable[predictNumber][0] +
-//				m_s2 * predictorTable[predictNumber][1];
 			m_s2 = m_s1;
 			m_s1 = currentValue;
 			dst[i] = static_cast<int16>((currentValue + 32) / 64);
