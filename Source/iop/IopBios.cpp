@@ -374,7 +374,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 			if(m_cpu.m_pMemoryMap->GetWord(address + 4) != 0) continue;
 			
 			uint32 version = m_cpu.m_pMemoryMap->GetWord(address + 8);
-			string moduleName = ReadModuleName(address + 0xC);
+			std::string moduleName = ReadModuleName(address + 0xC);
 	        IopModuleMapType::iterator module(m_modules.find(moduleName));
 
 			size_t moduleNameLength = moduleName.length();
@@ -383,14 +383,14 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 			{
 				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
 				uint32 functionId = target & 0xFFFF;
-                string functionName = "unknown";
+				std::string functionName = "unknown";
                 if(module != m_modules.end())
                 {
 				    functionName = (module->second)->GetFunctionName(functionId);
                 }
 				if(m_cpu.m_Functions.Find(address) == NULL)
 				{
-					m_cpu.m_Functions.InsertTag(entryAddress, (string(moduleName) + "_" + functionName).c_str());
+					m_cpu.m_Functions.InsertTag(entryAddress, (std::string(moduleName) + "_" + functionName).c_str());
 					functionAdded = true;
 				}
 				entryAddress += 8;
@@ -1128,8 +1128,8 @@ void CIopBios::LoadDebugTags(Xml::CNode* root)
         if(!moduleName || !beginAddress || !endAddress) continue;
         MIPSMODULE module;
         module.name     = moduleName;
-        module.begin    = lexical_cast_hex<string>(beginAddress);
-        module.end      = lexical_cast_hex<string>(endAddress);
+		module.begin    = lexical_cast_hex<std::string>(beginAddress);
+        module.end      = lexical_cast_hex<std::string>(endAddress);
         m_moduleTags.push_back(module);
     }
 }
@@ -1143,8 +1143,8 @@ void CIopBios::SaveDebugTags(Xml::CNode* root)
     {
         const MIPSMODULE& module(*moduleIterator);
         Xml::CNode* moduleNode = new Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
-        moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,   lexical_cast_hex<string>(module.begin, 8).c_str());
-        moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,     lexical_cast_hex<string>(module.end, 8).c_str());
+		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,   lexical_cast_hex<std::string>(module.begin, 8).c_str());
+        moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,     lexical_cast_hex<std::string>(module.end, 8).c_str());
         moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME,           module.name.c_str());
         moduleSection->InsertNode(moduleNode);
     }
