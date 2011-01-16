@@ -51,7 +51,6 @@
 #define BIOS_HEAPBLOCK_SIZE				(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
 #define BIOS_CALCULATED_END				(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
 
-using namespace std;
 using namespace Framework;
 
 CIopBios::CIopBios(uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize) :
@@ -320,7 +319,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
     uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY, DEFAULT_STACKSIZE);
     THREAD& thread = GetThread(threadId);
 
-    typedef vector<uint32> ParamListType;
+    typedef std::vector<uint32> ParamListType;
     ParamListType paramList;
 
     paramList.push_back(Push(
@@ -505,7 +504,7 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
     THREAD& thread = GetThread(threadId);
     if(thread.status != THREAD_STATUS_CREATED)
     {
-        throw runtime_error("Invalid thread state.");
+        throw std::runtime_error("Invalid thread state.");
     }
     thread.status = THREAD_STATUS_RUNNING;
     if(param != NULL)
@@ -538,7 +537,7 @@ void CIopBios::SleepThread()
     THREAD& thread = GetThread(CurrentThreadId());
     if(thread.status != THREAD_STATUS_RUNNING)
     {
-        throw runtime_error("Thread isn't running.");
+        throw std::runtime_error("Thread isn't running.");
     }
     if(thread.wakeupCount == 0)
     {
@@ -804,7 +803,7 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
             {
                 if(thread->status != THREAD_STATUS_WAITING)
                 {
-                    throw runtime_error("Thread not waiting (inconsistent state).");
+                    throw std::runtime_error("Thread not waiting (inconsistent state).");
                 }
                 thread->status = THREAD_STATUS_RUNNING;
                 thread->waitSemaphore = 0;
@@ -985,7 +984,7 @@ void CIopBios::HandleException()
         }
         uint32 functionId = callInstruction & 0xFFFF;
         uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
-        string moduleName = ReadModuleName(searchAddress + 0x0C);
+		std::string moduleName = ReadModuleName(searchAddress + 0x0C);
 
         IopModuleMapType::iterator module(m_modules.find(moduleName));
         if(module != m_modules.end())
@@ -1081,13 +1080,13 @@ void CIopBios::ReturnFromException()
 	Reschedule();
 }
 
-string CIopBios::GetModuleNameFromPath(const std::string& path)
+std::string CIopBios::GetModuleNameFromPath(const std::string& path)
 {
-    string::size_type slashPosition;
+	std::string::size_type slashPosition;
     slashPosition = path.rfind('/');
-    if(slashPosition != string::npos)
+    if(slashPosition != std::string::npos)
     {
-        return string(path.begin() + slashPosition + 1, path.end());
+        return std::string(path.begin() + slashPosition + 1, path.end());
     }
     return path;
 }
@@ -1182,17 +1181,21 @@ void CIopBios::DeleteModules()
 #endif
 }
 
-string CIopBios::ReadModuleName(uint32 address)
+std::string CIopBios::ReadModuleName(uint32 address)
 {
-    string moduleName;
-    while(1)
-    {
-        uint8 character = m_cpu.m_pMemoryMap->GetByte(address++);
-        if(character == 0) break;
-        if(character < 0x10) continue;
-        moduleName += character;
-    }
-    return moduleName;
+	std::string moduleName;
+	CMemoryMap::MEMORYMAPELEMENT* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(address);
+	assert(memoryMapElem != NULL);
+	assert(memoryMapElem->nType == CMemoryMap::MEMORYMAP_TYPE_MEMORY);
+	uint8* memory = reinterpret_cast<uint8*>(memoryMapElem->pPointer) + (address - memoryMapElem->nStart);
+	while(1)
+	{
+		uint8 character = *(memory++);
+		if(character == 0) break;
+		if(character < 0x10) continue;
+		moduleName += character;
+	}
+	return moduleName;
 }
 
 void CIopBios::RegisterModule(Iop::CModule* module)
@@ -1236,7 +1239,7 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
     unsigned int programHeaderIndex = GetElfProgramToLoad(elf);
     if(programHeaderIndex == -1)
     {
-        throw runtime_error("No program to load.");
+        throw std::runtime_error("No program to load.");
     }
     ELFPROGRAMHEADER* programHeader = elf.GetProgram(programHeaderIndex);
 //    uint32 baseAddress = m_sysmem->AllocateMemory(elf.m_nLenght, 0);
@@ -1278,7 +1281,7 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
         {
             if(program != -1)
             {
-                throw runtime_error("Multiple loadable program headers found.");
+                throw std::runtime_error("Multiple loadable program headers found.");
             }
             program = i;
         }
@@ -1356,7 +1359,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
                         }
                         break;
                     default:
-                        throw runtime_error("Unknown relocation type.");
+						throw std::runtime_error("Unknown relocation type.");
                         break;
                     }
                 }

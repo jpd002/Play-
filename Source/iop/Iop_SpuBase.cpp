@@ -402,7 +402,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			MixSamples(inputSample, channel.volumeLeftAbs,	samples + 0);
 			MixSamples(inputSample, channel.volumeRightAbs, samples + 1);
 			//Mix in reverb if enabled for this channel
-			if(m_channelReverb.f & (1 << i))
+			if(m_reverbEnabled && (m_channelReverb.f & (1 << i)))
 			{
 				MixSamples(inputSample, channel.volumeLeftAbs,	reverbSample + 0);
 				MixSamples(inputSample, channel.volumeRightAbs, reverbSample + 1);
