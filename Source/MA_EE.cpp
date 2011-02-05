@@ -626,14 +626,24 @@ void CMA_EE::PMULTW()
         m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
         m_codeGen->MultS();
 
+		m_codeGen->PushTop();
+
         //LO
-	    m_codeGen->SignExt();
-	    m_codeGen->PullRel(GetLoOffset(regOffset + 1));
-        m_codeGen->PullRel(GetLoOffset(regOffset + 0));
+		m_codeGen->ExtLow64();
+		{
+			m_codeGen->PushTop();
+			m_codeGen->SignExt();
+			m_codeGen->PullRel(GetLoOffset(regOffset + 1));
+		}
+		m_codeGen->PullRel(GetLoOffset(regOffset + 0));
 
         //HI
-        m_codeGen->SignExt();
-	    m_codeGen->PullRel(GetHiOffset(regOffset + 1));
+		m_codeGen->ExtHigh64();
+		{
+			m_codeGen->PushTop();
+			m_codeGen->SignExt();
+			m_codeGen->PullRel(GetHiOffset(regOffset + 1));
+		}
 	    m_codeGen->PullRel(GetHiOffset(regOffset + 0));
 	}
 
