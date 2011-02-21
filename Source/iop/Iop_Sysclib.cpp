@@ -24,15 +24,27 @@ string CSysclib::GetFunctionName(unsigned int functionId) const
 {
     switch(functionId)
     {
+	case 12:
+		return "memcpy";
+		break;
+	case 14:
+		return "memset";
+		break;
     case 19:
         return "sprintf";
         break;
+	case 22:
+		return "strcmp";
+		break;
     case 23:
         return "strcpy";
         break;
     case 27:
         return "strlen";
         break;
+	case 36:
+		return "strtol";
+		break;
     default:
         return "unknown";
         break;
