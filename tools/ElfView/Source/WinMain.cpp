@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int
         elfViewFrame.Show(SW_SHOW);
         Win32::CWindow::StdMsgLoop(&elfViewFrame);
     }
-    catch(const exception& except)
+	catch(const std::exception& except)
     {
         MessageBoxA(NULL, except.what(), NULL, 16);
 //        MessageBoxA(NULL, params, NULL, 16);

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="ElfView"
 	ProjectGUID="{7FDF35F5-99AF-48AB-B9FE-DF1B49EDCEDD}"
 	RootNamespace="ElfView"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -40,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Components\boost_1_35_0\boost\tr1\tr1;C:\Components\boost_1_35_0\;C:\Projects\Framework\include;C:\Projects\Rawr\Source"
+				AdditionalIncludeDirectories="D:\Components\boost_1_35_0\boost\tr1\tr1;D:\Components\boost_1_35_0\;D:\Projects\Framework\include;D:\Projects\Purei\Source"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MSVC;_CRT_SECURE_NO_WARNINGS;_BIGENDIAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -66,6 +67,8 @@
 				AdditionalLibraryDirectories="C:\Components\boost_1_35_0\stage\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -85,9 +88,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -143,6 +143,8 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -164,9 +166,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -184,57 +183,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\win32ui\ELFHeaderView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\win32ui\ELFProgramView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\win32ui\ELFSectionView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\win32ui\ELFSymbolView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\win32ui\ELFView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\ElfViewEx.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\ElfViewFrame.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\win32ui\MemoryView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\win32ui\MemoryViewPtr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\win32ui\OptionWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\WinMain.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
 				RelativePath="..\..\Source\ELF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ElfFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ElfFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFHeaderView.cpp"
 				>
 			</File>
 			<File
@@ -242,7 +203,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\win32ui\ELFProgramView.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\win32ui\ELFProgramView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFSectionView.cpp"
 				>
 			</File>
 			<File
@@ -250,7 +219,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\win32ui\ELFSymbolView.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\win32ui\ELFSymbolView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\ELFView.cpp"
 				>
 			</File>
 			<File
@@ -258,7 +235,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\ElfViewEx.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\ElfViewEx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ElfViewFrame.cpp"
 				>
 			</File>
 			<File
@@ -266,7 +251,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\win32ui\MemoryView.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\win32ui\MemoryView.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\win32ui\MemoryViewPtr.cpp"
 				>
 			</File>
 			<File
@@ -274,209 +267,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\win32ui\OptionWnd.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\win32ui\OptionWnd.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
-		</Filter>
-		<Filter
-			Name="Framework"
-			>
 			<File
-				RelativePath="..\..\..\Framework\src\win32\Button.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ClientDeviceContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ColumnTreeView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ComboBox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\CustomDrawn.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\DefaultFonts.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\DeviceContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Edit.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\FileDialog.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\FindFile.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\FlatLayout.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Font.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\GridLayout.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Header.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\HorizontalLayout.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\HorizontalSplitter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\InputBox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\LayoutBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\LayoutBaseItem.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\LayoutObject.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\LayoutStretch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\LayoutWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ListBox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ListView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\MDIChild.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\MDIClient.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\MDIFrame.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\MemoryDeviceContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ModalWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Rect.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\RegistryTraits.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\RichTextEdit.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ScrollBar.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Splitter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Static.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\StatusBar.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\StdStream.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\Stream.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\string_cast.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Tab.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ToolBar.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\ToolTip.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\TrayIcon.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\TrayIconServer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\TreeView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\layout\VerticalLayout.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\VerticalSplitter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Framework\src\win32\Window.cpp"
+				RelativePath=".\Source\WinMain.cpp"
 				>
 			</File>
 		</Filter>
