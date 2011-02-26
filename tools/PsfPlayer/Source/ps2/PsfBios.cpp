@@ -16,6 +16,7 @@ m_psfDevice(new CPsfDevice())
     Iop::CIoman* ioman = m_bios.GetIoman();
     ioman->RegisterDevice(PSF_DEVICENAME,	m_psfDevice);
 	ioman->RegisterDevice("host0",			m_psfDevice);
+    ioman->RegisterDevice("hefile",			m_psfDevice);
 }
 
 CPsfBios::~CPsfBios()

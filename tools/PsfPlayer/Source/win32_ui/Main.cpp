@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 	{
 		virtualMachine.Reset();
 		filesystem::path loadPath(commandLine);
-		CPsfLoader::LoadPsf(virtualMachine, loadPath.string().c_str());
+		CPsfLoader::LoadPsf(virtualMachine, loadPath.string().c_str(), NULL);
 		string tagPackageName = loadPath.leaf();
 		virtualMachine.LoadDebugTags(tagPackageName.c_str());
 		CMiniDebugger debugger(virtualMachine, virtualMachine.GetDebugInfo());

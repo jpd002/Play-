@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -120,7 +120,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -196,7 +196,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;RAR_SUPPORT"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -275,7 +275,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;RAR_SUPPORT"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -351,7 +351,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED;RAR_SUPPORT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -426,7 +426,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(FrameworkRoot)\include&quot;;&quot;$(ProjectDir)\Source&quot;;&quot;$(ProjectDir)\..\..\Source&quot;;D:\Projects\CodeGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;DEBUGGER_INCLUDED;RAR_SUPPORT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -548,6 +548,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\PsfStreamProvider.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\PsfStreamProvider.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\PsfTags.cpp"
 				>
 			</File>
@@ -604,6 +612,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\win32_ui\FileInformationPanel.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32_ui\LockFreeQueue.h"
 					>
 				</File>
 				<File
@@ -876,6 +888,88 @@
 				</File>
 				<File
 					RelativePath=".\Source\ps2\PsfBios.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="archives"
+				>
+				<File
+					RelativePath=".\Source\PsfArchive.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsfArchive.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsfRarArchive.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							ForcedIncludeFiles="$(NOINHERIT)"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							ForcedIncludeFiles="$(NOINHERIT)"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							ForcedIncludeFiles="$(NOINHERIT)"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							ForcedIncludeFiles="$(NOINHERIT)"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="DebugWithDebugger|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							ForcedIncludeFiles="$(NOINHERIT)"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="DebugWithDebugger|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							ForcedIncludeFiles="$(NOINHERIT)"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Source\PsfRarArchive.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsfZipArchive.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\PsfZipArchive.h"
 					>
 				</File>
 			</Filter>

@@ -10,9 +10,19 @@ class CPlaylist
 public:
     struct ITEM
     {
+		ITEM() 
+			: length(0)
+			, id(0)
+			, archiveId(0)
+		{
+
+		}
+
         std::string                 path;
         std::wstring                title;
         double                      length;
+		unsigned int				id;
+		unsigned int				archiveId;
     };
 
     typedef boost::signal<void (const ITEM&)>                   OnItemInsertEvent;
@@ -24,14 +34,19 @@ public:
     virtual                         ~CPlaylist();
 
     const ITEM&                     GetItem(unsigned int) const;
-    unsigned int                    GetItemCount() const;
+	int								FindItem(unsigned int) const;
+	unsigned int                    GetItemCount() const;
 
     void                            Read(const char*);
     void                            Write(const char*);
 
+	static bool						IsLoadableExtension(const char*);
     static void                     PopulateItemFromTags(ITEM&, const CPsfTags&);
 
-    void                            InsertItem(const ITEM&);
+	unsigned int					InsertArchive(const char*);
+	std::string						GetArchive(unsigned int) const;
+
+	unsigned int					InsertItem(const ITEM&);
     void                            UpdateItem(unsigned int, const ITEM&);
     void                            DeleteItem(unsigned int);
 	void							ExchangeItems(unsigned int, unsigned int);
@@ -44,9 +59,13 @@ public:
 
 private:
     typedef std::vector<ITEM> ItemList;
+	typedef std::vector<std::string> ArchiveList;
     typedef ItemList::const_iterator ItemIterator;
 
+	static const char*				g_loadableExtensions[];
     ItemList                        m_items;
+	ArchiveList						m_archives;
+	unsigned int					m_currentItemId;
 };
 
 #endif

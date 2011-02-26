@@ -9,6 +9,7 @@
 #include "xml/Utils.h"
 #include "Utf8.h"
 #include "Playlist.h"
+#include "stricmp.h"
 
 #define PLAYLIST_NODE_TAG               "Playlist"
 #define PLAYLIST_ITEM_NODE_TAG          "Item"
@@ -16,9 +17,21 @@
 #define PLAYLIST_ITEM_TITLE_ATTRIBUTE   ("Title")
 #define PLAYLIST_ITEM_LENGTH_ATTRIBUTE  ("Length")
 
+const char* CPlaylist::g_loadableExtensions[] =
+{
+	"psf",
+	"minipsf",
+	"psf2",
+	"minipsf2",
+	"psfp",
+	"minipsfp",
+	NULL
+};
+
 using namespace Framework;
 
 CPlaylist::CPlaylist()
+: m_currentItemId(0)
 {
 
 }
@@ -38,9 +51,36 @@ const CPlaylist::ITEM& CPlaylist::GetItem(unsigned int index) const
     return m_items[index];
 }
 
+int CPlaylist::FindItem(unsigned int itemId) const
+{
+	for(unsigned int i = 0; i < m_items.size(); i++)
+	{
+		const ITEM& item(m_items[i]);
+		if(item.id == itemId)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 unsigned int CPlaylist::GetItemCount() const
 {
-    return m_items.size();
+    return static_cast<unsigned int>(m_items.size());
+}
+
+bool CPlaylist::IsLoadableExtension(const char* extension)
+{
+	const char** currentExtension = g_loadableExtensions;
+	while(*currentExtension != NULL)
+	{
+		if(!stricmp(extension, *currentExtension))
+		{
+			return true;
+		}
+		currentExtension++;
+	}
+	return false;
 }
 
 void CPlaylist::PopulateItemFromTags(ITEM& item, const CPsfTags& tags)
@@ -49,10 +89,33 @@ void CPlaylist::PopulateItemFromTags(ITEM& item, const CPsfTags& tags)
     item.length     = CPsfTags::ConvertTimeString(tags.GetTagValue("length").c_str());
 }
 
-void CPlaylist::InsertItem(const ITEM& item)
+unsigned int CPlaylist::InsertArchive(const char* path)
 {
-    m_items.push_back(item);
-    OnItemInsert(item);
+	m_archives.push_back(path);
+	return static_cast<unsigned int>(m_archives.size());
+}
+
+std::string CPlaylist::GetArchive(unsigned int archiveId) const
+{
+	archiveId--;
+	assert(archiveId < m_archives.size());
+	if(archiveId >= m_archives.size())
+	{
+		return std::string();
+	}
+	else
+	{
+		return m_archives[archiveId];
+	}
+}
+
+unsigned int CPlaylist::InsertItem(const ITEM& item)
+{
+	ITEM modifiedItem(item);
+	modifiedItem.id = m_currentItemId++;
+	m_items.push_back(modifiedItem);
+	OnItemInsert(modifiedItem);
+	return modifiedItem.id;
 }
 
 void CPlaylist::DeleteItem(unsigned int index)
@@ -91,6 +154,7 @@ void CPlaylist::Clear()
 {
     OnItemsClear();
     m_items.clear();
+	m_archives.clear();
 }
 
 void CPlaylist::Read(const char* inputPathString)

@@ -5,8 +5,6 @@
 #include "stricmp.h"
 
 using namespace PS2;
-using namespace Framework;
-using namespace std;
 
 CPsfDevice::CPsfDevice()
 {
@@ -23,7 +21,7 @@ void CPsfDevice::AppendArchive(const CPsfBase& archive)
 	m_fileSystem.AppendArchive(archive);
 }
 
-CStream* CPsfDevice::GetFile(uint32 mode, const char* path)
+Framework::CStream* CPsfDevice::GetFile(uint32 mode, const char* path)
 {
     if(mode != CDevice::O_RDONLY)
     {

@@ -1,6 +1,7 @@
 #ifndef _MAINWINDOW_H_
 #define _MAINWINDOW_H_
 
+#include <deque>
 #include "../PsfVm.h"
 #include "../PsfBase.h"
 #include "../PsfTags.h"
@@ -15,6 +16,7 @@
 #include "FileInformationPanel.h"
 #include "SpuRegViewPanel.h"
 #include "AcceleratorTable.h"
+#include "LockFreeQueue.h"
 
 class CMainWindow : public Framework::Win32::CWindow, public boost::signals::trackable
 {
@@ -40,6 +42,7 @@ private:
 	{
 		TIMER_UPDATE_CLOCK,
 		TIMER_UPDATE_FADE,
+		TIMER_UPDATE_DISCOVERIES,
 	};
 
 	enum REPEAT_MODE
@@ -62,6 +65,25 @@ private:
 		const TCHAR*	name;
 	};
 
+	struct DISCOVERY_COMMAND
+	{
+		std::string		path;
+		std::string		archivePath;
+		unsigned int	runId;
+		unsigned int	itemId;
+	};
+
+	struct DISCOVERY_RESULT
+	{
+		unsigned int	runId;
+		unsigned int	itemId;
+		std::wstring	title;
+		double			length;
+	};
+
+	typedef std::deque<DISCOVERY_COMMAND> DiscoveryCommandQueue;
+	typedef std::deque<DISCOVERY_RESULT> DiscoveryResultQueue;
+
 	CSoundHandler*				        CreateHandler(const TCHAR*);
 
     void                                OnNewFrame();
@@ -74,9 +96,10 @@ private:
 	void								OnNextPanel();
     void                                OnAbout();
 	void								OnRepeat();
-    bool                                PlayFile(const char*);
+    bool                                PlayFile(const char*, const char*);
     void                                LoadSingleFile(const char*);
     void                                LoadPlaylist(const char*);
+	void								LoadArchive(const char*);
 
     void                                OnPlaylistItemDblClick(unsigned int);
     void                                OnPlaylistAddClick();
@@ -108,6 +131,11 @@ private:
 	void								ChangeCharEncoding(unsigned int);
 	void								LoadCharEncodingPreferences();
 	int									FindCharEncoding(unsigned int);
+
+	void								ResetDiscoveryRun();
+	void								AddDiscoveryItem(const char*, const char*, unsigned int);
+	void								ProcessPendingDiscoveries();
+	void								DiscoveryThreadProc();
 
 	HACCEL								CreateAccelerators();
 
@@ -151,6 +179,13 @@ private:
 	int									m_selectedCharEncoding;
 	REPEAT_MODE							m_repeatMode;
 	bool								m_reverbEnabled;
+
+	boost::thread*						m_discoveryThread;
+	bool								m_discoveryThreadActive;
+	CLockFreeQueue<DISCOVERY_COMMAND>	m_discoveryCommandQueue;
+	CLockFreeQueue<DISCOVERY_RESULT>	m_discoveryResultQueue;
+	DiscoveryCommandQueue				m_pendingDiscoveryCommands;
+	uint32								m_discoveryRunId;
 
     static SOUNDHANDLER_INFO			m_handlerInfo[];
 	static CHARENCODING_INFO			m_charEncodingInfo[];

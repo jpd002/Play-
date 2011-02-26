@@ -3,12 +3,14 @@
 #include "MainWindow.h"
 #include "AboutWindow.h"
 #include "../PsfLoader.h"
+#include "../PsfArchive.h"
 #include "win32/Rect.h"
 #include "win32/FileDialog.h"
 #include "win32/MenuItem.h"
 #include "win32/AcceleratorTableGenerator.h"
 #include "layout/LayoutEngine.h"
 #include "placeholder_def.h"
+#include "MemStream.h"
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
 #include "resource.h"
@@ -27,6 +29,7 @@
 #define PSF_FILTER						_T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
 #define PSF2_FILTER						_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0")
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
+#define ARCHIVE_FILTER					_T("Archived Sound Files (*.zip; *.rar)\0*.zip;*.rar\0")
 
 #define PREF_REVERB_ENABLED				("reverb.enabled")
 
@@ -52,28 +55,32 @@ CMainWindow::CHARENCODING_INFO CMainWindow::m_charEncodingInfo[] =
 };
 
 using namespace Framework;
-using namespace std;
 
-CMainWindow::CMainWindow(CPsfVm& virtualMachine) :
-m_virtualMachine(virtualMachine),
-m_ready(false),
-m_frames(0),
-m_selectedAudioPlugin(DEFAULT_SOUND_HANDLER_ID),
-m_selectedCharEncoding(DEFAULT_CHAR_ENCODING_ID),
-m_ejectButton(NULL),
-m_pauseButton(NULL),
-m_repeatButton(NULL),
-m_playlistPanel(NULL),
-m_fileInformationPanel(NULL),
-m_spu0RegViewPanel(NULL),
-m_spu1RegViewPanel(NULL),
-m_nextPanelButton(NULL),
-m_prevPanelButton(NULL),
-m_currentPlaylistItem(0),
-m_repeatMode(PLAYLIST_ONCE),
-m_trackLength(0),
-m_accel(CreateAccelerators()),
-m_reverbEnabled(true)
+CMainWindow::CMainWindow(CPsfVm& virtualMachine)
+: m_virtualMachine(virtualMachine)
+, m_ready(false)
+, m_frames(0)
+, m_selectedAudioPlugin(DEFAULT_SOUND_HANDLER_ID)
+, m_selectedCharEncoding(DEFAULT_CHAR_ENCODING_ID)
+, m_ejectButton(NULL)
+, m_pauseButton(NULL)
+, m_repeatButton(NULL)
+, m_playlistPanel(NULL)
+, m_fileInformationPanel(NULL)
+, m_spu0RegViewPanel(NULL)
+, m_spu1RegViewPanel(NULL)
+, m_nextPanelButton(NULL)
+, m_prevPanelButton(NULL)
+, m_currentPlaylistItem(0)
+, m_repeatMode(PLAYLIST_ONCE)
+, m_trackLength(0)
+, m_accel(CreateAccelerators())
+, m_reverbEnabled(true)
+, m_discoveryThread(NULL)
+, m_discoveryThreadActive(false)
+, m_discoveryCommandQueue(5)
+, m_discoveryResultQueue(5)
+, m_discoveryRunId(0)
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_REVERB_ENABLED, true);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SOUNDHANDLER_ID, DEFAULT_SOUND_HANDLER_ID);
@@ -100,8 +107,11 @@ m_reverbEnabled(true)
 
 	SetTimer(m_hWnd, TIMER_UPDATE_CLOCK, 200, NULL);
 	SetTimer(m_hWnd, TIMER_UPDATE_FADE, 50, NULL);
+	SetTimer(m_hWnd, TIMER_UPDATE_DISCOVERIES, 100, NULL);
 
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
+	SetIcon(ICON_BIG, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
+
     m_popupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
 
     m_virtualMachine.OnNewFrame.connect(std::tr1::bind(&CMainWindow::OnNewFrame, this));
@@ -193,11 +203,18 @@ m_reverbEnabled(true)
 
 	m_currentPanel = -1;
 	ActivatePanel(0);
+
+	m_discoveryThreadActive = true;
+	m_discoveryThread = new boost::thread(boost::bind(&CMainWindow::DiscoveryThreadProc, this));
 }
 
 CMainWindow::~CMainWindow()
 {
 	m_virtualMachine.Pause();
+
+	m_discoveryThreadActive = false;
+	m_discoveryThread->join();
+	delete m_discoveryThread;
 
 	for(unsigned int i = 0; i < MAX_PANELS; i++)
 	{
@@ -261,7 +278,7 @@ CSoundHandler* CMainWindow::CreateHandler(const TCHAR* libraryPath)
     }
     catch(...)
     {
-        tstring errorMessage = _T("Couldn't create sound handler present in '") + tstring(libraryPath) + _T("'.");
+		std::tstring errorMessage = _T("Couldn't create sound handler present in '") + std::tstring(libraryPath) + _T("'.");
         MessageBox(m_hWnd, errorMessage.c_str(), APP_NAME, 16);
     }
 	return result;
@@ -344,13 +361,17 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 
 long CMainWindow::OnTimer(WPARAM timerId)
 {
-	if(timerId == TIMER_UPDATE_CLOCK)
+	switch(timerId)
 	{
+	case TIMER_UPDATE_CLOCK:
 		UpdateClock();
-	}
-	else if(timerId == TIMER_UPDATE_FADE)
-	{
+		break;
+	case TIMER_UPDATE_FADE:
 		UpdateFade();
+		break;
+	case TIMER_UPDATE_DISCOVERIES:
+		ProcessPendingDiscoveries();
+		break;
 	}
     return TRUE;
 }
@@ -379,7 +400,14 @@ long CMainWindow::OnSize(unsigned int type, unsigned int width, unsigned int hei
 void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 {
     const CPlaylist::ITEM& item(m_playlist.GetItem(index));
-    if(PlayFile(item.path.c_str()))
+	
+	std::string archivePath;
+	if(item.archiveId != 0)
+	{
+		archivePath = m_playlist.GetArchive(item.archiveId);
+	}
+
+	if(PlayFile(item.path.c_str(), (archivePath.length() != 0) ? archivePath.c_str() : NULL))
     {
         CPlaylist::ITEM newItem(item);
         CPlaylist::PopulateItemFromTags(newItem, m_tags);
@@ -398,20 +426,22 @@ void CMainWindow::OnPlaylistAddClick()
 		PSFP_FILTER;
     dialog.m_OFN.lpstrFilter = filter;
     dialog.m_OFN.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-    if(dialog.SummonOpen(m_hWnd))
-    {
-        Win32::CFileDialog::PathList paths(dialog.GetMultiPaths());
-        for(Win32::CFileDialog::PathList::const_iterator pathIterator(paths.begin());
-            paths.end() != pathIterator; pathIterator++)
-        {
-            const std::tstring path(*pathIterator);
-            CPlaylist::ITEM item;
-            item.path       = string_cast<string>(path);
-            item.title      = path.c_str();
-            item.length     = 0;
-            m_playlist.InsertItem(item);
-        }
-    }
+	if(dialog.SummonOpen(m_hWnd))
+	{
+		Win32::CFileDialog::PathList paths(dialog.GetMultiPaths());
+		for(Win32::CFileDialog::PathList::const_iterator pathIterator(paths.begin());
+			paths.end() != pathIterator; pathIterator++)
+		{
+			const std::tstring path(*pathIterator);
+			CPlaylist::ITEM item;
+			item.path       = string_cast<std::string>(path);
+			item.title      = path.c_str();
+			item.length     = 0;
+			unsigned int itemId = m_playlist.InsertItem(item);
+
+			AddDiscoveryItem(item.path.c_str(), NULL, itemId);
+		}
+	}
 }
 
 void CMainWindow::OnPlaylistRemoveClick(unsigned int itemIdx)
@@ -427,7 +457,7 @@ void CMainWindow::OnPlaylistSaveClick()
     dialog.m_OFN.lpstrDefExt = PLAYLIST_EXTENSION;
     if(dialog.SummonSave(m_hWnd))
     {
-        m_playlist.Write(string_cast<string>(dialog.GetPath()).c_str());
+		m_playlist.Write(string_cast<std::string>(dialog.GetPath()).c_str());
     }
 }
 
@@ -508,27 +538,27 @@ void CMainWindow::UpdateFade()
 
 void CMainWindow::UpdateClock()
 {
-    const int fps = 60;
-    int time = m_frames / fps;
-    int seconds = time % 60;
-    int minutes = time / 60;
-    tstring timerText = lexical_cast_uint<tstring>(minutes, 2) + _T(":") + lexical_cast_uint<tstring>(seconds, 2);
-    m_timerLabel->SetText(timerText.c_str());
+	const unsigned int fps = 60;
+	uint64 time = m_frames / fps;
+	unsigned int seconds = static_cast<unsigned int>(time % 60);
+	unsigned int minutes = static_cast<unsigned int>(time / 60);
+	std::tstring timerText = lexical_cast_uint<std::tstring>(minutes, 2) + _T(":") + lexical_cast_uint<std::tstring>(seconds, 2);
+	m_timerLabel->SetText(timerText.c_str());
 }
 
 void CMainWindow::UpdateTitle()
 {
-    tstring titleLabelText = APP_NAME;
-    tstring windowText = APP_NAME;
+    std::tstring titleLabelText = APP_NAME;
+    std::tstring windowText = APP_NAME;
 
     if(m_tags.HasTag("title"))
     {
-        wstring titleTag = m_tags.GetTagValue("title");
+        std::wstring titleTag = m_tags.GetTagValue("title");
 
-        titleLabelText = string_cast<tstring>(titleTag);
+        titleLabelText = string_cast<std::tstring>(titleTag);
 
 	    windowText += _T(" - [ ");
-	    windowText += string_cast<tstring>(titleTag);
+	    windowText += string_cast<std::tstring>(titleTag);
 	    windowText += _T(" ]");
     }
 
@@ -568,7 +598,7 @@ void CMainWindow::CreateAudioPluginMenu()
 
     for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
     {
-        tstring caption = m_handlerInfo[i].name;
+        std::tstring caption = m_handlerInfo[i].name;
         InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i, caption.c_str());
     }
 
@@ -629,7 +659,7 @@ void CMainWindow::CreateCharEncodingMenu()
 
     for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
     {
-        tstring caption = m_charEncodingInfo[i].name;
+        std::tstring caption = m_charEncodingInfo[i].name;
         InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_CHARENCODING_ENCODING_0 + i, caption.c_str());
     }
 
@@ -700,28 +730,33 @@ void CMainWindow::OnFileOpen()
 {
     Win32::CFileDialog dialog;
     const TCHAR* filter = 
-	    _T("All Supported Files\0*.psfpl; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp;") PLAYLIST_EXTENSION _T("\0")
+	    _T("All Supported Files\0*.psfpl; *.zip; *.rar; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp;") PLAYLIST_EXTENSION _T("\0")
         PLAYLIST_FILTER
+		ARCHIVE_FILTER
 	    PSF_FILTER
 	    PSF2_FILTER
 		PSFP_FILTER;
     dialog.m_OFN.lpstrFilter = filter;
     if(dialog.SummonOpen(m_hWnd))
     {
-        tstring file = dialog.GetPath();
-        tstring extension;
-        tstring::size_type dotPosition = file.find('.');
-        if(dotPosition != tstring::npos)
+        std::tstring file = dialog.GetPath();
+        std::tstring extension;
+        std::tstring::size_type dotPosition = file.find('.');
+        if(dotPosition != std::tstring::npos)
         {
-            extension = tstring(file.begin() + dotPosition + 1, file.end());
+            extension = std::tstring(file.begin() + dotPosition + 1, file.end());
         }
         if(!wcsicmp(extension.c_str(), PLAYLIST_EXTENSION))
         {
-            LoadPlaylist(string_cast<string>(file).c_str());
+            LoadPlaylist(string_cast<std::string>(file).c_str());
         }
+		else if(!wcsicmp(extension.c_str(), L"rar") || !wcsicmp(extension.c_str(), L"zip"))
+		{
+			LoadArchive(string_cast<std::string>(file).c_str());
+		}
         else
         {
-	        LoadSingleFile(string_cast<string>(file).c_str());
+	        LoadSingleFile(string_cast<std::string>(file).c_str());
         }
     }
 }
@@ -809,9 +844,11 @@ void CMainWindow::OnAbout()
 
 void CMainWindow::LoadSingleFile(const char* path)
 {
-    if(PlayFile(path))
+    if(PlayFile(path, NULL))
     {
         m_playlist.Clear();
+		ResetDiscoveryRun();
+
         m_currentPlaylistItem = 0;
 
         CPlaylist::ITEM item;
@@ -826,11 +863,19 @@ void CMainWindow::LoadPlaylist(const char* path)
 	try
 	{
 		m_playlist.Clear();
+		ResetDiscoveryRun();
+
 		m_playlist.Read(path);
 		if(m_playlist.GetItemCount() > 0)
 		{
 			m_currentPlaylistItem = 0;
 			OnPlaylistItemDblClick(m_currentPlaylistItem);
+		}
+
+		for(unsigned int i = 0; i < m_playlist.GetItemCount(); i++)
+		{
+			const CPlaylist::ITEM& item(m_playlist.GetItem(i));
+			AddDiscoveryItem(item.path.c_str(), NULL, item.id);
 		}
 	}
 	catch(const std::exception& except)
@@ -839,7 +884,51 @@ void CMainWindow::LoadPlaylist(const char* path)
 		errorString += string_cast<std::tstring>(except.what());
 		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
 	}
+}
 
+void CMainWindow::LoadArchive(const char* path)
+{
+	try
+	{
+		m_playlist.Clear();
+		ResetDiscoveryRun();
+
+		{
+			boost::scoped_ptr<CPsfArchive> archive(CPsfArchive::CreateFromPath(path));
+
+			unsigned int archiveId = m_playlist.InsertArchive(path);
+
+			for(CPsfArchive::FileListIterator fileIterator(archive->GetFilesBegin());
+				fileIterator != archive->GetFilesEnd(); fileIterator++)
+			{
+				boost::filesystem::path filePath(fileIterator->name);
+				std::string fileExtension = filePath.extension();
+				if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
+				{
+					CPlaylist::ITEM newItem;
+					newItem.path = fileIterator->name;
+					newItem.title = string_cast<std::wstring>(newItem.path);
+					newItem.length = 0;
+					newItem.archiveId = archiveId;
+					unsigned int itemId = m_playlist.InsertItem(newItem);
+
+					AddDiscoveryItem(fileIterator->name.c_str(), path, itemId);
+				}
+			}
+		}
+
+		if(m_playlist.GetItemCount() > 0)
+		{
+			m_currentPlaylistItem = 0;
+			OnPlaylistItemDblClick(m_currentPlaylistItem);
+		}
+	}
+	catch(const std::exception& except)
+	{
+		std::tstring errorString = _T("Couldn't load archive: \r\n\r\n");
+		errorString += string_cast<std::tstring>(except.what());
+		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
+	}
 }
 
 void CMainWindow::Reset()
@@ -855,13 +944,15 @@ void CMainWindow::Reset()
 	m_volumeAdjust = 1.0f;
 }
 
-bool CMainWindow::PlayFile(const char* path)
+bool CMainWindow::PlayFile(const char* path, const char* archivePath)
 {
+	EnableWindow(m_hWnd, FALSE);
+
 	Reset();
 	try
 	{
 		CPsfBase::TagMap tags;
-		CPsfLoader::LoadPsf(m_virtualMachine, path, &tags);
+		CPsfLoader::LoadPsf(m_virtualMachine, path, archivePath, &tags);
 		m_tags = CPsfTags(tags);
 		m_tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));
 		try
@@ -895,12 +986,14 @@ bool CMainWindow::PlayFile(const char* path)
 			m_trackLength +=  static_cast<uint64>(fade * 60.0);
 		}
 	}
-	catch(const exception& except)
+	catch(const std::exception& except)
 	{
-		tstring errorString = _T("Couldn't load PSF file: \r\n\r\n");
-		errorString += string_cast<tstring>(except.what());
+		std::tstring errorString = _T("Couldn't load PSF file: \r\n\r\n");
+		errorString += string_cast<std::tstring>(except.what());
 		MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
 	}
+
+	EnableWindow(m_hWnd, TRUE);
 
 	UpdateTitle();
     UpdateButtons();
@@ -908,4 +1001,112 @@ bool CMainWindow::PlayFile(const char* path)
 //	UpdateMenu();
 
     return m_ready;
+}
+
+void CMainWindow::AddDiscoveryItem(const char* path, const char* archivePath, unsigned int itemId)
+{
+	DISCOVERY_COMMAND command;
+	command.runId		= m_discoveryRunId;
+	command.itemId		= itemId;
+	command.path		= path;
+	command.archivePath	= archivePath ? archivePath : "";
+	m_pendingDiscoveryCommands.push_back(command);
+}
+
+void CMainWindow::ResetDiscoveryRun()
+{
+	m_pendingDiscoveryCommands.clear();
+	m_discoveryRunId++;
+}
+
+void CMainWindow::ProcessPendingDiscoveries()
+{
+	while(m_pendingDiscoveryCommands.size() != 0)
+	{
+		const DISCOVERY_COMMAND& command(*m_pendingDiscoveryCommands.begin());
+		if(m_discoveryCommandQueue.TryPush(command))
+		{
+			m_pendingDiscoveryCommands.pop_front();
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	{
+		DISCOVERY_RESULT result;
+		if(m_discoveryResultQueue.TryPop(result))
+		{
+			if(result.runId == m_discoveryRunId)
+			{
+				int itemIdx = m_playlist.FindItem(result.itemId);
+				if(itemIdx != -1)
+				{
+					CPlaylist::ITEM item = m_playlist.GetItem(itemIdx);
+					item.title	= result.title;
+					item.length	= result.length;
+					m_playlist.UpdateItem(itemIdx, item);
+				}
+			}
+		}
+	}
+}
+
+void CMainWindow::DiscoveryThreadProc()
+{
+	DiscoveryResultQueue pendingResults;
+
+	while(m_discoveryThreadActive)
+	{
+		DISCOVERY_COMMAND command;
+		if(m_discoveryCommandQueue.TryPop(command))
+		{
+			try
+			{
+				boost::scoped_ptr<CPsfStreamProvider> streamProvider(
+					CreatePsfStreamProvider(command.archivePath.size() != 0 ? command.archivePath.c_str() : NULL));
+				boost::scoped_ptr<Framework::CStream> inputStream(
+					streamProvider->GetStreamForPath(command.path.c_str()));
+				CPsfBase psfFile(*inputStream);
+				CPsfTags tags(CPsfTags::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd()));
+				tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));
+
+				DISCOVERY_RESULT result;
+				result.runId = command.runId;
+				result.itemId = command.itemId;
+				result.length = 0;
+
+				if(tags.HasTag("title"))
+				{
+					result.title = tags.GetTagValue("title");
+				}
+				if(tags.HasTag("length"))
+				{
+					result.length = tags.ConvertTimeString(tags.GetTagValue("length").c_str());
+				}
+
+				pendingResults.push_back(result);
+			}
+			catch(...)
+			{
+				//assert(0);
+			}
+		}
+
+		while(pendingResults.size() != 0)
+		{
+			const DISCOVERY_RESULT& command(*pendingResults.begin());
+			if(m_discoveryResultQueue.TryPush(command))
+			{
+				pendingResults.pop_front();
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 }
