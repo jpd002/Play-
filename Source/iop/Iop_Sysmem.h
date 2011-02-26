@@ -32,7 +32,7 @@ namespace Iop
         void                    Invoke(CMIPS&, unsigned int);
 		bool			        Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
-        uint32                  AllocateMemory(uint32, uint32);
+        uint32                  AllocateMemory(uint32, uint32, uint32);
         uint32                  FreeMemory(uint32);
 
     private:

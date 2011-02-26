@@ -64,6 +64,7 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
         {
             bool paramDone = false;
             bool inPrecision = false;
+			char fillChar = ' ';
             string precision;
             while(!paramDone && *format != 0) 
             {
@@ -77,14 +78,14 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                 else if(type == 'd')
                 {
                     int number = args.GetNext();
-                    unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
-                    output += boost::lexical_cast<string>(number);
+                    unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
+                    output += lexical_cast_int<string>(number, precisionValue, fillChar);
                     paramDone = true;
                 }
                 else if(type == 'u')
                 {
                     unsigned int number = args.GetNext();
-                    unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
+                    unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
                     output += lexical_cast_uint<string>(number, precisionValue);
                     paramDone = true;
                 }
@@ -110,6 +111,11 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                     {
                         precision += type;
                     }
+					else
+					{
+						fillChar = type;
+						inPrecision = true;
+					}
                 }
             }
         }

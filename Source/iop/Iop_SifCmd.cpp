@@ -36,7 +36,7 @@ m_bios(bios),
 m_sysMem(sysMem),
 m_ram(ram)
 {
-    m_memoryBufferAddr = m_sysMem.AllocateMemory(INVOKE_PARAMS_SIZE + TRAMPOLINE_SIZE, 0);
+    m_memoryBufferAddr = m_sysMem.AllocateMemory(INVOKE_PARAMS_SIZE + TRAMPOLINE_SIZE, 0, 0);
     m_invokeParamsAddr = m_memoryBufferAddr;
     m_trampolineAddr = m_invokeParamsAddr + INVOKE_PARAMS_SIZE;
 

@@ -34,8 +34,15 @@ void CMipsExecutor::ClearActiveBlocks()
 int CMipsExecutor::Execute(int cycles)
 {
     BasicBlockPtr block;
+#ifdef DEBUGGER_INCLUDED
+	bool firstExec = true;
+#endif
     while(cycles > 0)
     {
+#ifdef DEBUGGER_INCLUDED
+        if(!firstExec && MustBreak()) break;
+		firstExec = false;
+#endif
 #ifdef _PSX
         uint32 address = m_context.m_pAddrTranslator(&m_context, 0, m_context.m_State.nPC);
 #else
@@ -83,9 +90,6 @@ int CMipsExecutor::Execute(int cycles)
         
         cycles -= block->Execute();
         if(m_context.m_State.nHasException) break;
-#ifdef DEBUGGER_INCLUDED
-        if(MustBreak()) break;
-#endif
     }
     return cycles;
 }

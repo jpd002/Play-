@@ -203,7 +203,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 #endif
 
     const int sifDmaBufferSize = 0x1000;
-    uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0);
+    uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0, 0);
 #ifndef _NULL_SIFMAN
     m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
 #endif
@@ -310,9 +310,10 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
     if(moduleIterator == m_moduleTags.end())
     {
         MIPSMODULE module;
-        module.name  = GetModuleNameFromPath(path);
-        module.begin = moduleRange.first;
-        module.end   = moduleRange.second;
+        module.name		= GetModuleNameFromPath(path);
+        module.begin	= moduleRange.first;
+        module.end		= moduleRange.second;
+		module.param	= NULL;
         m_moduleTags.push_back(module);
     }
 
@@ -398,6 +399,29 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		}
 	}
 
+	//Look also for symbol tables
+	{
+		ELFSECTIONHEADER* pSymTab = elf.FindSection(".symtab");
+		if(pSymTab != NULL)
+		{
+			const char* pStrTab = reinterpret_cast<const char*>(elf.GetSectionData(pSymTab->nIndex));
+			if(pStrTab != NULL)
+			{
+				const ELFSYMBOL* pSym = reinterpret_cast<const ELFSYMBOL*>(elf.FindSectionData(".symtab"));
+				unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+
+				for(unsigned int i = 0; i < nCount; i++)
+				{
+					if((pSym[i].nInfo & 0x0F) != 0x02) continue;
+					ELFSECTIONHEADER* symbolSection = elf.GetSection(pSym[i].nSectionIndex);
+					if(symbolSection == NULL) continue;
+					m_cpu.m_Functions.InsertTag(moduleRange.first + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
+					functionAdded = true;
+				}
+			}
+		}
+	}
+
 	if(functionAdded)
 	{
 		m_cpu.m_Functions.m_OnTagListChanged();
@@ -442,6 +466,17 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 //	}
 
 //    *reinterpret_cast<uint32*>(&m_ram[0x41674]) = 0;
+
+	//Patch for Shadow Hearts PSF set --------------------------------
+	if(strstr(path, "RSSD_patchmore.IRX") != NULL)
+	{
+		const uint32 patchAddress = moduleRange.first + 0xCE0;
+		uint32 instruction = m_cpu.m_pMemoryMap->GetWord(patchAddress);
+		if(instruction == 0x1200FFFB)
+		{
+			m_cpu.m_pMemoryMap->SetWord(patchAddress, 0x1000FFFB);
+		}
+	}
 }
 
 CIopBios::THREAD& CIopBios::GetThread(uint32 threadId)
@@ -472,7 +507,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
     memset(&thread->context, 0, sizeof(thread->context));
     thread->context.delayJump = 1;
 	thread->stackSize = stackSize;
-    thread->stackBase = m_sysmem->AllocateMemory(thread->stackSize, 0);
+    thread->stackBase = m_sysmem->AllocateMemory(thread->stackSize, 0, 0);
     memset(m_ram + thread->stackBase, 0, thread->stackSize);
 	thread->id = threadId;
     thread->priority = priority;
@@ -553,7 +588,7 @@ void CIopBios::SleepThread()
 uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "%i: WakeupThread(threadId = %i);\r\n", 
+    CLog::GetInstance().Print(LOGNAME, "%d: WakeupThread(threadId = %d);\r\n", 
         CurrentThreadId(), threadId);
 #endif
 
@@ -1130,6 +1165,7 @@ void CIopBios::LoadDebugTags(Xml::CNode* root)
         module.name     = moduleName;
 		module.begin    = lexical_cast_hex<std::string>(beginAddress);
         module.end      = lexical_cast_hex<std::string>(endAddress);
+		module.param	= NULL;
         m_moduleTags.push_back(module);
     }
 }
@@ -1243,7 +1279,7 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
     }
     ELFPROGRAMHEADER* programHeader = elf.GetProgram(programHeaderIndex);
 //    uint32 baseAddress = m_sysmem->AllocateMemory(elf.m_nLenght, 0);
-    uint32 baseAddress = m_sysmem->AllocateMemory(programHeader->nMemorySize, 0);
+    uint32 baseAddress = m_sysmem->AllocateMemory(programHeader->nMemorySize, 0, 0);
     RelocateElf(elf, baseAddress);
 
     memcpy(

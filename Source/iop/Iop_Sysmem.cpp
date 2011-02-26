@@ -66,7 +66,8 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
     case 4:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AllocateMemory(
             context.m_State.nGPR[CMIPS::A1].nV[0],
-            context.m_State.nGPR[CMIPS::A0].nV[0]
+            context.m_State.nGPR[CMIPS::A0].nV[0],
+			context.m_State.nGPR[CMIPS::A2].nV[0]
             ));
         break;
     case 5:
@@ -106,43 +107,95 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
     return true;
 }
 
-uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags)
+uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 {
-    uint32 begin = 0;
-    const uint32 blockSize = MIN_BLOCK_SIZE;
-    size = ((size + (blockSize - 1)) / blockSize) * blockSize;
+	const uint32 blockSize = MIN_BLOCK_SIZE;
+	size = ((size + (blockSize - 1)) / blockSize) * blockSize;
 
-	uint32* nextBlockId = &m_headBlockId;
-	BLOCK* nextBlock = m_blocks[*nextBlockId];
-	while(nextBlock != NULL)
+	if(flags == 0 || flags == 1)
 	{
-		uint32 end = nextBlock->address;
-		if((end - begin) >= size)
+		uint32 begin = 0;
+		uint32* nextBlockId = &m_headBlockId;
+		BLOCK* nextBlock = m_blocks[*nextBlockId];
+		while(nextBlock != NULL)
 		{
-			break;
+			uint32 end = nextBlock->address;
+			if((end - begin) >= size)
+			{
+				break;
+			}
+			begin = nextBlock->address + nextBlock->size;
+			nextBlockId = &nextBlock->nextBlock;
+			nextBlock = m_blocks[*nextBlockId];
 		}
-		begin = nextBlock->address + nextBlock->size;
-		nextBlockId = &nextBlock->nextBlock;
-		nextBlock = m_blocks[*nextBlockId];
+		
+		if(nextBlock != NULL)
+		{
+			uint32 newBlockId = m_blocks.Allocate();
+			assert(newBlockId != 0);
+			if(newBlockId == 0)
+			{
+				return 0;
+			}
+			BLOCK* newBlock = m_blocks[newBlockId];
+			newBlock->address	= begin;
+			newBlock->size		= size;
+			newBlock->nextBlock	= *nextBlockId;
+			*nextBlockId = newBlockId;
+			return begin + m_memoryBegin;
+		}
 	}
-	
-	if(nextBlock != NULL)
+	else if(flags == 2)
 	{
-		uint32 newBlockId = m_blocks.Allocate();
-		assert(newBlockId != 0);
-		if(newBlockId == 0)
+		assert(wantedAddress != 0);
+		wantedAddress -= m_memoryBegin;
+
+		uint32 begin = 0;
+		uint32* nextBlockId = &m_headBlockId;
+		BLOCK* nextBlock = m_blocks[*nextBlockId];
+		while(nextBlock != NULL)
 		{
-			return 0;
+			uint32 end = nextBlock->address;
+			if(begin > wantedAddress)
+			{
+				//Couldn't find suitable space
+				nextBlock = NULL;
+				break;
+			}
+			if(
+				(begin <= wantedAddress) && 
+				((end - begin) >= size)
+				)
+			{
+				break;
+			}
+			begin = nextBlock->address + nextBlock->size;
+			nextBlockId = &nextBlock->nextBlock;
+			nextBlock = m_blocks[*nextBlockId];
 		}
-		BLOCK* newBlock = m_blocks[newBlockId];
-		newBlock->address	= begin;
-		newBlock->size		= size;
-		newBlock->nextBlock	= *nextBlockId;
-		*nextBlockId = newBlockId;
-        return begin + m_memoryBegin;
+		
+		if(nextBlock != NULL)
+		{
+			uint32 newBlockId = m_blocks.Allocate();
+			assert(newBlockId != 0);
+			if(newBlockId == 0)
+			{
+				return 0;
+			}
+			BLOCK* newBlock = m_blocks[newBlockId];
+			newBlock->address	= wantedAddress;
+			newBlock->size		= size;
+			newBlock->nextBlock	= *nextBlockId;
+			*nextBlockId = newBlockId;
+			return wantedAddress + m_memoryBegin;
+		}
+	}
+	else
+	{
+		assert(0);
 	}
 
-    assert(0);
+	assert(0);
     return NULL;
 }
 
@@ -176,7 +229,7 @@ uint32 CSysmem::FreeMemory(uint32 address)
 
 uint32 CSysmem::SifAllocate(uint32 nSize)
 {
-    uint32 result = AllocateMemory(nSize, 0); 
+    uint32 result = AllocateMemory(nSize, 0, 0); 
 	CLog::GetInstance().Print(LOG_NAME, "result = 0x%0.8X = Allocate(size = 0x%0.8X);\r\n", 
         result, nSize);
     return result;
@@ -184,7 +237,7 @@ uint32 CSysmem::SifAllocate(uint32 nSize)
 
 uint32 CSysmem::SifAllocateSystemMemory(uint32 nSize, uint32 nFlags, uint32 nPtr)
 {
-    uint32 result = AllocateMemory(nSize, nFlags);
+    uint32 result = AllocateMemory(nSize, nFlags, nPtr);
 	CLog::GetInstance().Print(LOG_NAME, "result = 0x%0.8X = AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", 
         result, nFlags, nSize, nPtr);
 	return result;

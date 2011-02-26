@@ -10,9 +10,14 @@ using namespace Iop;
 using namespace std;
 
 #define FUNCTION_REGISTERINTRHANDLER    "RegisterIntrHandler"
+#define FUNCTION_RELEASEINTRHANDLER		"ReleaseIntrHandler"
 #define FUNCTION_ENABLEINTRLINE         "EnableIntrLine"
+#define FUNCTION_DISABLEINTRLINE		"DisableIntrLine"
+#define FUNCTION_DISABLEINTERRUPTS		"DisableInterrupts"
+#define FUNCTION_ENABLEINTERRUPTS		"EnableInterrupts"
 #define FUNCTION_SUSPENDINTERRUPTS      "SuspendInterrupts"
 #define FUNCTION_RESUMEINTERRUPTS       "ResumeInterrupts"
+#define FUNCTION_QUERYINTRCONTEXT		"QueryIntrContext"
 
 CIntrman::CIntrman(CIopBios& bios, uint8* ram) :
 m_bios(bios),
@@ -38,15 +43,30 @@ string CIntrman::GetFunctionName(unsigned int functionId) const
     case 4:
         return FUNCTION_REGISTERINTRHANDLER;
         break;
+	case 5:
+		return FUNCTION_RELEASEINTRHANDLER;
+		break;
     case 6:
         return FUNCTION_ENABLEINTRLINE;
         break;
+	case 7:
+		return FUNCTION_DISABLEINTRLINE;
+		break;
+	case 8:
+		return FUNCTION_DISABLEINTERRUPTS;
+		break;
+	case 9:
+		return FUNCTION_ENABLEINTERRUPTS;
+		break;
     case 17:
         return FUNCTION_SUSPENDINTERRUPTS;
         break;
     case 18:
         return FUNCTION_RESUMEINTERRUPTS;
         break;
+	case 23:
+		return FUNCTION_QUERYINTRCONTEXT;
+		break;
     default:
         return "unknown";
         break;
@@ -83,6 +103,11 @@ void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
             context.m_State.nGPR[CMIPS::A1].nV0
             ));
         break;
+	case 8:
+        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DisableInterrupts(
+            context
+            ));
+		break;
     case 9:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(EnableInterrupts(
             context
@@ -123,7 +148,7 @@ uint32 CIntrman::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, u
 uint32 CIntrman::ReleaseIntrHandler(uint32 line)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "ReleaseIntrHandler(line = %d);\r\n",
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_RELEASEINTRHANDLER "(line = %d);\r\n",
         line);
 #endif
     return m_bios.ReleaseIntrHandler(line) ? 1 : 0;
@@ -147,7 +172,7 @@ uint32 CIntrman::EnableIntrLine(CMIPS& context, uint32 line)
 uint32 CIntrman::DisableIntrLine(CMIPS& context, uint32 line, uint32 res)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "DisableIntrLine(line = %d, res = %0.8X);\r\n",
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_DISABLEINTRLINE "(line = %d, res = %0.8X);\r\n",
         line, res);
 #endif
 	UNION64_32 mask(
@@ -162,11 +187,22 @@ uint32 CIntrman::DisableIntrLine(CMIPS& context, uint32 line, uint32 res)
 uint32 CIntrman::EnableInterrupts(CMIPS& context)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "EnableInterrupts();\r\n");
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_ENABLEINTERRUPTS "();\r\n");
 #endif
 
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
     statusRegister |= CMIPS::STATUS_INT;
+    return 0;
+}
+
+uint32 CIntrman::DisableInterrupts(CMIPS& context)
+{
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_DISABLEINTERRUPTS "();\r\n");
+#endif
+
+    uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
+    statusRegister &= ~CMIPS::STATUS_INT;
     return 0;
 }
 
@@ -201,7 +237,7 @@ uint32 CIntrman::ResumeInterrupts(CMIPS& context, uint32 state)
 uint32 CIntrman::QueryIntrContext(CMIPS& context)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOGNAME, "QueryIntrContext();\r\n");
+    CLog::GetInstance().Print(LOGNAME, FUNCTION_QUERYINTRCONTEXT "();\r\n");
 #endif
     uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
     return (statusRegister & CMIPS::STATUS_EXL ? 1 : 0);
