@@ -11,7 +11,7 @@ class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::tr
 {
 public:
 									CDisAsm(HWND, RECT*, CVirtualMachine&, CMIPS*);
-									~CDisAsm();
+	virtual							~CDisAsm();
 	void							SetAddress(uint32);
 
 protected:

@@ -276,14 +276,14 @@ void CVIF::SetStat(uint32 stat)
 }
 
 
-CVIF::CFifoStream::CFifoStream(uint8* ram, uint8* spr) :
-m_ram(ram),
-m_spr(spr),
-m_source(NULL),
-m_address(0),
-m_endAddress(0),
-m_nextAddress(0),
-m_position(BUFFERSIZE)
+CVIF::CFifoStream::CFifoStream(uint8* ram, uint8* spr) 
+: m_ram(ram)
+, m_spr(spr)
+, m_source(NULL)
+, m_address(0)
+, m_endAddress(0)
+, m_nextAddress(0)
+, m_position(BUFFERSIZE)
 {
 
 }

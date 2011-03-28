@@ -43,19 +43,16 @@ void CGIF::Reset()
 
 uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
-	uint32 nRegDesc, nStart;
-	uint64 nTemp;
-	uint128 nPacket;
-
-	nStart = nAddress;
+	uint32 nStart = nAddress;
 
 	while((m_nLoops != 0) && (nAddress < nEnd))
 	{
 		while((m_nRegsTemp != 0) && (nAddress < nEnd))
 		{
-			nRegDesc = (uint32)((m_nRegList >> ((m_nRegs - m_nRegsTemp) * 4)) & 0x0F);
+			uint64 nTemp;
+			uint32 nRegDesc = (uint32)((m_nRegList >> ((m_nRegs - m_nRegsTemp) * 4)) & 0x0F);
 
-			nPacket = *(uint128*)&pMemory[nAddress];
+			uint128 nPacket = *(uint128*)&pMemory[nAddress];
 			nAddress += 0x10;
 
 			m_nRegsTemp--;

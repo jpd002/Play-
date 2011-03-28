@@ -76,38 +76,38 @@ public:
     uint32      GetStat() const;
     void        SetStat(uint32);
 
-    class CFifoStream
-    {
-    public:
-                        CFifoStream(uint8*, uint8*);
-        virtual         ~CFifoStream();
+	class CFifoStream
+	{
+	public:
+								CFifoStream(uint8*, uint8*);
+		virtual					~CFifoStream();
 
-        uint32          GetAddress() const;
-        uint32          GetAvailableReadBytes() const;
-		uint32			GetAvailableReadQwords() const;
-        void            Read(void*, uint32);
-        void            Flush();
-        void            Align32();
-        void            SetDmaParams(uint32, uint32);
+		uint32					GetAddress() const;
+		uint32					GetAvailableReadBytes() const;
+		uint32					GetAvailableReadQwords() const;
+		void					Read(void*, uint32);
+		void					Flush();
+		void					Align32();
+		void					SetDmaParams(uint32, uint32);
 
-        uint8*          m_ram;
-        uint8*          m_spr;
+		uint8*					m_ram;
+		uint8*					m_spr;
 
-    private:
-        void            SyncBuffer();
+	private:
+		void					SyncBuffer();
 
-        enum
-        {
-            BUFFERSIZE = 0x10
-        };
+		enum
+		{
+			BUFFERSIZE = 0x10
+		};
 
-        uint128         m_buffer;
-        uint32          m_position;
-        uint32          m_address;
-        uint32          m_nextAddress;
-        uint32          m_endAddress;
-        uint8*          m_source;
-    };
+		uint128					m_buffer;
+		uint32					m_position;
+		uint32					m_address;
+		uint32					m_nextAddress;
+		uint32					m_endAddress;
+		uint8*					m_source;
+	};
 
 private:
     enum STAT1_BITS
