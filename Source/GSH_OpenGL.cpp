@@ -499,19 +499,21 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 
 void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 {
-	ZBUF* zbuf;
+	ZBUF zbuf;
+	zbuf <<= nData;
 
-	zbuf = (ZBUF*)&nData;
-
-	switch(GetPsmPixelSize(zbuf->nPsm))
+	switch(GetPsmPixelSize(zbuf.nPsm))
 	{
 	case 16:
 		m_nMaxZ = 32768.0;
 		break;
+	default:
 	case 32:
 		m_nMaxZ = 2147483647.0;
 		break;
 	}
+
+	glDepthMask(zbuf.nMask ? GL_FALSE : GL_TRUE);
 }
 
 void CGSH_OpenGL::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
