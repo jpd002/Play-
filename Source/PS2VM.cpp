@@ -66,47 +66,53 @@
 
 #define		FAKE_IOP_RAM_SIZE	(0x1000)
 
+#define		VPU_LOG_BASE		"./vpu_logs/"
+
 using namespace Framework;
 using namespace std;
 using namespace std::tr1;
 namespace filesystem = boost::filesystem;
 
-CPS2VM::CPS2VM() :
-m_ram(new uint8[PS2::EERAMSIZE]),
-m_bios(new uint8[PS2::EEBIOSSIZE]),
-m_spr(new uint8[PS2::SPRSIZE]),
-m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE]),
-m_pVUMem0(new uint8[PS2::VUMEM0SIZE]),
-m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE]),
-m_pVUMem1(new uint8[PS2::VUMEM1SIZE]),
-m_pMicroMem1(new uint8[PS2::MICROMEM1SIZE]),
-m_thread(NULL),
-m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000),
-m_VU0(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
-m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000),
-m_executor(m_EE),
-m_nStatus(PAUSED),
-m_nEnd(false),
-m_pGS(NULL),
-m_pPad(NULL),
-m_singleStepEe(false),
-m_singleStepIop(false),
-m_singleStepVu1(false),
-m_nVBlankTicks(0),
-m_nInVBlank(false),
-m_spuUpdateTicks(SPU_UPDATE_TICKS),
-m_pCDROM0(NULL),
-m_dmac(m_ram, m_spr, m_EE),
-m_gif(m_pGS, m_ram, m_spr),
-m_sif(m_dmac, m_ram, m_iop.m_ram),
-m_vif(m_gif, m_ram, m_spr, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1)),
-m_intc(m_dmac),
-m_timer(m_intc),
-m_COP_SCU(MIPS_REGSIZE_64),
-m_COP_FPU(MIPS_REGSIZE_64),
-m_COP_VU(MIPS_REGSIZE_64),
-m_MAVU0(false),
-m_MAVU1(true)
+CPS2VM::CPS2VM() 
+: m_ram(new uint8[PS2::EERAMSIZE])
+, m_bios(new uint8[PS2::EEBIOSSIZE])
+, m_spr(new uint8[PS2::SPRSIZE])
+, m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
+, m_pVUMem0(new uint8[PS2::VUMEM0SIZE])
+, m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE])
+, m_pVUMem1(new uint8[PS2::VUMEM1SIZE])
+, m_pMicroMem1(new uint8[PS2::MICROMEM1SIZE])
+, m_thread(NULL)
+, m_EE(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x20000000)
+, m_VU0(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000)
+, m_VU1(MEMORYMAP_ENDIAN_LSBF, 0x00000000, 0x00008000)
+, m_executor(m_EE)
+, m_nStatus(PAUSED)
+, m_nEnd(false)
+, m_pGS(NULL)
+, m_pPad(NULL)
+, m_singleStepEe(false)
+, m_singleStepIop(false)
+, m_singleStepVu1(false)
+, m_nVBlankTicks(0)
+, m_nInVBlank(false)
+, m_spuUpdateTicks(SPU_UPDATE_TICKS)
+, m_pCDROM0(NULL)
+, m_dmac(m_ram, m_spr, m_EE)
+, m_gif(m_pGS, m_ram, m_spr)
+, m_sif(m_dmac, m_ram, m_iop.m_ram)
+, m_vif(m_gif, m_ram, m_spr, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1))
+, m_intc(m_dmac)
+, m_timer(m_intc)
+, m_COP_SCU(MIPS_REGSIZE_64)
+, m_COP_FPU(MIPS_REGSIZE_64)
+, m_COP_VU(MIPS_REGSIZE_64)
+, m_MAVU0(false)
+, m_MAVU1(true)
+, m_frameNumber(0)
+#ifdef DEBUGGER_INCLUDED
+, m_saveVpuStateEnabled(false)
+#endif
 {
     const char* basicDirectorySettings[] =
     {
@@ -359,6 +365,16 @@ void CPS2VM::SaveDebugTags(const char* packageName)
     }
 }
 
+bool CPS2VM::IsSaveVpuStateEnabled() const
+{
+	return m_saveVpuStateEnabled;
+}
+
+void CPS2VM::SetSaveVpuStateEnabled(bool enabled)
+{
+	m_saveVpuStateEnabled = enabled;
+}
+
 #endif
 
 void CPS2VM::SetFrameSkip(unsigned int frameSkip)
@@ -533,6 +549,19 @@ void CPS2VM::ResetVM()
 
     RegisterModulesInPadHandler();
 	FillFakeIopRam();
+
+#ifdef DEBUGGER_INCLUDED
+	try
+	{
+		boost::filesystem::path logPath(VPU_LOG_BASE);
+		boost::filesystem::remove_all(logPath);
+		boost::filesystem::create_directory(logPath);
+	}
+	catch(...)
+	{
+
+	}
+#endif
 }
 
 void CPS2VM::DestroyVM()
@@ -1247,7 +1276,33 @@ void CPS2VM::EmuThread()
 
                 //IOP Execution
                 m_iop.ExecuteCpu(m_singleStepIop);
+
+#ifdef DEBUGGER_INCLUDED
+				static bool wasVu1Running = false;
+				if(!wasVu1Running && m_vif.IsVu1Running())
+				{
+					wasVu1Running = true;
+
+					if(m_saveVpuStateEnabled)
+					{
+						char vpu1LogFileName[256];
+						static int currentLog = 0;
+						sprintf(vpu1LogFileName, "%s/vpu1_%06d.zip", VPU_LOG_BASE, currentLog++);
+						unsigned int result = 0;
+						Framework::CStdStream logFile(vpu1LogFileName, "wb");
+						SaveVMState(vpu1LogFileName, result);
+					}
+				}
+#endif
+
 				m_vif.ExecuteVu1(m_singleStepVu1);
+#ifdef DEBUGGER_INCLUDED
+				if(wasVu1Running && !m_vif.IsVu1Running())
+				{
+					wasVu1Running = false;
+				}
+#endif
+
             }
 #ifdef DEBUGGER_INCLUDED
             if(

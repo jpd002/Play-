@@ -88,6 +88,9 @@ public:
     std::string                 MakeDebugTagsPackagePath(const char*);
     void                        LoadDebugTags(const char*);
     void                        SaveDebugTags(const char*);
+
+	bool						IsSaveVpuStateEnabled() const;
+	void						SetSaveVpuStateEnabled(bool);
 #endif
 
     void                        SetFrameSkip(unsigned int);
@@ -193,6 +196,10 @@ private:
     bool                        m_singleStepEe;
     bool                        m_singleStepIop;
 	bool						m_singleStepVu1;
+
+#ifdef DEBUGGER_INCLUDED
+	bool						m_saveVpuStateEnabled;
+#endif
 };
 
 #endif

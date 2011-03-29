@@ -109,6 +109,7 @@ BEGIN
         MENUITEM "OS Recording",                ID_RECORDING_OS
         MENUITEM "SIF Logging",                 ID_LOGGING_SIF
         MENUITEM "IOP Logging",                 ID_LOGGING_IOP
+        MENUITEM "Save VPU execution states",   ID_LOGGING_SAVEVPUSTATE
     END
     POPUP "&Window"
     BEGIN
