@@ -12,37 +12,48 @@
 
 struct REGISTER_PIPELINE
 {
-    uint32      target;
+    uint32      counter;
     uint32      heldValue;
+};
+
+enum
+{
+	MACFLAG_PIPELINE_SLOTS = 8,
+};
+
+struct MACFLAG_PIPELINE
+{
+	uint32		counter;
+	uint32		slots[MACFLAG_PIPELINE_SLOTS];
 };
 
 struct MIPSSTATE
 {
-	uint32		nPC;
-	uint32		nDelayedJumpAddr;
-    uint32      nHasException;
+	uint32				nPC;
+	uint32				nDelayedJumpAddr;
+	uint32				nHasException;
 
 #ifdef WIN32
 __declspec(align(16))
 #else
 __attribute__((aligned(16)))
 #endif
-	uint128		nGPR[32];
+	uint128				nGPR[32];
 
-	uint32		nHI[2];
-	uint32		nLO[2];
-	uint32		nHI1[2];
-	uint32		nLO1[2];
-	uint32		nSA;
+	uint32				nHI[2];
+	uint32				nLO[2];
+	uint32				nHI1[2];
+	uint32				nLO1[2];
+	uint32				nSA;
 
 	//COP0
-	uint32		nCOP0[32];
+	uint32				nCOP0[32];
 
 	//COP1
-	uint32		nCOP10[32];
-	uint32		nCOP11[32];
-	uint32		nCOP1A;
-	uint32		nFCSR;
+	uint32				nCOP10[32];
+	uint32				nCOP11[32];
+	uint32				nCOP1A;
+	uint32				nFCSR;
 
 	//COP2
 #ifdef WIN32
@@ -50,27 +61,26 @@ __declspec(align(16))
 #else
 __attribute__((aligned(16)))
 #endif
-	uint128		nCOP2[32];
+	uint128				nCOP2[33];
 
-	uint128		nCOP2A;
+	uint128				nCOP2A;
 
-	uint128		nCOP2ZF;
-	uint128		nCOP2SF;
+	uint128				nCOP2VF_PreUp;
+	uint128				nCOP2VF_UpRes;
 
-	uint128		nCOP2VF_PreUp;
-	uint128		nCOP2VF_UpRes;
+	uint32				nCOP2Q;
+	uint32				nCOP2I;
+	uint32				nCOP2P;
+	uint32				nCOP2R;
+	uint32				nCOP2CF;
+	uint32				nCOP2MF;
+	uint32				nCOP2T;
 
-	uint32		nCOP2Q;
-	uint32		nCOP2I;
-	uint32		nCOP2P;
-	uint32		nCOP2R;
-	uint32		nCOP2CF;
-    uint32      nCOP2T;
+	uint32				nCOP2VI[16];
 
-	uint32		nCOP2VI[16];
-
-    REGISTER_PIPELINE pipeQ;
-    REGISTER_PIPELINE pipeP;
+	REGISTER_PIPELINE	pipeQ;
+	REGISTER_PIPELINE	pipeP;
+	MACFLAG_PIPELINE	pipeMac;
 };
 
 #define MIPS_INVALID_PC			(0x00000001)

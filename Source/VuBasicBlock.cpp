@@ -29,12 +29,26 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		VUShared::OPERANDSET loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
 		VUShared::OPERANDSET hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
 
+		//No upper instruction writes to Q
+		assert(hiOps.syncQ == false);
+
 		if(opcodeHi & 0x80000000)
 		{
 			arch->CompileInstruction(addressHi, jitter, &m_context);
 		}
 		else
 		{
+			if(loOps.syncQ)
+			{
+				VUShared::FlushPipeline(VUShared::g_pipeInfoQ, jitter);
+			}
+			else
+			{
+				VUShared::AdvancePipeline(VUShared::g_pipeInfoQ, jitter);
+			}
+
+			VUShared::AdvanceMacFlagPipeline(jitter);
+
 			uint8 savedReg = 0;
 
 			if(hiOps.writeF != 0)

@@ -3,14 +3,10 @@
 		<Patch Address="0x002F6F64" Value="0x00000000" Description="Skip movies" />
 	</Executable>
 	<Executable Name="SLPM_660.81;1">
-		<Patch Address="0x002E5900" Value="0x8000033C" Description="Removes VU1 MAC flag check for world map" />
-		<Patch Address="0x002E5990" Value="0x8000033C" Description="Removes VU1 MAC flag check for world map" />
 		<Patch Address="0x0029B2E4" Value="0x03E00008" Description="Skips movies" />
 		<Patch Address="0x0029B2E8" Value="0x24020000" Description="Skips movies" />
 	</Executable>
 	<Executable Name="SLUS_211.13;1">
-		<Patch Address="0x002E5A80" Value="0x8000033C" Description="Removes VU1 MAC flag check for world map" />
-		<Patch Address="0x002E5B10" Value="0x8000033C" Description="Removes VU1 MAC flag check for world map" />
 		<Patch Address="0x0029B8DC" Value="0x00000000" Description="Skips movies" />
 		<Patch Address="0x0029B8EC" Value="0x00000000" Description="Skips movies" />
 		<Patch Address="0x0029B8F8" Value="0x00000000" Description="Skips movies" />

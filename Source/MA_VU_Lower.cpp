@@ -309,23 +309,10 @@ void CMA_VU::CLower::FSAND()
 //1A
 void CMA_VU::CLower::FMAND()
 {
-    printf("Warning: Using FMAND.\r\n");
-
-    //MAC flag temp
-    m_codeGen->PushCst(0);
-
-    for(unsigned int i = 0; i < 4; i++)
-    {
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF.nV[3 - i]));
-        m_codeGen->PushCst(0);
-        m_codeGen->Cmp(Jitter::CONDITION_NE);
-        m_codeGen->Shl(4 + i);
-        m_codeGen->Or();
-    }
-
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-    m_codeGen->And();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	m_codeGen->And();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //1C

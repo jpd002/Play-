@@ -1143,7 +1143,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"WAITQ",	NULL,			NULL				},
+	{	"WAITQ",	NULL,			ReflOpAffQ			},
 	{	NULL,		NULL,			NULL				},
 	//0x10
 	{	NULL,		NULL,			NULL				},

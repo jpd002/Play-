@@ -81,21 +81,35 @@ string CRegViewVU::GetDisplayText()
 	sprintf(sLine, "R    : %+.7e (0x%0.8X)\r\n", *(float*)&pState->nCOP2R, pState->nCOP2R);
 	result += sLine;
 
-	sprintf(sLine, "MACSF: %i%i%i%ib\r\n", \
-		(pState->nCOP2SF.nV0 != 0) ? 1 : 0, \
-		(pState->nCOP2SF.nV1 != 0) ? 1 : 0, \
-		(pState->nCOP2SF.nV2 != 0) ? 1 : 0, \
-		(pState->nCOP2SF.nV3 != 0) ? 1 : 0);
-	result += sLine;
-
-	sprintf(sLine, "MACZF: %i%i%i%ib\r\n", \
-		(pState->nCOP2ZF.nV0 != 0) ? 1 : 0, \
-		(pState->nCOP2ZF.nV1 != 0) ? 1 : 0, \
-		(pState->nCOP2ZF.nV2 != 0) ? 1 : 0, \
-		(pState->nCOP2ZF.nV3 != 0) ? 1 : 0);
+	sprintf(sLine, "MACF : 0x%0.4X\r\n", pState->nCOP2MF);
 	result += sLine;
 
 	sprintf(sLine, "CLIP : 0x%0.6X\r\n", pState->nCOP2CF);
+	result += sLine;
+
+	sprintf(sLine, "PIPEQ: 0x%0.4X - %+.7e\r\n", pState->pipeQ.counter, *(float*)&pState->pipeQ.heldValue);
+	result += sLine;
+
+	unsigned int currentPipeMacCounter = pState->pipeMac.counter;
+
+	uint32 macFlagPipeValues[MACFLAG_PIPELINE_SLOTS];
+	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
+	{
+		macFlagPipeValues[i] = pState->pipeMac.slots[(i + currentPipeMacCounter) & (MACFLAG_PIPELINE_SLOTS - 1)];
+	}
+
+	sprintf(sLine, "PIPEM:%s0x%0.4X,%s0x%0.4X,%s0x%0.4X,%s0x%0.4X\r\n", 
+		(macFlagPipeValues[0] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[0] & 0xFFFF, 
+		(macFlagPipeValues[1] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[1] & 0xFFFF, 
+		(macFlagPipeValues[2] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[2] & 0xFFFF, 
+		(macFlagPipeValues[3] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[3] & 0xFFFF);
+	result += sLine;
+
+	sprintf(sLine, "      %s0x%0.4X,%s0x%0.4X,%s0x%0.4X,%s0x%0.4X\r\n", 
+		(macFlagPipeValues[4] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[4] & 0xFFFF, 
+		(macFlagPipeValues[5] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[5] & 0xFFFF, 
+		(macFlagPipeValues[6] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[6] & 0xFFFF, 
+		(macFlagPipeValues[7] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[7] & 0xFFFF);
 	result += sLine;
 
 	for(unsigned int i = 0; i < 16; i += 2)

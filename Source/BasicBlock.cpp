@@ -89,21 +89,6 @@ unsigned int CBasicBlock::Execute()
         m_context.m_State.nPC = m_end + 4;
     }
 
-//    if(m_context.m_State.pipeQ.target != MIPS_INVALID_PC)
-//    {
-//        uint32& target = m_context.m_State.pipeQ.target;
-//        if(m_end >= target)
-//        {
-//            m_context.m_State.nCOP2Q = m_context.m_State.pipeQ.heldValue;
-//            target = MIPS_INVALID_PC;
-//        }
-//        else
-//        {
-//            uint32 remain = target - m_end;
-//            target = m_context.m_State.nPC + remain - 4;
-//        }
-//    }
-
     return ((m_end - m_begin) / 4) + 1;
 }
 

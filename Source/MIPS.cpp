@@ -51,8 +51,6 @@ void CMIPS::Reset()
 {
 	memset(&m_State, 0, sizeof(MIPSSTATE));
 	m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
-	m_State.pipeP.target = MIPS_INVALID_PC;
-	m_State.pipeQ.target = MIPS_INVALID_PC;
 
 	//Set VF0[w] to 1.0
 	m_State.nCOP2[0].nV3 = 0x3F800000;
@@ -67,29 +65,6 @@ void CMIPS::ToggleBreakpoint(uint32 address)
 	}
     m_breakpoints.insert(address);
 }
-
-//void CMIPS::Step()
-//{
-//	Execute(1);
-//}
-
-//RET_CODE CMIPS::Execute(int nQuota)
-//{
-//	uint32 nPC;
-//	CCacheBlock* pB;
-//
-//	m_nQuota = nQuota;
-//
-//	nPC = m_State.nPC;
-//	nPC = m_pAddrTranslator(this, 0x00000000, nPC);
-//
-//	pB = m_pExecMap->FindBlock(nPC);
-//	if(pB == NULL)
-//	{
-//		pB = m_pExecMap->CreateBlock(nPC);
-//	}
-//	return pB->Execute(this);
-//}
 
 long CMIPS::GetBranch(uint16 nData)
 {
@@ -157,11 +132,6 @@ bool CMIPS::GenerateException(uint32 nAddress)
 
 	return true;
 }
-
-//void CMIPS::InvalidateCache()
-//{
-//	m_pExecMap->InvalidateBlocks();
-//}
 
 bool CMIPS::MustBreak()
 {
