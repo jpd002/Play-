@@ -2,9 +2,9 @@
 #include "MIPS.h"
 #include "offsetof_def.h"
 
-#define LATENCY_DIV     (7)
-#define LATENCY_SQRT    (7)
-#define LATENCY_RSQRT   (13)
+#define LATENCY_DIV     (7 - 1)
+#define LATENCY_SQRT    (7 - 1)
+#define LATENCY_RSQRT   (13 - 1)
 
 const VUShared::PIPEINFO VUShared::g_pipeInfoQ =
 {
