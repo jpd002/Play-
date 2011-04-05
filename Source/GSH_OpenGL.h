@@ -103,7 +103,7 @@ private:
 	void							InitializeRC();
     virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER) = 0;
 	void							SetReadCircuitMatrix(int, int);
-	void							LinearZOrtho(double, double, double, double);
+	void							LinearZOrtho(float, float, float, float);
 	void							UpdateViewportImpl();
 	unsigned int					GetCurrentReadCircuit();
 	unsigned int					LoadTexture(TEX0*, TEX1*, CLAMP*);
@@ -114,7 +114,7 @@ private:
 
 	uint32							RGBA16ToRGBA32(uint16);
 	uint8							MulBy2Clamp(uint8);
-	double							GetZ(double);
+	float							GetZ(float);
 	unsigned int					GetNextPowerOf2(unsigned int);
 
 	void							VertexKick(uint8, uint64);
@@ -161,7 +161,7 @@ private:
 	uint32							m_nTexWidth;
 	uint32							m_nTexHeight;
 	unsigned int					m_nTexHandle;
-	double							m_nMaxZ;
+	float							m_nMaxZ;
 
 	int								m_nWidth;
 	int								m_nHeight;

@@ -11,17 +11,16 @@ using namespace std::tr1;
 
 //#define _WIREFRAME
 
-CGSH_OpenGL::CGSH_OpenGL() :
-//m_currentPixelBuffer(0),
-m_pProgram(NULL),
-m_pVertShader(NULL),
-m_pFragShader(NULL),
-m_pCLUT(NULL),
-m_pCLUT16(NULL),
-m_pCLUT32(NULL)
+CGSH_OpenGL::CGSH_OpenGL() 
+: m_pProgram(NULL)
+, m_pVertShader(NULL)
+, m_pFragShader(NULL)
+, m_pCLUT(NULL)
+, m_pCLUT16(NULL)
+, m_pCLUT32(NULL)
+, m_pCvtBuffer(NULL)
+//, m_currentPixelBuffer(0)
 {
-	m_pCvtBuffer = NULL;
-
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
@@ -192,17 +191,17 @@ void CGSH_OpenGL::VerifyRGBA5551Support()
 	glDeleteTextures(1, &nTexture);
 }
 
-void CGSH_OpenGL::LinearZOrtho(double nLeft, double nRight, double nBottom, double nTop)
+void CGSH_OpenGL::LinearZOrtho(float nLeft, float nRight, float nBottom, float nTop)
 {
-	double nMatrix[16];
+	float nMatrix[16];
 
-	nMatrix[ 0] = 2.0 / (nRight - nLeft);
+	nMatrix[ 0] = 2.0f / (nRight - nLeft);
 	nMatrix[ 1] = 0;
 	nMatrix[ 2] = 0;
 	nMatrix[ 3] = 0;
 
 	nMatrix[ 4] = 0;
-	nMatrix[ 5] = 2.0 / (nTop - nBottom);
+	nMatrix[ 5] = 2.0f / (nTop - nBottom);
 	nMatrix[ 6] = 0;
 	nMatrix[ 7] = 0;
 
@@ -216,27 +215,25 @@ void CGSH_OpenGL::LinearZOrtho(double nLeft, double nRight, double nBottom, doub
 	nMatrix[14] = 0;
 	nMatrix[15] = 1;
 
-	glMultMatrixd(nMatrix);
+	glMultMatrixf(nMatrix);
 }
 
 void CGSH_OpenGL::UpdateViewportImpl()
 {
-	GSDISPLAY d;
-	unsigned int nW, nH;
-
 	if(m_nPMODE == 0) return;
 
+	DISPLAY d;
 	if(m_nPMODE & 0x01)
 	{
-		DECODE_DISPLAY(m_nDISPLAY1, d);
+		d <<= m_nDISPLAY1;
 	}
 	else
 	{
-		DECODE_DISPLAY(m_nDISPLAY2, d);
+		d <<= m_nDISPLAY2;
 	}
 
-	nW = (d.nW + 1) / (d.nMagX + 1);
-	nH = (d.nH + 1);
+	unsigned int nW = (d.nW + 1) / (d.nMagX + 1);
+	unsigned int nH = (d.nH + 1);
 
 	if(GetCrtIsInterlaced() && GetCrtIsFrameMode())
 	{
@@ -278,7 +275,7 @@ void CGSH_OpenGL::SetReadCircuitMatrix(int nWidth, int nHeight)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	LinearZOrtho(0, nWidth, nHeight, 0);
+	LinearZOrtho(0, static_cast<float>(nWidth), static_cast<float>(nHeight), 0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -294,7 +291,7 @@ uint8 CGSH_OpenGL::MulBy2Clamp(uint8 nValue)
 	return (nValue > 0x7F) ? 0xFF : (nValue << 1);
 }
 
-double CGSH_OpenGL::GetZ(double nZ)
+float CGSH_OpenGL::GetZ(float nZ)
 {
 	if(nZ == 0)
 	{
@@ -304,7 +301,7 @@ double CGSH_OpenGL::GetZ(double nZ)
 	if(m_fixSmallZValues && (nZ < 256))
 	{
 		//The number is small, so scale to a smaller ratio (65536)
-		return (nZ - 32768.0) / 32768.0;
+		return (nZ - 32768.0f) / 32768.0f;
 	}
 	else
 	{
@@ -505,11 +502,11 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 	switch(GetPsmPixelSize(zbuf.nPsm))
 	{
 	case 16:
-		m_nMaxZ = 32768.0;
+		m_nMaxZ = 32768.0f;
 		break;
 	default:
 	case 32:
-		m_nMaxZ = 2147483647.0;
+		m_nMaxZ = 2147483647.0f;
 		break;
 	}
 
@@ -540,11 +537,10 @@ void CGSH_OpenGL::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
 void CGSH_OpenGL::SetupFogColor()
 {
 	float nColor[4];
-	FOGCOL* pColor;
 
 	//wglMakeCurrent(m_hDC, m_hRC);
 
-	pColor = GetFogCol();
+	FOGCOL* pColor = GetFogCol();
 	nColor[0] = (float)pColor->nFCR / 255.0f;
 	nColor[1] = (float)pColor->nFCG / 255.0f;
 	nColor[2] = (float)pColor->nFCB / 255.0f;
@@ -559,9 +555,10 @@ void CGSH_OpenGL::SetupFogColor()
 
 void CGSH_OpenGL::Prim_Point()
 {
-	double nX, nY, nZ;
-	
-	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX, nY, nZ);
+	XYZ xyz;
+	xyz <<= m_VtxBuffer[0].nPosition;
+
+	float nX = xyz.GetX();	float nY = xyz.GetY();	float nZ = xyz.GetZ();
 
 	nX -= m_nPrimOfsX;
 	nY -= m_nPrimOfsY;
@@ -575,10 +572,10 @@ void CGSH_OpenGL::Prim_Point()
 
 			glColor4ub(rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
 
-			glVertex2d(nX + 0, nY + 0);
-			glVertex2d(nX + 1, nY + 0);
-			glVertex2d(nX + 1, nY + 1);
-			glVertex2d(nX + 0, nY + 1);
+			glVertex2f(nX + 0, nY + 0);
+			glVertex2f(nX + 1, nY + 0);
+			glVertex2f(nX + 1, nY + 1);
+			glVertex2f(nX + 0, nY + 1);
 
 		glEnd();
 
@@ -592,12 +589,12 @@ void CGSH_OpenGL::Prim_Point()
 
 void CGSH_OpenGL::Prim_Line()
 {
-	double nX1, nX2;
-	double nY1, nY2;
-	double nZ;
-	
-	DECODE_XYZ2(m_VtxBuffer[1].nPosition, nX1, nY1, nZ);
-	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX2, nY2, nZ);
+	XYZ xyz[2];
+	xyz[0] <<= m_VtxBuffer[1].nPosition;
+	xyz[1] <<= m_VtxBuffer[0].nPosition;
+
+	float nX1 = xyz[0].GetX();	float nY1 = xyz[0].GetY();	float nZ1 = xyz[0].GetZ();
+	float nX2 = xyz[1].GetX();	float nY2 = xyz[1].GetY();	float nZ2 = xyz[1].GetZ();
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -622,13 +619,13 @@ void CGSH_OpenGL::Prim_Line()
 
 				glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
 		
-				glVertex2d(nX1 + 0, nY1 + 0);
-				glVertex2d(nX1 + 1, nY1 + 1);
+				glVertex2f(nX1 + 0, nY1 + 0);
+				glVertex2f(nX1 + 1, nY1 + 1);
 
 				glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, rgbaq[1].nA);
 
-				glVertex2d(nX2 + 1, nY2 + 1);
-				glVertex2d(nX2 + 0, nY2 + 0);
+				glVertex2f(nX2 + 1, nY2 + 1);
+				glVertex2f(nX2 + 0, nY2 + 0);
 
 			glEnd();
 		}
@@ -637,10 +634,10 @@ void CGSH_OpenGL::Prim_Line()
 			glBegin(GL_LINES);
 
 				glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
-				glVertex2d(nX1, nY1);
+				glVertex2f(nX1, nY1);
 
 				glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, rgbaq[1].nA);
-				glVertex2d(nX2, nY2);
+				glVertex2f(nX2, nY2);
 
 			glEnd();
 		}
@@ -660,23 +657,18 @@ void CGSH_OpenGL::Prim_Line()
 
 void CGSH_OpenGL::Prim_Triangle()
 {
-	double nX1, nX2, nX3;
-	double nY1, nY2, nY3;
-	double nZ1, nZ2, nZ3;
-
-	double nU1, nU2, nU3;
-	double nV1, nV2, nV3;
-
-	double nS1, nS2, nS3;
-	double nT1, nT2, nT3;
-
 	float nF1, nF2, nF3;
 
 	RGBAQ rgbaq[3];
 
-	DECODE_XYZ2(m_VtxBuffer[2].nPosition, nX1, nY1, nZ1);
-	DECODE_XYZ2(m_VtxBuffer[1].nPosition, nX2, nY2, nZ2);
-	DECODE_XYZ2(m_VtxBuffer[0].nPosition, nX3, nY3, nZ3);
+	XYZ vertex[3];
+	vertex[0] <<= m_VtxBuffer[2].nPosition;
+	vertex[1] <<= m_VtxBuffer[1].nPosition;
+	vertex[2] <<= m_VtxBuffer[0].nPosition;
+
+	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX(), nX3 = vertex[2].GetX();
+	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY(), nY3 = vertex[2].GetY();
+	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ(), nZ3 = vertex[2].GetZ();
 
 	rgbaq[0] <<= m_VtxBuffer[2].nRGBAQ;
 	rgbaq[1] <<= m_VtxBuffer[1].nRGBAQ;
@@ -729,31 +721,32 @@ void CGSH_OpenGL::Prim_Triangle()
 		{
 			glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
 
-			DECODE_UV(m_VtxBuffer[2].nUV, nU1, nV1);
-			DECODE_UV(m_VtxBuffer[1].nUV, nU2, nV2);
-			DECODE_UV(m_VtxBuffer[0].nUV, nU3, nV3);
+			UV uv[3];
+			uv[0] <<= m_VtxBuffer[2].nUV;
+			uv[1] <<= m_VtxBuffer[1].nUV;
+			uv[2] <<= m_VtxBuffer[0].nUV;
 
-			nU1 /= (double)m_nTexWidth;
-			nU2 /= (double)m_nTexWidth;
-			nU3 /= (double)m_nTexWidth;
+			float nU1 = uv[0].GetU() / static_cast<float>(m_nTexWidth);
+			float nU2 = uv[1].GetU() / static_cast<float>(m_nTexWidth);
+			float nU3 = uv[2].GetU() / static_cast<float>(m_nTexWidth);
 
-			nV1 /= (double)m_nTexHeight;
-			nV2 /= (double)m_nTexHeight;
-			nV3 /= (double)m_nTexHeight;
+			float nV1 = uv[0].GetV() / static_cast<float>(m_nTexHeight);
+			float nV2 = uv[1].GetV() / static_cast<float>(m_nTexHeight);
+			float nV3 = uv[2].GetV() / static_cast<float>(m_nTexHeight);
 
 			glBegin(GL_TRIANGLES);
 			{
 				glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-				glTexCoord2d(nU1, nV1);
-				glVertex3d(nX1, nY1, nZ1);
+				glTexCoord2f(nU1, nV1);
+				glVertex3f(nX1, nY1, nZ1);
 
 				glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-				glTexCoord2d(nU2, nV2);
-				glVertex3d(nX2, nY2, nZ2);
+				glTexCoord2f(nU2, nV2);
+				glVertex3f(nX2, nY2, nZ2);
 
 				glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-				glTexCoord2d(nU3, nV3);
-				glVertex3d(nX3, nY3, nZ3);
+				glTexCoord2f(nU3, nV3);
+				glVertex3f(nX3, nY3, nZ3);
 			}
 			glEnd();
 
@@ -764,10 +757,14 @@ void CGSH_OpenGL::Prim_Triangle()
 		{
 			glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
 
-			DECODE_ST(m_VtxBuffer[2].nST, nS1, nT1);
-			DECODE_ST(m_VtxBuffer[1].nST, nS2, nT2);
-			DECODE_ST(m_VtxBuffer[0].nST, nS3, nT3);
-			
+			ST st[3];
+			st[0] <<= m_VtxBuffer[2].nST;
+			st[1] <<= m_VtxBuffer[1].nST;
+			st[2] <<= m_VtxBuffer[0].nST;
+
+			float nS1 = st[0].nS, nS2 = st[1].nS, nS3 = st[2].nS;
+			float nT1 = st[0].nT, nT2 = st[1].nT, nT3 = st[2].nT;
+
 			bool isQ0Neg = (rgbaq[0].nQ < 0);
 			bool isQ1Neg = (rgbaq[1].nQ < 0);
 			bool isQ2Neg = (rgbaq[2].nQ < 0);
@@ -786,22 +783,22 @@ void CGSH_OpenGL::Prim_Triangle()
 			glBegin(GL_TRIANGLES);
 			{
 				glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-                glTexCoord2d(nS1, nT1);
+                glTexCoord2f(nS1, nT1);
 				//glTexCoord4d(nS1, nT1, 0, rgbaq[0].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF1);
-				glVertex3d(nX1, nY1, nZ1);
+				glVertex3f(nX1, nY1, nZ1);
 
 				glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-                glTexCoord2d(nS2, nT2);
+                glTexCoord2f(nS2, nT2);
 //				glTexCoord4d(nS2, nT2, 0, rgbaq[1].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF2);
-				glVertex3d(nX2, nY2, nZ2);
+				glVertex3f(nX2, nY2, nZ2);
 
 				glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-                glTexCoord2d(nS3, nT3);
+                glTexCoord2f(nS3, nT3);
 //				glTexCoord4d(nS3, nT3, 0, rgbaq[2].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF3);
-				glVertex3d(nX3, nY3, nZ3);
+				glVertex3f(nX3, nY3, nZ3);
 			}
 			glEnd();
 
@@ -814,13 +811,13 @@ void CGSH_OpenGL::Prim_Triangle()
 		glBegin(GL_TRIANGLES);
 			
 			glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, MulBy2Clamp(rgbaq[0].nA));
-			glVertex3d(nX1, nY1, nZ1);
+			glVertex3f(nX1, nY1, nZ1);
 
 			glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, MulBy2Clamp(rgbaq[1].nA));
-			glVertex3d(nX2, nY2, nZ2);
+			glVertex3f(nX2, nY2, nZ2);
 
 			glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, MulBy2Clamp(rgbaq[2].nA));
-			glVertex3d(nX3, nY3, nZ3);
+			glVertex3f(nX3, nY3, nZ3);
 
 		glEnd();
 	}

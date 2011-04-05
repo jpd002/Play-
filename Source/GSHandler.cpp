@@ -962,11 +962,6 @@ unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
 
 void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 {
-	GSPRIM pr;
-	double nX, nY, nZ;
-	double nU, nV;
-	double nS, nT;
-
 	//Filtering
 	//if(!((nRegister == GS_REG_FRAME_1) || (nRegister == GS_REG_FRAME_2))) return;
 	//if(!((nRegister == GS_REG_TEST_1) || (nRegister == GS_REG_TEST_2))) return;
@@ -974,17 +969,20 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:
-		DECODE_PRIM(nData, pr);
-        CLog::GetInstance().Print(LOG_NAME, "PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
-			pr.nType, \
-			pr.nShading, \
-			pr.nTexture, \
-			pr.nFog, \
-			pr.nAlpha, \
-			pr.nAntiAliasing, \
-			pr.nUseUV, \
-			pr.nContext, \
-			pr.nUseFloat);
+		{
+			PRIM pr;
+			pr <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
+				pr.nType, \
+				pr.nShading, \
+				pr.nTexture, \
+				pr.nFog, \
+				pr.nAlpha, \
+				pr.nAntiAliasing, \
+				pr.nUseUV, \
+				pr.nContext, \
+				pr.nUseFloat);
+		}
 		break;
 	case GS_REG_RGBAQ:
 		{
@@ -999,43 +997,47 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		}
 		break;
 	case GS_REG_ST:
-		DECODE_ST(nData, nS, nT);
-		CLog::GetInstance().Print(LOG_NAME, "ST(S: %f, T: %f);\r\n", \
-			nS, \
-			nT);
+		{
+			ST st;
+			st <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "ST(S: %f, T: %f);\r\n", \
+				st.nS, \
+				st.nT);
+		}
 		break;
 	case GS_REG_UV:
-		DECODE_UV(nData, nU, nV);
-		CLog::GetInstance().Print(LOG_NAME, "UV(U: %f, V: %f);\r\n", \
-			nU, \
-			nV);
+		{
+			UV uv;
+			uv <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "UV(U: %f, V: %f);\r\n", \
+				uv.GetU(), \
+				uv.GetV());
+		}
 		break;
 	case GS_REG_XYZ2:
-		DECODE_XYZ2(nData, nX, nY, nZ);
-		CLog::GetInstance().Print(LOG_NAME, "XYZ2(%f, %f, %f);\r\n", \
-			nX, \
-			nY, \
-			nZ);
+	case GS_REG_XYZ3:
+		{
+			XYZ xyz;
+			xyz <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "%s(%f, %f, %f);\r\n",
+				(nRegister == GS_REG_XYZ2) ? "XYZ2" : "XYZ3",
+				xyz.GetX(),
+				xyz.GetY(),
+				xyz.GetZ());
+		}
 		break;
 	case GS_REG_XYZF2:
     case GS_REG_XYZF3:
 		{
 			XYZF xyzf;
 			xyzf = *reinterpret_cast<XYZF*>(&nData);
-			CLog::GetInstance().Print(LOG_NAME, "%s(%f, %f, %i, %i);\r\n", \
+			CLog::GetInstance().Print(LOG_NAME, "%s(%f, %f, %i, %i);\r\n",
                 (nRegister == GS_REG_XYZF2) ? "XYZF2" : "XYZF3",
 				xyzf.GetX(),
 				xyzf.GetY(),
 				xyzf.nZ,
 				xyzf.nF);
 		}
-		break;
-	case GS_REG_XYZ3:
-		DECODE_XYZ2(nData, nX, nY, nZ);
-		CLog::GetInstance().Print(LOG_NAME, "XYZ3(%f, %f, %f);\r\n", \
-			nX, \
-			nY, \
-			nZ);
 		break;
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:

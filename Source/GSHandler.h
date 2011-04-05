@@ -12,8 +12,6 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
-#pragma pack(push, 1)
-
 enum GS_REGS
 {
 	GS_REG_PRIM			= 0x00,
@@ -56,52 +54,6 @@ enum GS_REGS
 	GS_REG_TRXDIR		= 0x53,
 	GS_REG_FINISH		= 0x61,
 };
-
-struct GSDISPLAY
-{
-	unsigned int	nX			: 12;
-	unsigned int	nY			: 11;
-	unsigned int	nMagX		: 4;
-	unsigned int	nMagY		: 5;
-	unsigned int	nW			: 12;
-	unsigned int	nH			: 12;
-};
-
-struct GSPRIM
-{
-	unsigned int	nType			: 3;
-	unsigned int	nShading		: 1;
-	unsigned int	nTexture		: 1;
-	unsigned int	nFog			: 1;
-	unsigned int	nAlpha			: 1;
-	unsigned int 	nAntiAliasing	: 1;
-	unsigned int	nUseUV			: 1;
-	unsigned int	nContext		: 1;
-	unsigned int	nUseFloat		: 1;
-};
-
-#pragma pack(pop)
-
-#define DECODE_DISPLAY(v, d)					\
-	(d) = *(GSDISPLAY*)&(v);
-
-#define DECODE_PRIM(v, pr)						\
-	(pr) = *(GSPRIM*)&(v);
-
-#define DECODE_UV(p, u, v)						\
-	(u)  = (double)((p >>  4) & 0xFFF);			\
-	(u) += (double)((p >>  0) & 0xF) / 16.0f;	\
-	(v)  = (double)((p >> 20) & 0xFFF);			\
-	(v) += (double)((p >> 16) & 0xF) / 16.0f;
-
-#define DECODE_ST(p, s, t)						\
-	(s)  = *(float*)((uint32*)&(p) + 0);		\
-	(t)  = *(float*)((uint32*)&(p) + 1);
-
-#define DECODE_XYZ2(v, x, y, z)						\
-	(x)  = (double)(((v >>  0) & 0xFFFF)) / 16.0;	\
-	(y)  = (double)(((v >> 16) & 0xFFFF)) / 16.0;	\
-	(z)  = (double)((v >> 32) & 0xFFFFFFFF);
 
 class CGSHandler
 {
@@ -193,6 +145,23 @@ protected:
 		uint32			GetBufPtr()		{ return nBufPtr * 8192; };
 		uint32			GetBufWidth()	{ return nBufWidth * 64; };
 	};
+
+	//Reg 0x00
+	struct PRIM : public convertible<uint64>
+	{
+		unsigned int	nType			: 3;
+		unsigned int	nShading		: 1;
+		unsigned int	nTexture		: 1;
+		unsigned int	nFog			: 1;
+		unsigned int	nAlpha			: 1;
+		unsigned int 	nAntiAliasing	: 1;
+		unsigned int	nUseUV			: 1;
+		unsigned int	nContext		: 1;
+		unsigned int	nUseFloat		: 1;
+		unsigned int	nReserved0		: 21;
+		uint32			nReserved1;
+	};
+    BOOST_STATIC_ASSERT(sizeof(PRIM) == sizeof(uint64));
 
 	//Reg 0x01
 	struct RGBAQ : public convertible<uint64>
@@ -484,6 +453,17 @@ protected:
 		unsigned int	nRRH			: 12;
 		unsigned int	nReserved1		: 20;
 	};
+
+	struct DISPLAY : public convertible<uint64>
+	{
+		unsigned int	nX			: 12;
+		unsigned int	nY			: 11;
+		unsigned int	nMagX		: 4;
+		unsigned int	nMagY		: 5;
+		unsigned int	nW			: 12;
+		unsigned int	nH			: 12;
+	};
+    BOOST_STATIC_ASSERT(sizeof(DISPLAY) == sizeof(uint64));
 
 	struct TRXCONTEXT
 	{

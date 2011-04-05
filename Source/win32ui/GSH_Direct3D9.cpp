@@ -224,17 +224,16 @@ float CGSH_Direct3D9::GetZ(float nZ)
 
 void CGSH_Direct3D9::UpdateViewportImpl()
 {
-	GSDISPLAY d;
-
 	if(m_nPMODE == 0) return;
 
+	DISPLAY d;
 	if(m_nPMODE & 0x01)
 	{
-		DECODE_DISPLAY(m_nDISPLAY1, d);
+		d <<= m_nDISPLAY1;
 	}
 	else
 	{
-		DECODE_DISPLAY(m_nDISPLAY2, d);
+		d <<= m_nDISPLAY2;
 	}
 
 	unsigned int nW = (d.nW + 1) / (d.nMagX + 1);
