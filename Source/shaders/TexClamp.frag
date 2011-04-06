@@ -6,11 +6,10 @@ uniform ivec2		g_nClamp;
 
 float and(int a, int b)
 {
-	int m;
 	int r = 0;
 	int ha, hb;
 	
-	m = int(min(float(a), float(b)));
+	int m = int(min(float(a), float(b)));
 	
 	for(int k = 1; k <= m; k *= 2)
 	{
@@ -29,11 +28,10 @@ float and(int a, int b)
 
 float or(int a, int b)
 {
-	int m;
 	int r = 0;
 	int ha, hb;
 	
-	m = int(max(float(a), float(b)));
+	int m = int(max(float(a), float(b)));
 	
 	for(int k = 1; k <= m; k *= 2)
 	{
@@ -74,9 +72,7 @@ float Clamp(int nClampMode, float nCoord, int nMin, int nMax)
 
 void main()
 {
-	vec4 nTexCoord;
-
-	nTexCoord = gl_TexCoord[0];
+	vec4 nTexCoord = gl_TexCoord[0];
 	
 	nTexCoord.st *= g_nSize.st;
 
@@ -85,5 +81,5 @@ void main()
 
 	nTexCoord.st /= g_nSize.st;
 
-	gl_FragColor = texture2D(g_nTexture, nTexCoord.st);
+	gl_FragColor = texture2D(g_nTexture, nTexCoord.st) * gl_Color;
 }

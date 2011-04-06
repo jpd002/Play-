@@ -6,7 +6,7 @@
 #include "Jitter.h"
 #include "offsetof_def.h"
 
-char*		CCOP_SCU::m_sRegName[] = 
+const char* CCOP_SCU::m_sRegName[] = 
 {
 	"Index",
 	"Random",

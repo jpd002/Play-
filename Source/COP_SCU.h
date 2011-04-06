@@ -15,14 +15,14 @@ public:
 		ERROREPC	= 0x1E,
 	};
 
-						CCOP_SCU(MIPS_REGSIZE);
-	virtual void		CompileInstruction(uint32, CMipsJitter*, CMIPS*);
-	virtual void		GetInstruction(uint32, char*);
-	virtual void		GetArguments(uint32, uint32, char*);
-	virtual uint32		GetEffectiveAddress(uint32, uint32);
-	virtual bool		IsBranch(uint32);
+							CCOP_SCU(MIPS_REGSIZE);
+	virtual void			CompileInstruction(uint32, CMipsJitter*, CMIPS*);
+	virtual void			GetInstruction(uint32, char*);
+	virtual void			GetArguments(uint32, uint32, char*);
+	virtual uint32			GetEffectiveAddress(uint32, uint32);
+	virtual bool			IsBranch(uint32);
 
-	static char*		m_sRegName[];
+	static const char*		m_sRegName[];
 
 private:
 	typedef void (CCOP_SCU::*InstructionFuncConstant)();
@@ -31,23 +31,23 @@ private:
     static InstructionFuncConstant  m_pOpBC0[0x20];
 	static InstructionFuncConstant  m_pOpC0[0x40];
 
-	uint8		    m_nRT;
-	uint8           m_nRD;
+	uint8					m_nRT;
+	uint8					m_nRD;
 
 	//General
-	void			MFC0();
-	void			MTC0();
-    void            BC0();
-	void			C0();
+	void					MFC0();
+	void					MTC0();
+    void					BC0();
+	void					C0();
 
     //BC0
-    void            BC0F();
-    void            BC0T();
+    void					BC0F();
+    void					BC0T();
 
 	//C0
-	void			ERET();
-	void			EI();
-	void			DI();
+	void					ERET();
+	void					EI();
+	void					DI();
 };
 
 #endif
