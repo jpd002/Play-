@@ -53,7 +53,7 @@ bool CSaveImporter::CanExtractFile(const filesystem::path& Path)
 
 	OVERWRITE_PROMPT_RETURN nReturn;
 
-	nReturn = m_OverwritePromptFunction(filesystem::complete(Path).string());
+	nReturn = m_OverwritePromptFunction(filesystem::absolute(Path).string());
 
 	switch(nReturn)
 	{

@@ -181,7 +181,7 @@ void CPS2OS::BootFromFile(const char* sPath)
 {
 	filesystem::path ExecPath(sPath, filesystem::native);
     CStdStream stream(fopen(ExecPath.string().c_str(), "rb"));
-	LoadELF(stream, ExecPath.leaf().c_str());
+	LoadELF(stream, ExecPath.filename().string().c_str());
 }
 
 void CPS2OS::BootFromCDROM()

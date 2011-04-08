@@ -902,7 +902,7 @@ void CMainWindow::LoadArchive(const char* path)
 				fileIterator != archive->GetFilesEnd(); fileIterator++)
 			{
 				boost::filesystem::path filePath(fileIterator->name);
-				std::string fileExtension = filePath.extension();
+				std::string fileExtension = filePath.extension().string();
 				if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
 				{
 					CPlaylist::ITEM newItem;

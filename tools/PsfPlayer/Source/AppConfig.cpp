@@ -37,7 +37,7 @@ Framework::CConfig::PathType CAppConfig::Utf8ToPath(const char* path)
 
 std::string CAppConfig::PathToUtf8(const CConfig::PathType& path)
 {
-	return Framework::Utf8::ConvertTo(path.string());
+	return Framework::Utf8::ConvertTo(path.wstring());
 }
 
 Framework::CConfig::PathType CAppConfig::BuildConfigPath()

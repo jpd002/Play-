@@ -46,7 +46,7 @@ CConfig::PathType CAppConfig::Utf8ToPath(const char* path)
 string CAppConfig::PathToUtf8(const CConfig::PathType& path)
 {
 //#if defined(WIN32)
-    return Utf8::ConvertTo(path.string());
+    return Utf8::ConvertTo(path.wstring());
 //#else
 //    return path.string();
 //#endif

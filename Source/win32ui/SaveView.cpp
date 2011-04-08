@@ -194,7 +194,7 @@ long CSaveView::OpenSaveFolder()
 {
 	if(m_pSave == NULL) return FALSE;
 
-	filesystem::path Path(filesystem::complete(m_pSave->GetPath()));
+	filesystem::path Path(filesystem::absolute(m_pSave->GetPath()));
 
 	ShellExecuteA(m_hWnd, "open", Path.string().c_str(), NULL, NULL, SW_SHOW);
 

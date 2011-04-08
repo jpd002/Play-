@@ -41,7 +41,7 @@ void CSaveExporter::ExportPSU(ostream& Output, const char* sSavePath)
 		PSU_CopyTime(&Entry.CreationTime,		&BaseTime);
 		PSU_CopyTime(&Entry.ModificationTime,	&BaseTime);
 
-		strncpy(reinterpret_cast<char*>(Entry.sName), SavePath.leaf().c_str(), 0x1C0);
+		strncpy(reinterpret_cast<char*>(Entry.sName), SavePath.filename().string().c_str(), 0x1C0);
 
 		Output.write(reinterpret_cast<char*>(&Entry), sizeof(PSUENTRY));
 	}
@@ -80,28 +80,29 @@ void CSaveExporter::ExportPSU(ostream& Output, const char* sSavePath)
 	{
 		if(filesystem::is_directory(*itElement)) continue;
 
+		boost::filesystem::path savePath(*itElement);
+
 		PSUENTRY Entry;
 		uint32 nSize;
-		posix_time::ptime FileTime;
 
-		FileTime = posix_time::from_time_t(filesystem::last_write_time(*itElement));
+		posix_time::ptime FileTime = posix_time::from_time_t(filesystem::last_write_time(savePath));
 
 		memset(&Entry, 0, sizeof(PSUENTRY));
 
 		Entry.nFlags					= 0x8497;
-		Entry.nSize						= static_cast<uint32>(filesystem::file_size(*itElement));
+		Entry.nSize						= static_cast<uint32>(filesystem::file_size(savePath));
 		Entry.nSector					= nSector;
 
 		PSU_CopyTime(&Entry.CreationTime,		&FileTime);
 		PSU_CopyTime(&Entry.ModificationTime,	&FileTime);
 
-		strncpy(reinterpret_cast<char*>(Entry.sName), (*itElement).leaf().c_str(), 0x1C0);
+		strncpy(reinterpret_cast<char*>(Entry.sName), savePath.filename().string().c_str(), 0x1C0);
 
 		Output.write(reinterpret_cast<char*>(&Entry), sizeof(PSUENTRY));
 
 		//Write file contents
 		{
-			ifstream Input((*itElement).string().c_str(), ios::in | ios::binary);
+			ifstream Input(savePath.string().c_str(), ios::in | ios::binary);
 			nSize = Entry.nSize;
 
 			while(nSize != 0)

@@ -42,7 +42,7 @@ m_BasePath(BasePath)
 	IconFile.read(sBuffer, 64);
 	m_sDeletingIconFileName = sBuffer;
 
-	m_sId = m_BasePath.leaf().c_str();
+	m_sId = m_BasePath.filename().string().c_str();
 
 	m_nLastModificationTime = filesystem::last_write_time(IconSysPath);
 }

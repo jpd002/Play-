@@ -212,7 +212,7 @@ void CMcManagerWnd::Delete(const CSave* pSave)
 
 	if(nReturn == IDNO) return;
 
-	tstring sPath = string_cast<tstring>(filesystem::complete(pSave->GetPath()).string());
+	tstring sPath = string_cast<tstring>(filesystem::absolute(pSave->GetPath()).string());
 	m_pMemoryCardView->SetMemoryCard(NULL);
 
 	transform(sPath.begin(), sPath.end(), sPath.begin(), WinUtils::FixSlashes);

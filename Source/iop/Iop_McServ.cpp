@@ -395,7 +395,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
             m_pathFinder.Reset();
 
 		    filesystem::path McPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
-		    McPath = filesystem::complete(McPath);
+			McPath = filesystem::absolute(McPath);
 
 		    if(filesystem::exists(McPath))
 		    {
@@ -503,19 +503,20 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& Path)
 		itElement != itEnd;
 		itElement++)
 	{
-		string sRelativePath((*itElement).string());
+		boost::filesystem::path relativePath(*itElement);
+		std::string relativePathString(relativePath.generic_string());
 
 		//"Extract" a more appropriate relative path from the memory card point of view
-		sRelativePath.erase(0, m_BasePath.string().size());
+		relativePathString.erase(0, m_BasePath.string().size());
 
 		//Attempt to match this against the filter
-		if((*this.*m_matcher)(sRelativePath.c_str()))
+		if((*this.*m_matcher)(relativePathString.c_str()))
 		{
 			//Fill in the information
             ENTRY entry;
 
             //strncpy(reinterpret_cast<char*>(pEntry->sName), sRelativePath.c_str(), 0x1F);
-            strncpy(reinterpret_cast<char*>(entry.sName), (*itElement).leaf().c_str(), 0x1F);
+            strncpy(reinterpret_cast<char*>(entry.sName), relativePath.filename().string().c_str(), 0x1F);
             entry.sName[0x1F] = 0;
 
             if(filesystem::is_directory(*itElement))

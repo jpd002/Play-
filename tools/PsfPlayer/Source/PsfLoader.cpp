@@ -66,7 +66,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 		{
 			filesystem::path path(pathString); 
 			path = path.branch_path() / libPath;
-			LoadPsxRecurse(virtualMachine, bios, path.string().c_str(), streamProvider);
+			LoadPsxRecurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
 			sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			pc = virtualMachine.GetCpu().m_State.nPC;
 		}
@@ -94,7 +94,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 			path = path.branch_path() / libPath;
 			uint32 sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			uint32 pc = virtualMachine.GetCpu().m_State.nPC;
-			LoadPsxRecurse(virtualMachine, bios, path.string().c_str(), streamProvider);
+			LoadPsxRecurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
 			virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nD0 = static_cast<int32>(sp);
 			virtualMachine.GetCpu().m_State.nPC = pc;
 			currentLib++;
@@ -134,7 +134,7 @@ void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, con
 	{
 		filesystem::path path(pathString); 
 		path = path.branch_path() / libPath;
-		LoadPs2Recurse(virtualMachine, bios, path.string().c_str(), streamProvider);
+		LoadPs2Recurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
 	}
 	bios->AppendArchive(psfFile);
 }
@@ -170,7 +170,7 @@ void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, con
 	{
 		filesystem::path path(pathString); 
 		path = path.branch_path() / libPath;
-		LoadPspRecurse(virtualMachine, bios, path.string().c_str(), streamProvider);
+		LoadPspRecurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
 	}
 	bios->AppendArchive(psfFile);
 }
