@@ -74,7 +74,10 @@ public:
 
 	virtual void							WritePrivRegister(uint32, uint32);
 	virtual uint32							ReadPrivRegister(uint32);
+	
 	void									DisassembleWrite(uint8, uint64);
+	void									DisassemblePrivWrite(uint32);
+
 	virtual void							SetVBlank();
 	void									ResetVBlank();
 
@@ -96,10 +99,15 @@ public:
 
 	boost::signal<void ()>                  OnNewFrame;
 
-    enum PRIVATE_REGISTER
+	enum PRIVATE_REGISTER
 	{
-		GS_CSR = 0x12001000,
-		GS_IMR = 0x12001010,
+		GS_PMODE	= 0x12000000,
+		GS_DISPFB1	= 0x12000070,
+		GS_DISPLAY1	= 0x12000080,
+		GS_DISPFB2	= 0x12000090,
+		GS_DISPLAY2 = 0x120000A0,
+		GS_CSR		= 0x12001000,
+		GS_IMR		= 0x12001010,
 	};
 
 	enum

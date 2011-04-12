@@ -299,9 +299,9 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 
 void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 {
-	switch(nAddress >> 4)
+	switch(nAddress & ~0x0F)
 	{
-	case 0x1200000:
+	case GS_PMODE:
 		W_REG(nAddress, nData, m_nPMODE);
 		if(!(nAddress & 0x4))
 		{
@@ -312,43 +312,20 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			}
 		}
 		break;
-	case 0x1200007:
+	case GS_DISPFB1:
 		W_REG(nAddress, nData, m_nDISPFB1);
-		if(nAddress & 0x04)
-		{
-#ifdef _DEBUG
-			DISPFB* dispfb;
-			dispfb = GetDispFb(0);
-            CLog::GetInstance().Print(LOG_NAME, "DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
-				dispfb->GetBufPtr(), \
-				dispfb->GetBufWidth(), \
-				dispfb->nPSM, \
-				dispfb->nX, \
-				dispfb->nY);
-#endif
-		}
 		break;
-	case 0x1200008:
+	case GS_DISPLAY1:
 		W_REG(nAddress, nData, m_nDISPLAY1);
 		if(nAddress & 0x04)
 		{
 			UpdateViewport();
 		}
 		break;
-	case 0x1200009:
+	case GS_DISPFB2:
 		W_REG(nAddress, nData, m_nDISPFB2);
 		if(nAddress & 0x04)
 		{
-#ifdef _DEBUG
-			DISPFB* dispfb;
-			dispfb = GetDispFb(1);
-            CLog::GetInstance().Print(LOG_NAME, "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
-				dispfb->GetBufPtr(), \
-				dispfb->GetBufWidth(), \
-				dispfb->nPSM, \
-				dispfb->nX, \
-				dispfb->nY);
-#endif
             //Speed hack for Atelier Iris
 			if((m_nPMODE & 0x03) != 0x03)
 			{
@@ -356,14 +333,14 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			}
 		}
 		break;
-	case 0x120000A:
+	case GS_DISPLAY2:
 		W_REG(nAddress, nData, m_nDISPLAY2);
 		if(nAddress & 0x04)
 		{
 			UpdateViewport();
 		}
 		break;
-	case 0x1200100:
+	case GS_CSR:
 		{
 			if(!(nAddress & 0x04))
 			{
@@ -385,13 +362,20 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			}
 		}
 		break;
-	case 0x1200101:
+	case GS_IMR:
 		W_REG(nAddress, nData, m_nIMR);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled priviledged register (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
 		break;
 	}
+
+#ifdef _DEBUG
+	if(nAddress & 0x04)
+	{
+		DisassemblePrivWrite(nAddress);
+	}
+#endif
 }
 
 void CGSHandler::Initialize()
@@ -1253,6 +1237,72 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown command (0x%X).\r\n", nRegister); 
+		break;
+	}
+}
+
+void CGSHandler::DisassemblePrivWrite(uint32 address)
+{
+	assert((address & 0x04) != 0);
+
+	switch(address & ~0x0F)
+	{
+	case GS_PMODE:
+		CLog::GetInstance().Print(LOG_NAME, "PMODE(0x%0.8X);\r\n", m_nPMODE);
+		break;
+	case GS_DISPFB1:
+		{
+			DISPFB* dispfb = GetDispFb(0);
+			CLog::GetInstance().Print(LOG_NAME, "DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+				dispfb->GetBufPtr(), \
+				dispfb->GetBufWidth(), \
+				dispfb->nPSM, \
+				dispfb->nX, \
+				dispfb->nY);
+		}
+		break;
+	case GS_DISPLAY1:
+		{
+			DISPLAY display;
+			display <<= m_nDISPLAY1;
+			CLog::GetInstance().Print(LOG_NAME, "DISPLAY1(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
+				display.nX,
+				display.nY,
+				display.nMagX,
+				display.nMagY,
+				display.nW,
+				display.nH);
+		}
+		break;
+	case GS_DISPFB2:
+		{
+			DISPFB* dispfb = GetDispFb(1);
+            CLog::GetInstance().Print(LOG_NAME, "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+				dispfb->GetBufPtr(), \
+				dispfb->GetBufWidth(), \
+				dispfb->nPSM, \
+				dispfb->nX, \
+				dispfb->nY);
+		}
+		break;
+	case GS_DISPLAY2:
+		{
+			DISPLAY display;
+			display <<= m_nDISPLAY2;
+			CLog::GetInstance().Print(LOG_NAME, "DISPLAY2(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
+				display.nX,
+				display.nY,
+				display.nMagX,
+				display.nMagY,
+				display.nW,
+				display.nH);
+		}
+		break;
+	case GS_CSR:
+		//CSR
+		break;
+	case GS_IMR:
+		//IMR
 		break;
 	}
 }
