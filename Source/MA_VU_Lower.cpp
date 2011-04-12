@@ -272,29 +272,24 @@ void CMA_VU::CLower::FCAND()
 //13
 void CMA_VU::CLower::FCOR()
 {
-	//Reimplement
-	assert(0);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+	m_codeGen->PushCst(m_nImm24);
+	m_codeGen->Or();
+	m_codeGen->PushCst(0xFFFFFF);
+	m_codeGen->And();
 
-    //m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-    //m_codeGen->PushCst(m_nImm24);
-    //m_codeGen->Or();
-    //m_codeGen->PushCst(0xFFFFFF);
-    //m_codeGen->And();
-
-    //m_codeGen->PushCst(0xFFFFFF);
-    //m_codeGen->Cmp(Jitter::CONDITION_EQ);
-
-    //m_codeGen->BeginIfElse(true);
-    //{
-    //    m_codeGen->PushCst(1);
-    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    //}
-    //m_codeGen->BeginIfElseAlt();
-    //{
-    //    m_codeGen->PushCst(0);
-    //    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
-    //}
-    //m_codeGen->EndIf();
+	m_codeGen->PushCst(0xFFFFFF);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		m_codeGen->PushCst(1);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+	}
+	m_codeGen->Else();
+	{
+		m_codeGen->PushCst(0);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
+	}
+	m_codeGen->EndIf();
 }
 
 //16
