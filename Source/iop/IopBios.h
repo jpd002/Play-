@@ -95,7 +95,7 @@ public:
     void                    StartThread(uint32, uint32* = NULL);
 	void					DeleteThread(uint32);
     void                    DelayThread(uint32);
-    THREAD&                 GetThread(uint32);
+    THREAD*                 GetThread(uint32);
     uint32                  GetCurrentThreadId();
     void                    SleepThread();
     uint32                  WakeupThread(uint32, bool);

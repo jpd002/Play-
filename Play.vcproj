@@ -919,22 +919,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\iop\Iop_Unknown.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\iop\Iop_Unknown.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\iop\Iop_Unknown2.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\iop\Iop_Unknown2.h"
-						>
-					</File>
-					<File
 						RelativePath=".\Source\iop\Iop_Vblank.cpp"
 						>
 					</File>

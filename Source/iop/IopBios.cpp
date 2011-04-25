@@ -17,8 +17,6 @@
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
 #include "Iop_FileIo.h"
-#include "Iop_Unknown.h"
-#include "Iop_Unknown2.h"
 #endif
 
 #include "Iop_SifManNull.h"
@@ -192,14 +190,6 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
         m_padman = new Iop::CPadMan(*m_sifMan);
         RegisterModule(m_padman);
     }
-
-    //Custom modules
-    //{
-    //    RegisterModule(new Iop::CUnknown(*m_sifMan));
-    //}
-    //{
-    //    RegisterModule(new Iop::CUnknown2(*m_sifMan));
-    //}
 #endif
 
     const int sifDmaBufferSize = 0x1000;
@@ -318,13 +308,13 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
     }
 
     uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY, DEFAULT_STACKSIZE);
-    THREAD& thread = GetThread(threadId);
+    THREAD* thread = GetThread(threadId);
 
     typedef std::vector<uint32> ParamListType;
     ParamListType paramList;
 
     paramList.push_back(Push(
-        thread.context.gpr[CMIPS::SP],
+        thread->context.gpr[CMIPS::SP],
         reinterpret_cast<const uint8*>(path),
         static_cast<uint32>(strlen(path)) + 1));
     if(argsLength != 0 && args != NULL)
@@ -336,25 +326,25 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
             unsigned int argLength = static_cast<unsigned int>(strlen(arg)) + 1;
             argsPos += argLength;
             uint32 argAddress = Push(
-                thread.context.gpr[CMIPS::SP],
+                thread->context.gpr[CMIPS::SP],
                 reinterpret_cast<const uint8*>(arg),
                 static_cast<uint32>(argLength));
             paramList.push_back(argAddress);
         }
     }
-    thread.context.gpr[CMIPS::A0] = static_cast<uint32>(paramList.size());
+    thread->context.gpr[CMIPS::A0] = static_cast<uint32>(paramList.size());
     for(ParamListType::reverse_iterator param(paramList.rbegin());
         paramList.rend() != param; param++)
     {
-        thread.context.gpr[CMIPS::A1] = Push(
-            thread.context.gpr[CMIPS::SP],
+        thread->context.gpr[CMIPS::A1] = Push(
+            thread->context.gpr[CMIPS::SP],
             reinterpret_cast<const uint8*>(&(*param)),
             4);
     }
-	thread.context.gpr[CMIPS::SP] -= 4;
+	thread->context.gpr[CMIPS::SP] -= 4;
     if(iopMod != NULL)
     {
-        thread.context.gpr[CMIPS::GP] = iopMod->gp + moduleRange.first;
+        thread->context.gpr[CMIPS::GP] = iopMod->gp + moduleRange.first;
     }
 
     StartThread(threadId);
@@ -479,9 +469,9 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 	}
 }
 
-CIopBios::THREAD& CIopBios::GetThread(uint32 threadId)
+CIopBios::THREAD* CIopBios::GetThread(uint32 threadId)
 {
-    return *m_threads[threadId];
+    return m_threads[threadId];
 }
 
 uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize)
@@ -536,15 +526,22 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
         CurrentThreadId(), threadId, param);
 #endif
 
-    THREAD& thread = GetThread(threadId);
-    if(thread.status != THREAD_STATUS_CREATED)
+    THREAD* thread = GetThread(threadId);
+	assert(thread != NULL);
+
+	if(thread == NULL)
+	{
+		return;
+	}
+
+    if(thread->status != THREAD_STATUS_CREATED)
     {
         throw std::runtime_error("Invalid thread state.");
     }
-    thread.status = THREAD_STATUS_RUNNING;
+    thread->status = THREAD_STATUS_RUNNING;
     if(param != NULL)
     {
-        thread.context.gpr[CMIPS::A0] = *param;
+        thread->context.gpr[CMIPS::A0] = *param;
     }
     m_rescheduleNeeded = true;
 }
@@ -557,8 +554,8 @@ void CIopBios::DelayThread(uint32 delay)
 #endif
 
     //TODO : Need to delay or something...
-    THREAD& thread = GetThread(CurrentThreadId());
-    thread.nextActivateTime = GetCurrentTime() + MicroSecToClock(delay);
+    THREAD* thread = GetThread(CurrentThreadId());
+    thread->nextActivateTime = GetCurrentTime() + MicroSecToClock(delay);
     m_rescheduleNeeded = true;
 }
 
@@ -569,19 +566,19 @@ void CIopBios::SleepThread()
         CurrentThreadId());
 #endif
 
-    THREAD& thread = GetThread(CurrentThreadId());
-    if(thread.status != THREAD_STATUS_RUNNING)
+    THREAD* thread = GetThread(CurrentThreadId());
+    if(thread->status != THREAD_STATUS_RUNNING)
     {
         throw std::runtime_error("Thread isn't running.");
     }
-    if(thread.wakeupCount == 0)
+    if(thread->wakeupCount == 0)
     {
-        thread.status = THREAD_STATUS_SLEEPING;
+        thread->status = THREAD_STATUS_SLEEPING;
         m_rescheduleNeeded = true;
     }
     else
     {
-        thread.wakeupCount--;
+        thread->wakeupCount--;
     }
 }
 
@@ -592,10 +589,10 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
         CurrentThreadId(), threadId);
 #endif
 
-    THREAD& thread = GetThread(threadId);
-    if(thread.status == THREAD_STATUS_SLEEPING)
+    THREAD* thread = GetThread(threadId);
+    if(thread->status == THREAD_STATUS_SLEEPING)
     {
-        thread.status = THREAD_STATUS_RUNNING;
+        thread->status = THREAD_STATUS_RUNNING;
 		if(!inInterrupt)
 		{
 			m_rescheduleNeeded = true;
@@ -603,9 +600,9 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
     }
     else
     {
-        thread.wakeupCount++;
+        thread->wakeupCount++;
     }
-    return thread.wakeupCount;
+    return thread->wakeupCount;
 }
 
 uint32 CIopBios::GetCurrentThreadId()
@@ -625,30 +622,30 @@ void CIopBios::ExitCurrentThread()
 
 void CIopBios::LoadThreadContext(uint32 threadId)
 {
-    THREAD& thread = GetThread(threadId);
+    THREAD* thread = GetThread(threadId);
     for(unsigned int i = 0; i < 32; i++)
     {
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-        m_cpu.m_State.nGPR[i].nD0 = static_cast<int32>(thread.context.gpr[i]);
+        m_cpu.m_State.nGPR[i].nD0 = static_cast<int32>(thread->context.gpr[i]);
     }
-    m_cpu.m_State.nPC = thread.context.epc;
-    m_cpu.m_State.nDelayedJumpAddr = thread.context.delayJump;
+    m_cpu.m_State.nPC = thread->context.epc;
+    m_cpu.m_State.nDelayedJumpAddr = thread->context.delayJump;
 }
 
 void CIopBios::SaveThreadContext(uint32 threadId)
 {
-    THREAD& thread = GetThread(threadId);
+    THREAD* thread = GetThread(threadId);
     for(unsigned int i = 0; i < 32; i++)
     {
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-        thread.context.gpr[i] = m_cpu.m_State.nGPR[i].nV0;
+        thread->context.gpr[i] = m_cpu.m_State.nGPR[i].nV0;
     }
-    thread.context.epc = m_cpu.m_State.nPC;
-    thread.context.delayJump = m_cpu.m_State.nDelayedJumpAddr;
+    thread->context.epc = m_cpu.m_State.nPC;
+    thread->context.delayJump = m_cpu.m_State.nDelayedJumpAddr;
 }
 
 void CIopBios::LinkThread(uint32 threadId)
@@ -878,9 +875,9 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 
     if(semaphore->count == 0)
     {
-        THREAD& thread = GetThread(CurrentThreadId());
-        thread.status           = THREAD_STATUS_WAITING;
-        thread.waitSemaphore    = semaphoreId;
+        THREAD* thread = GetThread(CurrentThreadId());
+        thread->status           = THREAD_STATUS_WAITING;
+        thread->waitSemaphore    = semaphoreId;
         semaphore->waitCount++;
         m_rescheduleNeeded      = true;
     }
