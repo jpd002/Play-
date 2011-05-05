@@ -62,7 +62,7 @@
 #define     ONSCREEN_TICKS      (FRAME_TICKS * 9 / 10)
 #define     VBLANK_TICKS        (FRAME_TICKS / 10)
 
-#define     SPU_UPDATE_TICKS    (1000)
+#define     SPU_UPDATE_TICKS    (FRAME_TICKS / 2)
 
 #define		FAKE_IOP_RAM_SIZE	(0x1000)
 
@@ -1163,6 +1163,7 @@ void CPS2VM::EmuThread()
 				{
 					m_nVBlankTicks += VBLANK_TICKS;
                     m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
+					m_iop.NotifyVBlankStart();
 
                     if(m_pGS != NULL)
                     {
@@ -1179,6 +1180,7 @@ void CPS2VM::EmuThread()
 				{
 					m_nVBlankTicks += ONSCREEN_TICKS;
                     m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
+					m_iop.NotifyVBlankEnd();
 					if(m_pGS != NULL)
 					{
 						m_pGS->ResetVBlank();
@@ -1239,6 +1241,7 @@ void CPS2VM::EmuThread()
                     if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
                     {
                         m_nVBlankTicks -= skipAmount;
+						m_spuUpdateTicks -= skipAmount;
                     }
                     else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
                     {

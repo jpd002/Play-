@@ -69,6 +69,16 @@ void CSubSystem::SetBios(const BiosPtr& bios)
     m_bios = bios;
 }
 
+void CSubSystem::NotifyVBlankStart()
+{
+	m_bios->NotifyVBlankStart();
+}
+
+void CSubSystem::NotifyVBlankEnd()
+{
+	m_bios->NotifyVBlankEnd();
+}
+
 void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 {
     archive.InsertFile(new CMemoryStateFile(STATE_CPU,      &m_cpu.m_State, sizeof(MIPSSTATE)));

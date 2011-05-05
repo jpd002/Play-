@@ -19,6 +19,9 @@ namespace Iop
         virtual void				HandleInterrupt() = 0;
 	    virtual void				CountTicks(uint32) = 0;
 
+		virtual void				NotifyVBlankStart() = 0;
+		virtual void				NotifyVBlankEnd() = 0;
+
         virtual bool                IsIdle() = 0;
 
 	    virtual void		        SaveState(Framework::CZipArchiveWriter&) = 0;

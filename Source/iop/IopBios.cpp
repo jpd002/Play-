@@ -605,6 +605,20 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
     return thread->wakeupCount;
 }
 
+void CIopBios::SleepThreadTillVBlankStart()
+{
+	THREAD* thread = GetThread(CurrentThreadId());
+	thread->status = THREAD_STATUS_WAIT_VBLANK_START;
+	m_rescheduleNeeded = true;
+}
+
+void CIopBios::SleepThreadTillVBlankEnd()
+{
+	THREAD* thread = GetThread(CurrentThreadId());
+	thread->status = THREAD_STATUS_WAIT_VBLANK_END;
+	m_rescheduleNeeded = true;
+}
+
 uint32 CIopBios::GetCurrentThreadId()
 {
     return CurrentThreadId();
@@ -762,6 +776,34 @@ uint64 CIopBios::ClockToMicroSec(uint64 clock)
 void CIopBios::CountTicks(uint32 ticks)
 {
 	CurrentTime() += ticks;
+}
+
+void CIopBios::NotifyVBlankStart()
+{
+	uint32 nextThreadId = ThreadLinkHead();
+	while(nextThreadId != 0)
+	{
+		THREAD* nextThread = m_threads[nextThreadId];
+		nextThreadId = nextThread->nextThreadId;
+		if(nextThread->status == THREAD_STATUS_WAIT_VBLANK_START)
+		{
+			nextThread->status = THREAD_STATUS_RUNNING;
+		}
+	}
+}
+
+void CIopBios::NotifyVBlankEnd()
+{
+	uint32 nextThreadId = ThreadLinkHead();
+	while(nextThreadId != 0)
+	{
+		THREAD* nextThread = m_threads[nextThreadId];
+		nextThreadId = nextThread->nextThreadId;
+		if(nextThread->status == THREAD_STATUS_WAIT_VBLANK_END)
+		{
+			nextThread->status = THREAD_STATUS_RUNNING;
+		}
+	}
 }
 
 uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)

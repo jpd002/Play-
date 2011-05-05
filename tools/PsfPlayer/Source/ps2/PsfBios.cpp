@@ -60,6 +60,16 @@ void CPsfBios::LoadState(CZipArchiveReader& archive)
 
 }
 
+void CPsfBios::NotifyVBlankStart()
+{
+	m_bios.NotifyVBlankStart();
+}
+
+void CPsfBios::NotifyVBlankEnd()
+{
+	m_bios.NotifyVBlankEnd();
+}
+
 bool CPsfBios::IsIdle()
 {
     return m_bios.IsIdle();

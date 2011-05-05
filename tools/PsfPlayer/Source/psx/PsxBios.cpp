@@ -120,6 +120,16 @@ void CPsxBios::LoadState(CZipArchiveReader& archive)
 
 }
 
+void CPsxBios::NotifyVBlankStart()
+{
+
+}
+
+void CPsxBios::NotifyVBlankEnd()
+{
+
+}
+
 bool CPsxBios::IsIdle()
 {
     return false;

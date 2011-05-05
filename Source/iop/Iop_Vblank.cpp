@@ -60,15 +60,15 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 void CVblank::WaitVblankStart()
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANKSTART "();\r\n");
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANKSTART "();\r\n");
 #endif
-    m_bios.DelayThread(16 * 1000);
+	m_bios.SleepThreadTillVBlankStart();
 }
 
 void CVblank::WaitVblankEnd()
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANKEND "();\r\n");
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANKEND "();\r\n");
 #endif
-    m_bios.DelayThread(16 * 1000);
+	m_bios.SleepThreadTillVBlankEnd();
 }

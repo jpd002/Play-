@@ -29,6 +29,9 @@ namespace Iop
 
         void                SetBios(const BiosPtr&);
 
+		void				NotifyVBlankStart();
+		void				NotifyVBlankEnd();
+
 	    virtual void		SaveState(Framework::CZipArchiveWriter&);
 	    virtual void		LoadState(Framework::CZipArchiveReader&);
 

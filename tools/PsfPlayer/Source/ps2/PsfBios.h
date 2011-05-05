@@ -16,10 +16,13 @@ namespace PS2
 	    void					HandleInterrupt();
 		void					CountTicks(uint32);
 
-        void                    SaveState(Framework::CZipArchiveWriter&);
+		void                    SaveState(Framework::CZipArchiveWriter&);
         void                    LoadState(Framework::CZipArchiveReader&);
 
-        bool                    IsIdle();
+		void					NotifyVBlankStart();
+		void					NotifyVBlankEnd();
+
+		bool                    IsIdle();
 
 #ifdef DEBUGGER_INCLUDED
 		void					LoadDebugTags(Framework::Xml::CNode*);

@@ -21,6 +21,9 @@ public:
     void                    SaveState(Framework::CZipArchiveWriter&);
     void                    LoadState(Framework::CZipArchiveReader&);
 
+	void					NotifyVBlankStart();
+	void					NotifyVBlankEnd();
+
     bool                    IsIdle();
 
 #ifdef DEBUGGER_INCLUDED

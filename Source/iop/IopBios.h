@@ -53,6 +53,17 @@ public:
         uint64          nextActivateTime;
     };
 
+    enum THREAD_STATUS
+    {
+        THREAD_STATUS_CREATED = 1,
+        THREAD_STATUS_RUNNING = 2,
+        THREAD_STATUS_SLEEPING = 3,
+        THREAD_STATUS_ZOMBIE = 4,
+        THREAD_STATUS_WAITING = 5,
+		THREAD_STATUS_WAIT_VBLANK_START = 6,
+		THREAD_STATUS_WAIT_VBLANK_END = 7,
+	};
+
     typedef MipsModuleList::iterator ModuleListIterator;
 
                             CIopBios(uint32, CMIPS&, uint8*, uint32);
@@ -69,7 +80,10 @@ public:
 	uint64					MicroSecToClock(uint32);
 	uint64					ClockToMicroSec(uint64);
 
-    void                    Reset(Iop::CSifMan*);
+	void					NotifyVBlankStart();
+	void					NotifyVBlankEnd();
+
+	void                    Reset(Iop::CSifMan*);
 
 	virtual void		    SaveState(Framework::CZipArchiveWriter&);
 	virtual void		    LoadState(Framework::CZipArchiveReader&);
@@ -99,6 +113,9 @@ public:
     uint32                  GetCurrentThreadId();
     void                    SleepThread();
     uint32                  WakeupThread(uint32, bool);
+
+	void					SleepThreadTillVBlankStart();
+	void					SleepThreadTillVBlankEnd();
 
     uint32                  CreateSemaphore(uint32, uint32);
     uint32                  DeleteSemaphore(uint32);
@@ -159,15 +176,6 @@ private:
     enum
     {
         IOPMOD_SECTION_ID = 0x70000080,
-    };
-
-    enum THREAD_STATUS
-    {
-        THREAD_STATUS_CREATED = 1,
-        THREAD_STATUS_RUNNING = 2,
-        THREAD_STATUS_SLEEPING = 3,
-        THREAD_STATUS_ZOMBIE = 4,
-        THREAD_STATUS_WAITING = 5,
     };
 
 	typedef COsStructManager<THREAD> ThreadList;
