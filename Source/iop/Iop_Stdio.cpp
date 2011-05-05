@@ -75,6 +75,12 @@ string CStdio::PrintFormatted(CArgumentIterator& args)
                     output += text;
                     paramDone = true;
                 }
+				else if(type == 'c')
+				{
+					char character = static_cast<char>(args.GetNext());
+					output += character;
+					paramDone = true;
+				}
                 else if(type == 'd')
                 {
                     int number = args.GetNext();

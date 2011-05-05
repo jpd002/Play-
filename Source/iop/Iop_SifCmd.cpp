@@ -212,6 +212,9 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 //    memcpy(&m_ram[m_invokeParamsAddr], params, copySize);
     memcpy(&m_ram[serverData->buffer], params, copySize);
     CIopBios::THREAD* thread(m_bios.GetThread(dataQueue->threadId));
+
+	assert(thread->status == CIopBios::THREAD_STATUS_SLEEPING);
+
     thread->context.epc = serverData->function;
     thread->context.gpr[CMIPS::A0] = methodId;
 //    thread->context.gpr[CMIPS::A1] = m_invokeParamsAddr;
