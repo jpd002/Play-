@@ -22,8 +22,6 @@
 #define STATE_REGS_D9_SADR  ("D9_SADR")
 
 using namespace Framework;
-using namespace std;
-using namespace std::tr1;
 using namespace Dmac;
 
 //DMA channels (EE side)
@@ -41,33 +39,34 @@ using namespace Dmac;
 uint32 DummyTransfertFunction(uint32 address, uint32 size, uint32, bool)
 {
 //    return size;
-    throw runtime_error("Not implemented.");
+	throw std::runtime_error("Not implemented.");
 }
 
-CDMAC::CDMAC(uint8* ram, uint8* spr, CMIPS& ee) :
-m_ram(ram),
-m_spr(spr),
-m_ee(ee),
-m_D_STAT(0),
-m_D_ENABLE(0),
-m_D0(*this, 0, DummyTransfertFunction),
-m_D1(*this, 1, DummyTransfertFunction),
-m_D2(*this, 2, DummyTransfertFunction),
-m_D3_CHCR(0),
-m_D3_MADR(0),
-m_D3_QWC(0),
-m_D4(*this, 4, DummyTransfertFunction),
-m_D5_CHCR(0),
-m_D5_MADR(0),
-m_D5_QWC(0),
-m_D6_CHCR(0),
-m_D6_MADR(0),
-m_D6_QWC(0),
-m_D6_TADR(0),
-m_D8(*this, 8, bind(&CDMAC::ReceiveDMA8, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4)),
-m_D8_SADR(0),
-m_D9(*this, 9, bind(&CDMAC::ReceiveDMA9, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4)),
-m_D9_SADR(0)
+CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, CMIPS& ee)
+: m_ram(ram)
+, m_spr(spr)
+, m_vuMem0(vuMem0)
+, m_ee(ee)
+, m_D_STAT(0)
+, m_D_ENABLE(0)
+, m_D0(*this, 0, DummyTransfertFunction)
+, m_D1(*this, 1, DummyTransfertFunction)
+, m_D2(*this, 2, DummyTransfertFunction)
+, m_D3_CHCR(0)
+, m_D3_MADR(0)
+, m_D3_QWC(0)
+, m_D4(*this, 4, DummyTransfertFunction)
+, m_D5_CHCR(0)
+, m_D5_MADR(0)
+, m_D5_QWC(0)
+, m_D6_CHCR(0)
+, m_D6_MADR(0)
+, m_D6_QWC(0)
+, m_D6_TADR(0)
+, m_D8(*this, 8, std::tr1::bind(&CDMAC::ReceiveDMA8, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4))
+, m_D8_SADR(0)
+, m_D9(*this, 9, std::tr1::bind(&CDMAC::ReceiveDMA9, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4))
+, m_D9_SADR(0)
 {
     Reset();
 }
@@ -130,7 +129,7 @@ void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHan
         m_receiveDma6 = handler;
         break;
     default:
-        throw runtime_error("Unsupported channel.");
+		throw std::runtime_error("Unsupported channel.");
         break;
     }
 }
@@ -230,9 +229,18 @@ uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool
 
 	uint32 nDstAddress = m_D9_SADR;
 	nDstAddress &= (PS2::SPRSIZE - 1);
-	nSrcAddress &= (PS2::EERAMSIZE - 1);
 
-	memcpy(m_spr + nDstAddress, m_ram + nSrcAddress, nCount * 0x10);
+	if(nSrcAddress >= PS2::VUMEM0ADDR && nSrcAddress < (PS2::VUMEM0ADDR + PS2::VUMEM0SIZE))
+	{
+		nSrcAddress -= PS2::VUMEM0ADDR;
+		nSrcAddress &= (PS2::VUMEM0SIZE - 1);
+		memcpy(m_spr + nDstAddress, m_vuMem0 + nSrcAddress, nCount * 0x10);
+	}
+	else
+	{
+		nSrcAddress &= (PS2::EERAMSIZE - 1);
+		memcpy(m_spr + nDstAddress, m_ram + nSrcAddress, nCount * 0x10);
+	}
 
 	m_D9_SADR += (nCount * 0x10);
 
@@ -253,6 +261,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 	case D0_CHCR + 0x4:
 	case D0_CHCR + 0x8:
 	case D0_CHCR + 0xC:
+		return 0;
+		break;
+
+	case D0_TADR + 0x0:
+		return m_D0.m_nTADR;
+		break;
+	case D0_TADR + 0x4:
+	case D0_TADR + 0x8:
+	case D0_TADR + 0xC:
 		return 0;
 		break;
 
@@ -880,6 +897,12 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 {
 	switch(nAddress)
 	{
+	case D0_CHCR:
+		CLog::GetInstance().Print(LOG_NAME, "= D0_CHCR.\r\n");
+		break;
+	case D0_TADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D0_TADR.\r\n");
+		break;
     case D1_TADR:
         CLog::GetInstance().Print(LOG_NAME, "= D1_TADR.\r\n");
         break;
@@ -1028,5 +1051,8 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 	case D_ENABLEW:
 		CLog::GetInstance().Print(LOG_NAME, "D_ENABLEW = 0x%0.8X.\r\n", nData);
         break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", nAddress, nData);
+		break;
 	}
 }

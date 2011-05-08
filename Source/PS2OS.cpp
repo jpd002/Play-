@@ -59,15 +59,15 @@ using namespace Framework;
 using namespace std;
 namespace filesystem = boost::filesystem;
 
-CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) :
-m_ee(ee),
-m_gs(gs),
-m_pELF(NULL),
-m_ram(ram),
-m_bios(bios),
-m_pThreadSchedule(NULL),
-m_sif(sif),
-m_iopBios(iopBios)
+CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) 
+: m_ee(ee)
+, m_gs(gs)
+, m_pELF(NULL)
+, m_ram(ram)
+, m_bios(bios)
+, m_pThreadSchedule(NULL)
+, m_sif(sif)
+, m_iopBios(iopBios)
 {
 	Initialize();
 }
@@ -80,12 +80,15 @@ CPS2OS::~CPS2OS()
 void CPS2OS::Initialize()
 {
 	m_pELF = NULL;
-//	m_pCtx = &CPS2VM::m_EE;
 
 	m_ee.m_State.nGPR[CMIPS::K0].nV[0] = 0x80030000;
 	m_ee.m_State.nGPR[CMIPS::K0].nV[1] = 0xFFFFFFFF;
 
 	m_pThreadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
+
+	m_semaWaitId = -1;
+	m_semaWaitCount = 0;
+	m_semaWaitCaller = 0;
 }
 
 void CPS2OS::Release()
@@ -93,6 +96,11 @@ void CPS2OS::Release()
 	UnloadExecutable();
 	
 	DELETEPTR(m_pThreadSchedule);
+}
+
+bool CPS2OS::IsIdle() const
+{
+	return (m_semaWaitCount > 100);
 }
 
 void CPS2OS::DumpThreadSchedule()
@@ -1250,6 +1258,7 @@ CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 nID)
 
 void CPS2OS::ExceptionHandler()
 {
+	m_semaWaitCount = 0;
 	ThreadShakeAndBake();
 	m_ee.GenerateInterrupt(0x1FC00200);
 }
@@ -1952,13 +1961,9 @@ void CPS2OS::sc_SignalSema()
 //44
 void CPS2OS::sc_WaitSema()
 {
-	SEMAPHORE* pSema;
-	THREAD* pThread;
-	uint32 nID;
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	pSema = GetSemaphore(nID);
+	SEMAPHORE* pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1966,12 +1971,23 @@ void CPS2OS::sc_WaitSema()
 		return;
 	}
 
+	if((m_semaWaitId == nID) && (m_semaWaitCaller == m_ee.m_State.nGPR[CMIPS::RA].nV0))
+	{
+		m_semaWaitCount++;
+	}
+	else
+	{
+		m_semaWaitId = nID;
+		m_semaWaitCaller = m_ee.m_State.nGPR[CMIPS::RA].nV0;
+		m_semaWaitCount = 0;
+	}
+
 	if(pSema->nCount == 0)
 	{
 		//Put this thread in sleep mode and reschedule...
 		pSema->nWaitCount++;
 
-		pThread = GetThread(GetCurrentThreadId());
+		THREAD* pThread = GetThread(GetCurrentThreadId());
 		pThread->nStatus	= THREAD_WAITING;
 		pThread->nSemaWait	= nID;
 

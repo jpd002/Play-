@@ -20,6 +20,8 @@ public:
 	void									    Initialize();
 	void									    Release();
 
+	bool										IsIdle() const;
+
 	void									    DumpThreadSchedule();
 	void									    DumpIntcHandlers();
 	void									    DumpDmacHandlers();
@@ -298,6 +300,10 @@ private:
     CGSHandler*&                            m_gs;
     CSIF&                                   m_sif;
     CIopBios&                               m_iopBios;
+
+	uint32									m_semaWaitId;
+	uint32									m_semaWaitCount;
+	uint32									m_semaWaitCaller;
 };
 
 #endif

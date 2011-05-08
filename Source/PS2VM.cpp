@@ -98,7 +98,7 @@ CPS2VM::CPS2VM()
 , m_nInVBlank(false)
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
 , m_pCDROM0(NULL)
-, m_dmac(m_ram, m_spr, m_EE)
+, m_dmac(m_ram, m_spr, m_pVUMem0, m_EE)
 , m_gif(m_pGS, m_ram, m_spr)
 , m_sif(m_dmac, m_ram, m_iop.m_ram)
 , m_vif(m_gif, m_ram, m_spr, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1))
@@ -1132,11 +1132,6 @@ unsigned int CPS2VM::VU1TickFunction(unsigned int nTicks)
 
 void CPS2VM::EmuThread()
 {
-    //BEGIN: Frame limiter init
-//    unsigned int lastFrameCount = 0;
-//    xtime lastFrameTime;
-//    xtime_get(&lastFrameTime, boost::TIME_UTC);
-    //END
 	while(1)
 	{
         while(m_mailBox.IsPending())
@@ -1235,47 +1230,25 @@ void CPS2VM::EmuThread()
                     m_os->SysCallHandler();
                     assert(!m_EE.m_State.nHasException);
                 }
+
                 {
-                    BasicBlockPtr nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
-                    const int skipAmount = 50000;
-                    if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-                    {
-                        m_nVBlankTicks -= skipAmount;
+					BasicBlockPtr nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+					const int skipAmount = 50000;
+					if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
+					{
+						m_nVBlankTicks -= skipAmount;
 						m_spuUpdateTicks -= skipAmount;
-                    }
-                    else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
-                    {
-                        m_nVBlankTicks = 0;
-                    }
-                    /*else if(m_pGS != NULL && m_pGS->IsRenderDone())
-                    {
-                        m_nVBlankTicks -= skipAmount;
-                        m_nVBlankTicks = 0;
-                    }*/
-                }
-                //Castlevania speed hack
-                {
-    //                if(m_ram[0x00] == 0x01)
-    //                {
-    //                    m_nVBlankTicks = 0;
-    //                    thread::yield();
-    //                }
-                }
-                //BEGIN: Frame limiter
-    //            if(m_pGS != NULL && lastFrameCount != m_pGS->GetFrameCount())
-    //            {
-    //                xtime currentTime;
-    //                xtime_get(&currentTime, boost::TIME_UTC);
-    //                xtime::xtime_nsec_t timeDiff = currentTime.nsec - lastFrameTime.nsec;
-    //                if((currentTime.sec == lastFrameTime.sec) && (timeDiff < (1000000 * 8)))
-    //                {
-    //                    currentTime.nsec += (1000000 * 8) - timeDiff;
-    //                    thread::sleep(currentTime);
-    //                }
-    //                lastFrameCount = m_pGS->GetFrameCount();
-    //                xtime_get(&lastFrameTime, boost::TIME_UTC);
-    //            }
-                //END
+					}
+					else if(m_os->IsIdle())
+					{
+						m_nVBlankTicks -= skipAmount;
+						m_spuUpdateTicks -= skipAmount;
+					}
+					else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
+					{
+						m_nVBlankTicks = 0;
+					}
+				}
 
                 //IOP Execution
                 m_iop.ExecuteCpu(m_singleStepIop);

@@ -79,7 +79,7 @@ public:
 		ENABLE_CPND		= 0x10000,
 	};
 
-                        CDMAC(uint8*, uint8*, CMIPS&);
+                        CDMAC(uint8*, uint8*, uint8*, CMIPS&);
     virtual             ~CDMAC();
 
 	void                Reset();
@@ -156,6 +156,7 @@ private:
 
     uint8*              m_ram;
     uint8*              m_spr;
+	uint8*				m_vuMem0;
 
 	CMIPS&				m_ee;
 
