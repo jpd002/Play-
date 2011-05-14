@@ -273,6 +273,7 @@ private:
 		void							    LQI();
 		void							    DIV();
 		void							    MTIR();
+		void								RNEXT();
 		void							    MFP();
 		void							    XTOP();
 		void							    XGKICK();
@@ -287,6 +288,7 @@ private:
         void                                XITOP();
 
 		//Vector2
+		void								LQD();
         void                                RSQRT();
 		void							    ILWR();
 		void							    RINIT();

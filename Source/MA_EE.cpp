@@ -545,6 +545,15 @@ void CMA_EE::PCEQW()
     PullVector(m_nRD);
 }
 
+//03
+void CMA_EE::PMINW()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+    m_codeGen->MD_MinW();
+	PullVector(m_nRD);
+}
+
 //07
 void CMA_EE::PMINH()
 {
@@ -1041,7 +1050,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 
 {
 	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMINH,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMINH,
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10

@@ -94,6 +94,7 @@ private:
 
 	//Mmi1
 	void							    PCEQW();
+	void								PMINW();
 	void							    PMINH();
 	void							    PADDUW();
 	void							    PEXTUW();
