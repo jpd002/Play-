@@ -1166,12 +1166,9 @@ void CPS2OS::CreateWaitThread()
 
 uint32 CPS2OS::GetNextAvailableSemaphoreId()
 {
-	uint32 i;
-	SEMAPHORE* pSemaphore;
-
-	for(i = 1; i < MAX_SEMAPHORE; i++)
+	for(uint32 i = 1; i < MAX_SEMAPHORE; i++)
 	{
-		pSemaphore = GetSemaphore(i);
+		SEMAPHORE* pSemaphore = GetSemaphore(i);
 		if(pSemaphore->nValid != 1)
 		{
 			return i;
@@ -1183,6 +1180,10 @@ uint32 CPS2OS::GetNextAvailableSemaphoreId()
 
 CPS2OS::SEMAPHORE* CPS2OS::GetSemaphore(uint32 nID)
 {
+	if(nID == 0)
+	{
+		return NULL;
+	}
 	nID--;
 	return &((SEMAPHORE*)&m_ram[0x0000E000])[nID];
 }
@@ -1914,7 +1915,7 @@ void CPS2OS::sc_SignalSema()
 	uint32 nID	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema->nValid)
+	if(!pSema || !pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
@@ -1964,7 +1965,7 @@ void CPS2OS::sc_WaitSema()
 	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema->nValid)
+	if(!pSema || !pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
