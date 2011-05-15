@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <functional>
+#include "AppConfig.h"
 #include "GSHandler.h"
 #include "INTC.h"
 #include "PtrMacro.h"
@@ -149,9 +150,11 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 CGSHandler::CGSHandler()
 : m_thread(NULL)
 , m_enabled(true)
-, m_renderDone(false)
 , m_threadDone(false)
+, m_flipMode(FLIP_MODE_SMODE2)
 {
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_SMODE2);
+
 	m_pRAM = (uint8*)malloc(RAMSIZE);
 
 	for(int i = 0; i < PSM_MAX; i++)
@@ -187,6 +190,7 @@ void CGSHandler::Reset()
 	m_nReg[GS_REG_PRMODECONT] = 1;
 	memset(m_pRAM, 0, RAMSIZE);
 	m_nPMODE = 0;
+	m_nSMODE2 = 0;
     m_nDISPFB1 = 0;
     m_nDISPLAY1 = 0;
     m_nDISPFB2 = 0;
@@ -197,17 +201,11 @@ void CGSHandler::Reset()
     m_nCrtMode = 0;
     m_nCrtIsFrameMode = false;
     m_enabled = true;
-    m_renderDone = false;
 }
 
 void CGSHandler::SetEnabled(bool enabled)
 {
     m_enabled = enabled;
-}
-
-bool CGSHandler::IsRenderDone() const
-{
-    return m_renderDone;
 }
 
 void CGSHandler::SaveState(CZipArchiveWriter& archive)
@@ -259,8 +257,12 @@ void CGSHandler::LoadState(CZipArchiveReader& archive)
 
 void CGSHandler::SetVBlank()
 {
-	boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+	if(m_flipMode == FLIP_MODE_VBLANK)
+	{
+		Flip();
+	}
 
+	boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
 	m_nCSR |= CSR_VSYNC_INT;
 //	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
 }
@@ -312,6 +314,16 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			}
 		}
 		break;
+	case GS_SMODE2:
+		W_REG(nAddress, nData, m_nSMODE2);
+		if(nAddress & 0x04)
+		{
+			if(m_flipMode == FLIP_MODE_SMODE2)
+			{
+				Flip();
+			}
+		}
+		break;
 	case GS_DISPFB1:
 		W_REG(nAddress, nData, m_nDISPFB1);
 		break;
@@ -326,10 +338,13 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nDISPFB2);
 		if(nAddress & 0x04)
 		{
-            //Speed hack for Atelier Iris
-			if((m_nPMODE & 0x03) != 0x03)
+			if(m_flipMode == FLIP_MODE_DISPFB2)
 			{
-				Flip();
+				//Speed hack for Atelier Iris
+				if((m_nPMODE & 0x03) != 0x03)
+				{
+					Flip();
+				}
 			}
 		}
 		break;
@@ -346,7 +361,6 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			{
 				boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
 				SetVBlank();
-				//Flip();
 				if(nData & CSR_FINISH_EVENT)
 				{
 					m_nCSR &= ~CSR_FINISH_EVENT;
@@ -401,11 +415,6 @@ void CGSHandler::Flip()
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
 #endif
-}
-
-void CGSHandler::ForcedFlip()
-{
-    
 }
 
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
@@ -1250,6 +1259,9 @@ void CGSHandler::DisassemblePrivWrite(uint32 address)
 	case GS_PMODE:
 		CLog::GetInstance().Print(LOG_NAME, "PMODE(0x%0.8X);\r\n", m_nPMODE);
 		break;
+	case GS_SMODE2:
+		CLog::GetInstance().Print(LOG_NAME, "SMODE2(0x%0.8X);\r\n", m_nSMODE2);
+		break;
 	case GS_DISPFB1:
 		{
 			DISPFB* dispfb = GetDispFb(0);
@@ -1305,6 +1317,11 @@ void CGSHandler::DisassemblePrivWrite(uint32 address)
 		//IMR
 		break;
 	}
+}
+
+void CGSHandler::LoadSettings()
+{
+	m_flipMode = static_cast<FLIP_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_FLIPMODE));
 }
 
 void CGSHandler::ThreadProc()

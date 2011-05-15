@@ -23,7 +23,6 @@ CGSH_OpenGL::CGSH_OpenGL()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC, false);
     CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
 	LoadSettings();
@@ -81,9 +80,10 @@ void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
 
 void CGSH_OpenGL::LoadSettings()
 {
+	CGSHandler::LoadSettings();
+
 	m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_nForceFlippingVSync		= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEFLIPPINGVSYNC);
     m_fixSmallZValues           = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
 
@@ -1204,14 +1204,6 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	glDeleteTextures(1, &nTexture);
 
     FlipImpl();
-}
-
-void CGSH_OpenGL::ForcedFlip()
-{
-    if(m_nForceFlippingVSync)
-    {
-        Flip();
-    }
 }
 
 bool CGSH_OpenGL::IsColorTableExtSupported()

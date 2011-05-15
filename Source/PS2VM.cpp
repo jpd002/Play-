@@ -1162,7 +1162,6 @@ void CPS2VM::EmuThread()
 
                     if(m_pGS != NULL)
                     {
-                        m_pGS->ForcedFlip();
 					    m_pGS->SetVBlank();
                     }
 

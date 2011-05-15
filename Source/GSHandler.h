@@ -12,6 +12,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
+#define PREF_CGSHANDLER_FLIPMODE					"renderer.flipmode"
+
 enum GS_REGS
 {
 	GS_REG_PRIM			= 0x00,
@@ -58,6 +60,13 @@ enum GS_REGS
 class CGSHandler
 {
 public:
+	enum FLIP_MODE
+	{
+		FLIP_MODE_SMODE2 = 0,
+		FLIP_MODE_DISPFB2 = 1,
+		FLIP_MODE_VBLANK = 2
+	};
+
     typedef std::pair<uint8, uint64> RegisterWrite;
     typedef std::vector<RegisterWrite> RegisterWriteList;
     typedef std::tr1::function<CGSHandler* (void)> FactoryFunction;
@@ -67,7 +76,6 @@ public:
 
 	void									Reset();
     void                                    SetEnabled(bool);
-    bool                                    IsRenderDone() const;
 
 	virtual void							SaveState(Framework::CZipArchiveWriter&);
 	virtual void							LoadState(Framework::CZipArchiveReader&);
@@ -95,13 +103,13 @@ public:
     void        							UpdateViewport();
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
     void                                    Flip();
-    virtual void                            ForcedFlip();
 
 	boost::signal<void ()>                  OnNewFrame;
 
 	enum PRIVATE_REGISTER
 	{
 		GS_PMODE	= 0x12000000,
+		GS_SMODE2	= 0x12000020,
 		GS_DISPFB1	= 0x12000070,
 		GS_DISPLAY1	= 0x12000080,
 		GS_DISPFB2	= 0x12000090,
@@ -649,6 +657,8 @@ protected:
 	bool									GetCrtIsInterlaced();
 	bool									GetCrtIsFrameMode();
 
+	void									LoadSettings();
+
     void                                    ThreadProc();
     virtual void                            InitializeImpl() = 0;
     virtual void                            ReleaseImpl() = 0;
@@ -670,12 +680,15 @@ protected:
 	unsigned int							GetPsmPixelSize(unsigned int);
 
 	uint64									m_nPMODE;			//0x12000000
+	uint64									m_nSMODE2;			//0x12000020
 	uint64									m_nDISPFB1;			//0x12000070
 	uint64									m_nDISPLAY1;		//0x12000080
 	uint64									m_nDISPFB2;			//0x12000090
 	uint64									m_nDISPLAY2;		//0x120000A0
 	uint64									m_nCSR;				//0x12001000
 	uint64									m_nIMR;				//0x12001010
+
+	FLIP_MODE								m_flipMode;
 
 	TRXCONTEXT								m_TrxCtx;
 
@@ -690,7 +703,6 @@ protected:
 	boost::recursive_mutex					m_csrMutex;
     CMailBox                                m_mailBox;
     bool                                    m_enabled;
-    bool                                    m_renderDone;
     bool                                    m_threadDone;
 };
 

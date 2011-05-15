@@ -5,6 +5,7 @@
 #include "layout/VerticalLayout.h"
 #include "win32/ListView.h"
 #include "win32/Button.h"
+#include "win32/ComboBox.h"
 #include "../GSH_OpenGL.h"
 
 class CRendererSettingsWnd : public Framework::Win32::CModalWindow
@@ -28,14 +29,14 @@ private:
 	Framework::Win32::CListView*	m_pExtList;
 	Framework::Win32::CButton*		m_pLineCheck;
 	Framework::Win32::CButton*		m_pForceBilinearCheck;
-	Framework::Win32::CButton*		m_pForceFlippingCheck;
+	Framework::Win32::CComboBox*	m_pFlipModeComboBox;
 	Framework::Win32::CButton*		m_pOk;
 	Framework::Win32::CButton*		m_pCancel;
 	CGSH_OpenGL*					m_pRenderer;
 
 	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;
-	bool							m_nForceFlippingVSync;
+	CGSHandler::FLIP_MODE			m_flipMode;
 };
 
 #endif
