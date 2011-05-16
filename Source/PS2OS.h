@@ -226,7 +226,7 @@ private:
 	uint32*                                 GetCustomSyscallTable();
 
 	void                                    CreateWaitThread();
-	uint32                                  GetCurrentThreadId();
+	uint32                                  GetCurrentThreadId() const;
 	void                                    SetCurrentThreadId(uint32);
 	uint32                                  GetNextAvailableThreadId();
 	THREAD*                                 GetThread(uint32);
@@ -304,6 +304,7 @@ private:
 	uint32									m_semaWaitId;
 	uint32									m_semaWaitCount;
 	uint32									m_semaWaitCaller;
+	uint32									m_semaWaitThreadId;
 };
 
 #endif

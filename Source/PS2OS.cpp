@@ -89,6 +89,7 @@ void CPS2OS::Initialize()
 	m_semaWaitId = -1;
 	m_semaWaitCount = 0;
 	m_semaWaitCaller = 0;
+	m_semaWaitThreadId = -1;
 }
 
 void CPS2OS::Release()
@@ -100,7 +101,7 @@ void CPS2OS::Release()
 
 bool CPS2OS::IsIdle() const
 {
-	return (m_semaWaitCount > 100);
+	return (GetCurrentThreadId() == m_semaWaitThreadId);
 }
 
 void CPS2OS::DumpThreadSchedule()
@@ -917,7 +918,7 @@ uint32* CPS2OS::GetCustomSyscallTable()
 	return (uint32*)&m_ram[0x00010000];
 }
 
-uint32 CPS2OS::GetCurrentThreadId()
+uint32 CPS2OS::GetCurrentThreadId() const
 {
 	return *(uint32*)&m_ram[0x00000000];
 }
@@ -1975,6 +1976,10 @@ void CPS2OS::sc_WaitSema()
 	if((m_semaWaitId == nID) && (m_semaWaitCaller == m_ee.m_State.nGPR[CMIPS::RA].nV0))
 	{
 		m_semaWaitCount++;
+		if(m_semaWaitCount > 100)
+		{
+			m_semaWaitThreadId = GetCurrentThreadId();
+		}
 	}
 	else
 	{
