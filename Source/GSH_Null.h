@@ -11,13 +11,13 @@ public:
 
 	virtual void                UpdateViewportImpl();
 	virtual void                ProcessImageTransfer(uint32, uint32);
+	virtual void				ReadFramebuffer(uint32, uint32, void*);
 
     static FactoryFunction      GetFactoryFunction();
 
 private:
     virtual void                InitializeImpl();
     virtual void                ReleaseImpl();
-	virtual void                FlipImpl();
     static CGSHandler*          GSHandlerFactory();
 };
 

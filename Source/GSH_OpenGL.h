@@ -20,6 +20,7 @@ public:
 	virtual void					LoadState(Framework::CZipArchiveReader&);
 
 	void							ProcessImageTransfer(uint32, uint32);
+	void							ReadFramebuffer(uint32, uint32, void*);
 
 	bool							IsColorTableExtSupported();
 	bool							IsBlendColorExtSupported();
@@ -99,6 +100,7 @@ private:
 
 	void							InitializeRC();
     virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER) = 0;
+	virtual void					PresentBackbuffer() = 0;
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(float, float, float, float);
 	void							UpdateViewportImpl();

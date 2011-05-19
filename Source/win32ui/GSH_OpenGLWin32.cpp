@@ -58,11 +58,9 @@ void CGSH_OpenGLWin32::ReleaseImpl()
 	wglDeleteContext(m_hRC);
 }
 
-void CGSH_OpenGLWin32::FlipImpl()
+void CGSH_OpenGLWin32::PresentBackbuffer()
 {
-//	CPS2VM::m_OnNewFrame();
 	SwapBuffers(m_hDC);
-	CGSH_OpenGL::FlipImpl();
 }
 
 void CGSH_OpenGLWin32::SetViewport(int nWidth, int nHeight)

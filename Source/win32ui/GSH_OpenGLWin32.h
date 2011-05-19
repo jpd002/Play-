@@ -16,12 +16,14 @@ public:
     virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER);
     virtual void                    InitializeImpl();
     virtual void                    ReleaseImpl();
-	virtual void					FlipImpl();
 
     CSettingsDialogProvider*		GetSettingsDialogProvider();
 
     Framework::Win32::CModalWindow* CreateSettingsDialog(HWND);
 	void                            OnSettingsDialogDestroyed();
+
+protected:
+	virtual void					PresentBackbuffer();
 
 private:
     virtual void                    SetViewport(int, int);

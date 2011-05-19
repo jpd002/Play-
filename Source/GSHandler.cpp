@@ -404,7 +404,6 @@ void CGSHandler::Release()
 
 void CGSHandler::Flip()
 {
-    OnNewFrame();
     if(!m_enabled) return;
     while(m_mailBox.IsPending())
     {
@@ -415,6 +414,11 @@ void CGSHandler::Flip()
 #ifdef _DEBUG
     CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
 #endif
+}
+
+void CGSHandler::FlipImpl()
+{
+    OnNewFrame();
 }
 
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)

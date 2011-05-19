@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <zlib.h>
+#include <sys/stat.h>
+#include <d3dx9.h>
 #include "GSH_Direct3D9.h"
 
 LPDIRECT3DTEXTURE9 CGSH_Direct3D9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
@@ -150,6 +152,30 @@ LPDIRECT3DTEXTURE9 CGSH_Direct3D9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* 
 	TexCache_Insert(pReg0, result, textureChecksum);
 
 	return result;
+}
+
+void CGSH_Direct3D9::DumpTexture(LPDIRECT3DTEXTURE9 texture, uint32 checksum)
+{
+	char sFilename[256];
+
+	for(unsigned int i = 0; i < UINT_MAX; i++)
+	{
+	    struct _stat Stat;
+		sprintf(sFilename, "./textures/tex_%0.8X_%0.8X.png", i, checksum);
+		if(_stat(sFilename, &Stat) == -1) break;
+	}
+
+	if(checksum == 0x1755C96E)
+	{
+		int i = 0;
+		i++;
+	}
+
+	if(texture != NULL)
+	{
+		HRESULT result = D3DXSaveTextureToFileA(sFilename, D3DXIFF_PNG, texture, NULL);
+		assert(SUCCEEDED(result));
+	}
 }
 
 uint32 CGSH_Direct3D9::Color_Ps2ToDx9(uint32 color)

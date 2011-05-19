@@ -17,6 +17,7 @@ public:
 	virtual                         ~CGSH_Direct3D9();
 
 	void							ProcessImageTransfer(uint32, uint32);
+	void							ReadFramebuffer(uint32, uint32, void*);
 
     static FactoryFunction          GetFactoryFunction(Framework::Win32::CWindow*);
 
@@ -25,6 +26,7 @@ public:
 	virtual void					FlipImpl();
 
 protected:
+	virtual void					PresentBackbuffer();
 	virtual void					WriteRegisterImpl(uint8, uint64);
 
 private:
@@ -93,6 +95,7 @@ private:
 
     static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
+	void							DumpTexture(LPDIRECT3DTEXTURE9, uint32);
 	void							TexUploader_Psm32(TEX0*, TEXA*, LPDIRECT3DTEXTURE9);
 	void							UploadConversionBuffer(TEX0*, TEXA*, LPDIRECT3DTEXTURE9);
 

@@ -102,7 +102,8 @@ public:
     void                                    Release();
     void        							UpdateViewport();
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
-    void                                    Flip();
+	void                                    Flip();
+	virtual void							ReadFramebuffer(uint32, uint32, void*)	= 0;
 
 	boost::signal<void ()>                  OnNewFrame;
 
@@ -662,7 +663,7 @@ protected:
     void                                    ThreadProc();
     virtual void                            InitializeImpl() = 0;
     virtual void                            ReleaseImpl() = 0;
-    virtual void                            FlipImpl() = 0;
+    virtual void                            FlipImpl();
     virtual void                            UpdateViewportImpl() = 0;
 	virtual void                            WriteRegisterImpl(uint8, uint64);
 	virtual void                            FeedImageDataImpl(void*, uint32);

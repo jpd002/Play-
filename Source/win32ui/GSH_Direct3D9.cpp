@@ -54,12 +54,17 @@ void CGSH_Direct3D9::ProcessImageTransfer(uint32 nAddress, uint32 nLenght)
 
 }
 
+void CGSH_Direct3D9::ReadFramebuffer(uint32, uint32, void*)
+{
+
+}
+
 void CGSH_Direct3D9::InitializeImpl()
 {
 	m_d3d = Direct3DCreate9(D3D_SDK_VERSION);
 	SetViewport(512, 384);
 	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
-	FlipImpl();
+	PresentBackbuffer();
 
     for(unsigned int i = 0; i < MAXCACHE; i++)
     {
@@ -107,7 +112,7 @@ void CGSH_Direct3D9::EndScene()
 	}
 }
 
-void CGSH_Direct3D9::FlipImpl()
+void CGSH_Direct3D9::PresentBackbuffer()
 {
 	if(m_device != NULL)
 	{
@@ -118,6 +123,12 @@ void CGSH_Direct3D9::FlipImpl()
 		assert(result == S_OK);
 		BeginScene();
 	}
+}
+
+void CGSH_Direct3D9::FlipImpl()
+{
+	PresentBackbuffer();
+	CGSHandler::FlipImpl();
 }
 
 void CGSH_Direct3D9::SetReadCircuitMatrix(int nWidth, int nHeight)

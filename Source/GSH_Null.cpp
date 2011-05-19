@@ -32,9 +32,9 @@ void CGSH_Null::ProcessImageTransfer(uint32 nAddress, uint32 nSize)
 
 }
 
-void CGSH_Null::FlipImpl()
+void CGSH_Null::ReadFramebuffer(uint32, uint32, void*)
 {
-//    CPS2VM::m_OnNewFrame();
+
 }
 
 CGSHandler::FactoryFunction CGSH_Null::GetFactoryFunction()

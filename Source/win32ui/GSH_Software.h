@@ -21,6 +21,7 @@ private:
     virtual void                    UpdateViewportImpl();
     virtual void                    FlipImpl();
     virtual void                    ProcessImageTransfer(uint32, uint32);
+	virtual void					ReadFramebuffer(uint32, uint32, void*);
 
     void                            RecreateFrameBuffer(unsigned int, unsigned int);
 

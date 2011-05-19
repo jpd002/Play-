@@ -130,6 +130,8 @@ BEGIN
         MENUITEM "Boot cdrom0",                 ID_MAIN_FILE_BOOTCDROM
         MENUITEM "Load .ELF...\tCtrl+O",        ID_MAIN_FILE_LOADELF
         MENUITEM SEPARATOR
+        MENUITEM "Record AVI...",               ID_MAIN_FILE_RECORDAVI
+        MENUITEM SEPARATOR
         MENUITEM "&Quit\tAlt+F4",               ID_MAIN_FILE_EXIT
     END
     POPUP "Virtual Machine"

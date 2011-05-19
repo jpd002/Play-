@@ -8,6 +8,7 @@
 #include "win32/StatusBar.h"
 #include "SettingsDialogProvider.h"
 #include "OutputWnd.h"
+#include "AviStream.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
 #endif
@@ -26,6 +27,17 @@ protected:
 	long							OnActivateApp(bool, unsigned long);
 
 private:
+	class CScopedVmPauser
+	{
+	public:
+						CScopedVmPauser(CPS2VM&);
+		virtual			~CScopedVmPauser();
+
+	private:
+		CPS2VM&			m_virtualMachine;
+		bool			m_paused;
+	};
+
     class COpenCommand
     {
     public:
@@ -54,6 +66,7 @@ private:
 	void							OpenELF();
 	void							BootCDROM();
     void                            BootDiskImage();
+	void							RecordAvi();
 	void							ResumePause();
 	void							Reset();
 	void							PauseWhenFocusLost();
@@ -98,6 +111,13 @@ private:
 	bool							m_nDeactivatePause;
 
     OpenCommandPtr                  m_lastOpenCommand;
+
+	CAviStream						m_aviStream;
+	bool							m_recordingAvi;
+	uint8*							m_recordBuffer;
+	HANDLE							m_recordAviMutex;
+	unsigned int					m_recordBufferWidth;
+	unsigned int					m_recordBufferHeight;
 
 	Framework::Win32::CStatusBar*	m_pStatusBar;
 	COutputWnd*						m_pOutputWnd;

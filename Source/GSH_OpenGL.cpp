@@ -66,6 +66,8 @@ void CGSH_OpenGL::ReleaseImpl()
 
 void CGSH_OpenGL::FlipImpl()
 {
+	PresentBackbuffer();
+	CGSHandler::FlipImpl();
 #ifdef _WIREFRAME
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
@@ -173,7 +175,7 @@ void CGSH_OpenGL::InitializeRC()
 	glDisable(GL_TEXTURE_2D);
 #endif
 
-    FlipImpl();
+    PresentBackbuffer();
 }
 
 void CGSH_OpenGL::VerifyRGBA5551Support()
@@ -1139,6 +1141,13 @@ void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength)
 	}
 }
 
+void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
+{
+	glFlush();
+	glFinish();
+	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buffer);
+}
+
 void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 {
 	unsigned int nW, nH;
@@ -1203,7 +1212,7 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 
 	glDeleteTextures(1, &nTexture);
 
-    FlipImpl();
+    PresentBackbuffer();
 }
 
 bool CGSH_OpenGL::IsColorTableExtSupported()

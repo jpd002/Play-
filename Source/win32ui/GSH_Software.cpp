@@ -120,10 +120,15 @@ void CGSH_Software::FlipImpl()
     ClientToScreen(m_pOutputWnd->m_hWnd, reinterpret_cast<POINT*>(&Rect) + 1);
     m_pPrimarySurface->Blt(&Rect, m_pFrameBufferSurface, NULL, DDBLT_WAIT, NULL);
 
-//    CPS2VM::m_OnNewFrame();
+	CGSHandler::FlipImpl();
 }
 
 void CGSH_Software::ProcessImageTransfer(uint32 nAddress, uint32 nLength)
+{
+
+}
+
+void CGSH_Software::ReadFramebuffer(uint32, uint32, void*)
 {
 
 }
