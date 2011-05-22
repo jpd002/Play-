@@ -1215,14 +1215,12 @@ void CPS2VM::EmuThread()
                         //m_EE.m_State.nHasException = 1;
                     }
                 }
+
+				int executed = 0;
                 if(!m_EE.m_State.nHasException)
                 {
                     int executeQuota = m_singleStepEe ? 1 : 5000;
-                    int executed = (executeQuota - m_executor.Execute(executeQuota));
-                    m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += (executed * 100);
-				    m_nVBlankTicks -= executed;
-                    m_spuUpdateTicks -= executed;
-					m_timer.Count(executed);
+                    executed += (executeQuota - m_executor.Execute(executeQuota));
                 }
                 if(m_EE.m_State.nHasException)
                 {
@@ -1235,19 +1233,22 @@ void CPS2VM::EmuThread()
 					const int skipAmount = 50000;
 					if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
 					{
-						m_nVBlankTicks -= skipAmount;
-						m_spuUpdateTicks -= skipAmount;
+						executed += skipAmount;
 					}
 					else if(m_os->IsIdle())
 					{
-						m_nVBlankTicks -= skipAmount;
-						m_spuUpdateTicks -= skipAmount;
+						executed += skipAmount;
 					}
 					else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
 					{
-						m_nVBlankTicks = 0;
+						executed = m_nVBlankTicks;
 					}
 				}
+
+                m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += executed;
+			    m_nVBlankTicks -= executed;
+                m_spuUpdateTicks -= executed;
+				m_timer.Count(executed);
 
                 //IOP Execution
                 m_iop.ExecuteCpu(m_singleStepIop);
