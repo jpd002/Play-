@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib vfw32.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames="libc"
 				GenerateDebugInformation="true"
@@ -224,7 +224,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib comctl32.lib dxguid.lib glew32s.lib dinput8.lib vfw32.lib"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="libc"
 				GenerateDebugInformation="true"
