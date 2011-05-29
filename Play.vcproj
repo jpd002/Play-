@@ -1797,6 +1797,28 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\win32ui\SysInfo_x64.asm"
+				>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64 /c /Fo&quot;$(OutDir)\$(InputName).obj&quot; $(InputPath)"
+						Outputs="&quot;$(OutDir)\$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64 /c /Fo&quot;$(OutDir)\$(InputName).obj&quot; $(InputPath)"
+						Outputs="&quot;$(OutDir)\$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\Source\win32ui\SysInfoWnd.cpp"
 				>
 			</File>

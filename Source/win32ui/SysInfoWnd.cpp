@@ -6,9 +6,14 @@
 #include "SysInfoWnd.h"
 #include "PtrMacro.h"
 #include "win32/LayoutWindow.h"
-#ifdef AMD64
-#include "../amd64/CPUID.h"
+
+#ifdef _M_X64
+
+extern "C" void _SysInfo_CPUID(uint32, void*);
+
 #endif
+
+#pragma intrinsic(__rdtsc)
 
 #define CLSNAME			_T("SysInfoWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -73,7 +78,7 @@ Win32::CModalWindow(hParent)
 		RegisterClassEx(&w);
 	}
 
-	SetRect(&rc, 0, 0, 200, 270);
+	SetRect(&rc, 0, 0, 200, 285);
 
 	if(hParent != NULL)
 	{
@@ -163,8 +168,9 @@ void CSysInfoWnd::UpdateProcessorFeatures()
 
 #ifdef _M_X64
 
-//	nFeatures = _cpuid_GetCpuFeatures();
-	nFeatures = 0;
+	uint32 cpuIdResult[3];
+	_SysInfo_CPUID(1, cpuIdResult);
+	nFeatures = cpuIdResult[1];
 
 #else
 
@@ -204,64 +210,35 @@ void CSysInfoWnd::UpdateProcessor()
 
 unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 {
-	CSysInfoWnd* pWnd;
-	HANDLE hThread;
 	LARGE_INTEGER nTime;
-	uint64 nStamp1, nStamp2, nDeltaStamp, nDeltaTime, nDone;
 	char sCpu[13];
 	TCHAR sTemp[256];
 
-	hThread = GetCurrentThread();
+	HANDLE hThread = GetCurrentThread();
 	SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
 
 	QueryPerformanceFrequency(&nTime);
-	nDeltaTime = (nTime.QuadPart * CPUFREQDELAY) / 1000;
+	uint64 nDeltaTime = (nTime.QuadPart * CPUFREQDELAY) / 1000;
 
-#ifdef _M_X64
-
-	nStamp1 = 0;
-
-#else
-
-	__asm
-	{
-		rdtsc;
-		mov dword ptr[nStamp1 + 0x00], eax;
-		mov dword ptr[nStamp1 + 0x04], edx;
-	}
-
-#endif
+	uint64 nStamp1 = __rdtsc();
 
 	QueryPerformanceCounter(&nTime);
-	nDone = nTime.QuadPart + nDeltaTime;
+	uint64 nDone = nTime.QuadPart + nDeltaTime;
 	while(1)
 	{
 		QueryPerformanceCounter(&nTime);
 		if((uint64)nTime.QuadPart >= nDone) break;
 	}
 
-#ifdef _M_X64
+	uint64 nStamp2 = __rdtsc();
 
-	nStamp2 = 0;
-
-#else
-
-	__asm
-	{
-		rdtsc;
-		mov dword ptr[nStamp2 + 0x00], eax;
-		mov dword ptr[nStamp2 + 0x04], edx;
-	}
-
-#endif
-
-	nDeltaStamp = 1000 * (nStamp2 - nStamp1) / CPUFREQDELAY;
+	uint64 nDeltaStamp = 1000 * (nStamp2 - nStamp1) / CPUFREQDELAY;
 
 	SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL);
 
 #ifdef _M_X64
 
-	//_cpuid_GetCpuIdString(sCpu);
+	_SysInfo_CPUID(0, sCpu);
 
 #else
 
@@ -278,7 +255,7 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 
 	sCpu[12] = '\0';
 
-	pWnd = (CSysInfoWnd*)pParam;
+	CSysInfoWnd* pWnd = reinterpret_cast<CSysInfoWnd*>(pParam);
 
 	_sntprintf(sTemp, countof(sTemp), _T("%s @ ~%i MHz"), string_cast<tstring>(sCpu).c_str(), nDeltaStamp / 1000000);
 	pWnd->m_pProcessor->SetText(sTemp);
