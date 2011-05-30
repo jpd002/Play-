@@ -6,7 +6,7 @@
 Name "Play! v${APP_VERSION}"
 
 ; The file to write
-OutFile "Play-${APP_VERSION}.exe"
+OutFile "Play-${APP_VERSION}-32.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\Play
@@ -62,9 +62,8 @@ Section "Play! (required)"
   ; Put file there
   File "..\win32\Release\Play.exe"
   File "..\Readme.html"
+  File "..\Changelog.html"
   File "..\Patches.xml"
-  File "..\icudt34.dll"
-  File "..\icuuc34.dll"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\NSIS_Play "Install_Dir" "$INSTDIR"
@@ -85,6 +84,7 @@ Section "Start Menu Shortcuts"
   CreateShortCut "$SMPROGRAMS\Play!\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Play!\Play!.lnk" "$INSTDIR\Play.exe" "" "$INSTDIR\Play.exe" 0
   CreateShortCut "$SMPROGRAMS\Play!\Read Me.lnk" "$INSTDIR\Readme.html" "" "$INSTDIR\Readme.html" 0
+  CreateShortCut "$SMPROGRAMS\Play!\changelog.html.lnk" "$INSTDIR\changelog.html" "" "$INSTDIR\changelog.html" 0
   
 SectionEnd
 
@@ -101,9 +101,8 @@ Section "Uninstall"
   ; Remove files and uninstaller
   Delete $INSTDIR\Play.exe
   Delete $INSTDIR\Readme.html
+  Delete $INSTDIR\Changelog.html
   Delete $INSTDIR\Patches.xml
-  Delete $INSTDIR\icudt34.dll
-  Delete $INSTDIR\icuuc34.dll
   Delete $INSTDIR\uninstall.exe
 
   ; Remove shortcuts, if any
