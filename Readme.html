@@ -176,7 +176,7 @@
 				<li>IPU:
 					<ul>
 						<li>MPEG-1/2 macroblock decoding supported.</li>
-						<li>All commands emulated PACK.</li>
+						<li>All commands emulated.</li>
 						<li>Still very buggy, so it won't playback movies really well.</li>
 					</ul>
 				</li>
@@ -203,7 +203,7 @@
             
             <p>
                 The first time you'll be running the emulator, it'll create a new "Play Data Files" folder in your "My Documents" folder.
-                This is going to be the place where the emulator will place saved games and the place it will look for homebrewn games data files.
+                This is going to be the place where the emulator will store saved games and also the place where it will look for homebrewn games data files.
             </p>
             
 			<h3 id="guide_playing">Playing a Game</h3>
@@ -213,23 +213,23 @@
 		    </p>
 		    
 		    <ul>
-				<li>Extract the contents of the archive containing the game or demo data into the "/vfs/host" subdirectory present the home directory.</li>
+				<li>Extract the contents of the archive containing the game or demo data into the "/vfs/host" subdirectory of the home directory.</li>
 				<li>In the emulator, select "File | Load ELF..." from the menu bar.</li>
-				<li>Select the ELF executable image file that should be present in the archive you've previously extracted.</li>
+				<li>Select the ELF executable image file that should have been extracted in the "/vfs/host" directory.</li>
 				<li>After a successful loading, the virtual machine will start executing the program.</li>
 			</ul>
 			
 			<p>
-				To play a commercial game present on a DVD-ROM or in a disk image in raw ISO9660 format, follow these steps:
+				To play a commercial game on a DVD-ROM or in a disk image in raw ISO9660 format (.iso file), follow these steps:
 			</p>
 			
 			<ul>
 				<li>
-					Configure the source that will be used to read the disk from by selecting "Options | Virtual File System Manager..." from the menu bar
+					Configure the source that will be used for the disk data by selecting "Options | Virtual File System Manager..." from the menu bar
 					and double clicking on the "cdrom0" device.
 					<ul>
 						<li>
-							If you have a physical disk you'll be reading from your DVD-ROM drive, click the "Physical CD/DVD Reader Device" radio button
+							If you want to use a physical DVD-ROM, click the "Physical CD/DVD Reader Device" radio button
 						    and select the drive that'll be containing the disk in the combo box below.
 						</li>
 						<li>
@@ -242,14 +242,14 @@
 				</li>
 				<li>Select "File | Boot cdrom0" from the menu bar.</li>
 				<li>After a successful loading, the virtual machine will start executing the program.</li>
-				<li>Note: You can also use the "File | Boot Disk Image..." to load a disk image directly.</li>
+				<li>Note: You can also use the "File | Boot Disk Image..." to load a disk image file directly.</li>
 			</ul>
 		    
 		    <h3 id="guide_controls">Game Controls</h3>
 
 			<p>
-				This is the current controller to keyboard button mapping configuration which is hardcoded in the
-				program for the moment. It will be possible to change them in a later version.
+				You can change your controller configuration by selecting "Options | Controller Settings...". It's possible to use either your keyboard
+				or your DirectInput compatible game controller to bind with the Dual Shock controller keys. The default config is this one:
 			</p>
 			
 			<table class="ctrl">
@@ -318,10 +318,9 @@
 			
 			<p>
 			
-				The current GS handler requires some OpenGL extensions to be allowed to render
-				some features of the GS correctly. To check which extensions are supported by your video card
-				driver, consult the "Renderer Settings" dialog in the emulator. The following table 
-				lists which extensions are currently being used and what might be the consequences 
+				The current GS handler requires some OpenGL extensions in order to emulate some features of the GS correctly. 
+				To check which extensions are supported by your video card driver, consult the "Renderer Settings" dialog in the emulator. 
+				The following table lists which extensions are currently being used and what might be the consequences 
 				if your video card driver do not support them.
 			
 			</p>
@@ -374,8 +373,9 @@
 					<td>Akumajou Dracula - Yami no Juin (SLPM_661.75)</td>
 					<td>
 						<ul>
-				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
-				            <li>Only menus works. (Very slowly)</li>
+							<li>Deadlocks occuring during loading screens (rare).</li>
+							<li>3D broken at some places.</li>
+				            <li>Use SMODE2 flipping mode.</li>
 						</ul> 
 					</td>
 				</tr>
@@ -384,6 +384,16 @@
 					<td>
 						<ul>
 						    <li>Sluggish 3D scenes.</li>
+				            <li>Use SMODE2 flipping mode.</li>
+						</ul> 
+					</td>
+				</tr>
+				<tr>
+					<td>Castlevania - Lament of Innoncence (SLUS_207.33)</td>
+					<td>
+						<ul>
+							<li>Initial menu only.</li>
+				            <li>Use SMODE2 flipping mode.</li>
 						</ul> 
 					</td>
 				</tr>
@@ -391,7 +401,8 @@
 					<td>Final Fantasy X (SLUS_203.12)</td>
 					<td>
 						<ul>
-						    <li>3D scenes are very slow and broken.</li>
+						    <li>3D scenes are very slow and glitchy.</li>
+				            <li>Use SMODE2 flipping mode.</li>
 						</ul> 
 					</td>
 				</tr>
@@ -399,8 +410,8 @@
 				    <td>Guilty Gear XX Accent Core Plus (SLPM_669.65)</td>
 				    <td>
 				        <ul>
-				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
 				            <li>Saved games doesn't work.</li>
+				            <li>Use VBLANK flipping mode.</li>
 				        </ul>
 				    </td>
 				</tr>
@@ -408,11 +419,20 @@
 				    <td>Half-Life (SLES_505.04)</td>
 				    <td>
 				        <ul>
-				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
 				            <li>Saved games doesn't work.</li>
 				            <li>Very sluggish and broken 3D scenes.</li>
-				        </ul>
+				            <li>Use SMODE2 flipping mode.</li>
+						</ul>
 				    </td>
+				</tr>
+				<tr>
+					<td>Mega Man X Collection (SLUS_213.70)</td>
+					<td>
+						<ul>
+							<li>Initial menu only.</li>
+				            <li>Use SMODE2 flipping mode.</li>
+						</ul> 
+					</td>
 				</tr>
 				<tr>
 					<td>Ys I &amp; II: Eternal Story (SPLS_252.06)</td>
@@ -421,6 +441,7 @@
 						    <li>No particles when hitting enemies;</li>
 						    <li>Flickering in some scenes.</li>
 						    <li>Saved games doesn't work.</li>
+				            <li>Use SMODE2 flipping mode.</li>
 						</ul> 
 					</td>
 				</tr>
@@ -432,8 +453,8 @@
 					<td>1987 (1987.elf)</td>
 					<td>
 						<ul>
-				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
 				            <li>Slow.</li>
+				            <li>Use VBLANK flipping mode.</li>
 						</ul> 
                     </td>
 				</tr>
@@ -441,9 +462,9 @@
 					<td>By The Way (bytheway.elf)</td>
 					<td>
 						<ul>
-				            <li>Works if "Force buffer flipping at V-Sync" option is enabled in "Renderer Settings".</li>
 				            <li>Slow.</li>
 				            <li>Video output is cut in half.</li>
+				            <li>Use VBLANK flipping mode.</li>
 						</ul> 
                     </td>
 				</tr>
@@ -474,6 +495,10 @@
 				<tr>
 					<td>Slave of the VU (slave_of_the_vu.elf)</td>
 					<td>Broken.</td>
+				</tr>
+				<tr>
+					<td>PS2 Doom</td>
+		            <td>Use FBDISP2 flipping mode.</td>
 				</tr>
 			</table>
 		</div>
