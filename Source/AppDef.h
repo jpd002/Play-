@@ -4,7 +4,7 @@
 //Don't put tabs here since it will screw up the installer package
 
 #define APP_NAME _T("Play!")
-#define APP_VERSION (26)
-#define APP_VERSIONSTR _T("0.26")
+#define APP_VERSION (30)
+#define APP_VERSIONSTR _T("0.30")
 
 #endif
