@@ -9,9 +9,10 @@
 
 using namespace Framework;
 
-CPsfBase::CPsfBase(CStream& stream) :
-m_reserved(NULL),
-m_program(NULL)
+CPsfBase::CPsfBase(CStream& stream) 
+: m_reserved(NULL)
+, m_program(NULL)
+, m_uncompProgramSize(0)
 {
     char signature[4];
     stream.Read(signature, 3);
@@ -53,6 +54,11 @@ uint8 CPsfBase::GetVersion() const
 uint8* CPsfBase::GetProgram() const
 {
 	return m_program;
+}
+
+uint32 CPsfBase::GetProgramUncompressedSize() const
+{
+	return m_uncompProgramSize;
 }
 
 uint8* CPsfBase::GetReserved() const
@@ -118,9 +124,11 @@ void CPsfBase::ReadProgram(CStream& stream)
 
 	delete [] compressedProgram;
 
+	m_uncompProgramSize = outputStream.GetSize();
+
 	{
-		m_program = new uint8[outputStream.GetSize()];
-		memcpy(m_program, outputStream.GetBuffer(), outputStream.GetSize());
+		m_program = new uint8[m_uncompProgramSize];
+		memcpy(m_program, outputStream.GetBuffer(), m_uncompProgramSize);
 	}
 }
 

@@ -297,11 +297,11 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
         }
     }
 
-    uint32 currentPoint = 0;
+    uint32 currentPoint = -1;
     for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
         pointIterator != partitionPoints.end(); pointIterator++)
     {
-        if(currentPoint != 0)
+        if(currentPoint != -1)
         {
             CreateBlock(currentPoint, *pointIterator - 4);
         }

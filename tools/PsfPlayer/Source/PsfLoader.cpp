@@ -70,7 +70,12 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 			sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			pc = virtualMachine.GetCpu().m_State.nPC;
 		}
-        bios->LoadExe(psfFile.GetProgram());
+
+		//Patch the text section size in the header because some PSF sets got it wrong.
+		CPsxBios::EXEHEADER* fileHeader = reinterpret_cast<CPsxBios::EXEHEADER*>(psfFile.GetProgram());
+		fileHeader->textSize = psfFile.GetProgramUncompressedSize() - 0x800;
+
+		bios->LoadExe(reinterpret_cast<uint8*>(fileHeader));
 		if(sp != 0)
 		{
 			virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nD0 = static_cast<int32>(sp);

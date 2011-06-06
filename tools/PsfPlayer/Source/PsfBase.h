@@ -31,6 +31,7 @@ public:
 
 	uint8				GetVersion() const;
 	uint8*				GetProgram() const;
+	uint32				GetProgramUncompressedSize() const;
     uint8*              GetReserved() const;
     uint32              GetReservedSize() const;
 	const char*			GetTagValue(const char*) const;
@@ -46,6 +47,8 @@ private:
 	uint32				m_reservedSize;
 	uint32				m_programSize;
 	uint32				m_programCrc;
+
+	uint32				m_uncompProgramSize;
 
 	uint8*				m_reserved;
 	uint8*				m_program;

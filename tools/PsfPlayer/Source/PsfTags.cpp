@@ -15,6 +15,11 @@ CPsfTags::CPsfTags(const TagMap& tags) :
 m_tags(tags)
 {
 	Init();
+	if(m_tags.find("utf8") != m_tags.end())
+	{
+		m_encoding = CE_UTF8;
+		UpdateStringConverter();
+	}
 }
 
 CPsfTags::~CPsfTags()
@@ -24,13 +29,26 @@ CPsfTags::~CPsfTags()
 
 void CPsfTags::Init()
 {
+	m_encoding = CE_INVALID;
 	SetDefaultCharEncoding(CE_WINDOWS_1252);
 }
 
 void CPsfTags::SetDefaultCharEncoding(const CHAR_ENCODING& encoding)
 {
 	m_defaultEncoding = encoding;
-	SetStringConverter(m_defaultEncoding);
+	UpdateStringConverter();
+}
+
+void CPsfTags::UpdateStringConverter()
+{
+	if(m_encoding == CE_INVALID)
+	{
+		SetStringConverter(m_defaultEncoding);
+	}
+	else
+	{
+		SetStringConverter(m_encoding);
+	}
 }
 
 bool CPsfTags::HasTag(const char* tagName) const

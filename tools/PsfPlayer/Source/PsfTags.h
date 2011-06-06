@@ -35,8 +35,10 @@ public:
 
 private:
 	void					Init();
+	void					UpdateStringConverter();
 	void					SetStringConverter(const CHAR_ENCODING&);
 
+	CHAR_ENCODING			m_encoding;
 	CHAR_ENCODING			m_defaultEncoding;
 	StringConvertFunction	m_stringConverter;
 	TagMap					m_tags;

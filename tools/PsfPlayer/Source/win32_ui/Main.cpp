@@ -8,7 +8,6 @@ using namespace Framework;
 using namespace std;
 namespace filesystem = boost::filesystem;
 
-//int main(int argc, char** argv)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 {
     CPsfVm virtualMachine;
@@ -18,7 +17,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 		virtualMachine.Reset();
 		filesystem::path loadPath(commandLine);
 		CPsfLoader::LoadPsf(virtualMachine, loadPath.string().c_str(), NULL);
-		string tagPackageName = loadPath.leaf();
+		string tagPackageName = loadPath.leaf().string().c_str();
 		virtualMachine.LoadDebugTags(tagPackageName.c_str());
 		CMiniDebugger debugger(virtualMachine, virtualMachine.GetDebugInfo());
 		debugger.Show(SW_SHOW);

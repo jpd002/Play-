@@ -8,6 +8,28 @@
 class CPsxBios : public Iop::CBiosBase
 {
 public:
+	struct EXEHEADER
+	{
+		uint8	id[8];
+		uint32	text;
+		uint32	data;
+		uint32	pc0;
+		uint32	gp0;
+		uint32	textAddr;
+		uint32	textSize;
+		uint32	dataAddr;
+		uint32	dataSize;
+		uint32	bssAddr;
+		uint32	bssSize;
+		uint32	stackAddr;
+		uint32	stackSize;
+		uint32	savedSp;
+		uint32	savedFp;
+		uint32	savedGp;
+		uint32	savedRa;
+		uint32	savedS0;
+	};
+
 							CPsxBios(CMIPS&, uint8*, uint32);
 	virtual					~CPsxBios();
 
@@ -33,28 +55,6 @@ public:
 #endif
 
 private:
-	struct EXEHEADER
-	{
-		uint8	id[8];
-		uint32	text;
-		uint32	data;
-		uint32	pc0;
-		uint32	gp0;
-		uint32	textAddr;
-		uint32	textSize;
-		uint32	dataAddr;
-		uint32	dataSize;
-		uint32	bssAddr;
-		uint32	bssSize;
-		uint32	stackAddr;
-		uint32	stackSize;
-		uint32	savedSp;
-		uint32	savedFp;
-		uint32	savedGp;
-		uint32	savedRa;
-		uint32	savedS0;
-	};
-
 	struct EVENT
 	{
 		uint32 isValid;
@@ -95,7 +95,10 @@ private:
 	void					sc_longjmp();
 	void					sc_strcpy();
 	void					sc_bzero();
+	void					sc_memcpy();
 	void					sc_memset();
+	void					sc_rand();
+	void					sc_srand();
 	void					sc_InitHeap();
 	void					sc_printf();
 	void					sc_FlushCache();
@@ -107,6 +110,7 @@ private:
 	void					sc_SysMalloc();
 	void					sc_DeliverEvent();
 	void					sc_OpenEvent();
+	void					sc_CloseEvent();
 	void					sc_WaitEvent();
 	void					sc_TestEvent();
 	void					sc_EnableEvent();
@@ -114,6 +118,7 @@ private:
 	void					sc_PAD_dr();
 	void					sc_ReturnFromException();
 	void					sc_HookEntryInt();
+	void					sc_puts();
 	void					sc_InitCARD();
 	void					sc_StartCARD();
 	void					sc_GetC0Table();

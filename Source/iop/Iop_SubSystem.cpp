@@ -14,19 +14,20 @@ using namespace PS2;
 #define STATE_RAM       ("iop_ram")
 #define STATE_SCRATCH   ("iop_scratch")
 
-CSubSystem::CSubSystem() :
-m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF),
-m_executor(m_cpu),
-m_ram(new uint8[IOP_RAM_SIZE]),
-m_scratchPad(new uint8[IOP_SCRATCH_SIZE]),
-m_spuRam(new uint8[SPU_RAM_SIZE]),
-m_dmac(m_ram, m_intc),
-m_counters(IOP_CLOCK_FREQ, m_intc),
-m_spuCore0(m_spuRam, SPU_RAM_SIZE),
-m_spuCore1(m_spuRam, SPU_RAM_SIZE),
-m_spu(m_spuCore0),
-m_spu2(m_spuCore0, m_spuCore1),
-m_cpuArch(MIPS_REGSIZE_32)
+CSubSystem::CSubSystem() 
+: m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF)
+, m_executor(m_cpu)
+, m_ram(new uint8[IOP_RAM_SIZE])
+, m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
+, m_spuRam(new uint8[SPU_RAM_SIZE])
+, m_dmac(m_ram, m_intc)
+, m_counters(IOP_CLOCK_FREQ, m_intc)
+, m_spuCore0(m_spuRam, SPU_RAM_SIZE)
+, m_spuCore1(m_spuRam, SPU_RAM_SIZE)
+, m_spu(m_spuCore0)
+, m_spu2(m_spuCore0, m_spuCore1)
+, m_cpuArch(MIPS_REGSIZE_32)
+, m_copScu(MIPS_REGSIZE_32)
 {
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,								                        0x01);
@@ -51,6 +52,7 @@ m_cpuArch(MIPS_REGSIZE_32)
 	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x04);
 
 	m_cpu.m_pArch = &m_cpuArch;
+	m_cpu.m_pCOP[0] = &m_copScu;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
     m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
