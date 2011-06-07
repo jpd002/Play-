@@ -4,7 +4,7 @@
 //Don't put tabs here since it will screw up the installer package
 
 #define APP_NAME _T("PsfPlayer")
-#define APP_VERSION (51)
-#define APP_VERSIONSTR _T("0.51")
+#define APP_VERSION (52)
+#define APP_VERSIONSTR _T("0.52")
 
 #endif

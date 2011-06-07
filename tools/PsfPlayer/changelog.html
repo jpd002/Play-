@@ -3,6 +3,14 @@
         <title>PsfPlayer Change Log</title>
     </head>
     <body>
+		<h3>Version 0.52</h3>
+		<ul>
+			<li>Fixed Vagrant Story PSF calling a function at 0x0 and crashing.</li>
+			<li>Added missing PSX system calls for Vagrant Story and Granstream Saga PSFs.</li>
+			<li>Added COP0 support to the IOP subsystem for FF6 and Chrono Trigger PSFs.</li>
+			<li>Added non-default char encoding handling in PSF tags (utf8 tag).</li>
+			<li>Now patches the PSX-EXE header of loaded PSF files because Grandstream Saga PSF specifies a bad text section size in its header.</li>
+		</ul>
 		<h3>Version 0.51</h3>
 		<ul>
 			<li>Fixed many problems in IOP emulation to support the Shadow Hearts PSF set.</li>
