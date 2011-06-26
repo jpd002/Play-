@@ -3,6 +3,8 @@
 
 #include "Types.h"
 #include "BitStream.h"
+#include "mpeg2/VLCTable.h"
+#include "mpeg2/DctCoefficientTable.h"
 #include <boost/thread.hpp>
 #include <functional>
 #include "MailBox.h"
@@ -30,7 +32,6 @@ public:
 	void                SetRegister(uint32, uint32);
     void                SetDMA3ReceiveHandler(const Dma3ReceiveHandler&);
     uint32              ReceiveDMA4(uint32, uint32, bool, uint8*);
-//	void                DMASliceDoneCallback();
 
 private:
 	class COutFifoBase
@@ -95,20 +96,23 @@ private:
 	class CINFIFO : public Framework::CBitStream
 	{
 	public:
-                        CINFIFO();
-		virtual         ~CINFIFO();
-		void            Write(void*, unsigned int);
-		uint32          GetBits_MSBF(uint8);
-		uint32          GetBits_LSBF(uint8);
-		bool	        TryPeekBits_LSBF(uint8, uint32&);
-		bool            TryPeekBits_MSBF(uint8, uint32&);
-		void            Advance(uint8);
-		void			SeekToByteAlign();
-		bool            IsOnByteBoundary();
-		uint8		    GetBitIndex() const;
-		void            SetBitPosition(unsigned int);
-		unsigned int    GetSize();
-		void            Reset();
+							CINFIFO();
+		virtual				~CINFIFO();
+		void				Write(void*, unsigned int);
+		uint32				GetBits_MSBF(uint8);
+		uint32				GetBits_LSBF(uint8);
+		bool				TryPeekBits_LSBF(uint8, uint32&);
+		bool				TryPeekBits_MSBF(uint8, uint32&);
+		void				Advance(uint8);
+		void				SeekToByteAlign();
+		bool				IsOnByteBoundary();
+		uint8				GetBitIndex() const;
+		void				SetBitPosition(unsigned int);
+		unsigned int		GetSize();
+		unsigned int		GetAvailableBits();
+		void				Reset();
+		void				WaitForData();
+		void				WaitForSpace();
 
 		enum BUFFERSIZE
 		{
@@ -121,20 +125,280 @@ private:
 		unsigned int        m_nBitPosition;
         boost::mutex        m_accessMutex;
         boost::condition    m_dataNeededCondition;
+		boost::condition	m_dataConsumedCondition;
+	};
+
+	class CCommand
+	{
+	public:
+		virtual			~CCommand() {}
+		virtual void	Execute() = 0;
+
+	private:
+
+	};
+
+	//0x00 ------------------------------------------------------------
+	class CBCLRCommand : public CCommand
+	{
+	public:
+						CBCLRCommand();
+		void			Initialize(CINFIFO*, uint32);
+		void			Execute();
+
+	private:
+		CINFIFO*		m_IN_FIFO;
+		uint32			m_commandCode;
+	};
+
+	//0x02 ------------------------------------------------------------
+	class CBDECCommand_ReadDcDiff : public CCommand
+	{
+	public:
+										CBDECCommand_ReadDcDiff();
+
+		void							Initialize(CINFIFO*, unsigned int, int16*);
+		void							Execute();
+
+	private:
+		enum STATE
+		{
+			STATE_READSIZE,
+			STATE_READDIFF,
+			STATE_DONE
+		};
+
+		STATE							m_state;
+		CINFIFO*						m_IN_FIFO;
+		unsigned int					m_channelId;
+		uint8							m_dcSize;
+		int16*							m_result;
+	};
+
+	class CBDECCommand_ReadDct : public CCommand
+	{
+	public:
+										CBDECCommand_ReadDct();
+
+		void							Initialize(CINFIFO*, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1);
+		void							Execute();
+
+	private:
+		enum STATE
+		{
+			STATE_INIT,
+			STATE_READDCDIFF,
+			STATE_CHECKEOB,
+			STATE_READCOEFF,
+			STATE_SKIPEOB
+		};
+
+		CINFIFO*						m_IN_FIFO;
+		STATE							m_state;
+		int16*							m_block;
+		unsigned int					m_channelId;
+		bool							m_mbi;
+		bool							m_isMpeg1;
+		unsigned int					m_blockIndex;
+		MPEG2::CDctCoefficientTable*	m_coeffTable;
+		int16*							m_dcPredictor;
+		int16							m_dcDiff;
+		CBDECCommand_ReadDcDiff			m_readDcDiffCommand;
+	};
+
+	class CBDECCommand : public CCommand
+	{
+	public:
+		struct CONTEXT
+		{
+			bool	isMpeg1;
+			bool	isLinearQScale;
+			bool	isZigZag;
+			uint8*	intraIq;
+			uint8*	nonIntraIq;
+			int16*	dcPredictor;
+			uint32	dcPrecision;
+		};
+										CBDECCommand();
+
+		void							Initialize(CINFIFO*, COutFifoBase*, uint32, const CONTEXT&);
+		void							Execute();
+
+	private:
+		enum STATE
+		{
+			STATE_ADVANCE,
+			STATE_READCBP,
+			STATE_RESETDC,
+			STATE_DECODEBLOCK_BEGIN,
+			STATE_DECODEBLOCK_READCOEFFS,
+			STATE_DECODEBLOCK_GOTONEXT,
+			STATE_DONE
+		};
+
+		struct BLOCKENTRY
+		{
+			int16*						block;
+			unsigned int				channel;
+		};
+
+		CINFIFO*						m_IN_FIFO;
+		COutFifoBase*					m_OUT_FIFO;
+		STATE							m_state;
+
+		bool							m_mbi;
+		bool							m_dcr;
+		bool							m_dt;
+		uint8							m_qsc;
+		uint8							m_fb;
+
+		uint8							m_codedBlockPattern;
+
+		BLOCKENTRY						m_blocks[6];
+
+		int16							m_yBlock[4][64];
+		int16							m_cbBlock[64];
+		int16							m_crBlock[64];
+
+		unsigned int					m_currentBlockIndex;
+
+		CONTEXT							m_context;
+		CBDECCommand_ReadDct			m_readDctCoeffsCommand;
+	};
+
+	//0x03 ------------------------------------------------------------
+	class CVDECCommand : public CCommand
+	{
+	public:
+							CVDECCommand();
+
+		void				Initialize(CINFIFO*, uint32, uint32, uint32*);
+		void				Execute();
+
+	private:
+		enum STATE
+		{
+			STATE_ADVANCE,
+			STATE_DECODE,
+			STATE_DONE
+		};
+
+		uint32				m_commandCode;
+		uint32*				m_result;
+		CINFIFO*			m_IN_FIFO;
+		STATE				m_state;
+		MPEG2::CVLCTable*	m_table;
+	};
+
+	//0x04 ------------------------------------------------------------
+	class CFDECCommand : public CCommand
+	{
+	public:
+						CFDECCommand();
+
+		void			Initialize(CINFIFO*, uint32, uint32*);
+		void			Execute();
+
+	private:
+		enum STATE
+		{
+			STATE_ADVANCE,
+			STATE_DECODE,
+			STATE_DONE
+		};
+
+		uint32			m_commandCode;
+		uint32*			m_result;
+		CINFIFO*		m_IN_FIFO;
+		STATE			m_state;
+	};
+
+	//0x05 ------------------------------------------------------------
+	class CSETIQCommand : public CCommand
+	{
+	public:
+						CSETIQCommand();
+
+		void			Initialize(CINFIFO*, uint8*);
+		void			Execute();
+
+	private:
+		CINFIFO*		m_IN_FIFO;
+		uint8*			m_matrix;
+		unsigned int	m_currentIndex;
+	};
+
+	//0x06 ------------------------------------------------------------
+	class CSETVQCommand : public CCommand
+	{
+	public:
+						CSETVQCommand();
+
+		void			Initialize(CINFIFO*, uint16*);
+		void			Execute();
+
+	private:
+		CINFIFO*		m_IN_FIFO;
+		uint16*			m_clut;
+		unsigned int	m_currentIndex;
+	};
+
+	//0x07 ------------------------------------------------------------
+	class CCSCCommand : public CCommand
+	{
+	public:
+						CCSCCommand();
+
+		void			Initialize(CINFIFO*, COUTFIFO*, uint32);
+		void			Execute();
+
+	private:
+		enum STATE
+		{
+			STATE_READBLOCKSTART,
+			STATE_READBLOCK,
+			STATE_CONVERTBLOCK,
+			STATE_DONE,
+		};
+
+		enum
+		{
+			BLOCK_SIZE = 0x180,
+		};
+
+		void			GenerateCbCrMap();
+
+		CINFIFO*		m_IN_FIFO;
+		COUTFIFO*		m_OUT_FIFO;
+		uint8			m_OFM;
+		uint8			m_DTE;
+		uint16			m_MBC;
+		unsigned int	m_currentIndex;
+		STATE			m_state;
+
+		unsigned int	m_nCbCrMap[0x100];
+
+		uint8			m_block[BLOCK_SIZE];
+	};
+
+	//0x09 ------------------------------------------------------------
+	class CSETTHCommand : public CCommand
+	{
+	public:
+						CSETTHCommand();
+
+		void			Initialize(uint32, uint16*, uint16*);
+		void			Execute();
+
+	private:
+		uint32			m_commandCode;
+		uint16*			m_TH0;
+		uint16*			m_TH1;
 	};
 
     void                CommandThread();
-    void                ExecuteCommand(uint32);
-    void                DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
-    void                DecodeBlock(COutFifoBase*, uint8, uint8, uint8, uint8, uint8);
-    void                VariableLengthDecode(uint8, uint8);
-    void                FixedLengthDecode(uint8);
-    void                LoadIQMatrix(uint8*);
-    void                LoadVQCLUT();
-    void                ColorSpaceConversion(Framework::CBitStream*, uint8, uint8, uint16);
-    void                SetThresholdValues(uint32);
-
-//    bool                IsExecutionRisky(unsigned int);
+	void				InitializeCommand(uint32);
+//    void                DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
 
     uint32              GetPictureType();
     uint32              GetDcPrecision();
@@ -143,20 +407,14 @@ private:
     bool                GetIsZigZagScan();
     bool                GetIsMPEG1CoeffVLCTable();
 
-    void                DecodeDctCoefficients(unsigned int, int16*, uint8);
-    void                DequantiseBlock(int16*, uint8, uint8);
-    void                InverseScan(int16*);
-    int16               GetDcDifferential(unsigned int);
-
-    void                GenerateCbCrMap();
+	static void			DequantiseBlock(int16*, uint8, uint8, bool isLinearQScale, uint32 dcPrecision, uint8* intraIq, uint8* nonIntraIq);
+	static void			InverseScan(int16*, bool isZigZag);
 
     uint32              GetBusyBit(bool) const;
 
     void                DisassembleGet(uint32);
     void                DisassembleSet(uint32, uint32);
     void                DisassembleCommand(uint32);
-
-    unsigned int        m_nCbCrMap[0x100];
 
     uint8               m_nIntraIQ[0x40];
     uint8               m_nNonIntraIQ[0x40];
@@ -171,10 +429,23 @@ private:
     COUTFIFO            m_OUT_FIFO;
     CINFIFO             m_IN_FIFO;
     boost::thread*      m_cmdThread;
-    CMailBox            m_cmdThreadMail;
+	bool				m_cmdThreadOver;
+	boost::mutex		m_cmdMutex;
+	boost::condition	m_cmdCondition;
+	uint32				m_currentCmdCode;
     bool                m_isBusy;
     bool                m_busyWhileReadingCMD;
     bool                m_busyWhileReadingTOP;
+
+	CCommand*			m_currentCmd;
+	CBCLRCommand		m_BCLRCommand;
+	CBDECCommand		m_BDECCommand;
+	CVDECCommand		m_VDECCommand;
+	CFDECCommand		m_FDECCommand;
+	CSETIQCommand		m_SETIQCommand;
+	CSETVQCommand		m_SETVQCommand;
+	CCSCCommand			m_CSCCommand;
+	CSETTHCommand		m_SETTHCommand;
 };
 
 #endif

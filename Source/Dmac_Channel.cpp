@@ -15,14 +15,12 @@
 #define STATE_REGS_ASR0         ("ASR0")
 #define STATE_REGS_ASR1         ("ASR1")
 
-using namespace std;
 using namespace Dmac;
-using namespace boost;
 
-CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive) :
-m_dmac(dmac),
-m_nNumber(nNumber),
-m_pReceive(pReceive)
+CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive) 
+: m_dmac(dmac)
+, m_nNumber(nNumber)
+, m_pReceive(pReceive)
 {
 
 }
@@ -43,7 +41,7 @@ void CChannel::Reset()
 
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 {
-    string path = STATE_PREFIX + lexical_cast<string>(m_nNumber) + STATE_SUFFIX;
+	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_nNumber) + STATE_SUFFIX;
     CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
     registerFile->SetRegister32(STATE_REGS_CHCR,    m_CHCR);
     registerFile->SetRegister32(STATE_REGS_MADR,    m_nMADR);
@@ -57,7 +55,7 @@ void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 {
-    string path = STATE_PREFIX + lexical_cast<string>(m_nNumber) + STATE_SUFFIX;
+	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_nNumber) + STATE_SUFFIX;
     CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
     m_CHCR      <<= registerFile.GetRegister32(STATE_REGS_CHCR);
     m_nMADR       = registerFile.GetRegister32(STATE_REGS_MADR);
@@ -95,7 +93,10 @@ void CChannel::WriteCHCR(uint32 nValue)
 
     if(m_CHCR.nSTR != 0)
     {
-        m_nSCCTRL |= SCCTRL_INITXFER;
+		if(m_nQWC == 0)
+		{
+			m_nSCCTRL |= SCCTRL_INITXFER;
+		}
         Execute();
     }
 }
@@ -108,7 +109,7 @@ void CChannel::Execute()
         {
             if(m_nNumber != 4)
             {
-                throw runtime_error("Need to check that case.");
+				throw std::runtime_error("Need to check that case.");
             }
             return;
         }
@@ -142,14 +143,10 @@ void CChannel::ExecuteNormal()
 
 void CChannel::ExecuteSourceChain()
 {
-	uint64 nTag;
-	uint32 nRecv;
-	uint8 nID;
-
 	//Execute current
 	if(m_nQWC != 0)
 	{
-		nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+		uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
 
 		m_nMADR	+= nRecv * 0x10;
 		m_nQWC	-= nRecv;
@@ -195,7 +192,7 @@ void CChannel::ExecuteSourceChain()
         else
         {
 	        //Check if we've finished our DMA transfer
-	        if(m_nQWC == 0)
+			if(m_nQWC == 0)
 	        {
 		        if(m_nSCCTRL & SCCTRL_INITXFER)
 		        {
@@ -236,14 +233,14 @@ void CChannel::ExecuteSourceChain()
             continue;
         }
 
-		nTag = m_dmac.FetchDMATag(m_nTADR);
+		uint64 nTag = m_dmac.FetchDMATag(m_nTADR);
 
 		//Save higher 16 bits of tag into CHCR
 		m_CHCR.nTAG = nTag >> 16;
 		//m_nCHCR &= ~0xFFFF0000;
 		//m_nCHCR |= nTag & 0xFFFF0000;
 
-		nID = (uint8)((nTag >> 28) & 0x07);
+		uint8 nID = (uint8)((nTag >> 28) & 0x07);
 
 		switch(nID)
 		{
@@ -302,7 +299,7 @@ void CChannel::ExecuteSourceChain()
 
 		if(m_nQWC != 0)
 		{
-			nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+			uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
 
 			m_nMADR		+= nRecv * 0x10;
 			m_nQWC		-= nRecv;

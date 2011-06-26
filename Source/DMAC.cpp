@@ -912,6 +912,12 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 	case D2_TADR:
 		CLog::GetInstance().Print(LOG_NAME, "= D2_TADR.\r\n");
 		break;
+	case D3_CHCR:
+		CLog::GetInstance().Print(LOG_NAME, "= D3_CHCR.\r\n");
+		break;
+	case D3_MADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D3_MADR.\r\n");
+		break;
 	case D3_QWC:
 		CLog::GetInstance().Print(LOG_NAME, "= D3_QWC.\r\n");
 		break;
