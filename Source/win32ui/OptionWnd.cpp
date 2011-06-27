@@ -50,6 +50,12 @@ COptionWnd<T>::~COptionWnd()
 
 }
 
+template <typename T>
+void COptionWnd<T>::OnItemAppearing(HTREEITEM item)
+{
+
+}
+
 template <typename T> 
 long COptionWnd<T>::OnNotify(WPARAM wParam, NMHDR* pH)
 {
@@ -126,14 +132,14 @@ void COptionWnd<T>::ResizePanel(HWND hPanel)
 template <typename T>
 void COptionWnd<T>::UpdatePanel(TVITEM* pNew, TVITEM* pOld)
 {
-	HWND hNew, hOld;
-	hNew = (HWND)pNew->lParam;
-	hOld = (HWND)pOld->lParam;
+	HWND hNew = reinterpret_cast<HWND>(pNew->lParam);
+	HWND hOld = reinterpret_cast<HWND>(pOld->lParam);
 	if(hOld != NULL)
 	{
 		ShowWindow(hOld, SW_HIDE);
 		EnableWindow(hOld, FALSE);
 	}
+	OnItemAppearing(pNew->hItem);
 	if(hNew != NULL)
 	{
 		ResizePanel(hNew);

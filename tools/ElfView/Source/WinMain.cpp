@@ -2,25 +2,13 @@
 #include "ElfViewFrame.h"
 #include <boost/algorithm/string.hpp>
 
-using namespace Framework;
-using namespace std;
-using namespace boost;
-
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int showCmd)
 {
-    try
-    {
-        string path(params);
-        erase_all(path, "\"");
-        CElfViewFrame elfViewFrame(path.c_str());
-        elfViewFrame.Center();
-        elfViewFrame.Show(SW_SHOW);
-        Win32::CWindow::StdMsgLoop(&elfViewFrame);
-    }
-	catch(const std::exception& except)
-    {
-        MessageBoxA(NULL, except.what(), NULL, 16);
-//        MessageBoxA(NULL, params, NULL, 16);
-    }
+	std::string path(params);
+	boost::erase_all(path, "\"");
+	CElfViewFrame elfViewFrame(path.c_str());
+	elfViewFrame.Center();
+	elfViewFrame.Show(SW_SHOW);
+	Framework::Win32::CWindow::StdMsgLoop(&elfViewFrame);
     return 0;
 }

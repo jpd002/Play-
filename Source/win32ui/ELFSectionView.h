@@ -11,11 +11,15 @@
 class CELFSectionView : public Framework::Win32::CWindow
 {
 public:
-								CELFSectionView(HWND, CELF*, uint16);
-								~CELFSectionView();
+								CELFSectionView(HWND, CELF*);
+	virtual						~CELFSectionView();
+
+	void						SetSectionIndex(uint16);
+
 protected:
 	long						OnSize(unsigned int, unsigned int, unsigned int);
 	long						OnSetFocus();
+
 private:
 	void						RefreshLayout();
 	void						FillInformation();

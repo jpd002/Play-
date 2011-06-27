@@ -9,7 +9,8 @@
 
 using namespace Framework;
 
-CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
+CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF)
+: m_nProgram(-1)
 {
 	RECT rc;
 
@@ -27,7 +28,6 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
 	}
 
 	m_pELF = pELF;
-	m_nProgram = nProgram;
 
 	SetRect(&rc, 0, 0, 1, 1);
 
@@ -64,10 +64,8 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF, uint16 nProgram)
 	m_pLayout->SetObject(1, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAlign));
     m_pLayout->SetObject(1, 8, CLayoutStretch::Create());
 
-	FillInformation();
 
 	RefreshLayout();
-
 }
 
 CELFProgramView::~CELFProgramView()
@@ -81,12 +79,16 @@ long CELFProgramView::OnSize(unsigned int nType, unsigned int nX, unsigned int n
 	return TRUE;
 }
 
+void CELFProgramView::SetProgramIndex(uint16 programIndex)
+{
+	m_nProgram = programIndex;
+	FillInformation();
+}
+
 void CELFProgramView::FillInformation()
 {
-	ELFPROGRAMHEADER* pH;
 	TCHAR sTemp[256];
-	
-	pH = m_pELF->GetProgram(m_nProgram);
+	ELFPROGRAMHEADER* pH = m_pELF->GetProgram(m_nProgram);
 
 	switch(pH->nType)
 	{

@@ -7,13 +7,13 @@
 class CElfViewEx : public CELFView
 {
 public:
-                CElfViewEx(HWND, Framework::CStream&);
-    virtual     ~CElfViewEx();
+					CElfViewEx(HWND);
+	virtual			~CElfViewEx();
 
-protected:
+	void			LoadElf(Framework::CStream&);
 
 private:
-    CElfFile       m_elf;
+	CElfFile*		m_elf;
 };
 
 #endif

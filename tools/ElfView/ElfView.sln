@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ElfView", "ElfView.vcproj", "{7FDF35F5-99AF-48AB-B9FE-DF1B49EDCEDD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3CCDBB1-FB55-4416-BE80-FAB313BE549C} = {E3CCDBB1-FB55-4416-BE80-FAB313BE549C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\..\Framework\Framework.vcproj", "{E3CCDBB1-FB55-4416-BE80-FAB313BE549C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FDF35F5-99AF-48AB-B9FE-DF1B49EDCEDD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7FDF35F5-99AF-48AB-B9FE-DF1B49EDCEDD}.Debug|Win32.Build.0 = Debug|Win32
+		{7FDF35F5-99AF-48AB-B9FE-DF1B49EDCEDD}.Release|Win32.ActiveCfg = Release|Win32
+		{7FDF35F5-99AF-48AB-B9FE-DF1B49EDCEDD}.Release|Win32.Build.0 = Release|Win32
+		{E3CCDBB1-FB55-4416-BE80-FAB313BE549C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E3CCDBB1-FB55-4416-BE80-FAB313BE549C}.Debug|Win32.Build.0 = Debug|Win32
+		{E3CCDBB1-FB55-4416-BE80-FAB313BE549C}.Release|Win32.ActiveCfg = Release|Win32
+		{E3CCDBB1-FB55-4416-BE80-FAB313BE549C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

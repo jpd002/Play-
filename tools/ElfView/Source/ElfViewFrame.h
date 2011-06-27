@@ -7,12 +7,20 @@
 class CElfViewFrame : public Framework::Win32::CMDIFrame
 {
 public:
-                CElfViewFrame(const char*);
-    virtual     ~CElfViewFrame();
+								CElfViewFrame(const char*);
+    virtual						~CElfViewFrame();
+
+protected:
+	long						OnCommand(unsigned short, unsigned short, HWND);
+	static HRESULT CALLBACK		TaskDialogCallback(HWND, UINT, WPARAM, LPARAM, LONG_PTR);
 
 private:
-    CElfViewEx* Open(const char*);
-    CElfViewEx* m_elfView;
+	void						OpenElf();
+    void						Load(const char*);
+	void						CloseCurrentFile();
+	void						ShowAboutBox();
+
+	CElfViewEx*					m_elfView;
 };
 
 #endif

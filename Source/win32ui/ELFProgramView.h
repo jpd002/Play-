@@ -10,8 +10,10 @@
 class CELFProgramView : public Framework::Win32::CWindow
 {
 public:
-								CELFProgramView(HWND, CELF*, uint16);
-								~CELFProgramView();
+								CELFProgramView(HWND, CELF*);
+	virtual						~CELFProgramView();
+
+	void						SetProgramIndex(uint16);
 
 protected:
 	long						OnSize(unsigned int, unsigned int, unsigned int);

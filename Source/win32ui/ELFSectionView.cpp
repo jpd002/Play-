@@ -9,7 +9,8 @@
 
 using namespace Framework;
 
-CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
+CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF)
+: m_nSection(-1)
 {
 	RECT rc;
 
@@ -27,7 +28,6 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 	}
 
 	m_pELF = pELF;
-	m_nSection = nSection;
 
 	SetRect(&rc, 0, 0, 1, 1);
 
@@ -74,8 +74,6 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF, uint16 nSection)
 	m_pLayout->InsertObject(pSubLayout0);
     m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(200, 200, 1, 1, m_pData));
 
-	FillInformation();
-
 	RefreshLayout();
 }
 
@@ -96,12 +94,16 @@ long CELFSectionView::OnSetFocus()
 	return FALSE;
 }
 
+void CELFSectionView::SetSectionIndex(uint16 sectionIndex)
+{
+	m_nSection = sectionIndex;
+	FillInformation();
+}
+
 void CELFSectionView::FillInformation()
 {
 	TCHAR sTemp[256];
-	ELFSECTIONHEADER* pH;
-
-	pH = m_pELF->GetSection(m_nSection);
+	ELFSECTIONHEADER* pH = m_pELF->GetSection(m_nSection);
 
 	switch(pH->nType)
 	{

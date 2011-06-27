@@ -5,16 +5,14 @@
 #include "string_cast.h"
 
 using namespace Framework;
-using namespace std;
-using namespace boost;
 
-CELFView::CELFView(HWND hParent) :
-COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer")),
-m_pELF(NULL),
-m_pHeaderView(NULL),
-m_pSymbolView(NULL),
-m_pSectionView(NULL),
-m_pProgramView(NULL)
+CELFView::CELFView(HWND hParent) 
+: COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer"))
+, m_pELF(NULL)
+, m_pHeaderView(NULL)
+, m_pSymbolView(NULL)
+, m_pSectionView(NULL)
+, m_pProgramView(NULL)
 {
 
 }
@@ -28,22 +26,14 @@ void CELFView::Delete()
 {
 	if(m_pELF != NULL)
 	{
-        const ELFHEADER& header = m_pELF->GetHeader();
-		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
-		{
-			DELETEPTR(m_pProgramView[i]);
-		}
 		DELETEPTR(m_pProgramView);
-
-		for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
-		{
-			DELETEPTR(m_pSectionView[i]);
-		}
 		DELETEPTR(m_pSectionView);
-
 		DELETEPTR(m_pSymbolView);
 		DELETEPTR(m_pHeaderView);
 	}
+
+	m_sectionItems.clear();
+	m_programItems.clear();
 }
 
 void CELFView::SetELF(CELF* pELF)
@@ -63,17 +53,8 @@ void CELFView::SetELF(CELF* pELF)
 
     const ELFHEADER& header(m_pELF->GetHeader());
 
-	m_pSectionView = new CELFSectionView*[header.nSectHeaderCount];
-	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
-	{
-		m_pSectionView[i] = new CELFSectionView(hCont, m_pELF, i);
-	}
-
-	m_pProgramView = new CELFProgramView*[header.nProgHeaderCount];
-	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
-	{
-		m_pProgramView[i] = new CELFProgramView(hCont, m_pELF, i);
-	}
+	m_pSectionView = new CELFSectionView(hCont, m_pELF);
+	m_pProgramView = new CELFProgramView(hCont, m_pELF);
 
 	PopulateList();
 
@@ -81,7 +62,6 @@ void CELFView::SetELF(CELF* pELF)
 
 	//Humm, this window is not necessarily active at this moment? Why this is here?
 	//GetTreeView()->SetFocus();
-
 }
 
 void CELFView::PopulateList()
@@ -93,8 +73,8 @@ void CELFView::PopulateList()
 	const char* sStrTab = (const char*)m_pELF->GetSectionData(header.nSectHeaderStringTableIndex);
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
-        tstring sDisplay;
-    	const char* sName;
+		std::tstring sDisplay;
+    	const char* sName(NULL);
 
     	ELFSECTIONHEADER* pSect = m_pELF->GetSection(i);
 		
@@ -109,14 +89,15 @@ void CELFView::PopulateList()
 
         if(strlen(sName))
 		{
-            sDisplay = string_cast<tstring>(sName);
+			sDisplay = string_cast<std::tstring>(sName);
 		}
 		else
 		{
-            sDisplay = _T("Section ") + lexical_cast<tstring>(i);
+			sDisplay = _T("Section ") + boost::lexical_cast<std::tstring>(i);
 		}
 
-        InsertOption(hItem, sDisplay.c_str(), m_pSectionView[i]->m_hWnd);
+        HTREEITEM sectionItem = InsertOption(hItem, sDisplay.c_str(), m_pSectionView->m_hWnd);
+		m_sectionItems[sectionItem] = i;
 	}
 	GetTreeView()->Expand(hItem, TVE_EXPAND);
 
@@ -126,18 +107,17 @@ void CELFView::PopulateList()
 
 		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 		{
-            tstring sDisplay(_T("Segment ") + lexical_cast<tstring>(i));
-			InsertOption(hItem, sDisplay.c_str(), m_pProgramView[i]->m_hWnd);
+			std::tstring sDisplay(_T("Segment ") + boost::lexical_cast<std::tstring>(i));
+			HTREEITEM programItem = InsertOption(hItem, sDisplay.c_str(), m_pProgramView->m_hWnd);
+			m_programItems[programItem] = i;
 		}
 		GetTreeView()->Expand(hItem, TVE_EXPAND);
-	
 	}
 
 	if(m_pELF->FindSection(".strtab") && m_pELF->FindSection(".symtab"))
 	{
 		InsertOption(NULL, _T("Symbols"), m_pSymbolView->m_hWnd);
 	}
-
 }
 
 long CELFView::OnSysCommand(unsigned int nCmd, LPARAM lParam)
@@ -149,4 +129,27 @@ long CELFView::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 		return FALSE;
 	}
 	return TRUE;
+}
+
+void CELFView::OnItemAppearing(HTREEITEM item)
+{
+	//Check if it's a section header
+	{
+		SectionItemMap::const_iterator sectionIterator = m_sectionItems.find(item);
+		if(sectionIterator != m_sectionItems.end())
+		{
+			m_pSectionView->SetSectionIndex(static_cast<uint16>(sectionIterator->second));
+			return;
+		}
+	}
+
+	//Check if it's a program header
+	{
+		SectionItemMap::const_iterator programIterator = m_programItems.find(item);
+		if(programIterator != m_programItems.end())
+		{
+			m_pProgramView->SetProgramIndex(static_cast<uint16>(programIterator->second));
+			return;
+		}
+	}
 }
