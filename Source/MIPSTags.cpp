@@ -23,9 +23,7 @@ CMIPSTags::~CMIPSTags()
 
 void CMIPSTags::InsertTag(uint32 nAddress, const char* sTag)
 {
-	bool nErase;
-
-	nErase = false;
+	bool nErase = false;
 	if(sTag == NULL)
 	{
 		nErase = true;
@@ -71,9 +69,8 @@ void CMIPSTags::Serialize(const char* sPath)
 		itTag != m_Tags.end(); itTag++)
 	{
 		const string& sTag = itTag->second;
-		uint8 nLength;
 
-		nLength = static_cast<uint8>(min<size_t>(sTag.length(), 255));
+		uint8 nLength = static_cast<uint8>(min<size_t>(sTag.length(), 255));
 
 		Stream.Write32(itTag->first);
 		Stream.Write8(nLength);
@@ -86,20 +83,16 @@ void CMIPSTags::Unserialize(const char* sPath)
 	try
 	{
 		CStdStream Stream(fopen(sPath, "rb"));
-		uint32 nCount;
-
 		RemoveTags();
 
-		nCount = Stream.Read32();
+		uint32 nCount = Stream.Read32();
 
 		for(uint32 i = 0; i < nCount; i++)
 		{
-			uint32 nKey;
-			uint8 nLength;
 			char sTag[256];
 
-			nKey		= Stream.Read32();
-			nLength		= Stream.Read8();
+			uint32 nKey		= Stream.Read32();
+			uint8 nLength	= Stream.Read8();
 
 			Stream.Read(sTag, nLength);
 			sTag[nLength] = 0;
