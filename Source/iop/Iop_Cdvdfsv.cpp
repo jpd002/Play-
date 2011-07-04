@@ -101,6 +101,27 @@ void CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 {
 	switch(method)
 	{
+	case 0x01:
+		{
+			assert(retSize >= 0xC);
+			CLog::GetInstance().Print(LOG_NAME, "ReadClock();\r\n");
+
+			time_t currentTime = time(0);
+			tm* localTime = localtime(&currentTime);
+			uint8* clockResult = reinterpret_cast<uint8*>(ret + 1);
+			clockResult[0] = 0x01;											//Status ?
+			clockResult[1] = static_cast<uint8>(localTime->tm_sec);			//Seconds
+			clockResult[2] = static_cast<uint8>(localTime->tm_min);			//Minutes
+			clockResult[3] = static_cast<uint8>(localTime->tm_hour);		//Hour
+			clockResult[4] = 0;												//Padding
+			clockResult[5] = static_cast<uint8>(localTime->tm_mday);		//Day
+			clockResult[6] = static_cast<uint8>(localTime->tm_mon);			//Month
+			clockResult[7] = static_cast<uint8>(localTime->tm_year % 100);	//Year
+
+			ret[0x00] = 0x00;
+		}
+		break;
+
 	case 0x03:
 		assert(retSize >= 4);
 		CLog::GetInstance().Print(LOG_NAME, "GetDiskType();\r\n");
