@@ -167,6 +167,14 @@ private:
 		uint32									nBufferAddr;
 	};
 
+#ifdef DEBUGGER_INCLUDED
+	struct SYSCALL_NAME
+	{
+		uint32									id;
+		const char*								name;
+	};
+#endif
+
 	enum SYSCALL_REGS
 	{
 		SC_RETURN = 2,
@@ -206,9 +214,6 @@ private:
 	void									LoadExecutable();
 	void									UnloadExecutable();
 
-//	void									SaveExecutableConfig();
-//	void									LoadExecutableConfig();
-
 	void									ApplyPatches();
 
 	void									DisassembleSysCall(uint8);
@@ -230,8 +235,6 @@ private:
 	void                                    SetCurrentThreadId(uint32);
 	uint32                                  GetNextAvailableThreadId();
 	THREAD*                                 GetThread(uint32);
-	//static void								ElectThread(uint32);
-	//static uint32								GetNextReadyThread();
 	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
 
@@ -305,6 +308,10 @@ private:
 	uint32									m_semaWaitCount;
 	uint32									m_semaWaitCaller;
 	uint32									m_semaWaitThreadId;
+
+#ifdef DEBUGGER_INCLUDED
+	static const SYSCALL_NAME				g_syscallNames[];
+#endif
 };
 
 #endif
