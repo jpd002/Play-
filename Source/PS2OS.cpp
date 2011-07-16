@@ -56,12 +56,16 @@
 #define THREAD_INIT_QUOTA			(15)
 
 #define SYSCALL_NAME_ADDINTCHANDLER			"osAddIntcHandler"
+#define SYSCALL_NAME_ENABLEINTC				"osEnableIntc"
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
 #define SYSCALL_NAME_STARTTHREAD			"osStartThread"
 #define SYSCALL_NAME_ICHANGETHREADPRIORITY	"osiChangeThreadPriority"
 #define SYSCALL_NAME_GETTHREADID			"osGetThreadId"
 #define SYSCALL_NAME_REFERTHREADSTATUS		"osReferThreadStatus"
 #define SYSCALL_NAME_IREFERTHREADSTATUS		"osiReferThreadStatus"
+#define SYSCALL_NAME_SLEEPTHREAD			"osSleepThread"
+#define SYSCALL_NAME_WAKEUPTHREAD			"osWakeupThread"
+#define SYSCALL_NAME_IWAKEUPTHREAD			"osiWakeupThread"
 #define SYSCALL_NAME_CREATESEMA				"osCreateSema"
 #define SYSCALL_NAME_DELETESEMA				"osDeleteSema"
 #define SYSCALL_NAME_SIGNALSEMA				"osSignalSema"
@@ -77,12 +81,16 @@
 const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 {
 	{	0x0010,		SYSCALL_NAME_ADDINTCHANDLER			},
+	{	0x0014,		SYSCALL_NAME_ENABLEINTC				},
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
 	{	0x0022,		SYSCALL_NAME_STARTTHREAD			},
 	{	0x002A,		SYSCALL_NAME_ICHANGETHREADPRIORITY	},
 	{	0x002F,		SYSCALL_NAME_GETTHREADID			},
 	{	0x0030,		SYSCALL_NAME_REFERTHREADSTATUS		},
 	{	0x0031,		SYSCALL_NAME_IREFERTHREADSTATUS		},
+	{	0x0032,		SYSCALL_NAME_SLEEPTHREAD			},
+	{	0x0033,		SYSCALL_NAME_WAKEUPTHREAD			},
+	{	0x0034,		SYSCALL_NAME_IWAKEUPTHREAD			},
 	{	0x0040,		SYSCALL_NAME_CREATESEMA				},
 	{	0x0041,		SYSCALL_NAME_DELETESEMA				},
 	{	0x0042,		SYSCALL_NAME_SIGNALSEMA				},
@@ -1260,13 +1268,10 @@ void CPS2OS::sc_GsSetCrt()
 //10
 void CPS2OS::sc_AddIntcHandler()
 {
-	uint32 nAddress, nCause, nNext, nArg, nID;
-	INTCHANDLER* pHandler;
-
-	nCause		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-	nNext		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
-	nArg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
+	uint32 nCause	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 nNext	= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+	uint32 nArg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
 	/*
 	if(nNext != 0)
@@ -1275,7 +1280,7 @@ void CPS2OS::sc_AddIntcHandler()
 	}
 	*/
 
-	nID = GetNextAvailableIntcHandlerId();
+	uint32 nID = GetNextAvailableIntcHandlerId();
 	if(nID == 0xFFFFFFFF)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1283,7 +1288,7 @@ void CPS2OS::sc_AddIntcHandler()
 		return;
 	}
 
-	pHandler = GetIntcHandler(nID);
+	INTCHANDLER* pHandler = GetIntcHandler(nID);
 	pHandler->nValid	= 1;
 	pHandler->nAddress	= nAddress;
 	pHandler->nCause	= nCause;
@@ -1440,13 +1445,9 @@ void CPS2OS::sc_DisableDmac()
 //20
 void CPS2OS::sc_CreateThread()
 {
-	THREAD* pThread;
-	THREADCONTEXT* pContext;
-	uint32 nID, nStackAddr, nHeapBase;
-
 	THREADPARAM* pThreadParam = (THREADPARAM*)&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]];
 
-	nID = GetNextAvailableThreadId();
+	uint32 nID = GetNextAvailableThreadId();
 	if(nID == 0xFFFFFFFF)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
@@ -1454,14 +1455,14 @@ void CPS2OS::sc_CreateThread()
 		return;
 	}
 
-	pThread = GetThread(GetCurrentThreadId());
-	nHeapBase = pThread->nHeapBase;
+	THREAD* pThread = GetThread(GetCurrentThreadId());
+	uint32 nHeapBase = pThread->nHeapBase;
 
-    assert(pThreadParam->nPriority < 128);
+	assert(pThreadParam->nPriority < 128);
 
-    pThread = GetThread(nID);
+	pThread = GetThread(nID);
 	pThread->nValid			= 1;
-	pThread->nStatus		= THREAD_SUSPENDED;
+	pThread->nStatus		= THREAD_ZOMBIE;
 	pThread->nStackBase		= pThreadParam->nStackBase;
 	pThread->nEPC			= pThreadParam->nThreadProc;
 	pThread->nPriority		= pThreadParam->nPriority;
@@ -1471,12 +1472,12 @@ void CPS2OS::sc_CreateThread()
 	pThread->nScheduleID	= m_pThreadSchedule->Insert(nID, pThreadParam->nPriority);
 	pThread->nStackSize		= pThreadParam->nStackSize;
 
-	nStackAddr = pThreadParam->nStackBase + pThreadParam->nStackSize - STACKRES;
+	uint32 nStackAddr = pThreadParam->nStackBase + pThreadParam->nStackSize - STACKRES;
 	pThread->nContextPtr	= nStackAddr;
 
 	assert(sizeof(THREADCONTEXT) == STACKRES);
 
-	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
+	THREADCONTEXT* pContext = reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]);
 	memset(pContext, 0, sizeof(THREADCONTEXT));
 
 	pContext->nGPR[CMIPS::SP].nV0 = nStackAddr;
@@ -1515,14 +1516,10 @@ void CPS2OS::sc_DeleteThread()
 //22
 void CPS2OS::sc_StartThread()
 {
-	uint32 nID, nArg;
-	THREAD* pThread;
-	THREADCONTEXT* pContext;
+	uint32 nID	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nArg	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nArg	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-
-	pThread = GetThread(nID);
+	THREAD* pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1530,9 +1527,10 @@ void CPS2OS::sc_StartThread()
 		return;
 	}
 
+	assert(pThread->nStatus == THREAD_ZOMBIE);
 	pThread->nStatus = THREAD_RUNNING;
 
-	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
+	THREADCONTEXT* pContext = reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]);
 	pContext->nGPR[CMIPS::A0].nV0 = nArg;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
@@ -1542,9 +1540,7 @@ void CPS2OS::sc_StartThread()
 //23
 void CPS2OS::sc_ExitThread()
 {
-	THREAD* pThread;
-
-	pThread = GetThread(GetCurrentThreadId());
+	THREAD* pThread = GetThread(GetCurrentThreadId());
 	pThread->nStatus = THREAD_ZOMBIE;
 
 	ThreadShakeAndBake();
@@ -1553,12 +1549,9 @@ void CPS2OS::sc_ExitThread()
 //25
 void CPS2OS::sc_TerminateThread()
 {
-	uint32 nID;
-	THREAD* pThread;
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	pThread = GetThread(nID);
+	THREAD* pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1674,6 +1667,9 @@ void CPS2OS::sc_ReferThreadStatus()
 		nRet = 0x04;
 		break;
 	case THREAD_SUSPENDED:
+		nRet = 0x08;
+		break;
+	case THREAD_ZOMBIE:
 		nRet = 0x10;
 		break;
 	}
@@ -2319,7 +2315,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x14:
-		sprintf(sDescription, "EnableIntc(cause = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_ENABLEINTC "(cause = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x15:
@@ -2367,14 +2363,14 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 		sprintf(sDescription, SYSCALL_NAME_GETTHREADID "();");
 		break;
 	case 0x32:
-		sprintf(sDescription, "SleepThread();");
+		sprintf(sDescription, SYSCALL_NAME_SLEEPTHREAD "();");
 		break;
 	case 0x33:
-		sprintf(sDescription, "WakeupThread(id = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_WAKEUPTHREAD "(id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x34:
-		sprintf(sDescription, "iWakeupThread(id = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_IWAKEUPTHREAD "(id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
