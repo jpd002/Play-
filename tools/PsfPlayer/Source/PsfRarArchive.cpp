@@ -2,6 +2,7 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <unrar/rar.hpp>
+#include "stricmp.h"
 
 static Archive* ConvertArchive(void* archivePtr)
 {
@@ -70,7 +71,7 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 		{
 			if(!arc->IsArcDir())
 			{
-				bool isGoodFile = !strcmp(fixedFileName.c_str(), arc->NewLhd.FileName);
+				bool isGoodFile = !stricmp(fixedFileName.c_str(), arc->NewLhd.FileName);
 
 				dataIo.SetFiles(arc, NULL);
 				dataIo.SetPackedSizeToRead(arc->NewLhd.FullPackSize);
@@ -124,4 +125,6 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 		}
 		arc->SeekToNext();
 	}
+
+	throw std::runtime_error("Couldn't read file from archive.");
 }
