@@ -17,6 +17,8 @@
 #include <afxres.h>
 #include "stricmp.h"
 
+//#define FORCE_ENABLE_TRAYICON
+
 #define CLSNAME			                _T("MainWindow")
 #define WNDSTYLE		                (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX)
 #define WNDSTYLEEX		                (0)
@@ -30,6 +32,9 @@
 #define PSF2_FILTER						_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0")
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
 #define ARCHIVE_FILTER					_T("Archived Sound Files (*.zip; *.rar)\0*.zip;*.rar\0")
+
+#define TEXT_PLAY						_T("Play")
+#define TEXT_PAUSE						_T("Pause")
 
 #define PREF_REVERB_ENABLED				("reverb.enabled")
 
@@ -81,7 +86,41 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_discoveryCommandQueue(5)
 , m_discoveryResultQueue(5)
 , m_discoveryRunId(0)
+, m_playListOnceIcon(NULL)
+, m_repeatListIcon(NULL)
+, m_repeatTrackIcon(NULL)
+, m_toolTip(NULL)
+, m_trayPopupMenu(NULL)
+, m_configPopupMenu(NULL)
+, m_useTrayIcon(false)
+, m_trayIconServer(NULL)
+, m_taskBarList(NULL)
 {
+	OSVERSIONINFO versionInfo;
+	memset(&versionInfo, 0, sizeof(OSVERSIONINFO));
+	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&versionInfo);
+	if(versionInfo.dwMajorVersion > 6)
+	{
+		m_useTrayIcon = false;
+	}
+	else if(versionInfo.dwMajorVersion == 6)
+	{
+		m_useTrayIcon = versionInfo.dwMinorVersion < 1;
+	}
+	else
+	{
+		m_useTrayIcon = true;
+	}
+#ifdef FORCE_ENABLE_TRAYICON
+	m_useTrayIcon = true;
+#endif
+
+	if(!m_useTrayIcon)
+	{
+		m_taskBarList = new Framework::Win32::CTaskBarList();
+	}
+
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_REVERB_ENABLED, true);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SOUNDHANDLER_ID, DEFAULT_SOUND_HANDLER_ID);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CHAR_ENCODING_ID, DEFAULT_CHAR_ENCODING_ID);
@@ -112,20 +151,39 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	SetIcon(ICON_SMALL, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 	SetIcon(ICON_BIG, LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 
-    m_popupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
+    m_trayPopupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
+	m_configPopupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_CONFIG_POPUP));
 
     m_virtualMachine.OnNewFrame.connect(std::tr1::bind(&CMainWindow::OnNewFrame, this));
 
+	m_toolTip = new Framework::Win32::CToolTip(m_hWnd);
+	m_toolTip->Activate(true);
+
     ChangeAudioPlugin(FindAudioPlugin(m_selectedAudioPlugin));
+
+	m_playListOnceIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PLAYONCE), IMAGE_ICON, 16, 16, 0));
+	m_repeatListIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_REPEAT_LIST), IMAGE_ICON, 16, 16, 0));
+	m_repeatTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_REPEAT_TRACK), IMAGE_ICON, 16, 16, 0));
+	m_configIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CONFIG), IMAGE_ICON, 16, 16, 0));
+	m_playIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PLAY), IMAGE_ICON, 16, 16, 0));
+	m_pauseIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PAUSE), IMAGE_ICON, 16, 16, 0));
+	m_prevTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PREV_TRACK), IMAGE_ICON, 16, 16, 0));
+	m_nextTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_NEXT_TRACK), IMAGE_ICON, 16, 16, 0));
 
     m_timerLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER);
     m_titleLabel = new Win32::CStatic(m_hWnd, _T(""), SS_CENTER | SS_NOPREFIX);
 
     m_placeHolder = new Win32::CStatic(m_hWnd, Win32::CRect(0, 0, 1, 1));
 
+	m_configButton = new Win32::CButton(_T(""), m_hWnd, Win32::CRect(0, 0, 1, 1), BS_ICON);
+	m_toolTip->AddTool(m_configButton->m_hWnd, _T("Configuration"));
+	m_configButton->SetIcon(m_configIcon);
+
 	m_nextPanelButton = new Win32::CButton(_T(">"), m_hWnd, Win32::CRect(0, 0, 1, 1));
 	m_prevPanelButton = new Win32::CButton(_T("<"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-	m_repeatButton = new Win32::CButton(_T("Repeat"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+
+	m_repeatButton = new Win32::CButton(_T("Repeat"), m_hWnd, Win32::CRect(0, 0, 1, 1), BS_ICON);
+	m_toolTip->AddTool(m_repeatButton->m_hWnd, _T(""));
 	UpdateRepeatButton();
 
 	m_nextButton = new Win32::CButton(_T(">>"), m_hWnd, Win32::CRect(0, 0, 1, 1));
@@ -133,19 +191,18 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
     m_pauseButton = new Win32::CButton(_T("Pause"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     m_ejectButton = new Win32::CButton(_T("Eject"), m_hWnd, Win32::CRect(0, 0, 1, 1));
     
-    //m_aboutButton = new Win32::CButton(_T("About"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-
     m_layout = 
         VerticalLayoutContainer(
-            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_titleLabel)) +
-            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_timerLabel)) +
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_titleLabel)) +
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_timerLabel)) +
             HorizontalLayoutContainer(
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_prevPanelButton)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(28, 28, m_prevPanelButton)) +
                 LayoutExpression(CLayoutStretch::Create()) +
-				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 20, m_repeatButton)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(28, 28, m_configButton)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(28, 28, m_repeatButton)) +
                 LayoutExpression(CLayoutStretch::Create()) +
-				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(50, 20, m_nextPanelButton))
-            ) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(28, 28, m_nextPanelButton))
+			) +
 			LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_placeHolder)) +
             HorizontalLayoutContainer(
                 LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_prevButton)) +
@@ -154,20 +211,21 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
                 LayoutExpression(CLayoutStretch::Create()) +
                 LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_nextButton))
             ) +
-            HorizontalLayoutContainer(
-                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_ejectButton))
-//                LayoutExpression(CLayoutStretch::Create()) +
-//                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_aboutButton))
-            )
+            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, m_ejectButton))
         );
 
     //Create tray icon
-    Win32::CTrayIcon* trayIcon = m_trayIconServer.Insert();
-    trayIcon->SetIcon(LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
-    trayIcon->SetTip(_T("PsfPlayer"));
+	if(m_useTrayIcon)
+	{
+		m_trayIconServer = new Framework::Win32::CTrayIconServer();
 
-    m_trayIconServer.RegisterHandler(std::tr1::bind(&CMainWindow::OnTrayIconEvent, this, 
-        std::tr1::placeholders::_1, std::tr1::placeholders::_2));
+		Win32::CTrayIcon* trayIcon = m_trayIconServer->Insert();
+		trayIcon->SetIcon(LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
+		trayIcon->SetTip(_T("PsfPlayer"));
+
+		m_trayIconServer->RegisterHandler(std::tr1::bind(&CMainWindow::OnTrayIconEvent, this, 
+			std::tr1::placeholders::_1, std::tr1::placeholders::_2));
+	}
 
     //Create play list panel
     m_playlistPanel = new CPlaylistPanel(m_placeHolder->m_hWnd, m_playlist);
@@ -197,8 +255,8 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 
     UpdateClock();
     UpdateTitle();
-    UpdateButtons();
-	UpdateTrayMenu();
+    UpdatePlaybackButtons();
+	UpdateConfigMenu();
 	RefreshLayout();
 
 	m_currentPanel = -1;
@@ -223,6 +281,16 @@ CMainWindow::~CMainWindow()
 			delete m_panels[i];
 			m_panels[i] = NULL;
 		}
+	}
+
+	delete m_toolTip;
+	if(m_trayIconServer != NULL)
+	{
+		delete m_trayIconServer;
+	}
+	if(m_taskBarList != NULL)
+	{
+		delete m_taskBarList;
 	}
 }
 
@@ -284,8 +352,39 @@ CSoundHandler* CMainWindow::CreateHandler(const TCHAR* libraryPath)
 	return result;
 }
 
+long CMainWindow::OnWndProc(unsigned int msg, WPARAM wParam, LPARAM lParam)
+{
+	if(m_taskBarList && (msg == m_taskBarList->GetCreatedMessage()))
+	{
+		static const int buttonCount = 3;
+		static const UINT buttonIds[3] =
+		{
+			ID_FILE_PREVIOUSTRACK,
+			ID_FILE_PAUSE,
+			ID_FILE_NEXTTRACK
+		};
+
+		m_taskBarList->Initialize(m_hWnd);
+		m_taskBarList->CreateThumbButtons(buttonCount, buttonIds);
+
+		m_taskBarList->SetThumbButtonText(ID_FILE_PREVIOUSTRACK,	_T("Previous Track"));
+		m_taskBarList->SetThumbButtonIcon(ID_FILE_PREVIOUSTRACK,	m_prevTrackIcon);
+
+		m_taskBarList->SetThumbButtonText(ID_FILE_NEXTTRACK,		_T("Next Track"));
+		m_taskBarList->SetThumbButtonIcon(ID_FILE_NEXTTRACK,		m_nextTrackIcon);
+
+		UpdatePlaybackButtons();
+	}
+	return TRUE;
+}
+
 long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hControl)
 {
+	if(!IsWindowEnabled(m_hWnd))
+	{
+		return TRUE;
+	}
+
     if(CWindow::IsCommandSource(m_ejectButton, hControl))
     {
         OnFileOpen();
@@ -314,6 +413,10 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 	{
 		OnRepeat();
 	}
+	else if(CWindow::IsCommandSource(m_configButton, hControl))
+	{
+		OnConfig();
+	}
     else
     {
 	    switch(nID)
@@ -327,6 +430,12 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
         case ID_FILE_EXIT:
 		    DestroyWindow(m_hWnd);
             break;
+		case ID_FILE_NEXTTRACK:
+			OnNext();
+			break;
+		case ID_FILE_PREVIOUSTRACK:
+			OnPrev();
+			break;
 		case ID_FILE_PAUSE:
 			OnPause();
 			break;
@@ -376,23 +485,14 @@ long CMainWindow::OnTimer(WPARAM timerId)
     return TRUE;
 }
 
-//long CMainWindow::OnSysCommand(unsigned int nCmd, LPARAM lParam)
-//{
-//	switch(nCmd)
-//	{
-//	case SC_CLOSE:
-//		//if(!m_nPopUpVisible) break;
-//		Show(SW_HIDE);
-//		return FALSE;
-//	}
-//	return TRUE;
-//}
-
 long CMainWindow::OnSize(unsigned int type, unsigned int width, unsigned int height)
 {
     if(type == SIZE_MINIMIZED)
     {
-        Show(SW_HIDE);
+		if(m_useTrayIcon)
+		{
+			Show(SW_HIDE);
+		}
     }
     return TRUE;
 }
@@ -465,7 +565,7 @@ void CMainWindow::OnClickReverbEnabled()
 {
 	m_reverbEnabled = !m_reverbEnabled;
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_REVERB_ENABLED, m_reverbEnabled);
-	UpdateTrayMenu();
+	UpdateConfigMenu();
 	if(m_ready)
 	{
 		m_virtualMachine.SetReverbEnabled(m_reverbEnabled);
@@ -474,31 +574,30 @@ void CMainWindow::OnClickReverbEnabled()
 
 void CMainWindow::OnTrayIconEvent(Win32::CTrayIcon* icon, LPARAM param)
 {
-    switch(param)
-    {
-    case WM_LBUTTONUP:
-        Show(SW_SHOWNORMAL);
-        SetForegroundWindow(m_hWnd);
-        break;
-    case WM_RBUTTONUP:
-        Show(SW_SHOWNORMAL);
-        SetForegroundWindow(m_hWnd);
-        DisplayTrayMenu();
-        break;
-    }
+	switch(param)
+	{
+	case WM_LBUTTONUP:
+		Show(SW_SHOWNORMAL);
+		SetForegroundWindow(m_hWnd);
+		break;
+	case WM_RBUTTONUP:
+		DisplayTrayMenu();
+		break;
+	}
 }
 
 void CMainWindow::DisplayTrayMenu()
 {
 	POINT p;
-	SetForegroundWindow(m_trayIconServer.m_hWnd);
+	SetForegroundWindow(m_trayIconServer->m_hWnd);
 	GetCursorPos(&p);
-	TrackPopupMenu(GetSubMenu(m_popupMenu, 0), 0, p.x, p.y, NULL, m_hWnd, NULL);
+	TrackPopupMenu(GetSubMenu(m_trayPopupMenu, 0), TPM_RIGHTBUTTON, p.x, p.y, NULL, m_hWnd, NULL);
+	PostMessage(m_hWnd, WM_NULL, 0, 0);
 }
 
-void CMainWindow::UpdateTrayMenu()
+void CMainWindow::UpdateConfigMenu()
 {
-    Win32::CMenuItem reverbSubMenu(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_ENABLEREVERB));
+    Win32::CMenuItem reverbSubMenu(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_ENABLEREVERB));
     reverbSubMenu.Check(m_reverbEnabled);
 }
 
@@ -519,7 +618,7 @@ void CMainWindow::UpdateFade()
 				else
 				{
 					Reset();
-					UpdateButtons();
+					UpdatePlaybackButtons();
 				}
 			}
 			else
@@ -566,14 +665,26 @@ void CMainWindow::UpdateTitle()
     SetText(windowText.c_str());
 }
 
-void CMainWindow::UpdateButtons()
+void CMainWindow::UpdatePlaybackButtons()
 {
     CVirtualMachine::STATUS status = m_virtualMachine.GetStatus();
     if(m_pauseButton != NULL)
     {
         m_pauseButton->Enable(m_ready ? TRUE : FALSE);
-        m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? _T("Play") : _T("Pause"));
+        m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? TEXT_PLAY : TEXT_PAUSE);
     }
+	if(m_configPopupMenu != NULL)
+	{
+		Framework::Win32::CMenuItem pauseMenu(Win32::CMenuItem::FindById(m_trayPopupMenu, ID_FILE_PAUSE));
+		pauseMenu.Enable(m_ready ? TRUE : FALSE);
+		pauseMenu.SetText((status == CVirtualMachine::PAUSED) ? TEXT_PLAY : TEXT_PAUSE);
+	}
+	if(m_taskBarList != NULL && m_taskBarList->IsInitialized())
+	{
+		m_taskBarList->SetThumbButtonText(ID_FILE_PAUSE, (status == CVirtualMachine::PAUSED) ? TEXT_PLAY : TEXT_PAUSE);
+		m_taskBarList->SetThumbButtonIcon(ID_FILE_PAUSE, (status == CVirtualMachine::PAUSED) ? m_playIcon : m_pauseIcon);
+		m_taskBarList->SetThumbButtonEnabled(ID_FILE_PAUSE, m_ready ? TRUE : FALSE);
+	}
 }
 
 void CMainWindow::UpdateRepeatButton()
@@ -581,13 +692,16 @@ void CMainWindow::UpdateRepeatButton()
 	switch(m_repeatMode)
 	{
 	case PLAYLIST_ONCE:
-		m_repeatButton->SetText(_T("PL Once"));
+		m_repeatButton->SetIcon(m_playListOnceIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Once"));
 		break;
 	case PLAYLIST_REPEAT:
-		m_repeatButton->SetText(_T("PL Repeat"));
+		m_repeatButton->SetIcon(m_repeatListIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Repeat"));
 		break;
 	case TRACK_REPEAT:
-		m_repeatButton->SetText(_T("Track Repeat"));
+		m_repeatButton->SetIcon(m_repeatTrackIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Track Repeat"));
 		break;
 	}
 }
@@ -602,7 +716,7 @@ void CMainWindow::CreateAudioPluginMenu()
         InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i, caption.c_str());
     }
 
-    Win32::CMenuItem pluginMenu(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_AUDIOPLUGIN));
+    Win32::CMenuItem pluginMenu(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN));
     MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
 	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
@@ -616,7 +730,7 @@ void CMainWindow::UpdateAudioPluginMenu()
 {
     for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
     {
-        Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i));
+        Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i));
         pluginSubMenuEntry.Check(m_handlerInfo[i].id == m_selectedAudioPlugin);
     }
 }
@@ -663,7 +777,7 @@ void CMainWindow::CreateCharEncodingMenu()
         InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_CHARENCODING_ENCODING_0 + i, caption.c_str());
     }
 
-    Win32::CMenuItem pluginMenu(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_CHARACTERENCODING));
+    Win32::CMenuItem pluginMenu(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARACTERENCODING));
     MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
 	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
@@ -677,7 +791,7 @@ void CMainWindow::UpdateCharEncodingMenu()
 {
     for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
     {
-        Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_popupMenu, ID_FILE_CHARENCODING_ENCODING_0 + i));
+        Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARENCODING_ENCODING_0 + i));
         pluginSubMenuEntry.Check(m_charEncodingInfo[i].id == m_selectedCharEncoding);
     }
 }
@@ -772,7 +886,7 @@ void CMainWindow::OnPause()
 	{
 		m_virtualMachine.Pause();
 	}
-    UpdateButtons();
+    UpdatePlaybackButtons();
 }
 
 void CMainWindow::OnPrev()
@@ -823,6 +937,14 @@ void CMainWindow::OnRepeat()
 		break;
 	}
 	UpdateRepeatButton();
+}
+
+void CMainWindow::OnConfig()
+{
+	POINT p;
+	SetForegroundWindow(m_hWnd);
+	GetCursorPos(&p);
+	TrackPopupMenu(GetSubMenu(m_configPopupMenu, 0), 0, p.x, p.y, NULL, m_hWnd, NULL);
 }
 
 void CMainWindow::ActivatePanel(unsigned int panelIdx)
@@ -996,7 +1118,7 @@ bool CMainWindow::PlayFile(const char* path, const char* archivePath)
 	EnableWindow(m_hWnd, TRUE);
 
 	UpdateTitle();
-    UpdateButtons();
+    UpdatePlaybackButtons();
     UpdateClock();
 //	UpdateMenu();
 

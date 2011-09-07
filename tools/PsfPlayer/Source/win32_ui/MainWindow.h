@@ -11,6 +11,8 @@
 #include "win32/Button.h"
 #include "win32/Layouts.h"
 #include "win32/TrayIconServer.h"
+#include "win32/ToolTip.h"
+#include "win32/TaskBarList.h"
 #include "Panel.h"
 #include "PlaylistPanel.h"
 #include "FileInformationPanel.h"
@@ -28,6 +30,7 @@ public:
     void                                RefreshLayout();
 
 protected:
+	long								OnWndProc(unsigned int, WPARAM, LPARAM);
     long                                OnCommand(unsigned short, unsigned short, HWND);
     long                                OnSize(unsigned int, unsigned int, unsigned int);
     long                                OnTimer(WPARAM);
@@ -96,6 +99,7 @@ private:
 	void								OnNextPanel();
     void                                OnAbout();
 	void								OnRepeat();
+	void								OnConfig();
     bool                                PlayFile(const char*, const char*);
     void                                LoadSingleFile(const char*);
     void                                LoadPlaylist(const char*);
@@ -110,11 +114,11 @@ private:
 
     void                                OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
     void                                DisplayTrayMenu();
-	void								UpdateTrayMenu();
+	void								UpdateConfigMenu();
 	void                                UpdateClock();
 	void								UpdateFade();
     void                                UpdateTitle();
-    void                                UpdateButtons();
+    void                                UpdatePlaybackButtons();
 	void								UpdateRepeatButton();
 
 	void								Reset();
@@ -147,6 +151,8 @@ private:
 	Framework::Win32::CButton*			m_prevPanelButton;
 	Framework::Win32::CButton*			m_repeatButton;
 
+	Framework::Win32::CButton*			m_configButton;
+
 	Framework::Win32::CStatic*          m_placeHolder;
 
     Framework::Win32::CButton*          m_nextButton;
@@ -154,7 +160,12 @@ private:
     Framework::Win32::CButton*          m_pauseButton;
     Framework::Win32::CButton*          m_ejectButton;
 
-	Framework::Win32::CTrayIconServer   m_trayIconServer;
+	Framework::Win32::CToolTip*			m_toolTip;
+
+	bool								m_useTrayIcon;
+
+	Framework::Win32::CTrayIconServer*	m_trayIconServer;
+	Framework::Win32::CTaskBarList*		m_taskBarList;
 
     CPanel*                             m_panels[MAX_PANELS];
     CPlaylistPanel*                     m_playlistPanel;
@@ -162,8 +173,19 @@ private:
 	CSpuRegViewPanel*					m_spu0RegViewPanel;
 	CSpuRegViewPanel*					m_spu1RegViewPanel;
 
-    HMENU                               m_popupMenu;
+    HMENU                               m_trayPopupMenu;
+	HMENU								m_configPopupMenu;
+
 	Framework::Win32::CAcceleratorTable	m_accel;
+
+	HICON								m_playListOnceIcon;
+	HICON								m_repeatListIcon;
+	HICON								m_repeatTrackIcon;
+	HICON								m_configIcon;
+	HICON								m_playIcon;
+	HICON								m_pauseIcon;
+	HICON								m_prevTrackIcon;
+	HICON								m_nextTrackIcon;
 
 	CPsfVm&								m_virtualMachine;
 	CPsfTags							m_tags;

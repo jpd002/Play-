@@ -57,37 +57,38 @@ IDB_BREAKPOINT          BITMAP                  "images\\bpoint.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Menu
-//
-
-IDR_MAINMENU MENU 
-BEGIN
-    POPUP "&File"
-    BEGIN
-        MENUITEM "&Open...",                    ID_FILE_OPEN
-        MENUITEM "&File Information...",        ID_FILE_FILEINFORMATION
-        MENUITEM "Pause/Resume\tF5",            ID_FILE_PAUSE
-        MENUITEM "Exit\tAlt+F4",                ID_FILE_EXIT
-    END
-    POPUP "&Settings"
-    BEGIN
-        MENUITEM "&Enable Reverb\tCtrl+R",      ID_SETTINGS_ENABLEREVERB
-    END
-    POPUP "Help"
-    BEGIN
-        MENUITEM "&About",                      ID_HELP_ABOUT
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Icon
 //
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_MAIN                ICON                    "images\\PsfPlayer.ico"
+IDI_PLAYONCE            ICON                    "images\\play_once.ico"
+IDI_REPEAT_LIST         ICON                    "images\\repeat_list.ico"
+IDI_REPEAT_TRACK        ICON                    "images\\repeat_track.ico"
+IDI_CONFIG              ICON                    "images\\config.ico"
+IDI_PAUSE               ICON                    "images\\pause.ico"
+IDI_PLAY                ICON                    "images\\play.ico"
+IDI_NEXT_TRACK          ICON                    "images\\next_track.ico"
+IDI_PREV_TRACK          ICON                    "images\\prev_track.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_CONFIG_POPUP MENU 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Audio Plugin",                ID_FILE_AUDIOPLUGIN
+        MENUITEM "Character Encoding",          ID_FILE_CHARACTERENCODING
+        MENUITEM "Reverb Enabled",              ID_FILE_ENABLEREVERB
+        MENUITEM SEPARATOR
+        MENUITEM "About...",                    ID_FILE_ABOUT
+    END
+END
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -110,11 +111,10 @@ IDR_TRAY_POPUP MENU
 BEGIN
     POPUP "File"
     BEGIN
-        MENUITEM "Audio Plugin",                ID_FILE_AUDIOPLUGIN
-        MENUITEM "Character Encoding",          ID_FILE_CHARACTERENCODING
-        MENUITEM "Reverb Enabled",              ID_FILE_ENABLEREVERB
+        MENUITEM "Previous Track",              ID_FILE_PREVIOUSTRACK
+        MENUITEM "Next Track",                  ID_FILE_NEXTTRACK
+        MENUITEM "Pause",                       ID_FILE_PAUSE
         MENUITEM SEPARATOR
-        MENUITEM "About",                       ID_FILE_ABOUT
         MENUITEM "Quit",                        ID_FILE_EXIT
     END
 END
