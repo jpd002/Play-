@@ -17,6 +17,8 @@ CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd, const TCHAR* title)
     SetClassPtr();
 
 	m_regView = new CSpuRegView(m_hWnd, title);
+
+	RefreshLayout();
 }
 
 CSpuRegViewPanel::~CSpuRegViewPanel()
@@ -29,18 +31,14 @@ void CSpuRegViewPanel::SetSpu(Iop::CSpuBase* spu)
 	m_regView->SetSpu(spu);
 }
 
+long CSpuRegViewPanel::OnSize(unsigned int, unsigned int, unsigned int)
+{
+	RefreshLayout();
+	return TRUE;
+}
+
 void CSpuRegViewPanel::RefreshLayout()
 {
-    //Resize panel
-    {
-		Framework::Win32::CRect clientRect(0, 0, 0, 0);
-        ::GetClientRect(GetParent(), clientRect);
-        SetSizePosition(clientRect);
-    }
-
-	//Resize view
-	{
-		Framework::Win32::CRect clientRect(GetClientRect());
-		m_regView->SetSizePosition(clientRect);
-	}
+	Framework::Win32::CRect clientRect(GetClientRect());
+	m_regView->SetSizePosition(clientRect);
 }

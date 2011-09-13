@@ -1,13 +1,13 @@
 #ifndef _PLAYLISTPANEL_H_
 #define _PLAYLISTPANEL_H_
 
-#include "Panel.h"
 #include "Playlist.h"
+#include "win32/Dialog.h"
 #include "win32/Layouts.h"
 #include "win32/ListView.h"
 #include "win32/Button.h"
 
-class CPlaylistPanel : public CPanel, public boost::signals::trackable
+class CPlaylistPanel : public Framework::Win32::CDialog, public boost::signals::trackable
 {
 public:
     typedef boost::signal<void (unsigned int)>  OnItemDblClickEvent;
@@ -28,6 +28,7 @@ public:
 protected:
     long                                OnCommand(unsigned short, unsigned short, HWND);
     long                                OnNotify(WPARAM, NMHDR*);
+	long								OnSize(unsigned int, unsigned int, unsigned int);
 
 private:
     void                                CreateColumns();

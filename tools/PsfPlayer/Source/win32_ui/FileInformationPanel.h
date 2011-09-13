@@ -1,12 +1,12 @@
 #ifndef _FILEINFORMATIONPANEL_H_
 #define _FILEINFORMATIONPANEL_H_
 
-#include "Panel.h"
+#include "win32/Dialog.h"
 #include "win32/Edit.h"
 #include "win32/Layouts.h"
 #include "PsfTags.h"
 
-class CFileInformationPanel : public CPanel
+class CFileInformationPanel : public Framework::Win32::CDialog
 {
 public:
                                         CFileInformationPanel(HWND);
@@ -16,8 +16,7 @@ public:
     void                                RefreshLayout();
 
 protected:
-    long                                OnCommand(unsigned short, unsigned short, HWND);
-    long                                OnNotify(WPARAM, NMHDR*);
+	long								OnSize(unsigned int, unsigned int, unsigned int);
 
 private:
 	void								UpdateFields();

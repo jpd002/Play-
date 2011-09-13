@@ -1,11 +1,11 @@
 #ifndef _SPUREGVIEWPANEL_H_
 #define _SPUREGVIEWPANEL_H_
 
-#include "Panel.h"
+#include "win32/Window.h"
 #include "iop/Iop_SpuBase.h"
 #include "SpuRegView.h"
 
-class CSpuRegViewPanel : public CPanel
+class CSpuRegViewPanel : public Framework::Win32::CWindow
 {
 public:
 									CSpuRegViewPanel(HWND, const TCHAR*);
@@ -14,6 +14,9 @@ public:
 	void							RefreshLayout();
 
 	void							SetSpu(Iop::CSpuBase*);
+
+protected:
+	long							OnSize(unsigned int, unsigned int, unsigned int);
 
 private:
 	CSpuRegView*					m_regView;

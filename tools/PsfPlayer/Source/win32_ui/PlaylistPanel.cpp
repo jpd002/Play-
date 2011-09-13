@@ -4,15 +4,11 @@
 #include "TimeToString.h"
 #include "string_cast.h"
 #include "layout/LayoutEngine.h"
-
-#define CLSNAME			                _T("PlaylistPanel")
-#define WNDSTYLE		                (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CHILD)
-#define WNDSTYLEEX		                (0)
-
-using namespace Framework;
+#include "resource.h"
 
 CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
-: m_playlistView(NULL)
+: Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_PLAYLISTPANEL), parentWnd)
+, m_playlistView(NULL)
 , m_moveUpButton(NULL)
 , m_moveDownButton(NULL)
 , m_addButton(NULL)
@@ -20,35 +16,36 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 , m_saveButton(NULL)
 , m_playlist(playlist)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		RegisterClassEx(&Win32::CWindow::MakeWndClass(CLSNAME));
-	}
+	SetClassPtr();
 
-    Create(WNDSTYLEEX, CLSNAME, _T(""), WNDSTYLE, Win32::CRect(0, 0, 1, 1), parentWnd, NULL);
-    SetClassPtr();
-
-    m_playlistView = new Win32::CListView(m_hWnd, Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL);
+	m_playlistView = new Framework::Win32::CListView(GetItem(IDC_PLAYLIST_LISTVIEW));
 	m_playlistView->SetExtendedListViewStyle(m_playlistView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_moveUpButton		= new Win32::CButton(_T("Up"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-	m_moveDownButton	= new Win32::CButton(_T("Dn"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-    m_addButton			= new Win32::CButton(_T("+"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-    m_removeButton		= new Win32::CButton(_T("-"), m_hWnd, Win32::CRect(0, 0, 1, 1));
-    m_saveButton		= new Win32::CButton(_T("S"), m_hWnd, Win32::CRect(0, 0, 1, 1));
+	m_moveUpButton		= new Framework::Win32::CButton(GetItem(IDC_UP_BUTTON));
+	m_moveDownButton	= new Framework::Win32::CButton(GetItem(IDC_DOWN_BUTTON));
+    m_addButton			= new Framework::Win32::CButton(GetItem(IDC_ADD_BUTTON));
+    m_removeButton		= new Framework::Win32::CButton(GetItem(IDC_REMOVE_BUTTON));
+    m_saveButton		= new Framework::Win32::CButton(GetItem(IDC_SAVE_BUTTON));
 
-    m_layout = 
-        VerticalLayoutContainer(
-            LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_playlistView)) +
-            HorizontalLayoutContainer(
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_moveUpButton)) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_moveDownButton)) +
-                LayoutExpression(CLayoutStretch::Create()) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_addButton)) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_removeButton)) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(25, 25, m_saveButton))
-            )
-        );
+	RECT buttonSize;
+	SetRect(&buttonSize, 0, 0, 16, 16);
+	MapDialogRect(m_hWnd, &buttonSize);
+
+	unsigned int buttonWidth = buttonSize.right - buttonSize.left;
+	unsigned int buttonHeight = buttonSize.bottom - buttonSize.top;
+
+	m_layout = 
+		Framework::VerticalLayoutContainer(
+			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_playlistView)) +
+			Framework::HorizontalLayoutContainer(
+				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_moveUpButton)) +
+				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_moveDownButton)) +
+				Framework::LayoutExpression(Framework::CLayoutStretch::Create()) +
+				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_addButton)) +
+				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_removeButton)) +
+				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_saveButton))
+			)
+		);
 
     CreateColumns();
 
@@ -56,6 +53,8 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
     m_playlist.OnItemUpdate.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemUpdate, this, std::tr1::placeholders::_1, std::tr1::placeholders::_2));
     m_playlist.OnItemDelete.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemDelete, this, std::tr1::placeholders::_1));
     m_playlist.OnItemsClear.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemsClear, this));
+
+	RefreshLayout();
 }
 
 CPlaylistPanel::~CPlaylistPanel()
@@ -100,6 +99,12 @@ long CPlaylistPanel::OnNotify(WPARAM wParam, NMHDR* hdr)
         }
     }
     return FALSE;
+}
+
+long CPlaylistPanel::OnSize(unsigned int, unsigned int, unsigned int)
+{
+	RefreshLayout();
+	return TRUE;
 }
 
 void CPlaylistPanel::OnPlaylistViewDblClick(NMITEMACTIVATE* itemActivate)
@@ -222,13 +227,6 @@ void CPlaylistPanel::OnPlaylistItemsClear()
 
 void CPlaylistPanel::RefreshLayout()
 {
-    //Resize panel
-    {
-        Win32::CRect clientRect(0, 0, 0, 0);
-        ::GetClientRect(GetParent(), clientRect);
-        SetSizePosition(clientRect);
-    }
-
     //Resize layout
     {
 	    RECT rc = GetClientRect();
