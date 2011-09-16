@@ -921,8 +921,8 @@ void CMainWindow::ActivatePanel(unsigned int panelIdx)
 
 void CMainWindow::OnAbout()
 {
-    CAboutWindow about(m_hWnd);
-    about.DoModal();
+	CAboutWindow aboutWindow;
+	aboutWindow.DoModal(m_hWnd);
 }
 
 void CMainWindow::LoadSingleFile(const char* path)

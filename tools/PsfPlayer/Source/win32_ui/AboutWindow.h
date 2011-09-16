@@ -1,19 +1,18 @@
 #ifndef _ABOUTWINDOW_H_
 #define _ABOUTWINDOW_H_
 
-#include "win32/ModalWindow.h"
-#include "win32/Layouts.h"
+#include "win32/Window.h"
 
-class CAboutWindow : public Framework::Win32::CModalWindow
+class CAboutWindow
 {
 public:
-								CAboutWindow(HWND);
+								CAboutWindow();
 	virtual						~CAboutWindow();
 
-private:
-	void						RefreshLayout();
+	void						DoModal(HWND);
 
-	Framework::LayoutObjectPtr	m_layout;
+private:
+	static HRESULT CALLBACK		TaskDialogCallback(HWND, UINT, WPARAM, LPARAM, LONG_PTR);
 };
 
 #endif
