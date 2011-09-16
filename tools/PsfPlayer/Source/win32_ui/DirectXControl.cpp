@@ -83,23 +83,29 @@ void CDirectXControl::Initialize()
 
 void CDirectXControl::CreateDevice()
 {
-    D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
-    m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
-                      D3DDEVTYPE_HAL,
-                      m_hWnd,
-                      D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-                      &d3dpp,
-                      &m_device);
+	D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
+	HRESULT result = m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
+		D3DDEVTYPE_HAL,
+		m_hWnd,
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		&d3dpp,
+		&m_device);
+
+	if(FAILED(result))
+	{
+		return;
+	}
 
 	m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-    m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	m_deviceLost = false;
 }
 
 void CDirectXControl::ResetDevice()
 {
+	if(!m_device) return;
 	D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
 	HRESULT result = m_device->Reset(&d3dpp);
 	if(SUCCEEDED(result))
