@@ -51,6 +51,8 @@ RequestExecutionLevel admin
 
 ;--------------------------------
 
+!define REG_UNINSTALL "Software\Microsoft\Windows\CurrentVersion\Uninstall\PsfPlayer"
+
 ; The stuff to install
 Section "PsfPlayer (required)"
 
@@ -70,10 +72,12 @@ Section "PsfPlayer (required)"
   WriteRegStr HKLM SOFTWARE\NSIS_PsfPlayer "Install_Dir" "$INSTDIR"
   
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PsfPlayer" "DisplayName" "PsfPlayer"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PsfPlayer" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PsfPlayer" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PsfPlayer" "NoRepair" 1
+  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayName" "PsfPlayer"
+  WriteRegStr HKLM "${REG_UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "${REG_UNINSTALL}" "NoModify" 1
+  WriteRegDWORD HKLM "${REG_UNINSTALL}" "NoRepair" 1
+  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayIcon" '"$INSTDIR\PsfPlayer.exe"'
+  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayVersion" "${APP_VERSION}"
   WriteUninstaller "uninstall.exe"
   
 SectionEnd
@@ -95,7 +99,7 @@ SectionEnd
 Section "Uninstall"
   
   ; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PsfPlayer"
+  DeleteRegKey HKLM "${REG_UNINSTALL}"
   DeleteRegKey HKLM SOFTWARE\NSIS_PsfPlayer
 
   ; Remove files and uninstaller
