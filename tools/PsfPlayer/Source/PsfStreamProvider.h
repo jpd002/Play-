@@ -3,12 +3,13 @@
 
 #include "PsfArchive.h"
 #include "Stream.h"
+#include <boost/filesystem/path.hpp>
 
 class CPsfStreamProvider
 {
 public:
 	virtual							~CPsfStreamProvider() {}
-	virtual Framework::CStream*		GetStreamForPath(const char*) = 0;
+	virtual Framework::CStream*		GetStreamForPath(const boost::filesystem::path&) = 0;
 };
 
 class CPhysicalPsfStreamProvider : public CPsfStreamProvider
@@ -16,21 +17,21 @@ class CPhysicalPsfStreamProvider : public CPsfStreamProvider
 public:
 	virtual							~CPhysicalPsfStreamProvider() {}
 
-	Framework::CStream*				GetStreamForPath(const char* path);
+	Framework::CStream*				GetStreamForPath(const boost::filesystem::path&);
 };
 
 class CArchivePsfStreamProvider : public CPsfStreamProvider
 {
 public:
-									CArchivePsfStreamProvider(const char*);
+									CArchivePsfStreamProvider(const boost::filesystem::path&);
 	virtual							~CArchivePsfStreamProvider();
 
-	Framework::CStream*				GetStreamForPath(const char*);
+	Framework::CStream*				GetStreamForPath(const boost::filesystem::path&);
 
 private:
 	CPsfArchive*					m_archive;
 };
 
-CPsfStreamProvider*					CreatePsfStreamProvider(const char*);
+CPsfStreamProvider*					CreatePsfStreamProvider(const boost::filesystem::path&);
 
 #endif

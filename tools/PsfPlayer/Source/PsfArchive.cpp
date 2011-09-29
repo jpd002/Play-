@@ -13,22 +13,16 @@ CPsfArchive::~CPsfArchive()
 
 }
 
-CPsfArchive* CPsfArchive::CreateFromPath(const char* path)
+CPsfArchive* CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath)
 {
-	std::string pathString(path);
-	std::string extension;
-	std::string::size_type dotPosition = pathString.find('.');
-	if(dotPosition != std::string::npos)
-	{
-		extension = std::string(pathString.begin() + dotPosition + 1, pathString.end());
-	}
+	std::string extension = filePath.extension().string();
 	CPsfArchive* result(NULL);
-	if(!strcmp(extension.c_str(), "zip"))
+	if(!strcmp(extension.c_str(), ".zip"))
 	{
 		result = new CPsfZipArchive();
 	}
 #ifdef RAR_SUPPORT
-	else if(!strcmp(extension.c_str(), "rar"))
+	else if(!strcmp(extension.c_str(), ".rar"))
 	{
 		result = new CPsfRarArchive();
 	}
@@ -37,7 +31,7 @@ CPsfArchive* CPsfArchive::CreateFromPath(const char* path)
 	{
 		throw std::runtime_error("Unsupported archive type.");
 	}
-	result->Open(path);
+	result->Open(filePath);
 	return result;
 }
 

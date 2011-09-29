@@ -2,6 +2,7 @@
 #define _MAINWINDOW_H_
 
 #include <deque>
+#include <boost/filesystem/path.hpp>
 #include "../PsfVm.h"
 #include "../PsfBase.h"
 #include "../PsfTags.h"
@@ -69,10 +70,10 @@ private:
 
 	struct DISCOVERY_COMMAND
 	{
-		std::string		path;
-		std::string		archivePath;
-		unsigned int	runId;
-		unsigned int	itemId;
+		boost::filesystem::path		filePath;
+		boost::filesystem::path		archivePath;
+		unsigned int				runId;
+		unsigned int				itemId;
 	};
 
 	struct DISCOVERY_RESULT
@@ -99,10 +100,10 @@ private:
 	void                                OnAbout();
 	void								OnRepeat();
 	void								OnConfig();
-	bool                                PlayFile(const char*, const char*);
-	void                                LoadSingleFile(const char*);
-	void                                LoadPlaylist(const char*);
-	void								LoadArchive(const char*);
+	bool                                PlayFile(const boost::filesystem::path&, const boost::filesystem::path&);
+	void                                LoadSingleFile(const boost::filesystem::path&);
+	void                                LoadPlaylist(const boost::filesystem::path&);
+	void								LoadArchive(const boost::filesystem::path&);
 
 	void                                OnPlaylistItemDblClick(unsigned int);
 	void                                OnPlaylistAddClick();
@@ -136,7 +137,7 @@ private:
 	int									FindCharEncoding(unsigned int);
 
 	void								ResetDiscoveryRun();
-	void								AddDiscoveryItem(const char*, const char*, unsigned int);
+	void								AddDiscoveryItem(const boost::filesystem::path&, const boost::filesystem::path&, unsigned int);
 	void								ProcessPendingDiscoveries();
 	void								DiscoveryThreadProc();
 

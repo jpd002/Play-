@@ -18,9 +18,9 @@ public:
 
 		}
 
-        std::string                 path;
-        std::wstring                title;
-        double                      length;
+        std::wstring				path;
+        std::wstring				title;
+        double						length;
 		unsigned int				id;
 		unsigned int				archiveId;
     };
@@ -37,14 +37,14 @@ public:
 	int								FindItem(unsigned int) const;
 	unsigned int                    GetItemCount() const;
 
-    void                            Read(const char*);
-    void                            Write(const char*);
+    void                            Read(const boost::filesystem::path&);
+    void                            Write(const boost::filesystem::path&);
 
 	static bool						IsLoadableExtension(const char*);
     static void                     PopulateItemFromTags(ITEM&, const CPsfTags&);
 
-	unsigned int					InsertArchive(const char*);
-	std::string						GetArchive(unsigned int) const;
+	unsigned int					InsertArchive(const wchar_t*);
+	std::wstring					GetArchive(unsigned int) const;
 
 	unsigned int					InsertItem(const ITEM&);
     void                            UpdateItem(unsigned int, const ITEM&);
@@ -59,7 +59,7 @@ public:
 
 private:
     typedef std::vector<ITEM> ItemList;
-	typedef std::vector<std::string> ArchiveList;
+	typedef std::vector<std::wstring> ArchiveList;
     typedef ItemList::const_iterator ItemIterator;
 
 	static const char*				g_loadableExtensions[];

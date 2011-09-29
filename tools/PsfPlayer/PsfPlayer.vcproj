@@ -579,6 +579,10 @@
 				RelativePath=".\Source\SoundHandler.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Source\StdStreamUtils.h"
+				>
+			</File>
 			<Filter
 				Name="ui"
 				>

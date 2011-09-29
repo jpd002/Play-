@@ -11,7 +11,7 @@ public:
 										CPsfZipArchive();
 	virtual								~CPsfZipArchive();
 	
-	virtual void						Open(const char*);
+	virtual void						Open(const boost::filesystem::path&);
 	virtual void						ReadFileContents(const char*, void*, unsigned int);
 
 private:

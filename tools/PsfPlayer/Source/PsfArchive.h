@@ -3,6 +3,7 @@
 
 #include <list>
 #include <functional>
+#include <boost/filesystem/path.hpp>
 
 class CPsfArchive
 {
@@ -19,7 +20,7 @@ public:
 							CPsfArchive();
 	virtual					~CPsfArchive();
 
-	static CPsfArchive*		CreateFromPath(const char*);
+	static CPsfArchive*		CreateFromPath(const boost::filesystem::path&);
 
 	virtual void			ReadFileContents(const char*, void*, unsigned int) = 0;
 
@@ -28,7 +29,7 @@ public:
 	FileListIterator		GetFilesEnd() const;
 
 protected:
-	virtual void			Open(const char*) = 0;
+	virtual void			Open(const boost::filesystem::path&) = 0;
 
 	FileList				m_files;
 };

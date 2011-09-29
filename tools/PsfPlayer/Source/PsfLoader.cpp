@@ -14,26 +14,27 @@
 using namespace Framework;
 namespace filesystem = boost::filesystem;
 
-void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const char* pathString, const char* archivePath, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const filesystem::path& filePath, const filesystem::path& archivePath, CPsfBase::TagMap* tags)
 {
 	boost::scoped_ptr<CPsfStreamProvider> streamProvider(CreatePsfStreamProvider(archivePath));
 
-	size_t pathLength = strlen(pathString);
+	std::string pathString = filePath.string();
+	size_t pathLength = pathString.length();
 	if(pathString[pathLength - 1] == '2')
 	{
-		LoadPs2(virtualMachine, pathString, streamProvider.get(), tags);
+		LoadPs2(virtualMachine, filePath, streamProvider.get(), tags);
 	}
 	else if(pathString[pathLength - 1] == 'p')
 	{
-		LoadPsp(virtualMachine, pathString, streamProvider.get(), tags);
+		LoadPsp(virtualMachine, filePath, streamProvider.get(), tags);
 	}
 	else
 	{
-		LoadPsx(virtualMachine, pathString, streamProvider.get(), tags);
+		LoadPsx(virtualMachine, filePath, streamProvider.get(), tags);
 	}
 }
 
-void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const char* pathString, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem());
 	virtualMachine.SetSubSystem(subSystem);
@@ -41,13 +42,13 @@ void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const char* pathString, CPsfStr
 	{
 		Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
 		subSystem->SetBios(bios);
-		LoadPsxRecurse(virtualMachine, static_cast<CPsxBios*>(bios.get()), pathString, streamProvider, tags);
+		LoadPsxRecurse(virtualMachine, static_cast<CPsxBios*>(bios.get()), filePath, streamProvider, tags);
 	}
 }
 
-void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const char* pathString, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
-	Framework::CStream* input(streamProvider->GetStreamForPath(pathString));
+	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
 	CPsfBase psfFile(*input);
 	delete input;
 
@@ -64,9 +65,8 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 		uint32 sp = 0, pc = 0;
 		if(libPath != NULL)
 		{
-			filesystem::path path(pathString); 
-			path = path.branch_path() / libPath;
-			LoadPsxRecurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
+			filesystem::path libFilePath(filePath.branch_path() / libPath);
+			LoadPsxRecurse(virtualMachine, bios, libFilePath, streamProvider);
 			sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			pc = virtualMachine.GetCpu().m_State.nPC;
 		}
@@ -95,11 +95,10 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 			{
 				break;
 			}
-			filesystem::path path(pathString); 
-			path = path.branch_path() / libPath;
+			filesystem::path libFilePath(filePath.branch_path() / libPath);
 			uint32 sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			uint32 pc = virtualMachine.GetCpu().m_State.nPC;
-			LoadPsxRecurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
+			LoadPsxRecurse(virtualMachine, bios, libFilePath, streamProvider);
 			virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nD0 = static_cast<int32>(sp);
 			virtualMachine.GetCpu().m_State.nPC = pc;
 			currentLib++;
@@ -107,7 +106,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const ch
 	}
 }
 
-void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const char* pathString, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem());
 	virtualMachine.SetSubSystem(subSystem);
@@ -115,14 +114,14 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const char* pathString, CPsfStr
 	{
 		Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
 		subSystem->SetBios(bios);
-	    LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), pathString, streamProvider, tags);
+	    LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), filePath, streamProvider, tags);
 		static_cast<PS2::CPsfBios*>(bios.get())->Start();
 	}
 }
 
-void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const char* pathString, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
-	Framework::CStream* input(streamProvider->GetStreamForPath(pathString));
+	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
 	CPsfBase psfFile(*input);
 	delete input;
 
@@ -137,28 +136,27 @@ void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, con
 	}
 	if(libPath != NULL)
 	{
-		filesystem::path path(pathString); 
-		path = path.branch_path() / libPath;
-		LoadPs2Recurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
+		filesystem::path libFilePath(filePath.branch_path() / libPath);
+		LoadPs2Recurse(virtualMachine, bios, libFilePath, streamProvider);
 	}
 	bios->AppendArchive(psfFile);
 }
 
-void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const char* pathString, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Psp::PsfSubSystemPtr subSystem = Psp::PsfSubSystemPtr(new Psp::CPsfSubSystem(0x00800000));
 	virtualMachine.SetSubSystem(subSystem);
 
 	{
 		Psp::CPsfBios* bios = &subSystem->GetBios();
-		LoadPspRecurse(virtualMachine, bios, pathString, streamProvider, tags);
+		LoadPspRecurse(virtualMachine, bios, filePath, streamProvider, tags);
 		bios->Start();
 	}
 }
 
-void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, const char* pathString, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
-	Framework::CStream* input(streamProvider->GetStreamForPath(pathString));
+	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
 	CPsfBase psfFile(*input);
 	delete input;
 
@@ -173,9 +171,8 @@ void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, con
 	}
 	if(libPath != NULL)
 	{
-		filesystem::path path(pathString); 
-		path = path.branch_path() / libPath;
-		LoadPspRecurse(virtualMachine, bios, path.generic_string().c_str(), streamProvider);
+		filesystem::path libFilePath(filePath.branch_path() / libPath);
+		LoadPspRecurse(virtualMachine, bios, libFilePath, streamProvider);
 	}
 	bios->AppendArchive(psfFile);
 }

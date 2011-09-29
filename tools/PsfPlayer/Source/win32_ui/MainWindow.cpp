@@ -22,8 +22,8 @@
 #define ID_FILE_AUDIOPLUGIN_PLUGIN_0    (0xBEEF)
 #define ID_FILE_CHARENCODING_ENCODING_0	(0xCEEF)
 
-#define PLAYLIST_EXTENSION              _T("psfpl")
-#define PLAYLIST_FILTER                 _T("PsfPlayer Playlists (*.") PLAYLIST_EXTENSION _T(")\0*.") PLAYLIST_EXTENSION _T("\0")
+#define PLAYLIST_EXTENSION              _T(".psfpl")
+#define PLAYLIST_FILTER                 _T("PsfPlayer Playlists (*") PLAYLIST_EXTENSION _T(")\0*") PLAYLIST_EXTENSION _T("\0")
 #define PSF_FILTER						_T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
 #define PSF2_FILTER						_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0")
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
@@ -457,14 +457,14 @@ void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 {
     const CPlaylist::ITEM& item(m_playlist.GetItem(index));
 	
-	std::string archivePath;
+	boost::filesystem::path archivePath;
 	if(item.archiveId != 0)
 	{
 		archivePath = m_playlist.GetArchive(item.archiveId);
 	}
 
-	if(PlayFile(item.path.c_str(), (archivePath.length() != 0) ? archivePath.c_str() : NULL))
-    {
+	if(PlayFile(item.path.c_str(), archivePath))
+	{
         CPlaylist::ITEM newItem(item);
         CPlaylist::PopulateItemFromTags(newItem, m_tags);
         m_playlist.UpdateItem(index, newItem);
@@ -488,14 +488,14 @@ void CMainWindow::OnPlaylistAddClick()
 		for(Win32::CFileDialog::PathList::const_iterator pathIterator(paths.begin());
 			paths.end() != pathIterator; pathIterator++)
 		{
-			const std::tstring path(*pathIterator);
+			boost::filesystem::path filePath(*pathIterator);
 			CPlaylist::ITEM item;
-			item.path       = string_cast<std::string>(path);
-			item.title      = path.c_str();
+			item.path       = filePath.wstring();
+			item.title      = filePath.wstring();
 			item.length     = 0;
 			unsigned int itemId = m_playlist.InsertItem(item);
 
-			AddDiscoveryItem(item.path.c_str(), NULL, itemId);
+			AddDiscoveryItem(filePath, boost::filesystem::path(), itemId);
 		}
 	}
 }
@@ -510,11 +510,20 @@ void CMainWindow::OnPlaylistSaveClick()
     Win32::CFileDialog dialog;
     const TCHAR* filter = PLAYLIST_FILTER;
     dialog.m_OFN.lpstrFilter = filter;
-    dialog.m_OFN.lpstrDefExt = PLAYLIST_EXTENSION;
+    dialog.m_OFN.lpstrDefExt = PLAYLIST_EXTENSION + 1;
     if(dialog.SummonSave(m_hWnd))
     {
-		m_playlist.Write(string_cast<std::string>(dialog.GetPath()).c_str());
-    }
+		try
+		{
+			m_playlist.Write(dialog.GetPath());
+		}
+		catch(const std::exception& except)
+		{
+			std::tstring errorString = _T("Couldn't save playlist: \r\n\r\n");
+			errorString += string_cast<std::tstring>(except.what());
+			MessageBox(m_hWnd, errorString.c_str(), NULL, 16);
+		}
+	}
 }
 
 void CMainWindow::OnClickReverbEnabled()
@@ -800,7 +809,7 @@ void CMainWindow::OnFileOpen()
 {
     Win32::CFileDialog dialog;
     const TCHAR* filter = 
-	    _T("All Supported Files\0*.psfpl; *.zip; *.rar; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp;") PLAYLIST_EXTENSION _T("\0")
+	    _T("All Supported Files\0*.zip; *.rar; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp;*") PLAYLIST_EXTENSION _T("\0")
         PLAYLIST_FILTER
 		ARCHIVE_FILTER
 	    PSF_FILTER
@@ -809,25 +818,20 @@ void CMainWindow::OnFileOpen()
     dialog.m_OFN.lpstrFilter = filter;
     if(dialog.SummonOpen(m_hWnd))
     {
-        std::tstring file = dialog.GetPath();
-        std::tstring extension;
-        std::tstring::size_type dotPosition = file.find('.');
-        if(dotPosition != std::tstring::npos)
-        {
-            extension = std::tstring(file.begin() + dotPosition + 1, file.end());
-        }
-        if(!wcsicmp(extension.c_str(), PLAYLIST_EXTENSION))
-        {
-            LoadPlaylist(string_cast<std::string>(file).c_str());
-        }
-		else if(!wcsicmp(extension.c_str(), L"rar") || !wcsicmp(extension.c_str(), L"zip"))
+		boost::filesystem::path filePath(dialog.GetPath());
+		std::wstring fileExtension = filePath.extension().wstring();
+		if(!wcsicmp(fileExtension.c_str(), PLAYLIST_EXTENSION))
 		{
-			LoadArchive(string_cast<std::string>(file).c_str());
+			LoadPlaylist(filePath);
 		}
-        else
-        {
-	        LoadSingleFile(string_cast<std::string>(file).c_str());
-        }
+		else if(!wcsicmp(fileExtension.c_str(), L".rar") || !wcsicmp(fileExtension.c_str(), L".zip"))
+		{
+			LoadArchive(filePath);
+		}
+		else
+		{
+			LoadSingleFile(filePath);
+		}
     }
 }
 
@@ -925,9 +929,9 @@ void CMainWindow::OnAbout()
 	aboutWindow.DoModal(m_hWnd);
 }
 
-void CMainWindow::LoadSingleFile(const char* path)
+void CMainWindow::LoadSingleFile(const boost::filesystem::path& filePath)
 {
-    if(PlayFile(path, NULL))
+	if(PlayFile(filePath, boost::filesystem::path()))
     {
         m_playlist.Clear();
 		ResetDiscoveryRun();
@@ -935,20 +939,20 @@ void CMainWindow::LoadSingleFile(const char* path)
         m_currentPlaylistItem = 0;
 
         CPlaylist::ITEM item;
-        item.path = path;
+        item.path = filePath.wstring();
         CPlaylist::PopulateItemFromTags(item, m_tags);
         m_playlist.InsertItem(item);
     }
 }
 
-void CMainWindow::LoadPlaylist(const char* path)
+void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
 {
 	try
 	{
 		m_playlist.Clear();
 		ResetDiscoveryRun();
 
-		m_playlist.Read(path);
+		m_playlist.Read(playlistPath);
 		if(m_playlist.GetItemCount() > 0)
 		{
 			m_currentPlaylistItem = 0;
@@ -958,7 +962,7 @@ void CMainWindow::LoadPlaylist(const char* path)
 		for(unsigned int i = 0; i < m_playlist.GetItemCount(); i++)
 		{
 			const CPlaylist::ITEM& item(m_playlist.GetItem(i));
-			AddDiscoveryItem(item.path.c_str(), NULL, item.id);
+			AddDiscoveryItem(item.path.c_str(), boost::filesystem::path(), item.id);
 		}
 	}
 	catch(const std::exception& except)
@@ -969,7 +973,7 @@ void CMainWindow::LoadPlaylist(const char* path)
 	}
 }
 
-void CMainWindow::LoadArchive(const char* path)
+void CMainWindow::LoadArchive(const boost::filesystem::path& archivePath)
 {
 	try
 	{
@@ -977,9 +981,8 @@ void CMainWindow::LoadArchive(const char* path)
 		ResetDiscoveryRun();
 
 		{
-			boost::scoped_ptr<CPsfArchive> archive(CPsfArchive::CreateFromPath(path));
-
-			unsigned int archiveId = m_playlist.InsertArchive(path);
+			boost::scoped_ptr<CPsfArchive> archive(CPsfArchive::CreateFromPath(archivePath));
+			unsigned int archiveId = m_playlist.InsertArchive(archivePath.wstring().c_str());
 
 			for(CPsfArchive::FileListIterator fileIterator(archive->GetFilesBegin());
 				fileIterator != archive->GetFilesEnd(); fileIterator++)
@@ -989,13 +992,13 @@ void CMainWindow::LoadArchive(const char* path)
 				if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
 				{
 					CPlaylist::ITEM newItem;
-					newItem.path = fileIterator->name;
-					newItem.title = string_cast<std::wstring>(newItem.path);
+					newItem.path = filePath.wstring();
+					newItem.title = newItem.path;
 					newItem.length = 0;
 					newItem.archiveId = archiveId;
 					unsigned int itemId = m_playlist.InsertItem(newItem);
 
-					AddDiscoveryItem(fileIterator->name.c_str(), path, itemId);
+					AddDiscoveryItem(filePath, archivePath, itemId);
 				}
 			}
 		}
@@ -1027,7 +1030,7 @@ void CMainWindow::Reset()
 	m_volumeAdjust = 1.0f;
 }
 
-bool CMainWindow::PlayFile(const char* path, const char* archivePath)
+bool CMainWindow::PlayFile(const boost::filesystem::path& filePath, const boost::filesystem::path& archivePath)
 {
 	EnableWindow(m_hWnd, FALSE);
 
@@ -1035,7 +1038,7 @@ bool CMainWindow::PlayFile(const char* path, const char* archivePath)
 	try
 	{
 		CPsfBase::TagMap tags;
-		CPsfLoader::LoadPsf(m_virtualMachine, path, archivePath, &tags);
+		CPsfLoader::LoadPsf(m_virtualMachine, filePath, archivePath, &tags);
 		m_tags = CPsfTags(tags);
 		m_tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));
 		try
@@ -1085,13 +1088,13 @@ bool CMainWindow::PlayFile(const char* path, const char* archivePath)
     return m_ready;
 }
 
-void CMainWindow::AddDiscoveryItem(const char* path, const char* archivePath, unsigned int itemId)
+void CMainWindow::AddDiscoveryItem(const boost::filesystem::path& filePath, const boost::filesystem::path& archivePath, unsigned int itemId)
 {
 	DISCOVERY_COMMAND command;
 	command.runId		= m_discoveryRunId;
 	command.itemId		= itemId;
-	command.path		= path;
-	command.archivePath	= archivePath ? archivePath : "";
+	command.filePath	= filePath;
+	command.archivePath	= archivePath;
 	m_pendingDiscoveryCommands.push_back(command);
 }
 
@@ -1146,10 +1149,8 @@ void CMainWindow::DiscoveryThreadProc()
 		{
 			try
 			{
-				boost::scoped_ptr<CPsfStreamProvider> streamProvider(
-					CreatePsfStreamProvider(command.archivePath.size() != 0 ? command.archivePath.c_str() : NULL));
-				boost::scoped_ptr<Framework::CStream> inputStream(
-					streamProvider->GetStreamForPath(command.path.c_str()));
+				boost::scoped_ptr<CPsfStreamProvider> streamProvider(CreatePsfStreamProvider(command.archivePath));
+				boost::scoped_ptr<Framework::CStream> inputStream(streamProvider->GetStreamForPath(command.filePath));
 				CPsfBase psfFile(*inputStream);
 				CPsfTags tags(CPsfTags::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd()));
 				tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));

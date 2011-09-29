@@ -10,6 +10,7 @@
 #include "Utf8.h"
 #include "Playlist.h"
 #include "stricmp.h"
+#include "StdStreamUtils.h"
 
 #define PLAYLIST_NODE_TAG               "Playlist"
 #define PLAYLIST_ITEM_NODE_TAG          "Item"
@@ -27,8 +28,6 @@ const char* CPlaylist::g_loadableExtensions[] =
 	"minipsfp",
 	NULL
 };
-
-using namespace Framework;
 
 CPlaylist::CPlaylist()
 : m_currentItemId(0)
@@ -89,19 +88,19 @@ void CPlaylist::PopulateItemFromTags(ITEM& item, const CPsfTags& tags)
     item.length     = CPsfTags::ConvertTimeString(tags.GetTagValue("length").c_str());
 }
 
-unsigned int CPlaylist::InsertArchive(const char* path)
+unsigned int CPlaylist::InsertArchive(const wchar_t* path)
 {
 	m_archives.push_back(path);
 	return static_cast<unsigned int>(m_archives.size());
 }
 
-std::string CPlaylist::GetArchive(unsigned int archiveId) const
+std::wstring CPlaylist::GetArchive(unsigned int archiveId) const
 {
 	archiveId--;
 	assert(archiveId < m_archives.size());
 	if(archiveId >= m_archives.size())
 	{
-		return std::string();
+		return std::wstring();
 	}
 	else
 	{
@@ -157,37 +156,37 @@ void CPlaylist::Clear()
 	m_archives.clear();
 }
 
-void CPlaylist::Read(const char* inputPathString)
+void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 {
     Clear();
 
-    CStdStream stream(inputPathString, "rb");
-    boost::scoped_ptr<Xml::CNode> document(Xml::CParser::ParseDocument(&stream));
+	boost::scoped_ptr<Framework::CStdStream> stream(CreateInputStdStream(playlistPath.native()));
+	boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream.get()));
+	stream.reset();
     if(!document)
     {
         throw std::runtime_error("Couldn't parse document.");
     }
-    boost::filesystem::path inputPath(inputPathString);
-    inputPath = inputPath.parent_path();
+	boost::filesystem::path parentPath = playlistPath.parent_path();
 
-    Xml::CNode::NodeList items = document->SelectNodes(PLAYLIST_NODE_TAG "/" PLAYLIST_ITEM_NODE_TAG);
-    for(Xml::CNode::NodeIterator nodeIterator(items.begin()); nodeIterator != items.end(); nodeIterator++)
+    Framework::Xml::CNode::NodeList items = document->SelectNodes(PLAYLIST_NODE_TAG "/" PLAYLIST_ITEM_NODE_TAG);
+    for(Framework::Xml::CNode::NodeIterator nodeIterator(items.begin()); nodeIterator != items.end(); nodeIterator++)
     {
-        Xml::CNode* itemNode = (*nodeIterator);
-        boost::filesystem::path itemPath = itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE);
+        Framework::Xml::CNode* itemNode = (*nodeIterator);
+        boost::filesystem::path itemPath = Framework::Utf8::ConvertFrom(itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE));
         const char* title = itemNode->GetAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE);
         const char* length = itemNode->GetAttribute(PLAYLIST_ITEM_LENGTH_ATTRIBUTE);
 
         if(!itemPath.is_complete())
         {
-            itemPath = inputPath / itemPath;
+            itemPath = parentPath / itemPath;
         }
 
         ITEM item;
-        item.path = itemPath.string().c_str();
+        item.path = itemPath.wstring();
         if(title != NULL)
         {
-			item.title = Utf8::ConvertFrom(title);
+			item.title = Framework::Utf8::ConvertFrom(title);
         }
 
         if(length != NULL)
@@ -203,15 +202,12 @@ void CPlaylist::Read(const char* inputPathString)
     }
 }
 
-void CPlaylist::Write(const char* outputPathString)
+void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 {
-    CStdStream stream(outputPathString, "wb");
+    boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
+    Framework::Xml::CNode* playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
 
-    boost::scoped_ptr<Xml::CNode> document(new Xml::CNode());
-    Xml::CNode* playlistNode = document->InsertNode(new Xml::CNode(PLAYLIST_NODE_TAG, true));
-
-    boost::filesystem::path outputPath(outputPathString);
-    outputPath = outputPath.parent_path();
+    boost::filesystem::path parentPath = playlistPath.parent_path();
 
     for(ItemIterator itemIterator(m_items.begin());
         itemIterator != m_items.end(); itemIterator++)
@@ -219,13 +215,14 @@ void CPlaylist::Write(const char* outputPathString)
         const ITEM& item(*itemIterator);
 
         boost::filesystem::path itemPath(item.path);
-        boost::filesystem::path itemRelativePath(naive_uncomplete(itemPath, outputPath));
+        boost::filesystem::path itemRelativePath(naive_uncomplete(itemPath, parentPath));
 
-        Xml::CNode* itemNode = playlistNode->InsertNode(new Xml::CNode(PLAYLIST_ITEM_NODE_TAG, true));
-        itemNode->InsertAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE, itemRelativePath.string().c_str());
-        itemNode->InsertAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE, Utf8::ConvertTo(item.title).c_str());
-        itemNode->InsertAttribute(Xml::CreateAttributeIntValue(PLAYLIST_ITEM_LENGTH_ATTRIBUTE, item.length));
+        Framework::Xml::CNode* itemNode = playlistNode->InsertNode(new Framework::Xml::CNode(PLAYLIST_ITEM_NODE_TAG, true));
+        itemNode->InsertAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE, Framework::Utf8::ConvertTo(itemRelativePath.wstring()).c_str());
+        itemNode->InsertAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE, Framework::Utf8::ConvertTo(item.title).c_str());
+        itemNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(PLAYLIST_ITEM_LENGTH_ATTRIBUTE, item.length));
     }
 
-    Xml::CWriter::WriteDocument(&stream, document.get());
+	boost::scoped_ptr<Framework::CStdStream> stream(CreateOutputStdStream(playlistPath.native()));
+	Framework::Xml::CWriter::WriteDocument(stream.get(), document.get());
 }

@@ -195,18 +195,16 @@ void CPlaylistPanel::CreateColumns()
 
 void CPlaylistPanel::OnPlaylistItemInsert(const CPlaylist::ITEM& item)
 {
-    std::tstring title, length;
-    title = string_cast<std::tstring>(item.title);
-    length = TimeToString<std::tstring>(item.length);
-    AddItem(title.c_str(), length.c_str());
+	std::tstring title = string_cast<std::tstring>(item.title);
+	std::tstring length = TimeToString<std::tstring>(item.length);
+	AddItem(title.c_str(), length.c_str());
 }
 
 void CPlaylistPanel::OnPlaylistItemUpdate(unsigned int index, const CPlaylist::ITEM& item)
 {
-    std::tstring title, length;
-    title = string_cast<std::tstring>(item.title);
-    length = TimeToString<std::tstring>(item.length);
-    ModifyItem(index, title.c_str(), length.c_str());
+	std::tstring title = string_cast<std::tstring>(item.title);
+	std::tstring length = TimeToString<std::tstring>(item.length);
+	ModifyItem(index, title.c_str(), length.c_str());
 }
 
 void CPlaylistPanel::OnPlaylistItemDelete(unsigned int index)

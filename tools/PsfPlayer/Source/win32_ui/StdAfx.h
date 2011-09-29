@@ -15,6 +15,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include "Types.h"
 #include "Stream.h"

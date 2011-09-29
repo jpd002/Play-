@@ -19,10 +19,10 @@ CPsfRarArchive::~CPsfRarArchive()
 	delete ConvertArchive(m_archive);
 }
 
-void CPsfRarArchive::Open(const char* path)
+void CPsfRarArchive::Open(const boost::filesystem::path& filePath)
 {
 	Archive* arc(ConvertArchive(m_archive));
-	arc->Open(path);
+	arc->Open(filePath.string().c_str(), filePath.wstring().c_str());
 	arc->IsArchive(false);
 	if(!arc->IsOpened())
 	{
