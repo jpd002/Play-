@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib TDEmu.lib"
+				AdditionalDependencies="comctl32.lib TDEmu.lib uxtheme.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -76,6 +76,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -140,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib TDEmu64.lib"
+				AdditionalDependencies="comctl32.lib TDEmu64.lib uxtheme.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -151,6 +152,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				AdditionalManifestFiles="manifest64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -215,7 +217,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib TDEmu.lib"
+				AdditionalDependencies="comctl32.lib TDEmu.lib uxtheme.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -294,7 +296,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib TDEmu64.lib"
+				AdditionalDependencies="comctl32.lib TDEmu64.lib uxtheme.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -371,7 +373,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib TDEmu.lib"
+				AdditionalDependencies="comctl32.lib TDEmu.lib uxtheme.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -446,7 +448,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib TDEmu64.lib"
+				AdditionalDependencies="comctl32.lib TDEmu64.lib uxtheme.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -1596,6 +1598,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\win32_ui\images\repeat_track.ico"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\win32_ui\images\shuffle_list.ico"
 			>
 		</File>
 		<File
