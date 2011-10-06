@@ -62,6 +62,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_virtualMachine(virtualMachine)
 , m_ready(false)
 , m_frames(0)
+, m_lastUpdateTime(~0)
 , m_selectedAudioPlugin(DEFAULT_SOUND_HANDLER_ID)
 , m_selectedCharEncoding(DEFAULT_CHAR_ENCODING_ID)
 , m_timerLabel(NULL)
@@ -602,12 +603,16 @@ void CMainWindow::UpdateFade()
 
 void CMainWindow::UpdateClock()
 {
-	const unsigned int fps = 60;
+	static const unsigned int fps = 60;
 	uint64 time = m_frames / fps;
-	unsigned int seconds = static_cast<unsigned int>(time % 60);
-	unsigned int minutes = static_cast<unsigned int>(time / 60);
-	std::tstring timerText = lexical_cast_uint<std::tstring>(minutes, 2) + _T(":") + lexical_cast_uint<std::tstring>(seconds, 2);
-	m_timerLabel->SetText(timerText.c_str());
+	if(time != m_lastUpdateTime)
+	{
+		unsigned int seconds = static_cast<unsigned int>(time % 60);
+		unsigned int minutes = static_cast<unsigned int>(time / 60);
+		std::tstring timerText = lexical_cast_uint<std::tstring>(minutes, 2) + _T(":") + lexical_cast_uint<std::tstring>(seconds, 2);
+		m_timerLabel->SetText(timerText.c_str());
+		m_lastUpdateTime = time;
+	}
 }
 
 void CMainWindow::UpdateTitle()
@@ -1024,6 +1029,7 @@ void CMainWindow::Reset()
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
     m_frames = 0;
+	m_lastUpdateTime = ~0;
 	m_trackLength = 0;
 	m_fadePosition = 0;
 	m_ready = false;

@@ -18,6 +18,9 @@ protected:
 
 	virtual long			OnHScroll(unsigned int, unsigned int);
 	virtual long			OnVScroll(unsigned int, unsigned int);
+	virtual long			OnMouseWheel(short);
+	virtual long			OnKeyDown(unsigned int);
+	virtual long			OnGetDlgCode(WPARAM, LPARAM);
 
 	virtual void			Refresh();
 	virtual void			OnDeviceLost();

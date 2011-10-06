@@ -187,6 +187,7 @@ private:
 	unsigned int						m_currentPanel;
 	bool								m_ready;
 	uint64                              m_frames;
+	uint64								m_lastUpdateTime;
 	uint64								m_trackLength;
 	uint64								m_fadePosition;
 	float								m_volumeAdjust;

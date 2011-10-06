@@ -4,6 +4,7 @@
 #include "win32/Window.h"
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <uxtheme.h>
 
 class CDirectXControl : public Framework::Win32::CWindow
 {
@@ -23,20 +24,32 @@ protected:
 	virtual long			OnEraseBkgnd();
 	virtual long			OnPaint();
 	virtual long			OnSize(unsigned int, unsigned int, unsigned int);
+	virtual long			OnThemeChanged();
+	virtual long			OnNcCalcSize(WPARAM, LPARAM);
+	virtual long			OnNcPaint(WPARAM);
+	virtual long			OnMouseMove(WPARAM, int, int);
+	virtual long			OnMouseLeave();
+	virtual long			OnLeftButtonDown(int, int);
+	virtual long			OnRightButtonDown(int, int);
+	virtual long			OnSetFocus();
+	virtual long			OnKillFocus();
 
 	LPDIRECT3DDEVICE9		m_device;
 
-	D3DCOLOR				m_backgroundColor;
-	D3DCOLOR				m_textColor;
-
 private:
 	void					Initialize();
+	void					InitializeTheme();
 	void					CreateDevice();
 	void					ResetDevice();
 	D3DPRESENT_PARAMETERS	CreatePresentParams();
 
 	LPDIRECT3D9				m_d3d;
 	bool					m_deviceLost;
+	bool					m_isThemeActive;
+
+	HTHEME					m_theme;
+	RECT					m_borderRect;
+	bool					m_mouseInside;
 };
 
 #endif

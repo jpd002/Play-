@@ -1,19 +1,10 @@
 #include "SpuRegViewPanel.h"
 #include "win32/Rect.h"
-#include <boost/lexical_cast.hpp>
-
-#define CLSNAME			                _T("PlaylistPanel")
-#define WNDSTYLE		                (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CHILD)
-#define WNDSTYLEEX		                (0)
+#include "resource.h"
 
 CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd, const TCHAR* title)
+: Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_SPUREGVIEW), parentWnd)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		RegisterClassEx(&Framework::Win32::CWindow::MakeWndClass(CLSNAME));
-	}
-
-	Create(WNDSTYLEEX, CLSNAME, _T(""), WNDSTYLE, Framework::Win32::CRect(0, 0, 1, 1), parentWnd, NULL);
     SetClassPtr();
 
 	m_regView = new CSpuRegView(m_hWnd, title);

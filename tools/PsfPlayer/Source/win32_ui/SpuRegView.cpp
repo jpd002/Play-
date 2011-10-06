@@ -110,6 +110,39 @@ long CSpuRegView::OnVScroll(unsigned int type, unsigned int position)
 	return FALSE;
 }
 
+long CSpuRegView::OnMouseWheel(short delta)
+{
+	m_offsetY -= delta / 40;
+	m_offsetY = std::max<int>(m_offsetY, 0);
+	m_offsetY = std::min<int>(m_offsetY, m_maxScrollY);
+	UpdateVerticalScroll();
+	return TRUE;
+}
+
+long CSpuRegView::OnKeyDown(unsigned int keyId)
+{
+	if(keyId == VK_LEFT || keyId == VK_RIGHT)
+	{
+		m_offsetX += (keyId == VK_LEFT ? -5 : 5);
+		m_offsetX = std::max<int>(m_offsetX, 0);
+		m_offsetX = std::min<int>(m_offsetX, m_maxScrollX);
+		UpdateHorizontalScroll();
+	}
+	if(keyId == VK_UP || keyId == VK_DOWN)
+	{
+		m_offsetY += (keyId == VK_UP ? -5 : 5);
+		m_offsetY = std::max<int>(m_offsetY, 0);
+		m_offsetY = std::min<int>(m_offsetY, m_maxScrollY);
+		UpdateVerticalScroll();
+	}
+	return TRUE;
+}
+
+long CSpuRegView::OnGetDlgCode(WPARAM, LPARAM)
+{
+	return DLGC_WANTARROWS;
+}
+
 void CSpuRegView::CreateResources()
 {
 	if(m_device == NULL) return;
@@ -194,10 +227,13 @@ void CSpuRegView::Refresh()
 	if(m_device == NULL) return;
 	if(!TestDevice()) return;
 
-	m_device->Clear(0, NULL, D3DCLEAR_TARGET, m_backgroundColor, 1.0f, 0);
+	D3DCOLOR backgroundColor = ConvertSysColor(GetSysColor(COLOR_BTNFACE));
+	D3DCOLOR textColor = ConvertSysColor(GetSysColor(COLOR_WINDOWTEXT));
+
+	m_device->Clear(0, NULL, D3DCLEAR_TARGET, backgroundColor, 1.0f, 0);
 	m_device->BeginScene();
 
-	CLineDrawer drawer(m_font, m_textColor, -m_offsetX, -m_offsetY);
+	CLineDrawer drawer(m_font, textColor, -m_offsetX, -m_offsetY);
 
 	{
 		std::tstring text = m_title + _T("  VLEFT  VRIGH  PITCH  ADDRE    ADSRL  ADSRR  ADSRVOLU   REPEA  ");
