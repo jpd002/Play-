@@ -71,6 +71,7 @@ IDI_PAUSE               ICON                    "images\\pause.ico"
 IDI_PLAY                ICON                    "images\\play.ico"
 IDI_NEXT_TRACK          ICON                    "images\\next_track.ico"
 IDI_PREV_TRACK          ICON                    "images\\prev_track.ico"
+IDI_SHUFFLE_LIST        ICON                    "images\\shuffle_list.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

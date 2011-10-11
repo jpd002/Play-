@@ -19,6 +19,7 @@
 #define IDD_PLAYLISTPANEL               122
 #define IDD_FILEINFORMATIONPANEL        123
 #define IDD_SPUREGVIEW                  124
+#define IDI_SHUFFLE_LIST                125
 #define ID_FILE_NEXT                    1001
 #define ID_FILE_PREV                    1002
 #define IDC_PLAY_BUTTON                 1002
@@ -71,7 +72,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        125
+#define _APS_NEXT_RESOURCE_VALUE        126
 #define _APS_NEXT_COMMAND_VALUE         40025
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101

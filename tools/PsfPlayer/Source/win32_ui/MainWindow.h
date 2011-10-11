@@ -52,7 +52,8 @@ private:
 	{
 		PLAYLIST_ONCE,
 		PLAYLIST_REPEAT,
-		TRACK_REPEAT,
+		PLAYLIST_SHUFFLE,
+		TRACK_REPEAT
 	};
 
 	struct SOUNDHANDLER_INFO
@@ -143,6 +144,9 @@ private:
 
 	HACCEL								CreateAccelerators();
 
+	static uint32						GetNextRandomNumber(uint32);
+	static uint32						GetPrevRandomNumber(uint32);
+
 	Framework::Win32::CStatic*          m_timerLabel;
 	Framework::Win32::CStatic*          m_titleLabel;
 
@@ -173,6 +177,7 @@ private:
 
 	HICON								m_playListOnceIcon;
 	HICON								m_repeatListIcon;
+	HICON								m_shuffleListIcon;
 	HICON								m_repeatTrackIcon;
 	HICON								m_configIcon;
 	HICON								m_playIcon;
@@ -195,6 +200,7 @@ private:
 	int									m_selectedCharEncoding;
 	REPEAT_MODE							m_repeatMode;
 	bool								m_reverbEnabled;
+	uint32								m_randomSeed;
 
 	boost::thread*						m_discoveryThread;
 	bool								m_discoveryThreadActive;

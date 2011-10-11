@@ -55,8 +55,6 @@ CMainWindow::CHARENCODING_INFO CMainWindow::m_charEncodingInfo[] =
     {   NULL,						NULL                    },
 };
 
-using namespace Framework;
-
 CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 : Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_MAINWINDOW))
 , m_virtualMachine(virtualMachine)
@@ -87,6 +85,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_discoveryRunId(0)
 , m_playListOnceIcon(NULL)
 , m_repeatListIcon(NULL)
+, m_shuffleListIcon(NULL)
 , m_repeatTrackIcon(NULL)
 , m_toolTip(NULL)
 , m_trayPopupMenu(NULL)
@@ -94,6 +93,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_useTrayIcon(false)
 , m_trayIconServer(NULL)
 , m_taskBarList(NULL)
+, m_randomSeed(0)
 {
 	OSVERSIONINFO versionInfo;
 	memset(&versionInfo, 0, sizeof(OSVERSIONINFO));
@@ -118,6 +118,12 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	if(!m_useTrayIcon)
 	{
 		m_taskBarList = new Framework::Win32::CTaskBarList();
+	}
+
+	{
+		srand(static_cast<unsigned int>(time(NULL)) * 0x13579ACD);
+		float delta = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
+		m_randomSeed = delta * static_cast<float>(0xCAFECAFE) + 0xDAEBB042;
 	}
 
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_REVERB_ENABLED, true);
@@ -164,6 +170,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 
 	m_playListOnceIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PLAYONCE), IMAGE_ICON, 16, 16, 0));
 	m_repeatListIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_REPEAT_LIST), IMAGE_ICON, 16, 16, 0));
+	m_shuffleListIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_SHUFFLE_LIST), IMAGE_ICON, 16, 16, 0));
 	m_repeatTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_REPEAT_TRACK), IMAGE_ICON, 16, 16, 0));
 	m_configIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CONFIG), IMAGE_ICON, 16, 16, 0));
 	m_playIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PLAY), IMAGE_ICON, 16, 16, 0));
@@ -171,27 +178,27 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	m_prevTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PREV_TRACK), IMAGE_ICON, 16, 16, 0));
 	m_nextTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_NEXT_TRACK), IMAGE_ICON, 16, 16, 0));
 
-	m_timerLabel = new Win32::CStatic(GetItem(IDC_TIMER_LABEL));
-	m_titleLabel = new Win32::CStatic(GetItem(IDC_TITLE_LABEL));
+	m_timerLabel = new Framework::Win32::CStatic(GetItem(IDC_TIMER_LABEL));
+	m_titleLabel = new Framework::Win32::CStatic(GetItem(IDC_TITLE_LABEL));
 
-	m_placeHolder = new Win32::CStatic(GetItem(IDC_PLACEHOLDER));
+	m_placeHolder = new Framework::Win32::CStatic(GetItem(IDC_PLACEHOLDER));
 
-	m_configButton = new Win32::CButton(GetItem(IDC_CONFIG_BUTTON));
+	m_configButton = new Framework::Win32::CButton(GetItem(IDC_CONFIG_BUTTON));
 	m_toolTip->AddTool(m_configButton->m_hWnd, _T("Configuration"));
 	m_configButton->SetIcon(m_configIcon);
 
-	m_repeatButton = new Win32::CButton(GetItem(IDC_REPEAT_BUTTON));
+	m_repeatButton = new Framework::Win32::CButton(GetItem(IDC_REPEAT_BUTTON));
 	m_toolTip->AddTool(m_repeatButton->m_hWnd, _T(""));
 	UpdateRepeatButton();
 
-	m_pauseButton = new Win32::CButton(GetItem(IDC_PAUSE_BUTTON));
+	m_pauseButton = new Framework::Win32::CButton(GetItem(IDC_PAUSE_BUTTON));
 
 	//Create tray icon
 	if(m_useTrayIcon)
 	{
 		m_trayIconServer = new Framework::Win32::CTrayIconServer();
 
-		Win32::CTrayIcon* trayIcon = m_trayIconServer->Insert();
+		Framework::Win32::CTrayIcon* trayIcon = m_trayIconServer->Insert();
 		trayIcon->SetIcon(LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 		trayIcon->SetTip(_T("PsfPlayer"));
 
@@ -475,7 +482,7 @@ void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 
 void CMainWindow::OnPlaylistAddClick()
 {
-    Win32::CFileDialog dialog(0x10000);
+    Framework::Win32::CFileDialog dialog(0x10000);
     const TCHAR* filter = 
 	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp\0")
 	    PSF_FILTER
@@ -485,8 +492,8 @@ void CMainWindow::OnPlaylistAddClick()
     dialog.m_OFN.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
 	if(dialog.SummonOpen(m_hWnd))
 	{
-		Win32::CFileDialog::PathList paths(dialog.GetMultiPaths());
-		for(Win32::CFileDialog::PathList::const_iterator pathIterator(paths.begin());
+		Framework::Win32::CFileDialog::PathList paths(dialog.GetMultiPaths());
+		for(Framework::Win32::CFileDialog::PathList::const_iterator pathIterator(paths.begin());
 			paths.end() != pathIterator; pathIterator++)
 		{
 			boost::filesystem::path filePath(*pathIterator);
@@ -508,7 +515,7 @@ void CMainWindow::OnPlaylistRemoveClick(unsigned int itemIdx)
 
 void CMainWindow::OnPlaylistSaveClick()
 {
-    Win32::CFileDialog dialog;
+    Framework::Win32::CFileDialog dialog;
     const TCHAR* filter = PLAYLIST_FILTER;
     dialog.m_OFN.lpstrFilter = filter;
     dialog.m_OFN.lpstrDefExt = PLAYLIST_EXTENSION + 1;
@@ -538,7 +545,7 @@ void CMainWindow::OnClickReverbEnabled()
 	}
 }
 
-void CMainWindow::OnTrayIconEvent(Win32::CTrayIcon* icon, LPARAM param)
+void CMainWindow::OnTrayIconEvent(Framework::Win32::CTrayIcon* icon, LPARAM param)
 {
 	switch(param)
 	{
@@ -563,7 +570,7 @@ void CMainWindow::DisplayTrayMenu()
 
 void CMainWindow::UpdateConfigMenu()
 {
-    Win32::CMenuItem reverbSubMenu(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_ENABLEREVERB));
+    Framework::Win32::CMenuItem reverbSubMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_ENABLEREVERB));
     reverbSubMenu.Check(m_reverbEnabled);
 }
 
@@ -580,6 +587,10 @@ void CMainWindow::UpdateFade()
 				{
 					m_currentPlaylistItem = 0;
 					OnPlaylistItemDblClick(m_currentPlaylistItem);
+				}
+				else if(m_repeatMode == PLAYLIST_SHUFFLE)
+				{
+					OnNext();
 				}
 				else
 				{
@@ -645,7 +656,7 @@ void CMainWindow::UpdatePlaybackButtons()
     }
 	if(m_configPopupMenu != NULL)
 	{
-		Framework::Win32::CMenuItem pauseMenu(Win32::CMenuItem::FindById(m_trayPopupMenu, ID_FILE_PAUSE));
+		Framework::Win32::CMenuItem pauseMenu(Framework::Win32::CMenuItem::FindById(m_trayPopupMenu, ID_FILE_PAUSE));
 		pauseMenu.Enable(m_ready ? TRUE : FALSE);
 		pauseMenu.SetText((status == CVirtualMachine::PAUSED) ? TEXT_PLAY : TEXT_PAUSE);
 	}
@@ -669,6 +680,10 @@ void CMainWindow::UpdateRepeatButton()
 		m_repeatButton->SetIcon(m_repeatListIcon);
 		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Repeat"));
 		break;
+	case PLAYLIST_SHUFFLE:
+		m_repeatButton->SetIcon(m_shuffleListIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Shuffle"));
+		break;
 	case TRACK_REPEAT:
 		m_repeatButton->SetIcon(m_repeatTrackIcon);
 		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Track Repeat"));
@@ -678,7 +693,7 @@ void CMainWindow::UpdateRepeatButton()
 
 void CMainWindow::CreateAudioPluginMenu()
 {
-    Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
+    Framework::Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
 
     for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
     {
@@ -686,7 +701,7 @@ void CMainWindow::CreateAudioPluginMenu()
         InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i, caption.c_str());
     }
 
-    Win32::CMenuItem pluginMenu(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN));
+    Framework::Win32::CMenuItem pluginMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN));
     MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
 	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
@@ -700,7 +715,7 @@ void CMainWindow::UpdateAudioPluginMenu()
 {
     for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
     {
-        Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i));
+        Framework::Win32::CMenuItem pluginSubMenuEntry(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i));
         pluginSubMenuEntry.Check(m_handlerInfo[i].id == m_selectedAudioPlugin);
     }
 }
@@ -739,7 +754,7 @@ void CMainWindow::ChangeAudioPlugin(unsigned int pluginIdx)
 
 void CMainWindow::CreateCharEncodingMenu()
 {
-    Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
+    Framework::Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
 
     for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
     {
@@ -747,7 +762,7 @@ void CMainWindow::CreateCharEncodingMenu()
         InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_CHARENCODING_ENCODING_0 + i, caption.c_str());
     }
 
-    Win32::CMenuItem pluginMenu(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARACTERENCODING));
+    Framework::Win32::CMenuItem pluginMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARACTERENCODING));
     MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
 	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
@@ -761,7 +776,7 @@ void CMainWindow::UpdateCharEncodingMenu()
 {
     for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
     {
-        Win32::CMenuItem pluginSubMenuEntry(Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARENCODING_ENCODING_0 + i));
+        Framework::Win32::CMenuItem pluginSubMenuEntry(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARENCODING_ENCODING_0 + i));
         pluginSubMenuEntry.Check(m_charEncodingInfo[i].id == m_selectedCharEncoding);
     }
 }
@@ -799,10 +814,28 @@ int CMainWindow::FindCharEncoding(unsigned int encodingId)
 
 HACCEL CMainWindow::CreateAccelerators()
 {
-	Win32::CAcceleratorTableGenerator tableGenerator;
+	Framework::Win32::CAcceleratorTableGenerator tableGenerator;
 	tableGenerator.Insert(ID_FILE_PAUSE,			VK_F5,	FVIRTKEY);
 	tableGenerator.Insert(ID_FILE_ENABLEREVERB,		'R',	FVIRTKEY | FCONTROL);	
 	return tableGenerator.Create();
+}
+
+uint32 CMainWindow::GetPrevRandomNumber(uint32 seed)
+{
+	uint32 msb = (seed & 0x80000000) ? 1 : 0;
+	seed <<= 1;
+	seed |= msb;
+	seed = (seed - 0xCAFECAFE) ^ 0xDEADBEEF;
+	return seed;
+}
+
+uint32 CMainWindow::GetNextRandomNumber(uint32 seed)
+{
+	seed = (seed ^ 0xDEADBEEF) + 0xCAFECAFE;
+	uint32 lsb = seed & 1;
+	seed >>= 1;
+	seed |= (lsb << 31);
+	return seed;
 }
 
 void CMainWindow::OnNewFrame()
@@ -812,7 +845,7 @@ void CMainWindow::OnNewFrame()
 
 void CMainWindow::OnFileOpen()
 {
-    Win32::CFileDialog dialog;
+    Framework::Win32::CFileDialog dialog;
     const TCHAR* filter = 
 	    _T("All Supported Files\0*.zip; *.rar; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp;*") PLAYLIST_EXTENSION _T("\0")
         PLAYLIST_FILTER
@@ -857,10 +890,19 @@ void CMainWindow::OnPause()
 void CMainWindow::OnPrev()
 {
     if(m_playlist.GetItemCount() == 0) return;
-    if(m_currentPlaylistItem != 0)
-    {
-        m_currentPlaylistItem--;        
-    }
+	if(m_repeatMode == PLAYLIST_SHUFFLE)
+	{
+		unsigned int itemCount = m_playlist.GetItemCount();
+		m_randomSeed = GetPrevRandomNumber(m_randomSeed);
+		m_currentPlaylistItem = (m_randomSeed % itemCount);
+	}
+	else
+	{
+		if(m_currentPlaylistItem != 0)
+		{
+			m_currentPlaylistItem--;
+		}
+	}
     OnPlaylistItemDblClick(m_currentPlaylistItem);
 }
 
@@ -868,10 +910,18 @@ void CMainWindow::OnNext()
 {
     if(m_playlist.GetItemCount() == 0) return;
     unsigned int itemCount = m_playlist.GetItemCount();
-    if((m_currentPlaylistItem + 1) < itemCount)
-    {
-        m_currentPlaylistItem++;
-    }
+	if(m_repeatMode == PLAYLIST_SHUFFLE)
+	{
+		m_randomSeed = GetNextRandomNumber(m_randomSeed);
+		m_currentPlaylistItem = (m_randomSeed % itemCount);
+	}
+	else
+	{
+		if((m_currentPlaylistItem + 1) < itemCount)
+		{
+			m_currentPlaylistItem++;
+		}
+	}
     OnPlaylistItemDblClick(m_currentPlaylistItem);
 }
 
@@ -895,6 +945,9 @@ void CMainWindow::OnRepeat()
 		m_repeatMode = PLAYLIST_REPEAT;
 		break;
 	case PLAYLIST_REPEAT:
+		m_repeatMode = PLAYLIST_SHUFFLE;
+		break;
+	case PLAYLIST_SHUFFLE:
 		m_repeatMode = TRACK_REPEAT;
 		break;
 	case TRACK_REPEAT:
@@ -960,7 +1013,16 @@ void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
 		m_playlist.Read(playlistPath);
 		if(m_playlist.GetItemCount() > 0)
 		{
-			m_currentPlaylistItem = 0;
+			if(m_repeatMode == PLAYLIST_SHUFFLE)
+			{
+				unsigned int itemCount = m_playlist.GetItemCount();
+				m_randomSeed = GetNextRandomNumber(m_randomSeed);
+				m_currentPlaylistItem = (m_randomSeed % itemCount);
+			}
+			else
+			{
+				m_currentPlaylistItem = 0;
+			}
 			OnPlaylistItemDblClick(m_currentPlaylistItem);
 		}
 
@@ -1010,7 +1072,16 @@ void CMainWindow::LoadArchive(const boost::filesystem::path& archivePath)
 
 		if(m_playlist.GetItemCount() > 0)
 		{
-			m_currentPlaylistItem = 0;
+			if(m_repeatMode == PLAYLIST_SHUFFLE)
+			{
+				unsigned int itemCount = m_playlist.GetItemCount();
+				m_randomSeed = GetNextRandomNumber(m_randomSeed);
+				m_currentPlaylistItem = (m_randomSeed % itemCount);
+			}
+			else
+			{
+				m_currentPlaylistItem = 0;
+			}
 			OnPlaylistItemDblClick(m_currentPlaylistItem);
 		}
 	}
@@ -1062,7 +1133,7 @@ bool CMainWindow::PlayFile(const boost::filesystem::path& filePath, const boost:
 		m_virtualMachine.SetReverbEnabled(m_reverbEnabled);
 		m_virtualMachine.Resume();
 		m_ready = true;
-		if(m_repeatMode == PLAYLIST_REPEAT || m_repeatMode == PLAYLIST_ONCE)
+		if(m_repeatMode != TRACK_REPEAT)
 		{
 			double fade = 10;
 			if(m_tags.HasTag("length"))
