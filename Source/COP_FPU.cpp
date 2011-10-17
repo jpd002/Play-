@@ -297,6 +297,16 @@ void CCOP_FPU::TRUNC_W_S()
     m_codeGen->FP_PullWordTruncate(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
 }
 
+//16
+void CCOP_FPU::RSQRT_S()
+{
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFS * 2]));
+    m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP10[m_nFT * 2]));
+    m_codeGen->FP_Rsqrt();
+    m_codeGen->FP_Mul();
+    m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP10[m_nFD * 2]));
+}
+
 //18
 void CCOP_FPU::ADDA_S()
 {
@@ -462,7 +472,7 @@ CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_pOpSingle[0x40] =
 	//0x08
 	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::TRUNC_W_S,	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x10
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
+	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::RSQRT_S,		&CCOP_FPU::Illegal,
 	//0x18
 	&CCOP_FPU::ADDA_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::MULA_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::MADD_S,		&CCOP_FPU::MSUB_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x20

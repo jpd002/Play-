@@ -263,7 +263,7 @@ INSTRUCTION CCOP_FPU::m_cReflS[64] =
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"RSQRT.S",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18
 	{	"ADDA.S",		NULL,			CopyMnemonic,		ReflOpFsFt,			NULL,				NULL			},

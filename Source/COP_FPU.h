@@ -82,6 +82,7 @@ private:
 	void							    MOV_S();
 	void							    NEG_S();
 	void								TRUNC_W_S();
+	void								RSQRT_S();
 	void							    ADDA_S();
 	void							    MULA_S();
 	void							    MADD_S();
