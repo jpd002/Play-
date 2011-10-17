@@ -5,13 +5,12 @@ using namespace Framework;
 HBITMAP WinUtils::CreateMask(HBITMAP nBitmap, uint32 nColor)
 {
 	BITMAP bm;
-	HBITMAP nMask;
-	HDC hDC1, hDC2;
 	GetObject(nBitmap, sizeof(BITMAP), &bm);
-	nMask = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
 
-	hDC1 = CreateCompatibleDC(0);
-	hDC2 = CreateCompatibleDC(0);
+	HBITMAP nMask = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
+
+	HDC hDC1 = CreateCompatibleDC(0);
+	HDC hDC2 = CreateCompatibleDC(0);
 
 	SelectObject(hDC1, nBitmap);
 	SelectObject(hDC2, nMask);

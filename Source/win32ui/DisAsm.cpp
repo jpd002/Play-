@@ -29,7 +29,7 @@ using namespace std;
 
 CDisAsm::CDisAsm(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
 m_virtualMachine(virtualMachine),
-m_font(CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New")))
+m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
 {
 	SCROLLINFO si;
 
@@ -104,12 +104,7 @@ void CDisAsm::OnRunningStateChange()
 {
     Redraw();
 }
-/*
-HFONT CDisAsm::GetFont()
-{
-	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
-}
-*/
+
 void CDisAsm::GotoAddress()
 {
     if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)

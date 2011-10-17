@@ -49,7 +49,6 @@ private:
 	uint32							GetInstruction(uint32);
 	unsigned int					GetLineCount();
 	unsigned int					GetFontHeight();
-//	HFONT							GetFont();
 	bool							IsAddressVisible(uint32);
     SelectionRangeType              GetSelectionRange();
     void							HistoryReset();
