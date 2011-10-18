@@ -26,7 +26,7 @@ void CTimer::Count(unsigned int ticks)
     {
         TIMER* timer = &m_timer[i];
 
-        if(!(timer->nMODE & 0x80)) continue;
+        if(!(timer->nMODE & MODE_COUNT_ENABLE)) continue;
 
         uint32 previousCount	= timer->nCOUNT;
         uint32 nextCount		= timer->nCOUNT;
@@ -57,20 +57,26 @@ void CTimer::Count(unsigned int ticks)
         //Check if it hit the reference value
         if((previousCount < compare) && (nextCount >= compare))
         {
-            timer->nMODE |= 0x400;
-			timer->nCOUNT = nextCount - compare;
+            timer->nMODE |= MODE_EQUAL_FLAG;
+			if(timer->nMODE & MODE_ZERO_RETURN)
+			{
+				timer->nCOUNT = nextCount - compare;
+			}
+			else
+			{
+				timer->nCOUNT = nextCount;
+			}
         }
 		else
 		{
-			timer->nMODE &= ~0x400;
 			timer->nCOUNT = nextCount;
 		}
 
-//		if(pTimer->nCOUNT >= 0xFFFF)
-//		{
-//			pTimer->nMODE |= 0x800;
-//			pTimer->nCOUNT &= 0xFFFF;
-//		}
+		if(timer->nCOUNT >= 0xFFFF)
+		{
+			timer->nMODE |= MODE_OVERFLOW_FLAG;
+			timer->nCOUNT &= 0xFFFF;
+		}
 
 		uint32 nMask = (timer->nMODE & 0x300) << 2;
 		bool interruptPending = (timer->nMODE & nMask) != 0;
@@ -90,11 +96,9 @@ void CTimer::Count(unsigned int ticks)
 
 uint32 CTimer::GetRegister(uint32 nAddress)
 {
-	unsigned int nTimerId;
-
 	DisassembleGet(nAddress);
 
-	nTimerId = (nAddress >> 11) & 0x3;
+	unsigned int nTimerId = (nAddress >> 11) & 0x3;
 
 	switch(nAddress & 0x7FF)
 	{
@@ -140,11 +144,9 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 
 void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 {
-	unsigned int nTimerId;
-
 	DisassembleSet(nAddress, nValue);
 
-	nTimerId = (nAddress >> 11) & 0x3;
+	unsigned int nTimerId = (nAddress >> 11) & 0x3;
 
 	switch(nAddress & 0x7FF)
 	{
@@ -190,9 +192,7 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 
 void CTimer::DisassembleGet(uint32 nAddress)
 {
-	unsigned int nTimerId;
-
-	nTimerId = (nAddress >> 11) & 0x3;
+	unsigned int nTimerId = (nAddress >> 11) & 0x3;
 
 	switch(nAddress & 0x7FF)
 	{
@@ -216,9 +216,7 @@ void CTimer::DisassembleGet(uint32 nAddress)
 
 void CTimer::DisassembleSet(uint32 nAddress, uint32 nValue)
 {
-	unsigned int nTimerId;
-
-	nTimerId = (nAddress >> 11) & 0x3;
+	unsigned int nTimerId = (nAddress >> 11) & 0x3;
 
 	switch(nAddress & 0x7FF)
 	{

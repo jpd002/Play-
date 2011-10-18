@@ -7,13 +7,13 @@
 class CTimer
 {
 public:
-    enum REGISTERS
-    {
-        T0_COUNT	= 0x10000000,
-        T0_MODE		= 0x10000010,
-        T0_COMP		= 0x10000020,
-        T0_HOLD		= 0x10000030,
-    };
+	enum
+	{
+		MODE_ZERO_RETURN	= 0x040,
+		MODE_COUNT_ENABLE	= 0x080,
+		MODE_EQUAL_FLAG		= 0x400,
+		MODE_OVERFLOW_FLAG	= 0x800,
+	};
 
                             CTimer(CINTC&);
     virtual                 ~CTimer();
