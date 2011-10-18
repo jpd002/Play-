@@ -82,7 +82,18 @@ void CCOP_SCU::MFC0()
 void CCOP_SCU::MTC0()
 {
     m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+
+	if(m_nRD == CCOP_SCU::STATUS)
+	{
+		//Keep the EXL bit
+		//This is needed for Valkyrie Profile 2 which resets the EXL bit
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+		m_codeGen->PushCst(CMIPS::STATUS_EXL);
+		m_codeGen->And();
+		m_codeGen->Or();
+	}
+
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
 }
 
 //08
