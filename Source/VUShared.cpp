@@ -1,6 +1,7 @@
 #include "VUShared.h"
 #include "MIPS.h"
 #include "offsetof_def.h"
+#include "FpMulTruncate.h"
 
 #define LATENCY_DIV     (7 - 1)
 #define LATENCY_SQRT    (7 - 1)
@@ -14,7 +15,6 @@ const VUShared::PIPEINFO VUShared::g_pipeInfoQ =
 };
 
 using namespace VUShared;
-using namespace std;
 
 bool VUShared::DestinationHasElement(uint8 nDest, unsigned int nElement)
 {
@@ -78,6 +78,18 @@ void VUShared::PullVector(CMipsJitter* codeGen, uint8 dest, size_t vector)
         DestinationHasElement(dest, 1),
         DestinationHasElement(dest, 2),
         DestinationHasElement(dest, 3));
+}
+
+void VUShared::PushIntegerRegister(CMipsJitter* codeGen, unsigned int nRegister)
+{
+	if(nRegister == 0)
+	{
+		codeGen->PushCst(0);
+	}
+	else
+	{
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[nRegister]));
+	}
 }
 
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, uint8 reg)
@@ -323,6 +335,14 @@ void VUShared::FTOI12(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
     PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
+void VUShared::IADDI(CMipsJitter* codeGen, uint8 it, uint8 is, uint8 imm5)
+{
+	PushIntegerRegister(codeGen, is);
+	codeGen->PushCst(imm5 | ((imm5 & 0x10) != 0 ? 0xFFFFFFE0 : 0x0));
+	codeGen->Add();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+}
+
 void VUShared::ITOF0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
@@ -553,10 +573,15 @@ void VUShared::MULbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 
 void VUShared::MULi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
-    codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-    codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
-    codeGen->MD_MulS();
-    PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(!VUShared::DestinationHasElement(nDest, i)) continue;
+
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
+		codeGen->Call(&FpMulTruncate, 2, true);
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
+	}
 }
 
 void VUShared::MULq(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 address)
@@ -706,7 +731,7 @@ void VUShared::RXOR(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
     codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 }
 
-void VUShared::SQRT(CMipsJitter* codeGen, uint8 nFt, uint8 nFtf, uint32 address, unsigned int pipeMult)
+void VUShared::SQRT(CMipsJitter* codeGen, uint8 nFt, uint8 nFtf)
 {
     size_t destination = g_pipeInfoQ.heldValue;
     QueueInPipeline(g_pipeInfoQ, codeGen, LATENCY_SQRT);

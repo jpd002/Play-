@@ -92,6 +92,15 @@ void VUShared::ReflOpFdFsFtBc(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 	sprintf(sText, "VF%i%s, VF%i%s, VF%i%s", nFD, m_sDestination[nDest], nFS, m_sDestination[nDest], nFT, m_sBroadcast[nBc]);
 }
 
+void VUShared::ReflOpFsDstItInc(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
+	uint8 nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+
+	sprintf(sText, "VF%i%s, (VI%i++)", nFS, m_sDestination[nDest], nIT);
+}
+
 void VUShared::ReflOpFtFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nFT	= (uint8)((nOpcode >> 16) & 0x001F);
@@ -174,6 +183,19 @@ void VUShared::ReflOpQFsfFtf(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 	uint8 nFSF	= (uint8)((nOpcode >> 21) & 0x0003);
 
 	sprintf(sText, "Q, VF%i%s, VF%i%s", nFS, m_sBroadcast[nFSF], nFT, m_sBroadcast[nFTF]);
+}
+
+void VUShared::ReflOpItIsImm5(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8  nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8  nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint16 nImm	= static_cast<uint8>((nOpcode >>  6) & 0x001F);
+	if(nImm & 0x10)
+	{
+		nImm |= 0xFFE0;
+	}
+
+	sprintf(sText, "VI%i, VI%i, $%0.4X", nIT, nIS, nImm);
 }
 
 ////////////////////////////////////////////

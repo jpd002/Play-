@@ -1140,6 +1140,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\FpMulTruncate.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\FpMulTruncate.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\GIF.cpp"
 					>
 				</File>

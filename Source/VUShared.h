@@ -63,6 +63,7 @@ namespace VUShared
     size_t						GetAccumulatorElement(unsigned int);
 
     void						PullVector(CMipsJitter*, uint8, size_t);
+	void						PushIntegerRegister(CMipsJitter*, unsigned int);
 
 	void						TestSZFlags(CMipsJitter*, uint8, uint8);
 
@@ -83,6 +84,7 @@ namespace VUShared
 	void						FTOI0(CMipsJitter*, uint8, uint8, uint8);
 	void						FTOI4(CMipsJitter*, uint8, uint8, uint8);
     void						FTOI12(CMipsJitter*, uint8, uint8, uint8);
+	void						IADDI(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF0(CMipsJitter*, uint8, uint8, uint8);
     void						ITOF4(CMipsJitter*, uint8, uint8, uint8);
     void						ITOF12(CMipsJitter*, uint8, uint8, uint8);
@@ -118,7 +120,7 @@ namespace VUShared
     void						RNEXT(CMipsJitter*, uint8, uint8);
 	void						RSQRT(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, unsigned int);
 	void						RXOR(CMipsJitter*, uint8, uint8);
-	void						SQRT(CMipsJitter*, uint8, uint8, uint32, unsigned int);
+	void						SQRT(CMipsJitter*, uint8, uint8);
 	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						SUBi(CMipsJitter*, uint8, uint8, uint8);
@@ -135,6 +137,7 @@ namespace VUShared
 	void						ReflOpFdFsQ(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFdFsFt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFdFsFtBc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpFsDstItInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpClip(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpAccFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -144,6 +147,7 @@ namespace VUShared
 	void						ReflOpFtR(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpQFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpQFsfFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpItIsImm5(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
 	void						ReflOpAffAccFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffAccFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
