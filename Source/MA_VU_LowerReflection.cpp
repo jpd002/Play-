@@ -32,10 +32,17 @@ void CMA_VU::CLower::ReflOpIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 	sprintf(sText, "VI%i", nIT);
 }
 
+void CMA_VU::CLower::ReflOpImm12(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint16  nImm    = static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
+
+	sprintf(sText, "0x%0.3X", nImm);
+}
+
 void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8   nIT     = static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint16  nImm    = static_cast<uint16>(nOpcode & 0x0FFF);
+	uint16  nImm    = static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
 
 	sprintf(sText, "VI%i, 0x%0.3X", nIT, nImm);
 }
@@ -85,19 +92,6 @@ void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAdd
 	nAddress += 8;
 
 	sprintf(sText, "VI%i, VI%i, $%0.8X", nIT, nIS, nAddress + GetBranch(nImm));
-}
-
-void CMA_VU::CLower::ReflOpItIsImm5(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
-{
-	uint8  nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8  nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint16 nImm	= static_cast<uint8>((nOpcode >>  6) & 0x001F);
-	if(nImm & 0x10)
-	{
-		nImm |= 0xFFE0;
-	}
-
-	sprintf(sText, "VI%i, VI%i, $%0.4X", nIT, nIS, nImm);
 }
 
 void CMA_VU::CLower::ReflOpItIsImm15(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -177,15 +171,6 @@ void CMA_VU::CLower::ReflOpFtDstIsDec(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 n
 	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
 	sprintf(sText, "VF%i%s, (--VI%i)", nFT, m_sDestination[nDest], nIS);
-}
-
-void CMA_VU::CLower::ReflOpFsDstItInc(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
-{
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
-	uint8 nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-
-	sprintf(sText, "VF%i%s, (VI%i++)", nFS, m_sDestination[nDest], nIT);
 }
 
 void CMA_VU::CLower::ReflOpFsDstOfsIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -364,7 +349,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	"FCAND",	NULL,			CopyMnemonic,		ReflOpVi1Imm24,		NULL,				NULL			},
 	{	"FCOR",		NULL,			CopyMnemonic,		ReflOpVi1Imm24,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"FSSET",	NULL,			CopyMnemonic,		ReflOpImm12,		NULL,				NULL			},
 	{	"FSAND",	NULL,			CopyMnemonic,		ReflOpItImm12,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18
@@ -620,7 +605,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX1[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"MR32",		NULL,			CopyMnemonic,		ReflOpFtDstFsDst,	NULL,				NULL			},
 	{	"SQI",		NULL,			CopyMnemonic,		ReflOpFsDstItInc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SQRT",		NULL,			CopyMnemonic,		ReflOpQFtf,			NULL,				NULL			},
 	{	"MFIR",		NULL,			CopyMnemonic,		ReflOpFtIs,			NULL,				NULL			},
 	//0x10
 	{	"RGET",		NULL,			CopyMnemonic,		ReflOpFtR,			NULL,				NULL			},

@@ -76,7 +76,7 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
     m_nID		= (uint8 )((m_nOpcode >>  6) & 0x001F);
     m_nImm5		= m_nID;
     m_nImm11	= (uint16)((m_nOpcode >>  0) & 0x07FF);
-    m_nImm12    = (uint16)((m_nOpcode >>  0) & 0x0FFF);
+    m_nImm12    = (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x00200000) >> 10);
     m_nImm15	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
     m_nImm15S	= m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
     m_nImm24	= m_nOpcode & 0x00FFFFFF;
@@ -102,18 +102,6 @@ void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->EndIf();
-}
-
-void CMA_VU::CLower::PushIntegerRegister(unsigned int nRegister)
-{
-    if(nRegister == 0)
-    {
-        m_codeGen->PushCst(0);
-    }
-    else
-    {
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[nRegister]));
-    }
 }
 
 uint32 CMA_VU::CLower::GetDestOffset(uint8 nDest)
@@ -226,7 +214,7 @@ void CMA_VU::CLower::ISW()
 //08
 void CMA_VU::CLower::IADDIU()
 {
-    PushIntegerRegister(m_nIS);
+	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
     m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
     m_codeGen->Add();
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -235,7 +223,7 @@ void CMA_VU::CLower::IADDIU()
 //09
 void CMA_VU::CLower::ISUBIU()
 {
-    PushIntegerRegister(m_nIS);
+    VUShared::PushIntegerRegister(m_codeGen, m_nIS);
     m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
     m_codeGen->Sub();
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -290,6 +278,12 @@ void CMA_VU::CLower::FCOR()
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[1]));
 	}
 	m_codeGen->EndIf();
+}
+
+//15
+void CMA_VU::CLower::FSSET()
+{
+	//Sticky flags not implemented yet...
 }
 
 //16
@@ -369,12 +363,12 @@ void CMA_VU::CLower::JALR()
 void CMA_VU::CLower::IBEQ()
 {
     //Operand 1
-    PushIntegerRegister(m_nIS);
+    VUShared::PushIntegerRegister(m_codeGen, m_nIS);
     m_codeGen->PushCst(0xFFFF);
     m_codeGen->And();
 
     //Operand 2
-    PushIntegerRegister(m_nIT);
+    VUShared::PushIntegerRegister(m_codeGen, m_nIT);
     m_codeGen->PushCst(0xFFFF);
     m_codeGen->And();
 
@@ -387,12 +381,12 @@ void CMA_VU::CLower::IBEQ()
 void CMA_VU::CLower::IBNE()
 {
     //Operand 1
-    PushIntegerRegister(m_nIS);
+    VUShared::PushIntegerRegister(m_codeGen, m_nIS);
     m_codeGen->PushCst(0xFFFF);
     m_codeGen->And();
 
     //Operand 2
-    PushIntegerRegister(m_nIT);
+    VUShared::PushIntegerRegister(m_codeGen, m_nIT);
     m_codeGen->PushCst(0xFFFF);
     m_codeGen->And();
 
@@ -486,10 +480,7 @@ void CMA_VU::CLower::ISUB()
 //32
 void CMA_VU::CLower::IADDI()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-    m_codeGen->PushCst(m_nImm5 | ((m_nImm5 & 0x10) != 0 ? 0xFFFFFFE0 : 0x0));
-    m_codeGen->Add();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::IADDI(m_codeGen, m_nIT, m_nIS, m_nImm5);
 }
 
 //34
@@ -729,6 +720,12 @@ void CMA_VU::CLower::SQI()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
+//0E
+void CMA_VU::CLower::SQRT()
+{
+	VUShared::SQRT(m_codeGen, m_nIT, m_nFTF);
+}
+
 //0F
 void CMA_VU::CLower::MFIR()
 {
@@ -736,7 +733,7 @@ void CMA_VU::CLower::MFIR()
     {
         if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
 
-        PushIntegerRegister(m_nIS);
+        VUShared::PushIntegerRegister(m_codeGen, m_nIS);
         m_codeGen->SignExt16();
         m_codeGen->PullRel(VUShared::GetVectorElement(m_nIT, i));
     }
@@ -920,7 +917,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpGeneral[0x80] =
 	//0x08
 	&CMA_VU::CLower::IADDIU,		&CMA_VU::CLower::ISUBIU,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x10
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FCSET,			&CMA_VU::CLower::FCAND,			&CMA_VU::CLower::FCOR,		    &CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FSAND,		    &CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FCSET,			&CMA_VU::CLower::FCAND,			&CMA_VU::CLower::FCOR,		    &CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FSSET,			&CMA_VU::CLower::FSAND,		    &CMA_VU::CLower::Illegal,
 	//0x18
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FMAND,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FCGET,		    &CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x20
@@ -986,7 +983,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =
 	//0x00
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MR32,			&CMA_VU::CLower::SQI,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFIR,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MR32,			&CMA_VU::CLower::SQI,			&CMA_VU::CLower::SQRT,			&CMA_VU::CLower::MFIR,
 	//0x10
 	&CMA_VU::CLower::RGET,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18

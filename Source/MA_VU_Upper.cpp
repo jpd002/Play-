@@ -380,7 +380,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector[0x40] =
 	//0x08
 	&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MSUBbc, 		&CMA_VU::CUpper::MSUBbc,		&CMA_VU::CUpper::MSUBbc,		&CMA_VU::CUpper::MSUBbc,
 	//0x10
-	&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::MAXbc,	    	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MINIbc,
+	&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::MAXbc,	    	&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MINIbc,
 	//0x18
 	&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULq,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MULi,			&CMA_VU::CUpper::MINIi,
 	//0x20

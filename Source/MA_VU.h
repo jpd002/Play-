@@ -189,19 +189,18 @@ private:
 
 		uint32						        GetDestOffset(uint8);
 		void							    SetBranchAddress(bool, int32);
-		void							    PushIntegerRegister(unsigned int);
         void                                ComputeMemAccessAddr(unsigned int, uint32, uint32);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-        static void                         ReflOpItImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+        static void                         ReflOpImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+		static void                         ReflOpItImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
         static void							ReflOpItIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-		static void							ReflOpItIsImm5(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIdIsIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -211,7 +210,6 @@ private:
 		static void							ReflOpFtIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpFtDstIsInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpFtDstIsDec(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-		static void							ReflOpFsDstItInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpFsDstOfsIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpFtDstOfsIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpFtDstFsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -242,6 +240,7 @@ private:
 		void							    FCSET();
 		void							    FCAND();
         void                                FCOR();
+		void								FSSET();
         void                                FSAND();
 		void							    FMAND();
         void                                FCGET();
@@ -283,6 +282,7 @@ private:
 		//Vector1
 		void							    MR32();
 		void							    SQI();
+		void								SQRT();
 		void							    MFIR();
 		void							    RGET();
         void                                XITOP();
