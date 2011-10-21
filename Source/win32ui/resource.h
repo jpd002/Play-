@@ -157,13 +157,14 @@
 #define ID_MAIN_FILE_BOOTDISKIMAGE      40154
 #define ID_LOGGING_SAVEVPUSTATE         40157
 #define ID_MAIN_FILE_RECORDAVI          40161
+#define ID_VM_REANALYZE_EE              40166
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40163
+#define _APS_NEXT_COMMAND_VALUE         40167
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

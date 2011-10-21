@@ -85,6 +85,7 @@ BEGIN
             MENUITEM "64-bit Addition Operations Test", ID_VM_TEST_ADD64
             MENUITEM "SLT Operations Test",         ID_VM_TEST_SLT
         END
+        MENUITEM "Re-analyze EE executable",    ID_VM_REANALYZE_EE
     END
     POPUP "&View"
     BEGIN

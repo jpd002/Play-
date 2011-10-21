@@ -29,7 +29,8 @@ public:
 	void									    BootFromFile(const char*);
 	void									    BootFromCDROM();
 	CELF*                                       GetELF();
-	const char*                                 GetExecutableName();
+	const char*                                 GetExecutableName() const;
+	std::pair<uint32, uint32>					GetExecutableRange() const;
 	MipsModuleList								GetModuleList();
 
 	void                                        ThreadShakeAndBake();

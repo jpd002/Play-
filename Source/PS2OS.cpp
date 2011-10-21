@@ -310,9 +310,29 @@ CELF* CPS2OS::GetELF()
 	return m_pELF;
 }
 
-const char* CPS2OS::GetExecutableName()
+const char* CPS2OS::GetExecutableName() const
 {
 	return m_sExecutableName.c_str();
+}
+
+std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
+{
+	uint32 nMinAddr = 0xFFFFFFF0;
+	uint32 nMaxAddr = 0x00000000;
+	const ELFHEADER& header = m_pELF->GetHeader();
+
+	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
+	{
+		ELFPROGRAMHEADER* p = m_pELF->GetProgram(i);
+		if(p != NULL)
+		{
+			uint32 end = p->nVAddress + p->nFileSize;
+			nMinAddr = std::min<uint32>(nMinAddr, p->nVAddress);
+			nMaxAddr = std::max<uint32>(nMaxAddr, end);
+		}
+	}
+
+	return std::pair<uint32, uint32>(nMinAddr, nMaxAddr);
 }
 
 MipsModuleList CPS2OS::GetModuleList()
@@ -442,24 +462,13 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName)
 
 void CPS2OS::LoadExecutable()
 {
-	uint32 nMinAddr = 0xFFFFFFF0;
-    uint32 nMaxAddr = 0x00000000;
+	//Copy program in main RAM
     const ELFHEADER& header = m_pELF->GetHeader();
-
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
 		ELFPROGRAMHEADER* p = m_pELF->GetProgram(i);
 		if(p != NULL)
 		{
-            uint32 end = p->nVAddress + p->nFileSize;
-            if(p->nVAddress < nMinAddr)
-			{
-				nMinAddr = p->nVAddress;
-			}
-            if(end > nMaxAddr)
-            {
-                nMaxAddr = end;
-            }
 			memcpy(m_ram + p->nVAddress, m_pELF->GetContent() + p->nOffset, p->nFileSize);
 		}
 	}
@@ -476,11 +485,15 @@ void CPS2OS::LoadExecutable()
 	CreateWaitThread();
 
 #ifdef DEBUGGER_INCLUDED
+	std::pair<uint32, uint32> executableRange = GetExecutableRange();
+	uint32 nMinAddr = executableRange.first;
+	uint32 nMaxAddr = executableRange.second & ~0x03;
+
 	m_ee.m_pAnalysis->Clear();
-	m_ee.m_pAnalysis->Analyse(nMinAddr, nMaxAddr & ~0x3);
+	m_ee.m_pAnalysis->Analyse(nMinAddr, nMaxAddr);
 
 	//Tag system calls
-	for(uint32 address = nMinAddr; address < (nMaxAddr & ~0x03); address += 4)
+	for(uint32 address = nMinAddr; address < nMaxAddr; address += 4)
 	{
 		//Check for SYSCALL opcode
 		uint32 opcode = *reinterpret_cast<uint32*>(m_ram + address);

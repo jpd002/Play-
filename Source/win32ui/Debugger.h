@@ -50,6 +50,7 @@ private:
 	void							StepCPU1();
 	void							FindValue();
 	void							AssembleJAL();
+	void							ReanalyzeEe();
 	void							Layout1024();
 	void							Layout1280();
     void                            Layout1600();
