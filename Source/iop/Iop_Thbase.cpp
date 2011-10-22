@@ -7,16 +7,18 @@ using namespace std;
 
 #define LOG_NAME ("iop_thbase")
 
-#define FUNCTION_CREATETHREAD	"CreateThread"
-#define FUNCTION_STARTTHREAD	"StartThread"
-#define FUNCTION_GETTHREADID	"GetThreadId"
-#define FUNCTION_SLEEPTHREAD	"SleepThread"
-#define FUNCTION_WAKEUPTHREAD	"WakeupThread"
-#define FUNCTION_IWAKEUPTHREAD	"iWakeupThread"
-#define FUNCTION_DELAYTHREAD	"DelayThread"
-#define FUNCTION_GETSYSTEMTIME	"GetSystemTime"
-#define FUNCTION_USECTOSYSCLOCK	"USecToSysClock"
-#define FUNCTION_SYSCLOCKTOUSEC	"SysClockToUSec"
+#define FUNCTION_CREATETHREAD				"CreateThread"
+#define FUNCTION_STARTTHREAD				"StartThread"
+#define FUNCTION_CHANGETHREADPRIORITY		"ChangeThreadPriority"
+#define FUNCTION_GETTHREADID				"GetThreadId"
+#define FUNCTION_SLEEPTHREAD				"SleepThread"
+#define FUNCTION_WAKEUPTHREAD				"WakeupThread"
+#define FUNCTION_IWAKEUPTHREAD				"iWakeupThread"
+#define FUNCTION_DELAYTHREAD				"DelayThread"
+#define FUNCTION_GETSYSTEMTIME				"GetSystemTime"
+#define FUNCTION_USECTOSYSCLOCK				"USecToSysClock"
+#define FUNCTION_SYSCLOCKTOUSEC				"SysClockToUSec"
+#define FUNCTION_GETCURRENTTHREADPRIORITY	"GetCurrentThreadPriority"
 
 CThbase::CThbase(CIopBios& bios, uint8* ram) :
 m_ram(ram),
@@ -45,6 +47,9 @@ string CThbase::GetFunctionName(unsigned int functionId) const
 	case 6:
 		return FUNCTION_STARTTHREAD;
 		break;
+	case 14:
+		return FUNCTION_CHANGETHREADPRIORITY;
+		break;
 	case 20:
 		return FUNCTION_GETTHREADID;
 		break;
@@ -69,6 +74,9 @@ string CThbase::GetFunctionName(unsigned int functionId) const
 	case 40:
 		return FUNCTION_SYSCLOCKTOUSEC;
 		break;
+	case 42:
+		return FUNCTION_GETCURRENTTHREADPRIORITY;
+		break;
 	default:
 		return "unknown";
 		break;
@@ -90,6 +98,12 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
             context.m_State.nGPR[CMIPS::A1].nV0
             ));
         break;
+	case 14:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ChangeThreadPriority(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			));
+		break;
     case 20:
         context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetThreadId());
         break;
@@ -127,6 +141,9 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
+	case 42:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetCurrentThreadPriority());
+		break;
     default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
         break;
@@ -142,6 +159,12 @@ uint32 CThbase::StartThread(uint32 threadId, uint32 param)
 {
     m_bios.StartThread(threadId, &param);
     return 0;
+}
+
+uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
+{
+	m_bios.ChangeThreadPriority(threadId, newPrio);
+	return 0;
 }
 
 uint32 CThbase::DelayThread(uint32 delay)
@@ -223,4 +246,15 @@ void CThbase::SysClockToUSec(uint32 timePtr, uint32 secPtr, uint32 usecPtr)
 			*usec = static_cast<uint32>(totalusec % 1000000);
 		}
 	}
+}
+
+uint32 CThbase::GetCurrentThreadPriority()
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETCURRENTTHREADPRIORITY "();\r\n",
+		m_bios.GetCurrentThreadId());
+#endif
+	CIopBios::THREAD* currentThread = m_bios.GetThread(m_bios.GetCurrentThreadId());
+	if(currentThread == NULL) return -1;
+	return currentThread->priority;
 }

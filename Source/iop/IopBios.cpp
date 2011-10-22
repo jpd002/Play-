@@ -559,6 +559,24 @@ void CIopBios::DelayThread(uint32 delay)
     m_rescheduleNeeded = true;
 }
 
+void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: ChangeThreadPriority();\r\n", 
+		CurrentThreadId());
+#endif
+	THREAD* thread = GetThread(threadId);
+	assert(thread != NULL);
+
+	if(thread == NULL)
+	{
+		return;
+	}
+
+	thread->priority = newPrio;
+	m_rescheduleNeeded = true;
+}
+
 void CIopBios::SleepThread()
 {
 #ifdef _DEBUG
@@ -734,7 +752,6 @@ void CIopBios::Reschedule()
 	}
 #endif
 	CurrentThreadId() = nextThreadId;
-	m_cpu.m_nQuota = 1;
 }
 
 uint32 CIopBios::GetNextReadyThread()

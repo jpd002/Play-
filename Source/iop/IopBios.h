@@ -111,7 +111,8 @@ public:
     void                    DelayThread(uint32);
     THREAD*                 GetThread(uint32);
     uint32                  GetCurrentThreadId();
-    void                    SleepThread();
+	void					ChangeThreadPriority(uint32, uint32);
+	void                    SleepThread();
     uint32                  WakeupThread(uint32, bool);
 
 	void					SleepThreadTillVBlankStart();
