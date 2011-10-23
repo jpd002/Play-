@@ -4,18 +4,24 @@
 #include "MIPS.h"
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
+#include "Ps2Const.h"
 
 using namespace std;
 
-CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) :
-CMIPSCoprocessor(nRegSize),
-m_nFT(0),
-m_nFS(0),
-m_nFD(0),
-m_nDest(0),
-m_nFTF(0),
-m_nFSF(0),
-m_nBc(0)
+CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) 
+: CMIPSCoprocessor(nRegSize)
+, m_nFT(0)
+, m_nFS(0)
+, m_nFD(0)
+, m_nDest(0)
+, m_nFTF(0)
+, m_nFSF(0)
+, m_nBc(0)
+, m_nIT(0)
+, m_nIS(0)
+, m_nID(0)
+, m_nImm5(0)
+, m_nImm15(0)
 {
 	SetupReflectionTables();
 }
@@ -34,6 +40,12 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* p
 	m_nFD			= (uint8)((m_nOpcode >>  6) & 0x1F);
 
 	m_nBc			= (uint8)((m_nOpcode >>  0) & 0x03);
+
+	m_nIT			= m_nFT;
+	m_nIS			= m_nFS;
+	m_nID			= m_nFD;
+	m_nImm5			= m_nID;
+	m_nImm15		= (uint16)((m_nOpcode >> 6) & 0x7FFF);
 
 	switch((m_nOpcode >> 26) & 0x3F)
 	{
@@ -255,6 +267,8 @@ void CCOP_VU::VMSUBbc()
 
 //10
 //11
+//12
+//13
 void CCOP_VU::VMAXbc()
 {
     VUShared::MAXbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
@@ -301,6 +315,12 @@ void CCOP_VU::VADD()
 	VUShared::ADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
+//29
+void CCOP_VU::VMADD()
+{
+	VUShared::MADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+}
+
 //2A
 void CCOP_VU::VMUL()
 {
@@ -329,6 +349,25 @@ void CCOP_VU::VOPMSUB()
 void CCOP_VU::VMINI()
 {
 	VUShared::MINI(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+}
+
+//32
+void CCOP_VU::VIADDI()
+{
+	VUShared::IADDI(m_codeGen, m_nIT, m_nIS, m_nImm5);
+}
+
+//38
+void CCOP_VU::VCALLMS()
+{
+	m_codeGen->PushCst(1);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsEnabled));
+
+	m_codeGen->PushCst(static_cast<uint32>(m_nImm15) * 8);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsAddr));
+
+	m_codeGen->PushCst(MIPS_EXCEPTION_CALLMS);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 
 //3C
@@ -457,10 +496,22 @@ void CCOP_VU::VMR32()
 	VUShared::MR32(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//0D
+void CCOP_VU::VSQI()
+{
+	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, PS2::VUMEM0ADDR);
+}
+
 //0E
 void CCOP_VU::VSQRT()
 {
-	VUShared::SQRT(m_codeGen, m_nFT, m_nFTF, m_nAddress, 1);
+	VUShared::SQRT(m_codeGen, m_nFT, m_nFTF);
+}
+
+//10
+void CCOP_VU::VRGET()
+{
+	VUShared::RGET(m_codeGen, m_nDest, m_nFT);
 }
 
 //////////////////////////////////////////////////
@@ -477,6 +528,12 @@ void CCOP_VU::VITOF12()
 void CCOP_VU::VFTOI12()
 {
 	VUShared::FTOI12(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
+//0A
+void CCOP_VU::VMULA()
+{
+	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT);
 }
 
 //0B
@@ -554,17 +611,17 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x08
 	&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,
 	//0x10
-	&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,
+	&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,
 	//0x18
 	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIi,
 	//0x20
 	&CCOP_VU::VADDq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x28
-	&CCOP_VU::VADD,			&CCOP_VU::Illegal,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::Illegal,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
+	&CCOP_VU::VADD,			&CCOP_VU::VMADD,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::Illegal,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
 	//0x30
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x38
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
+	&CCOP_VU::VCALLMS,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
@@ -584,9 +641,9 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,	    &CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::VABS,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMR32,		&CCOP_VU::Illegal,		&CCOP_VU::VSQRT,		&CCOP_VU::Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMR32,		&CCOP_VU::VSQI,			&CCOP_VU::VSQRT,		&CCOP_VU::Illegal,
 	//0x10
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::VRGET,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
 	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 };
@@ -596,7 +653,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF12,		&CCOP_VU::VFTOI12,		&CCOP_VU::VMULAbc,		&CCOP_VU::Illegal,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VRSQRT,		&CCOP_VU::Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMULA,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VRSQRT,		&CCOP_VU::Illegal,
 	//0x10
 	&CCOP_VU::VRINIT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18

@@ -24,6 +24,7 @@ protected:
 
 	static void							ReflOpRtFd(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRtId(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	static void							ReflOpImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpAccFsFt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpFtOffRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
@@ -74,11 +75,14 @@ private:
     void                                VMINIi();
 	void                                VADDq();
 	void                                VADD();
+	void								VMADD();
 	void                                VMUL();
 	void                                VMAX();
 	void                                VSUB();
 	void                                VOPMSUB();
 	void                                VMINI();
+	void								VIADDI();
+	void								VCALLMS();
 	void                                VX0();
 	void                                VX1();
 	void                                VX2();
@@ -104,11 +108,14 @@ private:
 	void                                VFTOI4();
     void                                VABS();
 	void                                VMR32();
+	void								VSQI();
 	void                                VSQRT();
+	void								VRGET();
 
 	//V2
     void                                VITOF12();
 	void								VFTOI12();
+	void								VMULA();
 	void                                VOPMULA();
 	void                                VRSQRT();
 	void                                VRINIT();
@@ -128,6 +135,12 @@ private:
 	uint8						        m_nFS;
 	uint8						        m_nFT;
 	uint8						        m_nFD;
+
+	uint8								m_nIT;
+	uint8								m_nIS;
+	uint8								m_nID;
+	uint8								m_nImm5;
+	uint16								m_nImm15;
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];

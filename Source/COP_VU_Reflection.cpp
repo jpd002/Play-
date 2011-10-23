@@ -24,45 +24,41 @@ void CCOP_VU::ReflMnemI(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode, char* 
 
 void CCOP_VU::ReflOpRtFd(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nRT, nFD;
-
-	nRT = (uint8)((nOpcode >> 16) & 0x001F);
-	nFD = (uint8)((nOpcode >> 11) & 0x001F);
+	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nFD = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
 	sprintf(sText, "%s, VF%i", CMIPS::m_sGPRName[nRT], nFD);
 }
 
 void CCOP_VU::ReflOpRtId(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nRT, nID;
-
-	nRT = (uint8)((nOpcode >> 16) & 0x001F);
-	nID = (uint8)((nOpcode >> 11) & 0x001F);
+	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nID = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
 	sprintf(sText, "%s, VI%i", CMIPS::m_sGPRName[nRT], nID);
 }
 
+void CCOP_VU::ReflOpImm15(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint16 nImm	= static_cast<uint16>((nOpcode >> 6) & 0x7FFF);
+
+	sprintf(sText, "$%0.4X", nImm);
+}
+
 void CCOP_VU::ReflOpAccFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nFT, nFS;
-	uint8 nDest;
-
-	nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	nFS		= (uint8)((nOpcode >> 11) & 0x001F);
-
-	nDest	= (uint8)((nOpcode >> 21) & 0x000F);
+	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
 
 	sprintf(sText, "ACC%s, VF%i%s, VF%i%s", m_sDestination[nDest], nFS, m_sDestination[nDest], nFT, m_sDestination[nDest]);
 }
 
 void CCOP_VU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nRS, nFT;
-	uint16 nImm;
-
-	nRS  = (uint8) ((nOpcode >> 21) & 0x001F);
-	nFT  = (uint8) ((nOpcode >> 16) & 0x001F);
-	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
+	uint8 nRS	= static_cast<uint8> ((nOpcode >> 21) & 0x001F);
+	uint8 nFT	= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
+	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
 
 	sprintf(sText, "VF%i, $%0.4X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
@@ -186,77 +182,77 @@ INSTRUCTION CCOP_VU::m_cReflCop2[32] =
 INSTRUCTION CCOP_VU::m_cReflV[64] =
 {
 	//0x00
-	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	//0x08
-	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-    {	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+    {	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	//0x10
-	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
+	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	//0x18
-	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
-	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-    {	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+    {	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
 	//0x20
-	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	//0x28
-	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
-	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
-	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"VOPMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
-	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
+	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
+	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VOPMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
+	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	//0x30
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VIADDI",	NULL,			CopyMnemonic,		ReflOpItIsImm5,		NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	//0x38
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"Vx0",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
-	{	"Vx1",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
-	{	"Vx2",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
-	{	"Vx3",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
+	{	"VCALLMS",	NULL,			CopyMnemonic,		ReflOpImm15,		MIPSReflection::IsBranch,	NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"Vx0",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,			SubTableEffAddr	},
+	{	"Vx1",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,			SubTableEffAddr	},
+	{	"Vx2",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,			SubTableEffAddr	},
+	{	"Vx3",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,			SubTableEffAddr	},
 };
 
 INSTRUCTION CCOP_VU::m_cReflVX0[32] =
@@ -316,11 +312,11 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VMR32",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VSQI",		NULL,			CopyMnemonic,		ReflOpFsDstItInc,	NULL,				NULL			},
 	{	"VSQRT",	NULL,			CopyMnemonic,		ReflOpQFtf,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x10
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VRGET",	NULL,			CopyMnemonic,		ReflOpFtR,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -353,7 +349,7 @@ INSTRUCTION CCOP_VU::m_cReflVX2[32] =
     //0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VOPMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -480,12 +476,7 @@ void CCOP_VU::SetupReflectionTables()
 
 void CCOP_VU::GetInstruction(uint32 nOpcode, char* sText)
 {
-	INSTRUCTION Instr;
-	unsigned int nCount;
-	CMIPS* pCtx;
-
-	nCount = 256;
-	pCtx = NULL;
+	unsigned int nCount = 256;
 
 	if(nOpcode == 0)
 	{
@@ -493,6 +484,9 @@ void CCOP_VU::GetInstruction(uint32 nOpcode, char* sText)
 		return;
 	}
 
+	CMIPS* pCtx = NULL;
+
+	INSTRUCTION Instr;
 	Instr.pGetMnemonic	= SubTableMnemonic;
 	Instr.pSubTable		= &m_ReflGeneralTable;
 	Instr.pGetMnemonic(&Instr, pCtx, nOpcode, sText, nCount);
@@ -500,12 +494,7 @@ void CCOP_VU::GetInstruction(uint32 nOpcode, char* sText)
 
 void CCOP_VU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 {
-	INSTRUCTION Instr;
-	unsigned int nCount;
-	CMIPS* pCtx;
-
-	nCount = 256;
-	pCtx = NULL;
+	unsigned int nCount = 256;
 
 	if(nOpcode == 0)
 	{
@@ -513,6 +502,9 @@ void CCOP_VU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 		return;
 	}
 
+	CMIPS* pCtx = NULL;
+
+	INSTRUCTION Instr;
 	Instr.pGetOperands	= SubTableOperands;
 	Instr.pSubTable		= &m_ReflGeneralTable;
 	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, 256);	
@@ -520,13 +512,11 @@ void CCOP_VU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 
 bool CCOP_VU::IsBranch(uint32 nOpcode)
 {
-	INSTRUCTION Instr;
-	CMIPS* pCtx;
-
-	pCtx = NULL;
-
 	if(nOpcode == 0) return false;
 
+	CMIPS* pCtx = NULL;
+
+	INSTRUCTION Instr;
 	Instr.pIsBranch		= SubTableIsBranch;
 	Instr.pSubTable		= &m_ReflGeneralTable;
 	return Instr.pIsBranch(&Instr, pCtx, nOpcode);
@@ -534,13 +524,11 @@ bool CCOP_VU::IsBranch(uint32 nOpcode)
 
 uint32 CCOP_VU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
 {
-	INSTRUCTION Instr;
-	CMIPS* pCtx;
-
-	pCtx = NULL;
-
 	if(nOpcode == 0) return 0;
 
+	CMIPS* pCtx = NULL;
+
+	INSTRUCTION Instr;
 	Instr.pGetEffectiveAddress	= SubTableEffAddr;
 	Instr.pSubTable				= &m_ReflGeneralTable;
 	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);
