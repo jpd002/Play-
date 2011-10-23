@@ -12,12 +12,9 @@ const char* CMIPS::m_sGPRName[] =
 	"T8",	"T9",	"K0",	"K1",	"GP",	"SP",	"FP",	"RA"
 };
 
-CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd) :
-m_nQuota(0),
-m_pAddrTranslator(NULL),
-m_pTickFunction(NULL),
-m_pArch(NULL),
-m_handlerParam(NULL)
+CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd) 
+: m_pAddrTranslator(NULL)
+, m_pArch(NULL)
 {
 	m_pAnalysis = new CMIPSAnalysis(this);
 	switch(nEnd)
@@ -38,7 +35,6 @@ m_handlerParam(NULL)
 	Reset();
 
 	m_nIllOpcode = MIPS_INVALID_PC;
-	m_pSysCallHandler = DefaultSysCallHandler;
 }
 
 CMIPS::~CMIPS()
@@ -91,11 +87,6 @@ uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrHI, uint32 nVAddrLO)
 	return nVAddrLO & 0x1FFFFFFF;
 }
 
-void CMIPS::DefaultSysCallHandler(CMIPS* context)
-{
-	printf("MIPS: Unhandled SYSCALL encountered.\r\n");
-}
-
 bool CMIPS::GenerateInterrupt(uint32 nAddress)
 {
 	//Check if interrupts are enabled
@@ -125,10 +116,7 @@ bool CMIPS::GenerateException(uint32 nAddress)
 	m_State.nPC = nAddress;
 
 	//Set in exception mode
-	m_State.nCOP0[CCOP_SCU::STATUS] |= 0x02;
-
-	//Perhaps, we should change this...
-	m_nQuota = 1;
+	m_State.nCOP0[CCOP_SCU::STATUS] |= STATUS_EXL;
 
 	return true;
 }

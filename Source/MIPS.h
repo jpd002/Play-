@@ -27,6 +27,14 @@ struct MACFLAG_PIPELINE
 	uint32		slots[MACFLAG_PIPELINE_SLOTS];
 };
 
+enum
+{
+	MIPS_EXCEPTION_NONE				= 0,
+	MIPS_EXCEPTION_SYSCALL			= 1,
+	MIPS_EXCEPTION_CHECKPENDINGINT	= 2,
+	MIPS_EXCEPTION_CALLMS			= 3,
+};
+
 struct MIPSSTATE
 {
 	uint32				nPC;
@@ -81,6 +89,9 @@ __attribute__((aligned(16)))
 	REGISTER_PIPELINE	pipeQ;
 	REGISTER_PIPELINE	pipeP;
 	MACFLAG_PIPELINE	pipeMac;
+
+	uint32				callMsEnabled;
+	uint32				callMsAddr;
 };
 
 #define MIPS_INVALID_PC			(0x00000001)
@@ -110,7 +121,6 @@ public:
 	MIPSSTATE					m_State;
 	uint32						m_nIllOpcode;
 
-	int							m_nQuota;
 	CMIPSArchitecture*			m_pArch;
 	CMIPSCoprocessor*			m_pCOP[4];
 	CMemoryMap*					m_pMemoryMap;
@@ -121,9 +131,6 @@ public:
 	CMIPSTags					m_Functions;
 
 	AddressTranslator			m_pAddrTranslator;
-	SysCallHandlerType			m_pSysCallHandler;
-	TickFunctionType			m_pTickFunction;
-    void*                       m_handlerParam;                        
 
 	enum REGISTER
 	{
