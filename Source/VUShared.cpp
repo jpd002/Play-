@@ -197,6 +197,12 @@ void VUShared::ADD(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
 
 void VUShared::ADDbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc)
 {
+	if(nFd == 0)
+	{
+		//Use the temporary register to store the result
+		nFd = 32;
+	}
+
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
     codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
     codeGen->MD_AddS();
@@ -751,6 +757,12 @@ void VUShared::SUB(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
 
 void VUShared::SUBbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc)
 {
+	if(nFd == 0)
+	{
+		//Use the temporary register to store the result
+		nFd = 32;
+	}
+
     codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
     codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
     codeGen->MD_SubS();
