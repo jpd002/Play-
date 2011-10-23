@@ -347,7 +347,7 @@ void CMA_MIPSIV::ADDIU()
 		m_codeGen->PushCst(m_nAddress);
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
 
-        m_codeGen->PushCst(1);
+        m_codeGen->PushCst(MIPS_EXCEPTION_SYSCALL);
         m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
     }
 	else
@@ -942,7 +942,7 @@ void CMA_MIPSIV::SYSCALL()
 	//Save current EPC
     m_codeGen->PushCst(m_nAddress);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
-    m_codeGen->PushCst(1);
+    m_codeGen->PushCst(MIPS_EXCEPTION_SYSCALL);
     m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 

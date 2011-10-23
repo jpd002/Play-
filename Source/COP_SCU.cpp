@@ -170,11 +170,14 @@ void CCOP_SCU::ERET()
 //38
 void CCOP_SCU::EI()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-	//Should check for pending interrupts here
-    m_codeGen->PushCst(0x00010001);
-    m_codeGen->Or();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+	m_codeGen->PushCst(0x00010001);
+	m_codeGen->Or();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+
+	//Force the main loop to check for pending interrupts
+	m_codeGen->PushCst(MIPS_EXCEPTION_CHECKPENDINGINT);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 
 //39
