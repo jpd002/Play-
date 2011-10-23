@@ -189,7 +189,6 @@ private:
 
 		uint32						        GetDestOffset(uint8);
 		void							    SetBranchAddress(bool, int32);
-        void                                ComputeMemAccessAddr(unsigned int, uint32, uint32);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -341,8 +340,6 @@ private:
 		static VUShared::VUINSTRUCTION		m_cVuReflVX1[32];
 		static VUShared::VUINSTRUCTION		m_cVuReflVX2[32];
 		static VUShared::VUINSTRUCTION		m_cVuReflVX3[32];
-
-        bool                                m_maskDataAddress;
 	};
 
 	CUpper									m_Upper;

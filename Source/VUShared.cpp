@@ -2,6 +2,7 @@
 #include "MIPS.h"
 #include "offsetof_def.h"
 #include "FpMulTruncate.h"
+#include "MemoryUtils.h"
 
 #define LATENCY_DIV     (7 - 1)
 #define LATENCY_SQRT    (7 - 1)
@@ -19,6 +20,27 @@ using namespace VUShared;
 bool VUShared::DestinationHasElement(uint8 nDest, unsigned int nElement)
 {
 	return (nDest & (1 << (nElement ^ 0x03))) != 0;
+}
+
+void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegister, uint32 baseOffset, uint32 destOffset)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[baseRegister]));
+	if(baseOffset != 0)
+	{
+		codeGen->PushCst(baseOffset);
+		codeGen->Add();
+	}
+	codeGen->Shl(4);
+
+	if(destOffset != 0)
+	{
+		codeGen->PushCst(destOffset);
+		codeGen->Add();
+	}
+
+	//Mask address
+	codeGen->PushCst(0x3FFF);
+	codeGen->And();
 }
 
 uint32* VUShared::GetVectorElement(CMIPS* pCtx, unsigned int nReg, unsigned int nElement)
@@ -735,6 +757,41 @@ void VUShared::RXOR(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
     codeGen->PushCst(0x007FFFFF);
     codeGen->And();
     codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
+}
+
+void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 baseAddress)
+{
+	ComputeMemAccessAddr(codeGen, it, 0, 0);
+	if(baseAddress != 0)
+	{
+		codeGen->PushCst(baseAddress);
+		codeGen->Add();
+	}
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(dest, i))
+		{
+			codeGen->PushCtx();
+			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[is].nV[i]));
+			codeGen->PushIdx(2);
+			codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+		}
+
+		if(i != 3)
+		{
+			codeGen->PushCst(4);
+			codeGen->Add();
+		}
+	}
+
+	codeGen->PullTop();
+
+	//Increment
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->PushCst(1);
+	codeGen->Add();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
 void VUShared::SQRT(CMipsJitter* codeGen, uint8 nFt, uint8 nFtf)

@@ -57,6 +57,7 @@ namespace VUShared
 	int32						GetBranch(uint16);
 
 	bool						DestinationHasElement(uint8, unsigned int);
+	void						ComputeMemAccessAddr(CMipsJitter*, unsigned int, uint32, uint32);
 	uint32*						GetVectorElement(CMIPS*, unsigned int, unsigned int);
 	size_t						GetVectorElement(unsigned int, unsigned int);
 	uint32*						GetAccumulatorElement(CMIPS*, unsigned int);
@@ -120,6 +121,7 @@ namespace VUShared
     void						RNEXT(CMipsJitter*, uint8, uint8);
 	void						RSQRT(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, unsigned int);
 	void						RXOR(CMipsJitter*, uint8, uint8);
+	void						SQI(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SQRT(CMipsJitter*, uint8, uint8);
 	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);

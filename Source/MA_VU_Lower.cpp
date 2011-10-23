@@ -10,7 +10,6 @@ using namespace std;
 
 CMA_VU::CLower::CLower(bool maskDataAddress) :
 CMIPSInstructionFactory(MIPS_REGSIZE_32),
-m_maskDataAddress(maskDataAddress),
 m_nImm5(0),
 m_nImm11(0),
 m_nImm12(0),
@@ -30,29 +29,6 @@ m_nDest(0)
 CMA_VU::CLower::~CLower()
 {
 
-}
-
-void CMA_VU::CLower::ComputeMemAccessAddr(unsigned int baseRegister, uint32 baseOffset, uint32 destOffset)
-{
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[baseRegister]));
-    if(baseOffset != 0)
-    {
-        m_codeGen->PushCst(baseOffset);
-        m_codeGen->Add();
-    }
-    m_codeGen->Shl(4);
-
-    if(destOffset != 0)
-    {
-        m_codeGen->PushCst(destOffset);
-        m_codeGen->Add();
-    }
-
-//    if(m_maskDataAddress)
-    {
-        m_codeGen->PushCst(0x3FFF);
-        m_codeGen->And();
-    }
 }
 
 void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
@@ -121,7 +97,8 @@ uint32 CMA_VU::CLower::GetDestOffset(uint8 nDest)
 //00
 void CMA_VU::CLower::LQ()
 {
-    ComputeMemAccessAddr(
+	VUShared::ComputeMemAccessAddr(
+		m_codeGen,
         m_nIS,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         0);
@@ -149,7 +126,8 @@ void CMA_VU::CLower::LQ()
 //01
 void CMA_VU::CLower::SQ()
 {
-    ComputeMemAccessAddr(
+    VUShared::ComputeMemAccessAddr(
+		m_codeGen,
         m_nIT,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         0);
@@ -181,7 +159,8 @@ void CMA_VU::CLower::ILW()
 	m_codeGen->PushCtx();
 
     //Compute address
-    ComputeMemAccessAddr(
+    VUShared::ComputeMemAccessAddr(
+		m_codeGen,
         m_nIS,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         GetDestOffset(m_nDest));
@@ -203,7 +182,8 @@ void CMA_VU::CLower::ISW()
     m_codeGen->And();
 
     //Compute address
-    ComputeMemAccessAddr(
+    VUShared::ComputeMemAccessAddr(
+		m_codeGen,
         m_nIS,
         static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
         GetDestOffset(m_nDest));
@@ -538,7 +518,7 @@ void CMA_VU::CLower::MOVE()
 //0D
 void CMA_VU::CLower::LQI()
 {
-    ComputeMemAccessAddr(m_nIS, 0, 0);
+    VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -691,33 +671,7 @@ void CMA_VU::CLower::MR32()
 //0D
 void CMA_VU::CLower::SQI()
 {
-	ComputeMemAccessAddr(m_nIT, 0, 0);
-
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
-		{
-			m_codeGen->PushCtx();
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[i]));
-			m_codeGen->PushIdx(2);
-			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
-		}
-
-
-		if(i != 3)
-		{
-			m_codeGen->PushCst(4);
-			m_codeGen->Add();
-		}
-	}
-
-	m_codeGen->PullTop();
-
-	//Increment
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->PushCst(1);
-	m_codeGen->Add();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, 0);
 }
 
 //0E
@@ -770,7 +724,7 @@ void CMA_VU::CLower::LQD()
 	m_codeGen->Sub();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 
-	ComputeMemAccessAddr(m_nIS, 0, 0);
+	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -805,7 +759,7 @@ void CMA_VU::CLower::ILWR()
 	m_codeGen->PushCtx();
 
     //Compute address
-    ComputeMemAccessAddr(m_nIS, 0, GetDestOffset(m_nDest));
+    VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, GetDestOffset(m_nDest));
 
     m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
 
