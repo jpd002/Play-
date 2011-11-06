@@ -74,11 +74,13 @@ void CSubSystem::SetBios(const BiosPtr& bios)
 void CSubSystem::NotifyVBlankStart()
 {
 	m_bios->NotifyVBlankStart();
+	m_intc.AssertLine(Iop::CIntc::LINE_VBLANK);
 }
 
 void CSubSystem::NotifyVBlankEnd()
 {
 	m_bios->NotifyVBlankEnd();
+	m_intc.AssertLine(Iop::CIntc::LINE_EVBLANK);
 }
 
 void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)

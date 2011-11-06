@@ -7,11 +7,12 @@
 
 #define LOG_NAME ("iop_timrman")
 
-#define FUNCTION_ALLOCHARDTIMER		"AllocHardTimer"
-#define FUNCTION_SETTIMERCALLBACK	"SetTimerCallback"
+#define FUNCTION_ALLOCHARDTIMER			"AllocHardTimer"
+#define FUNCTION_SETTIMERCALLBACK		"SetTimerCallback"
+#define FUNCTION_UNKNOWNTIMERFUNCTION22	"UnknownTimerFunction22"
+#define FUNCTION_UNKNOWNTIMERFUNCTION23	"UnknownTimerFunction23"
 
 using namespace Iop;
-using namespace std;
 
 CTimrman::CTimrman(CIopBios& bios) :
 m_bios(bios)
@@ -24,12 +25,12 @@ CTimrman::~CTimrman()
 
 }
 
-string CTimrman::GetId() const
+std::string CTimrman::GetId() const
 {
     return "timrman";
 }
 
-string CTimrman::GetFunctionName(unsigned int functionId) const
+std::string CTimrman::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
@@ -38,6 +39,12 @@ string CTimrman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 20:
 		return FUNCTION_SETTIMERCALLBACK;
+		break;
+	case 22:
+		return FUNCTION_UNKNOWNTIMERFUNCTION22;
+		break;
+	case 23:
+		return FUNCTION_UNKNOWNTIMERFUNCTION23;
 		break;
 	default:
 		return "unknown";
@@ -64,6 +71,19 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
             context.m_State.nGPR[CMIPS::A2].nV0,
 			context.m_State.nGPR[CMIPS::A3].nV0);
         break;
+	case 22:
+		context.m_State.nGPR[CMIPS::V0].nD0 = UnknownTimerFunction22(
+            context.m_State.nGPR[CMIPS::A0].nV0,
+            context.m_State.nGPR[CMIPS::A1].nV0,
+            context.m_State.nGPR[CMIPS::A2].nV0,
+            context.m_State.nGPR[CMIPS::A3].nV0
+			);
+		break;
+	case 23:
+		context.m_State.nGPR[CMIPS::V0].nD0 = UnknownTimerFunction23(
+            context.m_State.nGPR[CMIPS::A0].nV0
+			);
+		break;
     default:
         CLog::GetInstance().Print(LOG_NAME, "(%0.8X): Unknown function (%d) called.\r\n", 
             context.m_State.nPC, functionId);
@@ -100,5 +120,23 @@ int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 unknown, uint
 	uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
 	mask |= (1 << CIntc::LINE_RTC2);
 	context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
+	return 0;
+}
+
+int CTimrman::UnknownTimerFunction22(uint32 timerId, uint32 unknown0, uint32 unknown1, uint32 unknown2)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_UNKNOWNTIMERFUNCTION22 "(timerId = %d, unknown0 = %d, unknown1 = %d, unknown2 = %d).\r\n",
+		timerId, unknown0, unknown1, unknown2);
+#endif
+	return 0;
+}
+
+int CTimrman::UnknownTimerFunction23(uint32 timerId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_UNKNOWNTIMERFUNCTION23 "(timerId = %d).\r\n",
+		timerId);
+#endif
 	return 0;
 }

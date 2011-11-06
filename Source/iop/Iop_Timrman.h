@@ -20,6 +20,8 @@ namespace Iop
     private:
         int             AllocHardTimer(int, int, int);
 		int				SetTimerCallback(CMIPS&, int, uint32, uint32, uint32);
+		int				UnknownTimerFunction22(uint32, uint32, uint32, uint32);
+		int				UnknownTimerFunction23(uint32);
 
 		CIopBios&		m_bios;
     };
