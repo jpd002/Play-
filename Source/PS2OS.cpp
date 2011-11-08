@@ -1006,7 +1006,13 @@ CPS2OS::THREAD* CPS2OS::GetThread(uint32 nID)
 void CPS2OS::ThreadShakeAndBake()
 {
 	//Don't play with fire (don't switch if we're in exception mode)
-	if(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & 0x02)
+	if(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL)
+	{
+		return;
+	}
+
+	//Don't switch if interrupts are disabled
+	if(!(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_INT))
 	{
 		return;
 	}
@@ -1579,15 +1585,14 @@ void CPS2OS::sc_TerminateThread()
 }
 
 //29
+//2A
 void CPS2OS::sc_ChangeThreadPriority()
 {
-	uint32 nID, nPrio, nPrevPrio;
-	THREAD* pThread;
+	bool nInt		= m_ee.m_State.nGPR[3].nV[0] == 0x2A;
+	uint32 nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nPrio	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nPrio	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-
-	pThread = GetThread(nID);
+	THREAD* pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1595,7 +1600,7 @@ void CPS2OS::sc_ChangeThreadPriority()
 		return;
 	}
 
-	nPrevPrio = pThread->nPriority;
+	uint32 nPrevPrio = pThread->nPriority;
 	pThread->nPriority = nPrio;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nPrevPrio;
@@ -1605,7 +1610,10 @@ void CPS2OS::sc_ChangeThreadPriority()
 	m_pThreadSchedule->Remove(pThread->nScheduleID);
 	pThread->nScheduleID = m_pThreadSchedule->Insert(nID, pThread->nPriority);
 
-	ThreadShakeAndBake();
+	if(!nInt)
+	{
+		ThreadShakeAndBake();
+	}
 }
 
 //2B
@@ -2368,6 +2376,11 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
+	case 0x2A:
+		sprintf(sDescription, SYSCALL_NAME_ICHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		break;
 	case 0x2B:
 		sprintf(sDescription, "RotateThreadReadyQueue(prio = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
@@ -2496,37 +2509,37 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 {
 	//0x00
-    &CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+    &CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x08
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x10
-	&CPS2OS::sc_AddIntcHandler,		&CPS2OS::sc_RemoveIntcHandler,		&CPS2OS::sc_AddDmacHandler,	&CPS2OS::sc_RemoveDmacHandler,		&CPS2OS::sc_EnableIntc,		&CPS2OS::sc_DisableIntc,	&CPS2OS::sc_EnableDmac,		&CPS2OS::sc_DisableDmac,
+	&CPS2OS::sc_AddIntcHandler,		&CPS2OS::sc_RemoveIntcHandler,		&CPS2OS::sc_AddDmacHandler,			&CPS2OS::sc_RemoveDmacHandler,		&CPS2OS::sc_EnableIntc,		&CPS2OS::sc_DisableIntc,	&CPS2OS::sc_EnableDmac,		&CPS2OS::sc_DisableDmac,
 	//0x18
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x20
-	&CPS2OS::sc_CreateThread,		&CPS2OS::sc_DeleteThread,			&CPS2OS::sc_StartThread,	&CPS2OS::sc_ExitThread,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_TerminateThread,&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_CreateThread,		&CPS2OS::sc_DeleteThread,			&CPS2OS::sc_StartThread,			&CPS2OS::sc_ExitThread,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_TerminateThread,&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x28
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_RotateThreadReadyQueue,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetThreadId,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_RotateThreadReadyQueue,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetThreadId,
 	//0x30
-	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SleepThread,	&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SleepThread,			&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x38
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_RFU060,			&CPS2OS::sc_RFU061,			&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_RFU060,			&CPS2OS::sc_RFU061,			&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
 	//0x40
-	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,		&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_ReferSemaStatus,
+	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_ReferSemaStatus,
 	//0x48
-	&CPS2OS::sc_ReferSemaStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_ReferSemaStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x50
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x58
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x60
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_FlushCache,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_FlushCache,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x68
-	&CPS2OS::sc_FlushCache,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_FlushCache,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x70
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_GsPutIMR,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SetVSyncFlag,			&CPS2OS::sc_SetSyscall,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SifDmaStat,		&CPS2OS::sc_SifSetDma,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_GsPutIMR,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetVSyncFlag,			&CPS2OS::sc_SetSyscall,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SifDmaStat,		&CPS2OS::sc_SifSetDma,
 	//0x78
-	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,		&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetMemorySize,
+	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetMemorySize,
 };
 
 //////////////////////////////////////////////////
