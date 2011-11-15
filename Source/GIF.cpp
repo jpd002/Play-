@@ -6,9 +6,7 @@
 #include "Profiler.h"
 #include "Log.h"
 
-using namespace Framework;
-using namespace std;
-using namespace boost;
+#define LOG_NAME			("gif")
 
 #ifdef	PROFILE
 #define PROFILE_GIFZONE		"GIF"
@@ -120,6 +118,10 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
                 //CLAMP_1
                 writeList.push_back(CGSHandler::RegisterWrite(GS_REG_CLAMP_1, nPacket.nD0));
                 break;
+			case 0x0D:
+                //XYZ3
+                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nPacket.nD0));
+				break;
 			case 0x0E:
 				//A + D
 				if(m_gs != NULL)
@@ -173,7 +175,7 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* pMe
 	}
 
 	//Align on qword boundary
-	if(nAddress & 0x07)
+	if(nAddress & 0x0F)
 	{
 		nAddress += 8;
 	}
@@ -200,7 +202,7 @@ uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
-    mutex::scoped_lock pathLock(m_pathMutex);
+	boost::mutex::scoped_lock pathLock(m_pathMutex);
     static CGSHandler::RegisterWriteList writeList;
 
 #ifdef PROFILE
@@ -208,7 +210,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 #endif
 
 #ifdef _DEBUG
-    CLog::GetInstance().Print("gif", "Processed GIF packet at 0x%0.8X.\r\n", nAddress);
+    CLog::GetInstance().Print(LOG_NAME, "Received GIF packet at 0x%0.8X of 0x%0.8X bytes.\r\n", nAddress, nEnd - nAddress);
 #endif
 
     writeList.clear();
@@ -279,6 +281,10 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
         memcpy(writeListBuffer, &writeList[0], sizeof(CGSHandler::RegisterWrite) * writeList.size());
         m_gs->WriteRegisterMassively(writeListBuffer, static_cast<unsigned int>(writeList.size()));
     }
+
+#ifdef _DEBUG
+    CLog::GetInstance().Print(LOG_NAME, "Processed 0x%0.8X bytes.\r\n", nAddress - nStart);
+#endif
 
     return nAddress - nStart;
 }
