@@ -219,11 +219,11 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
     {	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
 	//0x20
 	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	//0x28
@@ -232,7 +232,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	{	"VOPMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	//0x30
@@ -245,7 +245,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	//0x38
-	{	"VCALLMS",	NULL,			CopyMnemonic,		ReflOpImm15,		MIPSReflection::IsBranch,	NULL			},
+	{	"VCALLMS",	NULL,			CopyMnemonic,		ReflOpImm15,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
@@ -265,7 +265,7 @@ INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 	{	"VITOF0",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VFTOI0",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsQ,		NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -310,7 +310,7 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VMR32",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VSQI",		NULL,			CopyMnemonic,		ReflOpFsDstItInc,	NULL,				NULL			},
 	{	"VSQRT",	NULL,			CopyMnemonic,		ReflOpQFtf,			NULL,				NULL			},
@@ -393,7 +393,7 @@ INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 	{	"VNOP",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"WAITQ",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
+	{	"VWAITQ",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x10
 	{	"VRXOR",	NULL,			CopyMnemonic,		ReflOpRFsf,			NULL,				NULL			},

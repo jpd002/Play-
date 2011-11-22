@@ -62,7 +62,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflV[64] =
 	{	"ADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
 	{	"MADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
 	{	"ADD",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"MADD",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"SUB",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},

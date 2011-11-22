@@ -74,11 +74,14 @@ private:
 	void                                VMULq();
     void                                VMINIi();
 	void                                VADDq();
+	void								VMADDq();
+	void								VMSUBq();
 	void                                VADD();
 	void								VMADD();
 	void                                VMUL();
 	void                                VMAX();
 	void                                VSUB();
+	void								VMSUB();
 	void                                VOPMSUB();
 	void                                VMINI();
 	void								VIADDI();
@@ -92,6 +95,7 @@ private:
     void                                VADDAbc();
     void                                VSUBAbc();
 	void                                VMULAbc();
+	void								VMULAq();
 	void                                VMADDAbc();
     void                                VMSUBAbc();
 
@@ -107,6 +111,7 @@ private:
     void                                VITOF4();
 	void                                VFTOI4();
     void                                VABS();
+	void								VMSUBA();
 	void                                VMR32();
 	void								VSQI();
 	void                                VSQRT();

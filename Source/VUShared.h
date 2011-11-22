@@ -71,13 +71,14 @@ namespace VUShared
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
     void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
     void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
+	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 
 	//Shared instructions
 	void						ABS(CMipsJitter*, uint8, uint8, uint8);
 	void						ADD(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						ADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						ADDi(CMipsJitter*, uint8, uint8, uint8);
-	void						ADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						ADDq(CMipsJitter*, uint8, uint8, uint8);
     void						ADDA(CMipsJitter*, uint8, uint8, uint8);
 	void						ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						CLIP(CMipsJitter*, uint8, uint8);
@@ -92,7 +93,8 @@ namespace VUShared
     void						ITOF15(CMipsJitter*, uint8, uint8, uint8);
 	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
-    void						MADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
+    void						MADDi(CMipsJitter*, uint8, uint8, uint8);
+	void						MADDq(CMipsJitter*, uint8, uint8, uint8);
 	void						MADDA(CMipsJitter*, uint8, uint8, uint8);
 	void						MADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MADDAi(CMipsJitter*, uint8, uint8);
@@ -103,8 +105,11 @@ namespace VUShared
 	void						MINIi(CMipsJitter*, uint8, uint8, uint8);
 	void						MOVE(CMipsJitter*, uint8, uint8, uint8);
 	void						MR32(CMipsJitter*, uint8, uint8, uint8);
+	void						MSUB(CMipsJitter*, uint8, uint8, uint8, uint8);
     void						MSUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						MSUBi(CMipsJitter*, uint8, uint8, uint8);
+	void						MSUBq(CMipsJitter*, uint8, uint8, uint8);
+	void						MSUBA(CMipsJitter*, uint8, uint8, uint8);
     void						MSUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MSUBAi(CMipsJitter*, uint8, uint8);
 	void						MUL(CMipsJitter*, uint8, uint8, uint8, uint8);
@@ -114,6 +119,7 @@ namespace VUShared
 	void						MULA(CMipsJitter*, uint8, uint8, uint8);
 	void						MULAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MULAi(CMipsJitter*, uint8, uint8);
+	void						MULAq(CMipsJitter*, uint8, uint8);
 	void						OPMSUB(CMipsJitter*, uint8, uint8, uint8);
 	void						OPMULA(CMipsJitter*, uint8, uint8);
 	void						RINIT(CMipsJitter*, uint8, uint8);
@@ -143,6 +149,7 @@ namespace VUShared
 	void						ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpClip(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpAccFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpAccFsQ(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpAccFsFt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpAccFsFtBc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpRFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

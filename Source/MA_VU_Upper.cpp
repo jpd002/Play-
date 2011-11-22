@@ -136,19 +136,25 @@ void CMA_VU::CUpper::MINIi()
 //20
 void CMA_VU::CUpper::ADDq()
 {
-    VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
+    VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //21
 void CMA_VU::CUpper::MADDq()
 {
-    VUShared::MADDq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
+    VUShared::MADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //22
 void CMA_VU::CUpper::ADDi()
 {
     VUShared::ADDi(m_codeGen, m_nDest, m_nFD, m_nFS);
+}
+
+//23
+void CMA_VU::CUpper::MADDi()
+{
+    VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
 //26
@@ -384,7 +390,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector[0x40] =
 	//0x18
 	&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULq,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MULi,			&CMA_VU::CUpper::MINIi,
 	//0x20
-	&CMA_VU::CUpper::ADDq,			&CMA_VU::CUpper::MADDq,		    &CMA_VU::CUpper::ADDi,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::SUBi,			&CMA_VU::CUpper::MSUBi,
+	&CMA_VU::CUpper::ADDq,			&CMA_VU::CUpper::MADDq,		    &CMA_VU::CUpper::ADDi,			&CMA_VU::CUpper::MADDi,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::SUBi,			&CMA_VU::CUpper::MSUBi,
 	//0x28
 	&CMA_VU::CUpper::ADD,			&CMA_VU::CUpper::MADD,			&CMA_VU::CUpper::MUL,			&CMA_VU::CUpper::MAX,			&CMA_VU::CUpper::SUB,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::OPMSUB,		&CMA_VU::CUpper::MINI,
 	//0x30
