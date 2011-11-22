@@ -11,6 +11,7 @@ public:
     virtual void    LoadState(Framework::CZipArchiveReader&);
     virtual uint32  GetTOP() const;
     virtual void    Reset();
+    virtual void    StartMicroProgram(uint32);
 
 protected:
     virtual void    ExecuteCommand(StreamType&, CODE);
@@ -18,8 +19,6 @@ protected:
     virtual void    Cmd_UNPACK(StreamType&, CODE, uint32);
 
 private:
-    virtual void    StartMicroProgram(uint32);
-
     uint32          m_BASE;
     uint32          m_OFST;
     uint32          m_TOP;

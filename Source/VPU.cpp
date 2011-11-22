@@ -226,6 +226,11 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 		//MSCAL
         StartMicroProgram(nCommand.nIMM * 8);
 		break;
+	case 0x15:
+		//MSCALF
+		//TODO: Wait for GIF PATH 1 and 2 transfers to be over 
+        StartMicroProgram(nCommand.nIMM * 8);
+		break;
 	case 0x17:
 		//MSCNT
         StartMicroProgram(m_pCtx->m_State.nPC);
@@ -558,6 +563,10 @@ bool CVPU::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& w
 		//S-16
 		success = Unpack_S16(stream, writeValue, usn);
 		break;
+	case 0x02:
+		//S-8
+		success = Unpack_S8(stream, writeValue, usn);
+		break;
 	case 0x04:
 		//V2-32
 		success = Unpack_V32(stream, writeValue, 2);
@@ -621,6 +630,25 @@ bool CVPU::Unpack_S16(StreamType& stream, uint128& result, bool zeroExtend)
     if(!zeroExtend)
     {
         temp = static_cast<int16>(temp);
+    }
+
+    for(unsigned int i = 0; i < 4; i++)
+    {
+        result.nV[i] = temp;
+    }
+
+    return true;
+}
+
+bool CVPU::Unpack_S8(StreamType& stream, uint128& result, bool zeroExtend)
+{
+    if(stream.GetAvailableReadBytes() < 1) return false;
+
+    uint32 temp = 0;
+    stream.Read(&temp, 1);
+    if(!zeroExtend)
+    {
+        temp = static_cast<int8>(temp);
     }
 
     for(unsigned int i = 0; i < 4; i++)
@@ -753,7 +781,7 @@ void CVPU::DisassembleCommand(CODE code)
         {
             "S-32",
             "S-16",
-            "(Unknown)",
+            "S-8",
             "(Unknown)",
             "V2-32",
             "V2-16",
@@ -810,6 +838,9 @@ void CVPU::DisassembleCommand(CODE code)
             break;
         case 0x14:
             CLog::GetInstance().Print(LOG_NAME, "MSCAL(imm = 0x%x);\r\n", code.nIMM);
+            break;
+        case 0x15:
+            CLog::GetInstance().Print(LOG_NAME, "MSCALF(imm = 0x%x);\r\n", code.nIMM);
             break;
         case 0x17:
             CLog::GetInstance().Print(LOG_NAME, "MSCNT();\r\n");

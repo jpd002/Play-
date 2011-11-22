@@ -27,7 +27,9 @@ public:
     virtual void        LoadState(Framework::CZipArchiveReader&);
     virtual void        ProcessPacket(StreamType&);
 
-    CMIPS&              GetContext() const;
+	virtual void        StartMicroProgram(uint32);
+
+	CMIPS&              GetContext() const;
     uint8*              GetVuMemory() const;
     bool                IsRunning() const;
     bool                IsWaitingForProgramEnd() const;
@@ -92,7 +94,6 @@ protected:
     void                ExecuteThreadProc();
     void                CommandThreadProc();
     void                ExecuteMicro(uint32);
-    virtual void        StartMicroProgram(uint32);
     virtual void        ExecuteCommand(StreamType&, CODE);
     virtual void        Cmd_UNPACK(StreamType&, CODE, uint32);
 
@@ -104,6 +105,7 @@ protected:
 	bool				Unpack_ReadValue(const CODE&, StreamType&, uint128&, bool);
     bool                Unpack_S32(StreamType&, uint128&);
     bool                Unpack_S16(StreamType&, uint128&, bool);
+    bool                Unpack_S8(StreamType&, uint128&, bool);
     bool                Unpack_V16(StreamType&, uint128&, unsigned int, bool);
     bool                Unpack_V8(StreamType&, uint128&, unsigned int, bool);
     bool                Unpack_V32(StreamType&, uint128&, unsigned int);
