@@ -185,10 +185,8 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* pMe
 
 uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
-	uint16 nTotalLoops;
-	
-	nTotalLoops = (uint16)((nEnd - nAddress) / 0x10);
-	nTotalLoops = min(nTotalLoops, m_nLoops);
+	uint16 nTotalLoops = static_cast<uint16>((nEnd - nAddress) / 0x10);
+	nTotalLoops = std::min<uint16>(nTotalLoops, m_nLoops);
 
 	if(m_gs != NULL)
 	{

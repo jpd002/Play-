@@ -1,6 +1,8 @@
 //Source: The LLVM Compiler Infrastructure - lib/mulsf3.c
 //Modified to truncate result of multiplication
 
+#include <limits.h>
+#include <boost/cstdint.hpp>
 #include "FpMulTruncate.h"
 
 typedef uint32 rep_t;
