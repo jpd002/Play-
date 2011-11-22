@@ -84,6 +84,7 @@ private:
 	void								TRUNC_W_S();
 	void								RSQRT_S();
 	void							    ADDA_S();
+	void								SUBA_S();
 	void							    MULA_S();
 	void							    MADD_S();
 	void							    MSUB_S();
