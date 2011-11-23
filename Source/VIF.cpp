@@ -88,34 +88,20 @@ void CVIF::LoadState(CZipArchiveReader& archive)
 uint32 CVIF::ReceiveDMA0(uint32 address, uint32 qwc, bool tagIncluded)
 {
     unsigned int vpuNumber = 0;
-	assert(0);
-//    if(IsVU1Running())
-//    {
-//        thread::yield();
-//        return 0;
-//    }
 
- //   m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
- //   if(tagIncluded)
- //   {
- //       m_stream[vpuNumber]->Read(NULL, 8);
- //   }
+	if(IsVu0Running() && IsVu0WaitingForProgramEnd())
+	{
+		return 0;
+	}
 
- //   m_pVPU[vpuNumber]->ProcessPacket(*m_stream[vpuNumber]);
-
- //   uint32 remainingSize = m_stream[vpuNumber]->GetSize();
- //   assert((remainingSize & 0x0F) == 0);
- //   remainingSize /= 0x10;
-	//return qwc - remainingSize;
-
-    return qwc;
+	return ProcessDMAPacket(0, address, qwc, tagIncluded);
 }
 
-uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
+uint32 CVIF::ReceiveDMA1(uint32 address, uint32 qwc, bool tagIncluded)
 {
     if(!m_enabled)
     {
-        return nQWC;
+        return qwc;
     }
 
     unsigned int vpuNumber = 1;
@@ -125,49 +111,22 @@ uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
         return 0;
     }
 
-//    if(IsVU1Running())
-//    {
-//        thread::yield();
-//        return 0;
-//    }
+	return ProcessDMAPacket(1, address, qwc, tagIncluded);
+}
 
+uint32 CVIF::ProcessDMAPacket(unsigned int vpuNumber, uint32 address, uint32 qwc, bool tagIncluded)
+{
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = %X, tagIncluded = %i\r\n",
-        vpuNumber, nAddress, nQWC, static_cast<int>(nTagIncluded));
+    CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = 0x%X, tagIncluded = %i\r\n",
+        vpuNumber, address, qwc, static_cast<int>(tagIncluded));
 #endif
 
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_VIFZONE);
 #endif
-/*
-    uint32 availableSpace = m_pVPU[vpuNumber]->m_cmdBuffer.GetAvailableWriteBytes() & ~0x0F;
-    uint32 size = nQWC * 0x10;
-    size = min<uint32>(availableSpace, size);
-    if(size != 0)
-    {
-        if(nTagIncluded)
-        {
-            nAddress += 8;
-            size -= 8;
-        }
-//        size_t written = m_pVPU[vpuNumber]->m_cmdBuffer.Write(m_ram + nAddress, size);
-        static uint8 currentValue = 0;
-        uint8* tempData = reinterpret_cast<uint8*>(alloca(size));
-        for(unsigned int i = 0; i < size; i++)
-        {
-            tempData[i] = currentValue;
-            currentValue++;
-        }
-        size_t written = m_pVPU[vpuNumber]->m_cmdBuffer.Write(tempData, size);
-        assert(written == size);
-    }
 
-    uint32 writtenSize = (size + 0x0F) / 0x10;
-    return writtenSize;
-*/
-
-    m_stream[vpuNumber]->SetDmaParams(nAddress, nQWC * 0x10);
-    if(nTagIncluded)
+    m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
+    if(tagIncluded)
     {
         m_stream[vpuNumber]->Read(NULL, 8);
     }
@@ -182,7 +141,7 @@ uint32 CVIF::ReceiveDMA1(uint32 nAddress, uint32 nQWC, bool nTagIncluded)
     assert((remainingSize & 0x0F) == 0);
     remainingSize /= 0x10;
 
-	return nQWC - remainingSize;
+	return qwc - remainingSize;
 }
 
 uint32 CVIF::GetITop0() const
@@ -218,6 +177,11 @@ void CVIF::ProcessXGKICK(uint32 nAddress)
 	m_gif.ProcessPacket(m_pVPU[1]->GetVuMemory(), nAddress, PS2::VUMEM1SIZE);
 }
 
+void CVIF::StartVu0MicroProgram(uint32 address)
+{
+	m_pVPU[0]->StartMicroProgram(address);
+}
+
 bool CVIF::IsVu0Running() const
 {
     return m_pVPU[0]->IsRunning();
@@ -240,7 +204,8 @@ bool CVIF::IsVu1WaitingForProgramEnd() const
 
 void CVIF::ExecuteVu0(bool singleStep)
 {
-	assert(0);
+	if(!IsVu0Running()) return;
+	m_pVPU[0]->Execute(singleStep);
 }
 
 void CVIF::ExecuteVu1(bool singleStep)

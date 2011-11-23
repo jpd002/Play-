@@ -59,6 +59,8 @@ public:
     void        StopVU(CMIPS*);
     void        ProcessXGKICK(uint32);
 
+	void		StartVu0MicroProgram(uint32);
+
     bool        IsVu0Running() const;
     bool        IsVu1Running() const;
 
@@ -114,6 +116,8 @@ private:
     {
         STAT1_DBF   = 0x80,
     };
+
+	uint32			ProcessDMAPacket(unsigned int, uint32, uint32, bool);
 
     uint32          m_VPU_STAT;
     CVPU*           m_pVPU[2];
