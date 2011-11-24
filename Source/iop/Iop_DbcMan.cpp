@@ -132,7 +132,24 @@ void CDbcMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nB
 
 void CDbcMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON axis, uint8 axisValue, uint8* ram)
 {
+	static const unsigned int s_axisIndex[4] =
+	{
+		4,
+		5,
+		6,
+		7
+	};
 
+	uint32 buttonStatIndex = m_buttonStatIndex;
+	for(SocketMap::const_iterator socketIterator(m_sockets.begin());
+		socketIterator != m_sockets.end(); socketIterator++)
+	{
+		const SOCKET& socket = socketIterator->second;
+		if(socket.nPort != padNumber) continue;
+
+		uint8* buffer = &ram[socket.buf1];
+		buffer[buttonStatIndex + s_axisIndex[axis]] = axisValue;
+	}
 }
 
 void CDbcMan::CreateSocket(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -241,6 +258,11 @@ CDbcMan::SOCKET* CDbcMan::GetSocket(uint32 socketId)
     SocketMap::iterator socketIterator = m_sockets.find(socketId);
 	if(socketIterator == m_sockets.end()) return NULL;
     return &socketIterator->second;
+}
+
+uint32 CDbcMan::GetButtonStatIndex() const
+{
+	return m_buttonStatIndex;
 }
 
 void CDbcMan::SetButtonStatIndex(uint32 buttonStatIndex)

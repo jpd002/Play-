@@ -38,6 +38,7 @@ namespace Iop
 		void						ReceiveData(uint32*, uint32, uint32*, uint32, uint8*);
 		void						GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
+		uint32						GetButtonStatIndex() const;
         void                        SetButtonStatIndex(uint32);
         SOCKET*                     GetSocket(uint32);
 
