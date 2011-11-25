@@ -411,14 +411,14 @@ void CGSHandler::Flip()
         boost::thread::yield();
     }
     m_mailBox.SendCall(bind(&CGSHandler::FlipImpl, this));
-#ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
-#endif
 }
 
 void CGSHandler::FlipImpl()
 {
-    OnNewFrame();
+	OnNewFrame();
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
+#endif
 }
 
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
