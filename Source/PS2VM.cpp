@@ -93,6 +93,7 @@ CPS2VM::CPS2VM()
 , m_pPad(NULL)
 , m_singleStepEe(false)
 , m_singleStepIop(false)
+, m_singleStepVu0(false)
 , m_singleStepVu1(false)
 , m_nVBlankTicks(0)
 , m_nInVBlank(false)
@@ -403,10 +404,11 @@ void CPS2VM::CreateVM()
 		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_bios,				                                        0x05);
 
         //Write map
-        m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_ram,				                                                    0x00);
-	    m_EE.m_pMemoryMap->InsertWriteMap(0x02000000, 0x02003FFF, m_spr,				                                                    0x01);
-        m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x02);
-        m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),    0x03);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000,		0x01FFFFFF,							m_ram,																		0x00);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x02000000,		0x02003FFF,							m_spr,																		0x01);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,		0x10FFFFFF,							bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),		0x02);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,	PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,	m_pVUMem0,																	0x03);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,		0x12FFFFFF,							bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x04);
 
         m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, PLACEHOLDER_1));
 
@@ -419,14 +421,7 @@ void CPS2VM::CreateVM()
 	    m_EE.m_pCOP[1]			= &m_COP_FPU;
 	    m_EE.m_pCOP[2]			= &m_COP_VU;
 
-        m_EE.m_handlerParam     = this;
         m_EE.m_pAddrTranslator	= CPS2OS::TranslateAddress;
-        m_EE.m_pSysCallHandler  = EESysCallHandlerStub;
-#ifdef DEBUGGER_INCLUDED
-        m_EE.m_pTickFunction	= EETickFunctionStub;
-#else
-	    m_EE.m_pTickFunction	= NULL;
-#endif
     }
 
     //Vector Unit 0 context setup
@@ -447,7 +442,6 @@ void CPS2VM::CreateVM()
 
 	    m_VU0.m_pArch			= &m_MAVU0;
 	    m_VU0.m_pAddrTranslator	= CMIPS::TranslateAddress64;
-        m_VU0.m_pTickFunction   = NULL;
     }
 
     //Vector Unit 1 context setup
@@ -462,12 +456,6 @@ void CPS2VM::CreateVM()
 
         m_VU1.m_pArch			= &m_MAVU1;
 	    m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
-
-#ifdef DEBUGGER_INCLUDED
-	    m_VU1.m_pTickFunction	= VU1TickFunctionStub;
-#else
-	    m_VU1.m_pTickFunction	= NULL;
-#endif
     }
 
     m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
@@ -1041,93 +1029,21 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 	{
 		//Check if the block we're about to invalidate is the same
 		//as the one we're executing in
-
-//		CCacheBlock* pBlock;
-//		pBlock = m_EE.m_pExecMap->FindBlock(nAddress);
-//		if(m_EE.m_pExecMap->FindBlock(m_EE.m_State.nPC) != pBlock)
-//		{
-//			m_EE.m_pExecMap->InvalidateBlock(nAddress);
-//		}
-//		else
-//		{
+		BasicBlockPtr block = m_executor.FindBlockAt(nAddress);
+		if(block)
+		{
+			if(m_executor.FindBlockAt(m_EE.m_State.nPC) != block)
+			{
+				m_executor.DeleteBlock(block);
+			}
+			else
+			{
 #ifdef _DEBUG
-//			printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n",
-//				m_EE.m_State.nPC);
+			printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n", m_EE.m_State.nPC);
 #endif
-//		}
+			}
+		}
 	}
-}
-
-void CPS2VM::EESysCallHandlerStub(CMIPS* context)
-{
-//    CPS2VM& vm = *reinterpret_cast<CPS2VM*>(context->m_handlerParam);
-//    vm.m_os.SysCallHandler();
-}
-
-unsigned int CPS2VM::EETickFunctionStub(unsigned int ticks, CMIPS* context)
-{
-    return reinterpret_cast<CPS2VM*>(context->m_handlerParam)->EETickFunction(ticks);
-}
-
-unsigned int CPS2VM::VU1TickFunctionStub(unsigned int ticks, CMIPS* context)
-{
-    return reinterpret_cast<CPS2VM*>(context->m_handlerParam)->VU1TickFunction(ticks);
-}
-
-unsigned int CPS2VM::EETickFunction(unsigned int nTicks)
-{
-
-#ifdef DEBUGGER_INCLUDED
-
-	if(m_EE.m_nIllOpcode != MIPS_INVALID_PC)
-	{
-		printf("PS2VM: (EmotionEngine) Illegal opcode encountered at 0x%0.8X.\r\n", m_EE.m_nIllOpcode);
-		m_EE.m_nIllOpcode = MIPS_INVALID_PC;
-		assert(0);
-	}
-
-	if(m_EE.MustBreak())
-	{
-		return 1;
-	}
-
-	//TODO: Check if we can remove this if there's no debugger around
-//	if(m_MsgBox.IsMessagePending())
-    if(m_mailBox.IsPending())
-	{
-		return 1;
-	}
-
-#endif
-
-	return 0;
-}
-
-unsigned int CPS2VM::VU1TickFunction(unsigned int nTicks)
-{
-#ifdef DEBUGGER_INCLUDED
-
-	if(m_VU1.m_nIllOpcode != MIPS_INVALID_PC)
-	{
-		printf("PS2VM: (VectorUnit1) Illegal/unimplemented instruction encountered at 0x%0.8X.\r\n", m_VU1.m_nIllOpcode);
-		m_VU1.m_nIllOpcode = MIPS_INVALID_PC;
-	}
-
-	if(m_VU1.MustBreak())
-	{
-		return 1;
-	}
-
-	//TODO: Check if we can remove this if there's no debugger around
-//	if(m_MsgBox.IsMessagePending())
-    if(m_mailBox.IsPending())
-    {
-		return 1;
-	}
-
-#endif
-
-	return 0;
 }
 
 void CPS2VM::EmuThread()
@@ -1149,15 +1065,13 @@ void CPS2VM::EmuThread()
 		}
 		if(m_nStatus == RUNNING)
         {
-            //Synchonization methods
-            //1984.elf - CSR = CSR & 0x08; while(CSR & 0x08 == 0);
 			if(m_nVBlankTicks <= 0)
 			{
 				m_nInVBlank = !m_nInVBlank;
 				if(m_nInVBlank)
 				{
 					m_nVBlankTicks += VBLANK_TICKS;
-                    m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
+					m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
 					m_iop.NotifyVBlankStart();
 
                     if(m_pGS != NULL)
@@ -1206,27 +1120,65 @@ void CPS2VM::EmuThread()
                         m_sif.ProcessPackets();
                     }
                 }
-                if(!m_EE.m_State.nHasException)
-                {
-                    if(m_intc.IsInterruptPending())
-                    {
-                        m_os->ExceptionHandler();
-                        //Do we need to do some special treatment when we're serving an interrupt?
-                        //m_EE.m_State.nHasException = 1;
-                    }
-                }
+				if(!m_EE.m_State.nHasException)
+				{
+					if(m_intc.IsInterruptPending())
+					{
+						m_os->ExceptionHandler();
+					}
+				}
 
 				int executed = 0;
-                if(!m_EE.m_State.nHasException)
-                {
-                    int executeQuota = m_singleStepEe ? 1 : 5000;
-                    executed += (executeQuota - m_executor.Execute(executeQuota));
-                }
+				if(m_EE.m_State.callMsEnabled)
+				{
+					if(!m_vif.IsVu0Running())
+					{
+						//callMs mode over
+						memcpy(&m_EE.m_State.nCOP2,		&m_VU0.m_State.nCOP2,	sizeof(m_EE.m_State.nCOP2));
+						memcpy(&m_EE.m_State.nCOP2A,	&m_VU0.m_State.nCOP2A,	sizeof(m_EE.m_State.nCOP2A));
+						m_EE.m_State.callMsEnabled = 0;
+					}
+				}
+				else if(!m_EE.m_State.nHasException)
+				{
+					int executeQuota = m_singleStepEe ? 1 : 5000;
+					executed += (executeQuota - m_executor.Execute(executeQuota));
+				}
                 if(m_EE.m_State.nHasException)
                 {
-                    m_os->SysCallHandler();
-                    assert(!m_EE.m_State.nHasException);
-                }
+					switch(m_EE.m_State.nHasException)
+					{
+					case MIPS_EXCEPTION_SYSCALL:
+						m_os->SysCallHandler();
+						break;
+					case MIPS_EXCEPTION_CALLMS:
+						assert(m_EE.m_State.callMsEnabled);
+						if(m_EE.m_State.callMsEnabled)
+						{
+							//We are in callMs mode
+							assert(!m_vif.IsVu0Running());
+							//Copy the COP2 state to VPU0
+							memcpy(&m_VU0.m_State.nCOP2,	&m_EE.m_State.nCOP2,	sizeof(m_VU0.m_State.nCOP2));
+							memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
+							m_vif.StartVu0MicroProgram(m_EE.m_State.callMsAddr);
+							m_EE.m_State.nHasException = 0;
+						}
+						break;
+					case MIPS_EXCEPTION_CHECKPENDINGINT:
+						{
+							m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
+							if(m_intc.IsInterruptPending())
+							{
+								m_os->ExceptionHandler();
+							}
+						}
+						break;
+					default:
+						assert(0);
+						break;
+					}
+					assert(!m_EE.m_State.nHasException);
+				}
 
                 {
 					BasicBlockPtr nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
@@ -1271,6 +1223,7 @@ void CPS2VM::EmuThread()
 				}
 #endif
 
+				m_vif.ExecuteVu0(m_singleStepVu0);
 				m_vif.ExecuteVu1(m_singleStepVu1);
 #ifdef DEBUGGER_INCLUDED
 				if(wasVu1Running && !m_vif.IsVu1Running())
@@ -1285,11 +1238,12 @@ void CPS2VM::EmuThread()
                 m_executor.MustBreak() || 
                 m_iop.m_executor.MustBreak() ||
 				m_vif.MustVu1Break() ||
-                m_singleStepEe || m_singleStepIop || m_singleStepVu1)
+                m_singleStepEe || m_singleStepIop || m_singleStepVu0 || m_singleStepVu1)
             {
                 m_nStatus = PAUSED;
                 m_singleStepEe = false;
                 m_singleStepIop = false;
+				m_singleStepVu0 = false;
 				m_singleStepVu1 = false;
                 m_OnRunningStateChange();
                 m_OnMachineStateChange();

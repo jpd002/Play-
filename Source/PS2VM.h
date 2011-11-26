@@ -163,12 +163,6 @@ private:
     void                        UpdateSpu();
     void                        OnGsNewFrame();
 
-	unsigned int                EETickFunction(unsigned int);
-	unsigned int                VU1TickFunction(unsigned int);
-    static unsigned int         EETickFunctionStub(unsigned int, CMIPS*);
-    static unsigned int         VU1TickFunctionStub(unsigned int, CMIPS*);
-    static void                 EESysCallHandlerStub(CMIPS*);
-
 	void						CDROM0_Initialize();
 	void						CDROM0_Mount(const char*);
 	void						CDROM0_Reset();
@@ -195,6 +189,7 @@ private:
     unsigned int                m_frameSkip;
     bool                        m_singleStepEe;
     bool                        m_singleStepIop;
+	bool						m_singleStepVu0;
 	bool						m_singleStepVu1;
 
 #ifdef DEBUGGER_INCLUDED
