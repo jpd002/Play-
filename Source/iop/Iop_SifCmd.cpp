@@ -235,22 +235,22 @@ void CSifCmd::ReturnFromRpcInvoke(CMIPS& context)
 
 uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize, uint32 srcExtraPtr, uint32 dstExtraPtr, uint32 sizeExtra)
 {
-    CLog::GetInstance().Print(LOG_NAME, "SifSendCmd(commandId = 0x%0.8X, packetPtr = 0x%0.8X, packetSize = 0x%0.8X, srcExtraPtr = 0x%0.8X, dstExtraPtr = 0x%0.8X, sizeExtra = 0x%0.8X);\r\n",
-        commandId, packetPtr, packetSize, srcExtraPtr, dstExtraPtr, sizeExtra);
+	CLog::GetInstance().Print(LOG_NAME, "SifSendCmd(commandId = 0x%0.8X, packetPtr = 0x%0.8X, packetSize = 0x%0.8X, srcExtraPtr = 0x%0.8X, dstExtraPtr = 0x%0.8X, sizeExtra = 0x%0.8X);\r\n",
+		commandId, packetPtr, packetSize, srcExtraPtr, dstExtraPtr, sizeExtra);
 
-    assert(srcExtraPtr == 0);
-    assert(dstExtraPtr == 0);
-    assert(sizeExtra == 0);
-    assert(packetSize >= 0x10);
+	assert(srcExtraPtr == 0);
+	assert(dstExtraPtr == 0);
+	assert(sizeExtra == 0);
+	assert(packetSize >= 0x10);
 
-    uint8* packetData = m_ram + packetPtr;
-    CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(packetData);
-    header->nCID = commandId;
-    header->nSize = packetSize;
-    header->nDest = 0;
-    m_sifMan.SendPacket(packetData, packetSize);
+	uint8* packetData = m_ram + packetPtr;
+	CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(packetData);
+	header->nCID = commandId;
+	header->nSize = packetSize;
+	header->nDest = 0;
+	m_sifMan.SendPacket(packetData, packetSize);
 
-    return 0;
+	return 1;
 }
 
 uint32 CSifCmd::SifBindRpc(uint32 clientDataAddress, uint32 rpcNumber, uint32 mode)
