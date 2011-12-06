@@ -177,6 +177,17 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	    case SIF_CMD_CALL:
 		    Cmd_Call(pHDR);
 		    break;
+		default:
+			{
+				PACKETHDR header;
+				header.nCID			= pHDR->nCID;
+				header.nSize		= sizeof(PACKETHDR);
+				header.nDest		= NULL;
+				header.nOptional	= 0;
+
+				SendPacket(&header, sizeof(PACKETHDR));
+			}
+			break;
 	    }
 
 #ifdef PROFILE
