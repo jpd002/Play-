@@ -57,7 +57,7 @@ void CMA_VU::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode
 	}
 }
 
-bool CMA_VU::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+MIPS_BRANCH_TYPE CMA_VU::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	if(nAddress & 0x04)
 	{

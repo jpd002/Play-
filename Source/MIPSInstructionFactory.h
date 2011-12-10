@@ -12,6 +12,13 @@ enum MIPS_REGSIZE
 	MIPS_REGSIZE_64		= 1,
 };
 
+enum MIPS_BRANCH_TYPE
+{
+	MIPS_BRANCH_NONE	= 0,
+	MIPS_BRANCH_NORMAL	= 1,
+	MIPS_BRANCH_NODELAY	= 2,
+};
+
 class CMIPSInstructionFactory
 {
 public:

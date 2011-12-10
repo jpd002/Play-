@@ -185,8 +185,7 @@ uint32 CMA_MIPSIV::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 
 void CMA_MIPSIV::ReflCOPMnemonic(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	unsigned int nCOP;
-	nCOP = *(unsigned int*)&pInstr->pSubTable;
+	unsigned int nCOP = *(unsigned int*)&pInstr->pSubTable;
 	if(pCtx->m_pCOP[nCOP] != NULL)
 	{
 		pCtx->m_pCOP[nCOP]->GetInstruction(nOpcode, sText);
@@ -199,8 +198,7 @@ void CMA_MIPSIV::ReflCOPMnemonic(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcod
 
 void CMA_MIPSIV::ReflCOPOperands(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	unsigned int nCOP;
-	nCOP = *(unsigned int*)&pInstr->pSubTable;
+	unsigned int nCOP = *(unsigned int*)&pInstr->pSubTable;
 	if(pCtx->m_pCOP[nCOP] != NULL)
 	{
 		pCtx->m_pCOP[nCOP]->GetArguments(nAddress, nOpcode, sText);
@@ -211,24 +209,22 @@ void CMA_MIPSIV::ReflCOPOperands(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddre
 	}
 }
 
-bool CMA_MIPSIV::ReflCOPIsBranch(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode)
+MIPS_BRANCH_TYPE CMA_MIPSIV::ReflCOPIsBranch(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode)
 {
-	unsigned int nCOP;
-	nCOP = *(unsigned int*)&pInstr->pSubTable;
+	unsigned int nCOP = *(unsigned int*)&pInstr->pSubTable;
 	if(pCtx->m_pCOP[nCOP] != NULL)
 	{
 		return pCtx->m_pCOP[nCOP]->IsBranch(nOpcode);
 	}
 	else
 	{
-		return false;
+		return MIPS_BRANCH_NONE;
 	}
 }
 
 uint32 CMA_MIPSIV::ReflCOPEffeAddr(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
-	unsigned int nCOP;
-	nCOP = *(unsigned int*)&pInstr->pSubTable;
+	unsigned int nCOP = *(unsigned int*)&pInstr->pSubTable;
 	if(pCtx->m_pCOP[nCOP] != NULL)
 	{
 		return pCtx->m_pCOP[nCOP]->GetEffectiveAddress(nAddress, nOpcode);
@@ -331,7 +327,7 @@ INSTRUCTION CMA_MIPSIV::m_cReflSpecial[64] =
 	{	"JALR",		NULL,			CopyMnemonic,		ReflOpRdRs,			IsBranch,			NULL			},
 	{	"MOVZ",		NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"MOVN",		NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	"SYSCALL",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
+	{	"SYSCALL",	NULL,			CopyMnemonic,		NULL,				IsNoDelayBranch,	NULL			},
 	{	"BREAK",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"SYNC",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
@@ -487,11 +483,11 @@ void CMA_MIPSIV::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32 nOp
 	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, nCount);
 }
 
-bool CMA_MIPSIV::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+MIPS_BRANCH_TYPE CMA_MIPSIV::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	INSTRUCTION Instr;
 
-	if(nOpcode == 0) return false;
+	if(nOpcode == 0) return MIPS_BRANCH_NONE;
 
 	Instr.pIsBranch		= SubTableIsBranch;
 	Instr.pSubTable		= &m_ReflGeneralTable;

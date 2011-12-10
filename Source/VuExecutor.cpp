@@ -95,8 +95,8 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
     for(uint32 address = functionAddress; address <= endAddress; address += 4)
     {
         uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
-        bool isBranch = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
-        if(isBranch)
+        MIPS_BRANCH_TYPE branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
+        if(branchType == MIPS_BRANCH_NORMAL)
         {
             assert((address & 0x07) == 0x00);
             partitionPoints.insert(address + 0x10);
@@ -107,12 +107,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
                 partitionPoints.insert(target);
             }
         }
-        //-- Meaningless in VU
-        //SYSCALL or ERET
-        //if(opcode == 0x0000000C || opcode == 0x42000018)
-        //{
-        //    partitionPoints.insert(address + 4);
-        //}
+
         //Check if there's a block already exising that this address
         if(address != endAddress)
         {

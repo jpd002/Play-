@@ -12,7 +12,7 @@ public:
 	virtual void						GetInstruction(uint32, char*);
 	virtual void						GetArguments(uint32, uint32, char*);
 	virtual uint32						GetEffectiveAddress(uint32, uint32);
-	virtual bool						IsBranch(uint32);
+	virtual MIPS_BRANCH_TYPE			IsBranch(uint32);
 
 protected:
 	void								SetupReflectionTables();

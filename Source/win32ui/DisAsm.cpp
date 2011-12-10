@@ -168,7 +168,7 @@ void CDisAsm::GotoEA()
 		return;
 	}
 	nOpcode = GetInstruction(m_nSelected);
-	if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, m_nSelected, nOpcode))
+	if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, m_nSelected, nOpcode) == MIPS_BRANCH_NORMAL)
 	{
 		nAddress = m_pCtx->m_pArch->GetInstructionEffectiveAddress(m_pCtx, m_nSelected, nOpcode);
 
@@ -466,7 +466,7 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	if(m_nSelected != MIPS_INVALID_PC)
 	{
 		nOpcode = GetInstruction(m_nSelected);
-		if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, m_nSelected, nOpcode))
+		if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, m_nSelected, nOpcode) == MIPS_BRANCH_NORMAL)
 		{
 			nAddress = m_pCtx->m_pArch->GetInstructionEffectiveAddress(m_pCtx, m_nSelected, nOpcode);
 			_sntprintf(sTemp, countof(sTemp), _T("Go to 0x%0.8X"), nAddress);
@@ -829,7 +829,7 @@ void CDisAsm::Paint(HDC hDC)
 
 		if(!nCommentDrawn)
 		{
-			if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, nAddress, nData))
+			if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, nAddress, nData) == MIPS_BRANCH_NORMAL)
 			{
 				nEffAddr = m_pCtx->m_pArch->GetInstructionEffectiveAddress(m_pCtx, nAddress, nData);
 				sTag = m_pCtx->m_Functions.Find(nEffAddr);

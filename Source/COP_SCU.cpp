@@ -42,12 +42,12 @@ const char* CCOP_SCU::m_sRegName[] =
 	"*RESERVED*"
 };
 
-CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize) :
-CMIPSCoprocessor(nRegSize),
-m_nRT(0),
-m_nRD(0)
+CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize) 
+: CMIPSCoprocessor(nRegSize)
+, m_nRT(0)
+, m_nRD(0)
 {
-
+	SetupReflectionTables();
 }
 
 void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
@@ -236,118 +236,3 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpC0[0x40] =
 	//0x38
 	&CCOP_SCU::EI,			&CCOP_SCU::DI,			&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 };
-
-void CCOP_SCU::GetInstruction(uint32 nOpcode, char* sText)
-{
-	switch((nOpcode >> 21) & 0x1F)
-	{
-	case 0x00:
-		strcpy(sText, "MFC0");
-		break;
-	case 0x04:
-		strcpy(sText, "MTC0");
-		break;
-    case 0x08:
-        switch((nOpcode >> 16) & 0x1F)
-        {
-        case 0x00:
-            strcpy(sText, "BC0F");
-            break;
-        case 0x01:
-            strcpy(sText, "BC0T");
-            break;
-        default:
-            strcpy(sText, "???");
-            break;
-        }
-        break;
-	case 0x10:
-		switch(nOpcode & 0x3F)
-		{
-		case 0x02:
-			strcpy(sText, "TLBWI");
-			break;
-		case 0x18:
-			strcpy(sText, "ERET");
-			break;
-		case 0x38:
-			strcpy(sText, "EI");
-			break;
-		case 0x39:
-			strcpy(sText, "DI");
-			break;
-		default:
-			strcpy(sText, "???");
-			break;
-		}
-		break;
-	default:
-		strcpy(sText, "???");
-		break;
-	}
-}
-
-void CCOP_SCU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
-{
-	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x1F);
-	uint8 nRD = static_cast<uint8>((nOpcode >> 11) & 0x1F);
-    uint16 nImm = static_cast<uint16>(nOpcode);
-	switch((nOpcode >> 21) & 0x1F)
-	{
-	case 0x00:
-	case 0x04:
-		sprintf(sText, "%s, %s", CMIPS::m_sGPRName[nRT], m_sRegName[nRD]);
-		break;
-    case 0x08:
-        switch((nOpcode >> 16) & 0x1F)
-        {
-        case 0x00:
-        case 0x01:
-            sprintf(sText, "0x%0.8X", nAddress + CMIPS::GetBranch(nImm) + 4);
-            break;
-        default:
-            strcpy(sText, "");
-            break;
-        }
-        break;
-	default:
-		strcpy(sText, "");
-		break;
-	}
-}
-
-uint32 CCOP_SCU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
-{
-    if(((nOpcode >> 21) & 0x1F) == 0x08)
-    {
-        switch((nOpcode >> 16) & 0x1F)
-        {
-        case 0x00:
-        case 0x01:
-	        return (nAddress + CMIPS::GetBranch(static_cast<uint16>(nOpcode)) + 4);
-            break;
-        default:
-            return 0;
-            break;
-        }
-    }
-    return 0;
-}
-
-bool CCOP_SCU::IsBranch(uint32 nOpcode)
-{
-    if(((nOpcode >> 21) & 0x1F) == 0x08)
-    {
-        switch((nOpcode >> 16) & 0x1F)
-        {
-        case 0x00:
-        case 0x01:
-            return true;
-            break;
-        default:
-            return false;
-            break;
-        }
-    }
-    return false;
-}

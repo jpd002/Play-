@@ -39,17 +39,22 @@ void MIPSReflection::SubTableOperands(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 n
 	pInstr->pGetOperands(pInstr, pCtx, nAddress, nOpcode, sText, nCount);
 }
 
-bool MIPSReflection::IsBranch(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode)
+MIPS_BRANCH_TYPE MIPSReflection::IsBranch(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode)
 {
-	return true;
+	return MIPS_BRANCH_NORMAL;
 }
 
-bool MIPSReflection::SubTableIsBranch(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode)
+MIPS_BRANCH_TYPE MIPSReflection::IsNoDelayBranch(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode)
+{
+	return MIPS_BRANCH_NODELAY;
+}
+
+MIPS_BRANCH_TYPE MIPSReflection::SubTableIsBranch(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode)
 {
 	pInstr = DereferenceInstruction(pInstr->pSubTable, nOpcode);
 	if(pInstr->pIsBranch == NULL)
 	{
-		return false;
+		return MIPS_BRANCH_NONE;
 	}
 	return pInstr->pIsBranch(pInstr, pCtx, nOpcode);
 }

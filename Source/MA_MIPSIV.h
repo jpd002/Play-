@@ -13,7 +13,7 @@ public:
 	virtual void						CompileInstruction(uint32, CMipsJitter*, CMIPS*);
 	virtual void						GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void						GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
-	virtual bool						IsInstructionBranch(CMIPS*, uint32, uint32);
+	virtual MIPS_BRANCH_TYPE			IsInstructionBranch(CMIPS*, uint32, uint32);
 	virtual uint32						GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 
 protected:
@@ -53,7 +53,7 @@ protected:
 
 	static void							ReflCOPMnemonic(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, char*, unsigned int);
 	static void							ReflCOPOperands(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-	static bool							ReflCOPIsBranch(MIPSReflection::INSTRUCTION*, CMIPS*, uint32);
+	static MIPS_BRANCH_TYPE				ReflCOPIsBranch(MIPSReflection::INSTRUCTION*, CMIPS*, uint32);
 	static uint32						ReflCOPEffeAddr(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
 
 	MIPSReflection::INSTRUCTION			m_ReflGeneral[MAX_GENERAL_OPS];

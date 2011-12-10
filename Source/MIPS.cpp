@@ -76,9 +76,8 @@ long CMIPS::GetBranch(uint16 nData)
 
 bool CMIPS::IsBranch(uint32 nAddress)
 {
-	uint32 nOpcode;
-	nOpcode = m_pMemoryMap->GetInstruction(nAddress);
-	return m_pArch->IsInstructionBranch(this, nAddress, nOpcode);
+	uint32 nOpcode = m_pMemoryMap->GetInstruction(nAddress);
+	return m_pArch->IsInstructionBranch(this, nAddress, nOpcode) == MIPS_BRANCH_NORMAL;
 }
 
 uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrHI, uint32 nVAddrLO)

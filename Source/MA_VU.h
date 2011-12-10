@@ -16,7 +16,7 @@ public:
 	virtual void							CompileInstruction(uint32, CMipsJitter*, CMIPS*);
 	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
-	virtual bool							IsInstructionBranch(CMIPS*, uint32, uint32);
+	virtual MIPS_BRANCH_TYPE				IsInstructionBranch(CMIPS*, uint32, uint32);
 	virtual uint32							GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 	VUShared::OPERANDSET					GetAffectedOperands(CMIPS*, uint32, uint32);
 
@@ -33,7 +33,7 @@ private:
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		VUShared::OPERANDSET				GetAffectedOperands(CMIPS*, uint32, uint32);
-		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
+		MIPS_BRANCH_TYPE					IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 
 	private:
@@ -161,7 +161,7 @@ private:
 		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*);
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
-		bool								IsInstructionBranch(CMIPS*, uint32, uint32);
+		MIPS_BRANCH_TYPE					IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 		VUShared::OPERANDSET				GetAffectedOperands(CMIPS*, uint32, uint32);
 

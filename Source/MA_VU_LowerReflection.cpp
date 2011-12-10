@@ -1230,13 +1230,13 @@ void CMA_VU::CLower::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32
 	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, nCount);
 }
 
-bool CMA_VU::CLower::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+MIPS_BRANCH_TYPE CMA_VU::CLower::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	INSTRUCTION Instr;
 
 	if(nOpcode == 0x8000033C)
 	{
-		return false;
+		return MIPS_BRANCH_NONE;
 	}
 
 	Instr.pIsBranch		= SubTableIsBranch;

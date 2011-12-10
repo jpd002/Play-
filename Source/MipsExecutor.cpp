@@ -268,8 +268,8 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
     for(uint32 address = functionAddress; address <= endAddress; address += 4)
     {
         uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
-        bool isBranch = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
-        if(isBranch)
+		MIPS_BRANCH_TYPE branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
+        if(branchType == MIPS_BRANCH_NORMAL)
         {
             partitionPoints.insert(address + 8);
             uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, address, opcode);
@@ -278,11 +278,10 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
                 partitionPoints.insert(target);
             }
         }
-        //SYSCALL or ERET
-        if(opcode == 0x0000000C || opcode == 0x42000018)
-        {
-            partitionPoints.insert(address + 4);
-        }
+		else if(branchType == MIPS_BRANCH_NODELAY)
+		{
+			partitionPoints.insert(address + 4);
+		}
         //Check if there's a block already exising that this address
         if(address != endAddress)
         {
@@ -297,14 +296,40 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
         }
     }
 
-    uint32 currentPoint = -1;
-    for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
-        pointIterator != partitionPoints.end(); pointIterator++)
-    {
-        if(currentPoint != -1)
-        {
-            CreateBlock(currentPoint, *pointIterator - 4);
-        }
-        currentPoint = *pointIterator;
-    }
+	//Check if blocks are too big
+	{
+		uint32 currentPoint = -1;
+		for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
+			pointIterator != partitionPoints.end(); pointIterator++)
+		{
+			if(currentPoint != -1)
+			{
+				uint32 startPos = currentPoint;
+				uint32 endPos = *pointIterator;
+				uint32 distance = (endPos - startPos);
+				if(distance > 0x400)
+				{
+					uint32 middlePos = ((endPos + startPos) / 2) & ~0x03;
+					pointIterator = partitionPoints.insert(middlePos).first;
+					pointIterator--;
+					continue;
+				}
+			}
+			currentPoint = *pointIterator;
+		}
+	}
+
+	//Create blocks
+	{
+		uint32 currentPoint = -1;
+		for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
+			pointIterator != partitionPoints.end(); pointIterator++)
+		{
+			if(currentPoint != -1)
+			{
+				CreateBlock(currentPoint, *pointIterator - 4);
+			}
+			currentPoint = *pointIterator;
+		}
+	}
 }

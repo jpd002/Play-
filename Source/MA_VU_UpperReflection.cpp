@@ -593,7 +593,7 @@ void CMA_VU::CUpper::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32
 	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, nCount);
 }
 
-bool CMA_VU::CUpper::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+MIPS_BRANCH_TYPE CMA_VU::CUpper::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	INSTRUCTION Instr;
 

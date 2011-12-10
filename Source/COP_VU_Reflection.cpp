@@ -245,7 +245,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	//0x38
-	{	"VCALLMS",	NULL,			CopyMnemonic,		ReflOpImm15,		NULL,						NULL			},
+	{	"VCALLMS",	NULL,			CopyMnemonic,		ReflOpImm15,		IsNoDelayBranch,			NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
@@ -510,9 +510,9 @@ void CCOP_VU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, 256);	
 }
 
-bool CCOP_VU::IsBranch(uint32 nOpcode)
+MIPS_BRANCH_TYPE CCOP_VU::IsBranch(uint32 nOpcode)
 {
-	if(nOpcode == 0) return false;
+	if(nOpcode == 0) return MIPS_BRANCH_NONE;
 
 	CMIPS* pCtx = NULL;
 
