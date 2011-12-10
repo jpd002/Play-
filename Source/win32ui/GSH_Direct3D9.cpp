@@ -795,6 +795,10 @@ void CGSH_Direct3D9::SetupDepthBuffer(uint64 nData)
 	case 16:
 		m_nMaxZ = 32768.0f;
 		break;
+	case 24:
+		m_nMaxZ = 8388608.0f;
+		break;
+	default:
 	case 32:
 		m_nMaxZ = 2147483647.0f;
 		break;

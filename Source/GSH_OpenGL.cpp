@@ -403,6 +403,12 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 		//Cs * Ad + Cd
 		glBlendFunc(GL_DST_ALPHA, GL_ONE);
 	}
+//	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
+//	{
+//		//Cd * As + Cd
+//		//Implemented as Cd * As
+//		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+//	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cd * As
@@ -413,7 +419,9 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 	}
 	else
 	{
+#ifdef _DEBUG
 		printf("GSH_OpenGL: Unknown color blending formula.\r\n");
+#endif
 	}
 
 	if(glBlendEquationEXT != NULL)
@@ -505,6 +513,9 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 	{
 	case 16:
 		m_nMaxZ = 32768.0f;
+		break;
+	case 24:
+		m_nMaxZ = 8388608.0f;
 		break;
 	default:
 	case 32:
