@@ -483,6 +483,7 @@ void CPS2VM::ResetVM()
 
     memset(m_ram,			0, PS2::EERAMSIZE);
     memset(m_spr,			0, PS2::SPRSIZE);
+	memset(m_bios,			0, PS2::EEBIOSSIZE);
 	memset(m_fakeIopRam,	0, FAKE_IOP_RAM_SIZE);
 	memset(m_pVUMem0,       0, PS2::VUMEM0SIZE);
     memset(m_pMicroMem0,    0, PS2::MICROMEM0SIZE);
