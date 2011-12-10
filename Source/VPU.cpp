@@ -428,24 +428,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
     uint128* dst = reinterpret_cast<uint128*>(&m_pVUMem[nDstAddr]);
 
-    //REMOVE
-/*
-    uint32 address = stream.GetAddress();
-    uint128* src = reinterpret_cast<uint128*>(&stream.m_ram[address]);
-    uint32 toRead = min<uint32>(stream.GetAvailableReadBytes() / 0x10, m_NUM);
-    for(unsigned int i = 0; i < toRead; i++)
-    {
-        (*dst) = (*src);
-        dst += cl;
-        src += 1;
-    }
-//    uint32 toRead = min<uint32>(stream.GetSize() / 0x10, m_NUM);
-    stream.Read(NULL, toRead * 0x10);
-    m_NUM -= toRead;
-*/
-    //REMOVE
-
-    while(m_NUM != 0 && stream.GetAvailableReadBytes())
+	while(m_NUM != 0 && stream.GetAvailableReadBytes())
     {
         bool mustWrite = false;
         uint128 writeValue;
