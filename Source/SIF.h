@@ -54,10 +54,11 @@ private:
 
 	enum CONST_SIF_CMD
 	{
-		SIF_CMD_INIT = 0x80000002,
-		SIF_CMD_REND = 0x80000008,
-		SIF_CMD_BIND = 0x80000009,
-		SIF_CMD_CALL = 0x8000000A,
+		SIF_CMD_INIT		= 0x80000002,
+		SIF_CMD_REND		= 0x80000008,
+		SIF_CMD_BIND		= 0x80000009,
+		SIF_CMD_CALL		= 0x8000000A,
+		SIF_CMD_OTHERDATA	= 0x8000000C,
 	};
 
 	struct RPCREQUESTEND
@@ -98,6 +99,18 @@ private:
 		uint32						nServerDataAddr;
 	};
 
+	struct RPCOTHERDATA
+	{
+		PACKETHDR					Header;
+		uint32						nRecordID;
+		uint32						nPacketAddr;
+		uint32						nRPCID;
+		uint32						nReceiveDataAddr;
+		uint32						nSrcPtr;
+		uint32						nDstPtr;
+		uint32						nSize;
+	};
+
 	struct SETSREG
 	{
 		PACKETHDR					Header;
@@ -130,6 +143,7 @@ private:
 	void							Cmd_Initialize(PACKETHDR*);
 	void							Cmd_Bind(PACKETHDR*);
 	void							Cmd_Call(PACKETHDR*);
+	void							Cmd_GetOtherData(PACKETHDR*);
 
     uint8*                          m_eeRam;
     uint8*                          m_iopRam;

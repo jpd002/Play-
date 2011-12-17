@@ -177,6 +177,9 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	    case SIF_CMD_CALL:
 		    Cmd_Call(pHDR);
 		    break;
+		case SIF_CMD_OTHERDATA:
+			Cmd_GetOtherData(pHDR);
+			break;
 		default:
 			{
 				PACKETHDR header;
@@ -513,6 +516,35 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
             m_callReplies[pCall->nServerDataAddr] = requestInfo;
         }
     }
+}
+
+void CSIF::Cmd_GetOtherData(PACKETHDR* hdr)
+{
+	RPCOTHERDATA* otherData = reinterpret_cast<RPCOTHERDATA*>(hdr);
+
+	uint32 dstPtr = otherData->nDstPtr & (PS2::EERAMSIZE - 1);
+	uint32 srcPtr = otherData->nSrcPtr & (PS2::IOP_RAM_SIZE - 1);
+
+	memcpy(m_eeRam + dstPtr, m_iopRam + srcPtr, otherData->nSize);
+
+	{
+		RPCREQUESTEND rend;
+		memset(&rend, 0, sizeof(RPCREQUESTEND));
+
+		//Fill in the request end 
+		rend.Header.nSize		= sizeof(RPCREQUESTEND);
+		rend.Header.nDest		= hdr->nDest;
+		rend.Header.nCID		= SIF_CMD_REND;
+		rend.Header.nOptional	= 0;
+
+		rend.nRecordID			= otherData->nRecordID;
+		rend.nPacketAddr		= otherData->nPacketAddr;
+		rend.nRPCID				= otherData->nRPCID;
+		rend.nClientDataAddr	= otherData->nReceiveDataAddr;
+		rend.nCID				= SIF_CMD_OTHERDATA;
+
+		SendPacket(&rend, sizeof(RPCREQUESTEND));
+	}
 }
 
 void CSIF::SendCallReply(uint32 serverId, void* returnData)
