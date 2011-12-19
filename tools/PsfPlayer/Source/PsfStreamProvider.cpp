@@ -19,7 +19,7 @@ CPsfStreamProvider*	CreatePsfStreamProvider(const boost::filesystem::path& archi
 //----------------------------------------------------------
 Framework::CStream*	CPhysicalPsfStreamProvider::GetStreamForPath(const boost::filesystem::path& path)
 {
-	return CreateInputStdStream(path.native());
+	return Framework::CreateInputStdStream(path.native());
 }
 
 //CArchivePsfStreamProvider

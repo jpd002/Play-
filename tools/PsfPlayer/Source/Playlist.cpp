@@ -160,7 +160,7 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 {
     Clear();
 
-	boost::scoped_ptr<Framework::CStdStream> stream(CreateInputStdStream(playlistPath.native()));
+	boost::scoped_ptr<Framework::CStdStream> stream(Framework::CreateInputStdStream(playlistPath.native()));
 	boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream.get()));
 	stream.reset();
     if(!document)
@@ -223,6 +223,6 @@ void CPlaylist::Write(const boost::filesystem::path& playlistPath)
         itemNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(PLAYLIST_ITEM_LENGTH_ATTRIBUTE, item.length));
     }
 
-	boost::scoped_ptr<Framework::CStdStream> stream(CreateOutputStdStream(playlistPath.native()));
+	boost::scoped_ptr<Framework::CStdStream> stream(Framework::CreateOutputStdStream(playlistPath.native()));
 	Framework::Xml::CWriter::WriteDocument(stream.get(), document.get());
 }
