@@ -25,9 +25,9 @@ const CSave* CMemoryCard::GetSaveByIndex(size_t nIndex) const
 	return &m_Saves[nIndex];
 }
 
-const char* CMemoryCard::GetBasePath()
+filesystem::path CMemoryCard::GetBasePath() const
 {
-	return m_BasePath.string().c_str();
+	return m_BasePath;
 }
 
 void CMemoryCard::RefreshContents()

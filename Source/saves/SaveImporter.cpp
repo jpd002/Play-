@@ -1,14 +1,11 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/device/file.hpp>
 #include "SaveImporter.h"
+#include "StdStreamUtils.h"
 
-using namespace std;
-namespace iostreams = boost::iostreams;
 namespace filesystem = boost::filesystem;
 
-CSaveImporter::CSaveImporter(OverwritePromptFunctionType OverwritePromptFunction)
+CSaveImporter::CSaveImporter(const OverwritePromptFunctionType& OverwritePromptFunction)
 {
 	m_OverwritePromptFunction = OverwritePromptFunction;
 	m_nOverwriteAll = false;
@@ -19,30 +16,28 @@ CSaveImporter::~CSaveImporter()
 
 }
 
-void CSaveImporter::ImportSave(istream& Input, const char* sOutputPath, OverwritePromptFunctionType OverwritePromptFunction)
+void CSaveImporter::ImportSave(Framework::CStream& input, const boost::filesystem::path& outputPath, const OverwritePromptFunctionType& OverwritePromptFunction)
 {
 	CSaveImporter SaveImporter(OverwritePromptFunction);
-	SaveImporter.Import(Input, sOutputPath);
+	SaveImporter.Import(input, outputPath);
 }
 
-void CSaveImporter::Import(istream& Input, const char* sOutputPath)
+void CSaveImporter::Import(Framework::CStream& input, const boost::filesystem::path& outputPath)
 {
-	uint32 nSignature;
-
-	Input.read(reinterpret_cast<char*>(&nSignature), 4);
-	Input.seekg(0, ios::beg);
+	uint32 nSignature = input.Read32();
+	input.Seek(0, Framework::STREAM_SEEK_SET);
 
 	if(nSignature == 0x00008427)
 	{
-		PSU_Import(Input, sOutputPath);
+		PSU_Import(input, outputPath);
 	}
 	else if(nSignature == 0x0000000D)
 	{
-		XPS_Import(Input, sOutputPath);
+		XPS_Import(input, outputPath);
 	}
 	else
 	{
-		throw exception("Unknown input file format.");
+		throw std::runtime_error("Unknown input file format.");
 	}
 }
 
@@ -51,9 +46,7 @@ bool CSaveImporter::CanExtractFile(const filesystem::path& Path)
 	if(!filesystem::exists(Path)) return true;
 	if(m_nOverwriteAll) return true;
 
-	OVERWRITE_PROMPT_RETURN nReturn;
-
-	nReturn = m_OverwritePromptFunction(filesystem::absolute(Path).string());
+	OVERWRITE_PROMPT_RETURN nReturn = m_OverwritePromptFunction(filesystem::absolute(Path).string());
 
 	switch(nReturn)
 	{
@@ -70,94 +63,92 @@ bool CSaveImporter::CanExtractFile(const filesystem::path& Path)
 	return false;
 }
 
-void CSaveImporter::XPS_Import(istream& Input, const char* sOutputPath)
+void CSaveImporter::XPS_Import(Framework::CStream& input, const boost::filesystem::path& outputPath)
 {
-	char sHeaderSig[0x0E];
-	uint32 nStringLength, nArchiveSize;
+	input.Seek(4, Framework::STREAM_SEEK_SET);
 
-	Input.seekg(4);
-
-	Input.read(sHeaderSig, 0x0D);
-	sHeaderSig[0x0D] = 0;
-
-	if(strcmp(sHeaderSig, "SharkPortSave"))
 	{
-		throw exception("Invalid X-Port save file.");
+		char sHeaderSig[0x0E];
+		input.Read(sHeaderSig, 0x0D);
+		sHeaderSig[0x0D] = 0;
+
+		if(strcmp(sHeaderSig, "SharkPortSave"))
+		{
+			throw std::runtime_error("Invalid X-Port save file.");
+		}
 	}
 
-	Input.seekg(0x15);
+	input.Seek(0x15, Framework::STREAM_SEEK_SET);
 
 	//Skip file title
-	Input.read(reinterpret_cast<char*>(&nStringLength), 4);
-	Input.seekg(nStringLength, ios::cur);
-
-	//Skip file date
-	Input.read(reinterpret_cast<char*>(&nStringLength), 4);
-	Input.seekg(nStringLength, ios::cur);
-
-	//Skip comment?
-	Input.read(reinterpret_cast<char*>(&nStringLength), 4);
-	Input.seekg(nStringLength, ios::cur);
-
-	Input.read(reinterpret_cast<char*>(&nArchiveSize), 4);
-	nArchiveSize += Input.tellg();
-
-	XPS_ExtractFiles(Input, sOutputPath, nArchiveSize);
-}
-
-void CSaveImporter::XPS_ExtractFiles(istream& Input, const char* sOutputPath, uint32 nArchiveSize)
-{
-	filesystem::path Path(sOutputPath, filesystem::native);
-
-	if(!filesystem::exists(Path))
 	{
-		filesystem::create_directory(Path);
+		uint32 nStringLength = input.Read32();
+		input.Seek(nStringLength, Framework::STREAM_SEEK_CUR);
 	}
 
-	while(!Input.eof() && ((uint32)Input.tellg() < nArchiveSize))
+	//Skip file date
 	{
-		uint32 nLength, nAttributes;
-		uint16 nDescriptorLength;
-		char sName[0x40];
+		uint32 nStringLength = input.Read32();
+		input.Seek(nStringLength, Framework::STREAM_SEEK_CUR);
+	}
 
-		Input.read(reinterpret_cast<char*>(&nDescriptorLength), 2);
+	//Skip comment?
+	{
+		uint32 nStringLength = input.Read32();
+		input.Seek(nStringLength, Framework::STREAM_SEEK_CUR);
+	}
 
-		Input.read(sName, 0x40);
-		Input.read(reinterpret_cast<char*>(&nLength), 4);
+	uint32 nArchiveSize = input.Read32();
+	nArchiveSize += static_cast<uint32>(input.Tell());
 
-		Input.seekg(8, ios::cur);
+	XPS_ExtractFiles(input, outputPath, nArchiveSize);
+}
 
-		Input.read(reinterpret_cast<char*>(&nAttributes), 4);
+void CSaveImporter::XPS_ExtractFiles(Framework::CStream& input, const boost::filesystem::path& basePath, uint32 nArchiveSize)
+{
+	if(!filesystem::exists(basePath))
+	{
+		filesystem::create_directory(basePath);
+	}
 
-		Input.seekg(nDescriptorLength - (0x40 + 4 + 4 + 8 + 2), ios::cur);
+	while(!input.IsEOF() && (static_cast<uint32>(input.Tell()) < nArchiveSize))
+	{
+		uint16 nDescriptorLength = input.Read16();
+
+		char sName[0x41];
+		memset(sName, 0, sizeof(sName));
+		input.Read(sName, 0x40);
+
+		uint32 nLength = input.Read32();
+		input.Seek(8, Framework::STREAM_SEEK_CUR);
+		uint32 nAttributes = input.Read32();
+
+		input.Seek(nDescriptorLength - (0x40 + 4 + 4 + 8 + 2), Framework::STREAM_SEEK_CUR);
+
+		filesystem::path outputPath(basePath / sName);
 
 		if(nAttributes & 0x2000)
 		{
-			XPS_ExtractFiles(Input, (Path / sName).string().c_str(), nArchiveSize);
+			XPS_ExtractFiles(input, outputPath, nArchiveSize);
 		}
 		else
 		{
-			filesystem::path OutputPath;
-
-			OutputPath = Path / sName;
-			if(!CanExtractFile(OutputPath))
+			if(!CanExtractFile(outputPath))
 			{
-				Input.seekg(nLength, ios::cur);
+				input.Seek(nLength, Framework::STREAM_SEEK_CUR);
 			}
 			else
 			{
-				char sBuffer[1024];
-
-				iostreams::filtering_ostream Output;
-				Output.push(iostreams::file_sink(OutputPath.string(), ios::out | ios::binary));
+				boost::scoped_ptr<Framework::CStdStream> output(Framework::CreateOutputStdStream(outputPath.native()));
 
 				while(nLength != 0)
 				{
-					unsigned int nRead;
+					const int bufferSize = 1024;
+					char sBuffer[bufferSize];
 
-					nRead = min<unsigned int>(nLength, 1024);
-					Input.read(sBuffer, nRead);
-					Output.write(sBuffer, nRead);
+					unsigned int nRead = std::min<unsigned int>(nLength, bufferSize);
+					input.Read(sBuffer, nRead);
+					output->Write(sBuffer, nRead);
 
 					nLength -= nRead;
 				}
@@ -166,73 +157,68 @@ void CSaveImporter::XPS_ExtractFiles(istream& Input, const char* sOutputPath, ui
 	}
 }
 
-void CSaveImporter::PSU_Import(istream& Input, const char* sOutputPath)
+void CSaveImporter::PSU_Import(Framework::CStream& input, const boost::filesystem::path& basePath)
 {
-	filesystem::path Path(sOutputPath, filesystem::native);
-	uint16 nEntryType;
-
-	if(!filesystem::exists(Path))
+	if(!filesystem::exists(basePath))
 	{
-		filesystem::create_directory(Path);
+		filesystem::create_directory(basePath);
 	}
 
-	Input.read(reinterpret_cast<char*>(&nEntryType), 2);
+	uint16 nEntryType = input.Read16();
 
-	while(!Input.eof())
+	while(!input.IsEOF())
 	{
-		uint32 nEntrySize;
 		char sEntryName[0x1C0];
 
-		Input.seekg(2, ios::cur);
-		Input.read(reinterpret_cast<char*>(&nEntrySize), 4);
-		Input.seekg(0x38, ios::cur);
-		Input.read(sEntryName, 0x1C0);
+		input.Seek(2, Framework::STREAM_SEEK_CUR);
+		uint32 nEntrySize = input.Read32();
+		input.Seek(0x38, Framework::STREAM_SEEK_CUR);
+		input.Read(sEntryName, 0x1C0);
 
 		if(nEntryType == 0x8427)
 		{
 			if(nEntrySize != 0)
 			{
-				PSU_Import(Input, (Path / sEntryName).string().c_str());
+				PSU_Import(input, (basePath / sEntryName));
+
+				if(input.IsEOF())
+				{
+					break;
+				}
 			}
 		}
 		else if(nEntryType == 0x8497)
 		{
-			filesystem::path OutputPath;
-
-			OutputPath = Path / sEntryName;
-			if(!CanExtractFile(OutputPath))
+			filesystem::path outputPath = basePath / sEntryName;
+			if(!CanExtractFile(outputPath))
 			{
-				Input.seekg(nEntrySize, ios::cur);
+				input.Seek(nEntrySize, Framework::STREAM_SEEK_CUR);
 			}
 			else
 			{
-				unsigned int nEntrySizeDrain;
+				boost::scoped_ptr<Framework::CStdStream> output(Framework::CreateOutputStdStream(outputPath.native()));
 
-				iostreams::filtering_ostream Output;
-				Output.push(iostreams::file_sink(OutputPath.string(), ios::out | ios::binary));
-
-				nEntrySizeDrain = nEntrySize;
+				unsigned int nEntrySizeDrain = nEntrySize;
 
 				while(nEntrySizeDrain != 0)
 				{
-					unsigned int nRead;
 					char sBuffer[1024];
+					unsigned int nRead = std::min<unsigned int>(nEntrySizeDrain, 1024);
 
-					nRead = min<unsigned int>(nEntrySizeDrain, 1024);
-					Input.read(sBuffer, nRead);
-					Output.write(sBuffer, nRead);
+					input.Read(sBuffer, nRead);
+					output->Write(sBuffer, nRead);
 
 					nEntrySizeDrain -= nRead;
 				}
 			}
 
-			Input.seekg(0x400 - (nEntrySize & 0x3FF), ios::cur);
+			input.Seek(0x400 - (nEntrySize & 0x3FF), Framework::STREAM_SEEK_CUR);
 		}
 		else
 		{
-			throw exception("Invalid entry type encountered.");
+			throw std::runtime_error("Invalid entry type encountered.");
 		}
 
-		Input.read(reinterpret_cast<char*>(&nEntryType), 2);
+		nEntryType = input.Read16();
 	}
 }

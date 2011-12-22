@@ -17,7 +17,7 @@ public:
 	size_t							GetSaveCount() const;
 	const CSave*					GetSaveByIndex(size_t) const;
 
-	const char*						GetBasePath();
+	boost::filesystem::path			GetBasePath() const;
 	void							RefreshContents();
 
 private:

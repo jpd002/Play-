@@ -1,10 +1,10 @@
 #ifndef _SAVEIMPORTER_H_
 #define _SAVEIMPORTER_H_
 
-#include <iostream>
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/filesystem/path.hpp>
 #include "Types.h"
+#include "Stream.h"
 
 class CSaveImporter
 {
@@ -16,21 +16,21 @@ public:
 		OVERWRITE_NO,
 	};
 
-	typedef boost::function< OVERWRITE_PROMPT_RETURN (const std::string&) > OverwritePromptFunctionType;
+	typedef std::tr1::function< OVERWRITE_PROMPT_RETURN (const std::string&) > OverwritePromptFunctionType;
 
-	static void						ImportSave(std::istream&, const char*, OverwritePromptFunctionType);
+	static void						ImportSave(Framework::CStream&, const boost::filesystem::path&, const OverwritePromptFunctionType&);
 
 private:
 
-									CSaveImporter(OverwritePromptFunctionType);
-									~CSaveImporter();
+									CSaveImporter(const OverwritePromptFunctionType&);
+	virtual							~CSaveImporter();
 
 	bool							CanExtractFile(const boost::filesystem::path&);
 
-	void							Import(std::istream&, const char*);
-	void							XPS_Import(std::istream&, const char*);
-	void							XPS_ExtractFiles(std::istream&, const char*, uint32);
-	void							PSU_Import(std::istream&, const char*);
+	void							Import(Framework::CStream&, const boost::filesystem::path&);
+	void							XPS_Import(Framework::CStream&, const boost::filesystem::path&);
+	void							XPS_ExtractFiles(Framework::CStream&, const boost::filesystem::path&, uint32);
+	void							PSU_Import(Framework::CStream&, const boost::filesystem::path&);
 
 	OverwritePromptFunctionType		m_OverwritePromptFunction;
 	bool							m_nOverwriteAll;
