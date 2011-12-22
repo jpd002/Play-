@@ -281,6 +281,14 @@ void VUShared::ADDAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint
         true);
 }
 
+void VUShared::ADDAi(CMipsJitter* codeGen, uint8 dest, uint8 fs)
+{
+	ADDA_base(codeGen, dest,
+		offsetof(CMIPS, m_State.nCOP2[fs]),
+		offsetof(CMIPS, m_State.nCOP2I),
+		true);
+}
+
 void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 {
 	//Create some space for the new test results
