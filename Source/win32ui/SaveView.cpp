@@ -3,6 +3,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "../saves/SaveExporter.h"
+#include "../AppDef.h"
 #include "SaveView.h"
 #include "string_cast.h"
 #include "win32/Static.h"
@@ -243,7 +244,7 @@ long CSaveView::Export()
 		return FALSE;
 	}
 
-	MessageBox(m_hWnd, _T("Save exported successfully."), NULL, MB_ICONINFORMATION); 
+	MessageBox(m_hWnd, _T("Save exported successfully."), APP_NAME, MB_ICONINFORMATION); 
 
 	return FALSE;
 }
