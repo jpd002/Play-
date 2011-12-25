@@ -41,6 +41,7 @@ public:
 
 	boost::signal<void ()>                      m_OnExecutableChange;
 	boost::signal<void ()>                      m_OnExecutableUnloading;
+	boost::signal<void ()>						m_OnRequestInstructionCacheFlush;
 
 private:
 	class CRoundRibbon

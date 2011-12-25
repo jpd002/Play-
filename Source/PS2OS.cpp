@@ -60,12 +60,14 @@
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
 #define SYSCALL_NAME_STARTTHREAD			"osStartThread"
 #define SYSCALL_NAME_ICHANGETHREADPRIORITY	"osiChangeThreadPriority"
+#define SYSCALL_NAME_ROTATETHREADREADYQUEUE	"osRotateThreadReadyQueue"
 #define SYSCALL_NAME_GETTHREADID			"osGetThreadId"
 #define SYSCALL_NAME_REFERTHREADSTATUS		"osReferThreadStatus"
 #define SYSCALL_NAME_IREFERTHREADSTATUS		"osiReferThreadStatus"
 #define SYSCALL_NAME_SLEEPTHREAD			"osSleepThread"
 #define SYSCALL_NAME_WAKEUPTHREAD			"osWakeupThread"
 #define SYSCALL_NAME_IWAKEUPTHREAD			"osiWakeupThread"
+#define SYSCALL_NAME_ENDOFHEAP				"osEndOfHeap"
 #define SYSCALL_NAME_CREATESEMA				"osCreateSema"
 #define SYSCALL_NAME_DELETESEMA				"osDeleteSema"
 #define SYSCALL_NAME_SIGNALSEMA				"osSignalSema"
@@ -75,6 +77,7 @@
 #define SYSCALL_NAME_FLUSHCACHE				"osFlushCache"
 #define SYSCALL_NAME_SIFDMASTAT				"osSifDmaStat"
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
+#define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
 
 #ifdef DEBUGGER_INCLUDED
 
@@ -85,12 +88,14 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
 	{	0x0022,		SYSCALL_NAME_STARTTHREAD			},
 	{	0x002A,		SYSCALL_NAME_ICHANGETHREADPRIORITY	},
+	{	0x002B,		SYSCALL_NAME_ROTATETHREADREADYQUEUE	},
 	{	0x002F,		SYSCALL_NAME_GETTHREADID			},
 	{	0x0030,		SYSCALL_NAME_REFERTHREADSTATUS		},
 	{	0x0031,		SYSCALL_NAME_IREFERTHREADSTATUS		},
 	{	0x0032,		SYSCALL_NAME_SLEEPTHREAD			},
 	{	0x0033,		SYSCALL_NAME_WAKEUPTHREAD			},
 	{	0x0034,		SYSCALL_NAME_IWAKEUPTHREAD			},
+	{	0x003E,		SYSCALL_NAME_ENDOFHEAP				},
 	{	0x0040,		SYSCALL_NAME_CREATESEMA				},
 	{	0x0041,		SYSCALL_NAME_DELETESEMA				},
 	{	0x0042,		SYSCALL_NAME_SIGNALSEMA				},
@@ -100,6 +105,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0064,		SYSCALL_NAME_FLUSHCACHE				},
 	{	0x0076,		SYSCALL_NAME_SIFDMASTAT				},
 	{	0x0077,		SYSCALL_NAME_SIFSETDMA				},
+	{	0x0078,		SYSCALL_NAME_SIFSETDCHAIN			},
 	{	0x0000,		NULL								}
 };
 
@@ -388,8 +394,6 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName)
 		throw std::runtime_error("Not an executable ELF file.");
 	}
 	
-//	CPS2VM::Pause();
-
 	UnloadExecutable();
 
 	m_pELF = pELF;
@@ -397,62 +401,6 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName)
 	m_sExecutableName = sExecName;
 
 	LoadExecutable();
-
-	//Just a test
-//	pStream = new CStdStream(fopen("./vfs/host/sjpcm.irx", "rb"));
-//	pStream = new CStdStream(fopen("./vfs/host/padman.irx", "rb"));
-//	pELF = new CELF(pStream);
-//	memcpy(m_ram + 0x01000000, pELF->m_pData, pELF->m_nLenght);
-//	delete pELF;
-
-//	for(int i = 0; i < 0x02000000 / 4; i++)
-//	{
-//		uint32 nVal = ((uint32*)m_ram)[i];
-//		if((nVal & 0xFFFF) == 0x0180)
-//		{
-/*
-            for(unsigned int j = i; j < i + 0x30; j += 4)
-            {
-		        uint32 nVal = ((uint32*)m_ram)[j];
-		        if((nVal & 0xFC000000) == 0x0C000000)
-		        {
-			        nVal &= 0x3FFFFFF;
-			        nVal *= 4;
-			        if(nVal == 0x2D0F40)
-			        {
-                        printf("Caller at %i:\r\n", j - i);
-			        }
-		        }
-            }
-			if((nVal & 0xFC000000) != 0x0C000000)
-            if((nVal & 0xFC000000) == 0x23 << 26)
-            {
-				printf("Ballo: 0x%0.8X\r\n", i * 4);
-            }
-*/
-//            if((nVal & 0xFC000000) == 0x09 << 26)
-//			{
-//				printf("Allo: 0x%0.8X\r\n", i * 4);
-//			}
-//		}
-//	}
-
-//    for(int i = 0; i < 0x02000000 / 4; i++)
-//    {
-//        uint32 nVal = ((uint32*)m_ram)[i];
-//        if((nVal & 0xFFFF) == 0x5500)
-//        {
-//            printf("Allo: 0x%0.8X\r\n", i * 4);
-//        }
-//    }
-
-    //REMOVE
-//    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x00]) = 0x4BE5213C;
-//    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x04]) = 0x700845C8;
-//    *reinterpret_cast<uint32*>(&m_ram[m_ee.m_State.nPC + 0x08]) = 0x0000000C;
-//    *reinterpret_cast<uint32*>(&m_ram[0x002D2080]) = 0;
-    //------
-
 	ApplyPatches();
 
 	m_OnExecutableChange();
@@ -2032,15 +1980,18 @@ void CPS2OS::sc_ReferSemaStatus()
 //64
 void CPS2OS::sc_FlushCache()
 {
-
+	uint32 operationType = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	if(operationType == 2)
+	{
+		//Flush instruction cache
+		m_OnRequestInstructionCacheFlush();
+	}
 }
 
 //71
 void CPS2OS::sc_GsPutIMR()
 {
-	uint32 nIMR;
-
-	nIMR = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nIMR = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	if(m_gs != NULL)
 	{
@@ -2051,10 +2002,8 @@ void CPS2OS::sc_GsPutIMR()
 //73
 void CPS2OS::sc_SetVSyncFlag()
 {
-	uint32 nPtr1, nPtr2;
-
-	nPtr1	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nPtr2	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 nPtr1	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nPtr2	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	*(uint32*)&m_ram[nPtr1] = 0x01;
 
@@ -2382,7 +2331,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2B:
-		sprintf(sDescription, "RotateThreadReadyQueue(prio = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_ROTATETHREADREADYQUEUE "(prio = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2F:
@@ -2413,7 +2362,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x3E:
-		sprintf(sDescription, "EndOfHeap();");
+		sprintf(sDescription, SYSCALL_NAME_ENDOFHEAP "();");
 		break;
 	case 0x40:
 		sprintf(sDescription, SYSCALL_NAME_CREATESEMA "(sema = 0x%0.8X);", \
@@ -2478,7 +2427,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x78:
-		sprintf(sDescription, "SifSetDChain();");
+		sprintf(sDescription, SYSCALL_NAME_SIFSETDCHAIN "();");
 		break;
 	case 0x79:
 		sprintf(sDescription, "SifSetReg(register = 0x%0.8X, value = 0x%0.8X);", \
