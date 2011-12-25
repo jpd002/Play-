@@ -4,11 +4,14 @@
 #define LOG_NAME            "iop_cdvdman"
 
 #define FUNCTION_CDREAD         "CdRead"
+#define FUNCTION_CDSEEK			"CdSeek"
 #define FUNCTION_CDGETERROR     "CdGetError"
 #define FUNCTION_CDSEARCHFILE	"CdSearchFile"
 #define FUNCTION_CDSYNC         "CdSync"
 #define FUNCTION_CDGETDISKTYPE  "CdGetDiskType"
 #define FUNCTION_CDDISKREADY    "CdDiskReady"
+#define FUNCTION_CDREADCLOCK	"CdReadClock"
+#define FUNCTION_CDSTATUS		"CdStatus"
 
 using namespace Iop;
 using namespace std;
@@ -37,6 +40,9 @@ string CCdvdman::GetFunctionName(unsigned int functionId) const
     case 6:
         return FUNCTION_CDREAD;
         break;
+	case 7:
+		return FUNCTION_CDSEEK;
+		break;
     case 8:
         return FUNCTION_CDGETERROR;
         break;
@@ -52,6 +58,12 @@ string CCdvdman::GetFunctionName(unsigned int functionId) const
     case 13:
         return FUNCTION_CDDISKREADY;
         break;
+	case 24:
+		return FUNCTION_CDREADCLOCK;
+		break;
+	case 28:
+		return FUNCTION_CDSTATUS;
+		break;
     default:
         return "unknown";
         break;
@@ -69,6 +81,11 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
             ctx.m_State.nGPR[CMIPS::A2].nV0,
             ctx.m_State.nGPR[CMIPS::A3].nV0);
         break;
+	case 7:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSeek(
+			ctx.m_State.nGPR[CMIPS::A0].nV0
+			);
+		break;
     case 8:
         ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetError();
         break;
@@ -86,6 +103,12 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
     case 13:
         ctx.m_State.nGPR[CMIPS::V0].nV0 = CdDiskReady(ctx.m_State.nGPR[CMIPS::A0].nV0);
         break;
+	case 24:
+        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadClock(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 28:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStatus();
+		break;
     default:
         CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
             functionId);
@@ -119,6 +142,13 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
         }
     }
     return 1;
+}
+
+uint32 CCdvdman::CdSeek(uint32 sector)
+{
+    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEEK "(sector = 0x%X);\r\n",
+        sector);
+	return 1;
 }
 
 uint32 CCdvdman::CdGetError()
@@ -203,4 +233,31 @@ uint32 CCdvdman::CdDiskReady(uint32 mode)
     CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %i);\r\n",
         mode);
     return 2;
+}
+
+uint32 CCdvdman::CdReadClock(uint32 clockPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADCLOCK "(clockPtr = %0.8X);\r\n",
+		clockPtr);
+
+	time_t currentTime = time(0);
+	tm* localTime = localtime(&currentTime);
+
+	uint8* clockResult = m_ram + clockPtr;
+	clockResult[0] = 0x01;											//Status ?
+	clockResult[1] = static_cast<uint8>(localTime->tm_sec);			//Seconds
+	clockResult[2] = static_cast<uint8>(localTime->tm_min);			//Minutes
+	clockResult[3] = static_cast<uint8>(localTime->tm_hour);		//Hour
+	clockResult[4] = 0;												//Week
+	clockResult[5] = static_cast<uint8>(localTime->tm_mday);		//Day
+	clockResult[6] = static_cast<uint8>(localTime->tm_mon);			//Month
+	clockResult[7] = static_cast<uint8>(localTime->tm_year % 100);	//Year
+
+	return 0;
+}
+
+uint32 CCdvdman::CdStatus()
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
+	return 0;
 }
