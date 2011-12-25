@@ -144,6 +144,7 @@ CPS2VM::CPS2VM()
     m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
     m_iopOs = static_cast<CIopBios*>(m_iopOsPtr.get());
     m_os = new CPS2OS(m_EE, m_ram, m_bios, m_pGS, m_sif, *m_iopOs);
+	m_os->m_OnRequestInstructionCacheFlush.connect(std::tr1::bind(&CPS2VM::FlushInstructionCache, this));
 }
 
 CPS2VM::~CPS2VM()
@@ -1040,11 +1041,16 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 			else
 			{
 #ifdef _DEBUG
-			printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n", m_EE.m_State.nPC);
+				printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n", m_EE.m_State.nPC);
 #endif
 			}
 		}
 	}
+}
+
+void CPS2VM::FlushInstructionCache()
+{
+	m_executor.Reset();
 }
 
 void CPS2VM::EmuThread()
@@ -1066,37 +1072,6 @@ void CPS2VM::EmuThread()
 		}
 		if(m_nStatus == RUNNING)
         {
-			if(m_nVBlankTicks <= 0)
-			{
-				m_nInVBlank = !m_nInVBlank;
-				if(m_nInVBlank)
-				{
-					m_nVBlankTicks += VBLANK_TICKS;
-					m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
-					m_iop.NotifyVBlankStart();
-
-                    if(m_pGS != NULL)
-                    {
-					    m_pGS->SetVBlank();
-                    }
-
-                    if(m_pPad != NULL)
-                    {
-                        m_pPad->Update(m_ram);
-                    }
-				}
-				else
-				{
-					m_nVBlankTicks += ONSCREEN_TICKS;
-                    m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
-					m_iop.NotifyVBlankEnd();
-					if(m_pGS != NULL)
-					{
-						m_pGS->ResetVBlank();
-					}
-				}
-			}
-
             //if(m_spuUpdateTicks <= 0)
             //{
             //    UpdateSpu();
@@ -1126,6 +1101,38 @@ void CPS2VM::EmuThread()
 					if(m_intc.IsInterruptPending())
 					{
 						m_os->ExceptionHandler();
+					}
+				}
+
+				//Check vblank stuff
+				if(m_nVBlankTicks <= 0)
+				{
+					m_nInVBlank = !m_nInVBlank;
+					if(m_nInVBlank)
+					{
+						m_nVBlankTicks += VBLANK_TICKS;
+						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
+						m_iop.NotifyVBlankStart();
+
+						if(m_pGS != NULL)
+						{
+							m_pGS->SetVBlank();
+						}
+
+						if(m_pPad != NULL)
+						{
+							m_pPad->Update(m_ram);
+						}
+					}
+					else
+					{
+						m_nVBlankTicks += ONSCREEN_TICKS;
+						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
+						m_iop.NotifyVBlankEnd();
+						if(m_pGS != NULL)
+						{
+							m_pGS->ResetVBlank();
+						}
 					}
 				}
 

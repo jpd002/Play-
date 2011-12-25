@@ -104,8 +104,6 @@ public:
     uint32                      Vu1IoPortReadHandler(uint32);
     uint32                      Vu1IoPortWriteHandler(uint32, uint32);
 
-	void                        EEMemWriteHandler(uint32);
-
 	CGSHandler*				    m_pGS;
 	CPadHandler*				m_pPad;
 
@@ -150,6 +148,9 @@ private:
     void						DestroyVM();
     void                        SaveVMState(const char*, unsigned int&);
     void                        LoadVMState(const char*, unsigned int&);
+
+	void                        EEMemWriteHandler(uint32);
+	void						FlushInstructionCache();
 
     void                        ResumeImpl();
     void                        PauseImpl();
