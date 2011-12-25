@@ -173,22 +173,37 @@ void CMA_VU::CLower::ILW()
 //05
 void CMA_VU::CLower::ISW()
 {
-    //Push context
-	m_codeGen->PushCtx();
+	//Compute value to store
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	m_codeGen->PushCst(0xFFFF);
+	m_codeGen->And();
 
-    //Compute value
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-    m_codeGen->PushCst(0xFFFF);
-    m_codeGen->And();
-
-    //Compute address
-    VUShared::ComputeMemAccessAddr(
+	//Compute address
+	VUShared::ComputeMemAccessAddr(
 		m_codeGen,
-        m_nIS,
-        static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-        GetDestOffset(m_nDest));
+		m_nIS,
+		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+		0);
 
-    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
+		{
+			m_codeGen->PushCtx();
+			m_codeGen->PushIdx(2);
+			m_codeGen->PushIdx(2);
+			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+		}
+
+		if(i != 3)
+		{
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
+		}
+	}
+
+	m_codeGen->PullTop();
+	m_codeGen->PullTop();
 }
 
 //08
@@ -822,6 +837,38 @@ void CMA_VU::CLower::WAITQ()
     VUShared::WAITQ(m_codeGen);
 }
 
+//0F
+void CMA_VU::CLower::ISWR()
+{
+	//Compute value to store
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	m_codeGen->PushCst(0xFFFF);
+	m_codeGen->And();
+
+	//Compute address
+	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
+		{
+			m_codeGen->PushCtx();
+			m_codeGen->PushIdx(2);
+			m_codeGen->PushIdx(2);
+			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+		}
+
+		if(i != 3)
+		{
+			m_codeGen->PushCst(4);
+			m_codeGen->Add();
+		}
+	}
+
+	m_codeGen->PullTop();
+	m_codeGen->PullTop();
+}
+
 //1C
 void CMA_VU::CLower::ERLENG()
 {
@@ -961,7 +1008,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
 	//0x00
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::WAITQ,			&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::WAITQ,			&CMA_VU::CLower::ISWR,
 	//0x10
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18

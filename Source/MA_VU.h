@@ -105,6 +105,7 @@ private:
         void                                ITOF12();
         void                                FTOI12();
 		void							    MULAi();
+		void								ADDAi();
 		void							    MULA();
 		void							    OPMULA();
 
@@ -297,6 +298,7 @@ private:
 
 		//Vector3
 		void							    WAITQ();
+		void								ISWR();
 		void							    ERLENG();
         void                                WAITP();
 
