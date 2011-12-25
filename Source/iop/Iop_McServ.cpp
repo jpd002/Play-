@@ -7,8 +7,6 @@
 #include "Iop_McServ.h"
 
 using namespace Iop;
-using namespace Framework;
-using namespace std;
 namespace filesystem = boost::filesystem;
 
 #define LOG_NAME ("iop_mcserv")
@@ -38,19 +36,19 @@ CMcServ::~CMcServ()
 	}
 }
 
-string CMcServ::GetId() const
+std::string CMcServ::GetId() const
 {
     return "mcserv";
 }
 
-string CMcServ::GetFunctionName(unsigned int) const
+std::string CMcServ::GetFunctionName(unsigned int) const
 {
     return "unknown";
 }
 
 void CMcServ::Invoke(CMIPS& context, unsigned int functionId)
 {
-    throw runtime_error("Not implemented.");
+	throw std::runtime_error("Not implemented.");
 }
 
 bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -91,17 +89,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	}
     return true;
 }
-/*
-void CMcServ::SaveState(CStream* pStream)
-{
 
-}
-
-void CMcServ::LoadState(CStream* pStream)
-{
-
-}
-*/
 void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(argsSize >= 0x1C);
@@ -153,16 +141,25 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		return;
 	}
 
-	filesystem::path Path;
+	filesystem::path filePath;
 
 	try
 	{
-		Path = filesystem::path(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
-		Path /= pCmd->sName;
+		filesystem::path mcPath = filesystem::path(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]));
+		filesystem::path requestedFilePath(pCmd->sName);
+
+		if(!requestedFilePath.root_directory().empty())
+		{
+			filePath = mcPath / requestedFilePath;
+		}
+		else
+		{
+			filePath = mcPath / m_currentDirectory / requestedFilePath;
+		}
 	}
-	catch(const exception& Exception)
+	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Error while executing Open: %s\r\n.", Exception.what());
+		CLog::GetInstance().Print(LOG_NAME, "Error while executing Open: %s\r\n.", exception.what());
 		ret[0] = -1;
 		return;
 	}
@@ -173,7 +170,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
         uint32 result = -1;
         try
         {
-            filesystem::create_directory(Path);
+            filesystem::create_directory(filePath);
             result = 0;
         }
         catch(...)
@@ -188,16 +185,14 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	    const char* sAccess = NULL;
 	    switch(pCmd->nFlags)
 	    {
-	    case 0x01:
-            //RDONLY
+	    case O_RDONLY:
 		    sAccess = "rb";
 		    break;
-        case 0x02:
-            //WRONLY
+        case O_WRONLY:
             sAccess = "r+b";
             break;
-        case 0x202:
-            //CREATE WRITE
+        case (O_CREAT | O_WRONLY):
+		case (O_CREAT | O_RDWR):
             sAccess = "wb";
             break;
 	    }
@@ -209,7 +204,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		    return;
 	    }
 
-	    FILE* pFile = fopen(Path.string().c_str(), sAccess);
+	    FILE* pFile = fopen(filePath.string().c_str(), sAccess);
 	    if(pFile == NULL)
 	    {
             //-4 for not existing file?
@@ -354,15 +349,33 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 	try
 	{
-		filesystem::path McPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
-        McPath /= pCmd->sName;
+		filesystem::path newCurrentDirectory;
+		filesystem::path requestedDirectory(pCmd->sName);
 
-        if(filesystem::exists(McPath) && filesystem::is_directory(McPath))
+		if(!requestedDirectory.root_directory().empty())
 		{
+			newCurrentDirectory = requestedDirectory;
+		}
+		else
+		{
+			newCurrentDirectory = m_currentDirectory / requestedDirectory;
+		}
+
+		filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]));
+        mcPath /= newCurrentDirectory;
+
+        if(filesystem::exists(mcPath) && filesystem::is_directory(mcPath))
+		{
+			m_currentDirectory = newCurrentDirectory;
             nRet = 0;
 		}
+		else
+		{
+			//Not found (I guess)
+			nRet = -4;
+		}
 	}
-	catch(const exception& Exception)
+	catch(const std::exception& Exception)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Error while executing GetDir: %s\r\n.", Exception.what());
 	}
@@ -394,18 +407,19 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
         {
             m_pathFinder.Reset();
 
-		    filesystem::path McPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]), filesystem::native);
-			McPath = filesystem::absolute(McPath);
+		    filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]));
+			mcPath /= m_currentDirectory;
+			mcPath = filesystem::absolute(mcPath);
 
-		    if(filesystem::exists(McPath))
+		    if(filesystem::exists(mcPath))
 		    {
-                m_pathFinder.Search(McPath, pCmd->sName);
+                m_pathFinder.Search(mcPath, pCmd->sName);
 		    }
         }
 
         nRet = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[pCmd->nTableAddress]), pCmd->nMaxEntries);
 	}
-	catch(const exception& Exception)
+	catch(const std::exception& Exception)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Error while executing GetDir: %s\r\n.", Exception.what());
 	}
@@ -470,7 +484,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& BasePath, const
     {
         m_sFilter = "/" + m_sFilter;
     }
-    if(m_sFilter.find('?') != string::npos)
+	if(m_sFilter.find('?') != std::string::npos)
     {
         m_matcher = &CPathFinder::QuestionMarkFilterMatcher;
     }

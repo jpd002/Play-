@@ -19,13 +19,19 @@ namespace Iop
         std::string         GetFunctionName(unsigned int) const;
         void                Invoke(CMIPS&, unsigned int);
         virtual bool		Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-//		virtual void		SaveState(Framework::CStream*);
-//		virtual void		LoadState(Framework::CStream*);
 
 	private:
 		enum MODULE_ID
 		{
 			MODULE_ID = 0x80000400,
+		};
+
+		enum OPEN_FLAGS
+		{
+			O_RDONLY	= 0x00000001,
+			O_WRONLY	= 0x00000002,
+			O_RDWR		= 0x00000003,
+			O_CREAT		= 0x00000200,
 		};
 
         struct CMD
@@ -115,11 +121,11 @@ namespace Iop
 
 		typedef std::map<uint32, FILE*> HandleMap;
 
-		HandleMap			m_Handles;
-		static const char*	m_sMcPathPreference[2];
-		uint32				m_nNextHandle;
-        std::string         m_currentDirectory;
-        CPathFinder         m_pathFinder;
+		HandleMap					m_Handles;
+		static const char*			m_sMcPathPreference[2];
+		uint32						m_nNextHandle;
+		boost::filesystem::path		m_currentDirectory;
+        CPathFinder					m_pathFinder;
 	};
 
 }
