@@ -357,10 +357,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ArrayStack.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\BasicBlock.cpp"
 				>
 			</File>
@@ -650,14 +646,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\SifModuleAdapter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\ThreadMsg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\ThreadMsg.h"
 				>
 			</File>
 			<File
@@ -1397,14 +1385,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\CallStackWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\CallStackWnd.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\win32ui\CdromSelectionWnd.cpp"
 				>
 			</File>
@@ -1429,103 +1409,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\DebugExpressionEvaluator.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DebugExpressionEvaluator.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\Debugger.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\Debugger.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DebuggerChildWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DebuggerChildWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DebugView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DebugView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DisAsm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DisAsm.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DisAsmWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\DisAsmWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFHeaderView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFHeaderView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFProgramView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFProgramView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFSectionView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFSectionView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFSymbolView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFSymbolView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\ELFView.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\win32ui\FileFilters.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\FunctionsView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\FunctionsView.h"
 				>
 			</File>
 			<File
@@ -1557,14 +1441,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\IconView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\IconView.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\win32ui\InputBindingSelectionWindow.cpp"
 				>
 			</File>
@@ -1593,83 +1469,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\McManagerWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\McManagerWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryCard.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryCard.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryCardView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryCardView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryViewMIPS.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryViewMIPS.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryViewMIPSWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryViewMIPSWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryViewPtr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\MemoryViewPtr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\NiceTabs.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\NiceTabs.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\win32ui\OptionWnd.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\win32ui\OptionWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\OsEventViewWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\OsEventViewWnd.h"
 				>
 			</File>
 			<File
@@ -1689,54 +1493,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\win32ui\RegViewFPU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewFPU.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewGeneral.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewGeneral.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewPage.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewPage.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewSCU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewSCU.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewVU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewVU.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\RegViewWnd.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\win32ui\RendererSettingsWnd.cpp"
 				>
 			</File>
@@ -1750,18 +1506,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\win32ui\resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\SaveView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\SaveView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\win32ui\SaveView_IconView.cpp"
 				>
 			</File>
 			<File
@@ -1854,6 +1598,262 @@
 				RelativePath=".\Source\win32ui\WinUtils.h"
 				>
 			</File>
+			<Filter
+				Name="McManager"
+				>
+				<File
+					RelativePath=".\Source\win32ui\IconMesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\IconMesh.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\McManagerWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\McManagerWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryCard.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryCard.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryCardView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryCardView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\SaveIconView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\SaveIconView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\SaveView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\SaveView.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Debugger"
+				>
+				<File
+					RelativePath=".\Source\win32ui\CallStackWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\CallStackWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DebugExpressionEvaluator.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DebugExpressionEvaluator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\Debugger.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\Debugger.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DebuggerChildWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DebuggerChildWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DebugView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DebugView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DisAsm.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DisAsm.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DisAsmWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\DisAsmWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFHeaderView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFHeaderView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFProgramView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFProgramView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFSectionView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFSectionView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFSymbolView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFSymbolView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\ELFView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\FunctionsView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\FunctionsView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryViewMIPS.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryViewMIPS.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryViewMIPSWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryViewMIPSWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryViewPtr.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\MemoryViewPtr.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\NiceTabs.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\NiceTabs.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\OsEventViewWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\OsEventViewWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewFPU.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewFPU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewGeneral.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewGeneral.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewPage.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewPage.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewSCU.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewSCU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewVU.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewVU.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\win32ui\RegViewWnd.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resources"

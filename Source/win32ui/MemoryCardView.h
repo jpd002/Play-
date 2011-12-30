@@ -3,12 +3,12 @@
 
 #include <boost/thread.hpp>
 #include <boost/signal.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
+#include <map>
 #include "win32/Window.h"
 #include "win32/ClientDeviceContext.h"
 #include "MemoryCard.h"
-#include "IconView.h"
-#include "../ThreadMsg.h"
+#include "IconMesh.h"
+#include "../MailBox.h"
 
 class CMemoryCardView : public Framework::Win32::CWindow
 {
@@ -54,39 +54,34 @@ private:
 		void									SetMemoryCard(const CMemoryCard*);
 
 	private:
-		typedef boost::ptr_map<unsigned int, CIconView> IconList;
+		typedef std::map<unsigned int, IconMeshPtr> IconList;
 
-		Framework::Win32::CClientDeviceContext	m_DeviceContext;
-		static PIXELFORMATDESCRIPTOR			m_PFD;
+		void									ThreadProc();
+		void									ThreadSetMemoryCard(const CMemoryCard*);
+
+		Framework::Win32::CClientDeviceContext	m_deviceContext;
+		static const PIXELFORMATDESCRIPTOR		m_PFD;
 		HGLRC									m_hRC;
-		IconList								m_Icons;
-		const CViewState*						m_pViewState;
-		const CMemoryCard*						m_pMemoryCard;
+		IconList								m_icons;
+		const CViewState*						m_viewState;
+		const CMemoryCard*						m_memoryCard;
+
+		CMailBox								m_mailBox;
+		boost::thread*							m_thread;
+		bool									m_threadOver;
 	};
 
-	enum THREADMSG
-	{
-		THREAD_END,
-		THREAD_SETMEMORYCARD,
-	};
-
-	void								ThreadProc();
 	void								UpdateScroll();
 	void								UpdateScrollPosition();
 	void								UpdateGeometry();
 	void								SetSelection(unsigned int);
 	void								EnsureItemFullyVisible(unsigned int);
 
-	CThreadMsg							m_MailSlot;
-	CViewState							m_ViewState;
-	boost::thread*						m_pThread;
-
-	unsigned int						m_nItemCount;
-
-	HDC									m_hDC;
-	HGLRC								m_hRC;
+	unsigned int						m_itemCount;
+	CViewState							m_viewState;
 	
-	CMemoryCard*						m_pMemoryCard;
+	CMemoryCard*						m_memoryCard;
+	CRender*							m_render;
 };
 
 #endif

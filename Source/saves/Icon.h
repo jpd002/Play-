@@ -2,22 +2,23 @@
 #define _ICON_H_
 
 #include "Types.h"
-#include <iostream>
+#include "Stream.h"
+#include <memory>
 
 class CIcon
 {
 public:
 	struct VERTEX
 	{
-		double		nX;
-		double		nY;
-		double		nZ;
+		float		nX;
+		float		nY;
+		float		nZ;
 	};
 	
 	struct TEXCOORD
 	{
-		double		nS;
-		double		nT;
+		float		nS;
+		float		nT;
 	};
 
 #pragma pack(push, 1)
@@ -37,8 +38,8 @@ public:
 		KEY*		pKeys;
 	};
 
-					CIcon(const char*);
-					~CIcon();
+					CIcon(Framework::CStream&);
+	virtual			~CIcon();
 
 	const VERTEX*	GetShape(unsigned int)	const;
 	const TEXCOORD*	GetTexCoords()			const;
@@ -49,11 +50,11 @@ public:
 	unsigned int	GetFrameCount()			const;
 
 private:
-	void			ReadHeader(std::istream&);
-	void			ReadVertices(std::istream&);
-	void			ReadAnimations(std::istream&);
-	void			ReadTexture(std::istream&);
-	void			UncompressTexture(std::istream&);
+	void			ReadHeader(Framework::CStream&);
+	void			ReadVertices(Framework::CStream&);
+	void			ReadAnimations(Framework::CStream&);
+	void			ReadTexture(Framework::CStream&);
+	void			UncompressTexture(Framework::CStream&);
 
 	VERTEX**		m_pShapes;
 	TEXCOORD*		m_pTexCoords;
@@ -65,5 +66,7 @@ private:
 	uint32			m_nTextureType;
 	uint16*			m_pTexture;
 };
+
+typedef std::tr1::shared_ptr<CIcon> IconPtr;
 
 #endif

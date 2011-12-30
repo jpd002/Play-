@@ -1,50 +1,45 @@
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <exception>
 #include "string_cast_sjis.h"
 #include "Save.h"
+#include "StdStream.h"
+#include "StdStreamUtils.h"
 
-using namespace std;
-namespace iostreams = boost::iostreams;
 namespace filesystem = boost::filesystem;
 
-CSave::CSave(filesystem::path& BasePath) :
-m_BasePath(BasePath)
+CSave::CSave(const filesystem::path& basePath) 
+: m_basePath(basePath)
 {
-	uint32 nMagic;
-	char sBuffer[64];
-	filesystem::path IconSysPath;
+	filesystem::path iconSysPath = m_basePath / "icon.sys";
 
-	IconSysPath = m_BasePath / "icon.sys";
+	boost::scoped_ptr<Framework::CStdStream> iconStream(Framework::CreateInputStdStream(iconSysPath.native()));
 
-	iostreams::stream_buffer<iostreams::file_source> IconFileBuffer(IconSysPath.string(), ios::in | ios::binary);
-	istream IconFile(&IconFileBuffer);
-
-	IconFile.read(reinterpret_cast<char*>(&nMagic), 4);
+	uint32 nMagic = iconStream->Read32();
 	if(nMagic != 0x44325350)
 	{
-		throw exception("Invalid 'icon.sys' file.");
+		throw std::runtime_error("Invalid 'icon.sys' file.");
 	}
 
-	IconFile.seekg(6);
-	IconFile.read(reinterpret_cast<char*>(&m_nSecondLineStartPosition), 2);
+	iconStream->Seek(6, Framework::STREAM_SEEK_SET);
+	m_nSecondLineStartPosition = iconStream->Read16();
 
-	IconFile.seekg(192);
-	ReadName(IconFile);
+	iconStream->Seek(192, Framework::STREAM_SEEK_SET);
+	ReadName(*iconStream);
 
-	IconFile.read(sBuffer, 64);
+	char sBuffer[64];
+
+	iconStream->Read(sBuffer, 64);
 	m_sNormalIconFileName = sBuffer;
 
-	IconFile.read(sBuffer, 64);
+	iconStream->Read(sBuffer, 64);
 	m_sCopyingIconFileName = sBuffer;
 
-	IconFile.read(sBuffer, 64);
+	iconStream->Read(sBuffer, 64);
 	m_sDeletingIconFileName = sBuffer;
 
-	m_sId = m_BasePath.filename().string().c_str();
+	m_sId = m_basePath.filename().string();
 
-	m_nLastModificationTime = filesystem::last_write_time(IconSysPath);
+	m_nLastModificationTime = filesystem::last_write_time(iconSysPath);
 }
 
 CSave::~CSave()
@@ -67,7 +62,7 @@ unsigned int CSave::GetSize() const
 	filesystem::directory_iterator itEnd;
 	unsigned int nSize = 0;
 
-	for(filesystem::directory_iterator itElement(m_BasePath);
+	for(filesystem::directory_iterator itElement(m_basePath);
 		itElement != itEnd;
 		itElement++)
 	{
@@ -82,27 +77,45 @@ unsigned int CSave::GetSize() const
 
 filesystem::path CSave::GetPath() const
 {
-	return m_BasePath;
+	return m_basePath;
+}
+
+filesystem::path CSave::GetIconPath(const ICONTYPE& iconType) const
+{
+	filesystem::path iconPath;
+	switch(iconType)
+	{
+	case ICON_NORMAL:
+		iconPath = GetNormalIconPath();
+		break;
+	case ICON_DELETING:
+		iconPath = GetDeletingIconPath();
+		break;
+	case ICON_COPYING:
+		iconPath = GetCopyingIconPath();
+		break;
+	}
+	return iconPath;
 }
 
 filesystem::path CSave::GetNormalIconPath() const
 {
-	return m_BasePath / m_sNormalIconFileName;
+	return m_basePath / m_sNormalIconFileName;
 }
 
 filesystem::path CSave::GetDeletingIconPath() const
 {
-	return m_BasePath / m_sDeletingIconFileName;
+	return m_basePath / m_sDeletingIconFileName;
 }
 
 filesystem::path CSave::GetCopyingIconPath() const
 {
-	return m_BasePath / m_sCopyingIconFileName;
+	return m_basePath / m_sCopyingIconFileName;
 }
 
 size_t CSave::GetSecondLineStartPosition() const
 {
-	return min<size_t>(m_nSecondLineStartPosition / 2, m_sName.length());
+	return std::min<size_t>(m_nSecondLineStartPosition / 2, m_sName.length());
 }
 
 time_t CSave::GetLastModificationTime() const
@@ -110,9 +123,9 @@ time_t CSave::GetLastModificationTime() const
 	return m_nLastModificationTime;
 }
 
-void CSave::ReadName(istream& Input)
+void CSave::ReadName(Framework::CStream& inputStream)
 {
 	char sNameSJIS[68];
-	Input.read(sNameSJIS, 68);
+	inputStream.Read(sNameSJIS, 68);
 	m_sName = string_cast_sjis(sNameSJIS);
 }

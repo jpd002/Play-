@@ -36,20 +36,12 @@ CConfig::PathType CAppConfig::GetBasePath()
 
 CConfig::PathType CAppConfig::Utf8ToPath(const char* path)
 {
-//#if defined(WIN32)
     return CConfig::PathType(Utf8::ConvertFrom(path));
-//#else
-//    return CConfig::PathType(path);
-//#endif
 }
 
 string CAppConfig::PathToUtf8(const CConfig::PathType& path)
 {
-//#if defined(WIN32)
     return Utf8::ConvertTo(path.wstring());
-//#else
-//    return path.string();
-//#endif
 }
 
 CConfig::PathType CAppConfig::BuildConfigPath()

@@ -1,14 +1,13 @@
 #include <boost/filesystem/operations.hpp>
 #include <functional>
-#include <fstream>
 #include "string_cast.h"
-#include "McManagerWnd.h"
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
-#include "../AppConfig.h"
 #include "WinUtils.h"
 #include "placeholder_def.h"
 #include "StdStreamUtils.h"
+#include "McManagerWnd.h"
+#include "../AppConfig.h"
 #include "../AppDef.h"
 
 #define CLSNAME			_T("CMcManagerWnd")
@@ -17,10 +16,10 @@
 
 namespace filesystem = boost::filesystem;
 
-CMcManagerWnd::CMcManagerWnd(HWND hParent) :
-CModalWindow(hParent),
-m_MemoryCard0(filesystem::path(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"), filesystem::native)),
-m_MemoryCard1(filesystem::path(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"), filesystem::native))
+CMcManagerWnd::CMcManagerWnd(HWND hParent) 
+: CModalWindow(hParent)
+, m_MemoryCard0(CAppConfig::Utf8ToPath(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory")))
+, m_MemoryCard1(CAppConfig::Utf8ToPath(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory")))
 {
 	RECT rc;
 
@@ -117,17 +116,6 @@ void CMcManagerWnd::RefreshLayout()
 	Redraw();
 }
 
-long CMcManagerWnd::OnDrawItem(unsigned int nId, LPDRAWITEMSTRUCT pDrawItem)
-{
-/*
-	if(m_pMemoryCardView != NULL)
-	{
-		if(pDrawItem->hwndItem == (*m_pMemoryCardView)) return m_pMemoryCardView->OnDrawItem(nId, pDrawItem);
-	}
-*/
-	return FALSE;
-}
-
 long CMcManagerWnd::OnCommand(unsigned short nId, unsigned short nCmd, HWND hWndFrom)
 {
 	if(m_pImportButton != NULL)
@@ -196,7 +184,7 @@ void CMcManagerWnd::Delete(const CSave* pSave)
 
 	if(nReturn == IDNO) return;
 
-	std::tstring sPath = string_cast<std::tstring>(filesystem::absolute(pSave->GetPath()).string());
+	std::tstring sPath = string_cast<std::tstring>(filesystem::absolute(pSave->GetPath()).native());
 	m_pMemoryCardView->SetMemoryCard(NULL);
 
 	transform(sPath.begin(), sPath.end(), sPath.begin(), WinUtils::FixSlashes);

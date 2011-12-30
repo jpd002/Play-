@@ -1,10 +1,9 @@
 #include <boost/filesystem/operations.hpp>
 #include "MemoryCard.h"
 
-using namespace std;
 namespace filesystem = boost::filesystem;
 
-CMemoryCard::CMemoryCard(filesystem::path& BasePath) :
+CMemoryCard::CMemoryCard(const filesystem::path& BasePath) :
 m_BasePath(BasePath)
 {
 	ScanSaves();
@@ -62,7 +61,7 @@ void CMemoryCard::ScanSaves()
 			}
 		}
 	}
-	catch(const exception& Exception)
+	catch(const std::exception& Exception)
 	{
 		printf("Exception caught in CMemoryCard::ScanSaves: %s\r\n", Exception.what());
 	}

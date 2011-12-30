@@ -11,8 +11,8 @@ public:
 	typedef boost::ptr_vector<CSave>	SaveList;
 	typedef SaveList::iterator			SaveIterator;
 
-									CMemoryCard(boost::filesystem::path&);
-									~CMemoryCard();
+									CMemoryCard(const boost::filesystem::path&);
+	virtual							~CMemoryCard();
 
 	size_t							GetSaveCount() const;
 	const CSave*					GetSaveByIndex(size_t) const;

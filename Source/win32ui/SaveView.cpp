@@ -1,4 +1,3 @@
-#include <fstream>
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -8,12 +7,11 @@
 #include "string_cast.h"
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
+#include "StdStream.h"
+#include "StdStreamUtils.h"
 
 #define CLSNAME _T("CSaveView")
 
-using namespace Framework;
-using namespace std;
-using namespace std::tr1;
 namespace filesystem = boost::filesystem;
 
 CSaveView::CSaveView(HWND hParent)
@@ -39,72 +37,72 @@ CSaveView::CSaveView(HWND hParent)
 
 	GetClientRect(&rc);
 
-	m_pNameLine1	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pNameLine2	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pSize			= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pId			= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pLastModified	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pOpenFolder	= new Win32::CButton(_T("Open folder..."), m_hWnd, &rc);
-	m_pExport		= new Win32::CButton(_T("Export..."), m_hWnd, &rc);
-	m_pDelete		= new Win32::CButton(_T("Delete"), m_hWnd, &rc);
-	m_pNormalIcon	= new Win32::CButton(_T("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pCopyingIcon	= new Win32::CButton(_T("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pDeletingIcon	= new Win32::CButton(_T("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pIconViewWnd	= new CIconViewWnd(m_hWnd, &rc);
+	m_pNameLine1	= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pNameLine2	= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pSize			= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pId			= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pLastModified	= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
+	m_pOpenFolder	= new Framework::Win32::CButton(_T("Open folder..."), m_hWnd, &rc);
+	m_pExport		= new Framework::Win32::CButton(_T("Export..."), m_hWnd, &rc);
+	m_pDelete		= new Framework::Win32::CButton(_T("Delete"), m_hWnd, &rc);
+	m_pNormalIcon	= new Framework::Win32::CButton(_T("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pCopyingIcon	= new Framework::Win32::CButton(_T("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pDeletingIcon	= new Framework::Win32::CButton(_T("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pIconViewWnd	= new CSaveIconView(m_hWnd, &rc);
 
-	m_CommandSink.RegisterCallback(m_pOpenFolder->m_hWnd,	bind(&CSaveView::OpenSaveFolder, this));
-	m_CommandSink.RegisterCallback(m_pNormalIcon->m_hWnd,	bind(&CSaveView::SetIconType, this, ICON_NORMAL));
-	m_CommandSink.RegisterCallback(m_pCopyingIcon->m_hWnd,	bind(&CSaveView::SetIconType, this, ICON_COPYING));
-	m_CommandSink.RegisterCallback(m_pDeletingIcon->m_hWnd,	bind(&CSaveView::SetIconType, this, ICON_DELETING));
-	m_CommandSink.RegisterCallback(m_pExport->m_hWnd,		bind(&CSaveView::Export, this));
-	m_CommandSink.RegisterCallback(m_pDelete->m_hWnd,		bind(&CSaveView::Delete, this));
+	m_CommandSink.RegisterCallback(m_pOpenFolder->m_hWnd,	std::tr1::bind(&CSaveView::OpenSaveFolder, this));
+	m_CommandSink.RegisterCallback(m_pNormalIcon->m_hWnd,	std::tr1::bind(&CSaveView::SetIconType, this, CSave::ICON_NORMAL));
+	m_CommandSink.RegisterCallback(m_pCopyingIcon->m_hWnd,	std::tr1::bind(&CSaveView::SetIconType, this, CSave::ICON_COPYING));
+	m_CommandSink.RegisterCallback(m_pDeletingIcon->m_hWnd,	std::tr1::bind(&CSaveView::SetIconType, this, CSave::ICON_DELETING));
+	m_CommandSink.RegisterCallback(m_pExport->m_hWnd,		std::tr1::bind(&CSaveView::Export, this));
+	m_CommandSink.RegisterCallback(m_pDelete->m_hWnd,		std::tr1::bind(&CSaveView::Delete, this));
 
-    FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
+	Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
 	{
-		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pId));
-		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOpenFolder));
+		pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pId));
+		pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOpenFolder));
 	}
 
-    GridLayoutPtr pSubLayout1 = CGridLayout::Create(2, 5);
+    Framework::GridLayoutPtr pSubLayout1 = Framework::CGridLayout::Create(2, 5);
 	{
-		pSubLayout1->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Name:"))));
-		pSubLayout1->SetObject(0, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Size:"))));
-		pSubLayout1->SetObject(0, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Id:"))));
-		pSubLayout1->SetObject(0, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Win32::CStatic(m_hWnd, _T("Last Modified:")))); 
+		pSubLayout1->SetObject(0, 0, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Framework::Win32::CStatic(m_hWnd, _T("Name:"))));
+		pSubLayout1->SetObject(0, 2, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Framework::Win32::CStatic(m_hWnd, _T("Size:"))));
+		pSubLayout1->SetObject(0, 3, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Framework::Win32::CStatic(m_hWnd, _T("Id:"))));
+		pSubLayout1->SetObject(0, 4, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, new Framework::Win32::CStatic(m_hWnd, _T("Last Modified:")))); 
 
-		pSubLayout1->SetObject(1, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine1));
-		pSubLayout1->SetObject(1, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine2));
-		pSubLayout1->SetObject(1, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pSize));
+		pSubLayout1->SetObject(1, 0, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine1));
+		pSubLayout1->SetObject(1, 1, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pNameLine2));
+		pSubLayout1->SetObject(1, 2, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pSize));
 		pSubLayout1->SetObject(1, 3, pSubLayout0);
-		pSubLayout1->SetObject(1, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pLastModified));
+		pSubLayout1->SetObject(1, 4, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(300, 23, m_pLastModified));
 
 		pSubLayout1->SetVerticalStretch(0);
 	}
 
-    FlatLayoutPtr pSubLayout2 = CHorizontalLayout::Create();
+    Framework::FlatLayoutPtr pSubLayout2 = Framework::CHorizontalLayout::Create();
 	{
-		pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pExport));
-		pSubLayout2->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
+		pSubLayout2->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pExport));
+		pSubLayout2->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
 		pSubLayout2->SetVerticalStretch(0);
 	}
 
-    FlatLayoutPtr pSubLayout3 = CHorizontalLayout::Create();
+    Framework::FlatLayoutPtr pSubLayout3 = Framework::CHorizontalLayout::Create();
 	{
-        pSubLayout3->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 50, 1, 1, m_pIconViewWnd));
+        pSubLayout3->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(50, 50, 1, 1, m_pIconViewWnd));
 		pSubLayout3->SetVerticalStretch(1);
 	}
 
-    FlatLayoutPtr pSubLayout4 = CHorizontalLayout::Create();
+    Framework::FlatLayoutPtr pSubLayout4 = Framework::CHorizontalLayout::Create();
     {
-        pSubLayout4->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pNormalIcon));
-        pSubLayout4->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pCopyingIcon));
-        pSubLayout4->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pDeletingIcon));
+        pSubLayout4->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pNormalIcon));
+        pSubLayout4->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pCopyingIcon));
+        pSubLayout4->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(50, 23, 1, 0, m_pDeletingIcon));
         pSubLayout4->SetVerticalStretch(0);
     }
 
-	SetIconType(ICON_NORMAL);
+	SetIconType(CSave::ICON_NORMAL);
 
-    m_pLayout = CVerticalLayout::Create();
+    m_pLayout = Framework::CVerticalLayout::Create();
 	m_pLayout->InsertObject(pSubLayout1);
 	m_pLayout->InsertObject(pSubLayout2);
 	m_pLayout->InsertObject(pSubLayout3);
@@ -124,14 +122,14 @@ void CSaveView::SetSave(const CSave* pSave)
 
 	if(m_pSave != NULL)
 	{
-		wstring sName(m_pSave->GetName());
+		std::wstring sName(m_pSave->GetName());
 
 		m_pNameLine1->SetText(sName.substr(0, m_pSave->GetSecondLineStartPosition()).c_str());
 		m_pNameLine2->SetText(sName.substr(m_pSave->GetSecondLineStartPosition()).c_str());
-        m_pSize->SetText((boost::lexical_cast<tstring>(m_pSave->GetSize()) + _T(" bytes")).c_str());
-		m_pId->SetText(string_cast<tstring>(m_pSave->GetId()).c_str());
+		m_pSize->SetText((boost::lexical_cast<std::tstring>(m_pSave->GetSize()) + _T(" bytes")).c_str());
+		m_pId->SetText(string_cast<std::tstring>(m_pSave->GetId()).c_str());
 		m_pLastModified->SetText(
-			string_cast<tstring>(
+			string_cast<std::tstring>(
 			boost::posix_time::to_simple_string(
 			boost::posix_time::from_time_t(m_pSave->GetLastModificationTime()))).c_str());
 	}
@@ -178,15 +176,15 @@ void CSaveView::RefreshLayout()
 	Redraw();
 }
 
-long CSaveView::SetIconType(ICONTYPE nIconType)
+long CSaveView::SetIconType(CSave::ICONTYPE nIconType)
 {
 	m_nIconType = nIconType;
 
 	m_pIconViewWnd->SetIconType(nIconType);
 
-	m_pNormalIcon->SetCheck(m_nIconType == ICON_NORMAL);
-	m_pDeletingIcon->SetCheck(m_nIconType == ICON_DELETING);
-	m_pCopyingIcon->SetCheck(m_nIconType == ICON_COPYING);
+	m_pNormalIcon->SetCheck(m_nIconType == CSave::ICON_NORMAL);
+	m_pDeletingIcon->SetCheck(m_nIconType == CSave::ICON_DELETING);
+	m_pCopyingIcon->SetCheck(m_nIconType == CSave::ICON_COPYING);
 
 	return FALSE;
 }
@@ -195,9 +193,8 @@ long CSaveView::OpenSaveFolder()
 {
 	if(m_pSave == NULL) return FALSE;
 
-	filesystem::path Path(filesystem::absolute(m_pSave->GetPath()));
-
-	ShellExecuteA(m_hWnd, "open", Path.string().c_str(), NULL, NULL, SW_SHOW);
+	filesystem::path savePath(filesystem::absolute(m_pSave->GetPath()));
+	ShellExecute(m_hWnd, _T("open"), savePath.native().c_str(), NULL, NULL, SW_SHOW);
 
 	return FALSE;
 }
@@ -206,38 +203,23 @@ long CSaveView::Export()
 {
 	if(m_pSave == NULL) return FALSE;
 
-	unsigned int nRet;
-
-	Win32::CFileDialog FileDialog;
+	Framework::Win32::CFileDialog FileDialog;
 	FileDialog.m_OFN.lpstrFilter = _T("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0");
 
 	EnableWindow(GetParent(), FALSE);
-	nRet = FileDialog.SummonSave(m_hWnd);
+	unsigned int nRet = FileDialog.SummonSave(m_hWnd);
 	EnableWindow(GetParent(), TRUE);
 
 	if(nRet == 0) return FALSE;
 
-	FILE* pStream;
-	pStream = _tfopen(FileDialog.GetPath(), _T("wb"));
-
-	if(pStream == NULL)
-	{
-		MessageBox(m_hWnd, _T("Couldn't open file for writing."), NULL, 16);
-		return FALSE;
-	}
-
-	ofstream Output(pStream);
-
 	try
 	{
-		CSaveExporter::ExportPSU(Output, m_pSave->GetPath().string().c_str());
-		Output.close();
+		boost::scoped_ptr<Framework::CStdStream> output(Framework::CreateOutputStdStream(std::tstring(FileDialog.GetPath())));
+		CSaveExporter::ExportPSU(*output, m_pSave->GetPath());
 	}
-	catch(const exception& Exception)
+	catch(const std::exception& Exception)
 	{
-		Output.close();
-
-		string sMessage;
+		std::string sMessage;
 		sMessage  = "Couldn't export save:\r\n\r\n";
 		sMessage += Exception.what();
 		MessageBoxA(m_hWnd, sMessage.c_str(), NULL, 16);

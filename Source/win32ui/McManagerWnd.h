@@ -17,7 +17,6 @@ public:
 	virtual									~CMcManagerWnd();
 
 protected:
-	long									OnDrawItem(unsigned int, LPDRAWITEMSTRUCT);
 	long									OnCommand(unsigned short, unsigned short, HWND);
 
 private:

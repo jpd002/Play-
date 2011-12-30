@@ -5,26 +5,38 @@
 #include <string>
 #include <ctime>
 #include "Types.h"
+#include "Stream.h"
 
 class CSave
 {
 public:
-								CSave(boost::filesystem::path&);
-								~CSave();
+	enum ICONTYPE
+	{
+		ICON_NORMAL,
+		ICON_DELETING,
+		ICON_COPYING,
+	};
+
+								CSave(const boost::filesystem::path&);
+	virtual						~CSave();
+
 	const wchar_t*				GetName() const;
 	const char*					GetId() const;
 	unsigned int				GetSize() const;
+	
 	boost::filesystem::path		GetPath() const;
+	boost::filesystem::path		GetIconPath(const ICONTYPE&) const;
 	boost::filesystem::path		GetNormalIconPath() const;
 	boost::filesystem::path		GetDeletingIconPath() const;
 	boost::filesystem::path		GetCopyingIconPath() const;
+
 	size_t						GetSecondLineStartPosition() const;
 	time_t						GetLastModificationTime() const;
 
 private:
-	void						ReadName(std::istream&);
+	void						ReadName(Framework::CStream&);
 
-	boost::filesystem::path		m_BasePath;
+	boost::filesystem::path		m_basePath;
 	std::wstring				m_sName;
 	std::string					m_sId;
 	std::string					m_sNormalIconFileName;

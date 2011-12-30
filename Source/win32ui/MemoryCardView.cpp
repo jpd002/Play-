@@ -1,5 +1,7 @@
 #include "MemoryCardView.h"
 #include "win32/DeviceContext.h"
+#include "StdStream.h"
+#include "StdStreamUtils.h"
 #include <boost/bind.hpp>
 #include <exception>
 #include <gl/gl.h>
@@ -8,11 +10,7 @@
 
 #define CLSNAME		_T("CMemoryCardView")
 
-using namespace Framework;
-using namespace std;
-using namespace boost;
-
-PIXELFORMATDESCRIPTOR	CMemoryCardView::CRender::m_PFD =
+const PIXELFORMATDESCRIPTOR CMemoryCardView::CRender::m_PFD =
 {
 	sizeof(PIXELFORMATDESCRIPTOR),
 	1,
@@ -31,6 +29,9 @@ PIXELFORMATDESCRIPTOR	CMemoryCardView::CRender::m_PFD =
 };
 
 CMemoryCardView::CMemoryCardView(HWND hParent, RECT* pRect)
+: m_itemCount(0)
+, m_memoryCard(NULL)
+, m_render(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -51,33 +52,30 @@ CMemoryCardView::CMemoryCardView(HWND hParent, RECT* pRect)
 
 	UpdateGeometry();
 
-	m_pThread = new thread(bind(&CMemoryCardView::ThreadProc, this));
+	m_render = new CRender(m_hWnd, &m_viewState);
 }
 
 CMemoryCardView::~CMemoryCardView()
 {
-	m_MailSlot.SendMessage(THREAD_END, NULL);
-	m_pThread->join();
-	delete m_pThread;
+	delete m_render;
 }
 
-void CMemoryCardView::SetMemoryCard(CMemoryCard* pMemoryCard)
+void CMemoryCardView::SetMemoryCard(CMemoryCard* memoryCard)
 {
-	m_pMemoryCard = pMemoryCard;
+	m_memoryCard = memoryCard;
 	
-	if(m_pMemoryCard != NULL)
+	if(m_memoryCard != NULL)
 	{
-		m_nItemCount = static_cast<unsigned int>(m_pMemoryCard->GetSaveCount());
+		m_itemCount = static_cast<unsigned int>(m_memoryCard->GetSaveCount());
 	}
 	else
 	{
-		m_nItemCount = 0;
+		m_itemCount = 0;
 	}
 
-	m_ViewState.m_nScrollPosition = 0;
+	m_viewState.m_nScrollPosition = 0;
 	UpdateScroll();
-	m_MailSlot.SendMessage(THREAD_SETMEMORYCARD, pMemoryCard);
-
+	m_render->SetMemoryCard(memoryCard);
 	SetSelection(0);
 }
 
@@ -91,20 +89,20 @@ long CMemoryCardView::OnVScroll(unsigned int nType, unsigned int nThumb)
 	switch(nType)
 	{
 	case SB_LINEDOWN:
-		m_ViewState.m_nScrollPosition += 5;
+		m_viewState.m_nScrollPosition += 5;
 		break;
 	case SB_LINEUP:
-		m_ViewState.m_nScrollPosition -= 5;
+		m_viewState.m_nScrollPosition -= 5;
 		break;
 	case SB_PAGEDOWN:
-		m_ViewState.m_nScrollPosition += 35;
+		m_viewState.m_nScrollPosition += 35;
 		break;
 	case SB_PAGEUP:
-		m_ViewState.m_nScrollPosition -= 35;
+		m_viewState.m_nScrollPosition -= 35;
 		break;
 	case SB_THUMBPOSITION:
 	case SB_THUMBTRACK:
-        m_ViewState.m_nScrollPosition = GetVerticalScrollBar().GetThumbPosition();
+        m_viewState.m_nScrollPosition = GetVerticalScrollBar().GetThumbPosition();
 		break;
 	default:
 		return FALSE;
@@ -119,7 +117,7 @@ long CMemoryCardView::OnVScroll(unsigned int nType, unsigned int nThumb)
 long CMemoryCardView::OnLeftButtonDown(int nX, int nY)
 {
 	SetFocus();
-	SetSelection((nY + m_ViewState.m_nScrollPosition) / m_ViewState.m_nItemHeight);
+	SetSelection((nY + m_viewState.m_nScrollPosition) / m_viewState.m_nItemHeight);
 	return TRUE;	
 }
 
@@ -127,11 +125,11 @@ long CMemoryCardView::OnMouseWheel(short nZ)
 {
 	if(nZ < 0)
 	{
-		m_ViewState.m_nScrollPosition += 35;
+		m_viewState.m_nScrollPosition += 35;
 	}
 	else
 	{
-		m_ViewState.m_nScrollPosition -= 35;
+		m_viewState.m_nScrollPosition -= 35;
 	}
 
 	UpdateScrollPosition();
@@ -149,49 +147,16 @@ long CMemoryCardView::OnKeyDown(unsigned int nKey)
 	switch(nKey)
 	{
 	case VK_DOWN:
-		SetSelection(min<int>(m_ViewState.m_nSelection + 1, m_nItemCount - 1));
-		EnsureItemFullyVisible(m_ViewState.m_nSelection);
+		SetSelection(std::min<int>(m_viewState.m_nSelection + 1, m_itemCount - 1));
+		EnsureItemFullyVisible(m_viewState.m_nSelection);
 		break;
 	case VK_UP:
-		SetSelection(max<int>(m_ViewState.m_nSelection - 1, 0));
-		EnsureItemFullyVisible(m_ViewState.m_nSelection);
+		SetSelection(std::max<int>(m_viewState.m_nSelection - 1, 0));
+		EnsureItemFullyVisible(m_viewState.m_nSelection);
 		break;
 	}
 
 	return TRUE;
-}
-
-void CMemoryCardView::ThreadProc()
-{
-	CRender Render(m_hWnd, &m_ViewState);
-	bool nIsEnd;
-
-	nIsEnd = false;
-	while(!nIsEnd)
-	{
-		CThreadMsg::MESSAGE Message;
-
-		if(m_MailSlot.GetMessage(&Message))
-		{
-			switch(Message.nMsg)
-			{
-			case THREAD_END:
-				nIsEnd = true;
-				break;
-			case THREAD_SETMEMORYCARD:
-				Render.SetMemoryCard(reinterpret_cast<CMemoryCard*>(Message.pParam));
-				break;
-			}
-
-			m_MailSlot.FlushMessage(0);
-		}
-		else
-		{
-			Render.Animate();
-			Render.DrawScene();
-			Sleep(16);
-		}
-	}
 }
 
 void CMemoryCardView::UpdateScroll()
@@ -202,20 +167,19 @@ void CMemoryCardView::UpdateScroll()
 	si.cbSize	= sizeof(SCROLLINFO);
 	si.fMask	= SIF_RANGE | SIF_DISABLENOSCROLL;
 	si.nMin		= 0;
-	si.nMax		= m_ViewState.GetCanvasSize(m_nItemCount);
+	si.nMax		= m_viewState.GetCanvasSize(m_itemCount);
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);	
 }
 
 void CMemoryCardView::UpdateScrollPosition()
 {
+	m_viewState.m_nScrollPosition = std::max<int>(0,										m_viewState.m_nScrollPosition);
+	m_viewState.m_nScrollPosition = std::min<int>(m_viewState.GetCanvasSize(m_itemCount),	m_viewState.m_nScrollPosition);
+
 	SCROLLINFO si;
-
-	m_ViewState.m_nScrollPosition = max<int>(0,											m_ViewState.m_nScrollPosition);
-	m_ViewState.m_nScrollPosition = min<int>(m_ViewState.GetCanvasSize(m_nItemCount),	m_ViewState.m_nScrollPosition);
-
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= m_ViewState.m_nScrollPosition;
+	si.nPos			= m_viewState.m_nScrollPosition;
 	si.fMask		= SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 }
@@ -225,17 +189,17 @@ void CMemoryCardView::UpdateGeometry()
 	RECT ClientRect;
 	GetClientRect(&ClientRect);
 
-	m_ViewState.Reset(&ClientRect);
+	m_viewState.Reset(&ClientRect);
 	UpdateScroll();
 }
 
 void CMemoryCardView::SetSelection(unsigned int nSelection)
 {
-	m_ViewState.m_nSelection = nSelection;
+	m_viewState.m_nSelection = nSelection;
 
-	if((m_ViewState.m_nSelection < m_nItemCount) && (m_pMemoryCard != NULL))
+	if((m_viewState.m_nSelection < m_itemCount) && (m_memoryCard != NULL))
 	{
-		m_OnSelectionChange(m_pMemoryCard->GetSaveByIndex(m_ViewState.m_nSelection));
+		m_OnSelectionChange(m_memoryCard->GetSaveByIndex(m_viewState.m_nSelection));
 	}
 	else
 	{
@@ -245,7 +209,7 @@ void CMemoryCardView::SetSelection(unsigned int nSelection)
 
 void CMemoryCardView::EnsureItemFullyVisible(unsigned int nItem)
 {
-	m_ViewState.EnsureItemFullyVisible(nItem);
+	m_viewState.EnsureItemFullyVisible(nItem);
 	UpdateScrollPosition();
 }
 
@@ -254,9 +218,7 @@ void CMemoryCardView::EnsureItemFullyVisible(unsigned int nItem)
 
 int CMemoryCardView::CViewState::GetCanvasSize(unsigned int nItemCount)
 {
-	int nCanvasSize;
-
-	nCanvasSize = (nItemCount * m_nItemHeight) - m_ClientRect.bottom;
+	int nCanvasSize = (nItemCount * m_nItemHeight) - m_ClientRect.bottom;
 	if(nCanvasSize < 0) nCanvasSize = 0;
 
 	return nCanvasSize;
@@ -296,57 +258,88 @@ void CMemoryCardView::CViewState::EnsureItemFullyVisible(unsigned int nItem)
 //////////////////////////////////////
 // CRender implementation
 
-CMemoryCardView::CRender::CRender(HWND hWnd, const CViewState* pViewState) :
-m_DeviceContext(hWnd)
+CMemoryCardView::CRender::CRender(HWND hWnd, const CViewState* pViewState) 
+: m_deviceContext(hWnd)
+, m_viewState(pViewState)
+, m_memoryCard(NULL)
+, m_threadOver(false)
+, m_thread(NULL)
 {
-	unsigned int nPixelFormat;
-
-	m_pViewState = pViewState;
-	m_pMemoryCard = NULL;
-
-	nPixelFormat = ChoosePixelFormat(m_DeviceContext, &m_PFD);
-	SetPixelFormat(m_DeviceContext, nPixelFormat, &m_PFD);
-	m_hRC = wglCreateContext(m_DeviceContext);
-	wglMakeCurrent(m_DeviceContext, m_hRC);
-
-	glEnable(GL_TEXTURE_2D);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	m_thread = new boost::thread(std::tr1::bind(&CRender::ThreadProc, this));
 }
 
 CMemoryCardView::CRender::~CRender()
 {
-	m_Icons.clear();
+	m_threadOver = true;
+	m_thread->join();
+	delete m_thread;
+}
+
+void CMemoryCardView::CRender::ThreadProc()
+{
+	unsigned int nPixelFormat = ChoosePixelFormat(m_deviceContext, &m_PFD);
+	SetPixelFormat(m_deviceContext, nPixelFormat, &m_PFD);
+	m_hRC = wglCreateContext(m_deviceContext);
+	wglMakeCurrent(m_deviceContext, m_hRC);
+
+	glEnable(GL_TEXTURE_2D);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+
+	while(!m_threadOver)
+	{
+		while(m_mailBox.IsPending())
+		{
+			m_mailBox.ReceiveCall();
+		}
+
+		Animate();
+		DrawScene();
+		Sleep(16);
+	}
+
+	m_icons.clear();
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(m_hRC);
 }
 
-void CMemoryCardView::CRender::SetMemoryCard(const CMemoryCard* pMemoryCard)
+void CMemoryCardView::CRender::SetMemoryCard(const CMemoryCard* memoryCard)
 {
-	m_Icons.clear();
-	m_pMemoryCard = pMemoryCard;
+	m_mailBox.SendCall(std::tr1::bind(&CRender::ThreadSetMemoryCard, this, memoryCard));
+}
+
+void CMemoryCardView::CRender::ThreadSetMemoryCard(const CMemoryCard* memoryCard)
+{
+	m_icons.clear();
+	m_memoryCard = memoryCard;
 }
 
 void CMemoryCardView::CRender::Animate()
 {
-	//for_each(m_Icons.begin(), m_Icons.end(), mem_fun_ref(&CIconView::Tick));
+	for(IconList::iterator iconIterator(m_icons.begin());
+		m_icons.end() != iconIterator; ++iconIterator)
+	{
+		const IconMeshPtr& iconMesh(iconIterator->second);
+		if(iconMesh)
+		{
+			iconMesh->Update(16.f / 1000.f);
+		}
+	}
 }
 
 void CMemoryCardView::CRender::DrawScene()
 {
 	RECT ClientRect;
-	int nY, nUpperClip, nLowerClip;
-	unsigned int nItemCount;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	if(m_pMemoryCard == NULL) return;
+	if(m_memoryCard == NULL) return;
 
-	nItemCount = static_cast<unsigned int>(m_pMemoryCard->GetSaveCount());
-	CopyRect(&ClientRect, &m_pViewState->m_ClientRect);
+	unsigned int nItemCount = static_cast<unsigned int>(m_memoryCard->GetSaveCount());
+	CopyRect(&ClientRect, &m_viewState->m_ClientRect);
 
-	nY = 0;
-	nUpperClip = (int)(m_pViewState->m_nScrollPosition - m_pViewState->m_nItemHeight);
-	nLowerClip = nUpperClip + ClientRect.bottom + m_pViewState->m_nItemHeight;
+	int nY = 0;
+	int nUpperClip = (int)(m_viewState->m_nScrollPosition - m_viewState->m_nItemHeight);
+	int nLowerClip = nUpperClip + ClientRect.bottom + m_viewState->m_nItemHeight;
 
 	for(unsigned int i = 0; i < nItemCount; i++)
 	{
@@ -357,11 +350,11 @@ void CMemoryCardView::CRender::DrawScene()
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			glViewport(0, 
-				(ClientRect.bottom - nY - m_pViewState->m_nItemHeight + m_pViewState->m_nScrollPosition), 
-				m_pViewState->m_nItemWidth, 
-				m_pViewState->m_nItemHeight);
+				(ClientRect.bottom - nY - m_viewState->m_nItemHeight + m_viewState->m_nScrollPosition), 
+				m_viewState->m_nItemWidth, 
+				m_viewState->m_nItemHeight);
 
-			if(nY == (m_pViewState->m_nSelection * m_pViewState->m_nItemHeight))
+			if(nY == (m_viewState->m_nSelection * m_viewState->m_nItemHeight))
 			{
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
@@ -372,14 +365,14 @@ void CMemoryCardView::CRender::DrawScene()
 
 				glDisable(GL_DEPTH_TEST);
 
-				glColor4d(0.0, 0.0, 0.0, 1.0);
+				glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
 				glBegin(GL_QUADS);
 				{
-					glVertex2d(0.0, 0.0);
-					glVertex2d(1.0, 0.0);
-					glVertex2d(1.0, 1.0);
-					glVertex2d(0.0, 1.0);
+					glVertex2f(0.0, 0.0);
+					glVertex2f(1.0, 0.0);
+					glVertex2f(1.0, 1.0);
+					glVertex2f(0.0, 1.0);
 				}
 				glEnd();			
 			}
@@ -389,45 +382,46 @@ void CMemoryCardView::CRender::DrawScene()
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 
-			glTranslated(0.0, -2.0, -7.0);
-			glScaled(1.0, -1.0, -1.0);
+			glTranslatef(0.0f, -2.0f, -7.0f);
+			glScalef(1.0f, -1.0f, -1.0f);
 
-			glColor4d(1.0, 1.0, 1.0, 1.0);
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(45.0f, (float)m_pViewState->m_nItemWidth / (float)m_pViewState->m_nItemHeight, 0.1f, 100.0f);
+			gluPerspective(45.0f, (float)m_viewState->m_nItemWidth / (float)m_viewState->m_nItemHeight, 0.1f, 100.0f);
 
-			CIconView* pIcon(NULL);
-			IconList::iterator itIcon = m_Icons.find(i);
-			if(itIcon == m_Icons.end())
+			IconMeshPtr iconMesh;
+			IconList::iterator itIcon = m_icons.find(i);
+			if(itIcon == m_icons.end())
 			{
-				const CSave* pSave;
-				pSave = m_pMemoryCard->GetSaveByIndex(i);
-
+				const CSave* pSave = m_memoryCard->GetSaveByIndex(i);
 				try
 				{
-					pIcon = new CIconView(new CIcon(pSave->GetNormalIconPath().string().c_str()));
-					m_Icons.insert(i, pIcon);
+					boost::scoped_ptr<Framework::CStdStream> iconStream(
+						Framework::CreateInputStdStream(pSave->GetNormalIconPath().native()));
+					IconPtr iconData(new CIcon(*iconStream));
+					iconMesh = IconMeshPtr(new CIconMesh(iconData));
 				}
 				catch(...)
 				{
 
 				}
+				m_icons[i] = iconMesh;
 			}
 			else
 			{
-				pIcon = itIcon->second;
+				iconMesh = itIcon->second;
 			}
 
-			if(pIcon != NULL)
+			if(iconMesh)
 			{
-				pIcon->Render();
+				iconMesh->Render();
 			}
 		}
 
-		nY += m_pViewState->m_nItemHeight;
+		nY += m_viewState->m_nItemHeight;
 	}
 
-	SwapBuffers(m_DeviceContext);
+	SwapBuffers(m_deviceContext);
 }

@@ -1,20 +1,43 @@
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <exception>
 #include "Icon.h"
 
-using namespace std;
-namespace iostreams = boost::iostreams;
+#pragma pack(push, 1)
 
-CIcon::CIcon(const char* sPath)
+struct FILEVERTEX
 {
-	iostreams::stream_buffer<iostreams::file_source> IconFileBuffer(sPath, ios::in | ios::binary);
-	istream IconFile(&IconFileBuffer);
+	int16 nX;
+	int16 nY;
+	int16 nZ;
+	int16 nW;
+};
 
-	ReadHeader(IconFile);
-	ReadVertices(IconFile);
-	ReadAnimations(IconFile);
-	ReadTexture(IconFile);
+struct FILEVERTEXATTRIB
+{
+	int16 nNX;
+	int16 nNY;
+	int16 nNZ;
+	int16 nNW;
+	int16 nS;
+	int16 nT;
+	uint32 nColor;
+};
+
+#pragma pack(pop)
+
+CIcon::CIcon(Framework::CStream& stream)
+: m_pTexture(NULL)
+, m_pTexCoords(NULL)
+, m_pFrames(NULL)
+, m_pShapes(NULL)
+, m_nShapeCount(0)
+, m_nVertexCount(0)
+, m_nTextureType(0)
+, m_nFrameCount(0)
+{
+	ReadHeader(stream);
+	ReadVertices(stream);
+	ReadAnimations(stream);
+	ReadTexture(stream);
 }
 
 CIcon::~CIcon()
@@ -72,20 +95,18 @@ unsigned int CIcon::GetFrameCount() const
 	return m_nFrameCount;
 }
 
-void CIcon::ReadHeader(istream& Input)
+void CIcon::ReadHeader(Framework::CStream& iconStream)
 {
-	uint32 nMagic;
-
-	Input.read(reinterpret_cast<char*>(&nMagic), 4);
+	uint32 nMagic = iconStream.Read32();
 	if(nMagic != 0x010000)
 	{
-		throw exception("Invalid icon file");
+		throw std::runtime_error("Invalid icon file");
 	}
 
-	Input.read(reinterpret_cast<char*>(&m_nShapeCount), 4);
-	Input.read(reinterpret_cast<char*>(&m_nTextureType), 4);
-	Input.seekg(4, ios::cur);
-	Input.read(reinterpret_cast<char*>(&m_nVertexCount), 4);
+	m_nShapeCount = iconStream.Read32();
+	m_nTextureType = iconStream.Read32();
+	iconStream.Seek(4, Framework::STREAM_SEEK_CUR);
+	m_nVertexCount = iconStream.Read32();
 
 	if((m_nTextureType != 0x06) &&
 		(m_nTextureType != 0x07) &&
@@ -93,11 +114,11 @@ void CIcon::ReadHeader(istream& Input)
 		(m_nTextureType != 0x0E) &&
 		(m_nTextureType != 0x0F))
 	{
-		throw exception("Unknown texture format.");
+		throw std::runtime_error("Unknown texture format.");
 	}
 }
 
-void CIcon::ReadVertices(istream& Input)
+void CIcon::ReadVertices(Framework::CStream& iconStream)
 {
 	m_pShapes = new VERTEX*[m_nShapeCount];
 	for(unsigned int j = 0; j < m_nShapeCount; j++)
@@ -111,81 +132,51 @@ void CIcon::ReadVertices(istream& Input)
 	{
 		for(unsigned int j = 0; j < m_nShapeCount; j++)
 		{
-#pragma pack(push, 1)
-			struct FILEVERTEX
-			{
-				int16 nX;
-				int16 nY;
-				int16 nZ;
-				int16 nW;
-			};
-#pragma pack(pop)
+			VERTEX* pVertex = &m_pShapes[j][i];
 
-			VERTEX* pVertex;
-			FILEVERTEX FileVertex;
+			FILEVERTEX fileVertex;
+			iconStream.Read(&fileVertex, sizeof(FILEVERTEX));
 
-			pVertex = &m_pShapes[j][i];
-
-			Input.read(reinterpret_cast<char*>(&FileVertex), sizeof(FILEVERTEX));
-
-			pVertex->nX = (double)FileVertex.nX / 4096.0;
-			pVertex->nY = (double)FileVertex.nY / 4096.0;
-			pVertex->nZ = (double)FileVertex.nZ / 4096.0;
+			pVertex->nX = static_cast<float>(fileVertex.nX) / 4096.0f;
+			pVertex->nY = static_cast<float>(fileVertex.nY) / 4096.0f;
+			pVertex->nZ = static_cast<float>(fileVertex.nZ) / 4096.0f;
 		}
 
-#pragma pack(push, 1)
-		struct FILEVERTEXATTRIB
-		{
-			int16 nNX;
-			int16 nNY;
-			int16 nNZ;
-			int16 nNW;
-			int16 nS;
-			int16 nT;
-			uint32 nColor;
-		};
-#pragma pack(pop)
+		FILEVERTEXATTRIB fileVertexAttrib;
+		iconStream.Read(&fileVertexAttrib, sizeof(FILEVERTEXATTRIB));
 
-		FILEVERTEXATTRIB FileVertexAttrib;
-
-		Input.read(reinterpret_cast<char*>(&FileVertexAttrib), sizeof(FILEVERTEXATTRIB));
-
-		m_pTexCoords[i].nS = (double)FileVertexAttrib.nS / 4096.0;
-		m_pTexCoords[i].nT = (double)FileVertexAttrib.nT / 4096.0;
+		m_pTexCoords[i].nS = static_cast<float>(fileVertexAttrib.nS) / 4096.0f;
+		m_pTexCoords[i].nT = static_cast<float>(fileVertexAttrib.nT) / 4096.0f;
 	}
 }
 
-void CIcon::ReadAnimations(istream& Input)
+void CIcon::ReadAnimations(Framework::CStream& iconStream)
 {
-	uint32 nMagic;
-
-	Input.read(reinterpret_cast<char*>(&nMagic), 4);
+	uint32 nMagic = iconStream.Read32();
 	
 	if(nMagic != 0x01)
 	{
-		throw exception("Invalid icon file (Animation Header Broken).");
+		throw std::runtime_error("Invalid icon file (Animation Header Broken).");
 	}
 
-	Input.seekg(12, ios::cur);
-	Input.read(reinterpret_cast<char*>(&m_nFrameCount), 4);
+	iconStream.Seek(12, Framework::STREAM_SEEK_CUR);
+	m_nFrameCount = iconStream.Read32();
 
 	m_pFrames = new FRAME[m_nFrameCount];
 
 	for(unsigned int i = 0; i < m_nFrameCount; i++)
 	{
-		FRAME* pFrame;
+		FRAME* pFrame = &m_pFrames[i];
 
-		pFrame = &m_pFrames[i];
-
-		Input.read(reinterpret_cast<char*>(&pFrame->nShapeId), 4);
-		Input.read(reinterpret_cast<char*>(&pFrame->nKeyCount), 4);
+		pFrame->nShapeId = iconStream.Read32();
+		pFrame->nKeyCount = iconStream.Read32();
 
 		pFrame->pKeys = new KEY[pFrame->nKeyCount];
-		Input.read(reinterpret_cast<char*>(pFrame->pKeys), sizeof(KEY) * pFrame->nKeyCount);
+		iconStream.Read(pFrame->pKeys, sizeof(KEY) * pFrame->nKeyCount);
 	}
 }
 
-void CIcon::ReadTexture(istream& Input)
+void CIcon::ReadTexture(Framework::CStream& iconStream)
 {
 	m_pTexture = new uint16[128 * 128];
 
@@ -193,47 +184,38 @@ void CIcon::ReadTexture(istream& Input)
 	{
 	case 6:
 	case 7:
-		Input.read(reinterpret_cast<char*>(m_pTexture), 128 * 128 * 2);
+		iconStream.Read(m_pTexture, 128 * 128 * 2);
 		break;
 	case 12:
 	case 14:
 	case 15:
-		UncompressTexture(Input);
+		UncompressTexture(iconStream);
 		break;
 	}
 }
 
-void CIcon::UncompressTexture(istream& Input)
+void CIcon::UncompressTexture(Framework::CStream& iconStream)
 {
-	uint32 nDataLength;
-	int nEndPosition;
-	unsigned int nTexPosition;
+	uint32 nDataLength = iconStream.Read32();
 
-	Input.read(reinterpret_cast<char*>(&nDataLength), 4);
+	int nEndPosition = static_cast<int>(iconStream.Tell()) + nDataLength;
+	unsigned int nTexPosition = 0;
 
-	nEndPosition = (int)Input.tellg() + nDataLength;
-	nTexPosition = 0;
-
-	while((Input.tellg() < nEndPosition) && (!Input.eof()))
+	while((iconStream.Tell() < nEndPosition) && !iconStream.IsEOF())
 	{
-		uint16 nCode;
-
-		Input.read(reinterpret_cast<char*>(&nCode), 2);
+		uint16 nCode = iconStream.Read16();
 
 		if((nCode & 0xFF00) == 0xFF00)
 		{
-			uint16 nLength;
-			nLength = -nCode;
+			uint16 nLength = -nCode;
 			for(unsigned int i = 0; i < nLength; i++)
 			{
-				Input.read(reinterpret_cast<char*>(&m_pTexture[nTexPosition++]), 2);
+				iconStream.Read(&m_pTexture[nTexPosition++], 2);
 			}
 		}
 		else
-		{
-			uint16 nValue;
-			
-			Input.read(reinterpret_cast<char*>(&nValue), 2);
+		{			
+			uint16 nValue = iconStream.Read16();
 			for(unsigned int i = 0; i < nCode; i++)
 			{
 				m_pTexture[nTexPosition++] = nValue;
