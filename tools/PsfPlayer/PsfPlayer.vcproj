@@ -1004,6 +1004,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\COP_SCU_Reflection.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\ELF.cpp"
 				>
 			</File>

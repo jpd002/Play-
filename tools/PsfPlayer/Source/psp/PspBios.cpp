@@ -724,7 +724,6 @@ void CBios::Reschedule()
 	}
 #endif
 	CurrentThreadId() = nextThreadId;
-	m_cpu.m_nQuota = 1;
 }
 
 uint32 CBios::CreateMbx(const char* name, uint32 attr, uint32 optParam)
