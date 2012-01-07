@@ -280,6 +280,12 @@ void CVPU::ExecuteMicro(uint32 nAddress)
 	m_pCtx->m_State.nHasException = 0;
 
     m_vif.SetStat(m_vif.GetStat() | GetVbs());
+
+	for(unsigned int i = 0; i < 100; i++)
+	{
+		Execute(false);
+		if(!IsRunning()) break;
+	}
 }
 
 void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
