@@ -43,6 +43,49 @@ void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegis
 	codeGen->And();
 }
 
+void VUShared::SetQuadMasked(CMIPS* context, const uint128& value, uint32 address, uint32 mask)
+{
+	assert((address & 0x0F) == 0);
+	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetWriteMap(address);
+	if(e == NULL) 
+	{
+		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, [0x%0.8X, 0x%0.8X, 0x%0.8X, 0x%0.8X]).\r\n", 
+			address, value.nV0, value.nV1, value.nV2, value.nV3);
+		return;
+	}
+	switch(e->nType)
+	{
+	case CMemoryMap::MEMORYMAP_TYPE_MEMORY:
+		if(mask == 0x0F)
+		{
+			*reinterpret_cast<uint128*>(reinterpret_cast<uint8*>(e->pPointer) + (address - e->nStart)) = value;
+		}
+		else
+		{
+			for(unsigned int i = 0; i < 4; i++)
+			{
+				if(DestinationHasElement(static_cast<uint8>(mask), i))
+				{
+					*reinterpret_cast<uint32*>(reinterpret_cast<uint8*>(e->pPointer) + (address - e->nStart) + (i * 4)) = value.nV[i];
+				}
+			}
+		}
+		break;
+	case CMemoryMap::MEMORYMAP_TYPE_FUNCTION:
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			if(DestinationHasElement(static_cast<uint8>(mask), i))
+			{
+				e->handler(address + (i * 4), value.nV[i]);
+			}
+		}
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 uint32* VUShared::GetVectorElement(CMIPS* pCtx, unsigned int nReg, unsigned int nElement)
 {
 	switch(nElement)
@@ -839,22 +882,11 @@ void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 		codeGen->Add();
 	}
 
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(VUShared::DestinationHasElement(dest, i))
-		{
-			codeGen->PushCtx();
-			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[is].nV[i]));
-			codeGen->PushIdx(2);
-			codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
-		}
-
-		if(i != 3)
-		{
-			codeGen->PushCst(4);
-			codeGen->Add();
-		}
-	}
+	codeGen->PushCtx();
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[is]));
+	codeGen->PushIdx(2);
+	codeGen->PushCst(dest);
+	codeGen->Call(reinterpret_cast<void*>(&VUShared::SetQuadMasked), 4, Jitter::CJitter::RETURN_VALUE_NONE);
 
 	codeGen->PullTop();
 

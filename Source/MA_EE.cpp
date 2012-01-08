@@ -113,22 +113,12 @@ void CMA_EE::LQ()
 {
     ComputeMemAccessAddr();
 
-    for(unsigned int i = 0; i < 4; i++)
-    {
-		m_codeGen->PushCtx();
-	    m_codeGen->PushIdx(1);
-	    m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+	m_codeGen->PushCtx();
+	m_codeGen->PushIdx(1);
+	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
+	m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
-
-        if(i != 3)
-        {
-            m_codeGen->PushCst(4);
-            m_codeGen->Add();
-        }
-    }
-
-    m_codeGen->PullTop();
+	m_codeGen->PullTop();
 }
 
 //1F
@@ -136,19 +126,10 @@ void CMA_EE::SQ()
 {
 	ComputeMemAccessAddr();
 
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		m_codeGen->PushCtx();
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
-		m_codeGen->PushIdx(2);
-		m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
-
-		if(i != 3)
-		{
-			m_codeGen->PushCst(4);
-			m_codeGen->Add();
-		}
-	}
+	m_codeGen->PushCtx();
+	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+	m_codeGen->PushIdx(2);
+	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetQuadProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 
 	m_codeGen->PullTop();
 }

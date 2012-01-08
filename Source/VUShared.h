@@ -58,6 +58,7 @@ namespace VUShared
 
 	bool						DestinationHasElement(uint8, unsigned int);
 	void						ComputeMemAccessAddr(CMipsJitter*, unsigned int, uint32, uint32);
+	void						SetQuadMasked(CMIPS*, const uint128&, uint32, uint32);
 	uint32*						GetVectorElement(CMIPS*, unsigned int, unsigned int);
 	size_t						GetVectorElement(unsigned int, unsigned int);
 	uint32*						GetAccumulatorElement(CMIPS*, unsigned int);
