@@ -3,7 +3,7 @@
 
 #include "Types.h"
 #include <functional>
-#include <map>
+#include <vector>
 
 enum MEMORYMAP_ENDIANESS
 {
@@ -32,8 +32,6 @@ public:
 	    MEMORYMAP_TYPE	                    nType;
     };
 
-    typedef std::map<unsigned char, MEMORYMAPELEMENT> MemoryMapListType;
-
 	virtual									~CMemoryMap();
 	uint8									GetByte(uint32);
 	virtual uint16							GetHalf(uint32) = 0;
@@ -47,13 +45,15 @@ public:
 	void									InsertWriteMap(uint32, uint32, void*, unsigned char);
     void                                    InsertWriteMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
     void                                    InsertInstructionMap(uint32, uint32, void*, unsigned char);
-    MEMORYMAPELEMENT*                       GetReadMap(uint32);
-    MEMORYMAPELEMENT*                       GetWriteMap(uint32);
+	const MEMORYMAPELEMENT*					GetReadMap(uint32) const;
+	const MEMORYMAPELEMENT*					GetWriteMap(uint32) const;
 	void									SetWriteNotifyHandler(const WriteNotifyHandlerType&);
 
 protected:
-    WriteNotifyHandlerType					m_WriteNotifyHandler;
-	static MEMORYMAPELEMENT*				GetMap(MemoryMapListType&, uint32);
+	typedef std::vector<MEMORYMAPELEMENT> MemoryMapListType;
+
+	WriteNotifyHandlerType					m_WriteNotifyHandler;
+	static const MEMORYMAPELEMENT*			GetMap(const MemoryMapListType&, uint32);
 
     MemoryMapListType                       m_instructionMap;
 	MemoryMapListType		                m_readMap;
@@ -62,7 +62,6 @@ protected:
 private:
 	static void								InsertMap(MemoryMapListType&, uint32, uint32, void*, unsigned char);
     static void                             InsertMap(MemoryMapListType&, uint32, uint32, const MemoryMapHandlerType&, unsigned char);
-	static void								DeleteMap(MemoryMapListType&);
 };
 
 class CMemoryMap_LSBF : public CMemoryMap

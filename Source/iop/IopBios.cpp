@@ -1276,7 +1276,7 @@ void CIopBios::DeleteModules()
 std::string CIopBios::ReadModuleName(uint32 address)
 {
 	std::string moduleName;
-	CMemoryMap::MEMORYMAPELEMENT* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(address);
+	const CMemoryMap::MEMORYMAPELEMENT* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(address);
 	assert(memoryMapElem != NULL);
 	assert(memoryMapElem->nType == CMemoryMap::MEMORYMAP_TYPE_MEMORY);
 	uint8* memory = reinterpret_cast<uint8*>(memoryMapElem->pPointer) + (address - memoryMapElem->nStart);
