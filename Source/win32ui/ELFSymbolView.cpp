@@ -2,20 +2,16 @@
 #include "ELFSymbolView.h"
 #include "PtrMacro.h"
 #include <boost/lexical_cast.hpp>
+#include "win32/Header.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 
 #define CLSNAME _T("CELFSymbolView")
 
-using namespace Framework;
-using namespace std;
-using namespace boost;
-
 CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
+: m_pELF(pELF)
+, m_listView(NULL)
 {
-	RECT rc;
-	LVCOLUMN col;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -29,66 +25,66 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 		RegisterClassEx(&wc);
 	}
 
+	RECT rc;
 	SetRect(&rc, 0, 0, 1, 1);
 
 	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pELF = pELF;
+	m_listView = new Framework::Win32::CListViewEx(m_hWnd, &rc, LVS_REPORT | LVS_OWNERDATA);
+	m_listView->SetExtendedListViewStyle(m_listView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_pListView = new Win32::CListView(m_hWnd, &rc, LVS_REPORT);
-	m_pListView->SetExtendedListViewStyle(m_pListView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
-
+	LVCOLUMN col;
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Name");
 	col.mask		= LVCF_TEXT;
-	m_pListView->InsertColumn(0, &col);
+	m_listView->InsertColumn(0, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Address");
 	col.mask		= LVCF_TEXT;
-	m_pListView->InsertColumn(1, &col);
+	m_listView->InsertColumn(1, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Size");
 	col.mask		= LVCF_TEXT;
-	m_pListView->InsertColumn(2, &col);
+	m_listView->InsertColumn(2, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Type");
 	col.mask		= LVCF_TEXT;
-	m_pListView->InsertColumn(3, &col);
+	m_listView->InsertColumn(3, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Binding");
 	col.mask		= LVCF_TEXT;
-	m_pListView->InsertColumn(4, &col);
+	m_listView->InsertColumn(4, &col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Section");
 	col.mask		= LVCF_TEXT;
-	m_pListView->InsertColumn(5, &col);
+	m_listView->InsertColumn(5, &col);
 
 	RefreshLayout();
 
-	m_pListView->GetClientRect(&rc);
+	m_listView->GetClientRect(&rc);
 
-	m_pListView->SetColumnWidth(0, rc.right / 3);
-	m_pListView->SetColumnWidth(1, rc.right / 4);
-	m_pListView->SetColumnWidth(2, rc.right / 4);
-	m_pListView->SetColumnWidth(3, rc.right / 4);
-	m_pListView->SetColumnWidth(4, rc.right / 4);
-	m_pListView->SetColumnWidth(5, rc.right / 4);
+	m_listView->SetColumnWidth(0, rc.right / 3);
+	m_listView->SetColumnWidth(1, rc.right / 4);
+	m_listView->SetColumnWidth(2, rc.right / 4);
+	m_listView->SetColumnWidth(3, rc.right / 4);
+	m_listView->SetColumnWidth(4, rc.right / 4);
+	m_listView->SetColumnWidth(5, rc.right / 4);
 
 	PopulateList();
 
-	m_pListView->Redraw();
+	m_listView->Redraw();
 }
 
 CELFSymbolView::~CELFSymbolView()
 {
 	Destroy();
-	DELETEPTR(m_pListView);	
+	DELETEPTR(m_listView);	
 }
 
 long CELFSymbolView::OnSize(unsigned int nType, unsigned int nWidth, unsigned int nHeight)
@@ -97,39 +93,129 @@ long CELFSymbolView::OnSize(unsigned int nType, unsigned int nWidth, unsigned in
 	return FALSE;
 }
 
+long CELFSymbolView::OnNotify(WPARAM wParam, NMHDR* hdr)
+{
+	if(IsNotifySource(m_listView, hdr))
+	{
+		m_listView->ProcessGetDisplayInfo(hdr, std::tr1::bind(&CELFSymbolView::GetItemInfo, this, std::tr1::placeholders::_1));
+
+		if(hdr->code == LVN_COLUMNCLICK)
+		{
+			NMLISTVIEW* notice(reinterpret_cast<NMLISTVIEW*>(hdr));
+
+			if(notice->iSubItem == 0)
+			{
+				if(m_sortState == SORT_STATE_NAME_ASC || m_sortState == SORT_STATE_NAME_DESC)
+				{
+					std::reverse(m_items.begin(), m_items.end());
+					m_sortState = (m_sortState == SORT_STATE_NAME_ASC) ? SORT_STATE_NAME_DESC : SORT_STATE_NAME_ASC;
+				}
+				else
+				{
+					std::sort(m_items.begin(), m_items.end(), ItemNameComparer);
+					m_sortState = SORT_STATE_NAME_ASC;
+				}
+
+				m_listView->Redraw();
+			}
+
+			if(notice->iSubItem == 1)
+			{
+				if(m_sortState == SORT_STATE_ADDRESS_ASC || m_sortState == SORT_STATE_ADDRESS_DESC)
+				{
+					std::reverse(m_items.begin(), m_items.end());
+					m_sortState = (m_sortState == SORT_STATE_ADDRESS_ASC) ? SORT_STATE_ADDRESS_DESC : SORT_STATE_ADDRESS_ASC;
+				}
+				else
+				{
+					std::sort(m_items.begin(), m_items.end(), ItemAddressComparer);
+					m_sortState = SORT_STATE_ADDRESS_ASC;
+				}
+
+				m_listView->Redraw();
+			}
+
+			//Update columns
+			{
+				Framework::Win32::CHeader header(m_listView->GetHeader());
+
+				//Column 0
+				{
+					HDITEM item;
+					memset(&item, 0, sizeof(HDITEM));
+					item.mask = HDI_FORMAT;
+					header.GetItem(0, &item);
+					item.fmt &= ~(HDF_SORTUP | HDF_SORTDOWN);
+					if(m_sortState == SORT_STATE_NAME_ASC) item.fmt |= HDF_SORTUP;
+					if(m_sortState == SORT_STATE_NAME_DESC) item.fmt |= HDF_SORTDOWN;
+					header.SetItem(0, &item);
+				}
+
+				//Column 1
+				{
+					HDITEM item;
+					memset(&item, 0, sizeof(HDITEM));
+					item.mask = HDI_FORMAT;
+					header.GetItem(1, &item);
+					item.fmt &= ~(HDF_SORTUP | HDF_SORTDOWN);
+					if(m_sortState == SORT_STATE_ADDRESS_ASC) item.fmt |= HDF_SORTUP;
+					if(m_sortState == SORT_STATE_ADDRESS_DESC) item.fmt |= HDF_SORTDOWN;
+					header.SetItem(1, &item);
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+int CELFSymbolView::ItemNameComparer(const ITEM& item1, const ITEM& item2)
+{
+	return item1.name < item2.name;
+}
+
+int CELFSymbolView::ItemAddressComparer(const ITEM& item1, const ITEM& item2)
+{
+	return item1.address < item2.address;
+}
+
+void CELFSymbolView::RefreshLayout()
+{
+	RECT rc;
+	::GetClientRect(GetParent(), &rc);
+
+	SetPosition(0, 0);
+	SetSize(rc.right, rc.bottom);
+
+	GetClientRect(&rc);
+
+	m_listView->SetPosition(10, 10);
+	m_listView->SetSize(rc.right - 20, rc.bottom - 20);
+}
+
 void CELFSymbolView::PopulateList()
 {
-	unsigned int nCount;
-	LVITEM it;
-	ELFSYMBOL* pSym;
-	ELFSECTIONHEADER* pSymTab;
-	const char* pStrTab;
+	m_sortState = SORT_STATE_NONE;
+	const char* sectionName = ".symtab";
 
-	pSymTab = m_pELF->FindSection(".symtab");
+	ELFSECTIONHEADER* pSymTab = m_pELF->FindSection(sectionName);
 	if(pSymTab == NULL) return;
 
-	pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
+	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
 	if(pStrTab == NULL) return;
 
-	pSym = (ELFSYMBOL*)m_pELF->FindSectionData(".symtab");
-	nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+	ELFSYMBOL* pSym = (ELFSYMBOL*)m_pELF->FindSectionData(sectionName);
+	unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
 
-	m_pListView->DeleteAllItems();
-	
+	m_items.resize(nCount);
 	for(unsigned int i = 0; i < nCount; i++)
 	{
-		memset(&it, 0, sizeof(LVITEM));
-		m_pListView->InsertItem(&it);
-	}
+		ITEM& item(m_items[i]);
+		TCHAR sTemp[256];
 
-	for(unsigned int i = 0; i < nCount; i++)
-	{
-    	TCHAR sTemp[256];
+		item.name		= string_cast<std::tstring>(pStrTab + pSym[i].nName);
+		item.address	= _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nValue, 8);
+		item.size		= _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nSize, 8);
 
-        m_pListView->SetItemText(i, 0, string_cast<tstring>(pStrTab + pSym[i].nName).c_str());
-		m_pListView->SetItemText(i, 1, (_T("0x") + lexical_cast_hex<tstring>(pSym[i].nValue, 8)).c_str());
-		m_pListView->SetItemText(i, 2, (_T("0x") + lexical_cast_hex<tstring>(pSym[i].nSize, 8)).c_str());
-	
 		switch(pSym[i].nInfo & 0x0F)
 		{
 		case 0x00:
@@ -151,7 +237,7 @@ void CELFSymbolView::PopulateList()
 			_sntprintf(sTemp, countof(sTemp), _T("%i"), pSym[i].nInfo & 0x0F);
 			break;
 		}
-		m_pListView->SetItemText(i, 3, sTemp);
+		item.type = sTemp;
 
 		switch((pSym[i].nInfo >> 4) & 0xF)
 		{
@@ -168,7 +254,7 @@ void CELFSymbolView::PopulateList()
 			_sntprintf(sTemp, countof(sTemp), _T("%i"), (pSym[i].nInfo >> 4) & 0x0F);
 			break;
 		}
-		m_pListView->SetItemText(i, 4, sTemp);
+		item.binding = sTemp;
 
 		switch(pSym[i].nSectionIndex)
 		{
@@ -182,22 +268,37 @@ void CELFSymbolView::PopulateList()
 			_sntprintf(sTemp, countof(sTemp), _T("%i"), pSym[i].nSectionIndex);
 			break;
 		}
-		m_pListView->SetItemText(i, 5, sTemp);
-	
+		item.section = sTemp;
 	}
+
+	m_listView->SetItemCount(nCount);
 }
 
-void CELFSymbolView::RefreshLayout()
+void CELFSymbolView::GetItemInfo(LVITEM* outItem) const
 {
-	RECT rc;
-	::GetClientRect(GetParent(), &rc);
-
-	SetPosition(0, 0);
-	SetSize(rc.right, rc.bottom);
-
-	GetClientRect(&rc);
-
-	m_pListView->SetPosition(10, 10);
-	m_pListView->SetSize(rc.right - 20, rc.bottom - 20);
-
+	if(outItem->iItem >= m_items.size()) return;
+	const ITEM& item(m_items[outItem->iItem]);
+	const PooledString* itemText(NULL);
+	switch(outItem->iSubItem)
+	{
+	case 0:
+		itemText = &item.name;
+		break;
+	case 1:
+		itemText = &item.address;
+		break;
+	case 2:
+		itemText = &item.size;
+		break;
+	case 3:
+		itemText = &item.type;
+		break;
+	case 4:
+		itemText = &item.binding;
+		break;
+	case 5:
+		itemText = &item.section;
+		break;
+	}
+	outItem->pszText = const_cast<TCHAR*>(static_cast<const std::tstring&>(*itemText).c_str());
 }

@@ -1,12 +1,12 @@
 #ifndef _ELFHEADERVIEW_H_
 #define _ELFHEADERVIEW_H_
 
-#include "win32/Window.h"
+#include "win32/Dialog.h"
 #include "win32/Edit.h"
 #include "layout/GridLayout.h"
 #include "../ELF.h"
 
-class CELFHeaderView : public Framework::Win32::CWindow
+class CELFHeaderView : public Framework::Win32::CDialog
 {
 public:
 								CELFHeaderView(HWND, CELF*);

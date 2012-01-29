@@ -1,76 +1,65 @@
 #include <stdio.h>
 #include "ELFProgramView.h"
-#include "PtrMacro.h"
 #include "layout/LayoutStretch.h"
 #include "win32/Static.h"
 #include "win32/LayoutWindow.h"
-
-#define CLSNAME	_T("CELFProgramView")
-
-using namespace Framework;
+#include "ElfViewRes.h"
 
 CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF)
-: m_nProgram(-1)
+: CDialog(MAKEINTRESOURCE(IDD_ELFVIEW_PROGRAMVIEW), hParent)
+, m_nProgram(-1)
+, m_pELF(pELF)
 {
-	RECT rc;
-
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		WNDCLASSEX wc;
-		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		RegisterClassEx(&wc);
-	}
-
-	m_pELF = pELF;
-
-	SetRect(&rc, 0, 0, 1, 1);
-
-	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pType		= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pOffset	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pVAddr	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pPAddr	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pFileSize	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pMemSize	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pFlags	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pAlign	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_pType		= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_TYPE_EDIT));
+	m_pOffset	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_OFFSET_EDIT));
+	m_pVAddr	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_VADDR_EDIT));
+	m_pPAddr	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_PADDR_EDIT));
+	m_pFileSize	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FILESIZE_EDIT));
+	m_pMemSize	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_MEMSIZE_EDIT));
+	m_pFlags	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FLAGS_EDIT));
+	m_pAlign	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_ALIGN_EDIT));
 
-    m_pLayout = CGridLayout::Create(2, 9);
+	RECT columnEditBoxSize;
+	SetRect(&columnEditBoxSize, 0, 0, 70, 12);
+	MapDialogRect(m_hWnd, &columnEditBoxSize);
+	unsigned int columnEditBoxWidth = columnEditBoxSize.right - columnEditBoxSize.left;
+	unsigned int columnEditBoxHeight = columnEditBoxSize.bottom - columnEditBoxSize.top;
 
-	m_pLayout->SetObject(0, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Type:"))));
-	m_pLayout->SetObject(0, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Offset:"))));
-	m_pLayout->SetObject(0, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Virtual Address:"))));
-	m_pLayout->SetObject(0, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Physical Address:"))));
-	m_pLayout->SetObject(0, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("File Size:"))));
-	m_pLayout->SetObject(0, 5, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Memory Size:"))));
-	m_pLayout->SetObject(0, 6, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Flags:"))));
-	m_pLayout->SetObject(0, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Alignment:"))));
+	RECT columnLabelSize;
+	SetRect(&columnLabelSize, 0, 0, 70, 8);
+	MapDialogRect(m_hWnd, &columnLabelSize);
+	unsigned int columnLabelWidth = columnLabelSize.right - columnLabelSize.left;
+	unsigned int columnLabelHeight = columnLabelSize.bottom - columnLabelSize.top;
 
-	m_pLayout->SetObject(1, 0, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pType));
-	m_pLayout->SetObject(1, 1, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pOffset));
-	m_pLayout->SetObject(1, 2, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pVAddr));
-	m_pLayout->SetObject(1, 3, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pPAddr));
-	m_pLayout->SetObject(1, 4, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFileSize));
-	m_pLayout->SetObject(1, 5, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pMemSize));
-	m_pLayout->SetObject(1, 6, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pFlags));
-	m_pLayout->SetObject(1, 7, Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pAlign));
-    m_pLayout->SetObject(1, 8, CLayoutStretch::Create());
+	m_pLayout = Framework::CGridLayout::Create(2, 9);
 
+	m_pLayout->SetObject(0, 0, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_TYPE_LABEL))));
+	m_pLayout->SetObject(0, 1, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_OFFSET_LABEL))));
+	m_pLayout->SetObject(0, 2, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_VADDR_LABEL))));
+	m_pLayout->SetObject(0, 3, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_PADDR_LABEL))));
+	m_pLayout->SetObject(0, 4, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FILESIZE_LABEL))));
+	m_pLayout->SetObject(0, 5, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_MEMSIZE_LABEL))));
+	m_pLayout->SetObject(0, 6, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FLAGS_LABEL))));
+	m_pLayout->SetObject(0, 7, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_PROGRAMVIEW_ALIGN_LABEL))));
+
+	m_pLayout->SetObject(1, 0, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pType));
+	m_pLayout->SetObject(1, 1, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pOffset));
+	m_pLayout->SetObject(1, 2, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pVAddr));
+	m_pLayout->SetObject(1, 3, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pPAddr));
+	m_pLayout->SetObject(1, 4, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pFileSize));
+	m_pLayout->SetObject(1, 5, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pMemSize));
+	m_pLayout->SetObject(1, 6, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pFlags));
+	m_pLayout->SetObject(1, 7, Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_pAlign));
+	m_pLayout->SetObject(1, 8, Framework::CLayoutStretch::Create());
 
 	RefreshLayout();
 }
 
 CELFProgramView::~CELFProgramView()
 {
-    Destroy();
+	Destroy();
 }
 
 long CELFProgramView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
@@ -92,25 +81,25 @@ void CELFProgramView::FillInformation()
 
 	switch(pH->nType)
 	{
-	case 0x00:
+	case CELF::PT_NULL:
 		_tcscpy(sTemp, _T("PT_NULL"));
 		break;
-	case 0x01:
+	case CELF::PT_LOAD:
 		_tcscpy(sTemp, _T("PT_LOAD"));
 		break;
-	case 0x02:
+	case CELF::PT_DYNAMIC:
 		_tcscpy(sTemp, _T("PT_DYNAMIC"));
 		break;
-	case 0x03:
+	case CELF::PT_INTERP:
 		_tcscpy(sTemp, _T("PT_INTERP"));
 		break;
-	case 0x04:
+	case CELF::PT_NOTE:
 		_tcscpy(sTemp, _T("PT_NOTE"));
 		break;
-	case 0x05:
+	case CELF::PT_SHLIB:
 		_tcscpy(sTemp, _T("PT_SHLIB"));
 		break;
-	case 0x06:
+	case CELF::PT_PHDR:
 		_tcscpy(sTemp, _T("PT_PHDR"));
 		break;
 	default:

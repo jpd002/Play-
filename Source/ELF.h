@@ -65,26 +65,86 @@ struct ELFPROGRAMHEADER
 class CELF
 {
 public:
-    enum SECTION_HEADER_TYPE
-    {
-        SHT_NOBITS = 8,
-        SHT_REL = 9,
-    };
+	enum EXECUTABLE_TYPE
+	{
+		ET_NONE			= 0,
+		ET_REL			= 1,
+		ET_EXEC			= 2,
+		ET_DYN			= 3,
+		ET_CORE			= 4,
+	};
 
-    enum MIPS_RELOCATION_TYPE
-    {
-        R_MIPS_32 = 2,
-        R_MIPS_26 = 4,
-        R_MIPS_HI16 = 5,
-        R_MIPS_LO16 = 6,
-    };
+	enum MACHINE_TYPE
+	{
+		EM_NONE			= 0,
+		EM_M32			= 1,
+		EM_SPARC		= 2,
+		EM_386			= 3,
+		EM_68K			= 4,
+		EM_88K			= 5,
+		EM_860			= 7,
+		EM_MIPS			= 8,
+		EM_ARM			= 40,
+	};
 
-                        CELF(uint8*);
-    virtual             ~CELF();
+	enum EXECUTABLE_VERSION
+	{
+		EV_NONE			= 0,
+		EV_CURRENT		= 1,
+	};
 
-    uint8*              GetContent() const;
-    const ELFHEADER&    GetHeader() const;
-    ELFSECTIONHEADER*	GetSection(unsigned int);
+	enum SECTION_HEADER_TYPE
+	{
+		SHT_NULL		= 0,
+		SHT_PROGBITS	= 1,
+		SHT_SYMTAB		= 2,
+		SHT_STRTAB		= 3,
+		SHT_HASH		= 5,
+		SHT_DYNAMIC		= 6,
+		SHT_NOTE		= 7,
+		SHT_NOBITS		= 8,
+		SHT_REL			= 9,
+		SHT_DYNSYM		= 11,
+	};
+
+	enum PROGRAM_HEADER_TYPE
+	{
+		PT_NULL			= 0,
+		PT_LOAD			= 1,
+		PT_DYNAMIC		= 2,
+		PT_INTERP		= 3,
+		PT_NOTE			= 4,
+		PT_SHLIB		= 5,
+		PT_PHDR			= 6,
+	};
+
+	enum DYNAMIC_INFO_TYPE
+	{
+		DT_NONE			= 0,
+		DT_NEEDED		= 1,
+		DT_PLTRELSZ		= 2,
+		DT_PLTGOT		= 3,
+		DT_HASH			= 4,
+		DT_STRTAB		= 5,
+		DT_SYMTAB		= 6,
+		DT_SONAME		= 14,
+		DT_SYMBOLIC		= 16,
+	};
+
+	enum MIPS_RELOCATION_TYPE
+	{
+		R_MIPS_32 = 2,
+		R_MIPS_26 = 4,
+		R_MIPS_HI16 = 5,
+		R_MIPS_LO16 = 6,
+	};
+
+						CELF(uint8*);
+	virtual				~CELF();
+
+	uint8*				GetContent() const;
+	const ELFHEADER&	GetHeader() const;
+	ELFSECTIONHEADER*	GetSection(unsigned int);
 	ELFSECTIONHEADER*	FindSection(const char*);
 	const void*			GetSectionData(unsigned int);
 	const void*			FindSectionData(const char*);
@@ -92,7 +152,7 @@ public:
 
 private:
 	ELFHEADER			m_Header;
-    uint8*				m_content;
+	uint8*				m_content;
 
 	ELFSECTIONHEADER*	m_pSection;
 	ELFPROGRAMHEADER*	m_pProgram;
