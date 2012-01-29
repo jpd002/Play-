@@ -9,6 +9,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int
 	CElfViewFrame elfViewFrame(path.c_str());
 	elfViewFrame.Center();
 	elfViewFrame.Show(SW_SHOW);
-	Framework::Win32::CWindow::StdMsgLoop(&elfViewFrame);
+	Framework::Win32::CWindow::DlgMsgLoop(elfViewFrame);
     return 0;
 }

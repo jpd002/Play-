@@ -65,7 +65,7 @@ long CElfViewFrame::OnCommand(unsigned short id, unsigned short msg, HWND hwndFr
 void CElfViewFrame::OpenElf()
 {
 	Win32::CFileDialog d;
-	d.m_OFN.lpstrFilter = _T("ELF Executable Files (*.elf)\0*.elf\0All files (*.*)\0*.*\0");
+	d.m_OFN.lpstrFilter = _T("ELF Executable Files (*.elf; *.so)\0*.elf; *.so\0All files (*.*)\0*.*\0");
 
 	Enable(FALSE);
 	int nRet = d.SummonOpen(m_hWnd);
