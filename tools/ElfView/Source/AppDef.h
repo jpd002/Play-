@@ -4,7 +4,7 @@
 //Don't put tabs here since it will screw up the installer package
 
 #define APP_NAME _T("Elf Viewer")
-#define APP_VERSION (100)
-#define APP_VERSIONSTR _T("1.00")
+#define APP_VERSION (110)
+#define APP_VERSIONSTR _T("1.10")
 
 #endif
