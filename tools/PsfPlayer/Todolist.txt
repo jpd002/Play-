@@ -1,17 +1,21 @@
 TODO:
+
+- Remove HighResTimer.
+- Remove _PSX preprocessor def.
+
 - Fix autodetection of charset for tags
-- Fix deadlock problem happening when clicking "next" too much (Happens with FF4/PS2).
 - Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
 	- SPU updating for too long? (CPU/SPU desync)
 - Xenosaga
 	- Sounds really bad
 	- June Mermaid, especially
 - Display Reverb params in SPU views.
-- Windows 7 stuff
 - DiskOut sound handler.
 - Exception for invalid PSFs
 
 Done:
+- Fix deadlock problem happening when clicking "next" too much (Happens with FF4/PS2).
+- Windows 7 stuff
 - PSP
 	- Integrate PSP core in PsfPlayer
 	- Use sceAudio to output sound

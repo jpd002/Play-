@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{06CD8F2E-F93C-4DE3-8100-C74290578573}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>PsfPlayer</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;TDEmu.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest.xml</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_PSX;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comctl32.lib;TDEmu64.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest64.xml</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>comctl32.lib;TDEmu.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest.xml</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_PSX;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>comctl32.lib;TDEmu64.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest64.xml</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\BasicBlock.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_FPU.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_FPU_Reflection.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_SCU.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_SCU_Reflection.cpp" />
+    <ClCompile Include="..\..\..\Source\ELF.cpp" />
+    <ClCompile Include="..\..\..\Source\ElfFile.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\ArgumentIterator.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\IopBios.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Cdvdman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Dmac.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_DmacChannel.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Dynamic.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Intc.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Intrman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Ioman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Loadcore.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Modload.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_RootCounters.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifCmd.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifDynamic.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifMan.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifManNull.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu2.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu2_Core.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SpuBase.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Stdio.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SubSystem.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Sysclib.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Sysmem.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thbase.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thevent.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thsema.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Timrman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Vblank.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\DirectoryRecord.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\File.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\ISO9660.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\PathTable.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\PathTableRecord.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\VolumeDescriptor.cpp" />
+    <ClCompile Include="..\..\..\Source\Log.cpp" />
+    <ClCompile Include="..\..\..\Source\MailBox.cpp" />
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV.cpp" />
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV_Reflection.cpp" />
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV_Templates.cpp" />
+    <ClCompile Include="..\..\..\Source\MemoryMap.cpp" />
+    <ClCompile Include="..\..\..\Source\MemoryStateFile.cpp" />
+    <ClCompile Include="..\..\..\Source\MemoryUtils.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPS.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSAnalysis.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSArchitecture.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSAssembler.cpp" />
+    <ClCompile Include="..\..\..\Source\MipsAssemblerDefinitions.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSCoprocessor.cpp" />
+    <ClCompile Include="..\..\..\Source\MipsExecutor.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSInstructionFactory.cpp" />
+    <ClCompile Include="..\..\..\Source\MipsJitter.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSReflection.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSTags.cpp" />
+    <ClCompile Include="..\..\..\Source\StructCollectionStateFile.cpp" />
+    <ClCompile Include="..\..\..\Source\StructFile.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\DisAsm.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\FunctionsView.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\MemoryView.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\MemoryViewMIPS.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\RegViewGeneral.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\RegViewPage.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\WinUtils.cpp" />
+    <ClCompile Include="..\Source\AppConfig.cpp" />
+    <ClCompile Include="..\Source\HighResTimer.cpp" />
+    <ClCompile Include="..\Source\Iop_PsfSubSystem.cpp" />
+    <ClCompile Include="..\Source\Playlist.cpp" />
+    <ClCompile Include="..\Source\ps2\Ps2_PsfDevice.cpp" />
+    <ClCompile Include="..\Source\ps2\PsfBios.cpp" />
+    <ClCompile Include="..\Source\PsfArchive.cpp" />
+    <ClCompile Include="..\Source\PsfBase.cpp" />
+    <ClCompile Include="..\Source\PsfFs.cpp" />
+    <ClCompile Include="..\Source\PsfLoader.cpp" />
+    <ClCompile Include="..\Source\PsfRarArchive.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(FrameworkRoot)\include;$(ProjectDir)\Source;$(ProjectDir)\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(FrameworkRoot)\include;$(ProjectDir)\Source;$(ProjectDir)\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(FrameworkRoot)\include;$(ProjectDir)\Source;$(ProjectDir)\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(FrameworkRoot)\include;$(ProjectDir)\Source;$(ProjectDir)\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Source\PsfStreamProvider.cpp" />
+    <ClCompile Include="..\Source\PsfTags.cpp" />
+    <ClCompile Include="..\Source\PsfVm.cpp" />
+    <ClCompile Include="..\Source\PsfZipArchive.cpp" />
+    <ClCompile Include="..\Source\psp\MA_ALLEGREX.cpp" />
+    <ClCompile Include="..\Source\psp\MA_ALLEGREX_Reflection.cpp" />
+    <ClCompile Include="..\Source\psp\PspBios.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_Audio.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_IoFileMgrForUser.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_KernelLibrary.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_PsfBios.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_PsfDevice.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_PsfSubSystem.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_SasCore.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_StdioForUser.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_SysMemUserForUser.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_ThreadManForUser.cpp" />
+    <ClCompile Include="..\Source\psx\PsxBios.cpp" />
+    <ClCompile Include="..\Source\win32_ui\AboutWindow.cpp" />
+    <ClCompile Include="..\Source\win32_ui\AcceleratorTable.cpp" />
+    <ClCompile Include="..\Source\win32_ui\CounterRegView.cpp" />
+    <ClCompile Include="..\Source\win32_ui\DirectXControl.cpp" />
+    <ClCompile Include="..\Source\win32_ui\FileInformationPanel.cpp" />
+    <ClCompile Include="..\Source\win32_ui\Main.cpp" />
+    <ClCompile Include="..\Source\win32_ui\MainWindow.cpp" />
+    <ClCompile Include="..\Source\win32_ui\MiniDebugger.cpp" />
+    <ClCompile Include="..\Source\win32_ui\PlaylistPanel.cpp" />
+    <ClCompile Include="..\Source\win32_ui\SpuRegView.cpp" />
+    <ClCompile Include="..\Source\win32_ui\SpuRegViewPanel.cpp" />
+    <ClCompile Include="..\Source\win32_ui\StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\BasicBlock.h" />
+    <ClInclude Include="..\..\..\Source\COP_FPU.h" />
+    <ClInclude Include="..\..\..\Source\COP_SCU.h" />
+    <ClInclude Include="..\..\..\Source\ELF.h" />
+    <ClInclude Include="..\..\..\Source\ElfFile.h" />
+    <ClInclude Include="..\..\..\Source\iop\ArgumentIterator.h" />
+    <ClInclude Include="..\..\..\Source\iop\Ioman_Device.h" />
+    <ClInclude Include="..\..\..\Source\iop\IopBios.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Cdvdman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Dmac.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_DmacChannel.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Dynamic.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Intc.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Intrman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Ioman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Loadcore.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Modload.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Module.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_RootCounters.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifCmd.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifDynamic.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Sifman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifManNull.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu2.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu2_Core.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SpuBase.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Stdio.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SubSystem.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Sysclib.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Sysmem.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thbase.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thevent.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thsema.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Timrman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Vblank.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\DirectoryRecord.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\File.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\ISO9660.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\PathTable.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\PathTableRecord.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\VolumeDescriptor.h" />
+    <ClInclude Include="..\..\..\Source\Log.h" />
+    <ClInclude Include="..\..\..\Source\MailBox.h" />
+    <ClInclude Include="..\..\..\Source\MA_MIPSIV.h" />
+    <ClInclude Include="..\..\..\Source\MemoryMap.h" />
+    <ClInclude Include="..\..\..\Source\MemoryStateFile.h" />
+    <ClInclude Include="..\..\..\Source\MemoryUtils.h" />
+    <ClInclude Include="..\..\..\Source\MIPS.h" />
+    <ClInclude Include="..\..\..\Source\MIPSAnalysis.h" />
+    <ClInclude Include="..\..\..\Source\MIPSArchitecture.h" />
+    <ClInclude Include="..\..\..\Source\MIPSAssembler.h" />
+    <ClInclude Include="..\..\..\Source\MipsAssemblerDefinitions.h" />
+    <ClInclude Include="..\..\..\Source\MIPSCoprocessor.h" />
+    <ClInclude Include="..\..\..\Source\MipsExecutor.h" />
+    <ClInclude Include="..\..\..\Source\MIPSInstructionFactory.h" />
+    <ClInclude Include="..\..\..\Source\MipsJitter.h" />
+    <ClInclude Include="..\..\..\Source\MIPSReflection.h" />
+    <ClInclude Include="..\..\..\Source\MIPSTags.h" />
+    <ClInclude Include="..\..\..\Source\StructCollectionStateFile.h" />
+    <ClInclude Include="..\..\..\Source\StructFile.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\DisAsm.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\FunctionsView.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\MemoryView.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\MemoryViewMIPS.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\RegViewGeneral.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\RegViewPage.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\WinUtils.h" />
+    <ClInclude Include="..\Source\AppConfig.h" />
+    <ClInclude Include="..\Source\AppDef.h" />
+    <ClInclude Include="..\Source\Debuggable.h" />
+    <ClInclude Include="..\Source\HighResTimer.h" />
+    <ClInclude Include="..\Source\Iop_PsfSubSystem.h" />
+    <ClInclude Include="..\Source\path_uncomplete.h" />
+    <ClInclude Include="..\Source\Playlist.h" />
+    <ClInclude Include="..\Source\ps2\Ps2_PsfDevice.h" />
+    <ClInclude Include="..\Source\ps2\PsfBios.h" />
+    <ClInclude Include="..\Source\PsfArchive.h" />
+    <ClInclude Include="..\Source\PsfBase.h" />
+    <ClInclude Include="..\Source\PsfFs.h" />
+    <ClInclude Include="..\Source\PsfLoader.h" />
+    <ClInclude Include="..\Source\PsfRarArchive.h" />
+    <ClInclude Include="..\Source\PsfStreamProvider.h" />
+    <ClInclude Include="..\Source\PsfTags.h" />
+    <ClInclude Include="..\Source\PsfVm.h" />
+    <ClInclude Include="..\Source\PsfVmSubSystem.h" />
+    <ClInclude Include="..\Source\PsfZipArchive.h" />
+    <ClInclude Include="..\Source\psp\MA_ALLEGREX.h" />
+    <ClInclude Include="..\Source\psp\PspBios.h" />
+    <ClInclude Include="..\Source\psp\PspModule.h" />
+    <ClInclude Include="..\Source\psp\Psp_Audio.h" />
+    <ClInclude Include="..\Source\psp\Psp_IoDevice.h" />
+    <ClInclude Include="..\Source\psp\Psp_IoFileMgrForUser.h" />
+    <ClInclude Include="..\Source\psp\Psp_KernelLibrary.h" />
+    <ClInclude Include="..\Source\psp\Psp_PsfBios.h" />
+    <ClInclude Include="..\Source\psp\Psp_PsfDevice.h" />
+    <ClInclude Include="..\Source\psp\Psp_PsfSubSystem.h" />
+    <ClInclude Include="..\Source\psp\Psp_SasCore.h" />
+    <ClInclude Include="..\Source\psp\Psp_StdioForUser.h" />
+    <ClInclude Include="..\Source\psp\Psp_SysMemUserForUser.h" />
+    <ClInclude Include="..\Source\psp\Psp_ThreadManForUser.h" />
+    <ClInclude Include="..\Source\psx\PsxBios.h" />
+    <ClInclude Include="..\Source\SoundHandler.h" />
+    <ClInclude Include="..\Source\win32_ui\AboutWindow.h" />
+    <ClInclude Include="..\Source\win32_ui\AcceleratorTable.h" />
+    <ClInclude Include="..\Source\win32_ui\CounterRegView.h" />
+    <ClInclude Include="..\Source\win32_ui\DirectXControl.h" />
+    <ClInclude Include="..\Source\win32_ui\FileInformationPanel.h" />
+    <ClInclude Include="..\Source\win32_ui\LockFreeQueue.h" />
+    <ClInclude Include="..\Source\win32_ui\MainWindow.h" />
+    <ClInclude Include="..\Source\win32_ui\MiniDebugger.h" />
+    <ClInclude Include="..\Source\win32_ui\PlaylistPanel.h" />
+    <ClInclude Include="..\Source\win32_ui\resource.h" />
+    <ClInclude Include="..\Source\win32_ui\SpuRegView.h" />
+    <ClInclude Include="..\Source\win32_ui\SpuRegViewPanel.h" />
+    <ClInclude Include="..\Source\win32_ui\StdAfx.h" />
+    <ClInclude Include="..\Source\win32_ui\TimeToString.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Todolist.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Source\win32_ui\Res.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\CodeGen\CodeGen.vcxproj">
+      <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Framework\build_msvc100\Framework.vcxproj">
+      <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\unrarsrc-4.0.3\unrarsrc-4.0.3.vcxproj">
+      <Project>{28f9e5b7-74eb-4daa-a7c0-e09d2ff43291}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj">
+      <Project>{4a0b5134-ab23-452d-8513-8225fa178356}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

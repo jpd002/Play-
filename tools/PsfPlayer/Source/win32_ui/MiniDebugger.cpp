@@ -12,10 +12,6 @@
 
 #define ID_VM_PAUSE (0xBEEF)
 
-using namespace std;
-using namespace Framework;
-using namespace boost;
-
 CMiniDebugger::CMiniDebugger(CVirtualMachine& virtualMachine, const CDebuggable& debuggable) :
 m_virtualMachine(virtualMachine),
 m_debuggable(debuggable),
@@ -28,7 +24,7 @@ m_memoryView(NULL)
 {
 	InitializeConsole();
 
-    if(!DoesWindowClassExist(CLSNAME))
+	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
 		memset(&w, 0, sizeof(WNDCLASSEX));
@@ -41,32 +37,32 @@ m_memoryView(NULL)
 		RegisterClassEx(&w);
 	}
 
-    Create(WNDSTYLEEX, CLSNAME, _T("MiniDebugger"), WNDSTYLE, Win32::CRect(0, 0, 1000, 600), NULL, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("MiniDebugger"), WNDSTYLE, Framework::Win32::CRect(0, 0, 1000, 600), NULL, NULL);
 	SetClassPtr();
 
-    Center();
-    CreateAccelerators();
+	Center();
+	CreateAccelerators();
 
-    m_mainSplitter = new Win32::CVerticalSplitter(m_hWnd, GetClientRect());
+	m_mainSplitter = new Framework::Win32::CVerticalSplitter(m_hWnd, GetClientRect());
 
-    m_subSplitter = new Win32::CHorizontalSplitter(m_mainSplitter->m_hWnd, GetClientRect());
-    m_memoryView = new CMemoryViewMIPS(m_mainSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
+	m_subSplitter = new Framework::Win32::CHorizontalSplitter(m_mainSplitter->m_hWnd, GetClientRect());
+	m_memoryView = new CMemoryViewMIPS(m_mainSplitter->m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
 
-    m_disAsmView = new CDisAsm(m_subSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
-    m_registerView = new CRegViewGeneral(m_subSplitter->m_hWnd, Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
-    m_registerView->Show(SW_SHOW);
+	m_disAsmView = new CDisAsm(m_subSplitter->m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
+	m_registerView = new CRegViewGeneral(m_subSplitter->m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), m_virtualMachine, &m_debuggable.GetCpu());
+	m_registerView->Show(SW_SHOW);
 
-    m_functionsView = new CFunctionsView(NULL);
-    m_functionsView->m_OnFunctionDblClick.connect(bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
+	m_functionsView = new CFunctionsView(NULL);
+	m_functionsView->m_OnFunctionDblClick.connect(boost::bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
 	m_functionsView->SetContext(&m_debuggable.GetCpu(), m_debuggable.GetModules);
-    m_functionsView->Refresh();
+	m_functionsView->Refresh();
 
-    m_subSplitter->SetChild(0, *m_disAsmView);
-    m_subSplitter->SetChild(1, *m_registerView);
-    m_subSplitter->SetEdgePosition(0.675);
-    m_mainSplitter->SetChild(0, *m_subSplitter);
-    m_mainSplitter->SetChild(1, *m_memoryView);
-    m_disAsmView->SetAddress(m_debuggable.GetCpu().m_State.nPC);
+	m_subSplitter->SetChild(0, *m_disAsmView);
+	m_subSplitter->SetChild(1, *m_registerView);
+	m_subSplitter->SetEdgePosition(0.675);
+	m_mainSplitter->SetChild(0, *m_subSplitter);
+	m_mainSplitter->SetChild(1, *m_memoryView);
+	m_disAsmView->SetAddress(m_debuggable.GetCpu().m_State.nPC);
 
 //	CMIPS& context = m_virtualMachine.GetCpu();
 //	for(unsigned int i = 0; i < CPsxVm::RAMSIZE / 4; i++)
@@ -82,36 +78,36 @@ m_memoryView(NULL)
 CMiniDebugger::~CMiniDebugger()
 {
 	m_virtualMachine.Pause();
-    delete m_functionsView;
-    delete m_disAsmView;
-    delete m_registerView;
-    delete m_mainSplitter;
-    delete m_subSplitter;
+	delete m_functionsView;
+	delete m_disAsmView;
+	delete m_registerView;
+	delete m_mainSplitter;
+	delete m_subSplitter;
 }
 
 void CMiniDebugger::Run()
 {
-    while(IsWindow())
-    {
-        MSG msg;
-        GetMessage(&msg, 0, 0, 0);
-        if(!TranslateAccelerator(m_hWnd, m_acceleratorTable, &msg))
-        {
+	while(IsWindow())
+	{
+		MSG msg;
+		GetMessage(&msg, 0, 0, 0);
+		if(!TranslateAccelerator(m_hWnd, m_acceleratorTable, &msg))
+		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-        }
-    }
+		}
+	}
 }
 
 long CMiniDebugger::OnCommand(unsigned short command, unsigned short id, HWND hwndFrom)
 {
-    switch(command)
-    {
-    case ID_VM_STEP1:
-        StepCPU();
+	switch(command)
+	{
+	case ID_VM_STEP1:
+		StepCPU();
 		return TRUE;
-        break;
-    case ID_VM_RESUME:
+		break;
+	case ID_VM_RESUME:
 		if(m_virtualMachine.GetStatus() == CVirtualMachine::PAUSED)
 		{
 			m_virtualMachine.Resume();
@@ -120,37 +116,37 @@ long CMiniDebugger::OnCommand(unsigned short command, unsigned short id, HWND hw
 		{
 			m_virtualMachine.Pause();
 		}
-        break;
+		break;
 //    case ID_VM_PAUSE:
 //        m_virtualMachine.Pause();
 //        break;
-    case ID_VIEW_FUNCTIONS:
-        if(m_functionsView != NULL)
-        {
-            m_functionsView->Show(SW_SHOW);
-            SetForegroundWindow(*m_functionsView);
-        }
-        break;
-    }
+	case ID_VIEW_FUNCTIONS:
+		if(m_functionsView != NULL)
+		{
+			m_functionsView->Show(SW_SHOW);
+			SetForegroundWindow(*m_functionsView);
+		}
+		break;
+	}
 
-    return 0;
+	return 0;
 }
 
 void CMiniDebugger::StepCPU()
 {
-    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
-    {
+	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+	{
 //	    MessageBeep(-1);
-	    return;
-    }
+		return;
+	}
 
-    m_disAsmView->SetFocus();
-    m_debuggable.Step();
+	m_disAsmView->SetFocus();
+	m_debuggable.Step();
 }
 
 void CMiniDebugger::OnFunctionDblClick(uint32 address)
 {
-    m_disAsmView->SetAddress(address);
+	m_disAsmView->SetAddress(address);
 }
 
 void CMiniDebugger::CreateAccelerators()
@@ -191,15 +187,15 @@ void CMiniDebugger::CreateAccelerators()
 
 	Accel[8].cmd	= 0xDEAD;
 	Accel[8].key	= 'C';
-	Accel[8].fVirt  = FCONTROL | FVIRTKEY;
+	Accel[8].fVirt	= FCONTROL | FVIRTKEY;
 
-    Accel[9].cmd    = ID_VIEW_TESTENGINECONSOLE;
-    Accel[9].key    = 'T';
-    Accel[9].fVirt  = FCONTROL | FVIRTKEY;
+	Accel[9].cmd	= ID_VIEW_TESTENGINECONSOLE;
+	Accel[9].key	= 'T';
+	Accel[9].fVirt	= FCONTROL | FVIRTKEY;
 
-    Accel[10].cmd   = ID_VM_PAUSE;
-    Accel[10].key   = VK_F6;
-    Accel[10].fVirt = FVIRTKEY;
+	Accel[10].cmd	= ID_VM_PAUSE;
+	Accel[10].key	= VK_F6;
+	Accel[10].fVirt	= FVIRTKEY;
 
 	m_acceleratorTable = CreateAcceleratorTable(Accel, sizeof(Accel) / sizeof(ACCEL));
 }
@@ -219,5 +215,5 @@ void CMiniDebugger::InitializeConsole()
 		_O_TEXT), "w");
 
 	setvbuf(stdout, NULL, _IONBF, 0);
-	ios::sync_with_stdio();	
+	std::ios::sync_with_stdio();	
 }

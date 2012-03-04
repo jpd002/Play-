@@ -26,8 +26,8 @@ void CPsfZipArchive::Open(const boost::filesystem::path& filePath)
 	m_inputFile = Framework::CreateInputStdStream(filePath.native());
 	m_archive = new Framework::CZipArchiveReader(*m_inputFile);
 
-	for(Framework::CZipArchiveReader::FileHeaderIterator fileHeaderIterator(m_archive->GetFileHeadersBegin());
-		fileHeaderIterator != m_archive->GetFileHeadersEnd(); fileHeaderIterator++)
+	for(auto fileHeaderIterator(std::begin(m_archive->GetFileHeaders()));
+		fileHeaderIterator != std::end(m_archive->GetFileHeaders()); fileHeaderIterator++)
 	{
 		const Framework::Zip::ZIPDIRFILEHEADER& fileHeader(fileHeaderIterator->second);
 		if(fileHeader.uncompressedSize == 0) continue;
