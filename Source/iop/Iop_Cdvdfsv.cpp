@@ -5,9 +5,6 @@
 #include "placeholder_def.h"
 
 using namespace Iop;
-using namespace Framework;
-using namespace std;
-using namespace std::tr1;
 
 #define LOG_NAME "iop_cdvdfsv"
 
@@ -16,25 +13,25 @@ m_nStreamPos(0),
 m_iso(NULL),
 m_iopRam(iopRam)
 {
-    m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, 
-        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-    m_module593 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke593, this,
-        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-    m_module595 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke595, this,
-        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-    m_module597 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke597, this,
-        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-    m_module59A = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59A, this,
-        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-    m_module59C = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59C, this,
-        PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+	m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, 
+		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+	m_module593 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke593, this,
+		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+	m_module595 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke595, this,
+		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+	m_module597 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke597, this,
+		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+	m_module59A = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59A, this,
+		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+	m_module59C = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59C, this,
+		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
 
-    sif.RegisterModule(MODULE_ID_1, &m_module592);
-    sif.RegisterModule(MODULE_ID_2, &m_module593);
-    sif.RegisterModule(MODULE_ID_4, &m_module595);
-    sif.RegisterModule(MODULE_ID_6, &m_module597);
-    sif.RegisterModule(MODULE_ID_7, &m_module59A);
-    sif.RegisterModule(MODULE_ID_8, &m_module59C);
+	sif.RegisterModule(MODULE_ID_1, &m_module592);
+	sif.RegisterModule(MODULE_ID_2, &m_module593);
+	sif.RegisterModule(MODULE_ID_4, &m_module595);
+	sif.RegisterModule(MODULE_ID_6, &m_module597);
+	sif.RegisterModule(MODULE_ID_7, &m_module59A);
+	sif.RegisterModule(MODULE_ID_8, &m_module59C);
 }
 
 CCdvdfsv::~CCdvdfsv()
@@ -42,24 +39,24 @@ CCdvdfsv::~CCdvdfsv()
 
 }
 
-string CCdvdfsv::GetId() const
+std::string CCdvdfsv::GetId() const
 {
-    return "cdvdfsv";
+	return "cdvdfsv";
 }
 
-string CCdvdfsv::GetFunctionName(unsigned int) const
+std::string CCdvdfsv::GetFunctionName(unsigned int) const
 {
-    return "unknown";
+	return "unknown";
 }
 
 void CCdvdfsv::SetIsoImage(CISO9660* iso)
 {
-    m_iso = iso;
+	m_iso = iso;
 }
 
 void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)
 {
-    throw runtime_error("Not implemented.");
+	throw std::runtime_error("Not implemented.");
 }
 
 /*
@@ -82,17 +79,17 @@ void CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	switch(method)
 	{
 	case 0:
-        {
-		    //Init
-		    assert(argsSize >= 4);
-		    assert(retSize >= 0x10);
-		    uint32 nMode = args[0x00];
-		    CLog::GetInstance().Print(LOG_NAME, "Init(mode = %i);\r\n", nMode);
-		    ret[0x03] = 0xFF;
-        }
+		{
+			//Init
+			assert(argsSize >= 4);
+			assert(retSize >= 0x10);
+			uint32 nMode = args[0x00];
+			CLog::GetInstance().Print(LOG_NAME, "Init(mode = %i);\r\n", nMode);
+			ret[0x03] = 0xFF;
+		}
 		break;
 	default:
-        CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x592, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x592, method);
 		break;
 	}
 }
@@ -149,14 +146,14 @@ void CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		break;
 
 	case 0x22:
-        {
-		    //Set Media Mode (1 - CDROM, 2 - DVDROM)
-		    assert(argsSize >= 4);
-		    assert(retSize >= 4);
-		    uint32 nMode = args[0x00];
-		    CLog::GetInstance().Print(LOG_NAME, "SetMediaMode(mode = %i);\r\n", nMode); 
-		    ret[0x00] = 1;
-        }
+		{
+			//Set Media Mode (1 - CDROM, 2 - DVDROM)
+			assert(argsSize >= 4);
+			assert(retSize >= 4);
+			uint32 nMode = args[0x00];
+			CLog::GetInstance().Print(LOG_NAME, "SetMediaMode(mode = %i);\r\n", nMode); 
+			ret[0x00] = 1;
+		}
 		break;
 
 	default:
@@ -174,24 +171,24 @@ void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		break;
 
 	case 4:
-        {
-		    //GetToc
-            assert(argsSize >= 4);
-		    assert(retSize >= 4);
-		    uint32 nBuffer = args[0x00];
-		    CLog::GetInstance().Print(LOG_NAME, "GetToc(buffer = 0x%0.8X);\r\n", nBuffer);
-		    ret[0x00] = 1;
-        }
+		{
+			//GetToc
+			assert(argsSize >= 4);
+			assert(retSize >= 4);
+			uint32 nBuffer = args[0x00];
+			CLog::GetInstance().Print(LOG_NAME, "GetToc(buffer = 0x%0.8X);\r\n", nBuffer);
+			ret[0x00] = 1;
+		}
 		break;
 
 	case 9:
 		StreamCmd(args, argsSize, ret, retSize, ram);
 		break;
 
-    case 0x0D:
-        //ReadIopMem
-        ReadIopMem(args, argsSize, ret, retSize, ram);
-        break;
+	case 0x0D:
+		//ReadIopMem
+		ReadIopMem(args, argsSize, ret, retSize, ram);
+		break;
 
 	case 0x0E:
 		//DiskReady (returns 2 if ready, 6 if not ready)
@@ -221,7 +218,7 @@ void CCdvdfsv::Invoke597(uint32 method, uint32* args, uint32 argsSize, uint32* r
 
 void CCdvdfsv::Invoke59A(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-    Invoke59C(method, args, argsSize, ret, retSize, ram);
+	Invoke59C(method, args, argsSize, ret, retSize, ram);
 }
 
 void CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -229,14 +226,14 @@ void CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	switch(method)
 	{
 	case 0:
-        {
-    		//DiskReady (returns 2 if ready, 6 if not ready)
-		    assert(retSize >= 4);
-		    assert(argsSize >= 4);
-		    uint32 nMode = args[0x00];
-		    CLog::GetInstance().Print(LOG_NAME, "DiskReady(mode = %i);\r\n", nMode);
-		    ret[0x00] = 2;
-        }
+		{
+			//DiskReady (returns 2 if ready, 6 if not ready)
+			assert(retSize >= 4);
+			assert(argsSize >= 4);
+			uint32 nMode = args[0x00];
+			CLog::GetInstance().Print(LOG_NAME, "DiskReady(mode = %i);\r\n", nMode);
+			ret[0x00] = 2;
+		}
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x59C, method);
@@ -257,13 +254,13 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		nDstAddr,
 		nMode);
 
-    if(m_iso != NULL)
-    {
-	    for(unsigned int i = 0; i < nCount; i++)
-	    {
-		    m_iso->ReadBlock(nSector + i, ram + (nDstAddr + (i * 0x800)));
-	    }
-    }
+	if(m_iso != NULL)
+	{
+		for(unsigned int i = 0; i < nCount; i++)
+		{
+			m_iso->ReadBlock(nSector + i, ram + (nDstAddr + (i * 0x800)));
+		}
+	}
 
 	if(retSize >= 4)
 	{
@@ -275,7 +272,7 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 {
 	uint32 nSector		= args[0x00];
 	uint32 nCount		= args[0x01];
-	uint32 nDstAddr     = args[0x02];
+	uint32 nDstAddr		= args[0x02];
 	uint32 nMode		= args[0x03];
 
 	CLog::GetInstance().Print(LOG_NAME, "ReadIopMem(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n", \
@@ -284,19 +281,19 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 		nDstAddr,
 		nMode);
 
-    if(m_iso != NULL)
-    {
-        for(unsigned int i = 0; i < nCount; i++)
-        {
-            m_iso->ReadBlock(nSector + i, m_iopRam + nDstAddr);
-            nDstAddr += 0x800;
-        }
-    }
+	if(m_iso != NULL)
+	{
+		for(unsigned int i = 0; i < nCount; i++)
+		{
+			m_iso->ReadBlock(nSector + i, m_iopRam + nDstAddr);
+			nDstAddr += 0x800;
+		}
+	}
 
-    if(retSize >= 4)
-    {
-        ret[0] = 0;
-    }
+	if(retSize >= 4)
+	{
+		ret[0] = 0;
+	}
 }
 
 void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -327,16 +324,16 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		break;
 	case 2:
 		//Read
-        nDstAddr &= (PS2::EERAMSIZE - 1);
+		nDstAddr &= (PS2::EERAMSIZE - 1);
 
-        if(m_iso != NULL)
-        {
-		    for(unsigned int i = 0; i < nCount; i++)
-		    {
-			    m_iso->ReadBlock(m_nStreamPos, ram + (nDstAddr + (i * 0x800)));
-			    m_nStreamPos++;
-		    }
-        }
+		if(m_iso != NULL)
+		{
+			for(unsigned int i = 0; i < nCount; i++)
+			{
+				m_iso->ReadBlock(m_nStreamPos, ram + (nDstAddr + (i * 0x800)));
+				m_nStreamPos++;
+			}
+		}
 
 		ret[0] = nCount;
 
@@ -362,9 +359,9 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		CLog::GetInstance().Print(LOG_NAME, "StreamSeek(pos = 0x%0.8X);\r\n", \
 			nSector);
 		break;
-    default:
-        CLog::GetInstance().Print(LOG_NAME, "Unknown stream command used.\r\n");
-        break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Unknown stream command used.\r\n");
+		break;
 	}
 }
 

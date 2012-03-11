@@ -17,16 +17,16 @@ namespace Iop
 		uint32			WriteRegister(uint32, uint32);
 
 		void			Reset();
-        Spu2::CCore*    GetCore(unsigned int);
+		Spu2::CCore*	GetCore(unsigned int);
 
-        enum
-        {
-            REGS_BEGIN  = 0x1F900000,
-            REGS_END    = 0x1F90FFFF,
-        };
+		enum
+		{
+			REGS_BEGIN	= 0x1F900000,
+			REGS_END	= 0x1F90FFFF,
+		};
 
 	private:
-		typedef std::tr1::function<uint32 (uint32, uint32)> RegisterAccessFunction;
+		typedef std::function<uint32 (uint32, uint32)> RegisterAccessFunction;
 
 		enum
 		{

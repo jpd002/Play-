@@ -15,15 +15,15 @@ namespace Iop
 	class CPadMan : public CModule, public CPadListener, public CSifModule
 	{
 	public:
-                            CPadMan(CSifMan&);
-        std::string         GetId() const;
-        std::string         GetFunctionName(unsigned int) const;
-        void                Invoke(CMIPS&, unsigned int);
-        virtual bool        Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-        virtual void		SaveState(Framework::CZipArchiveWriter&);
-        virtual void		LoadState(Framework::CZipArchiveReader&);
-        virtual void		SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
-        virtual void        SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*);
+							CPadMan(CSifMan&);
+		std::string			GetId() const;
+		std::string			GetFunctionName(unsigned int) const;
+		void				Invoke(CMIPS&, unsigned int);
+		virtual bool		Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		virtual void		SaveState(Framework::CZipArchiveWriter&);
+		virtual void		LoadState(Framework::CZipArchiveReader&);
+		virtual void		SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
+		virtual void		SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*);
 
 		enum MODULE_ID
 		{
@@ -58,7 +58,7 @@ namespace Iop
 			uint8			nReserved8;			//+0x73
 			uint32			nReserved9[3];		//+0x74
 		};
-		BOOST_STATIC_ASSERT(sizeof(PADDATAEXEX) == 0x80);
+		static_assert(sizeof(PADDATAEXEX) == 0x80, "Size of PADDATAEX struct must be 128 bytes.");
 
 		struct PADDATAEX
 		{
@@ -183,7 +183,7 @@ namespace Iop
 			T*		m_pPadData;
 		};
 
-        typedef std::tr1::function< void (CPadDataInterface*) > PadDataFunction;
+		typedef std::function< void (CPadDataInterface*) > PadDataFunction;
 
 		PADDATA*			m_pPad;
 
@@ -199,12 +199,12 @@ namespace Iop
 		static void			PDF_InitializeStruct0(CPadDataInterface*);
 		static void			PDF_InitializeStruct1(CPadDataInterface*);
 		static void			PDF_SetButtonState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, bool);
-        static void         PDF_SetAxisState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, uint8);
+		static void			PDF_SetAxisState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, uint8);
 	};
 
-    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int);
-    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int);
-    template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int);
+	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int);
+	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int);
+	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int);
 	template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetNumberOfModes(unsigned int);
 }
 

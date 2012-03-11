@@ -17,51 +17,51 @@
 
 namespace Iop
 {
-    class CSubSystem
-    {
-    public:
-        typedef std::tr1::shared_ptr<CBiosBase> BiosPtr;
+	class CSubSystem
+	{
+	public:
+		typedef std::shared_ptr<CBiosBase> BiosPtr;
 
-                            CSubSystem();
-        virtual             ~CSubSystem();
+							CSubSystem();
+		virtual				~CSubSystem();
 
-        void                Reset();
-    	unsigned int		ExecuteCpu(bool);
+		void				Reset();
+		unsigned int		ExecuteCpu(bool);
 
-        void                SetBios(const BiosPtr&);
+		void				SetBios(const BiosPtr&);
 
 		void				NotifyVBlankStart();
 		void				NotifyVBlankEnd();
 
-	    virtual void		SaveState(Framework::CZipArchiveWriter&);
-	    virtual void		LoadState(Framework::CZipArchiveReader&);
+		virtual void		SaveState(Framework::CZipArchiveWriter&);
+		virtual void		LoadState(Framework::CZipArchiveReader&);
 
-	    uint8*				m_ram;
-	    uint8*				m_scratchPad;
-	    uint8*				m_spuRam;
-	    CIntc			    m_intc;
-	    CRootCounters	    m_counters;
-	    CDmac			    m_dmac;
-	    CSpuBase		    m_spuCore0;
-	    CSpuBase		    m_spuCore1;
-	    CSpu			    m_spu;
-	    CSpu2			    m_spu2;
-	    CMIPS				m_cpu;
+		uint8*				m_ram;
+		uint8*				m_scratchPad;
+		uint8*				m_spuRam;
+		CIntc				m_intc;
+		CRootCounters		m_counters;
+		CDmac				m_dmac;
+		CSpuBase			m_spuCore0;
+		CSpuBase			m_spuCore1;
+		CSpu				m_spu;
+		CSpu2				m_spu2;
+		CMIPS				m_cpu;
 		CMA_MIPSIV			m_cpuArch;
 		CCOP_SCU			m_copScu;
-	    CMipsExecutor		m_executor;
-        BiosPtr             m_bios;
+		CMipsExecutor		m_executor;
+		BiosPtr				m_bios;
 
-    private:
-	    enum
-	    {
-		    HW_REG_BEGIN	= 0x1F801000,
-		    HW_REG_END		= 0x1F9FFFFF
-	    };
+	private:
+		enum
+		{
+			HW_REG_BEGIN	= 0x1F801000,
+			HW_REG_END		= 0x1F9FFFFF
+		};
 
-    	uint32				ReadIoRegister(uint32);
-    	uint32				WriteIoRegister(uint32, uint32);
-    };
+		uint32				ReadIoRegister(uint32);
+		uint32				WriteIoRegister(uint32, uint32);
+	};
 }
 
 #endif

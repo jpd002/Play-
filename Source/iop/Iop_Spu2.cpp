@@ -7,9 +7,6 @@
 
 using namespace Iop;
 using namespace Iop::Spu2;
-using namespace std;
-using namespace std::tr1;
-using namespace Framework;
 
 /*
 #define SD_BASE_REG(reg)				((volatile u16 *)(0xBF900000 + reg))
@@ -140,12 +137,12 @@ CSpu2::CSpu2(CSpuBase& spuBase0, CSpuBase& spuBase1)
 		m_core[i] = new CCore(i, base);
 	}
 
-	m_readDispatchInfo.global = bind(&CSpu2::ReadRegisterImpl, this, PLACEHOLDER_1, PLACEHOLDER_2);
-	m_writeDispatchInfo.global = bind(&CSpu2::WriteRegisterImpl, this, PLACEHOLDER_1, PLACEHOLDER_2);
+	m_readDispatchInfo.global = std::bind(&CSpu2::ReadRegisterImpl, this, std::placeholders::_1, std::placeholders::_2);
+	m_writeDispatchInfo.global = std::bind(&CSpu2::WriteRegisterImpl, this, std::placeholders::_1, std::placeholders::_2);
 	for(unsigned int i = 0; i < CORE_NUM; i++)
 	{
-		m_readDispatchInfo.core[i] = bind(&CCore::ReadRegister, m_core[i], PLACEHOLDER_1, PLACEHOLDER_2);
-		m_writeDispatchInfo.core[i] = bind(&CCore::WriteRegister, m_core[i], PLACEHOLDER_1, PLACEHOLDER_2);
+		m_readDispatchInfo.core[i] = std::bind(&CCore::ReadRegister, m_core[i], std::placeholders::_1, std::placeholders::_2);
+		m_writeDispatchInfo.core[i] = std::bind(&CCore::WriteRegister, m_core[i], std::placeholders::_1, std::placeholders::_2);
 	}
 }
 
@@ -164,9 +161,9 @@ void CSpu2::Reset()
 
 CCore* CSpu2::GetCore(unsigned int coreId)
 {
-    assert(coreId < CORE_NUM);
-    if(coreId >= CORE_NUM) return NULL;
-    return m_core[coreId];
+	assert(coreId < CORE_NUM);
+	if(coreId >= CORE_NUM) return NULL;
+	return m_core[coreId];
 }
 
 uint32 CSpu2::ReadRegister(uint32 address)
@@ -181,13 +178,13 @@ uint32 CSpu2::WriteRegister(uint32 address, uint32 value)
 
 uint32 CSpu2::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, uint32 address, uint32 value)
 {
-    uint32 tmpAddress = address - REGS_BEGIN;
-    if(tmpAddress < 0x760)
-    {
+	uint32 tmpAddress = address - REGS_BEGIN;
+	if(tmpAddress < 0x760)
+	{
 		unsigned int coreId = (tmpAddress & 0x400) ? 1 : 0;
 		address &= ~0x400;
 		return dispatchInfo.core[coreId](address, value);
-    }
+	}
 	else if(tmpAddress < 0x7B0)
 	{
 		unsigned int coreId = (tmpAddress - 0x760) / 40;

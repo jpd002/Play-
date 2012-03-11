@@ -414,7 +414,7 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 
 	if(functionAdded)
 	{
-		m_cpu.m_Functions.m_OnTagListChanged();
+		m_cpu.m_Functions.OnTagListChange();
 	}
 
     CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%0.8X.\r\n", 

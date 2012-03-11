@@ -8,10 +8,6 @@
 
 using namespace Iop;
 using namespace Iop::Spu2;
-using namespace std;
-using namespace std::tr1;
-using namespace Framework;
-using namespace boost;
 
 #define MAX_ADDRESS_REGISTER		(22)
 #define MAX_COEFFICIENT_REGISTER	(10)
@@ -60,7 +56,7 @@ CCore::CCore(unsigned int coreId, CSpuBase& spuBase) :
 m_coreId(coreId),
 m_spuBase(spuBase)
 {
-	m_logName = LOG_NAME_PREFIX + lexical_cast<string>(m_coreId);
+	m_logName = LOG_NAME_PREFIX + boost::lexical_cast<std::string>(m_coreId);
 
 	m_readDispatch.core		= &CCore::ReadRegisterCore;
 	m_readDispatch.channel	= &CCore::ReadRegisterChannel;
@@ -78,31 +74,31 @@ CCore::~CCore()
 
 void CCore::Reset()
 {
-    m_streamUnk = 0;
+	m_streamUnk = 0;
 }
 
 uint16 CCore::GetAddressLo(uint32 address)
 {
-    return static_cast<uint16>((address >> 1) & 0xFFFF);
+	return static_cast<uint16>((address >> 1) & 0xFFFF);
 }
 
 uint16 CCore::GetAddressHi(uint32 address)
 {
-    return static_cast<uint16>((address >> (16 + 1)) & 0xFFFF);
+	return static_cast<uint16>((address >> (16 + 1)) & 0xFFFF);
 }
 
 uint32 CCore::SetAddressLo(uint32 address, uint16 value)
 {
-    address &= 0xFFFF << (1 + 16);
-    address |= value << 1;
-    return address;
+	address &= 0xFFFF << (1 + 16);
+	address |= value << 1;
+	return address;
 }
 
 uint32 CCore::SetAddressHi(uint32 address, uint16 value)
 {
-    address &= 0xFFFF << 1;
-    address |= value << (1 + 16);
-    return address;
+	address &= 0xFFFF << 1;
+	address |= value << (1 + 16);
+	return address;
 }
 
 uint32 CCore::ReadRegister(uint32 address, uint32 value)
@@ -145,7 +141,7 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 	{
 	case STATX:
 		result = 0x0000;
-        if(m_spuBase.GetControl() & CSpuBase::CONTROL_DMA)
+		if(m_spuBase.GetControl() & CSpuBase::CONTROL_DMA)
 		{
 			result |= 0x80;
 		}
@@ -157,14 +153,14 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 		result = m_spuBase.GetEndFlags().h1;
 		break;
 	case CORE_ATTR:
-        result = m_spuBase.GetControl();
+		result = m_spuBase.GetControl();
 		break;
-    case A_STREAM_UNK:
-        return m_streamUnk;
-        break;
-    case A_TSA_HI:
-        result = GetAddressHi(m_spuBase.GetTransferAddress());
-        break;
+	case A_STREAM_UNK:
+		return m_streamUnk;
+		break;
+	case A_TSA_HI:
+		result = GetAddressHi(m_spuBase.GetTransferAddress());
+		break;
 	case A_ESA_LO:
 		result = GetAddressLo(m_spuBase.GetReverbWorkAddressStart());
 		break;
@@ -172,7 +168,7 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 		result = GetAddressHi(m_spuBase.GetReverbWorkAddressEnd());
 		break;
 	}
-    LogRead(address, result);
+	LogRead(address, result);
 	return result;
 }
 
@@ -213,12 +209,12 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		case A_STD:
 			m_spuBase.WriteWord(static_cast<uint16>(value));
 			break;
-        case A_STREAM_UNK:
-            //Hack implemented for Guilty Gear XX
-            //It streams the music continuously spamming interrupts on the IOP
-            m_streamUnk = static_cast<uint16>(value);
-            m_spuBase.SetDmaDisabled(m_streamUnk != 0);
-            break;
+		case A_STREAM_UNK:
+			//Hack implemented for Guilty Gear XX
+			//It streams the music continuously spamming interrupts on the IOP
+			m_streamUnk = static_cast<uint16>(value);
+			m_spuBase.SetDmaDisabled(m_streamUnk != 0);
+			break;
 		case S_VMIXER_HI:
 			m_spuBase.SetChannelReverbLo(static_cast<uint16>(value));
 			break;
@@ -295,16 +291,16 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 		result = (channel.adsrVolume >> 16);
 		break;
 	case VA_SSA_HI:
-        result = GetAddressHi(channel.address);
+		result = GetAddressHi(channel.address);
 		break;
 	case VA_SSA_LO:
-        result = GetAddressLo(channel.address);
+		result = GetAddressLo(channel.address);
 		break;
 	case VA_NAX_HI:
-        result = GetAddressHi(channel.current);
+		result = GetAddressHi(channel.current);
 		break;
 	case VA_NAX_LO:
-        result = GetAddressLo(channel.current);
+		result = GetAddressLo(channel.current);
 		break;
 	}
 	LogChannelRead(channelId, address, result);
@@ -347,16 +343,16 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 //		channel.volxRight = static_cast<uint16>(value);
 		break;
 	case VA_SSA_HI:
-        channel.address = SetAddressHi(channel.address, static_cast<uint16>(value));
+		channel.address = SetAddressHi(channel.address, static_cast<uint16>(value));
 		break;
 	case VA_SSA_LO:
-        channel.address = SetAddressLo(channel.address, static_cast<uint16>(value));
+		channel.address = SetAddressLo(channel.address, static_cast<uint16>(value));
 		break;
 	case VA_LSAX_HI:
-        channel.repeat = SetAddressHi(channel.repeat, static_cast<uint16>(value));
+		channel.repeat = SetAddressHi(channel.repeat, static_cast<uint16>(value));
 		break;
 	case VA_LSAX_LO:
-        channel.repeat = SetAddressLo(channel.repeat, static_cast<uint16>(value));
+		channel.repeat = SetAddressLo(channel.repeat, static_cast<uint16>(value));
 		break;
 	}
 	return 0;
@@ -365,55 +361,55 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 void CCore::LogRead(uint32 address, uint32 value)
 {
 	const char* logName = m_logName.c_str();
-    switch(address)
-    {
+	switch(address)
+	{
 	case CORE_ATTR:
 		CLog::GetInstance().Print(logName, "= CORE_ATTR\r\n");
 		break;
-    case STATX:
+	case STATX:
 		CLog::GetInstance().Print(logName, "= STATX\r\n");
-        break;
+		break;
 	case S_ENDX_HI:
-        CLog::GetInstance().Print(logName, "= S_ENDX_HI = 0x%0.4X.\r\n", value);
+		CLog::GetInstance().Print(logName, "= S_ENDX_HI = 0x%0.4X.\r\n", value);
 		break;
 	case S_ENDX_LO:
-        CLog::GetInstance().Print(logName, "= S_ENDX_LO = 0x%0.4X.\r\n", value);
+		CLog::GetInstance().Print(logName, "= S_ENDX_LO = 0x%0.4X.\r\n", value);
 		break;
-    case A_TSA_HI:
-        CLog::GetInstance().Print(logName, "= A_TSA_HI = 0x%0.4X.\r\n", value);
-        break;
+	case A_TSA_HI:
+		CLog::GetInstance().Print(logName, "= A_TSA_HI = 0x%0.4X.\r\n", value);
+		break;
 	case A_ESA_LO:
 		CLog::GetInstance().Print(logName, "= A_ESA_LO = 0x%0.4X.\r\n", value);
 		break;
 	case A_EEA_HI:
 		CLog::GetInstance().Print(logName, "= A_EEA_HI = 0x%0.4X.\r\n", value);
 		break;
-    default:
+	default:
 		CLog::GetInstance().Print(logName, "Read an unknown register 0x%0.4X.\r\n", address);
-        break;
-    }
+		break;
+	}
 }
 
 void CCore::LogWrite(uint32 address, uint32 value)
 {
 	const char* logName = m_logName.c_str();
-    switch(address)
-    {
+	switch(address)
+	{
 	case CORE_ATTR:
 		CLog::GetInstance().Print(logName, "CORE_ATTR = 0x%0.4X\r\n", value);
 		break;
-    case A_KON_HI:
+	case A_KON_HI:
 		CLog::GetInstance().Print(logName, "A_KON_HI = 0x%0.4X\r\n", value);
-        break;
-    case A_KON_LO:
+		break;
+	case A_KON_LO:
 		CLog::GetInstance().Print(logName, "A_KON_LO = 0x%0.4X\r\n", value);
-        break;
-    case A_KOFF_HI:
+		break;
+	case A_KOFF_HI:
 		CLog::GetInstance().Print(logName, "A_KOFF_HI = 0x%0.4X\r\n", value);
-        break;
-    case A_KOFF_LO:
+		break;
+	case A_KOFF_LO:
 		CLog::GetInstance().Print(logName, "A_KOFF_LO = 0x%0.4X\r\n", value);
-        break;
+		break;
 	case S_ENDX_LO:
 		CLog::GetInstance().Print(logName, "S_ENDX_LO = 0x%0.4X\r\n", value);
 		break;
@@ -429,9 +425,9 @@ void CCore::LogWrite(uint32 address, uint32 value)
 	case A_STD:
 		CLog::GetInstance().Print(logName, "A_STD = 0x%0.4X\r\n", value);
 		break;
-    case A_STREAM_UNK:
-        CLog::GetInstance().Print(logName, "A_STREAM_UNK = 0x%0.4X (trying to stream?)\r\n", value);
-        break;
+	case A_STREAM_UNK:
+		CLog::GetInstance().Print(logName, "A_STREAM_UNK = 0x%0.4X (trying to stream?)\r\n", value);
+		break;
 	case A_ESA_LO:
 		CLog::GetInstance().Print(logName, "A_ESA_LO = 0x%0.4X\r\n", value);
 		break;
@@ -441,17 +437,17 @@ void CCore::LogWrite(uint32 address, uint32 value)
 	case A_EEA_HI:
 		CLog::GetInstance().Print(logName, "A_EEA_HI = 0x%0.4X\r\n", value);
 		break;
-    default:
+	default:
 		CLog::GetInstance().Print(logName, "Write 0x%0.4X to an unknown register 0x%0.4X.\r\n", value, address);
-        break;
-    }
+		break;
+	}
 }
 
 void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 result)
 {
 	const char* logName = m_logName.c_str();
-    switch(address)
-    {
+	switch(address)
+	{
 	case VP_VOLL:
 		CLog::GetInstance().Print(logName, "ch%0.2i: = VP_VOLL = %0.4X.\r\n", 
 			channelId, result);
@@ -492,18 +488,18 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 result
 		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_NAX_LO = 0x%0.4X.\r\n", 
 			channelId, result);
 		break;
-    default:
+	default:
 		CLog::GetInstance().Print(logName, "ch%0.2i: Read an unknown register 0x%0.4X.\r\n", 
 			channelId, address);
-        break;
-    }
+		break;
+	}
 }
 
 void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value)
 {
 	const char* logName = m_logName.c_str();
-    switch(address)
-    {
+	switch(address)
+	{
 	case VP_VOLL:
 		CLog::GetInstance().Print(logName, "ch%0.2i: VP_VOLL = %0.4X.\r\n", 
 			channelId, value);
@@ -555,6 +551,6 @@ void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value
 	default:
 		CLog::GetInstance().Print(logName, "ch%0.2i: Wrote %0.4X an unknown register 0x%0.4X.\r\n", 
 			channelId, value, address);
-        break;
-    }
+		break;
+	}
 }

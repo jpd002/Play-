@@ -6,19 +6,16 @@
 #include "placeholder_def.h"
 
 using namespace Iop;
-using namespace Framework;
-using namespace std;
-using namespace std::tr1;
 using namespace PS2;
 
 #define PADNUM			(1)
-#define MODE			(0x7)       //DUAL SHOCK
-//#define MODE			(0x4)       //DIGITAL
-#define LOG_NAME        "iop_padman"
+#define MODE			(0x7)		//DUAL SHOCK
+//#define MODE			(0x4)		//DIGITAL
+#define LOG_NAME		"iop_padman"
 
-#define STATE_PADDATA           ("iop_padman/paddata.xml")
-#define STATE_PADDATA_ADDRESS   ("address")
-#define STATE_PADDATA_TYPE      ("type")
+#define STATE_PADDATA			("iop_padman/paddata.xml")
+#define STATE_PADDATA_ADDRESS	("address")
+#define STATE_PADDATA_TYPE		("type")
 
 CPadMan::CPadMan(CSifMan& sif)
 {
@@ -26,25 +23,25 @@ CPadMan::CPadMan(CSifMan& sif)
 	m_nPadDataType = 0;
 	m_pPad = NULL;
 
-    sif.RegisterModule(MODULE_ID_1, this);
-    sif.RegisterModule(MODULE_ID_2, this);
-    sif.RegisterModule(MODULE_ID_3, this);
-    sif.RegisterModule(MODULE_ID_4, this);
+	sif.RegisterModule(MODULE_ID_1, this);
+	sif.RegisterModule(MODULE_ID_2, this);
+	sif.RegisterModule(MODULE_ID_3, this);
+	sif.RegisterModule(MODULE_ID_4, this);
 }
 
-string CPadMan::GetId() const
+std::string CPadMan::GetId() const
 {
-    return "padman";
+	return "padman";
 }
 
-string CPadMan::GetFunctionName(unsigned int) const
+std::string CPadMan::GetFunctionName(unsigned int) const
 {
-    return "unknown";
+	return "unknown";
 }
 
 void CPadMan::Invoke(CMIPS& context, unsigned int functionId)
 {
-    throw runtime_error("Not implemented.");
+	throw std::runtime_error("Not implemented.");
 }
 
 bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -70,47 +67,47 @@ bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
 		break;
 	}
-    return true;
+	return true;
 }
 
-void CPadMan::SaveState(CZipArchiveWriter& archive)
+void CPadMan::SaveState(Framework::CZipArchiveWriter& archive)
 {	
-    CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PADDATA);
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PADDATA);
 
-    registerFile->SetRegister32(STATE_PADDATA_ADDRESS,  m_nPadDataAddress);
-    registerFile->SetRegister32(STATE_PADDATA_TYPE,     m_nPadDataType);
+	registerFile->SetRegister32(STATE_PADDATA_ADDRESS,	m_nPadDataAddress);
+	registerFile->SetRegister32(STATE_PADDATA_TYPE,		m_nPadDataType);
 
-    archive.InsertFile(registerFile);
+	archive.InsertFile(registerFile);
 }
 
-void CPadMan::LoadState(CZipArchiveReader& archive)
+void CPadMan::LoadState(Framework::CZipArchiveReader& archive)
 {
-    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PADDATA));
-    m_nPadDataAddress   = registerFile.GetRegister32(STATE_PADDATA_ADDRESS);
-    m_nPadDataType      = registerFile.GetRegister32(STATE_PADDATA_TYPE);
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PADDATA));
+	m_nPadDataAddress	= registerFile.GetRegister32(STATE_PADDATA_ADDRESS);
+	m_nPadDataType		= registerFile.GetRegister32(STATE_PADDATA_TYPE);
 }
 
 void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nButton, bool nPressed, uint8* ram)
 {
 	if(m_nPadDataAddress == 0) return;
 
-    ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, nButton, nPressed),
+	ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, nButton, nPressed),
 		ram + m_nPadDataAddress, PADNUM);
 }
 
 void CPadMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
-   if(m_nPadDataAddress == 0) return;
+	if(m_nPadDataAddress == 0) return;
 
-   ExecutePadDataFunction(bind(&CPadMan::PDF_SetAxisState, PLACEHOLDER_1, button, axisValue),
-       ram + m_nPadDataAddress, PADNUM);
+	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetAxisState, std::placeholders::_1, button, axisValue),
+						   ram + m_nPadDataAddress, PADNUM);
 }
 
 void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	uint32 nPort        = args[1];
-	uint32 nSlot        = args[2];
-	uint32 nAddress     = args[4];
+	uint32 nPort		= args[1];
+	uint32 nSlot		= args[2];
+	uint32 nAddress		= args[4];
 
 	if(nPort == 0)
 	{
@@ -159,16 +156,16 @@ void CPadMan::ExecutePadDataFunction(const PadDataFunction& Function, void* pBas
 	switch(m_nPadDataType)
 	{
 	case 0:
-        {
-            CPadDataHandler<PADDATA> padData(reinterpret_cast<PADDATA*>(pBase) + nOffset);
-		    Function(&padData);
-        }
+		{
+			CPadDataHandler<PADDATA> padData(reinterpret_cast<PADDATA*>(pBase) + nOffset);
+			Function(&padData);
+		}
 		break;
 	case 1:
-        {
-            CPadDataHandler<PADDATAEXEX> padData(reinterpret_cast<PADDATAEXEX*>(pBase) + nOffset);
-            Function(&padData);
-        }
+		{
+			CPadDataHandler<PADDATAEXEX> padData(reinterpret_cast<PADDATAEXEX*>(pBase) + nOffset);
+			Function(&padData);
+		}
 		break;
 	}
 }
@@ -181,11 +178,11 @@ void CPadMan::PDF_InitializeStruct0(CPadDataInterface* pPadData)
 	pPadData->SetLength(32);
 	pPadData->SetOk(1);
 
-    //Reset analog sticks
-    for(unsigned int i = 0; i < 4; i++)
-    {
-        pPadData->SetData(4 + i, 0x7F);
-    }
+	//Reset analog sticks
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		pPadData->SetData(4 + i, 0x7F);
+	}
 }
 
 void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
@@ -196,11 +193,11 @@ void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
 	pPadData->SetLength(32);
 	pPadData->SetOk(1);
 
-    //Reset analog sticks
-    for(unsigned int i = 0; i < 4; i++)
-    {
-        pPadData->SetData(4 + i, 0x7F);
-    }
+	//Reset analog sticks
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		pPadData->SetData(4 + i, 0x7F);
+	}
 
 	//EX struct initialization
 	pPadData->SetModeCurId(MODE << 4);
@@ -212,7 +209,7 @@ void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
 void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, CControllerInfo::BUTTON nButton, bool nPressed)
 {
 	uint16 nStatus = (pPadData->GetData(2) << 8) | (pPadData->GetData(3));
-    uint32 buttonMask = GetButtonMask(nButton);
+	uint32 buttonMask = GetButtonMask(nButton);
 
 	nStatus &= ~buttonMask;
 	if(!nPressed)
@@ -231,24 +228,24 @@ void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, CControllerInfo::B
 
 void CPadMan::PDF_SetAxisState(CPadDataInterface* padData, CControllerInfo::BUTTON axis, uint8 axisValue)
 {
-    //rjoy_h 4;
-    //rjoy_v 5;
-    //ljoy_h 6;
-    //ljoy_v 7;
+	//rjoy_h 4;
+	//rjoy_v 5;
+	//ljoy_h 6;
+	//ljoy_v 7;
 
-    assert(axis < 4);
+	assert(axis < 4);
 
-    unsigned int axisIndex[4] =
-    {
-        6,
-        7,
-        4, 
-        5
-    };
+	unsigned int axisIndex[4] =
+	{
+		6,
+		7,
+		4,
+		5
+	};
 
 	padData->SetReqState(0);
 
-    padData->SetData(axisIndex[axis], axisValue);
+	padData->SetData(axisIndex[axis], axisValue);
 
 	padData->SetData(0, 0);
 	padData->SetData(1, MODE << 4);
