@@ -1,9 +1,6 @@
 #include "PH_HidMacOSX.h"
 #include <stdexcept>
 
-using namespace std;
-using namespace std::tr1;
-
 CPH_HidMacOSX::CPH_HidMacOSX() :
 m_currentState(0),
 m_previousState(0)
@@ -46,7 +43,7 @@ void CPH_HidMacOSX::Update(uint8* ram)
 CPadHandler::FactoryFunction CPH_HidMacOSX::GetFactoryFunction()
 {
 	//Needs to be created in the same thread as UI
-	return bind(&CPH_HidMacOSX::PadHandlerFactory, new CPH_HidMacOSX());
+	return std::bind(&CPH_HidMacOSX::PadHandlerFactory, new CPH_HidMacOSX());
 }
 
 CPadHandler* CPH_HidMacOSX::PadHandlerFactory(CPH_HidMacOSX* handler)
@@ -56,25 +53,25 @@ CPadHandler* CPH_HidMacOSX::PadHandlerFactory(CPH_HidMacOSX* handler)
 
 CFMutableDictionaryRef CPH_HidMacOSX::CreateDeviceMatchingDictionary(uint32 usagePage, uint32 usage)
 {
-    CFMutableDictionaryRef result = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks );
-	if(result == NULL) throw runtime_error("CFDictionaryCreateMutable failed.");
+	CFMutableDictionaryRef result = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks );
+	if(result == NULL) throw std::runtime_error("CFDictionaryCreateMutable failed.");
 	if(usagePage != 0)
 	{
 		// Add key for device type to refine the matching dictionary.
 		CFNumberRef pageCFNumberRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usagePage);
-		if(pageCFNumberRef == NULL) throw runtime_error("CFNumberCreate failed.");
+		if(pageCFNumberRef == NULL) throw std::runtime_error("CFNumberCreate failed.");
 		CFDictionarySetValue(result, CFSTR(kIOHIDDeviceUsagePageKey), pageCFNumberRef);
 		CFRelease(pageCFNumberRef);
 		// note: the usage is only valid if the usage page is also defined
 		if(usage != 0) 
 		{
 			CFNumberRef usageCFNumberRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage);
-			if(usageCFNumberRef == NULL) throw runtime_error("CFNumberCreate failed.");
+			if(usageCFNumberRef == NULL) throw std::runtime_error("CFNumberCreate failed.");
 			CFDictionarySetValue(result, CFSTR(kIOHIDDeviceUsageKey), usageCFNumberRef);
 			CFRelease(usageCFNumberRef);
 		}
 	}
-    return result;
+	return result;
 }
 
 void CPH_HidMacOSX::InputValueCallbackStub(void* context, IOReturn result, void* sender, IOHIDValueRef valueRef)

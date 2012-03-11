@@ -52,7 +52,7 @@ using namespace std;
 -(void)setContext : (CMIPS*)context
 {
 	m_context = context;
-	&g_virtualMachine->m_OnMachineStateChange.connect(ObjCCall(self, "onMachineStateChange"));
+	g_virtualMachine->OnMachineStateChange.connect(ObjCCall(self, "onMachineStateChange"));
 	[self setNeedsDisplay:true];
 }
 

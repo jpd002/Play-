@@ -144,7 +144,7 @@ using namespace std;
 -(void)setContext : (CMIPS*)context
 {
 	m_context = context;
-	g_virtualMachine->m_OnMachineStateChange.connect(ObjCCall(self, "onMachineStateChange"));
+	g_virtualMachine->OnMachineStateChange.connect(ObjCCall(self, "onMachineStateChange"));
 	m_viewAddress = m_context->m_State.nPC;
 	[self ensurePcVisible];
 	[self setNeedsDisplay:true];

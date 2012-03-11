@@ -2,10 +2,6 @@
 #include "CoreFoundation/CoreFoundation.h"
 #include "StdStream.h"
 
-using namespace std;
-using namespace std::tr1;
-using namespace Framework;
-
 CGSH_OpenGLMacOSX::CGSH_OpenGLMacOSX(CGLContextObj context) :
 m_context(context)
 {
@@ -19,7 +15,7 @@ CGSH_OpenGLMacOSX::~CGSH_OpenGLMacOSX()
 
 CGSHandler::FactoryFunction CGSH_OpenGLMacOSX::GetFactoryFunction(CGLContextObj context)
 {
-	return bind(&CGSH_OpenGLMacOSX::GSHandlerFactory, context);
+	return std::bind(&CGSH_OpenGLMacOSX::GSHandlerFactory, context);
 }
 
 void CGSH_OpenGLMacOSX::InitializeImpl()
@@ -28,26 +24,46 @@ void CGSH_OpenGLMacOSX::InitializeImpl()
 	CGSH_OpenGL::InitializeImpl();
 }
 
+void CGSH_OpenGLMacOSX::ReleaseImpl()
+{
+	
+}
+
 void CGSH_OpenGLMacOSX::FlipImpl()
 {
 	CGLFlushDrawable(m_context);
 }
 
-string GetBundleFilePath(CFStringRef filename, CFStringRef extension)
+void CGSH_OpenGLMacOSX::UpdateViewportImpl()
+{
+	
+}
+
+std::string GetBundleFilePath(CFStringRef filename, CFStringRef extension)
 {
 	CFBundleRef bundle = CFBundleGetMainBundle();
 	CFURLRef url = CFBundleCopyResourceURL(bundle, filename, extension, NULL);
 	if(url == NULL)
 	{
-		throw exception();
+		throw std::exception();
 	}
 	CFStringRef pathString = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
 	const char* pathCString = CFStringGetCStringPtr(pathString, kCFStringEncodingMacRoman);
 	if(pathCString == NULL) 
 	{
-		throw exception();
+		throw std::exception();
 	}
-	return string(pathCString);
+	return std::string(pathCString);
+}
+
+void CGSH_OpenGLMacOSX::ReadFramebuffer(uint32, uint32, void*)
+{
+	
+}
+
+void CGSH_OpenGLMacOSX::PresentBackbuffer()
+{
+	
 }
 
 void CGSH_OpenGLMacOSX::LoadShaderSource(Framework::OpenGl::CShader* shader, SHADER shaderId)
@@ -62,18 +78,23 @@ void CGSH_OpenGLMacOSX::LoadShaderSource(Framework::OpenGl::CShader* shader, SHA
 		extension = CFSTR("frag");
 		break;
 	default:
-		throw exception();
+		throw std::exception();
 		break;
 	}
-	string shaderPath = GetBundleFilePath(CFSTR("TexClamp"), extension);
-	CStdStream stream(shaderPath.c_str(), "rb");
-	stream.Seek(0, STREAM_SEEK_END);
+	std::string shaderPath = GetBundleFilePath(CFSTR("TexClamp"), extension);
+	Framework::CStdStream stream(shaderPath.c_str(), "rb");
+	stream.Seek(0, Framework::STREAM_SEEK_END);
 	uint64 fileSize = stream.Tell();
-	stream.Seek(0, STREAM_SEEK_SET);
+	stream.Seek(0, Framework::STREAM_SEEK_SET);
 	char* readBuffer = new char[fileSize];
 	stream.Read(readBuffer, fileSize);
 	shader->SetSource(readBuffer, fileSize);
 	delete [] readBuffer;
+}
+
+void CGSH_OpenGLMacOSX::ProcessImageTransfer(uint32, uint32)
+{
+	
 }
 
 CGSHandler* CGSH_OpenGLMacOSX::GSHandlerFactory(CGLContextObj context)

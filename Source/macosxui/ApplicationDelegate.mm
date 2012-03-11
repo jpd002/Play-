@@ -27,12 +27,12 @@ using namespace std;
 	{
 		bootFromElfPath = [args objectAtIndex:1];
 	}
-		
+	
 	if(bootFromElfPath != nil)
 	{
 		[self BootFromElf:bootFromElfPath];
 	}
-	
+		
 	//Initialize debugger
 	[m_debuggerWindow Initialize];
 #endif

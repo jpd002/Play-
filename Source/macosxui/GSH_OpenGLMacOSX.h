@@ -12,8 +12,17 @@ public:
 	static FactoryFunction	GetFactoryFunction(CGLContextObj);
 	
 	virtual void			InitializeImpl();
+	virtual void			ReleaseImpl();
 	virtual void			FlipImpl();
-    virtual void            LoadShaderSource(Framework::OpenGl::CShader*, SHADER);
+	virtual void			UpdateViewportImpl();
+	
+	virtual void			ReadFramebuffer(uint32, uint32, void*);
+
+	virtual void			PresentBackbuffer();
+	virtual void			LoadShaderSource(Framework::OpenGl::CShader*, SHADER);
+
+protected:
+	virtual void			ProcessImageTransfer(uint32, uint32);	
 	
 private:
 	static CGSHandler*		GSHandlerFactory(CGLContextObj);

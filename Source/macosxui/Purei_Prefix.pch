@@ -4,5 +4,26 @@
 
 #ifdef __OBJC__
 	#import "Types.h"
-    #import <Cocoa/Cocoa.h>
+	#import <Cocoa/Cocoa.h>
+#else
+	#include <stdio.h>
+	#include <string.h>
+	#include <assert.h>
+
+	#include <stdexcept>
+	#include <algorithm>
+	#include <functional>
+	#include <string>
+	#include <list>
+	#include <vector>
+	#include <deque>
+	#include <unordered_map>
+	#include <memory>
+	#include <map>
+
+	#include <boost/signals2.hpp>
+	#include <boost/thread.hpp>
+	#include <boost/lexical_cast.hpp>
 #endif
+
+
