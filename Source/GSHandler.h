@@ -4,8 +4,7 @@
 #include "Types.h"
 #include "Convertible.h"
 #include <boost/thread.hpp>
-#include <boost/signal.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/signals2/signal.hpp>
 #include <vector>
 #include <functional>
 #include "MailBox.h"
@@ -67,15 +66,15 @@ public:
 		FLIP_MODE_VBLANK = 2
 	};
 
-    typedef std::pair<uint8, uint64> RegisterWrite;
-    typedef std::vector<RegisterWrite> RegisterWriteList;
-    typedef std::tr1::function<CGSHandler* (void)> FactoryFunction;
+	typedef std::pair<uint8, uint64> RegisterWrite;
+	typedef std::vector<RegisterWrite> RegisterWriteList;
+	typedef std::function<CGSHandler* (void)> FactoryFunction;
 
 											CGSHandler();
 	virtual									~CGSHandler();
 
 	void									Reset();
-    void                                    SetEnabled(bool);
+	void									SetEnabled(bool);
 
 	virtual void							SaveState(Framework::CZipArchiveWriter&);
 	virtual void							LoadState(Framework::CZipArchiveReader&);
@@ -89,23 +88,23 @@ public:
 	virtual void							SetVBlank();
 	void									ResetVBlank();
 
-	void                                    WriteRegister(uint8, uint64);
-	void                                    FeedImageData(void*, uint32);
-    void                                    WriteRegisterMassively(const RegisterWrite*, unsigned int);
+	void									WriteRegister(uint8, uint64);
+	void									FeedImageData(void*, uint32);
+	void									WriteRegisterMassively(const RegisterWrite*, unsigned int);
 
 	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
 	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
 	void									FetchImagePSMCT32(uint32*, uint32, uint32, uint32, uint32);
 
-    virtual void							SetCrt(bool, unsigned int, bool);
-    void                                    Initialize();
-    void                                    Release();
-    void        							UpdateViewport();
+	virtual void							SetCrt(bool, unsigned int, bool);
+	void									Initialize();
+	void									Release();
+	void									UpdateViewport();
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
-	void                                    Flip();
+	void									Flip();
 	virtual void							ReadFramebuffer(uint32, uint32, void*)	= 0;
 
-	boost::signal<void ()>                  OnNewFrame;
+	boost::signals2::signal<void ()>		OnNewFrame;
 
 	enum PRIVATE_REGISTER
 	{
@@ -178,7 +177,7 @@ protected:
 		unsigned int	nReserved0		: 21;
 		uint32			nReserved1;
 	};
-    BOOST_STATIC_ASSERT(sizeof(PRIM) == sizeof(uint64));
+	static_assert(sizeof(PRIM) == sizeof(uint64), "Size of PRIM struct must be 8 bytes.");
 
 	//Reg 0x01
 	struct RGBAQ : public convertible<uint64>

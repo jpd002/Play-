@@ -8,15 +8,15 @@ class CVuExecutor : public CMipsExecutor
 {
 public:
 							CVuExecutor(CMIPS&);
-    virtual					~CVuExecutor();
+	virtual					~CVuExecutor();
 
 	virtual void			Reset();
 
 protected:
-	typedef std::tr1::unordered_multimap<uint32, BasicBlockPtr> CachedBlockMap;
+	typedef std::unordered_multimap<uint32, BasicBlockPtr> CachedBlockMap;
 
 	virtual BasicBlockPtr	BlockFactory(CMIPS&, uint32, uint32);
-    virtual void			PartitionFunction(uint32);
+	virtual void			PartitionFunction(uint32);
 
 	CachedBlockMap			m_cachedBlocks;
 };

@@ -2,7 +2,7 @@
 #define _PS2OS_H_
 
 #include <string>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include "ELF.h"
 #include "MIPS.h"
 #include "GSHandler.h"
@@ -14,34 +14,34 @@ class CIopBios;
 class CPS2OS
 {
 public:
-                                                CPS2OS(CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
-    virtual                                     ~CPS2OS();
+												CPS2OS(CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
+	virtual										~CPS2OS();
 
-	void									    Initialize();
-	void									    Release();
+	void										Initialize();
+	void										Release();
 
 	bool										IsIdle() const;
 
-	void									    DumpThreadSchedule();
-	void									    DumpIntcHandlers();
-	void									    DumpDmacHandlers();
+	void										DumpThreadSchedule();
+	void										DumpIntcHandlers();
+	void										DumpDmacHandlers();
 
-	void									    BootFromFile(const char*);
-	void									    BootFromCDROM();
-	CELF*                                       GetELF();
-	const char*                                 GetExecutableName() const;
+	void										BootFromFile(const char*);
+	void										BootFromCDROM();
+	CELF*										GetELF();
+	const char*									GetExecutableName() const;
 	std::pair<uint32, uint32>					GetExecutableRange() const;
 	MipsModuleList								GetModuleList();
 
-	void                                        ThreadShakeAndBake();
+	void										ThreadShakeAndBake();
 
-	void                                        ExceptionHandler();
-	void									    SysCallHandler();
-    static uint32                               TranslateAddress(CMIPS*, uint32, uint32);
+	void										ExceptionHandler();
+	void										SysCallHandler();
+	static uint32								TranslateAddress(CMIPS*, uint32, uint32);
 
-	boost::signal<void ()>                      m_OnExecutableChange;
-	boost::signal<void ()>                      m_OnExecutableUnloading;
-	boost::signal<void ()>						m_OnRequestInstructionCacheFlush;
+	boost::signals2::signal<void ()>			OnExecutableChange;
+	boost::signals2::signal<void ()>			OnExecutableUnloading;
+	boost::signals2::signal<void ()>			OnRequestInstructionCacheFlush;
 
 private:
 	class CRoundRibbon
@@ -105,7 +105,7 @@ private:
 		uint32									nStackSize;
 		uint32									nGP;
 		uint32									nPriority;
-        uint32                                  nCurrentPriority;
+		uint32									nCurrentPriority;
 	};
 
 	struct SEMAPHORE
@@ -209,7 +209,7 @@ private:
 		THREAD_ZOMBIE		= 0x04,
 	};
 
-    typedef void (CPS2OS::*SystemCallHandler)();
+	typedef void (CPS2OS::*SystemCallHandler)();
 
 	void									LoadELF(Framework::CStream&, const char*);
 
@@ -219,9 +219,9 @@ private:
 	void									ApplyPatches();
 
 	void									DisassembleSysCall(uint8);
-	std::string                             GetSysCallDescription(uint8);
+	std::string								GetSysCallDescription(uint8);
 
-	static SystemCallHandler                m_pSysCall[0x80];
+	static SystemCallHandler				m_pSysCall[0x80];
 
 	void									AssembleCustomSyscallHandler();
 	void									AssembleInterruptHandler();
@@ -230,27 +230,27 @@ private:
 	void									AssembleThreadEpilog();
 	void									AssembleWaitThreadProc();
 
-	uint32*                                 GetCustomSyscallTable();
+	uint32*									GetCustomSyscallTable();
 
-	void                                    CreateWaitThread();
-	uint32                                  GetCurrentThreadId() const;
-	void                                    SetCurrentThreadId(uint32);
-	uint32                                  GetNextAvailableThreadId();
-	THREAD*                                 GetThread(uint32);
+	void									CreateWaitThread();
+	uint32									GetCurrentThreadId() const;
+	void									SetCurrentThreadId(uint32);
+	uint32									GetNextAvailableThreadId();
+	THREAD*									GetThread(uint32);
 	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
 
-	uint32                                  GetNextAvailableSemaphoreId();
-	SEMAPHORE*                              GetSemaphore(uint32);
+	uint32									GetNextAvailableSemaphoreId();
+	SEMAPHORE*								GetSemaphore(uint32);
 
-	uint32                                  GetNextAvailableDmacHandlerId();
-	DMACHANDLER*                            GetDmacHandler(uint32);
+	uint32									GetNextAvailableDmacHandlerId();
+	DMACHANDLER*							GetDmacHandler(uint32);
 
-	uint32                                  GetNextAvailableIntcHandlerId();
-	INTCHANDLER*                            GetIntcHandler(uint32);
+	uint32									GetNextAvailableIntcHandlerId();
+	INTCHANDLER*							GetIntcHandler(uint32);
 
-	uint32                                  GetNextAvailableDeci2HandlerId();
-	DECI2HANDLER*                           GetDeci2Handler(uint32);
+	uint32									GetNextAvailableDeci2HandlerId();
+	DECI2HANDLER*							GetDeci2Handler(uint32);
 
 	//Various system calls
 	void									sc_GsSetCrt();
@@ -295,16 +295,16 @@ private:
 	void									sc_GetMemorySize();
 	void									sc_Unhandled();
 
-	CELF*                                   m_pELF;
-	CMIPS&                                  m_ee;
-	CRoundRibbon*                           m_pThreadSchedule;
+	CELF*									m_pELF;
+	CMIPS&									m_ee;
+	CRoundRibbon*							m_pThreadSchedule;
 
-	std::string                             m_sExecutableName;
-    uint8*                                  m_ram;
-    uint8*                                  m_bios;
-    CGSHandler*&                            m_gs;
-    CSIF&                                   m_sif;
-    CIopBios&                               m_iopBios;
+	std::string								m_sExecutableName;
+	uint8*									m_ram;
+	uint8*									m_bios;
+	CGSHandler*&							m_gs;
+	CSIF&									m_sif;
+	CIopBios&								m_iopBios;
 
 	uint32									m_semaWaitId;
 	uint32									m_semaWaitCount;

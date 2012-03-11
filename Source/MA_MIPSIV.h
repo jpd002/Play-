@@ -25,7 +25,7 @@ protected:
 		MAX_REGIMM_OPS = 0x20,
 	};
 
-	typedef std::tr1::function<void ()> InstructionFunction;
+	typedef std::function<void ()> InstructionFunction;
 
 	InstructionFunction					m_pOpGeneral[MAX_GENERAL_OPS];
 	InstructionFunction					m_pOpSpecial[MAX_SPECIAL_OPS];
@@ -39,7 +39,7 @@ protected:
 	static void							ReflOpRsOff(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRtOffRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpHintOffRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-    static void							ReflOpIdOffRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	static void							ReflOpIdOffRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRdRsRt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRdRtSa(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRdRtRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -71,24 +71,24 @@ protected:
 	uint16								m_nImmediate;
 
 protected:
-    //Instruction compiler templates
-    typedef std::tr1::function<void (uint8)> TemplateParamedOperationFunctionType;
-	typedef std::tr1::function<void ()> TemplateOperationFunctionType;
+	//Instruction compiler templates
+	typedef std::function<void (uint8)> TemplateParamedOperationFunctionType;
+	typedef std::function<void ()> TemplateOperationFunctionType;
 
 	void Template_Add32(bool);
-    void Template_Add64(bool);
+	void Template_Add64(bool);
 	void Template_Sub32(bool);
 	void Template_LoadUnsigned32(void*);
-    void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
+	void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
 	void Template_ShiftVar32(const TemplateOperationFunctionType&);
-	void Template_Mult32(const TemplateOperationFunctionType&, unsigned int); 
+	void Template_Mult32(const TemplateOperationFunctionType&, unsigned int);
 	void Template_Div32(const TemplateOperationFunctionType&, unsigned int);
 	void Template_MovEqual(bool);
 	void Template_SetLessThanImm(bool);
 	void Template_SetLessThanReg(bool);
 	void Template_BranchEq(bool, bool);
 	void Template_BranchGez(bool, bool);
-    void Template_BranchLez(bool, bool);
+	void Template_BranchLez(bool, bool);
 
 private:
 	void							SetupInstructionTables();
@@ -140,7 +140,7 @@ private:
 	void							SWR();
 	void							CACHE();
 	void							LWC1();
-    void                            PREF();
+	void							PREF();
 	void							LDC2();
 	void							LD();
 	void							SWC1();
@@ -159,7 +159,7 @@ private:
 	void							MOVZ();
 	void							MOVN();
 	void							SYSCALL();
-    void							BREAK();
+	void							BREAK();
 	void							SYNC();
 	void							DSLLV();
 	void							DSRLV();
@@ -173,7 +173,7 @@ private:
 	void							DIVU();
 	void							ADD();
 	void							ADDU();
-    void							SUB();
+	void							SUB();
 	void							SUBU();
 	void							AND();
 	void							OR();
@@ -181,7 +181,7 @@ private:
 	void							NOR();
 	void							SLT();
 	void							SLTU();
-    void                            DADD();
+	void							DADD();
 	void							DADDU();
 	void							DSUBU();
 	void							DSLL();

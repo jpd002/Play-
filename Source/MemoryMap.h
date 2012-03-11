@@ -14,8 +14,8 @@ enum MEMORYMAP_ENDIANESS
 class CMemoryMap
 {
 public:
-    typedef std::tr1::function<void (uint32)> WriteNotifyHandlerType;
-    typedef std::tr1::function<uint32 (uint32, uint32)> MemoryMapHandlerType;
+    typedef std::function<void (uint32)> WriteNotifyHandlerType;
+    typedef std::function<uint32 (uint32, uint32)> MemoryMapHandlerType;
 
     enum MEMORYMAP_TYPE
     {

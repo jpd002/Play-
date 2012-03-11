@@ -1,7 +1,5 @@
 #include "GSH_Null.h"
 
-using namespace std::tr1;
-
 CGSH_Null::CGSH_Null()
 {
 
@@ -39,7 +37,7 @@ void CGSH_Null::ReadFramebuffer(uint32, uint32, void*)
 
 CGSHandler::FactoryFunction CGSH_Null::GetFactoryFunction()
 {
-    return bind(&CGSH_Null::GSHandlerFactory);
+	return std::bind(&CGSH_Null::GSHandlerFactory);
 }
 
 CGSHandler* CGSH_Null::GSHandlerFactory()

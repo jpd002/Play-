@@ -49,10 +49,6 @@
 
 #define LOG_NAME    ("gs")
 
-using namespace Framework;
-using namespace std;
-using namespace std::tr1;
-
 int CGSHandler::STORAGEPSMCT32::m_nBlockSwizzleTable[4][8] =
 {
 	{	0,	1,	4,	5,	16,	17,	20,	21	},
@@ -173,14 +169,14 @@ CGSHandler::CGSHandler()
 
 	Reset();
 
-    m_thread = new boost::thread(bind(&CGSHandler::ThreadProc, this));
+	m_thread = new boost::thread(boost::bind(&CGSHandler::ThreadProc, this));
 }
 
 CGSHandler::~CGSHandler()
 {
-    m_threadDone = true;
-    m_thread->join();
-    delete m_thread;
+	m_threadDone = true;
+	m_thread->join();
+	delete m_thread;
 	FREEPTR(m_pRAM);
 }
 
@@ -191,66 +187,66 @@ void CGSHandler::Reset()
 	memset(m_pRAM, 0, RAMSIZE);
 	m_nPMODE = 0;
 	m_nSMODE2 = 0;
-    m_nDISPFB1 = 0;
-    m_nDISPLAY1 = 0;
-    m_nDISPFB2 = 0;
-    m_nDISPLAY2 = 0;
-    m_nCSR = 0;
-    m_nIMR = 0;
-    m_nCrtIsInterlaced = false;
-    m_nCrtMode = 0;
-    m_nCrtIsFrameMode = false;
-    m_enabled = true;
+	m_nDISPFB1 = 0;
+	m_nDISPLAY1 = 0;
+	m_nDISPFB2 = 0;
+	m_nDISPLAY2 = 0;
+	m_nCSR = 0;
+	m_nIMR = 0;
+	m_nCrtIsInterlaced = false;
+	m_nCrtMode = 0;
+	m_nCrtIsFrameMode = false;
+	m_enabled = true;
 }
 
 void CGSHandler::SetEnabled(bool enabled)
 {
-    m_enabled = enabled;
+	m_enabled = enabled;
 }
 
-void CGSHandler::SaveState(CZipArchiveWriter& archive)
+void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
-    archive.InsertFile(new CMemoryStateFile(STATE_RAM,      m_pRAM,     RAMSIZE));
-    archive.InsertFile(new CMemoryStateFile(STATE_REGS,     m_nReg,     sizeof(uint64) * 0x80));
-    archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX,   &m_TrxCtx,  sizeof(TRXCONTEXT)));
+	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_pRAM,		RAMSIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_REGS,		m_nReg,		sizeof(uint64) * 0x80));
+	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX,	&m_TrxCtx,	sizeof(TRXCONTEXT)));
 
-    {
-        CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PRIVREGS);
+	{
+		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PRIVREGS);
 
-        registerFile->SetRegister64(STATE_PRIVREGS_PMODE,          m_nPMODE);
-        registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1,        m_nDISPFB1);
-        registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1,       m_nDISPLAY1);
-        registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2,        m_nDISPFB2);
-        registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,       m_nDISPLAY2);
-        registerFile->SetRegister64(STATE_PRIVREGS_CSR,            m_nCSR);
-        registerFile->SetRegister64(STATE_PRIVREGS_IMR,            m_nIMR);
-        registerFile->SetRegister32(STATE_PRIVREGS_CRTINTERLACED,  m_nCrtIsInterlaced);
-        registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE,        m_nCrtMode);
-        registerFile->SetRegister32(STATE_PRIVREGS_CRTFRAMEMODE,   m_nCrtIsFrameMode);
+		registerFile->SetRegister64(STATE_PRIVREGS_PMODE,			m_nPMODE);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1,			m_nDISPFB1);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1,		m_nDISPLAY1);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2,			m_nDISPFB2);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,		m_nDISPLAY2);
+		registerFile->SetRegister64(STATE_PRIVREGS_CSR,				m_nCSR);
+		registerFile->SetRegister64(STATE_PRIVREGS_IMR,				m_nIMR);
+		registerFile->SetRegister32(STATE_PRIVREGS_CRTINTERLACED,	m_nCrtIsInterlaced);
+		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE,			m_nCrtMode);
+		registerFile->SetRegister32(STATE_PRIVREGS_CRTFRAMEMODE,	m_nCrtIsFrameMode);
 
-        archive.InsertFile(registerFile);
-    }
+		archive.InsertFile(registerFile);
+	}
 }
 
-void CGSHandler::LoadState(CZipArchiveReader& archive)
+void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 {
-    archive.BeginReadFile(STATE_RAM     )->Read(m_pRAM,     RAMSIZE);
-    archive.BeginReadFile(STATE_REGS    )->Read(m_nReg,     sizeof(uint64) * 0x80);
-    archive.BeginReadFile(STATE_TRXCTX  )->Read(&m_TrxCtx,  sizeof(TRXCONTEXT));
+	archive.BeginReadFile(STATE_RAM		)->Read(m_pRAM,		RAMSIZE);
+	archive.BeginReadFile(STATE_REGS	)->Read(m_nReg,		sizeof(uint64) * 0x80);
+	archive.BeginReadFile(STATE_TRXCTX	)->Read(&m_TrxCtx,	sizeof(TRXCONTEXT));
 
-    {
-        CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PRIVREGS));
-        m_nPMODE            = registerFile.GetRegister64(STATE_PRIVREGS_PMODE);
-        m_nDISPFB1          = registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
-        m_nDISPLAY1         = registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
-        m_nDISPFB2          = registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
-        m_nDISPLAY2         = registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
-        m_nCSR              = registerFile.GetRegister64(STATE_PRIVREGS_CSR);
-        m_nIMR              = registerFile.GetRegister64(STATE_PRIVREGS_IMR);
-        m_nCrtIsInterlaced  = registerFile.GetRegister32(STATE_PRIVREGS_CRTINTERLACED) != 0;
-        m_nCrtMode          = registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
-        m_nCrtIsFrameMode   = registerFile.GetRegister32(STATE_PRIVREGS_CRTFRAMEMODE) != 0;
-    }
+	{
+		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PRIVREGS));
+		m_nPMODE			= registerFile.GetRegister64(STATE_PRIVREGS_PMODE);
+		m_nDISPFB1			= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
+		m_nDISPLAY1			= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
+		m_nDISPFB2			= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
+		m_nDISPLAY2			= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
+		m_nCSR				= registerFile.GetRegister64(STATE_PRIVREGS_CSR);
+		m_nIMR				= registerFile.GetRegister64(STATE_PRIVREGS_IMR);
+		m_nCrtIsInterlaced	= registerFile.GetRegister32(STATE_PRIVREGS_CRTINTERLACED) != 0;
+		m_nCrtMode			= registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
+		m_nCrtIsFrameMode	= registerFile.GetRegister32(STATE_PRIVREGS_CRTFRAMEMODE) != 0;
+	}
 
 	UpdateViewport();
 }
@@ -394,23 +390,23 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 
 void CGSHandler::Initialize()
 {
-    m_mailBox.SendCall(bind(&CGSHandler::InitializeImpl, this));
+	m_mailBox.SendCall(std::bind(&CGSHandler::InitializeImpl, this));
 }
 
 void CGSHandler::Release()
 {
-    m_mailBox.SendCall(bind(&CGSHandler::ReleaseImpl, this), true);
+	m_mailBox.SendCall(std::bind(&CGSHandler::ReleaseImpl, this), true);
 }
 
 void CGSHandler::Flip()
 {
-    if(!m_enabled) return;
-    while(m_mailBox.IsPending())
-    {
-        //Flush all commands
-        boost::thread::yield();
-    }
-    m_mailBox.SendCall(bind(&CGSHandler::FlipImpl, this));
+	if(!m_enabled) return;
+	while(m_mailBox.IsPending())
+	{
+		//Flush all commands
+		boost::thread::yield();
+	}
+	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this));
 }
 
 void CGSHandler::FlipImpl()
@@ -423,29 +419,29 @@ void CGSHandler::FlipImpl()
 
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
 {
-    m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
+	m_mailBox.SendCall(std::bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
 }
 
 void CGSHandler::FeedImageData(void* data, uint32 length)
 {
-    uint8* buffer = new uint8[length];
-    memcpy(buffer, data, length);
-    m_mailBox.SendCall(bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
+	uint8* buffer = new uint8[length];
+	memcpy(buffer, data, length);
+	m_mailBox.SendCall(std::bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
 }
 
 void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count)
 {
-    m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterMassivelyImpl, this, writeList, count));
+	m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterMassivelyImpl, this, writeList, count));
 }
 
 void CGSHandler::UpdateViewport()
 {
-    m_mailBox.SendCall(bind(&CGSHandler::UpdateViewportImpl, this));
+	m_mailBox.SendCall(std::bind(&CGSHandler::UpdateViewportImpl, this));
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
-    m_nReg[nRegister] = nData;
+	m_nReg[nRegister] = nData;
 
 	switch(nRegister)
 	{
@@ -498,13 +494,13 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 
 #ifdef _DEBUG
-    DisassembleWrite(nRegister, nData);
+	DisassembleWrite(nRegister, nData);
 #endif
 }
 
 void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 {
-    boost::scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
+	boost::scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
 
 	if(m_TrxCtx.nSize == 0)
 	{
@@ -538,7 +534,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 			ProcessImageTransfer(pBuf->GetDstPtr(), nSize);
 
 #ifdef _DEBUG
-            CLog::GetInstance().Print(LOG_NAME, "Dirty image transfer at 0x%0.8X.\r\n", pBuf->GetDstPtr());
+			CLog::GetInstance().Print(LOG_NAME, "Dirty image transfer at 0x%0.8X.\r\n", pBuf->GetDstPtr());
 #endif
 		}
 	}
@@ -546,13 +542,13 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 
 void CGSHandler::WriteRegisterMassivelyImpl(const RegisterWrite* writeList, unsigned int count)
 {
-    const RegisterWrite* writeIterator = writeList;
-    for(unsigned int i = 0; i < count; i++)
-    {
-        WriteRegisterImpl(writeIterator->first, writeIterator->second);
-        writeIterator++;
-    }
-    delete [] writeList;
+	const RegisterWrite* writeIterator = writeList;
+	for(unsigned int i = 0; i < count; i++)
+	{
+		WriteRegisterImpl(writeIterator->first, writeIterator->second);
+		writeIterator++;
+	}
+	delete [] writeList;
 }
 
 void CGSHandler::FetchImagePSMCT16(uint16* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)
@@ -684,7 +680,7 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 
 bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 {
-    bool dirty = false;
+	bool dirty = false;
 	TRXPOS* pTrxPos = GetTrxPos();
 	TRXREG* pTrxReg = GetTrxReg();
 	BITBLTBUF* pTrxBuf = GetBitBltBuf();
@@ -705,12 +701,12 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 			uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
 			uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-            uint8 currentPixel = Indexor.GetPixel(nX, nY);
-            if(currentPixel != nPixel[j])
-            {
-			    Indexor.SetPixel(nX, nY, nPixel[j]);
-                dirty = true;
-            }
+			uint8 currentPixel = Indexor.GetPixel(nX, nY);
+			if(currentPixel != nPixel[j])
+			{
+				Indexor.SetPixel(nX, nY, nPixel[j]);
+				dirty = true;
+			}
 
 			m_TrxCtx.nRRX++;
 			if(m_TrxCtx.nRRX == pTrxReg->nRRW)
@@ -937,7 +933,7 @@ unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
 		return 32;
 		break;
 	case PSMCT24:
-    case 9:
+	case 9:
 		return 24;
 		break;
 	case PSMCT16:
@@ -1024,12 +1020,12 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		}
 		break;
 	case GS_REG_XYZF2:
-    case GS_REG_XYZF3:
+	case GS_REG_XYZF3:
 		{
 			XYZF xyzf;
 			xyzf = *reinterpret_cast<XYZF*>(&nData);
 			CLog::GetInstance().Print(LOG_NAME, "%s(%f, %f, %i, %i);\r\n",
-                (nRegister == GS_REG_XYZF2) ? "XYZF2" : "XYZF3",
+				(nRegister == GS_REG_XYZF2) ? "XYZF2" : "XYZF3",
 				xyzf.GetX(),
 				xyzf.GetY(),
 				xyzf.nZ,
@@ -1293,7 +1289,7 @@ void CGSHandler::DisassemblePrivWrite(uint32 address)
 	case GS_DISPFB2:
 		{
 			DISPFB* dispfb = GetDispFb(1);
-            CLog::GetInstance().Print(LOG_NAME, "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+			CLog::GetInstance().Print(LOG_NAME, "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
 				dispfb->GetBufPtr(), \
 				dispfb->GetBufWidth(), \
 				dispfb->nPSM, \
@@ -1330,12 +1326,12 @@ void CGSHandler::LoadSettings()
 
 void CGSHandler::ThreadProc()
 {
-    while(!m_threadDone)
-    {
-        m_mailBox.WaitForCall(100);
-        while(m_mailBox.IsPending())
-        {
-            m_mailBox.ReceiveCall();
-        }
-    }
+	while(!m_threadDone)
+	{
+		m_mailBox.WaitForCall(100);
+		while(m_mailBox.IsPending())
+		{
+			m_mailBox.ReceiveCall();
+		}
+	}
 }

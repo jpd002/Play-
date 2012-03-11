@@ -3,6 +3,7 @@
 
 #include "MIPS.h"
 #include "MemoryFunction.h"
+#include <boost/intrusive_ptr.hpp>
 
 namespace Jitter
 {

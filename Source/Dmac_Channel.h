@@ -11,7 +11,7 @@ class CDMAC;
 
 namespace Dmac
 {
-    typedef std::tr1::function<uint32 (uint32, uint32, uint32, bool)> DmaReceiveHandler;
+    typedef std::function<uint32 (uint32, uint32, uint32, bool)> DmaReceiveHandler;
 
 	class CChannel
 	{

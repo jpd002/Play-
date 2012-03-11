@@ -6,9 +6,6 @@
 #include "PtrMacro.h"
 #include "Log.h"
 
-using namespace Framework;
-using namespace std::tr1;
-
 //#define _WIREFRAME
 
 CGSH_OpenGL::CGSH_OpenGL() 
@@ -23,15 +20,15 @@ CGSH_OpenGL::CGSH_OpenGL()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
-    CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
 	LoadSettings();
 }
 
 CGSH_OpenGL::~CGSH_OpenGL()
 {
-    FREEPTR(m_pCLUT);
-    FREEPTR(m_pCvtBuffer);
+	FREEPTR(m_pCLUT);
+	FREEPTR(m_pCvtBuffer);
 }
 
 void CGSH_OpenGL::InitializeImpl()
@@ -42,26 +39,25 @@ void CGSH_OpenGL::InitializeImpl()
 	m_nWidth = -1;
 	m_nHeight = -1;
 
-    //
+	//
 	//m_nTexCacheIndex = 0;
-    for(unsigned int i = 0; i < MAXCACHE; i++)
-    {
-        m_TexCache.push_back(new CTexture());
-    }
+	for(unsigned int i = 0; i < MAXCACHE; i++)
+	{
+		m_TexCache.push_back(new CTexture());
+	}
 
 	m_nMaxZ = 32768.0;
 }
 
 void CGSH_OpenGL::ReleaseImpl()
 {
-    TexCache_Flush();
-    for(TextureList::iterator textureIterator(m_TexCache.begin());
-        textureIterator != m_TexCache.end(); textureIterator++)
-    {
-        CTexture* texture = *textureIterator;
-        delete texture;
-    }
-//    glDeleteBuffers(MAX_PIXEL_BUFFERS, m_pixelBuffers);
+	TexCache_Flush();
+	for(TextureList::iterator textureIterator(m_TexCache.begin());
+		textureIterator != m_TexCache.end(); textureIterator++)
+	{
+		CTexture* texture = *textureIterator;
+		delete texture;
+	}
 }
 
 void CGSH_OpenGL::FlipImpl()
@@ -73,11 +69,11 @@ void CGSH_OpenGL::FlipImpl()
 #endif
 }
 
-void CGSH_OpenGL::LoadState(CZipArchiveReader& archive)
+void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CGSHandler::LoadState(archive);
 
-	m_mailBox.SendCall(bind(&CGSH_OpenGL::TexCache_InvalidateTextures, this, 0, RAMSIZE));
+	m_mailBox.SendCall(std::bind(&CGSH_OpenGL::TexCache_InvalidateTextures, this, 0, RAMSIZE));
 }
 
 void CGSH_OpenGL::LoadSettings()
@@ -86,7 +82,7 @@ void CGSH_OpenGL::LoadSettings()
 
 	m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-    m_fixSmallZValues           = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
+	m_fixSmallZValues			= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
 
 void CGSH_OpenGL::InitializeRC()
@@ -127,16 +123,16 @@ void CGSH_OpenGL::InitializeRC()
 		m_pTexUploader_Psm16 = &CGSH_OpenGL::TexUploader_Psm16_Hw;
 	}
 
-    DELETEPTR(m_pProgram);
-    DELETEPTR(m_pVertShader);
-    DELETEPTR(m_pFragShader);
+	DELETEPTR(m_pProgram);
+	DELETEPTR(m_pVertShader);
+	DELETEPTR(m_pFragShader);
 
 	//Create shaders/program
 	if((glCreateProgram != NULL) && (glCreateShader != NULL))
 	{
-        m_pProgram		= new OpenGl::CProgram();
-		m_pVertShader	= new OpenGl::CShader(GL_VERTEX_SHADER);
-		m_pFragShader	= new OpenGl::CShader(GL_FRAGMENT_SHADER);
+		m_pProgram		= new Framework::OpenGl::CProgram();
+		m_pVertShader	= new Framework::OpenGl::CShader(GL_VERTEX_SHADER);
+		m_pFragShader	= new Framework::OpenGl::CShader(GL_FRAGMENT_SHADER);
 
 		LoadShaderSource(m_pVertShader, SHADER_VERTEX);
 		LoadShaderSource(m_pFragShader, SHADER_FRAGMENT);
@@ -162,20 +158,12 @@ void CGSH_OpenGL::InitializeRC()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    glGenBuffers(MAX_PIXEL_BUFFERS, m_pixelBuffers);
-//    for(unsigned int i = 0; i < MAX_PIXEL_BUFFERS; i++)
-//    {
-//        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, m_pixelBuffers[i]);
-//        glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, PIXEL_BUFFER_SIZE, 0, GL_DYNAMIC_DRAW_ARB);
-//    }
-//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
-
 #ifdef _WIREFRAME
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDisable(GL_TEXTURE_2D);
 #endif
 
-    PresentBackbuffer();
+	PresentBackbuffer();
 }
 
 void CGSH_OpenGL::VerifyRGBA5551Support()
@@ -433,11 +421,11 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 {
 	TEST tst;
-    tst <<= nData;
+	tst <<= nData;
 
 	if(tst.nAlphaEnabled)
 	{
-	    unsigned int nFunc = GL_NEVER;
+		unsigned int nFunc = GL_NEVER;
 		switch(tst.nAlphaMethod)
 		{
 		case 0:
@@ -449,9 +437,9 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 		case 2:
 			nFunc = GL_LESS;
 			break;
-        case 5:
-            nFunc = GL_GEQUAL;
-            break;
+		case 5:
+			nFunc = GL_GEQUAL;
+			break;
 		case 6:
 			nFunc = GL_GREATER;
 			break;
@@ -476,7 +464,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 
 	if(tst.nDepthEnabled)
 	{
-	    unsigned int nFunc = GL_NEVER;
+		unsigned int nFunc = GL_NEVER;
 
 		switch(tst.nDepthMethod)
 		{
@@ -796,19 +784,19 @@ void CGSH_OpenGL::Prim_Triangle()
 			glBegin(GL_TRIANGLES);
 			{
 				glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-                glTexCoord2f(nS1, nT1);
+				glTexCoord2f(nS1, nT1);
 				//glTexCoord4d(nS1, nT1, 0, rgbaq[0].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF1);
 				glVertex3f(nX1, nY1, nZ1);
 
 				glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-                glTexCoord2f(nS2, nT2);
+				glTexCoord2f(nS2, nT2);
 //				glTexCoord4d(nS2, nT2, 0, rgbaq[1].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF2);
 				glVertex3f(nX2, nY2, nZ2);
 
 				glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-                glTexCoord2f(nS3, nT3);
+				glTexCoord2f(nS3, nT3);
 //				glTexCoord4d(nS3, nT3, 0, rgbaq[2].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF3);
 				glVertex3f(nX3, nY3, nZ3);
@@ -871,9 +859,9 @@ void CGSH_OpenGL::Prim_Sprite()
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
 
-    if(m_PrimitiveMode.nAlpha)
+	if(m_PrimitiveMode.nAlpha)
 	{
-        glEnable(GL_BLEND);
+		glEnable(GL_BLEND);
 	}
 
 	if(m_PrimitiveMode.nTexture)
@@ -918,7 +906,7 @@ void CGSH_OpenGL::Prim_Sprite()
 		glBegin(GL_QUADS);
 		{
 			//REMOVE
-            //glColor4d(1.0, 1.0, 1.0, 1.0);
+			//glColor4d(1.0, 1.0, 1.0, 1.0);
 
 			glTexCoord2f(nS[0], nT[0]);
 			glVertex3f(nX1, nY1, nZ1);
@@ -975,9 +963,9 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	CGSHandler::WriteRegisterImpl(nRegister, nData);
 
-    if(!m_enabled) return;
+	if(!m_enabled) return;
 
-    switch(nRegister)
+	switch(nRegister)
 	{
 	case GS_REG_PRIM:
 		m_nPrimitiveType = (unsigned int)(nData & 0x07);
@@ -1146,8 +1134,8 @@ void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength)
 	if(nAddress < nFrameEnd)
 	{
 		if((pFrame->nPsm == PSMCT24) && (pBuf->nDstPsm == PSMT4HH || pBuf->nDstPsm == PSMT4HL || pBuf->nDstPsm == PSMT8H)) return;
-        //This is for Atelier Iris
-        if(pBuf->nDstPsm == PSMCT24) return;
+		//This is for Atelier Iris
+		if(pBuf->nDstPsm == PSMCT24) return;
 		DisplayTransferedImage(nAddress);
 	}
 }
@@ -1223,12 +1211,16 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 
 	glDeleteTextures(1, &nTexture);
 
-    PresentBackbuffer();
+	PresentBackbuffer();
 }
 
 bool CGSH_OpenGL::IsColorTableExtSupported()
 {
+#ifdef _WIN32
 	return glColorTableEXT != NULL;
+#else
+	return NULL;
+#endif
 }
 
 bool CGSH_OpenGL::IsBlendColorExtSupported()

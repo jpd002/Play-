@@ -63,12 +63,12 @@ CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, CMIPS& ee)
 , m_D6_MADR(0)
 , m_D6_QWC(0)
 , m_D6_TADR(0)
-, m_D8(*this, 8, std::tr1::bind(&CDMAC::ReceiveDMA8, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4))
+, m_D8(*this, 8, std::bind(&CDMAC::ReceiveDMA8, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 , m_D8_SADR(0)
-, m_D9(*this, 9, std::tr1::bind(&CDMAC::ReceiveDMA9, this, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4))
+, m_D9(*this, 9, std::bind(&CDMAC::ReceiveDMA9, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 , m_D9_SADR(0)
 {
-    Reset();
+	Reset();
 }
 
 CDMAC::~CDMAC()
@@ -78,15 +78,15 @@ CDMAC::~CDMAC()
 
 void CDMAC::Reset()
 {
-    m_D_CTRL    <<= 0;
+	m_D_CTRL	<<= 0;
 	m_D_STAT	= 0;
 	m_D_ENABLE	= 0;
 	m_D_PCR		= 0;
-    m_D_RBSR    = 0;
-    m_D_RBOR    = 0;
+	m_D_RBSR	= 0;
+	m_D_RBOR	= 0;
 
-    //Reset Channel 0
-    m_D0.Reset();
+	//Reset Channel 0
+	m_D0.Reset();
 
 	//Reset Channel 1
 	m_D1.Reset();
@@ -97,9 +97,9 @@ void CDMAC::Reset()
 	//Reset Channel 4
 	m_D4.Reset();
 
-    //Reset Channel 8
-    m_D8.Reset();
-    m_D8_SADR = 0;
+	//Reset Channel 8
+	m_D8.Reset();
+	m_D8_SADR = 0;
 
 	//Reset Channel 9
 	m_D9.Reset();
@@ -108,30 +108,30 @@ void CDMAC::Reset()
 
 void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHandler& handler)
 {
-    switch(channel)
-    {
-    case 0:
-        m_D0.SetReceiveHandler(handler);
-        break;
-    case 1:
-        m_D1.SetReceiveHandler(handler);
-        break;
-    case 2:
-        m_D2.SetReceiveHandler(handler);
-        break;
-    case 4:
-        m_D4.SetReceiveHandler(handler);
-        break;
-    case 5:
-        m_receiveDma5 = handler;
-        break;
-    case 6:
-        m_receiveDma6 = handler;
-        break;
-    default:
+	switch(channel)
+	{
+	case 0:
+		m_D0.SetReceiveHandler(handler);
+		break;
+	case 1:
+		m_D1.SetReceiveHandler(handler);
+		break;
+	case 2:
+		m_D2.SetReceiveHandler(handler);
+		break;
+	case 4:
+		m_D4.SetReceiveHandler(handler);
+		break;
+	case 5:
+		m_receiveDma5 = handler;
+		break;
+	case 6:
+		m_receiveDma6 = handler;
+		break;
+	default:
 		throw std::runtime_error("Unsupported channel.");
-        break;
-    }
+		break;
+	}
 }
 
 bool CDMAC::IsInterruptPending()
@@ -145,22 +145,22 @@ bool CDMAC::IsInterruptPending()
 
 void CDMAC::ResumeDMA0()
 {
-    m_D0.Execute();
+	m_D0.Execute();
 }
 
 void CDMAC::ResumeDMA1()
 {
-    m_D1.Execute();
+	m_D1.Execute();
 }
 
 uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
 {
 	void* pDst;
 
-    assert(m_D3_CHCR & CHCR_STR);
+	assert(m_D3_CHCR & CHCR_STR);
 	if(!(m_D3_CHCR & CHCR_STR)) return 0;
 
-	nSize = min(nSize, m_D3_QWC);
+	nSize = std::min<uint32>(nSize, m_D3_QWC);
 
 	if(m_D3_MADR & 0x80000000)
 	{
@@ -187,7 +187,7 @@ uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
 
 void CDMAC::ResumeDMA4()
 {
-    m_D4.Execute();
+	m_D4.Execute();
 }
 
 uint64 CDMAC::FetchDMATag(uint32 nAddress)
@@ -282,9 +282,9 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-    case D1_TADR + 0x0:
-        return m_D1.m_nTADR;
-        break;
+	case D1_TADR + 0x0:
+		return m_D1.m_nTADR;
+		break;
 	case D1_TADR + 0x4:
 	case D1_TADR + 0x8:
 	case D1_TADR + 0xC:
@@ -311,25 +311,25 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-    case D3_CHCR + 0x0:
-        return m_D3_CHCR;
-        break;
-    case D3_CHCR + 0x4:
+	case D3_CHCR + 0x0:
+		return m_D3_CHCR;
+		break;
+	case D3_CHCR + 0x4:
 	case D3_CHCR + 0x8:
 	case D3_CHCR + 0xC:
-        return 0;
-        break;
+		return 0;
+		break;
 
-    case D3_MADR + 0x0:
-        return m_D3_MADR;
-        break;
-    case D3_MADR + 0x4:
+	case D3_MADR + 0x0:
+		return m_D3_MADR;
+		break;
+	case D3_MADR + 0x4:
 	case D3_MADR + 0x8:
 	case D3_MADR + 0xC:
-        return 0;
-        break;
+		return 0;
+		break;
 
-    case D3_QWC + 0x0:
+	case D3_QWC + 0x0:
 		return m_D3_QWC;
 		break;
 	case D3_QWC + 0x4:
@@ -374,7 +374,7 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-    //Channel 8
+	//Channel 8
 	case D8_CHCR + 0x0:
 		return m_D8.ReadCHCR();
 		break;
@@ -384,17 +384,17 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-    case D8_MADR + 0x0:
-        return m_D8.m_nMADR;
-        break;
+	case D8_MADR + 0x0:
+		return m_D8.m_nMADR;
+		break;
 	case D8_MADR + 0x4:
 	case D8_MADR + 0x8:
 	case D8_MADR + 0xC:
 		return 0;
 		break;
 
-    //Channel 9
-    case D9_CHCR + 0x0:
+	//Channel 9
+	case D9_CHCR + 0x0:
 		return m_D9.ReadCHCR();
 		break;
 	case D9_CHCR + 0x4:
@@ -403,21 +403,21 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-    case D9_MADR + 0x0:
-        return m_D9.m_nMADR;
-        break;
+	case D9_MADR + 0x0:
+		return m_D9.m_nMADR;
+		break;
 	case D9_MADR + 0x4:
 	case D9_MADR + 0x8:
 	case D9_MADR + 0xC:
 		return 0;
 		break;
 
-    //General Registers
-    case D_CTRL:
-        return m_D_CTRL;
-        break;
+	//General Registers
+	case D_CTRL:
+		return m_D_CTRL;
+		break;
 
-    case D_STAT:
+	case D_STAT:
 		return m_D_STAT;
 		break;
 
@@ -434,8 +434,8 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-        CLog::GetInstance().Print(LOG_NAME, "Read to an unhandled IO port (0x%0.8X).\r\n", nAddress);
-        break;
+		CLog::GetInstance().Print(LOG_NAME, "Read to an unhandled IO port (0x%0.8X).\r\n", nAddress);
+		break;
 	}
 
 	return 0;
@@ -450,7 +450,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	switch(nAddress)
 	{
-    //Channel 0
+	//Channel 0
 	case D0_CHCR + 0x0:
 		m_D0.WriteCHCR(nData);
 		break;
@@ -483,8 +483,8 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D0_TADR + 0xC:
 		break;
 
-    //Channel 1
-    case D1_CHCR + 0x0:
+	//Channel 1
+	case D1_CHCR + 0x0:
 		m_D1.WriteCHCR(nData);
 		break;
 	case D1_CHCR + 0x4:
@@ -615,7 +615,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 	case D4_TADR + 0x4:
 	case D4_TADR + 0x8:
-    case D4_TADR + 0xC:
+	case D4_TADR + 0xC:
 		break;
 
 	//D5_CHCR
@@ -623,7 +623,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		m_D5_CHCR = nData;
 		if(m_D5_CHCR & 0x100)
 		{
-            m_receiveDma5(m_D5_MADR, m_D5_QWC * 0x10, 0, false);
+			m_receiveDma5(m_D5_MADR, m_D5_QWC * 0x10, 0, false);
 			m_D5_CHCR	&= ~0x100;
 			m_D_STAT	|= 0x20;
 //			if(IsInterruptPending())
@@ -649,7 +649,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	//D5_QWC
 	case D5_QWC + 0x0:
 		m_D5_QWC = nData;
-        break;
+		break;
 	case D5_QWC + 0x4:
 	case D5_QWC + 0x8:
 	case D5_QWC + 0xC:
@@ -660,7 +660,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		m_D6_CHCR = nData;
 		if(m_D6_CHCR & 0x100)
 		{
-            m_receiveDma6(m_D6_MADR, m_D6_QWC * 0x10, m_D6_TADR, false);
+			m_receiveDma6(m_D6_MADR, m_D6_QWC * 0x10, m_D6_TADR, false);
 			m_D6_CHCR &= ~0x100;
 		}
 		break;
@@ -696,7 +696,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D6_TADR + 0xC:
 		break;
 
-    //Channel 8
+	//Channel 8
 	case D8_CHCR + 0x0:
 		m_D8.WriteCHCR(nData);
 		break;
@@ -729,8 +729,8 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D8_SADR + 0xC:
 		break;
 
-    //Channel 9
-    case D9_CHCR + 0x0:
+	//Channel 9
+	case D9_CHCR + 0x0:
 		m_D9.WriteCHCR(nData);
 		break;
 	case D9_CHCR + 0x4:
@@ -770,13 +770,13 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D9_SADR + 0xC:
 		break;
 
-    case D_CTRL + 0x0:
-        m_D_CTRL <<= nData;
-        break;
-    case D_CTRL + 0x4:
-    case D_CTRL + 0x8:
-    case D_CTRL + 0xC:
-        break;
+	case D_CTRL + 0x0:
+		m_D_CTRL <<= nData;
+		break;
+	case D_CTRL + 0x4:
+	case D_CTRL + 0x8:
+	case D_CTRL + 0xC:
+		break;
 
 	case D_STAT + 0x0:
 		{
@@ -805,24 +805,24 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D_PCR + 0xC:
 		break;
 
-    case D_RBSR + 0x0:
-        m_D_RBSR = nData;
-        break;
-    case D_RBSR + 0x4:
-    case D_RBSR + 0x8:
-    case D_RBSR + 0xC:
-        break;
+	case D_RBSR + 0x0:
+		m_D_RBSR = nData;
+		break;
+	case D_RBSR + 0x4:
+	case D_RBSR + 0x8:
+	case D_RBSR + 0xC:
+		break;
 
-    case D_RBOR + 0x0:
-        m_D_RBOR = nData;
-        assert((m_D_RBOR & m_D_RBSR) == 0);
-        break;
-    case D_RBOR + 0x4:
-    case D_RBOR + 0x8:
-    case D_RBOR + 0xC:
-        break;
+	case D_RBOR + 0x0:
+		m_D_RBOR = nData;
+		assert((m_D_RBOR & m_D_RBSR) == 0);
+		break;
+	case D_RBOR + 0x4:
+	case D_RBOR + 0x8:
+	case D_RBOR + 0xC:
+		break;
 
-    case D_ENABLEW + 0x0:
+	case D_ENABLEW + 0x0:
 		m_D_ENABLE = nData;
 		break;
 	case D_ENABLEW + 0x4:
@@ -831,8 +831,8 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	default:
-        CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
-        break;
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
+		break;
 	}
 
 #ifdef _DEBUG
@@ -847,35 +847,35 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 void CDMAC::LoadState(CZipArchiveReader& archive)
 {
-    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-    m_D_CTRL    <<= registerFile.GetRegister32(STATE_REGS_CTRL);
-    m_D_STAT    = registerFile.GetRegister32(STATE_REGS_STAT);
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	m_D_CTRL	<<= registerFile.GetRegister32(STATE_REGS_CTRL);
+	m_D_STAT	= registerFile.GetRegister32(STATE_REGS_STAT);
 	m_D_PCR		= registerFile.GetRegister32(STATE_REGS_PCR);
-    m_D_RBSR    = registerFile.GetRegister32(STATE_REGS_RBSR);
-    m_D_RBOR    = registerFile.GetRegister32(STATE_REGS_RBOR);
-    m_D9_SADR   = registerFile.GetRegister32(STATE_REGS_D9_SADR);
+	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
+	m_D_RBOR	= registerFile.GetRegister32(STATE_REGS_RBOR);
+	m_D9_SADR	= registerFile.GetRegister32(STATE_REGS_D9_SADR);
 
-    m_D1.LoadState(archive);
-    m_D2.LoadState(archive);
-    m_D4.LoadState(archive);
-    m_D9.LoadState(archive);
+	m_D1.LoadState(archive);
+	m_D2.LoadState(archive);
+	m_D4.LoadState(archive);
+	m_D9.LoadState(archive);
 }
 
 void CDMAC::SaveState(CZipArchiveWriter& archive)
 {
-    CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-    registerFile->SetRegister32(STATE_REGS_CTRL,    m_D_CTRL);
-    registerFile->SetRegister32(STATE_REGS_STAT,    m_D_STAT);
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	registerFile->SetRegister32(STATE_REGS_CTRL,	m_D_CTRL);
+	registerFile->SetRegister32(STATE_REGS_STAT,	m_D_STAT);
 	registerFile->SetRegister32(STATE_REGS_PCR,		m_D_PCR);
-    registerFile->SetRegister32(STATE_REGS_RBSR,    m_D_RBSR);
-    registerFile->SetRegister32(STATE_REGS_RBOR,    m_D_RBOR);
-    registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
-    archive.InsertFile(registerFile);
+	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
+	registerFile->SetRegister32(STATE_REGS_RBOR,	m_D_RBOR);
+	registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
+	archive.InsertFile(registerFile);
 
-    m_D1.SaveState(archive);
-    m_D2.SaveState(archive);
-    m_D4.SaveState(archive);
-    m_D9.SaveState(archive);
+	m_D1.SaveState(archive);
+	m_D2.SaveState(archive);
+	m_D4.SaveState(archive);
+	m_D9.SaveState(archive);
 }
 
 void CDMAC::UpdateCpCond()
@@ -903,9 +903,9 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 	case D0_TADR:
 		CLog::GetInstance().Print(LOG_NAME, "= D0_TADR.\r\n");
 		break;
-    case D1_TADR:
-        CLog::GetInstance().Print(LOG_NAME, "= D1_TADR.\r\n");
-        break;
+	case D1_TADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D1_TADR.\r\n");
+		break;
 	case D2_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "= D2_CHCR.\r\n");
 		break;
@@ -921,12 +921,12 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 	case D3_QWC:
 		CLog::GetInstance().Print(LOG_NAME, "= D3_QWC.\r\n");
 		break;
-    case D8_MADR:
-        CLog::GetInstance().Print(LOG_NAME, "= D8_MADR.\r\n");
-        break;
-    case D_CTRL:
+	case D8_MADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D8_MADR.\r\n");
+		break;
+	case D_CTRL:
 		CLog::GetInstance().Print(LOG_NAME, "= D_CTRL.\r\n");
-        break;
+		break;
 	case D_STAT:
 		CLog::GetInstance().Print(LOG_NAME, "= D_STAT.\r\n");
 		break;
@@ -1039,24 +1039,24 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 	case D9_SADR:
 		CLog::GetInstance().Print(LOG_NAME, "D9_SADR = 0x%0.8X.\r\n", nData);
 		break;
-    case D_CTRL:
+	case D_CTRL:
 		CLog::GetInstance().Print(LOG_NAME, "D_CTRL = 0x%0.8X.\r\n", nData);
-        break;
+		break;
 	case D_STAT:
 		CLog::GetInstance().Print(LOG_NAME, "D_STAT = 0x%0.8X.\r\n", nData);
-        break;
+		break;
 	case D_PCR:
 		CLog::GetInstance().Print(LOG_NAME, "D_PCR = 0x%0.8X.\r\n", nData);
 		break;
-    case D_RBSR:
+	case D_RBSR:
 		CLog::GetInstance().Print(LOG_NAME, "D_RBSR = 0x%0.8X.\r\n", nData);
-        break;
-    case D_RBOR:
+		break;
+	case D_RBOR:
 		CLog::GetInstance().Print(LOG_NAME, "D_RBOR = 0x%0.8X.\r\n", nData);
-        break;
+		break;
 	case D_ENABLEW:
 		CLog::GetInstance().Print(LOG_NAME, "D_ENABLEW = 0x%0.8X.\r\n", nData);
-        break;
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", nAddress, nData);
 		break;

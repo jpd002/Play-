@@ -713,7 +713,7 @@ void VUShared::MULi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 
 		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
 		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
-		codeGen->Call(&FpMulTruncate, 2, true);
+		codeGen->Call(reinterpret_cast<void*>(&FpMulTruncate), 2, true);
 		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
 	}
 }
