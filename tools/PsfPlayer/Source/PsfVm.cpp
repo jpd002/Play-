@@ -10,10 +10,7 @@
 
 #define LOG_NAME ("psfvm")
 
-using namespace std;
-using namespace std::tr1;
 using namespace Iop;
-using namespace Framework;
 namespace filesystem = boost::filesystem;
 
 CPsfVm::CPsfVm() :
@@ -21,23 +18,23 @@ m_status(PAUSED),
 m_singleStep(false),
 m_soundHandler(NULL)
 {
-    m_isThreadOver = false;
-    m_thread = new boost::thread(bind(&CPsfVm::ThreadProc, this));
+	m_isThreadOver = false;
+	m_thread = new boost::thread(boost::bind(&CPsfVm::ThreadProc, this));
 }
 
 CPsfVm::~CPsfVm()
 {
-    if(m_thread)
-    {
-        Pause();
-        m_isThreadOver = true;
-        m_thread->join();
+	if(m_thread)
+	{
+		Pause();
+		m_isThreadOver = true;
+		m_thread->join();
 
-        delete m_thread;
-        m_thread = NULL;
+		delete m_thread;
+		m_thread = NULL;
 
-        assert(m_soundHandler == NULL);
-    }
+		assert(m_soundHandler == NULL);
+	}
 }
 
 void CPsfVm::Reset()
@@ -110,32 +107,32 @@ CVirtualMachine::STATUS CPsfVm::GetStatus() const
 void CPsfVm::Pause()
 {
 	if(m_status == PAUSED) return;
-	m_mailBox.SendCall(bind(&CPsfVm::PauseImpl, this), true);
+	m_mailBox.SendCall(std::bind(&CPsfVm::PauseImpl, this), true);
 }
 
 void CPsfVm::PauseImpl()
 {
 	m_status = PAUSED;
-	m_OnRunningStateChange();
-	m_OnMachineStateChange();
+	OnRunningStateChange();
+	OnMachineStateChange();
 }
 
 void CPsfVm::Resume()
 {
 	m_status = RUNNING;
-	if(!m_OnRunningStateChange.empty())
+	if(!OnRunningStateChange.empty())
 	{
-		m_OnRunningStateChange();		
+		OnRunningStateChange();
 	}
 }
 
 CDebuggable CPsfVm::GetDebugInfo()
 {
-    CDebuggable debug;
-	debug.Step = bind(&CPsfVm::Step, this);
-    debug.GetCpu = bind(&CPsfVm::GetCpu, this);
+	CDebuggable debug;
+	debug.Step = std::bind(&CPsfVm::Step, this);
+	debug.GetCpu = std::bind(&CPsfVm::GetCpu, this);
 #ifdef DEBUGGER_INCLUDED
-	debug.GetModules = bind(&CPsfVmSubSystem::GetModuleList, m_subSystem.get());
+	debug.GetModules = std::bind(&CPsfVmSubSystem::GetModuleList, m_subSystem.get());
 #endif
 	return debug;
 }
@@ -159,7 +156,7 @@ void CPsfVm::Step()
 {
 	m_singleStep = true;
 	m_status = RUNNING;
-	m_OnRunningStateChange();
+	OnRunningStateChange();
 }
 
 void CPsfVm::SetSpuHandler(const SpuHandlerFactory& factory)
@@ -179,7 +176,7 @@ void CPsfVm::SetSpuHandlerImpl(const SpuHandlerFactory& factory)
 
 void CPsfVm::SetReverbEnabled(bool enabled)
 {
-	m_mailBox.SendCall(bind(&CPsfVm::SetReverbEnabledImpl, this, enabled));
+	m_mailBox.SendCall(std::bind(&CPsfVm::SetReverbEnabledImpl, this, enabled));
 }
 
 void CPsfVm::SetReverbEnabledImpl(bool enabled)
@@ -192,7 +189,7 @@ void CPsfVm::SetReverbEnabledImpl(bool enabled)
 
 void CPsfVm::SetVolumeAdjust(float volumeAdjust)
 {
-	m_mailBox.SendCall(bind(&CPsfVm::SetVolumeAdjustImpl, this, volumeAdjust));
+	m_mailBox.SendCall(std::bind(&CPsfVm::SetVolumeAdjustImpl, this, volumeAdjust));
 }
 
 void CPsfVm::SetVolumeAdjustImpl(float volumeAdjust)
@@ -213,8 +210,8 @@ void CPsfVm::ThreadProc()
 		}
 		if(m_status == PAUSED)
 		{
-            //Sleep during 100ms
-            boost::this_thread::sleep(boost::posix_time::milliseconds(16));
+			 //Sleep during 100ms
+			boost::this_thread::sleep(boost::posix_time::milliseconds(16));
 		}
 		else
 		{
@@ -231,9 +228,9 @@ void CPsfVm::ThreadProc()
 		}
 	}
 
-    if(m_soundHandler != NULL)
-    {
-        delete m_soundHandler;
-        m_soundHandler = NULL;
-    }
+	if(m_soundHandler != NULL)
+	{
+		delete m_soundHandler;
+		m_soundHandler = NULL;
+	}
 }

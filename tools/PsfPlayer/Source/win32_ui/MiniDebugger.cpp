@@ -53,7 +53,7 @@ m_memoryView(NULL)
 	m_registerView->Show(SW_SHOW);
 
 	m_functionsView = new CFunctionsView(NULL);
-	m_functionsView->m_OnFunctionDblClick.connect(boost::bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
+	m_functionsView->OnFunctionDblClick.connect(boost::bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
 	m_functionsView->SetContext(&m_debuggable.GetCpu(), m_debuggable.GetModules);
 	m_functionsView->Refresh();
 

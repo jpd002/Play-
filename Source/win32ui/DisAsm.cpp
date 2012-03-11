@@ -54,8 +54,8 @@ m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PR
 	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
 	SetClassPtr();
 
-	m_virtualMachine.m_OnMachineStateChange.connect(boost::bind(&CDisAsm::OnMachineStateChange, this));
-	m_virtualMachine.m_OnRunningStateChange.connect(boost::bind(&CDisAsm::OnRunningStateChange, this));
+	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDisAsm::OnMachineStateChange, this));
+	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CDisAsm::OnRunningStateChange, this));
 
 	m_pCtx = pCtx;
 

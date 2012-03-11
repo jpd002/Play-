@@ -9,8 +9,8 @@ m_virtualMachine(virtualMachine)
 {
 	m_pCtx = pC;
 	
-	m_virtualMachine.m_OnMachineStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
-	m_virtualMachine.m_OnRunningStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
+	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
+	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
 }
 
 CRegViewGeneral::~CRegViewGeneral()

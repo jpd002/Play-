@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONSVIEW_H_
 #define _FUNCTIONSVIEW_H_
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <functional>
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
@@ -20,52 +20,52 @@ class CFunctionsView :
 	public boost::signals::trackable
 {
 public:
-    typedef std::list<MIPSMODULE> ModuleList;
-    typedef std::tr1::function<ModuleList ()> ModuleListProvider;
+	typedef std::list<MIPSMODULE> ModuleList;
+	typedef std::function<ModuleList ()> ModuleListProvider;
 
 
-									CFunctionsView(HWND);
-	virtual							~CFunctionsView();
+											CFunctionsView(HWND);
+	virtual									~CFunctionsView();
 
-    void                            SetContext(CMIPS*, const ModuleListProvider&);
-	void							Refresh();
+	void									SetContext(CMIPS*, const ModuleListProvider&);
+	void									Refresh();
 
-	boost::signal<void (uint32)>	m_OnFunctionDblClick;
-	boost::signal<void (void)>		m_OnFunctionsStateChange;
+	boost::signals2::signal<void (uint32)>	OnFunctionDblClick;
+	boost::signals2::signal<void (void)>	OnFunctionsStateChange;
 
 protected:
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnCommand(unsigned short, unsigned short, HWND);
-	long							OnNotify(WPARAM, NMHDR*);
-	long							OnSysCommand(unsigned int, LPARAM);
+	long									OnSize(unsigned int, unsigned int, unsigned int);
+	long									OnCommand(unsigned short, unsigned short, HWND);
+	long									OnNotify(WPARAM, NMHDR*);
+	long									OnSysCommand(unsigned int, LPARAM);
 
 private:
-	void							CreateListColumns();
-	void							ResizeListColumns();
-	void							RefreshLayout();
-	void							RefreshList();
-    void                            InitializeModuleGrouper();
-    uint32                          GetFunctionGroupId(uint32);
+	void									CreateListColumns();
+	void									ResizeListColumns();
+	void									RefreshLayout();
+	void									RefreshList();
+	void									InitializeModuleGrouper();
+	uint32									GetFunctionGroupId(uint32);
 
-	void							OnListDblClick();
-	void							OnNewClick();
-	void							OnRenameClick();
-	void							OnDeleteClick();
-	void							OnImportClick();
+	void									OnListDblClick();
+	void									OnNewClick();
+	void									OnRenameClick();
+	void									OnDeleteClick();
+	void									OnImportClick();
 
-	Framework::Win32::CListView*	m_pList;
-	Framework::Win32::CButton*		m_pNew;
-	Framework::Win32::CButton*		m_pRename;
-	Framework::Win32::CButton*		m_pDelete;
-	Framework::Win32::CButton*		m_pImport;
+	Framework::Win32::CListView*			m_pList;
+	Framework::Win32::CButton*				m_pNew;
+	Framework::Win32::CButton*				m_pRename;
+	Framework::Win32::CButton*				m_pDelete;
+	Framework::Win32::CButton*				m_pImport;
 
-    Framework::FlatLayoutPtr        m_pLayout;
+	Framework::FlatLayoutPtr				m_pLayout;
 
-    boost::signals::connection      m_functionTagsChangeConnection;
+	boost::signals2::connection				m_functionTagsChangeConnection;
 
-    CMIPS*							m_pCtx;
-    ModuleList                      m_modules;
-    ModuleListProvider              m_moduleListProvider;
+	CMIPS*									m_pCtx;
+	ModuleList								m_modules;
+	ModuleListProvider						m_moduleListProvider;
 };
 
 #endif

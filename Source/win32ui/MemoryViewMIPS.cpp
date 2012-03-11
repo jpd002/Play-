@@ -17,7 +17,7 @@ m_pCtx(pCtx)
 {
 	SetMemorySize(0x02004000);
 
-	m_virtualMachine.m_OnMachineStateChange.connect(bind(&CMemoryViewMIPS::OnMachineStateChange, this));
+	m_virtualMachine.OnMachineStateChange.connect(bind(&CMemoryViewMIPS::OnMachineStateChange, this));
 }
 
 CMemoryViewMIPS::~CMemoryViewMIPS()
