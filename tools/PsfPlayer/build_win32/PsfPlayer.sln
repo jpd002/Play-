@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PsfPlayer", "PsfPlayer.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\..\..\Framework\build_msvc100\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGen", "..\..\..\..\CodeGen\CodeGen.vcxproj", "{E3521577-BFC9-4532-9B70-1F8C0D546F4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGen", "..\..\..\..\CodeGen\build_win32\CodeGen.vcxproj", "{E3521577-BFC9-4532-9B70-1F8C0D546F4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-1.2.5-msvc100", "..\..\..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj", "{4A0B5134-AB23-452D-8513-8225FA178356}"
 EndProject

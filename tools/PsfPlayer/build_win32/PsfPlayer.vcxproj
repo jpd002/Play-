@@ -425,7 +425,7 @@
     <ResourceCompile Include="..\Source\win32_ui\Res.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\CodeGen\CodeGen.vcxproj">
+    <ProjectReference Include="..\..\..\..\CodeGen\build_win32\CodeGen.vcxproj">
       <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\Framework\build_msvc100\Framework.vcxproj">
