@@ -1,13 +1,12 @@
 #ifndef _REGVIEWGENERAL_H_
 #define _REGVIEWGENERAL_H_
 
-#include <boost/signal.hpp>
 #include "RegViewPage.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
 #include <string>
 
-class CRegViewGeneral : public CRegViewPage, public boost::signals::trackable
+class CRegViewGeneral : public CRegViewPage, public boost::signals2::trackable
 {
 public:
 									CRegViewGeneral(HWND, RECT*, CVirtualMachine&, CMIPS*);
@@ -15,10 +14,10 @@ public:
 
 private:
 	void							Update();
-    std::string						GetDisplayText();
+	std::string						GetDisplayText();
 
-    CVirtualMachine&                m_virtualMachine;
-    CMIPS*							m_pCtx;
+	CVirtualMachine&				m_virtualMachine;
+	CMIPS*							m_pCtx;
 };
 
 #endif

@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <string.h>
-#include <boost/bind.hpp>
 #include "RegViewGeneral.h"
 
-CRegViewGeneral::CRegViewGeneral(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) :
-CRegViewPage(hParent, pR),
-m_virtualMachine(virtualMachine)
+CRegViewGeneral::CRegViewGeneral(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) 
+: CRegViewPage(hParent, pR)
+, m_virtualMachine(virtualMachine)
+, m_pCtx(pC)
 {
-	m_pCtx = pC;
-	
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
 	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
 }
@@ -27,10 +25,9 @@ void CRegViewGeneral::Update()
 std::string CRegViewGeneral::GetDisplayText()
 {
 	char sTemp[256];
-	MIPSSTATE* s;
 	std::string displayText;
 
-	s = &m_pCtx->m_State;
+	MIPSSTATE* s = &m_pCtx->m_State;
 
 	for(unsigned int i = 0; i < 32; i++)
 	{

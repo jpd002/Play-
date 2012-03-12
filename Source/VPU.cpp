@@ -295,7 +295,7 @@ void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
 	nCodeNum *= 8;
 	nNum *= 8;
 
-	nSize = std::min(nNum, nSize);
+	nSize = std::min<uint32>(nNum, nSize);
 
 	uint32 nDstAddr = (m_CODE.nIMM * 8) + nTransfered;
 

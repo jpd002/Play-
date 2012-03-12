@@ -1,4 +1,3 @@
-#include <boost/bind.hpp>
 #include "CallStackWnd.h"
 #include "PtrMacro.h"
 #include "string_cast.h"
@@ -6,10 +5,6 @@
 #include "../MIPS.h"
 
 #define CLSNAME		_T("CallStackWnd")
-
-using namespace Framework;
-using namespace boost;
-using namespace std;
 
 CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
 m_virtualMachine(virtualMachine),
@@ -37,11 +32,11 @@ m_pCtx(pCtx)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT);
+	m_pList = new Framework::Win32::CListView(m_hWnd, &rc, LVS_REPORT);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_virtualMachine.m_OnMachineStateChange.connect(bind(&CCallStackWnd::OnMachineStateChange, this));
-	m_virtualMachine.m_OnRunningStateChange.connect(bind(&CCallStackWnd::OnRunningStateChange, this));
+	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CCallStackWnd::OnMachineStateChange, this));
+	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CCallStackWnd::OnRunningStateChange, this));
 
 	CreateColumns();
 
@@ -121,23 +116,19 @@ void CCallStackWnd::CreateColumns()
 
 void CCallStackWnd::Update()
 {
-	uint32 nPC, nRA, nSP;
-	CMIPSAnalysis::SUBROUTINE* pRoutine;
-	LVITEM item;
-	unsigned int i;
-
-	nPC = m_pCtx->m_State.nPC;
-	nRA = m_pCtx->m_State.nGPR[CMIPS::RA].nV[0];
-	nSP = m_pCtx->m_State.nGPR[CMIPS::SP].nV[0];
+	uint32 nPC = m_pCtx->m_State.nPC;
+	uint32 nRA = m_pCtx->m_State.nGPR[CMIPS::RA].nV[0];
+	uint32 nSP = m_pCtx->m_State.nGPR[CMIPS::SP].nV[0];
 
 	m_pList->SetRedraw(false);
 
 	m_pList->DeleteAllItems();
 
-	pRoutine = m_pCtx->m_pAnalysis->FindSubroutine(nPC);
+	CMIPSAnalysis::SUBROUTINE* pRoutine = m_pCtx->m_pAnalysis->FindSubroutine(nPC);
 	if(pRoutine == NULL)
 	{
 		//Cannot go further
+		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
 		item.pszText	= _T("Call stack unavailable at this state.");
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
@@ -177,25 +168,24 @@ void CCallStackWnd::Update()
 
 	while(1)
 	{
-		const char* sName;
-
 		//Add the current function
+		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
 		item.pszText	= _T("");
 		item.iItem		= m_pList->GetItemCount();
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
 		item.lParam		= pRoutine->nStart;
-		i = m_pList->InsertItem(&item);
+		unsigned int i = m_pList->InsertItem(&item);
 
-		sName = m_pCtx->m_Functions.Find(pRoutine->nStart);
+		const char* sName = m_pCtx->m_Functions.Find(pRoutine->nStart);
 
 		m_pList->SetItemText(i, 0, (
-			_T("0x") + lexical_cast_hex<tstring>(pRoutine->nStart, 8) +
-			(sName != NULL ? (_T(" (") + string_cast<tstring>(sName) + _T(")")) : _T(""))
+			_T("0x") + lexical_cast_hex<std::tstring>(pRoutine->nStart, 8) +
+			(sName != NULL ? (_T(" (") + string_cast<std::tstring>(sName) + _T(")")) : _T(""))
 			).c_str());
 
 		m_pList->SetItemText(i, 1, (
-			_T("0x") + lexical_cast_hex<tstring>(nRA - 4, 8)
+			_T("0x") + lexical_cast_hex<std::tstring>(nRA - 4, 8)
 			).c_str());
 
 		//Go to previous routine

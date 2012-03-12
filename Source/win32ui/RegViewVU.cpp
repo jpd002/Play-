@@ -1,19 +1,13 @@
 #include <stdio.h>
-#include <boost/bind.hpp>
 #include "RegViewVU.h"
 #include "../PS2VM.h"
 
-using namespace Framework;
-using namespace boost;
-using namespace std;
-
-CRegViewVU::CRegViewVU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
-CRegViewPage(hParent, pR)
+CRegViewVU::CRegViewVU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+: CRegViewPage(hParent, pR)
+, m_pCtx(pCtx)
 {
-	m_pCtx = pCtx;
-
-	virtualMachine.m_OnMachineStateChange.connect(bind(&CRegViewVU::Update, this));
-	virtualMachine.m_OnRunningStateChange.connect(bind(&CRegViewVU::Update, this));
+	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewVU::Update, this));
+	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewVU::Update, this));
 
 	Update();
 }
@@ -29,10 +23,10 @@ void CRegViewVU::Update()
 	CRegViewPage::Update();
 }
 
-string CRegViewVU::GetDisplayText()
+std::string CRegViewVU::GetDisplayText()
 {
 	char sLine[256];
-    string result;
+	std::string result;
 
 	result += "              x               y       \r\n";
 	result += "              z               w       \r\n";
@@ -41,7 +35,7 @@ string CRegViewVU::GetDisplayText()
 
 	for(unsigned int i = 0; i < 32; i++)
 	{
-	    char sReg1[32];
+		char sReg1[32];
 
 		if(i < 10)
 		{
@@ -114,8 +108,8 @@ string CRegViewVU::GetDisplayText()
 
 	for(unsigned int i = 0; i < 16; i += 2)
 	{
-	    char sReg1[32];
-	    char sReg2[32];
+		char sReg1[32];
+		char sReg2[32];
 
 		if(i < 10)
 		{
@@ -132,5 +126,5 @@ string CRegViewVU::GetDisplayText()
 		result += sLine;
 	}
 
-    return result;
+	return result;
 }

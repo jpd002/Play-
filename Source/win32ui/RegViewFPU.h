@@ -1,13 +1,12 @@
 #ifndef _REGVIEWFPU_H_
 #define _REGVIEWFPU_H_
 
-#include <boost/signal.hpp>
 #include <string>
 #include "RegViewPage.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
 
-class CRegViewFPU : public CRegViewPage, public boost::signals::trackable
+class CRegViewFPU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
 									CRegViewFPU(HWND, RECT*, CVirtualMachine&, CMIPS*);
@@ -28,11 +27,11 @@ protected:
 
 private:
 	void							Update();
-    std::string 					GetDisplayText();
+	std::string 					GetDisplayText();
 
-    std::string						RenderWord();
-    std::string						RenderSingle();
-    std::string						RenderFCSR();
+	std::string						RenderWord();
+	std::string						RenderSingle();
+	std::string						RenderFCSR();
 
 	void							OnMachineStateChange();
 	void							OnRunningStateChange();

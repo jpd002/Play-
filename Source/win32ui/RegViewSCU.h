@@ -1,12 +1,11 @@
 #ifndef _REGVIEWSCU_H_
 #define _REGVIEWSCU_H_
 
-#include <boost/signal.hpp>
 #include "RegViewPage.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
 
-class CRegViewSCU : public CRegViewPage, public boost::signals::trackable
+class CRegViewSCU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
 									CRegViewSCU(HWND, RECT*, CVirtualMachine&, CMIPS*);
@@ -14,7 +13,7 @@ public:
 
 private:
 	void							Update();
-    std::string						GetDisplayText();
+	std::string						GetDisplayText();
 
 	CMIPS*							m_pCtx;
 };

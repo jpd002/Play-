@@ -1,13 +1,8 @@
 #include "MemoryViewMIPSWnd.h"
 #include "PtrMacro.h"
 #include "lexical_cast_ex.h"
-#include <boost/bind.hpp>
 
 #define CLSNAME		_T("MemoryViewMIPSWnd")
-
-using namespace Framework;
-using namespace std;
-using namespace boost;
 
 CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 {
@@ -31,19 +26,19 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMac
 	Create(NULL, CLSNAME, _T("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
-    m_pStatusBar = new Win32::CStatusBar(m_hWnd);
+	m_pStatusBar = new Framework::Win32::CStatusBar(m_hWnd);
 
-    m_pMemoryView = new CMemoryViewMIPS(m_hWnd, &rc, virtualMachine, pCtx);
-    m_pMemoryView->m_OnSelectionChange.connect(bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
+	m_pMemoryView = new CMemoryViewMIPS(m_hWnd, &rc, virtualMachine, pCtx);
+	m_pMemoryView->m_OnSelectionChange.connect(boost::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
 
-    UpdateStatusBar();
+	UpdateStatusBar();
 	RefreshLayout();
 }
 
 CMemoryViewMIPSWnd::~CMemoryViewMIPSWnd()
 {
-    DELETEPTR(m_pStatusBar);
-    DELETEPTR(m_pMemoryView);
+	DELETEPTR(m_pStatusBar);
+	DELETEPTR(m_pMemoryView);
 }
 
 long CMemoryViewMIPSWnd::OnSize(unsigned int nType, unsigned int nCX, unsigned int nCY)
@@ -71,9 +66,8 @@ long CMemoryViewMIPSWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 
 void CMemoryViewMIPSWnd::UpdateStatusBar()
 {
-    tstring sCaption;
-    sCaption = _T("Address : 0x") + lexical_cast_hex<tstring>(m_pMemoryView->GetSelection(), 8);
-    m_pStatusBar->SetText(0, sCaption.c_str());
+	std::tstring sCaption = _T("Address : 0x") + lexical_cast_hex<std::tstring>(m_pMemoryView->GetSelection(), 8);
+	m_pStatusBar->SetText(0, sCaption.c_str());
 }
 
 void CMemoryViewMIPSWnd::RefreshLayout()
@@ -82,11 +76,11 @@ void CMemoryViewMIPSWnd::RefreshLayout()
 
 	GetClientRect(&rc);
 
-    m_pStatusBar->RefreshGeometry();
+	m_pStatusBar->RefreshGeometry();
 	m_pMemoryView->SetSize(rc.right, rc.bottom - m_pStatusBar->GetHeight());
 }
 
 void CMemoryViewMIPSWnd::OnMemoryViewSelectionChange(uint32 nAddress)
 {
-    UpdateStatusBar();
+	UpdateStatusBar();
 }

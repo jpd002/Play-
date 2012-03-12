@@ -1,4 +1,3 @@
-#include <boost/bind.hpp>
 #include "RegViewWnd.h"
 #include "RegViewGeneral.h"
 #include "RegViewSCU.h"

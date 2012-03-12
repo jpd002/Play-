@@ -11,10 +11,6 @@
 
 #define CLSNAME		_T("OsEventViewWnd")
 
-using namespace Framework;
-using namespace boost;
-using namespace std;
-
 #define ID_REFRESH	(0xDEAF + 0)
 
 COsEventViewWnd::COsEventViewWnd(HWND hParent)
@@ -33,13 +29,13 @@ COsEventViewWnd::COsEventViewWnd(HWND hParent)
 	}
 
 	Create(NULL, CLSNAME, _T("OS Events"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, 
-		Win32::CRect(0, 0, 320, 240), hParent, NULL);
+		Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
 	SetClassPtr();
 
-	m_pList = new Win32::CListView(m_hWnd, Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
+	m_pList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_pToolBar = new Win32::CToolBar(m_hWnd);
+	m_pToolBar = new Framework::Win32::CToolBar(m_hWnd);
 	m_pToolBar->LoadStandardImageList(IDB_STD_SMALL_COLOR);
 	m_pToolBar->InsertImageButton(STD_UNDO, ID_REFRESH);
 	m_pToolBar->SetButtonToolTipText(ID_REFRESH, _T("Refresh"));
@@ -114,7 +110,7 @@ long COsEventViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
 	}
 	if(m_pList != NULL)
 	{
-		m_pList->ProcessGetDisplayInfo(pHdr, bind(&COsEventViewWnd::GetDisplayInfoCallback, this, _1));
+		m_pList->ProcessGetDisplayInfo(pHdr, boost::bind(&COsEventViewWnd::GetDisplayInfoCallback, this, _1));
 		if(pHdr->hwndFrom == m_pList->m_hWnd)
 		{
 			switch(pHdr->code)
@@ -209,26 +205,24 @@ void COsEventViewWnd::GetDisplayInfoCallback(LVITEM* pItem)
 	switch(pItem->iSubItem)
 	{
 	case 0:
-		_tcsncpy(pItem->pszText, lexical_cast<tstring>(Item.nThreadId).c_str(), pItem->cchTextMax);
+		_tcsncpy(pItem->pszText, boost::lexical_cast<std::tstring>(Item.nThreadId).c_str(), pItem->cchTextMax);
 		break;
 	case 1:
 		_tcsncpy(pItem->pszText, Item.sDescription.c_str(), pItem->cchTextMax);
 		break;
 	case 2:
-		_tcsncpy(pItem->pszText, (_T("0x") + lexical_cast_hex<tstring>(Item.nAddress, 8)).c_str(), pItem->cchTextMax);
+		_tcsncpy(pItem->pszText, (_T("0x") + lexical_cast_hex<std::tstring>(Item.nAddress, 8)).c_str(), pItem->cchTextMax);
 		break;
 	}
 }
 
 void COsEventViewWnd::OnListDblClick()
 {
-	int nSelection;
-
-	nSelection = m_pList->GetSelection();
+	int nSelection = m_pList->GetSelection();
 	if(nSelection == -1) return;
 	if(static_cast<unsigned int>(nSelection) >= m_ListItems.size()) return;
 
 	LISTITEM& Item(m_ListItems[nSelection]);
 	
-	m_OnEventDblClick(Item.nAddress);
+	OnEventDblClick(Item.nAddress);
 }

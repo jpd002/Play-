@@ -17,7 +17,7 @@ class CFunctionsView :
 #else
 	public Framework::Win32::CMDIChild, 
 #endif
-	public boost::signals::trackable
+	public boost::signals2::trackable
 {
 public:
 	typedef std::list<MIPSMODULE> ModuleList;

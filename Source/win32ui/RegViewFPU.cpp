@@ -1,21 +1,15 @@
 #include <stdio.h>
 #include <string.h>
-#include <boost/bind.hpp>
 #include "RegViewFPU.h"
 
-using namespace Framework;
-using namespace boost;
-using namespace std;
-
-CRegViewFPU::CRegViewFPU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) :
-CRegViewPage(hParent, pR)
+CRegViewFPU::CRegViewFPU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) 
+: CRegViewPage(hParent, pR)
+, m_pCtx(pC)
 {
 	m_nViewMode = VIEWMODE_SINGLE;
-
-	m_pCtx = pC;
 	
-	virtualMachine.m_OnMachineStateChange.connect(bind(&CRegViewFPU::OnMachineStateChange, this));
-	virtualMachine.m_OnRunningStateChange.connect(bind(&CRegViewFPU::OnRunningStateChange, this));
+	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewFPU::OnMachineStateChange, this));
+	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewFPU::OnRunningStateChange, this));
 }
 
 CRegViewFPU::~CRegViewFPU()
@@ -29,7 +23,7 @@ void CRegViewFPU::Update()
 	CRegViewPage::Update();
 }
 
-string CRegViewFPU::GetDisplayText()
+std::string CRegViewFPU::GetDisplayText()
 {
 	switch(m_nViewMode)
 	{
@@ -39,19 +33,19 @@ string CRegViewFPU::GetDisplayText()
 	case VIEWMODE_SINGLE:
 		return RenderSingle();
 		break;
-    default:
-        return string();
-        break;
+	default:
+		return std::string();
+		break;
 	}
 }
 
-string CRegViewFPU::RenderFCSR()
+std::string CRegViewFPU::RenderFCSR()
 {
 	char sText[256];
-    string result;
+	std::string result;
 
 	sprintf(sText, "FCSR: 0x%0.8X\r\n", m_pCtx->m_State.nFCSR);
-    result += sText;
+	result += sText;
 
 	sprintf(sText, "CC  : %i%i%i%i%i%i%i%ib\r\n", \
 		(m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0, \
@@ -62,20 +56,20 @@ string CRegViewFPU::RenderFCSR()
 		(m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0, \
 		(m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0, \
 		(m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
-    result += sText;
+	result += sText;
 
-    return result;
+	return result;
 }
 
-string CRegViewFPU::RenderWord()
+std::string CRegViewFPU::RenderWord()
 {
-    string result;
+	std::string result;
 	MIPSSTATE* s = &m_pCtx->m_State;
 
 	for(unsigned int i = 0; i < 32; i++)
 	{
-	    char sText[256];
-	    char sReg[256];
+		char sText[256];
+		char sReg[256];
 
 		if(i < 10)
 		{
@@ -93,18 +87,18 @@ string CRegViewFPU::RenderWord()
 	}
 
 	result += RenderFCSR();
-    return result;
+	return result;
 }
 
-string CRegViewFPU::RenderSingle()
+std::string CRegViewFPU::RenderSingle()
 {
-    char sText[256];
-    string result;
+	char sText[256];
+	std::string result;
 	MIPSSTATE* s = &m_pCtx->m_State;
 
 	for(unsigned int i = 0; i < 32; i++)
 	{
-	    char sReg[256];
+		char sReg[256];
 
 		if(i < 10)
 		{
@@ -125,10 +119,10 @@ string CRegViewFPU::RenderSingle()
 	
 	float nValue = *(float*)(&s->nCOP1A);
 	sprintf(sText, "ACC : %+.24e\r\n", nValue);
-    result += sText;
+	result += sText;
 
 	result += RenderFCSR();
-    return result;
+	return result;
 }
 
 long CRegViewFPU::OnRightButtonUp(int nX, int nY)
