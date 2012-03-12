@@ -160,20 +160,19 @@ bool CPS2OS::IsIdle() const
 
 void CPS2OS::DumpThreadSchedule()
 {
-	THREAD* pThread;
 	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
-	const char* sStatus;
 
 	printf("Thread Schedule Information\r\n");
 	printf("---------------------------\r\n");
 
 	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
 	{
-        pThread = GetThread(itThread.GetValue());
+		THREAD* pThread = GetThread(itThread.GetValue());
 
-        THREADCONTEXT* pContext(reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]));
+		THREADCONTEXT* pContext(reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]));
+		const char* sStatus = NULL;
 
-        switch(pThread->nStatus)
+		switch(pThread->nStatus)
 		{
 		case THREAD_RUNNING:
 			sStatus = "Running";
@@ -192,26 +191,24 @@ void CPS2OS::DumpThreadSchedule()
 			break;
 		}
 
-        printf("Status: %19s, ID: %0.2i, Priority: %0.2i, EPC: 0x%0.8X, RA: 0x%0.8X, WaitSema: %i.\r\n",
-            sStatus,
-            itThread.GetValue(),
-            pThread->nPriority,
-            pThread->nEPC,
-            pContext->nGPR[CMIPS::RA].nV[0],
-            pThread->nSemaWait);
-    }
+		printf("Status: %19s, ID: %0.2i, Priority: %0.2i, EPC: 0x%0.8X, RA: 0x%0.8X, WaitSema: %i.\r\n",
+			sStatus,
+			itThread.GetValue(),
+			pThread->nPriority,
+			pThread->nEPC,
+			pContext->nGPR[CMIPS::RA].nV[0],
+			pThread->nSemaWait);
+	}
 }
 
 void CPS2OS::DumpIntcHandlers()
 {
-	INTCHANDLER* pHandler;
-
 	printf("INTC Handlers Information\r\n");
 	printf("-------------------------\r\n");
 
 	for(unsigned int i = 0; i < MAX_INTCHANDLER; i++)
 	{
-		pHandler = GetIntcHandler(i + 1);
+		INTCHANDLER* pHandler = GetIntcHandler(i + 1);
 		if(pHandler->nValid == 0) continue;
 
 		printf("ID: %0.2i, Line: %i, Address: 0x%0.8X.\r\n", \
@@ -223,14 +220,12 @@ void CPS2OS::DumpIntcHandlers()
 
 void CPS2OS::DumpDmacHandlers()
 {
-	DMACHANDLER* pHandler;
-
 	printf("DMAC Handlers Information\r\n");
 	printf("-------------------------\r\n");
 
 	for(unsigned int i = 0; i < MAX_DMACHANDLER; i++)
 	{
-		pHandler = GetDmacHandler(i + 1);
+		DMACHANDLER* pHandler = GetDmacHandler(i + 1);
 		if(pHandler->nValid == 0) continue;
 
 		printf("ID: %0.2i, Channel: %i, Address: 0x%0.8X.\r\n", \
@@ -498,9 +493,6 @@ void CPS2OS::UnloadExecutable()
 
 void CPS2OS::ApplyPatches()
 {
-	Framework::Xml::CNode* pDocument;
-	Framework::Xml::CNode* pPatches;
-
 	std::string patchesPath = PATCHESPATH;
 	
 #ifdef MACOSX
@@ -517,6 +509,7 @@ void CPS2OS::ApplyPatches()
 	}
 #endif
 
+	Framework::Xml::CNode* pDocument(NULL);
 	try
 	{
 		Framework::CStdStream patchesStream(fopen(patchesPath.c_str(), "rb"));
@@ -528,7 +521,7 @@ void CPS2OS::ApplyPatches()
 		return;
 	}
 
-	pPatches = pDocument->Select("Patches");
+	auto pPatches = pDocument->Select("Patches");
 	if(pPatches == NULL)
 	{
 		delete pDocument;
@@ -537,12 +530,9 @@ void CPS2OS::ApplyPatches()
 
 	for(Framework::Xml::CFilteringNodeIterator itNode(pPatches, "Executable"); !itNode.IsEnd(); itNode++)
 	{
-		Framework::Xml::CNode* pExecutable;
-		const char* sName;
+		auto pExecutable = (*itNode);
 
-		pExecutable = (*itNode);
-
-		sName = pExecutable->GetAttribute("Name");
+		const char* sName = pExecutable->GetAttribute("Name");
 		if(sName == NULL) continue;
 
 		if(!strcmp(sName, GetExecutableName()))
@@ -554,19 +544,15 @@ void CPS2OS::ApplyPatches()
 
 			for(Framework::Xml::CFilteringNodeIterator itNode(pExecutable, "Patch"); !itNode.IsEnd(); itNode++)
 			{
-				Framework::Xml::CNode* pPatch;
-				const char* sAddress;
-				const char* sValue;
-				uint32 nValue, nAddress;
-
-				pPatch = (*itNode);
+				auto pPatch = (*itNode);
 				
-				sAddress	= pPatch->GetAttribute("Address");
-				sValue		= pPatch->GetAttribute("Value");
+				const char* sAddress	= pPatch->GetAttribute("Address");
+				const char* sValue		= pPatch->GetAttribute("Value");
 
 				if(sAddress == NULL) continue;
 				if(sValue == NULL) continue;
 
+				uint32 nValue = 0, nAddress = 0;
 				if(sscanf(sAddress, "%x", &nAddress) == 0) continue;
 				if(sscanf(sValue, "%x", &nValue) == 0) continue;
 
@@ -838,7 +824,7 @@ void CPS2OS::AssembleIntcHandler()
 	//Prologue
 	//S0 -> Handler Counter
 
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE8);
+	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
 	Asm.SD(CMIPS::RA, 0x0000, CMIPS::SP);
 	Asm.SD(CMIPS::S0, 0x0008, CMIPS::SP);
 	Asm.SD(CMIPS::S1, 0x0010, CMIPS::SP);
@@ -890,7 +876,7 @@ void CPS2OS::AssembleIntcHandler()
 	Asm.LD(CMIPS::RA, 0x0000, CMIPS::SP);
 	Asm.LD(CMIPS::S0, 0x0008, CMIPS::SP);
 	Asm.LD(CMIPS::S1, 0x0010, CMIPS::SP);
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0x18);
+	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0x20);
 	Asm.JR(CMIPS::RA);
 	Asm.NOP();
 }
