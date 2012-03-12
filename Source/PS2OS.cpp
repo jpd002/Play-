@@ -1218,8 +1218,8 @@ void CPS2OS::sc_Unhandled()
 //02
 void CPS2OS::sc_GsSetCrt()
 {
-	unsigned int nIsInterlaced	= (m_ee.m_State.nGPR[SC_PARAM0].nV[0] != 0);
-	bool nMode					= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	bool nIsInterlaced			= (m_ee.m_State.nGPR[SC_PARAM0].nV[0] != 0);
+	unsigned int nMode			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 	bool nIsFrameMode			= (m_ee.m_State.nGPR[SC_PARAM2].nV[0] != 0);
 
 	if(m_gs != NULL)
