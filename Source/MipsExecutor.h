@@ -8,29 +8,28 @@
 class CMipsExecutor
 {
 public:
-								CMipsExecutor(CMIPS&);
+								CMipsExecutor(CMIPS&, uint32);
 	virtual						~CMipsExecutor();
 	int							Execute(int);
 	bool						MustBreak() const;
-	BasicBlockPtr				FindBlockAt(uint32) const;
-	BasicBlockPtr				FindBlockStartingAt(uint32);
-	void						DeleteBlock(const BasicBlockPtr&);
+	CBasicBlock*				FindBlockAt(uint32) const;
+	CBasicBlock*				FindBlockStartingAt(uint32) const;
+	void						DeleteBlock(CBasicBlock*);
 	virtual void				Reset();
 	void						ClearActiveBlocks();
 
 protected:
 	typedef std::list<BasicBlockPtr> BlockList;
-	typedef std::map<uint32, BasicBlockPtr, std::greater<uint32> > BlockBeginMap;
-	typedef std::map<uint32, BasicBlockPtr> BlockEndMap;
 
 	void						CreateBlock(uint32, uint32);
 	virtual BasicBlockPtr		BlockFactory(CMIPS&, uint32, uint32);
 	virtual void				PartitionFunction(uint32);
 
 	BlockList					m_blocks;
-	BlockBeginMap				m_blockBegin;
-	BlockEndMap					m_blockEnd;
 	CMIPS&						m_context;
+
+	CBasicBlock***				m_blockTable;
+	uint32						m_subTableCount;
 };
 
 #endif

@@ -12,8 +12,8 @@
 
 struct REGISTER_PIPELINE
 {
-    uint32      counter;
-    uint32      heldValue;
+	uint32		counter;
+	uint32		heldValue;
 };
 
 enum
@@ -99,12 +99,12 @@ __attribute__((aligned(16)))
 class CMIPS
 {
 public:
-    typedef unsigned int        (*TickFunctionType)(unsigned int, CMIPS*);
-    typedef void                (*SysCallHandlerType)(CMIPS*);
-    typedef uint32              (*AddressTranslator)(CMIPS*, uint32, uint32);
-    typedef std::set<uint32>    BreakpointSet;
+	typedef unsigned int		(*TickFunctionType)(unsigned int, CMIPS*);
+	typedef void				(*SysCallHandlerType)(CMIPS*);
+	typedef uint32				(*AddressTranslator)(CMIPS*, uint32, uint32);
+	typedef std::set<uint32>	BreakpointSet;
 
-                                CMIPS(MEMORYMAP_ENDIANESS, uint32, uint32);
+								CMIPS(MEMORYMAP_ENDIANESS);
 								~CMIPS();
 	void						ToggleBreakpoint(uint32);
 	bool						MustBreak();
@@ -124,7 +124,7 @@ public:
 	CMIPSArchitecture*			m_pArch;
 	CMIPSCoprocessor*			m_pCOP[4];
 	CMemoryMap*					m_pMemoryMap;
-    BreakpointSet               m_breakpoints;
+	BreakpointSet				m_breakpoints;
 
 	CMIPSAnalysis*				m_pAnalysis;
 	CMIPSTags					m_Comments;

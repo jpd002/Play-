@@ -12,7 +12,7 @@ const char* CMIPS::m_sGPRName[] =
 	"T8",	"T9",	"K0",	"K1",	"GP",	"SP",	"FP",	"RA"
 };
 
-CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd, uint32 nExecStart, uint32 nExecEnd) 
+CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd) 
 : m_pAddrTranslator(NULL)
 , m_pArch(NULL)
 {
@@ -54,12 +54,12 @@ void CMIPS::Reset()
 
 void CMIPS::ToggleBreakpoint(uint32 address)
 {
-    if(m_breakpoints.find(address) != m_breakpoints.end())
+	if(m_breakpoints.find(address) != m_breakpoints.end())
 	{
-        m_breakpoints.erase(address);
+		m_breakpoints.erase(address);
 		return;
 	}
-    m_breakpoints.insert(address);
+	m_breakpoints.insert(address);
 }
 
 long CMIPS::GetBranch(uint16 nData)

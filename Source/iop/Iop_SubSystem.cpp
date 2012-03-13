@@ -14,8 +14,8 @@ using namespace PS2;
 #define STATE_SCRATCH	("iop_scratch")
 
 CSubSystem::CSubSystem() 
-: m_cpu(MEMORYMAP_ENDIAN_LSBF, 0, 0x1FFFFFFF)
-, m_executor(m_cpu)
+: m_cpu(MEMORYMAP_ENDIAN_LSBF)
+, m_executor(m_cpu, (IOP_RAM_SIZE * 4))
 , m_ram(new uint8[IOP_RAM_SIZE])
 , m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
 , m_spuRam(new uint8[SPU_RAM_SIZE])
@@ -211,7 +211,8 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
 			}
 			else
 			{
-				BasicBlockPtr nextBlock = m_executor.FindBlockAt(m_cpu.m_State.nPC);
+				uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nPC);
+				BasicBlockPtr nextBlock = m_executor.FindBlockAt(physicalPc);
 				if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
 				{
 					//Go a little bit faster if we're "stuck"
