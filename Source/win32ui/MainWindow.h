@@ -38,48 +38,48 @@ private:
 		bool			m_paused;
 	};
 
-    class COpenCommand
-    {
-    public:
-        virtual         ~COpenCommand() {}
-        virtual void    Execute(CMainWindow*) = 0;
-    };
+	class COpenCommand
+	{
+	public:
+		virtual			~COpenCommand() {}
+		virtual void	Execute(CMainWindow*) = 0;
+	};
 
-    class CBootCdRomOpenCommand : public COpenCommand
-    {
-    public:
-        virtual void    Execute(CMainWindow*); 
-    };
+	class CBootCdRomOpenCommand : public COpenCommand
+	{
+	public:
+		virtual void	Execute(CMainWindow*); 
+	};
 
-    class CLoadElfOpenCommand : public COpenCommand
-    {
-    public:
-                        CLoadElfOpenCommand(const char*);
-        virtual void    Execute(CMainWindow*);
+	class CLoadElfOpenCommand : public COpenCommand
+	{
+	public:
+						CLoadElfOpenCommand(const char*);
+		virtual void	Execute(CMainWindow*);
 
-    private:
-        std::string     m_fileName;
-    };
+	private:
+		std::string		m_fileName;
+	};
 
-    typedef std::tr1::shared_ptr<COpenCommand> OpenCommandPtr;
+	typedef std::shared_ptr<COpenCommand> OpenCommandPtr;
 
 	void							OpenELF();
 	void							BootCDROM();
-    void                            BootDiskImage();
+	void							BootDiskImage();
 	void							RecordAvi();
 	void							ResumePause();
 	void							Reset();
 	void							PauseWhenFocusLost();
 	void							SaveState();
 	void							LoadState();
-    void                            ChangeFrameskip(bool);
+	void							ChangeFrameskip(bool);
 	void							ChangeStateSlot(unsigned int);
 	void							ShowDebugger();
 	void							ShowSysInfo();
 	void							ShowAbout();
-    void                            ShowSettingsDialog(CSettingsDialogProvider*);
+	void							ShowSettingsDialog(CSettingsDialogProvider*);
 	void							ShowRendererSettings();
-    void                            ShowControllerSettings();
+	void							ShowControllerSettings();
 	void							ShowVfsManager();
 	void							ShowMcManager();
 
@@ -96,13 +96,14 @@ private:
 	std::string						GenerateStatePath();
 	void							UpdateUI();
 
-	void							OnNewFrame();
+	void							OnNewFrame(uint32);
 	void							OnOutputWndSizeChange();
 	void							OnExecutableChange();
 
-    CPS2VM&                         m_virtualMachine;
+	CPS2VM&							m_virtualMachine;
 
-    unsigned int					m_nFrames;
+	unsigned int					m_nFrames;
+	uint32							m_drawCallCount;
 	HACCEL							m_nAccTable;
 
 	unsigned int					m_nStateSlot;
@@ -110,7 +111,7 @@ private:
 	bool							m_nPauseFocusLost;
 	bool							m_nDeactivatePause;
 
-    OpenCommandPtr                  m_lastOpenCommand;
+	OpenCommandPtr					m_lastOpenCommand;
 
 	CAviStream						m_aviStream;
 	bool							m_recordingAvi;

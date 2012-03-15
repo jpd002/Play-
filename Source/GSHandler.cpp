@@ -148,6 +148,7 @@ CGSHandler::CGSHandler()
 , m_enabled(true)
 , m_threadDone(false)
 , m_flipMode(FLIP_MODE_SMODE2)
+, m_drawCallCount(0)
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_SMODE2);
 
@@ -411,7 +412,8 @@ void CGSHandler::Flip()
 
 void CGSHandler::FlipImpl()
 {
-	OnNewFrame();
+	OnNewFrame(m_drawCallCount);
+	m_drawCallCount = 0;
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
 #endif

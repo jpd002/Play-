@@ -104,7 +104,7 @@ public:
 	void									Flip();
 	virtual void							ReadFramebuffer(uint32, uint32, void*)	= 0;
 
-	boost::signals2::signal<void ()>		OnNewFrame;
+	boost::signals2::signal<void (uint32)>	OnNewFrame;
 
 	enum PRIVATE_REGISTER
 	{
@@ -188,7 +188,7 @@ protected:
 		uint8			nA;
 		float			nQ;
 	};
-    BOOST_STATIC_ASSERT(sizeof(RGBAQ) == sizeof(uint64));
+	static_assert(sizeof(RGBAQ) == sizeof(uint64), "Size of RGBAQ struct must be 8 bytes.");
 
 	//Reg 0x02
 	struct ST : public convertible<uint64>
@@ -196,7 +196,7 @@ protected:
 		float			nS;
 		float			nT;
 	};
-    BOOST_STATIC_ASSERT(sizeof(ST) == sizeof(uint64));
+	static_assert(sizeof(ST) == sizeof(uint64), "Size of ST struct must be 8 bytes.");
 
 	//Reg 0x03
 	struct UV : public convertible<uint64>
@@ -208,7 +208,7 @@ protected:
 		float			GetU()			{ return static_cast<float>(nU & 0x7FFF) / 16.0f; }
 		float			GetV()			{ return static_cast<float>(nV & 0x7FFF) / 16.0f; }
 	};
-    BOOST_STATIC_ASSERT(sizeof(UV) == sizeof(uint64));
+	static_assert(sizeof(UV) == sizeof(uint64), "Size of UV struct must be 8 bytes.");
 
 	//Reg 0x04/0x0C
 	struct XYZF
@@ -233,7 +233,7 @@ protected:
 		float			GetY()			{ return static_cast<float>(nY) / 16.0f; }
 		float			GetZ()			{ return static_cast<float>(nZ); }
 	};
-    BOOST_STATIC_ASSERT(sizeof(XYZ) == sizeof(uint64));
+	static_assert(sizeof(XYZ) == sizeof(uint64), "Size of XYZ struct must be 8 bytes.");
 
 	//Reg 0x06/0x07
 	struct TEX0 : public convertible<uint64>
@@ -257,7 +257,7 @@ protected:
 		uint32			GetHeight()		{ return (1 << (nPad0 | (nPad1 << 2))); }
 		uint32			GetCLUTPtr()	{ return nCBP * 256; }
 	};
-    BOOST_STATIC_ASSERT(sizeof(TEX0) == sizeof(uint64));
+	static_assert(sizeof(TEX0) == sizeof(uint64), "Size of TEX0 struct must be 8 bytes.");
 
 	//Reg 0x08/0x09
 	struct CLAMP : public convertible<uint64>
@@ -275,7 +275,7 @@ protected:
 		unsigned int	GetMinV()		{ return (nReserved0) | (nReserved1 << 8); }
 		unsigned int	GetMaxV()		{ return nMAXV; }
 	};
-    BOOST_STATIC_ASSERT(sizeof(CLAMP) == sizeof(uint64));
+	static_assert(sizeof(CLAMP) == sizeof(uint64), "Size of CLAMP struct must be 8 bytes.");
 
 	//Reg 0x14/0x15
 	struct TEX1 : public convertible<uint64>
@@ -292,7 +292,7 @@ protected:
 		unsigned int	nLODK			: 7;
 		unsigned int	nReserved3		: 25;
 	};
-    BOOST_STATIC_ASSERT(sizeof(TEX1) == sizeof(uint64));
+	static_assert(sizeof(TEX1) == sizeof(uint64), "Size of TEX1 struct must be 8 bytes.");
 
 	//Reg 0x16/0x17
 	struct TEX2
@@ -319,7 +319,7 @@ protected:
 		float			GetX()			{ return static_cast<float>(nOffsetX) / 16.0f; }
 		float			GetY()			{ return static_cast<float>(nOffsetY) / 16.0f; }
 	};
-    BOOST_STATIC_ASSERT(sizeof(XYOFFSET) == sizeof(uint64));
+	static_assert(sizeof(XYOFFSET) == sizeof(uint64), "Size of XYOFFSET struct must be 8 bytes.");
 
 	//Reg 0x1B
 	struct PRMODE : public convertible<uint64>
@@ -336,7 +336,7 @@ protected:
 		unsigned int	nReserved1		: 21;
 		uint32			nReserved2;
 	};
-    BOOST_STATIC_ASSERT(sizeof(PRMODE) == sizeof(uint64));
+	static_assert(sizeof(PRMODE) == sizeof(uint64), "Size of PRMODE struct must be 8 bytes.");
 
 	//Reg 0x3B
 	struct TEXA : public convertible<uint64>
@@ -348,7 +348,7 @@ protected:
 		unsigned int	nTA1			: 8;
 		unsigned int	nReserved2		: 24;
 	};
-    BOOST_STATIC_ASSERT(sizeof(TEXA) == sizeof(uint64));
+	static_assert(sizeof(TEXA) == sizeof(uint64), "Size of TEXA struct must be 8 bytes.");
 
 	//Reg 0x3D
 	struct FOGCOL
@@ -384,25 +384,25 @@ protected:
 		unsigned int	nFix		: 8;
 		unsigned int	nReserved1	: 24;
 	};
-    BOOST_STATIC_ASSERT(sizeof(ALPHA) == sizeof(uint64));
+	static_assert(sizeof(ALPHA) == sizeof(uint64), "Size of ALPHA struct must be 8 bytes.");
 
-    //Reg 0x47/0x48
-    struct TEST : public convertible<uint64>
-    {
-	    unsigned int	nAlphaEnabled		: 1;
-	    unsigned int	nAlphaMethod		: 3;
-	    unsigned int	nAlphaRef			: 8;
-	    unsigned int	nAlphaFail			: 2;
-	    unsigned int	nDestAlphaEnabled	: 1;
-	    unsigned int	nDestAlphaMode		: 1;
-	    unsigned int	nDepthEnabled		: 1;
-	    unsigned int	nDepthMethod		: 2;
-	    unsigned int	nReserved0			: 13;
-	    uint32			nReserved1;
-    };
-    BOOST_STATIC_ASSERT(sizeof(TEST) == sizeof(uint64));
+	//Reg 0x47/0x48
+	struct TEST : public convertible<uint64>
+	{
+		unsigned int	nAlphaEnabled		: 1;
+		unsigned int	nAlphaMethod		: 3;
+		unsigned int	nAlphaRef			: 8;
+		unsigned int	nAlphaFail			: 2;
+		unsigned int	nDestAlphaEnabled	: 1;
+		unsigned int	nDestAlphaMode		: 1;
+		unsigned int	nDepthEnabled		: 1;
+		unsigned int	nDepthMethod		: 2;
+		unsigned int	nReserved0			: 13;
+		uint32			nReserved1;
+	};
+	static_assert(sizeof(TEST) == sizeof(uint64), "Size of TEST struct must be 8 bytes.");
 
-    //Reg 0x4C/0x4D
+	//Reg 0x4C/0x4D
 	struct FRAME
 	{
 		unsigned int	nPtr			: 16;
@@ -424,7 +424,7 @@ protected:
 		unsigned int	nReserved2		: 31;
 		uint32			GetBasePtr()	{ return nPtr * 2048; }
 	};
-    BOOST_STATIC_ASSERT(sizeof(ZBUF) == sizeof(uint64));
+	static_assert(sizeof(ZBUF) == sizeof(uint64), "Size of ZBUF struct must be 8 bytes.");
 
 	//Reg 0x50
 	struct BITBLTBUF
@@ -479,14 +479,14 @@ protected:
 		unsigned int	nW			: 12;
 		unsigned int	nH			: 12;
 	};
-    BOOST_STATIC_ASSERT(sizeof(DISPLAY) == sizeof(uint64));
+	static_assert(sizeof(DISPLAY) == sizeof(uint64), "Size of DISPLAY struct must be 8 bytes.");
 
 	struct TRXCONTEXT
 	{
 		uint32			nSize;
 		uint32			nRRX;
 		uint32			nRRY;
-        uint32          checksum;
+		uint32			checksum;
 		bool			nDirty;
 	};
 
@@ -659,14 +659,14 @@ protected:
 
 	void									LoadSettings();
 
-    void                                    ThreadProc();
-    virtual void                            InitializeImpl() = 0;
-    virtual void                            ReleaseImpl() = 0;
-    virtual void                            FlipImpl();
-    virtual void                            UpdateViewportImpl() = 0;
-	virtual void                            WriteRegisterImpl(uint8, uint64);
-	virtual void                            FeedImageDataImpl(void*, uint32);
-    virtual void                            WriteRegisterMassivelyImpl(const RegisterWrite*, unsigned int);
+	void									ThreadProc();
+	virtual void							InitializeImpl() = 0;
+	virtual void							ReleaseImpl() = 0;
+	virtual void							FlipImpl();
+	virtual void							UpdateViewportImpl() = 0;
+	virtual void							WriteRegisterImpl(uint8, uint64);
+	virtual void							FeedImageDataImpl(void*, uint32);
+	virtual void							WriteRegisterMassivelyImpl(const RegisterWrite*, unsigned int);
 
 	TRANSFERHANDLER							m_pTransferHandler[PSM_MAX];
 
@@ -696,14 +696,16 @@ protected:
 
 	uint8*									m_pRAM;
 
+	uint32									m_drawCallCount;
+
 	unsigned int							m_nCrtMode;
 	bool									m_nCrtIsInterlaced;
 	bool									m_nCrtIsFrameMode;
-    boost::thread*                          m_thread;
+	boost::thread*							m_thread;
 	boost::recursive_mutex					m_csrMutex;
-    CMailBox                                m_mailBox;
-    bool                                    m_enabled;
-    bool                                    m_threadDone;
+	CMailBox								m_mailBox;
+	bool									m_enabled;
+	bool									m_threadDone;
 };
 
 //////////////////////////////////////////////

@@ -1074,6 +1074,11 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 
 	if(m_nVtxCount == 0)
 	{
+		if(nDrawingKick)
+		{
+			m_drawCallCount++;
+		}
+
 		{
 			if((m_nReg[GS_REG_PRMODECONT] & 1) != 0)
 			{
