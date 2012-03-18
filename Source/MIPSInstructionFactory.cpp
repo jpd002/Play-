@@ -5,12 +5,12 @@
 #include "PtrMacro.h"
 #include "offsetof_def.h"
 
-CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize) :
-m_pCtx(NULL),
-m_codeGen(NULL),
-m_nAddress(0),
-m_nOpcode(0),
-m_regSize(nRegSize)
+CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
+: m_pCtx(NULL)
+, m_codeGen(NULL)
+, m_nAddress(0)
+, m_nOpcode(0)
+, m_regSize(nRegSize)
 {
 
 }
@@ -23,7 +23,7 @@ CMIPSInstructionFactory::~CMIPSInstructionFactory()
 void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	m_pCtx			= pCtx;
-    m_codeGen       = codeGen;
+	m_codeGen		= codeGen;
 	m_nAddress		= nAddress;
 
 	m_nOpcode		= m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
@@ -79,7 +79,7 @@ void CMIPSInstructionFactory::Branch(Jitter::CONDITION condition)
 
 	m_codeGen->BeginIf(condition);
 	{
-        m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
+		m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->EndIf();
@@ -94,7 +94,7 @@ void CMIPSInstructionFactory::BranchLikely(Jitter::CONDITION condition)
 
 	m_codeGen->BeginIf(condition);
 	{
-        m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
+		m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->Else();
