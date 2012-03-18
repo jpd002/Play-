@@ -13,12 +13,9 @@
 #define PROFILE_VU1ZONE	"VU0"
 #endif
 
-#define LOG_NAME                ("vif")
-#define STATE_REGS_XML          ("vif/regs.xml")
-#define STATE_REGS_VPU_STAT     ("VPU_STAT")
-
-using namespace Framework;
-using namespace std;
+#define LOG_NAME				("vif")
+#define STATE_REGS_XML			("vif/regs.xml")
+#define STATE_REGS_VPU_STAT		("VPU_STAT")
 
 //REMOVE
 static int nExecTimes = 0;
@@ -64,7 +61,7 @@ void CVIF::SetEnabled(bool enabled)
 	m_enabled = enabled;
 }
 
-void CVIF::SaveState(CZipArchiveWriter& archive)
+void CVIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	{
 		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
@@ -76,7 +73,7 @@ void CVIF::SaveState(CZipArchiveWriter& archive)
 	m_pVPU[1]->SaveState(archive);
 }
 
-void CVIF::LoadState(CZipArchiveReader& archive)
+void CVIF::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 	m_VPU_STAT = registerFile.GetRegister32(STATE_REGS_VPU_STAT);
@@ -265,7 +262,7 @@ void CVIF::CFifoStream::Read(void* buffer, uint32 size)
 	while(size != 0)
 	{
 		SyncBuffer();
-		uint32 read = min<uint32>(size, BUFFERSIZE - m_position);
+		uint32 read = std::min<uint32>(size, BUFFERSIZE - m_position);
 		if(readBuffer != NULL)
 		{
 			memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_position, read);
@@ -328,7 +325,7 @@ void CVIF::CFifoStream::SyncBuffer()
 	{
 		if(m_nextAddress >= m_endAddress)
 		{
-			throw exception();
+			throw std::exception();
 		}
 		m_address = m_nextAddress;
 		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
