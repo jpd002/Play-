@@ -12,7 +12,7 @@ class CMA_VU : public CMIPSArchitecture
 {
 public:
 											CMA_VU(bool);
-    virtual                                 ~CMA_VU();
+	virtual									~CMA_VU();
 	virtual void							CompileInstruction(uint32, CMipsJitter*, CMIPS*);
 	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
@@ -20,13 +20,15 @@ public:
 	virtual uint32							GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 	VUShared::OPERANDSET					GetAffectedOperands(CMIPS*, uint32, uint32);
 
+	void									SetRelativePipeTime(uint32);
+
 private:
 	void									SetupReflectionTables();
 
-    class CUpper : public CMIPSInstructionFactory
+	class CUpper : public CMIPSInstructionFactory
 	{
 	public:
-                                            CUpper();
+											CUpper();
 
 		void								SetupReflectionTables();
 		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*);
@@ -36,8 +38,10 @@ private:
 		MIPS_BRANCH_TYPE					IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 
+		void								SetRelativePipeTime(uint32);
+
 	private:
-    	typedef void (CUpper::*InstructionFuncConstant)();
+		typedef void (CUpper::*InstructionFuncConstant)();
 
 		static InstructionFuncConstant		m_pOpVector[0x40];
 		static InstructionFuncConstant		m_pOpVector0[0x20];
@@ -45,75 +49,76 @@ private:
 		static InstructionFuncConstant		m_pOpVector2[0x20];
 		static InstructionFuncConstant		m_pOpVector3[0x20];
 
-		uint8						        m_nFT;
-		uint8						        m_nFS;
-		uint8						        m_nFD;
-		uint8						        m_nBc;
-		uint8						        m_nDest;
+		uint8								m_nFT;
+		uint8								m_nFS;
+		uint8								m_nFD;
+		uint8								m_nBc;
+		uint8								m_nDest;
+		uint32								m_relativePipeTime;
 
 		static void							ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
-		void							    LOI(uint32);
+		void								LOI(uint32);
 
 		//Vector
-		void							    ADDbc();
-		void							    SUBbc();
-		void							    MADDbc();
-        void                                MSUBbc();
-		void							    MAXbc();
-		void							    MINIbc();
-		void							    MULbc();
-		void							    MULq();
-		void							    MULi();
-		void							    MINIi();
-		void							    ADDq();
-        void                                MADDq();
-		void							    ADDi();
+		void								ADDbc();
+		void								SUBbc();
+		void								MADDbc();
+		void								MSUBbc();
+		void								MAXbc();
+		void								MINIbc();
+		void								MULbc();
+		void								MULq();
+		void								MULi();
+		void								MINIi();
+		void								ADDq();
+		void								MADDq();
+		void								ADDi();
 		void								MADDi();
-		void							    SUBi();
-		void							    MSUBi();
-		void							    ADD();
-		void							    MADD();
-		void							    MUL();
-		void							    MAX();
-		void							    SUB();
-		void							    OPMSUB();
-        void                                MINI();
-		void							    VECTOR0();
-		void							    VECTOR1();
-		void							    VECTOR2();
-		void							    VECTOR3();
+		void								SUBi();
+		void								MSUBi();
+		void								ADD();
+		void								MADD();
+		void								MUL();
+		void								MAX();
+		void								SUB();
+		void								OPMSUB();
+		void								MINI();
+		void								VECTOR0();
+		void								VECTOR1();
+		void								VECTOR2();
+		void								VECTOR3();
 
 		//Vector X Common
-		void							    ADDAbc();
-		void							    MADDAbc();
-        void                                MSUBAbc();
-		void							    MULAbc();
+		void								ADDAbc();
+		void								MADDAbc();
+		void								MSUBAbc();
+		void								MULAbc();
 
 		//Vector 0
-		void							    ITOF0();
-		void							    FTOI0();
-        void                                ADDA();
+		void								ITOF0();
+		void								FTOI0();
+		void								ADDA();
 
 		//Vector 1
-        void                                ITOF4();
-		void							    FTOI4();
-		void							    ABS();
-		void							    MADDA();
+		void								ITOF4();
+		void								FTOI4();
+		void								ABS();
+		void								MADDA();
 
 		//Vector 2
-        void                                ITOF12();
-        void                                FTOI12();
-		void							    MULAi();
+		void								ITOF12();
+		void								FTOI12();
+		void								MULAi();
 		void								ADDAi();
-		void							    MULA();
-		void							    OPMULA();
+		void								MULA();
+		void								OPMULA();
 
 		//Vector 3
-		void							    CLIP();
-		void							    MADDAi();
-		void							    MSUBAi();
-		void							    NOP();
+		void								CLIP();
+		void								MADDAi();
+		void								MSUBAi();
+		void								NOP();
 
 		MIPSReflection::INSTRUCTION			m_ReflV[64];
 		MIPSReflection::INSTRUCTION			m_ReflVX0[32];
@@ -152,11 +157,11 @@ private:
 		static VUShared::VUINSTRUCTION		m_cVuReflVX3[32];
 	};
 
-    class CLower : public CMIPSInstructionFactory
+	class CLower : public CMIPSInstructionFactory
 	{
 	public:
-                                            CLower(bool);
-        virtual                             ~CLower();
+											CLower(bool);
+		virtual								~CLower();
 
 		void								SetupReflectionTables();
 		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*);
@@ -166,42 +171,45 @@ private:
 		uint32								GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 		VUShared::OPERANDSET				GetAffectedOperands(CMIPS*, uint32, uint32);
 
+		void								SetRelativePipeTime(uint32);
+
 	private:
-    	typedef void (CLower::*InstructionFuncConstant)();
+		typedef void (CLower::*InstructionFuncConstant)();
 
-		static InstructionFuncConstant      m_pOpGeneral[0x80];
-		static InstructionFuncConstant      m_pOpLower[0x40];
-		static InstructionFuncConstant      m_pOpVector0[0x20];
-		static InstructionFuncConstant      m_pOpVector1[0x20];
-		static InstructionFuncConstant      m_pOpVector2[0x20];
-		static InstructionFuncConstant      m_pOpVector3[0x20];
+		static InstructionFuncConstant		m_pOpGeneral[0x80];
+		static InstructionFuncConstant		m_pOpLower[0x40];
+		static InstructionFuncConstant		m_pOpVector0[0x20];
+		static InstructionFuncConstant		m_pOpVector1[0x20];
+		static InstructionFuncConstant		m_pOpVector2[0x20];
+		static InstructionFuncConstant		m_pOpVector3[0x20];
 
-		uint8						        m_nIT;
-		uint8						        m_nIS;
-		uint8						        m_nID;
-		uint8						        m_nFSF;
-		uint8						        m_nFTF;
-		uint8						        m_nDest;
-		uint8						        m_nImm5;
-		uint16						        m_nImm11;
-        uint16                              m_nImm12;
-		uint16						        m_nImm15;
-		uint16						        m_nImm15S;
-		uint32						        m_nImm24;
+		uint8								m_nIT;
+		uint8								m_nIS;
+		uint8								m_nID;
+		uint8								m_nFSF;
+		uint8								m_nFTF;
+		uint8								m_nDest;
+		uint8								m_nImm5;
+		uint16								m_nImm11;
+		uint16								m_nImm12;
+		uint16								m_nImm15;
+		uint16								m_nImm15S;
+		uint32								m_nImm24;
+		uint32								m_relativePipeTime;
 
-		uint32						        GetDestOffset(uint8);
-		void							    SetBranchAddress(bool, int32);
+		uint32								GetDestOffset(uint8);
+		void								SetBranchAddress(bool, int32);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-        static void                         ReflOpImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-		static void                         ReflOpItImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+		static void							ReflOpImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+		static void							ReflOpItImm12(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-        static void							ReflOpItIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+		static void							ReflOpItIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIdIsIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -232,75 +240,75 @@ private:
 		static void							ReflOpAffPFsf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 
 		//General
-		void							    LQ();
-		void							    SQ();
-		void							    ILW();
-		void							    ISW();
-		void							    IADDIU();
-		void							    ISUBIU();
-		void							    FCSET();
-		void							    FCAND();
-        void                                FCOR();
+		void								LQ();
+		void								SQ();
+		void								ILW();
+		void								ISW();
+		void								IADDIU();
+		void								ISUBIU();
+		void								FCSET();
+		void								FCAND();
+		void								FCOR();
 		void								FSSET();
-        void                                FSAND();
-		void							    FMAND();
-        void                                FCGET();
-		void							    B();
-        void                                BAL();
-        void                                JR();
-		void							    JALR();
-		void							    IBEQ();
-		void							    IBNE();
-		void							    IBLTZ();
-		void							    IBGTZ();
-		void							    IBLEZ();
-		void							    IBGEZ();
-		void							    LOWEROP();
+		void								FSAND();
+		void								FMAND();
+		void								FCGET();
+		void								B();
+		void								BAL();
+		void								JR();
+		void								JALR();
+		void								IBEQ();
+		void								IBNE();
+		void								IBLTZ();
+		void								IBGTZ();
+		void								IBLEZ();
+		void								IBGEZ();
+		void								LOWEROP();
 
 		//LowerOp
-		void							    IADD();
-		void							    ISUB();
-		void							    IADDI();
-		void							    IAND();
-		void							    IOR();
-		void							    VECTOR0();
-		void							    VECTOR1();
-		void							    VECTOR2();
-		void							    VECTOR3();
+		void								IADD();
+		void								ISUB();
+		void								IADDI();
+		void								IAND();
+		void								IOR();
+		void								VECTOR0();
+		void								VECTOR1();
+		void								VECTOR2();
+		void								VECTOR3();
 
 		//Vector0
-		void							    MOVE();
-		void							    LQI();
-		void							    DIV();
-		void							    MTIR();
+		void								MOVE();
+		void								LQI();
+		void								DIV();
+		void								MTIR();
 		void								RNEXT();
-		void							    MFP();
-		void							    XTOP();
-		void							    XGKICK();
-        void                                ESQRT();
-        void                                ESIN();
+		void								MFP();
+		void								XTOP();
+		void								XGKICK();
+		void								ESQRT();
+		void								ESIN();
 
 		//Vector1
-		void							    MR32();
-		void							    SQI();
+		void								MR32();
+		void								SQI();
 		void								SQRT();
-		void							    MFIR();
-		void							    RGET();
-        void                                XITOP();
+		void								MFIR();
+		void								RGET();
+		void								XITOP();
 
 		//Vector2
 		void								LQD();
-        void                                RSQRT();
-		void							    ILWR();
-		void							    RINIT();
-        void                                ELENG();
-		void							    ERCPR();
+		void								RSQRT();
+		void								ILWR();
+		void								RINIT();
+		void								ELENG();
+		void								ERCPR();
 
 		//Vector3
-		void							    WAITQ();
+		void								WAITQ();
 		void								ISWR();
-		void							    ERLENG();
-        void                                WAITP();
+		void								ERLENG();
+		void								WAITP();
 
 		MIPSReflection::INSTRUCTION			m_ReflGeneral[128];
 		MIPSReflection::INSTRUCTION			m_ReflV[64];

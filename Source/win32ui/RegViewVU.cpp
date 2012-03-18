@@ -84,26 +84,25 @@ std::string CRegViewVU::GetDisplayText()
 	sprintf(sLine, "PIPEQ: 0x%0.4X - %+.7e\r\n", pState->pipeQ.counter, *(float*)&pState->pipeQ.heldValue);
 	result += sLine;
 
-	unsigned int currentPipeMacCounter = pState->pipeMac.counter;
+	unsigned int currentPipeMacCounter = pState->pipeMac.index - 1;
 
 	uint32 macFlagPipeValues[MACFLAG_PIPELINE_SLOTS];
+	uint32 macFlagPipeTimes[MACFLAG_PIPELINE_SLOTS];
 	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
 	{
-		macFlagPipeValues[i] = pState->pipeMac.slots[(i + currentPipeMacCounter) & (MACFLAG_PIPELINE_SLOTS - 1)];
+		unsigned int currIndex = (currentPipeMacCounter - i) & (MACFLAG_PIPELINE_SLOTS - 1);
+		macFlagPipeValues[i] = pState->pipeMac.values[currIndex];
+		macFlagPipeTimes[i] = pState->pipeMac.pipeTimes[currIndex];
 	}
 
-	sprintf(sLine, "PIPEM:%s0x%0.4X,%s0x%0.4X,%s0x%0.4X,%s0x%0.4X\r\n", 
-		(macFlagPipeValues[0] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[0] & 0xFFFF, 
-		(macFlagPipeValues[1] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[1] & 0xFFFF, 
-		(macFlagPipeValues[2] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[2] & 0xFFFF, 
-		(macFlagPipeValues[3] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[3] & 0xFFFF);
+	sprintf(sLine, "PIPEM: 0x%0.4X:0x%0.4X, 0x%0.4X:0x%0.4X\r\n", 
+		macFlagPipeTimes[0], macFlagPipeValues[0],
+		macFlagPipeTimes[1], macFlagPipeValues[1]);
 	result += sLine;
 
-	sprintf(sLine, "      %s0x%0.4X,%s0x%0.4X,%s0x%0.4X,%s0x%0.4X\r\n", 
-		(macFlagPipeValues[4] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[4] & 0xFFFF, 
-		(macFlagPipeValues[5] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[5] & 0xFFFF, 
-		(macFlagPipeValues[6] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[6] & 0xFFFF, 
-		(macFlagPipeValues[7] & 0x80000000) == 0 ? " " : "*", macFlagPipeValues[7] & 0xFFFF);
+	sprintf(sLine, "       0x%0.4X:0x%0.4X, 0x%0.4X:0x%0.4X\r\n", 
+		macFlagPipeTimes[2], macFlagPipeValues[2],
+		macFlagPipeTimes[3], macFlagPipeValues[3]);
 	result += sLine;
 
 	for(unsigned int i = 0; i < 16; i += 2)

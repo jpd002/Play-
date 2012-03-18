@@ -9,13 +9,9 @@ using namespace VUShared;
 
 void CMA_VU::CUpper::ReflOpFtFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nFT, nFS;
-	uint8 nDest;
-
-	nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	nFS		= (uint8)((nOpcode >> 11) & 0x001F);
-
-	nDest	= (uint8)((nOpcode >> 21) & 0x000F);
+	uint8 nFT		= static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nFS		= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 nDest		= static_cast<uint8>((nOpcode >> 21) & 0x000F);
 
 	sprintf(sText, "VF%i%s, VF%i%s", nFT, m_sDestination[nDest], nFS, m_sDestination[nDest]);
 }
@@ -311,7 +307,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflV[64] =
 	{	"SUB",		NULL,			ReflOpAffFdFsFt		},
 	{	NULL,		NULL,			NULL				},
 	{	"OPMSUB",	NULL,			ReflOpAffFdFsFt		},
-	{	"MINI",	    NULL,			ReflOpAffFdFsFt		},
+	{	"MINI",		NULL,			ReflOpAffFdFsFt		},
 	//0x30
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -346,7 +342,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX0[32] =
 	//0x08
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"ADDA",	    NULL,			ReflOpAffAccFsFt	},
+	{	"ADDA",		NULL,			ReflOpAffAccFsFt	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -494,17 +490,17 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 
 void CMA_VU::CUpper::SetupReflectionTables()
 {
-    BOOST_STATIC_ASSERT(sizeof(m_ReflV)     == sizeof(m_cReflV));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX0)   == sizeof(m_cReflVX0));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX1)   == sizeof(m_cReflVX1));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX2)   == sizeof(m_cReflVX2));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX3)   == sizeof(m_cReflVX3));
+	static_assert(sizeof(m_ReflV)		== sizeof(m_cReflV),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX0)		== sizeof(m_cReflVX0),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX1)		== sizeof(m_cReflVX1),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX2)		== sizeof(m_cReflVX2),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX3)		== sizeof(m_cReflVX3),		"Array sizes don't match");
 
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflV)     == sizeof(m_cVuReflV));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX0)   == sizeof(m_cVuReflVX0));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX1)   == sizeof(m_cVuReflVX1));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX2)   == sizeof(m_cVuReflVX2));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX3)   == sizeof(m_cVuReflVX3));
+	static_assert(sizeof(m_VuReflV)		== sizeof(m_cVuReflV),		"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX0)	== sizeof(m_cVuReflVX0),	"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX1)	== sizeof(m_cVuReflVX1),	"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX2)	== sizeof(m_cVuReflVX2),	"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX3)	== sizeof(m_cVuReflVX3),	"Array sizes don't match");
 
 	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
 	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
@@ -578,7 +574,6 @@ void CMA_VU::CUpper::SetupReflectionTables()
 void CMA_VU::CUpper::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	INSTRUCTION Instr;
-
 	Instr.pGetMnemonic	= SubTableMnemonic;
 	Instr.pSubTable		= &m_ReflVTable;
 	Instr.pGetMnemonic(&Instr, pCtx, nOpcode, sText, nCount);
@@ -587,7 +582,6 @@ void CMA_VU::CUpper::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32
 void CMA_VU::CUpper::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	INSTRUCTION Instr;
-
 	Instr.pGetOperands	= SubTableOperands;
 	Instr.pSubTable		= &m_ReflVTable;
 	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, nCount);
@@ -596,7 +590,6 @@ void CMA_VU::CUpper::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32
 MIPS_BRANCH_TYPE CMA_VU::CUpper::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	INSTRUCTION Instr;
-
 	Instr.pIsBranch		= SubTableIsBranch;
 	Instr.pSubTable		= &m_ReflVTable;
 	return Instr.pIsBranch(&Instr, pCtx, nOpcode);
@@ -605,7 +598,6 @@ MIPS_BRANCH_TYPE CMA_VU::CUpper::IsInstructionBranch(CMIPS* pCtx, uint32 nAddres
 uint32 CMA_VU::CUpper::GetInstructionEffectiveAddress(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	INSTRUCTION Instr;
-
 	Instr.pGetEffectiveAddress	= SubTableEffAddr;
 	Instr.pSubTable				= &m_ReflVTable;
 	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);

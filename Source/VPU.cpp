@@ -273,6 +273,7 @@ void CVPU::ExecuteMicro(uint32 nAddress)
 	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
 
 	m_pCtx->m_State.nPC = nAddress;
+	m_pCtx->m_State.pipeTime = 0;
 	m_pCtx->m_State.nHasException = 0;
 
 	m_vif.SetStat(m_vif.GetStat() | GetVbs());

@@ -18,13 +18,14 @@ struct REGISTER_PIPELINE
 
 enum
 {
-	MACFLAG_PIPELINE_SLOTS = 8,
+	MACFLAG_PIPELINE_SLOTS = 4,
 };
 
 struct MACFLAG_PIPELINE
 {
-	uint32		counter;
-	uint32		slots[MACFLAG_PIPELINE_SLOTS];
+	uint32		index;
+	uint32		values[MACFLAG_PIPELINE_SLOTS];
+	uint32		pipeTimes[MACFLAG_PIPELINE_SLOTS];
 };
 
 enum
@@ -89,6 +90,8 @@ __attribute__((aligned(16)))
 	REGISTER_PIPELINE	pipeQ;
 	REGISTER_PIPELINE	pipeP;
 	MACFLAG_PIPELINE	pipeMac;
+
+	uint32				pipeTime;
 
 	uint32				callMsEnabled;
 	uint32				callMsAddr;

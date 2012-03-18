@@ -138,15 +138,16 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 		}
 		currentPoint = *pointIterator;
 	}
-
+/*
 	//Convenient cutting for debugging purposes
-	//for(uint32 address = functionAddress; address <= endAddress; address += 8)
-	//{
-	//    uint32 beginAddress = address;
-	//    uint32 endAddress = address + 4;
-	//    //Sanity checks
-	//    assert((beginAddress & 0x07) == 0x00);
-	//    assert((endAddress & 0x07) == 0x04);
-	//    CreateBlock(beginAddress, endAddress);
-	//}
+	for(uint32 address = functionAddress; address <= endAddress; address += 8)
+	{
+		uint32 beginAddress = address;
+		uint32 endAddress = address + 4;
+		//Sanity checks
+		assert((beginAddress & 0x07) == 0x00);
+		assert((endAddress & 0x07) == 0x04);
+		CreateBlock(beginAddress, endAddress);
+	}
+*/
 }

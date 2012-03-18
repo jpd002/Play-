@@ -1,9 +1,9 @@
 #include "MA_VU.h"
 #include "MIPS.h"
 
-CMA_VU::CMA_VU(bool maskDataAddress) :
-CMIPSArchitecture(MIPS_REGSIZE_64),
-m_Lower(maskDataAddress)
+CMA_VU::CMA_VU(bool maskDataAddress)
+: CMIPSArchitecture(MIPS_REGSIZE_64)
+, m_Lower(maskDataAddress)
 {
 	SetupReflectionTables();
 }
@@ -15,9 +15,9 @@ CMA_VU::~CMA_VU()
 
 void CMA_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
-    SetupQuickVariables(nAddress, codeGen, pCtx);
+	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-    if(nAddress & 0x04)
+	if(nAddress & 0x04)
 	{
 		m_Upper.CompileInstruction(nAddress, codeGen, pCtx);
 	}
@@ -25,6 +25,12 @@ void CMA_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pC
 	{
 		m_Lower.CompileInstruction(nAddress, codeGen, pCtx);
 	}
+}
+
+void CMA_VU::SetRelativePipeTime(uint32 relativePipeTime)
+{
+	m_Lower.SetRelativePipeTime(relativePipeTime);
+	m_Upper.SetRelativePipeTime(relativePipeTime);
 }
 
 void CMA_VU::SetupReflectionTables()

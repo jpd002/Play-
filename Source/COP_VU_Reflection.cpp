@@ -269,7 +269,7 @@ INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-    {	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VMOVE",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

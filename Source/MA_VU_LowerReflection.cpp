@@ -34,15 +34,15 @@ void CMA_VU::CLower::ReflOpIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 
 void CMA_VU::CLower::ReflOpImm12(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint16  nImm    = static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
+	uint16	nImm	= static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
 
 	sprintf(sText, "0x%0.3X", nImm);
 }
 
 void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8   nIT     = static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint16  nImm    = static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
+	uint8	nIT		= static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint16	nImm	= static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
 
 	sprintf(sText, "VI%i, 0x%0.3X", nIT, nImm);
 }
@@ -363,11 +363,11 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x20
 	{	"B",		NULL,			CopyMnemonic,		ReflOpOfs,			IsBranch,			ReflEaOffset	},
-    {	"BAL",		NULL,			CopyMnemonic,		ReflOpItOfs,		IsBranch,			ReflEaOffset	},
+	{	"BAL",		NULL,			CopyMnemonic,		ReflOpItOfs,		IsBranch,			ReflEaOffset	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"JR",		NULL,			CopyMnemonic,		ReflOpIs,			IsBranch,			NULL    		},
-	{	"JALR",		NULL,			CopyMnemonic,		ReflOpItIs,			IsBranch,			NULL    		},
+	{	"JR",		NULL,			CopyMnemonic,		ReflOpIs,			IsBranch,			NULL			},
+	{	"JALR",		NULL,			CopyMnemonic,		ReflOpItIs,			IsBranch,			NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x28
@@ -747,7 +747,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	NULL,		NULL,			NULL				},
 	//0x20
 	{	"B",		NULL,			NULL				},
-    {	"BAL",		NULL,			NULL				},
+	{	"BAL",		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"JR",		NULL,			NULL				},
@@ -968,7 +968,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"ESIN",	    NULL,			ReflOpAffPFsf		},
+	{	"ESIN",		NULL,			ReflOpAffPFsf		},
 };
 
 VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
@@ -1093,19 +1093,19 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 
 void CMA_VU::CLower::SetupReflectionTables()
 {
-    BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflV)         == sizeof(m_cReflV));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX0)       == sizeof(m_cReflVX0));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX1)       == sizeof(m_cReflVX1));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX2)       == sizeof(m_cReflVX2));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX3)       == sizeof(m_cReflVX3));
+	static_assert(sizeof(m_ReflGeneral)		== sizeof(m_cReflGeneral),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflV)			== sizeof(m_cReflV),			"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX0)			== sizeof(m_cReflVX0),			"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX1)			== sizeof(m_cReflVX1),			"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX2)			== sizeof(m_cReflVX2),			"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX3)			== sizeof(m_cReflVX3),			"Array sizes don't match");
 
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflGeneral)	== sizeof(m_cVuReflGeneral));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflV)       == sizeof(m_cVuReflV));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX0)     == sizeof(m_cVuReflVX0));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX1)     == sizeof(m_cVuReflVX1));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX2)     == sizeof(m_cVuReflVX2));
-    BOOST_STATIC_ASSERT(sizeof(m_VuReflVX3)     == sizeof(m_cVuReflVX3));
+	static_assert(sizeof(m_VuReflGeneral)	== sizeof(m_cVuReflGeneral),	"Array sizes don't match");
+	static_assert(sizeof(m_VuReflV)			== sizeof(m_cVuReflV),			"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX0)		== sizeof(m_cVuReflVX0),		"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX1)		== sizeof(m_cVuReflVX1),		"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX2)		== sizeof(m_cVuReflVX2),		"Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX3)		== sizeof(m_cVuReflVX3),		"Array sizes don't match");
 
 	memcpy(m_ReflGeneral,	m_cReflGeneral, sizeof(m_cReflGeneral));
 	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
@@ -1190,8 +1190,6 @@ void CMA_VU::CLower::SetupReflectionTables()
 
 void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	INSTRUCTION Instr;
-
 	if(pCtx->m_pMemoryMap->GetInstruction(nAddress + 4) & 0x80000000)
 	{
 		strncpy(sText, "LOI", nCount);
@@ -1204,6 +1202,7 @@ void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32
 		return;
 	}
 
+	INSTRUCTION Instr;
 	Instr.pGetMnemonic	= SubTableMnemonic;
 	Instr.pSubTable		= &m_ReflGeneralTable;
 	Instr.pGetMnemonic(&Instr, pCtx, nOpcode, sText, nCount);
@@ -1211,8 +1210,6 @@ void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32
 
 void CMA_VU::CLower::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	INSTRUCTION Instr;
-
 	if(pCtx->m_pMemoryMap->GetInstruction(nAddress + 4) & 0x80000000)
 	{
 		sprintf(sText, "$%0.8X", nOpcode);
@@ -1225,6 +1222,7 @@ void CMA_VU::CLower::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32
 		return;
 	}
 
+	INSTRUCTION Instr;
 	Instr.pGetOperands	= SubTableOperands;
 	Instr.pSubTable		= &m_ReflGeneralTable;
 	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, nCount);
@@ -1232,13 +1230,12 @@ void CMA_VU::CLower::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32
 
 MIPS_BRANCH_TYPE CMA_VU::CLower::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
-	INSTRUCTION Instr;
-
 	if(nOpcode == 0x8000033C)
 	{
 		return MIPS_BRANCH_NONE;
 	}
 
+	INSTRUCTION Instr;
 	Instr.pIsBranch		= SubTableIsBranch;
 	Instr.pSubTable		= &m_ReflGeneralTable;
 	return Instr.pIsBranch(&Instr, pCtx, nOpcode);
@@ -1246,13 +1243,12 @@ MIPS_BRANCH_TYPE CMA_VU::CLower::IsInstructionBranch(CMIPS* pCtx, uint32 nAddres
 
 uint32 CMA_VU::CLower::GetInstructionEffectiveAddress(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
-	INSTRUCTION Instr;
-
 	if(nOpcode == 0x8000033C)
 	{
 		return 0;
 	}
 
+	INSTRUCTION Instr;
 	Instr.pGetEffectiveAddress	= SubTableEffAddr;
 	Instr.pSubTable				= &m_ReflGeneralTable;
 	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);

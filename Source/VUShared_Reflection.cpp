@@ -277,6 +277,7 @@ void VUShared::ReflOpAffFdFsQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 
 	operandSet.readF0 = nFS;
 	operandSet.writeF = nFD;
+	operandSet.readQ = true;
 }
 
 void VUShared::ReflOpAffFdFsI(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)

@@ -20,6 +20,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	CMA_VU* arch = static_cast<CMA_VU*>(m_context.m_pArch);
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
+		uint32 relativePipeTime = (address - m_begin) / 8;
+
 		uint32 addressLo = address + 0;
 		uint32 addressHi = address + 4;
 
@@ -31,6 +33,9 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 		//No upper instruction writes to Q
 		assert(hiOps.syncQ == false);
+		
+		//No lower instruction reads Q
+		assert(loOps.readQ == false);
 
 		if(opcodeHi & 0x80000000)
 		{
@@ -42,12 +47,11 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			{
 				VUShared::FlushPipeline(VUShared::g_pipeInfoQ, jitter);
 			}
-			else
-			{
-				VUShared::AdvancePipeline(VUShared::g_pipeInfoQ, jitter);
-			}
 
-			VUShared::AdvanceMacFlagPipeline(jitter);
+			if(hiOps.readQ)
+			{
+				VUShared::CheckPipeline(VUShared::g_pipeInfoQ, jitter, relativePipeTime);
+			}
 
 			uint8 savedReg = 0;
 
@@ -65,6 +69,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 				}
 			}
 
+			arch->SetRelativePipeTime(relativePipeTime);
 			arch->CompileInstruction(addressHi, jitter, &m_context);
 
 			if(savedReg != 0)
@@ -87,5 +92,14 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 		//Sanity check
 		assert(jitter->IsStackEmpty());
+	}
+
+	//Increment pipeTime
+	{
+		uint32 timeInc = ((m_end - m_begin) / 8) + 1;
+		jitter->PushRel(offsetof(CMIPS, m_State.pipeTime));
+		jitter->PushCst(timeInc);
+		jitter->Add();
+		jitter->PullRel(offsetof(CMIPS, m_State.pipeTime));
 	}
 }
