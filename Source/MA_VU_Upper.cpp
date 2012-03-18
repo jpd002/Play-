@@ -64,7 +64,7 @@ void CMA_VU::CUpper::LOI(uint32 nValue)
 //03
 void CMA_VU::CUpper::ADDbc()
 {
-	VUShared::ADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::ADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //04
@@ -73,7 +73,7 @@ void CMA_VU::CUpper::ADDbc()
 //07
 void CMA_VU::CUpper::SUBbc()
 {
-	VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //08
@@ -202,7 +202,7 @@ void CMA_VU::CUpper::MAX()
 //2C
 void CMA_VU::CUpper::SUB()
 {
-	VUShared::SUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::SUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_relativePipeTime);
 }
 
 //2E

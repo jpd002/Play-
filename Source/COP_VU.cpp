@@ -6,8 +6,6 @@
 #include "MemoryUtils.h"
 #include "Ps2Const.h"
 
-using namespace std;
-
 CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) 
 : CMIPSCoprocessor(nRegSize)
 , m_nFT(0)
@@ -74,7 +72,7 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* p
 //36
 void CCOP_VU::LQC2()
 {
-    ComputeMemAccessAddr();
+	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
@@ -104,54 +102,54 @@ void CCOP_VU::SQC2()
 //01
 void CCOP_VU::QMFC2()
 {
-    for(unsigned int i = 0; i < 4; i++)
-    {
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFS].nV[i]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[i]));
-    }
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFS].nV[i]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[i]));
+	}
 }
 
 //02
 void CCOP_VU::CFC2()
 {
-    if(m_nFS < 16)
-    {
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nFS]));
-        m_codeGen->PushCst(0xFFFF);
-        m_codeGen->And();
-    }
-    else
-    {
-	    switch(m_nFS)
-	    {
-	    case 18:	//Clipping flag
-            m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
-            break;
-	    case 16:	//STATUS
-	    case 20:	//R
-            assert(0);
-		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
-            break;
-	    case 17:	//MAC flag
+	if(m_nFS < 16)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nFS]));
+		m_codeGen->PushCst(0xFFFF);
+		m_codeGen->And();
+	}
+	else
+	{
+		switch(m_nFS)
+		{
+		case 18:	//Clipping flag
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+			break;
+		case 16:	//STATUS
+		case 20:	//R
+			assert(0);
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
+			break;
+		case 17:	//MAC flag
 #ifdef _DEBUG
-            printf("Warning: Reading contents of MAC flag through CFC2.\r\n");
+			printf("Warning: Reading contents of MAC flag through CFC2.\r\n");
 #endif
-	    case 26:	//TPC
-	    case 28:	//FBRST
-	    case 29:	//VPU-STAT
-		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
-		    break;
-	    case 21:
-		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
-		    break;
-	    case 22:
-		    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2Q));
-		    break;
-	    default:
-		    assert(0);
-		    break;
-	    }
-    }
+		case 26:	//TPC
+		case 28:	//FBRST
+		case 29:	//VPU-STAT
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
+			break;
+		case 21:
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
+			break;
+		case 22:
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2Q));
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	}
 
 	m_codeGen->PushTop();
 	m_codeGen->SignExt();
@@ -162,42 +160,42 @@ void CCOP_VU::CFC2()
 //05
 void CCOP_VU::QMTC2()
 {
-    for(unsigned int i = 0; i < 4; i++)
-    {
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[i]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFS].nV[i]));
-    }
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[i]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFS].nV[i]));
+	}
 }
 
 //06
 void CCOP_VU::CTC2()
 {
-    if(m_nFS < 16)
-    {
-        throw runtime_error("Not implemented.");
-    }
-    else
-    {
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
+	if(m_nFS < 16)
+	{
+		throw std::runtime_error("Not implemented.");
+	}
+	else
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 
-        switch(m_nFS)
-        {
-        case 16:
-            //STATUS - Not implemented
-            m_codeGen->PullTop();
-            break;
-	    case 21:
-		    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
-		    break;
-        case 28:
-            //FBRST - Don't care
-            m_codeGen->PullTop();
-            break;
-        default:
-            throw runtime_error("Not implemented.");
-            break;
-        }
-    }
+		switch(m_nFS)
+		{
+		case 16:
+			//STATUS - Not implemented
+			m_codeGen->PullTop();
+			break;
+		case 21:
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
+			break;
+		case 28:
+			//FBRST - Don't care
+			m_codeGen->PullTop();
+			break;
+		default:
+			throw std::runtime_error("Not implemented.");
+			break;
+		}
+	}
 }
 
 //10-1F
@@ -216,7 +214,7 @@ void CCOP_VU::V()
 //03
 void CCOP_VU::VADDbc()
 {
-	VUShared::ADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::ADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //04
@@ -225,7 +223,7 @@ void CCOP_VU::VADDbc()
 //07
 void CCOP_VU::VSUBbc()
 {
-    VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //08
@@ -234,7 +232,7 @@ void CCOP_VU::VSUBbc()
 //0B
 void CCOP_VU::VMADDbc()
 {
-    VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
 }
 
 //0C
@@ -329,7 +327,7 @@ void CCOP_VU::VMAX()
 //2C
 void CCOP_VU::VSUB()
 {
-	VUShared::SUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::SUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
 }
 
 //2D

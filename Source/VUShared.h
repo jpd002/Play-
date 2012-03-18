@@ -78,7 +78,7 @@ namespace VUShared
 	//Shared instructions
 	void						ABS(CMipsJitter*, uint8, uint8, uint8);
 	void						ADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
-	void						ADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void						ADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						ADDi(CMipsJitter*, uint8, uint8, uint8);
 	void						ADDq(CMipsJitter*, uint8, uint8, uint8);
 	void						ADDA(CMipsJitter*, uint8, uint8, uint8);
@@ -132,8 +132,8 @@ namespace VUShared
 	void						RXOR(CMipsJitter*, uint8, uint8);
 	void						SQI(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SQRT(CMipsJitter*, uint8, uint8, uint32);
-	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8);
-	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
+	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						SUBi(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						WAITQ(CMipsJitter*);
