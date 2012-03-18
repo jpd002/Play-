@@ -23,71 +23,71 @@ using namespace std;
 //REMOVE
 static int nExecTimes = 0;
 
-CVIF::CVIF(CGIF& gif, uint8* ram, uint8* spr, const VPUINIT& vpu0Init, const VPUINIT& vpu1Init) :
-m_gif(gif),
-m_ram(ram),
-m_spr(spr),
-m_VPU_STAT(0),
-m_enabled(true)
+CVIF::CVIF(CGIF& gif, uint8* ram, uint8* spr, const VPUINIT& vpu0Init, const VPUINIT& vpu1Init)
+: m_gif(gif)
+, m_ram(ram)
+, m_spr(spr)
+, m_VPU_STAT(0)
+, m_enabled(true)
 {
-    m_pVPU[0] = new CVPU(*this, 0, vpu0Init);
-    m_pVPU[1] = new CVPU1(*this, 1, vpu1Init);
-    for(unsigned int i = 0; i < 2; i++)
-    {
-        m_stream[i] = new CFifoStream(ram, spr);
-    }
-    Reset();
+	m_pVPU[0] = new CVPU(*this, 0, vpu0Init);
+	m_pVPU[1] = new CVPU1(*this, 1, vpu1Init);
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		m_stream[i] = new CFifoStream(ram, spr);
+	}
+	Reset();
 }
 
 CVIF::~CVIF()
 {
-    for(unsigned int i = 0; i < 2; i++)
-    {
-        delete m_pVPU[i];
-        delete m_stream[i];
-    }
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		delete m_pVPU[i];
+		delete m_stream[i];
+	}
 }
 
 void CVIF::Reset()
 {
-    for(unsigned int i = 0; i < 2; i++)
-    {
-        m_stream[i]->Flush();
-        m_pVPU[i]->Reset();
-    }
-    m_VPU_STAT = 0;
-    m_enabled = true;
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		m_stream[i]->Flush();
+		m_pVPU[i]->Reset();
+	}
+	m_VPU_STAT = 0;
+	m_enabled = true;
 }
 
 void CVIF::SetEnabled(bool enabled)
 {
-    m_enabled = enabled;
+	m_enabled = enabled;
 }
 
 void CVIF::SaveState(CZipArchiveWriter& archive)
 {
-    {
-        CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-        registerFile->SetRegister32(STATE_REGS_VPU_STAT, m_VPU_STAT);
-        archive.InsertFile(registerFile);
-    }
+	{
+		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+		registerFile->SetRegister32(STATE_REGS_VPU_STAT, m_VPU_STAT);
+		archive.InsertFile(registerFile);
+	}
 
-    m_pVPU[0]->SaveState(archive);
-    m_pVPU[1]->SaveState(archive);
+	m_pVPU[0]->SaveState(archive);
+	m_pVPU[1]->SaveState(archive);
 }
 
 void CVIF::LoadState(CZipArchiveReader& archive)
 {
-    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-    m_VPU_STAT = registerFile.GetRegister32(STATE_REGS_VPU_STAT);
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	m_VPU_STAT = registerFile.GetRegister32(STATE_REGS_VPU_STAT);
 
-    m_pVPU[0]->LoadState(archive);
-    m_pVPU[1]->LoadState(archive);
+	m_pVPU[0]->LoadState(archive);
+	m_pVPU[1]->LoadState(archive);
 }
 
 uint32 CVIF::ReceiveDMA0(uint32 address, uint32 qwc, bool tagIncluded)
 {
-    unsigned int vpuNumber = 0;
+	unsigned int vpuNumber = 0;
 
 	if(IsVu0Running() && IsVu0WaitingForProgramEnd())
 	{
@@ -99,17 +99,17 @@ uint32 CVIF::ReceiveDMA0(uint32 address, uint32 qwc, bool tagIncluded)
 
 uint32 CVIF::ReceiveDMA1(uint32 address, uint32 qwc, bool tagIncluded)
 {
-    if(!m_enabled)
-    {
-        return qwc;
-    }
+	if(!m_enabled)
+	{
+		return qwc;
+	}
 
-    unsigned int vpuNumber = 1;
+	unsigned int vpuNumber = 1;
 
-    if(IsVu1Running() && IsVu1WaitingForProgramEnd())
-    {
-        return 0;
-    }
+	if(IsVu1Running() && IsVu1WaitingForProgramEnd())
+	{
+		return 0;
+	}
 
 	return ProcessDMAPacket(1, address, qwc, tagIncluded);
 }
@@ -117,41 +117,41 @@ uint32 CVIF::ReceiveDMA1(uint32 address, uint32 qwc, bool tagIncluded)
 uint32 CVIF::ProcessDMAPacket(unsigned int vpuNumber, uint32 address, uint32 qwc, bool tagIncluded)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = 0x%X, tagIncluded = %i\r\n",
-        vpuNumber, address, qwc, static_cast<int>(tagIncluded));
+	CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = 0x%X, tagIncluded = %i\r\n",
+		vpuNumber, address, qwc, static_cast<int>(tagIncluded));
 #endif
 
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_VIFZONE);
 #endif
 
-    m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
-    if(tagIncluded)
-    {
-        m_stream[vpuNumber]->Read(NULL, 8);
-    }
+	m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
+	if(tagIncluded)
+	{
+		m_stream[vpuNumber]->Read(NULL, 8);
+	}
 
-    m_pVPU[vpuNumber]->ProcessPacket(*m_stream[vpuNumber]);
+	m_pVPU[vpuNumber]->ProcessPacket(*m_stream[vpuNumber]);
 
 #ifdef PROFILE
 	CProfiler::GetInstance().EndZone();
 #endif
 
-    uint32 remainingSize = m_stream[vpuNumber]->GetAvailableReadQwords();
-    assert((remainingSize & 0x0F) == 0);
-    remainingSize /= 0x10;
+	uint32 remainingSize = m_stream[vpuNumber]->GetAvailableReadQwords();
+	assert((remainingSize & 0x0F) == 0);
+	remainingSize /= 0x10;
 
 	return qwc - remainingSize;
 }
 
 uint32 CVIF::GetITop0() const
 {
-    return m_pVPU[0]->GetITOP();
+	return m_pVPU[0]->GetITOP();
 }
 
 uint32 CVIF::GetITop1() const
 {
-    return m_pVPU[1]->GetITOP();
+	return m_pVPU[1]->GetITOP();
 }
 
 uint32 CVIF::GetTop1() const
@@ -161,10 +161,10 @@ uint32 CVIF::GetTop1() const
 
 void CVIF::StopVU(CMIPS* pCtx)
 {
-    if(pCtx == &m_pVPU[1]->GetContext())
-    {
+	if(pCtx == &m_pVPU[1]->GetContext())
+	{
 		m_VPU_STAT &= ~STAT_VBS1;
-    }
+	}
 }
 
 void CVIF::ProcessXGKICK(uint32 nAddress)
@@ -184,7 +184,7 @@ void CVIF::StartVu0MicroProgram(uint32 address)
 
 bool CVIF::IsVu0Running() const
 {
-    return m_pVPU[0]->IsRunning();
+	return m_pVPU[0]->IsRunning();
 }
 
 bool CVIF::IsVu1Running() const
@@ -194,12 +194,12 @@ bool CVIF::IsVu1Running() const
 
 bool CVIF::IsVu0WaitingForProgramEnd() const
 {
-    return m_pVPU[0]->IsWaitingForProgramEnd();
+	return m_pVPU[0]->IsWaitingForProgramEnd();
 }
 
 bool CVIF::IsVu1WaitingForProgramEnd() const
 {
-    return m_pVPU[1]->IsWaitingForProgramEnd();
+	return m_pVPU[1]->IsWaitingForProgramEnd();
 }
 
 void CVIF::ExecuteVu0(bool singleStep)
@@ -222,22 +222,22 @@ bool CVIF::MustVu1Break() const
 
 uint8* CVIF::GetRam() const
 {
-    return m_ram;
+	return m_ram;
 }
 
 CGIF& CVIF::GetGif() const
 {
-    return m_gif;
+	return m_gif;
 }
 
 uint32 CVIF::GetStat() const
 {
-    return m_VPU_STAT;
+	return m_VPU_STAT;
 }
 
 void CVIF::SetStat(uint32 stat)
 {
-    m_VPU_STAT = stat;
+	m_VPU_STAT = stat;
 }
 
 
@@ -260,43 +260,43 @@ CVIF::CFifoStream::~CFifoStream()
 
 void CVIF::CFifoStream::Read(void* buffer, uint32 size)
 {
-    assert(m_source != NULL);
-    uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
-    while(size != 0)
-    {
-        SyncBuffer();
-        uint32 read = min<uint32>(size, BUFFERSIZE - m_position);
-        if(readBuffer != NULL)
-        {
-            memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_position, read);
-            readBuffer += read;
-        }
-        m_position += read;
-        size -= read;
-    }
+	assert(m_source != NULL);
+	uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
+	while(size != 0)
+	{
+		SyncBuffer();
+		uint32 read = min<uint32>(size, BUFFERSIZE - m_position);
+		if(readBuffer != NULL)
+		{
+			memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_position, read);
+			readBuffer += read;
+		}
+		m_position += read;
+		size -= read;
+	}
 }
 
 void CVIF::CFifoStream::Flush()
 {
-    m_position = BUFFERSIZE;
+	m_position = BUFFERSIZE;
 }
 
 void CVIF::CFifoStream::SetDmaParams(uint32 address, uint32 qwc)
 {
-    if(address & 0x80000000)
-    {
-        m_source = m_spr;
-        m_address = address & (PS2::SPRSIZE - 1);
-        assert((m_address + qwc) <= PS2::SPRSIZE);
-    }
-    else
-    {
-        m_source = m_ram;
-        m_address = address & (PS2::EERAMSIZE - 1);
-    }
-    m_nextAddress = m_address;
-    m_endAddress = m_address + qwc;
-    SyncBuffer();
+	if(address & 0x80000000)
+	{
+		m_source = m_spr;
+		m_address = address & (PS2::SPRSIZE - 1);
+		assert((m_address + qwc) <= PS2::SPRSIZE);
+	}
+	else
+	{
+		m_source = m_ram;
+		m_address = address & (PS2::EERAMSIZE - 1);
+	}
+	m_nextAddress = m_address;
+	m_endAddress = m_address + qwc;
+	SyncBuffer();
 }
 
 uint32 CVIF::CFifoStream::GetAddress() const
@@ -306,7 +306,7 @@ uint32 CVIF::CFifoStream::GetAddress() const
 
 uint32 CVIF::CFifoStream::GetAvailableReadBytes() const
 {
-    return m_endAddress - GetAddress();
+	return m_endAddress - GetAddress();
 }
 
 uint32 CVIF::CFifoStream::GetAvailableReadQwords() const
@@ -316,23 +316,23 @@ uint32 CVIF::CFifoStream::GetAvailableReadQwords() const
 
 void CVIF::CFifoStream::Align32()
 {
-    unsigned int remainBytes = GetAddress() & 0x03;
-    if(remainBytes == 0) return;
-    Read(NULL, 4 - remainBytes);
-    assert((GetAddress() & 0x03) == 0);
+	unsigned int remainBytes = GetAddress() & 0x03;
+	if(remainBytes == 0) return;
+	Read(NULL, 4 - remainBytes);
+	assert((GetAddress() & 0x03) == 0);
 }
 
 void CVIF::CFifoStream::SyncBuffer()
 {
-    if(m_position >= BUFFERSIZE)
-    {
-        if(m_nextAddress >= m_endAddress)
-        {
-            throw exception();
-        }
-        m_address = m_nextAddress;
-        m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
-        m_nextAddress += 0x10;
-        m_position = 0;
-    }
+	if(m_position >= BUFFERSIZE)
+	{
+		if(m_nextAddress >= m_endAddress)
+		{
+			throw exception();
+		}
+		m_address = m_nextAddress;
+		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
+		m_nextAddress += 0x10;
+		m_position = 0;
+	}
 }
