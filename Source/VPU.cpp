@@ -163,6 +163,7 @@ void CVPU::ProcessPacket(StreamType& stream)
 			m_STAT.nVEW = 0;
 			//Command is waiting for micro-program to end.
 			ExecuteCommand(stream, m_CODE);
+			continue;
 		}
 
 		stream.Read(&m_CODE, sizeof(CODE));
