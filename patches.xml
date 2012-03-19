@@ -22,4 +22,15 @@
 		<Patch Address="0x0011F52C" Value="0x00000000" Description="Redirect calls from trace stub to real printf" />
 		<Patch Address="0x00119C84" Value="0x00000000" Description="Cancels movie playing." />
 	</Executable>
+	
+	<Executable Name="SLUS_201.94;1" Title="Grandia 2" Region="US">
+		<Patch Address="0x0025FC24" Value="0x00000000" Description="Nullify spin wait" />
+		<Patch Address="0x0025FC3C" Value="0x00000000" Description="Nullify spin wait" />
+		<Patch Address="0x0025FC48" Value="0x00000000" Description="Nullify spin wait" />
+		<Patch Address="0x002751B4" Value="0x00000000" Description="Nullify spin wait" />
+
+		<Patch Address="0x00288238" Value="0x03E00008" Description="sceMpegGetPicture returns -1" />
+		<Patch Address="0x0028823C" Value="0x3C02FFFF" Description="sceMpegGetPicture returns -1" />
+	</Executable>
+
 </Patches>
