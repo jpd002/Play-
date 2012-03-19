@@ -85,21 +85,6 @@
     <ClCompile Include="..\Source\MA_MIPSIV_Templates.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\MA_VU.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Lower.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_LowerReflection.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Upper.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_UpperReflection.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\MailBox.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -568,6 +553,21 @@
     <ClCompile Include="..\Source\win32ui\RegViewWnd.cpp">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\MA_VU_Lower.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_VU_UpperReflection.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_VU_LowerReflection.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_VU_Upper.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_VU.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -604,9 +604,6 @@
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MA_MIPSIV.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MA_VU.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MailBox.h">
@@ -1103,6 +1100,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewWnd.h">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MA_VU.h">
+      <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

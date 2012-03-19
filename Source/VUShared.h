@@ -72,6 +72,7 @@ namespace VUShared
 
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
+	void						SUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
 	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 
@@ -135,6 +136,7 @@ namespace VUShared
 	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						SUBi(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						SUBA(CMipsJitter*, uint8, uint8, uint8);
 	void						SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						WAITQ(CMipsJitter*);
 

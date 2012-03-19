@@ -99,6 +99,7 @@ private:
 		void								ITOF0();
 		void								FTOI0();
 		void								ADDA();
+		void								SUBA();
 
 		//Vector 1
 		void								ITOF4();
