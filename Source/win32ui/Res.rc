@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -46,7 +44,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -54,17 +52,15 @@ END
 // French (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-#ifdef _WIN32
 LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_DEBUGGER MENU 
+IDR_DEBUGGER MENU
 BEGIN
     POPUP "&Virtual Machine"
     BEGIN
@@ -85,7 +81,8 @@ BEGIN
             MENUITEM "64-bit Addition Operations Test", ID_VM_TEST_ADD64
             MENUITEM "SLT Operations Test",         ID_VM_TEST_SLT
         END
-        MENUITEM "Re-analyze EE executable",    ID_VM_REANALYZE_EE
+        MENUITEM "Re-analyze EE Executable",    ID_VM_REANALYZE_EE
+        MENUITEM "Find Common EE Functions",    ID_VM_FINDEEFUNCTIONS
     END
     POPUP "&View"
     BEGIN
@@ -123,7 +120,7 @@ BEGIN
     END
 END
 
-IDR_MAINWINDOW MENU 
+IDR_MAINWINDOW MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -207,10 +204,8 @@ IDC_GRABBING            CURSOR                  "images\\grabbing.cur"
 // English (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //

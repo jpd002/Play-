@@ -538,9 +538,7 @@ void CPS2OS::ApplyPatches()
 		if(!strcmp(sName, GetExecutableName()))
 		{
 			//Found the right executable
-			unsigned int nPatchCount;
-
-			nPatchCount = 0;
+			unsigned int nPatchCount = 0;
 
 			for(Framework::Xml::CFilteringNodeIterator itNode(pExecutable, "Patch"); !itNode.IsEnd(); itNode++)
 			{

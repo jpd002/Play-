@@ -28,7 +28,7 @@ private:
 		DEBUGVIEW_EE	= 0,
 		DEBUGVIEW_VU0,
 		DEBUGVIEW_VU1,
-        DEBUGVIEW_IOP,
+		DEBUGVIEW_IOP,
 		DEBUGVIEW_MAX,
 	};
 
@@ -51,11 +51,12 @@ private:
 	void							FindValue();
 	void							AssembleJAL();
 	void							ReanalyzeEe();
+	void							FindEeFunctions();
 	void							Layout1024();
 	void							Layout1280();
-    void                            Layout1600();
-    void                            LoadDebugTags();
-    void                            SaveDebugTags();
+	void							Layout1600();
+	void							LoadDebugTags();
+	void							SaveDebugTags();
 
 	//View related functions
 	void							ActivateView(unsigned int);
@@ -69,10 +70,10 @@ private:
 	CRegViewWnd*					GetRegisterViewWindow();
 	CCallStackWnd*					GetCallStackWindow();
 
-    //Event handlers
+	//Event handlers
 	void							OnFunctionViewFunctionDblClick(uint32);
 	void							OnFunctionViewFunctionsStateChange();
-    void                            OnTestEngineViewTestCaseLoad(uint32);
+	void							OnTestEngineViewTestCaseLoad(uint32);
 	void							OnEventViewEventDblClick(uint32);
 	void							OnExecutableChange();
 	void							OnExecutableUnloading();
@@ -81,16 +82,16 @@ private:
 	void							OnExecutableChangeMsg();
 	void							OnExecutableUnloadingMsg();
 
-    void                            ImportOldenTagsFile(const char*, CMIPSTags&);
+	void							ImportOldenTagsFile(const char*, CMIPSTags&);
 
-    HACCEL							m_nAccTable;
+	HACCEL							m_nAccTable;
 
 	CELFView*						m_pELFView;
 	CFunctionsView*					m_pFunctionsView;
 	COsEventViewWnd*				m_pOsEventView;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
 	unsigned int					m_nCurrentView;
-    CPS2VM&                         m_virtualMachine;
+	CPS2VM&							m_virtualMachine;
 };
 
 #endif

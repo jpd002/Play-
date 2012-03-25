@@ -568,6 +568,9 @@
     <ClCompile Include="..\Source\MA_VU.cpp">
       <Filter>Source Files\Core\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\MipsFunctionPatternDb.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1104,6 +1107,9 @@
     <ClInclude Include="..\Source\MA_VU.h">
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\MipsFunctionPatternDb.h">
+      <Filter>Source Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\win32ui\manifest.xml">
@@ -1113,6 +1119,15 @@
       <Filter>Source Files\Win32 UI</Filter>
     </None>
     <None Include="..\Source\License.txt" />
+    <None Include="..\Source\win32ui\Images\arrow.bmp" />
+    <None Include="..\Source\win32ui\Images\bpoint.bmp" />
+    <None Include="..\Source\win32ui\Images\exd.bmp" />
+    <None Include="..\Source\win32ui\Images\ex.bmp" />
+    <None Include="..\Source\win32ui\Images\purei.ico" />
+    <None Include="..\Source\shaders\TexClamp.vert" />
+    <None Include="..\Source\shaders\TexClamp.frag" />
+    <None Include="..\Source\win32ui\images\grab.cur" />
+    <None Include="..\Source\win32ui\images\grabbing.cur" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Source\win32ui\Res.rc">
