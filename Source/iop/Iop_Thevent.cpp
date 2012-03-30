@@ -4,11 +4,10 @@
 #define LOG_NAME ("iop_thevent")
 
 using namespace Iop;
-using namespace std;
 
-CThevent::CThevent(CIopBios& bios, uint8* ram) :
-m_bios(bios),
-m_ram(ram)
+CThevent::CThevent(CIopBios& bios, uint8* ram) 
+: m_bios(bios)
+, m_ram(ram)
 {
 
 }
@@ -18,29 +17,29 @@ CThevent::~CThevent()
 
 }
 
-string CThevent::GetId() const
+std::string CThevent::GetId() const
 {
-    return "thevent";
+	return "thevent";
 }
 
-string CThevent::GetFunctionName(unsigned int functionId) const
+std::string CThevent::GetFunctionName(unsigned int functionId) const
 {
 	return "unknown";
 }
 
 void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 {
-    switch(functionId)
-    {
-    case 4:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(
-            CreateEventFlag(reinterpret_cast<EVENT*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]))
-            );
-        break;
-    default:
+	switch(functionId)
+	{
+	case 4:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(
+			CreateEventFlag(reinterpret_cast<EVENT*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]))
+			);
+		break;
+	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (%0.8X).\r\n", functionId, context.m_State.nPC);
-        break;
-    }
+		break;
+	}
 }
 
 uint32 CThevent::CreateEventFlag(EVENT* eventPtr)
