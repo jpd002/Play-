@@ -21,22 +21,22 @@ public:
 		uint32						nOptional;
 	};
 
-                                    CSIF(CDMAC&, uint8*, uint8*);
-    virtual                         ~CSIF();
+									CSIF(CDMAC&, uint8*, uint8*);
+	virtual							~CSIF();
 
 	void							Reset();
 	
-    void                            ProcessPackets();
+	void							ProcessPackets();
 
-    void                            RegisterModule(uint32, CSifModule*);
-    void                            UnregisterModule(uint32);
-    void                            SetDmaBuffer(uint32, uint32);
-    void                            SendCallReply(uint32, void*);
+	void							RegisterModule(uint32, CSifModule*);
+	void							UnregisterModule(uint32);
+	void							SetDmaBuffer(uint32, uint32);
+	void							SendCallReply(uint32, void*);
 
-    uint32                          ReceiveDMA5(uint32, uint32, uint32, bool);
+	uint32							ReceiveDMA5(uint32, uint32, uint32, bool);
 	uint32							ReceiveDMA6(uint32, uint32, uint32, bool);
 
-    void                            SendPacket(void*, uint32);
+	void							SendPacket(void*, uint32);
 
 	void							SendDMA(void*, uint32);
 
@@ -118,26 +118,26 @@ private:
 		uint32						nValue;
 	};
 
-    struct CALLREQUESTINFO
-    {
-        RPCCALL                     call;
-        RPCREQUESTEND               reply;
-    };
+	struct CALLREQUESTINFO
+	{
+		RPCCALL						call;
+		RPCREQUESTEND				reply;
+	};
 
-    typedef std::map<uint32, CSifModule*> ModuleMap;
-    typedef std::vector<uint8> PacketQueue;
-    typedef std::map<uint32, CALLREQUESTINFO> CallReplyMap;
-    typedef std::map<uint32, RPCREQUESTEND> BindReplyMap;
+	typedef std::map<uint32, CSifModule*> ModuleMap;
+	typedef std::vector<uint8> PacketQueue;
+	typedef std::map<uint32, CALLREQUESTINFO> CallReplyMap;
+	typedef std::map<uint32, RPCREQUESTEND> BindReplyMap;
 
-    void							DeleteModules();
+	void							DeleteModules();
 
-    void                            SaveState_Header(const std::string&, CStructFile&, const PACKETHDR&);
-    void                            SaveState_RpcCall(CStructFile&, const RPCCALL&);
-    void                            SaveState_RequestEnd(CStructFile&, const RPCREQUESTEND&);
+	void							SaveState_Header(const std::string&, CStructFile&, const PACKETHDR&);
+	void							SaveState_RpcCall(CStructFile&, const RPCCALL&);
+	void							SaveState_RequestEnd(CStructFile&, const RPCREQUESTEND&);
 
-    void                            LoadState_Header(const std::string&, const CStructFile&, PACKETHDR&);
-    void                            LoadState_RpcCall(const CStructFile&, RPCCALL&);
-    void                            LoadState_RequestEnd(const CStructFile&, RPCREQUESTEND&);
+	void							LoadState_Header(const std::string&, const CStructFile&, PACKETHDR&);
+	void							LoadState_RpcCall(const CStructFile&, RPCCALL&);
+	void							LoadState_RequestEnd(const CStructFile&, RPCREQUESTEND&);
 
 	void							Cmd_SetEERecvAddr(PACKETHDR*);
 	void							Cmd_Initialize(PACKETHDR*);
@@ -145,11 +145,11 @@ private:
 	void							Cmd_Call(PACKETHDR*);
 	void							Cmd_GetOtherData(PACKETHDR*);
 
-    uint8*                          m_eeRam;
-    uint8*                          m_iopRam;
-    uint8*                          m_dmaBuffer;
-    uint32                          m_dmaBufferSize;
-    CDMAC&                          m_dmac;
+	uint8*							m_eeRam;
+	uint8*							m_iopRam;
+	uint8*							m_dmaBuffer;
+	uint32							m_dmaBufferSize;
+	CDMAC&							m_dmac;
 
 	uint32							m_nMAINADDR;
 	uint32							m_nSUBADDR;
@@ -161,10 +161,10 @@ private:
 
 	uint32							m_nUserReg[MAX_USERREG];
 
-	ModuleMap	                    m_modules;
-    PacketQueue                     m_packetQueue;
-    CallReplyMap                    m_callReplies;
-    BindReplyMap                    m_bindReplies;
+	ModuleMap						m_modules;
+	PacketQueue						m_packetQueue;
+	CallReplyMap					m_callReplies;
+	BindReplyMap					m_bindReplies;
 };
 
 #endif

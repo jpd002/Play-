@@ -11,55 +11,52 @@
 #define		CMD_RECVADDR		(CIopBios::CONTROL_BLOCK_END)
 #define		RPC_RECVADDR		0xDEADBEEF
 
-#define LOG_NAME        ("sif")
+#define LOG_NAME					("sif")
 
-#define STATE_REGS_XML              ("sif/regs.xml")
-#define STATE_CALL_REPLIES_XML      ("sif/call_replies.xml")
+#define STATE_REGS_XML				("sif/regs.xml")
+#define STATE_CALL_REPLIES_XML		("sif/call_replies.xml")
 
 #ifdef	PROFILE
 #define	PROFILE_SIFZONE "SIF"
 #endif
 
-#define STATE_PACKET_HEADER_SIZE                ("Packet_Header_Size")
-#define STATE_PACKET_HEADER_DEST                ("Packet_Header_Dest")
-#define STATE_PACKET_HEADER_CID                 ("Packet_Header_CId")
-#define STATE_PACKET_HEADER_OPTIONAL            ("Packet_Header_Optional")
+#define STATE_PACKET_HEADER_SIZE				("Packet_Header_Size")
+#define STATE_PACKET_HEADER_DEST				("Packet_Header_Dest")
+#define STATE_PACKET_HEADER_CID					("Packet_Header_CId")
+#define STATE_PACKET_HEADER_OPTIONAL			("Packet_Header_Optional")
 
-#define STATE_PACKET_CALL_RECORDID              ("Packet_Call_RecordId")
-#define STATE_PACKET_CALL_PACKETADDR            ("Packet_Call_PacketAddr")
-#define STATE_PACKET_CALL_RPCID                 ("Packet_Call_RpcId")
-#define STATE_PACKET_CALL_CLIENTDATAADDR        ("Packet_Call_ClientDataAddr")
-#define STATE_PACKET_CALL_RPCNUMBER             ("Packet_Call_RPCNumber")
-#define STATE_PACKET_CALL_SENDSIZE              ("Packet_Call_SendSize")
-#define STATE_PACKET_CALL_RECV                  ("Packet_Call_Recv")
-#define STATE_PACKET_CALL_RECVSIZE              ("Packet_Call_RecvSize")
-#define STATE_PACKET_CALL_RECVMODE              ("Packet_Call_RecvMode")
-#define STATE_PACKET_CALL_SERVERDATAADDR        ("Packet_Call_ServerDataAddr")
+#define STATE_PACKET_CALL_RECORDID				("Packet_Call_RecordId")
+#define STATE_PACKET_CALL_PACKETADDR			("Packet_Call_PacketAddr")
+#define STATE_PACKET_CALL_RPCID					("Packet_Call_RpcId")
+#define STATE_PACKET_CALL_CLIENTDATAADDR		("Packet_Call_ClientDataAddr")
+#define STATE_PACKET_CALL_RPCNUMBER				("Packet_Call_RPCNumber")
+#define STATE_PACKET_CALL_SENDSIZE				("Packet_Call_SendSize")
+#define STATE_PACKET_CALL_RECV					("Packet_Call_Recv")
+#define STATE_PACKET_CALL_RECVSIZE				("Packet_Call_RecvSize")
+#define STATE_PACKET_CALL_RECVMODE				("Packet_Call_RecvMode")
+#define STATE_PACKET_CALL_SERVERDATAADDR		("Packet_Call_ServerDataAddr")
 
-#define STATE_PACKET_REQUEST_END_RECORDID       ("Packet_Request_End_RecordId")
-#define STATE_PACKET_REQUEST_END_PACKETADDR     ("Packet_Request_End_PacketAddr")
-#define STATE_PACKET_REQUEST_END_RPCID          ("Packet_Request_End_RpcId")
-#define STATE_PACKET_REQUEST_END_CLIENTDATAADDR ("Packet_Request_End_ClientDataAddr")
-#define STATE_PACKET_REQUEST_END_CID            ("Packet_Request_End_CId")
-#define STATE_PACKET_REQUEST_END_SERVERDATAADDR ("Packet_Request_End_ServerDataAddr")
-#define STATE_PACKET_REQUEST_END_BUFFER         ("Packet_Request_End_Buffer")
-#define STATE_PACKET_REQUEST_END_CLIENTBUFFER   ("Packet_Request_End_ClientBuffer")
+#define STATE_PACKET_REQUEST_END_RECORDID		("Packet_Request_End_RecordId")
+#define STATE_PACKET_REQUEST_END_PACKETADDR		("Packet_Request_End_PacketAddr")
+#define STATE_PACKET_REQUEST_END_RPCID			("Packet_Request_End_RpcId")
+#define STATE_PACKET_REQUEST_END_CLIENTDATAADDR	("Packet_Request_End_ClientDataAddr")
+#define STATE_PACKET_REQUEST_END_CID			("Packet_Request_End_CId")
+#define STATE_PACKET_REQUEST_END_SERVERDATAADDR	("Packet_Request_End_ServerDataAddr")
+#define STATE_PACKET_REQUEST_END_BUFFER			("Packet_Request_End_Buffer")
+#define STATE_PACKET_REQUEST_END_CLIENTBUFFER	("Packet_Request_End_ClientBuffer")
 
-using namespace Framework;
-using namespace std;
-
-CSIF::CSIF(CDMAC& dmac, uint8* eeRam, uint8* iopRam) :
-m_nMAINADDR(0),
-m_nSUBADDR(0),
-m_nMSFLAG(0),
-m_nSMFLAG(0),
-m_nEERecvAddr(0),
-m_nDataAddr(0),
-m_dmac(dmac),
-m_eeRam(eeRam),
-m_iopRam(iopRam),
-m_dmaBuffer(NULL),
-m_dmaBufferSize(0)
+CSIF::CSIF(CDMAC& dmac, uint8* eeRam, uint8* iopRam)
+: m_nMAINADDR(0)
+, m_nSUBADDR(0)
+, m_nMSFLAG(0)
+, m_nSMFLAG(0)
+, m_nEERecvAddr(0)
+, m_nDataAddr(0)
+, m_dmac(dmac)
+, m_eeRam(eeRam)
+, m_iopRam(iopRam)
+, m_dmaBuffer(NULL)
+, m_dmaBufferSize(0)
 {
 
 }
@@ -80,49 +77,49 @@ void CSIF::Reset()
 
 	memset(m_nUserReg, 0, sizeof(uint32) * MAX_USERREG);
 
-    m_packetQueue.clear();
-    m_callReplies.clear();
-    m_bindReplies.clear();
+	m_packetQueue.clear();
+	m_callReplies.clear();
+	m_bindReplies.clear();
 
 	DeleteModules();
 }
 
 void CSIF::SetDmaBuffer(uint32 bufferAddress, uint32 size)
 {
-    m_dmaBuffer = m_iopRam + bufferAddress;
-    m_dmaBufferSize = size;
+	m_dmaBuffer = m_iopRam + bufferAddress;
+	m_dmaBufferSize = size;
 }
 
 void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
 {
-    m_modules[moduleId] = module;
+	m_modules[moduleId] = module;
 
-    BindReplyMap::iterator replyIterator(m_bindReplies.find(moduleId));
-    if(replyIterator != m_bindReplies.end())
-    {
-        SendPacket(&(replyIterator->second), sizeof(RPCREQUESTEND));
-        m_bindReplies.erase(replyIterator);
-    }
+	BindReplyMap::iterator replyIterator(m_bindReplies.find(moduleId));
+	if(replyIterator != m_bindReplies.end())
+	{
+		SendPacket(&(replyIterator->second), sizeof(RPCREQUESTEND));
+		m_bindReplies.erase(replyIterator);
+	}
 }
 
 void CSIF::UnregisterModule(uint32 moduleId)
 {
-    m_modules.erase(moduleId);
+	m_modules.erase(moduleId);
 }
 
 void CSIF::DeleteModules()
 {
-    m_modules.clear();
+	m_modules.clear();
 }
 
 uint32 CSIF::ReceiveDMA5(uint32 srcAddress, uint32 size, uint32 unused, bool isTagIncluded)
 {
-    if(size > m_dmaBufferSize)
-    {
-        throw runtime_error("Packet too big.");
-    }
-    memcpy(m_eeRam + srcAddress, m_dmaBuffer, size);
-    return size;
+	if(size > m_dmaBufferSize)
+	{
+		throw std::runtime_error("Packet too big.");
+	}
+	memcpy(m_eeRam + srcAddress, m_dmaBuffer, size);
+	return size;
 }
 
 uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool isTagIncluded)
@@ -132,7 +129,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	CProfiler::GetInstance().BeginZone(PROFILE_SIFZONE);
 #endif
 
-    assert(!isTagIncluded);
+	assert(!isTagIncluded);
 
 	//Humm, this is kinda odd, but it ors the address with 0x20000000
 	nSrcAddr &= (PS2::EERAMSIZE - 1);
@@ -148,12 +145,12 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 #endif
 		return nSize;
 	}
-    else if(nDstAddr == CMD_RECVADDR)
-    {
-	    PACKETHDR* pHDR = (PACKETHDR*)(m_eeRam + nSrcAddr);
+	else if(nDstAddr == CMD_RECVADDR)
+	{
+		PACKETHDR* pHDR = (PACKETHDR*)(m_eeRam + nSrcAddr);
 
-	    //This is kinda odd...
-	    //plasma_tunnel.elf does this
+		//This is kinda odd...
+		//plasma_tunnel.elf does this
 /*
 	    if((pHDR->nCID & 0xFF000000) == 0x08000000)
 	    {
@@ -161,22 +158,22 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 		    pHDR->nCID |= 0x80000000;
 	    }
 */
-        CLog::GetInstance().Print(LOG_NAME, "Received command 0x%0.8X.\r\n", pHDR->nCID);
+		CLog::GetInstance().Print(LOG_NAME, "Received command 0x%0.8X.\r\n", pHDR->nCID);
 
-	    switch(pHDR->nCID)
-	    {
-	    case 0x80000000:
-		    Cmd_SetEERecvAddr(pHDR);
-		    break;
-	    case SIF_CMD_INIT:
-		    Cmd_Initialize(pHDR);
-		    break;
-	    case SIF_CMD_BIND:
-		    Cmd_Bind(pHDR);
-		    break;
-	    case SIF_CMD_CALL:
-		    Cmd_Call(pHDR);
-		    break;
+		switch(pHDR->nCID)
+		{
+		case 0x80000000:
+			Cmd_SetEERecvAddr(pHDR);
+			break;
+		case SIF_CMD_INIT:
+			Cmd_Initialize(pHDR);
+			break;
+		case SIF_CMD_BIND:
+			Cmd_Bind(pHDR);
+			break;
+		case SIF_CMD_CALL:
+			Cmd_Call(pHDR);
+			break;
 		case SIF_CMD_OTHERDATA:
 			Cmd_GetOtherData(pHDR);
 			break;
@@ -191,58 +188,58 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 				SendPacket(&header, sizeof(PACKETHDR));
 			}
 			break;
-	    }
+		}
 
 #ifdef PROFILE
-	    CProfiler::GetInstance().EndZone();
+		CProfiler::GetInstance().EndZone();
 #endif
 
-	    return nSize;
-    }
-    else
-    {
-        assert(nDstAddr < PS2::IOP_RAM_SIZE);
-        if(nDstAddr >= 0 && nDstAddr <= CMD_RECVADDR)
-        {
-            CLog::GetInstance().Print(LOG_NAME, "Warning: Trying to DMA in Bios Control Area.\r\n");
-        }
-        else
-        {
-            memcpy(m_iopRam + nDstAddr, m_eeRam + nSrcAddr, nSize);
-        }
-        return nSize;
-    }
+		return nSize;
+	}
+	else
+	{
+		assert(nDstAddr < PS2::IOP_RAM_SIZE);
+		if(nDstAddr >= 0 && nDstAddr <= CMD_RECVADDR)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Trying to DMA in Bios Control Area.\r\n");
+		}
+		else
+		{
+			memcpy(m_iopRam + nDstAddr, m_eeRam + nSrcAddr, nSize);
+		}
+		return nSize;
+	}
 }
 
 void CSIF::SendPacket(void* packet, uint32 size)
 {
-    m_packetQueue.insert(m_packetQueue.begin(), 
-        reinterpret_cast<uint8*>(packet), 
-        reinterpret_cast<uint8*>(packet) + size);
-    m_packetQueue.insert(m_packetQueue.begin(),
-        reinterpret_cast<uint8*>(&size),
-        reinterpret_cast<uint8*>(&size) + 4);
+	m_packetQueue.insert(m_packetQueue.begin(), 
+		reinterpret_cast<uint8*>(packet), 
+		reinterpret_cast<uint8*>(packet) + size);
+	m_packetQueue.insert(m_packetQueue.begin(),
+		reinterpret_cast<uint8*>(&size),
+		reinterpret_cast<uint8*>(&size) + 4);
 }
 
 void CSIF::ProcessPackets()
 {
-    if(m_packetQueue.size() != 0)
-    {
-        assert(m_packetQueue.size() > 4);
-        uint32 size = *reinterpret_cast<uint32*>(&m_packetQueue[0]);
-        SendDMA(&m_packetQueue[4], size);
-        m_packetQueue.erase(m_packetQueue.begin(), m_packetQueue.begin() + 4 + size);
-    }
+	if(m_packetQueue.size() != 0)
+	{
+		assert(m_packetQueue.size() > 4);
+		uint32 size = *reinterpret_cast<uint32*>(&m_packetQueue[0]);
+		SendDMA(&m_packetQueue[4], size);
+		m_packetQueue.erase(m_packetQueue.begin(), m_packetQueue.begin() + 4 + size);
+	}
 }
 
 void CSIF::SendDMA(void* pData, uint32 nSize)
 {
 	//Humm, the DMAC doesn't know about our addresses on this side...
 
-    if(nSize > m_dmaBufferSize)
-    {
-        throw runtime_error("Packet too big.");
-    }
+	if(nSize > m_dmaBufferSize)
+	{
+		throw std::runtime_error("Packet too big.");
+	}
 
 	memcpy(m_dmaBuffer, pData, nSize);
 	uint32 nQuads = (nSize + 0x0F) / 0x10;
@@ -252,132 +249,132 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 	m_dmac.SetRegister(CDMAC::D5_CHCR, 0x00000100);
 }
 
-void CSIF::LoadState(CZipArchiveReader& archive)
+void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 {
-    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-    m_nMAINADDR     = registerFile.GetRegister32("MAINADDR");
-    m_nSUBADDR      = registerFile.GetRegister32("SUBADDR");
-    m_nMSFLAG       = registerFile.GetRegister32("MSFLAG");
-    m_nSMFLAG       = registerFile.GetRegister32("SMFLAG");
-    m_nEERecvAddr   = registerFile.GetRegister32("EERecvAddr");
-    m_nDataAddr     = registerFile.GetRegister32("DataAddr");
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	m_nMAINADDR     = registerFile.GetRegister32("MAINADDR");
+	m_nSUBADDR      = registerFile.GetRegister32("SUBADDR");
+	m_nMSFLAG       = registerFile.GetRegister32("MSFLAG");
+	m_nSMFLAG       = registerFile.GetRegister32("SMFLAG");
+	m_nEERecvAddr   = registerFile.GetRegister32("EERecvAddr");
+	m_nDataAddr     = registerFile.GetRegister32("DataAddr");
 
-    {
-        CStructCollectionStateFile callRepliesFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
-        for(CStructCollectionStateFile::StructIterator callReplyIterator(callRepliesFile.GetStructBegin());
-            callReplyIterator != callRepliesFile.GetStructEnd(); callReplyIterator++)
-        {
-            const CStructFile& structFile(callReplyIterator->second);
-            uint32 replyId = lexical_cast_hex<string>(callReplyIterator->first);
-            CALLREQUESTINFO callReply;
-            LoadState_RpcCall(structFile, callReply.call); 
-            LoadState_RequestEnd(structFile, callReply.reply);
-            m_callReplies[replyId] = callReply;
-        }
-    }
+	{
+		CStructCollectionStateFile callRepliesFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
+		for(CStructCollectionStateFile::StructIterator callReplyIterator(callRepliesFile.GetStructBegin());
+			callReplyIterator != callRepliesFile.GetStructEnd(); callReplyIterator++)
+		{
+			const CStructFile& structFile(callReplyIterator->second);
+			uint32 replyId = lexical_cast_hex<std::string>(callReplyIterator->first);
+			CALLREQUESTINFO callReply;
+			LoadState_RpcCall(structFile, callReply.call); 
+			LoadState_RequestEnd(structFile, callReply.reply);
+			m_callReplies[replyId] = callReply;
+		}
+	}
 }
 
-void CSIF::SaveState(CZipArchiveWriter& archive)
+void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
-    {
-        CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-        registerFile->SetRegister32("MAINADDR",     m_nMAINADDR);
-        registerFile->SetRegister32("SUBADDR",      m_nSUBADDR);
-        registerFile->SetRegister32("MSFLAG",       m_nMSFLAG);
-        registerFile->SetRegister32("SMFLAG",       m_nSMFLAG);
-        registerFile->SetRegister32("EERecvAddr",   m_nEERecvAddr);
-        registerFile->SetRegister32("DataAddr",     m_nDataAddr);
-        archive.InsertFile(registerFile);
-    }
+	{
+		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+		registerFile->SetRegister32("MAINADDR",     m_nMAINADDR);
+		registerFile->SetRegister32("SUBADDR",      m_nSUBADDR);
+		registerFile->SetRegister32("MSFLAG",       m_nMSFLAG);
+		registerFile->SetRegister32("SMFLAG",       m_nSMFLAG);
+		registerFile->SetRegister32("EERecvAddr",   m_nEERecvAddr);
+		registerFile->SetRegister32("DataAddr",     m_nDataAddr);
+		archive.InsertFile(registerFile);
+	}
 
-    {
-        CStructCollectionStateFile* callRepliesFile = new CStructCollectionStateFile(STATE_CALL_REPLIES_XML);
-        for(CallReplyMap::const_iterator callReplyIterator(m_callReplies.begin());
-            callReplyIterator != m_callReplies.end(); callReplyIterator++)
-        {
-            const CALLREQUESTINFO& callReply(callReplyIterator->second);
-            string replyId = lexical_cast_hex<string>(callReplyIterator->first, 8);
-            CStructFile replyStruct;
-            {
-                SaveState_RpcCall(replyStruct, callReply.call);
-                SaveState_RequestEnd(replyStruct, callReply.reply);
-            }
-            callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
-        }
-        archive.InsertFile(callRepliesFile);
-    }
+	{
+		CStructCollectionStateFile* callRepliesFile = new CStructCollectionStateFile(STATE_CALL_REPLIES_XML);
+		for(CallReplyMap::const_iterator callReplyIterator(m_callReplies.begin());
+			callReplyIterator != m_callReplies.end(); callReplyIterator++)
+		{
+			const CALLREQUESTINFO& callReply(callReplyIterator->second);
+			std::string replyId = lexical_cast_hex<std::string>(callReplyIterator->first, 8);
+			CStructFile replyStruct;
+			{
+				SaveState_RpcCall(replyStruct, callReply.call);
+				SaveState_RequestEnd(replyStruct, callReply.reply);
+			}
+			callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
+		}
+		archive.InsertFile(callRepliesFile);
+	}
 }
 
 void CSIF::SaveState_Header(const std::string& prefix, CStructFile& file, const PACKETHDR& packetHeader)
 {
-    file.SetRegister32((prefix + STATE_PACKET_HEADER_SIZE).c_str(),        packetHeader.nSize);
-    file.SetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str(),        packetHeader.nDest);
-    file.SetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str(),         packetHeader.nCID);
-    file.SetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str(),    packetHeader.nOptional);
+	file.SetRegister32((prefix + STATE_PACKET_HEADER_SIZE).c_str(),			packetHeader.nSize);
+	file.SetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str(),			packetHeader.nDest);
+	file.SetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str(),			packetHeader.nCID);
+	file.SetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str(),		packetHeader.nOptional);
 }
 
 void CSIF::LoadState_Header(const std::string& prefix, const CStructFile& file, PACKETHDR& packetHeader)
 {
-    packetHeader.nSize      = file.GetRegister32((prefix + STATE_PACKET_HEADER_SIZE).c_str());
-    packetHeader.nDest      = file.GetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str());
-    packetHeader.nCID       = file.GetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str());
-    packetHeader.nOptional  = file.GetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str());
+	packetHeader.nSize		= file.GetRegister32((prefix + STATE_PACKET_HEADER_SIZE).c_str());
+	packetHeader.nDest		= file.GetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str());
+	packetHeader.nCID		= file.GetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str());
+	packetHeader.nOptional	= file.GetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str());
 }
 
 void CSIF::SaveState_RpcCall(CStructFile& file, const RPCCALL& call)
 {
-    SaveState_Header("call", file, call.Header);
-    file.SetRegister32(STATE_PACKET_CALL_RECORDID,         call.nRecordID);
-    file.SetRegister32(STATE_PACKET_CALL_PACKETADDR,       call.nPacketAddr);
-    file.SetRegister32(STATE_PACKET_CALL_RPCID,            call.nRPCID);
-    file.SetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR,   call.nClientDataAddr);
-    file.SetRegister32(STATE_PACKET_CALL_RPCNUMBER,        call.nRPCNumber);
-    file.SetRegister32(STATE_PACKET_CALL_SENDSIZE,         call.nSendSize);
-    file.SetRegister32(STATE_PACKET_CALL_RECV,             call.nRecv);
-    file.SetRegister32(STATE_PACKET_CALL_RECVSIZE,         call.nRecvSize);
-    file.SetRegister32(STATE_PACKET_CALL_RECVMODE,         call.nRecvMode);
-    file.SetRegister32(STATE_PACKET_CALL_SERVERDATAADDR,   call.nServerDataAddr);
+	SaveState_Header("call", file, call.Header);
+	file.SetRegister32(STATE_PACKET_CALL_RECORDID,			call.nRecordID);
+	file.SetRegister32(STATE_PACKET_CALL_PACKETADDR,		call.nPacketAddr);
+	file.SetRegister32(STATE_PACKET_CALL_RPCID,				call.nRPCID);
+	file.SetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR,	call.nClientDataAddr);
+	file.SetRegister32(STATE_PACKET_CALL_RPCNUMBER,			call.nRPCNumber);
+	file.SetRegister32(STATE_PACKET_CALL_SENDSIZE,			call.nSendSize);
+	file.SetRegister32(STATE_PACKET_CALL_RECV,				call.nRecv);
+	file.SetRegister32(STATE_PACKET_CALL_RECVSIZE,			call.nRecvSize);
+	file.SetRegister32(STATE_PACKET_CALL_RECVMODE,			call.nRecvMode);
+	file.SetRegister32(STATE_PACKET_CALL_SERVERDATAADDR,	call.nServerDataAddr);
 }
 
 void CSIF::LoadState_RpcCall(const CStructFile& file, RPCCALL& call)
 {
-    LoadState_Header("call", file, call.Header);
-    call.nRecordID          = file.GetRegister32(STATE_PACKET_CALL_RECORDID);
-    call.nPacketAddr        = file.GetRegister32(STATE_PACKET_CALL_PACKETADDR);
-    call.nRPCID             = file.GetRegister32(STATE_PACKET_CALL_RPCID);
-    call.nClientDataAddr    = file.GetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR);
-    call.nRPCNumber         = file.GetRegister32(STATE_PACKET_CALL_RPCNUMBER);
-    call.nSendSize          = file.GetRegister32(STATE_PACKET_CALL_SENDSIZE);
-    call.nRecv              = file.GetRegister32(STATE_PACKET_CALL_RECV);
-    call.nRecvSize          = file.GetRegister32(STATE_PACKET_CALL_RECVSIZE);
-    call.nRecvMode          = file.GetRegister32(STATE_PACKET_CALL_RECVMODE);
-    call.nServerDataAddr    = file.GetRegister32(STATE_PACKET_CALL_SERVERDATAADDR);
+	LoadState_Header("call", file, call.Header);
+	call.nRecordID			= file.GetRegister32(STATE_PACKET_CALL_RECORDID);
+	call.nPacketAddr		= file.GetRegister32(STATE_PACKET_CALL_PACKETADDR);
+	call.nRPCID				= file.GetRegister32(STATE_PACKET_CALL_RPCID);
+	call.nClientDataAddr	= file.GetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR);
+	call.nRPCNumber			= file.GetRegister32(STATE_PACKET_CALL_RPCNUMBER);
+	call.nSendSize			= file.GetRegister32(STATE_PACKET_CALL_SENDSIZE);
+	call.nRecv				= file.GetRegister32(STATE_PACKET_CALL_RECV);
+	call.nRecvSize			= file.GetRegister32(STATE_PACKET_CALL_RECVSIZE);
+	call.nRecvMode			= file.GetRegister32(STATE_PACKET_CALL_RECVMODE);
+	call.nServerDataAddr	= file.GetRegister32(STATE_PACKET_CALL_SERVERDATAADDR);
 }
 
 void CSIF::SaveState_RequestEnd(CStructFile& file, const RPCREQUESTEND& requestEnd)
 {
-    SaveState_Header("requestEnd", file, requestEnd.Header);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_RECORDID,       requestEnd.nRecordID);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR,     requestEnd.nPacketAddr);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_RPCID,          requestEnd.nRPCID);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR, requestEnd.nClientDataAddr);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_CID,            requestEnd.nCID);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR, requestEnd.nServerDataAddr);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_BUFFER,         requestEnd.nBuffer);
-    file.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER,   requestEnd.nClientBuffer);
+	SaveState_Header("requestEnd", file, requestEnd.Header);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_RECORDID,		requestEnd.nRecordID);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR,		requestEnd.nPacketAddr);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_RPCID,			requestEnd.nRPCID);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR,	requestEnd.nClientDataAddr);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_CID,			requestEnd.nCID);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR,	requestEnd.nServerDataAddr);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_BUFFER,			requestEnd.nBuffer);
+	file.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER,	requestEnd.nClientBuffer);
 }
 
 void CSIF::LoadState_RequestEnd(const CStructFile& file, RPCREQUESTEND& requestEnd)
 {
-    LoadState_Header("requestEnd", file, requestEnd.Header);
-    requestEnd.nRecordID        = file.GetRegister32(STATE_PACKET_REQUEST_END_RECORDID);
-    requestEnd.nPacketAddr      = file.GetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR);
-    requestEnd.nRPCID           = file.GetRegister32(STATE_PACKET_REQUEST_END_RPCID);
-    requestEnd.nClientDataAddr  = file.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR);
-    requestEnd.nCID             = file.GetRegister32(STATE_PACKET_REQUEST_END_CID);
-    requestEnd.nServerDataAddr  = file.GetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR);
-    requestEnd.nBuffer          = file.GetRegister32(STATE_PACKET_REQUEST_END_BUFFER);
-    requestEnd.nClientBuffer    = file.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER);
+	LoadState_Header("requestEnd", file, requestEnd.Header);
+	requestEnd.nRecordID		= file.GetRegister32(STATE_PACKET_REQUEST_END_RECORDID);
+	requestEnd.nPacketAddr		= file.GetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR);
+	requestEnd.nRPCID			= file.GetRegister32(STATE_PACKET_REQUEST_END_RPCID);
+	requestEnd.nClientDataAddr	= file.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR);
+	requestEnd.nCID				= file.GetRegister32(STATE_PACKET_REQUEST_END_CID);
+	requestEnd.nServerDataAddr	= file.GetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR);
+	requestEnd.nBuffer			= file.GetRegister32(STATE_PACKET_REQUEST_END_BUFFER);
+	requestEnd.nClientBuffer	= file.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER);
 }
 
 /////////////////////////////////////////////////////////
@@ -416,7 +413,7 @@ void CSIF::Cmd_Initialize(PACKETHDR* pHDR)
 		SReg.nRegister			= 0;
 		SReg.nValue				= 1;
 
-        SendPacket(&SReg, sizeof(SETSREG));
+		SendPacket(&SReg, sizeof(SETSREG));
 		//SendDMA(&SReg, sizeof(SETSREG));
 	}
 	else
@@ -433,7 +430,7 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 
 	RPCREQUESTEND rend;
 
-    //Fill in the request end 
+	//Fill in the request end 
 	rend.Header.nSize		= sizeof(RPCREQUESTEND);
 	rend.Header.nDest		= pHDR->nDest;
 	rend.Header.nCID		= SIF_CMD_REND;
@@ -450,72 +447,72 @@ void CSIF::Cmd_Bind(PACKETHDR* pHDR)
 
 	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", pBind->nClientDataAddr, pBind->nSID);
 
-    ModuleMap::iterator moduleIterator(m_modules.find(pBind->nSID));
-    if(moduleIterator != m_modules.end() || (pBind->nSID & 0x80000000) != 0)
-    {
-        SendPacket(&rend, sizeof(RPCREQUESTEND));
-    }
-    else
-    {
-        assert(m_bindReplies.find(pBind->nSID) == m_bindReplies.end());
-        m_bindReplies[pBind->nSID] = rend;
-    }
+	ModuleMap::iterator moduleIterator(m_modules.find(pBind->nSID));
+	if(moduleIterator != m_modules.end() || (pBind->nSID & 0x80000000) != 0)
+	{
+		SendPacket(&rend, sizeof(RPCREQUESTEND));
+	}
+	else
+	{
+		assert(m_bindReplies.find(pBind->nSID) == m_bindReplies.end());
+		m_bindReplies[pBind->nSID] = rend;
+	}
 }
 
 void CSIF::Cmd_Call(PACKETHDR* pHDR)
 {
 	RPCCALL* pCall = reinterpret_cast<RPCCALL*>(pHDR);
-    bool sendReply = true;
+	bool sendReply = true;
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
 
 	uint32 nRecvAddr = (pCall->nRecv & (PS2::EERAMSIZE - 1));
 
-    ModuleMap::iterator moduleIterator(m_modules.find(pCall->nServerDataAddr));
+	ModuleMap::iterator moduleIterator(m_modules.find(pCall->nServerDataAddr));
 	if(moduleIterator != m_modules.end())
 	{
-	    CSifModule* pModule(moduleIterator->second);
-        sendReply = pModule->Invoke(pCall->nRPCNumber, 
-            reinterpret_cast<uint32*>(m_eeRam + m_nDataAddr), pCall->nSendSize, 
-            reinterpret_cast<uint32*>(m_eeRam + nRecvAddr), pCall->nRecvSize,
-            m_eeRam);
+		CSifModule* pModule(moduleIterator->second);
+		sendReply = pModule->Invoke(pCall->nRPCNumber, 
+			reinterpret_cast<uint32*>(m_eeRam + m_nDataAddr), pCall->nSendSize, 
+			reinterpret_cast<uint32*>(m_eeRam + nRecvAddr), pCall->nRecvSize,
+			m_eeRam);
 	}
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%0.8X).\r\n", pCall->nServerDataAddr);
 	}
 
-    {
-        RPCREQUESTEND rend;
-        memset(&rend, 0, sizeof(RPCREQUESTEND));
+	{
+		RPCREQUESTEND rend;
+		memset(&rend, 0, sizeof(RPCREQUESTEND));
 
-        //Fill in the request end 
-        rend.Header.nSize		= sizeof(RPCREQUESTEND);
-        rend.Header.nDest		= pHDR->nDest;
-        rend.Header.nCID		= SIF_CMD_REND;
-        rend.Header.nOptional	= 0;
+		//Fill in the request end 
+		rend.Header.nSize		= sizeof(RPCREQUESTEND);
+		rend.Header.nDest		= pHDR->nDest;
+		rend.Header.nCID		= SIF_CMD_REND;
+		rend.Header.nOptional	= 0;
 
-        rend.nRecordID			= pCall->nRecordID;
-        rend.nPacketAddr		= pCall->nPacketAddr;
-        rend.nRPCID				= pCall->nRPCID;
-        rend.nClientDataAddr	= pCall->nClientDataAddr;
-        rend.nCID				= SIF_CMD_CALL;
+		rend.nRecordID			= pCall->nRecordID;
+		rend.nPacketAddr		= pCall->nPacketAddr;
+		rend.nRPCID				= pCall->nRPCID;
+		rend.nClientDataAddr	= pCall->nClientDataAddr;
+		rend.nCID				= SIF_CMD_CALL;
 
-        if(sendReply)
-        {
-            SendPacket(&rend, sizeof(RPCREQUESTEND));
-        }
-        else
-        {
-            //Hold the packet
-            //We assume that there's only one call that
-            assert(m_callReplies.find(pCall->nServerDataAddr) == m_callReplies.end());
-            CALLREQUESTINFO requestInfo;
-            requestInfo.reply = rend;
-            requestInfo.call = *pCall;
-            m_callReplies[pCall->nServerDataAddr] = requestInfo;
-        }
-    }
+		if(sendReply)
+		{
+			SendPacket(&rend, sizeof(RPCREQUESTEND));
+		}
+		else
+		{
+			//Hold the packet
+			//We assume that there's only one call that
+			assert(m_callReplies.find(pCall->nServerDataAddr) == m_callReplies.end());
+			CALLREQUESTINFO requestInfo;
+			requestInfo.reply = rend;
+			requestInfo.call = *pCall;
+			m_callReplies[pCall->nServerDataAddr] = requestInfo;
+		}
+	}
 }
 
 void CSIF::Cmd_GetOtherData(PACKETHDR* hdr)
@@ -549,18 +546,18 @@ void CSIF::Cmd_GetOtherData(PACKETHDR* hdr)
 
 void CSIF::SendCallReply(uint32 serverId, void* returnData)
 {
-    CallReplyMap::iterator replyIterator(m_callReplies.find(serverId));
-    assert(replyIterator != m_callReplies.end());
-    if(replyIterator == m_callReplies.end()) return;
+	CallReplyMap::iterator replyIterator(m_callReplies.find(serverId));
+	assert(replyIterator != m_callReplies.end());
+	if(replyIterator == m_callReplies.end()) return;
 
-    CALLREQUESTINFO& requestInfo(replyIterator->second);
-    //assert(requestInfo.call.nRecv != 0);
-    if(requestInfo.call.nRecv != 0)
-    {
-        memcpy(m_eeRam + requestInfo.call.nRecv, returnData, requestInfo.call.nRecvSize);
-    }
-    SendPacket(&requestInfo.reply, sizeof(RPCREQUESTEND));
-    m_callReplies.erase(replyIterator);
+	CALLREQUESTINFO& requestInfo(replyIterator->second);
+	//assert(requestInfo.call.nRecv != 0);
+	if(requestInfo.call.nRecv != 0)
+	{
+		memcpy(m_eeRam + requestInfo.call.nRecv, returnData, requestInfo.call.nRecvSize);
+	}
+	SendPacket(&requestInfo.reply, sizeof(RPCREQUESTEND));
+	m_callReplies.erase(replyIterator);
 }
 
 /////////////////////////////////////////////////////////
