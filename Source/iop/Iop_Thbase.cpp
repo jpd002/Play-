@@ -34,7 +34,7 @@ CThbase::~CThbase()
 
 string CThbase::GetId() const
 {
-    return "thbase";
+	return "thbase";
 }
 
 string CThbase::GetFunctionName(unsigned int functionId) const
@@ -85,46 +85,46 @@ string CThbase::GetFunctionName(unsigned int functionId) const
 
 void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 {
-    switch(functionId)
-    {
-    case 4:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateThread(
-            reinterpret_cast<THREAD*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
-            ));
-        break;
-    case 6:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(StartThread(
-            context.m_State.nGPR[CMIPS::A0].nV0,
-            context.m_State.nGPR[CMIPS::A1].nV0
-            ));
-        break;
+	switch(functionId)
+	{
+	case 4:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateThread(
+			reinterpret_cast<THREAD*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
+			));
+		break;
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(StartThread(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			));
+		break;
 	case 14:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ChangeThreadPriority(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
 			));
 		break;
-    case 20:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetThreadId());
-        break;
-    case 24:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SleepThread());
-        break;
-    case 25:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(WakeupThread(
-            context.m_State.nGPR[CMIPS::A0].nV0
-            ));
-        break;
+	case 20:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetThreadId());
+		break;
+	case 24:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SleepThread());
+		break;
+	case 25:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(WakeupThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
 	case 26:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iWakeupThread(
 			context.m_State.nGPR[CMIPS::A0].nV0
 			));
 		break;
-    case 33:
-        context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelayThread(
-            context.m_State.nGPR[CMIPS::A0].nV0
-            ));
-        break;
+	case 33:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelayThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
 	case 34:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetSystemTime(
 			context.m_State.nGPR[CMIPS::A0].nV0
@@ -144,21 +144,21 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 	case 42:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetCurrentThreadPriority());
 		break;
-    default:
+	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
-        break;
-    }
+		break;
+	}
 }
 
 uint32 CThbase::CreateThread(const THREAD* thread)
 {
-    return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize);
+	return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize);
 }
 
 uint32 CThbase::StartThread(uint32 threadId, uint32 param)
 {
-    m_bios.StartThread(threadId, &param);
-    return 0;
+	m_bios.StartThread(threadId, &param);
+	return 0;
 }
 
 uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
@@ -169,24 +169,24 @@ uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 
 uint32 CThbase::DelayThread(uint32 delay)
 {
-    m_bios.DelayThread(delay);
-    return 1;
+	m_bios.DelayThread(delay);
+	return 1;
 }
 
 uint32 CThbase::GetThreadId()
 {
-    return m_bios.GetCurrentThreadId();
+	return m_bios.GetCurrentThreadId();
 }
 
 uint32 CThbase::SleepThread()
 {
-    m_bios.SleepThread();
-    return 1;
+	m_bios.SleepThread();
+	return 1;
 }
 
 uint32 CThbase::WakeupThread(uint32 threadId)
 {
-    return m_bios.WakeupThread(threadId, false);
+	return m_bios.WakeupThread(threadId, false);
 }
 
 uint32 CThbase::iWakeupThread(uint32 threadId)
