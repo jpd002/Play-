@@ -6,22 +6,22 @@
 
 namespace Iop
 {
-    class CStdio : public CModule
-    {
-    public:
-                        CStdio(uint8*);
-        virtual         ~CStdio();
-        
-        std::string     GetId() const;
+	class CStdio : public CModule
+	{
+	public:
+						CStdio(uint8*);
+		virtual			~CStdio();
+
+		std::string		GetId() const;
 		std::string		GetFunctionName(unsigned int) const;
-        void            Invoke(CMIPS&, unsigned int);
+		void			Invoke(CMIPS&, unsigned int);
 
-        void            __printf(CMIPS&);
-        std::string     PrintFormatted(CArgumentIterator&);
+		void			__printf(CMIPS&);
+		std::string		PrintFormatted(CArgumentIterator&);
 
-    private:
-        uint8*              m_ram;
-    };
+	private:
+		uint8*			m_ram;
+	};
 }
 
 #endif
