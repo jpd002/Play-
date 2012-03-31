@@ -80,7 +80,7 @@ std::string CStdio::PrintFormatted(CArgumentIterator& args)
 					output += character;
 					paramDone = true;
 				}
-				else if(type == 'd')
+				else if(type == 'd' || type == 'i')
 				{
 					int number = args.GetNext();
 					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
