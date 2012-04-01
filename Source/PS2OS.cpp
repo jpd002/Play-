@@ -328,6 +328,7 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 		if(p != NULL)
 		{
 			uint32 end = p->nVAddress + p->nFileSize;
+			if(end >= PS2::EERAMSIZE) continue;
 			nMinAddr = std::min<uint32>(nMinAddr, p->nVAddress);
 			nMaxAddr = std::max<uint32>(nMaxAddr, end);
 		}

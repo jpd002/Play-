@@ -763,7 +763,7 @@ void CDisAsm::Paint(HDC hDC)
 			TextOut(hDC, 20, nY, sTemp, (int)_tcslen(sTemp));
 		}
 		
-		CMIPSAnalysis::SUBROUTINE* pSub = m_pCtx->m_pAnalysis->FindSubroutine(nAddress);
+		const CMIPSAnalysis::SUBROUTINE* pSub = m_pCtx->m_pAnalysis->FindSubroutine(nAddress);
 		if(pSub != NULL)
 		{
 			SelectObject(hDC, nLtGrayPen);

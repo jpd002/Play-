@@ -124,7 +124,7 @@ void CCallStackWnd::Update()
 
 	m_pList->DeleteAllItems();
 
-	CMIPSAnalysis::SUBROUTINE* pRoutine = m_pCtx->m_pAnalysis->FindSubroutine(nPC);
+	const CMIPSAnalysis::SUBROUTINE* pRoutine = m_pCtx->m_pAnalysis->FindSubroutine(nPC);
 	if(pRoutine == NULL)
 	{
 		//Cannot go further

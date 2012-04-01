@@ -22,14 +22,17 @@ public:
 										CMIPSAnalysis(CMIPS*);
 										~CMIPSAnalysis();
 	void								Analyse(uint32, uint32);
-	SUBROUTINE*							FindSubroutine(uint32);
+	const SUBROUTINE*					FindSubroutine(uint32) const;
 	void								Clear();
+
 private:
-	typedef std::multimap<uint32, SUBROUTINE> SubroutineList;
+	typedef std::map<uint32, SUBROUTINE, std::greater<uint32>> SubroutineList;
 
 	void								InsertSubroutine(uint32, uint32, uint32, uint32, uint32, uint32);
+	void								ChangeSubroutineStart(uint32, uint32);
+
 	CMIPS*								m_pCtx;
-	SubroutineList						m_Subroutines;
+	SubroutineList						m_subroutines;
 };
 
 #endif
