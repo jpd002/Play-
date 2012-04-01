@@ -11,29 +11,29 @@
 class CInputBindingSelectionWindow : public Framework::Win32::CModalWindow
 {
 public:
-                                    CInputBindingSelectionWindow(HWND, DirectInput::CManager*, PS2::CControllerInfo::BUTTON);
-    virtual                         ~CInputBindingSelectionWindow();
+										CInputBindingSelectionWindow(HWND, Framework::DirectInput::CManager*, PS2::CControllerInfo::BUTTON);
+	virtual								~CInputBindingSelectionWindow();
 
 protected:
-    long                            OnTimer(WPARAM);
-    long                            OnActivate(unsigned int, bool, HWND);
+	long								OnTimer(WPARAM);
+	long								OnActivate(unsigned int, bool, HWND);
 
 private:
-    void                            RefreshLayout();
-    void                            ProcessEvent(const GUID&, uint32, uint32);
+	void								RefreshLayout();
+	void								ProcessEvent(const GUID&, uint32, uint32);
 
-    Framework::Win32::CStatic*      m_currentBindingLabel;
-    DirectInput::CManager*          m_directInputManager;
-    PS2::CControllerInfo::BUTTON    m_button;
+	Framework::Win32::CStatic*			m_currentBindingLabel;
+	Framework::DirectInput::CManager*	m_directInputManager;
+	PS2::CControllerInfo::BUTTON		m_button;
 
-    GUID                            m_selectedDevice;
-    uint32                          m_selectedId;
-    bool                            m_selected;
+	GUID								m_selectedDevice;
+	uint32								m_selectedId;
+	bool								m_selected;
 
-    Framework::LayoutObjectPtr      m_layout;
+	Framework::LayoutObjectPtr			m_layout;
 
-    const CInputConfig::CBinding*   m_binding;
-    bool                            m_isActive;
+	const CInputConfig::CBinding*		m_binding;
+	bool								m_isActive;
 };
 
 #endif

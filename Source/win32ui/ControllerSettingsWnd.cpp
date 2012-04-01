@@ -14,7 +14,7 @@
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
 
-CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, DirectInput::CManager* directInputManager)
+CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, Framework::DirectInput::CManager* directInputManager)
 : CModalWindow(parent)
 , m_directInputManager(directInputManager)
 , m_autoConfigButton(NULL)
@@ -84,7 +84,7 @@ long CControllerSettingsWnd::OnTimer(WPARAM)
 {
 	if(m_samplingEnabled)
 	{
-		CInputConfig::InputEventHandler eventHandler(bind(&CControllerSettingsWnd::InputEventHandler, this, PLACEHOLDER_1, PLACEHOLDER_2));
+		CInputConfig::InputEventHandler eventHandler(std::bind(&CControllerSettingsWnd::InputEventHandler, this, std::placeholders::_1, std::placeholders::_2));
 		m_directInputManager->ProcessEvents(
 			std::bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), 
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::tr1::cref(eventHandler)));

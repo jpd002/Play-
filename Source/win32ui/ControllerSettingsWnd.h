@@ -11,31 +11,31 @@
 class CControllerSettingsWnd : public Framework::Win32::CModalWindow
 {
 public:
-									CControllerSettingsWnd(HWND, DirectInput::CManager*);
-	virtual							~CControllerSettingsWnd();
+										CControllerSettingsWnd(HWND, Framework::DirectInput::CManager*);
+	virtual								~CControllerSettingsWnd();
 
 protected:
-	long							OnTimer(WPARAM);
-	long							OnCommand(unsigned short, unsigned short, HWND);
-	long							OnNotify(WPARAM, NMHDR*);
+	long								OnTimer(WPARAM);
+	long								OnCommand(unsigned short, unsigned short, HWND);
+	long								OnNotify(WPARAM, NMHDR*);
 
 private:
-	void							RefreshLayout();
-	void							AutoConfigKeyboard();
-	void							AutoConfigJoystick();
-	void							InputEventHandler(PS2::CControllerInfo::BUTTON, uint32);
-	void							UpdateButtonValue(PS2::CControllerInfo::BUTTON, uint32);
-	void							UpdateBindings();
-	void							PopulateList();
-	void							OnListItemDblClick();
+	void								RefreshLayout();
+	void								AutoConfigKeyboard();
+	void								AutoConfigJoystick();
+	void								InputEventHandler(PS2::CControllerInfo::BUTTON, uint32);
+	void								UpdateButtonValue(PS2::CControllerInfo::BUTTON, uint32);
+	void								UpdateBindings();
+	void								PopulateList();
+	void								OnListItemDblClick();
 
-	Framework::LayoutObjectPtr		m_layout;
-	Framework::Win32::CListView*	m_bindingList;
-	Framework::Win32::CButton*		m_ok;
-	Framework::Win32::CButton*		m_cancel;
-	Framework::Win32::CButton*		m_autoConfigButton;
-	DirectInput::CManager*			m_directInputManager;
-	bool							m_samplingEnabled;
+	Framework::LayoutObjectPtr			m_layout;
+	Framework::Win32::CListView*		m_bindingList;
+	Framework::Win32::CButton*			m_ok;
+	Framework::Win32::CButton*			m_cancel;
+	Framework::Win32::CButton*			m_autoConfigButton;
+	Framework::DirectInput::CManager*	m_directInputManager;
+	bool								m_samplingEnabled;
 };
 
 #endif
