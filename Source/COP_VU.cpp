@@ -276,6 +276,12 @@ void CCOP_VU::VMULq()
 	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
 }
 
+//1E
+void CCOP_VU::VMULi()
+{
+	VUShared::MULi(m_codeGen, m_nDest, m_nFD, m_nFS);
+}
+
 //1F
 void CCOP_VU::VMINIi()
 {
@@ -622,7 +628,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x10
 	&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIbc,
 	//0x18
-	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMINIi,
+	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::VMULi,		&CCOP_VU::VMINIi,
 	//0x20
 	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMSUBq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x28

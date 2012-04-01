@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdio.h>
-#include <boost/static_assert.hpp>
 #include "COP_VU.h"
 #include "VUShared.h"
 #include "MIPS.h"
@@ -195,7 +194,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
-    {	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
@@ -215,8 +214,8 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-    {	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
+	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
+	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
 	//0x20
 	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
@@ -258,7 +257,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 {
 	//0x00
-	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
@@ -298,7 +297,7 @@ INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 {
 	//0x00
-	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
@@ -338,15 +337,15 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 INSTRUCTION CCOP_VU::m_cReflVX2[32] =
 {
 	//0x00
-	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	"VITOF12",	NULL,			CopyMnemonic,		ReflOpFtFs,	    	NULL,				NULL			},
+	{	"VITOF12",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VFTOI12",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-    //0x08
+	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
@@ -378,7 +377,7 @@ INSTRUCTION CCOP_VU::m_cReflVX2[32] =
 INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 {
 	//0x00
-	{	"VADDA",	NULL,			CopyMnemonic,	    ReflOpAccFsFtBc,	NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
@@ -417,21 +416,21 @@ INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 
 void CCOP_VU::SetupReflectionTables()
 {
-    BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflCop2)      == sizeof(m_cReflCop2));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflV)         == sizeof(m_cReflV));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX0)       == sizeof(m_cReflVX0));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX1)       == sizeof(m_cReflVX1));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX2)       == sizeof(m_cReflVX2));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflVX3)       == sizeof(m_cReflVX3));
+	static_assert(sizeof(m_ReflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
+	static_assert(sizeof(m_ReflCop2)	== sizeof(m_cReflCop2),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflV)		== sizeof(m_cReflV),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX0)		== sizeof(m_cReflVX0),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX1)		== sizeof(m_cReflVX1),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX2)		== sizeof(m_cReflVX2),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflVX3)		== sizeof(m_cReflVX3),		"Array sizes don't match");
 
-    memcpy(m_ReflGeneral,   m_cReflGeneral, sizeof(m_cReflGeneral));
-	memcpy(m_ReflCop2,      m_cReflCop2,    sizeof(m_cReflCop2));
-	memcpy(m_ReflV,         m_cReflV,       sizeof(m_cReflV));
-	memcpy(m_ReflVX0,       m_cReflVX0,     sizeof(m_cReflVX0));
-	memcpy(m_ReflVX1,       m_cReflVX1,     sizeof(m_cReflVX1));
-	memcpy(m_ReflVX2,       m_cReflVX2,     sizeof(m_cReflVX2));
-	memcpy(m_ReflVX3,       m_cReflVX3,     sizeof(m_cReflVX3));
+	memcpy(m_ReflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
+	memcpy(m_ReflCop2,		m_cReflCop2,	sizeof(m_cReflCop2));
+	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
+	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
+	memcpy(m_ReflVX1,		m_cReflVX1,		sizeof(m_cReflVX1));
+	memcpy(m_ReflVX2,		m_cReflVX2,		sizeof(m_cReflVX2));
+	memcpy(m_ReflVX3,		m_cReflVX3,		sizeof(m_cReflVX3));
 
 	m_ReflGeneralTable.nShift		= 26;
 	m_ReflGeneralTable.nMask		= 0x3F;
