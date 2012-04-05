@@ -2,20 +2,22 @@
 #include "win32/Rect.h"
 #include "layout/LayoutEngine.h"
 #include "string_cast.h"
-#include "placeholder_def.h"
 
 #define CLSNAME		_T("CInputBindingSelectionWindow")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
 
+using namespace PH_DirectInput;
+
 CInputBindingSelectionWindow::CInputBindingSelectionWindow(
-	HWND parent, Framework::DirectInput::CManager* directInputManager, PS2::CControllerInfo::BUTTON button) 
+	HWND parent, CInputManager& inputManager, PS2::CControllerInfo::BUTTON button) 
 : CModalWindow(parent)
-, m_directInputManager(directInputManager)
+, m_inputManager(inputManager)
 , m_button(button)
 , m_currentBindingLabel(NULL)
 , m_isActive(false)
 , m_selected(false)
+, m_directInputManagerHandlerId(0)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -24,14 +26,13 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 
 	std::tstring title = _T("Select new binding for ") + string_cast<std::tstring>(PS2::CControllerInfo::m_buttonName[m_button]);
 
-	m_binding = CInputConfig::GetInstance().GetBinding(button);
-
 	Create(WNDSTYLEEX, CLSNAME, title.c_str(), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 100), parent, NULL);
 	SetClassPtr();
 
+	const CInputManager::CBinding* binding = inputManager.GetBinding(button);
 	m_currentBindingLabel = new Framework::Win32::CStatic(
 		m_hWnd, 
-		m_binding ? m_binding->GetDescription(m_directInputManager).c_str() : _T("Unbound"), 
+		binding ? inputManager.GetBindingDescription(button).c_str() : _T("Unbound"), 
 		SS_CENTER);
 
 	m_layout = 
@@ -42,12 +43,16 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 		);
 
 	RefreshLayout();
-	SetTimer(m_hWnd, 0, 16, NULL);
+
+	m_directInputManagerHandlerId = inputManager.GetDirectInputManager()->RegisterInputEventHandler(std::bind(
+		&CInputBindingSelectionWindow::ProcessEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+	SetTimer(m_hWnd, 0, 50, NULL);
 }
 
 CInputBindingSelectionWindow::~CInputBindingSelectionWindow()
 {
-
+	m_inputManager.GetDirectInputManager()->UnregisterInputEventHandler(m_directInputManagerHandlerId);
 }
 
 long CInputBindingSelectionWindow::OnActivate(unsigned int activationType, bool minimized, HWND window)
@@ -58,11 +63,9 @@ long CInputBindingSelectionWindow::OnActivate(unsigned int activationType, bool 
 
 long CInputBindingSelectionWindow::OnTimer(WPARAM)
 {
-	m_directInputManager->ProcessEvents(std::bind(&CInputBindingSelectionWindow::ProcessEvent, this, 
-		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	if(m_selected)
 	{
-		CInputConfig::GetInstance().SetSimpleBinding(m_button, CInputConfig::BINDINGINFO(m_selectedDevice, m_selectedId));
+		m_inputManager.SetSimpleBinding(m_button, CInputManager::BINDINGINFO(m_selectedDevice, m_selectedId));
 		Destroy();
 	}
 	return TRUE;
@@ -85,7 +88,7 @@ void CInputBindingSelectionWindow::ProcessEvent(const GUID& device, uint32 id, u
 	if(!m_isActive) return;
 	if(m_selected) return;
 	DIDEVICEOBJECTINSTANCE objectInstance;
-	if(m_directInputManager->GetDeviceObjectInfo(device, id, &objectInstance))
+	if(m_inputManager.GetDirectInputManager()->GetDeviceObjectInfo(device, id, &objectInstance))
 	{
 		if(objectInstance.dwType & DIDFT_AXIS)
 		{

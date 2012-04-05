@@ -41,6 +41,9 @@
     <Filter Include="Source Files\Win32 UI\Debugger">
       <UniqueIdentifier>{35baa85a-62b3-4914-899e-b7c1a311ccfc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Win32 UI\PH_DirectInput">
+      <UniqueIdentifier>{544f28b1-06e8-479f-b715-21ab8e8e19ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AppConfig.cpp">
@@ -409,9 +412,6 @@
     <ClCompile Include="..\Source\win32ui\CommandSink.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\ControllerSettingsWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
@@ -424,12 +424,6 @@
     <ClCompile Include="..\Source\win32ui\GSH_Software.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\InputBindingSelectionWindow.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\InputConfig.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32ui\Main.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
@@ -440,9 +434,6 @@
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\OutputWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\PH_DirectInput.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\RendererSettingsWnd.cpp">
@@ -570,6 +561,18 @@
     </ClCompile>
     <ClCompile Include="..\Source\MipsFunctionPatternDb.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\PH_DirectInput.cpp">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputManager.cpp">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.cpp">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.cpp">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -954,9 +957,6 @@
     <ClInclude Include="..\Source\win32ui\CommandSink.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32ui\ControllerSettingsWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\FileFilters.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
@@ -969,12 +969,6 @@
     <ClInclude Include="..\Source\win32ui\GSH_Software.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32ui\InputBindingSelectionWindow.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\InputConfig.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\MainWindow.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
@@ -982,9 +976,6 @@
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\OutputWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\PH_DirectInput.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RendererSettingsWnd.h">
@@ -1109,6 +1100,18 @@
     </ClInclude>
     <ClInclude Include="..\Source\MipsFunctionPatternDb.h">
       <Filter>Source Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\PH_DirectInput.h">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputManager.h">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.h">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.h">
+      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -296,7 +296,6 @@
     <ClCompile Include="..\Source\win32ui\CallStackWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\CdromSelectionWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\CommandSink.cpp" />
-    <ClCompile Include="..\Source\win32ui\ControllerSettingsWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugExpressionEvaluator.cpp" />
     <ClCompile Include="..\Source\win32ui\Debugger.cpp" />
     <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp" />
@@ -314,8 +313,6 @@
     <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp" />
     <ClCompile Include="..\Source\win32ui\GSH_Software.cpp" />
     <ClCompile Include="..\Source\win32ui\IconMesh.cpp" />
-    <ClCompile Include="..\Source\win32ui\InputBindingSelectionWindow.cpp" />
-    <ClCompile Include="..\Source\win32ui\InputConfig.cpp" />
     <ClCompile Include="..\Source\win32ui\Main.cpp" />
     <ClCompile Include="..\Source\win32ui\MainWindow.cpp" />
     <ClCompile Include="..\Source\win32ui\McManagerWnd.cpp" />
@@ -330,6 +327,9 @@
     <ClCompile Include="..\Source\win32ui\OsEventViewWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\OutputWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\PH_DirectInput.cpp" />
+    <ClCompile Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.cpp" />
+    <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputManager.cpp" />
     <ClCompile Include="..\Source\win32ui\RegViewFPU.cpp" />
     <ClCompile Include="..\Source\win32ui\RegViewGeneral.cpp" />
     <ClCompile Include="..\Source\win32ui\RegViewPage.cpp" />
@@ -480,7 +480,6 @@
     <ClInclude Include="..\Source\win32ui\CallStackWnd.h" />
     <ClInclude Include="..\Source\win32ui\CdromSelectionWnd.h" />
     <ClInclude Include="..\Source\win32ui\CommandSink.h" />
-    <ClInclude Include="..\Source\win32ui\ControllerSettingsWnd.h" />
     <ClInclude Include="..\Source\win32ui\DebugExpressionEvaluator.h" />
     <ClInclude Include="..\Source\win32ui\Debugger.h" />
     <ClInclude Include="..\Source\win32ui\DebuggerChildWnd.h" />
@@ -499,8 +498,6 @@
     <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h" />
     <ClInclude Include="..\Source\win32ui\GSH_Software.h" />
     <ClInclude Include="..\Source\win32ui\IconMesh.h" />
-    <ClInclude Include="..\Source\win32ui\InputBindingSelectionWindow.h" />
-    <ClInclude Include="..\Source\win32ui\InputConfig.h" />
     <ClInclude Include="..\Source\win32ui\MainWindow.h" />
     <ClInclude Include="..\Source\win32ui\McManagerWnd.h" />
     <ClInclude Include="..\Source\win32ui\MemoryCard.h" />
@@ -514,6 +511,9 @@
     <ClInclude Include="..\Source\win32ui\OsEventViewWnd.h" />
     <ClInclude Include="..\Source\win32ui\OutputWnd.h" />
     <ClInclude Include="..\Source\win32ui\PH_DirectInput.h" />
+    <ClInclude Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.h" />
+    <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.h" />
+    <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputManager.h" />
     <ClInclude Include="..\Source\win32ui\RegViewFPU.h" />
     <ClInclude Include="..\Source\win32ui\RegViewGeneral.h" />
     <ClInclude Include="..\Source\win32ui\RegViewPage.h" />

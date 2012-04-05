@@ -1,6 +1,5 @@
 #include "ControllerSettingsWnd.h"
 #include "win32/Rect.h"
-#include "InputConfig.h"
 #include "InputBindingSelectionWindow.h"
 #include <vector>
 #include <stdexcept>
@@ -14,12 +13,14 @@
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
 
-CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, Framework::DirectInput::CManager* directInputManager)
+using namespace PH_DirectInput;
+
+CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, CInputManager& inputManager)
 : CModalWindow(parent)
-, m_directInputManager(directInputManager)
+, m_inputManager(inputManager)
 , m_autoConfigButton(NULL)
 , m_bindingList(NULL)
-, m_samplingEnabled(true)
+, m_valuesCached(false)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -59,8 +60,9 @@ CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, Framework::DirectInp
 	RefreshLayout();
 	PopulateList();
 	UpdateBindings();
+	UpdateBindingValues();
 
-	SetTimer(m_hWnd, NULL, 50, NULL);
+	SetTimer(m_hWnd, 0, 16, NULL);
 }
 
 CControllerSettingsWnd::~CControllerSettingsWnd()
@@ -80,32 +82,20 @@ void CControllerSettingsWnd::RefreshLayout()
 	Redraw();
 }
 
-long CControllerSettingsWnd::OnTimer(WPARAM)
-{
-	if(m_samplingEnabled)
-	{
-		CInputConfig::InputEventHandler eventHandler(std::bind(&CControllerSettingsWnd::InputEventHandler, this, std::placeholders::_1, std::placeholders::_2));
-		m_directInputManager->ProcessEvents(
-			std::bind(&CInputConfig::TranslateInputEvent, &CInputConfig::GetInstance(), 
-			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::tr1::cref(eventHandler)));
-	}
-	return TRUE;
-}
-
 long CControllerSettingsWnd::OnCommand(unsigned short id, unsigned short cmd, HWND from)
 {
 	if(m_autoConfigButton && from == m_autoConfigButton->m_hWnd)
 	{
 		AutoConfigKeyboard();
 	}
-	if(m_ok && from == m_ok->m_hWnd)
+	if(CWindow::IsCommandSource(m_ok, from))
 	{
-		CInputConfig::GetInstance().Save();
+		m_inputManager.Save();
 		Destroy();
 	}
-	if(m_cancel && from == m_cancel->m_hWnd)
+	if(CWindow::IsCommandSource(m_cancel, from))
 	{
-		CInputConfig::GetInstance().Load();
+		m_inputManager.Load();
 		Destroy();
 	}
 	return TRUE;
@@ -123,15 +113,16 @@ long CControllerSettingsWnd::OnNotify(WPARAM param, NMHDR* header)
 	return FALSE;
 }
 
-void CControllerSettingsWnd::AutoConfigKeyboard()
+long CControllerSettingsWnd::OnTimer(WPARAM)
 {
-	CInputConfig::GetInstance().AutoConfigureKeyboard();
-	UpdateBindings();
+	UpdateBindingValues();
+	return FALSE;
 }
 
-void CControllerSettingsWnd::InputEventHandler(PS2::CControllerInfo::BUTTON button, uint32 value)
+void CControllerSettingsWnd::AutoConfigKeyboard()
 {
-	UpdateButtonValue(button, value);
+	m_inputManager.AutoConfigureKeyboard();
+	UpdateBindings();
 }
 
 void CControllerSettingsWnd::UpdateBindings()
@@ -139,40 +130,46 @@ void CControllerSettingsWnd::UpdateBindings()
 	for(int i = 0; i < m_bindingList->GetItemCount(); i++)
 	{
 		PS2::CControllerInfo::BUTTON button = static_cast<PS2::CControllerInfo::BUTTON>(m_bindingList->GetItemData(i));
-		std::tstring description = CInputConfig::GetInstance().GetBindingDescription(m_directInputManager, button);
+		std::tstring description = m_inputManager.GetBindingDescription(button);
 		m_bindingList->SetItemText(i, 1, description.c_str());
 	}
 }
 
-void CControllerSettingsWnd::UpdateButtonValue(PS2::CControllerInfo::BUTTON button, uint32 value)
+void CControllerSettingsWnd::UpdateBindingValues()
 {
-	int listViewIndex = m_bindingList->FindItemData(button);
-	if(listViewIndex == -1) return;
-	if(PS2::CControllerInfo::IsAxis(button))
+	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
-		m_bindingList->SetItemText(listViewIndex, 2, boost::lexical_cast<std::tstring>(value).c_str());
+		PS2::CControllerInfo::BUTTON button = static_cast<PS2::CControllerInfo::BUTTON>(m_bindingList->GetItemData(i));
+		int listViewIndex = m_bindingList->FindItemData(button);
+		if(listViewIndex == -1) continue;
+		uint32 value = m_inputManager.GetBindingValue(button);
+		if(m_valuesCached && m_cachedValues[button] == value) continue;
+		m_cachedValues[button] = value;
+		if(PS2::CControllerInfo::IsAxis(button))
+		{
+			m_bindingList->SetItemText(listViewIndex, 2, boost::lexical_cast<std::tstring>(value).c_str());
+		}
+		else
+		{
+			m_bindingList->SetItemText(listViewIndex, 2, value ? _T("pressed") : _T(""));
+		}
 	}
-	else
-	{
-		m_bindingList->SetItemText(listViewIndex, 2, value ? _T("pressed") : _T(""));
-	}
+	m_valuesCached = true;
 }
 
 void CControllerSettingsWnd::OnListItemDblClick()
 {
 	int selection = m_bindingList->GetSelection();
 	if(selection == -1) return;
-	m_samplingEnabled = false;
 	{
 		PS2::CControllerInfo::BUTTON button = static_cast<PS2::CControllerInfo::BUTTON>(m_bindingList->GetItemData(selection));
 		if(button < PS2::CControllerInfo::MAX_BUTTONS)
 		{
-			CInputBindingSelectionWindow dialog(m_hWnd, m_directInputManager, button);
+			CInputBindingSelectionWindow dialog(m_hWnd, m_inputManager, button);
 			dialog.DoModal();
 			UpdateBindings();
 		}
 	}
-	m_samplingEnabled = true;
 }
 
 void CControllerSettingsWnd::PopulateList()
@@ -208,6 +205,5 @@ void CControllerSettingsWnd::PopulateList()
 		itm.pszText		= const_cast<TCHAR*>(text.c_str());
 		itm.lParam		= i;
 		m_bindingList->InsertItem(&itm);
-		UpdateButtonValue(static_cast<PS2::CControllerInfo::BUTTON>(i), 0);
 	}
 }

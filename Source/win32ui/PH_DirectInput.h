@@ -1,11 +1,11 @@
 #ifndef _PH_DIRECTINPUT_H_
 #define _PH_DIRECTINPUT_H_
 
-#include "directinput/Manager.h"
 #include "Types.h"
 #include "SettingsDialogProvider.h"
 #include "../PadHandler.h"
 #include "../ControllerInfo.h"
+#include "PH_DirectInput/InputManager.h"
 
 class CPH_DirectInput : public CPadHandler, public CSettingsDialogProvider
 {
@@ -14,20 +14,16 @@ public:
 	virtual										~CPH_DirectInput();
 
 	void										Update(uint8*);
-	Framework::DirectInput::CManager*			GetManager() const;
 
 	virtual Framework::Win32::CModalWindow*		CreateSettingsDialog(HWND);
 	virtual void								OnSettingsDialogDestroyed();
 
 	static FactoryFunction						GetFactoryFunction(HWND);
 
-	private:
+private:
 	static CPadHandler*							PadHandlerFactory(HWND);
-	void										Initialize();
-	void										ProcessEvents(PS2::CControllerInfo::BUTTON, uint32, uint8*);
 
-	Framework::DirectInput::CManager*			m_manager;
-
+	PH_DirectInput::CInputManager				m_inputManager;
 	HWND										m_hWnd;
 };
 
