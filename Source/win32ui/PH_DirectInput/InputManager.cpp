@@ -11,6 +11,9 @@
 #define CONFIG_BINDINGINFO_DEVICE			("device")
 #define CONFIG_BINDINGINFO_ID				("id")
 
+#define CONFIG_POVHATBINDING_PREFIX			("povhatbinding")
+#define CONFIG_POVHATBINDING_REFVALUE		("refvalue")
+
 #define CONFIG_SIMULATEDAXISBINDING_PREFIX	("simulatedaxisbinding")
 #define CONFIG_SIMULATEDAXISBINDING_KEY1	("key1")
 #define CONFIG_SIMULATEDAXISBINDING_KEY2	("key2")
@@ -48,6 +51,7 @@ CInputManager::CInputManager(HWND hWnd, Framework::CConfig& config)
 		std::string prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[i]);
 		m_config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), 0);
 		CSimpleBinding::RegisterPreferences(m_config, prefBase.c_str());
+		CPovHatBinding::RegisterPreferences(m_config, prefBase.c_str());
 	}
 	Load();
 
@@ -77,6 +81,9 @@ void CInputManager::Load()
 		{
 		case BINDING_SIMPLE:
 			binding.reset(new CSimpleBinding());
+			break;
+		case BINDING_POVHAT:
+			binding.reset(new CPovHatBinding());
 			break;
 		}
 		if(binding)
@@ -175,6 +182,15 @@ void CInputManager::SetSimpleBinding(PS2::CControllerInfo::BUTTON button, const 
 	m_bindings[button].reset(new CSimpleBinding(binding.device, binding.id));
 }
 
+void CInputManager::SetPovHatBinding(PS2::CControllerInfo::BUTTON button, const BINDINGINFO& binding, uint32 refValue)
+{
+	if(button >= PS2::CControllerInfo::MAX_BUTTONS)
+	{
+		throw std::exception();
+	}
+	m_bindings[button].reset(new CPovHatBinding(binding.device, binding.id, refValue));
+}
+
 void CInputManager::SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON button, const BINDINGINFO& binding1, const BINDINGINFO& binding2)
 {
 	if(button >= PS2::CControllerInfo::MAX_BUTTONS)
@@ -218,7 +234,7 @@ std::tstring CInputManager::GetBindingDescription(PS2::CControllerInfo::BUTTON b
 ////////////////////////////////////////////////
 
 CInputManager::CSimpleBinding::CSimpleBinding(const GUID& device, uint32 id) 
-: BINDINGINFO(device, id)
+: m_binding(device, id)
 , m_value(0)
 {
 
@@ -237,26 +253,26 @@ CInputManager::BINDINGTYPE CInputManager::CSimpleBinding::GetBindingType() const
 void CInputManager::CSimpleBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), boost::lexical_cast<std::string>(device).c_str());
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), id);
+	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), boost::lexical_cast<std::string>(m_binding.device).c_str());
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), m_binding.id);
 }
 
 void CInputManager::CSimpleBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	device = boost::lexical_cast<GUID>(config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
-	id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
+	m_binding.device = boost::lexical_cast<GUID>(config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+	m_binding.id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
 }
 
 std::tstring CInputManager::CSimpleBinding::GetDescription(Framework::DirectInput::CManager* directInputManager) const
 {
 	DIDEVICEINSTANCE deviceInstance;
 	DIDEVICEOBJECTINSTANCE objectInstance;
-	if(!directInputManager->GetDeviceInfo(device, &deviceInstance))
+	if(!directInputManager->GetDeviceInfo(m_binding.device, &deviceInstance))
 	{
 		return _T("");
 	}
-	if(!directInputManager->GetDeviceObjectInfo(device, id, &objectInstance))
+	if(!directInputManager->GetDeviceObjectInfo(m_binding.device, m_binding.id, &objectInstance))
 	{
 		return _T("");
 	}
@@ -265,8 +281,8 @@ std::tstring CInputManager::CSimpleBinding::GetDescription(Framework::DirectInpu
 
 void CInputManager::CSimpleBinding::ProcessEvent(const GUID& device, uint32 id, uint32 value)
 {
-	if(id != BINDINGINFO::id) return;
-	if(device != BINDINGINFO::device) return;
+	if(id != m_binding.id) return;
+	if(device != m_binding.device) return;
 	m_value = value;
 }
 
@@ -285,6 +301,108 @@ void CInputManager::CSimpleBinding::RegisterPreferences(Framework::CConfig& conf
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
 	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), boost::lexical_cast<std::string>(GUID()).c_str());
 	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 0);
+}
+
+////////////////////////////////////////////////
+// PovHatBinding
+////////////////////////////////////////////////
+
+CInputManager::CPovHatBinding::CPovHatBinding(const GUID& device, uint32 id, uint32 refValue) 
+: m_binding(device, id)
+, m_refValue(refValue)
+, m_value(0)
+{
+
+}
+
+CInputManager::CPovHatBinding::~CPovHatBinding()
+{
+
+}
+
+CInputManager::BINDINGTYPE CInputManager::CPovHatBinding::GetBindingType() const
+{
+	return BINDING_POVHAT;
+}
+
+void CInputManager::CPovHatBinding::Save(Framework::CConfig& config, const char* buttonBase) const
+{
+	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
+	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), boost::lexical_cast<std::string>(m_binding.device).c_str());
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), m_binding.id);
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), m_refValue);
+}
+
+void CInputManager::CPovHatBinding::Load(Framework::CConfig& config, const char* buttonBase)
+{
+	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
+	m_binding.device = boost::lexical_cast<GUID>(config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+	m_binding.id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
+	m_refValue = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str());
+}
+
+std::tstring CInputManager::CPovHatBinding::GetDescription(Framework::DirectInput::CManager* directInputManager) const
+{
+	DIDEVICEINSTANCE deviceInstance;
+	DIDEVICEOBJECTINSTANCE objectInstance;
+	if(!directInputManager->GetDeviceInfo(m_binding.device, &deviceInstance))
+	{
+		return _T("");
+	}
+	if(!directInputManager->GetDeviceObjectInfo(m_binding.device, m_binding.id, &objectInstance))
+	{
+		return _T("");
+	}
+	return std::tstring(deviceInstance.tszInstanceName) + _T(": ") + std::tstring(objectInstance.tszName);
+}
+
+void CInputManager::CPovHatBinding::ProcessEvent(const GUID& device, uint32 id, uint32 value)
+{
+	if(id != m_binding.id) return;
+	if(device != m_binding.device) return;
+	m_value = value;
+}
+
+uint32 CInputManager::CPovHatBinding::GetValue() const
+{
+	if(m_value == -1) return 0;
+	int32 normalizedRefValue = m_refValue / 100;
+	int32 normalizedValue = m_value / 100;
+	if(GetShortestDistanceBetweenAngles(normalizedValue, normalizedRefValue) <= 45)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void CInputManager::CPovHatBinding::SetValue(uint32 value)
+{
+	m_value = value ? m_refValue : -1;
+}
+
+int32 CInputManager::CPovHatBinding::GetShortestDistanceBetweenAngles(int32 angle1, int32 angle2)
+{
+	if(angle1 >  180) angle1 -= 360;
+	if(angle1 < -180) angle1 += 360;
+	if(angle2 >  180) angle2 -= 360;
+	if(angle2 < -180) angle2 += 360;
+	int32 angle = abs(angle1 - angle2);
+	if(angle > 180)
+	{
+		angle = 360 - angle;
+	}
+	return angle;
+}
+
+void CInputManager::CPovHatBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
+{
+	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
+	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), boost::lexical_cast<std::string>(GUID()).c_str());
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 0);
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), -1);
 }
 
 ////////////////////////////////////////////////

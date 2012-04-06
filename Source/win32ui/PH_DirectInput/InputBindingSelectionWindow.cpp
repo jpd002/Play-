@@ -17,6 +17,9 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 , m_currentBindingLabel(NULL)
 , m_isActive(false)
 , m_selected(false)
+, m_selectedValue(-1)
+, m_selectedId(0)
+, m_selectedDevice(GUID())
 , m_directInputManagerHandlerId(0)
 {
 	if(!DoesWindowClassExist(CLSNAME))
@@ -65,7 +68,14 @@ long CInputBindingSelectionWindow::OnTimer(WPARAM)
 {
 	if(m_selected)
 	{
-		m_inputManager.SetSimpleBinding(m_button, CInputManager::BINDINGINFO(m_selectedDevice, m_selectedId));
+		if(m_selectedValue != -1)
+		{
+			m_inputManager.SetPovHatBinding(m_button, CInputManager::BINDINGINFO(m_selectedDevice, m_selectedId), m_selectedValue);
+		}
+		else
+		{
+			m_inputManager.SetSimpleBinding(m_button, CInputManager::BINDINGINFO(m_selectedDevice, m_selectedId));
+		}
 		Destroy();
 	}
 	return TRUE;
@@ -103,6 +113,12 @@ void CInputBindingSelectionWindow::ProcessEvent(const GUID& device, uint32 id, u
 		{
 			if(PS2::CControllerInfo::IsAxis(m_button)) return;
 			if(!value) return;
+		}
+		else if(objectInstance.dwType & DIDFT_POV)
+		{
+			if(value == -1) return;
+			if(((value / 100) % 90) != 0) return;
+			m_selectedValue = value;
 		}
 		else
 		{

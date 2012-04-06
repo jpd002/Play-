@@ -31,6 +31,7 @@ namespace PH_DirectInput
 
 		GUID								m_selectedDevice;
 		uint32								m_selectedId;
+		uint32								m_selectedValue;
 		bool								m_selected;
 
 		Framework::LayoutObjectPtr			m_layout;

@@ -20,6 +20,7 @@ namespace PH_DirectInput
 			BINDING_UNBOUND = 0,
 			BINDING_SIMPLE = 1,
 			BINDING_SIMULATEDAXIS = 2,
+			BINDING_POVHAT = 3,
 		};
 
 		struct BINDINGINFO
@@ -46,7 +47,7 @@ namespace PH_DirectInput
 			virtual void					Load(Framework::CConfig&, const char*) = 0;
 		};
 
-		class CSimpleBinding : public CBinding, private BINDINGINFO
+		class CSimpleBinding : public CBinding
 		{
 		public:
 											CSimpleBinding(const GUID& = GUID(), uint32 = 0);
@@ -66,6 +67,34 @@ namespace PH_DirectInput
 			virtual void					Load(Framework::CConfig&, const char*);
 
 		private:
+			BINDINGINFO						m_binding;
+			uint32							m_value;
+		};
+
+		class CPovHatBinding : public CBinding
+		{
+		public:
+											CPovHatBinding(const GUID& = GUID(), uint32 = 0, uint32 = -1);
+			virtual							~CPovHatBinding();
+
+			static void						RegisterPreferences(Framework::CConfig&, const char*);
+
+			virtual BINDINGTYPE				GetBindingType() const;
+
+			virtual std::tstring			GetDescription(Framework::DirectInput::CManager*) const;
+			virtual void					ProcessEvent(const GUID&, uint32, uint32);
+
+			virtual uint32					GetValue() const;
+			virtual void					SetValue(uint32);
+
+			virtual void					Save(Framework::CConfig&, const char*) const;
+			virtual void					Load(Framework::CConfig&, const char*);
+
+		private:
+			static int32					GetShortestDistanceBetweenAngles(int32, int32);
+
+			BINDINGINFO						m_binding;
+			uint32							m_refValue;
 			uint32							m_value;
 		};
 
@@ -104,6 +133,7 @@ namespace PH_DirectInput
 
 		const CBinding*						GetBinding(PS2::CControllerInfo::BUTTON) const;
 		void								SetSimpleBinding(PS2::CControllerInfo::BUTTON, const BINDINGINFO&);
+		void								SetPovHatBinding(PS2::CControllerInfo::BUTTON, const BINDINGINFO&, uint32);
 		void								SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON, const BINDINGINFO&, const BINDINGINFO&);
 
 		void								Load();
