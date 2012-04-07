@@ -759,9 +759,6 @@
     <ClInclude Include="..\Source\iop\Iop_SifDynamic.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Sifman.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_SifManNull.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
@@ -1112,6 +1109,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.h">
       <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_SifMan.h">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

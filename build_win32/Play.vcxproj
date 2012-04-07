@@ -393,7 +393,7 @@
     <ClInclude Include="..\Source\iop\Iop_RootCounters.h" />
     <ClInclude Include="..\Source\iop\Iop_SifCmd.h" />
     <ClInclude Include="..\Source\iop\Iop_SifDynamic.h" />
-    <ClInclude Include="..\Source\iop\Iop_Sifman.h" />
+    <ClInclude Include="..\Source\iop\Iop_SifMan.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManNull.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManPs2.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu.h" />
