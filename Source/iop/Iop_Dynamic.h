@@ -5,22 +5,22 @@
 
 namespace Iop
 {
-    class CDynamic : public CModule
-    {
-    public:
-                        CDynamic(uint32*);
-        virtual         ~CDynamic();
+	class CDynamic : public CModule
+	{
+	public:
+						CDynamic(uint32*);
+		virtual			~CDynamic();
 
-        std::string     GetId() const;
+		std::string		GetId() const;
 		std::string		GetFunctionName(unsigned int) const;
-        void            Invoke(CMIPS&, unsigned int);
+		void			Invoke(CMIPS&, unsigned int);
 
-        uint32*         GetExportTable() const;
+		uint32*			GetExportTable() const;
 
-    private:
-        uint32*         m_exportTable;
-        std::string     m_name;
-    };
+	private:
+		uint32*			m_exportTable;
+		std::string		m_name;
+	};
 }
 
 #endif
