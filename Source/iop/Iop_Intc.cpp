@@ -2,9 +2,9 @@
 
 using namespace Iop;
 
-CIntc::CIntc() :
-m_mask(0),
-m_status(0)
+CIntc::CIntc() 
+: m_mask(0)
+, m_status(0)
 {
 
 }
@@ -62,25 +62,25 @@ uint32 CIntc::WriteRegister(uint32 address, uint32 value)
 
 void CIntc::AssertLine(unsigned int line)
 {
-    m_status.f |= 1LL << line;
+	m_status.f |= 1LL << line;
 }
 
 void CIntc::ClearLine(unsigned int line)
 {
-    m_status.f &= ~(1LL << line);
+	m_status.f &= ~(1LL << line);
 }
 
 void CIntc::SetMask(uint64 mask)
 {
-    m_mask.f = mask;
+	m_mask.f = mask;
 }
 
 void CIntc::SetStatus(uint64 status)
 {
-    m_status.f = status;
+	m_status.f = status;
 }
 
 bool CIntc::HasPendingInterrupt()
 {
-    return (m_mask.f & m_status.f) != 0;
+	return (m_mask.f & m_status.f) != 0;
 }
