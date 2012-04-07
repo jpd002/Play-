@@ -7,25 +7,25 @@
 namespace Iop
 {
 	class CSifMan : public CModule
-    {
-    public:
+	{
+	public:
 								CSifMan();
-        virtual					~CSifMan();
+		virtual					~CSifMan();
 
-        virtual std::string     GetId() const;
+		virtual std::string		GetId() const;
 		virtual std::string		GetFunctionName(unsigned int) const;
-        virtual void            Invoke(CMIPS&, unsigned int);
+		virtual void			Invoke(CMIPS&, unsigned int);
 
 		virtual void			RegisterModule(uint32, CSifModule*) = 0;
-        virtual void            UnregisterModule(uint32) = 0;
-        virtual void			SendPacket(void*, uint32) = 0;
-        virtual void			SetDmaBuffer(uint32, uint32) = 0;
-        virtual void            SendCallReply(uint32, void*) = 0;
+		virtual void			UnregisterModule(uint32) = 0;
+		virtual void			SendPacket(void*, uint32) = 0;
+		virtual void			SetDmaBuffer(uint32, uint32) = 0;
+		virtual void			SendCallReply(uint32, void*) = 0;
 
 	protected:
 		virtual uint32			SifSetDma(uint32, uint32);
-        virtual uint32          SifDmaStat(uint32);
-    };
+		virtual uint32			SifDmaStat(uint32);
+	};
 }
 
 #endif

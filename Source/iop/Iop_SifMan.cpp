@@ -3,13 +3,12 @@
 
 #define LOG_NAME ("iop_sifman")
 
-#define FUNCTION_SIFINIT        "SifInit"
-#define FUNCTION_SIFSETDMA      "SifSetDma"
-#define FUNCTION_SIFDMASTAT     "SifDmaStat"
-#define FUNCTION_SIFCHECKINIT   "SifCheckInit"
+#define FUNCTION_SIFINIT		"SifInit"
+#define FUNCTION_SIFSETDMA		"SifSetDma"
+#define FUNCTION_SIFDMASTAT		"SifDmaStat"
+#define FUNCTION_SIFCHECKINIT	"SifCheckInit"
 
 using namespace Iop;
-using namespace std;
 
 CSifMan::CSifMan()
 {
@@ -21,28 +20,28 @@ CSifMan::~CSifMan()
 
 }
 
-string CSifMan::GetId() const
+std::string CSifMan::GetId() const
 {
 	return "sifman";
 }
 
-string CSifMan::GetFunctionName(unsigned int functionId) const
+std::string CSifMan::GetFunctionName(unsigned int functionId) const
 {
-    switch(functionId)
-    {
-    case 5:
-        return FUNCTION_SIFINIT;
-        break;
-    case 7:
-        return FUNCTION_SIFSETDMA;
-        break;
-    case 8:
-        return FUNCTION_SIFDMASTAT;
-        break;
-    case 29:
-        return FUNCTION_SIFCHECKINIT;
-        break;
-    }
+	switch(functionId)
+	{
+	case 5:
+		return FUNCTION_SIFINIT;
+		break;
+	case 7:
+		return FUNCTION_SIFSETDMA;
+		break;
+	case 8:
+		return FUNCTION_SIFDMASTAT;
+		break;
+	case 29:
+		return FUNCTION_SIFCHECKINIT;
+		break;
+	}
 	return "unknown";
 }
 
@@ -56,12 +55,12 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0
 			));
 		break;
-    case 8:
-        context.m_State.nGPR[CMIPS::V0].nV0 = SifDmaStat(context.m_State.nGPR[CMIPS::A0].nV0);
-        break;
+	case 8:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifDmaStat(context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "%0.8X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
-        break;
+		break;
 	}
 }
 
@@ -74,7 +73,7 @@ uint32 CSifMan::SifSetDma(uint32 structAddr, uint32 length)
 
 uint32 CSifMan::SifDmaStat(uint32 transferId)
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
-        transferId);
-    return -1;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
+		transferId);
+	return -1;
 }
