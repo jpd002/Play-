@@ -6,26 +6,26 @@
 
 namespace Iop
 {
-    class CLibSd : public CModule, public CSifModule
-    {
-    public:
-                        CLibSd(CSifMan&);
-        virtual         ~CLibSd();
+	class CLibSd : public CModule, public CSifModule
+	{
+	public:
+						CLibSd(CSifMan&);
+		virtual			~CLibSd();
 
-        std::string     GetId() const;
-        std::string     GetFunctionName(unsigned int) const;
-        void            Invoke(CMIPS&, unsigned int);
-        bool            Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		std::string		GetId() const;
+		std::string		GetFunctionName(unsigned int) const;
+		void			Invoke(CMIPS&, unsigned int);
+		bool			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
-    private:
+	private:
 		enum MODULE_ID
 		{
 			MODULE_ID = 0x80000701
 		};
 
-        void            GetBufferSize(uint32*, uint32, uint32*, uint32);
+		void			GetBufferSize(uint32*, uint32, uint32*, uint32);
 
-    };
+	};
 }
 
 #endif

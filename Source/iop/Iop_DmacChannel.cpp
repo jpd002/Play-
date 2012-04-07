@@ -5,12 +5,12 @@
 using namespace Iop;
 using namespace Iop::Dmac;
 
-CChannel::CChannel(uint32 baseAddress, unsigned int number, CDmac& dmac) :
-m_dmac(dmac),
-m_number(number),
-m_baseAddress(baseAddress)
+CChannel::CChannel(uint32 baseAddress, unsigned int number, CDmac& dmac) 
+: m_dmac(dmac)
+, m_number(number)
+, m_baseAddress(baseAddress)
 {
-    Reset();
+	Reset();
 }
 
 CChannel::~CChannel()
@@ -20,9 +20,9 @@ CChannel::~CChannel()
 
 void CChannel::Reset()
 {
-    m_CHCR <<= 0;
-    m_BCR <<= 0;
-    m_MADR = 0;
+	m_CHCR <<= 0;
+	m_BCR <<= 0;
+	m_MADR = 0;
 }
 
 void CChannel::SetReceiveFunction(const ReceiveFunctionType& receiveFunction)
@@ -76,10 +76,10 @@ void CChannel::WriteRegister(uint32 address, uint32 value)
 	case REG_BCR:
 		m_BCR <<= value;
 		break;
-    case REG_BCR + 2:
-        //Not really cool...
-        m_BCR.ba = static_cast<uint16>(value);
-        break;
+	case REG_BCR + 2:
+		//Not really cool...
+		m_BCR.ba = static_cast<uint16>(value);
+		break;
 	case REG_CHCR:
 		m_CHCR <<= value;
 		if(m_CHCR.tr)
