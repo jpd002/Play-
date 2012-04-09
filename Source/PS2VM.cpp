@@ -1033,7 +1033,7 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 		{
 			if(m_executor.FindBlockAt(m_EE.m_State.nPC) != block)
 			{
-				m_executor.DeleteBlock(block);
+				m_executor.DeleteBlock(block.get());
 			}
 			else
 			{
