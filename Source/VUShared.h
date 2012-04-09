@@ -104,6 +104,7 @@ namespace VUShared
 	void						MADDAi(CMipsJitter*, uint8, uint8);
 	void						MAX(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MAXbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void						MAXi(CMipsJitter*, uint8, uint8, uint8);
 	void						MINI(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MINIbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						MINIi(CMipsJitter*, uint8, uint8, uint8);

@@ -604,6 +604,14 @@ void VUShared::MAXbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 }
 
+void VUShared::MAXi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
+{
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+	codeGen->MD_MaxS();
+	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+}
+
 void VUShared::MINI(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
