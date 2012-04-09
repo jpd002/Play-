@@ -69,6 +69,7 @@ private:
 		void								MINIbc();
 		void								MULbc();
 		void								MULq();
+		void								MAXi();
 		void								MULi();
 		void								MINIi();
 		void								ADDq();
@@ -303,6 +304,7 @@ private:
 		void								ILWR();
 		void								RINIT();
 		void								ELENG();
+		void								ESUM();
 		void								ERCPR();
 
 		//Vector3

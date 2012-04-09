@@ -78,7 +78,7 @@ void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddre
 	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0x07FF);
 	uint8  nIT  = static_cast<uint8> ((nOpcode >> 16) & 0x001F);
 
-    nAddress += 8;
+	nAddress += 8;
 
 	sprintf(sText, "VI%i, $%0.8X", nIT, nAddress + GetBranch(nImm));
 }
@@ -584,7 +584,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX0[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"ESQRT",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
-	{	"ESIN",	    NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
+	{	"ESIN",		NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 };
 
 INSTRUCTION CMA_VU::CLower::m_cReflVX1[32] =
@@ -662,7 +662,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"ELENG",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ESUM",		NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	"ERCPR",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };

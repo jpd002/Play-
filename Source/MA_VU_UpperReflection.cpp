@@ -51,7 +51,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflV[64] =
 	{	"MUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	"MUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,				NULL			},
 	{	"MUL",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"MAX",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
 	{	"MUL",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
 	{	"MINI",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
 	//0x20
@@ -71,7 +71,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflV[64] =
 	{	"SUB",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"OPMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
-	{	"MINI",	    NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
+	{	"MINI",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,				NULL			},
 	//0x30
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
