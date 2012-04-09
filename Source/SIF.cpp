@@ -252,12 +252,12 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-	m_nMAINADDR     = registerFile.GetRegister32("MAINADDR");
-	m_nSUBADDR      = registerFile.GetRegister32("SUBADDR");
-	m_nMSFLAG       = registerFile.GetRegister32("MSFLAG");
-	m_nSMFLAG       = registerFile.GetRegister32("SMFLAG");
-	m_nEERecvAddr   = registerFile.GetRegister32("EERecvAddr");
-	m_nDataAddr     = registerFile.GetRegister32("DataAddr");
+	m_nMAINADDR		= registerFile.GetRegister32("MAINADDR");
+	m_nSUBADDR		= registerFile.GetRegister32("SUBADDR");
+	m_nMSFLAG		= registerFile.GetRegister32("MSFLAG");
+	m_nSMFLAG		= registerFile.GetRegister32("SMFLAG");
+	m_nEERecvAddr	= registerFile.GetRegister32("EERecvAddr");
+	m_nDataAddr		= registerFile.GetRegister32("DataAddr");
 
 	{
 		CStructCollectionStateFile callRepliesFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
@@ -278,12 +278,12 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	{
 		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-		registerFile->SetRegister32("MAINADDR",     m_nMAINADDR);
-		registerFile->SetRegister32("SUBADDR",      m_nSUBADDR);
-		registerFile->SetRegister32("MSFLAG",       m_nMSFLAG);
-		registerFile->SetRegister32("SMFLAG",       m_nSMFLAG);
-		registerFile->SetRegister32("EERecvAddr",   m_nEERecvAddr);
-		registerFile->SetRegister32("DataAddr",     m_nDataAddr);
+		registerFile->SetRegister32("MAINADDR",		m_nMAINADDR);
+		registerFile->SetRegister32("SUBADDR",		m_nSUBADDR);
+		registerFile->SetRegister32("MSFLAG",		m_nMSFLAG);
+		registerFile->SetRegister32("SMFLAG",		m_nSMFLAG);
+		registerFile->SetRegister32("EERecvAddr",	m_nEERecvAddr);
+		registerFile->SetRegister32("DataAddr",		m_nDataAddr);
 		archive.InsertFile(registerFile);
 	}
 
