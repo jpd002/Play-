@@ -55,7 +55,7 @@ CModalWindow(hParent)
 
 	m_pFlipModeComboBox = new Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
 	m_pFlipModeComboBox->AddString(_T("#1 - SMODE2"));
-	m_pFlipModeComboBox->AddString(_T("#2 - FBDISP2"));
+	m_pFlipModeComboBox->AddString(_T("#2 - DISPFB2"));
 	m_pFlipModeComboBox->AddString(_T("#3 - VBLANK"));
 	m_pFlipModeComboBox->SetSelection(m_flipMode);
 
