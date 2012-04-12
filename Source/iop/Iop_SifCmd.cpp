@@ -272,7 +272,8 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 	CLog::GetInstance().Print(LOG_NAME, "SifRegisterRpc(serverData = 0x%0.8X, serverId = 0x%0.8X, function = 0x%0.8X, buffer = 0x%0.8X, cfunction = 0x%0.8X, cbuffer = 0x%0.8X, queue = 0x%0.8X);\r\n",
 		serverDataAddr, serverId, function, buffer, cfunction, cbuffer, queueAddr);
 
-	if(!(serverId & 0x80000000))
+	static const uint32 libSdServerId = 0x80000701;
+	if(serverId == libSdServerId || ((serverId & 0x80000000) == 0))
 	{
 		CSifDynamic* module = new CSifDynamic(*this, serverDataAddr);
 		m_servers.push_back(module);
@@ -282,12 +283,12 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 	if(serverDataAddr != 0)
 	{
 		SIFRPCSERVERDATA* serverData = reinterpret_cast<SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
-		serverData->serverId    = serverId;
-		serverData->function    = function;
-		serverData->buffer      = buffer;
-		serverData->cfunction   = cfunction;
-		serverData->cbuffer     = cbuffer;
-		serverData->queueAddr   = queueAddr;
+		serverData->serverId	= serverId;
+		serverData->function	= function;
+		serverData->buffer		= buffer;
+		serverData->cfunction	= cfunction;
+		serverData->cbuffer		= cbuffer;
+		serverData->queueAddr	= queueAddr;
 	}
 
 	if(queueAddr != 0)

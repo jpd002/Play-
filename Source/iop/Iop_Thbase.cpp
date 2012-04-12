@@ -16,6 +16,7 @@ using namespace std;
 #define FUNCTION_IWAKEUPTHREAD				"iWakeupThread"
 #define FUNCTION_DELAYTHREAD				"DelayThread"
 #define FUNCTION_GETSYSTEMTIME				"GetSystemTime"
+#define FUNCTION_SETALARM					"SetAlarm"
 #define FUNCTION_USECTOSYSCLOCK				"USecToSysClock"
 #define FUNCTION_SYSCLOCKTOUSEC				"SysClockToUSec"
 #define FUNCTION_GETCURRENTTHREADPRIORITY	"GetCurrentThreadPriority"
@@ -67,6 +68,9 @@ string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 34:
 		return FUNCTION_GETSYSTEMTIME;
+		break;
+	case 35:
+		return FUNCTION_SETALARM;
 		break;
 	case 39:
 		return FUNCTION_USECTOSYSCLOCK;
@@ -128,6 +132,13 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 	case 34:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetSystemTime(
 			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
+	case 35:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SetAlarm(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0
 			));
 		break;
 	case 39:
@@ -210,6 +221,15 @@ uint32 CThbase::GetSystemTime(uint32 resultAddr)
 		(*result) = m_bios.GetCurrentTime();
 	}
 	return 1;
+}
+
+uint32 CThbase::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : SetAlarm(timePtr = 0x%0.8X, alarmFunction = 0x%0.8X, param = 0x%0.8X);\r\n",
+		m_bios.GetCurrentThreadId(), timePtr, alarmFunction, param);
+#endif
+	return 0;
 }
 
 void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)

@@ -13,7 +13,6 @@
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_DbcMan320.h"
-#include "Iop_LibSd.h"
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
 #include "Iop_FileIo.h"
@@ -43,7 +42,9 @@
 #define BIOS_THREADS_SIZE				(sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
 #define BIOS_SEMAPHORES_BASE			(BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
 #define BIOS_SEMAPHORES_SIZE			(sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
-#define BIOS_INTRHANDLER_BASE			(BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
+#define BIOS_EVENTFLAGS_BASE			(BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
+#define BIOS_EVENTFLAGS_SIZE			(sizeof(CIopBios::EVENTFLAG) * CIopBios::MAX_EVENTFLAG)
+#define BIOS_INTRHANDLER_BASE			(BIOS_EVENTFLAGS_BASE + BIOS_EVENTFLAGS_SIZE)
 #define BIOS_INTRHANDLER_SIZE			(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
 #define BIOS_HEAPBLOCK_BASE				(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
 #define BIOS_HEAPBLOCK_SIZE				(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
@@ -67,6 +68,7 @@ m_threadFinishAddress(0),
 m_clockFrequency(clockFrequency),
 m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD),
 m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE),
+m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG),
 m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
 {
 	static_assert(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END, "Control block size is too small");
@@ -170,9 +172,6 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	{
 		m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan, m_ram);
 		RegisterModule(m_cdvdfsv);
-	}
-	{
-		RegisterModule(new Iop::CLibSd(*m_sifMan));
 	}
 	{
 		RegisterModule(new Iop::CMcServ(*m_sifMan));
@@ -372,10 +371,16 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 			{
 				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
 				uint32 functionId = target & 0xFFFF;
-				std::string functionName = "unknown";
+				std::string functionName;
 				if(module != m_modules.end())
 				{
 					functionName = (module->second)->GetFunctionName(functionId);
+				}
+				else
+				{
+					char functionNameTemp[256];
+					sprintf(functionNameTemp, "unknown_%0.4X", functionId);
+					functionName = functionNameTemp;
 				}
 				if(m_cpu.m_Functions.Find(address) == NULL)
 				{
@@ -869,14 +874,14 @@ uint32 CIopBios::DeleteSemaphore(uint32 semaphoreId)
 uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: SignalSemaphore(semaphoreId = %i);\r\n", 
-		CurrentThreadId(), semaphoreId);
+	CLog::GetInstance().Print(LOGNAME, "%d: SignalSemaphore(semaphoreId = %d, inInterrupt = %d);\r\n", 
+		CurrentThreadId(), semaphoreId, inInterrupt);
 #endif
 
 	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
 	if(semaphore == NULL)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
+		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
 			CurrentThreadId(), semaphoreId);
 		return -1;
 	}
@@ -890,9 +895,9 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 			if(thread == NULL) continue;
 			if(thread->waitSemaphore == semaphoreId)
 			{
-				if(thread->status != THREAD_STATUS_WAITING)
+				if(thread->status != THREAD_STATUS_WAITING_SEMAPHORE)
 				{
-					throw std::runtime_error("Thread not waiting (inconsistent state).");
+					throw std::runtime_error("Thread not waiting for semaphone (inconsistent state).");
 				}
 				thread->status = THREAD_STATUS_RUNNING;
 				thread->waitSemaphore = 0;
@@ -918,14 +923,14 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: WaitSemaphore(semaphoreId = %i);\r\n", 
+	CLog::GetInstance().Print(LOGNAME, "%d: WaitSemaphore(semaphoreId = %d);\r\n", 
 		CurrentThreadId(), semaphoreId);
 #endif
 
 	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
 	if(semaphore == NULL)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
+		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
 			CurrentThreadId(), semaphoreId);
 		return -1;
 	}
@@ -933,16 +938,165 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 	if(semaphore->count == 0)
 	{
 		THREAD* thread = GetThread(CurrentThreadId());
-		thread->status           = THREAD_STATUS_WAITING;
-		thread->waitSemaphore    = semaphoreId;
+		thread->status			= THREAD_STATUS_WAITING_SEMAPHORE;
+		thread->waitSemaphore	= semaphoreId;
 		semaphore->waitCount++;
-		m_rescheduleNeeded      = true;
+		m_rescheduleNeeded = true;
 	}
 	else
 	{
 		semaphore->count--;
 	}
 	return semaphore->count;
+}
+
+uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initValue)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: CreateEventFlag(attr = 0x%0.8X, opt = 0x%0.8X, initValue = 0x%0.8X);\r\n",
+		CurrentThreadId(), attributes, options, initValue);
+#endif
+
+	uint32 eventId = m_eventFlags.Allocate();
+	assert(eventId != -1);
+	if(eventId == -1)
+	{
+		return -1;
+	}
+
+	EVENTFLAG* eventFlag = m_eventFlags[eventId];
+
+	eventFlag->id			= eventId;
+	eventFlag->value		= initValue;
+	eventFlag->options		= options;
+	eventFlag->attributes	= attributes;
+
+	return eventFlag->id;
+}
+
+uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "SetEventFlag(eventId = %d, value = 0x%0.8X, inInterrupt = %d);\r\n",
+		CurrentThreadId(), eventId, value, inInterrupt);
+#endif
+
+	EVENTFLAG* eventFlag = m_eventFlags[eventId];
+	if(eventFlag == NULL)
+	{
+		return -1;
+	}
+
+	eventFlag->value |= value;
+
+	//Check all threads waiting for this event
+	for(auto threadIterator(m_threads.Begin()); threadIterator != m_threads.End(); threadIterator++)
+	{
+		THREAD* thread(m_threads[threadIterator]);
+		if(thread == NULL) continue;
+		if(thread->waitEventFlag == eventId)
+		{
+			uint32 maskResult = eventFlag->value & thread->waitEventFlagMask;
+			bool success = false;
+			if(thread->waitEventFlagMode & WEF_OR)
+			{
+				success = (maskResult != 0);
+			}
+			else
+			{
+				success = (maskResult == thread->waitEventFlagMask);
+			}
+
+			if(success)
+			{
+				if(thread->waitEventFlagResultPtr != 0)
+				{
+					uint32* result = reinterpret_cast<uint32*>(m_ram + thread->waitEventFlagResultPtr);
+					*result = maskResult;
+				}
+
+				thread->waitEventFlag = 0;
+				thread->waitEventFlagResultPtr = 0;
+
+				thread->status = THREAD_STATUS_RUNNING;
+				if(!inInterrupt)
+				{
+					m_rescheduleNeeded = true;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
+uint32 CIopBios::ClearEventFlag(uint32 eventId, uint32 value)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: ClearEventFlag(eventId = %d, value = 0x%0.8X);\r\n",
+		CurrentThreadId(), eventId, value);
+#endif
+
+	EVENTFLAG* eventFlag = m_eventFlags[eventId];
+	if(eventFlag == NULL)
+	{
+		return -1;
+	}
+
+	eventFlag->value &= value;
+
+	return 0;
+}
+
+uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32 resultPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: WaitEventFlag(eventId = %d, value = 0x%0.8X, mode = 0x%0.2X, resultPtr = 0x%0.8X);\r\n",
+		CurrentThreadId(), eventId, value, mode, resultPtr);
+#endif
+
+	EVENTFLAG* eventFlag = m_eventFlags[eventId];
+	if(eventFlag == NULL)
+	{
+		return -1;
+	}
+	
+	if(mode & WEF_CLEAR)
+	{
+		eventFlag->value = 0;
+	}
+
+	uint32 maskResult = eventFlag->value & value;
+	bool success = false;
+	if(mode & WEF_OR)
+	{
+		success = (maskResult != 0);
+	}
+	else
+	{
+		success = (maskResult == value);
+	}
+
+	if(success)
+	{
+		if(resultPtr != 0)
+		{
+			uint32* result = reinterpret_cast<uint32*>(m_ram + resultPtr);
+			*result = maskResult;
+		}
+	}
+	else
+	{
+		THREAD* thread = GetThread(CurrentThreadId());
+		thread->status					= THREAD_STATUS_WAITING_EVENTFLAG;
+		thread->waitEventFlag			= eventId;
+		thread->waitEventFlagMode		= mode & 1;
+		thread->waitEventFlagMask		= value;
+		thread->waitEventFlagResultPtr	= resultPtr;
+		m_rescheduleNeeded = true;
+	}
+
+	return 0;
 }
 
 Iop::CIoman* CIopBios::GetIoman()

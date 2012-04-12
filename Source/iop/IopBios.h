@@ -46,6 +46,10 @@ public:
 		THREADCONTEXT	context;
 		uint32			status;
 		uint32			waitSemaphore;
+		uint32			waitEventFlag;
+		uint32			waitEventFlagMode;
+		uint32			waitEventFlagMask;
+		uint32			waitEventFlagResultPtr;
 		uint32			wakeupCount;
 		uint32			stackBase;
 		uint32			stackSize;
@@ -55,13 +59,14 @@ public:
 
 	enum THREAD_STATUS
 	{
-		THREAD_STATUS_CREATED = 1,
-		THREAD_STATUS_RUNNING = 2,
-		THREAD_STATUS_SLEEPING = 3,
-		THREAD_STATUS_ZOMBIE = 4,
-		THREAD_STATUS_WAITING = 5,
-		THREAD_STATUS_WAIT_VBLANK_START = 6,
-		THREAD_STATUS_WAIT_VBLANK_END = 7,
+		THREAD_STATUS_CREATED			= 1,
+		THREAD_STATUS_RUNNING			= 2,
+		THREAD_STATUS_SLEEPING			= 3,
+		THREAD_STATUS_ZOMBIE			= 4,
+		THREAD_STATUS_WAITING_SEMAPHORE = 5,
+		THREAD_STATUS_WAITING_EVENTFLAG = 6,
+		THREAD_STATUS_WAIT_VBLANK_START = 7,
+		THREAD_STATUS_WAIT_VBLANK_END	= 8,
 	};
 
 	typedef MipsModuleList::iterator ModuleListIterator;
@@ -123,6 +128,11 @@ public:
 	uint32					SignalSemaphore(uint32, bool);
 	uint32					WaitSemaphore(uint32);
 
+	uint32					CreateEventFlag(uint32, uint32, uint32);
+	uint32					SetEventFlag(uint32, uint32, bool);
+	uint32					ClearEventFlag(uint32, uint32);
+	uint32					WaitEventFlag(uint32, uint32, uint32, uint32);
+
 	bool					RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	bool					ReleaseIntrHandler(uint32);
 
@@ -141,7 +151,15 @@ private:
 	{
 		MAX_THREAD = 64,
 		MAX_SEMAPHORE = 64,
+		MAX_EVENTFLAG = 64,
 		MAX_INTRHANDLER = 32,
+	};
+
+	enum WEF_FLAGS
+	{
+		WEF_AND		= 0x00,
+		WEF_OR		= 0x01,
+		WEF_CLEAR	= 0x10,
 	};
 
 	struct SEMAPHORE
@@ -151,6 +169,15 @@ private:
 		uint32			count;
 		uint32			maxCount;
 		uint32			waitCount;
+	};
+
+	struct EVENTFLAG
+	{
+		uint32			isValid;
+		uint32			id;
+		uint32			attributes;
+		uint32			options;
+		uint32			value;
 	};
 
 	struct INTRHANDLER
@@ -181,6 +208,7 @@ private:
 
 	typedef COsStructManager<THREAD> ThreadList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
+	typedef COsStructManager<EVENTFLAG> EventFlagList;
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
 	typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
 	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
@@ -234,6 +262,7 @@ private:
 	bool						m_rescheduleNeeded;
 	ThreadList					m_threads;
 	SemaphoreList				m_semaphores;
+	EventFlagList				m_eventFlags;
 	IntrHandlerList				m_intrHandlers;
 
 	IopModuleMapType			m_modules;

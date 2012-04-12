@@ -187,9 +187,6 @@
     <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_LibSd.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\iop\Iop_McServ.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
@@ -736,9 +733,6 @@
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Loadcore.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_LibSd.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_McServ.h">
