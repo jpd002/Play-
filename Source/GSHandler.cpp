@@ -31,23 +31,23 @@
 		(r) |= (v);					\
 	}
 
-#define STATE_RAM       ("gs/ram")
-#define STATE_REGS      ("gs/regs")
-#define STATE_TRXCTX    ("gs/trxcontext")
-#define STATE_PRIVREGS  ("gs/privregs.xml")
+#define STATE_RAM						("gs/ram")
+#define STATE_REGS						("gs/regs")
+#define STATE_TRXCTX					("gs/trxcontext")
+#define STATE_PRIVREGS					("gs/privregs.xml")
 
-#define STATE_PRIVREGS_PMODE            ("PMODE")
-#define STATE_PRIVREGS_DISPFB1          ("DISPFB1")
-#define STATE_PRIVREGS_DISPLAY1         ("DISPLAY1")
-#define STATE_PRIVREGS_DISPFB2          ("DISPFB2")
-#define STATE_PRIVREGS_DISPLAY2         ("DISPLAY2")
-#define STATE_PRIVREGS_CSR              ("CSR")
-#define STATE_PRIVREGS_IMR              ("IMR")
-#define STATE_PRIVREGS_CRTINTERLACED    ("CrtInterlated")
-#define STATE_PRIVREGS_CRTMODE          ("CrtMode")
-#define STATE_PRIVREGS_CRTFRAMEMODE     ("CrtFrameMode")
+#define STATE_PRIVREGS_PMODE			("PMODE")
+#define STATE_PRIVREGS_DISPFB1			("DISPFB1")
+#define STATE_PRIVREGS_DISPLAY1			("DISPLAY1")
+#define STATE_PRIVREGS_DISPFB2			("DISPFB2")
+#define STATE_PRIVREGS_DISPLAY2			("DISPLAY2")
+#define STATE_PRIVREGS_CSR				("CSR")
+#define STATE_PRIVREGS_IMR				("IMR")
+#define STATE_PRIVREGS_CRTINTERLACED	("CrtInterlated")
+#define STATE_PRIVREGS_CRTMODE			("CrtMode")
+#define STATE_PRIVREGS_CRTFRAMEMODE		("CrtFrameMode")
 
-#define LOG_NAME    ("gs")
+#define LOG_NAME						("gs")
 
 int CGSHandler::STORAGEPSMCT32::m_nBlockSwizzleTable[4][8] =
 {
@@ -337,11 +337,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		{
 			if(m_flipMode == FLIP_MODE_DISPFB2)
 			{
-				//Speed hack for Atelier Iris
-				if((m_nPMODE & 0x03) != 0x03)
-				{
-					Flip();
-				}
+				Flip();
 			}
 		}
 		break;
@@ -1194,14 +1190,16 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		break;
 	case GS_REG_FRAME_1:
 	case GS_REG_FRAME_2:
-		FRAME fr;
-		fr = *(FRAME*)&nData;
-		CLog::GetInstance().Print(LOG_NAME, "FRAME_%i(FBP: 0x%0.8X, FBW: %i, PSM: %i, FBMSK: %i);\r\n", \
-			nRegister == GS_REG_FRAME_1 ? 1 : 2, \
-			fr.GetBasePtr(), \
-			fr.GetWidth(), \
-			fr.nPsm, \
-			fr.nMask);
+		{
+			FRAME fr;
+			fr <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "FRAME_%i(FBP: 0x%0.8X, FBW: %d, PSM: %d, FBMSK: 0x%0.8X);\r\n", \
+				nRegister == GS_REG_FRAME_1 ? 1 : 2, \
+				fr.GetBasePtr(), \
+				fr.GetWidth(), \
+				fr.nPsm, \
+				fr.nMask);
+		}
 		break;
 	case GS_REG_ZBUF_1:
 	case GS_REG_ZBUF_2:

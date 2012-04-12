@@ -74,10 +74,12 @@ void main()
 {
 	vec4 nTexCoord = gl_TexCoord[0];
 	
+	nTexCoord.st /= nTexCoord.q;
+
 	nTexCoord.st *= g_nSize.st;
 
 	nTexCoord.s = Clamp(g_nClamp.s, nTexCoord.s, g_nMin.s, g_nMax.s);
-	nTexCoord.t = Clamp(g_nClamp.t, nTexCoord.t, g_nMin.t, g_nMax.t);	
+	nTexCoord.t = Clamp(g_nClamp.t, nTexCoord.t, g_nMin.t, g_nMax.t);
 
 	nTexCoord.st /= g_nSize.st;
 

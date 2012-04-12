@@ -1,5 +1,5 @@
-#ifndef _GS_H_
-#define _GS_H_
+#ifndef _GSHANDLER_H_
+#define _GSHANDLER_H_
 
 #include "Types.h"
 #include "Convertible.h"
@@ -403,7 +403,7 @@ protected:
 	static_assert(sizeof(TEST) == sizeof(uint64), "Size of TEST struct must be 8 bytes.");
 
 	//Reg 0x4C/0x4D
-	struct FRAME
+	struct FRAME : public convertible<uint64>
 	{
 		unsigned int	nPtr			: 16;
 		unsigned int	nWidth			: 8;
@@ -412,6 +412,7 @@ protected:
 		uint32			GetBasePtr()	{ return nPtr * 8192; }
 		uint32			GetWidth()		{ return nWidth * 64; }
 	};
+	static_assert(sizeof(FRAME) == sizeof(uint64), "Size of FRAME struct must be 8 bytes.");
 
 	//Reg 0x4E/0x4F
 	struct ZBUF : public convertible<uint64>

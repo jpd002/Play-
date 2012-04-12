@@ -96,6 +96,8 @@ void CGSH_OpenGL::InitializeRC()
 	glClearDepth(0.0f);
 	glEnable(GL_TEXTURE_2D);
 
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
 	//Initialize fog
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, 0.0f);
@@ -137,13 +139,19 @@ void CGSH_OpenGL::InitializeRC()
 		LoadShaderSource(m_pVertShader, SHADER_VERTEX);
 		LoadShaderSource(m_pFragShader, SHADER_FRAGMENT);
 
-		m_pVertShader->Compile();
-		m_pFragShader->Compile();
+		bool success = false;
 
-		m_pProgram->AttachShader((*m_pVertShader));
-		m_pProgram->AttachShader((*m_pFragShader));
+		success = m_pVertShader->Compile();
+		assert(success);
 
-		m_pProgram->Link();
+		success = m_pFragShader->Compile();
+		assert(success);
+
+		m_pProgram->AttachShader(*m_pVertShader);
+		m_pProgram->AttachShader(*m_pFragShader);
+
+		success = m_pProgram->Link();
+		assert(success);
 	}
 
 	m_pCvtBuffer = (uint8*)malloc(CVTBUFFERSIZE);
@@ -238,12 +246,8 @@ void CGSH_OpenGL::UpdateViewportImpl()
 	m_nWidth = nW;
 	m_nHeight = nH;
 
-	//wglMakeCurrent(m_hDC, m_hRC);
-	{
-		SetViewport(GetCrtWidth(), GetCrtHeight());
-		SetReadCircuitMatrix(m_nWidth, m_nHeight);
-	}
-	//wglMakeCurrent(NULL, NULL);
+	SetViewport(GetCrtWidth(), GetCrtHeight());
+	SetReadCircuitMatrix(m_nWidth, m_nHeight);
 }
 
 unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
@@ -318,6 +322,16 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 	SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
 	SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
 	
+	{
+		FRAME frame;
+		frame <<= m_nReg[GS_REG_FRAME_1 + nContext];
+		bool r = (frame.nMask & 0x000000FF) == 0;
+		bool g = (frame.nMask & 0x0000FF00) == 0;
+		bool b = (frame.nMask & 0x00FF0000) == 0;
+		bool a = (frame.nMask & 0xFF000000) == 0;
+		glColorMask(r, g, b, a);
+	}
+
 	XYOFFSET offset;
 	offset <<= m_nReg[GS_REG_XYOFFSET_1 + nContext];
 	m_nPrimOfsX = offset.GetX();
@@ -397,6 +411,11 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 //		//Implemented as Cd * As
 //		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
 //	}
+	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 0))
+	{
+		//Cd * As + Cs
+		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cd * As
@@ -538,8 +557,6 @@ void CGSH_OpenGL::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
 void CGSH_OpenGL::SetupFogColor()
 {
 	float nColor[4];
-
-	//wglMakeCurrent(m_hDC, m_hRC);
 
 	FOGCOL* pColor = GetFogCol();
 	nColor[0] = (float)pColor->nFCR / 255.0f;
@@ -773,37 +790,26 @@ void CGSH_OpenGL::Prim_Triangle()
 			assert(isQ0Neg == isQ1Neg);
 			assert(isQ1Neg == isQ2Neg);
 
-			nS1 /= rgbaq[0].nQ;
-			nS2 /= rgbaq[1].nQ;
-			nS3 /= rgbaq[2].nQ;
-
-			nT1 /= rgbaq[0].nQ;
-			nT2 /= rgbaq[1].nQ;
-			nT3 /= rgbaq[2].nQ;
-
 			glBegin(GL_TRIANGLES);
 			{
 				glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-				glTexCoord2f(nS1, nT1);
-				//glTexCoord4d(nS1, nT1, 0, rgbaq[0].nQ);
+				glTexCoord4f(nS1, nT1, 0, rgbaq[0].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF1);
 				glVertex3f(nX1, nY1, nZ1);
 
 				glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-				glTexCoord2f(nS2, nT2);
-//				glTexCoord4d(nS2, nT2, 0, rgbaq[1].nQ);
+				glTexCoord4f(nS2, nT2, 0, rgbaq[1].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF2);
 				glVertex3f(nX2, nY2, nZ2);
 
 				glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-				glTexCoord2f(nS3, nT3);
-//				glTexCoord4d(nS3, nT3, 0, rgbaq[2].nQ);
+				glTexCoord4f(nS3, nT3, 0, rgbaq[2].nQ);
 				if(glFogCoordfEXT) glFogCoordfEXT(nF3);
 				glVertex3f(nX3, nY3, nZ3);
 			}
 			glEnd();
 
-			glBindTexture(GL_TEXTURE_2D, NULL);			
+			glBindTexture(GL_TEXTURE_2D, NULL);
 		}
 	}
 	else
