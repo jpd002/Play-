@@ -21,7 +21,9 @@ std::string CDynamic::GetId() const
 
 std::string CDynamic::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+	char functionName[256];
+	sprintf(functionName, "unknown_%0.4X", functionId);
+	return functionName;
 }
 
 void CDynamic::Invoke(CMIPS& context, unsigned int functionId)
