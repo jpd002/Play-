@@ -1198,7 +1198,7 @@ void CPS2VM::EmuThread()
 					}
 					else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
 					{
-						executed = m_nVBlankTicks;
+						executed += skipAmount;
 					}
 				}
 
