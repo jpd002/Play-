@@ -24,9 +24,9 @@
 #include "COP_FPU.h"
 #include "COP_VU.h"
 #include "iop/Iop_SubSystem.h"
+#include "PS2OS.h"
 
 class CIopBios;
-class CPS2OS;
 
 enum PS2VM_MSG
 {
@@ -151,6 +151,7 @@ private:
 
 	void						EEMemWriteHandler(uint32);
 	void						FlushInstructionCache();
+	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 
 	void						ResumeImpl();
 	void						PauseImpl();

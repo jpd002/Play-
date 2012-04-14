@@ -142,6 +142,7 @@ CPS2VM::CPS2VM()
 	m_iopOs = static_cast<CIopBios*>(m_iopOsPtr.get());
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_pGS, m_sif, *m_iopOs);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CPS2VM::FlushInstructionCache, this));
+	m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
 }
 
 CPS2VM::~CPS2VM()
@@ -474,8 +475,6 @@ void CPS2VM::CreateVM()
 
 void CPS2VM::ResetVM()
 {
-	Pause();
-
 	m_os->Release();
 	m_executor.Reset();
 
@@ -666,13 +665,11 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 void CPS2VM::PauseImpl()
 {
 	m_nStatus = PAUSED;
-//    printf("PS2VM: Virtual Machine paused.\r\n");
 }
 
 void CPS2VM::ResumeImpl()
 {
 	m_nStatus = RUNNING;
-//    printf("PS2VM: Virtual Machine started.\r\n");
 }
 
 void CPS2VM::DestroyImpl()
@@ -1048,6 +1045,12 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 void CPS2VM::FlushInstructionCache()
 {
 	m_executor.Reset();
+}
+
+void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)
+{
+	ResetVM();
+	m_os->BootFromCDROM(arguments);
 }
 
 void CPS2VM::EmuThread()

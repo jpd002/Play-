@@ -14,6 +14,10 @@ class CIopBios;
 class CPS2OS
 {
 public:
+	typedef std::vector<std::string> ArgumentList;
+
+	typedef boost::signals2::signal<void (const char*, const ArgumentList&)> RequestLoadExecutableEvent;
+
 												CPS2OS(CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
 	virtual										~CPS2OS();
 
@@ -27,13 +31,11 @@ public:
 	void										DumpDmacHandlers();
 
 	void										BootFromFile(const char*);
-	void										BootFromCDROM();
+	void										BootFromCDROM(const ArgumentList&);
 	CELF*										GetELF();
 	const char*									GetExecutableName() const;
 	std::pair<uint32, uint32>					GetExecutableRange() const;
 	MipsModuleList								GetModuleList();
-
-	void										ThreadShakeAndBake();
 
 	void										ExceptionHandler();
 	void										SysCallHandler();
@@ -42,6 +44,7 @@ public:
 	boost::signals2::signal<void ()>			OnExecutableChange;
 	boost::signals2::signal<void ()>			OnExecutableUnloading;
 	boost::signals2::signal<void ()>			OnRequestInstructionCacheFlush;
+	RequestLoadExecutableEvent					OnRequestLoadExecutable;
 
 private:
 	class CRoundRibbon
@@ -211,7 +214,7 @@ private:
 
 	typedef void (CPS2OS::*SystemCallHandler)();
 
-	void									LoadELF(Framework::CStream&, const char*);
+	void									LoadELF(Framework::CStream&, const char*, const ArgumentList&);
 
 	void									LoadExecutable();
 	void									UnloadExecutable();
@@ -237,6 +240,7 @@ private:
 	void									SetCurrentThreadId(uint32);
 	uint32									GetNextAvailableThreadId();
 	THREAD*									GetThread(uint32);
+	void									ThreadShakeAndBake();
 	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
 
@@ -254,6 +258,7 @@ private:
 
 	//Various system calls
 	void									sc_GsSetCrt();
+	void									sc_LoadExecPS2();
 	void									sc_AddIntcHandler();
 	void									sc_RemoveIntcHandler();
 	void									sc_AddDmacHandler();
@@ -273,8 +278,8 @@ private:
 	void									sc_ReferThreadStatus();
 	void									sc_SleepThread();
 	void									sc_WakeupThread();
-	void									sc_RFU060();
-	void									sc_RFU061();
+	void									sc_SetupThread();
+	void									sc_SetupHeap();
 	void									sc_EndOfHeap();
 	void									sc_CreateSema();
 	void									sc_DeleteSema();
@@ -299,7 +304,9 @@ private:
 	CMIPS&									m_ee;
 	CRoundRibbon*							m_pThreadSchedule;
 
-	std::string								m_sExecutableName;
+	std::string								m_executableName;
+	ArgumentList							m_currentArguments;
+
 	uint8*									m_ram;
 	uint8*									m_bios;
 	CGSHandler*&							m_gs;

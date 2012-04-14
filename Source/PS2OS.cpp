@@ -25,20 +25,20 @@
 #endif
 
 // PS2OS Memory Allocation
-// Start        End             Description
+// Start		End				Description
 // 0x80000000	0x80000004		Current Thread ID
 // 0x80008000	0x8000A000		DECI2 Handlers
 // 0x8000A000	0x8000C000		INTC Handlers
 // 0x8000C000	0x8000E000		DMAC Handlers
 // 0x8000E000	0x80010000		Semaphores
-// 0x80010000   0x80010800      Custom System Call addresses (0x200 entries)
+// 0x80010000	0x80010800		Custom System Call addresses (0x200 entries)
 // 0x80011000	0x80020000		Threads
 // 0x80020000	0x80030000		Kernel Stack
 // 0x80030000	0x80032000		Thread Linked List
 
 // BIOS area
-// Start        End             Description
-// 0x1FC00004   0x1FC00008      REEXCEPT instruction (for exception reentry) to be changed
+// Start		End				Description
+// 0x1FC00004	0x1FC00008		REEXCEPT instruction (for exception reentry) to be changed
 // 0x1FC00100	0x1FC00200		Custom System Call handling code
 // 0x1FC00200	0x1FC01000		Interrupt Handler
 // 0x1FC01000	0x1FC02000		DMAC Interrupt Handler
@@ -49,12 +49,13 @@
 #define BIOS_ADDRESS_BASE			0x1FC00000
 #define BIOS_ADDRESS_WAITTHREADPROC	0x1FC03100
 
-#define CONFIGPATH      "./config/"
-#define PATCHESPATH     "patches.xml"
-#define LOG_NAME        ("ps2os")
+#define CONFIGPATH		"./config/"
+#define PATCHESPATH		"patches.xml"
+#define LOG_NAME		("ps2os")
 
 #define THREAD_INIT_QUOTA			(15)
 
+#define SYSCALL_NAME_LOADEXECPS2			"osLoadExecPS2"
 #define SYSCALL_NAME_ADDINTCHANDLER			"osAddIntcHandler"
 #define SYSCALL_NAME_ENABLEINTC				"osEnableIntc"
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
@@ -83,6 +84,7 @@
 
 const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 {
+	{	0x0006,		SYSCALL_NAME_LOADEXECPS2			},
 	{	0x0010,		SYSCALL_NAME_ADDINTCHANDLER			},
 	{	0x0014,		SYSCALL_NAME_ENABLEINTC				},
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
@@ -239,10 +241,10 @@ void CPS2OS::BootFromFile(const char* sPath)
 {
 	filesystem::path ExecPath(sPath);
 	Framework::CStdStream stream(fopen(ExecPath.string().c_str(), "rb"));
-	LoadELF(stream, ExecPath.filename().string().c_str());
+	LoadELF(stream, ExecPath.filename().string().c_str(), ArgumentList());
 }
 
-void CPS2OS::BootFromCDROM()
+void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 {
 	std::string executablePath;
 	Iop::CIoman* ioman = m_iopBios.GetIoman();
@@ -296,7 +298,7 @@ void CPS2OS::BootFromCDROM()
 			const char* executableName = strchr(executablePath.c_str(), ':') + 1;
 			if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
 			Framework::CStream* file(ioman->GetFileStream(handle));
-			LoadELF(*file, executableName);
+			LoadELF(*file, executableName, arguments);
 		}
 		catch(...)
 		{
@@ -313,7 +315,7 @@ CELF* CPS2OS::GetELF()
 
 const char* CPS2OS::GetExecutableName() const
 {
-	return m_sExecutableName.c_str();
+	return m_executableName.c_str();
 }
 
 std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
@@ -353,7 +355,7 @@ MipsModuleList CPS2OS::GetModuleList()
 	}
 
 	MIPSMODULE module;
-	module.name		= m_sExecutableName;
+	module.name		= m_executableName;
 	module.begin	= moduleStart;
 	module.end		= 0;
 	module.param	= m_pELF;
@@ -362,18 +364,9 @@ MipsModuleList CPS2OS::GetModuleList()
 	return result;
 }
 
-void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName)
+void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const ArgumentList& arguments)
 {
-	CELF* pELF;
-
-	try
-	{
-		pELF = new CElfFile(stream);
-	}
-	catch(const std::exception& Exception)
-	{
-		throw Exception;
-	}
+	CELF* pELF(new CElfFile(stream));
 
 	const ELFHEADER& header = pELF->GetHeader();
 
@@ -394,7 +387,8 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName)
 
 	m_pELF = pELF;
 
-	m_sExecutableName = sExecName;
+	m_executableName = sExecName;
+	m_currentArguments = arguments;
 
 	LoadExecutable();
 	ApplyPatches();
@@ -505,7 +499,7 @@ void CPS2OS::ApplyPatches()
 		const char* pathCString = CFStringGetCStringPtr(pathString, kCFStringEncodingMacRoman);
 		if(pathCString != NULL) 
 		{
-			patchesPath = pathCString;		
+			patchesPath = pathCString;
 		}
 	}
 #endif
@@ -916,12 +910,9 @@ void CPS2OS::SetCurrentThreadId(uint32 nThread)
 
 uint32 CPS2OS::GetNextAvailableThreadId()
 {
-	uint32 i;
-	THREAD* pThread;
-
-	for(i = 0; i < MAX_THREAD; i++)
+	for(uint32 i = 0; i < MAX_THREAD; i++)
 	{
-		pThread = GetThread(i);
+		THREAD* pThread = GetThread(i);
 		if(pThread->nValid != 1)
 		{
 			return i;
@@ -1211,6 +1202,24 @@ void CPS2OS::sc_GsSetCrt()
 	{
 		m_gs->SetCrt(nIsInterlaced, nMode, nIsFrameMode);
 	}
+}
+
+//06
+void CPS2OS::sc_LoadExecPS2()
+{
+	uint32 fileNamePtr	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 argCount		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 argValuesPtr	= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+
+	ArgumentList arguments;
+	for(uint32 i = 0; i < argCount; i++)
+	{
+		uint32 argValuePtr = *reinterpret_cast<uint32*>(m_ram + argValuesPtr + i * 4);
+		arguments.push_back(reinterpret_cast<const char*>(m_ram + argValuePtr));
+	}
+
+	std::string fileName = reinterpret_cast<const char*>(m_ram + fileNamePtr);
+	OnRequestLoadExecutable(fileName.c_str(), arguments);
 }
 
 //10
@@ -1667,14 +1676,12 @@ void CPS2OS::sc_WakeupThread()
 }
 
 //3C
-void CPS2OS::sc_RFU060()
+void CPS2OS::sc_SetupThread()
 {
-	uint32 nStackBase, nStackSize, nStackAddr;
-	THREAD* pThread;
+	uint32 nStackBase = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 nStackSize = m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 
-	nStackBase = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-	nStackSize = m_ee.m_State.nGPR[SC_PARAM2].nV[0];
-
+	uint32 nStackAddr = 0;
 	if(nStackBase == 0xFFFFFFFF)
 	{
 		nStackAddr = 0x02000000;
@@ -1684,10 +1691,30 @@ void CPS2OS::sc_RFU060()
 		nStackAddr = nStackBase + nStackSize;
 	}
 
-	//Set up the main thread
+	uint32 argsBase = m_ee.m_State.nGPR[SC_PARAM3].nV[0];
+	//Copy arguments
+	{
+		ArgumentList completeArgList;
+		completeArgList.push_back(m_executableName);
+		completeArgList.insert(completeArgList.end(), m_currentArguments.begin(), m_currentArguments.end());
 
-	pThread = GetThread(1);
-	
+		uint32 argsCount = completeArgList.size();
+
+		*reinterpret_cast<uint32*>(m_ram + argsBase) = argsCount;
+		uint32 argsPtrs = argsBase + 4;
+		uint32 argsPayload = argsPtrs + (argsCount * 4);
+		for(uint32 i = 0; i < argsCount; i++)
+		{
+			const auto& currentArg = completeArgList[i];
+			*reinterpret_cast<uint32*>(m_ram + argsPtrs + (i * 4)) = argsPayload;
+			uint32 argSize = currentArg.size() + 1;
+			memcpy(m_ram + argsPayload, currentArg.c_str(), argSize);
+			argsPayload += argSize;
+		}
+	}
+
+	//Set up the main thread
+	THREAD* pThread = GetThread(1);
 	pThread->nValid			= 0x01;
 	pThread->nStatus		= THREAD_RUNNING;
 	pThread->nStackBase		= nStackAddr - nStackSize;
@@ -1705,15 +1732,12 @@ void CPS2OS::sc_RFU060()
 }
 
 //3D
-void CPS2OS::sc_RFU061()
+void CPS2OS::sc_SetupHeap()
 {
-	uint32 nHeapBase, nHeapSize;
-	THREAD* pThread;
+	THREAD* pThread = GetThread(GetCurrentThreadId());
 
-	pThread = GetThread(GetCurrentThreadId());
-
-	nHeapBase = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nHeapSize = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 nHeapBase = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nHeapSize = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	if(nHeapSize == 0xFFFFFFFF)
 	{
@@ -2213,7 +2237,7 @@ void CPS2OS::DisassembleSysCall(uint8 nFunc)
 	std::string sDescription(GetSysCallDescription(nFunc));
 	if(sDescription.length() != 0)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%i: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
+		CLog::GetInstance().Print(LOG_NAME, "%d: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
 	}
 #endif
 }
@@ -2230,6 +2254,12 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 		sprintf(sDescription, "GsSetCrt(interlace = %i, mode = %i, field = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
+			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
+		break;
+	case 0x06:
+		sprintf(sDescription, SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%0.8X, argc = %d, argv = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x10:
@@ -2321,7 +2351,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
-		sprintf(sDescription, "RFU060(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);", \
+		sprintf(sDescription, "SetupThread(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
@@ -2329,7 +2359,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM4].nV[0]);
 		break;
 	case 0x3D:
-		sprintf(sDescription, "RFU061(heap_start = 0x%0.8X, heap_size = 0x%0.8X);", \
+		sprintf(sDescription, "SetupHeap(heap_start = 0x%0.8X, heap_size = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -2430,7 +2460,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 {
 	//0x00
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_LoadExecPS2,	&CPS2OS::sc_Unhandled,
 	//0x08
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x10
@@ -2444,7 +2474,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 	//0x30
 	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SleepThread,			&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x38
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_RFU060,			&CPS2OS::sc_RFU061,			&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetupThread,	&CPS2OS::sc_SetupHeap,		&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
 	//0x40
 	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_ReferSemaStatus,
 	//0x48
