@@ -82,10 +82,13 @@ void CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		{
 			//Init
 			assert(argsSize >= 4);
-			assert(retSize >= 0x10);
 			uint32 nMode = args[0x00];
-			CLog::GetInstance().Print(LOG_NAME, "Init(mode = %i);\r\n", nMode);
-			ret[0x03] = 0xFF;
+			if(retSize != 0)
+			{
+				assert(retSize >= 0x10);
+				ret[0x03] = 0xFF;
+			}
+			CLog::GetInstance().Print(LOG_NAME, "Init(mode = %d);\r\n", nMode);
 		}
 		break;
 	default:
@@ -245,7 +248,7 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 {
 	uint32 nSector		= args[0x00];
 	uint32 nCount		= args[0x01];
-	uint32 nDstAddr     = args[0x02];
+	uint32 nDstAddr		= args[0x02];
 	uint32 nMode		= args[0x03];
 
 	CLog::GetInstance().Print(LOG_NAME, "Read(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n", \
@@ -367,7 +370,20 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 
 void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	assert(argsSize >= 0x128);
+	uint32 pathOffset = 0x24;
+	if(argsSize == 0x128)
+	{
+		pathOffset = 0x24;
+	}
+	else if(argsSize == 0x124)
+	{
+		pathOffset = 0x20;
+	}
+	else
+	{
+		assert(0);
+	}
+
 	assert(retSize == 4);
 
 	if(m_iso == NULL)
@@ -388,7 +404,7 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	//20 - Unknown
 	//24 - Path
 
-	char* sPath = reinterpret_cast<char*>(args) + 0x24;
+	char* sPath = reinterpret_cast<char*>(args) + pathOffset;
 
 	//Fix all slashes
 	std::string fixedPath(sPath);
