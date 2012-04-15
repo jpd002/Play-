@@ -4,18 +4,15 @@
 #include "MipsJitter.h"
 #include "Jitter_CodeGenFactory.h"
 
-using namespace Framework;
-
-CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end) :
-m_begin(begin),
-m_end(end),
-m_context(context),
-m_function(NULL),
-m_selfLoopCount(0),
-m_refCount(0),
-m_branchHint(NULL)
+CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
+: m_begin(begin)
+, m_end(end)
+, m_context(context)
+, m_function(NULL)
+, m_selfLoopCount(0)
+, m_refCount(0)
 {
-    assert(m_end >= m_begin);
+	assert(m_end >= m_begin);
 }
 
 CBasicBlock::~CBasicBlock()
@@ -29,8 +26,8 @@ CBasicBlock::~CBasicBlock()
 
 void CBasicBlock::Compile()
 {
-    CMemStream stream;
-    {
+	Framework::CMemStream stream;
+	{
 		static CMipsJitter* jitter = NULL;
 		if(jitter == NULL)
 		{
@@ -52,7 +49,7 @@ void CBasicBlock::Compile()
 //		codeGen.DumpVariables(0);
 //		codeGen.EndQuota();
 		jitter->End();
-    }
+	}
 
 	m_function = new CMemoryFunction(stream.GetBuffer(), stream.GetSize());
 }
@@ -74,15 +71,15 @@ unsigned int CBasicBlock::Execute()
 {
 	(*m_function)(&m_context);
 
-    if(m_context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
-    {
-        m_context.m_State.nPC = m_context.m_State.nDelayedJumpAddr;
-        m_context.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
-    }
-    else
-    {
-        m_context.m_State.nPC = m_end + 4;
-    }
+	if(m_context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
+	{
+		m_context.m_State.nPC = m_context.m_State.nDelayedJumpAddr;
+		m_context.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
+	}
+	else
+	{
+		m_context.m_State.nPC = m_end + 4;
+	}
 
 	assert((m_context.m_State.nGPR[CMIPS::RA].nV0 & 3) == 0);
 	assert(m_context.m_State.nCOP2[0].nV0 == 0x00000000);
@@ -90,40 +87,30 @@ unsigned int CBasicBlock::Execute()
 	assert(m_context.m_State.nCOP2[0].nV2 == 0x00000000);
 	assert(m_context.m_State.nCOP2[0].nV3 == 0x3F800000);
 
-    return ((m_end - m_begin) / 4) + 1;
+	return ((m_end - m_begin) / 4) + 1;
 }
 
 uint32 CBasicBlock::GetBeginAddress() const
 {
-    return m_begin;
+	return m_begin;
 }
 
 uint32 CBasicBlock::GetEndAddress() const
 {
-    return m_end;
+	return m_end;
 }
 
 bool CBasicBlock::IsCompiled() const
 {
-    return m_function != NULL;
+	return m_function != NULL;
 }
 
 unsigned int CBasicBlock::GetSelfLoopCount() const
 {
-    return m_selfLoopCount;
+	return m_selfLoopCount;
 }
 
 void CBasicBlock::SetSelfLoopCount(unsigned int selfLoopCount)
 {
-    m_selfLoopCount = selfLoopCount;
-}
-
-BasicBlockPtr CBasicBlock::GetBranchHint() const
-{
-    return m_branchHint;
-}
-
-void CBasicBlock::SetBranchHint(const BasicBlockPtr& branchHint)
-{
-    m_branchHint = branchHint;
+	m_selfLoopCount = selfLoopCount;
 }

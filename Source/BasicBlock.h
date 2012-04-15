@@ -20,22 +20,20 @@ class CBasicBlock
 {
 public:
 						CBasicBlock(CMIPS&, uint32, uint32);
-    virtual				~CBasicBlock();
-    unsigned int		Execute();
-    void				Compile();
+	virtual				~CBasicBlock();
+	unsigned int		Execute();
+	void				Compile();
 
-    uint32				GetBeginAddress() const;
-    uint32				GetEndAddress() const;
-    bool				IsCompiled() const;
-    unsigned int		GetSelfLoopCount() const;
-    void				SetSelfLoopCount(unsigned int);
-    BasicBlockPtr		GetBranchHint() const;
-    void				SetBranchHint(const BasicBlockPtr&);
+	uint32				GetBeginAddress() const;
+	uint32				GetEndAddress() const;
+	bool				IsCompiled() const;
+	unsigned int		GetSelfLoopCount() const;
+	void				SetSelfLoopCount(unsigned int);
 
 protected:
-    uint32				m_begin;
-    uint32				m_end;
-    CMIPS&				m_context;
+	uint32				m_begin;
+	uint32				m_end;
+	CMIPS&				m_context;
 
 	virtual void		CompileRange(CMipsJitter*);
 
@@ -44,8 +42,7 @@ private:
 	friend void intrusive_ptr_release(CBasicBlock*);
 
 	CMemoryFunction*	m_function;
-    BasicBlockPtr		m_branchHint;
-    unsigned int		m_selfLoopCount;
+	unsigned int		m_selfLoopCount;
 
 	unsigned int		m_refCount;
 };
