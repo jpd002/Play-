@@ -100,8 +100,8 @@ bool CMipsExecutor::MustBreak() const
 {
 #ifdef DEBUGGER_INCLUDED
 	uint32 currentPc = m_context.m_pAddrTranslator(&m_context, 0, m_context.m_State.nPC);
-	BasicBlockPtr block = FindBlockAt(currentPc);
-	for(CMIPS::BreakpointSet::const_iterator breakPointIterator(m_context.m_breakpoints.begin());
+	CBasicBlock* block = FindBlockAt(currentPc);
+	for(auto breakPointIterator(m_context.m_breakpoints.begin());
 		breakPointIterator != m_context.m_breakpoints.end(); breakPointIterator++)
 	{
 		uint32 breakPointAddress = *breakPointIterator;
@@ -271,7 +271,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 		//Check if there's a block already exising that this address
 		if(address != endAddress)
 		{
-			BasicBlockPtr possibleBlock = FindBlockStartingAt(address);
+			CBasicBlock* possibleBlock = FindBlockStartingAt(address);
 			if(possibleBlock)
 			{
 				//assert(possibleBlock->GetEndAddress() <= endAddress);

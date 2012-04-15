@@ -1025,12 +1025,12 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 	{
 		//Check if the block we're about to invalidate is the same
 		//as the one we're executing in
-		BasicBlockPtr block = m_executor.FindBlockAt(nAddress);
+		CBasicBlock* block = m_executor.FindBlockAt(nAddress);
 		if(block)
 		{
 			if(m_executor.FindBlockAt(m_EE.m_State.nPC) != block)
 			{
-				m_executor.DeleteBlock(block.get());
+				m_executor.DeleteBlock(block);
 			}
 			else
 			{
@@ -1189,7 +1189,7 @@ void CPS2VM::EmuThread()
 				}
 
 				{
-					BasicBlockPtr nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+					CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
 					const int skipAmount = 50000;
 					if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
 					{

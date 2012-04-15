@@ -212,7 +212,7 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
 			else
 			{
 				uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nPC);
-				BasicBlockPtr nextBlock = m_executor.FindBlockAt(physicalPc);
+				CBasicBlock* nextBlock = m_executor.FindBlockAt(physicalPc);
 				if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
 				{
 					//Go a little bit faster if we're "stuck"
