@@ -9,13 +9,13 @@
 
 #define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
-#define PREF_CGSH_OPENGL_FIXSMALLZVALUES            "renderer.opengl.fixsmallzvalues"
+#define PREF_CGSH_OPENGL_FIXSMALLZVALUES			"renderer.opengl.fixsmallzvalues"
 
 class CGSH_OpenGL : public CGSHandler
 {
 public:
 									CGSH_OpenGL();
-	virtual                         ~CGSH_OpenGL();
+	virtual							~CGSH_OpenGL();
 
 	virtual void					LoadState(Framework::CZipArchiveReader&);
 
@@ -29,18 +29,18 @@ public:
 	bool							IsFogCoordfExtSupported();
 
 protected:
-    enum SHADER
-    {
-        SHADER_VERTEX = 1,
-        SHADER_FRAGMENT = 2
-    };
+	enum SHADER
+	{
+		SHADER_VERTEX = 1,
+		SHADER_FRAGMENT = 2
+	};
 
-    void							TexCache_Flush();
-    void							LoadSettings();
-    virtual void                    InitializeImpl();
-    virtual void                    ReleaseImpl();
+	void							TexCache_Flush();
+	void							LoadSettings();
+	virtual void					InitializeImpl();
+	virtual void					ReleaseImpl();
 	virtual void					FlipImpl();
-    virtual void					SetViewport(int, int);
+	virtual void					SetViewport(int, int);
 
 private:
 	enum MAXCACHE
@@ -52,16 +52,6 @@ private:
 	{
 		CVTBUFFERSIZE = 0x400000,
 	};
-
-    enum MAX_PIXEL_BUFFERS
-    {
-        MAX_PIXEL_BUFFERS = 10,
-    };
-
-    enum PIXEL_BUFFER_SIZE
-    {
-        PIXEL_BUFFER_SIZE = CVTBUFFERSIZE,
-    };
 
 	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(TEX0*, TEXA*);
 
@@ -80,7 +70,7 @@ private:
 									CTexture();
 									~CTexture();
 		void						InvalidateFromMemorySpace(uint32, uint32);
-        void                        Free();
+		void						Free();
 
 		uint32						m_nStart;
 		uint32						m_nSize;
@@ -90,16 +80,16 @@ private:
 		uint64						m_nTexClut;
 		bool						m_nIsCSM2;
 		unsigned int				m_nTexture;
-        uint32                      m_checksum;
-        bool                        m_live;
+		uint32						m_checksum;
+		bool						m_live;
 	};
 
-    typedef std::list<CTexture*> TextureList;
+	typedef std::list<CTexture*> TextureList;
 
-    void							WriteRegisterImpl(uint8, uint64);
+	void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
-    virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER) = 0;
+	virtual void					LoadShaderSource(Framework::OpenGl::CShader*, SHADER) = 0;
 	virtual void					PresentBackbuffer() = 0;
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(float, float, float, float);
@@ -135,7 +125,7 @@ private:
 	void							DisplayTransferedImage(uint32);
 
 	void							TexUploader_Psm32(TEX0*, TEXA*);
-    void                            TexUploader_Psm24(TEX0*, TEXA*);
+	void							TexUploader_Psm24(TEX0*, TEXA*);
 
 	void							TexUploader_Psm8_Cvt(TEX0*, TEXA*);
 	void							TexUploader_Psm8_Hw(TEX0*, TEXA*);
@@ -149,10 +139,10 @@ private:
 	template <uint32> void			TexUploader_Psm4H_Cvt(TEX0*, TEXA*);
 	void							TexUploader_Psm8H_Cvt(TEX0*, TEXA*);
 
-    uint32                          ConvertTexturePsm4(TEX0*, TEXA*);
-    uint32                          ConvertTexturePsm8(TEX0*, TEXA*);
-    uint32                          ConvertTexturePsm8H(TEX0*, TEXA*);
-    void                            UploadTexturePsm8(TEX0*, TEXA*);
+	uint32							ConvertTexturePsm4(TEX0*, TEXA*);
+	uint32							ConvertTexturePsm8(TEX0*, TEXA*);
+	uint32							ConvertTexturePsm8H(TEX0*, TEXA*);
+	void							UploadTexturePsm8(TEX0*, TEXA*);
 
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
@@ -167,7 +157,7 @@ private:
 
 	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;
-    bool                            m_fixSmallZValues;
+	bool							m_fixSmallZValues;
 
 	uint8*							m_pCvtBuffer;
 	void*							m_pCLUT;
@@ -179,14 +169,12 @@ private:
 	void							VerifyRGBA5551Support();
 	bool							m_nIsRGBA5551Supported;
 
-    unsigned int					TexCache_SearchLive(TEX0*);
-    unsigned int                    TexCache_SearchDead(TEX0*, uint32);
+	unsigned int					TexCache_SearchLive(TEX0*);
+	unsigned int					TexCache_SearchDead(TEX0*, uint32);
 	void							TexCache_Insert(TEX0*, unsigned int, uint32);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 
-//	CTexture						m_TexCache[MAXCACHE];
-//	unsigned int					m_nTexCacheIndex;
-    TextureList                     m_TexCache;
+	TextureList						m_TexCache;
 
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;
@@ -200,9 +188,6 @@ private:
 	Framework::OpenGl::CProgram*	m_pProgram;
 	Framework::OpenGl::CShader*		m_pVertShader;
 	Framework::OpenGl::CShader*		m_pFragShader;
-
-    //GLuint                          m_pixelBuffers[MAX_PIXEL_BUFFERS];
-    //unsigned int                    m_currentPixelBuffer;
 };
 
 #endif
