@@ -80,7 +80,7 @@ bool CMIPS::IsBranch(uint32 nAddress)
 	return m_pArch->IsInstructionBranch(this, nAddress, nOpcode) == MIPS_BRANCH_NORMAL;
 }
 
-uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrHI, uint32 nVAddrLO)
+uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrLO)
 {
 	//Proper address translation?
 	return nVAddrLO & 0x1FFFFFFF;

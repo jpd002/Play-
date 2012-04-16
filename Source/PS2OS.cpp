@@ -1169,7 +1169,7 @@ void CPS2OS::ExceptionHandler()
 	m_ee.GenerateInterrupt(0x1FC00200);
 }
 
-uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrHI, uint32 nVAddrLO)
+uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrLO)
 {
 	if(nVAddrLO >= 0x70000000 && nVAddrLO <= 0x70003FFF)
 	{

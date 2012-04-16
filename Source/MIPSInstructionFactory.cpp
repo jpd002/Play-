@@ -54,9 +54,6 @@ void CMIPSInstructionFactory::ComputeMemAccessAddr()
 		//Push context
 		m_codeGen->PushCtx();
 
-		//Push high part
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[1]));
-
 		//Push low part of address
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
 		if(nImmediate != 0)
@@ -66,7 +63,7 @@ void CMIPSInstructionFactory::ComputeMemAccessAddr()
 		}
 
 		//Call
-		m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 3, true);
+		m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 2, true);
 	}
 }
 

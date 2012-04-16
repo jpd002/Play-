@@ -211,7 +211,7 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
 			}
 			else
 			{
-				uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nPC);
+				uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nPC);
 				CBasicBlock* nextBlock = m_executor.FindBlockAt(physicalPc);
 				if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
 				{

@@ -39,7 +39,7 @@ public:
 
 	void										ExceptionHandler();
 	void										SysCallHandler();
-	static uint32								TranslateAddress(CMIPS*, uint32, uint32);
+	static uint32								TranslateAddress(CMIPS*, uint32);
 
 	boost::signals2::signal<void ()>			OnExecutableChange;
 	boost::signals2::signal<void ()>			OnExecutableUnloading;

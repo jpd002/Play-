@@ -66,7 +66,7 @@ int CMipsExecutor::Execute(int cycles)
 		if(!firstExec && MustBreak()) break;
 		firstExec = false;
 #endif
-		uint32 address = m_context.m_pAddrTranslator(&m_context, 0, m_context.m_State.nPC);
+		uint32 address = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
 		if(!block || address != block->GetBeginAddress())
 		{
 			block = FindBlockStartingAt(address);
@@ -99,7 +99,7 @@ int CMipsExecutor::Execute(int cycles)
 bool CMipsExecutor::MustBreak() const
 {
 #ifdef DEBUGGER_INCLUDED
-	uint32 currentPc = m_context.m_pAddrTranslator(&m_context, 0, m_context.m_State.nPC);
+	uint32 currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
 	CBasicBlock* block = FindBlockAt(currentPc);
 	for(auto breakPointIterator(m_context.m_breakpoints.begin());
 		breakPointIterator != m_context.m_breakpoints.end(); breakPointIterator++)
