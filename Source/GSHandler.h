@@ -149,19 +149,6 @@ protected:
 		PSM_MAX,
 	};
 
-	struct DISPFB
-	{
-		unsigned int	nBufPtr			: 9;
-		unsigned int	nBufWidth		: 6;
-		unsigned int	nPSM			: 5;
-		unsigned int	nReserved0		: 12;
-		unsigned int	nX				: 11;
-		unsigned int	nY				: 11;
-		unsigned int	nReserved1		: 10;
-		uint32			GetBufPtr()		{ return nBufPtr * 8192; };
-		uint32			GetBufWidth()	{ return nBufWidth * 64; };
-	};
-
 	//Reg 0x00
 	struct PRIM : public convertible<uint64>
 	{
@@ -471,6 +458,32 @@ protected:
 		unsigned int	nReserved1		: 20;
 	};
 
+	//-----------------------------------
+	//Private Registers
+
+	struct SMODE2 : public convertible<uint64>
+	{
+		unsigned int	interlaced		: 1;
+		unsigned int	ffmd			: 1;
+		unsigned int	dpms			: 2;
+		unsigned int	reserved0		: 28;
+		unsigned int	reserved1;
+	};
+	static_assert(sizeof(SMODE2) == sizeof(uint64), "Size of SMODE2 struct must be 8 bytes.");
+
+	struct DISPFB
+	{
+		unsigned int	nBufPtr			: 9;
+		unsigned int	nBufWidth		: 6;
+		unsigned int	nPSM			: 5;
+		unsigned int	nReserved0		: 12;
+		unsigned int	nX				: 11;
+		unsigned int	nY				: 11;
+		unsigned int	nReserved1		: 10;
+		uint32			GetBufPtr()		{ return nBufPtr * 8192; };
+		uint32			GetBufWidth()	{ return nBufWidth * 64; };
+	};
+
 	struct DISPLAY : public convertible<uint64>
 	{
 		unsigned int	nX			: 12;
@@ -653,10 +666,10 @@ protected:
 	//Privileged Regsiters
 	DISPFB*									GetDispFb(unsigned int);
 
-	unsigned int							GetCrtWidth();
-	unsigned int							GetCrtHeight();
-	bool									GetCrtIsInterlaced();
-	bool									GetCrtIsFrameMode();
+	unsigned int							GetCrtWidth() const;
+	unsigned int							GetCrtHeight() const;
+	bool									GetCrtIsInterlaced() const;
+	bool									GetCrtIsFrameMode() const;
 
 	void									LoadSettings();
 
@@ -700,8 +713,6 @@ protected:
 	uint32									m_drawCallCount;
 
 	unsigned int							m_nCrtMode;
-	bool									m_nCrtIsInterlaced;
-	bool									m_nCrtIsFrameMode;
 	boost::thread*							m_thread;
 	boost::recursive_mutex					m_csrMutex;
 	CMailBox								m_mailBox;

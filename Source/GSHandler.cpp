@@ -3,7 +3,6 @@
 #include <functional>
 #include "AppConfig.h"
 #include "GSHandler.h"
-#include "INTC.h"
 #include "PtrMacro.h"
 #include "Log.h"
 #include "MemoryStateFile.h"
@@ -37,15 +36,14 @@
 #define STATE_PRIVREGS					("gs/privregs.xml")
 
 #define STATE_PRIVREGS_PMODE			("PMODE")
+#define STATE_PRIVREGS_SMODE2			("SMODE2")
 #define STATE_PRIVREGS_DISPFB1			("DISPFB1")
 #define STATE_PRIVREGS_DISPLAY1			("DISPLAY1")
 #define STATE_PRIVREGS_DISPFB2			("DISPFB2")
 #define STATE_PRIVREGS_DISPLAY2			("DISPLAY2")
 #define STATE_PRIVREGS_CSR				("CSR")
 #define STATE_PRIVREGS_IMR				("IMR")
-#define STATE_PRIVREGS_CRTINTERLACED	("CrtInterlated")
 #define STATE_PRIVREGS_CRTMODE			("CrtMode")
-#define STATE_PRIVREGS_CRTFRAMEMODE		("CrtFrameMode")
 
 #define LOG_NAME						("gs")
 
@@ -194,9 +192,7 @@ void CGSHandler::Reset()
 	m_nDISPLAY2 = 0;
 	m_nCSR = 0;
 	m_nIMR = 0;
-	m_nCrtIsInterlaced = false;
 	m_nCrtMode = 0;
-	m_nCrtIsFrameMode = false;
 	m_enabled = true;
 }
 
@@ -215,15 +211,14 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PRIVREGS);
 
 		registerFile->SetRegister64(STATE_PRIVREGS_PMODE,			m_nPMODE);
+		registerFile->SetRegister64(STATE_PRIVREGS_SMODE2,			m_nSMODE2);
 		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1,			m_nDISPFB1);
 		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1,		m_nDISPLAY1);
 		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2,			m_nDISPFB2);
 		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,		m_nDISPLAY2);
 		registerFile->SetRegister64(STATE_PRIVREGS_CSR,				m_nCSR);
 		registerFile->SetRegister64(STATE_PRIVREGS_IMR,				m_nIMR);
-		registerFile->SetRegister32(STATE_PRIVREGS_CRTINTERLACED,	m_nCrtIsInterlaced);
 		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE,			m_nCrtMode);
-		registerFile->SetRegister32(STATE_PRIVREGS_CRTFRAMEMODE,	m_nCrtIsFrameMode);
 
 		archive.InsertFile(registerFile);
 	}
@@ -238,15 +233,14 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 	{
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PRIVREGS));
 		m_nPMODE			= registerFile.GetRegister64(STATE_PRIVREGS_PMODE);
+		m_nSMODE2			= registerFile.GetRegister64(STATE_PRIVREGS_SMODE2);
 		m_nDISPFB1			= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
 		m_nDISPLAY1			= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
 		m_nDISPFB2			= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
 		m_nDISPLAY2			= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
 		m_nCSR				= registerFile.GetRegister64(STATE_PRIVREGS_CSR);
 		m_nIMR				= registerFile.GetRegister64(STATE_PRIVREGS_IMR);
-		m_nCrtIsInterlaced	= registerFile.GetRegister32(STATE_PRIVREGS_CRTINTERLACED) != 0;
 		m_nCrtMode			= registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
-		m_nCrtIsFrameMode	= registerFile.GetRegister32(STATE_PRIVREGS_CRTFRAMEMODE) != 0;
 	}
 
 	UpdateViewport();
@@ -261,7 +255,6 @@ void CGSHandler::SetVBlank()
 
 	boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
 	m_nCSR |= CSR_VSYNC_INT;
-//	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_START);
 }
 
 void CGSHandler::ResetVBlank()
@@ -272,7 +265,6 @@ void CGSHandler::ResetVBlank()
 
 	//Alternate current field
 	m_nCSR ^= 0x2000;
-//	CINTC::AssertLine(CINTC::INTC_LINE_VBLANK_END);
 }
 
 uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
@@ -312,12 +304,19 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		}
 		break;
 	case GS_SMODE2:
-		W_REG(nAddress, nData, m_nSMODE2);
-		if(nAddress & 0x04)
 		{
-			if(m_flipMode == FLIP_MODE_SMODE2)
+			uint64 prevSMODE2 = m_nSMODE2;
+			W_REG(nAddress, nData, m_nSMODE2);
+			if(m_nSMODE2 != prevSMODE2)
 			{
-				Flip();
+				UpdateViewport();
+			}
+			if(nAddress & 0x04)
+			{
+				if(m_flipMode == FLIP_MODE_SMODE2)
+				{
+					Flip();
+				}
 			}
 		}
 		break;
@@ -820,8 +819,12 @@ bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMode)
 {
 	m_nCrtMode			= nMode;
-	m_nCrtIsInterlaced	= nIsInterlaced;
-	m_nCrtIsFrameMode	= nIsFrameMode;
+
+	SMODE2 smode2;
+	smode2 <<= 0;
+	smode2.interlaced	= nIsInterlaced ? 1 : 0;
+	smode2.ffmd			= nIsFrameMode ? 1 : 0;
+	m_nSMODE2 = smode2;
 
 	UpdateViewport();
 }
@@ -874,7 +877,7 @@ CGSHandler::BITBLTBUF* CGSHandler::GetBitBltBuf()
 	return (BITBLTBUF*)&m_nReg[GS_REG_BITBLTBUF];
 }
 
-unsigned int CGSHandler::GetCrtWidth()
+unsigned int CGSHandler::GetCrtWidth() const
 {
 	switch(m_nCrtMode)
 	{
@@ -890,7 +893,7 @@ unsigned int CGSHandler::GetCrtWidth()
 	}
 }
 
-unsigned int CGSHandler::GetCrtHeight()
+unsigned int CGSHandler::GetCrtHeight() const
 {
 	switch(m_nCrtMode)
 	{
@@ -910,14 +913,18 @@ unsigned int CGSHandler::GetCrtHeight()
 	}
 }
 
-bool CGSHandler::GetCrtIsInterlaced()
+bool CGSHandler::GetCrtIsInterlaced() const
 {
-	return m_nCrtIsInterlaced;
+	SMODE2 smode2;
+	smode2 <<= m_nSMODE2;
+	return smode2.interlaced;
 }
 
-bool CGSHandler::GetCrtIsFrameMode()
+bool CGSHandler::GetCrtIsFrameMode() const
 {
-	return m_nCrtIsFrameMode;
+	SMODE2 smode2;
+	smode2 <<= m_nSMODE2;
+	return smode2.ffmd;
 }
 
 unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
@@ -1254,18 +1261,28 @@ void CGSHandler::DisassemblePrivWrite(uint32 address)
 {
 	assert((address & 0x04) != 0);
 
-	switch(address & ~0x0F)
+	uint32 regAddress = address & ~0x0F;
+	switch(regAddress)
 	{
 	case GS_PMODE:
 		CLog::GetInstance().Print(LOG_NAME, "PMODE(0x%0.8X);\r\n", m_nPMODE);
 		break;
 	case GS_SMODE2:
-		CLog::GetInstance().Print(LOG_NAME, "SMODE2(0x%0.8X);\r\n", m_nSMODE2);
+		{
+			SMODE2 smode2;
+			smode2 <<= m_nSMODE2;
+			CLog::GetInstance().Print(LOG_NAME, "SMODE2(inter = %d, ffmd = %d, dpms = %d);\r\n",
+				smode2.interlaced,
+				smode2.ffmd,
+				smode2.dpms);
+		}
 		break;
 	case GS_DISPFB1:
+	case GS_DISPFB2:
 		{
-			DISPFB* dispfb = GetDispFb(0);
-			CLog::GetInstance().Print(LOG_NAME, "DISPFB1(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
+			DISPFB* dispfb = GetDispFb((regAddress == GS_DISPFB1) ? 0 : 1);
+			CLog::GetInstance().Print(LOG_NAME, "DISPFB%d(FBP: 0x%0.8X, FBW: %d, PSM: %d, DBX: %d, DBY: %d);\r\n", \
+				(regAddress == GS_DISPFB1) ? 1 : 2,
 				dispfb->GetBufPtr(), \
 				dispfb->GetBufWidth(), \
 				dispfb->nPSM, \
@@ -1274,34 +1291,12 @@ void CGSHandler::DisassemblePrivWrite(uint32 address)
 		}
 		break;
 	case GS_DISPLAY1:
-		{
-			DISPLAY display;
-			display <<= m_nDISPLAY1;
-			CLog::GetInstance().Print(LOG_NAME, "DISPLAY1(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
-				display.nX,
-				display.nY,
-				display.nMagX,
-				display.nMagY,
-				display.nW,
-				display.nH);
-		}
-		break;
-	case GS_DISPFB2:
-		{
-			DISPFB* dispfb = GetDispFb(1);
-			CLog::GetInstance().Print(LOG_NAME, "DISPFB2(FBP: 0x%0.8X, FBW: %i, PSM: %i, DBX: %i, DBY: %i);\r\n", \
-				dispfb->GetBufPtr(), \
-				dispfb->GetBufWidth(), \
-				dispfb->nPSM, \
-				dispfb->nX, \
-				dispfb->nY);
-		}
-		break;
 	case GS_DISPLAY2:
 		{
 			DISPLAY display;
-			display <<= m_nDISPLAY2;
-			CLog::GetInstance().Print(LOG_NAME, "DISPLAY2(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
+			display <<= (regAddress == GS_DISPLAY1) ? m_nDISPLAY1 : m_nDISPLAY2;
+			CLog::GetInstance().Print(LOG_NAME, "DISPLAY%d(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
+				(regAddress == GS_DISPLAY1) ? 1 : 2,
 				display.nX,
 				display.nY,
 				display.nMagX,
