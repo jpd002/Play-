@@ -302,19 +302,19 @@
 			<tag address="0001BFD8" value="intrman_SuspendInterrupts" />
 			<tag address="0001BFE0" value="intrman_ResumeInterrupts" />
 			<tag address="0001C004" value="stdio_printf" />
-			<tag address="0001C028" value="dmacman_unknown" />
-			<tag address="0001C030" value="dmacman_unknown" />
-			<tag address="0001C038" value="dmacman_unknown" />
-			<tag address="0001C040" value="dmacman_unknown" />
-			<tag address="0001C048" value="dmacman_unknown" />
+			<tag address="0001C028" value="dmacman_unknown_001C" />
+			<tag address="0001C030" value="dmacman_unknown_0020" />
+			<tag address="0001C038" value="dmacman_unknown_0021" />
+			<tag address="0001C040" value="dmacman_unknown_0022" />
+			<tag address="0001C048" value="dmacman_unknown_0023" />
 			<tag address="0001C06C" value="thbase_CreateThread" />
 			<tag address="0001C074" value="thbase_StartThread" />
 			<tag address="0001C07C" value="thbase_GetThreadId" />
-			<tag address="0001C0A0" value="thevent_unknown" />
-			<tag address="0001C0A8" value="thevent_unknown" />
-			<tag address="0001C0B0" value="thevent_unknown" />
-			<tag address="0001C0B8" value="thevent_unknown" />
-			<tag address="0001C0C0" value="thevent_unknown" />
+			<tag address="0001C0A0" value="thevent_CreateEventFlag" />
+			<tag address="0001C0A8" value="thevent_SetEventFlag" />
+			<tag address="0001C0B0" value="thevent_iSetEventFlag" />
+			<tag address="0001C0B8" value="thevent_ClearEventFlag" />
+			<tag address="0001C0C0" value="thevent_WaitEventFlag" />
 			<tag address="0001C0E4" value="thsemap_CreateSemaphore" />
 			<tag address="0001C0EC" value="thsemap_SignalSemaphore" />
 			<tag address="0001C0F4" value="thsemap_WaitSemaphore" />
@@ -362,6 +362,21 @@
 			<tag address="000208F8" value="sio2man_unknown" />
 			<tag address="00020900" value="sio2man_unknown" />
 			<tag address="00020924" value="secrman_unknown" />
+			<tag address="000223B4" value="sysmem_printf" />
+			<tag address="000223D8" value="loadcore_RegisterLibraryEntries" />
+			<tag address="000223FC" value="stdio_printf" />
+			<tag address="00022420" value="sysclib_memcpy" />
+			<tag address="00022444" value="thbase_CreateThread" />
+			<tag address="0002244C" value="thbase_StartThread" />
+			<tag address="00022470" value="thsemap_CreateSemaphore" />
+			<tag address="00022478" value="thsemap_SignalSemaphore" />
+			<tag address="00022480" value="thsemap_WaitSemaphore" />
+			<tag address="000224A4" value="vblank_WaitVblankEnd" />
+			<tag address="000224C8" value="sio2man_unknown_0033" />
+			<tag address="000224D0" value="sio2man_unknown_003D" />
+			<tag address="000224D8" value="sio2man_unknown_003E" />
+			<tag address="000224E0" value="sio2man_unknown_003F" />
+			<tag address="00022504" value="secrman_unknown_0006" />
 			<tag address="00023EE4" value="sysmem_AllocateMemory" />
 			<tag address="00023EEC" value="sysmem_unknown" />
 			<tag address="00023EF4" value="sysmem_unknown" />
@@ -380,6 +395,28 @@
 			<tag address="00023FCC" value="thbase_ChangeThreadPriority" />
 			<tag address="00023FD4" value="thbase_GetThreadId" />
 			<tag address="00023FDC" value="thbase_GetCurrentThreadPriority" />
+			<tag address="00025884" value="sysmem_printf" />
+			<tag address="000258A8" value="intrman_SuspendInterrupts" />
+			<tag address="000258B0" value="intrman_ResumeInterrupts" />
+			<tag address="000258D4" value="loadcore_RegisterLibraryEntries" />
+			<tag address="000258F8" value="sifcmd_SifInitRpc" />
+			<tag address="00025900" value="sifcmd_SifRegisterRpc" />
+			<tag address="00025908" value="sifcmd_SifSetRpcQueue" />
+			<tag address="00025910" value="sifcmd_SifRpcLoop" />
+			<tag address="00025934" value="sifman_SifInit" />
+			<tag address="0002593C" value="sifman_SifSetDma" />
+			<tag address="00025944" value="sifman_SifDmaStat" />
+			<tag address="0002594C" value="sifman_SifCheckInit" />
+			<tag address="00025954" value="sifman_unknown" />
+			<tag address="00025978" value="stdio_printf" />
+			<tag address="0002599C" value="thbase_CreateThread" />
+			<tag address="000259A4" value="thbase_StartThread" />
+			<tag address="000259AC" value="thbase_GetThreadId" />
+			<tag address="000259B4" value="thbase_DelayThread" />
+			<tag address="000259D8" value="thsemap_CreateSemaphore" />
+			<tag address="000259E0" value="thsemap_SignalSemaphore" />
+			<tag address="000259E8" value="thsemap_iSignalSemaphore" />
+			<tag address="000259F0" value="thsemap_WaitSemaphore" />
 			<tag address="000279E4" value="sysmem_printf" />
 			<tag address="00027A08" value="intrman_SuspendInterrupts" />
 			<tag address="00027A10" value="intrman_ResumeInterrupts" />
@@ -402,6 +439,31 @@
 			<tag address="00027B40" value="thsemap_SignalSemaphore" />
 			<tag address="00027B48" value="thsemap_iSignalSemaphore" />
 			<tag address="00027B50" value="thsemap_WaitSemaphore" />
+			<tag address="0002A924" value="intrman_SuspendInterrupts" />
+			<tag address="0002A92C" value="intrman_ResumeInterrupts" />
+			<tag address="0002A950" value="sysclib_memcpy" />
+			<tag address="0002A974" value="thbase_CreateThread" />
+			<tag address="0002A97C" value="thbase_unknown" />
+			<tag address="0002A984" value="thbase_StartThread" />
+			<tag address="0002A98C" value="thbase_unknown" />
+			<tag address="0002A994" value="thbase_unknown" />
+			<tag address="0002A9B8" value="thevent_CreateEventFlag" />
+			<tag address="0002A9C0" value="thevent_unknown" />
+			<tag address="0002A9C8" value="thevent_SetEventFlag" />
+			<tag address="0002A9D0" value="thevent_ClearEventFlag" />
+			<tag address="0002A9D8" value="thevent_WaitEventFlag" />
+			<tag address="0002A9E0" value="thevent_unknown" />
+			<tag address="0002AA04" value="vblank_WaitVblankStart" />
+			<tag address="0002AA28" value="sio2man_unknown_0033" />
+			<tag address="0002AA30" value="sio2man_unknown_003D" />
+			<tag address="0002AA38" value="sio2man_unknown_003E" />
+			<tag address="0002AA5C" value="sio2d_unknown_0006" />
+			<tag address="0002AA64" value="sio2d_unknown_0009" />
+			<tag address="0002AA6C" value="sio2d_unknown_000A" />
+			<tag address="0002AA90" value="dbcman_unknown_0004" />
+			<tag address="0002AA98" value="dbcman_unknown_0006" />
+			<tag address="0002AAA0" value="dbcman_unknown_0007" />
+			<tag address="0002AAA8" value="dbcman_unknown_0008" />
 			<tag address="0002D6E4" value="loadcore_RegisterLibraryEntries" />
 			<tag address="0002D6EC" value="loadcore_unknown" />
 			<tag address="0002D710" value="intrman_SuspendInterrupts" />
@@ -455,6 +517,77 @@
 			<tag address="0002D954" value="mcman_unknown" />
 			<tag address="0002D95C" value="mcman_unknown" />
 			<tag address="0002D964" value="mcman_unknown" />
+			<tag address="0002FB04" value="sysmem_AllocateMemory" />
+			<tag address="0002FB0C" value="sysmem_unknown" />
+			<tag address="0002FB14" value="sysmem_unknown" />
+			<tag address="0002FB1C" value="sysmem_unknown" />
+			<tag address="0002FB40" value="ioman_unknown" />
+			<tag address="0002FB48" value="ioman_unknown" />
+			<tag address="0002FB50" value="ioman_unknown" />
+			<tag address="0002FB58" value="ioman_unknown" />
+			<tag address="0002FB7C" value="sifcmd_SifInitRpc" />
+			<tag address="0002FB84" value="sifcmd_SifRegisterRpc" />
+			<tag address="0002FB8C" value="sifcmd_SifSetRpcQueue" />
+			<tag address="0002FB94" value="sifcmd_SifRpcLoop" />
+			<tag address="0002FBB8" value="sysclib_memset" />
+			<tag address="0002FBDC" value="thbase_CreateThread" />
+			<tag address="0002FBE4" value="thbase_StartThread" />
+			<tag address="0002FBEC" value="thbase_ChangeThreadPriority" />
+			<tag address="0002FBF4" value="thbase_GetThreadId" />
+			<tag address="0002FBFC" value="thbase_GetCurrentThreadPriority" />
+			<tag address="00030D44" value="loadcore_RegisterLibraryEntries" />
+			<tag address="00030D4C" value="loadcore_unknown" />
+			<tag address="00030D70" value="intrman_SuspendInterrupts" />
+			<tag address="00030D78" value="intrman_ResumeInterrupts" />
+			<tag address="00030D9C" value="sysclib_memcpy" />
+			<tag address="00030DA4" value="sysclib_memset" />
+			<tag address="00030DAC" value="sysclib_unknown" />
+			<tag address="00030DB4" value="sysclib_strtol" />
+			<tag address="00030DD8" value="stdio_printf" />
+			<tag address="00030DFC" value="sifman_SifInit" />
+			<tag address="00030E04" value="sifman_SifSetDma" />
+			<tag address="00030E0C" value="sifman_SifDmaStat" />
+			<tag address="00030E14" value="sifman_SifCheckInit" />
+			<tag address="00030E38" value="sifcmd_SifInitRpc" />
+			<tag address="00030E40" value="sifcmd_SifRegisterRpc" />
+			<tag address="00030E48" value="sifcmd_SifSetRpcQueue" />
+			<tag address="00030E50" value="sifcmd_SifRpcLoop" />
+			<tag address="00030E58" value="sifcmd_unknown" />
+			<tag address="00030E60" value="sifcmd_unknown" />
+			<tag address="00030E68" value="sifcmd_unknown" />
+			<tag address="00030E8C" value="thbase_CreateThread" />
+			<tag address="00030E94" value="thbase_unknown" />
+			<tag address="00030E9C" value="thbase_StartThread" />
+			<tag address="00030EA4" value="thbase_unknown" />
+			<tag address="00030EAC" value="thbase_ChangeThreadPriority" />
+			<tag address="00030EB4" value="thbase_GetThreadId" />
+			<tag address="00030EBC" value="thbase_unknown" />
+			<tag address="00030EC4" value="thbase_DelayThread" />
+			<tag address="00030EE8" value="thsemap_SignalSemaphore" />
+			<tag address="00030EF0" value="thsemap_WaitSemaphore" />
+			<tag address="00030F14" value="mcman_unknown_0006" />
+			<tag address="00030F1C" value="mcman_unknown_0007" />
+			<tag address="00030F24" value="mcman_unknown_0008" />
+			<tag address="00030F2C" value="mcman_unknown_0009" />
+			<tag address="00030F34" value="mcman_unknown_000A" />
+			<tag address="00030F3C" value="mcman_unknown_000B" />
+			<tag address="00030F44" value="mcman_unknown_000C" />
+			<tag address="00030F4C" value="mcman_unknown_000D" />
+			<tag address="00030F54" value="mcman_unknown_000E" />
+			<tag address="00030F5C" value="mcman_unknown_000F" />
+			<tag address="00030F64" value="mcman_unknown_0010" />
+			<tag address="00030F6C" value="mcman_unknown_0015" />
+			<tag address="00030F74" value="mcman_unknown_0016" />
+			<tag address="00030F7C" value="mcman_unknown_0017" />
+			<tag address="00030F84" value="mcman_unknown_0018" />
+			<tag address="00030F8C" value="mcman_unknown_001A" />
+			<tag address="00030F94" value="mcman_unknown_0024" />
+			<tag address="00030F9C" value="mcman_unknown_0025" />
+			<tag address="00030FA4" value="mcman_unknown_0026" />
+			<tag address="00030FAC" value="mcman_unknown_0027" />
+			<tag address="00030FB4" value="mcman_unknown_002A" />
+			<tag address="00030FBC" value="mcman_unknown_002D" />
+			<tag address="00030FC4" value="mcman_unknown_0035" />
 			<tag address="00036194" value="intrman_RegisterIntrHandler" />
 			<tag address="0003619C" value="intrman_ReleaseIntrHandler" />
 			<tag address="000361A4" value="intrman_EnableIntrLine" />
@@ -474,6 +607,25 @@
 			<tag address="00036284" value="thevent_unknown" />
 			<tag address="0003628C" value="thevent_unknown" />
 			<tag address="00036294" value="thevent_unknown" />
+			<tag address="0003A714" value="intrman_RegisterIntrHandler" />
+			<tag address="0003A71C" value="intrman_ReleaseIntrHandler" />
+			<tag address="0003A724" value="intrman_EnableIntrLine" />
+			<tag address="0003A72C" value="intrman_DisableIntrLine" />
+			<tag address="0003A734" value="intrman_SuspendInterrupts" />
+			<tag address="0003A73C" value="intrman_ResumeInterrupts" />
+			<tag address="0003A744" value="intrman_QueryIntrContext" />
+			<tag address="0003A768" value="loadcore_FlushDcache" />
+			<tag address="0003A770" value="loadcore_RegisterLibraryEntries" />
+			<tag address="0003A794" value="sifman_SifSetDma" />
+			<tag address="0003A79C" value="sifman_SifDmaStat" />
+			<tag address="0003A7C0" value="sysclib_bzero" />
+			<tag address="0003A7E4" value="thevent_CreateEventFlag" />
+			<tag address="0003A7EC" value="thevent_unknown" />
+			<tag address="0003A7F4" value="thevent_SetEventFlag" />
+			<tag address="0003A7FC" value="thevent_iSetEventFlag" />
+			<tag address="0003A804" value="thevent_ClearEventFlag" />
+			<tag address="0003A80C" value="thevent_unknown" />
+			<tag address="0003A814" value="thevent_WaitEventFlag" />
 			<tag address="0004076C" value="WriteCsdThreadId" />
 			<tag address="00045058" value="InitializeWakerTimerStuff" />
 			<tag address="00045CC4" value="libsd_unknown" />
@@ -511,6 +663,40 @@
 			<tag address="00045EA4" value="vblank_WaitVblankStart" />
 			<tag address="00045EAC" value="vblank_RegisterVblankHandler" />
 			<tag address="00049220" value="StartCommanderModule" />
+			<tag address="0004A244" value="libsd_unknown_0004" />
+			<tag address="0004A24C" value="libsd_unknown_0005" />
+			<tag address="0004A254" value="libsd_unknown_0007" />
+			<tag address="0004A25C" value="libsd_unknown_0009" />
+			<tag address="0004A264" value="libsd_unknown_000B" />
+			<tag address="0004A26C" value="libsd_unknown_0011" />
+			<tag address="0004A274" value="libsd_unknown_0012" />
+			<tag address="0004A27C" value="libsd_unknown_0014" />
+			<tag address="0004A284" value="libsd_unknown_0017" />
+			<tag address="0004A28C" value="libsd_unknown_0018" />
+			<tag address="0004A294" value="libsd_unknown_0019" />
+			<tag address="0004A29C" value="libsd_unknown_001A" />
+			<tag address="0004A2A4" value="libsd_unknown_001B" />
+			<tag address="0004A2AC" value="libsd_unknown_001F" />
+			<tag address="0004A2D0" value="sysmem_AllocateMemory" />
+			<tag address="0004A2D8" value="sysmem_FreeMemory" />
+			<tag address="0004A2FC" value="intrman_EnableIntrLine" />
+			<tag address="0004A320" value="loadcore_RegisterLibraryEntries" />
+			<tag address="0004A344" value="sysclib_memset" />
+			<tag address="0004A368" value="thbase_CreateThread" />
+			<tag address="0004A370" value="thbase_StartThread" />
+			<tag address="0004A378" value="thbase_SleepThread" />
+			<tag address="0004A380" value="thbase_iWakeupThread" />
+			<tag address="0004A388" value="thbase_unknown" />
+			<tag address="0004A3AC" value="thsemap_CreateSemaphore" />
+			<tag address="0004A3B4" value="thsemap_SignalSemaphore" />
+			<tag address="0004A3BC" value="thsemap_iSignalSemaphore" />
+			<tag address="0004A3C4" value="thsemap_WaitSemaphore" />
+			<tag address="0004A3E8" value="timrman_AllocHardTimer" />
+			<tag address="0004A3F0" value="timrman_SetTimerCallback" />
+			<tag address="0004A3F8" value="timrman_UnknownTimerFunction22" />
+			<tag address="0004A400" value="timrman_UnknownTimerFunction23" />
+			<tag address="0004A424" value="vblank_WaitVblankStart" />
+			<tag address="0004A42C" value="vblank_RegisterVblankHandler" />
 			<tag address="0004ABA0" value="WakeupCommanderThread" />
 			<tag address="0004AD84" value="InitializeCommanderCaller" />
 			<tag address="0004B4E8" value="InitializeCommander" />
@@ -546,6 +732,37 @@
 			<tag address="0004ED00" value="thsemap_SignalSemaphore" />
 			<tag address="0004ED08" value="thsemap_iSignalSemaphore" />
 			<tag address="0004ED10" value="thsemap_WaitSemaphore" />
+			<tag address="00053088" value="cdvdman_CdRead" />
+			<tag address="00053090" value="cdvdman_CdGetError" />
+			<tag address="00053098" value="cdvdman_CdSync" />
+			<tag address="000530A0" value="cdvdman_unknown" />
+			<tag address="000530C4" value="sysmem_AllocateMemory" />
+			<tag address="000530E8" value="intrman_SuspendInterrupts" />
+			<tag address="000530F0" value="intrman_ResumeInterrupts" />
+			<tag address="00053114" value="ioman_unknown" />
+			<tag address="0005311C" value="ioman_unknown" />
+			<tag address="00053124" value="ioman_unknown" />
+			<tag address="0005312C" value="ioman_unknown" />
+			<tag address="00053150" value="loadcore_RegisterLibraryEntries" />
+			<tag address="00053174" value="sifcmd_unknown" />
+			<tag address="0005317C" value="sifcmd_unknown" />
+			<tag address="00053184" value="sifcmd_SifSendCmd" />
+			<tag address="000531A8" value="sifman_SifDmaStat" />
+			<tag address="000531CC" value="stdio_printf" />
+			<tag address="000531F0" value="sysclib_memcpy" />
+			<tag address="000531F8" value="sysclib_memset" />
+			<tag address="0005321C" value="thbase_CreateThread" />
+			<tag address="00053224" value="thbase_StartThread" />
+			<tag address="0005322C" value="thbase_ChangeThreadPriority" />
+			<tag address="00053234" value="thbase_GetThreadId" />
+			<tag address="0005323C" value="thbase_SleepThread" />
+			<tag address="00053244" value="thbase_iWakeupThread" />
+			<tag address="0005324C" value="thbase_DelayThread" />
+			<tag address="00053254" value="thbase_GetCurrentThreadPriority" />
+			<tag address="00053278" value="thsemap_CreateSemaphore" />
+			<tag address="00053280" value="thsemap_SignalSemaphore" />
+			<tag address="00053288" value="thsemap_iSignalSemaphore" />
+			<tag address="00053290" value="thsemap_WaitSemaphore" />
 			<tag address="00083F04" value="loadcore_RegisterLibraryEntries" />
 			<tag address="00083F0C" value="loadcore_unknown" />
 			<tag address="00083F30" value="intrman_SuspendInterrupts" />
@@ -579,6 +796,39 @@
 			<tag address="000840F0" value="secrman_unknown" />
 			<tag address="000840F8" value="secrman_unknown" />
 			<tag address="0008411C" value="cdvdman_unknown" />
+			<tag address="00088484" value="loadcore_RegisterLibraryEntries" />
+			<tag address="0008848C" value="loadcore_unknown" />
+			<tag address="000884B0" value="intrman_SuspendInterrupts" />
+			<tag address="000884B8" value="intrman_ResumeInterrupts" />
+			<tag address="000884DC" value="sio2man_unknown_0018" />
+			<tag address="000884E4" value="sio2man_unknown_0019" />
+			<tag address="000884EC" value="sio2man_unknown_001A" />
+			<tag address="000884F4" value="sio2man_unknown_0039" />
+			<tag address="000884FC" value="sio2man_unknown_003B" />
+			<tag address="00088520" value="sysclib_memcpy" />
+			<tag address="00088528" value="sysclib_memset" />
+			<tag address="00088530" value="sysclib_unknown" />
+			<tag address="00088538" value="sysclib_strcmp" />
+			<tag address="00088540" value="sysclib_strcpy" />
+			<tag address="00088548" value="sysclib_strlen" />
+			<tag address="00088550" value="sysclib_unknown" />
+			<tag address="00088558" value="sysclib_unknown" />
+			<tag address="0008857C" value="stdio_printf" />
+			<tag address="000885A0" value="thbase_DelayThread" />
+			<tag address="000885A8" value="thbase_SetAlarm" />
+			<tag address="000885B0" value="thbase_USecToSysClock" />
+			<tag address="000885D4" value="thsemap_CreateSemaphore" />
+			<tag address="000885DC" value="thsemap_DeleteSemaphore" />
+			<tag address="000885E4" value="thsemap_SignalSemaphore" />
+			<tag address="000885EC" value="thsemap_iSignalSemaphore" />
+			<tag address="000885F4" value="thsemap_WaitSemaphore" />
+			<tag address="00088618" value="modload_unknown" />
+			<tag address="0008863C" value="ioman_unknown" />
+			<tag address="00088644" value="ioman_unknown" />
+			<tag address="00088668" value="secrman_unknown_0004" />
+			<tag address="00088670" value="secrman_unknown_0005" />
+			<tag address="00088678" value="secrman_unknown_0006" />
+			<tag address="0008869C" value="cdvdman_CdReadClock" />
 		</functions>
 		<comments>
 			<tag address="00040720" value="Clears CSD thread ID" />
@@ -604,6 +854,15 @@
 			<module beginAddress="00023380" endAddress="00024144" name="" />
 			<module beginAddress="000725A0" endAddress="00099844" name="" />
 			<module beginAddress="0002C720" endAddress="0002FE80" name="" />
+			<module beginAddress="00020A00" endAddress="00023760" name="" />
+			<module beginAddress="00023760" endAddress="000288B0" name="" />
+			<module beginAddress="000288C0" endAddress="0002AF90" name="" />
+			<module beginAddress="00035FA0" endAddress="0003B950" name="" />
+			<module beginAddress="00044C60" endAddress="0004D7A0" name="" />
+			<module beginAddress="0004D7A0" endAddress="0005F460" name="" />
+			<module beginAddress="0002EFA0" endAddress="0002FD64" name="" />
+			<module beginAddress="00076B20" endAddress="0009DDC4" name="" />
+			<module beginAddress="0002FD80" endAddress="000334E0" name="" />
 		</modules>
 	</iop>
 </tags>
