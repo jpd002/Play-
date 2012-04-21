@@ -148,6 +148,11 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_spu2.ReadRegister(address);
 	}
+	else if(address >= 0x1F808400 && address <= 0x1F808500)
+	{
+		//iLink (aka Firewire) stuff
+		return 0x08;
+	}
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown hardware register (0x%0.8X).\r\n", address);
