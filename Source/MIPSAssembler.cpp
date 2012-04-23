@@ -8,13 +8,10 @@
 #include <limits.h>
 #include "lexical_cast_ex.h"
 
-using namespace boost;
-using namespace std;
-
-CMIPSAssembler::CMIPSAssembler(uint32* pPtr) :
-m_nextLabelId(1),
-m_pPtr(pPtr),
-m_pStartPtr(pPtr)
+CMIPSAssembler::CMIPSAssembler(uint32* pPtr)
+: m_nextLabelId(1)
+, m_pPtr(pPtr)
+, m_pStartPtr(pPtr)
 {
 
 }
@@ -26,7 +23,7 @@ CMIPSAssembler::~CMIPSAssembler()
 
 unsigned int CMIPSAssembler::GetProgramSize()
 {
-    return static_cast<unsigned int>(m_pPtr - m_pStartPtr);
+	return static_cast<unsigned int>(m_pPtr - m_pStartPtr);
 }
 
 CMIPSAssembler::LABEL CMIPSAssembler::CreateLabel()
@@ -38,38 +35,38 @@ CMIPSAssembler::LABEL CMIPSAssembler::CreateLabel()
 
 void CMIPSAssembler::MarkLabel(LABEL label)
 {
-    m_labels[label] = GetProgramSize();
+	m_labels[label] = GetProgramSize();
 }
 
 void CMIPSAssembler::CreateLabelReference(LABEL label)
 {
-    LABELREF reference;
-    reference.address = GetProgramSize();
-    m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
+	LABELREF reference;
+	reference.address = GetProgramSize();
+	m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
 }
 
 void CMIPSAssembler::ResolveLabelReferences()
 {
-    for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
-        m_labelReferences.end() != labelRef; labelRef++)
-    {
-        LabelMapType::iterator label(m_labels.find(labelRef->first));
-        if(label == m_labels.end())
-        {
-            throw runtime_error("Invalid label.");
-        }
-        size_t referencePos = labelRef->second.address;
-        size_t labelPos = label->second;
-        int offset = static_cast<int>(labelPos - referencePos - 1);
+	for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
+		m_labelReferences.end() != labelRef; labelRef++)
+	{
+		LabelMapType::iterator label(m_labels.find(labelRef->first));
+		if(label == m_labels.end())
+		{
+			throw std::runtime_error("Invalid label.");
+		}
+		size_t referencePos = labelRef->second.address;
+		size_t labelPos = label->second;
+		int offset = static_cast<int>(labelPos - referencePos - 1);
 		if(offset > SHRT_MAX || offset < SHRT_MIN)
 		{
-			throw runtime_error("Jump length too long.");
+			throw std::runtime_error("Jump length too long.");
 		}
 		uint32& instruction = m_pStartPtr[referencePos];
 		instruction &= 0xFFFF0000;
 		instruction |= static_cast<uint16>(offset);
-    }
-    m_labelReferences.clear();
+	}
+	m_labelReferences.clear();
 }
 
 void CMIPSAssembler::ADDIU(unsigned int nRT, unsigned int nRS, uint16 nImmediate)
@@ -447,49 +444,46 @@ void CMIPSAssembler::SYSCALL()
 
 void CMIPSAssembler::AssembleString(const char* sCode)
 {
-    string sString(sCode);
-    tokenizer<> Tokens(sString);
+	std::string sString(sCode);
+	boost::tokenizer<> Tokens(sString);
 
-    tokenizer<>::iterator itToken(Tokens.begin());
-    const char* sMnemonic;
+	boost::tokenizer<>::iterator itToken(Tokens.begin());
 
-    //First token must be the instruction mnemonic
-    sMnemonic = (*itToken).c_str();
+	//First token must be the instruction mnemonic
+	const char* sMnemonic = (*itToken).c_str();
 
-    bool nFound(false);
+	bool nFound(false);
 
-    for(unsigned int i = 0; ; i++)
-    {
-        MipsAssemblerDefinitions::Instruction* pInstruction(MipsAssemblerDefinitions::g_Instructions[i]);
-        if(pInstruction == NULL) break;
+	for(unsigned int i = 0; ; i++)
+	{
+		MipsAssemblerDefinitions::Instruction* pInstruction(MipsAssemblerDefinitions::g_Instructions[i]);
+		if(pInstruction == NULL) break;
 
-        if(!strcmp(pInstruction->m_sMnemonic, sMnemonic))
-        {
-            pInstruction->Invoke(Tokens, itToken, this);
-            nFound = true;
-            break;
-        }
-    }
+		if(!strcmp(pInstruction->m_sMnemonic, sMnemonic))
+		{
+			pInstruction->Invoke(Tokens, itToken, this);
+			nFound = true;
+			break;
+		}
+	}
 
-    if(nFound == false)
-    {
-        throw runtime_error("Invalid mnemonic specified.");
-    }
+	if(nFound == false)
+	{
+		throw std::runtime_error("Invalid mnemonic specified.");
+	}
 }
 
 unsigned int CMIPSAssembler::GetRegisterIndex(const char* sRegisterName)
 {
-    unsigned int nRegister;
+	unsigned int nRegister = -1;
+	for(unsigned int i = 0; i < 32; i++)
+	{
+		if(!strcmp(CMIPS::m_sGPRName[i], sRegisterName))
+		{
+			nRegister = i;
+			break;
+		}
+	}
 
-    nRegister = -1;
-    for(unsigned int i = 0; i < 32; i++)
-    {
-        if(!strcmp(CMIPS::m_sGPRName[i], sRegisterName))
-        {
-            nRegister = i;
-            break;
-        }
-    }
-
-    return nRegister;
+	return nRegister;
 }
