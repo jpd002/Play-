@@ -979,14 +979,14 @@ void CPS2OS::ThreadShakeAndBake()
 			pThread = GetThread(nId);
 
 			if(pThread->nStatus != THREAD_RUNNING) continue;
-	//		if(pThread->nQuota == 0) continue;
+			//if(pThread->nQuota == 0) continue;
 			break;
 		}
 
 		if(itThread.IsEnd())
 		{
 			//Deadlock or something here
-//            printf("%s: Warning, no thread to execute.\r\n", LOG_NAME);
+			//printf("%s: Warning, no thread to execute.\r\n", LOG_NAME);
 			nId = 0;
 		}
 		else
@@ -1020,40 +1020,41 @@ bool CPS2OS::ThreadHasAllQuotasExpired()
 
 void CPS2OS::ThreadSwitchContext(unsigned int nID)
 {
-	//Save the context of the current thread
-	THREAD* pThread;
-	THREADCONTEXT* pContext;
-
 	if(nID == GetCurrentThreadId()) return;
 
-	pThread = GetThread(GetCurrentThreadId());
-	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
-
-	//Save the context
-	for(uint32 i = 0; i < 0x20; i++)
+	//Save the context of the current thread
 	{
-		if(i == CMIPS::R0) continue;
-		if(i == CMIPS::K0) continue;
-		if(i == CMIPS::K1) continue;
-		pContext->nGPR[i] = m_ee.m_State.nGPR[i];
+		THREAD* pThread = GetThread(GetCurrentThreadId());
+		THREADCONTEXT* pContext = reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]);
+
+		//Save the context
+		for(uint32 i = 0; i < 0x20; i++)
+		{
+			if(i == CMIPS::R0) continue;
+			if(i == CMIPS::K0) continue;
+			if(i == CMIPS::K1) continue;
+			pContext->nGPR[i] = m_ee.m_State.nGPR[i];
+		}
+
+		pThread->nEPC = m_ee.m_State.nPC;
 	}
 
-	pThread->nEPC = m_ee.m_State.nPC;
-
 	SetCurrentThreadId(nID);
-	pThread = GetThread(GetCurrentThreadId());
-	pContext = (THREADCONTEXT*)&m_ram[pThread->nContextPtr];
 
-	//Load the context
-
-	m_ee.m_State.nPC = pThread->nEPC;
-
-	for(uint32 i = 0; i < 0x20; i++)
+	//Load the new context
 	{
-		if(i == CMIPS::R0) continue;
-		if(i == CMIPS::K0) continue;
-		if(i == CMIPS::K1) continue;
-		m_ee.m_State.nGPR[i] = pContext->nGPR[i];
+		THREAD* pThread = GetThread(GetCurrentThreadId());
+		THREADCONTEXT* pContext = reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]);
+
+		m_ee.m_State.nPC = pThread->nEPC;
+
+		for(uint32 i = 0; i < 0x20; i++)
+		{
+			if(i == CMIPS::R0) continue;
+			if(i == CMIPS::K0) continue;
+			if(i == CMIPS::K1) continue;
+			m_ee.m_State.nGPR[i] = pContext->nGPR[i];
+		}
 	}
 
 	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", nID);
@@ -1061,9 +1062,7 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 
 void CPS2OS::CreateWaitThread()
 {
-	THREAD* pThread;
-
-	pThread = GetThread(0);
+	THREAD* pThread = GetThread(0);
 	pThread->nValid		= 1;
 	pThread->nEPC		= BIOS_ADDRESS_WAITTHREADPROC;
 	pThread->nStatus	= THREAD_ZOMBIE;
@@ -1095,12 +1094,9 @@ CPS2OS::SEMAPHORE* CPS2OS::GetSemaphore(uint32 nID)
 
 uint32 CPS2OS::GetNextAvailableDmacHandlerId()
 {
-	uint32 i;
-	DMACHANDLER* pHandler;
-
-	for(i = 1; i < MAX_DMACHANDLER; i++)
+	for(uint32 i = 1; i < MAX_DMACHANDLER; i++)
 	{
-		pHandler = GetDmacHandler(i);
+		DMACHANDLER* pHandler = GetDmacHandler(i);
 		if(pHandler->nValid != 1)
 		{
 			return i;
@@ -1118,12 +1114,9 @@ CPS2OS::DMACHANDLER* CPS2OS::GetDmacHandler(uint32 nID)
 
 uint32 CPS2OS::GetNextAvailableIntcHandlerId()
 {
-	uint32 i;
-	INTCHANDLER* pHandler;
-
-	for(i = 1; i < MAX_INTCHANDLER; i++)
+	for(uint32 i = 1; i < MAX_INTCHANDLER; i++)
 	{
-		pHandler = GetIntcHandler(i);
+		INTCHANDLER* pHandler = GetIntcHandler(i);
 		if(pHandler->nValid != 1)
 		{
 			return i;
@@ -1141,12 +1134,9 @@ CPS2OS::INTCHANDLER* CPS2OS::GetIntcHandler(uint32 nID)
 
 uint32 CPS2OS::GetNextAvailableDeci2HandlerId()
 {
-	uint32 i;
-	DECI2HANDLER* pHandler;
-
-	for(i = 1; i < MAX_DECI2HANDLER; i++)
+	for(uint32 i = 1; i < MAX_DECI2HANDLER; i++)
 	{
-		pHandler = GetDeci2Handler(i);
+		DECI2HANDLER* pHandler = GetDeci2Handler(i);
 		if(pHandler->nValid != 1)
 		{
 			return i;
@@ -1440,12 +1430,9 @@ void CPS2OS::sc_CreateThread()
 //21
 void CPS2OS::sc_DeleteThread()
 {
-	uint32 nID;
-	THREAD* pThread;
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	pThread = GetThread(nID);
+	THREAD* pThread = GetThread(nID);
 	if(!pThread->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1642,9 +1629,7 @@ void CPS2OS::sc_ReferThreadStatus()
 //32
 void CPS2OS::sc_SleepThread()
 {
-	THREAD* pThread;
-
-	pThread = GetThread(GetCurrentThreadId());
+	THREAD* pThread = GetThread(GetCurrentThreadId());
 	if(pThread->nWakeUpCount == 0)
 	{
 		pThread->nStatus = THREAD_SUSPENDED;
@@ -1698,7 +1683,7 @@ void CPS2OS::sc_SetupThread()
 		completeArgList.push_back(m_executableName);
 		completeArgList.insert(completeArgList.end(), m_currentArguments.begin(), m_currentArguments.end());
 
-		uint32 argsCount = completeArgList.size();
+		uint32 argsCount = static_cast<uint32>(completeArgList.size());
 
 		*reinterpret_cast<uint32*>(m_ram + argsBase) = argsCount;
 		uint32 argsPtrs = argsBase + 4;
@@ -1707,7 +1692,7 @@ void CPS2OS::sc_SetupThread()
 		{
 			const auto& currentArg = completeArgList[i];
 			*reinterpret_cast<uint32*>(m_ram + argsPtrs + (i * 4)) = argsPayload;
-			uint32 argSize = currentArg.size() + 1;
+			uint32 argSize = static_cast<uint32>(currentArg.size()) + 1;
 			memcpy(m_ram + argsPayload, currentArg.c_str(), argSize);
 			argsPayload += argSize;
 		}
@@ -1755,9 +1740,7 @@ void CPS2OS::sc_SetupHeap()
 //3E
 void CPS2OS::sc_EndOfHeap()
 {
-	THREAD* pThread;
-
-	pThread = GetThread(GetCurrentThreadId());
+	THREAD* pThread = GetThread(GetCurrentThreadId());
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = pThread->nHeapBase;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -1766,13 +1749,9 @@ void CPS2OS::sc_EndOfHeap()
 //40
 void CPS2OS::sc_CreateSema()
 {
-	SEMAPHOREPARAM* pSemaParam;
-	SEMAPHORE* pSema;
-	uint32 nID;
+	SEMAPHOREPARAM* pSemaParam = reinterpret_cast<SEMAPHOREPARAM*>(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 
-	pSemaParam = (SEMAPHOREPARAM*)(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
-
-	nID = GetNextAvailableSemaphoreId();
+	uint32 nID = GetNextAvailableSemaphoreId();
 	if(nID == 0xFFFFFFFF)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1780,7 +1759,7 @@ void CPS2OS::sc_CreateSema()
 		return;
 	}
 
-	pSema = GetSemaphore(nID);
+	SEMAPHORE* pSema = GetSemaphore(nID);
 	pSema->nValid		= 1;
 	pSema->nCount		= pSemaParam->nInitCount;
 	pSema->nMaxCount	= pSemaParam->nMaxCount;
@@ -1795,12 +1774,9 @@ void CPS2OS::sc_CreateSema()
 //41
 void CPS2OS::sc_DeleteSema()
 {
-	uint32 nID;
-	SEMAPHORE* pSema;
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	pSema = GetSemaphore(nID);
+	SEMAPHORE* pSema = GetSemaphore(nID);
 	if(!pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -2021,11 +1997,8 @@ void CPS2OS::sc_SetVSyncFlag()
 //74
 void CPS2OS::sc_SetSyscall()
 {
-	uint32 nAddress;
-	uint8 nNumber;
-
-	nNumber		= (uint8)(m_ee.m_State.nGPR[SC_PARAM0].nV[0] & 0xFF);
-	nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint8 nNumber	= static_cast<uint8>(m_ee.m_State.nGPR[SC_PARAM0].nV[0] & 0xFF);
+	uint32 nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	GetCustomSyscallTable()[nNumber]	= nAddress;
 
@@ -2097,71 +2070,72 @@ void CPS2OS::sc_SifGetReg()
 //7C
 void CPS2OS::sc_Deci2Call()
 {
-	uint32 nFunction, nParam, nID, nLength;
-	uint8* sString;
-	DECI2HANDLER* pHandler;
-
-	nFunction	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	nParam		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 nFunction	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 nParam		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 	
 	switch(nFunction)
 	{
 	case 0x01:
 		//Deci2Open
-		nID = GetNextAvailableDeci2HandlerId();
+		{
+			uint32 nID = GetNextAvailableDeci2HandlerId();
 
-		pHandler = GetDeci2Handler(nID);
-		pHandler->nValid		= 1;
-		pHandler->nDevice		= *(uint32*)&m_ram[nParam + 0x00];
-		pHandler->nBufferAddr	= *(uint32*)&m_ram[nParam + 0x04];
+			DECI2HANDLER* pHandler = GetDeci2Handler(nID);
+			pHandler->nValid		= 1;
+			pHandler->nDevice		= *(uint32*)&m_ram[nParam + 0x00];
+			pHandler->nBufferAddr	= *(uint32*)&m_ram[nParam + 0x04];
 
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-
+			m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+		}
 		break;
 	case 0x03:
 		//Deci2Send
-		nID = *(uint32*)&m_ram[nParam + 0x00];
-
-		pHandler = GetDeci2Handler(nID);
-
-		if(pHandler->nValid != 0)
 		{
-			nParam  = *(uint32*)&m_ram[pHandler->nBufferAddr + 0x10];
-			nParam &= (PS2::EERAMSIZE - 1);
+			uint32 nID = *reinterpret_cast<uint32*>(&m_ram[nParam + 0x00]);
 
-			nLength = m_ram[nParam + 0x00] - 0x0C;
-			sString = &m_ram[nParam + 0x0C];
+			DECI2HANDLER* pHandler = GetDeci2Handler(nID);
 
-			m_iopBios.GetIoman()->Write(1, nLength, sString);
+			if(pHandler->nValid != 0)
+			{
+				uint32 stringAddr  = *reinterpret_cast<uint32*>(&m_ram[pHandler->nBufferAddr + 0x10]);
+				stringAddr &= (PS2::EERAMSIZE - 1);
+
+				uint32 nLength = m_ram[stringAddr + 0x00] - 0x0C;
+				uint8* sString = &m_ram[stringAddr + 0x0C];
+
+				m_iopBios.GetIoman()->Write(1, nLength, sString);
+			}
+
+			m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 		}
-
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-
 		break;
 	case 0x04:
 		//Deci2Poll
-		nID = *(uint32*)&m_ram[nParam + 0x00];
-		
-		pHandler = GetDeci2Handler(nID);
-		if(pHandler->nValid != 0)
 		{
-			*(uint32*)&m_ram[pHandler->nBufferAddr + 0x0C] = 0;
+			uint32 nID = *reinterpret_cast<uint32*>(&m_ram[nParam + 0x00]);
+		
+			DECI2HANDLER* pHandler = GetDeci2Handler(nID);
+			if(pHandler->nValid != 0)
+			{
+				*(uint32*)&m_ram[pHandler->nBufferAddr + 0x0C] = 0;
+			}
+
+			m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
+			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 		}
-
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-
 		break;
 	case 0x10:
 		//kPuts
-		nParam = *(uint32*)&m_ram[nParam];
-		sString = &m_ram[nParam];
+		{
+			uint32 stringAddr = *reinterpret_cast<uint32*>(&m_ram[nParam]);
+			uint8* sString = &m_ram[stringAddr];
 			m_iopBios.GetIoman()->Write(1, static_cast<uint32>(strlen(reinterpret_cast<char*>(sString))), sString);
+		}
 		break;
 	default:
-		printf("PS2OS: Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", nFunction, m_ee.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", nFunction, m_ee.m_State.nPC);
 		break;
 	}
 
@@ -2498,15 +2472,12 @@ CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 //////////////////////////////////////////////////
 
 CPS2OS::CRoundRibbon::CRoundRibbon(void* pMemory, uint32 nSize)
+: m_pNode(reinterpret_cast<NODE*>(pMemory))
+, m_nMaxNode(nSize / sizeof(NODE))
 {
-	NODE* pHead;
-
-	m_pNode		= (NODE*)pMemory;
-	m_nMaxNode	= nSize / sizeof(NODE);
-
 	memset(pMemory, 0, nSize);
 
-	pHead = GetNode(0);
+	NODE* pHead = GetNode(0);
 	pHead->nIndexNext	= -1;
 	pHead->nWeight		= -1;
 	pHead->nValid		= 1;
@@ -2519,19 +2490,15 @@ CPS2OS::CRoundRibbon::~CRoundRibbon()
 
 unsigned int CPS2OS::CRoundRibbon::Insert(uint32 nValue, uint32 nWeight)
 {
-	NODE* pNext;
-	NODE* pPrev;
-	NODE* pNode;
-
 	//Initialize the new node
-	pNode = AllocateNode();
+	NODE* pNode = AllocateNode();
 	if(pNode == NULL) return -1;
 	pNode->nWeight	= nWeight;
 	pNode->nValue	= nValue;
 
 	//Insert node in list
-	pNext = GetNode(0);
-	pPrev = NULL;
+	NODE* pNext = GetNode(0);
+	NODE* pPrev = NULL;
 
 	while(1)
 	{
@@ -2546,7 +2513,7 @@ unsigned int CPS2OS::CRoundRibbon::Insert(uint32 nValue, uint32 nWeight)
 		if(pNext->nWeight == -1)
 		{
 			pPrev = pNext;
-			pNext = GetNode(pNext->nIndexNext);	
+			pNext = GetNode(pNext->nIndexNext);
 			continue;
 		}
 
@@ -2565,16 +2532,13 @@ unsigned int CPS2OS::CRoundRibbon::Insert(uint32 nValue, uint32 nWeight)
 
 void CPS2OS::CRoundRibbon::Remove(unsigned int nIndex)
 {
-	NODE* pNode;
-	NODE* pCurr;
-
 	if(nIndex == 0) return;
 
-	pCurr = GetNode(nIndex);
+	NODE* pCurr = GetNode(nIndex);
 	if(pCurr == NULL) return;
 	if(pCurr->nValid != 1) return;
 
-	pNode = GetNode(0);
+	NODE* pNode = GetNode(0);
 
 	while(1)
 	{
@@ -2611,12 +2575,9 @@ unsigned int CPS2OS::CRoundRibbon::GetNodeIndex(NODE* pNode)
 
 CPS2OS::CRoundRibbon::NODE* CPS2OS::CRoundRibbon::AllocateNode()
 {
-	unsigned int i;
-	NODE* pNode;
-
-	for(i = 1; i < m_nMaxNode; i++)
+	for(unsigned int i = 1; i < m_nMaxNode; i++)
 	{
-		pNode = GetNode(i);
+		NODE* pNode = GetNode(i);
 		if(pNode->nValid == 1) continue;
 		pNode->nValid = 1;
 		return pNode;
@@ -2631,9 +2592,10 @@ void CPS2OS::CRoundRibbon::FreeNode(NODE* pNode)
 }
 
 CPS2OS::CRoundRibbon::ITERATOR::ITERATOR(CRoundRibbon* pRibbon)
+: m_pRibbon(pRibbon)
+, m_nIndex(0)
 {
-	m_pRibbon	= pRibbon;
-	m_nIndex	= 0;
+
 }
 
 CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator =(unsigned int nIndex)
@@ -2644,11 +2606,9 @@ CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator =(unsig
 
 CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator ++(int nAmount)
 {
-	NODE* pNode;
-
 	if(!IsEnd())
 	{
-		pNode = m_pRibbon->GetNode(m_nIndex);
+		NODE* pNode = m_pRibbon->GetNode(m_nIndex);
 		m_nIndex = pNode->nIndexNext;
 	}
 
