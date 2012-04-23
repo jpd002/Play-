@@ -812,66 +812,74 @@ void CPS2OS::AssembleDmacHandler()
 
 void CPS2OS::AssembleIntcHandler()
 {
-	CMIPSAssembler Asm((uint32*)&m_bios[0x2000]);
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_bios[0x2000]));
+
+	CMIPSAssembler::LABEL checkHandlerLabel = assembler.CreateLabel();
+	CMIPSAssembler::LABEL moveToNextHandler = assembler.CreateLabel();
 
 	//Prologue
 	//S0 -> Handler Counter
 
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
-	Asm.SD(CMIPS::RA, 0x0000, CMIPS::SP);
-	Asm.SD(CMIPS::S0, 0x0008, CMIPS::SP);
-	Asm.SD(CMIPS::S1, 0x0010, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
+	assembler.SD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.SD(CMIPS::S0, 0x0008, CMIPS::SP);
+	assembler.SD(CMIPS::S1, 0x0010, CMIPS::SP);
 
 	//Clear INTC cause
-	Asm.LUI(CMIPS::T1, 0x1000);
-	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xF000);
-	Asm.ADDIU(CMIPS::T0, CMIPS::R0, 0x0001);
-	Asm.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::A0);
-	Asm.SW(CMIPS::T0, 0x0000, CMIPS::T1);
+	assembler.LUI(CMIPS::T1, 0x1000);
+	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xF000);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0x0001);
+	assembler.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::A0);
+	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Initialize INTC handler loop
-	Asm.ADDU(CMIPS::S0, CMIPS::R0, CMIPS::R0);
-	Asm.ADDU(CMIPS::S1, CMIPS::A0, CMIPS::R0);
+	assembler.ADDU(CMIPS::S0, CMIPS::R0, CMIPS::R0);
+	assembler.ADDU(CMIPS::S1, CMIPS::A0, CMIPS::R0);
+
+	assembler.MarkLabel(checkHandlerLabel);
 
 	//Get the address to the current INTCHANDLER structure
-	Asm.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(INTCHANDLER));
-	Asm.MULTU(CMIPS::T0, CMIPS::S0, CMIPS::T0);
-	Asm.LUI(CMIPS::T1, 0x8000);
-	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xA000);
-	Asm.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(INTCHANDLER));
+	assembler.MULTU(CMIPS::T0, CMIPS::S0, CMIPS::T0);
+	assembler.LUI(CMIPS::T1, 0x8000);
+	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xA000);
+	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
 	//Check validity
-	Asm.LW(CMIPS::T1, 0x0000, CMIPS::T0);
-	Asm.BEQ(CMIPS::T1, CMIPS::R0, 0x0009);
-	Asm.NOP();
+	assembler.LW(CMIPS::T1, 0x0000, CMIPS::T0);
+	assembler.BEQ(CMIPS::T1, CMIPS::R0, moveToNextHandler);
+	assembler.NOP();
 
 	//Check if the cause is good one
-	Asm.LW(CMIPS::T1, 0x0004, CMIPS::T0);
-	Asm.BNE(CMIPS::S1, CMIPS::T1, 0x0006);
-	Asm.NOP();
+	assembler.LW(CMIPS::T1, 0x0004, CMIPS::T0);
+	assembler.BNE(CMIPS::S1, CMIPS::T1, moveToNextHandler);
+	assembler.NOP();
 
 	//Load the necessary stuff
-	Asm.LW(CMIPS::T1, 0x0008, CMIPS::T0);
-	Asm.LW(CMIPS::A0, 0x000C, CMIPS::T0);
-	Asm.LW(CMIPS::GP, 0x0010, CMIPS::T0);
+	assembler.LW(CMIPS::T1, 0x0008, CMIPS::T0);
+	assembler.ADDU(CMIPS::A0, CMIPS::S1, CMIPS::R0);
+	assembler.LW(CMIPS::A1, 0x000C, CMIPS::T0);
+	assembler.LW(CMIPS::GP, 0x0010, CMIPS::T0);
 	
 	//Jump
-	Asm.JALR(CMIPS::T1);
-	Asm.NOP();
+	assembler.JALR(CMIPS::T1);
+	assembler.NOP();
+
+	assembler.MarkLabel(moveToNextHandler);
 
 	//Increment handler counter and test
-	Asm.ADDIU(CMIPS::S0, CMIPS::S0, 0x0001);
-	Asm.ADDIU(CMIPS::T0, CMIPS::R0, MAX_INTCHANDLER - 1);
-	Asm.BNE(CMIPS::S0, CMIPS::T0, 0xFFED);
-	Asm.NOP();
+	assembler.ADDIU(CMIPS::S0, CMIPS::S0, 0x0001);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, MAX_INTCHANDLER - 1);
+	assembler.BNE(CMIPS::S0, CMIPS::T0, checkHandlerLabel);
+	assembler.NOP();
 
 	//Epilogue
-	Asm.LD(CMIPS::RA, 0x0000, CMIPS::SP);
-	Asm.LD(CMIPS::S0, 0x0008, CMIPS::SP);
-	Asm.LD(CMIPS::S1, 0x0010, CMIPS::SP);
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0x20);
-	Asm.JR(CMIPS::RA);
-	Asm.NOP();
+	assembler.LD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.LD(CMIPS::S0, 0x0008, CMIPS::SP);
+	assembler.LD(CMIPS::S1, 0x0010, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x20);
+	assembler.JR(CMIPS::RA);
+	assembler.NOP();
 }
 
 void CPS2OS::AssembleThreadEpilog()
