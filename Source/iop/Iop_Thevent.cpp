@@ -11,6 +11,7 @@ using namespace Iop;
 #define FUNCTION_ISETEVENTFLAG				"iSetEventFlag"
 #define FUNCTION_CLEAREVENTFLAG				"ClearEventFlag"
 #define FUNCTION_WAITEVENTFLAG				"WaitEventFlag"
+#define FUNCTION_REFEREVENTFLAGSTATUS		"ReferEventFlagStatus"
 
 CThevent::CThevent(CIopBios& bios, uint8* ram) 
 : m_bios(bios)
@@ -47,6 +48,9 @@ std::string CThevent::GetFunctionName(unsigned int functionId) const
 		break;
 	case 10:
 		return FUNCTION_WAITEVENTFLAG;
+		break;
+	case 13:
+		return FUNCTION_REFEREVENTFLAGSTATUS;
 		break;
 	default:
 		return "unknown";
@@ -89,6 +93,12 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A3].nV0
 			));
 		break;
+	case 13:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferEventFlagStatus(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			));
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (%0.8X).\r\n", functionId, context.m_State.nPC);
 		break;
@@ -118,4 +128,9 @@ uint32 CThevent::ClearEventFlag(uint32 eventId, uint32 bits)
 uint32 CThevent::WaitEventFlag(uint32 eventId, uint32 bits, uint32 mode, uint32 resultPtr)
 {
 	return m_bios.WaitEventFlag(eventId, bits, mode, resultPtr);
+}
+
+uint32 CThevent::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
+{
+	return m_bios.ReferEventFlagStatus(eventId, infoPtr);
 }

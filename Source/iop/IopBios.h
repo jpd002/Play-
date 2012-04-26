@@ -132,6 +132,7 @@ public:
 	uint32					SetEventFlag(uint32, uint32, bool);
 	uint32					ClearEventFlag(uint32, uint32);
 	uint32					WaitEventFlag(uint32, uint32, uint32, uint32);
+	uint32					ReferEventFlagStatus(uint32, uint32);
 
 	bool					RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	bool					ReleaseIntrHandler(uint32);
@@ -178,6 +179,15 @@ private:
 		uint32			attributes;
 		uint32			options;
 		uint32			value;
+	};
+
+	struct EVENTFLAGINFO
+	{
+		uint32			attributes;
+		uint32			options;
+		uint32			initBits;
+		uint32			currBits;
+		uint32			numThreads;
 	};
 
 	struct INTRHANDLER

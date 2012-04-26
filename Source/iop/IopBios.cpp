@@ -977,7 +977,7 @@ uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initV
 uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "SetEventFlag(eventId = %d, value = 0x%0.8X, inInterrupt = %d);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: SetEventFlag(eventId = %d, value = 0x%0.8X, inInterrupt = %d);\r\n",
 		CurrentThreadId(), eventId, value, inInterrupt);
 #endif
 
@@ -1095,6 +1095,34 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 		thread->waitEventFlagResultPtr	= resultPtr;
 		m_rescheduleNeeded = true;
 	}
+
+	return 0;
+}
+
+uint32 CIopBios::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferEventFlagStatus(eventId = %d, infoPtr = 0x%0.8X);\r\n",
+		CurrentThreadId(), eventId, infoPtr);
+#endif
+
+	EVENTFLAG* eventFlag = m_eventFlags[eventId];
+	if(eventFlag == NULL)
+	{
+		return -1;
+	}
+
+	if(infoPtr == 0)
+	{
+		return -1;
+	}
+
+	EVENTFLAGINFO* eventFlagInfo(reinterpret_cast<EVENTFLAGINFO*>(m_ram + infoPtr));
+	eventFlagInfo->attributes	= eventFlag->attributes;
+	eventFlagInfo->options		= eventFlag->options;
+	eventFlagInfo->initBits		= 0;
+	eventFlagInfo->currBits		= eventFlag->value;
+	eventFlagInfo->numThreads	= 0;
 
 	return 0;
 }

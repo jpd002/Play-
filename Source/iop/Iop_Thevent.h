@@ -30,6 +30,7 @@ namespace Iop
 		uint32			iSetEventFlag(uint32, uint32);
 		uint32			ClearEventFlag(uint32, uint32);
 		uint32			WaitEventFlag(uint32, uint32, uint32, uint32);
+		uint32			ReferEventFlagStatus(uint32, uint32);
 
 		uint8*			m_ram;
 		CIopBios&		m_bios;
