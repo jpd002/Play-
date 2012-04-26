@@ -14,8 +14,8 @@
 
 using namespace Iop;
 
-CTimrman::CTimrman(CIopBios& bios) :
-m_bios(bios)
+CTimrman::CTimrman(CIopBios& bios) 
+: m_bios(bios)
 {
 
 }
@@ -27,7 +27,7 @@ CTimrman::~CTimrman()
 
 std::string CTimrman::GetId() const
 {
-    return "timrman";
+	return "timrman";
 }
 
 std::string CTimrman::GetFunctionName(unsigned int functionId) const
@@ -54,42 +54,41 @@ std::string CTimrman::GetFunctionName(unsigned int functionId) const
 
 void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 {
-    switch(functionId)
-    {
-    case 4:
-        context.m_State.nGPR[CMIPS::V0].nD0 = AllocHardTimer(
-            context.m_State.nGPR[CMIPS::A0].nV0,
-            context.m_State.nGPR[CMIPS::A1].nV0,
-            context.m_State.nGPR[CMIPS::A2].nV0
-            );
-        break;
-    case 20:
-        context.m_State.nGPR[CMIPS::V0].nD0 = SetTimerCallback(
+	switch(functionId)
+	{
+	case 4:
+		context.m_State.nGPR[CMIPS::V0].nD0 = AllocHardTimer(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0
+			);
+		break;
+	case 20:
+		context.m_State.nGPR[CMIPS::V0].nD0 = SetTimerCallback(
 			context,
-            context.m_State.nGPR[CMIPS::A0].nV0,
-            context.m_State.nGPR[CMIPS::A1].nV0,
-            context.m_State.nGPR[CMIPS::A2].nV0,
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0,
 			context.m_State.nGPR[CMIPS::A3].nV0);
-        break;
+		break;
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = UnknownTimerFunction22(
-            context.m_State.nGPR[CMIPS::A0].nV0,
-            context.m_State.nGPR[CMIPS::A1].nV0,
-            context.m_State.nGPR[CMIPS::A2].nV0,
-            context.m_State.nGPR[CMIPS::A3].nV0
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0,
+			context.m_State.nGPR[CMIPS::A3].nV0
 			);
 		break;
 	case 23:
 		context.m_State.nGPR[CMIPS::V0].nD0 = UnknownTimerFunction23(
-            context.m_State.nGPR[CMIPS::A0].nV0
+			context.m_State.nGPR[CMIPS::A0].nV0
 			);
 		break;
-    default:
-        CLog::GetInstance().Print(LOG_NAME, "(%0.8X): Unknown function (%d) called.\r\n", 
-            context.m_State.nPC, functionId);
-        break;
-       
-    }
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "(%0.8X): Unknown function (%d) called.\r\n", 
+			context.m_State.nPC, functionId);
+		break;
+	}
 }
 
 #define TIMER_ID (2)
@@ -97,10 +96,10 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 int CTimrman::AllocHardTimer(int source, int size, int prescale)
 {
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d).\r\n",
-        source, size, prescale);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d).\r\n",
+		source, size, prescale);
 #endif
-    return TIMER_ID;
+	return TIMER_ID;
 }
 
 int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 unknown, uint32 handler, uint32 arg)
