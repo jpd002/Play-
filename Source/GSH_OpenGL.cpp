@@ -16,7 +16,6 @@ CGSH_OpenGL::CGSH_OpenGL()
 , m_pCLUT16(NULL)
 , m_pCLUT32(NULL)
 , m_pCvtBuffer(NULL)
-//, m_currentPixelBuffer(0)
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
@@ -39,8 +38,6 @@ void CGSH_OpenGL::InitializeImpl()
 	m_nWidth = -1;
 	m_nHeight = -1;
 
-	//
-	//m_nTexCacheIndex = 0;
 	for(unsigned int i = 0; i < MAXCACHE; i++)
 	{
 		m_TexCache.push_back(new CTexture());
