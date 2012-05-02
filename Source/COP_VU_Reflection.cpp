@@ -220,7 +220,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
@@ -344,7 +344,7 @@ INSTRUCTION CCOP_VU::m_cReflVX2[32] =
 	{	"VITOF12",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VFTOI12",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

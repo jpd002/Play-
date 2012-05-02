@@ -76,6 +76,7 @@ private:
 	void								VMINIi();
 	void								VADDq();
 	void								VMADDq();
+	void								VMADDi();
 	void								VMSUBq();
 	void								VADD();
 	void								VMADD();
@@ -121,6 +122,7 @@ private:
 	//V2
 	void								VITOF12();
 	void								VFTOI12();
+	void								VMULAi();
 	void								VMULA();
 	void								VOPMULA();
 	void								VRSQRT();
