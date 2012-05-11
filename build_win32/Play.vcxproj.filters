@@ -130,9 +130,6 @@
     <ClCompile Include="..\Source\MIPSTags.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\MipsTestEngine.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\PadHandler.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -652,9 +649,6 @@
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MIPSTags.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MipsTestEngine.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\OsStructManager.h">

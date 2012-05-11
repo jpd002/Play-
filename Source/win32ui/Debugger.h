@@ -41,11 +41,6 @@ private:
 	void							UnserializeWindowGeometry(Framework::Win32::CWindow*, const char*, const char*, const char*, const char*, const char*);
 	void							CreateAccelerators();
 	void							DestroyAccelerators();
-	void							StartShiftOpTest();
-	void							StartShift64OpTest();
-	void							StartSplitLoadOpTest();
-	void							StartAddition64OpTest();
-	void							StartSetLessThanOpTest();
 	void							Resume();
 	void							StepCPU1();
 	void							FindValue();
@@ -73,7 +68,6 @@ private:
 	//Event handlers
 	void							OnFunctionViewFunctionDblClick(uint32);
 	void							OnFunctionViewFunctionsStateChange();
-	void							OnTestEngineViewTestCaseLoad(uint32);
 	void							OnEventViewEventDblClick(uint32);
 	void							OnExecutableChange();
 	void							OnExecutableUnloading();

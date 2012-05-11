@@ -266,7 +266,6 @@
     <ClCompile Include="..\Source\MipsJitter.cpp" />
     <ClCompile Include="..\Source\MIPSReflection.cpp" />
     <ClCompile Include="..\Source\MIPSTags.cpp" />
-    <ClCompile Include="..\Source\MipsTestEngine.cpp" />
     <ClCompile Include="..\Source\PadHandler.cpp" />
     <ClCompile Include="..\Source\PadListener.cpp" />
     <ClCompile Include="..\Source\Profiler.cpp" />
@@ -443,7 +442,6 @@
     <ClInclude Include="..\Source\MIPSModule.h" />
     <ClInclude Include="..\Source\MIPSReflection.h" />
     <ClInclude Include="..\Source\MIPSTags.h" />
-    <ClInclude Include="..\Source\MipsTestEngine.h" />
     <ClInclude Include="..\Source\OsStructManager.h" />
     <ClInclude Include="..\Source\PadHandler.h" />
     <ClInclude Include="..\Source\PadListener.h" />

@@ -73,14 +73,6 @@ BEGIN
         MENUITEM "Dump DMAC Handlers",          ID_VM_DUMPDMACHANDLERS
         MENUITEM "Find Value in Memory...",     ID_VM_FINDVALUE
         MENUITEM "Assemble JAL...",             ID_VM_ASMJAL
-        POPUP "Assemble && Start Test"
-        BEGIN
-            MENUITEM "Shift Operations Test",       ID_VM_TEST_SHIFT
-            MENUITEM "64-bit Shift Operations Test", ID_VM_TEST_SHIFT64
-            MENUITEM "Split Load Operations Test",  ID_VM_TEST_SPLITLOAD
-            MENUITEM "64-bit Addition Operations Test", ID_VM_TEST_ADD64
-            MENUITEM "SLT Operations Test",         ID_VM_TEST_SLT
-        END
         MENUITEM "Re-analyze EE Executable",    ID_VM_REANALYZE_EE
         MENUITEM "Find Common EE Functions",    ID_VM_FINDEEFUNCTIONS
     END
