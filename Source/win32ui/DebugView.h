@@ -12,7 +12,7 @@
 class CDebugView : public boost::signals::trackable
 {
 public:
-    typedef std::tr1::function<void (void)> StepFunction;
+	typedef std::function<void (void)> StepFunction;
 
 							CDebugView(HWND, CVirtualMachine&, CMIPS*, const StepFunction&, const char*);
 	virtual					~CDebugView();
@@ -22,7 +22,7 @@ public:
 	CRegViewWnd*			GetRegisterViewWindow();
 	CCallStackWnd*			GetCallStackWindow();
 
-    void                    Step();
+	void					Step();
 	const char*				GetName() const;
 	void					Hide();
 
@@ -30,15 +30,15 @@ protected:
 	void					OnCallStackWndFunctionDblClick(uint32);
 
 private:
-    std::string 			m_name;
+	std::string 			m_name;
 
-    CVirtualMachine&        m_virtualMachine;
+	CVirtualMachine&		m_virtualMachine;
 	CMIPS*					m_pCtx;
 	CDisAsmWnd*				m_pDisAsmWnd;
 	CMemoryViewMIPSWnd*		m_pMemoryViewWnd;
 	CRegViewWnd*			m_pRegViewWnd;
 	CCallStackWnd*			m_pCallStackWnd;
-    StepFunction            m_stepFunction;
+	StepFunction			m_stepFunction;
 };
 
 #endif

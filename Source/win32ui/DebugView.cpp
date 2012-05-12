@@ -1,32 +1,31 @@
 #include "DebugView.h"
-#include "PtrMacro.h"
-#include "placeholder_def.h"
 
-using namespace Framework;
-using namespace std::tr1;
-
-CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, const StepFunction& stepFunction, const char* sName) :
-m_virtualMachine(virtualMachine),
-m_pCtx(pCtx),
-m_name(sName),
-m_stepFunction(stepFunction)
+CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, const StepFunction& stepFunction, const char* sName) 
+: m_virtualMachine(virtualMachine)
+, m_pCtx(pCtx)
+, m_name(sName)
+, m_stepFunction(stepFunction)
+, m_pDisAsmWnd(NULL)
+, m_pRegViewWnd(NULL)
+, m_pMemoryViewWnd(NULL)
+, m_pCallStackWnd(NULL)
 {
 	m_pDisAsmWnd		= new CDisAsmWnd(hParent, virtualMachine, m_pCtx);
 	m_pRegViewWnd		= new CRegViewWnd(hParent, virtualMachine, m_pCtx);
 	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, virtualMachine, m_pCtx);
 
 	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx);
-    m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, PLACEHOLDER_1));
+	m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
 
 	Hide();
 }
 
 CDebugView::~CDebugView()
 {
-	DELETEPTR(m_pDisAsmWnd);
-	DELETEPTR(m_pRegViewWnd);
-	DELETEPTR(m_pMemoryViewWnd);
-	DELETEPTR(m_pCallStackWnd);
+	delete m_pDisAsmWnd;
+	delete m_pRegViewWnd;
+	delete m_pMemoryViewWnd;
+	delete m_pCallStackWnd;
 }
 
 const char* CDebugView::GetName() const
@@ -46,7 +45,7 @@ void CDebugView::Hide()
 
 void CDebugView::Step()
 {
-    m_stepFunction();
+	m_stepFunction();
 }
 
 CMIPS* CDebugView::GetContext()
