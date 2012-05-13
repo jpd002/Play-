@@ -23,7 +23,7 @@ private:
 	void							OnMachineStateChange();
 
 	CMIPS*							m_pCtx;
-    CVirtualMachine&                m_virtualMachine;
+	CVirtualMachine&				m_virtualMachine;
 };
 
 #endif

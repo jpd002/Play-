@@ -7,17 +7,14 @@
 
 #define ID_MEMORYVIEW_GOTOADDRESS	40001
 
-using namespace Framework;
-using namespace boost;
-
-CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
-CMemoryView(hParent, pR),
-m_virtualMachine(virtualMachine),
-m_pCtx(pCtx)
+CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+: CMemoryView(hParent, pR)
+, m_virtualMachine(virtualMachine)
+, m_pCtx(pCtx)
 {
 	SetMemorySize(0x02004000);
 
-	m_virtualMachine.OnMachineStateChange.connect(bind(&CMemoryViewMIPS::OnMachineStateChange, this));
+	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CMemoryViewMIPS::OnMachineStateChange, this));
 }
 
 CMemoryViewMIPS::~CMemoryViewMIPS()
@@ -71,13 +68,13 @@ void CMemoryViewMIPS::OnMachineStateChange()
 
 void CMemoryViewMIPS::GotoAddress()
 {
-    if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
 		return;
 	}
 
-	Win32::CInputBox i(_T("Goto Address"), _T("Enter new address:"), _T("00000000"));
+	Framework::Win32::CInputBox i(_T("Goto Address"), _T("Enter new address:"), _T("00000000"));
 	const TCHAR* sValue = i.GetValue(m_hWnd);
 
 	if(sValue != NULL)
