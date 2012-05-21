@@ -15,7 +15,7 @@ CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCt
 	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, virtualMachine, m_pCtx);
 
 	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx);
-	m_pCallStackWnd->m_OnFunctionDblClick.connect(bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
+	m_pCallStackWnd->m_OnFunctionDblClick.connect(boost::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
 
 	Hide();
 }

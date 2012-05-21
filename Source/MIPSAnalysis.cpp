@@ -46,7 +46,7 @@ void CMIPSAnalysis::ChangeSubroutineStart(uint32 currStart, uint32 newStart)
 	m_subroutines.insert(SubroutineList::value_type(newStart, subroutine));
 }
 
-void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
+void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 {
 	nStart &= ~0x3;
 	nEnd &= ~0x3;
@@ -135,8 +135,15 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd)
 				(nOp & 0xFC000000) == 0x08000000)
 			{
 				uint32 jumpTarget = (nOp & 0x03FFFFFF) * 4;
+				if(jumpTarget < nStart) continue;
+				if(jumpTarget >= nEnd) continue;
 				subroutineAddresses.insert(jumpTarget);
 			}
+		}
+
+		if(entryPoint != -1)
+		{
+			subroutineAddresses.insert(entryPoint);
 		}
 
 		for(auto subroutineAddressIterator(std::begin(subroutineAddresses));
@@ -189,4 +196,64 @@ const CMIPSAnalysis::SUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 nAddress) 
 	{
 		return nullptr;
 	}
+}
+
+CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, uint32 pc, uint32 sp, uint32 ra)
+{
+	CallStackItemArray result;
+
+	auto routine = context->m_pAnalysis->FindSubroutine(pc);
+	if(!routine)
+	{
+		return result;
+	}
+
+	//We need to get to a state where we're ready to dig into the previous function's
+	//stack
+
+	//Check if we need to check into the stack to get the RA
+	if(context->m_pAnalysis->FindSubroutine(ra) == routine)
+	{
+		ra = context->m_pMemoryMap->GetWord(sp + routine->nReturnAddrPos);
+		sp += routine->nStackSize;
+	}
+	else
+	{
+		//We haven't called a sub routine yet... The RA is good, but we
+		//don't know wether stack memory has been allocated or not
+		
+		//ADDIU SP, SP, 0x????
+		//If the PC is after this instruction, then, we've allocated stack
+
+		if(pc > routine->nStackAllocStart)
+		{
+			if(pc <= routine->nStackAllocEnd)
+			{
+				sp += routine->nStackSize;
+			}
+		}
+
+	}
+
+	while(1)
+	{
+		//Add the current function
+		CALLSTACKITEM item;
+		item.function = routine->nStart;
+		item.caller = ra - 4;
+		result.push_back(item);
+
+		//Go to previous routine
+		pc = ra - 4;
+
+		//Check if we can go on...
+		routine = context->m_pAnalysis->FindSubroutine(pc);
+		if(!routine) break;
+
+		//Get the next RA
+		ra = context->m_pMemoryMap->GetWord(sp + routine->nReturnAddrPos);
+		sp += routine->nStackSize;
+	}
+
+	return result;
 }

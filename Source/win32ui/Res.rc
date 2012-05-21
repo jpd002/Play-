@@ -44,6 +44,41 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DEBUG_THREADCALLSTACK DIALOGEX 0, 0, 316, 159
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Call Stack For Thread"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LISTBOX         IDC_CALLSTACKITEM_LIST,6,6,300,126,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,6,138,60,18
+    PUSHBUTTON      "Cancel",IDCANCEL,246,138,60,18
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DEBUG_THREADCALLSTACK, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 152
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -67,8 +102,7 @@ BEGIN
         MENUITEM "Resume\tF5",                  ID_VM_RESUME
         MENUITEM "&Save State\tF7",             ID_VM_SAVESTATE
         MENUITEM "Load State\tF8",              ID_VM_LOADSTATE
-        MENUITEM "Step CPU 1\tF10",             ID_VM_STEP1
-        MENUITEM "Dump Thread Schedule",        ID_VM_DUMPTHREADS
+        MENUITEM "Step CPU\tF10",               ID_VM_STEP
         MENUITEM "Dump INTC Handlers",          ID_VM_DUMPINTCHANDLERS
         MENUITEM "Dump DMAC Handlers",          ID_VM_DUMPDMACHANDLERS
         MENUITEM "Find Value in Memory...",     ID_VM_FINDVALUE
@@ -83,7 +117,7 @@ BEGIN
         MENUITEM "Call Stack\tCtrl+A",          ID_VIEW_CALLSTACK
         MENUITEM "&Functions\tCtrl+F",          ID_VIEW_FUNCTIONS
         MENUITEM "&ELF File Information",       ID_VIEW_ELF
-        MENUITEM "OS Events",                   ID_VIEW_OSEVENTS
+        MENUITEM "Threads\tCtrl+T",             ID_VIEW_THREADS
         MENUITEM SEPARATOR
         MENUITEM "EmotionEngine View\tAlt+1",   ID_VIEW_EEVIEW
         MENUITEM "Vector Unit 0 View\tAlt+2",   ID_VIEW_VU0VIEW
@@ -96,7 +130,6 @@ BEGIN
         MENUITEM "DMAC Logging",                ID_LOGGING_DMAC
         MENUITEM "IPU Logging",                 ID_LOGGING_IPU
         MENUITEM "OS Logging",                  ID_LOGGING_OS
-        MENUITEM "OS Recording",                ID_RECORDING_OS
         MENUITEM "SIF Logging",                 ID_LOGGING_SIF
         MENUITEM "IOP Logging",                 ID_LOGGING_IOP
         MENUITEM "Save VPU execution states",   ID_LOGGING_SAVEVPUSTATE

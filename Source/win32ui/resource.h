@@ -15,6 +15,8 @@
 #define IDC_CURSOR1                     116
 #define IDC_GRABBING                    116
 #define IDB_REFRESH                     117
+#define IDD_DEBUG_THREADCALLSTACK       118
+#define IDC_CALLSTACKITEM_LIST          1001
 #define ID_FILE_EXIT                    40002
 #define ID_FILE_OPENELF                 40003
 #define ID_Menu                         40005
@@ -32,7 +34,7 @@
 #define ID_VM_RESUME                    40027
 #define ID_VM_SAVESTATE                 40028
 #define ID_VM_LOADSTATE                 40029
-#define ID_VM_STEP1                     40030
+#define ID_VM_STEP                      40030
 #define ID_LOGGING_GS                   40031
 #define ID_LOGGING_ENABLEGIFLOGGING     40032
 #define ID_VIEW_MEMORY                  40033
@@ -72,8 +74,6 @@
 #define ID_VIEW_CALLSTACK               40068
 #define ID_WINDOW_LAYOUT                40069
 #define ID_WINDOW_LAYOUT1280            40070
-#define ID_VIRTUALMACHINE_DUMPTHREADSCHEDULE 40071
-#define ID_VM_DUMPTHREADS               40072
 #define ID_LOGGING_IPULOGGING           40073
 #define ID_LOGGING_IPU                  40074
 #define ID_VIRTUALMACHINE_STATESLOT     40075
@@ -98,26 +98,17 @@
 #define ID_WINDOW_LAYOUT1024            40097
 #define ID_VIEW_EMOTIONENGINEVIEW       40098
 #define ID_VIEW_VECTORUNIT1VIEW         40099
-#define ID_VIEW_A                       40100
 #define ID_VIEW_EEVIEW                  40101
 #define ID_VIEW_VU1VIEW                 40102
-#define ID_OPTIONS_RENDERERSETTINGS     40103
-#define ID_OPTIONS_RENDERER             40104
 #define ID_MAIN_OPTIONS_RENDERER        40105
 #define ID_MAIN_VM_PAUSEFOCUS           40107
 #define ID_VM_ASMJAL                    40109
 #define ID_VM_DUMPINTCHANDLERS          40119
 #define ID_VM_DUMPDMACHANDLERS          40121
-#define ID_LOGGING_SIFLOGGING           40124
 #define ID_LOGGING_SIF                  40125
-#define ID_LOGGING_IOPLOGGING           40126
 #define ID_LOGGING_IOP                  40127
-#define ID_OPTIONS_MEMORYCARDMANAGER    40128
-#define ID_MAIN_OPTIONS_MMMANAGER       40129
 #define ID_MAIN_OPTIONS_MCMANAGER       40130
-#define ID_VIEW_OSEVENTS                40133
-#define ID_LOGGING_OSRECORDING          40134
-#define ID_RECORDING_OS                 40135
+#define ID_VIEW_THREADS                 40133
 #define ID_WINDOW_LAYOUT1600            40137
 #define ID_VIEW_VU0VIEW                 40141
 #define ID_MAIN_OPTIONS_OPENCONFIG      40142
@@ -142,9 +133,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        118
+#define _APS_NEXT_RESOURCE_VALUE        119
 #define _APS_NEXT_COMMAND_VALUE         40169
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

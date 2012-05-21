@@ -322,7 +322,6 @@
     <ClCompile Include="..\Source\win32ui\MemoryViewPtr.cpp" />
     <ClCompile Include="..\Source\win32ui\NiceTabs.cpp" />
     <ClCompile Include="..\Source\win32ui\OptionWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\OsEventViewWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\OutputWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\PH_DirectInput.cpp" />
     <ClCompile Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.cpp" />
@@ -344,6 +343,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\SysInfoWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\ThreadCallStackViewWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\ThreadsViewWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\VFSManagerWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\WinUtils.cpp" />
   </ItemGroup>
@@ -355,6 +356,7 @@
     <ClInclude Include="..\Source\COP_FPU.h" />
     <ClInclude Include="..\Source\COP_SCU.h" />
     <ClInclude Include="..\Source\COP_VU.h" />
+    <ClInclude Include="..\Source\DebugThreadInfo.h" />
     <ClInclude Include="..\Source\DMAC.h" />
     <ClInclude Include="..\Source\Dmac_Channel.h" />
     <ClInclude Include="..\Source\ELF.h" />
@@ -504,7 +506,6 @@
     <ClInclude Include="..\Source\win32ui\MemoryViewPtr.h" />
     <ClInclude Include="..\Source\win32ui\NiceTabs.h" />
     <ClInclude Include="..\Source\win32ui\OptionWnd.h" />
-    <ClInclude Include="..\Source\win32ui\OsEventViewWnd.h" />
     <ClInclude Include="..\Source\win32ui\OutputWnd.h" />
     <ClInclude Include="..\Source\win32ui\PH_DirectInput.h" />
     <ClInclude Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.h" />
@@ -523,6 +524,8 @@
     <ClInclude Include="..\Source\win32ui\SettingsDialogProvider.h" />
     <ClInclude Include="..\Source\win32ui\StdAfx.h" />
     <ClInclude Include="..\Source\win32ui\SysInfoWnd.h" />
+    <ClInclude Include="..\Source\win32ui\ThreadCallStackViewWnd.h" />
+    <ClInclude Include="..\Source\win32ui\ThreadsViewWnd.h" />
     <ClInclude Include="..\Source\win32ui\VFSManagerWnd.h" />
     <ClInclude Include="..\Source\win32ui\WinUtils.h" />
   </ItemGroup>

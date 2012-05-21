@@ -5,7 +5,7 @@
 #include "win32/MDIFrame.h"
 #include "ELFView.h"
 #include "FunctionsView.h"
-#include "OsEventViewWnd.h"
+#include "ThreadsViewWnd.h"
 #include "DebugView.h"
 #include "../PS2VM.h"
 
@@ -42,7 +42,7 @@ private:
 	void							CreateAccelerators();
 	void							DestroyAccelerators();
 	void							Resume();
-	void							StepCPU1();
+	void							StepCPU();
 	void							FindValue();
 	void							AssembleJAL();
 	void							ReanalyzeEe();
@@ -66,9 +66,9 @@ private:
 	CCallStackWnd*					GetCallStackWindow();
 
 	//Event handlers
-	void							OnFunctionViewFunctionDblClick(uint32);
-	void							OnFunctionViewFunctionsStateChange();
-	void							OnEventViewEventDblClick(uint32);
+	void							OnFunctionsViewFunctionDblClick(uint32);
+	void							OnFunctionsViewFunctionsStateChange();
+	void							OnThreadsViewAddressDblClick(uint32);
 	void							OnExecutableChange();
 	void							OnExecutableUnloading();
 
@@ -76,13 +76,11 @@ private:
 	void							OnExecutableChangeMsg();
 	void							OnExecutableUnloadingMsg();
 
-	void							ImportOldenTagsFile(const char*, CMIPSTags&);
-
 	HACCEL							m_nAccTable;
 
 	CELFView*						m_pELFView;
 	CFunctionsView*					m_pFunctionsView;
-	COsEventViewWnd*				m_pOsEventView;
+	CThreadsViewWnd*				m_threadsView;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
 	unsigned int					m_nCurrentView;
 	CPS2VM&							m_virtualMachine;

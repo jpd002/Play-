@@ -124,8 +124,9 @@ void CCallStackWnd::Update()
 
 	m_pList->DeleteAllItems();
 
-	const CMIPSAnalysis::SUBROUTINE* pRoutine = m_pCtx->m_pAnalysis->FindSubroutine(nPC);
-	if(pRoutine == NULL)
+	auto callStackItems = CMIPSAnalysis::GetCallStack(m_pCtx, nPC, nSP, nRA);
+
+	if(callStackItems.size() == 0)
 	{
 		//Cannot go further
 		LVITEM item;
@@ -139,65 +140,30 @@ void CCallStackWnd::Update()
 		return;
 	}
 
-	//We need to get to a state where we're ready to dig into the previous function's
-	//stack
-
-	//Check if we need to check into the stack to get the RA
-	if(m_pCtx->m_pAnalysis->FindSubroutine(nRA) == pRoutine)
+	for(auto itemIterator(std::begin(callStackItems));
+		itemIterator != std::end(callStackItems); itemIterator++)
 	{
-		nRA = m_pCtx->m_pMemoryMap->GetWord(nSP + pRoutine->nReturnAddrPos);
-		nSP += pRoutine->nStackSize;
-	}
-	else
-	{
-		//We haven't called a sub routine yet... The RA is good, but we
-		//don't know wether stack memory has been allocated or not
-		
-		//ADDIU SP, SP, 0x????
-		//If the PC is after this instruction, then, we've allocated stack
+		const auto& callStackItem(*itemIterator);
 
-		if(nPC > pRoutine->nStackAllocStart)
-		{
-			if(nPC <= pRoutine->nStackAllocEnd)
-			{
-				nSP += pRoutine->nStackSize;
-			}
-		}
-
-	}
-
-	while(1)
-	{
 		//Add the current function
 		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
 		item.pszText	= _T("");
 		item.iItem		= m_pList->GetItemCount();
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
-		item.lParam		= pRoutine->nStart;
+		item.lParam		= callStackItem.function;
 		unsigned int i = m_pList->InsertItem(&item);
 
-		const char* sName = m_pCtx->m_Functions.Find(pRoutine->nStart);
+		const char* sName = m_pCtx->m_Functions.Find(callStackItem.function);
 
 		m_pList->SetItemText(i, 0, (
-			_T("0x") + lexical_cast_hex<std::tstring>(pRoutine->nStart, 8) +
+			_T("0x") + lexical_cast_hex<std::tstring>(callStackItem.function, 8) +
 			(sName != NULL ? (_T(" (") + string_cast<std::tstring>(sName) + _T(")")) : _T(""))
 			).c_str());
 
 		m_pList->SetItemText(i, 1, (
-			_T("0x") + lexical_cast_hex<std::tstring>(nRA - 4, 8)
+			_T("0x") + lexical_cast_hex<std::tstring>(callStackItem.caller, 8)
 			).c_str());
-
-		//Go to previous routine
-		nPC = nRA - 4;
-
-		//Check if we can go on...
-		pRoutine = m_pCtx->m_pAnalysis->FindSubroutine(nPC);
-		if(pRoutine == NULL) break;
-
-		//Get the next RA
-		nRA = m_pCtx->m_pMemoryMap->GetWord(nSP + pRoutine->nReturnAddrPos);
-		nSP += pRoutine->nStackSize;
 	}
 
 	m_pList->SetRedraw(true);

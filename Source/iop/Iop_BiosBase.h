@@ -11,31 +11,29 @@
 
 namespace Iop
 {
-    class CBiosBase
-    {
-    public:
-        virtual						~CBiosBase() {}
-        virtual void				HandleException() = 0;
-        virtual void				HandleInterrupt() = 0;
-	    virtual void				CountTicks(uint32) = 0;
+	class CBiosBase
+	{
+	public:
+		virtual						~CBiosBase() {}
+		virtual void				HandleException() = 0;
+		virtual void				HandleInterrupt() = 0;
+		virtual void				CountTicks(uint32) = 0;
 
 		virtual void				NotifyVBlankStart() = 0;
 		virtual void				NotifyVBlankEnd() = 0;
 
-        virtual bool                IsIdle() = 0;
+		virtual bool				IsIdle() = 0;
 
-	    virtual void		        SaveState(Framework::CZipArchiveWriter&) = 0;
-	    virtual void		        LoadState(Framework::CZipArchiveReader&) = 0;
+		virtual void				SaveState(Framework::CZipArchiveWriter&) = 0;
+		virtual void				LoadState(Framework::CZipArchiveReader&) = 0;
 
 #ifdef DEBUGGER_INCLUDED
 		virtual void				SaveDebugTags(Framework::Xml::CNode*) = 0;
 		virtual void				LoadDebugTags(Framework::Xml::CNode*) = 0;
-		virtual MipsModuleList		GetModuleList() = 0;
+		virtual MipsModuleList		GetModuleList() const = 0;
 #endif
 
-    private:
-
-    };
+	};
 }
 
 #endif

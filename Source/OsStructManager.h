@@ -20,12 +20,12 @@ public:
 		return m_structBase;
 	}
 
-	StructType* operator [](uint32 index)
+	StructType* operator [](uint32 index) const
 	{
 		index -= m_idBase;
 		if(index >= m_structMax)
 		{
-            return NULL;
+			return NULL;
 		}
 		StructType* structPtr = m_structBase + index;
 		if(!structPtr->isValid)

@@ -517,9 +517,6 @@
     <ClCompile Include="..\Source\win32ui\NiceTabs.cpp">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\OsEventViewWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32ui\RegViewFPU.cpp">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClCompile>
@@ -567,6 +564,12 @@
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.cpp">
       <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\ThreadsViewWnd.cpp">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\ThreadCallStackViewWnd.cpp">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1059,9 +1062,6 @@
     <ClInclude Include="..\Source\win32ui\NiceTabs.h">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32ui\OsEventViewWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewFPU.h">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClInclude>
@@ -1100,6 +1100,15 @@
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_SifMan.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\DebugThreadInfo.h">
+      <Filter>Source Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\ThreadsViewWnd.h">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\ThreadCallStackViewWnd.h">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

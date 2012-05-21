@@ -8,6 +8,7 @@
 #include "GSHandler.h"
 #include "SIF.h"
 #include "MipsModule.h"
+#include "DebugThreadInfo.h"
 
 class CIopBios;
 
@@ -26,7 +27,6 @@ public:
 
 	bool										IsIdle() const;
 
-	void										DumpThreadSchedule();
 	void										DumpIntcHandlers();
 	void										DumpDmacHandlers();
 
@@ -35,7 +35,8 @@ public:
 	CELF*										GetELF();
 	const char*									GetExecutableName() const;
 	std::pair<uint32, uint32>					GetExecutableRange() const;
-	MipsModuleList								GetModuleList();
+	MipsModuleList								GetModuleList() const;
+	DebugThreadInfoArray						GetThreadInfos() const;
 
 	void										ExceptionHandler();
 	void										SysCallHandler();
@@ -239,7 +240,7 @@ private:
 	uint32									GetCurrentThreadId() const;
 	void									SetCurrentThreadId(uint32);
 	uint32									GetNextAvailableThreadId();
-	THREAD*									GetThread(uint32);
+	THREAD*									GetThread(uint32) const;
 	void									ThreadShakeAndBake();
 	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);

@@ -236,13 +236,6 @@ void CPS2VM::Reset()
 	ResetVM();
 }
 
-void CPS2VM::DumpEEThreadSchedule()
-{
-//	if(m_pOS == NULL) return;
-	if(m_nStatus != PAUSED) return;
-	m_os->DumpThreadSchedule();
-}
-
 void CPS2VM::DumpEEIntcHandlers()
 {
 //	if(m_pOS == NULL) return;

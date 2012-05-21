@@ -640,7 +640,7 @@ void CIopBios::SleepThreadTillVBlankEnd()
 	m_rescheduleNeeded = true;
 }
 
-uint32 CIopBios::GetCurrentThreadId()
+uint32 CIopBios::GetCurrentThreadId() const
 {
 	return CurrentThreadId();
 }
@@ -1424,9 +1424,73 @@ void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
 	root->InsertNode(moduleSection);
 }
 
-MipsModuleList CIopBios::GetModuleList()
+MipsModuleList CIopBios::GetModuleList() const
 {
 	return m_moduleTags;
+}
+
+DebugThreadInfoArray CIopBios::GetThreadInfos() const
+{
+	DebugThreadInfoArray threadInfos;
+
+	uint32 nextThreadId = ThreadLinkHead();
+	while(nextThreadId != 0)
+	{
+		THREAD* nextThread = m_threads[nextThreadId];
+
+		DEBUG_THREAD_INFO threadInfo;
+		threadInfo.id			= nextThreadId;
+		threadInfo.priority		= nextThread->priority;
+		if(GetCurrentThreadId() == nextThreadId)
+		{
+			threadInfo.pc = m_cpu.m_State.nPC;
+			threadInfo.ra = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
+			threadInfo.sp = m_cpu.m_State.nGPR[CMIPS::SP].nV0;
+		}
+		else
+		{
+			threadInfo.pc = nextThread->context.epc;
+			threadInfo.ra = nextThread->context.gpr[CMIPS::RA];
+			threadInfo.sp = nextThread->context.gpr[CMIPS::SP];
+		}
+
+		switch(nextThread->status)
+		{
+		case THREAD_STATUS_CREATED:
+			threadInfo.stateDescription = "Created";
+			break;
+		case THREAD_STATUS_RUNNING:
+			threadInfo.stateDescription = "Running";
+			break;
+		case THREAD_STATUS_SLEEPING:
+			threadInfo.stateDescription = "Sleeping";
+			break;
+		case THREAD_STATUS_WAITING_SEMAPHORE:
+			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(nextThread->waitSemaphore) + ")";
+			break;
+		case THREAD_STATUS_WAITING_EVENTFLAG:
+			threadInfo.stateDescription = "Waiting (Event Flag: " + boost::lexical_cast<std::string>(nextThread->waitEventFlag) + ")";
+			break;
+		case THREAD_STATUS_WAIT_VBLANK_START:
+			threadInfo.stateDescription = "Waiting (Vblank Start)";
+			break;
+		case THREAD_STATUS_WAIT_VBLANK_END:
+			threadInfo.stateDescription = "Waiting (Vblank End)";
+			break;
+		case THREAD_STATUS_ZOMBIE:
+			threadInfo.stateDescription = "Zombie";
+			break;
+		default:
+			threadInfo.stateDescription = "Unknown";
+			break;
+		}
+
+		threadInfos.push_back(threadInfo);
+
+		nextThreadId = nextThread->nextThreadId;
+	}
+
+	return threadInfos;
 }
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include <map>
+#include <vector>
 
 class CMIPS;
 
@@ -19,11 +20,21 @@ public:
 		uint32			nReturnAddrPos;
 	};
 
+	struct CALLSTACKITEM
+	{
+		uint32			function;
+		uint32			caller;
+	};
+
+	typedef std::vector<CALLSTACKITEM> CallStackItemArray;
+
 										CMIPSAnalysis(CMIPS*);
 										~CMIPSAnalysis();
-	void								Analyse(uint32, uint32);
+	void								Analyse(uint32, uint32, uint32 = -1);
 	const SUBROUTINE*					FindSubroutine(uint32) const;
 	void								Clear();
+
+	static CallStackItemArray			GetCallStack(CMIPS*, uint32 pc, uint32 sp, uint32 ra);
 
 private:
 	typedef std::map<uint32, SUBROUTINE, std::greater<uint32>> SubroutineList;

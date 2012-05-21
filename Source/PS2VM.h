@@ -70,7 +70,6 @@ public:
 
 	STATUS						GetStatus() const;
 
-	void						DumpEEThreadSchedule();
 	void						DumpEEIntcHandlers();
 	void						DumpEEDmacHandlers();
 

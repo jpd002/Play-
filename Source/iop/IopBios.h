@@ -5,6 +5,7 @@
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
 #include "../MIPSModule.h"
+#include "../DebugThreadInfo.h"
 #include "../ELF.h"
 #include "../OsStructManager.h"
 #include "Iop_BiosBase.h"
@@ -98,7 +99,8 @@ public:
 #ifdef DEBUGGER_INCLUDED
 	void					LoadDebugTags(Framework::Xml::CNode*);
 	void					SaveDebugTags(Framework::Xml::CNode*);
-	MipsModuleList			GetModuleList();
+	MipsModuleList			GetModuleList() const;
+	DebugThreadInfoArray	GetThreadInfos() const;
 #endif
 
 	Iop::CIoman*			GetIoman();
@@ -115,7 +117,7 @@ public:
 	void					DeleteThread(uint32);
 	void					DelayThread(uint32);
 	THREAD*					GetThread(uint32);
-	uint32					GetCurrentThreadId();
+	uint32					GetCurrentThreadId() const;
 	void					ChangeThreadPriority(uint32, uint32);
 	void					SleepThread();
 	uint32					WakeupThread(uint32, bool);

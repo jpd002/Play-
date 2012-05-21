@@ -160,49 +160,6 @@ bool CPS2OS::IsIdle() const
 	return (GetCurrentThreadId() == m_semaWaitThreadId);
 }
 
-void CPS2OS::DumpThreadSchedule()
-{
-	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
-
-	printf("Thread Schedule Information\r\n");
-	printf("---------------------------\r\n");
-
-	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
-	{
-		THREAD* pThread = GetThread(itThread.GetValue());
-
-		THREADCONTEXT* pContext(reinterpret_cast<THREADCONTEXT*>(&m_ram[pThread->nContextPtr]));
-		const char* sStatus = NULL;
-
-		switch(pThread->nStatus)
-		{
-		case THREAD_RUNNING:
-			sStatus = "Running";
-			break;
-		case THREAD_SUSPENDED:
-			sStatus = "Suspended/Sleeping";
-			break;
-		case THREAD_WAITING:
-			sStatus = "Waiting";
-			break;
-		case THREAD_ZOMBIE:
-			sStatus = "Zombie";
-			break;
-		default:
-			sStatus = "Unknown";
-			break;
-		}
-
-		printf("Status: %19s, ID: %0.2i, Priority: %0.2i, EPC: 0x%0.8X, RA: 0x%0.8X, WaitSema: %i.\r\n",
-			sStatus,
-			itThread.GetValue(),
-			pThread->nPriority,
-			pThread->nEPC,
-			pContext->nGPR[CMIPS::RA].nV[0],
-			pThread->nSemaWait);
-	}
-}
-
 void CPS2OS::DumpIntcHandlers()
 {
 	printf("INTC Handlers Information\r\n");
@@ -339,29 +296,76 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 	return std::pair<uint32, uint32>(nMinAddr, nMaxAddr);
 }
 
-MipsModuleList CPS2OS::GetModuleList()
+MipsModuleList CPS2OS::GetModuleList() const
 {
 	MipsModuleList result;
 
-	uint32 moduleStart = 0;
-
 	if(m_pELF)
 	{
-		ELFPROGRAMHEADER* programHeader = m_pELF->GetProgram(0);
-		if(programHeader != NULL)
-		{
-			moduleStart = 0 - programHeader->nVAddress;
-		}
+		auto executableRange = GetExecutableRange();
+
+		MIPSMODULE module;
+		module.name		= m_executableName;
+		module.begin	= executableRange.first;
+		module.end		= executableRange.second;
+		module.param	= m_pELF;
+		result.push_back(module);
 	}
 
-	MIPSMODULE module;
-	module.name		= m_executableName;
-	module.begin	= moduleStart;
-	module.end		= 0;
-	module.param	= m_pELF;
-	result.push_back(module);
-
 	return result;
+}
+
+DebugThreadInfoArray CPS2OS::GetThreadInfos() const
+{
+	DebugThreadInfoArray threadInfos;
+
+	CRoundRibbon::ITERATOR threadIterator(m_pThreadSchedule);
+
+	for(threadIterator = m_pThreadSchedule->Begin(); 
+		!threadIterator.IsEnd(); threadIterator++)
+	{
+		auto thread = GetThread(threadIterator.GetValue());
+		THREADCONTEXT* threadContext = reinterpret_cast<THREADCONTEXT*>(m_ram + thread->nContextPtr);
+
+		DEBUG_THREAD_INFO threadInfo;
+		threadInfo.id			= threadIterator.GetValue();
+		threadInfo.priority		= thread->nPriority;
+		if(GetCurrentThreadId() == threadIterator.GetValue())
+		{
+			threadInfo.pc = m_ee.m_State.nPC;
+			threadInfo.ra = m_ee.m_State.nGPR[CMIPS::RA].nV0;
+			threadInfo.sp = m_ee.m_State.nGPR[CMIPS::SP].nV0;
+		}
+		else
+		{
+			threadInfo.pc = thread->nEPC;
+			threadInfo.ra = threadContext->nGPR[CMIPS::RA].nV0;
+			threadInfo.sp = threadContext->nGPR[CMIPS::SP].nV0;
+		}
+
+		switch(thread->nStatus)
+		{
+		case THREAD_RUNNING:
+			threadInfo.stateDescription = "Running";
+			break;
+		case THREAD_SUSPENDED:
+			threadInfo.stateDescription = "Suspended/Sleeping";
+			break;
+		case THREAD_WAITING:
+			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
+			break;
+		case THREAD_ZOMBIE:
+			threadInfo.stateDescription = "Zombie";
+			break;
+		default:
+			threadInfo.stateDescription = "Unknown";
+			break;
+		}
+
+		threadInfos.push_back(threadInfo);
+	}
+
+	return threadInfos;
 }
 
 void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const ArgumentList& arguments)
@@ -428,7 +432,7 @@ void CPS2OS::LoadExecutable()
 	uint32 nMaxAddr = executableRange.second & ~0x03;
 
 	m_ee.m_pAnalysis->Clear();
-	m_ee.m_pAnalysis->Analyse(nMinAddr, nMaxAddr);
+	m_ee.m_pAnalysis->Analyse(nMinAddr, nMaxAddr, header.nEntryPoint);
 
 	//Tag system calls
 	for(uint32 address = nMinAddr; address < nMaxAddr; address += 4)
@@ -930,7 +934,7 @@ uint32 CPS2OS::GetNextAvailableThreadId()
 	return 0xFFFFFFFF;
 }
 
-CPS2OS::THREAD* CPS2OS::GetThread(uint32 nID)
+CPS2OS::THREAD* CPS2OS::GetThread(uint32 nID) const
 {
 	return &((THREAD*)&m_ram[0x00011000])[nID];
 }
