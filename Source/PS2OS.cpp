@@ -296,15 +296,15 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 	return std::pair<uint32, uint32>(nMinAddr, nMaxAddr);
 }
 
-MipsModuleList CPS2OS::GetModuleList() const
+BiosDebugModuleInfoArray CPS2OS::GetModuleInfos() const
 {
-	MipsModuleList result;
+	BiosDebugModuleInfoArray result;
 
 	if(m_pELF)
 	{
 		auto executableRange = GetExecutableRange();
 
-		MIPSMODULE module;
+		BIOS_DEBUG_MODULE_INFO module;
 		module.name		= m_executableName;
 		module.begin	= executableRange.first;
 		module.end		= executableRange.second;
@@ -315,9 +315,9 @@ MipsModuleList CPS2OS::GetModuleList() const
 	return result;
 }
 
-DebugThreadInfoArray CPS2OS::GetThreadInfos() const
+BiosDebugThreadInfoArray CPS2OS::GetThreadInfos() const
 {
-	DebugThreadInfoArray threadInfos;
+	BiosDebugThreadInfoArray threadInfos;
 
 	CRoundRibbon::ITERATOR threadIterator(m_pThreadSchedule);
 
@@ -327,7 +327,7 @@ DebugThreadInfoArray CPS2OS::GetThreadInfos() const
 		auto thread = GetThread(threadIterator.GetValue());
 		THREADCONTEXT* threadContext = reinterpret_cast<THREADCONTEXT*>(m_ram + thread->nContextPtr);
 
-		DEBUG_THREAD_INFO threadInfo;
+		BIOS_DEBUG_THREAD_INFO threadInfo;
 		threadInfo.id			= threadIterator.GetValue();
 		threadInfo.priority		= thread->nPriority;
 		if(GetCurrentThreadId() == threadIterator.GetValue())

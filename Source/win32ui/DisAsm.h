@@ -12,7 +12,10 @@ class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::tr
 public:
 									CDisAsm(HWND, RECT*, CVirtualMachine&, CMIPS*);
 	virtual							~CDisAsm();
+
 	void							SetAddress(uint32);
+	void							SetCenterAtAddress(uint32);
+	void							SetSelectedAddress(uint32);
 
 protected:
 	void							Paint(HDC);
@@ -27,7 +30,7 @@ protected:
 	long							OnMouseMove(WPARAM, int, int);
 	long							OnVScroll(unsigned int, unsigned int);
 	long							OnKeyDown(unsigned int);
-    long                            OnCopy();
+	long							OnCopy();
 
 private:
 	enum
@@ -35,7 +38,7 @@ private:
 		HISTORY_STACK_MAX = 20
 	};
 
-    typedef std::pair<uint32, uint32> SelectionRangeType;
+	typedef std::pair<uint32, uint32> SelectionRangeType;
 
 	void							GotoAddress();
 	void							GotoPC();
@@ -50,8 +53,8 @@ private:
 	unsigned int					GetLineCount();
 	unsigned int					GetFontHeight();
 	bool							IsAddressVisible(uint32);
-    SelectionRangeType              GetSelectionRange();
-    void							HistoryReset();
+	SelectionRangeType				GetSelectionRange();
+	void							HistoryReset();
 	void							HistorySave(uint32);
 	void							HistoryGoBack();
 	void							HistoryGoForward();
@@ -59,21 +62,21 @@ private:
 	uint32							HistoryGetNext();
 	bool							HistoryHasPrevious();
 	bool							HistoryHasNext();
-    void							OnMachineStateChange();
+	void							OnMachineStateChange();
 	void							OnRunningStateChange();
 
 	CMIPS*							m_pCtx;
-    CVirtualMachine&                m_virtualMachine;
+	CVirtualMachine&				m_virtualMachine;
 	HBITMAP							m_nArrow;
 	HBITMAP							m_nArrowMask;
 	HBITMAP							m_nBPoint;
 	HBITMAP							m_nBPointMask;
 	uint32							m_nAddress;
 	uint32							m_nSelected;
-    uint32                          m_nSelectionEnd;
+	uint32							m_nSelectionEnd;
 	int								m_nFontCX;
 	bool							m_nFocus;
-    Framework::Win32::CFont         m_font;
+	Framework::Win32::CFont			m_font;
 
 	uint32							m_nHistory[HISTORY_STACK_MAX];
 	unsigned int					m_nHistoryPosition;

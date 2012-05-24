@@ -297,6 +297,7 @@
     <ClCompile Include="..\Source\win32ui\DebugExpressionEvaluator.cpp" />
     <ClCompile Include="..\Source\win32ui\Debugger.cpp" />
     <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\DebugUtils.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugView.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsm.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsmWnd.cpp" />
@@ -352,11 +353,11 @@
     <ClInclude Include="..\Source\AppConfig.h" />
     <ClInclude Include="..\Source\AppDef.h" />
     <ClInclude Include="..\Source\BasicBlock.h" />
+    <ClInclude Include="..\Source\BiosDebugInfoProvider.h" />
     <ClInclude Include="..\Source\ControllerInfo.h" />
     <ClInclude Include="..\Source\COP_FPU.h" />
     <ClInclude Include="..\Source\COP_SCU.h" />
     <ClInclude Include="..\Source\COP_VU.h" />
-    <ClInclude Include="..\Source\DebugThreadInfo.h" />
     <ClInclude Include="..\Source\DMAC.h" />
     <ClInclude Include="..\Source\Dmac_Channel.h" />
     <ClInclude Include="..\Source\ELF.h" />
@@ -441,7 +442,6 @@
     <ClInclude Include="..\Source\MipsFunctionPatternDb.h" />
     <ClInclude Include="..\Source\MIPSInstructionFactory.h" />
     <ClInclude Include="..\Source\MipsJitter.h" />
-    <ClInclude Include="..\Source\MIPSModule.h" />
     <ClInclude Include="..\Source\MIPSReflection.h" />
     <ClInclude Include="..\Source\MIPSTags.h" />
     <ClInclude Include="..\Source\OsStructManager.h" />
@@ -481,6 +481,7 @@
     <ClInclude Include="..\Source\win32ui\DebugExpressionEvaluator.h" />
     <ClInclude Include="..\Source\win32ui\Debugger.h" />
     <ClInclude Include="..\Source\win32ui\DebuggerChildWnd.h" />
+    <ClInclude Include="..\Source\win32ui\DebugUtils.h" />
     <ClInclude Include="..\Source\win32ui\DebugView.h" />
     <ClInclude Include="..\Source\win32ui\DisAsm.h" />
     <ClInclude Include="..\Source\win32ui\DisAsmWnd.h" />

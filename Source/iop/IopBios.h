@@ -4,8 +4,7 @@
 #include <list>
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
-#include "../MIPSModule.h"
-#include "../DebugThreadInfo.h"
+#include "../BiosDebugInfoProvider.h"
 #include "../ELF.h"
 #include "../OsStructManager.h"
 #include "Iop_BiosBase.h"
@@ -23,7 +22,7 @@
 #include "Iop_Cdvdfsv.h"
 #endif
 
-class CIopBios : public Iop::CBiosBase
+class CIopBios : public Iop::CBiosBase, public CBiosDebugInfoProvider
 {
 public:
 	enum CONTROL_BLOCK
@@ -70,74 +69,72 @@ public:
 		THREAD_STATUS_WAIT_VBLANK_END	= 8,
 	};
 
-	typedef MipsModuleList::iterator ModuleListIterator;
+								CIopBios(uint32, CMIPS&, uint8*, uint32);
+	virtual						~CIopBios();
 
-							CIopBios(uint32, CMIPS&, uint8*, uint32);
-	virtual					~CIopBios();
+	void						LoadAndStartModule(const char*, const char*, unsigned int);
+	void						LoadAndStartModule(uint32, const char*, unsigned int);
+	void						HandleException();
+	void						HandleInterrupt();
 
-	void					LoadAndStartModule(const char*, const char*, unsigned int);
-	void					LoadAndStartModule(uint32, const char*, unsigned int);
-	void					HandleException();
-	void					HandleInterrupt();
+	void						CountTicks(uint32);
+	uint64						GetCurrentTime();
+	uint64						MilliSecToClock(uint32);
+	uint64						MicroSecToClock(uint32);
+	uint64						ClockToMicroSec(uint64);
 
-	void					CountTicks(uint32);
-	uint64					GetCurrentTime();
-	uint64					MilliSecToClock(uint32);
-	uint64					MicroSecToClock(uint32);
-	uint64					ClockToMicroSec(uint64);
+	void						NotifyVBlankStart();
+	void						NotifyVBlankEnd();
 
-	void					NotifyVBlankStart();
-	void					NotifyVBlankEnd();
+	void						Reset(Iop::CSifMan*);
 
-	void					Reset(Iop::CSifMan*);
+	virtual void				SaveState(Framework::CZipArchiveWriter&);
+	virtual void				LoadState(Framework::CZipArchiveReader&);
 
-	virtual void			SaveState(Framework::CZipArchiveWriter&);
-	virtual void			LoadState(Framework::CZipArchiveReader&);
-
-	bool					IsIdle();
+	bool						IsIdle();
 
 #ifdef DEBUGGER_INCLUDED
-	void					LoadDebugTags(Framework::Xml::CNode*);
-	void					SaveDebugTags(Framework::Xml::CNode*);
-	MipsModuleList			GetModuleList() const;
-	DebugThreadInfoArray	GetThreadInfos() const;
+	void						LoadDebugTags(Framework::Xml::CNode*);
+	void						SaveDebugTags(Framework::Xml::CNode*);
+	BiosDebugModuleInfoArray	GetModuleInfos() const;
+	BiosDebugThreadInfoArray	GetThreadInfos() const;
 #endif
 
-	Iop::CIoman*			GetIoman();
-	Iop::CCdvdman*			GetCdvdman();
+	Iop::CIoman*				GetIoman();
+	Iop::CCdvdman*				GetCdvdman();
 #ifdef _IOP_EMULATE_MODULES
-	Iop::CDbcMan*			GetDbcman();
-	Iop::CPadMan*			GetPadman();
-	Iop::CCdvdfsv*			GetCdvdfsv();
+	Iop::CDbcMan*				GetDbcman();
+	Iop::CPadMan*				GetPadman();
+	Iop::CCdvdfsv*				GetCdvdfsv();
 #endif
-	void					RegisterDynamicModule(Iop::CDynamic*);
+	void						RegisterDynamicModule(Iop::CDynamic*);
 
-	uint32					CreateThread(uint32, uint32, uint32);
-	void					StartThread(uint32, uint32* = NULL);
-	void					DeleteThread(uint32);
-	void					DelayThread(uint32);
-	THREAD*					GetThread(uint32);
-	uint32					GetCurrentThreadId() const;
-	void					ChangeThreadPriority(uint32, uint32);
-	void					SleepThread();
-	uint32					WakeupThread(uint32, bool);
+	uint32						CreateThread(uint32, uint32, uint32);
+	void						StartThread(uint32, uint32* = NULL);
+	void						DeleteThread(uint32);
+	void						DelayThread(uint32);
+	THREAD*						GetThread(uint32);
+	uint32						GetCurrentThreadId() const;
+	void						ChangeThreadPriority(uint32, uint32);
+	void						SleepThread();
+	uint32						WakeupThread(uint32, bool);
 
-	void					SleepThreadTillVBlankStart();
-	void					SleepThreadTillVBlankEnd();
+	void						SleepThreadTillVBlankStart();
+	void						SleepThreadTillVBlankEnd();
 
-	uint32					CreateSemaphore(uint32, uint32);
-	uint32					DeleteSemaphore(uint32);
-	uint32					SignalSemaphore(uint32, bool);
-	uint32					WaitSemaphore(uint32);
+	uint32						CreateSemaphore(uint32, uint32);
+	uint32						DeleteSemaphore(uint32);
+	uint32						SignalSemaphore(uint32, bool);
+	uint32						WaitSemaphore(uint32);
 
-	uint32					CreateEventFlag(uint32, uint32, uint32);
-	uint32					SetEventFlag(uint32, uint32, bool);
-	uint32					ClearEventFlag(uint32, uint32);
-	uint32					WaitEventFlag(uint32, uint32, uint32, uint32);
-	uint32					ReferEventFlagStatus(uint32, uint32);
+	uint32						CreateEventFlag(uint32, uint32, uint32);
+	uint32						SetEventFlag(uint32, uint32, bool);
+	uint32						ClearEventFlag(uint32, uint32);
+	uint32						WaitEventFlag(uint32, uint32, uint32, uint32);
+	uint32						ReferEventFlagStatus(uint32, uint32);
 
-	bool					RegisterIntrHandler(uint32, uint32, uint32, uint32);
-	bool					ReleaseIntrHandler(uint32);
+	bool						RegisterIntrHandler(uint32, uint32, uint32, uint32);
+	bool						ReleaseIntrHandler(uint32);
 
 private:
 	enum DEFAULT_STACKSIZE
@@ -226,72 +223,72 @@ private:
 	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
 
-	void						RegisterModule(Iop::CModule*);
-	void						ClearDynamicModules();
+	void							RegisterModule(Iop::CModule*);
+	void							ClearDynamicModules();
 
-	void						ExitCurrentThread();
-	void						LoadThreadContext(uint32);
-	void						SaveThreadContext(uint32);
-	void						Reschedule();
-	uint32						GetNextReadyThread();
-	void						ReturnFromException();
+	void							ExitCurrentThread();
+	void							LoadThreadContext(uint32);
+	void							SaveThreadContext(uint32);
+	void							Reschedule();
+	uint32							GetNextReadyThread();
+	void							ReturnFromException();
 
-	uint32						FindIntrHandler(uint32);
+	uint32							FindIntrHandler(uint32);
 
-	void						LinkThread(uint32);
-	void						UnlinkThread(uint32);
+	void							LinkThread(uint32);
+	void							UnlinkThread(uint32);
 
-	uint32&						ThreadLinkHead() const;
-	uint32&						CurrentThreadId() const;
-	uint64&						CurrentTime() const;
+	uint32&							ThreadLinkHead() const;
+	uint32&							CurrentThreadId() const;
+	uint64&							CurrentTime() const;
 
-	void						LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
-	uint32						LoadExecutable(CELF&, ExecutableRange&);
-	unsigned int				GetElfProgramToLoad(CELF&);
-	void						RelocateElf(CELF&, uint32);
-	std::string					ReadModuleName(uint32);
-	std::string					GetModuleNameFromPath(const std::string&);
-	ModuleListIterator			FindModule(uint32, uint32);
+	void							LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
+	uint32							LoadExecutable(CELF&, ExecutableRange&);
+	unsigned int					GetElfProgramToLoad(CELF&);
+	void							RelocateElf(CELF&, uint32);
+	std::string						ReadModuleName(uint32);
+	std::string						GetModuleNameFromPath(const std::string&);
+	BiosDebugModuleInfoIterator		FindModule(uint32, uint32);
 #ifdef DEBUGGER_INCLUDED
-	void						LoadLoadedModules(Framework::Xml::CNode*);
-	void						SaveLoadedModules(Framework::Xml::CNode*);
+	void							LoadLoadedModules(Framework::Xml::CNode*);
+	void							SaveLoadedModules(Framework::Xml::CNode*);
 #endif
-	void						DeleteModules();
-	uint32						Push(uint32&, const uint8*, uint32);
+	void							DeleteModules();
+	uint32							Push(uint32&, const uint8*, uint32);
 
-	uint32						AssembleThreadFinish(CMIPSAssembler&);
-	uint32						AssembleReturnFromException(CMIPSAssembler&);
-	uint32						AssembleIdleFunction(CMIPSAssembler&);
+	uint32							AssembleThreadFinish(CMIPSAssembler&);
+	uint32							AssembleReturnFromException(CMIPSAssembler&);
+	uint32							AssembleIdleFunction(CMIPSAssembler&);
 
-	CMIPS&						m_cpu;
-	uint8*						m_ram;
-	uint32						m_ramSize;
-	uint32						m_threadFinishAddress;
-	uint32						m_returnFromExceptionAddress;
-	uint32						m_idleFunctionAddress;
-	uint32						m_clockFrequency;
+	CMIPS&							m_cpu;
+	uint8*							m_ram;
+	uint32							m_ramSize;
+	uint32							m_threadFinishAddress;
+	uint32							m_returnFromExceptionAddress;
+	uint32							m_idleFunctionAddress;
+	uint32							m_clockFrequency;
 
-	bool						m_rescheduleNeeded;
-	ThreadList					m_threads;
-	SemaphoreList				m_semaphores;
-	EventFlagList				m_eventFlags;
-	IntrHandlerList				m_intrHandlers;
+	bool							m_rescheduleNeeded;
+	ThreadList						m_threads;
+	SemaphoreList					m_semaphores;
+	EventFlagList					m_eventFlags;
+	IntrHandlerList					m_intrHandlers;
+		
+	IopModuleMapType				m_modules;
+	DynamicIopModuleListType		m_dynamicModules;
 
-	IopModuleMapType			m_modules;
-	DynamicIopModuleListType	m_dynamicModules;
-
-	MipsModuleList				m_moduleTags;
-	Iop::CSifMan*				m_sifMan;
-	Iop::CSifCmd*				m_sifCmd;
-	Iop::CStdio*				m_stdio;
-	Iop::CIoman*				m_ioman;
-	Iop::CCdvdman*				m_cdvdman;
-	Iop::CSysmem*				m_sysmem;
-	Iop::CModload*				m_modload;
+	BiosDebugModuleInfoArray		m_moduleTags;
+	Iop::CSifMan*					m_sifMan;
+	Iop::CSifCmd*					m_sifCmd;
+	Iop::CStdio*					m_stdio;
+	Iop::CIoman*					m_ioman;
+	Iop::CCdvdman*					m_cdvdman;
+	Iop::CSysmem*					m_sysmem;
+	Iop::CModload*					m_modload;
 #ifdef _IOP_EMULATE_MODULES
-	Iop::CDbcMan*				m_dbcman;
-	Iop::CPadMan*				m_padman;
-	Iop::CCdvdfsv*				m_cdvdfsv;
+	Iop::CDbcMan*					m_dbcman;
+	Iop::CPadMan*					m_padman;
+	Iop::CCdvdfsv*					m_cdvdfsv;
 #endif
 };
 

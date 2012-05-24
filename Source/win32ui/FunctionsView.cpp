@@ -10,11 +10,12 @@
 
 #define CLSNAME _T("FunctionsView")
 
-#define DEFAULT_GROUPID     (1)
-#define DEFAULT_GROUPNAME   _T("Global")
+#define DEFAULT_GROUPID		(1)
+#define DEFAULT_GROUPNAME	_T("Global")
 
 CFunctionsView::CFunctionsView(HWND hParent) 
-: m_pCtx(NULL)
+: m_context(nullptr)
+, m_biosDebugInfoProvider(nullptr)
 {
 	RECT rc;
 
@@ -180,10 +181,10 @@ void CFunctionsView::RefreshList()
 	m_pList->SetRedraw(false);
 	m_pList->DeleteAllItems();
 
-	if(m_pCtx == NULL) return;
-	if(m_moduleListProvider)
+	if(!m_context) return;
+	if(m_biosDebugInfoProvider)
 	{
-		m_modules = m_moduleListProvider();
+		m_modules = m_biosDebugInfoProvider->GetModuleInfos();
 	}
 	else
 	{
@@ -200,8 +201,8 @@ void CFunctionsView::RefreshList()
 		m_pList->EnableGroupView(false);
 	}
 
-	for(CMIPSTags::TagIterator itTag(m_pCtx->m_Functions.GetTagsBegin());
-		itTag != m_pCtx->m_Functions.GetTagsEnd(); itTag++)
+	for(auto itTag(m_context->m_Functions.GetTagsBegin());
+		itTag != m_context->m_Functions.GetTagsEnd(); itTag++)
 	{
 		LVITEM it;
 
@@ -235,10 +236,10 @@ void CFunctionsView::InitializeModuleGrouper()
 	m_pList->RemoveAllGroups();
 	m_pList->EnableGroupView(true);
 	m_pList->InsertGroup(DEFAULT_GROUPNAME, DEFAULT_GROUPID);
-	for(ModuleList::const_iterator moduleIterator(m_modules.begin());
-		m_modules.end() != moduleIterator; moduleIterator++)
+	for(auto moduleIterator(std::begin(m_modules));
+		std::end(m_modules) != moduleIterator; moduleIterator++)
 	{
-		const MIPSMODULE& module(*moduleIterator);
+		const auto& module(*moduleIterator);
 		m_pList->InsertGroup(
 			string_cast<std::tstring>(module.name.c_str()).c_str(),
 			module.begin);
@@ -247,46 +248,44 @@ void CFunctionsView::InitializeModuleGrouper()
 
 uint32 CFunctionsView::GetFunctionGroupId(uint32 address)
 {
-	for(ModuleList::const_iterator moduleIterator(m_modules.begin());
-		m_modules.end() != moduleIterator; moduleIterator++)
+	for(auto moduleIterator(std::begin(m_modules));
+		std::end(m_modules) != moduleIterator; moduleIterator++)
 	{
-		const MIPSMODULE& module(*moduleIterator);
+		const auto& module(*moduleIterator);
 		if(address >= module.begin && address < module.end) return module.begin;
 	}
 	return DEFAULT_GROUPID;
 }
 
-void CFunctionsView::SetContext(CMIPS* context, const ModuleListProvider& moduleListProvider)
+void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
 {
 	if(m_functionTagsChangeConnection.connected())
 	{
 		m_functionTagsChangeConnection.disconnect();
 	}
 
-	m_pCtx = context;
-	m_moduleListProvider = moduleListProvider;
+	m_context = context;
+	m_biosDebugInfoProvider = biosDebugInfoProvider;
 
-	m_functionTagsChangeConnection = m_pCtx->m_Functions.OnTagListChange.connect(
+	m_functionTagsChangeConnection = m_context->m_Functions.OnTagListChange.connect(
 		boost::bind(&CFunctionsView::RefreshList, this));
 	RefreshList();
 }
 
 void CFunctionsView::OnListDblClick()
 {
-	int nItem;
-	uint32 nAddress;
-	nItem = m_pList->GetSelection();
+	int nItem = m_pList->GetSelection();
 	if(nItem == -1) return;
-	nAddress = (uint32)m_pList->GetItemData(nItem);
+	uint32 nAddress = (uint32)m_pList->GetItemData(nItem);
 	OnFunctionDblClick(nAddress);
 }
 
 void CFunctionsView::OnNewClick()
 {
-	if(m_pCtx == NULL) return;
+	if(!m_context) return;
 
 	TCHAR sNameX[256];
-	uint32 nAddress;
+	uint32 nAddress = 0;
 
 	{
 		Framework::Win32::CInputBox inputBox(_T("New Function"), _T("New Function Name:"), _T(""));
@@ -310,7 +309,7 @@ void CFunctionsView::OnNewClick()
 		}
 	}
 
-	m_pCtx->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNameX).c_str());
+	m_context->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNameX).c_str());
 
 	RefreshList();
 	OnFunctionsStateChange();
@@ -318,13 +317,13 @@ void CFunctionsView::OnNewClick()
 
 void CFunctionsView::OnRenameClick()
 {
-	if(m_pCtx == NULL) return;
+	if(!m_context) return;
 
 	int nItem = m_pList->GetSelection();
 	if(nItem == -1) return;
 	
 	uint32 nAddress = m_pList->GetItemData(nItem);
-	const char* sName = m_pCtx->m_Functions.Find(nAddress);
+	const char* sName = m_context->m_Functions.Find(nAddress);
 
 	if(sName == NULL)
 	{
@@ -337,7 +336,7 @@ void CFunctionsView::OnRenameClick()
 	
 	if(sNewNameX == NULL) return;
 
-	m_pCtx->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNewNameX).c_str());
+	m_context->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNewNameX).c_str());
 	RefreshList();
 
 	OnFunctionsStateChange();
@@ -345,12 +344,12 @@ void CFunctionsView::OnRenameClick()
 
 void CFunctionsView::OnImportClick()
 {
-	if(m_pCtx == NULL) return;
+	if(!m_context) return;
 
-	for(ModuleList::const_iterator moduleIterator(m_modules.begin());
-		m_modules.end() != moduleIterator; moduleIterator++)
+	for(auto moduleIterator(std::begin(m_modules));
+		std::end(m_modules) != moduleIterator; moduleIterator++)
 	{
-		const MIPSMODULE& module(*moduleIterator);
+		const auto& module(*moduleIterator);
 		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);
 
 		if(moduleImage == NULL) return;
@@ -369,7 +368,7 @@ void CFunctionsView::OnImportClick()
 			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
 			ELFSECTIONHEADER* symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
 			if(symbolSection == NULL) continue;
-			m_pCtx->m_Functions.InsertTag(module.begin + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
+			m_context->m_Functions.InsertTag(module.begin + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
 		}
 	}
 
@@ -382,7 +381,7 @@ void CFunctionsView::OnImportClick()
 
 void CFunctionsView::OnDeleteClick()
 {
-	if(m_pCtx == NULL) return;
+	if(!m_context) return;
 
 	int nItem = m_pList->GetSelection();
 	if(nItem == -1) return;
@@ -392,7 +391,7 @@ void CFunctionsView::OnDeleteClick()
 	}
 
 	uint32 nAddress = m_pList->GetItemData(nItem);
-	m_pCtx->m_Functions.InsertTag(nAddress, NULL);
+	m_context->m_Functions.InsertTag(nAddress, NULL);
 	RefreshList();
 
 	OnFunctionsStateChange();

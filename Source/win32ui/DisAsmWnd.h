@@ -11,13 +11,16 @@ public:
 						CDisAsmWnd(HWND, CVirtualMachine&, CMIPS*);
 						~CDisAsmWnd();
 	void				Refresh();
+
 	void				SetAddress(uint32);
+	void				SetCenterAtAddress(uint32);
+	void				SetSelectedAddress(uint32);
 
 protected:
 	long				OnSize(unsigned int, unsigned int, unsigned int);
 	long				OnSysCommand(unsigned int, LPARAM);
 	long				OnSetFocus();
-    long                OnCopy();
+	long				OnCopy();
 
 private:
 	void				RefreshLayout();

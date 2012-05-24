@@ -571,6 +571,9 @@
     <ClCompile Include="..\Source\win32ui\ThreadCallStackViewWnd.cpp">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\win32ui\DebugUtils.cpp">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -643,9 +646,6 @@
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MipsJitter.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSModule.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MIPSReflection.h">
@@ -1101,14 +1101,17 @@
     <ClInclude Include="..\Source\iop\Iop_SifMan.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DebugThreadInfo.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\ThreadsViewWnd.h">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ThreadCallStackViewWnd.h">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\DebugUtils.h">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\BiosDebugInfoProvider.h">
+      <Filter>Source Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

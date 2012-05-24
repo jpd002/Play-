@@ -7,12 +7,11 @@
 #include "MIPS.h"
 #include "GSHandler.h"
 #include "SIF.h"
-#include "MipsModule.h"
-#include "DebugThreadInfo.h"
+#include "BiosDebugInfoProvider.h"
 
 class CIopBios;
 
-class CPS2OS
+class CPS2OS : public CBiosDebugInfoProvider
 {
 public:
 	typedef std::vector<std::string> ArgumentList;
@@ -35,8 +34,8 @@ public:
 	CELF*										GetELF();
 	const char*									GetExecutableName() const;
 	std::pair<uint32, uint32>					GetExecutableRange() const;
-	MipsModuleList								GetModuleList() const;
-	DebugThreadInfoArray						GetThreadInfos() const;
+	BiosDebugModuleInfoArray					GetModuleInfos() const;
+	BiosDebugThreadInfoArray					GetThreadInfos() const;
 
 	void										ExceptionHandler();
 	void										SysCallHandler();

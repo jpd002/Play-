@@ -8,7 +8,7 @@
 #include "win32/Button.h"
 #include "layout/VerticalLayout.h"
 #include "../MIPS.h"
-#include "../MIPSModule.h"
+#include "../BiosDebugInfoProvider.h"
 #include "../ELF.h"
 
 class CFunctionsView : 
@@ -20,14 +20,10 @@ class CFunctionsView :
 	public boost::signals2::trackable
 {
 public:
-	typedef std::list<MIPSMODULE> ModuleList;
-	typedef std::function<ModuleList ()> ModuleListProvider;
-
-
 											CFunctionsView(HWND);
 	virtual									~CFunctionsView();
 
-	void									SetContext(CMIPS*, const ModuleListProvider&);
+	void									SetContext(CMIPS*, CBiosDebugInfoProvider*);
 	void									Refresh();
 
 	boost::signals2::signal<void (uint32)>	OnFunctionDblClick;
@@ -63,9 +59,9 @@ private:
 
 	boost::signals2::connection				m_functionTagsChangeConnection;
 
-	CMIPS*									m_pCtx;
-	ModuleList								m_modules;
-	ModuleListProvider						m_moduleListProvider;
+	CMIPS*									m_context;
+	BiosDebugModuleInfoArray				m_modules;
+	CBiosDebugInfoProvider*					m_biosDebugInfoProvider;
 };
 
 #endif

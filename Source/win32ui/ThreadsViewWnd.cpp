@@ -6,12 +6,14 @@
 #include "win32/Rect.h"
 #include "../PS2VM.h"
 #include "resource.h"
+#include "DebugUtils.h"
 
 #define CLSNAME		_T("ThreadsViewWnd")
 
 CThreadsViewWnd::CThreadsViewWnd(HWND hParent, CVirtualMachine& virtualMachine)
-: m_listView(NULL)
-, m_context(NULL)
+: m_listView(nullptr)
+, m_context(nullptr)
+, m_biosDebugInfoProvider(nullptr)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -47,12 +49,10 @@ CThreadsViewWnd::~CThreadsViewWnd()
 	delete m_listView;
 }
 
-void CThreadsViewWnd::SetContext(CMIPS* context, 
-	const ThreadInfosProvider& threadInfosProvider, const ModuleListProvider& moduleListProvider)
+void CThreadsViewWnd::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
 {
 	m_context = context;
-	m_threadInfosProvider = threadInfosProvider;
-	m_moduleListProvider = moduleListProvider;
+	m_biosDebugInfoProvider = biosDebugInfoProvider;
 
 	Update();
 }
@@ -149,10 +149,10 @@ void CThreadsViewWnd::Update()
 {
 	m_listView->DeleteAllItems();
 
-	if(!m_threadInfosProvider) return;
+	if(!m_biosDebugInfoProvider) return;
 
-	auto threadInfos = m_threadInfosProvider();
-	auto modules = m_moduleListProvider();
+	auto threadInfos = m_biosDebugInfoProvider->GetThreadInfos();
+	auto moduleInfos = m_biosDebugInfoProvider->GetModuleInfos();
 
 	for(auto threadInfoIterator(std::begin(threadInfos));
 		threadInfoIterator != std::end(threadInfos); threadInfoIterator++)
@@ -169,41 +169,8 @@ void CThreadsViewWnd::Update()
 		m_listView->SetItemText(itemIndex, 0, boost::lexical_cast<std::tstring>(threadInfo.id).c_str());
 		m_listView->SetItemText(itemIndex, 1, boost::lexical_cast<std::tstring>(threadInfo.priority).c_str());
 
-		{
-			std::tstring locationString = _T("0x") + lexical_cast_hex<std::tstring>(threadInfo.pc, 8);
-
-			auto module = FindModuleAtAddress(modules, threadInfo.pc);
-			const char* functionName = nullptr;
-			{
-				auto subroutine = m_context->m_pAnalysis->FindSubroutine(threadInfo.pc);
-				if(subroutine)
-				{
-					functionName = m_context->m_Functions.Find(subroutine->nStart);
-				}
-			}
-			bool hasParenthesis = (functionName != nullptr) || (module != nullptr);
-			if(hasParenthesis)
-			{
-				locationString += _T(" (");
-			}
-			if(functionName)
-			{
-				locationString += string_cast<std::tstring>(functionName);
-			}
-			if((functionName != nullptr) && (module != nullptr))
-			{
-				locationString += _T(" : ");
-			}
-			if(module)
-			{
-				locationString += string_cast<std::tstring>(module->name);
-			}
-			if(hasParenthesis)
-			{
-				locationString += _T(")");
-			}
-			m_listView->SetItemText(itemIndex, 2, locationString.c_str());
-		}
+		std::tstring locationString = DebugUtils::PrintAddressLocation(threadInfo.pc, m_context, moduleInfos);
+		m_listView->SetItemText(itemIndex, 2, locationString.c_str());
 
 		m_listView->SetItemText(itemIndex, 3, string_cast<std::tstring>(threadInfo.stateDescription).c_str());
 	}
@@ -221,10 +188,10 @@ void CThreadsViewWnd::OnListDblClick()
 
 	uint32 threadId = m_listView->GetItemData(nSelection);
 
-	auto threadInfos = m_threadInfosProvider();
+	auto threadInfos = m_biosDebugInfoProvider->GetThreadInfos();
 
 	auto threadInfoIterator = std::find_if(std::begin(threadInfos), std::end(threadInfos), 
-		[&] (const DEBUG_THREAD_INFO& threadInfo) { return threadInfo.id == threadId; });
+		[&] (const BIOS_DEBUG_THREAD_INFO& threadInfo) { return threadInfo.id == threadId; });
 	if(threadInfoIterator == std::end(threadInfos)) return;
 
 	const auto& threadInfo(*threadInfoIterator);
@@ -237,7 +204,7 @@ void CThreadsViewWnd::OnListDblClick()
 	else
 	{
 		CThreadCallStackViewWnd threadCallStackViewWnd(m_hWnd);
-		threadCallStackViewWnd.SetItems(m_context, callStackItems);
+		threadCallStackViewWnd.SetItems(m_context, callStackItems, m_biosDebugInfoProvider->GetModuleInfos());
 		threadCallStackViewWnd.DoModal();
 
 		if(threadCallStackViewWnd.HasSelection())
@@ -245,18 +212,4 @@ void CThreadsViewWnd::OnListDblClick()
 			OnGotoAddress(threadCallStackViewWnd.GetSelectedAddress());
 		}
 	}
-}
-
-const MIPSMODULE* CThreadsViewWnd::FindModuleAtAddress(const MipsModuleList& modules, uint32 address)
-{
-	for(auto moduleIterator(std::begin(modules));
-		moduleIterator != std::end(modules); moduleIterator++)
-	{
-		const auto& module = (*moduleIterator);
-		if(address >= module.begin && address < module.end)
-		{
-			return &module;
-		}
-	}
-	return nullptr;
 }

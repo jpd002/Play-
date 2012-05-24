@@ -1,21 +1,23 @@
 #include "DebugView.h"
 
-CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, const StepFunction& stepFunction, const char* sName) 
+CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, 
+	const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* sName) 
 : m_virtualMachine(virtualMachine)
 , m_pCtx(pCtx)
 , m_name(sName)
 , m_stepFunction(stepFunction)
-, m_pDisAsmWnd(NULL)
-, m_pRegViewWnd(NULL)
-, m_pMemoryViewWnd(NULL)
-, m_pCallStackWnd(NULL)
+, m_pDisAsmWnd(nullptr)
+, m_pRegViewWnd(nullptr)
+, m_pMemoryViewWnd(nullptr)
+, m_pCallStackWnd(nullptr)
+, m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 	m_pDisAsmWnd		= new CDisAsmWnd(hParent, virtualMachine, m_pCtx);
 	m_pRegViewWnd		= new CRegViewWnd(hParent, virtualMachine, m_pCtx);
 	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, virtualMachine, m_pCtx);
 
-	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx);
-	m_pCallStackWnd->m_OnFunctionDblClick.connect(boost::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
+	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx, m_biosDebugInfoProvider);
+	m_pCallStackWnd->OnFunctionDblClick.connect(boost::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
 
 	Hide();
 }
@@ -48,6 +50,11 @@ void CDebugView::Step()
 	m_stepFunction();
 }
 
+CBiosDebugInfoProvider* CDebugView::GetBiosDebugInfoProvider() const
+{
+	return m_biosDebugInfoProvider;
+}
+
 CMIPS* CDebugView::GetContext()
 {
 	return m_pCtx;
@@ -75,5 +82,6 @@ CCallStackWnd* CDebugView::GetCallStackWindow()
 
 void CDebugView::OnCallStackWndFunctionDblClick(uint32 nAddress)
 {
-	m_pDisAsmWnd->SetAddress(nAddress);
+	m_pDisAsmWnd->SetCenterAtAddress(nAddress);
+	m_pDisAsmWnd->SetSelectedAddress(nAddress);
 }

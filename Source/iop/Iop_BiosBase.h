@@ -6,7 +6,6 @@
 #include "zip/ZipArchiveReader.h"
 #ifdef DEBUGGER_INCLUDED
 #include "xml/Node.h"
-#include "../MipsModule.h"
 #endif
 
 namespace Iop
@@ -30,7 +29,6 @@ namespace Iop
 #ifdef DEBUGGER_INCLUDED
 		virtual void				SaveDebugTags(Framework::Xml::CNode*) = 0;
 		virtual void				LoadDebugTags(Framework::Xml::CNode*) = 0;
-		virtual MipsModuleList		GetModuleList() const = 0;
 #endif
 
 	};

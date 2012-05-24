@@ -2,13 +2,16 @@
 #include "PtrMacro.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
+#include "DebugUtils.h"
 #include "../MIPS.h"
 
 #define CLSNAME		_T("CallStackWnd")
 
-CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
-m_virtualMachine(virtualMachine),
-m_pCtx(pCtx)
+CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
+: m_virtualMachine(virtualMachine)
+, m_context(context)
+, m_list(nullptr)
+, m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 	RECT rc;
 
@@ -32,11 +35,11 @@ m_pCtx(pCtx)
 
 	SetRect(&rc, 0, 0, 1, 1);
 
-	m_pList = new Framework::Win32::CListView(m_hWnd, &rc, LVS_REPORT);
-	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
+	m_list = new Framework::Win32::CListView(m_hWnd, &rc, LVS_REPORT);
+	m_list->SetExtendedListViewStyle(m_list->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CCallStackWnd::OnMachineStateChange, this));
-	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CCallStackWnd::OnRunningStateChange, this));
+	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CCallStackWnd::Update, this));
+	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CCallStackWnd::Update, this));
 
 	CreateColumns();
 
@@ -46,7 +49,7 @@ m_pCtx(pCtx)
 
 CCallStackWnd::~CCallStackWnd()
 {
-	DELETEPTR(m_pList);
+	delete m_list;
 }
 
 long CCallStackWnd::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
@@ -85,15 +88,13 @@ void CCallStackWnd::RefreshLayout()
 
 	GetClientRect(&rc);
 
-	if(m_pList != NULL)
+	if(m_list != NULL)
 	{
-		m_pList->SetSize(rc.right, rc.bottom);
+		m_list->SetSize(rc.right, rc.bottom);
 	}
 
-	m_pList->GetClientRect(&rc);
-
-	m_pList->SetColumnWidth(0, rc.right / 2);
-	m_pList->SetColumnWidth(1, rc.right / 2);
+	m_list->GetClientRect(&rc);
+	m_list->SetColumnWidth(0, rc.right);
 }
 
 void CCallStackWnd::CreateColumns()
@@ -101,30 +102,25 @@ void CCallStackWnd::CreateColumns()
 	LVCOLUMN col;
 	RECT rc;
 
-	m_pList->GetClientRect(&rc);
+	m_list->GetClientRect(&rc);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Function");
 	col.mask	= LVCF_TEXT;
-	m_pList->InsertColumn(0, &col);
-
-	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText = _T("Caller");
-	col.mask	= LVCF_TEXT;
-	m_pList->InsertColumn(1, &col);
+	m_list->InsertColumn(0, &col);
 }
 
 void CCallStackWnd::Update()
 {
-	uint32 nPC = m_pCtx->m_State.nPC;
-	uint32 nRA = m_pCtx->m_State.nGPR[CMIPS::RA].nV[0];
-	uint32 nSP = m_pCtx->m_State.nGPR[CMIPS::SP].nV[0];
+	uint32 nPC = m_context->m_State.nPC;
+	uint32 nRA = m_context->m_State.nGPR[CMIPS::RA].nV[0];
+	uint32 nSP = m_context->m_State.nGPR[CMIPS::SP].nV[0];
 
-	m_pList->SetRedraw(false);
+	m_list->SetRedraw(false);
 
-	m_pList->DeleteAllItems();
+	m_list->DeleteAllItems();
 
-	auto callStackItems = CMIPSAnalysis::GetCallStack(m_pCtx, nPC, nSP, nRA);
+	auto callStackItems = CMIPSAnalysis::GetCallStack(m_context, nPC, nSP, nRA);
 
 	if(callStackItems.size() == 0)
 	{
@@ -134,11 +130,13 @@ void CCallStackWnd::Update()
 		item.pszText	= _T("Call stack unavailable at this state.");
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
 		item.lParam		= MIPS_INVALID_PC;
-		m_pList->InsertItem(&item);
+		m_list->InsertItem(&item);
 
-		m_pList->SetRedraw(true);
+		m_list->SetRedraw(true);
 		return;
 	}
+
+	auto modules = m_biosDebugInfoProvider ? m_biosDebugInfoProvider->GetModuleInfos() : BiosDebugModuleInfoArray();
 
 	for(auto itemIterator(std::begin(callStackItems));
 		itemIterator != std::end(callStackItems); itemIterator++)
@@ -149,48 +147,27 @@ void CCallStackWnd::Update()
 		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
 		item.pszText	= _T("");
-		item.iItem		= m_pList->GetItemCount();
+		item.iItem		= m_list->GetItemCount();
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
-		item.lParam		= callStackItem.function;
-		unsigned int i = m_pList->InsertItem(&item);
+		item.lParam		= callStackItem;
+		unsigned int i = m_list->InsertItem(&item);
 
-		const char* sName = m_pCtx->m_Functions.Find(callStackItem.function);
-
-		m_pList->SetItemText(i, 0, (
-			_T("0x") + lexical_cast_hex<std::tstring>(callStackItem.function, 8) +
-			(sName != NULL ? (_T(" (") + string_cast<std::tstring>(sName) + _T(")")) : _T(""))
-			).c_str());
-
-		m_pList->SetItemText(i, 1, (
-			_T("0x") + lexical_cast_hex<std::tstring>(callStackItem.caller, 8)
-			).c_str());
+		std::tstring locationString = DebugUtils::PrintAddressLocation(callStackItem, m_context, modules);
+		m_list->SetItemText(i, 0, locationString.c_str());
 	}
 
-	m_pList->SetRedraw(true);
+	m_list->SetRedraw(true);
 }
 
 void CCallStackWnd::OnListDblClick()
 {
-	int nSelection;
-	uint32 nAddress;
-
-	nSelection = m_pList->GetSelection();
+	int nSelection = m_list->GetSelection();
 	if(nSelection != -1)
 	{
-		nAddress = m_pList->GetItemData(nSelection);
+		uint32 nAddress = m_list->GetItemData(nSelection);
 		if(nAddress != MIPS_INVALID_PC)
 		{
-			m_OnFunctionDblClick(nAddress);
+			OnFunctionDblClick(nAddress);
 		}
 	}
-}
-
-void CCallStackWnd::OnMachineStateChange()
-{
-	Update();
-}
-
-void CCallStackWnd::OnRunningStateChange()
-{
-	Update();
 }

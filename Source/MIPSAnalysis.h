@@ -20,13 +20,7 @@ public:
 		uint32			nReturnAddrPos;
 	};
 
-	struct CALLSTACKITEM
-	{
-		uint32			function;
-		uint32			caller;
-	};
-
-	typedef std::vector<CALLSTACKITEM> CallStackItemArray;
+	typedef std::vector<uint32> CallStackItemArray;
 
 										CMIPSAnalysis(CMIPS*);
 										~CMIPSAnalysis();

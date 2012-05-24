@@ -3,8 +3,6 @@
 
 #define CLSNAME		_T("CDisAsmWnd")
 
-using namespace Framework;
-
 CDisAsmWnd::CDisAsmWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 {
 	RECT rc;
@@ -40,6 +38,16 @@ CDisAsmWnd::~CDisAsmWnd()
 void CDisAsmWnd::SetAddress(uint32 nAddress)
 {
 	m_pDisAsm->SetAddress(nAddress);
+}
+
+void CDisAsmWnd::SetCenterAtAddress(uint32 address)
+{
+	m_pDisAsm->SetCenterAtAddress(address);
+}
+
+void CDisAsmWnd::SetSelectedAddress(uint32 address)
+{
+	m_pDisAsm->SetSelectedAddress(address);
 }
 
 void CDisAsmWnd::Refresh()
@@ -81,5 +89,5 @@ long CDisAsmWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 
 long CDisAsmWnd::OnCopy()
 {
-    return static_cast<long>(SendMessage(m_pDisAsm->m_hWnd, WM_COPY, 0, 0));
+	return static_cast<long>(SendMessage(m_pDisAsm->m_hWnd, WM_COPY, 0, 0));
 }

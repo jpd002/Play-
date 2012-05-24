@@ -198,6 +198,11 @@ const CMIPSAnalysis::SUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 nAddress) 
 	}
 }
 
+static bool IsValidProgramAddress(uint32 address)
+{
+	return (address != 0) && ((address & 0x03) == 0);
+}
+
 CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, uint32 pc, uint32 sp, uint32 ra)
 {
 	CallStackItemArray result;
@@ -205,6 +210,11 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 	auto routine = context->m_pAnalysis->FindSubroutine(pc);
 	if(!routine)
 	{
+		if(IsValidProgramAddress(pc)) result.push_back(pc);
+		if(pc != ra)
+		{
+			if(IsValidProgramAddress(ra)) result.push_back(ra);
+		}
 		return result;
 	}
 
@@ -238,17 +248,18 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 	while(1)
 	{
 		//Add the current function
-		CALLSTACKITEM item;
-		item.function = routine->nStart;
-		item.caller = ra - 4;
-		result.push_back(item);
+		result.push_back(pc);
 
 		//Go to previous routine
-		pc = ra - 4;
+		pc = ra;
 
 		//Check if we can go on...
 		routine = context->m_pAnalysis->FindSubroutine(pc);
-		if(!routine) break;
+		if(!routine)
+		{
+			if(IsValidProgramAddress(ra)) result.push_back(ra);
+			break;
+		}
 
 		//Get the next RA
 		ra = context->m_pMemoryMap->GetWord(sp + routine->nReturnAddrPos);

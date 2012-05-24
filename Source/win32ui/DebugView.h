@@ -9,36 +9,38 @@
 #include "CallStackWnd.h"
 #include "../VirtualMachine.h"
 
-class CDebugView : public boost::signals::trackable
+class CDebugView : public boost::signals2::trackable
 {
 public:
 	typedef std::function<void (void)> StepFunction;
 
-							CDebugView(HWND, CVirtualMachine&, CMIPS*, const StepFunction&, const char*);
-	virtual					~CDebugView();
-	CMIPS*					GetContext();
-	CDisAsmWnd*				GetDisassemblyWindow();
-	CMemoryViewMIPSWnd*		GetMemoryViewWindow();
-	CRegViewWnd*			GetRegisterViewWindow();
-	CCallStackWnd*			GetCallStackWindow();
+								CDebugView(HWND, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*);
+	virtual						~CDebugView();
+	CMIPS*						GetContext();
+	CDisAsmWnd*					GetDisassemblyWindow();
+	CMemoryViewMIPSWnd*			GetMemoryViewWindow();
+	CRegViewWnd*				GetRegisterViewWindow();
+	CCallStackWnd*				GetCallStackWindow();
 
-	void					Step();
-	const char*				GetName() const;
-	void					Hide();
+	void						Step();
+	const char*					GetName() const;
+	void						Hide();
+	CBiosDebugInfoProvider*		GetBiosDebugInfoProvider() const;
 
 protected:
-	void					OnCallStackWndFunctionDblClick(uint32);
+	void						OnCallStackWndFunctionDblClick(uint32);
 
 private:
-	std::string 			m_name;
+	std::string 				m_name;
 
-	CVirtualMachine&		m_virtualMachine;
-	CMIPS*					m_pCtx;
-	CDisAsmWnd*				m_pDisAsmWnd;
-	CMemoryViewMIPSWnd*		m_pMemoryViewWnd;
-	CRegViewWnd*			m_pRegViewWnd;
-	CCallStackWnd*			m_pCallStackWnd;
-	StepFunction			m_stepFunction;
+	CVirtualMachine&			m_virtualMachine;
+	CMIPS*						m_pCtx;
+	CDisAsmWnd*					m_pDisAsmWnd;
+	CMemoryViewMIPSWnd*			m_pMemoryViewWnd;
+	CRegViewWnd*				m_pRegViewWnd;
+	CCallStackWnd*				m_pCallStackWnd;
+	StepFunction				m_stepFunction;
+	CBiosDebugInfoProvider*		m_biosDebugInfoProvider;
 };
 
 #endif

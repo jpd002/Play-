@@ -3,6 +3,7 @@
 #include "resource.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
+#include "DebugUtils.h"
 
 CThreadCallStackViewWnd::CThreadCallStackViewWnd(HWND parentWindow) 
 : CDialog(MAKEINTRESOURCE(IDD_DEBUG_THREADCALLSTACK), parentWindow)
@@ -55,20 +56,15 @@ uint32 CThreadCallStackViewWnd::GetSelectedAddress() const
 	return m_selectedAddress;
 }
 
-void CThreadCallStackViewWnd::SetItems(CMIPS* context, const CMIPSAnalysis::CallStackItemArray& items)
+void CThreadCallStackViewWnd::SetItems(CMIPS* context, const CMIPSAnalysis::CallStackItemArray& items, const BiosDebugModuleInfoArray& modules)
 {
 	for(auto itemIterator(std::begin(items));
 		itemIterator != std::end(items); itemIterator++)
 	{
 		const auto& item(*itemIterator);
-		const char* functionName = context->m_Functions.Find(item.function);
-		std::tstring itemDescription = lexical_cast_hex<std::tstring>(item.function, 8);
-		if(functionName)
-		{
-			itemDescription += _T(" (") + string_cast<std::tstring>(functionName) + _T(")");
-		}
-		unsigned int itemIndex = m_callStackItemList->AddString(itemDescription.c_str());
-		m_callStackItemList->SetItemData(itemIndex, item.function);
+		std::tstring locationString = DebugUtils::PrintAddressLocation(item, context, modules);
+		unsigned int itemIndex = m_callStackItemList->AddString(locationString.c_str());
+		m_callStackItemList->SetItemData(itemIndex, item);
 	}
 
 	m_callStackItemList->SetCurrentSelection(0);

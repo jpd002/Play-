@@ -6,6 +6,7 @@
 #include "win32/ListBox.h"
 #include "win32/Layouts.h"
 #include "../MIPS.h"
+#include "../BiosDebugInfoProvider.h"
 
 class CThreadCallStackViewWnd : public Framework::Win32::CDialog
 {
@@ -13,7 +14,7 @@ public:
 									CThreadCallStackViewWnd(HWND);
 	virtual							~CThreadCallStackViewWnd();
 
-	void							SetItems(CMIPS*, const CMIPSAnalysis::CallStackItemArray&);
+	void							SetItems(CMIPS*, const CMIPSAnalysis::CallStackItemArray&, const BiosDebugModuleInfoArray&);
 
 	bool							HasSelection() const;
 	uint32							GetSelectedAddress() const;

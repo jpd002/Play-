@@ -293,10 +293,10 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		iopMod = reinterpret_cast<const IOPMOD*>(elf.GetSectionData(i));
 	}
 
-	ModuleListIterator moduleIterator(FindModule(moduleRange.first, moduleRange.second));
-	if(moduleIterator == m_moduleTags.end())
+	auto moduleIterator(FindModule(moduleRange.first, moduleRange.second));
+	if(moduleIterator == std::end(m_moduleTags))
 	{
-		MIPSMODULE module;
+		BIOS_DEBUG_MODULE_INFO module;
 		module.name		= GetModuleNameFromPath(path);
 		module.begin	= moduleRange.first;
 		module.end		= moduleRange.second;
@@ -1362,18 +1362,18 @@ std::string CIopBios::GetModuleNameFromPath(const std::string& path)
 	return path;
 }
 
-CIopBios::ModuleListIterator CIopBios::FindModule(uint32 beginAddress, uint32 endAddress)
+BiosDebugModuleInfoIterator CIopBios::FindModule(uint32 beginAddress, uint32 endAddress)
 {
-	for(ModuleListIterator moduleIterator(m_moduleTags.begin());
-		m_moduleTags.end() != moduleIterator; moduleIterator++)
+	for(auto moduleIterator(std::begin(m_moduleTags));
+		std::end(m_moduleTags) != moduleIterator; moduleIterator++)
 	{
-		MIPSMODULE& module(*moduleIterator);
+		const auto& module(*moduleIterator);
 		if(beginAddress == module.begin && endAddress == module.end)
 		{
 			return moduleIterator;
 		}
 	}
-	return m_moduleTags.end();
+	return std::end(m_moduleTags);
 }
 
 #ifdef DEBUGGER_INCLUDED
@@ -1397,7 +1397,7 @@ void CIopBios::LoadDebugTags(Framework::Xml::CNode* root)
 		const char* beginAddress	= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
 		const char* endAddress		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
 		if(!moduleName || !beginAddress || !endAddress) continue;
-		MIPSMODULE module;
+		BIOS_DEBUG_MODULE_INFO module;
 		module.name		= moduleName;
 		module.begin	= lexical_cast_hex<std::string>(beginAddress);
 		module.end		= lexical_cast_hex<std::string>(endAddress);
@@ -1410,10 +1410,10 @@ void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
 	Framework::Xml::CNode* moduleSection = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES, true);
 
-	for(MipsModuleList::const_iterator moduleIterator(m_moduleTags.begin());
-		m_moduleTags.end() != moduleIterator; moduleIterator++)
+	for(auto moduleIterator(std::begin(m_moduleTags));
+		std::end(m_moduleTags) != moduleIterator; moduleIterator++)
 	{
-		const MIPSMODULE& module(*moduleIterator);
+		const auto& module(*moduleIterator);
 		Framework::Xml::CNode* moduleNode = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
 		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,	lexical_cast_hex<std::string>(module.begin, 8).c_str());
 		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,		lexical_cast_hex<std::string>(module.end, 8).c_str());
@@ -1424,21 +1424,21 @@ void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
 	root->InsertNode(moduleSection);
 }
 
-MipsModuleList CIopBios::GetModuleList() const
+BiosDebugModuleInfoArray CIopBios::GetModuleInfos() const
 {
 	return m_moduleTags;
 }
 
-DebugThreadInfoArray CIopBios::GetThreadInfos() const
+BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
 {
-	DebugThreadInfoArray threadInfos;
+	BiosDebugThreadInfoArray threadInfos;
 
 	uint32 nextThreadId = ThreadLinkHead();
 	while(nextThreadId != 0)
 	{
 		THREAD* nextThread = m_threads[nextThreadId];
 
-		DEBUG_THREAD_INFO threadInfo;
+		BIOS_DEBUG_THREAD_INFO threadInfo;
 		threadInfo.id			= nextThreadId;
 		threadInfo.priority		= nextThread->priority;
 		if(GetCurrentThreadId() == nextThreadId)

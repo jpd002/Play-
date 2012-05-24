@@ -23,9 +23,9 @@
 #define ID_DISASM_GOTOPREV		40006
 #define ID_DISASM_GOTONEXT		40007
 
-CDisAsm::CDisAsm(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx) :
-m_virtualMachine(virtualMachine),
-m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
+CDisAsm::CDisAsm(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+: m_virtualMachine(virtualMachine)
+, m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
 {
 	SCROLLINFO si;
 
@@ -84,6 +84,21 @@ CDisAsm::~CDisAsm()
 void CDisAsm::SetAddress(uint32 nAddress)
 {
 	m_nAddress = nAddress;
+	Redraw();
+}
+
+void CDisAsm::SetCenterAtAddress(uint32 address)
+{
+	unsigned int lineCount = GetLineCount();
+	m_nAddress = address - (lineCount * 4 / 2);
+	m_nAddress &= ~0x03;
+	Redraw();
+}
+
+void CDisAsm::SetSelectedAddress(uint32 address)
+{
+	m_nSelectionEnd = -1;
+	m_nSelected = address;
 	Redraw();
 }
 
@@ -478,7 +493,10 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 long CDisAsm::OnMouseMove(WPARAM nButton, int nX, int nY)
 {
 	if(!(nButton & MK_LBUTTON)) return TRUE;
-	UpdateMouseSelection(nX, nY);
+	if(m_nFocus)
+	{
+		UpdateMouseSelection(nX, nY);
+	}
 	return FALSE;
 }
 
