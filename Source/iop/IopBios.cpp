@@ -1424,6 +1424,8 @@ void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
 	root->InsertNode(moduleSection);
 }
 
+#endif
+
 BiosDebugModuleInfoArray CIopBios::GetModuleInfos() const
 {
 	return m_moduleTags;
@@ -1492,8 +1494,6 @@ BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
 
 	return threadInfos;
 }
-
-#endif
 
 void CIopBios::DeleteModules()
 {

@@ -96,9 +96,10 @@ public:
 #ifdef DEBUGGER_INCLUDED
 	void						LoadDebugTags(Framework::Xml::CNode*);
 	void						SaveDebugTags(Framework::Xml::CNode*);
+#endif
+
 	BiosDebugModuleInfoArray	GetModuleInfos() const;
 	BiosDebugThreadInfoArray	GetThreadInfos() const;
-#endif
 
 	Iop::CIoman*				GetIoman();
 	Iop::CCdvdman*				GetCdvdman();
