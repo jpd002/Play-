@@ -39,7 +39,7 @@ void CPsfBios::Reset()
 
 void CPsfBios::Start()
 {
-    m_bios.LoadModule("host0:/PSP_GAME/SYSDIR/BOOT.BIN");
+	m_bios.LoadModule("host0:/PSP_GAME/SYSDIR/BOOT.BIN");
 }
 
 void CPsfBios::HandleException()
@@ -57,17 +57,31 @@ void CPsfBios::CountTicks(uint32 ticks)
 
 }
 
-//void CPsfBios::SaveState(Framework::CZipArchiveWriter&)
-//{
-//
-//}
-//
-//void CPsfBios::LoadState(Framework::CZipArchiveReader&)
-//{
-//
-//}
-
 bool CPsfBios::IsIdle()
 {
 	return false;
 }
+
+BiosDebugModuleInfoArray CPsfBios::GetModuleInfos() const
+{
+	return m_bios.GetModuleInfos();
+}
+
+BiosDebugThreadInfoArray CPsfBios::GetThreadInfos() const
+{
+	return m_bios.GetThreadInfos();
+}
+
+#ifdef DEBUGGER_INCLUDED
+
+void CPsfBios::LoadDebugTags(Framework::Xml::CNode* root)
+{
+
+}
+
+void CPsfBios::SaveDebugTags(Framework::Xml::CNode* root)
+{
+
+}
+
+#endif

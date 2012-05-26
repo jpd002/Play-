@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "MIPS.h"
-#include "MipsModule.h"
+#include "BiosDebugInfoProvider.h"
 #include "iop/Iop_SpuBase.h"
 #include "SoundHandler.h"
 #include <boost/signal.hpp>
@@ -22,7 +22,7 @@ public:
 
 #ifdef DEBUGGER_INCLUDED
 	virtual bool						MustBreak() = 0;
-	virtual MipsModuleList				GetModuleList() = 0;
+	virtual CBiosDebugInfoProvider*		GetBiosDebugInfoProvider() = 0;
 	virtual void						LoadDebugTags(Framework::Xml::CNode*) = 0;
 	virtual void						SaveDebugTags(Framework::Xml::CNode*) = 0;
 #endif
@@ -30,6 +30,6 @@ public:
 	boost::signal<void ()>				OnNewFrame;
 };
 
-typedef std::tr1::shared_ptr<CPsfVmSubSystem> PsfVmSubSystemPtr;
+typedef std::shared_ptr<CPsfVmSubSystem> PsfVmSubSystemPtr;
 
 #endif

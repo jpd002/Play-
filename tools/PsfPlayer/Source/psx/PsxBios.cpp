@@ -139,7 +139,17 @@ void CPsxBios::NotifyVBlankEnd()
 
 bool CPsxBios::IsIdle()
 {
-    return false;
+	return false;
+}
+
+BiosDebugModuleInfoArray CPsxBios::GetModuleInfos() const
+{
+	return BiosDebugModuleInfoArray();
+}
+
+BiosDebugThreadInfoArray CPsxBios::GetThreadInfos() const
+{
+	return BiosDebugThreadInfoArray();
 }
 
 #ifdef DEBUGGER_INCLUDED
@@ -152,11 +162,6 @@ void CPsxBios::LoadDebugTags(Framework::Xml::CNode* root)
 void CPsxBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
 
-}
-
-MipsModuleList CPsxBios::GetModuleList()
-{
-	return MipsModuleList();
 }
 
 #endif
@@ -302,7 +307,7 @@ void CPsxBios::AssembleInterruptHandler()
 
 void CPsxBios::LongJump(uint32 bufferAddress, uint32 value)
 {
-	bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, 0, bufferAddress);
+	bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, bufferAddress);
 	m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x00));
 	m_cpu.m_State.nGPR[CMIPS::SP].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x04));
 	m_cpu.m_State.nGPR[CMIPS::FP].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(bufferAddress + 0x08));
@@ -355,8 +360,8 @@ void CPsxBios::HandleInterrupt()
 	{
 		SaveCpuState();
 		m_cpu.m_State.nGPR[CMIPS::K1].nV0 = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
-        uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS0);
-        uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK0);
+		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS0);
+		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK0);
 		uint32 cause = status & mask;
 		for(unsigned int i = 1; i <= MAX_EVENT; i++)
 		{
@@ -375,13 +380,13 @@ void CPsxBios::HandleInterrupt()
 void CPsxBios::HandleException()
 {
 	assert(m_cpu.m_State.nHasException);
-    uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+	uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
 //	uint32 searchAddress = m_cpu.m_State.nGPR[CMIPS::K1].nV0;
-    uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
-    if(callInstruction != 0x0000000C)
-    {
-        throw std::runtime_error("Not a SYSCALL.");
-    }
+	uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
+	if(callInstruction != 0x0000000C)
+	{
+		throw std::runtime_error("Not a SYSCALL.");
+	}
 #ifdef _DEBUG
 	DisassembleSyscall(searchAddress);
 #endif
@@ -619,7 +624,7 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 //A0 - 13
 void CPsxBios::sc_setjmp()
 {
-	uint32 bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint32 bufferAddress = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x00, m_cpu.m_State.nGPR[CMIPS::RA].nV0);
 	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x04, m_cpu.m_State.nGPR[CMIPS::SP].nV0);
 	m_cpu.m_pMemoryMap->SetWord(bufferAddress + 0x08, m_cpu.m_State.nGPR[CMIPS::FP].nV0);
@@ -646,8 +651,8 @@ void CPsxBios::sc_longjmp()
 //A0 - 19
 void CPsxBios::sc_strcpy()
 {
-	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
-	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 
 	strcpy(
 		reinterpret_cast<char*>(m_ram + dst),
@@ -660,7 +665,7 @@ void CPsxBios::sc_strcpy()
 //A0 - 28
 void CPsxBios::sc_bzero()
 {
-	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 	uint32 length = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
 	if((address + length) > m_ramSize)
 	{
@@ -672,8 +677,8 @@ void CPsxBios::sc_bzero()
 //A0 - 2A
 void CPsxBios::sc_memcpy()
 {
-	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
-	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 	uint32 length = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
 
 	memcpy(m_ram + dst, m_ram + src, length);
@@ -684,7 +689,7 @@ void CPsxBios::sc_memcpy()
 //A0 - 2B
 void CPsxBios::sc_memset()
 {
-	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, 0, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 	uint8 value = static_cast<uint8>(m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 	uint32 length = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
 	if((address + length) > m_ramSize)

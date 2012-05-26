@@ -28,14 +28,14 @@ public:
 
 	CMIPS&				GetCpu();
 	Iop::CSpuBase&		GetSpuCore(unsigned int);
-    uint8*              GetRam();
+	uint8*				GetRam();
 	void				SetSubSystem(const PsfVmSubSystemPtr&);
 
-    CDebuggable         GetDebugInfo();
+	CDebuggable			GetDebugInfo();
 
 	virtual STATUS		GetStatus() const;
-    virtual void		Pause();
-    virtual void		Resume();
+	virtual void		Pause();
+	virtual void		Resume();
 
 #ifdef DEBUGGER_INCLUDED
 	std::string			MakeTagPackagePath(const char*);
@@ -46,7 +46,6 @@ public:
 	boost::signal<void ()> OnNewFrame;
 
 private:
-	MipsModuleList		GetIopModules();
 	void				ThreadProc();
 
 	void				SetReverbEnabledImpl(bool);
@@ -59,7 +58,7 @@ private:
 	CSoundHandler*		m_soundHandler;
 	boost::thread*		m_thread;
 	bool				m_singleStep;
-    bool                m_isThreadOver;
+	bool				m_isThreadOver;
 	CMailBox			m_mailBox;
 };
 

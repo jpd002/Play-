@@ -54,7 +54,7 @@ m_memoryView(NULL)
 
 	m_functionsView = new CFunctionsView(NULL);
 	m_functionsView->OnFunctionDblClick.connect(boost::bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
-	m_functionsView->SetContext(&m_debuggable.GetCpu(), m_debuggable.GetModules);
+	m_functionsView->SetContext(&m_debuggable.GetCpu(), m_debuggable.biosDebugInfoProvider);
 	m_functionsView->Refresh();
 
 	m_subSplitter->SetChild(0, *m_disAsmView);
@@ -103,7 +103,7 @@ long CMiniDebugger::OnCommand(unsigned short command, unsigned short id, HWND hw
 {
 	switch(command)
 	{
-	case ID_VM_STEP1:
+	case ID_VM_STEP:
 		StepCPU();
 		return TRUE;
 		break;
@@ -165,7 +165,7 @@ void CMiniDebugger::CreateAccelerators()
 	Accel[2].key	= 'F';
 	Accel[2].fVirt	= FCONTROL | FVIRTKEY;
 
-	Accel[3].cmd	= ID_VM_STEP1;
+	Accel[3].cmd	= ID_VM_STEP;
 	Accel[3].key	= VK_F10;
 	Accel[3].fVirt	= FVIRTKEY;
 
@@ -189,13 +189,9 @@ void CMiniDebugger::CreateAccelerators()
 	Accel[8].key	= 'C';
 	Accel[8].fVirt	= FCONTROL | FVIRTKEY;
 
-	Accel[9].cmd	= ID_VIEW_TESTENGINECONSOLE;
-	Accel[9].key	= 'T';
-	Accel[9].fVirt	= FCONTROL | FVIRTKEY;
-
-	Accel[10].cmd	= ID_VM_PAUSE;
-	Accel[10].key	= VK_F6;
-	Accel[10].fVirt	= FVIRTKEY;
+	Accel[9].cmd	= ID_VM_PAUSE;
+	Accel[9].key	= VK_F6;
+	Accel[9].fVirt	= FVIRTKEY;
 
 	m_acceleratorTable = CreateAcceleratorTable(Accel, sizeof(Accel) / sizeof(ACCEL));
 }

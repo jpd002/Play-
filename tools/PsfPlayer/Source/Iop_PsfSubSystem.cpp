@@ -61,7 +61,7 @@ void CPsfSubSystem::SetBios(const CSubSystem::BiosPtr& bios)
 void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 {
 #ifdef DEBUGGER_INCLUDED
-    uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
+	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
 	int ticks = m_iop.ExecuteCpu(singleStep);
 
 	static int frameCounter = g_frameTicks;
@@ -99,7 +99,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			m_spuUpdateCounter += g_spuUpdateTicks;
 			unsigned int blockOffset = (BLOCK_SIZE * m_currentBlock);
 			int16* samplesSpu0 = m_samples + blockOffset;
-	        
+
 			m_iop.m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
 
 			if(m_iop.m_spuCore1.IsEnabled())
@@ -138,35 +138,6 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			}
 		}
 	}
-	//if(m_spuHandler && m_spuHandler->HasFreeBuffers())
-	//{
-	//	while(m_spuHandler->HasFreeBuffers() && !m_mailBox.IsPending())
-	//	{
-	//		while(m_spuUpdateCounter > 0)
-	//		{
-	//			int ticks = m_iop.ExecuteCpu(false);
-	//			m_spuUpdateCounter -= ticks;
-	//			m_frameCounter -= ticks;
-	//			if(m_frameCounter < 0)
-	//			{
-	//				m_frameCounter += g_frameTicks;
-	//				m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-	//				if(!OnNewFrame.empty())
-	//				{
-	//					OnNewFrame();
-	//				}
-	//			}
-	//		}
-
-	//		m_spuHandler->Update(m_iop.m_spuCore0, m_iop.m_spuCore1);
-	//		m_spuUpdateCounter += g_spuUpdateTicks;
-	//	}
-	//}
-	//else
-	//{
-	//		//Sleep during 16ms
-	//      boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-	//}
 #endif
 }
 
@@ -177,9 +148,9 @@ bool CPsfSubSystem::MustBreak()
 	return m_iop.m_executor.MustBreak();
 }
 
-MipsModuleList CPsfSubSystem::GetModuleList()
+CBiosDebugInfoProvider* CPsfSubSystem::GetBiosDebugInfoProvider()
 {
-	return m_iop.m_bios->GetModuleList();
+	return m_iop.m_bios.get();
 }
 
 void CPsfSubSystem::LoadDebugTags(Framework::Xml::CNode* tagsNode)

@@ -2,6 +2,7 @@
 #define _IOP_BIOSBASE_H_
 
 #include "Types.h"
+#include "../BiosDebugInfoProvider.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 #ifdef DEBUGGER_INCLUDED
@@ -10,7 +11,7 @@
 
 namespace Iop
 {
-	class CBiosBase
+	class CBiosBase : public CBiosDebugInfoProvider
 	{
 	public:
 		virtual						~CBiosBase() {}

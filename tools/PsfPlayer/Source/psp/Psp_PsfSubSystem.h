@@ -21,24 +21,24 @@ namespace Psp
 			DEFAULT_RAMSIZE	= 0x02000000,
 		};
 
-								CPsfSubSystem(uint32 = DEFAULT_RAMSIZE);
-		virtual					~CPsfSubSystem();
+											CPsfSubSystem(uint32 = DEFAULT_RAMSIZE);
+		virtual								~CPsfSubSystem();
 
-		virtual void			Reset();
-		virtual CMIPS&			GetCpu();
-		virtual uint8*			GetRam();
-		virtual Iop::CSpuBase&	GetSpuCore(unsigned int);
+		virtual void						Reset();
+		virtual CMIPS&						GetCpu();
+		virtual uint8*						GetRam();
+		virtual Iop::CSpuBase&				GetSpuCore(unsigned int);
 
 #ifdef DEBUGGER_INCLUDED
-		virtual MipsModuleList	GetModuleList();
-		virtual bool			MustBreak();
-		virtual void			LoadDebugTags(Framework::Xml::CNode*);
-		virtual void			SaveDebugTags(Framework::Xml::CNode*);
+		virtual bool						MustBreak();
+		virtual CBiosDebugInfoProvider*		GetBiosDebugInfoProvider();
+		virtual void						LoadDebugTags(Framework::Xml::CNode*);
+		virtual void						SaveDebugTags(Framework::Xml::CNode*);
 #endif
 
-		virtual void			Update(bool, CSoundHandler*);
+		virtual void						Update(bool, CSoundHandler*);
 
-		Psp::CPsfBios&			GetBios();
+		Psp::CPsfBios&						GetBios();
 
 	private:
 		enum SPURAMSIZE
@@ -46,25 +46,25 @@ namespace Psp
 			SPURAMSIZE	= 0x400000,
 		};
 
-		int						ExecuteCpu(bool);
+		int									ExecuteCpu(bool);
 
-		CMIPS					m_cpu;
-		CMipsExecutor			m_executor;
-		CMA_ALLEGREX			m_cpuArch;
-		CCOP_SCU				m_copScu;
-		CCOP_FPU				m_copFpu;
-		uint8*					m_ram;
-		uint32					m_ramSize;
-		uint8*					m_spuRam;
-		Iop::CSpuBase			m_spuCore0;
-		Iop::CSpuBase			m_spuCore1;
-		Framework::CMemStream	m_audioStream;
-		int						m_samplesToFrame;
+		CMIPS								m_cpu;
+		CMipsExecutor						m_executor;
+		CMA_ALLEGREX						m_cpuArch;
+		CCOP_SCU							m_copScu;
+		CCOP_FPU							m_copFpu;
+		uint8*								m_ram;
+		uint32								m_ramSize;
+		uint8*								m_spuRam;
+		Iop::CSpuBase						m_spuCore0;
+		Iop::CSpuBase						m_spuCore1;
+		Framework::CMemStream				m_audioStream;
+		int									m_samplesToFrame;
 
-		Psp::CPsfBios			m_bios;
+		Psp::CPsfBios						m_bios;
 	};
 
-	typedef std::tr1::shared_ptr<CPsfSubSystem> PsfSubSystemPtr;
+	typedef std::shared_ptr<CPsfSubSystem> PsfSubSystemPtr;
 }
 
 #endif

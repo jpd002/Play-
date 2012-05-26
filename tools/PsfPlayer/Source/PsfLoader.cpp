@@ -11,7 +11,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace Framework;
 namespace filesystem = boost::filesystem;
 
 void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const filesystem::path& filePath, const filesystem::path& archivePath, CPsfBase::TagMap* tags)
@@ -114,7 +113,7 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const boost::filesystem::path& 
 	{
 		Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
 		subSystem->SetBios(bios);
-	    LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), filePath, streamProvider, tags);
+		LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), filePath, streamProvider, tags);
 		static_cast<PS2::CPsfBios*>(bios.get())->Start();
 	}
 }

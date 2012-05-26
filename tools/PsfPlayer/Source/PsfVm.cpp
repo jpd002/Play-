@@ -59,23 +59,23 @@ void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 #define TAGS_SECTION_FUNCTIONS	("functions")
 #define TAGS_SECTION_COMMENTS	("comments")
 
-string CPsfVm::MakeTagPackagePath(const char* packageName)
+std::string CPsfVm::MakeTagPackagePath(const char* packageName)
 {
 	filesystem::path tagsPath(TAGS_PATH);
 	if(!filesystem::exists(tagsPath))
 	{
 		filesystem::create_directory(tagsPath);
 	}
-	return string(TAGS_PATH) + string(packageName) + ".tags.xml";
+	return std::string(TAGS_PATH) + std::string(packageName) + ".tags.xml";
 }
 
 void CPsfVm::LoadDebugTags(const char* packageName)
 {
 	try
 	{
-		string packagePath = MakeTagPackagePath(packageName);
-		boost::scoped_ptr<Xml::CNode> document(Xml::CParser::ParseDocument(&CStdStream(packagePath.c_str(), "rb")));
-		Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
+		std::string packagePath = MakeTagPackagePath(packageName);
+		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(&Framework::CStdStream(packagePath.c_str(), "rb")));
+		Framework::Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
 		if(tagsSection == NULL) return;
 		m_subSystem->GetCpu().m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
 		m_subSystem->GetCpu().m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
@@ -89,12 +89,12 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 
 void CPsfVm::SaveDebugTags(const char* packageName)
 {
-	string packagePath = MakeTagPackagePath(packageName);
-	boost::scoped_ptr<Xml::CNode> document(new Xml::CNode(TAGS_SECTION_TAGS, true));
+	std::string packagePath = MakeTagPackagePath(packageName);
+	boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 	m_subSystem->GetCpu().m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
 	m_subSystem->GetCpu().m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
 	m_subSystem->SaveDebugTags(document.get());
-	Xml::CWriter::WriteDocument(&CStdStream(packagePath.c_str(), "wb"), document.get());
+	Framework::Xml::CWriter::WriteDocument(&Framework::CStdStream(packagePath.c_str(), "wb"), document.get());
 }
 
 #endif
@@ -132,7 +132,7 @@ CDebuggable CPsfVm::GetDebugInfo()
 	debug.Step = std::bind(&CPsfVm::Step, this);
 	debug.GetCpu = std::bind(&CPsfVm::GetCpu, this);
 #ifdef DEBUGGER_INCLUDED
-	debug.GetModules = std::bind(&CPsfVmSubSystem::GetModuleList, m_subSystem.get());
+	debug.biosDebugInfoProvider = m_subSystem->GetBiosDebugInfoProvider();
 #endif
 	return debug;
 }
@@ -221,8 +221,8 @@ void CPsfVm::ThreadProc()
 			{
 				m_status = PAUSED;
 				m_singleStep = false;
-				m_OnMachineStateChange();
-				m_OnRunningStateChange();
+				OnMachineStateChange();
+				OnRunningStateChange();
 			}
 #endif
 		}

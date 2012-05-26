@@ -16,9 +16,9 @@ using namespace Psp;
 #define RELOC_SECTION_ID	(0x700000A0)
 
 #define BIOS_THREAD_LINK_HEAD_BASE		(Psp::CBios::CONTROL_BLOCK_START + 0x0000)
-#define BIOS_CURRENT_THREAD_ID_BASE     (Psp::CBios::CONTROL_BLOCK_START + 0x0008)
-#define BIOS_CURRENT_TIME_BASE          (Psp::CBios::CONTROL_BLOCK_START + 0x0010)
-#define BIOS_HANDLERS_BASE              (Psp::CBios::CONTROL_BLOCK_START + 0x0080)
+#define BIOS_CURRENT_THREAD_ID_BASE		(Psp::CBios::CONTROL_BLOCK_START + 0x0008)
+#define BIOS_CURRENT_TIME_BASE			(Psp::CBios::CONTROL_BLOCK_START + 0x0010)
+#define BIOS_HANDLERS_BASE				(Psp::CBios::CONTROL_BLOCK_START + 0x0080)
 #define BIOS_HANDLERS_END				(BIOS_HEAPBLOCK_BASE - 1)
 #define BIOS_HEAPBLOCK_BASE				(Psp::CBios::CONTROL_BLOCK_START + 0x0100)
 #define BIOS_HEAPBLOCK_SIZE				(sizeof(Psp::CBios::HEAPBLOCK) * Psp::CBios::MAX_HEAPBLOCKS)
@@ -216,8 +216,8 @@ void CBios::Reset()
 	m_moduleTrampolines.FreeAll();
 	m_threads.FreeAll();
 
-    ThreadLinkHead() = 0;
-    CurrentThreadId() = -1;
+	ThreadLinkHead() = 0;
+	CurrentThreadId() = -1;
 
 	//Initialize modules
 	m_modules.clear();
@@ -237,26 +237,26 @@ void CBios::Reset()
 
 uint32 CBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 {
-    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0667);
-    assembler.SYSCALL();
-    return address;
+	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0667);
+	assembler.SYSCALL();
+	return address;
 }
 
 uint32 CBios::AssembleReturnFromException(CMIPSAssembler& assembler)
 {
-    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0668);
-    assembler.SYSCALL();
-    return address;
+	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0668);
+	assembler.SYSCALL();
+	return address;
 }
 
 uint32 CBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 {
-    uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-    assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0669);
-    assembler.SYSCALL();
-    return address;
+	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0669);
+	assembler.SYSCALL();
+	return address;
 }
 
 void CBios::InsertModule(const ModulePtr& module)
@@ -281,7 +281,7 @@ CAudio* CBios::GetAudio()
 
 void CBios::HandleLinkedModuleCall()
 {
-    uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+	uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
 	uint32 libraryStubAddr = m_cpu.m_pMemoryMap->GetWord(searchAddress + 0x0C);
 
 	LIBRARYSTUB* libraryStub = reinterpret_cast<LIBRARYSTUB*>(m_ram + libraryStubAddr);
@@ -306,14 +306,14 @@ void CBios::HandleLinkedModuleCall()
 
 void CBios::HandleException()
 {
-    m_rescheduleNeeded = false;
+	m_rescheduleNeeded = false;
 
-    uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
-    uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
-    if(callInstruction == 0x0000000C)
-    {
-        switch(m_cpu.m_State.nGPR[CMIPS::V0].nV0)
-        {
+	uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+	uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
+	if(callInstruction == 0x0000000C)
+	{
+		switch(m_cpu.m_State.nGPR[CMIPS::V0].nV0)
+		{
 		case 0x666:
 			HandleLinkedModuleCall();
 			break;
@@ -323,29 +323,34 @@ void CBios::HandleException()
 		default:
 			assert(0);
 			break;
-        }
-    }
-    else
-    {
+		}
+	}
+	else
+	{
 #ifdef _DEBUG
-        CLog::GetInstance().Print(LOGNAME, "%0.8X: Unknown exception reason.\r\n", m_cpu.m_State.nCOP0[CCOP_SCU::EPC]);
+		CLog::GetInstance().Print(LOGNAME, "%0.8X: Unknown exception reason.\r\n", m_cpu.m_State.nCOP0[CCOP_SCU::EPC]);
 #endif
 		assert(0);
 	}
 
-    if(m_rescheduleNeeded)
-    {
+	if(m_rescheduleNeeded)
+	{
 		assert((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0);
 		m_rescheduleNeeded = false;
 		Reschedule();
-    }
+	}
 
-    m_cpu.m_State.nHasException = 0;	
+	m_cpu.m_State.nHasException = 0;
 }
 
-MipsModuleList CBios::GetModuleList()
+BiosDebugModuleInfoArray CBios::GetModuleInfos() const
 {
 	return m_moduleTags;
+}
+
+BiosDebugThreadInfoArray CBios::GetThreadInfos() const
+{
+	return BiosDebugThreadInfoArray();
 }
 
 void CBios::LoadModule(const char* path)
@@ -405,14 +410,14 @@ void CBios::LoadModule(const char* path)
 
 	RelocateElf(*m_module);
 
-    {
-        MIPSMODULE module;
-        module.name		= "main";
-        module.begin	= baseAddress;
-        module.end		= endAddress;
+	{
+		BIOS_DEBUG_MODULE_INFO module;
+		module.name		= "main";
+		module.begin	= baseAddress;
+		module.end		= endAddress;
 		module.param	= m_module;
-        m_moduleTags.push_back(module);
-    }
+		m_moduleTags.push_back(module);
+	}
 
 	ELFSECTIONHEADER* moduleInfoSectionHeader = m_module->FindSection(".rodata.sceModuleInfo");
 	MODULEINFO* moduleInfo = reinterpret_cast<MODULEINFO*>(m_ram + baseAddress + moduleInfoSectionHeader->nStart);

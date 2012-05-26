@@ -4,7 +4,6 @@
 #include <list>
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
-#include "../BiosDebugInfoProvider.h"
 #include "../ELF.h"
 #include "../OsStructManager.h"
 #include "Iop_BiosBase.h"
@@ -22,7 +21,7 @@
 #include "Iop_Cdvdfsv.h"
 #endif
 
-class CIopBios : public Iop::CBiosBase, public CBiosDebugInfoProvider
+class CIopBios : public Iop::CBiosBase
 {
 public:
 	enum CONTROL_BLOCK

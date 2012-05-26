@@ -4,20 +4,18 @@
 #include "MiniDebugger.h"
 #include <boost/filesystem/path.hpp>
 
-using namespace Framework;
-using namespace std;
 namespace filesystem = boost::filesystem;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 {
-    CPsfVm virtualMachine;
+	CPsfVm virtualMachine;
 
 #ifdef DEBUGGER_INCLUDED
 	{
 		virtualMachine.Reset();
 		filesystem::path loadPath(commandLine);
-		CPsfLoader::LoadPsf(virtualMachine, loadPath.string().c_str(), NULL);
-		string tagPackageName = loadPath.leaf().string().c_str();
+		CPsfLoader::LoadPsf(virtualMachine, loadPath, filesystem::path());
+		std::string tagPackageName = loadPath.leaf().string().c_str();
 		virtualMachine.LoadDebugTags(tagPackageName.c_str());
 		CMiniDebugger debugger(virtualMachine, virtualMachine.GetDebugInfo());
 		debugger.Show(SW_SHOW);

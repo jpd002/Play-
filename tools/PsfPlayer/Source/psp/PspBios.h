@@ -6,7 +6,7 @@
 #include "Types.h"
 #include "ELF.h"
 #include "MIPS.h"
-#include "MIPSModule.h"
+#include "BiosDebugInfoProvider.h"
 #include "OsStructManager.h"
 #include "PspModule.h"
 #include "Psp_IoFileMgrForUser.h"
@@ -15,7 +15,7 @@
 
 namespace Psp
 {
-	class CBios
+	class CBios : public CBiosDebugInfoProvider
 	{
 	public:
 									CBios(CMIPS&, uint8*, uint32);
@@ -23,20 +23,22 @@ namespace Psp
 
 		void						Reset();
 		void						LoadModule(const char*);
-		MipsModuleList				GetModuleList();
+
+		BiosDebugModuleInfoArray	GetModuleInfos() const;
+		BiosDebugThreadInfoArray	GetThreadInfos() const;
 
 		void						HandleException();
 
 		uint32						CreateThread(const char*, uint32, uint32, uint32, uint32, uint32);
-	    void						StartThread(uint32, uint32, uint8*);
+		void						StartThread(uint32, uint32, uint8*);
 		void						ExitCurrentThread(uint32);
 
 		uint32						CreateMbx(const char*, uint32, uint32);
 		uint32						SendMbx(uint32, uint32);
 		uint32						PollMbx(uint32, uint32);
 
-        uint32						Heap_AllocateMemory(uint32);
-        uint32						Heap_FreeMemory(uint32);
+		uint32						Heap_AllocateMemory(uint32);
+		uint32						Heap_FreeMemory(uint32);
 		uint32						Heap_GetBlockId(uint32);
 		uint32						Heap_GetBlockAddress(uint32);
 
@@ -47,8 +49,8 @@ namespace Psp
 	private:
 		enum CONTROL_BLOCK
 		{
-			CONTROL_BLOCK_START = 0x10,
-			CONTROL_BLOCK_END   = 0x10000,
+			CONTROL_BLOCK_START	= 0x10,
+			CONTROL_BLOCK_END	= 0x10000,
 		};
 
 		struct HEAPBLOCK
@@ -61,25 +63,25 @@ namespace Psp
 
 		struct THREADCONTEXT
 		{
-			uint32      gpr[0x20];
-			uint32      epc;
-			uint32      delayJump;
+			uint32		gpr[0x20];
+			uint32		epc;
+			uint32		delayJump;
 		};
 
 		struct THREAD
 		{
 			uint32			isValid;
-			uint32          id;
+			uint32			id;
 			char			name[0x20];
-			uint32          priority;
-			THREADCONTEXT   context;
-			uint32          status;
-			uint32          waitSemaphore;
-			uint32          wakeupCount;
+			uint32			priority;
+			THREADCONTEXT	context;
+			uint32			status;
+			uint32			waitSemaphore;
+			uint32			wakeupCount;
 			uint32			stackBase;
 			uint32			stackSize;
 			uint32			nextThreadId;
-			uint64          nextActivateTime;
+			uint64			nextActivateTime;
 		};
 
 		struct MESSAGE
@@ -198,7 +200,7 @@ namespace Psp
 			uint32	libStubAddr;
 		};
 
-		typedef std::tr1::shared_ptr<CModule> ModulePtr;
+		typedef std::shared_ptr<CModule> ModulePtr;
 		typedef std::map<std::string, ModulePtr> ModuleMapType;
 		typedef COsStructManager<HEAPBLOCK> HeapBlockListType;
 		typedef COsStructManager<MODULETRAMPOLINE> ModuleTrampolineListType;
@@ -227,7 +229,7 @@ namespace Psp
 		void						LoadThreadContext(uint32);
 		void						SaveThreadContext(uint32);
 		void						Reschedule();
-	    uint32						GetNextReadyThread();
+		uint32						GetNextReadyThread();
 
 		uint32&						ThreadLinkHead() const;
 		uint32&						CurrentThreadId() const;
@@ -240,12 +242,12 @@ namespace Psp
 		CMIPS&						m_cpu;
 
 		ModuleMapType				m_modules;
-		MipsModuleList				m_moduleTags;
+		BiosDebugModuleInfoArray	m_moduleTags;
 
 		HeapBlockListType			m_heapBlocks;
-        uint32						m_heapBegin;
-        uint32						m_heapEnd;
-        uint32						m_heapSize;
+		uint32						m_heapBegin;
+		uint32						m_heapEnd;
+		uint32						m_heapSize;
 		uint32						m_heapHeadBlockId;
 
 		uint32						m_threadFinishAddress;

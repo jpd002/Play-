@@ -13,13 +13,13 @@ namespace Psp { class CPsfBios; }
 class CPsfLoader
 {
 public:
-	static void     LoadPsf(CPsfVm&, const boost::filesystem::path&, const boost::filesystem::path&, CPsfBase::TagMap* = NULL);
+	static void		LoadPsf(CPsfVm&, const boost::filesystem::path&, const boost::filesystem::path&, CPsfBase::TagMap* = NULL);
 
 private:
-	static void     LoadPsx(CPsfVm&, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
+	static void		LoadPsx(CPsfVm&, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 	static void		LoadPsxRecurse(CPsfVm&, CPsxBios*, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 
-    static void		LoadPs2(CPsfVm&, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
+	static void		LoadPs2(CPsfVm&, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 	static void		LoadPs2Recurse(CPsfVm&, PS2::CPsfBios*, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 
 	static void		LoadPsp(CPsfVm&, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);

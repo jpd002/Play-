@@ -140,19 +140,19 @@ bool CPsfSubSystem::MustBreak()
 	return m_executor.MustBreak();
 }
 
-MipsModuleList CPsfSubSystem::GetModuleList()
+CBiosDebugInfoProvider* CPsfSubSystem::GetBiosDebugInfoProvider()
 {
-	return MipsModuleList();
+	return &m_bios;
 }
 
 void CPsfSubSystem::LoadDebugTags(Framework::Xml::CNode* tagsNode)
 {
-
+	m_bios.LoadDebugTags(tagsNode);
 }
 
 void CPsfSubSystem::SaveDebugTags(Framework::Xml::CNode* tagsNode)
 {
-
+	m_bios.SaveDebugTags(tagsNode);
 }
 
 #endif
