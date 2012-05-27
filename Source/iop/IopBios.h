@@ -144,7 +144,7 @@ private:
 
 	enum DEFAULT_PRIORITY
 	{
-		DEFAULT_PRIORITY = 7,
+		DEFAULT_PRIORITY = 64,
 	};
 
 	enum
