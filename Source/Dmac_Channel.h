@@ -11,12 +11,12 @@ class CDMAC;
 
 namespace Dmac
 {
-    typedef std::function<uint32 (uint32, uint32, uint32, bool)> DmaReceiveHandler;
+	typedef std::function<uint32 (uint32, uint32, uint32, bool)> DmaReceiveHandler;
 
 	class CChannel
 	{
 	public:
-        struct CHCR : public convertible<uint32>
+		struct CHCR : public convertible<uint32>
 		{
 			unsigned int		nDIR		: 1;
 			unsigned int		nReserved0	: 1;
@@ -31,18 +31,18 @@ namespace Dmac
 
 
 								CChannel(CDMAC&, unsigned int, const DmaReceiveHandler&);
-        virtual                 ~CChannel();
+		virtual					~CChannel();
 
-        void                    SaveState(Framework::CZipArchiveWriter&);
-        void                    LoadState(Framework::CZipArchiveReader&);
+		void					SaveState(Framework::CZipArchiveWriter&);
+		void					LoadState(Framework::CZipArchiveReader&);
 
 		void					Reset();
 		uint32					ReadCHCR();
 		void					WriteCHCR(uint32);
-        void                    Execute();
+		void					Execute();
 		void					ExecuteNormal();
 		void					ExecuteSourceChain();
-        void                    SetReceiveHandler(const DmaReceiveHandler&);
+		void					SetReceiveHandler(const DmaReceiveHandler&);
 
 		CHCR					m_CHCR;
 		uint32					m_nMADR;
@@ -51,19 +51,19 @@ namespace Dmac
 		uint32					m_nASR[2];
 
 	private:
-	    enum SCCTRL_BIT
-	    {
-		    SCCTRL_SUSPENDED	= 0x001,
-		    SCCTRL_INITXFER		= 0x200,
-	    };
+		enum SCCTRL_BIT
+		{
+			SCCTRL_SUSPENDED	= 0x001,
+			SCCTRL_INITXFER		= 0x200,
+		};
 
-        void					ClearSTR();
+		void					ClearSTR();
 
 		unsigned int			m_nNumber;
 		uint32					m_nSCCTRL;
 		DmaReceiveHandler		m_pReceive;
-        CDMAC&                  m_dmac;
-    };
+		CDMAC&					m_dmac;
+	};
 };
 
 #endif
