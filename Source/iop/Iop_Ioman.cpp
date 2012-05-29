@@ -166,6 +166,11 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 	return result;
 }
 
+uint32 CIoman::AddDrv(uint32 drvPtr)
+{
+	return -1;
+}
+
 uint32 CIoman::DelDrv(const char* deviceName)
 {
 	return -1;
@@ -209,6 +214,11 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV[0],
 			context.m_State.nGPR[CMIPS::A1].nV[0],
 			context.m_State.nGPR[CMIPS::A2].nV[0]));
+		break;
+	case 20:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AddDrv(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		));
 		break;
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelDrv(
