@@ -76,6 +76,8 @@
 #define SYSCALL_NAME_WAITSEMA				"osWaitSema"
 #define SYSCALL_NAME_POLLSEMA				"osPollSema"
 #define SYSCALL_NAME_FLUSHCACHE				"osFlushCache"
+#define SYSCALL_NAME_GSGETIMR				"osGsGetIMR"
+#define SYSCALL_NAME_GSPUTIMR				"osGsPutIMR"
 #define SYSCALL_NAME_SIFDMASTAT				"osSifDmaStat"
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
 #define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
@@ -105,6 +107,8 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0044,		SYSCALL_NAME_WAITSEMA				},
 	{	0x0045,		SYSCALL_NAME_POLLSEMA				},
 	{	0x0064,		SYSCALL_NAME_FLUSHCACHE				},
+	{	0x0070,		SYSCALL_NAME_GSGETIMR				},
+	{	0x0071,		SYSCALL_NAME_GSPUTIMR				},
 	{	0x0076,		SYSCALL_NAME_SIFDMASTAT				},
 	{	0x0077,		SYSCALL_NAME_SIFSETDMA				},
 	{	0x0078,		SYSCALL_NAME_SIFSETDCHAIN			},
@@ -1972,6 +1976,19 @@ void CPS2OS::sc_FlushCache()
 	}
 }
 
+//70
+void CPS2OS::sc_GsGetIMR()
+{
+	uint32 result = 0;
+
+	if(m_gs != NULL)
+	{
+		result = m_gs->ReadPrivRegister(CGSHandler::GS_IMR);
+	}
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(result);
+}
+
 //71
 void CPS2OS::sc_GsPutIMR()
 {
@@ -1979,7 +1996,7 @@ void CPS2OS::sc_GsPutIMR()
 
 	if(m_gs != NULL)
 	{
-		m_gs->WritePrivRegister(CGSHandler::GS_IMR, nIMR);	
+		m_gs->WritePrivRegister(CGSHandler::GS_IMR, nIMR);
 	}
 }
 
@@ -2392,8 +2409,11 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 //		sprintf(sDescription, SYSCALL_NAME_FLUSHCACHE "();");
 #endif
 		break;
+	case 0x70:
+		sprintf(sDescription, SYSCALL_NAME_GSGETIMR "();");
+		break;
 	case 0x71:
-		sprintf(sDescription, "GsPutIMR(GS_IMR = 0x%0.8X);", \
+		sprintf(sDescription, SYSCALL_NAME_GSPUTIMR "(GS_IMR = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x73:
@@ -2474,7 +2494,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 	//0x68
 	&CPS2OS::sc_FlushCache,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
 	//0x70
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_GsPutIMR,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetVSyncFlag,			&CPS2OS::sc_SetSyscall,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SifDmaStat,		&CPS2OS::sc_SifSetDma,
+	&CPS2OS::sc_GsGetIMR,			&CPS2OS::sc_GsPutIMR,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetVSyncFlag,			&CPS2OS::sc_SetSyscall,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SifDmaStat,		&CPS2OS::sc_SifSetDma,
 	//0x78
 	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetMemorySize,
 };

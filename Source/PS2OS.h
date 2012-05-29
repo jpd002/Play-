@@ -288,6 +288,7 @@ private:
 	void									sc_PollSema();
 	void									sc_ReferSemaStatus();
 	void									sc_FlushCache();
+	void									sc_GsGetIMR();
 	void									sc_GsPutIMR();
 	void									sc_SetVSyncFlag();
 	void									sc_SetSyscall();

@@ -269,16 +269,19 @@ void CGSHandler::ResetVBlank()
 
 uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 {
-	uint32 nData;
-	switch(nAddress >> 4)
+	uint32 nData = 0;
+	switch(nAddress & ~0x0F)
 	{
-	case 0x1200100:
+	case GS_CSR:
 		//Force CSR to have the H-Blank bit set.
 		{
 			boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
 			m_nCSR |= 0x04;
 			R_REG(nAddress, nData, m_nCSR);
 		}
+		break;
+	case GS_IMR:
+		R_REG(nAddress, nData, m_nIMR);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled priviledged register (0x%0.8X).\r\n", nAddress);
