@@ -68,7 +68,7 @@ public:
 		THREAD_STATUS_WAIT_VBLANK_END	= 8,
 	};
 
-								CIopBios(uint32, CMIPS&, uint8*, uint32);
+								CIopBios(CMIPS&, uint8*, uint32);
 	virtual						~CIopBios();
 
 	void						LoadAndStartModule(const char*, const char*, unsigned int);
@@ -266,7 +266,6 @@ private:
 	uint32							m_threadFinishAddress;
 	uint32							m_returnFromExceptionAddress;
 	uint32							m_idleFunctionAddress;
-	uint32							m_clockFrequency;
 
 	bool							m_rescheduleNeeded;
 	ThreadList						m_threads;

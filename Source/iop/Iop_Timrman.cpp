@@ -8,6 +8,11 @@
 #define LOG_NAME ("iop_timrman")
 
 #define FUNCTION_ALLOCHARDTIMER			"AllocHardTimer"
+#define FUNCTION_REFERHARDTIMER			"ReferHardTimer"
+#define FUNCTION_SETTIMERMODE			"SetTimerMode"
+#define FUNCTION_GETTIMERSTATUS			"GetTimerStatus"
+#define FUNCTION_SETTIMERCOMPARE		"SetTimerCompare"
+#define FUNCTION_GETHARDTIMERINTRCODE	"GetHardTimerIntrCode"
 #define FUNCTION_SETTIMERCALLBACK		"SetTimerCallback"
 #define FUNCTION_UNKNOWNTIMERFUNCTION22	"UnknownTimerFunction22"
 #define FUNCTION_UNKNOWNTIMERFUNCTION23	"UnknownTimerFunction23"
@@ -37,6 +42,21 @@ std::string CTimrman::GetFunctionName(unsigned int functionId) const
 	case 4:
 		return FUNCTION_ALLOCHARDTIMER;
 		break;
+	case 5:
+		return FUNCTION_REFERHARDTIMER;
+		break;
+	case 7:
+		return FUNCTION_SETTIMERMODE;
+		break;
+	case 8:
+		return FUNCTION_GETTIMERSTATUS;
+		break;
+	case 11:
+		return FUNCTION_SETTIMERCOMPARE;
+		break;
+	case 16:
+		return FUNCTION_GETHARDTIMERINTRCODE;
+		break;
 	case 20:
 		return FUNCTION_SETTIMERCALLBACK;
 		break;
@@ -62,6 +82,38 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0
 			);
+		break;
+	case 5:
+		context.m_State.nGPR[CMIPS::V0].nD0 = ReferHardTimer(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0,
+			context.m_State.nGPR[CMIPS::A3].nV0
+			);
+		break;
+	case 7:
+		SetTimerMode(
+			context,
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			);
+		break;
+	case 8:
+		context.m_State.nGPR[CMIPS::V0].nD0 = GetTimerStatus(
+			context,
+			context.m_State.nGPR[CMIPS::A0].nV0
+			);
+		break;
+	case 11:
+		SetTimerCompare(
+			context,
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			);
+		break;
+	case 16:
+		context.m_State.nGPR[CMIPS::V0].nD0 = GetHardTimerIntrCode(
+			context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = SetTimerCallback(
@@ -91,33 +143,98 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
-#define TIMER_ID (2)
-
-int CTimrman::AllocHardTimer(int source, int size, int prescale)
+int CTimrman::AllocHardTimer(uint32 source, uint32 size, uint32 prescale)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d).\r\n",
 		source, size, prescale);
 #endif
-	return TIMER_ID;
+	for(unsigned int i = 0; i < CRootCounters::MAX_COUNTERS; i++)
+	{
+		if(
+			(CRootCounters::g_counterSizes[i] == size) && 
+			((CRootCounters::g_counterSources[i] & source) != 0)
+			)
+		{
+			return (i + 1);
+		}
+	}
+	return 0;
 }
 
-int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 unknown, uint32 handler, uint32 arg)
+int CTimrman::ReferHardTimer(uint32 source, uint32 size, uint32 mode, uint32 modeMask)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, unknown = %d, handler = 0x%0.8X, arg = 0x%0.8X).\r\n",
-		timerId, unknown, handler, arg);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERHARDTIMER "(source = %d, size = %d, mode = 0x%0.8X, mask = 0x%0.8X).\r\n",
+		source, size, mode, modeMask);
 #endif
-	assert(timerId == TIMER_ID);
-	m_bios.RegisterIntrHandler(CIntc::LINE_RTC2, 0, handler, arg);
+	return 0;
+}
+
+void CTimrman::SetTimerMode(CMIPS& context, uint32 timerId, uint32 mode)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERMODE "(timerId = %d, mode = 0x%0.8X).\r\n",
+		timerId, mode);
+#endif
+	if(timerId == 0) return;
+	timerId--;
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE, mode);
+}
+
+int CTimrman::GetTimerStatus(CMIPS& context, uint32 timerId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETTIMERSTATUS "(timerId = %d).\r\n",
+		timerId);
+#endif
+	if(timerId == 0) return 0;
+	timerId--;
+	return context.m_pMemoryMap->GetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE) | 0x800;
+}
+
+void CTimrman::SetTimerCompare(CMIPS& context, uint32 timerId, uint32 compare)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCOMPARE "(timerId = %d, compare = 0x%0.8X).\r\n",
+		timerId, compare);
+#endif
+	if(timerId == 0) return;
+	timerId--;
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_COUNT, 0);
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_TARGET, compare);
+}
+
+int CTimrman::GetHardTimerIntrCode(uint32 timerId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETHARDTIMERINTRCODE "(timerId = %d).\r\n",
+		timerId);
+#endif
+	if(timerId == 0) return CIntc::LINE_RTC0;
+	timerId--;
+	return CRootCounters::g_counterInterruptLines[timerId];
+}
+
+int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 target, uint32 handler, uint32 arg)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, target = %d, handler = 0x%0.8X, arg = 0x%0.8X).\r\n",
+		timerId, target, handler, arg);
+#endif
+	if(timerId == 0) return 0;
+	timerId--;
+
+	uint32 timerInterruptLine = CRootCounters::g_counterInterruptLines[timerId];
+	m_bios.RegisterIntrHandler(timerInterruptLine, 0, handler, arg);
 	
 	//Enable timer
-	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_COUNT,	0x0000);
-	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_MODE,	0x0258);
-	context.m_pMemoryMap->SetWord(CRootCounters::CNT2_BASE + CRootCounters::CNT_TARGET,	0x4400);
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_COUNT,	0x0000);
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE,		0x0058);
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_TARGET,	target);
 
 	uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
-	mask |= (1 << CIntc::LINE_RTC2);
+	mask |= (1 << timerInterruptLine);
 	context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
 	return 0;
 }

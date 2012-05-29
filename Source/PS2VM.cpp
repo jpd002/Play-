@@ -108,6 +108,7 @@ CPS2VM::CPS2VM()
 , m_MAVU0(false)
 , m_MAVU1(true)
 , m_frameNumber(0)
+, m_iop(true)
 #ifdef DEBUGGER_INCLUDED
 , m_saveVpuStateEnabled(false)
 #endif
@@ -138,7 +139,7 @@ CPS2VM::CPS2VM()
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
-	m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(PS2::IOP_CLOCK_FREQ, m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
+	m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
 	m_iopOs = static_cast<CIopBios*>(m_iopOsPtr.get());
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_pGS, m_sif, *m_iopOs);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CPS2VM::FlushInstructionCache, this));

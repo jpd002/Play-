@@ -22,7 +22,7 @@ namespace Iop
 	public:
 		typedef std::shared_ptr<CBiosBase> BiosPtr;
 
-							CSubSystem();
+							CSubSystem(bool ps2Mode);
 		virtual				~CSubSystem();
 
 		void				Reset();

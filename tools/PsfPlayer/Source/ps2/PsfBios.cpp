@@ -1,13 +1,12 @@
 #include "PsfBios.h"
-#include "Ps2Const.h"
 
 using namespace PS2;
 
 #define PSF_DEVICENAME	"psf"
 
-CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize) :
-m_bios(PS2::IOP_CLOCK_FREQ, cpu, ram, ramSize),
-m_psfDevice(new CPsfDevice())
+CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
+: m_bios(cpu, ram, ramSize)
+, m_psfDevice(new CPsfDevice())
 {
 	m_bios.Reset(NULL);
 

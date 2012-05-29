@@ -13,14 +13,14 @@ using namespace PS2;
 #define STATE_RAM		("iop_ram")
 #define STATE_SCRATCH	("iop_scratch")
 
-CSubSystem::CSubSystem() 
+CSubSystem::CSubSystem(bool ps2Mode) 
 : m_cpu(MEMORYMAP_ENDIAN_LSBF)
 , m_executor(m_cpu, (IOP_RAM_SIZE * 4))
 , m_ram(new uint8[IOP_RAM_SIZE])
 , m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
 , m_spuRam(new uint8[SPU_RAM_SIZE])
 , m_dmac(m_ram, m_intc)
-, m_counters(IOP_CLOCK_FREQ, m_intc)
+, m_counters(ps2Mode ? IOP_CLOCK_OVER_FREQ : IOP_CLOCK_BASE_FREQ, m_intc)
 , m_spuCore0(m_spuRam, SPU_RAM_SIZE)
 , m_spuCore1(m_spuRam, SPU_RAM_SIZE)
 , m_spu(m_spuCore0)
@@ -141,7 +141,10 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_intc.ReadRegister(address);
 	}
-	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
+	else if(
+		(address >= CRootCounters::ADDR_BEGIN1 && address <= CRootCounters::ADDR_END1) ||
+		(address >= CRootCounters::ADDR_BEGIN2 && address <= CRootCounters::ADDR_END2)
+		)
 	{
 		return m_counters.ReadRegister(address);
 	}
@@ -179,7 +182,10 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	{
 		m_intc.WriteRegister(address, value);
 	}
-	else if(address >= CRootCounters::ADDR_BEGIN && address <= CRootCounters::ADDR_END)
+	else if(
+		(address >= CRootCounters::ADDR_BEGIN1 && address <= CRootCounters::ADDR_END1) ||
+		(address >= CRootCounters::ADDR_BEGIN2 && address <= CRootCounters::ADDR_END2)
+		)
 	{
 		m_counters.WriteRegister(address, value);
 	}

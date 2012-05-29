@@ -9,7 +9,7 @@ namespace Iop
 	class CPsfSubSystem : public CPsfVmSubSystem
 	{
 	public:
-											CPsfSubSystem();
+											CPsfSubSystem(bool ps2Mode);
 		virtual								~CPsfSubSystem();
 
 		virtual void						Reset();
@@ -30,8 +30,10 @@ namespace Iop
 
 	private:
 		CSubSystem							m_iop;
-		int									m_spuUpdateCounter;
+		uint32								m_frameTicks;
+		uint32								m_spuUpdateTicks;
 		int									m_frameCounter;
+		int									m_spuUpdateCounter;
 
 		enum
 		{
@@ -44,7 +46,7 @@ namespace Iop
 		int									m_currentBlock;
 	};
 
-	typedef std::tr1::shared_ptr<CPsfSubSystem> PsfSubSystemPtr;
+	typedef std::shared_ptr<CPsfSubSystem> PsfSubSystemPtr;
 }
 
 #endif

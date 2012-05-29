@@ -7,14 +7,18 @@ using namespace Iop;
 
 #define FRAMES_PER_SEC	(60)
 
-const int g_frameTicks = (PS2::IOP_CLOCK_FREQ / FRAMES_PER_SEC);
-const int g_spuUpdateTicks = (1 * PS2::IOP_CLOCK_FREQ / 1000);
-
-CPsfSubSystem::CPsfSubSystem()
-: m_spuUpdateCounter(g_spuUpdateTicks)
-, m_frameCounter(g_frameTicks)
+CPsfSubSystem::CPsfSubSystem(bool ps2Mode)
+: m_iop(ps2Mode)
+, m_frameTicks(0)
+, m_spuUpdateTicks(0)
+, m_spuUpdateCounter(0)
+, m_frameCounter(0)
 , m_currentBlock(0)
 {
+	uint32 cpuFreq = ps2Mode ? PS2::IOP_CLOCK_OVER_FREQ : PS2::IOP_CLOCK_BASE_FREQ;
+	m_frameTicks = (cpuFreq / FRAMES_PER_SEC);
+	m_spuUpdateTicks = (cpuFreq / 1000);
+
 	Reset();
 }
 
@@ -27,8 +31,8 @@ void CPsfSubSystem::Reset()
 {
 	m_iop.Reset();
 	m_currentBlock = 0;
-	m_frameCounter = g_frameTicks;
-	m_spuUpdateCounter = g_spuUpdateTicks;
+	m_frameCounter = m_frameTicks;
+	m_spuUpdateCounter = m_spuUpdateTicks;
 }
 
 CMIPS& CPsfSubSystem::GetCpu()
@@ -64,7 +68,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
 	int ticks = m_iop.ExecuteCpu(singleStep);
 
-	static int frameCounter = g_frameTicks;
+	static int frameCounter = m_frameTicks;
 	static uint64 currentTime = CHighResTimer::GetTime();
 
 	frameCounter -= ticks;
@@ -72,7 +76,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 	{
 		m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
 		OnNewFrame();
-		frameCounter += g_frameTicks;
+		frameCounter += m_frameTicks;
 		uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
 		int64 delay = frameTime - elapsed;
 		if(delay > 0)
@@ -96,7 +100,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 		m_frameCounter -= ticks;
 		if(m_spuUpdateCounter < 0)
 		{
-			m_spuUpdateCounter += g_spuUpdateTicks;
+			m_spuUpdateCounter += m_spuUpdateTicks;
 			unsigned int blockOffset = (BLOCK_SIZE * m_currentBlock);
 			int16* samplesSpu0 = m_samples + blockOffset;
 
@@ -128,7 +132,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 		}
 		if(m_frameCounter < 0)
 		{
-			m_frameCounter += g_frameTicks;
+			m_frameCounter += m_frameTicks;
 			m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
 			m_iop.NotifyVBlankStart();
 			m_iop.NotifyVBlankEnd();

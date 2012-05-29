@@ -9,7 +9,7 @@ namespace Iop
 {
 	class CIntc;
 
-    class CRootCounters
+	class CRootCounters
 	{
 	public:
 					CRootCounters(unsigned int, Iop::CIntc&);
@@ -23,8 +23,11 @@ namespace Iop
 
 		enum
 		{
-			ADDR_BEGIN		= 0x1F801100,
-			ADDR_END		= 0x1F80113F,
+			ADDR_BEGIN1		= 0x1F801100,
+			ADDR_END1		= 0x1F80112F,
+
+			ADDR_BEGIN2		= 0x1F801480,
+			ADDR_END2		= 0x1F8014AF,
 		};
 
 		enum
@@ -32,7 +35,10 @@ namespace Iop
 			CNT0_BASE		= 0x1F801100,
 			CNT1_BASE		= 0x1F801110,
 			CNT2_BASE		= 0x1F801120,
-			CNT3_BASE		= 0x1F801130,
+
+			CNT3_BASE		= 0x1F801480,
+			CNT4_BASE		= 0x1F801490,
+			CNT5_BASE		= 0x1F8014A0,
 		};
 
 		enum
@@ -44,8 +50,21 @@ namespace Iop
 
 		enum
 		{
-			MAX_COUNTERS	= 4,
+			MAX_COUNTERS	= 6,
 		};
+
+		enum COUNTER_SOURCE
+		{
+			COUNTER_SOURCE_SYSCLOCK	= 1,
+			COUNTER_SOURCE_PIXEL	= 2,
+			COUNTER_SOURCE_HLINE	= 4,
+			COUNTER_SOURCE_HOLD		= 8
+		};
+
+		static const uint32		g_counterInterruptLines[MAX_COUNTERS];
+		static const uint32		g_counterBaseAddresses[MAX_COUNTERS];
+		static const uint32		g_counterSources[MAX_COUNTERS];
+		static const uint32		g_counterSizes[MAX_COUNTERS];
 
 	private:
 		struct MODE : public convertible<uint32>
@@ -61,23 +80,25 @@ namespace Iop
 			unsigned int div		: 1;
 			unsigned int unused3	: 22;
 		};
-		BOOST_STATIC_ASSERT(sizeof(MODE) == sizeof(uint32));
+		static_assert(sizeof(MODE) == sizeof(uint32), "MODE structure size is too small");
 	
 		struct COUNTER
 		{
-			uint16			count;
-			MODE			mode;
-			uint16			target;
-			unsigned int	clockRatio;
-			unsigned int	clockRemain;
+			uint32				count;
+			MODE				mode;
+			uint32				target;
+			unsigned int		clockRemain;
 		};
 
-		void			DisassembleRead(uint32);
-		void			DisassembleWrite(uint32, uint32);
+		void					DisassembleRead(uint32);
+		void					DisassembleWrite(uint32, uint32);
 
-		COUNTER			m_counter[MAX_COUNTERS];
-		Iop::CIntc&		m_intc;
-		unsigned int	m_clockFreq;
+		static unsigned int		GetCounterIdByAddress(uint32);
+
+		COUNTER					m_counter[MAX_COUNTERS];
+		Iop::CIntc&				m_intc;
+		unsigned int			m_hsyncClocks;
+		unsigned int			m_pixelClocks;
 	};
 }
 

@@ -35,7 +35,7 @@ void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const filesystem::path& filePat
 
 void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
-	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem());
+	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem(false));
 	virtualMachine.SetSubSystem(subSystem);
 
 	{
@@ -107,7 +107,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const bo
 
 void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
-	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem());
+	Iop::PsfSubSystemPtr subSystem = Iop::PsfSubSystemPtr(new Iop::CPsfSubSystem(true));
 	virtualMachine.SetSubSystem(subSystem);
 
 	{

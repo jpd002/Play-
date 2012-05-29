@@ -2,6 +2,7 @@
 #include "../COP_SCU.h"
 #include "../Log.h"
 #include "../ElfFile.h"
+#include "../Ps2Const.h"
 #include "PtrStream.h"
 #include "Iop_Intc.h"
 #include "lexical_cast_ex.h"
@@ -50,26 +51,25 @@
 #define BIOS_HEAPBLOCK_SIZE				(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
 #define BIOS_CALCULATED_END				(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
 
-CIopBios::CIopBios(uint32 clockFrequency, CMIPS& cpu, uint8* ram, uint32 ramSize) :
-m_cpu(cpu),
-m_ram(ram),
-m_ramSize(ramSize),
-m_sifMan(NULL),
-m_stdio(NULL),
-m_sysmem(NULL),
-m_ioman(NULL),
-m_modload(NULL),
+CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
+: m_cpu(cpu)
+, m_ram(ram)
+, m_ramSize(ramSize)
+, m_sifMan(NULL)
+, m_stdio(NULL)
+, m_sysmem(NULL)
+, m_ioman(NULL)
+, m_modload(NULL)
 #ifdef _IOP_EMULATE_MODULES
-m_dbcman(NULL),
-m_padman(NULL),
+, m_dbcman(NULL)
+, m_padman(NULL)
 #endif
-m_rescheduleNeeded(false),
-m_threadFinishAddress(0),
-m_clockFrequency(clockFrequency),
-m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD),
-m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE),
-m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG),
-m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
+, m_rescheduleNeeded(false)
+, m_threadFinishAddress(0)
+, m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
+, m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
+, m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
+, m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
 {
 	static_assert(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END, "Control block size is too small");
 }
@@ -780,17 +780,17 @@ uint64 CIopBios::GetCurrentTime()
 
 uint64 CIopBios::MilliSecToClock(uint32 value)
 {
-	return (static_cast<uint64>(value) * static_cast<uint64>(m_clockFrequency)) / 1000;
+	return (static_cast<uint64>(value) * static_cast<uint64>(PS2::IOP_CLOCK_OVER_FREQ)) / 1000;
 }
 
 uint64 CIopBios::MicroSecToClock(uint32 value)
 {
-	return (static_cast<uint64>(value) * static_cast<uint64>(m_clockFrequency)) / 1000000;
+	return (static_cast<uint64>(value) * static_cast<uint64>(PS2::IOP_CLOCK_OVER_FREQ)) / 1000000;
 }
 
 uint64 CIopBios::ClockToMicroSec(uint64 clock)
 {
-	return (clock * 1000000) / m_clockFrequency;
+	return (clock * 1000000) / static_cast<uint64>(PS2::IOP_CLOCK_OVER_FREQ);
 }
 
 void CIopBios::CountTicks(uint32 ticks)

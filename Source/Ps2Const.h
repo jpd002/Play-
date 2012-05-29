@@ -20,7 +20,8 @@ namespace PS2
 
 	enum
 	{
-		IOP_CLOCK_FREQ = (44100 * 256 * 3),
+		IOP_CLOCK_BASE_FREQ = (44100 * 256 * 3),
+		IOP_CLOCK_OVER_FREQ = (48000 * 256 * 3) 
 	};
 
 	enum EEBIOSSIZE
