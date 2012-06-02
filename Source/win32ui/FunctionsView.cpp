@@ -352,13 +352,13 @@ void CFunctionsView::OnImportClick()
 		const auto& module(*moduleIterator);
 		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);
 
-		if(moduleImage == NULL) return;
+		if(moduleImage == NULL) continue;
 
 		ELFSECTIONHEADER* pSymTab = moduleImage->FindSection(".symtab");
-		if(pSymTab == NULL) return;
+		if(pSymTab == NULL) continue;
 
 		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
-		if(pStrTab == NULL) return;
+		if(pStrTab == NULL) continue;
 
 		ELFSYMBOL* pSym = (ELFSYMBOL*)moduleImage->FindSectionData(".symtab");
 		unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
@@ -368,7 +368,7 @@ void CFunctionsView::OnImportClick()
 			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
 			ELFSECTIONHEADER* symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
 			if(symbolSection == NULL) continue;
-			m_context->m_Functions.InsertTag(module.begin + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
+			m_context->m_Functions.InsertTag(module.begin + (pSym[i].nValue - symbolSection->nStart), pStrTab + pSym[i].nName);
 		}
 	}
 
