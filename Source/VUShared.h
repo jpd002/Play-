@@ -132,6 +132,7 @@ namespace VUShared
 	void						RNEXT(CMipsJitter*, uint8, uint8);
 	void						RSQRT(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						RXOR(CMipsJitter*, uint8, uint8);
+	void						SQD(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SQI(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SQRT(CMipsJitter*, uint8, uint8, uint32);
 	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
@@ -151,6 +152,7 @@ namespace VUShared
 	void						ReflOpFdFsQ(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFdFsFt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFdFsFtBc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpFsDstItDec(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFsDstItInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpClip(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

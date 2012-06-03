@@ -684,7 +684,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SQD",		NULL,			CopyMnemonic,		ReflOpFsDstItDec,	NULL,				NULL			},
 	{	"WAITQ",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	"ISWR",		NULL,			CopyMnemonic,		ReflOpItIsDst,		NULL,				NULL			},
 	//0x10

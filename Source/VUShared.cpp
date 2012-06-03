@@ -923,6 +923,31 @@ void VUShared::RXOR(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 }
 
+void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 baseAddress)
+{
+	//Decrement
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->PushCst(1);
+	codeGen->Sub();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+
+	//Store
+	ComputeMemAccessAddr(codeGen, it, 0, 0);
+	if(baseAddress != 0)
+	{
+		codeGen->PushCst(baseAddress);
+		codeGen->Add();
+	}
+
+	codeGen->PushCtx();
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[is]));
+	codeGen->PushIdx(2);
+	codeGen->PushCst(dest);
+	codeGen->Call(reinterpret_cast<void*>(&VUShared::SetQuadMasked), 4, Jitter::CJitter::RETURN_VALUE_NONE);
+
+	codeGen->PullTop();
+}
+
 void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 baseAddress)
 {
 	ComputeMemAccessAddr(codeGen, it, 0, 0);

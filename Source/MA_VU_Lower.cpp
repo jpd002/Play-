@@ -805,6 +805,12 @@ void CMA_VU::CLower::ERCPR()
 //Vector3 Instructions
 //////////////////////////////////////////////////
 
+//0D
+void CMA_VU::CLower::SQD()
+{
+	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT, 0);
+}
+
 //0E
 void CMA_VU::CLower::WAITQ()
 {
@@ -982,7 +988,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
 	//0x00
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::WAITQ,			&CMA_VU::CLower::ISWR,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::SQD,			&CMA_VU::CLower::WAITQ,			&CMA_VU::CLower::ISWR,
 	//0x10
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18

@@ -308,6 +308,7 @@ private:
 		void								ERCPR();
 
 		//Vector3
+		void								SQD();
 		void								WAITQ();
 		void								ISWR();
 		void								ERLENG();
