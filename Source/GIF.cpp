@@ -12,17 +12,17 @@
 #define PROFILE_GIFZONE		"GIF"
 #endif
 
-CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr) :
-m_gs(gs),
-m_ram(ram),
-m_spr(spr),
-m_nLoops(0),
-m_nCmd(0),
-m_nRegs(0),
-m_nRegsTemp(0),
-m_nRegList(0),
-m_nEOP(false),
-m_nQTemp(0)
+CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
+: m_gs(gs)
+, m_ram(ram)
+, m_spr(spr)
+, m_nLoops(0)
+, m_nCmd(0)
+, m_nRegs(0)
+, m_nRegsTemp(0)
+, m_nRegList(0)
+, m_nEOP(false)
+, m_nQTemp(0)
 {
 
 }
@@ -57,10 +57,10 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 
 			switch(nRegDesc)
 			{
-            case 0x00:
-                //PRIM
-                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, nPacket.nV0));
-                break;
+			case 0x00:
+				//PRIM
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, nPacket.nV0));
+				break;
 			case 0x01:
 				//RGBA
 				nTemp  = (nPacket.nV[0] & 0xFF);
@@ -68,18 +68,18 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 				nTemp |= (nPacket.nV[2] & 0xFF) << 16;
 				nTemp |= (nPacket.nV[3] & 0xFF) << 24;
 				nTemp |= ((uint64)m_nQTemp << 32);
-                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_RGBAQ, nTemp));
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_RGBAQ, nTemp));
 				break;
 			case 0x02:
 				//ST
 				m_nQTemp = nPacket.nV2;
-                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_ST, nPacket.nD0));
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_ST, nPacket.nD0));
 				break;
 			case 0x03:
 				//UV
 				nTemp  = (nPacket.nV[0] & 0x7FFF);
 				nTemp |= (nPacket.nV[1] & 0x7FFF) << 16;
-                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_UV, nTemp));
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_UV, nTemp));
 				break;
 			case 0x04:
 				//XYZF2
@@ -89,11 +89,11 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 				nTemp |= (uint64)(nPacket.nV[3] & 0x00000FF0) << 52;
 				if(nPacket.nV[3] & 0x8000)
 				{
-                    writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZF3, nTemp));
+					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZF3, nTemp));
 				}
 				else
 				{
-                    writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZF2, nTemp));
+					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZF2, nTemp));
 				}
 				break;
 			case 0x05:
@@ -103,35 +103,35 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 				nTemp |= (uint64)(nPacket.nV[2] & 0xFFFFFFFF) << 32;
 				if(nPacket.nV[3] & 0x8000)
 				{
-                    writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nTemp));
+					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nTemp));
 				}
 				else
 				{
-                    writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ2, nTemp));
+					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ2, nTemp));
 				}
 				break;
 			case 0x06:
 				//TEX0_1
-                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_1, nPacket.nD0));
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_1, nPacket.nD0));
 				break;
-            case 0x08:
-                //CLAMP_1
-                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_CLAMP_1, nPacket.nD0));
-                break;
+			case 0x08:
+				//CLAMP_1
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_CLAMP_1, nPacket.nD0));
+				break;
 			case 0x0D:
-                //XYZ3
-                writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nPacket.nD0));
+				//XYZ3
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nPacket.nD0));
 				break;
 			case 0x0E:
 				//A + D
 				if(m_gs != NULL)
 				{
-                    writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));
+					writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));
 				}
 				break;
-            case 0x0F:
-                //NOP
-                break;
+			case 0x0F:
+				//NOP
+				break;
 			default:
 				assert(0);
 				break;
@@ -151,7 +151,7 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* pMem
 
 uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
-    uint32 nStart = nAddress;
+	uint32 nStart = nAddress;
 
 	while(m_nLoops != 0)
 	{
@@ -159,7 +159,7 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* pMe
 		{
 			assert(nAddress < nEnd);
 
-	        uint128 nPacket;
+			uint128 nPacket;
 			uint32 nRegDesc = (uint32)((m_nRegList >> (j * 4)) & 0x0F);
 
  			nPacket.nV[0] = *(uint32*)&pMemory[nAddress + 0x00];
@@ -168,7 +168,7 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* pMe
 
 			if(nRegDesc == 0x0F) continue;
 
-            writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nRegDesc), nPacket.nD0));
+			writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nRegDesc), nPacket.nD0));
 		}
 
 		m_nLoops--;
@@ -201,19 +201,19 @@ uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
 	boost::mutex::scoped_lock pathLock(m_pathMutex);
-    static CGSHandler::RegisterWriteList writeList;
+	static CGSHandler::RegisterWriteList writeList;
 
 #ifdef PROFILE
 	CProfiler::GetInstance().BeginZone(PROFILE_GIFZONE);
 #endif
 
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, "Received GIF packet at 0x%0.8X of 0x%0.8X bytes.\r\n", nAddress, nEnd - nAddress);
+	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet at 0x%0.8X of 0x%0.8X bytes.\r\n", nAddress, nEnd - nAddress);
 #endif
 
-    writeList.clear();
+	writeList.clear();
 
-    uint32 nStart = nAddress;
+	uint32 nStart = nAddress;
 	while(nAddress < nEnd)
 	{
 		if(m_nLoops == 0)
@@ -238,7 +238,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			{
 				if(nPacket.nV1 & 0x4000)
 				{
-                    writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, (uint16)(nPacket.nV1 >> 15) & 0x3FF));
+					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, (uint16)(nPacket.nV1 >> 15) & 0x3FF));
 				}
 			}
 
@@ -273,18 +273,18 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 	CProfiler::GetInstance().EndZone();
 #endif
 
-    if(m_gs != NULL && writeList.size() != 0)
-    {
-        CGSHandler::RegisterWrite* writeListBuffer = new CGSHandler::RegisterWrite[writeList.size()];
-        memcpy(writeListBuffer, &writeList[0], sizeof(CGSHandler::RegisterWrite) * writeList.size());
-        m_gs->WriteRegisterMassively(writeListBuffer, static_cast<unsigned int>(writeList.size()));
-    }
+	if(m_gs != NULL && writeList.size() != 0)
+	{
+		CGSHandler::RegisterWrite* writeListBuffer = new CGSHandler::RegisterWrite[writeList.size()];
+		memcpy(writeListBuffer, &writeList[0], sizeof(CGSHandler::RegisterWrite) * writeList.size());
+		m_gs->WriteRegisterMassively(writeListBuffer, static_cast<unsigned int>(writeList.size()));
+	}
 
 #ifdef _DEBUG
-    CLog::GetInstance().Print(LOG_NAME, "Processed 0x%0.8X bytes.\r\n", nAddress - nStart);
+	CLog::GetInstance().Print(LOG_NAME, "Processed 0x%0.8X bytes.\r\n", nAddress - nStart);
 #endif
 
-    return nAddress - nStart;
+	return nAddress - nStart;
 }
 
 uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIncluded)
@@ -292,12 +292,12 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIn
 	uint8* pMemory(NULL);
 	uint32 nSize = nQWC * 0x10;
 
-    if(nTagIncluded)
-    {
-        assert(nQWC >= 0);
-        nSize -= 0x10;
-        nAddress += 0x10;
-    }
+	if(nTagIncluded)
+	{
+		assert(nQWC >= 0);
+		nSize -= 0x10;
+		nAddress += 0x10;
+	}
 
 	if(nAddress & 0x80000000)
 	{
