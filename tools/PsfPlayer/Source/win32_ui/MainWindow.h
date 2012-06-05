@@ -23,16 +23,16 @@
 class CMainWindow : public Framework::Win32::CDialog, public boost::signals::trackable
 {
 public:
-				                        CMainWindow(CPsfVm&);
-	virtual		                        ~CMainWindow();
+										CMainWindow(CPsfVm&);
+	virtual								~CMainWindow();
 
 	void								Run();
 
 protected:
 	long								OnWndProc(unsigned int, WPARAM, LPARAM);
-    long                                OnCommand(unsigned short, unsigned short, HWND);
-    long                                OnSize(unsigned int, unsigned int, unsigned int);
-    long                                OnTimer(WPARAM);
+	long								OnCommand(unsigned short, unsigned short, HWND);
+	long								OnSize(unsigned int, unsigned int, unsigned int);
+	long								OnTimer(WPARAM);
 	long								OnClose();
 
 private:
@@ -58,9 +58,9 @@ private:
 
 	struct SOUNDHANDLER_INFO
 	{
-		int             id;
-		const TCHAR*    name;
-		const TCHAR*    dllName;
+		int				id;
+		const TCHAR*	name;
+		const TCHAR*	dllName;
 	};
 
 	struct CHARENCODING_INFO
@@ -88,46 +88,46 @@ private:
 	typedef std::deque<DISCOVERY_COMMAND> DiscoveryCommandQueue;
 	typedef std::deque<DISCOVERY_RESULT> DiscoveryResultQueue;
 
-	CSoundHandler*				        CreateHandler(const TCHAR*);
+	CSoundHandler*						CreateHandler(const TCHAR*);
 
-	void                                OnNewFrame();
+	void								OnNewFrame();
 
-	void                                OnFileOpen();
-	void                                OnPause();
-	void                                OnPrev();
-	void                                OnNext();
+	void								OnFileOpen();
+	void								OnPause();
+	void								OnPrev();
+	void								OnNext();
 	void								OnPrevPanel();
 	void								OnNextPanel();
-	void                                OnAbout();
+	void								OnAbout();
 	void								OnRepeat();
 	void								OnConfig();
-	bool                                PlayFile(const boost::filesystem::path&, const boost::filesystem::path&);
-	void                                LoadSingleFile(const boost::filesystem::path&);
-	void                                LoadPlaylist(const boost::filesystem::path&);
+	bool								PlayFile(const boost::filesystem::path&, const boost::filesystem::path&);
+	void								LoadSingleFile(const boost::filesystem::path&);
+	void								LoadPlaylist(const boost::filesystem::path&);
 	void								LoadArchive(const boost::filesystem::path&);
 
-	void                                OnPlaylistItemDblClick(unsigned int);
-	void                                OnPlaylistAddClick();
-	void                                OnPlaylistRemoveClick(unsigned int);
-	void                                OnPlaylistSaveClick();
+	void								OnPlaylistItemDblClick(unsigned int);
+	void								OnPlaylistAddClick();
+	void								OnPlaylistRemoveClick(unsigned int);
+	void								OnPlaylistSaveClick();
 
 	void								OnClickReverbEnabled();
 
-	void                                OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
-	void                                DisplayTrayMenu();
+	void								OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
+	void								DisplayTrayMenu();
 	void								UpdateConfigMenu();
-	void                                UpdateClock();
+	void								UpdateClock();
 	void								UpdateFade();
-	void                                UpdateTitle();
-	void                                UpdatePlaybackButtons();
+	void								UpdateTitle();
+	void								UpdatePlaybackButtons();
 	void								UpdateRepeatButton();
 
 	void								Reset();
 	void								ActivatePanel(unsigned int);
 
-	void                                CreateAudioPluginMenu();
-	void                                UpdateAudioPluginMenu();
-	void                                ChangeAudioPlugin(unsigned int);
+	void								CreateAudioPluginMenu();
+	void								UpdateAudioPluginMenu();
+	void								ChangeAudioPlugin(unsigned int);
 	void								LoadAudioPluginPreferences();
 	int									FindAudioPlugin(unsigned int);
 
@@ -147,15 +147,15 @@ private:
 	static uint32						GetNextRandomNumber(uint32);
 	static uint32						GetPrevRandomNumber(uint32);
 
-	Framework::Win32::CStatic*          m_timerLabel;
-	Framework::Win32::CStatic*          m_titleLabel;
+	Framework::Win32::CStatic*			m_timerLabel;
+	Framework::Win32::CStatic*			m_titleLabel;
 
 	Framework::Win32::CButton*			m_repeatButton;
 	Framework::Win32::CButton*			m_configButton;
 
-	Framework::Win32::CStatic*          m_placeHolder;
+	Framework::Win32::CStatic*			m_placeHolder;
 
-	Framework::Win32::CButton*          m_pauseButton;
+	Framework::Win32::CButton*			m_pauseButton;
 
 	Framework::Win32::CToolTip*			m_toolTip;
 
@@ -165,12 +165,12 @@ private:
 	Framework::Win32::CTaskBarList*		m_taskBarList;
 
 	Framework::Win32::CWindow*			m_panels[MAX_PANELS];
-	CPlaylistPanel*                     m_playlistPanel;
+	CPlaylistPanel*						m_playlistPanel;
 	CFileInformationPanel*				m_fileInformationPanel;
 	CSpuRegViewPanel*					m_spu0RegViewPanel;
 	CSpuRegViewPanel*					m_spu1RegViewPanel;
 
-	HMENU                               m_trayPopupMenu;
+	HMENU								m_trayPopupMenu;
 	HMENU								m_configPopupMenu;
 
 	Framework::Win32::CAcceleratorTable	m_accel;
@@ -187,16 +187,16 @@ private:
 
 	CPsfVm&								m_virtualMachine;
 	CPsfTags							m_tags;
-	CPlaylist                           m_playlist;
-	unsigned int                        m_currentPlaylistItem;
+	CPlaylist							m_playlist;
+	unsigned int						m_currentPlaylistItem;
 	unsigned int						m_currentPanel;
 	bool								m_ready;
-	uint64                              m_frames;
+	uint64								m_frames;
 	uint64								m_lastUpdateTime;
 	uint64								m_trackLength;
 	uint64								m_fadePosition;
 	float								m_volumeAdjust;
-	int                                 m_selectedAudioPlugin;
+	int									m_selectedAudioPlugin;
 	int									m_selectedCharEncoding;
 	REPEAT_MODE							m_repeatMode;
 	bool								m_reverbEnabled;

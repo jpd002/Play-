@@ -19,11 +19,11 @@
 
 //#define FORCE_ENABLE_TRAYICON
 
-#define ID_FILE_AUDIOPLUGIN_PLUGIN_0    (0xBEEF)
+#define ID_FILE_AUDIOPLUGIN_PLUGIN_0	(0xBEEF)
 #define ID_FILE_CHARENCODING_ENCODING_0	(0xCEEF)
 
-#define PLAYLIST_EXTENSION              _T(".psfpl")
-#define PLAYLIST_FILTER                 _T("PsfPlayer Playlists (*") PLAYLIST_EXTENSION _T(")\0*") PLAYLIST_EXTENSION _T("\0")
+#define PLAYLIST_EXTENSION				_T(".psfpl")
+#define PLAYLIST_FILTER					_T("PsfPlayer Playlists (*") PLAYLIST_EXTENSION _T(")\0*") PLAYLIST_EXTENSION _T("\0")
 #define PSF_FILTER						_T("PlayStation Sound Files (*.psf; *.minipsf)\0*.psf; *.minipsf\0")
 #define PSF2_FILTER						_T("PlayStation2 Sound Files (*.psf2; *.minipsf2)\0*.psf2; *.minipsf2\0")
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
@@ -42,9 +42,9 @@
 
 CMainWindow::SOUNDHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
-    {   1,      _T("Win32 WaveOut"),    _T("SH_WaveOut.dll")    },
-    {   2,      _T("OpenAL"),           _T("SH_OpenAL.dll")     },
-    {   NULL,   NULL,                   NULL                    },
+	{	1,		_T("Win32 WaveOut"),	_T("SH_WaveOut.dll")	},
+	{	2,		_T("OpenAL"),			_T("SH_OpenAL.dll")		},
+	{	NULL,	NULL,					NULL					},
 };
 
 CMainWindow::CHARENCODING_INFO CMainWindow::m_charEncodingInfo[] =
@@ -52,7 +52,7 @@ CMainWindow::CHARENCODING_INFO CMainWindow::m_charEncodingInfo[] =
 	{	CPsfTags::CE_WINDOWS_1252,	_T("Windows 1252")		},
 	{	CPsfTags::CE_SHIFT_JIS,		_T("Shift-JIS")			},
 	{	CPsfTags::CE_UTF8,			_T("UTF-8")				},
-    {   NULL,						NULL                    },
+	{	NULL,						NULL					},
 };
 
 CMainWindow::CMainWindow(CPsfVm& virtualMachine)
@@ -135,9 +135,9 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	LoadCharEncodingPreferences();
 
 	for(unsigned int i = 0; i < MAX_PANELS; i++)
-    {
-        m_panels[i] = NULL;
-    }
+	{
+		m_panels[i] = NULL;
+	}
 
 	SetClassPtr();
 
@@ -220,7 +220,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	m_spu0RegViewPanel = new CSpuRegViewPanel(m_hWnd, _T("SPU0"));
 	m_spu1RegViewPanel = new CSpuRegViewPanel(m_hWnd, _T("SPU1"));
 
-	//Initialize panels    
+	//Initialize panels
 	m_panels[0] = m_playlistPanel;
 	m_panels[1] = m_fileInformationPanel;
 	m_panels[2] = m_spu0RegViewPanel;
@@ -304,28 +304,28 @@ void CMainWindow::Run()
 CSoundHandler* CMainWindow::CreateHandler(const TCHAR* libraryPath)
 {
 	typedef CSoundHandler* (*HandlerFactoryFunction)();
-    CSoundHandler* result = NULL;
+	CSoundHandler* result = NULL;
 	try
-    {
-        HMODULE module = LoadLibrary(libraryPath);
-        if(module == NULL)
-        {
-            throw std::exception();
-        }
+	{
+		HMODULE module = LoadLibrary(libraryPath);
+		if(module == NULL)
+		{
+			throw std::exception();
+		}
 
-        HandlerFactoryFunction handlerFactory = reinterpret_cast<HandlerFactoryFunction>(GetProcAddress(module, "HandlerFactory"));
-        if(handlerFactory == NULL)
-        {
-            throw std::exception();
-        }
+		HandlerFactoryFunction handlerFactory = reinterpret_cast<HandlerFactoryFunction>(GetProcAddress(module, "HandlerFactory"));
+		if(handlerFactory == NULL)
+		{
+			throw std::exception();
+		}
 
-        result = handlerFactory();
-    }
-    catch(...)
-    {
+		result = handlerFactory();
+	}
+	catch(...)
+	{
 		std::tstring errorMessage = _T("Couldn't create sound handler present in '") + std::tstring(libraryPath) + _T("'.");
-        MessageBox(m_hWnd, errorMessage.c_str(), APP_NAME, 16);
-    }
+		MessageBox(m_hWnd, errorMessage.c_str(), APP_NAME, 16);
+	}
 	return result;
 }
 
@@ -362,17 +362,17 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 		return TRUE;
 	}
 
-    switch(nID)
-    {
-    case ID_FILE_ABOUT:
-        OnAbout();
-        break;
+	switch(nID)
+	{
+	case ID_FILE_ABOUT:
+		OnAbout();
+		break;
 	case ID_FILE_ENABLEREVERB:
 		OnClickReverbEnabled();
 		break;
-    case ID_FILE_EXIT:
-	    DestroyWindow(m_hWnd);
-        break;
+	case ID_FILE_EXIT:
+		DestroyWindow(m_hWnd);
+		break;
 	case ID_FILE_NEXTTRACK:
 		OnNext();
 		break;
@@ -383,29 +383,29 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 	case ID_FILE_PAUSE:
 		OnPause();
 		break;
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 0:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 1:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 2:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 3:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 4:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 5:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 6:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 7:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 8:
-    case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 9:
-	    ChangeAudioPlugin(nID - ID_FILE_AUDIOPLUGIN_PLUGIN_0);
-	    break;
-    case ID_FILE_CHARENCODING_ENCODING_0 + 0:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 1:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 2:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 3:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 4:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 5:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 6:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 7:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 8:
-    case ID_FILE_CHARENCODING_ENCODING_0 + 9:
-	    ChangeCharEncoding(nID - ID_FILE_CHARENCODING_ENCODING_0);
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 0:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 1:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 2:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 3:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 4:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 5:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 6:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 7:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 8:
+	case ID_FILE_AUDIOPLUGIN_PLUGIN_0 + 9:
+		ChangeAudioPlugin(nID - ID_FILE_AUDIOPLUGIN_PLUGIN_0);
+		break;
+	case ID_FILE_CHARENCODING_ENCODING_0 + 0:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 1:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 2:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 3:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 4:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 5:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 6:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 7:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 8:
+	case ID_FILE_CHARENCODING_ENCODING_0 + 9:
+		ChangeCharEncoding(nID - ID_FILE_CHARENCODING_ENCODING_0);
 		break;
 	case IDC_CONFIG_BUTTON:
 		OnConfig();
@@ -422,8 +422,8 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hContr
 	case IDC_EJECT_BUTTON:
 		OnFileOpen();
 		break;
-    }
-	return TRUE;    
+	}
+	return TRUE;
 }
 
 long CMainWindow::OnTimer(WPARAM timerId)
@@ -440,7 +440,7 @@ long CMainWindow::OnTimer(WPARAM timerId)
 		ProcessPendingDiscoveries();
 		break;
 	}
-    return TRUE;
+	return TRUE;
 }
 
 long CMainWindow::OnClose()
@@ -451,19 +451,19 @@ long CMainWindow::OnClose()
 
 long CMainWindow::OnSize(unsigned int type, unsigned int width, unsigned int height)
 {
-    if(type == SIZE_MINIMIZED)
-    {
+	if(type == SIZE_MINIMIZED)
+	{
 		if(m_useTrayIcon)
 		{
 			Show(SW_HIDE);
 		}
-    }
-    return TRUE;
+	}
+	return TRUE;
 }
 
 void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 {
-    const CPlaylist::ITEM& item(m_playlist.GetItem(index));
+	const CPlaylist::ITEM& item(m_playlist.GetItem(index));
 	
 	boost::filesystem::path archivePath;
 	if(item.archiveId != 0)
@@ -473,23 +473,23 @@ void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 
 	if(PlayFile(item.path.c_str(), archivePath))
 	{
-        CPlaylist::ITEM newItem(item);
-        CPlaylist::PopulateItemFromTags(newItem, m_tags);
-        m_playlist.UpdateItem(index, newItem);
-        m_currentPlaylistItem = index;
-    }
+		CPlaylist::ITEM newItem(item);
+		CPlaylist::PopulateItemFromTags(newItem, m_tags);
+		m_playlist.UpdateItem(index, newItem);
+		m_currentPlaylistItem = index;
+	}
 }
 
 void CMainWindow::OnPlaylistAddClick()
 {
-    Framework::Win32::CFileDialog dialog(0x10000);
-    const TCHAR* filter = 
-	    _T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp\0")
-	    PSF_FILTER
-	    PSF2_FILTER
+	Framework::Win32::CFileDialog dialog(0x10000);
+	const TCHAR* filter = 
+		_T("All Supported Files\0*.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp\0")
+		PSF_FILTER
+		PSF2_FILTER
 		PSFP_FILTER;
-    dialog.m_OFN.lpstrFilter = filter;
-    dialog.m_OFN.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
+	dialog.m_OFN.lpstrFilter = filter;
+	dialog.m_OFN.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
 	if(dialog.SummonOpen(m_hWnd))
 	{
 		Framework::Win32::CFileDialog::PathList paths(dialog.GetMultiPaths());
@@ -498,9 +498,9 @@ void CMainWindow::OnPlaylistAddClick()
 		{
 			boost::filesystem::path filePath(*pathIterator);
 			CPlaylist::ITEM item;
-			item.path       = filePath.wstring();
-			item.title      = filePath.wstring();
-			item.length     = 0;
+			item.path		= filePath.wstring();
+			item.title		= filePath.wstring();
+			item.length		= 0;
 			unsigned int itemId = m_playlist.InsertItem(item);
 
 			AddDiscoveryItem(filePath, boost::filesystem::path(), itemId);
@@ -510,17 +510,17 @@ void CMainWindow::OnPlaylistAddClick()
 
 void CMainWindow::OnPlaylistRemoveClick(unsigned int itemIdx)
 {
-    m_playlist.DeleteItem(itemIdx);
+	m_playlist.DeleteItem(itemIdx);
 }
 
 void CMainWindow::OnPlaylistSaveClick()
 {
-    Framework::Win32::CFileDialog dialog;
-    const TCHAR* filter = PLAYLIST_FILTER;
-    dialog.m_OFN.lpstrFilter = filter;
-    dialog.m_OFN.lpstrDefExt = PLAYLIST_EXTENSION + 1;
-    if(dialog.SummonSave(m_hWnd))
-    {
+	Framework::Win32::CFileDialog dialog;
+	const TCHAR* filter = PLAYLIST_FILTER;
+	dialog.m_OFN.lpstrFilter = filter;
+	dialog.m_OFN.lpstrDefExt = PLAYLIST_EXTENSION + 1;
+	if(dialog.SummonSave(m_hWnd))
+	{
 		try
 		{
 			m_playlist.Write(dialog.GetPath());
@@ -570,8 +570,8 @@ void CMainWindow::DisplayTrayMenu()
 
 void CMainWindow::UpdateConfigMenu()
 {
-    Framework::Win32::CMenuItem reverbSubMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_ENABLEREVERB));
-    reverbSubMenu.Check(m_reverbEnabled);
+	Framework::Win32::CMenuItem reverbSubMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_ENABLEREVERB));
+	reverbSubMenu.Check(m_reverbEnabled);
 }
 
 void CMainWindow::UpdateFade()
@@ -628,32 +628,32 @@ void CMainWindow::UpdateClock()
 
 void CMainWindow::UpdateTitle()
 {
-    std::tstring titleLabelText = APP_NAME;
-    std::tstring windowText = APP_NAME;
+	std::tstring titleLabelText = APP_NAME;
+	std::tstring windowText = APP_NAME;
 
-    if(m_tags.HasTag("title"))
-    {
-        std::wstring titleTag = m_tags.GetTagValue("title");
+	if(m_tags.HasTag("title"))
+	{
+		std::wstring titleTag = m_tags.GetTagValue("title");
 
-        titleLabelText = string_cast<std::tstring>(titleTag);
+		titleLabelText = string_cast<std::tstring>(titleTag);
 
-	    windowText += _T(" - [ ");
-	    windowText += string_cast<std::tstring>(titleTag);
-	    windowText += _T(" ]");
-    }
+		windowText += _T(" - [ ");
+		windowText += string_cast<std::tstring>(titleTag);
+		windowText += _T(" ]");
+	}
 
-    m_titleLabel->SetText(titleLabelText.c_str());
-    SetText(windowText.c_str());
+	m_titleLabel->SetText(titleLabelText.c_str());
+	SetText(windowText.c_str());
 }
 
 void CMainWindow::UpdatePlaybackButtons()
 {
-    CVirtualMachine::STATUS status = m_virtualMachine.GetStatus();
-    if(m_pauseButton != NULL)
-    {
-        m_pauseButton->Enable(m_ready ? TRUE : FALSE);
-        m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? TEXT_PLAY : TEXT_PAUSE);
-    }
+	CVirtualMachine::STATUS status = m_virtualMachine.GetStatus();
+	if(m_pauseButton != NULL)
+	{
+		m_pauseButton->Enable(m_ready ? TRUE : FALSE);
+		m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? TEXT_PLAY : TEXT_PAUSE);
+	}
 	if(m_configPopupMenu != NULL)
 	{
 		Framework::Win32::CMenuItem pauseMenu(Framework::Win32::CMenuItem::FindById(m_trayPopupMenu, ID_FILE_PAUSE));
@@ -693,16 +693,16 @@ void CMainWindow::UpdateRepeatButton()
 
 void CMainWindow::CreateAudioPluginMenu()
 {
-    Framework::Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
+	Framework::Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
 
-    for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
-    {
-        std::tstring caption = m_handlerInfo[i].name;
-        InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i, caption.c_str());
-    }
+	for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
+	{
+		std::tstring caption = m_handlerInfo[i].name;
+		InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i, caption.c_str());
+	}
 
-    Framework::Win32::CMenuItem pluginMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN));
-    MENUITEMINFO ItemInfo;
+	Framework::Win32::CMenuItem pluginMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN));
+	MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
 	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
 	ItemInfo.fMask		= MIIM_SUBMENU;
@@ -713,11 +713,11 @@ void CMainWindow::CreateAudioPluginMenu()
 
 void CMainWindow::UpdateAudioPluginMenu()
 {
-    for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
-    {
-        Framework::Win32::CMenuItem pluginSubMenuEntry(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i));
-        pluginSubMenuEntry.Check(m_handlerInfo[i].id == m_selectedAudioPlugin);
-    }
+	for(unsigned int i = 0; m_handlerInfo[i].name != NULL; i++)
+	{
+		Framework::Win32::CMenuItem pluginSubMenuEntry(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_AUDIOPLUGIN_PLUGIN_0 + i));
+		pluginSubMenuEntry.Check(m_handlerInfo[i].id == m_selectedAudioPlugin);
+	}
 }
 
 void CMainWindow::LoadAudioPluginPreferences()
@@ -745,25 +745,25 @@ int CMainWindow::FindAudioPlugin(unsigned int pluginId)
 
 void CMainWindow::ChangeAudioPlugin(unsigned int pluginIdx)
 {
-    SOUNDHANDLER_INFO* handlerInfo = m_handlerInfo + pluginIdx;
-    m_selectedAudioPlugin = handlerInfo->id;
+	SOUNDHANDLER_INFO* handlerInfo = m_handlerInfo + pluginIdx;
+	m_selectedAudioPlugin = handlerInfo->id;
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SOUNDHANDLER_ID, m_selectedAudioPlugin);
 	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CMainWindow::CreateHandler, this, handlerInfo->dllName));
-    UpdateAudioPluginMenu();
+	UpdateAudioPluginMenu();
 }
 
 void CMainWindow::CreateCharEncodingMenu()
 {
-    Framework::Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
+	Framework::Win32::CMenuItem pluginSubMenu(CreatePopupMenu());
 
-    for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
-    {
-        std::tstring caption = m_charEncodingInfo[i].name;
-        InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_CHARENCODING_ENCODING_0 + i, caption.c_str());
-    }
+	for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
+	{
+		std::tstring caption = m_charEncodingInfo[i].name;
+		InsertMenu(pluginSubMenu, i, MF_STRING, ID_FILE_CHARENCODING_ENCODING_0 + i, caption.c_str());
+	}
 
-    Framework::Win32::CMenuItem pluginMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARACTERENCODING));
-    MENUITEMINFO ItemInfo;
+	Framework::Win32::CMenuItem pluginMenu(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARACTERENCODING));
+	MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
 	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
 	ItemInfo.fMask		= MIIM_SUBMENU;
@@ -774,11 +774,11 @@ void CMainWindow::CreateCharEncodingMenu()
 
 void CMainWindow::UpdateCharEncodingMenu()
 {
-    for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
-    {
-        Framework::Win32::CMenuItem pluginSubMenuEntry(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARENCODING_ENCODING_0 + i));
-        pluginSubMenuEntry.Check(m_charEncodingInfo[i].id == m_selectedCharEncoding);
-    }
+	for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
+	{
+		Framework::Win32::CMenuItem pluginSubMenuEntry(Framework::Win32::CMenuItem::FindById(m_configPopupMenu, ID_FILE_CHARENCODING_ENCODING_0 + i));
+		pluginSubMenuEntry.Check(m_charEncodingInfo[i].id == m_selectedCharEncoding);
+	}
 }
 
 void CMainWindow::ChangeCharEncoding(unsigned int encodingIdx)
@@ -816,7 +816,7 @@ HACCEL CMainWindow::CreateAccelerators()
 {
 	Framework::Win32::CAcceleratorTableGenerator tableGenerator;
 	tableGenerator.Insert(ID_FILE_PAUSE,			VK_F5,	FVIRTKEY);
-	tableGenerator.Insert(ID_FILE_ENABLEREVERB,		'R',	FVIRTKEY | FCONTROL);	
+	tableGenerator.Insert(ID_FILE_ENABLEREVERB,		'R',	FVIRTKEY | FCONTROL);
 	return tableGenerator.Create();
 }
 
@@ -845,17 +845,17 @@ void CMainWindow::OnNewFrame()
 
 void CMainWindow::OnFileOpen()
 {
-    Framework::Win32::CFileDialog dialog;
-    const TCHAR* filter = 
-	    _T("All Supported Files\0*.zip; *.rar; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp;*") PLAYLIST_EXTENSION _T("\0")
-        PLAYLIST_FILTER
+	Framework::Win32::CFileDialog dialog;
+	const TCHAR* filter = 
+		_T("All Supported Files\0*.zip; *.rar; *.psf; *.minipsf; *.psf2; *.minipsf2; *.psfp; *.minipsfp;*") PLAYLIST_EXTENSION _T("\0")
+		PLAYLIST_FILTER
 		ARCHIVE_FILTER
-	    PSF_FILTER
-	    PSF2_FILTER
+		PSF_FILTER
+		PSF2_FILTER
 		PSFP_FILTER;
-    dialog.m_OFN.lpstrFilter = filter;
-    if(dialog.SummonOpen(m_hWnd))
-    {
+	dialog.m_OFN.lpstrFilter = filter;
+	if(dialog.SummonOpen(m_hWnd))
+	{
 		boost::filesystem::path filePath(dialog.GetPath());
 		std::wstring fileExtension = filePath.extension().wstring();
 		if(!wcsicmp(fileExtension.c_str(), PLAYLIST_EXTENSION))
@@ -870,7 +870,7 @@ void CMainWindow::OnFileOpen()
 		{
 			LoadSingleFile(filePath);
 		}
-    }
+	}
 }
 
 void CMainWindow::OnPause()
@@ -884,12 +884,12 @@ void CMainWindow::OnPause()
 	{
 		m_virtualMachine.Pause();
 	}
-    UpdatePlaybackButtons();
+	UpdatePlaybackButtons();
 }
 
 void CMainWindow::OnPrev()
 {
-    if(m_playlist.GetItemCount() == 0) return;
+	if(m_playlist.GetItemCount() == 0) return;
 	if(m_repeatMode == PLAYLIST_SHUFFLE)
 	{
 		unsigned int itemCount = m_playlist.GetItemCount();
@@ -903,13 +903,13 @@ void CMainWindow::OnPrev()
 			m_currentPlaylistItem--;
 		}
 	}
-    OnPlaylistItemDblClick(m_currentPlaylistItem);
+	OnPlaylistItemDblClick(m_currentPlaylistItem);
 }
 
 void CMainWindow::OnNext()
 {
-    if(m_playlist.GetItemCount() == 0) return;
-    unsigned int itemCount = m_playlist.GetItemCount();
+	if(m_playlist.GetItemCount() == 0) return;
+	unsigned int itemCount = m_playlist.GetItemCount();
 	if(m_repeatMode == PLAYLIST_SHUFFLE)
 	{
 		m_randomSeed = GetNextRandomNumber(m_randomSeed);
@@ -922,7 +922,7 @@ void CMainWindow::OnNext()
 			m_currentPlaylistItem++;
 		}
 	}
-    OnPlaylistItemDblClick(m_currentPlaylistItem);
+	OnPlaylistItemDblClick(m_currentPlaylistItem);
 }
 
 void CMainWindow::OnPrevPanel()
@@ -990,17 +990,17 @@ void CMainWindow::OnAbout()
 void CMainWindow::LoadSingleFile(const boost::filesystem::path& filePath)
 {
 	if(PlayFile(filePath, boost::filesystem::path()))
-    {
-        m_playlist.Clear();
+	{
+		m_playlist.Clear();
 		ResetDiscoveryRun();
 
-        m_currentPlaylistItem = 0;
+		m_currentPlaylistItem = 0;
 
-        CPlaylist::ITEM item;
-        item.path = filePath.wstring();
-        CPlaylist::PopulateItemFromTags(item, m_tags);
-        m_playlist.InsertItem(item);
-    }
+		CPlaylist::ITEM item;
+		item.path = filePath.wstring();
+		CPlaylist::PopulateItemFromTags(item, m_tags);
+		m_playlist.InsertItem(item);
+	}
 }
 
 void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
@@ -1099,7 +1099,7 @@ void CMainWindow::Reset()
 	m_spu1RegViewPanel->SetSpu(NULL);
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
-    m_frames = 0;
+	m_frames = 0;
 	m_lastUpdateTime = ~0;
 	m_trackLength = 0;
 	m_fadePosition = 0;
@@ -1159,10 +1159,10 @@ bool CMainWindow::PlayFile(const boost::filesystem::path& filePath, const boost:
 	EnableWindow(m_hWnd, TRUE);
 
 	UpdateTitle();
-    UpdatePlaybackButtons();
-    UpdateClock();
+	UpdatePlaybackButtons();
+	UpdateClock();
 
-    return m_ready;
+	return m_ready;
 }
 
 void CMainWindow::AddDiscoveryItem(const boost::filesystem::path& filePath, const boost::filesystem::path& archivePath, unsigned int itemId)
