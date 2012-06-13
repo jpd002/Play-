@@ -1,8 +1,6 @@
 TODO:
 
 - Remove HighResTimer.
-- Remove _PSX preprocessor def.
-
 - Fix autodetection of charset for tags
 - Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
 	- SPU updating for too long? (CPU/SPU desync)
@@ -12,6 +10,8 @@ TODO:
 - Display Reverb params in SPU views.
 - DiskOut sound handler.
 - Exception for invalid PSFs
+- Mono sound support
+- Make playlist item visible when doing next or prev.
 
 Done:
 - Fix deadlock problem happening when clicking "next" too much (Happens with FF4/PS2).

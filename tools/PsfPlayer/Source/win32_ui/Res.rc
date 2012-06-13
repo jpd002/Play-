@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -78,7 +76,7 @@ IDI_SHUFFLE_LIST        ICON                    "images\\shuffle_list.ico"
 // Menu
 //
 
-IDR_CONFIG_POPUP MENU 
+IDR_CONFIG_POPUP MENU
 BEGIN
     POPUP "File"
     BEGIN
@@ -103,12 +101,12 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Eject",IDC_EJECT_BUTTON,6,270,204,21
     PUSHBUTTON      "<<",IDC_PREVTAB_BUTTON,6,30,24,18
-    PUSHBUTTON      "",IDC_CONFIG_BUTTON,79,30,24,18,BS_ICON
+    CONTROL         "",IDC_CONFIG_BUTTON,"Button",BS_AUTOCHECKBOX | BS_ICON | BS_PUSHLIKE | WS_TABSTOP,78,30,24,18
     PUSHBUTTON      "",IDC_REPEAT_BUTTON,109,30,24,18,BS_ICON
     PUSHBUTTON      ">>",IDC_NEXTTAB_BUTTON,186,30,24,18
-    PUSHBUTTON      "<<",ID_FILE_PREVIOUSTRACK,6,246,66,21
-    PUSHBUTTON      "Play",IDC_PAUSE_BUTTON,75,246,66,21
-    PUSHBUTTON      ">>",ID_FILE_NEXTTRACK,144,246,66,21
+    PUSHBUTTON      "7",ID_FILE_PREVIOUSTRACK,6,246,66,21
+    PUSHBUTTON      "4",IDC_PAUSE_BUTTON,75,246,66,21
+    PUSHBUTTON      "8",ID_FILE_NEXTTRACK,144,246,66,21
     CONTROL         "",IDC_PLACEHOLDER,"Static",SS_OWNERDRAW | NOT WS_VISIBLE,6,54,204,186
     CTEXT           "Timer Label",IDC_TIMER_LABEL,6,18,204,8
     CTEXT           "Title Label",IDC_TITLE_LABEL,6,6,204,8,SS_NOPREFIX
@@ -167,8 +165,12 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
+    IDD_MAINWINDOW, DIALOG
+    BEGIN
+    END
+
     IDD_PLAYLISTPANEL, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -195,7 +197,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -203,17 +205,15 @@ END
 // French (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-#ifdef _WIN32
 LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_TRAY_POPUP MENU 
+IDR_TRAY_POPUP MENU
 BEGIN
     POPUP "File"
     BEGIN
@@ -233,10 +233,8 @@ END
 // English (Canada) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //

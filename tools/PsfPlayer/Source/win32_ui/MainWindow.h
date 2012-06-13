@@ -101,6 +101,9 @@ private:
 	void								OnAbout();
 	void								OnRepeat();
 	void								OnConfig();
+
+	static LRESULT CALLBACK				MessageHookProc(int, WPARAM, LPARAM);
+
 	bool								PlayFile(const boost::filesystem::path&, const boost::filesystem::path&);
 	void								LoadSingleFile(const boost::filesystem::path&);
 	void								LoadPlaylist(const boost::filesystem::path&);
@@ -143,6 +146,7 @@ private:
 	void								DiscoveryThreadProc();
 
 	HACCEL								CreateAccelerators();
+	HFONT								CreateSymbolFont();
 
 	static uint32						GetNextRandomNumber(uint32);
 	static uint32						GetPrevRandomNumber(uint32);
@@ -173,6 +177,9 @@ private:
 	HMENU								m_trayPopupMenu;
 	HMENU								m_configPopupMenu;
 
+	static HHOOK						g_messageFilterHook;
+	static HWND							g_messageFilterHookWindow;
+
 	Framework::Win32::CAcceleratorTable	m_accel;
 
 	HICON								m_playListOnceIcon;
@@ -201,6 +208,7 @@ private:
 	REPEAT_MODE							m_repeatMode;
 	bool								m_reverbEnabled;
 	uint32								m_randomSeed;
+	HFONT								m_symbolFont;
 
 	boost::thread*						m_discoveryThread;
 	bool								m_discoveryThreadActive;

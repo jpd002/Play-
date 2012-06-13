@@ -29,8 +29,8 @@
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
 #define ARCHIVE_FILTER					_T("Archived Sound Files (*.zip; *.rar)\0*.zip;*.rar\0")
 
-#define TEXT_PLAY						_T("Play")
-#define TEXT_PAUSE						_T("Pause")
+#define TEXT_PLAY						_T("4")
+#define TEXT_PAUSE						_T(";")
 
 #define PREF_REVERB_ENABLED				("reverb.enabled")
 
@@ -54,6 +54,9 @@ CMainWindow::CHARENCODING_INFO CMainWindow::m_charEncodingInfo[] =
 	{	CPsfTags::CE_UTF8,			_T("UTF-8")				},
 	{	NULL,						NULL					},
 };
+
+HHOOK	CMainWindow::g_messageFilterHook = NULL;
+HWND	CMainWindow::g_messageFilterHookWindow = NULL;
 
 CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 : Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_MAINWINDOW))
@@ -94,6 +97,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_trayIconServer(NULL)
 , m_taskBarList(NULL)
 , m_randomSeed(0)
+, m_symbolFont(NULL)
 {
 	OSVERSIONINFO versionInfo;
 	memset(&versionInfo, 0, sizeof(OSVERSIONINFO));
@@ -192,6 +196,12 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	UpdateRepeatButton();
 
 	m_pauseButton = new Framework::Win32::CButton(GetItem(IDC_PAUSE_BUTTON));
+
+	//Initialize symbol font
+	m_symbolFont = CreateSymbolFont();
+	m_pauseButton->SetFont(m_symbolFont);
+	SendMessage(GetItem(ID_FILE_PREVIOUSTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(m_symbolFont), 0);
+	SendMessage(GetItem(ID_FILE_NEXTTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(m_symbolFont), 0);
 
 	//Create tray icon
 	if(m_useTrayIcon)
@@ -820,6 +830,22 @@ HACCEL CMainWindow::CreateAccelerators()
 	return tableGenerator.Create();
 }
 
+HFONT CMainWindow::CreateSymbolFont()
+{
+	HFONT baseFont = m_pauseButton->GetFont();
+	LOGFONT fontDef = { 0 };
+	GetObject(baseFont, sizeof(LOGFONT), &fontDef);
+	fontDef.lfHeight			= MulDiv(fontDef.lfHeight, 3, 2);
+	fontDef.lfWeight			= FW_NORMAL;
+	fontDef.lfCharSet			= DEFAULT_CHARSET;
+	fontDef.lfOutPrecision		= OUT_DEFAULT_PRECIS;
+	fontDef.lfClipPrecision		= CLIP_DEFAULT_PRECIS;
+	fontDef.lfQuality			= DEFAULT_QUALITY;
+	fontDef.lfPitchAndFamily	= DEFAULT_PITCH;
+	_tcscpy(fontDef.lfFaceName, _T("Webdings"));
+	return CreateFontIndirect(&fontDef);
+}
+
 uint32 CMainWindow::GetPrevRandomNumber(uint32 seed)
 {
 	uint32 msb = (seed & 0x80000000) ? 1 : 0;
@@ -959,10 +985,39 @@ void CMainWindow::OnRepeat()
 
 void CMainWindow::OnConfig()
 {
-	POINT p;
 	SetForegroundWindow(m_hWnd);
-	GetCursorPos(&p);
-	TrackPopupMenu(GetSubMenu(m_configPopupMenu, 0), 0, p.x, p.y, NULL, m_hWnd, NULL);
+
+	RECT buttonRect = m_configButton->GetClientRect();
+	ClientToScreen(m_configButton->m_hWnd, reinterpret_cast<POINT*>(&buttonRect) + 0);
+	ClientToScreen(m_configButton->m_hWnd, reinterpret_cast<POINT*>(&buttonRect) + 1);
+
+	TPMPARAMS tpmParams;
+	memset(&tpmParams, 0, sizeof(tpmParams));
+	tpmParams.cbSize = sizeof(tpmParams);
+	tpmParams.rcExclude = buttonRect;
+
+	g_messageFilterHookWindow = m_configButton->m_hWnd;
+	g_messageFilterHook = SetWindowsHookEx(WH_MSGFILTER, MessageHookProc, NULL, GetCurrentThreadId());
+	TrackPopupMenuEx(GetSubMenu(m_configPopupMenu, 0), TPM_VERTICAL, buttonRect.left, buttonRect.top, m_hWnd, &tpmParams);
+	UnhookWindowsHookEx(g_messageFilterHook);
+	g_messageFilterHook = NULL;
+
+	m_configButton->SetCheck(false);
+}
+
+LRESULT CALLBACK CMainWindow::MessageHookProc(int code, WPARAM wParam, LPARAM lParam)
+{
+	auto message = reinterpret_cast<MSG*>(lParam);
+	if(message->message == WM_LBUTTONDOWN)
+	{
+		HWND clickedWindow = WindowFromPoint(message->pt);
+		if(clickedWindow == g_messageFilterHookWindow)
+		{
+			PostMessage(message->hwnd, WM_CANCELMODE, 0, 0);
+			return TRUE;
+		}
+	}
+	return CallNextHookEx(g_messageFilterHook, code, wParam, lParam);
 }
 
 void CMainWindow::ActivatePanel(unsigned int panelIdx)
