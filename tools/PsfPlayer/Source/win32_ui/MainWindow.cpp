@@ -97,7 +97,6 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_trayIconServer(NULL)
 , m_taskBarList(NULL)
 , m_randomSeed(0)
-, m_symbolFont(NULL)
 {
 	OSVERSIONINFO versionInfo;
 	memset(&versionInfo, 0, sizeof(OSVERSIONINFO));
@@ -197,11 +196,22 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 
 	m_pauseButton = new Framework::Win32::CButton(GetItem(IDC_PAUSE_BUTTON));
 
-	//Initialize symbol font
-	m_symbolFont = CreateSymbolFont();
-	m_pauseButton->SetFont(m_symbolFont);
-	SendMessage(GetItem(ID_FILE_PREVIOUSTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(m_symbolFont), 0);
-	SendMessage(GetItem(ID_FILE_NEXTTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(m_symbolFont), 0);
+	//Initialize symbol fonts
+	CreateSymbolFonts();
+
+	{
+		m_pauseButton->SetFont(m_webdingsFont);
+		SendMessage(GetItem(ID_FILE_PREVIOUSTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_webdingsFont)), 0);
+		SendMessage(GetItem(ID_FILE_NEXTTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_webdingsFont)), 0);
+		SendMessage(GetItem(IDC_PREVTAB_BUTTON), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_webdingsFont)), 0);
+		SendMessage(GetItem(IDC_NEXTTAB_BUTTON), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_webdingsFont)), 0);
+	}
+
+	if(m_segoeUiSymbolFont.IsValid())
+	{
+		SendMessage(GetItem(IDC_EJECT_BUTTON), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_segoeUiSymbolFont)), 0);
+		SendMessage(GetItem(IDC_EJECT_BUTTON), WM_SETTEXT, NULL, reinterpret_cast<LPARAM>(_T("\u23CF")));
+	}
 
 	//Create tray icon
 	if(m_useTrayIcon)
@@ -830,20 +840,37 @@ HACCEL CMainWindow::CreateAccelerators()
 	return tableGenerator.Create();
 }
 
-HFONT CMainWindow::CreateSymbolFont()
+void CMainWindow::CreateSymbolFonts()
 {
 	HFONT baseFont = m_pauseButton->GetFont();
-	LOGFONT fontDef = { 0 };
-	GetObject(baseFont, sizeof(LOGFONT), &fontDef);
-	fontDef.lfHeight			= MulDiv(fontDef.lfHeight, 3, 2);
-	fontDef.lfWeight			= FW_NORMAL;
-	fontDef.lfCharSet			= DEFAULT_CHARSET;
-	fontDef.lfOutPrecision		= OUT_DEFAULT_PRECIS;
-	fontDef.lfClipPrecision		= CLIP_DEFAULT_PRECIS;
-	fontDef.lfQuality			= DEFAULT_QUALITY;
-	fontDef.lfPitchAndFamily	= DEFAULT_PITCH;
-	_tcscpy(fontDef.lfFaceName, _T("Webdings"));
-	return CreateFontIndirect(&fontDef);
+
+	{
+		LOGFONT fontDef = { 0 };
+		GetObject(baseFont, sizeof(LOGFONT), &fontDef);
+		fontDef.lfHeight			= MulDiv(fontDef.lfHeight, 4, 3);
+		fontDef.lfWeight			= FW_NORMAL;
+		fontDef.lfCharSet			= DEFAULT_CHARSET;
+		fontDef.lfOutPrecision		= OUT_DEFAULT_PRECIS;
+		fontDef.lfClipPrecision		= CLIP_DEFAULT_PRECIS;
+		fontDef.lfQuality			= DEFAULT_QUALITY;
+		fontDef.lfPitchAndFamily	= DEFAULT_PITCH;
+		_tcscpy(fontDef.lfFaceName, _T("Webdings"));
+		m_webdingsFont = Framework::Win32::CFont(CreateFontIndirect(&fontDef));
+	}
+
+	{
+		LOGFONT fontDef = { 0 };
+		GetObject(baseFont, sizeof(LOGFONT), &fontDef);
+		fontDef.lfHeight			= MulDiv(fontDef.lfHeight, 4, 3);
+		fontDef.lfWeight			= FW_NORMAL;
+		fontDef.lfCharSet			= DEFAULT_CHARSET;
+		fontDef.lfOutPrecision		= OUT_DEFAULT_PRECIS;
+		fontDef.lfClipPrecision		= CLIP_DEFAULT_PRECIS;
+		fontDef.lfQuality			= DEFAULT_QUALITY;
+		fontDef.lfPitchAndFamily	= DEFAULT_PITCH;
+		_tcscpy(fontDef.lfFaceName, _T("Segoe UI Symbol"));
+		m_segoeUiSymbolFont = Framework::Win32::CFont(CreateFontIndirect(&fontDef));
+	}
 }
 
 uint32 CMainWindow::GetPrevRandomNumber(uint32 seed)

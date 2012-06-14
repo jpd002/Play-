@@ -14,6 +14,7 @@
 #include "win32/TrayIconServer.h"
 #include "win32/ToolTip.h"
 #include "win32/TaskBarList.h"
+#include "win32/GdiObj.h"
 #include "PlaylistPanel.h"
 #include "FileInformationPanel.h"
 #include "SpuRegViewPanel.h"
@@ -146,7 +147,7 @@ private:
 	void								DiscoveryThreadProc();
 
 	HACCEL								CreateAccelerators();
-	HFONT								CreateSymbolFont();
+	void								CreateSymbolFonts();
 
 	static uint32						GetNextRandomNumber(uint32);
 	static uint32						GetPrevRandomNumber(uint32);
@@ -208,7 +209,8 @@ private:
 	REPEAT_MODE							m_repeatMode;
 	bool								m_reverbEnabled;
 	uint32								m_randomSeed;
-	HFONT								m_symbolFont;
+	Framework::Win32::CFont				m_webdingsFont;
+	Framework::Win32::CFont				m_segoeUiSymbolFont;
 
 	boost::thread*						m_discoveryThread;
 	bool								m_discoveryThreadActive;
