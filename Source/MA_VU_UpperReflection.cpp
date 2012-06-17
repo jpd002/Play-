@@ -185,7 +185,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX2[32] =
 	{	"MULA",		NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
 	//0x08
 	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SUBA",		NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
 	{	"MULA",		NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"OPMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

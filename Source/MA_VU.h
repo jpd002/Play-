@@ -113,6 +113,7 @@ private:
 		void								FTOI12();
 		void								MULAi();
 		void								ADDAi();
+		void								SUBAi();
 		void								MULA();
 		void								OPMULA();
 

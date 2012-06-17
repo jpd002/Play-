@@ -1040,6 +1040,14 @@ void VUShared::SUBAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint
 		true);
 }
 
+void VUShared::SUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs)
+{
+	SUBA_base(codeGen, dest,
+		offsetof(CMIPS, m_State.nCOP2[fs]),
+		offsetof(CMIPS, m_State.nCOP2I),
+		true);
+}
+
 void VUShared::WAITQ(CMipsJitter* codeGen)
 {
 	FlushPipeline(g_pipeInfoQ, codeGen);
