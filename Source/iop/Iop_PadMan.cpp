@@ -18,11 +18,9 @@ using namespace PS2;
 #define STATE_PADDATA_TYPE		("type")
 
 CPadMan::CPadMan(CSifMan& sif)
+: m_nPadDataAddress(0)
+, m_nPadDataType(PAD_DATA_STD)
 {
-	m_nPadDataAddress = 0;
-	m_nPadDataType = 0;
-	m_pPad = NULL;
-
 	sif.RegisterModule(MODULE_ID_1, this);
 	sif.RegisterModule(MODULE_ID_2, this);
 	sif.RegisterModule(MODULE_ID_3, this);
@@ -84,7 +82,7 @@ void CPadMan::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PADDATA));
 	m_nPadDataAddress	= registerFile.GetRegister32(STATE_PADDATA_ADDRESS);
-	m_nPadDataType		= registerFile.GetRegister32(STATE_PADDATA_TYPE);
+	m_nPadDataType		= static_cast<PAD_DATA_TYPE>(registerFile.GetRegister32(STATE_PADDATA_TYPE));
 }
 
 void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nButton, bool nPressed, uint8* ram)
@@ -109,16 +107,19 @@ void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	uint32 nSlot		= args[2];
 	uint32 nAddress		= args[4];
 
+	CLog::GetInstance().Print(LOG_NAME, "Opening device on port %i and slot %i.\r\n", nPort, nSlot);
+
 	if(nPort == 0)
 	{
 		m_nPadDataAddress = nAddress;
-		m_pPad = reinterpret_cast<PADDATA*>(ram + nAddress);
+
+		m_nPadDataType = GetDataType(ram + m_nPadDataAddress);
+
+		CLog::GetInstance().Print(LOG_NAME, "Detected data type %d.\r\n", m_nPadDataType);
+
+		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + m_nPadDataAddress, 0);
+		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + m_nPadDataAddress, 1);
 	}
-
-	CLog::GetInstance().Print(LOG_NAME, "Opening device on port %i and slot %i.\r\n", nPort, nSlot);
-
-	ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + m_nPadDataAddress, 0);
-	ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + m_nPadDataAddress, 1);
 
 	//Returns 0 on error
 	ret[3] = 0x00000001;
@@ -135,8 +136,6 @@ void CPadMan::Init(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 {
 	assert(retSize >= 0x10);
 
-	m_nPadDataType = 1;
-
 	CLog::GetInstance().Print(LOG_NAME, "Init();\r\n");
 
 	ret[3] = 1;
@@ -151,23 +150,47 @@ void CPadMan::GetModuleVersion(uint32* args, uint32 argsSize, uint32* ret, uint3
 	ret[3] = 0x00000400;
 }
 
-void CPadMan::ExecutePadDataFunction(const PadDataFunction& Function, void* pBase, size_t nOffset)
+void CPadMan::ExecutePadDataFunction(const PadDataFunction& func, void* pBase, size_t nOffset)
 {
 	switch(m_nPadDataType)
 	{
-	case 0:
+	case PAD_DATA_STD:
 		{
 			CPadDataHandler<PADDATA> padData(reinterpret_cast<PADDATA*>(pBase) + nOffset);
-			Function(&padData);
+			func(&padData);
 		}
 		break;
-	case 1:
+	case PAD_DATA_STD80:
 		{
-			CPadDataHandler<PADDATAEXEX> padData(reinterpret_cast<PADDATAEXEX*>(pBase) + nOffset);
-			Function(&padData);
+			CPadDataHandler<PADDATA80> padData(reinterpret_cast<PADDATA80*>(pBase) + nOffset);
+			func(&padData);
+		}
+		break;
+	case PAD_DATA_EX:
+		{
+			CPadDataHandler<PADDATAEX> padData(reinterpret_cast<PADDATAEX*>(pBase) + nOffset);
+			func(&padData);
 		}
 		break;
 	}
+}
+
+CPadMan::PAD_DATA_TYPE CPadMan::GetDataType(uint8* dataAddress)
+{
+	PAD_DATA_TYPE result = PAD_DATA_STD;
+	if((dataAddress[0x08] == 0xFF) && (dataAddress[0x48] == 0xFF))
+	{
+		result = PAD_DATA_STD;
+	}
+	if((dataAddress[0x08] == 0xFF) && (dataAddress[0x88] == 0xFF))
+	{
+		result = PAD_DATA_STD80;
+	}
+	if((dataAddress[0x00] == 0xFF) && (dataAddress[0x80] == 0xFF))
+	{
+		result = PAD_DATA_EX;
+	}
+	return result;
 }
 
 void CPadMan::PDF_InitializeStruct0(CPadDataInterface* pPadData)
@@ -249,24 +272,4 @@ void CPadMan::PDF_SetAxisState(CPadDataInterface* padData, CControllerInfo::BUTT
 
 	padData->SetData(0, 0);
 	padData->SetData(1, MODE << 4);
-}
-
-template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int) 
-{
-
-}
-
-template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int)
-{
-
-}
-
-template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int)
-{
-
-}
-
-template <> void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetNumberOfModes(unsigned int)
-{
-
 }
