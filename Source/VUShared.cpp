@@ -474,6 +474,14 @@ void VUShared::FTOI12(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
+void VUShared::IADD(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->Add();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+}
+
 void VUShared::IADDI(CMipsJitter* codeGen, uint8 it, uint8 is, uint8 imm5)
 {
 	PushIntegerRegister(codeGen, is);
@@ -735,6 +743,12 @@ void VUShared::MSUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs)
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2I),
 		true);
+}
+
+void VUShared::MTIR(CMipsJitter* codeGen, uint8 it, uint8 fs, uint8 fsf)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[fs].nV[fsf]));
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
 void VUShared::MUL(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)

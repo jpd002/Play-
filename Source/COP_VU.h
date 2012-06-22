@@ -86,6 +86,7 @@ private:
 	void								VMSUB();
 	void								VOPMSUB();
 	void								VMINI();
+	void								VIADD();
 	void								VIADDI();
 	void								VCALLMS();
 	void								VX0();
@@ -107,6 +108,7 @@ private:
 	void								VADDA();
 	void								VMOVE();
 	void								VDIV();
+	void								VMTIR();
 	void								VRNEXT();
 
 	//V1

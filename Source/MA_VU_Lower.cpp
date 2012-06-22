@@ -440,10 +440,7 @@ void CMA_VU::CLower::LOWEROP()
 //30
 void CMA_VU::CLower::IADD()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->Add();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
+	VUShared::IADD(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //31
@@ -540,8 +537,7 @@ void CMA_VU::CLower::DIV()
 //0F
 void CMA_VU::CLower::MTIR()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::MTIR(m_codeGen, m_nIT, m_nIS, m_nFSF);
 }
 
 //10

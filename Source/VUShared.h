@@ -90,6 +90,7 @@ namespace VUShared
 	void						FTOI0(CMipsJitter*, uint8, uint8, uint8);
 	void						FTOI4(CMipsJitter*, uint8, uint8, uint8);
 	void						FTOI12(CMipsJitter*, uint8, uint8, uint8);
+	void						IADD(CMipsJitter*, uint8, uint8, uint8);
 	void						IADDI(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF0(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF4(CMipsJitter*, uint8, uint8, uint8);
@@ -117,6 +118,7 @@ namespace VUShared
 	void						MSUBA(CMipsJitter*, uint8, uint8, uint8);
 	void						MSUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MSUBAi(CMipsJitter*, uint8, uint8);
+	void						MTIR(CMipsJitter*, uint8, uint8, uint8);
 	void						MUL(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MULbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						MULi(CMipsJitter*, uint8, uint8, uint8);
@@ -165,6 +167,8 @@ namespace VUShared
 	void						ReflOpFtR(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpQFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpQFsfFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpIdIsIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpItFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpItIsImm5(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
 	void						ReflOpAffAccFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);

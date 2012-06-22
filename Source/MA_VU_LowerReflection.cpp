@@ -55,15 +55,6 @@ void CMA_VU::CLower::ReflOpItIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 	sprintf(sText, "VI%i, VI%i", nIT, nIS);
 }
 
-void CMA_VU::CLower::ReflOpItFsf(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
-{
-	uint8 nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 nFSF	= static_cast<uint8>((nOpcode >> 21) & 0x0003);
-
-	sprintf(sText, "VI%i, VF%i%s", nIT, nFS, m_sBroadcast[nFSF]);
-}
-
 void CMA_VU::CLower::ReflOpOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint16 nImm	= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
@@ -101,15 +92,6 @@ void CMA_VU::CLower::ReflOpItIsImm15(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nA
 	uint16	nImm	= static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x01E00000) >> 10);
 
 	sprintf(sText, "VI%i, VI%i, $%0.4X", nIT, nIS, nImm);
-}
-
-void CMA_VU::CLower::ReflOpIdIsIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
-{
-	uint8 nIT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nIS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 nID = static_cast<uint8>((nOpcode >>  6) & 0x001F);
-
-	sprintf(sText, "VI%i, VI%i, VI%i", nID, nIS, nIT);
 }
 
 void CMA_VU::CLower::ReflOpItIsDst(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)

@@ -235,7 +235,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VOPMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	//0x30
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VIADD",	NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	"VIADDI",	NULL,			CopyMnemonic,		ReflOpItIsImm5,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
@@ -273,7 +273,7 @@ INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 	{	"VMOVE",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VDIV",		NULL,			CopyMnemonic,		ReflOpQFsfFtf,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMTIR",	NULL,			CopyMnemonic,		ReflOpItFsf,		NULL,				NULL			},
 	//0x10
 	{	"VRNEXT",	NULL,			CopyMnemonic,		ReflOpFtR,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

@@ -360,6 +360,12 @@ void CCOP_VU::VMINI()
 	VUShared::MINI(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
 }
 
+//30
+void CCOP_VU::VIADD()
+{
+	VUShared::IADD(m_codeGen, m_nID, m_nIS, m_nIT);
+}
+
 //32
 void CCOP_VU::VIADDI()
 {
@@ -475,6 +481,12 @@ void CCOP_VU::VMOVE()
 void CCOP_VU::VDIV()
 {
 	VUShared::DIV(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF, 0);
+}
+
+//0F
+void CCOP_VU::VMTIR()
+{
+	VUShared::MTIR(m_codeGen, m_nIT, m_nIS, m_nFSF);
 }
 
 //10
@@ -646,7 +658,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x28
 	&CCOP_VU::VADD,			&CCOP_VU::VMADD,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::VMSUB,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
 	//0x30
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::VIADD,		&CCOP_VU::Illegal,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x38
 	&CCOP_VU::VCALLMS,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
 };
@@ -656,7 +668,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF0,		&CCOP_VU::VFTOI0,		&CCOP_VU::VMULAbc,		&CCOP_VU::VMULAq,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::Illegal,		&CCOP_VU::VMOVE,		&CCOP_VU::Illegal,		&CCOP_VU::VDIV,			&CCOP_VU::Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::Illegal,		&CCOP_VU::VMOVE,		&CCOP_VU::Illegal,		&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
 	//0x10
 	&CCOP_VU::VRNEXT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
