@@ -1175,12 +1175,18 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		}
 		break;
 	case GS_REG_SCISSOR_1:
-		CLog::GetInstance().Print(LOG_NAME, "SCISSOR_1(%i, %i, %i, %i);\r\n", \
-			(uint32)((nData >>  0) & 0xFFFF), \
-			(uint32)((nData >> 16) & 0xFFFF), \
-			(uint32)((nData >> 32) & 0xFFFF), \
-			(uint32)((nData >> 48) & 0xFFFF));
-		break;
+	case GS_REG_SCISSOR_2:
+		{
+			SCISSOR scissor;
+			scissor <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "SCISSOR_%i(scax0: %i, scax1: %i, scay0: %i, scay1: %i);\r\n", 
+				nRegister == GS_REG_SCISSOR_1 ? 1 : 2,
+				scissor.scax0,
+				scissor.scax1,
+				scissor.scay0,
+				scissor.scay1);
+			break;
+		}
 	case GS_REG_TEST_1:
 	case GS_REG_TEST_2:
 		{

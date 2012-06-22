@@ -41,6 +41,7 @@ enum GS_REGS
 	GS_REG_FOGCOL		= 0x3D,
 	GS_REG_TEXFLUSH		= 0x3F,
 	GS_REG_SCISSOR_1	= 0x40,
+	GS_REG_SCISSOR_2	= 0x41,
 	GS_REG_ALPHA_1		= 0x42,
 	GS_REG_ALPHA_2		= 0x43,
 	GS_REG_TEST_1		= 0x47,
@@ -359,6 +360,20 @@ protected:
 		uint32			GetOffsetU()	{ return nCOU * 16; }
 		uint32			GetOffsetV()	{ return nCOV; }
 	};
+
+	//Reg 0x40/0x41
+	struct SCISSOR : public convertible<uint64>
+	{
+		unsigned int	scax0			: 11;
+		unsigned int	reserved0		: 5;
+		unsigned int	scax1			: 11;
+		unsigned int	reserved1		: 5;
+		unsigned int	scay0			: 11;
+		unsigned int	reserved2		: 5;
+		unsigned int	scay1			: 11;
+		unsigned int	reserved3		: 5;
+	};
+	static_assert(sizeof(SCISSOR) == sizeof(uint64), "Size of SCISSOR struct must be 8 bytes.");
 
 	//Reg 0x42/0x43
 	struct ALPHA : public convertible<uint64>
