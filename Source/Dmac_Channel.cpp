@@ -4,7 +4,9 @@
 #include "Dmac_Channel.h"
 #include "DMAC.h"
 #include "RegisterStateFile.h"
+#include "Log.h"
 
+#define LOG_NAME				("dmac")
 #define STATE_PREFIX			("dmac/channel_")
 #define STATE_SUFFIX			(".xml")
 #define STATE_REGS_CHCR			("CHCR")
@@ -111,6 +113,13 @@ void CChannel::Execute()
 			{
 				throw std::runtime_error("Need to check that case.");
 			}
+			return;
+		}
+		if((m_nNumber == 1) && (m_CHCR.nDIR == 0))
+		{
+			//Humm, destination mode, not supported for now.
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Using destination mode for channel %d. Cancelling transfer.\r\n", m_nNumber);
+			m_CHCR.nSTR = 0;
 			return;
 		}
 		switch(m_CHCR.nMOD)
