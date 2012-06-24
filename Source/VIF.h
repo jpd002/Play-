@@ -84,9 +84,8 @@ public:
 								CFifoStream(uint8*, uint8*);
 		virtual					~CFifoStream();
 
-		uint32					GetAddress() const;
 		uint32					GetAvailableReadBytes() const;
-		uint32					GetAvailableReadQwords() const;
+		uint32					GetRemainingDmaTransferSize() const;
 		void					Read(void*, uint32);
 		void					Flush();
 		void					Align32();
@@ -104,8 +103,7 @@ public:
 		};
 
 		uint128					m_buffer;
-		uint32					m_position;
-		uint32					m_address;
+		uint32					m_bufferPosition;
 		uint32					m_nextAddress;
 		uint32					m_endAddress;
 		uint8*					m_source;

@@ -63,6 +63,8 @@ void CVIF::SetEnabled(bool enabled)
 
 void CVIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
+	//TODO: Save FifoStream states
+
 	{
 		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
 		registerFile->SetRegister32(STATE_REGS_VPU_STAT, m_VPU_STAT);
@@ -134,7 +136,7 @@ uint32 CVIF::ProcessDMAPacket(unsigned int vpuNumber, uint32 address, uint32 qwc
 	CProfiler::GetInstance().EndZone();
 #endif
 
-	uint32 remainingSize = m_stream[vpuNumber]->GetAvailableReadQwords();
+	uint32 remainingSize = m_stream[vpuNumber]->GetRemainingDmaTransferSize();
 	assert((remainingSize & 0x0F) == 0);
 	remainingSize /= 0x10;
 
@@ -242,10 +244,9 @@ CVIF::CFifoStream::CFifoStream(uint8* ram, uint8* spr)
 : m_ram(ram)
 , m_spr(spr)
 , m_source(NULL)
-, m_address(0)
 , m_endAddress(0)
 , m_nextAddress(0)
-, m_position(BUFFERSIZE)
+, m_bufferPosition(BUFFERSIZE)
 {
 
 }
@@ -262,74 +263,70 @@ void CVIF::CFifoStream::Read(void* buffer, uint32 size)
 	while(size != 0)
 	{
 		SyncBuffer();
-		uint32 read = std::min<uint32>(size, BUFFERSIZE - m_position);
+		uint32 read = std::min<uint32>(size, BUFFERSIZE - m_bufferPosition);
 		if(readBuffer != NULL)
 		{
-			memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_position, read);
+			memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, read);
 			readBuffer += read;
 		}
-		m_position += read;
+		m_bufferPosition += read;
 		size -= read;
 	}
 }
 
 void CVIF::CFifoStream::Flush()
 {
-	m_position = BUFFERSIZE;
+	m_bufferPosition = BUFFERSIZE;
 }
 
-void CVIF::CFifoStream::SetDmaParams(uint32 address, uint32 qwc)
+void CVIF::CFifoStream::SetDmaParams(uint32 address, uint32 size)
 {
 	if(address & 0x80000000)
 	{
 		m_source = m_spr;
-		m_address = address & (PS2::SPRSIZE - 1);
-		assert((m_address + qwc) <= PS2::SPRSIZE);
+		address &= (PS2::SPRSIZE - 1);
+		assert((address + size) <= PS2::SPRSIZE);
 	}
 	else
 	{
 		m_source = m_ram;
-		m_address = address & (PS2::EERAMSIZE - 1);
+		address &= (PS2::EERAMSIZE - 1);
+		assert((address + size) <= PS2::EERAMSIZE);
 	}
-	m_nextAddress = m_address;
-	m_endAddress = m_address + qwc;
+	m_nextAddress = address;
+	m_endAddress = address + size;
 	SyncBuffer();
-}
-
-uint32 CVIF::CFifoStream::GetAddress() const
-{
-	return m_address + m_position;
 }
 
 uint32 CVIF::CFifoStream::GetAvailableReadBytes() const
 {
-	return m_endAddress - GetAddress();
+	return GetRemainingDmaTransferSize() + (BUFFERSIZE - m_bufferPosition);
 }
 
-uint32 CVIF::CFifoStream::GetAvailableReadQwords() const
+uint32 CVIF::CFifoStream::GetRemainingDmaTransferSize() const
 {
 	return m_endAddress - m_nextAddress;
 }
 
 void CVIF::CFifoStream::Align32()
 {
-	unsigned int remainBytes = GetAddress() & 0x03;
+	unsigned int remainBytes = m_bufferPosition & 0x03;
 	if(remainBytes == 0) return;
 	Read(NULL, 4 - remainBytes);
-	assert((GetAddress() & 0x03) == 0);
+	assert((m_bufferPosition & 0x03) == 0);
 }
 
 void CVIF::CFifoStream::SyncBuffer()
 {
-	if(m_position >= BUFFERSIZE)
+	assert(m_bufferPosition <= BUFFERSIZE);
+	if(m_bufferPosition >= BUFFERSIZE)
 	{
 		if(m_nextAddress >= m_endAddress)
 		{
 			throw std::exception();
 		}
-		m_address = m_nextAddress;
 		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
 		m_nextAddress += 0x10;
-		m_position = 0;
+		m_bufferPosition = 0;
 	}
 }

@@ -155,7 +155,16 @@ void CVPU::ProcessPacket(StreamType& stream)
 		{
 			//Command is waiting for more data...
 			ExecuteCommand(stream, m_CODE);
-			continue;
+
+			if((m_STAT.nVPS == 1) && (stream.GetAvailableReadBytes() != 0))
+			{
+				//We have data in our FIFO but we still need more than what's available
+				break;
+			}
+			else
+			{
+				continue;
+			}
 		}
 		if(m_STAT.nVEW == 1)
 		{
@@ -481,7 +490,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 				}
 				else if(maskOp == MASK_MASK)
 				{
-
+					assert(0);
 				}
 				else
 				{
