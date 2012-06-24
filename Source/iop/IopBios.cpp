@@ -729,6 +729,11 @@ void CIopBios::UnlinkThread(uint32 threadId)
 
 void CIopBios::Reschedule()
 {
+	if((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) != 0)
+	{
+		return;
+	}
+
 	if(CurrentThreadId() != -1)
 	{
 		SaveThreadContext(CurrentThreadId());

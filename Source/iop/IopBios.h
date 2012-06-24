@@ -76,6 +76,8 @@ public:
 	void						HandleException();
 	void						HandleInterrupt();
 
+	void						Reschedule();
+
 	void						CountTicks(uint32);
 	uint64						GetCurrentTime();
 	uint64						MilliSecToClock(uint32);
@@ -229,7 +231,6 @@ private:
 	void							ExitCurrentThread();
 	void							LoadThreadContext(uint32);
 	void							SaveThreadContext(uint32);
-	void							Reschedule();
 	uint32							GetNextReadyThread();
 	void							ReturnFromException();
 

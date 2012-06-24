@@ -220,6 +220,7 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 	thread->context.gpr[CMIPS::S0] = serverDataAddr;
 	thread->context.gpr[CMIPS::RA] = m_returnFromRpcInvokeAddr;
 	m_bios.WakeupThread(dataQueue->threadId, true);
+	m_bios.Reschedule();
 }
 
 void CSifCmd::ReturnFromRpcInvoke(CMIPS& context)
