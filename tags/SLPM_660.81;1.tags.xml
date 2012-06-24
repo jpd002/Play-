@@ -707,6 +707,9 @@
 			<tag address="00028554" value="sysclib_unknown" />
 			<tag address="0002855C" value="sysclib_unknown" />
 			<tag address="00028564" value="sysclib_strtol" />
+			<tag address="0002C0E4" value="intrman_SuspendInterrupts" />
+			<tag address="0002C0EC" value="intrman_ResumeInterrupts" />
+			<tag address="0002C110" value="loadcore_RegisterLibraryEntries" />
 			<tag address="0002D924" value="intrman_SuspendInterrupts" />
 			<tag address="0002D92C" value="intrman_ResumeInterrupts" />
 			<tag address="0002D950" value="loadcore_RegisterLibraryEntries" />
@@ -931,6 +934,14 @@
 			<tag address="00056844" value="intrman_SuspendInterrupts" />
 			<tag address="0005684C" value="intrman_ResumeInterrupts" />
 			<tag address="00056870" value="loadcore_RegisterLibraryEntries" />
+			<tag address="00056F64" value="intrman_SuspendInterrupts" />
+			<tag address="00056F6C" value="intrman_ResumeInterrupts" />
+			<tag address="00056F90" value="loadcore_RegisterLibraryEntries" />
+			<tag address="00056FB4" value="stdio_printf" />
+			<tag address="00056FD8" value="sysclib_unknown" />
+			<tag address="00056FE0" value="sysclib_strlen" />
+			<tag address="00056FE8" value="sysclib_unknown" />
+			<tag address="00056FF0" value="sysclib_strtol" />
 			<tag address="00058A94" value="loadcore_RegisterLibraryEntries" />
 			<tag address="00058A9C" value="loadcore_unknown" />
 			<tag address="00058AC0" value="intrman_EnableInterrupts" />
@@ -1554,6 +1565,8 @@
 			<module beginAddress="00072D60" endAddress="00084E30" name="cdrom0:\MODULES\EZMIDI.IRX;1" />
 			<module beginAddress="00088E40" endAddress="0008CA98" name="cdrom0:\MODULES\EZADPCM.IRX;1" />
 			<module beginAddress="00084E40" endAddress="00087470" name="cdrom0:\MODULES\EZBGM.IRX;1" />
+			<module beginAddress="00053B00" endAddress="000576F4" name="cdrom0:\MODULES\MODMIDI.IRX;1" />
+			<module beginAddress="0002A4C0" endAddress="0002C160" name="cdrom0:\MODULES\MODSEIN.IRX;1" />
 		</modules>
 	</iop>
 </tags>

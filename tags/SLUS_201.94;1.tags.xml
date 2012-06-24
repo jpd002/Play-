@@ -441,8 +441,8 @@
 			<tag address="0003ADF0" value="thsemap_SignalSemaphore" />
 			<tag address="0003ADF8" value="thsemap_WaitSemaphore" />
 			<tag address="0003AE1C" value="timrman_AllocHardTimer" />
-			<tag address="0003AE24" value="timrman_unknown" />
-			<tag address="0003AE2C" value="timrman_unknown" />
+			<tag address="0003AE24" value="timrman_ReferHardTimer" />
+			<tag address="0003AE2C" value="timrman_SetTimerMode" />
 			<tag address="0003AE34" value="timrman_unknown" />
 			<tag address="0003AE58" value="modload_unknown" />
 			<tag address="0003AE7C" value="ioman_unknown" />
