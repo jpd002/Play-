@@ -352,7 +352,11 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 	ALPHA alpha;
 	alpha <<= nData;
 
-	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
+	if((alpha.nA == 0) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
+	{
+		glBlendFunc(GL_ONE, GL_ZERO);
+	}
+	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
@@ -421,6 +425,11 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 		glBlendFunc(GL_ZERO, GL_ONE);
 		//REMOVE
 	}
+	else if((alpha.nA == 2) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 1))
+	{
+		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	}
 	else
 	{
 #ifdef _DEBUG
@@ -452,6 +461,9 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 			break;
 		case 2:
 			nFunc = GL_LESS;
+			break;
+		case 4:
+			nFunc = GL_EQUAL;
 			break;
 		case 5:
 			nFunc = GL_GEQUAL;
