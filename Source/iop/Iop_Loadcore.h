@@ -8,31 +8,31 @@ class CIopBios;
 
 namespace Iop
 {
-    class CLoadcore : public CModule, public CSifModule
-    {
-    public:
-                        CLoadcore(CIopBios&, uint8*, CSifMan&);
-        virtual         ~CLoadcore();
+	class CLoadcore : public CModule, public CSifModule
+	{
+	public:
+						CLoadcore(CIopBios&, uint8*, CSifMan&);
+		virtual			~CLoadcore();
 
-        std::string     GetId() const;
+		std::string		GetId() const;
 		std::string		GetFunctionName(unsigned int) const;
-        void            Invoke(CMIPS&, unsigned int);
-        bool            Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		void			Invoke(CMIPS&, unsigned int);
+		bool			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
-    private:
+	private:
 		enum MODULE_ID
 		{
 			MODULE_ID = 0x80000006
 		};
 
-        uint32          RegisterLibraryEntries(uint32*);
-        void            LoadModule(uint32*, uint32, uint32*, uint32);
-        void            LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
-        void            Initialize(uint32*, uint32, uint32*, uint32);
+		uint32			RegisterLibraryEntries(uint32*);
+		void			LoadModule(uint32*, uint32, uint32*, uint32);
+		void			LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
+		void			Initialize(uint32*, uint32, uint32*, uint32);
 
-        CIopBios&       m_bios;
-        uint8*          m_ram;
-    };
+		CIopBios&		m_bios;
+		uint8*			m_ram;
+	};
 }
 
 #endif
