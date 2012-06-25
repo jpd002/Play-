@@ -14,7 +14,7 @@ void CMemoryMap::InsertReadMap(uint32 nStart, uint32 nEnd, void* pPointer, unsig
 
 void CMemoryMap::InsertReadMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
-    InsertMap(m_readMap, start, end, handler, key);
+	InsertMap(m_readMap, start, end, handler, key);
 }
 
 void CMemoryMap::InsertWriteMap(uint32 nStart, uint32 nEnd, void* pPointer, unsigned char nKey)
@@ -24,22 +24,22 @@ void CMemoryMap::InsertWriteMap(uint32 nStart, uint32 nEnd, void* pPointer, unsi
 
 void CMemoryMap::InsertWriteMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
-    InsertMap(m_writeMap, start, end, handler, key);
+	InsertMap(m_writeMap, start, end, handler, key);
 }
 
 void CMemoryMap::InsertInstructionMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
-    InsertMap(m_instructionMap, start, end, pointer, key);
+	InsertMap(m_instructionMap, start, end, pointer, key);
 }
 
 const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetReadMap(uint32 address) const
 {
-    return GetMap(m_readMap, address);
+	return GetMap(m_readMap, address);
 }
 
 const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetWriteMap(uint32 address) const
 {
-    return GetMap(m_writeMap, address);
+	return GetMap(m_writeMap, address);
 }
 
 void CMemoryMap::SetWriteNotifyHandler(const WriteNotifyHandlerType& WriteNotifyHandler)
@@ -50,21 +50,21 @@ void CMemoryMap::SetWriteNotifyHandler(const WriteNotifyHandlerType& WriteNotify
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, void* pointer, unsigned char key)
 {
 	MEMORYMAPELEMENT element;
-	element.nStart      = start;
-	element.nEnd        = end;
-	element.pPointer    = pointer;
-	element.nType       = MEMORYMAP_TYPE_MEMORY;
+	element.nStart		= start;
+	element.nEnd		= end;
+	element.pPointer	= pointer;
+	element.nType		= MEMORYMAP_TYPE_MEMORY;
 	memoryMap.push_back(element);
 }
 
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
 	MEMORYMAPELEMENT element;
-	element.nStart      = start;
-	element.nEnd        = end;
-	element.handler     = handler;
-	element.pPointer    = NULL;
-	element.nType       = MEMORYMAP_TYPE_FUNCTION;
+	element.nStart		= start;
+	element.nEnd		= end;
+	element.handler		= handler;
+	element.pPointer	= NULL;
+	element.nType		= MEMORYMAP_TYPE_FUNCTION;
 	memoryMap.push_back(element);
 }
 
@@ -93,7 +93,7 @@ uint8 CMemoryMap::GetByte(uint32 nAddress)
 		return *(uint8*)&((uint8*)e->pPointer)[nAddress - e->nStart];
 		break;
 	case MEMORYMAP_TYPE_FUNCTION:
-        return static_cast<uint8>(e->handler(nAddress, 0));
+		return static_cast<uint8>(e->handler(nAddress, 0));
 		break;
 	default:
 		assert(0);
@@ -116,7 +116,7 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 		*(uint8*)&((uint8*)e->pPointer)[nAddress - e->nStart] = nValue;
 		break;
 	case MEMORYMAP_TYPE_FUNCTION:
-        e->handler(nAddress, nValue);
+		e->handler(nAddress, nValue);
 		break;
 	default:
 		assert(0);
@@ -144,14 +144,14 @@ uint16 CMemoryMap_LSBF::GetHalf(uint32 nAddress)
 		return *(uint16*)&((uint8*)e->pPointer)[nAddress - e->nStart];
 		break;
 	default:
-        return static_cast<uint16>(e->handler(nAddress, 0));
+		return static_cast<uint16>(e->handler(nAddress, 0));
 		break;
 	}
 }
 
 uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 {
-    assert((nAddress & 0x03) == 0);
+	assert((nAddress & 0x03) == 0);
 	const MEMORYMAPELEMENT* e = GetMap(m_readMap, nAddress);
 	if(e == NULL) return 0xCCCCCCCC;
 	switch(e->nType)
@@ -160,7 +160,7 @@ uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 		return *(uint32*)&((uint8*)e->pPointer)[nAddress - e->nStart];
 		break;
 	case MEMORYMAP_TYPE_FUNCTION:
-        return e->handler(nAddress, 0);
+		return e->handler(nAddress, 0);
 		break;
 	default:
 		assert(0);
@@ -171,7 +171,7 @@ uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 
 uint32 CMemoryMap_LSBF::GetInstruction(uint32 address)
 {
-    assert((address & 0x03) == 0);
+	assert((address & 0x03) == 0);
 	const MEMORYMAPELEMENT* e = GetMap(m_instructionMap, address);
 	if(e == NULL) return 0xCCCCCCCC;
 	switch(e->nType)
@@ -229,7 +229,7 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 		*(uint32*)&((uint8*)e->pPointer)[nAddress - e->nStart] = nValue;
 		break;
 	case MEMORYMAP_TYPE_FUNCTION:
-        e->handler(nAddress, nValue);
+		e->handler(nAddress, nValue);
 		break;
 	default:
 		assert(0);
