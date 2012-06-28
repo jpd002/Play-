@@ -1,5 +1,8 @@
 #include "Iop_Thsema.h"
 #include "IopBios.h"
+#include "../Log.h"
+
+#define LOG_NAME ("iop_thsema")
 
 using namespace Iop;
 
@@ -81,7 +84,7 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
 		break;
 	}
 }
