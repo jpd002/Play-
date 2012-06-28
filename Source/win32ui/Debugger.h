@@ -1,7 +1,6 @@
 #ifndef _DEBUGGER_H_
 #define _DEBUGGER_H_
 
-#include <boost/signal.hpp>
 #include "win32/MDIFrame.h"
 #include "ELFView.h"
 #include "FunctionsView.h"
@@ -9,7 +8,7 @@
 #include "DebugView.h"
 #include "../PS2VM.h"
 
-class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals::trackable
+class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals2::trackable
 {
 public:
 									CDebugger(CPS2VM&);
