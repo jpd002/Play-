@@ -3,7 +3,6 @@
 #include "../Log.h"
 
 using namespace Iop;
-using namespace std;
 
 #define LOG_NAME ("iop_thbase")
 
@@ -33,12 +32,12 @@ CThbase::~CThbase()
 
 }
 
-string CThbase::GetId() const
+std::string CThbase::GetId() const
 {
 	return "thbase";
 }
 
-string CThbase::GetFunctionName(unsigned int functionId) const
+std::string CThbase::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
