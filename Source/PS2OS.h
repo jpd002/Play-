@@ -206,10 +206,13 @@ private:
 
 	enum THREAD_STATUS
 	{
-		THREAD_RUNNING		= 0x01,
-		THREAD_SUSPENDED	= 0x02,
-		THREAD_WAITING		= 0x03,
-		THREAD_ZOMBIE		= 0x04,
+		THREAD_RUNNING				= 0x01,
+		THREAD_SLEEPING				= 0x02,
+		THREAD_WAITING				= 0x03,
+		THREAD_SUSPENDED			= 0x04,
+		THREAD_SUSPENDED_WAITING	= 0x05,
+		THREAD_SUSPENDED_SLEEPING	= 0x06,
+		THREAD_ZOMBIE				= 0x07,
 	};
 
 	typedef void (CPS2OS::*SystemCallHandler)();
@@ -278,6 +281,8 @@ private:
 	void									sc_ReferThreadStatus();
 	void									sc_SleepThread();
 	void									sc_WakeupThread();
+	void									sc_SuspendThread();
+	void									sc_ResumeThread();
 	void									sc_SetupThread();
 	void									sc_SetupHeap();
 	void									sc_EndOfHeap();

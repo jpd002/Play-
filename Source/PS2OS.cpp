@@ -68,6 +68,8 @@
 #define SYSCALL_NAME_SLEEPTHREAD			"osSleepThread"
 #define SYSCALL_NAME_WAKEUPTHREAD			"osWakeupThread"
 #define SYSCALL_NAME_IWAKEUPTHREAD			"osiWakeupThread"
+#define SYSCALL_NAME_SUSPENDTHREAD			"osSuspendThread"
+#define SYSCALL_NAME_RESUMETHREAD			"osResumeThread"
 #define SYSCALL_NAME_ENDOFHEAP				"osEndOfHeap"
 #define SYSCALL_NAME_CREATESEMA				"osCreateSema"
 #define SYSCALL_NAME_DELETESEMA				"osDeleteSema"
@@ -99,6 +101,8 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0032,		SYSCALL_NAME_SLEEPTHREAD			},
 	{	0x0033,		SYSCALL_NAME_WAKEUPTHREAD			},
 	{	0x0034,		SYSCALL_NAME_IWAKEUPTHREAD			},
+	{	0x0037,		SYSCALL_NAME_SUSPENDTHREAD			},
+	{	0x0039,		SYSCALL_NAME_RESUMETHREAD			},
 	{	0x003E,		SYSCALL_NAME_ENDOFHEAP				},
 	{	0x0040,		SYSCALL_NAME_CREATESEMA				},
 	{	0x0041,		SYSCALL_NAME_DELETESEMA				},
@@ -352,11 +356,20 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadInfos() const
 		case THREAD_RUNNING:
 			threadInfo.stateDescription = "Running";
 			break;
-		case THREAD_SUSPENDED:
-			threadInfo.stateDescription = "Suspended/Sleeping";
+		case THREAD_SLEEPING:
+			threadInfo.stateDescription = "Sleeping";
 			break;
 		case THREAD_WAITING:
 			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
+			break;
+		case THREAD_SUSPENDED:
+			threadInfo.stateDescription = "Suspended";
+			break;
+		case THREAD_SUSPENDED_SLEEPING:
+			threadInfo.stateDescription = "Suspended+Sleeping";
+			break;
+		case THREAD_SUSPENDED_WAITING:
+			threadInfo.stateDescription = "Suspended+Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
 			break;
 		case THREAD_ZOMBIE:
 			threadInfo.stateDescription = "Zombie";
@@ -1194,7 +1207,7 @@ uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrLO)
 
 void CPS2OS::sc_Unhandled()
 {
-	printf("PS2OS: Unknown system call (%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
+	printf("PS2OS: Unknown system call (0x%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
 }
 
 //02
@@ -1391,9 +1404,12 @@ void CPS2OS::sc_DisableDmac()
 	if(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & nRegister)
 	{
 		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, nRegister);
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = 1;
 	}
-
-	m_ee.m_State.nGPR[SC_RETURN].nD0 = 1;
+	else
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;
+	}
 }
 
 //20
@@ -1617,10 +1633,15 @@ void CPS2OS::sc_ReferThreadStatus()
 		nRet = 0x01;
 		break;
 	case THREAD_WAITING:
+	case THREAD_SLEEPING:
 		nRet = 0x04;
 		break;
 	case THREAD_SUSPENDED:
 		nRet = 0x08;
+		break;
+	case THREAD_SUSPENDED_WAITING:
+	case THREAD_SUSPENDED_SLEEPING:
+		nRet = 0x0C;
 		break;
 	case THREAD_ZOMBIE:
 		nRet = 0x10;
@@ -1648,7 +1669,8 @@ void CPS2OS::sc_SleepThread()
 	THREAD* pThread = GetThread(GetCurrentThreadId());
 	if(pThread->nWakeUpCount == 0)
 	{
-		pThread->nStatus = THREAD_SUSPENDED;
+		assert(pThread->nStatus == THREAD_RUNNING);
+		pThread->nStatus = THREAD_SLEEPING;
 		ThreadShakeAndBake();
 		return;
 	}
@@ -1665,15 +1687,88 @@ void CPS2OS::sc_WakeupThread()
 
 	THREAD* pThread = GetThread(nID);
 
-	if(pThread->nStatus == THREAD_SUSPENDED)
+	if(
+		(pThread->nStatus == THREAD_SLEEPING) || 
+		(pThread->nStatus == THREAD_SUSPENDED_SLEEPING))
 	{
-		pThread->nStatus = THREAD_RUNNING;
+		switch(pThread->nStatus)
+		{
+		case THREAD_SLEEPING:
+			pThread->nStatus = THREAD_RUNNING;
+			break;
+		case THREAD_SUSPENDED_SLEEPING:
+			pThread->nStatus = THREAD_SUSPENDED;
+			break;
+		default:
+			assert(0);
+			break;
+		}
 		ThreadShakeAndBake();
 	}
 	else
 	{
 		pThread->nWakeUpCount++;
 	}
+}
+
+//37
+void CPS2OS::sc_SuspendThread()
+{
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	
+	THREAD* pThread = GetThread(nID);
+	if(!pThread->nValid)
+	{
+		return;
+	}
+
+	switch(pThread->nStatus)
+	{
+	case THREAD_RUNNING:
+		pThread->nStatus = THREAD_SUSPENDED;
+		break;
+	case THREAD_WAITING:
+		pThread->nStatus = THREAD_SUSPENDED_WAITING;
+		break;
+	case THREAD_SLEEPING:
+		pThread->nStatus = THREAD_SUSPENDED_SLEEPING;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	ThreadShakeAndBake();
+}
+
+//39
+void CPS2OS::sc_ResumeThread()
+{
+	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+
+	THREAD* pThread = GetThread(nID);
+	if(!pThread->nValid)
+	{
+		return;
+	}
+
+	switch(pThread->nStatus)
+	{
+	case THREAD_SUSPENDED:
+		pThread->nStatus = THREAD_RUNNING;
+		break;
+	case THREAD_SUSPENDED_WAITING:
+		pThread->nStatus = THREAD_WAITING;
+		break;
+	case THREAD_SUSPENDED_SLEEPING:
+		pThread->nStatus = THREAD_SLEEPING;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	ThreadShakeAndBake();
 }
 
 //3C
@@ -1834,11 +1929,22 @@ void CPS2OS::sc_SignalSema()
 		{
 			THREAD* pThread = GetThread(i);
 			if(!pThread->nValid) continue;
-			if(pThread->nStatus != THREAD_WAITING) continue;
+			if((pThread->nStatus != THREAD_WAITING) && (pThread->nStatus != THREAD_SUSPENDED_WAITING)) continue;
 			if(pThread->nSemaWait != nID) continue;
 
-			pThread->nStatus	= THREAD_RUNNING;
-			pThread->nQuota		= THREAD_INIT_QUOTA;
+			switch(pThread->nStatus)
+			{
+			case THREAD_WAITING:
+				pThread->nStatus = THREAD_RUNNING;
+				break;
+			case THREAD_SUSPENDED_WAITING:
+				pThread->nStatus = THREAD_SUSPENDED;
+				break;
+			default:
+				assert(0);
+				break;
+			}
+			pThread->nQuota = THREAD_INIT_QUOTA;
 			pSema->nWaitCount--;
 
 			if(pSema->nWaitCount == 0)
@@ -1898,6 +2004,7 @@ void CPS2OS::sc_WaitSema()
 		pSema->nWaitCount++;
 
 		THREAD* pThread = GetThread(GetCurrentThreadId());
+		assert(pThread->nStatus == THREAD_RUNNING);
 		pThread->nStatus	= THREAD_WAITING;
 		pThread->nSemaWait	= nID;
 
@@ -2342,6 +2449,16 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 	case 0x2F:
 		sprintf(sDescription, SYSCALL_NAME_GETTHREADID "();");
 		break;
+	case 0x30:
+		sprintf(sDescription, SYSCALL_NAME_REFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		break;
+	case 0x31:
+		sprintf(sDescription, SYSCALL_NAME_IREFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		break;
 	case 0x32:
 		sprintf(sDescription, SYSCALL_NAME_SLEEPTHREAD "();");
 		break;
@@ -2351,6 +2468,14 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 		break;
 	case 0x34:
 		sprintf(sDescription, SYSCALL_NAME_IWAKEUPTHREAD "(id = %i);", \
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
+	case 0x37:
+		sprintf(sDescription, SYSCALL_NAME_SUSPENDTHREAD "(id = %i);", \
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
+	case 0x39:
+		sprintf(sDescription, SYSCALL_NAME_RESUMETHREAD "(id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
@@ -2478,9 +2603,9 @@ CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 	//0x28
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_RotateThreadReadyQueue,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_GetThreadId,
 	//0x30
-	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SleepThread,			&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_ReferThreadStatus,		&CPS2OS::sc_SleepThread,			&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,	&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_SuspendThread,
 	//0x38
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetupThread,	&CPS2OS::sc_SetupHeap,		&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ResumeThread,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetupThread,	&CPS2OS::sc_SetupHeap,		&CPS2OS::sc_EndOfHeap,		&CPS2OS::sc_Unhandled,
 	//0x40
 	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_PollSema,		&CPS2OS::sc_ReferSemaStatus,
 	//0x48
