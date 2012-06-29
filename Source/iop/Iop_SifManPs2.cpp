@@ -67,3 +67,10 @@ uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 
 	return count;
 }
+
+void CSifManPs2::GetOtherData(uint32 dst, uint32 src, uint32 size)
+{
+	uint8* srcPtr = m_eeRam + src;
+	uint8* dstPtr = m_iopRam + dst;
+	memcpy(dstPtr, srcPtr, size);
+}

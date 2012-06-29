@@ -64,6 +64,7 @@ namespace Iop
 		uint32					SifCheckStatRpc(uint32);
 		void					SifSetRpcQueue(uint32, uint32);
 		void					SifRpcLoop(uint32);
+		uint32					SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
 		void					ReturnFromRpcInvoke(CMIPS&);
 
 		CIopBios&				m_bios;

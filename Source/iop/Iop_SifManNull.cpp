@@ -26,3 +26,8 @@ void CSifManNull::SendCallReply(uint32, void*)
 {
 
 }
+
+void CSifManNull::GetOtherData(uint32, uint32, uint32)
+{
+
+}

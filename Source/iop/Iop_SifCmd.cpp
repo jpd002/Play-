@@ -24,6 +24,7 @@ using namespace Iop;
 #define FUNCTION_SIFCHECKSTATRPC		"SifCheckStatRpc"
 #define FUNCTION_SIFSETRPCQUEUE			"SifSetRpcQueue"
 #define FUNCTION_SIFRPCLOOP				"SifRpcLoop"
+#define FUNCTION_SIFGETOTHERDATA		"SifGetOtherData"	
 #define FUNCTION_RETURNFROMRPCINVOKE	"ReturnFromRpcInvoke"
 
 #define INVOKE_PARAMS_SIZE			0x8000
@@ -117,6 +118,9 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 	case 22:
 		return FUNCTION_SIFRPCLOOP;
 		break;
+	case 23:
+		return FUNCTION_SIFGETOTHERDATA;
+		break;
 	case CUSTOM_RETURNFROMRPCINVOKE:
 		return FUNCTION_RETURNFROMRPCINVOKE;
 		break;
@@ -158,6 +162,14 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 22:
 		SifRpcLoop(context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 23:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifGetOtherData(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0,
+			context.m_State.nGPR[CMIPS::A3].nV0,
+			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10));
 		break;
 	case CUSTOM_RETURNFROMRPCINVOKE:
 		ReturnFromRpcInvoke(context);
@@ -326,4 +338,12 @@ void CSifCmd::SifRpcLoop(uint32 queueAddr)
 	CLog::GetInstance().Print(LOG_NAME, "SifRpcLoop(queue = 0x%0.8X);\r\n",
 		queueAddr);
 	m_bios.SleepThread();
+}
+
+uint32 CSifCmd::SifGetOtherData(uint32 packetPtr, uint32 src, uint32 dst, uint32 size, uint32 mode)
+{
+	CLog::GetInstance().Print(LOG_NAME, "SifGetOtherData(packetPtr = 0x%0.8X, src = 0x%0.8X, dst = 0x%0.8X, size = 0x%0.8X, mode = %d);\r\n",
+		packetPtr, src, dst, size, mode);
+	m_sifMan.GetOtherData(dst, src, size);
+	return 0;
 }

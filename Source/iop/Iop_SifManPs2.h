@@ -17,6 +17,7 @@ namespace Iop
 		virtual void	SendPacket(void*, uint32);
 		virtual void	SetDmaBuffer(uint32, uint32);
 		virtual void	SendCallReply(uint32, void*);
+		virtual void	GetOtherData(uint32, uint32, uint32);
 
 	protected:
 		virtual uint32	SifSetDma(uint32, uint32);
