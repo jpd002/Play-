@@ -10,6 +10,9 @@ using namespace Iop;
 #define FUNCTION_FLUSHDCACHE			"FlushDcache"
 #define FUNCTION_REGISTERLIBRARYENTRIES	"RegisterLibraryEntries"
 
+#define PATH_MAX_SIZE 252
+#define ARGS_MAX_SIZE 252
+
 CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSifMan& sifMan)
 : m_bios(bios)
 , m_ram(ram)
@@ -94,20 +97,29 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)
 
 void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
 {
-	char sModuleName[253];
+	char moduleName[PATH_MAX_SIZE + 1];
+	char moduleArgs[ARGS_MAX_SIZE + 1];
 
 	assert(argsSize == 512);
 
 	//Sometimes called with 4, sometimes 8
 	assert(retSize >= 4);
 
-	memset(sModuleName, 0, 253);
-	strncpy(sModuleName, &(reinterpret_cast<const char*>(args))[8], 252);
+	uint32 moduleArgsSize = args[0];
 
-	//Load the module???
-	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received.\r\n", sModuleName);
+	memset(moduleName, 0, PATH_MAX_SIZE + 1);
+	memset(moduleArgs, 0, ARGS_MAX_SIZE + 1);
 
-	m_bios.LoadAndStartModule(sModuleName, NULL, 0);
+	strncpy(moduleName, reinterpret_cast<const char*>(args) + 8, PATH_MAX_SIZE);
+	if(moduleArgsSize != 0)
+	{
+		strncpy(moduleArgs, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
+	}
+
+	//Load the module
+	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
+
+	m_bios.LoadAndStartModule(moduleName, moduleArgs, moduleArgsSize);
 
 	//This function returns something negative upon failure
 	ret[0] = 0x00000000;
