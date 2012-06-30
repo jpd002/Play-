@@ -24,6 +24,7 @@
 #include "Iop_Loadcore.h"
 #include "Iop_Thbase.h"
 #include "Iop_Thsema.h"
+#include "Iop_Thmsgbx.h"
 #include "Iop_Thevent.h"
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
@@ -47,7 +48,9 @@
 #define BIOS_EVENTFLAGS_SIZE			(sizeof(CIopBios::EVENTFLAG) * CIopBios::MAX_EVENTFLAG)
 #define BIOS_INTRHANDLER_BASE			(BIOS_EVENTFLAGS_BASE + BIOS_EVENTFLAGS_SIZE)
 #define BIOS_INTRHANDLER_SIZE			(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
-#define BIOS_HEAPBLOCK_BASE				(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
+#define BIOS_MESSAGEBOX_BASE			(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
+#define BIOS_MESSAGEBOX_SIZE			(sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
+#define BIOS_HEAPBLOCK_BASE				(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
 #define BIOS_HEAPBLOCK_SIZE				(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
 #define BIOS_CALCULATED_END				(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
 
@@ -70,6 +73,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
 , m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
 , m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
+, m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOX)
 {
 	static_assert(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END, "Control block size is too small");
 }
@@ -138,6 +142,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	}
 	{
 		RegisterModule(new Iop::CThbase(*this, m_ram));
+	}
+	{
+		RegisterModule(new Iop::CThmsgbx(*this, m_ram));
 	}
 	{
 		RegisterModule(new Iop::CThsema(*this, m_ram));
@@ -321,6 +328,10 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		{
 			const char* arg = args + argsPos;
 			unsigned int argLength = static_cast<unsigned int>(strlen(arg)) + 1;
+			if(argLength == 1) 
+			{
+				break;
+			}
 			argsPos += argLength;
 			uint32 argAddress = Push(
 				thread->context.gpr[CMIPS::SP],
@@ -423,42 +434,6 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%0.8X.\r\n", 
 		path, moduleRange.first);
 #endif
-
-//	for(int i = 0; i < m_ramSize / 4; i++)
-//	{
-//		uint32 nVal = ((uint32*)m_ram)[i];
-////        if(nVal == 0x34C00)
-////        {
-////			printf("Allo: 0x%0.8X\r\n", i * 4);
-////        }
-///*
-//        if((nVal & 0xFFFF) == 0xB730)
-//        {
-//            char mnemonic[256];
-//            m_cpu.m_pArch->GetInstructionMnemonic(&m_cpu, i * 4, nVal, mnemonic, 256);
-//            printf("Allo: %s, 0x%0.8X\r\n", mnemonic, i * 4);
-//        }
-//*/
-///*
-//        if(nVal == 0x2F9B50)
-//		{
-//			printf("Allo: 0x%0.8X\r\n", i * 4);
-//		}
-//*/
-//
-//        if((nVal & 0xFC000000) == 0x0C000000)
-//		{
-//			nVal &= 0x3FFFFFF;
-//			nVal *= 4;
-//			if(nVal == 0x41410)
-//			{
-//				printf("Allo: 0x%0.8X\r\n", i * 4);
-//			}
-//		}
-//
-//	}
-
-//    *reinterpret_cast<uint32*>(&m_ram[0x41674]) = 0;
 
 	//Patch for Shadow Hearts PSF set --------------------------------
 	if(strstr(path, "RSSD_patchmore.IRX") != NULL)
@@ -568,6 +543,12 @@ void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 	CLog::GetInstance().Print(LOGNAME, "%d: ChangeThreadPriority();\r\n", 
 		CurrentThreadId());
 #endif
+
+	if(threadId == 0)
+	{
+		threadId = GetCurrentThreadId();
+	}
+
 	THREAD* thread = GetThread(threadId);
 	assert(thread != NULL);
 
@@ -999,6 +980,7 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 	{
 		THREAD* thread(m_threads[threadIterator]);
 		if(thread == NULL) continue;
+		if(thread->status != THREAD_STATUS_WAITING_EVENTFLAG) continue;
 		if(thread->waitEventFlag == eventId)
 		{
 			uint32 maskResult = eventFlag->value & thread->waitEventFlagMask;
@@ -1129,6 +1111,123 @@ uint32 CIopBios::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
 	eventFlagInfo->currBits		= eventFlag->value;
 	eventFlagInfo->numThreads	= 0;
 
+	return 0;
+}
+
+uint32 CIopBios::CreateMessageBox()
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: CreateMessageBox();\r\n",
+		CurrentThreadId());
+#endif
+
+	uint32 boxId = m_messageBoxes.Allocate();
+	assert(boxId != -1);
+	if(boxId == -1)
+	{
+		return -1;
+	}
+
+	MESSAGEBOX* box = m_messageBoxes[boxId];
+	box->nextMsgPtr = 0;
+
+	return boxId;
+}
+
+uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr)
+{
+	bool inInterrupt = false;
+
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: SendMessageBox(boxId = %d, messagePtr = 0x%0.8X, inInterrupt = %d);\r\n",
+		CurrentThreadId(), boxId, messagePtr, inInterrupt);
+#endif
+
+	MESSAGEBOX* box = m_messageBoxes[boxId];
+	if(box == NULL)
+	{
+		return -1;
+	}
+
+	//Check if there's a thread waiting for a message first
+	for(auto threadIterator(m_threads.Begin()); threadIterator != m_threads.End(); threadIterator++)
+	{
+		THREAD* thread(m_threads[threadIterator]);
+		if(thread == NULL) continue;
+		if(thread->status != THREAD_STATUS_WAITING_MESSAGEBOX) continue;
+		if(thread->waitMessageBox == boxId)
+		{
+			if(thread->waitMessageBoxResultPtr != 0)
+			{
+				uint32* result = reinterpret_cast<uint32*>(m_ram + thread->waitMessageBoxResultPtr);
+				*result = messagePtr;
+			}
+
+			thread->waitMessageBox = 0;
+			thread->waitMessageBoxResultPtr = 0;
+
+			thread->status = THREAD_STATUS_RUNNING;
+			if(!inInterrupt)
+			{
+				m_rescheduleNeeded = true;
+			}
+			
+			return 0;
+		}
+	}
+
+	assert(0);
+	return 0;
+}
+
+uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: ReceiveMessageBox(messagePtr = 0x%0.8X, boxId = %d);\r\n",
+		CurrentThreadId(), messagePtr, boxId);
+#endif
+
+	MESSAGEBOX* box = m_messageBoxes[boxId];
+	if(box == NULL)
+	{
+		return -1;
+	}
+
+	if(box->nextMsgPtr != 0)
+	{
+		assert(0);
+	}
+	else
+	{
+		THREAD* thread = GetThread(CurrentThreadId());
+		thread->status					= THREAD_STATUS_WAITING_MESSAGEBOX;
+		thread->waitMessageBox			= boxId;
+		thread->waitMessageBoxResultPtr	= messagePtr;
+		m_rescheduleNeeded = true;
+	}
+
+	return 0;
+}
+
+uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: PollMessageBox(messagePtr = 0x%0.8X, boxId = %d);\r\n",
+		CurrentThreadId(), messagePtr, boxId);
+#endif
+
+	MESSAGEBOX* box = m_messageBoxes[boxId];
+	if(box == NULL)
+	{
+		return -1;
+	}
+
+	if(box->nextMsgPtr == 0)
+	{
+		return 0xFFFFFE58;
+	}
+
+	assert(0);
 	return 0;
 }
 
@@ -1477,6 +1576,9 @@ BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
 			break;
 		case THREAD_STATUS_WAITING_EVENTFLAG:
 			threadInfo.stateDescription = "Waiting (Event Flag: " + boost::lexical_cast<std::string>(nextThread->waitEventFlag) + ")";
+			break;
+		case THREAD_STATUS_WAITING_MESSAGEBOX:
+			threadInfo.stateDescription = "Waiting (Message Box: " + boost::lexical_cast<std::string>(nextThread->waitMessageBox) + ")";
 			break;
 		case THREAD_STATUS_WAIT_VBLANK_START:
 			threadInfo.stateDescription = "Waiting (Vblank Start)";

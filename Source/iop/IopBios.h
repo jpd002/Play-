@@ -49,6 +49,8 @@ public:
 		uint32			waitEventFlagMode;
 		uint32			waitEventFlagMask;
 		uint32			waitEventFlagResultPtr;
+		uint32			waitMessageBox;
+		uint32			waitMessageBoxResultPtr;
 		uint32			wakeupCount;
 		uint32			stackBase;
 		uint32			stackSize;
@@ -58,14 +60,15 @@ public:
 
 	enum THREAD_STATUS
 	{
-		THREAD_STATUS_CREATED			= 1,
-		THREAD_STATUS_RUNNING			= 2,
-		THREAD_STATUS_SLEEPING			= 3,
-		THREAD_STATUS_ZOMBIE			= 4,
-		THREAD_STATUS_WAITING_SEMAPHORE = 5,
-		THREAD_STATUS_WAITING_EVENTFLAG = 6,
-		THREAD_STATUS_WAIT_VBLANK_START = 7,
-		THREAD_STATUS_WAIT_VBLANK_END	= 8,
+		THREAD_STATUS_CREATED				= 1,
+		THREAD_STATUS_RUNNING				= 2,
+		THREAD_STATUS_SLEEPING				= 3,
+		THREAD_STATUS_ZOMBIE				= 4,
+		THREAD_STATUS_WAITING_SEMAPHORE		= 5,
+		THREAD_STATUS_WAITING_EVENTFLAG		= 6,
+		THREAD_STATUS_WAITING_MESSAGEBOX	= 7,
+		THREAD_STATUS_WAIT_VBLANK_START		= 8,
+		THREAD_STATUS_WAIT_VBLANK_END		= 9,
 	};
 
 								CIopBios(CMIPS&, uint8*, uint32);
@@ -134,6 +137,11 @@ public:
 	uint32						ClearEventFlag(uint32, uint32);
 	uint32						WaitEventFlag(uint32, uint32, uint32, uint32);
 	uint32						ReferEventFlagStatus(uint32, uint32);
+	
+	uint32						CreateMessageBox();
+	uint32						SendMessageBox(uint32, uint32);
+	uint32						ReceiveMessageBox(uint32, uint32);
+	uint32						PollMessageBox(uint32, uint32);
 
 	bool						RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	bool						ReleaseIntrHandler(uint32);
@@ -155,6 +163,7 @@ private:
 		MAX_SEMAPHORE = 64,
 		MAX_EVENTFLAG = 64,
 		MAX_INTRHANDLER = 32,
+		MAX_MESSAGEBOX = 32,
 	};
 
 	enum WEF_FLAGS
@@ -200,6 +209,12 @@ private:
 		uint32			arg;
 	};
 
+	struct MESSAGEBOX
+	{
+		uint32			isValid;
+		uint32			nextMsgPtr;
+	};
+
 	struct IOPMOD
 	{
 		uint32			module;
@@ -221,6 +236,7 @@ private:
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<EVENTFLAG> EventFlagList;
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
+	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
 	typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
 	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
@@ -273,6 +289,7 @@ private:
 	SemaphoreList					m_semaphores;
 	EventFlagList					m_eventFlags;
 	IntrHandlerList					m_intrHandlers;
+	MessageBoxList					m_messageBoxes;
 		
 	IopModuleMapType				m_modules;
 	DynamicIopModuleListType		m_dynamicModules;
