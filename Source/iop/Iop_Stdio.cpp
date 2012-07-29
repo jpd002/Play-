@@ -94,7 +94,7 @@ std::string CStdio::PrintFormatted(CArgumentIterator& args)
 					output += lexical_cast_uint<std::string>(number, precisionValue);
 					paramDone = true;
 				}
-				else if(type == 'x' || type == 'X')
+				else if(type == 'x' || type == 'X' || type == 'p')
 				{
 					uint32 number = args.GetNext();
 					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
