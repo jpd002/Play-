@@ -525,20 +525,14 @@ void CGSH_OpenGL::TexCache_Insert(const TEX0& tex0, GLuint textureHandle)
 
 void CGSH_OpenGL::TexCache_InvalidateTextures(uint32 start, uint32 size)
 {
-	for(auto textureIterator(m_textureCache.begin());
-		textureIterator != m_textureCache.end(); textureIterator++)
-	{
-		(*textureIterator)->InvalidateFromMemorySpace(start, size);
-	}
+	std::for_each(std::begin(m_textureCache), std::end(m_textureCache), 
+		[start, size] (TexturePtr& texture) { texture->InvalidateFromMemorySpace(start, size); });
 }
 
 void CGSH_OpenGL::TexCache_Flush()
 {
-	for(auto textureIterator(m_textureCache.begin());
-		textureIterator != m_textureCache.end(); textureIterator++)
-	{
-		(*textureIterator)->Free();
-	}
+	std::for_each(std::begin(m_textureCache), std::end(m_textureCache), 
+		[] (TexturePtr& texture) { texture->Free(); });
 }
 
 /////////////////////////////////////////////////////////////
@@ -643,18 +637,12 @@ void CGSH_OpenGL::PalCache_Insert(const TEX0& tex0, const uint32* contents, GLui
 
 void CGSH_OpenGL::PalCache_Invalidate(uint32 csa)
 {
-	for(auto paletteIterator(m_paletteCache.begin());
-		paletteIterator != m_paletteCache.end(); paletteIterator++)
-	{
-		(*paletteIterator)->Invalidate(csa);
-	}
+	std::for_each(std::begin(m_paletteCache), std::end(m_paletteCache),
+		[csa] (PalettePtr& palette) { palette->Invalidate(csa); });
 }
 
 void CGSH_OpenGL::PalCache_Flush()
 {
-	for(auto paletteIterator(m_paletteCache.begin());
-		paletteIterator != m_paletteCache.end(); paletteIterator++)
-	{
-		(*paletteIterator)->Free();
-	}
+	std::for_each(std::begin(m_paletteCache), std::end(m_paletteCache), 
+		[] (PalettePtr& palette) { palette->Free(); });
 }
