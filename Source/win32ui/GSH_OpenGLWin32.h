@@ -8,29 +8,28 @@
 class CGSH_OpenGLWin32 : public CGSH_OpenGL, public CSettingsDialogProvider
 {
 public:
-    							    CGSH_OpenGLWin32(Framework::Win32::CWindow*);
-    virtual                         ~CGSH_OpenGLWin32();
+									CGSH_OpenGLWin32(Framework::Win32::CWindow*);
+	virtual							~CGSH_OpenGLWin32();
 
-    static FactoryFunction          GetFactoryFunction(Framework::Win32::CWindow*);
+	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 
-    virtual void                    LoadShaderSource(Framework::OpenGl::CShader*, SHADER);
-    virtual void                    InitializeImpl();
-    virtual void                    ReleaseImpl();
+	virtual void					InitializeImpl();
+	virtual void					ReleaseImpl();
 
-    CSettingsDialogProvider*		GetSettingsDialogProvider();
+	CSettingsDialogProvider*		GetSettingsDialogProvider();
 
-    Framework::Win32::CModalWindow* CreateSettingsDialog(HWND);
-	void                            OnSettingsDialogDestroyed();
+	Framework::Win32::CModalWindow* CreateSettingsDialog(HWND);
+	void							OnSettingsDialogDestroyed();
 
 protected:
 	virtual void					PresentBackbuffer();
 
 private:
-    virtual void                    SetViewport(int, int);
+	virtual void					SetViewport(int, int);
 
-    static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
+	static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
-    Framework::Win32::CWindow*		m_pOutputWnd;
+	Framework::Win32::CWindow*		m_pOutputWnd;
 
 	HGLRC							m_hRC;
 	HDC								m_hDC;

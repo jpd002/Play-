@@ -30,6 +30,11 @@ void CGSH_Null::ProcessImageTransfer(uint32 nAddress, uint32 nSize)
 
 }
 
+void CGSH_Null::ProcessClutTransfer(uint32, uint32)
+{
+
+}
+
 void CGSH_Null::ReadFramebuffer(uint32, uint32, void*)
 {
 

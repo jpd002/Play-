@@ -102,6 +102,7 @@ public:
 	void									Release();
 	void									UpdateViewport();
 	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
+	virtual void							ProcessClutTransfer(uint32, uint32)		= 0;
 	void									Flip();
 	virtual void							ReadFramebuffer(uint32, uint32, void*)	= 0;
 
@@ -132,6 +133,12 @@ protected:
 		RAMSIZE = 0x00400000,
 	};
 
+	enum CLUTSIZE
+	{
+		CLUTSIZE		= 0x400,
+		CLUTENTRYCOUNT	= (CLUTSIZE / 2)
+	};
+
 	enum PSM
 	{
 		PSMCT32		= 0x00,
@@ -148,6 +155,24 @@ protected:
 		PSMZ16		= 0x32,
 		PSMZ16S		= 0x3A,
 		PSM_MAX,
+	};
+
+	enum CLAMP_MODE
+	{
+		CLAMP_MODE_REPEAT,
+		CLAMP_MODE_CLAMP,
+		CLAMP_MODE_REGION_CLAMP,
+		CLAMP_MODE_REGION_REPEAT,
+		CLAMP_MODE_MAX
+	};
+
+	enum TEX0_FUNCTION
+	{
+		TEX0_FUNCTION_MODULATE,
+		TEX0_FUNCTION_DECAL,
+		TEX0_FUNCTION_HIGHLIGHT,
+		TEX0_FUNCTION_HIGHLIGHT2,
+		TEX0_FUNCTION_MAX
 	};
 
 	//Reg 0x00
@@ -239,11 +264,11 @@ protected:
 		unsigned int	nCSM			: 1;
 		unsigned int	nCSA			: 5;
 		unsigned int	nCLD			: 3;
-		uint32			GetBufPtr()		{ return nBufPtr * 256; }
-		uint32			GetBufWidth()	{ return nBufWidth * 64; }
-		uint32			GetWidth()		{ return (1 << nWidth); }
-		uint32			GetHeight()		{ return (1 << (nPad0 | (nPad1 << 2))); }
-		uint32			GetCLUTPtr()	{ return nCBP * 256; }
+		uint32			GetBufPtr()	const	{ return nBufPtr * 256; }
+		uint32			GetBufWidth() const	{ return nBufWidth * 64; }
+		uint32			GetWidth() const	{ return (1 << nWidth); }
+		uint32			GetHeight() const	{ return (1 << (nPad0 | (nPad1 << 2))); }
+		uint32			GetCLUTPtr() const	{ return nCBP * 256; }
 	};
 	static_assert(sizeof(TEX0) == sizeof(uint64), "Size of TEX0 struct must be 8 bytes.");
 
@@ -258,8 +283,8 @@ protected:
 		unsigned int	nReserved1		: 2;
 		unsigned int	nMAXV			: 10;
 		unsigned int	nReserved2		: 20;
-		unsigned int	GetMinU()		{ return nMINU;	}
-		unsigned int	GetMaxU()		{ return nMAXU;	}
+		unsigned int	GetMinU()		{ return nMINU; }
+		unsigned int	GetMaxU()		{ return nMAXU; }
 		unsigned int	GetMinV()		{ return (nReserved0) | (nReserved1 << 8); }
 		unsigned int	GetMaxV()		{ return nMAXV; }
 	};
@@ -706,7 +731,14 @@ protected:
 	bool									TrxHandlerPSMT8H(void*, uint32);
 	template <uint32, uint32> bool			TrxHandlerPSMT4H(void*, uint32);
 
-	unsigned int							GetPsmPixelSize(unsigned int);
+	void									SyncCLUT(const TEX0&);
+	void									ReadCLUT4(const TEX0&);
+	void									ReadCLUT8(const TEX0&);
+
+	static unsigned int						GetPsmPixelSize(unsigned int);
+	static bool								IsPsmIDTEX(unsigned int);
+	static bool								IsPsmIDTEX4(unsigned int);
+	static bool								IsPsmIDTEX8(unsigned int);
 
 	uint64									m_nPMODE;			//0x12000000
 	uint64									m_nSMODE2;			//0x12000020
@@ -724,6 +756,10 @@ protected:
 	uint64									m_nReg[0x80];
 
 	uint8*									m_pRAM;
+
+	uint16*									m_pCLUT;
+	uint32									m_nCBP0;
+	uint32									m_nCBP1;
 
 	uint32									m_drawCallCount;
 

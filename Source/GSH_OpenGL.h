@@ -2,6 +2,7 @@
 #define _GSH_OPENGL_H_
 
 #include <list>
+#include <unordered_map>
 #include "GSHandler.h"
 #include "opengl/OpenGlDef.h"
 #include "opengl/Program.h"
@@ -20,22 +21,17 @@ public:
 	virtual void					LoadState(Framework::CZipArchiveReader&);
 
 	void							ProcessImageTransfer(uint32, uint32);
+	void							ProcessClutTransfer(uint32, uint32);
 	void							ReadFramebuffer(uint32, uint32, void*);
 
-	bool							IsColorTableExtSupported();
 	bool							IsBlendColorExtSupported();
 	bool							IsBlendEquationExtSupported();
 	bool							IsRGBA5551ExtSupported();
 	bool							IsFogCoordfExtSupported();
 
 protected:
-	enum SHADER
-	{
-		SHADER_VERTEX = 1,
-		SHADER_FRAGMENT = 2
-	};
-
 	void							TexCache_Flush();
+	void							PalCache_Flush();
 	void							LoadSettings();
 	virtual void					InitializeImpl();
 	virtual void					ReleaseImpl();
@@ -43,9 +39,20 @@ protected:
 	virtual void					SetViewport(int, int);
 
 private:
-	enum MAXCACHE
+	struct RENDERSTATE
 	{
-		MAXCACHE = 256,
+		bool		isValid;
+		uint64		frameReg;
+		uint64		testReg;
+		uint64		alphaReg;
+		uint64		zbufReg;
+		GLuint		shaderHandle;
+	};
+
+	enum
+	{
+		MAX_TEXTURE_CACHE = 256,
+		MAX_PALETTE_CACHE = 256,
 	};
 
 	enum CVTBUFFERSIZE
@@ -53,7 +60,7 @@ private:
 		CVTBUFFERSIZE = 0x400000,
 	};
 
-	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(TEX0*, TEXA*);
+	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(const TEX0&, const TEXA&);
 
 	struct VERTEX
 	{
@@ -64,6 +71,48 @@ private:
 		uint8						nFog;
 	};
 
+	enum
+	{
+		TEXTURE_SOURCE_MODE_NONE	= 0,
+		TEXTURE_SOURCE_MODE_STD		= 1,
+		TEXTURE_SOURCE_MODE_IDX4	= 2,
+		TEXTURE_SOURCE_MODE_IDX8	= 3
+	};
+
+	enum TEXTURE_CLAMP_MODE
+	{
+		TEXTURE_CLAMP_MODE_STD					= 0,
+		TEXTURE_CLAMP_MODE_REGION_CLAMP			= 1,
+		TEXTURE_CLAMP_MODE_REGION_REPEAT		= 2,
+		TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE	= 3
+	};
+
+	struct SHADERCAPS : public convertible<uint32>
+	{
+		unsigned int texFunction		: 2;		//0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
+		unsigned int texClampS			: 2;
+		unsigned int texClampT			: 2;
+		unsigned int texSourceMode		: 2;
+		unsigned int texBilinearFilter	: 1;
+		unsigned int hasFog				: 1;
+
+		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
+	};
+	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
+
+	struct SHADERINFO
+	{
+		Framework::OpenGl::ProgramPtr	shader;
+		GLint							textureUniform;
+		GLint							paletteUniform;
+		GLint							textureSizeUniform;
+		GLint							texelSizeUniform;
+		GLint							clampMinUniform;
+		GLint							clampMaxUniform;
+	};
+
+	typedef std::unordered_map<uint32, SHADERINFO> ShaderInfoMap;
+
 	class CTexture
 	{
 	public:
@@ -72,34 +121,45 @@ private:
 		void						InvalidateFromMemorySpace(uint32, uint32);
 		void						Free();
 
-		uint32						m_nStart;
-		uint32						m_nSize;
-		unsigned int				m_nPSM;
-		uint32						m_nCLUTAddress;
-		uint64						m_nTex0;
-		uint64						m_nTexClut;
-		bool						m_nIsCSM2;
-		unsigned int				m_nTexture;
-		uint32						m_checksum;
+		uint32						m_start;
+		uint32						m_size;
+		uint64						m_tex0;
+		GLuint						m_texture;
 		bool						m_live;
 	};
+	typedef std::shared_ptr<CTexture> TexturePtr;
+	typedef std::list<TexturePtr> TextureList;
 
-	typedef std::list<CTexture*> TextureList;
+	class CPalette
+	{
+	public:
+									CPalette();
+									~CPalette();
+
+		void						Invalidate(uint32);
+		void						Free();
+
+		bool						m_live;
+
+		bool						m_isIDTEX4;
+		uint32						m_cpsm;
+		uint32						m_csa;
+		GLuint						m_texture;
+		uint32						m_contents[256];
+	};
+	typedef std::shared_ptr<CPalette> PalettePtr;
+	typedef std::list<PalettePtr> PaletteList;
 
 	void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
-	virtual void					LoadShaderSource(Framework::OpenGl::CShader*, SHADER) = 0;
 	virtual void					PresentBackbuffer() = 0;
 	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(float, float, float, float);
 	void							UpdateViewportImpl();
 	unsigned int					GetCurrentReadCircuit();
-	unsigned int					LoadTexture(TEX0*, TEX1*, CLAMP*);
-	void							SyncCLUT(TEX0*);
-
-	void							ReadCLUT4(TEX0*);
-	void							ReadCLUT8(TEX0*);
+	void							PrepareTexture(const TEX0&);
+	void							PreparePalette(const TEX0&);
 
 	uint32							RGBA16ToRGBA32(uint16);
 	uint8							MulBy2Clamp(uint8);
@@ -107,6 +167,11 @@ private:
 	unsigned int					GetNextPowerOf2(unsigned int);
 
 	void							VertexKick(uint8, uint64);
+
+	Framework::OpenGl::ProgramPtr	GenerateShader(const SHADERCAPS&);
+	Framework::OpenGl::CShader		GenerateVertexShader(const SHADERCAPS&);
+	Framework::OpenGl::CShader		GenerateFragmentShader(const SHADERCAPS&);
+	std::string						GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE, const char*);
 
 	void							Prim_Point();
 	void							Prim_Line();
@@ -118,38 +183,29 @@ private:
 	void							SetupDepthBuffer(uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
-	void							SetupTexture(uint64, uint64, uint64);
+	void							SetupTexture(SHADERCAPS&, uint64, uint64, uint64);
 
 	void							DumpTexture(unsigned int, unsigned int, uint32);
 
 	void							DisplayTransferedImage(uint32);
 
-	void							TexUploader_Psm32(TEX0*, TEXA*);
-	void							TexUploader_Psm24(TEX0*, TEXA*);
+	void							TexUploader_Psm32(const TEX0&, const TEXA&);
+	void							TexUploader_Psm24(const TEX0&, const TEXA&);
 
-	void							TexUploader_Psm8_Cvt(TEX0*, TEXA*);
-	void							TexUploader_Psm8_Hw(TEX0*, TEXA*);
+	void							TexUploader_Psm16_Cvt(const TEX0&, const TEXA&);
+	void							TexUploader_Psm16_Hw(const TEX0&, const TEXA&);
+	void							TexUploader_Psm16S_Hw(const TEX0&, const TEXA&);
 
-	void							TexUploader_Psm16_Cvt(TEX0*, TEXA*);
-	void							TexUploader_Psm16_Hw(TEX0*, TEXA*);
-
-	void							TexUploader_Psm16S_Hw(TEX0*, TEXA*);
-
-	void							TexUploader_Psm4_Cvt(TEX0*, TEXA*);
-	template <uint32> void			TexUploader_Psm4H_Cvt(TEX0*, TEXA*);
-	void							TexUploader_Psm8H_Cvt(TEX0*, TEXA*);
-
-	uint32							ConvertTexturePsm4(TEX0*, TEXA*);
-	uint32							ConvertTexturePsm8(TEX0*, TEXA*);
-	uint32							ConvertTexturePsm8H(TEX0*, TEXA*);
-	void							UploadTexturePsm8(TEX0*, TEXA*);
+	void							TexUploader_Psm8(const TEX0&, const TEXA&);
+	void							TexUploader_Psm4(const TEX0&, const TEXA&);
+	template <uint32> void			TexUploader_Psm4H(const TEX0&, const TEXA&);
+	void							TexUploader_Psm8H(const TEX0&, const TEXA&);
 
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
 	float							m_nPrimOfsY;
 	uint32							m_nTexWidth;
 	uint32							m_nTexHeight;
-	unsigned int					m_nTexHandle;
 	float							m_nMaxZ;
 
 	int								m_nWidth;
@@ -160,21 +216,21 @@ private:
 	bool							m_fixSmallZValues;
 
 	uint8*							m_pCvtBuffer;
-	void*							m_pCLUT;
-	uint16*							m_pCLUT16;
-	uint32*							m_pCLUT32;
-	uint32							m_nCBP0;
-	uint32							m_nCBP1;
 
 	void							VerifyRGBA5551Support();
 	bool							m_nIsRGBA5551Supported;
 
-	unsigned int					TexCache_SearchLive(TEX0*);
-	unsigned int					TexCache_SearchDead(TEX0*, uint32);
-	void							TexCache_Insert(TEX0*, unsigned int, uint32);
+	GLuint							TexCache_Search(const TEX0&);
+	void							TexCache_Insert(const TEX0&, GLuint);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 
-	TextureList						m_TexCache;
+	GLuint							PalCache_Search(const TEX0&);
+	GLuint							PalCache_Search(unsigned int, const uint32*);
+	void							PalCache_Insert(const TEX0&, const uint32*, GLuint);
+	void							PalCache_Invalidate(uint32);
+
+	TextureList						m_textureCache;
+	PaletteList						m_paletteCache;
 
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;
@@ -182,12 +238,16 @@ private:
 	PRMODE							m_PrimitiveMode;
 	unsigned int					m_nPrimitiveType;
 
-	TEXTUREUPLOADER					m_pTexUploader_Psm8;
+	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
+	static unsigned int				g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
+
+	unsigned int					m_clampMin[2];
+	unsigned int					m_clampMax[2];
+
 	TEXTUREUPLOADER					m_pTexUploader_Psm16;
 
-	Framework::OpenGl::CProgram*	m_pProgram;
-	Framework::OpenGl::CShader*		m_pVertShader;
-	Framework::OpenGl::CShader*		m_pFragShader;
+	ShaderInfoMap					m_shaderInfos;
+	RENDERSTATE						m_renderState;
 };
 
 #endif

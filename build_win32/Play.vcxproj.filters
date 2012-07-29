@@ -406,16 +406,7 @@
     <ClCompile Include="..\Source\win32ui\CommandSink.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Software.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\Main.cpp">
@@ -573,6 +564,12 @@
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebugUtils.cpp">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_Thmsgbx.cpp">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -948,13 +945,7 @@
     <ClInclude Include="..\Source\win32ui\FileFilters.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\GSH_Software.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MainWindow.h">
@@ -1113,6 +1104,9 @@
     <ClInclude Include="..\Source\BiosDebugInfoProvider.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_Thmsgbx.h">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\win32ui\manifest.xml">
@@ -1127,8 +1121,6 @@
     <None Include="..\Source\win32ui\Images\exd.bmp" />
     <None Include="..\Source\win32ui\Images\ex.bmp" />
     <None Include="..\Source\win32ui\Images\purei.ico" />
-    <None Include="..\Source\shaders\TexClamp.vert" />
-    <None Include="..\Source\shaders\TexClamp.frag" />
     <None Include="..\Source\win32ui\images\grab.cur" />
     <None Include="..\Source\win32ui\images\grabbing.cur" />
   </ItemGroup>

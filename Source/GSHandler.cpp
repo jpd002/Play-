@@ -147,10 +147,13 @@ CGSHandler::CGSHandler()
 , m_threadDone(false)
 , m_flipMode(FLIP_MODE_SMODE2)
 , m_drawCallCount(0)
+, m_pCLUT(nullptr)
+, m_pRAM(nullptr)
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_SMODE2);
 
-	m_pRAM = (uint8*)malloc(RAMSIZE);
+	m_pRAM = new uint8[RAMSIZE];
+	m_pCLUT	= new uint16[CLUTENTRYCOUNT];
 
 	for(int i = 0; i < PSM_MAX; i++)
 	{
@@ -176,7 +179,8 @@ CGSHandler::~CGSHandler()
 	m_threadDone = true;
 	m_thread->join();
 	delete m_thread;
-	FREEPTR(m_pRAM);
+	delete [] m_pRAM;
+	delete [] m_pCLUT;
 }
 
 void CGSHandler::Reset()
@@ -184,6 +188,7 @@ void CGSHandler::Reset()
 	memset(m_nReg, 0, sizeof(uint64) * 0x80);
 	m_nReg[GS_REG_PRMODECONT] = 1;
 	memset(m_pRAM, 0, RAMSIZE);
+	memset(m_pCLUT, 0, CLUTSIZE);
 	m_nPMODE = 0;
 	m_nSMODE2 = 0;
 	m_nDISPFB1 = 0;
@@ -193,6 +198,8 @@ void CGSHandler::Reset()
 	m_nCSR = 0;
 	m_nIMR = 0;
 	m_nCrtMode = 0;
+	m_nCBP0	= 0;
+	m_nCBP1	= 0;
 	m_enabled = true;
 }
 
@@ -445,46 +452,73 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 	switch(nRegister)
 	{
-	case GS_REG_TRXDIR:
-		BITBLTBUF* pBuf;
-		TRXREG* pReg;
-		unsigned int nPixelSize;
-
-		pBuf = GetBitBltBuf();
-		pReg = GetTrxReg();
-
-		//We need to figure out the pixel size of the source stream
-		switch(pBuf->nDstPsm)
+	case GS_REG_TEX0_1:
+	case GS_REG_TEX0_2:
 		{
-		case PSMCT32:
-			nPixelSize = 32;
-			break;
-		case PSMCT24:
-			nPixelSize = 24;
-			break;
-		case PSMCT16:
-			nPixelSize = 16;
-			break;
-		case PSMT8:
-		case PSMT8H:
-			nPixelSize = 8;
-			break;
-		case PSMT4:
-		case PSMT4HH:
-		case PSMT4HL:
-			nPixelSize = 4;
-			break;
-		default:
-			assert(0);
-			break;
+			unsigned int nContext = nRegister - GS_REG_TEX0_1;
+			assert(nContext == 0 || nContext == 1);
+			TEX0 tex0;
+			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
+			SyncCLUT(tex0);
 		}
-
-		m_TrxCtx.nSize	= (pReg->nRRW * pReg->nRRH * nPixelSize) / 8;
-		m_TrxCtx.nRRX	= 0;
-		m_TrxCtx.nRRY	= 0;
-		m_TrxCtx.nDirty	= false;
-
 		break;
+
+	case GS_REG_TEX2_1:
+	case GS_REG_TEX2_2:
+		{
+			//Update TEX0
+			unsigned int nContext = nRegister - GS_REG_TEX2_1;
+			assert(nContext == 0 || nContext == 1);
+
+			const uint64 nMask = 0xFFFFFFE003F00000ULL;
+			m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
+			m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
+
+			TEX0 tex0;
+			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
+			SyncCLUT(tex0);
+		}
+		break;
+
+	case GS_REG_TRXDIR:
+		{
+			BITBLTBUF* pBuf = GetBitBltBuf();
+			TRXREG* pReg = GetTrxReg();
+			unsigned int nPixelSize;
+
+			//We need to figure out the pixel size of the source stream
+			switch(pBuf->nDstPsm)
+			{
+			case PSMCT32:
+				nPixelSize = 32;
+				break;
+			case PSMCT24:
+				nPixelSize = 24;
+				break;
+			case PSMCT16:
+				nPixelSize = 16;
+				break;
+			case PSMT8:
+			case PSMT8H:
+				nPixelSize = 8;
+				break;
+			case PSMT4:
+			case PSMT4HH:
+			case PSMT4HL:
+				nPixelSize = 4;
+				break;
+			default:
+				assert(0);
+				break;
+			}
+
+			m_TrxCtx.nSize	= (pReg->nRRW * pReg->nRRH * nPixelSize) / 8;
+			m_TrxCtx.nRRX	= 0;
+			m_TrxCtx.nRRY	= 0;
+			m_TrxCtx.nDirty	= false;
+		}
+		break;
+
 	case GS_REG_FINISH:
 		{
 			boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
@@ -605,30 +639,23 @@ bool CGSHandler::TrxHandlerInvalid(void* pData, uint32 nLength)
 template <typename Storage>
 bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 {
-	typename Storage::Unit* pSrc;
-	uint32 nX, nY;
-	TRXPOS* pTrxPos;
-	TRXREG* pTrxReg;
-	BITBLTBUF* pTrxBuf;
 	bool nDirty = false;
+	TRXPOS* pTrxPos = GetTrxPos();
+	TRXREG* pTrxReg = GetTrxReg();
+	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
 	nLength /= sizeof(typename Storage::Unit);
-	pTrxPos = GetTrxPos();
-	pTrxReg = GetTrxReg();
-	pTrxBuf = GetBitBltBuf();
 
 	CPixelIndexor<Storage> Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
-	pSrc = (typename Storage::Unit*)pData;
+	auto pSrc = reinterpret_cast<typename Storage::Unit*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
-		typename Storage::Unit* pPixel;
+		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
-
-		pPixel = Indexor.GetPixelAddress(nX, nY);
+		auto pPixel = Indexor.GetPixelAddress(nX, nY);
 
 		if((*pPixel) != pSrc[i])
 		{
@@ -723,31 +750,23 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 template <uint32 nShift, uint32 nMask>
 bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 {
-	uint8* pSrc;
-	uint8 nSrcPixel;
-	uint32 nX, nY;
-	uint32* pDstPixel;
-	TRXPOS* pTrxPos;
-	TRXREG* pTrxReg;
-	BITBLTBUF* pTrxBuf;
-
-	pTrxPos = GetTrxPos();
-	pTrxReg = GetTrxReg();
-	pTrxBuf = GetBitBltBuf();
+	TRXPOS* pTrxPos = GetTrxPos();
+	TRXREG* pTrxReg = GetTrxReg();
+	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
 	CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
-	pSrc = (uint8*)pData;
+	uint8* pSrc = reinterpret_cast<uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
 		//Pixel 1
-		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-		nSrcPixel = pSrc[i] & 0x0F;
+		uint8 nSrcPixel = pSrc[i] & 0x0F;
 
-		pDstPixel = Indexor.GetPixelAddress(nX, nY);
+		uint32* pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		(*pDstPixel) &= ~nMask;
 		(*pDstPixel) |= (nSrcPixel << nShift);
 
@@ -781,30 +800,22 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 
 bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 {
-	uint8* pSrc;
-	uint8 nSrcPixel;
-	uint32 nX, nY;
-	uint32* pDstPixel;
-	TRXPOS* pTrxPos;
-	TRXREG* pTrxReg;
-	BITBLTBUF* pTrxBuf;
-
-	pTrxPos = GetTrxPos();
-	pTrxReg = GetTrxReg();
-	pTrxBuf = GetBitBltBuf();
+	TRXPOS* pTrxPos = GetTrxPos();
+	TRXREG* pTrxReg = GetTrxReg();
+	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
 	CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
-	pSrc = (uint8*)pData;
+	uint8* pSrc = reinterpret_cast<uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
-		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
 
-		nSrcPixel = pSrc[i];
+		uint8 nSrcPixel = pSrc[i];
 
-		pDstPixel = Indexor.GetPixelAddress(nX, nY);
+		uint32* pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		(*pDstPixel) &= ~0xFF000000;
 		(*pDstPixel) |= (nSrcPixel << 24);
 
@@ -821,7 +832,7 @@ bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 
 void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMode)
 {
-	m_nCrtMode			= nMode;
+	m_nCrtMode = nMode;
 
 	SMODE2 smode2;
 	smode2 <<= 0;
@@ -930,6 +941,247 @@ bool CGSHandler::GetCrtIsFrameMode() const
 	return smode2.ffmd;
 }
 
+void CGSHandler::SyncCLUT(const TEX0& tex0)
+{
+	//Sync clut
+	if(tex0.nCLD != 0)
+	{
+		//assert(IsPsmIDTEX(tex0.nPsm));
+		switch(tex0.nPsm)
+		{
+		case PSMT8:
+		case PSMT8H:
+			ReadCLUT8(tex0);
+			break;
+		case PSMT4:
+		case PSMT4HH:
+		case PSMT4HL:
+			ReadCLUT4(tex0);
+			break;
+		}
+	}
+}
+
+void CGSHandler::ReadCLUT4(const TEX0& tex0)
+{
+	bool updateNeeded = false;
+
+	if(tex0.nCLD == 0)
+	{
+		//No changes to CLUT
+	}
+	else if(tex0.nCLD == 1)
+	{
+		updateNeeded = true;
+	}
+	else if(tex0.nCLD == 2)
+	{
+		m_nCBP0 = tex0.nCBP;
+		updateNeeded = true;
+	}
+	else
+	{
+		updateNeeded = true;
+		assert(0);
+	}
+
+	if(updateNeeded)
+	{
+		bool changed = false;
+		uint32 clutOffset = tex0.nCSA * 16;
+
+		if(tex0.nCSM == 0)
+		{
+			//CSM1 mode
+			if(tex0.nCPSM == PSMCT32)
+			{
+				assert(tex0.nCSA < 16);
+
+				CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+				uint16* pDst = m_pCLUT + clutOffset;
+
+				for(unsigned int j = 0; j < 2; j++)
+				{
+					for(unsigned int i = 0; i < 8; i++)
+					{
+						uint32 color = Indexor.GetPixel(i, j);
+						uint16 colorLo = static_cast<uint16>(color & 0xFFFF);
+						uint16 colorHi = static_cast<uint16>(color >> 16);
+
+						if(
+							(pDst[0x000] != colorLo) ||
+							(pDst[0x100] != colorHi))
+						{
+							changed = true;
+						}
+
+						pDst[0x000] = colorLo;
+						pDst[0x100] = colorHi;
+						pDst++;
+					}
+				}
+			}
+			else if(tex0.nCPSM == PSMCT16)
+			{
+				assert(tex0.nCSA < 32);
+
+				CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+				uint16* pDst = m_pCLUT + clutOffset;
+
+				for(unsigned int j = 0; j < 2; j++)
+				{
+					for(unsigned int i = 0; i < 8; i++)
+					{
+						uint16 color = Indexor.GetPixel(i, j);
+
+						if(*pDst != color)
+						{
+							changed = true;
+						}
+
+						(*pDst++) = color;
+					}
+				}
+			}
+			else
+			{
+				assert(0);
+			}
+		}
+		else
+		{
+			//CSM2 mode
+			assert(tex0.nCPSM == PSMCT16);
+			assert(tex0.nCSA == 0);
+
+			TEXCLUT* pTexClut = GetTexClut();
+
+			CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), pTexClut->nCBW);
+			unsigned int nOffsetX = pTexClut->GetOffsetU();
+			unsigned int nOffsetY = pTexClut->GetOffsetV();
+			uint16* pDst = m_pCLUT;
+
+			for(unsigned int i = 0; i < 0x10; i++)
+			{
+				uint16 color = Indexor.GetPixel(nOffsetX + i, nOffsetY);
+
+				if(*pDst != color)
+				{
+					changed = true;
+				}
+
+				(*pDst++) = color;
+			}
+		}
+
+		if(changed)
+		{
+			ProcessClutTransfer(tex0.nCSA, 0);
+		}
+	}
+}
+
+void CGSHandler::ReadCLUT8(const TEX0& tex0)
+{
+	assert(tex0.nCSA == 0);
+	assert(tex0.nCSM == 0);
+
+	bool updateNeeded = false;
+
+	if(tex0.nCLD == 0)
+	{
+		//No changes to CLUT
+	}
+	else if(tex0.nCLD == 1)
+	{
+		updateNeeded = true;
+	}
+	else if(tex0.nCLD == 2)
+	{
+		m_nCBP0 = tex0.nCBP;
+		updateNeeded = true;
+	}
+	else if(tex0.nCLD == 3)
+	{
+		m_nCBP1 = tex0.nCBP;
+		updateNeeded = true;
+	}
+	else if(tex0.nCLD == 4)
+	{
+		updateNeeded = m_nCBP0 != tex0.nCBP;
+		m_nCBP0 = tex0.nCBP;
+	}
+	else
+	{
+		updateNeeded = true;
+		assert(0);
+	}
+
+	if(updateNeeded)
+	{
+		bool changed = false;
+
+		if(tex0.nCPSM == PSMCT32)
+		{
+			CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+
+			for(unsigned int j = 0; j < 16; j++)
+			{
+				for(unsigned int i = 0; i < 16; i++)
+				{
+					uint32 color = Indexor.GetPixel(i, j);
+					uint16 colorLo = static_cast<uint16>(color & 0xFFFF);
+					uint16 colorHi = static_cast<uint16>(color >> 16);
+
+					uint8 index = i + (j * 16);
+					index = (index & ~0x18) | ((index & 0x08) << 1) | ((index & 0x10) >> 1);
+
+					if(
+						(m_pCLUT[index + 0x000] != colorLo) ||
+						(m_pCLUT[index + 0x100] != colorHi))
+					{
+						changed = true;
+					}
+
+					m_pCLUT[index + 0x000] = colorLo;
+					m_pCLUT[index + 0x100] = colorHi;
+				}
+			}
+		}
+		else if(tex0.nCPSM == PSMCT16)
+		{
+			CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+
+			for(unsigned int j = 0; j < 16; j++)
+			{
+				for(unsigned int i = 0; i < 16; i++)
+				{
+					uint16 color = Indexor.GetPixel(i, j);
+					
+					uint8 index = i + (j * 16);
+					index = (index & ~0x18) | ((index & 0x08) << 1) | ((index & 0x10) >> 1);
+
+					if(m_pCLUT[index] != color)
+					{
+						changed = true;
+					}
+
+					m_pCLUT[index] = color;
+				}
+			}
+		}
+		else
+		{
+			assert(0);
+		}
+
+		if(changed)
+		{
+			ProcessClutTransfer(tex0.nCSA, 0);
+		}
+	}
+}
+
 unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
 {
 	switch(nPSM)
@@ -959,6 +1211,21 @@ unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
 		return 0;
 		break;
 	}
+}
+
+bool CGSHandler::IsPsmIDTEX(unsigned int psm)
+{
+	return IsPsmIDTEX4(psm) || IsPsmIDTEX8(psm);
+}
+
+bool CGSHandler::IsPsmIDTEX4(unsigned int psm)
+{
+	return psm == PSMT4 || psm == PSMT4HH || psm == PSMT4HL;
+}
+
+bool CGSHandler::IsPsmIDTEX8(unsigned int psm)
+{
+	return psm == PSMT8 || psm == PSMT8H;
 }
 
 void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)

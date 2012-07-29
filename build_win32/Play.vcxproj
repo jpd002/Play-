@@ -64,22 +64,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\$(PlatformName)\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\$(PlatformName)\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\$(PlatformName)\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\$(PlatformName)\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -185,6 +185,7 @@
     <ClCompile Include="..\Source\GSHandler.cpp" />
     <ClCompile Include="..\Source\GSH_Null.cpp" />
     <ClCompile Include="..\Source\GSH_OpenGL.cpp" />
+    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp" />
     <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp" />
     <ClCompile Include="..\Source\INTC.cpp" />
     <ClCompile Include="..\Source\iop\ArgumentIterator.cpp" />
@@ -221,6 +222,7 @@
     <ClCompile Include="..\Source\iop\Iop_Sysmem.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Thbase.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Thevent.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_Thmsgbx.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Thsema.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Timrman.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Vblank.cpp" />
@@ -307,10 +309,7 @@
     <ClCompile Include="..\Source\win32ui\ELFSymbolView.cpp" />
     <ClCompile Include="..\Source\win32ui\ELFView.cpp" />
     <ClCompile Include="..\Source\win32ui\FunctionsView.cpp" />
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp" />
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp" />
     <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp" />
-    <ClCompile Include="..\Source\win32ui\GSH_Software.cpp" />
     <ClCompile Include="..\Source\win32ui\IconMesh.cpp" />
     <ClCompile Include="..\Source\win32ui\Main.cpp" />
     <ClCompile Include="..\Source\win32ui\MainWindow.cpp" />
@@ -406,6 +405,7 @@
     <ClInclude Include="..\Source\iop\Iop_Sysmem.h" />
     <ClInclude Include="..\Source\iop\Iop_Thbase.h" />
     <ClInclude Include="..\Source\iop\Iop_Thevent.h" />
+    <ClInclude Include="..\Source\iop\Iop_Thmsgbx.h" />
     <ClInclude Include="..\Source\iop\Iop_Thsema.h" />
     <ClInclude Include="..\Source\iop\Iop_Timrman.h" />
     <ClInclude Include="..\Source\iop\Iop_Vblank.h" />
@@ -493,9 +493,7 @@
     <ClInclude Include="..\Source\win32ui\ElfViewRes.h" />
     <ClInclude Include="..\Source\win32ui\FileFilters.h" />
     <ClInclude Include="..\Source\win32ui\FunctionsView.h" />
-    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h" />
     <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h" />
-    <ClInclude Include="..\Source\win32ui\GSH_Software.h" />
     <ClInclude Include="..\Source\win32ui\IconMesh.h" />
     <ClInclude Include="..\Source\win32ui\MainWindow.h" />
     <ClInclude Include="..\Source\win32ui\McManagerWnd.h" />
@@ -532,8 +530,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\License.txt" />
-    <None Include="..\Source\shaders\TexClamp.frag" />
-    <None Include="..\Source\shaders\TexClamp.vert" />
     <None Include="..\Source\win32ui\Images\arrow.bmp" />
     <None Include="..\Source\win32ui\Images\bpoint.bmp" />
     <None Include="..\Source\win32ui\Images\ex.bmp" />

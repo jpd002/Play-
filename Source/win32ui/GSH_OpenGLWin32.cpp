@@ -1,10 +1,6 @@
 #include "GSH_OpenGLWin32.h"
 #include "RendererSettingsWnd.h"
 
-using namespace Framework;
-using namespace std;
-using namespace std::tr1;
-
 PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_PFD =
 {
 	sizeof(PIXELFORMATDESCRIPTOR),
@@ -23,8 +19,8 @@ PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_PFD =
 	0, 0, 0
 };
 
-CGSH_OpenGLWin32::CGSH_OpenGLWin32(Win32::CWindow* outputWindow) :
-m_pOutputWnd(outputWindow)
+CGSH_OpenGLWin32::CGSH_OpenGLWin32(Framework::Win32::CWindow* outputWindow)
+: m_pOutputWnd(outputWindow)
 {
 
 }
@@ -34,9 +30,9 @@ CGSH_OpenGLWin32::~CGSH_OpenGLWin32()
 
 }
 
-CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Win32::CWindow* pOutputWnd)
+CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Framework::Win32::CWindow* pOutputWnd)
 {
-    return bind(&CGSH_OpenGLWin32::GSHandlerFactory, pOutputWnd);
+	return std::bind(&CGSH_OpenGLWin32::GSHandlerFactory, pOutputWnd);
 }
 
 void CGSH_OpenGLWin32::InitializeImpl()
@@ -47,12 +43,12 @@ void CGSH_OpenGLWin32::InitializeImpl()
 	m_hRC = wglCreateContext(m_hDC);
 	wglMakeCurrent(m_hDC, m_hRC);
 
-    CGSH_OpenGL::InitializeImpl();
+	CGSH_OpenGL::InitializeImpl();
 }
 
 void CGSH_OpenGLWin32::ReleaseImpl()
 {
-    CGSH_OpenGL::ReleaseImpl();
+	CGSH_OpenGL::ReleaseImpl();
 
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(m_hRC);
@@ -71,7 +67,7 @@ void CGSH_OpenGLWin32::SetViewport(int nWidth, int nHeight)
 	AdjustWindowRect(&rc, GetWindowLong(m_pOutputWnd->m_hWnd, GWL_STYLE), FALSE);
 	m_pOutputWnd->SetSize((rc.right - rc.left), (rc.bottom - rc.top));
 
-    CGSH_OpenGL::SetViewport(nWidth, nHeight);
+	CGSH_OpenGL::SetViewport(nWidth, nHeight);
 }
 
 CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
@@ -79,7 +75,7 @@ CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
 	return this;
 }
 
-Win32::CModalWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND hParent)
+Framework::Win32::CModalWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND hParent)
 {
 	return new CRendererSettingsWnd(hParent, this);
 }
@@ -88,33 +84,10 @@ void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
 {
 	LoadSettings();
 	TexCache_Flush();
+	PalCache_Flush();
 }
 
-void CGSH_OpenGLWin32::LoadShaderSource(OpenGl::CShader* pShader, SHADER shaderName)
-{
-    const TCHAR* sResourceName(NULL);
-    switch(shaderName)
-    {
-    case SHADER_VERTEX:
-        sResourceName = _T("IDR_VERTSHADER");
-        break;
-    case SHADER_FRAGMENT:
-        sResourceName = _T("IDR_FRAGSHADER");
-        break;
-    default:
-        throw runtime_error("Invalid shader name.");
-        break;
-    }
-
-	HRSRC nResource         = FindResource(GetModuleHandle(NULL), sResourceName, _T("SHADER"));
-	HGLOBAL nResourcePtr	= LoadResource(GetModuleHandle(NULL), nResource);
-	const char* sSource     = const_cast<char*>(reinterpret_cast<char*>(LockResource(nResourcePtr)));
-	DWORD nSize             = SizeofResource(GetModuleHandle(NULL), nResource);
-
-	pShader->SetSource(sSource, nSize);
-}
-
-CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Win32::CWindow* pParam)
+CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Framework::Win32::CWindow* pParam)
 {
 	return new CGSH_OpenGLWin32(pParam);
 }

@@ -9,8 +9,6 @@
 #define IDB_EX                          108
 #define IDR_MAINWINDOW                  109
 #define IDI_PUREI                       110
-#define IDR_SHADER1                     113
-#define IDR_SHADER2                     114
 #define IDC_GRAB                        115
 #define IDC_CURSOR1                     116
 #define IDC_GRABBING                    116

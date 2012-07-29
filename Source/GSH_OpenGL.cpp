@@ -8,26 +8,39 @@
 
 //#define _WIREFRAME
 
+GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
+{
+	GL_REPEAT,
+	GL_CLAMP_TO_EDGE,
+	GL_REPEAT,
+	GL_REPEAT
+};
+
+unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
+{
+	TEXTURE_CLAMP_MODE_STD,
+	TEXTURE_CLAMP_MODE_STD,
+	TEXTURE_CLAMP_MODE_REGION_CLAMP,
+	TEXTURE_CLAMP_MODE_REGION_REPEAT
+};
+
 CGSH_OpenGL::CGSH_OpenGL() 
-: m_pProgram(NULL)
-, m_pVertShader(NULL)
-, m_pFragShader(NULL)
-, m_pCLUT(NULL)
-, m_pCLUT16(NULL)
-, m_pCLUT32(NULL)
-, m_pCvtBuffer(NULL)
+: m_pCvtBuffer(nullptr)
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
 	LoadSettings();
+
+	m_pCvtBuffer = new uint8[CVTBUFFERSIZE];
+
+	memset(&m_renderState, 0, sizeof(m_renderState));
 }
 
 CGSH_OpenGL::~CGSH_OpenGL()
 {
-	FREEPTR(m_pCLUT);
-	FREEPTR(m_pCvtBuffer);
+	delete [] m_pCvtBuffer;
 }
 
 void CGSH_OpenGL::InitializeImpl()
@@ -37,24 +50,30 @@ void CGSH_OpenGL::InitializeImpl()
 	m_nVtxCount = 0;
 	m_nWidth = -1;
 	m_nHeight = -1;
+	memset(m_clampMin, 0, sizeof(m_clampMin));
+	memset(m_clampMax, 0, sizeof(m_clampMax));
 
-	for(unsigned int i = 0; i < MAXCACHE; i++)
+	for(unsigned int i = 0; i < MAX_TEXTURE_CACHE; i++)
 	{
-		m_TexCache.push_back(new CTexture());
+		m_textureCache.push_back(TexturePtr(new CTexture()));
+	}
+
+	for(unsigned int i = 0; i < MAX_PALETTE_CACHE; i++)
+	{
+		m_paletteCache.push_back(PalettePtr(new CPalette()));
 	}
 
 	m_nMaxZ = 32768.0;
+	m_renderState.isValid = false;
 }
 
 void CGSH_OpenGL::ReleaseImpl()
 {
 	TexCache_Flush();
-	for(TextureList::iterator textureIterator(m_TexCache.begin());
-		textureIterator != m_TexCache.end(); textureIterator++)
-	{
-		CTexture* texture = *textureIterator;
-		delete texture;
-	}
+	PalCache_Flush();
+	m_textureCache.clear();
+	m_paletteCache.clear();
+	m_shaderInfos.clear();
 }
 
 void CGSH_OpenGL::FlipImpl()
@@ -102,16 +121,6 @@ void CGSH_OpenGL::InitializeRC()
 	glHint(GL_FOG_HINT, GL_NICEST);
 	glFogi(GL_FOG_COORDINATE_SOURCE_EXT, GL_FOG_COORDINATE_EXT);
 
-//REMOVE
-//	if(glColorTableEXT == NULL)
-//	{
-		m_pTexUploader_Psm8 = &CGSH_OpenGL::TexUploader_Psm8_Cvt;
-//	}
-//	else
-//	{
-//		m_pTexUploader_Psm8 = &CGSH_OpenGL::TexUploader_Psm8_Hw;
-//	}
-
 	VerifyRGBA5551Support();
 	if(!m_nIsRGBA5551Supported)
 	{
@@ -121,43 +130,6 @@ void CGSH_OpenGL::InitializeRC()
 	{
 		m_pTexUploader_Psm16 = &CGSH_OpenGL::TexUploader_Psm16_Hw;
 	}
-
-	DELETEPTR(m_pProgram);
-	DELETEPTR(m_pVertShader);
-	DELETEPTR(m_pFragShader);
-
-	//Create shaders/program
-	if((glCreateProgram != NULL) && (glCreateShader != NULL))
-	{
-		m_pProgram		= new Framework::OpenGl::CProgram();
-		m_pVertShader	= new Framework::OpenGl::CShader(GL_VERTEX_SHADER);
-		m_pFragShader	= new Framework::OpenGl::CShader(GL_FRAGMENT_SHADER);
-
-		LoadShaderSource(m_pVertShader, SHADER_VERTEX);
-		LoadShaderSource(m_pFragShader, SHADER_FRAGMENT);
-
-		bool success = false;
-
-		success = m_pVertShader->Compile();
-		assert(success);
-
-		success = m_pFragShader->Compile();
-		assert(success);
-
-		m_pProgram->AttachShader(*m_pVertShader);
-		m_pProgram->AttachShader(*m_pFragShader);
-
-		success = m_pProgram->Link();
-		assert(success);
-	}
-
-	m_pCvtBuffer = (uint8*)malloc(CVTBUFFERSIZE);
-
-	m_pCLUT		= malloc(0x400);
-	m_pCLUT32	= (uint32*)m_pCLUT;
-	m_pCLUT16	= (uint16*)m_pCLUT;
-	m_nCBP0		= 0;
-	m_nCBP1		= 0;
 
 	SetViewport(512, 384);
 
@@ -173,7 +145,7 @@ void CGSH_OpenGL::InitializeRC()
 
 void CGSH_OpenGL::VerifyRGBA5551Support()
 {
-	unsigned int nTexture;
+	unsigned int nTexture = 0;
 
 	m_nIsRGBA5551Supported = true;
 
@@ -314,19 +286,54 @@ unsigned int CGSH_OpenGL::GetNextPowerOf2(unsigned int nNumber)
 
 void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 {
-	SetupBlendingFunction(m_nReg[GS_REG_ALPHA_1 + nContext]);
-	SetupTestFunctions(m_nReg[GS_REG_TEST_1 + nContext]);
-	SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
-	SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
+	SHADERCAPS shaderCaps;
+	memset(&shaderCaps, 0, sizeof(SHADERCAPS));
+
+	uint64 testReg = m_nReg[GS_REG_TEST_1 + nContext];
+	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + nContext];
+	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + nContext];
+	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + nContext];
+
+	if(!m_renderState.isValid ||
+		(m_renderState.alphaReg != alphaReg))
+	{
+		SetupBlendingFunction(alphaReg);
+		m_renderState.alphaReg = alphaReg;
+	}
+
+	if(!m_renderState.isValid ||
+		(m_renderState.testReg != testReg))
+	{
+		SetupTestFunctions(testReg);
+		m_renderState.testReg = testReg;
+	}
+
+	if(!m_renderState.isValid ||
+		(m_renderState.zbufReg != zbufReg))
+	{
+		SetupDepthBuffer(zbufReg);
+		m_renderState.zbufReg = zbufReg;
+	}
+
+	SetupTexture(shaderCaps, m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
 	
+	if(!m_renderState.isValid ||
+		(m_renderState.frameReg != frameReg))
 	{
 		FRAME frame;
-		frame <<= m_nReg[GS_REG_FRAME_1 + nContext];
+		frame <<= frameReg;
 		bool r = (frame.nMask & 0x000000FF) == 0;
 		bool g = (frame.nMask & 0x0000FF00) == 0;
 		bool b = (frame.nMask & 0x00FF0000) == 0;
 		bool a = (frame.nMask & 0xFF000000) == 0;
 		glColorMask(r, g, b, a);
+
+		m_renderState.frameReg = frameReg;
+	}
+
+	if(m_PrimitiveMode.nFog)
+	{
+		shaderCaps.hasFog = 1;
 	}
 
 	XYOFFSET offset;
@@ -341,6 +348,76 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 			m_nPrimOfsY += 0.5;
 		}
 	}
+
+	auto shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
+	if(shaderInfoIterator == m_shaderInfos.end())
+	{
+		auto shader = GenerateShader(shaderCaps);
+		SHADERINFO shaderInfo;
+		shaderInfo.shader = shader;
+
+		shaderInfo.textureUniform		= glGetUniformLocation(*shader, "g_texture");
+		shaderInfo.paletteUniform		= glGetUniformLocation(*shader, "g_palette");
+		shaderInfo.textureSizeUniform	= glGetUniformLocation(*shader, "g_textureSize");
+		shaderInfo.texelSizeUniform		= glGetUniformLocation(*shader, "g_texelSize");
+		shaderInfo.clampMinUniform		= glGetUniformLocation(*shader, "g_clampMin");
+		shaderInfo.clampMaxUniform		= glGetUniformLocation(*shader, "g_clampMax");
+
+		m_shaderInfos.insert(ShaderInfoMap::value_type(static_cast<uint32>(shaderCaps), shaderInfo));
+		shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
+	}
+
+	const auto& shaderInfo = shaderInfoIterator->second;
+
+	GLuint shaderHandle = *shaderInfo.shader;
+	if(!m_renderState.isValid ||
+		(m_renderState.shaderHandle != shaderHandle))
+	{
+		glUseProgram(shaderHandle);
+
+		if(shaderInfo.textureUniform != -1)
+		{
+			glUniform1i(shaderInfo.textureUniform, 0);
+		}
+
+		if(shaderInfo.paletteUniform != -1)
+		{
+			glUniform1i(shaderInfo.paletteUniform, 1);
+		}
+
+		m_renderState.shaderHandle = shaderHandle;
+	}
+
+	TEX0 tex0;
+	tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
+
+	if(shaderInfo.textureSizeUniform != -1)
+	{
+		glUniform2f(shaderInfo.textureSizeUniform, 
+			static_cast<float>(tex0.GetWidth()), static_cast<float>(tex0.GetHeight()));
+	}
+
+	if(shaderInfo.texelSizeUniform != -1)
+	{
+		glUniform2f(shaderInfo.texelSizeUniform, 
+			1.0f / static_cast<float>(tex0.GetWidth()), 1.0f / static_cast<float>(tex0.GetHeight()));
+	}
+
+	if(shaderInfo.clampMinUniform != -1)
+	{
+		glUniform2f(shaderInfo.clampMinUniform,
+			static_cast<float>(m_clampMin[0]), static_cast<float>(m_clampMin[1]));
+	}
+
+	if(shaderInfo.clampMaxUniform != -1)
+	{
+		glUniform2f(shaderInfo.clampMaxUniform,
+			static_cast<float>(m_clampMax[0]), static_cast<float>(m_clampMax[1]));
+	}
+
+	assert(glGetError() == GL_NO_ERROR);
+
+	m_renderState.isValid = true;
 }
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
@@ -542,25 +619,129 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 	glDepthMask(zbuf.nMask ? GL_FALSE : GL_TRUE);
 }
 
-void CGSH_OpenGL::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
+void CGSH_OpenGL::SetupTexture(SHADERCAPS& shaderCaps, uint64 nTex0, uint64 nTex1, uint64 nClamp)
 {
+	if(nTex0 == 0 || m_PrimitiveMode.nTexture == 0)
+	{
+		return;
+	}
+
+	shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_STD;
+
 	TEX0 tex0;
 	TEX1 tex1;
 	CLAMP clamp;
-
-	if(nTex0 == 0)
-	{
-		m_nTexHandle = 0;
-		return;
-	}
 
 	tex0 <<= nTex0;
 	tex1 <<= nTex1;
 	clamp <<= nClamp;
 
-	m_nTexWidth		= tex0.GetWidth();
-	m_nTexHeight	= tex0.GetHeight();
-	m_nTexHandle	= LoadTexture(&tex0, &tex1, &clamp);
+	m_nTexWidth = tex0.GetWidth();
+	m_nTexHeight = tex0.GetHeight();
+
+	glActiveTexture(GL_TEXTURE0);
+	PrepareTexture(tex0);
+
+	int nMagFilter, nMinFilter;
+
+	//Setup sampling modes
+	if(tex1.nMagFilter == 0)
+	{
+		nMagFilter = GL_NEAREST;
+	}
+	else
+	{
+		nMagFilter = GL_LINEAR;
+	}
+
+	switch(tex1.nMinFilter)
+	{
+	case 0:
+		nMinFilter = GL_NEAREST;
+		break;
+	case 1:
+		nMinFilter = GL_LINEAR;
+		break;
+	case 5:
+		nMinFilter = GL_LINEAR_MIPMAP_LINEAR;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	if(m_nForceBilinearTextures)
+	{
+		nMagFilter = GL_LINEAR;
+		nMinFilter = GL_LINEAR;
+	}
+
+	GLenum nWrapS = g_nativeClampModes[clamp.nWMS];
+	GLenum nWrapT = g_nativeClampModes[clamp.nWMT];
+
+	if((clamp.nWMS > CLAMP_MODE_CLAMP) || (clamp.nWMT > CLAMP_MODE_CLAMP))
+	{
+		unsigned int clampMode[2];
+
+		clampMode[0] = g_shaderClampModes[clamp.nWMS];
+		clampMode[1] = g_shaderClampModes[clamp.nWMT];
+
+		m_clampMin[0] = clamp.GetMinU();
+		m_clampMin[1] = clamp.GetMinV();
+
+		m_clampMax[0] = clamp.GetMaxU();
+		m_clampMax[1] = clamp.GetMaxV();
+
+		for(unsigned int i = 0; i < 2; i++)
+		{
+			if(clampMode[i] == TEXTURE_CLAMP_MODE_REGION_REPEAT)
+			{
+				//Check if we can transform in something more elegant
+				for(unsigned int j = 1; j < 0x3FF; j = ((j << 1) | 1))
+				{
+					if(m_clampMin[i] < j) break;
+					if(m_clampMin[i] != j) continue;
+
+					if((m_clampMin[i] & m_clampMax[i]) != 0) break;
+
+					m_clampMin[i]++;
+					clampMode[i] = TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE;
+				}
+			}
+		}
+
+		shaderCaps.texClampS = clampMode[0];
+		shaderCaps.texClampT = clampMode[1];
+	}
+
+	if(IsPsmIDTEX(tex0.nPsm) && (nMinFilter != GL_NEAREST || nMagFilter != GL_NEAREST))
+	{
+		//We'll need to filter the texture manually
+		shaderCaps.texBilinearFilter = 1;
+		nMinFilter = GL_NEAREST;
+		nMagFilter = GL_NEAREST;
+	}
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nMagFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nMinFilter);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, nWrapS);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, nWrapT);
+
+	if(IsPsmIDTEX(tex0.nPsm))
+	{
+		glActiveTexture(GL_TEXTURE1);
+		PreparePalette(tex0);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		shaderCaps.texSourceMode = IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;
+	}
+
+	shaderCaps.texFunction = tex0.nFunction;
 }
 
 void CGSH_OpenGL::SetupFogColor()
@@ -605,7 +786,6 @@ void CGSH_OpenGL::Prim_Point()
 			glVertex2f(nX + 0, nY + 1);
 
 		glEnd();
-
 	}
 	else
 	{
@@ -671,7 +851,6 @@ void CGSH_OpenGL::Prim_Line()
 	}
 	else
 	{
-
 		//Yay for textured lines!
 		assert(0);
 	}
@@ -729,8 +908,6 @@ void CGSH_OpenGL::Prim_Triangle()
 
 	if(m_PrimitiveMode.nFog)
 	{
-		glEnable(GL_FOG);
-
 		nF1 = (float)(0xFF - m_VtxBuffer[2].nFog) / 255.0f;
 		nF2 = (float)(0xFF - m_VtxBuffer[1].nFog) / 255.0f;
 		nF3 = (float)(0xFF - m_VtxBuffer[0].nFog) / 255.0f;
@@ -746,8 +923,6 @@ void CGSH_OpenGL::Prim_Triangle()
 
 		if(m_PrimitiveMode.nUseUV)
 		{
-			glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
-
 			UV uv[3];
 			uv[0] <<= m_VtxBuffer[2].nUV;
 			uv[1] <<= m_VtxBuffer[1].nUV;
@@ -776,14 +951,9 @@ void CGSH_OpenGL::Prim_Triangle()
 				glVertex3f(nX3, nY3, nZ3);
 			}
 			glEnd();
-
-			glBindTexture(GL_TEXTURE_2D, NULL);
-
 		}
 		else
 		{
-			glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
-
 			ST st[3];
 			st[0] <<= m_VtxBuffer[2].nST;
 			st[1] <<= m_VtxBuffer[1].nST;
@@ -817,8 +987,6 @@ void CGSH_OpenGL::Prim_Triangle()
 				glVertex3f(nX3, nY3, nZ3);
 			}
 			glEnd();
-
-			glBindTexture(GL_TEXTURE_2D, NULL);
 		}
 	}
 	else
@@ -836,11 +1004,6 @@ void CGSH_OpenGL::Prim_Triangle()
 			glVertex3f(nX3, nY3, nZ3);
 
 		glEnd();
-	}
-
-	if(m_PrimitiveMode.nFog)
-	{
-		glDisable(GL_FOG);
 	}
 
 	if(m_PrimitiveMode.nAlpha)
@@ -883,8 +1046,6 @@ void CGSH_OpenGL::Prim_Sprite()
 	{
 		float nS[2], nT[2];
 
-		glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
-
 		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
 
 		if(m_PrimitiveMode.nUseUV)
@@ -920,17 +1081,11 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		glBegin(GL_QUADS);
 		{
-			//REMOVE
-			//glColor4d(1.0, 1.0, 1.0, 1.0);
-
 			glTexCoord2f(nS[0], nT[0]);
 			glVertex3f(nX1, nY1, nZ1);
 
 			glTexCoord2f(nS[1], nT[0]);
 			glVertex3f(nX2, nY1, nZ2);
-
-			//REMOVE
-			//glColor4d(1.0, 1.0, 1.0, 1.0);
 
 			glTexCoord2f(nS[1], nT[1]);
 			glVertex3f(nX2, nY2, nZ1);
@@ -940,8 +1095,6 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		}
 		glEnd();
-
-		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else if(!m_PrimitiveMode.nTexture)
 	{
@@ -1025,34 +1178,6 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	case GS_REG_XYZF2:
 	case GS_REG_XYZF3:
 		VertexKick(nRegister, nData);
-		break;
-
-	case GS_REG_TEX0_1:
-	case GS_REG_TEX0_2:
-		{
-			unsigned int nContext = nRegister - GS_REG_TEX0_1;
-			assert(nContext == 0 || nContext == 1);
-			TEX0 tex0;
-			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
-			SyncCLUT(&tex0);
-		}
-		break;
-
-	case GS_REG_TEX2_1:
-	case GS_REG_TEX2_2:
-		{
-			//Update TEX0
-			unsigned int nContext = nRegister - GS_REG_TEX2_1;
-			assert(nContext == 0 || nContext == 1);
-
-			const uint64 nMask = 0xFFFFFFE003F00000ULL;
-			m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
-			m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
-
-			TEX0 tex0;
-			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
-			SyncCLUT(&tex0);
-		}
 		break;
 
 	case GS_REG_FOGCOL:
@@ -1160,6 +1285,11 @@ void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength)
 	}
 }
 
+void CGSH_OpenGL::ProcessClutTransfer(uint32 csa, uint32)
+{
+	PalCache_Invalidate(csa);
+}
+
 void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
 	glFlush();
@@ -1169,32 +1299,22 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 
 void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 {
-	unsigned int nW, nH;
-	unsigned int nW2, nH2;
-	unsigned int nDX, nDY;
-	unsigned int nTexture;
-//	uint32* pImg;
-	double nS, nT;
-	TRXREG* pReg;
-	TRXPOS* pPos;
+	TRXREG* pReg = GetTrxReg();
+	TRXPOS* pPos = GetTrxPos();
 
-	pReg = GetTrxReg();
-	pPos = GetTrxPos();
+	unsigned int nW = pReg->nRRW;
+	unsigned int nH = pReg->nRRH;
 
-	nW = pReg->nRRW;
-	nH = pReg->nRRH;
+	unsigned int nDX = pPos->nDSAX;
+	unsigned int nDY = pPos->nDSAY;
 
-	nDX = pPos->nDSAX;
-	nDY = pPos->nDSAY;
-
-//	pImg = (uint32*)(m_pRAM + nAddress);
-
+	GLuint nTexture = 0;
 	glGenTextures(1, &nTexture);
 
 	glBindTexture(GL_TEXTURE_2D, nTexture);
 
-	nW2 = GetNextPowerOf2(nW);
-	nH2 = GetNextPowerOf2(nH);
+	unsigned int nW2 = GetNextPowerOf2(nW);
+	unsigned int nH2 = GetNextPowerOf2(nH);
 
 	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, nW / 64, nW, nH);
 
@@ -1206,24 +1326,24 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glColor4d(1.0, 1.0, 1.0, 1.0);
+	glColor4f(1.0, 1.0, 1.0, 1.0);
 
-	nS = (double)nW / (double)nW2;
-	nT = (double)nH / (double)nH2;
+	float nS = (float)nW / (float)nW2;
+	float nT = (float)nH / (float)nH2;
 
 	glBegin(GL_QUADS);
 		
-		glTexCoord2d(0.0,		0.0);
-		glVertex2d(nDX,			nDY);
+		glTexCoord2f(0.0f,		0.0f);
+		glVertex2f(nDX,			nDY);
 
-		glTexCoord2d(0.0,		nT);
-		glVertex2d(nDX,			nDY + nH);
+		glTexCoord2f(0.0f,		nT);
+		glVertex2f(nDX,			nDY + nH);
 
-		glTexCoord2d(nS,		nT);
-		glVertex2d(nDX + nW,	nDY + nH);
+		glTexCoord2f(nS,		nT);
+		glVertex2f(nDX + nW,	nDY + nH);
 
-		glTexCoord2d(nS,		0.0);
-		glVertex2d(nDX + nW,	nDY);
+		glTexCoord2f(nS,		0.0f);
+		glVertex2f(nDX + nW,	nDY);
 
 	glEnd();
 
@@ -1232,15 +1352,6 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	glDeleteTextures(1, &nTexture);
 
 	PresentBackbuffer();
-}
-
-bool CGSH_OpenGL::IsColorTableExtSupported()
-{
-#ifdef _WIN32
-	return glColorTableEXT != NULL;
-#else
-	return NULL;
-#endif
 }
 
 bool CGSH_OpenGL::IsBlendColorExtSupported()

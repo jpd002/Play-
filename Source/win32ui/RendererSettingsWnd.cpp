@@ -159,13 +159,6 @@ void CRendererSettingsWnd::UpdateExtList()
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
-	itm.pszText		= _T("glColorTable function");
-	i = m_pExtList->InsertItem(&itm);
-
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsColorTableExtSupported() ? _T("Present") : _T("Absent"));
-
-	memset(&itm, 0, sizeof(LVITEM));
-	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("glBlendColor function");
 	i = m_pExtList->InsertItem(&itm);
 
