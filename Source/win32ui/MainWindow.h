@@ -1,7 +1,7 @@
 #ifndef _MAINWINDOW_H_
 #define _MAINWINDOW_H_
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <string>
 #include <memory>
 #include "win32/Window.h"
@@ -14,7 +14,7 @@
 #endif
 #include "../PS2VM.h"
 
-class CMainWindow : public Framework::Win32::CWindow, public boost::signals::trackable
+class CMainWindow : public Framework::Win32::CWindow, public boost::signals2::trackable
 {
 public:
 									CMainWindow(CPS2VM&, char*);

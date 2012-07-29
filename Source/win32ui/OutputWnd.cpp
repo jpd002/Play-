@@ -3,8 +3,6 @@
 
 #define CLSNAME		_T("COutputWnd")
 
-using namespace Framework;
-
 COutputWnd::COutputWnd(HWND hParent, RECT* pR)
 {
 	if(!DoesWindowClassExist(CLSNAME))
@@ -32,15 +30,11 @@ COutputWnd::~COutputWnd()
 
 long COutputWnd::OnSize(unsigned int nMode, unsigned int nX, unsigned int nY)
 {
-	m_OnSizeChange();
+	OnSizeChange();
 	return TRUE;
 }
 
 long COutputWnd::OnPaint()
 {
-	//if(CPS2VM::m_pGS != NULL)
-	//{
-	//	CPS2VM::m_pGS->Flip();
-	//}
 	return TRUE;
 }
