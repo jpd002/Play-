@@ -354,7 +354,7 @@ long CMainWindow::OnWndProc(unsigned int msg, WPARAM wParam, LPARAM lParam)
 	if(m_taskBarList && (msg == m_taskBarList->GetCreatedMessage()))
 	{
 		static const int buttonCount = 3;
-		static const UINT buttonIds[3] =
+		static const UINT buttonIds[buttonCount] =
 		{
 			ID_FILE_PREVIOUSTRACK,
 			ID_FILE_PAUSE,
@@ -483,7 +483,7 @@ long CMainWindow::OnSize(unsigned int type, unsigned int width, unsigned int hei
 
 void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 {
-	const CPlaylist::ITEM& item(m_playlist.GetItem(index));
+	const auto& item(m_playlist.GetItem(index));
 	
 	boost::filesystem::path archivePath;
 	if(item.archiveId != 0)

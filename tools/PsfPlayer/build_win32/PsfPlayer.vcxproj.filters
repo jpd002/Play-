@@ -376,6 +376,9 @@
     <ClCompile Include="..\Source\PsfZipArchive.cpp">
       <Filter>Source Files\archives</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thmsgbx.cpp">
+      <Filter>Source Files\Purei Core\iop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
@@ -731,6 +734,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\PsfZipArchive.h">
       <Filter>Source Files\archives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thmsgbx.h">
+      <Filter>Source Files\Purei Core\iop</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

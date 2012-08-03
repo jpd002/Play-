@@ -11,7 +11,7 @@
 #include <functional>
 #include <memory>
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/static_assert.hpp>

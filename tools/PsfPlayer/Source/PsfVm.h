@@ -9,12 +9,12 @@
 #include "Debuggable.h"
 #include "MailBox.h"
 #include <boost/thread.hpp>
-#include <boost/signal.hpp>
 
-class CPsfVm : public CVirtualMachine, public boost::signals::trackable
+class CPsfVm : public CVirtualMachine, public boost::signals2::trackable
 {
 public:
-	typedef std::tr1::function<CSoundHandler* ()> SpuHandlerFactory;
+	typedef std::function<CSoundHandler* ()> SpuHandlerFactory;
+	typedef boost::signals2::signal<void ()> OnNewFrameEvent;
 
 						CPsfVm();
 	virtual				~CPsfVm();
@@ -43,7 +43,7 @@ public:
 	void				SaveDebugTags(const char*);
 #endif
 
-	boost::signal<void ()> OnNewFrame;
+	OnNewFrameEvent		OnNewFrame;
 
 private:
 	void				ThreadProc();

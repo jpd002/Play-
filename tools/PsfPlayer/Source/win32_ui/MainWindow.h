@@ -21,7 +21,7 @@
 #include "AcceleratorTable.h"
 #include "LockFreeQueue.h"
 
-class CMainWindow : public Framework::Win32::CDialog, public boost::signals::trackable
+class CMainWindow : public Framework::Win32::CDialog, public boost::signals2::trackable
 {
 public:
 										CMainWindow(CPsfVm&);

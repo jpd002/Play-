@@ -121,9 +121,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <AdditionalOptions>/Zm111 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,7 +140,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
@@ -157,7 +158,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
@@ -175,7 +176,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_NULL_SIFMAN;FUNCTIONSVIEW_STANDALONE;RAR_SUPPORT;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
@@ -195,7 +196,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
@@ -217,7 +218,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_NULL_SIFMAN;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
@@ -266,6 +267,7 @@
     <ClCompile Include="..\..\..\Source\iop\Iop_Sysmem.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Thbase.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Thevent.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thmsgbx.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Thsema.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Timrman.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Vblank.cpp" />
@@ -412,6 +414,7 @@
     <ClInclude Include="..\..\..\Source\iop\Iop_Sysmem.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Thbase.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Thevent.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thmsgbx.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Thsema.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Timrman.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Vblank.h" />

@@ -6,7 +6,7 @@
 #include "BiosDebugInfoProvider.h"
 #include "iop/Iop_SpuBase.h"
 #include "SoundHandler.h"
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 
 class CPsfVmSubSystem
 {
@@ -27,7 +27,7 @@ public:
 	virtual void						SaveDebugTags(Framework::Xml::CNode*) = 0;
 #endif
 
-	boost::signal<void ()>				OnNewFrame;
+	boost::signals2::signal<void ()>	OnNewFrame;
 };
 
 typedef std::shared_ptr<CPsfVmSubSystem> PsfVmSubSystemPtr;
