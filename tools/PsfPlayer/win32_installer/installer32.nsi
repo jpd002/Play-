@@ -62,10 +62,10 @@ Section "PsfPlayer (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "..\Win32\Release\PsfPlayer.exe"
-  File "..\Win32\Release\SH_WaveOut.dll"
-  File "..\Win32\Release\SH_OpenAL.dll"
-  File "..\Win32\Release\TDEmu.dll"
+  File "..\build_win32\Win32\Release\PsfPlayer.exe"
+  File "..\build_win32\Win32\Release\SH_WaveOut.dll"
+  File "..\build_win32\Win32\Release\SH_OpenAL.dll"
+  File "..\build_win32\Win32\Release\TDEmu.dll"
   File "..\changelog.html"
   
   ; Write the installation path into the registry
