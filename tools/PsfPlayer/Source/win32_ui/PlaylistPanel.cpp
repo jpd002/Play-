@@ -23,9 +23,9 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 
 	m_moveUpButton		= new Framework::Win32::CButton(GetItem(IDC_UP_BUTTON));
 	m_moveDownButton	= new Framework::Win32::CButton(GetItem(IDC_DOWN_BUTTON));
-    m_addButton			= new Framework::Win32::CButton(GetItem(IDC_ADD_BUTTON));
-    m_removeButton		= new Framework::Win32::CButton(GetItem(IDC_REMOVE_BUTTON));
-    m_saveButton		= new Framework::Win32::CButton(GetItem(IDC_SAVE_BUTTON));
+	m_addButton			= new Framework::Win32::CButton(GetItem(IDC_ADD_BUTTON));
+	m_removeButton		= new Framework::Win32::CButton(GetItem(IDC_REMOVE_BUTTON));
+	m_saveButton		= new Framework::Win32::CButton(GetItem(IDC_SAVE_BUTTON));
 
 	RECT buttonSize;
 	SetRect(&buttonSize, 0, 0, 16, 16);
@@ -47,12 +47,12 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 			)
 		);
 
-    CreateColumns();
+	CreateColumns();
 
-    m_playlist.OnItemInsert.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemInsert, this, std::tr1::placeholders::_1));
-    m_playlist.OnItemUpdate.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemUpdate, this, std::tr1::placeholders::_1, std::tr1::placeholders::_2));
-    m_playlist.OnItemDelete.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemDelete, this, std::tr1::placeholders::_1));
-    m_playlist.OnItemsClear.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemsClear, this));
+	m_playlist.OnItemInsert.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemInsert, this, std::tr1::placeholders::_1));
+	m_playlist.OnItemUpdate.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemUpdate, this, std::tr1::placeholders::_1, std::tr1::placeholders::_2));
+	m_playlist.OnItemDelete.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemDelete, this, std::tr1::placeholders::_1));
+	m_playlist.OnItemsClear.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemsClear, this));
 
 	RefreshLayout();
 }
@@ -72,33 +72,33 @@ long CPlaylistPanel::OnCommand(unsigned short cmd, unsigned short id, HWND sende
 	{
 		OnMoveDownButtonClick();
 	}
-    else if(CWindow::IsCommandSource(m_saveButton, sender))
-    {
-        OnSaveButtonClick();
-    }
-    else if(CWindow::IsCommandSource(m_addButton, sender))
-    {
-        OnAddButtonClick();
-    }
-    else if(CWindow::IsCommandSource(m_removeButton, sender))
-    {
-        OnRemoveButtonClick();
-    }
-    return FALSE;
+	else if(CWindow::IsCommandSource(m_saveButton, sender))
+	{
+		OnSaveButtonClick();
+	}
+	else if(CWindow::IsCommandSource(m_addButton, sender))
+	{
+		OnAddButtonClick();
+	}
+	else if(CWindow::IsCommandSource(m_removeButton, sender))
+	{
+		OnRemoveButtonClick();
+	}
+	return FALSE;
 }
 
 long CPlaylistPanel::OnNotify(WPARAM wParam, NMHDR* hdr)
 {
-    if(CWindow::IsNotifySource(m_playlistView, hdr))
-    {
-        switch(hdr->code)
-        {
-        case NM_DBLCLK:
-            OnPlaylistViewDblClick(reinterpret_cast<NMITEMACTIVATE*>(hdr));
-            break;
-        }
-    }
-    return FALSE;
+	if(CWindow::IsNotifySource(m_playlistView, hdr))
+	{
+		switch(hdr->code)
+		{
+		case NM_DBLCLK:
+			OnPlaylistViewDblClick(reinterpret_cast<NMITEMACTIVATE*>(hdr));
+			break;
+		}
+	}
+	return FALSE;
 }
 
 long CPlaylistPanel::OnSize(unsigned int, unsigned int, unsigned int)
@@ -109,65 +109,65 @@ long CPlaylistPanel::OnSize(unsigned int, unsigned int, unsigned int)
 
 void CPlaylistPanel::OnPlaylistViewDblClick(NMITEMACTIVATE* itemActivate)
 {
-    if(itemActivate->iItem == -1) return;
-    OnItemDblClick(itemActivate->iItem);
+	if(itemActivate->iItem == -1) return;
+	OnItemDblClick(itemActivate->iItem);
 }
 
 void CPlaylistPanel::OnMoveUpButtonClick()
 {
-    int selection = m_playlistView->GetSelection();
-    if(selection == -1) return;
+	int selection = m_playlistView->GetSelection();
+	if(selection == -1) return;
 	if(selection == 0) return;
 	ExchangeItems(selection - 1, selection);
 }
 
 void CPlaylistPanel::OnMoveDownButtonClick()
 {
-    int selection = m_playlistView->GetSelection();
-    if(selection == -1) return;
+	int selection = m_playlistView->GetSelection();
+	if(selection == -1) return;
 	if(selection == m_playlistView->GetItemCount() - 1) return;
 	ExchangeItems(selection + 1, selection);
 }
 
 void CPlaylistPanel::OnAddButtonClick()
 {
-    OnAddClick();
+	OnAddClick();
 }
 
 void CPlaylistPanel::OnRemoveButtonClick()
 {
-    int selection = m_playlistView->GetSelection();
-    if(selection == -1) return;
-    OnRemoveClick(selection);
+	int selection = m_playlistView->GetSelection();
+	if(selection == -1) return;
+	OnRemoveClick(selection);
 }
 
 void CPlaylistPanel::OnSaveButtonClick()
 {
-    OnSaveClick();
+	OnSaveClick();
 }
 
 void CPlaylistPanel::AddItem(const TCHAR* title, const TCHAR* length)
 {
-    LVITEM item;
-    memset(&item, 0, sizeof(LVITEM));
-    item.pszText    = const_cast<TCHAR*>(title);
-    item.iItem      = m_playlistView->GetItemCount();
-    item.mask       = LVIF_TEXT;
+	LVITEM item;
+	memset(&item, 0, sizeof(LVITEM));
+	item.pszText	= const_cast<TCHAR*>(title);
+	item.iItem		= m_playlistView->GetItemCount();
+	item.mask		= LVIF_TEXT;
 
-    int itemIdx = m_playlistView->InsertItem(&item);
-    m_playlistView->SetItemText(itemIdx, 1, length);
+	int itemIdx = m_playlistView->InsertItem(&item);
+	m_playlistView->SetItemText(itemIdx, 1, length);
 }
 
 void CPlaylistPanel::ModifyItem(int index, const TCHAR* title, const TCHAR* length)
 {
-    assert(index < m_playlistView->GetItemCount());
-    if(index >= m_playlistView->GetItemCount())
-    {
-        throw std::runtime_error("Invalid item index to update.");
-    }
+	assert(index < m_playlistView->GetItemCount());
+	if(index >= m_playlistView->GetItemCount())
+	{
+		throw std::runtime_error("Invalid item index to update.");
+	}
 
-    m_playlistView->SetItemText(index, 0, title);
-    m_playlistView->SetItemText(index, 1, length);
+	m_playlistView->SetItemText(index, 0, title);
+	m_playlistView->SetItemText(index, 1, length);
 }
 
 void CPlaylistPanel::ExchangeItems(unsigned int dst, unsigned int src)
@@ -181,16 +181,16 @@ void CPlaylistPanel::ExchangeItems(unsigned int dst, unsigned int src)
 
 void CPlaylistPanel::CreateColumns()
 {
-    LVCOLUMN column;
-    memset(&column, 0, sizeof(LVCOLUMN));
-    column.pszText  = _T("Title");
-    column.mask     = LVCF_TEXT;
-    m_playlistView->InsertColumn(0, &column);
+	LVCOLUMN column;
+	memset(&column, 0, sizeof(LVCOLUMN));
+	column.pszText	= _T("Title");
+	column.mask		= LVCF_TEXT;
+	m_playlistView->InsertColumn(0, &column);
 
-    memset(&column, 0, sizeof(LVCOLUMN));
-    column.pszText  = _T("Length");
-    column.mask     = LVCF_TEXT;
-    m_playlistView->InsertColumn(1, &column);
+	memset(&column, 0, sizeof(LVCOLUMN));
+	column.pszText	= _T("Length");
+	column.mask		= LVCF_TEXT;
+	m_playlistView->InsertColumn(1, &column);
 }
 
 void CPlaylistPanel::OnPlaylistItemInsert(const CPlaylist::ITEM& item)
@@ -209,34 +209,34 @@ void CPlaylistPanel::OnPlaylistItemUpdate(unsigned int index, const CPlaylist::I
 
 void CPlaylistPanel::OnPlaylistItemDelete(unsigned int index)
 {
-    assert(index < static_cast<unsigned int>(m_playlistView->GetItemCount()));
-    if(index >= static_cast<unsigned int>(m_playlistView->GetItemCount()))
-    {
-        throw std::runtime_error("Invalid item index to delete.");
-    }
+	assert(index < static_cast<unsigned int>(m_playlistView->GetItemCount()));
+	if(index >= static_cast<unsigned int>(m_playlistView->GetItemCount()))
+	{
+		throw std::runtime_error("Invalid item index to delete.");
+	}
 
-    m_playlistView->DeleteItem(index);
+	m_playlistView->DeleteItem(index);
 }
 
 void CPlaylistPanel::OnPlaylistItemsClear()
 {
-    m_playlistView->DeleteAllItems();
+	m_playlistView->DeleteAllItems();
 }
 
 void CPlaylistPanel::RefreshLayout()
 {
-    //Resize layout
-    {
-	    RECT rc = GetClientRect();
-	    m_layout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
-	    m_layout->RefreshGeometry();
-    }
+	//Resize layout
+	{
+		RECT rc = GetClientRect();
+		m_layout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
+		m_layout->RefreshGeometry();
+	}
 
-    //Resize columns
-    {
-        RECT clientRect = m_playlistView->GetClientRect();
+	//Resize columns
+	{
+		RECT clientRect = m_playlistView->GetClientRect();
 
-        m_playlistView->SetColumnWidth(0, 3 * clientRect.right / 4);
-        m_playlistView->SetColumnWidth(1, 1 * clientRect.right / 4);
-    }
+		m_playlistView->SetColumnWidth(0, 3 * clientRect.right / 4);
+		m_playlistView->SetColumnWidth(1, 1 * clientRect.right / 4);
+	}
 }
