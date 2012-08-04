@@ -15,11 +15,20 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 , m_removeButton(NULL)
 , m_saveButton(NULL)
 , m_playlist(playlist)
+, m_playingItemIndex(-1)
 {
 	SetClassPtr();
 
 	m_playlistView = new Framework::Win32::CListView(GetItem(IDC_PLAYLIST_LISTVIEW));
 	m_playlistView->SetExtendedListViewStyle(m_playlistView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
+
+	{
+		LOGFONT fontInfo;
+		HFONT playlistViewFont = m_playlistView->GetFont();
+		GetObject(playlistViewFont, sizeof(LOGFONT), &fontInfo);
+		fontInfo.lfWeight = FW_BOLD;
+		m_playingItemFont = CreateFontIndirect(&fontInfo);
+	}
 
 	m_moveUpButton		= new Framework::Win32::CButton(GetItem(IDC_UP_BUTTON));
 	m_moveDownButton	= new Framework::Win32::CButton(GetItem(IDC_DOWN_BUTTON));
@@ -49,10 +58,10 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 
 	CreateColumns();
 
-	m_playlist.OnItemInsert.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemInsert, this, std::tr1::placeholders::_1));
-	m_playlist.OnItemUpdate.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemUpdate, this, std::tr1::placeholders::_1, std::tr1::placeholders::_2));
-	m_playlist.OnItemDelete.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemDelete, this, std::tr1::placeholders::_1));
-	m_playlist.OnItemsClear.connect(std::tr1::bind(&CPlaylistPanel::OnPlaylistItemsClear, this));
+	m_playlist.OnItemInsert.connect(std::bind(&CPlaylistPanel::OnPlaylistItemInsert, this, std::placeholders::_1));
+	m_playlist.OnItemUpdate.connect(std::bind(&CPlaylistPanel::OnPlaylistItemUpdate, this, std::placeholders::_1, std::placeholders::_2));
+	m_playlist.OnItemDelete.connect(std::bind(&CPlaylistPanel::OnPlaylistItemDelete, this, std::placeholders::_1));
+	m_playlist.OnItemsClear.connect(std::bind(&CPlaylistPanel::OnPlaylistItemsClear, this));
 
 	RefreshLayout();
 }
@@ -60,6 +69,13 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 CPlaylistPanel::~CPlaylistPanel()
 {
 
+}
+
+void CPlaylistPanel::SetPlayingItemIndex(unsigned int playingItemIndex)
+{
+	m_playingItemIndex = playingItemIndex;
+	m_playlistView->EnsureItemVisible(m_playingItemIndex, false);
+	m_playlistView->Redraw();
 }
 
 long CPlaylistPanel::OnCommand(unsigned short cmd, unsigned short id, HWND sender)
@@ -96,6 +112,10 @@ long CPlaylistPanel::OnNotify(WPARAM wParam, NMHDR* hdr)
 		case NM_DBLCLK:
 			OnPlaylistViewDblClick(reinterpret_cast<NMITEMACTIVATE*>(hdr));
 			break;
+		case NM_CUSTOMDRAW:
+			OnPlaylistViewCustomDraw(reinterpret_cast<NMLVCUSTOMDRAW*>(hdr));
+			return TRUE;
+			break;
 		}
 	}
 	return FALSE;
@@ -111,6 +131,30 @@ void CPlaylistPanel::OnPlaylistViewDblClick(NMITEMACTIVATE* itemActivate)
 {
 	if(itemActivate->iItem == -1) return;
 	OnItemDblClick(itemActivate->iItem);
+}
+
+void CPlaylistPanel::OnPlaylistViewCustomDraw(NMLVCUSTOMDRAW* customDraw)
+{
+	if(customDraw->nmcd.dwDrawStage == CDDS_PREPAINT)
+	{
+		SetWindowLongPtr(m_hWnd, DWLP_MSGRESULT, CDRF_NOTIFYITEMDRAW);
+	}
+	else if(customDraw->nmcd.dwDrawStage == CDDS_ITEMPREPAINT)
+	{
+		if(customDraw->nmcd.dwItemSpec == m_playingItemIndex)
+		{
+			SelectObject(customDraw->nmcd.hdc, m_playingItemFont);
+			SetWindowLongPtr(m_hWnd, DWLP_MSGRESULT, CDRF_DODEFAULT | CDRF_NEWFONT);
+		}
+		else
+		{
+			SetWindowLongPtr(m_hWnd, DWLP_MSGRESULT, CDRF_DODEFAULT);
+		}
+	}
+	else
+	{
+		SetWindowLongPtr(m_hWnd, DWLP_MSGRESULT, CDRF_DODEFAULT);
+	}
 }
 
 void CPlaylistPanel::OnMoveUpButtonClick()
@@ -216,10 +260,15 @@ void CPlaylistPanel::OnPlaylistItemDelete(unsigned int index)
 	}
 
 	m_playlistView->DeleteItem(index);
+	if(m_playingItemIndex == index)
+	{
+		m_playingItemIndex = -1;
+	}
 }
 
 void CPlaylistPanel::OnPlaylistItemsClear()
 {
+	m_playingItemIndex = -1;
 	m_playlistView->DeleteAllItems();
 }
 

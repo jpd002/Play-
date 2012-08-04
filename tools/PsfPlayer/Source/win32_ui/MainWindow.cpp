@@ -497,6 +497,7 @@ void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 		CPlaylist::PopulateItemFromTags(newItem, m_tags);
 		m_playlist.UpdateItem(index, newItem);
 		m_currentPlaylistItem = index;
+		m_playlistPanel->SetPlayingItemIndex(index);
 	}
 }
 
@@ -1071,18 +1072,18 @@ void CMainWindow::OnAbout()
 
 void CMainWindow::LoadSingleFile(const boost::filesystem::path& filePath)
 {
-	if(PlayFile(filePath, boost::filesystem::path()))
+	m_playlist.Clear();
+	ResetDiscoveryRun();
+
 	{
-		m_playlist.Clear();
-		ResetDiscoveryRun();
-
-		m_currentPlaylistItem = 0;
-
 		CPlaylist::ITEM item;
 		item.path = filePath.wstring();
 		CPlaylist::PopulateItemFromTags(item, m_tags);
 		m_playlist.InsertItem(item);
 	}
+
+	m_currentPlaylistItem = 0;
+	OnPlaylistItemDblClick(m_currentPlaylistItem);
 }
 
 void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)

@@ -6,6 +6,7 @@
 #include "win32/Layouts.h"
 #include "win32/ListView.h"
 #include "win32/Button.h"
+#include "win32/GdiObj.h"
 #include <boost/signals2.hpp>
 
 class CPlaylistPanel : public Framework::Win32::CDialog, public boost::signals2::trackable
@@ -19,6 +20,7 @@ public:
 										CPlaylistPanel(HWND, CPlaylist&);
 	virtual								~CPlaylistPanel();
 
+	void								SetPlayingItemIndex(unsigned int);
 	void								RefreshLayout();
 
 	OnItemDblClickEvent					OnItemDblClick;
@@ -46,8 +48,12 @@ private:
 	void								OnRemoveButtonClick();
 	void								OnSaveButtonClick();
 	void								OnPlaylistViewDblClick(NMITEMACTIVATE*);
+	void								OnPlaylistViewCustomDraw(NMLVCUSTOMDRAW*);
 
 	Framework::LayoutObjectPtr			m_layout;
+
+	unsigned int						m_playingItemIndex;
+	Framework::Win32::CFont				m_playingItemFont;
 
 	CPlaylist&							m_playlist;
 	Framework::Win32::CListView*		m_playlistView;
