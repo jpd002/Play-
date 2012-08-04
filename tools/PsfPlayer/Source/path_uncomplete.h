@@ -2,6 +2,7 @@
 #define _PATH_UNCOMPLETE_H_
 
 #include <boost/filesystem/path.hpp>
+#include <stdexcept>
 
 //Taken from boost's trac
 //https://svn.boost.org/trac/boost/ticket/1976
@@ -23,7 +24,7 @@ boost::filesystem::path naive_uncomplete(const boost::filesystem::path& path, co
     {
         if (base.has_root_path()) 
         {
-            throw "cannot uncomplete a path relative path from a rooted base";
+            throw std::runtime_error("cannot uncomplete a path relative path from a rooted base");
         } 
         else 
         {

@@ -12,11 +12,11 @@
 #include "stricmp.h"
 #include "StdStreamUtils.h"
 
-#define PLAYLIST_NODE_TAG               "Playlist"
-#define PLAYLIST_ITEM_NODE_TAG          "Item"
-#define PLAYLIST_ITEM_PATH_ATTRIBUTE    ("Path")
-#define PLAYLIST_ITEM_TITLE_ATTRIBUTE   ("Title")
-#define PLAYLIST_ITEM_LENGTH_ATTRIBUTE  ("Length")
+#define PLAYLIST_NODE_TAG				"Playlist"
+#define PLAYLIST_ITEM_NODE_TAG			"Item"
+#define PLAYLIST_ITEM_PATH_ATTRIBUTE	("Path")
+#define PLAYLIST_ITEM_TITLE_ATTRIBUTE	("Title")
+#define PLAYLIST_ITEM_LENGTH_ATTRIBUTE	("Length")
 
 const char* CPlaylist::g_loadableExtensions[] =
 {
@@ -25,8 +25,7 @@ const char* CPlaylist::g_loadableExtensions[] =
 	"psf2",
 	"minipsf2",
 	"psfp",
-	"minipsfp",
-	NULL
+	"minipsfp"
 };
 
 CPlaylist::CPlaylist()
@@ -42,12 +41,12 @@ CPlaylist::~CPlaylist()
 
 const CPlaylist::ITEM& CPlaylist::GetItem(unsigned int index) const
 {
-    assert(index < m_items.size());
-    if(index >= m_items.size())
-    {
-        throw std::runtime_error("Invalid item index.");
-    }
-    return m_items[index];
+	assert(index < m_items.size());
+	if(index >= m_items.size())
+	{
+		throw std::runtime_error("Invalid item index.");
+	}
+	return m_items[index];
 }
 
 int CPlaylist::FindItem(unsigned int itemId) const
@@ -65,27 +64,26 @@ int CPlaylist::FindItem(unsigned int itemId) const
 
 unsigned int CPlaylist::GetItemCount() const
 {
-    return static_cast<unsigned int>(m_items.size());
+	return static_cast<unsigned int>(m_items.size());
 }
 
 bool CPlaylist::IsLoadableExtension(const char* extension)
 {
-	const char** currentExtension = g_loadableExtensions;
-	while(*currentExtension != NULL)
+	for(auto loadableExtension = std::begin(g_loadableExtensions);
+		loadableExtension != std::end(g_loadableExtensions); loadableExtension++)
 	{
-		if(!stricmp(extension, *currentExtension))
+		if(!stricmp(extension, *loadableExtension))
 		{
 			return true;
 		}
-		currentExtension++;
 	}
 	return false;
 }
 
 void CPlaylist::PopulateItemFromTags(ITEM& item, const CPsfTags& tags)
 {
-    item.title      = tags.GetTagValue("title");
-    item.length     = CPsfTags::ConvertTimeString(tags.GetTagValue("length").c_str());
+	item.title		= tags.GetTagValue("title");
+	item.length		= CPsfTags::ConvertTimeString(tags.GetTagValue("length").c_str());
 }
 
 unsigned int CPlaylist::InsertArchive(const wchar_t* path)
@@ -119,24 +117,24 @@ unsigned int CPlaylist::InsertItem(const ITEM& item)
 
 void CPlaylist::DeleteItem(unsigned int index)
 {
-    assert(index < m_items.size());
-    if(index >= m_items.size())
-    {
-        throw std::runtime_error("Invalid item index.");
-    }
-    m_items.erase(m_items.begin() + index);
-    OnItemDelete(index);
+	assert(index < m_items.size());
+	if(index >= m_items.size())
+	{
+		throw std::runtime_error("Invalid item index.");
+	}
+	m_items.erase(m_items.begin() + index);
+	OnItemDelete(index);
 }
 
 void CPlaylist::UpdateItem(unsigned int index, const CPlaylist::ITEM& item)
 {
-    assert(index < m_items.size());
-    if(index >= m_items.size())
-    {
-        throw std::runtime_error("Invalid item index.");
-    }
-    m_items[index] = item;
-    OnItemUpdate(index, item);
+	assert(index < m_items.size());
+	if(index >= m_items.size())
+	{
+		throw std::runtime_error("Invalid item index.");
+	}
+	m_items[index] = item;
+	OnItemUpdate(index, item);
 }
 
 void CPlaylist::ExchangeItems(unsigned int index1, unsigned int index2)
@@ -151,77 +149,78 @@ void CPlaylist::ExchangeItems(unsigned int index1, unsigned int index2)
 
 void CPlaylist::Clear()
 {
-    OnItemsClear();
-    m_items.clear();
+	OnItemsClear();
+	m_items.clear();
 	m_archives.clear();
 }
 
 void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 {
-    Clear();
+	Clear();
 
 	boost::scoped_ptr<Framework::CStdStream> stream(Framework::CreateInputStdStream(playlistPath.native()));
 	boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream.get()));
 	stream.reset();
-    if(!document)
-    {
-        throw std::runtime_error("Couldn't parse document.");
-    }
-	boost::filesystem::path parentPath = playlistPath.parent_path();
+	if(!document)
+	{
+		throw std::runtime_error("Couldn't parse document.");
+	}
+	auto parentPath = playlistPath.parent_path();
 
-    Framework::Xml::CNode::NodeList items = document->SelectNodes(PLAYLIST_NODE_TAG "/" PLAYLIST_ITEM_NODE_TAG);
-    for(Framework::Xml::CNode::NodeIterator nodeIterator(items.begin()); nodeIterator != items.end(); nodeIterator++)
-    {
-        Framework::Xml::CNode* itemNode = (*nodeIterator);
-        boost::filesystem::path itemPath = Framework::Utf8::ConvertFrom(itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE));
-        const char* title = itemNode->GetAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE);
-        const char* length = itemNode->GetAttribute(PLAYLIST_ITEM_LENGTH_ATTRIBUTE);
+	auto items = document->SelectNodes(PLAYLIST_NODE_TAG "/" PLAYLIST_ITEM_NODE_TAG);
+	for(auto nodeIterator(std::begin(items)); 
+		nodeIterator != std::end(items); nodeIterator++)
+	{
+		auto itemNode = (*nodeIterator);
+		boost::filesystem::path itemPath = Framework::Utf8::ConvertFrom(itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE));
+		const char* title = itemNode->GetAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE);
+		const char* length = itemNode->GetAttribute(PLAYLIST_ITEM_LENGTH_ATTRIBUTE);
 
-        if(!itemPath.is_complete())
-        {
-            itemPath = parentPath / itemPath;
-        }
+		if(!itemPath.is_complete())
+		{
+			itemPath = parentPath / itemPath;
+		}
 
-        ITEM item;
-        item.path = itemPath.wstring();
-        if(title != NULL)
-        {
+		ITEM item;
+		item.path = itemPath.wstring();
+		if(title != NULL)
+		{
 			item.title = Framework::Utf8::ConvertFrom(title);
-        }
+		}
 
-        if(length != NULL)
-        {
-            item.length = atoi(length);
-        }
-        else
-        {
-            item.length = 0;
-        }
+		if(length != NULL)
+		{
+			item.length = atoi(length);
+		}
+		else
+		{
+			item.length = 0;
+		}
 
-        InsertItem(item);
-    }
+		InsertItem(item);
+	}
 }
 
 void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 {
-    boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
-    Framework::Xml::CNode* playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
+	boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
+	auto playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
 
-    boost::filesystem::path parentPath = playlistPath.parent_path();
+	auto parentPath = playlistPath.parent_path();
 
-    for(ItemIterator itemIterator(m_items.begin());
-        itemIterator != m_items.end(); itemIterator++)
-    {
-        const ITEM& item(*itemIterator);
+	for(auto itemIterator(std::begin(m_items)); 
+		itemIterator != std::end(m_items); itemIterator++)
+	{
+		const auto& item(*itemIterator);
 
-        boost::filesystem::path itemPath(item.path);
-        boost::filesystem::path itemRelativePath(naive_uncomplete(itemPath, parentPath));
+		boost::filesystem::path itemPath(item.path);
+		auto itemRelativePath(naive_uncomplete(itemPath, parentPath));
 
-        Framework::Xml::CNode* itemNode = playlistNode->InsertNode(new Framework::Xml::CNode(PLAYLIST_ITEM_NODE_TAG, true));
-        itemNode->InsertAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE, Framework::Utf8::ConvertTo(itemRelativePath.wstring()).c_str());
-        itemNode->InsertAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE, Framework::Utf8::ConvertTo(item.title).c_str());
-        itemNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(PLAYLIST_ITEM_LENGTH_ATTRIBUTE, item.length));
-    }
+		auto itemNode = playlistNode->InsertNode(new Framework::Xml::CNode(PLAYLIST_ITEM_NODE_TAG, true));
+		itemNode->InsertAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE, Framework::Utf8::ConvertTo(itemRelativePath.wstring()).c_str());
+		itemNode->InsertAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE, Framework::Utf8::ConvertTo(item.title).c_str());
+		itemNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(PLAYLIST_ITEM_LENGTH_ATTRIBUTE, item.length));
+	}
 
 	boost::scoped_ptr<Framework::CStdStream> stream(Framework::CreateOutputStdStream(playlistPath.native()));
 	Framework::Xml::CWriter::WriteDocument(stream.get(), document.get());

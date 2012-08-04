@@ -60,7 +60,6 @@ public:
 private:
 	typedef std::vector<ITEM> ItemList;
 	typedef std::vector<std::wstring> ArchiveList;
-	typedef ItemList::const_iterator ItemIterator;
 
 	static const char*				g_loadableExtensions[];
 	ItemList						m_items;
