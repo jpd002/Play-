@@ -221,6 +221,14 @@ void CPlaylistPanel::ExchangeItems(unsigned int dst, unsigned int src)
 	m_playlistView->SetItemState(src,	0,								LVIS_FOCUSED | LVIS_SELECTED);
 	m_playlistView->SetItemState(dst,	LVIS_FOCUSED | LVIS_SELECTED,	LVIS_FOCUSED | LVIS_SELECTED);
 	m_playlistView->EnsureItemVisible(dst, true);
+	if(src == m_playingItemIndex)
+	{
+		m_playingItemIndex = dst;
+	}
+	else if(dst == m_playingItemIndex)
+	{
+		m_playingItemIndex = src;
+	}
 }
 
 void CPlaylistPanel::CreateColumns()
@@ -263,6 +271,10 @@ void CPlaylistPanel::OnPlaylistItemDelete(unsigned int index)
 	if(m_playingItemIndex == index)
 	{
 		m_playingItemIndex = -1;
+	}
+	else if(m_playingItemIndex > index)
+	{
+		m_playingItemIndex--;
 	}
 }
 

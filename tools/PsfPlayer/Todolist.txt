@@ -11,9 +11,9 @@ TODO:
 - DiskOut sound handler.
 - Exception for invalid PSFs
 - Mono sound support
-- Make playlist item visible when doing next or prev.
 
 Done:
+- Make playlist item visible when doing next or prev.
 - Fix deadlock problem happening when clicking "next" too much (Happens with FF4/PS2).
 - Windows 7 stuff
 - PSP

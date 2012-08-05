@@ -52,7 +52,7 @@ private:
 
 	Framework::LayoutObjectPtr			m_layout;
 
-	unsigned int						m_playingItemIndex;
+	int									m_playingItemIndex;
 	Framework::Win32::CFont				m_playingItemFont;
 
 	CPlaylist&							m_playlist;
