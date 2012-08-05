@@ -206,7 +206,7 @@ void CIPU::CommandThread()
 		{
 			boost::mutex::scoped_lock cmdMutexLock(m_cmdMutex);
 			boost::xtime xt;
-			boost::xtime_get(&xt, boost::TIME_UTC);
+			boost::xtime_get(&xt, boost::TIME_UTC_);
 			xt.nsec += 1000000;
 			m_cmdCondition.timed_wait(cmdMutexLock, xt);
 		}
@@ -873,7 +873,7 @@ void CIPU::CINFIFO::WaitForData()
 {
 	boost::mutex::scoped_lock accessLock(m_accessMutex);
 	boost::xtime xt;
-	boost::xtime_get(&xt, boost::TIME_UTC);
+	boost::xtime_get(&xt, boost::TIME_UTC_);
 	xt.nsec += 10000000;
 	m_dataNeededCondition.timed_wait(accessLock, xt);
 }
@@ -882,7 +882,7 @@ void CIPU::CINFIFO::WaitForSpace()
 {
 	boost::mutex::scoped_lock accessLock(m_accessMutex);
 	boost::xtime xt;
-	boost::xtime_get(&xt, boost::TIME_UTC);
+	boost::xtime_get(&xt, boost::TIME_UTC_);
 	xt.nsec += 10000;
 	m_dataConsumedCondition.timed_wait(accessLock, xt);
 }
