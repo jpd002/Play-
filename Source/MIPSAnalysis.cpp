@@ -70,8 +70,10 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 				{
 					nOp = m_pCtx->m_pMemoryMap->GetInstruction(nTemp);
 
-					//Check SD RA, 0x0000(SP)
-					if((nOp & 0xFFFF0000) == 0xFFBF0000)
+					//Check SW/SD RA, 0x0000(SP)
+					if(
+						((nOp & 0xFFFF0000) == 0xAFBF0000) ||		//SW
+						((nOp & 0xFFFF0000) == 0xFFBF0000))			//SD
 					{
 						nReturnAddr = (nOp & 0xFFFF);
 					}
