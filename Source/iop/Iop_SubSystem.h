@@ -1,6 +1,7 @@
 #ifndef _IOP_SUBSYSTEM_H_
 #define _IOP_SUBSYSTEM_H_
 
+#include <memory>
 #include "../MIPS.h"
 #include "../MA_MIPSIV.h"
 #include "../COP_SCU.h"

@@ -2,21 +2,21 @@
 #include <sys/disk.h>
 #include <sys/stat.h>
 #include <stdexcept>
+#include <algorithm>
 #include "Posix_VolumeStream.h"
 
 using namespace Framework::Posix;
-using namespace std;
 
 CVolumeStream::CVolumeStream(const char* volumePath)
 {
 	m_fd = open(volumePath, O_RDONLY);
 	if(m_fd < 0) 
 	{
-		throw runtime_error("Couldn't open volume for reading.");
+		throw std::runtime_error("Couldn't open volume for reading.");
 	}
 	if(ioctl(m_fd, DKIOCGETBLOCKSIZE, &m_sectorSize) < 0)
 	{
-		throw runtime_error("Can't get sector size.");
+		throw std::runtime_error("Can't get sector size.");
 	}
 	m_cache = malloc(m_sectorSize);
 	m_cacheSector = m_sectorSize - 1;
@@ -39,7 +39,7 @@ void CVolumeStream::Seek(int64 distance, STREAM_SEEK_DIRECTION from)
 		m_position += distance;
 		break;
 	case STREAM_SEEK_END:
-		throw runtime_error("Unsupported operation.");
+		throw std::runtime_error("Unsupported operation.");
 		break;
 	}
 }
@@ -61,7 +61,7 @@ uint64 CVolumeStream::Read(void* buffer, uint64 size)
 		
 		size_t sectorOffset = static_cast<size_t>(m_position & (m_sectorSize - 1));
 		size_t sectorRemain = static_cast<size_t>(m_sectorSize - sectorOffset);
-		size_t copy = min<size_t>(size, sectorRemain);
+		size_t copy = std::min<size_t>(size, sectorRemain);
 		
 		memcpy(dst, src + sectorOffset, copy);
 		m_position += copy;
@@ -74,7 +74,7 @@ uint64 CVolumeStream::Read(void* buffer, uint64 size)
 
 uint64 CVolumeStream::Write(const void* buffer, uint64 size)
 {
-	throw runtime_error("Not supported.");
+	throw std::runtime_error("Not supported.");
 }
 
 bool CVolumeStream::IsEOF()
