@@ -29,7 +29,7 @@ namespace Iop
 				unsigned int bs	: 16;
 				unsigned int ba	: 16;
 			};
-			BOOST_STATIC_ASSERT(sizeof(BCR) == sizeof(uint32));
+			static_assert(sizeof(BCR) == sizeof(uint32), "Size of BCR struct must be 4 bytes.");
 
 			struct CHCR : public convertible<uint32>
 			{
@@ -41,7 +41,7 @@ namespace Iop
 				unsigned int tr			: 1;
 				unsigned int unused2	: 7;
 			};
-			BOOST_STATIC_ASSERT(sizeof(CHCR) == sizeof(uint32));
+			static_assert(sizeof(CHCR) == sizeof(uint32), "Size of CHCR struct must be 4 bytes.");
 
 									CChannel(uint32, unsigned int, CDmac&);
 			virtual					~CChannel();

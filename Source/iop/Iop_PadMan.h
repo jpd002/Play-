@@ -59,7 +59,7 @@ namespace Iop
 			uint32			nReserved1[5];
 			uint8			nReserved2[0x40];
 		};
-		static_assert(sizeof(PADDATA80) == 0x80, "Size of PADDATA80 struct must be 64 bytes.");
+		static_assert(sizeof(PADDATA80) == 0x80, "Size of PADDATA80 struct must be 128 bytes.");
 
 		struct PADDATAEX
 		{

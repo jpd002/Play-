@@ -113,7 +113,7 @@ private:
 		unsigned int	rcyc		: 3;
 		unsigned int	reserved	: 21;
 	};
-	static_assert(sizeof(D_CTRL) == sizeof(uint32), "Size of D_CTRL struct must be 4 bytes.");
+	static_assert(sizeof(D_CTRL_REG) == sizeof(uint32), "Size of D_CTRL_REG struct must be 4 bytes.");
 
 	uint64				FetchDMATag(uint32);
 
