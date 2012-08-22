@@ -1,10 +1,10 @@
 #import "VfsManagerController.h"
 
-static CVfsManagerController* g_sharedInstance = nil;
+static VfsManagerController* g_sharedInstance = nil;
 
-@implementation CVfsManagerController
+@implementation VfsManagerController
 
-+(CVfsManagerController*)defaultController
++(VfsManagerController*)defaultController
 {
 	if(g_sharedInstance == nil)
 	{
@@ -38,7 +38,7 @@ static CVfsManagerController* g_sharedInstance = nil;
 {
 	int selectedIndex = [m_bindingsTableView clickedRow];
 	if(selectedIndex == -1) return;
-	CVfsManagerBinding* binding = [m_bindings getBindingAt: selectedIndex];
+	VfsManagerBinding* binding = [m_bindings getBindingAt: selectedIndex];
 	[binding requestModification];
 }
 

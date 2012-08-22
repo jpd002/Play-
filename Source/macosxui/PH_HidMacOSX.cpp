@@ -1,10 +1,25 @@
 #include "PH_HidMacOSX.h"
 #include <stdexcept>
 
-CPH_HidMacOSX::CPH_HidMacOSX() :
-m_currentState(0),
-m_previousState(0)
+CPH_HidMacOSX::CPH_HidMacOSX()
 {
+	m_bindings[PS2::CControllerInfo::ANALOG_LEFT_X]		= std::make_shared<CSimulatedAxisBinding>(kHIDUsage_KeyboardD, kHIDUsage_KeyboardG);
+	m_bindings[PS2::CControllerInfo::ANALOG_LEFT_Y]		= std::make_shared<CSimulatedAxisBinding>(kHIDUsage_KeyboardR, kHIDUsage_KeyboardF);
+
+	m_bindings[PS2::CControllerInfo::ANALOG_RIGHT_X]	= std::make_shared<CSimulatedAxisBinding>(kHIDUsage_KeyboardH, kHIDUsage_KeyboardK);
+	m_bindings[PS2::CControllerInfo::ANALOG_RIGHT_Y]	= std::make_shared<CSimulatedAxisBinding>(kHIDUsage_KeyboardU, kHIDUsage_KeyboardJ);
+	
+	m_bindings[PS2::CControllerInfo::START]				= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardReturnOrEnter);
+	m_bindings[PS2::CControllerInfo::SELECT]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardRightShift);
+	m_bindings[PS2::CControllerInfo::DPAD_LEFT]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardLeftArrow);
+	m_bindings[PS2::CControllerInfo::DPAD_RIGHT]		= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardRightArrow);
+	m_bindings[PS2::CControllerInfo::DPAD_UP]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardUpArrow);
+	m_bindings[PS2::CControllerInfo::DPAD_DOWN]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardDownArrow);
+	m_bindings[PS2::CControllerInfo::SQUARE]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardA);
+	m_bindings[PS2::CControllerInfo::CROSS]				= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardZ);
+	m_bindings[PS2::CControllerInfo::TRIANGLE]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardS);
+	m_bindings[PS2::CControllerInfo::CIRCLE]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardX);
+		
 	m_hidManager = IOHIDManagerCreate(kCFAllocatorDefault, 0);
 	{
 		CFDictionaryRef matchingDict = CreateDeviceMatchingDictionary(kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard);
@@ -23,21 +38,27 @@ CPH_HidMacOSX::~CPH_HidMacOSX()
 
 void CPH_HidMacOSX::Update(uint8* ram)
 {
-	for(ListenerList::iterator listenerIterator(m_listeners.begin());
-		listenerIterator != m_listeners.end(); listenerIterator++)
+	for(auto listenerIterator(std::begin(m_listeners));
+		listenerIterator != std::end(m_listeners); listenerIterator++)
 	{
-		CPadListener* listener(*listenerIterator);
-		for(unsigned int i = 0; i < 16; i++)
+		auto* listener(*listenerIterator);
+		
+		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
-			uint32 previousBit = m_previousState & (1 << i);
-			uint32 currentBit = m_currentState & (1 << i);
-			if(currentBit != previousBit)
+			const auto& binding = m_bindings[i];
+			if(!binding) continue;
+			uint32 value = binding->GetValue();
+			auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(i);
+			if(PS2::CControllerInfo::IsAxis(currentButtonId))
 			{
-				listener->SetButtonState(0, static_cast<PS2::CControllerInfo::BUTTON>(1 << i), currentBit != 0, ram);
+				listener->SetAxisState(0, currentButtonId, value & 0xFF, ram);
+			}
+			else
+			{
+				listener->SetButtonState(0, currentButtonId, value != 0, ram);
 			}
 		}
 	}
-	m_previousState = m_currentState;
 }
 
 CPadHandler::FactoryFunction CPH_HidMacOSX::GetFactoryFunction()
@@ -86,65 +107,81 @@ void CPH_HidMacOSX::InputValueCallback(IOHIDValueRef valueRef)
 	uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
 	CFIndex state = IOHIDValueGetIntegerValue(valueRef);
 	if(usagePage != kHIDPage_KeyboardOrKeypad) return;
-	uint32 gameKey = 0;
-	if(TranslateKey(usage, gameKey))
+	for(auto bindingIterator(std::begin(m_bindings));
+		bindingIterator != std::end(m_bindings); bindingIterator++)
 	{
-		if(state)
-		{
-			m_currentState |= gameKey;
-		}
-		else
-		{
-			m_currentState &= ~gameKey;
-		}
+		const auto& binding = (*bindingIterator);
+		if(!binding) continue;
+		binding->ProcessEvent(usage, state);
 	}
 }
 
-bool CPH_HidMacOSX::TranslateKey(uint32 scanCode, uint32& gameKey)
+//---------------------------------------------------------------------------------
+
+CPH_HidMacOSX::CSimpleBinding::CSimpleBinding(uint32 keyCode)
+: m_keyCode(keyCode)
+, m_state(0)
 {
-	switch(scanCode)
+	
+}
+
+CPH_HidMacOSX::CSimpleBinding::~CSimpleBinding()
+{
+	
+}
+
+void CPH_HidMacOSX::CSimpleBinding::ProcessEvent(uint32 keyCode, uint32 state)
+{
+	if(keyCode != m_keyCode) return;
+	m_state = state;
+}
+
+uint32 CPH_HidMacOSX::CSimpleBinding::GetValue() const
+{
+	return m_state;
+}
+
+//---------------------------------------------------------------------------------
+
+CPH_HidMacOSX::CSimulatedAxisBinding::CSimulatedAxisBinding(uint32 negativeKeyCode, uint32 positiveKeyCode)
+: m_negativeKeyCode(negativeKeyCode)
+, m_positiveKeyCode(positiveKeyCode)
+, m_negativeState(0)
+, m_positiveState(0)
+{
+	
+}
+
+CPH_HidMacOSX::CSimulatedAxisBinding::~CSimulatedAxisBinding()
+{
+	
+}
+
+void CPH_HidMacOSX::CSimulatedAxisBinding::ProcessEvent(uint32 keyCode, uint32 state)
+{
+	if(keyCode == m_negativeKeyCode)
 	{
-	case kHIDUsage_KeyboardReturn:
-		gameKey = PS2::CControllerInfo::START;
-		return true;
-		break;
-	case kHIDUsage_KeyboardLeftShift:
-	case kHIDUsage_KeyboardRightShift:
-		gameKey = PS2::CControllerInfo::SELECT;
-		return true;
-		break;
-	case kHIDUsage_KeyboardLeftArrow:
-		gameKey = PS2::CControllerInfo::DPAD_LEFT;
-		return true;
-		break;
-	case kHIDUsage_KeyboardRightArrow:
-		gameKey = PS2::CControllerInfo::DPAD_RIGHT;
-		return true;
-		break;
-	case kHIDUsage_KeyboardUpArrow:
-		gameKey = PS2::CControllerInfo::DPAD_UP;
-		return true;
-		break;
-	case kHIDUsage_KeyboardDownArrow:
-		gameKey = PS2::CControllerInfo::DPAD_DOWN;
-		return true;
-		break;
-	case kHIDUsage_KeyboardA:
-		gameKey = PS2::CControllerInfo::SQUARE;
-		return true;
-		break;
-	case kHIDUsage_KeyboardZ:
-		gameKey = PS2::CControllerInfo::CROSS;
-		return true;
-		break;
-	case kHIDUsage_KeyboardS:
-		gameKey = PS2::CControllerInfo::TRIANGLE;
-		return true;
-		break;
-	case kHIDUsage_KeyboardX:
-		gameKey = PS2::CControllerInfo::CIRCLE;
-		return true;
-		break;
+		m_negativeState = state;
 	}
-	return false;
+	
+	if(keyCode == m_positiveKeyCode)
+	{
+		m_positiveState = state;
+	}	
+}
+
+uint32 CPH_HidMacOSX::CSimulatedAxisBinding::GetValue() const
+{
+	uint32 value = 0x7F;
+
+	if(m_negativeState)
+	{
+		value -= 0x7F;
+	}
+	if(m_positiveState)
+	{
+		value += 0x7F;
+	}
+	
+	return value;
 }

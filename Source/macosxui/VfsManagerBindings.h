@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-@interface CVfsManagerBinding : NSObject
+@interface VfsManagerBinding : NSObject
 {
 
 }
@@ -13,27 +13,27 @@
 
 @end
 
-@interface CVfsManagerBindings : NSObject
+@interface VfsManagerBindings : NSObject
 {
 	NSMutableArray*		m_bindings;
 }
 
--(CVfsManagerBindings*)init;
+-(VfsManagerBindings*)init;
 -(void)save;
 -(int)numberOfRowsInTableView: (NSTableView*)tableView;
 -(id)tableView: (NSTableView*)tableView objectValueForTableColumn:(NSTableColumn*)tableColumn row:(int)row;
--(CVfsManagerBinding*)getBindingAt: (unsigned int)index;
+-(VfsManagerBinding*)getBindingAt: (unsigned int)index;
 
 @end
 
-@interface CVfsManagerDirectoryBinding : CVfsManagerBinding
+@interface VfsManagerDirectoryBinding : VfsManagerBinding
 {
 	NSString*	m_deviceName;
 	NSString*	m_preference;
 	NSString*	m_value;
 }
 
--(CVfsManagerDirectoryBinding*)init: (NSString*)deviceName preferenceName: (NSString*)preferenceName;
+-(VfsManagerDirectoryBinding*)init: (NSString*)deviceName preferenceName: (NSString*)preferenceName;
 -(NSString*)deviceName;
 -(NSString*)bindingType;
 -(NSString*)bindingValue;
@@ -42,12 +42,12 @@
 
 @end
 
-@interface CVfsManagerCdrom0Binding : CVfsManagerBinding
+@interface VfsManagerCdrom0Binding : VfsManagerBinding
 {
 	NSString*	m_value;
 }
 
--(CVfsManagerCdrom0Binding*)init;
+-(VfsManagerCdrom0Binding*)init;
 -(NSString*)deviceName;
 -(NSString*)bindingType;
 -(NSString*)bindingValue;

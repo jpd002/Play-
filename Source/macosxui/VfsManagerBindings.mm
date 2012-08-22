@@ -1,31 +1,30 @@
 #import "VfsManagerBindings.h"
 #import "../AppConfig.h"
+#import "../PS2VM_Preferences.h"
 
-#define PREFERENCE_CDROM0_PATH ("ps2.cdrom0.path")
+@implementation VfsManagerBindings
 
-@implementation CVfsManagerBindings
-
--(CVfsManagerBindings*)init
+-(VfsManagerBindings*)init
 {
-	CVfsManagerBindings* result = [super init];
+	VfsManagerBindings* result = [super init];
 	m_bindings = [[NSMutableArray alloc] init];
 	{
-		NSObject* objectToAdd = [[CVfsManagerCdrom0Binding alloc] init];
+		NSObject* objectToAdd = [[VfsManagerCdrom0Binding alloc] init];
 		[objectToAdd autorelease];
 		[m_bindings addObject: objectToAdd];
 	}
 	{
-		NSObject* objectToAdd = [[CVfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @"ps2.mc0.directory"];
+		NSObject* objectToAdd = [[VfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @"ps2.mc0.directory"];
 		[objectToAdd autorelease];
 		[m_bindings addObject: objectToAdd];
 	}
 	{
-		NSObject* objectToAdd = [[CVfsManagerDirectoryBinding alloc] init: @"mc1" preferenceName: @"ps2.mc1.directory"];
+		NSObject* objectToAdd = [[VfsManagerDirectoryBinding alloc] init: @"mc1" preferenceName: @"ps2.mc1.directory"];
 		[objectToAdd autorelease];
 		[m_bindings addObject: objectToAdd];
 	}
 	{
-		NSObject* objectToAdd = [[CVfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @"ps2.host.directory"];
+		NSObject* objectToAdd = [[VfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @"ps2.host.directory"];
 		[objectToAdd autorelease];
 		[m_bindings addObject: objectToAdd];
 	}
@@ -41,7 +40,7 @@
 -(void)save
 {
 	NSEnumerator* bindingIterator = [m_bindings objectEnumerator];
-	CVfsManagerBinding* binding = nil;
+	VfsManagerBinding* binding = nil;
 	while(binding = [bindingIterator nextObject])
 	{
 		[binding save];
@@ -56,7 +55,7 @@
 -(id)tableView: (NSTableView*)tableView objectValueForTableColumn: (NSTableColumn*)tableColumn row: (int)row
 {
 	if(row >= [m_bindings count]) return @"";
-	CVfsManagerBinding* binding = [m_bindings objectAtIndex: row];
+	VfsManagerBinding* binding = [m_bindings objectAtIndex: row];
 	if([[tableColumn identifier] isEqualToString: @"deviceName"])
 	{
 		return [binding deviceName];
@@ -72,7 +71,7 @@
 	return @"";
 }
 
--(CVfsManagerBinding*)getBindingAt: (unsigned int)index
+-(VfsManagerBinding*)getBindingAt: (unsigned int)index
 {
 	if(index >= [m_bindings count]) return nil;
 	return [m_bindings objectAtIndex: index];
@@ -82,7 +81,7 @@
 
 //---------------------------------------------------------------------------
 
-@implementation CVfsManagerBinding
+@implementation VfsManagerBinding
 
 -(NSString*)deviceName
 {
@@ -116,11 +115,11 @@
 
 //---------------------------------------------------------------------------
 
-@implementation CVfsManagerDirectoryBinding
+@implementation VfsManagerDirectoryBinding
 
--(CVfsManagerDirectoryBinding*)init: (NSString*)deviceName preferenceName: (NSString*)preferenceName
+-(VfsManagerDirectoryBinding*)init: (NSString*)deviceName preferenceName: (NSString*)preferenceName
 {
-	CVfsManagerDirectoryBinding* result = [super init];
+	VfsManagerDirectoryBinding* result = [super init];
 	m_deviceName = deviceName;
 	m_preference = preferenceName;
 	const char* preferenceValue = CAppConfig::GetInstance().GetPreferenceString([preferenceName UTF8String]);
@@ -130,7 +129,7 @@
 	}
 	else
 	{
-		m_value = [[NSString alloc] initWithCString: preferenceValue];
+		m_value = [[NSString alloc] initWithUTF8String: preferenceValue];
 	}
 	return result;
 }
@@ -181,12 +180,12 @@
 
 @end
 
-@implementation CVfsManagerCdrom0Binding
+@implementation VfsManagerCdrom0Binding
 
--(CVfsManagerCdrom0Binding*)init
+-(VfsManagerCdrom0Binding*)init
 {
-	CVfsManagerCdrom0Binding* result = [super init];
-	const char* preferenceValue = CAppConfig::GetInstance().GetPreferenceString(PREFERENCE_CDROM0_PATH);
+	VfsManagerCdrom0Binding* result = [super init];
+	const char* preferenceValue = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
 	if(preferenceValue == NULL)
 	{
 		m_value = @"";
@@ -235,7 +234,7 @@
 
 -(void)save
 {
-	CAppConfig::GetInstance().SetPreferenceString(PREFERENCE_CDROM0_PATH, [m_value UTF8String]);
+	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [m_value UTF8String]);
 }
 
 @end

@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-@interface CMainWindow : NSWindow
+@interface OutputWindow : NSWindow
 {
 
 }

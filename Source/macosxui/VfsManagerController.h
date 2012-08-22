@@ -1,13 +1,13 @@
 #import <Cocoa/Cocoa.h>
 #import "VfsManagerBindings.h"
 
-@interface CVfsManagerController : NSWindowController
+@interface VfsManagerController : NSWindowController
 {
-	IBOutlet CVfsManagerBindings*	m_bindings;
+	IBOutlet VfsManagerBindings*	m_bindings;
 	IBOutlet NSTableView*			m_bindingsTableView;
 }
 
-+(CVfsManagerController*)defaultController;
++(VfsManagerController*)defaultController;
 -(void)awakeFromNib;
 -(void)showManager;
 -(IBAction)OnTableViewDblClick: (id)sender;

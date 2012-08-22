@@ -1,21 +1,21 @@
 #import <Cocoa/Cocoa.h>
-#import "DebuggerWindow.h"
+#import "OutputWindowController.h"
 
-@interface CApplicationDelegate : NSObject 
+@interface ApplicationDelegate : NSObject
 {
-	IBOutlet NSOpenGLView* m_openGlView;
-	IBOutlet NSWindow* m_outputWindow;
-	IBOutlet CDebuggerWindow* m_debuggerWindow;
+	OutputWindowController*		outputWindowController;
+	IBOutlet NSMenuItem*		pauseResumeMenuItem;
 }
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification;
--(void)OnBootElf: (id)sender;
--(void)OnBootCdrom0 : (id)sender;
--(void)OnPauseResume: (id)sender;
--(void)OnSaveState: (id)sender;
--(void)OnLoadState: (id)sender;
--(void)OnVfsManager: (id)sender;
--(void)BootFromElf: (NSString*)fileName;
--(void)BootFromCdrom0;
+-(IBAction)bootElfMenuSelected: (id)sender;
+-(IBAction)bootCdrom0MenuSelected: (id)sender;
+-(IBAction)bootDiskImageSelected: (id)sender;
+-(IBAction)pauseResumeMenuSelected: (id)sender;
+-(IBAction)saveStateMenuSelected: (id)sender;
+-(IBAction)loadStateMenuSelected: (id)sender;
+-(IBAction)vfsManagerMenuSelected: (id)sender;
+-(void)bootFromElf: (NSString*)fileName;
+-(void)bootFromCdrom0;
 
 @end
