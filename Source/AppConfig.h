@@ -7,18 +7,15 @@
 class CAppConfig : public Framework::CConfig, public CSingleton<CAppConfig>
 {
 public:
-    friend class CSingleton<CAppConfig>;
+	friend class CSingleton<CAppConfig>;
 
-    static CConfig::PathType    GetBasePath();
-
-    static CConfig::PathType    Utf8ToPath(const char*);
-    static std::string          PathToUtf8(const CConfig::PathType&);
+	static CConfig::PathType	GetBasePath();
 
 private:
-                                CAppConfig();
-    virtual                     ~CAppConfig();
+								CAppConfig();
+	virtual						~CAppConfig();
 
-    static CConfig::PathType    BuildConfigPath();
+	static CConfig::PathType	BuildConfigPath();
 };
 
 #endif

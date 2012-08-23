@@ -15,14 +15,12 @@
 #include "uint128.h"
 #include "MIPSAssembler.h"
 #include "Profiler.h"
+#include "PathUtils.h"
 #include "xml/Node.h"
 #include "xml/Parser.h"
 #include "xml/FilteringNodeIterator.h"
 #include "Log.h"
 #include "iop/IopBios.h"
-#ifdef MACOSX
-#include "CoreFoundation/CoreFoundation.h"
-#endif
 
 // PS2OS Memory Allocation
 // Start		End				Description
@@ -50,7 +48,7 @@
 #define BIOS_ADDRESS_WAITTHREADPROC	0x1FC03100
 
 #define CONFIGPATH		"./config/"
-#define PATCHESPATH		"patches.xml"
+#define PATCHESFILENAME	"patches.xml"
 #define LOG_NAME		("ps2os")
 
 #define THREAD_INIT_QUOTA			(15)
@@ -509,46 +507,32 @@ void CPS2OS::UnloadExecutable()
 
 void CPS2OS::ApplyPatches()
 {
-	std::string patchesPath = PATCHESPATH;
+	auto patchesPath = Framework::PathUtils::GetAppResourcesPath() / PATCHESFILENAME;
 	
-#ifdef MACOSX
-	CFBundleRef bundle = CFBundleGetMainBundle();
-	CFURLRef url = CFBundleCopyResourceURL(bundle, CFSTR("patches"), CFSTR("xml"), NULL);
-	if(url != NULL)
-	{
-		CFStringRef pathString = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-		const char* pathCString = CFStringGetCStringPtr(pathString, kCFStringEncodingMacRoman);
-		if(pathCString != NULL) 
-		{
-			patchesPath = pathCString;
-		}
-	}
-#endif
-
-	Framework::Xml::CNode* pDocument(NULL);
+	std::unique_ptr<Framework::Xml::CNode> document;
 	try
 	{
 		Framework::CStdStream patchesStream(fopen(patchesPath.c_str(), "rb"));
-		pDocument = Framework::Xml::CParser::ParseDocument(&patchesStream);
-		if(pDocument == NULL) return;
+		document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(&patchesStream));
+		if(!document) return;
 	}
-	catch(...)
+	catch(const std::exception& exception)
+	{
+		printf("Failed to open patch definition file: %s.\r\n", exception.what());
+		return;
+	}
+
+	auto patchesNode = document->Select("Patches");
+	if(patchesNode == NULL)
 	{
 		return;
 	}
 
-	auto pPatches = pDocument->Select("Patches");
-	if(pPatches == NULL)
+	for(Framework::Xml::CFilteringNodeIterator itNode(patchesNode, "Executable"); !itNode.IsEnd(); itNode++)
 	{
-		delete pDocument;
-		return;
-	}
+		auto executableNode = (*itNode);
 
-	for(Framework::Xml::CFilteringNodeIterator itNode(pPatches, "Executable"); !itNode.IsEnd(); itNode++)
-	{
-		auto pExecutable = (*itNode);
-
-		const char* sName = pExecutable->GetAttribute("Name");
+		const char* sName = executableNode->GetAttribute("Name");
 		if(sName == NULL) continue;
 
 		if(!strcmp(sName, GetExecutableName()))
@@ -556,7 +540,7 @@ void CPS2OS::ApplyPatches()
 			//Found the right executable
 			unsigned int nPatchCount = 0;
 
-			for(Framework::Xml::CFilteringNodeIterator itNode(pExecutable, "Patch"); !itNode.IsEnd(); itNode++)
+			for(Framework::Xml::CFilteringNodeIterator itNode(executableNode, "Patch"); !itNode.IsEnd(); itNode++)
 			{
 				auto pPatch = (*itNode);
 				
@@ -580,8 +564,6 @@ void CPS2OS::ApplyPatches()
 			break;
 		}
 	}
-
-	delete pDocument;
 }
 
 void CPS2OS::AssembleCustomSyscallHandler()

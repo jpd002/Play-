@@ -126,17 +126,12 @@ CPS2VM::CPS2VM()
 		const char* setting = basicDirectorySettings[i + 0];
 		const char* path = basicDirectorySettings[i + 1];
 
-		Framework::CConfig::PathType relativePath = CAppConfig::Utf8ToPath(path);
-		Framework::CConfig::PathType absolutePath = CAppConfig::GetBasePath() / relativePath;
+		Framework::CConfig::PathType absolutePath = CAppConfig::GetBasePath() / path;
 		Framework::PathUtils::EnsurePathExists(absolutePath);
-		std::string absoluteStringPath = CAppConfig::PathToUtf8(absolutePath);
-		CAppConfig::GetInstance().RegisterPreferenceString(setting, absoluteStringPath.c_str());
+		//TODO: We ought to add a function to write a "path" in the settings. Since it can be wchar_t or char.
+		CAppConfig::GetInstance().RegisterPreferenceString(setting, absolutePath.string().c_str());
 	}
-
-//  CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT);
-//  CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT);
-//  CAppConfig::GetInstance().RegisterPreferenceString(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT);
-
+	
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
 	m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
