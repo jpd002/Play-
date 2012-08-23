@@ -18,8 +18,8 @@ namespace filesystem = boost::filesystem;
 
 CMcManagerWnd::CMcManagerWnd(HWND hParent) 
 : CModalWindow(hParent)
-, m_MemoryCard0(CAppConfig::Utf8ToPath(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory")))
-, m_MemoryCard1(CAppConfig::Utf8ToPath(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory")))
+, m_MemoryCard0(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"))
+, m_MemoryCard1(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"))
 {
 	RECT rc;
 
