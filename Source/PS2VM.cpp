@@ -1053,11 +1053,7 @@ void CPS2VM::EmuThread()
 		if(m_nEnd) break;
 		if(m_nStatus == PAUSED)
 		{
-			//Sleep during 100ms
-			boost::xtime xt;
-			boost::xtime_get(&xt, boost::TIME_UTC);
-			xt.nsec += 100 * 1000000;
-			boost::thread::sleep(xt);
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 		}
 		if(m_nStatus == RUNNING)
 		{
