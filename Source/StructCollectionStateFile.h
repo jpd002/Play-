@@ -9,22 +9,22 @@
 class CStructCollectionStateFile : public Framework::CZipFile
 {
 public:
-    typedef std::map<std::string, CStructFile> StructMap;	
-    typedef StructMap::const_iterator StructIterator;	
+	typedef std::map<std::string, CStructFile> StructMap;
+	typedef StructMap::const_iterator StructIterator;
 
-                        CStructCollectionStateFile(const char*);
-                        CStructCollectionStateFile(Framework::CStream&);
-    virtual             ~CStructCollectionStateFile();
+						CStructCollectionStateFile(const char*);
+						CStructCollectionStateFile(Framework::CStream&);
+	virtual				~CStructCollectionStateFile();
 
-    void                InsertStruct(const char*, const CStructFile&);
-    void                Read(Framework::CStream&);
-    virtual void        Write(Framework::CStream&);
+	void				InsertStruct(const char*, const CStructFile&);
+	void				Read(Framework::CStream&);
+	virtual void		Write(Framework::CStream&);
 
-    StructIterator      GetStructBegin() const;
-    StructIterator      GetStructEnd() const;
+	StructIterator		GetStructBegin() const;
+	StructIterator		GetStructEnd() const;
 
 private:
-    StructMap           m_structs;
+	StructMap			m_structs;
 };
 
 #endif

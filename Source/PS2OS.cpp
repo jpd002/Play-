@@ -513,8 +513,8 @@ void CPS2OS::ApplyPatches()
 	std::unique_ptr<Framework::Xml::CNode> document;
 	try
 	{
-		boost::scoped_ptr<Framework::CStdStream> patchesStream(Framework::CreateInputStdStream(patchesPath.native()));
-		document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(patchesStream.get()));
+		Framework::CStdStream patchesStream(Framework::CreateInputStdStream(patchesPath.native()));
+		document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(patchesStream));
 		if(!document) return;
 	}
 	catch(const std::exception& exception)
