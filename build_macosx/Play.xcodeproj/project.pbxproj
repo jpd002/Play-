@@ -1239,7 +1239,10 @@
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ../Source/macosxui/Purei_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = _IOP_EMULATE_MODULES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_IOP_EMULATE_MODULES,
+					NDEBUG,
+				);
 				HEADER_SEARCH_PATHS = (
 					"~/Libraries/boost_1_50_0",
 					"~/Projects/Framework/include",

@@ -15,11 +15,26 @@
 class CGSH_OpenGL : public CGSHandler
 {
 public:
+	enum PRESENTATION_MODE
+	{
+		PRESENTATION_MODE_FILL,
+		PRESENTATION_MODE_FIT,
+		PRESENTATION_MODE_ORIGINAL
+	};
+	
+	struct PRESENTATION_PARAMS
+	{
+		uint32				windowWidth;
+		uint32				windowHeight;
+		PRESENTATION_MODE	mode;
+	};
 									CGSH_OpenGL();
 	virtual							~CGSH_OpenGL();
 
 	virtual void					LoadState(Framework::CZipArchiveReader&);
 
+	void							SetPresentationParams(const PRESENTATION_PARAMS&);
+	
 	void							ProcessImageTransfer(uint32, uint32);
 	void							ProcessClutTransfer(uint32, uint32);
 	void							ReadFramebuffer(uint32, uint32, void*);
@@ -36,7 +51,6 @@ protected:
 	virtual void					InitializeImpl();
 	virtual void					ReleaseImpl();
 	virtual void					FlipImpl();
-	virtual void					SetViewport(int, int);
 
 private:
 	struct RENDERSTATE
@@ -201,6 +215,8 @@ private:
 	template <uint32> void			TexUploader_Psm4H(const TEX0&, const TEXA&);
 	void							TexUploader_Psm8H(const TEX0&, const TEXA&);
 
+	PRESENTATION_PARAMS				m_presentationParams;
+	
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
 	float							m_nPrimOfsY;
@@ -208,8 +224,8 @@ private:
 	uint32							m_nTexHeight;
 	float							m_nMaxZ;
 
-	int								m_nWidth;
-	int								m_nHeight;
+	int								m_displayWidth;
+	int								m_displayHeight;
 
 	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;

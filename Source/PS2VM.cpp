@@ -86,8 +86,8 @@ CPS2VM::CPS2VM()
 , m_executor(m_EE, 0x20000000)
 , m_nStatus(PAUSED)
 , m_nEnd(false)
-, m_pGS(NULL)
-, m_pPad(NULL)
+, m_gs(NULL)
+, m_pad(NULL)
 , m_singleStepEe(false)
 , m_singleStepIop(false)
 , m_singleStepVu0(false)
@@ -97,7 +97,7 @@ CPS2VM::CPS2VM()
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
 , m_pCDROM0(NULL)
 , m_dmac(m_ram, m_spr, m_pVUMem0, m_EE)
-, m_gif(m_pGS, m_ram, m_spr)
+, m_gif(m_gs, m_ram, m_spr)
 , m_sif(m_dmac, m_ram, m_iop.m_ram)
 , m_vif(m_gif, m_ram, m_spr, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1))
 , m_intc(m_dmac)
@@ -136,7 +136,7 @@ CPS2VM::CPS2VM()
 
 	m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
 	m_iopOs = static_cast<CIopBios*>(m_iopOsPtr.get());
-	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_pGS, m_sif, *m_iopOs);
+	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_gs, m_sif, *m_iopOs);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CPS2VM::FlushInstructionCache, this));
 	m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
 }
@@ -158,30 +158,30 @@ CPS2VM::~CPS2VM()
 
 void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
-	if(m_pGS != NULL) return;
+	if(m_gs != NULL) return;
 	m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, factoryFunction), true);
 }
 
 CGSHandler* CPS2VM::GetGSHandler()
 {
-	return m_pGS;
+	return m_gs;
 }
 
 void CPS2VM::DestroyGSHandler()
 {
-	if(m_pGS == NULL) return;
+	if(m_gs == NULL) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyGsImpl, this), true);
 }
 
 void CPS2VM::CreatePadHandler(const CPadHandler::FactoryFunction& factoryFunction)
 {
-	if(m_pPad != NULL) return;
+	if(m_pad != NULL) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::CreatePadHandlerImpl, this, factoryFunction), true);
 }
 
 void CPS2VM::DestroyPadHandler()
 {
-	if(m_pPad == NULL) return;
+	if(m_pad == NULL) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyPadHandlerImpl, this), true);
 }
 
@@ -502,9 +502,9 @@ void CPS2VM::ResetVM()
 	m_intc.Reset();
 	m_timer.Reset();
 
-	if(m_pGS != NULL)
+	if(m_gs != NULL)
 	{
-		m_pGS->Reset();
+		m_gs->Reset();
 	}
 
 	m_os->Initialize();
@@ -550,7 +550,7 @@ void CPS2VM::DestroyVM()
 
 void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 {
-	if(m_pGS == NULL)
+	if(m_gs == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot save state.\r\n");
 		result = 1;
@@ -573,7 +573,7 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 		archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,	m_pMicroMem1,	PS2::MICROMEM1SIZE));
 
 		m_iop.SaveState(archive);
-		m_pGS->SaveState(archive);
+		m_gs->SaveState(archive);
 		m_dmac.SaveState(archive);
 		m_intc.SaveState(archive);
 		m_sif.SaveState(archive);
@@ -597,7 +597,7 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 
 void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 {
-	if(m_pGS == NULL)
+	if(m_gs == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot load state.\r\n");
 		result = 1;
@@ -622,7 +622,7 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 			archive.BeginReadFile(STATE_MICROMEM1	)->Read(m_pMicroMem1,	PS2::MICROMEM1SIZE);
 
 			m_iop.LoadState(archive);
-			m_pGS->LoadState(archive);
+			m_gs->LoadState(archive);
 			m_dmac.LoadState(archive);
 			m_intc.LoadState(archive);
 			m_sif.LoadState(archive);
@@ -663,41 +663,41 @@ void CPS2VM::ResumeImpl()
 
 void CPS2VM::DestroyImpl()
 {
-	DELETEPTR(m_pGS);
+	DELETEPTR(m_gs);
 	m_nEnd = true;
 }
 
 void CPS2VM::CreateGsImpl(const CGSHandler::FactoryFunction& factoryFunction)
 {
-	m_pGS = factoryFunction();
-	m_pGS->Initialize();
-	m_pGS->OnNewFrame.connect(boost::bind(&CPS2VM::OnGsNewFrame, this));
+	m_gs = factoryFunction();
+	m_gs->Initialize();
+	m_gs->OnNewFrame.connect(boost::bind(&CPS2VM::OnGsNewFrame, this));
 }
 
 void CPS2VM::DestroyGsImpl()
 {
-	m_pGS->Release();
-	DELETEPTR(m_pGS);
+	m_gs->Release();
+	DELETEPTR(m_gs);
 }
 
 void CPS2VM::CreatePadHandlerImpl(const CPadHandler::FactoryFunction& factoryFunction)
 {
-	m_pPad = factoryFunction();
+	m_pad = factoryFunction();
 	RegisterModulesInPadHandler();
 }
 
 void CPS2VM::DestroyPadHandlerImpl()
 {
-	DELETEPTR(m_pPad);
+	DELETEPTR(m_pad);
 }
 
 void CPS2VM::OnGsNewFrame()
 {
 	m_frameNumber++;
 	bool drawFrame = (m_frameSkip == 0) ? true : (m_frameNumber % (m_frameSkip + 1)) == 0;
-	if(m_pGS != NULL)
+	if(m_gs != NULL)
 	{
-		m_pGS->SetEnabled(drawFrame);
+		m_gs->SetEnabled(drawFrame);
 	}
 	m_vif.SetEnabled(drawFrame);
 }
@@ -811,11 +811,11 @@ void CPS2VM::LoadBIOS()
 
 void CPS2VM::RegisterModulesInPadHandler()
 {
-	if(m_pPad == NULL) return;
+	if(m_pad == NULL) return;
 
-	m_pPad->RemoveAllListeners();
-	m_pPad->InsertListener(m_iopOs->GetDbcman());
-	m_pPad->InsertListener(m_iopOs->GetPadman());
+	m_pad->RemoveAllListeners();
+	m_pad->InsertListener(m_iopOs->GetDbcman());
+	m_pad->InsertListener(m_iopOs->GetPadman());
 }
 
 void CPS2VM::FillFakeIopRam()
@@ -876,9 +876,9 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
-		if(m_pGS != NULL)
+		if(m_gs != NULL)
 		{
-			nReturn = m_pGS->ReadPrivRegister(nAddress);		
+			nReturn = m_gs->ReadPrivRegister(nAddress);		
 		}
 	}
 	else
@@ -931,9 +931,9 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
-		if(m_pGS != NULL)
+		if(m_gs != NULL)
 		{
-			m_pGS->WritePrivRegister(nAddress, nData);
+			m_gs->WritePrivRegister(nAddress, nData);
 		}
 	}
 	else
@@ -1099,14 +1099,14 @@ void CPS2VM::EmuThread()
 						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
 						m_iop.NotifyVBlankStart();
 
-						if(m_pGS != NULL)
+						if(m_gs != NULL)
 						{
-							m_pGS->SetVBlank();
+							m_gs->SetVBlank();
 						}
 
-						if(m_pPad != NULL)
+						if(m_pad != NULL)
 						{
-							m_pPad->Update(m_ram);
+							m_pad->Update(m_ram);
 						}
 					}
 					else
@@ -1114,9 +1114,9 @@ void CPS2VM::EmuThread()
 						m_nVBlankTicks += ONSCREEN_TICKS;
 						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
 						m_iop.NotifyVBlankEnd();
-						if(m_pGS != NULL)
+						if(m_gs != NULL)
 						{
-							m_pGS->ResetVBlank();
+							m_gs->ResetVBlank();
 						}
 					}
 				}

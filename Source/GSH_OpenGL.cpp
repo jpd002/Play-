@@ -36,6 +36,9 @@ CGSH_OpenGL::CGSH_OpenGL()
 	m_pCvtBuffer = new uint8[CVTBUFFERSIZE];
 
 	memset(&m_renderState, 0, sizeof(m_renderState));
+	
+	m_presentationParams.windowWidth = 512;
+	m_presentationParams.windowHeight = 384;
 }
 
 CGSH_OpenGL::~CGSH_OpenGL()
@@ -48,8 +51,8 @@ void CGSH_OpenGL::InitializeImpl()
 	InitializeRC();
 
 	m_nVtxCount = 0;
-	m_nWidth = -1;
-	m_nHeight = -1;
+	m_displayWidth = 0;
+	m_displayHeight = 0;
 	memset(m_clampMin, 0, sizeof(m_clampMin));
 	memset(m_clampMax, 0, sizeof(m_clampMax));
 
@@ -80,9 +83,56 @@ void CGSH_OpenGL::FlipImpl()
 {
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
-#ifdef _WIREFRAME
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#endif
+
+	glClearColor(0, 0, 0, 1);
+	glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	unsigned int sourceWidth = GetCrtWidth();
+	unsigned int sourceHeight = GetCrtHeight();
+	switch(m_presentationParams.mode)
+	{
+	case PRESENTATION_MODE_FILL:
+		glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
+		break;
+	case PRESENTATION_MODE_FIT:
+		{
+			int viewportWidth[2];
+			int viewportHeight[2];
+			{
+				viewportWidth[0] = m_presentationParams.windowWidth;
+				viewportHeight[0] = (sourceWidth != 0) ? (m_presentationParams.windowWidth * sourceHeight) / sourceWidth : 0;
+			}
+			{
+				viewportWidth[1] = (sourceHeight != 0) ? (m_presentationParams.windowHeight * sourceWidth) / sourceHeight : 0;
+				viewportHeight[1] = m_presentationParams.windowHeight;
+			}
+			int selectedViewport = 0;
+			if(
+			   (viewportWidth[0] > m_presentationParams.windowWidth) ||
+			   (viewportHeight[0] > m_presentationParams.windowHeight)
+			   )
+			{
+				selectedViewport = 1;
+				assert(
+					   viewportWidth[1] <= m_presentationParams.windowWidth &&
+					   viewportHeight[1] <= m_presentationParams.windowHeight);
+			}
+			int offsetX = (m_presentationParams.windowWidth - viewportWidth[selectedViewport]) / 2;
+			int offsetY = (m_presentationParams.windowHeight - viewportHeight[selectedViewport]) / 2;
+			glViewport(offsetX, offsetY, viewportWidth[selectedViewport], viewportHeight[selectedViewport]);
+		}
+		break;
+	case PRESENTATION_MODE_ORIGINAL:
+		{
+			int offsetX = (m_presentationParams.windowWidth - sourceWidth) / 2;
+			int offsetY = (m_presentationParams.windowHeight - sourceHeight) / 2;
+			glViewport(offsetX, offsetY, sourceWidth, sourceHeight);
+		}
+		break;
+	}
+	
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
@@ -90,6 +140,11 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 	CGSHandler::LoadState(archive);
 
 	m_mailBox.SendCall(std::bind(&CGSH_OpenGL::TexCache_InvalidateTextures, this, 0, RAMSIZE));
+}
+
+void CGSH_OpenGL::SetPresentationParams(const PRESENTATION_PARAMS& presentationParams)
+{
+	m_presentationParams = presentationParams;
 }
 
 void CGSH_OpenGL::LoadSettings()
@@ -130,10 +185,6 @@ void CGSH_OpenGL::InitializeRC()
 	{
 		m_pTexUploader_Psm16 = &CGSH_OpenGL::TexUploader_Psm16_Hw;
 	}
-
-	SetViewport(512, 384);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 #ifdef _WIREFRAME
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -207,16 +258,15 @@ void CGSH_OpenGL::UpdateViewportImpl()
 		nH /= 2;
 	}
 
-	if(m_nWidth == nW && m_nHeight == nH)
+	if(m_displayWidth == nW && m_displayHeight == nH)
 	{
 		return;
 	}
 
-	m_nWidth = nW;
-	m_nHeight = nH;
+	m_displayWidth = nW;
+	m_displayHeight = nH;
 
-	SetViewport(GetCrtWidth(), GetCrtHeight());
-	SetReadCircuitMatrix(m_nWidth, m_nHeight);
+	SetReadCircuitMatrix(m_displayWidth, m_displayHeight);
 }
 
 unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
@@ -226,11 +276,6 @@ unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 	if(m_nPMODE & 0x2) return 1;
 	//Getting here is bad
 	return 0;
-}
-
-void CGSH_OpenGL::SetViewport(int nWidth, int nHeight)
-{
-	glViewport(0, 0, nWidth, nHeight);
 }
 
 void CGSH_OpenGL::SetReadCircuitMatrix(int nWidth, int nHeight)
@@ -1275,7 +1320,7 @@ void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength)
 
 	TexCache_InvalidateTextures(nAddress, nLength);
 
-	uint32 nFrameEnd = (pFrame->GetBasePtr() + (pFrame->GetWidth() * GetPsmPixelSize(pFrame->nPsm) / 8) * m_nHeight);
+	uint32 nFrameEnd = (pFrame->GetBasePtr() + (pFrame->GetWidth() * GetPsmPixelSize(pFrame->nPsm) / 8) * m_displayHeight);
 	if(nAddress < nFrameEnd)
 	{
 		if((pFrame->nPsm == PSMCT24) && (pBuf->nDstPsm == PSMT4HH || pBuf->nDstPsm == PSMT4HL || pBuf->nDstPsm == PSMT8H)) return;

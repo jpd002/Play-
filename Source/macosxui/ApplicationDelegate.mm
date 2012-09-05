@@ -7,16 +7,23 @@
 #import "../PS2VM_Preferences.h"
 #import "../AppConfig.h"
 
+#define PREFERENCE_RENDERER_PRESENTATION_MODE		"renderer.presentationmode"
+
 @implementation ApplicationDelegate
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification
 {
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_RENDERER_PRESENTATION_MODE, CGSH_OpenGL::PRESENTATION_MODE_FIT);
+	
+	presentationMode = static_cast<CGSH_OpenGL::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_RENDERER_PRESENTATION_MODE));
+	
 	g_virtualMachine->Initialize();
 	
 	outputWindowController = [[OutputWindowController alloc] initWithWindowNibName: @"OutputWindow"];
 	[outputWindowController.window setContentSize: NSMakeSize(640.0, 448.0)];
 	[outputWindowController.window center];
 	[outputWindowController showWindow: nil];
+	[outputWindowController setDelegate: self];
 	
 	NSOpenGLContext* context = [outputWindowController.openGlView openGLContext];
 	void* lowLevelContext = [context CGLContextObj];
@@ -39,6 +46,16 @@
 #endif
 }
 
+-(void)applicationDidBecomeActive: (NSNotification*)notification
+{
+	[self updatePresentationParams];
+}
+
+-(void)outputWindowDidResize: (NSSize)size
+{
+	[self updatePresentationParams];
+}
+
 -(void)applicationWillTerminate: (NSNotification*)notification
 {
 	g_virtualMachine->Pause();
@@ -59,7 +76,7 @@
 	[self bootFromElf: filePath];
 }
 
--(IBAction)bootDiskImageSelected: (id)sender
+-(IBAction)bootDiskImageMenuSelected: (id)sender
 {
 	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", nil];
@@ -81,7 +98,33 @@
 	[self bootFromCdrom0];
 }
 
--(void)pauseResumeMenuSelected: (id)sender
+-(IBAction)fitToScreenMenuSelected: (id)sender
+{
+	presentationMode = CGSH_OpenGL::PRESENTATION_MODE_FIT;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREFERENCE_RENDERER_PRESENTATION_MODE, presentationMode);
+	[self updatePresentationParams];
+}
+
+-(IBAction)fillScreenMenuSelected: (id)sender
+{
+	presentationMode = CGSH_OpenGL::PRESENTATION_MODE_FILL;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREFERENCE_RENDERER_PRESENTATION_MODE, presentationMode);
+	[self updatePresentationParams];
+}
+
+-(IBAction)actualSizeMenuSelected: (id)sender
+{
+	presentationMode = CGSH_OpenGL::PRESENTATION_MODE_ORIGINAL;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREFERENCE_RENDERER_PRESENTATION_MODE, presentationMode);
+	[self updatePresentationParams];
+}
+
+-(IBAction)fullScreenMenuSelected: (id)sender
+{
+	[outputWindowController.window toggleFullScreen: nil];
+}
+
+-(IBAction)pauseResumeMenuSelected: (id)sender
 {
 	if(g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
 	{
@@ -93,12 +136,12 @@
 	}
 }
 
--(void)saveStateMenuSelected: (id)sender
+-(IBAction)saveStateMenuSelected: (id)sender
 {
 	g_virtualMachine->SaveState("state.st0.zip");
 }
 
--(void)loadStateMenuSelected: (id)sender
+-(IBAction)loadStateMenuSelected: (id)sender
 {
 	if(g_virtualMachine->LoadState("state.st0.zip"))
 	{
@@ -106,7 +149,7 @@
 	}
 }
 
--(void)vfsManagerMenuSelected: (id)sender
+-(IBAction)vfsManagerMenuSelected: (id)sender
 {
 	[[VfsManagerController defaultController] showManager];
 }
@@ -147,11 +190,39 @@
 
 -(BOOL)validateUserInterfaceItem: (id<NSValidatedUserInterfaceItem>)item
 {
-	if(item == pauseResumeMenuItem)
+	bool hasElf = g_virtualMachine->m_os->GetELF() != NULL;
+	if(
+	   item == pauseResumeMenuItem ||
+	   item == loadStateMenuItem ||
+	   item == saveStateMenuItem)
 	{
-		return g_virtualMachine->m_os->GetELF() != NULL;
+		return hasElf;
+	}
+	if(item.action == @selector(fitToScreenMenuSelected:))
+	{
+		[(NSMenuItem*)item setState: (presentationMode == CGSH_OpenGL::PRESENTATION_MODE_FIT) ? NSOnState : NSOffState];
+	}
+	if(item.action == @selector(fillScreenMenuSelected:))
+	{
+		[(NSMenuItem*)item setState: (presentationMode == CGSH_OpenGL::PRESENTATION_MODE_FILL) ? NSOnState : NSOffState];
+	}
+	if(item.action == @selector(actualSizeMenuSelected:))
+	{
+		[(NSMenuItem*)item setState: (presentationMode == CGSH_OpenGL::PRESENTATION_MODE_ORIGINAL) ? NSOnState : NSOffState];
 	}
 	return YES;
+}
+
+-(void)updatePresentationParams
+{	
+	NSSize contentSize = [outputWindowController contentSize];
+	auto gs = static_cast<CGSH_OpenGLMacOSX*>(g_virtualMachine->m_gs);
+	CGSH_OpenGL::PRESENTATION_PARAMS presentationParams;
+	presentationParams.windowWidth = static_cast<unsigned int>(contentSize.width);
+	presentationParams.windowHeight = static_cast<unsigned int>(contentSize.height);
+	presentationParams.mode = presentationMode;
+	gs->SetPresentationParams(presentationParams);
+	gs->Flip();
 }
 
 @end

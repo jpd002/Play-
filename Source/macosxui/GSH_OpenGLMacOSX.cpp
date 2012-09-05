@@ -2,8 +2,8 @@
 #include "CoreFoundation/CoreFoundation.h"
 #include "StdStream.h"
 
-CGSH_OpenGLMacOSX::CGSH_OpenGLMacOSX(CGLContextObj context) :
-m_context(context)
+CGSH_OpenGLMacOSX::CGSH_OpenGLMacOSX(CGLContextObj context)
+: m_context(context)
 {
 
 }

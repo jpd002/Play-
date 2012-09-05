@@ -103,8 +103,8 @@ public:
 	uint32						Vu1IoPortReadHandler(uint32);
 	uint32						Vu1IoPortWriteHandler(uint32, uint32);
 
-	CGSHandler*					m_pGS;
-	CPadHandler*				m_pPad;
+	CGSHandler*					m_gs;
+	CPadHandler*				m_pad;
 
 	Iop::CSubSystem				m_iop;
 
