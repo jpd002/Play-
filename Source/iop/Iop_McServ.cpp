@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <boost/filesystem/operations.hpp>
-#include <boost/static_assert.hpp>
 #include "../AppConfig.h"
 #include "../Log.h"
 #include "Iop_McServ.h"
@@ -17,17 +16,15 @@ const char* CMcServ::m_sMcPathPreference[2] =
 	"ps2.mc1.directory",
 };
 
-CMcServ::CMcServ(CSifMan& sif) :
-m_nNextHandle(1)
+CMcServ::CMcServ(CSifMan& sif)
+: m_nNextHandle(1)
 {
-	BOOST_STATIC_ASSERT(sizeof(CMD) == 0x414);
-    sif.RegisterModule(MODULE_ID, this);
+	sif.RegisterModule(MODULE_ID, this);
 }
 
 CMcServ::~CMcServ()
 {
 	//Close any handles that might still be in there...
-	
 	for(HandleMap::iterator itHandle = m_Handles.begin();
 		itHandle != m_Handles.end();
 		itHandle++)
@@ -38,12 +35,12 @@ CMcServ::~CMcServ()
 
 std::string CMcServ::GetId() const
 {
-    return "mcserv";
+	return "mcserv";
 }
 
 std::string CMcServ::GetFunctionName(unsigned int) const
 {
-    return "unknown";
+	return "unknown";
 }
 
 void CMcServ::Invoke(CMIPS& context, unsigned int functionId)
@@ -64,18 +61,18 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x03:
 		Close(args, argsSize, ret, retSize, ram);
 		break;
-    case 0x04:
-        Seek(args, argsSize, ret, retSize, ram);
-        break;
+	case 0x04:
+		Seek(args, argsSize, ret, retSize, ram);
+		break;
 	case 0x05:
 		Read(args, argsSize, ret, retSize, ram);
 		break;
-    case 0x06:
-        Write(args, argsSize, ret, retSize, ram);
-        break;
-    case 0x0C:
-        ChDir(args, argsSize, ret, retSize, ram);
-        break;
+	case 0x06:
+		Write(args, argsSize, ret, retSize, ram);
+		break;
+	case 0x0C:
+		ChDir(args, argsSize, ret, retSize, ram);
+		break;
 	case 0x0D:
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;
@@ -87,7 +84,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
 		break;
 	}
-    return true;
+	return true;
 }
 
 void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -96,9 +93,9 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 
 	uint32 nPort			= args[1];
 	uint32 nSlot			= args[2];
-	bool nWantType		    = args[3] != 0;
-	bool nWantFreeSpace	    = args[4] != 0;
-	bool nWantFormatted	    = args[5] != 0;
+	bool nWantType			= args[3] != 0;
+	bool nWantFreeSpace		= args[4] != 0;
+	bool nWantFormatted		= args[5] != 0;
 	uint32* pRetBuffer		= reinterpret_cast<uint32*>(&ram[args[7]]);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetInfo(nPort = %i, nSlot = %i, nWantType = %i, nWantFreeSpace = %i, nWantFormatted = %i, nRetBuffer = 0x%0.8X);\r\n",
@@ -117,12 +114,12 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 		pRetBuffer[0x24] = 1;
 	}
 
-    //Return values
-    //  0 if same card as previous call
-    //  -1 if new formatted card
-    //  -2 if new unformatted card
-    //> -2 on error
-    ret[0] = 0;
+	//Return values
+	//  0 if same card as previous call
+	//  -1 if new formatted card
+	//  -2 if new unformatted card
+	//> -2 on error
+	ret[0] = 0;
 }
 
 void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -164,59 +161,59 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		return;
 	}
 
-    if(pCmd->nFlags == 0x40)
-    {
-        //Directory only?
-        uint32 result = -1;
-        try
-        {
-            filesystem::create_directory(filePath);
-            result = 0;
-        }
-        catch(...)
-        {
-            
-        }
-        ret[0] = result;
-        return;
-    }
-    else
-    {
-	    const char* sAccess = NULL;
-	    switch(pCmd->nFlags)
-	    {
-	    case O_RDONLY:
-		    sAccess = "rb";
-		    break;
-        case O_WRONLY:
-            sAccess = "r+b";
-            break;
-        case (O_CREAT | O_WRONLY):
-		case (O_CREAT | O_RDWR):
-            sAccess = "wb";
-            break;
-	    }
+	if(pCmd->nFlags == 0x40)
+	{
+		//Directory only?
+		uint32 result = -1;
+		try
+		{
+			filesystem::create_directory(filePath);
+			result = 0;
+		}
+		catch(...)
+		{
+			
+		}
+		ret[0] = result;
+		return;
+	}
+	else
+	{
+		const char* sAccess = NULL;
+		switch(pCmd->nFlags)
+		{
+		case OPEN_FLAG_RDONLY:
+			sAccess = "rb";
+			break;
+		case OPEN_FLAG_WRONLY:
+			sAccess = "r+b";
+			break;
+		case (OPEN_FLAG_CREAT | OPEN_FLAG_WRONLY):
+		case (OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
+			sAccess = "wb";
+			break;
+		}
 
-	    if(sAccess == NULL)
-	    {
-		    ret[0] = -1;
-		    assert(0);
-		    return;
-	    }
+		if(sAccess == NULL)
+		{
+			ret[0] = -1;
+			assert(0);
+			return;
+		}
 
-	    FILE* pFile = fopen(filePath.string().c_str(), sAccess);
-	    if(pFile == NULL)
-	    {
-            //-4 for not existing file?
-		    ret[0] = -4;
-		    return;
-	    }
+		FILE* pFile = fopen(filePath.string().c_str(), sAccess);
+		if(pFile == NULL)
+		{
+			//-4 for not existing file?
+			ret[0] = -4;
+			return;
+		}
 
-	    uint32 nHandle = GenerateHandle();
-	    m_Handles[nHandle] = pFile;
+		uint32 nHandle = GenerateHandle();
+		m_Handles[nHandle] = pFile;
 
-	    ret[0] = nHandle;
-    }
+		ret[0] = nHandle;
+	}
 }
 
 void CMcServ::Close(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -251,33 +248,33 @@ void CMcServ::Seek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Seek(nHandle = %i, nOffset = 0x%0.8X, nOrigin = 0x%0.8X);\r\n",
 		pCmd->nHandle, pCmd->nOffset, pCmd->nOrigin);
 
-    FILE* pFile = GetFileFromHandle(pCmd->nHandle);
-    if(pFile == NULL)
-    {
+	FILE* pFile = GetFileFromHandle(pCmd->nHandle);
+	if(pFile == NULL)
+	{
 		ret[0] = -1;
 		assert(0);
 		return;
-    }
+	}
 
-    int origin = SEEK_SET;
-    switch(pCmd->nOrigin)
-    {
-    case 0:
-        origin = SEEK_SET;
-        break;
-    case 1:
-        origin = SEEK_CUR;
-        break;
-    case 2:
-        origin = SEEK_END;
-        break;
-    default:
-        assert(0);
-        break;
-    }
+	int origin = SEEK_SET;
+	switch(pCmd->nOrigin)
+	{
+	case 0:
+		origin = SEEK_SET;
+		break;
+	case 1:
+		origin = SEEK_CUR;
+		break;
+	case 2:
+		origin = SEEK_END;
+		break;
+	default:
+		assert(0);
+		break;
+	}
 
-    fseek(pFile, pCmd->nOffset, origin);
-    ret[0] = ftell(pFile);
+	fseek(pFile, pCmd->nOffset, origin);
+	ret[0] = ftell(pFile);
 }
 
 void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -287,23 +284,23 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Read(nHandle = %i, nSize = 0x%0.8X, nBufferAddress = 0x%0.8X, nParamAddress = 0x%0.8X);\r\n",
 		pCmd->nHandle, pCmd->nSize, pCmd->nBufferAddress, pCmd->nParamAddress);
 
-    FILE* pFile = GetFileFromHandle(pCmd->nHandle);
-    if(pFile == NULL)
-    {
+	FILE* pFile = GetFileFromHandle(pCmd->nHandle);
+	if(pFile == NULL)
+	{
 		ret[0] = -1;
 		assert(0);
 		return;
-    }
+	}
 
-    assert(pCmd->nBufferAddress != 0);
+	assert(pCmd->nBufferAddress != 0);
 	void* pDst = &ram[pCmd->nBufferAddress];
 
-    if(pCmd->nParamAddress != 0)
-    {
-	    //This param buffer is used in the callback after calling this method... No clue what it's for
-	    reinterpret_cast<uint32*>(&ram[pCmd->nParamAddress])[0] = 0;
-	    reinterpret_cast<uint32*>(&ram[pCmd->nParamAddress])[1] = 0;
-    }
+	if(pCmd->nParamAddress != 0)
+	{
+		//This param buffer is used in the callback after calling this method... No clue what it's for
+		reinterpret_cast<uint32*>(&ram[pCmd->nParamAddress])[0] = 0;
+		reinterpret_cast<uint32*>(&ram[pCmd->nParamAddress])[1] = 0;
+	}
 
 	ret[0] = static_cast<uint32>(fread(pDst, 1, pCmd->nSize, pFile));
 }
@@ -315,26 +312,26 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	CLog::GetInstance().Print(LOG_NAME, "Write(nHandle = %i, nSize = 0x%0.8X, nBufferAddress = 0x%0.8X, nOrigin = 0x%0.8X);\r\n",
 		pCmd->nHandle, pCmd->nSize, pCmd->nBufferAddress, pCmd->nOrigin);
 
-    FILE* pFile = GetFileFromHandle(pCmd->nHandle);
-    if(pFile == NULL)
-    {
+	FILE* pFile = GetFileFromHandle(pCmd->nHandle);
+	if(pFile == NULL)
+	{
 		ret[0] = -1;
 		assert(0);
 		return;
-    }
+	}
 
 	void* pDst = &ram[pCmd->nBufferAddress];
-    uint32 result = 0;
+	uint32 result = 0;
 
-    //Write "origin" bytes from "data" field first
-    if(pCmd->nOrigin != 0)
-    {
-        fwrite(pCmd->nData, 1, pCmd->nOrigin, pFile);
-        result += pCmd->nOrigin;        
-    }
+	//Write "origin" bytes from "data" field first
+	if(pCmd->nOrigin != 0)
+	{
+		fwrite(pCmd->nData, 1, pCmd->nOrigin, pFile);
+		result += pCmd->nOrigin;
+	}
 
 	result += static_cast<uint32>(fwrite(pDst, 1, pCmd->nSize, pFile));
-    ret[0] = result;
+	ret[0] = result;
 }
 
 void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -342,10 +339,10 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	assert(argsSize >= 0x414);
 	CMD* pCmd = reinterpret_cast<CMD*>(args);
 
-    CLog::GetInstance().Print(LOG_NAME, "ChDir(nPort = %i, nSlot = %i, pTable = 0x%0.8X, pName = %s);\r\n",
-        pCmd->nPort, pCmd->nSlot, pCmd->nTableAddress, pCmd->sName);
+	CLog::GetInstance().Print(LOG_NAME, "ChDir(nPort = %i, nSlot = %i, pTable = 0x%0.8X, pName = %s);\r\n",
+							  pCmd->nPort, pCmd->nSlot, pCmd->nTableAddress, pCmd->sName);
 
-    uint32 nRet = -1;
+	uint32 nRet = -1;
 
 	try
 	{
@@ -362,12 +359,12 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		}
 
 		filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]));
-        mcPath /= newCurrentDirectory;
+		mcPath /= newCurrentDirectory;
 
-        if(filesystem::exists(mcPath) && filesystem::is_directory(mcPath))
+		if(filesystem::exists(mcPath) && filesystem::is_directory(mcPath))
 		{
 			m_currentDirectory = newCurrentDirectory;
-            nRet = 0;
+			nRet = 0;
 		}
 		else
 		{
@@ -380,7 +377,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		CLog::GetInstance().Print(LOG_NAME, "Error while executing GetDir: %s\r\n.", Exception.what());
 	}
 
-    ret[0] = nRet;
+	ret[0] = nRet;
 }
 
 void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -403,21 +400,21 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	try
 	{
-        if(pCmd->nFlags == 0)
-        {
-            m_pathFinder.Reset();
+		if(pCmd->nFlags == 0)
+		{
+			m_pathFinder.Reset();
 
-		    filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]));
+			filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_sMcPathPreference[pCmd->nPort]));
 			mcPath /= m_currentDirectory;
 			mcPath = filesystem::absolute(mcPath);
 
-		    if(filesystem::exists(mcPath))
-		    {
-                m_pathFinder.Search(mcPath, pCmd->sName);
-		    }
-        }
+			if(filesystem::exists(mcPath))
+			{
+				m_pathFinder.Search(mcPath, pCmd->sName);
+			}
+		}
 
-        nRet = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[pCmd->nTableAddress]), pCmd->nMaxEntries);
+		nRet = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[pCmd->nTableAddress]), pCmd->nMaxEntries);
 	}
 	catch(const std::exception& Exception)
 	{
@@ -471,8 +468,8 @@ CMcServ::CPathFinder::~CPathFinder()
 
 void CMcServ::CPathFinder::Reset()
 {
-    m_entries.clear();
-    m_nIndex = 0;
+	m_entries.clear();
+	m_nIndex = 0;
 }
 
 void CMcServ::CPathFinder::Search(const boost::filesystem::path& BasePath, const char* sFilter)
@@ -480,33 +477,33 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& BasePath, const
 	m_BasePath	= BasePath;
 	m_sFilter	= sFilter;
 
-    if(m_sFilter[0] != '/')
-    {
-        m_sFilter = "/" + m_sFilter;
-    }
+	if(m_sFilter[0] != '/')
+	{
+		m_sFilter = "/" + m_sFilter;
+	}
 	if(m_sFilter.find('?') != std::string::npos)
-    {
-        m_matcher = &CPathFinder::QuestionMarkFilterMatcher;
-    }
-    else
-    {
-        m_matcher = &CPathFinder::StarFilterMatcher;
-    }
+	{
+		m_matcher = &CPathFinder::QuestionMarkFilterMatcher;
+	}
+	else
+	{
+		m_matcher = &CPathFinder::StarFilterMatcher;
+	}
 
-    SearchRecurse(m_BasePath);
+	SearchRecurse(m_BasePath);
 }
 
 unsigned int CMcServ::CPathFinder::Read(ENTRY* pEntry, unsigned int nSize)
 {
-    assert(m_nIndex <= m_entries.size());
-    unsigned int remaining = m_entries.size() - m_nIndex;
-    unsigned int readCount = std::min<unsigned int>(remaining, nSize);
-    for(unsigned int i = 0; i < readCount; i++)
-    {
-        pEntry[i] = m_entries[i + m_nIndex];
-    }
-    m_nIndex += readCount;
-    return readCount;
+	assert(m_nIndex <= m_entries.size());
+	unsigned int remaining = m_entries.size() - m_nIndex;
+	unsigned int readCount = std::min<unsigned int>(remaining, nSize);
+	for(unsigned int i = 0; i < readCount; i++)
+	{
+		pEntry[i] = m_entries[i + m_nIndex];
+	}
+	m_nIndex += readCount;
+	return readCount;
 }
 
 void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& Path)
@@ -527,24 +524,24 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& Path)
 		if((*this.*m_matcher)(relativePathString.c_str()))
 		{
 			//Fill in the information
-            ENTRY entry;
+			ENTRY entry;
 
-            //strncpy(reinterpret_cast<char*>(pEntry->sName), sRelativePath.c_str(), 0x1F);
-            strncpy(reinterpret_cast<char*>(entry.sName), relativePath.filename().string().c_str(), 0x1F);
-            entry.sName[0x1F] = 0;
+			//strncpy(reinterpret_cast<char*>(pEntry->sName), sRelativePath.c_str(), 0x1F);
+			strncpy(reinterpret_cast<char*>(entry.sName), relativePath.filename().string().c_str(), 0x1F);
+			entry.sName[0x1F] = 0;
 
-            if(filesystem::is_directory(*itElement))
-            {
-                entry.nSize		    = 0;
-                entry.nAttributes	= 0x8427;
-            }
-            else
-            {
-                entry.nSize		    = static_cast<uint32>(filesystem::file_size(*itElement));
-                entry.nAttributes   = 0x8497;
-            }
+			if(filesystem::is_directory(*itElement))
+			{
+				entry.nSize			= 0;
+				entry.nAttributes	= 0x8427;
+			}
+			else
+			{
+				entry.nSize			= static_cast<uint32>(filesystem::file_size(*itElement));
+				entry.nAttributes	= 0x8497;
+			}
 
-            m_entries.push_back(entry);
+			m_entries.push_back(entry);
 		}
 
 		if(filesystem::is_directory(*itElement))
@@ -598,27 +595,27 @@ _starCheck:
 
 bool CMcServ::CPathFinder::QuestionMarkFilterMatcher(const char* path)
 {
-    const char* src = m_sFilter.c_str();
-    const char* dst = path;
+	const char* src = m_sFilter.c_str();
+	const char* dst = path;
 
-    while(1)
-    {
-        if(*src == 0 && *dst == 0)
-        {
-            return true;
-        }
+	while(1)
+	{
+		if(*src == 0 && *dst == 0)
+		{
+			return true;
+		}
 
-        if(*src == 0) return false;
-        if(*dst == 0) return false;
+		if(*src == 0) return false;
+		if(*dst == 0) return false;
 
-        if(*src != '?')
-        {
-            if(*src != *dst) return false;
-        }
+		if(*src != '?')
+		{
+			if(*src != *dst) return false;
+		}
 
-        src++;
-        dst++;
-    }
+		src++;
+		dst++;
+	}
 
-    return false;
+	return false;
 }

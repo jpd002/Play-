@@ -267,7 +267,7 @@ bool CIopBios::IsIdle()
 
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
 {
-	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::O_RDONLY, path);
+	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
 	if(handle & 0x80000000)
 	{
 		CLog::GetInstance().Print(LOGNAME, "Tried to load '%s' which couldn't be found.", path);

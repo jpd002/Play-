@@ -2,12 +2,10 @@
 #include "StdStream.h"
 #include "../AppConfig.h"
 
-using namespace Framework;
-using namespace std;
 using namespace Iop::Ioman;
 
-CDirectoryDevice::CDirectoryDevice(const char* basePathPreferenceName) :
-m_basePathPreferenceName(basePathPreferenceName)
+CDirectoryDevice::CDirectoryDevice(const char* basePathPreferenceName)
+: m_basePathPreferenceName(basePathPreferenceName)
 {
 
 }
@@ -17,27 +15,27 @@ CDirectoryDevice::~CDirectoryDevice()
 
 }
 
-CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* devicePath)
+Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* devicePath)
 {
 	const char* mode(NULL);
-    string path;
+	std::string path;
 
 	const char* basePath = CAppConfig::GetInstance().GetPreferenceString(m_basePathPreferenceName.c_str());
 
-    path = basePath;
+	path = basePath;
 	if(devicePath[0] != '/')
 	{
-        path += "/";
+		path += "/";
 	}
-    path += devicePath;
+	path += devicePath;
 
 	switch(accessType)
 	{
 	case 0:
-	case O_RDONLY:
+	case OPEN_FLAG_RDONLY:
 		mode = "rb";
 		break;
-	case (O_RDWR | O_CREAT):
+	case (OPEN_FLAG_RDWR | OPEN_FLAG_CREAT):
 		mode = "w+";
 		break;
 	default:
@@ -46,8 +44,8 @@ CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* devicePath)
 	}
 
 
-    FILE* stream = fopen(path.c_str(), mode);
+	FILE* stream = fopen(path.c_str(), mode);
 	if(stream == NULL) return NULL;
 
-	return new CStdStream(stream);
+	return new Framework::CStdStream(stream);
 }

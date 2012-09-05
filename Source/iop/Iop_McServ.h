@@ -15,10 +15,10 @@ namespace Iop
 	public:
 							CMcServ(CSifMan&);
 		virtual				~CMcServ();
-        std::string         GetId() const;
-        std::string         GetFunctionName(unsigned int) const;
-        void                Invoke(CMIPS&, unsigned int);
-        virtual bool		Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		std::string			GetId() const;
+		std::string			GetFunctionName(unsigned int) const;
+		void				Invoke(CMIPS&, unsigned int);
+		virtual bool		Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
 	private:
 		enum MODULE_ID
@@ -28,13 +28,13 @@ namespace Iop
 
 		enum OPEN_FLAGS
 		{
-			O_RDONLY	= 0x00000001,
-			O_WRONLY	= 0x00000002,
-			O_RDWR		= 0x00000003,
-			O_CREAT		= 0x00000200,
+			OPEN_FLAG_RDONLY	= 0x00000001,
+			OPEN_FLAG_WRONLY	= 0x00000002,
+			OPEN_FLAG_RDWR		= 0x00000003,
+			OPEN_FLAG_CREAT		= 0x00000200,
 		};
 
-        struct CMD
+		struct CMD
 		{
 			uint32	nPort;
 			uint32	nSlot;
@@ -43,6 +43,7 @@ namespace Iop
 			uint32	nTableAddress;
 			char	sName[0x400];
 		};
+		static_assert(sizeof(CMD) == 0x414, "Size of CMD structure must be 0x414 bytes.");
 
 		struct FILECMD
 		{
@@ -82,42 +83,42 @@ namespace Iop
 		{
 		public:
 										CPathFinder();
-			virtual                     ~CPathFinder();
+			virtual						~CPathFinder();
 
-            void                        Reset();
-			void        				Search(const boost::filesystem::path&, const char*);
-            unsigned int                Read(ENTRY*, unsigned int);
+			void						Reset();
+			void						Search(const boost::filesystem::path&, const char*);
+			unsigned int				Read(ENTRY*, unsigned int);
 
 		private:
-            typedef std::vector<ENTRY> EntryList;
-            typedef bool (CPathFinder::*StringMatcher)(const char*);
+			typedef std::vector<ENTRY> EntryList;
+			typedef bool (CPathFinder::*StringMatcher)(const char*);
 
 			void						SearchRecurse(const boost::filesystem::path&);
 			bool						StarFilterMatcher(const char*);
-            bool                        QuestionMarkFilterMatcher(const char*);
+			bool						QuestionMarkFilterMatcher(const char*);
 
-            EntryList                   m_entries;
+			EntryList					m_entries;
 
-//          ENTRY*						m_pEntry;
+//			ENTRY*						m_pEntry;
 			boost::filesystem::path		m_BasePath;
 			std::string					m_sFilter;
 			unsigned int				m_nIndex;
 //			unsigned int				m_nMax;
-            StringMatcher               m_matcher;
+			StringMatcher				m_matcher;
 		};
 
 		void				GetInfo(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Open(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Close(uint32*, uint32, uint32*, uint32, uint8*);
-        void                Seek(uint32*, uint32, uint32*, uint32, uint8*);
+		void				Seek(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Read(uint32*, uint32, uint32*, uint32, uint8*);
-        void                Write(uint32*, uint32, uint32*, uint32, uint8*);
-        void                ChDir(uint32*, uint32, uint32*, uint32, uint8*);
+		void				Write(uint32*, uint32, uint32*, uint32, uint8*);
+		void				ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
 		uint32				GenerateHandle();
-        FILE*               GetFileFromHandle(uint32);
+		FILE*				GetFileFromHandle(uint32);
 
 		typedef std::map<uint32, FILE*> HandleMap;
 
@@ -125,7 +126,7 @@ namespace Iop
 		static const char*			m_sMcPathPreference[2];
 		uint32						m_nNextHandle;
 		boost::filesystem::path		m_currentDirectory;
-        CPathFinder					m_pathFinder;
+		CPathFinder					m_pathFinder;
 	};
 
 }

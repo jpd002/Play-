@@ -214,7 +214,7 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 	Iop::CIoman* ioman = m_iopBios.GetIoman();
 
 	{
-		uint32 handle = ioman->Open(Iop::Ioman::CDevice::O_RDONLY, "cdrom0:SYSTEM.CNF");
+		uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, "cdrom0:SYSTEM.CNF");
 		if(static_cast<int32>(handle) < 0)
 		{
 			throw std::runtime_error("No 'SYSTEM.CNF' file found on the cdrom0 device.");
@@ -251,7 +251,7 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 	}
 
 	{
-		uint32 handle = ioman->Open(Iop::Ioman::CDevice::O_RDONLY, executablePath.c_str());
+		uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, executablePath.c_str());
 		if(static_cast<int32>(handle) < 0)
 		{
 			throw std::runtime_error("Couldn't open executable specified in SYSTEM.CNF.");
