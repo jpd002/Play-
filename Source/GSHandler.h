@@ -11,7 +11,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
-#define PREF_CGSHANDLER_FLIPMODE					"renderer.flipmode"
+#define PREF_CGSHANDLER_FLIPMODE				"renderer.flipmode"
+#define PREF_CGSHANDLER_PRESENTATION_MODE		"renderer.presentationmode"
 
 enum GS_REGS
 {
@@ -66,6 +67,20 @@ public:
 		FLIP_MODE_DISPFB2 = 1,
 		FLIP_MODE_VBLANK = 2
 	};
+	
+	enum PRESENTATION_MODE
+	{
+		PRESENTATION_MODE_FILL,
+		PRESENTATION_MODE_FIT,
+		PRESENTATION_MODE_ORIGINAL
+	};
+	
+	struct PRESENTATION_PARAMS
+	{
+		uint32				windowWidth;
+		uint32				windowHeight;
+		PRESENTATION_MODE	mode;
+	};
 
 	typedef std::pair<uint8, uint64> RegisterWrite;
 	typedef std::vector<RegisterWrite> RegisterWriteList;
@@ -76,6 +91,7 @@ public:
 
 	void									Reset();
 	void									SetEnabled(bool);
+	void									SetPresentationParams(const PRESENTATION_PARAMS&);
 
 	virtual void							SaveState(Framework::CZipArchiveWriter&);
 	virtual void							LoadState(Framework::CZipArchiveReader&);
@@ -105,7 +121,7 @@ public:
 	virtual void							ProcessClutTransfer(uint32, uint32)		= 0;
 	void									Flip();
 	virtual void							ReadFramebuffer(uint32, uint32, void*)	= 0;
-
+	
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
 
 	enum PRIVATE_REGISTER
@@ -750,6 +766,7 @@ protected:
 	uint64									m_nIMR;				//0x12001010
 
 	FLIP_MODE								m_flipMode;
+	PRESENTATION_PARAMS						m_presentationParams;	
 
 	TRXCONTEXT								m_TrxCtx;
 

@@ -36,9 +36,6 @@ CGSH_OpenGL::CGSH_OpenGL()
 	m_pCvtBuffer = new uint8[CVTBUFFERSIZE];
 
 	memset(&m_renderState, 0, sizeof(m_renderState));
-	
-	m_presentationParams.windowWidth = 512;
-	m_presentationParams.windowHeight = 384;
 }
 
 CGSH_OpenGL::~CGSH_OpenGL()
@@ -140,11 +137,6 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 	CGSHandler::LoadState(archive);
 
 	m_mailBox.SendCall(std::bind(&CGSH_OpenGL::TexCache_InvalidateTextures, this, 0, RAMSIZE));
-}
-
-void CGSH_OpenGL::SetPresentationParams(const PRESENTATION_PARAMS& presentationParams)
-{
-	m_presentationParams = presentationParams;
 }
 
 void CGSH_OpenGL::LoadSettings()

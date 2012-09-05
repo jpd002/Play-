@@ -15,25 +15,10 @@
 class CGSH_OpenGL : public CGSHandler
 {
 public:
-	enum PRESENTATION_MODE
-	{
-		PRESENTATION_MODE_FILL,
-		PRESENTATION_MODE_FIT,
-		PRESENTATION_MODE_ORIGINAL
-	};
-	
-	struct PRESENTATION_PARAMS
-	{
-		uint32				windowWidth;
-		uint32				windowHeight;
-		PRESENTATION_MODE	mode;
-	};
 									CGSH_OpenGL();
 	virtual							~CGSH_OpenGL();
 
 	virtual void					LoadState(Framework::CZipArchiveReader&);
-
-	void							SetPresentationParams(const PRESENTATION_PARAMS&);
 	
 	void							ProcessImageTransfer(uint32, uint32);
 	void							ProcessClutTransfer(uint32, uint32);
@@ -214,8 +199,6 @@ private:
 	void							TexUploader_Psm4(const TEX0&, const TEXA&);
 	template <uint32> void			TexUploader_Psm4H(const TEX0&, const TEXA&);
 	void							TexUploader_Psm8H(const TEX0&, const TEXA&);
-
-	PRESENTATION_PARAMS				m_presentationParams;
 	
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;

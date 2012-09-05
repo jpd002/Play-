@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import "OutputWindowController.h"
-#import "GSH_OpenGLMacOSX.h"
 
 @interface ApplicationDelegate : NSObject<OutputWindowDelegate>
 {
@@ -8,7 +7,6 @@
 	IBOutlet NSMenuItem*			pauseResumeMenuItem;
 	IBOutlet NSMenuItem*			loadStateMenuItem;
 	IBOutlet NSMenuItem*			saveStateMenuItem;
-	CGSH_OpenGL::PRESENTATION_MODE	presentationMode;
 }
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification;

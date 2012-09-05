@@ -151,7 +151,12 @@ CGSHandler::CGSHandler()
 , m_pRAM(nullptr)
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_SMODE2);
-
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
+	
+	m_presentationParams.mode = static_cast<PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
+	m_presentationParams.windowWidth = 512;
+	m_presentationParams.windowHeight = 384;
+	
 	m_pRAM = new uint8[RAMSIZE];
 	m_pCLUT	= new uint16[CLUTENTRYCOUNT];
 
@@ -206,6 +211,11 @@ void CGSHandler::Reset()
 void CGSHandler::SetEnabled(bool enabled)
 {
 	m_enabled = enabled;
+}
+
+void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationParams)
+{
+	m_presentationParams = presentationParams;
 }
 
 void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
