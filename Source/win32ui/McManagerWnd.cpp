@@ -160,8 +160,8 @@ void CMcManagerWnd::Import()
 
 	try
 	{
-		boost::scoped_ptr<Framework::CStdStream> input(Framework::CreateInputStdStream(std::tstring(FileDialog.GetPath())));
-		CSaveImporter::ImportSave(*input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, PLACEHOLDER_1));
+		auto input(Framework::CreateInputStdStream(std::tstring(FileDialog.GetPath())));
+		CSaveImporter::ImportSave(input, m_pCurrentMemoryCard->GetBasePath(), bind(&CMcManagerWnd::OnImportOverwrite, this, PLACEHOLDER_1));
 	}
 	catch(const std::exception& Exception)
 	{

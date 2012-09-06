@@ -59,17 +59,6 @@ void CGSH_OpenGLWin32::PresentBackbuffer()
 	SwapBuffers(m_hDC);
 }
 
-void CGSH_OpenGLWin32::SetViewport(int nWidth, int nHeight)
-{
-	RECT rc;
-
-	SetRect(&rc, 0, 0, nWidth, nHeight);
-	AdjustWindowRect(&rc, GetWindowLong(m_pOutputWnd->m_hWnd, GWL_STYLE), FALSE);
-	m_pOutputWnd->SetSize((rc.right - rc.left), (rc.bottom - rc.top));
-
-	CGSH_OpenGL::SetViewport(nWidth, nHeight);
-}
-
 CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
 {
 	return this;

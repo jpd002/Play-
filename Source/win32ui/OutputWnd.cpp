@@ -2,8 +2,9 @@
 #include "../PS2VM.h"
 
 #define CLSNAME		_T("COutputWnd")
+#define WNDSTYLE	(WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
 
-COutputWnd::COutputWnd(HWND hParent, RECT* pR)
+COutputWnd::COutputWnd(HWND hParent)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -19,19 +20,15 @@ COutputWnd::COutputWnd(HWND hParent, RECT* pR)
 		RegisterClassEx(&wc);
 	}
 
-	Create(NULL, CLSNAME, NULL, WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, pR, hParent, NULL);
+	RECT windowRect;
+	SetRect(&windowRect, 0, 0, 1, 1);
+	Create(NULL, CLSNAME, NULL, WNDSTYLE, &windowRect, hParent, NULL);
 	SetClassPtr();
 }
 
 COutputWnd::~COutputWnd()
 {
 
-}
-
-long COutputWnd::OnSize(unsigned int nMode, unsigned int nX, unsigned int nY)
-{
-	OnSizeChange();
-	return TRUE;
 }
 
 long COutputWnd::OnPaint()

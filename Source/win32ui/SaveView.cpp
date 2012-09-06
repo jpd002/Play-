@@ -214,8 +214,8 @@ long CSaveView::Export()
 
 	try
 	{
-		boost::scoped_ptr<Framework::CStdStream> output(Framework::CreateOutputStdStream(std::tstring(FileDialog.GetPath())));
-		CSaveExporter::ExportPSU(*output, m_pSave->GetPath());
+		auto output(Framework::CreateOutputStdStream(std::tstring(FileDialog.GetPath())));
+		CSaveExporter::ExportPSU(output, m_pSave->GetPath());
 	}
 	catch(const std::exception& Exception)
 	{

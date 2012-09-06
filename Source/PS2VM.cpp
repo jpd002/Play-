@@ -305,7 +305,7 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 	{
 		std::string packagePath = MakeDebugTagsPackagePath(packageName);
 		Framework::CStdStream stream(packagePath.c_str(), "rb");
-		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(&stream));
+		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream));
 		Framework::Xml::CNode* tagsNode = document->Select(TAGS_SECTION_TAGS);
 		if(!tagsNode) return;
 		m_EE.m_Functions.Unserialize(tagsNode, TAGS_SECTION_EE_FUNCTIONS);

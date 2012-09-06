@@ -139,7 +139,7 @@ void CSaveImporter::XPS_ExtractFiles(Framework::CStream& input, const boost::fil
 			}
 			else
 			{
-				boost::scoped_ptr<Framework::CStdStream> output(Framework::CreateOutputStdStream(outputPath.native()));
+				auto output(Framework::CreateOutputStdStream(outputPath.native()));
 
 				while(nLength != 0)
 				{
@@ -148,7 +148,7 @@ void CSaveImporter::XPS_ExtractFiles(Framework::CStream& input, const boost::fil
 
 					unsigned int nRead = std::min<unsigned int>(nLength, bufferSize);
 					input.Read(sBuffer, nRead);
-					output->Write(sBuffer, nRead);
+					output.Write(sBuffer, nRead);
 
 					nLength -= nRead;
 				}
@@ -196,7 +196,7 @@ void CSaveImporter::PSU_Import(Framework::CStream& input, const boost::filesyste
 			}
 			else
 			{
-				boost::scoped_ptr<Framework::CStdStream> output(Framework::CreateOutputStdStream(outputPath.native()));
+				auto output(Framework::CreateOutputStdStream(outputPath.native()));
 
 				unsigned int nEntrySizeDrain = nEntrySize;
 
@@ -206,7 +206,7 @@ void CSaveImporter::PSU_Import(Framework::CStream& input, const boost::filesyste
 					unsigned int nRead = std::min<unsigned int>(nEntrySizeDrain, 1024);
 
 					input.Read(sBuffer, nRead);
-					output->Write(sBuffer, nRead);
+					output.Write(sBuffer, nRead);
 
 					nEntrySizeDrain -= nRead;
 				}

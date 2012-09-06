@@ -199,9 +199,8 @@ void CSaveIconView::LoadIcon()
 	{
 		boost::filesystem::path iconPath = m_save->GetIconPath(m_iconType);
 
-		boost::scoped_ptr<Framework::CStdStream> iconStream(
-			Framework::CreateInputStdStream(iconPath.native()));
-		IconPtr icon(new CIcon(*iconStream));
+		auto iconStream(Framework::CreateInputStdStream(iconPath.native()));
+		IconPtr icon(new CIcon(iconStream));
 		m_iconMesh = new CIconMesh(icon);
 	}
 	catch(...)

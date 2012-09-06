@@ -25,8 +25,6 @@ protected:
 	virtual void					PresentBackbuffer();
 
 private:
-	virtual void					SetViewport(int, int);
-
 	static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
 	Framework::Win32::CWindow*		m_pOutputWnd;

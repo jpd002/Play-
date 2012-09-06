@@ -12,29 +12,29 @@ CSave::CSave(const filesystem::path& basePath)
 {
 	filesystem::path iconSysPath = m_basePath / "icon.sys";
 
-	boost::scoped_ptr<Framework::CStdStream> iconStream(Framework::CreateInputStdStream(iconSysPath.native()));
+	auto iconStream(Framework::CreateInputStdStream(iconSysPath.native()));
 
-	uint32 nMagic = iconStream->Read32();
+	uint32 nMagic = iconStream.Read32();
 	if(nMagic != 0x44325350)
 	{
 		throw std::runtime_error("Invalid 'icon.sys' file.");
 	}
 
-	iconStream->Seek(6, Framework::STREAM_SEEK_SET);
-	m_nSecondLineStartPosition = iconStream->Read16();
+	iconStream.Seek(6, Framework::STREAM_SEEK_SET);
+	m_nSecondLineStartPosition = iconStream.Read16();
 
-	iconStream->Seek(192, Framework::STREAM_SEEK_SET);
-	ReadName(*iconStream);
+	iconStream.Seek(192, Framework::STREAM_SEEK_SET);
+	ReadName(iconStream);
 
 	char sBuffer[64];
 
-	iconStream->Read(sBuffer, 64);
+	iconStream.Read(sBuffer, 64);
 	m_sNormalIconFileName = sBuffer;
 
-	iconStream->Read(sBuffer, 64);
+	iconStream.Read(sBuffer, 64);
 	m_sCopyingIconFileName = sBuffer;
 
-	iconStream->Read(sBuffer, 64);
+	iconStream.Read(sBuffer, 64);
 	m_sDeletingIconFileName = sBuffer;
 
 	m_sId = m_basePath.filename().string();

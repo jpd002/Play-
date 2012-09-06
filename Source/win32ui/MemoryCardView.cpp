@@ -398,9 +398,8 @@ void CMemoryCardView::CRender::DrawScene()
 				const CSave* pSave = m_memoryCard->GetSaveByIndex(i);
 				try
 				{
-					boost::scoped_ptr<Framework::CStdStream> iconStream(
-						Framework::CreateInputStdStream(pSave->GetNormalIconPath().native()));
-					IconPtr iconData(new CIcon(*iconStream));
+					auto iconStream(Framework::CreateInputStdStream(pSave->GetNormalIconPath().native()));
+					IconPtr iconData(new CIcon(iconStream));
 					iconMesh = IconMeshPtr(new CIconMesh(iconData));
 				}
 				catch(...)

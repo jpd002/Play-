@@ -102,14 +102,14 @@ private:
 
 	CPS2VM&							m_virtualMachine;
 
-	unsigned int					m_nFrames;
+	unsigned int					m_frames;
 	uint32							m_drawCallCount;
-	HACCEL							m_nAccTable;
+	HACCEL							m_accTable;
 
-	unsigned int					m_nStateSlot;
+	unsigned int					m_stateSlot;
 
-	bool							m_nPauseFocusLost;
-	bool							m_nDeactivatePause;
+	bool							m_pauseFocusLost;
+	bool							m_deactivatePause;
 
 	OpenCommandPtr					m_lastOpenCommand;
 
@@ -120,12 +120,12 @@ private:
 	unsigned int					m_recordBufferWidth;
 	unsigned int					m_recordBufferHeight;
 
-	Framework::Win32::CStatusBar*	m_pStatusBar;
-	COutputWnd*						m_pOutputWnd;
+	Framework::Win32::CStatusBar*	m_statusBar;
+	COutputWnd*						m_outputWnd;
 #ifdef DEBUGGER_INCLUDED
-	CDebugger*						m_pDebugger;
+	CDebugger*						m_debugger;
 #endif
-	static double					m_nStatusBarPanelWidths[2];
+	static double					m_statusBarPanelWidths[2];
 };
 
 #endif

@@ -91,7 +91,7 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 
 		//Write file contents
 		{
-			boost::scoped_ptr<Framework::CStdStream> itemStream(Framework::CreateInputStdStream(saveItemPath.native()));
+			auto itemStream(Framework::CreateInputStdStream(saveItemPath.native()));
 			uint32 nSize = Entry.nSize;
 
 			while(nSize != 0)
@@ -100,7 +100,7 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 				char sBuffer[bufferSize];
 
 				uint32 nRead = std::min<uint32>(nSize, bufferSize);
-				itemStream->Read(sBuffer, nRead);
+				itemStream.Read(sBuffer, nRead);
 				outputStream.Write(sBuffer, nRead);
 				nSize -= nRead;
 			}
