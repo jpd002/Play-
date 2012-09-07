@@ -10,6 +10,8 @@ TODO:
 - Display Reverb params in SPU views.
 - DiskOut sound handler.
 - Exception for invalid PSFs
+- Playlist saving doesn't work when we try to save with items from an archive
+- When opening an archive that has no usable files, stop playing music
 - Mono sound support
 
 Done:

@@ -1,8 +1,12 @@
 <html>
-    <head>
-        <title>PsfPlayer Change Log</title>
-    </head>
-    <body>
+	<head>
+		<title>PsfPlayer Change Log</title>
+	</head>
+	<body>
+		<h3>Version 0.56</h3>
+		<ul>
+			<li>Fixed captions of the "Play" and "Pause" buttons in the Windows task bar and in the tray icon menu.</li>
+		</ul>
 		<h3>Version 0.55</h3>
 		<ul>
 			<li>Fixed playback speed on PS2 Square-Enix games PSF sets.</li>
@@ -11,20 +15,20 @@
 		</ul>
 		<h3>Version 0.54</h3>
 		<ul>
-		    <li>Added playlist shuffle mode.</li>
-		    <li>Made changes to the SPU register view including better keyboard interaction (tabbing, moving with arrows) and themed borders.</li>
-		    <li>Added unicode path support.</li>
-        </ul>
+			<li>Added playlist shuffle mode.</li>
+			<li>Made changes to the SPU register view including better keyboard interaction (tabbing, moving with arrows) and themed borders.</li>
+			<li>Added unicode path support.</li>
+		</ul>
 		<h3>Version 0.53</h3>
 		<ul>
-		    <li>Dialogs now created using Windows' dialog manager (possible to use tab to loop through controls now and other things).</li>
-		    <li>Added cute little icons representing the playback loop mode.</li>
-		    <li>The configuration menu is now available from a button in the main window.</li>
-		    <li>Removed the system tray icon on Windows 7 and added playback controls in the taskbar preview thumbnail.</li>
-		    <li>Changed the system tray menu on other versions of Windows to only have playback controls.</li>
-		    <li>New about box created using TaskDialog Emulation library by KoroSoft.</li>
-		    <li>Fixed case-sensitivity when loading files from RAR archives.</li>
-		    <li>Fixed problems loading "stored" files from ZIP archives.</li>
+			<li>Dialogs now created using Windows' dialog manager (possible to use tab to loop through controls now and other things).</li>
+			<li>Added cute little icons representing the playback loop mode.</li>
+			<li>The configuration menu is now available from a button in the main window.</li>
+			<li>Removed the system tray icon on Windows 7 and added playback controls in the taskbar preview thumbnail.</li>
+			<li>Changed the system tray menu on other versions of Windows to only have playback controls.</li>
+			<li>New about box created using TaskDialog Emulation library by KoroSoft.</li>
+			<li>Fixed case-sensitivity when loading files from RAR archives.</li>
+			<li>Fixed problems loading "stored" files from ZIP archives.</li>
 		</ul>
 		<h3>Version 0.52</h3>
 		<ul>
@@ -42,94 +46,94 @@
 			<li>Added ZIP and RAR archive support.</li>
 			<li>Added auto discovery of song title and length of playlist items.</li>
 		</ul>
-        <h3>Version 0.50</h3>
-        <ul>
+		<h3>Version 0.50</h3>
+		<ul>
 			<li>Fixed crash that was caused by a division by zero when playing a song from the Parasite Eve PSF set.</li>
 			<li>Now using zlib v1.2.5.</li>
 			<li>New icon!</li>
-        </ul>
-        <h3>Version 0.49</h3>
-        <ul>
+		</ul>
+		<h3>Version 0.49</h3>
+		<ul>
 			<li>Changed the register allocation strategy in the JIT compiler that was causing problems in the x64 version.</li>
-        </ul>
-        <h3>Version 0.48</h3>
-        <ul>
-            <li>Changed CPU emulation core to use a new JIT compiler backend. It doesn't give a noticable speed increase, but I can at least release an x64 version now.
+		</ul>
+		<h3>Version 0.48</h3>
+		<ul>
+			<li>Changed CPU emulation core to use a new JIT compiler backend. It doesn't give a noticable speed increase, but I can at least release an x64 version now.
 			It does fix a problem I encountered while listening to some Star Ocean 2 music tracks.</li>
-        </ul>
-        <h3>Version 0.47</h3>
-        <ul>
-            <li>Added basic reverb support in PSP sound core emulation.</li>
-            <li>Added a "reverb enabled" item in the tray menu to enable/disable reverb. Reverb can also be toggled with Ctrl+R.</li>
-        </ul>
-        <h3>Version 0.46</h3>
-        <ul>
-            <li>Fixed crash that was occuring when unsupported UTF-8 chars were encountered in playlists.</li>
-        </ul>
-        <h3>Version 0.45</h3>
-        <ul>
-            <li>Added an option to change character encoding of tags.</li>
-        </ul>
-        <h3>Version 0.44</h3>
-        <ul>
-            <li>Fixed scroll bars in SPU register views.</li>
-            <li>Fixed a bug in waveOut sound handler where the sound buffer wasn't reset properly.</li>
-            <li>Added saving of sound handler preference.</li>
-        </ul>
-        <h3>Version 0.43</h3>
-        <ul>
-            <li>Fixed sound generation bugs in PSP.</li>
-            <li>Added scroll bars in SPU register views and added some more information.</li>
-        </ul>
-        <h3>Version 0.42</h3>
-        <ul>
-            <li>Fixed volume level ranges in PSP emulation.</li>
-        </ul>
-        <h3>Version 0.41</h3>
-        <ul>
-            <li>Fixed bugs in SasCore emulation (PSP).</li>
-            <li>Implemented some more functionality in the PSP BIOS emulation to allow Phantasy Star Portable to run.</li>
-            <li>Fixed a bug in the open file dialog filter.</li>
-        </ul>
-        <h3>Version 0.40</h3>
-        <ul>
-            <li>Hopefully fixed a crash occuring when Direct3D device for SPU register view was lost under Windows XP.</li>
-        </ul>
-        <h3>Version 0.39</h3>
-        <ul>
-            <li>Fixed problems occuring when Direct3D device was lost.</li>
-        </ul>
-        <h3>Version 0.38</h3>
-        <ul>
-            <li>Added missing playlist filter when opening a file.</li>
-        </ul>
-        <h3>Version 0.37</h3>
-        <ul>
-            <li>Added preliminary PSP support.</li>
-            <li>Added preliminary SPU registers view panels.</li>
-        </ul>
-        <h3>Version 0.36</h3>
-        <ul>
-            <li>Fixed track lengths (fading was occuring too soon).</li>
-            <li>Improved idle loop detection code to fix bad performance when playing PSX files.</li>
-        </ul>
-        <h3>Version 0.35</h3>
-        <ul>
-            <li>Added playlist and track looping modes.</li>
-        </ul>
-        <h3>Version 0.34</h3>
-        <ul>
-            <li>Added a file information panel accessible with the arrow buttons.</li>
-            <li>Can now press F5 to pause and resume playback.</li>
-        </ul>
-        <h3>Version 0.33</h3>
-        <ul>
-            <li>Fixed text encoding problems when reading from playlist.</li>
-            <li>Added move up/down buttons in the playlist view to allow order editing.</li>
-        </ul>
-        <h3>Version 0.32 and earlier</h3>
-        <ul>
-            <li>Not recorded.</li>
-        </ul>
-    </body>
+		</ul>
+		<h3>Version 0.47</h3>
+		<ul>
+			<li>Added basic reverb support in PSP sound core emulation.</li>
+			<li>Added a "reverb enabled" item in the tray menu to enable/disable reverb. Reverb can also be toggled with Ctrl+R.</li>
+		</ul>
+		<h3>Version 0.46</h3>
+		<ul>
+			<li>Fixed crash that was occuring when unsupported UTF-8 chars were encountered in playlists.</li>
+		</ul>
+		<h3>Version 0.45</h3>
+		<ul>
+			<li>Added an option to change character encoding of tags.</li>
+		</ul>
+		<h3>Version 0.44</h3>
+		<ul>
+			<li>Fixed scroll bars in SPU register views.</li>
+			<li>Fixed a bug in waveOut sound handler where the sound buffer wasn't reset properly.</li>
+			<li>Added saving of sound handler preference.</li>
+		</ul>
+		<h3>Version 0.43</h3>
+		<ul>
+			<li>Fixed sound generation bugs in PSP.</li>
+			<li>Added scroll bars in SPU register views and added some more information.</li>
+		</ul>
+		<h3>Version 0.42</h3>
+		<ul>
+			<li>Fixed volume level ranges in PSP emulation.</li>
+		</ul>
+		<h3>Version 0.41</h3>
+		<ul>
+			<li>Fixed bugs in SasCore emulation (PSP).</li>
+			<li>Implemented some more functionality in the PSP BIOS emulation to allow Phantasy Star Portable to run.</li>
+			<li>Fixed a bug in the open file dialog filter.</li>
+		</ul>
+		<h3>Version 0.40</h3>
+		<ul>
+			<li>Hopefully fixed a crash occuring when Direct3D device for SPU register view was lost under Windows XP.</li>
+		</ul>
+		<h3>Version 0.39</h3>
+		<ul>
+			<li>Fixed problems occuring when Direct3D device was lost.</li>
+		</ul>
+		<h3>Version 0.38</h3>
+		<ul>
+			<li>Added missing playlist filter when opening a file.</li>
+		</ul>
+		<h3>Version 0.37</h3>
+		<ul>
+			<li>Added preliminary PSP support.</li>
+			<li>Added preliminary SPU registers view panels.</li>
+		</ul>
+		<h3>Version 0.36</h3>
+		<ul>
+			<li>Fixed track lengths (fading was occuring too soon).</li>
+			<li>Improved idle loop detection code to fix bad performance when playing PSX files.</li>
+		</ul>
+		<h3>Version 0.35</h3>
+		<ul>
+			<li>Added playlist and track looping modes.</li>
+		</ul>
+		<h3>Version 0.34</h3>
+		<ul>
+			<li>Added a file information panel accessible with the arrow buttons.</li>
+			<li>Can now press F5 to pause and resume playback.</li>
+		</ul>
+		<h3>Version 0.33</h3>
+		<ul>
+			<li>Fixed text encoding problems when reading from playlist.</li>
+			<li>Added move up/down buttons in the playlist view to allow order editing.</li>
+		</ul>
+		<h3>Version 0.32 and earlier</h3>
+		<ul>
+			<li>Not recorded.</li>
+		</ul>
+	</body>
 </html>

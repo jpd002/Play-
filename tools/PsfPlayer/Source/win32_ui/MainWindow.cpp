@@ -29,8 +29,11 @@
 #define PSFP_FILTER						_T("PlayStation Portable Sound Files (*.psfp; *.minipsfp)\0*.psfp; *.minipsfp\0")
 #define ARCHIVE_FILTER					_T("Archived Sound Files (*.zip; *.rar)\0*.zip;*.rar\0")
 
-#define TEXT_PLAY						_T("4")
-#define TEXT_PAUSE						_T(";")
+#define TEXT_PLAY						_T("Play")
+#define TEXT_PAUSE						_T("Pause")
+
+#define TEXT_SYMBOL_PLAY				_T("4")
+#define TEXT_SYMBOL_PAUSE				_T(";")
 
 #define PREF_REVERB_ENABLED				("reverb.enabled")
 
@@ -673,7 +676,7 @@ void CMainWindow::UpdatePlaybackButtons()
 	if(m_pauseButton != NULL)
 	{
 		m_pauseButton->Enable(m_ready ? TRUE : FALSE);
-		m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? TEXT_PLAY : TEXT_PAUSE);
+		m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? TEXT_SYMBOL_PLAY : TEXT_SYMBOL_PAUSE);
 	}
 	if(m_configPopupMenu != NULL)
 	{
