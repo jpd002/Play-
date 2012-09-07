@@ -74,7 +74,7 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 	try
 	{
 		std::string packagePath = MakeTagPackagePath(packageName);
-		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(&Framework::CStdStream(packagePath.c_str(), "rb")));
+		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(Framework::CStdStream(packagePath.c_str(), "rb")));
 		Framework::Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
 		if(tagsSection == NULL) return;
 		m_subSystem->GetCpu().m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
