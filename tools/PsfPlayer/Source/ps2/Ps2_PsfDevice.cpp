@@ -23,11 +23,11 @@ void CPsfDevice::AppendArchive(const CPsfBase& archive)
 
 Framework::CStream* CPsfDevice::GetFile(uint32 mode, const char* path)
 {
-    if(mode != CDevice::O_RDONLY)
-    {
-        printf("%s: Attempting to open a file in non read mode.\r\n", __FUNCTION__);
-        return NULL;
-    }
+	if(mode != CDevice::OPEN_FLAG_RDONLY)
+	{
+		printf("%s: Attempting to open a file in non read mode.\r\n", __FUNCTION__);
+		return nullptr;
+	}
 	Framework::CStream* result = m_fileSystem.GetFile(path);
 	return result;
 }

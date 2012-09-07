@@ -2,20 +2,20 @@
 #include "StdStreamUtils.h"
 
 CPsfZipArchive::CPsfZipArchive()
-: m_inputFile(NULL)
-, m_archive(NULL)
+: m_inputFile(nullptr)
+, m_archive(nullptr)
 {
 
 }
 
 CPsfZipArchive::~CPsfZipArchive()
 {
-	if(m_archive != NULL)
+	if(m_archive)
 	{
 		delete m_archive;
 	}
 
-	if(m_inputFile != NULL)
+	if(m_inputFile)
 	{
 		delete m_inputFile;
 	}
@@ -23,7 +23,7 @@ CPsfZipArchive::~CPsfZipArchive()
 
 void CPsfZipArchive::Open(const boost::filesystem::path& filePath)
 {
-	m_inputFile = Framework::CreateInputStdStream(filePath.native());
+	m_inputFile = new Framework::CStdStream(Framework::CreateInputStdStream(filePath.native()));
 	m_archive = new Framework::CZipArchiveReader(*m_inputFile);
 
 	for(auto fileHeaderIterator(std::begin(m_archive->GetFileHeaders()));
@@ -40,8 +40,8 @@ void CPsfZipArchive::Open(const boost::filesystem::path& filePath)
 
 void CPsfZipArchive::ReadFileContents(const char* fileName, void* buffer, unsigned int bufferLength)
 {
-	assert(m_archive != NULL);
-	if(m_archive == NULL)
+	assert(m_archive);
+	if(!m_archive)
 	{
 		throw std::runtime_error("Archive not opened!");
 	}

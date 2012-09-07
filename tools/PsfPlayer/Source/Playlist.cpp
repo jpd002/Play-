@@ -1,4 +1,3 @@
-#include <boost/scoped_ptr.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include "StdStream.h"
@@ -158,9 +157,11 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 {
 	Clear();
 
-	boost::scoped_ptr<Framework::CStdStream> stream(Framework::CreateInputStdStream(playlistPath.native()));
-	boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream.get()));
-	stream.reset();
+	std::unique_ptr<Framework::Xml::CNode> document;
+	{
+		auto stream(Framework::CreateInputStdStream(playlistPath.native()));
+		document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(stream));
+	}
 	if(!document)
 	{
 		throw std::runtime_error("Couldn't parse document.");
@@ -203,7 +204,7 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 
 void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 {
-	boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
+	std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
 	auto playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
 
 	auto parentPath = playlistPath.parent_path();
@@ -222,6 +223,6 @@ void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 		itemNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(PLAYLIST_ITEM_LENGTH_ATTRIBUTE, item.length));
 	}
 
-	boost::scoped_ptr<Framework::CStdStream> stream(Framework::CreateOutputStdStream(playlistPath.native()));
-	Framework::Xml::CWriter::WriteDocument(stream.get(), document.get());
+	auto stream(Framework::CreateOutputStdStream(playlistPath.native()));
+	Framework::Xml::CWriter::WriteDocument(&stream, document.get());
 }
