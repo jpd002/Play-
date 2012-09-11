@@ -299,10 +299,9 @@ int CVFSManagerWnd::CDirectoryDevice::BrowseCallback(HWND hFrom, unsigned int nM
 
 CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 {
-	const char* sPath;
 	char sDevicePath[32];
 
-	sPath = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
+	const char* sPath = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
 	
 	//Detect the binding type from the path format
 	if(!strcmp(sPath, ""))
