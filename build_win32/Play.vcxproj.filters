@@ -571,6 +571,9 @@
     <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp">
       <Filter>Source Files\Core\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_Sio2.cpp">
+      <Filter>Source Files\Core\Iop\Hardware</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1106,6 +1109,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Thmsgbx.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_Sio2.h">
+      <Filter>Source Files\Core\Iop\Hardware</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

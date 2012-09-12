@@ -212,6 +212,7 @@
     <ClCompile Include="..\Source\iop\Iop_SifMan.cpp" />
     <ClCompile Include="..\Source\iop\Iop_SifManNull.cpp" />
     <ClCompile Include="..\Source\iop\Iop_SifManPs2.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_Sio2.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Spu.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Spu2.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Spu2_Core.cpp" />
@@ -395,6 +396,7 @@
     <ClInclude Include="..\Source\iop\Iop_SifMan.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManNull.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManPs2.h" />
+    <ClInclude Include="..\Source\iop\Iop_Sio2.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu2.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu2_Core.h" />
