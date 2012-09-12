@@ -294,7 +294,7 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 		if(p != NULL)
 		{
 			uint32 end = p->nVAddress + p->nFileSize;
-			if(end >= PS2::EERAMSIZE) continue;
+			if(end >= PS2::EE_RAM_SIZE) continue;
 			nMinAddr = std::min<uint32>(nMinAddr, p->nVAddress);
 			nMaxAddr = std::max<uint32>(nMaxAddr, end);
 		}
@@ -1598,7 +1598,7 @@ void CPS2OS::sc_ReferThreadStatus()
 	uint32 nID			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 nStatusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	nStatusPtr &= (PS2::EERAMSIZE - 1);
+	nStatusPtr &= (PS2::EE_RAM_SIZE - 1);
 
 	THREAD* pThread = GetThread(nID);
 	if(!pThread->nValid)
@@ -2143,7 +2143,7 @@ void CPS2OS::sc_SifSetDma()
 		uint32 nFlags;
 	};
 
-	uint32 xferAddress = m_ee.m_State.nGPR[SC_PARAM0].nV[0] & (PS2::EERAMSIZE - 1);
+	uint32 xferAddress = m_ee.m_State.nGPR[SC_PARAM0].nV[0] & (PS2::EE_RAM_SIZE - 1);
 	DMAREG* pXfer = reinterpret_cast<DMAREG*>(m_ram + xferAddress);
 	uint32 nCount = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
@@ -2218,7 +2218,7 @@ void CPS2OS::sc_Deci2Call()
 			if(pHandler->nValid != 0)
 			{
 				uint32 stringAddr  = *reinterpret_cast<uint32*>(&m_ram[pHandler->nBufferAddr + 0x10]);
-				stringAddr &= (PS2::EERAMSIZE - 1);
+				stringAddr &= (PS2::EE_RAM_SIZE - 1);
 
 				uint32 nLength = m_ram[stringAddr + 0x00] - 0x0C;
 				uint8* sString = &m_ram[stringAddr + 0x0C];
@@ -2263,7 +2263,7 @@ void CPS2OS::sc_Deci2Call()
 //7F
 void CPS2OS::sc_GetMemorySize()
 {
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = PS2::EERAMSIZE;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = PS2::EE_RAM_SIZE;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 

@@ -234,7 +234,7 @@ void CDisAsm::FindCallers()
 
 	printf("Searching callers...\r\n");
 
-	for(int i = 0; i < PS2::EERAMSIZE; i += 4)
+	for(int i = 0; i < PS2::EE_RAM_SIZE; i += 4)
 	{
 		uint32 nVal = m_pCtx->m_pMemoryMap->GetInstruction(i);
 		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))

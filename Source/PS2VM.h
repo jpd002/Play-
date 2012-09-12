@@ -135,8 +135,8 @@ public:
 	CMIPS						m_VU1;
 	CMipsExecutor				m_executor;
 
-	int							m_nVBlankTicks;
-	bool						m_nInVBlank;
+	int							m_vblankTicks;
+	bool						m_inVblank;
 	int							m_spuUpdateTicks;
 
 	CISO9660*					m_pCDROM0;

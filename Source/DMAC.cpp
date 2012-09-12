@@ -164,11 +164,11 @@ uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
 
 	if(m_D3_MADR & 0x80000000)
 	{
-		pDst = m_spr + (m_D3_MADR & (PS2::SPRSIZE - 1));
+		pDst = m_spr + (m_D3_MADR & (PS2::EE_SPR_SIZE - 1));
 	}
 	else
 	{
-		pDst = m_ram + (m_D3_MADR & (PS2::EERAMSIZE - 1));
+		pDst = m_ram + (m_D3_MADR & (PS2::EE_RAM_SIZE - 1));
 	}
 
 	memcpy(pDst, pBuffer, nSize * 0x10);
@@ -213,8 +213,8 @@ uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool
 	assert(nTagIncluded == false);
 
 	uint32 nSrcAddress = m_D8_SADR;
-	nSrcAddress &= (PS2::SPRSIZE - 1);
-	nDstAddress &= (PS2::EERAMSIZE - 1);
+	nSrcAddress &= (PS2::EE_SPR_SIZE - 1);
+	nDstAddress &= (PS2::EE_RAM_SIZE - 1);
 
 	memcpy(m_ram + nDstAddress, m_spr + nSrcAddress, nCount * 0x10);
 
@@ -228,7 +228,7 @@ uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool
 	assert(nTagIncluded == false);
 
 	uint32 nDstAddress = m_D9_SADR;
-	nDstAddress &= (PS2::SPRSIZE - 1);
+	nDstAddress &= (PS2::EE_SPR_SIZE - 1);
 
 	if(nSrcAddress >= PS2::VUMEM0ADDR && nSrcAddress < (PS2::VUMEM0ADDR + PS2::VUMEM0SIZE))
 	{
@@ -238,7 +238,7 @@ uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool
 	}
 	else
 	{
-		nSrcAddress &= (PS2::EERAMSIZE - 1);
+		nSrcAddress &= (PS2::EE_RAM_SIZE - 1);
 		memcpy(m_spr + nDstAddress, m_ram + nSrcAddress, nCount * 0x10);
 	}
 

@@ -35,34 +35,32 @@
 #include "Log.h"
 #include "placeholder_def.h"
 
-#define LOG_NAME        ("ps2vm")
+#define LOG_NAME		("ps2vm")
 
 #ifdef DEBUGGER_INCLUDED
-#define TAGS_PATH       ("./tags/")
+#define TAGS_PATH		("./tags/")
 #endif
 
-#define STATE_EE        ("ee")
-#define STATE_VU0       ("vu0")
-#define STATE_VU1       ("vu1")
-#define STATE_RAM       ("ram")
-#define STATE_SPR       ("spr")
-#define STATE_VUMEM0    ("vumem0")
-#define STATE_MICROMEM0 ("micromem0")
-#define STATE_VUMEM1    ("vumem1")
-#define STATE_MICROMEM1 ("micromem1")
+#define STATE_EE		("ee")
+#define STATE_VU0		("vu0")
+#define STATE_VU1		("vu1")
+#define STATE_RAM		("ram")
+#define STATE_SPR		("spr")
+#define STATE_VUMEM0	("vumem0")
+#define STATE_MICROMEM0	("micromem0")
+#define STATE_VUMEM1	("vumem1")
+#define STATE_MICROMEM1	("micromem1")
 
-#define PREF_PS2_HOST_DIRECTORY_DEFAULT     ("vfs/host")
-#define PREF_PS2_MC0_DIRECTORY_DEFAULT      ("vfs/mc0")
-#define PREF_PS2_MC1_DIRECTORY_DEFAULT      ("vfs/mc1")
-#define PREF_PS2_FRAMESKIP_DEFAULT          (0)
+#define PREF_PS2_HOST_DIRECTORY_DEFAULT		("vfs/host")
+#define PREF_PS2_MC0_DIRECTORY_DEFAULT		("vfs/mc0")
+#define PREF_PS2_MC1_DIRECTORY_DEFAULT		("vfs/mc1")
+#define PREF_PS2_FRAMESKIP_DEFAULT			(0)
 
-#define     CPU_FREQUENCY       (0x11940000)
+#define		FRAME_TICKS			(PS2::EE_CLOCK_FREQ / 60)
+#define		ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
+#define		VBLANK_TICKS		(FRAME_TICKS / 10)
 
-#define		FRAME_TICKS		    (CPU_FREQUENCY / 60)
-#define     ONSCREEN_TICKS      (FRAME_TICKS * 9 / 10)
-#define     VBLANK_TICKS        (FRAME_TICKS / 10)
-
-#define     SPU_UPDATE_TICKS    (FRAME_TICKS / 2)
+#define		SPU_UPDATE_TICKS	(FRAME_TICKS / 2)
 
 #define		FAKE_IOP_RAM_SIZE	(0x1000)
 
@@ -71,9 +69,9 @@
 namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM() 
-: m_ram(new uint8[PS2::EERAMSIZE])
-, m_bios(new uint8[PS2::EEBIOSSIZE])
-, m_spr(new uint8[PS2::SPRSIZE])
+: m_ram(new uint8[PS2::EE_RAM_SIZE])
+, m_bios(new uint8[PS2::EE_BIOS_SIZE])
+, m_spr(new uint8[PS2::EE_SPR_SIZE])
 , m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
 , m_pVUMem0(new uint8[PS2::VUMEM0SIZE])
 , m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE])
@@ -92,8 +90,8 @@ CPS2VM::CPS2VM()
 , m_singleStepIop(false)
 , m_singleStepVu0(false)
 , m_singleStepVu1(false)
-, m_nVBlankTicks(0)
-, m_nInVBlank(false)
+, m_vblankTicks(0)
+, m_inVblank(false)
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
 , m_pCDROM0(NULL)
 , m_dmac(m_ram, m_spr, m_pVUMem0, m_EE)
@@ -379,7 +377,7 @@ void CPS2VM::SetFrameSkip(unsigned int frameSkip)
 void CPS2VM::CreateVM()
 {
 	printf("PS2VM: Virtual Machine Memory Usage: RAM: %i MBs, BIOS: %i MBs, SPR: %i KBs.\r\n", 
-		   PS2::EERAMSIZE / 0x100000, PS2::EEBIOSSIZE / 0x100000, PS2::SPRSIZE / 0x1000);
+		   PS2::EE_RAM_SIZE / 0x100000, PS2::EE_BIOS_SIZE / 0x100000, PS2::EE_SPR_SIZE / 0x1000);
 	
 	//EmotionEngine context setup
 	{
@@ -467,9 +465,9 @@ void CPS2VM::ResetVM()
 	m_os->Release();
 	m_executor.Reset();
 
-	memset(m_ram,			0, PS2::EERAMSIZE);
-	memset(m_spr,			0, PS2::SPRSIZE);
-	memset(m_bios,			0, PS2::EEBIOSSIZE);
+	memset(m_ram,			0, PS2::EE_RAM_SIZE);
+	memset(m_spr,			0, PS2::EE_SPR_SIZE);
+	memset(m_bios,			0, PS2::EE_BIOS_SIZE);
 	memset(m_fakeIopRam,	0, FAKE_IOP_RAM_SIZE);
 	memset(m_pVUMem0,		0, PS2::VUMEM0SIZE);
 	memset(m_pMicroMem0,	0, PS2::MICROMEM0SIZE);
@@ -519,8 +517,8 @@ void CPS2VM::ResetVM()
 
 	m_frameSkip = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
 
-	m_nVBlankTicks = ONSCREEN_TICKS;
-	m_nInVBlank = false;
+	m_vblankTicks = ONSCREEN_TICKS;
+	m_inVblank = false;
 
 	RegisterModulesInPadHandler();
 	FillFakeIopRam();
@@ -565,8 +563,8 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 		archive.InsertFile(new CMemoryStateFile(STATE_EE,			&m_EE.m_State,	sizeof(MIPSSTATE)));
 		archive.InsertFile(new CMemoryStateFile(STATE_VU0,			&m_VU0.m_State,	sizeof(MIPSSTATE)));
 		archive.InsertFile(new CMemoryStateFile(STATE_VU1,			&m_VU1.m_State,	sizeof(MIPSSTATE)));
-		archive.InsertFile(new CMemoryStateFile(STATE_RAM,			m_ram,			PS2::EERAMSIZE));
-		archive.InsertFile(new CMemoryStateFile(STATE_SPR,			m_spr,			PS2::SPRSIZE));
+		archive.InsertFile(new CMemoryStateFile(STATE_RAM,			m_ram,			PS2::EE_RAM_SIZE));
+		archive.InsertFile(new CMemoryStateFile(STATE_SPR,			m_spr,			PS2::EE_SPR_SIZE));
 		archive.InsertFile(new CMemoryStateFile(STATE_VUMEM0,		m_pVUMem0,		PS2::VUMEM0SIZE));
 		archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM0,	m_pMicroMem0,	PS2::MICROMEM0SIZE));
 		archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,		m_pVUMem1,		PS2::VUMEM1SIZE));
@@ -614,8 +612,8 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 			archive.BeginReadFile(STATE_EE			)->Read(&m_EE.m_State,	sizeof(MIPSSTATE));
 			archive.BeginReadFile(STATE_VU0			)->Read(&m_VU0.m_State,	sizeof(MIPSSTATE));
 			archive.BeginReadFile(STATE_VU1			)->Read(&m_VU1.m_State,	sizeof(MIPSSTATE));
-			archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			PS2::EERAMSIZE);
-			archive.BeginReadFile(STATE_SPR			)->Read(m_spr,			PS2::SPRSIZE);
+			archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			PS2::EE_RAM_SIZE);
+			archive.BeginReadFile(STATE_SPR			)->Read(m_spr,			PS2::EE_SPR_SIZE);
 			archive.BeginReadFile(STATE_VUMEM0		)->Read(m_pVUMem0,		PS2::VUMEM0SIZE);
 			archive.BeginReadFile(STATE_MICROMEM0	)->Read(m_pMicroMem0,	PS2::MICROMEM0SIZE);
 			archive.BeginReadFile(STATE_VUMEM1		)->Read(m_pVUMem1,		PS2::VUMEM1SIZE);
@@ -806,7 +804,7 @@ void CPS2VM::SetIopCdImage(CISO9660* image)
 void CPS2VM::LoadBIOS()
 {
 	Framework::CStdStream BiosStream(fopen("./vfs/rom0/scph10000.bin", "rb"));
-	BiosStream.Read(m_bios, PS2::EEBIOSSIZE);
+	BiosStream.Read(m_bios, PS2::EE_BIOS_SIZE);
 }
 
 void CPS2VM::RegisterModulesInPadHandler()
@@ -1010,7 +1008,7 @@ uint32 CPS2VM::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 
 void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 {
-	if(nAddress < PS2::EERAMSIZE)
+	if(nAddress < PS2::EE_RAM_SIZE)
 	{
 		//Check if the block we're about to invalidate is the same
 		//as the one we're executing in
@@ -1090,12 +1088,12 @@ void CPS2VM::EmuThread()
 				}
 
 				//Check vblank stuff
-				if(m_nVBlankTicks <= 0)
+				if(m_vblankTicks <= 0)
 				{
-					m_nInVBlank = !m_nInVBlank;
-					if(m_nInVBlank)
+					m_inVblank = !m_inVblank;
+					if(m_inVblank)
 					{
-						m_nVBlankTicks += VBLANK_TICKS;
+						m_vblankTicks += VBLANK_TICKS;
 						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
 						m_iop.NotifyVBlankStart();
 
@@ -1111,7 +1109,7 @@ void CPS2VM::EmuThread()
 					}
 					else
 					{
-						m_nVBlankTicks += ONSCREEN_TICKS;
+						m_vblankTicks += ONSCREEN_TICKS;
 						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
 						m_iop.NotifyVBlankEnd();
 						if(m_gs != NULL)
@@ -1191,7 +1189,7 @@ void CPS2VM::EmuThread()
 				}
 
 				m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += executed;
-				m_nVBlankTicks -= executed;
+				m_vblankTicks -= executed;
 				m_spuUpdateTicks -= executed;
 				m_timer.Count(executed);
 

@@ -306,7 +306,7 @@ uint32 CGIF::ReceiveDMA(uint32 nAddress, uint32 nQWC, uint32 unused, bool nTagIn
 	if(nAddress & 0x80000000)
 	{
 		pMemory = m_spr;
-		nAddress &= PS2::SPRSIZE - 1;
+		nAddress &= PS2::EE_SPR_SIZE - 1;
 	}
 	else
 	{

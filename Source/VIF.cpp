@@ -284,14 +284,14 @@ void CVIF::CFifoStream::SetDmaParams(uint32 address, uint32 size)
 	if(address & 0x80000000)
 	{
 		m_source = m_spr;
-		address &= (PS2::SPRSIZE - 1);
-		assert((address + size) <= PS2::SPRSIZE);
+		address &= (PS2::EE_SPR_SIZE - 1);
+		assert((address + size) <= PS2::EE_SPR_SIZE);
 	}
 	else
 	{
 		m_source = m_ram;
-		address &= (PS2::EERAMSIZE - 1);
-		assert((address + size) <= PS2::EERAMSIZE);
+		address &= (PS2::EE_RAM_SIZE - 1);
+		assert((address + size) <= PS2::EE_RAM_SIZE);
 	}
 	m_nextAddress = address;
 	m_endAddress = address + size;

@@ -327,7 +327,7 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		break;
 	case 2:
 		//Read
-		nDstAddr &= (PS2::EERAMSIZE - 1);
+		nDstAddr &= (PS2::EE_RAM_SIZE - 1);
 
 		if(m_iso != NULL)
 		{

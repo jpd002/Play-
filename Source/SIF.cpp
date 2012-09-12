@@ -132,7 +132,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	assert(!isTagIncluded);
 
 	//Humm, this is kinda odd, but it ors the address with 0x20000000
-	nSrcAddr &= (PS2::EERAMSIZE - 1);
+	nSrcAddr &= (PS2::EE_RAM_SIZE - 1);
 
 	if(nDstAddr == RPC_RECVADDR)
 	{
@@ -399,7 +399,7 @@ void CSIF::Cmd_Initialize(PACKETHDR* pHDR)
 	if(pInit->Header.nOptional == 0)
 	{
 		m_nEERecvAddr =  pInit->nEEAddress;
-		m_nEERecvAddr &= (PS2::EERAMSIZE - 1);
+		m_nEERecvAddr &= (PS2::EE_RAM_SIZE - 1);
 	}
 	else if(pInit->Header.nOptional == 1)
 	{
@@ -466,10 +466,10 @@ void CSIF::Cmd_Call(PACKETHDR* pHDR)
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", pCall->nRPCNumber, pCall->nServerDataAddr);
 
-	uint32 nRecvAddr = (pCall->nRecv & (PS2::EERAMSIZE - 1));
+	uint32 nRecvAddr = (pCall->nRecv & (PS2::EE_RAM_SIZE - 1));
 
-	ModuleMap::iterator moduleIterator(m_modules.find(pCall->nServerDataAddr));
-	if(moduleIterator != m_modules.end())
+	auto moduleIterator(m_modules.find(pCall->nServerDataAddr));
+	if(moduleIterator != std::end(m_modules))
 	{
 		CSifModule* pModule(moduleIterator->second);
 		sendReply = pModule->Invoke(pCall->nRPCNumber, 
@@ -519,7 +519,7 @@ void CSIF::Cmd_GetOtherData(PACKETHDR* hdr)
 {
 	RPCOTHERDATA* otherData = reinterpret_cast<RPCOTHERDATA*>(hdr);
 
-	uint32 dstPtr = otherData->nDstPtr & (PS2::EERAMSIZE - 1);
+	uint32 dstPtr = otherData->nDstPtr & (PS2::EE_RAM_SIZE - 1);
 	uint32 srcPtr = otherData->nSrcPtr & (PS2::IOP_RAM_SIZE - 1);
 
 	memcpy(m_eeRam + dstPtr, m_iopRam + srcPtr, otherData->nSize);

@@ -3,19 +3,34 @@
 
 namespace PS2
 {
-	enum EERAMSIZE
+	enum
 	{
-		EERAMSIZE = 0x02000000,
+		EE_RAM_SIZE = 0x02000000
 	};
 
-	enum IOP_RAM_SIZE
+	enum
 	{
-		IOP_RAM_SIZE = 0x00200000,
+		EE_CLOCK_FREQ = 0x11940000
 	};
 
-	enum IOP_SCRATCH_SIZE
+	enum
 	{
-		IOP_SCRATCH_SIZE = 0x00000400,
+		EE_BIOS_SIZE = 0x00400000,
+	};
+
+	enum
+	{
+		EE_SPR_SIZE = 0x00004000,
+	};
+
+	enum
+	{
+		IOP_RAM_SIZE = 0x00200000
+	};
+
+	enum
+	{
+		IOP_SCRATCH_SIZE = 0x00000400
 	};
 
 	enum
@@ -24,33 +39,23 @@ namespace PS2
 		IOP_CLOCK_OVER_FREQ = (48000 * 256 * 3) 
 	};
 
-	enum EEBIOSSIZE
-	{
-		EEBIOSSIZE = 0x00400000,
-	};
-
-	enum SPRSIZE
-	{
-		SPRSIZE = 0x00004000,
-	};
-
-	enum VUMEM0SIZE
+	enum
 	{
 		VUMEM0ADDR = 0x11004000,
 		VUMEM0SIZE = 0x00001000,
 	};
 
-	enum MICROMEM0SIZE
+	enum
 	{
 		MICROMEM0SIZE = 0x00001000,
 	};
 
-	enum VUMEM1SIZE
+	enum
 	{
 		VUMEM1SIZE = 0x00004000,
 	};
 
-	enum MICROMEM1SIZE
+	enum
 	{
 		MICROMEM1SIZE = 0x00004000,
 	};

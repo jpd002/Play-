@@ -285,7 +285,7 @@ void CDebugger::FindValue()
 
 	printf("Search results for 0x%0.8X\r\n", nValue);
 	printf("-----------------------------\r\n");
-	for(unsigned int i = 0; i < PS2::EERAMSIZE; i += 4)
+	for(unsigned int i = 0; i < PS2::EE_RAM_SIZE; i += 4)
 	{
 		if(*(uint32*)&m_virtualMachine.m_ram[i] == nValue)
 		{
