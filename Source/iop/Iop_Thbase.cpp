@@ -8,8 +8,10 @@ using namespace Iop;
 
 #define FUNCTION_CREATETHREAD				"CreateThread"
 #define FUNCTION_STARTTHREAD				"StartThread"
+#define FUNCTION_EXITTHREAD					"ExitThread"
 #define FUNCTION_CHANGETHREADPRIORITY		"ChangeThreadPriority"
 #define FUNCTION_GETTHREADID				"GetThreadId"
+#define FUNCTION_REFERTHREADSTATUS			"ReferThreadStatus"
 #define FUNCTION_SLEEPTHREAD				"SleepThread"
 #define FUNCTION_WAKEUPTHREAD				"WakeupThread"
 #define FUNCTION_IWAKEUPTHREAD				"iWakeupThread"
@@ -47,11 +49,17 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 	case 6:
 		return FUNCTION_STARTTHREAD;
 		break;
+	case 8:
+		return FUNCTION_EXITTHREAD;
+		break;
 	case 14:
 		return FUNCTION_CHANGETHREADPRIORITY;
 		break;
 	case 20:
 		return FUNCTION_GETTHREADID;
+		break;
+	case 22:
+		return FUNCTION_REFERTHREADSTATUS;
 		break;
 	case 24:
 		return FUNCTION_SLEEPTHREAD;
@@ -101,6 +109,9 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0
 			));
 		break;
+	case 8:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ExitThread());
+		break;
 	case 14:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ChangeThreadPriority(
 			context.m_State.nGPR[CMIPS::A0].nV0,
@@ -109,6 +120,12 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetThreadId());
+		break;
+	case 22:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferThreadStatus(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			));
 		break;
 	case 24:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SleepThread());
@@ -162,12 +179,18 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 
 uint32 CThbase::CreateThread(const THREAD* thread)
 {
-	return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize);
+	return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize, thread->options);
 }
 
 uint32 CThbase::StartThread(uint32 threadId, uint32 param)
 {
 	m_bios.StartThread(threadId, &param);
+	return 0;
+}
+
+uint32 CThbase::ExitThread()
+{
+	m_bios.ExitThread();
 	return 0;
 }
 
@@ -186,6 +209,11 @@ uint32 CThbase::DelayThread(uint32 delay)
 uint32 CThbase::GetThreadId()
 {
 	return m_bios.GetCurrentThreadId();
+}
+
+uint32 CThbase::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
+{
+	return m_bios.ReferThreadStatus(threadId, statusPtr);
 }
 
 uint32 CThbase::SleepThread()

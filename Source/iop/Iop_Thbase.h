@@ -29,9 +29,11 @@ namespace Iop
 
 		uint32			CreateThread(const THREAD*);
 		uint32			StartThread(uint32, uint32);
+		uint32			ExitThread();
 		uint32			ChangeThreadPriority(uint32, uint32);
 		uint32			DelayThread(uint32);
 		uint32			GetThreadId();
+		uint32			ReferThreadStatus(uint32, uint32);
 		uint32			SleepThread();
 		uint32			WakeupThread(uint32);
 		uint32			iWakeupThread(uint32);

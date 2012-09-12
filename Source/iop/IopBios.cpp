@@ -311,7 +311,9 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		m_moduleTags.push_back(module);
 	}
 
-	uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY, DEFAULT_STACKSIZE);
+	uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	StartThread(threadId);
+
 	THREAD* thread = GetThread(threadId);
 
 	typedef std::vector<uint32> ParamListType;
@@ -355,7 +357,6 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		thread->context.gpr[CMIPS::GP] = iopMod->gp + moduleRange.first;
 	}
 
-	StartThread(threadId);
 	if(CurrentThreadId() == -1)
 	{
 		Reschedule();
@@ -452,7 +453,7 @@ CIopBios::THREAD* CIopBios::GetThread(uint32 threadId)
 	return m_threads[threadId];
 }
 
-uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize)
+uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize, uint32 optionData)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%0.8X, priority = %d, stackSize = 0x%0.8X);\r\n", 
@@ -479,12 +480,13 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	memset(m_ram + thread->stackBase, 0, thread->stackSize);
 	thread->id = threadId;
 	thread->priority = priority;
-	thread->status = THREAD_STATUS_CREATED;
-	thread->context.epc = threadProc;
+	thread->initPriority = priority;
+	thread->status = THREAD_STATUS_DORMANT;
+	thread->threadProc = threadProc;
+	thread->optionData = optionData;
 	thread->nextActivateTime = 0;
-	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
-	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
 	thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
+	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
 	LinkThread(thread->id);
 	return thread->id;
 }
@@ -512,7 +514,7 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 		return;
 	}
 
-	if(thread->status != THREAD_STATUS_CREATED)
+	if(thread->status != THREAD_STATUS_DORMANT)
 	{
 		throw std::runtime_error("Invalid thread state.");
 	}
@@ -521,6 +523,20 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 	{
 		thread->context.gpr[CMIPS::A0] = *param;
 	}
+	thread->priority = thread->initPriority;
+	thread->context.epc = thread->threadProc;
+	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
+	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+	m_rescheduleNeeded = true;
+}
+
+void CIopBios::ExitThread()
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%i: ExitThread();\r\n", CurrentThreadId());
+#endif
+	THREAD* thread = GetThread(CurrentThreadId());
+	thread->status = THREAD_STATUS_DORMANT;
 	m_rescheduleNeeded = true;
 }
 
@@ -540,8 +556,8 @@ void CIopBios::DelayThread(uint32 delay)
 void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ChangeThreadPriority();\r\n", 
-		CurrentThreadId());
+	CLog::GetInstance().Print(LOGNAME, "%d: ChangeThreadPriority(threadId = %d, newPrio = %d);\r\n", 
+		CurrentThreadId(), threadId, newPrio);
 #endif
 
 	if(threadId == 0)
@@ -559,6 +575,44 @@ void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 
 	thread->priority = newPrio;
 	m_rescheduleNeeded = true;
+}
+
+uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferThreadStatus(threadId = %d, statusPtr = 0x%0.8X);\r\n", 
+		CurrentThreadId(), threadId, statusPtr);
+#endif
+
+	if(threadId == 0)
+	{
+		threadId = GetCurrentThreadId();
+	}
+
+	THREAD* thread = GetThread(threadId);
+	assert(thread != NULL);
+
+	if(thread == NULL)
+	{
+		return -1;
+	}
+
+	uint32 threadStatus = 0;
+	if(thread->status == THREAD_STATUS_DORMANT)
+	{
+		threadStatus |= 0x10;
+	}
+
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_ATTRIBUTE]		= 0;
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_OPTION]		= thread->optionData;
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_STATUS]		= threadStatus;
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_THREAD]		= thread->threadProc;
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_STACK]			= thread->stackBase;
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_STACKSIZE]		= thread->stackSize;
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_INITPRIORITY]	= thread->initPriority;
+	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_PRIORITY]		= thread->priority;
+
+	return 0;
 }
 
 void CIopBios::SleepThread()
@@ -624,16 +678,6 @@ void CIopBios::SleepThreadTillVBlankEnd()
 uint32 CIopBios::GetCurrentThreadId() const
 {
 	return CurrentThreadId();
-}
-
-void CIopBios::ExitCurrentThread()
-{
-#ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d : ExitCurrentThread();\r\n", CurrentThreadId());
-#endif
-	DeleteThread(CurrentThreadId());
-	CurrentThreadId() = -1;
-	m_rescheduleNeeded = true;
 }
 
 void CIopBios::LoadThreadContext(uint32 threadId)
@@ -983,25 +1027,10 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 		if(thread->status != THREAD_STATUS_WAITING_EVENTFLAG) continue;
 		if(thread->waitEventFlag == eventId)
 		{
-			uint32 maskResult = eventFlag->value & thread->waitEventFlagMask;
-			bool success = false;
-			if(thread->waitEventFlagMode & WEF_OR)
-			{
-				success = (maskResult != 0);
-			}
-			else
-			{
-				success = (maskResult == thread->waitEventFlagMask);
-			}
-
+			bool success = ProcessEventFlag(thread->waitEventFlagMode, eventFlag->value, thread->waitEventFlagMask, 
+				(thread->waitEventFlagResultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + thread->waitEventFlagResultPtr) : nullptr);
 			if(success)
 			{
-				if(thread->waitEventFlagResultPtr != 0)
-				{
-					uint32* result = reinterpret_cast<uint32*>(m_ram + thread->waitEventFlagResultPtr);
-					*result = maskResult;
-				}
-
 				thread->waitEventFlag = 0;
 				thread->waitEventFlagResultPtr = 0;
 
@@ -1047,37 +1076,15 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 	{
 		return -1;
 	}
-	
-	if(mode & WEF_CLEAR)
-	{
-		eventFlag->value = 0;
-	}
 
-	uint32 maskResult = eventFlag->value & value;
-	bool success = false;
-	if(mode & WEF_OR)
-	{
-		success = (maskResult != 0);
-	}
-	else
-	{
-		success = (maskResult == value);
-	}
-
-	if(success)
-	{
-		if(resultPtr != 0)
-		{
-			uint32* result = reinterpret_cast<uint32*>(m_ram + resultPtr);
-			*result = maskResult;
-		}
-	}
-	else
+	bool success = ProcessEventFlag(mode, eventFlag->value, value, 
+		(resultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + resultPtr) : nullptr);
+	if(!success)
 	{
 		THREAD* thread = GetThread(CurrentThreadId());
 		thread->status					= THREAD_STATUS_WAITING_EVENTFLAG;
 		thread->waitEventFlag			= eventId;
-		thread->waitEventFlagMode		= mode & 1;
+		thread->waitEventFlagMode		= mode;
 		thread->waitEventFlagMask		= value;
 		thread->waitEventFlagResultPtr	= resultPtr;
 		m_rescheduleNeeded = true;
@@ -1112,6 +1119,36 @@ uint32 CIopBios::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
 	eventFlagInfo->numThreads	= 0;
 
 	return 0;
+}
+
+bool CIopBios::ProcessEventFlag(uint32 mode, uint32& value, uint32 mask, uint32* resultPtr)
+{
+	bool success = false;
+	uint32 maskResult = value & mask;
+
+	if(mode & WEF_OR)
+	{
+		success = (maskResult != 0);
+	}
+	else
+	{
+		success = (maskResult == mask);
+	}
+
+	if(success)
+	{
+		if(mode & WEF_CLEAR)
+		{
+			value &= ~mask;
+		}
+
+		if(resultPtr)
+		{
+			*resultPtr = maskResult;
+		}
+	}
+
+	return success;
 }
 
 uint32 CIopBios::CreateMessageBox()
@@ -1338,7 +1375,7 @@ void CIopBios::HandleException()
 		switch(m_cpu.m_State.nGPR[CMIPS::V0].nV0)
 		{
 		case 0x666:
-			ExitCurrentThread();
+			ExitThread();
 			break;
 		case 0x667:
 			ReturnFromException();
@@ -1562,8 +1599,8 @@ BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
 
 		switch(nextThread->status)
 		{
-		case THREAD_STATUS_CREATED:
-			threadInfo.stateDescription = "Created";
+		case THREAD_STATUS_DORMANT:
+			threadInfo.stateDescription = "Dormant";
 			break;
 		case THREAD_STATUS_RUNNING:
 			threadInfo.stateDescription = "Running";
@@ -1585,9 +1622,6 @@ BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
 			break;
 		case THREAD_STATUS_WAIT_VBLANK_END:
 			threadInfo.stateDescription = "Waiting (Vblank End)";
-			break;
-		case THREAD_STATUS_ZOMBIE:
-			threadInfo.stateDescription = "Zombie";
 			break;
 		default:
 			threadInfo.stateDescription = "Unknown";

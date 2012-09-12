@@ -41,7 +41,10 @@ public:
 	{
 		uint32			isValid;
 		uint32			id;
+		uint32			initPriority;
 		uint32			priority;
+		uint32			optionData;
+		uint32			threadProc;
 		THREADCONTEXT	context;
 		uint32			status;
 		uint32			waitSemaphore;
@@ -60,15 +63,26 @@ public:
 
 	enum THREAD_STATUS
 	{
-		THREAD_STATUS_CREATED				= 1,
+		THREAD_STATUS_DORMANT				= 1,
 		THREAD_STATUS_RUNNING				= 2,
 		THREAD_STATUS_SLEEPING				= 3,
-		THREAD_STATUS_ZOMBIE				= 4,
-		THREAD_STATUS_WAITING_SEMAPHORE		= 5,
-		THREAD_STATUS_WAITING_EVENTFLAG		= 6,
-		THREAD_STATUS_WAITING_MESSAGEBOX	= 7,
-		THREAD_STATUS_WAIT_VBLANK_START		= 8,
-		THREAD_STATUS_WAIT_VBLANK_END		= 9,
+		THREAD_STATUS_WAITING_SEMAPHORE		= 4,
+		THREAD_STATUS_WAITING_EVENTFLAG		= 5,
+		THREAD_STATUS_WAITING_MESSAGEBOX	= 6,
+		THREAD_STATUS_WAIT_VBLANK_START		= 7,
+		THREAD_STATUS_WAIT_VBLANK_END		= 8,
+	};
+
+	enum THREAD_STATUS_OFFSETS
+	{
+		THREAD_INFO_ATTRIBUTE				= 0,
+		THREAD_INFO_OPTION					= 1,
+		THREAD_INFO_STATUS					= 2,
+		THREAD_INFO_THREAD					= 3,
+		THREAD_INFO_STACK					= 4,
+		THREAD_INFO_STACKSIZE				= 5,
+		THREAD_INFO_INITPRIORITY			= 7,
+		THREAD_INFO_PRIORITY				= 8
 	};
 
 								CIopBios(CMIPS&, uint8*, uint32);
@@ -114,13 +128,15 @@ public:
 #endif
 	void						RegisterDynamicModule(Iop::CDynamic*);
 
-	uint32						CreateThread(uint32, uint32, uint32);
+	uint32						CreateThread(uint32, uint32, uint32, uint32);
 	void						StartThread(uint32, uint32* = NULL);
+	void						ExitThread();
 	void						DeleteThread(uint32);
 	void						DelayThread(uint32);
 	THREAD*						GetThread(uint32);
 	uint32						GetCurrentThreadId() const;
 	void						ChangeThreadPriority(uint32, uint32);
+	uint32						ReferThreadStatus(uint32, uint32);
 	void						SleepThread();
 	uint32						WakeupThread(uint32, bool);
 
@@ -137,7 +153,8 @@ public:
 	uint32						ClearEventFlag(uint32, uint32);
 	uint32						WaitEventFlag(uint32, uint32, uint32, uint32);
 	uint32						ReferEventFlagStatus(uint32, uint32);
-	
+	bool						ProcessEventFlag(uint32, uint32&, uint32, uint32*);
+
 	uint32						CreateMessageBox();
 	uint32						SendMessageBox(uint32, uint32);
 	uint32						ReceiveMessageBox(uint32, uint32);
