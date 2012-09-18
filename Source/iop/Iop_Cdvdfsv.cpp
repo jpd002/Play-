@@ -381,7 +381,7 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	}
 	else
 	{
-		assert(0);
+		CLog::GetInstance().Print(LOG_NAME, "Warning: Using unknown structure size (%d bytes);\r\n", argsSize);
 	}
 
 	assert(retSize == 4);

@@ -7,21 +7,21 @@ class CIopBios;
 
 namespace Iop
 {
-    class CModload : public CModule
-    {
-    public:
-                        CModload(CIopBios&, uint8*);
-        virtual         ~CModload();
+	class CModload : public CModule
+	{
+	public:
+						CModload(CIopBios&, uint8*);
+		virtual			~CModload();
 
-        std::string     GetId() const;
+		std::string		GetId() const;
 		std::string		GetFunctionName(unsigned int) const;
-        void            Invoke(CMIPS&, unsigned int);
+		void			Invoke(CMIPS&, unsigned int);
 
-    private:
-        uint32          LoadStartModule(const char*, uint32, const char*, uint32*);
-        CIopBios&       m_bios;
-        uint8*          m_ram;
-    };
+	private:
+		uint32			LoadStartModule(const char*, uint32, const char*, uint32*);
+		CIopBios&		m_bios;
+		uint8*			m_ram;
+	};
 }
 
 #endif
