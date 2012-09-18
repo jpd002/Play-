@@ -176,11 +176,12 @@ private:
 
 	enum
 	{
-		MAX_THREAD = 64,
-		MAX_SEMAPHORE = 64,
-		MAX_EVENTFLAG = 64,
-		MAX_INTRHANDLER = 32,
-		MAX_MESSAGEBOX = 32,
+		MAX_THREAD				= 64,
+		MAX_SEMAPHORE			= 64,
+		MAX_EVENTFLAG			= 64,
+		MAX_INTRHANDLER			= 32,
+		MAX_MESSAGEBOX			= 32,
+		MAX_MODULELOADREQUEST	= 32
 	};
 
 	enum WEF_FLAGS
@@ -232,6 +233,22 @@ private:
 		uint32			nextMsgPtr;
 	};
 
+	struct MODULELOADREQUEST
+	{
+		enum 
+		{
+			MAX_PATH_SIZE = 256,
+			MAX_ARGS_SIZE = 256
+		};
+
+		uint32			nextPtr;
+		uint32			entryPoint;
+		uint32			gp;
+		char			path[MAX_PATH_SIZE];
+		uint32			argsLength;
+		char			args[MAX_ARGS_SIZE];
+	};
+
 	struct IOPMOD
 	{
 		uint32			module;
@@ -275,6 +292,8 @@ private:
 	uint32&							ThreadLinkHead() const;
 	uint32&							CurrentThreadId() const;
 	uint64&							CurrentTime() const;
+	uint32&							ModuleLoadRequestHead() const;
+	uint32&							ModuleLoadRequestFree() const;
 
 	void							LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
 	uint32							LoadExecutable(CELF&, ExecutableRange&);
@@ -293,6 +312,11 @@ private:
 	uint32							AssembleThreadFinish(CMIPSAssembler&);
 	uint32							AssembleReturnFromException(CMIPSAssembler&);
 	uint32							AssembleIdleFunction(CMIPSAssembler&);
+	uint32							AssembleModuleLoaderThreadProc(CMIPSAssembler&);
+
+	void							InitializeModuleLoader();
+	void							ProcessModuleLoad();
+	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
 
 	CMIPS&							m_cpu;
 	uint8*							m_ram;
@@ -300,6 +324,9 @@ private:
 	uint32							m_threadFinishAddress;
 	uint32							m_returnFromExceptionAddress;
 	uint32							m_idleFunctionAddress;
+	uint32							m_moduleLoaderThreadProcAddress;
+
+	uint32							m_moduleLoaderThreadId;
 
 	bool							m_rescheduleNeeded;
 	ThreadList						m_threads;

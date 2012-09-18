@@ -35,24 +35,34 @@
 #define STATE_MODULES						("iopbios/dyn_modules.xml")
 #define STATE_MODULE_IMPORT_TABLE_ADDRESS	("ImportTableAddress")
 
-#define BIOS_THREAD_LINK_HEAD_BASE		(CIopBios::CONTROL_BLOCK_START + 0x0000)
-#define BIOS_CURRENT_THREAD_ID_BASE		(CIopBios::CONTROL_BLOCK_START + 0x0008)
-#define BIOS_CURRENT_TIME_BASE			(CIopBios::CONTROL_BLOCK_START + 0x0010)
-#define BIOS_HANDLERS_BASE				(CIopBios::CONTROL_BLOCK_START + 0x0100)
-#define BIOS_HANDLERS_END				(BIOS_THREADS_BASE - 1)
-#define BIOS_THREADS_BASE				(CIopBios::CONTROL_BLOCK_START + 0x0200)
-#define BIOS_THREADS_SIZE				(sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
-#define BIOS_SEMAPHORES_BASE			(BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
-#define BIOS_SEMAPHORES_SIZE			(sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
-#define BIOS_EVENTFLAGS_BASE			(BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
-#define BIOS_EVENTFLAGS_SIZE			(sizeof(CIopBios::EVENTFLAG) * CIopBios::MAX_EVENTFLAG)
-#define BIOS_INTRHANDLER_BASE			(BIOS_EVENTFLAGS_BASE + BIOS_EVENTFLAGS_SIZE)
-#define BIOS_INTRHANDLER_SIZE			(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
-#define BIOS_MESSAGEBOX_BASE			(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
-#define BIOS_MESSAGEBOX_SIZE			(sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
-#define BIOS_HEAPBLOCK_BASE				(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
-#define BIOS_HEAPBLOCK_SIZE				(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
-#define BIOS_CALCULATED_END				(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
+#define BIOS_THREAD_LINK_HEAD_BASE			(CIopBios::CONTROL_BLOCK_START + 0x0000)
+#define BIOS_CURRENT_THREAD_ID_BASE			(CIopBios::CONTROL_BLOCK_START + 0x0008)
+#define BIOS_CURRENT_TIME_BASE				(CIopBios::CONTROL_BLOCK_START + 0x0010)
+#define BIOS_MODULELOADREQUEST_HEAD_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0018)
+#define BIOS_MODULELOADREQUEST_FREE_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0020)
+#define BIOS_HANDLERS_BASE					(CIopBios::CONTROL_BLOCK_START + 0x0100)
+#define BIOS_HANDLERS_END					(BIOS_THREADS_BASE - 1)
+#define BIOS_THREADS_BASE					(CIopBios::CONTROL_BLOCK_START + 0x0200)
+#define BIOS_THREADS_SIZE					(sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
+#define BIOS_SEMAPHORES_BASE				(BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
+#define BIOS_SEMAPHORES_SIZE				(sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
+#define BIOS_EVENTFLAGS_BASE				(BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
+#define BIOS_EVENTFLAGS_SIZE				(sizeof(CIopBios::EVENTFLAG) * CIopBios::MAX_EVENTFLAG)
+#define BIOS_INTRHANDLER_BASE				(BIOS_EVENTFLAGS_BASE + BIOS_EVENTFLAGS_SIZE)
+#define BIOS_INTRHANDLER_SIZE				(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
+#define BIOS_MESSAGEBOX_BASE				(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
+#define BIOS_MESSAGEBOX_SIZE				(sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
+#define BIOS_HEAPBLOCK_BASE					(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
+#define BIOS_HEAPBLOCK_SIZE					(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
+#define BIOS_MODULELOADREQUEST_BASE			(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
+#define BIOS_MODULELOADREQUEST_SIZE			(sizeof(CIopBios::MODULELOADREQUEST) * CIopBios::MAX_MODULELOADREQUEST)
+#define BIOS_CALCULATED_END					(BIOS_MODULELOADREQUEST_BASE + BIOS_MODULELOADREQUEST_SIZE)
+
+#define SYSCALL_EXITTHREAD				0x666
+#define SYSCALL_RETURNFROMEXCEPTION		0x667
+#define SYSCALL_RESCHEDULE				0x668
+#define SYSCALL_SLEEPTHREAD				0x669
+#define SYSCALL_PROCESSMODULELOAD		0x66A
 
 CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
 : m_cpu(cpu)
@@ -69,6 +79,10 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 #endif
 , m_rescheduleNeeded(false)
 , m_threadFinishAddress(0)
+, m_returnFromExceptionAddress(0)
+, m_idleFunctionAddress(0)
+, m_moduleLoaderThreadProcAddress(0)
+, m_moduleLoaderThreadId(0)
 , m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
 , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
 , m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
@@ -91,6 +105,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
 		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
+		m_moduleLoaderThreadProcAddress = AssembleModuleLoaderThreadProc(assembler);
 		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
 	}
 
@@ -202,6 +217,8 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
 #endif
 
+	InitializeModuleLoader();
+
 	Reschedule();
 }
 
@@ -218,6 +235,16 @@ uint32& CIopBios::CurrentThreadId() const
 uint64& CIopBios::CurrentTime() const
 {
 	return *reinterpret_cast<uint64*>(m_ram + BIOS_CURRENT_TIME_BASE);
+}
+
+uint32& CIopBios::ModuleLoadRequestHead() const
+{
+	return *reinterpret_cast<uint32*>(m_ram + BIOS_MODULELOADREQUEST_HEAD_BASE);
+}
+
+uint32& CIopBios::ModuleLoadRequestFree() const
+{
+	return *reinterpret_cast<uint32*>(m_ram + BIOS_MODULELOADREQUEST_FREE_BASE);
 }
 
 void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
@@ -265,6 +292,143 @@ bool CIopBios::IsIdle()
 	return (m_cpu.m_State.nPC == m_idleFunctionAddress);
 }
 
+void CIopBios::InitializeModuleLoader()
+{
+	ModuleLoadRequestHead() = 0;
+	ModuleLoadRequestFree() = BIOS_MODULELOADREQUEST_BASE;
+
+	//Initialize Module Load Request Free List
+	for(unsigned int i = 0; i < (MAX_MODULELOADREQUEST - 1); i++)
+	{
+		auto moduleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + BIOS_MODULELOADREQUEST_BASE) + i;
+		moduleLoadRequest->nextPtr = reinterpret_cast<uint8*>(moduleLoadRequest + 1) - m_ram;
+	}
+
+	m_moduleLoaderThreadId = CreateThread(m_moduleLoaderThreadProcAddress, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	StartThread(m_moduleLoaderThreadId);
+}
+
+void CIopBios::RequestModuleLoad(uint32 moduleEntryPoint, uint32 gp, const char* path, const char* args, unsigned int argsLength)
+{
+	uint32 requestPtr = ModuleLoadRequestFree();
+	assert(requestPtr != 0);
+	if(requestPtr == 0)
+	{
+		CLog::GetInstance().Print(LOGNAME, "Too many modules to be loaded.");
+		return;
+	}
+
+	auto moduleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + requestPtr);
+
+	//Unlink from free list and link in active list (at the end)
+	{
+		ModuleLoadRequestFree() = moduleLoadRequest->nextPtr;
+
+		uint32* currentPtr = &ModuleLoadRequestHead();
+		while(*currentPtr != 0)
+		{
+			auto currentModuleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + *currentPtr);
+			currentPtr = &currentModuleLoadRequest->nextPtr;
+		}
+
+		*currentPtr = requestPtr;
+
+		moduleLoadRequest->nextPtr = 0;
+	}
+
+	moduleLoadRequest->entryPoint	= moduleEntryPoint;
+	moduleLoadRequest->gp			= gp;
+
+	assert((strlen(path) + 1) <= MODULELOADREQUEST::MAX_PATH_SIZE);
+	strncpy(moduleLoadRequest->path, path, MODULELOADREQUEST::MAX_PATH_SIZE);
+	moduleLoadRequest->path[MODULELOADREQUEST::MAX_PATH_SIZE - 1] = 0;
+
+	memcpy(moduleLoadRequest->args, args, argsLength);
+	moduleLoadRequest->argsLength	= argsLength;
+
+	WakeupThread(m_moduleLoaderThreadId, false);
+}
+
+void CIopBios::ProcessModuleLoad()
+{
+	assert(GetCurrentThreadId() == m_moduleLoaderThreadId);
+
+	uint32 requestPtr = ModuleLoadRequestHead();
+	assert(requestPtr != 0);
+	if(requestPtr == 0)
+	{
+		CLog::GetInstance().Print(LOGNAME, "Asked to load module when none was requested.");
+		return;
+	}
+
+	auto moduleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + requestPtr);
+	
+	//Unlink from active list and link in free list
+	{
+		ModuleLoadRequestHead() = moduleLoadRequest->nextPtr;
+
+		moduleLoadRequest->nextPtr = ModuleLoadRequestFree();
+		ModuleLoadRequestFree() = requestPtr;
+	}
+
+	assert(GetCurrentThreadId() == m_moduleLoaderThreadId);
+
+	//Reset stack pointer
+	{
+		auto thread = GetThread(m_moduleLoaderThreadId);
+		assert(thread);
+		m_cpu.m_State.nGPR[CMIPS::SP].nV0 = thread->stackBase + thread->stackSize;
+	}
+
+	//Patch loader thread context with proper info to invoke module entry proc
+	{
+		const char* path = moduleLoadRequest->path;
+		const char* args = moduleLoadRequest->args;
+		uint32 argsLength = moduleLoadRequest->argsLength;
+
+		typedef std::vector<uint32> ParamListType;
+		ParamListType paramList;
+
+		paramList.push_back(Push(
+			m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+			reinterpret_cast<const uint8*>(path),
+			static_cast<uint32>(strlen(path)) + 1));
+		if(argsLength != 0)
+		{
+			unsigned int argsPos = 0;
+			while(argsPos < argsLength)
+			{
+				const char* arg = args + argsPos;
+				unsigned int argLength = static_cast<unsigned int>(strlen(arg)) + 1;
+				if(argLength == 1) 
+				{
+					break;
+				}
+				argsPos += argLength;
+				uint32 argAddress = Push(
+					m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+					reinterpret_cast<const uint8*>(arg),
+					static_cast<uint32>(argLength));
+				paramList.push_back(argAddress);
+			}
+		}
+		m_cpu.m_State.nGPR[CMIPS::A0].nV0 = static_cast<uint32>(paramList.size());
+		for(ParamListType::reverse_iterator param(paramList.rbegin());
+			paramList.rend() != param; param++)
+		{
+			m_cpu.m_State.nGPR[CMIPS::A1].nV0 = Push(
+				m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+				reinterpret_cast<const uint8*>(&(*param)),
+				4);
+		}
+		m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= 4;
+
+		m_cpu.m_State.nPC = moduleLoadRequest->entryPoint;
+		m_cpu.m_State.nGPR[CMIPS::GP].nV0 = moduleLoadRequest->gp;
+		m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_moduleLoaderThreadProcAddress;
+	}
+}
+
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
 {
 	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
@@ -309,57 +473,6 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		module.end		= moduleRange.second;
 		module.param	= NULL;
 		m_moduleTags.push_back(module);
-	}
-
-	uint32 threadId = CreateThread(entryPoint, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
-	StartThread(threadId);
-
-	THREAD* thread = GetThread(threadId);
-
-	typedef std::vector<uint32> ParamListType;
-	ParamListType paramList;
-
-	paramList.push_back(Push(
-		thread->context.gpr[CMIPS::SP],
-		reinterpret_cast<const uint8*>(path),
-		static_cast<uint32>(strlen(path)) + 1));
-	if(argsLength != 0 && args != NULL)
-	{
-		unsigned int argsPos = 0;
-		while(argsPos < argsLength)
-		{
-			const char* arg = args + argsPos;
-			unsigned int argLength = static_cast<unsigned int>(strlen(arg)) + 1;
-			if(argLength == 1) 
-			{
-				break;
-			}
-			argsPos += argLength;
-			uint32 argAddress = Push(
-				thread->context.gpr[CMIPS::SP],
-				reinterpret_cast<const uint8*>(arg),
-				static_cast<uint32>(argLength));
-			paramList.push_back(argAddress);
-		}
-	}
-	thread->context.gpr[CMIPS::A0] = static_cast<uint32>(paramList.size());
-	for(ParamListType::reverse_iterator param(paramList.rbegin());
-		paramList.rend() != param; param++)
-	{
-		thread->context.gpr[CMIPS::A1] = Push(
-			thread->context.gpr[CMIPS::SP],
-			reinterpret_cast<const uint8*>(&(*param)),
-			4);
-	}
-	thread->context.gpr[CMIPS::SP] -= 4;
-	if(iopMod != NULL)
-	{
-		thread->context.gpr[CMIPS::GP] = iopMod->gp + moduleRange.first;
-	}
-
-	if(CurrentThreadId() == -1)
-	{
-		Reschedule();
 	}
 
 #ifdef _DEBUG
@@ -446,6 +559,9 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 			m_cpu.m_pMemoryMap->SetWord(patchAddress, 0x1000FFFB);
 		}
 	}
+
+	RequestModuleLoad(entryPoint, iopMod ? (iopMod->gp + moduleRange.first) : 0, 
+		path, args, argsLength);
 }
 
 CIopBios::THREAD* CIopBios::GetThread(uint32 threadId)
@@ -1343,7 +1459,7 @@ uint32 CIopBios::FindIntrHandler(uint32 line)
 uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-	assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0666);
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_EXITTHREAD);
 	assembler.SYSCALL();
 	return address;
 }
@@ -1351,7 +1467,7 @@ uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 uint32 CIopBios::AssembleReturnFromException(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-	assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0667);
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_RETURNFROMEXCEPTION);
 	assembler.SYSCALL();
 	return address;
 }
@@ -1359,7 +1475,17 @@ uint32 CIopBios::AssembleReturnFromException(CMIPSAssembler& assembler)
 uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-	assembler.ADDIU(CMIPS::V0, CMIPS::R0, 0x0668);
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_RESCHEDULE);
+	assembler.SYSCALL();
+	return address;
+}
+
+uint32 CIopBios::AssembleModuleLoaderThreadProc(CMIPSAssembler& assembler)
+{
+	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_SLEEPTHREAD);
+	assembler.SYSCALL();
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_PROCESSMODULELOAD);
 	assembler.SYSCALL();
 	return address;
 }
@@ -1374,14 +1500,20 @@ void CIopBios::HandleException()
 	{
 		switch(m_cpu.m_State.nGPR[CMIPS::V0].nV0)
 		{
-		case 0x666:
+		case SYSCALL_EXITTHREAD:
 			ExitThread();
 			break;
-		case 0x667:
+		case SYSCALL_RETURNFROMEXCEPTION:
 			ReturnFromException();
 			break;
-		case 0x668:
+		case SYSCALL_RESCHEDULE:
 			Reschedule();
+			break;
+		case SYSCALL_SLEEPTHREAD:
+			SleepThread();
+			break;
+		case SYSCALL_PROCESSMODULELOAD:
+			ProcessModuleLoad();
 			break;
 		}
 	}
