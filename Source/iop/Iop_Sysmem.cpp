@@ -1,5 +1,6 @@
 #include "Iop_Sysmem.h"
 #include "../Log.h"
+#include "Iop_SifMan.h"
 
 using namespace Iop;
 

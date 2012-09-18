@@ -216,6 +216,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 #ifndef _NULL_SIFMAN
 	m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
 #endif
+	m_sifMan->GenerateHandlers(m_ram, *m_sysmem);
 
 	InitializeModuleLoader();
 

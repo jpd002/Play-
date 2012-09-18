@@ -3,11 +3,13 @@
 
 #include "Iop_Module.h"
 #include "Iop_Stdio.h"
-#include "Iop_SifMan.h"
 #include "../OsStructManager.h"
+#include "../SifModule.h"
 
 namespace Iop
 {
+	class CSifMan;
+
 	class CSysmem : public CModule, public CSifModule
 	{
 	public:

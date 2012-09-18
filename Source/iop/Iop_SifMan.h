@@ -6,11 +6,15 @@
 
 namespace Iop
 {
+	class CSysmem;
+
 	class CSifMan : public CModule
 	{
 	public:
 								CSifMan();
 		virtual					~CSifMan();
+
+		void					GenerateHandlers(uint8*, CSysmem&);
 
 		virtual std::string		GetId() const;
 		virtual std::string		GetFunctionName(unsigned int) const;
@@ -26,6 +30,9 @@ namespace Iop
 	protected:
 		virtual uint32			SifSetDma(uint32, uint32);
 		virtual uint32			SifDmaStat(uint32);
+		virtual uint32			SifSetDmaCallback(CMIPS&, uint32, uint32, uint32, uint32);
+
+		uint32					m_sifSetDmaCallbackHandlerPtr;
 	};
 }
 
