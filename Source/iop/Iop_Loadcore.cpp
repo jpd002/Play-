@@ -127,6 +127,7 @@ void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
 {
+	CLog::GetInstance().Print(LOG_NAME, "Request to load module at 0x%0.8X received with %d bytes arguments payload.\r\n", args[0], 0);
 	m_bios.LoadAndStartModule(args[0], NULL, 0);
 	ret[0] = 0x00000000;
 }
