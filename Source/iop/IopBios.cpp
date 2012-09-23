@@ -64,6 +64,8 @@
 #define SYSCALL_SLEEPTHREAD				0x669
 #define SYSCALL_PROCESSMODULELOAD		0x66A
 
+#define STACK_FRAME_RESERVE_SIZE		0x10
+
 CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
 : m_cpu(cpu)
 , m_ram(ram)
@@ -378,7 +380,7 @@ void CIopBios::ProcessModuleLoad()
 	{
 		auto thread = GetThread(m_moduleLoaderThreadId);
 		assert(thread);
-		m_cpu.m_State.nGPR[CMIPS::SP].nV0 = thread->stackBase + thread->stackSize;
+		m_cpu.m_State.nGPR[CMIPS::SP].nV0 = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	}
 
 	//Patch loader thread context with proper info to invoke module entry proc
@@ -603,7 +605,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	thread->optionData = optionData;
 	thread->nextActivateTime = 0;
 	thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
-	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	LinkThread(thread->id);
 	return thread->id;
 }
@@ -643,7 +645,7 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 	thread->priority = thread->initPriority;
 	thread->context.epc = thread->threadProc;
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
-	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	m_rescheduleNeeded = true;
 }
 
