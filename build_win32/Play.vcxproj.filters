@@ -163,12 +163,6 @@
     <ClCompile Include="..\Source\iop\Iop_Cdvdman.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_DbcMan.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_DbcMan320.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\iop\Iop_Dynamic.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
@@ -705,16 +699,10 @@
     <ClInclude Include="..\Source\iop\IopBios.h">
       <Filter>Source Files\Core\Iop</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_DbcMan320.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Cdvdfsv.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Cdvdman.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_DbcMan.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Dynamic.h">

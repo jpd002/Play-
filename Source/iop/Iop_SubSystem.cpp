@@ -25,6 +25,9 @@ CSubSystem::CSubSystem(bool ps2Mode)
 , m_spuCore1(m_spuRam, SPU_RAM_SIZE)
 , m_spu(m_spuCore0)
 , m_spu2(m_spuCore0, m_spuCore1)
+#ifdef _IOP_EMULATE_MODULES
+, m_sio2(m_intc)
+#endif
 , m_cpuArch(MIPS_REGSIZE_32)
 , m_copScu(MIPS_REGSIZE_32)
 {
@@ -110,6 +113,9 @@ void CSubSystem::Reset()
 	m_spuCore1.Reset();
 	m_spu.Reset();
 	m_spu2.Reset();
+#ifdef _IOP_EMULATE_MODULES
+	m_sio2.Reset();
+#endif
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
@@ -148,6 +154,12 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_counters.ReadRegister(address);
 	}
+#ifdef _IOP_EMULATE_MODULES
+	else if(address >= CSio2::ADDR_BEGIN && address <= CSio2::ADDR_END)
+	{
+		return m_sio2.ReadRegister(address);
+	}
+#endif
 	else if(address >= CSpu2::REGS_BEGIN && address <= CSpu2::REGS_END)
 	{
 		return m_spu2.ReadRegister(address);
@@ -189,6 +201,12 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	{
 		m_counters.WriteRegister(address, value);
 	}
+#ifdef _IOP_EMULATE_MODULES
+	else if(address >= CSio2::ADDR_BEGIN && address <= CSio2::ADDR_END)
+	{
+		m_sio2.WriteRegister(address, value);
+	}
+#endif
 	else if(address >= CSpu2::REGS_BEGIN && address <= CSpu2::REGS_END)
 	{
 		return m_spu2.WriteRegister(address, value);

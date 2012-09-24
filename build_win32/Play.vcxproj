@@ -193,8 +193,6 @@
     <ClCompile Include="..\Source\iop\IopBios.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Cdvdfsv.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Cdvdman.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_DbcMan.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_DbcMan320.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Dmac.cpp" />
     <ClCompile Include="..\Source\iop\Iop_DmacChannel.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Dynamic.cpp" />
@@ -376,8 +374,6 @@
     <ClInclude Include="..\Source\iop\Iop_BiosBase.h" />
     <ClInclude Include="..\Source\iop\Iop_Cdvdfsv.h" />
     <ClInclude Include="..\Source\iop\Iop_Cdvdman.h" />
-    <ClInclude Include="..\Source\iop\Iop_DbcMan.h" />
-    <ClInclude Include="..\Source\iop\Iop_DbcMan320.h" />
     <ClInclude Include="..\Source\iop\Iop_Dmac.h" />
     <ClInclude Include="..\Source\iop\Iop_DmacChannel.h" />
     <ClInclude Include="..\Source\iop\Iop_Dynamic.h" />

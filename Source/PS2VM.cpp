@@ -576,7 +576,6 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 		m_intc.SaveState(archive);
 		m_sif.SaveState(archive);
 		m_vif.SaveState(archive);
-		m_iopOs->GetDbcman()->SaveState(archive);
 		m_iopOs->GetPadman()->SaveState(archive);
 		//TODO: Save CDVDFSV state
 
@@ -625,7 +624,6 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 			m_intc.LoadState(archive);
 			m_sif.LoadState(archive);
 			m_vif.LoadState(archive);
-			m_iopOs->GetDbcman()->LoadState(archive);
 			m_iopOs->GetPadman()->LoadState(archive);
 		}
 		catch(...)
@@ -812,8 +810,8 @@ void CPS2VM::RegisterModulesInPadHandler()
 	if(m_pad == NULL) return;
 
 	m_pad->RemoveAllListeners();
-	m_pad->InsertListener(m_iopOs->GetDbcman());
 	m_pad->InsertListener(m_iopOs->GetPadman());
+	m_pad->InsertListener(&m_iop.m_sio2);
 }
 
 void CPS2VM::FillFakeIopRam()

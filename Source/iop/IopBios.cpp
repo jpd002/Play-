@@ -13,7 +13,6 @@
 #include "../StructCollectionStateFile.h"
 
 #ifdef _IOP_EMULATE_MODULES
-#include "Iop_DbcMan320.h"
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
 #include "Iop_FileIo.h"
@@ -76,8 +75,8 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_ioman(NULL)
 , m_modload(NULL)
 #ifdef _IOP_EMULATE_MODULES
-, m_dbcman(NULL)
 , m_padman(NULL)
+, m_cdvdfsv(NULL)
 #endif
 , m_rescheduleNeeded(false)
 , m_threadFinishAddress(0)
@@ -199,13 +198,6 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	}
 	{
 		RegisterModule(new Iop::CMcServ(*m_sifMan));
-	}
-	{
-		m_dbcman = new Iop::CDbcMan(*m_sifMan);
-		RegisterModule(m_dbcman);
-	}
-	{
-		RegisterModule(new Iop::CDbcMan320(*m_sifMan, *m_dbcman));
 	}
 	{
 		m_padman = new Iop::CPadMan(*m_sifMan);
@@ -1399,11 +1391,6 @@ Iop::CCdvdman* CIopBios::GetCdvdman()
 
 #ifdef _IOP_EMULATE_MODULES
 
-Iop::CDbcMan* CIopBios::GetDbcman()
-{
-	return m_dbcman;
-}
-
 Iop::CPadMan* CIopBios::GetPadman()
 {
 	return m_padman;
@@ -1787,7 +1774,6 @@ void CIopBios::DeleteModules()
 	m_modload = NULL;
 	m_sysmem = NULL;
 #ifdef _IOP_EMULATE_MODULES
-	m_dbcman = NULL;
 	m_padman = NULL;
 	m_cdvdfsv = NULL;
 #endif

@@ -9,6 +9,7 @@
 #include "Iop_SpuBase.h"
 #include "Iop_Spu.h"
 #include "Iop_Spu2.h"
+#include "Iop_Sio2.h"
 #include "Iop_Dmac.h"
 #include "Iop_Intc.h"
 #include "Iop_RootCounters.h"
@@ -47,6 +48,9 @@ namespace Iop
 		CSpuBase			m_spuCore1;
 		CSpu				m_spu;
 		CSpu2				m_spu2;
+#ifdef _IOP_EMULATE_MODULES
+		CSio2				m_sio2;
+#endif
 		CMIPS				m_cpu;
 		CMA_MIPSIV			m_cpuArch;
 		CCOP_SCU			m_copScu;

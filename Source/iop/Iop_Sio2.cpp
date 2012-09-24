@@ -237,17 +237,20 @@ void CSio2::ProcessCommand()
 				break;
 			case 0x44:		//Set Mode & Lock
 				{
-					assert(dstSize == 9);
+					assert(dstSize == 5 || dstSize == 9);
 					uint8 mode = m_inputBuffer[3];
 					uint8 lock = m_inputBuffer[4];
 					//cmdBuffer[3] == 0x01 ? (u8)ID_ANALOG : (u8)ID_DIGITAL;
 					//cmdBuffer[4] == 0x03 -> Mode Lock
 					m_outputBuffer[outputOffset + 0x03] = 0x00;
 					m_outputBuffer[outputOffset + 0x04] = 0x00;
-					m_outputBuffer[outputOffset + 0x05] = 0x00;
-					m_outputBuffer[outputOffset + 0x06] = 0x00;
-					m_outputBuffer[outputOffset + 0x07] = 0x00;
-					m_outputBuffer[outputOffset + 0x08] = 0x00;
+					if(dstSize == 9)
+					{
+						m_outputBuffer[outputOffset + 0x05] = 0x00;
+						m_outputBuffer[outputOffset + 0x06] = 0x00;
+						m_outputBuffer[outputOffset + 0x07] = 0x00;
+						m_outputBuffer[outputOffset + 0x08] = 0x00;
+					}
 					CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetModeAndLock(mode = %d, lock = %d);\r\n", padId, mode, lock);
 				}
 				break;
