@@ -116,7 +116,6 @@ void CSio2::WriteRegister(uint32 address, uint32 value)
 		case REG_CTRL:
 			if(value == 0x0C)
 			{
-				printf("SIO2: Starting new xfer.\r\n");
 				m_currentRegIndex = 0;
 			}
 			if(value == 0x01)

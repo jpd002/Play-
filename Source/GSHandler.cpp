@@ -202,7 +202,7 @@ void CGSHandler::Reset()
 	m_nDISPLAY2 = 0;
 	m_nCSR = 0;
 	m_nIMR = 0;
-	m_nCrtMode = 0;
+	m_nCrtMode = 2;
 	m_nCBP0	= 0;
 	m_nCBP1	= 0;
 	m_enabled = true;
