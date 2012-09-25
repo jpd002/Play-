@@ -35,8 +35,8 @@ Global
 		{06CD8F2E-F93C-4DE3-8100-C74290578573}.Debug|Win32.Build.0 = Debug|Win32
 		{06CD8F2E-F93C-4DE3-8100-C74290578573}.Debug|x64.ActiveCfg = Debug|x64
 		{06CD8F2E-F93C-4DE3-8100-C74290578573}.Debug|x64.Build.0 = Debug|x64
-		{06CD8F2E-F93C-4DE3-8100-C74290578573}.DebugWithDebugger|Win32.ActiveCfg = Debug|Win32
-		{06CD8F2E-F93C-4DE3-8100-C74290578573}.DebugWithDebugger|Win32.Build.0 = Debug|Win32
+		{06CD8F2E-F93C-4DE3-8100-C74290578573}.DebugWithDebugger|Win32.ActiveCfg = DebugWithDebugger|Win32
+		{06CD8F2E-F93C-4DE3-8100-C74290578573}.DebugWithDebugger|Win32.Build.0 = DebugWithDebugger|Win32
 		{06CD8F2E-F93C-4DE3-8100-C74290578573}.DebugWithDebugger|x64.ActiveCfg = DebugWithDebugger|x64
 		{06CD8F2E-F93C-4DE3-8100-C74290578573}.DebugWithDebugger|x64.Build.0 = DebugWithDebugger|x64
 		{06CD8F2E-F93C-4DE3-8100-C74290578573}.Release|Win32.ActiveCfg = Release|Win32

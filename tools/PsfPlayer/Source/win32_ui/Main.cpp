@@ -12,6 +12,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 
 #ifdef DEBUGGER_INCLUDED
 	{
+		if(strlen(commandLine) == 0)
+		{
+			MessageBox(NULL, _T("Please provide a PSF file path as a command line argument."), NULL, 16);
+			return 1;
+		}
 		virtualMachine.Reset();
 		filesystem::path loadPath(commandLine);
 		CPsfLoader::LoadPsf(virtualMachine, loadPath, filesystem::path());
