@@ -28,7 +28,9 @@ namespace Iop
 		virtual				~CSubSystem();
 
 		void				Reset();
-		unsigned int		ExecuteCpu(bool);
+		int					ExecuteCpu(int);
+		bool				IsCpuIdle();
+		void				CountTicks(int);
 
 		void				SetBios(const BiosPtr&);
 

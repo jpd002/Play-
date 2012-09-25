@@ -138,6 +138,8 @@ public:
 	int							m_vblankTicks;
 	bool						m_inVblank;
 	int							m_spuUpdateTicks;
+	int							m_eeExecutionTicks;
+	int							m_iopExecutionTicks;
 
 	CISO9660*					m_pCDROM0;
 
@@ -174,6 +176,8 @@ private:
 	void						RegisterModulesInPadHandler();
 	void						FillFakeIopRam();
 
+	int							ExecuteEe(int);
+	bool						IsEeIdle() const;
 	void						EmuThread();
 
 	boost::thread*				m_thread;

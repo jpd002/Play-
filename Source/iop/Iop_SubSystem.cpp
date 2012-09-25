@@ -218,9 +218,34 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	return 0;
 }
 
-unsigned int CSubSystem::ExecuteCpu(bool singleStep)
+bool CSubSystem::IsCpuIdle()
 {
-	int ticks = 0;
+	if(m_bios->IsIdle())
+	{
+		return true;
+	}
+	else
+	{
+		uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nPC);
+		CBasicBlock* nextBlock = m_executor.FindBlockAt(physicalPc);
+		if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
+		{
+			//Go a little bit faster if we're "stuck"
+			return true;
+		}
+	}
+	return false;
+}
+
+void CSubSystem::CountTicks(int ticks)
+{
+	m_counters.Update(ticks);
+	m_bios->CountTicks(ticks);
+}
+
+int CSubSystem::ExecuteCpu(int quota)
+{
+	int executed = 0;
 	if(!m_cpu.m_State.nHasException)
 	{
 		if(m_intc.HasPendingInterrupt())
@@ -230,45 +255,11 @@ unsigned int CSubSystem::ExecuteCpu(bool singleStep)
 	}
 	if(!m_cpu.m_State.nHasException)
 	{
-		bool isIdle = false;
-		int quota = singleStep ? 1 : 500;
-
-		{
-			if(m_bios->IsIdle())
-			{
-				isIdle = true;
-				ticks += (quota * 2);
-			}
-			else
-			{
-				uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nPC);
-				CBasicBlock* nextBlock = m_executor.FindBlockAt(physicalPc);
-				if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-				{
-					//Go a little bit faster if we're "stuck"
-					isIdle = true;
-					ticks += (quota * 2);
-				}
-			}
-		}
-
-		if(isIdle && !singleStep)
-		{
-			quota /= 50;
-		}
-
-		ticks += (quota - m_executor.Execute(quota));
-		assert(ticks >= 0);
-
-		if(ticks > 0)
-		{
-			m_counters.Update(ticks);
-			m_bios->CountTicks(ticks);
-		}
+		executed = (quota - m_executor.Execute(quota));
 	}
 	if(m_cpu.m_State.nHasException)
 	{
 		m_bios->HandleException();
 	}
-	return ticks;
+	return executed;
 }

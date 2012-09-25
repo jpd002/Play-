@@ -92,6 +92,8 @@ CPS2VM::CPS2VM()
 , m_singleStepVu1(false)
 , m_vblankTicks(0)
 , m_inVblank(false)
+, m_eeExecutionTicks(0)
+, m_iopExecutionTicks(0)
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
 , m_pCDROM0(NULL)
 , m_dmac(m_ram, m_spr, m_pVUMem0, m_EE)
@@ -519,6 +521,9 @@ void CPS2VM::ResetVM()
 
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
+
+	m_eeExecutionTicks = 0;
+	m_iopExecutionTicks = 0;
 
 	RegisterModulesInPadHandler();
 	FillFakeIopRam();
@@ -1038,6 +1043,79 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 	m_os->BootFromCDROM(arguments);
 }
 
+int CPS2VM::ExecuteEe(int quota)
+{
+	int executed = 0;
+	if(m_EE.m_State.callMsEnabled)
+	{
+		if(!m_vif.IsVu0Running())
+		{
+			//callMs mode over
+			memcpy(&m_EE.m_State.nCOP2,		&m_VU0.m_State.nCOP2,	sizeof(m_EE.m_State.nCOP2));
+			memcpy(&m_EE.m_State.nCOP2A,	&m_VU0.m_State.nCOP2A,	sizeof(m_EE.m_State.nCOP2A));
+			m_EE.m_State.callMsEnabled = 0;
+		}
+	}
+	else if(!m_EE.m_State.nHasException)
+	{
+		executed = (quota - m_executor.Execute(quota));
+	}
+	if(m_EE.m_State.nHasException)
+	{
+		switch(m_EE.m_State.nHasException)
+		{
+		case MIPS_EXCEPTION_SYSCALL:
+			m_os->SysCallHandler();
+			break;
+		case MIPS_EXCEPTION_CALLMS:
+			assert(m_EE.m_State.callMsEnabled);
+			if(m_EE.m_State.callMsEnabled)
+			{
+				//We are in callMs mode
+				assert(!m_vif.IsVu0Running());
+				//Copy the COP2 state to VPU0
+				memcpy(&m_VU0.m_State.nCOP2,	&m_EE.m_State.nCOP2,	sizeof(m_VU0.m_State.nCOP2));
+				memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
+				m_vif.StartVu0MicroProgram(m_EE.m_State.callMsAddr);
+				m_EE.m_State.nHasException = 0;
+			}
+			break;
+		case MIPS_EXCEPTION_CHECKPENDINGINT:
+			{
+				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
+				if(m_intc.IsInterruptPending())
+				{
+					m_os->ExceptionHandler();
+				}
+			}
+			break;
+		default:
+			assert(0);
+			break;
+		}
+		assert(!m_EE.m_State.nHasException);
+	}
+	return executed;
+}
+
+bool CPS2VM::IsEeIdle() const
+{
+	CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+	if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
+	{
+		return true;
+	}
+	else if(m_os->IsIdle())
+	{
+		return true;
+	}
+	else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
+	{
+		return true;
+	}
+	return false;
+}
+
 void CPS2VM::EmuThread()
 {
 	while(1)
@@ -1117,73 +1195,23 @@ void CPS2VM::EmuThread()
 					}
 				}
 
-				int executed = 0;
-				if(m_EE.m_State.callMsEnabled)
-				{
-					if(!m_vif.IsVu0Running())
-					{
-						//callMs mode over
-						memcpy(&m_EE.m_State.nCOP2,		&m_VU0.m_State.nCOP2,	sizeof(m_EE.m_State.nCOP2));
-						memcpy(&m_EE.m_State.nCOP2A,	&m_VU0.m_State.nCOP2A,	sizeof(m_EE.m_State.nCOP2A));
-						m_EE.m_State.callMsEnabled = 0;
-					}
-				}
-				else if(!m_EE.m_State.nHasException)
-				{
-					int executeQuota = m_singleStepEe ? 1 : 5000;
-					executed += (executeQuota - m_executor.Execute(executeQuota));
-				}
-				if(m_EE.m_State.nHasException)
-				{
-					switch(m_EE.m_State.nHasException)
-					{
-					case MIPS_EXCEPTION_SYSCALL:
-						m_os->SysCallHandler();
-						break;
-					case MIPS_EXCEPTION_CALLMS:
-						assert(m_EE.m_State.callMsEnabled);
-						if(m_EE.m_State.callMsEnabled)
-						{
-							//We are in callMs mode
-							assert(!m_vif.IsVu0Running());
-							//Copy the COP2 state to VPU0
-							memcpy(&m_VU0.m_State.nCOP2,	&m_EE.m_State.nCOP2,	sizeof(m_VU0.m_State.nCOP2));
-							memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
-							m_vif.StartVu0MicroProgram(m_EE.m_State.callMsAddr);
-							m_EE.m_State.nHasException = 0;
-						}
-						break;
-					case MIPS_EXCEPTION_CHECKPENDINGINT:
-						{
-							m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-							if(m_intc.IsInterruptPending())
-							{
-								m_os->ExceptionHandler();
-							}
-						}
-						break;
-					default:
-						assert(0);
-						break;
-					}
-					assert(!m_EE.m_State.nHasException);
-				}
+				//EE CPU is 8 times faster than the IOP CPU
 
+				static const int tickStep = 4800;
+				m_eeExecutionTicks += tickStep;
+				m_iopExecutionTicks += tickStep / 8;
+
+				m_eeExecutionTicks -= ExecuteEe(m_singleStepEe ? 1 : m_eeExecutionTicks);
+
+				unsigned int iopExecuted = m_iop.ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
+				m_iopExecutionTicks -= iopExecuted;
+
+				int executed = tickStep;
+				if(IsEeIdle() && m_iop.IsCpuIdle())
 				{
-					CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
-					const int skipAmount = 50000;
-					if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-					{
-						executed += skipAmount;
-					}
-					else if(m_os->IsIdle())
-					{
-						executed += skipAmount;
-					}
-					else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
-					{
-						executed += skipAmount;
-					}
+					executed *= 16;
+					m_eeExecutionTicks = 0;
+					m_iopExecutionTicks = 0;
 				}
 
 				m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += executed;
@@ -1191,8 +1219,7 @@ void CPS2VM::EmuThread()
 				m_spuUpdateTicks -= executed;
 				m_timer.Count(executed);
 
-				//IOP Execution
-				m_iop.ExecuteCpu(m_singleStepIop);
+				m_iop.CountTicks(iopExecuted);
 
 #ifdef DEBUGGER_INCLUDED
 				static bool wasVu1Running = false;

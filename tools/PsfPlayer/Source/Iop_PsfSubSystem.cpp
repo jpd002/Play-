@@ -66,7 +66,8 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 {
 #ifdef DEBUGGER_INCLUDED
 	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
-	int ticks = m_iop.ExecuteCpu(singleStep);
+	int ticks = m_iop.ExecuteCpu(singleStep ? 1 : 500);
+	m_iop.CountTicks(ticks);
 
 	static int frameCounter = m_frameTicks;
 	static uint64 currentTime = CHighResTimer::GetTime();
@@ -95,9 +96,21 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 	}
 	else
 	{
-		int ticks = m_iop.ExecuteCpu(false);
-		m_spuUpdateCounter -= ticks;
-		m_frameCounter -= ticks;
+		//Execute CPU and step devices
+		{
+			int ticks = 0;
+			int quota = 500;
+			if(m_iop.IsCpuIdle())
+			{
+				ticks += (quota * 2);
+				quota /= 50;
+			}
+			ticks += m_iop.ExecuteCpu(quota);
+			m_iop.CountTicks(ticks);
+			m_spuUpdateCounter -= ticks;
+			m_frameCounter -= ticks;
+		}
+
 		if(m_spuUpdateCounter < 0)
 		{
 			m_spuUpdateCounter += m_spuUpdateTicks;
