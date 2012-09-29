@@ -659,6 +659,11 @@ void CPS2VM::PauseImpl()
 
 void CPS2VM::ResumeImpl()
 {
+#ifdef DEBUGGER_INCLUDED
+	m_executor.DisableBreakpointsOnce();
+	m_iop.m_executor.DisableBreakpointsOnce();
+	m_vif.DisableVu1BreakpointsOnce();
+#endif
 	m_nStatus = RUNNING;
 }
 

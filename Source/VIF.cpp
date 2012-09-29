@@ -17,9 +17,6 @@
 #define STATE_REGS_XML			("vif/regs.xml")
 #define STATE_REGS_VPU_STAT		("VPU_STAT")
 
-//REMOVE
-static int nExecTimes = 0;
-
 CVIF::CVIF(CGIF& gif, uint8* ram, uint8* spr, const VPUINIT& vpu0Init, const VPUINIT& vpu1Init)
 : m_gif(gif)
 , m_ram(ram)
@@ -213,11 +210,20 @@ void CVIF::ExecuteVu1(bool singleStep)
 	m_pVPU[1]->Execute(singleStep);
 }
 
+#ifdef DEBUGGER_INCLUDED
+
 bool CVIF::MustVu1Break() const
 {
 	if(!IsVu1Running()) return false;
 	return m_pVPU[1]->MustBreak();
 }
+
+void CVIF::DisableVu1BreakpointsOnce()
+{
+	m_pVPU[1]->DisableBreakpointsOnce();
+}
+
+#endif
 
 uint8* CVIF::GetRam() const
 {

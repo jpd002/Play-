@@ -3,6 +3,9 @@
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
 : m_context(context)
 , m_subTableCount(0)
+#ifdef DEBUGGER_INCLUDED
+, m_breakpointsDisabledOnce(false)
+#endif
 {
 	if(maxAddress < 0x10000)
 	{
@@ -56,16 +59,9 @@ void CMipsExecutor::ClearActiveBlocks()
 
 int CMipsExecutor::Execute(int cycles)
 {
-	CBasicBlock* block(NULL);
-#ifdef DEBUGGER_INCLUDED
-	bool firstExec = true;
-#endif
+	CBasicBlock* block(nullptr);
 	while(cycles > 0)
 	{
-#ifdef DEBUGGER_INCLUDED
-		if(!firstExec && MustBreak()) break;
-		firstExec = false;
-#endif
 		uint32 address = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
 		if(!block || address != block->GetBeginAddress())
 		{
@@ -90,15 +86,20 @@ int CMipsExecutor::Execute(int cycles)
 			block->SetSelfLoopCount(block->GetSelfLoopCount() + 1);
 		}
 
+#ifdef DEBUGGER_INCLUDED
+		if(!m_breakpointsDisabledOnce && MustBreak()) break;
+		m_breakpointsDisabledOnce = false;
+#endif
 		cycles -= block->Execute();
 		if(m_context.m_State.nHasException) break;
 	}
 	return cycles;
 }
 
+#ifdef DEBUGGER_INCLUDED
+
 bool CMipsExecutor::MustBreak() const
 {
-#ifdef DEBUGGER_INCLUDED
 	uint32 currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
 	CBasicBlock* block = FindBlockAt(currentPc);
 	for(auto breakPointIterator(m_context.m_breakpoints.begin());
@@ -111,9 +112,15 @@ bool CMipsExecutor::MustBreak() const
 			if(breakPointAddress >= block->GetBeginAddress() && breakPointAddress <= block->GetEndAddress()) return true;
 		}
 	}
-#endif
 	return false;
 }
+
+void CMipsExecutor::DisableBreakpointsOnce()
+{
+	m_breakpointsDisabledOnce = true;
+}
+
+#endif
 
 CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
 {

@@ -70,8 +70,13 @@ public:
 	void		ExecuteVu0(bool);
 	void		ExecuteVu1(bool);
 
+#ifdef DEBUGGER_INCLUDED
 	bool		MustVu0Break() const;
 	bool		MustVu1Break() const;
+
+	void		DisableVu0BreakpointsOnce();
+	void		DisableVu1BreakpointsOnce();
+#endif
 
 	uint8*		GetRam() const;
 	CGIF&		GetGif() const;

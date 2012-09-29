@@ -110,7 +110,6 @@ public:
 								CMIPS(MEMORYMAP_ENDIANESS);
 								~CMIPS();
 	void						ToggleBreakpoint(uint32);
-	bool						MustBreak();
 	bool						IsBranch(uint32);
 	static long					GetBranch(uint16);
 	static uint32				TranslateAddress64(CMIPS*, uint32);

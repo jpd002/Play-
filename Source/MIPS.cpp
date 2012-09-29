@@ -119,8 +119,3 @@ bool CMIPS::GenerateException(uint32 nAddress)
 
 	return true;
 }
-
-bool CMIPS::MustBreak()
-{
-	return m_breakpoints.find(m_State.nPC) != m_breakpoints.end();
-}

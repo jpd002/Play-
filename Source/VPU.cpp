@@ -55,10 +55,19 @@ void CVPU::Execute(bool singleStep)
 	}
 }
 
+#ifdef DEBUGGER_INCLUDED
+
 bool CVPU::MustBreak() const
 {
 	return m_executor.MustBreak();
 }
+
+void CVPU::DisableBreakpointsOnce()
+{
+	m_executor.DisableBreakpointsOnce();
+}
+
+#endif
 
 void CVPU::Reset()
 {

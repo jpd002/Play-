@@ -11,12 +11,16 @@ public:
 								CMipsExecutor(CMIPS&, uint32);
 	virtual						~CMipsExecutor();
 	int							Execute(int);
-	bool						MustBreak() const;
 	CBasicBlock*				FindBlockAt(uint32) const;
 	CBasicBlock*				FindBlockStartingAt(uint32) const;
 	void						DeleteBlock(CBasicBlock*);
 	virtual void				Reset();
 	void						ClearActiveBlocks();
+
+#ifdef DEBUGGER_INCLUDED
+	bool						MustBreak() const;
+	void						DisableBreakpointsOnce();
+#endif
 
 protected:
 	typedef std::list<BasicBlockPtr> BlockList;
@@ -30,6 +34,10 @@ protected:
 
 	CBasicBlock***				m_blockTable;
 	uint32						m_subTableCount;
+
+#ifdef DEBUGGER_INCLUDED
+	bool						m_breakpointsDisabledOnce;
+#endif
 };
 
 #endif

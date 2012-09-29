@@ -18,7 +18,6 @@ public:
 	virtual				~CVPU();
 
 	void				Execute(bool);
-	bool				MustBreak() const;
 	virtual void		Reset();
 	virtual uint32		GetTOP() const;
 	virtual uint32		GetITOP() const;
@@ -32,6 +31,11 @@ public:
 	uint8*				GetVuMemory() const;
 	bool				IsRunning() const;
 	bool				IsWaitingForProgramEnd() const;
+
+#ifdef DEBUGGER_INCLUDED
+	bool				MustBreak() const;
+	void				DisableBreakpointsOnce();
+#endif
 
 protected:
 	struct STAT : public convertible<uint32>
