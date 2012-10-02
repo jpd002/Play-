@@ -18,6 +18,7 @@ protected:
 	static InstructionFuncConstant		m_pOpMmi1[0x20];
 	static InstructionFuncConstant		m_pOpMmi2[0x20];
 	static InstructionFuncConstant		m_pOpMmi3[0x20];
+	static InstructionFuncConstant		m_pOpPmfhl[0x20];
 
 	static void							ReflOpRdRt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRsImm(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -27,12 +28,14 @@ protected:
 	MIPSReflection::INSTRUCTION			m_ReflMmi1[32];
 	MIPSReflection::INSTRUCTION			m_ReflMmi2[32];
 	MIPSReflection::INSTRUCTION			m_ReflMmi3[32];
+	MIPSReflection::INSTRUCTION			m_ReflPmfhl[32];
 
 	MIPSReflection::SUBTABLE			m_ReflMmiTable;
 	MIPSReflection::SUBTABLE			m_ReflMmi0Table;
 	MIPSReflection::SUBTABLE			m_ReflMmi1Table;
 	MIPSReflection::SUBTABLE			m_ReflMmi2Table;
 	MIPSReflection::SUBTABLE			m_ReflMmi3Table;
+	MIPSReflection::SUBTABLE			m_ReflPmfhlTable;
 
 private:
 
@@ -68,6 +71,7 @@ private:
 	void								MADD1();
 	void								MMI1();
 	void								MMI3();
+	void								PMFHL();
 	void								PSLLH();
 	void								PSRLH();
 	void								PSRAH();
@@ -98,6 +102,7 @@ private:
 	void								PMINH();
 	void								PADDUW();
 	void								PEXTUW();
+	void								PADDUB();
 	void								PEXTUB();
 	void								QFSRV();
 
@@ -120,6 +125,9 @@ private:
 	void								PCPYH();
 	void								PEXCW();
 
+	//Pmfhl
+	void								PMFHL_LW();
+
 	void								Generic_MADD(unsigned int);
 
 	//Reflection tables
@@ -128,6 +136,7 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflMmi1[32];
 	static MIPSReflection::INSTRUCTION	m_cReflMmi2[32];
 	static MIPSReflection::INSTRUCTION	m_cReflMmi3[32];
+	static MIPSReflection::INSTRUCTION	m_cReflPmfhl[32];
 };
 
 #endif

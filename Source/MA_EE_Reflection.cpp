@@ -7,21 +7,16 @@ using namespace MIPSReflection;
 
 void CMA_EE::ReflOpRdRt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nRT, nRD;
-
-	nRT = (uint8)((nOpcode >> 16) & 0x001F);
-	nRD = (uint8)((nOpcode >> 11) & 0x001F);
+	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nRD = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
 	sprintf(sText, "%s, %s", CMIPS::m_sGPRName[nRD], CMIPS::m_sGPRName[nRT]);
 }
 
 void CMA_EE::ReflOpRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nRS;
-	uint16 nImm;
-
-	nRS  = (uint8) ((nOpcode >> 21) & 0x001F);
-	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
+	uint8 nRS	= static_cast<uint8> ((nOpcode >> 21) & 0x001F);
+	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
 
 	sprintf(sText, "%s, $%0.4X", CMIPS::m_sGPRName[nRS], nImm);
 }
@@ -83,7 +78,7 @@ INSTRUCTION CMA_EE::m_cReflMmi[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x30
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PMFHL",	NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -172,7 +167,7 @@ INSTRUCTION CMA_EE::m_cReflMmi1[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PADDUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PEXTUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"QFSRV",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
@@ -199,7 +194,7 @@ INSTRUCTION CMA_EE::m_cReflMmi2[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PMULTW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-    {	"PDIVW",	NULL,			CopyMnemonic,		ReflOpRsRt,			NULL,				NULL			},
+	{	"PDIVW",	NULL,			CopyMnemonic,		ReflOpRsRt,			NULL,				NULL			},
 	{	"PCPYLD",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x10
@@ -262,19 +257,61 @@ INSTRUCTION CMA_EE::m_cReflMmi3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
 
+INSTRUCTION CMA_EE::m_cReflPmfhl[32] =
+{
+	//0x00
+	{	"PMFHL.LW",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	//0x08
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	//0x10
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	//0x18
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+};
+
 void CMA_EE::SetupReflectionTables()
 {
-    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi)   == sizeof(m_cReflMmi));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi0)  == sizeof(m_cReflMmi0));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi1)  == sizeof(m_cReflMmi1));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi2)  == sizeof(m_cReflMmi2));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflMmi3)  == sizeof(m_cReflMmi3));
+	static_assert(sizeof(m_ReflMmi)		== sizeof(m_cReflMmi),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi0)	== sizeof(m_cReflMmi0),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi1)	== sizeof(m_cReflMmi1),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi2)	== sizeof(m_cReflMmi2),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi3)	== sizeof(m_cReflMmi3),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflPmfhl)	== sizeof(m_cReflPmfhl),	"Array sizes don't match");
 
-	memcpy(m_ReflMmi,   m_cReflMmi,     sizeof(m_cReflMmi));
-	memcpy(m_ReflMmi0,  m_cReflMmi0,    sizeof(m_cReflMmi0));
-	memcpy(m_ReflMmi1,  m_cReflMmi1,    sizeof(m_cReflMmi1));
-	memcpy(m_ReflMmi2,  m_cReflMmi2,    sizeof(m_cReflMmi2));
-	memcpy(m_ReflMmi3,  m_cReflMmi3,    sizeof(m_cReflMmi3));
+	memcpy(m_ReflMmi,	m_cReflMmi,		sizeof(m_cReflMmi));
+	memcpy(m_ReflMmi0,	m_cReflMmi0,	sizeof(m_cReflMmi0));
+	memcpy(m_ReflMmi1,	m_cReflMmi1,	sizeof(m_cReflMmi1));
+	memcpy(m_ReflMmi2,	m_cReflMmi2,	sizeof(m_cReflMmi2));
+	memcpy(m_ReflMmi3,	m_cReflMmi3,	sizeof(m_cReflMmi3));
+	memcpy(m_ReflPmfhl,	m_cReflPmfhl,	sizeof(m_cReflPmfhl));
 
 	m_ReflMmiTable.pTable						= m_ReflMmi;
 	m_ReflMmiTable.nShift						= 0;
@@ -295,6 +332,10 @@ void CMA_EE::SetupReflectionTables()
 	m_ReflMmi3Table.pTable						= m_ReflMmi3;
 	m_ReflMmi3Table.nShift						= 6;
 	m_ReflMmi3Table.nMask						= 0x1F;
+
+	m_ReflPmfhlTable.pTable						= m_ReflPmfhl;
+	m_ReflPmfhlTable.nShift						= 6;
+	m_ReflPmfhlTable.nMask						= 0x1F;
 
 	//Fix MIPSIV tables
 	m_ReflGeneral[0x1C].sMnemonic				= "MMI";
@@ -332,4 +373,5 @@ void CMA_EE::SetupReflectionTables()
 	m_ReflMmi[0x09].pSubTable					= &m_ReflMmi2Table;
 	m_ReflMmi[0x28].pSubTable					= &m_ReflMmi1Table;
 	m_ReflMmi[0x29].pSubTable					= &m_ReflMmi3Table;
+	m_ReflMmi[0x30].pSubTable					= &m_ReflPmfhlTable;
 }
