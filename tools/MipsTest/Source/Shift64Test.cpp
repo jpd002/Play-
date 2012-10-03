@@ -20,8 +20,8 @@ void CShift64Test::Execute(CTestVm& virtualMachine)
 		[](uint64 value, unsigned int shiftAmount) -> uint64 { return value << shiftAmount; });
 	TestVariableShift(virtualMachine, &CMIPSAssembler::DSRLV, 
 		[](uint64 value, unsigned int shiftAmount) -> uint64 { return value >> shiftAmount; });
-//	TestVariableShift(virtualMachine, &CMIPSAssembler::DSRAV, 
-//		[](uint64 value, unsigned int shiftAmount) -> uint64 { return static_cast<int64>(value) >> shiftAmount; });
+	TestVariableShift(virtualMachine, &CMIPSAssembler::DSRAV, 
+		[](uint64 value, unsigned int shiftAmount) -> uint64 { return static_cast<int64>(value) >> shiftAmount; });
 }
 
 void CShift64Test::TestShift(CTestVm& virtualMachine, const ShiftAssembleFunction& assembleFunction, const ShiftFunction& shiftFunction)

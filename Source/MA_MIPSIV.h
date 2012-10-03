@@ -163,6 +163,7 @@ private:
 	void							SYNC();
 	void							DSLLV();
 	void							DSRLV();
+	void							DSRAV();
 	void							MFHI();
 	void							MTHI();
 	void							MFLO();

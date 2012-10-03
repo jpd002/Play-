@@ -920,6 +920,17 @@ void CMA_MIPSIV::DSRLV()
 	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
+//17
+void CMA_MIPSIV::DSRAV()
+{
+	assert(m_regSize == MIPS_REGSIZE_64);
+
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->Sra64();
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
 //18
 void CMA_MIPSIV::MULT()
 {
@@ -1192,7 +1203,7 @@ CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpSpecial[MAX_SPECIAL_OPS] =
 	//0x08
 	&CMA_MIPSIV::JR,			&CMA_MIPSIV::JALR,			&CMA_MIPSIV::MOVZ,			&CMA_MIPSIV::MOVN,			&CMA_MIPSIV::SYSCALL,		&CMA_MIPSIV::BREAK,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SYNC,
 	//0x10
-	&CMA_MIPSIV::MFHI,			&CMA_MIPSIV::MTHI,			&CMA_MIPSIV::MFLO,			&CMA_MIPSIV::MTLO,			&CMA_MIPSIV::DSLLV,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSRLV,			&CMA_MIPSIV::Illegal,
+	&CMA_MIPSIV::MFHI,			&CMA_MIPSIV::MTHI,			&CMA_MIPSIV::MFLO,			&CMA_MIPSIV::MTLO,			&CMA_MIPSIV::DSLLV,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSRLV,			&CMA_MIPSIV::DSRAV,
 	//0x18
 	&CMA_MIPSIV::MULT,			&CMA_MIPSIV::MULTU,			&CMA_MIPSIV::DIV,			&CMA_MIPSIV::DIVU,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x20
