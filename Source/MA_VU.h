@@ -83,6 +83,7 @@ private:
 		void								MUL();
 		void								MAX();
 		void								SUB();
+		void								MSUB();
 		void								OPMSUB();
 		void								MINI();
 		void								VECTOR0();
