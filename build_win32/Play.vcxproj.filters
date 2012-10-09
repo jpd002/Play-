@@ -568,6 +568,18 @@
     <ClCompile Include="..\Source\iop\Iop_Sio2.cpp">
       <Filter>Source Files\Core\Iop\Hardware</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\saves\SaveImporterBase.cpp">
+      <Filter>Source Files\Core\Saves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\saves\MaxSaveImporter.cpp">
+      <Filter>Source Files\Core\Saves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\saves\XpsSaveImporter.cpp">
+      <Filter>Source Files\Core\Saves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\saves\PsuSaveImporter.cpp">
+      <Filter>Source Files\Core\Saves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1100,6 +1112,18 @@
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Sio2.h">
       <Filter>Source Files\Core\Iop\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\saves\SaveImporterBase.h">
+      <Filter>Source Files\Core\Saves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\saves\MaxSaveImporter.h">
+      <Filter>Source Files\Core\Saves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\saves\XpsSaveImporter.h">
+      <Filter>Source Files\Core\Saves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\saves\PsuSaveImporter.h">
+      <Filter>Source Files\Core\Saves</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

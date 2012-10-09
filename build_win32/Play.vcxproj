@@ -274,9 +274,13 @@
     <ClCompile Include="..\Source\PS2VM.cpp" />
     <ClCompile Include="..\Source\RegisterStateFile.cpp" />
     <ClCompile Include="..\Source\saves\Icon.cpp" />
+    <ClCompile Include="..\Source\saves\MaxSaveImporter.cpp" />
+    <ClCompile Include="..\Source\saves\PsuSaveImporter.cpp" />
     <ClCompile Include="..\Source\saves\Save.cpp" />
     <ClCompile Include="..\Source\saves\SaveExporter.cpp" />
     <ClCompile Include="..\Source\saves\SaveImporter.cpp" />
+    <ClCompile Include="..\Source\saves\SaveImporterBase.cpp" />
+    <ClCompile Include="..\Source\saves\XpsSaveImporter.cpp" />
     <ClCompile Include="..\Source\SIF.cpp" />
     <ClCompile Include="..\Source\StructCollectionStateFile.cpp" />
     <ClCompile Include="..\Source\StructFile.cpp" />
@@ -452,9 +456,13 @@
     <ClInclude Include="..\Source\PS2VM_Preferences.h" />
     <ClInclude Include="..\Source\RegisterStateFile.h" />
     <ClInclude Include="..\Source\saves\Icon.h" />
+    <ClInclude Include="..\Source\saves\MaxSaveImporter.h" />
+    <ClInclude Include="..\Source\saves\PsuSaveImporter.h" />
     <ClInclude Include="..\Source\saves\Save.h" />
     <ClInclude Include="..\Source\saves\SaveExporter.h" />
     <ClInclude Include="..\Source\saves\SaveImporter.h" />
+    <ClInclude Include="..\Source\saves\SaveImporterBase.h" />
+    <ClInclude Include="..\Source\saves\XpsSaveImporter.h" />
     <ClInclude Include="..\Source\SIF.h" />
     <ClInclude Include="..\Source\SifModule.h" />
     <ClInclude Include="..\Source\SifModuleAdapter.h" />
