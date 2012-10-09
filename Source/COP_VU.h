@@ -27,6 +27,7 @@ protected:
 	static void							ReflOpImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpAccFsFt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpFtOffRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	static void							ReflOpVi27(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
 	MIPSReflection::INSTRUCTION			m_ReflGeneral[64];
 	MIPSReflection::INSTRUCTION			m_ReflCop2[32];
@@ -89,6 +90,7 @@ private:
 	void								VIADD();
 	void								VIADDI();
 	void								VCALLMS();
+	void								VCALLMSR();
 	void								VX0();
 	void								VX1();
 	void								VX2();
@@ -115,6 +117,7 @@ private:
 	void								VITOF4();
 	void								VFTOI4();
 	void								VABS();
+	void								VMADDA();
 	void								VMSUBA();
 	void								VMR32();
 	void								VSQI();

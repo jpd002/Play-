@@ -72,6 +72,7 @@ namespace VUShared
 
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
+	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						SUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
 	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);

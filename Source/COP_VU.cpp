@@ -170,7 +170,11 @@ void CCOP_VU::QMTC2()
 //06
 void CCOP_VU::CTC2()
 {
-	if(m_nFS < 16)
+	if(m_nFS == 0)
+	{
+		//Moving stuff in VI0 register? (probably synchronizing with VU0 micro subroutine execution)
+	}
+	else if((m_nFS > 0) && (m_nFS < 16))
 	{
 		throw std::runtime_error("Not implemented.");
 	}
@@ -184,8 +188,16 @@ void CCOP_VU::CTC2()
 			//STATUS - Not implemented
 			m_codeGen->PullTop();
 			break;
+		case 18:
+			//Clipping flag
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+			break;
 		case 21:
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
+			break;
+		case 27:
+			//CMSAR0
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.cmsar0));
 			break;
 		case 28:
 			//FBRST - Don't care
@@ -385,6 +397,20 @@ void CCOP_VU::VCALLMS()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 
+//39
+void CCOP_VU::VCALLMSR()
+{
+	m_codeGen->PushCst(1);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsEnabled));
+
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.cmsar0));
+	m_codeGen->Shl(3);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsAddr));
+
+	m_codeGen->PushCst(MIPS_EXCEPTION_CALLMS);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
+}
+
 //3C
 void CCOP_VU::VX0()
 {
@@ -515,6 +541,12 @@ void CCOP_VU::VFTOI4()
 void CCOP_VU::VABS()
 {
 	VUShared::ABS(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
+//0A
+void CCOP_VU::VMADDA()
+{
+	VUShared::MADDA(m_codeGen, m_nDest, m_nFS, m_nFT);
 }
 
 //0B
@@ -660,7 +692,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x30
 	&CCOP_VU::VIADD,		&CCOP_VU::Illegal,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x38
-	&CCOP_VU::VCALLMS,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
+	&CCOP_VU::VCALLMS,		&CCOP_VU::VCALLMSR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
@@ -678,9 +710,9 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 {
 	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,	    &CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::VABS,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,		&CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::VABS,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMSUBA,		&CCOP_VU::VMR32,		&CCOP_VU::VSQI,			&CCOP_VU::VSQRT,		&CCOP_VU::Illegal,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMADDA,		&CCOP_VU::VMSUBA,		&CCOP_VU::VMR32,		&CCOP_VU::VSQI,			&CCOP_VU::VSQRT,		&CCOP_VU::Illegal,
 	//0x10
 	&CCOP_VU::VRGET,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18

@@ -62,6 +62,11 @@ void CCOP_VU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	sprintf(sText, "VF%i, $%0.4X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
+void CCOP_VU::ReflOpVi27(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	sprintf(sText, "VI27");
+}
+
 INSTRUCTION CCOP_VU::m_cReflGeneral[64] =
 {
 	//0x00
@@ -245,7 +250,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	//0x38
 	{	"VCALLMS",	NULL,			CopyMnemonic,		ReflOpImm15,		IsNoDelayBranch,			NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VCALLMSR",	NULL,			CopyMnemonic,		ReflOpVi27,			IsNoDelayBranch,			NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	"Vx0",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,			SubTableEffAddr	},
@@ -308,7 +313,7 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VMR32",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VSQI",		NULL,			CopyMnemonic,		ReflOpFsDstItInc,	NULL,				NULL			},

@@ -93,6 +93,7 @@ __attribute__((aligned(16)))
 
 	uint32				pipeTime;
 
+	uint32				cmsar0;
 	uint32				callMsEnabled;
 	uint32				callMsAddr;
 };
