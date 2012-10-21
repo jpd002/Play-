@@ -39,7 +39,7 @@ void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const boost::filesystem::path& 
 	virtualMachine.SetSubSystem(subSystem);
 
 	{
-		Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new CPsxBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
+		auto bios = std::make_shared<CPsxBios>(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE);
 		subSystem->SetBios(bios);
 		LoadPsxRecurse(virtualMachine, static_cast<CPsxBios*>(bios.get()), filePath, streamProvider, tags);
 	}
@@ -111,7 +111,7 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const boost::filesystem::path& 
 	virtualMachine.SetSubSystem(subSystem);
 
 	{
-		Iop::CSubSystem::BiosPtr bios = Iop::CSubSystem::BiosPtr(new PS2::CPsfBios(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE));
+		auto bios = std::make_shared<PS2::CPsfBios>(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE);
 		subSystem->SetBios(bios);
 		LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), filePath, streamProvider, tags);
 		static_cast<PS2::CPsfBios*>(bios.get())->Start();

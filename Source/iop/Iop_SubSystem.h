@@ -1,7 +1,6 @@
 #ifndef _IOP_SUBSYSTEM_H_
 #define _IOP_SUBSYSTEM_H_
 
-#include <memory>
 #include "../MIPS.h"
 #include "../MA_MIPSIV.h"
 #include "../COP_SCU.h"
@@ -22,8 +21,6 @@ namespace Iop
 	class CSubSystem
 	{
 	public:
-		typedef std::shared_ptr<CBiosBase> BiosPtr;
-
 							CSubSystem(bool ps2Mode);
 		virtual				~CSubSystem();
 
@@ -32,7 +29,7 @@ namespace Iop
 		bool				IsCpuIdle();
 		void				CountTicks(int);
 
-		void				SetBios(const BiosPtr&);
+		void				SetBios(const BiosBasePtr&);
 
 		void				NotifyVBlankStart();
 		void				NotifyVBlankEnd();
@@ -57,7 +54,7 @@ namespace Iop
 		CMA_MIPSIV			m_cpuArch;
 		CCOP_SCU			m_copScu;
 		CMipsExecutor		m_executor;
-		BiosPtr				m_bios;
+		BiosBasePtr			m_bios;
 
 	private:
 		enum

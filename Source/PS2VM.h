@@ -25,8 +25,7 @@
 #include "COP_VU.h"
 #include "iop/Iop_SubSystem.h"
 #include "PS2OS.h"
-
-class CIopBios;
+#include "iop/IopBios.h"
 
 enum PS2VM_MSG
 {
@@ -127,8 +126,7 @@ public:
 	CIPU						m_ipu;
 	CTimer						m_timer;
 	CPS2OS*						m_os;
-	CIopBios*					m_iopOs;
-	Iop::CSubSystem::BiosPtr	m_iopOsPtr;
+	IopBiosPtr					m_iopOs;
 
 	CMIPS						m_EE;
 	CMIPS						m_VU0;

@@ -134,8 +134,7 @@ CPS2VM::CPS2VM()
 	
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
 
-	m_iopOsPtr = Iop::CSubSystem::BiosPtr(new CIopBios(m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE));
-	m_iopOs = static_cast<CIopBios*>(m_iopOsPtr.get());
+	m_iopOs = std::make_shared<CIopBios>(m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE);
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_gs, m_sif, *m_iopOs);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CPS2VM::FlushInstructionCache, this));
 	m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
@@ -146,9 +145,8 @@ CPS2VM::~CPS2VM()
 	delete m_os;
 	{
 		//Big hack to force deletion of the IopBios
-		m_iop.SetBios(Iop::CSubSystem::BiosPtr());
-		m_iopOs = NULL;
-		m_iopOsPtr.reset();
+		m_iop.SetBios(Iop::BiosBasePtr());
+		m_iopOs.reset();
 	}
 }
 
@@ -477,7 +475,7 @@ void CPS2VM::ResetVM()
 	memset(m_pMicroMem1,	0, PS2::MICROMEM1SIZE);
 
 	m_iop.Reset();
-	m_iop.SetBios(m_iopOsPtr);
+	m_iop.SetBios(m_iopOs);
 
 	//LoadBIOS();
 

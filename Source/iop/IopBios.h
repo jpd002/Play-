@@ -1,6 +1,7 @@
 #ifndef _IOPBIOS_H_
 #define _IOPBIOS_H_
 
+#include <memory>
 #include <list>
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
@@ -349,5 +350,7 @@ private:
 	Iop::CCdvdfsv*					m_cdvdfsv;
 #endif
 };
+
+typedef std::shared_ptr<CIopBios> IopBiosPtr;
 
 #endif

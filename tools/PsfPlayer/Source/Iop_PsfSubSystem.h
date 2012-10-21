@@ -24,7 +24,7 @@ namespace Iop
 		virtual void						SaveDebugTags(Framework::Xml::CNode*);
 #endif
 
-		void								SetBios(const Iop::CSubSystem::BiosPtr&);
+		void								SetBios(const Iop::BiosBasePtr&);
 
 		virtual void						Update(bool, CSoundHandler*);
 

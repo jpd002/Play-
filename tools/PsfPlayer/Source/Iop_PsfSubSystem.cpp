@@ -57,7 +57,7 @@ uint8* CPsfSubSystem::GetRam()
 	return m_iop.m_ram;
 }
 
-void CPsfSubSystem::SetBios(const CSubSystem::BiosPtr& bios)
+void CPsfSubSystem::SetBios(const BiosBasePtr& bios)
 {
 	m_iop.SetBios(bios);
 }

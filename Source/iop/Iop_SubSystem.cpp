@@ -63,12 +63,13 @@ CSubSystem::CSubSystem(bool ps2Mode)
 
 CSubSystem::~CSubSystem()
 {
+	m_bios.reset();
 	delete [] m_ram;
 	delete [] m_scratchPad;
 	delete [] m_spuRam;
 }
 
-void CSubSystem::SetBios(const BiosPtr& bios)
+void CSubSystem::SetBios(const BiosBasePtr& bios)
 {
 	m_bios = bios;
 }

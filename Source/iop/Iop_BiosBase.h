@@ -1,6 +1,7 @@
 #ifndef _IOP_BIOSBASE_H_
 #define _IOP_BIOSBASE_H_
 
+#include <memory>
 #include "Types.h"
 #include "../BiosDebugInfoProvider.h"
 #include "zip/ZipArchiveWriter.h"
@@ -33,6 +34,8 @@ namespace Iop
 #endif
 
 	};
+
+	typedef std::shared_ptr<CBiosBase> BiosBasePtr;
 }
 
 #endif
