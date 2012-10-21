@@ -665,14 +665,7 @@ void CMA_VU::CLower::SQRT()
 //0F
 void CMA_VU::CLower::MFIR()
 {
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
-
-		VUShared::PushIntegerRegister(m_codeGen, m_nIS);
-		m_codeGen->SignExt16();
-		m_codeGen->PullRel(VUShared::GetVectorElement(m_nIT, i));
-	}
+	VUShared::MFIR(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //10

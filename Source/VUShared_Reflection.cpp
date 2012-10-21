@@ -120,6 +120,15 @@ void VUShared::ReflOpFtFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 	sprintf(sText, "VF%i%s, VF%i%s", nFT, m_sDestination[nDest], nFS, m_sDestination[nDest]);
 }
 
+void VUShared::ReflOpFtIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
+	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+
+	sprintf(sText, "VF%i%s, VI%i", nFT, m_sDestination[nDest], nIS);
+}
+
 void VUShared::ReflOpClip(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nFT		= (uint8)((nOpcode >> 16) & 0x001F);

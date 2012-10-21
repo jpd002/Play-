@@ -122,6 +122,7 @@ private:
 	void								VMR32();
 	void								VSQI();
 	void								VSQRT();
+	void								VMFIR();
 	void								VRGET();
 
 	//V2

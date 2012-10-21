@@ -128,15 +128,6 @@ void CMA_VU::CLower::ReflOpVi1Imm24(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAd
 	sprintf(sText, "VI1, $%0.6X", nImm);
 }
 
-void CMA_VU::CLower::ReflOpFtIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
-{
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
-	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-
-	sprintf(sText, "VF%i%s, VI%i", nFT, m_sDestination[nDest], nIS);
-}
-
 void CMA_VU::CLower::ReflOpFtDstIsInc(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);

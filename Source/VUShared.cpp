@@ -756,6 +756,18 @@ void VUShared::MSUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs)
 		true);
 }
 
+void VUShared::MFIR(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 is)
+{
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(!VUShared::DestinationHasElement(dest, i)) continue;
+
+		PushIntegerRegister(codeGen, is);
+		codeGen->SignExt16();
+		codeGen->PullRel(VUShared::GetVectorElement(ft, i));
+	}
+}
+
 void VUShared::MTIR(CMipsJitter* codeGen, uint8 it, uint8 fs, uint8 fsf)
 {
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[fs].nV[fsf]));

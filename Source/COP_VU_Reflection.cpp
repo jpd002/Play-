@@ -318,7 +318,7 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 	{	"VMR32",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"VSQI",		NULL,			CopyMnemonic,		ReflOpFsDstItInc,	NULL,				NULL			},
 	{	"VSQRT",	NULL,			CopyMnemonic,		ReflOpQFtf,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMFIR",	NULL,			CopyMnemonic,		ReflOpFtIs,			NULL,				NULL			},
 	//0x10
 	{	"VRGET",	NULL,			CopyMnemonic,		ReflOpFtR,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
