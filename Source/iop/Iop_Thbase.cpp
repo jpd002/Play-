@@ -256,7 +256,7 @@ uint32 CThbase::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 	CLog::GetInstance().Print(LOG_NAME, "%d : SetAlarm(timePtr = 0x%0.8X, alarmFunction = 0x%0.8X, param = 0x%0.8X);\r\n",
 		m_bios.GetCurrentThreadId(), timePtr, alarmFunction, param);
 #endif
-	return 0;
+	return m_bios.SetAlarm(timePtr, alarmFunction, param);
 }
 
 void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)

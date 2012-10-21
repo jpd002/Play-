@@ -62,6 +62,7 @@
 #define SYSCALL_RESCHEDULE				0x668
 #define SYSCALL_SLEEPTHREAD				0x669
 #define SYSCALL_PROCESSMODULELOAD		0x66A
+#define SYSCALL_DELAYTHREADTICKS		0x66B
 
 #define STACK_FRAME_RESERVE_SIZE		0x10
 
@@ -69,14 +70,16 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 : m_cpu(cpu)
 , m_ram(ram)
 , m_ramSize(ramSize)
-, m_sifMan(NULL)
-, m_stdio(NULL)
-, m_sysmem(NULL)
-, m_ioman(NULL)
-, m_modload(NULL)
+, m_sifMan(nullptr)
+, m_sifCmd(nullptr)
+, m_stdio(nullptr)
+, m_sysmem(nullptr)
+, m_ioman(nullptr)
+, m_modload(nullptr)
+, m_cdvdman(nullptr)
 #ifdef _IOP_EMULATE_MODULES
-, m_padman(NULL)
-, m_cdvdfsv(NULL)
+, m_padman(nullptr)
+, m_cdvdfsv(nullptr)
 #endif
 , m_rescheduleNeeded(false)
 , m_threadFinishAddress(0)
@@ -84,6 +87,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_idleFunctionAddress(0)
 , m_moduleLoaderThreadProcAddress(0)
 , m_moduleLoaderThreadId(0)
+, m_alarmThreadProcAddress(0)
 , m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
 , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
 , m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
@@ -107,6 +111,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
 		m_moduleLoaderThreadProcAddress = AssembleModuleLoaderThreadProc(assembler);
+		m_alarmThreadProcAddress = AssembleAlarmThreadProc(assembler);
 		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
 	}
 
@@ -625,6 +630,11 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 		return;
 	}
 
+	if(thread->status == THREAD_STATUS_RUNNING)
+	{
+		return;
+	}
+
 	if(thread->status != THREAD_STATUS_DORMANT)
 	{
 		throw std::runtime_error("Invalid thread state.");
@@ -658,10 +668,36 @@ void CIopBios::DelayThread(uint32 delay)
 		CurrentThreadId(), delay);
 #endif
 
-	//TODO : Need to delay or something...
 	THREAD* thread = GetThread(CurrentThreadId());
 	thread->nextActivateTime = GetCurrentTime() + MicroSecToClock(delay);
 	m_rescheduleNeeded = true;
+}
+
+void CIopBios::DelayThreadTicks(uint32 delay)
+{
+	auto thread = GetThread(CurrentThreadId());
+	thread->nextActivateTime = GetCurrentTime() + delay;
+	m_rescheduleNeeded = true;
+}
+
+uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
+{
+	uint32 alarmThreadId = CreateThread(m_alarmThreadProcAddress, 1, DEFAULT_STACKSIZE, 0);
+	StartThread(alarmThreadId);
+
+	auto thread = GetThread(alarmThreadId);
+	thread->context.gpr[CMIPS::SP] -= 0x20;
+	
+	uint32* delay = reinterpret_cast<uint32*>(m_ram + timePtr);
+	assert(delay[1] == 0);
+
+	*reinterpret_cast<uint32*>(m_ram + thread->context.gpr[CMIPS::SP] + 0x00) = alarmFunction;
+	*reinterpret_cast<uint32*>(m_ram + thread->context.gpr[CMIPS::SP] + 0x04) = param;
+	*reinterpret_cast<uint32*>(m_ram + thread->context.gpr[CMIPS::SP] + 0x08) = delay[0];
+
+	thread->context.gpr[CMIPS::A0] = thread->context.gpr[CMIPS::SP];
+
+	return alarmThreadId;
 }
 
 void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
@@ -1480,6 +1516,42 @@ uint32 CIopBios::AssembleModuleLoaderThreadProc(CMIPSAssembler& assembler)
 	return address;
 }
 
+uint32 CIopBios::AssembleAlarmThreadProc(CMIPSAssembler& assembler)
+{
+	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	auto delayThreadLabel = assembler.CreateLabel();
+
+	//Prolog
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFF80);
+	assembler.SW(CMIPS::RA, 0x10, CMIPS::SP);
+	assembler.SW(CMIPS::S0, 0x14, CMIPS::SP);
+
+	assembler.MOV(CMIPS::S0, CMIPS::A0);		//S0 has the info struct ptr
+
+	//Delay thread
+	assembler.MarkLabel(delayThreadLabel);
+	assembler.LW(CMIPS::A0, 0x08, CMIPS::S0);
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_DELAYTHREADTICKS);
+	assembler.SYSCALL();
+
+	//Call handler
+	assembler.LW(CMIPS::V0, 0x00, CMIPS::S0);
+	assembler.JALR(CMIPS::V0);
+	assembler.LW(CMIPS::A0, 0x04, CMIPS::S0);
+
+	assembler.BNE(CMIPS::V0, CMIPS::R0, delayThreadLabel);
+	assembler.SW(CMIPS::V0, 0x08, CMIPS::S0);
+
+	//Epilog
+	assembler.LW(CMIPS::S0, 0x14, CMIPS::SP);
+	assembler.LW(CMIPS::RA, 0x10, CMIPS::SP);
+
+	assembler.JR(CMIPS::RA);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x0080);
+
+	return address;
+}
+
 void CIopBios::HandleException()
 {
 	m_rescheduleNeeded = false;
@@ -1504,6 +1576,9 @@ void CIopBios::HandleException()
 			break;
 		case SYSCALL_PROCESSMODULELOAD:
 			ProcessModuleLoad();
+			break;
+		case SYSCALL_DELAYTHREADTICKS:
+			DelayThreadTicks(m_cpu.m_State.nGPR[CMIPS::A0].nV0);
 			break;
 		}
 	}

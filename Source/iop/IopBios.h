@@ -132,6 +132,8 @@ public:
 	void						ExitThread();
 	void						DeleteThread(uint32);
 	void						DelayThread(uint32);
+	void						DelayThreadTicks(uint32);
+	uint32						SetAlarm(uint32, uint32, uint32);
 	THREAD*						GetThread(uint32);
 	uint32						GetCurrentThreadId() const;
 	void						ChangeThreadPriority(uint32, uint32);
@@ -312,6 +314,7 @@ private:
 	uint32							AssembleReturnFromException(CMIPSAssembler&);
 	uint32							AssembleIdleFunction(CMIPSAssembler&);
 	uint32							AssembleModuleLoaderThreadProc(CMIPSAssembler&);
+	uint32							AssembleAlarmThreadProc(CMIPSAssembler&);
 
 	void							InitializeModuleLoader();
 	void							ProcessModuleLoad();
@@ -324,6 +327,7 @@ private:
 	uint32							m_returnFromExceptionAddress;
 	uint32							m_idleFunctionAddress;
 	uint32							m_moduleLoaderThreadProcAddress;
+	uint32							m_alarmThreadProcAddress;
 
 	uint32							m_moduleLoaderThreadId;
 
