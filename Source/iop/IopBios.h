@@ -15,6 +15,7 @@
 #include "Iop_Stdio.h"
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
+#include "Iop_Loadcore.h"
 #include "Iop_Dynamic.h"
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_PadMan.h"
@@ -121,6 +122,7 @@ public:
 
 	Iop::CIoman*				GetIoman();
 	Iop::CCdvdman*				GetCdvdman();
+	Iop::CLoadcore*				GetLoadcore();
 #ifdef _IOP_EMULATE_MODULES
 	Iop::CPadMan*				GetPadman();
 	Iop::CCdvdfsv*				GetCdvdfsv();
@@ -349,6 +351,7 @@ private:
 	Iop::CCdvdman*					m_cdvdman;
 	Iop::CSysmem*					m_sysmem;
 	Iop::CModload*					m_modload;
+	Iop::CLoadcore*					m_loadcore;
 #ifdef _IOP_EMULATE_MODULES
 	Iop::CPadMan*					m_padman;
 	Iop::CCdvdfsv*					m_cdvdfsv;

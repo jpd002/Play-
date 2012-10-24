@@ -72,6 +72,9 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 	case 0x00:
 		LoadModule(args, argsSize, ret, retSize);
 		break;
+	case 0x01:
+		LoadExecutable(args, argsSize, ret, retSize);
+		break;
 	case 0x06:
 		LoadModuleFromMemory(args, argsSize, ret, retSize);
 		break;
@@ -86,6 +89,11 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 	return true;
 }
 
+void CLoadcore::SetLoadExecutableHandler(const LoadExecutableHandler& loadExecutableHandler)
+{
+	m_loadExecutableHandler = loadExecutableHandler;
+}
+
 uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)
 {
 #ifdef _DEBUG
@@ -97,8 +105,8 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)
 
 void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
 {
-	char moduleName[PATH_MAX_SIZE + 1];
-	char moduleArgs[ARGS_MAX_SIZE + 1];
+	char moduleName[PATH_MAX_SIZE];
+	char moduleArgs[ARGS_MAX_SIZE];
 
 	assert(argsSize == 512);
 
@@ -107,14 +115,8 @@ void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 	uint32 moduleArgsSize = args[0];
 
-	memset(moduleName, 0, PATH_MAX_SIZE + 1);
-	memset(moduleArgs, 0, ARGS_MAX_SIZE + 1);
-
-	strncpy(moduleName, reinterpret_cast<const char*>(args) + 8, PATH_MAX_SIZE);
-	if(moduleArgsSize != 0)
-	{
-		strncpy(moduleArgs, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
-	}
+	memcpy(moduleName, reinterpret_cast<const char*>(args) + 8, PATH_MAX_SIZE);
+	memcpy(moduleArgs, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
 
 	//Load the module
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
@@ -123,6 +125,32 @@ void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 	//This function returns something negative upon failure
 	ret[0] = 0x00000000;
+}
+
+void CLoadcore::LoadExecutable(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	char moduleName[PATH_MAX_SIZE];
+	char sectionName[ARGS_MAX_SIZE];
+
+	assert(argsSize == 512);
+	assert(retSize >= 8);
+
+	memcpy(moduleName, reinterpret_cast<const char*>(args) + 8, PATH_MAX_SIZE);
+	memcpy(sectionName, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
+
+	CLog::GetInstance().Print(LOG_NAME, "Request to load section '%s' from executable '%s' received.\r\n", sectionName, moduleName);
+
+	uint32 result = 0;
+
+	//Load executable in EE memory
+	if(m_loadExecutableHandler)
+	{
+		result = m_loadExecutableHandler(moduleName, sectionName);
+	}
+
+	//This function returns something negative upon failure
+	ret[0] = result;		//epc or result (if negative)
+	ret[1] = 0x00000000;	//gp
 }
 
 void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

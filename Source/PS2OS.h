@@ -37,6 +37,8 @@ public:
 	BiosDebugModuleInfoArray					GetModuleInfos() const;
 	BiosDebugThreadInfoArray					GetThreadInfos() const;
 
+	uint32										LoadExecutable(const char*, const char*);
+
 	void										ExceptionHandler();
 	void										SysCallHandler();
 	static uint32								TranslateAddress(CMIPS*, uint32);

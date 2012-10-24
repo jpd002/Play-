@@ -506,6 +506,47 @@ void CPS2OS::UnloadExecutable()
 	DELETEPTR(m_pELF);
 }
 
+uint32 CPS2OS::LoadExecutable(const char* path, const char* section)
+{
+	auto ioman = m_iopBios.GetIoman();
+
+	uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
+	if(static_cast<int32>(handle) < 0)
+	{
+		return -1;
+	}
+
+	uint32 result = 0;
+
+	//We don't support loading anything else than all sections
+	assert(strcmp(section, "all") == 0);
+
+	auto fileStream(ioman->GetFileStream(handle));
+	
+	//Load all program sections
+	{
+		CElfFile executable(*fileStream);
+		const auto& header = executable.GetHeader();
+		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
+		{
+			auto p = executable.GetProgram(i);
+			if(p)
+			{
+				memcpy(m_ram + p->nVAddress, executable.GetContent() + p->nOffset, p->nFileSize);
+			}
+		}
+
+		result = executable.GetHeader().nEntryPoint;
+	}
+
+	//Flush all instruction cache
+	OnRequestInstructionCacheFlush();
+
+	ioman->Close(handle);
+
+	return result;
+}
+
 void CPS2OS::ApplyPatches()
 {
 	auto patchesPath = Framework::PathUtils::GetAppResourcesPath() / PATCHESFILENAME;

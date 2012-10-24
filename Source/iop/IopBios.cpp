@@ -77,6 +77,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_ioman(nullptr)
 , m_modload(nullptr)
 , m_cdvdman(nullptr)
+, m_loadcore(nullptr)
 #ifdef _IOP_EMULATE_MODULES
 , m_padman(nullptr)
 , m_cdvdfsv(nullptr)
@@ -159,7 +160,8 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(new Iop::CSysclib(m_ram, *m_stdio));
 	}
 	{
-		RegisterModule(new Iop::CLoadcore(*this, m_ram, *m_sifMan));
+		m_loadcore = new Iop::CLoadcore(*this, m_ram, *m_sifMan);
+		RegisterModule(m_loadcore);
 	}
 	{
 		RegisterModule(new Iop::CThbase(*this, m_ram));
@@ -1423,6 +1425,11 @@ Iop::CIoman* CIopBios::GetIoman()
 Iop::CCdvdman* CIopBios::GetCdvdman()
 {
 	return m_cdvdman;
+}
+
+Iop::CLoadcore* CIopBios::GetLoadcore()
+{
+	return m_loadcore;
 }
 
 #ifdef _IOP_EMULATE_MODULES
