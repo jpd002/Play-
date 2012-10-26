@@ -114,6 +114,10 @@ void CPsxBios::LoadExe(uint8* exe)
 		assert(realAddr + exeHeader->textSize <= m_ramSize);
 		memcpy(m_ram + realAddr, exe, exeHeader->textSize);
 		exe += exeHeader->textSize;
+
+#ifdef DEBUGGER_INCLUDED
+		m_cpu.m_pAnalysis->Analyse(realAddr, realAddr + exeHeader->textSize, m_cpu.m_State.nPC);
+#endif
 	}
 }
 
@@ -252,8 +256,9 @@ void CPsxBios::AssembleInterruptHandler()
 {
 	//Assemble interrupt handler
 	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + INTR_HANDLER));
-	CMIPSAssembler::LABEL returnExceptionLabel = assembler.CreateLabel();
 	CMIPSAssembler::LABEL skipRootCounter2EventLabel = assembler.CreateLabel();
+	CMIPSAssembler::LABEL returnExceptionLabel = assembler.CreateLabel();
+	CMIPSAssembler::LABEL clearIntcCause = assembler.CreateLabel();
 
 	//Get cause
 	unsigned int cause = CMIPS::S3;
@@ -275,9 +280,8 @@ void CPsxBios::AssembleInterruptHandler()
 	assembler.BEQ(CMIPS::V0, CMIPS::R0, skipRootCounter2EventLabel);
 	assembler.NOP();
 
-	//Clear cause
+	//Clear root counter 2 cause
 	assembler.LI(CMIPS::T0, CIntc::STATUS0);
-//	assembler.NOR(CMIPS::T1, CMIPS::R0, cause);
 	assembler.LI(CMIPS::T1, ~0x40);
 	assembler.SW(CMIPS::T1, 0, CMIPS::T0);
 
@@ -286,7 +290,7 @@ void CPsxBios::AssembleInterruptHandler()
 	//checkIntHook
 	assembler.LI(CMIPS::T0, LONGJMP_BUFFER);
 	assembler.LW(CMIPS::T0, 0, CMIPS::T0);
-	assembler.BEQ(CMIPS::T0, CMIPS::R0, returnExceptionLabel);
+	assembler.BEQ(CMIPS::T0, CMIPS::R0, clearIntcCause);
 	assembler.NOP();
 
 	//callIntHook
@@ -296,6 +300,15 @@ void CPsxBios::AssembleInterruptHandler()
 	assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x14);
 	assembler.JR(CMIPS::T0);
 	assembler.NOP();
+	
+	assembler.BEQ(CMIPS::R0, CMIPS::R0, returnExceptionLabel);
+	assembler.NOP();
+
+	//Clear any interrupt that might have triggered this exception handler (to prevent infinite loop)
+	assembler.MarkLabel(clearIntcCause);
+	assembler.LI(CMIPS::T0, CIntc::STATUS0);
+	assembler.NOR(CMIPS::T1, CMIPS::R0, cause);
+	assembler.SW(CMIPS::T1, 0, CMIPS::T0);
 
 	//ReturnFromException
 	assembler.MarkLabel(returnExceptionLabel);
@@ -369,7 +382,7 @@ void CPsxBios::HandleInterrupt()
 			if(eventPtr == NULL) continue;
 			if(cause & 0x08 && eventPtr->classId == 0xF0000009)
 			{
-				eventPtr->fired = 1;		
+				eventPtr->fired = 1;
 			}
 		}
 		m_cpu.m_State.nPC = INTR_HANDLER;
@@ -544,6 +557,9 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		case 0x0D:
 			CLog::GetInstance().Print(LOG_NAME, "DisableEvent(event = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x14:
+			CLog::GetInstance().Print(LOG_NAME, "StopPAD();\r\n");
 			break;
 		case 0x16:
 			CLog::GetInstance().Print(LOG_NAME, "PAD_dr();\r\n");
@@ -857,6 +873,12 @@ void CPsxBios::sc_DisableEvent()
 	}
 }
 
+//B0 - 14
+void CPsxBios::sc_StopPAD()
+{
+
+}
+
 //B0 - 16
 void CPsxBios::sc_PAD_dr()
 {
@@ -1035,7 +1057,7 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 	//0x08
 	&CPsxBios::sc_OpenEvent,	&CPsxBios::sc_CloseEvent,	&CPsxBios::sc_WaitEvent,	&CPsxBios::sc_TestEvent,		&CPsxBios::sc_EnableEvent,	&CPsxBios::sc_DisableEvent,	&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,
 	//0x10
-	&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,			&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_PAD_dr,		&CPsxBios::sc_ReturnFromException,
+	&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,			&CPsxBios::sc_StopPAD,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_PAD_dr,		&CPsxBios::sc_ReturnFromException,
 	//0x18
 	&CPsxBios::sc_Illegal,		&CPsxBios::sc_HookEntryInt,	&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,			&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,		&CPsxBios::sc_Illegal,
 	//0x20

@@ -117,6 +117,7 @@ private:
 	void						sc_TestEvent();
 	void						sc_EnableEvent();
 	void						sc_DisableEvent();
+	void						sc_StopPAD();
 	void						sc_PAD_dr();
 	void						sc_ReturnFromException();
 	void						sc_HookEntryInt();
