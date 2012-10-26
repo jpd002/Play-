@@ -140,6 +140,11 @@ bool CPsfSubSystem::MustBreak()
 	return m_executor.MustBreak();
 }
 
+void CPsfSubSystem::DisableBreakpointsOnce()
+{
+	m_executor.DisableBreakpointsOnce();
+}
+
 CBiosDebugInfoProvider* CPsfSubSystem::GetBiosDebugInfoProvider()
 {
 	return &m_bios;

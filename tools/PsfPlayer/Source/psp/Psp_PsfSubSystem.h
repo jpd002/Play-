@@ -31,6 +31,7 @@ namespace Psp
 
 #ifdef DEBUGGER_INCLUDED
 		virtual bool						MustBreak();
+		virtual void						DisableBreakpointsOnce();
 		virtual CBiosDebugInfoProvider*		GetBiosDebugInfoProvider();
 		virtual void						LoadDebugTags(Framework::Xml::CNode*);
 		virtual void						SaveDebugTags(Framework::Xml::CNode*);

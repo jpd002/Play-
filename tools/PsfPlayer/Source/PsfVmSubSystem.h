@@ -22,6 +22,7 @@ public:
 
 #ifdef DEBUGGER_INCLUDED
 	virtual bool						MustBreak() = 0;
+	virtual void						DisableBreakpointsOnce() = 0;
 	virtual CBiosDebugInfoProvider*		GetBiosDebugInfoProvider() = 0;
 	virtual void						LoadDebugTags(Framework::Xml::CNode*) = 0;
 	virtual void						SaveDebugTags(Framework::Xml::CNode*) = 0;

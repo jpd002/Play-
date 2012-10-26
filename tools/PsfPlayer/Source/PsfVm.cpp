@@ -154,6 +154,9 @@ uint8* CPsfVm::GetRam()
 
 void CPsfVm::Step()
 {
+#ifdef DEBUGGER_INCLUDED
+	m_subSystem->DisableBreakpointsOnce();
+#endif
 	m_singleStep = true;
 	m_status = RUNNING;
 	OnRunningStateChange();
