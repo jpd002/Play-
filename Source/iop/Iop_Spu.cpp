@@ -139,6 +139,12 @@ uint16 CSpu::ReadRegister(uint32 address)
 		CSpuBase::CHANNEL& channel(m_base.GetChannel(channelId));
 		switch(registerId)
 		{
+		case CH_ADSR_LEVEL:
+			return static_cast<uint16>(channel.adsrLevel);
+			break;
+		case CH_ADSR_RATE:
+			return static_cast<uint16>(channel.adsrRate);
+			break;
 		case CH_ADSR_VOLUME:
 			return static_cast<uint16>(channel.adsrVolume >> 16);
 			break;
