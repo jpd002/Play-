@@ -1,7 +1,6 @@
 #ifndef _IOP_SPUBASE_H_
 #define _IOP_SPUBASE_H_
 
-#include <boost/static_assert.hpp>
 #include "Types.h"
 #include "BasicUnion.h"
 #include "convertible.h"
@@ -18,7 +17,7 @@ namespace Iop
 			unsigned int	attackRate		: 7;
 			unsigned int	attackMode		: 1;
 		};
-		BOOST_STATIC_ASSERT(sizeof(ADSR_LEVEL) >= sizeof(uint16));
+		static_assert(sizeof(ADSR_LEVEL) >= sizeof(uint16), "Size of ADSR_LEVEL struct must be at least 2 bytes.");
 
 		struct ADSR_RATE : public convertible<uint16>
 		{
@@ -29,7 +28,7 @@ namespace Iop
 			unsigned int	sustainDirection	: 1;
 			unsigned int	sustainMode			: 1;
 		};
-		BOOST_STATIC_ASSERT(sizeof(ADSR_RATE) >= sizeof(uint16));
+		static_assert(sizeof(ADSR_RATE) >= sizeof(uint16), "Size of ADSR_RATE struct must be at least 2 bytes.");
 
 		struct CHANNEL_VOLUME : public convertible<uint16>
 		{
@@ -57,72 +56,72 @@ namespace Iop
 				} sweep;
 			};
 		};
-		BOOST_STATIC_ASSERT(sizeof(CHANNEL_VOLUME) >= sizeof(uint16));
+		static_assert(sizeof(CHANNEL_VOLUME) >= sizeof(uint16), "Size of CHANNEL_VOLUME struct must be at least 2 bytes.");
 
-	    enum
-	    {
-		    MAX_CHANNEL = 24
-	    };
+		enum
+		{
+			MAX_CHANNEL = 24
+		};
 
-        enum
-        {
-            REVERB_PARAM_COUNT = 32
-        };
+		enum
+		{
+			REVERB_PARAM_COUNT = 32
+		};
 
-        enum CONTROL
-        {
-            CONTROL_REVERB  = 0x80,
-            CONTROL_DMA     = 0x30,
-        };
+		enum CONTROL
+		{
+			CONTROL_REVERB	= 0x80,
+			CONTROL_DMA		= 0x30,
+		};
 
-        enum
-	    {
-		    FB_SRC_A = 0,
-		    FB_SRC_B,
-		    IIR_ALPHA,
-		    ACC_COEF_A,
-		    ACC_COEF_B,
-		    ACC_COEF_C,
-		    ACC_COEF_D,
-		    IIR_COEF,
-		    FB_ALPHA,
-		    FB_X,
-		    IIR_DEST_A0,
-		    IIR_DEST_A1,
-		    ACC_SRC_A0,
-		    ACC_SRC_A1,
-		    ACC_SRC_B0,
-		    ACC_SRC_B1,
-		    IIR_SRC_A0,
-		    IIR_SRC_A1,
-		    IIR_DEST_B0,
-		    IIR_DEST_B1,
-		    ACC_SRC_C0,
-		    ACC_SRC_C1,
-		    ACC_SRC_D0,
-		    ACC_SRC_D1,
-		    IIR_SRC_B1,
-		    IIR_SRC_B0,
-		    MIX_DEST_A0,
-		    MIX_DEST_A1,
-		    MIX_DEST_B0,
-		    MIX_DEST_B1,
-		    IN_COEF_L,
-		    IN_COEF_R,
-            REVERB_REG_COUNT,
-	    };
+		enum
+		{
+			FB_SRC_A = 0,
+			FB_SRC_B,
+			IIR_ALPHA,
+			ACC_COEF_A,
+			ACC_COEF_B,
+			ACC_COEF_C,
+			ACC_COEF_D,
+			IIR_COEF,
+			FB_ALPHA,
+			FB_X,
+			IIR_DEST_A0,
+			IIR_DEST_A1,
+			ACC_SRC_A0,
+			ACC_SRC_A1,
+			ACC_SRC_B0,
+			ACC_SRC_B1,
+			IIR_SRC_A0,
+			IIR_SRC_A1,
+			IIR_DEST_B0,
+			IIR_DEST_B1,
+			ACC_SRC_C0,
+			ACC_SRC_C1,
+			ACC_SRC_D0,
+			ACC_SRC_D1,
+			IIR_SRC_B1,
+			IIR_SRC_B0,
+			MIX_DEST_A0,
+			MIX_DEST_A1,
+			MIX_DEST_B0,
+			MIX_DEST_B1,
+			IN_COEF_L,
+			IN_COEF_R,
+			REVERB_REG_COUNT,
+		};
 
-	    enum CHANNEL_STATUS
-	    {
-		    STOPPED = 0,
-		    KEY_ON = 1,
-		    ATTACK,
-		    DECAY,
-		    SUSTAIN,
-		    RELEASE,
-	    };
+		enum CHANNEL_STATUS
+		{
+			STOPPED = 0,
+			KEY_ON = 1,
+			ATTACK,
+			DECAY,
+			SUSTAIN,
+			RELEASE,
+		};
 
-        struct CHANNEL
+		struct CHANNEL
 		{
 			CHANNEL_VOLUME	volumeLeft;
 			CHANNEL_VOLUME	volumeRight;
@@ -135,29 +134,29 @@ namespace Iop
 			uint32			adsrVolume;
 			uint32			repeat;
 			uint16			status;
-			uint32          current;
+			uint32			current;
 		};
 
 
-                        CSpuBase(uint8*, uint32);
-        virtual         ~CSpuBase();
+						CSpuBase(uint8*, uint32);
+		virtual			~CSpuBase();
 
-	    void		    Reset();
+		void			Reset();
 
 		bool			IsEnabled() const;
 
 		void			SetVolumeAdjust(float);
 		void			SetReverbEnabled(bool);
 
-        void            SetDmaDisabled(bool);
+		void			SetDmaDisabled(bool);
 
-		void		    SetBaseSamplingRate(uint32);
+		void			SetBaseSamplingRate(uint32);
 
-	    uint32		    GetTransferAddress() const;
-	    void		    SetTransferAddress(uint32);
+		uint32			GetTransferAddress() const;
+		void			SetTransferAddress(uint32);
 
-        uint16          GetControl() const;
-        void            SetControl(uint16);
+		uint16			GetControl() const;
+		void			SetControl(uint16);
 
 		uint32			GetReverbParam(unsigned int) const;
 		void			SetReverbParam(unsigned int, uint32);
@@ -170,28 +169,28 @@ namespace Iop
 
 		void			SetReverbCurrentAddress(uint32);
 
-        UNION32_16	    GetChannelOn() const;
+		UNION32_16		GetChannelOn() const;
 		void			SetChannelOn(uint16, uint16);
 		void			SetChannelOnLo(uint16);
 		void			SetChannelOnHi(uint16);
 
-		UNION32_16	    GetChannelReverb() const;
+		UNION32_16		GetChannelReverb() const;
 		void			SetChannelReverbLo(uint16);
 		void			SetChannelReverbHi(uint16);
 
-        CHANNEL&		GetChannel(unsigned int);
+		CHANNEL&		GetChannel(unsigned int);
 
-	    void		    SendKeyOn(uint32);
-	    void		    SendKeyOff(uint32);
+		void			SendKeyOn(uint32);
+		void			SendKeyOff(uint32);
 
 		UNION32_16		GetEndFlags() const;
 		void			ClearEndFlags();
 
 		void			WriteWord(uint16);
 
-        uint32		    ReceiveDma(uint8*, uint32, uint32);
+		uint32			ReceiveDma(uint8*, uint32, uint32);
 
-	    void		    Render(int16*, unsigned int, unsigned int);
+		void			Render(int16*, unsigned int, unsigned int);
 
 		static bool		g_reverbParamIsAddress[REVERB_PARAM_COUNT];
 
@@ -208,7 +207,7 @@ namespace Iop
 			void			SetPitch(uint32, uint16);
 			void			GetSamples(int16*, unsigned int, unsigned int);
 			uint8*			GetRepeat() const;
-			uint8*          GetCurrent() const;
+			uint8*			GetCurrent() const;
 			bool			IsDone() const;
 			bool			GetEndFlag() const;
 			void			ClearEndFlag();
@@ -240,10 +239,10 @@ namespace Iop
 			bool			m_endFlag;
 		};
 
-	    enum
-	    {
-		    MAX_ADSR_VOLUME = 0x7FFFFFFF,
-	    };
+		enum
+		{
+			MAX_ADSR_VOLUME = 0x7FFFFFFF,
+		};
 
 		void			UpdateAdsr(CHANNEL&);
 		uint32			GetAdsrDelta(unsigned int) const;
@@ -255,23 +254,23 @@ namespace Iop
 		static void		MixSamples(int32, int32, int16*);
 		int32			ComputeChannelVolume(const CHANNEL_VOLUME&);
 
-		uint8*          m_ram;
-        uint32          m_ramSize;
-	    uint32			m_baseSamplingRate;
-	    uint32			m_bufferAddr;
-	    UNION32_16		m_channelOn;
-	    UNION32_16		m_channelReverb;
-	    uint32			m_reverbWorkAddrStart;
-        uint32          m_reverbWorkAddrEnd;
-	    uint32			m_reverbCurrAddr;
-        uint16          m_ctrl;
-	    int				m_reverbTicks;
-	    uint32			m_reverb[REVERB_REG_COUNT];
-    	CHANNEL			m_channel[MAX_CHANNEL];
-        CSampleReader   m_reader[MAX_CHANNEL];
-    	uint32			m_adsrLogTable[160];
+		uint8*			m_ram;
+		uint32			m_ramSize;
+		uint32			m_baseSamplingRate;
+		uint32			m_bufferAddr;
+		UNION32_16		m_channelOn;
+		UNION32_16		m_channelReverb;
+		uint32			m_reverbWorkAddrStart;
+		uint32			m_reverbWorkAddrEnd;
+		uint32			m_reverbCurrAddr;
+		uint16			m_ctrl;
+		int				m_reverbTicks;
+		uint32			m_reverb[REVERB_REG_COUNT];
+		CHANNEL			m_channel[MAX_CHANNEL];
+		CSampleReader	m_reader[MAX_CHANNEL];
+		uint32			m_adsrLogTable[160];
 		bool			m_reverbEnabled;
-        bool            m_dmaDisabled;
+		bool			m_dmaDisabled;
 		float			m_volumeAdjust;
 	};
 }

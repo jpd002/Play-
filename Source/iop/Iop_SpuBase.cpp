@@ -4,7 +4,6 @@
 #include "Iop_SpuBase.h"
 
 using namespace Iop;
-using namespace std;
 
 #define INIT_SAMPLE_RATE (44100)
 #define LOG_NAME ("iop_spubase")
@@ -45,13 +44,13 @@ bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
 	false
 };
 
-CSpuBase::CSpuBase(uint8* ram, uint32 ramSize) :
-m_ram(ram),
-m_ramSize(ramSize),
-m_reverbEnabled(true),
-m_dmaDisabled(false)
+CSpuBase::CSpuBase(uint8* ram, uint32 ramSize)
+: m_ram(ram)
+, m_ramSize(ramSize)
+, m_reverbEnabled(true)
+, m_dmaDisabled(false)
 {
-    Reset();
+	Reset();
 
 	//Init log table for ADSR
 	memset(m_adsrLogTable, 0, sizeof(m_adsrLogTable));
@@ -87,29 +86,28 @@ CSpuBase::~CSpuBase()
 
 void CSpuBase::Reset()
 {
-    m_dmaDisabled = false;
-    m_ctrl = 0;
+	m_dmaDisabled = false;
+	m_ctrl = 0;
 
 	m_volumeAdjust = 1.0f;
 
-    m_channelOn.f = 0;
+	m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
 	m_bufferAddr = 0;
 
 	m_reverbCurrAddr = 0;
 	m_reverbWorkAddrStart = 0;
-//    m_reverbWorkAddrEnd = 0x7FFFF;
-    m_reverbWorkAddrEnd = 0x80000;
+	m_reverbWorkAddrEnd = 0x80000;
 	m_baseSamplingRate = 44100;
 
 	memset(m_channel, 0, sizeof(m_channel));
 	memset(m_reverb, 0, sizeof(m_reverb));
 
-    for(unsigned int i = 0; i < MAX_CHANNEL; i++)
-    {
-        m_reader[i].Reset();
-    }
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		m_reader[i].Reset();
+	}
 }
 
 bool CSpuBase::IsEnabled() const
@@ -129,17 +127,17 @@ void CSpuBase::SetReverbEnabled(bool enabled)
 
 void CSpuBase::SetDmaDisabled(bool disabled)
 {
-    m_dmaDisabled = disabled;
+	m_dmaDisabled = disabled;
 }
 
 uint16 CSpuBase::GetControl() const
 {
-    return m_ctrl;
+	return m_ctrl;
 }
 
 void CSpuBase::SetControl(uint16 value)
 {
-    m_ctrl = value;
+	m_ctrl = value;
 }
 
 void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
@@ -164,12 +162,12 @@ UNION32_16 CSpuBase::GetChannelOn() const
 
 void CSpuBase::SetChannelOnLo(uint16 value)
 {
-    m_channelOn.h0 = value;
+	m_channelOn.h0 = value;
 }
 
 void CSpuBase::SetChannelOnHi(uint16 value)
 {
-    m_channelOn.h1 = value;
+	m_channelOn.h1 = value;
 }
 
 UNION32_16 CSpuBase::GetChannelReverb() const
@@ -179,24 +177,24 @@ UNION32_16 CSpuBase::GetChannelReverb() const
 
 void CSpuBase::SetChannelReverbLo(uint16 value)
 {
-    m_channelReverb.h0 = value;
+	m_channelReverb.h0 = value;
 }
 
 void CSpuBase::SetChannelReverbHi(uint16 value)
 {
-    m_channelReverb.h1 = value;
+	m_channelReverb.h1 = value;
 }
 
 uint32 CSpuBase::GetReverbParam(unsigned int param) const
 {
-    assert(param < REVERB_PARAM_COUNT);
+	assert(param < REVERB_PARAM_COUNT);
 	return m_reverb[param];
 }
 
 void CSpuBase::SetReverbParam(unsigned int param, uint32 value)
 {
-    assert(param < REVERB_PARAM_COUNT);
-    m_reverb[param] = value;
+	assert(param < REVERB_PARAM_COUNT);
+	m_reverb[param] = value;
 }
 
 UNION32_16 CSpuBase::GetEndFlags() const
@@ -222,7 +220,7 @@ void CSpuBase::ClearEndFlags()
 
 CSpuBase::CHANNEL& CSpuBase::GetChannel(unsigned int channelNumber)
 {
-    assert(channelNumber < MAX_CHANNEL);
+	assert(channelNumber < MAX_CHANNEL);
 	return m_channel[channelNumber];
 }
 
@@ -293,11 +291,11 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%0.8X. Size = 0x%0.8X bytes.\r\n", 
 		m_bufferAddr, blockSize * blockAmount);
 #endif
-    if(m_dmaDisabled) return 0;
+	if(m_dmaDisabled) return 0;
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)
 	{
-		uint32 copySize = min<uint32>(m_ramSize - m_bufferAddr, blockSize);
+		uint32 copySize = std::min<uint32>(m_ramSize - m_bufferAddr, blockSize);
 		memcpy(m_ram + m_bufferAddr, buffer, copySize);
 		m_bufferAddr += blockSize;
 		m_bufferAddr &= m_ramSize - 1;
@@ -332,7 +330,7 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume)
 	{
 		assert(0);
 	}
-	volumeLevel = min<int32>(0x3FFF, static_cast<int32>(static_cast<float>(volumeLevel) * m_volumeAdjust));
+	volumeLevel = std::min<int32>(0x3FFF, static_cast<int32>(static_cast<float>(volumeLevel) * m_volumeAdjust));
 	return volumeLevel;
 }
 
@@ -340,8 +338,8 @@ void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 {
 	inputSample = (inputSample * volumeLevel) / 0x3FFF;
 	int32 resultSample = inputSample + static_cast<int32>(*output);
-	resultSample = max<int32>(resultSample, SHRT_MIN);
-	resultSample = min<int32>(resultSample, SHRT_MAX);
+	resultSample = std::max<int32>(resultSample, SHRT_MIN);
+	resultSample = std::min<int32>(resultSample, SHRT_MAX);
 	*output = static_cast<int16>(resultSample);
 }
 
@@ -351,7 +349,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 	//ticks are 44100Hz ticks
 	unsigned int ticks = sampleCount / 2;
 	memset(samples, 0, sizeof(int16) * sampleCount);
-//	int16* bufferTemp = reinterpret_cast<int16*>(_alloca(sizeof(int16) * ticks));
 
 	//Precompute volume values
 	for(unsigned int i = 0; i < 24; i++)
@@ -391,7 +388,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
-            channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
+			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
 			//Mix samples
 			UpdateAdsr(channel);
 			int32 inputSample = static_cast<int32>(readSample);
@@ -519,16 +516,16 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				{
 					int16* output = samples + 0;
 					int32 resultSample = static_cast<int32>(sampleL) + static_cast<int32>(*output);
-					resultSample = max<int32>(resultSample, SHRT_MIN);
-					resultSample = min<int32>(resultSample, SHRT_MAX);
+					resultSample = std::max<int32>(resultSample, SHRT_MIN);
+					resultSample = std::min<int32>(resultSample, SHRT_MAX);
 					*output = static_cast<int16>(resultSample);
 				}
 
 				{
 					int16* output = samples + 1;
 					int32 resultSample = static_cast<int32>(sampleR) + static_cast<int32>(*output);
-					resultSample = max<int32>(resultSample, SHRT_MIN);
-					resultSample = min<int32>(resultSample, SHRT_MAX);
+					resultSample = std::max<int32>(resultSample, SHRT_MIN);
+					resultSample = std::min<int32>(resultSample, SHRT_MAX);
 					*output = static_cast<int16>(resultSample);
 				}
 			}
@@ -563,8 +560,8 @@ void CSpuBase::SetReverbSample(uint32 address, float value)
 		absoluteAddress -= m_reverbWorkAddrEnd;
 		absoluteAddress += m_reverbWorkAddrStart;
 	}
-	value = max<float>(value, SHRT_MIN);
-	value = min<float>(value, SHRT_MAX);
+	value = std::max<float>(value, SHRT_MIN);
+	value = std::min<float>(value, SHRT_MAX);
 	int16 intValue = static_cast<int16>(value);
 	*reinterpret_cast<int16*>(m_ram + absoluteAddress) = intValue;
 }
@@ -691,8 +688,8 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 // CSampleReader
 ///////////////////////////////////////////////////////
 
-CSpuBase::CSampleReader::CSampleReader() :
-m_nextSample(NULL)
+CSpuBase::CSampleReader::CSampleReader()
+: m_nextSample(NULL)
 {
 	Reset();
 }
@@ -821,7 +818,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 			{   60,		0		},
 			{  115,		-52		},
 			{	98,		-55		},
-			{  122,		-60		},			
+			{  122,		-60		},
 		};
 
 		for(unsigned int i = 0; i < 28; i++)
@@ -864,7 +861,7 @@ uint8* CSpuBase::CSampleReader::GetRepeat() const
 
 uint8* CSpuBase::CSampleReader::GetCurrent() const
 {
-    return m_nextSample;
+	return m_nextSample;
 }
 
 bool CSpuBase::CSampleReader::IsDone() const
