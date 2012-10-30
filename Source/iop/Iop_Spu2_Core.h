@@ -38,14 +38,14 @@ namespace Iop
 				S_VMIXER_HI		= 0x1F900194,
 				S_VMIXER_LO		= 0x1F900196,
 				CORE_ATTR		= 0x1F90019A,
-                A_KON_HI        = 0x1F9001A0,
-                A_KON_LO        = 0x1F9001A2,
-                A_KOFF_HI       = 0x1F9001A4,
-                A_KOFF_LO       = 0x1F9001A6,
+				A_KON_HI		= 0x1F9001A0,
+				A_KON_LO		= 0x1F9001A2,
+				A_KOFF_HI		= 0x1F9001A4,
+				A_KOFF_LO		= 0x1F9001A6,
 				A_TSA_HI		= 0x1F9001A8,
 				A_TSA_LO		= 0x1F9001AA,
 				A_STD			= 0x1F9001AC,
-                A_STREAM_UNK    = 0x1F9001B0,
+				A_STREAM_UNK	= 0x1F9001B0,
 				VA_REG_BASE		= 0x1F9001C0,
 				VA_SSA_HI		= 0x1F9001C0,
 				VA_SSA_LO		= 0x1F9001C2,
@@ -94,15 +94,15 @@ namespace Iop
 			void					LogChannelRead(unsigned int, uint32, uint32);
 			void					LogChannelWrite(unsigned int, uint32, uint32);
 
-            uint16                  GetAddressLo(uint32);
-            uint16                  GetAddressHi(uint32);
-            uint32                  SetAddressLo(uint32, uint16);
-            uint32                  SetAddressHi(uint32, uint16);
+			uint16					GetAddressLo(uint32);
+			uint16					GetAddressHi(uint32);
+			uint32					SetAddressLo(uint32, uint16);
+			uint32					SetAddressHi(uint32, uint16);
 
 			REGISTER_DISPATCH_INFO	m_readDispatch;
 			REGISTER_DISPATCH_INFO	m_writeDispatch;
 			unsigned int			m_coreId;
-            uint16                  m_streamUnk;
+			uint16					m_streamUnk;
 			std::string				m_logName;
 			CSpuBase&				m_spuBase;
 		};

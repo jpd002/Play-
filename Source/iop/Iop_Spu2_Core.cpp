@@ -52,9 +52,9 @@ static unsigned int g_coefficientRegisterMapping[MAX_COEFFICIENT_REGISTER] =
 	CSpuBase::IN_COEF_R
 };
 
-CCore::CCore(unsigned int coreId, CSpuBase& spuBase) :
-m_coreId(coreId),
-m_spuBase(spuBase)
+CCore::CCore(unsigned int coreId, CSpuBase& spuBase)
+: m_coreId(coreId)
+, m_spuBase(spuBase)
 {
 	m_logName = LOG_NAME_PREFIX + boost::lexical_cast<std::string>(m_coreId);
 
@@ -237,7 +237,7 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		case S_ENDX_HI:
 			if(value)
 			{
-				m_spuBase.ClearEndFlags();			
+				m_spuBase.ClearEndFlags();
 			}
 			break;
 		case A_TSA_HI:
