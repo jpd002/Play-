@@ -212,6 +212,9 @@ namespace Iop
 			bool			GetEndFlag() const;
 			void			ClearEndFlag();
 
+			bool			DidChangeRepeat() const;
+			void			ClearDidChangeRepeat();
+
 		private:
 			enum
 			{
@@ -237,6 +240,7 @@ namespace Iop
 			bool			m_done;
 			bool			m_nextValid;
 			bool			m_endFlag;
+			bool			m_didChangeRepeat;
 		};
 
 		enum

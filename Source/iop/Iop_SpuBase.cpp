@@ -382,8 +382,12 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					channel.adsrVolume = 0;
 					continue;
 				}
-				uint8* repeat = reader.GetRepeat();
-				channel.repeat = static_cast<uint32>(repeat - m_ram);
+				if(reader.DidChangeRepeat())
+				{
+					uint8* repeat = reader.GetRepeat();
+					channel.repeat = static_cast<uint32>(repeat - m_ram);
+					reader.ClearDidChangeRepeat();
+				}
 			}
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
@@ -711,6 +715,7 @@ void CSpuBase::CSampleReader::Reset()
 	m_s1 = 0;
 	m_s2 = 0;
 	m_done = false;
+	m_didChangeRepeat = false;
 	m_nextValid = false;
 	m_endFlag = false;
 }
@@ -725,6 +730,7 @@ void CSpuBase::CSampleReader::SetParams(uint8* address, uint8* repeat)
 	m_s2 = 0;
 	m_nextValid = false;
 	m_done = false;
+	m_didChangeRepeat = false;
 	AdvanceBuffer();
 }
 
@@ -838,6 +844,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	if(flags & 0x04)
 	{
 		m_repeat = m_nextSample;
+		m_didChangeRepeat = true;
 	}
 
 	m_nextSample += 0x10;
@@ -880,6 +887,16 @@ bool CSpuBase::CSampleReader::GetEndFlag() const
 void CSpuBase::CSampleReader::ClearEndFlag()
 {
 	m_endFlag = false;
+}
+
+bool CSpuBase::CSampleReader::DidChangeRepeat() const
+{
+	return m_didChangeRepeat;
+}
+
+void CSpuBase::CSampleReader::ClearDidChangeRepeat()
+{
+	m_didChangeRepeat = false;
 }
 
 float CSpuBase::CSampleReader::GetSamplingRate() const
