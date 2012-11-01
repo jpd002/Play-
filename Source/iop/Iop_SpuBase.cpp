@@ -828,7 +828,10 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 			currentValue += (m_s2 * predictorTable[predictNumber][1]) / 64;
 			m_s2 = m_s1;
 			m_s1 = currentValue;
-			dst[i] = static_cast<int16>((currentValue + 32) / 64);
+			int32 result = (currentValue + 32) / 64;
+			result = std::max<int32>(result, SHRT_MIN);
+			result = std::min<int32>(result, SHRT_MAX);
+			dst[i] = static_cast<int16>(result);
 		}
 	}
 
