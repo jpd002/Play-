@@ -290,6 +290,12 @@ void CMIPSAssembler::LQ(unsigned int nRT, uint16 nOffset, unsigned int nBase)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::LBU(unsigned int rt, uint16 offset, unsigned int base)
+{
+	(*m_pPtr) = ((0x24) << 26) | (base << 21) | (rt << 16) | offset;
+	m_pPtr++;
+}
+
 void CMIPSAssembler::LW(unsigned int nRT, uint16 nOffset, unsigned int nBase)
 {
 	(*m_pPtr) = ((0x23) << 26) | (nBase << 21) | (nRT << 16) | nOffset;
@@ -433,6 +439,12 @@ void CMIPSAssembler::SRLV(unsigned int nRD, unsigned int nRT, unsigned int nRS)
 void CMIPSAssembler::SQ(unsigned int nRT, uint16 nOffset, unsigned int nBase)
 {
 	(*m_pPtr) = ((0x1F) << 26) | (nBase << 21) | (nRT << 16) | nOffset;
+	m_pPtr++;
+}
+
+void CMIPSAssembler::SB(unsigned int rt, uint16 offset, unsigned int base)
+{
+	(*m_pPtr) = ((0x28) << 26) | (base << 21) | (rt << 16) | offset;
 	m_pPtr++;
 }
 

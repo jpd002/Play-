@@ -52,6 +52,7 @@ public:
 	void				JR(unsigned int);
 	void				JAL(uint32);
 	void				JALR(unsigned int, unsigned int = 31);
+	void				LBU(unsigned int, uint16, unsigned int);
 	void				LD(unsigned int, uint16, unsigned int);
 	void				LDL(unsigned int, uint16, unsigned int);
 	void				LDR(unsigned int, uint16, unsigned int);
@@ -83,6 +84,7 @@ public:
 	void				SRL(unsigned int, unsigned int, unsigned int);
 	void				SRLV(unsigned int, unsigned int, unsigned int);
 	void				SQ(unsigned int, uint16, unsigned int);
+	void				SB(unsigned int, uint16, unsigned int);
 	void				SW(unsigned int, uint16, unsigned int);
 	void				SYSCALL();
 
