@@ -119,6 +119,9 @@ void CPsfVm::PauseImpl()
 
 void CPsfVm::Resume()
 {
+#ifdef DEBUGGER_INCLUDED
+	m_subSystem->DisableBreakpointsOnce();
+#endif
 	m_status = RUNNING;
 	if(!OnRunningStateChange.empty())
 	{
