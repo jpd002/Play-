@@ -1,6 +1,5 @@
 #include "SH_OpenAL.h"
 #include "alloca_def.h"
-#include "HighResTimer.h"
 #include <assert.h>
 
 //#define LOGGING
@@ -61,7 +60,7 @@ void CSH_OpenAL::Write(int16* samples, unsigned int sampleCount, unsigned int sa
 {
 	assert(m_availableBuffers.size() != 0);
 	if(m_availableBuffers.size() == 0) return;
-    ALuint buffer = *m_availableBuffers.begin();
+	ALuint buffer = *m_availableBuffers.begin();
 	m_availableBuffers.pop_front();
 
 	alBufferData(buffer, AL_FORMAT_STEREO16, samples, sampleCount * sizeof(int16), sampleRate);
