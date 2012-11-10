@@ -7,7 +7,7 @@
 class CPsfTags
 {
 public:
-	typedef std::tr1::function<std::wstring (const std::string&)> StringConvertFunction;
+	typedef std::function<std::wstring (const std::string&)> StringConvertFunction;
 	typedef CPsfBase::TagMap TagMap;
 	typedef CPsfBase::ConstTagIterator ConstTagIterator;
 
@@ -28,7 +28,7 @@ public:
 	std::wstring			GetTagValue(const char*) const;
 	std::wstring			DecodeTagValue(const char*) const;
 
-    static double           ConvertTimeString(const wchar_t*);
+	static double			ConvertTimeString(const wchar_t*);
 
 	ConstTagIterator		GetTagsBegin() const;
 	ConstTagIterator		GetTagsEnd() const;
