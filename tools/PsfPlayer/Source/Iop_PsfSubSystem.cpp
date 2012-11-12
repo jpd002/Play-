@@ -1,6 +1,5 @@
 #include "Iop_PsfSubSystem.h"
 #include "Ps2Const.h"
-#include "HighResTimer.h"
 #include <boost/thread.hpp>
 
 using namespace Iop;
@@ -64,31 +63,6 @@ void CPsfSubSystem::SetBios(const BiosBasePtr& bios)
 
 void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 {
-#ifdef DEBUGGER_INCLUDED
-	uint64 frameTime = (CHighResTimer::MICROSECOND / FRAMES_PER_SEC);
-	int ticks = m_iop.ExecuteCpu(singleStep ? 1 : 500);
-	m_iop.CountTicks(ticks);
-
-	static int frameCounter = m_frameTicks;
-	static uint64 currentTime = CHighResTimer::GetTime();
-
-	frameCounter -= ticks;
-	if(frameCounter <= 0)
-	{
-		m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
-		OnNewFrame();
-		frameCounter += m_frameTicks;
-		uint64 elapsed = CHighResTimer::GetDiff(currentTime, CHighResTimer::MICROSECOND);
-		int64 delay = frameTime - elapsed;
-		if(delay > 0)
-		{
-			boost::this_thread::sleep(boost::posix_time::milliseconds(delay));
-		}
-		currentTime = CHighResTimer::GetTime();
-	}
-
-	//m_spuHandler.Update(m_spu);
-#else
 	if(soundHandler && !soundHandler->HasFreeBuffers())
 	{
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
@@ -105,7 +79,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 				ticks += (quota * 2);
 				quota /= 50;
 			}
-			ticks += m_iop.ExecuteCpu(quota);
+			ticks += m_iop.ExecuteCpu(singleStep ? 1 : quota);
 			m_iop.CountTicks(ticks);
 			m_spuUpdateCounter -= ticks;
 			m_frameCounter -= ticks;
@@ -155,7 +129,6 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			}
 		}
 	}
-#endif
 }
 
 #ifdef DEBUGGER_INCLUDED

@@ -308,7 +308,6 @@
     <ClCompile Include="..\..\..\Source\win32ui\RegViewPage.cpp" />
     <ClCompile Include="..\..\..\Source\win32ui\WinUtils.cpp" />
     <ClCompile Include="..\Source\AppConfig.cpp" />
-    <ClCompile Include="..\Source\HighResTimer.cpp" />
     <ClCompile Include="..\Source\Iop_PsfSubSystem.cpp" />
     <ClCompile Include="..\Source\Playlist.cpp" />
     <ClCompile Include="..\Source\ps2\Ps2_PsfDevice.cpp" />
@@ -455,7 +454,6 @@
     <ClInclude Include="..\Source\AppConfig.h" />
     <ClInclude Include="..\Source\AppDef.h" />
     <ClInclude Include="..\Source\Debuggable.h" />
-    <ClInclude Include="..\Source\HighResTimer.h" />
     <ClInclude Include="..\Source\Iop_PsfSubSystem.h" />
     <ClInclude Include="..\Source\path_uncomplete.h" />
     <ClInclude Include="..\Source\Playlist.h" />

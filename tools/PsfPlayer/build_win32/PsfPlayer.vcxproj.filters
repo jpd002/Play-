@@ -256,9 +256,6 @@
     <ClCompile Include="..\Source\AppConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\HighResTimer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Playlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -595,9 +592,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Debuggable.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\HighResTimer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\path_uncomplete.h">
