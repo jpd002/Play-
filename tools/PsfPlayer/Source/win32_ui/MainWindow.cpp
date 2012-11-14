@@ -43,6 +43,9 @@
 #define PREF_CHAR_ENCODING_ID			("charencoding.id")
 #define DEFAULT_CHAR_ENCODING_ID		(CPsfTags::CE_WINDOWS_1252)
 
+#define PREF_REPEAT_MODE				("repeat.mode")
+#define DEFAULT_REPEAT_MODE				(CMainWindow::PLAYLIST_ONCE)
+
 CMainWindow::SOUNDHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
 	{	1,		_T("Win32 WaveOut"),	_T("SH_WaveOut.dll")	},
@@ -80,7 +83,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_spu0RegViewPanel(NULL)
 , m_spu1RegViewPanel(NULL)
 , m_currentPlaylistItem(0)
-, m_repeatMode(PLAYLIST_ONCE)
+, m_repeatMode(DEFAULT_REPEAT_MODE)
 , m_trackLength(0)
 , m_accel(CreateAccelerators())
 , m_reverbEnabled(true)
@@ -135,8 +138,11 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_REVERB_ENABLED, true);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SOUNDHANDLER_ID, DEFAULT_SOUND_HANDLER_ID);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CHAR_ENCODING_ID, DEFAULT_CHAR_ENCODING_ID);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_REPEAT_MODE, DEFAULT_REPEAT_MODE);
 
 	m_reverbEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_REVERB_ENABLED);
+	m_repeatMode = static_cast<REPEAT_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_REPEAT_MODE));
+
 	LoadAudioPluginPreferences();
 	LoadCharEncodingPreferences();
 
@@ -696,6 +702,7 @@ void CMainWindow::UpdateRepeatButton()
 {
 	switch(m_repeatMode)
 	{
+	default:
 	case PLAYLIST_ONCE:
 		m_repeatButton->SetIcon(m_playListOnceIcon);
 		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Once"));
@@ -998,6 +1005,7 @@ void CMainWindow::OnRepeat()
 {
 	switch(m_repeatMode)
 	{
+	default:
 	case PLAYLIST_ONCE:
 		m_repeatMode = PLAYLIST_REPEAT;
 		break;
@@ -1011,6 +1019,7 @@ void CMainWindow::OnRepeat()
 		m_repeatMode = PLAYLIST_ONCE;
 		break;
 	}
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_REPEAT_MODE, m_repeatMode);
 	UpdateRepeatButton();
 }
 
