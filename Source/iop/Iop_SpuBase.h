@@ -223,18 +223,14 @@ namespace Iop
 
 			void			UnpackSamples(int16*);
 			void			AdvanceBuffer();
-			int16			GetSample(float);
-			float			GetNextTime() const;
-			float			GetBufferStep() const;
-			float			GetSamplingRate() const;
+			int16			GetSample(unsigned int);
 
-			unsigned int	m_sourceSamplingRate;
+			uint32			m_srcSampleIdx;
+			unsigned int	m_srcSamplingRate;
 			uint8*			m_nextSample;
 			uint8*			m_repeat;
 			int16			m_buffer[BUFFER_SAMPLES * 2];
 			uint16			m_pitch;
-			float			m_currentTime;
-			float			m_dstTime;
 			int32			m_s1;
 			int32			m_s2;
 			bool			m_done;

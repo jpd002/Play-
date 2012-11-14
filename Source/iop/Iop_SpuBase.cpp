@@ -6,6 +6,7 @@
 using namespace Iop;
 
 #define INIT_SAMPLE_RATE (44100)
+#define TIME_SCALE (0x1000000)
 #define LOG_NAME ("iop_spubase")
 
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
@@ -705,13 +706,12 @@ CSpuBase::CSampleReader::~CSampleReader()
 
 void CSpuBase::CSampleReader::Reset()
 {
-	m_sourceSamplingRate = 0;
 	m_nextSample = NULL;
 	m_repeat = NULL;
 	memset(m_buffer, 0, sizeof(m_buffer));
 	m_pitch = 0;
-	m_currentTime = 0;
-	m_dstTime = 0;
+	m_srcSampleIdx = 0;
+	m_srcSamplingRate = 0;
 	m_s1 = 0;
 	m_s2 = 0;
 	m_done = false;
@@ -722,8 +722,7 @@ void CSpuBase::CSampleReader::Reset()
 
 void CSpuBase::CSampleReader::SetParams(uint8* address, uint8* repeat)
 {
-	m_currentTime = 0;
-	m_dstTime = 0;
+	m_srcSampleIdx = 0;
 	m_nextSample = address;
 	m_repeat = repeat;
 	m_s1 = 0;
@@ -736,33 +735,30 @@ void CSpuBase::CSampleReader::SetParams(uint8* address, uint8* repeat)
 
 void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 {
-	m_sourceSamplingRate = baseSamplingRate * pitch / 4096;
+	m_srcSamplingRate = baseSamplingRate * pitch / 4096;
 }
 
-void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int destSamplingRate)
+void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int dstSamplingRate)
 {
 	assert(m_nextSample != NULL);
-	float dstTimeDelta = 1.0f / static_cast<float>(destSamplingRate);
 	for(unsigned int i = 0; i < sampleCount; i++)
 	{
-		samples[i] = GetSample(m_dstTime);
-		m_dstTime += dstTimeDelta;
+		samples[i] = GetSample(dstSamplingRate);
 	}
 }
 
-int16 CSpuBase::CSampleReader::GetSample(float time)
+int16 CSpuBase::CSampleReader::GetSample(unsigned int dstSamplingRate)
 {
-	time -= m_currentTime;
-	float sample = time * static_cast<float>(GetSamplingRate());
-	float alpha = sample - (int)sample;
-	float sampleInt = sample - alpha;
-	unsigned int sampleIndex = static_cast<int>(sampleInt);
-	int16 currentSample = m_buffer[sampleIndex];
-	int16 nextSample = m_buffer[sampleIndex + 1];
-	float resultSample = 
-		(static_cast<float>(currentSample) * (1 - alpha)) + (static_cast<float>(nextSample) * alpha);
-	if(sampleIndex >= BUFFER_SAMPLES)
+	uint32 srcSampleIdx = m_srcSampleIdx / TIME_SCALE;
+	int32 srcSampleAlpha = m_srcSampleIdx % TIME_SCALE;
+	int32 currentSample = m_buffer[srcSampleIdx];
+	int32 nextSample = m_buffer[srcSampleIdx + 1];
+	int32 resultSample = (currentSample * static_cast<int64>(TIME_SCALE - srcSampleAlpha) / TIME_SCALE) + 
+		(nextSample * static_cast<int64>(srcSampleAlpha) / TIME_SCALE);
+	m_srcSampleIdx += (static_cast<int64>(m_srcSamplingRate) * TIME_SCALE) / dstSamplingRate;
+	if(srcSampleIdx >= BUFFER_SAMPLES)
 	{
+		m_srcSampleIdx -= BUFFER_SAMPLES * TIME_SCALE;
 		AdvanceBuffer();
 	}
 	return static_cast<int16>(resultSample);
@@ -774,11 +770,9 @@ void CSpuBase::CSampleReader::AdvanceBuffer()
 	{
 		memmove(m_buffer, m_buffer + BUFFER_SAMPLES, sizeof(int16) * BUFFER_SAMPLES);
 		UnpackSamples(m_buffer + BUFFER_SAMPLES);
-		m_currentTime += GetBufferStep();
 	}
 	else
 	{
-		assert(m_currentTime == 0);
 		UnpackSamples(m_buffer);
 		UnpackSamples(m_buffer + BUFFER_SAMPLES);
 		m_nextValid = true;
@@ -897,19 +891,4 @@ bool CSpuBase::CSampleReader::DidChangeRepeat() const
 void CSpuBase::CSampleReader::ClearDidChangeRepeat()
 {
 	m_didChangeRepeat = false;
-}
-
-float CSpuBase::CSampleReader::GetSamplingRate() const
-{
-	return static_cast<float>(m_sourceSamplingRate);
-}
-
-float CSpuBase::CSampleReader::GetBufferStep() const
-{
-	return static_cast<float>(BUFFER_SAMPLES) / static_cast<float>(GetSamplingRate());
-}
-
-float CSpuBase::CSampleReader::GetNextTime() const
-{
-	return m_currentTime + GetBufferStep();
 }
