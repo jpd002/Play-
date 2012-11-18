@@ -3,9 +3,16 @@
 		<title>PsfPlayer Change Log</title>
 	</head>
 	<body>
-		<h3>Version 0.56</h3>
+		<h3>Version 1.00</h3>
 		<ul>
+			<li>Track repeat mode is now saved in the settings file.</li>
 			<li>Fixed captions of the "Play" and "Pause" buttons in the Windows task bar and in the tray icon menu.</li>
+			<li>Fixed a small bug in PSX BIOS emulation that prevented the Beyond the Beyond PSF set from working.</li>
+			<li>Fixed bugs in the SPU emulation that was causing some glitches in the Final Fantasy 11 & Final Fantasy 12 PSF sets.</li>
+			<li>Resampling is now done in a more accurate and efficient way, fixing problems that were making some streamed tracks to have playback speed glitches.</li>
+			<li>Implemented missing register read in SPU emulation. Fixes problems with the Final Fantasy 7 and Xenogears PSF sets (and probably others).</li>
+			<li>Implemented missing IOP BIOS functionality to support the Xenosaga 2 PSF set.</li>
+			<li>Implemented sweeping volume support also for the Xenosaga 2 PSF set.</li>
 		</ul>
 		<h3>Version 0.55</h3>
 		<ul>

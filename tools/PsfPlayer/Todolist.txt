@@ -1,20 +1,22 @@
 TODO:
-
-- Remove HighResTimer.
 - Fix autodetection of charset for tags
-- Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
-	- SPU updating for too long? (CPU/SPU desync)
-- Xenosaga
-	- Sounds really bad
-	- June Mermaid, especially
+- Fix Xenosaga 2 samples being cut-off sometimes.
 - Display Reverb params in SPU views.
 - DiskOut sound handler.
 - Exception for invalid PSFs
+- 903 Very Windy outside ambience.PSF crashes.
 - Playlist saving doesn't work when we try to save with items from an archive
 - When opening an archive that has no usable files, stop playing music
 - Mono sound support
 
 Done:
+- Add support for sweeping volume modes for Xenosaga 2
+- Remove HighResTimer.
+- Final Fantasy 7 - Still More Fighting - Cymbals sound not fading?
+	- SPU updating for too long? (CPU/SPU desync)
+- Xenosaga
+	- Sounds really bad
+	- June Mermaid, especially
 - Make playlist item visible when doing next or prev.
 - Fix deadlock problem happening when clicking "next" too much (Happens with FF4/PS2).
 - Windows 7 stuff
