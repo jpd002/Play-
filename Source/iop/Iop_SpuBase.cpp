@@ -45,6 +45,46 @@ bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
 	false
 };
 
+const uint32 CSpuBase::g_linearIncreaseSweepDeltas[0x80] = 
+{
+	0x3A0CC55E, 0x305FF9CE, 0x2976D61E, 0x203FFBDE, 0x1D0662AF, 0x182FFCE7, 0x1359971F, 0x101FFDEF,
+	0x0DD2475F, 0x0C17FE73, 0x0A0233AF, 0x080FFEF7, 0x07144A05, 0x060BFF39, 0x050119D7, 0x03F9DC6C,
+	0x037F3A27, 0x02FE04E5, 0x026B32E3, 0x01EF5BE9, 0x01B514DD, 0x018712AA, 0x01430F6B, 0x0100385E,
+	0x00E129C7, 0x00BE85CF, 0x00A187B5, 0x00801C2F, 0x007094E3, 0x00607F9E, 0x004FE588, 0x003DEB7D,
+	0x00392824, 0x00318930, 0x00271B77, 0x00204E57, 0x001B851B, 0x0017F80F, 0x00141506, 0x0010272B,
+	0x000E0504, 0x000BFC07, 0x000A0A83, 0x0007FD5A, 0x0006C140, 0x00063126, 0x0004F41E, 0x0003E925,
+	0x000389CC, 0x0002F8DF, 0x00027A0F, 0x0002021A, 0x0001C4E6, 0x00017C6F, 0x00014267, 0x0001010D,
+	0x0000DFC9, 0x0000C023, 0x00009E83, 0x00007ECF, 0x00006FE4, 0x00005F1B, 0x00004F41, 0x00003F67,
+	0x000037F2, 0x00002F8D, 0x000027A0, 0x0000203D, 0x00001BF9, 0x00001814, 0x00001405, 0x00000FD9,
+	0x00000D96, 0x00000BE3, 0x00000A02, 0x000007EC, 0x0000070B, 0x000005F1, 0x00000501, 0x000003F6,
+	0x00000385, 0x00000304, 0x00000280, 0x00000200, 0x000001BE, 0x0000017F, 0x00000140, 0x00000100,
+	0x000000DF, 0x000000BF, 0x000000A0, 0x00000080, 0x0000006F, 0x0000005F, 0x00000050, 0x00000040,
+	0x00000037, 0x0000002F, 0x00000028, 0x00000020, 0x0000001B, 0x00000017, 0x00000014, 0x00000010,
+	0x0000000D, 0x0000000B, 0x0000000A, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000
+};
+
+const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] = 
+{
+	0x488FF6B5, 0x3A0CC55E, 0x305FF9CE, 0x2976D61E, 0x203FFBDE, 0x1D0662AF, 0x182FFCE7, 0x1359971F,
+	0x101FFDEF, 0x0DD2475F, 0x0C17FE73, 0x0A0233AF, 0x080FFEF7, 0x07144A05, 0x060BFF39, 0x050119D7,
+	0x03F9DC6C, 0x037F3A27, 0x02FE04E5, 0x026B32E3, 0x01EF5BE9, 0x01B514DD, 0x018712AA, 0x01430F6B,
+	0x0100385E, 0x00E129C7, 0x00BE85CF, 0x00A187B5, 0x00801C2F, 0x007094E3, 0x00607F9E, 0x004FE588,
+	0x003DEB7D, 0x00392824, 0x00318930, 0x00271B77, 0x00204E57, 0x001B851B, 0x0017F80F, 0x00141506,
+	0x0010272B, 0x000E0504, 0x000BFC07, 0x000A0A83, 0x0007FD5A, 0x0006C140, 0x00063126, 0x0004F41E,
+	0x0003E925, 0x000389CC, 0x0002F8DF, 0x00027A0F, 0x0002021A, 0x0001C4E6, 0x00017C6F, 0x00014267,
+	0x0001010D, 0x0000DFC9, 0x0000C023, 0x00009E83, 0x00007ECF, 0x00006FE4, 0x00005F1B, 0x00004F41,
+	0x00003F67, 0x000037F2, 0x00002F8D, 0x000027A0, 0x0000203D, 0x00001BF9, 0x00001814, 0x00001405,
+	0x00000FD9, 0x00000D96, 0x00000BE3, 0x00000A02, 0x000007EC, 0x0000070B, 0x000005F1, 0x00000501,
+	0x000003F6, 0x00000385, 0x00000304, 0x00000280, 0x00000200, 0x000001BE, 0x0000017F, 0x00000140,
+	0x00000100, 0x000000DF, 0x000000BF, 0x000000A0, 0x00000080, 0x0000006F, 0x0000005F, 0x00000050,
+	0x00000040, 0x00000037, 0x0000002F, 0x00000028, 0x00000020, 0x0000001B, 0x00000017, 0x00000014,
+	0x00000010, 0x0000000D, 0x0000000B, 0x0000000A, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000
+};
+
 CSpuBase::CSpuBase(uint8* ram, uint32 ramSize)
 : m_ram(ram)
 , m_ramSize(ramSize)
@@ -313,7 +353,7 @@ void CSpuBase::WriteWord(uint16 value)
 	m_bufferAddr += 2;
 }
 
-int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume)
+int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 currentVolume)
 {
 	int32 volumeLevel = 0;
 	if(!volume.mode.mode)
@@ -326,18 +366,31 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume)
 		{
 			volumeLevel = volume.volume.volume;
 		}
+		volumeLevel <<= 17;
 	}
 	else
 	{
-		assert(0);
+		assert(volume.sweep.phase == 0);
+		assert(volume.sweep.slope == 0);
+		if(volume.sweep.decrease)
+		{
+			uint32 sweepDelta = g_linearDecreaseSweepDeltas[volume.sweep.volume];
+			volumeLevel = currentVolume - sweepDelta;
+		}
+		else
+		{
+			uint32 sweepDelta = g_linearIncreaseSweepDeltas[volume.sweep.volume];
+			volumeLevel = currentVolume + sweepDelta;
+		}
+		volumeLevel = std::max<int32>(volumeLevel, 0x00000000);
+		volumeLevel = std::min<int32>(volumeLevel, 0x7FFFFFFF);
 	}
-	volumeLevel = std::min<int32>(0x3FFF, static_cast<int32>(static_cast<float>(volumeLevel) * m_volumeAdjust));
 	return volumeLevel;
 }
 
 void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 {
-	inputSample = (inputSample * volumeLevel) / 0x3FFF;
+	inputSample = (inputSample * volumeLevel) / 0x7FFF;
 	int32 resultSample = inputSample + static_cast<int32>(*output);
 	resultSample = std::max<int32>(resultSample, SHRT_MIN);
 	resultSample = std::min<int32>(resultSample, SHRT_MAX);
@@ -350,14 +403,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 	//ticks are 44100Hz ticks
 	unsigned int ticks = sampleCount / 2;
 	memset(samples, 0, sizeof(int16) * sampleCount);
-
-	//Precompute volume values
-	for(unsigned int i = 0; i < 24; i++)
-	{
-		CHANNEL& channel(m_channel[i]);
-		channel.volumeLeftAbs	= ComputeChannelVolume(channel.volumeLeft);
-		channel.volumeRightAbs	= ComputeChannelVolume(channel.volumeRight);
-	}
 
 	for(unsigned int j = 0; j < ticks; j++)
 	{
@@ -401,13 +446,19 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			{
 				inputSample = (inputSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
 			}
-			MixSamples(inputSample, channel.volumeLeftAbs,	samples + 0);
-			MixSamples(inputSample, channel.volumeRightAbs, samples + 1);
+
+			channel.volumeLeftAbs	= ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
+			channel.volumeRightAbs	= ComputeChannelVolume(channel.volumeRight, channel.volumeRightAbs);
+
+			int32 adjustedLeftVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeLeftAbs >> 16) * m_volumeAdjust));
+			int32 adjustedRightVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeRightAbs >> 16) * m_volumeAdjust));
+			MixSamples(inputSample, adjustedLeftVolume, samples + 0);
+			MixSamples(inputSample, adjustedRightVolume, samples + 1);
 			//Mix in reverb if enabled for this channel
 			if(m_reverbEnabled && (m_channelReverb.f & (1 << i)))
 			{
-				MixSamples(inputSample, channel.volumeLeftAbs,	reverbSample + 0);
-				MixSamples(inputSample, channel.volumeRightAbs, reverbSample + 1);
+				MixSamples(inputSample, adjustedLeftVolume,	reverbSample + 0);
+				MixSamples(inputSample, adjustedRightVolume, reverbSample + 1);
 			}
 		}
 		//Update reverb

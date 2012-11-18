@@ -244,34 +244,37 @@ namespace Iop
 			MAX_ADSR_VOLUME = 0x7FFFFFFF,
 		};
 
-		void			UpdateAdsr(CHANNEL&);
-		uint32			GetAdsrDelta(unsigned int) const;
-		float			GetReverbSample(uint32) const;
-		void			SetReverbSample(uint32, float);
-		uint32			GetReverbOffset(unsigned int) const;
-		float			GetReverbCoef(unsigned int) const;
+		void				UpdateAdsr(CHANNEL&);
+		uint32				GetAdsrDelta(unsigned int) const;
+		float				GetReverbSample(uint32) const;
+		void				SetReverbSample(uint32, float);
+		uint32				GetReverbOffset(unsigned int) const;
+		float				GetReverbCoef(unsigned int) const;
 
-		static void		MixSamples(int32, int32, int16*);
-		int32			ComputeChannelVolume(const CHANNEL_VOLUME&);
+		static void			MixSamples(int32, int32, int16*);
+		int32				ComputeChannelVolume(const CHANNEL_VOLUME&, int32);
 
-		uint8*			m_ram;
-		uint32			m_ramSize;
-		uint32			m_baseSamplingRate;
-		uint32			m_bufferAddr;
-		UNION32_16		m_channelOn;
-		UNION32_16		m_channelReverb;
-		uint32			m_reverbWorkAddrStart;
-		uint32			m_reverbWorkAddrEnd;
-		uint32			m_reverbCurrAddr;
-		uint16			m_ctrl;
-		int				m_reverbTicks;
-		uint32			m_reverb[REVERB_REG_COUNT];
-		CHANNEL			m_channel[MAX_CHANNEL];
-		CSampleReader	m_reader[MAX_CHANNEL];
-		uint32			m_adsrLogTable[160];
-		bool			m_reverbEnabled;
-		bool			m_dmaDisabled;
-		float			m_volumeAdjust;
+		static const uint32	g_linearIncreaseSweepDeltas[0x80];
+		static const uint32	g_linearDecreaseSweepDeltas[0x80];
+
+		uint8*				m_ram;
+		uint32				m_ramSize;
+		uint32				m_baseSamplingRate;
+		uint32				m_bufferAddr;
+		UNION32_16			m_channelOn;
+		UNION32_16			m_channelReverb;
+		uint32				m_reverbWorkAddrStart;
+		uint32				m_reverbWorkAddrEnd;
+		uint32				m_reverbCurrAddr;
+		uint16				m_ctrl;
+		int					m_reverbTicks;
+		uint32				m_reverb[REVERB_REG_COUNT];
+		CHANNEL				m_channel[MAX_CHANNEL];
+		CSampleReader		m_reader[MAX_CHANNEL];
+		uint32				m_adsrLogTable[160];
+		bool				m_reverbEnabled;
+		bool				m_dmaDisabled;
+		float				m_volumeAdjust;
 	};
 }
 

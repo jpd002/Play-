@@ -290,6 +290,12 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 	case VP_ENVX:
 		result = (channel.adsrVolume >> 16);
 		break;
+	case VP_VOLXL:
+		result = (channel.volumeLeftAbs >> 16);
+		break;
+	case VP_VOLXR:
+		result = (channel.volumeRightAbs >> 16);
+		break;
 	case VA_SSA_HI:
 		result = GetAddressHi(channel.address);
 		break;
@@ -320,9 +326,17 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 	{
 	case VP_VOLL:
 		channel.volumeLeft <<= static_cast<uint16>(value);
+		if(channel.volumeLeft.mode.mode == 0)
+		{
+			channel.volumeLeftAbs = channel.volumeLeft.volume.volume << 17;
+		}
 		break;
 	case VP_VOLR:
 		channel.volumeRight <<= static_cast<uint16>(value);
+		if(channel.volumeRight.mode.mode == 0)
+		{
+			channel.volumeRightAbs = channel.volumeRight.volume.volume << 17;
+		}
 		break;
 	case VP_PITCH:
 		channel.pitch = static_cast<uint16>(value);
@@ -335,12 +349,6 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 		break;
 	case VP_ENVX:
 		channel.adsrVolume = static_cast<uint16>(value);
-		break;
-	case VP_VOLXL:
-//		channel.volxLeft = static_cast<uint16>(value);
-		break;
-	case VP_VOLXR:
-//		channel.volxRight = static_cast<uint16>(value);
 		break;
 	case VA_SSA_HI:
 		channel.address = SetAddressHi(channel.address, static_cast<uint16>(value));
@@ -470,6 +478,14 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 result
 		break;
 	case VP_ENVX:
 		CLog::GetInstance().Print(logName, "ch%0.2i: = VP_ENVX = 0x%0.4X.\r\n", 
+			channelId, result);
+		break;
+	case VP_VOLXL:
+		CLog::GetInstance().Print(logName, "ch%0.2i: = VP_VOLXL = 0x%0.4X.\r\n", 
+			channelId, result);
+		break;
+	case VP_VOLXR:
+		CLog::GetInstance().Print(logName, "ch%0.2i: = VP_VOLXR = 0x%0.4X.\r\n", 
 			channelId, result);
 		break;
 	case VA_SSA_HI:
