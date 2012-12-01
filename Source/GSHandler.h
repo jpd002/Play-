@@ -527,7 +527,7 @@ protected:
 	};
 	static_assert(sizeof(SMODE2) == sizeof(uint64), "Size of SMODE2 struct must be 8 bytes.");
 
-	struct DISPFB
+	struct DISPFB : public convertible<uint64>
 	{
 		unsigned int	nBufPtr			: 9;
 		unsigned int	nBufWidth		: 6;
@@ -539,6 +539,7 @@ protected:
 		uint32			GetBufPtr()		{ return nBufPtr * 8192; };
 		uint32			GetBufWidth()	{ return nBufWidth * 64; };
 	};
+	static_assert(sizeof(DISPFB) == sizeof(uint64), "Size of DISPFB struct must be 8 bytes.");
 
 	struct DISPLAY : public convertible<uint64>
 	{
