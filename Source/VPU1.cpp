@@ -116,8 +116,8 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 {
 	uint32 nSize = stream.GetAvailableReadBytes();
-	assert((nSize & 0x0F) == 0);
 	nSize = std::min<uint32>(m_CODE.nIMM * 0x10, nSize);
+	assert((nSize & 0x0F) == 0);
 
 	if(nSize != 0)
 	{

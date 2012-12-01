@@ -436,6 +436,8 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 		m_writeTick = 0;
 	}
 
+	uint32 currentNum = (m_NUM == 0) ? 256 : m_NUM;
+
 //    assert(m_NUM == nCommand.nNUM);
 //    uint32 nTransfered = m_CODE.nNUM - m_NUM;
 //    nDstAddr += nTransfered;
@@ -444,7 +446,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
 	uint128* dst = reinterpret_cast<uint128*>(&m_pVUMem[nDstAddr]);
 
-	while(m_NUM != 0 && stream.GetAvailableReadBytes())
+	while((currentNum != 0) && stream.GetAvailableReadBytes())
 	{
 		bool mustWrite = false;
 		uint128 writeValue;
@@ -507,7 +509,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 				}
 			}
 			
-			m_NUM--;
+			currentNum--;
 		}
 
 		if(cl >= wl)
@@ -536,7 +538,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 		dst++;
 	}
 
-	if(m_NUM != 0)
+	if(currentNum != 0)
 	{
 		m_STAT.nVPS = 1;
 	}
@@ -546,6 +548,8 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 		stream.Align32();
 		m_STAT.nVPS = 0;
 	}
+
+	m_NUM = static_cast<uint8>(currentNum);
 }
 
 bool CVPU::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& writeValue, bool usn)
