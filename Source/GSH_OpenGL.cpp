@@ -48,8 +48,6 @@ void CGSH_OpenGL::InitializeImpl()
 	InitializeRC();
 
 	m_nVtxCount = 0;
-	m_displayWidth = 0;
-	m_displayHeight = 0;
 	memset(m_clampMin, 0, sizeof(m_clampMin));
 	memset(m_clampMax, 0, sizeof(m_clampMax));
 
@@ -74,14 +72,22 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_textureCache.clear();
 	m_paletteCache.clear();
 	m_shaderInfos.clear();
+	m_framebuffers.clear();
+}
+
+void CGSH_OpenGL::ResetImpl()
+{
+	TexCache_Flush();
+	PalCache_Flush();
+	m_framebuffers.clear();
 }
 
 void CGSH_OpenGL::FlipImpl()
 {
-	PresentBackbuffer();
-	CGSHandler::FlipImpl();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glClearColor(0, 0, 0, 1);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -106,30 +112,140 @@ void CGSH_OpenGL::FlipImpl()
 			}
 			int selectedViewport = 0;
 			if(
-			   (viewportWidth[0] > m_presentationParams.windowWidth) ||
-			   (viewportHeight[0] > m_presentationParams.windowHeight)
+			   (viewportWidth[0] > static_cast<int>(m_presentationParams.windowWidth)) ||
+			   (viewportHeight[0] > static_cast<int>(m_presentationParams.windowHeight))
 			   )
 			{
 				selectedViewport = 1;
 				assert(
-					   viewportWidth[1] <= m_presentationParams.windowWidth &&
-					   viewportHeight[1] <= m_presentationParams.windowHeight);
+					   viewportWidth[1] <= static_cast<int>(m_presentationParams.windowWidth) &&
+					   viewportHeight[1] <= static_cast<int>(m_presentationParams.windowHeight));
 			}
-			int offsetX = (m_presentationParams.windowWidth - viewportWidth[selectedViewport]) / 2;
-			int offsetY = (m_presentationParams.windowHeight - viewportHeight[selectedViewport]) / 2;
+			int offsetX = static_cast<int>(m_presentationParams.windowWidth - viewportWidth[selectedViewport]) / 2;
+			int offsetY = static_cast<int>(m_presentationParams.windowHeight - viewportHeight[selectedViewport]) / 2;
 			glViewport(offsetX, offsetY, viewportWidth[selectedViewport], viewportHeight[selectedViewport]);
 		}
 		break;
 	case PRESENTATION_MODE_ORIGINAL:
 		{
-			int offsetX = (m_presentationParams.windowWidth - sourceWidth) / 2;
-			int offsetY = (m_presentationParams.windowHeight - sourceHeight) / 2;
+			int offsetX = static_cast<int>(m_presentationParams.windowWidth - sourceWidth) / 2;
+			int offsetY = static_cast<int>(m_presentationParams.windowHeight - sourceHeight) / 2;
 			glViewport(offsetX, offsetY, sourceWidth, sourceHeight);
 		}
 		break;
 	}
-	
+
+	DISPLAY d;
+	DISPFB fb;
+	{
+		boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+		unsigned int readCircuit = GetCurrentReadCircuit();
+//		unsigned int readCircuit = 1;
+		switch(readCircuit)
+		{
+		case 0:
+			d <<= m_nDISPLAY1.value.q;
+			fb <<= m_nDISPFB1.value.q;
+			break;
+		case 1:
+			d <<= m_nDISPLAY2.value.q;
+			fb <<= m_nDISPFB2.value.q;
+			break;
+		}
+	}
+
+	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
+	unsigned int dispHeight = (d.nH + 1);
+
+	FramebufferPtr framebuffer;
+	for(auto framebufferIterator(std::begin(m_framebuffers));
+		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+	{
+		const auto& candidateFramebuffer = *framebufferIterator;
+		if(candidateFramebuffer->m_basePtr == fb.GetBufPtr())
+//			candidateFramebuffer->m_width == fb.GetBufWidth())
+		{
+			//We have a winner
+			framebuffer = candidateFramebuffer;
+			break;
+		}
+	}
+
+	if(!framebuffer && (fb.GetBufWidth() != 0))
+	{
+		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
+		m_framebuffers.push_back(framebuffer);
+	}
+
+	if(framebuffer)
+	{
+		float u0 = 0;
+		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_width);
+
+		float v0 = 0;
+		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
+
+		glUseProgram(0);
+
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+
+		glDisable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_ALPHA_TEST);
+		glColor4f(1, 1, 1, 1);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		glMatrixMode(GL_TEXTURE);
+		glLoadIdentity();
+
+		glBegin(GL_QUADS);
+		{
+			glTexCoord2f(u1, v0);
+			glVertex2f(1, 1);
+
+			glTexCoord2f(u1, v1);
+			glVertex2f(1, -1);
+
+			glTexCoord2f(u0, v1);
+			glVertex2f(-1, -1);
+
+			glTexCoord2f(u0, v0);
+			glVertex2f(-1, 1);
+		}
+		glEnd();
+
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+	}
+
+	m_renderState.isValid = false;
+
 	assert(glGetError() == GL_NO_ERROR);
+
+	static bool g_dumpFramebuffers = false;
+	if(g_dumpFramebuffers)
+	{
+		for(auto framebufferIterator(std::begin(m_framebuffers));
+			framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+		{
+			const auto& framebuffer(*framebufferIterator);
+			glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
+			DumpTexture(framebuffer->m_width, framebuffer->m_height, framebuffer->m_basePtr);
+		}
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	PresentBackbuffer();
+	CGSHandler::FlipImpl();
 }
 
 void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
@@ -228,57 +344,13 @@ void CGSH_OpenGL::LinearZOrtho(float nLeft, float nRight, float nBottom, float n
 	glMultMatrixf(nMatrix);
 }
 
-void CGSH_OpenGL::UpdateViewportImpl()
-{
-	if(m_nPMODE == 0) return;
-
-	DISPLAY d;
-	if(m_nPMODE & 0x01)
-	{
-		d <<= m_nDISPLAY1;
-	}
-	else
-	{
-		d <<= m_nDISPLAY2;
-	}
-
-	unsigned int nW = (d.nW + 1) / (d.nMagX + 1);
-	unsigned int nH = (d.nH + 1);
-
-	if(GetCrtIsInterlaced() && GetCrtIsFrameMode())
-	{
-		nH /= 2;
-	}
-
-	if(m_displayWidth == nW && m_displayHeight == nH)
-	{
-		return;
-	}
-
-	m_displayWidth = nW;
-	m_displayHeight = nH;
-
-	SetReadCircuitMatrix(m_displayWidth, m_displayHeight);
-}
-
 unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 {
-	assert((m_nPMODE & 0x3) != 0x03);
+//	assert((m_nPMODE & 0x3) != 0x03);
 	if(m_nPMODE & 0x1) return 0;
 	if(m_nPMODE & 0x2) return 1;
 	//Getting here is bad
 	return 0;
-}
-
-void CGSH_OpenGL::SetReadCircuitMatrix(int nWidth, int nHeight)
-{
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	LinearZOrtho(0, static_cast<float>(nWidth), static_cast<float>(nHeight), 0);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 }
 
 uint32 CGSH_OpenGL::RGBA16ToRGBA32(uint16 nColor)
@@ -352,21 +424,14 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 		m_renderState.zbufReg = zbufReg;
 	}
 
-	SetupTexture(shaderCaps, m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
-	
 	if(!m_renderState.isValid ||
 		(m_renderState.frameReg != frameReg))
 	{
-		FRAME frame;
-		frame <<= frameReg;
-		bool r = (frame.nMask & 0x000000FF) == 0;
-		bool g = (frame.nMask & 0x0000FF00) == 0;
-		bool b = (frame.nMask & 0x00FF0000) == 0;
-		bool a = (frame.nMask & 0xFF000000) == 0;
-		glColorMask(r, g, b, a);
-
+		SetupFramebuffer(frameReg);
 		m_renderState.frameReg = frameReg;
 	}
+
+	SetupTexture(shaderCaps, m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
 
 	if(m_PrimitiveMode.nFog)
 	{
@@ -378,14 +443,6 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
 	
-	if(GetCrtIsInterlaced() && GetCrtIsFrameMode())
-	{
-		if(m_nCSR & 0x2000)
-		{
-			m_nPrimOfsY += 0.5;
-		}
-	}
-
 	auto shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
 	if(shaderInfoIterator == m_shaderInfos.end())
 	{
@@ -492,6 +549,15 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
 			glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
 		}
 	}
+	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
+	{
+		//Cs * FIX + Cd
+		if(glBlendColor != NULL)
+		{
+			glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
+			glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
+		}
+	}
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
 	{
 		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
@@ -593,11 +659,19 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 			break;
 		}
 
-		float nValue = (float)tst.nAlphaRef / 255.0f;
-		glAlphaFunc(nFunc, nValue);
+		//Special trick used by Castlevania: Yami no Juin
+		//Always fail alpha testing but write RGBA if it fails
+		if(tst.nAlphaMethod == 0 && tst.nAlphaFail == 1)
+		{
+			glDisable(GL_ALPHA_TEST);
+		}
+		else
+		{
+			float nValue = (float)tst.nAlphaRef / 255.0f;
+			glAlphaFunc(nFunc, nValue);
 
-		glEnable(GL_ALPHA_TEST);
-
+			glEnable(GL_ALPHA_TEST);
+		}
 	}
 	else
 	{
@@ -656,10 +730,67 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 	glDepthMask(zbuf.nMask ? GL_FALSE : GL_TRUE);
 }
 
+void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg)
+{
+	FRAME frame;
+	frame <<= frameReg;
+
+	bool r = (frame.nMask & 0x000000FF) == 0;
+	bool g = (frame.nMask & 0x0000FF00) == 0;
+	bool b = (frame.nMask & 0x00FF0000) == 0;
+	bool a = (frame.nMask & 0xFF000000) == 0;
+	glColorMask(r, g, b, a);
+
+	//Look for a framebuffer that matches the specified information
+	FramebufferPtr framebuffer;
+	for(auto framebufferIterator(std::begin(m_framebuffers));
+		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+	{
+		const auto& candidateFramebuffer = *framebufferIterator;
+		if(
+			(candidateFramebuffer->m_basePtr == frame.GetBasePtr()) &&
+			(candidateFramebuffer->m_width == frame.GetWidth())
+			)
+		{
+			framebuffer = candidateFramebuffer;
+			break;
+		}
+	}
+
+	if(!framebuffer)
+	{
+		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
+		m_framebuffers.push_back(framebuffer);
+	}
+
+	//Any framebuffer selected at this point can be used as a texture
+	framebuffer->m_canBeUsedAsTexture = true;
+
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+	glViewport(0, 0, framebuffer->m_width, framebuffer->m_height);
+	glScissor(0, 0, framebuffer->m_width, framebuffer->m_height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	float projWidth = static_cast<float>(framebuffer->m_width);
+	float projHeight = static_cast<float>(halfHeight ? (framebuffer->m_height / 2) : framebuffer->m_height);
+	LinearZOrtho(0, projWidth, 0, projHeight);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
 void CGSH_OpenGL::SetupTexture(SHADERCAPS& shaderCaps, uint64 nTex0, uint64 nTex1, uint64 nClamp)
 {
 	if(nTex0 == 0 || m_PrimitiveMode.nTexture == 0)
 	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, 0);
 		return;
 	}
 
@@ -785,10 +916,11 @@ void CGSH_OpenGL::SetupFogColor()
 {
 	float nColor[4];
 
-	FOGCOL* pColor = GetFogCol();
-	nColor[0] = (float)pColor->nFCR / 255.0f;
-	nColor[1] = (float)pColor->nFCG / 255.0f;
-	nColor[2] = (float)pColor->nFCB / 255.0f;
+	FOGCOL color;
+	color <<= m_nReg[GS_REG_FOGCOL];
+	nColor[0] = static_cast<float>(color.nFCR) / 255.0f;
+	nColor[1] = static_cast<float>(color.nFCG) / 255.0f;
+	nColor[2] = static_cast<float>(color.nFCB) / 255.0f;
 	nColor[3] = 0.0f;
 
 	glFogfv(GL_FOG_COLOR, nColor);
@@ -1305,26 +1437,105 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 	}
 }
 
-void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength)
+void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength, bool dirty)
 {
-	FRAME* pFrame = GetFrame(0);
-	BITBLTBUF* pBuf = GetBitBltBuf();
-
-	TexCache_InvalidateTextures(nAddress, nLength);
-
-	uint32 nFrameEnd = (pFrame->GetBasePtr() + (pFrame->GetWidth() * GetPsmPixelSize(pFrame->nPsm) / 8) * m_displayHeight);
-	if(nAddress < nFrameEnd)
+	if(dirty)
 	{
-		if((pFrame->nPsm == PSMCT24) && (pBuf->nDstPsm == PSMT4HH || pBuf->nDstPsm == PSMT4HL || pBuf->nDstPsm == PSMT8H)) return;
-		//This is for Atelier Iris
-		if(pBuf->nDstPsm == PSMCT24) return;
+		TexCache_InvalidateTextures(nAddress, nLength);
+	}
+
+	//Invalidate any framebuffer that might have been overwritten by texture data that can't be displayed
+	for(auto framebufferIterator(std::begin(m_framebuffers));
+		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+	{
+		const auto& framebuffer(*framebufferIterator);
+		if(framebuffer->m_basePtr == nAddress)
+		{
+			framebuffer->m_canBeUsedAsTexture = false;
+		}
+	}
+
+	BITBLTBUF bltBuf;
+	bltBuf <<= m_nReg[GS_REG_BITBLTBUF];
+	auto dstFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
+		[&] (const FramebufferPtr& framebuffer) 
+		{
+			return 
+				framebuffer->m_basePtr == bltBuf.GetDstPtr() &&
+				framebuffer->m_width == bltBuf.GetDstWidth() &&
+				framebuffer->m_psm == bltBuf.nDstPsm;
+		}
+	);
+	if(dstFramebufferIterator != std::end(m_framebuffers))
+	{
+		const auto& dstFramebuffer = (*dstFramebufferIterator);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		glViewport(0, 0, dstFramebuffer->m_width, dstFramebuffer->m_height);
+		glScissor(0, 0, dstFramebuffer->m_width, dstFramebuffer->m_height);
+
+		float projWidth = static_cast<float>(dstFramebuffer->m_width);
+		float projHeight = static_cast<float>(dstFramebuffer->m_height);
+		LinearZOrtho(0, projWidth, 0, projHeight);
+
+		glMatrixMode(GL_TEXTURE);
+		glLoadIdentity();
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, dstFramebuffer->m_framebuffer);
+
 		DisplayTransferedImage(nAddress);
+
+		m_renderState.isValid = false;
 	}
 }
 
 void CGSH_OpenGL::ProcessClutTransfer(uint32 csa, uint32)
 {
 	PalCache_Invalidate(csa);
+}
+
+void CGSH_OpenGL::ProcessLocalToLocalTransfer()
+{
+	BITBLTBUF bltBuf;
+	bltBuf <<= m_nReg[GS_REG_BITBLTBUF];
+	auto srcFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
+		[&] (const FramebufferPtr& framebuffer) 
+		{
+			return framebuffer->m_basePtr == bltBuf.GetSrcPtr();
+		}
+	);
+	auto dstFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
+		[&] (const FramebufferPtr& framebuffer) 
+		{
+			return framebuffer->m_basePtr == bltBuf.GetDstPtr();
+		}
+	);
+	if(
+		srcFramebufferIterator != std::end(m_framebuffers) && 
+		dstFramebufferIterator != std::end(m_framebuffers))
+	{
+		const auto& srcFramebuffer = (*srcFramebufferIterator);
+		const auto& dstFramebuffer = (*dstFramebufferIterator);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, dstFramebuffer->m_framebuffer);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFramebuffer->m_framebuffer);
+
+		//Copy buffers
+		glBlitFramebuffer(
+			0, 0, srcFramebuffer->m_width, srcFramebuffer->m_height, 
+			0, 0, srcFramebuffer->m_width, srcFramebuffer->m_height, 
+			GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		assert(glGetError() == GL_NO_ERROR);
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+		m_renderState.isValid = false;
+	}
 }
 
 void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
@@ -1336,14 +1547,19 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 
 void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 {
-	TRXREG* pReg = GetTrxReg();
-	TRXPOS* pPos = GetTrxPos();
+	TRXREG trxReg;
+	TRXPOS trxPos;
 
-	unsigned int nW = pReg->nRRW;
-	unsigned int nH = pReg->nRRH;
+	trxReg <<= m_nReg[GS_REG_TRXREG];
+	trxPos <<= m_nReg[GS_REG_TRXPOS];
 
-	unsigned int nDX = pPos->nDSAX;
-	unsigned int nDY = pPos->nDSAY;
+	unsigned int nW = trxReg.nRRW;
+	unsigned int nH = trxReg.nRRH;
+
+	unsigned int nDX = trxPos.nDSAX;
+	unsigned int nDY = trxPos.nDSAY;
+
+	glUseProgram(0);
 
 	GLuint nTexture = 0;
 	glGenTextures(1, &nTexture);
@@ -1358,7 +1574,6 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	//Upload the texture
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, nW);
 
-	//glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pImg);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1387,8 +1602,6 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
 	glDeleteTextures(1, &nTexture);
-
-	PresentBackbuffer();
 }
 
 bool CGSH_OpenGL::IsBlendColorExtSupported()
@@ -1409,4 +1622,62 @@ bool CGSH_OpenGL::IsRGBA5551ExtSupported()
 bool CGSH_OpenGL::IsFogCoordfExtSupported()
 {
 	return glFogCoordfEXT != NULL;
+}
+
+/////////////////////////////////////////////////////////////
+// Framebuffer
+/////////////////////////////////////////////////////////////
+
+CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm)
+: m_basePtr(basePtr)
+, m_width(width)
+, m_height(height)
+, m_psm(psm)
+, m_framebuffer(0)
+, m_texture(0)
+, m_depthBuffer(0)
+, m_canBeUsedAsTexture(false)
+{
+	//Build color attachment
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	assert(glGetError() == GL_NO_ERROR);
+		
+	//Build depth attachment
+	glGenRenderbuffers(1, &m_depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+	assert(glGetError() == GL_NO_ERROR);
+
+	//Build framebuffer
+	glGenFramebuffers(1, &m_framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer);
+	assert(glGetError() == GL_NO_ERROR);
+
+	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(result == GL_FRAMEBUFFER_COMPLETE);
+
+	GLenum drawBufferId = GL_COLOR_ATTACHMENT0;
+	glDrawBuffers(1, &drawBufferId);
+
+	assert(glGetError() == GL_NO_ERROR);
+}
+
+CGSH_OpenGL::CFramebuffer::~CFramebuffer()
+{
+	if(m_framebuffer != 0)
+	{
+		glDeleteFramebuffers(1, &m_framebuffer);
+	}
+	if(m_texture != 0)
+	{
+		glDeleteTextures(1, &m_texture);
+	}
+	if(m_depthBuffer != 0)
+	{
+		glDeleteRenderbuffers(1, &m_depthBuffer);
+	}
 }

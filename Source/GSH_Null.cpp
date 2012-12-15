@@ -20,17 +20,17 @@ void CGSH_Null::ReleaseImpl()
 
 }
 
-void CGSH_Null::UpdateViewportImpl()
-{
-
-}
-
-void CGSH_Null::ProcessImageTransfer(uint32 nAddress, uint32 nSize)
+void CGSH_Null::ProcessImageTransfer(uint32 nAddress, uint32 nSize, bool dirty)
 {
 
 }
 
 void CGSH_Null::ProcessClutTransfer(uint32, uint32)
+{
+
+}
+
+void CGSH_Null::ProcessLocalToLocalTransfer()
 {
 
 }

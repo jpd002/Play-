@@ -9,9 +9,9 @@ public:
 								CGSH_Null();
 	virtual						~CGSH_Null();
 
-	virtual void				UpdateViewportImpl();
-	virtual void				ProcessImageTransfer(uint32, uint32);
+	virtual void				ProcessImageTransfer(uint32, uint32, bool);
 	virtual void				ProcessClutTransfer(uint32, uint32);
+	virtual void				ProcessLocalToLocalTransfer();
 	virtual void				ReadFramebuffer(uint32, uint32, void*);
 
 	static FactoryFunction		GetFactoryFunction();

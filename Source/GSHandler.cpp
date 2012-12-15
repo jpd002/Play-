@@ -174,7 +174,7 @@ CGSHandler::CGSHandler()
 	m_pTransferHandler[PSMT4HL]					= &CGSHandler::TrxHandlerPSMT4H<24, 0x0F000000>;
 	m_pTransferHandler[PSMT4HH]					= &CGSHandler::TrxHandlerPSMT4H<28, 0xF0000000>;
 
-	Reset();
+	ResetBase();
 
 	m_thread = new boost::thread(boost::bind(&CGSHandler::ThreadProc, this));
 }
@@ -190,22 +190,37 @@ CGSHandler::~CGSHandler()
 
 void CGSHandler::Reset()
 {
+	ResetBase();
+	m_mailBox.SendCall(std::bind(&CGSHandler::ResetImpl, this), true);
+}
+
+void CGSHandler::ResetBase()
+{
 	memset(m_nReg, 0, sizeof(uint64) * 0x80);
 	m_nReg[GS_REG_PRMODECONT] = 1;
 	memset(m_pRAM, 0, RAMSIZE);
 	memset(m_pCLUT, 0, CLUTSIZE);
 	m_nPMODE = 0;
 	m_nSMODE2 = 0;
-	m_nDISPFB1 = 0;
-	m_nDISPLAY1 = 0;
-	m_nDISPFB2 = 0;
-	m_nDISPLAY2 = 0;
+	m_nDISPFB1.heldValue = 0;
+	m_nDISPFB1.value.q = 0;
+	m_nDISPLAY1.heldValue = 0;
+	m_nDISPLAY1.value.q = 0;
+	m_nDISPFB2.heldValue = 0;
+	m_nDISPFB2.value.q = 0;
+	m_nDISPLAY2.heldValue = 0;
+	m_nDISPLAY2.value.q = 0;
 	m_nCSR = 0;
 	m_nIMR = 0;
 	m_nCrtMode = 2;
 	m_nCBP0	= 0;
 	m_nCBP1	= 0;
 	m_enabled = true;
+}
+
+void CGSHandler::ResetImpl()
+{
+
 }
 
 void CGSHandler::SetEnabled(bool enabled)
@@ -229,10 +244,10 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 
 		registerFile->SetRegister64(STATE_PRIVREGS_PMODE,			m_nPMODE);
 		registerFile->SetRegister64(STATE_PRIVREGS_SMODE2,			m_nSMODE2);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1,			m_nDISPFB1);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1,		m_nDISPLAY1);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2,			m_nDISPFB2);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,		m_nDISPLAY2);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1,			m_nDISPFB1.value.q);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1,		m_nDISPLAY1.value.q);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2,			m_nDISPFB2.value.q);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,		m_nDISPLAY2.value.q);
 		registerFile->SetRegister64(STATE_PRIVREGS_CSR,				m_nCSR);
 		registerFile->SetRegister64(STATE_PRIVREGS_IMR,				m_nIMR);
 		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE,			m_nCrtMode);
@@ -251,16 +266,14 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PRIVREGS));
 		m_nPMODE			= registerFile.GetRegister64(STATE_PRIVREGS_PMODE);
 		m_nSMODE2			= registerFile.GetRegister64(STATE_PRIVREGS_SMODE2);
-		m_nDISPFB1			= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
-		m_nDISPLAY1			= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
-		m_nDISPFB2			= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
-		m_nDISPLAY2			= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
+		m_nDISPFB1.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
+		m_nDISPLAY1.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
+		m_nDISPFB2.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
+		m_nDISPLAY2.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
 		m_nCSR				= registerFile.GetRegister64(STATE_PRIVREGS_CSR);
 		m_nIMR				= registerFile.GetRegister64(STATE_PRIVREGS_IMR);
 		m_nCrtMode			= registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
 	}
-
-	UpdateViewport();
 }
 
 void CGSHandler::SetVBlank()
@@ -270,13 +283,13 @@ void CGSHandler::SetVBlank()
 		Flip();
 	}
 
-	boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+	boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
 	m_nCSR |= CSR_VSYNC_INT;
 }
 
 void CGSHandler::ResetVBlank()
 {
-	boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+	boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
 
 	m_nCSR &= ~CSR_VSYNC_INT;
 
@@ -292,7 +305,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 	case GS_CSR:
 		//Force CSR to have the H-Blank bit set.
 		{
-			boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+			boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
 			m_nCSR |= 0x04;
 			R_REG(nAddress, nData, m_nCSR);
 		}
@@ -325,12 +338,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		break;
 	case GS_SMODE2:
 		{
-			uint64 prevSMODE2 = m_nSMODE2;
 			W_REG(nAddress, nData, m_nSMODE2);
-			if(m_nSMODE2 != prevSMODE2)
-			{
-				UpdateViewport();
-			}
 			if(nAddress & 0x04)
 			{
 				if(m_flipMode == FLIP_MODE_SMODE2)
@@ -341,17 +349,13 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		}
 		break;
 	case GS_DISPFB1:
-		W_REG(nAddress, nData, m_nDISPFB1);
+		WriteToDelayedRegister(nAddress, nData, m_nDISPFB1);
 		break;
 	case GS_DISPLAY1:
-		W_REG(nAddress, nData, m_nDISPLAY1);
-		if(nAddress & 0x04)
-		{
-			UpdateViewport();
-		}
+		WriteToDelayedRegister(nAddress, nData, m_nDISPLAY1);
 		break;
 	case GS_DISPFB2:
-		W_REG(nAddress, nData, m_nDISPFB2);
+		WriteToDelayedRegister(nAddress, nData, m_nDISPFB2);
 		if(nAddress & 0x04)
 		{
 			if(m_flipMode == FLIP_MODE_DISPFB2)
@@ -361,17 +365,13 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		}
 		break;
 	case GS_DISPLAY2:
-		W_REG(nAddress, nData, m_nDISPLAY2);
-		if(nAddress & 0x04)
-		{
-			UpdateViewport();
-		}
+		WriteToDelayedRegister(nAddress, nData, m_nDISPLAY2);
 		break;
 	case GS_CSR:
 		{
 			if(!(nAddress & 0x04))
 			{
-				boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+				boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
 				SetVBlank();
 				if(nData & CSR_FINISH_EVENT)
 				{
@@ -451,11 +451,6 @@ void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned
 	m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterMassivelyImpl, this, writeList, count));
 }
 
-void CGSHandler::UpdateViewport()
-{
-	m_mailBox.SendCall(std::bind(&CGSHandler::UpdateViewportImpl, this));
-}
-
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	m_nReg[nRegister] = nData;
@@ -491,47 +486,12 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		break;
 
 	case GS_REG_TRXDIR:
-		{
-			BITBLTBUF* pBuf = GetBitBltBuf();
-			TRXREG* pReg = GetTrxReg();
-			unsigned int nPixelSize;
-
-			//We need to figure out the pixel size of the source stream
-			switch(pBuf->nDstPsm)
-			{
-			case PSMCT32:
-				nPixelSize = 32;
-				break;
-			case PSMCT24:
-				nPixelSize = 24;
-				break;
-			case PSMCT16:
-				nPixelSize = 16;
-				break;
-			case PSMT8:
-			case PSMT8H:
-				nPixelSize = 8;
-				break;
-			case PSMT4:
-			case PSMT4HH:
-			case PSMT4HL:
-				nPixelSize = 4;
-				break;
-			default:
-				assert(0);
-				break;
-			}
-
-			m_TrxCtx.nSize	= (pReg->nRRW * pReg->nRRH * nPixelSize) / 8;
-			m_TrxCtx.nRRX	= 0;
-			m_TrxCtx.nRRY	= 0;
-			m_TrxCtx.nDirty	= false;
-		}
+		BeginTransfer();
 		break;
 
 	case GS_REG_FINISH:
 		{
-			boost::recursive_mutex::scoped_lock csrMutexLock(m_csrMutex);
+			boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
 			m_nCSR |= CSR_FINISH_EVENT;
 		}
 		break;
@@ -561,26 +521,23 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 		//return;
 	}
 
-	BITBLTBUF* pBuf(GetBitBltBuf());
-	m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[pBuf->nDstPsm]))(pData, nLength);
+	BITBLTBUF bltBuf;
+	bltBuf <<= m_nReg[GS_REG_BITBLTBUF];
+
+	m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[bltBuf.nDstPsm]))(pData, nLength);
 
 	m_TrxCtx.nSize -= nLength;
 
 	if(m_TrxCtx.nSize == 0)
 	{
-		if(m_TrxCtx.nDirty)
-		{
-			BITBLTBUF* pBuf = GetBitBltBuf();
-			TRXREG* pReg = GetTrxReg();
-
-			uint32 nSize = (pBuf->GetDstWidth() * pReg->nRRH * GetPsmPixelSize(pBuf->nDstPsm)) / 8;
-
-			ProcessImageTransfer(pBuf->GetDstPtr(), nSize);
+		TRXREG trxReg;
+		trxReg <<= m_nReg[GS_REG_TRXREG];
+		uint32 nSize = (bltBuf.GetDstWidth() * trxReg.nRRH * GetPsmPixelSize(bltBuf.nDstPsm)) / 8;
+		ProcessImageTransfer(bltBuf.GetDstPtr(), nSize, m_TrxCtx.nDirty);
 
 #ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "Dirty image transfer at 0x%0.8X.\r\n", pBuf->GetDstPtr());
+		CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_TrxCtx.nDirty);
 #endif
-		}
 	}
 }
 
@@ -593,6 +550,58 @@ void CGSHandler::WriteRegisterMassivelyImpl(const RegisterWrite* writeList, unsi
 		writeIterator++;
 	}
 	delete [] writeList;
+}
+
+void CGSHandler::BeginTransfer()
+{
+	uint32 trxDir = m_nReg[GS_REG_TRXDIR] & 0x03;
+	if(trxDir == 0)
+	{
+		//From Host to Local
+		BITBLTBUF bltBuf;
+		TRXREG trxReg;
+
+		bltBuf <<= m_nReg[GS_REG_BITBLTBUF];
+		trxReg <<= m_nReg[GS_REG_TRXREG];
+
+		unsigned int nPixelSize;
+
+		//We need to figure out the pixel size of the source stream
+		switch(bltBuf.nDstPsm)
+		{
+		case PSMCT32:
+			nPixelSize = 32;
+			break;
+		case PSMCT24:
+			nPixelSize = 24;
+			break;
+		case PSMCT16:
+			nPixelSize = 16;
+			break;
+		case PSMT8:
+		case PSMT8H:
+			nPixelSize = 8;
+			break;
+		case PSMT4:
+		case PSMT4HH:
+		case PSMT4HL:
+			nPixelSize = 4;
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		m_TrxCtx.nSize	= (trxReg.nRRW * trxReg.nRRH * nPixelSize) / 8;
+		m_TrxCtx.nRRX	= 0;
+		m_TrxCtx.nRRY	= 0;
+		m_TrxCtx.nDirty	= false;
+	}
+	else if(trxDir == 2)
+	{
+		//Local to Local
+		ProcessLocalToLocalTransfer();
+	}
 }
 
 void CGSHandler::FetchImagePSMCT16(uint16* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)
@@ -849,41 +858,6 @@ void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMod
 	smode2.interlaced	= nIsInterlaced ? 1 : 0;
 	smode2.ffmd			= nIsFrameMode ? 1 : 0;
 	m_nSMODE2 = smode2;
-
-	UpdateViewport();
-}
-
-CGSHandler::DISPFB* CGSHandler::GetDispFb(unsigned int nUnit)
-{
-	switch(nUnit)
-	{
-	case 0:
-		return (DISPFB*)&m_nDISPFB1;
-		break;
-	case 1:
-		return (DISPFB*)&m_nDISPFB2;
-		break;
-	default:
-		assert(0);
-		return NULL;
-		break;
-	}
-}
-
-CGSHandler::TEXCLUT* CGSHandler::GetTexClut()
-{
-	return (TEXCLUT*)&m_nReg[GS_REG_TEXCLUT];
-}
-
-CGSHandler::FOGCOL* CGSHandler::GetFogCol()
-{
-	return (FOGCOL*)&m_nReg[GS_REG_FOGCOL];
-}
-
-CGSHandler::FRAME* CGSHandler::GetFrame(unsigned int nUnit)
-{
-	assert(nUnit < 2);
-	return (FRAME*)&m_nReg[GS_REG_FRAME_1 + nUnit];
 }
 
 CGSHandler::TRXREG* CGSHandler::GetTrxReg()
@@ -1064,11 +1038,12 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 			assert(tex0.nCPSM == PSMCT16);
 			assert(tex0.nCSA == 0);
 
-			TEXCLUT* pTexClut = GetTexClut();
+			TEXCLUT texClut;
+			texClut <<= m_nReg[GS_REG_TEXCLUT];
 
-			CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), pTexClut->nCBW);
-			unsigned int nOffsetX = pTexClut->GetOffsetU();
-			unsigned int nOffsetY = pTexClut->GetOffsetV();
+			CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), texClut.nCBW);
+			unsigned int nOffsetX = texClut.GetOffsetU();
+			unsigned int nOffsetY = texClut.GetOffsetV();
 			uint16* pDst = m_pCLUT;
 
 			for(unsigned int i = 0; i < 0x10; i++)
@@ -1498,7 +1473,7 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 	case GS_REG_ZBUF_2:
 		{
 			ZBUF zbuf;
-			zbuf = *(ZBUF*)&nData;
+			zbuf <<= nData;
 			CLog::GetInstance().Print(LOG_NAME, "ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i);\r\n", \
 									  nRegister == GS_REG_ZBUF_1 ? 1 : 2, \
 									  zbuf.GetBasePtr(), \
@@ -1507,32 +1482,36 @@ void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
 		}
 		break;
 	case GS_REG_BITBLTBUF:
-		BITBLTBUF buf;
-		buf = *(BITBLTBUF*)&nData;
-		CLog::GetInstance().Print(LOG_NAME, "BITBLTBUF(0x%0.8X, %i, %i, 0x%0.8X, %i, %i);\r\n", \
-			buf.GetSrcPtr(), \
-			buf.GetSrcWidth(), \
-			buf.nSrcPsm, \
-			buf.GetDstPtr(), \
-			buf.GetDstWidth(), \
-			buf.nDstPsm);
+		{
+			BITBLTBUF buf;
+			buf <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "BITBLTBUF(SBP: 0x%0.8X, SBW: %i, SPSM: %i, DBP: 0x%0.8X, DBW: %i, DPSM: %i);\r\n",
+				buf.GetSrcPtr(),
+				buf.GetSrcWidth(),
+				buf.nSrcPsm,
+				buf.GetDstPtr(),
+				buf.GetDstWidth(),
+				buf.nDstPsm);
+		}
 		break;
 	case GS_REG_TRXPOS:
-		CLog::GetInstance().Print(LOG_NAME, "TRXPOS(%i, %i, %i, %i, %i);\r\n", \
-			(uint32)((nData >>  0) & 0xFFFF), \
-			(uint32)((nData >> 16) & 0xFFFF), \
-			(uint32)((nData >> 32) & 0xFFFF), \
-			(uint32)((nData >> 48) & 0xFF),   \
-			(uint32)((nData >> 59) & 0x1));
+		{
+			TRXPOS trxPos;
+			trxPos <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "TRXPOS(SSAX: %i, SSAY: %i, DSAX: %i, DSAY: %i, DIR: %i);\r\n",
+				trxPos.nSSAX, trxPos.nSSAY, trxPos.nDSAX, trxPos.nDSAY, trxPos.nDIR);
+		}
 		break;
 	case GS_REG_TRXREG:
-		CLog::GetInstance().Print(LOG_NAME, "TRXREG(%i, %i);\r\n", \
-			(uint32)((nData >>  0) & 0xFFFFFFFF),
-			(uint32)((nData >> 32) & 0xFFFFFFFF));
+		{
+			TRXREG trxReg;
+			trxReg <<= nData;
+			CLog::GetInstance().Print(LOG_NAME, "TRXREG(RRW: %i, RRH: %i);\r\n",
+				trxReg.nRRW, trxReg.nRRH);
+		}
 		break;
 	case GS_REG_TRXDIR:
-		CLog::GetInstance().Print(LOG_NAME, "TRXDIR(%i);\r\n", \
-			(uint32)((nData >>  0) & 0xFFFFFFFF));
+		CLog::GetInstance().Print(LOG_NAME, "TRXDIR(XDIR: %i);\r\n", nData & 0x03);
 		break;
 	case GS_REG_FINISH:
 		CLog::GetInstance().Print(LOG_NAME, "FINISH();\r\n");
@@ -1566,21 +1545,22 @@ void CGSHandler::DisassemblePrivWrite(uint32 address)
 	case GS_DISPFB1:
 	case GS_DISPFB2:
 		{
-			DISPFB* dispfb = GetDispFb((regAddress == GS_DISPFB1) ? 0 : 1);
-			CLog::GetInstance().Print(LOG_NAME, "DISPFB%d(FBP: 0x%0.8X, FBW: %d, PSM: %d, DBX: %d, DBY: %d);\r\n", \
+			DISPFB dispfb;
+			dispfb <<= (regAddress == GS_DISPFB1) ? m_nDISPFB1.value.q : m_nDISPFB2.value.q;
+			CLog::GetInstance().Print(LOG_NAME, "DISPFB%d(FBP: 0x%0.8X, FBW: %d, PSM: %d, DBX: %d, DBY: %d);\r\n",
 				(regAddress == GS_DISPFB1) ? 1 : 2,
-				dispfb->GetBufPtr(), \
-				dispfb->GetBufWidth(), \
-				dispfb->nPSM, \
-				dispfb->nX, \
-				dispfb->nY);
+				dispfb.GetBufPtr(),
+				dispfb.GetBufWidth(),
+				dispfb.nPSM,
+				dispfb.nX,
+				dispfb.nY);
 		}
 		break;
 	case GS_DISPLAY1:
 	case GS_DISPLAY2:
 		{
 			DISPLAY display;
-			display <<= (regAddress == GS_DISPLAY1) ? m_nDISPLAY1 : m_nDISPLAY2;
+			display <<= (regAddress == GS_DISPLAY1) ? m_nDISPLAY1.value.q : m_nDISPLAY2.value.q;
 			CLog::GetInstance().Print(LOG_NAME, "DISPLAY%d(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
 				(regAddress == GS_DISPLAY1) ? 1 : 2,
 				display.nX,
@@ -1603,6 +1583,20 @@ void CGSHandler::DisassemblePrivWrite(uint32 address)
 void CGSHandler::LoadSettings()
 {
 	m_flipMode = static_cast<FLIP_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_FLIPMODE));
+}
+
+void CGSHandler::WriteToDelayedRegister(uint32 address, uint32 value, DELAYED_REGISTER& delayedRegister)
+{
+	if(address & 0x04)
+	{
+		boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+		delayedRegister.value.d0 = delayedRegister.heldValue;
+		delayedRegister.value.d1 = value;
+	}
+	else
+	{
+		delayedRegister.heldValue = value;
+	}
 }
 
 void CGSHandler::ThreadProc()

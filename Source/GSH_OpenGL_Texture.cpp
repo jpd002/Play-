@@ -15,6 +15,33 @@
 
 void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 {
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+
+	for(auto framebufferIterator(std::begin(m_framebuffers));
+		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+	{
+		const auto& candidateFramebuffer = *framebufferIterator;
+		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
+			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+			candidateFramebuffer->m_canBeUsedAsTexture)
+		{
+			//We have a winner
+			glBindTexture(GL_TEXTURE_2D, candidateFramebuffer->m_texture);
+
+			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
+			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
+
+			//If we're currently in interlaced mode, framebuffer will have twice the height
+			bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+			if(halfHeight) scaleRatioY *= 2.0f;
+
+			glScalef(scaleRatioX, scaleRatioY, 1);
+
+			return;
+		}
+	}
+
 	GLuint nTexture = TexCache_Search(tex0);
 	if(nTexture != 0)
 	{

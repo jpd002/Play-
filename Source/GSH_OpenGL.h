@@ -20,8 +20,9 @@ public:
 
 	virtual void					LoadState(Framework::CZipArchiveReader&);
 	
-	void							ProcessImageTransfer(uint32, uint32);
+	void							ProcessImageTransfer(uint32, uint32, bool);
 	void							ProcessClutTransfer(uint32, uint32);
+	void							ProcessLocalToLocalTransfer();
 	void							ReadFramebuffer(uint32, uint32, void*);
 
 	bool							IsBlendColorExtSupported();
@@ -35,6 +36,7 @@ protected:
 	void							LoadSettings();
 	virtual void					InitializeImpl();
 	virtual void					ReleaseImpl();
+	virtual void					ResetImpl();
 	virtual void					FlipImpl();
 
 private:
@@ -149,13 +151,30 @@ private:
 	typedef std::shared_ptr<CPalette> PalettePtr;
 	typedef std::list<PalettePtr> PaletteList;
 
+	class CFramebuffer
+	{
+	public:
+									CFramebuffer(uint32, uint32, uint32, uint32);
+									~CFramebuffer();
+
+		uint32						m_basePtr;
+		uint32						m_width;
+		uint32						m_height;
+		uint32						m_psm;
+		bool						m_canBeUsedAsTexture;
+
+		GLuint						m_framebuffer;
+		GLuint						m_texture;
+		GLuint						m_depthBuffer;
+	};
+	typedef std::shared_ptr<CFramebuffer> FramebufferPtr;
+	typedef std::vector<FramebufferPtr> FramebufferList;
+
 	void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
 	virtual void					PresentBackbuffer() = 0;
-	void							SetReadCircuitMatrix(int, int);
 	void							LinearZOrtho(float, float, float, float);
-	void							UpdateViewportImpl();
 	unsigned int					GetCurrentReadCircuit();
 	void							PrepareTexture(const TEX0&);
 	void							PreparePalette(const TEX0&);
@@ -180,6 +199,7 @@ private:
 	void							SetRenderingContext(unsigned int);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64);
+	void							SetupFramebuffer(uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
 	void							SetupTexture(SHADERCAPS&, uint64, uint64, uint64);
@@ -207,9 +227,6 @@ private:
 	uint32							m_nTexHeight;
 	float							m_nMaxZ;
 
-	int								m_displayWidth;
-	int								m_displayHeight;
-
 	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;
 	bool							m_fixSmallZValues;
@@ -230,6 +247,7 @@ private:
 
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;
+	FramebufferList					m_framebuffers;
 
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;

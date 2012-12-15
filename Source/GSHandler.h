@@ -10,6 +10,7 @@
 #include "MailBox.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
+#include "Integer64.h"
 
 #define PREF_CGSHANDLER_FLIPMODE				"renderer.flipmode"
 #define PREF_CGSHANDLER_PRESENTATION_MODE		"renderer.presentationmode"
@@ -116,11 +117,11 @@ public:
 	virtual void							SetCrt(bool, unsigned int, bool);
 	void									Initialize();
 	void									Release();
-	void									UpdateViewport();
-	virtual void							ProcessImageTransfer(uint32, uint32)	= 0;
-	virtual void							ProcessClutTransfer(uint32, uint32)		= 0;
+	virtual void							ProcessImageTransfer(uint32, uint32, bool)	= 0;
+	virtual void							ProcessClutTransfer(uint32, uint32)			= 0;
+	virtual void							ProcessLocalToLocalTransfer()				= 0;
 	void									Flip();
-	virtual void							ReadFramebuffer(uint32, uint32, void*)	= 0;
+	virtual void							ReadFramebuffer(uint32, uint32, void*)		= 0;
 	
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
 
@@ -144,6 +145,12 @@ public:
 	};
 
 protected:
+	struct DELAYED_REGISTER
+	{
+		uint32		heldValue;
+		INTEGER64	value;
+	};
+
 	enum RAMSIZE
 	{
 		RAMSIZE = 0x00400000,
@@ -380,7 +387,7 @@ protected:
 	static_assert(sizeof(TEXA) == sizeof(uint64), "Size of TEXA struct must be 8 bytes.");
 
 	//Reg 0x3D
-	struct FOGCOL
+	struct FOGCOL : public convertible<uint64>
 	{
 		unsigned int	nFCR			: 8;
 		unsigned int	nFCG			: 8;
@@ -388,9 +395,10 @@ protected:
 		unsigned int	nReserved0		: 8;
 		unsigned int	nReserved1		: 32;
 	};
+	static_assert(sizeof(FOGCOL) == sizeof(uint64), "Size of FOGCOL struct must be 8 bytes.");
 
 	//Reg 0x3F
-	struct TEXCLUT
+	struct TEXCLUT : public convertible<uint64>
 	{
 		unsigned int	nCBW			: 6;
 		unsigned int	nCOU			: 6;
@@ -401,6 +409,7 @@ protected:
 		uint32			GetOffsetU()	{ return nCOU * 16; }
 		uint32			GetOffsetV()	{ return nCOV; }
 	};
+	static_assert(sizeof(TEXCLUT) == sizeof(uint64), "Size of TEXCLUT struct must be 8 bytes.");
 
 	//Reg 0x40/0x41
 	struct SCISSOR : public convertible<uint64>
@@ -471,7 +480,7 @@ protected:
 	static_assert(sizeof(ZBUF) == sizeof(uint64), "Size of ZBUF struct must be 8 bytes.");
 
 	//Reg 0x50
-	struct BITBLTBUF
+	struct BITBLTBUF : public convertible<uint64>
 	{
 		unsigned int	nSrcPtr			: 14;
 		unsigned int	nReserved0		: 2;
@@ -490,9 +499,10 @@ protected:
 		uint32			GetDstPtr()		{ return nDstPtr * 256; }
 		uint32			GetDstWidth()	{ return nDstWidth * 64; }
 	};
+	static_assert(sizeof(BITBLTBUF) == sizeof(uint64), "Size of BITBLTBUF struct must be 8 bytes.");
 
 	//Reg 0x51
-	struct TRXPOS
+	struct TRXPOS : public convertible<uint64>
 	{
 		unsigned int	nSSAX			: 11;
 		unsigned int	nReserved0		: 5;
@@ -504,15 +514,17 @@ protected:
 		unsigned int	nDIR			: 2;
 		unsigned int	nReserved3		: 3;
 	};
+	static_assert(sizeof(TRXPOS) == sizeof(uint64), "Size of TRXPOS struct must be 8 bytes.");
 
 	//Reg 0x52
-	struct TRXREG
+	struct TRXREG : public convertible<uint64>
 	{
 		unsigned int	nRRW			: 12;
 		unsigned int	nReserved0		: 20;
 		unsigned int	nRRH			: 12;
 		unsigned int	nReserved1		: 20;
 	};
+	static_assert(sizeof(TRXREG) == sizeof(uint64), "Size of TRXREG struct must be 8 bytes.");
 
 	//-----------------------------------
 	//Private Registers
@@ -713,15 +725,9 @@ protected:
 	typedef bool (CGSHandler::*TRANSFERHANDLER)(void*, uint32);
 
 	//General Purpose Registers
-	TEXCLUT*								GetTexClut();
-	FRAME*									GetFrame(unsigned int);
-	FOGCOL*									GetFogCol();
 	TRXREG*									GetTrxReg();
 	TRXPOS*									GetTrxPos();
 	BITBLTBUF*								GetBitBltBuf();
-
-	//Privileged Regsiters
-	DISPFB*									GetDispFb(unsigned int);
 
 	unsigned int							GetCrtWidth() const;
 	unsigned int							GetCrtHeight() const;
@@ -729,15 +735,19 @@ protected:
 	bool									GetCrtIsFrameMode() const;
 
 	void									LoadSettings();
+	void									WriteToDelayedRegister(uint32, uint32, DELAYED_REGISTER&);
 
 	void									ThreadProc();
 	virtual void							InitializeImpl() = 0;
 	virtual void							ReleaseImpl() = 0;
+	virtual void							ResetBase();
+	virtual void							ResetImpl();
 	virtual void							FlipImpl();
-	virtual void							UpdateViewportImpl() = 0;
 	virtual void							WriteRegisterImpl(uint8, uint64);
 	virtual void							FeedImageDataImpl(void*, uint32);
 	virtual void							WriteRegisterMassivelyImpl(const RegisterWrite*, unsigned int);
+
+	void									BeginTransfer();
 
 	TRANSFERHANDLER							m_pTransferHandler[PSM_MAX];
 
@@ -759,15 +769,15 @@ protected:
 
 	uint64									m_nPMODE;			//0x12000000
 	uint64									m_nSMODE2;			//0x12000020
-	uint64									m_nDISPFB1;			//0x12000070
-	uint64									m_nDISPLAY1;		//0x12000080
-	uint64									m_nDISPFB2;			//0x12000090
-	uint64									m_nDISPLAY2;		//0x120000A0
+	DELAYED_REGISTER						m_nDISPFB1;			//0x12000070
+	DELAYED_REGISTER						m_nDISPLAY1;		//0x12000080
+	DELAYED_REGISTER						m_nDISPFB2;			//0x12000090
+	DELAYED_REGISTER						m_nDISPLAY2;		//0x120000A0
 	uint64									m_nCSR;				//0x12001000
 	uint64									m_nIMR;				//0x12001010
 
 	FLIP_MODE								m_flipMode;
-	PRESENTATION_PARAMS						m_presentationParams;	
+	PRESENTATION_PARAMS						m_presentationParams;
 
 	TRXCONTEXT								m_TrxCtx;
 
@@ -783,7 +793,7 @@ protected:
 
 	unsigned int							m_nCrtMode;
 	boost::thread*							m_thread;
-	boost::recursive_mutex					m_csrMutex;
+	boost::recursive_mutex					m_registerMutex;
 	CMailBox								m_mailBox;
 	bool									m_enabled;
 	bool									m_threadDone;

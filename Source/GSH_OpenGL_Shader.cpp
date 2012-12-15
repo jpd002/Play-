@@ -68,13 +68,13 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& caps)
 {
 	std::stringstream shaderBuilder;
-	shaderBuilder << "void main()"								<< std::endl;
-	shaderBuilder << "{"										<< std::endl;
-	shaderBuilder << "	gl_TexCoord[0] = gl_MultiTexCoord0;"	<< std::endl;
-	shaderBuilder << "	gl_FrontColor = gl_Color;"				<< std::endl;
-	shaderBuilder << "	gl_Position = ftransform();"			<< std::endl;
-	shaderBuilder << "	gl_FogFragCoord = gl_FogCoord;"			<< std::endl;
-	shaderBuilder << "}"										<< std::endl;
+	shaderBuilder << "void main()"													<< std::endl;
+	shaderBuilder << "{"															<< std::endl;
+	shaderBuilder << "	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"	<< std::endl;
+	shaderBuilder << "	gl_FrontColor = gl_Color;"									<< std::endl;
+	shaderBuilder << "	gl_Position = ftransform();"								<< std::endl;
+	shaderBuilder << "	gl_FogFragCoord = gl_FogCoord;"								<< std::endl;
+	shaderBuilder << "}"															<< std::endl;
 
 	auto shaderSource = shaderBuilder.str();
 
