@@ -371,19 +371,21 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		{
 			if(!(nAddress & 0x04))
 			{
-				boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
 				SetVBlank();
-				if(nData & CSR_FINISH_EVENT)
 				{
-					m_nCSR &= ~CSR_FINISH_EVENT;
-				}
-				if(nData & CSR_VSYNC_INT)
-				{
-					ResetVBlank();
-				}
-				if(nData & CSR_RESET)
-				{
-					m_nCSR |= CSR_RESET;
+					boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+					if(nData & CSR_FINISH_EVENT)
+					{
+						m_nCSR &= ~CSR_FINISH_EVENT;
+					}
+					if(nData & CSR_VSYNC_INT)
+					{
+						ResetVBlank();
+					}
+					if(nData & CSR_RESET)
+					{
+						m_nCSR |= CSR_RESET;
+					}
 				}
 			}
 		}
