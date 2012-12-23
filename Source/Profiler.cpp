@@ -1,12 +1,8 @@
 #include "Profiler.h"
 
-using namespace std;
-using namespace boost;
-
 #ifdef PROFILE
 
-CProfiler::CProfiler() :
-m_OtherZone("Other")
+CProfiler::CProfiler()
 {
 
 }
@@ -18,131 +14,94 @@ CProfiler::~CProfiler()
 
 void CProfiler::BeginIteration()
 {
-	m_nCurrentTime = clock();
+	Reset();
+	m_currentTime = clock();
 }
 
 void CProfiler::EndIteration()
 {
-	mutex::scoped_lock Lock(m_Mutex);
-
-	m_Stats.clear();
-
-	for(ZoneMap::const_iterator itZone = m_Zones.begin();
-		itZone != m_Zones.end();
-		itZone++)
-	{
-		m_Stats.push_back((*itZone));
-	}
-
-	m_Stats.push_back(m_OtherZone);
+	std::lock_guard<std::mutex> mutexLock(m_mutex);
 }
 
-void CProfiler::BeginZone(const char* sName)
+void CProfiler::BeginZone(const char* name)
 {
-
-	clock_t nTime;
-	nTime = clock();
+	assert(std::this_thread::get_id() == m_workThreadId);
+	
+	clock_t nTime = clock();
 
 	{
-		mutex::scoped_lock Lock(m_Mutex);
-
-		CZone& Zone = GetCurrentZone();
-		Zone.AddTime(nTime - m_nCurrentTime);
-
-		ZoneMap::iterator itZone;
-		
-		itZone = m_Zones.find(sName);
-		if(itZone == m_Zones.end())
-		{
-			string sZoneName(sName);
-			m_Zones.insert(sZoneName, new CZone(sName));
-			itZone = m_Zones.find(sName);
-		}
-
-		m_ZoneStack.push_back(&(*itZone));
+		std::lock_guard<std::mutex> mutexLock(m_mutex);
+		AddTimeToCurrentZone(nTime - m_currentTime);
+		m_zoneStack.push(name);
 	}
 
-	m_nCurrentTime = clock();
+	m_currentTime = clock();
 }
 
 void CProfiler::EndZone()
 {
-	clock_t nTime;
-
-	nTime = clock();
+	assert(std::this_thread::get_id() == m_workThreadId);
+	
+	clock_t nTime = clock();
 
 	{
-		mutex::scoped_lock Lock(m_Mutex);
+		std::lock_guard<std::mutex> mutexLock(m_mutex);
 
-		if(m_ZoneStack.size() == 0)
+		if(m_zoneStack.size() == 0)
 		{
-			throw exception("Currently not inside any zone.");
+			throw std::runtime_error("Currently not inside any zone.");
 		}
 
-		CZone& Zone = GetCurrentZone();
-		Zone.AddTime(nTime - m_nCurrentTime);
-
-		m_ZoneStack.pop_back();
+		AddTimeToCurrentZone(nTime - m_currentTime);
+		m_zoneStack.pop();
 	}
 
-	m_nCurrentTime = clock();
+	m_currentTime = clock();
 }
 
-CProfiler::ZoneList CProfiler::GetStats()
+CProfiler::ZoneMap CProfiler::GetStats()
 {
-	mutex::scoped_lock Lock(m_Mutex);
-
-	return m_Stats;
+	std::lock_guard<std::mutex> mutexLock(m_mutex);
+	return m_zones;
 }
 
 void CProfiler::Reset()
 {
-	mutex::scoped_lock Lock(m_Mutex);
+	std::lock_guard<std::mutex> mutexLock(m_mutex);
+	std::for_each(std::begin(m_zones), std::end(m_zones), [] (ZoneMap::value_type& zonePair) { zonePair.second = 0; });
+}
 
-	for(ZoneMap::iterator itZone = m_Zones.begin();
-		itZone != m_Zones.end();
-		itZone++)
+void CProfiler::SetWorkThread()
+{
+#ifdef _DEBUG
+	m_workThreadId = std::this_thread::get_id();
+#endif
+}
+
+void CProfiler::AddTimeToCurrentZone(clock_t time)
+{
+	std::string currentZoneName = (m_zoneStack.size() == 0) ? PROFILE_OTHERZONE : m_zoneStack.top();
+	auto zoneIterator = m_zones.find(currentZoneName);
+	if(zoneIterator == std::end(m_zones))
 	{
-		(*itZone).Reset();
+		m_zones.insert(ZoneMap::value_type(currentZoneName, 0));
+		zoneIterator = m_zones.find(currentZoneName);
 	}
+	zoneIterator->second += time;
 }
 
-CProfiler::CZone& CProfiler::GetCurrentZone()
+//////////////////////////////////////////////////////////////////////////
+//CProfilerZone
+
+CProfilerZone::CProfilerZone(const char* name)
+: m_name(name)
 {
-	if(m_ZoneStack.size() == 0)
-	{
-		return m_OtherZone;
-	}
-	else
-	{
-		return **(m_ZoneStack.rbegin());
-	}
+	CProfiler::GetInstance().BeginZone(name);
 }
 
-CProfiler::CZone::CZone(const char* sName)
+CProfilerZone::~CProfilerZone()
 {
-	m_sName = sName;
-	m_nTime	= 0;
-}
-
-void CProfiler::CZone::AddTime(clock_t nTime)
-{
-	m_nTime += nTime;
-}
-
-const char* CProfiler::CZone::GetName() const
-{
-	return m_sName.c_str();
-}
-
-clock_t CProfiler::CZone::GetTime() const
-{
-	return m_nTime;
-}
-
-void CProfiler::CZone::Reset()
-{
-	m_nTime = 0;
+	CProfiler::GetInstance().EndZone();
 }
 
 #endif

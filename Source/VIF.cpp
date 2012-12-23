@@ -118,7 +118,7 @@ uint32 CVIF::ProcessDMAPacket(unsigned int vpuNumber, uint32 address, uint32 qwc
 #endif
 
 #ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_VIFZONE);
+	CProfilerZone profilerZone(PROFILE_VIFZONE);
 #endif
 
 	m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
@@ -128,10 +128,6 @@ uint32 CVIF::ProcessDMAPacket(unsigned int vpuNumber, uint32 address, uint32 qwc
 	}
 
 	m_pVPU[vpuNumber]->ProcessPacket(*m_stream[vpuNumber]);
-
-#ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
-#endif
 
 	uint32 remainingSize = m_stream[vpuNumber]->GetRemainingDmaTransferSize();
 	assert((remainingSize & 0x0F) == 0);
@@ -201,12 +197,18 @@ bool CVIF::IsVu1WaitingForProgramEnd() const
 void CVIF::ExecuteVu0(bool singleStep)
 {
 	if(!IsVu0Running()) return;
+#ifdef PROFILE
+	CProfilerZone profilerZone(PROFILE_VIFZONE);
+#endif
 	m_pVPU[0]->Execute(singleStep);
 }
 
 void CVIF::ExecuteVu1(bool singleStep)
 {
 	if(!IsVu1Running()) return;
+#ifdef PROFILE
+	CProfilerZone profilerZone(PROFILE_VIFZONE);
+#endif	
 	m_pVPU[1]->Execute(singleStep);
 }
 

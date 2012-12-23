@@ -1,35 +1,23 @@
 #ifndef _PROFILER_H_
 #define _PROFILER_H_
 
-#include <boost/ptr_container/ptr_map.hpp>
-#include <boost/thread.hpp>
 #include <string>
-#include <list>
 #include <ctime>
+#include <map>
+#include <stack>
+#include <thread>
 #include "Singleton.h"
 
 #ifdef PROFILE
 
+#define PROFILE_OTHERZONE "Other"
+
 class CProfiler : public CSingleton<CProfiler>
 {
 public:
+	typedef std::map<std::string, clock_t> ZoneMap;
+		
 	friend				CSingleton;
-
-	class CZone
-	{
-	public:
-						CZone(const char*);
-		void			AddTime(clock_t);
-		const char*		GetName() const;
-		clock_t			GetTime() const;
-		void			Reset();
-
-	private:
-		std::string		m_sName;
-		clock_t			m_nTime;
-	};
-
-	typedef std::list<CZone> ZoneList;
 
 	void				BeginIteration();
 	void				EndIteration();
@@ -37,24 +25,37 @@ public:
 	void				BeginZone(const char*);
 	void				EndZone();
 
-	ZoneList			GetStats();
+	ZoneMap				GetStats();
 	void				Reset();
 
+	void				SetWorkThread();
+	
 private:
+	typedef std::stack<std::string> ZoneStack;
+	
 						CProfiler();
 	virtual				~CProfiler();
 
-	CZone&				GetCurrentZone();
+	void				AddTimeToCurrentZone(clock_t);
 
-	typedef boost::ptr_map<std::string, CZone>	ZoneMap;
-	typedef std::list<CZone*>					ZoneStack;
+	std::mutex			m_mutex;
+	clock_t				m_currentTime;
+	ZoneMap				m_zones;
+	ZoneStack			m_zoneStack;
+	
+#ifdef _DEBUG
+	std::thread::id		m_workThreadId;
+#endif
+};
 
-	boost::mutex		m_Mutex;
-	CZone				m_OtherZone;
-	clock_t				m_nCurrentTime;
-	ZoneMap				m_Zones;
-	ZoneStack			m_ZoneStack;
-	ZoneList			m_Stats;
+class CProfilerZone
+{
+public:
+					CProfilerZone(const char*);
+					~CProfilerZone();
+	
+private:
+	const char*		m_name;
 };
 
 #endif

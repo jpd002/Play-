@@ -124,11 +124,6 @@ uint32 CSIF::ReceiveDMA5(uint32 srcAddress, uint32 size, uint32 unused, bool isT
 
 uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool isTagIncluded)
 {
-
-#ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_SIFZONE);
-#endif
-
 	assert(!isTagIncluded);
 
 	//Humm, this is kinda odd, but it ors the address with 0x20000000
@@ -139,10 +134,6 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 		//This should be the arguments for the call command
 		//Just save the source address for later use
 		m_nDataAddr = nSrcAddr;
-
-#ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
-#endif
 		return nSize;
 	}
 	else if(nDstAddr == CMD_RECVADDR)
@@ -189,10 +180,6 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 			}
 			break;
 		}
-
-#ifdef PROFILE
-		CProfiler::GetInstance().EndZone();
-#endif
 
 		return nSize;
 	}

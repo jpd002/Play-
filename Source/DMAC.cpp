@@ -445,7 +445,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 {
 
 #ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_DMACZONE);
+	CProfilerZone profilerZone(PROFILE_DMACZONE);
 #endif
 
 	switch(nAddress)
@@ -837,10 +837,6 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 #ifdef _DEBUG
 	DisassembleSet(nAddress, nData);
-#endif
-
-#ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
 #endif
 
 }

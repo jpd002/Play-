@@ -66,6 +66,11 @@
 
 #define		VPU_LOG_BASE		"./vpu_logs/"
 
+#ifdef	PROFILE
+#define	PROFILE_EEZONE "EE"
+#define PROFILE_IOPZONE "IOP"
+#endif
+
 namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM() 
@@ -856,7 +861,7 @@ void CPS2VM::FillFakeIopRam()
 uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 {
 #ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
+	CProfilerZone profilerZone(PROFILE_OTHERZONE);
 #endif
 
 	uint32 nReturn = 0;
@@ -892,17 +897,13 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 		printf("PS2VM: Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
 	}
 
-#ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
-#endif
-
 	return nReturn;
 }
 
 uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 {
 #ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
+	CProfilerZone profilerZone(PROFILE_OTHERZONE);
 #endif
 
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
@@ -946,10 +947,6 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		printf("PS2VM: Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, nData, m_EE.m_State.nPC);
 	}
-
-#ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
-#endif
 
 	return 0;
 }
@@ -1123,6 +1120,9 @@ bool CPS2VM::IsEeIdle() const
 
 void CPS2VM::EmuThread()
 {
+#ifdef PROFILE
+	CProfiler::GetInstance().SetWorkThread();
+#endif
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -1206,10 +1206,21 @@ void CPS2VM::EmuThread()
 				m_eeExecutionTicks += tickStep;
 				m_iopExecutionTicks += tickStep / 8;
 
-				m_eeExecutionTicks -= ExecuteEe(m_singleStepEe ? 1 : m_eeExecutionTicks);
+				{
+#ifdef PROFILE
+					CProfilerZone profilerZone(PROFILE_EEZONE);
+#endif
+					m_eeExecutionTicks -= ExecuteEe(m_singleStepEe ? 1 : m_eeExecutionTicks);
+				}
 
-				unsigned int iopExecuted = m_iop.ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
-				m_iopExecutionTicks -= iopExecuted;
+				unsigned int iopExecuted = 0;
+				{
+#ifdef PROFILE
+					CProfilerZone profilerZone(PROFILE_IOPZONE);
+#endif
+					iopExecuted = m_iop.ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
+					m_iopExecutionTicks -= iopExecuted;
+				}
 
 				int executed = tickStep;
 				if(IsEeIdle() && m_iop.IsCpuIdle())

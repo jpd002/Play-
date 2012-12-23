@@ -208,7 +208,7 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 	static CGSHandler::RegisterWriteList writeList;
 
 #ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_GIFZONE);
+	CProfilerZone profilerZone(PROFILE_GIFZONE);
 #endif
 
 #ifdef _DEBUG
@@ -272,10 +272,6 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 			m_nEOP = false;
 		}
 	}
-
-#ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
-#endif
 
 	if(m_gs != NULL && writeList.size() != 0)
 	{

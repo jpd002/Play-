@@ -2314,9 +2314,8 @@ void CPS2OS::sc_GetMemorySize()
 
 void CPS2OS::SysCallHandler()
 {
-
 #ifdef PROFILE
-	CProfiler::GetInstance().EndZone();
+	CProfilerZone profilerZone(PROFILE_OTHERZONE);
 #endif
 
 	uint32 searchAddress = m_ee.m_State.nCOP0[CCOP_SCU::EPC];
@@ -2357,10 +2356,6 @@ void CPS2OS::SysCallHandler()
 			m_ee.GenerateException(0x1FC00100);
 		}
 	}
-
-#ifdef PROFILE
-	CProfiler::GetInstance().BeginZone(PROFILE_EEZONE);
-#endif
 
 	m_ee.m_State.nHasException = 0;
 }

@@ -41,10 +41,6 @@ enum PS2VM_MSG
 	PS2VM_MSG_RESET,
 };
 
-#ifdef	PROFILE
-#define	PROFILE_EEZONE "EE"
-#endif
-
 #define PREF_PS2_HOST_DIRECTORY				("ps2.host.directory")
 #define PREF_PS2_MC0_DIRECTORY				("ps2.mc0.directory")
 #define PREF_PS2_MC1_DIRECTORY				("ps2.mc1.directory")
