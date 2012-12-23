@@ -410,7 +410,7 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const Ar
 	m_executableName = sExecName;
 	m_currentArguments = arguments;
 
-	LoadExecutable();
+	LoadExecutableInternal();
 	ApplyPatches();
 
 	OnExecutableChange();
@@ -418,7 +418,7 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const Ar
 	printf("PS2OS: Loaded '%s' executable file.\r\n", sExecName);
 }
 
-void CPS2OS::LoadExecutable()
+void CPS2OS::LoadExecutableInternal()
 {
 	//Copy program in main RAM
 	const ELFHEADER& header = m_pELF->GetHeader();

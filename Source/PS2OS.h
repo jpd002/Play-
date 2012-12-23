@@ -221,7 +221,7 @@ private:
 
 	void									LoadELF(Framework::CStream&, const char*, const ArgumentList&);
 
-	void									LoadExecutable();
+	void									LoadExecutableInternal();
 	void									UnloadExecutable();
 
 	void									ApplyPatches();
