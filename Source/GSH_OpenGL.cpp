@@ -1653,7 +1653,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build framebuffer
 	glGenFramebuffers(1, &m_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
+	glFramebufferTextureEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer);
 	assert(glGetError() == GL_NO_ERROR);
 
