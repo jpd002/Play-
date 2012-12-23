@@ -12,6 +12,7 @@
 		700FB58015E11E1E00C322DE /* OutputWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 700FB57E15E11E1E00C322DE /* OutputWindow.xib */; };
 		700FB58315E11FC600C322DE /* OutputWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 700FB58215E11FC600C322DE /* OutputWindowController.mm */; };
 		7011789915E25576006D1039 /* OutputWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7011789815E25575006D1039 /* OutputWindow.mm */; };
+		7017B3901652F660008ACEAC /* Iop_Sio2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7017B38E1652F660008ACEAC /* Iop_Sio2.cpp */; };
 		7065AA2815E4F9BD006F1FE6 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7065AA2715E4F9BD006F1FE6 /* icon.icns */; };
 		70684979151E882000C9574F /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684976151E880F00C9574F /* libCodeGen.a */; };
 		7068497B151E883D00C9574F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497A151E883D00C9574F /* OpenGL.framework */; };
@@ -22,8 +23,6 @@
 		706849DF151E896900C9574F /* DirectoryDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7068498F151E896900C9574F /* DirectoryDevice.cpp */; };
 		706849E0151E896900C9574F /* Iop_Cdvdfsv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70684993151E896900C9574F /* Iop_Cdvdfsv.cpp */; };
 		706849E1151E896900C9574F /* Iop_Cdvdman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70684995151E896900C9574F /* Iop_Cdvdman.cpp */; };
-		706849E2151E896900C9574F /* Iop_DbcMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70684997151E896900C9574F /* Iop_DbcMan.cpp */; };
-		706849E3151E896900C9574F /* Iop_DbcMan320.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70684999151E896900C9574F /* Iop_DbcMan320.cpp */; };
 		706849E4151E896900C9574F /* Iop_Dmac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7068499B151E896900C9574F /* Iop_Dmac.cpp */; };
 		706849E5151E896900C9574F /* Iop_DmacChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7068499D151E896900C9574F /* Iop_DmacChannel.cpp */; };
 		706849E6151E896900C9574F /* Iop_Dynamic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7068499F151E896900C9574F /* Iop_Dynamic.cpp */; };
@@ -205,6 +204,8 @@
 		7011789615E2344F006D1039 /* PS2VM_Preferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PS2VM_Preferences.h; path = ../Source/PS2VM_Preferences.h; sourceTree = "<group>"; };
 		7011789715E25575006D1039 /* OutputWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutputWindow.h; path = ../Source/macosxui/OutputWindow.h; sourceTree = "<group>"; };
 		7011789815E25575006D1039 /* OutputWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OutputWindow.mm; path = ../Source/macosxui/OutputWindow.mm; sourceTree = "<group>"; };
+		7017B38E1652F660008ACEAC /* Iop_Sio2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Sio2.cpp; path = ../Source/iop/Iop_Sio2.cpp; sourceTree = "<group>"; };
+		7017B38F1652F660008ACEAC /* Iop_Sio2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sio2.h; path = ../Source/iop/Iop_Sio2.h; sourceTree = "<group>"; };
 		7065AA2715E4F9BD006F1FE6 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../Source/macosxui/icon.icns; sourceTree = "<group>"; };
 		7068496E151E880E00C9574F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7068497A151E883D00C9574F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -221,10 +222,6 @@
 		70684994151E896900C9574F /* Iop_Cdvdfsv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Cdvdfsv.h; path = ../Source/iop/Iop_Cdvdfsv.h; sourceTree = "<group>"; };
 		70684995151E896900C9574F /* Iop_Cdvdman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Cdvdman.cpp; path = ../Source/iop/Iop_Cdvdman.cpp; sourceTree = "<group>"; };
 		70684996151E896900C9574F /* Iop_Cdvdman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Cdvdman.h; path = ../Source/iop/Iop_Cdvdman.h; sourceTree = "<group>"; };
-		70684997151E896900C9574F /* Iop_DbcMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_DbcMan.cpp; path = ../Source/iop/Iop_DbcMan.cpp; sourceTree = "<group>"; };
-		70684998151E896900C9574F /* Iop_DbcMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_DbcMan.h; path = ../Source/iop/Iop_DbcMan.h; sourceTree = "<group>"; };
-		70684999151E896900C9574F /* Iop_DbcMan320.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_DbcMan320.cpp; path = ../Source/iop/Iop_DbcMan320.cpp; sourceTree = "<group>"; };
-		7068499A151E896900C9574F /* Iop_DbcMan320.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_DbcMan320.h; path = ../Source/iop/Iop_DbcMan320.h; sourceTree = "<group>"; };
 		7068499B151E896900C9574F /* Iop_Dmac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Dmac.cpp; path = ../Source/iop/Iop_Dmac.cpp; sourceTree = "<group>"; };
 		7068499C151E896900C9574F /* Iop_Dmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Dmac.h; path = ../Source/iop/Iop_Dmac.h; sourceTree = "<group>"; };
 		7068499D151E896900C9574F /* Iop_DmacChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_DmacChannel.cpp; path = ../Source/iop/Iop_DmacChannel.cpp; sourceTree = "<group>"; };
@@ -519,10 +516,6 @@
 				70684994151E896900C9574F /* Iop_Cdvdfsv.h */,
 				70684995151E896900C9574F /* Iop_Cdvdman.cpp */,
 				70684996151E896900C9574F /* Iop_Cdvdman.h */,
-				70684997151E896900C9574F /* Iop_DbcMan.cpp */,
-				70684998151E896900C9574F /* Iop_DbcMan.h */,
-				70684999151E896900C9574F /* Iop_DbcMan320.cpp */,
-				7068499A151E896900C9574F /* Iop_DbcMan320.h */,
 				7068499B151E896900C9574F /* Iop_Dmac.cpp */,
 				7068499C151E896900C9574F /* Iop_Dmac.h */,
 				7068499D151E896900C9574F /* Iop_DmacChannel.cpp */,
@@ -558,6 +551,8 @@
 				706849BD151E896900C9574F /* Iop_SifManNull.h */,
 				706849BE151E896900C9574F /* Iop_SifManPs2.cpp */,
 				706849BF151E896900C9574F /* Iop_SifManPs2.h */,
+				7017B38E1652F660008ACEAC /* Iop_Sio2.cpp */,
+				7017B38F1652F660008ACEAC /* Iop_Sio2.h */,
 				706849C0151E896900C9574F /* Iop_Spu.cpp */,
 				706849C1151E896900C9574F /* Iop_Spu.h */,
 				706849C2151E896900C9574F /* Iop_Spu2_Core.cpp */,
@@ -1057,8 +1052,6 @@
 				706849DF151E896900C9574F /* DirectoryDevice.cpp in Sources */,
 				706849E0151E896900C9574F /* Iop_Cdvdfsv.cpp in Sources */,
 				706849E1151E896900C9574F /* Iop_Cdvdman.cpp in Sources */,
-				706849E2151E896900C9574F /* Iop_DbcMan.cpp in Sources */,
-				706849E3151E896900C9574F /* Iop_DbcMan320.cpp in Sources */,
 				706849E4151E896900C9574F /* Iop_Dmac.cpp in Sources */,
 				706849E5151E896900C9574F /* Iop_DmacChannel.cpp in Sources */,
 				706849E6151E896900C9574F /* Iop_Dynamic.cpp in Sources */,
@@ -1101,6 +1094,7 @@
 				70F0372E15D83D0E006A96F1 /* Iop_Thmsgbx.cpp in Sources */,
 				700FB58315E11FC600C322DE /* OutputWindowController.mm in Sources */,
 				7011789915E25576006D1039 /* OutputWindow.mm in Sources */,
+				7017B3901652F660008ACEAC /* Iop_Sio2.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
