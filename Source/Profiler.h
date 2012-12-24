@@ -1,14 +1,14 @@
 #ifndef _PROFILER_H_
 #define _PROFILER_H_
 
+#ifdef PROFILE
+
 #include <string>
 #include <ctime>
 #include <map>
 #include <stack>
 #include <thread>
 #include "Singleton.h"
-
-#ifdef PROFILE
 
 #define PROFILE_OTHERZONE "Other"
 
