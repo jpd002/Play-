@@ -25,6 +25,7 @@ protected:
 	long							OnTimer(WPARAM);
 	long							OnCommand(unsigned short, unsigned short, HWND);
 	long							OnActivateApp(bool, unsigned long);
+	long							OnSize(unsigned int, unsigned int, unsigned int);
 
 private:
 	class CScopedVmPauser
@@ -74,6 +75,7 @@ private:
 	void							LoadState();
 	void							ChangeFrameskip(bool);
 	void							ChangeStateSlot(unsigned int);
+	void							ChangeViewMode(CGSHandler::PRESENTATION_MODE);
 	void							ShowDebugger();
 	void							ShowSysInfo();
 	void							ShowAbout();

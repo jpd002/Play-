@@ -31,6 +31,11 @@ COutputWnd::~COutputWnd()
 
 }
 
+long COutputWnd::OnEraseBkgnd()
+{
+	return TRUE;
+}
+
 long COutputWnd::OnPaint()
 {
 	return TRUE;

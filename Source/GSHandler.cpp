@@ -416,18 +416,27 @@ void CGSHandler::Release()
 	m_mailBox.SendCall(std::bind(&CGSHandler::ReleaseImpl, this), true);
 }
 
-void CGSHandler::Flip()
+void CGSHandler::Flip(bool showOnly)
 {
 	if(!m_enabled) return;
-	while(m_mailBox.IsPending())
+	if(!showOnly)
 	{
-		//Flush all commands
-		boost::thread::yield();
+		while(m_mailBox.IsPending())
+		{
+			//Flush all commands
+			boost::thread::yield();
+		}
+		m_mailBox.SendCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
 	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this));
 }
 
 void CGSHandler::FlipImpl()
+{
+
+}
+
+void CGSHandler::MarkNewFrame()
 {
 	OnNewFrame(m_drawCallCount);
 	m_drawCallCount = 0;

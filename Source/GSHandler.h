@@ -120,7 +120,7 @@ public:
 	virtual void							ProcessImageTransfer(uint32, uint32, bool)	= 0;
 	virtual void							ProcessClutTransfer(uint32, uint32)			= 0;
 	virtual void							ProcessLocalToLocalTransfer()				= 0;
-	void									Flip();
+	void									Flip(bool showOnly = false);
 	virtual void							ReadFramebuffer(uint32, uint32, void*)		= 0;
 	
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
@@ -743,6 +743,7 @@ protected:
 	virtual void							ResetBase();
 	virtual void							ResetImpl();
 	virtual void							FlipImpl();
+	void									MarkNewFrame();
 	virtual void							WriteRegisterImpl(uint8, uint64);
 	virtual void							FeedImageDataImpl(void*, uint32);
 	virtual void							WriteRegisterMassivelyImpl(const RegisterWrite*, unsigned int);

@@ -126,13 +126,16 @@
 #define ID_MAIN_FILE_RECORDAVI          40161
 #define ID_VM_REANALYZE_EE              40166
 #define ID_VM_FINDEEFUNCTIONS           40168
+#define ID_MAIN_VIEW_FILLSCREEN         40173
+#define ID_MAIN_VIEW_FITTOSCREEN        40174
+#define ID_MAIN_VIEW_ACTUALSIZE         40175
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        119
-#define _APS_NEXT_COMMAND_VALUE         40169
+#define _APS_NEXT_COMMAND_VALUE         40176
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

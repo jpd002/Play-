@@ -11,6 +11,7 @@ public:
 
 protected:
 	long								OnPaint();
+	long								OnEraseBkgnd();
 
 private:
 
