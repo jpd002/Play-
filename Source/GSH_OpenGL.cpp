@@ -163,7 +163,6 @@ void CGSH_OpenGL::FlipImpl()
 	{
 		const auto& candidateFramebuffer = *framebufferIterator;
 		if(candidateFramebuffer->m_basePtr == fb.GetBufPtr())
-//			candidateFramebuffer->m_width == fb.GetBufWidth())
 		{
 			//We have a winner
 			framebuffer = candidateFramebuffer;
