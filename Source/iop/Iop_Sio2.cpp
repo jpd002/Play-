@@ -42,6 +42,8 @@ void CSio2::Reset()
 	m_outputBuffer.clear();
 	m_inputBuffer.clear();
 	memset(m_regs, 0, sizeof(m_regs));
+	memset(m_ctrl1, 0, sizeof(m_ctrl1));
+	memset(m_ctrl2, 0, sizeof(m_ctrl2));
 	memset(&m_padState, 0, sizeof(m_padState));
 	for(auto padInfoIterator = std::begin(m_padState);
 		padInfoIterator != std::end(m_padState); padInfoIterator++)
@@ -113,6 +115,24 @@ void CSio2::WriteRegister(uint32 address, uint32 value)
 	{
 		switch(address)
 		{
+		case REG_PORT0_CTRL1:
+		case REG_PORT1_CTRL1:
+		case REG_PORT2_CTRL1:
+		case REG_PORT3_CTRL1:
+			{
+				unsigned int portId = (address - REG_PORT0_CTRL1) / 8;
+				m_ctrl1[portId] = value;
+			}
+			break;
+		case REG_PORT0_CTRL2:
+		case REG_PORT1_CTRL2:
+		case REG_PORT2_CTRL2:
+		case REG_PORT3_CTRL2:
+			{
+				unsigned int portId = (address - REG_PORT0_CTRL2) / 8;
+				m_ctrl2[portId] = value;
+			}
+			break;
 		case REG_CTRL:
 			if(value == 0x0C)
 			{
@@ -142,7 +162,8 @@ void CSio2::ProcessCommand()
 	uint32 dstSize = (currentReg >> 18) & 0x1FF;
 	if(m_inputBuffer.size() == srcSize)
 	{
-		unsigned int padId = currentReg & 0x03;
+		unsigned int portId = currentReg & 0x03;
+		uint32 deviceId = m_ctrl2[portId];
 		size_t outputOffset = m_outputBuffer.size();
 
 		for(unsigned int i = 0; i < dstSize; i++)
@@ -150,182 +171,215 @@ void CSio2::ProcessCommand()
 			m_outputBuffer.push_back(0xFF);
 		}
 
-		if(padId < MAX_PADS)
+		if(deviceId == 0x00030064)
 		{
-			assert(dstSize >= 3);
-			assert(srcSize >= 3);
-
-			auto& padState = m_padState[padId];
-
-			//Write header
-			m_outputBuffer[outputOffset + 0x00] = 0xFF;
-			m_outputBuffer[outputOffset + 0x01] = padState.configMode ? ID_CONFIG : padState.mode;
-			m_outputBuffer[outputOffset + 0x02] = 0x5A;		//?
-
-			uint8 cmd = m_inputBuffer[1];
-			switch(cmd)
-			{
-			case 0x40:
-				assert(dstSize == 9);
-				m_outputBuffer[outputOffset + 0x03] = 0x00;
-				m_outputBuffer[outputOffset + 0x04] = 0x00;
-				m_outputBuffer[outputOffset + 0x05] = 0x02;
-				m_outputBuffer[outputOffset + 0x06] = 0x00;
-				m_outputBuffer[outputOffset + 0x07] = 0x00;
-				m_outputBuffer[outputOffset + 0x08] = 0x5A;
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetVrefParam();\r\n", padId);
-				break;
-			case 0x41:
-				assert(dstSize == 9);
-				if(padState.mode == ID_ANALOGP)
-				{
-					m_outputBuffer[outputOffset + 0x03] = padState.pollMask[0];
-					m_outputBuffer[outputOffset + 0x04] = padState.pollMask[1];
-					m_outputBuffer[outputOffset + 0x05] = padState.pollMask[2];
-					m_outputBuffer[outputOffset + 0x06] = 0x00;
-					m_outputBuffer[outputOffset + 0x07] = 0x00;
-					m_outputBuffer[outputOffset + 0x08] = 0x5A;
-				}
-				else
-				{
-					m_outputBuffer[outputOffset + 0x03] = 0x00;
-					m_outputBuffer[outputOffset + 0x04] = 0x00;
-					m_outputBuffer[outputOffset + 0x05] = 0x00;
-					m_outputBuffer[outputOffset + 0x06] = 0x00;
-					m_outputBuffer[outputOffset + 0x07] = 0x00;
-					m_outputBuffer[outputOffset + 0x08] = 0x00;
-				}
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: Cmd41();\r\n", padId);
-				break;
-			case 0x42:		//Read Data
-				assert(dstSize == 5 || dstSize == 9 || dstSize == 21);
-				//Pad data goes here
-				m_outputBuffer[outputOffset + 0x03] = static_cast<uint8>(padState.buttonState >> 8);
-				m_outputBuffer[outputOffset + 0x04] = static_cast<uint8>(padState.buttonState & 0xFF);
-				if(dstSize >= 9)
-				{
-					//Analog stuff
-					m_outputBuffer[outputOffset + 0x05] = padState.analogStickState[0];
-					m_outputBuffer[outputOffset + 0x06] = padState.analogStickState[1];
-					m_outputBuffer[outputOffset + 0x07] = padState.analogStickState[2];
-					m_outputBuffer[outputOffset + 0x08] = padState.analogStickState[3];
-
-					if(dstSize == 21)
-					{
-						//Pressure stuff
-						m_outputBuffer[outputOffset + 0x09] = 0;
-						m_outputBuffer[outputOffset + 0x0A] = 0;
-						m_outputBuffer[outputOffset + 0x0B] = 0;
-						m_outputBuffer[outputOffset + 0x0C] = 0;
-						m_outputBuffer[outputOffset + 0x0D] = 0;
-						m_outputBuffer[outputOffset + 0x0E] = 0;
-						m_outputBuffer[outputOffset + 0x0F] = 0;
-						m_outputBuffer[outputOffset + 0x10] = 0;
-						m_outputBuffer[outputOffset + 0x11] = 0;
-						m_outputBuffer[outputOffset + 0x12] = 0;
-						m_outputBuffer[outputOffset + 0x13] = 0;
-						m_outputBuffer[outputOffset + 0x14] = 0;
-					}
-				}
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: ReadData();\r\n", padId);
-				break;
-			case 0x43:		//Enter Config Mode
-				assert(dstSize == 9);
-				padState.configMode = (m_inputBuffer[3] == 0x01);
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: EnterConfigMode(config = %d);\r\n", padId, m_inputBuffer[3]);
-				break;
-			case 0x44:		//Set Mode & Lock
-				{
-					assert(dstSize == 5 || dstSize == 9);
-					uint8 mode = m_inputBuffer[3];
-					uint8 lock = m_inputBuffer[4];
-					//cmdBuffer[3] == 0x01 ? (u8)ID_ANALOG : (u8)ID_DIGITAL;
-					//cmdBuffer[4] == 0x03 -> Mode Lock
-					m_outputBuffer[outputOffset + 0x03] = 0x00;
-					m_outputBuffer[outputOffset + 0x04] = 0x00;
-					if(dstSize == 9)
-					{
-						m_outputBuffer[outputOffset + 0x05] = 0x00;
-						m_outputBuffer[outputOffset + 0x06] = 0x00;
-						m_outputBuffer[outputOffset + 0x07] = 0x00;
-						m_outputBuffer[outputOffset + 0x08] = 0x00;
-					}
-					CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetModeAndLock(mode = %d, lock = %d);\r\n", padId, mode, lock);
-				}
-				break;
-			case 0x45:		//Query Model
-				assert(dstSize == 9);
-				assert(padState.configMode);
-				std::copy(std::begin(DUALSHOCK2_MODEL), std::end(DUALSHOCK2_MODEL), m_outputBuffer.begin() + outputOffset + 0x03);
-				m_outputBuffer[outputOffset + 5] = 0x01;		//0x01 if analog pad
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryModel();\r\n", padId);
-				break;
-			case 0x46:
-				assert(dstSize == 9);
-				assert(padState.configMode);
-				if(m_inputBuffer[3] == 0x00)
-				{
-					std::copy(std::begin(DUALSHOCK2_ID[0]), std::end(DUALSHOCK2_ID[0]), m_outputBuffer.begin() + outputOffset + 0x04);
-				}
-				else
-				{
-					std::copy(std::begin(DUALSHOCK2_ID[1]), std::end(DUALSHOCK2_ID[1]), m_outputBuffer.begin() + outputOffset + 0x04);
-				}
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId46(mode = %d);\r\n", padId, m_inputBuffer[3]);
-				break;
-			case 0x47:
-				assert(dstSize == 9);
-				assert(padState.configMode);
-				std::copy(std::begin(DUALSHOCK2_ID[2]), std::end(DUALSHOCK2_ID[2]), m_outputBuffer.begin() + outputOffset + 0x04);
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId47();\r\n", padId);
-				break;
-			case 0x4C:
-				assert(dstSize == 9);
-				assert(padState.configMode);
-				if(m_inputBuffer[3] == 0x00)
-				{
-					std::copy(std::begin(DUALSHOCK2_ID[3]), std::end(DUALSHOCK2_ID[3]), m_outputBuffer.begin() + outputOffset + 0x04);
-				}
-				else
-				{
-					std::copy(std::begin(DUALSHOCK2_ID[4]), std::end(DUALSHOCK2_ID[4]), m_outputBuffer.begin() + outputOffset + 0x04);
-				}
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId4C(mode = %d);\r\n", padId, m_inputBuffer[3]);
-				break;
-			case 0x4D:		//SetVibration
-				assert(dstSize == 9);
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetVibration();\r\n", padId);
-				break;
-			case 0x4F:		//SetPollMask
-				assert(dstSize == 9);
-				assert(padState.configMode);
-				padState.mode = ID_ANALOGP;
-				m_outputBuffer[outputOffset + 0x03] = 0x00;
-				m_outputBuffer[outputOffset + 0x04] = 0x00;
-				m_outputBuffer[outputOffset + 0x05] = 0x00;
-				m_outputBuffer[outputOffset + 0x06] = 0x00;
-				m_outputBuffer[outputOffset + 0x07] = 0x00;
-				m_outputBuffer[outputOffset + 0x08] = 0x5A;
-				padState.pollMask[0] = m_inputBuffer[3];
-				padState.pollMask[1] = m_inputBuffer[4];
-				padState.pollMask[2] = m_inputBuffer[5];
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetPollMask(mask = { 0x%0.2X, 0x%0.2X, 0x%0.2X });\r\n", 
-					padId, padState.pollMask[0], padState.pollMask[1], padState.pollMask[2]);
-				break;
-			default:
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: Unknown command received (0x%0.2X).\r\n", padId, cmd);
-				break;
-			}
+			ProcessMultitap(portId, outputOffset, dstSize, srcSize);
 		}
 		else
 		{
-			CLog::GetInstance().Print(LOG_NAME, "Sending command to unsupported pad (%d).\r\n", padId);
+			ProcessController(portId, outputOffset, dstSize, srcSize);
 		}
 
 		assert((m_outputBuffer.size() - outputOffset) == dstSize);
 
 		m_inputBuffer.clear();
 		m_currentRegIndex++;
+	}
+}
+
+void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 dstSize, uint32 srcSize)
+{
+	if(portId < MAX_PADS)
+	{
+		assert(dstSize >= 3);
+		assert(srcSize >= 3);
+
+		unsigned int padId = portId & 0x01;
+		auto& padState = m_padState[padId];
+
+		//Write header
+		m_outputBuffer[outputOffset + 0x00] = 0xFF;
+		m_outputBuffer[outputOffset + 0x01] = padState.configMode ? ID_CONFIG : padState.mode;
+		m_outputBuffer[outputOffset + 0x02] = 0x5A;		//?
+
+		uint8 cmd = m_inputBuffer[1];
+		switch(cmd)
+		{
+		case 0x40:
+			assert(dstSize == 9);
+			m_outputBuffer[outputOffset + 0x03] = 0x00;
+			m_outputBuffer[outputOffset + 0x04] = 0x00;
+			m_outputBuffer[outputOffset + 0x05] = 0x02;
+			m_outputBuffer[outputOffset + 0x06] = 0x00;
+			m_outputBuffer[outputOffset + 0x07] = 0x00;
+			m_outputBuffer[outputOffset + 0x08] = 0x5A;
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetVrefParam();\r\n", padId);
+			break;
+		case 0x41:
+			assert(dstSize == 9);
+			if(padState.mode == ID_ANALOGP)
+			{
+				m_outputBuffer[outputOffset + 0x03] = padState.pollMask[0];
+				m_outputBuffer[outputOffset + 0x04] = padState.pollMask[1];
+				m_outputBuffer[outputOffset + 0x05] = padState.pollMask[2];
+				m_outputBuffer[outputOffset + 0x06] = 0x00;
+				m_outputBuffer[outputOffset + 0x07] = 0x00;
+				m_outputBuffer[outputOffset + 0x08] = 0x5A;
+			}
+			else
+			{
+				m_outputBuffer[outputOffset + 0x03] = 0x00;
+				m_outputBuffer[outputOffset + 0x04] = 0x00;
+				m_outputBuffer[outputOffset + 0x05] = 0x00;
+				m_outputBuffer[outputOffset + 0x06] = 0x00;
+				m_outputBuffer[outputOffset + 0x07] = 0x00;
+				m_outputBuffer[outputOffset + 0x08] = 0x00;
+			}
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: Cmd41();\r\n", padId);
+			break;
+		case 0x42:		//Read Data
+			assert(dstSize == 5 || dstSize == 9 || dstSize == 21);
+			//Pad data goes here
+			m_outputBuffer[outputOffset + 0x03] = static_cast<uint8>(padState.buttonState >> 8);
+			m_outputBuffer[outputOffset + 0x04] = static_cast<uint8>(padState.buttonState & 0xFF);
+			if(dstSize >= 9)
+			{
+				//Analog stuff
+				m_outputBuffer[outputOffset + 0x05] = padState.analogStickState[0];
+				m_outputBuffer[outputOffset + 0x06] = padState.analogStickState[1];
+				m_outputBuffer[outputOffset + 0x07] = padState.analogStickState[2];
+				m_outputBuffer[outputOffset + 0x08] = padState.analogStickState[3];
+
+				if(dstSize == 21)
+				{
+					//Pressure stuff
+					m_outputBuffer[outputOffset + 0x09] = 0;
+					m_outputBuffer[outputOffset + 0x0A] = 0;
+					m_outputBuffer[outputOffset + 0x0B] = 0;
+					m_outputBuffer[outputOffset + 0x0C] = 0;
+					m_outputBuffer[outputOffset + 0x0D] = 0;
+					m_outputBuffer[outputOffset + 0x0E] = 0;
+					m_outputBuffer[outputOffset + 0x0F] = 0;
+					m_outputBuffer[outputOffset + 0x10] = 0;
+					m_outputBuffer[outputOffset + 0x11] = 0;
+					m_outputBuffer[outputOffset + 0x12] = 0;
+					m_outputBuffer[outputOffset + 0x13] = 0;
+					m_outputBuffer[outputOffset + 0x14] = 0;
+				}
+			}
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: ReadData();\r\n", padId);
+			break;
+		case 0x43:		//Enter Config Mode
+			assert(dstSize == 9);
+			padState.configMode = (m_inputBuffer[3] == 0x01);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: EnterConfigMode(config = %d);\r\n", padId, m_inputBuffer[3]);
+			break;
+		case 0x44:		//Set Mode & Lock
+			{
+				assert(dstSize == 5 || dstSize == 9);
+				uint8 mode = m_inputBuffer[3];
+				uint8 lock = m_inputBuffer[4];
+				//cmdBuffer[3] == 0x01 ? (u8)ID_ANALOG : (u8)ID_DIGITAL;
+				//cmdBuffer[4] == 0x03 -> Mode Lock
+				m_outputBuffer[outputOffset + 0x03] = 0x00;
+				m_outputBuffer[outputOffset + 0x04] = 0x00;
+				if(dstSize == 9)
+				{
+					m_outputBuffer[outputOffset + 0x05] = 0x00;
+					m_outputBuffer[outputOffset + 0x06] = 0x00;
+					m_outputBuffer[outputOffset + 0x07] = 0x00;
+					m_outputBuffer[outputOffset + 0x08] = 0x00;
+				}
+				CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetModeAndLock(mode = %d, lock = %d);\r\n", padId, mode, lock);
+			}
+			break;
+		case 0x45:		//Query Model
+			assert(dstSize == 9);
+			assert(padState.configMode);
+			std::copy(std::begin(DUALSHOCK2_MODEL), std::end(DUALSHOCK2_MODEL), m_outputBuffer.begin() + outputOffset + 0x03);
+			m_outputBuffer[outputOffset + 5] = 0x01;		//0x01 if analog pad
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryModel();\r\n", padId);
+			break;
+		case 0x46:
+			assert(dstSize == 9);
+			assert(padState.configMode);
+			if(m_inputBuffer[3] == 0x00)
+			{
+				std::copy(std::begin(DUALSHOCK2_ID[0]), std::end(DUALSHOCK2_ID[0]), m_outputBuffer.begin() + outputOffset + 0x04);
+			}
+			else
+			{
+				std::copy(std::begin(DUALSHOCK2_ID[1]), std::end(DUALSHOCK2_ID[1]), m_outputBuffer.begin() + outputOffset + 0x04);
+			}
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId46(mode = %d);\r\n", padId, m_inputBuffer[3]);
+			break;
+		case 0x47:
+			assert(dstSize == 9);
+			assert(padState.configMode);
+			std::copy(std::begin(DUALSHOCK2_ID[2]), std::end(DUALSHOCK2_ID[2]), m_outputBuffer.begin() + outputOffset + 0x04);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId47();\r\n", padId);
+			break;
+		case 0x4C:
+			assert(dstSize == 9);
+			assert(padState.configMode);
+			if(m_inputBuffer[3] == 0x00)
+			{
+				std::copy(std::begin(DUALSHOCK2_ID[3]), std::end(DUALSHOCK2_ID[3]), m_outputBuffer.begin() + outputOffset + 0x04);
+			}
+			else
+			{
+				std::copy(std::begin(DUALSHOCK2_ID[4]), std::end(DUALSHOCK2_ID[4]), m_outputBuffer.begin() + outputOffset + 0x04);
+			}
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId4C(mode = %d);\r\n", padId, m_inputBuffer[3]);
+			break;
+		case 0x4D:		//SetVibration
+			assert(dstSize == 9);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetVibration();\r\n", padId);
+			break;
+		case 0x4F:		//SetPollMask
+			assert(dstSize == 9);
+			assert(padState.configMode);
+			padState.mode = ID_ANALOGP;
+			m_outputBuffer[outputOffset + 0x03] = 0x00;
+			m_outputBuffer[outputOffset + 0x04] = 0x00;
+			m_outputBuffer[outputOffset + 0x05] = 0x00;
+			m_outputBuffer[outputOffset + 0x06] = 0x00;
+			m_outputBuffer[outputOffset + 0x07] = 0x00;
+			m_outputBuffer[outputOffset + 0x08] = 0x5A;
+			padState.pollMask[0] = m_inputBuffer[3];
+			padState.pollMask[1] = m_inputBuffer[4];
+			padState.pollMask[2] = m_inputBuffer[5];
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetPollMask(mask = { 0x%0.2X, 0x%0.2X, 0x%0.2X });\r\n", 
+				padId, padState.pollMask[0], padState.pollMask[1], padState.pollMask[2]);
+			break;
+		default:
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: Unknown command received (0x%0.2X).\r\n", padId, cmd);
+			break;
+		}
+	}
+	else
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Sending command to unsupported pad (%d).\r\n", portId);
+	}
+}
+
+void CSio2::ProcessMultitap(unsigned int portId, size_t outputOffset, uint32 dstSize, uint32 srcSize)
+{
+	uint8 cmd = m_inputBuffer[1];
+	switch(cmd)
+	{
+	case 0x12:
+	case 0x13:
+		//GetSlotNumber
+		m_outputBuffer[outputOffset + 0x03] = 1;
+		CLog::GetInstance().Print(LOG_NAME, "Multitap: GetSlotNumber();\r\n");
+		break;
+	case 0x21:
+	case 0x22:
+		//ChangeSlot
+		m_outputBuffer[outputOffset + 0x05] = 0;
+		CLog::GetInstance().Print(LOG_NAME, "Multitap: ChangeSlot();\r\n");
+		break;
 	}
 }
 

@@ -55,12 +55,9 @@ namespace Iop
 
 		enum
 		{
-			MAX_REGS = 16
-		};
-
-		enum
-		{
-			MAX_PADS = 2
+			MAX_REGS = 16,
+			MAX_PADS = 2,
+			MAX_PORTS = 4
 		};
 
 		struct PADSTATE
@@ -75,6 +72,8 @@ namespace Iop
 		typedef std::deque<uint8> ByteBufferType;
 
 		void				ProcessCommand();
+		void				ProcessController(unsigned int, size_t, uint32, uint32);
+		void				ProcessMultitap(unsigned int, size_t, uint32, uint32);
 
 		void				DisassembleRead(uint32, uint32);
 		void				DisassembleWrite(uint32, uint32);
@@ -83,6 +82,8 @@ namespace Iop
 
 		unsigned int		m_currentRegIndex;
 		uint32				m_regs[MAX_REGS];
+		uint32				m_ctrl1[MAX_PORTS];
+		uint32				m_ctrl2[MAX_PORTS];
 		ByteBufferType		m_inputBuffer;
 		ByteBufferType		m_outputBuffer;
 
