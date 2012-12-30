@@ -541,7 +541,8 @@ void CSIF::SendCallReply(uint32 serverId, void* returnData)
 	//assert(requestInfo.call.nRecv != 0);
 	if(requestInfo.call.nRecv != 0)
 	{
-		memcpy(m_eeRam + requestInfo.call.nRecv, returnData, requestInfo.call.nRecvSize);
+		uint32 dstPtr = requestInfo.call.nRecv & (PS2::EE_RAM_SIZE - 1);
+		memcpy(m_eeRam + dstPtr, returnData, requestInfo.call.nRecvSize);
 	}
 	SendPacket(&requestInfo.reply, sizeof(RPCREQUESTEND));
 	m_callReplies.erase(replyIterator);
