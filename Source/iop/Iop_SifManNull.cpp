@@ -7,6 +7,11 @@ void CSifManNull::RegisterModule(uint32, CSifModule*)
 
 }
 
+bool CSifManNull::IsModuleRegistered(uint32)
+{
+	return false;
+}
+
 void CSifManNull::UnregisterModule(uint32)
 {
 

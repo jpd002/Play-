@@ -20,6 +20,11 @@ void CSifManPs2::RegisterModule(uint32 id, CSifModule* module)
 	m_sif.RegisterModule(id, module);
 }
 
+bool CSifManPs2::IsModuleRegistered(uint32 id)
+{
+	return m_sif.IsModuleRegistered(id);
+}
+
 void CSifManPs2::UnregisterModule(uint32 id)
 {
 	m_sif.UnregisterModule(id);

@@ -102,6 +102,11 @@ void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
 	}
 }
 
+bool CSIF::IsModuleRegistered(uint32 moduleId) const
+{
+	return m_modules.find(moduleId) != std::end(m_modules);
+}
+
 void CSIF::UnregisterModule(uint32 moduleId)
 {
 	m_modules.erase(moduleId);
