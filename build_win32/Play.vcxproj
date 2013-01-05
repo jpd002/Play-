@@ -28,23 +28,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -90,6 +94,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;DEBUGGER_INCLUDED;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;GLEW_STATIC;_IOP_EMULATE_MODULES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)/include;D:\Projects\CodeGen\include</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <AdditionalOptions>/Zm128 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,6 +114,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;DEBUGGER_INCLUDED;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;GLEW_STATIC;_IOP_EMULATE_MODULES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)/include;D:\Projects\CodeGen\include</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <AdditionalOptions>/Zm128 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -1,19 +1,21 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Play", "Play.vcxproj", "{DD535432-E59F-43CA-95AF-C0150AE3BD53}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\Framework\build_msvc100\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\Framework\build_win32\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGen", "..\..\CodeGen\build_win32\CodeGen.vcxproj", "{E3521577-BFC9-4532-9B70-1F8C0D546F4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-1.2.5-msvc100", "..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj", "{4A0B5134-AB23-452D-8513-8225FA178356}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkOpenGl", "..\..\Framework\build_msvc100\FrameworkOpenGl.vcxproj", "{482892BB-6D81-4CA4-BFD5-01A756C21292}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkOpenGl", "..\..\Framework\build_win32\FrameworkOpenGl.vcxproj", "{482892BB-6D81-4CA4-BFD5-01A756C21292}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkDirectX", "..\..\Framework\build_msvc100\FrameworkDirectX.vcxproj", "{A286EAD1-ACEA-4132-ACDD-6520168BDEBB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkDirectX", "..\..\Framework\build_win32\FrameworkDirectX.vcxproj", "{A286EAD1-ACEA-4132-ACDD-6520168BDEBB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bzip2-1.0.4", "..\..\bzip2-1.0.4\bzip2-1.0.4.vcxproj", "{8C48C11A-7C3F-4699-B62F-B0A66F0F78F7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MipsTest", "..\tools\MipsTest\MipsTest.vcxproj", "{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +81,14 @@ Global
 		{8C48C11A-7C3F-4699-B62F-B0A66F0F78F7}.Release|Win32.Build.0 = Release|Win32
 		{8C48C11A-7C3F-4699-B62F-B0A66F0F78F7}.Release|x64.ActiveCfg = Release|x64
 		{8C48C11A-7C3F-4699-B62F-B0A66F0F78F7}.Release|x64.Build.0 = Release|x64
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Debug|Win32.Build.0 = Debug|Win32
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Debug|x64.ActiveCfg = Debug|x64
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Debug|x64.Build.0 = Debug|x64
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Release|Win32.ActiveCfg = Release|Win32
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Release|Win32.Build.0 = Release|Win32
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Release|x64.ActiveCfg = Release|x64
+		{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

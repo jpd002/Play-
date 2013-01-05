@@ -1,6 +1,8 @@
 #ifndef _STDAFX_H_
 #define _STDAFX_H_
 
+#define _VARIADIC_MAX 8
+
 #include <windows.h>
 
 #include <string>
