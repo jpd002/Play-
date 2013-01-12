@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{193DF815-8F87-4285-A634-89A786A720B3}</ProjectGuid>
+    <RootNamespace>MediaCenter</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.51106.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libc</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Source\Ac3SoundStreamDecoder.cpp" />
+    <ClCompile Include="..\Source\FrameBufferWindow.cpp" />
+    <ClCompile Include="..\Source\Main.cpp" />
+    <ClCompile Include="..\Source\MainWindow.cpp" />
+    <ClCompile Include="..\Source\ProgramStreamDecoder.cpp" />
+    <ClCompile Include="..\Source\VideoStream_Decoder.cpp" />
+    <ClCompile Include="..\Source\VideoStream_Picture.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadBlock.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadDcDifferential.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadDct.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadGroupOfPicturesHeader.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadMacroblock.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadMacroblockModes.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadMotionVector.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadMotionVectors.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadPictureCodingExtension.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadPictureHeader.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadSequenceExtension.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadSequenceHeader.cpp" />
+    <ClCompile Include="..\Source\VideoStream_ReadSlice.cpp" />
+    <ClCompile Include="..\Source\WavOutputStream.cpp" />
+    <ClCompile Include="..\Source\XaSoundStreamDecoder.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Framework\build_win32\Framework.vcxproj">
+      <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Framework\build_win32\FrameworkOpenGl.vcxproj">
+      <Project>{482892bb-6d81-4ca4-bfd5-01a756c21292}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\Ac3SoundStreamDecoder.h" />
+    <ClInclude Include="..\Source\FrameBufferWindow.h" />
+    <ClInclude Include="..\Source\MainWindow.h" />
+    <ClInclude Include="..\Source\MpegVideoState.h" />
+    <ClInclude Include="..\Source\ProgramStreamDecoder.h" />
+    <ClInclude Include="..\Source\VideoStream_Decoder.h" />
+    <ClInclude Include="..\Source\VideoStream_Picture.h" />
+    <ClInclude Include="..\Source\VideoStream_Program.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadBlock.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadDcDifferential.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadDct.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadGroupOfPicturesHeader.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadMacroblock.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadMacroblockModes.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadMotionVector.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadMotionVectors.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadPictureCodingExtension.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadPictureHeader.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadSequenceExtension.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadSequenceHeader.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadSlice.h" />
+    <ClInclude Include="..\Source\VideoStream_ReadStructure.h" />
+    <ClInclude Include="..\Source\WavOutputStream.h" />
+    <ClInclude Include="..\Source\XaSoundStreamDecoder.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
