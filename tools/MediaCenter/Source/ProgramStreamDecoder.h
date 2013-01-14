@@ -21,8 +21,8 @@ public:
 		uint16	firstAccessUnit;
 	};
 
-	typedef std::tr1::function<bool (Framework::CBitStream&, uint32)> VideoStreamHandler;
-	typedef std::tr1::function<bool (Framework::CBitStream&, const PRIVATE_STREAM1_INFO&, uint32)> PrivateStreamHandler;
+	typedef std::function<bool (Framework::CBitStream&, uint32)> VideoStreamHandler;
+	typedef std::function<bool (Framework::CBitStream&, const PRIVATE_STREAM1_INFO&, uint32)> PrivateStreamHandler;
 
 							ProgramStreamDecoder();
 	virtual					~ProgramStreamDecoder();

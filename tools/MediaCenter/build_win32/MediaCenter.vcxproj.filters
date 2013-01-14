@@ -5,21 +5,27 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source Files\ui">
+      <UniqueIdentifier>{638102a7-89d2-47e4-ab23-4c7885fd7ffd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\Main.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Source\win32ui\Main.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\MainWindow.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameBufferWindow.cpp">
+      <Filter>Source Files\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Ac3SoundStreamDecoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\FrameBufferWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MainWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\ProgramStreamDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\VideoDecoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\VideoStream_Decoder.cpp">
@@ -75,19 +81,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\win32ui\MainWindow.h">
+      <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameBufferWindow.h">
+      <Filter>Source Files\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\Source\Ac3SoundStreamDecoder.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FrameBufferWindow.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MainWindow.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MpegVideoState.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ProgramStreamDecoder.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\VideoDecoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VideoStream_Decoder.h">
@@ -147,5 +156,10 @@
     <ClInclude Include="..\Source\XaSoundStreamDecoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Source\win32ui\Res.rc">
+      <Filter>Source Files\ui</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
