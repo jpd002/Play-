@@ -13,7 +13,7 @@ namespace VideoStream
 	class ReadMacroblock
 	{
 	public:
-		typedef std::tr1::function<void (MPEG_VIDEO_STATE*)> OnMacroblockDecodedHandler;
+		typedef std::function<void (MPEG_VIDEO_STATE*)> OnMacroblockDecodedHandler;
 		
 								ReadMacroblock();
 		virtual					~ReadMacroblock();

@@ -14,8 +14,9 @@ namespace VideoStream
 {
 	class Decoder : public Program
 	{
-	public:		
+	public:
 		typedef ReadSlice::OnMacroblockDecodedHandler OnMacroblockDecodedHandler;
+		typedef ReadSlice::OnPictureDecodedHandler OnPictureDecodedHandler;
 		
 										Decoder();
 		virtual							~Decoder();
@@ -26,7 +27,8 @@ namespace VideoStream
 		void							Execute(void*, Framework::CBitStream&);
 
 		void							RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHandler&);
-		
+		void							RegisterOnPictureDecodedHandler(const OnPictureDecodedHandler&);
+
 	private:
 		enum PROGRAM_STATE
 		{

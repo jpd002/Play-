@@ -35,6 +35,7 @@ void ReadDct::Execute(void* context, Framework::CBitStream& stream)
 {
 	MPEG_VIDEO_STATE* state(reinterpret_cast<MPEG_VIDEO_STATE*>(context));
 	PICTURE_HEADER& pictureHeader(state->pictureHeader);
+	PICTURE_CODING_EXTENSION& pictureCodingExtension(state->pictureCodingExtension);
 	BLOCK_DECODER_STATE& decoderState(state->blockDecoderState);
 	SEQUENCE_HEADER& sequenceHeader(state->sequenceHeader);
 	bool isMpeg2 = sequenceHeader.isMpeg2;
@@ -56,7 +57,7 @@ Label_Init:
 			bool isIntra = (pictureHeader.pictureCodingType == PICTURE_TYPE_I || decoderState.macroblockType & MACROBLOCK_MODE_INTRA);
 
 			m_dcDiffReader.Reset();
-			if(isMpeg2 && isIntra)
+			if(pictureCodingExtension.intraVlcFormat && isIntra)
 			{
 				m_coeffTable = MPEG2::CDctCoefficientTable1::GetInstance();
 			}

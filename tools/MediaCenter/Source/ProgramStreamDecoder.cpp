@@ -3,7 +3,9 @@
 
 using namespace Framework;
 
-ProgramStreamDecoder::ProgramStreamDecoder()
+ProgramStreamDecoder::ProgramStreamDecoder(Framework::CStream& inputStream)
+: m_inputStream(inputStream)
+, m_stream(inputStream)
 {
 
 }
@@ -23,37 +25,37 @@ void ProgramStreamDecoder::RegisterPrivateStream1Handler(const PrivateStreamHand
 	m_privateStream1Handler = handler;
 }
 
-ProgramStreamDecoder::STATUS ProgramStreamDecoder::Decode(Framework::CBitStream& bitStream)
+ProgramStreamDecoder::STATUS ProgramStreamDecoder::Read()
 {
 	try
 	{
 		while(1)
 		{
-			uint32 marker = bitStream.PeekBits_MSBF(24);
+			uint32 marker = m_stream.PeekBits_MSBF(24);
 			if(marker == 0x01)
 			{
-				bitStream.Advance(24);
-				uint8 commandType = static_cast<uint8>(bitStream.GetBits_MSBF(8));
+				m_stream.Advance(24);
+				uint8 commandType = static_cast<uint8>(m_stream.GetBits_MSBF(8));
 				
 				switch(commandType)
 				{
 					case 0xBA:
-						ReadProgramStreamPackHeader(bitStream);
+						ReadProgramStreamPackHeader(m_stream);
 						break;
 					case 0xBB:
-						ReadSystemHeader(bitStream);
+						ReadSystemHeader(m_stream);
 						break;
 					case 0xBD:
-						if(!ReadPrivateStream1(bitStream))
+						if(!ReadPrivateStream1(m_stream))
 						{
 							return STATUS_INTERRUPTED;
 						}
 						break;
 					case 0xBF:
-						ReadPrivateStream2(bitStream);
+						ReadPrivateStream2(m_stream);
 						break;
 					case 0xE0:
-						if(!ReadVideoStream(bitStream))
+						if(!ReadVideoStream(m_stream))
 						{
 							return STATUS_INTERRUPTED;
 						}
@@ -62,7 +64,7 @@ ProgramStreamDecoder::STATUS ProgramStreamDecoder::Decode(Framework::CBitStream&
 			}
 			else
 			{
-				bitStream.Advance(8);
+				m_stream.Advance(8);
 			}
 		}
 	}

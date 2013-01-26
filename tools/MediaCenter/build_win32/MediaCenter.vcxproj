@@ -91,6 +91,7 @@
   <ItemGroup>
     <ClCompile Include="..\Source\Ac3SoundStreamDecoder.cpp" />
     <ClCompile Include="..\Source\ProgramStreamDecoder.cpp" />
+    <ClCompile Include="..\Source\RawMpeg2Container.cpp" />
     <ClCompile Include="..\Source\VideoDecoder.cpp" />
     <ClCompile Include="..\Source\VideoStream_Decoder.cpp" />
     <ClCompile Include="..\Source\VideoStream_Picture.cpp" />
@@ -125,6 +126,8 @@
     <ClInclude Include="..\Source\Ac3SoundStreamDecoder.h" />
     <ClInclude Include="..\Source\MpegVideoState.h" />
     <ClInclude Include="..\Source\ProgramStreamDecoder.h" />
+    <ClInclude Include="..\Source\RawMpeg2Container.h" />
+    <ClInclude Include="..\Source\VideoContainer.h" />
     <ClInclude Include="..\Source\VideoDecoder.h" />
     <ClInclude Include="..\Source\VideoStream_Decoder.h" />
     <ClInclude Include="..\Source\VideoStream_Picture.h" />

@@ -19,6 +19,11 @@ void ReadSlice::RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHand
 	m_macroblockReader.RegisterOnMacroblockDecodedHandler(handler);
 }
 
+void ReadSlice::RegisterOnPictureDecodedHandler(const OnPictureDecodedHandler& handler)
+{
+	m_OnPictureDecodedHandler = handler;
+}
+
 void ReadSlice::Reset()
 {
 	m_programState = STATE_INIT;
@@ -66,8 +71,12 @@ Label_Init:
 			}
 			decoderState.dcPredictor[0] = resetValue;
 			decoderState.dcPredictor[1] = resetValue;
-			decoderState.dcPredictor[2] = resetValue;			
+			decoderState.dcPredictor[2] = resetValue;
 		}
+		decoderState.forwardMotionVector[0] = 0;
+		decoderState.forwardMotionVector[1] = 0;
+		decoderState.backwardMotionVector[0] = 0;
+		decoderState.backwardMotionVector[1] = 0;
 		m_programState = STATE_READQUANTIZERSCALECODE;
 		continue;
 
@@ -85,6 +94,10 @@ Label_ReadExtraSliceInfoFlag:
 Label_CheckEnd:
 		if(decoderState.currentMbAddress >= sequenceHeader.macroblockMaxAddress)
 		{
+			if(m_OnPictureDecodedHandler)
+			{
+				m_OnPictureDecodedHandler(state);
+			}
 			m_programState = STATE_DONE;
 		}
 		else

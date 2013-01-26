@@ -83,6 +83,40 @@ Label_SkipEscape:
 
 Label_ReadMbIncrement:
 		decoderState.mbIncrement += MPEG2::CMacroblockAddressIncrementTable::GetInstance()->GetSymbol(&stream);
+		if(decoderState.mbIncrement != 1)
+		{
+			decoderState.currentMbAddress += (decoderState.mbIncrement - 1);
+			decoderState.mbIncrement = 1;
+
+			{
+				int16 resetValue = 0;
+				switch(pictureCodingExtension.intraDcPrecision)
+				{
+					case 0:
+						resetValue = 128;
+						break;
+					case 1:
+						resetValue = 256;
+						break;
+					case 2:
+						resetValue = 512;
+						break;
+					default:
+						resetValue = 0;
+						assert(0);
+						break;
+				}
+				decoderState.dcPredictor[0] = resetValue;
+				decoderState.dcPredictor[1] = resetValue;
+				decoderState.dcPredictor[2] = resetValue;
+			}
+
+			if((pictureHeader.pictureCodingType == PICTURE_TYPE_P))
+			{
+				decoderState.forwardMotionVector[0] = 0;
+				decoderState.forwardMotionVector[1] = 0;
+			}
+		}
 		m_macroblockModesReader.Reset();
 		m_programState = STATE_READMBMODES;
 		continue;
@@ -138,6 +172,7 @@ Label_CheckMbModes_Fwm:
 		{
 			if(sequenceHeader.isMpeg2)
 			{
+				m_motionVectorsReader.SetMotionVector(decoderState.forwardMotionVector);
 				m_motionVectorsReader.Execute(context, stream);
 			}
 			else
@@ -167,6 +202,7 @@ Label_CheckMbModes_Bkm:
 		{
 			if(sequenceHeader.isMpeg2)
 			{
+				m_motionVectorsReader.SetMotionVector(decoderState.backwardMotionVector);
 				m_motionVectorsReader.Execute(context, stream);
 			}
 			else
@@ -207,6 +243,41 @@ Label_ReadBlockInit:
 
 Label_ReadBlock:
 		m_blockReader.Execute(context, stream);
+		if(!(decoderState.macroblockType & MACROBLOCK_MODE_INTRA))
+		{
+			int16 resetValue = 0;
+			switch(pictureCodingExtension.intraDcPrecision)
+			{
+				case 0:
+					resetValue = 128;
+					break;
+				case 1:
+					resetValue = 256;
+					break;
+				case 2:
+					resetValue = 512;
+					break;
+				default:
+					resetValue = 0;
+					assert(0);
+					break;
+			}
+			decoderState.dcPredictor[0] = resetValue;
+			decoderState.dcPredictor[1] = resetValue;
+			decoderState.dcPredictor[2] = resetValue;
+		}
+		if((pictureHeader.pictureCodingType == PICTURE_TYPE_P) && !(decoderState.macroblockType & (MACROBLOCK_MODE_INTRA | MACROBLOCK_MODE_MOTION_FORWARD)))
+		{
+			decoderState.forwardMotionVector[0] = 0;
+			decoderState.forwardMotionVector[1] = 0;
+		}
+		if((decoderState.macroblockType & MACROBLOCK_MODE_INTRA) && (pictureCodingExtension.concealmentMotionVectors == 0))
+		{
+			decoderState.forwardMotionVector[0] = 0;
+			decoderState.forwardMotionVector[1] = 0;
+			decoderState.backwardMotionVector[0] = 0;
+			decoderState.backwardMotionVector[1] = 0;
+		}
 		if(m_OnMacroblockDecodedHandler)
 		{
 			m_OnMacroblockDecodedHandler(state);

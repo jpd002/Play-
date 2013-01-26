@@ -143,7 +143,7 @@ void ReadBlock::InverseScan(void* context, int16* block)
 	int16 nTemp[0x40];
 	
 	memcpy(nTemp, block, sizeof(int16) * 0x40);
-    unsigned int* pTable = pictureCodingExtension.alternateScan ? MPEG2::CInverseScanTable::m_nTable1 : MPEG2::CInverseScanTable::m_nTable0;
+	unsigned int* pTable = pictureCodingExtension.alternateScan ? MPEG2::CInverseScanTable::m_nTable1 : MPEG2::CInverseScanTable::m_nTable0;
 	
 	for(unsigned int i = 0; i < 64; i++)
 	{
@@ -171,26 +171,12 @@ void ReadBlock::InverseScan(void* context, int16* block)
 
 void ReadBlock::ProcessBlock(void* context, int16* block)
 {
-//	MPEG_VIDEO_STATE* state(reinterpret_cast<MPEG_VIDEO_STATE*>(context));
-//	BLOCK_DECODER_STATE& decoderState(state->blockDecoderState);
-//	MACROBLOCK& macroblock(state->macroblock);
-	
 	InverseScan(context, block);
 	DequantizeBlock(context, block);
 
-	//REMOVE
-//	if(decoderState.currentMbAddress == 757 && decoderState.macroblockType & MACROBLOCK_MODE_INTRA)
-//	{
-//		if(block == macroblock.blockY[0])
-//		{
-//			DumpBlock(macroblock.blockY[0]);
-//		}
-//	}
-	//REMOVE
-			
 	{
 		int16 nTemp[0x40];
-		memcpy(nTemp, block, sizeof(int16) * 0x40);	
+		memcpy(nTemp, block, sizeof(int16) * 0x40);
 		IDCT::CIEEE1180::GetInstance()->Transform(nTemp, block);
 	}
 }

@@ -13,6 +13,7 @@ namespace VideoStream
 		virtual				~ReadMotionVectors();
 
 		void				SetRSizes(uint8, uint8);
+		void				SetMotionVector(int16*);
 
 		void				Reset();
 		void				Execute(void*, Framework::CBitStream&);
@@ -29,8 +30,13 @@ namespace VideoStream
 			STATE_DONE,
 		};
 
+		static int16		ComputeMotionVector(int16, int16, uint16, uint8);
+
 		ReadMotionVector	m_motionVectorReader;
 		PROGRAM_STATE		m_programState;
+		uint8				m_hrSize;
+		uint8				m_vrSize;
+		int16*				m_motionVector;
 	};
 }
 

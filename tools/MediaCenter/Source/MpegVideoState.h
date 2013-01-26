@@ -129,6 +129,10 @@ struct BLOCK_DECODER_STATE
 	int16	dcDifferential;
 	uint8	motionVectorCount;
 	uint8	motionType;
+	int16	forwardMotionVector[2];
+	int16	backwardMotionVector[2];
+	int16	motionCode[2];
+	uint16	motionResidual[2];
 };
 
 struct MACROBLOCK

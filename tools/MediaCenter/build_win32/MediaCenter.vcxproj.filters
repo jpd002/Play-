@@ -79,6 +79,9 @@
     <ClCompile Include="..\Source\XaSoundStreamDecoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\RawMpeg2Container.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\win32ui\MainWindow.h">
@@ -154,6 +157,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\XaSoundStreamDecoder.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\VideoContainer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\RawMpeg2Container.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

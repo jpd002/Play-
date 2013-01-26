@@ -47,6 +47,11 @@ void Decoder::RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHandle
 	m_readSliceProgram.RegisterOnMacroblockDecodedHandler(handler);
 }
 
+void Decoder::RegisterOnPictureDecodedHandler(const OnPictureDecodedHandler& handler)
+{
+	m_readSliceProgram.RegisterOnPictureDecodedHandler(handler);
+}
+
 void Decoder::Reset()
 {
 	m_programState = STATE_GETMARKER;

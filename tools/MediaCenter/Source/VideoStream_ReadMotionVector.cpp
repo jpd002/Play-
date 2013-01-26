@@ -52,8 +52,9 @@ Label_Init:
 
 Label_ReadHMotionCode:
 		{
-			int16 motionCode = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
-			if(motionCode != 0 && m_hrSize != 0)
+			decoderState.motionCode[0] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
+			decoderState.motionResidual[0] = 0;
+			if(decoderState.motionCode[0] != 0 && m_hrSize != 0)
 			{
 				m_programState = STATE_READHMOTIONRESIDUAL;
 			}
@@ -66,15 +67,16 @@ Label_ReadHMotionCode:
 
 Label_ReadHMotionResidual:
 		{
-			uint16 motionResidual = static_cast<uint16>(stream.GetBits_MSBF(m_hrSize));
+			decoderState.motionResidual[0] = static_cast<uint16>(stream.GetBits_MSBF(m_hrSize));
 			m_programState = STATE_READVMOTIONCODE;
 		}
 		continue;
 
 Label_ReadVMotionCode:
 		{
-			int16 motionCode = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
-			if(motionCode != 0 && m_vrSize != 0)
+			decoderState.motionCode[1] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
+			decoderState.motionResidual[1] = 0;
+			if(decoderState.motionCode[1] != 0 && m_vrSize != 0)
 			{
 				m_programState = STATE_READVMOTIONRESIDUAL;
 			}
@@ -87,7 +89,7 @@ Label_ReadVMotionCode:
 
 Label_ReadVMotionResidual:
 		{
-			uint16 motionResidual = static_cast<uint16>(stream.GetBits_MSBF(m_vrSize));
+			decoderState.motionResidual[1] = static_cast<uint16>(stream.GetBits_MSBF(m_vrSize));
 			m_programState = STATE_DONE;
 		}
 		continue;
