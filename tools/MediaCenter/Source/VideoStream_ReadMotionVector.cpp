@@ -27,6 +27,30 @@ void ReadMotionVector::Reset()
 	m_programState = STATE_INIT;
 }
 
+int16 ReadMotionVector::ComputeMotionVector(int16 currentVector, int16 motionCode, uint16 motionResidual, uint8 rsize)
+{
+	int16 limit = 16 << rsize;
+
+	if(motionCode > 0)
+	{
+		currentVector += ((motionCode - 1) << rsize) + motionResidual + 1;
+		if(currentVector >= limit)
+		{
+			currentVector -= (limit * 2);
+		}
+	}
+	else if(motionCode < 0)
+	{
+		currentVector -= ((-motionCode - 1) << rsize) + motionResidual + 1;
+		if(currentVector < -limit)
+		{
+			currentVector += (limit * 2);
+		}
+	}
+
+	return currentVector;
+}
+
 void ReadMotionVector::Execute(void* context, Framework::CBitStream& stream)
 {
 	MPEG_VIDEO_STATE* state(reinterpret_cast<MPEG_VIDEO_STATE*>(context));

@@ -16,6 +16,8 @@ namespace VideoStream
 		void				Reset();
 		void				Execute(void*, Framework::CBitStream&);
 
+		static int16		ComputeMotionVector(int16, int16, uint16, uint8);
+
 	private:
 		enum PROGRAM_STATE
 		{

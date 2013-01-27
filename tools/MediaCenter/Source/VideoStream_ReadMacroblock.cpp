@@ -178,6 +178,10 @@ Label_CheckMbModes_Fwm:
 			else
 			{
 				m_singleMotionVectorReader.Execute(context, stream);
+				decoderState.forwardMotionVector[0] = 
+					ReadMotionVector::ComputeMotionVector(decoderState.forwardMotionVector[0], decoderState.motionCode[0], decoderState.motionResidual[0], pictureHeader.forwardFCode - 1);
+				decoderState.forwardMotionVector[1] = 
+					ReadMotionVector::ComputeMotionVector(decoderState.forwardMotionVector[1], decoderState.motionCode[1], decoderState.motionResidual[1], pictureHeader.forwardFCode - 1);
 			}
 		}
 		m_programState = STATE_CHECKMBMODES_BKM_INIT;

@@ -69,8 +69,8 @@ Label_Init:
 
 Label_Single_ReadVector:
 		m_motionVectorReader.Execute(context, stream);
-		m_motionVector[0] = ComputeMotionVector(m_motionVector[0], decoderState.motionCode[0], decoderState.motionResidual[0], m_hrSize);
-		m_motionVector[1] = ComputeMotionVector(m_motionVector[1], decoderState.motionCode[1], decoderState.motionResidual[1], m_vrSize);
+		m_motionVector[0] = ReadMotionVector::ComputeMotionVector(m_motionVector[0], decoderState.motionCode[0], decoderState.motionResidual[0], m_hrSize);
+		m_motionVector[1] = ReadMotionVector::ComputeMotionVector(m_motionVector[1], decoderState.motionCode[1], decoderState.motionResidual[1], m_vrSize);
 		m_programState = STATE_DONE;
 		continue;
 
@@ -103,28 +103,4 @@ Label_Double_Second_ReadVector:
 Label_Done:
 		return;
 	}
-}
-
-int16 ReadMotionVectors::ComputeMotionVector(int16 currentVector, int16 motionCode, uint16 motionResidual, uint8 rsize)
-{
-	int16 limit = 16 << rsize;
-
-	if(motionCode > 0)
-	{
-		currentVector += ((motionCode - 1) << rsize) + motionResidual + 1;
-		if(currentVector >= limit)
-		{
-			currentVector -= (limit * 2);
-		}
-	}
-	else if(motionCode < 0)
-	{
-		currentVector -= ((-motionCode - 1) << rsize) + motionResidual + 1;
-		if(currentVector < -limit)
-		{
-			currentVector += (limit * 2);
-		}
-	}
-
-	return currentVector;
 }
