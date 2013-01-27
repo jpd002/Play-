@@ -31,9 +31,6 @@
     <ClCompile Include="..\Source\VideoStream_Decoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\VideoStream_Picture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\VideoStream_ReadBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VideoStream_Decoder.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VideoStream_Picture.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VideoStream_Program.h">

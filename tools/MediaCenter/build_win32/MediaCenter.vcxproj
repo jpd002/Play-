@@ -94,7 +94,6 @@
     <ClCompile Include="..\Source\RawMpeg2Container.cpp" />
     <ClCompile Include="..\Source\VideoDecoder.cpp" />
     <ClCompile Include="..\Source\VideoStream_Decoder.cpp" />
-    <ClCompile Include="..\Source\VideoStream_Picture.cpp" />
     <ClCompile Include="..\Source\VideoStream_ReadBlock.cpp" />
     <ClCompile Include="..\Source\VideoStream_ReadDcDifferential.cpp" />
     <ClCompile Include="..\Source\VideoStream_ReadDct.cpp" />
@@ -130,7 +129,6 @@
     <ClInclude Include="..\Source\VideoContainer.h" />
     <ClInclude Include="..\Source\VideoDecoder.h" />
     <ClInclude Include="..\Source\VideoStream_Decoder.h" />
-    <ClInclude Include="..\Source\VideoStream_Picture.h" />
     <ClInclude Include="..\Source\VideoStream_Program.h" />
     <ClInclude Include="..\Source\VideoStream_ReadBlock.h" />
     <ClInclude Include="..\Source\VideoStream_ReadDcDifferential.h" />
