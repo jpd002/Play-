@@ -72,7 +72,7 @@ void CRegisterStateFile::Write(Framework::CStream& stream)
 		registerNode->InsertAttribute("Value", valueString.c_str());
 		rootNode->InsertNode(registerNode);
 	}
-	Framework::Xml::CWriter::WriteDocument(&stream, rootNode);
+	Framework::Xml::CWriter::WriteDocument(stream, rootNode);
 	delete rootNode;
 }
 

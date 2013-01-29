@@ -76,6 +76,6 @@ void CStructCollectionStateFile::Write(Framework::CStream& stream)
 		structFile.Write(structNode);
 		rootNode->InsertNode(structNode);
 	}
-	Framework::Xml::CWriter::WriteDocument(&stream, rootNode);
+	Framework::Xml::CWriter::WriteDocument(stream, rootNode);
 	delete rootNode;
 }

@@ -349,7 +349,7 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 			m_iopOs->SaveDebugTags(iopNode);
 			document->InsertNode(iopNode);
 		}
-		Framework::Xml::CWriter::WriteDocument(&stream, document.get());
+		Framework::Xml::CWriter::WriteDocument(stream, document.get());
 	}
 	catch(...)
 	{
