@@ -24,24 +24,24 @@ public:
 		INTC_LINE_TIMER2		= 11,
 	};
 
-                CINTC(CDMAC&);
-    virtual     ~CINTC();
+				CINTC(CDMAC&);
+	virtual		~CINTC();
 
 	void		Reset();
 	bool		IsInterruptPending();
 
-	uint32      GetRegister(uint32);
-	void        SetRegister(uint32, uint32);
+	uint32		GetRegister(uint32);
+	void		SetRegister(uint32, uint32);
 
-	void        AssertLine(uint32);
+	void		AssertLine(uint32);
 
-	void        LoadState(Framework::CZipArchiveReader&);
-	void        SaveState(Framework::CZipArchiveWriter&);
+	void		LoadState(Framework::CZipArchiveReader&);
+	void		SaveState(Framework::CZipArchiveWriter&);
 
 private:
-	uint32	    m_INTC_STAT;
-	uint32	    m_INTC_MASK;
-    CDMAC&      m_dmac;
+	uint32		m_INTC_STAT;
+	uint32		m_INTC_MASK;
+	CDMAC&		m_dmac;
 };
 
 #endif

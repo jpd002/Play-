@@ -2,16 +2,14 @@
 #include "Log.h"
 #include "RegisterStateFile.h"
 
-#define LOG_NAME        ("intc")
+#define LOG_NAME		("intc")
 
-#define STATE_REGS_XML  ("intc/regs.xml")
+#define STATE_REGS_XML	("intc/regs.xml")
 
-using namespace Framework;
-
-CINTC::CINTC(CDMAC& dmac) :
-m_INTC_STAT(0),
-m_INTC_MASK(0),
-m_dmac(dmac)
+CINTC::CINTC(CDMAC& dmac)
+: m_INTC_STAT(0)
+, m_INTC_MASK(0)
+, m_dmac(dmac)
 {
 
 }
@@ -66,7 +64,7 @@ void CINTC::SetRegister(uint32 nAddress, uint32 nValue)
 		m_INTC_MASK ^= nValue;
 		break;
 	default:
-        CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled register (0x%0.8X).\r\n", nAddress);
 		break;
 	}
 }
@@ -76,17 +74,17 @@ void CINTC::AssertLine(uint32 nLine)
 	m_INTC_STAT |= (1 << nLine);
 }
 
-void CINTC::LoadState(CZipArchiveReader& archive)
+void CINTC::LoadState(Framework::CZipArchiveReader& archive)
 {
-    CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-    m_INTC_STAT = registerFile.GetRegister32("INTC_STAT");
-    m_INTC_MASK = registerFile.GetRegister32("INTC_MASK");
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	m_INTC_STAT = registerFile.GetRegister32("INTC_STAT");
+	m_INTC_MASK = registerFile.GetRegister32("INTC_MASK");
 }
 
-void CINTC::SaveState(CZipArchiveWriter& archive)
+void CINTC::SaveState(Framework::CZipArchiveWriter& archive)
 {
-    CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-    registerFile->SetRegister32("INTC_STAT", m_INTC_STAT);
-    registerFile->SetRegister32("INTC_MASK", m_INTC_MASK);
-    archive.InsertFile(registerFile);
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	registerFile->SetRegister32("INTC_STAT", m_INTC_STAT);
+	registerFile->SetRegister32("INTC_MASK", m_INTC_MASK);
+	archive.InsertFile(registerFile);
 }
