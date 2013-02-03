@@ -15,33 +15,33 @@ public:
 		MODE_OVERFLOW_FLAG	= 0x800,
 	};
 
-                            CTimer(CINTC&);
-    virtual                 ~CTimer();
+							CTimer(CINTC&);
+	virtual					~CTimer();
 
-    void                    Reset();
+	void					Reset();
 
-    void                    Count(unsigned int);
+	void					Count(unsigned int);
 
-    uint32                  GetRegister(uint32);
-    void                    SetRegister(uint32, uint32);
+	uint32					GetRegister(uint32);
+	void					SetRegister(uint32, uint32);
 
 
 private:
-    void                    DisassembleGet(uint32);
-    void                    DisassembleSet(uint32, uint32);
+	void					DisassembleGet(uint32);
+	void					DisassembleSet(uint32, uint32);
 
-    struct TIMER
-    {
-        uint32	nCOUNT;
-        uint32	nMODE;
-        uint32	nCOMP;
-        uint32	nHOLD;
+	struct TIMER
+	{
+		uint32	nCOUNT;
+		uint32	nMODE;
+		uint32	nCOMP;
+		uint32	nHOLD;
 
 		uint32	clockRemain;
-    };
+	};
 
-    TIMER                   m_timer[4];
-    CINTC&                  m_intc;
+	TIMER					m_timer[4];
+	CINTC&					m_intc;
 };
 
 #endif
