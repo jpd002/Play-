@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include "Timer.h"
 #include "Log.h"
+#include "RegisterStateFile.h"
 
 #define LOG_NAME ("timer")
+
+#define STATE_REGS_XML	("timer/regs.xml")
 
 CTimer::CTimer(CINTC& intc) 
 : m_intc(intc)
@@ -236,4 +239,35 @@ void CTimer::DisassembleSet(uint32 nAddress, uint32 nValue)
 		CLog::GetInstance().Print(LOG_NAME, "T%i_HOLD = 0x%0.8X\r\n", nTimerId, nValue);
 		break;
 	}
+}
+
+void CTimer::LoadState(Framework::CZipArchiveReader& archive)
+{
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		auto& timer = m_timer[i];
+		std::string timerPrefix = "TIMER" + std::to_string(i) + "_";
+		timer.nCOUNT		= registerFile.GetRegister32((timerPrefix + "COUNT").c_str());
+		timer.nMODE			= registerFile.GetRegister32((timerPrefix + "MODE").c_str());
+		timer.nCOMP			= registerFile.GetRegister32((timerPrefix + "COMP").c_str());
+		timer.nHOLD			= registerFile.GetRegister32((timerPrefix + "HOLD").c_str());
+		timer.clockRemain	= registerFile.GetRegister32((timerPrefix + "REM").c_str());
+	}
+}
+
+void CTimer::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		const auto& timer = m_timer[i];
+		std::string timerPrefix = "TIMER" + std::to_string(i) + "_";
+		registerFile->SetRegister32((timerPrefix + "COUNT").c_str(), timer.nCOUNT);
+		registerFile->SetRegister32((timerPrefix + "MODE").c_str(), timer.nMODE);
+		registerFile->SetRegister32((timerPrefix + "COMP").c_str(), timer.nCOMP);
+		registerFile->SetRegister32((timerPrefix + "HOLD").c_str(), timer.nHOLD);
+		registerFile->SetRegister32((timerPrefix + "REM").c_str(), timer.clockRemain);
+	}
+	archive.InsertFile(registerFile);
 }

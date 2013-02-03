@@ -586,6 +586,7 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 		m_intc.SaveState(archive);
 		m_sif.SaveState(archive);
 		m_vif.SaveState(archive);
+		m_timer.SaveState(archive);
 		m_iopOs->GetPadman()->SaveState(archive);
 		//TODO: Save CDVDFSV state
 
@@ -634,6 +635,7 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 			m_intc.LoadState(archive);
 			m_sif.LoadState(archive);
 			m_vif.LoadState(archive);
+			m_timer.LoadState(archive);
 			m_iopOs->GetPadman()->LoadState(archive);
 		}
 		catch(...)
