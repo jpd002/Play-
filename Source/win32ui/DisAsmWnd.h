@@ -20,7 +20,6 @@ protected:
 	long				OnSize(unsigned int, unsigned int, unsigned int);
 	long				OnSysCommand(unsigned int, LPARAM);
 	long				OnSetFocus();
-	long				OnCopy();
 
 private:
 	void				RefreshLayout();

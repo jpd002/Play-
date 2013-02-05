@@ -543,6 +543,12 @@ long CDisAsm::OnKeyDown(unsigned int nKey)
 {
 	switch(nKey)
 	{
+	case 'C':
+		if(GetAsyncKeyState(VK_CONTROL))
+		{
+			SendMessage(m_hWnd, WM_COPY, 0, 0);
+		}
+		break;
 	case VK_F9:
 		ToggleBreakpoint(m_nSelected);
 		break;

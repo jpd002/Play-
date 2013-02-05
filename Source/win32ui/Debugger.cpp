@@ -19,7 +19,6 @@
 
 #define CLSNAME			_T("CDebugger")
 
-#define ID_EDIT_COPY	(0xE001)
 #define WM_EXECUNLOAD	(WM_USER + 0)
 #define WM_EXECCHANGE	(WM_USER + 1)
 
@@ -560,7 +559,6 @@ void CDebugger::CreateAccelerators()
 	generator.Insert(ID_VIEW_VU0VIEW,			'2',	FALT | FVIRTKEY);
 	generator.Insert(ID_VIEW_VU1VIEW,			'3',	FALT | FVIRTKEY);
 	generator.Insert(ID_VIEW_IOPVIEW,			'4',	FALT | FVIRTKEY);
-	generator.Insert(ID_EDIT_COPY,				'C',	FCONTROL | FVIRTKEY);
 	m_nAccTable = generator.Create();
 }
 
@@ -698,9 +696,6 @@ long CDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 	case ID_WINDOW_LAYOUT1600:
 		Layout1600();
 		return FALSE;
-		break;
-	case ID_EDIT_COPY:
-		SendMessage(m_pMDIClient->GetActiveWindow(), WM_COPY, 0, 0);
 		break;
 	}
 	return TRUE;
