@@ -33,10 +33,13 @@ public:
 private:
 	typedef std::map<uint32, SUBROUTINE, std::greater<uint32>> SubroutineList;
 
+	void								AnalyseSubroutines(uint32, uint32, uint32);
+	void								AnalyseStringReferences(uint32, uint32);
+
 	void								InsertSubroutine(uint32, uint32, uint32, uint32, uint32, uint32);
 	void								ChangeSubroutineStart(uint32, uint32);
 
-	CMIPS*								m_pCtx;
+	CMIPS*								m_ctx;
 	SubroutineList						m_subroutines;
 };
 

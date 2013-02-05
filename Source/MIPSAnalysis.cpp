@@ -2,8 +2,8 @@
 #include "MIPSAnalysis.h"
 #include "MIPS.h"
 
-CMIPSAnalysis::CMIPSAnalysis(CMIPS* pCtx)
-: m_pCtx(pCtx)
+CMIPSAnalysis::CMIPSAnalysis(CMIPS* ctx)
+: m_ctx(ctx)
 {
 
 }
@@ -16,6 +16,12 @@ CMIPSAnalysis::~CMIPSAnalysis()
 void CMIPSAnalysis::Clear()
 {
 	m_subroutines.clear();
+}
+
+void CMIPSAnalysis::Analyse(uint32 start, uint32 end, uint32 entryPoint)
+{
+	AnalyseSubroutines(start, end, entryPoint);
+	AnalyseStringReferences(start, end);
 }
 
 void CMIPSAnalysis::InsertSubroutine(uint32 nStart, uint32 nEnd, uint32 nAllocStart, uint32 nAllocEnd, uint32 nStackSize, uint32 nReturnAddrPos)
@@ -34,6 +40,22 @@ void CMIPSAnalysis::InsertSubroutine(uint32 nStart, uint32 nEnd, uint32 nAllocSt
 	m_subroutines.insert(SubroutineList::value_type(nStart, subroutine));
 }
 
+const CMIPSAnalysis::SUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 nAddress) const
+{
+	auto subroutineIterator = m_subroutines.lower_bound(nAddress);
+	if(subroutineIterator == std::end(m_subroutines)) return nullptr;
+
+	auto& subroutine = subroutineIterator->second;
+	if(nAddress >= subroutine.nStart && nAddress <= subroutine.nEnd)
+	{
+		return &subroutine;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
 void CMIPSAnalysis::ChangeSubroutineStart(uint32 currStart, uint32 newStart)
 {
 	auto subroutineIterator = m_subroutines.find(currStart);
@@ -46,7 +68,7 @@ void CMIPSAnalysis::ChangeSubroutineStart(uint32 currStart, uint32 newStart)
 	m_subroutines.insert(SubroutineList::value_type(newStart, subroutine));
 }
 
-void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
+void CMIPSAnalysis::AnalyseSubroutines(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 {
 	nStart &= ~0x3;
 	nEnd &= ~0x3;
@@ -59,7 +81,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 		while(nCandidate != nEnd)
 		{
 			uint32 nReturnAddr = 0;
-			uint32 nOp = m_pCtx->m_pMemoryMap->GetInstruction(nCandidate);
+			uint32 nOp = m_ctx->m_pMemoryMap->GetInstruction(nCandidate);
 			if((nOp & 0xFFFF0000) == 0x27BD0000)
 			{
 				//Found the head of a routine (stack allocation)
@@ -68,7 +90,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 				uint32 nTemp = nCandidate;
 				while(nTemp != nEnd)
 				{
-					nOp = m_pCtx->m_pMemoryMap->GetInstruction(nTemp);
+					nOp = m_ctx->m_pMemoryMap->GetInstruction(nTemp);
 
 					//Check SW/SD RA, 0x0000(SP)
 					if(
@@ -87,7 +109,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 						//ADDIU SP, SP, 0x????
 						//JR RA
 					
-						nOp = m_pCtx->m_pMemoryMap->GetInstruction(nTemp - 4);
+						nOp = m_ctx->m_pMemoryMap->GetInstruction(nTemp - 4);
 						if((nOp & 0xFFFF0000) == 0x27BD0000)
 						{
 							if(nStackAmount == (int16)(nOp & 0xFFFF))
@@ -104,7 +126,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 						//JR RA
 						//ADDIU SP, SP, 0x????
 
-						nOp = m_pCtx->m_pMemoryMap->GetInstruction(nTemp + 4);
+						nOp = m_ctx->m_pMemoryMap->GetInstruction(nTemp + 4);
 						if((nOp & 0xFFFF0000) == 0x27BD0000)
 						{
 							if(nStackAmount == (int16)(nOp & 0xFFFF))
@@ -131,7 +153,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 		std::set<uint32> subroutineAddresses;
 		for(uint32 address = nStart; address <= nEnd; address += 4)
 		{
-			uint32 nOp = m_pCtx->m_pMemoryMap->GetInstruction(address);
+			uint32 nOp = m_ctx->m_pMemoryMap->GetInstruction(address);
 			if(
 				(nOp & 0xFC000000) == 0x0C000000 ||
 				(nOp & 0xFC000000) == 0x08000000)
@@ -160,7 +182,7 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 			//Otherwise, try to find a function that already exists
 			for(uint32 address = subroutineAddress; address <= nEnd; address += 4)
 			{
-				uint32 nOp = m_pCtx->m_pMemoryMap->GetInstruction(address);
+				uint32 nOp = m_ctx->m_pMemoryMap->GetInstruction(address);
 
 				//Check for JR RA or J
 				if((nOp == 0x03E00008) || ((nOp & 0xFC000000) == 0x08000000))
@@ -184,19 +206,72 @@ void CMIPSAnalysis::Analyse(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 	printf("CMIPSAnalysis: Found %d subroutines in the range [0x%0.8X, 0x%0.8X].\r\n", nFound, nStart, nEnd);
 }
 
-const CMIPSAnalysis::SUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 nAddress) const
+static bool TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& result)
 {
-	auto subroutineIterator = m_subroutines.lower_bound(nAddress);
-	if(subroutineIterator == std::end(m_subroutines)) return nullptr;
-
-	auto& subroutine = subroutineIterator->second;
-	if(nAddress >= subroutine.nStart && nAddress <= subroutine.nEnd)
+	uint8 byteBefore = context->m_pMemoryMap->GetByte(address - 1);
+	if(byteBefore != 0) return false;
+	while(1)
 	{
-		return &subroutine;
+		uint8 byte = context->m_pMemoryMap->GetByte(address);
+		if(byte == 0) break;
+		if(byte > 0x7F) return false;
+		if((byte < 0x20) && 
+			(byte != '\t') &&
+			(byte != '\n') &&
+			(byte != '\r'))
+		{
+			return false;
+		}
+		result += byte;
+		address++;
 	}
-	else
+	return (result.length() != 0);
+}
+
+void CMIPSAnalysis::AnalyseStringReferences(uint32 start, uint32 end)
+{
+	for(auto subroutinePair : m_subroutines)
 	{
-		return nullptr;
+		const auto& subroutine = subroutinePair.second;
+		uint32 registerValue[0x20] = { 0 };
+		bool registerWritten[0x20] = { false };
+		for(uint32 address = subroutine.nStart; address <= subroutine.nEnd; address += 4)
+		{
+			uint32 op = m_ctx->m_pMemoryMap->GetWord(address);
+
+			//LUI
+			if((op & 0xFC000000) == 0x3C000000)
+			{
+				uint32 rt = (op >> 16) & 0x1F;
+				uint32 imm = static_cast<int16>(op);
+				registerWritten[rt] = true;
+				registerValue[rt] = imm << 16;
+			}
+			//ADDIU
+			else if((op & 0xFC000000) == 0x24000000)
+			{
+				uint32 rs = (op >> 21) & 0x1F;
+				uint32 rt = (op >> 16) & 0x1F;
+				uint32 imm = static_cast<int16>(op);
+				if((rs == rt) && registerWritten[rs])
+				{
+					//Check string
+					uint32 targetAddress = registerValue[rs] + imm;
+					registerWritten[rs] = false;
+					if(targetAddress >= start && targetAddress <= end)
+					{
+						std::string stringConstant;
+						if(TryGetStringAtAddress(m_ctx, targetAddress, stringConstant))
+						{
+							if(m_ctx->m_Comments.Find(address) == nullptr)
+							{
+								m_ctx->m_Comments.InsertTag(address, stringConstant.c_str());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
