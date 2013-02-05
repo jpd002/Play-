@@ -2,10 +2,12 @@
 #include <boost/bind.hpp>
 #include "MemoryViewMIPS.h"
 #include "win32/InputBox.h"
+#include "lexical_cast_ex.h"
 #include "DebugExpressionEvaluator.h"
 #include "string_cast.h"
 
-#define ID_MEMORYVIEW_GOTOADDRESS	40001
+#define ID_MEMORYVIEW_GOTOADDRESS		40001
+#define ID_MEMORYVIEW_FOLLOWPOINTER		40002
 
 CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 : CMemoryView(hParent, pR)
@@ -25,15 +27,23 @@ CMemoryViewMIPS::~CMemoryViewMIPS()
 long CMemoryViewMIPS::OnRightButtonUp(int nX, int nY)
 {
 	POINT pt;
-	HMENU hMenu;
-
 	pt.x = nX;
 	pt.y = nY;
 	ClientToScreen(m_hWnd, &pt);
 
-	hMenu = CreatePopupMenu();
+	HMENU hMenu = CreatePopupMenu();
 	InsertMenu(hMenu, 0, MF_BYPOSITION, ID_MEMORYVIEW_GOTOADDRESS, _T("Goto Address..."));
-	//Goto register?
+
+	//Follow pointer
+	{
+		uint32 selection = GetSelection();
+		if((selection & 0x03) == 0)
+		{
+			uint32 valueAtSelection = m_pCtx->m_pMemoryMap->GetWord(GetSelection());
+			std::tstring followPointerText = _T("Follow Pointer (0x") + lexical_cast_hex<std::tstring>(valueAtSelection, 8) + _T(")");
+			InsertMenu(hMenu, 1, MF_BYPOSITION, ID_MEMORYVIEW_FOLLOWPOINTER, followPointerText.c_str());
+		}
+	}
 
 	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
 
@@ -46,6 +56,9 @@ long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hS
 	{
 	case ID_MEMORYVIEW_GOTOADDRESS:
 		GotoAddress();
+		break;
+	case ID_MEMORYVIEW_FOLLOWPOINTER:
+		FollowPointer();
 		break;
 	}
 	return TRUE;
@@ -91,4 +104,17 @@ void CMemoryViewMIPS::GotoAddress()
 			MessageBox(m_hWnd, message.c_str(), NULL, 16);
 		}
 	}
+}
+
+void CMemoryViewMIPS::FollowPointer()
+{
+	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
+	{
+		MessageBeep(-1);
+		return;
+	}
+
+	uint32 valueAtSelection = m_pCtx->m_pMemoryMap->GetWord(GetSelection());
+	ScrollToAddress(valueAtSelection);
+	SetSelectionStart(valueAtSelection);
 }

@@ -20,6 +20,8 @@ protected:
 
 private:
 	void							GotoAddress();
+	void							FollowPointer();
+
 	void							OnMachineStateChange();
 
 	CMIPS*							m_pCtx;

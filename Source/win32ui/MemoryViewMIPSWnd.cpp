@@ -5,6 +5,8 @@
 #define CLSNAME		_T("MemoryViewMIPSWnd")
 
 CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+: m_memoryView(nullptr)
+, m_addressEdit(nullptr)
 {
 	RECT rc;
 
@@ -26,10 +28,10 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMac
 	Create(NULL, CLSNAME, _T("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pStatusBar = new Framework::Win32::CStatusBar(m_hWnd);
+	m_addressEdit = new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
 
-	m_pMemoryView = new CMemoryViewMIPS(m_hWnd, &rc, virtualMachine, pCtx);
-	m_pMemoryView->m_OnSelectionChange.connect(boost::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
+	m_memoryView = new CMemoryViewMIPS(m_hWnd, &rc, virtualMachine, pCtx);
+	m_memoryView->m_OnSelectionChange.connect(boost::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
 
 	UpdateStatusBar();
 	RefreshLayout();
@@ -37,8 +39,8 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMac
 
 CMemoryViewMIPSWnd::~CMemoryViewMIPSWnd()
 {
-	DELETEPTR(m_pStatusBar);
-	DELETEPTR(m_pMemoryView);
+	delete m_addressEdit;
+	delete m_memoryView;
 }
 
 long CMemoryViewMIPSWnd::OnSize(unsigned int nType, unsigned int nCX, unsigned int nCY)
@@ -49,7 +51,7 @@ long CMemoryViewMIPSWnd::OnSize(unsigned int nType, unsigned int nCX, unsigned i
 
 long CMemoryViewMIPSWnd::OnSetFocus()
 {
-	m_pMemoryView->SetFocus();
+	m_memoryView->SetFocus();
 	return FALSE;
 }
 
@@ -66,8 +68,8 @@ long CMemoryViewMIPSWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 
 void CMemoryViewMIPSWnd::UpdateStatusBar()
 {
-	std::tstring sCaption = _T("Address : 0x") + lexical_cast_hex<std::tstring>(m_pMemoryView->GetSelection(), 8);
-	m_pStatusBar->SetText(0, sCaption.c_str());
+	std::tstring sCaption = _T("Address : 0x") + lexical_cast_hex<std::tstring>(m_memoryView->GetSelection(), 8);
+	m_addressEdit->SetText(sCaption.c_str());
 }
 
 void CMemoryViewMIPSWnd::RefreshLayout()
@@ -76,8 +78,11 @@ void CMemoryViewMIPSWnd::RefreshLayout()
 
 	GetClientRect(&rc);
 
-	m_pStatusBar->RefreshGeometry();
-	m_pMemoryView->SetSize(rc.right, rc.bottom - m_pStatusBar->GetHeight());
+	static const int addressEditHeight = 21;
+
+	m_addressEdit->SetSize(rc.right, addressEditHeight);
+	m_memoryView->SetPosition(0, addressEditHeight);
+	m_memoryView->SetSize(rc.right, rc.bottom - addressEditHeight);
 }
 
 void CMemoryViewMIPSWnd::OnMemoryViewSelectionChange(uint32 nAddress)
