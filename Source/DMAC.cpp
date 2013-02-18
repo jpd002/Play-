@@ -920,6 +920,9 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 	case D8_MADR:
 		CLog::GetInstance().Print(LOG_NAME, "= D8_MADR.\r\n");
 		break;
+	case D9_CHCR:
+		CLog::GetInstance().Print(LOG_NAME, "= D9_CHCR.\r\n");
+		break;
 	case D_CTRL:
 		CLog::GetInstance().Print(LOG_NAME, "= D_CTRL.\r\n");
 		break;
