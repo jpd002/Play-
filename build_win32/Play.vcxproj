@@ -572,13 +572,13 @@
     <ProjectReference Include="..\..\CodeGen\build_win32\CodeGen.vcxproj">
       <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Framework\build_msvc100\Framework.vcxproj">
+    <ProjectReference Include="..\..\Framework\build_win32\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Framework\build_msvc100\FrameworkDirectX.vcxproj">
+    <ProjectReference Include="..\..\Framework\build_win32\FrameworkDirectX.vcxproj">
       <Project>{a286ead1-acea-4132-acdd-6520168bdebb}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Framework\build_msvc100\FrameworkOpenGl.vcxproj">
+    <ProjectReference Include="..\..\Framework\build_win32\FrameworkOpenGl.vcxproj">
       <Project>{482892bb-6d81-4ca4-bfd5-01a756c21292}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj">
