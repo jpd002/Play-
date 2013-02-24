@@ -303,7 +303,7 @@ private:
 	unsigned int					GetElfProgramToLoad(CELF&);
 	void							RelocateElf(CELF&, uint32);
 	std::string						ReadModuleName(uint32);
-	std::string						GetModuleNameFromPath(const std::string&);
+	BiosDebugModuleInfoIterator		FindModule(const std::string&);
 	BiosDebugModuleInfoIterator		FindModule(uint32, uint32);
 #ifdef DEBUGGER_INCLUDED
 	void							LoadLoadedModules(Framework::Xml::CNode*);

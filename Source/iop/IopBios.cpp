@@ -287,6 +287,15 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 	}
 
 	m_sifCmd->LoadState(archive);
+
+#ifdef DEBUGGER_INCLUDED
+	m_cpu.m_pAnalysis->Clear();
+	for(const auto& moduleTag : m_moduleTags)
+	{
+		m_cpu.m_pAnalysis->Analyse(moduleTag.begin, moduleTag.end);
+	}
+#endif
+
 }
 
 bool CIopBios::IsIdle()
@@ -466,15 +475,29 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		iopMod = reinterpret_cast<const IOPMOD*>(elf.GetSectionData(i));
 	}
 
-	auto moduleIterator(FindModule(moduleRange.first, moduleRange.second));
-	if(moduleIterator == std::end(m_moduleTags))
+	//Update module tag
 	{
-		BIOS_DEBUG_MODULE_INFO module;
-		module.name		= GetModuleNameFromPath(path);
+		std::string moduleName = iopMod ? iopMod->moduleName : "";
+		if(moduleName.size() == 0)
+		{
+			moduleName = path;
+		}
+
+		auto moduleIterator(FindModule(moduleRange.first, moduleRange.second));
+		if(moduleIterator == std::end(m_moduleTags))
+		{
+			moduleIterator = FindModule(moduleName);
+			if(moduleIterator == std::end(m_moduleTags))
+			{
+				moduleIterator = m_moduleTags.insert(std::end(m_moduleTags), BIOS_DEBUG_MODULE_INFO());
+			}
+		}
+
+		auto& module(*moduleIterator);
+		module.name		= moduleName;
 		module.begin	= moduleRange.first;
 		module.end		= moduleRange.second;
 		module.param	= NULL;
-		m_moduleTags.push_back(module);
 	}
 
 #ifdef _DEBUG
@@ -1696,29 +1719,24 @@ void CIopBios::ReturnFromException()
 	Reschedule();
 }
 
-std::string CIopBios::GetModuleNameFromPath(const std::string& path)
+BiosDebugModuleInfoIterator CIopBios::FindModule(const std::string& name)
 {
-	std::string::size_type slashPosition;
-	slashPosition = path.rfind('/');
-	if(slashPosition != std::string::npos)
-	{
-		return std::string(path.begin() + slashPosition + 1, path.end());
-	}
-	return path;
+	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
+		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
+		{
+			return name == module.name;
+		}
+	);
 }
 
 BiosDebugModuleInfoIterator CIopBios::FindModule(uint32 beginAddress, uint32 endAddress)
 {
-	for(auto moduleIterator(std::begin(m_moduleTags));
-		std::end(m_moduleTags) != moduleIterator; moduleIterator++)
-	{
-		const auto& module(*moduleIterator);
-		if(beginAddress == module.begin && endAddress == module.end)
+	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
+		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
 		{
-			return moduleIterator;
+			return (beginAddress == module.begin) && (endAddress == module.end);
 		}
-	}
-	return std::end(m_moduleTags);
+	);
 }
 
 #ifdef DEBUGGER_INCLUDED
@@ -1731,17 +1749,19 @@ BiosDebugModuleInfoIterator CIopBios::FindModule(uint32 beginAddress, uint32 end
 
 void CIopBios::LoadDebugTags(Framework::Xml::CNode* root)
 {
-	Framework::Xml::CNode* moduleSection = root->Select(TAGS_SECTION_IOP_MODULES);
+	auto moduleSection = root->Select(TAGS_SECTION_IOP_MODULES);
 	if(moduleSection == NULL) return;
 
 	for(Framework::Xml::CFilteringNodeIterator nodeIterator(moduleSection, TAGS_SECTION_IOP_MODULES_MODULE);
 		!nodeIterator.IsEnd(); nodeIterator++)
 	{
-		Framework::Xml::CNode* moduleNode(*nodeIterator);
+		auto moduleNode(*nodeIterator);
 		const char* moduleName		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME);
 		const char* beginAddress	= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
 		const char* endAddress		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
 		if(!moduleName || !beginAddress || !endAddress) continue;
+		if(FindModule(moduleName) != std::end(m_moduleTags)) continue;
+
 		BIOS_DEBUG_MODULE_INFO module;
 		module.name		= moduleName;
 		module.begin	= lexical_cast_hex<std::string>(beginAddress);
