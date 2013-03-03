@@ -57,6 +57,9 @@
 #define SYSCALL_NAME_LOADEXECPS2			"osLoadExecPS2"
 #define SYSCALL_NAME_ADDINTCHANDLER			"osAddIntcHandler"
 #define SYSCALL_NAME_ENABLEINTC				"osEnableIntc"
+#define SYSCALL_NAME_DISABLEINTC			"osDisableIntc"
+#define SYSCALL_NAME_ENABLEDMAC				"osEnableDmac"
+#define SYSCALL_NAME_DISABLEDMAC			"osDisableDmac"
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
 #define SYSCALL_NAME_STARTTHREAD			"osStartThread"
 #define SYSCALL_NAME_ICHANGETHREADPRIORITY	"osiChangeThreadPriority"
@@ -79,6 +82,7 @@
 #define SYSCALL_NAME_FLUSHCACHE				"osFlushCache"
 #define SYSCALL_NAME_GSGETIMR				"osGsGetIMR"
 #define SYSCALL_NAME_GSPUTIMR				"osGsPutIMR"
+#define SYSCALL_NAME_SETVSYNCFLAG			"osSetVSyncFlag"
 #define SYSCALL_NAME_SIFDMASTAT				"osSifDmaStat"
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
 #define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
@@ -90,6 +94,9 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0006,		SYSCALL_NAME_LOADEXECPS2			},
 	{	0x0010,		SYSCALL_NAME_ADDINTCHANDLER			},
 	{	0x0014,		SYSCALL_NAME_ENABLEINTC				},
+	{	0x0015,		SYSCALL_NAME_DISABLEINTC			},
+	{	0x0016,		SYSCALL_NAME_ENABLEDMAC				},
+	{	0x0017,		SYSCALL_NAME_DISABLEDMAC			},
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
 	{	0x0022,		SYSCALL_NAME_STARTTHREAD			},
 	{	0x002A,		SYSCALL_NAME_ICHANGETHREADPRIORITY	},
@@ -112,6 +119,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0064,		SYSCALL_NAME_FLUSHCACHE				},
 	{	0x0070,		SYSCALL_NAME_GSGETIMR				},
 	{	0x0071,		SYSCALL_NAME_GSPUTIMR				},
+	{	0x0073,		SYSCALL_NAME_SETVSYNCFLAG			},
 	{	0x0076,		SYSCALL_NAME_SIFDMASTAT				},
 	{	0x0077,		SYSCALL_NAME_SIFSETDMA				},
 	{	0x0078,		SYSCALL_NAME_SIFSETDCHAIN			},
@@ -2422,15 +2430,15 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x15:
-		sprintf(sDescription, "DisableIntc(cause = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_DISABLEINTC "(cause = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x16:
-		sprintf(sDescription, "EnableDmac(channel = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_ENABLEDMAC "(channel = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x17:
-		sprintf(sDescription, "DisableDmac(channel = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_DISABLEDMAC "(channel = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x20:
@@ -2563,7 +2571,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x73:
-		sprintf(sDescription, "SetVSyncFlag(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);", \
+		sprintf(sDescription, SYSCALL_NAME_SETVSYNCFLAG "(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
