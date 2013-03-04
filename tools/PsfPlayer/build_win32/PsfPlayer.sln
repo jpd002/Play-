@@ -1,13 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PsfPlayer", "PsfPlayer.vcxproj", "{06CD8F2E-F93C-4DE3-8100-C74290578573}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8F91892C-9228-42F5-816F-CD2397070758} = {8F91892C-9228-42F5-816F-CD2397070758}
 		{D78DB25F-3D98-4322-BA2F-C677E3BE3095} = {D78DB25F-3D98-4322-BA2F-C677E3BE3095}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\..\..\Framework\build_msvc100\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\..\..\Framework\build_win32\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGen", "..\..\..\..\CodeGen\build_win32\CodeGen.vcxproj", "{E3521577-BFC9-4532-9B70-1F8C0D546F4A}"
 EndProject
@@ -19,7 +19,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SH_OpenAL", "SH_OpenAL.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SH_WaveOut", "SH_WaveOut.vcxproj", "{D78DB25F-3D98-4322-BA2F-C677E3BE3095}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkOpenAl", "..\..\..\..\Framework\build_msvc100\FrameworkOpenAl.vcxproj", "{18E959AA-ADB6-45F6-B0D2-B0B4AD9DACEF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkOpenAl", "..\..\..\..\Framework\build_win32\FrameworkOpenAl.vcxproj", "{18E959AA-ADB6-45F6-B0D2-B0B4AD9DACEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

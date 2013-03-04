@@ -14,7 +14,6 @@
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
 #include "resource.h"
-#include <afxres.h>
 #include "stricmp.h"
 
 //#define FORCE_ENABLE_TRAYICON
