@@ -224,5 +224,5 @@ void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 	}
 
 	auto stream(Framework::CreateOutputStdStream(playlistPath.native()));
-	Framework::Xml::CWriter::WriteDocument(&stream, document.get());
+	Framework::Xml::CWriter::WriteDocument(stream, document.get());
 }
