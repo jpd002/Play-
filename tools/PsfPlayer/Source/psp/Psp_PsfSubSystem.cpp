@@ -13,8 +13,8 @@ CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
 , m_copScu(MIPS_REGSIZE_32)
 , m_copFpu(MIPS_REGSIZE_32)
 , m_executor(m_cpu, ramSize)
-, m_spuCore0(m_spuRam, SPURAMSIZE)
-, m_spuCore1(m_spuRam, SPURAMSIZE)
+, m_spuCore0(m_spuRam, SPURAMSIZE, 0)
+, m_spuCore1(m_spuRam, SPURAMSIZE, 1)
 , m_bios(m_cpu, m_ram, ramSize)
 {
 	//Read memory map

@@ -2,12 +2,17 @@
 #include <cmath>
 #include "../Log.h"
 #include "Iop_SpuBase.h"
+#include "../RegisterStateFile.h"
 
 using namespace Iop;
 
 #define INIT_SAMPLE_RATE (44100)
 #define TIME_SCALE (0x1000000)
 #define LOG_NAME ("iop_spubase")
+
+#define STATE_PREFIX			("iop_spu/spu_")
+#define STATE_SUFFIX			(".xml")
+#define STATE_REGS_CTRL			("CTRL")
 
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
 {
@@ -85,9 +90,10 @@ const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] =
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000
 };
 
-CSpuBase::CSpuBase(uint8* ram, uint32 ramSize)
+CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, unsigned int spuNumber)
 : m_ram(ram)
 , m_ramSize(ramSize)
+, m_spuNumber(spuNumber)
 , m_reverbEnabled(true)
 , m_dmaDisabled(false)
 {
@@ -149,6 +155,23 @@ void CSpuBase::Reset()
 	{
 		m_reader[i].Reset();
 	}
+}
+
+void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
+{
+	std::string path = STATE_PREFIX + std::to_string(m_spuNumber) + STATE_SUFFIX;
+
+	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
+	m_ctrl = registerFile.GetRegister32(STATE_REGS_CTRL);
+}
+
+void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	std::string path = STATE_PREFIX + std::to_string(m_spuNumber) + STATE_SUFFIX;
+
+	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
+	registerFile->SetRegister32(STATE_REGS_CTRL, m_ctrl);
+	archive.InsertFile(registerFile);
 }
 
 bool CSpuBase::IsEnabled() const

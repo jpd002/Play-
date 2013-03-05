@@ -3,6 +3,8 @@
 
 #include "Types.h"
 #include "BasicUnion.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -54,6 +56,9 @@ namespace Iop
 		virtual		~CIntc();
 
 		void		Reset();
+
+		void		LoadState(Framework::CZipArchiveReader&);
+		void		SaveState(Framework::CZipArchiveWriter&);
 
 		uint32		ReadRegister(uint32);
 		uint32		WriteRegister(uint32, uint32);

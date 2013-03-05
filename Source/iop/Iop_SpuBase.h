@@ -4,6 +4,8 @@
 #include "Types.h"
 #include "BasicUnion.h"
 #include "convertible.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -138,10 +140,13 @@ namespace Iop
 		};
 
 
-						CSpuBase(uint8*, uint32);
+						CSpuBase(uint8*, uint32, unsigned int);
 		virtual			~CSpuBase();
 
 		void			Reset();
+
+		void			LoadState(Framework::CZipArchiveReader&);
+		void			SaveState(Framework::CZipArchiveWriter&);
 
 		bool			IsEnabled() const;
 
@@ -259,6 +264,7 @@ namespace Iop
 
 		uint8*				m_ram;
 		uint32				m_ramSize;
+		unsigned int		m_spuNumber;
 		uint32				m_baseSamplingRate;
 		uint32				m_bufferAddr;
 		UNION32_16			m_channelOn;

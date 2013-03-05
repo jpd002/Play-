@@ -303,6 +303,7 @@
     <ClCompile Include="..\..\..\Source\MipsJitter.cpp" />
     <ClCompile Include="..\..\..\Source\MIPSReflection.cpp" />
     <ClCompile Include="..\..\..\Source\MIPSTags.cpp" />
+    <ClCompile Include="..\..\..\Source\RegisterStateFile.cpp" />
     <ClCompile Include="..\..\..\Source\StructCollectionStateFile.cpp" />
     <ClCompile Include="..\..\..\Source\StructFile.cpp" />
     <ClCompile Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.cpp" />
@@ -447,6 +448,7 @@
     <ClInclude Include="..\..\..\Source\MipsJitter.h" />
     <ClInclude Include="..\..\..\Source\MIPSReflection.h" />
     <ClInclude Include="..\..\..\Source\MIPSTags.h" />
+    <ClInclude Include="..\..\..\Source\RegisterStateFile.h" />
     <ClInclude Include="..\..\..\Source\StructCollectionStateFile.h" />
     <ClInclude Include="..\..\..\Source\StructFile.h" />
     <ClInclude Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.h" />

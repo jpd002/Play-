@@ -21,8 +21,8 @@ CSubSystem::CSubSystem(bool ps2Mode)
 , m_spuRam(new uint8[SPU_RAM_SIZE])
 , m_dmac(m_ram, m_intc)
 , m_counters(ps2Mode ? IOP_CLOCK_OVER_FREQ : IOP_CLOCK_BASE_FREQ, m_intc)
-, m_spuCore0(m_spuRam, SPU_RAM_SIZE)
-, m_spuCore1(m_spuRam, SPU_RAM_SIZE)
+, m_spuCore0(m_spuRam, SPU_RAM_SIZE, 0)
+, m_spuCore1(m_spuRam, SPU_RAM_SIZE, 1)
 , m_spu(m_spuCore0)
 , m_spu2(m_spuCore0, m_spuCore1)
 #ifdef _IOP_EMULATE_MODULES
@@ -91,6 +91,9 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(new CMemoryStateFile(STATE_CPU,		&m_cpu.m_State, sizeof(MIPSSTATE)));
 	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_ram,			IOP_RAM_SIZE));
 	archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH,	m_scratchPad,	IOP_SCRATCH_SIZE));
+	m_intc.SaveState(archive);
+	m_spuCore0.SaveState(archive);
+	m_spuCore1.SaveState(archive);
 	m_bios->SaveState(archive);
 }
 
@@ -99,6 +102,9 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	archive.BeginReadFile(STATE_CPU			)->Read(&m_cpu.m_State,	sizeof(MIPSSTATE));
 	archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			IOP_RAM_SIZE);
 	archive.BeginReadFile(STATE_SCRATCH		)->Read(m_scratchPad,	IOP_SCRATCH_SIZE);
+	m_intc.LoadState(archive);
+	m_spuCore0.LoadState(archive);
+	m_spuCore1.LoadState(archive);
 	m_bios->LoadState(archive);
 }
 

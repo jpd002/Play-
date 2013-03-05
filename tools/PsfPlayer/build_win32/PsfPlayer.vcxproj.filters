@@ -79,9 +79,6 @@
     <ClCompile Include="..\..\..\Source\MemoryMap.cpp">
       <Filter>Source Files\Purei Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\MemoryStateFile.cpp">
-      <Filter>Source Files\Purei Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\MemoryUtils.cpp">
       <Filter>Source Files\Purei Core</Filter>
     </ClCompile>
@@ -376,6 +373,12 @@
     <ClCompile Include="..\..\..\Source\iop\Iop_Thmsgbx.cpp">
       <Filter>Source Files\Purei Core\iop</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\MemoryStateFile.cpp">
+      <Filter>Source Files\Purei Core\states</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\RegisterStateFile.cpp">
+      <Filter>Source Files\Purei Core\states</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
@@ -403,9 +406,6 @@
       <Filter>Source Files\Purei Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\MemoryMap.h">
-      <Filter>Source Files\Purei Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\MemoryStateFile.h">
       <Filter>Source Files\Purei Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\MemoryUtils.h">
@@ -731,6 +731,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\iop\Iop_Thmsgbx.h">
       <Filter>Source Files\Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MemoryStateFile.h">
+      <Filter>Source Files\Purei Core\states</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\RegisterStateFile.h">
+      <Filter>Source Files\Purei Core\states</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
