@@ -8,22 +8,26 @@ using namespace Iop;
 
 #define LOG_NAME "iop_cdvdfsv"
 
-CCdvdfsv::CCdvdfsv(CSifMan& sif, uint8* iopRam) :
-m_nStreamPos(0),
-m_iso(NULL),
-m_iopRam(iopRam)
+CCdvdfsv::CCdvdfsv(CSifMan& sif, uint8* iopRam)
+: m_nStreamPos(0)
+, m_iso(NULL)
+, m_iopRam(iopRam)
+, m_delayReadSuccess(false)
+, m_lastReadSector(0)
+, m_lastReadCount(0)
+, m_lastReadAddr(0)
 {
-	m_module592 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke592, this, 
+	m_module592 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke592, this, 
 		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-	m_module593 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke593, this,
+	m_module593 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke593, this,
 		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-	m_module595 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke595, this,
+	m_module595 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke595, this,
 		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-	m_module597 = CSifModuleAdapter(bind(&CCdvdfsv::Invoke597, this,
+	m_module597 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke597, this,
 		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-	m_module59A = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59A, this,
+	m_module59A = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke59A, this,
 		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
-	m_module59C = CSifModuleAdapter(bind(&CCdvdfsv::Invoke59C, this,
+	m_module59C = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke59C, this,
 		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
 
 	sif.RegisterModule(MODULE_ID_1, &m_module592);
@@ -169,11 +173,11 @@ void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 {
 	switch(method)
 	{
-	case 1:
+	case 0x01:
 		Read(args, argsSize, ret, retSize, ram);
 		break;
 
-	case 4:
+	case 0x04:
 		{
 			//GetToc
 			assert(argsSize >= 4);
@@ -184,12 +188,19 @@ void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		}
 		break;
 
-	case 9:
+	case 0x05:
+		{
+			assert(argsSize >= 4);
+			uint32 seekSector = args[0];
+			CLog::GetInstance().Print(LOG_NAME, "Seek(sector = 0x%0.8X);\r\n", seekSector);
+		}
+		break;
+
+	case 0x09:
 		StreamCmd(args, argsSize, ret, retSize, ram);
 		break;
 
 	case 0x0D:
-		//ReadIopMem
 		ReadIopMem(args, argsSize, ret, retSize, ram);
 		break;
 
@@ -197,7 +208,18 @@ void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		//DiskReady (returns 2 if ready, 6 if not ready)
 		assert(retSize >= 4);
 		CLog::GetInstance().Print(LOG_NAME, "NDiskReady();\r\n");
-		ret[0x00] = 2;
+		if(m_delayReadSuccess)
+		{
+			ret[0x00] = 6;
+			m_lastReadSector = 0;
+			m_lastReadCount = 0;
+			m_lastReadAddr = 0;
+			m_delayReadSuccess = false;
+		}
+		else
+		{
+			ret[0x00] = 2;
+		}
 		break;
 
 	default:
@@ -269,6 +291,17 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	{
 		ret[0] = 0;
 	}
+
+	if((nSector == m_lastReadSector) && (nCount == m_lastReadCount) && (nDstAddr == m_lastReadAddr))
+	{
+		//Induce a fake read delay because Wild Arms: Alter Code F relies on that to determine read success.
+		CLog::GetInstance().Print(LOG_NAME, "Read: Faking delay because we're trying to read the same way twice.\r\n");
+		m_delayReadSuccess = true;
+	}
+
+	m_lastReadSector = nSector;
+	m_lastReadCount = nCount;
+	m_lastReadAddr = nDstAddr;
 }
 
 void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -297,6 +330,17 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	{
 		ret[0] = 0;
 	}
+
+	if((nSector == m_lastReadSector) && (nCount == m_lastReadCount) && (nDstAddr == m_lastReadAddr))
+	{
+		//Induce a fake read delay because Wild Arms: Alter Code F relies on that to determine read success.
+		CLog::GetInstance().Print(LOG_NAME, "Read: Faking delay because we're trying to read the same way twice.\r\n");
+		m_delayReadSuccess = true;
+	}
+
+	m_lastReadSector = nSector;
+	m_lastReadCount = nCount;
+	m_lastReadAddr = nDstAddr;
 }
 
 void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

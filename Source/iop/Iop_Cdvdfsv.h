@@ -53,6 +53,11 @@ namespace Iop
 		uint8*				m_iopRam;
 		CISO9660*			m_iso;
 
+		bool				m_delayReadSuccess;
+		uint32				m_lastReadSector;
+		uint32				m_lastReadCount;
+		uint32				m_lastReadAddr;
+
 		CSifModuleAdapter	m_module592;
 		CSifModuleAdapter	m_module593;
 		CSifModuleAdapter	m_module595;
