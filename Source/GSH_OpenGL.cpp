@@ -731,6 +731,8 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 
 void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg)
 {
+	if(frameReg == 0) return;
+
 	FRAME frame;
 	frame <<= frameReg;
 
