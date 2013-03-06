@@ -1138,11 +1138,11 @@ void CPS2VM::EmuThread()
 		}
 		if(m_nStatus == RUNNING)
 		{
-			//if(m_spuUpdateTicks <= 0)
-			//{
-			//    UpdateSpu();
-			//    m_spuUpdateTicks += SPU_UPDATE_TICKS;
-			//}
+			if(m_spuUpdateTicks <= 0)
+			{
+				UpdateSpu();
+				m_spuUpdateTicks += SPU_UPDATE_TICKS;
+			}
 
 			//EE execution
 			{
