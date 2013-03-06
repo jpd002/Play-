@@ -65,6 +65,8 @@ namespace Iop
 
 		uint32				ReadIoRegister(uint32);
 		uint32				WriteIoRegister(uint32, uint32);
+
+		int					m_dmaUpdateTicks;
 	};
 }
 

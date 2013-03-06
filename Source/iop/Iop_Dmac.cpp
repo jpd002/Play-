@@ -72,6 +72,14 @@ CChannel* CDmac::GetChannelFromAddress(uint32 address)
 	return m_channel[channelId];
 }
 
+void CDmac::ResumeDma(unsigned int channelIdx)
+{
+	auto channel = m_channel[channelIdx];
+	assert(channel != nullptr);
+	if(channel == nullptr) return;
+	channel->ResumeDma();
+}
+
 void CDmac::AssertLine(unsigned int line)
 {
 	if(line < 7)

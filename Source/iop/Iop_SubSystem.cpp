@@ -30,6 +30,7 @@ CSubSystem::CSubSystem(bool ps2Mode)
 #endif
 , m_cpuArch(MIPS_REGSIZE_32)
 , m_copScu(MIPS_REGSIZE_32)
+, m_dmaUpdateTicks(0)
 {
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,														0x01);
@@ -130,6 +131,8 @@ void CSubSystem::Reset()
 
 	m_cpu.m_Comments.RemoveTags();
 	m_cpu.m_Functions.RemoveTags();
+
+	m_dmaUpdateTicks = 0;
 }
 
 uint32 CSubSystem::ReadIoRegister(uint32 address)
@@ -248,6 +251,13 @@ void CSubSystem::CountTicks(int ticks)
 {
 	m_counters.Update(ticks);
 	m_bios->CountTicks(ticks);
+	m_dmaUpdateTicks += ticks;
+	if(m_dmaUpdateTicks >= 100)
+	{
+		m_dmac.ResumeDma(4);
+		m_dmac.ResumeDma(8);
+		m_dmaUpdateTicks -= 100;
+	}
 }
 
 int CSubSystem::ExecuteCpu(int quota)

@@ -44,6 +44,8 @@ namespace Iop
 		uint32			ReadRegister(uint32);
 		uint32			WriteRegister(uint32, uint32);
 
+		void			ResumeDma(unsigned int);
+
 		void			AssertLine(unsigned int);
 		uint8*			GetRam();
 

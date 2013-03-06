@@ -39,6 +39,7 @@ void CChannel::ResumeDma()
 	uint32 blocksTransfered = m_receiveFunction(m_dmac.GetRam() + address, m_BCR.bs * 4, m_BCR.ba);
 	assert(blocksTransfered <= m_BCR.ba);
 	m_BCR.ba -= blocksTransfered;
+	m_MADR += (m_BCR.bs * 4) * blocksTransfered;
 
 	if(m_BCR.ba == 0)
 	{
