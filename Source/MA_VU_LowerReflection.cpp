@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdio.h>
-#include <boost/static_assert.hpp>
 #include "MIPS.h"
 #include "MA_VU.h"
 #include "VUShared.h"

@@ -7,7 +7,6 @@
 #include "Iop_Intc.h"
 #include "lexical_cast_ex.h"
 #include <boost/lexical_cast.hpp>
-#include <boost/static_assert.hpp>
 #include <vector>
 #include "xml/FilteringNodeIterator.h"
 #include "../StructCollectionStateFile.h"

@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdio.h>
-#include <boost/static_assert.hpp>
 #include "MA_MIPSIV.h"
 #include "MIPS.h"
 
@@ -429,13 +428,13 @@ INSTRUCTION CMA_MIPSIV::m_cReflRegImm[32] =
 
 void CMA_MIPSIV::SetupReflectionTables()
 {
-    BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflSpecial)   == sizeof(m_cReflSpecial));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflRegImm)    == sizeof(m_cReflRegImm));
+	static_assert(sizeof(m_ReflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
+	static_assert(sizeof(m_ReflSpecial)	== sizeof(m_cReflSpecial),	"Array sizes don't match");
+	static_assert(sizeof(m_ReflRegImm)	== sizeof(m_cReflRegImm),	"Array sizes don't match");
 
-	memcpy(m_ReflGeneral,   m_cReflGeneral, sizeof(m_cReflGeneral));
-	memcpy(m_ReflSpecial,   m_cReflSpecial, sizeof(m_cReflSpecial));
-	memcpy(m_ReflRegImm,    m_cReflRegImm,  sizeof(m_cReflRegImm));
+	memcpy(m_ReflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
+	memcpy(m_ReflSpecial,	m_cReflSpecial,	sizeof(m_cReflSpecial));
+	memcpy(m_ReflRegImm,	m_cReflRegImm,	sizeof(m_cReflRegImm));
 
 	m_ReflGeneralTable.nShift	= 26;
 	m_ReflGeneralTable.nMask	= 0x3F;

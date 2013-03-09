@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdio.h>
-#include <boost/static_assert.hpp>
 #include "COP_FPU.h"
 #include "MIPS.h"
 
@@ -366,17 +365,17 @@ INSTRUCTION CCOP_FPU::m_cReflW[64] =
 
 void CCOP_FPU::SetupReflectionTables()
 {
-    BOOST_STATIC_ASSERT(sizeof(m_ReflGeneral)   == sizeof(m_cReflGeneral));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflCop1)      == sizeof(m_cReflCop1));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflBc1)       == sizeof(m_cReflBc1));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflS)         == sizeof(m_cReflS));
-    BOOST_STATIC_ASSERT(sizeof(m_ReflW)         == sizeof(m_cReflW));
+	static_assert(sizeof(m_ReflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
+	static_assert(sizeof(m_ReflCop1)	== sizeof(m_cReflCop1),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflBc1)		== sizeof(m_cReflBc1),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflS)		== sizeof(m_cReflS),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflW)		== sizeof(m_cReflW),		"Array sizes don't match");
 
-	memcpy(m_ReflGeneral,   m_cReflGeneral, sizeof(m_cReflGeneral));
-	memcpy(m_ReflCop1,      m_cReflCop1,    sizeof(m_cReflCop1));
-	memcpy(m_ReflBc1,       m_cReflBc1,     sizeof(m_cReflBc1));
-	memcpy(m_ReflS,         m_cReflS,       sizeof(m_cReflS));
-	memcpy(m_ReflW,         m_cReflW,       sizeof(m_cReflW));
+	memcpy(m_ReflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
+	memcpy(m_ReflCop1,		m_cReflCop1,	sizeof(m_cReflCop1));
+	memcpy(m_ReflBc1,		m_cReflBc1,		sizeof(m_cReflBc1));
+	memcpy(m_ReflS,			m_cReflS,		sizeof(m_cReflS));
+	memcpy(m_ReflW,			m_cReflW,		sizeof(m_cReflW));
 
 	m_ReflGeneralTable.nShift	= 26;
 	m_ReflGeneralTable.nMask	= 0x3F;

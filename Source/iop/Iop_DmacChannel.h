@@ -3,7 +3,6 @@
 
 #include "convertible.h"
 #include "Types.h"
-#include <boost/static_assert.hpp>
 #include <functional>
 
 namespace Iop

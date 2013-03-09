@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <boost/static_assert.hpp>
 #include "MA_EE.h"
 #include "MIPS.h"
 

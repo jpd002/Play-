@@ -36,7 +36,7 @@ private:
 		uint8	Padding[0x20];
 		uint8	sName[0x1C0];
 	};
-	BOOST_STATIC_ASSERT(sizeof(PSUENTRY) == 0x200);
+	static_assert(sizeof(PSUENTRY) == 0x200, "Size of PSUENTRY structure must be 0x200 bytes");
 
 #pragma pack(pop)
 
