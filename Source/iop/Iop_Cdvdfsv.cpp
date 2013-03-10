@@ -58,6 +58,11 @@ void CCdvdfsv::SetIsoImage(CISO9660* iso)
 	m_iso = iso;
 }
 
+void CCdvdfsv::SetReadToEeRamHandler(const ReadToEeRamHandler& readToEeRamHandler)
+{
+	m_readToEeRamHandler = readToEeRamHandler;
+}
+
 void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)
 {
 	throw std::runtime_error("Not implemented.");
@@ -279,12 +284,19 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		nDstAddr,
 		nMode);
 
+	static const uint32 sectorSize = 0x800;
+
 	if(m_iso != NULL)
 	{
 		for(unsigned int i = 0; i < nCount; i++)
 		{
-			m_iso->ReadBlock(nSector + i, ram + (nDstAddr + (i * 0x800)));
+			m_iso->ReadBlock(nSector + i, ram + (nDstAddr + (i * sectorSize)));
 		}
+	}
+
+	if(m_readToEeRamHandler)
+	{
+		m_readToEeRamHandler(nDstAddr, sectorSize * nCount);
 	}
 
 	if(retSize >= 4)

@@ -57,6 +57,36 @@ void CMipsExecutor::ClearActiveBlocks()
 	m_blocks.clear();
 }
 
+void CMipsExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
+{
+	uint32 hiStart = start >> 16;
+	uint32 hiEnd = end >> 16;
+
+	std::set<CBasicBlock*> blocksToDelete;
+
+	for(uint32 hi = hiStart; hi <= hiEnd; hi++)
+	{
+		CBasicBlock** table = m_blockTable[hi];
+		if(table == nullptr) continue;
+
+		for(uint32 lo = 0; lo < 0x10000; lo += 4)
+		{
+			uint32 tableAddress = (hi << 16) | lo;
+			if(tableAddress < start) continue;
+			if(tableAddress >= end) continue;
+			CBasicBlock* block = table[lo / 4];
+			if(block == nullptr) continue;
+			table[lo / 4] = nullptr;
+			blocksToDelete.insert(block);
+		}
+	}
+
+	if(!blocksToDelete.empty())
+	{
+		m_blocks.remove_if([&] (const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
+	}
+}
+
 int CMipsExecutor::Execute(int cycles)
 {
 	CBasicBlock* block(nullptr);

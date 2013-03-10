@@ -522,6 +522,8 @@ void CPS2VM::ResetVM()
 
 	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_os, std::placeholders::_1, std::placeholders::_2));
 
+	m_iopOs->GetCdvdfsv()->SetReadToEeRamHandler(std::bind(&CPS2VM::ReadToEeRam, this, std::placeholders::_1, std::placeholders::_2));
+
 	m_frameSkip = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
 
 	m_vblankTicks = ONSCREEN_TICKS;
@@ -1034,6 +1036,11 @@ void CPS2VM::EEMemWriteHandler(uint32 nAddress)
 			}
 		}
 	}
+}
+
+void CPS2VM::ReadToEeRam(uint32 address, uint32 size)
+{
+	m_executor.ClearActiveBlocksInRange(address, address + size);
 }
 
 void CPS2VM::FlushInstructionCache()

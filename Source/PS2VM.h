@@ -145,6 +145,8 @@ private:
 	void						LoadVMState(const char*, unsigned int&);
 
 	void						EEMemWriteHandler(uint32);
+	void						ReadToEeRam(uint32, uint32);
+
 	void						FlushInstructionCache();
 	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 

@@ -16,6 +16,7 @@ public:
 	void						DeleteBlock(CBasicBlock*);
 	virtual void				Reset();
 	void						ClearActiveBlocks();
+	void						ClearActiveBlocksInRange(uint32, uint32);
 
 #ifdef DEBUGGER_INCLUDED
 	bool						MustBreak() const;
