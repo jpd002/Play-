@@ -5,7 +5,6 @@
 #include "BitStream.h"
 #include "mpeg2/VLCTable.h"
 #include "mpeg2/DctCoefficientTable.h"
-#include <boost/thread.hpp>
 #include <functional>
 #include "MailBox.h"
 
@@ -33,7 +32,16 @@ public:
 	void				SetDMA3ReceiveHandler(const Dma3ReceiveHandler&);
 	uint32				ReceiveDMA4(uint32, uint32, bool, uint8*);
 
+	void				ExecuteCommand();
+	bool				WillExecuteCommand() const;
+
 private:
+	enum IPU_CTRL_BITS
+	{
+		IPU_CTRL_ECD = 0x00004000,
+		IPU_CTRL_RST = 0x40000000,
+	};
+
 	class COutFifoBase
 	{
 	public:
@@ -111,8 +119,6 @@ private:
 		unsigned int		GetSize();
 		unsigned int		GetAvailableBits();
 		void				Reset();
-		void				WaitForData();
-		void				WaitForSpace();
 
 		enum BUFFERSIZE
 		{
@@ -123,9 +129,6 @@ private:
 		uint8				m_nBuffer[BUFFERSIZE];
 		unsigned int		m_nSize;
 		unsigned int		m_nBitPosition;
-		boost::mutex		m_accessMutex;
-		boost::condition	m_dataNeededCondition;
-		boost::condition	m_dataConsumedCondition;
 	};
 
 	class CCommand
@@ -396,56 +399,48 @@ private:
 		uint16*			m_TH1;
 	};
 
-	void				CommandThread();
-	void				InitializeCommand(uint32);
-//   void                DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
+	void						InitializeCommand(uint32);
+//	void						DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
 
-	uint32				GetPictureType();
-	uint32				GetDcPrecision();
-	bool				GetIsMPEG2();
-	bool				GetIsLinearQScale();
-	bool				GetIsZigZagScan();
-	bool				GetIsMPEG1CoeffVLCTable();
+	uint32						GetPictureType();
+	uint32						GetDcPrecision();
+	bool						GetIsMPEG2();
+	bool						GetIsLinearQScale();
+	bool						GetIsZigZagScan();
+	bool						GetIsMPEG1CoeffVLCTable();
 
-	static void			DequantiseBlock(int16*, uint8, uint8, bool isLinearQScale, uint32 dcPrecision, uint8* intraIq, uint8* nonIntraIq);
-	static void			InverseScan(int16*, bool isZigZag);
+	static void					DequantiseBlock(int16*, uint8, uint8, bool isLinearQScale, uint32 dcPrecision, uint8* intraIq, uint8* nonIntraIq);
+	static void					InverseScan(int16*, bool isZigZag);
 
-	uint32				GetBusyBit(bool) const;
+	uint32						GetBusyBit(bool) const;
 
-	void				DisassembleGet(uint32);
-	void				DisassembleSet(uint32, uint32);
-	void				DisassembleCommand(uint32);
+	void						DisassembleGet(uint32);
+	void						DisassembleSet(uint32, uint32);
+	void						DisassembleCommand(uint32);
 
-	uint8				m_nIntraIQ[0x40];
-	uint8				m_nNonIntraIQ[0x40];
-	uint16				m_nVQCLUT[0x10];
-	uint16				m_nTH0;
-	uint16				m_nTH1;
+	uint8						m_nIntraIQ[0x40];
+	uint8						m_nNonIntraIQ[0x40];
+	uint16						m_nVQCLUT[0x10];
+	uint16						m_nTH0;
+	uint16						m_nTH1;
 
-	int16				m_nDcPredictor[3];
+	int16						m_nDcPredictor[3];
 
-	uint32				m_IPU_CMD[2];
-	uint32				m_IPU_CTRL;
-	COUTFIFO			m_OUT_FIFO;
-	CINFIFO				m_IN_FIFO;
-	boost::thread*		m_cmdThread;
-	bool				m_cmdThreadOver;
-	boost::mutex		m_cmdMutex;
-	boost::condition	m_cmdCondition;
-	uint32				m_currentCmdCode;
-	bool				m_isBusy;
-	bool				m_busyWhileReadingCMD;
-	bool				m_busyWhileReadingTOP;
+	uint32						m_IPU_CMD[2];
+	uint32						m_IPU_CTRL;
+	COUTFIFO					m_OUT_FIFO;
+	CINFIFO						m_IN_FIFO;
+	bool						m_isBusy;
 
-	CCommand*			m_currentCmd;
-	CBCLRCommand		m_BCLRCommand;
-	CBDECCommand		m_BDECCommand;
-	CVDECCommand		m_VDECCommand;
-	CFDECCommand		m_FDECCommand;
-	CSETIQCommand		m_SETIQCommand;
-	CSETVQCommand		m_SETVQCommand;
-	CCSCCommand			m_CSCCommand;
-	CSETTHCommand		m_SETTHCommand;
+	CCommand*					m_currentCmd;
+	CBCLRCommand				m_BCLRCommand;
+	CBDECCommand				m_BDECCommand;
+	CVDECCommand				m_VDECCommand;
+	CFDECCommand				m_FDECCommand;
+	CSETIQCommand				m_SETIQCommand;
+	CSETVQCommand				m_SETVQCommand;
+	CCSCCommand					m_CSCCommand;
+	CSETTHCommand				m_SETTHCommand;
 };
 
 #endif

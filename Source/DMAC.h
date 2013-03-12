@@ -100,6 +100,7 @@ public:
 	void				ResumeDMA1();
 	uint32				ResumeDMA3(void*, uint32);
 	void				ResumeDMA4();
+	bool				IsDMA4Started() const;
 	static bool			IsEndTagId(uint32);
 
 private:

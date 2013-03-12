@@ -29,20 +29,15 @@ using namespace MPEG2;
 
 CIPU::CIPU() 
 : m_IPU_CTRL(0)
-, m_cmdThread(NULL)
 , m_isBusy(false)
-, m_currentCmd(NULL)
-, m_currentCmdCode(0)
-, m_cmdThreadOver(false)
+, m_currentCmd(nullptr)
 {
-	m_cmdThread = new boost::thread(boost::bind(&CIPU::CommandThread, this));
+
 }
 
 CIPU::~CIPU()
 {
-	m_cmdThreadOver = true;
-	m_cmdThread->join();
-	DELETEPTR(m_cmdThread);
+
 }
 
 void CIPU::Reset()
@@ -51,8 +46,8 @@ void CIPU::Reset()
 	m_IPU_CMD[0]		= 0;
 	m_IPU_CMD[1]		= 0;
 
-	m_busyWhileReadingCMD = false;
-	m_busyWhileReadingTOP = false;
+	m_isBusy			= false;
+	m_currentCmd		= nullptr;
 }
 
 uint32 CIPU::GetRegister(uint32 nAddress)
@@ -64,18 +59,17 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 	switch(nAddress)
 	{
 	case IPU_CMD + 0x0:
-		m_busyWhileReadingCMD = m_isBusy;
 		return m_IPU_CMD[0];
 		break;
 	case IPU_CMD + 0x4:
-		return GetBusyBit(m_busyWhileReadingCMD);
+		return GetBusyBit(m_isBusy);
 		break;
 	case IPU_CMD + 0x8:
 	case IPU_CMD + 0xC:
 		break;
 
 	case IPU_CTRL + 0x0:
-		return m_IPU_CTRL | GetBusyBit(m_isBusy);
+		return m_IPU_CTRL | GetBusyBit(m_isBusy) | (m_IN_FIFO.GetSize() / 0x10);
 		break;
 	case IPU_CTRL + 0x4:
 	case IPU_CTRL + 0x8:
@@ -93,13 +87,8 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_TOP + 0x0:
-		m_busyWhileReadingTOP = m_isBusy;
 		if(!m_isBusy)
 		{
-//            if(m_IN_FIFO.GetSize() < 4)
-//            {
-//				throw std::runtime_error("Not enough data...");
-//            }
 			unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
 			return m_IN_FIFO.PeekBits_MSBF(availableSize);
 		}
@@ -110,7 +99,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_TOP + 0x4:
-		return GetBusyBit(m_busyWhileReadingTOP);
+		return GetBusyBit(m_isBusy);
 		break;
 
 	case IPU_TOP + 0x8:
@@ -136,11 +125,14 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 	case IPU_CMD + 0x0:
 		//Set BUSY states
 		{
-			boost::mutex::scoped_lock cmdMutexLock(m_cmdMutex);
 			assert(m_isBusy == false);
-			m_currentCmdCode = nValue;
+			if(m_currentCmd != NULL)
+			{
+				assert(m_IPU_CTRL & IPU_CTRL_ECD);
+			}
+			m_IPU_CTRL &= ~IPU_CTRL_ECD;
+			InitializeCommand(nValue);
 			m_isBusy = true;
-			m_cmdCondition.notify_one();
 		}
 #ifdef _DEBUG
 		DisassembleCommand(nValue);
@@ -152,9 +144,10 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	case IPU_CTRL + 0x0:
-		if((nValue & 0x40000000) && m_isBusy)
+		if(nValue & IPU_CTRL_RST)
 		{
-			throw std::runtime_error("Humm...");
+			m_isBusy = false;
+			m_currentCmd = nullptr;
 		}
 		nValue &= 0x3FFF0000;
 		m_IPU_CTRL &= ~0x3FFF0000;
@@ -178,39 +171,34 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 	}
 }
 
-void CIPU::CommandThread()
+void CIPU::ExecuteCommand()
 {
-	while(!m_cmdThreadOver)
+	if(WillExecuteCommand())
 	{
-		if(m_isBusy)
+		try
 		{
-			if(m_currentCmd == NULL)
-			{
-				InitializeCommand(m_currentCmdCode);
-			}
+			assert(m_currentCmd != NULL);
+			m_currentCmd->Execute();
+			m_currentCmd = nullptr;
 
-			try
-			{
-				m_currentCmd->Execute();
-				m_currentCmd = NULL;
-
-				//Clear BUSY states
-				m_isBusy = false;
-			}
-			catch(const Framework::CBitStream::CBitStreamException&)
-			{
-				m_IN_FIFO.WaitForData();
-			}
+			//Clear BUSY states
+			m_isBusy = false;
 		}
-		else
+		catch(const Framework::CBitStream::CBitStreamException&)
 		{
-			boost::mutex::scoped_lock cmdMutexLock(m_cmdMutex);
-			boost::xtime xt;
-			boost::xtime_get(&xt, boost::TIME_UTC_);
-			xt.nsec += 1000000;
-			m_cmdCondition.timed_wait(cmdMutexLock, xt);
+
+		}
+		catch(const CVLCTable::CVLCTableException&)
+		{
+			m_IPU_CTRL |= IPU_CTRL_ECD;
+			CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.");
 		}
 	}
+}
+
+bool CIPU::WillExecuteCommand() const
+{
+	return m_isBusy && ((m_IPU_CTRL & IPU_CTRL_ECD) == 0);
 }
 
 void CIPU::InitializeCommand(uint32 value)
@@ -310,56 +298,16 @@ uint32 CIPU::ReceiveDMA4(uint32 nAddress, uint32 nQWC, bool nTagIncluded, uint8*
 {
 	assert(nTagIncluded == false);
 
-	uint32 totalSize = 0;
+	uint32 availableFifoSize = CINFIFO::BUFFERSIZE - m_IN_FIFO.GetSize();
 
-	while(1)
-	{
-		bool done = false;
-		uint32 availableFifoSize = 0;
+	uint32 nSize = std::min<uint32>(nQWC * 0x10, availableFifoSize);
+	assert((nSize & 0xF) == 0);
 
-		while(1)
-		{
-			availableFifoSize = CINFIFO::BUFFERSIZE - m_IN_FIFO.GetSize();
-			if(availableFifoSize == 0)
-			{
-				if(!m_isBusy)
-				{
-					done = true;
-					break;
-				}
-				else
-				{
-					m_IN_FIFO.WaitForSpace();
-				}
-			}
-			else
-			{
-				break;
-			}
-		}
+	m_IN_FIFO.Write(ram + nAddress, nSize);
 
-		if(done)
-		{
-			break;
-		}
-
-		uint32 nSize = std::min<uint32>(nQWC * 0x10, availableFifoSize);
-		assert((nSize & 0xF) == 0);
-
-		m_IN_FIFO.Write(ram + nAddress, nSize);
-
-		nAddress += nSize;
-		totalSize += nSize;
-		nQWC -= (nSize / 0x10);
-
-		if(nQWC == 0)
-		{
-			break;
-		}
-	}
-
-	return totalSize / 0x10;
+	return nSize / 0x10;
 }
+
 /*
 void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQSC, uint8 nFB)
 {
@@ -767,8 +715,6 @@ CIPU::CINFIFO::~CINFIFO()
 
 void CIPU::CINFIFO::Write(void* pData, unsigned int nSize)
 {
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
-
 	if(nSize + m_nSize > BUFFERSIZE) 
 	{
 		assert(0);
@@ -777,8 +723,6 @@ void CIPU::CINFIFO::Write(void* pData, unsigned int nSize)
 
 	memcpy(m_nBuffer + m_nSize, pData, nSize);
 	m_nSize += nSize;
-
-	m_dataNeededCondition.notify_all();
 }
 
 uint32 CIPU::CINFIFO::GetBits_LSBF(uint8 nBits)
@@ -803,8 +747,6 @@ bool CIPU::CINFIFO::TryPeekBits_LSBF(uint8 nBits, uint32& result)
 
 bool CIPU::CINFIFO::TryPeekBits_MSBF(uint8 nBits, uint32& result)
 {
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
-
 	int bitsAvailable = (m_nSize * 8) - m_nBitPosition;
 	int bitsNeeded = nBits;
 	assert(bitsAvailable >= 0);
@@ -834,11 +776,12 @@ void CIPU::CINFIFO::Advance(uint8 nBits)
 {
 	if(nBits == 0) return;
 
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
+	if((m_nBitPosition + nBits) > (m_nSize * 8))
+	{
+		throw CBitStreamException();
+	}
 
 	m_nBitPosition += nBits;
-
-	bool advanced = false;
 
 	while(m_nBitPosition >= 128)
 	{
@@ -852,39 +795,13 @@ void CIPU::CINFIFO::Advance(uint8 nBits)
 			//Humm, this seems to happen when the DMA4 has done the transfer
 			//but we need more data...
 			assert(0);
-			m_dataNeededCondition.wait(accessLock);
 		}
 
 		//Discard the read bytes
 		memmove(m_nBuffer, m_nBuffer + 16, m_nSize - 16);
 		m_nSize -= 16;
 		m_nBitPosition -= 128;
-
-		advanced = true;
 	}
-
-	if(advanced)
-	{
-		m_dataConsumedCondition.notify_all();
-	}
-}
-
-void CIPU::CINFIFO::WaitForData()
-{
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
-	boost::xtime xt;
-	boost::xtime_get(&xt, boost::TIME_UTC_);
-	xt.nsec += 10000000;
-	m_dataNeededCondition.timed_wait(accessLock, xt);
-}
-
-void CIPU::CINFIFO::WaitForSpace()
-{
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
-	boost::xtime xt;
-	boost::xtime_get(&xt, boost::TIME_UTC_);
-	xt.nsec += 10000;
-	m_dataConsumedCondition.timed_wait(accessLock, xt);
 }
 
 void CIPU::CINFIFO::SeekToByteAlign()
@@ -900,31 +817,26 @@ bool CIPU::CINFIFO::IsOnByteBoundary()
 
 uint8 CIPU::CINFIFO::GetBitIndex() const
 {
-	boost::mutex::scoped_lock accessLock(const_cast<CINFIFO*>(this)->m_accessMutex);
 	return m_nBitPosition;
 }
 
 void CIPU::CINFIFO::SetBitPosition(unsigned int nPosition)
 {
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
 	m_nBitPosition = nPosition;
 }
 
 unsigned int CIPU::CINFIFO::GetSize()
 {
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
 	return m_nSize;
 }
 
 unsigned int CIPU::CINFIFO::GetAvailableBits()
 {
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
 	return (m_nSize * 8) - m_nBitPosition;
 }
 
 void CIPU::CINFIFO::Reset()
 {
-	boost::mutex::scoped_lock accessLock(m_accessMutex);
 	m_nSize = 0;
 }
 
@@ -1152,9 +1064,9 @@ void CIPU::CBDECCommand::Execute()
 				BLOCKENTRY& blockInfo(m_blocks[m_currentBlockIndex]);
 				int16 blockTemp[0x40];
 
+				InverseScan(blockInfo.block, m_context.isZigZag);
 				DequantiseBlock(blockInfo.block, m_mbi, m_qsc, 
 					m_context.isLinearQScale, m_context.dcPrecision, m_context.intraIq, m_context.nonIntraIq);
-				InverseScan(blockInfo.block, m_context.isZigZag);
 
 				memcpy(blockTemp, blockInfo.block, sizeof(int16) * 0x40);
 
@@ -1313,8 +1225,7 @@ void CIPU::CBDECCommand_ReadDct::Execute()
 				}
 				else
 				{
-					assert(0);
-					break;
+					throw CVLCTable::CVLCTableException();
 				}
 
 				m_blockIndex++;

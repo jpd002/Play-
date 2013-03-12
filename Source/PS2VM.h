@@ -172,6 +172,8 @@ private:
 	void						RegisterModulesInPadHandler();
 	void						FillFakeIopRam();
 
+	void						ExecuteIpu();
+
 	int							ExecuteEe(int);
 	bool						IsEeIdle() const;
 	void						EmuThread();

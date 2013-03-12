@@ -917,14 +917,17 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
 		m_ipu.SetRegister(nAddress, nData);
+		ExecuteIpu();
 	}
 	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
 	{
 		m_ipu.SetRegister(nAddress, nData);
+		ExecuteIpu();
 	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
 		m_dmac.SetRegister(nAddress, nData);
+		ExecuteIpu();
 	}
 	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
 	{
@@ -1054,6 +1057,23 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 	m_os->BootFromCDROM(arguments);
 }
 
+void CPS2VM::ExecuteIpu()
+{
+	m_dmac.ResumeDMA4();
+	while(m_ipu.WillExecuteCommand())
+	{
+		m_ipu.ExecuteCommand();
+		if(m_ipu.WillExecuteCommand() && m_dmac.IsDMA4Started())
+		{
+			m_dmac.ResumeDMA4();
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
 int CPS2VM::ExecuteEe(int quota)
 {
 	int executed = 0;
@@ -1161,7 +1181,7 @@ void CPS2VM::EmuThread()
 				{
 					m_dmac.ResumeDMA1();
 				}
-				m_dmac.ResumeDMA4();
+				ExecuteIpu();
 				if(!m_EE.m_State.nHasException)
 				{
 					if((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0)

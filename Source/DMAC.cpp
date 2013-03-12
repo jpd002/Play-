@@ -190,6 +190,11 @@ void CDMAC::ResumeDMA4()
 	m_D4.Execute();
 }
 
+bool CDMAC::IsDMA4Started() const
+{
+	return (m_D4.m_CHCR.nSTR != 0) && (m_D_ENABLE == 0);
+}
+
 uint64 CDMAC::FetchDMATag(uint32 nAddress)
 {
 	if(nAddress & 0x80000000)
@@ -593,6 +598,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	//D4_MADR
 	case D4_MADR + 0x0:
+		assert(m_D4.m_CHCR.nSTR == 0);
 		m_D4.m_nMADR = nData;
 		break;
 	case D4_MADR + 0x4:
