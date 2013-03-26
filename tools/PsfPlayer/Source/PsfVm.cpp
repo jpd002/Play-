@@ -19,19 +19,16 @@ m_singleStep(false),
 m_soundHandler(NULL)
 {
 	m_isThreadOver = false;
-	m_thread = new boost::thread(boost::bind(&CPsfVm::ThreadProc, this));
+	m_thread = std::thread([&] () { ThreadProc(); });
 }
 
 CPsfVm::~CPsfVm()
 {
-	if(m_thread)
+	if(m_thread.joinable())
 	{
 		Pause();
 		m_isThreadOver = true;
-		m_thread->join();
-
-		delete m_thread;
-		m_thread = NULL;
+		m_thread.join();
 
 		assert(m_soundHandler == NULL);
 	}

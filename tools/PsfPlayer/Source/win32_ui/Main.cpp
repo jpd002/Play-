@@ -2,7 +2,7 @@
 #include "PsfLoader.h"
 #include "MainWindow.h"
 #include "MiniDebugger.h"
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 
 namespace filesystem = boost::filesystem;
 
@@ -33,10 +33,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 		window.Center();
 		window.Show(SW_SHOW);
 		window.Run();
-//		CPlayerWnd player(virtualMachine);
-//		player.Center();
-//		player.Show(SW_SHOW);
-//		player.Run();
 	}
 #endif
 

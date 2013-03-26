@@ -8,7 +8,7 @@
 #include "VirtualMachine.h"
 #include "Debuggable.h"
 #include "MailBox.h"
-#include <boost/thread.hpp>
+#include <thread>
 
 class CPsfVm : public CVirtualMachine, public boost::signals2::trackable
 {
@@ -56,7 +56,7 @@ private:
 	STATUS				m_status;
 	PsfVmSubSystemPtr	m_subSystem;
 	CSoundHandler*		m_soundHandler;
-	boost::thread*		m_thread;
+	std::thread			m_thread;
 	bool				m_singleStep;
 	bool				m_isThreadOver;
 	CMailBox			m_mailBox;
