@@ -1,20 +1,12 @@
-#ifndef _BASICBLOCK_H_
-#define _BASICBLOCK_H_
+#pragma once
 
 #include "MIPS.h"
 #include "MemoryFunction.h"
-#include <boost/intrusive_ptr.hpp>
 
 namespace Jitter
 {
 	class CJitter;
 };
-
-class CBasicBlock;
-typedef boost::intrusive_ptr<CBasicBlock> BasicBlockPtr;
-
-static void intrusive_ptr_add_ref(CBasicBlock*);
-static void intrusive_ptr_release(CBasicBlock*);
 
 class CBasicBlock
 {
@@ -38,27 +30,6 @@ protected:
 	virtual void		CompileRange(CMipsJitter*);
 
 private:
-	friend void intrusive_ptr_add_ref(CBasicBlock*);
-	friend void intrusive_ptr_release(CBasicBlock*);
-
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 	unsigned int		m_selfLoopCount;
-
-	unsigned int		m_refCount;
 };
-
-static void intrusive_ptr_add_ref(CBasicBlock* block)
-{
-	block->m_refCount++;
-}
-
-static void intrusive_ptr_release(CBasicBlock* block)
-{
-	block->m_refCount--;
-	if(block->m_refCount == 0)
-	{
-		delete block;
-	}
-}
-
-#endif

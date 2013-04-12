@@ -216,7 +216,6 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 	assert(FindBlockAt(end) == NULL);
 	{
 		BasicBlockPtr block = BlockFactory(m_context, start, end);
-		m_blocks.push_back(block);
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += 4)
 		{
 			uint32 hiAddress = address >> 16;
@@ -232,6 +231,7 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 			assert(subTable[loAddress / 4] == NULL);
 			subTable[loAddress / 4] = block.get();
 		}
+		m_blocks.push_back(std::move(block));
 	}
 }
 
@@ -249,10 +249,12 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 	}
 
 	//Remove block from our lists
-	m_blocks.remove(block);
+	auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&] (const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
+	assert(blockIterator != std::end(m_blocks));
+	m_blocks.erase(blockIterator);
 }
 
-BasicBlockPtr CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
+CMipsExecutor::BasicBlockPtr CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
 	return BasicBlockPtr(new CBasicBlock(context, start, end));
 }

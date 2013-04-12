@@ -8,20 +8,14 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 : m_begin(begin)
 , m_end(end)
 , m_context(context)
-, m_function(NULL)
 , m_selfLoopCount(0)
-, m_refCount(0)
 {
 	assert(m_end >= m_begin);
 }
 
 CBasicBlock::~CBasicBlock()
 {
-	if(m_function != NULL)
-	{
-		delete m_function;
-		m_function = NULL;
-	}
+
 }
 
 void CBasicBlock::Compile()
@@ -51,7 +45,7 @@ void CBasicBlock::Compile()
 		jitter->End();
 	}
 
-	m_function = new CMemoryFunction(stream.GetBuffer(), stream.GetSize());
+	m_function = CMemoryFunction(stream.GetBuffer(), stream.GetSize());
 }
 
 void CBasicBlock::CompileRange(CMipsJitter* jitter)
@@ -69,7 +63,7 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 
 unsigned int CBasicBlock::Execute()
 {
-	(*m_function)(&m_context);
+	m_function(&m_context);
 
 	if(m_context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
 	{
@@ -102,7 +96,7 @@ uint32 CBasicBlock::GetEndAddress() const
 
 bool CBasicBlock::IsCompiled() const
 {
-	return m_function != NULL;
+	return !m_function.IsEmpty();
 }
 
 unsigned int CBasicBlock::GetSelfLoopCount() const
