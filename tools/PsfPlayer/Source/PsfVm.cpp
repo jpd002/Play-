@@ -91,7 +91,7 @@ void CPsfVm::SaveDebugTags(const char* packageName)
 	m_subSystem->GetCpu().m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
 	m_subSystem->GetCpu().m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
 	m_subSystem->SaveDebugTags(document.get());
-	Framework::Xml::CWriter::WriteDocument(&Framework::CStdStream(packagePath.c_str(), "wb"), document.get());
+	Framework::Xml::CWriter::WriteDocument(Framework::CStdStream(packagePath.c_str(), "wb"), document.get());
 }
 
 #endif

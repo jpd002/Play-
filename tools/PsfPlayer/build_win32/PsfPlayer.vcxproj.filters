@@ -379,6 +379,9 @@
     <ClCompile Include="..\..\..\Source\RegisterStateFile.cpp">
       <Filter>Source Files\Purei Core\states</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\win32_ui\Main_Aot.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
