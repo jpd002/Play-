@@ -21,7 +21,7 @@ void CVuExecutor::Reset()
 	CMipsExecutor::Reset();
 }
 
-BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)
+CMipsExecutor::BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)
 {
 	uint32 blockSize = ((end - begin) + 4) / 4;
 	uint32 blockSizeByte = blockSize * 4;
@@ -112,7 +112,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 		//Check if there's a block already exising that this address
 		if(address != endAddress)
 		{
-			BasicBlockPtr possibleBlock = FindBlockStartingAt(address);
+			CBasicBlock* possibleBlock = FindBlockStartingAt(address);
 			if(possibleBlock != NULL)
 			{
 				assert(possibleBlock->GetEndAddress() <= endAddress);

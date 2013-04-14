@@ -24,7 +24,7 @@ public:
 #endif
 
 protected:
-	typedef std::unique_ptr<CBasicBlock> BasicBlockPtr;
+	typedef std::shared_ptr<CBasicBlock> BasicBlockPtr;
 	typedef std::list<BasicBlockPtr> BlockList;
 
 	void						CreateBlock(uint32, uint32);
