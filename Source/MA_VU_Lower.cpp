@@ -111,7 +111,7 @@ void CMA_VU::CLower::LQ()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
 	VUShared::PullVector(m_codeGen, m_nDest, offsetof(CMIPS, m_State.nCOP2[m_nIT]));
 
 	m_codeGen->PullTop();
@@ -149,7 +149,7 @@ void CMA_VU::CLower::ILW()
 		GetDestOffset(m_nDest));
 
 	//Read memory
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -175,7 +175,7 @@ void CMA_VU::CLower::ISW()
 			m_codeGen->PushCtx();
 			m_codeGen->PushIdx(2);
 			m_codeGen->PushIdx(2);
-			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 		}
 
 		if(i != 3)
@@ -517,7 +517,7 @@ void CMA_VU::CLower::LQI()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
 	VUShared::PullVector(m_codeGen, m_nDest, offsetof(CMIPS, m_State.nCOP2[m_nIT]));
 
 	m_codeGen->PullTop();
@@ -567,7 +567,7 @@ void CMA_VU::CLower::XTOP()
 	//Compute Address
 	m_codeGen->PushCst(CVIF::VU_TOP);
 
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -583,7 +583,7 @@ void CMA_VU::CLower::XGKICK()
 	//Compute Address
 	m_codeGen->PushCst(CVIF::VU_XGKICK);
 
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }
 
 //1E
@@ -683,7 +683,7 @@ void CMA_VU::CLower::XITOP()
 	//Compute Address
 	m_codeGen->PushCst(CVIF::VU_ITOP);
 
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -703,7 +703,7 @@ void CMA_VU::CLower::LQD()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
 	VUShared::PullVector(m_codeGen, m_nDest, offsetof(CMIPS, m_State.nCOP2[m_nIT]));
 
 	m_codeGen->PullTop();
@@ -724,7 +724,7 @@ void CMA_VU::CLower::ILWR()
 	//Compute address
 	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, GetDestOffset(m_nDest));
 
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
@@ -824,7 +824,7 @@ void CMA_VU::CLower::ISWR()
 			m_codeGen->PushCtx();
 			m_codeGen->PushIdx(2);
 			m_codeGen->PushIdx(2);
-			m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 		}
 
 		if(i != 3)

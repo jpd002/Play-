@@ -1,22 +1,22 @@
 #include "MemoryUtils.h"
 #include "Integer64.h"
 
-uint32 CMemoryUtils::GetByteProxy(CMIPS* pCtx, uint32 nAddress)
+uint32 MemoryUtils_GetByteProxy(CMIPS* pCtx, uint32 nAddress)
 {
 	return (uint32)pCtx->m_pMemoryMap->GetByte(nAddress);
 }
 
-uint32 CMemoryUtils::GetHalfProxy(CMIPS* pCtx, uint32 nAddress)
+uint32 MemoryUtils_GetHalfProxy(CMIPS* pCtx, uint32 nAddress)
 {
 	return (uint32)pCtx->m_pMemoryMap->GetHalf(nAddress);
 }
 
-uint32 CMemoryUtils::GetWordProxy(CMIPS* pCtx, uint32 nAddress)
+uint32 MemoryUtils_GetWordProxy(CMIPS* pCtx, uint32 nAddress)
 {
 	return pCtx->m_pMemoryMap->GetWord(nAddress);
 }
 
-uint64 CMemoryUtils::GetDoubleProxy(CMIPS* context, uint32 address)
+uint64 MemoryUtils_GetDoubleProxy(CMIPS* context, uint32 address)
 {
 	assert((address & 0x07) == 0);
 	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetReadMap(address);
@@ -45,7 +45,7 @@ uint64 CMemoryUtils::GetDoubleProxy(CMIPS* context, uint32 address)
 	return result.q;
 }
 
-uint128 CMemoryUtils::GetQuadProxy(CMIPS* context, uint32 address)
+uint128 MemoryUtils_GetQuadProxy(CMIPS* context, uint32 address)
 {
 	assert((address & 0x0F) == 0);
 	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetReadMap(address);
@@ -74,22 +74,22 @@ uint128 CMemoryUtils::GetQuadProxy(CMIPS* context, uint32 address)
 	return result;
 }
 
-void CMemoryUtils::SetByteProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
+void MemoryUtils_SetByteProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
 {
 	pCtx->m_pMemoryMap->SetByte(nAddress, (uint8)(nValue & 0xFF));
 }
 
-void CMemoryUtils::SetHalfProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
+void MemoryUtils_SetHalfProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
 {
 	pCtx->m_pMemoryMap->SetHalf(nAddress, (uint16)(nValue & 0xFFFF));
 }
 
-void CMemoryUtils::SetWordProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
+void MemoryUtils_SetWordProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
 {
 	pCtx->m_pMemoryMap->SetWord(nAddress, nValue);
 }
 
-void CMemoryUtils::SetDoubleProxy(CMIPS* context, uint64 value64, uint32 address)
+void MemoryUtils_SetDoubleProxy(CMIPS* context, uint64 value64, uint32 address)
 {
 	assert((address & 0x07) == 0);
 	INTEGER64 value;
@@ -118,7 +118,7 @@ void CMemoryUtils::SetDoubleProxy(CMIPS* context, uint64 value64, uint32 address
 	}
 }
 
-void CMemoryUtils::SetQuadProxy(CMIPS* context, const uint128& value, uint32 address)
+void MemoryUtils_SetQuadProxy(CMIPS* context, const uint128& value, uint32 address)
 {
 	assert((address & 0x0F) == 0);
 	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetWriteMap(address);

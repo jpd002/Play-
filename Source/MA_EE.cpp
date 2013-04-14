@@ -113,7 +113,7 @@ void CMA_EE::LQ()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
 	m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 
 	m_codeGen->PullTop();
@@ -127,7 +127,7 @@ void CMA_EE::SQ()
 	m_codeGen->PushCtx();
 	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetQuadProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetQuadProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 
 	m_codeGen->PullTop();
 }

@@ -47,24 +47,24 @@ uint64 g_LDMaskLeft[8] =
 	0x0000000000000000ULL,
 };
 
-uint32 LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
+extern "C" uint32 LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x03;
 	uint32 byteOffset = address & 0x03;
 	uint32 accessType = 3 - byteOffset;
-	uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
+	uint32 memory = MemoryUtils_GetWordProxy(context, alignedAddress);
 	memory <<= accessType * 8;
 	rt &= g_LWMaskRight[byteOffset];
 	rt |= memory;
 	return rt;
 }
 
-uint32 LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
+extern "C" uint32 LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x03;
 	uint32 byteOffset = address & 0x03;
 	uint32 accessType = 3 - byteOffset;
-	uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
+	uint32 memory = MemoryUtils_GetWordProxy(context, alignedAddress);
 	memory >>= byteOffset * 8;
 	rt &= g_LWMaskLeft[accessType];
 	rt |= memory;
@@ -76,7 +76,7 @@ uint64 LDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
 	uint32 alignedAddress = address & ~0x07;
 	uint32 byteOffset = address & 0x07;
 	uint32 accessType = 7 - byteOffset;
-	uint64 memory = CMemoryUtils::GetDoubleProxy(context, alignedAddress);
+	uint64 memory = MemoryUtils_GetDoubleProxy(context, alignedAddress);
 	memory <<= accessType * 8;
 	rt &= g_LDMaskRight[byteOffset];
 	rt |= memory;
@@ -88,35 +88,35 @@ uint64 LDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
 	uint32 alignedAddress = address & ~0x07;
 	uint32 byteOffset = address & 0x07;
 	uint32 accessType = 7 - byteOffset;
-	uint64 memory = CMemoryUtils::GetDoubleProxy(context, alignedAddress);
+	uint64 memory = MemoryUtils_GetDoubleProxy(context, alignedAddress);
 	memory >>= byteOffset * 8;
 	rt &= g_LDMaskLeft[accessType];
 	rt |= memory;
 	return rt;
 }
 
-void SWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
+extern "C" void SWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x03;
 	uint32 byteOffset = address & 0x03;
 	uint32 accessType = 3 - byteOffset;
 	rt >>= accessType * 8;
-	uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
+	uint32 memory = MemoryUtils_GetWordProxy(context, alignedAddress);
 	memory &= g_LWMaskLeft[byteOffset];
 	memory |= rt;
-	CMemoryUtils::SetWordProxy(context, memory, alignedAddress);
+	MemoryUtils_SetWordProxy(context, memory, alignedAddress);
 }
 
-void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
+extern "C" void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x03;
 	uint32 byteOffset = address & 0x03;
 	uint32 accessType = 3 - byteOffset;
 	rt <<= byteOffset * 8;
-	uint32 memory = CMemoryUtils::GetWordProxy(context, alignedAddress);
+	uint32 memory = MemoryUtils_GetWordProxy(context, alignedAddress);
 	memory &= g_LWMaskRight[accessType];
 	memory |= rt;
-	CMemoryUtils::SetWordProxy(context, memory, alignedAddress);
+	MemoryUtils_SetWordProxy(context, memory, alignedAddress);
 }
 
 void SDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
@@ -125,10 +125,10 @@ void SDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
 	uint32 byteOffset = address & 0x07;
 	uint32 accessType = 7 - byteOffset;
 	rt >>= accessType * 8;
-	uint64 memory = CMemoryUtils::GetDoubleProxy(context, alignedAddress);
+	uint64 memory = MemoryUtils_GetDoubleProxy(context, alignedAddress);
 	memory &= g_LDMaskLeft[byteOffset];
 	memory |= rt;
-	CMemoryUtils::SetDoubleProxy(context, memory, alignedAddress);
+	MemoryUtils_SetDoubleProxy(context, memory, alignedAddress);
 }
 
 void SDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
@@ -137,10 +137,10 @@ void SDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
 	uint32 byteOffset = address & 0x07;
 	uint32 accessType = 7 - byteOffset;
 	rt <<= byteOffset * 8;
-	uint64 memory = CMemoryUtils::GetDoubleProxy(context, alignedAddress);
+	uint64 memory = MemoryUtils_GetDoubleProxy(context, alignedAddress);
 	memory &= g_LDMaskRight[accessType];
 	memory |= rt;
-	CMemoryUtils::SetDoubleProxy(context, memory, alignedAddress);
+	MemoryUtils_SetDoubleProxy(context, memory, alignedAddress);
 }
 
 CMA_MIPSIV::CMA_MIPSIV(MIPS_REGSIZE nRegSize) :
@@ -480,7 +480,7 @@ void CMA_MIPSIV::LB()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetByteProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetByteProxy), 2, true);
 
 	m_codeGen->SignExt8();
 	if(m_regSize == MIPS_REGSIZE_64)
@@ -501,7 +501,7 @@ void CMA_MIPSIV::LH()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetHalfProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetHalfProxy), 2, true);
 
 	m_codeGen->SignExt16();
 	if(m_regSize == MIPS_REGSIZE_64)
@@ -535,19 +535,19 @@ void CMA_MIPSIV::LWL()
 //23
 void CMA_MIPSIV::LW()
 {
-	Template_LoadUnsigned32(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy));
+	Template_LoadUnsigned32(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy));
 }
 
 //24
 void CMA_MIPSIV::LBU()
 {
-	Template_LoadUnsigned32(reinterpret_cast<void*>(&CMemoryUtils::GetByteProxy));
+	Template_LoadUnsigned32(reinterpret_cast<void*>(&MemoryUtils_GetByteProxy));
 }
 
 //25
 void CMA_MIPSIV::LHU()
 {
-	Template_LoadUnsigned32(reinterpret_cast<void*>(&CMemoryUtils::GetHalfProxy));
+	Template_LoadUnsigned32(reinterpret_cast<void*>(&MemoryUtils_GetHalfProxy));
 }
 
 //26
@@ -574,7 +574,7 @@ void CMA_MIPSIV::LWU()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
 	m_codeGen->PushCst(0);
@@ -591,7 +591,7 @@ void CMA_MIPSIV::SB()
 	m_codeGen->PushCtx();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetByteProxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetByteProxy), 3, false);
 
 	m_codeGen->PullTop();
 }
@@ -604,7 +604,7 @@ void CMA_MIPSIV::SH()
 	m_codeGen->PushCtx();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetHalfProxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetHalfProxy), 3, false);
 
 	m_codeGen->PullTop();
 }
@@ -626,7 +626,7 @@ void CMA_MIPSIV::SW()
 	m_codeGen->PushCtx();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetWordProxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 
 	m_codeGen->PullTop();
 }
@@ -709,7 +709,7 @@ void CMA_MIPSIV::LD()
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::GetDoubleProxy), 2, Jitter::CJitter::RETURN_VALUE_64);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetDoubleProxy), 2, Jitter::CJitter::RETURN_VALUE_64);
 	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 
 	m_codeGen->PullTop();
@@ -751,7 +751,7 @@ void CMA_MIPSIV::SD()
 	m_codeGen->PushCtx();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&CMemoryUtils::SetDoubleProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetDoubleProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 
 	m_codeGen->PullTop();
 }

@@ -1,22 +1,18 @@
-#ifndef _MEMORYUTILS_H_
-#define _MEMORYUTILS_H_
+#pragma once
 
 #include "MIPS.h"
 
-class CMemoryUtils
+extern "C"
 {
-public:
-	static uint32		GetByteProxy(CMIPS*, uint32);
-	static uint32		GetHalfProxy(CMIPS*, uint32);
-	static uint32		GetWordProxy(CMIPS*, uint32);
-	static uint64		GetDoubleProxy(CMIPS*, uint32);
-	static uint128		GetQuadProxy(CMIPS*, uint32);
+	uint32		MemoryUtils_GetByteProxy(CMIPS*, uint32);
+	uint32		MemoryUtils_GetHalfProxy(CMIPS*, uint32);
+	uint32		MemoryUtils_GetWordProxy(CMIPS*, uint32);
+	uint64		MemoryUtils_GetDoubleProxy(CMIPS*, uint32);
+	uint128		MemoryUtils_GetQuadProxy(CMIPS*, uint32);
 
-	static void			SetByteProxy(CMIPS*, uint32, uint32);
-	static void			SetHalfProxy(CMIPS*, uint32, uint32);
-	static void			SetWordProxy(CMIPS*, uint32, uint32);
-	static void			SetDoubleProxy(CMIPS*, uint64, uint32);
-	static void			SetQuadProxy(CMIPS*, const uint128&, uint32);
-};
-
-#endif
+	void		MemoryUtils_SetByteProxy(CMIPS*, uint32, uint32);
+	void		MemoryUtils_SetHalfProxy(CMIPS*, uint32, uint32);
+	void		MemoryUtils_SetWordProxy(CMIPS*, uint32, uint32);
+	void		MemoryUtils_SetDoubleProxy(CMIPS*, uint64, uint32);
+	void		MemoryUtils_SetQuadProxy(CMIPS*, const uint128&, uint32);
+}
