@@ -5,6 +5,7 @@
 #include "StdStreamUtils.h"
 #include "Jitter.h"
 #include "Jitter_CodeGenFactory.h"
+#include "Jitter_CodeGen_x86_32.h"
 #include "MemStream.h"
 #include "Iop_PsfSubSystem.h"
 #include "ThreadPool.h"
@@ -99,7 +100,7 @@ unsigned int CompileFunction(CPsfVm& virtualMachine, const std::vector<uint32>& 
 		static CMipsJitter* jitter = nullptr;
 		if(jitter == NULL)
 		{
-			Jitter::CCodeGen* codeGen = Jitter::CreateCodeGen();
+			Jitter::CCodeGen* codeGen = new Jitter::CCodeGen_x86_32();
 			codeGen->SetExternalSymbolReferencedHandler(
 				[&] (void* symbol, uint32 offset)
 				{
