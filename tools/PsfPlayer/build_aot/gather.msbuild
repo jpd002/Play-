@@ -1,0 +1,12 @@
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<PsfAotPath>..\build_win32\x64\ReleaseAot\PsfAot.exe</PsfAotPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<PsfFile Include="E:\Media\Aot\*.zip" />
+	</ItemGroup>
+	<Target Name="Build">
+		<MakeDir Directories="./blocks/" />
+		<Exec Command="&quot;$(PsfAotPath)&quot; gather &quot;%(PsfFile.Identity)&quot; &quot;./blocks/%(PsfFile.FileName).blockcache&quot;"/>
+	</Target>
+</Project>

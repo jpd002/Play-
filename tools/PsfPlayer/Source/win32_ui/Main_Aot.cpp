@@ -7,43 +7,89 @@
 #include "Jitter_CodeGenFactory.h"
 #include "MemStream.h"
 #include "Iop_PsfSubSystem.h"
+#include "ThreadPool.h"
 #include <boost/filesystem.hpp>
+#include "Playlist.h"
 
 namespace filesystem = boost::filesystem;
 
-void Gather(const char* inputPath, const char* databasePathName)
+struct FUNCTION_TABLE_ITEM
 {
-	CBasicBlock::SetAotBlockOutputPath(databasePathName);
+	AOT_BLOCK_KEY	key;
+	uint32			symbolIndex;
+};
+typedef std::vector<FUNCTION_TABLE_ITEM> FunctionTable;
 
-	CPsfVm virtualMachine;
+typedef std::map<AOT_BLOCK_KEY, std::vector<uint32>> AotBlockMap;
 
-	filesystem::path loadPath(inputPath);
-	CPsfLoader::LoadPsf(virtualMachine, loadPath, filesystem::path());
-	int currentTime = 0;
-	virtualMachine.OnNewFrame.connect(
-		[&currentTime] ()
-		{
-			currentTime += 16;
-		});
+extern "C" uint32 LWL_Proxy(uint32, uint32, CMIPS*);
+extern "C" uint32 LWR_Proxy(uint32, uint32, CMIPS*);
+extern "C" void SWL_Proxy(uint32, uint32, CMIPS*);
+extern "C" void SWR_Proxy(uint32, uint32, CMIPS*);
 
-	virtualMachine.Resume();
+void Gather(const char* archivePathName, const char* outputPathName)
+{
+	Framework::CStdStream outputStream(outputPathName, "wb");
+	CBasicBlock::SetAotBlockOutputStream(&outputStream);
 
-	while(currentTime <= (10 * 60 * 1000))
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		Framework::CThreadPool threadPool(std::thread::hardware_concurrency());
+
+		filesystem::path archivePath = filesystem::path(archivePathName);
+		auto archive = std::unique_ptr<CPsfArchive>(CPsfArchive::CreateFromPath(archivePath));
+
+		for(auto fileInfoIterator = archive->GetFilesBegin();
+			fileInfoIterator != archive->GetFilesEnd(); fileInfoIterator++)
+		{
+			filesystem::path archiveItemPath = fileInfoIterator->name;
+			filesystem::path archiveItemExtension = archiveItemPath.extension();
+			if(CPlaylist::IsLoadableExtension(archiveItemExtension.string().c_str() + 1))
+			{
+				threadPool.Enqueue(
+					[=] ()
+					{
+						printf("Processing %s...\r\n", archiveItemPath.string().c_str());
+
+						CPsfVm virtualMachine;
+
+						CPsfLoader::LoadPsf(virtualMachine, archiveItemPath, archivePath);
+						int currentTime = 0;
+						virtualMachine.OnNewFrame.connect(
+							[&currentTime] ()
+							{
+								currentTime += 16;
+							});
+
+						virtualMachine.Resume();
+
+#ifdef _DEBUG
+						static const unsigned int executionTime = 1;
+#else
+						static const unsigned int executionTime = 10;
+#endif
+						while(currentTime <= (executionTime * 60 * 1000))
+						{
+							std::this_thread::sleep_for(std::chrono::milliseconds(10));
+						}
+
+						virtualMachine.Pause();
+					}
+				);
+			}
+		}
 	}
 
-	virtualMachine.Pause();
+	CBasicBlock::SetAotBlockOutputStream(nullptr);
 }
 
-unsigned int CompileFunction(CPsfVm& virtualMachine, Framework::CStream& inputStream, Jitter::CObjectFile& objectFile, const std::string& functionName, uint32 begin, uint32 end)
+unsigned int CompileFunction(CPsfVm& virtualMachine, const std::vector<uint32>& blockCode, Jitter::CObjectFile& objectFile, const std::string& functionName, uint32 begin, uint32 end)
 {
 	auto& context = virtualMachine.GetCpu();
 
 	uint8* ram = virtualMachine.GetRam();
 	for(uint32 address = begin; address <= end; address += 4)
 	{
-		*reinterpret_cast<uint32*>(&ram[address]) = inputStream.Read32();
+		*reinterpret_cast<uint32*>(&ram[address]) = blockCode[(address - begin) / 4];
 	}
 
 	{
@@ -95,14 +141,58 @@ unsigned int CompileFunction(CPsfVm& virtualMachine, Framework::CStream& inputSt
 	}
 }
 
-struct FUNCTION_TABLE_ITEM
+AotBlockMap GetBlocksFromCache(const filesystem::path& blockCachePath)
 {
-	uint32			crc;
-	uint32			begin;
-	uint32			end;
-	uint32			symbolIndex;
-};
-typedef std::vector<FUNCTION_TABLE_ITEM> FunctionTable;
+	AotBlockMap result;
+
+	auto path_end = filesystem::directory_iterator();
+	for(auto pathIterator = filesystem::directory_iterator(blockCachePath); 
+		pathIterator != path_end; pathIterator++)
+	{
+		const auto& filePath = (*pathIterator);
+		printf("Processing %s...\r\n", filePath.path().string().c_str());
+
+		auto blockCacheStream = Framework::CreateInputStdStream(filePath.path().native());
+
+		uint32 fileSize = blockCacheStream.GetLength();
+		while(fileSize != 0)
+		{
+			AOT_BLOCK_KEY key = {};
+			key.crc		= blockCacheStream.Read32();
+			key.begin	= blockCacheStream.Read32();
+			key.end		= blockCacheStream.Read32();
+
+			if(key.begin > key.end)
+			{
+				assert(0);
+				throw std::runtime_error("Consistency error in block ranges.");
+			}
+
+			uint32 blockSize = (key.end - key.begin) + 4;
+
+			std::vector<uint32> blockCode(blockSize / 4);
+			blockCacheStream.Read(blockCode.data(), blockSize);
+
+			auto blockIterator = result.find(key);
+			if(blockIterator == std::end(result))
+			{
+				result.insert(std::make_pair(key, std::move(blockCode)));
+			}
+			else
+			{
+				if(!std::equal(std::begin(blockCode), std::end(blockCode), std::begin(blockIterator->second)))
+				{
+					assert(0);
+					throw std::runtime_error("Block with same key already exists but with different data.");
+				}
+			}
+
+			fileSize -= blockSize + 0x0C;
+		}
+	}
+
+	return result;
+}
 
 void Compile(const char* databasePathName, const char* outputPath)
 {
@@ -111,62 +201,41 @@ void Compile(const char* databasePathName, const char* outputPath)
 	virtualMachine.SetSubSystem(subSystem);
 
 	auto objectFile = std::unique_ptr<Jitter::CObjectFile>(new Jitter::CCoffObjectFile());
-	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", &CMemoryUtils::GetByteProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", &CMemoryUtils::GetHalfProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", &CMemoryUtils::GetWordProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy", &CMemoryUtils::SetByteProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy", &CMemoryUtils::SetHalfProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy", &CMemoryUtils::SetWordProxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", &MemoryUtils_GetByteProxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", &MemoryUtils_GetHalfProxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", &MemoryUtils_GetWordProxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy", &MemoryUtils_SetByteProxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy", &MemoryUtils_SetHalfProxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy", &MemoryUtils_SetWordProxy);
+	objectFile->AddExternalSymbol("_LWL_Proxy", &LWL_Proxy);
+	objectFile->AddExternalSymbol("_LWR_Proxy", &LWR_Proxy);
+	objectFile->AddExternalSymbol("_SWL_Proxy", &SWL_Proxy);
+	objectFile->AddExternalSymbol("_SWR_Proxy", &SWR_Proxy);
+
+	filesystem::path databasePath(databasePathName);
+	auto blocks = GetBlocksFromCache(databasePath);
+
+	printf("Got %d blocks to compile.\r\n", blocks.size());
 
 	FunctionTable functionTable;
-	
-	filesystem::path databasePath(databasePathName);
-	auto path_end = filesystem::directory_iterator();
+	functionTable.reserve(blocks.size());
 
-	auto fileCount = std::distance(filesystem::directory_iterator(databasePath), path_end);
-	functionTable.reserve(fileCount);
-
-	for(auto pathIterator = filesystem::directory_iterator(databasePath); 
-		pathIterator != path_end; pathIterator++)
+	for(const auto& blockCachePair : blocks)
 	{
-		const auto& filePath = (*pathIterator);
-		printf("Compiling %s...\r\n", filePath.path().string().c_str());
+		const auto& blockKey = blockCachePair.first;
 
-		auto codeStream = Framework::CreateInputStdStream(filePath.path().native());
-		uint64 fileLength = codeStream.GetLength();
-		assert((fileLength & 0x03) == 0);
+		auto functionName = "aotblock_" + std::to_string(blockKey.crc) + "_" + std::to_string(blockKey.begin) + "_" + std::to_string(blockKey.end);
 
-		uint32 crc = codeStream.Read32();
-		uint32 begin = codeStream.Read32();
-		uint32 end = codeStream.Read32();
-		assert(fileLength == ((end - begin) + 0x04 + 0x0C));
+		unsigned int functionSymbolIndex = CompileFunction(virtualMachine, blockCachePair.second, *objectFile, functionName, blockKey.begin, blockKey.end);
 
-		auto functionName = filePath.path().stem().string();
-
-		unsigned int functionSymbolIndex = CompileFunction(virtualMachine, codeStream, *objectFile, functionName, begin, end);
-
-		FUNCTION_TABLE_ITEM tableItem = { crc, begin, end, functionSymbolIndex };
+		FUNCTION_TABLE_ITEM tableItem = { blockKey, functionSymbolIndex };
 		functionTable.push_back(tableItem);
 	}
 
 	std::sort(functionTable.begin(), functionTable.end(), 
 		[] (const FUNCTION_TABLE_ITEM& item1, const FUNCTION_TABLE_ITEM& item2)
 		{
-			if(item1.crc == item2.crc)
-			{
-				if(item1.begin == item2.begin)
-				{
-					return item1.end < item2.end;
-				}
-				else
-				{
-					return item1.begin < item2.begin;
-				}
-			}
-			else
-			{
-				return item1.crc < item2.crc;
-			}
+			return item1.key < item2.key;
 		}
 	);
 
@@ -178,9 +247,9 @@ void Compile(const char* databasePathName, const char* outputPath)
 
 		for(const auto& functionTableItem : functionTable)
 		{
-			blockTableStream.Write32(functionTableItem.crc);
-			blockTableStream.Write32(functionTableItem.begin);
-			blockTableStream.Write32(functionTableItem.end);
+			blockTableStream.Write32(functionTableItem.key.crc);
+			blockTableStream.Write32(functionTableItem.key.begin);
+			blockTableStream.Write32(functionTableItem.key.end);
 			
 			{
 				Jitter::CObjectFile::SYMBOL_REFERENCE ref;
