@@ -1,5 +1,4 @@
-#ifndef _SH_WAVEOUT_H_
-#define _SH_WAVEOUT_H_
+#pragma once
 
 #include <windows.h>
 #include <mmsystem.h>
@@ -15,8 +14,8 @@ public:
 
 	void					Reset();
 	bool					HasFreeBuffers();
-    void                    RecycleBuffers();
-    void                    Write(int16*, unsigned int, unsigned int);
+	void					RecycleBuffers();
+	void					Write(int16*, unsigned int, unsigned int);
 
 private:
 	enum
@@ -35,5 +34,3 @@ private:
 	WAVEHDR					m_buffer[MAX_BUFFERS];
 //	int16*					m_bufferMemory;
 };
-
-#endif
