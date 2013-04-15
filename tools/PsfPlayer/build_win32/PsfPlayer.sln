@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PsfPlayer", "PsfPlayer.vcxproj", "{06CD8F2E-F93C-4DE3-8100-C74290578573}"
 	ProjectSection(ProjectDependencies) = postProject
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39} = {AADF4E26-3746-466D-B3CA-25BBD29C5A39}
 		{8F91892C-9228-42F5-816F-CD2397070758} = {8F91892C-9228-42F5-816F-CD2397070758}
 		{D78DB25F-3D98-4322-BA2F-C677E3BE3095} = {D78DB25F-3D98-4322-BA2F-C677E3BE3095}
 	EndProjectSection
@@ -20,6 +21,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SH_WaveOut", "SH_WaveOut.vcxproj", "{D78DB25F-3D98-4322-BA2F-C677E3BE3095}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkOpenAl", "..\..\..\..\Framework\build_win32\FrameworkOpenAl.vcxproj", "{18E959AA-ADB6-45F6-B0D2-B0B4AD9DACEF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SH_XAudio2", "SH_XAudio2.vcxproj", "{AADF4E26-3746-466D-B3CA-25BBD29C5A39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -195,6 +198,26 @@ Global
 		{18E959AA-ADB6-45F6-B0D2-B0B4AD9DACEF}.ReleaseAot|Win32.Build.0 = Release|Win32
 		{18E959AA-ADB6-45F6-B0D2-B0B4AD9DACEF}.ReleaseAot|x64.ActiveCfg = Release|x64
 		{18E959AA-ADB6-45F6-B0D2-B0B4AD9DACEF}.ReleaseAot|x64.Build.0 = Release|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Debug|Win32.Build.0 = Debug|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Debug|x64.ActiveCfg = Debug|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Debug|x64.Build.0 = Debug|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugAot|Win32.ActiveCfg = Debug|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugAot|Win32.Build.0 = Debug|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugAot|x64.ActiveCfg = Debug|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugAot|x64.Build.0 = Debug|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugWithDebugger|Win32.ActiveCfg = Debug|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugWithDebugger|Win32.Build.0 = Debug|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugWithDebugger|x64.ActiveCfg = Debug|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.DebugWithDebugger|x64.Build.0 = Debug|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Release|Win32.ActiveCfg = Release|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Release|Win32.Build.0 = Release|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Release|x64.ActiveCfg = Release|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.Release|x64.Build.0 = Release|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.ReleaseAot|Win32.ActiveCfg = Release|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.ReleaseAot|Win32.Build.0 = Release|Win32
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.ReleaseAot|x64.ActiveCfg = Release|x64
+		{AADF4E26-3746-466D-B3CA-25BBD29C5A39}.ReleaseAot|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

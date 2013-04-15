@@ -49,6 +49,7 @@ CMainWindow::SOUNDHANDLER_INFO CMainWindow::m_handlerInfo[] =
 {
 	{	1,		_T("Win32 WaveOut"),	_T("SH_WaveOut.dll")	},
 	{	2,		_T("OpenAL"),			_T("SH_OpenAL.dll")		},
+	{	3,		_T("XAudio2"),			_T("SH_XAudio2.dll")	},
 	{	NULL,	NULL,					NULL					},
 };
 
