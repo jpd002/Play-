@@ -1,5 +1,4 @@
 #include "Psp_PsfSubSystem.h"
-#include <boost/thread.hpp>
 
 using namespace Psp;
 
@@ -98,7 +97,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 #else
 	if(soundHandler && !soundHandler->HasFreeBuffers())
 	{
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		soundHandler->RecycleBuffers();
 	}
 	else

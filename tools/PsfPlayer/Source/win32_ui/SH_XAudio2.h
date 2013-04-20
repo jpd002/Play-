@@ -30,13 +30,13 @@ private:
 
 		virtual ~VoiceCallback() {}
 
-		void OnStreamEnd() {}
-		void OnVoiceProcessingPassEnd() {}
-		void OnVoiceProcessingPassStart(UINT32) {}
-		void OnBufferEnd(void* context) { m_parent->OnBufferEnd(context); }
-		void OnBufferStart(void*) {}
-		void OnLoopEnd(void*) {}
-		void OnVoiceError(void*, HRESULT) {}
+		STDMETHOD_(void, OnStreamEnd) () {}
+		STDMETHOD_(void, OnVoiceProcessingPassEnd) () {}
+		STDMETHOD_(void, OnVoiceProcessingPassStart) (UINT32) {}
+		STDMETHOD_(void, OnBufferEnd) (void* context) { m_parent->OnBufferEnd(context); }
+		STDMETHOD_(void, OnBufferStart) (void*) {}
+		STDMETHOD_(void, OnLoopEnd) (void*) {}
+		STDMETHOD_(void, OnVoiceError) (void*, HRESULT) {}
 
 	private:
 		CSH_XAudio2* m_parent;

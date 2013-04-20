@@ -1,5 +1,6 @@
 #include <zlib.h>
 #include <stdexcept>
+#include <assert.h>
 #include "PsfFs.h"
 #include "PtrStream.h"
 #include "stricmp.h"
