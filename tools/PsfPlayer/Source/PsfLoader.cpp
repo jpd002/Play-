@@ -15,7 +15,7 @@ namespace filesystem = boost::filesystem;
 
 void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const filesystem::path& filePath, const filesystem::path& archivePath, CPsfBase::TagMap* tags)
 {
-	boost::scoped_ptr<CPsfStreamProvider> streamProvider(CreatePsfStreamProvider(archivePath));
+	auto streamProvider = CreatePsfStreamProvider(archivePath);
 
 	std::string pathString = filePath.string();
 	size_t pathLength = pathString.length();

@@ -3,15 +3,15 @@
 #include "MemStream.h"
 #include "StdStreamUtils.h"
 
-CPsfStreamProvider*	CreatePsfStreamProvider(const boost::filesystem::path& archivePath)
+std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const boost::filesystem::path& archivePath)
 {
 	if(archivePath.empty())
 	{
-		return new CPhysicalPsfStreamProvider();
+		return std::unique_ptr<CPsfStreamProvider>(new CPhysicalPsfStreamProvider());
 	}
 	else
 	{
-		return new CArchivePsfStreamProvider(archivePath);
+		return std::unique_ptr<CPsfStreamProvider>(new CArchivePsfStreamProvider(archivePath));
 	}
 }
 

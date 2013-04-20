@@ -32,6 +32,6 @@ private:
 	CPsfArchive*					m_archive;
 };
 
-CPsfStreamProvider*					CreatePsfStreamProvider(const boost::filesystem::path&);
+std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const boost::filesystem::path&);
 
 #endif
