@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="61146VirtualApplications.PsfPlayer" Publisher="CN=B1FBF825-5D8F-4B86-B0A4-56472FC06FFC" Version="1.0.0.7" />
+  <Identity Name="61146VirtualApplications.PsfPlayer" Publisher="CN=B1FBF825-5D8F-4B86-B0A4-56472FC06FFC" Version="1.0.0.9" />
   <Properties>
     <DisplayName>PsfPlayer</DisplayName>
     <PublisherDisplayName>Virtual Applications</PublisherDisplayName>
@@ -15,9 +15,9 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PsfPlayer.App">
-      <VisualElements DisplayName="PsfPlayer" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="PsfPlayer" ForegroundText="light" BackgroundColor="#464646">
+      <VisualElements DisplayName="PsfPlayer" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="PsfPlayer" ForegroundText="light" BackgroundColor="#A0A0A0">
         <DefaultTile ShowName="allLogos" />
-        <SplashScreen Image="Assets\SplashScreen.png" />
+        <SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#A0A0A0" />
       </VisualElements>
     </Application>
   </Applications>

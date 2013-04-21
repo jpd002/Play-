@@ -12,5 +12,8 @@
 #include <map>
 #include <string>
 
+#include <boost/signals2.hpp>
+#include <boost/filesystem.hpp>
+
 #include <collection.h>
 #include "App.xaml.h"

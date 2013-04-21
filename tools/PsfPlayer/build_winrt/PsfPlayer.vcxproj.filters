@@ -603,8 +603,10 @@
     <None Include="PsfPlayer_TemporaryKey.pfx">
       <Filter>ui</Filter>
     </None>
-    <None Include="Package.StoreAssociation.xml" />
     <None Include="PsfPlayer_StoreKey.pfx">
+      <Filter>ui</Filter>
+    </None>
+    <None Include="Package.StoreAssociation.xml">
       <Filter>ui</Filter>
     </None>
   </ItemGroup>
