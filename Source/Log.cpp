@@ -9,8 +9,10 @@
 
 CLog::CLog()
 {
+#ifndef DISABLE_LOGGING
 	m_logBasePath = CAppConfig::GetBasePath() / LOG_PATH;
 	Framework::PathUtils::EnsurePathExists(m_logBasePath);
+#endif
 }
 
 CLog::~CLog()
@@ -20,7 +22,7 @@ CLog::~CLog()
 
 void CLog::Print(const char* logName, const char* format, ...)
 {
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(DISABLE_LOGGING)
 	auto& logStream(GetLog(logName));
 	va_list args;
 	va_start(args, format);
