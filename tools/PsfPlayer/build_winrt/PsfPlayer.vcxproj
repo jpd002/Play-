@@ -1,0 +1,426 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{b8b1d047-5cbb-4db1-abfa-932fa2f3117b}</ProjectGuid>
+    <RootNamespace>PsfPlayer</RootNamespace>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <AppContainerApplication>true</AppContainerApplication>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <PackageCertificateKeyFile>PsfPlayer_StoreKey.pfx</PackageCertificateKeyFile>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <PackageCertificateThumbprint>F66C358D9F1D69885A59AA09008C691B6DB4EE8C</PackageCertificateThumbprint>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4453</DisableSpecificWarnings>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4453</DisableSpecificWarnings>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4453</DisableSpecificWarnings>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4453</DisableSpecificWarnings>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4453</DisableSpecificWarnings>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4453</DisableSpecificWarnings>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\BasicBlock.h" />
+    <ClInclude Include="..\..\..\Source\COP_FPU.h" />
+    <ClInclude Include="..\..\..\Source\COP_SCU.h" />
+    <ClInclude Include="..\..\..\Source\ELF.h" />
+    <ClInclude Include="..\..\..\Source\ElfFile.h" />
+    <ClInclude Include="..\..\..\Source\iop\ArgumentIterator.h" />
+    <ClInclude Include="..\..\..\Source\iop\Ioman_Device.h" />
+    <ClInclude Include="..\..\..\Source\iop\IopBios.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_BiosBase.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Cdvdman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Dmac.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_DmacChannel.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Dynamic.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Intc.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Intrman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Ioman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Loadcore.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Modload.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Module.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_RootCounters.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifCmd.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifDynamic.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifMan.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifManNull.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu2.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu2_Core.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SpuBase.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Stdio.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_SubSystem.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Sysclib.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Sysmem.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thbase.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thevent.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thmsgbx.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thsema.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Timrman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Vblank.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\DirectoryRecord.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\File.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\ISO9660.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\PathTable.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\PathTableRecord.h" />
+    <ClInclude Include="..\..\..\Source\ISO9660\VolumeDescriptor.h" />
+    <ClInclude Include="..\..\..\Source\Log.h" />
+    <ClInclude Include="..\..\..\Source\MailBox.h" />
+    <ClInclude Include="..\..\..\Source\MA_MIPSIV.h" />
+    <ClInclude Include="..\..\..\Source\MemoryMap.h" />
+    <ClInclude Include="..\..\..\Source\MemoryStateFile.h" />
+    <ClInclude Include="..\..\..\Source\MemoryUtils.h" />
+    <ClInclude Include="..\..\..\Source\MIPS.h" />
+    <ClInclude Include="..\..\..\Source\MIPSAnalysis.h" />
+    <ClInclude Include="..\..\..\Source\MIPSArchitecture.h" />
+    <ClInclude Include="..\..\..\Source\MIPSAssembler.h" />
+    <ClInclude Include="..\..\..\Source\MipsAssemblerDefinitions.h" />
+    <ClInclude Include="..\..\..\Source\MIPSCoprocessor.h" />
+    <ClInclude Include="..\..\..\Source\MipsExecutor.h" />
+    <ClInclude Include="..\..\..\Source\MIPSInstructionFactory.h" />
+    <ClInclude Include="..\..\..\Source\MipsJitter.h" />
+    <ClInclude Include="..\..\..\Source\MIPSReflection.h" />
+    <ClInclude Include="..\..\..\Source\MIPSTags.h" />
+    <ClInclude Include="..\..\..\Source\RegisterStateFile.h" />
+    <ClInclude Include="..\..\..\Source\StructCollectionStateFile.h" />
+    <ClInclude Include="..\..\..\Source\StructFile.h" />
+    <ClInclude Include="..\Source\AppConfig.h" />
+    <ClInclude Include="..\Source\AppDef.h" />
+    <ClInclude Include="..\Source\Iop_PsfSubSystem.h" />
+    <ClInclude Include="..\Source\Playlist.h" />
+    <ClInclude Include="..\Source\ps2\Ps2_PsfDevice.h" />
+    <ClInclude Include="..\Source\ps2\PsfBios.h" />
+    <ClInclude Include="..\Source\PsfArchive.h" />
+    <ClInclude Include="..\Source\PsfBase.h" />
+    <ClInclude Include="..\Source\PsfFs.h" />
+    <ClInclude Include="..\Source\PsfLoader.h" />
+    <ClInclude Include="..\Source\PsfStreamProvider.h" />
+    <ClInclude Include="..\Source\PsfTags.h" />
+    <ClInclude Include="..\Source\PsfVm.h" />
+    <ClInclude Include="..\Source\PsfVmSubSystem.h" />
+    <ClInclude Include="..\Source\PsfZipArchive.h" />
+    <ClInclude Include="..\Source\psp\MA_ALLEGREX.h" />
+    <ClInclude Include="..\Source\psp\PspBios.h" />
+    <ClInclude Include="..\Source\psp\PspModule.h" />
+    <ClInclude Include="..\Source\psp\Psp_Audio.h" />
+    <ClInclude Include="..\Source\psp\Psp_IoDevice.h" />
+    <ClInclude Include="..\Source\psp\Psp_IoFileMgrForUser.h" />
+    <ClInclude Include="..\Source\psp\Psp_KernelLibrary.h" />
+    <ClInclude Include="..\Source\psp\Psp_PsfBios.h" />
+    <ClInclude Include="..\Source\psp\Psp_PsfDevice.h" />
+    <ClInclude Include="..\Source\psp\Psp_PsfSubSystem.h" />
+    <ClInclude Include="..\Source\psp\Psp_SasCore.h" />
+    <ClInclude Include="..\Source\psp\Psp_StdioForUser.h" />
+    <ClInclude Include="..\Source\psp\Psp_SysMemUserForUser.h" />
+    <ClInclude Include="..\Source\psp\Psp_ThreadManForUser.h" />
+    <ClInclude Include="..\Source\psx\PsxBios.h" />
+    <ClInclude Include="..\Source\SoundHandler.h" />
+    <ClInclude Include="..\Source\win32_ui\SH_XAudio2.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App.xaml.h">
+      <DependentUpon>App.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="MainPage.xaml.h">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Common\StandardStyles.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <None Include="E:\Users\jpd002\Music\Psf\ff7-psf.zip">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+    <None Include="PsfPlayer_StoreKey.pfx" />
+    <None Include="PsfPlayer_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Logo.png" />
+    <Image Include="Assets\SmallLogo.png" />
+    <Image Include="Assets\StoreLogo.png" />
+    <Image Include="Assets\SplashScreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\BasicBlock.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_FPU.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_FPU_Reflection.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_SCU.cpp" />
+    <ClCompile Include="..\..\..\Source\COP_SCU_Reflection.cpp" />
+    <ClCompile Include="..\..\..\Source\ELF.cpp" />
+    <ClCompile Include="..\..\..\Source\ElfFile.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\ArgumentIterator.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\IopBios.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Cdvdman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Dmac.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_DmacChannel.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Dynamic.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Intc.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Intrman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Ioman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Loadcore.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Modload.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_RootCounters.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifCmd.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifDynamic.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifMan.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifManNull.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu2.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu2_Core.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SpuBase.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Stdio.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_SubSystem.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Sysclib.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Sysmem.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thbase.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thevent.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thmsgbx.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thsema.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Timrman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Vblank.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\DirectoryRecord.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\File.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\ISO9660.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\PathTable.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\PathTableRecord.cpp" />
+    <ClCompile Include="..\..\..\Source\ISO9660\VolumeDescriptor.cpp" />
+    <ClCompile Include="..\..\..\Source\Log.cpp" />
+    <ClCompile Include="..\..\..\Source\MailBox.cpp" />
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV.cpp" />
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV_Reflection.cpp" />
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV_Templates.cpp" />
+    <ClCompile Include="..\..\..\Source\MemoryMap.cpp" />
+    <ClCompile Include="..\..\..\Source\MemoryStateFile.cpp" />
+    <ClCompile Include="..\..\..\Source\MemoryUtils.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPS.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSAnalysis.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSArchitecture.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSAssembler.cpp" />
+    <ClCompile Include="..\..\..\Source\MipsAssemblerDefinitions.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSCoprocessor.cpp" />
+    <ClCompile Include="..\..\..\Source\MipsExecutor.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSInstructionFactory.cpp" />
+    <ClCompile Include="..\..\..\Source\MipsJitter.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSReflection.cpp" />
+    <ClCompile Include="..\..\..\Source\MIPSTags.cpp" />
+    <ClCompile Include="..\..\..\Source\RegisterStateFile.cpp" />
+    <ClCompile Include="..\..\..\Source\StructCollectionStateFile.cpp" />
+    <ClCompile Include="..\..\..\Source\StructFile.cpp" />
+    <ClCompile Include="..\Source\AppConfig.cpp" />
+    <ClCompile Include="..\Source\Iop_PsfSubSystem.cpp" />
+    <ClCompile Include="..\Source\Playlist.cpp" />
+    <ClCompile Include="..\Source\ps2\Ps2_PsfDevice.cpp" />
+    <ClCompile Include="..\Source\ps2\PsfBios.cpp" />
+    <ClCompile Include="..\Source\PsfArchive.cpp" />
+    <ClCompile Include="..\Source\PsfBase.cpp" />
+    <ClCompile Include="..\Source\PsfFs.cpp" />
+    <ClCompile Include="..\Source\PsfLoader.cpp" />
+    <ClCompile Include="..\Source\PsfStreamProvider.cpp" />
+    <ClCompile Include="..\Source\PsfTags.cpp" />
+    <ClCompile Include="..\Source\PsfVm.cpp" />
+    <ClCompile Include="..\Source\PsfZipArchive.cpp" />
+    <ClCompile Include="..\Source\psp\MA_ALLEGREX.cpp" />
+    <ClCompile Include="..\Source\psp\MA_ALLEGREX_Reflection.cpp" />
+    <ClCompile Include="..\Source\psp\PspBios.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_Audio.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_IoFileMgrForUser.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_KernelLibrary.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_PsfBios.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_PsfDevice.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_PsfSubSystem.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_SasCore.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_StdioForUser.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_SysMemUserForUser.cpp" />
+    <ClCompile Include="..\Source\psp\Psp_ThreadManForUser.cpp" />
+    <ClCompile Include="..\Source\psx\PsxBios.cpp" />
+    <ClCompile Include="..\Source\win32_ui\SH_XAudio2.cpp" />
+    <ClCompile Include="App.xaml.cpp">
+      <DependentUpon>App.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="MainPage.xaml.cpp">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Package.StoreAssociation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\CodeGen\build_win32\CodeGen.vcxproj">
+      <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Framework\build_winrt\Framework.vcxproj">
+      <Project>{e609188f-7242-4d1b-ae5c-031bea057483}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\zlib-1.2.7\zlib-1.2.7.vcxproj">
+      <Project>{4a0b5134-ab23-452d-8513-8225fa178356}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

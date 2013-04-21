@@ -1,0 +1,626 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>b8b1d047-5cbb-4db1-abfa-932fa2f3117b</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>d69daa5a-e101-45ff-b083-1119104c1fee</UniqueIdentifier>
+    </Filter>
+    <Page Include="Common\StandardStyles.xaml">
+      <Filter>Common</Filter>
+    </Page>
+    <Image Include="Assets\Logo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SmallLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Filter Include="Purei Core">
+      <UniqueIdentifier>{bfc6ea5c-b8f6-414c-9854-59a7cdfbb51c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ps2">
+      <UniqueIdentifier>{f2c2f9d5-956b-459a-a42f-f54c5069e042}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="psx">
+      <UniqueIdentifier>{9d86ac20-a2e7-4102-91de-27a16d64a64d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Purei Core\iop">
+      <UniqueIdentifier>{97c212a0-3328-4d0e-b305-aa705a4ea4ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="archives">
+      <UniqueIdentifier>{83dab612-b83e-49c8-9ac1-ece3d382b40c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Purei Core\states">
+      <UniqueIdentifier>{a7d71bc3-7c5c-43c3-9026-23da9573f2a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Purei Core\iso9660">
+      <UniqueIdentifier>{ad6aa8d7-7a47-40bf-9a5c-47a873257a6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="psp">
+      <UniqueIdentifier>{0d7c6ddd-0ec1-4e33-9dc3-a35d15fceeea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="psp\modules">
+      <UniqueIdentifier>{df615eae-2817-49da-974b-a5bf482ba236}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{48cea221-aa0e-497b-b297-b261dd5aef6b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App.xaml.cpp" />
+    <ClCompile Include="MainPage.xaml.cpp" />
+    <ClCompile Include="..\..\..\Source\BasicBlock.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\COP_FPU.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\COP_FPU_Reflection.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\COP_SCU.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\COP_SCU_Reflection.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ELF.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ElfFile.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Log.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV_Reflection.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MA_MIPSIV_Templates.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MailBox.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MemoryMap.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MemoryUtils.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPS.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPSAnalysis.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPSArchitecture.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPSAssembler.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MipsAssemblerDefinitions.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPSCoprocessor.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MipsExecutor.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPSInstructionFactory.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MipsJitter.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPSReflection.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MIPSTags.cpp">
+      <Filter>Purei Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\AppConfig.cpp" />
+    <ClCompile Include="..\Source\Playlist.cpp" />
+    <ClCompile Include="..\Source\PsfBase.cpp" />
+    <ClCompile Include="..\Source\PsfFs.cpp" />
+    <ClCompile Include="..\Source\PsfLoader.cpp" />
+    <ClCompile Include="..\Source\PsfStreamProvider.cpp" />
+    <ClCompile Include="..\Source\PsfTags.cpp" />
+    <ClCompile Include="..\Source\PsfVm.cpp" />
+    <ClCompile Include="..\Source\ps2\Ps2_PsfDevice.cpp">
+      <Filter>ps2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ps2\PsfBios.cpp">
+      <Filter>ps2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Iop_PsfSubSystem.cpp">
+      <Filter>ps2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psx\PsxBios.cpp">
+      <Filter>psx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\ArgumentIterator.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Cdvdman.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Dmac.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_DmacChannel.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Dynamic.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Intc.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Intrman.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Ioman.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Loadcore.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Modload.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_RootCounters.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifCmd.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifDynamic.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifMan.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_SifManNull.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu2.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Spu2_Core.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_SpuBase.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Stdio.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_SubSystem.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Sysclib.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Sysmem.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thbase.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thevent.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thmsgbx.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thsema.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Timrman.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Vblank.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\IopBios.cpp">
+      <Filter>Purei Core\iop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\MemoryStateFile.cpp">
+      <Filter>Purei Core\states</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\RegisterStateFile.cpp">
+      <Filter>Purei Core\states</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\StructCollectionStateFile.cpp">
+      <Filter>Purei Core\states</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\StructFile.cpp">
+      <Filter>Purei Core\states</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ISO9660\DirectoryRecord.cpp">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ISO9660\File.cpp">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ISO9660\ISO9660.cpp">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ISO9660\PathTable.cpp">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ISO9660\PathTableRecord.cpp">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ISO9660\VolumeDescriptor.cpp">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_Audio.cpp">
+      <Filter>psp\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_IoFileMgrForUser.cpp">
+      <Filter>psp\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_KernelLibrary.cpp">
+      <Filter>psp\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_SasCore.cpp">
+      <Filter>psp\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_StdioForUser.cpp">
+      <Filter>psp\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_SysMemUserForUser.cpp">
+      <Filter>psp\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_ThreadManForUser.cpp">
+      <Filter>psp\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\MA_ALLEGREX.cpp">
+      <Filter>psp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\MA_ALLEGREX_Reflection.cpp">
+      <Filter>psp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_PsfBios.cpp">
+      <Filter>psp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_PsfDevice.cpp">
+      <Filter>psp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\Psp_PsfSubSystem.cpp">
+      <Filter>psp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\psp\PspBios.cpp">
+      <Filter>psp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\PsfArchive.cpp">
+      <Filter>archives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\PsfZipArchive.cpp">
+      <Filter>archives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32_ui\SH_XAudio2.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.xaml.h" />
+    <ClInclude Include="MainPage.xaml.h" />
+    <ClInclude Include="..\..\..\Source\BasicBlock.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\COP_FPU.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\COP_SCU.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ELF.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ElfFile.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Log.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MA_MIPSIV.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MailBox.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MemoryMap.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MemoryUtils.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPS.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPSAnalysis.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPSArchitecture.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPSAssembler.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MipsAssemblerDefinitions.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPSCoprocessor.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MipsExecutor.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPSInstructionFactory.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MipsJitter.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPSReflection.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MIPSTags.h">
+      <Filter>Purei Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\AppConfig.h" />
+    <ClInclude Include="..\Source\AppDef.h" />
+    <ClInclude Include="..\Source\Playlist.h" />
+    <ClInclude Include="..\Source\PsfBase.h" />
+    <ClInclude Include="..\Source\PsfFs.h" />
+    <ClInclude Include="..\Source\PsfLoader.h" />
+    <ClInclude Include="..\Source\PsfStreamProvider.h" />
+    <ClInclude Include="..\Source\PsfTags.h" />
+    <ClInclude Include="..\Source\PsfVm.h" />
+    <ClInclude Include="..\Source\PsfVmSubSystem.h" />
+    <ClInclude Include="..\Source\SoundHandler.h" />
+    <ClInclude Include="..\Source\ps2\Ps2_PsfDevice.h">
+      <Filter>ps2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ps2\PsfBios.h">
+      <Filter>ps2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Iop_PsfSubSystem.h">
+      <Filter>ps2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psx\PsxBios.h">
+      <Filter>psx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\ArgumentIterator.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Ioman_Device.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_BiosBase.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Cdvdman.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Dmac.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_DmacChannel.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Dynamic.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Intc.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Intrman.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Ioman.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Loadcore.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Modload.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Module.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_RootCounters.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifCmd.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifDynamic.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifMan.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_SifManNull.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu2.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Spu2_Core.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_SpuBase.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Stdio.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_SubSystem.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Sysclib.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Sysmem.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thbase.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thevent.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thmsgbx.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thsema.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Timrman.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Vblank.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\IopBios.h">
+      <Filter>Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\MemoryStateFile.h">
+      <Filter>Purei Core\states</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\RegisterStateFile.h">
+      <Filter>Purei Core\states</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\StructCollectionStateFile.h">
+      <Filter>Purei Core\states</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\StructFile.h">
+      <Filter>Purei Core\states</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ISO9660\DirectoryRecord.h">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ISO9660\File.h">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ISO9660\ISO9660.h">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ISO9660\PathTable.h">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ISO9660\PathTableRecord.h">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ISO9660\VolumeDescriptor.h">
+      <Filter>Purei Core\iso9660</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_Audio.h">
+      <Filter>psp\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_IoFileMgrForUser.h">
+      <Filter>psp\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_KernelLibrary.h">
+      <Filter>psp\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_SasCore.h">
+      <Filter>psp\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_StdioForUser.h">
+      <Filter>psp\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_SysMemUserForUser.h">
+      <Filter>psp\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_ThreadManForUser.h">
+      <Filter>psp\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\MA_ALLEGREX.h">
+      <Filter>psp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_IoDevice.h">
+      <Filter>psp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_PsfBios.h">
+      <Filter>psp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_PsfDevice.h">
+      <Filter>psp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\Psp_PsfSubSystem.h">
+      <Filter>psp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\PspBios.h">
+      <Filter>psp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\psp\PspModule.h">
+      <Filter>psp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\PsfArchive.h">
+      <Filter>archives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\PsfZipArchive.h">
+      <Filter>archives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32_ui\SH_XAudio2.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="E:\Users\jpd002\Music\Psf\ff7-psf.zip">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="PsfPlayer_TemporaryKey.pfx">
+      <Filter>ui</Filter>
+    </None>
+    <None Include="Package.StoreAssociation.xml" />
+    <None Include="PsfPlayer_StoreKey.pfx">
+      <Filter>ui</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Filter>ui</Filter>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainPage.xaml">
+      <Filter>ui</Filter>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <Filter>ui</Filter>
+    </AppxManifest>
+  </ItemGroup>
+</Project>
