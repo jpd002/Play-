@@ -1,5 +1,6 @@
 #include "Iop_PsfSubSystem.h"
 #include "Ps2Const.h"
+#include <thread>
 
 using namespace Iop;
 
@@ -64,7 +65,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 {
 	if(soundHandler && !soundHandler->HasFreeBuffers())
 	{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		soundHandler->RecycleBuffers();
 	}
 	else

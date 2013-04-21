@@ -2,6 +2,7 @@
 #define _MAINWINDOW_H_
 
 #include <deque>
+#include <thread>
 #include <boost/filesystem/path.hpp>
 #include "../PsfVm.h"
 #include "../PsfBase.h"
@@ -212,7 +213,7 @@ private:
 	Framework::Win32::CFont				m_webdingsFont;
 	Framework::Win32::CFont				m_segoeUiSymbolFont;
 
-	boost::thread*						m_discoveryThread;
+	std::thread							m_discoveryThread;
 	bool								m_discoveryThreadActive;
 	CLockFreeQueue<DISCOVERY_COMMAND>	m_discoveryCommandQueue;
 	CLockFreeQueue<DISCOVERY_RESULT>	m_discoveryResultQueue;

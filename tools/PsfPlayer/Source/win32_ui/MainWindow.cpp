@@ -87,7 +87,6 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_trackLength(0)
 , m_accel(CreateAccelerators())
 , m_reverbEnabled(true)
-, m_discoveryThread(NULL)
 , m_discoveryThreadActive(false)
 , m_discoveryCommandQueue(5)
 , m_discoveryResultQueue(5)
@@ -270,7 +269,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	ActivatePanel(0);
 
 	m_discoveryThreadActive = true;
-	m_discoveryThread = new boost::thread(boost::bind(&CMainWindow::DiscoveryThreadProc, this));
+	m_discoveryThread = std::thread([&] () { DiscoveryThreadProc(); });
 }
 
 CMainWindow::~CMainWindow()
@@ -284,12 +283,8 @@ CMainWindow::~CMainWindow()
 	delete m_repeatButton;
 	delete m_pauseButton;
 
-	if(m_discoveryThread)
-	{
-		m_discoveryThreadActive = false;
-		m_discoveryThread->join();
-		delete m_discoveryThread;
-	}
+	m_discoveryThreadActive = false;
+	m_discoveryThread.join();
 
 	for(unsigned int i = 0; i < MAX_PANELS; i++)
 	{
@@ -1321,7 +1316,7 @@ void CMainWindow::DiscoveryThreadProc()
 		{
 			try
 			{
-				boost::scoped_ptr<CPsfStreamProvider> streamProvider(CreatePsfStreamProvider(command.archivePath));
+				auto streamProvider = CreatePsfStreamProvider(command.archivePath);
 				boost::scoped_ptr<Framework::CStream> inputStream(streamProvider->GetStreamForPath(command.filePath));
 				CPsfBase psfFile(*inputStream);
 				CPsfTags tags(CPsfTags::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd()));
@@ -1362,6 +1357,6 @@ void CMainWindow::DiscoveryThreadProc()
 			}
 		}
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }

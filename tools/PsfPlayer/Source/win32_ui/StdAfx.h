@@ -10,10 +10,11 @@
 #include <set>
 #include <functional>
 #include <memory>
+#include <thread>
+#include <mutex>
 
 #include <boost/signals2.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/filesystem/path.hpp>
 
