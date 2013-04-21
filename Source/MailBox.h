@@ -1,10 +1,9 @@
-#ifndef _MAILBOX_H_
-#define _MAILBOX_H_
+#pragma once
 
 #include <functional>
 #include <deque>
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 
 class CMailBox
 {
@@ -30,12 +29,10 @@ private:
 
 	typedef std::deque<MESSAGE> FunctionCallQueue;
 
-	FunctionCallQueue	m_calls;
-	boost::mutex		m_waitMutex;
-	boost::mutex		m_doneNotifyMutex;
-	boost::condition	m_callFinished;
-	boost::condition	m_waitCondition;
-	bool				m_callDone;
+	FunctionCallQueue		m_calls;
+	std::mutex				m_waitMutex;
+	std::mutex				m_doneNotifyMutex;
+	std::condition_variable	m_callFinished;
+	std::condition_variable	m_waitCondition;
+	bool					m_callDone;
 };
-
-#endif

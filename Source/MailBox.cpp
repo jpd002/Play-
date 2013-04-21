@@ -1,5 +1,5 @@
 #include "MailBox.h"
-#ifdef WIN32
+#if defined(WIN32) && !defined(WINAPI_PARTITION_APP)
 #include "win32/Window.h"
 #endif
 
@@ -20,7 +20,7 @@ bool CMailBox::IsPending() const
 
 void CMailBox::WaitForCall()
 {
-	boost::mutex::scoped_lock waitLock(m_waitMutex);
+	std::unique_lock<std::mutex> waitLock(m_waitMutex);
 	while(!IsPending())
 	{
 		m_waitCondition.wait(waitLock);
@@ -29,18 +29,15 @@ void CMailBox::WaitForCall()
 
 void CMailBox::WaitForCall(unsigned int timeOut)
 {
-	boost::mutex::scoped_lock waitLock(m_waitMutex);
+	std::unique_lock<std::mutex> waitLock(m_waitMutex);
 	if(IsPending()) return;
-	boost::xtime xt;
-	boost::xtime_get(&xt, boost::TIME_UTC_);
-	xt.nsec += timeOut * 1000000;
-	m_waitCondition.timed_wait(waitLock, xt);
+	m_waitCondition.wait_for(waitLock, std::chrono::milliseconds(timeOut));
 }
 
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 {
 	{
-		boost::mutex::scoped_lock waitLock(m_waitMutex);
+		std::unique_lock<std::mutex> waitLock(m_waitMutex);
 		MESSAGE message;
 		message.function = function;
 		message.sync = waitForCompletion;
@@ -49,11 +46,11 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 	}
 	if(waitForCompletion)
 	{
-		boost::mutex::scoped_lock doneLock(m_doneNotifyMutex);
+		std::unique_lock<std::mutex> doneLock(m_doneNotifyMutex);
 		m_callDone = false;
 		while(!m_callDone)
 		{
-#ifdef WIN32
+#if defined(WIN32) && !defined(WINAPI_PARTITION_APP)
 			MSG wmmsg;
 			while(PeekMessage(&wmmsg, NULL, 0, 0, PM_REMOVE))
 			{
@@ -75,7 +72,7 @@ void CMailBox::ReceiveCall()
 {
 	MESSAGE message;
 	{
-		boost::mutex::scoped_lock waitLock(m_waitMutex);
+		std::unique_lock<std::mutex> waitLock(m_waitMutex);
 		if(!IsPending()) return;
 		message = *m_calls.begin();
 		m_calls.pop_front();
@@ -83,7 +80,7 @@ void CMailBox::ReceiveCall()
 	message.function();
 	if(message.sync)
 	{
-		boost::mutex::scoped_lock doneLock(m_doneNotifyMutex);
+		std::unique_lock<std::mutex> doneLock(m_doneNotifyMutex);
 		m_callDone = true;
 		m_callFinished.notify_all();
 	}
