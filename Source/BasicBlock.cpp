@@ -126,9 +126,9 @@ void CBasicBlock::Compile()
 	
 	assert(blockExists);
 	assert(blockIterator != blocksEnd);
-	assert(blockIterator->crc == blockChecksum);
-	assert(blockIterator->begin == m_begin);
-	assert(blockIterator->end == m_end);
+	assert(blockIterator->key.crc == blockChecksum);
+	assert(blockIterator->key.begin == m_begin);
+	assert(blockIterator->key.end == m_end);
 
 	m_function = reinterpret_cast<void (*)(void*)>(blockIterator->fct);
 
