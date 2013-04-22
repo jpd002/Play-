@@ -44,7 +44,6 @@ enum PS2VM_MSG
 #define PREF_PS2_HOST_DIRECTORY				("ps2.host.directory")
 #define PREF_PS2_MC0_DIRECTORY				("ps2.mc0.directory")
 #define PREF_PS2_MC1_DIRECTORY				("ps2.mc1.directory")
-#define PREF_PS2_FRAMESKIP					("ps2.frameskip")
 
 class CPS2VM : public CVirtualMachine
 {
@@ -82,12 +81,7 @@ public:
 	std::string					MakeDebugTagsPackagePath(const char*);
 	void						LoadDebugTags(const char*);
 	void						SaveDebugTags(const char*);
-
-	bool						IsSaveVpuStateEnabled() const;
-	void						SetSaveVpuStateEnabled(bool);
 #endif
-
-	void						SetFrameSkip(unsigned int);
 
 	uint32						IOPortReadHandler(uint32);
 	uint32						IOPortWriteHandler(uint32, uint32);
@@ -188,16 +182,10 @@ private:
 	CCOP_SCU					m_COP_SCU;
 	CCOP_FPU					m_COP_FPU;
 	CCOP_VU						m_COP_VU;
-	unsigned int				m_frameNumber;
-	unsigned int				m_frameSkip;
 	bool						m_singleStepEe;
 	bool						m_singleStepIop;
 	bool						m_singleStepVu0;
 	bool						m_singleStepVu1;
-
-#ifdef DEBUGGER_INCLUDED
-	bool						m_saveVpuStateEnabled;
-#endif
 };
 
 #endif

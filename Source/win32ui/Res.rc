@@ -132,7 +132,6 @@ BEGIN
         MENUITEM "OS Logging",                  ID_LOGGING_OS
         MENUITEM "SIF Logging",                 ID_LOGGING_SIF
         MENUITEM "IOP Logging",                 ID_LOGGING_IOP
-        MENUITEM "Save VPU execution states",   ID_LOGGING_SAVEVPUSTATE
     END
     POPUP "&Window"
     BEGIN
@@ -162,11 +161,6 @@ BEGIN
         MENUITEM "&Pause / Resume\tF5",         ID_MAIN_VM_RESUME
         MENUITEM "R&eset",                      ID_MAIN_VM_RESET, GRAYED
         MENUITEM "Pause When Focus Lost",       ID_MAIN_VM_PAUSEFOCUS
-        POPUP "Frame Skip"
-        BEGIN
-            MENUITEM "Decrement Frameskip\t-",      ID_MAIN_VM_FRAMESKIP_DECREMENT
-            MENUITEM "Increment Frameskip\t+",      ID_MAIN_VM_FRAMESKIP_INCREMENT
-        END
         MENUITEM SEPARATOR
         MENUITEM "State Slot",                  ID_MAIN_VM_STATESLOT
         MENUITEM "Save State\tF7",              ID_MAIN_VM_SAVESTATE

@@ -91,7 +91,6 @@ public:
 	virtual									~CGSHandler();
 
 	void									Reset();
-	void									SetEnabled(bool);
 	void									SetPresentationParams(const PRESENTATION_PARAMS&);
 
 	virtual void							SaveState(Framework::CZipArchiveWriter&);
@@ -796,7 +795,6 @@ protected:
 	boost::thread*							m_thread;
 	boost::recursive_mutex					m_registerMutex;
 	CMailBox								m_mailBox;
-	bool									m_enabled;
 	bool									m_threadDone;
 };
 

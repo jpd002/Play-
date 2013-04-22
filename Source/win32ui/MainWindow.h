@@ -73,7 +73,6 @@ private:
 	void							PauseWhenFocusLost();
 	void							SaveState();
 	void							LoadState();
-	void							ChangeFrameskip(bool);
 	void							ChangeStateSlot(unsigned int);
 	void							ChangeViewMode(CGSHandler::PRESENTATION_MODE);
 	void							ShowDebugger();

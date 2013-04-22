@@ -22,7 +22,6 @@ CVIF::CVIF(CGIF& gif, uint8* ram, uint8* spr, const VPUINIT& vpu0Init, const VPU
 , m_ram(ram)
 , m_spr(spr)
 , m_VPU_STAT(0)
-, m_enabled(true)
 {
 	m_pVPU[0] = new CVPU(*this, 0, vpu0Init);
 	m_pVPU[1] = new CVPU1(*this, 1, vpu1Init);
@@ -50,12 +49,6 @@ void CVIF::Reset()
 		m_pVPU[i]->Reset();
 	}
 	m_VPU_STAT = 0;
-	m_enabled = true;
-}
-
-void CVIF::SetEnabled(bool enabled)
-{
-	m_enabled = enabled;
 }
 
 void CVIF::SaveState(Framework::CZipArchiveWriter& archive)
@@ -95,11 +88,6 @@ uint32 CVIF::ReceiveDMA0(uint32 address, uint32 qwc, bool tagIncluded)
 
 uint32 CVIF::ReceiveDMA1(uint32 address, uint32 qwc, bool tagIncluded)
 {
-	if(!m_enabled)
-	{
-		return qwc;
-	}
-
 	unsigned int vpuNumber = 1;
 
 	if(IsVu1Running() && IsVu1WaitingForProgramEnd())

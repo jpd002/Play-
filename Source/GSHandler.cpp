@@ -143,7 +143,6 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 
 CGSHandler::CGSHandler()
 : m_thread(NULL)
-, m_enabled(true)
 , m_threadDone(false)
 , m_flipMode(FLIP_MODE_SMODE2)
 , m_drawCallCount(0)
@@ -215,17 +214,11 @@ void CGSHandler::ResetBase()
 	m_nCrtMode = 2;
 	m_nCBP0	= 0;
 	m_nCBP1	= 0;
-	m_enabled = true;
 }
 
 void CGSHandler::ResetImpl()
 {
 
-}
-
-void CGSHandler::SetEnabled(bool enabled)
-{
-	m_enabled = enabled;
 }
 
 void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationParams)
@@ -418,7 +411,6 @@ void CGSHandler::Release()
 
 void CGSHandler::Flip(bool showOnly)
 {
-	if(!m_enabled) return;
 	if(!showOnly)
 	{
 		while(m_mailBox.IsPending())

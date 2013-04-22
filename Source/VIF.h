@@ -43,8 +43,6 @@ public:
 				CVIF(CGIF&, uint8*, uint8*, const VPUINIT&, const VPUINIT&);
 	virtual		~CVIF();
 
-	void		SetEnabled(bool);
-
 	void		Reset();
 	void		SaveState(Framework::CZipArchiveWriter&);
 	void		LoadState(Framework::CZipArchiveReader&);
@@ -128,7 +126,6 @@ private:
 	uint8*			m_ram;
 	uint8*			m_spr;
 	CFifoStream*	m_stream[2];
-	bool			m_enabled;
 };
 
 #endif

@@ -54,7 +54,6 @@
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT		("vfs/host")
 #define PREF_PS2_MC0_DIRECTORY_DEFAULT		("vfs/mc0")
 #define PREF_PS2_MC1_DIRECTORY_DEFAULT		("vfs/mc1")
-#define PREF_PS2_FRAMESKIP_DEFAULT			(0)
 
 #define		FRAME_TICKS			(PS2::EE_CLOCK_FREQ / 60)
 #define		ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
@@ -112,11 +111,7 @@ CPS2VM::CPS2VM()
 , m_COP_VU(MIPS_REGSIZE_64)
 , m_MAVU0(false)
 , m_MAVU1(true)
-, m_frameNumber(0)
 , m_iop(true)
-#ifdef DEBUGGER_INCLUDED
-, m_saveVpuStateEnabled(false)
-#endif
 {
 	const char* basicDirectorySettings[] =
 	{
@@ -137,8 +132,6 @@ CPS2VM::CPS2VM()
 		CAppConfig::GetInstance().RegisterPreferenceString(setting, absolutePath.string().c_str());
 	}
 	
-	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_FRAMESKIP, PREF_PS2_FRAMESKIP_DEFAULT);
-
 	m_iopOs = std::make_shared<CIopBios>(m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE);
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_gs, m_sif, *m_iopOs);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CPS2VM::FlushInstructionCache, this));
@@ -357,23 +350,7 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 	}
 }
 
-bool CPS2VM::IsSaveVpuStateEnabled() const
-{
-	return m_saveVpuStateEnabled;
-}
-
-void CPS2VM::SetSaveVpuStateEnabled(bool enabled)
-{
-	m_saveVpuStateEnabled = enabled;
-}
-
 #endif
-
-void CPS2VM::SetFrameSkip(unsigned int frameSkip)
-{
-	m_frameSkip = frameSkip;
-	CAppConfig::GetInstance().SetPreferenceInteger(PREF_PS2_FRAMESKIP, m_frameSkip);
-}
 
 //////////////////////////////////////////////////
 //Non extern callable methods
@@ -523,8 +500,6 @@ void CPS2VM::ResetVM()
 	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_os, std::placeholders::_1, std::placeholders::_2));
 
 	m_iopOs->GetCdvdfsv()->SetReadToEeRamHandler(std::bind(&CPS2VM::ReadToEeRam, this, std::placeholders::_1, std::placeholders::_2));
-
-	m_frameSkip = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_FRAMESKIP);
 
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
@@ -708,13 +683,6 @@ void CPS2VM::DestroyPadHandlerImpl()
 
 void CPS2VM::OnGsNewFrame()
 {
-	m_frameNumber++;
-	bool drawFrame = (m_frameSkip == 0) ? true : (m_frameNumber % (m_frameSkip + 1)) == 0;
-	if(m_gs != NULL)
-	{
-		m_gs->SetEnabled(drawFrame);
-	}
-	m_vif.SetEnabled(drawFrame);
 }
 
 void CPS2VM::UpdateSpu()
@@ -1266,33 +1234,8 @@ void CPS2VM::EmuThread()
 
 				m_iop.CountTicks(iopExecuted);
 
-#ifdef DEBUGGER_INCLUDED
-				static bool wasVu1Running = false;
-				if(!wasVu1Running && m_vif.IsVu1Running())
-				{
-					wasVu1Running = true;
-
-					if(m_saveVpuStateEnabled)
-					{
-						char vpu1LogFileName[256];
-						static int currentLog = 0;
-						sprintf(vpu1LogFileName, "%s/vpu1_%06d.zip", VPU_LOG_BASE, currentLog++);
-						unsigned int result = 0;
-						Framework::CStdStream logFile(vpu1LogFileName, "wb");
-						SaveVMState(vpu1LogFileName, result);
-					}
-				}
-#endif
-
 				m_vif.ExecuteVu0(m_singleStepVu0);
 				m_vif.ExecuteVu1(m_singleStepVu1);
-#ifdef DEBUGGER_INCLUDED
-				if(wasVu1Running && !m_vif.IsVu1Running())
-				{
-					wasVu1Running = false;
-				}
-#endif
-
 			}
 #ifdef DEBUGGER_INCLUDED
 			if(

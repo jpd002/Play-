@@ -1301,8 +1301,6 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	CGSHandler::WriteRegisterImpl(nRegister, nData);
 
-	if(!m_enabled) return;
-
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:

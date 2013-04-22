@@ -171,9 +171,6 @@ void CDebugger::UpdateLoggingMenu()
 //	nState[4] = m_virtualMachine.m_Logging.GetOSRecordingStatus();
 //	nState[5] = m_virtualMachine.m_Logging.GetSIFLoggingStatus();
 //	nState[6] = m_virtualMachine.m_Logging.GetIOPLoggingStatus();
-#ifdef DEBUGGER_INCLUDED
-	nState[7] = m_virtualMachine.IsSaveVpuStateEnabled();
-#endif
 	for(unsigned int i = 0; i < stateCount; i++)
 	{
 		MENUITEMINFO mii;
@@ -666,12 +663,6 @@ long CDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 	case ID_LOGGING_IOP:
 //		m_virtualMachine.m_Logging.SetIOPLoggingStatus(!m_virtualMachine.m_Logging.GetIOPLoggingStatus());
 		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_SAVEVPUSTATE:
-#ifdef DEBUGGER_INCLUDED
-		m_virtualMachine.SetSaveVpuStateEnabled(!m_virtualMachine.IsSaveVpuStateEnabled());
-		UpdateLoggingMenu();
-#endif
 		break;
 	case ID_WINDOW_CASCAD:
 		m_pMDIClient->Cascade();
