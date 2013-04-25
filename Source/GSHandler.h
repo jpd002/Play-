@@ -1,9 +1,8 @@
-#ifndef _GSHANDLER_H_
-#define _GSHANDLER_H_
+#pragma once
 
 #include "Types.h"
 #include "Convertible.h"
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/signals2/signal.hpp>
 #include <vector>
 #include <functional>
@@ -792,8 +791,8 @@ protected:
 	uint32									m_drawCallCount;
 
 	unsigned int							m_nCrtMode;
-	boost::thread*							m_thread;
-	boost::recursive_mutex					m_registerMutex;
+	std::thread								m_thread;
+	std::recursive_mutex					m_registerMutex;
 	CMailBox								m_mailBox;
 	bool									m_threadDone;
 };
@@ -844,7 +843,7 @@ inline void CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT4>::SetPixel(unsign
 
 	uint32* pPixel = &(((uint32*)&m_pMemory[nAddress])[Storage::m_nColumnWordTable[nSubTable][nY][nX]]);
 
-    (*pPixel) &= ~(0xF		<< nShiftAmount);
+	(*pPixel) &= ~(0xF		<< nShiftAmount);
 	(*pPixel) |=  (nPixel	<< nShiftAmount);
 }
 
@@ -869,5 +868,3 @@ inline uint8* CGSHandler::CPixelIndexor<CGSHandler::STORAGEPSMT8>::GetPixelAddre
 
 	return reinterpret_cast<uint8*>(&((uint32*)&m_pMemory[nOffset])[Storage::m_nColumnWordTable[nTable][nY][nX]]) + nByte;
 }
-
-#endif

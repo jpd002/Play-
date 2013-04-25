@@ -1,19 +1,16 @@
-#ifndef _MEMORYSTATEFILE_H_
-#define _MEMORYSTATEFILE_H_
+#pragma once
 
 #include "zip/ZipFile.h"
 
 class CMemoryStateFile : public Framework::CZipFile
 {
 public:
-                    CMemoryStateFile(const char*, void*, size_t);
-    virtual         ~CMemoryStateFile();
+					CMemoryStateFile(const char*, const void*, size_t);
+	virtual			~CMemoryStateFile();
 
-    virtual void    Write(Framework::CStream&);
+	virtual void	Write(Framework::CStream&);
 
 private:
-    void*           m_memory;
-    size_t          m_size;
+	const void*		m_memory;
+	size_t			m_size;
 };
-
-#endif

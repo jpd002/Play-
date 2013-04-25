@@ -20,10 +20,10 @@ public:
 
 	virtual void					LoadState(Framework::CZipArchiveReader&);
 	
-	void							ProcessImageTransfer(uint32, uint32, bool);
-	void							ProcessClutTransfer(uint32, uint32);
-	void							ProcessLocalToLocalTransfer();
-	void							ReadFramebuffer(uint32, uint32, void*);
+	void							ProcessImageTransfer(uint32, uint32, bool) override;
+	void							ProcessClutTransfer(uint32, uint32) override;
+	void							ProcessLocalToLocalTransfer() override;
+	void							ReadFramebuffer(uint32, uint32, void*) override;
 
 	bool							IsBlendColorExtSupported();
 	bool							IsBlendEquationExtSupported();
@@ -34,10 +34,10 @@ protected:
 	void							TexCache_Flush();
 	void							PalCache_Flush();
 	void							LoadSettings();
-	virtual void					InitializeImpl();
-	virtual void					ReleaseImpl();
-	virtual void					ResetImpl();
-	virtual void					FlipImpl();
+	virtual void					InitializeImpl() override;
+	virtual void					ReleaseImpl() override;
+	virtual void					ResetImpl() override;
+	virtual void					FlipImpl() override;
 
 private:
 	struct RENDERSTATE

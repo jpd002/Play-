@@ -1,7 +1,6 @@
-#ifndef _PS2VM_H_
-#define _PS2VM_H_
+#pragma once
 
-#include <boost/thread.hpp>
+#include <thread>
 #include "AppDef.h"
 #include "Types.h"
 #include "DMAC.h"
@@ -172,7 +171,7 @@ private:
 	bool						IsEeIdle() const;
 	void						EmuThread();
 
-	boost::thread*				m_thread;
+	std::thread					m_thread;
 	CMailBox					m_mailBox;
 	STATUS						m_nStatus;
 	bool						m_nEnd;
@@ -187,5 +186,3 @@ private:
 	bool						m_singleStepVu0;
 	bool						m_singleStepVu1;
 };
-
-#endif

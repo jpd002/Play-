@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <functional>
+#include <boost/scoped_array.hpp>
 #include "AppConfig.h"
 #include "GSHandler.h"
 #include "PtrMacro.h"
@@ -142,8 +143,7 @@ int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 };
 
 CGSHandler::CGSHandler()
-: m_thread(NULL)
-, m_threadDone(false)
+: m_threadDone(false)
 , m_flipMode(FLIP_MODE_SMODE2)
 , m_drawCallCount(0)
 , m_pCLUT(nullptr)
@@ -175,14 +175,13 @@ CGSHandler::CGSHandler()
 
 	ResetBase();
 
-	m_thread = new boost::thread(boost::bind(&CGSHandler::ThreadProc, this));
+	m_thread = std::thread([&] () { ThreadProc(); });
 }
 
 CGSHandler::~CGSHandler()
 {
 	m_threadDone = true;
-	m_thread->join();
-	delete m_thread;
+	m_thread.join();
 	delete [] m_pRAM;
 	delete [] m_pCLUT;
 }
@@ -276,13 +275,13 @@ void CGSHandler::SetVBlank()
 		Flip();
 	}
 
-	boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 	m_nCSR |= CSR_VSYNC_INT;
 }
 
 void CGSHandler::ResetVBlank()
 {
-	boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 
 	m_nCSR &= ~CSR_VSYNC_INT;
 
@@ -298,7 +297,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 	case GS_CSR:
 		//Force CSR to have the H-Blank bit set.
 		{
-			boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 			m_nCSR |= 0x04;
 			R_REG(nAddress, nData, m_nCSR);
 		}
@@ -366,7 +365,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			{
 				SetVBlank();
 				{
-					boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+					std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 					if(nData & CSR_FINISH_EVENT)
 					{
 						m_nCSR &= ~CSR_FINISH_EVENT;
@@ -416,7 +415,7 @@ void CGSHandler::Flip(bool showOnly)
 		while(m_mailBox.IsPending())
 		{
 			//Flush all commands
-			boost::thread::yield();
+			std::this_thread::yield();
 		}
 		m_mailBox.SendCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
@@ -494,7 +493,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 	case GS_REG_FINISH:
 		{
-			boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 			m_nCSR |= CSR_FINISH_EVENT;
 		}
 		break;
@@ -1592,7 +1591,7 @@ void CGSHandler::WriteToDelayedRegister(uint32 address, uint32 value, DELAYED_RE
 {
 	if(address & 0x04)
 	{
-		boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 		delayedRegister.value.d0 = delayedRegister.heldValue;
 		delayedRegister.value.d1 = value;
 	}

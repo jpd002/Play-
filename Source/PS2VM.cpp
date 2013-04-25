@@ -81,7 +81,6 @@ CPS2VM::CPS2VM()
 , m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE])
 , m_pVUMem1(new uint8[PS2::VUMEM1SIZE])
 , m_pMicroMem1(new uint8[PS2::MICROMEM1SIZE])
-, m_thread(NULL)
 , m_EE(MEMORYMAP_ENDIAN_LSBF)
 , m_VU0(MEMORYMAP_ENDIAN_LSBF)
 , m_VU1(MEMORYMAP_ENDIAN_LSBF)
@@ -246,17 +245,13 @@ void CPS2VM::Initialize()
 {
 	CreateVM();
 	m_nEnd = false;
-	m_thread = new boost::thread(boost::bind(&CPS2VM::EmuThread, this));
+	m_thread = std::thread([&] () { EmuThread(); });
 }
 
 void CPS2VM::Destroy()
 {
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyImpl, this));
-	if(m_thread)
-	{
-		m_thread->join();
-		delete m_thread;
-	}
+	m_thread.join();
 	DestroyVM();
 }
 

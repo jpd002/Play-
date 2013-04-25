@@ -138,7 +138,7 @@ void CGSH_OpenGL::FlipImpl()
 	DISPLAY d;
 	DISPFB fb;
 	{
-		boost::recursive_mutex::scoped_lock registerMutexLock(m_registerMutex);
+		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 		unsigned int readCircuit = GetCurrentReadCircuit();
 //		unsigned int readCircuit = 1;
 		switch(readCircuit)

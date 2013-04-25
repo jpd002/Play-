@@ -5,7 +5,7 @@
 #include <zlib.h>
 #include "GSH_OpenGL.h"
 #include "StdStream.h"
-#include "BMP.h"
+#include "bitmap/BMP.h"
 
 #define TEX0_CLUTINFO_MASK (~0xFFFFFFE000000000ULL)
 

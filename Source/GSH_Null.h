@@ -1,5 +1,4 @@
-#ifndef _GSH_NULL_H_
-#define _GSH_NULL_H_
+#pragma once
 
 #include "GSHandler.h"
 
@@ -9,17 +8,16 @@ public:
 								CGSH_Null();
 	virtual						~CGSH_Null();
 
-	virtual void				ProcessImageTransfer(uint32, uint32, bool);
-	virtual void				ProcessClutTransfer(uint32, uint32);
-	virtual void				ProcessLocalToLocalTransfer();
-	virtual void				ReadFramebuffer(uint32, uint32, void*);
+	virtual void				ProcessImageTransfer(uint32, uint32, bool) override;
+	virtual void				ProcessClutTransfer(uint32, uint32) override;
+	virtual void				ProcessLocalToLocalTransfer() override;
+	virtual void				ReadFramebuffer(uint32, uint32, void*) override;
 
 	static FactoryFunction		GetFactoryFunction();
 
 private:
-	virtual void				InitializeImpl();
-	virtual void				ReleaseImpl();
+	virtual void				InitializeImpl() override;
+	virtual void				ReleaseImpl() override;
+
 	static CGSHandler*			GSHandlerFactory();
 };
-
-#endif
