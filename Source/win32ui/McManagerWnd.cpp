@@ -1,4 +1,4 @@
-#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem.hpp>
 #include <functional>
 #include "string_cast.h"
 #include "win32/Static.h"
@@ -82,9 +82,9 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 
 	m_pLayout = Framework::CVerticalLayout::Create();
 	m_pLayout->InsertObject(pSubLayout0);
-	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Framework::Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Framework::Win32::CStatic(m_hWnd, rc, SS_ETCHEDFRAME)));
 	m_pLayout->InsertObject(pSubLayout1);
-	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Framework::Win32::CStatic(m_hWnd, &rc, SS_ETCHEDFRAME)));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Framework::Win32::CStatic(m_hWnd, rc, SS_ETCHEDFRAME)));
 	m_pLayout->InsertObject(pSubLayout2);
 
 	RefreshLayout();
@@ -150,7 +150,7 @@ long CMcManagerWnd::OnCommand(unsigned short nId, unsigned short nCmd, HWND hWnd
 void CMcManagerWnd::Import()
 {
 	Framework::Win32::CFileDialog FileDialog;
-	FileDialog.m_OFN.lpstrFilter = _T("All supported types\0*.psu;*.xps;*.max\0EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps(*.xps)\0*.xps\0Action Replay MAX Save Dumps(*.max)\0*.max\0All files (*.*)\0*.*\0");
+	FileDialog.m_OFN.lpstrFilter = _T("All supported types\0*.psu;*.xps;*.max\0EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps (*.xps)\0*.xps\0Action Replay MAX Save Dumps (*.max)\0*.max\0All files (*.*)\0*.*\0");
 
 	Enable(FALSE);
 	unsigned int nRet = FileDialog.SummonOpen(m_hWnd);
