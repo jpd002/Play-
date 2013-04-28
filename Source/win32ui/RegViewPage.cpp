@@ -5,9 +5,8 @@
 #define YMARGIN			5
 #define YSPACE			4
 
-using namespace Framework;
-
-CRegViewPage::CRegViewPage(HWND hParent, RECT* pR)
+CRegViewPage::CRegViewPage(HWND hParent, RECT* rect)
+: m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -22,7 +21,7 @@ CRegViewPage::CRegViewPage(HWND hParent, RECT* pR)
 		RegisterClassEx(&w);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_CHILD | WS_VSCROLL, pR, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_CHILD | WS_VSCROLL, rect, hParent, NULL);
 	SetClassPtr();
 }
 
@@ -31,9 +30,9 @@ CRegViewPage::~CRegViewPage()
 	
 }
 
-void CRegViewPage::SetDisplayText(const char* sText)
+void CRegViewPage::SetDisplayText(const char* text)
 {
-	m_sText = sText;
+	m_text = text;
 	UpdateScroll();
 }
 
@@ -45,10 +44,7 @@ void CRegViewPage::Update()
 
 long CRegViewPage::OnVScroll(unsigned int nType, unsigned int nThumbPos)
 {
-	SCROLLINFO si;
-	unsigned int nPosition;
-	
-	nPosition = GetScrollPosition();
+	unsigned int nPosition = GetScrollPosition();
 	switch(nType)
 	{
 	case SB_LINEDOWN:
@@ -72,6 +68,7 @@ long CRegViewPage::OnVScroll(unsigned int nType, unsigned int nThumbPos)
 		break;
 	}
 
+	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize		= sizeof(SCROLLINFO);
 	si.nPos			= nPosition;
@@ -79,12 +76,12 @@ long CRegViewPage::OnVScroll(unsigned int nType, unsigned int nThumbPos)
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
 	Redraw();
-	return TRUE;	
+	return TRUE;
 }
 
 long CRegViewPage::OnSize(unsigned int nX, unsigned int nY, unsigned int nType)
 {
-    Win32::CCustomDrawn::OnSize(nX, nY, nType);
+	Framework::Win32::CCustomDrawn::OnSize(nX, nY, nType);
 	Update();
 	return TRUE;
 }
@@ -110,12 +107,9 @@ long CRegViewPage::OnLeftButtonDown(int nX, int nY)
 
 unsigned int CRegViewPage::GetLineCount(const char* sText)
 {
-	const char* sNext;
-	unsigned int nLines;
+	unsigned int nLines = 0;
 
-	nLines = 0;
-
-	sNext = strchr(sText, '\n');
+	const char* sNext = strchr(sText, '\n');
 	while(sNext != NULL)
 	{
 		nLines++;
@@ -127,17 +121,11 @@ unsigned int CRegViewPage::GetLineCount(const char* sText)
 
 unsigned int CRegViewPage::GetFontHeight()
 {
-	HDC hDC;
-	HFONT nFont;
+	HDC hDC = GetDC(m_hWnd);
+	SelectObject(hDC, m_font);
+
 	SIZE s;
-
-	hDC = GetDC(m_hWnd);
-	nFont = GetFont();
-	SelectObject(hDC, nFont);
-
 	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
-
-	DeleteObject(nFont);
 
 	ReleaseDC(m_hWnd, hDC);
 
@@ -146,46 +134,33 @@ unsigned int CRegViewPage::GetFontHeight()
 
 unsigned int CRegViewPage::GetVisibleLineCount()
 {
-	unsigned int nFontCY, nLines;
-	RECT rwin;
-
-	GetClientRect(&rwin);
-
-	nFontCY = GetFontHeight();
-
-	nLines = (rwin.bottom - (YMARGIN * 2)) / (nFontCY + YSPACE);
-
+	RECT rwin = GetClientRect();
+	unsigned int nFontCY = GetFontHeight();
+	unsigned int nLines = (rwin.bottom - (YMARGIN * 2)) / (nFontCY + YSPACE);
 	return nLines;
 }
 
 void CRegViewPage::Paint(HDC hDC)
 {
-	unsigned int nScrollPos, nCurrent, nTotal, nCount, nX, nY, nFontCY;
-	const char* sLine;
-	const char* sNext;
-	RECT rwin;
-	HFONT nFont;
-
-	GetClientRect(&rwin);
+	RECT rwin = GetClientRect();
 
 	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
 
-	nFont = GetFont();
-	nFontCY = GetFontHeight();
-	nTotal = GetVisibleLineCount();
-	nScrollPos = GetScrollPosition();
+	unsigned int nFontCY = GetFontHeight();
+	unsigned int nTotal = GetVisibleLineCount();
+	unsigned int nScrollPos = GetScrollPosition();
 
-	SelectObject(hDC, nFont);
+	SelectObject(hDC, m_font);
 
-	nCurrent = 0;
-	nCount = 0;
-	nX = XMARGIN;
-	nY = YMARGIN;
+	unsigned int nCurrent = 0;
+	unsigned int nCount = 0;
+	unsigned int nX = XMARGIN;
+	unsigned int nY = YMARGIN;
 
-	sLine = m_sText.c_str();
+	const char* sLine = m_text.c_str();
 	while(sLine != NULL)
 	{
-		sNext = strchr(sLine, '\n');
+		const char* sNext = strchr(sLine, '\n');
 		if(sNext != NULL)
 		{
 			sNext++;
@@ -210,33 +185,24 @@ void CRegViewPage::Paint(HDC hDC)
 			break;
 		}
 	}
-
-	DeleteObject(nFont);
 }
 
 void CRegViewPage::UpdateScroll()
 {
-	unsigned int nTotal;
-	SCROLLINFO si;
+	int nTotal = GetLineCount(m_text.c_str()) - GetVisibleLineCount();
 
-	nTotal = GetLineCount(m_sText.c_str()) - GetVisibleLineCount();
-
-	if((int)nTotal < 0)
+	if(nTotal < 0)
 	{
 		nTotal = 0;
 	}
 
+	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize	= sizeof(SCROLLINFO);
 	si.fMask	= SIF_RANGE;
 	si.nMin		= 0;
 	si.nMax		= nTotal;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
-}
-
-HFONT CRegViewPage::GetFont()
-{
-	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
 }
 
 unsigned int CRegViewPage::GetScrollPosition()

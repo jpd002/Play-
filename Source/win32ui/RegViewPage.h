@@ -1,7 +1,7 @@
-#ifndef _REGVIEWPAGE_H_
-#define _REGVIEWPAGE_H_
+#pragma once
 
 #include "win32/CustomDrawn.h"
+#include "win32/GdiObj.h"
 #include <string>
 
 class CRegViewPage : public Framework::Win32::CCustomDrawn
@@ -21,17 +21,14 @@ protected:
 private:
 	void							Paint(HDC);
 
-	unsigned int					GetLineCount(const char*);
+	static unsigned int				GetLineCount(const char*);
 	unsigned int					GetVisibleLineCount();
 	unsigned int					GetFontHeight();
 	void							UpdateScroll();
 
-	HFONT							GetFont();
-	
 	unsigned int					GetScrollPosition();
 	unsigned int					GetScrollThumbPosition();
 
-    std::string                     m_sText;
+	Framework::Win32::CFont			m_font;
+	std::string						m_text;
 };
-
-#endif
