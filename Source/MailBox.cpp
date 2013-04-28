@@ -1,6 +1,6 @@
 #include "MailBox.h"
-#if defined(WIN32) && !defined(WINAPI_PARTITION_APP)
-#include "win32/Window.h"
+#if defined(WIN32)
+#include <Windows.h>
 #endif
 
 CMailBox::CMailBox()
@@ -50,17 +50,14 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 		m_callDone = false;
 		while(!m_callDone)
 		{
-#if defined(WIN32) && !defined(WINAPI_PARTITION_APP)
+#if defined(WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 			MSG wmmsg;
 			while(PeekMessage(&wmmsg, NULL, 0, 0, PM_REMOVE))
 			{
 				TranslateMessage(&wmmsg);
 				DispatchMessage(&wmmsg);
 			}
-			boost::xtime xt;
-			boost::xtime_get(&xt, boost::TIME_UTC_);
-			xt.nsec += 100 * 1000000;
-			m_callFinished.timed_wait(doneLock, xt);
+			m_callFinished.wait_for(doneLock, std::chrono::milliseconds(100));
 #else
 			m_callFinished.wait(doneLock);
 #endif
