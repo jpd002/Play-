@@ -32,10 +32,10 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* p
 	Create(NULL, CLSNAME, _T("Registers"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
 	SetClassPtr();
 
-	m_pRegView[0] = new CRegViewGeneral(m_hWnd, &rc, virtualMachine, pCtx);
-	m_pRegView[1] = new CRegViewSCU(m_hWnd, &rc, virtualMachine, pCtx);
-	m_pRegView[2] = new CRegViewFPU(m_hWnd, &rc, virtualMachine, pCtx);
-	m_pRegView[3] = new CRegViewVU(m_hWnd, &rc, virtualMachine, pCtx);
+	m_pRegView[0] = new CRegViewGeneral(m_hWnd, rc, virtualMachine, pCtx);
+	m_pRegView[1] = new CRegViewSCU(m_hWnd, rc, virtualMachine, pCtx);
+	m_pRegView[2] = new CRegViewFPU(m_hWnd, rc, virtualMachine, pCtx);
+	m_pRegView[3] = new CRegViewVU(m_hWnd, rc, virtualMachine, pCtx);
 
 	m_pRegView[0]->Enable(false);
 	m_pRegView[1]->Enable(false);
@@ -47,8 +47,8 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* p
 	m_pRegView[2]->Show(SW_HIDE);
 	m_pRegView[3]->Show(SW_HIDE);
 
-	m_pTabs = new CNiceTabs(m_hWnd, &rc);
-    m_pTabs->InsertTab(_T("General"),	CNiceTabs::TAB_FLAG_UNDELETEABLE, 0);
+	m_pTabs = new CNiceTabs(m_hWnd, rc);
+	m_pTabs->InsertTab(_T("General"),	CNiceTabs::TAB_FLAG_UNDELETEABLE, 0);
 	m_pTabs->InsertTab(_T("SCU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 1);
 	m_pTabs->InsertTab(_T("FPU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 2);
 	m_pTabs->InsertTab(_T("VU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 3);
@@ -63,9 +63,7 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* p
 
 CRegViewWnd::~CRegViewWnd()
 {
-	unsigned int i;
-
-	for(i = 0; i < MAXTABS; i++)
+	for(unsigned int i = 0; i < MAXTABS; i++)
 	{
 		DELETEPTR(m_pRegView[i]);
 	}
@@ -75,9 +73,7 @@ CRegViewWnd::~CRegViewWnd()
 
 void CRegViewWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	if(m_pCurrent != NULL)
 	{

@@ -26,4 +26,10 @@
 #include "xml/Node.h"
 #include "make_unique.h"
 
+#include "win32/Window.h"
+#include "win32/Button.h"
+#include "win32/Edit.h"
+#include "win32/ListBox.h"
+#include "win32/ListView.h"
+
 #endif

@@ -3,6 +3,7 @@
 #include "string_cast.h"
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
+#include "win32/Rect.h"
 #include "WinUtils.h"
 #include "placeholder_def.h"
 #include "StdStreamUtils.h"
@@ -21,8 +22,6 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 , m_MemoryCard0(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"))
 , m_MemoryCard1(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"))
 {
-	RECT rc;
-
 	m_pImportButton		= NULL;
 	m_pCloseButton		= NULL;
 	m_pMemoryCardList	= NULL;
@@ -46,17 +45,15 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 		RegisterClassEx(&wc);
 	}
 
-	SetRect(&rc, 0, 0, 600, 500);
-	
-	Create(WNDSTYLEEX, CLSNAME, _T("Memory Card Manager"), WNDSTYLE, &rc, hParent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("Memory Card Manager"), WNDSTYLE, Framework::Win32::CRect(0, 0, 600, 500), hParent, NULL);
 	SetClassPtr();
 
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
-	m_pMemoryCardList	= new Framework::Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
-	m_pImportButton		= new Framework::Win32::CButton(_T("Import Save(s)..."), m_hWnd, &rc);
-	m_pCloseButton		= new Framework::Win32::CButton(_T("Close"), m_hWnd, &rc);
-	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, &rc);
+	m_pMemoryCardList	= new Framework::Win32::CComboBox(m_hWnd, rc, CBS_DROPDOWNLIST | WS_VSCROLL);
+	m_pImportButton		= new Framework::Win32::CButton(_T("Import Save(s)..."), m_hWnd, rc);
+	m_pCloseButton		= new Framework::Win32::CButton(_T("Close"), m_hWnd, rc);
+	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
 	m_pSaveView->m_OnDeleteClicked.connect(bind(&CMcManagerWnd::Delete, this, PLACEHOLDER_1));
@@ -102,9 +99,7 @@ CMcManagerWnd::~CMcManagerWnd()
 
 void CMcManagerWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 

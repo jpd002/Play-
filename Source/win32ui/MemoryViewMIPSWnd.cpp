@@ -8,8 +8,6 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMac
 : m_memoryView(nullptr)
 , m_addressEdit(nullptr)
 {
-	RECT rc;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -23,15 +21,13 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMac
 		RegisterClassEx(&wc);
 	}
 	
-	SetRect(&rc, 0, 0, 320, 240);
-
-	Create(NULL, CLSNAME, _T("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
 	SetClassPtr();
 
-	m_addressEdit = new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
+	m_addressEdit = new Framework::Win32::CEdit(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), _T(""), ES_READONLY);
 
-	m_memoryView = new CMemoryViewMIPS(m_hWnd, &rc, virtualMachine, pCtx);
-	m_memoryView->m_OnSelectionChange.connect(boost::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
+	m_memoryView = new CMemoryViewMIPS(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), virtualMachine, pCtx);
+	m_memoryView->OnSelectionChange.connect(boost::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
 
 	UpdateStatusBar();
 	RefreshLayout();
@@ -74,9 +70,7 @@ void CMemoryViewMIPSWnd::UpdateStatusBar()
 
 void CMemoryViewMIPSWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	static const int addressEditHeight = 21;
 

@@ -60,9 +60,7 @@ void CThreadsViewWnd::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDeb
 void CThreadsViewWnd::CreateColumns()
 {
 	LVCOLUMN col;
-	RECT rc;
-
-	m_listView->GetClientRect(&rc);
+	RECT rc = m_listView->GetClientRect();
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Id");
@@ -89,14 +87,12 @@ void CThreadsViewWnd::RefreshLayout()
 {
 	if(m_listView != NULL)
 	{
-		RECT rc;
-
-		GetClientRect(&rc);
+		RECT rc = GetClientRect();
 
 		m_listView->SetPosition(0, 0);
 		m_listView->SetSize(rc.right, rc.bottom);
 
-		m_listView->GetClientRect(&rc);
+		rc = m_listView->GetClientRect();
 
 		m_listView->SetColumnWidth(0, 50);
 		rc.right -= 50;

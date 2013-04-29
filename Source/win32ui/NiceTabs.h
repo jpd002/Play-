@@ -8,13 +8,13 @@
 class CNiceTabs : public Framework::Win32::CCustomDrawn
 {
 public:
-    enum TABFLAGS
-    {
-	    TAB_FLAG_UNDELETEABLE	= 0x01,
-	    TAB_FLAG_UNMOVABLE		= 0x02,
-    };
+	enum TABFLAGS
+	{
+		TAB_FLAG_UNDELETEABLE	= 0x01,
+		TAB_FLAG_UNMOVABLE		= 0x02,
+	};
 
-										CNiceTabs(HWND, RECT*);
+										CNiceTabs(HWND, const RECT&);
 	virtual								~CNiceTabs();
 	void								InsertTab(const TCHAR*, unsigned long, unsigned int);
 

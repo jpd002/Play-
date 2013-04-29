@@ -5,27 +5,15 @@
 
 CDisAsmWnd::CDisAsmWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 {
-	RECT rc;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
-		WNDCLASSEX wc;
-		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		RegisterClassEx(&wc);
+		RegisterClassEx(&MakeWndClass(CLSNAME));
 	}
 	
-	SetRect(&rc, 0, 0, 320, 240);
-
-	Create(NULL, CLSNAME, _T("Disassembly"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Disassembly"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
 	SetClassPtr();
 
-	m_pDisAsm = new CDisAsm(m_hWnd, &rc, virtualMachine, pCtx);
+	m_pDisAsm = new CDisAsm(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), virtualMachine, pCtx);
 
 	RefreshLayout();
 }
@@ -57,10 +45,7 @@ void CDisAsmWnd::Refresh()
 
 void CDisAsmWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
-
+	RECT rc = GetClientRect();
 	m_pDisAsm->SetSize(rc.right, rc.bottom);
 }
 

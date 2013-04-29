@@ -5,7 +5,7 @@
 #define YMARGIN			5
 #define YSPACE			4
 
-CRegViewPage::CRegViewPage(HWND hParent, RECT* rect)
+CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
 : m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
 {
 	if(!DoesWindowClassExist(CLSNAME))

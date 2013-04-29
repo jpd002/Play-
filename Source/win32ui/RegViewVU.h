@@ -8,7 +8,7 @@
 class CRegViewVU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
-									CRegViewVU(HWND, RECT*, CVirtualMachine&, CMIPS*);
+									CRegViewVU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewVU();
 
 private:

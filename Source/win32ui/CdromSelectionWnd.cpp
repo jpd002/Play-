@@ -19,19 +19,17 @@ using namespace std;
 
 const char* GetVendorId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
 {
-    return descriptor->VendorIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->VendorIdOffset : NULL;
+	return descriptor->VendorIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->VendorIdOffset : NULL;
 }
 
 const char* GetProductId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
 {
-    return descriptor->ProductIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->ProductIdOffset : NULL;
+	return descriptor->ProductIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->ProductIdOffset : NULL;
 }
 
 CCdromSelectionWnd::CCdromSelectionWnd(HWND hParent, const TCHAR* sTitle, CDROMBINDING* pInitBinding) :
 CModalWindow(hParent)
 {
-	RECT rc;
-
 	if(pInitBinding != NULL)
 	{
 		m_nType				= pInitBinding->nType;
@@ -58,41 +56,37 @@ CModalWindow(hParent)
 		RegisterClassEx(&w);
 	}
 
-	SetRect(&rc, 0, 0, 300, 170);
-
-	Create(WNDSTYLEEX, CLSNAME, sTitle, WNDSTYLE, &rc, hParent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, sTitle, WNDSTYLE, Framework::Win32::CRect(0, 0, 300, 170), hParent, NULL);
 	SetClassPtr();
 
-	SetRect(&rc, 0, 0, 1, 1);
+	m_pOk			= new Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_pCancel		= new Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
-	m_pOk			= new Win32::CButton(_T("OK"), m_hWnd, &rc);
-	m_pCancel		= new Win32::CButton(_T("Cancel"), m_hWnd, &rc);
+	m_pImageRadio	= new Win32::CButton(_T("ISO9660 Disk Image"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_RADIOBUTTON);
+	m_pDeviceRadio	= new Win32::CButton(_T("Physical CD/DVD Reader Device"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_RADIOBUTTON);
 
-	m_pImageRadio	= new Win32::CButton(_T("ISO9660 Disk Image"), m_hWnd, &rc, BS_RADIOBUTTON);
-	m_pDeviceRadio	= new Win32::CButton(_T("Physical CD/DVD Reader Device"), m_hWnd, &rc, BS_RADIOBUTTON);
-
-	m_pImageEdit	= new Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY);
-	m_pImageBrowse	= new Win32::CButton(_T("..."), m_hWnd, &rc);
-	m_pDeviceCombo	= new Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
+	m_pImageEdit	= new Win32::CEdit(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), _T(""), ES_READONLY);
+	m_pImageBrowse	= new Win32::CButton(_T("..."), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_pDeviceCombo	= new Win32::CComboBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), CBS_DROPDOWNLIST | WS_VSCROLL);
 
 	PopulateDeviceList();
 
-    m_pLayout =
-        VerticalLayoutContainer(
-            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pImageRadio)) +
-            HorizontalLayoutContainer(
-                LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 21, m_pImageEdit)) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(20, 21, m_pImageBrowse))
-            ) +
-            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pDeviceRadio)) +
-            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pDeviceCombo)) +
-            LayoutExpression(CLayoutStretch::Create()) +
-            HorizontalLayoutContainer(
-                LayoutExpression(CLayoutStretch::Create()) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk)) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel))
-            )
-        );
+	m_pLayout =
+		VerticalLayoutContainer(
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pImageRadio)) +
+			HorizontalLayoutContainer(
+				LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 21, m_pImageEdit)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(20, 21, m_pImageBrowse))
+			) +
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pDeviceRadio)) +
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pDeviceCombo)) +
+			LayoutExpression(CLayoutStretch::Create()) +
+			HorizontalLayoutContainer(
+				LayoutExpression(CLayoutStretch::Create()) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel))
+			)
+		);
 
 	UpdateControls();
 
@@ -186,9 +180,7 @@ void CCdromSelectionWnd::UpdateControls()
 
 void CCdromSelectionWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 

@@ -3,6 +3,7 @@
 #include "PtrMacro.h"
 #include <boost/lexical_cast.hpp>
 #include "win32/Header.h"
+#include "win32/Rect.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 
@@ -25,13 +26,10 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 		RegisterClassEx(&wc);
 	}
 
-	RECT rc;
-	SetRect(&rc, 0, 0, 1, 1);
-
-	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, Framework::Win32::CRect(0, 0, 1, 1), hParent, NULL);
 	SetClassPtr();
 
-	m_listView = new Framework::Win32::CListViewEx(m_hWnd, &rc, LVS_REPORT | LVS_OWNERDATA);
+	m_listView = new Framework::Win32::CListViewEx(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
 	m_listView->SetExtendedListViewStyle(m_listView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	LVCOLUMN col;
@@ -67,7 +65,7 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 
 	RefreshLayout();
 
-	m_listView->GetClientRect(&rc);
+	RECT rc = m_listView->GetClientRect();
 
 	m_listView->SetColumnWidth(0, rc.right / 3);
 	m_listView->SetColumnWidth(1, rc.right / 4);
@@ -180,16 +178,20 @@ int CELFSymbolView::ItemAddressComparer(const ITEM& item1, const ITEM& item2)
 
 void CELFSymbolView::RefreshLayout()
 {
-	RECT rc;
-	::GetClientRect(GetParent(), &rc);
+	{
+		RECT rc;
+		::GetClientRect(GetParent(), &rc);
 
-	SetPosition(0, 0);
-	SetSize(rc.right, rc.bottom);
+		SetPosition(0, 0);
+		SetSize(rc.right, rc.bottom);
+	}
 
-	GetClientRect(&rc);
+	{
+		RECT rc = GetClientRect();
 
-	m_listView->SetPosition(10, 10);
-	m_listView->SetSize(rc.right - 20, rc.bottom - 20);
+		m_listView->SetPosition(10, 10);
+		m_listView->SetSize(rc.right - 20, rc.bottom - 20);
+	}
 }
 
 void CELFSymbolView::PopulateList()

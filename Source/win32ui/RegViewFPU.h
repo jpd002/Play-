@@ -9,7 +9,7 @@
 class CRegViewFPU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
-									CRegViewFPU(HWND, RECT*, CVirtualMachine&, CMIPS*);
+									CRegViewFPU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewFPU();
 
 	enum VIEWMODE

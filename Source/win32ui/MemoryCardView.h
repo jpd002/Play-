@@ -13,7 +13,7 @@
 class CMemoryCardView : public Framework::Win32::CWindow
 {
 public:
-										CMemoryCardView(HWND, RECT*);
+										CMemoryCardView(HWND, const RECT&);
 										~CMemoryCardView();
 
 	void								SetMemoryCard(CMemoryCard*);

@@ -9,8 +9,8 @@
 #define ID_MEMORYVIEW_GOTOADDRESS		40001
 #define ID_MEMORYVIEW_FOLLOWPOINTER		40002
 
-CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx)
-: CMemoryView(hParent, pR)
+CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+: CMemoryView(hParent, rect)
 , m_virtualMachine(virtualMachine)
 , m_pCtx(pCtx)
 {

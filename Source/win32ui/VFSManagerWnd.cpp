@@ -22,55 +22,49 @@ using namespace std;
 CVFSManagerWnd::CVFSManagerWnd(HWND hParent) :
 CModalWindow(hParent)
 {
-    RECT rc;
+	if(!DoesWindowClassExist(CLSNAME))
+	{
+		WNDCLASSEX w;
+		memset(&w, 0, sizeof(WNDCLASSEX));
+		w.cbSize		= sizeof(WNDCLASSEX);
+		w.lpfnWndProc	= CWindow::WndProc;
+		w.lpszClassName	= CLSNAME;
+		w.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
+		w.hInstance		= GetModuleHandle(NULL);
+		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		w.style			= CS_HREDRAW | CS_VREDRAW;
+		RegisterClassEx(&w);
+	}
 
-    if(!DoesWindowClassExist(CLSNAME))
-    {
-        WNDCLASSEX w;
-        memset(&w, 0, sizeof(WNDCLASSEX));
-        w.cbSize		= sizeof(WNDCLASSEX);
-        w.lpfnWndProc	= CWindow::WndProc;
-        w.lpszClassName	= CLSNAME;
-        w.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
-        w.hInstance		= GetModuleHandle(NULL);
-        w.hCursor		= LoadCursor(NULL, IDC_ARROW);
-        w.style			= CS_HREDRAW | CS_VREDRAW;
-        RegisterClassEx(&w);
-    }
+	Create(WNDSTYLEEX, CLSNAME, _T("Virtual File System Manager"), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 250), hParent, NULL);
+	SetClassPtr();
 
-    SetRect(&rc, 0, 0, 400, 250);
+	m_pList = new Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SORTASCENDING);
+	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-    Create(WNDSTYLEEX, CLSNAME, _T("Virtual File System Manager"), WNDSTYLE, &rc, hParent, NULL);
-    SetClassPtr();
+	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
-    SetRect(&rc, 0, 0, 1, 1);
+	m_pLayout =
+		VerticalLayoutContainer(
+			LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pList)) +
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 40, new Win32::CStatic(m_hWnd, _T("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT))) +
+			HorizontalLayoutContainer(
+				LayoutExpression(CLayoutStretch::Create()) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel))
+			)
+		);
 
-    m_pList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING);
-    m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
+	RefreshLayout();
 
-    m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, &rc);
-    m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, &rc);
+	m_devices[0] = new CDirectoryDevice("mc0",  "ps2.mc0.directory");
+	m_devices[1] = new CDirectoryDevice("mc1",  "ps2.mc1.directory");
+	m_devices[2] = new CDirectoryDevice("host", "ps2.host.directory");
+	m_devices[3] = new CCdrom0Device();
 
-    m_pLayout =
-        VerticalLayoutContainer(
-            LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pList)) +
-            LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 40, new Win32::CStatic(m_hWnd, _T("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT))) +
-            HorizontalLayoutContainer(
-                LayoutExpression(CLayoutStretch::Create()) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk)) +
-                LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel))
-            )
-        );
-
-    RefreshLayout();
-
-    m_devices[0] = new CDirectoryDevice("mc0",  "ps2.mc0.directory");
-    m_devices[1] = new CDirectoryDevice("mc1",  "ps2.mc1.directory");
-    m_devices[2] = new CDirectoryDevice("host", "ps2.host.directory");
-    m_devices[3] = new CCdrom0Device();
-
-    CreateListColumns();
-    UpdateList();
+	CreateListColumns();
+	UpdateList();
 }
 
 CVFSManagerWnd::~CVFSManagerWnd()
@@ -127,9 +121,7 @@ long CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 
 void CVFSManagerWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 
@@ -142,9 +134,7 @@ void CVFSManagerWnd::RefreshLayout()
 void CVFSManagerWnd::CreateListColumns()
 {
 	LVCOLUMN col;
-	RECT rc;
-
-	m_pList->GetClientRect(&rc);
+	RECT rc = m_pList->GetClientRect();
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Device");

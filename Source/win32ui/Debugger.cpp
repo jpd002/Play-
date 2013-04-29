@@ -25,8 +25,6 @@
 CDebugger::CDebugger(CPS2VM& virtualMachine)
 : m_virtualMachine(virtualMachine)
 {
-	RECT rc;
-
 	RegisterPreferences();
 
 	if(!DoesWindowClassExist(CLSNAME))
@@ -42,9 +40,7 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 		RegisterClassEx(&wc);
 	}
 	
-	SetRect(&rc, 0, 0, 640, 480);
-
-	Create(NULL, CLSNAME, _T(""), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, &rc, NULL, NULL);
+	Create(NULL, CLSNAME, _T(""), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, Framework::Win32::CRect(0, 0, 640, 480), NULL, NULL);
 	SetClassPtr();
 
 	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_DEBUGGER)));
@@ -52,8 +48,6 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	CreateClient(NULL);
 
 	//Show(SW_MAXIMIZE);
-
-	SetRect(&rc, 0, 0, 320, 240);
 
 	//ELF View Initialization
 	m_pELFView = new CELFView(m_pMDIClient->m_hWnd);
@@ -211,10 +205,9 @@ void CDebugger::SaveSettings()
 
 void CDebugger::SerializeWindowGeometry(CWindow* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
 {
-	RECT rc;
 	CAppConfig& config(CAppConfig::GetInstance());
 
-	pWindow->GetWindowRect(&rc);
+	RECT rc = pWindow->GetWindowRect();
 	ScreenToClient(m_pMDIClient->m_hWnd, (POINT*)&rc + 0);
 	ScreenToClient(m_pMDIClient->m_hWnd, (POINT*)&rc + 1);
 

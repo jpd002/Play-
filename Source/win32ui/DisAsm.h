@@ -10,7 +10,7 @@
 class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::trackable
 {
 public:
-									CDisAsm(HWND, RECT*, CVirtualMachine&, CMIPS*);
+									CDisAsm(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CDisAsm();
 
 	void							SetAddress(uint32);

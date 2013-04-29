@@ -28,7 +28,7 @@ const PIXELFORMATDESCRIPTOR CMemoryCardView::CRender::m_PFD =
 	0, 0, 0
 };
 
-CMemoryCardView::CMemoryCardView(HWND hParent, RECT* pRect)
+CMemoryCardView::CMemoryCardView(HWND hParent, const RECT& rect)
 : m_itemCount(0)
 , m_memoryCard(NULL)
 , m_render(NULL)
@@ -47,7 +47,7 @@ CMemoryCardView::CMemoryCardView(HWND hParent, RECT* pRect)
 		RegisterClassEx(&wc);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, pRect, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, rect, hParent, NULL);
 	SetClassPtr();
 
 	UpdateGeometry();
@@ -186,10 +186,8 @@ void CMemoryCardView::UpdateScrollPosition()
 
 void CMemoryCardView::UpdateGeometry()
 {
-	RECT ClientRect;
-	GetClientRect(&ClientRect);
-
-	m_viewState.Reset(&ClientRect);
+	RECT clientRect = GetClientRect();
+	m_viewState.Reset(&clientRect);
 	UpdateScroll();
 }
 

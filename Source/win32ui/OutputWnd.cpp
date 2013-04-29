@@ -20,9 +20,7 @@ COutputWnd::COutputWnd(HWND hParent)
 		RegisterClassEx(&wc);
 	}
 
-	RECT windowRect;
-	SetRect(&windowRect, 0, 0, 1, 1);
-	Create(NULL, CLSNAME, NULL, WNDSTYLE, &windowRect, hParent, NULL);
+	Create(NULL, CLSNAME, NULL, WNDSTYLE, Framework::Win32::CRect(0, 0, 1, 1), hParent, NULL);
 	SetClassPtr();
 }
 

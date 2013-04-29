@@ -132,18 +132,22 @@ void CELFProgramView::FillInformation()
 
 void CELFProgramView::RefreshLayout()
 {
-	RECT rc;
-	::GetClientRect(GetParent(), &rc);
+	{
+		RECT rc;
+		::GetClientRect(GetParent(), &rc);
 
-	SetPosition(0, 0);
-	SetSize(rc.right, rc.bottom);
+		SetPosition(0, 0);
+		SetSize(rc.right, rc.bottom);
+	}
 
-	GetClientRect(&rc);
+	{
+		RECT rc = GetClientRect();
 
-	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom + m_pLayout->GetPreferredHeight());
+		SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom + m_pLayout->GetPreferredHeight());
 
-	m_pLayout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
-	m_pLayout->RefreshGeometry();
+		m_pLayout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
+		m_pLayout->RefreshGeometry();
+	}
 
 	Redraw();
 }

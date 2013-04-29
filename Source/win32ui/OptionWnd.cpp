@@ -10,9 +10,9 @@ using namespace Framework;
 
 template <typename T> 
 COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
+: m_pTreeView(nullptr)
+, m_pContainer(nullptr)
 {
-	RECT rc;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -26,20 +26,15 @@ COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
 		RegisterClassEx(&wc);
 	}
 
-	SetRect(&rc, 0, 0, 640, 480);
-
-	Create(NULL, CLSNAME, sTitle, WNDSTYLE, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, sTitle, WNDSTYLE, Framework::Win32::CRect(0, 0, 640, 480), hParent, NULL);
 	SetClassPtr();
 
-	SetRect(&rc, 0, 0, 1, 1);
+	m_pTreeView		= new Win32::CTreeView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
+	m_pContainer	= new Win32::CStatic(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
-	m_pTreeView		= NULL;
-	m_pTreeView		= new Win32::CTreeView(m_hWnd, &rc, TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
-	m_pContainer	= new Win32::CStatic(m_hWnd, rc);
-
-    m_pLayout = CHorizontalLayout::Create();
-    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(25, 20, 1, 0, m_pTreeView, false));
-    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(75, 20, 3, 0, m_pContainer));
+	m_pLayout = CHorizontalLayout::Create();
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(25, 20, 1, 0, m_pTreeView, false));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(75, 20, 3, 0, m_pContainer));
 
 	RefreshLayout();
 }
@@ -102,8 +97,7 @@ void COptionWnd<T>::RefreshLayout()
 {
 	TVITEM it;
 	HTREEITEM hItem;
-	RECT rc;
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	m_pLayout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
 	m_pLayout->RefreshGeometry();
@@ -122,9 +116,8 @@ void COptionWnd<T>::RefreshLayout()
 template <typename T>
 void COptionWnd<T>::ResizePanel(HWND hPanel)
 {
-	RECT rc;
 	if(hPanel == NULL) return;
-	m_pContainer->GetClientRect(&rc);
+	RECT rc = m_pContainer->GetClientRect();
 	SetWindowPos(hPanel, NULL, 0, 0, rc.right, rc.bottom, SWP_NOMOVE | SWP_NOZORDER);
 	UpdateWindow(hPanel);
 }

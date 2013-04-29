@@ -33,33 +33,29 @@ CModalWindow(hParent)
 		RegisterClassEx(&w);
 	}
 
-	SetRect(&rc, 0, 0, 400, 350);
-
-	Create(WNDSTYLEEX, CLSNAME, _T("Renderer Settings"), WNDSTYLE, &rc, hParent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("Renderer Settings"), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 350), hParent, NULL);
 	SetClassPtr();
 
-	SetRect(&rc, 0, 0, 1, 1);
-
-	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, &rc);
-	m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, &rc);
+	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
 	m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
 	m_flipMode					= static_cast<CGSHandler::FLIP_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_FLIPMODE));
 
-	m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, &rc, BS_CHECKBOX);
+	m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_CHECKBOX);
 	m_pLineCheck->SetCheck(m_nLinesAsQuads);
 
-	m_pForceBilinearCheck = new Win32::CButton(_T("Force bilinear texture sampling"), m_hWnd, &rc, BS_CHECKBOX);
+	m_pForceBilinearCheck = new Win32::CButton(_T("Force bilinear texture sampling"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_CHECKBOX);
 	m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
 
-	m_pFlipModeComboBox = new Win32::CComboBox(m_hWnd, &rc, CBS_DROPDOWNLIST | WS_VSCROLL);
+	m_pFlipModeComboBox = new Win32::CComboBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), CBS_DROPDOWNLIST | WS_VSCROLL);
 	m_pFlipModeComboBox->AddString(_T("#1 - SMODE2"));
 	m_pFlipModeComboBox->AddString(_T("#2 - DISPFB2"));
 	m_pFlipModeComboBox->AddString(_T("#3 - VBLANK"));
 	m_pFlipModeComboBox->SetSelection(m_flipMode);
 
-	m_pExtList = new Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
+	m_pExtList = new Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
 	m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
@@ -120,9 +116,7 @@ long CRendererSettingsWnd::OnCommand(unsigned short nID, unsigned short nCmd, HW
 
 void CRendererSettingsWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 
@@ -135,9 +129,7 @@ void CRendererSettingsWnd::RefreshLayout()
 void CRendererSettingsWnd::CreateExtListColumns()
 {
 	LVCOLUMN col;
-	RECT rc;
-
-	m_pExtList->GetClientRect(&rc);
+	RECT rc = m_pExtList->GetClientRect();
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Extension");

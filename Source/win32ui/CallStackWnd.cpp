@@ -13,8 +13,6 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIP
 , m_list(nullptr)
 , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
-	RECT rc;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -28,14 +26,10 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIP
 		RegisterClassEx(&wc);
 	}
 	
-	SetRect(&rc, 0, 0, 320, 240);
-
-	Create(NULL, CLSNAME, _T("Call Stack"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Call Stack"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
 	SetClassPtr();
 
-	SetRect(&rc, 0, 0, 1, 1);
-
-	m_list = new Framework::Win32::CListView(m_hWnd, &rc, LVS_REPORT);
+	m_list = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT);
 	m_list->SetExtendedListViewStyle(m_list->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CCallStackWnd::Update, this));
@@ -84,25 +78,25 @@ long CCallStackWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 
 void CCallStackWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
-
 	if(m_list != NULL)
 	{
-		m_list->SetSize(rc.right, rc.bottom);
-	}
+		{
+			RECT rc = GetClientRect();
+			m_list->SetSize(rc.right, rc.bottom);
+		}
 
-	m_list->GetClientRect(&rc);
-	m_list->SetColumnWidth(0, rc.right);
+		{
+			RECT rc = m_list->GetClientRect();
+			m_list->SetColumnWidth(0, rc.right);
+		}
+	}
 }
 
 void CCallStackWnd::CreateColumns()
 {
 	LVCOLUMN col;
-	RECT rc;
 
-	m_list->GetClientRect(&rc);
+	RECT rc = m_list->GetClientRect();
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Function");

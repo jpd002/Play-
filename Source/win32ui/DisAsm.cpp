@@ -23,7 +23,7 @@
 #define ID_DISASM_GOTOPREV		40006
 #define ID_DISASM_GOTONEXT		40007
 
-CDisAsm::CDisAsm(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 : m_virtualMachine(virtualMachine)
 , m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
 {
@@ -51,7 +51,7 @@ CDisAsm::CDisAsm(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS*
 		RegisterClassEx(&w);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, pR, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, hParent, NULL);
 	SetClassPtr();
 
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDisAsm::OnMachineStateChange, this));
@@ -264,14 +264,9 @@ unsigned int CDisAsm::GetFontHeight()
 
 unsigned int CDisAsm::GetLineCount()
 {
-	unsigned int nFontCY, nLines;
-	RECT rwin;
-
-	GetClientRect(&rwin);
-
-	nFontCY = GetFontHeight();
-
-	nLines = (rwin.bottom - (YMARGIN * 2)) / (nFontCY + YSPACE);
+	RECT rwin = GetClientRect();
+	unsigned int nFontCY = GetFontHeight();
+	unsigned int nLines = (rwin.bottom - (YMARGIN * 2)) / (nFontCY + YSPACE);
 	nLines++;
 
 	return nLines;
@@ -683,8 +678,7 @@ void CDisAsm::Paint(HDC hDC)
 {
 	Framework::Win32::CDeviceContext DeviceContext(hDC);
 
-	RECT rwin;
-	GetClientRect(&rwin);
+	RECT rwin = GetClientRect();
 
 	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
 	SelectObject(hDC, m_font);

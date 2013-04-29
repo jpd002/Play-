@@ -7,6 +7,7 @@
 #include "string_cast.h"
 #include "win32/Static.h"
 #include "win32/FileDialog.h"
+#include "win32/Rect.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 
@@ -16,8 +17,6 @@ namespace filesystem = boost::filesystem;
 
 CSaveView::CSaveView(HWND hParent)
 {
-	RECT rc;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -32,23 +31,23 @@ CSaveView::CSaveView(HWND hParent)
 		RegisterClassEx(&wc);
 	}
 
-	Create(NULL, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, Framework::Win32::CRect(0, 0, 10, 10), hParent, NULL);
 	SetClassPtr();
 
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
-	m_pNameLine1	= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pNameLine2	= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pSize			= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pId			= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pLastModified	= new Framework::Win32::CEdit(m_hWnd, &rc, _T(""), ES_READONLY, 0);
-	m_pOpenFolder	= new Framework::Win32::CButton(_T("Open folder..."), m_hWnd, &rc);
-	m_pExport		= new Framework::Win32::CButton(_T("Export..."), m_hWnd, &rc);
-	m_pDelete		= new Framework::Win32::CButton(_T("Delete"), m_hWnd, &rc);
-	m_pNormalIcon	= new Framework::Win32::CButton(_T("Normal Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pCopyingIcon	= new Framework::Win32::CButton(_T("Copying Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pDeletingIcon	= new Framework::Win32::CButton(_T("Deleting Icon"), m_hWnd, &rc, BS_PUSHLIKE | BS_CHECKBOX);
-	m_pIconViewWnd	= new CSaveIconView(m_hWnd, &rc);
+	m_pNameLine1	= new Framework::Win32::CEdit(m_hWnd, rc, _T(""), ES_READONLY, 0);
+	m_pNameLine2	= new Framework::Win32::CEdit(m_hWnd, rc, _T(""), ES_READONLY, 0);
+	m_pSize			= new Framework::Win32::CEdit(m_hWnd, rc, _T(""), ES_READONLY, 0);
+	m_pId			= new Framework::Win32::CEdit(m_hWnd, rc, _T(""), ES_READONLY, 0);
+	m_pLastModified	= new Framework::Win32::CEdit(m_hWnd, rc, _T(""), ES_READONLY, 0);
+	m_pOpenFolder	= new Framework::Win32::CButton(_T("Open folder..."), m_hWnd, rc);
+	m_pExport		= new Framework::Win32::CButton(_T("Export..."), m_hWnd, rc);
+	m_pDelete		= new Framework::Win32::CButton(_T("Delete"), m_hWnd, rc);
+	m_pNormalIcon	= new Framework::Win32::CButton(_T("Normal Icon"), m_hWnd, rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pCopyingIcon	= new Framework::Win32::CButton(_T("Copying Icon"), m_hWnd, rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pDeletingIcon	= new Framework::Win32::CButton(_T("Deleting Icon"), m_hWnd, rc, BS_PUSHLIKE | BS_CHECKBOX);
+	m_pIconViewWnd	= new CSaveIconView(m_hWnd, rc);
 
 	m_CommandSink.RegisterCallback(m_pOpenFolder->m_hWnd,	std::tr1::bind(&CSaveView::OpenSaveFolder, this));
 	m_CommandSink.RegisterCallback(m_pNormalIcon->m_hWnd,	std::tr1::bind(&CSaveView::SetIconType, this, CSave::ICON_NORMAL));
@@ -164,9 +163,7 @@ long CSaveView::OnCommand(unsigned short nCmd, unsigned short nId, HWND hWndFrom
 
 void CSaveView::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 

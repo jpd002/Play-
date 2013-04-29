@@ -2,8 +2,8 @@
 #include "RegViewVU.h"
 #include "../PS2VM.h"
 
-CRegViewVU::CRegViewVU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pCtx)
-: CRegViewPage(hParent, pR)
+CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+: CRegViewPage(hParent, rect)
 , m_pCtx(pCtx)
 {
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewVU::Update, this));

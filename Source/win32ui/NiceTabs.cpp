@@ -10,8 +10,8 @@
 #define EXRIGHT(r)	(EXLEFT(r) + EXWIDTH)
 #define EXBOTTOM	(EXTOP + EXHEIGHT)
 
-CNiceTabs::CNiceTabs(HWND hParent, RECT* pR) :
-m_nSelected(0)
+CNiceTabs::CNiceTabs(HWND hParent, const RECT& rect) 
+: m_nSelected(0)
 {
 	if(!DoesWindowClassExist(CLASSNAME))
 	{
@@ -25,7 +25,7 @@ m_nSelected(0)
 		RegisterClassEx(&w);
 	}
 
-	Create(NULL, CLASSNAME, CLASSNAME, WS_VISIBLE | WS_CHILD, pR, hParent, NULL);
+	Create(NULL, CLASSNAME, CLASSNAME, WS_VISIBLE | WS_CHILD, rect, hParent, NULL);
 	SetClassPtr();
 
 	m_nEx	= LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_EX));
@@ -97,9 +97,9 @@ void CNiceTabs::Paint(HDC hDC)
 	HBRUSH nBrush;
 	HPEN nPen;
 	HFONT nFont;
-	RECT rcli, rc;
+	RECT rc;
 
-	GetClientRect(&rcli);
+	RECT rcli = GetClientRect();
 
 	nFont = CreateOurFont();
 	SelectObject(hDC, nFont);
@@ -241,9 +241,7 @@ long CNiceTabs::OnMouseLeave()
 
 long CNiceTabs::OnMouseMove(WPARAM nButton, int nX, int nY)
 {
-	RECT rcli;
-
-	GetClientRect(&rcli);
+	RECT rcli = GetClientRect();
 
 	if((nX >= EXLEFT(rcli)) && (nX <= EXRIGHT(rcli)))
 	{

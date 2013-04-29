@@ -2,8 +2,8 @@
 #include <string.h>
 #include "RegViewGeneral.h"
 
-CRegViewGeneral::CRegViewGeneral(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) 
-: CRegViewPage(hParent, pR)
+CRegViewGeneral::CRegViewGeneral(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
+: CRegViewPage(hParent, rect)
 , m_virtualMachine(virtualMachine)
 , m_pCtx(pC)
 {

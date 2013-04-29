@@ -27,12 +27,9 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF)
 
 	//Create content views
 	{
-		RECT rc;
-		SetRect(&rc, 1, 1, 1, 1);
+		m_memoryView = new CMemoryViewPtr(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
-		m_memoryView = new CMemoryViewPtr(m_hWnd, &rc);
-
-		m_dynamicSectionListView = new Framework::Win32::CListViewEx(m_hWnd, &rc, LVS_REPORT);
+		m_dynamicSectionListView = new Framework::Win32::CListViewEx(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT);
 		m_dynamicSectionListView->SetExtendedListViewStyle(m_dynamicSectionListView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 	}
 
@@ -108,27 +105,30 @@ void CELFSectionView::SetSectionIndex(uint16 sectionIndex)
 
 void CELFSectionView::RefreshLayout()
 {
-	RECT rc;
-	::GetClientRect(GetParent(), &rc);
-
-	SetPosition(0, 0);
-	SetSize(rc.right, rc.bottom);
-
-	GetClientRect(&rc);
-
-	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
-
-	m_pLayout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
-	m_pLayout->RefreshGeometry();
-
 	{
 		RECT rc;
-		m_contentsPlaceHolder->GetWindowRect(&rc);
+		::GetClientRect(GetParent(), &rc);
+
+		SetPosition(0, 0);
+		SetSize(rc.right, rc.bottom);
+	}
+
+	{
+		RECT rc = GetClientRect();
+
+		SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
+
+		m_pLayout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
+		m_pLayout->RefreshGeometry();
+	}
+
+	{
+		RECT rc = m_contentsPlaceHolder->GetWindowRect();
 		ScreenToClient(m_hWnd, reinterpret_cast<POINT*>(&rc) + 0);
 		ScreenToClient(m_hWnd, reinterpret_cast<POINT*>(&rc) + 1);
 
-		m_memoryView->SetSizePosition(&rc);
-		m_dynamicSectionListView->SetSizePosition(&rc);
+		m_memoryView->SetSizePosition(rc);
+		m_dynamicSectionListView->SetSizePosition(rc);
 	}
 
 	Redraw();
@@ -259,8 +259,7 @@ void CELFSectionView::CreateDynamicSectionListViewColumns()
 	col.mask		= LVCF_TEXT;
 	m_dynamicSectionListView->InsertColumn(1, &col);
 
-	RECT rc;
-	m_dynamicSectionListView->GetClientRect(&rc);
+	RECT rc = m_dynamicSectionListView->GetClientRect();
 
 	m_dynamicSectionListView->SetColumnWidth(0, 1 * rc.right / 3);
 	m_dynamicSectionListView->SetColumnWidth(1, 2 * rc.right / 3);

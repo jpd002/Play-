@@ -3,8 +3,8 @@
 #include "RegViewSCU.h"
 #include "../COP_SCU.h"
 
-CRegViewSCU::CRegViewSCU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) 
-: CRegViewPage(hParent, pR)
+CRegViewSCU::CRegViewSCU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
+: CRegViewPage(hParent, rect)
 , m_pCtx(pC)
 {
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewSCU::Update, this));

@@ -10,7 +10,7 @@
 class CSaveIconView : public Framework::Win32::CWindow
 {
 public:
-										CSaveIconView(HWND, RECT*);
+										CSaveIconView(HWND, const RECT&);
 	virtual								~CSaveIconView();
 
 	void								SetSave(const CSave*);

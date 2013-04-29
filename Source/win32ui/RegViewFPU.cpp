@@ -2,8 +2,8 @@
 #include <string.h>
 #include "RegViewFPU.h"
 
-CRegViewFPU::CRegViewFPU(HWND hParent, RECT* pR, CVirtualMachine& virtualMachine, CMIPS* pC) 
-: CRegViewPage(hParent, pR)
+CRegViewFPU::CRegViewFPU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
+: CRegViewPage(hParent, rect)
 , m_pCtx(pC)
 {
 	m_nViewMode = VIEWMODE_SINGLE;

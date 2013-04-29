@@ -27,7 +27,7 @@ const PIXELFORMATDESCRIPTOR CSaveIconView::m_PFD =
 	0, 0, 0
 };
 
-CSaveIconView::CSaveIconView(HWND hParent, RECT* pR)
+CSaveIconView::CSaveIconView(HWND hParent, const RECT& rect)
 : m_nGrabbing(false)
 , m_iconMesh(NULL)
 , m_iconType(CSave::ICON_NORMAL)
@@ -59,7 +59,7 @@ CSaveIconView::CSaveIconView(HWND hParent, RECT* pR)
 		RegisterClassEx(&wc);
 	}
 
-	Create(WS_EX_STATICEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, pR, hParent, NULL);
+	Create(WS_EX_STATICEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, rect, hParent, NULL);
 	SetClassPtr();
 
 	m_thread = new boost::thread(std::tr1::bind(&CSaveIconView::ThreadProc, this));
@@ -223,10 +223,9 @@ void CSaveIconView::ChangeCursor()
 
 void CSaveIconView::Render(HDC hDC)
 {
-	RECT ClientRect;
-	GetClientRect(&ClientRect);
+	RECT clientRect = GetClientRect();
 
-	glViewport(0, 0, ClientRect.right, ClientRect.bottom);
+	glViewport(0, 0, clientRect.right, clientRect.bottom);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -238,7 +237,7 @@ void CSaveIconView::Render(HDC hDC)
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(45.0f, (float)ClientRect.right / (float)ClientRect.bottom, 0.1f, 100.0f);
+		gluPerspective(45.0f, (float)clientRect.right / (float)clientRect.bottom, 0.1f, 100.0f);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();

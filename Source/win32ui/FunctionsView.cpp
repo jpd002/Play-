@@ -17,8 +17,6 @@ CFunctionsView::CFunctionsView(HWND hParent)
 : m_context(nullptr)
 , m_biosDebugInfoProvider(nullptr)
 {
-	RECT rc;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
@@ -32,26 +30,22 @@ CFunctionsView::CFunctionsView(HWND hParent)
 		RegisterClassEx(&wc);
 	}
 
-	SetRect(&rc, 0, 0, 320, 240);
-
 	unsigned long windowStyle = WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX;
 #ifndef FUNCTIONSVIEW_STANDALONE
 	windowStyle |= WS_CHILD;
 #endif
-	Create(NULL, CLSNAME, _T("Functions"), windowStyle, &rc, hParent, NULL);
+	Create(NULL, CLSNAME, _T("Functions"), windowStyle, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
 	SetClassPtr();
 
-	SetRect(&rc, 0, 0, 0, 0);
-
-	m_pList = new Framework::Win32::CListView(m_hWnd, &rc, LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
+	m_pList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 0, 0), LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
 	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
 	CreateListColumns();
 
-	m_pNew		= new Framework::Win32::CButton(_T("New..."), m_hWnd, &rc);
-	m_pRename	= new Framework::Win32::CButton(_T("Rename..."), m_hWnd, &rc);
-	m_pDelete	= new Framework::Win32::CButton(_T("Delete"), m_hWnd, &rc);
-	m_pImport	= new Framework::Win32::CButton(_T("Load ELF symbols"), m_hWnd, &rc);
+	m_pNew		= new Framework::Win32::CButton(_T("New..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pRename	= new Framework::Win32::CButton(_T("Rename..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pDelete	= new Framework::Win32::CButton(_T("Delete"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pImport	= new Framework::Win32::CButton(_T("Load ELF symbols"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
 
 	Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
 	pSubLayout0->InsertObject(Framework::CLayoutStretch::Create());
@@ -150,9 +144,7 @@ void CFunctionsView::CreateListColumns()
 
 void CFunctionsView::ResizeListColumns()
 {
-	RECT rc;
-
-	m_pList->GetClientRect(&rc);
+	RECT rc = m_pList->GetClientRect();
 
 	m_pList->SetColumnWidth(0, rc.right * 2 / 3);
 	m_pList->SetColumnWidth(1, rc.right * 1 / 3);
@@ -160,11 +152,9 @@ void CFunctionsView::ResizeListColumns()
 
 void CFunctionsView::RefreshLayout()
 {
-	RECT rc;
-
 	if(m_pLayout == NULL) return;
 
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 

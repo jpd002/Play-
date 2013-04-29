@@ -63,8 +63,6 @@ const TCHAR* CSysInfoWnd::m_sFeature[32] =
 CSysInfoWnd::CSysInfoWnd(HWND hParent) :
 Win32::CModalWindow(hParent)
 {
-	RECT rc;
-
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
@@ -78,30 +76,26 @@ Win32::CModalWindow(hParent)
 		RegisterClassEx(&w);
 	}
 
-	SetRect(&rc, 0, 0, 200, 285);
-
 	if(hParent != NULL)
 	{
 		EnableWindow(hParent, FALSE);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("System Information"), WNDSTYLE, &rc, hParent, NULL);
+	Create(WNDSTYLEEX, CLSNAME, _T("System Information"), WNDSTYLE, Framework::Win32::CRect(0, 0, 200, 285), hParent, NULL);
 	SetClassPtr();
-
-	SetRect(&rc, 0, 0, 1, 1);
 
 	m_pProcessor	= new Win32::CStatic(m_hWnd, _T(""));
 	m_pProcesses	= new Win32::CStatic(m_hWnd, _T(""));
 	m_pThreads		= new Win32::CStatic(m_hWnd, _T(""));
-	m_pFeatures		= new Win32::CListBox(m_hWnd, &rc, WS_VSCROLL | LBS_SORT);
+	m_pFeatures		= new Win32::CListBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), WS_VSCROLL | LBS_SORT);
 
-    m_pLayout = CVerticalLayout::Create();
+	m_pLayout = CVerticalLayout::Create();
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcesses));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pThreads));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor:"))));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcessor));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor Features:"))));
-    m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(200, 200, 1, 1, m_pFeatures));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(200, 200, 1, 1, m_pFeatures));
 
 	m_nRDTSCThread = NULL;
 
@@ -265,9 +259,7 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 
 void CSysInfoWnd::RefreshLayout()
 {
-	RECT rc;
-
-	GetClientRect(&rc);
+	RECT rc = GetClientRect();
 
 	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
 

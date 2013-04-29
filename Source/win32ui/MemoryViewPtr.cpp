@@ -1,7 +1,7 @@
 #include "MemoryViewPtr.h"
 
-CMemoryViewPtr::CMemoryViewPtr(HWND hParent, RECT* pR) :
-CMemoryView(hParent, pR)
+CMemoryViewPtr::CMemoryViewPtr(HWND hParent, const RECT& rect)
+: CMemoryView(hParent, rect)
 {
 	m_pData = NULL;
 }
