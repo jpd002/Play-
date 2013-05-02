@@ -280,9 +280,6 @@
     <ClCompile Include="..\Source\win32_ui\AcceleratorTable.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32_ui\CounterRegView.cpp">
-      <Filter>Source Files\ui</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32_ui\DirectXControl.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
@@ -631,9 +628,6 @@
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32_ui\AcceleratorTable.h">
-      <Filter>Source Files\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32_ui\CounterRegView.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32_ui\DirectXControl.h">

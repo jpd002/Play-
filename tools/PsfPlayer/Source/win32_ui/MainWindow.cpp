@@ -1061,12 +1061,11 @@ void CMainWindow::ActivatePanel(unsigned int panelIdx)
 	{
 		m_panels[m_currentPanel]->Show(SW_HIDE);
 	}
-	RECT placeHolderRect;
-	m_placeHolder->GetWindowRect(&placeHolderRect);
+	RECT placeHolderRect = m_placeHolder->GetWindowRect();
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&placeHolderRect) + 0);
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&placeHolderRect) + 1);
 	m_currentPanel = panelIdx;
-	m_panels[m_currentPanel]->SetSizePosition(&placeHolderRect);
+	m_panels[m_currentPanel]->SetSizePosition(placeHolderRect);
 	SetWindowPos(m_panels[m_currentPanel]->m_hWnd, GetItem(IDC_NEXTTAB_BUTTON), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 	m_panels[m_currentPanel]->Show(SW_SHOW);
 }

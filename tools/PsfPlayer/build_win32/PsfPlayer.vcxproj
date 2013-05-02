@@ -521,7 +521,6 @@
     <ClCompile Include="..\Source\psx\PsxBios.cpp" />
     <ClCompile Include="..\Source\win32_ui\AboutWindow.cpp" />
     <ClCompile Include="..\Source\win32_ui\AcceleratorTable.cpp" />
-    <ClCompile Include="..\Source\win32_ui\CounterRegView.cpp" />
     <ClCompile Include="..\Source\win32_ui\DirectXControl.cpp" />
     <ClCompile Include="..\Source\win32_ui\FileInformationPanel.cpp" />
     <ClCompile Include="..\Source\win32_ui\Main.cpp">
@@ -664,7 +663,6 @@
     <ClInclude Include="..\Source\SoundHandler.h" />
     <ClInclude Include="..\Source\win32_ui\AboutWindow.h" />
     <ClInclude Include="..\Source\win32_ui\AcceleratorTable.h" />
-    <ClInclude Include="..\Source\win32_ui\CounterRegView.h" />
     <ClInclude Include="..\Source\win32_ui\DirectXControl.h" />
     <ClInclude Include="..\Source\win32_ui\FileInformationPanel.h" />
     <ClInclude Include="..\Source\win32_ui\LockFreeQueue.h" />

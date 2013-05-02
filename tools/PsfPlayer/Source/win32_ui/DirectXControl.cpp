@@ -148,8 +148,7 @@ long CDirectXControl::OnNcPaint(WPARAM wParam)
 	{
 		HDC hDC = GetWindowDC(m_hWnd);
 
-		RECT windowRect;
-		GetWindowRect(&windowRect);
+		RECT windowRect = GetWindowRect();
 		windowRect.bottom -= windowRect.top;
 		windowRect.right -= windowRect.left;
 		windowRect.top = 0;
