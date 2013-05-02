@@ -31,7 +31,7 @@ CArchivePsfStreamProvider::CArchivePsfStreamProvider(const boost::filesystem::pa
 
 CArchivePsfStreamProvider::~CArchivePsfStreamProvider()
 {
-	delete m_archive;
+
 }
 
 Framework::CStream* CArchivePsfStreamProvider::GetStreamForPath(const boost::filesystem::path& path)
@@ -39,8 +39,8 @@ Framework::CStream* CArchivePsfStreamProvider::GetStreamForPath(const boost::fil
 	std::string pathString = path.string().c_str();
 	std::replace(pathString.begin(), pathString.end(), '\\', '/');
 	CPsfArchive::FileListIterator fileInfoIterator(m_archive->GetFileInfo(pathString.c_str()));
-	assert(fileInfoIterator != m_archive->GetFilesEnd());
-	if(fileInfoIterator == m_archive->GetFilesEnd())
+	assert(fileInfoIterator != std::end(m_archive->GetFiles()));
+	if(fileInfoIterator == std::end(m_archive->GetFiles()))
 	{
 		throw std::runtime_error("Couldn't find file in archive.");
 	}

@@ -29,7 +29,7 @@ public:
 	Framework::CStream*				GetStreamForPath(const boost::filesystem::path&);
 
 private:
-	CPsfArchive*					m_archive;
+	std::unique_ptr<CPsfArchive>	m_archive;
 };
 
 std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const boost::filesystem::path&);

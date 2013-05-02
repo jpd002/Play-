@@ -13,18 +13,18 @@ CPsfArchive::~CPsfArchive()
 
 }
 
-CPsfArchive* CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath)
+CPsfArchive::PsfArchivePtr CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath)
 {
 	std::string extension = filePath.extension().string();
-	CPsfArchive* result(NULL);
+	PsfArchivePtr result;
 	if(!strcmp(extension.c_str(), ".zip"))
 	{
-		result = new CPsfZipArchive();
+		result = std::unique_ptr<CPsfArchive>(new CPsfZipArchive());
 	}
 #ifdef RAR_SUPPORT
 	else if(!strcmp(extension.c_str(), ".rar"))
 	{
-		result = new CPsfRarArchive();
+		result = std::unique_ptr<CPsfArchive>(new CPsfRarArchive());
 	}
 #endif
 	else
@@ -33,6 +33,11 @@ CPsfArchive* CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath
 	}
 	result->Open(filePath);
 	return result;
+}
+
+const CPsfArchive::FileList& CPsfArchive::GetFiles() const
+{
+	return m_files;
 }
 
 CPsfArchive::FileListIterator CPsfArchive::GetFileInfo(const char* path) const
@@ -46,15 +51,5 @@ CPsfArchive::FileListIterator CPsfArchive::GetFileInfo(const char* path) const
 			return fileIterator;
 		}
 	}
-	return m_files.end();
-}
-
-CPsfArchive::FileListIterator CPsfArchive::GetFilesBegin() const
-{
-	return m_files.begin();
-}
-
-CPsfArchive::FileListIterator CPsfArchive::GetFilesEnd() const
-{
 	return m_files.end();
 }

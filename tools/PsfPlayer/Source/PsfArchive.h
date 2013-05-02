@@ -16,17 +16,17 @@ public:
 
 	typedef std::list<FILEINFO> FileList;
 	typedef FileList::const_iterator FileListIterator;
+	typedef std::unique_ptr<CPsfArchive> PsfArchivePtr;
 
 							CPsfArchive();
 	virtual					~CPsfArchive();
 
-	static CPsfArchive*		CreateFromPath(const boost::filesystem::path&);
+	static PsfArchivePtr	CreateFromPath(const boost::filesystem::path&);
 
 	virtual void			ReadFileContents(const char*, void*, unsigned int) = 0;
 
+	const FileList&			GetFiles() const;
 	FileListIterator		GetFileInfo(const char*) const;
-	FileListIterator		GetFilesBegin() const;
-	FileListIterator		GetFilesEnd() const;
 
 protected:
 	virtual void			Open(const boost::filesystem::path&) = 0;
