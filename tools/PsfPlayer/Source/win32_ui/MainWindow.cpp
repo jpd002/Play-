@@ -1137,13 +1137,12 @@ void CMainWindow::LoadArchive(const boost::filesystem::path& archivePath)
 		ResetDiscoveryRun();
 
 		{
-			boost::scoped_ptr<CPsfArchive> archive(CPsfArchive::CreateFromPath(archivePath));
+			auto archive(CPsfArchive::CreateFromPath(archivePath));
 			unsigned int archiveId = m_playlist.InsertArchive(archivePath.wstring().c_str());
-
-			for(CPsfArchive::FileListIterator fileIterator(archive->GetFilesBegin());
-				fileIterator != archive->GetFilesEnd(); fileIterator++)
+			
+			for(const auto& fileInfo : archive->GetFiles())
 			{
-				boost::filesystem::path filePath(fileIterator->name);
+				boost::filesystem::path filePath(fileInfo.name);
 				std::string fileExtension = filePath.extension().string();
 				if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
 				{
