@@ -257,6 +257,7 @@
     <ClInclude Include="..\Source\psx\PsxBios.h" />
     <ClInclude Include="..\Source\SoundHandler.h" />
     <ClInclude Include="..\Source\win32_ui\SH_XAudio2.h" />
+    <ClInclude Include="..\Source\winrt_ui\PlaylistItemAdapter.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -280,14 +281,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="E:\Users\jpd002\Music\Psf\ff7-psf.zip">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </None>
     <None Include="PsfPlayer_StoreKey.pfx" />
     <None Include="PsfPlayer_TemporaryKey.pfx" />
   </ItemGroup>
@@ -391,6 +384,7 @@
     <ClCompile Include="..\Source\psp\Psp_ThreadManForUser.cpp" />
     <ClCompile Include="..\Source\psx\PsxBios.cpp" />
     <ClCompile Include="..\Source\win32_ui\SH_XAudio2.cpp" />
+    <ClCompile Include="..\Source\winrt_ui\PlaylistItemAdapter.cpp" />
     <ClCompile Include="App.xaml.cpp">
       <DependentUpon>App.xaml</DependentUpon>
     </ClCompile>

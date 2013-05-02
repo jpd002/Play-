@@ -16,4 +16,5 @@
 #include <boost/filesystem.hpp>
 
 #include <collection.h>
+#include <ppltasks.h>
 #include "App.xaml.h"

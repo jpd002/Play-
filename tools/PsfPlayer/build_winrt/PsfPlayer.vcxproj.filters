@@ -1,26 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Common">
-      <UniqueIdentifier>b8b1d047-5cbb-4db1-abfa-932fa2f3117b</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Assets">
-      <UniqueIdentifier>d69daa5a-e101-45ff-b083-1119104c1fee</UniqueIdentifier>
-    </Filter>
     <Page Include="Common\StandardStyles.xaml">
-      <Filter>Common</Filter>
+      <Filter>ui\Common</Filter>
     </Page>
     <Image Include="Assets\Logo.png">
-      <Filter>Assets</Filter>
+      <Filter>ui\Assets</Filter>
     </Image>
     <Image Include="Assets\SmallLogo.png">
-      <Filter>Assets</Filter>
+      <Filter>ui\Assets</Filter>
     </Image>
     <Image Include="Assets\StoreLogo.png">
-      <Filter>Assets</Filter>
+      <Filter>ui\Assets</Filter>
     </Image>
     <Image Include="Assets\SplashScreen.png">
-      <Filter>Assets</Filter>
+      <Filter>ui\Assets</Filter>
     </Image>
     <Filter Include="Purei Core">
       <UniqueIdentifier>{bfc6ea5c-b8f6-414c-9854-59a7cdfbb51c}</UniqueIdentifier>
@@ -51,6 +45,12 @@
     </Filter>
     <Filter Include="ui">
       <UniqueIdentifier>{48cea221-aa0e-497b-b297-b261dd5aef6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\Common">
+      <UniqueIdentifier>b8b1d047-5cbb-4db1-abfa-932fa2f3117b</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\Assets">
+      <UniqueIdentifier>d69daa5a-e101-45ff-b083-1119104c1fee</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -320,6 +320,9 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\winrt_ui\PlaylistItemAdapter.cpp">
       <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -595,11 +598,11 @@
     <ClInclude Include="pch.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\winrt_ui\PlaylistItemAdapter.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="E:\Users\jpd002\Music\Psf\ff7-psf.zip">
-      <Filter>Assets</Filter>
-    </None>
     <None Include="PsfPlayer_TemporaryKey.pfx">
       <Filter>ui</Filter>
     </None>

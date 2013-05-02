@@ -6,8 +6,22 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-
+    
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
-
+        <ListBox Name="playlistListBox" Margin="10,10,10,70">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Title}" />
+                        <TextBlock Text="{Binding Length}" FontStyle="Oblique" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Width="200" Height="50" Margin="10, 10, 10, 10" VerticalAlignment="Bottom" Name="openFileButton" Click="openFileButton_Click">
+            <Button.Content>
+                <TextBlock>Eject</TextBlock>
+            </Button.Content>
+        </Button>
     </Grid>
 </Page>
