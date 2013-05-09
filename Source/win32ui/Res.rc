@@ -161,6 +161,7 @@ BEGIN
         MENUITEM "&Pause / Resume\tF5",         ID_MAIN_VM_RESUME
         MENUITEM "R&eset",                      ID_MAIN_VM_RESET, GRAYED
         MENUITEM "Pause When Focus Lost",       ID_MAIN_VM_PAUSEFOCUS
+        MENUITEM "Dump Next Frame\tF11",        ID_MAIN_VM_DUMPFRAME
         MENUITEM SEPARATOR
         MENUITEM "State Slot",                  ID_MAIN_VM_STATESLOT
         MENUITEM "Save State\tF7",              ID_MAIN_VM_SAVESTATE
@@ -186,6 +187,13 @@ BEGIN
     END
 END
 
+IDR_FRAMEDEBUGGER MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Load Frame Dump...",          ID_FD_FILE_LOADDUMP
+    END
+END
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -216,6 +224,8 @@ IDC_GRABBING            CURSOR                  "images\\grabbing.cur"
 #endif    // French (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
+IDR_CHECKERBOARD_SHADER     TEXTFILE               "framedebugger\\CheckerboardShader.fx"
+IDR_PIXELBUFFERVIEW_SHADER  TEXTFILE               "framedebugger\\PixelBufferViewShader.fx"
 
 /////////////////////////////////////////////////////////////////////////////
 // English (Canada) resources

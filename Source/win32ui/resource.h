@@ -14,10 +14,12 @@
 #define IDC_GRABBING                    116
 #define IDB_REFRESH                     117
 #define IDD_DEBUG_THREADCALLSTACK       118
+#define IDR_FRAMEDEBUGGER               119
+#define IDR_CHECKERBOARD_SHADER         120
+#define IDR_PIXELBUFFERVIEW_SHADER      121
 #define IDC_CALLSTACKITEM_LIST          1001
 #define ID_FILE_EXIT                    40002
 #define ID_FILE_OPENELF                 40003
-#define ID_Menu                         40005
 #define ID_WINDOW_TILEHORIZONTAL        40006
 #define ID_WINDOW_TILEVERTICAL          40007
 #define ID_WINDOW_CASCAD                40008
@@ -27,7 +29,6 @@
 #define ID_VIEW_FUNCTIONS               40022
 #define ID_VIRTUALMACHINE_SAVESTATE     40023
 #define ID_VIRTUALMACHINE_LOADSTATE     40024
-#define ID_VIRTUALMACHINE_STEPR5000     40025
 #define ID_VIRTUALMACHINE_RESUME        40026
 #define ID_VM_RESUME                    40027
 #define ID_VM_SAVESTATE                 40028
@@ -38,14 +39,8 @@
 #define ID_VIEW_MEMORY                  40033
 #define ID_FILE_BOOTDISC1               40034
 #define ID_FILE_LOADELF                 40035
-#define ID_FILE_Q                       40036
-#define ID_FILE_EXIT40037               40037
 #define ID_DEBUG_STARTDEBUGGER          40038
-#define ID_VIRTUALMACHINE_RESUME40039   40039
 #define ID_VIRTUALMACHINE_RESET         40040
-#define ID_VIRTUALMACHINE_A             40041
-#define ID_VIRTUALMACHINE_SAVESTATE40042 40042
-#define ID_VIRTUALMACHINE_LOADSTATE40043 40043
 #define ID_HELP_ABOUT                   40044
 #define ID_MAIN_VM_RESUME               40045
 #define ID_OPTIONS                      40046
@@ -62,8 +57,6 @@
 #define ID_MAIN_HELP_SYSINFO            40058
 #define ID_MAIN_HELP_ABOUT              40059
 #define ID_FILE_BOOTCDROM               40060
-#define ID_OPTIONS_VIRTUALFILESYSTEMMANAGER 40061
-#define ID_OPTIONS_CONFIGURATIONEDITOR  40062
 #define ID_OPTIONS_VFSMANAGER           40063
 #define ID_OPTIONS_CONFIGEDI            40064
 #define ID_MAIN_OPTIONS_VFSMANAGER      40065
@@ -85,9 +78,6 @@
 #define ID_STATESLOT_7                  40083
 #define ID_STATESLOT_8                  40084
 #define ID_STATESLOT_9                  40085
-#define D_MAIN_VM_SAVESTATE             40086
-#define D_MAIN_VM_LOADSTATE             40087
-#define D_MAIN_VM_STATESLOT             40088
 #define ID_MAIN_VM_SAVESTATE            40089
 #define ID_MAIN_VM_LOADSTATE            40090
 #define ID_MAIN_VM_STATESLOT            40091
@@ -100,6 +90,7 @@
 #define ID_VIEW_VU1VIEW                 40102
 #define ID_MAIN_OPTIONS_RENDERER        40105
 #define ID_MAIN_VM_PAUSEFOCUS           40107
+#define ID_MAIN_VM_DUMPFRAME            40108
 #define ID_VM_ASMJAL                    40109
 #define ID_VM_DUMPINTCHANDLERS          40119
 #define ID_VM_DUMPDMACHANDLERS          40121
@@ -121,6 +112,7 @@
 #define ID_MAIN_VIEW_FILLSCREEN         40173
 #define ID_MAIN_VIEW_FITTOSCREEN        40174
 #define ID_MAIN_VIEW_ACTUALSIZE         40175
+#define ID_FD_FILE_LOADDUMP             40176
 
 // Next default values for new objects
 // 
