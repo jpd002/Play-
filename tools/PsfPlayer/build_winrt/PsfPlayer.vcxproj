@@ -257,6 +257,7 @@
     <ClInclude Include="..\Source\psx\PsxBios.h" />
     <ClInclude Include="..\Source\SoundHandler.h" />
     <ClInclude Include="..\Source\win32_ui\SH_XAudio2.h" />
+    <ClInclude Include="..\Source\win32_ui\TimeToString.h" />
     <ClInclude Include="..\Source\winrt_ui\PlaylistItemAdapter.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">

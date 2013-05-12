@@ -18,9 +18,14 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button Width="200" Height="50" Margin="10, 10, 10, 10" VerticalAlignment="Bottom" Name="openFileButton" Click="openFileButton_Click">
+        <Button Width="200" Height="50" Margin="10, 10, 10, 10" VerticalAlignment="Bottom" Click="ejectButton_Click">
             <Button.Content>
                 <TextBlock>Eject</TextBlock>
+            </Button.Content>
+        </Button>
+        <Button Width="200" Height="50" Margin="10, 10, 10, 10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="playButton_Click">
+            <Button.Content>
+                <TextBlock>Play</TextBlock>
             </Button.Content>
         </Button>
     </Grid>

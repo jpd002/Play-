@@ -3,6 +3,7 @@
 #include "string_cast.h"
 #include "PsfLoader.h"
 #include "win32_ui/SH_XAudio2.h"
+#include "win32_ui/TimeToString.h"
 #include "winrt/StorageFileStream.h"
 #include <ppltasks.h>
 
@@ -29,8 +30,10 @@ MainPage::MainPage()
 		[&] (const CPlaylist::ITEM& item)
 		{
 			auto newAdapter = ref new PlaylistItemAdapter();
-			newAdapter->Title = ref new String(string_cast<std::wstring>(item.title).c_str());
-			newAdapter->Length = "2:00";
+			newAdapter->Title		= ref new String(string_cast<std::wstring>(item.title).c_str());
+			newAdapter->Length		= ref new String(TimeToString<std::wstring>(item.length).c_str());
+			newAdapter->ItemId		= item.id;
+			newAdapter->ArchiveId	= item.archiveId;
 			PlaylistItems->Append(newAdapter);
 		}
 	);
@@ -53,7 +56,7 @@ void MainPage::OnNavigatedTo(NavigationEventArgs^)
 
 }
 
-void PsfPlayer::MainPage::openFileButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+void MainPage::ejectButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	auto filePicker = ref new FileOpenPicker();
 	filePicker->FileTypeFilter->Append(".zip");
@@ -87,13 +90,38 @@ void PsfPlayer::MainPage::openFileButton_Click(Platform::Object^ sender, Windows
 			}
 		}
 	);
+}
 
-//		m_virtualMachine.Pause();
-//		m_virtualMachine.Reset();
+void MainPage::playButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	auto selectedItem = playlistListBox->SelectedItem;
+	if(!selectedItem) return;
 
-//		m_currentArchive = CPsfArchive::CreateFromPath(result->Path->Data());
-//		auto fileInfo = *m_currentArchive->GetFilesBegin();
-//		CPsfLoader::LoadPsf(m_virtualMachine, fileInfo.name, result->Path->Data());
+	auto selectedItemAdapter = static_cast<PlaylistItemAdapter^>(selectedItem);
 
-//		m_virtualMachine.Resume();
+	auto playlistItemIndex = m_playlist.FindItem(selectedItemAdapter->ItemId);
+	if(playlistItemIndex == -1)
+	{
+		return;
+	}
+
+	auto playlistItem = m_playlist.GetItem(playlistItemIndex);
+	auto archivePath = m_playlist.GetArchive(selectedItemAdapter->ArchiveId);
+
+	m_virtualMachine.Pause();
+	m_virtualMachine.Reset();
+
+	try
+	{
+		CPsfLoader::LoadPsf(m_virtualMachine, playlistItem.path, archivePath);
+	}
+	catch(const std::exception& exception)
+	{
+		auto messageString = ref new String(string_cast<std::wstring>(exception.what()).c_str());
+		auto messageDialog = ref new Windows::UI::Popups::MessageDialog(messageString, "Play Failed");
+		messageDialog->ShowAsync();
+		return;
+	}
+
+	m_virtualMachine.Resume();
 }

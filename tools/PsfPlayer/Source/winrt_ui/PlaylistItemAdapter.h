@@ -10,5 +10,7 @@ namespace PsfPlayer
 
 		property Platform::String^		Title;
 		property Platform::String^		Length;
+		property unsigned int			ItemId;
+		property unsigned int			ArchiveId;
 	};
 }

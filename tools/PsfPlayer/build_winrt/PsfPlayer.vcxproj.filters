@@ -601,6 +601,9 @@
     <ClInclude Include="..\Source\winrt_ui\PlaylistItemAdapter.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\win32_ui\TimeToString.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PsfPlayer_TemporaryKey.pfx">
