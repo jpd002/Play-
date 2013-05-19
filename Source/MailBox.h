@@ -14,6 +14,7 @@ public:
 	typedef std::function<void ()> FunctionType;
 
 	void				SendCall(const FunctionType&, bool = false);
+	void				FlushCalls();
 
 	bool				IsPending() const;
 	void				ReceiveCall();

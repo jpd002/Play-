@@ -34,6 +34,11 @@ void CMailBox::WaitForCall(unsigned int timeOut)
 	m_waitCondition.wait_for(waitLock, std::chrono::milliseconds(timeOut));
 }
 
+void CMailBox::FlushCalls()
+{
+	SendCall([] () { }, true);
+}
+
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 {
 	{

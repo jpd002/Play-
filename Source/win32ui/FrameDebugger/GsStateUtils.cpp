@@ -1,10 +1,50 @@
 #include "GsStateUtils.h"
 #include "string_format.h"
+#include "../GSH_Direct3D9.h"
 
 static const char* g_yesNoString[2] = 
 {
 	"NO",
 	"YES"
+};
+
+static const char* g_pixelFormats[0x40] =
+{
+	//0x00
+	"PSMCT32",		"PSMCT24",		"PSMCT16",		"(INVALID)",
+	//0x04
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+	//0x08
+	"(INVALID)",	"(INVALID)",	"PSMCT16S",		"(INVALID)",
+	//0x0C
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+
+	//0x10
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"PSMT8",
+	//0x14
+	"PSMT4",		"(INVALID)",	"(INVALID)",	"(INVALID)",
+	//0x18
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"PSMT8H",
+	//0x1C
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+
+	//0x20
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+	//0x24
+	"PSMT4HL",		"(INVALID)",	"(INVALID)",	"(INVALID)",
+	//0x28
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+	//0x2C
+	"PSMT4HH",		"(INVALID)",	"(INVALID)",	"(INVALID)",
+
+	//0x30
+	"PSMZ32",		"PSMZ24",		"PSMZ16",		"(INVALID)",
+	//0x34
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+	//0x38
+	"(INVALID)",	"(INVALID)",	"PSMZ16S",		"(INVALID)",
+	//0x3C
+	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
 };
 
 static const char* g_primitiveTypeString[8] =
@@ -70,6 +110,9 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	CGSHandler::PRIM prim;
 	prim <<= gs->GetRegisters()[GS_REG_PRIM];
 
+	CGSHandler::XYOFFSET xyOffset;
+	xyOffset <<= gs->GetRegisters()[GS_REG_XYOFFSET_1 + prim.nContext];
+
 	bool usePrmode = (gs->GetRegisters()[GS_REG_PRMODECONT] & 1) == 0;
 
 	result += string_format("Use PRMODE: %s\r\n", g_yesNoString[usePrmode]);
@@ -87,6 +130,37 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 
 	result += "\r\n";
 
+	auto vertices = static_cast<CGSH_Direct3D9*>(gs)->GetInputVertices();
+
+	result += string_format("Positions:\r\n");
+	result += string_format("\t                 PosX        PosY        PosZ        OfsX        OfsY\r\n");
+	for(unsigned int i = 0; i < 3; i++)
+	{
+		auto vertex = vertices[i];
+		float posX = static_cast<float>((vertex.nPosition >>  0) & 0xFFFF) / 16;
+		float posY = static_cast<float>((vertex.nPosition >> 16) & 0xFFFF) / 16;
+		uint32 posZ = static_cast<uint32>(vertex.nPosition >> 32);
+		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  0x%0.8X  %+10.4f  %+10.4f\r\n", 
+			i, posX, posY, posZ, posX - xyOffset.GetX(), posY - xyOffset.GetY());
+	}
+
+	result += "\r\n";
+
+	result += string_format("Texture Coordinates:\r\n");
+	result += string_format("\t                    S           T           Q           U           V\r\n");
+	for(unsigned int i = 0; i < 3; i++)
+	{
+		auto vertex = vertices[i];
+		CGSHandler::ST st;
+		CGSHandler::RGBAQ rgbaq;
+		CGSHandler::UV uv;
+		st <<= vertex.nST;
+		rgbaq <<= vertex.nRGBAQ;
+		uv <<= vertex.nUV;
+		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  %+10.4f  %+10.4f  %+10.4f\r\n", 
+			i, st.nS, st.nT, rgbaq.nQ, uv.GetU(), uv.GetV());
+	}
+
 	return result;
 }
 
@@ -99,6 +173,14 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 
 	CGSHandler::ALPHA alpha;
 	alpha <<= gs->GetRegisters()[GS_REG_ALPHA_1 + contextId];
+
+	CGSHandler::ZBUF zbuf;
+	zbuf <<= gs->GetRegisters()[GS_REG_ZBUF_1 + contextId];
+
+	result += string_format("Depth Buffer:\r\n");
+	result += string_format("\tPtr: 0x%0.8X\r\n", zbuf.GetBasePtr());
+	result += string_format("\tFormat: %s\r\n", g_pixelFormats[zbuf.nPsm | 0x30]);
+	result += string_format("\tWrite Enabled: %s\r\n", g_yesNoString[(zbuf.nMask == 0)]);
 
 	result += string_format("Depth Testing:\r\n");
 	result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nDepthEnabled]);

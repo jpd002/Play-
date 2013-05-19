@@ -9,7 +9,8 @@
 #include "StdStreamUtils.h"
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
-#include "../../GSH_Null.h"
+#include "string_format.h"
+#include "../GSH_Direct3D9.h"
 
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
 #define WNDTITLE					_T("Play! - Frame Debugger")
@@ -18,12 +19,17 @@ CFrameDebugger::CFrameDebugger()
 : m_accTable(nullptr)
 , m_currentSelection(0)
 {
-	m_gs = std::make_unique<CGSH_Null>();
-
 	memset(&m_tabItems, 0, sizeof(m_tabItems));
 
-	Create(NULL, Framework::Win32::CDefaultWndClass::GetName(), WNDTITLE, WNDSTYLE, Framework::Win32::CRect(0, 0, 1024, 768), NULL, NULL);
+	Create(0, Framework::Win32::CDefaultWndClass::GetName(), WNDTITLE, WNDSTYLE, Framework::Win32::CRect(0, 0, 1024, 768), nullptr, nullptr);
 	SetClassPtr();
+
+	m_handlerOutputWindow = std::make_unique<COutputWnd>(m_hWnd);
+	m_handlerOutputWindow->Show(SW_SHOW);
+
+	m_gs = std::make_unique<CGSH_Direct3D9>(m_handlerOutputWindow.get());
+	m_gs->Initialize();
+	m_gs->Reset();
 
 	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_FRAMEDEBUGGER)));
 
@@ -55,6 +61,8 @@ CFrameDebugger::CFrameDebugger()
 
 CFrameDebugger::~CFrameDebugger()
 {
+	m_gs->Release();
+
 	if(m_accTable != NULL)
 	{
 		DestroyAcceleratorTable(m_accTable);
@@ -197,10 +205,14 @@ void CFrameDebugger::OnPacketsTreeViewSelChanged()
 
 void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 {
+	m_gs->Reset();
+
 	uint8* gsRam = m_gs->GetRam();
 	uint64* gsRegisters = m_gs->GetRegisters();
 	memcpy(gsRam, m_frameDump.GetInitialGsRam(), CGSHandler::RAMSIZE);
 	memcpy(gsRegisters, m_frameDump.GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+
+	CFrameDump::Packet writes;
 
 	int32 cmdIndex = 0;
 	for(const auto& packet : m_frameDump.GetPackets())
@@ -210,10 +222,13 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 		for(const auto& registerWrite : packet)
 		{
 			if((cmdIndex - 1) >= targetCmdIndex) break;
-			gsRegisters[registerWrite.first] = registerWrite.second;
+			writes.push_back(registerWrite);
 			cmdIndex++;
 		}
 	}
+
+	m_gs->WriteRegisterMassively(writes.data(), writes.size());
+	m_gs->Flip();
 
 	m_gsInputStateView->UpdateState(m_gs.get());
 	m_gsContextView->UpdateState(m_gs.get());
@@ -225,18 +240,29 @@ void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
 	auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
 	m_frameDump.Read(inputStream);
 
+	IdentifyDrawingKicks();
+
 	uint32 cmdIndex = 0;
 	m_packetsTreeView->DeleteAllItems();
 	for(const auto& packet : m_frameDump.GetPackets())
 	{
-		std::tstring packetDescription = _T("Packet (Item Count: ") + boost::lexical_cast<std::tstring>(packet.size()) + _T(")");
-		HTREEITEM packetRootItem = m_packetsTreeView->InsertItem(TVI_ROOT, packetDescription.c_str());
+		auto lowerBoundIterator = m_drawingKickIndices.upper_bound(cmdIndex);
+		auto upperBoundIterator = m_drawingKickIndices.lower_bound(cmdIndex + packet.size());
+
+		int kickCount = static_cast<int>(std::distance(lowerBoundIterator, upperBoundIterator));
+		
+		auto packetDescription = string_format("Packet (Write Count: %d, Draw Count: %d)", packet.size(), kickCount);
+		HTREEITEM packetRootItem = m_packetsTreeView->InsertItem(TVI_ROOT, string_cast<std::tstring>(packetDescription).c_str());
 		m_packetsTreeView->SetItemParam(packetRootItem, cmdIndex);
 
 		for(const auto& registerWrite : packet)
 		{
 //			std::tstring packetWriteDescription = _T("Register Write (reg: 0x") + lexical_cast_hex<std::tstring>(registerWrite.first) + _T(")");
 			auto packetWriteDescription = CGSHandler::GetWriteDescription(registerWrite.first, registerWrite.second);
+			if(m_drawingKickIndices.find(cmdIndex) != std::end(m_drawingKickIndices))
+			{
+				packetWriteDescription = "(DK) " + packetWriteDescription;
+			}
 			HTREEITEM newItem = m_packetsTreeView->InsertItem(packetRootItem, string_cast<std::tstring>(packetWriteDescription).c_str());
 			m_packetsTreeView->SetItemParam(newItem, cmdIndex++);
 		}
@@ -253,5 +279,51 @@ void CFrameDebugger::ShowFrameDumpSelector()
 	if(result == IDOK)
 	{
 		LoadFrameDump(fileDialog.GetPath());
+	}
+}
+
+void CFrameDebugger::IdentifyDrawingKicks()
+{
+	static const unsigned int g_initVertexCounts[8] = { 1, 2, 2, 3, 3, 3, 2, 0 };
+	static const unsigned int g_nextVertexCounts[8] = { 1, 2, 1, 3, 1, 1, 2, 0 };
+
+	CGSHandler::PRIM currentPrim;
+	currentPrim <<= m_gs->GetRegisters()[GS_REG_PRIM];
+
+	unsigned int vertexCount = g_initVertexCounts[currentPrim.nType];
+
+	uint32 cmdIndex = 0;
+	for(const auto& packet : m_frameDump.GetPackets())
+	{
+		for(const auto& registerWrite : packet)
+		{
+			if(registerWrite.first == GS_REG_PRIM)
+			{
+				currentPrim <<= registerWrite.second;
+				vertexCount = g_initVertexCounts[currentPrim.nType];
+			}
+			else if(
+				(registerWrite.first == GS_REG_XYZ2) || 
+				(registerWrite.first == GS_REG_XYZ3) ||
+				(registerWrite.first == GS_REG_XYZF2) ||
+				(registerWrite.first == GS_REG_XYZF3))
+			{
+				if(vertexCount != 0)
+				{
+					vertexCount--;
+					if(vertexCount == 0)
+					{
+						bool drawingKick = (registerWrite.first == GS_REG_XYZ2) || (registerWrite.first == GS_REG_XYZF2);
+						vertexCount = g_nextVertexCounts[currentPrim.nType];
+						if(drawingKick)
+						{
+							m_drawingKickIndices.insert(cmdIndex);
+						}
+					}
+				}
+			}
+
+			cmdIndex++;
+		}
 	}
 }

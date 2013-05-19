@@ -1,10 +1,12 @@
 #pragma once
 
+#include <set>
 #include "win32/Window.h"
 #include "win32/Tab.h"
 #include "win32/TreeView.h"
 #include "win32/Static.h"
 #include "win32/Splitter.h"
+#include "../OutputWnd.h"
 #include "../../FrameDump.h"
 #include "GsInputStateView.h"
 #include "GsContextView.h"
@@ -41,8 +43,14 @@ private:
 	void											LoadFrameDump(const TCHAR*);
 	void											ShowFrameDumpSelector();
 
+	void											IdentifyDrawingKicks();
+
 	std::unique_ptr<CGSHandler>						m_gs;
 	CFrameDump										m_frameDump;
+
+	std::set<uint32>								m_drawingKickIndices;
+
+	std::unique_ptr<COutputWnd>						m_handlerOutputWindow;
 
 	std::unique_ptr<Framework::Win32::CSplitter>	m_mainSplitter;
 

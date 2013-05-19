@@ -1,8 +1,9 @@
-#ifndef _GSH_DIRECT3D9_H_
-#define _GSH_DIRECT3D9_H_
+#pragma once
 
 #include "../GSHandler.h"
 #include "win32/Window.h"
+#include "win32/ComPtr.h"
+#include "bitmap/Bitmap.h"
 #include "OutputWnd.h"
 #include <list>
 #ifdef _DEBUG
@@ -13,23 +14,43 @@
 class CGSH_Direct3D9 : public CGSHandler
 {
 public:
+	struct VERTEX
+	{
+		uint64						nPosition;
+		uint64						nRGBAQ;
+		uint64						nUV;
+		uint64						nST;
+		uint8						nFog;
+	};
+
 									CGSH_Direct3D9(Framework::Win32::CWindow*);
-	virtual                         ~CGSH_Direct3D9();
+	virtual							~CGSH_Direct3D9();
 
-	void							ProcessImageTransfer(uint32, uint32);
-	void							ReadFramebuffer(uint32, uint32, void*);
+	void							ProcessImageTransfer(uint32, uint32, bool) override;
+	void							ProcessClutTransfer(uint32, uint32) override;
+	void							ProcessLocalToLocalTransfer() override;
+	void							ReadFramebuffer(uint32, uint32, void*) override;
+	
+	Framework::CBitmap				GetFramebuffer(uint64);
+	const VERTEX*					GetInputVertices() const;
 
-    static FactoryFunction          GetFactoryFunction(Framework::Win32::CWindow*);
-
-    virtual void                    InitializeImpl();
-    virtual void                    ReleaseImpl();
-	virtual void					FlipImpl();
+	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 
 protected:
-	virtual void					PresentBackbuffer();
-	virtual void					WriteRegisterImpl(uint8, uint64);
+	virtual void					ResetBase() override;
+	virtual void					InitializeImpl() override;
+	virtual void					ReleaseImpl() override;
+	virtual void					FlipImpl() override;
+
+	virtual void					WriteRegisterImpl(uint8, uint64) override;
 
 private:
+	typedef Framework::Win32::CComPtr<IDirect3D9> Direct3DPtr;
+	typedef Framework::Win32::CComPtr<IDirect3DVertexBuffer9> VertexBufferPtr;
+	typedef Framework::Win32::CComPtr<IDirect3DDevice9> DevicePtr;
+	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
+	typedef Framework::Win32::CComPtr<IDirect3DSurface9> SurfacePtr;
+
 	enum MAXCACHE
 	{
 		MAXCACHE = 256,
@@ -40,22 +61,13 @@ private:
 		CVTBUFFERSIZE = 0x400000,
 	};
 
-	struct VERTEX
-	{
-		uint64						nPosition;
-		uint64						nRGBAQ;
-		uint64						nUV;
-		uint64						nST;
-		uint8						nFog;
-	};
-
 	class CTexture
 	{
 	public:
 									CTexture();
 									~CTexture();
 		void						InvalidateFromMemorySpace(uint32, uint32);
-        void                        Free();
+		void						Free();
 
 		uint32						m_nStart;
 		uint32						m_nSize;
@@ -65,17 +77,37 @@ private:
 		uint64						m_nTexClut;
 		bool						m_nIsCSM2;
 		LPDIRECT3DTEXTURE9			m_texture;
-        uint32                      m_checksum;
-        bool                        m_live;
+		uint32						m_checksum;
+		bool						m_live;
 	};
+	typedef std::list<CTexture*> TextureList;
 
-    typedef std::list<CTexture*> TextureList;
+	class CFramebuffer
+	{
+	public:
+									CFramebuffer(DevicePtr&, uint32, uint32, uint32, uint32);
+									~CFramebuffer();
+
+		uint32						m_basePtr;
+		uint32						m_width;
+		uint32						m_height;
+		uint32						m_psm;
+		bool						m_canBeUsedAsTexture;
+
+		TexturePtr					m_renderTarget;
+		SurfacePtr					m_depthSurface;
+	};
+	typedef std::shared_ptr<CFramebuffer> FramebufferPtr;
+	typedef std::vector<FramebufferPtr> FramebufferList;
 
 	void							BeginScene();
 	void							EndScene();
-	void							ReCreateDevice(int, int);
+	void							RecreateDevice(int, int);
+	void							PresentBackbuffer();
 
-	virtual void                    SetViewport(int, int);
+	FramebufferPtr					FindFramebuffer(uint64) const;
+	void							GetFramebufferImpl(Framework::CBitmap&, uint64);
+
 	void							SetReadCircuitMatrix(int, int);
 	void							UpdateViewportImpl();
 	void							VertexKick(uint8, uint64);
@@ -85,6 +117,7 @@ private:
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64);
 	void							SetupTexture(uint64, uint64, uint64);
+	void							SetupFramebuffer(uint64);
 	LPDIRECT3DTEXTURE9				LoadTexture(TEX0*, TEX1*, CLAMP*);
 
 	float							GetZ(float);
@@ -92,8 +125,6 @@ private:
 
 	void							Prim_Triangle();
 	void							Prim_Sprite();
-
-    static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
 	void							DumpTexture(LPDIRECT3DTEXTURE9, uint32);
 	void							TexUploader_Psm32(TEX0*, TEXA*, LPDIRECT3DTEXTURE9);
@@ -104,13 +135,13 @@ private:
 
 	uint32							Color_Ps2ToDx9(uint32);
 
-    LPDIRECT3DTEXTURE9				TexCache_SearchLive(TEX0*);
-    LPDIRECT3DTEXTURE9				TexCache_SearchDead(TEX0*, uint32);
+	LPDIRECT3DTEXTURE9				TexCache_SearchLive(TEX0*);
+	LPDIRECT3DTEXTURE9				TexCache_SearchDead(TEX0*, uint32);
 	void							TexCache_Insert(TEX0*, LPDIRECT3DTEXTURE9, uint32);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 	void							TexCache_Flush();
 
-	COutputWnd*						m_pOutputWnd;
+	COutputWnd*						m_outputWnd;
 
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
@@ -120,10 +151,10 @@ private:
 	LPDIRECT3DTEXTURE9				m_nTexHandle;
 	float							m_nMaxZ;
 
-	uint8*							m_pCvtBuffer;
-	void*							m_pCLUT;
-	uint16*							m_pCLUT16;
-	uint32*							m_pCLUT32;
+	uint8*							m_cvtBuffer;
+	uint8*							m_clut;
+	uint16*							m_clut16;
+	uint32*							m_clut32;
 
 	PRMODE							m_PrimitiveMode;
 	unsigned int					m_nPrimitiveType;
@@ -131,16 +162,15 @@ private:
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;
 
-    TextureList                     m_TexCache;
+	TextureList						m_TexCache;
+	FramebufferList					m_framebuffers;
 
 	int								m_nWidth;
 	int								m_nHeight;
-	LPDIRECT3D9						m_d3d;
-	LPDIRECT3DDEVICE9				m_device;
+	Direct3DPtr						m_d3d;
+	DevicePtr						m_device;
 
-	LPDIRECT3DVERTEXBUFFER9			m_triangleVb;
-	LPDIRECT3DVERTEXBUFFER9			m_quadVb;
+	VertexBufferPtr					m_triangleVb;
+	VertexBufferPtr					m_quadVb;
 	bool							m_sceneBegun;
 };
-
-#endif

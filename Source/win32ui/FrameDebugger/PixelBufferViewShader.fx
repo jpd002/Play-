@@ -1,5 +1,7 @@
-float2 g_screenSize;
-float2 g_bufferSize;
+float2	g_screenSize;
+float2	g_bufferSize;
+float2	g_panOffset;
+float	g_zoomFactor;
 
 texture g_bufferTexture;
 sampler2D g_bufferTextureSampler = sampler_state
@@ -22,7 +24,7 @@ struct VertexOutput
 VertexOutput vertexShader(VertexInput input)
 {
 	VertexOutput output;
-	output.position = input.position * float4(g_bufferSize / g_screenSize, 0, 1);
+	output.position = ((input.position * float4(g_bufferSize / g_screenSize, 0, 1)) + float4(g_panOffset, 0, 0)) * float4(g_zoomFactor, g_zoomFactor, 0, 1);
 	output.texCoord = input.texCoord;
 	return output;
 }

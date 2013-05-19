@@ -2,10 +2,24 @@
 #include <assert.h>
 #include <vector>
 #include "../resource.h"
+#include "win32/FileDialog.h"
+#include "bitmap/BMP.h"
+#include "StdStreamUtils.h"
+#include "string_format.h"
 
 CPixelBufferView::CPixelBufferView(HWND parent, const RECT& rect)
 : CDirectXControl(parent)
+, m_zoomFactor(1)
+, m_panX(0)
+, m_panY(0)
+, m_dragging(false)
+, m_dragBaseX(0)
+, m_dragBaseY(0)
+, m_panXDragBase(0)
+, m_panYDragBase(0)
 {
+	m_overlay = std::make_unique<CPixelBufferViewOverlay>(m_hWnd);
+
 	m_checkerboardEffect = CreateEffectFromResource(MAKEINTRESOURCE(IDR_CHECKERBOARD_SHADER));
 	m_pixelBufferViewEffect = CreateEffectFromResource(MAKEINTRESOURCE(IDR_PIXELBUFFERVIEW_SHADER));
 	SetSizePosition(rect);
@@ -45,17 +59,10 @@ void CPixelBufferView::DrawCheckerboard()
 	m_device->SetVertexDeclaration(m_quadVertexDecl);
 	m_device->SetStreamSource(0, m_quadVertexBuffer, 0, sizeof(VERTEX));
 
-	D3DXHANDLE screenSizeParameter = m_checkerboardEffect->GetParameterByName(NULL, "g_screenSize");
-	assert(screenSizeParameter != NULL);
-
 	RECT clientRect = GetClientRect();
-	D3DXVECTOR4 screenSizeValue;
-	screenSizeValue.x = static_cast<float>(clientRect.right);
-	screenSizeValue.y = static_cast<float>(clientRect.bottom);
-	screenSizeValue.z = 0;
-	screenSizeValue.w = 0;
+	SetEffectVector(m_checkerboardEffect, "g_screenSize", 
+		static_cast<float>(clientRect.right), static_cast<float>(clientRect.bottom), 0, 0);
 
-	m_checkerboardEffect->SetVector(screenSizeParameter, &screenSizeValue);
 	m_checkerboardEffect->CommitChanges();
 
 	UINT passCount = 0;
@@ -78,32 +85,16 @@ void CPixelBufferView::DrawPixelBuffer()
 	m_device->SetVertexDeclaration(m_quadVertexDecl);
 	m_device->SetStreamSource(0, m_quadVertexBuffer, 0, sizeof(VERTEX));
 
-	{
-		D3DXHANDLE screenSizeParameter = m_pixelBufferViewEffect->GetParameterByName(NULL, "g_screenSize");
-		assert(screenSizeParameter != NULL);
+	RECT clientRect = GetClientRect();
 
-		RECT clientRect = GetClientRect();
-		D3DXVECTOR4 screenSizeValue;
-		screenSizeValue.x = static_cast<float>(clientRect.right);
-		screenSizeValue.y = static_cast<float>(clientRect.bottom);
-		screenSizeValue.z = 0;
-		screenSizeValue.w = 0;
+	SetEffectVector(m_pixelBufferViewEffect, "g_screenSize", 
+		static_cast<float>(clientRect.right), static_cast<float>(clientRect.bottom), 0, 0);
 
-		m_pixelBufferViewEffect->SetVector(screenSizeParameter, &screenSizeValue);
-	}
+	SetEffectVector(m_pixelBufferViewEffect, "g_bufferSize",
+		static_cast<float>(m_pixelBufferBitmap.GetWidth()), static_cast<float>(m_pixelBufferBitmap.GetHeight()), 0, 0);
 
-	{
-		D3DXHANDLE bufferSizeParameter = m_pixelBufferViewEffect->GetParameterByName(NULL, "g_bufferSize");
-		assert(bufferSizeParameter != NULL);
-
-		D3DXVECTOR4 bufferSizeValue;
-		bufferSizeValue.x = static_cast<float>(m_pixelBufferBitmap.GetWidth());
-		bufferSizeValue.y = static_cast<float>(m_pixelBufferBitmap.GetHeight());
-		bufferSizeValue.z = 0;
-		bufferSizeValue.w = 0;
-
-		m_pixelBufferViewEffect->SetVector(bufferSizeParameter, &bufferSizeValue);
-	}
+	SetEffectVector(m_pixelBufferViewEffect, "g_panOffset", m_panX, m_panY, 0, 0);
+	SetEffectVector(m_pixelBufferViewEffect, "g_zoomFactor", m_zoomFactor, 0, 0, 0);
 
 	D3DXHANDLE textureParameter = m_pixelBufferViewEffect->GetParameterByName(NULL, "g_bufferTexture");
 	m_pixelBufferViewEffect->SetTexture(textureParameter, m_pixelBufferTexture);
@@ -123,11 +114,93 @@ void CPixelBufferView::DrawPixelBuffer()
 	m_pixelBufferViewEffect->End();
 }
 
+long CPixelBufferView::OnCommand(unsigned short id, unsigned short cmd, HWND hwndFrom)
+{
+	if(CWindow::IsCommandSource(m_overlay.get(), hwndFrom))
+	{
+		switch(cmd)
+		{
+		case CPixelBufferViewOverlay::COMMAND_SAVE:
+			OnSaveBitmap();
+			break;
+		}
+	}
+	return TRUE;
+}
+
 long CPixelBufferView::OnSize(unsigned int type, unsigned int x, unsigned int y)
 {
 	long result = CDirectXControl::OnSize(type, x, y);
 	Refresh();
 	return result;
+}
+
+long CPixelBufferView::OnLeftButtonDown(int x, int y)
+{
+	SetCapture(m_hWnd);
+	m_dragBaseX = x;
+	m_dragBaseY = y;
+	m_panXDragBase = m_panX;
+	m_panYDragBase = m_panY;
+	m_dragging = true;
+	return CDirectXControl::OnLeftButtonDown(x, y);
+}
+
+long CPixelBufferView::OnLeftButtonUp(int x, int y)
+{
+	m_dragging = false;
+	ReleaseCapture();
+	return CDirectXControl::OnLeftButtonUp(x, y);
+}
+
+long CPixelBufferView::OnMouseMove(WPARAM wparam, int x, int y)
+{
+	if(m_dragging)
+	{
+		RECT clientRect = GetClientRect();
+		m_panX = m_panXDragBase + (static_cast<float>(x - m_dragBaseX) / static_cast<float>(clientRect.right / 2)) / m_zoomFactor;
+		m_panY = m_panYDragBase - (static_cast<float>(y - m_dragBaseY) / static_cast<float>(clientRect.bottom / 2)) / m_zoomFactor;
+		Refresh();
+	}
+	return CDirectXControl::OnMouseMove(wparam, x, y);
+}
+
+long CPixelBufferView::OnMouseWheel(int x, int y, short z)
+{
+	float newZoom = 0;
+	z /= WHEEL_DELTA;
+	if(z <= -1)
+	{
+		newZoom = m_zoomFactor / 2;
+	}
+	else if(z >= 1)
+	{
+		newZoom = m_zoomFactor * 2;
+	}
+
+	if(newZoom != 0)
+	{
+		auto clientRect = GetClientRect();
+		POINT mousePoint = { x, y };
+		ScreenToClient(m_hWnd, &mousePoint);
+		float relPosX = static_cast<float>(mousePoint.x) / static_cast<float>(clientRect.right);
+		float relPosY = static_cast<float>(mousePoint.y) / static_cast<float>(clientRect.bottom);
+		relPosX = std::max(relPosX, 0.f); relPosX = std::min(relPosX, 1.f);
+		relPosY = std::max(relPosY, 0.f); relPosY = std::min(relPosY, 1.f);
+
+		relPosX = (relPosX - 0.5f) * 2;
+		relPosY = (relPosY - 0.5f) * 2;
+
+		float panModX = (1 - newZoom / m_zoomFactor) * relPosX;
+		float panModY = (1 - newZoom / m_zoomFactor) * relPosY;
+		m_panX += panModX;
+		m_panY -= panModY;
+
+		m_zoomFactor = newZoom;
+		Refresh();
+	}
+
+	return TRUE;
 }
 
 void CPixelBufferView::OnDeviceReset()
@@ -145,6 +218,29 @@ void CPixelBufferView::OnDeviceResetting()
 	m_pixelBufferTexture.Reset();
 	if(!m_checkerboardEffect.IsEmpty()) m_checkerboardEffect->OnLostDevice();
 	if(!m_pixelBufferViewEffect.IsEmpty()) m_pixelBufferViewEffect->OnLostDevice();
+}
+
+void CPixelBufferView::OnSaveBitmap()
+{
+	if(!m_pixelBufferBitmap.IsEmpty())
+	{
+		Framework::Win32::CFileDialog openFileDialog;
+		openFileDialog.m_OFN.lpstrFilter = _T("Windows Bitmap Files (*.bmp)\0*.bmp");
+		int result = openFileDialog.SummonSave(m_hWnd);
+		if(result == IDOK)
+		{
+			try
+			{
+				auto outputStream = Framework::CreateOutputStdStream(std::tstring(openFileDialog.m_OFN.lpstrFile));
+				Framework::CBMP::WriteBitmap(m_pixelBufferBitmap, outputStream);
+			}
+			catch(const std::exception& exception)
+			{
+				auto message = string_format("Failed to save buffer to file:\r\n\r\n%s", exception.what());
+				MessageBoxA(m_hWnd, message.c_str(), nullptr, MB_ICONHAND);
+			}
+		}
+	}
 }
 
 void CPixelBufferView::CreateResources()
@@ -259,4 +355,18 @@ CPixelBufferView::TexturePtr CPixelBufferView::CreateTextureFromBitmap(const Fra
 	}
 
 	return texture;
+}
+
+void CPixelBufferView::SetEffectVector(EffectPtr& effect, const char* parameterName, float x, float y, float z, float w)
+{
+	D3DXHANDLE parameter = effect->GetParameterByName(NULL, parameterName);
+	assert(parameter != NULL);
+
+	D3DXVECTOR4 value;
+	value.x = x;
+	value.y = y;
+	value.z = z;
+	value.w = w;
+
+	effect->SetVector(parameter, &value);
 }

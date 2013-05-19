@@ -1,6 +1,7 @@
 #include "GsContextView.h"
 #include "GsStateUtils.h"
 #include "../../GsPixelFormats.h"
+#include "../GSH_Direct3D9.h"
 #include "win32/VerticalSplitter.h"
 
 void TexUploader_Psm8(CGSHandler* gs, Framework::CBitmap& dst, const CGSHandler::TEX0& tex0, const CGSHandler::TEXA& texA)
@@ -86,6 +87,14 @@ void CGsContextView::UpdateState(CGSHandler* gs)
 	tex0 <<= gs->GetRegisters()[GS_REG_TEX0_1 + m_contextId];
 	texA <<= gs->GetRegisters()[GS_REG_TEXA];
 
+	uint64 frameReg = gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
+	auto framebuffer = static_cast<CGSH_Direct3D9*>(gs)->GetFramebuffer(frameReg);
+	if(!framebuffer.IsEmpty())
+	{
+		m_textureView->SetBitmap(framebuffer);
+	}
+
+#if 0
 	auto texture = Framework::CBitmap(tex0.GetWidth(), tex0.GetHeight(), 32);
 #ifdef _DEBUG
 	for(unsigned int i = 0; i < texture.GetPixelsSize() / 4; i++)
@@ -109,6 +118,7 @@ void CGsContextView::UpdateState(CGSHandler* gs)
 	}
 
 	m_textureView->SetBitmap(texture);
+#endif
 
 	m_stateView->UpdateState(gs);
 }
