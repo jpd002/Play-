@@ -142,9 +142,9 @@ long CSaveIconView::OnLeftButtonUp(int nX, int nY)
 	return TRUE;
 }
 
-long CSaveIconView::OnMouseWheel(short nZ)
+long CSaveIconView::OnMouseWheel(int x, int y, short z)
 {
-	if(nZ < 0)
+	if(z < 0)
 	{
 		m_nZoom -= 0.7f;
 	}

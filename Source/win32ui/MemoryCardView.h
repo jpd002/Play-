@@ -18,15 +18,15 @@ public:
 
 	void								SetMemoryCard(CMemoryCard*);
 
-    boost::signal<void (const CSave*)>  m_OnSelectionChange;
+	boost::signal<void (const CSave*)>  m_OnSelectionChange;
 
 protected:
-	long								OnPaint();
-	long								OnVScroll(unsigned int, unsigned int);
-	long								OnLeftButtonDown(int, int);
-	long								OnMouseWheel(short);
-	long								OnSize(unsigned int, unsigned int, unsigned int);
-	long								OnKeyDown(unsigned int);
+	long								OnPaint() override;
+	long								OnVScroll(unsigned int, unsigned int) override;
+	long								OnLeftButtonDown(int, int) override;
+	long								OnMouseWheel(int, int, short) override;
+	long								OnSize(unsigned int, unsigned int, unsigned int) override;
+	long								OnKeyDown(unsigned int) override;
 
 private:
 	struct CViewState

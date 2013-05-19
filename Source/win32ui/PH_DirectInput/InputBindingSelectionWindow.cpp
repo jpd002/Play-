@@ -3,7 +3,6 @@
 #include "layout/LayoutEngine.h"
 #include "string_cast.h"
 
-#define CLSNAME		_T("CInputBindingSelectionWindow")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
 
@@ -22,14 +21,9 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 , m_selectedDevice(GUID())
 , m_directInputManagerHandlerId(0)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		RegisterClassEx(&MakeWndClass(CLSNAME));
-	}
-
 	std::tstring title = _T("Select new binding for ") + string_cast<std::tstring>(PS2::CControllerInfo::m_buttonName[m_button]);
 
-	Create(WNDSTYLEEX, CLSNAME, title.c_str(), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 100), parent, NULL);
+	Create(WNDSTYLEEX, Framework::Win32::CDefaultWndClass::GetName(), title.c_str(), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 100), parent, NULL);
 	SetClassPtr();
 
 	const CInputManager::CBinding* binding = inputManager.GetBinding(button);

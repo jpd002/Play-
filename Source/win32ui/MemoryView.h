@@ -21,15 +21,16 @@ protected:
 	virtual HFONT							GetFont();
 
 	void									Paint(HDC);
-	long									OnSize(unsigned int, unsigned int, unsigned int);
-	long									OnVScroll(unsigned int, unsigned int);
-	long									OnSetFocus();
-	long									OnKillFocus();
-	long									OnMouseWheel(short);
-	long									OnLeftButtonDown(int, int);
-	long									OnLeftButtonUp(int, int);
-	long									OnKeyDown(unsigned int);
 	void									SetSelectionStart(unsigned int);
+
+	long									OnSize(unsigned int, unsigned int, unsigned int) override;
+	long									OnVScroll(unsigned int, unsigned int) override;
+	long									OnSetFocus() override;
+	long									OnKillFocus() override;
+	long									OnMouseWheel(int, int, short) override;
+	long									OnLeftButtonDown(int, int) override;
+	long									OnLeftButtonUp(int, int) override;
+	long									OnKeyDown(unsigned int) override;
 
 private:
 	void									GetVisibleRowsCols(unsigned int*, unsigned int*);

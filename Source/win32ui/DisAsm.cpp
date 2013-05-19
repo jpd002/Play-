@@ -501,9 +501,9 @@ long CDisAsm::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
 	return TRUE;
 }
 
-long CDisAsm::OnMouseWheel(short nZ)
+long CDisAsm::OnMouseWheel(int x, int y, short z)
 {
-	if(nZ < 0)
+	if(z < 0)
 	{
 		UpdatePosition(12);
 	}

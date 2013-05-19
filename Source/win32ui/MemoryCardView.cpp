@@ -102,7 +102,7 @@ long CMemoryCardView::OnVScroll(unsigned int nType, unsigned int nThumb)
 		break;
 	case SB_THUMBPOSITION:
 	case SB_THUMBTRACK:
-        m_viewState.m_nScrollPosition = GetVerticalScrollBar().GetThumbPosition();
+		m_viewState.m_nScrollPosition = GetVerticalScrollBar().GetThumbPosition();
 		break;
 	default:
 		return FALSE;
@@ -121,9 +121,9 @@ long CMemoryCardView::OnLeftButtonDown(int nX, int nY)
 	return TRUE;	
 }
 
-long CMemoryCardView::OnMouseWheel(short nZ)
+long CMemoryCardView::OnMouseWheel(int x, int y, short z)
 {
-	if(nZ < 0)
+	if(z < 0)
 	{
 		m_viewState.m_nScrollPosition += 35;
 	}

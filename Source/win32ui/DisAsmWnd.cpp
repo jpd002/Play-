@@ -1,16 +1,13 @@
 #include "DisAsmWnd.h"
 #include "PtrMacro.h"
 
-#define CLSNAME		_T("CDisAsmWnd")
+#define WNDSTYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
 CDisAsmWnd::CDisAsmWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		RegisterClassEx(&MakeWndClass(CLSNAME));
-	}
-	
-	Create(NULL, CLSNAME, _T("Disassembly"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
+	Create(NULL, Framework::Win32::CDefaultWndClass::GetName(), _T("Disassembly"), WNDSTYLE, 
+		Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
+
 	SetClassPtr();
 
 	m_pDisAsm = new CDisAsm(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), virtualMachine, pCtx);

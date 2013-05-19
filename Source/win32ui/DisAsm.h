@@ -19,18 +19,19 @@ public:
 
 protected:
 	void							Paint(HDC);
-	long							OnMouseWheel(short);
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnCommand(unsigned short, unsigned short, HWND);
-	long							OnSetFocus();
-	long							OnKillFocus();
-	long							OnLeftButtonDown(int, int);
-	long							OnLeftButtonDblClk(int, int);
-	long							OnRightButtonUp(int, int);
-	long							OnMouseMove(WPARAM, int, int);
-	long							OnVScroll(unsigned int, unsigned int);
-	long							OnKeyDown(unsigned int);
-	long							OnCopy();
+
+	long							OnMouseWheel(int, int, short) override;
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
+	long							OnCommand(unsigned short, unsigned short, HWND) override;
+	long							OnSetFocus() override;
+	long							OnKillFocus() override;
+	long							OnLeftButtonDown(int, int) override;
+	long							OnLeftButtonDblClk(int, int) override;
+	long							OnRightButtonUp(int, int) override;
+	long							OnMouseMove(WPARAM, int, int) override;
+	long							OnVScroll(unsigned int, unsigned int) override;
+	long							OnKeyDown(unsigned int) override;
+	long							OnCopy() override;
 
 private:
 	enum

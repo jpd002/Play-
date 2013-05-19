@@ -38,17 +38,17 @@ CNiceTabs::CNiceTabs(HWND hParent, const RECT& rect)
 CNiceTabs::~CNiceTabs()
 {
 	DeleteObject(m_nEx);
-    DeleteObject(m_nExd);
+	DeleteObject(m_nExd);
 }
 
 void CNiceTabs::InsertTab(const TCHAR* sCaption, unsigned long nFlags, unsigned int nID)
 {
-    TABITEM t;
-    t.sCaption  = sCaption;
+	TABITEM t;
+	t.sCaption	= sCaption;
 	t.nWidth	= MeasureString(sCaption);
 	t.nFlags	= nFlags; 
-    t.nID       = nID;
-    m_List.push_back(t);
+	t.nID		= nID;
+	m_List.push_back(t);
 }
 
 unsigned long CNiceTabs::GetTabWidth(unsigned int index)
@@ -60,10 +60,10 @@ unsigned long CNiceTabs::GetTabWidth(unsigned int index)
 unsigned long CNiceTabs::GetTabBase(unsigned int index)
 {
 	unsigned long nBase = 4;
-    for(unsigned int i = 0; i < index; i++)
-    {
+	for(unsigned int i = 0; i < index; i++)
+	{
 		nBase += GetTabWidth(i);
-    }
+	}
 	return nBase;
 }
 
@@ -117,9 +117,9 @@ void CNiceTabs::Paint(HDC hDC)
 	DeleteObject(nPen);
 
 	//Draw the individual tabs
-    for(unsigned int i = 0; i < m_List.size(); i++)
+	for(unsigned int i = 0; i < m_List.size(); i++)
 	{
-	    TABITEM& t(m_List[i]);
+		TABITEM& t(m_List[i]);
 		unsigned long nWidth = GetTabWidth(i);
 		unsigned long nBase = GetTabBase(i);
 
@@ -167,58 +167,58 @@ void CNiceTabs::Paint(HDC hDC)
 		}
 	}
 
-    if(m_List.size() != 0)
-    {
-	    TABITEM& t(m_List[m_nSelected]);
-	    if(!(t.nFlags & TAB_FLAG_UNDELETEABLE))
-	    {
-		    hMem = CreateCompatibleDC(hDC);
-		    SelectObject(hMem, m_nEx);
-		    BitBlt(hDC, EXLEFT(rcli), EXTOP, EXWIDTH, EXHEIGHT, hMem, 0, 0, SRCCOPY);
-		    DeleteDC(hMem);
+	if(m_List.size() != 0)
+	{
+		TABITEM& t(m_List[m_nSelected]);
+		if(!(t.nFlags & TAB_FLAG_UNDELETEABLE))
+		{
+			hMem = CreateCompatibleDC(hDC);
+			SelectObject(hMem, m_nEx);
+			BitBlt(hDC, EXLEFT(rcli), EXTOP, EXWIDTH, EXHEIGHT, hMem, 0, 0, SRCCOPY);
+			DeleteDC(hMem);
 
-		    if(m_nHoverEx)
-		    {
-			    if(m_nLButtonEx)
-			    {
-				    nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
-			    }
-			    else
-			    {
-				    nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
-			    }
+			if(m_nHoverEx)
+			{
+				if(m_nLButtonEx)
+				{
+					nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
+				}
+				else
+				{
+					nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
+				}
 
-			    SelectObject(hDC, nPen);
+				SelectObject(hDC, nPen);
 
-			    MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
-			    LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
+				MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
+				LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
 
-			    MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
-			    LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
+				MoveToEx(hDC, EXRIGHT(rcli) + 3, EXBOTTOM + 2, NULL);
+				LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
 			
-			    DeleteObject(nPen);
+				DeleteObject(nPen);
 
-			    if(m_nLButtonEx)
-			    {
-				    nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
-			    }
-			    else
-			    {
-				    nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
-			    }
+				if(m_nLButtonEx)
+				{
+					nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
+				}
+				else
+				{
+					nPen = CreatePen(PS_SOLID, 0, RGB(0xFF, 0xFF, 0xFF));
+				}
 
-			    SelectObject(hDC, nPen);
+				SelectObject(hDC, nPen);
 
-			    MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
-			    LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
+				MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
+				LineTo(hDC, EXLEFT(rcli) - 3, EXBOTTOM + 2);
 
-			    MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
-			    LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
+				MoveToEx(hDC, EXLEFT(rcli) - 3, EXTOP - 3, NULL);
+				LineTo(hDC, EXRIGHT(rcli) + 3, EXTOP - 3);
 
-			    DeleteObject(nPen);
-		    }
-	    }
-    }
+				DeleteObject(nPen);
+			}
+		}
+	}
 
 	DeleteObject(nFont);
 
@@ -325,7 +325,7 @@ long CNiceTabs::OnLeftButtonUp(int nX, int nY)
 		{
 			return FALSE;
 		}
-        m_List.erase(m_List.begin() + m_nSelected);
+		m_List.erase(m_List.begin() + m_nSelected);
 
 		//Always safe to go back, since the first tab will never be deleted
 		m_nSelected--;

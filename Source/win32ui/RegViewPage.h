@@ -13,10 +13,10 @@ public:
 protected:
 	void							SetDisplayText(const char*);
 	void							Update();
-	long							OnVScroll(unsigned int, unsigned int);
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnMouseWheel(short);
-	long							OnLeftButtonDown(int, int);
+	long							OnVScroll(unsigned int, unsigned int) override;
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
+	long							OnMouseWheel(int, int, short) override;
+	long							OnLeftButtonDown(int, int) override;
 
 private:
 	void							Paint(HDC);

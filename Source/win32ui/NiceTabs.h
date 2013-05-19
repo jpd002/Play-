@@ -22,28 +22,28 @@ public:
 
 protected:
 	void								Paint(HDC);
-	long								OnMouseLeave();
-	long								OnMouseMove(WPARAM, int, int);
-	long								OnLeftButtonDown(int, int);
-	long								OnLeftButtonUp(int, int);
+	long								OnMouseLeave() override;
+	long								OnMouseMove(WPARAM, int, int) override;
+	long								OnLeftButtonDown(int, int) override;
+	long								OnLeftButtonUp(int, int) override;
 
 private:
-    struct TABITEM
-    {
-        std::tstring    sCaption;
-	    unsigned long	nWidth;
-	    unsigned long	nFlags;
-        unsigned long   nID;
-    };
+	struct TABITEM
+	{
+		std::tstring	sCaption;
+		unsigned long	nWidth;
+		unsigned long	nFlags;
+		unsigned long	nID;
+	};
 
-    typedef std::vector<TABITEM> TabItemList;
+	typedef std::vector<TABITEM> TabItemList;
 
 	HFONT								CreateOurFont();
-    unsigned long						GetTabWidth(unsigned int);
-    unsigned long						GetTabBase(unsigned int);
+	unsigned long						GetTabWidth(unsigned int);
+	unsigned long						GetTabBase(unsigned int);
 	unsigned long						MeasureString(const TCHAR*);
 
-    TabItemList                         m_List;
+	TabItemList							m_List;
 	HBITMAP								m_nEx;
 	HBITMAP								m_nExd;
 

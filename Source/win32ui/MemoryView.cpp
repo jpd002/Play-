@@ -266,7 +266,7 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 	si.fMask		= SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
-    UpdateCaretPosition();
+	UpdateCaretPosition();
 
 	Redraw();
 	return TRUE;
@@ -275,37 +275,37 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 long CMemoryView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
 {
 	UpdateScrollRange();
-    UpdateCaretPosition();
+	UpdateCaretPosition();
 	CCustomDrawn::OnSize(nType, nX, nY);
 	return TRUE;
 }
 
 long CMemoryView::OnSetFocus()
 {
-    Win32::CClientDeviceContext DeviceContext(m_hWnd);
-    Win32::CFont Font(GetFont());
+	Win32::CClientDeviceContext DeviceContext(m_hWnd);
+	Win32::CFont Font(GetFont());
 
-    CreateCaret(m_hWnd, NULL, 2, DeviceContext.GetFontHeight(Font));
-    ShowCaret(m_hWnd);
+	CreateCaret(m_hWnd, NULL, 2, DeviceContext.GetFontHeight(Font));
+	ShowCaret(m_hWnd);
 
-    UpdateCaretPosition();
+	UpdateCaretPosition();
 
-    Redraw();
+	Redraw();
 
 	return FALSE;
 }
 
 long CMemoryView::OnKillFocus()
 {
-    HideCaret(m_hWnd);
-    DestroyCaret();
+	HideCaret(m_hWnd);
+	DestroyCaret();
 
-    return FALSE;
+	return FALSE;
 }
 
-long CMemoryView::OnMouseWheel(short nZ)
+long CMemoryView::OnMouseWheel(int x, int y, short z)
 {
-	if(nZ < 0)
+	if(z < 0)
 	{
 		OnVScroll(SB_LINEDOWN, 0);
 	}

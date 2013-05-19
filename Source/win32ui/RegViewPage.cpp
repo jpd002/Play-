@@ -86,9 +86,9 @@ long CRegViewPage::OnSize(unsigned int nX, unsigned int nY, unsigned int nType)
 	return TRUE;
 }
 
-long CRegViewPage::OnMouseWheel(short nZ)
+long CRegViewPage::OnMouseWheel(int x, int y, short z)
 {
-	if(nZ < 0)
+	if(z < 0)
 	{
 		OnVScroll(SB_LINEDOWN, 0);
 	}
@@ -173,7 +173,8 @@ void CRegViewPage::Paint(HDC hDC)
 			continue;
 		}
 
-		TextOutA(hDC, nX, nY, sLine, (int)(sNext - sLine - 2));
+		int textLength = (sNext == NULL) ? strlen(sLine) : static_cast<int>(sNext - sLine - 2);
+		DrawTextA(hDC, sLine, textLength, Framework::Win32::CRect(nX, nY, nX, nY), DT_NOCLIP | DT_EXPANDTABS);
 		nY += (nFontCY + YSPACE);
 
 		nCurrent++;

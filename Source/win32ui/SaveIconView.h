@@ -17,11 +17,11 @@ public:
 	void								SetIconType(CSave::ICONTYPE);
 
 protected:
-	long								OnLeftButtonDown(int, int);
-	long								OnLeftButtonUp(int, int);
-	long								OnMouseWheel(short);
-	long								OnMouseMove(WPARAM, int, int);
-	long								OnSetCursor(HWND, unsigned int, unsigned int);
+	long								OnLeftButtonDown(int, int) override;
+	long								OnLeftButtonUp(int, int) override;
+	long								OnMouseWheel(int, int, short) override;
+	long								OnMouseMove(WPARAM, int, int) override;
+	long								OnSetCursor(HWND, unsigned int, unsigned int) override;
 
 private:
 	void								ThreadProc();

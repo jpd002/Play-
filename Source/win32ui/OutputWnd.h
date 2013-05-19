@@ -10,8 +10,8 @@ public:
 	virtual								~COutputWnd();
 
 protected:
-	long								OnPaint();
-	long								OnEraseBkgnd();
+	long								OnPaint() override;
+	long								OnEraseBkgnd() override;
 
 private:
 
