@@ -280,9 +280,6 @@
     <ClCompile Include="..\Source\win32_ui\AcceleratorTable.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32_ui\DirectXControl.cpp">
-      <Filter>Source Files\ui</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32_ui\FileInformationPanel.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
@@ -377,6 +374,9 @@
       <Filter>Source Files\Purei Core\states</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32_ui\Main_Aot.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\win32ui\DirectXControl.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -630,9 +630,6 @@
     <ClInclude Include="..\Source\win32_ui\AcceleratorTable.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32_ui\DirectXControl.h">
-      <Filter>Source Files\ui</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32_ui\FileInformationPanel.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
@@ -734,6 +731,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\RegisterStateFile.h">
       <Filter>Source Files\Purei Core\states</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\win32ui\DirectXControl.h">
+      <Filter>Source Files\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

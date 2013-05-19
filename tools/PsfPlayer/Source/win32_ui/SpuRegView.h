@@ -1,8 +1,8 @@
-#ifndef _SPUREGVIEW_H_
-#define _SPUREGVIEW_H_
+#pragma once
 
-#include "DirectXControl.h"
+#include "win32ui/DirectXControl.h"
 #include "iop/Iop_SpuBase.h"
+#include "win32/ComPtr.h"
 
 class CSpuRegView : public CDirectXControl
 {
@@ -22,22 +22,24 @@ protected:
 	virtual long			OnKeyDown(unsigned int);
 	virtual long			OnGetDlgCode(WPARAM, LPARAM);
 
-	virtual void			Refresh();
-	virtual void			OnDeviceLost();
-	virtual void			OnDeviceReset();
+	virtual void			Refresh() override;
+	virtual void			OnDeviceResetting() override;
+	virtual void			OnDeviceReset() override;
 
 private:
+	typedef Framework::Win32::CComPtr<ID3DXFont> FontPtr;
+
 	class CLineDrawer
 	{
 	public:
-							CLineDrawer(LPD3DXFONT, D3DCOLOR, int, int);
+							CLineDrawer(const FontPtr&, D3DCOLOR, int, int);
 		void				Draw(const TCHAR*, int = -1);
 		void				Feed();
 
 	private:
 		int					m_posX;
 		int					m_posY;
-		LPD3DXFONT			m_font;
+		FontPtr				m_font;
 		D3DCOLOR			m_color;
 	};
 
@@ -48,7 +50,7 @@ private:
 	void					UpdateVerticalScroll();
 
 	Iop::CSpuBase*			m_spu;
-	LPD3DXFONT				m_font;
+	FontPtr					m_font;
 
 	std::tstring			m_title;
 
@@ -59,5 +61,3 @@ private:
 	int						m_maxScrollX;
 	int						m_maxScrollY;
 };
-
-#endif

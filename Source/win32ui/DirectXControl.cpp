@@ -4,17 +4,15 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-#define CLSNAME			                _T("DirectXControl")
-#define WNDSTYLE		                (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP)
-#define WNDSTYLEEX		                (0)
+#define CLSNAME							_T("DirectXControl")
+#define WNDSTYLE						(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP)
+#define WNDSTYLEEX						(0)
 
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
 CDirectXControl::CDirectXControl(HWND parentWnd, uint32 wndStyle)
-: m_d3d(NULL)
-, m_device(NULL)
-, m_deviceLost(false)
+: m_deviceLost(false)
 , m_isThemeActive(false)
 , m_theme(NULL)
 , m_mouseInside(false)
@@ -44,18 +42,6 @@ CDirectXControl::~CDirectXControl()
 	if(m_theme != NULL)
 	{
 		CloseThemeData(m_theme);
-	}
-
-	if(m_device != NULL)
-	{
-		m_device->Release();
-		m_device = NULL;
-	}
-
-	if(m_d3d != NULL)
-	{
-		m_d3d->Release();
-		m_d3d = NULL;
 	}
 }
 
@@ -206,7 +192,7 @@ long CDirectXControl::OnMouseLeave()
 {
 	m_mouseInside = false;
 	RedrawWindow(m_hWnd, NULL, 0, RDW_FRAME | RDW_INVALIDATE);
-	return TRUE;	
+	return TRUE;
 }
 
 long CDirectXControl::OnLeftButtonDown(int, int)
@@ -237,7 +223,7 @@ long CDirectXControl::OnKillFocus()
 
 void CDirectXControl::Initialize()
 {
-	m_d3d = Direct3DCreate9(D3D_SDK_VERSION);
+	m_d3d = Framework::Win32::CComPtr<IDirect3D9>(Direct3DCreate9(D3D_SDK_VERSION));
 	CreateDevice();
 }
 
@@ -246,8 +232,7 @@ void CDirectXControl::InitializeTheme()
 	typedef void (WINAPI *DllGetVersionProc)(DLLVERSIONINFO*);
 
 	HMODULE comCtlModule = LoadLibrary(_T("comctl32.dll"));
-	DllGetVersionProc comCtlGetVersion;
-	comCtlGetVersion = reinterpret_cast<DllGetVersionProc>(GetProcAddress(comCtlModule, "DllGetVersion"));
+	DllGetVersionProc comCtlGetVersion = reinterpret_cast<DllGetVersionProc>(GetProcAddress(comCtlModule, "DllGetVersion"));
 
 	DLLVERSIONINFO comCtlVersion;
 	memset(&comCtlVersion, 0, sizeof(DLLVERSIONINFO));
@@ -292,13 +277,14 @@ void CDirectXControl::CreateDevice()
 
 void CDirectXControl::ResetDevice()
 {
-	if(!m_device) return;
+	if(m_device.IsEmpty()) return;
+	OnDeviceResetting();
 	D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
 	HRESULT result = m_device->Reset(&d3dpp);
 	if(SUCCEEDED(result))
 	{
-		OnDeviceReset();
 		m_deviceLost = false;
+		OnDeviceReset();
 	}
 	else
 	{
@@ -313,19 +299,11 @@ bool CDirectXControl::TestDevice()
 	{
 		if(coopLevelResult == D3DERR_DEVICELOST)
 		{
-			if(!m_deviceLost)
-			{
-				OnDeviceLost();
-				m_deviceLost = true;
-			}
+			m_deviceLost = true;
 		}
 		else if(coopLevelResult == D3DERR_DEVICENOTRESET)
 		{
-			if(!m_deviceLost)
-			{
-				OnDeviceLost();
-				m_deviceLost = true;
-			}
+			m_deviceLost = true;
 			ResetDevice();
 		}
 		else
@@ -348,12 +326,12 @@ D3DPRESENT_PARAMETERS CDirectXControl::CreatePresentParams()
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
-    d3dpp.Windowed					= TRUE;
-    d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
-    d3dpp.hDeviceWindow				= m_hWnd;
-    d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
-    d3dpp.BackBufferWidth			= clientAreaWidth;
-    d3dpp.BackBufferHeight			= clientAreaHeight;
+	d3dpp.Windowed					= TRUE;
+	d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
+	d3dpp.hDeviceWindow				= m_hWnd;
+	d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
+	d3dpp.BackBufferWidth			= clientAreaWidth;
+	d3dpp.BackBufferHeight			= clientAreaHeight;
 	d3dpp.EnableAutoDepthStencil	= TRUE;
 	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
 	return d3dpp;

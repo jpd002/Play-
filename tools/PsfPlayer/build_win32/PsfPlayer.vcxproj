@@ -459,6 +459,7 @@
     <ClCompile Include="..\..\..\Source\StructCollectionStateFile.cpp" />
     <ClCompile Include="..\..\..\Source\StructFile.cpp" />
     <ClCompile Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.cpp" />
+    <ClCompile Include="..\..\..\Source\win32ui\DirectXControl.cpp" />
     <ClCompile Include="..\..\..\Source\win32ui\DisAsm.cpp" />
     <ClCompile Include="..\..\..\Source\win32ui\FunctionsView.cpp" />
     <ClCompile Include="..\..\..\Source\win32ui\MemoryView.cpp" />
@@ -521,7 +522,6 @@
     <ClCompile Include="..\Source\psx\PsxBios.cpp" />
     <ClCompile Include="..\Source\win32_ui\AboutWindow.cpp" />
     <ClCompile Include="..\Source\win32_ui\AcceleratorTable.cpp" />
-    <ClCompile Include="..\Source\win32_ui\DirectXControl.cpp" />
     <ClCompile Include="..\Source\win32_ui\FileInformationPanel.cpp" />
     <ClCompile Include="..\Source\win32_ui\Main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -620,6 +620,7 @@
     <ClInclude Include="..\..\..\Source\StructCollectionStateFile.h" />
     <ClInclude Include="..\..\..\Source\StructFile.h" />
     <ClInclude Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.h" />
+    <ClInclude Include="..\..\..\Source\win32ui\DirectXControl.h" />
     <ClInclude Include="..\..\..\Source\win32ui\DisAsm.h" />
     <ClInclude Include="..\..\..\Source\win32ui\FunctionsView.h" />
     <ClInclude Include="..\..\..\Source\win32ui\MemoryView.h" />
@@ -663,7 +664,6 @@
     <ClInclude Include="..\Source\SoundHandler.h" />
     <ClInclude Include="..\Source\win32_ui\AboutWindow.h" />
     <ClInclude Include="..\Source\win32_ui\AcceleratorTable.h" />
-    <ClInclude Include="..\Source\win32_ui\DirectXControl.h" />
     <ClInclude Include="..\Source\win32_ui\FileInformationPanel.h" />
     <ClInclude Include="..\Source\win32_ui\LockFreeQueue.h" />
     <ClInclude Include="..\Source\win32_ui\MainWindow.h" />

@@ -4,17 +4,16 @@
 #define CANVAS_WIDTH		(470)
 #define CANVAS_HEIGHT		(350)
 
-CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title) :
-CDirectXControl(parentWnd, WS_VSCROLL | WS_HSCROLL),
-m_spu(NULL),
-m_font(NULL),
-m_title(title),
-m_offsetX(0),
-m_offsetY(0),
-m_pageSizeX(0),
-m_pageSizeY(0),
-m_maxScrollX(0),
-m_maxScrollY(0)
+CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title) 
+: CDirectXControl(parentWnd, WS_VSCROLL | WS_HSCROLL)
+, m_spu(nullptr)
+, m_title(title)
+, m_offsetX(0)
+, m_offsetY(0)
+, m_pageSizeX(0)
+, m_pageSizeY(0)
+, m_maxScrollX(0)
+, m_maxScrollY(0)
 {
 	CreateResources();
 	InitializeScrollBars();
@@ -23,13 +22,8 @@ m_maxScrollY(0)
 
 CSpuRegView::~CSpuRegView()
 {
-	if(m_font)
-	{
-		m_font->Release();
-		m_font = NULL;
-	}
-}
 
+}
 
 long CSpuRegView::OnSize(unsigned int type, unsigned int x, unsigned int y)
 {
@@ -145,7 +139,7 @@ long CSpuRegView::OnGetDlgCode(WPARAM, LPARAM)
 
 void CSpuRegView::CreateResources()
 {
-	if(m_device == NULL) return;
+	if(m_device.IsEmpty()) return;
 	D3DXCreateFont(m_device, -11, 0, FW_NORMAL, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Courier New"), &m_font);
 }
 
@@ -207,7 +201,7 @@ void CSpuRegView::UpdateVerticalScroll()
 	SetScrollInfo(m_hWnd, SB_VERT, &scrollInfo, TRUE);
 }
 
-void CSpuRegView::OnDeviceLost()
+void CSpuRegView::OnDeviceResetting()
 {
 	m_font->OnLostDevice();
 }
@@ -224,7 +218,7 @@ void CSpuRegView::SetSpu(Iop::CSpuBase* spu)
 
 void CSpuRegView::Refresh()
 {
-	if(m_device == NULL) return;
+	if(m_device.IsEmpty()) return;
 	if(!TestDevice()) return;
 
 	D3DCOLOR backgroundColor = ConvertSysColor(GetSysColor(COLOR_BTNFACE));
@@ -241,7 +235,7 @@ void CSpuRegView::Refresh()
 		drawer.Feed();
 	}
 
-	if(m_spu != NULL)
+	if(m_spu != nullptr)
 	{
 		TCHAR channelStatus[Iop::CSpuBase::MAX_CHANNEL + 1];
 
@@ -312,7 +306,7 @@ void CSpuRegView::Refresh()
 	m_device->Present(NULL, NULL, NULL, NULL);
 }
 
-CSpuRegView::CLineDrawer::CLineDrawer(LPD3DXFONT font, D3DCOLOR color, int posX, int posY)
+CSpuRegView::CLineDrawer::CLineDrawer(const FontPtr& font, D3DCOLOR color, int posX, int posY)
 : m_posX(posX)
 , m_posY(posY)
 , m_font(font)

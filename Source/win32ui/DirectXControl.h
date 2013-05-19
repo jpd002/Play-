@@ -1,7 +1,7 @@
-#ifndef _DIRECTXCONTROL_H_
-#define _DIRECTXCONTROL_H_
+#pragma once
 
 #include "win32/Window.h"
+#include "win32/ComPtr.h"
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <uxtheme.h>
@@ -18,8 +18,8 @@ protected:
 	bool					TestDevice();
 
 	virtual void			Refresh() = 0;
-	virtual void			OnDeviceLost() = 0;
 	virtual void			OnDeviceReset() = 0;
+	virtual void			OnDeviceResetting() = 0;
 
 	virtual long			OnEraseBkgnd();
 	virtual long			OnPaint();
@@ -34,7 +34,9 @@ protected:
 	virtual long			OnSetFocus();
 	virtual long			OnKillFocus();
 
-	LPDIRECT3DDEVICE9		m_device;
+protected:
+	Framework::Win32::CComPtr<IDirect3D9>			m_d3d;
+	Framework::Win32::CComPtr<IDirect3DDevice9>		m_device;
 
 private:
 	void					Initialize();
@@ -43,7 +45,6 @@ private:
 	void					ResetDevice();
 	D3DPRESENT_PARAMETERS	CreatePresentParams();
 
-	LPDIRECT3D9				m_d3d;
 	bool					m_deviceLost;
 	bool					m_isThemeActive;
 
@@ -51,5 +52,3 @@ private:
 	RECT					m_borderRect;
 	bool					m_mouseInside;
 };
-
-#endif
