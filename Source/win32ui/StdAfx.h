@@ -2,6 +2,7 @@
 #define _STDAFX_H_
 
 #define _VARIADIC_MAX 8
+#define NOMINMAX
 
 #include <windows.h>
 
