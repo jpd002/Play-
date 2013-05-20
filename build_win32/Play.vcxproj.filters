@@ -580,6 +580,9 @@
     <ClCompile Include="..\Source\saves\PsuSaveImporter.cpp">
       <Filter>Source Files\Core\Saves</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\GsPixelFormats.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1124,6 +1127,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\saves\PsuSaveImporter.h">
       <Filter>Source Files\Core\Saves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\GsPixelFormats.h">
+      <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

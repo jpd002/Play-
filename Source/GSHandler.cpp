@@ -4,6 +4,7 @@
 #include <boost/scoped_array.hpp>
 #include "AppConfig.h"
 #include "GSHandler.h"
+#include "GsPixelFormats.h"
 #include "PtrMacro.h"
 #include "Log.h"
 #include "MemoryStateFile.h"
@@ -48,100 +49,6 @@
 
 #define LOG_NAME						("gs")
 
-int CGSHandler::STORAGEPSMCT32::m_nBlockSwizzleTable[4][8] =
-{
-	{	0,	1,	4,	5,	16,	17,	20,	21	},
-	{	2,	3,	6,	7,	18,	19,	22,	23	},
-	{	8,	9,	12,	13,	24,	25,	28,	29	},
-	{	10,	11,	14,	15,	26,	27,	30,	31	},
-};
-
-int CGSHandler::STORAGEPSMCT32::m_nColumnSwizzleTable[2][8] =
-{
-	{	0,	1,	4,	5,	8,	9,	12,	13,	},
-	{	2,	3,	6,	7,	10,	11,	14,	15,	},
-};
-
-int CGSHandler::STORAGEPSMCT16::m_nBlockSwizzleTable[8][4] =
-{
-	{	0,	2,	8,	10,	},
-	{	1,	3,	9,	11,	},
-	{	4,	6,	12,	14,	},
-	{	5,	7,	13,	15,	},
-	{	16,	18,	24,	26,	},
-	{	17,	19,	25,	27,	},
-	{	20,	22,	28,	30,	},
-	{	21,	23,	29,	31,	},
-};
-
-int CGSHandler::STORAGEPSMCT16::m_nColumnSwizzleTable[2][16] =
-{
-	{	0,	2,	8,	10,	16,	18,	24,	26,	1,	3,	9,	11,	17,	19,	25,	27,	},
-	{	4,	6,	12,	14,	20,	22,	28,	30,	5,	7,	13,	15,	21,	23,	29,	31,	},
-};
-
-int CGSHandler::STORAGEPSMCT16S::m_nBlockSwizzleTable[8][4] =
-{
-	{	0,	2,	16,	18,	},
-	{	1,	3,	17,	19,	},
-	{	8,	10,	24,	26,	},
-	{	9,	11,	25,	27,	},
-	{	4,	6,	20,	22,	},
-	{	5,	7,	21,	23,	},
-	{	12,	14,	28,	30,	},
-	{	13,	15,	29,	31,	},
-};
-
-int CGSHandler::STORAGEPSMCT16S::m_nColumnSwizzleTable[2][16] =
-{
-	{	0,	2,	8,	10,	16,	18,	24,	26,	1,	3,	9,	11,	17,	19,	25,	27,	},
-	{	4,	6,	12,	14,	20,	22,	28,	30,	5,	7,	13,	15,	21,	23,	29,	31,	},
-};
-
-int CGSHandler::STORAGEPSMT8::m_nBlockSwizzleTable[4][8] =
-{
-	{	0,	1,	4,	5,	16,	17,	20,	21	},
-	{	2,	3,	6,	7,	18,	19,	22,	23	},
-	{	8,	9,	12,	13,	24,	25,	28,	29	},
-	{	10,	11,	14,	15,	26,	27,	30,	31	},
-};
-
-int CGSHandler::STORAGEPSMT8::m_nColumnWordTable[2][2][8] =
-{
-	{
-		{	0,	1,	4,	5,	8,	9,	12,	13,	},
-		{	2,	3,	6,	7,	10,	11,	14,	15,	},
-	},
-	{
-		{	8,	9,	12,	13,	0,	1,	4,	5,	},
-		{	10,	11,	14,	15,	2,	3,	6,	7,	},
-	},
-};
-
-int CGSHandler::STORAGEPSMT4::m_nBlockSwizzleTable[8][4] =
-{
-	{	0,	2,	8,	10,	},
-	{	1,	3,	9,	11,	},
-	{	4,	6,	12,	14,	},
-	{	5,	7,	13,	15,	},
-	{	16,	18,	24,	26,	},
-	{	17,	19,	25,	27,	},
-	{	20,	22,	28,	30,	},
-	{	21,	23,	29,	31,	}
-};
-
-int CGSHandler::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
-{
-	{
-		{	0,	1,	4,	5,	8,	9,	12,	13,	},
-		{	2,	3,	6,	7,	10,	11,	14,	15,	},
-	},
-	{
-		{	8,	9,	12,	13,	0,	1,	4,	5,	},
-		{	10,	11,	14,	15,	2,	3,	6,	7,	},
-	},
-};
-
 CGSHandler::CGSHandler()
 : m_threadDone(false)
 , m_flipMode(FLIP_MODE_SMODE2)
@@ -164,10 +71,10 @@ CGSHandler::CGSHandler()
 		m_pTransferHandler[i]					= &CGSHandler::TrxHandlerInvalid;
 	}
 
-	m_pTransferHandler[PSMCT32]					= &CGSHandler::TrxHandlerCopy<STORAGEPSMCT32>;
+	m_pTransferHandler[PSMCT32]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT32>;
 	m_pTransferHandler[PSMCT24]					= &CGSHandler::TrxHandlerPSMCT24;
-	m_pTransferHandler[PSMCT16]					= &CGSHandler::TrxHandlerCopy<STORAGEPSMCT16>;
-	m_pTransferHandler[PSMT8]					= &CGSHandler::TrxHandlerCopy<STORAGEPSMT8>;
+	m_pTransferHandler[PSMCT16]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT16>;
+	m_pTransferHandler[PSMT8]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMT8>;
 	m_pTransferHandler[PSMT4]					= &CGSHandler::TrxHandlerPSMT4;
 	m_pTransferHandler[PSMT8H]					= &CGSHandler::TrxHandlerPSMT8H;
 	m_pTransferHandler[PSMT4HL]					= &CGSHandler::TrxHandlerPSMT4H<24, 0x0F000000>;
@@ -412,11 +319,7 @@ void CGSHandler::Flip(bool showOnly)
 {
 	if(!showOnly)
 	{
-		while(m_mailBox.IsPending())
-		{
-			//Flush all commands
-			std::this_thread::yield();
-		}
+		m_mailBox.FlushCalls();
 		m_mailBox.SendCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
 	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this));
@@ -608,7 +511,7 @@ void CGSHandler::BeginTransfer()
 
 void CGSHandler::FetchImagePSMCT16(uint16* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)
 {
-	CPixelIndexorPSMCT16 Indexor(m_pRAM, nBufPos, nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, nBufPos, nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -623,7 +526,7 @@ void CGSHandler::FetchImagePSMCT16(uint16* pDst, uint32 nBufPos, uint32 nBufWidt
 
 void CGSHandler::FetchImagePSMCT16S(uint16* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)
 {
-	CPixelIndexorPSMCT16S Indexor(m_pRAM, nBufPos, nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT16S Indexor(m_pRAM, nBufPos, nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -638,7 +541,7 @@ void CGSHandler::FetchImagePSMCT16S(uint16* pDst, uint32 nBufPos, uint32 nBufWid
 
 void CGSHandler::FetchImagePSMCT32(uint32* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)
 {
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, nBufPos, nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nBufPos, nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -667,7 +570,7 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 
 	nLength /= sizeof(typename Storage::Unit);
 
-	CPixelIndexor<Storage> Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexor<Storage> Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
 	auto pSrc = reinterpret_cast<typename Storage::Unit*>(pData);
 
@@ -701,7 +604,7 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 	TRXREG* pTrxReg = GetTrxReg();
 	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
 	uint8* pSrc = (uint8*)pData;
 
@@ -733,7 +636,7 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 	TRXREG* pTrxReg = GetTrxReg();
 	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
-	CPixelIndexorPSMT4 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMT4 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
 	uint8* pSrc = (uint8*)pData;
 
@@ -775,7 +678,7 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 	TRXREG* pTrxReg = GetTrxReg();
 	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
 	uint8* pSrc = reinterpret_cast<uint8*>(pData);
 
@@ -825,7 +728,7 @@ bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 	TRXREG* pTrxReg = GetTrxReg();
 	BITBLTBUF* pTrxBuf = GetBitBltBuf();
 
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
 
 	uint8* pSrc = reinterpret_cast<uint8*>(pData);
 
@@ -983,7 +886,7 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 			{
 				assert(tex0.nCSA < 16);
 
-				CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+				CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
 				uint16* pDst = m_pCLUT + clutOffset;
 
 				for(unsigned int j = 0; j < 2; j++)
@@ -1011,7 +914,7 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 			{
 				assert(tex0.nCSA < 32);
 
-				CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+				CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
 				uint16* pDst = m_pCLUT + clutOffset;
 
 				for(unsigned int j = 0; j < 2; j++)
@@ -1043,7 +946,7 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 			TEXCLUT texClut;
 			texClut <<= m_nReg[GS_REG_TEXCLUT];
 
-			CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), texClut.nCBW);
+			CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), texClut.nCBW);
 			unsigned int nOffsetX = texClut.GetOffsetU();
 			unsigned int nOffsetY = texClut.GetOffsetV();
 			uint16* pDst = m_pCLUT;
@@ -1110,7 +1013,7 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 
 		if(tex0.nCPSM == PSMCT32)
 		{
-			CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+			CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
 
 			for(unsigned int j = 0; j < 16; j++)
 			{
@@ -1137,7 +1040,7 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 		}
 		else if(tex0.nCPSM == PSMCT16)
 		{
-			CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+			CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
 
 			for(unsigned int j = 0; j < 16; j++)
 			{

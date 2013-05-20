@@ -6,6 +6,7 @@
 #include "GSH_OpenGL.h"
 #include "StdStream.h"
 #include "bitmap/BMP.h"
+#include "GsPixelFormats.h"
 
 #define TEX0_CLUTINFO_MASK (~0xFFFFFFE000000000ULL)
 
@@ -209,7 +210,7 @@ void CGSH_OpenGL::TexUploader_Psm32(const TEX0& tex0, const TEXA& texA)
 	unsigned int nDstPitch	= nWidth;
 	uint32* pDst			= (uint32*)m_pCvtBuffer;
 
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -234,7 +235,7 @@ void CGSH_OpenGL::TexUploader_Psm24(const TEX0& tex0, const TEXA& texA)
 	unsigned int nDstPitch	= nWidth;
 	uint32* pDst			= (uint32*)m_pCvtBuffer;
 
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -361,7 +362,7 @@ void CGSH_OpenGL::TexUploader_Psm8(const TEX0& tex0, const TEXA& texA)
 	unsigned int nDstPitch	= nWidth;
 	uint8* pDst				= m_pCvtBuffer;
 
-	CPixelIndexorPSMT8 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMT8 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -387,7 +388,7 @@ void CGSH_OpenGL::TexUploader_Psm4(const TEX0& tex0, const TEXA& texA)
 	unsigned int nDstPitch	= nWidth;
 	uint8* pDst				= m_pCvtBuffer;
 
-	CPixelIndexorPSMT4 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMT4 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -414,7 +415,7 @@ void CGSH_OpenGL::TexUploader_Psm4H(const TEX0& tex0, const TEXA& texA)
 	unsigned int nDstPitch	= nWidth;
 	uint8* pDst				= m_pCvtBuffer;
 
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -441,7 +442,7 @@ void CGSH_OpenGL::TexUploader_Psm8H(const TEX0& tex0, const TEXA& texA)
 	unsigned int nDstPitch	= nWidth;
 	uint8* pDst				= m_pCvtBuffer;
 
-	CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{

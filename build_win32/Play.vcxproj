@@ -185,6 +185,7 @@
     <ClCompile Include="..\Source\GSH_OpenGL.cpp" />
     <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp" />
     <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp" />
+    <ClCompile Include="..\Source\GsPixelFormats.cpp" />
     <ClCompile Include="..\Source\INTC.cpp" />
     <ClCompile Include="..\Source\iop\ArgumentIterator.cpp" />
     <ClCompile Include="..\Source\iop\DirectoryDevice.cpp" />
@@ -367,6 +368,7 @@
     <ClInclude Include="..\Source\GSHandler.h" />
     <ClInclude Include="..\Source\GSH_Null.h" />
     <ClInclude Include="..\Source\GSH_OpenGL.h" />
+    <ClInclude Include="..\Source\GsPixelFormats.h" />
     <ClInclude Include="..\Source\INTC.h" />
     <ClInclude Include="..\Source\Integer64.h" />
     <ClInclude Include="..\Source\iop\ArgumentIterator.h" />
