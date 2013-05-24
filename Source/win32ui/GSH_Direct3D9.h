@@ -61,11 +61,11 @@ private:
 		CVTBUFFERSIZE = 0x400000,
 	};
 
-	class CTexture
+	class CCachedTexture
 	{
 	public:
-									CTexture();
-									~CTexture();
+									CCachedTexture();
+									~CCachedTexture();
 		void						InvalidateFromMemorySpace(uint32, uint32);
 		void						Free();
 
@@ -76,11 +76,12 @@ private:
 		uint64						m_nTex0;
 		uint64						m_nTexClut;
 		bool						m_nIsCSM2;
-		LPDIRECT3DTEXTURE9			m_texture;
+		TexturePtr					m_texture;
 		uint32						m_checksum;
 		bool						m_live;
 	};
-	typedef std::list<CTexture*> TextureList;
+	typedef std::shared_ptr<CCachedTexture> CachedTexturePtr;
+	typedef std::list<CachedTexturePtr> CachedTextureList;
 
 	class CFramebuffer
 	{
@@ -109,7 +110,7 @@ private:
 	void							GetFramebufferImpl(Framework::CBitmap&, uint64);
 
 	void							SetReadCircuitMatrix(int, int);
-	void							UpdateViewportImpl();
+//	void							UpdateViewportImpl();
 	void							VertexKick(uint8, uint64);
 
 	void							SetRenderingContext(unsigned int);
@@ -118,7 +119,7 @@ private:
 	void							SetupDepthBuffer(uint64);
 	void							SetupTexture(uint64, uint64, uint64);
 	void							SetupFramebuffer(uint64);
-	LPDIRECT3DTEXTURE9				LoadTexture(TEX0*, TEX1*, CLAMP*);
+	TexturePtr						LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
 
 	float							GetZ(float);
 	uint8							MulBy2Clamp(uint8);
@@ -126,35 +127,34 @@ private:
 	void							Prim_Triangle();
 	void							Prim_Sprite();
 
-	void							DumpTexture(LPDIRECT3DTEXTURE9, uint32);
-	void							TexUploader_Psm32(TEX0*, TEXA*, LPDIRECT3DTEXTURE9);
-	void							UploadConversionBuffer(TEX0*, TEXA*, LPDIRECT3DTEXTURE9);
+	void							TexUploader_Psm32(const TEX0&, const TEXA&, TexturePtr);
+	void							UploadConversionBuffer(const TEX0&, const TEXA&, TexturePtr);
 
-	void							ReadCLUT8(TEX0*);
-	uint32							ConvertTexturePsm8(TEX0*, TEXA*);
+	uint32							ConvertTexturePsm8(const TEX0&, const TEXA&);
+	uint32							ConvertTexturePsm8H(const TEX0&, const TEXA&);
 
-	uint32							Color_Ps2ToDx9(uint32);
+	static uint32					Color_Ps2ToDx9(uint32);
+	static uint32					RGBA16ToRGBA32(uint16);
 
-	LPDIRECT3DTEXTURE9				TexCache_SearchLive(TEX0*);
-	LPDIRECT3DTEXTURE9				TexCache_SearchDead(TEX0*, uint32);
-	void							TexCache_Insert(TEX0*, LPDIRECT3DTEXTURE9, uint32);
+	TexturePtr						TexCache_SearchLive(const TEX0&);
+	TexturePtr						TexCache_SearchDead(const TEX0&, uint32);
+	void							TexCache_Insert(const TEX0&, const TexturePtr&, uint32);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 	void							TexCache_Flush();
+
+	void							FlattenClut(const TEX0&, uint32*);
 
 	COutputWnd*						m_outputWnd;
 
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
 	float							m_nPrimOfsY;
-	uint32							m_nTexWidth;
-	uint32							m_nTexHeight;
-	LPDIRECT3DTEXTURE9				m_nTexHandle;
+	TexturePtr						m_currentTexture;
+	uint32							m_currentTextureWidth;
+	uint32							m_currentTextureHeight;
 	float							m_nMaxZ;
 
 	uint8*							m_cvtBuffer;
-	uint8*							m_clut;
-	uint16*							m_clut16;
-	uint32*							m_clut32;
 
 	PRMODE							m_PrimitiveMode;
 	unsigned int					m_nPrimitiveType;
@@ -162,11 +162,11 @@ private:
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;
 
-	TextureList						m_TexCache;
+	CachedTextureList				m_cachedTextures;
 	FramebufferList					m_framebuffers;
 
-	int								m_nWidth;
-	int								m_nHeight;
+//	int								m_nWidth;
+//	int								m_nHeight;
 	Direct3DPtr						m_d3d;
 	DevicePtr						m_device;
 

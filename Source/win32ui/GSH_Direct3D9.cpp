@@ -20,15 +20,11 @@ struct CUSTOMVERTEX
 CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow) 
 : m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 , m_cvtBuffer(nullptr)
-, m_clut(nullptr)
-, m_clut16(nullptr)
-, m_clut32(nullptr)
-, m_nWidth(0)
-, m_nHeight(0)
+//, m_nWidth(0)
+//, m_nHeight(0)
 , m_sceneBegun(false)
-, m_nTexWidth(0)
-, m_nTexHeight(0)
-, m_nTexHandle(NULL)
+, m_currentTextureWidth(0)
+, m_currentTextureHeight(0)
 {
 
 }
@@ -89,14 +85,10 @@ void CGSH_Direct3D9::InitializeImpl()
 
 	for(unsigned int i = 0; i < MAXCACHE; i++)
 	{
-		m_TexCache.push_back(new CTexture());
+		m_cachedTextures.push_back(std::make_shared<CCachedTexture>());
 	}
 
 	m_cvtBuffer = new uint8[CVTBUFFERSIZE];
-
-	m_clut		= new uint8[0x400];
-	m_clut32	= reinterpret_cast<uint32*>(m_clut);
-	m_clut16	= reinterpret_cast<uint16*>(m_clut);
 }
 
 void CGSH_Direct3D9::ResetBase()
@@ -108,7 +100,6 @@ void CGSH_Direct3D9::ResetBase()
 void CGSH_Direct3D9::ReleaseImpl()
 {
 	delete [] m_cvtBuffer;
-	delete [] m_clut;
 	TexCache_Flush();
 	m_triangleVb.Reset();
 	m_quadVb.Reset();
@@ -195,11 +186,11 @@ void CGSH_Direct3D9::PresentBackbuffer()
 {
 	if(!m_device.IsEmpty())
 	{
-		HRESULT result;
+		HRESULT result = S_OK;
 
 		EndScene();
 		result = m_device->Present(NULL, NULL, NULL, NULL);
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 		BeginScene();
 	}
 }
@@ -301,7 +292,7 @@ float CGSH_Direct3D9::GetZ(float nZ)
 		return nZ / m_nMaxZ;
 	}
 }
-
+/*
 void CGSH_Direct3D9::UpdateViewportImpl()
 {
 	if(m_nPMODE == 0) return;
@@ -335,7 +326,7 @@ void CGSH_Direct3D9::UpdateViewportImpl()
 //	SetViewport(GetCrtWidth(), GetCrtHeight());
 	SetReadCircuitMatrix(m_nWidth, m_nHeight);
 }
-
+*/
 void CGSH_Direct3D9::Prim_Triangle()
 {
 	float nU1 = 0, nU2 = 0, nU3 = 0;
@@ -397,47 +388,15 @@ void CGSH_Direct3D9::Prim_Triangle()
 
 	if(m_PrimitiveMode.nTexture)
 	{
-		//Textured triangle
+		m_device->SetTexture(0, m_currentTexture);
 
+		//Textured triangle
 		if(m_PrimitiveMode.nUseUV)
 		{
-			//glBindTexture(GL_TEXTURE_2D, m_nTexHandle);
-
-			//DECODE_UV(m_VtxBuffer[2].nUV, nU1, nV1);
-			//DECODE_UV(m_VtxBuffer[1].nUV, nU2, nV2);
-			//DECODE_UV(m_VtxBuffer[0].nUV, nU3, nV3);
-
-			//nU1 /= (double)m_nTexWidth;
-			//nU2 /= (double)m_nTexWidth;
-			//nU3 /= (double)m_nTexWidth;
-
-			//nV1 /= (double)m_nTexHeight;
-			//nV2 /= (double)m_nTexHeight;
-			//nV3 /= (double)m_nTexHeight;
-
-			//glBegin(GL_TRIANGLES);
-			//{
-			//	glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-			//	glTexCoord2d(nU1, nV1);
-			//	glVertex3d(nX1, nY1, nZ1);
-
-			//	glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-			//	glTexCoord2d(nU2, nV2);
-			//	glVertex3d(nX2, nY2, nZ2);
-
-			//	glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-			//	glTexCoord2d(nU3, nV3);
-			//	glVertex3d(nX3, nY3, nZ3);
-			//}
-			//glEnd();
-
-			//glBindTexture(GL_TEXTURE_2D, NULL);
-
+			//TODO
 		}
 		else
 		{
-			m_device->SetTexture(0, m_nTexHandle);
-
 			ST st[3];
 			st[0] <<= m_VtxBuffer[2].nST;
 			st[1] <<= m_VtxBuffer[1].nST;
@@ -458,20 +417,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 	else
 	{
 		m_device->SetTexture(0, NULL);
-
-		//Non Textured Triangle
-		//glBegin(GL_TRIANGLES);
-		//	
-		//	glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, MulBy2Clamp(rgbaq[0].nA));
-		//	glVertex3d(nX1, nY1, nZ1);
-
-		//	glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, MulBy2Clamp(rgbaq[1].nA));
-		//	glVertex3d(nX2, nY2, nZ2);
-
-		//	glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, MulBy2Clamp(rgbaq[2].nA));
-		//	glVertex3d(nX3, nY3, nZ3);
-
-		//glEnd();
 	}
 
 	//Build vertex buffer
@@ -547,6 +492,33 @@ void CGSH_Direct3D9::Prim_Sprite()
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
 
+	if(m_PrimitiveMode.nTexture)
+	{
+		m_device->SetTexture(0, m_currentTexture);
+
+		//Textured triangle
+		if(m_PrimitiveMode.nUseUV)
+		{
+			UV uv[2];
+			uv[0] <<= m_VtxBuffer[1].nUV;
+			uv[1] <<= m_VtxBuffer[0].nUV;
+
+			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
+			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
+
+			nV1 = uv[0].GetV() / static_cast<float>(m_currentTextureHeight);
+			nV2 = uv[1].GetV() / static_cast<float>(m_currentTextureHeight);
+		}
+		else
+		{
+			//TODO
+		}
+	}
+	else
+	{
+		m_device->SetTexture(0, NULL);
+	}
+
 	{
 		HRESULT result;
 
@@ -582,11 +554,6 @@ void CGSH_Direct3D9::Prim_Sprite()
 		result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 		assert(SUCCEEDED(result));
 	}
-
-	//if(m_PrimitiveMode.nAlpha)
-	//{
-	//	glDisable(GL_BLEND);
-	//}
 }
 
 void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
@@ -786,25 +753,24 @@ void CGSH_Direct3D9::SetupDepthBuffer(uint64 nData)
 	m_device->SetRenderState(D3DRS_ZWRITEENABLE, (zbuf.nMask == 0) ? TRUE : FALSE);
 }
 
-void CGSH_Direct3D9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
+void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
 {
-	TEX0 tex0;
-	TEX1 tex1;
-	CLAMP clamp;
-
-	if(nTex0 == 0)
+	if(tex0Reg == 0)
 	{
-		m_nTexHandle = 0;
+		m_currentTexture.Reset();
 		return;
 	}
 
-	tex0 <<= nTex0;
-	tex1 <<= nTex1;
-	clamp <<= nClamp;
+	TEX0 tex0;
+	TEX1 tex1;
+	CLAMP clamp;
+	tex0 <<= tex0Reg;
+	tex1 <<= tex1Reg;
+	clamp <<= clampReg;
 
-	m_nTexWidth		= tex0.GetWidth();
-	m_nTexHeight	= tex0.GetHeight();
-	m_nTexHandle	= LoadTexture(&tex0, &tex1, &clamp);
+	m_currentTextureWidth	= tex0.GetWidth();
+	m_currentTextureHeight	= tex0.GetHeight();
+	m_currentTexture		= LoadTexture(tex0, tex1, clamp);
 
 	int nMagFilter = D3DTEXF_NONE, nMinFilter = D3DTEXF_NONE, nMipFilter = D3DTEXF_NONE;
 	int nWrapS = 0, nWrapT = 0;
@@ -834,36 +800,6 @@ void CGSH_Direct3D9::SetupTexture(uint64 nTex0, uint64 nTex1, uint64 nClamp)
 		assert(0);
 		break;
 	}
-
-	//if(m_nForceBilinearTextures)
-	//{
-	//	nMagFilter = D3DTEXF_LINEAR;
-	//	nMinFilter = D3DTEXF_LINEAR;
-	//}
-
-	//switch(pClamp->nWMS)
-	//{
-	//case 0:
-	//case 2:
-	//case 3:
-	//	nWrapS = GL_REPEAT;
-	//	break;
-	//case 1:
-	//	nWrapS = GL_CLAMP_TO_EDGE;
-	//	break;
-	//}
-
-	//switch(pClamp->nWMT)
-	//{
-	//case 0:
-	//case 2:
-	//case 3:
-	//	nWrapT = GL_REPEAT;
-	//	break;
-	//case 1:
-	//	nWrapT = GL_CLAMP_TO_EDGE;
-	//	break;
-	//}
 
 	m_device->SetSamplerState(0, D3DSAMP_MINFILTER, nMinFilter);
 	m_device->SetSamplerState(0, D3DSAMP_MAGFILTER, nMagFilter);

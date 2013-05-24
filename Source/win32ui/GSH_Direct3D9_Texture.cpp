@@ -5,50 +5,52 @@
 #include "GSH_Direct3D9.h"
 #include "../GsPixelFormats.h"
 
-LPDIRECT3DTEXTURE9 CGSH_Direct3D9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* pClamp)
+CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const TEX1& tex1, const CLAMP& clamp)
 {
-	LPDIRECT3DTEXTURE9 result(NULL);
+	uint32 nPointer		= tex0.GetBufPtr();
+	uint32 nWidth		= tex0.GetWidth();
+	uint32 nHeight		= tex0.GetHeight();
 
-	uint32 nPointer		= pReg0->GetBufPtr();
-	uint32 nWidth		= pReg0->GetWidth();
-	uint32 nHeight		= pReg0->GetHeight();
+//	auto result = TexCache_SearchLive(tex0);
+//	if(!result.IsEmpty()) return result;
 
-	result = TexCache_SearchLive(pReg0);
-	if(result != NULL) return result;
+	TexturePtr result;
 
-	TEXA TexA;
-	TexA <<= m_nReg[GS_REG_TEXA];
+	TEXA texA;
+	texA <<= m_nReg[GS_REG_TEXA];
 
 	uint32 textureChecksum = 0; 
-	switch(pReg0->nPsm)
+	switch(tex0.nPsm)
 	{
 	case PSMT8:
-		textureChecksum = ConvertTexturePsm8(pReg0, &TexA);
+		textureChecksum = ConvertTexturePsm8(tex0, texA);
 		break;
 	//case PSMT4:
 	//	textureChecksum = ConvertTexturePsm4(pReg0, &TexA);
 	//	break;
-	//case PSMT8H:
-	//	textureChecksum = ConvertTexturePsm8H(pReg0, &TexA);
-	//	break;
+	case PSMT8H:
+		textureChecksum = ConvertTexturePsm8H(tex0, texA);
+		break;
 	}
 
+/*
 	if(textureChecksum)
 	{
-		//Check if we don't already have it somewhere...    
-		result = TexCache_SearchDead(pReg0, textureChecksum);
-		if(result != NULL)
+		//Check if we don't already have it somewhere...
+		result = TexCache_SearchDead(tex0, textureChecksum);
+		if(!result.IsEmpty())
 		{
 			return result;
 		}
 	}
+*/
 
 	m_device->CreateTexture(nWidth, nHeight, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &result, NULL);
 
-	switch(pReg0->nPsm)
+	switch(tex0.nPsm)
 	{
 	case PSMCT32:
-		TexUploader_Psm32(pReg0, &TexA, result);
+		TexUploader_Psm32(tex0, texA, result);
 		break;
 	//case PSMCT16:
 	//	((this)->*(m_pTexUploader_Psm16))(pReg0, &TexA);
@@ -57,7 +59,8 @@ LPDIRECT3DTEXTURE9 CGSH_Direct3D9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* 
 	//	TexUploader_Psm16S_Hw(pReg0, &TexA);
 	//	break;
 	case PSMT8:
-		UploadConversionBuffer(pReg0, &TexA, result);
+	case PSMT8H:
+		UploadConversionBuffer(tex0, texA, result);
 		break;
 	//case PSMT4:
 	//	//TexUploader_Psm4_Cvt(pReg0, &TexA);
@@ -73,12 +76,12 @@ LPDIRECT3DTEXTURE9 CGSH_Direct3D9::LoadTexture(TEX0* pReg0, TEX1* pReg1, CLAMP* 
 	//	//TexUploader_Psm8H_Cvt(pReg0, &TexA);
 	//	UploadTexturePsm8(pReg0, &TexA);
 	//	break;
-	//default:
-	//	assert(0);
-	//	break;
+	default:
+		assert(0);
+		break;
 	}
 
-	TexCache_Insert(pReg0, result, textureChecksum);
+	TexCache_Insert(tex0, result, textureChecksum);
 
 	return result;
 }
@@ -92,11 +95,76 @@ uint32 CGSH_Direct3D9::Color_Ps2ToDx9(uint32 color)
 		(color >> 16) & 0xFF);
 }
 
-void CGSH_Direct3D9::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTURE9 texture)
+uint32 CGSH_Direct3D9::RGBA16ToRGBA32(uint16 nColor)
 {
-	uint32 nPointer			= pReg0->GetBufPtr();
-	unsigned int nWidth		= pReg0->GetWidth();
-	unsigned int nHeight	= pReg0->GetHeight();
+	return (nColor & 0x8000 ? 0xFF000000 : 0) | ((nColor & 0x7C00) << 9) | ((nColor & 0x03E0) << 6) | ((nColor & 0x001F) << 3);
+}
+
+void CGSH_Direct3D9::FlattenClut(const TEX0& tex0, uint32* dstClut)
+{
+	unsigned int entryCount = IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
+
+	if(IsPsmIDTEX4(tex0.nPsm))
+	{
+		uint32 clutOffset = tex0.nCSA * 16;
+
+		if(tex0.nCPSM == PSMCT32)
+		{
+//			assert(tex0.nCSA < 16);
+
+			for(unsigned int i = 0; i < 16; i++)
+			{
+				uint32 color = 
+					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
+					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
+				uint32 alpha = MulBy2Clamp(color >> 24);
+				color &= ~0xFF000000;
+				color |= alpha << 24;
+				dstClut[i] = Color_Ps2ToDx9(color);
+			}
+		}
+		else
+		{
+			assert(tex0.nCSA < 32);
+
+			for(unsigned int i = 0; i < 16; i++)
+			{
+				dstClut[i] = RGBA16ToRGBA32(m_pCLUT[i + clutOffset]);
+			}
+		}
+	}
+	else if(IsPsmIDTEX8(tex0.nPsm))
+	{
+		assert(tex0.nCSA == 0);
+
+		if(tex0.nCPSM == PSMCT32)
+		{
+			for(unsigned int i = 0; i < 256; i++)
+			{
+				uint32 color = 
+					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
+					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
+				uint32 alpha = MulBy2Clamp(color >> 24);
+				color &= ~0xFF000000;
+				color |= alpha << 24;
+				dstClut[i] = Color_Ps2ToDx9(color);
+			}
+		}
+		else
+		{
+			for(unsigned int i = 0; i < 256; i++)
+			{
+				dstClut[i] = RGBA16ToRGBA32(m_pCLUT[i]);
+			}
+		}
+	}
+}
+
+void CGSH_Direct3D9::TexUploader_Psm32(const TEX0& tex0, const TEXA& texA, TexturePtr texture)
+{
+	uint32 nPointer			= tex0.GetBufPtr();
+	unsigned int nWidth		= tex0.GetWidth();
+	unsigned int nHeight	= tex0.GetHeight();
 //	unsigned int nDstPitch	= nWidth;
 //	uint32* pDst			= reinterpret_cast<uint32*>(m_pCvtBuffer);
 
@@ -107,7 +175,7 @@ void CGSH_Direct3D9::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTU
 	uint32* pDst			= reinterpret_cast<uint32*>(rect.pBits);
 	unsigned int nDstPitch	= rect.Pitch / 4;
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
 
 	for(unsigned int j = 0; j < nHeight; j++)
 	{
@@ -121,117 +189,77 @@ void CGSH_Direct3D9::TexUploader_Psm32(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTU
 
 	result = texture->UnlockRect(0);
 	assert(result == S_OK);
-
-	//glPixelTransferf(GL_ALPHA_SCALE, 2.0f);
-	//glPixelStorei(GL_UNPACK_ROW_LENGTH, nWidth);
-	//glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
-void CGSH_Direct3D9::ReadCLUT8(TEX0* pTex0)
+uint32 CGSH_Direct3D9::ConvertTexturePsm8(const TEX0& tex0, const TEXA& texA)
 {
-	uint8 nIndex;
-
-	assert(pTex0->nCSA == 0);
-//	assert(pTex0->nCLD == 1);
-	assert(pTex0->nCSM == 0);
-
-	if(pTex0->nCPSM == PSMCT32)
-	{
-		CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, pTex0->GetCLUTPtr(), 1);
-
-		for(unsigned int j = 0; j < 16; j++)
-		{
-			for(unsigned int i = 0; i < 16; i++)
-			{
-				nIndex = i + (j * 16);
-				nIndex = (nIndex & ~0x18) | ((nIndex & 0x08) << 1) | ((nIndex & 0x10) >> 1);
-				m_clut32[nIndex] = Color_Ps2ToDx9(Indexor.GetPixel(i, j));
-			}
-		}
-	}
-	//else if(pTex0->nCPSM == PSMCT16)
-	//{
-	//	CPixelIndexorPSMCT16 Indexor(m_pRAM, pTex0->GetCLUTPtr(), 1);
-
-	//	for(unsigned int j = 0; j < 16; j++)
-	//	{
-	//		for(unsigned int i = 0; i < 16; i++)
-	//		{
-	//			nIndex = i + (j * 16);
-	//			nIndex = (nIndex & ~0x18) | ((nIndex & 0x08) << 1) | ((nIndex & 0x10) >> 1);
-	//			m_pCLUT16[nIndex] = Indexor.GetPixel(i, j);
-	//		}
-	//	}
-	//}
-	else
-	{
-		assert(0);
-	}
-}
-
-uint32 CGSH_Direct3D9::ConvertTexturePsm8(TEX0* pReg0, TEXA* pTexA)
-{
-	uint32 nPointer			= pReg0->GetBufPtr();
-	unsigned int nWidth		= pReg0->GetWidth();
-	unsigned int nHeight	= pReg0->GetHeight();
-	unsigned int nDstPitch	= nWidth;
-	uint32* dstBuffer		= reinterpret_cast<uint32*>(m_cvtBuffer);
-	uint32* pDst			= dstBuffer;
+	unsigned int width		= tex0.GetWidth();
+	unsigned int height		= tex0.GetHeight();
+	unsigned int dstPitch	= width;
+	uint32* dst				= reinterpret_cast<uint32*>(m_cvtBuffer);
 	uint32 checksum			= crc32(0, NULL, 0);
 
-	CGsPixelFormats::CPixelIndexorPSMT8 Indexor(m_pRAM, nPointer, pReg0->nBufWidth);
+	uint32 clut[256];
+	FlattenClut(tex0, clut);
 
-	ReadCLUT8(pReg0);
+	CGsPixelFormats::CPixelIndexorPSMT8 Indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
 
-	if(pReg0->nCPSM == PSMCT32)
+	for(unsigned int j = 0; j < height; j++)
 	{
-		for(unsigned int j = 0; j < nHeight; j++)
+		for(unsigned int i = 0; i < width; i++)
 		{
-			for(unsigned int i = 0; i < nWidth; i++)
-			{
-				uint8 nPixel = Indexor.GetPixel(i, j);
-				pDst[i] = m_clut32[nPixel];
-				//pDst[i] = (nPixel) | (nPixel << 8) | (nPixel << 16) | 0xFF000000;
-			}
-
-			checksum = crc32(checksum, reinterpret_cast<Bytef*>(pDst), sizeof(uint32) * nWidth);
-			pDst += nDstPitch;
+			uint8 pixel = Indexor.GetPixel(i, j);
+			dst[i] = clut[pixel];
 		}
-	}
-	//else if(pReg0->nCPSM == PSMCT16)
-	//{
-	//	for(unsigned int j = 0; j < nHeight; j++)
-	//	{
-	//		for(unsigned int i = 0; i < nWidth; i++)
-	//		{
-	//			uint8 nPixel = Indexor.GetPixel(i, j);
-	//			pDst[i] = RGBA16ToRGBA32(m_pCLUT16[nPixel]);
-	//		}
 
-	//		checksum = crc32(checksum, reinterpret_cast<Bytef*>(pDst), sizeof(uint32) * nWidth);
-	//		pDst += nDstPitch;
-	//	}
-	//}
-	else
-	{
-		assert(0);
+		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32) * width);
+		dst += dstPitch;
 	}
 
 	return checksum;
 }
 
-void CGSH_Direct3D9::UploadConversionBuffer(TEX0* pReg0, TEXA* pTexA, LPDIRECT3DTEXTURE9 texture)
+uint32 CGSH_Direct3D9::ConvertTexturePsm8H(const TEX0& tex0, const TEXA& texA)
 {
-	unsigned int nWidth		= pReg0->GetWidth();
-	unsigned int nHeight	= pReg0->GetHeight();
+	unsigned int width		= tex0.GetWidth();
+	unsigned int height		= tex0.GetHeight();
+	unsigned int dstPitch	= width;
+	uint32* dst				= reinterpret_cast<uint32*>(m_cvtBuffer);
+	uint32 checksum			= crc32(0, NULL, 0);
+
+	uint32 clut[256];
+	FlattenClut(tex0, clut);
+
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
+
+	for(unsigned int j = 0; j < height; j++)
+	{
+		for(unsigned int i = 0; i < width; i++)
+		{
+			uint32 pixel = indexor.GetPixel(i, j);
+			pixel >>= 24;
+			dst[i] = clut[pixel];
+		}
+
+		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32) * width);
+		dst += dstPitch;
+	}
+
+	return checksum;
+}
+
+void CGSH_Direct3D9::UploadConversionBuffer(const TEX0& tex0, const TEXA& texA, TexturePtr texture)
+{
+	unsigned int width	= tex0.GetWidth();
+	unsigned int height	= tex0.GetHeight();
 
 	HRESULT result;
 	D3DLOCKED_RECT rect;
 	result = texture->LockRect(0, &rect, NULL, 0);
 	assert(result == S_OK);
 
-	assert((nWidth * sizeof(uint32)) == rect.Pitch);
-	memcpy(rect.pBits, m_cvtBuffer, nWidth * nHeight * sizeof(uint32));
+	assert((width * sizeof(uint32)) == rect.Pitch);
+	memcpy(rect.pBits, m_cvtBuffer, width * height * sizeof(uint32));
 
 	result = texture->UnlockRect(0);
 	assert(result == S_OK);
@@ -241,37 +269,33 @@ void CGSH_Direct3D9::UploadConversionBuffer(TEX0* pReg0, TEXA* pTexA, LPDIRECT3D
 // Texture
 /////////////////////////////////////////////////////////////
 
-CGSH_Direct3D9::CTexture::CTexture() :
-m_nStart(0),
-m_nSize(0),
-m_nPSM(0),
-m_nCLUTAddress(0),
-m_nTex0(0),
-m_nTexClut(0),
-m_nIsCSM2(false),
-m_texture(NULL),
-m_checksum(0),
-m_live(false)
+CGSH_Direct3D9::CCachedTexture::CCachedTexture() 
+: m_nStart(0)
+, m_nSize(0)
+, m_nPSM(0)
+, m_nCLUTAddress(0)
+, m_nTex0(0)
+, m_nTexClut(0)
+, m_nIsCSM2(false)
+, m_texture(NULL)
+, m_checksum(0)
+, m_live(false)
 {
 
 }
 
-CGSH_Direct3D9::CTexture::~CTexture()
+CGSH_Direct3D9::CCachedTexture::~CCachedTexture()
 {
 	Free();
 }
 
-void CGSH_Direct3D9::CTexture::Free()
+void CGSH_Direct3D9::CCachedTexture::Free()
 {
-	if(m_texture != NULL)
-	{
-		m_texture->Release();
-		m_texture = NULL;
-		m_live = false;
-	}
+	m_texture.Reset();
+	m_live = false;
 }
 
-void CGSH_Direct3D9::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSize)
+void CGSH_Direct3D9::CCachedTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSize)
 {
 	if(!m_live) return;
 
@@ -299,83 +323,75 @@ void CGSH_Direct3D9::CTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 n
 // Texture Caching
 /////////////////////////////////////////////////////////////
 
-LPDIRECT3DTEXTURE9 CGSH_Direct3D9::TexCache_SearchLive(TEX0* pTex0)
+CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::TexCache_SearchLive(const TEX0& tex0)
 {
-	for(TextureList::iterator textureIterator(m_TexCache.begin());
-		textureIterator != m_TexCache.end(); textureIterator++)
+	for(auto textureIterator(m_cachedTextures.begin());
+		textureIterator != m_cachedTextures.end(); textureIterator++)
 	{
-		CTexture* texture = *textureIterator;
+		auto texture = *textureIterator;
 		if(!texture->m_live) continue;
 		//if(!texture.IsValid()) continue;
 		//if(m_TexCache[i].m_nStart != pTex0->GetBufPtr()) continue;
 		//if(m_TexCache[i].m_nPSM != pTex0->nPsm) continue;
 		//if(m_TexCache[i].m_nCLUTAddress != pTex0->GetCLUTPtr()) continue;
-		if(*(uint64*)pTex0 != texture->m_nTex0) continue;
+		if(*reinterpret_cast<const uint64*>(&tex0) != texture->m_nTex0) continue;
 //		if(texture->m_nIsCSM2)
 //		{
 //			if(((*(uint64*)GetTexClut()) & 0x3FFFFF) != texture->m_nTexClut) continue;
 //		}
-		m_TexCache.erase(textureIterator);
-		m_TexCache.push_front(texture);
+		m_cachedTextures.erase(textureIterator);
+		m_cachedTextures.push_front(texture);
 		return texture->m_texture;
 	}
 
-	return 0;
+	return TexturePtr();
 }
 
-LPDIRECT3DTEXTURE9 CGSH_Direct3D9::TexCache_SearchDead(TEX0* pTex0, uint32 checksum)
+CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::TexCache_SearchDead(const TEX0& tex0, uint32 checksum)
 {
-    for(TextureList::iterator textureIterator(m_TexCache.begin());
-        textureIterator != m_TexCache.end(); textureIterator++)
-    {
-        CTexture* texture = *textureIterator;
-        if(texture->m_texture == 0) continue;
-        if(texture->m_checksum != checksum) continue;
-        if(texture->m_nTex0 != *reinterpret_cast<uint64*>(pTex0)) continue;
-        texture->m_live = true;
-        m_TexCache.erase(textureIterator);
-        m_TexCache.push_front(texture);
-        return texture->m_texture;
-    }
-
-    return 0;
-}
-
-void CGSH_Direct3D9::TexCache_Insert(TEX0* pTex0, LPDIRECT3DTEXTURE9 nTexture, uint32 checksum)
-{
-	CTexture* pTexture = *m_TexCache.rbegin();
-	pTexture->Free();
-
-	pTexture->m_nStart			= pTex0->GetBufPtr();
-	pTexture->m_nSize			= pTex0->GetBufWidth() * pTex0->GetHeight() * GetPsmPixelSize(pTex0->nPsm) / 8;
-//	pTexture->m_nPSM			= pTex0->nPsm;
-//	pTexture->m_nCLUTAddress	= pTex0->GetCLUTPtr();
-	pTexture->m_nTex0			= *reinterpret_cast<uint64*>(pTex0);
-//	pTexture->m_nTexClut		= (*(uint64*)GetTexClut()) & 0x3FFFFF;
-	pTexture->m_nTexClut		= 0;
-	pTexture->m_nIsCSM2			= pTex0->nCSM == 1;
-	pTexture->m_texture			= nTexture;
-	pTexture->m_checksum		= checksum;
-	pTexture->m_live			= true;
-
-	m_TexCache.pop_back();
-	m_TexCache.push_front(pTexture);
-}
-
-void CGSH_Direct3D9::TexCache_InvalidateTextures(uint32 nStart, uint32 nSize)
-{
-	for(TextureList::iterator textureIterator(m_TexCache.begin());
-		textureIterator != m_TexCache.end(); textureIterator++)
+	for(auto textureIterator(m_cachedTextures.begin());
+		textureIterator != m_cachedTextures.end(); textureIterator++)
 	{
-		(*textureIterator)->InvalidateFromMemorySpace(nStart, nSize);
+		auto& texture = *textureIterator;
+		if(texture->m_texture.IsEmpty()) continue;
+		if(texture->m_checksum != checksum) continue;
+		if(texture->m_nTex0 != *reinterpret_cast<const uint64*>(&tex0)) continue;
+		texture->m_live = true;
+		m_cachedTextures.erase(textureIterator);
+		m_cachedTextures.push_front(texture);
+		return texture->m_texture;
 	}
+
+	return TexturePtr();
+}
+
+void CGSH_Direct3D9::TexCache_Insert(const TEX0& tex0, const TexturePtr& texture, uint32 checksum)
+{
+	auto cachedTexture = *m_cachedTextures.rbegin();
+	cachedTexture->Free();
+
+	cachedTexture->m_nStart			= tex0.GetBufPtr();
+	cachedTexture->m_nSize			= tex0.GetBufWidth() * tex0.GetHeight() * GetPsmPixelSize(tex0.nPsm) / 8;
+//	cachedTexture->m_nPSM			= pTex0->nPsm;
+//	cachedTexture->m_nCLUTAddress	= pTex0->GetCLUTPtr();
+	cachedTexture->m_nTex0			= *reinterpret_cast<const uint64*>(&tex0);
+//	cachedTexture->m_nTexClut		= (*(uint64*)GetTexClut()) & 0x3FFFFF;
+	cachedTexture->m_nTexClut		= 0;
+	cachedTexture->m_nIsCSM2		= tex0.nCSM == 1;
+	cachedTexture->m_texture		= texture;
+	cachedTexture->m_checksum		= checksum;
+	cachedTexture->m_live			= true;
+
+	m_cachedTextures.pop_back();
+	m_cachedTextures.push_front(cachedTexture);
+}
+
+void CGSH_Direct3D9::TexCache_InvalidateTextures(uint32 start, uint32 size)
+{
+	std::for_each(std::begin(m_cachedTextures), std::end(m_cachedTextures), [&] (CachedTexturePtr& texture) { texture->InvalidateFromMemorySpace(start, size); });
 }
 
 void CGSH_Direct3D9::TexCache_Flush()
 {
-	for(TextureList::iterator textureIterator(m_TexCache.begin());
-		textureIterator != m_TexCache.end(); textureIterator++)
-	{
-		(*textureIterator)->Free();
-	}
+	std::for_each(std::begin(m_cachedTextures), std::end(m_cachedTextures), [] (CachedTexturePtr& texture) { texture->Free(); });
 }
