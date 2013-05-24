@@ -103,6 +103,26 @@ static const char* g_alphaBlendCCoefString[4] =
 	"(INVALID)"
 };
 
+static const char* g_textureFunctionString[4] =
+{
+	"MODULATE",
+	"DECAL",
+	"HIGHLIGHT",
+	"HIGHLIGHT2"
+};
+
+static const char* g_textureClutLoadControlString[8] =
+{
+	"DO NOT LOAD",
+	"LOAD",
+	"LOAD AND COPY CBP TO CBP0",
+	"LOAD AND COPY CBP TO CBP1",
+	"LOAD IF CBP != CBP0 AND COPY CBP TO CBP0",
+	"LOAD IF CBP != CBP1 AND COPY CBP TO CBP1",
+	"(INVALID)",
+	"(INVALID)",
+};
+
 std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 {
 	std::string result;
@@ -176,6 +196,23 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 
 	CGSHandler::ZBUF zbuf;
 	zbuf <<= gs->GetRegisters()[GS_REG_ZBUF_1 + contextId];
+
+	CGSHandler::TEX0 tex0;
+	tex0 <<= gs->GetRegisters()[GS_REG_TEX0_1 + contextId];
+
+	result += string_format("Texture:\r\n");
+	result += string_format("\tPtr: 0x%0.8X\r\n", tex0.GetBufPtr());
+	result += string_format("\tBuffer Width: %d\r\n", tex0.GetBufWidth());
+	result += string_format("\tFormat: %s\r\n", g_pixelFormats[tex0.nPsm]);
+	result += string_format("\tWidth: %d\r\n", tex0.GetWidth());
+	result += string_format("\tHeight: %d\r\n", tex0.GetHeight());
+	result += string_format("\tHas Alpha Component: %s\r\n", g_yesNoString[tex0.nColorComp]);
+	result += string_format("\tFunction: %s\r\n", g_textureFunctionString[tex0.nFunction]);
+	result += string_format("\tCLUT Ptr: 0x%0.8X\r\n", tex0.GetCLUTPtr());
+	result += string_format("\tCLUT Format: %s\r\n", g_pixelFormats[tex0.nCPSM]);
+	result += string_format("\tCLUT Storage Mode: %d\r\n", tex0.nCSM + 1);
+	result += string_format("\tCLUT Entry Offset: %d\r\n", tex0.nCSA * 16);
+	result += string_format("\tCLUT Load Control: %s\r\n", g_textureClutLoadControlString[tex0.nCLD]);
 
 	result += string_format("Depth Buffer:\r\n");
 	result += string_format("\tPtr: 0x%0.8X\r\n", zbuf.GetBasePtr());

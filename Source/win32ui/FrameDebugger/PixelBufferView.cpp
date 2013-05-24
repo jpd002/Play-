@@ -123,6 +123,9 @@ long CPixelBufferView::OnCommand(unsigned short id, unsigned short cmd, HWND hwn
 		case CPixelBufferViewOverlay::COMMAND_SAVE:
 			OnSaveBitmap();
 			break;
+		case CPixelBufferViewOverlay::COMMAND_FIT:
+			FitBitmap();
+			break;
 		}
 	}
 	return TRUE;
@@ -241,6 +244,24 @@ void CPixelBufferView::OnSaveBitmap()
 			}
 		}
 	}
+}
+
+void CPixelBufferView::FitBitmap()
+{
+	if(m_pixelBufferBitmap.IsEmpty()) return;
+
+	Framework::Win32::CRect clientRect = GetClientRect();
+	unsigned int marginSize = 50;
+	float normalizedSizeX = static_cast<float>(m_pixelBufferBitmap.GetWidth()) / static_cast<float>(clientRect.Right() - marginSize);
+	float normalizedSizeY = static_cast<float>(m_pixelBufferBitmap.GetHeight()) / static_cast<float>(clientRect.Bottom() - marginSize);
+
+	float normalizedSize = std::max<float>(normalizedSizeX, normalizedSizeY);
+
+	m_zoomFactor = 1 / normalizedSize;
+	m_panX = 0;
+	m_panY = 0;
+
+	Refresh();
 }
 
 void CPixelBufferView::CreateResources()

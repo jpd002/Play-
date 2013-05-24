@@ -12,6 +12,7 @@ public:
 	virtual					~CPixelBufferView();
 
 	void					SetBitmap(const Framework::CBitmap&);
+	void					FitBitmap();
 
 protected:
 	virtual void			Refresh() override;

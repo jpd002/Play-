@@ -41,8 +41,8 @@ CFrameDebugger::CFrameDebugger()
 	m_tab->InsertTab(_T("Input State"));
 	m_tab->InsertTab(_T("VU1 Microprogram"));
 
-	m_gsContextView = std::make_unique<CGsContextView>(*m_tab, GetClientRect());
-	m_gsContextView->UpdateState(m_gs.get());
+	m_gsContextView = std::make_unique<CGsContextView>(*m_tab, GetClientRect(), m_gs.get());
+	m_gsContextView->UpdateState();
 
 	m_gsInputStateView = std::make_unique<CGsInputStateView>(*m_tab, GetClientRect());
 	m_gsInputStateView->UpdateState(m_gs.get());
@@ -231,7 +231,7 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	m_gs->Flip();
 
 	m_gsInputStateView->UpdateState(m_gs.get());
-	m_gsContextView->UpdateState(m_gs.get());
+	m_gsContextView->UpdateState();
 }
 
 void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
