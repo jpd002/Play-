@@ -273,11 +273,9 @@ uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 		}
 	}
 
-	if(m_gs != NULL && writeList.size() != 0)
+	if(m_gs != NULL && !writeList.empty())
 	{
-		CGSHandler::RegisterWrite* writeListBuffer = new CGSHandler::RegisterWrite[writeList.size()];
-		memcpy(writeListBuffer, &writeList[0], sizeof(CGSHandler::RegisterWrite) * writeList.size());
-		m_gs->WriteRegisterMassively(writeListBuffer, static_cast<unsigned int>(writeList.size()));
+		m_gs->WriteRegisterMassively(writeList.data(), static_cast<unsigned int>(writeList.size()));
 	}
 
 #ifdef _DEBUG

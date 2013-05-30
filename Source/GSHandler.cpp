@@ -353,7 +353,9 @@ void CGSHandler::FeedImageData(void* data, uint32 length)
 
 void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count)
 {
-	m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterMassivelyImpl, this, writeList, count));
+	RegisterWrite* writeListCopy = new CGSHandler::RegisterWrite[count];
+	memcpy(writeListCopy, writeList, sizeof(CGSHandler::RegisterWrite) * count);
+	m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterMassivelyImpl, this, writeListCopy, count));
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
