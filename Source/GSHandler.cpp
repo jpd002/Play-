@@ -9,6 +9,7 @@
 #include "Log.h"
 #include "MemoryStateFile.h"
 #include "RegisterStateFile.h"
+#include "string_format.h"
 
 #define R_REG(a, v, r)					\
 	if((a) & 0x4)						\
@@ -55,6 +56,7 @@ CGSHandler::CGSHandler()
 , m_drawCallCount(0)
 , m_pCLUT(nullptr)
 , m_pRAM(nullptr)
+, m_loggingEnabled(true)
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_SMODE2);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
@@ -135,7 +137,7 @@ void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationPa
 void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_pRAM,		RAMSIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_REGS,		m_nReg,		sizeof(uint64) * 0x80));
+	archive.InsertFile(new CMemoryStateFile(STATE_REGS,		m_nReg,		sizeof(uint64) * CGSHandler::REGISTER_MAX));
 	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX,	&m_TrxCtx,	sizeof(TRXCONTEXT)));
 
 	{
@@ -300,7 +302,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 #ifdef _DEBUG
 	if(nAddress & 0x04)
 	{
-		DisassemblePrivWrite(nAddress);
+		LogPrivateWrite(nAddress);
 	}
 #endif
 }
@@ -405,7 +407,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 
 #ifdef _DEBUG
-	DisassembleWrite(nRegister, nData);
+	LogWrite(nRegister, nData);
 #endif
 }
 
@@ -428,8 +430,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 		//return;
 	}
 
-	BITBLTBUF bltBuf;
-	bltBuf <<= m_nReg[GS_REG_BITBLTBUF];
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
 	m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[bltBuf.nDstPsm]))(pData, nLength);
 
@@ -566,20 +567,20 @@ template <typename Storage>
 bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 {
 	bool nDirty = false;
-	TRXPOS* pTrxPos = GetTrxPos();
-	TRXREG* pTrxReg = GetTrxReg();
-	BITBLTBUF* pTrxBuf = GetBitBltBuf();
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
 	nLength /= sizeof(typename Storage::Unit);
 
-	CGsPixelFormats::CPixelIndexor<Storage> Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexor<Storage> Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
 	auto pSrc = reinterpret_cast<typename Storage::Unit*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
-		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		auto pPixel = Indexor.GetPixelAddress(nX, nY);
 
@@ -590,7 +591,7 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 		}
 
 		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+		if(m_TrxCtx.nRRX == trxReg.nRRW)
 		{
 			m_TrxCtx.nRRX = 0;
 			m_TrxCtx.nRRY++;
@@ -602,18 +603,18 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 
 bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 {
-	TRXPOS* pTrxPos = GetTrxPos();
-	TRXREG* pTrxReg = GetTrxReg();
-	BITBLTBUF* pTrxBuf = GetBitBltBuf();
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
 	uint8* pSrc = (uint8*)pData;
 
 	for(unsigned int i = 0; i < nLength; i += 3)
 	{
-		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		uint32* pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		uint32 nSrcPixel = (*(uint32*)&pSrc[i]) & 0x00FFFFFF;
@@ -621,7 +622,7 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 		(*pDstPixel) |= nSrcPixel;
 
 		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+		if(m_TrxCtx.nRRX == trxReg.nRRW)
 		{
 			m_TrxCtx.nRRX = 0;
 			m_TrxCtx.nRRY++;
@@ -634,11 +635,11 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 {
 	bool dirty = false;
-	TRXPOS* pTrxPos = GetTrxPos();
-	TRXREG* pTrxReg = GetTrxReg();
-	BITBLTBUF* pTrxBuf = GetBitBltBuf();
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-	CGsPixelFormats::CPixelIndexorPSMT4 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMT4 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
 	uint8* pSrc = (uint8*)pData;
 
@@ -651,8 +652,8 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 
 		for(unsigned int j = 0; j < 2; j++)
 		{
-			uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-			uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+			uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
+			uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 			uint8 currentPixel = Indexor.GetPixel(nX, nY);
 			if(currentPixel != nPixel[j])
@@ -662,7 +663,7 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 			}
 
 			m_TrxCtx.nRRX++;
-			if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+			if(m_TrxCtx.nRRX == trxReg.nRRW)
 			{
 				m_TrxCtx.nRRX = 0;
 				m_TrxCtx.nRRY++;
@@ -676,19 +677,19 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 template <uint32 nShift, uint32 nMask>
 bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 {
-	TRXPOS* pTrxPos = GetTrxPos();
-	TRXREG* pTrxReg = GetTrxReg();
-	BITBLTBUF* pTrxBuf = GetBitBltBuf();
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
 	uint8* pSrc = reinterpret_cast<uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
 		//Pixel 1
-		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		uint8 nSrcPixel = pSrc[i] & 0x0F;
 
@@ -697,15 +698,15 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 		(*pDstPixel) |= (nSrcPixel << nShift);
 
 		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+		if(m_TrxCtx.nRRX == trxReg.nRRW)
 		{
 			m_TrxCtx.nRRX = 0;
 			m_TrxCtx.nRRY++;
 		}
 
 		//Pixel 2
-		nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
+		nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		nSrcPixel = (pSrc[i] & 0xF0);
 
@@ -714,7 +715,7 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 		(*pDstPixel) |= (nSrcPixel << (nShift - 4));
 
 		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+		if(m_TrxCtx.nRRX == trxReg.nRRW)
 		{
 			m_TrxCtx.nRRX = 0;
 			m_TrxCtx.nRRY++;
@@ -726,18 +727,18 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 
 bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 {
-	TRXPOS* pTrxPos = GetTrxPos();
-	TRXREG* pTrxReg = GetTrxReg();
-	BITBLTBUF* pTrxBuf = GetBitBltBuf();
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, pTrxBuf->GetDstPtr(), pTrxBuf->nDstWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
 	uint8* pSrc = reinterpret_cast<uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
-		uint32 nX = (m_TrxCtx.nRRX + pTrxPos->nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + pTrxPos->nDSAY) % 2048;
+		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		uint8 nSrcPixel = pSrc[i];
 
@@ -746,7 +747,7 @@ bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 		(*pDstPixel) |= (nSrcPixel << 24);
 
 		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == pTrxReg->nRRW)
+		if(m_TrxCtx.nRRX == trxReg.nRRW)
 		{
 			m_TrxCtx.nRRX = 0;
 			m_TrxCtx.nRRY++;
@@ -765,21 +766,6 @@ void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMod
 	smode2.interlaced	= nIsInterlaced ? 1 : 0;
 	smode2.ffmd			= nIsFrameMode ? 1 : 0;
 	m_nSMODE2 = smode2;
-}
-
-CGSHandler::TRXREG* CGSHandler::GetTrxReg()
-{
-	return (TRXREG*)&m_nReg[GS_REG_TRXREG];
-}
-
-CGSHandler::TRXPOS* CGSHandler::GetTrxPos()
-{
-	return (TRXPOS*)&m_nReg[GS_REG_TRXPOS];
-}
-
-CGSHandler::BITBLTBUF* CGSHandler::GetBitBltBuf()
-{
-	return (BITBLTBUF*)&m_nReg[GS_REG_BITBLTBUF];
 }
 
 unsigned int CGSHandler::GetCrtWidth() const
@@ -1120,316 +1106,221 @@ bool CGSHandler::IsPsmIDTEX8(unsigned int psm)
 	return psm == PSMT8 || psm == PSMT8H;
 }
 
-void CGSHandler::DisassembleWrite(uint8 nRegister, uint64 nData)
+void CGSHandler::SetLoggingEnabled(bool loggingEnabled)
 {
-	//Filtering
-	//if(!((nRegister == GS_REG_FRAME_1) || (nRegister == GS_REG_FRAME_2))) return;
-	//if(!((nRegister == GS_REG_TEST_1) || (nRegister == GS_REG_TEST_2))) return;
+	m_loggingEnabled = loggingEnabled;
+}
 
-	switch(nRegister)
+std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
+{
+	std::string result;
+
+	switch(registerId)
 	{
 	case GS_REG_PRIM:
 		{
-			PRIM pr;
-			pr <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
-				pr.nType, \
-				pr.nShading, \
-				pr.nTexture, \
-				pr.nFog, \
-				pr.nAlpha, \
-				pr.nAntiAliasing, \
-				pr.nUseUV, \
-				pr.nContext, \
-				pr.nUseFloat);
+			auto pr = make_convertible<PRIM>(data);
+			result = string_format("PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i)",
+				pr.nType, pr.nShading, pr.nTexture, pr.nFog, pr.nAlpha, pr.nAntiAliasing, pr.nUseUV, pr.nContext, pr.nUseFloat);
 		}
 		break;
 	case GS_REG_RGBAQ:
 		{
-			RGBAQ rgbaq;
-			rgbaq <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f);\r\n", \
-									  rgbaq.nR,
-									  rgbaq.nG,
-									  rgbaq.nB,
-									  rgbaq.nA,
-									  rgbaq.nQ);
+			auto rgbaq = make_convertible<RGBAQ>(data);
+			result = string_format("RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f)",
+				rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA, rgbaq.nQ);
 		}
 		break;
 	case GS_REG_ST:
 		{
-			ST st;
-			st <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "ST(S: %f, T: %f);\r\n", \
-				st.nS, \
-				st.nT);
+			auto st = make_convertible<ST>(data);
+			result = string_format("ST(S: %f, T: %f)",
+				st.nS, st.nT);
 		}
 		break;
 	case GS_REG_UV:
 		{
-			UV uv;
-			uv <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "UV(U: %f, V: %f);\r\n", \
-				uv.GetU(), \
-				uv.GetV());
+			auto uv = make_convertible<UV>(data);
+			result = string_format("UV(U: %f, V: %f)",
+				uv.GetU(), uv.GetV());
 		}
 		break;
 	case GS_REG_XYZ2:
 	case GS_REG_XYZ3:
 		{
-			XYZ xyz;
-			xyz <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "%s(%f, %f, %f);\r\n",
-				(nRegister == GS_REG_XYZ2) ? "XYZ2" : "XYZ3",
-				xyz.GetX(),
-				xyz.GetY(),
-				xyz.GetZ());
+			auto xyz = make_convertible<XYZ>(data);
+			result = string_format("%s(%f, %f, %f)",
+				(registerId == GS_REG_XYZ2) ? "XYZ2" : "XYZ3", xyz.GetX(), xyz.GetY(), xyz.GetZ());
 		}
 		break;
 	case GS_REG_XYZF2:
 	case GS_REG_XYZF3:
 		{
-			XYZF xyzf;
-			xyzf = *reinterpret_cast<XYZF*>(&nData);
-			CLog::GetInstance().Print(LOG_NAME, "%s(%f, %f, %i, %i);\r\n",
-				(nRegister == GS_REG_XYZF2) ? "XYZF2" : "XYZF3",
-				xyzf.GetX(),
-				xyzf.GetY(),
-				xyzf.nZ,
-				xyzf.nF);
+			auto xyzf = make_convertible<XYZF>(data);
+			result = string_format("%s(%f, %f, %i, %i)",
+				(registerId == GS_REG_XYZF2) ? "XYZF2" : "XYZF3", xyzf.GetX(), xyzf.GetY(), xyzf.nZ, xyzf.nF);
 		}
 		break;
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:
 		{
-			TEX0 tex;
-			tex <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
-				nRegister == GS_REG_TEX0_1 ? 1 : 2, \
-				tex.GetBufPtr(), \
-				tex.GetBufWidth(), \
-				tex.nPsm, \
-				tex.GetWidth(), \
-				tex.GetHeight(), \
-				tex.nColorComp, \
-				tex.nFunction, \
-				tex.GetCLUTPtr(), \
-				tex.nCPSM, \
-				tex.nCSM, \
-				tex.nCSA, \
-				tex.nCLD);
+			auto tex0 = make_convertible<TEX0>(data);
+			result = string_format("TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
+				(registerId == GS_REG_TEX0_1) ? 1 : 2, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.nPsm, tex0.GetWidth(), tex0.GetHeight(), tex0.nColorComp,
+				tex0.nFunction, tex0.GetCLUTPtr(), tex0.nCPSM, tex0.nCSM, tex0.nCSA, tex0.nCLD);
 		}
 		break;
 	case GS_REG_CLAMP_1:
 	case GS_REG_CLAMP_2:
 		{
-			CLAMP clamp;
-			clamp <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i);\r\n", \
-				nRegister == GS_REG_CLAMP_1 ? 1 : 2, \
-				clamp.nWMS, \
-				clamp.nWMT, \
-				clamp.GetMinU(), \
-				clamp.GetMaxU(), \
-				clamp.GetMinV(), \
-				clamp.GetMaxV());
+			auto clamp = make_convertible<CLAMP>(data);
+			result = string_format("CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i)",
+				(registerId == GS_REG_CLAMP_1 ? 1 : 2), clamp.nWMS, clamp.nWMT, clamp.GetMinU(), clamp.GetMaxU(), clamp.GetMinV(), clamp.GetMaxV());
 		}
 		break;
 	case GS_REG_TEX1_1:
 	case GS_REG_TEX1_2:
 		{
-			TEX1 tex1;
-			tex1 <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i);\r\n", \
-				nRegister == GS_REG_TEX1_1 ? 1 : 2, \
-				tex1.nLODMethod, \
-				tex1.nMaxMip, \
-				tex1.nMagFilter, \
-				tex1.nMinFilter, \
-				tex1.nMipBaseAddr, \
-				tex1.nLODL, \
-				tex1.nLODK);
+			auto tex1 = make_convertible<TEX1>(data);
+			result = string_format("TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i)",
+				(registerId == GS_REG_TEX1_1) ? 1 : 2, tex1.nLODMethod, tex1.nMaxMip, tex1.nMagFilter, tex1.nMinFilter, tex1.nMipBaseAddr, tex1.nLODL, tex1.nLODK);
 		}
 		break;
 	case GS_REG_TEX2_1:
 	case GS_REG_TEX2_2:
-		TEX2 tex2;
-		tex2 = *(TEX2*)&nData;
-		CLog::GetInstance().Print(LOG_NAME, "TEX2_%i(PSM: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i);\r\n", \
-			nRegister == GS_REG_TEX2_1 ? 1 : 2, \
-			tex2.nPsm, \
-			tex2.GetCLUTPtr(), \
-			tex2.nCPSM, \
-			tex2.nCSM, \
-			tex2.nCSA, \
-			tex2.nCLD);
+		{
+			auto tex2 = make_convertible<TEX2>(data);
+			result = string_format("TEX2_%i(PSM: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
+				(registerId == GS_REG_TEX2_1) ? 1 : 2, tex2.nPsm, tex2.GetCLUTPtr(), tex2.nCPSM, tex2.nCSM, tex2.nCSA, tex2.nCLD);
+		}
 		break;
 	case GS_REG_XYOFFSET_1:
 	case GS_REG_XYOFFSET_2:
-		CLog::GetInstance().Print(LOG_NAME, "XYOFFSET_%i(%i, %i);\r\n", \
-			nRegister == GS_REG_XYOFFSET_1 ? 1 : 2, \
-			(uint32)((nData >>  0) & 0xFFFFFFFF), \
-			(uint32)((nData >> 32) & 0xFFFFFFFF));
+		result = string_format("XYOFFSET_%i(%i, %i)",
+			(registerId == GS_REG_XYOFFSET_1) ? 1 : 2, static_cast<uint32>(data >> 0), static_cast<uint32>(data >> 32));
 		break;
 	case GS_REG_PRMODECONT:
-		CLog::GetInstance().Print(LOG_NAME, "PRMODECONT(AC = %i);\r\n", \
-			nData & 1);
+		result = string_format("PRMODECONT(AC: %i)", data & 1);
 		break;
 	case GS_REG_PRMODE:
 		{
-			PRMODE prm;
-			prm <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i);\r\n", \
-									  prm.nShading, \
-									  prm.nTexture, \
-									  prm.nFog, \
-									  prm.nAlpha, \
-									  prm.nAntiAliasing, \
-									  prm.nUseUV, \
-									  prm.nContext, \
-									  prm.nUseFloat);
+			auto prm = make_convertible<PRMODE>(data);
+			result = string_format("PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i)",
+				prm.nShading, prm.nTexture, prm.nFog, prm.nAlpha, prm.nAntiAliasing, prm.nUseUV, prm.nContext, prm.nUseFloat);
 		}
 		break;
 	case GS_REG_TEXCLUT:
-		TEXCLUT clut;
-		clut = *(TEXCLUT*)&nData;
-		CLog::GetInstance().Print(LOG_NAME, "TEXCLUT(CBW: %i, COU: %i, COV: %i);\r\n", \
-			clut.nCBW,
-			clut.nCOU,
-			clut.nCOV);
+		{
+			auto clut = make_convertible<TEXCLUT>(data);
+			result = string_format("TEXCLUT(CBW: %i, COU: %i, COV: %i)",
+				clut.nCBW, clut.nCOU, clut.nCOV);
+		}
 		break;
 	case GS_REG_FOGCOL:
-		FOGCOL fogcol;
-		fogcol = *(FOGCOL*)&nData;
-		CLog::GetInstance().Print(LOG_NAME, "FOGCOL(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X);\r\n", \
-			fogcol.nFCR,
-			fogcol.nFCG,
-			fogcol.nFCB);
+		{
+			auto fogcol = make_convertible<FOGCOL>(data);
+			result = string_format("FOGCOL(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X)",
+				fogcol.nFCR, fogcol.nFCG, fogcol.nFCB);
+		}
 		break;
 	case GS_REG_TEXA:
 		{
-			TEXA TexA;
-			TexA <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X);\r\n", \
-									  TexA.nTA0,
-									  TexA.nAEM,
-									  TexA.nTA1);
+			auto texa = make_convertible<TEXA>(data);
+			result = string_format("TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X)",
+				texa.nTA0, texa.nAEM, texa.nTA1);
 		}
 		break;
 	case GS_REG_TEXFLUSH:
-		CLog::GetInstance().Print(LOG_NAME, "TEXFLUSH();\r\n");
+		result = "TEXFLUSH()";
 		break;
 	case GS_REG_ALPHA_1:
 	case GS_REG_ALPHA_2:
 		{
-			ALPHA alpha;
-			alpha <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X);\r\n", \
-									  nRegister == GS_REG_ALPHA_1 ? 1 : 2, \
-									  alpha.nA, \
-									  alpha.nB, \
-									  alpha.nC, \
-									  alpha.nD, \
-									  alpha.nFix);
+			auto alpha = make_convertible<ALPHA>(data);
+			result = string_format("ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X)",
+				(registerId == GS_REG_ALPHA_1) ? 1 : 2, alpha.nA, alpha.nB, alpha.nC, alpha.nD, alpha.nFix);
 		}
 		break;
 	case GS_REG_SCISSOR_1:
 	case GS_REG_SCISSOR_2:
 		{
-			SCISSOR scissor;
-			scissor <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "SCISSOR_%i(scax0: %i, scax1: %i, scay0: %i, scay1: %i);\r\n", 
-				nRegister == GS_REG_SCISSOR_1 ? 1 : 2,
-				scissor.scax0,
-				scissor.scax1,
-				scissor.scay0,
-				scissor.scay1);
-			break;
+			auto scissor = make_convertible<SCISSOR>(data);
+			result = string_format("SCISSOR_%i(SCAX0: %i, SCAX1: %i, SCAY0: %i, SCAY1: %i)",
+				(registerId == GS_REG_SCISSOR_1) ? 1 : 2, scissor.scax0, scissor.scax1, scissor.scay0, scissor.scay1);
 		}
+		break;
 	case GS_REG_TEST_1:
 	case GS_REG_TEST_2:
 		{
-			TEST tst;
-			tst <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i);\r\n", \
-									  nRegister == GS_REG_TEST_1 ? 1 : 2, \
-									  tst.nAlphaEnabled, \
-									  tst.nAlphaMethod, \
-									  tst.nAlphaRef, \
-									  tst.nAlphaFail, \
-									  tst.nDestAlphaEnabled, \
-									  tst.nDestAlphaMode, \
-									  tst.nDepthEnabled, \
-									  tst.nDepthMethod);
+			auto tst = make_convertible<TEST>(data);
+			result = string_format("TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i)",
+				(registerId == GS_REG_TEST_1) ? 1 : 2, tst.nAlphaEnabled, tst.nAlphaMethod, tst.nAlphaRef, tst.nAlphaFail,
+				tst.nDestAlphaEnabled, tst.nDestAlphaMode, tst.nDepthEnabled, tst.nDepthMethod);
 		}
 		break;
 	case GS_REG_FRAME_1:
 	case GS_REG_FRAME_2:
 		{
-			FRAME fr;
-			fr <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "FRAME_%i(FBP: 0x%0.8X, FBW: %d, PSM: %d, FBMSK: 0x%0.8X);\r\n", \
-				nRegister == GS_REG_FRAME_1 ? 1 : 2, \
-				fr.GetBasePtr(), \
-				fr.GetWidth(), \
-				fr.nPsm, \
-				fr.nMask);
+			auto fr = make_convertible<FRAME>(data);
+			result = string_format("FRAME_%i(FBP: 0x%0.8X, FBW: %d, PSM: %d, FBMSK: 0x%0.8X)",
+				(registerId == GS_REG_FRAME_1) ? 1 : 2, fr.GetBasePtr(), fr.GetWidth(), fr.nPsm, fr.nMask);
 		}
 		break;
 	case GS_REG_ZBUF_1:
 	case GS_REG_ZBUF_2:
 		{
-			ZBUF zbuf;
-			zbuf <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i);\r\n", \
-									  nRegister == GS_REG_ZBUF_1 ? 1 : 2, \
-									  zbuf.GetBasePtr(), \
-									  zbuf.nPsm, \
-									  zbuf.nMask);
+			auto zbuf = make_convertible<ZBUF>(data);
+			result = string_format("ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i)",
+				(registerId == GS_REG_ZBUF_1) ? 1 : 2, zbuf.GetBasePtr(), zbuf.nPsm, zbuf.nMask);
 		}
 		break;
 	case GS_REG_BITBLTBUF:
 		{
-			BITBLTBUF buf;
-			buf <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "BITBLTBUF(SBP: 0x%0.8X, SBW: %i, SPSM: %i, DBP: 0x%0.8X, DBW: %i, DPSM: %i);\r\n",
-				buf.GetSrcPtr(),
-				buf.GetSrcWidth(),
-				buf.nSrcPsm,
-				buf.GetDstPtr(),
-				buf.GetDstWidth(),
-				buf.nDstPsm);
+			auto buf = make_convertible<BITBLTBUF>(data);
+			result = string_format("BITBLTBUF(SBP: 0x%0.8X, SBW: %i, SPSM: %i, DBP: 0x%0.8X, DBW: %i, DPSM: %i)",
+				buf.GetSrcPtr(), buf.GetSrcWidth(), buf.nSrcPsm, buf.GetDstPtr(), buf.GetDstWidth(), buf.nDstPsm);
 		}
 		break;
 	case GS_REG_TRXPOS:
 		{
-			TRXPOS trxPos;
-			trxPos <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "TRXPOS(SSAX: %i, SSAY: %i, DSAX: %i, DSAY: %i, DIR: %i);\r\n",
+			auto trxPos = make_convertible<TRXPOS>(data);
+			result = string_format("TRXPOS(SSAX: %i, SSAY: %i, DSAX: %i, DSAY: %i, DIR: %i)",
 				trxPos.nSSAX, trxPos.nSSAY, trxPos.nDSAX, trxPos.nDSAY, trxPos.nDIR);
 		}
 		break;
 	case GS_REG_TRXREG:
 		{
-			TRXREG trxReg;
-			trxReg <<= nData;
-			CLog::GetInstance().Print(LOG_NAME, "TRXREG(RRW: %i, RRH: %i);\r\n",
+			auto trxReg = make_convertible<TRXREG>(data);
+			result = string_format("TRXREG(RRW: %i, RRH: %i)",
 				trxReg.nRRW, trxReg.nRRH);
 		}
 		break;
 	case GS_REG_TRXDIR:
-		CLog::GetInstance().Print(LOG_NAME, "TRXDIR(XDIR: %i);\r\n", nData & 0x03);
+		result = string_format("TRXDIR(XDIR: %i)", data & 0x03);
 		break;
 	case GS_REG_FINISH:
-		CLog::GetInstance().Print(LOG_NAME, "FINISH();\r\n");
+		result = "FINISH()";
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown command (0x%X).\r\n", nRegister); 
+		result = string_format("(Unknown register: 0x%0.2X)", registerId);
 		break;
 	}
+
+	return result;
 }
 
-void CGSHandler::DisassemblePrivWrite(uint32 address)
+void CGSHandler::LogWrite(uint8 registerId, uint64 data)
+{
+	//Filtering
+	//if(!((registerId == GS_REG_FRAME_1) || (registerId == GS_REG_FRAME_2))) return;
+	//if(!((registerId == GS_REG_TEST_1) || (registerId == GS_REG_TEST_2))) return;
+
+	if(!m_loggingEnabled) return;
+	auto disassembledWrite = DisassembleWrite(registerId, data);
+	CLog::GetInstance().Print(LOG_NAME, "%s\r\n", disassembledWrite.c_str());
+}
+
+void CGSHandler::LogPrivateWrite(uint32 address)
 {
 	assert((address & 0x04) != 0);
 

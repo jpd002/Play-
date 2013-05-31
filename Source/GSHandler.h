@@ -80,54 +80,6 @@ public:
 		PRESENTATION_MODE_ORIGINAL
 	};
 	
-	struct PRESENTATION_PARAMS
-	{
-		uint32				windowWidth;
-		uint32				windowHeight;
-		PRESENTATION_MODE	mode;
-	};
-
-	typedef std::pair<uint8, uint64> RegisterWrite;
-	typedef std::vector<RegisterWrite> RegisterWriteList;
-	typedef std::function<CGSHandler* (void)> FactoryFunction;
-
-											CGSHandler();
-	virtual									~CGSHandler();
-
-	void									Reset();
-	void									SetPresentationParams(const PRESENTATION_PARAMS&);
-
-	virtual void							SaveState(Framework::CZipArchiveWriter&);
-	virtual void							LoadState(Framework::CZipArchiveReader&);
-
-	virtual void							WritePrivRegister(uint32, uint32);
-	virtual uint32							ReadPrivRegister(uint32);
-	
-	void									DisassembleWrite(uint8, uint64);
-	void									DisassemblePrivWrite(uint32);
-
-	virtual void							SetVBlank();
-	void									ResetVBlank();
-
-	void									WriteRegister(uint8, uint64);
-	void									FeedImageData(void*, uint32);
-	void									WriteRegisterMassively(const RegisterWrite*, unsigned int);
-
-	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
-	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
-	void									FetchImagePSMCT32(uint32*, uint32, uint32, uint32, uint32);
-
-	virtual void							SetCrt(bool, unsigned int, bool);
-	void									Initialize();
-	void									Release();
-	virtual void							ProcessImageTransfer(uint32, uint32, bool)	= 0;
-	virtual void							ProcessClutTransfer(uint32, uint32)			= 0;
-	virtual void							ProcessLocalToLocalTransfer()				= 0;
-	void									Flip(bool showOnly = false);
-	virtual void							ReadFramebuffer(uint32, uint32, void*)		= 0;
-	
-	boost::signals2::signal<void (uint32)>	OnNewFrame;
-
 	enum PRIVATE_REGISTER
 	{
 		GS_PMODE	= 0x12000000,
@@ -147,17 +99,11 @@ public:
 		CSR_RESET			= 0x0200,
 	};
 
-protected:
-	struct DELAYED_REGISTER
+	struct PRESENTATION_PARAMS
 	{
-		uint32		heldValue;
-		INTEGER64	value;
-	};
-
-	enum CLUTSIZE
-	{
-		CLUTSIZE		= 0x400,
-		CLUTENTRYCOUNT	= (CLUTSIZE / 2)
+		uint32				windowWidth;
+		uint32				windowHeight;
+		PRESENTATION_MODE	mode;
 	};
 
 	enum PSM
@@ -178,22 +124,9 @@ protected:
 		PSM_MAX,
 	};
 
-	enum CLAMP_MODE
+	enum REGISTER_MAX
 	{
-		CLAMP_MODE_REPEAT,
-		CLAMP_MODE_CLAMP,
-		CLAMP_MODE_REGION_CLAMP,
-		CLAMP_MODE_REGION_REPEAT,
-		CLAMP_MODE_MAX
-	};
-
-	enum TEX0_FUNCTION
-	{
-		TEX0_FUNCTION_MODULATE,
-		TEX0_FUNCTION_DECAL,
-		TEX0_FUNCTION_HIGHLIGHT,
-		TEX0_FUNCTION_HIGHLIGHT2,
-		TEX0_FUNCTION_MAX
+		REGISTER_MAX = 0x80
 	};
 
 	//Reg 0x00
@@ -245,7 +178,7 @@ protected:
 	static_assert(sizeof(UV) == sizeof(uint64), "Size of UV struct must be 8 bytes.");
 
 	//Reg 0x04/0x0C
-	struct XYZF
+	struct XYZF : public convertible<uint64>
 	{
 		unsigned int	nX				: 16;
 		unsigned int	nY				: 16;
@@ -255,6 +188,7 @@ protected:
 		float			GetX()			{ return static_cast<float>(nX) / 16.0f; }
 		float			GetY()			{ return static_cast<float>(nY) / 16.0f; }
 	};
+	static_assert(sizeof(XYZF) == sizeof(uint64), "Size of XYZF struct must be 8 bytes.");
 
 	//Reg 0x05/0x0D
 	struct XYZ : public convertible<uint64>
@@ -329,7 +263,7 @@ protected:
 	static_assert(sizeof(TEX1) == sizeof(uint64), "Size of TEX1 struct must be 8 bytes.");
 
 	//Reg 0x16/0x17
-	struct TEX2
+	struct TEX2 : public convertible<uint64>
 	{
 		unsigned int	nReserved0		: 20;
 		unsigned int	nPsm			: 6;
@@ -342,6 +276,7 @@ protected:
 		unsigned int	nCLD			: 3;
 		uint32			GetCLUTPtr()	{ return nCBP * 256; }
 	};
+	static_assert(sizeof(TEX2) == sizeof(uint64), "Size of TEX2 struct must be 8 bytes.");
 
 	//Reg 0x18/0x19
 	struct XYOFFSET : public convertible<uint64>
@@ -524,6 +459,78 @@ protected:
 	};
 	static_assert(sizeof(TRXREG) == sizeof(uint64), "Size of TRXREG struct must be 8 bytes.");
 
+	typedef std::pair<uint8, uint64> RegisterWrite;
+	typedef std::vector<RegisterWrite> RegisterWriteList;
+	typedef std::function<CGSHandler* (void)> FactoryFunction;
+
+											CGSHandler();
+	virtual									~CGSHandler();
+
+	void									Reset();
+	void									SetPresentationParams(const PRESENTATION_PARAMS&);
+
+	virtual void							SaveState(Framework::CZipArchiveWriter&);
+	virtual void							LoadState(Framework::CZipArchiveReader&);
+
+	virtual void							WritePrivRegister(uint32, uint32);
+	virtual uint32							ReadPrivRegister(uint32);
+	
+	void									SetLoggingEnabled(bool);
+	static std::string						DisassembleWrite(uint8, uint64);
+
+	virtual void							SetVBlank();
+	void									ResetVBlank();
+
+	void									WriteRegister(uint8, uint64);
+	void									FeedImageData(void*, uint32);
+	void									WriteRegisterMassively(const RegisterWrite*, unsigned int);
+
+	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
+	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
+	void									FetchImagePSMCT32(uint32*, uint32, uint32, uint32, uint32);
+
+	virtual void							SetCrt(bool, unsigned int, bool);
+	void									Initialize();
+	void									Release();
+	virtual void							ProcessImageTransfer(uint32, uint32, bool)	= 0;
+	virtual void							ProcessClutTransfer(uint32, uint32)			= 0;
+	virtual void							ProcessLocalToLocalTransfer()				= 0;
+	void									Flip(bool showOnly = false);
+	virtual void							ReadFramebuffer(uint32, uint32, void*)		= 0;
+	
+	boost::signals2::signal<void (uint32)>	OnNewFrame;
+
+protected:
+	struct DELAYED_REGISTER
+	{
+		uint32		heldValue;
+		INTEGER64	value;
+	};
+
+	enum CLUTSIZE
+	{
+		CLUTSIZE		= 0x400,
+		CLUTENTRYCOUNT	= (CLUTSIZE / 2)
+	};
+
+	enum CLAMP_MODE
+	{
+		CLAMP_MODE_REPEAT,
+		CLAMP_MODE_CLAMP,
+		CLAMP_MODE_REGION_CLAMP,
+		CLAMP_MODE_REGION_REPEAT,
+		CLAMP_MODE_MAX
+	};
+
+	enum TEX0_FUNCTION
+	{
+		TEX0_FUNCTION_MODULATE,
+		TEX0_FUNCTION_DECAL,
+		TEX0_FUNCTION_HIGHLIGHT,
+		TEX0_FUNCTION_HIGHLIGHT2,
+		TEX0_FUNCTION_MAX
+	};
+
 	//-----------------------------------
 	//Private Registers
 
@@ -573,10 +580,8 @@ protected:
 
 	typedef bool (CGSHandler::*TRANSFERHANDLER)(void*, uint32);
 
-	//General Purpose Registers
-	TRXREG*									GetTrxReg();
-	TRXPOS*									GetTrxPos();
-	BITBLTBUF*								GetBitBltBuf();
+	void									LogWrite(uint8, uint64);
+	void									LogPrivateWrite(uint32);
 
 	unsigned int							GetCrtWidth() const;
 	unsigned int							GetCrtHeight() const;
@@ -617,6 +622,8 @@ protected:
 	static bool								IsPsmIDTEX4(unsigned int);
 	static bool								IsPsmIDTEX8(unsigned int);
 
+	bool									m_loggingEnabled;
+
 	uint64									m_nPMODE;			//0x12000000
 	uint64									m_nSMODE2;			//0x12000020
 	DELAYED_REGISTER						m_nDISPFB1;			//0x12000070
@@ -631,7 +638,7 @@ protected:
 
 	TRXCONTEXT								m_TrxCtx;
 
-	uint64									m_nReg[0x80];
+	uint64									m_nReg[REGISTER_MAX];
 
 	uint8*									m_pRAM;
 
