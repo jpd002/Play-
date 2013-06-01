@@ -401,6 +401,7 @@ void CDebugger::Layout1600()
 
 void CDebugger::InitializeConsole()
 {
+#ifdef _DEBUG
 	AllocConsole();
 
 	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
@@ -415,6 +416,7 @@ void CDebugger::InitializeConsole()
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	std::ios::sync_with_stdio();
+#endif
 }
 
 void CDebugger::ActivateView(unsigned int nView)
