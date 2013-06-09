@@ -4,16 +4,18 @@
 #include "win32/Splitter.h"
 #include "win32/Tab.h"
 #include "../../GSHandler.h"
+#include "FrameDebuggerTab.h"
 #include "PixelBufferView.h"
 #include "GsContextStateView.h"
+#include "FrameDebuggerTab.h"
 
-class CGsContextView : public Framework::Win32::CWindow
+class CGsContextView : public Framework::Win32::CWindow, public IFrameDebuggerTab
 {
 public:
-													CGsContextView(HWND, const RECT&, CGSHandler*);
+													CGsContextView(HWND, const RECT&, CGSHandler*, unsigned int);
 	virtual											~CGsContextView();
 
-	void											UpdateState();
+	void											UpdateState(CGSHandler*) override;
 
 protected:
 	long											OnSize(unsigned int, unsigned int, unsigned int) override;

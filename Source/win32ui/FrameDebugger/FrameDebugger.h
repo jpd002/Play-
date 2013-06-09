@@ -1,6 +1,5 @@
 #pragma once
 
-#include <set>
 #include "win32/Window.h"
 #include "win32/Tab.h"
 #include "win32/TreeView.h"
@@ -10,6 +9,7 @@
 #include "../../FrameDump.h"
 #include "GsInputStateView.h"
 #include "GsContextView.h"
+#include "GsRegisterWriteListView.h"
 
 class CFrameDebugger : public Framework::Win32::CWindow
 {
@@ -18,10 +18,10 @@ public:
 	virtual											~CFrameDebugger();
 
 protected:
-	long											OnSize(unsigned int, unsigned int, unsigned int);
-	long											OnCommand(unsigned short, unsigned short, HWND);
-	long											OnNotify(WPARAM, NMHDR*);
-	long											OnSysCommand(unsigned int, LPARAM);
+	long											OnSize(unsigned int, unsigned int, unsigned int) override;
+	long											OnCommand(unsigned short, unsigned short, HWND) override;
+	long											OnNotify(WPARAM, NMHDR*) override;
+	long											OnSysCommand(unsigned int, LPARAM) override;
 
 private:
 	typedef std::vector<std::string> StatePathList;
@@ -36,28 +36,24 @@ private:
 	void											OnTabSelChanged();
 	void											ResizeTabContents();
 
-	void											OnPacketsTreeViewSelChanged();
-
 	void											UpdateDisplay(int32);
+	void											UpdateCurrentTab();
 
 	void											LoadFrameDump(const TCHAR*);
 	void											ShowFrameDumpSelector();
 
-	void											IdentifyDrawingKicks();
-
 	std::unique_ptr<CGSHandler>						m_gs;
 	CFrameDump										m_frameDump;
-
-	std::set<uint32>								m_drawingKickIndices;
 
 	std::unique_ptr<COutputWnd>						m_handlerOutputWindow;
 
 	std::unique_ptr<Framework::Win32::CSplitter>	m_mainSplitter;
 
-	std::unique_ptr<Framework::Win32::CTreeView>	m_packetsTreeView;
+	std::unique_ptr<CGsRegisterWriteListView>		m_registerWriteListView;
 	std::unique_ptr<Framework::Win32::CTab>			m_tab;
 
-	std::unique_ptr<CGsContextView>					m_gsContextView;
+	std::unique_ptr<CGsContextView>					m_gsContextView0;
+	std::unique_ptr<CGsContextView>					m_gsContextView1;
 	std::unique_ptr<CGsInputStateView>				m_gsInputStateView;
 
 	Framework::Win32::CWindow*						m_tabItems[MAX_TAB_ITEMS];

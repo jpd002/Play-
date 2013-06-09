@@ -4,62 +4,10 @@
 #include "../GSH_Direct3D9.h"
 #include "win32/VerticalSplitter.h"
 
-void TexUploader_Psm8(CGSHandler* gs, Framework::CBitmap& dst, const CGSHandler::TEX0& tex0, const CGSHandler::TEXA& texA)
-{
-	uint32 nPointer			= tex0.GetBufPtr();
-	unsigned int nWidth		= tex0.GetWidth();
-	unsigned int nHeight	= tex0.GetHeight();
-	unsigned int nDstPitch	= dst.GetPitch() / 4;
-	uint32* dstBuf			= reinterpret_cast<uint32*>(dst.GetPixels());
-
-	CGsPixelFormats::CPixelIndexorPSMT8 Indexor(gs->GetRam(), nPointer, tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < nHeight; j++)
-	{
-		for(unsigned int i = 0; i < nWidth; i++)
-		{
-			uint8 pixel = static_cast<uint8>(Indexor.GetPixel(i, j));
-			dstBuf[i] = 
-				(static_cast<uint8>(pixel) <<  0) | 
-				(static_cast<uint8>(pixel) <<  8) |
-				(static_cast<uint8>(pixel) << 16) |
-				(0xFF << 24);
-		}
-
-		dstBuf += nDstPitch;
-	}
-}
-
-void TexUploader_Psm8H(CGSHandler* gs, Framework::CBitmap& dst, const CGSHandler::TEX0& tex0, const CGSHandler::TEXA& texA)
-{
-	uint32 nPointer			= tex0.GetBufPtr();
-	unsigned int nWidth		= tex0.GetWidth();
-	unsigned int nHeight	= tex0.GetHeight();
-	unsigned int nDstPitch	= dst.GetPitch() / 4;
-	uint32* dstBuf			= reinterpret_cast<uint32*>(dst.GetPixels());
-
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(gs->GetRam(), nPointer, tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < nHeight; j++)
-	{
-		for(unsigned int i = 0; i < nWidth; i++)
-		{
-			uint8 pixel = static_cast<uint8>(indexor.GetPixel(i, j) >> 24);
-			dstBuf[i] = 
-				(static_cast<uint8>(pixel) <<  0) | 
-				(static_cast<uint8>(pixel) <<  8) |
-				(static_cast<uint8>(pixel) << 16) |
-				(0xFF << 24);
-		}
-
-		dstBuf += nDstPitch;
-	}
-}
-
 #define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
 
-CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs)
-: m_contextId(0)
+CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, unsigned int contextId)
+: m_contextId(contextId)
 , m_gs(gs)
 {
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), NULL, WNDSTYLE, rect, parent, NULL);
@@ -86,8 +34,9 @@ CGsContextView::~CGsContextView()
 
 }
 
-void CGsContextView::UpdateState()
+void CGsContextView::UpdateState(CGSHandler* gs)
 {
+	assert(gs == m_gs);
 	UpdateBufferView();
 	m_stateView->UpdateState(m_gs);
 }
@@ -98,32 +47,17 @@ void CGsContextView::UpdateBufferView()
 	{
 		uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
 		auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
+		framebuffer = framebuffer.ResizeCanvas(640, 200);
+		framebuffer = framebuffer.Resize(640, 400);
 		m_bufferView->SetBitmap(framebuffer);
 	}
 	else if(m_bufferSelectionTab->GetSelection() == 1)
 	{
-		CGSHandler::TEX0 tex0;
-		CGSHandler::TEXA texA;
-		tex0 <<= m_gs->GetRegisters()[GS_REG_TEX0_1 + m_contextId];
-		texA <<= m_gs->GetRegisters()[GS_REG_TEXA];
+		uint64 tex0Reg = m_gs->GetRegisters()[GS_REG_TEX0_1 + m_contextId];
+		uint64 tex1Reg = m_gs->GetRegisters()[GS_REG_TEX1_1 + m_contextId];
+		uint64 clampReg = m_gs->GetRegisters()[GS_REG_CLAMP_1 + m_contextId];
 
-		auto texture = Framework::CBitmap(tex0.GetWidth(), tex0.GetHeight(), 32);
-
-		switch(tex0.nPsm)
-		{
-		case CGSHandler::PSMT8:
-			TexUploader_Psm8(m_gs, texture, tex0, texA);
-			break;
-		case CGSHandler::PSMT8H:
-			TexUploader_Psm8H(m_gs, texture, tex0, texA);
-			break;
-		default:
-			for(unsigned int i = 0; i < texture.GetPixelsSize() / 4; i++)
-			{
-				reinterpret_cast<uint32*>(texture.GetPixels())[i] = (0xFF << 24);
-			}
-			break;
-		}
+		auto texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1Reg, clampReg);
 
 		m_bufferView->SetBitmap(texture);
 	}

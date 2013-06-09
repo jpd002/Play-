@@ -8,8 +8,6 @@
 #include "../resource.h"
 #include "StdStreamUtils.h"
 #include "lexical_cast_ex.h"
-#include "string_cast.h"
-#include "string_format.h"
 #include "../GSH_Direct3D9.h"
 
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
@@ -28,6 +26,7 @@ CFrameDebugger::CFrameDebugger()
 	m_handlerOutputWindow->Show(SW_SHOW);
 
 	m_gs = std::make_unique<CGSH_Direct3D9>(m_handlerOutputWindow.get());
+	m_gs->SetLoggingEnabled(false);
 	m_gs->Initialize();
 	m_gs->Reset();
 
@@ -35,27 +34,29 @@ CFrameDebugger::CFrameDebugger()
 
 	m_mainSplitter = std::make_unique<Framework::Win32::CHorizontalSplitter>(m_hWnd, GetClientRect());
 
+	m_registerWriteListView = std::make_unique<CGsRegisterWriteListView>(*m_mainSplitter, GetClientRect());
+
 	m_tab = std::make_unique<Framework::Win32::CTab>(*m_mainSplitter, GetClientRect());
 	m_tab->InsertTab(_T("Context 1"));
 	m_tab->InsertTab(_T("Context 2"));
 	m_tab->InsertTab(_T("Input State"));
 	m_tab->InsertTab(_T("VU1 Microprogram"));
 
-	m_gsContextView = std::make_unique<CGsContextView>(*m_tab, GetClientRect(), m_gs.get());
-	m_gsContextView->UpdateState();
+	m_gsContextView0 = std::make_unique<CGsContextView>(*m_tab, GetClientRect(), m_gs.get(), 0);
+	m_gsContextView0->Show(SW_HIDE);
+
+	m_gsContextView1 = std::make_unique<CGsContextView>(*m_tab, GetClientRect(), m_gs.get(), 1);
+	m_gsContextView1->Show(SW_HIDE);
 
 	m_gsInputStateView = std::make_unique<CGsInputStateView>(*m_tab, GetClientRect());
-	m_gsInputStateView->UpdateState(m_gs.get());
 
-	m_tabItems[0] = m_gsContextView.get();
+	m_tabItems[0] = m_gsContextView0.get();
+	m_tabItems[1] = m_gsContextView1.get();
 	m_tabItems[2] = m_gsInputStateView.get();
 
 	OnTabSelChanged();
 
-	m_packetsTreeView = std::make_unique<Framework::Win32::CTreeView>(*m_mainSplitter, Framework::Win32::CRect(0, 0, 300, 300), 
-		TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
-
-	m_mainSplitter->SetChild(0, *m_packetsTreeView);
+	m_mainSplitter->SetChild(0, *m_registerWriteListView);
 	m_mainSplitter->SetChild(1, *m_tab);
 }
 
@@ -83,6 +84,11 @@ long CFrameDebugger::OnSize(unsigned int type, unsigned int x, unsigned int y)
 
 long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndFrom)
 {
+	if(!IsWindowEnabled(m_hWnd))
+	{
+		return TRUE;
+	}
+
 	if(hwndFrom == NULL)
 	{
 		switch(id)
@@ -107,6 +113,11 @@ long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndF
 
 long CFrameDebugger::OnNotify(WPARAM param, NMHDR* header)
 {
+	if(!IsWindowEnabled(m_hWnd))
+	{
+		return FALSE;
+	}
+
 	if(CWindow::IsNotifySource(m_tab.get(), header))
 	{
 		switch(header->code)
@@ -117,12 +128,15 @@ long CFrameDebugger::OnNotify(WPARAM param, NMHDR* header)
 		}
 		return FALSE;
 	}
-	if(CWindow::IsNotifySource(m_packetsTreeView.get(), header))
+	else if(CWindow::IsNotifySource(m_registerWriteListView.get(), header))
 	{
 		switch(header->code)
 		{
-		case TVN_SELCHANGED:
-			OnPacketsTreeViewSelChanged();
+		case CGsRegisterWriteListView::NOTIFICATION_SELCHANGED:
+			{
+				auto selchangedInfo = reinterpret_cast<CGsRegisterWriteListView::SELCHANGED_INFO*>(header);
+				UpdateDisplay(selchangedInfo->selectedCmdIndex);
+			}
 			break;
 		}
 		return FALSE;
@@ -175,6 +189,7 @@ void CFrameDebugger::OnTabSelChanged()
 
 	assert(selectedTab < MAX_TAB_ITEMS);
 	m_currentSelection = selectedTab;
+	UpdateCurrentTab();
 
 	auto tabItem(m_tabItems[m_currentSelection]);
 	if(tabItem)
@@ -196,15 +211,10 @@ void CFrameDebugger::ResizeTabContents()
 	}
 }
 
-void CFrameDebugger::OnPacketsTreeViewSelChanged()
-{
-	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
-	uint32 cmdIndex = m_packetsTreeView->GetItemParam<uint32>(selectedItem);
-	UpdateDisplay(cmdIndex);
-}
-
 void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 {
+	EnableWindow(m_hWnd, FALSE);
+
 	m_gs->Reset();
 
 	uint8* gsRam = m_gs->GetRam();
@@ -230,8 +240,18 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	m_gs->WriteRegisterMassively(writes.data(), writes.size());
 	m_gs->Flip();
 
-	m_gsInputStateView->UpdateState(m_gs.get());
-	m_gsContextView->UpdateState();
+	UpdateCurrentTab();
+
+	EnableWindow(m_hWnd, TRUE);
+}
+
+void CFrameDebugger::UpdateCurrentTab()
+{
+	if(m_currentSelection != -1 && m_tabItems[m_currentSelection])
+	{
+		auto debuggerTab = dynamic_cast<IFrameDebuggerTab*>(m_tabItems[m_currentSelection]);
+		debuggerTab->UpdateState(m_gs.get());
+	}
 }
 
 void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
@@ -240,33 +260,7 @@ void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
 	auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
 	m_frameDump.Read(inputStream);
 
-	IdentifyDrawingKicks();
-
-	uint32 cmdIndex = 0;
-	m_packetsTreeView->DeleteAllItems();
-	for(const auto& packet : m_frameDump.GetPackets())
-	{
-		auto lowerBoundIterator = m_drawingKickIndices.upper_bound(cmdIndex);
-		auto upperBoundIterator = m_drawingKickIndices.lower_bound(cmdIndex + packet.size());
-
-		int kickCount = static_cast<int>(std::distance(lowerBoundIterator, upperBoundIterator));
-		
-		auto packetDescription = string_format("Packet (Write Count: %d, Draw Count: %d)", packet.size(), kickCount);
-		HTREEITEM packetRootItem = m_packetsTreeView->InsertItem(TVI_ROOT, string_cast<std::tstring>(packetDescription).c_str());
-		m_packetsTreeView->SetItemParam(packetRootItem, cmdIndex);
-
-		for(const auto& registerWrite : packet)
-		{
-//			std::tstring packetWriteDescription = _T("Register Write (reg: 0x") + lexical_cast_hex<std::tstring>(registerWrite.first) + _T(")");
-			auto packetWriteDescription = CGSHandler::GetWriteDescription(registerWrite.first, registerWrite.second);
-			if(m_drawingKickIndices.find(cmdIndex) != std::end(m_drawingKickIndices))
-			{
-				packetWriteDescription = "(DK) " + packetWriteDescription;
-			}
-			HTREEITEM newItem = m_packetsTreeView->InsertItem(packetRootItem, string_cast<std::tstring>(packetWriteDescription).c_str());
-			m_packetsTreeView->SetItemParam(newItem, cmdIndex++);
-		}
-	}
+	m_registerWriteListView->SetFrameDump(&m_frameDump);
 
 	UpdateDisplay(0);
 }
@@ -279,51 +273,5 @@ void CFrameDebugger::ShowFrameDumpSelector()
 	if(result == IDOK)
 	{
 		LoadFrameDump(fileDialog.GetPath());
-	}
-}
-
-void CFrameDebugger::IdentifyDrawingKicks()
-{
-	static const unsigned int g_initVertexCounts[8] = { 1, 2, 2, 3, 3, 3, 2, 0 };
-	static const unsigned int g_nextVertexCounts[8] = { 1, 2, 1, 3, 1, 1, 2, 0 };
-
-	CGSHandler::PRIM currentPrim;
-	currentPrim <<= m_gs->GetRegisters()[GS_REG_PRIM];
-
-	unsigned int vertexCount = g_initVertexCounts[currentPrim.nType];
-
-	uint32 cmdIndex = 0;
-	for(const auto& packet : m_frameDump.GetPackets())
-	{
-		for(const auto& registerWrite : packet)
-		{
-			if(registerWrite.first == GS_REG_PRIM)
-			{
-				currentPrim <<= registerWrite.second;
-				vertexCount = g_initVertexCounts[currentPrim.nType];
-			}
-			else if(
-				(registerWrite.first == GS_REG_XYZ2) || 
-				(registerWrite.first == GS_REG_XYZ3) ||
-				(registerWrite.first == GS_REG_XYZF2) ||
-				(registerWrite.first == GS_REG_XYZF3))
-			{
-				if(vertexCount != 0)
-				{
-					vertexCount--;
-					if(vertexCount == 0)
-					{
-						bool drawingKick = (registerWrite.first == GS_REG_XYZ2) || (registerWrite.first == GS_REG_XYZF2);
-						vertexCount = g_nextVertexCounts[currentPrim.nType];
-						if(drawingKick)
-						{
-							m_drawingKickIndices.insert(cmdIndex);
-						}
-					}
-				}
-			}
-
-			cmdIndex++;
-		}
 	}
 }
