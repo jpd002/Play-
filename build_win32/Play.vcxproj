@@ -384,6 +384,7 @@
     <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugUtils.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugView.cpp" />
+    <ClCompile Include="..\Source\win32ui\DirectXControl.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsm.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsmWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\ELFHeaderView.cpp" />
@@ -391,7 +392,17 @@
     <ClCompile Include="..\Source\win32ui\ELFSectionView.cpp" />
     <ClCompile Include="..\Source\win32ui\ELFSymbolView.cpp" />
     <ClCompile Include="..\Source\win32ui\ELFView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\FrameDebugger.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextStateView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsInputStateView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsStateUtils.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.cpp" />
     <ClCompile Include="..\Source\win32ui\FunctionsView.cpp" />
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp" />
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp" />
     <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp" />
     <ClCompile Include="..\Source\win32ui\IconMesh.cpp" />
     <ClCompile Include="..\Source\win32ui\Main.cpp" />
@@ -573,6 +584,7 @@
     <ClInclude Include="..\Source\win32ui\DebuggerChildWnd.h" />
     <ClInclude Include="..\Source\win32ui\DebugUtils.h" />
     <ClInclude Include="..\Source\win32ui\DebugView.h" />
+    <ClInclude Include="..\Source\win32ui\DirectXControl.h" />
     <ClInclude Include="..\Source\win32ui\DisAsm.h" />
     <ClInclude Include="..\Source\win32ui\DisAsmWnd.h" />
     <ClInclude Include="..\Source\win32ui\ELFHeaderView.h" />
@@ -582,7 +594,17 @@
     <ClInclude Include="..\Source\win32ui\ELFView.h" />
     <ClInclude Include="..\Source\win32ui\ElfViewRes.h" />
     <ClInclude Include="..\Source\win32ui\FileFilters.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebugger.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebuggerTab.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextStateView.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextView.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsInputStateView.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsStateUtils.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferView.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.h" />
     <ClInclude Include="..\Source\win32ui\FunctionsView.h" />
+    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h" />
     <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h" />
     <ClInclude Include="..\Source\win32ui\IconMesh.h" />
     <ClInclude Include="..\Source\win32ui\MainWindow.h" />
@@ -665,6 +687,16 @@
     <ProjectReference Include="..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj">
       <Project>{4a0b5134-ab23-452d-8513-8225fa178356}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\win32ui\FrameDebugger\CheckerboardShader.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\win32ui\FrameDebugger\PixelBufferViewShader.fx">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

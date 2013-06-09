@@ -44,6 +44,9 @@
     <Filter Include="Source Files\Win32 UI\PH_DirectInput">
       <UniqueIdentifier>{544f28b1-06e8-479f-b715-21ab8e8e19ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Win32 UI\FrameDebugger">
+      <UniqueIdentifier>{9b66dc69-81ef-45ff-bb5d-07c525e171ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AppConfig.cpp">
@@ -583,8 +586,41 @@
     <ClCompile Include="..\Source\FrameDump.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\FrameDebugger.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsInputStateView.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsStateUtils.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\DirectXControl.cpp">
+      <Filter>Source Files\Win32 UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextView.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferView.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\GsPixelFormats.cpp">
       <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextStateView.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp">
+      <Filter>Source Files\Win32 UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp">
+      <Filter>Source Files\Win32 UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1134,8 +1170,41 @@
     <ClInclude Include="..\Source\FrameDump.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebugger.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsInputStateView.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsStateUtils.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\DirectXControl.h">
+      <Filter>Source Files\Win32 UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextView.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferView.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
     <ClInclude Include="..\Source\GsPixelFormats.h">
       <Filter>Source Files\Core\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextStateView.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h">
+      <Filter>Source Files\Win32 UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebuggerTab.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1153,6 +1222,12 @@
     <None Include="..\Source\win32ui\Images\purei.ico" />
     <None Include="..\Source\win32ui\images\grab.cur" />
     <None Include="..\Source\win32ui\images\grabbing.cur" />
+    <None Include="..\Source\win32ui\FrameDebugger\CheckerboardShader.fx">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </None>
+    <None Include="..\Source\win32ui\FrameDebugger\PixelBufferViewShader.fx">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Source\win32ui\Res.rc">
