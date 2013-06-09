@@ -25,6 +25,7 @@
 #include "iop/Iop_SubSystem.h"
 #include "PS2OS.h"
 #include "iop/IopBios.h"
+#include "FrameDump.h"
 
 enum PS2VM_MSG
 {
@@ -47,6 +48,8 @@ enum PS2VM_MSG
 class CPS2VM : public CVirtualMachine
 {
 public:
+	typedef std::function<void (const CFrameDump&)> FrameDumpCallback;
+
 								CPS2VM();
 	virtual						~CPS2VM();
 
@@ -75,6 +78,8 @@ public:
 
 	unsigned int				SaveState(const char*);
 	unsigned int				LoadState(const char*);
+
+	void						TriggerFrameDump(const FrameDumpCallback&);
 
 #ifdef DEBUGGER_INCLUDED
 	std::string					MakeDebugTagsPackagePath(const char*);
@@ -185,4 +190,9 @@ private:
 	bool						m_singleStepIop;
 	bool						m_singleStepVu0;
 	bool						m_singleStepVu1;
+
+	CFrameDump					m_frameDump;
+	FrameDumpCallback			m_frameDumpCallback;
+	std::mutex					m_frameDumpCallbackMutex;
+	bool						m_dumpingFrame;
 };

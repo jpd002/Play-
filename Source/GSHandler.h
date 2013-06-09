@@ -11,6 +11,8 @@
 #include "zip/ZipArchiveReader.h"
 #include "Integer64.h"
 
+class CFrameDump;
+
 #define PREF_CGSHANDLER_FLIPMODE				"renderer.flipmode"
 #define PREF_CGSHANDLER_PRESENTATION_MODE		"renderer.presentationmode"
 
@@ -472,6 +474,8 @@ public:
 	virtual void							SaveState(Framework::CZipArchiveWriter&);
 	virtual void							LoadState(Framework::CZipArchiveReader&);
 
+	void									SetFrameDump(CFrameDump*);
+
 	virtual void							WritePrivRegister(uint32, uint32);
 	virtual uint32							ReadPrivRegister(uint32);
 	
@@ -498,6 +502,9 @@ public:
 	void									Flip(bool showOnly = false);
 	virtual void							ReadFramebuffer(uint32, uint32, void*)		= 0;
 	
+	uint8*									GetRam();
+	uint64*									GetRegisters();
+
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
 
 protected:
@@ -653,4 +660,5 @@ protected:
 	std::recursive_mutex					m_registerMutex;
 	CMailBox								m_mailBox;
 	bool									m_threadDone;
+	CFrameDump*								m_frameDump;
 };

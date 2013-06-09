@@ -9,6 +9,7 @@
 #include "Log.h"
 #include "MemoryStateFile.h"
 #include "RegisterStateFile.h"
+#include "FrameDump.h"
 #include "string_format.h"
 
 #define R_REG(a, v, r)					\
@@ -56,6 +57,7 @@ CGSHandler::CGSHandler()
 , m_drawCallCount(0)
 , m_pCLUT(nullptr)
 , m_pRAM(nullptr)
+, m_frameDump(nullptr)
 , m_loggingEnabled(true)
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_SMODE2);
@@ -175,6 +177,11 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 		m_nIMR				= registerFile.GetRegister64(STATE_PRIVREGS_IMR);
 		m_nCrtMode			= registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
 	}
+}
+
+void CGSHandler::SetFrameDump(CFrameDump* frameDump)
+{
+	m_frameDump = frameDump;
 }
 
 void CGSHandler::SetVBlank()
@@ -341,6 +348,16 @@ void CGSHandler::MarkNewFrame()
 #endif
 }
 
+uint8* CGSHandler::GetRam()
+{
+	return m_pRAM;
+}
+
+uint64* CGSHandler::GetRegisters()
+{
+	return m_nReg;
+}
+
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
 {
 	m_mailBox.SendCall(std::bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
@@ -451,6 +468,13 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 
 void CGSHandler::WriteRegisterMassivelyImpl(const RegisterWrite* writeList, unsigned int count)
 {
+#ifdef DEBUGGER_INCLUDED
+	if(m_frameDump)
+	{
+		m_frameDump->AddPacket(writeList, count);
+	}
+#endif
+
 	const RegisterWrite* writeIterator = writeList;
 	for(unsigned int i = 0; i < count; i++)
 	{

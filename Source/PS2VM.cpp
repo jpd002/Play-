@@ -93,6 +93,7 @@ CPS2VM::CPS2VM()
 , m_singleStepIop(false)
 , m_singleStepVu0(false)
 , m_singleStepVu1(false)
+, m_dumpingFrame(false)
 , m_vblankTicks(0)
 , m_inVblank(false)
 , m_eeExecutionTicks(0)
@@ -269,16 +270,29 @@ unsigned int CPS2VM::LoadState(const char* sPath)
 	return result;
 }
 
+void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
+{
+	m_mailBox.SendCall(
+		[=] ()
+		{
+			std::unique_lock<std::mutex> frameDumpCallbackMutexLock(m_frameDumpCallbackMutex);
+			if(m_frameDumpCallback) return;
+			m_frameDumpCallback = frameDumpCallback;
+		},
+		false
+	);
+}
+
 #ifdef DEBUGGER_INCLUDED
 
-#define TAGS_SECTION_TAGS           ("tags")
-#define TAGS_SECTION_EE_FUNCTIONS   ("ee_functions")
-#define TAGS_SECTION_EE_COMMENTS    ("ee_comments")
-#define TAGS_SECTION_VU1_FUNCTIONS  ("vu1_functions")
-#define TAGS_SECTION_VU1_COMMENTS   ("vu1_comments")
-#define TAGS_SECTION_IOP            ("iop")
-#define TAGS_SECTION_IOP_FUNCTIONS  ("functions")
-#define TAGS_SECTION_IOP_COMMENTS   ("comments")
+#define TAGS_SECTION_TAGS			("tags")
+#define TAGS_SECTION_EE_FUNCTIONS	("ee_functions")
+#define TAGS_SECTION_EE_COMMENTS	("ee_comments")
+#define TAGS_SECTION_VU1_FUNCTIONS	("vu1_functions")
+#define TAGS_SECTION_VU1_COMMENTS	("vu1_comments")
+#define TAGS_SECTION_IOP			("iop")
+#define TAGS_SECTION_IOP_FUNCTIONS	("functions")
+#define TAGS_SECTION_IOP_COMMENTS	("comments")
 
 std::string CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
 {
@@ -678,6 +692,24 @@ void CPS2VM::DestroyPadHandlerImpl()
 
 void CPS2VM::OnGsNewFrame()
 {
+#ifdef DEBUGGER_INCLUDED
+	std::unique_lock<std::mutex> dumpFrameCallbackMutexLock(m_frameDumpCallbackMutex);
+	if(m_dumpingFrame)
+	{
+		m_gs->SetFrameDump(nullptr);
+		m_frameDumpCallback(m_frameDump);
+		m_dumpingFrame = false;
+		m_frameDumpCallback = FrameDumpCallback();
+	}
+	else if(m_frameDumpCallback)
+	{
+		m_frameDump.Reset();
+		memcpy(m_frameDump.GetInitialGsRam(), m_gs->GetRam(), CGSHandler::RAMSIZE);
+		memcpy(m_frameDump.GetInitialGsRegisters(), m_gs->GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+		m_gs->SetFrameDump(&m_frameDump);
+		m_dumpingFrame = true;
+	}
+#endif
 }
 
 void CPS2VM::UpdateSpu()
