@@ -1,5 +1,4 @@
-#ifndef _MAINWINDOW_H_
-#define _MAINWINDOW_H_
+#pragma once
 
 #include <boost/signals2.hpp>
 #include <string>
@@ -11,6 +10,7 @@
 #include "AviStream.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
+#include "FrameDebugger/FrameDebugger.h"
 #endif
 #include "../PS2VM.h"
 
@@ -76,6 +76,8 @@ private:
 	void							ChangeStateSlot(unsigned int);
 	void							ChangeViewMode(CGSHandler::PRESENTATION_MODE);
 	void							ShowDebugger();
+	void							ShowFrameDebugger();
+	void							DumpNextFrame();
 	void							ShowSysInfo();
 	void							ShowAbout();
 	void							ShowSettingsDialog(CSettingsDialogProvider*);
@@ -92,9 +94,11 @@ private:
 	void							CreateAccelerators();
 	
 	void							CreateDebugMenu();
+	static boost::filesystem::path	GetFrameDumpDirectoryPath();
 
 	void							CreateStateSlotMenu();
-	std::string						GenerateStatePath();
+	static boost::filesystem::path	GetStateDirectoryPath();
+	boost::filesystem::path			GenerateStatePath() const;
 	void							UpdateUI();
 
 	void							OnNewFrame(uint32);
@@ -124,9 +128,8 @@ private:
 	Framework::Win32::CStatusBar*	m_statusBar;
 	COutputWnd*						m_outputWnd;
 #ifdef DEBUGGER_INCLUDED
-	CDebugger*						m_debugger;
+	std::unique_ptr<CDebugger>		m_debugger;
+	std::unique_ptr<CFrameDebugger>	m_frameDebugger;
 #endif
 	static double					m_statusBarPanelWidths[2];
 };
-
-#endif

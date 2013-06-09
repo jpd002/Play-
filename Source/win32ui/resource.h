@@ -10,7 +10,6 @@
 #define IDR_MAINWINDOW                  109
 #define IDI_PUREI                       110
 #define IDC_GRAB                        115
-#define IDC_CURSOR1                     116
 #define IDC_GRABBING                    116
 #define IDB_REFRESH                     117
 #define IDD_DEBUG_THREADCALLSTACK       118
@@ -37,7 +36,6 @@
 #define ID_LOGGING_GS                   40031
 #define ID_LOGGING_ENABLEGIFLOGGING     40032
 #define ID_VIEW_MEMORY                  40033
-#define ID_FILE_BOOTDISC1               40034
 #define ID_FILE_LOADELF                 40035
 #define ID_DEBUG_STARTDEBUGGER          40038
 #define ID_VIRTUALMACHINE_RESET         40040
@@ -46,8 +44,6 @@
 #define ID_OPTIONS                      40046
 #define ID_MAIN_FILE_EXIT               40047
 #define ID_MAIN_FILE_LOADELF            40048
-#define ID_MAIN_DEBUG_STARTDEBUGGER     40049
-#define ID_MAIN_DEBUG_DISPLAY           40050
 #define ID_LOGGING_DMACLOGGING          40052
 #define ID_LOGGING_OSLOGGING            40053
 #define ID_LOGGING_DMAC                 40054
@@ -90,7 +86,6 @@
 #define ID_VIEW_VU1VIEW                 40102
 #define ID_MAIN_OPTIONS_RENDERER        40105
 #define ID_MAIN_VM_PAUSEFOCUS           40107
-#define ID_MAIN_VM_DUMPFRAME            40108
 #define ID_VM_ASMJAL                    40109
 #define ID_VM_DUMPINTCHANDLERS          40119
 #define ID_VM_DUMPDMACHANDLERS          40121

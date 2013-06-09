@@ -161,7 +161,6 @@ BEGIN
         MENUITEM "&Pause / Resume\tF5",         ID_MAIN_VM_RESUME
         MENUITEM "R&eset",                      ID_MAIN_VM_RESET, GRAYED
         MENUITEM "Pause When Focus Lost",       ID_MAIN_VM_PAUSEFOCUS
-        MENUITEM "Dump Next Frame\tF11",        ID_MAIN_VM_DUMPFRAME
         MENUITEM SEPARATOR
         MENUITEM "State Slot",                  ID_MAIN_VM_STATESLOT
         MENUITEM "Save State\tF7",              ID_MAIN_VM_SAVESTATE
