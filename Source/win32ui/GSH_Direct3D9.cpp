@@ -20,8 +20,6 @@ struct CUSTOMVERTEX
 CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow) 
 : m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 , m_cvtBuffer(nullptr)
-//, m_nWidth(0)
-//, m_nHeight(0)
 , m_sceneBegun(false)
 , m_currentTextureWidth(0)
 , m_currentTextureHeight(0)
@@ -38,6 +36,13 @@ Framework::CBitmap CGSH_Direct3D9::GetFramebuffer(uint64 frameReg)
 {
 	Framework::CBitmap result;
 	m_mailBox.SendCall([&] () { GetFramebufferImpl(result, frameReg); }, true );
+	return result;
+}
+
+Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clamp)
+{
+	Framework::CBitmap result;
+	m_mailBox.SendCall([&] () { GetTextureImpl(result, tex0Reg, tex1Reg, clamp); }, true);
 	return result;
 }
 
@@ -74,11 +79,7 @@ void CGSH_Direct3D9::ReadFramebuffer(uint32, uint32, void*)
 void CGSH_Direct3D9::InitializeImpl()
 {
 	m_d3d = Direct3DPtr(Direct3DCreate9(D3D_SDK_VERSION));
-	
-	{
-		RECT clientRect = m_outputWnd->GetClientRect();
-		RecreateDevice(clientRect.right, clientRect.bottom);
-	}
+	CreateDevice();
 
 	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 	PresentBackbuffer();
@@ -100,11 +101,6 @@ void CGSH_Direct3D9::ResetBase()
 void CGSH_Direct3D9::ReleaseImpl()
 {
 	delete [] m_cvtBuffer;
-	TexCache_Flush();
-	m_triangleVb.Reset();
-	m_quadVb.Reset();
-	m_device.Reset();
-	m_d3d.Reset();
 }
 
 CGSH_Direct3D9::FramebufferPtr CGSH_Direct3D9::FindFramebuffer(uint64 frameReg) const
@@ -143,7 +139,7 @@ void CGSH_Direct3D9::GetFramebufferImpl(Framework::CBitmap& outputBitmap, uint64
 	outputBitmap = Framework::CBitmap(framebuffer->m_width, framebuffer->m_height, 32);
 
 	D3DLOCKED_RECT lockedRect = {};
-	result = offscreenSurface->LockRect(&lockedRect, nullptr, 0);
+	result = offscreenSurface->LockRect(&lockedRect, nullptr, D3DLOCK_READONLY);
 	assert(SUCCEEDED(result));
 
 	uint8* srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
@@ -156,6 +152,34 @@ void CGSH_Direct3D9::GetFramebufferImpl(Framework::CBitmap& outputBitmap, uint64
 	}
 
 	result = offscreenSurface->UnlockRect();
+	assert(SUCCEEDED(result));
+}
+
+void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
+{
+	auto tex0 = make_convertible<TEX0>(tex0Reg);
+	auto tex1 = make_convertible<TEX1>(tex1Reg);
+	auto clamp = make_convertible<CLAMP>(clampReg);
+	auto texture = LoadTexture(tex0, tex1, clamp);
+
+	outputBitmap = Framework::CBitmap(tex0.GetWidth(), tex0.GetHeight(), 32);
+
+	HRESULT result = S_OK;
+
+	D3DLOCKED_RECT lockedRect = {};
+	result = texture->LockRect(0, &lockedRect, nullptr, D3DLOCK_READONLY);
+	assert(SUCCEEDED(result));
+
+	uint8* srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
+	uint8* dstPtr = reinterpret_cast<uint8*>(outputBitmap.GetPixels());
+	for(unsigned int y = 0; y < tex0.GetHeight(); y++)
+	{
+		memcpy(dstPtr, srcPtr, tex0.GetWidth() * 4);
+		dstPtr += outputBitmap.GetPitch();
+		srcPtr += lockedRect.Pitch;
+	}
+
+	result = texture->UnlockRect(0);
 	assert(SUCCEEDED(result));
 }
 
@@ -189,8 +213,11 @@ void CGSH_Direct3D9::PresentBackbuffer()
 		HRESULT result = S_OK;
 
 		EndScene();
-		result = m_device->Present(NULL, NULL, NULL, NULL);
-		assert(SUCCEEDED(result));
+		if(TestDevice())
+		{
+			result = m_device->Present(NULL, NULL, NULL, NULL);
+			assert(SUCCEEDED(result));
+		}
 		BeginScene();
 	}
 }
@@ -229,11 +256,41 @@ void CGSH_Direct3D9::SetReadCircuitMatrix(int nWidth, int nHeight)
 	}
 }
 
-void CGSH_Direct3D9::RecreateDevice(int nWidth, int nHeight)
+bool CGSH_Direct3D9::TestDevice()
 {
-	m_triangleVb.Reset();
-	m_quadVb.Reset();
-	m_device.Reset();
+	HRESULT coopLevelResult = m_device->TestCooperativeLevel();
+	if(FAILED(coopLevelResult))
+	{
+		if(coopLevelResult == D3DERR_DEVICELOST)
+		{
+			return false;
+		}
+		else if(coopLevelResult == D3DERR_DEVICENOTRESET)
+		{
+			OnDeviceResetting();
+			auto presentParams = CreatePresentParams();
+			HRESULT result = m_device->Reset(&presentParams);
+			if(FAILED(result))
+			{
+				assert(0);
+				return false;
+			}
+			OnDeviceReset();
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+
+	return true;
+}
+
+D3DPRESENT_PARAMETERS CGSH_Direct3D9::CreatePresentParams()
+{
+	RECT clientRect = m_outputWnd->GetClientRect();
+	unsigned int outputWidth = clientRect.right;
+	unsigned int outputHeight = clientRect.bottom;
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
@@ -241,19 +298,34 @@ void CGSH_Direct3D9::RecreateDevice(int nWidth, int nHeight)
 	d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
 	d3dpp.hDeviceWindow				= m_outputWnd->m_hWnd;
 	d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
-	d3dpp.BackBufferWidth			= nWidth;
-	d3dpp.BackBufferHeight			= nHeight;
+	d3dpp.BackBufferWidth			= outputWidth;
+	d3dpp.BackBufferHeight			= outputHeight;
 	d3dpp.EnableAutoDepthStencil	= TRUE;
-	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
+	d3dpp.AutoDepthStencilFormat	= D3DFMT_D24S8;
+	return d3dpp;
+}
 
+void CGSH_Direct3D9::CreateDevice()
+{
+	auto presentParams = CreatePresentParams();
 	HRESULT result = S_OK;
 	result = m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
 						D3DDEVTYPE_HAL,
 						m_outputWnd->m_hWnd,
 						D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-						&d3dpp,
+						&presentParams,
 						&m_device);
 	assert(SUCCEEDED(result));
+
+	OnDeviceReset();
+
+	m_sceneBegun = false;
+	BeginScene();
+}
+
+void CGSH_Direct3D9::OnDeviceReset()
+{
+	HRESULT result = S_OK;
 
 #ifdef _WIREFRAME
 	m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
@@ -267,9 +339,15 @@ void CGSH_Direct3D9::RecreateDevice(int nWidth, int nHeight)
 
 	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
 	assert(SUCCEEDED(result));
+}
 
-	m_sceneBegun = false;
-	BeginScene();
+void CGSH_Direct3D9::OnDeviceResetting()
+{
+	m_triangleVb.Reset();
+	m_quadVb.Reset();
+	m_framebuffers.clear();
+	TexCache_Flush();
+	m_currentTexture.Reset();
 }
 
 uint8 CGSH_Direct3D9::MulBy2Clamp(uint8 nValue)
@@ -292,41 +370,7 @@ float CGSH_Direct3D9::GetZ(float nZ)
 		return nZ / m_nMaxZ;
 	}
 }
-/*
-void CGSH_Direct3D9::UpdateViewportImpl()
-{
-	if(m_nPMODE == 0) return;
 
-	DISPLAY d;
-	if(m_nPMODE & 0x01)
-	{
-		d <<= m_nDISPLAY1.value.q;
-	}
-	else
-	{
-		d <<= m_nDISPLAY2.value.q;
-	}
-
-	unsigned int nW = (d.nW + 1) / (d.nMagX + 1);
-	unsigned int nH = (d.nH + 1);
-
-	if(GetCrtIsInterlaced() && GetCrtIsFrameMode())
-	{
-		nH /= 2;
-	}
-
-	if(m_nWidth == nW && m_nHeight == nH)
-	{
-		return;
-	}
-
-	m_nWidth = nW;
-	m_nHeight = nH;
-
-//	SetViewport(GetCrtWidth(), GetCrtHeight());
-	SetReadCircuitMatrix(m_nWidth, m_nHeight);
-}
-*/
 void CGSH_Direct3D9::Prim_Triangle()
 {
 	float nU1 = 0, nU2 = 0, nU3 = 0;

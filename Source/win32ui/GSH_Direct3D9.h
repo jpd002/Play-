@@ -32,6 +32,7 @@ public:
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 	
 	Framework::CBitmap				GetFramebuffer(uint64);
+	Framework::CBitmap				GetTexture(uint64, uint64, uint64);
 	const VERTEX*					GetInputVertices() const;
 
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
@@ -103,14 +104,17 @@ private:
 
 	void							BeginScene();
 	void							EndScene();
-	void							RecreateDevice(int, int);
+	bool							TestDevice();
+	void							CreateDevice();
+	void							OnDeviceReset();
+	void							OnDeviceResetting();
+	D3DPRESENT_PARAMETERS			CreatePresentParams();
 	void							PresentBackbuffer();
 
 	FramebufferPtr					FindFramebuffer(uint64) const;
 	void							GetFramebufferImpl(Framework::CBitmap&, uint64);
 
 	void							SetReadCircuitMatrix(int, int);
-//	void							UpdateViewportImpl();
 	void							VertexKick(uint8, uint64);
 
 	void							SetRenderingContext(unsigned int);
@@ -120,6 +124,7 @@ private:
 	void							SetupTexture(uint64, uint64, uint64);
 	void							SetupFramebuffer(uint64);
 	TexturePtr						LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
+	void							GetTextureImpl(Framework::CBitmap&, uint64, uint64, uint64);
 
 	float							GetZ(float);
 	uint8							MulBy2Clamp(uint8);
@@ -132,6 +137,8 @@ private:
 
 	uint32							ConvertTexturePsm8(const TEX0&, const TEXA&);
 	uint32							ConvertTexturePsm8H(const TEX0&, const TEXA&);
+	uint32							ConvertTexturePsm4(const TEX0&, const TEXA&);
+	uint32							ConvertTexturePsm4HH(const TEX0&, const TEXA&);
 
 	static uint32					Color_Ps2ToDx9(uint32);
 	static uint32					RGBA16ToRGBA32(uint16);
@@ -145,6 +152,8 @@ private:
 	void							FlattenClut(const TEX0&, uint32*);
 
 	COutputWnd*						m_outputWnd;
+	Direct3DPtr						m_d3d;
+	DevicePtr						m_device;
 
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
@@ -164,11 +173,6 @@ private:
 
 	CachedTextureList				m_cachedTextures;
 	FramebufferList					m_framebuffers;
-
-//	int								m_nWidth;
-//	int								m_nHeight;
-	Direct3DPtr						m_d3d;
-	DevicePtr						m_device;
 
 	VertexBufferPtr					m_triangleVb;
 	VertexBufferPtr					m_quadVb;
