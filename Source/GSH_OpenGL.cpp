@@ -1190,8 +1190,8 @@ void CGSH_OpenGL::Prim_Sprite()
 	xyz[0] <<= m_VtxBuffer[1].nPosition;
 	xyz[1] <<= m_VtxBuffer[0].nPosition;
 
-	float nX1 = xyz[0].GetX();	float nY1 = xyz[0].GetY();	float nZ1 = xyz[0].GetZ();
-	float nX2 = xyz[1].GetX();	float nY2 = xyz[1].GetY();	float nZ2 = xyz[1].GetZ();
+	float nX1 = xyz[0].GetX();	float nY1 = xyz[0].GetY();
+	float nX2 = xyz[1].GetX();	float nY2 = xyz[1].GetY();	float nZ = xyz[1].GetZ();
 
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
 	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
@@ -1202,10 +1202,7 @@ void CGSH_OpenGL::Prim_Sprite()
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
 
-//	assert(nZ1 == nZ2);
-
-	nZ1 = GetZ(nZ1);
-	nZ2 = GetZ(nZ2);
+	nZ = GetZ(nZ);
 
 	if(m_PrimitiveMode.nAlpha)
 	{
@@ -1252,16 +1249,16 @@ void CGSH_OpenGL::Prim_Sprite()
 		glBegin(GL_QUADS);
 		{
 			glTexCoord2f(nS[0], nT[0]);
-			glVertex3f(nX1, nY1, nZ1);
+			glVertex3f(nX1, nY1, nZ);
 
 			glTexCoord2f(nS[1], nT[0]);
-			glVertex3f(nX2, nY1, nZ2);
+			glVertex3f(nX2, nY1, nZ);
 
 			glTexCoord2f(nS[1], nT[1]);
-			glVertex3f(nX2, nY2, nZ1);
+			glVertex3f(nX2, nY2, nZ);
 
 			glTexCoord2f(nS[0], nT[1]);
-			glVertex3f(nX1, nY2, nZ2);
+			glVertex3f(nX1, nY2, nZ);
 
 		}
 		glEnd();
@@ -1275,10 +1272,10 @@ void CGSH_OpenGL::Prim_Sprite()
 
 		glBegin(GL_QUADS);
 
-			glVertex3f(nX1, nY1, nZ1);
-			glVertex3f(nX2, nY1, nZ2);
-			glVertex3f(nX2, nY2, nZ1);
-			glVertex3f(nX1, nY2, nZ2);
+			glVertex3f(nX1, nY1, nZ);
+			glVertex3f(nX2, nY1, nZ);
+			glVertex3f(nX2, nY2, nZ);
+			glVertex3f(nX1, nY2, nZ);
 
 		glEnd();
 	}

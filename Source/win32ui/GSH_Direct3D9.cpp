@@ -532,9 +532,8 @@ void CGSH_Direct3D9::Prim_Sprite()
 	vertex[0] <<= m_vtxBuffer[1].nPosition;
 	vertex[1] <<= m_vtxBuffer[0].nPosition;
 
-	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX();
-	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY();
-	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ();
+	float nX1 = vertex[0].GetX(), nY1 = vertex[0].GetY();
+	float nX2 = vertex[1].GetX(), nY2 = vertex[1].GetY(), nZ = vertex[1].GetZ();
 
 	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_vtxBuffer[1].nRGBAQ;
@@ -546,10 +545,7 @@ void CGSH_Direct3D9::Prim_Sprite()
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
 
-//	assert(nZ1 == nZ2);
-
-	nZ1 = GetZ(nZ1);
-	nZ2 = GetZ(nZ2);
+	nZ = GetZ(nZ);
 
 	if(m_primitiveMode.nTexture)
 	{
@@ -586,10 +582,10 @@ void CGSH_Direct3D9::Prim_Sprite()
 
 		CUSTOMVERTEX vertices[] =
 		{
-			{	nX1,	nY2,	nZ1,	color0,		nU1,	nV2 },
-			{	nX1,	nY1,	nZ1,	color0,		nU1,	nV1 },
-			{	nX2,	nY2,	nZ2,	color1,		nU2,	nV2 },
-			{	nX2,	nY1,	nZ2,	color1,		nU2,	nV1 },
+			{	nX1,	nY2,	nZ,		color0,		nU1,	nV2 },
+			{	nX1,	nY1,	nZ,		color0,		nU1,	nV1 },
+			{	nX2,	nY2,	nZ,		color1,		nU2,	nV2 },
+			{	nX2,	nY1,	nZ,		color1,		nU2,	nV1 },
 		};
 
 		uint8* buffer = NULL;
