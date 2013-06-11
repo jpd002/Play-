@@ -25,8 +25,11 @@ CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const T
 	case PSMT4:
 		textureChecksum = ConvertTexturePsm4(tex0, texA);
 		break;
+	case PSMT4HL:
+		textureChecksum = ConvertTexturePsm4H<24>(tex0, texA);
+		break;
 	case PSMT4HH:
-		textureChecksum = ConvertTexturePsm4HH(tex0, texA);
+		textureChecksum = ConvertTexturePsm4H<28>(tex0, texA);
 		break;
 	case PSMT8H:
 		textureChecksum = ConvertTexturePsm8H(tex0, texA);
@@ -55,6 +58,7 @@ CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const T
 	case PSMT8:
 	case PSMT8H:
 	case PSMT4:
+	case PSMT4HL:
 	case PSMT4HH:
 		UploadConversionBuffer(tex0, texA, result);
 		break;
@@ -258,7 +262,8 @@ uint32 CGSH_Direct3D9::ConvertTexturePsm4(const TEX0& tex0, const TEXA& texA)
 	return checksum;
 }
 
-uint32 CGSH_Direct3D9::ConvertTexturePsm4HH(const TEX0& tex0, const TEXA& texA)
+template <uint32 shiftAmount>
+uint32 CGSH_Direct3D9::ConvertTexturePsm4H(const TEX0& tex0, const TEXA& texA)
 {
 	unsigned int width		= tex0.GetWidth();
 	unsigned int height		= tex0.GetHeight();
@@ -276,7 +281,7 @@ uint32 CGSH_Direct3D9::ConvertTexturePsm4HH(const TEX0& tex0, const TEXA& texA)
 		for(unsigned int i = 0; i < width; i++)
 		{
 			uint32 pixel = indexor.GetPixel(i, j);
-			pixel >>= 28;
+			pixel >>= shiftAmount;
 			pixel &= 0x0F;
 			dst[i] = clut[pixel];
 		}

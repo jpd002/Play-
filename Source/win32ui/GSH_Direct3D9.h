@@ -31,6 +31,9 @@ public:
 	void							ProcessLocalToLocalTransfer() override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 	
+	bool							GetDepthTestingEnabled() const;
+	void							SetDepthTestingEnabled(bool);
+
 	Framework::CBitmap				GetFramebuffer(uint64);
 	Framework::CBitmap				GetTexture(uint64, uint64, uint64);
 	const VERTEX*					GetInputVertices() const;
@@ -138,7 +141,7 @@ private:
 	uint32							ConvertTexturePsm8(const TEX0&, const TEXA&);
 	uint32							ConvertTexturePsm8H(const TEX0&, const TEXA&);
 	uint32							ConvertTexturePsm4(const TEX0&, const TEXA&);
-	uint32							ConvertTexturePsm4HH(const TEX0&, const TEXA&);
+	template <uint32> uint32		ConvertTexturePsm4H(const TEX0&, const TEXA&);
 
 	static uint32					Color_Ps2ToDx9(uint32);
 	static uint32					RGBA16ToRGBA32(uint16);
@@ -150,6 +153,8 @@ private:
 	void							TexCache_Flush();
 
 	void							FlattenClut(const TEX0&, uint32*);
+
+	bool							m_depthTestingEnabled;
 
 	COutputWnd*						m_outputWnd;
 	Direct3DPtr						m_d3d;
@@ -165,11 +170,11 @@ private:
 
 	uint8*							m_cvtBuffer;
 
-	PRMODE							m_PrimitiveMode;
-	unsigned int					m_nPrimitiveType;
+	PRMODE							m_primitiveMode;
+	unsigned int					m_primitiveType;
 
-	VERTEX							m_VtxBuffer[3];
-	int								m_nVtxCount;
+	VERTEX							m_vtxBuffer[3];
+	int								m_vtxCount;
 
 	CachedTextureList				m_cachedTextures;
 	FramebufferList					m_framebuffers;

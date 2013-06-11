@@ -81,6 +81,16 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 	RedrawWindow(*m_packetsTreeView, nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
+uint32 CGsRegisterWriteListView::GetSelectedItemIndex() const
+{
+	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
+	if(selectedItem == nullptr) return -1;
+	TVITEM item = {};
+	item.mask |= LVIF_PARAM;
+	m_packetsTreeView->GetItem(selectedItem, &item);
+	return GetItemIndexFromTreeViewItem(&item);
+}
+
 long CGsRegisterWriteListView::OnSize(unsigned int, unsigned int, unsigned int)
 {
 	Framework::Win32::CRect clientRect = GetClientRect();

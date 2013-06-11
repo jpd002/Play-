@@ -6,6 +6,7 @@
 #include "win32/Static.h"
 #include "win32/Splitter.h"
 #include "../OutputWnd.h"
+#include "../GSH_Direct3D9.h"
 #include "../../FrameDump.h"
 #include "GsInputStateView.h"
 #include "GsContextView.h"
@@ -36,13 +37,15 @@ private:
 	void											OnTabSelChanged();
 	void											ResizeTabContents();
 
+	void											UpdateMenus();
 	void											UpdateDisplay(int32);
 	void											UpdateCurrentTab();
 
 	void											LoadFrameDump(const TCHAR*);
 	void											ShowFrameDumpSelector();
+	void											ToggleDepthTest();
 
-	std::unique_ptr<CGSHandler>						m_gs;
+	std::unique_ptr<CGSH_Direct3D9>					m_gs;
 	CFrameDump										m_frameDump;
 
 	std::unique_ptr<COutputWnd>						m_handlerOutputWindow;

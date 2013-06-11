@@ -192,6 +192,10 @@ BEGIN
     BEGIN
         MENUITEM "Load Frame Dump...",          ID_FD_FILE_LOADDUMP
     END
+    POPUP "&Settings"
+    BEGIN
+        MENUITEM "Depth Test Enabled",          ID_FD_SETTINGS_DEPTHTEST
+    END
 END
 
 /////////////////////////////////////////////////////////////////////////////

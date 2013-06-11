@@ -26,6 +26,7 @@ public:
 	virtual											~CGsRegisterWriteListView();
 
 	void											SetFrameDump(CFrameDump*);
+	uint32											GetSelectedItemIndex() const;
 
 protected:
 	virtual long									OnSize(unsigned int, unsigned int, unsigned int) override;

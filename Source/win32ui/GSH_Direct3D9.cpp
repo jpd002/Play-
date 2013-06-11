@@ -21,6 +21,7 @@ CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
 : m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 , m_cvtBuffer(nullptr)
 , m_sceneBegun(false)
+, m_depthTestingEnabled(true)
 , m_currentTextureWidth(0)
 , m_currentTextureHeight(0)
 {
@@ -48,7 +49,7 @@ Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint64 tex1Reg, ui
 
 const CGSH_Direct3D9::VERTEX* CGSH_Direct3D9::GetInputVertices() const
 {
-	return m_VtxBuffer;
+	return m_vtxBuffer;
 }
 
 CGSHandler::FactoryFunction CGSH_Direct3D9::GetFactoryFunction(Framework::Win32::CWindow* outputWnd)
@@ -76,6 +77,16 @@ void CGSH_Direct3D9::ReadFramebuffer(uint32, uint32, void*)
 
 }
 
+bool CGSH_Direct3D9::GetDepthTestingEnabled() const
+{
+	return m_depthTestingEnabled;
+}
+
+void CGSH_Direct3D9::SetDepthTestingEnabled(bool depthTestingEnabled)
+{
+	m_depthTestingEnabled = depthTestingEnabled;
+}
+
 void CGSH_Direct3D9::InitializeImpl()
 {
 	m_d3d = Direct3DPtr(Direct3DCreate9(D3D_SDK_VERSION));
@@ -94,7 +105,7 @@ void CGSH_Direct3D9::InitializeImpl()
 
 void CGSH_Direct3D9::ResetBase()
 {
-	memset(&m_VtxBuffer, 0, sizeof(m_VtxBuffer));
+	memset(&m_vtxBuffer, 0, sizeof(m_vtxBuffer));
 	CGSHandler::ResetBase();
 }
 
@@ -378,18 +389,18 @@ void CGSH_Direct3D9::Prim_Triangle()
 	float nF1 = 0, nF2 = 0, nF3 = 0;
 
 	XYZ vertex[3];
-	vertex[0] <<= m_VtxBuffer[2].nPosition;
-	vertex[1] <<= m_VtxBuffer[1].nPosition;
-	vertex[2] <<= m_VtxBuffer[0].nPosition;
+	vertex[0] <<= m_vtxBuffer[2].nPosition;
+	vertex[1] <<= m_vtxBuffer[1].nPosition;
+	vertex[2] <<= m_vtxBuffer[0].nPosition;
 
 	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX(), nX3 = vertex[2].GetX();
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY(), nY3 = vertex[2].GetY();
 	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ(), nZ3 = vertex[2].GetZ();
 
 	RGBAQ rgbaq[3];
-	rgbaq[0] <<= m_VtxBuffer[2].nRGBAQ;
-	rgbaq[1] <<= m_VtxBuffer[1].nRGBAQ;
-	rgbaq[2] <<= m_VtxBuffer[0].nRGBAQ;
+	rgbaq[0] <<= m_vtxBuffer[2].nRGBAQ;
+	rgbaq[1] <<= m_vtxBuffer[1].nRGBAQ;
+	rgbaq[2] <<= m_vtxBuffer[0].nRGBAQ;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -403,7 +414,7 @@ void CGSH_Direct3D9::Prim_Triangle()
 	nZ2 = GetZ(nZ2);
 	nZ3 = GetZ(nZ3);
 
-	if(m_PrimitiveMode.nShading)
+	if(m_primitiveMode.nShading)
 	{
 		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 	}
@@ -412,39 +423,39 @@ void CGSH_Direct3D9::Prim_Triangle()
 		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 	}
 
-	if(m_PrimitiveMode.nAlpha)
+	if(m_primitiveMode.nAlpha)
 	{
 		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	}
 
-	if(m_PrimitiveMode.nFog)
+	if(m_primitiveMode.nFog)
 	{
 		//glEnable(GL_FOG);
 
-		nF1 = (float)(0xFF - m_VtxBuffer[2].nFog) / 255.0f;
-		nF2 = (float)(0xFF - m_VtxBuffer[1].nFog) / 255.0f;
-		nF3 = (float)(0xFF - m_VtxBuffer[0].nFog) / 255.0f;
+		nF1 = (float)(0xFF - m_vtxBuffer[2].nFog) / 255.0f;
+		nF2 = (float)(0xFF - m_vtxBuffer[1].nFog) / 255.0f;
+		nF3 = (float)(0xFF - m_vtxBuffer[0].nFog) / 255.0f;
 	}
 	else
 	{
 		nF1 = nF2 = nF3 = 0.0;
 	}
 
-	if(m_PrimitiveMode.nTexture)
+	if(m_primitiveMode.nTexture)
 	{
 		m_device->SetTexture(0, m_currentTexture);
 
 		//Textured triangle
-		if(m_PrimitiveMode.nUseUV)
+		if(m_primitiveMode.nUseUV)
 		{
 			//TODO
 		}
 		else
 		{
 			ST st[3];
-			st[0] <<= m_VtxBuffer[2].nST;
-			st[1] <<= m_VtxBuffer[1].nST;
-			st[2] <<= m_VtxBuffer[0].nST;
+			st[0] <<= m_vtxBuffer[2].nST;
+			st[1] <<= m_vtxBuffer[1].nST;
+			st[2] <<= m_vtxBuffer[0].nST;
 
 			nU1 = st[0].nS, nU2 = st[1].nS, nU3 = st[2].nS;
 			nV1 = st[0].nT, nV2 = st[1].nT, nV3 = st[2].nT;
@@ -465,13 +476,17 @@ void CGSH_Direct3D9::Prim_Triangle()
 
 	//Build vertex buffer
 	{
-		HRESULT result;
+		HRESULT result = S_OK;
+
+		DWORD color0 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[0].nA),	MulBy2Clamp(rgbaq[0].nR),	MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB));
+		DWORD color1 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[1].nA),	MulBy2Clamp(rgbaq[1].nR),	MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB));
+		DWORD color2 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[2].nA),	MulBy2Clamp(rgbaq[2].nR),	MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB));
 
 		CUSTOMVERTEX vertices[] =
 		{
-			{	nX1,	nY1,	nZ1,	D3DCOLOR_XRGB(255, 255, 255),	nU1,	nV1 },
-			{	nX2,	nY2,	nZ2,	D3DCOLOR_XRGB(255, 255, 255),	nU2,	nV2 },
-			{	nX3,	nY3,	nZ3,	D3DCOLOR_XRGB(255, 255, 255),	nU3,	nV3 },
+			{	nX1,	nY1,	nZ1,	color0,		nU1,	nV1 },
+			{	nX2,	nY2,	nZ2,	color1,		nU2,	nV2 },
+			{	nX3,	nY3,	nZ3,	color2,		nU3,	nV3 },
 		};
 
 		uint8* buffer = NULL;
@@ -496,12 +511,12 @@ void CGSH_Direct3D9::Prim_Triangle()
 		assert(result == S_OK);
 	}
 
-	if(m_PrimitiveMode.nFog)
+	if(m_primitiveMode.nFog)
 	{
 		//glDisable(GL_FOG);
 	}
 
-	if(m_PrimitiveMode.nAlpha)
+	if(m_primitiveMode.nAlpha)
 	{
 		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
@@ -514,16 +529,16 @@ void CGSH_Direct3D9::Prim_Sprite()
 	float nF1 = 0, nF2 = 0;
 
 	XYZ vertex[2];
-	vertex[0] <<= m_VtxBuffer[1].nPosition;
-	vertex[1] <<= m_VtxBuffer[0].nPosition;
+	vertex[0] <<= m_vtxBuffer[1].nPosition;
+	vertex[1] <<= m_vtxBuffer[0].nPosition;
 
 	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX();
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY();
 	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ();
 
 	RGBAQ rgbaq[2];
-	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
-	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
+	rgbaq[0] <<= m_vtxBuffer[1].nRGBAQ;
+	rgbaq[1] <<= m_vtxBuffer[0].nRGBAQ;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -536,16 +551,16 @@ void CGSH_Direct3D9::Prim_Sprite()
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
 
-	if(m_PrimitiveMode.nTexture)
+	if(m_primitiveMode.nTexture)
 	{
 		m_device->SetTexture(0, m_currentTexture);
 
 		//Textured triangle
-		if(m_PrimitiveMode.nUseUV)
+		if(m_primitiveMode.nUseUV)
 		{
 			UV uv[2];
-			uv[0] <<= m_VtxBuffer[1].nUV;
-			uv[1] <<= m_VtxBuffer[0].nUV;
+			uv[0] <<= m_vtxBuffer[1].nUV;
+			uv[1] <<= m_vtxBuffer[0].nUV;
 
 			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
 			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
@@ -662,10 +677,11 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 nData)
 	//		glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT);
 	//	}
 	//}
-	//else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
-	//{
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	//}
+	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	}
 	//else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	//{
 	//	//Cs * As
@@ -766,7 +782,7 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 			break;
 		}
 
-		m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+		m_device->SetRenderState(D3DRS_ZENABLE, m_depthTestingEnabled ? D3DZB_TRUE : D3DZB_FALSE);
 		m_device->SetRenderState(D3DRS_ZFUNC, depthFunc);
 	}
 	else
@@ -899,39 +915,39 @@ void CGSH_Direct3D9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:
-		m_nPrimitiveType = (unsigned int)(nData & 0x07);
-		switch(m_nPrimitiveType)
+		m_primitiveType = (unsigned int)(nData & 0x07);
+		switch(m_primitiveType)
 		{
 		case 0:
 			//Point
-			m_nVtxCount = 1;
+			m_vtxCount = 1;
 			break;
 		case 1:
 			//Line
-			m_nVtxCount = 2;
+			m_vtxCount = 2;
 			break;
 		case 2:
 			//Line strip
-			m_nVtxCount = 2;
+			m_vtxCount = 2;
 			break;
 		case 3:
 			//Triangle
-			m_nVtxCount = 3;
+			m_vtxCount = 3;
 			break;
 		case 4:
 			//Triangle Strip
-			m_nVtxCount = 3;
+			m_vtxCount = 3;
 			break;
 		case 5:
 			//Triangle Fan
-			m_nVtxCount = 3;
+			m_vtxCount = 3;
 			break;
 		case 6:
 			//Sprite (rectangle)
-			m_nVtxCount = 2;
+			m_vtxCount = 2;
 			break;
 		default:
-			printf("GS: Unhandled primitive type (%i) encountered.\r\n", m_nPrimitiveType);
+			printf("GS: Unhandled primitive type (%i) encountered.\r\n", m_primitiveType);
 			break;
 		}
 		break;
@@ -951,45 +967,45 @@ void CGSH_Direct3D9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 {
-	if(m_nVtxCount == 0) return;
+	if(m_vtxCount == 0) return;
 
 	bool nDrawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);
 	bool nFog = (nRegister == GS_REG_XYZF2) || (nRegister == GS_REG_XYZF3);
 
 	if(nFog)
 	{
-		m_VtxBuffer[m_nVtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
-		m_VtxBuffer[m_nVtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_VtxBuffer[m_nVtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_VtxBuffer[m_nVtxCount - 1].nST		= m_nReg[GS_REG_ST];
-		m_VtxBuffer[m_nVtxCount - 1].nFog		= (uint8)(nValue >> 56);
+		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
+		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(nValue >> 56);
 	}
 	else
 	{
-		m_VtxBuffer[m_nVtxCount - 1].nPosition	= nValue;
-		m_VtxBuffer[m_nVtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_VtxBuffer[m_nVtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_VtxBuffer[m_nVtxCount - 1].nST		= m_nReg[GS_REG_ST];
-		m_VtxBuffer[m_nVtxCount - 1].nFog		= (uint8)(m_nReg[GS_REG_FOG] >> 56);
+		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue;
+		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(m_nReg[GS_REG_FOG] >> 56);
 	}
 
-	m_nVtxCount--;
+	m_vtxCount--;
 
-	if(m_nVtxCount == 0)
+	if(m_vtxCount == 0)
 	{
 		{
 			if((m_nReg[GS_REG_PRMODECONT] & 1) != 0)
 			{
-				m_PrimitiveMode <<= m_nReg[GS_REG_PRIM];
+				m_primitiveMode <<= m_nReg[GS_REG_PRIM];
 			}
 			else
 			{
-				m_PrimitiveMode <<= m_nReg[GS_REG_PRMODE];
+				m_primitiveMode <<= m_nReg[GS_REG_PRMODE];
 			}
 
-			SetRenderingContext(m_PrimitiveMode.nContext);
+			SetRenderingContext(m_primitiveMode.nContext);
 
-			switch(m_nPrimitiveType)
+			switch(m_primitiveType)
 			{
 			case 0:
 				//if(nDrawingKick) Prim_Point();
@@ -999,27 +1015,27 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 				break;
 			case 2:
 				//if(nDrawingKick) Prim_Line();
-				memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
-				m_nVtxCount = 1;
+				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
+				m_vtxCount = 1;
 				break;
 			case 3:
 				if(nDrawingKick) Prim_Triangle();
-				m_nVtxCount = 3;
+				m_vtxCount = 3;
 				break;
 			case 4:
 				if(nDrawingKick) Prim_Triangle();
-				memcpy(&m_VtxBuffer[2], &m_VtxBuffer[1], sizeof(VERTEX));
-				memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
-				m_nVtxCount = 1;
+				memcpy(&m_vtxBuffer[2], &m_vtxBuffer[1], sizeof(VERTEX));
+				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
+				m_vtxCount = 1;
 				break;
 			case 5:
 				if(nDrawingKick) Prim_Triangle();
-				memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
-				m_nVtxCount = 1;
+				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
+				m_vtxCount = 1;
 				break;
 			case 6:
 				if(nDrawingKick) Prim_Sprite();
-				m_nVtxCount = 2;
+				m_vtxCount = 2;
 				break;
 			}
 		}

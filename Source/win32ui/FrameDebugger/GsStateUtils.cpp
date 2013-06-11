@@ -181,6 +181,17 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 			i, st.nS, st.nT, rgbaq.nQ, uv.GetU(), uv.GetV());
 	}
 
+	result += string_format("Color:\r\n");
+	result += string_format("\t                    R           G           B           A\r\n");
+	for(unsigned int i = 0; i < 3; i++)
+	{
+		auto vertex = vertices[i];
+		CGSHandler::RGBAQ rgbaq;
+		rgbaq <<= vertex.nRGBAQ;
+		result += string_format("\tVertex %i:        0x%0.2X        0x%0.2X        0x%0.2X        0x%0.2X\r\n", 
+			i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
+	}
+
 	return result;
 }
 

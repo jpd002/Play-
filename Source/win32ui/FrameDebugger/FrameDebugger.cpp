@@ -5,10 +5,10 @@
 #include "win32/Rect.h"
 #include "win32/HorizontalSplitter.h"
 #include "win32/FileDialog.h"
+#include "win32/MenuItem.h"
 #include "../resource.h"
 #include "StdStreamUtils.h"
 #include "lexical_cast_ex.h"
-#include "../GSH_Direct3D9.h"
 
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
 #define WNDTITLE					_T("Play! - Frame Debugger")
@@ -55,6 +55,7 @@ CFrameDebugger::CFrameDebugger()
 	m_tabItems[2] = m_gsInputStateView.get();
 
 	OnTabSelChanged();
+	UpdateMenus();
 
 	m_mainSplitter->SetChild(0, *m_registerWriteListView);
 	m_mainSplitter->SetChild(1, *m_tab);
@@ -96,12 +97,9 @@ long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndF
 		case ID_FD_FILE_LOADDUMP:
 			ShowFrameDumpSelector();
 			break;
-//		case ID_VM_STEP:
-//			Step();
-//			break;
-//		case ID_VM_NEXTMICRO:
-//			NextMicro();
-//			break;
+		case ID_FD_SETTINGS_DEPTHTEST:
+			ToggleDepthTest();
+			break;
 		}
 	}
 	else if(CWindow::IsCommandSource(m_mainSplitter.get(), hwndFrom))
@@ -211,6 +209,14 @@ void CFrameDebugger::ResizeTabContents()
 	}
 }
 
+void CFrameDebugger::UpdateMenus()
+{
+	auto depthTestMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_DEPTHTEST);
+	assert(!depthTestMenuItem.IsEmpty());
+
+	depthTestMenuItem.Check(m_gs->GetDepthTestingEnabled());
+}
+
 void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 {
 	EnableWindow(m_hWnd, FALSE);
@@ -274,4 +280,15 @@ void CFrameDebugger::ShowFrameDumpSelector()
 	{
 		LoadFrameDump(fileDialog.GetPath());
 	}
+}
+
+void CFrameDebugger::ToggleDepthTest()
+{
+	m_gs->SetDepthTestingEnabled(!m_gs->GetDepthTestingEnabled());
+	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
+	if(selectedItemIndex != -1)
+	{
+		UpdateDisplay(selectedItemIndex);
+	}
+	UpdateMenus();
 }

@@ -108,13 +108,14 @@
 #define ID_MAIN_VIEW_FITTOSCREEN        40174
 #define ID_MAIN_VIEW_ACTUALSIZE         40175
 #define ID_FD_FILE_LOADDUMP             40176
+#define ID_FD_SETTINGS_DEPTHTEST        40177
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        119
-#define _APS_NEXT_COMMAND_VALUE         40176
+#define _APS_NEXT_COMMAND_VALUE         40178
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
