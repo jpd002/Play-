@@ -1,11 +1,11 @@
-#ifndef _DISASM_H_
-#define _DISASM_H_
+#pragma once
 
 #include <boost/signal.hpp>
 #include "win32/CustomDrawn.h"
+#include "win32/DeviceContext.h"
+#include "win32/GdiObj.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
-#include "win32/GdiObj.h"
 
 class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::trackable
 {
@@ -18,7 +18,7 @@ public:
 	void							SetSelectedAddress(uint32);
 
 protected:
-	void							Paint(HDC);
+	void							Paint(HDC) override;
 
 	long							OnMouseWheel(int, int, short) override;
 	long							OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -32,6 +32,11 @@ protected:
 	long							OnVScroll(unsigned int, unsigned int) override;
 	long							OnKeyDown(unsigned int) override;
 	long							OnCopy() override;
+
+	uint32							GetInstruction(uint32);
+
+	CMIPS*							m_ctx;
+	int32							m_instructionSize;
 
 private:
 	enum
@@ -50,7 +55,6 @@ private:
 	void							UpdateMouseSelection(unsigned int, unsigned int);
 	void							ToggleBreakpoint(uint32);
 	uint32							GetAddressAtPosition(unsigned int, unsigned int);
-	uint32							GetInstruction(uint32);
 	unsigned int					GetLineCount();
 	unsigned int					GetFontHeight();
 	bool							IsAddressVisible(uint32);
@@ -65,23 +69,22 @@ private:
 	bool							HistoryHasNext();
 	void							OnMachineStateChange();
 	void							OnRunningStateChange();
+	
+	virtual void					DrawInstructionDetails(Framework::Win32::CDeviceContext&, uint32, int);
+	void							DrawInstructionMetadata(Framework::Win32::CDeviceContext&, uint32, int);
 
-	CMIPS*							m_pCtx;
 	CVirtualMachine&				m_virtualMachine;
-	HBITMAP							m_nArrow;
-	HBITMAP							m_nArrowMask;
-	HBITMAP							m_nBPoint;
-	HBITMAP							m_nBPointMask;
-	uint32							m_nAddress;
-	uint32							m_nSelected;
-	uint32							m_nSelectionEnd;
-	int								m_nFontCX;
-	bool							m_nFocus;
+	HBITMAP							m_arrowBitmap;
+	HBITMAP							m_arrowMaskBitmap;
+	HBITMAP							m_breakpointBitmap;
+	HBITMAP							m_breakpointMaskBitmap;
+	uint32							m_address;
+	uint32							m_selected;
+	uint32							m_selectionEnd;
+	bool							m_focus;
 	Framework::Win32::CFont			m_font;
 
-	uint32							m_nHistory[HISTORY_STACK_MAX];
-	unsigned int					m_nHistoryPosition;
-	unsigned int					m_nHistorySize;
+	uint32							m_history[HISTORY_STACK_MAX];
+	unsigned int					m_historyPosition;
+	unsigned int					m_historySize;
 };
-
-#endif

@@ -7,7 +7,6 @@
 #include "lexical_cast_ex.h"
 #include "WinUtils.h"
 #include "../Ps2Const.h"
-#include "win32/DeviceContext.h"
 #include "win32/ClientDeviceContext.h"
 #include "DebugExpressionEvaluator.h"
 
@@ -23,19 +22,22 @@
 #define ID_DISASM_GOTOPREV		40006
 #define ID_DISASM_GOTONEXT		40007
 
-CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
 : m_virtualMachine(virtualMachine)
 , m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
+, m_ctx(ctx)
+, m_selected(0)
+, m_selectionEnd(-1)
+, m_address(0)
+, m_instructionSize(4)
 {
-	SCROLLINFO si;
-
 	HistoryReset();
 
-	m_nArrow = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ARROW));
-	m_nArrowMask = WinUtils::CreateMask(m_nArrow, 0xFF00FF);
+	m_arrowBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ARROW));
+	m_arrowMaskBitmap = WinUtils::CreateMask(m_arrowBitmap, 0xFF00FF);
 	
-	m_nBPoint = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BREAKPOINT));
-	m_nBPointMask = WinUtils::CreateMask(m_nBPoint, 0xFF00FF);
+	m_breakpointBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BREAKPOINT));
+	m_breakpointMaskBitmap = WinUtils::CreateMask(m_breakpointBitmap, 0xFF00FF);
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -57,8 +59,7 @@ CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDisAsm::OnMachineStateChange, this));
 	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CDisAsm::OnRunningStateChange, this));
 
-	m_pCtx = pCtx;
-
+	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize = sizeof(SCROLLINFO);
 	si.nMin = 0;
@@ -66,47 +67,42 @@ CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine
 	si.nPos = 0x2000;
 	si.fMask = SIF_RANGE | SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, FALSE);
-
-	m_nSelected = 0;
-	m_nSelectionEnd = -1;
-	m_nAddress = 0;
-
 }
 
 CDisAsm::~CDisAsm()
 {
-	DeleteObject(m_nArrow);
-	DeleteObject(m_nArrowMask);
-	DeleteObject(m_nBPoint);
-	DeleteObject(m_nBPointMask);
+	DeleteObject(m_arrowBitmap);
+	DeleteObject(m_arrowMaskBitmap);
+	DeleteObject(m_breakpointBitmap);
+	DeleteObject(m_breakpointMaskBitmap);
 }
 
-void CDisAsm::SetAddress(uint32 nAddress)
+void CDisAsm::SetAddress(uint32 address)
 {
-	m_nAddress = nAddress;
+	m_address = address;
 	Redraw();
 }
 
 void CDisAsm::SetCenterAtAddress(uint32 address)
 {
 	unsigned int lineCount = GetLineCount();
-	m_nAddress = address - (lineCount * 4 / 2);
-	m_nAddress &= ~0x03;
+	m_address = address - (lineCount * m_instructionSize / 2);
+	m_address &= ~(m_instructionSize - 1);
 	Redraw();
 }
 
 void CDisAsm::SetSelectedAddress(uint32 address)
 {
-	m_nSelectionEnd = -1;
-	m_nSelected = address;
+	m_selectionEnd = -1;
+	m_selected = address;
 	Redraw();
 }
 
 void CDisAsm::OnMachineStateChange()
 {
-	if(!IsAddressVisible(m_pCtx->m_State.nPC))
+	if(!IsAddressVisible(m_ctx->m_State.nPC))
 	{
-		m_nAddress = m_pCtx->m_State.nPC & 0xFFFFFFFC;
+		m_address = m_ctx->m_State.nPC & ~(m_instructionSize - 1);
 	}
 	Redraw();
 }
@@ -127,26 +123,26 @@ void CDisAsm::GotoAddress()
 	Framework::Win32::CInputBox i(
 		_T("Goto Address"),
 		_T("Enter new address:"),
-		(_T("0x") + lexical_cast_hex<std::tstring>(m_nAddress, 8)).c_str());
+		(_T("0x") + lexical_cast_hex<std::tstring>(m_address, 8)).c_str());
 
 	const TCHAR* sValue = i.GetValue(m_hWnd);
 	if(sValue != NULL)
 	{
 		try
 		{
-			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(string_cast<std::string>(sValue).c_str(), m_pCtx);
-			if(nAddress & 0x03)
+			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(string_cast<std::string>(sValue).c_str(), m_ctx);
+			if(nAddress & (m_instructionSize - 1))
 			{
 				MessageBox(m_hWnd, _T("Invalid address"), NULL, 16);
 				return;
 			}
 
-			if(m_nAddress != nAddress)
+			if(m_address != nAddress)
 			{
-				HistorySave(m_nAddress);
+				HistorySave(m_address);
 			}
 
-			m_nAddress = nAddress;
+			m_address = nAddress;
 			Redraw();
 		}
 		catch(const std::exception& exception)
@@ -165,7 +161,7 @@ void CDisAsm::GotoPC()
 		return;
 	}
 
-	m_nAddress = m_pCtx->m_State.nPC;
+	m_address = m_ctx->m_State.nPC;
 	Redraw();
 }
 
@@ -176,50 +172,47 @@ void CDisAsm::GotoEA()
 		MessageBeep(-1);
 		return;
 	}
-	uint32 nOpcode = GetInstruction(m_nSelected);
-	if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, m_nSelected, nOpcode) == MIPS_BRANCH_NORMAL)
+	uint32 nOpcode = GetInstruction(m_selected);
+	if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
 	{
-		uint32 nAddress = m_pCtx->m_pArch->GetInstructionEffectiveAddress(m_pCtx, m_nSelected, nOpcode);
+		uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
 
-		if(m_nAddress != nAddress)
+		if(m_address != nAddress)
 		{
-			HistorySave(m_nAddress);
+			HistorySave(m_address);
 		}
 
-		m_nAddress = nAddress;
+		m_address = nAddress;
 		Redraw();
 	}
 }
 
 void CDisAsm::EditComment()
 {
-	std::tstring sCommentConv;
-	const TCHAR* sValue;
-	const char* sComment;
-
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
 		return;
 	}
 
-	sComment = m_pCtx->m_Comments.Find(m_nSelected);
+	const char* comment = m_ctx->m_Comments.Find(m_selected);
+	std::tstring commentConv;
 
-	if(sComment != NULL)
+	if(comment != nullptr)
 	{
-		sCommentConv = string_cast<std::tstring>(sComment);
+		commentConv = string_cast<std::tstring>(comment);
 	}
 	else
 	{
-		sCommentConv = _T("");
+		commentConv = _T("");
 	}
 
-	Framework::Win32::CInputBox i(_T("Edit Comment"), _T("Enter new comment:"), sCommentConv.c_str());
-	sValue = i.GetValue(m_hWnd);
+	Framework::Win32::CInputBox i(_T("Edit Comment"), _T("Enter new comment:"), commentConv.c_str());
+	const TCHAR* value = i.GetValue(m_hWnd);
 
-	if(sValue != NULL)
+	if(value != nullptr)
 	{
-		m_pCtx->m_Comments.InsertTag(m_nSelected, string_cast<std::string>(sValue).c_str());
+		m_ctx->m_Comments.InsertTag(m_selected, string_cast<std::string>(value).c_str());
 		Redraw();
 	}
 }
@@ -236,12 +229,12 @@ void CDisAsm::FindCallers()
 
 	for(int i = 0; i < PS2::EE_RAM_SIZE; i += 4)
 	{
-		uint32 nVal = m_pCtx->m_pMemoryMap->GetInstruction(i);
+		uint32 nVal = m_ctx->m_pMemoryMap->GetInstruction(i);
 		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
 		{
 			nVal &= 0x3FFFFFF;
 			nVal *= 4;
-			if(nVal == m_nSelected)
+			if(nVal == m_selected)
 			{
 				printf("JAL: 0x%0.8X\r\n", i);
 			}
@@ -274,8 +267,8 @@ unsigned int CDisAsm::GetLineCount()
 
 bool CDisAsm::IsAddressVisible(uint32 nAddress)
 {
-	uint32 nTop = m_nAddress;
-	uint32 nBottom = nTop + ((GetLineCount() - 1) * 4);
+	uint32 nTop = m_address;
+	uint32 nBottom = nTop + ((GetLineCount() - 1) * m_instructionSize);
 
 	if(nAddress < nTop) return false;
 	if(nAddress > nBottom) return false;
@@ -285,102 +278,102 @@ bool CDisAsm::IsAddressVisible(uint32 nAddress)
 
 CDisAsm::SelectionRangeType CDisAsm::GetSelectionRange()
 {
-	if(m_nSelectionEnd == -1)
+	if(m_selectionEnd == -1)
 	{
-		return SelectionRangeType(m_nSelected, m_nSelected);
+		return SelectionRangeType(m_selected, m_selected);
 	}
 
-	if(m_nSelectionEnd > m_nSelected)
+	if(m_selectionEnd > m_selected)
 	{
-		return SelectionRangeType(m_nSelected, m_nSelectionEnd);
+		return SelectionRangeType(m_selected, m_selectionEnd);
 	}
 	else
 	{
-		return SelectionRangeType(m_nSelectionEnd, m_nSelected);
+		return SelectionRangeType(m_selectionEnd, m_selected);
 	}
 }
 
 void CDisAsm::HistoryReset()
 {
-	m_nHistoryPosition	= -1;
-	m_nHistorySize		= 0;
-	memset(m_nHistory, 0, sizeof(uint32) * HISTORY_STACK_MAX);
+	m_historyPosition	= -1;
+	m_historySize		= 0;
+	memset(m_history, 0, sizeof(uint32) * HISTORY_STACK_MAX);
 }
 
 void CDisAsm::HistorySave(uint32 nAddress)
 {
-	if(m_nHistorySize == HISTORY_STACK_MAX)
+	if(m_historySize == HISTORY_STACK_MAX)
 	{
-		memmove(m_nHistory + 1, m_nHistory, HISTORY_STACK_MAX - 1);
-		m_nHistorySize--;
+		memmove(m_history + 1, m_history, HISTORY_STACK_MAX - 1);
+		m_historySize--;
 	}
 
-	m_nHistory[m_nHistorySize] = nAddress;
-	m_nHistoryPosition = m_nHistorySize;
-	m_nHistorySize++;
+	m_history[m_historySize] = nAddress;
+	m_historyPosition = m_historySize;
+	m_historySize++;
 }
 
 void CDisAsm::HistoryGoBack()
 {
-	if(m_nHistoryPosition == -1) return;
+	if(m_historyPosition == -1) return;
 
-	uint32 nAddress = HistoryGetPrevious();
-	m_nHistory[m_nHistoryPosition] = m_nAddress;
-	m_nAddress = nAddress;
+	uint32 address = HistoryGetPrevious();
+	m_history[m_historyPosition] = m_address;
+	m_address = address;
 
-	m_nHistoryPosition--;
+	m_historyPosition--;
 	Redraw();
 }
 
 void CDisAsm::HistoryGoForward()
 {
-	if(m_nHistoryPosition == m_nHistorySize) return;
+	if(m_historyPosition == m_historySize) return;
 
-	uint32 nAddress = HistoryGetNext();
-	m_nHistoryPosition++;
-	m_nHistory[m_nHistoryPosition] = m_nAddress;
-	m_nAddress = nAddress;
+	uint32 address = HistoryGetNext();
+	m_historyPosition++;
+	m_history[m_historyPosition] = m_address;
+	m_address = address;
 
 	Redraw();
 }
 
 uint32 CDisAsm::HistoryGetPrevious()
 {
-	return m_nHistory[m_nHistoryPosition];
+	return m_history[m_historyPosition];
 }
 
 uint32 CDisAsm::HistoryGetNext()
 {
-	if(m_nHistoryPosition == m_nHistorySize) return 0;
-	return m_nHistory[m_nHistoryPosition + 1];
+	if(m_historyPosition == m_historySize) return 0;
+	return m_history[m_historyPosition + 1];
 }
 
 bool CDisAsm::HistoryHasPrevious()
 {
-	return (m_nHistorySize != 0) && (m_nHistoryPosition != -1);
+	return (m_historySize != 0) && (m_historyPosition != -1);
 }
 
 bool CDisAsm::HistoryHasNext()
 {
-	return (m_nHistorySize != 0) && (m_nHistoryPosition != (m_nHistorySize - 1));
+	return (m_historySize != 0) && (m_historyPosition != (m_historySize - 1));
 }
 
 void CDisAsm::UpdateMouseSelection(unsigned int nX, unsigned int nY)
 {
-	uint32 nNew;
 	if(nX <= 18) return;
-	nNew = nY / (GetFontHeight() + YSPACE);
-	nNew = (m_nAddress + (nNew * 4));
+
+	uint32 nNew = nY / (GetFontHeight() + YSPACE);
+	nNew = (m_address + (nNew * m_instructionSize));
 
 	if(GetKeyState(VK_SHIFT) & 0x8000)
 	{
-		m_nSelectionEnd = nNew;
+		m_selectionEnd = nNew;
 	}
 	else
 	{
-		m_nSelectionEnd = -1;
-		if(nNew == m_nSelected) return;
-		m_nSelected = nNew;
+		m_selectionEnd = -1;
+		if(nNew == m_selected) return;
+		m_selected = nNew;
 	}
 
 	Redraw();
@@ -388,46 +381,45 @@ void CDisAsm::UpdateMouseSelection(unsigned int nX, unsigned int nY)
 
 uint32 CDisAsm::GetAddressAtPosition(unsigned int nX, unsigned int nY)
 {
-	uint32 nAddress;
-	nAddress = nY / (GetFontHeight() + YSPACE);
-	nAddress = (m_nAddress + (nAddress * 4));
-	return nAddress;
+	uint32 address = nY / (GetFontHeight() + YSPACE);
+	address = (m_address + (address * m_instructionSize));
+	return address;
 }
 
-uint32 CDisAsm::GetInstruction(uint32 nAddress)
+uint32 CDisAsm::GetInstruction(uint32 address)
 {
 	//Address translation perhaps?
-	return m_pCtx->m_pMemoryMap->GetInstruction(nAddress);
+	return m_ctx->m_pMemoryMap->GetInstruction(address);
 }
 
-void CDisAsm::ToggleBreakpoint(uint32 nAddress)
+void CDisAsm::ToggleBreakpoint(uint32 address)
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
 		MessageBeep(-1);
 		return;
 	}
-	m_pCtx->ToggleBreakpoint(nAddress);
+	m_ctx->ToggleBreakpoint(address);
 	Redraw();
 }
 
-void CDisAsm::UpdatePosition(int nDelta)
+void CDisAsm::UpdatePosition(int delta)
 {
-	m_nAddress += nDelta;
+	m_address += delta;
 	Redraw();
 }
 
 long CDisAsm::OnSetFocus()
 {
-	if(m_nFocus) return TRUE;
-	m_nFocus = true;
+	if(m_focus) return TRUE;
+	m_focus = true;
 	Redraw();
 	return TRUE;
 }
 
 long CDisAsm::OnKillFocus()
 {
-	m_nFocus = false;
+	m_focus = false;
 	Redraw();
 	return TRUE;
 }
@@ -454,13 +446,13 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_EDITCOMMENT,	_T("Edit Comment..."));
 	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_FINDCALLERS,	_T("Find Callers"));
 
-	if(m_nSelected != MIPS_INVALID_PC)
+	if(m_selected != MIPS_INVALID_PC)
 	{
-		uint32 nOpcode = GetInstruction(m_nSelected);
-		if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, m_nSelected, nOpcode) == MIPS_BRANCH_NORMAL)
+		uint32 nOpcode = GetInstruction(m_selected);
+		if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
 		{
 			TCHAR sTemp[256];
-			uint32 nAddress = m_pCtx->m_pArch->GetInstructionEffectiveAddress(m_pCtx, m_nSelected, nOpcode);
+			uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
 			_sntprintf(sTemp, countof(sTemp), _T("Go to 0x%0.8X"), nAddress);
 			InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOEA, sTemp);
 		}
@@ -488,7 +480,7 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 long CDisAsm::OnMouseMove(WPARAM nButton, int nX, int nY)
 {
 	if(!(nButton & MK_LBUTTON)) return TRUE;
-	if(m_nFocus)
+	if(m_focus)
 	{
 		UpdateMouseSelection(nX, nY);
 	}
@@ -505,11 +497,11 @@ long CDisAsm::OnMouseWheel(int x, int y, short z)
 {
 	if(z < 0)
 	{
-		UpdatePosition(12);
+		UpdatePosition(m_instructionSize * 3);
 	}
 	else
 	{
-		UpdatePosition(-12);
+		UpdatePosition(-m_instructionSize * 3);
 	}
 	return FALSE;
 }
@@ -519,16 +511,16 @@ long CDisAsm::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 	switch(nType)
 	{
 	case SB_LINEDOWN:
-		UpdatePosition(4);
+		UpdatePosition(m_instructionSize);
 		break;
 	case SB_LINEUP:
-		UpdatePosition(-4);
+		UpdatePosition(-m_instructionSize);
 		break;
 	case SB_PAGEDOWN:
-		UpdatePosition(40);
+		UpdatePosition(m_instructionSize * 10);
 		break;
 	case SB_PAGEUP:
-		UpdatePosition(-40);
+		UpdatePosition(-m_instructionSize * 10);
 		break;
 	}
 	return FALSE;
@@ -545,13 +537,13 @@ long CDisAsm::OnKeyDown(unsigned int nKey)
 		}
 		break;
 	case VK_F9:
-		ToggleBreakpoint(m_nSelected);
+		ToggleBreakpoint(m_selected);
 		break;
 	case VK_DOWN:
-		m_nSelected += 4;
-		if(!IsAddressVisible(m_nSelected))
+		m_selected += m_instructionSize;
+		if(!IsAddressVisible(m_selected))
 		{
-			UpdatePosition(4);
+			UpdatePosition(m_instructionSize);
 		}
 		else
 		{
@@ -559,10 +551,10 @@ long CDisAsm::OnKeyDown(unsigned int nKey)
 		}
 		break;
 	case VK_UP:
-		m_nSelected -= 4;
-		if(!IsAddressVisible(m_nSelected))
+		m_selected -= m_instructionSize;
+		if(!IsAddressVisible(m_selected))
 		{
-			UpdatePosition(-4);
+			UpdatePosition(-m_instructionSize);
 		}
 		else
 		{
@@ -633,7 +625,7 @@ long CDisAsm::OnCopy()
 
 	SelectionRangeType SelectionRange = GetSelectionRange();
 
-	for(uint32 i = SelectionRange.first; i <= SelectionRange.second; i += 4)
+	for(uint32 i = SelectionRange.first; i <= SelectionRange.second; i += m_instructionSize)
 	{
 		if(i != SelectionRange.first)
 		{
@@ -646,7 +638,7 @@ long CDisAsm::OnCopy()
 		sText += lexical_cast_hex<std::tstring>(nOpcode, 8) + _T("    ");
 
 		char sDisAsm[256];
-		m_pCtx->m_pArch->GetInstructionMnemonic(m_pCtx, i, nOpcode, sDisAsm, countof(sDisAsm));
+		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, i, nOpcode, sDisAsm, countof(sDisAsm));
 
 		sText += string_cast<std::tstring>(sDisAsm);
 		for(size_t j = strlen(sDisAsm); j < 15; j++)
@@ -654,7 +646,7 @@ long CDisAsm::OnCopy()
 			sText += _T(" ");
 		}
 
-		m_pCtx->m_pArch->GetInstructionOperands(m_pCtx, i, nOpcode, sDisAsm, countof(sDisAsm));
+		m_ctx->m_pArch->GetInstructionOperands(m_ctx, i, nOpcode, sDisAsm, countof(sDisAsm));
 		sText += string_cast<std::tstring>(sDisAsm);
 
 	}
@@ -676,91 +668,95 @@ long CDisAsm::OnCopy()
 
 void CDisAsm::Paint(HDC hDC)
 {
-	Framework::Win32::CDeviceContext DeviceContext(hDC);
+	Framework::Win32::CDeviceContext deviceContext(hDC);
 
 	RECT rwin = GetClientRect();
 
 	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
-	SelectObject(hDC, m_font);
 
 	SIZE s;
+	deviceContext.SelectObject(m_font);
 	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
 
-	int nLines = (rwin.bottom - (YMARGIN * 2)) / (s.cy + YSPACE);
-	nLines++;
+	int lines = (rwin.bottom - (YMARGIN * 2)) / (s.cy + YSPACE);
+	lines++;
 
 	RECT rmarg;
 	SetRect(&rmarg, 0, 0, 17, rwin.bottom);
 	FillRect(hDC, &rmarg, (HBRUSH)COLOR_WINDOW);
 
-	HPEN nLtGrayPen = CreatePen(PS_SOLID, 2, RGB(0x40, 0x40, 0x40));
+	HPEN ltGrayPen = CreatePen(PS_SOLID, 2, RGB(0x40, 0x40, 0x40));
 
-	HPEN nPen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
-	SelectObject(hDC, nPen);
-	MoveToEx(hDC, 17, 0, NULL);
-	LineTo(hDC, 17, rwin.bottom);
-	DeleteObject(nPen);
+	//Draw the margin border line
+	{
+		HPEN pen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
+		SelectObject(hDC, pen);
+		MoveToEx(hDC, 17, 0, NULL);
+		LineTo(hDC, 17, rwin.bottom);
+		DeleteObject(pen);
+	}
 
 	SetBkMode(hDC, TRANSPARENT);
 
-	unsigned int nY = YMARGIN;
+	unsigned int y = YMARGIN;
 
 	SelectionRangeType SelectionRange = GetSelectionRange();
 
-	for(int i = 0; i < nLines; i++)
+	for(int i = 0; i < lines; i++)
 	{
-		uint32 nAddress = m_nAddress + (i * 4);
+		uint32 address = m_address + (i * m_instructionSize);
 		
-		//Not thread safe...?
-		if(m_pCtx->m_breakpoints.find(nAddress) != m_pCtx->m_breakpoints.end())
+		//Draw breakpoint icon
+		if(m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints))
 		{
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x00));
 
 			{
 				HDC hMem = CreateCompatibleDC(hDC);
-				SelectObject(hMem, m_nBPointMask);
-				BitBlt(hDC, 1, nY + 1, 15, 15, hMem, 0, 0, SRCAND);
+				SelectObject(hMem, m_breakpointMaskBitmap);
+				BitBlt(hDC, 1, y + 1, 15, 15, hMem, 0, 0, SRCAND);
 				DeleteDC(hMem);
 			}
 
 			{
 				HDC hMem = CreateCompatibleDC(hDC);
-				SelectObject(hMem, m_nBPoint);
-				BitBlt(hDC, 1, nY + 1, 15, 15, hMem, 0, 0, SRCPAINT);
+				SelectObject(hMem, m_breakpointBitmap);
+				BitBlt(hDC, 1, y + 1, 15, 15, hMem, 0, 0, SRCPAINT);
 				DeleteDC(hMem);
 			}
 		}
 
+		//Draw current instruction arrow
 		if(m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING)
 		{
-			if(nAddress == m_pCtx->m_State.nPC)
+			if(address == m_ctx->m_State.nPC)
 			{
 				SetTextColor(hDC, RGB(0x00, 0x00, 0x00));
 
 				{
 					HDC hMem = CreateCompatibleDC(hDC);
-					SelectObject(hMem, m_nArrowMask);
-					BitBlt(hDC, 3, nY + 2, 13, 13, hMem, 0, 0, SRCAND);
+					SelectObject(hMem, m_arrowMaskBitmap);
+					BitBlt(hDC, 3, y + 2, 13, 13, hMem, 0, 0, SRCAND);
 					DeleteDC(hMem);
 				}
 
 				{
 					HDC hMem = CreateCompatibleDC(hDC);
-					SelectObject(hMem, m_nArrow);
-					BitBlt(hDC, 3, nY + 2, 13, 13, hMem, 0, 0, SRCPAINT);
+					SelectObject(hMem, m_arrowBitmap);
+					BitBlt(hDC, 3, y + 2, 13, 13, hMem, 0, 0, SRCPAINT);
 					DeleteDC(hMem);
 				}
 			}
 		}
 
 		if(
-			(nAddress >= SelectionRange.first) && 
-			(nAddress <= SelectionRange.second)
+			(address >= SelectionRange.first) && 
+			(address <= SelectionRange.second)
 			)
 		{
 			RECT rsel;
-			SetRect(&rsel, 18, nY, rwin.right, nY + s.cy + YSPACE);
-			if(m_nFocus)
+			SetRect(&rsel, 18, y, rwin.right, y + s.cy + YSPACE);
+			if(m_focus)
 			{
 				FillRect(hDC, &rsel, (HBRUSH)GetStockObject(BLACK_BRUSH));
 			}
@@ -775,98 +771,105 @@ void CDisAsm::Paint(HDC hDC)
 			SetTextColor(hDC, RGB(0x00, 0x00, 0x00));
 		}
 
+		//Draw address
 		{
 			TCHAR sTemp[256];
-			_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), nAddress);
-			TextOut(hDC, 20, nY, sTemp, (int)_tcslen(sTemp));
+			_sntprintf(sTemp, countof(sTemp), _T("%0.8X"), address);
+			TextOut(hDC, 20, y, sTemp, (int)_tcslen(sTemp));
 		}
 		
-		const CMIPSAnalysis::SUBROUTINE* pSub = m_pCtx->m_pAnalysis->FindSubroutine(nAddress);
-		if(pSub != NULL)
+		//Draw function boundaries
+		const CMIPSAnalysis::SUBROUTINE* sub = m_ctx->m_pAnalysis->FindSubroutine(address);
+		if(sub != NULL)
 		{
-			SelectObject(hDC, nLtGrayPen);
-			if(nAddress == pSub->nStart)
+			SelectObject(hDC, ltGrayPen);
+			if(address == sub->nStart)
 			{
-				MoveToEx(hDC, 90, nY + s.cy + YSPACE, NULL);
-				LineTo(hDC, 90, nY + ((s.cy + YSPACE) / 2) - 1);
-				LineTo(hDC, 95, nY + ((s.cy + YSPACE) / 2));
+				MoveToEx(hDC, 90, y + s.cy + YSPACE, NULL);
+				LineTo(hDC, 90, y + ((s.cy + YSPACE) / 2) - 1);
+				LineTo(hDC, 95, y + ((s.cy + YSPACE) / 2));
 			}
-			else if(nAddress == pSub->nEnd)
+			else if(address == sub->nEnd)
 			{
-				MoveToEx(hDC, 90, nY, NULL);
-				LineTo(hDC, 90, nY + ((s.cy + YSPACE) / 2));
-				LineTo(hDC, 95, nY + ((s.cy + YSPACE) / 2));
+				MoveToEx(hDC, 90, y, NULL);
+				LineTo(hDC, 90, y + ((s.cy + YSPACE) / 2));
+				LineTo(hDC, 95, y + ((s.cy + YSPACE) / 2));
 			}
 			else
 			{
-				MoveToEx(hDC, 90, nY, NULL);
-				LineTo(hDC, 90, nY + s.cy + YSPACE);
+				MoveToEx(hDC, 90, y, NULL);
+				LineTo(hDC, 90, y + s.cy + YSPACE);
 			}
 		}
 
-		uint32 nData = GetInstruction(nAddress);
-		DeviceContext.TextOut(100, nY, lexical_cast_hex<std::tstring>(nData, 8).c_str());
-		
-		{
-			char sDisAsm[256];
-			m_pCtx->m_pArch->GetInstructionMnemonic(m_pCtx, nAddress, nData, sDisAsm, 256);
-			DeviceContext.TextOut(200, nY, string_cast<std::tstring>(sDisAsm).c_str());
-		}
+		DrawInstructionDetails(deviceContext, address, y);
+		DrawInstructionMetadata(deviceContext, address, y);
 
-		{
-			char sDisAsm[256];
-			m_pCtx->m_pArch->GetInstructionOperands(m_pCtx, nAddress, nData, sDisAsm, 256);
-			DeviceContext.TextOut(300, nY, string_cast<std::tstring>(sDisAsm).c_str());
-		}
-
-		bool nCommentDrawn = false;
-
-		{
-			const char* sTag = m_pCtx->m_Functions.Find(nAddress);
-			if(sTag != NULL)
-			{
-				char sDisAsm[256];
-				SetTextColor(hDC, RGB(0x00, 0x00, 0x80));
-				strcpy(sDisAsm, "@");
-				strcat(sDisAsm, sTag);
-				DeviceContext.TextOut(450, nY, string_cast<std::tstring>(sDisAsm).c_str());
-				nCommentDrawn = true;
-			}
-		}
-
-
-		if(!nCommentDrawn)
-		{
-			if(m_pCtx->m_pArch->IsInstructionBranch(m_pCtx, nAddress, nData) == MIPS_BRANCH_NORMAL)
-			{
-				uint32 nEffAddr = m_pCtx->m_pArch->GetInstructionEffectiveAddress(m_pCtx, nAddress, nData);
-				const char* sTag = m_pCtx->m_Functions.Find(nEffAddr);
-				if(sTag != NULL)
-				{
-					char sDisAsm[256];
-					SetTextColor(hDC, RGB(0x00, 0x00, 0x80));
-					strcpy(sDisAsm, "-> ");
-					strcat(sDisAsm, sTag);
-					DeviceContext.TextOut(450, nY, string_cast<std::tstring>(sDisAsm).c_str());
-					nCommentDrawn = true;
-				}
-			}
-		}
-
-		{
-			const char* sTag = m_pCtx->m_Comments.Find(nAddress);
-			if(sTag != NULL && !nCommentDrawn)
-			{
-				char sDisAsm[256];
-				SetTextColor(hDC, RGB(0x00, 0x80, 0x00));
-				strcpy(sDisAsm, ";");
-				strcat(sDisAsm, sTag);
-				DeviceContext.TextOut(450, nY, string_cast<std::tstring>(sDisAsm).c_str());
-			}
-		}
-
-		nY += s.cy + YSPACE;
+		y += s.cy + YSPACE;
 	}
 
-	DeleteObject(nLtGrayPen);
+	DeleteObject(ltGrayPen);
+}
+
+void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
+{
+	uint32 data = GetInstruction(address);
+	deviceContext.TextOut(100, y, lexical_cast_hex<std::tstring>(data, 8).c_str());
+		
+	{
+		char disAsm[256];
+		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, data, disAsm, 256);
+		deviceContext.TextOut(200, y, string_cast<std::tstring>(disAsm).c_str());
+	}
+
+	{
+		char disAsm[256];
+		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address, data, disAsm, 256);
+		deviceContext.TextOut(300, y, string_cast<std::tstring>(disAsm).c_str());
+	}
+}
+
+void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
+{
+	bool commentDrawn = false;
+
+	//Draw function name
+	{
+		const char* tag = m_ctx->m_Functions.Find(address);
+		if(tag != nullptr)
+		{
+			std::tstring disAsm = _T("@") + string_cast<std::tstring>(tag);
+			deviceContext.TextOut(450, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
+			commentDrawn = true;
+		}
+	}
+
+	//Draw target function call if applicable
+	if(!commentDrawn)
+	{
+		uint32 opcode = GetInstruction(address);
+		if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, address, opcode) == MIPS_BRANCH_NORMAL)
+		{
+			uint32 effAddr = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
+			const char* tag = m_ctx->m_Functions.Find(effAddr);
+			if(tag != nullptr)
+			{
+				std::tstring disAsm = _T("-> ") + string_cast<std::tstring>(tag);
+				deviceContext.TextOut(450, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
+				commentDrawn = true;
+			}
+		}
+	}
+
+	//Draw comment
+	if(!commentDrawn)
+	{
+		const char* tag = m_ctx->m_Comments.Find(address);
+		if(tag != nullptr)
+		{
+			std::tstring disAsm = _T(";") + string_cast<std::tstring>(tag);
+			deviceContext.TextOut(450, y, disAsm.c_str(), RGB(0x00, 0x80, 0x00));
+			commentDrawn = true;
+		}
+	}
 }

@@ -1,5 +1,4 @@
-#ifndef _DISASMWND_H_
-#define _DISASMWND_H_
+#pragma once
 
 #include "win32/MDIChild.h"
 #include "DisAsm.h"
@@ -17,13 +16,11 @@ public:
 	void				SetSelectedAddress(uint32);
 
 protected:
-	long				OnSize(unsigned int, unsigned int, unsigned int);
-	long				OnSysCommand(unsigned int, LPARAM);
-	long				OnSetFocus();
+	long				OnSize(unsigned int, unsigned int, unsigned int) override;
+	long				OnSysCommand(unsigned int, LPARAM) override;
+	long				OnSetFocus() override;
 
 private:
 	void				RefreshLayout();
 	CDisAsm*			m_pDisAsm;
 };
-
-#endif

@@ -386,6 +386,7 @@
     <ClCompile Include="..\Source\win32ui\DebugView.cpp" />
     <ClCompile Include="..\Source\win32ui\DirectXControl.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsm.cpp" />
+    <ClCompile Include="..\Source\win32ui\DisAsmVu.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsmWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\ELFHeaderView.cpp" />
     <ClCompile Include="..\Source\win32ui\ELFProgramView.cpp" />
@@ -586,6 +587,7 @@
     <ClInclude Include="..\Source\win32ui\DebugView.h" />
     <ClInclude Include="..\Source\win32ui\DirectXControl.h" />
     <ClInclude Include="..\Source\win32ui\DisAsm.h" />
+    <ClInclude Include="..\Source\win32ui\DisAsmVu.h" />
     <ClInclude Include="..\Source\win32ui\DisAsmWnd.h" />
     <ClInclude Include="..\Source\win32ui\ELFHeaderView.h" />
     <ClInclude Include="..\Source\win32ui\ELFProgramView.h" />

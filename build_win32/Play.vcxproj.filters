@@ -622,6 +622,9 @@
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.cpp">
       <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\win32ui\DisAsmVu.cpp">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1205,6 +1208,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.h">
       <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\DisAsmVu.h">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
