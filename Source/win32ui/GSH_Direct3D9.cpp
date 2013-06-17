@@ -965,10 +965,10 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 {
 	if(m_vtxCount == 0) return;
 
-	bool nDrawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);
-	bool nFog = (nRegister == GS_REG_XYZF2) || (nRegister == GS_REG_XYZF3);
+	bool drawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);
+	bool fog = (nRegister == GS_REG_XYZF2) || (nRegister == GS_REG_XYZF3);
 
-	if(nFog)
+	if(fog)
 	{
 		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
 		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
@@ -1004,33 +1004,33 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 			switch(m_primitiveType)
 			{
 			case 0:
-				//if(nDrawingKick) Prim_Point();
+				//if(drawingKick) Prim_Point();
 				break;
 			case 1:
-				//if(nDrawingKick) Prim_Line();
+				//if(drawingKick) Prim_Line();
 				break;
 			case 2:
-				//if(nDrawingKick) Prim_Line();
+				//if(drawingKick) Prim_Line();
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
 			case 3:
-				if(nDrawingKick) Prim_Triangle();
+				if(drawingKick) Prim_Triangle();
 				m_vtxCount = 3;
 				break;
 			case 4:
-				if(nDrawingKick) Prim_Triangle();
+				if(drawingKick) Prim_Triangle();
 				memcpy(&m_vtxBuffer[2], &m_vtxBuffer[1], sizeof(VERTEX));
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
 			case 5:
-				if(nDrawingKick) Prim_Triangle();
+				if(drawingKick) Prim_Triangle();
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
 			case 6:
-				if(nDrawingKick) Prim_Sprite();
+				if(drawingKick) Prim_Sprite();
 				m_vtxCount = 2;
 				break;
 			}
