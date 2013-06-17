@@ -1,9 +1,7 @@
-#ifndef _GIF_H_
-#define _GIF_H_
+#pragma once
 
 #include "Types.h"
 #include "GSHandler.h"
-#include <boost/thread.hpp>
 
 class CGIF
 {
@@ -30,7 +28,5 @@ private:
 	uint8*			m_ram;
 	uint8*			m_spr;
 	CGSHandler*&	m_gs;
-	boost::mutex	m_pathMutex;
+	std::mutex		m_pathMutex;
 };
-
-#endif

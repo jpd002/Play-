@@ -204,7 +204,7 @@ uint32 CGIF::ProcessImage(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 
 uint32 CGIF::ProcessPacket(uint8* pMemory, uint32 nAddress, uint32 nEnd)
 {
-	boost::mutex::scoped_lock pathLock(m_pathMutex);
+	std::unique_lock<std::mutex> pathLock(m_pathMutex);
 	static CGSHandler::RegisterWriteList writeList;
 
 #ifdef PROFILE
