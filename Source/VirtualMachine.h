@@ -1,5 +1,4 @@
-#ifndef _VIRTUAL_MACHINE_H_
-#define _VIRTUAL_MACHINE_H_
+#pragma once
 
 #include <boost/signals2.hpp>
 
@@ -20,5 +19,3 @@ public:
 	boost::signals2::signal<void ()>	OnMachineStateChange;
 	boost::signals2::signal<void ()>	OnRunningStateChange;
 };
-
-#endif
