@@ -694,6 +694,8 @@ long CDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 	case SC_CLOSE:
 		Show(SW_HIDE);
 		return FALSE;
+	case SC_KEYMENU:
+		return FALSE;
 	}
 	return TRUE;
 }

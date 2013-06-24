@@ -17,9 +17,9 @@ public:
 	static void						InitializeConsole();
 
 protected:
-	long							OnCommand(unsigned short, unsigned short, HWND);
-	long							OnSysCommand(unsigned int, LPARAM);
-	long							OnWndProc(unsigned int, WPARAM, LPARAM);
+	long							OnCommand(unsigned short, unsigned short, HWND) override;
+	long							OnSysCommand(unsigned int, LPARAM) override;
+	long							OnWndProc(unsigned int, WPARAM, LPARAM) override;
 
 private:
 	enum DEBUGVIEW
