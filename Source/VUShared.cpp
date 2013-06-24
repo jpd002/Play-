@@ -866,40 +866,42 @@ void VUShared::OPMULA(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 	codeGen->FP_PullSingle(GetAccumulatorElement(VECTOR_COMPZ));
 }
 
-void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 nFd, uint8 nFs, uint8 nFt, uint32 relativePipeTime)
+void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime)
 {
-	if(nFd == 0)
-	{
-		//This is done by many games
-		//Use the temporary register to store the result
-		nFd = 32;
-	}
+	//We keep the value in a temp register because it's possible to specify a FD which can be used as FT or FS
+	uint8 tempRegIndex = 32;
 
 	//X
 	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPX));
-	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPY));
-	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPZ));
+	codeGen->FP_PushSingle(GetVectorElement(fs, VECTOR_COMPY));
+	codeGen->FP_PushSingle(GetVectorElement(ft, VECTOR_COMPZ));
 	codeGen->FP_Mul();
 	codeGen->FP_Sub();
-	codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPX));
+	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPX));
 
 	//Y
 	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPY));
-	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPZ));
-	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPX));
+	codeGen->FP_PushSingle(GetVectorElement(fs, VECTOR_COMPZ));
+	codeGen->FP_PushSingle(GetVectorElement(ft, VECTOR_COMPX));
 	codeGen->FP_Mul();
 	codeGen->FP_Sub();
-	codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPY));
+	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPY));
 
 	//Z
 	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
-	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
-	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPY));
+	codeGen->FP_PushSingle(GetVectorElement(fs, VECTOR_COMPX));
+	codeGen->FP_PushSingle(GetVectorElement(ft, VECTOR_COMPY));
 	codeGen->FP_Mul();
 	codeGen->FP_Sub();
-	codeGen->FP_PullSingle(GetVectorElement(nFd, VECTOR_COMPZ));
+	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPZ));
 
-	TestSZFlags(codeGen, 0xF, nFd, relativePipeTime);
+	TestSZFlags(codeGen, 0xF, tempRegIndex, relativePipeTime);
+
+	if(fd != 0)
+	{
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[tempRegIndex]));
+		codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[fd]));
+	}
 }
 
 void VUShared::RINIT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
