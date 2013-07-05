@@ -11,8 +11,9 @@ public:
 									CRegViewVU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewVU();
 
+	virtual void					Update() override;
+
 private:
-	void							Update();
 	std::string						GetDisplayText();
 
 	CMIPS*							m_pCtx;

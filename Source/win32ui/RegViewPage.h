@@ -10,9 +10,10 @@ public:
 									CRegViewPage(HWND, const RECT&);
 	virtual							~CRegViewPage();
 
+	virtual void					Update();
+
 protected:
 	void							SetDisplayText(const char*);
-	void							Update();
 	long							OnVScroll(unsigned int, unsigned int) override;
 	long							OnSize(unsigned int, unsigned int, unsigned int) override;
 	long							OnMouseWheel(int, int, short) override;
