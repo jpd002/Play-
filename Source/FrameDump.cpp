@@ -2,9 +2,10 @@
 #include "MemoryStateFile.h"
 #include "RegisterStateFile.h"
 
-#define STATE_INITIAL_GSRAM			"init/gsram"
-#define STATE_INITIAL_GSREGS		"init/gsregs"
-#define STATE_PACKET_PREFIX			"packet_"
+#define STATE_INITIAL_GSRAM				"init/gsram"
+#define STATE_INITIAL_GSREGS			"init/gsregs"
+#define STATE_PACKET_PREFIX				"packet_"
+#define STATE_PACKET_METADATA_PREFIX	"packetmetadata_"
 
 CFrameDump::CFrameDump()
 {
@@ -37,9 +38,15 @@ const CFrameDump::PacketArray& CFrameDump::GetPackets() const
 	return m_packets;
 }
 
-void CFrameDump::AddPacket(const CGSHandler::RegisterWrite* registerWrites, uint32 count)
+void CFrameDump::AddPacket(const CGSHandler::RegisterWrite* registerWrites, uint32 count, const CGsPacketMetadata* metadata)
 {
-	m_packets.push_back(Packet(registerWrites, registerWrites + count));
+	CGsPacket packet;
+	packet.writes = CGsPacket::WriteArray(registerWrites, registerWrites + count);
+	if(metadata)
+	{
+		packet.metadata = *metadata;
+	}
+	m_packets.push_back(packet);
 }
 
 void CFrameDump::Read(Framework::CStream& input)
@@ -69,10 +76,13 @@ void CFrameDump::Read(Framework::CStream& input)
 		unsigned int writeCount = packetFileHeader->uncompressedSize / sizeof(CGSHandler::RegisterWrite);
 		assert(packetFileHeader->uncompressedSize % sizeof(CGSHandler::RegisterWrite) == 0);
 
-		Packet packet;
-		packet.resize(writeCount);
+		std::string packetMetadataFile = STATE_PACKET_METADATA_PREFIX + std::to_string(packetFilePair.first);
 
-		archive.BeginReadFile(packetFile.c_str())->Read(packet.data(), packet.size() * sizeof(CGSHandler::RegisterWrite));
+		CGsPacket packet;
+		packet.writes.resize(writeCount);
+
+		archive.BeginReadFile(packetFile.c_str())->Read(packet.writes.data(), packet.writes.size() * sizeof(CGSHandler::RegisterWrite));
+		archive.BeginReadFile(packetMetadataFile.c_str())->Read(&packet.metadata, sizeof(CGsPacketMetadata));
 
 		m_packets.push_back(packet);
 	}
@@ -88,8 +98,11 @@ void CFrameDump::Write(Framework::CStream& output) const
 	unsigned int currentPacket = 0;
 	for(const auto& packet : m_packets)
 	{
-		std::string packetName = STATE_PACKET_PREFIX + std::to_string(currentPacket++);
-		archive.InsertFile(new CMemoryStateFile(packetName.c_str(), packet.data(), packet.size() * sizeof(CGSHandler::RegisterWrite)));
+		std::string packetName = STATE_PACKET_PREFIX + std::to_string(currentPacket);
+		std::string packetMetadataName = STATE_PACKET_METADATA_PREFIX + std::to_string(currentPacket);
+		archive.InsertFile(new CMemoryStateFile(packetName.c_str(), packet.writes.data(), packet.writes.size() * sizeof(CGSHandler::RegisterWrite)));
+		archive.InsertFile(new CMemoryStateFile(packetMetadataName.c_str(), &packet.metadata, sizeof(CGsPacketMetadata)));
+		currentPacket++;
 	}
 
 	archive.Write(output);

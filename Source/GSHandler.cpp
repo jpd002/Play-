@@ -471,7 +471,7 @@ void CGSHandler::WriteRegisterMassivelyImpl(const RegisterWrite* writeList, unsi
 #ifdef DEBUGGER_INCLUDED
 	if(m_frameDump)
 	{
-		m_frameDump->AddPacket(writeList, count);
+		m_frameDump->AddPacket(writeList, count, nullptr);
 	}
 #endif
 

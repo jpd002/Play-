@@ -51,11 +51,12 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 	for(const auto& packet : m_frameDump->GetPackets())
 	{
 		auto lowerBoundIterator = m_drawingKickIndices.upper_bound(cmdIndex);
-		auto upperBoundIterator = m_drawingKickIndices.lower_bound(cmdIndex + packet.size());
+		auto upperBoundIterator = m_drawingKickIndices.lower_bound(cmdIndex + packet.writes.size());
 
 		int kickCount = static_cast<int>(std::distance(lowerBoundIterator, upperBoundIterator));
 		
-		auto packetDescription = string_cast<std::tstring>(string_format("Packet (Write Count: %d, Draw Count: %d)", packet.size(), kickCount));
+		auto packetDescription = string_cast<std::tstring>(string_format("Packet (Write Count: %d, Draw Count: %d, Path: %d)", 
+			packet.writes.size(), kickCount, packet.metadata.pathIndex));
 
 		TVINSERTSTRUCT insertStruct = {};
 		insertStruct.hParent		= TVI_ROOT;
@@ -70,7 +71,7 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 		packetInfo.treeViewItem = packetRootItem;
 		m_packetInfos.push_back(packetInfo);
 
-		cmdIndex += packet.size();
+		cmdIndex += packet.writes.size();
 		packetIndex++;
 	}
 
@@ -185,10 +186,11 @@ void CGsRegisterWriteListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeVi
 
 		uint32 cmdIndex = packetInfo.cmdIndexStart;
 
-		for(const auto& registerWrite : packet)
+		for(const auto& registerWrite : packet.writes)
 		{
 			auto packetWriteDescription = CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second);
-			HTREEITEM newItem = m_packetsTreeView->InsertItem(treeView->itemNew.hItem, string_cast<std::tstring>(packetWriteDescription).c_str());
+			auto treeItemText = string_format("%0.4X: %s", cmdIndex - packetInfo.cmdIndexStart, packetWriteDescription.c_str());
+			HTREEITEM newItem = m_packetsTreeView->InsertItem(treeView->itemNew.hItem, string_cast<std::tstring>(treeItemText).c_str());
 
 			auto& writeInfo = m_writeInfos[cmdIndex];
 			writeInfo.treeViewItem = newItem;
@@ -224,7 +226,7 @@ void CGsRegisterWriteListView::IdentifyDrawingKicks()
 	uint32 cmdIndex = 0;
 	for(const auto& packet : m_frameDump->GetPackets())
 	{
-		for(const auto& registerWrite : packet)
+		for(const auto& registerWrite : packet.writes)
 		{
 			if(registerWrite.first == GS_REG_PRIM)
 			{

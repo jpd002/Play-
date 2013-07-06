@@ -46,6 +46,7 @@ private:
 	void											ToggleDepthTest();
 
 	std::unique_ptr<CGSH_Direct3D9>					m_gs;
+	CGsPacketMetadata								m_currentMetadata;
 	CFrameDump										m_frameDump;
 
 	std::unique_ptr<COutputWnd>						m_handlerOutputWindow;

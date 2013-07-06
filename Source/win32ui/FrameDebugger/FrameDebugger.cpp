@@ -30,6 +30,8 @@ CFrameDebugger::CFrameDebugger()
 	m_gs->Initialize();
 	m_gs->Reset();
 
+	memset(&m_currentMetadata, 0, sizeof(m_currentMetadata));
+
 	SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_FRAMEDEBUGGER)));
 
 	m_mainSplitter = std::make_unique<Framework::Win32::CHorizontalSplitter>(m_hWnd, GetClientRect());
@@ -228,14 +230,16 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	memcpy(gsRam, m_frameDump.GetInitialGsRam(), CGSHandler::RAMSIZE);
 	memcpy(gsRegisters, m_frameDump.GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
 
-	CFrameDump::Packet writes;
+	CGsPacket::WriteArray writes;
 
 	int32 cmdIndex = 0;
 	for(const auto& packet : m_frameDump.GetPackets())
 	{
 		if((cmdIndex - 1) >= targetCmdIndex) break;
 
-		for(const auto& registerWrite : packet)
+		m_currentMetadata = packet.metadata;
+
+		for(const auto& registerWrite : packet.writes)
 		{
 			if((cmdIndex - 1) >= targetCmdIndex) break;
 			writes.push_back(registerWrite);
