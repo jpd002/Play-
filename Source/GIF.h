@@ -6,6 +6,20 @@
 class CGIF
 {
 public:
+	struct TAG
+	{
+		unsigned int	loops		: 15;
+		unsigned int	eop			: 1;
+		unsigned int	reserved0	: 16;
+		unsigned int	reserved1	: 14;
+		unsigned int	pre			: 1;
+		unsigned int	prim		: 11;
+		unsigned int	cmd			: 2;
+		unsigned int	nreg		: 4;
+		uint64			regs;
+	};
+	static_assert(sizeof(TAG) == 0x10, "Size of TAG must be 16 bytes.");
+
 					CGIF(CGSHandler*&, uint8*, uint8*);
 	virtual			~CGIF();
 

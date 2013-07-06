@@ -394,6 +394,7 @@
     <ClCompile Include="..\Source\win32ui\ELFSymbolView.cpp" />
     <ClCompile Include="..\Source\win32ui\ELFView.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\FrameDebugger.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GifPacketView.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextStateView.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextView.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsInputStateView.cpp" />
@@ -401,6 +402,9 @@
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsStateUtils.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferView.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\TabHost.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1Vm.cpp" />
     <ClCompile Include="..\Source\win32ui\FunctionsView.cpp" />
     <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp" />
     <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp" />
@@ -598,6 +602,7 @@
     <ClInclude Include="..\Source\win32ui\FileFilters.h" />
     <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebugger.h" />
     <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebuggerTab.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GifPacketView.h" />
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextStateView.h" />
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextView.h" />
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsInputStateView.h" />
@@ -605,6 +610,9 @@
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsStateUtils.h" />
     <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferView.h" />
     <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\TabHost.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.h" />
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1Vm.h" />
     <ClInclude Include="..\Source\win32ui\FunctionsView.h" />
     <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h" />
     <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h" />

@@ -12,7 +12,7 @@ CGsInputStateView::~CGsInputStateView()
 
 }
 
-void CGsInputStateView::UpdateState(CGSHandler* gs)
+void CGsInputStateView::UpdateState(CGSHandler* gs, CGsPacketMetadata*)
 {
 	std::string result;
 	result += CGsStateUtils::GetInputState(gs);

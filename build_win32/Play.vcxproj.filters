@@ -622,8 +622,20 @@
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.cpp">
       <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1Vm.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\win32ui\DisAsmVu.cpp">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\TabHost.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\FrameDebugger\GifPacketView.cpp">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1209,8 +1221,20 @@
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.h">
       <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1Vm.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
     <ClInclude Include="..\Source\win32ui\DisAsmVu.h">
       <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\TabHost.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FrameDebugger\GifPacketView.h">
+      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

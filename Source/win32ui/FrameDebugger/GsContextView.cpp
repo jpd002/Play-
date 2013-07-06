@@ -34,7 +34,7 @@ CGsContextView::~CGsContextView()
 
 }
 
-void CGsContextView::UpdateState(CGSHandler* gs)
+void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*)
 {
 	assert(gs == m_gs);
 	UpdateBufferView();

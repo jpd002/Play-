@@ -9,16 +9,15 @@
 #include "../resource.h"
 #include "StdStreamUtils.h"
 #include "lexical_cast_ex.h"
+#include "string_cast.h"
+#include "string_format.h"
 
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
 #define WNDTITLE					_T("Play! - Frame Debugger")
 
 CFrameDebugger::CFrameDebugger()
 : m_accTable(nullptr)
-, m_currentSelection(0)
 {
-	memset(&m_tabItems, 0, sizeof(m_tabItems));
-
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), WNDTITLE, WNDSTYLE, Framework::Win32::CRect(0, 0, 1024, 768), nullptr, nullptr);
 	SetClassPtr();
 
@@ -38,11 +37,7 @@ CFrameDebugger::CFrameDebugger()
 
 	m_registerWriteListView = std::make_unique<CGsRegisterWriteListView>(*m_mainSplitter, GetClientRect());
 
-	m_tab = std::make_unique<Framework::Win32::CTab>(*m_mainSplitter, GetClientRect());
-	m_tab->InsertTab(_T("Context 1"));
-	m_tab->InsertTab(_T("Context 2"));
-	m_tab->InsertTab(_T("Input State"));
-	m_tab->InsertTab(_T("VU1 Microprogram"));
+	m_tab = std::make_unique<CTabHost>(*m_mainSplitter, GetClientRect());
 
 	m_gsContextView0 = std::make_unique<CGsContextView>(*m_tab, GetClientRect(), m_gs.get(), 0);
 	m_gsContextView0->Show(SW_HIDE);
@@ -52,15 +47,20 @@ CFrameDebugger::CFrameDebugger()
 
 	m_gsInputStateView = std::make_unique<CGsInputStateView>(*m_tab, GetClientRect());
 
-	m_tabItems[0] = m_gsContextView0.get();
-	m_tabItems[1] = m_gsContextView1.get();
-	m_tabItems[2] = m_gsInputStateView.get();
+	m_vu1ProgramView = std::make_unique<CVu1ProgramView>(*m_tab, GetClientRect(), m_vu1vm);
+	m_vu1ProgramView->Show(SW_HIDE);
 
-	OnTabSelChanged();
+	m_tab->InsertTab(_T("Context 1"), m_gsContextView0.get());
+	m_tab->InsertTab(_T("Context 2"), m_gsContextView1.get());
+	m_tab->InsertTab(_T("Input State"), m_gsInputStateView.get());
+	m_tab->InsertTab(_T("VU1 Microprogram"), m_vu1ProgramView.get());
+
 	UpdateMenus();
 
 	m_mainSplitter->SetChild(0, *m_registerWriteListView);
 	m_mainSplitter->SetChild(1, *m_tab);
+
+	CreateAcceleratorTables();
 }
 
 CFrameDebugger::~CFrameDebugger()
@@ -73,6 +73,11 @@ CFrameDebugger::~CFrameDebugger()
 	}
 }
 
+HACCEL CFrameDebugger::GetAccelerators()
+{
+	return m_accTable;
+}
+
 long CFrameDebugger::OnSize(unsigned int type, unsigned int x, unsigned int y)
 {
 	if(m_mainSplitter)
@@ -81,7 +86,6 @@ long CFrameDebugger::OnSize(unsigned int type, unsigned int x, unsigned int y)
 		splitterRect.Inflate(-10, -10);
 		m_mainSplitter->SetSizePosition(splitterRect);
 	}
-	ResizeTabContents();
 	return TRUE;
 }
 
@@ -102,11 +106,10 @@ long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndF
 		case ID_FD_SETTINGS_DEPTHTEST:
 			ToggleDepthTest();
 			break;
+		case ID_FD_VU1_STEP:
+			StepVu1();
+			break;
 		}
-	}
-	else if(CWindow::IsCommandSource(m_mainSplitter.get(), hwndFrom))
-	{
-		ResizeTabContents();
 	}
 	return TRUE;
 }
@@ -122,8 +125,8 @@ long CFrameDebugger::OnNotify(WPARAM param, NMHDR* header)
 	{
 		switch(header->code)
 		{
-		case TCN_SELCHANGE:
-			OnTabSelChanged();
+		case CTabHost::NOTIFICATION_SELCHANGED:
+			UpdateCurrentTab();
 			break;
 		}
 		return FALSE;
@@ -151,6 +154,8 @@ long CFrameDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 	case SC_CLOSE:
 		Show(SW_HIDE);
 		return FALSE;
+	case SC_KEYMENU:
+		return FALSE;
 	}
 	return TRUE;
 }
@@ -158,57 +163,8 @@ long CFrameDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 void CFrameDebugger::CreateAcceleratorTables()
 {
 	Framework::Win32::CAcceleratorTableGenerator generator;
-//	generator.Insert(ID_VM_STEP,				VK_F10, FVIRTKEY);
-//	generator.Insert(ID_VM_NEXTMICRO,			VK_F5,	FVIRTKEY);
-//	generator.Insert(ID_VM_SAVESTATE,           VK_F7,  FVIRTKEY);
-//	generator.Insert(ID_VM_LOADSTATE,           VK_F8,  FVIRTKEY);
-//	generator.Insert(ID_VIEW_FUNCTIONS,         'F',    FCONTROL | FVIRTKEY);
-//	generator.Insert(ID_VM_STEP1,               VK_F10, FVIRTKEY);
-//	generator.Insert(ID_VM_RESUME,              VK_F5,  FVIRTKEY);
-//	generator.Insert(ID_VIEW_CALLSTACK,         'A',    FCONTROL | FVIRTKEY);
-//	generator.Insert(ID_VIEW_EEVIEW,            '1',    FALT | FVIRTKEY);
-//	generator.Insert(ID_VIEW_VU0VIEW,           '2',    FALT | FVIRTKEY);
-//	generator.Insert(ID_VIEW_VU1VIEW,           '3',    FALT | FVIRTKEY);
-//	generator.Insert(ID_VIEW_IOPVIEW,           '4',    FALT | FVIRTKEY);
-//	generator.Insert(ID_EDIT_COPY,              'C',    FCONTROL | FVIRTKEY);
-//	generator.Insert(ID_VIEW_TESTENGINECONSOLE, 'T',    FCONTROL | FVIRTKEY);
+	generator.Insert(ID_FD_VU1_STEP,			VK_F10, FVIRTKEY);
 	m_accTable = generator.Create();
-}
-
-void CFrameDebugger::OnTabSelChanged()
-{
-	int selectedTab = m_tab->GetSelection();
-	if(m_currentSelection != -1)
-	{
-		auto tabItem(m_tabItems[m_currentSelection]);
-		if(tabItem)
-		{
-			tabItem->Show(SW_HIDE);
-		}
-	}
-
-	assert(selectedTab < MAX_TAB_ITEMS);
-	m_currentSelection = selectedTab;
-	UpdateCurrentTab();
-
-	auto tabItem(m_tabItems[m_currentSelection]);
-	if(tabItem)
-	{
-		tabItem->SetSizePosition(m_tab->GetDisplayAreaRect());
-		tabItem->Show(SW_SHOW);
-	}
-}
-
-void CFrameDebugger::ResizeTabContents()
-{
-	if(m_currentSelection != -1)
-	{
-		auto tabItem(m_tabItems[m_currentSelection]);
-		if(tabItem)
-		{
-			tabItem->SetSizePosition(m_tab->GetDisplayAreaRect());
-		}
-	}
 }
 
 void CFrameDebugger::UpdateMenus()
@@ -257,19 +213,32 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 
 void CFrameDebugger::UpdateCurrentTab()
 {
-	if(m_currentSelection != -1 && m_tabItems[m_currentSelection])
+	if(m_tab->GetSelection() != -1)
 	{
-		auto debuggerTab = dynamic_cast<IFrameDebuggerTab*>(m_tabItems[m_currentSelection]);
-		debuggerTab->UpdateState(m_gs.get());
+		if(auto tab = m_tab->GetTab(m_tab->GetSelection()))
+		{
+			auto debuggerTab = dynamic_cast<IFrameDebuggerTab*>(tab);
+			debuggerTab->UpdateState(m_gs.get(), &m_currentMetadata);
+		}
 	}
 }
 
 void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
 {
-	boost::filesystem::path dumpPath(dumpPathName);
-	auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
-	m_frameDump.Read(inputStream);
+	try
+	{
+		boost::filesystem::path dumpPath(dumpPathName);
+		auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
+		m_frameDump.Read(inputStream);
+	}
+	catch(const std::exception& exception)
+	{
+		std::string message = string_format("Failed to open frame dump:\r\n\r\n%s", exception.what());
+		MessageBox(m_hWnd, string_cast<std::tstring>(message).c_str(), nullptr, MB_ICONERROR);
+		return;
+	}
 
+	m_vu1vm.Reset();
 	m_registerWriteListView->SetFrameDump(&m_frameDump);
 
 	UpdateDisplay(0);
@@ -295,4 +264,21 @@ void CFrameDebugger::ToggleDepthTest()
 		UpdateDisplay(selectedItemIndex);
 	}
 	UpdateMenus();
+}
+
+void CFrameDebugger::StepVu1()
+{
+	if(m_currentMetadata.pathIndex != 1)
+	{
+		MessageBeep(-1);
+		return;
+	}
+
+	const int vu1TabIndex = 3;
+	if(m_tab->GetSelection() != vu1TabIndex)
+	{
+		m_tab->SetSelection(vu1TabIndex);
+	}
+
+	m_vu1ProgramView->StepVu1();
 }
