@@ -303,8 +303,14 @@ void CGSH_Direct3D9::UploadConversionBuffer(const TEX0& tex0, const TEXA& texA, 
 	result = texture->LockRect(0, &rect, NULL, 0);
 	assert(result == S_OK);
 
-	assert((width * sizeof(uint32)) == rect.Pitch);
-	memcpy(rect.pBits, m_cvtBuffer, width * height * sizeof(uint32));
+	uint8* srcPtr = reinterpret_cast<uint8*>(m_cvtBuffer);
+	uint8* dstPtr = reinterpret_cast<uint8*>(rect.pBits);
+	for(unsigned int i = 0; i < height; i++)
+	{
+		memcpy(dstPtr, srcPtr, width * sizeof(uint32));
+		srcPtr += width * sizeof(uint32);
+		dstPtr += rect.Pitch;
+	}
 
 	result = texture->UnlockRect(0);
 	assert(result == S_OK);
