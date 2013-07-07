@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "RegisterStateFile.h"
 #include <boost/lexical_cast.hpp>
+#include "Ps2Const.h"
 
 #define LOG_NAME				("vpu")
 
@@ -27,20 +28,29 @@
 #define STATE_REGS_READTICK		("readTick")
 #define STATE_REGS_WRITETICK	("writeTick")
 
-CVPU::CVPU(CVIF& vif, unsigned int vpuNumber, const CVIF::VPUINIT& vpuInit) :
-m_vif(vif),
-m_vpuNumber(vpuNumber),
-m_pMicroMem(vpuInit.microMem),
-m_pVUMem(vpuInit.vuMem),
-m_pCtx(vpuInit.context),
-m_executor(*vpuInit.context)
+CVPU::CVPU(CVIF& vif, unsigned int vpuNumber, const CVIF::VPUINIT& vpuInit)
+: m_vif(vif)
+, m_vpuNumber(vpuNumber)
+, m_microMem(vpuInit.microMem)
+, m_vuMem(vpuInit.vuMem)
+, m_ctx(vpuInit.context)
+, m_executor(*vpuInit.context)
+#ifdef DEBUGGER_INCLUDED
+, m_microMemMiniState(new uint8[(vpuNumber == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
+, m_vuMemMiniState(new uint8[(vpuNumber == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE])
+, m_topMiniState(0)
+, m_itopMiniState(0)
+#endif
 {
 
 }
 
 CVPU::~CVPU()
 {
-
+#ifdef DEBUGGER_INCLUDED
+	delete [] m_microMemMiniState;
+	delete [] m_vuMemMiniState;
+#endif
 }
 
 void CVPU::Execute(bool singleStep)
@@ -48,7 +58,7 @@ void CVPU::Execute(bool singleStep)
 	unsigned int quota = singleStep ? 1 : 5000;
 	assert(IsRunning());
 	m_executor.Execute(quota);
-	if(m_pCtx->m_State.nHasException)
+	if(m_ctx->m_State.nHasException)
 	{
 		//E bit encountered
 		m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
@@ -65,6 +75,40 @@ bool CVPU::MustBreak() const
 void CVPU::DisableBreakpointsOnce()
 {
 	m_executor.DisableBreakpointsOnce();
+}
+
+void CVPU::SaveMiniState()
+{
+	memcpy(m_microMemMiniState, m_microMem, (m_vpuNumber == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE);
+	memcpy(m_vuMemMiniState, m_vuMem, (m_vpuNumber == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE);
+	memcpy(&m_vuMiniState, &m_ctx->m_State, sizeof(MIPSSTATE));
+	m_topMiniState = (m_vpuNumber == 0) ? 0 : GetTOP();
+	m_itopMiniState = GetITOP();
+}
+
+const MIPSSTATE& CVPU::GetVuMiniState() const
+{
+	return m_vuMiniState;
+}
+
+uint8* CVPU::GetVuMemoryMiniState() const
+{
+	return m_vuMemMiniState;
+}
+
+uint8* CVPU::GetMicroMemoryMiniState() const
+{
+	return m_microMemMiniState;
+}
+
+uint32 CVPU::GetVuTopMiniState() const
+{
+	return m_topMiniState;
+}
+
+uint32 CVPU::GetVuItopMiniState() const
+{
+	return m_itopMiniState;
 }
 
 #endif
@@ -148,12 +192,12 @@ uint32 CVPU::GetITOP() const
 
 uint8* CVPU::GetVuMemory() const
 {
-	return m_pVUMem;
+	return m_vuMem;
 }
 
 CMIPS& CVPU::GetContext() const
 {
-	return *m_pCtx;
+	return *m_ctx;
 }
 
 void CVPU::ProcessPacket(StreamType& stream)
@@ -248,7 +292,7 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x17:
 		//MSCNT
-		StartMicroProgram(m_pCtx->m_State.nPC);
+		StartMicroProgram(m_ctx->m_State.nPC);
 		break;
 	case 0x20:
 		//STMASK
@@ -281,7 +325,6 @@ void CVPU::StartMicroProgram(uint32 address)
 	}
 
 	assert(!m_STAT.nVEW);
-
 	ExecuteMicro(address);
 }
 
@@ -291,9 +334,13 @@ void CVPU::ExecuteMicro(uint32 nAddress)
 
 	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
 
-	m_pCtx->m_State.nPC = nAddress;
-	m_pCtx->m_State.pipeTime = 0;
-	m_pCtx->m_State.nHasException = 0;
+	m_ctx->m_State.nPC = nAddress;
+	m_ctx->m_State.pipeTime = 0;
+	m_ctx->m_State.nHasException = 0;
+
+#ifdef DEBUGGER_INCLUDED
+	SaveMiniState();
+#endif
 
 	m_vif.SetStat(m_vif.GetStat() | GetVbs());
 
@@ -332,10 +379,10 @@ void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
 		stream.Read(microProgram, nSize);
 
 		//Check if there's a change
-		if(memcmp(m_pMicroMem + nDstAddr, microProgram, nSize) != 0)
+		if(memcmp(m_microMem + nDstAddr, microProgram, nSize) != 0)
 		{
 			m_executor.ClearActiveBlocks();
-			memcpy(m_pMicroMem + nDstAddr, microProgram, nSize);
+			memcpy(m_microMem + nDstAddr, microProgram, nSize);
 		}
 	}
 
@@ -444,7 +491,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
 	nDstAddr *= 0x10;
 
-	uint128* dst = reinterpret_cast<uint128*>(&m_pVUMem[nDstAddr]);
+	uint128* dst = reinterpret_cast<uint128*>(&m_vuMem[nDstAddr]);
 
 	while((currentNum != 0) && stream.GetAvailableReadBytes())
 	{

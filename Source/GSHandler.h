@@ -12,6 +12,8 @@
 #include "Integer64.h"
 
 class CFrameDump;
+class CGsPacketMetadata;
+struct MASSIVEWRITE_INFO;
 
 #define PREF_CGSHANDLER_FLIPMODE				"renderer.flipmode"
 #define PREF_CGSHANDLER_PRESENTATION_MODE		"renderer.presentationmode"
@@ -487,7 +489,7 @@ public:
 
 	void									WriteRegister(uint8, uint64);
 	void									FeedImageData(void*, uint32);
-	void									WriteRegisterMassively(const RegisterWrite*, unsigned int);
+	void									WriteRegisterMassively(const RegisterWrite*, unsigned int, const CGsPacketMetadata*);
 
 	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
 	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
@@ -607,7 +609,7 @@ protected:
 	void									MarkNewFrame();
 	virtual void							WriteRegisterImpl(uint8, uint64);
 	virtual void							FeedImageDataImpl(void*, uint32);
-	virtual void							WriteRegisterMassivelyImpl(const RegisterWrite*, unsigned int);
+	virtual void							WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO*);
 
 	void									BeginTransfer();
 

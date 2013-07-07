@@ -45,6 +45,8 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 
 	m_packetsTreeView->SetRedraw(false);
 
+#ifdef DEBUGGER_INCLUDED
+
 	m_packetInfos.reserve(m_frameDump->GetPackets().size());
 
 	uint32 packetIndex = 0, cmdIndex = 0;
@@ -76,6 +78,8 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 	}
 
 	m_writeInfos.resize(cmdIndex, WRITEINFO());
+
+#endif	//DEBUGGER_INCLUDED
 
 	m_packetsTreeView->SetRedraw(true);
 

@@ -9,13 +9,16 @@
 class CGsPacketMetadata
 {
 public:
+#ifdef DEBUGGER_INCLUDED
 	explicit CGsPacketMetadata(unsigned int pathIndex = 0)
 		: pathIndex(pathIndex)
 		, vuMemPacketAddress(0)
 		, vpu1Top(0)
 		, vpu1Itop(0)
 	{
-
+		memset(&vu1State, 0, sizeof(vu1State));
+		memset(microMem1, 0, sizeof(microMem1));
+		memset(vuMem1, 0, sizeof(vuMem1));
 	}
 
 	unsigned int	pathIndex;
@@ -25,6 +28,12 @@ public:
 	uint32			vpu1Top;
 	uint32			vpu1Itop;
 	uint32			vuMemPacketAddress;
+#else
+	explicit CGsPacketMetadata(unsigned int = 0)
+	{
+
+	}
+#endif
 };
 
 class CGsPacket

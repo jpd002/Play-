@@ -51,6 +51,15 @@
 
 #define LOG_NAME						("gs")
 
+struct MASSIVEWRITE_INFO
+{
+#ifdef DEBUGGER_INCLUDED
+	CGsPacketMetadata				metadata;
+#endif
+	unsigned int					count;
+	CGSHandler::RegisterWrite		writes[1];
+};
+
 CGSHandler::CGSHandler()
 : m_threadDone(false)
 , m_flipMode(FLIP_MODE_SMODE2)
@@ -370,11 +379,22 @@ void CGSHandler::FeedImageData(void* data, uint32 length)
 	m_mailBox.SendCall(std::bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
 }
 
-void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count)
+void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count, const CGsPacketMetadata* metadata)
 {
-	RegisterWrite* writeListCopy = new CGSHandler::RegisterWrite[count];
-	memcpy(writeListCopy, writeList, sizeof(CGSHandler::RegisterWrite) * count);
-	m_mailBox.SendCall(bind(&CGSHandler::WriteRegisterMassivelyImpl, this, writeListCopy, count));
+	auto massiveWrite = reinterpret_cast<MASSIVEWRITE_INFO*>(malloc(sizeof(MASSIVEWRITE_INFO) + (count * sizeof(RegisterWrite))));
+	memcpy(massiveWrite->writes, writeList, sizeof(CGSHandler::RegisterWrite) * count);
+	massiveWrite->count = count;
+#ifdef DEBUGGER_INCLUDED
+	if(metadata != nullptr)
+	{
+		memcpy(&massiveWrite->metadata, metadata, sizeof(CGsPacketMetadata));
+	}
+	else
+	{
+		massiveWrite->metadata = CGsPacketMetadata();
+	}
+#endif
+	m_mailBox.SendCall([=] () { WriteRegisterMassivelyImpl(massiveWrite); });
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
@@ -466,22 +486,22 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 	}
 }
 
-void CGSHandler::WriteRegisterMassivelyImpl(const RegisterWrite* writeList, unsigned int count)
+void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
 {
 #ifdef DEBUGGER_INCLUDED
 	if(m_frameDump)
 	{
-		m_frameDump->AddPacket(writeList, count, nullptr);
+		m_frameDump->AddPacket(massiveWrite->writes, massiveWrite->count, &massiveWrite->metadata);
 	}
 #endif
 
-	const RegisterWrite* writeIterator = writeList;
-	for(unsigned int i = 0; i < count; i++)
+	const RegisterWrite* writeIterator = massiveWrite->writes;
+	for(unsigned int i = 0; i < massiveWrite->count; i++)
 	{
 		WriteRegisterImpl(writeIterator->first, writeIterator->second);
 		writeIterator++;
 	}
-	delete [] writeList;
+	free(massiveWrite);
 }
 
 void CGSHandler::BeginTransfer()

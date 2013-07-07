@@ -45,12 +45,14 @@ CVu1ProgramView::~CVu1ProgramView()
 
 void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata)
 {
+#ifdef DEBUGGER_INCLUDED
 	memcpy(m_virtualMachine.GetMicroMem1(), metadata->microMem1, PS2::MICROMEM1SIZE);
 	memcpy(m_virtualMachine.GetVuMem1(), metadata->vuMem1, PS2::VUMEM1SIZE);
 	memcpy(&m_virtualMachine.GetVu1Context()->m_State, &metadata->vu1State, sizeof(MIPSSTATE));
 	m_virtualMachine.SetVpu1Top(metadata->vpu1Top);
 	m_virtualMachine.SetVpu1Itop(metadata->vpu1Itop);
 	m_vuMemPacketAddress = metadata->vuMemPacketAddress;
+#endif
 
 	m_disAsm->Redraw();
 	m_memoryView->Redraw();

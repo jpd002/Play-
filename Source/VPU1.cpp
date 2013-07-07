@@ -1,6 +1,7 @@
 #include "VPU1.h"
 #include "Ps2Const.h"
 #include "RegisterStateFile.h"
+#include "FrameDump.h"
 #include <boost/lexical_cast.hpp>
 
 #define STATE_PREFIX			("vif/vpu1_")
@@ -127,7 +128,7 @@ void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 		int32 remainingLength = nSize;
 		while(remainingLength > 0)
 		{
-			uint32 processed = m_vif.GetGif().ProcessPacket(packet, 0, remainingLength);
+			uint32 processed = m_vif.GetGif().ProcessPacket(packet, 0, remainingLength, CGsPacketMetadata(2));
 			packet += processed;
 			remainingLength -= processed;
 			assert(remainingLength >= 0);

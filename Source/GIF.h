@@ -25,7 +25,7 @@ public:
 
 	void			Reset();
 	uint32			ReceiveDMA(uint32, uint32, uint32, bool);
-	uint32			ProcessPacket(uint8*, uint32, uint32);
+	uint32			ProcessPacket(uint8*, uint32, uint32, const CGsPacketMetadata&);
 
 private:
 	uint32			ProcessPacked(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);

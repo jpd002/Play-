@@ -5,6 +5,7 @@
 #include "Ps2Const.h"
 #include "Profiler.h"
 #include "Log.h"
+#include "FrameDump.h"
 
 #define LOG_NAME			("gif")
 
@@ -166,7 +167,7 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* mem
 			uint128 packet;
 			uint32 nRegDesc = (uint32)((m_regList >> (j * 4)) & 0x0F);
 
- 			packet.nV[0] = *(uint32*)&memory[address + 0x00];
+			packet.nV[0] = *(uint32*)&memory[address + 0x00];
 			packet.nV[1] = *(uint32*)&memory[address + 0x04];
 			address += 0x08;
 
@@ -202,7 +203,7 @@ uint32 CGIF::ProcessImage(uint8* memory, uint32 address, uint32 end)
 	return (totalLoops * 0x10);
 }
 
-uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end)
+uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
 	std::unique_lock<std::mutex> pathLock(m_pathMutex);
 	static CGSHandler::RegisterWriteList writeList;
@@ -212,7 +213,8 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end)
 #endif
 
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet at 0x%0.8X of 0x%0.8X bytes.\r\n", address, end - address);
+	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%0.8X of 0x%0.8X bytes.\r\n", 
+		packetMetadata.pathIndex, address, end - address);
 #endif
 
 	writeList.clear();
@@ -273,9 +275,9 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end)
 		}
 	}
 
-	if(m_gs != NULL && !writeList.empty())
+	if((m_gs != nullptr) && !writeList.empty())
 	{
-		m_gs->WriteRegisterMassively(writeList.data(), static_cast<unsigned int>(writeList.size()));
+		m_gs->WriteRegisterMassively(writeList.data(), static_cast<unsigned int>(writeList.size()), &packetMetadata);
 	}
 
 #ifdef _DEBUG
@@ -311,7 +313,7 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 
 	while(address < end)
 	{
-		address += ProcessPacket(memory, address, end);
+		address += ProcessPacket(memory, address, end, CGsPacketMetadata(3));
 	}
 
 	return qwc;

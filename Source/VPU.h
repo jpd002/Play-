@@ -1,5 +1,4 @@
-#ifndef _VPU_H_
-#define _VPU_H_
+#pragma once
 
 #include "Types.h"
 #include "VIF.h"
@@ -35,6 +34,13 @@ public:
 #ifdef DEBUGGER_INCLUDED
 	bool				MustBreak() const;
 	void				DisableBreakpointsOnce();
+
+	void				SaveMiniState();
+	const MIPSSTATE&	GetVuMiniState() const;
+	uint8*				GetVuMemoryMiniState() const;
+	uint8*				GetMicroMemoryMiniState() const;
+	uint32				GetVuTopMiniState() const;
+	uint32				GetVuItopMiniState() const;
 #endif
 
 protected:
@@ -136,13 +142,19 @@ protected:
 
 	uint128				m_buffer;
 
-	uint8*				m_pMicroMem;
-	uint8*				m_pVUMem;
-	CMIPS*				m_pCtx;
+	uint8*				m_microMem;
+	uint8*				m_vuMem;
+	CMIPS*				m_ctx;
 	CVIF&				m_vif;
+
+#ifdef DEBUGGER_INCLUDED
+	MIPSSTATE			m_vuMiniState;
+	uint8*				m_microMemMiniState;
+	uint8*				m_vuMemMiniState;
+	uint32				m_topMiniState;
+	uint32				m_itopMiniState;
+#endif
 
 	unsigned int		m_vpuNumber;
 	CVuExecutor			m_executor;
 };
-
-#endif

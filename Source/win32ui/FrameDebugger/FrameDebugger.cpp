@@ -203,7 +203,7 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 		}
 	}
 
-	m_gs->WriteRegisterMassively(writes.data(), writes.size());
+	m_gs->WriteRegisterMassively(writes.data(), writes.size(), nullptr);
 	m_gs->Flip();
 
 	UpdateCurrentTab();
@@ -268,6 +268,7 @@ void CFrameDebugger::ToggleDepthTest()
 
 void CFrameDebugger::StepVu1()
 {
+#ifdef DEBUGGER_INCLUDED
 	if(m_currentMetadata.pathIndex != 1)
 	{
 		MessageBeep(-1);
@@ -281,4 +282,5 @@ void CFrameDebugger::StepVu1()
 	}
 
 	m_vu1ProgramView->StepVu1();
+#endif
 }

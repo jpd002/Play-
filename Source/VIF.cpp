@@ -7,6 +7,7 @@
 #include "Ps2Const.h"
 #include "RegisterStateFile.h"
 #include "Log.h"
+#include "FrameDump.h"
 
 #ifdef	PROFILE
 #define	PROFILE_VIFZONE "VIF"
@@ -152,9 +153,24 @@ void CVIF::ProcessXGKICK(uint32 nAddress)
 	nAddress &= 0x3FF;
 	nAddress *= 0x10;
 
-//    assert(nAddress < PS2::VUMEM1SIZE);
+//	assert(nAddress < PS2::VUMEM1SIZE);
 
-	m_gif.ProcessPacket(m_pVPU[1]->GetVuMemory(), nAddress, PS2::VUMEM1SIZE);
+	CGsPacketMetadata metadata;
+#ifdef DEBUGGER_INCLUDED
+	metadata.pathIndex				= 1;
+	metadata.vuMemPacketAddress		= nAddress;
+	metadata.vpu1Top				= m_pVPU[1]->GetVuTopMiniState();
+	metadata.vpu1Itop				= m_pVPU[1]->GetVuItopMiniState();
+	memcpy(&metadata.vu1State, &m_pVPU[1]->GetVuMiniState(), sizeof(MIPSSTATE));
+	memcpy(metadata.vuMem1, m_pVPU[1]->GetVuMemoryMiniState(), PS2::VUMEM1SIZE);
+	memcpy(metadata.microMem1, m_pVPU[1]->GetMicroMemoryMiniState(), PS2::MICROMEM1SIZE);
+#endif
+
+	m_gif.ProcessPacket(m_pVPU[1]->GetVuMemory(), nAddress, PS2::VUMEM1SIZE, metadata);
+
+#ifdef DEBUGGER_INCLUDED
+	m_pVPU[1]->SaveMiniState();
+#endif
 }
 
 void CVIF::StartVu0MicroProgram(uint32 address)
