@@ -32,13 +32,13 @@ private:
 	uint32			ProcessRegList(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
 	uint32			ProcessImage(uint8*, uint32, uint32);
 
-	uint16			m_nLoops;
-	uint8			m_nCmd;
-	uint8			m_nRegs;
-	uint8			m_nRegsTemp;
-	uint64			m_nRegList;
-	bool			m_nEOP;
-	uint32			m_nQTemp;
+	uint16			m_loops;
+	uint8			m_cmd;
+	uint8			m_regs;
+	uint8			m_regsTemp;
+	uint64			m_regList;
+	bool			m_eop;
+	uint32			m_qtemp;
 	uint8*			m_ram;
 	uint8*			m_spr;
 	CGSHandler*&	m_gs;
