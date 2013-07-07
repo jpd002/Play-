@@ -20,18 +20,18 @@ bool CMailBox::IsPending() const
 
 void CMailBox::WaitForCall()
 {
-	std::unique_lock<std::mutex> waitLock(m_waitMutex);
+	std::unique_lock<std::mutex> callLock(m_callMutex);
 	while(!IsPending())
 	{
-		m_waitCondition.wait(waitLock);
+		m_waitCondition.wait(callLock);
 	}
 }
 
 void CMailBox::WaitForCall(unsigned int timeOut)
 {
-	std::unique_lock<std::mutex> waitLock(m_waitMutex);
+	std::unique_lock<std::mutex> callLock(m_callMutex);
 	if(IsPending()) return;
-	m_waitCondition.wait_for(waitLock, std::chrono::milliseconds(timeOut));
+	m_waitCondition.wait_for(callLock, std::chrono::milliseconds(timeOut));
 }
 
 void CMailBox::FlushCalls()
@@ -41,17 +41,16 @@ void CMailBox::FlushCalls()
 
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 {
-	{
-		std::unique_lock<std::mutex> waitLock(m_waitMutex);
-		MESSAGE message;
-		message.function = function;
-		message.sync = waitForCompletion;
-		m_calls.push_back(message);
-		m_waitCondition.notify_all();
-	}
+	std::unique_lock<std::mutex> callLock(m_callMutex);
+
+	MESSAGE message;
+	message.function = function;
+	message.sync = waitForCompletion;
+	m_calls.push_back(message);
+	m_waitCondition.notify_all();
+
 	if(waitForCompletion)
 	{
-		std::unique_lock<std::mutex> doneLock(m_doneNotifyMutex);
 		m_callDone = false;
 		while(!m_callDone)
 		{
@@ -62,9 +61,9 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 				TranslateMessage(&wmmsg);
 				DispatchMessage(&wmmsg);
 			}
-			m_callFinished.wait_for(doneLock, std::chrono::milliseconds(100));
+			m_callFinished.wait_for(callLock, std::chrono::milliseconds(100));
 #else
-			m_callFinished.wait(doneLock);
+			m_callFinished.wait(callLock);
 #endif
 		}
 	}
@@ -74,7 +73,7 @@ void CMailBox::ReceiveCall()
 {
 	MESSAGE message;
 	{
-		std::unique_lock<std::mutex> waitLock(m_waitMutex);
+		std::unique_lock<std::mutex> waitLock(m_callMutex);
 		if(!IsPending()) return;
 		message = *m_calls.begin();
 		m_calls.pop_front();
@@ -82,7 +81,7 @@ void CMailBox::ReceiveCall()
 	message.function();
 	if(message.sync)
 	{
-		std::unique_lock<std::mutex> doneLock(m_doneNotifyMutex);
+		std::unique_lock<std::mutex> waitLock(m_callMutex);
 		m_callDone = true;
 		m_callFinished.notify_all();
 	}

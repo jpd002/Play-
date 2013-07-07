@@ -31,8 +31,7 @@ private:
 	typedef std::deque<MESSAGE> FunctionCallQueue;
 
 	FunctionCallQueue		m_calls;
-	std::mutex				m_waitMutex;
-	std::mutex				m_doneNotifyMutex;
+	std::mutex				m_callMutex;
 	std::condition_variable	m_callFinished;
 	std::condition_variable	m_waitCondition;
 	bool					m_callDone;
