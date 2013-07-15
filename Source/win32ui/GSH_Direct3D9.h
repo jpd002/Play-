@@ -65,6 +65,18 @@ private:
 		CVTBUFFERSIZE = 0x400000,
 	};
 
+	struct RENDERSTATE
+	{
+		bool		isValid;
+		uint64		frameReg;
+		uint64		testReg;
+		uint64		alphaReg;
+		uint64		zbufReg;
+		uint64		tex0Reg;
+		uint64		tex1Reg;
+		uint64		clampReg;
+	};
+
 	class CCachedTexture
 	{
 	public:
@@ -100,10 +112,25 @@ private:
 		bool						m_canBeUsedAsTexture;
 
 		TexturePtr					m_renderTarget;
-		SurfacePtr					m_depthSurface;
 	};
 	typedef std::shared_ptr<CFramebuffer> FramebufferPtr;
 	typedef std::vector<FramebufferPtr> FramebufferList;
+
+	class CDepthbuffer
+	{
+	public:
+									CDepthbuffer(DevicePtr&, uint32, uint32, uint32, uint32);
+									~CDepthbuffer();
+
+		uint32						m_basePtr;
+		uint32						m_width;
+		uint32						m_height;
+		uint32						m_psm;
+
+		SurfacePtr					m_depthSurface;
+	};
+	typedef std::shared_ptr<CDepthbuffer> DepthbufferPtr;
+	typedef std::vector<DepthbufferPtr> DepthbufferList;
 
 	void							BeginScene();
 	void							EndScene();
@@ -117,13 +144,15 @@ private:
 	FramebufferPtr					FindFramebuffer(uint64) const;
 	void							GetFramebufferImpl(Framework::CBitmap&, uint64);
 
+	DepthbufferPtr					FindDepthbuffer(uint64, uint64) const;
+
 	void							SetReadCircuitMatrix(int, int);
 	void							VertexKick(uint8, uint64);
 
 	void							SetRenderingContext(unsigned int);
 	void							SetupBlendingFunction(uint64);
 	void							SetupTestFunctions(uint64);
-	void							SetupDepthBuffer(uint64);
+	void							SetupDepthBuffer(uint64, uint64);
 	void							SetupTexture(uint64, uint64, uint64);
 	void							SetupFramebuffer(uint64);
 	TexturePtr						LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
@@ -178,6 +207,9 @@ private:
 
 	CachedTextureList				m_cachedTextures;
 	FramebufferList					m_framebuffers;
+	DepthbufferList					m_depthbuffers;
+
+	RENDERSTATE						m_renderState;
 
 	VertexBufferPtr					m_triangleVb;
 	VertexBufferPtr					m_quadVb;

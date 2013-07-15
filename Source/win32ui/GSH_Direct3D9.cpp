@@ -25,7 +25,7 @@ CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
 , m_currentTextureWidth(0)
 , m_currentTextureHeight(0)
 {
-
+	memset(&m_renderState, 0, sizeof(m_renderState));
 }
 
 CGSH_Direct3D9::~CGSH_Direct3D9()
@@ -116,8 +116,7 @@ void CGSH_Direct3D9::ReleaseImpl()
 
 CGSH_Direct3D9::FramebufferPtr CGSH_Direct3D9::FindFramebuffer(uint64 frameReg) const
 {
-	FRAME frame;
-	frame <<= frameReg;
+	auto frame = make_convertible<FRAME>(frameReg);
 
 	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers), 
 		[&] (const FramebufferPtr& framebuffer)
@@ -164,6 +163,21 @@ void CGSH_Direct3D9::GetFramebufferImpl(Framework::CBitmap& outputBitmap, uint64
 
 	result = offscreenSurface->UnlockRect();
 	assert(SUCCEEDED(result));
+}
+
+CGSH_Direct3D9::DepthbufferPtr CGSH_Direct3D9::FindDepthbuffer(uint64 zbufReg, uint64 frameReg) const
+{
+	auto zbuf = make_convertible<ZBUF>(zbufReg);
+	auto frame = make_convertible<FRAME>(frameReg);
+
+	auto depthbufferIterator = std::find_if(std::begin(m_depthbuffers), std::end(m_depthbuffers), 
+		[&] (const DepthbufferPtr& depthBuffer)
+		{
+			return (depthBuffer->m_basePtr == zbuf.GetBasePtr()) && (depthBuffer->m_width == frame.GetWidth());
+		}
+	);
+
+	return (depthbufferIterator != std::end(m_depthbuffers)) ? *(depthbufferIterator) : DepthbufferPtr();
 }
 
 void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
@@ -235,6 +249,7 @@ void CGSH_Direct3D9::PresentBackbuffer()
 
 void CGSH_Direct3D9::FlipImpl()
 {
+	m_renderState.isValid = false;
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
 }
@@ -344,12 +359,15 @@ void CGSH_Direct3D9::OnDeviceReset()
 	m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 	m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	m_device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
 	result = m_device->CreateVertexBuffer(3 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_triangleVb, NULL);
 	assert(SUCCEEDED(result));
 
 	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
 	assert(SUCCEEDED(result));
+
+	m_renderState.isValid = false;
 }
 
 void CGSH_Direct3D9::OnDeviceResetting()
@@ -357,6 +375,7 @@ void CGSH_Direct3D9::OnDeviceResetting()
 	m_triangleVb.Reset();
 	m_quadVb.Reset();
 	m_framebuffers.clear();
+	m_depthbuffers.clear();
 	TexCache_Flush();
 	m_currentTexture.Reset();
 }
@@ -423,10 +442,7 @@ void CGSH_Direct3D9::Prim_Triangle()
 		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 	}
 
-	if(m_primitiveMode.nAlpha)
-	{
-		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	}
+	m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, (m_primitiveMode.nAlpha != 0) ? TRUE : FALSE);
 
 	if(m_primitiveMode.nFog)
 	{
@@ -515,11 +531,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 	{
 		//glDisable(GL_FOG);
 	}
-
-	if(m_primitiveMode.nAlpha)
-	{
-		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	}
 }
 
 void CGSH_Direct3D9::Prim_Sprite()
@@ -546,6 +557,8 @@ void CGSH_Direct3D9::Prim_Sprite()
 	nY2 -= m_nPrimOfsY;
 
 	nZ = GetZ(nZ);
+
+	m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, (m_primitiveMode.nAlpha != 0) ? TRUE : FALSE);
 
 	if(m_primitiveMode.nTexture)
 	{
@@ -613,11 +626,55 @@ void CGSH_Direct3D9::Prim_Sprite()
 
 void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 {
-	SetupBlendingFunction(m_nReg[GS_REG_ALPHA_1 + nContext]);
-	SetupTestFunctions(m_nReg[GS_REG_TEST_1 + nContext]);
-	SetupDepthBuffer(m_nReg[GS_REG_ZBUF_1 + nContext]);
-	SetupTexture(m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
-	SetupFramebuffer(m_nReg[GS_REG_FRAME_1 + nContext]);
+	uint64 testReg = m_nReg[GS_REG_TEST_1 + nContext];
+	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + nContext];
+	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + nContext];
+	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + nContext];
+	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + nContext];
+	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + nContext];
+	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + nContext];
+
+	if(!m_renderState.isValid ||
+		(m_renderState.alphaReg != alphaReg))
+	{
+		SetupBlendingFunction(alphaReg);
+	}
+
+	if(!m_renderState.isValid ||
+		(m_renderState.testReg != testReg))
+	{
+		SetupTestFunctions(testReg);
+	}
+
+	if(!m_renderState.isValid ||
+		(m_renderState.zbufReg != zbufReg) ||
+		(m_renderState.frameReg != frameReg))
+	{
+		SetupDepthBuffer(zbufReg, frameReg);
+	}
+
+	if(!m_renderState.isValid ||
+		(m_renderState.frameReg != frameReg))
+	{
+		SetupFramebuffer(frameReg);
+	}
+
+	if(!m_renderState.isValid ||
+		(m_renderState.tex0Reg != tex0Reg) ||
+		(m_renderState.tex1Reg != tex1Reg) ||
+		(m_renderState.clampReg != clampReg))
+	{
+		SetupTexture(tex0Reg, tex1Reg, clampReg);
+	}
+
+	m_renderState.isValid = true;
+	m_renderState.alphaReg = alphaReg;
+	m_renderState.testReg = testReg;
+	m_renderState.zbufReg = zbufReg;
+	m_renderState.frameReg = frameReg;
+	m_renderState.tex0Reg = tex0Reg;
+	m_renderState.tex1Reg = tex1Reg;
+	m_renderState.clampReg = clampReg;
 
 	XYOFFSET offset;
 	offset <<= m_nReg[GS_REG_XYOFFSET_1 + nContext];
@@ -645,54 +702,26 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 nData)
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	}
+	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
+	{
+		//(Cs - Cd) * FIX + Cd
+		//		-> FIX * Cs + (1 - FIX) * Cd
+
+		uint8 fix = MulBy2Clamp(alpha.nFix);
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
+		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
+	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
 	{
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 	}
-	//else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
-	//{
-	//	glBlendFunc(GL_ONE, GL_ZERO);
-	//}
-	//else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
-	//{
-	//	//Source alpha value is implied in the formula
-	//	//As = FIX / 0x80
-	//	if(glBlendColorEXT != NULL)
-	//	{
-	//		glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-	//		glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
-	//	}
-	//}
-	//else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
-	//{
-	//	nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
-	//	if(glBlendColorEXT != NULL)
-	//	{
-	//		glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-	//		glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT);
-	//	}
-	//}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 	}
-	//else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
-	//{
-	//	//Cs * As
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
-	//}
-	//else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
-	//{
-	//	//Cs * Ad + Cd * (1 - Ad)
-	//	glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
-	//}
-	//else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 1) && (alpha.nD == 1))
-	//{
-	//	//Cs * Ad + Cd
-	//	glBlendFunc(GL_DST_ALPHA, GL_ONE);
-	//}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cd * As
@@ -701,8 +730,16 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 nData)
 
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	}
+	else if((alpha.nA == 2) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
+	{
+		//(0 - Cd) * FIX + Cd 
+		//		-> 0 * Cs + (1 - FIX) * Cd
 
-//		glBlendFunc(GL_ZERO, GL_ONE);
+		uint8 fix = MulBy2Clamp(alpha.nFix);
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
+		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
 	}
 	else
 	{
@@ -722,40 +759,40 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 
 	if(tst.nAlphaEnabled)
 	{
-		//unsigned int nFunc = GL_NEVER;
-		//switch(tst.nAlphaMethod)
-		//{
-		//case 0:
-		//	nFunc = GL_NEVER;
-		//	break;
-		//case 1:
-		//	nFunc = GL_ALWAYS;
-		//	break;
-		//case 2:
-		//	nFunc = GL_LESS;
-		//	break;
-		//case 5:
-		//	nFunc = GL_GEQUAL;
-		//	break;
-		//case 6:
-		//	nFunc = GL_GREATER;
-		//	break;
-		//case 7:
-		//	nFunc = GL_NOTEQUAL;
-		//	break;
-		//default:
-		//	assert(0);
-		//	break;
-		//}
+		unsigned int alphaFunc = D3DCMP_NEVER;
 
-		//float nValue = (float)tst.nAlphaRef / 255.0f;
-		//glAlphaFunc(nFunc, nValue);
+		switch(tst.nAlphaMethod)
+		{
+		case 0:
+			alphaFunc = D3DCMP_NEVER;
+			break;
+		case 1:
+			alphaFunc = D3DCMP_ALWAYS;
+			break;
+		case 2:
+			alphaFunc = D3DCMP_LESS;
+			break;
+		case 5:
+			alphaFunc = D3DCMP_GREATEREQUAL;
+			break;
+		case 6:
+			alphaFunc = D3DCMP_GREATER;
+			break;
+		case 7:
+			alphaFunc = D3DCMP_NOTEQUAL;
+			break;
+		default:
+			assert(0);
+			break;
+		}
 
-		//glEnable(GL_ALPHA_TEST);
+		m_device->SetRenderState(D3DRS_ALPHAFUNC, alphaFunc);
+		m_device->SetRenderState(D3DRS_ALPHAREF, tst.nAlphaRef);
+		m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
 	}
 	else
 	{
-		//glDisable(GL_ALPHA_TEST);
+		m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_FALSE);
 	}
 
 	if(tst.nDepthEnabled)
@@ -785,28 +822,6 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 	{
 		m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 	}
-}
-
-void CGSH_Direct3D9::SetupDepthBuffer(uint64 nData)
-{
-	ZBUF zbuf;
-	zbuf <<= nData;
-
-	switch(GetPsmPixelSize(zbuf.nPsm))
-	{
-	case 16:
-		m_nMaxZ = 32768.0f;
-		break;
-	case 24:
-		m_nMaxZ = 8388608.0f;
-		break;
-	default:
-	case 32:
-		m_nMaxZ = 2147483647.0f;
-		break;
-	}
-
-	m_device->SetRenderState(D3DRS_ZWRITEENABLE, (zbuf.nMask == 0) ? TRUE : FALSE);
 }
 
 void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
@@ -866,16 +881,22 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 {
 	if(frameReg == 0) return;
 
-	FRAME frame;
-	frame <<= frameReg;
+	auto frame = make_convertible<FRAME>(frameReg);
 
-//	bool r = (frame.nMask & 0x000000FF) == 0;
-//	bool g = (frame.nMask & 0x0000FF00) == 0;
-//	bool b = (frame.nMask & 0x00FF0000) == 0;
-//	bool a = (frame.nMask & 0xFF000000) == 0;
-//	glColorMask(r, g, b, a);
+	{
+		bool r = (frame.nMask & 0x000000FF) == 0;
+		bool g = (frame.nMask & 0x0000FF00) == 0;
+		bool b = (frame.nMask & 0x00FF0000) == 0;
+		bool a = (frame.nMask & 0xFF000000) == 0;
+		UINT colorMask = 
+			(r ? D3DCOLORWRITEENABLE_RED : 0) |
+			(g ? D3DCOLORWRITEENABLE_GREEN : 0) |
+			(b ? D3DCOLORWRITEENABLE_BLUE : 0) |
+			(a ? D3DCOLORWRITEENABLE_ALPHA : 0);
+		m_device->SetRenderState(D3DRS_COLORWRITEENABLE, colorMask);
+	}
 
-	FramebufferPtr framebuffer = FindFramebuffer(frameReg);
+	auto framebuffer = FindFramebuffer(frameReg);
 	if(!framebuffer)
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(m_device, frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
@@ -898,10 +919,39 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 	result = m_device->SetRenderTarget(0, renderSurface);
 	assert(SUCCEEDED(result));
 
-	result = m_device->SetDepthStencilSurface(framebuffer->m_depthSurface);
+	SetReadCircuitMatrix(projWidth, projHeight);
+}
+
+void CGSH_Direct3D9::SetupDepthBuffer(uint64 zbufReg, uint64 frameReg)
+{
+	auto frame = make_convertible<FRAME>(frameReg);
+	auto zbuf = make_convertible<ZBUF>(zbufReg);
+
+	auto depthbuffer = FindDepthbuffer(zbufReg, frameReg);
+	if(!depthbuffer)
+	{
+		depthbuffer = DepthbufferPtr(new CDepthbuffer(m_device, zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm));
+		m_depthbuffers.push_back(depthbuffer);
+	}
+
+	switch(GetPsmPixelSize(zbuf.nPsm))
+	{
+	case 16:
+		m_nMaxZ = 32768.0f;
+		break;
+	case 24:
+		m_nMaxZ = 8388608.0f;
+		break;
+	default:
+	case 32:
+		m_nMaxZ = 2147483647.0f;
+		break;
+	}
+
+	HRESULT result = m_device->SetDepthStencilSurface(depthbuffer->m_depthSurface);
 	assert(SUCCEEDED(result));
 
-	SetReadCircuitMatrix(projWidth, projHeight);
+	m_device->SetRenderState(D3DRS_ZWRITEENABLE, (zbuf.nMask == 0) ? TRUE : FALSE);
 }
 
 void CGSH_Direct3D9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
@@ -1053,12 +1103,30 @@ CGSH_Direct3D9::CFramebuffer::CFramebuffer(DevicePtr& device, uint32 basePtr, ui
 	
 	result = D3DXCreateTexture(device, width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &m_renderTarget);
 	assert(SUCCEEDED(result));
+}
 
+CGSH_Direct3D9::CFramebuffer::~CFramebuffer()
+{
+
+}
+
+/////////////////////////////////////////////////////////////
+// Depthbuffer
+/////////////////////////////////////////////////////////////
+
+CGSH_Direct3D9::CDepthbuffer::CDepthbuffer(DevicePtr& device, uint32 basePtr, uint32 width, uint32 height, uint32 psm)
+: m_basePtr(basePtr)
+, m_width(width)
+, m_height(height)
+, m_psm(psm)
+{
+	HRESULT result = S_OK;
+	
 	result = device->CreateDepthStencilSurface(width, height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0, FALSE, &m_depthSurface, nullptr);
 	assert(SUCCEEDED(result));
 }
 
-CGSH_Direct3D9::CFramebuffer::~CFramebuffer()
+CGSH_Direct3D9::CDepthbuffer::~CDepthbuffer()
 {
 
 }

@@ -7,9 +7,40 @@
 
 CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const TEX1& tex1, const CLAMP& clamp)
 {
+	{
+		D3DXMATRIX textureMatrix;
+		D3DXMatrixIdentity(&textureMatrix);
+		D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
+		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+	}
+
 	uint32 nPointer		= tex0.GetBufPtr();
 	uint32 nWidth		= tex0.GetWidth();
 	uint32 nHeight		= tex0.GetHeight();
+
+	for(const auto& candidateFramebuffer : m_framebuffers)
+	{
+		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
+			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+			candidateFramebuffer->m_canBeUsedAsTexture)
+		{
+			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
+			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
+
+			//If we're currently in interlaced mode, framebuffer will have twice the height
+			bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+			if(halfHeight) scaleRatioY *= 2.0f;
+
+			{
+				D3DXMATRIX textureMatrix;
+				D3DXMatrixIdentity(&textureMatrix);
+				D3DXMatrixScaling(&textureMatrix, scaleRatioX, scaleRatioY, 1);
+				m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+			}
+
+			return candidateFramebuffer->m_renderTarget;
+		}
+	}
 
 	auto result = TexCache_SearchLive(tex0);
 	if(!result.IsEmpty()) return result;
