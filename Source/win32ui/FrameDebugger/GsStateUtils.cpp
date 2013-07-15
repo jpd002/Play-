@@ -199,52 +199,63 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 {
 	std::string result;
 
-	CGSHandler::TEST test;
-	test <<= gs->GetRegisters()[GS_REG_TEST_1 + contextId];
+	{
+		auto frame = make_convertible<CGSHandler::FRAME>(gs->GetRegisters()[GS_REG_FRAME_1 + contextId]);
+		result += string_format("Frame Buffer:\r\n");
+		result += string_format("\tPtr: 0x%0.8X\r\n", frame.GetBasePtr());
+		result += string_format("\tWidth: %d\r\n", frame.GetWidth());
+		result += string_format("\tFormat: %s\r\n", g_pixelFormats[frame.nPsm]);
+		result += string_format("\tWrite Mask: 0x%0.8X\r\n", ~frame.nMask);
+	}
 
-	CGSHandler::ALPHA alpha;
-	alpha <<= gs->GetRegisters()[GS_REG_ALPHA_1 + contextId];
+	{
+		auto zbuf = make_convertible<CGSHandler::ZBUF>(gs->GetRegisters()[GS_REG_ZBUF_1 + contextId]);
+		result += string_format("Depth Buffer:\r\n");
+		result += string_format("\tPtr: 0x%0.8X\r\n", zbuf.GetBasePtr());
+		result += string_format("\tFormat: %s\r\n", g_pixelFormats[zbuf.nPsm | 0x30]);
+		result += string_format("\tWrite Enabled: %s\r\n", g_yesNoString[(zbuf.nMask == 0)]);
+	}
 
-	CGSHandler::ZBUF zbuf;
-	zbuf <<= gs->GetRegisters()[GS_REG_ZBUF_1 + contextId];
+	{
+		auto tex0 = make_convertible<CGSHandler::TEX0>(gs->GetRegisters()[GS_REG_TEX0_1 + contextId]);
+		result += string_format("Texture:\r\n");
+		result += string_format("\tPtr: 0x%0.8X\r\n", tex0.GetBufPtr());
+		result += string_format("\tBuffer Width: %d\r\n", tex0.GetBufWidth());
+		result += string_format("\tFormat: %s\r\n", g_pixelFormats[tex0.nPsm]);
+		result += string_format("\tWidth: %d\r\n", tex0.GetWidth());
+		result += string_format("\tHeight: %d\r\n", tex0.GetHeight());
+		result += string_format("\tHas Alpha Component: %s\r\n", g_yesNoString[tex0.nColorComp]);
+		result += string_format("\tFunction: %s\r\n", g_textureFunctionString[tex0.nFunction]);
+		result += string_format("\tCLUT Ptr: 0x%0.8X\r\n", tex0.GetCLUTPtr());
+		result += string_format("\tCLUT Format: %s\r\n", g_pixelFormats[tex0.nCPSM]);
+		result += string_format("\tCLUT Storage Mode: %d\r\n", tex0.nCSM + 1);
+		result += string_format("\tCLUT Entry Offset: %d\r\n", tex0.nCSA * 16);
+		result += string_format("\tCLUT Load Control: %s\r\n", g_textureClutLoadControlString[tex0.nCLD]);
+	}
 
-	CGSHandler::TEX0 tex0;
-	tex0 <<= gs->GetRegisters()[GS_REG_TEX0_1 + contextId];
+	{
+		auto test = make_convertible<CGSHandler::TEST>(gs->GetRegisters()[GS_REG_TEST_1 + contextId]);
 
-	result += string_format("Texture:\r\n");
-	result += string_format("\tPtr: 0x%0.8X\r\n", tex0.GetBufPtr());
-	result += string_format("\tBuffer Width: %d\r\n", tex0.GetBufWidth());
-	result += string_format("\tFormat: %s\r\n", g_pixelFormats[tex0.nPsm]);
-	result += string_format("\tWidth: %d\r\n", tex0.GetWidth());
-	result += string_format("\tHeight: %d\r\n", tex0.GetHeight());
-	result += string_format("\tHas Alpha Component: %s\r\n", g_yesNoString[tex0.nColorComp]);
-	result += string_format("\tFunction: %s\r\n", g_textureFunctionString[tex0.nFunction]);
-	result += string_format("\tCLUT Ptr: 0x%0.8X\r\n", tex0.GetCLUTPtr());
-	result += string_format("\tCLUT Format: %s\r\n", g_pixelFormats[tex0.nCPSM]);
-	result += string_format("\tCLUT Storage Mode: %d\r\n", tex0.nCSM + 1);
-	result += string_format("\tCLUT Entry Offset: %d\r\n", tex0.nCSA * 16);
-	result += string_format("\tCLUT Load Control: %s\r\n", g_textureClutLoadControlString[tex0.nCLD]);
-
-	result += string_format("Depth Buffer:\r\n");
-	result += string_format("\tPtr: 0x%0.8X\r\n", zbuf.GetBasePtr());
-	result += string_format("\tFormat: %s\r\n", g_pixelFormats[zbuf.nPsm | 0x30]);
-	result += string_format("\tWrite Enabled: %s\r\n", g_yesNoString[(zbuf.nMask == 0)]);
-
-	result += string_format("Depth Testing:\r\n");
-	result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nDepthEnabled]);
-	result += string_format("\tFunction: %s\r\n", g_depthTestFunctionString[test.nDepthMethod]);
+		result += string_format("Depth Testing:\r\n");
+		result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nDepthEnabled]);
+		result += string_format("\tFunction: %s\r\n", g_depthTestFunctionString[test.nDepthMethod]);
 	
-	result += string_format("Alpha Testing:\r\n");
-	result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nAlphaEnabled]);
-	result += string_format("\tFunction: %s\r\n", g_alphaTestFunctionString[test.nAlphaMethod]);
-	result += string_format("\tRef Value: 0x%0.2X\r\n", test.nAlphaRef);
-	result += string_format("\tFail Op: %s\r\n", g_alphaTestFailOpString[test.nAlphaFail]);
+		result += string_format("Alpha Testing:\r\n");
+		result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nAlphaEnabled]);
+		result += string_format("\tFunction: %s\r\n", g_alphaTestFunctionString[test.nAlphaMethod]);
+		result += string_format("\tRef Value: 0x%0.2X\r\n", test.nAlphaRef);
+		result += string_format("\tFail Op: %s\r\n", g_alphaTestFailOpString[test.nAlphaFail]);
+	}
 
-	result += string_format("Alpha Blending:\r\n");
-	result += string_format("\tFormula: (%s - %s) * %s + %s\r\n", 
-		g_alphaBlendAbdCoefString[alpha.nA], g_alphaBlendAbdCoefString[alpha.nB],
-		g_alphaBlendCCoefString[alpha.nC], g_alphaBlendAbdCoefString[alpha.nD]);
-	result += string_format("\tFixed Value: 0x%0.2X\r\n", alpha.nFix);
+	{
+		auto alpha = make_convertible<CGSHandler::ALPHA>(gs->GetRegisters()[GS_REG_ALPHA_1 + contextId]);
+		result += string_format("Alpha Blending:\r\n");
+		result += string_format("\tA: %d, B: %d, C: %d, D: %d\r\n", alpha.nA, alpha.nB, alpha.nC, alpha.nD);
+		result += string_format("\tFormula: (%s - %s) * %s + %s\r\n", 
+			g_alphaBlendAbdCoefString[alpha.nA], g_alphaBlendAbdCoefString[alpha.nB],
+			g_alphaBlendCCoefString[alpha.nC], g_alphaBlendAbdCoefString[alpha.nD]);
+		result += string_format("\tFixed Value: 0x%0.2X\r\n", alpha.nFix);
+	}
 
 	result += "\r\n";
 
