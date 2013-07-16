@@ -19,10 +19,8 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 
-	for(auto framebufferIterator(std::begin(m_framebuffers));
-		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
-		const auto& candidateFramebuffer = *framebufferIterator;
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
 			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
 			candidateFramebuffer->m_canBeUsedAsTexture)
@@ -95,8 +93,6 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		assert(0);
 		break;
 	}
-
-//	DumpTexture(nWidth, nHeight, textureChecksum);
 
 	TexCache_Insert(tex0, nTexture);
 }

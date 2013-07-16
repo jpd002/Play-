@@ -165,10 +165,24 @@ private:
 
 		GLuint						m_framebuffer;
 		GLuint						m_texture;
-		GLuint						m_depthBuffer;
 	};
 	typedef std::shared_ptr<CFramebuffer> FramebufferPtr;
 	typedef std::vector<FramebufferPtr> FramebufferList;
+
+	class CDepthbuffer
+	{
+	public:
+									CDepthbuffer(uint32, uint32, uint32, uint32);
+									~CDepthbuffer();
+
+		uint32						m_basePtr;
+		uint32						m_width;
+		uint32						m_height;
+		uint32						m_psm;
+		GLuint						m_depthBuffer;
+	};
+	typedef std::shared_ptr<CDepthbuffer> DepthbufferPtr;
+	typedef std::vector<DepthbufferPtr> DepthbufferList;
 
 	void							WriteRegisterImpl(uint8, uint64);
 
@@ -199,10 +213,13 @@ private:
 	void							SetRenderingContext(unsigned int);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64);
-	void							SetupFramebuffer(uint64);
+	void							SetupFramebuffer(uint64, uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
 	void							SetupTexture(SHADERCAPS&, uint64, uint64, uint64);
+
+	FramebufferPtr					FindFramebuffer(const FRAME&) const;
+	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
 
 	void							DumpTexture(unsigned int, unsigned int, uint32);
 
@@ -248,6 +265,7 @@ private:
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;
 	FramebufferList					m_framebuffers;
+	DepthbufferList					m_depthbuffers;
 
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;

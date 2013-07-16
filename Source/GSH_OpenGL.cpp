@@ -67,12 +67,11 @@ void CGSH_OpenGL::InitializeImpl()
 
 void CGSH_OpenGL::ReleaseImpl()
 {
-	TexCache_Flush();
-	PalCache_Flush();
+	ResetImpl();
+
 	m_textureCache.clear();
 	m_paletteCache.clear();
 	m_shaderInfos.clear();
-	m_framebuffers.clear();
 }
 
 void CGSH_OpenGL::ResetImpl()
@@ -80,6 +79,7 @@ void CGSH_OpenGL::ResetImpl()
 	TexCache_Flush();
 	PalCache_Flush();
 	m_framebuffers.clear();
+	m_depthbuffers.clear();
 }
 
 void CGSH_OpenGL::FlipImpl()
@@ -406,28 +406,25 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 		(m_renderState.alphaReg != alphaReg))
 	{
 		SetupBlendingFunction(alphaReg);
-		m_renderState.alphaReg = alphaReg;
 	}
 
 	if(!m_renderState.isValid ||
 		(m_renderState.testReg != testReg))
 	{
 		SetupTestFunctions(testReg);
-		m_renderState.testReg = testReg;
 	}
 
 	if(!m_renderState.isValid ||
 		(m_renderState.zbufReg != zbufReg))
 	{
 		SetupDepthBuffer(zbufReg);
-		m_renderState.zbufReg = zbufReg;
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.frameReg != frameReg))
+		(m_renderState.frameReg != frameReg) ||
+		(m_renderState.zbufReg != zbufReg))
 	{
-		SetupFramebuffer(frameReg);
-		m_renderState.frameReg = frameReg;
+		SetupFramebuffer(frameReg, zbufReg);
 	}
 
 	SetupTexture(shaderCaps, m_nReg[GS_REG_TEX0_1 + nContext], m_nReg[GS_REG_TEX1_1 + nContext], m_nReg[GS_REG_CLAMP_1 + nContext]);
@@ -511,16 +508,19 @@ void CGSH_OpenGL::SetRenderingContext(unsigned int nContext)
 	assert(glGetError() == GL_NO_ERROR);
 
 	m_renderState.isValid = true;
+	m_renderState.alphaReg = alphaReg;
+	m_renderState.testReg = testReg;
+	m_renderState.zbufReg = zbufReg;
+	m_renderState.frameReg = frameReg;
 }
 
-void CGSH_OpenGL::SetupBlendingFunction(uint64 nData)
+void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 {
-	if(nData == 0) return;
+	if(alphaReg == 0) return;
 
 	int nFunction = GL_FUNC_ADD_EXT;
 
-	ALPHA alpha;
-	alpha <<= nData;
+	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	if((alpha.nA == 0) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
@@ -707,10 +707,9 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 	}
 }
 
-void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
+void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg)
 {
-	ZBUF zbuf;
-	zbuf <<= nData;
+	auto zbuf = make_convertible<ZBUF>(zbufReg);
 
 	switch(GetPsmPixelSize(zbuf.nPsm))
 	{
@@ -729,12 +728,12 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 nData)
 	glDepthMask(zbuf.nMask ? GL_FALSE : GL_TRUE);
 }
 
-void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg)
+void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg)
 {
 	if(frameReg == 0) return;
 
-	FRAME frame;
-	frame <<= frameReg;
+	auto frame = make_convertible<FRAME>(frameReg);
+	auto zbuf = make_convertible<ZBUF>(zbufReg);
 
 	bool r = (frame.nMask & 0x000000FF) == 0;
 	bool g = (frame.nMask & 0x0000FF00) == 0;
@@ -743,21 +742,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg)
 	glColorMask(r, g, b, a);
 
 	//Look for a framebuffer that matches the specified information
-	FramebufferPtr framebuffer;
-	for(auto framebufferIterator(std::begin(m_framebuffers));
-		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
-	{
-		const auto& candidateFramebuffer = *framebufferIterator;
-		if(
-			(candidateFramebuffer->m_basePtr == frame.GetBasePtr()) &&
-			(candidateFramebuffer->m_width == frame.GetWidth())
-			)
-		{
-			framebuffer = candidateFramebuffer;
-			break;
-		}
-	}
-
+	auto framebuffer = FindFramebuffer(frame);
 	if(!framebuffer)
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
@@ -767,21 +752,54 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg)
 	//Any framebuffer selected at this point can be used as a texture
 	framebuffer->m_canBeUsedAsTexture = true;
 
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+	auto depthbuffer = FindDepthbuffer(zbuf, frame);
+	if(!depthbuffer)
+	{
+		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm));
+		m_depthbuffers.push_back(depthbuffer);
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer->m_depthBuffer);
+	assert(glGetError() == GL_NO_ERROR);
+
+	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(result == GL_FRAMEBUFFER_COMPLETE);
+
+	{
+		GLenum drawBufferId = GL_COLOR_ATTACHMENT0;
+		glDrawBuffers(1, &drawBufferId);
+		assert(glGetError() == GL_NO_ERROR);
+	}
+
 	glViewport(0, 0, framebuffer->m_width, framebuffer->m_height);
 	glScissor(0, 0, framebuffer->m_width, framebuffer->m_height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 	float projWidth = static_cast<float>(framebuffer->m_width);
 	float projHeight = static_cast<float>(halfHeight ? (framebuffer->m_height / 2) : framebuffer->m_height);
 	LinearZOrtho(0, projWidth, 0, projHeight);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+}
+
+void CGSH_OpenGL::SetupFogColor()
+{
+	float nColor[4];
+
+	FOGCOL color;
+	color <<= m_nReg[GS_REG_FOGCOL];
+	nColor[0] = static_cast<float>(color.nFCR) / 255.0f;
+	nColor[1] = static_cast<float>(color.nFCG) / 255.0f;
+	nColor[2] = static_cast<float>(color.nFCB) / 255.0f;
+	nColor[3] = 0.0f;
+
+	glFogfv(GL_FOG_COLOR, nColor);
 }
 
 void CGSH_OpenGL::SetupTexture(SHADERCAPS& shaderCaps, uint64 nTex0, uint64 nTex1, uint64 nClamp)
@@ -913,18 +931,28 @@ void CGSH_OpenGL::SetupTexture(SHADERCAPS& shaderCaps, uint64 nTex0, uint64 nTex
 	shaderCaps.texFunction = tex0.nFunction;
 }
 
-void CGSH_OpenGL::SetupFogColor()
+CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindFramebuffer(const FRAME& frame) const
 {
-	float nColor[4];
+	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers), 
+		[&] (const FramebufferPtr& framebuffer)
+		{
+			return (framebuffer->m_basePtr == frame.GetBasePtr()) && (framebuffer->m_width == frame.GetWidth());
+		}
+	);
 
-	FOGCOL color;
-	color <<= m_nReg[GS_REG_FOGCOL];
-	nColor[0] = static_cast<float>(color.nFCR) / 255.0f;
-	nColor[1] = static_cast<float>(color.nFCG) / 255.0f;
-	nColor[2] = static_cast<float>(color.nFCB) / 255.0f;
-	nColor[3] = 0.0f;
+	return (framebufferIterator != std::end(m_framebuffers)) ? *(framebufferIterator) : FramebufferPtr();
+}
 
-	glFogfv(GL_FOG_COLOR, nColor);
+CGSH_OpenGL::DepthbufferPtr CGSH_OpenGL::FindDepthbuffer(const ZBUF& zbuf, const FRAME& frame) const
+{
+	auto depthbufferIterator = std::find_if(std::begin(m_depthbuffers), std::end(m_depthbuffers), 
+		[&] (const DepthbufferPtr& depthbuffer)
+		{
+			return (depthbuffer->m_basePtr == zbuf.GetBasePtr()) && (depthbuffer->m_width == frame.GetWidth());
+		}
+	);
+
+	return (depthbufferIterator != std::end(m_depthbuffers)) ? *(depthbufferIterator) : DepthbufferPtr();
 }
 
 /////////////////////////////////////////////////////////////
@@ -1631,7 +1659,6 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 , m_psm(psm)
 , m_framebuffer(0)
 , m_texture(0)
-, m_depthBuffer(0)
 , m_canBeUsedAsTexture(false)
 {
 	//Build color attachment
@@ -1640,26 +1667,10 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	assert(glGetError() == GL_NO_ERROR);
 		
-	//Build depth attachment
-	glGenRenderbuffers(1, &m_depthBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
-	assert(glGetError() == GL_NO_ERROR);
-
 	//Build framebuffer
 	glGenFramebuffers(1, &m_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 	glFramebufferTextureEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer);
-	assert(glGetError() == GL_NO_ERROR);
-
-	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	assert(result == GL_FRAMEBUFFER_COMPLETE);
-
-	GLenum drawBufferId = GL_COLOR_ATTACHMENT0;
-	glDrawBuffers(1, &drawBufferId);
-
-	assert(glGetError() == GL_NO_ERROR);
 }
 
 CGSH_OpenGL::CFramebuffer::~CFramebuffer()
@@ -1672,6 +1683,28 @@ CGSH_OpenGL::CFramebuffer::~CFramebuffer()
 	{
 		glDeleteTextures(1, &m_texture);
 	}
+}
+
+/////////////////////////////////////////////////////////////
+// Depthbuffer
+/////////////////////////////////////////////////////////////
+
+CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm)
+: m_basePtr(basePtr)
+, m_width(width)
+, m_height(height)
+, m_psm(psm)
+, m_depthBuffer(0)
+{
+	//Build depth attachment
+	glGenRenderbuffers(1, &m_depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+	assert(glGetError() == GL_NO_ERROR);
+}
+
+CGSH_OpenGL::CDepthbuffer::~CDepthbuffer()
+{
 	if(m_depthBuffer != 0)
 	{
 		glDeleteRenderbuffers(1, &m_depthBuffer);

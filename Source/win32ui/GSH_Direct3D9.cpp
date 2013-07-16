@@ -690,12 +690,11 @@ void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 	}
 }
 
-void CGSH_Direct3D9::SetupBlendingFunction(uint64 nData)
+void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 {
-	if(nData == 0) return;
+	if(alphaReg == 0) return;
 
-	ALPHA alpha;
-	alpha <<= nData;
+	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
@@ -745,11 +744,6 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 nData)
 	{
 //		printf("GSH_DirectX9: Unknown color blending formula.\r\n");
 	}
-
-	//if(glBlendEquationEXT != NULL)
-	//{
-	//	glBlendEquationEXT(nFunction);
-	//}
 }
 
 void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)

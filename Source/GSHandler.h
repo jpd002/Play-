@@ -394,25 +394,25 @@ public:
 	//Reg 0x4C/0x4D
 	struct FRAME : public convertible<uint64>
 	{
-		unsigned int	nPtr			: 16;
-		unsigned int	nWidth			: 8;
-		unsigned int	nPsm			: 8;
-		unsigned int	nMask			: 32;
-		uint32			GetBasePtr()	{ return nPtr * 8192; }
-		uint32			GetWidth()		{ return nWidth * 64; }
+		unsigned int	nPtr				: 16;
+		unsigned int	nWidth				: 8;
+		unsigned int	nPsm				: 8;
+		unsigned int	nMask				: 32;
+		uint32			GetBasePtr() const	{ return nPtr * 8192; }
+		uint32			GetWidth() const	{ return nWidth * 64; }
 	};
 	static_assert(sizeof(FRAME) == sizeof(uint64), "Size of FRAME struct must be 8 bytes.");
 
 	//Reg 0x4E/0x4F
 	struct ZBUF : public convertible<uint64>
 	{
-		unsigned int	nPtr			: 9;
-		unsigned int	nReserved0		: 15;
-		unsigned int	nPsm			: 4;
-		unsigned int	nReserved1		: 4;
-		unsigned int	nMask			: 1;
-		unsigned int	nReserved2		: 31;
-		uint32			GetBasePtr()	{ return nPtr * 2048; }
+		unsigned int	nPtr				: 9;
+		unsigned int	nReserved0			: 15;
+		unsigned int	nPsm				: 4;
+		unsigned int	nReserved1			: 4;
+		unsigned int	nMask				: 1;
+		unsigned int	nReserved2			: 31;
+		uint32			GetBasePtr() const	{ return nPtr * 2048; }
 	};
 	static_assert(sizeof(ZBUF) == sizeof(uint64), "Size of ZBUF struct must be 8 bytes.");
 
