@@ -43,10 +43,14 @@ private:
 	struct RENDERSTATE
 	{
 		bool		isValid;
+		uint64		primReg;
 		uint64		frameReg;
 		uint64		testReg;
 		uint64		alphaReg;
 		uint64		zbufReg;
+		uint64		tex0Reg;
+		uint64		tex1Reg;
+		uint64		clampReg;
 		GLuint		shaderHandle;
 	};
 
@@ -210,13 +214,16 @@ private:
 	void							Prim_Triangle();
 	void							Prim_Sprite();
 
-	void							SetRenderingContext(unsigned int);
+	void							SetRenderingContext(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64);
 	void							SetupFramebuffer(uint64, uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
-	void							SetupTexture(SHADERCAPS&, uint64, uint64, uint64);
+
+	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
+	void							FillShaderCapsFromTexture(SHADERCAPS&, uint64, uint64, uint64);
+	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64);
 
 	FramebufferPtr					FindFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
@@ -275,9 +282,6 @@ private:
 
 	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
 	static unsigned int				g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
-
-	unsigned int					m_clampMin[2];
-	unsigned int					m_clampMax[2];
 
 	TEXTUREUPLOADER					m_pTexUploader_Psm16;
 
