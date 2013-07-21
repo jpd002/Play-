@@ -70,6 +70,8 @@ private:
 	void							OnMachineStateChange();
 	void							OnRunningStateChange();
 	
+	virtual std::tstring			GetInstructionDetailsText(uint32);
+
 	virtual void					DrawInstructionDetails(Framework::Win32::CDeviceContext&, uint32, int);
 	void							DrawInstructionMetadata(Framework::Win32::CDeviceContext&, uint32, int);
 

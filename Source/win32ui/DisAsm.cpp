@@ -621,38 +621,20 @@ long CDisAsm::OnCopy()
 
 	EmptyClipboard();
 
-	std::tstring sText;
+	std::tstring text;
 
-	SelectionRangeType SelectionRange = GetSelectionRange();
-
-	for(uint32 i = SelectionRange.first; i <= SelectionRange.second; i += m_instructionSize)
+	auto selectionRange = GetSelectionRange();
+	for(uint32 address = selectionRange.first; address <= selectionRange.second; address += m_instructionSize)
 	{
-		if(i != SelectionRange.first)
+		if(address != selectionRange.first)
 		{
-			sText += _T("\r\n");
+			text += _T("\r\n");
 		}
-
-		uint32 nOpcode = GetInstruction(i);
-
-		sText += lexical_cast_hex<std::tstring>(i,       8) + _T("    ");
-		sText += lexical_cast_hex<std::tstring>(nOpcode, 8) + _T("    ");
-
-		char sDisAsm[256];
-		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, i, nOpcode, sDisAsm, countof(sDisAsm));
-
-		sText += string_cast<std::tstring>(sDisAsm);
-		for(size_t j = strlen(sDisAsm); j < 15; j++)
-		{
-			sText += _T(" ");
-		}
-
-		m_ctx->m_pArch->GetInstructionOperands(m_ctx, i, nOpcode, sDisAsm, countof(sDisAsm));
-		sText += string_cast<std::tstring>(sDisAsm);
-
+		text += GetInstructionDetailsText(address);
 	}
 
-	HGLOBAL hMemory = GlobalAlloc(GMEM_MOVEABLE, (sText.length() + 1) * sizeof(TCHAR));
-	_tcscpy(reinterpret_cast<TCHAR*>(GlobalLock(hMemory)), sText.c_str());
+	HGLOBAL hMemory = GlobalAlloc(GMEM_MOVEABLE, (text.length() + 1) * sizeof(TCHAR));
+	_tcscpy(reinterpret_cast<TCHAR*>(GlobalLock(hMemory)), text.c_str());
 	GlobalUnlock(hMemory);
 
 #ifdef _UNICODE
@@ -809,6 +791,30 @@ void CDisAsm::Paint(HDC hDC)
 	}
 
 	DeleteObject(ltGrayPen);
+}
+
+std::tstring CDisAsm::GetInstructionDetailsText(uint32 address)
+{
+	uint32 opcode = GetInstruction(address);
+
+	std::tstring result;
+
+	result += lexical_cast_hex<std::tstring>(address, 8) + _T("    ");
+	result += lexical_cast_hex<std::tstring>(opcode,  8) + _T("    ");
+
+	char disasm[256];
+	m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, opcode, disasm, countof(disasm));
+
+	result += string_cast<std::tstring>(disasm);
+	for(size_t j = strlen(disasm); j < 15; j++)
+	{
+		result += _T(" ");
+	}
+
+	m_ctx->m_pArch->GetInstructionOperands(m_ctx, address, opcode, disasm, countof(disasm));
+	result += string_cast<std::tstring>(disasm);
+
+	return result;
 }
 
 void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
