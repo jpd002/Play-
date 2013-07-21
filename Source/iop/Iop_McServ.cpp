@@ -70,6 +70,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x06:
 		Write(args, argsSize, ret, retSize, ram);
 		break;
+	case 0x0A:
+		Flush(args, argsSize, ret, retSize, ram);
+		break;
 	case 0x0C:
 		ChDir(args, argsSize, ret, retSize, ram);
 		break;
@@ -334,6 +337,25 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	ret[0] = result;
 }
 
+void CMcServ::Flush(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "Flush(handle = %d);\r\n", cmd->nHandle);
+
+	FILE* file = GetFileFromHandle(cmd->nHandle);
+	if(file == nullptr)
+	{
+		ret[0] = -1;
+		assert(0);
+		return;
+	}
+
+	fflush(file);
+
+	ret[0] = 0;
+}
+
 void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(argsSize >= 0x414);
@@ -414,7 +436,10 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			}
 		}
 
-		nRet = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[pCmd->nTableAddress]), pCmd->nMaxEntries);
+		if(pCmd->nMaxEntries > 0)
+		{
+			nRet = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[pCmd->nTableAddress]), pCmd->nMaxEntries);
+		}
 	}
 	catch(const std::exception& Exception)
 	{

@@ -39,7 +39,7 @@ namespace Iop
 			uint32	nPort;
 			uint32	nSlot;
 			uint32	nFlags;
-			uint32	nMaxEntries;
+			int32	nMaxEntries;
 			uint32	nTableAddress;
 			char	sName[0x400];
 		};
@@ -113,6 +113,7 @@ namespace Iop
 		void				Seek(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Read(uint32*, uint32, uint32*, uint32, uint8*);
 		void				Write(uint32*, uint32, uint32*, uint32, uint8*);
+		void				Flush(uint32*, uint32, uint32*, uint32, uint8*);
 		void				ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
