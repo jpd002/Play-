@@ -540,6 +540,22 @@ protected:
 		TEX0_FUNCTION_MAX
 	};
 
+	enum MAG_FILTER
+	{
+		MAG_FILTER_NEAREST		= 0,
+		MAG_FILTER_LINEAR		= 1
+	};
+
+	enum MIN_FILTER
+	{
+		MIN_FILTER_NEAREST				= 0,
+		MIN_FILTER_LINEAR				= 1,
+		MIN_FILTER_NEAREST_MIP_NEAREST	= 2,
+		MIN_FILTER_NEAREST_MIP_LINEAR	= 3,
+		MIN_FILTER_LINEAR_MIP_NEAREST	= 4,
+		MIN_FILTER_LINEAR_MIP_LINEAR	= 5
+	};
+
 	//-----------------------------------
 	//Private Registers
 
