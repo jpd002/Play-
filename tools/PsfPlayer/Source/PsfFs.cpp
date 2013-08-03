@@ -1,6 +1,7 @@
 #include <zlib.h>
 #include <stdexcept>
 #include <assert.h>
+#include <algorithm>
 #include "PsfFs.h"
 #include "PtrStream.h"
 #include "stricmp.h"
@@ -23,17 +24,16 @@ void CPsfFs::AppendArchive(const CPsfBase& archive)
 
 void CPsfFs::ReadFile(Framework::CStream& stream, FILE& file)
 {
+	//Read size table
 	unsigned int sizeTableEntryCount = (file.size + file.blockSize - 1) / file.blockSize;
 	uint32* sizeTable = reinterpret_cast<uint32*>(alloca(sizeTableEntryCount * sizeof(uint32)));
-	for(unsigned int entry = 0; entry < sizeTableEntryCount; entry++)
-	{
-		sizeTable[entry] = stream.Read32();
-		if(sizeTable[entry] > file.blockSize)
-		{
-			throw std::runtime_error("Invalid block size.");
-		}
-	}
-	uint8* block = reinterpret_cast<uint8*>(alloca(file.blockSize));
+	stream.Read(sizeTable, sizeof(uint32) * sizeTableEntryCount);
+
+	//Allocate memory to read compressed blocks
+	uint32 maxSize = *std::max_element(sizeTable, sizeTable + sizeTableEntryCount);
+	uint8* block = reinterpret_cast<uint8*>(alloca(maxSize));
+
+	//Read away
 	uint32 position = 0;
 	for(unsigned int entry = 0; entry < sizeTableEntryCount; entry++)
 	{
@@ -41,6 +41,7 @@ void CPsfFs::ReadFile(Framework::CStream& stream, FILE& file)
 		stream.Read(block, blockSize);
 		uLongf bufferSize = file.size - position;
 		uncompress(file.data + position, &bufferSize, block, blockSize);
+		assert(bufferSize <= file.blockSize);
 		position += bufferSize;
 	}
 }
