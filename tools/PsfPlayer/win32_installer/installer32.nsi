@@ -65,6 +65,7 @@ Section "PsfPlayer (required)"
   File "..\build_win32\Win32\Release\PsfPlayer.exe"
   File "..\build_win32\Win32\Release\SH_WaveOut.dll"
   File "..\build_win32\Win32\Release\SH_OpenAL.dll"
+  File "..\build_win32\Win32\Release\SH_XAudio2.dll"
   File "..\build_win32\Win32\Release\TDEmu.dll"
   File "..\changelog.html"
   
