@@ -110,6 +110,7 @@ Section "Uninstall"
   Delete $INSTDIR\PsfPlayer.exe
   Delete $INSTDIR\SH_WaveOut.dll
   Delete $INSTDIR\SH_OpenAL.dll
+  Delete $INSTDIR\SH_XAudio2.dll
   Delete $INSTDIR\TDEmu64.dll
   Delete $INSTDIR\changelog.html
   Delete $INSTDIR\uninstall.exe
