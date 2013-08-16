@@ -13,6 +13,8 @@
 		700FB58315E11FC600C322DE /* OutputWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 700FB58215E11FC600C322DE /* OutputWindowController.mm */; };
 		7011789915E25576006D1039 /* OutputWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7011789815E25575006D1039 /* OutputWindow.mm */; };
 		7017B3901652F660008ACEAC /* Iop_Sio2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7017B38E1652F660008ACEAC /* Iop_Sio2.cpp */; };
+		703093B117BE5ADD009662A1 /* GsPixelFormats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093AF17BE5AB1009662A1 /* GsPixelFormats.cpp */; };
+		703093B217BE5AE1009662A1 /* FrameDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093AD17BE5AB1009662A1 /* FrameDump.cpp */; };
 		7065AA2815E4F9BD006F1FE6 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7065AA2715E4F9BD006F1FE6 /* icon.icns */; };
 		70684979151E882000C9574F /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684976151E880F00C9574F /* libCodeGen.a */; };
 		7068497B151E883D00C9574F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497A151E883D00C9574F /* OpenGL.framework */; };
@@ -206,6 +208,10 @@
 		7011789815E25575006D1039 /* OutputWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OutputWindow.mm; path = ../Source/macosxui/OutputWindow.mm; sourceTree = "<group>"; };
 		7017B38E1652F660008ACEAC /* Iop_Sio2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Sio2.cpp; path = ../Source/iop/Iop_Sio2.cpp; sourceTree = "<group>"; };
 		7017B38F1652F660008ACEAC /* Iop_Sio2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sio2.h; path = ../Source/iop/Iop_Sio2.h; sourceTree = "<group>"; };
+		703093AD17BE5AB1009662A1 /* FrameDump.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FrameDump.cpp; path = ../Source/FrameDump.cpp; sourceTree = "<group>"; };
+		703093AE17BE5AB1009662A1 /* FrameDump.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FrameDump.h; path = ../Source/FrameDump.h; sourceTree = "<group>"; };
+		703093AF17BE5AB1009662A1 /* GsPixelFormats.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GsPixelFormats.cpp; path = ../Source/GsPixelFormats.cpp; sourceTree = "<group>"; };
+		703093B017BE5AB1009662A1 /* GsPixelFormats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GsPixelFormats.h; path = ../Source/GsPixelFormats.h; sourceTree = "<group>"; };
 		7065AA2715E4F9BD006F1FE6 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../Source/macosxui/icon.icns; sourceTree = "<group>"; };
 		7068496E151E880E00C9574F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7068497A151E883D00C9574F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -675,6 +681,8 @@
 				7E4C15A71519A8FE00357777 /* ElfFile.h */,
 				7E4C15A81519A8FE00357777 /* FpMulTruncate.cpp */,
 				7E4C15A91519A8FE00357777 /* FpMulTruncate.h */,
+				703093AD17BE5AB1009662A1 /* FrameDump.cpp */,
+				703093AE17BE5AB1009662A1 /* FrameDump.h */,
 				7E4C15AA1519A8FE00357777 /* GIF.cpp */,
 				7E4C15AB1519A8FE00357777 /* GIF.h */,
 				7E4C15AC1519A8FE00357777 /* GSH_Null.cpp */,
@@ -685,6 +693,8 @@
 				7E4C15B01519A8FE00357777 /* GSH_OpenGL_Texture.cpp */,
 				7E4C15B11519A8FE00357777 /* GSHandler.cpp */,
 				7E4C15B21519A8FE00357777 /* GSHandler.h */,
+				703093AF17BE5AB1009662A1 /* GsPixelFormats.cpp */,
+				703093B017BE5AB1009662A1 /* GsPixelFormats.h */,
 				7E4C15B31519A8FE00357777 /* INTC.cpp */,
 				7E4C15B41519A8FE00357777 /* INTC.h */,
 				7E4C15B51519A8FE00357777 /* Integer64.h */,
@@ -995,6 +1005,7 @@
 				7ECB241B1519AC0A00C4BBF8 /* IPU_MacroblockTypeITable.cpp in Sources */,
 				7ECB241C1519AC0A00C4BBF8 /* IPU_MacroblockTypePTable.cpp in Sources */,
 				7ECB241D1519AC0A00C4BBF8 /* IPU_MotionCodeTable.cpp in Sources */,
+				703093B117BE5ADD009662A1 /* GsPixelFormats.cpp in Sources */,
 				7ECB241E1519AC0A00C4BBF8 /* DirectoryRecord.cpp in Sources */,
 				7ECB241F1519AC0A00C4BBF8 /* File.cpp in Sources */,
 				7ECB24201519AC0A00C4BBF8 /* ISO9660.cpp in Sources */,
@@ -1026,6 +1037,7 @@
 				7ECB243A1519AC0A00C4BBF8 /* MipsExecutor.cpp in Sources */,
 				7ECB243B1519AC0A00C4BBF8 /* MIPSInstructionFactory.cpp in Sources */,
 				7ECB243C1519AC0A00C4BBF8 /* MipsJitter.cpp in Sources */,
+				703093B217BE5AE1009662A1 /* FrameDump.cpp in Sources */,
 				7ECB243D1519AC0A00C4BBF8 /* MIPSReflection.cpp in Sources */,
 				7ECB243E1519AC0A00C4BBF8 /* MIPSTags.cpp in Sources */,
 				7ECB243F1519AC0A00C4BBF8 /* PadHandler.cpp in Sources */,
