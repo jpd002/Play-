@@ -2,7 +2,6 @@
 #include "../Log.h"
 #include "../Ps2Const.h"
 #include "IOP_Cdvdfsv.h"
-#include "placeholder_def.h"
 
 using namespace Iop;
 
@@ -17,18 +16,18 @@ CCdvdfsv::CCdvdfsv(CSifMan& sif, uint8* iopRam)
 , m_lastReadCount(0)
 , m_lastReadAddr(0)
 {
-	m_module592 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke592, this, 
-		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+	m_module592 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke592, this,
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module593 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke593, this,
-		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module595 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke595, this,
-		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module597 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke597, this,
-		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module59A = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke59A, this,
-		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module59C = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke59C, this,
-		PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4, PLACEHOLDER_5, PLACEHOLDER_6));
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 
 	sif.RegisterModule(MODULE_ID_1, &m_module592);
 	sif.RegisterModule(MODULE_ID_2, &m_module593);

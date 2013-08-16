@@ -244,7 +244,7 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 			{
 				if(tag.pre != 0)
 				{
-					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, tag.prim));
+					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_PRIM, static_cast<uint64>(tag.prim)));
 				}
 			}
 

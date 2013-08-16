@@ -1,5 +1,6 @@
 #include "GSH_OpenGL.h"
 #include <assert.h>
+#include <sstream>
 
 static const char* s_andFunction =
 "float and(int a, int b)\r\n"
