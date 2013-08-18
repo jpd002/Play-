@@ -13,13 +13,12 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
 		28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD73870D9D96C1002E5188 /* MainWindow.xib */; };
-		7E1A76500F898C750082129E /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A764F0F898C750082129E /* libz.1.2.3.dylib */; };
+		70383A3C17BF343800482B35 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70383A3B17BF343800482B35 /* libz.dylib */; };
+		70383A3F17BF347A00482B35 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70383A3D17BF346300482B35 /* RegisterStateFile.cpp */; };
+		70383A4117BF34B700482B35 /* COP_SCU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70383A4017BF34B700482B35 /* COP_SCU_Reflection.cpp */; };
+		70383A4A17BF352D00482B35 /* libboost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70383A4917BF351A00482B35 /* libboost.a */; };
+		70383A4B17BF354400482B35 /* Iop_Thmsgbx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70383A4217BF34F600482B35 /* Iop_Thmsgbx.cpp */; };
 		7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A77130F8993CE0082129E /* OpenAL.framework */; };
-		7E1C42891234292000BB4E9C /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42841234292000BB4E9C /* libboost_filesystem.a */; };
-		7E1C428A1234292100BB4E9C /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42851234292000BB4E9C /* libboost_regex.a */; };
-		7E1C428B1234292100BB4E9C /* libboost_signals.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42861234292000BB4E9C /* libboost_signals.a */; };
-		7E1C428C1234292100BB4E9C /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42871234292000BB4E9C /* libboost_system.a */; };
-		7E1C428D1234292100BB4E9C /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1C42881234292000BB4E9C /* libboost_thread.a */; };
 		7E1C4336123430FC00BB4E9C /* PlaylistSelectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E1C4335123430FC00BB4E9C /* PlaylistSelectViewController.m */; };
 		7E27214A1213B38D00C0DEBF /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721481213B38D00C0DEBF /* MipsJitter.cpp */; };
 		7E2721B21213B69A00C0DEBF /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E2721B11213B69300C0DEBF /* libCodeGen.a */; };
@@ -112,11 +111,21 @@
 		7E6811790FB8F32E00AC53B5 /* VolumeDescriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E6811720FB8F32E00AC53B5 /* VolumeDescriptor.cpp */; };
 		7E844858123C9499003250D7 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E844856123C9499003250D7 /* Playlist.cpp */; };
 		7E8448EB123D41CC003250D7 /* PlaylistViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E8448EA123D41CC003250D7 /* PlaylistViewController.mm */; };
+		7E8894BB134EBE62009947D2 /* PsfArchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8894B5134EBE62009947D2 /* PsfArchive.cpp */; };
+		7E8894BC134EBE62009947D2 /* PsfStreamProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8894B7134EBE62009947D2 /* PsfStreamProvider.cpp */; };
+		7E8894BD134EBE62009947D2 /* PsfZipArchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E8894B9134EBE62009947D2 /* PsfZipArchive.cpp */; };
 		7EDF2BB512C675BC001CB546 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EDF2BB412C675BC001CB546 /* AVFoundation.framework */; };
 		7EECCE8E12CBC333006251EB /* FileInfoViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7EECCE8D12CBC333006251EB /* FileInfoViewController.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		70383A4817BF351A00482B35 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 70383A4417BF351A00482B35 /* boost.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7EA960EE134D72490099591E;
+			remoteInfo = boost;
+		};
 		7E2721B01213B69300C0DEBF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7E2721AC1213B69300C0DEBF /* CodeGen.xcodeproj */;
@@ -143,13 +152,15 @@
 		28A0AB4B0D9B1048005BE974 /* PsfPlayer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PsfPlayer_Prefix.pch; sourceTree = "<group>"; };
 		28AD73870D9D96C1002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		7E1A764F0F898C750082129E /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.3.dylib; path = usr/lib/libz.1.2.3.dylib; sourceTree = SDKROOT; };
+		70383A3A17BF2E1C00482B35 /* BiosDebugInfoProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BiosDebugInfoProvider.h; path = ../../../../Source/BiosDebugInfoProvider.h; sourceTree = "<group>"; };
+		70383A3B17BF343800482B35 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		70383A3D17BF346300482B35 /* RegisterStateFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterStateFile.cpp; path = ../../../../Source/RegisterStateFile.cpp; sourceTree = "<group>"; };
+		70383A3E17BF346300482B35 /* RegisterStateFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RegisterStateFile.h; path = ../../../../Source/RegisterStateFile.h; sourceTree = "<group>"; };
+		70383A4017BF34B700482B35 /* COP_SCU_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_SCU_Reflection.cpp; path = ../../../../Source/COP_SCU_Reflection.cpp; sourceTree = "<group>"; };
+		70383A4217BF34F600482B35 /* Iop_Thmsgbx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thmsgbx.cpp; path = ../../../../Source/iop/Iop_Thmsgbx.cpp; sourceTree = "<group>"; };
+		70383A4317BF34F600482B35 /* Iop_Thmsgbx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Iop_Thmsgbx.h; path = ../../../../Source/iop/Iop_Thmsgbx.h; sourceTree = "<group>"; };
+		70383A4417BF351A00482B35 /* boost.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = boost.xcodeproj; path = ../../../../../boost/build_iphone/boost.xcodeproj; sourceTree = "<group>"; };
 		7E1A77130F8993CE0082129E /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = /System/Library/Frameworks/OpenAL.framework; sourceTree = "<absolute>"; };
-		7E1C42841234292000BB4E9C /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_filesystem.a; sourceTree = SOURCE_ROOT; };
-		7E1C42851234292000BB4E9C /* libboost_regex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_regex.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_regex.a; sourceTree = SOURCE_ROOT; };
-		7E1C42861234292000BB4E9C /* libboost_signals.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_signals.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_signals.a; sourceTree = SOURCE_ROOT; };
-		7E1C42871234292000BB4E9C /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_system.a; sourceTree = SOURCE_ROOT; };
-		7E1C42881234292000BB4E9C /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = ../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib/libboost_thread.a; sourceTree = SOURCE_ROOT; };
 		7E1C4334123430FC00BB4E9C /* PlaylistSelectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistSelectViewController.h; sourceTree = "<group>"; };
 		7E1C4335123430FC00BB4E9C /* PlaylistSelectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaylistSelectViewController.m; sourceTree = "<group>"; };
 		7E2721481213B38D00C0DEBF /* MipsJitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsJitter.cpp; path = ../../../../Source/MipsJitter.cpp; sourceTree = SOURCE_ROOT; };
@@ -232,7 +243,6 @@
 		7E4B3CE10F9E99A500675ED7 /* MipsExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsExecutor.h; path = ../../../../Source/MipsExecutor.h; sourceTree = SOURCE_ROOT; };
 		7E4B3CE20F9E99A500675ED7 /* MIPSInstructionFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSInstructionFactory.cpp; path = ../../../../Source/MIPSInstructionFactory.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3CE30F9E99A500675ED7 /* MIPSInstructionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSInstructionFactory.h; path = ../../../../Source/MIPSInstructionFactory.h; sourceTree = SOURCE_ROOT; };
-		7E4B3CE80F9E99A500675ED7 /* MIPSModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSModule.h; path = ../../../../Source/MIPSModule.h; sourceTree = SOURCE_ROOT; };
 		7E4B3CE90F9E99A500675ED7 /* MIPSReflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSReflection.cpp; path = ../../../../Source/MIPSReflection.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3CEA0F9E99A500675ED7 /* MIPSReflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSReflection.h; path = ../../../../Source/MIPSReflection.h; sourceTree = SOURCE_ROOT; };
 		7E4B3CEB0F9E99A500675ED7 /* MIPSTags.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSTags.cpp; path = ../../../../Source/MIPSTags.cpp; sourceTree = SOURCE_ROOT; };
@@ -333,7 +343,12 @@
 		7E844857123C9499003250D7 /* Playlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Playlist.h; path = ../Playlist.h; sourceTree = SOURCE_ROOT; };
 		7E8448E9123D41CC003250D7 /* PlaylistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistViewController.h; sourceTree = "<group>"; };
 		7E8448EA123D41CC003250D7 /* PlaylistViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlaylistViewController.mm; sourceTree = "<group>"; };
-		7EDF2B2712C556C6001CB546 /* ObjCMemberFunctionPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCMemberFunctionPointer.h; sourceTree = "<group>"; };
+		7E8894B5134EBE62009947D2 /* PsfArchive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfArchive.cpp; path = ../PsfArchive.cpp; sourceTree = "<group>"; };
+		7E8894B6134EBE62009947D2 /* PsfArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfArchive.h; path = ../PsfArchive.h; sourceTree = "<group>"; };
+		7E8894B7134EBE62009947D2 /* PsfStreamProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfStreamProvider.cpp; path = ../PsfStreamProvider.cpp; sourceTree = "<group>"; };
+		7E8894B8134EBE62009947D2 /* PsfStreamProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfStreamProvider.h; path = ../PsfStreamProvider.h; sourceTree = "<group>"; };
+		7E8894B9134EBE62009947D2 /* PsfZipArchive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfZipArchive.cpp; path = ../PsfZipArchive.cpp; sourceTree = "<group>"; };
+		7E8894BA134EBE62009947D2 /* PsfZipArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfZipArchive.h; path = ../PsfZipArchive.h; sourceTree = "<group>"; };
 		7EDF2BB412C675BC001CB546 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		7EECCE8C12CBC333006251EB /* FileInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileInfoViewController.h; sourceTree = "<group>"; };
 		7EECCE8D12CBC333006251EB /* FileInfoViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FileInfoViewController.mm; sourceTree = "<group>"; };
@@ -345,18 +360,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70383A3C17BF343800482B35 /* libz.dylib in Frameworks */,
 				7E2721B91213B6B600C0DEBF /* libFramework.a in Frameworks */,
 				7E2721B21213B69A00C0DEBF /* libCodeGen.a in Frameworks */,
+				70383A4A17BF352D00482B35 /* libboost.a in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */,
-				7E1A76500F898C750082129E /* libz.1.2.3.dylib in Frameworks */,
 				7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */,
-				7E1C42891234292000BB4E9C /* libboost_filesystem.a in Frameworks */,
-				7E1C428A1234292100BB4E9C /* libboost_regex.a in Frameworks */,
-				7E1C428B1234292100BB4E9C /* libboost_signals.a in Frameworks */,
-				7E1C428C1234292100BB4E9C /* libboost_system.a in Frameworks */,
-				7E1C428D1234292100BB4E9C /* libboost_thread.a in Frameworks */,
 				7EDF2BB512C675BC001CB546 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -369,7 +380,6 @@
 			children = (
 				7EECCE8C12CBC333006251EB /* FileInfoViewController.h */,
 				7EECCE8D12CBC333006251EB /* FileInfoViewController.mm */,
-				7EDF2B2712C556C6001CB546 /* ObjCMemberFunctionPointer.h */,
 				7E1C4334123430FC00BB4E9C /* PlaylistSelectViewController.h */,
 				7E1C4335123430FC00BB4E9C /* PlaylistSelectViewController.m */,
 				7E8448E9123D41CC003250D7 /* PlaylistViewController.h */,
@@ -424,12 +434,12 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				7E1C4257123427A700BB4E9C /* boost */,
+				70383A4417BF351A00482B35 /* boost.xcodeproj */,
+				7E2721B31213B6AC00C0DEBF /* Framework.xcodeproj */,
 				7E2721AC1213B69300C0DEBF /* CodeGen.xcodeproj */,
+				70383A3B17BF343800482B35 /* libz.dylib */,
 				288765070DF74369002DB57D /* CoreGraphics.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
-				7E2721B31213B6AC00C0DEBF /* Framework.xcodeproj */,
-				7E1A764F0F898C750082129E /* libz.1.2.3.dylib */,
 				7E1A77130F8993CE0082129E /* OpenAL.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				7EDF2BB412C675BC001CB546 /* AVFoundation.framework */,
@@ -437,16 +447,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		7E1C4257123427A700BB4E9C /* boost */ = {
+		70383A4517BF351A00482B35 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7E1C42841234292000BB4E9C /* libboost_filesystem.a */,
-				7E1C42851234292000BB4E9C /* libboost_regex.a */,
-				7E1C42861234292000BB4E9C /* libboost_signals.a */,
-				7E1C42871234292000BB4E9C /* libboost_system.a */,
-				7E1C42881234292000BB4E9C /* libboost_thread.a */,
+				70383A4917BF351A00482B35 /* libboost.a */,
 			);
-			name = boost;
+			name = Products;
 			sourceTree = "<group>";
 		};
 		7E2721AD1213B69300C0DEBF /* Products */ = {
@@ -544,17 +550,23 @@
 				7E844856123C9499003250D7 /* Playlist.cpp */,
 				7E844857123C9499003250D7 /* Playlist.h */,
 				7E2721CD1213B6D700C0DEBF /* ps2 */,
+				7E8894B5134EBE62009947D2 /* PsfArchive.cpp */,
+				7E8894B6134EBE62009947D2 /* PsfArchive.h */,
 				7E4B3D110F9E99EB00675ED7 /* PsfBase.cpp */,
 				7E4B3D120F9E99EB00675ED7 /* PsfBase.h */,
 				7E2722881214FA3200C0DEBF /* PsfFs.cpp */,
 				7E2722891214FA3200C0DEBF /* PsfFs.h */,
 				7E4B3D170F9E99EB00675ED7 /* PsfLoader.cpp */,
 				7E4B3D180F9E99EB00675ED7 /* PsfLoader.h */,
+				7E8894B7134EBE62009947D2 /* PsfStreamProvider.cpp */,
+				7E8894B8134EBE62009947D2 /* PsfStreamProvider.h */,
 				7E4B3D190F9E99EB00675ED7 /* PsfTags.cpp */,
 				7E4B3D1A0F9E99EB00675ED7 /* PsfTags.h */,
 				7E4B3D1B0F9E99EB00675ED7 /* PsfVm.cpp */,
 				7E4B3D1C0F9E99EB00675ED7 /* PsfVm.h */,
 				7E27228A1214FA3200C0DEBF /* PsfVmSubSystem.h */,
+				7E8894B9134EBE62009947D2 /* PsfZipArchive.cpp */,
+				7E8894BA134EBE62009947D2 /* PsfZipArchive.h */,
 				7E2721D31213B6ED00C0DEBF /* psp */,
 				7E2721C91213B6C600C0DEBF /* psx */,
 				7E4B3D1F0F9E99EB00675ED7 /* SH_OpenAL.cpp */,
@@ -569,11 +581,13 @@
 			children = (
 				7E4B3CB00F9E994E00675ED7 /* BasicBlock.cpp */,
 				7E4B3CB10F9E994E00675ED7 /* BasicBlock.h */,
+				70383A3A17BF2E1C00482B35 /* BiosDebugInfoProvider.h */,
 				7E2722991214FA7300C0DEBF /* COP_FPU.cpp */,
 				7E27229A1214FA7300C0DEBF /* COP_FPU.h */,
 				7E2722981214FA7300C0DEBF /* COP_FPU_Reflection.cpp */,
 				7E27229B1214FA7300C0DEBF /* COP_SCU.cpp */,
 				7E27229C1214FA7300C0DEBF /* COP_SCU.h */,
+				70383A4017BF34B700482B35 /* COP_SCU_Reflection.cpp */,
 				7E4B3CB90F9E994E00675ED7 /* ELF.cpp */,
 				7E4B3CBA0F9E994E00675ED7 /* ELF.h */,
 				7E4B3CBB0F9E994E00675ED7 /* ElfFile.cpp */,
@@ -612,12 +626,13 @@
 				7E4B3CE30F9E99A500675ED7 /* MIPSInstructionFactory.h */,
 				7E2721481213B38D00C0DEBF /* MipsJitter.cpp */,
 				7E2721491213B38D00C0DEBF /* MipsJitter.h */,
-				7E4B3CE80F9E99A500675ED7 /* MIPSModule.h */,
 				7E4B3CE90F9E99A500675ED7 /* MIPSReflection.cpp */,
 				7E4B3CEA0F9E99A500675ED7 /* MIPSReflection.h */,
 				7E4B3CEB0F9E99A500675ED7 /* MIPSTags.cpp */,
 				7E4B3CEC0F9E99A500675ED7 /* MIPSTags.h */,
 				7E4B3CEE0F9E99A500675ED7 /* OsStructManager.h */,
+				70383A3D17BF346300482B35 /* RegisterStateFile.cpp */,
+				70383A3E17BF346300482B35 /* RegisterStateFile.h */,
 				7E4B3D060F9E99C100675ED7 /* StructCollectionStateFile.cpp */,
 				7E4B3D070F9E99C100675ED7 /* StructCollectionStateFile.h */,
 				7E4B3D080F9E99C100675ED7 /* StructFile.cpp */,
@@ -683,6 +698,8 @@
 				7E4B3D5F0F9E9A3D00675ED7 /* Iop_Thbase.h */,
 				7E4B3D600F9E9A3D00675ED7 /* Iop_Thevent.cpp */,
 				7E4B3D610F9E9A3D00675ED7 /* Iop_Thevent.h */,
+				70383A4217BF34F600482B35 /* Iop_Thmsgbx.cpp */,
+				70383A4317BF34F600482B35 /* Iop_Thmsgbx.h */,
 				7E4B3D620F9E9A3D00675ED7 /* Iop_Thsema.cpp */,
 				7E4B3D630F9E9A3D00675ED7 /* Iop_Thsema.h */,
 				7E4B3D640F9E9A3D00675ED7 /* Iop_Timrman.cpp */,
@@ -720,6 +737,8 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "PsfPlayer" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
@@ -733,6 +752,10 @@
 			mainGroup = 29B97314FDCFA39411CA2CEA /* PsfPlayer */;
 			projectDirPath = "";
 			projectReferences = (
+				{
+					ProductGroup = 70383A4517BF351A00482B35 /* Products */;
+					ProjectRef = 70383A4417BF351A00482B35 /* boost.xcodeproj */;
+				},
 				{
 					ProductGroup = 7E2721AD1213B69300C0DEBF /* Products */;
 					ProjectRef = 7E2721AC1213B69300C0DEBF /* CodeGen.xcodeproj */;
@@ -750,6 +773,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		70383A4917BF351A00482B35 /* libboost.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libboost.a;
+			remoteRef = 70383A4817BF351A00482B35 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		7E2721B11213B69300C0DEBF /* libCodeGen.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -795,6 +825,7 @@
 				7E4B3CF30F9E99A500675ED7 /* MailBox.cpp in Sources */,
 				7E4B3CF40F9E99A500675ED7 /* MemoryMap.cpp in Sources */,
 				7E4B3CF50F9E99A500675ED7 /* MemoryStateFile.cpp in Sources */,
+				70383A3F17BF347A00482B35 /* RegisterStateFile.cpp in Sources */,
 				7E4B3CF60F9E99A500675ED7 /* MemoryUtils.cpp in Sources */,
 				7E4B3CF70F9E99A500675ED7 /* MIPS.cpp in Sources */,
 				7E4B3CF80F9E99A500675ED7 /* MIPSAnalysis.cpp in Sources */,
@@ -812,6 +843,7 @@
 				7E4B3D240F9E99EB00675ED7 /* PsfBase.cpp in Sources */,
 				7E4B3D270F9E99EB00675ED7 /* PsfLoader.cpp in Sources */,
 				7E4B3D280F9E99EB00675ED7 /* PsfTags.cpp in Sources */,
+				70383A4B17BF354400482B35 /* Iop_Thmsgbx.cpp in Sources */,
 				7E4B3D290F9E99EB00675ED7 /* PsfVm.cpp in Sources */,
 				7E4B3D2B0F9E99EB00675ED7 /* SH_OpenAL.cpp in Sources */,
 				7E4B3D6A0F9E9A3D00675ED7 /* ArgumentIterator.cpp in Sources */,
@@ -838,6 +870,7 @@
 				7E4B3D7F0F9E9A3D00675ED7 /* Iop_Sysmem.cpp in Sources */,
 				7E4B3D800F9E9A3D00675ED7 /* Iop_Thbase.cpp in Sources */,
 				7E4B3D810F9E9A3D00675ED7 /* Iop_Thevent.cpp in Sources */,
+				70383A4117BF34B700482B35 /* COP_SCU_Reflection.cpp in Sources */,
 				7E4B3D820F9E9A3D00675ED7 /* Iop_Thsema.cpp in Sources */,
 				7E4B3D830F9E9A3D00675ED7 /* Iop_Timrman.cpp in Sources */,
 				7E4B3D840F9E9A3D00675ED7 /* Iop_Vblank.cpp in Sources */,
@@ -875,6 +908,9 @@
 				7E844858123C9499003250D7 /* Playlist.cpp in Sources */,
 				7E8448EB123D41CC003250D7 /* PlaylistViewController.mm in Sources */,
 				7EECCE8E12CBC333006251EB /* FileInfoViewController.mm in Sources */,
+				7E8894BB134EBE62009947D2 /* PsfArchive.cpp in Sources */,
+				7E8894BC134EBE62009947D2 /* PsfStreamProvider.cpp in Sources */,
+				7E8894BD134EBE62009947D2 /* PsfZipArchive.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -885,17 +921,29 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jean-Philip Desjardins (YD39RHL5BG)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = PsfPlayer_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					"~/Libraries/boost_1_50_0",
+					"~/Projects/Framework/include",
+					"~/Projects/CodeGen/include",
+					"~/Projects/Play/Source",
+				);
 				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib\"",
+					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = PsfPlayer;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "D3D9B36E-2168-4556-ACF5-DBC20031360C";
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -903,15 +951,27 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jean-Philip Desjardins (YD39RHL5BG)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = PsfPlayer_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					"~/Libraries/boost_1_50_0",
+					"~/Projects/Framework/include",
+					"~/Projects/CodeGen/include",
+					"~/Projects/Play/Source",
+				);
 				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../../Libraries/boost_1_42_0/stage_iphoneuniv/lib\"",
+					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = PsfPlayer;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "D3D9B36E-2168-4556-ACF5-DBC20031360C";
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -935,7 +995,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.1;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8108899B-ECEC-4545-8E7A-260211333E42";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7AF29E36-401D-4D39-B4C2-1E94C4A82AB6";
 				SDKROOT = iphoneos4.2;
 			};
 			name = Debug;
@@ -960,7 +1020,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.1;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8108899B-ECEC-4545-8E7A-260211333E42";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7AF29E36-401D-4D39-B4C2-1E94C4A82AB6";
 				SDKROOT = iphoneos4.2;
 			};
 			name = Release;

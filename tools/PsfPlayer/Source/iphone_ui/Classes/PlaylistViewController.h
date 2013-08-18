@@ -10,6 +10,6 @@
 
 -(void)setSelectionHandler: (id)handler selector: (SEL)sel;
 -(void)setPlaylist: (CPlaylist*)playlist;
--(NSString*)selectedPlaylistItemPath;
+-(void)selectedPlaylistItem: (CPlaylist::ITEM*)itemPtr;
 
 @end

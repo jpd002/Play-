@@ -3,6 +3,8 @@
 #import "SH_OpenAL.h"
 #import "ObjCMemberFunctionPointer.h"
 #import <AVFoundation/AVAudioSession.h>
+#import <boost/filesystem.hpp>
+#import "string_cast.h"
 
 #define PLAY_STRING		@"Play"
 #define PAUSE_STRING	@"Pause"
@@ -12,10 +14,20 @@
 @synthesize m_window;
 @synthesize m_tabBarController;
 
+NSString* stringWithWchar(const std::wstring& input)
+{
+	NSString* result = [[NSString alloc] initWithBytes: input.data()
+												length: input.length() * sizeof(wchar_t)
+											  encoding: NSUTF32LittleEndianStringEncoding];
+	[result autorelease];
+	return result;
+}
+
 -(void)applicationDidFinishLaunching: (UIApplication*)application 
 {
-    // Add the tab bar controller's current view as a subview of the window
-    [m_window addSubview: m_tabBarController.view];
+	// Add the tab bar controller's current view as a subview of the window
+	[m_window addSubview: m_tabBarController.view];
+	m_window.rootViewController = m_tabBarController;
 	
 	[m_playlistSelectViewController setSelectionHandler: self selector: @selector(onPlaylistSelected)];
 	[m_playlistViewController setSelectionHandler: self selector: @selector(onPlaylistItemSelected)];
@@ -44,9 +56,9 @@
 
 -(void)dealloc 
 {
-    [m_tabBarController release];
-    [m_window release];
-    [super dealloc];
+	[m_tabBarController release];
+	[m_window release];
+	[super dealloc];
 }
 
 -(IBAction)onOpenPlaylist: (id)sender
@@ -115,7 +127,29 @@
 		m_playlist = NULL;
 	}
 	m_playlist = new CPlaylist();
-	m_playlist->Read([selectedPlaylistPath fileSystemRepresentation]);
+//	m_playlist->Read([selectedPlaylistPath fileSystemRepresentation]);
+	
+	{
+		auto path = boost::filesystem::path([selectedPlaylistPath fileSystemRepresentation]);
+		auto archive(CPsfArchive::CreateFromPath(path));
+		
+		unsigned int archiveId = m_playlist->InsertArchive(path.wstring().c_str());
+		for(const auto& file : archive->GetFiles())
+		{
+			boost::filesystem::path filePath(file.name);
+			std::string fileExtension = filePath.extension().string();
+			if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
+			{
+				CPlaylist::ITEM newItem;
+				newItem.path = filePath.wstring();
+				newItem.title = string_cast<std::wstring>(newItem.path);
+				newItem.length = 0;
+				newItem.archiveId = archiveId;
+				m_playlist->InsertItem(newItem);
+			}
+		}
+	}
+	
 	[m_playlistViewController setPlaylist: m_playlist];
 }
 
@@ -155,15 +189,29 @@
 	m_tabBarController.selectedIndex = 1;
 	[self showPrebufferOverlay];	
 	
-	NSString* filePath = [m_playlistViewController selectedPlaylistItemPath];
+	CPlaylist::ITEM playlistItem;
+	[m_playlistViewController selectedPlaylistItem: &playlistItem];
+	unsigned int archiveId = playlistItem.archiveId;
+	
+	NSString* filePath = stringWithWchar(playlistItem.path);
+	NSString* archivePath = nil;
+	if(archiveId != 0)
+	{
+		archivePath = stringWithWchar(m_playlist->GetArchive(archiveId));
+	}
+	
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	
 	try
 	{
 		CPsfBase::TagMap tags;
-		CPsfLoader::LoadPsf(*m_virtualMachine, [filePath fileSystemRepresentation], &tags);
-//		m_virtualMachine->SetReverbEnabled(false);
+		CPsfLoader::LoadPsf(
+							*m_virtualMachine,
+							[filePath fileSystemRepresentation],
+							(archiveId == 0) ? NULL : [archivePath fileSystemRepresentation],
+							&tags);
+		m_virtualMachine->SetReverbEnabled(true);
 		m_virtualMachine->Resume();
 		
 		CPsfTags psfTags(tags);

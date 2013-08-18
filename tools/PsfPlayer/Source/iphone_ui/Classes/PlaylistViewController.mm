@@ -26,13 +26,13 @@
 	m_selectionHandlerSelector = sel;
 }
 
--(NSString*)selectedPlaylistItemPath
+-(void)selectedPlaylistItem: (CPlaylist::ITEM*)itemPtr
 {
 	NSIndexPath* indexPath = [self.tableView indexPathForSelectedRow];
 	assert(indexPath.row < m_playlist->GetItemCount());
 	
 	const CPlaylist::ITEM& item(m_playlist->GetItem(indexPath.row));
-	return [NSString stringWithUTF8String: item.path.c_str()];
+    (*itemPtr) = item;
 }
 
 -(NSInteger)numberOfSectionsInTableView: (UITableView *)tableView 

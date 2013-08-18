@@ -7,8 +7,8 @@
 
 @interface PsfPlayerAppDelegate : NSObject <UIApplicationDelegate, UITabBarControllerDelegate, UIActionSheetDelegate> 
 {
-    UIWindow*								m_window;
-    UITabBarController*						m_tabBarController;
+	UIWindow*								m_window;
+	UITabBarController*						m_tabBarController;
 	IBOutlet PlaylistSelectViewController*	m_playlistSelectViewController;
 	IBOutlet PlaylistViewController*		m_playlistViewController;
 	IBOutlet FileInfoViewController*		m_fileInfoViewController;

@@ -4,7 +4,7 @@
 
 -(void)dealloc 
 {
-	[m_playlists release];
+	[m_archives release];
     [super dealloc];
 }
 
@@ -19,13 +19,13 @@
 
 	NSString* file;
 	
-	m_playlists = [[NSMutableArray alloc] init];
+	m_archives = [[NSMutableArray alloc] init];
 	
 	while(file = [dirEnum nextObject]) 
 	{
-		if([[file pathExtension] isEqualToString: @"psfpl"])
+		if([[file pathExtension] isEqualToString: @"zip"])
 		{
-			[m_playlists addObject: file];
+			[m_archives addObject: file];
 		}
 	}
 	
@@ -65,7 +65,7 @@
 
 -(NSInteger)tableView: (UITableView *)tableView numberOfRowsInSection: (NSInteger)section 
 {
-	return [m_playlists count];
+	return [m_archives count];
 }
 
 -(NSString*)tableView: (UITableView*)tableView titleForHeaderInSection: (NSInteger)section 
@@ -83,8 +83,8 @@
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier: CellIdentifier] autorelease];
     }
     
-	assert(indexPath.row < [m_playlists count]);
-	NSString* playlistPath = [m_playlists objectAtIndex: indexPath.row];
+	assert(indexPath.row < [m_archives count]);
+	NSString* playlistPath = [m_archives objectAtIndex: indexPath.row];
 	
 	cell.textLabel.text = [playlistPath lastPathComponent];
 	
@@ -104,9 +104,9 @@
 -(NSString*)selectedPlaylistPath
 {
 	NSIndexPath* indexPath = [self.tableView indexPathForSelectedRow];
-	assert(indexPath.row < [m_playlists count]);
+	assert(indexPath.row < [m_archives count]);
 
-	NSString* playlistPath = [m_playlists objectAtIndex: indexPath.row];
+	NSString* playlistPath = [m_archives objectAtIndex: indexPath.row];
 	NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
 	NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: playlistPath];
 

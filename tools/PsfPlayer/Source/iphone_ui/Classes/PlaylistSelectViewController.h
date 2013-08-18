@@ -4,7 +4,7 @@
 {
 	id					m_selectionHandler;
 	SEL					m_selectionHandlerSelector;
-	NSMutableArray*		m_playlists;
+	NSMutableArray*		m_archives;
 }
 
 -(void)setSelectionHandler: (id)handler selector: (SEL)sel;

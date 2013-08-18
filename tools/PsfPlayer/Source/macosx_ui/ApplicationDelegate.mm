@@ -1,13 +1,6 @@
-//
-//  ApplicationDelegate.mm
-//  PsfPlayer
-//
-//  Created by Jean-Philip Desjardins on 26/12/08.
-//  Copyright 2008 __MyCompanyName__. All rights reserved.
-//
-
 #import "ApplicationDelegate.h"
-#include "../Source/PsfLoader.h"
+#include "../../Source/PsfLoader.h"
+#include "../../Source/SH_OpenAL.h"
 
 using namespace std;
 
@@ -27,6 +20,7 @@ string GetTagValue(const CPsfBase::TagMap& tags, const char* tagName)
 -(id)init
 {
 	m_virtualMachine = new CPsfVm();
+	m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
 	return [super init];
 }
 
