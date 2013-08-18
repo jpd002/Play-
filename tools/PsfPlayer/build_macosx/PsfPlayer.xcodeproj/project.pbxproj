@@ -7,19 +7,62 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
-		7E2A16BF0F95545A00D3F99D /* PsfBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16AF0F95545A00D3F99D /* PsfBase.cpp */; };
-		7E2A16C00F95545A00D3F99D /* PsfBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16B10F95545A00D3F99D /* PsfBios.cpp */; };
-		7E2A16C10F95545A00D3F99D /* PsfDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16B30F95545A00D3F99D /* PsfDevice.cpp */; };
-		7E2A16C20F95545A00D3F99D /* PsfLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16B50F95545A00D3F99D /* PsfLoader.cpp */; };
-		7E2A16C30F95545A00D3F99D /* PsfVm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16B70F95545A00D3F99D /* PsfVm.cpp */; };
-		7E2A16C40F95545A00D3F99D /* PsxBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16B90F95545A00D3F99D /* PsxBios.cpp */; };
-		7E2A16C50F95545A00D3F99D /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16BB0F95545A00D3F99D /* SH_OpenAL.cpp */; };
-		7E2A16C60F95545A00D3F99D /* SpuHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16BD0F95545A00D3F99D /* SpuHandler.cpp */; };
+		703ABB6C17C0DCBE00FC0376 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 703ABB6B17C0DCA400FC0376 /* MainMenu.xib */; };
+		70D3172617C0C15600CCA3A4 /* AppConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170917C0C15600CCA3A4 /* AppConfig.cpp */; };
+		70D3172717C0C15600CCA3A4 /* Iop_PsfSubSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170D17C0C15600CCA3A4 /* Iop_PsfSubSystem.cpp */; };
+		70D3172817C0C15600CCA3A4 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171017C0C15600CCA3A4 /* Playlist.cpp */; };
+		70D3172917C0C15600CCA3A4 /* PsfArchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171217C0C15600CCA3A4 /* PsfArchive.cpp */; };
+		70D3172A17C0C15600CCA3A4 /* PsfBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171417C0C15600CCA3A4 /* PsfBase.cpp */; };
+		70D3172B17C0C15600CCA3A4 /* PsfFs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171617C0C15600CCA3A4 /* PsfFs.cpp */; };
+		70D3172C17C0C15600CCA3A4 /* PsfLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171817C0C15600CCA3A4 /* PsfLoader.cpp */; };
+		70D3172D17C0C15600CCA3A4 /* PsfStreamProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171A17C0C15600CCA3A4 /* PsfStreamProvider.cpp */; };
+		70D3172E17C0C15600CCA3A4 /* PsfTags.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171C17C0C15600CCA3A4 /* PsfTags.cpp */; };
+		70D3172F17C0C15600CCA3A4 /* PsfVm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171E17C0C15600CCA3A4 /* PsfVm.cpp */; };
+		70D3173017C0C15600CCA3A4 /* PsfZipArchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3172117C0C15600CCA3A4 /* PsfZipArchive.cpp */; };
+		70D3173117C0C15600CCA3A4 /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3172317C0C15600CCA3A4 /* SH_OpenAL.cpp */; };
+		70D3174317C0C32C00CCA3A4 /* libboost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70D3174217C0C32300CCA3A4 /* libboost.a */; };
+		70D3174417C0C32C00CCA3A4 /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70D3173C17C0C2F800CCA3A4 /* libCodeGen.a */; };
+		70D3174517C0C32C00CCA3A4 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70D3173617C0C23200CCA3A4 /* libFramework.a */; };
+		70D3174817C0C36B00CCA3A4 /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3174617C0C36B00CCA3A4 /* MipsJitter.cpp */; };
+		70D3174B17C0C39500CCA3A4 /* StructFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3174917C0C38E00CCA3A4 /* StructFile.cpp */; };
+		70D3175017C0CE1000CCA3A4 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3174C17C0CE1000CCA3A4 /* RegisterStateFile.cpp */; };
+		70D3175117C0CE1000CCA3A4 /* StructCollectionStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3174E17C0CE1000CCA3A4 /* StructCollectionStateFile.cpp */; };
+		70D3175617C0CE3800CCA3A4 /* ArgumentIterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3175217C0CE3800CCA3A4 /* ArgumentIterator.cpp */; };
+		70D3175717C0CE3800CCA3A4 /* Iop_Thmsgbx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3175417C0CE3800CCA3A4 /* Iop_Thmsgbx.cpp */; };
+		70D3175C17C0CE7700CCA3A4 /* Iop_SifCmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3175817C0CE6B00CCA3A4 /* Iop_SifCmd.cpp */; };
+		70D3175D17C0CE7A00CCA3A4 /* Iop_Vblank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3175A17C0CE6B00CCA3A4 /* Iop_Vblank.cpp */; };
+		70D3176517C0CEF100CCA3A4 /* Ps2_PsfDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3176117C0CEF100CCA3A4 /* Ps2_PsfDevice.cpp */; };
+		70D3176617C0CEF100CCA3A4 /* PsfBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3176317C0CEF100CCA3A4 /* PsfBios.cpp */; };
+		70D3178217C0CF2300CCA3A4 /* MA_ALLEGREX_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3176717C0CF1900CCA3A4 /* MA_ALLEGREX_Reflection.cpp */; };
+		70D3178317C0CF2300CCA3A4 /* MA_ALLEGREX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3176817C0CF1900CCA3A4 /* MA_ALLEGREX.cpp */; };
+		70D3178417C0CF2300CCA3A4 /* Psp_Audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3176A17C0CF1900CCA3A4 /* Psp_Audio.cpp */; };
+		70D3178517C0CF2300CCA3A4 /* Psp_IoFileMgrForUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3176D17C0CF1900CCA3A4 /* Psp_IoFileMgrForUser.cpp */; };
+		70D3178617C0CF2300CCA3A4 /* Psp_KernelLibrary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3176F17C0CF1900CCA3A4 /* Psp_KernelLibrary.cpp */; };
+		70D3178717C0CF2300CCA3A4 /* Psp_PsfBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177117C0CF1900CCA3A4 /* Psp_PsfBios.cpp */; };
+		70D3178817C0CF2300CCA3A4 /* Psp_PsfDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177317C0CF1900CCA3A4 /* Psp_PsfDevice.cpp */; };
+		70D3178917C0CF2300CCA3A4 /* Psp_PsfSubSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177517C0CF1900CCA3A4 /* Psp_PsfSubSystem.cpp */; };
+		70D3178A17C0CF2300CCA3A4 /* Psp_SasCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177717C0CF1900CCA3A4 /* Psp_SasCore.cpp */; };
+		70D3178B17C0CF2300CCA3A4 /* Psp_StdioForUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177917C0CF1900CCA3A4 /* Psp_StdioForUser.cpp */; };
+		70D3178C17C0CF2300CCA3A4 /* Psp_SysMemUserForUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177B17C0CF1900CCA3A4 /* Psp_SysMemUserForUser.cpp */; };
+		70D3178D17C0CF2300CCA3A4 /* Psp_ThreadManForUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177D17C0CF1900CCA3A4 /* Psp_ThreadManForUser.cpp */; };
+		70D3178E17C0CF2300CCA3A4 /* PspBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3177F17C0CF1900CCA3A4 /* PspBios.cpp */; };
+		70D3179117C0CF3900CCA3A4 /* PsxBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3178F17C0CF3900CCA3A4 /* PsxBios.cpp */; };
+		70D3179617C0CFFA00CCA3A4 /* ApplicationDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170017C0C0C700CCA3A4 /* ApplicationDelegate.mm */; };
+		70D3179717C0CFFA00CCA3A4 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170317C0C0C700CCA3A4 /* main.mm */; };
+		70D3179817C0CFFA00CCA3A4 /* Playlist.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170517C0C0C700CCA3A4 /* Playlist.mm */; };
+		70D3179917C0CFFA00CCA3A4 /* PlaylistItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170717C0C0C700CCA3A4 /* PlaylistItem.mm */; };
+		70D317A317C0D83E00CCA3A4 /* COP_FPU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3179D17C0D83D00CCA3A4 /* COP_FPU_Reflection.cpp */; };
+		70D317A417C0D83E00CCA3A4 /* COP_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3179E17C0D83E00CCA3A4 /* COP_FPU.cpp */; };
+		70D317A517C0D83E00CCA3A4 /* COP_SCU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317A017C0D83E00CCA3A4 /* COP_SCU_Reflection.cpp */; };
+		70D317A617C0D83E00CCA3A4 /* COP_SCU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317A117C0D83E00CCA3A4 /* COP_SCU.cpp */; };
+		70D317B617C0D8F800CCA3A4 /* Iop_Cdvdman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317B417C0D8F800CCA3A4 /* Iop_Cdvdman.cpp */; };
+		70D317C417C0D96000CCA3A4 /* DirectoryRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317B817C0D96000CCA3A4 /* DirectoryRecord.cpp */; };
+		70D317C517C0D96000CCA3A4 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317BA17C0D96000CCA3A4 /* File.cpp */; };
+		70D317C617C0D96000CCA3A4 /* ISO9660.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317BC17C0D96000CCA3A4 /* ISO9660.cpp */; };
+		70D317C717C0D96000CCA3A4 /* PathTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317BE17C0D96000CCA3A4 /* PathTable.cpp */; };
+		70D317C817C0D96000CCA3A4 /* PathTableRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317C017C0D96000CCA3A4 /* PathTableRecord.cpp */; };
+		70D317C917C0D96000CCA3A4 /* VolumeDescriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D317C217C0D96000CCA3A4 /* VolumeDescriptor.cpp */; };
 		7E2A16D30F95548A00D3F99D /* BasicBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16C80F95548A00D3F99D /* BasicBlock.cpp */; };
-		7E2A16D40F95548A00D3F99D /* CodeGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16CA0F95548A00D3F99D /* CodeGen.cpp */; };
-		7E2A16D50F95548A00D3F99D /* CodeGen_FPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16CC0F95548A00D3F99D /* CodeGen_FPU.cpp */; };
-		7E2A16D60F95548A00D3F99D /* CodeGen_MD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16CD0F95548A00D3F99D /* CodeGen_MD.cpp */; };
 		7E2A16D70F95548A00D3F99D /* ELF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16CF0F95548A00D3F99D /* ELF.cpp */; };
 		7E2A16D80F95548A00D3F99D /* ElfFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16D10F95548A00D3F99D /* ElfFile.cpp */; };
 		7E2A17010F9554D300D3F99D /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16D90F9554D300D3F99D /* Log.cpp */; };
@@ -35,15 +78,11 @@
 		7E2A170B0F9554D300D3F99D /* MIPSArchitecture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16EB0F9554D300D3F99D /* MIPSArchitecture.cpp */; };
 		7E2A170C0F9554D300D3F99D /* MIPSAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16ED0F9554D300D3F99D /* MIPSAssembler.cpp */; };
 		7E2A170D0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16EF0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp */; };
-		7E2A170E0F9554D300D3F99D /* MipsCodeGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16F10F9554D300D3F99D /* MipsCodeGen.cpp */; };
 		7E2A170F0F9554D300D3F99D /* MIPSCoprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16F30F9554D300D3F99D /* MIPSCoprocessor.cpp */; };
 		7E2A17100F9554D300D3F99D /* MipsExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16F50F9554D300D3F99D /* MipsExecutor.cpp */; };
 		7E2A17110F9554D300D3F99D /* MIPSInstructionFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16F70F9554D300D3F99D /* MIPSInstructionFactory.cpp */; };
 		7E2A17120F9554D300D3F99D /* MIPSReflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16FA0F9554D300D3F99D /* MIPSReflection.cpp */; };
 		7E2A17130F9554D300D3F99D /* MIPSTags.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16FC0F9554D300D3F99D /* MIPSTags.cpp */; };
-		7E2A17180F9554F400D3F99D /* X86Assembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A17140F9554F400D3F99D /* X86Assembler.cpp */; };
-		7E2A17190F9554F400D3F99D /* X86Assembler_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A17160F9554F400D3F99D /* X86Assembler_Fpu.cpp */; };
-		7E2A171A0F9554F400D3F99D /* X86Assembler_Sse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A17170F9554F400D3F99D /* X86Assembler_Sse.cpp */; };
 		7E2A17380F95552500D3F99D /* Iop_Dmac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A171F0F95552500D3F99D /* Iop_Dmac.cpp */; };
 		7E2A17390F95552500D3F99D /* Iop_DmacChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A17210F95552500D3F99D /* Iop_DmacChannel.cpp */; };
 		7E2A173A0F95552500D3F99D /* Iop_Dynamic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A17230F95552500D3F99D /* Iop_Dynamic.cpp */; };
@@ -69,180 +108,248 @@
 		7E2A17680F95554C00D3F99D /* Iop_Thsema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A17580F95554C00D3F99D /* Iop_Thsema.cpp */; };
 		7E2A17690F95554C00D3F99D /* Iop_Timrman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A175A0F95554C00D3F99D /* Iop_Timrman.cpp */; };
 		7E2A176A0F95554C00D3F99D /* IopBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A175C0F95554C00D3F99D /* IopBios.cpp */; };
-		7E6281D90F05CF94003F9463 /* ApplicationDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E6281D80F05CF94003F9463 /* ApplicationDelegate.mm */; };
-		7E6283320F06CDB8003F9463 /* Playlist.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E6283310F06CDB8003F9463 /* Playlist.mm */; };
-		7E6283380F06D082003F9463 /* PlaylistItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E6283370F06D082003F9463 /* PlaylistItem.mm */; };
 		7E9000790F059BB4008B14D1 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E9000780F059BB4008B14D1 /* OpenAL.framework */; };
-		7E9000960F059C67008B14D1 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E9000940F059C25008B14D1 /* libFramework.a */; };
-		7E9000A20F059CFC008B14D1 /* libboost_filesystem-xgcc40-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E90009E0F059CFC008B14D1 /* libboost_filesystem-xgcc40-mt.dylib */; };
-		7E9000A30F059CFC008B14D1 /* libboost_signals-xgcc40-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E90009F0F059CFC008B14D1 /* libboost_signals-xgcc40-mt.dylib */; };
-		7E9000A40F059CFC008B14D1 /* libboost_system-xgcc40-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E9000A00F059CFC008B14D1 /* libboost_system-xgcc40-mt.dylib */; };
-		7E9000A50F059CFC008B14D1 /* libboost_thread-xgcc40-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E9000A10F059CFC008B14D1 /* libboost_thread-xgcc40-mt.dylib */; };
 		7E9000A80F059D4B008B14D1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E9000A70F059D4B008B14D1 /* libz.dylib */; };
-		7E90010C0F059EBD008B14D1 /* libboost_regex-xgcc40-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E90010B0F059EBD008B14D1 /* libboost_regex-xgcc40-mt.dylib */; };
-		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
-		8D11072D0486CEB800E47090 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.mm */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		7E9000930F059C25008B14D1 /* PBXContainerItemProxy */ = {
+		70D3173517C0C23200CCA3A4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7E90008C0F059C25008B14D1 /* Framework.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = Framework;
 		};
+		70D3173B17C0C2F800CCA3A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 70D3173717C0C2F700CCA3A4 /* CodeGen.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7E207AE31507D03500EE8C4F;
+			remoteInfo = CodeGen;
+		};
+		70D3174117C0C32300CCA3A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7E207A831507C20200EE8C4F;
+			remoteInfo = boost;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		1DDD58150DA1D0A300B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		29B97316FDCFA39411CA2CEA /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		32CA4F630368D1EE00C91783 /* PsfPlayer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PsfPlayer_Prefix.pch; sourceTree = "<group>"; };
-		7E2A16AF0F95545A00D3F99D /* PsfBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfBase.cpp; path = ../PsfBase.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16B00F95545A00D3F99D /* PsfBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfBase.h; path = ../PsfBase.h; sourceTree = SOURCE_ROOT; };
-		7E2A16B10F95545A00D3F99D /* PsfBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfBios.cpp; path = ../PsfBios.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16B20F95545A00D3F99D /* PsfBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfBios.h; path = ../PsfBios.h; sourceTree = SOURCE_ROOT; };
-		7E2A16B30F95545A00D3F99D /* PsfDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfDevice.cpp; path = ../PsfDevice.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16B40F95545A00D3F99D /* PsfDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfDevice.h; path = ../PsfDevice.h; sourceTree = SOURCE_ROOT; };
-		7E2A16B50F95545A00D3F99D /* PsfLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfLoader.cpp; path = ../PsfLoader.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16B60F95545A00D3F99D /* PsfLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfLoader.h; path = ../PsfLoader.h; sourceTree = SOURCE_ROOT; };
-		7E2A16B70F95545A00D3F99D /* PsfVm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfVm.cpp; path = ../PsfVm.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16B80F95545A00D3F99D /* PsfVm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfVm.h; path = ../PsfVm.h; sourceTree = SOURCE_ROOT; };
-		7E2A16B90F95545A00D3F99D /* PsxBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsxBios.cpp; path = ../PsxBios.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16BA0F95545A00D3F99D /* PsxBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsxBios.h; path = ../PsxBios.h; sourceTree = SOURCE_ROOT; };
-		7E2A16BB0F95545A00D3F99D /* SH_OpenAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SH_OpenAL.cpp; path = ../SH_OpenAL.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16BC0F95545A00D3F99D /* SH_OpenAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SH_OpenAL.h; path = ../SH_OpenAL.h; sourceTree = SOURCE_ROOT; };
-		7E2A16BD0F95545A00D3F99D /* SpuHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpuHandler.cpp; path = ../SpuHandler.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16BE0F95545A00D3F99D /* SpuHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpuHandler.h; path = ../SpuHandler.h; sourceTree = SOURCE_ROOT; };
-		7E2A16C70F95548A00D3F99D /* ArrayStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArrayStack.h; path = ../../../../Source/ArrayStack.h; sourceTree = SOURCE_ROOT; };
-		7E2A16C80F95548A00D3F99D /* BasicBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicBlock.cpp; path = ../../../../Source/BasicBlock.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16C90F95548A00D3F99D /* BasicBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicBlock.h; path = ../../../../Source/BasicBlock.h; sourceTree = SOURCE_ROOT; };
-		7E2A16CA0F95548A00D3F99D /* CodeGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen.cpp; path = ../../../../Source/CodeGen.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16CB0F95548A00D3F99D /* CodeGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen.h; path = ../../../../Source/CodeGen.h; sourceTree = SOURCE_ROOT; };
-		7E2A16CC0F95548A00D3F99D /* CodeGen_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_FPU.cpp; path = ../../../../Source/CodeGen_FPU.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16CD0F95548A00D3F99D /* CodeGen_MD.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGen_MD.cpp; path = ../../../../Source/CodeGen_MD.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16CE0F95548A00D3F99D /* CodeGen_StackPatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGen_StackPatterns.h; path = ../../../../Source/CodeGen_StackPatterns.h; sourceTree = SOURCE_ROOT; };
-		7E2A16CF0F95548A00D3F99D /* ELF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ELF.cpp; path = ../../../../Source/ELF.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16D00F95548A00D3F99D /* ELF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ELF.h; path = ../../../../Source/ELF.h; sourceTree = SOURCE_ROOT; };
-		7E2A16D10F95548A00D3F99D /* ElfFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ElfFile.cpp; path = ../../../../Source/ElfFile.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16D20F95548A00D3F99D /* ElfFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ElfFile.h; path = ../../../../Source/ElfFile.h; sourceTree = SOURCE_ROOT; };
-		7E2A16D90F9554D300D3F99D /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Log.cpp; path = ../../../../Source/Log.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16DA0F9554D300D3F99D /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Log.h; path = ../../../../Source/Log.h; sourceTree = SOURCE_ROOT; };
-		7E2A16DB0F9554D300D3F99D /* MA_MIPSIV.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_MIPSIV.cpp; path = ../../../../Source/MA_MIPSIV.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16DC0F9554D300D3F99D /* MA_MIPSIV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MA_MIPSIV.h; path = ../../../../Source/MA_MIPSIV.h; sourceTree = SOURCE_ROOT; };
-		7E2A16DD0F9554D300D3F99D /* MA_MIPSIV_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_MIPSIV_Reflection.cpp; path = ../../../../Source/MA_MIPSIV_Reflection.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16DE0F9554D300D3F99D /* MA_MIPSIV_Templates.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_MIPSIV_Templates.cpp; path = ../../../../Source/MA_MIPSIV_Templates.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16DF0F9554D300D3F99D /* MailBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MailBox.cpp; path = ../../../../Source/MailBox.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16E00F9554D300D3F99D /* MailBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MailBox.h; path = ../../../../Source/MailBox.h; sourceTree = SOURCE_ROOT; };
-		7E2A16E10F9554D300D3F99D /* MemoryMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryMap.cpp; path = ../../../../Source/MemoryMap.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16E20F9554D300D3F99D /* MemoryMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryMap.h; path = ../../../../Source/MemoryMap.h; sourceTree = SOURCE_ROOT; };
-		7E2A16E30F9554D300D3F99D /* MemoryStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryStateFile.cpp; path = ../../../../Source/MemoryStateFile.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16E40F9554D300D3F99D /* MemoryStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStateFile.h; path = ../../../../Source/MemoryStateFile.h; sourceTree = SOURCE_ROOT; };
-		7E2A16E50F9554D300D3F99D /* MemoryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryUtils.cpp; path = ../../../../Source/MemoryUtils.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16E60F9554D300D3F99D /* MemoryUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryUtils.h; path = ../../../../Source/MemoryUtils.h; sourceTree = SOURCE_ROOT; };
-		7E2A16E70F9554D300D3F99D /* MIPS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPS.cpp; path = ../../../../Source/MIPS.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16E80F9554D300D3F99D /* MIPS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPS.h; path = ../../../../Source/MIPS.h; sourceTree = SOURCE_ROOT; };
-		7E2A16E90F9554D300D3F99D /* MIPSAnalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSAnalysis.cpp; path = ../../../../Source/MIPSAnalysis.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16EA0F9554D300D3F99D /* MIPSAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSAnalysis.h; path = ../../../../Source/MIPSAnalysis.h; sourceTree = SOURCE_ROOT; };
-		7E2A16EB0F9554D300D3F99D /* MIPSArchitecture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSArchitecture.cpp; path = ../../../../Source/MIPSArchitecture.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16EC0F9554D300D3F99D /* MIPSArchitecture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSArchitecture.h; path = ../../../../Source/MIPSArchitecture.h; sourceTree = SOURCE_ROOT; };
-		7E2A16ED0F9554D300D3F99D /* MIPSAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSAssembler.cpp; path = ../../../../Source/MIPSAssembler.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16EE0F9554D300D3F99D /* MIPSAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSAssembler.h; path = ../../../../Source/MIPSAssembler.h; sourceTree = SOURCE_ROOT; };
-		7E2A16EF0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsAssemblerDefinitions.cpp; path = ../../../../Source/MipsAssemblerDefinitions.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16F00F9554D300D3F99D /* MipsAssemblerDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsAssemblerDefinitions.h; path = ../../../../Source/MipsAssemblerDefinitions.h; sourceTree = SOURCE_ROOT; };
-		7E2A16F10F9554D300D3F99D /* MipsCodeGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsCodeGen.cpp; path = ../../../../Source/MipsCodeGen.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16F20F9554D300D3F99D /* MipsCodeGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsCodeGen.h; path = ../../../../Source/MipsCodeGen.h; sourceTree = SOURCE_ROOT; };
-		7E2A16F30F9554D300D3F99D /* MIPSCoprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSCoprocessor.cpp; path = ../../../../Source/MIPSCoprocessor.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16F40F9554D300D3F99D /* MIPSCoprocessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSCoprocessor.h; path = ../../../../Source/MIPSCoprocessor.h; sourceTree = SOURCE_ROOT; };
-		7E2A16F50F9554D300D3F99D /* MipsExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsExecutor.cpp; path = ../../../../Source/MipsExecutor.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16F60F9554D300D3F99D /* MipsExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsExecutor.h; path = ../../../../Source/MipsExecutor.h; sourceTree = SOURCE_ROOT; };
-		7E2A16F70F9554D300D3F99D /* MIPSInstructionFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSInstructionFactory.cpp; path = ../../../../Source/MIPSInstructionFactory.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16F80F9554D300D3F99D /* MIPSInstructionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSInstructionFactory.h; path = ../../../../Source/MIPSInstructionFactory.h; sourceTree = SOURCE_ROOT; };
-		7E2A16F90F9554D300D3F99D /* MIPSModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSModule.h; path = ../../../../Source/MIPSModule.h; sourceTree = SOURCE_ROOT; };
-		7E2A16FA0F9554D300D3F99D /* MIPSReflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSReflection.cpp; path = ../../../../Source/MIPSReflection.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16FB0F9554D300D3F99D /* MIPSReflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSReflection.h; path = ../../../../Source/MIPSReflection.h; sourceTree = SOURCE_ROOT; };
-		7E2A16FC0F9554D300D3F99D /* MIPSTags.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSTags.cpp; path = ../../../../Source/MIPSTags.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16FD0F9554D300D3F99D /* MIPSTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSTags.h; path = ../../../../Source/MIPSTags.h; sourceTree = SOURCE_ROOT; };
-		7E2A16FE0F9554D300D3F99D /* offsetof_def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = offsetof_def.h; path = ../../../../Source/offsetof_def.h; sourceTree = SOURCE_ROOT; };
-		7E2A16FF0F9554D300D3F99D /* OsStructManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OsStructManager.h; path = ../../../../Source/OsStructManager.h; sourceTree = SOURCE_ROOT; };
-		7E2A17000F9554D300D3F99D /* Ps2Const.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ps2Const.h; path = ../../../../Source/Ps2Const.h; sourceTree = SOURCE_ROOT; };
-		7E2A17140F9554F400D3F99D /* X86Assembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler.cpp; path = ../../../../Source/X86Assembler.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17150F9554F400D3F99D /* X86Assembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = X86Assembler.h; path = ../../../../Source/X86Assembler.h; sourceTree = SOURCE_ROOT; };
-		7E2A17160F9554F400D3F99D /* X86Assembler_Fpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler_Fpu.cpp; path = ../../../../Source/X86Assembler_Fpu.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17170F9554F400D3F99D /* X86Assembler_Sse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = X86Assembler_Sse.cpp; path = ../../../../Source/X86Assembler_Sse.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A171D0F95552500D3F99D /* Ioman_Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ioman_Device.h; path = ../../../../Source/iop/Ioman_Device.h; sourceTree = SOURCE_ROOT; };
-		7E2A171E0F95552500D3F99D /* Iop_BiosBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_BiosBase.h; path = ../../../../Source/iop/Iop_BiosBase.h; sourceTree = SOURCE_ROOT; };
-		7E2A171F0F95552500D3F99D /* Iop_Dmac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Dmac.cpp; path = ../../../../Source/iop/Iop_Dmac.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17200F95552500D3F99D /* Iop_Dmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Dmac.h; path = ../../../../Source/iop/Iop_Dmac.h; sourceTree = SOURCE_ROOT; };
-		7E2A17210F95552500D3F99D /* Iop_DmacChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_DmacChannel.cpp; path = ../../../../Source/iop/Iop_DmacChannel.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17220F95552500D3F99D /* Iop_DmacChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_DmacChannel.h; path = ../../../../Source/iop/Iop_DmacChannel.h; sourceTree = SOURCE_ROOT; };
-		7E2A17230F95552500D3F99D /* Iop_Dynamic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Dynamic.cpp; path = ../../../../Source/iop/Iop_Dynamic.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17240F95552500D3F99D /* Iop_Dynamic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Dynamic.h; path = ../../../../Source/iop/Iop_Dynamic.h; sourceTree = SOURCE_ROOT; };
-		7E2A17250F95552500D3F99D /* Iop_Intc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Intc.cpp; path = ../../../../Source/iop/Iop_Intc.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17260F95552500D3F99D /* Iop_Intc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Intc.h; path = ../../../../Source/iop/Iop_Intc.h; sourceTree = SOURCE_ROOT; };
-		7E2A17270F95552500D3F99D /* Iop_Intrman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Intrman.cpp; path = ../../../../Source/iop/Iop_Intrman.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17280F95552500D3F99D /* Iop_Intrman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Intrman.h; path = ../../../../Source/iop/Iop_Intrman.h; sourceTree = SOURCE_ROOT; };
-		7E2A17290F95552500D3F99D /* Iop_Ioman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Ioman.cpp; path = ../../../../Source/iop/Iop_Ioman.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A172A0F95552500D3F99D /* Iop_Ioman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Ioman.h; path = ../../../../Source/iop/Iop_Ioman.h; sourceTree = SOURCE_ROOT; };
-		7E2A172B0F95552500D3F99D /* Iop_Loadcore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Loadcore.cpp; path = ../../../../Source/iop/Iop_Loadcore.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A172C0F95552500D3F99D /* Iop_Loadcore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Loadcore.h; path = ../../../../Source/iop/Iop_Loadcore.h; sourceTree = SOURCE_ROOT; };
-		7E2A172D0F95552500D3F99D /* Iop_Modload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Modload.cpp; path = ../../../../Source/iop/Iop_Modload.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A172E0F95552500D3F99D /* Iop_Modload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Modload.h; path = ../../../../Source/iop/Iop_Modload.h; sourceTree = SOURCE_ROOT; };
-		7E2A172F0F95552500D3F99D /* Iop_Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Module.h; path = ../../../../Source/iop/Iop_Module.h; sourceTree = SOURCE_ROOT; };
-		7E2A17300F95552500D3F99D /* Iop_RootCounters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_RootCounters.cpp; path = ../../../../Source/iop/Iop_RootCounters.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17310F95552500D3F99D /* Iop_RootCounters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_RootCounters.h; path = ../../../../Source/iop/Iop_RootCounters.h; sourceTree = SOURCE_ROOT; };
-		7E2A17320F95552500D3F99D /* Iop_SifDynamic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SifDynamic.cpp; path = ../../../../Source/iop/Iop_SifDynamic.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17330F95552500D3F99D /* Iop_SifDynamic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SifDynamic.h; path = ../../../../Source/iop/Iop_SifDynamic.h; sourceTree = SOURCE_ROOT; };
-		7E2A17340F95552500D3F99D /* Iop_SifMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SifMan.cpp; path = ../../../../Source/iop/Iop_SifMan.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17350F95552500D3F99D /* Iop_Sifman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sifman.h; path = ../../../../Source/iop/Iop_Sifman.h; sourceTree = SOURCE_ROOT; };
-		7E2A17360F95552500D3F99D /* Iop_SifManNull.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SifManNull.cpp; path = ../../../../Source/iop/Iop_SifManNull.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17370F95552500D3F99D /* Iop_SifManNull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SifManNull.h; path = ../../../../Source/iop/Iop_SifManNull.h; sourceTree = SOURCE_ROOT; };
-		7E2A17440F95554C00D3F99D /* Iop_Spu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Spu.cpp; path = ../../../../Source/iop/Iop_Spu.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17450F95554C00D3F99D /* Iop_Spu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Spu.h; path = ../../../../Source/iop/Iop_Spu.h; sourceTree = SOURCE_ROOT; };
-		7E2A17460F95554C00D3F99D /* Iop_Spu2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Spu2.cpp; path = ../../../../Source/iop/Iop_Spu2.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17470F95554C00D3F99D /* Iop_Spu2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Spu2.h; path = ../../../../Source/iop/Iop_Spu2.h; sourceTree = SOURCE_ROOT; };
-		7E2A17480F95554C00D3F99D /* Iop_Spu2_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Spu2_Core.cpp; path = ../../../../Source/iop/Iop_Spu2_Core.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17490F95554C00D3F99D /* Iop_Spu2_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Spu2_Core.h; path = ../../../../Source/iop/Iop_Spu2_Core.h; sourceTree = SOURCE_ROOT; };
-		7E2A174A0F95554C00D3F99D /* Iop_SpuBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SpuBase.cpp; path = ../../../../Source/iop/Iop_SpuBase.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A174B0F95554C00D3F99D /* Iop_SpuBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SpuBase.h; path = ../../../../Source/iop/Iop_SpuBase.h; sourceTree = SOURCE_ROOT; };
-		7E2A174C0F95554C00D3F99D /* Iop_Stdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Stdio.cpp; path = ../../../../Source/iop/Iop_Stdio.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A174D0F95554C00D3F99D /* Iop_Stdio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Stdio.h; path = ../../../../Source/iop/Iop_Stdio.h; sourceTree = SOURCE_ROOT; };
-		7E2A174E0F95554C00D3F99D /* Iop_SubSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SubSystem.cpp; path = ../../../../Source/iop/Iop_SubSystem.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A174F0F95554C00D3F99D /* Iop_SubSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SubSystem.h; path = ../../../../Source/iop/Iop_SubSystem.h; sourceTree = SOURCE_ROOT; };
-		7E2A17500F95554C00D3F99D /* Iop_Sysclib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Sysclib.cpp; path = ../../../../Source/iop/Iop_Sysclib.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17510F95554C00D3F99D /* Iop_Sysclib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sysclib.h; path = ../../../../Source/iop/Iop_Sysclib.h; sourceTree = SOURCE_ROOT; };
-		7E2A17520F95554C00D3F99D /* Iop_Sysmem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Sysmem.cpp; path = ../../../../Source/iop/Iop_Sysmem.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17530F95554C00D3F99D /* Iop_Sysmem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sysmem.h; path = ../../../../Source/iop/Iop_Sysmem.h; sourceTree = SOURCE_ROOT; };
-		7E2A17540F95554C00D3F99D /* Iop_Thbase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thbase.cpp; path = ../../../../Source/iop/Iop_Thbase.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17550F95554C00D3F99D /* Iop_Thbase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thbase.h; path = ../../../../Source/iop/Iop_Thbase.h; sourceTree = SOURCE_ROOT; };
-		7E2A17560F95554C00D3F99D /* Iop_Thevent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thevent.cpp; path = ../../../../Source/iop/Iop_Thevent.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17570F95554C00D3F99D /* Iop_Thevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thevent.h; path = ../../../../Source/iop/Iop_Thevent.h; sourceTree = SOURCE_ROOT; };
-		7E2A17580F95554C00D3F99D /* Iop_Thsema.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thsema.cpp; path = ../../../../Source/iop/Iop_Thsema.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A17590F95554C00D3F99D /* Iop_Thsema.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thsema.h; path = ../../../../Source/iop/Iop_Thsema.h; sourceTree = SOURCE_ROOT; };
-		7E2A175A0F95554C00D3F99D /* Iop_Timrman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Timrman.cpp; path = ../../../../Source/iop/Iop_Timrman.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A175B0F95554C00D3F99D /* Iop_Timrman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Timrman.h; path = ../../../../Source/iop/Iop_Timrman.h; sourceTree = SOURCE_ROOT; };
-		7E2A175C0F95554C00D3F99D /* IopBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IopBios.cpp; path = ../../../../Source/iop/IopBios.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A175D0F95554C00D3F99D /* IopBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IopBios.h; path = ../../../../Source/iop/IopBios.h; sourceTree = SOURCE_ROOT; };
-		7E6281D70F05CF94003F9463 /* ApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationDelegate.h; sourceTree = "<group>"; };
-		7E6281D80F05CF94003F9463 /* ApplicationDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ApplicationDelegate.mm; sourceTree = "<group>"; };
-		7E6283300F06CDB8003F9463 /* Playlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Playlist.h; sourceTree = "<group>"; };
-		7E6283310F06CDB8003F9463 /* Playlist.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Playlist.mm; sourceTree = "<group>"; };
-		7E6283360F06D082003F9463 /* PlaylistItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistItem.h; sourceTree = "<group>"; };
-		7E6283370F06D082003F9463 /* PlaylistItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlaylistItem.mm; sourceTree = "<group>"; };
+		703ABB6A17C0DCA400FC0376 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = ../Source/macosx_ui/InfoPlist.strings; sourceTree = "<group>"; };
+		703ABB6B17C0DCA400FC0376 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../Source/macosx_ui/MainMenu.xib; sourceTree = "<group>"; };
+		70D316FF17C0C0C700CCA3A4 /* ApplicationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ApplicationDelegate.h; path = ../Source/macosx_ui/ApplicationDelegate.h; sourceTree = "<group>"; };
+		70D3170017C0C0C700CCA3A4 /* ApplicationDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ApplicationDelegate.mm; path = ../Source/macosx_ui/ApplicationDelegate.mm; sourceTree = "<group>"; };
+		70D3170217C0C0C700CCA3A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Source/macosx_ui/Info.plist; sourceTree = "<group>"; };
+		70D3170317C0C0C700CCA3A4 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = ../Source/macosx_ui/main.mm; sourceTree = "<group>"; };
+		70D3170417C0C0C700CCA3A4 /* Playlist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Playlist.h; path = ../Source/macosx_ui/Playlist.h; sourceTree = "<group>"; };
+		70D3170517C0C0C700CCA3A4 /* Playlist.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Playlist.mm; path = ../Source/macosx_ui/Playlist.mm; sourceTree = "<group>"; };
+		70D3170617C0C0C700CCA3A4 /* PlaylistItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PlaylistItem.h; path = ../Source/macosx_ui/PlaylistItem.h; sourceTree = "<group>"; };
+		70D3170717C0C0C700CCA3A4 /* PlaylistItem.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = PlaylistItem.mm; path = ../Source/macosx_ui/PlaylistItem.mm; sourceTree = "<group>"; };
+		70D3170817C0C0C700CCA3A4 /* PsfPlayer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PsfPlayer_Prefix.pch; path = ../Source/macosx_ui/PsfPlayer_Prefix.pch; sourceTree = "<group>"; };
+		70D3170917C0C15600CCA3A4 /* AppConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppConfig.cpp; path = ../Source/AppConfig.cpp; sourceTree = "<group>"; };
+		70D3170A17C0C15600CCA3A4 /* AppConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../Source/AppConfig.h; sourceTree = "<group>"; };
+		70D3170B17C0C15600CCA3A4 /* AppDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDef.h; path = ../Source/AppDef.h; sourceTree = "<group>"; };
+		70D3170C17C0C15600CCA3A4 /* Debuggable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Debuggable.h; path = ../Source/Debuggable.h; sourceTree = "<group>"; };
+		70D3170D17C0C15600CCA3A4 /* Iop_PsfSubSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_PsfSubSystem.cpp; path = ../Source/Iop_PsfSubSystem.cpp; sourceTree = "<group>"; };
+		70D3170E17C0C15600CCA3A4 /* Iop_PsfSubSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_PsfSubSystem.h; path = ../Source/Iop_PsfSubSystem.h; sourceTree = "<group>"; };
+		70D3170F17C0C15600CCA3A4 /* path_uncomplete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = path_uncomplete.h; path = ../Source/path_uncomplete.h; sourceTree = "<group>"; };
+		70D3171017C0C15600CCA3A4 /* Playlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Playlist.cpp; path = ../Source/Playlist.cpp; sourceTree = "<group>"; };
+		70D3171117C0C15600CCA3A4 /* Playlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Playlist.h; path = ../Source/Playlist.h; sourceTree = "<group>"; };
+		70D3171217C0C15600CCA3A4 /* PsfArchive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfArchive.cpp; path = ../Source/PsfArchive.cpp; sourceTree = "<group>"; };
+		70D3171317C0C15600CCA3A4 /* PsfArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfArchive.h; path = ../Source/PsfArchive.h; sourceTree = "<group>"; };
+		70D3171417C0C15600CCA3A4 /* PsfBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfBase.cpp; path = ../Source/PsfBase.cpp; sourceTree = "<group>"; };
+		70D3171517C0C15600CCA3A4 /* PsfBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfBase.h; path = ../Source/PsfBase.h; sourceTree = "<group>"; };
+		70D3171617C0C15600CCA3A4 /* PsfFs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfFs.cpp; path = ../Source/PsfFs.cpp; sourceTree = "<group>"; };
+		70D3171717C0C15600CCA3A4 /* PsfFs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfFs.h; path = ../Source/PsfFs.h; sourceTree = "<group>"; };
+		70D3171817C0C15600CCA3A4 /* PsfLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfLoader.cpp; path = ../Source/PsfLoader.cpp; sourceTree = "<group>"; };
+		70D3171917C0C15600CCA3A4 /* PsfLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfLoader.h; path = ../Source/PsfLoader.h; sourceTree = "<group>"; };
+		70D3171A17C0C15600CCA3A4 /* PsfStreamProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfStreamProvider.cpp; path = ../Source/PsfStreamProvider.cpp; sourceTree = "<group>"; };
+		70D3171B17C0C15600CCA3A4 /* PsfStreamProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfStreamProvider.h; path = ../Source/PsfStreamProvider.h; sourceTree = "<group>"; };
+		70D3171C17C0C15600CCA3A4 /* PsfTags.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfTags.cpp; path = ../Source/PsfTags.cpp; sourceTree = "<group>"; };
+		70D3171D17C0C15600CCA3A4 /* PsfTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfTags.h; path = ../Source/PsfTags.h; sourceTree = "<group>"; };
+		70D3171E17C0C15600CCA3A4 /* PsfVm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfVm.cpp; path = ../Source/PsfVm.cpp; sourceTree = "<group>"; };
+		70D3171F17C0C15600CCA3A4 /* PsfVm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfVm.h; path = ../Source/PsfVm.h; sourceTree = "<group>"; };
+		70D3172017C0C15600CCA3A4 /* PsfVmSubSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfVmSubSystem.h; path = ../Source/PsfVmSubSystem.h; sourceTree = "<group>"; };
+		70D3172117C0C15600CCA3A4 /* PsfZipArchive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfZipArchive.cpp; path = ../Source/PsfZipArchive.cpp; sourceTree = "<group>"; };
+		70D3172217C0C15600CCA3A4 /* PsfZipArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfZipArchive.h; path = ../Source/PsfZipArchive.h; sourceTree = "<group>"; };
+		70D3172317C0C15600CCA3A4 /* SH_OpenAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SH_OpenAL.cpp; path = ../Source/SH_OpenAL.cpp; sourceTree = "<group>"; };
+		70D3172417C0C15600CCA3A4 /* SH_OpenAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SH_OpenAL.h; path = ../Source/SH_OpenAL.h; sourceTree = "<group>"; };
+		70D3172517C0C15600CCA3A4 /* SoundHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoundHandler.h; path = ../Source/SoundHandler.h; sourceTree = "<group>"; };
+		70D3173717C0C2F700CCA3A4 /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
+		70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = boost.xcodeproj; path = ../../../../boost/build_macosx/boost.xcodeproj; sourceTree = "<group>"; };
+		70D3174617C0C36B00CCA3A4 /* MipsJitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsJitter.cpp; path = ../../../Source/MipsJitter.cpp; sourceTree = "<group>"; };
+		70D3174717C0C36B00CCA3A4 /* MipsJitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsJitter.h; path = ../../../Source/MipsJitter.h; sourceTree = "<group>"; };
+		70D3174917C0C38E00CCA3A4 /* StructFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StructFile.cpp; path = ../../../Source/StructFile.cpp; sourceTree = "<group>"; };
+		70D3174A17C0C38E00CCA3A4 /* StructFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StructFile.h; path = ../../../Source/StructFile.h; sourceTree = "<group>"; };
+		70D3174C17C0CE1000CCA3A4 /* RegisterStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterStateFile.cpp; path = ../../../Source/RegisterStateFile.cpp; sourceTree = "<group>"; };
+		70D3174D17C0CE1000CCA3A4 /* RegisterStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegisterStateFile.h; path = ../../../Source/RegisterStateFile.h; sourceTree = "<group>"; };
+		70D3174E17C0CE1000CCA3A4 /* StructCollectionStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StructCollectionStateFile.cpp; path = ../../../Source/StructCollectionStateFile.cpp; sourceTree = "<group>"; };
+		70D3174F17C0CE1000CCA3A4 /* StructCollectionStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StructCollectionStateFile.h; path = ../../../Source/StructCollectionStateFile.h; sourceTree = "<group>"; };
+		70D3175217C0CE3800CCA3A4 /* ArgumentIterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArgumentIterator.cpp; path = ../../../Source/iop/ArgumentIterator.cpp; sourceTree = "<group>"; };
+		70D3175317C0CE3800CCA3A4 /* ArgumentIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArgumentIterator.h; path = ../../../Source/iop/ArgumentIterator.h; sourceTree = "<group>"; };
+		70D3175417C0CE3800CCA3A4 /* Iop_Thmsgbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thmsgbx.cpp; path = ../../../Source/iop/Iop_Thmsgbx.cpp; sourceTree = "<group>"; };
+		70D3175517C0CE3800CCA3A4 /* Iop_Thmsgbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thmsgbx.h; path = ../../../Source/iop/Iop_Thmsgbx.h; sourceTree = "<group>"; };
+		70D3175817C0CE6B00CCA3A4 /* Iop_SifCmd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SifCmd.cpp; path = ../../../Source/iop/Iop_SifCmd.cpp; sourceTree = "<group>"; };
+		70D3175917C0CE6B00CCA3A4 /* Iop_SifCmd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Iop_SifCmd.h; path = ../../../Source/iop/Iop_SifCmd.h; sourceTree = "<group>"; };
+		70D3175A17C0CE6B00CCA3A4 /* Iop_Vblank.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Vblank.cpp; path = ../../../Source/iop/Iop_Vblank.cpp; sourceTree = "<group>"; };
+		70D3175B17C0CE6B00CCA3A4 /* Iop_Vblank.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Iop_Vblank.h; path = ../../../Source/iop/Iop_Vblank.h; sourceTree = "<group>"; };
+		70D3176117C0CEF100CCA3A4 /* Ps2_PsfDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Ps2_PsfDevice.cpp; path = ../Source/ps2/Ps2_PsfDevice.cpp; sourceTree = "<group>"; };
+		70D3176217C0CEF100CCA3A4 /* Ps2_PsfDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ps2_PsfDevice.h; path = ../Source/ps2/Ps2_PsfDevice.h; sourceTree = "<group>"; };
+		70D3176317C0CEF100CCA3A4 /* PsfBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfBios.cpp; path = ../Source/ps2/PsfBios.cpp; sourceTree = "<group>"; };
+		70D3176417C0CEF100CCA3A4 /* PsfBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfBios.h; path = ../Source/ps2/PsfBios.h; sourceTree = "<group>"; };
+		70D3176717C0CF1900CCA3A4 /* MA_ALLEGREX_Reflection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MA_ALLEGREX_Reflection.cpp; path = ../Source/psp/MA_ALLEGREX_Reflection.cpp; sourceTree = "<group>"; };
+		70D3176817C0CF1900CCA3A4 /* MA_ALLEGREX.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MA_ALLEGREX.cpp; path = ../Source/psp/MA_ALLEGREX.cpp; sourceTree = "<group>"; };
+		70D3176917C0CF1900CCA3A4 /* MA_ALLEGREX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MA_ALLEGREX.h; path = ../Source/psp/MA_ALLEGREX.h; sourceTree = "<group>"; };
+		70D3176A17C0CF1900CCA3A4 /* Psp_Audio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_Audio.cpp; path = ../Source/psp/Psp_Audio.cpp; sourceTree = "<group>"; };
+		70D3176B17C0CF1900CCA3A4 /* Psp_Audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_Audio.h; path = ../Source/psp/Psp_Audio.h; sourceTree = "<group>"; };
+		70D3176C17C0CF1900CCA3A4 /* Psp_IoDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_IoDevice.h; path = ../Source/psp/Psp_IoDevice.h; sourceTree = "<group>"; };
+		70D3176D17C0CF1900CCA3A4 /* Psp_IoFileMgrForUser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_IoFileMgrForUser.cpp; path = ../Source/psp/Psp_IoFileMgrForUser.cpp; sourceTree = "<group>"; };
+		70D3176E17C0CF1900CCA3A4 /* Psp_IoFileMgrForUser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_IoFileMgrForUser.h; path = ../Source/psp/Psp_IoFileMgrForUser.h; sourceTree = "<group>"; };
+		70D3176F17C0CF1900CCA3A4 /* Psp_KernelLibrary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_KernelLibrary.cpp; path = ../Source/psp/Psp_KernelLibrary.cpp; sourceTree = "<group>"; };
+		70D3177017C0CF1900CCA3A4 /* Psp_KernelLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_KernelLibrary.h; path = ../Source/psp/Psp_KernelLibrary.h; sourceTree = "<group>"; };
+		70D3177117C0CF1900CCA3A4 /* Psp_PsfBios.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_PsfBios.cpp; path = ../Source/psp/Psp_PsfBios.cpp; sourceTree = "<group>"; };
+		70D3177217C0CF1900CCA3A4 /* Psp_PsfBios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_PsfBios.h; path = ../Source/psp/Psp_PsfBios.h; sourceTree = "<group>"; };
+		70D3177317C0CF1900CCA3A4 /* Psp_PsfDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_PsfDevice.cpp; path = ../Source/psp/Psp_PsfDevice.cpp; sourceTree = "<group>"; };
+		70D3177417C0CF1900CCA3A4 /* Psp_PsfDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_PsfDevice.h; path = ../Source/psp/Psp_PsfDevice.h; sourceTree = "<group>"; };
+		70D3177517C0CF1900CCA3A4 /* Psp_PsfSubSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_PsfSubSystem.cpp; path = ../Source/psp/Psp_PsfSubSystem.cpp; sourceTree = "<group>"; };
+		70D3177617C0CF1900CCA3A4 /* Psp_PsfSubSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_PsfSubSystem.h; path = ../Source/psp/Psp_PsfSubSystem.h; sourceTree = "<group>"; };
+		70D3177717C0CF1900CCA3A4 /* Psp_SasCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_SasCore.cpp; path = ../Source/psp/Psp_SasCore.cpp; sourceTree = "<group>"; };
+		70D3177817C0CF1900CCA3A4 /* Psp_SasCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_SasCore.h; path = ../Source/psp/Psp_SasCore.h; sourceTree = "<group>"; };
+		70D3177917C0CF1900CCA3A4 /* Psp_StdioForUser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_StdioForUser.cpp; path = ../Source/psp/Psp_StdioForUser.cpp; sourceTree = "<group>"; };
+		70D3177A17C0CF1900CCA3A4 /* Psp_StdioForUser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_StdioForUser.h; path = ../Source/psp/Psp_StdioForUser.h; sourceTree = "<group>"; };
+		70D3177B17C0CF1900CCA3A4 /* Psp_SysMemUserForUser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_SysMemUserForUser.cpp; path = ../Source/psp/Psp_SysMemUserForUser.cpp; sourceTree = "<group>"; };
+		70D3177C17C0CF1900CCA3A4 /* Psp_SysMemUserForUser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_SysMemUserForUser.h; path = ../Source/psp/Psp_SysMemUserForUser.h; sourceTree = "<group>"; };
+		70D3177D17C0CF1900CCA3A4 /* Psp_ThreadManForUser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Psp_ThreadManForUser.cpp; path = ../Source/psp/Psp_ThreadManForUser.cpp; sourceTree = "<group>"; };
+		70D3177E17C0CF1900CCA3A4 /* Psp_ThreadManForUser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Psp_ThreadManForUser.h; path = ../Source/psp/Psp_ThreadManForUser.h; sourceTree = "<group>"; };
+		70D3177F17C0CF1900CCA3A4 /* PspBios.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PspBios.cpp; path = ../Source/psp/PspBios.cpp; sourceTree = "<group>"; };
+		70D3178017C0CF1900CCA3A4 /* PspBios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PspBios.h; path = ../Source/psp/PspBios.h; sourceTree = "<group>"; };
+		70D3178117C0CF1900CCA3A4 /* PspModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PspModule.h; path = ../Source/psp/PspModule.h; sourceTree = "<group>"; };
+		70D3178F17C0CF3900CCA3A4 /* PsxBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsxBios.cpp; path = ../Source/psx/PsxBios.cpp; sourceTree = "<group>"; };
+		70D3179017C0CF3900CCA3A4 /* PsxBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsxBios.h; path = ../Source/psx/PsxBios.h; sourceTree = "<group>"; };
+		70D3179D17C0D83D00CCA3A4 /* COP_FPU_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_FPU_Reflection.cpp; path = ../../../Source/COP_FPU_Reflection.cpp; sourceTree = "<group>"; };
+		70D3179E17C0D83E00CCA3A4 /* COP_FPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_FPU.cpp; path = ../../../Source/COP_FPU.cpp; sourceTree = "<group>"; };
+		70D3179F17C0D83E00CCA3A4 /* COP_FPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_FPU.h; path = ../../../Source/COP_FPU.h; sourceTree = "<group>"; };
+		70D317A017C0D83E00CCA3A4 /* COP_SCU_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_SCU_Reflection.cpp; path = ../../../Source/COP_SCU_Reflection.cpp; sourceTree = "<group>"; };
+		70D317A117C0D83E00CCA3A4 /* COP_SCU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_SCU.cpp; path = ../../../Source/COP_SCU.cpp; sourceTree = "<group>"; };
+		70D317A217C0D83E00CCA3A4 /* COP_SCU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_SCU.h; path = ../../../Source/COP_SCU.h; sourceTree = "<group>"; };
+		70D317B417C0D8F800CCA3A4 /* Iop_Cdvdman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Cdvdman.cpp; path = ../../../Source/iop/Iop_Cdvdman.cpp; sourceTree = "<group>"; };
+		70D317B517C0D8F800CCA3A4 /* Iop_Cdvdman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Cdvdman.h; path = ../../../Source/iop/Iop_Cdvdman.h; sourceTree = "<group>"; };
+		70D317B817C0D96000CCA3A4 /* DirectoryRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DirectoryRecord.cpp; path = ../../../Source/ISO9660/DirectoryRecord.cpp; sourceTree = "<group>"; };
+		70D317B917C0D96000CCA3A4 /* DirectoryRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DirectoryRecord.h; path = ../../../Source/ISO9660/DirectoryRecord.h; sourceTree = "<group>"; };
+		70D317BA17C0D96000CCA3A4 /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = File.cpp; path = ../../../Source/ISO9660/File.cpp; sourceTree = "<group>"; };
+		70D317BB17C0D96000CCA3A4 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = File.h; path = ../../../Source/ISO9660/File.h; sourceTree = "<group>"; };
+		70D317BC17C0D96000CCA3A4 /* ISO9660.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ISO9660.cpp; path = ../../../Source/ISO9660/ISO9660.cpp; sourceTree = "<group>"; };
+		70D317BD17C0D96000CCA3A4 /* ISO9660.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISO9660.h; path = ../../../Source/ISO9660/ISO9660.h; sourceTree = "<group>"; };
+		70D317BE17C0D96000CCA3A4 /* PathTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathTable.cpp; path = ../../../Source/ISO9660/PathTable.cpp; sourceTree = "<group>"; };
+		70D317BF17C0D96000CCA3A4 /* PathTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathTable.h; path = ../../../Source/ISO9660/PathTable.h; sourceTree = "<group>"; };
+		70D317C017C0D96000CCA3A4 /* PathTableRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathTableRecord.cpp; path = ../../../Source/ISO9660/PathTableRecord.cpp; sourceTree = "<group>"; };
+		70D317C117C0D96000CCA3A4 /* PathTableRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathTableRecord.h; path = ../../../Source/ISO9660/PathTableRecord.h; sourceTree = "<group>"; };
+		70D317C217C0D96000CCA3A4 /* VolumeDescriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeDescriptor.cpp; path = ../../../Source/ISO9660/VolumeDescriptor.cpp; sourceTree = "<group>"; };
+		70D317C317C0D96000CCA3A4 /* VolumeDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VolumeDescriptor.h; path = ../../../Source/ISO9660/VolumeDescriptor.h; sourceTree = "<group>"; };
+		7E2A16C80F95548A00D3F99D /* BasicBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicBlock.cpp; path = ../../../Source/BasicBlock.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16C90F95548A00D3F99D /* BasicBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicBlock.h; path = ../../../Source/BasicBlock.h; sourceTree = SOURCE_ROOT; };
+		7E2A16CF0F95548A00D3F99D /* ELF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ELF.cpp; path = ../../../Source/ELF.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16D00F95548A00D3F99D /* ELF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ELF.h; path = ../../../Source/ELF.h; sourceTree = SOURCE_ROOT; };
+		7E2A16D10F95548A00D3F99D /* ElfFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ElfFile.cpp; path = ../../../Source/ElfFile.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16D20F95548A00D3F99D /* ElfFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ElfFile.h; path = ../../../Source/ElfFile.h; sourceTree = SOURCE_ROOT; };
+		7E2A16D90F9554D300D3F99D /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Log.cpp; path = ../../../Source/Log.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16DA0F9554D300D3F99D /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Log.h; path = ../../../Source/Log.h; sourceTree = SOURCE_ROOT; };
+		7E2A16DB0F9554D300D3F99D /* MA_MIPSIV.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_MIPSIV.cpp; path = ../../../Source/MA_MIPSIV.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16DC0F9554D300D3F99D /* MA_MIPSIV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MA_MIPSIV.h; path = ../../../Source/MA_MIPSIV.h; sourceTree = SOURCE_ROOT; };
+		7E2A16DD0F9554D300D3F99D /* MA_MIPSIV_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_MIPSIV_Reflection.cpp; path = ../../../Source/MA_MIPSIV_Reflection.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16DE0F9554D300D3F99D /* MA_MIPSIV_Templates.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MA_MIPSIV_Templates.cpp; path = ../../../Source/MA_MIPSIV_Templates.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16DF0F9554D300D3F99D /* MailBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MailBox.cpp; path = ../../../Source/MailBox.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16E00F9554D300D3F99D /* MailBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MailBox.h; path = ../../../Source/MailBox.h; sourceTree = SOURCE_ROOT; };
+		7E2A16E10F9554D300D3F99D /* MemoryMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryMap.cpp; path = ../../../Source/MemoryMap.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16E20F9554D300D3F99D /* MemoryMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryMap.h; path = ../../../Source/MemoryMap.h; sourceTree = SOURCE_ROOT; };
+		7E2A16E30F9554D300D3F99D /* MemoryStateFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryStateFile.cpp; path = ../../../Source/MemoryStateFile.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16E40F9554D300D3F99D /* MemoryStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryStateFile.h; path = ../../../Source/MemoryStateFile.h; sourceTree = SOURCE_ROOT; };
+		7E2A16E50F9554D300D3F99D /* MemoryUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemoryUtils.cpp; path = ../../../Source/MemoryUtils.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16E60F9554D300D3F99D /* MemoryUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryUtils.h; path = ../../../Source/MemoryUtils.h; sourceTree = SOURCE_ROOT; };
+		7E2A16E70F9554D300D3F99D /* MIPS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPS.cpp; path = ../../../Source/MIPS.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16E80F9554D300D3F99D /* MIPS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPS.h; path = ../../../Source/MIPS.h; sourceTree = SOURCE_ROOT; };
+		7E2A16E90F9554D300D3F99D /* MIPSAnalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSAnalysis.cpp; path = ../../../Source/MIPSAnalysis.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16EA0F9554D300D3F99D /* MIPSAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSAnalysis.h; path = ../../../Source/MIPSAnalysis.h; sourceTree = SOURCE_ROOT; };
+		7E2A16EB0F9554D300D3F99D /* MIPSArchitecture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSArchitecture.cpp; path = ../../../Source/MIPSArchitecture.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16EC0F9554D300D3F99D /* MIPSArchitecture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSArchitecture.h; path = ../../../Source/MIPSArchitecture.h; sourceTree = SOURCE_ROOT; };
+		7E2A16ED0F9554D300D3F99D /* MIPSAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSAssembler.cpp; path = ../../../Source/MIPSAssembler.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16EE0F9554D300D3F99D /* MIPSAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSAssembler.h; path = ../../../Source/MIPSAssembler.h; sourceTree = SOURCE_ROOT; };
+		7E2A16EF0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsAssemblerDefinitions.cpp; path = ../../../Source/MipsAssemblerDefinitions.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16F00F9554D300D3F99D /* MipsAssemblerDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsAssemblerDefinitions.h; path = ../../../Source/MipsAssemblerDefinitions.h; sourceTree = SOURCE_ROOT; };
+		7E2A16F30F9554D300D3F99D /* MIPSCoprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSCoprocessor.cpp; path = ../../../Source/MIPSCoprocessor.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16F40F9554D300D3F99D /* MIPSCoprocessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSCoprocessor.h; path = ../../../Source/MIPSCoprocessor.h; sourceTree = SOURCE_ROOT; };
+		7E2A16F50F9554D300D3F99D /* MipsExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsExecutor.cpp; path = ../../../Source/MipsExecutor.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16F60F9554D300D3F99D /* MipsExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsExecutor.h; path = ../../../Source/MipsExecutor.h; sourceTree = SOURCE_ROOT; };
+		7E2A16F70F9554D300D3F99D /* MIPSInstructionFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSInstructionFactory.cpp; path = ../../../Source/MIPSInstructionFactory.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16F80F9554D300D3F99D /* MIPSInstructionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSInstructionFactory.h; path = ../../../Source/MIPSInstructionFactory.h; sourceTree = SOURCE_ROOT; };
+		7E2A16FA0F9554D300D3F99D /* MIPSReflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSReflection.cpp; path = ../../../Source/MIPSReflection.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16FB0F9554D300D3F99D /* MIPSReflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSReflection.h; path = ../../../Source/MIPSReflection.h; sourceTree = SOURCE_ROOT; };
+		7E2A16FC0F9554D300D3F99D /* MIPSTags.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSTags.cpp; path = ../../../Source/MIPSTags.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A16FD0F9554D300D3F99D /* MIPSTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSTags.h; path = ../../../Source/MIPSTags.h; sourceTree = SOURCE_ROOT; };
+		7E2A16FF0F9554D300D3F99D /* OsStructManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OsStructManager.h; path = ../../../Source/OsStructManager.h; sourceTree = SOURCE_ROOT; };
+		7E2A17000F9554D300D3F99D /* Ps2Const.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ps2Const.h; path = ../../../Source/Ps2Const.h; sourceTree = SOURCE_ROOT; };
+		7E2A171D0F95552500D3F99D /* Ioman_Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ioman_Device.h; path = ../../../Source/iop/Ioman_Device.h; sourceTree = SOURCE_ROOT; };
+		7E2A171E0F95552500D3F99D /* Iop_BiosBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_BiosBase.h; path = ../../../Source/iop/Iop_BiosBase.h; sourceTree = SOURCE_ROOT; };
+		7E2A171F0F95552500D3F99D /* Iop_Dmac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Dmac.cpp; path = ../../../Source/iop/Iop_Dmac.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17200F95552500D3F99D /* Iop_Dmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Dmac.h; path = ../../../Source/iop/Iop_Dmac.h; sourceTree = SOURCE_ROOT; };
+		7E2A17210F95552500D3F99D /* Iop_DmacChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_DmacChannel.cpp; path = ../../../Source/iop/Iop_DmacChannel.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17220F95552500D3F99D /* Iop_DmacChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_DmacChannel.h; path = ../../../Source/iop/Iop_DmacChannel.h; sourceTree = SOURCE_ROOT; };
+		7E2A17230F95552500D3F99D /* Iop_Dynamic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Dynamic.cpp; path = ../../../Source/iop/Iop_Dynamic.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17240F95552500D3F99D /* Iop_Dynamic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Dynamic.h; path = ../../../Source/iop/Iop_Dynamic.h; sourceTree = SOURCE_ROOT; };
+		7E2A17250F95552500D3F99D /* Iop_Intc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Intc.cpp; path = ../../../Source/iop/Iop_Intc.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17260F95552500D3F99D /* Iop_Intc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Intc.h; path = ../../../Source/iop/Iop_Intc.h; sourceTree = SOURCE_ROOT; };
+		7E2A17270F95552500D3F99D /* Iop_Intrman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Intrman.cpp; path = ../../../Source/iop/Iop_Intrman.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17280F95552500D3F99D /* Iop_Intrman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Intrman.h; path = ../../../Source/iop/Iop_Intrman.h; sourceTree = SOURCE_ROOT; };
+		7E2A17290F95552500D3F99D /* Iop_Ioman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Ioman.cpp; path = ../../../Source/iop/Iop_Ioman.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A172A0F95552500D3F99D /* Iop_Ioman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Ioman.h; path = ../../../Source/iop/Iop_Ioman.h; sourceTree = SOURCE_ROOT; };
+		7E2A172B0F95552500D3F99D /* Iop_Loadcore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Loadcore.cpp; path = ../../../Source/iop/Iop_Loadcore.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A172C0F95552500D3F99D /* Iop_Loadcore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Loadcore.h; path = ../../../Source/iop/Iop_Loadcore.h; sourceTree = SOURCE_ROOT; };
+		7E2A172D0F95552500D3F99D /* Iop_Modload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Modload.cpp; path = ../../../Source/iop/Iop_Modload.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A172E0F95552500D3F99D /* Iop_Modload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Modload.h; path = ../../../Source/iop/Iop_Modload.h; sourceTree = SOURCE_ROOT; };
+		7E2A172F0F95552500D3F99D /* Iop_Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Module.h; path = ../../../Source/iop/Iop_Module.h; sourceTree = SOURCE_ROOT; };
+		7E2A17300F95552500D3F99D /* Iop_RootCounters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_RootCounters.cpp; path = ../../../Source/iop/Iop_RootCounters.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17310F95552500D3F99D /* Iop_RootCounters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_RootCounters.h; path = ../../../Source/iop/Iop_RootCounters.h; sourceTree = SOURCE_ROOT; };
+		7E2A17320F95552500D3F99D /* Iop_SifDynamic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SifDynamic.cpp; path = ../../../Source/iop/Iop_SifDynamic.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17330F95552500D3F99D /* Iop_SifDynamic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SifDynamic.h; path = ../../../Source/iop/Iop_SifDynamic.h; sourceTree = SOURCE_ROOT; };
+		7E2A17340F95552500D3F99D /* Iop_SifMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SifMan.cpp; path = ../../../Source/iop/Iop_SifMan.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17350F95552500D3F99D /* Iop_Sifman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sifman.h; path = ../../../Source/iop/Iop_Sifman.h; sourceTree = SOURCE_ROOT; };
+		7E2A17360F95552500D3F99D /* Iop_SifManNull.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SifManNull.cpp; path = ../../../Source/iop/Iop_SifManNull.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17370F95552500D3F99D /* Iop_SifManNull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SifManNull.h; path = ../../../Source/iop/Iop_SifManNull.h; sourceTree = SOURCE_ROOT; };
+		7E2A17440F95554C00D3F99D /* Iop_Spu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Spu.cpp; path = ../../../Source/iop/Iop_Spu.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17450F95554C00D3F99D /* Iop_Spu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Spu.h; path = ../../../Source/iop/Iop_Spu.h; sourceTree = SOURCE_ROOT; };
+		7E2A17460F95554C00D3F99D /* Iop_Spu2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Spu2.cpp; path = ../../../Source/iop/Iop_Spu2.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17470F95554C00D3F99D /* Iop_Spu2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Spu2.h; path = ../../../Source/iop/Iop_Spu2.h; sourceTree = SOURCE_ROOT; };
+		7E2A17480F95554C00D3F99D /* Iop_Spu2_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Spu2_Core.cpp; path = ../../../Source/iop/Iop_Spu2_Core.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17490F95554C00D3F99D /* Iop_Spu2_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Spu2_Core.h; path = ../../../Source/iop/Iop_Spu2_Core.h; sourceTree = SOURCE_ROOT; };
+		7E2A174A0F95554C00D3F99D /* Iop_SpuBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SpuBase.cpp; path = ../../../Source/iop/Iop_SpuBase.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A174B0F95554C00D3F99D /* Iop_SpuBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SpuBase.h; path = ../../../Source/iop/Iop_SpuBase.h; sourceTree = SOURCE_ROOT; };
+		7E2A174C0F95554C00D3F99D /* Iop_Stdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Stdio.cpp; path = ../../../Source/iop/Iop_Stdio.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A174D0F95554C00D3F99D /* Iop_Stdio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Stdio.h; path = ../../../Source/iop/Iop_Stdio.h; sourceTree = SOURCE_ROOT; };
+		7E2A174E0F95554C00D3F99D /* Iop_SubSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_SubSystem.cpp; path = ../../../Source/iop/Iop_SubSystem.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A174F0F95554C00D3F99D /* Iop_SubSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_SubSystem.h; path = ../../../Source/iop/Iop_SubSystem.h; sourceTree = SOURCE_ROOT; };
+		7E2A17500F95554C00D3F99D /* Iop_Sysclib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Sysclib.cpp; path = ../../../Source/iop/Iop_Sysclib.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17510F95554C00D3F99D /* Iop_Sysclib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sysclib.h; path = ../../../Source/iop/Iop_Sysclib.h; sourceTree = SOURCE_ROOT; };
+		7E2A17520F95554C00D3F99D /* Iop_Sysmem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Sysmem.cpp; path = ../../../Source/iop/Iop_Sysmem.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17530F95554C00D3F99D /* Iop_Sysmem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sysmem.h; path = ../../../Source/iop/Iop_Sysmem.h; sourceTree = SOURCE_ROOT; };
+		7E2A17540F95554C00D3F99D /* Iop_Thbase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thbase.cpp; path = ../../../Source/iop/Iop_Thbase.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17550F95554C00D3F99D /* Iop_Thbase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thbase.h; path = ../../../Source/iop/Iop_Thbase.h; sourceTree = SOURCE_ROOT; };
+		7E2A17560F95554C00D3F99D /* Iop_Thevent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thevent.cpp; path = ../../../Source/iop/Iop_Thevent.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17570F95554C00D3F99D /* Iop_Thevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thevent.h; path = ../../../Source/iop/Iop_Thevent.h; sourceTree = SOURCE_ROOT; };
+		7E2A17580F95554C00D3F99D /* Iop_Thsema.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thsema.cpp; path = ../../../Source/iop/Iop_Thsema.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A17590F95554C00D3F99D /* Iop_Thsema.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thsema.h; path = ../../../Source/iop/Iop_Thsema.h; sourceTree = SOURCE_ROOT; };
+		7E2A175A0F95554C00D3F99D /* Iop_Timrman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Timrman.cpp; path = ../../../Source/iop/Iop_Timrman.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A175B0F95554C00D3F99D /* Iop_Timrman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Timrman.h; path = ../../../Source/iop/Iop_Timrman.h; sourceTree = SOURCE_ROOT; };
+		7E2A175C0F95554C00D3F99D /* IopBios.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IopBios.cpp; path = ../../../Source/iop/IopBios.cpp; sourceTree = SOURCE_ROOT; };
+		7E2A175D0F95554C00D3F99D /* IopBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IopBios.h; path = ../../../Source/iop/IopBios.h; sourceTree = SOURCE_ROOT; };
 		7E9000780F059BB4008B14D1 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = /System/Library/Frameworks/OpenAL.framework; sourceTree = "<absolute>"; };
-		7E90008C0F059C25008B14D1 /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../../../../Framework/Framework.xcodeproj; sourceTree = SOURCE_ROOT; };
-		7E90009E0F059CFC008B14D1 /* libboost_filesystem-xgcc40-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_filesystem-xgcc40-mt.dylib"; path = "/usr/local/lib/libboost_filesystem-xgcc40-mt.dylib"; sourceTree = "<absolute>"; };
-		7E90009F0F059CFC008B14D1 /* libboost_signals-xgcc40-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_signals-xgcc40-mt.dylib"; path = "/usr/local/lib/libboost_signals-xgcc40-mt.dylib"; sourceTree = "<absolute>"; };
-		7E9000A00F059CFC008B14D1 /* libboost_system-xgcc40-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_system-xgcc40-mt.dylib"; path = "/usr/local/lib/libboost_system-xgcc40-mt.dylib"; sourceTree = "<absolute>"; };
-		7E9000A10F059CFC008B14D1 /* libboost_thread-xgcc40-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-xgcc40-mt.dylib"; path = "/usr/local/lib/libboost_thread-xgcc40-mt.dylib"; sourceTree = "<absolute>"; };
+		7E90008C0F059C25008B14D1 /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../../../../Framework/build_macosx/Framework.xcodeproj; sourceTree = SOURCE_ROOT; };
 		7E9000A70F059D4B008B14D1 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
-		7E90010B0F059EBD008B14D1 /* libboost_regex-xgcc40-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_regex-xgcc40-mt.dylib"; path = "/usr/local/lib/libboost_regex-xgcc40-mt.dylib"; sourceTree = "<absolute>"; };
-		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* PsfPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PsfPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -251,52 +358,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7E9000960F059C67008B14D1 /* libFramework.a in Frameworks */,
+				70D3174317C0C32C00CCA3A4 /* libboost.a in Frameworks */,
+				70D3174417C0C32C00CCA3A4 /* libCodeGen.a in Frameworks */,
+				70D3174517C0C32C00CCA3A4 /* libFramework.a in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				7E9000790F059BB4008B14D1 /* OpenAL.framework in Frameworks */,
-				7E9000A20F059CFC008B14D1 /* libboost_filesystem-xgcc40-mt.dylib in Frameworks */,
-				7E9000A30F059CFC008B14D1 /* libboost_signals-xgcc40-mt.dylib in Frameworks */,
-				7E9000A40F059CFC008B14D1 /* libboost_system-xgcc40-mt.dylib in Frameworks */,
-				7E9000A50F059CFC008B14D1 /* libboost_thread-xgcc40-mt.dylib in Frameworks */,
 				7E9000A80F059D4B008B14D1 /* libz.dylib in Frameworks */,
-				7E90010C0F059EBD008B14D1 /* libboost_regex-xgcc40-mt.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		080E96DDFE201D6D7F000001 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				7E6281D70F05CF94003F9463 /* ApplicationDelegate.h */,
-				7E6281D80F05CF94003F9463 /* ApplicationDelegate.mm */,
-				7E6283300F06CDB8003F9463 /* Playlist.h */,
-				7E6283310F06CDB8003F9463 /* Playlist.mm */,
-				7E6283360F06D082003F9463 /* PlaylistItem.h */,
-				7E6283370F06D082003F9463 /* PlaylistItem.mm */,
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
-		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
-			);
-			name = "Linked Frameworks";
-			sourceTree = "<group>";
-		};
-		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				7E9000780F059BB4008B14D1 /* OpenAL.framework */,
-				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
-				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -308,68 +381,162 @@
 		29B97314FDCFA39411CA2CEA /* PsfPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				70D316FE17C0C0A800CCA3A4 /* MacOSX UI */,
 				7E9000200F059A06008B14D1 /* PsfPlayer Core */,
 				7E90001E0F0599E3008B14D1 /* Purei Core */,
-				080E96DDFE201D6D7F000001 /* Classes */,
-				29B97315FDCFA39411CA2CEA /* Other Sources */,
-				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
 			name = PsfPlayer;
 			sourceTree = "<group>";
 		};
-		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
-			isa = PBXGroup;
-			children = (
-				32CA4F630368D1EE00C91783 /* PsfPlayer_Prefix.pch */,
-				29B97316FDCFA39411CA2CEA /* main.mm */,
-			);
-			name = "Other Sources";
-			sourceTree = "<group>";
-		};
-		29B97317FDCFA39411CA2CEA /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				8D1107310486CEB800E47090 /* Info.plist */,
-				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
-				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				7E90010B0F059EBD008B14D1 /* libboost_regex-xgcc40-mt.dylib */,
-				7E9000A70F059D4B008B14D1 /* libz.dylib */,
-				7E90009E0F059CFC008B14D1 /* libboost_filesystem-xgcc40-mt.dylib */,
-				7E90009F0F059CFC008B14D1 /* libboost_signals-xgcc40-mt.dylib */,
-				7E9000A00F059CFC008B14D1 /* libboost_system-xgcc40-mt.dylib */,
-				7E9000A10F059CFC008B14D1 /* libboost_thread-xgcc40-mt.dylib */,
+				70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */,
 				7E90008C0F059C25008B14D1 /* Framework.xcodeproj */,
-				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
-				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
+				70D3173717C0C2F700CCA3A4 /* CodeGen.xcodeproj */,
+				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+				7E9000780F059BB4008B14D1 /* OpenAL.framework */,
+				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
+				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
+				7E9000A70F059D4B008B14D1 /* libz.dylib */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		70D316FE17C0C0A800CCA3A4 /* MacOSX UI */ = {
+			isa = PBXGroup;
+			children = (
+				703ABB6A17C0DCA400FC0376 /* InfoPlist.strings */,
+				703ABB6B17C0DCA400FC0376 /* MainMenu.xib */,
+				70D316FF17C0C0C700CCA3A4 /* ApplicationDelegate.h */,
+				70D3170017C0C0C700CCA3A4 /* ApplicationDelegate.mm */,
+				70D3170217C0C0C700CCA3A4 /* Info.plist */,
+				70D3170317C0C0C700CCA3A4 /* main.mm */,
+				70D3170417C0C0C700CCA3A4 /* Playlist.h */,
+				70D3170517C0C0C700CCA3A4 /* Playlist.mm */,
+				70D3170617C0C0C700CCA3A4 /* PlaylistItem.h */,
+				70D3170717C0C0C700CCA3A4 /* PlaylistItem.mm */,
+				70D3170817C0C0C700CCA3A4 /* PsfPlayer_Prefix.pch */,
+			);
+			name = "MacOSX UI";
+			sourceTree = "<group>";
+		};
+		70D3173217C0C23200CCA3A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				70D3173617C0C23200CCA3A4 /* libFramework.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		70D3173817C0C2F700CCA3A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				70D3173C17C0C2F800CCA3A4 /* libCodeGen.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		70D3173E17C0C32300CCA3A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				70D3174217C0C32300CCA3A4 /* libboost.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		70D3175E17C0CE9500CCA3A4 /* psx */ = {
+			isa = PBXGroup;
+			children = (
+				70D3178F17C0CF3900CCA3A4 /* PsxBios.cpp */,
+				70D3179017C0CF3900CCA3A4 /* PsxBios.h */,
+			);
+			name = psx;
+			sourceTree = "<group>";
+		};
+		70D3175F17C0CE9A00CCA3A4 /* psp */ = {
+			isa = PBXGroup;
+			children = (
+				70D3176817C0CF1900CCA3A4 /* MA_ALLEGREX.cpp */,
+				70D3176917C0CF1900CCA3A4 /* MA_ALLEGREX.h */,
+				70D3176717C0CF1900CCA3A4 /* MA_ALLEGREX_Reflection.cpp */,
+				70D3176A17C0CF1900CCA3A4 /* Psp_Audio.cpp */,
+				70D3176B17C0CF1900CCA3A4 /* Psp_Audio.h */,
+				70D3176C17C0CF1900CCA3A4 /* Psp_IoDevice.h */,
+				70D3176D17C0CF1900CCA3A4 /* Psp_IoFileMgrForUser.cpp */,
+				70D3176E17C0CF1900CCA3A4 /* Psp_IoFileMgrForUser.h */,
+				70D3176F17C0CF1900CCA3A4 /* Psp_KernelLibrary.cpp */,
+				70D3177017C0CF1900CCA3A4 /* Psp_KernelLibrary.h */,
+				70D3177117C0CF1900CCA3A4 /* Psp_PsfBios.cpp */,
+				70D3177217C0CF1900CCA3A4 /* Psp_PsfBios.h */,
+				70D3177317C0CF1900CCA3A4 /* Psp_PsfDevice.cpp */,
+				70D3177417C0CF1900CCA3A4 /* Psp_PsfDevice.h */,
+				70D3177517C0CF1900CCA3A4 /* Psp_PsfSubSystem.cpp */,
+				70D3177617C0CF1900CCA3A4 /* Psp_PsfSubSystem.h */,
+				70D3177717C0CF1900CCA3A4 /* Psp_SasCore.cpp */,
+				70D3177817C0CF1900CCA3A4 /* Psp_SasCore.h */,
+				70D3177917C0CF1900CCA3A4 /* Psp_StdioForUser.cpp */,
+				70D3177A17C0CF1900CCA3A4 /* Psp_StdioForUser.h */,
+				70D3177B17C0CF1900CCA3A4 /* Psp_SysMemUserForUser.cpp */,
+				70D3177C17C0CF1900CCA3A4 /* Psp_SysMemUserForUser.h */,
+				70D3177D17C0CF1900CCA3A4 /* Psp_ThreadManForUser.cpp */,
+				70D3177E17C0CF1900CCA3A4 /* Psp_ThreadManForUser.h */,
+				70D3177F17C0CF1900CCA3A4 /* PspBios.cpp */,
+				70D3178017C0CF1900CCA3A4 /* PspBios.h */,
+				70D3178117C0CF1900CCA3A4 /* PspModule.h */,
+			);
+			name = psp;
+			sourceTree = "<group>";
+		};
+		70D3176017C0CE9E00CCA3A4 /* ps2 */ = {
+			isa = PBXGroup;
+			children = (
+				70D3176117C0CEF100CCA3A4 /* Ps2_PsfDevice.cpp */,
+				70D3176217C0CEF100CCA3A4 /* Ps2_PsfDevice.h */,
+				70D3176317C0CEF100CCA3A4 /* PsfBios.cpp */,
+				70D3176417C0CEF100CCA3A4 /* PsfBios.h */,
+			);
+			name = ps2;
+			sourceTree = "<group>";
+		};
+		70D317B717C0D94D00CCA3A4 /* Iso9660 */ = {
+			isa = PBXGroup;
+			children = (
+				70D317B817C0D96000CCA3A4 /* DirectoryRecord.cpp */,
+				70D317B917C0D96000CCA3A4 /* DirectoryRecord.h */,
+				70D317BA17C0D96000CCA3A4 /* File.cpp */,
+				70D317BB17C0D96000CCA3A4 /* File.h */,
+				70D317BC17C0D96000CCA3A4 /* ISO9660.cpp */,
+				70D317BD17C0D96000CCA3A4 /* ISO9660.h */,
+				70D317BE17C0D96000CCA3A4 /* PathTable.cpp */,
+				70D317BF17C0D96000CCA3A4 /* PathTable.h */,
+				70D317C017C0D96000CCA3A4 /* PathTableRecord.cpp */,
+				70D317C117C0D96000CCA3A4 /* PathTableRecord.h */,
+				70D317C217C0D96000CCA3A4 /* VolumeDescriptor.cpp */,
+				70D317C317C0D96000CCA3A4 /* VolumeDescriptor.h */,
+			);
+			name = Iso9660;
 			sourceTree = "<group>";
 		};
 		7E90001E0F0599E3008B14D1 /* Purei Core */ = {
 			isa = PBXGroup;
 			children = (
-				7E2A16C70F95548A00D3F99D /* ArrayStack.h */,
 				7E2A16C80F95548A00D3F99D /* BasicBlock.cpp */,
 				7E2A16C90F95548A00D3F99D /* BasicBlock.h */,
-				7E2A16CA0F95548A00D3F99D /* CodeGen.cpp */,
-				7E2A16CB0F95548A00D3F99D /* CodeGen.h */,
-				7E2A16CC0F95548A00D3F99D /* CodeGen_FPU.cpp */,
-				7E2A16CD0F95548A00D3F99D /* CodeGen_MD.cpp */,
-				7E2A16CE0F95548A00D3F99D /* CodeGen_StackPatterns.h */,
+				70D3179E17C0D83E00CCA3A4 /* COP_FPU.cpp */,
+				70D3179F17C0D83E00CCA3A4 /* COP_FPU.h */,
+				70D3179D17C0D83D00CCA3A4 /* COP_FPU_Reflection.cpp */,
+				70D317A117C0D83E00CCA3A4 /* COP_SCU.cpp */,
+				70D317A217C0D83E00CCA3A4 /* COP_SCU.h */,
+				70D317A017C0D83E00CCA3A4 /* COP_SCU_Reflection.cpp */,
 				7E2A16CF0F95548A00D3F99D /* ELF.cpp */,
 				7E2A16D00F95548A00D3F99D /* ELF.h */,
 				7E2A16D10F95548A00D3F99D /* ElfFile.cpp */,
 				7E2A16D20F95548A00D3F99D /* ElfFile.h */,
 				7E90001F0F0599F1008B14D1 /* iop */,
+				70D317B717C0D94D00CCA3A4 /* Iso9660 */,
 				7E2A16D90F9554D300D3F99D /* Log.cpp */,
 				7E2A16DA0F9554D300D3F99D /* Log.h */,
 				7E2A16DB0F9554D300D3F99D /* MA_MIPSIV.cpp */,
@@ -394,26 +561,26 @@
 				7E2A16EE0F9554D300D3F99D /* MIPSAssembler.h */,
 				7E2A16EF0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp */,
 				7E2A16F00F9554D300D3F99D /* MipsAssemblerDefinitions.h */,
-				7E2A16F10F9554D300D3F99D /* MipsCodeGen.cpp */,
-				7E2A16F20F9554D300D3F99D /* MipsCodeGen.h */,
 				7E2A16F30F9554D300D3F99D /* MIPSCoprocessor.cpp */,
 				7E2A16F40F9554D300D3F99D /* MIPSCoprocessor.h */,
 				7E2A16F50F9554D300D3F99D /* MipsExecutor.cpp */,
 				7E2A16F60F9554D300D3F99D /* MipsExecutor.h */,
 				7E2A16F70F9554D300D3F99D /* MIPSInstructionFactory.cpp */,
 				7E2A16F80F9554D300D3F99D /* MIPSInstructionFactory.h */,
-				7E2A16F90F9554D300D3F99D /* MIPSModule.h */,
+				70D3174617C0C36B00CCA3A4 /* MipsJitter.cpp */,
+				70D3174717C0C36B00CCA3A4 /* MipsJitter.h */,
 				7E2A16FA0F9554D300D3F99D /* MIPSReflection.cpp */,
 				7E2A16FB0F9554D300D3F99D /* MIPSReflection.h */,
 				7E2A16FC0F9554D300D3F99D /* MIPSTags.cpp */,
 				7E2A16FD0F9554D300D3F99D /* MIPSTags.h */,
-				7E2A16FE0F9554D300D3F99D /* offsetof_def.h */,
 				7E2A16FF0F9554D300D3F99D /* OsStructManager.h */,
 				7E2A17000F9554D300D3F99D /* Ps2Const.h */,
-				7E2A17140F9554F400D3F99D /* X86Assembler.cpp */,
-				7E2A17150F9554F400D3F99D /* X86Assembler.h */,
-				7E2A17160F9554F400D3F99D /* X86Assembler_Fpu.cpp */,
-				7E2A17170F9554F400D3F99D /* X86Assembler_Sse.cpp */,
+				70D3174C17C0CE1000CCA3A4 /* RegisterStateFile.cpp */,
+				70D3174D17C0CE1000CCA3A4 /* RegisterStateFile.h */,
+				70D3174E17C0CE1000CCA3A4 /* StructCollectionStateFile.cpp */,
+				70D3174F17C0CE1000CCA3A4 /* StructCollectionStateFile.h */,
+				70D3174917C0C38E00CCA3A4 /* StructFile.cpp */,
+				70D3174A17C0C38E00CCA3A4 /* StructFile.h */,
 			);
 			name = "Purei Core";
 			sourceTree = "<group>";
@@ -421,8 +588,12 @@
 		7E90001F0F0599F1008B14D1 /* iop */ = {
 			isa = PBXGroup;
 			children = (
+				70D3175217C0CE3800CCA3A4 /* ArgumentIterator.cpp */,
+				70D3175317C0CE3800CCA3A4 /* ArgumentIterator.h */,
 				7E2A171D0F95552500D3F99D /* Ioman_Device.h */,
 				7E2A171E0F95552500D3F99D /* Iop_BiosBase.h */,
+				70D317B417C0D8F800CCA3A4 /* Iop_Cdvdman.cpp */,
+				70D317B517C0D8F800CCA3A4 /* Iop_Cdvdman.h */,
 				7E2A171F0F95552500D3F99D /* Iop_Dmac.cpp */,
 				7E2A17200F95552500D3F99D /* Iop_Dmac.h */,
 				7E2A17210F95552500D3F99D /* Iop_DmacChannel.cpp */,
@@ -442,6 +613,8 @@
 				7E2A172F0F95552500D3F99D /* Iop_Module.h */,
 				7E2A17300F95552500D3F99D /* Iop_RootCounters.cpp */,
 				7E2A17310F95552500D3F99D /* Iop_RootCounters.h */,
+				70D3175817C0CE6B00CCA3A4 /* Iop_SifCmd.cpp */,
+				70D3175917C0CE6B00CCA3A4 /* Iop_SifCmd.h */,
 				7E2A17320F95552500D3F99D /* Iop_SifDynamic.cpp */,
 				7E2A17330F95552500D3F99D /* Iop_SifDynamic.h */,
 				7E2A17340F95552500D3F99D /* Iop_SifMan.cpp */,
@@ -468,10 +641,14 @@
 				7E2A17550F95554C00D3F99D /* Iop_Thbase.h */,
 				7E2A17560F95554C00D3F99D /* Iop_Thevent.cpp */,
 				7E2A17570F95554C00D3F99D /* Iop_Thevent.h */,
+				70D3175417C0CE3800CCA3A4 /* Iop_Thmsgbx.cpp */,
+				70D3175517C0CE3800CCA3A4 /* Iop_Thmsgbx.h */,
 				7E2A17580F95554C00D3F99D /* Iop_Thsema.cpp */,
 				7E2A17590F95554C00D3F99D /* Iop_Thsema.h */,
 				7E2A175A0F95554C00D3F99D /* Iop_Timrman.cpp */,
 				7E2A175B0F95554C00D3F99D /* Iop_Timrman.h */,
+				70D3175A17C0CE6B00CCA3A4 /* Iop_Vblank.cpp */,
+				70D3175B17C0CE6B00CCA3A4 /* Iop_Vblank.h */,
 				7E2A175C0F95554C00D3F99D /* IopBios.cpp */,
 				7E2A175D0F95554C00D3F99D /* IopBios.h */,
 			);
@@ -481,32 +658,40 @@
 		7E9000200F059A06008B14D1 /* PsfPlayer Core */ = {
 			isa = PBXGroup;
 			children = (
-				7E2A16AF0F95545A00D3F99D /* PsfBase.cpp */,
-				7E2A16B00F95545A00D3F99D /* PsfBase.h */,
-				7E2A16B10F95545A00D3F99D /* PsfBios.cpp */,
-				7E2A16B20F95545A00D3F99D /* PsfBios.h */,
-				7E2A16B30F95545A00D3F99D /* PsfDevice.cpp */,
-				7E2A16B40F95545A00D3F99D /* PsfDevice.h */,
-				7E2A16B50F95545A00D3F99D /* PsfLoader.cpp */,
-				7E2A16B60F95545A00D3F99D /* PsfLoader.h */,
-				7E2A16B70F95545A00D3F99D /* PsfVm.cpp */,
-				7E2A16B80F95545A00D3F99D /* PsfVm.h */,
-				7E2A16B90F95545A00D3F99D /* PsxBios.cpp */,
-				7E2A16BA0F95545A00D3F99D /* PsxBios.h */,
-				7E2A16BB0F95545A00D3F99D /* SH_OpenAL.cpp */,
-				7E2A16BC0F95545A00D3F99D /* SH_OpenAL.h */,
-				7E2A16BD0F95545A00D3F99D /* SpuHandler.cpp */,
-				7E2A16BE0F95545A00D3F99D /* SpuHandler.h */,
+				70D3170917C0C15600CCA3A4 /* AppConfig.cpp */,
+				70D3170A17C0C15600CCA3A4 /* AppConfig.h */,
+				70D3170B17C0C15600CCA3A4 /* AppDef.h */,
+				70D3170C17C0C15600CCA3A4 /* Debuggable.h */,
+				70D3170D17C0C15600CCA3A4 /* Iop_PsfSubSystem.cpp */,
+				70D3170E17C0C15600CCA3A4 /* Iop_PsfSubSystem.h */,
+				70D3170F17C0C15600CCA3A4 /* path_uncomplete.h */,
+				70D3171017C0C15600CCA3A4 /* Playlist.cpp */,
+				70D3171117C0C15600CCA3A4 /* Playlist.h */,
+				70D3176017C0CE9E00CCA3A4 /* ps2 */,
+				70D3171217C0C15600CCA3A4 /* PsfArchive.cpp */,
+				70D3171317C0C15600CCA3A4 /* PsfArchive.h */,
+				70D3171417C0C15600CCA3A4 /* PsfBase.cpp */,
+				70D3171517C0C15600CCA3A4 /* PsfBase.h */,
+				70D3171617C0C15600CCA3A4 /* PsfFs.cpp */,
+				70D3171717C0C15600CCA3A4 /* PsfFs.h */,
+				70D3171817C0C15600CCA3A4 /* PsfLoader.cpp */,
+				70D3171917C0C15600CCA3A4 /* PsfLoader.h */,
+				70D3171A17C0C15600CCA3A4 /* PsfStreamProvider.cpp */,
+				70D3171B17C0C15600CCA3A4 /* PsfStreamProvider.h */,
+				70D3171C17C0C15600CCA3A4 /* PsfTags.cpp */,
+				70D3171D17C0C15600CCA3A4 /* PsfTags.h */,
+				70D3171E17C0C15600CCA3A4 /* PsfVm.cpp */,
+				70D3171F17C0C15600CCA3A4 /* PsfVm.h */,
+				70D3172017C0C15600CCA3A4 /* PsfVmSubSystem.h */,
+				70D3172117C0C15600CCA3A4 /* PsfZipArchive.cpp */,
+				70D3172217C0C15600CCA3A4 /* PsfZipArchive.h */,
+				70D3175F17C0CE9A00CCA3A4 /* psp */,
+				70D3175E17C0CE9500CCA3A4 /* psx */,
+				70D3172317C0C15600CCA3A4 /* SH_OpenAL.cpp */,
+				70D3172417C0C15600CCA3A4 /* SH_OpenAL.h */,
+				70D3172517C0C15600CCA3A4 /* SoundHandler.h */,
 			);
 			name = "PsfPlayer Core";
-			sourceTree = "<group>";
-		};
-		7E90008D0F059C25008B14D1 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				7E9000940F059C25008B14D1 /* libFramework.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -535,14 +720,28 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "PsfPlayer" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* PsfPlayer */;
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 7E90008D0F059C25008B14D1 /* Products */;
+					ProductGroup = 70D3173E17C0C32300CCA3A4 /* Products */;
+					ProjectRef = 70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */;
+				},
+				{
+					ProductGroup = 70D3173817C0C2F700CCA3A4 /* Products */;
+					ProjectRef = 70D3173717C0C2F700CCA3A4 /* CodeGen.xcodeproj */;
+				},
+				{
+					ProductGroup = 70D3173217C0C23200CCA3A4 /* Products */;
 					ProjectRef = 7E90008C0F059C25008B14D1 /* Framework.xcodeproj */;
 				},
 			);
@@ -554,11 +753,25 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		7E9000940F059C25008B14D1 /* libFramework.a */ = {
+		70D3173617C0C23200CCA3A4 /* libFramework.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libFramework.a;
-			remoteRef = 7E9000930F059C25008B14D1 /* PBXContainerItemProxy */;
+			remoteRef = 70D3173517C0C23200CCA3A4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		70D3173C17C0C2F800CCA3A4 /* libCodeGen.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libCodeGen.a;
+			remoteRef = 70D3173B17C0C2F800CCA3A4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		70D3174217C0C32300CCA3A4 /* libboost.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libboost.a;
+			remoteRef = 70D3174117C0C32300CCA3A4 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -568,8 +781,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
-				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
+				703ABB6C17C0DCBE00FC0376 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,64 +792,94 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D11072D0486CEB800E47090 /* main.mm in Sources */,
-				7E6281D90F05CF94003F9463 /* ApplicationDelegate.mm in Sources */,
-				7E6283320F06CDB8003F9463 /* Playlist.mm in Sources */,
-				7E6283380F06D082003F9463 /* PlaylistItem.mm in Sources */,
-				7E2A16BF0F95545A00D3F99D /* PsfBase.cpp in Sources */,
-				7E2A16C00F95545A00D3F99D /* PsfBios.cpp in Sources */,
-				7E2A16C10F95545A00D3F99D /* PsfDevice.cpp in Sources */,
-				7E2A16C20F95545A00D3F99D /* PsfLoader.cpp in Sources */,
-				7E2A16C30F95545A00D3F99D /* PsfVm.cpp in Sources */,
-				7E2A16C40F95545A00D3F99D /* PsxBios.cpp in Sources */,
-				7E2A16C50F95545A00D3F99D /* SH_OpenAL.cpp in Sources */,
-				7E2A16C60F95545A00D3F99D /* SpuHandler.cpp in Sources */,
+				70D3176517C0CEF100CCA3A4 /* Ps2_PsfDevice.cpp in Sources */,
+				70D317C717C0D96000CCA3A4 /* PathTable.cpp in Sources */,
+				70D3174B17C0C39500CCA3A4 /* StructFile.cpp in Sources */,
+				70D317A617C0D83E00CCA3A4 /* COP_SCU.cpp in Sources */,
+				70D3172B17C0C15600CCA3A4 /* PsfFs.cpp in Sources */,
 				7E2A16D30F95548A00D3F99D /* BasicBlock.cpp in Sources */,
-				7E2A16D40F95548A00D3F99D /* CodeGen.cpp in Sources */,
-				7E2A16D50F95548A00D3F99D /* CodeGen_FPU.cpp in Sources */,
-				7E2A16D60F95548A00D3F99D /* CodeGen_MD.cpp in Sources */,
 				7E2A16D70F95548A00D3F99D /* ELF.cpp in Sources */,
 				7E2A16D80F95548A00D3F99D /* ElfFile.cpp in Sources */,
 				7E2A17010F9554D300D3F99D /* Log.cpp in Sources */,
+				70D3173017C0C15600CCA3A4 /* PsfZipArchive.cpp in Sources */,
+				70D3172917C0C15600CCA3A4 /* PsfArchive.cpp in Sources */,
+				70D3179617C0CFFA00CCA3A4 /* ApplicationDelegate.mm in Sources */,
+				70D3172717C0C15600CCA3A4 /* Iop_PsfSubSystem.cpp in Sources */,
+				70D3176617C0CEF100CCA3A4 /* PsfBios.cpp in Sources */,
 				7E2A17020F9554D300D3F99D /* MA_MIPSIV.cpp in Sources */,
+				70D3179817C0CFFA00CCA3A4 /* Playlist.mm in Sources */,
 				7E2A17030F9554D300D3F99D /* MA_MIPSIV_Reflection.cpp in Sources */,
 				7E2A17040F9554D300D3F99D /* MA_MIPSIV_Templates.cpp in Sources */,
 				7E2A17050F9554D300D3F99D /* MailBox.cpp in Sources */,
+				70D3178517C0CF2300CCA3A4 /* Psp_IoFileMgrForUser.cpp in Sources */,
 				7E2A17060F9554D300D3F99D /* MemoryMap.cpp in Sources */,
+				70D317C417C0D96000CCA3A4 /* DirectoryRecord.cpp in Sources */,
 				7E2A17070F9554D300D3F99D /* MemoryStateFile.cpp in Sources */,
 				7E2A17080F9554D300D3F99D /* MemoryUtils.cpp in Sources */,
+				70D317C817C0D96000CCA3A4 /* PathTableRecord.cpp in Sources */,
 				7E2A17090F9554D300D3F99D /* MIPS.cpp in Sources */,
 				7E2A170A0F9554D300D3F99D /* MIPSAnalysis.cpp in Sources */,
+				70D3178D17C0CF2300CCA3A4 /* Psp_ThreadManForUser.cpp in Sources */,
 				7E2A170B0F9554D300D3F99D /* MIPSArchitecture.cpp in Sources */,
+				70D3179717C0CFFA00CCA3A4 /* main.mm in Sources */,
+				70D3175017C0CE1000CCA3A4 /* RegisterStateFile.cpp in Sources */,
 				7E2A170C0F9554D300D3F99D /* MIPSAssembler.cpp in Sources */,
+				70D3178417C0CF2300CCA3A4 /* Psp_Audio.cpp in Sources */,
+				70D3175617C0CE3800CCA3A4 /* ArgumentIterator.cpp in Sources */,
 				7E2A170D0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp in Sources */,
-				7E2A170E0F9554D300D3F99D /* MipsCodeGen.cpp in Sources */,
+				70D3178317C0CF2300CCA3A4 /* MA_ALLEGREX.cpp in Sources */,
+				70D317A417C0D83E00CCA3A4 /* COP_FPU.cpp in Sources */,
+				70D3179917C0CFFA00CCA3A4 /* PlaylistItem.mm in Sources */,
 				7E2A170F0F9554D300D3F99D /* MIPSCoprocessor.cpp in Sources */,
 				7E2A17100F9554D300D3F99D /* MipsExecutor.cpp in Sources */,
+				70D3172E17C0C15600CCA3A4 /* PsfTags.cpp in Sources */,
+				70D3179117C0CF3900CCA3A4 /* PsxBios.cpp in Sources */,
 				7E2A17110F9554D300D3F99D /* MIPSInstructionFactory.cpp in Sources */,
 				7E2A17120F9554D300D3F99D /* MIPSReflection.cpp in Sources */,
+				70D3178A17C0CF2300CCA3A4 /* Psp_SasCore.cpp in Sources */,
 				7E2A17130F9554D300D3F99D /* MIPSTags.cpp in Sources */,
-				7E2A17180F9554F400D3F99D /* X86Assembler.cpp in Sources */,
-				7E2A17190F9554F400D3F99D /* X86Assembler_Fpu.cpp in Sources */,
-				7E2A171A0F9554F400D3F99D /* X86Assembler_Sse.cpp in Sources */,
+				70D3175117C0CE1000CCA3A4 /* StructCollectionStateFile.cpp in Sources */,
+				70D3172C17C0C15600CCA3A4 /* PsfLoader.cpp in Sources */,
+				70D3178E17C0CF2300CCA3A4 /* PspBios.cpp in Sources */,
+				70D317C917C0D96000CCA3A4 /* VolumeDescriptor.cpp in Sources */,
 				7E2A17380F95552500D3F99D /* Iop_Dmac.cpp in Sources */,
 				7E2A17390F95552500D3F99D /* Iop_DmacChannel.cpp in Sources */,
 				7E2A173A0F95552500D3F99D /* Iop_Dynamic.cpp in Sources */,
 				7E2A173B0F95552500D3F99D /* Iop_Intc.cpp in Sources */,
 				7E2A173C0F95552500D3F99D /* Iop_Intrman.cpp in Sources */,
+				70D3175717C0CE3800CCA3A4 /* Iop_Thmsgbx.cpp in Sources */,
 				7E2A173D0F95552500D3F99D /* Iop_Ioman.cpp in Sources */,
 				7E2A173E0F95552500D3F99D /* Iop_Loadcore.cpp in Sources */,
+				70D3178717C0CF2300CCA3A4 /* Psp_PsfBios.cpp in Sources */,
+				70D317A317C0D83E00CCA3A4 /* COP_FPU_Reflection.cpp in Sources */,
+				70D3172A17C0C15600CCA3A4 /* PsfBase.cpp in Sources */,
+				70D317C617C0D96000CCA3A4 /* ISO9660.cpp in Sources */,
 				7E2A173F0F95552500D3F99D /* Iop_Modload.cpp in Sources */,
+				70D3172617C0C15600CCA3A4 /* AppConfig.cpp in Sources */,
+				70D317C517C0D96000CCA3A4 /* File.cpp in Sources */,
 				7E2A17400F95552500D3F99D /* Iop_RootCounters.cpp in Sources */,
+				70D3178817C0CF2300CCA3A4 /* Psp_PsfDevice.cpp in Sources */,
+				70D3178C17C0CF2300CCA3A4 /* Psp_SysMemUserForUser.cpp in Sources */,
 				7E2A17410F95552500D3F99D /* Iop_SifDynamic.cpp in Sources */,
+				70D3175D17C0CE7A00CCA3A4 /* Iop_Vblank.cpp in Sources */,
+				70D3172F17C0C15600CCA3A4 /* PsfVm.cpp in Sources */,
 				7E2A17420F95552500D3F99D /* Iop_SifMan.cpp in Sources */,
+				70D3172D17C0C15600CCA3A4 /* PsfStreamProvider.cpp in Sources */,
 				7E2A17430F95552500D3F99D /* Iop_SifManNull.cpp in Sources */,
+				70D3174817C0C36B00CCA3A4 /* MipsJitter.cpp in Sources */,
+				70D3173117C0C15600CCA3A4 /* SH_OpenAL.cpp in Sources */,
+				70D3172817C0C15600CCA3A4 /* Playlist.cpp in Sources */,
+				70D317B617C0D8F800CCA3A4 /* Iop_Cdvdman.cpp in Sources */,
 				7E2A175E0F95554C00D3F99D /* Iop_Spu.cpp in Sources */,
 				7E2A175F0F95554C00D3F99D /* Iop_Spu2.cpp in Sources */,
 				7E2A17600F95554C00D3F99D /* Iop_Spu2_Core.cpp in Sources */,
+				70D3178617C0CF2300CCA3A4 /* Psp_KernelLibrary.cpp in Sources */,
+				70D3175C17C0CE7700CCA3A4 /* Iop_SifCmd.cpp in Sources */,
 				7E2A17610F95554C00D3F99D /* Iop_SpuBase.cpp in Sources */,
 				7E2A17620F95554C00D3F99D /* Iop_Stdio.cpp in Sources */,
+				70D317A517C0D83E00CCA3A4 /* COP_SCU_Reflection.cpp in Sources */,
 				7E2A17630F95554C00D3F99D /* Iop_SubSystem.cpp in Sources */,
+				70D3178B17C0CF2300CCA3A4 /* Psp_StdioForUser.cpp in Sources */,
 				7E2A17640F95554C00D3F99D /* Iop_Sysclib.cpp in Sources */,
 				7E2A17650F95554C00D3F99D /* Iop_Sysmem.cpp in Sources */,
 				7E2A17660F95554C00D3F99D /* Iop_Thbase.cpp in Sources */,
@@ -645,45 +887,39 @@
 				7E2A17680F95554C00D3F99D /* Iop_Thsema.cpp in Sources */,
 				7E2A17690F95554C00D3F99D /* Iop_Timrman.cpp in Sources */,
 				7E2A176A0F95554C00D3F99D /* IopBios.cpp in Sources */,
+				70D3178217C0CF2300CCA3A4 /* MA_ALLEGREX_Reflection.cpp in Sources */,
+				70D3178917C0CF2300CCA3A4 /* Psp_PsfSubSystem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				089C165DFE840E0CC02AAC07 /* English */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		1DDD58140DA1D0A300B32029 /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1DDD58150DA1D0A300B32029 /* English */,
-			);
-			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = PsfPlayer_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				GCC_PREFIX_HEADER = ../Source/macosx_ui/PsfPlayer_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					"~/Projects/Framework/include",
+					"~/Projects/Play/Source",
+					"~/Projects/CodeGen/include",
+					"~/Libraries/boost_1_50_0",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../Source/macosx_ui/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = PsfPlayer;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -691,13 +927,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = PsfPlayer_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				GCC_PREFIX_HEADER = ../Source/macosx_ui/PsfPlayer_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					"~/Projects/Framework/include",
+					"~/Projects/Play/Source",
+					"~/Projects/CodeGen/include",
+					"~/Libraries/boost_1_50_0",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../Source/macosx_ui/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = PsfPlayer;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};

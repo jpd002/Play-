@@ -43,7 +43,7 @@ string GetTagValue(const CPsfBase::TagMap& tags, const char* tagName)
 	try
 	{
 		CPsfBase::TagMap tags;
-		CPsfLoader::LoadPsf(*m_virtualMachine, [fileName fileSystemRepresentation], &tags);
+		CPsfLoader::LoadPsf(*m_virtualMachine, [fileName fileSystemRepresentation], "", &tags);
 		NSString* game  = [[NSString alloc] initWithUTF8String: GetTagValue(tags, "game").c_str()];
 		NSString* title = [[NSString alloc] initWithUTF8String: GetTagValue(tags, "title").c_str()]; 
 		NSString* length = [[NSString alloc] initWithUTF8String: GetTagValue(tags, "length").c_str()];
