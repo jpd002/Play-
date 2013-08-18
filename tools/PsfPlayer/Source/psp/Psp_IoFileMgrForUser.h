@@ -36,7 +36,7 @@ namespace Psp
 		uint32					IoClose(uint32);
 
 	private:
-		typedef std::tr1::shared_ptr<Framework::CStream> StreamPtr;
+		typedef std::shared_ptr<Framework::CStream> StreamPtr;
 		typedef std::map<std::string, IoDevicePtr> IoDeviceList;
 		typedef std::map<unsigned int, StreamPtr> FileList;
 
@@ -51,7 +51,7 @@ namespace Psp
 		FileList				m_files;
 	};
 
-	typedef std::tr1::shared_ptr<CIoFileMgrForUser> IoFileMgrForUserModulePtr;
+	typedef std::shared_ptr<CIoFileMgrForUser> IoFileMgrForUserModulePtr;
 }
 
 #endif

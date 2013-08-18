@@ -83,7 +83,7 @@ namespace Psp
 		static REVERBINFO			g_ReverbSpace;
 	};
 
-	typedef std::tr1::shared_ptr<CSasCore> SasCoreModulePtr;
+	typedef std::shared_ptr<CSasCore> SasCoreModulePtr;
 }
 
 #endif

@@ -8,28 +8,28 @@ CMA_ALLEGREX::CMA_ALLEGREX()
 {
 	for(unsigned int i = 0; i < MAX_SPECIAL3_OPS; i++)
 	{
-		m_pOpSpecial3[i] = std::tr1::bind(&CMA_ALLEGREX::Illegal, this);
+		m_pOpSpecial3[i] = std::bind(&CMA_ALLEGREX::Illegal, this);
 	}
 
 	for(unsigned int i = 0; i < MAX_BSHFL_OPS; i++)
 	{
-		m_pOpBshfl[i] = std::tr1::bind(&CMA_ALLEGREX::Illegal, this);
+		m_pOpBshfl[i] = std::bind(&CMA_ALLEGREX::Illegal, this);
 	}
 
-	m_pOpGeneral[0x1F] = std::tr1::bind(&CMA_ALLEGREX::SPECIAL3, this);
+	m_pOpGeneral[0x1F] = std::bind(&CMA_ALLEGREX::SPECIAL3, this);
 
 	//Setup SPECIAL
-	m_pOpSpecial[0x2C] = std::tr1::bind(&CMA_ALLEGREX::MAX, this);
-	m_pOpSpecial[0x2D] = std::tr1::bind(&CMA_ALLEGREX::MIN, this);
+	m_pOpSpecial[0x2C] = std::bind(&CMA_ALLEGREX::MAX, this);
+	m_pOpSpecial[0x2D] = std::bind(&CMA_ALLEGREX::MIN, this);
 
 	//Setup SPECIAL3
-	m_pOpSpecial3[0x00] = std::tr1::bind(&CMA_ALLEGREX::EXT, this);
-	m_pOpSpecial3[0x04] = std::tr1::bind(&CMA_ALLEGREX::INS, this);
-	m_pOpSpecial3[0x20] = std::tr1::bind(&CMA_ALLEGREX::BSHFL, this);
+	m_pOpSpecial3[0x00] = std::bind(&CMA_ALLEGREX::EXT, this);
+	m_pOpSpecial3[0x04] = std::bind(&CMA_ALLEGREX::INS, this);
+	m_pOpSpecial3[0x20] = std::bind(&CMA_ALLEGREX::BSHFL, this);
 
 	//Setup BSHFL
-	m_pOpBshfl[0x10] = std::tr1::bind(&CMA_ALLEGREX::SEB, this);
-	m_pOpBshfl[0x18] = std::tr1::bind(&CMA_ALLEGREX::SEH, this);
+	m_pOpBshfl[0x10] = std::bind(&CMA_ALLEGREX::SEB, this);
+	m_pOpBshfl[0x18] = std::bind(&CMA_ALLEGREX::SEH, this);
 
 	SetupReflectionTables();
 }

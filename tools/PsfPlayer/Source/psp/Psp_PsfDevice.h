@@ -20,7 +20,7 @@ namespace Psp
 		CPsfFs					m_fileSystem;
 	};
 
-	typedef std::tr1::shared_ptr<CPsfDevice> PsfDevicePtr;
+	typedef std::shared_ptr<CPsfDevice> PsfDevicePtr;
 }
 
 #endif

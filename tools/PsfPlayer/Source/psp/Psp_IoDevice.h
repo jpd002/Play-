@@ -13,7 +13,7 @@ namespace Psp
 		virtual Framework::CStream*		GetFile(const char*, uint32) = 0;
 	};
 
-	typedef std::tr1::shared_ptr<CIoDevice> IoDevicePtr;
+	typedef std::shared_ptr<CIoDevice> IoDevicePtr;
 }
 
 #endif

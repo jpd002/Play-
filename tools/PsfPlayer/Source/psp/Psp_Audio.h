@@ -38,7 +38,7 @@ namespace Psp
 		Framework::CStream*		m_stream;
 	};
 
-	typedef std::tr1::shared_ptr<CAudio> AudioModulePtr;
+	typedef std::shared_ptr<CAudio> AudioModulePtr;
 }
 
 #endif
