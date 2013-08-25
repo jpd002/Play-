@@ -1,43 +1,58 @@
 #import "Utf8.h"
 #import "PlaylistViewController.h"
+#import <boost/filesystem.hpp>
+#import "string_cast.h"
+#import "PsfLoader.h"
 
 @implementation PlaylistViewController
 
--(void)dealloc 
-{
-    [super dealloc];
-}
+@synthesize delegate;
 
 -(void)viewDidLoad
 {
-	m_playlist = NULL;
+	m_playlist = nullptr;
 	[super viewDidLoad];
 }
 
--(void)setPlaylist: (CPlaylist*)playlist
+-(void)onOpenPlaylist: (id)sender
 {
-	m_playlist = playlist;
-	[self.tableView reloadData];
+	PlaylistSelectViewController* vc = (PlaylistSelectViewController*)[self.storyboard instantiateViewControllerWithIdentifier: @"PlaylistSelectViewController"];
+	vc.delegate = self;
+	[self presentViewController:vc animated: YES completion: nil];
 }
 
--(void)setSelectionHandler: (id)handler selector: (SEL)sel
+-(void)onPlaylistSelected: (NSString*)selectedPlaylistPath
 {
-	m_selectionHandler = handler;
-	m_selectionHandlerSelector = sel;
-}
-
--(void)selectedPlaylistItem: (CPlaylist::ITEM*)itemPtr
-{
-	NSIndexPath* indexPath = [self.tableView indexPathForSelectedRow];
-	assert(indexPath.row < m_playlist->GetItemCount());
+	delete m_playlist;
+	m_playlist = new CPlaylist();
 	
-	const CPlaylist::ITEM& item(m_playlist->GetItem(indexPath.row));
-    (*itemPtr) = item;
+	{
+		auto path = boost::filesystem::path([selectedPlaylistPath fileSystemRepresentation]);
+		auto archive(CPsfArchive::CreateFromPath(path));
+		
+		unsigned int archiveId = m_playlist->InsertArchive(path.wstring().c_str());
+		for(const auto& file : archive->GetFiles())
+		{
+			boost::filesystem::path filePath(file.name);
+			std::string fileExtension = filePath.extension().string();
+			if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
+			{
+				CPlaylist::ITEM newItem;
+				newItem.path = filePath.wstring();
+				newItem.title = string_cast<std::wstring>(newItem.path);
+				newItem.length = 0;
+				newItem.archiveId = archiveId;
+				m_playlist->InsertItem(newItem);
+			}
+		}
+	}
+	
+	[m_tableView reloadData];
 }
 
 -(NSInteger)numberOfSectionsInTableView: (UITableView *)tableView 
 {
-    return 1;
+	return 1;
 }
 
 -(NSInteger)tableView: (UITableView*)tableView numberOfRowsInSection: (NSInteger)section 
@@ -55,14 +70,14 @@
 // Customize the appearance of table view cells.
 -(UITableViewCell*)tableView: (UITableView *)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) 
+	static NSString *CellIdentifier = @"Cell";
+	
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+	if (cell == nil)
 	{
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
-    }
-    
+		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+	}
+	
 	if(m_playlist != NULL)
 	{
 		const CPlaylist::ITEM& item(m_playlist->GetItem(indexPath.row));
@@ -70,14 +85,17 @@
 		cell.textLabel.text = [NSString stringWithUTF8String: convString.c_str()];
 	}
 	
-    return cell;
+	return cell;
 }
 
--(void)tableView: (UITableView*)tableView didSelectRowAtIndexPath: (NSIndexPath*)indexPath 
+-(void)tableView: (UITableView*)tableView didSelectRowAtIndexPath: (NSIndexPath*)indexPath
 {
-	if(m_selectionHandler != nil)
+	assert(indexPath.row < m_playlist->GetItemCount());
+	const CPlaylist::ITEM& item(m_playlist->GetItem(indexPath.row));
+	
+	if(self.delegate != nil)
 	{
-		[m_selectionHandler performSelector: m_selectionHandlerSelector];
+		[self.delegate onPlaylistItemSelected: item playlist: m_playlist];
 	}
 }
 

@@ -1,14 +1,18 @@
 #import <UIKit/UIKit.h>
 
-@interface PlaylistSelectViewController : UITableViewController 
+@protocol PlaylistSelectViewControllerDelegate
+
+-(void)onPlaylistSelected: (NSString*)path;
+
+@end
+
+@interface PlaylistSelectViewController : UIViewController
 {
-	id					m_selectionHandler;
-	SEL					m_selectionHandlerSelector;
 	NSMutableArray*		m_archives;
 }
 
--(void)setSelectionHandler: (id)handler selector: (SEL)sel;
+@property (nonatomic, assign) id<PlaylistSelectViewControllerDelegate> delegate;
+
 -(IBAction)onCancel: (id)handler;
--(NSString*)selectedPlaylistPath;
 
 @end

@@ -1,15 +1,21 @@
 #import <UIKit/UIKit.h>
 #import "Playlist.h"
+#import "PlaylistSelectViewController.h"
 
-@interface PlaylistViewController : UITableViewController 
+@protocol PlaylistViewControllerDelegate
+
+-(void)onPlaylistItemSelected: (const CPlaylist::ITEM&)item playlist: (CPlaylist*)playlist;
+
+@end
+
+@interface PlaylistViewController : UIViewController<PlaylistSelectViewControllerDelegate>
 {
-	id						m_selectionHandler;
-	SEL						m_selectionHandlerSelector;	
 	CPlaylist*				m_playlist;
+	IBOutlet UITableView*	m_tableView;
 }
 
--(void)setSelectionHandler: (id)handler selector: (SEL)sel;
--(void)setPlaylist: (CPlaylist*)playlist;
--(void)selectedPlaylistItem: (CPlaylist::ITEM*)itemPtr;
+@property (nonatomic, assign) IBOutlet id<PlaylistViewControllerDelegate> delegate;
+
+-(IBAction)onOpenPlaylist: (id)sender;
 
 @end

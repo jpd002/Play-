@@ -2,10 +2,7 @@
 
 @implementation FileInfoViewController
 
--(void)dealloc 
-{
-    [super dealloc];
-}
+@synthesize delegate;
 
 -(void)setTags: (const CPsfTags&)tags
 {
@@ -20,12 +17,35 @@
 		m_rawTags.push_back(rawTag);
 	}
 	
-	[self.tableView reloadData];
+	[m_tagsTable reloadData];
+}
+
+-(void)setTrackTitle: (NSString*)trackTitle
+{
+	m_trackTitleLabel.text = trackTitle;
+}
+
+-(void)setTrackTime: (NSString*)trackTime
+{
+	m_trackTimeLabel.text = trackTime;
+}
+
+-(void)setPlayButtonText: (NSString*)playButtonText
+{
+	[m_playButton setTitle: playButtonText forState: UIControlStateNormal];
+}
+
+-(IBAction)onPlayButtonPress: (id)sender
+{
+	if(delegate != nil)
+	{
+		[self.delegate onPlayButtonPress];
+	}
 }
 
 -(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView 
 {
-    return 1;
+	return 1;
 }
 
 -(NSInteger)tableView: (UITableView*)tableView numberOfRowsInSection: (NSInteger)section 
@@ -34,7 +54,7 @@
 	{
 		return m_rawTags.size();
 	}
-    return 0;
+	return 0;
 }
 
 -(NSString*)tableView: (UITableView*)tableView titleForHeaderInSection: (NSInteger)section 
@@ -52,12 +72,12 @@
 -(UITableViewCell*)tableView: (UITableView*)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath 
 {
 	static NSString* CellIdentifier = @"Cell";
-    
-    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier: CellIdentifier];
-    if(cell == nil) 
+	
+	UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier: CellIdentifier];
+	if(cell == nil)
 	{
-        cell = [[[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier] autorelease];
-    }
+		cell = [[[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier] autorelease];
+	}
 	
 	if(indexPath.section == 0)
 	{
@@ -65,8 +85,7 @@
 		cell.textLabel.text = [NSString stringWithUTF8String: rawTag.c_str()];
 	}
 	
-    return cell;
+	return cell;
 }
 
 @end
-

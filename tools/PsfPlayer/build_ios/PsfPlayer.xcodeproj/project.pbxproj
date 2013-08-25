@@ -10,6 +10,7 @@
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
+		7016687117C7307E003504E0 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7016682917C72969003504E0 /* Storyboard.storyboard */; };
 		701E5CD017C0BDA600261AFD /* libboost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 708FE7C617C0B85400BFCDB2 /* libboost.a */; };
 		701E5CD117C0BDA600261AFD /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 708FE7D017C0B89000BFCDB2 /* libCodeGen.a */; };
 		701E5CD217C0BDA600261AFD /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 708FE7CB17C0B86900BFCDB2 /* libFramework.a */; };
@@ -31,12 +32,11 @@
 		708FE7C117C0B82400BFCDB2 /* PsfZipArchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7B117C0B66700BFCDB2 /* PsfZipArchive.cpp */; };
 		708FE7DE17C0B8BE00BFCDB2 /* FileInfoViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7D217C0B8BE00BFCDB2 /* FileInfoViewController.mm */; };
 		708FE7DF17C0B8BE00BFCDB2 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 708FE7D317C0B8BE00BFCDB2 /* Icon.png */; };
-		708FE7E017C0B8BE00BFCDB2 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 708FE7D417C0B8BE00BFCDB2 /* Info.plist */; };
-		708FE7E117C0B8BE00BFCDB2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7D517C0B8BE00BFCDB2 /* main.m */; };
-		708FE7E217C0B8BE00BFCDB2 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 708FE7D617C0B8BE00BFCDB2 /* MainWindow.xib */; };
+		708FE7E117C0B8BE00BFCDB2 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7D517C0B8BE00BFCDB2 /* main.mm */; };
 		708FE7E317C0B8BE00BFCDB2 /* PlaylistSelectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7D817C0B8BE00BFCDB2 /* PlaylistSelectViewController.m */; };
 		708FE7E417C0B8BE00BFCDB2 /* PlaylistViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */; };
 		708FE7E517C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DD17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm */; };
+		70C37E6E17C769DD00D18224 /* MainTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70C37E6D17C769DD00D18224 /* MainTabBarController.mm */; };
 		7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A77130F8993CE0082129E /* OpenAL.framework */; };
 		7E27214A1213B38D00C0DEBF /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721481213B38D00C0DEBF /* MipsJitter.cpp */; };
 		7E2721CC1213B6D300C0DEBF /* PsxBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721CA1213B6D300C0DEBF /* PsxBios.cpp */; };
@@ -148,6 +148,9 @@
 		1D6058910D05DD3D006BFB54 /* PsfPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PsfPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765070DF74369002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		7016682917C72969003504E0 /* Storyboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Storyboard.storyboard; path = ../Source/ios_ui/Storyboard.storyboard; sourceTree = "<group>"; };
+		701B479A17C71B7700330B83 /* Launch-4inch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Launch-4inch.png"; path = "../Source/ios_ui/Launch-4inch.png"; sourceTree = "<group>"; };
+		701B479C17C71BDA00330B83 /* Launch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Launch.png; path = ../Source/ios_ui/Launch.png; sourceTree = "<group>"; };
 		70383A3A17BF2E1C00482B35 /* BiosDebugInfoProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BiosDebugInfoProvider.h; path = ../../../Source/BiosDebugInfoProvider.h; sourceTree = "<group>"; };
 		70383A3B17BF343800482B35 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		70383A3D17BF346300482B35 /* RegisterStateFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterStateFile.cpp; path = ../../../Source/RegisterStateFile.cpp; sourceTree = "<group>"; };
@@ -189,8 +192,7 @@
 		708FE7D217C0B8BE00BFCDB2 /* FileInfoViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileInfoViewController.mm; path = ../Source/ios_ui/FileInfoViewController.mm; sourceTree = "<group>"; };
 		708FE7D317C0B8BE00BFCDB2 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Source/ios_ui/Icon.png; sourceTree = "<group>"; };
 		708FE7D417C0B8BE00BFCDB2 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Source/ios_ui/Info.plist; sourceTree = "<group>"; };
-		708FE7D517C0B8BE00BFCDB2 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../Source/ios_ui/main.m; sourceTree = "<group>"; };
-		708FE7D617C0B8BE00BFCDB2 /* MainWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainWindow.xib; path = ../Source/ios_ui/MainWindow.xib; sourceTree = "<group>"; };
+		708FE7D517C0B8BE00BFCDB2 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = ../Source/ios_ui/main.mm; sourceTree = "<group>"; };
 		708FE7D717C0B8BE00BFCDB2 /* PlaylistSelectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistSelectViewController.h; path = ../Source/ios_ui/PlaylistSelectViewController.h; sourceTree = "<group>"; };
 		708FE7D817C0B8BE00BFCDB2 /* PlaylistSelectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistSelectViewController.m; path = ../Source/ios_ui/PlaylistSelectViewController.m; sourceTree = "<group>"; };
 		708FE7D917C0B8BE00BFCDB2 /* PlaylistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistViewController.h; path = ../Source/ios_ui/PlaylistViewController.h; sourceTree = "<group>"; };
@@ -198,6 +200,8 @@
 		708FE7DB17C0B8BE00BFCDB2 /* PsfPlayer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPlayer_Prefix.pch; path = ../Source/ios_ui/PsfPlayer_Prefix.pch; sourceTree = "<group>"; };
 		708FE7DC17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPlayerAppDelegate.h; path = ../Source/ios_ui/PsfPlayerAppDelegate.h; sourceTree = "<group>"; };
 		708FE7DD17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PsfPlayerAppDelegate.mm; path = ../Source/ios_ui/PsfPlayerAppDelegate.mm; sourceTree = "<group>"; };
+		70C37E6C17C7698000D18224 /* MainTabBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainTabBarController.h; path = ../Source/ios_ui/MainTabBarController.h; sourceTree = "<group>"; };
+		70C37E6D17C769DD00D18224 /* MainTabBarController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainTabBarController.mm; path = ../Source/ios_ui/MainTabBarController.mm; sourceTree = "<group>"; };
 		7E1A77130F8993CE0082129E /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = /System/Library/Frameworks/OpenAL.framework; sourceTree = "<absolute>"; };
 		7E2721481213B38D00C0DEBF /* MipsJitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsJitter.cpp; path = ../../../Source/MipsJitter.cpp; sourceTree = SOURCE_ROOT; };
 		7E2721491213B38D00C0DEBF /* MipsJitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsJitter.h; path = ../../../Source/MipsJitter.h; sourceTree = SOURCE_ROOT; };
@@ -402,19 +406,21 @@
 		29B97317FDCFA39411CA2CEA /* iOS UI */ = {
 			isa = PBXGroup;
 			children = (
-				708FE7D117C0B8BE00BFCDB2 /* FileInfoViewController.h */,
 				708FE7D217C0B8BE00BFCDB2 /* FileInfoViewController.mm */,
-				708FE7D317C0B8BE00BFCDB2 /* Icon.png */,
+				708FE7D117C0B8BE00BFCDB2 /* FileInfoViewController.h */,
+				701B479B17C71B7D00330B83 /* images */,
 				708FE7D417C0B8BE00BFCDB2 /* Info.plist */,
-				708FE7D517C0B8BE00BFCDB2 /* main.m */,
-				708FE7D617C0B8BE00BFCDB2 /* MainWindow.xib */,
-				708FE7D717C0B8BE00BFCDB2 /* PlaylistSelectViewController.h */,
+				708FE7D517C0B8BE00BFCDB2 /* main.mm */,
+				70C37E6D17C769DD00D18224 /* MainTabBarController.mm */,
+				70C37E6C17C7698000D18224 /* MainTabBarController.h */,
 				708FE7D817C0B8BE00BFCDB2 /* PlaylistSelectViewController.m */,
-				708FE7D917C0B8BE00BFCDB2 /* PlaylistViewController.h */,
+				708FE7D717C0B8BE00BFCDB2 /* PlaylistSelectViewController.h */,
 				708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */,
+				708FE7D917C0B8BE00BFCDB2 /* PlaylistViewController.h */,
 				708FE7DB17C0B8BE00BFCDB2 /* PsfPlayer_Prefix.pch */,
-				708FE7DC17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.h */,
 				708FE7DD17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm */,
+				708FE7DC17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.h */,
+				7016682917C72969003504E0 /* Storyboard.storyboard */,
 			);
 			name = "iOS UI";
 			sourceTree = "<group>";
@@ -433,6 +439,16 @@
 				7EDF2BB412C675BC001CB546 /* AVFoundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		701B479B17C71B7D00330B83 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				701B479C17C71BDA00330B83 /* Launch.png */,
+				701B479A17C71B7700330B83 /* Launch-4inch.png */,
+				708FE7D317C0B8BE00BFCDB2 /* Icon.png */,
+			);
+			name = images;
 			sourceTree = "<group>";
 		};
 		708FE7C217C0B85400BFCDB2 /* Products */ = {
@@ -792,9 +808,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				708FE7E017C0B8BE00BFCDB2 /* Info.plist in Resources */,
 				708FE7DF17C0B8BE00BFCDB2 /* Icon.png in Resources */,
-				708FE7E217C0B8BE00BFCDB2 /* MainWindow.xib in Resources */,
+				7016687117C7307E003504E0 /* Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -869,9 +884,10 @@
 				7E4B3D830F9E9A3D00675ED7 /* Iop_Timrman.cpp in Sources */,
 				7E4B3D840F9E9A3D00675ED7 /* Iop_Vblank.cpp in Sources */,
 				7E4B3D850F9E9A3D00675ED7 /* IopBios.cpp in Sources */,
+				70C37E6E17C769DD00D18224 /* MainTabBarController.mm in Sources */,
 				7E6811420FB8F21100AC53B5 /* Iop_Cdvdman.cpp in Sources */,
 				708FE7DE17C0B8BE00BFCDB2 /* FileInfoViewController.mm in Sources */,
-				708FE7E117C0B8BE00BFCDB2 /* main.m in Sources */,
+				708FE7E117C0B8BE00BFCDB2 /* main.mm in Sources */,
 				7E6811740FB8F32E00AC53B5 /* DirectoryRecord.cpp in Sources */,
 				7E6811750FB8F32E00AC53B5 /* File.cpp in Sources */,
 				7E6811760FB8F32E00AC53B5 /* ISO9660.cpp in Sources */,
@@ -913,14 +929,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jean-Philip Desjardins (YD39RHL5BG)";
 				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ../Source/ios_ui/PsfPlayer_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = AOT_USE_CACHE;
 				HEADER_SEARCH_PATHS = (
 					"~/Libraries/boost_1_50_0",
 					"~/Projects/Framework/include",
@@ -928,14 +945,15 @@
 					"~/Projects/Play/Source",
 				);
 				INFOPLIST_FILE = ../Source/ios_ui/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
+				OTHER_LDFLAGS = "/Users/jpd002/PsfBlocks/$(CURRENT_ARCH)/PsfBlocks.o";
 				PRODUCT_NAME = PsfPlayer;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "D3D9B36E-2168-4556-ACF5-DBC20031360C";
-				SDKROOT = iphoneos;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "570E7A4A-C076-45AC-832D-CF64304F8F4E";
+				VALID_ARCHS = armv7;
 			};
 			name = Debug;
 		};
@@ -943,12 +961,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jean-Philip Desjardins (YD39RHL5BG)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ../Source/ios_ui/PsfPlayer_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = AOT_USE_CACHE;
 				HEADER_SEARCH_PATHS = (
 					"~/Libraries/boost_1_50_0",
 					"~/Projects/Framework/include",
@@ -956,64 +976,43 @@
 					"~/Projects/Play/Source",
 				);
 				INFOPLIST_FILE = ../Source/ios_ui/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
+				OTHER_LDFLAGS = "/Users/jpd002/PsfBlocks/$(CURRENT_ARCH)/PsfBlocks.o";
 				PRODUCT_NAME = PsfPlayer;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "D3D9B36E-2168-4556-ACF5-DBC20031360C";
-				SDKROOT = iphoneos;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "570E7A4A-C076-45AC-832D-CF64304F8F4E";
+				VALID_ARCHS = armv7;
 			};
 			name = Release;
 		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jean-Philip Desjardins (YD39RHL5BG)";
 				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_PREPROCESSOR_DEFINITIONS = _PSX;
-				GCC_THUMB_SUPPORT = NO;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_42_0/boost/tr1/tr1",
-					"~/Libraries/boost_1_42_0",
-					"~/Projects/Framework/include",
-					"~/Projects/CodeGen/include",
-					"~/Projects/Purei/Source",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 4.1;
-				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = PsfPlayer;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7AF29E36-401D-4D39-B4C2-1E94C4A82AB6";
-				SDKROOT = iphoneos4.2;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jean-Philip Desjardins (YD39RHL5BG)";
 				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_PREPROCESSOR_DEFINITIONS = _PSX;
-				GCC_THUMB_SUPPORT = NO;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_42_0/boost/tr1/tr1",
-					"~/Libraries/boost_1_42_0",
-					"~/Projects/Framework/include",
-					"~/Projects/CodeGen/include",
-					"~/Projects/Purei/Source",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 4.1;
-				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = PsfPlayer;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7AF29E36-401D-4D39-B4C2-1E94C4A82AB6";
-				SDKROOT = iphoneos4.2;
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};

@@ -2,26 +2,27 @@
 
 @implementation PlaylistSelectViewController
 
--(void)dealloc 
+@synthesize delegate;
+
+-(void)dealloc
 {
 	[m_archives release];
-    [super dealloc];
+	[super dealloc];
 }
 
 -(void)viewDidLoad 
 {
-    [super viewDidLoad];
+	[super viewDidLoad];
 	
 	NSString* path = [@"~" stringByExpandingTildeInPath];
 	NSFileManager* localFileManager = [[NSFileManager alloc] init];
 	
 	NSDirectoryEnumerator* dirEnum = [localFileManager enumeratorAtPath: path];	
-
-	NSString* file;
 	
 	m_archives = [[NSMutableArray alloc] init];
 	
-	while(file = [dirEnum nextObject]) 
+	NSString* file = nil;
+	while(file = [dirEnum nextObject])
 	{
 		if([[file pathExtension] isEqualToString: @"zip"])
 		{
@@ -30,38 +31,23 @@
 	}
 	
 	[localFileManager release];
-	
-	m_selectionHandler = nil;
-	m_selectionHandlerSelector = 0;
 }
 
--(void)setSelectionHandler: (id)handler selector: (SEL)sel
+-(void)viewDidDisappear: (BOOL)animated
 {
-	m_selectionHandler = handler;
-	m_selectionHandlerSelector = sel;
-}
-
--(void)viewWillAppear:(BOOL)animated 
-{
-    [super viewWillAppear:animated];
-}
-
--(void)viewDidDisappear: (BOOL)animated 
-{
-    [super viewDidDisappear: animated];
-	[self.tableView deselectRowAtIndexPath: [self.tableView indexPathForSelectedRow] animated:NO];
+	[super viewDidDisappear: animated];
+	//[self.tableView deselectRowAtIndexPath: [self.tableView indexPathForSelectedRow] animated:NO];
 }
 
 -(IBAction)onCancel: (id)sender
 {
-	[self dismissModalViewControllerAnimated: YES];
+	[self dismissViewControllerAnimated: YES completion: nil];
 }
 
 -(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView 
 {
 	return 1;
 }
-
 
 -(NSInteger)tableView: (UITableView *)tableView numberOfRowsInSection: (NSInteger)section 
 {
@@ -76,41 +62,35 @@
 -(UITableViewCell*)tableView: (UITableView*)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath 
 {
 	static NSString *CellIdentifier = @"Cell";
-    
+
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: CellIdentifier];
-    if (cell == nil)
+	if(cell == nil)
 	{
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier: CellIdentifier] autorelease];
-    }
-    
+		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier: CellIdentifier] autorelease];
+	}
+	
 	assert(indexPath.row < [m_archives count]);
 	NSString* playlistPath = [m_archives objectAtIndex: indexPath.row];
 	
 	cell.textLabel.text = [playlistPath lastPathComponent];
 	
-    return cell;
+	return cell;
 }
 
 -(void)tableView: (UITableView*)tableView didSelectRowAtIndexPath: (NSIndexPath*)indexPath
-{	
-	if(m_selectionHandler != nil)
-	{
-		[m_selectionHandler performSelector: m_selectionHandlerSelector];
-	}
-
-	[self dismissModalViewControllerAnimated: YES];
-}
-
--(NSString*)selectedPlaylistPath
 {
-	NSIndexPath* indexPath = [self.tableView indexPathForSelectedRow];
 	assert(indexPath.row < [m_archives count]);
-
+	
 	NSString* playlistPath = [m_archives objectAtIndex: indexPath.row];
 	NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
 	NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: playlistPath];
+	
+	if(self.delegate != nil)
+	{
+		[self.delegate onPlaylistSelected: absolutePath];
+	}
 
-	return absolutePath;
+	[self dismissViewControllerAnimated: YES completion: nil];
 }
 
 @end
