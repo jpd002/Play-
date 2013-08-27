@@ -2,15 +2,17 @@
 #include "PsfLoader.h"
 #include "MemoryUtils.h"
 #include "CoffObjectFile.h"
+#include "MachoObjectFile.h"
 #include "StdStreamUtils.h"
 #include "Jitter.h"
-#include "Jitter_CodeGenFactory.h"
 #include "Jitter_CodeGen_x86_32.h"
+#include "Jitter_CodeGen_Arm.h"
 #include "MemStream.h"
 #include "Iop_PsfSubSystem.h"
 #include "ThreadPool.h"
 #include <boost/filesystem.hpp>
 #include "Playlist.h"
+#include "make_unique.h"
 
 namespace filesystem = boost::filesystem;
 
@@ -39,10 +41,9 @@ void Gather(const char* archivePathName, const char* outputPathName)
 		filesystem::path archivePath = filesystem::path(archivePathName);
 		auto archive = std::unique_ptr<CPsfArchive>(CPsfArchive::CreateFromPath(archivePath));
 
-		for(auto fileInfoIterator = archive->GetFilesBegin();
-			fileInfoIterator != archive->GetFilesEnd(); fileInfoIterator++)
+		for(const auto& fileInfo : archive->GetFiles())
 		{
-			filesystem::path archiveItemPath = fileInfoIterator->name;
+			filesystem::path archiveItemPath = fileInfo.name;
 			filesystem::path archiveItemExtension = archiveItemPath.extension();
 			if(CPlaylist::IsLoadableExtension(archiveItemExtension.string().c_str() + 1))
 			{
@@ -83,7 +84,7 @@ void Gather(const char* archivePathName, const char* outputPathName)
 	CBasicBlock::SetAotBlockOutputStream(nullptr);
 }
 
-unsigned int CompileFunction(CPsfVm& virtualMachine, const std::vector<uint32>& blockCode, Jitter::CObjectFile& objectFile, const std::string& functionName, uint32 begin, uint32 end)
+unsigned int CompileFunction(CPsfVm& virtualMachine, CMipsJitter* jitter, const std::vector<uint32>& blockCode, Jitter::CObjectFile& objectFile, const std::string& functionName, uint32 begin, uint32 end)
 {
 	auto& context = virtualMachine.GetCpu();
 
@@ -97,31 +98,16 @@ unsigned int CompileFunction(CPsfVm& virtualMachine, const std::vector<uint32>& 
 		Framework::CMemStream outputStream;
 		Jitter::CObjectFile::INTERNAL_SYMBOL func;
 
-		static CMipsJitter* jitter = nullptr;
-		if(jitter == NULL)
-		{
-			Jitter::CCodeGen* codeGen = new Jitter::CCodeGen_x86_32();
-			codeGen->SetExternalSymbolReferencedHandler(
-				[&] (void* symbol, uint32 offset)
-				{
-					Jitter::CObjectFile::SYMBOL_REFERENCE ref;
-					ref.offset		= offset;
-					ref.type		= Jitter::CObjectFile::SYMBOL_TYPE_EXTERNAL;
-					ref.symbolIndex	= objectFile.GetExternalSymbolIndexByValue(symbol);
-					func.symbolReferences.push_back(ref);
-				}
-			);
-
-			jitter = new CMipsJitter(codeGen);
-
-			for(unsigned int i = 0; i < 4; i++)
+		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler(
+			[&] (void* symbol, uint32 offset)
 			{
-				jitter->SetVariableAsConstant(
-					offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
-					0
-					);
+				Jitter::CObjectFile::SYMBOL_REFERENCE ref;
+				ref.offset		= offset;
+				ref.type		= Jitter::CObjectFile::SYMBOL_TYPE_EXTERNAL;
+				ref.symbolIndex	= objectFile.GetExternalSymbolIndexByValue(symbol);
+				func.symbolReferences.push_back(ref);
 			}
-		}
+		);
 
 		jitter->SetStream(&outputStream);
 		jitter->Begin();
@@ -195,13 +181,44 @@ AotBlockMap GetBlocksFromCache(const filesystem::path& blockCachePath)
 	return result;
 }
 
-void Compile(const char* databasePathName, const char* outputPath)
+void Compile(const char* databasePathName, const char* cpuArchName, const char* imageFormatName, const char* outputPath)
 {
 	CPsfVm virtualMachine;
 	auto subSystem = std::make_shared<Iop::CPsfSubSystem>(false);
 	virtualMachine.SetSubSystem(subSystem);
 
-	auto objectFile = std::unique_ptr<Jitter::CObjectFile>(new Jitter::CCoffObjectFile());
+	Jitter::CCodeGen* codeGen = nullptr;
+	Jitter::CObjectFile::CPU_ARCH cpuArch = Jitter::CObjectFile::CPU_ARCH_X86;
+	if(!strcmp(cpuArchName, "x86"))
+	{
+		codeGen = new Jitter::CCodeGen_x86_32();
+		cpuArch = Jitter::CObjectFile::CPU_ARCH_X86;
+	}
+	else if(!strcmp(cpuArchName, "arm"))
+	{
+		codeGen = new Jitter::CCodeGen_Arm();
+		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM;
+	}
+	else
+	{
+		throw std::runtime_error("Invalid cpu target.");
+	}
+
+	std::unique_ptr<Jitter::CObjectFile> objectFile;
+	if(!strcmp(imageFormatName, "coff"))
+	{
+		objectFile = std::make_unique<Jitter::CCoffObjectFile>(cpuArch);
+	}
+	else if(!strcmp(imageFormatName, "macho"))
+	{
+		objectFile = std::make_unique<Jitter::CMachoObjectFile>(cpuArch);
+	}
+	else
+	{
+		throw std::runtime_error("Invalid executable image type (must be coff or macho).");
+	}
+
+	codeGen->RegisterExternalSymbols(objectFile.get());
 	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", &MemoryUtils_GetByteProxy);
 	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", &MemoryUtils_GetHalfProxy);
 	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", &MemoryUtils_GetWordProxy);
@@ -216,6 +233,16 @@ void Compile(const char* databasePathName, const char* outputPath)
 	filesystem::path databasePath(databasePathName);
 	auto blocks = GetBlocksFromCache(databasePath);
 
+	//Initialize Jitter Service
+	auto jitter = new CMipsJitter(codeGen);
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		jitter->SetVariableAsConstant(
+			offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
+			0
+			);
+	}
+
 	printf("Got %d blocks to compile.\r\n", blocks.size());
 
 	FunctionTable functionTable;
@@ -227,7 +254,7 @@ void Compile(const char* databasePathName, const char* outputPath)
 
 		auto functionName = "aotblock_" + std::to_string(blockKey.crc) + "_" + std::to_string(blockKey.begin) + "_" + std::to_string(blockKey.end);
 
-		unsigned int functionSymbolIndex = CompileFunction(virtualMachine, blockCachePair.second, *objectFile, functionName, blockKey.begin, blockKey.end);
+		unsigned int functionSymbolIndex = CompileFunction(virtualMachine, jitter, blockCachePair.second, *objectFile, functionName, blockKey.begin, blockKey.end);
 
 		FUNCTION_TABLE_ITEM tableItem = { blockKey, functionSymbolIndex };
 		functionTable.push_back(tableItem);
@@ -316,7 +343,11 @@ int main(int argc, char** argv)
 
 		try
 		{
-			Compile(argv[2], argv[5]);
+			const char* databasePath = argv[2];
+			const char* cpuArchName = argv[3];
+			const char* imageFormatName = argv[4];
+			const char* outputPath = argv[5];
+			Compile(databasePath, cpuArchName, imageFormatName, outputPath);
 		}
 		catch(const std::exception& exception)
 		{
