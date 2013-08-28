@@ -35,7 +35,7 @@
 		708FE7E117C0B8BE00BFCDB2 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7D517C0B8BE00BFCDB2 /* main.mm */; };
 		708FE7E317C0B8BE00BFCDB2 /* PlaylistSelectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7D817C0B8BE00BFCDB2 /* PlaylistSelectViewController.m */; };
 		708FE7E417C0B8BE00BFCDB2 /* PlaylistViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */; };
-		708FE7E517C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DD17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm */; };
+		708FE7E517C0B8BE00BFCDB2 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */; };
 		70C37E6E17C769DD00D18224 /* MainTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70C37E6D17C769DD00D18224 /* MainTabBarController.mm */; };
 		7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A77130F8993CE0082129E /* OpenAL.framework */; };
 		7E27214A1213B38D00C0DEBF /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721481213B38D00C0DEBF /* MipsJitter.cpp */; };
@@ -198,8 +198,8 @@
 		708FE7D917C0B8BE00BFCDB2 /* PlaylistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistViewController.h; path = ../Source/ios_ui/PlaylistViewController.h; sourceTree = "<group>"; };
 		708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlaylistViewController.mm; path = ../Source/ios_ui/PlaylistViewController.mm; sourceTree = "<group>"; };
 		708FE7DB17C0B8BE00BFCDB2 /* PsfPlayer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPlayer_Prefix.pch; path = ../Source/ios_ui/PsfPlayer_Prefix.pch; sourceTree = "<group>"; };
-		708FE7DC17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPlayerAppDelegate.h; path = ../Source/ios_ui/PsfPlayerAppDelegate.h; sourceTree = "<group>"; };
-		708FE7DD17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PsfPlayerAppDelegate.mm; path = ../Source/ios_ui/PsfPlayerAppDelegate.mm; sourceTree = "<group>"; };
+		708FE7DC17C0B8BE00BFCDB2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Source/ios_ui/AppDelegate.h; sourceTree = "<group>"; };
+		708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ios_ui/AppDelegate.mm; sourceTree = "<group>"; };
 		70C37E6C17C7698000D18224 /* MainTabBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainTabBarController.h; path = ../Source/ios_ui/MainTabBarController.h; sourceTree = "<group>"; };
 		70C37E6D17C769DD00D18224 /* MainTabBarController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainTabBarController.mm; path = ../Source/ios_ui/MainTabBarController.mm; sourceTree = "<group>"; };
 		7E1A77130F8993CE0082129E /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = /System/Library/Frameworks/OpenAL.framework; sourceTree = "<absolute>"; };
@@ -418,8 +418,8 @@
 				708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */,
 				708FE7D917C0B8BE00BFCDB2 /* PlaylistViewController.h */,
 				708FE7DB17C0B8BE00BFCDB2 /* PsfPlayer_Prefix.pch */,
-				708FE7DD17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm */,
-				708FE7DC17C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.h */,
+				708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */,
+				708FE7DC17C0B8BE00BFCDB2 /* AppDelegate.h */,
 				7016682917C72969003504E0 /* Storyboard.storyboard */,
 			);
 			name = "iOS UI";
@@ -841,7 +841,7 @@
 				7E4B3CFA0F9E99A500675ED7 /* MIPSAssembler.cpp in Sources */,
 				7E4B3CFB0F9E99A500675ED7 /* MipsAssemblerDefinitions.cpp in Sources */,
 				7E4B3CFD0F9E99A500675ED7 /* MIPSCoprocessor.cpp in Sources */,
-				708FE7E517C0B8BE00BFCDB2 /* PsfPlayerAppDelegate.mm in Sources */,
+				708FE7E517C0B8BE00BFCDB2 /* AppDelegate.mm in Sources */,
 				7E4B3CFE0F9E99A500675ED7 /* MipsExecutor.cpp in Sources */,
 				7E4B3CFF0F9E99A500675ED7 /* MIPSInstructionFactory.cpp in Sources */,
 				7E4B3D020F9E99A500675ED7 /* MIPSReflection.cpp in Sources */,

@@ -1,6 +1,6 @@
-#import "PsfPlayerAppDelegate.h"
+#import "AppDelegate.h"
 
-@implementation PsfPlayerAppDelegate
+@implementation AppDelegate
 
 @synthesize window;
 

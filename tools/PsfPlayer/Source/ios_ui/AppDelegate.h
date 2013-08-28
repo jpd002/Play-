@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 
-@interface PsfPlayerAppDelegate : NSObject <UIApplicationDelegate>
+@interface AppDelegate : NSObject <UIApplicationDelegate>
 {
 	
 }
