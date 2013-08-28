@@ -38,11 +38,23 @@ NSString* stringWithWchar(const std::wstring& input)
 	playlistViewController.delegate = self;
 	
 	m_fileInfoViewController = (FileInfoViewController*)self.viewControllers[1];
+	m_fileInfoViewController.delegate = self;
 }
 
--(void)onPlayButtonPressed
+-(void)onPlayButtonPress
 {
-	
+	if(m_playing)
+	{
+		[m_fileInfoViewController setPlayButtonText: PLAY_STRING];
+		m_virtualMachine->Pause();
+		m_playing = false;
+	}
+	else
+	{
+		[m_fileInfoViewController setPlayButtonText: PAUSE_STRING];
+		m_virtualMachine->Resume();
+		m_playing = true;
+	}
 }
 
 -(void)onPlaylistItemSelected: (const CPlaylist::ITEM&)playlistItem playlist: (CPlaylist*)playlist

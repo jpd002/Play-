@@ -13,22 +13,4 @@
 	[[AVAudioSession sharedInstance] setActive: YES error: &activationErr];
 }
 
-/*
--(IBAction)onPauseButtonClick: (id)sender
-{
-	if(m_playing)
-	{
-		[m_playButton setTitle: PLAY_STRING forState: UIControlStateNormal];
-		m_virtualMachine->Pause();
-		m_playing = false;
-	}
-	else
-	{
-		[m_playButton setTitle: PAUSE_STRING forState: UIControlStateNormal];
-		m_virtualMachine->Resume();
-		m_playing = true;
-	}
-}
-*/
-
 @end

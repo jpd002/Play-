@@ -950,7 +950,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				OTHER_LDFLAGS = "/Users/jpd002/PsfBlocks/$(CURRENT_ARCH)/PsfBlocks.o";
+				OTHER_LDFLAGS = "../build_aot/output/macho/$(CURRENT_ARCH)/PsfBlocks.o";
 				PRODUCT_NAME = PsfPlayer;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "570E7A4A-C076-45AC-832D-CF64304F8F4E";
 				VALID_ARCHS = armv7;
@@ -981,7 +981,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				OTHER_LDFLAGS = "/Users/jpd002/PsfBlocks/$(CURRENT_ARCH)/PsfBlocks.o";
+				OTHER_LDFLAGS = "../build_aot/output/macho/$(CURRENT_ARCH)/PsfBlocks.o";
 				PRODUCT_NAME = PsfPlayer;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "570E7A4A-C076-45AC-832D-CF64304F8F4E";
 				VALID_ARCHS = armv7;
