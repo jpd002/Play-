@@ -4,6 +4,7 @@
 #import "ObjCMemberFunctionPointer.h"
 #import <boost/filesystem.hpp>
 #import "string_cast.h"
+#import <AVFoundation/AVAudioSession.h>
 
 #define PLAY_STRING		@"Play"
 #define PAUSE_STRING	@"Pause"
@@ -19,11 +20,42 @@ NSString* stringWithWchar(const std::wstring& input)
 	return result;
 }
 
+-(void)onAudioSessionInterruption: (NSNotification*)notification
+{
+	NSNumber* interruptionType = [notification.userInfo valueForKey: AVAudioSessionInterruptionTypeKey];
+	if([interruptionType intValue] == AVAudioSessionInterruptionTypeBegan)
+	{
+		if(m_playing)
+		{
+			[self onPlayButtonPress];
+		}
+	}
+}
+
+-(void)onAudioSessionRouteChanged: (NSNotification*)notification
+{
+	AVAudioSessionRouteDescription* route = [notification.userInfo valueForKey: AVAudioSessionRouteChangePreviousRouteKey];
+	if([route.outputs count] > 0)
+	{
+		AVAudioSessionPortDescription* port = [route.outputs objectAtIndex: 0];
+		if([port.portType compare: AVAudioSessionPortHeadphones] == NSOrderedSame)
+		{
+			if(m_playing)
+			{
+				[self onPlayButtonPress];
+			}
+		}
+	}
+}
+
 -(void)viewDidLoad
 {
-	m_virtualMachine = new CPsfVm();
-	m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
+	[[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(onAudioSessionInterruption:) name: AVAudioSessionInterruptionNotification object: nil];
+	[[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(onAudioSessionRouteChanged:) name: AVAudioSessionRouteChangeNotification object: nil];
+	NSError* setCategoryErr = nil;
+	[[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &setCategoryErr];
 	
+	m_virtualMachine = new CPsfVm();
 	m_virtualMachine->OnNewFrame.connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
 	
 	[NSTimer scheduledTimerWithTimeInterval: 1 target: self selector: @selector(onTimer) userInfo: nil repeats: YES];
@@ -48,9 +80,16 @@ NSString* stringWithWchar(const std::wstring& input)
 		[m_fileInfoViewController setPlayButtonText: PLAY_STRING];
 		m_virtualMachine->Pause();
 		m_playing = false;
+		
+		NSError* activationErr = nil;
+		[[AVAudioSession sharedInstance] setActive: NO error: &activationErr];
 	}
 	else
 	{
+		NSError* activationErr = nil;
+		[[AVAudioSession sharedInstance] setActive: YES error: &activationErr];
+		m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
+		
 		[m_fileInfoViewController setPlayButtonText: PAUSE_STRING];
 		m_virtualMachine->Resume();
 		m_playing = true;
@@ -99,8 +138,7 @@ NSString* stringWithWchar(const std::wstring& input)
 		[m_fileInfoViewController setTrackTime: @"00:00"];
 		[m_fileInfoViewController setTags: psfTags];
 		
-		m_playing = true;
-		[m_fileInfoViewController setPlayButtonText: PAUSE_STRING];
+		[self onPlayButtonPress];
 	}
 	catch(const std::exception& exception)
 	{
