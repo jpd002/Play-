@@ -49,6 +49,11 @@
 	
 	[m_tableView reloadData];
 	[m_tableView setContentOffset: CGPointZero animated: NO];
+	
+	if(self.delegate != nil)
+	{
+		[self.delegate onPlaylistSelected: m_playlist];
+	}
 }
 
 -(NSInteger)numberOfSectionsInTableView: (UITableView *)tableView 
@@ -92,11 +97,9 @@
 -(void)tableView: (UITableView*)tableView didSelectRowAtIndexPath: (NSIndexPath*)indexPath
 {
 	assert(indexPath.row < m_playlist->GetItemCount());
-	const CPlaylist::ITEM& item(m_playlist->GetItem(indexPath.row));
-	
 	if(self.delegate != nil)
 	{
-		[self.delegate onPlaylistItemSelected: item playlist: m_playlist];
+		[self.delegate onPlaylistItemSelected: indexPath.row];
 	}
 }
 

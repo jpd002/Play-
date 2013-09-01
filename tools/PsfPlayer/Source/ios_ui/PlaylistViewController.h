@@ -4,7 +4,8 @@
 
 @protocol PlaylistViewControllerDelegate
 
--(void)onPlaylistItemSelected: (const CPlaylist::ITEM&)item playlist: (CPlaylist*)playlist;
+-(void)onPlaylistSelected: (CPlaylist*)playlist;
+-(void)onPlaylistItemSelected: (unsigned int)itemIndex;
 
 @end
 

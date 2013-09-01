@@ -5,6 +5,8 @@
 @protocol FileInfoViewControllerDelegate
 
 -(void)onPlayButtonPress;
+-(void)onPrevButtonPress;
+-(void)onNextButtonPress;
 
 @end
 
@@ -27,5 +29,7 @@ typedef std::vector<std::string> TagStringList;
 -(void)setPlayButtonText: (NSString*)playButtonText;
 -(void)setTags: (const CPsfTags&)tags;
 -(IBAction)onPlayButtonPress: (id)sender;
+-(IBAction)onPrevButtonPress: (id)sender;
+-(IBAction)onNextButtonPress: (id)sender;
 
 @end

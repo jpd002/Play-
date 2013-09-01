@@ -43,6 +43,22 @@
 	}
 }
 
+-(IBAction)onPrevButtonPress: (id)sender
+{
+	if(delegate != nil)
+	{
+		[self.delegate onPrevButtonPress];
+	}
+}
+
+-(IBAction)onNextButtonPress: (id)sender
+{
+	if(delegate != nil)
+	{
+		[self.delegate onNextButtonPress];
+	}
+}
+
 -(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView 
 {
 	return 1;
