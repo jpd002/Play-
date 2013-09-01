@@ -19,18 +19,23 @@
 	
 	NSDirectoryEnumerator* dirEnum = [localFileManager enumeratorAtPath: path];	
 	
-	m_archives = [[NSMutableArray alloc] init];
+	NSMutableArray* archives = [[NSMutableArray alloc] init];
 	
 	NSString* file = nil;
 	while(file = [dirEnum nextObject])
 	{
 		if([[file pathExtension] isEqualToString: @"zip"])
 		{
-			[m_archives addObject: file];
+			[archives addObject: file];
 		}
 	}
 	
 	[localFileManager release];
+	
+	m_archives = [archives sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
+	
+	[m_archives retain];
+	[archives release];
 }
 
 -(void)viewDidDisappear: (BOOL)animated

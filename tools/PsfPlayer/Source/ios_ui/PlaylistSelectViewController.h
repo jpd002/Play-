@@ -8,7 +8,7 @@
 
 @interface PlaylistSelectViewController : UIViewController
 {
-	NSMutableArray*		m_archives;
+	NSArray*		m_archives;
 }
 
 @property (nonatomic, assign) id<PlaylistSelectViewControllerDelegate> delegate;
