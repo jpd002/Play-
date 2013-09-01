@@ -968,7 +968,10 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ../Source/ios_ui/PsfPlayer_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = AOT_USE_CACHE;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					AOT_USE_CACHE,
+					NDEBUG,
+				);
 				HEADER_SEARCH_PATHS = (
 					"~/Libraries/boost_1_50_0",
 					"~/Projects/Framework/include",

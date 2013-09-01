@@ -48,6 +48,7 @@
 	}
 	
 	[m_tableView reloadData];
+	[m_tableView setContentOffset: CGPointZero animated: NO];
 }
 
 -(NSInteger)numberOfSectionsInTableView: (UITableView *)tableView 
