@@ -19,15 +19,16 @@ m_lastUpdateTime(0),
 m_mustSync(true)
 {
 	m_context.MakeCurrent();
-	ALuint bufferNames[MAX_BUFFERS];
-	alGenBuffers(MAX_BUFFERS, bufferNames);
+	alGenBuffers(MAX_BUFFERS, m_bufferNames);
 	CHECK_AL_ERROR();
-	m_availableBuffers.insert(m_availableBuffers.begin(), bufferNames, bufferNames + MAX_BUFFERS);
+	Reset();
 }
 
 CSH_OpenAL::~CSH_OpenAL()
 {
-
+	Reset();
+	alDeleteBuffers(MAX_BUFFERS, m_bufferNames);
+	CHECK_AL_ERROR();
 }
 
 CSoundHandler* CSH_OpenAL::HandlerFactory()
@@ -40,13 +41,16 @@ void CSH_OpenAL::Reset()
 	m_source.Stop();
 	ALint sourceState = m_source.GetState();
 	assert(sourceState == AL_INITIAL || sourceState == AL_STOPPED);
-	RecycleBuffers();
-	assert(m_availableBuffers.size() == MAX_BUFFERS);
+	alSourcei(m_source, AL_BUFFER, 0);
+	CHECK_AL_ERROR();
+	m_availableBuffers.clear();
+	m_availableBuffers.insert(m_availableBuffers.begin(), m_bufferNames, m_bufferNames + MAX_BUFFERS);
 }
 
 void CSH_OpenAL::RecycleBuffers()
 {
 	unsigned int bufferCount = m_source.GetBuffersProcessed();
+	CHECK_AL_ERROR();
 	if(bufferCount != 0)
 	{
 		ALuint* bufferNames = reinterpret_cast<ALuint*>(alloca(sizeof(ALuint) * bufferCount));

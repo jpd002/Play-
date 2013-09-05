@@ -36,6 +36,7 @@ private:
 	BufferList				m_availableBuffers;
 	uint64					m_lastUpdateTime;
 	bool					m_mustSync;
+	ALuint					m_bufferNames[MAX_BUFFERS];
 };
 
 #endif
