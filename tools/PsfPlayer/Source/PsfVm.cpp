@@ -164,7 +164,7 @@ void CPsfVm::Step()
 
 void CPsfVm::SetSpuHandler(const SpuHandlerFactory& factory)
 {
-	m_mailBox.SendCall(bind(&CPsfVm::SetSpuHandlerImpl, this, factory));
+	m_mailBox.SendCall(bind(&CPsfVm::SetSpuHandlerImpl, this, factory), true);
 }
 
 void CPsfVm::SetSpuHandlerImpl(const SpuHandlerFactory& factory)
@@ -172,9 +172,12 @@ void CPsfVm::SetSpuHandlerImpl(const SpuHandlerFactory& factory)
 	if(m_soundHandler)
 	{
 		delete m_soundHandler;
-		m_soundHandler = NULL;
+		m_soundHandler = nullptr;
 	}
-	m_soundHandler = factory();
+	if(factory != nullptr)
+	{
+		m_soundHandler = factory();
+	}
 }
 
 void CPsfVm::SetReverbEnabled(bool enabled)

@@ -36,6 +36,7 @@
 		708FE7E317C0B8BE00BFCDB2 /* PlaylistSelectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7D817C0B8BE00BFCDB2 /* PlaylistSelectViewController.m */; };
 		708FE7E417C0B8BE00BFCDB2 /* PlaylistViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */; };
 		708FE7E517C0B8BE00BFCDB2 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */; };
+		70934F0B17D2ECB8000D9831 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70934F0A17D2ECB8000D9831 /* MediaPlayer.framework */; };
 		70C37E6E17C769DD00D18224 /* MainTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70C37E6D17C769DD00D18224 /* MainTabBarController.mm */; };
 		7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A77130F8993CE0082129E /* OpenAL.framework */; };
 		7E27214A1213B38D00C0DEBF /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721481213B38D00C0DEBF /* MipsJitter.cpp */; };
@@ -200,6 +201,7 @@
 		708FE7DB17C0B8BE00BFCDB2 /* PsfPlayer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPlayer_Prefix.pch; path = ../Source/ios_ui/PsfPlayer_Prefix.pch; sourceTree = "<group>"; };
 		708FE7DC17C0B8BE00BFCDB2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Source/ios_ui/AppDelegate.h; sourceTree = "<group>"; };
 		708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ios_ui/AppDelegate.mm; sourceTree = "<group>"; };
+		70934F0A17D2ECB8000D9831 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		70C37E6C17C7698000D18224 /* MainTabBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainTabBarController.h; path = ../Source/ios_ui/MainTabBarController.h; sourceTree = "<group>"; };
 		70C37E6D17C769DD00D18224 /* MainTabBarController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainTabBarController.mm; path = ../Source/ios_ui/MainTabBarController.mm; sourceTree = "<group>"; };
 		7E1A77130F8993CE0082129E /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = /System/Library/Frameworks/OpenAL.framework; sourceTree = "<absolute>"; };
@@ -377,6 +379,7 @@
 				288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */,
 				7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */,
 				7EDF2BB512C675BC001CB546 /* AVFoundation.framework in Frameworks */,
+				70934F0B17D2ECB8000D9831 /* MediaPlayer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,6 +431,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				70934F0A17D2ECB8000D9831 /* MediaPlayer.framework */,
 				70383A4417BF351A00482B35 /* boost.xcodeproj */,
 				7E2721B31213B6AC00C0DEBF /* Framework.xcodeproj */,
 				7E2721AC1213B69300C0DEBF /* CodeGen.xcodeproj */,

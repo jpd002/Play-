@@ -5,6 +5,7 @@
 #import <boost/filesystem.hpp>
 #import "string_cast.h"
 #import <AVFoundation/AVAudioSession.h>
+#import <MediaPlayer/MediaPlayer.h>
 
 #define PLAY_STRING		@"Play"
 #define PAUSE_STRING	@"Pause"
@@ -48,6 +49,34 @@ NSString* stringWithWchar(const std::wstring& input)
 	}
 }
 
+-(void)remoteControlReceivedWithEvent: (UIEvent*)receivedEvent
+{
+	if(receivedEvent.type == UIEventTypeRemoteControl)
+	{
+		switch(receivedEvent.subtype)
+		{
+		case UIEventSubtypeRemoteControlPlay:
+			[self onPlayButtonPress];
+			break;
+		case UIEventSubtypeRemoteControlPause:
+			[self onPlayButtonPress];
+			break;
+		case UIEventSubtypeRemoteControlTogglePlayPause:
+			[self onPlayButtonPress];
+			break;
+		case UIEventSubtypeRemoteControlPreviousTrack:
+			[self onPrevButtonPress];
+			break;
+		case UIEventSubtypeRemoteControlNextTrack:
+			[self onNextButtonPress];
+			break;
+		default:
+			NSLog(@"Received remote control event: %d", receivedEvent.subtype);
+			break;
+		}
+	}
+}
+
 -(void)viewDidLoad
 {
 	m_playlist = nullptr;
@@ -80,6 +109,9 @@ NSString* stringWithWchar(const std::wstring& input)
 	[[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(onAudioSessionRouteChanged:) name: AVAudioSessionRouteChangeNotification object: nil];
 	NSError* setCategoryErr = nil;
 	[[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &setCategoryErr];
+	
+	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+	[self becomeFirstResponder];
 }
 
 -(void)onPlayButtonPress
@@ -91,13 +123,18 @@ NSString* stringWithWchar(const std::wstring& input)
 		m_virtualMachine->Pause();
 		m_playing = false;
 		
+		m_virtualMachine->SetSpuHandler(nullptr);
+		
 		NSError* activationErr = nil;
-		[[AVAudioSession sharedInstance] setActive: NO error: &activationErr];
+		BOOL success = [[AVAudioSession sharedInstance] setActive: NO error: &activationErr];
+		assert(success == YES);
 	}
 	else
 	{
 		NSError* activationErr = nil;
-		[[AVAudioSession sharedInstance] setActive: YES error: &activationErr];
+		BOOL success = [[AVAudioSession sharedInstance] setActive: YES error: &activationErr];
+		assert(success == YES);
+		
 		m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
 		
 		[m_fileInfoViewController setPlayButtonText: PAUSE_STRING];
@@ -192,14 +229,25 @@ NSString* stringWithWchar(const std::wstring& input)
 		m_virtualMachine->Resume();
 		
 		CPsfTags psfTags(tags);
+		NSString* title = @"PsfPlayer";
 		if(psfTags.HasTag("title"))
 		{
-			std::wstring title = psfTags.DecodeTagValue(psfTags.GetRawTagValue("title").c_str());
-			NSString* titleString = stringWithWchar(title);
-			[m_fileInfoViewController setTrackTitle: titleString];
+			title = stringWithWchar(psfTags.DecodeTagValue(psfTags.GetRawTagValue("title").c_str()));
 		}
+		NSString* gameName = @"";
+		if(psfTags.HasTag("game"))
+		{
+			gameName = stringWithWchar(psfTags.DecodeTagValue(psfTags.GetRawTagValue("game").c_str()));
+		}
+		
+		[m_fileInfoViewController setTrackTitle: title];
 		[m_fileInfoViewController setTrackTime: @"00:00"];
 		[m_fileInfoViewController setTags: psfTags];
+		
+		NSArray* keys = [NSArray arrayWithObjects: MPMediaItemPropertyAlbumTitle, MPMediaItemPropertyTitle, nil];
+		NSArray* values = [NSArray arrayWithObjects: gameName, title, nil];
+		NSDictionary* mediaInfo = [NSDictionary dictionaryWithObjects:values forKeys:keys];
+		[MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = mediaInfo;
 		
 		if(m_repeatMode != TRACK_REPEAT)
 		{
