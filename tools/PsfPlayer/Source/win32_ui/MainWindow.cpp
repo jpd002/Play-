@@ -639,6 +639,7 @@ void CMainWindow::UpdateFade()
 
 void CMainWindow::UpdateClock()
 {
+	if(!m_timerLabel) return;
 	static const unsigned int fps = 60;
 	uint64 time = m_frames / fps;
 	if(time != m_lastUpdateTime)

@@ -1,6 +1,6 @@
 #include "MailBox.h"
 #if defined(WIN32)
-#include <Windows.h>
+#include "win32/Win32Defs.h"
 #endif
 
 CMailBox::CMailBox()
@@ -54,7 +54,7 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 		m_callDone = false;
 		while(!m_callDone)
 		{
-#if defined(WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#ifdef FRAMEWORK_WIN_DESKTOP
 			MSG wmmsg;
 			while(PeekMessage(&wmmsg, NULL, 0, 0, PM_REMOVE))
 			{

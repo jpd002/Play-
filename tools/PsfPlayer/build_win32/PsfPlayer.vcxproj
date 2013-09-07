@@ -300,7 +300,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;DEBUGGER_INCLUDED;FUNCTIONSVIEW_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <AdditionalOptions>/Zm111 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
