@@ -77,15 +77,21 @@ NSString* stringWithWchar(const std::wstring& input)
 	}
 }
 
+-(void)reset
+{
+	m_ready = false;
+	m_playing = false;
+	m_trackLength = 0;
+	m_fadePosition = 0;
+	m_frames = 0;
+	m_volumeAdjust = 1.0f;
+}
+
 -(void)viewDidLoad
 {
 	m_playlist = nullptr;
 	m_currentPlaylistItem = 0;
-	m_ready = false;
 	m_repeatMode = PLAYLIST_REPEAT;
-	m_trackLength = 0;
-	m_fadePosition = 0;
-	m_volumeAdjust = 1.0f;
 	
 	m_virtualMachine = new CPsfVm();
 	m_virtualMachine->OnNewFrame.connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
@@ -93,12 +99,11 @@ NSString* stringWithWchar(const std::wstring& input)
 	[NSTimer scheduledTimerWithTimeInterval: 0.20 target: self selector: @selector(onUpdateTrackTimeTimer) userInfo: nil repeats: YES];
 	[NSTimer scheduledTimerWithTimeInterval: 0.05 target: self selector: @selector(onUpdateFadeTimer) userInfo: nil repeats: YES];
 	
+	[self reset];
+	
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
-	
-	m_frames = 0;
-	m_playing = false;
-	
+		
 	PlaylistViewController* playlistViewController = (PlaylistViewController*)self.viewControllers[0];
 	playlistViewController.delegate = self;
 	
@@ -199,8 +204,7 @@ NSString* stringWithWchar(const std::wstring& input)
 	const auto& playlistItem(m_playlist->GetItem(itemIndex));
 	
 	//Initialize UI
-	m_frames = 0;
-	m_playing = false;
+	[self reset];
 	[m_fileInfoViewController setPlayButtonText: PLAY_STRING];
 	
 	self.selectedIndex = 1;
@@ -216,7 +220,7 @@ NSString* stringWithWchar(const std::wstring& input)
 	
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
-	
+		
 	try
 	{
 		CPsfBase::TagMap tags;
@@ -240,6 +244,16 @@ NSString* stringWithWchar(const std::wstring& input)
 			gameName = stringWithWchar(psfTags.DecodeTagValue(psfTags.GetRawTagValue("game").c_str()));
 		}
 		
+		try
+		{
+			m_volumeAdjust = boost::lexical_cast<float>(psfTags.GetTagValue("volume"));
+			m_virtualMachine->SetVolumeAdjust(m_volumeAdjust);
+		}
+		catch(...)
+		{
+			
+		}
+	
 		[m_fileInfoViewController setTrackTitle: title];
 		[m_fileInfoViewController setTrackTime: @"00:00"];
 		[m_fileInfoViewController setTags: psfTags];
