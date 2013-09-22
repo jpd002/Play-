@@ -7,14 +7,12 @@
 class CAppConfig : public Framework::CConfig, public CSingleton<CAppConfig>
 {
 public:
-	friend class CSingleton<CAppConfig>;
+								CAppConfig();
+	virtual						~CAppConfig();
 
 	static CConfig::PathType	GetBasePath();
 
 private:
-								CAppConfig();
-	virtual						~CAppConfig();
-
 	static CConfig::PathType	BuildConfigPath();
 };
 

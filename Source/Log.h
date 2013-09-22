@@ -10,14 +10,13 @@
 class CLog : public CSingleton<CLog>
 {
 public:
+								CLog();
+	virtual						~CLog();
+
 	void						Print(const char*, const char*, ...);
 
 private:
-	friend class CSingleton<CLog>;
 	typedef std::map<std::string, Framework::CStdStream> LogMapType;
-
-								CLog();
-	virtual						~CLog();
 
 	Framework::CStdStream&		GetLog(const char*);
 
