@@ -7,7 +7,7 @@
 using namespace Iop;
 
 #define INIT_SAMPLE_RATE (44100)
-#define TIME_SCALE (0x1000000)
+#define TIME_SCALE (0x1000)
 #define LOG_NAME ("iop_spubase")
 
 #define STATE_PREFIX			("iop_spu/spu_")
@@ -830,9 +830,9 @@ int16 CSpuBase::CSampleReader::GetSample(unsigned int dstSamplingRate)
 	int32 srcSampleAlpha = m_srcSampleIdx % TIME_SCALE;
 	int32 currentSample = m_buffer[srcSampleIdx];
 	int32 nextSample = m_buffer[srcSampleIdx + 1];
-	int32 resultSample = (currentSample * static_cast<int64>(TIME_SCALE - srcSampleAlpha) / TIME_SCALE) + 
-		(nextSample * static_cast<int64>(srcSampleAlpha) / TIME_SCALE);
-	m_srcSampleIdx += (static_cast<int64>(m_srcSamplingRate) * TIME_SCALE) / dstSamplingRate;
+	int32 resultSample = (currentSample * (TIME_SCALE - srcSampleAlpha) / TIME_SCALE) +
+		(nextSample * srcSampleAlpha / TIME_SCALE);
+	m_srcSampleIdx += (m_srcSamplingRate * TIME_SCALE) / dstSamplingRate;
 	if(srcSampleIdx >= BUFFER_SAMPLES)
 	{
 		m_srcSampleIdx -= BUFFER_SAMPLES * TIME_SCALE;
