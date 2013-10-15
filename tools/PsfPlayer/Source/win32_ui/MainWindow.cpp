@@ -87,10 +87,6 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_trackLength(0)
 , m_accel(CreateAccelerators())
 , m_reverbEnabled(true)
-, m_discoveryThreadActive(false)
-, m_discoveryCommandQueue(5)
-, m_discoveryResultQueue(5)
-, m_discoveryRunId(0)
 , m_playListOnceIcon(NULL)
 , m_repeatListIcon(NULL)
 , m_shuffleListIcon(NULL)
@@ -267,9 +263,6 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 
 	m_currentPanel = -1;
 	ActivatePanel(0);
-
-	m_discoveryThreadActive = true;
-	m_discoveryThread = std::thread([&] () { DiscoveryThreadProc(); });
 }
 
 CMainWindow::~CMainWindow()
@@ -282,9 +275,6 @@ CMainWindow::~CMainWindow()
 	delete m_configButton;
 	delete m_repeatButton;
 	delete m_pauseButton;
-
-	m_discoveryThreadActive = false;
-	m_discoveryThread.join();
 
 	for(unsigned int i = 0; i < MAX_PANELS; i++)
 	{
@@ -461,7 +451,7 @@ long CMainWindow::OnTimer(WPARAM timerId)
 		UpdateFade();
 		break;
 	case TIMER_UPDATE_DISCOVERIES:
-		ProcessPendingDiscoveries();
+		m_playlistDiscoveryService.ProcessPendingItems(m_playlist);
 		break;
 	}
 	return TRUE;
@@ -528,7 +518,7 @@ void CMainWindow::OnPlaylistAddClick()
 			item.length		= 0;
 			unsigned int itemId = m_playlist.InsertItem(item);
 
-			AddDiscoveryItem(filePath, boost::filesystem::path(), itemId);
+			m_playlistDiscoveryService.AddItemInRun(filePath, boost::filesystem::path(), itemId);
 		}
 	}
 }
@@ -1080,7 +1070,7 @@ void CMainWindow::OnAbout()
 void CMainWindow::LoadSingleFile(const boost::filesystem::path& filePath)
 {
 	m_playlist.Clear();
-	ResetDiscoveryRun();
+	m_playlistDiscoveryService.ResetRun();
 
 	{
 		CPlaylist::ITEM item;
@@ -1098,7 +1088,7 @@ void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
 	try
 	{
 		m_playlist.Clear();
-		ResetDiscoveryRun();
+		m_playlistDiscoveryService.ResetRun();
 
 		m_playlist.Read(playlistPath);
 		if(m_playlist.GetItemCount() > 0)
@@ -1119,7 +1109,7 @@ void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
 		for(unsigned int i = 0; i < m_playlist.GetItemCount(); i++)
 		{
 			const CPlaylist::ITEM& item(m_playlist.GetItem(i));
-			AddDiscoveryItem(item.path.c_str(), boost::filesystem::path(), item.id);
+			m_playlistDiscoveryService.AddItemInRun(item.path.c_str(), boost::filesystem::path(), item.id);
 		}
 	}
 	catch(const std::exception& except)
@@ -1135,7 +1125,7 @@ void CMainWindow::LoadArchive(const boost::filesystem::path& archivePath)
 	try
 	{
 		m_playlist.Clear();
-		ResetDiscoveryRun();
+		m_playlistDiscoveryService.ResetRun();
 
 		{
 			auto archive(CPsfArchive::CreateFromPath(archivePath));
@@ -1154,7 +1144,7 @@ void CMainWindow::LoadArchive(const boost::filesystem::path& archivePath)
 					newItem.archiveId = archiveId;
 					unsigned int itemId = m_playlist.InsertItem(newItem);
 
-					AddDiscoveryItem(filePath, archivePath, itemId);
+					m_playlistDiscoveryService.AddItemInRun(filePath, archivePath, itemId);
 				}
 			}
 		}
@@ -1252,110 +1242,4 @@ bool CMainWindow::PlayFile(const boost::filesystem::path& filePath, const boost:
 	UpdateClock();
 
 	return m_ready;
-}
-
-void CMainWindow::AddDiscoveryItem(const boost::filesystem::path& filePath, const boost::filesystem::path& archivePath, unsigned int itemId)
-{
-	DISCOVERY_COMMAND command;
-	command.runId		= m_discoveryRunId;
-	command.itemId		= itemId;
-	command.filePath	= filePath;
-	command.archivePath	= archivePath;
-	m_pendingDiscoveryCommands.push_back(command);
-}
-
-void CMainWindow::ResetDiscoveryRun()
-{
-	m_pendingDiscoveryCommands.clear();
-	m_discoveryRunId++;
-}
-
-void CMainWindow::ProcessPendingDiscoveries()
-{
-	while(m_pendingDiscoveryCommands.size() != 0)
-	{
-		const DISCOVERY_COMMAND& command(*m_pendingDiscoveryCommands.begin());
-		if(m_discoveryCommandQueue.TryPush(command))
-		{
-			m_pendingDiscoveryCommands.pop_front();
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	{
-		DISCOVERY_RESULT result;
-		if(m_discoveryResultQueue.TryPop(result))
-		{
-			if(result.runId == m_discoveryRunId)
-			{
-				int itemIdx = m_playlist.FindItem(result.itemId);
-				if(itemIdx != -1)
-				{
-					CPlaylist::ITEM item = m_playlist.GetItem(itemIdx);
-					item.title	= result.title;
-					item.length	= result.length;
-					m_playlist.UpdateItem(itemIdx, item);
-				}
-			}
-		}
-	}
-}
-
-void CMainWindow::DiscoveryThreadProc()
-{
-	DiscoveryResultQueue pendingResults;
-
-	while(m_discoveryThreadActive)
-	{
-		DISCOVERY_COMMAND command;
-		if(m_discoveryCommandQueue.TryPop(command))
-		{
-			try
-			{
-				auto streamProvider = CreatePsfStreamProvider(command.archivePath);
-				boost::scoped_ptr<Framework::CStream> inputStream(streamProvider->GetStreamForPath(command.filePath));
-				CPsfBase psfFile(*inputStream);
-				CPsfTags tags(CPsfTags::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd()));
-				tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));
-
-				DISCOVERY_RESULT result;
-				result.runId = command.runId;
-				result.itemId = command.itemId;
-				result.length = 0;
-
-				if(tags.HasTag("title"))
-				{
-					result.title = tags.GetTagValue("title");
-				}
-				if(tags.HasTag("length"))
-				{
-					result.length = tags.ConvertTimeString(tags.GetTagValue("length").c_str());
-				}
-
-				pendingResults.push_back(result);
-			}
-			catch(...)
-			{
-				//assert(0);
-			}
-		}
-
-		while(pendingResults.size() != 0)
-		{
-			const DISCOVERY_RESULT& command(*pendingResults.begin());
-			if(m_discoveryResultQueue.TryPush(command))
-			{
-				pendingResults.pop_front();
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	}
 }

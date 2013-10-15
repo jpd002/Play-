@@ -1,8 +1,6 @@
-#ifndef _MAINWINDOW_H_
-#define _MAINWINDOW_H_
+#pragma once
 
 #include <deque>
-#include <thread>
 #include <boost/filesystem/path.hpp>
 #include "../PsfVm.h"
 #include "../PsfBase.h"
@@ -20,7 +18,7 @@
 #include "FileInformationPanel.h"
 #include "SpuRegViewPanel.h"
 #include "AcceleratorTable.h"
-#include "LockFreeQueue.h"
+#include "PlaylistDiscoveryService.h"
 
 class CMainWindow : public Framework::Win32::CDialog, public boost::signals2::trackable
 {
@@ -70,25 +68,6 @@ private:
 		int				id;
 		const TCHAR*	name;
 	};
-
-	struct DISCOVERY_COMMAND
-	{
-		boost::filesystem::path		filePath;
-		boost::filesystem::path		archivePath;
-		unsigned int				runId;
-		unsigned int				itemId;
-	};
-
-	struct DISCOVERY_RESULT
-	{
-		unsigned int	runId;
-		unsigned int	itemId;
-		std::wstring	title;
-		double			length;
-	};
-
-	typedef std::deque<DISCOVERY_COMMAND> DiscoveryCommandQueue;
-	typedef std::deque<DISCOVERY_RESULT> DiscoveryResultQueue;
 
 	CSoundHandler*						CreateHandler(const TCHAR*);
 
@@ -142,11 +121,6 @@ private:
 	void								LoadCharEncodingPreferences();
 	int									FindCharEncoding(unsigned int);
 
-	void								ResetDiscoveryRun();
-	void								AddDiscoveryItem(const boost::filesystem::path&, const boost::filesystem::path&, unsigned int);
-	void								ProcessPendingDiscoveries();
-	void								DiscoveryThreadProc();
-
 	HACCEL								CreateAccelerators();
 	void								CreateSymbolFonts();
 
@@ -197,6 +171,7 @@ private:
 	CPsfVm&								m_virtualMachine;
 	CPsfTags							m_tags;
 	CPlaylist							m_playlist;
+	CPlaylistDiscoveryService			m_playlistDiscoveryService;
 	unsigned int						m_currentPlaylistItem;
 	unsigned int						m_currentPanel;
 	bool								m_ready;
@@ -213,15 +188,6 @@ private:
 	Framework::Win32::CFont				m_webdingsFont;
 	Framework::Win32::CFont				m_segoeUiSymbolFont;
 
-	std::thread							m_discoveryThread;
-	bool								m_discoveryThreadActive;
-	CLockFreeQueue<DISCOVERY_COMMAND>	m_discoveryCommandQueue;
-	CLockFreeQueue<DISCOVERY_RESULT>	m_discoveryResultQueue;
-	DiscoveryCommandQueue				m_pendingDiscoveryCommands;
-	uint32								m_discoveryRunId;
-
 	static SOUNDHANDLER_INFO			m_handlerInfo[];
 	static CHARENCODING_INFO			m_charEncodingInfo[];
 };
-
-#endif
