@@ -6,20 +6,12 @@
 #import "string_cast.h"
 #import <AVFoundation/AVAudioSession.h>
 #import <MediaPlayer/MediaPlayer.h>
+#import "NSStringUtils.h"
 
 #define PLAY_STRING		@"Play"
 #define PAUSE_STRING	@"Pause"
 
 @implementation MainTabBarController
-
-NSString* stringWithWchar(const std::wstring& input)
-{
-	NSString* result = [[NSString alloc] initWithBytes: input.data()
-												length: input.length() * sizeof(wchar_t)
-											  encoding: NSUTF32LittleEndianStringEncoding];
-	[result autorelease];
-	return result;
-}
 
 -(void)onAudioSessionInterruption: (NSNotification*)notification
 {
@@ -104,8 +96,8 @@ NSString* stringWithWchar(const std::wstring& input)
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 		
-	PlaylistViewController* playlistViewController = (PlaylistViewController*)self.viewControllers[0];
-	playlistViewController.delegate = self;
+	m_playlistViewController = (PlaylistViewController*)self.viewControllers[0];
+	m_playlistViewController.delegate = self;
 	
 	m_fileInfoViewController = (FileInfoViewController*)self.viewControllers[1];
 	m_fileInfoViewController.delegate = self;
@@ -285,6 +277,7 @@ NSString* stringWithWchar(const std::wstring& input)
 
 		m_ready = true;
 		m_currentPlaylistItem = itemIndex;
+		[m_playlistViewController setPlayingItemIndex: itemIndex];
 		[self onPlayButtonPress];
 	}
 	catch(const std::exception& exception)

@@ -3,6 +3,7 @@
 #import <boost/filesystem.hpp>
 #import "string_cast.h"
 #import "PsfLoader.h"
+#import "TimeToString.h"
 
 @implementation PlaylistViewController
 
@@ -11,6 +12,9 @@
 -(void)viewDidLoad
 {
 	m_playlist = nullptr;
+	m_playlistDiscoveryService = new CPlaylistDiscoveryService();
+	m_playingItemIndex = -1;
+	[NSTimer scheduledTimerWithTimeInterval: 0.1 target: self selector: @selector(onUpdateDiscoveryItems) userInfo: nil repeats: YES];
 	[super viewDidLoad];
 }
 
@@ -25,6 +29,7 @@
 {
 	delete m_playlist;
 	m_playlist = new CPlaylist();
+	m_playlistDiscoveryService->ResetRun();
 	
 	{
 		auto path = boost::filesystem::path([selectedPlaylistPath fileSystemRepresentation]);
@@ -42,7 +47,9 @@
 				newItem.title = string_cast<std::wstring>(newItem.path);
 				newItem.length = 0;
 				newItem.archiveId = archiveId;
-				m_playlist->InsertItem(newItem);
+				unsigned int itemId = m_playlist->InsertItem(newItem);
+				
+				m_playlistDiscoveryService->AddItemInRun(filePath, path, itemId);
 			}
 		}
 	}
@@ -56,7 +63,33 @@
 	}
 }
 
--(NSInteger)numberOfSectionsInTableView: (UITableView *)tableView 
+-(void)setPlayingItemIndex: (unsigned int)playingItemIndex
+{
+	m_playingItemIndex = playingItemIndex;
+	[m_tableView reloadData];
+}
+
+-(void)onUpdateDiscoveryItems
+{
+	if(m_playlist)
+	{
+		bool hasUpdate = false;
+		auto onItemUpdateConnection = m_playlist->OnItemUpdate.connect(
+			[&hasUpdate](unsigned int itemId, const CPlaylist::ITEM& item)
+			{
+				hasUpdate = true;
+			});
+		m_playlistDiscoveryService->ProcessPendingItems(*m_playlist);
+		onItemUpdateConnection.disconnect();
+		//NSLog(@"Updating %d", hasUpdate);
+		if(hasUpdate)
+		{
+			[m_tableView reloadData];
+		}
+	}
+}
+
+-(NSInteger)numberOfSectionsInTableView: (UITableView *)tableView
 {
 	return 1;
 }
@@ -81,14 +114,24 @@
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil)
 	{
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+		cell = [[[UITableViewCell alloc] initWithStyle: UITableViewCellStyleValue1 reuseIdentifier: CellIdentifier] autorelease];
 	}
 	
 	if(m_playlist != NULL)
 	{
 		const CPlaylist::ITEM& item(m_playlist->GetItem(indexPath.row));
-		std::string convString = Framework::Utf8::ConvertTo(item.title);
-		cell.textLabel.text = [NSString stringWithUTF8String: convString.c_str()];
+		std::string titleString = Framework::Utf8::ConvertTo(item.title);
+		std::string lengthString = TimeToString<std::string>(item.length);
+		cell.textLabel.text = [NSString stringWithUTF8String: titleString.c_str()];
+		if(m_playingItemIndex == indexPath.row)
+		{
+			[cell.textLabel setFont: [UIFont boldSystemFontOfSize: 16]];
+		}
+		else
+		{
+			[cell.textLabel setFont: [UIFont systemFontOfSize: 16]];
+		}
+		cell.detailTextLabel.text = [NSString stringWithUTF8String: lengthString.c_str()];
 	}
 	
 	return cell;

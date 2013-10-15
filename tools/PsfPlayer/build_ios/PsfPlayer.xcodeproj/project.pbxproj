@@ -37,7 +37,13 @@
 		708FE7E417C0B8BE00BFCDB2 /* PlaylistViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */; };
 		708FE7E517C0B8BE00BFCDB2 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */; };
 		70934F0B17D2ECB8000D9831 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70934F0A17D2ECB8000D9831 /* MediaPlayer.framework */; };
+		70BA8D2E180C724900A73E9E /* PlaylistBarIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 70BA8D2C180C724900A73E9E /* PlaylistBarIcon.png */; };
+		70BA8D2F180C724900A73E9E /* PlaylistBarIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 70BA8D2D180C724900A73E9E /* PlaylistBarIcon@2x.png */; };
+		70BA8D35180C733500A73E9E /* TrackInfoBarIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 70BA8D33180C733500A73E9E /* TrackInfoBarIcon.png */; };
+		70BA8D36180C733500A73E9E /* TrackInfoBarIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 70BA8D34180C733500A73E9E /* TrackInfoBarIcon@2x.png */; };
 		70C37E6E17C769DD00D18224 /* MainTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70C37E6D17C769DD00D18224 /* MainTabBarController.mm */; };
+		70D2317D1809EAC80008351C /* PlaylistDiscoveryService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D2317B1809EAC80008351C /* PlaylistDiscoveryService.cpp */; };
+		70D23185180BBADF0008351C /* NSStringUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D23183180BBADF0008351C /* NSStringUtils.mm */; };
 		7E1A77140F8993CE0082129E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1A77130F8993CE0082129E /* OpenAL.framework */; };
 		7E27214A1213B38D00C0DEBF /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721481213B38D00C0DEBF /* MipsJitter.cpp */; };
 		7E2721CC1213B6D300C0DEBF /* PsxBios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2721CA1213B6D300C0DEBF /* PsxBios.cpp */; };
@@ -202,8 +208,18 @@
 		708FE7DC17C0B8BE00BFCDB2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Source/ios_ui/AppDelegate.h; sourceTree = "<group>"; };
 		708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ios_ui/AppDelegate.mm; sourceTree = "<group>"; };
 		70934F0A17D2ECB8000D9831 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		70BA8D2C180C724900A73E9E /* PlaylistBarIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlaylistBarIcon.png; path = ../Source/ios_ui/PlaylistBarIcon.png; sourceTree = "<group>"; };
+		70BA8D2D180C724900A73E9E /* PlaylistBarIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "PlaylistBarIcon@2x.png"; path = "../Source/ios_ui/PlaylistBarIcon@2x.png"; sourceTree = "<group>"; };
+		70BA8D33180C733500A73E9E /* TrackInfoBarIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = TrackInfoBarIcon.png; path = ../Source/ios_ui/TrackInfoBarIcon.png; sourceTree = "<group>"; };
+		70BA8D34180C733500A73E9E /* TrackInfoBarIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "TrackInfoBarIcon@2x.png"; path = "../Source/ios_ui/TrackInfoBarIcon@2x.png"; sourceTree = "<group>"; };
 		70C37E6C17C7698000D18224 /* MainTabBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainTabBarController.h; path = ../Source/ios_ui/MainTabBarController.h; sourceTree = "<group>"; };
 		70C37E6D17C769DD00D18224 /* MainTabBarController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainTabBarController.mm; path = ../Source/ios_ui/MainTabBarController.mm; sourceTree = "<group>"; };
+		70D2317B1809EAC80008351C /* PlaylistDiscoveryService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaylistDiscoveryService.cpp; path = ../Source/PlaylistDiscoveryService.cpp; sourceTree = "<group>"; };
+		70D2317C1809EAC80008351C /* PlaylistDiscoveryService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistDiscoveryService.h; path = ../Source/PlaylistDiscoveryService.h; sourceTree = "<group>"; };
+		70D231811809EC2F0008351C /* LockFreeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LockFreeQueue.h; path = ../Source/LockFreeQueue.h; sourceTree = "<group>"; };
+		70D23182180A70E50008351C /* TimeToString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeToString.h; path = ../Source/TimeToString.h; sourceTree = "<group>"; };
+		70D23183180BBADF0008351C /* NSStringUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = NSStringUtils.mm; path = ../Source/ios_ui/NSStringUtils.mm; sourceTree = "<group>"; };
+		70D23184180BBADF0008351C /* NSStringUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSStringUtils.h; path = ../Source/ios_ui/NSStringUtils.h; sourceTree = "<group>"; };
 		7E1A77130F8993CE0082129E /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = /System/Library/Frameworks/OpenAL.framework; sourceTree = "<absolute>"; };
 		7E2721481213B38D00C0DEBF /* MipsJitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsJitter.cpp; path = ../../../Source/MipsJitter.cpp; sourceTree = SOURCE_ROOT; };
 		7E2721491213B38D00C0DEBF /* MipsJitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsJitter.h; path = ../../../Source/MipsJitter.h; sourceTree = SOURCE_ROOT; };
@@ -409,20 +425,22 @@
 		29B97317FDCFA39411CA2CEA /* iOS UI */ = {
 			isa = PBXGroup;
 			children = (
-				708FE7D217C0B8BE00BFCDB2 /* FileInfoViewController.mm */,
+				708FE7DC17C0B8BE00BFCDB2 /* AppDelegate.h */,
+				708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */,
 				708FE7D117C0B8BE00BFCDB2 /* FileInfoViewController.h */,
+				708FE7D217C0B8BE00BFCDB2 /* FileInfoViewController.mm */,
 				701B479B17C71B7D00330B83 /* images */,
 				708FE7D417C0B8BE00BFCDB2 /* Info.plist */,
 				708FE7D517C0B8BE00BFCDB2 /* main.mm */,
-				70C37E6D17C769DD00D18224 /* MainTabBarController.mm */,
 				70C37E6C17C7698000D18224 /* MainTabBarController.h */,
-				708FE7D817C0B8BE00BFCDB2 /* PlaylistSelectViewController.m */,
+				70C37E6D17C769DD00D18224 /* MainTabBarController.mm */,
+				70D23183180BBADF0008351C /* NSStringUtils.mm */,
+				70D23184180BBADF0008351C /* NSStringUtils.h */,
 				708FE7D717C0B8BE00BFCDB2 /* PlaylistSelectViewController.h */,
-				708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */,
+				708FE7D817C0B8BE00BFCDB2 /* PlaylistSelectViewController.m */,
 				708FE7D917C0B8BE00BFCDB2 /* PlaylistViewController.h */,
+				708FE7DA17C0B8BE00BFCDB2 /* PlaylistViewController.mm */,
 				708FE7DB17C0B8BE00BFCDB2 /* PsfPlayer_Prefix.pch */,
-				708FE7DD17C0B8BE00BFCDB2 /* AppDelegate.mm */,
-				708FE7DC17C0B8BE00BFCDB2 /* AppDelegate.h */,
 				7016682917C72969003504E0 /* Storyboard.storyboard */,
 			);
 			name = "iOS UI";
@@ -448,9 +466,13 @@
 		701B479B17C71B7D00330B83 /* images */ = {
 			isa = PBXGroup;
 			children = (
-				701B479C17C71BDA00330B83 /* Launch.png */,
-				701B479A17C71B7700330B83 /* Launch-4inch.png */,
 				708FE7D317C0B8BE00BFCDB2 /* Icon.png */,
+				701B479A17C71B7700330B83 /* Launch-4inch.png */,
+				701B479C17C71BDA00330B83 /* Launch.png */,
+				70BA8D2C180C724900A73E9E /* PlaylistBarIcon.png */,
+				70BA8D2D180C724900A73E9E /* PlaylistBarIcon@2x.png */,
+				70BA8D33180C733500A73E9E /* TrackInfoBarIcon.png */,
+				70BA8D34180C733500A73E9E /* TrackInfoBarIcon@2x.png */,
 			);
 			name = images;
 			sourceTree = "<group>";
@@ -557,9 +579,12 @@
 				708FE79A17C0B66700BFCDB2 /* Debuggable.h */,
 				708FE79B17C0B66700BFCDB2 /* Iop_PsfSubSystem.cpp */,
 				708FE79C17C0B66700BFCDB2 /* Iop_PsfSubSystem.h */,
+				70D231811809EC2F0008351C /* LockFreeQueue.h */,
 				708FE79D17C0B66700BFCDB2 /* path_uncomplete.h */,
 				708FE79E17C0B66700BFCDB2 /* Playlist.cpp */,
 				708FE79F17C0B66700BFCDB2 /* Playlist.h */,
+				70D2317B1809EAC80008351C /* PlaylistDiscoveryService.cpp */,
+				70D2317C1809EAC80008351C /* PlaylistDiscoveryService.h */,
 				7E2721CD1213B6D700C0DEBF /* ps2 */,
 				708FE7A017C0B66700BFCDB2 /* PsfArchive.cpp */,
 				708FE7A117C0B66700BFCDB2 /* PsfArchive.h */,
@@ -583,6 +608,7 @@
 				708FE7B317C0B66700BFCDB2 /* SH_OpenAL.cpp */,
 				708FE7B417C0B66700BFCDB2 /* SH_OpenAL.h */,
 				708FE7B517C0B66700BFCDB2 /* SoundHandler.h */,
+				70D23182180A70E50008351C /* TimeToString.h */,
 			);
 			name = "PsfPlayer Core";
 			sourceTree = "<group>";
@@ -813,7 +839,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				708FE7DF17C0B8BE00BFCDB2 /* Icon.png in Resources */,
+				70BA8D2E180C724900A73E9E /* PlaylistBarIcon.png in Resources */,
 				7016687117C7307E003504E0 /* Storyboard.storyboard in Resources */,
+				70BA8D35180C733500A73E9E /* TrackInfoBarIcon.png in Resources */,
+				70BA8D2F180C724900A73E9E /* PlaylistBarIcon@2x.png in Resources */,
+				70BA8D36180C733500A73E9E /* TrackInfoBarIcon@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -828,6 +858,7 @@
 				7E4B3CC20F9E994E00675ED7 /* ELF.cpp in Sources */,
 				7E4B3CC30F9E994E00675ED7 /* ElfFile.cpp in Sources */,
 				7E4B3CEF0F9E99A500675ED7 /* Log.cpp in Sources */,
+				70D2317D1809EAC80008351C /* PlaylistDiscoveryService.cpp in Sources */,
 				7E4B3CF00F9E99A500675ED7 /* MA_MIPSIV.cpp in Sources */,
 				708FE7C017C0B82400BFCDB2 /* PsfVm.cpp in Sources */,
 				708FE7BC17C0B82400BFCDB2 /* PsfLoader.cpp in Sources */,
@@ -843,6 +874,7 @@
 				7E4B3CF80F9E99A500675ED7 /* MIPSAnalysis.cpp in Sources */,
 				7E4B3CF90F9E99A500675ED7 /* MIPSArchitecture.cpp in Sources */,
 				7E4B3CFA0F9E99A500675ED7 /* MIPSAssembler.cpp in Sources */,
+				70D23185180BBADF0008351C /* NSStringUtils.mm in Sources */,
 				7E4B3CFB0F9E99A500675ED7 /* MipsAssemblerDefinitions.cpp in Sources */,
 				7E4B3CFD0F9E99A500675ED7 /* MIPSCoprocessor.cpp in Sources */,
 				708FE7E517C0B8BE00BFCDB2 /* AppDelegate.mm in Sources */,

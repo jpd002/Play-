@@ -65,6 +65,7 @@ std::string CPsfTags::GetRawTagValue(const char* tagName) const
 
 std::wstring CPsfTags::GetTagValue(const char* tagName) const
 {
+	assert(m_stringConverter);
 	return m_stringConverter(GetRawTagValue(tagName));
 }
 

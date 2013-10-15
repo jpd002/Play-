@@ -1,5 +1,4 @@
-#ifndef _LOCKFREEQUEUE_H_
-#define _LOCKFREEQUEUE_H_
+#pragma once
 
 template <typename ValueType>
 class CLockFreeQueue
@@ -31,7 +30,7 @@ public:
 		m_consIndex++;
 		m_consIndex %= m_maxItemCount;
 
-		InterlockedDecrement(&m_itemCount);
+		m_itemCount--;
 
 		return true;
 	}
@@ -48,17 +47,15 @@ public:
 		m_prodIndex++;
 		m_prodIndex %= m_maxItemCount;
 
-		InterlockedIncrement(&m_itemCount);
+		m_itemCount++;
 
 		return true;
 	}
 
 private:
-	ValueType*			m_items;
-	LONG				m_itemCount;
-	unsigned int		m_maxItemCount;
-	unsigned int		m_prodIndex;
-	unsigned int		m_consIndex;
+	ValueType*					m_items;
+	std::atomic<unsigned int>	m_itemCount;
+	unsigned int				m_maxItemCount;
+	unsigned int				m_prodIndex;
+	unsigned int				m_consIndex;
 };
-
-#endif

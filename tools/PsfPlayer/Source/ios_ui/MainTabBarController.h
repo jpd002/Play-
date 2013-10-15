@@ -18,6 +18,7 @@ enum REPEAT_MODE
 	uint64						m_frames;
 	bool						m_playing;
 	
+	PlaylistViewController*		m_playlistViewController;
 	FileInfoViewController*		m_fileInfoViewController;
 	
 	CPlaylist*					m_playlist;
