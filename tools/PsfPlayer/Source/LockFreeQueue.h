@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 template <typename ValueType>
 class CLockFreeQueue
 {
