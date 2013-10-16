@@ -379,6 +379,9 @@
     <ClCompile Include="..\..\..\Source\win32ui\DirectXControl.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\PlaylistDiscoveryService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
@@ -633,9 +636,6 @@
     <ClInclude Include="..\Source\win32_ui\FileInformationPanel.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32_ui\LockFreeQueue.h">
-      <Filter>Source Files\ui</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32_ui\MainWindow.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
@@ -655,9 +655,6 @@
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32_ui\StdAfx.h">
-      <Filter>Source Files\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32_ui\TimeToString.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\psx\PsxBios.h">
@@ -734,6 +731,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\win32ui\DirectXControl.h">
       <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\LockFreeQueue.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\PlaylistDiscoveryService.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\TimeToString.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

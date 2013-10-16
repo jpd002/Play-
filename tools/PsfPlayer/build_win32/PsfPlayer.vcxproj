@@ -470,6 +470,7 @@
     <ClCompile Include="..\Source\AppConfig.cpp" />
     <ClCompile Include="..\Source\Iop_PsfSubSystem.cpp" />
     <ClCompile Include="..\Source\Playlist.cpp" />
+    <ClCompile Include="..\Source\PlaylistDiscoveryService.cpp" />
     <ClCompile Include="..\Source\ps2\Ps2_PsfDevice.cpp" />
     <ClCompile Include="..\Source\ps2\PsfBios.cpp" />
     <ClCompile Include="..\Source\PsfArchive.cpp" />
@@ -632,8 +633,10 @@
     <ClInclude Include="..\Source\AppDef.h" />
     <ClInclude Include="..\Source\Debuggable.h" />
     <ClInclude Include="..\Source\Iop_PsfSubSystem.h" />
+    <ClInclude Include="..\Source\LockFreeQueue.h" />
     <ClInclude Include="..\Source\path_uncomplete.h" />
     <ClInclude Include="..\Source\Playlist.h" />
+    <ClInclude Include="..\Source\PlaylistDiscoveryService.h" />
     <ClInclude Include="..\Source\ps2\Ps2_PsfDevice.h" />
     <ClInclude Include="..\Source\ps2\PsfBios.h" />
     <ClInclude Include="..\Source\PsfArchive.h" />
@@ -662,10 +665,10 @@
     <ClInclude Include="..\Source\psp\Psp_ThreadManForUser.h" />
     <ClInclude Include="..\Source\psx\PsxBios.h" />
     <ClInclude Include="..\Source\SoundHandler.h" />
+    <ClInclude Include="..\Source\TimeToString.h" />
     <ClInclude Include="..\Source\win32_ui\AboutWindow.h" />
     <ClInclude Include="..\Source\win32_ui\AcceleratorTable.h" />
     <ClInclude Include="..\Source\win32_ui\FileInformationPanel.h" />
-    <ClInclude Include="..\Source\win32_ui\LockFreeQueue.h" />
     <ClInclude Include="..\Source\win32_ui\MainWindow.h" />
     <ClInclude Include="..\Source\win32_ui\MiniDebugger.h" />
     <ClInclude Include="..\Source\win32_ui\PlaylistPanel.h" />
@@ -673,7 +676,6 @@
     <ClInclude Include="..\Source\win32_ui\SpuRegView.h" />
     <ClInclude Include="..\Source\win32_ui\SpuRegViewPanel.h" />
     <ClInclude Include="..\Source\win32_ui\StdAfx.h" />
-    <ClInclude Include="..\Source\win32_ui\TimeToString.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Todolist.txt" />
