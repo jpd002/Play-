@@ -81,8 +81,7 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 
 CELFSymbolView::~CELFSymbolView()
 {
-	Destroy();
-	DELETEPTR(m_listView);	
+	DELETEPTR(m_listView);
 }
 
 long CELFSymbolView::OnSize(unsigned int nType, unsigned int nWidth, unsigned int nHeight)

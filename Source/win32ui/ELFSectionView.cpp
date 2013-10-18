@@ -82,7 +82,6 @@ CELFSectionView::~CELFSectionView()
 {
 	delete m_memoryView;
 	delete m_dynamicSectionListView;
-	Destroy();
 }
 
 long CELFSectionView::OnSize(unsigned int nType, unsigned int nWidth, unsigned int nHeight)

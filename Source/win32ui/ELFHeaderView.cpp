@@ -77,7 +77,7 @@ CELFHeaderView::CELFHeaderView(HWND hParent, CELF* pELF)
 
 CELFHeaderView::~CELFHeaderView()
 {
-	Destroy();
+
 }
 
 void CELFHeaderView::FillInformation()

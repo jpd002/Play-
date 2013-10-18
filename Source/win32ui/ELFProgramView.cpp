@@ -59,7 +59,7 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF)
 
 CELFProgramView::~CELFProgramView()
 {
-	Destroy();
+
 }
 
 long CELFProgramView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
