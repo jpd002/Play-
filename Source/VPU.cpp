@@ -632,6 +632,10 @@ bool CVPU::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& w
 		//V3-16
 		success = Unpack_V16(stream, writeValue, 3, usn);
 		break;
+	case 0x0A:
+		//V3-8
+		success = Unpack_V8(stream, writeValue, 3, usn);
+		break;
 	case 0x0C:
 		//V4-32
 		success = Unpack_V32(stream, writeValue, 4);
@@ -838,7 +842,7 @@ void CVPU::DisassembleCommand(CODE code)
 			"(Unknown)",
 			"V3-32",
 			"V3-16",
-			"(Unknown)",
+			"V3-8",
 			"(Unknown)",
 			"V4-32",
 			"V4-16",
@@ -868,7 +872,7 @@ void CVPU::DisassembleCommand(CODE code)
 			CLog::GetInstance().Print(LOG_NAME, "ITOP(imm = 0x%x);\r\n", code.nIMM);
 			break;
 		case 0x05:
-			CLog::GetInstance().Print(LOG_NAME, "STMODE(imm = 0x%x);\r\n", code.nIMM);
+			CLog::GetInstance().Print(LOG_NAME, "STMOD(imm = 0x%x);\r\n", code.nIMM);
 			break;
 		case 0x06:
 			CLog::GetInstance().Print(LOG_NAME, "MSKPATH3();\r\n");
