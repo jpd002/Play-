@@ -1,5 +1,4 @@
-#ifndef _MA_EE_H_
-#define _MA_EE_H_
+#pragma once
 
 #include "MA_MIPSIV.h"
 
@@ -100,7 +99,9 @@ private:
 	//Mmi1
 	void								PCEQW();
 	void								PMINW();
+	void								PCEQH();
 	void								PMINH();
+	void								PCEQB();
 	void								PADDUW();
 	void								PEXTUW();
 	void								PADDUB();
@@ -139,5 +140,3 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflMmi3[32];
 	static MIPSReflection::INSTRUCTION	m_cReflPmfhl[32];
 };
-
-#endif

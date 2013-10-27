@@ -548,12 +548,30 @@ void CMA_EE::PMINW()
 	PullVector(m_nRD);
 }
 
+//06
+void CMA_EE::PCEQH()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_CmpEqH();
+	PullVector(m_nRD);
+}
+
 //07
 void CMA_EE::PMINH()
 {
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_MinH();
+	PullVector(m_nRD);
+}
+
+//0A
+void CMA_EE::PCEQB()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_CmpEqB();
 	PullVector(m_nRD);
 }
 
@@ -1072,9 +1090,9 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 
 {
 	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMINH,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQH,			&CMA_EE::PMINH,
 	//0x08
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::PADDUW,		&CMA_EE::Illegal,		&CMA_EE::PEXTUW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
