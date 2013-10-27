@@ -1,5 +1,4 @@
-#ifndef _VUBASICBLOCK_H_
-#define _VUBASICBLOCK_H_
+#pragma once
 
 #include "BasicBlock.h"
 
@@ -15,5 +14,3 @@ protected:
 private:
 
 };
-
-#endif
