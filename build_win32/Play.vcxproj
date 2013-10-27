@@ -370,6 +370,7 @@
     <ClCompile Include="..\Source\VolumeStream.cpp" />
     <ClCompile Include="..\Source\VPU.cpp" />
     <ClCompile Include="..\Source\VPU1.cpp" />
+    <ClCompile Include="..\Source\VuAnalysis.cpp" />
     <ClCompile Include="..\Source\VuBasicBlock.cpp" />
     <ClCompile Include="..\Source\VuExecutor.cpp" />
     <ClCompile Include="..\Source\VUShared.cpp" />
@@ -576,8 +577,9 @@
     <ClInclude Include="..\Source\VolumeStream.h" />
     <ClInclude Include="..\Source\VPU.h" />
     <ClInclude Include="..\Source\VPU1.h" />
+    <ClInclude Include="..\Source\VuAnalysis.h" />
     <ClInclude Include="..\Source\VuBasicBlock.h" />
-    <ClInclude Include="..\Source\VUExecutor.h" />
+    <ClInclude Include="..\Source\VuExecutor.h" />
     <ClInclude Include="..\Source\VUShared.h" />
     <ClInclude Include="..\Source\win32ui\AboutWnd.h" />
     <ClInclude Include="..\Source\win32ui\AviStream.h" />

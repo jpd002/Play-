@@ -972,7 +972,7 @@
     <ClInclude Include="..\Source\VuBasicBlock.h">
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\VUExecutor.h">
+    <ClInclude Include="..\Source\VuExecutor.h">
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VUShared.h">
@@ -1235,6 +1235,12 @@
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GifPacketView.h">
       <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\VuAnalysis.h">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\VuExecutor.h">
+      <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
