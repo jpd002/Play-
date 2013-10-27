@@ -101,14 +101,11 @@ std::string DumpPacked(uint8*& packet, const CGIF::TAG& tag, CGSHandler::Registe
 				//XYZ3
 				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nPacket.nD0));
 				break;
+*/
 			case 0x0E:
 				//A + D
-				if(m_gs != NULL)
-				{
-					writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nPacket.nD1), nPacket.nD0));
-				}
+				registerWrites.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(input.nD1), input.nD0));
 				break;
-*/
 			case 0x0F:
 				//NOP
 				break;
