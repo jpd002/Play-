@@ -68,6 +68,17 @@ void CMIPSAnalysis::ChangeSubroutineStart(uint32 currStart, uint32 newStart)
 	m_subroutines.insert(SubroutineList::value_type(newStart, subroutine));
 }
 
+void CMIPSAnalysis::ChangeSubroutineEnd(uint32 start, uint32 newEnd)
+{
+	assert(start < newEnd);
+
+	auto subroutineIterator = m_subroutines.find(start);
+	assert(subroutineIterator != std::end(m_subroutines));
+
+	auto& subroutine(subroutineIterator->second);
+	subroutine.nEnd = newEnd;
+}
+
 void CMIPSAnalysis::AnalyseSubroutines(uint32 nStart, uint32 nEnd, uint32 entryPoint)
 {
 	nStart &= ~0x3;

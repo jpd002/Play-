@@ -1,5 +1,4 @@
-#ifndef _MIPSANALYSIS_H_
-#define _MIPSANALYSIS_H_
+#pragma once
 
 #include "Types.h"
 #include <map>
@@ -28,6 +27,10 @@ public:
 	const SUBROUTINE*					FindSubroutine(uint32) const;
 	void								Clear();
 
+	void								InsertSubroutine(uint32, uint32, uint32, uint32, uint32, uint32);
+	void								ChangeSubroutineStart(uint32, uint32);
+	void								ChangeSubroutineEnd(uint32, uint32);
+
 	static CallStackItemArray			GetCallStack(CMIPS*, uint32 pc, uint32 sp, uint32 ra);
 
 private:
@@ -36,11 +39,6 @@ private:
 	void								AnalyseSubroutines(uint32, uint32, uint32);
 	void								AnalyseStringReferences(uint32, uint32);
 
-	void								InsertSubroutine(uint32, uint32, uint32, uint32, uint32, uint32);
-	void								ChangeSubroutineStart(uint32, uint32);
-
 	CMIPS*								m_ctx;
 	SubroutineList						m_subroutines;
 };
-
-#endif
