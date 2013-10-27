@@ -491,6 +491,15 @@ void VUShared::FTOI12(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
+void VUShared::FTOI15(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
+{
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+	codeGen->MD_PushCstExpand(32768.0f);
+	codeGen->MD_MulS();
+	codeGen->MD_ToWordTruncate();
+	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
+}
+
 void VUShared::IADD(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 {
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));

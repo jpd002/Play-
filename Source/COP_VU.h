@@ -136,6 +136,7 @@ private:
 
 	//V3
 	void								VITOF15();
+	void								VFTOI15();
 	void								VCLIP();
 	void								VNOP();
 	void								VWAITQ();

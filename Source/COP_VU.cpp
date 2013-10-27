@@ -176,7 +176,10 @@ void CCOP_VU::CTC2()
 	}
 	else if((m_nFS > 0) && (m_nFS < 16))
 	{
-		throw std::runtime_error("Not implemented.");
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
+		m_codeGen->PushCst(0xFFFF);
+		m_codeGen->And();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nFS]));
 	}
 	else
 	{
@@ -641,6 +644,12 @@ void CCOP_VU::VITOF15()
 	VUShared::ITOF15(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//05
+void CCOP_VU::VFTOI15()
+{
+	VUShared::FTOI15(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //07
 void CCOP_VU::VCLIP()
 {
@@ -740,7 +749,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx3[0x20] =
 {
 	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF15,		&CCOP_VU::Illegal,		&CCOP_VU::VMULAbc,		&CCOP_VU::VCLIP,
+	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF15,		&CCOP_VU::VFTOI15,		&CCOP_VU::VMULAbc,		&CCOP_VU::VCLIP,
 	//0x08
 	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VNOP,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VWAITQ,		&CCOP_VU::Illegal,
 	//0x10
