@@ -1,54 +1,66 @@
 #include "DisAsmWnd.h"
-#include "PtrMacro.h"
+#include "DisAsmVu.h"
 
 #define WNDSTYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
-CDisAsmWnd::CDisAsmWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+CDisAsmWnd::CDisAsmWnd(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS* ctx, DISASM_TYPE disAsmType)
+: m_disAsm(nullptr)
 {
 	Create(NULL, Framework::Win32::CDefaultWndClass::GetName(), _T("Disassembly"), WNDSTYLE, 
-		Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
+		Framework::Win32::CRect(0, 0, 320, 240), parentWnd, NULL);
 
 	SetClassPtr();
 
-	m_pDisAsm = new CDisAsm(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), virtualMachine, pCtx);
+	switch(disAsmType)
+	{
+	case DISASM_STANDARD:
+		m_disAsm = new CDisAsm(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), virtualMachine, ctx);
+		break;
+	case DISASM_VU:
+		m_disAsm = new CDisAsmVu(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), virtualMachine, ctx);
+		break;
+	default:
+		assert(0);
+		break;
+	}
 
 	RefreshLayout();
 }
 
 CDisAsmWnd::~CDisAsmWnd()
 {
-	DELETEPTR(m_pDisAsm);
+	delete m_disAsm;
 }
 
 void CDisAsmWnd::SetAddress(uint32 nAddress)
 {
-	m_pDisAsm->SetAddress(nAddress);
+	m_disAsm->SetAddress(nAddress);
 }
 
 void CDisAsmWnd::SetCenterAtAddress(uint32 address)
 {
-	m_pDisAsm->SetCenterAtAddress(address);
+	m_disAsm->SetCenterAtAddress(address);
 }
 
 void CDisAsmWnd::SetSelectedAddress(uint32 address)
 {
-	m_pDisAsm->SetSelectedAddress(address);
+	m_disAsm->SetSelectedAddress(address);
 }
 
 void CDisAsmWnd::Refresh()
 {
-	m_pDisAsm->Redraw();
+	m_disAsm->Redraw();
 }
 
 void CDisAsmWnd::RefreshLayout()
 {
 	RECT rc = GetClientRect();
-	m_pDisAsm->SetSize(rc.right, rc.bottom);
+	m_disAsm->SetSize(rc.right, rc.bottom);
 }
 
 long CDisAsmWnd::OnSetFocus()
 {
-	m_pDisAsm->SetFocus();
+	m_disAsm->SetFocus();
 	return FALSE;
 }
 

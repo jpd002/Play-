@@ -1,5 +1,4 @@
-#ifndef _DEBUGVIEW_H_
-#define _DEBUGVIEW_H_
+#pragma once
 
 #include <string>
 #include <functional>
@@ -14,8 +13,9 @@ class CDebugView : public boost::signals2::trackable
 public:
 	typedef std::function<void (void)> StepFunction;
 
-								CDebugView(HWND, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*);
+								CDebugView(HWND, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*, CDisAsmWnd::DISASM_TYPE = CDisAsmWnd::DISASM_STANDARD);
 	virtual						~CDebugView();
+
 	CMIPS*						GetContext();
 	CDisAsmWnd*					GetDisassemblyWindow();
 	CMemoryViewMIPSWnd*			GetMemoryViewWindow();
@@ -34,13 +34,11 @@ private:
 	std::string 				m_name;
 
 	CVirtualMachine&			m_virtualMachine;
-	CMIPS*						m_pCtx;
-	CDisAsmWnd*					m_pDisAsmWnd;
-	CMemoryViewMIPSWnd*			m_pMemoryViewWnd;
-	CRegViewWnd*				m_pRegViewWnd;
-	CCallStackWnd*				m_pCallStackWnd;
+	CMIPS*						m_ctx;
+	CDisAsmWnd*					m_disAsmWnd;
+	CMemoryViewMIPSWnd*			m_memoryViewWnd;
+	CRegViewWnd*				m_regViewWnd;
+	CCallStackWnd*				m_callStackWnd;
 	StepFunction				m_stepFunction;
 	CBiosDebugInfoProvider*		m_biosDebugInfoProvider;
 };
-
-#endif

@@ -7,7 +7,13 @@
 class CDisAsmWnd : public Framework::Win32::CMDIChild
 {
 public:
-						CDisAsmWnd(HWND, CVirtualMachine&, CMIPS*);
+	enum DISASM_TYPE
+	{
+		DISASM_STANDARD,
+		DISASM_VU
+	};
+
+						CDisAsmWnd(HWND, CVirtualMachine&, CMIPS*, DISASM_TYPE);
 						~CDisAsmWnd();
 	void				Refresh();
 
@@ -22,5 +28,5 @@ protected:
 
 private:
 	void				RefreshLayout();
-	CDisAsm*			m_pDisAsm;
+	CDisAsm*			m_disAsm;
 };

@@ -1,33 +1,33 @@
 #include "DebugView.h"
 
-CDebugView::CDebugView(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx, 
-	const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* sName) 
+CDebugView::CDebugView(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS* ctx, 
+	const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, CDisAsmWnd::DISASM_TYPE disAsmType)
 : m_virtualMachine(virtualMachine)
-, m_pCtx(pCtx)
-, m_name(sName)
+, m_ctx(ctx)
+, m_name(name)
 , m_stepFunction(stepFunction)
-, m_pDisAsmWnd(nullptr)
-, m_pRegViewWnd(nullptr)
-, m_pMemoryViewWnd(nullptr)
-, m_pCallStackWnd(nullptr)
+, m_disAsmWnd(nullptr)
+, m_regViewWnd(nullptr)
+, m_memoryViewWnd(nullptr)
+, m_callStackWnd(nullptr)
 , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
-	m_pDisAsmWnd		= new CDisAsmWnd(hParent, virtualMachine, m_pCtx);
-	m_pRegViewWnd		= new CRegViewWnd(hParent, virtualMachine, m_pCtx);
-	m_pMemoryViewWnd	= new CMemoryViewMIPSWnd(hParent, virtualMachine, m_pCtx);
+	m_disAsmWnd		= new CDisAsmWnd(parentWnd, virtualMachine, m_ctx, disAsmType);
+	m_regViewWnd	= new CRegViewWnd(parentWnd, virtualMachine, m_ctx);
+	m_memoryViewWnd	= new CMemoryViewMIPSWnd(parentWnd, virtualMachine, m_ctx);
 
-	m_pCallStackWnd		= new CCallStackWnd(hParent, virtualMachine, m_pCtx, m_biosDebugInfoProvider);
-	m_pCallStackWnd->OnFunctionDblClick.connect(boost::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
+	m_callStackWnd	= new CCallStackWnd(parentWnd, virtualMachine, m_ctx, m_biosDebugInfoProvider);
+	m_callStackWnd->OnFunctionDblClick.connect(boost::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
 
 	Hide();
 }
 
 CDebugView::~CDebugView()
 {
-	delete m_pDisAsmWnd;
-	delete m_pRegViewWnd;
-	delete m_pMemoryViewWnd;
-	delete m_pCallStackWnd;
+	delete m_disAsmWnd;
+	delete m_regViewWnd;
+	delete m_memoryViewWnd;
+	delete m_callStackWnd;
 }
 
 const char* CDebugView::GetName() const
@@ -37,12 +37,11 @@ const char* CDebugView::GetName() const
 
 void CDebugView::Hide()
 {
-	int nMethod = SW_HIDE;
-
-	m_pDisAsmWnd->Show(nMethod);
-	m_pMemoryViewWnd->Show(nMethod);
-	m_pRegViewWnd->Show(nMethod);
-	m_pCallStackWnd->Show(nMethod);
+	int method = SW_HIDE;
+	m_disAsmWnd->Show(method);
+	m_memoryViewWnd->Show(method);
+	m_regViewWnd->Show(method);
+	m_callStackWnd->Show(method);
 }
 
 void CDebugView::Step()
@@ -57,31 +56,31 @@ CBiosDebugInfoProvider* CDebugView::GetBiosDebugInfoProvider() const
 
 CMIPS* CDebugView::GetContext()
 {
-	return m_pCtx;
+	return m_ctx;
 }
 
 CDisAsmWnd* CDebugView::GetDisassemblyWindow()
 {
-	return m_pDisAsmWnd;
+	return m_disAsmWnd;
 }
 
 CMemoryViewMIPSWnd* CDebugView::GetMemoryViewWindow()
 {
-	return m_pMemoryViewWnd;
+	return m_memoryViewWnd;
 }
 
 CRegViewWnd* CDebugView::GetRegisterViewWindow()
 {
-	return m_pRegViewWnd;
+	return m_regViewWnd;
 }
 
 CCallStackWnd* CDebugView::GetCallStackWindow()
 {
-	return m_pCallStackWnd;
+	return m_callStackWnd;
 }
 
 void CDebugView::OnCallStackWndFunctionDblClick(uint32 nAddress)
 {
-	m_pDisAsmWnd->SetCenterAtAddress(nAddress);
-	m_pDisAsmWnd->SetSelectedAddress(nAddress);
+	m_disAsmWnd->SetCenterAtAddress(nAddress);
+	m_disAsmWnd->SetSelectedAddress(nAddress);
 }

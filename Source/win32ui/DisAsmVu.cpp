@@ -1,6 +1,9 @@
 #include "DisAsmVu.h"
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
+#include "../VuAnalysis.h"
+
+#define ID_DISASM_ANALYSE		40100
 
 CDisAsmVu::CDisAsmVu(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
 : CDisAsm(hParent, rect, virtualMachine, ctx)
@@ -11,6 +14,24 @@ CDisAsmVu::CDisAsmVu(HWND hParent, const RECT& rect, CVirtualMachine& virtualMac
 CDisAsmVu::~CDisAsmVu()
 {
 
+}
+
+long CDisAsmVu::OnCommand(unsigned short id, unsigned short msg, HWND hwndFrom)
+{
+	if(id == ID_DISASM_ANALYSE)
+	{
+		CVuAnalysis::Analyse(m_ctx, 0, 0x4000);
+		Redraw();
+		return TRUE;
+	}
+	return CDisAsm::OnCommand(id, msg, hwndFrom);
+}
+
+unsigned int CDisAsmVu::BuildContextMenu(HMENU menuHandle)
+{
+	unsigned int position = CDisAsm::BuildContextMenu(menuHandle);
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_ANALYSE, _T("Analyse Microprogram"));
+	return position;
 }
 
 std::tstring CDisAsmVu::GetInstructionDetailsText(uint32 address)
@@ -57,6 +78,11 @@ std::tstring CDisAsmVu::GetInstructionDetailsText(uint32 address)
 	return result;
 }
 
+unsigned int CDisAsmVu::GetMetadataPosition() const
+{
+	return 900;
+}
+
 void CDisAsmVu::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
 {
 	assert((address & 0x07) == 0);
@@ -82,12 +108,12 @@ void CDisAsmVu::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceC
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 0, lowerInstruction, disAsm, 256);
-		deviceContext.TextOut(650, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(600, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 0, lowerInstruction, disAsm, 256);
-		deviceContext.TextOut(750, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(700, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 }

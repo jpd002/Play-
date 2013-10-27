@@ -33,6 +33,8 @@ protected:
 	long							OnKeyDown(unsigned int) override;
 	long							OnCopy() override;
 
+	virtual unsigned int			BuildContextMenu(HMENU);
+
 	uint32							GetInstruction(uint32);
 
 	CMIPS*							m_ctx;
@@ -71,6 +73,7 @@ private:
 	void							OnRunningStateChange();
 	
 	virtual std::tstring			GetInstructionDetailsText(uint32);
+	virtual unsigned int			GetMetadataPosition() const;
 
 	virtual void					DrawInstructionDetails(Framework::Win32::CDeviceContext&, uint32, int);
 	void							DrawInstructionMetadata(Framework::Win32::CDeviceContext&, uint32, int);

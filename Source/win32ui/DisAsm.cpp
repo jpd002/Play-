@@ -438,13 +438,8 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	pt.y = nY;
 	ClientToScreen(m_hWnd, &pt);
 
-	unsigned int nPosition = 0;
-
 	HMENU hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOPC,			_T("Goto PC"));
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOADDRESS,	_T("Goto Address..."));
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_EDITCOMMENT,	_T("Edit Comment..."));
-	InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_FINDCALLERS,	_T("Find Callers"));
+	unsigned int position = BuildContextMenu(hMenu);
 
 	if(m_selected != MIPS_INVALID_PC)
 	{
@@ -454,7 +449,7 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 			TCHAR sTemp[256];
 			uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
 			_sntprintf(sTemp, countof(sTemp), _T("Go to 0x%0.8X"), nAddress);
-			InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOEA, sTemp);
+			InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTOEA, sTemp);
 		}
 	}
 
@@ -462,14 +457,14 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	{
 		TCHAR sTemp[256];
 		_sntprintf(sTemp, countof(sTemp), _T("Go back (0x%0.8X)"), HistoryGetPrevious());
-		InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTOPREV, sTemp);
+		InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTOPREV, sTemp);
 	}
 
 	if(HistoryHasNext())
 	{
 		TCHAR sTemp[256];
 		_sntprintf(sTemp, countof(sTemp), _T("Go forward (0x%0.8X)"), HistoryGetNext());
-		InsertMenu(hMenu, nPosition++, MF_BYPOSITION, ID_DISASM_GOTONEXT, sTemp);
+		InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTONEXT, sTemp);
 	}
 
 	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
@@ -793,6 +788,16 @@ void CDisAsm::Paint(HDC hDC)
 	DeleteObject(ltGrayPen);
 }
 
+unsigned int CDisAsm::BuildContextMenu(HMENU menuHandle)
+{
+	unsigned int position = 0;
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_GOTOPC,			_T("Goto PC"));
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_GOTOADDRESS,	_T("Goto Address..."));
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_EDITCOMMENT,	_T("Edit Comment..."));
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_FINDCALLERS,	_T("Find Callers"));
+	return position;
+}
+
 std::tstring CDisAsm::GetInstructionDetailsText(uint32 address)
 {
 	uint32 opcode = GetInstruction(address);
@@ -817,6 +822,11 @@ std::tstring CDisAsm::GetInstructionDetailsText(uint32 address)
 	return result;
 }
 
+unsigned int CDisAsm::GetMetadataPosition() const
+{
+	return 450;
+}
+
 void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
 {
 	uint32 data = GetInstruction(address);
@@ -838,6 +848,7 @@ void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceCon
 void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
 {
 	bool commentDrawn = false;
+	unsigned int metadataPosition = GetMetadataPosition();
 
 	//Draw function name
 	{
@@ -845,7 +856,7 @@ void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceCo
 		if(tag != nullptr)
 		{
 			std::tstring disAsm = _T("@") + string_cast<std::tstring>(tag);
-			deviceContext.TextOut(450, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
+			deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
 			commentDrawn = true;
 		}
 	}
@@ -861,7 +872,7 @@ void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceCo
 			if(tag != nullptr)
 			{
 				std::tstring disAsm = _T("-> ") + string_cast<std::tstring>(tag);
-				deviceContext.TextOut(450, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
+				deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
 				commentDrawn = true;
 			}
 		}
@@ -874,7 +885,7 @@ void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceCo
 		if(tag != nullptr)
 		{
 			std::tstring disAsm = _T(";") + string_cast<std::tstring>(tag);
-			deviceContext.TextOut(450, y, disAsm.c_str(), RGB(0x00, 0x80, 0x00));
+			deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), RGB(0x00, 0x80, 0x00));
 			commentDrawn = true;
 		}
 	}
