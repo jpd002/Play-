@@ -6,9 +6,7 @@
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 
-using namespace std;
-
-CMA_VU::CLower::CLower(bool maskDataAddress) 
+CMA_VU::CLower::CLower(bool maskDataAddress)
 : CMIPSInstructionFactory(MIPS_REGSIZE_32)
 , m_nImm5(0)
 , m_nImm11(0)
@@ -32,13 +30,11 @@ CMA_VU::CLower::~CLower()
 
 }
 
-void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* context)
 {
-	SetupQuickVariables(nAddress, codeGen, pCtx);
+	SetupQuickVariables(address, codeGen, context);
 
-	uint32 nNextOpcode = pCtx->m_pMemoryMap->GetInstruction(nAddress + 4);
-
-	if(nNextOpcode & 0x80000000)
+	if(IsLOI(context, address))
 	{
 		return;
 	}
@@ -58,7 +54,7 @@ void CMA_VU::CLower::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 	m_nImm15S	= m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
 	m_nImm24	= m_nOpcode & 0x00FFFFFF;
 
-	if(m_nOpcode != 0x8000033C)
+	if(m_nOpcode != OPCODE_NOP)
 	{
 		((this)->*(m_pOpGeneral[m_nOpcode >> 25]))();
 	}
@@ -94,6 +90,14 @@ uint32 CMA_VU::CLower::GetDestOffset(uint8 nDest)
 	if(nDest & 0x0008) return 0x0;
 
 	return 0;
+}
+
+bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
+{
+	assert((address & 0x07) == 0);
+	//Check for LOI bit
+	uint32 upperInstruction = ctx->m_pMemoryMap->GetInstruction(address + 4);
+	return (upperInstruction & 0x80000000) != 0;
 }
 
 //////////////////////////////////////////////////

@@ -7,292 +7,292 @@
 using namespace MIPSReflection;
 using namespace VUShared;
 
-void CMA_VU::CLower::ReflOpIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nIS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	sprintf(sText, "VI%i", nIS);
+	sprintf(text, "VI%i", is);
 }
 
-void CMA_VU::CLower::ReflOpIsOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8  nIS	= static_cast<uint8> ((nOpcode >> 11) & 0x001F);
-	uint16 nImm	= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
+	uint8  is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
+	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
 
-	nAddress += 8;
+	address += 8;
 
-	sprintf(sText, "VI%i, $%0.8X", nIS, nAddress + GetBranch(nImm));
+	sprintf(text, "VI%i, $%0.8X", is, address + GetBranch(imm));
 }
 
-void CMA_VU::CLower::ReflOpIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpIt(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nIT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
 
-	sprintf(sText, "VI%i", nIT);
+	sprintf(text, "VI%i", it);
 }
 
-void CMA_VU::CLower::ReflOpImm12(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpImm12(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint16	nImm	= static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
+	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
 
-	sprintf(sText, "0x%0.3X", nImm);
+	sprintf(text, "0x%0.3X", imm);
 }
 
-void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8	nIT		= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint16	nImm	= static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x00200000) >> 10);
+	uint8	it	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
 
-	sprintf(sText, "VI%i, 0x%0.3X", nIT, nImm);
+	sprintf(text, "VI%i, 0x%0.3X", it, imm);
 }
 
-void CMA_VU::CLower::ReflOpItIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpItIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 it	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is	= static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	sprintf(sText, "VI%i, VI%i", nIT, nIS);
+	sprintf(text, "VI%i, VI%i", it, is);
 }
 
-void CMA_VU::CLower::ReflOpOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint16 nImm	= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
+	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
 
-	nAddress += 8;
+	address += 8;
 
-	sprintf(sText, "$%0.8X", nAddress + GetBranch(nImm));
+	sprintf(text, "$%0.8X", address + GetBranch(imm));
 }
 
-void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0x07FF);
-	uint8  nIT  = static_cast<uint8> ((nOpcode >> 16) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint8  it  = static_cast<uint8> ((opcode >> 16) & 0x001F);
 
-	nAddress += 8;
+	address += 8;
 
-	sprintf(sText, "VI%i, $%0.8X", nIT, nAddress + GetBranch(nImm));
+	sprintf(text, "VI%i, $%0.8X", it, address + GetBranch(imm));
 }
 
-void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nIT	= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
-	uint8 nIS	= static_cast<uint8> ((nOpcode >> 11) & 0x001F);
-	uint16 nImm	= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
+	uint8 it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
+	uint8 is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
+	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
 
-	nAddress += 8;
+	address += 8;
 
-	sprintf(sText, "VI%i, VI%i, $%0.8X", nIT, nIS, nAddress + GetBranch(nImm));
+	sprintf(text, "VI%i, VI%i, $%0.8X", it, is, address + GetBranch(imm));
 }
 
-void CMA_VU::CLower::ReflOpItIsImm15(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpItIsImm15(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8	nIT		= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
-	uint8	nIS		= static_cast<uint8> ((nOpcode >> 11) & 0x001F);
-	uint16	nImm	= static_cast<uint16>((nOpcode & 0x7FF) | (nOpcode & 0x01E00000) >> 10);
+	uint8	it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
+	uint8	is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
+	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x01E00000) >> 10);
 
-	sprintf(sText, "VI%i, VI%i, $%0.4X", nIT, nIS, nImm);
+	sprintf(text, "VI%i, VI%i, $%0.4X", it, is, imm);
 }
 
-void CMA_VU::CLower::ReflOpItIsDst(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpItIsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
-	uint8 nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 it	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is	= static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	sprintf(sText, "VI%i, (VI%i)%s", nIT, nIS, m_sDestination[nDest]);
+	sprintf(text, "VI%i, (VI%i)%s", it, is, m_sDestination[dest]);
 }
 
-void CMA_VU::CLower::ReflOpItOfsIsDst(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpItOfsIsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nDest	= static_cast<uint8> ((nOpcode >> 21) & 0x000F);
-	uint8 nIT	= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
-	uint8 nIS	= static_cast<uint8> ((nOpcode >> 11) & 0x001F);
-	uint16 nImm	= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
-	if(nImm & 0x400) nImm |= 0xF800;
+	uint8 dest	= static_cast<uint8> ((opcode >> 21) & 0x000F);
+	uint8 it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
+	uint8 is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
+	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	if(imm & 0x400) imm |= 0xF800;
 
-	sprintf(sText, "VI%i, $%0.4X(VI%i)%s", nIT, nImm, nIS, m_sDestination[nDest]);
+	sprintf(text, "VI%i, $%0.4X(VI%i)%s", it, imm, is, m_sDestination[dest]);
 }
 
-void CMA_VU::CLower::ReflOpImm24(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpImm24(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint32 nImm = nOpcode & 0xFFFFFF;
+	uint32 imm = opcode & 0xFFFFFF;
 
-	sprintf(sText, "$%0.6X", nImm);
+	sprintf(text, "$%0.6X", imm);
 }
 
-void CMA_VU::CLower::ReflOpVi1Imm24(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpVi1Imm24(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint32 nImm = nOpcode & 0xFFFFFF;
+	uint32 imm = opcode & 0xFFFFFF;
 
-	sprintf(sText, "VI1, $%0.6X", nImm);
+	sprintf(text, "VI1, $%0.6X", imm);
 }
 
-void CMA_VU::CLower::ReflOpFtDstIsInc(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpFtDstIsInc(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
-	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 ft	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is	= static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	sprintf(sText, "VF%i%s, (VI%i++)", nFT, m_sDestination[nDest], nIS);
+	sprintf(text, "VF%i%s, (VI%i++)", ft, m_sDestination[dest], is);
 }
 
-void CMA_VU::CLower::ReflOpFtDstIsDec(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpFtDstIsDec(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
-	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 ft	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is	= static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	sprintf(sText, "VF%i%s, (--VI%i)", nFT, m_sDestination[nDest], nIS);
+	sprintf(text, "VF%i%s, (--VI%i)", ft, m_sDestination[dest], is);
 }
 
-void CMA_VU::CLower::ReflOpFsDstOfsIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpFsDstOfsIt(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8  nDest	= static_cast<uint8> ((nOpcode >> 21) & 0x000F);
-	uint8  nIT		= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
-	uint8  nFS		= static_cast<uint8> ((nOpcode >> 11) & 0x001F);
-	uint16 nImm		= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
-	if(nImm & 0x400) nImm |= 0xF800;
+	uint8  dest	= static_cast<uint8> ((opcode >> 21) & 0x000F);
+	uint8  it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
+	uint8  fs	= static_cast<uint8> ((opcode >> 11) & 0x001F);
+	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	if(imm & 0x400) imm |= 0xF800;
 
-	sprintf(sText, "VF%i%s, $%0.4X(VI%i)", nFS, m_sDestination[nDest], nImm, nIT);
+	sprintf(text, "VF%i%s, $%0.4X(VI%i)", fs, m_sDestination[dest], imm, it);
 }
 
-void CMA_VU::CLower::ReflOpFtDstOfsIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpFtDstOfsIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8  nDest	= static_cast<uint8> ((nOpcode >> 21) & 0x000F);
-	uint8  nFT		= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
-	uint8  nIS		= static_cast<uint8> ((nOpcode >> 11) & 0x001F);
-	uint16 nImm		= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
-	if(nImm & 0x400) nImm |= 0xF800;
+	uint8  dest	= static_cast<uint8> ((opcode >> 21) & 0x000F);
+	uint8  ft	= static_cast<uint8> ((opcode >> 16) & 0x001F);
+	uint8  is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
+	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	if(imm & 0x400) imm |= 0xF800;
 
-	sprintf(sText, "VF%i%s, $%0.4X(VI%i)", nFT, m_sDestination[nDest], nImm, nIS);
+	sprintf(text, "VF%i%s, $%0.4X(VI%i)", ft, m_sDestination[dest], imm, is);
 }
 
-void CMA_VU::CLower::ReflOpFtDstFsDst(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpFtDstFsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
-	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 ft	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 fs	= static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	sprintf(sText, "VF%i%s, VF%i%s", nFT, m_sDestination[nDest], nFS, m_sDestination[nDest]);
+	sprintf(text, "VF%i%s, VF%i%s", ft, m_sDestination[dest], fs, m_sDestination[dest]);
 }
 
-void CMA_VU::CLower::ReflOpPFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpPFs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 fs	= static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	sprintf(sText, "P, VF%i", nFS);
+	sprintf(text, "P, VF%i", fs);
 }
 
-void CMA_VU::CLower::ReflOpPFsf(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpPFsf(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 nFSF	= static_cast<uint8>((nOpcode >> 21) & 0x0003);
+	uint8 fs	= static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint8 fsf	= static_cast<uint8>((opcode >> 21) & 0x0003);
 
-	sprintf(sText, "P, VF%i%s", nFS, m_sBroadcast[nFSF]);
+	sprintf(text, "P, VF%i%s", fs, m_sBroadcast[fsf]);
 }
 
-void CMA_VU::CLower::ReflOpFtP(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::ReflOpFtP(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
-	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 ft	= static_cast<uint8>((opcode >> 16) & 0x001F);
 
-	sprintf(sText, "VF%i%s, P", nFT, m_sDestination[nDest]);
+	sprintf(text, "VF%i%s, P", ft, m_sDestination[dest]);
 }
 
-uint32 CMA_VU::CLower::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+uint32 CMA_VU::CLower::ReflEaOffset(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode)
 {
-	uint16 nImm	= static_cast<uint16>((nOpcode >>  0) & 0x07FF);
+	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
 
-	nAddress += 8;
-	return (nAddress + GetBranch(nImm));
+	address += 8;
+	return (address + GetBranch(imm));
 }
 
-uint32 CMA_VU::CLower::ReflEaIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+uint32 CMA_VU::CLower::ReflEaIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode)
 {
-	uint8 nIS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	return pCtx->m_State.nCOP2VI[nIS] & 0xFFFF;
+	return context->m_State.nCOP2VI[is] & 0xFFFF;
 }
 
 /////////////////////////////////////////////////
 // Extended Reflection Stuff
 /////////////////////////////////////////////////
 
-void CMA_VU::CLower::ReflOpAffFtDstOfsIs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffFtDstOfsIs(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
-	uint8 nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
+	uint8 is		= (uint8 )((opcode >> 11) & 0x001F);
 
-	operandSet.writeF = nFT;
-	operandSet.readI0 = nIS;
+	operandSet.writeF = ft;
+	operandSet.readI0 = is;
 }
 
-void CMA_VU::CLower::ReflOpAffFsDstOfsIt(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffFsDstOfsIt(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nIT		= (uint8 )((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	uint8 it		= (uint8 )((opcode >> 16) & 0x001F);
+	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
 
-	operandSet.readF0 = nFS;
-	operandSet.readI0 = nIT;
+	operandSet.readF0 = fs;
+	operandSet.readI0 = it;
 }
 
-void CMA_VU::CLower::ReflOpAffFtDstFsDst(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffFtDstFsDst(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
+	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
 
-	operandSet.readF0 = nFS;
-	operandSet.writeF = nFT;
+	operandSet.readF0 = fs;
+	operandSet.writeF = ft;
 }
 
-void CMA_VU::CLower::ReflOpAffFsDstItInc(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffFsDstItInc(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nIT		= (uint8 )((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	uint8 it		= (uint8 )((opcode >> 16) & 0x001F);
+	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
 
-	operandSet.readI0 = nIT;
-	operandSet.writeI = nIT;
-	operandSet.readF0 = nFS;
+	operandSet.readI0 = it;
+	operandSet.writeI = it;
+	operandSet.readF0 = fs;
 }
 
-void CMA_VU::CLower::ReflOpAffFtIs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffFtIs(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
-	uint8 nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
+	uint8 is		= (uint8 )((opcode >> 11) & 0x001F);
 
-	operandSet.readI0 = nIS;
-	operandSet.writeF = nFT;
+	operandSet.readI0 = is;
+	operandSet.writeF = ft;
 }
 
-void CMA_VU::CLower::ReflOpAffFtDstIsInc(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffFtDstIsInc(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nFT		= (uint8 )((nOpcode >> 16) & 0x001F);
-	uint8 nIS		= (uint8 )((nOpcode >> 11) & 0x001F);
+	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
+	uint8 is		= (uint8 )((opcode >> 11) & 0x001F);
 
-	operandSet.writeF = nFT;
-	operandSet.readI0 = nIS;
-	operandSet.writeI = nIS;
+	operandSet.writeF = ft;
+	operandSet.readI0 = is;
+	operandSet.writeI = is;
 }
 
-void CMA_VU::CLower::ReflOpAffItFsf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffItFsf(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nIT		= (uint8)((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
+	uint8 it		= (uint8)((opcode >> 16) & 0x001F);
+	uint8 fs		= (uint8)((opcode >> 11) & 0x001F);
 
-	operandSet.writeI = nIT;
-	operandSet.readF0 = nFS;
+	operandSet.writeI = it;
+	operandSet.readF0 = fs;
 }
 
-void CMA_VU::CLower::ReflOpAffPFs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffPFs(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
-	operandSet.readF0 = nFS;
+	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
+	operandSet.readF0 = fs;
 }
 
-void CMA_VU::CLower::ReflOpAffPFsf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffPFsf(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nFS		= (uint8 )((nOpcode >> 11) & 0x001F);
-	operandSet.readF0 = nFS;
+	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
+	operandSet.readF0 = fs;
 }
 
 INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
@@ -1160,76 +1160,96 @@ void CMA_VU::CLower::SetupReflectionTables()
 	}
 }
 
-void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	if(pCtx->m_pMemoryMap->GetInstruction(nAddress + 4) & 0x80000000)
+	if(IsLOI(context, address))
 	{
-		strncpy(sText, "LOI", nCount);
+		strncpy(text, "LOI", count);
 		return;
 	}
 
-	if(nOpcode == 0x8000033C)
+	if(opcode == OPCODE_NOP)
 	{
-		strncpy(sText, "NOP", nCount);
+		strncpy(text, "NOP", count);
 		return;
 	}
 
-	INSTRUCTION Instr;
-	Instr.pGetMnemonic	= SubTableMnemonic;
-	Instr.pSubTable		= &m_ReflGeneralTable;
-	Instr.pGetMnemonic(&Instr, pCtx, nOpcode, sText, nCount);
+	INSTRUCTION instr;
+	instr.pGetMnemonic	= SubTableMnemonic;
+	instr.pSubTable		= &m_ReflGeneralTable;
+	instr.pGetMnemonic(&instr, context, opcode, text, count);
 }
 
-void CMA_VU::CLower::GetInstructionOperands(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+void CMA_VU::CLower::GetInstructionOperands(CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	if(pCtx->m_pMemoryMap->GetInstruction(nAddress + 4) & 0x80000000)
+	if(IsLOI(context, address))
 	{
-		sprintf(sText, "$%0.8X", nOpcode);
+		sprintf(text, "$%0.8X", opcode);
 		return;
 	}
 
-	if(nOpcode == 0x8000033C)
+	if(opcode == OPCODE_NOP)
 	{
-		strncpy(sText, "", nCount);
+		strncpy(text, "", count);
 		return;
 	}
 
-	INSTRUCTION Instr;
-	Instr.pGetOperands	= SubTableOperands;
-	Instr.pSubTable		= &m_ReflGeneralTable;
-	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, nCount);
+	INSTRUCTION instr;
+	instr.pGetOperands	= SubTableOperands;
+	instr.pSubTable		= &m_ReflGeneralTable;
+	instr.pGetOperands(&instr, context, address, opcode, text, count);
 }
 
-MIPS_BRANCH_TYPE CMA_VU::CLower::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+MIPS_BRANCH_TYPE CMA_VU::CLower::IsInstructionBranch(CMIPS* context, uint32 address, uint32 opcode)
 {
-	if(nOpcode == 0x8000033C)
+	if(IsLOI(context, address))
 	{
 		return MIPS_BRANCH_NONE;
 	}
 
-	INSTRUCTION Instr;
-	Instr.pIsBranch		= SubTableIsBranch;
-	Instr.pSubTable		= &m_ReflGeneralTable;
-	return Instr.pIsBranch(&Instr, pCtx, nOpcode);
+	if(opcode == OPCODE_NOP)
+	{
+		return MIPS_BRANCH_NONE;
+	}
+
+	INSTRUCTION instr;
+	instr.pIsBranch		= SubTableIsBranch;
+	instr.pSubTable		= &m_ReflGeneralTable;
+	return instr.pIsBranch(&instr, context, opcode);
 }
 
-uint32 CMA_VU::CLower::GetInstructionEffectiveAddress(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+uint32 CMA_VU::CLower::GetInstructionEffectiveAddress(CMIPS* context, uint32 address, uint32 opcode)
 {
-	if(nOpcode == 0x8000033C)
+	if(IsLOI(context, address))
 	{
 		return 0;
 	}
 
-	INSTRUCTION Instr;
-	Instr.pGetEffectiveAddress	= SubTableEffAddr;
-	Instr.pSubTable				= &m_ReflGeneralTable;
-	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);
+	if(opcode == OPCODE_NOP)
+	{
+		return 0;
+	}
+
+	INSTRUCTION instr;
+	instr.pGetEffectiveAddress	= SubTableEffAddr;
+	instr.pSubTable				= &m_ReflGeneralTable;
+	return instr.pGetEffectiveAddress(&instr, context, address, opcode);
 }
 
 VUShared::OPERANDSET CMA_VU::CLower::GetAffectedOperands(CMIPS* context, uint32 address, uint32 opcode)
 {
 	OPERANDSET result;
 	memset(&result, 0, sizeof(OPERANDSET));
+
+	if(IsLOI(context, address))
+	{
+		return result;
+	}
+
+	if(opcode == OPCODE_NOP)
+	{
+		return result;
+	}
 
 	VUINSTRUCTION instr;
 	instr.pGetAffectedOperands	= SubTableAffectedOperands;

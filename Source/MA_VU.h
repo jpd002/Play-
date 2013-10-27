@@ -1,5 +1,4 @@
-#ifndef _MA_VU_H_
-#define _MA_VU_H_
+#pragma once
 
 #include "MIPSArchitecture.h"
 #include "MIPSReflection.h"
@@ -13,11 +12,11 @@ class CMA_VU : public CMIPSArchitecture
 public:
 											CMA_VU(bool);
 	virtual									~CMA_VU();
-	virtual void							CompileInstruction(uint32, CMipsJitter*, CMIPS*);
-	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
-	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
-	virtual MIPS_BRANCH_TYPE				IsInstructionBranch(CMIPS*, uint32, uint32);
-	virtual uint32							GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
+	virtual void							CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int) override;
+	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int) override;
+	virtual MIPS_BRANCH_TYPE				IsInstructionBranch(CMIPS*, uint32, uint32) override;
+	virtual uint32							GetInstructionEffectiveAddress(CMIPS*, uint32, uint32) override;
 	VUShared::OPERANDSET					GetAffectedOperands(CMIPS*, uint32, uint32);
 
 	void									SetRelativePipeTime(uint32);
@@ -31,7 +30,7 @@ private:
 											CUpper();
 
 		void								SetupReflectionTables();
-		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*);
+		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		VUShared::OPERANDSET				GetAffectedOperands(CMIPS*, uint32, uint32);
@@ -168,7 +167,7 @@ private:
 		virtual								~CLower();
 
 		void								SetupReflectionTables();
-		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*);
+		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
 		void								GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void								GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		MIPS_BRANCH_TYPE					IsInstructionBranch(CMIPS*, uint32, uint32);
@@ -178,6 +177,11 @@ private:
 		void								SetRelativePipeTime(uint32);
 
 	private:
+		enum
+		{
+			OPCODE_NOP = 0x8000033C
+		};
+
 		typedef void (CLower::*InstructionFuncConstant)();
 
 		static InstructionFuncConstant		m_pOpGeneral[0x80];
@@ -201,8 +205,9 @@ private:
 		uint32								m_nImm24;
 		uint32								m_relativePipeTime;
 
-		uint32								GetDestOffset(uint8);
 		void								SetBranchAddress(bool, int32);
+		static uint32						GetDestOffset(uint8);
+		static bool							IsLOI(CMIPS*, uint32);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -359,5 +364,3 @@ private:
 	CUpper									m_Upper;
 	CLower									m_Lower;
 };
-
-#endif

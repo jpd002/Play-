@@ -67,7 +67,7 @@ MIPS_BRANCH_TYPE CMA_VU::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, uint3
 {
 	if(nAddress & 0x04)
 	{
-		return m_Upper.IsInstructionBranch(pCtx, nAddress, nOpcode);	
+		return m_Upper.IsInstructionBranch(pCtx, nAddress, nOpcode);
 	}
 	else
 	{
