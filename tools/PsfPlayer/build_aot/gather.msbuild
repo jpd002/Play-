@@ -7,6 +7,9 @@
 	</ItemGroup>
 	<Target Name="Build">
 		<MakeDir Directories="./blocks/" />
-		<Exec Command="&quot;$(PsfAotPath)&quot; gather &quot;%(PsfFile.Identity)&quot; &quot;./blocks/%(PsfFile.FileName).blockcache&quot;"/>
+		<Exec 
+			Command="&quot;$(PsfAotPath)&quot; gather &quot;%(PsfFile.Identity)&quot; &quot;./blocks/%(PsfFile.FileName).blockcache&quot;"
+			ContinueOnError="ErrorAndContinue" 
+		/>
 	</Target>
 </Project>
