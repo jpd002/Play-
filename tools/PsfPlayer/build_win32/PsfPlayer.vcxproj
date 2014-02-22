@@ -693,7 +693,7 @@
     <ProjectReference Include="..\..\..\..\unrarsrc-4.0.3\unrarsrc-4.0.3.vcxproj">
       <Project>{28f9e5b7-74eb-4daa-a7c0-e09d2ff43291}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj">
+    <ProjectReference Include="..\..\..\..\zlib-1.2.8\zlib-1.2.8.vcxproj">
       <Project>{4a0b5134-ab23-452d-8513-8225fa178356}</Project>
     </ProjectReference>
   </ItemGroup>

@@ -12,7 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\..\..\Fr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGen", "..\..\..\..\CodeGen\build_win32\CodeGen.vcxproj", "{E3521577-BFC9-4532-9B70-1F8C0D546F4A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-1.2.5-msvc100", "..\..\..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj", "{4A0B5134-AB23-452D-8513-8225FA178356}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-1.2.8", "..\..\..\..\zlib-1.2.8\zlib-1.2.8.vcxproj", "{4A0B5134-AB23-452D-8513-8225FA178356}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unrarsrc-4.0.3", "..\..\..\..\unrarsrc-4.0.3\unrarsrc-4.0.3.vcxproj", "{28F9E5B7-74EB-4DAA-A7C0-E09D2FF43291}"
 EndProject
