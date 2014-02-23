@@ -13,14 +13,14 @@ public:
 	void					SetSpu(Iop::CSpuBase*);
 
 protected:
-	virtual long			OnSize(unsigned int, unsigned int, unsigned int);
-	virtual long			OnTimer(WPARAM);
+	virtual long			OnSize(unsigned int, unsigned int, unsigned int) override;
+	virtual long			OnTimer(WPARAM) override;
 
-	virtual long			OnHScroll(unsigned int, unsigned int);
-	virtual long			OnVScroll(unsigned int, unsigned int);
-	virtual long			OnMouseWheel(short);
-	virtual long			OnKeyDown(unsigned int);
-	virtual long			OnGetDlgCode(WPARAM, LPARAM);
+	virtual long			OnHScroll(unsigned int, unsigned int) override;
+	virtual long			OnVScroll(unsigned int, unsigned int) override;
+	virtual long			OnMouseWheel(int, int, short) override;
+	virtual long			OnKeyDown(unsigned int) override;
+	virtual long			OnGetDlgCode(WPARAM, LPARAM) override;
 
 	virtual void			Refresh() override;
 	virtual void			OnDeviceResetting() override;

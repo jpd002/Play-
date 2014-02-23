@@ -104,7 +104,7 @@ long CSpuRegView::OnVScroll(unsigned int type, unsigned int position)
 	return FALSE;
 }
 
-long CSpuRegView::OnMouseWheel(short delta)
+long CSpuRegView::OnMouseWheel(int, int, short delta)
 {
 	m_offsetY -= delta / 40;
 	m_offsetY = std::max<int>(m_offsetY, 0);
