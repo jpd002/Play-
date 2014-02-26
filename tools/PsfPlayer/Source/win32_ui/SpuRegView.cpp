@@ -1,8 +1,9 @@
 #include "SpuRegView.h"
 #include "win32/Rect.h"
 
-#define CANVAS_WIDTH		(470)
-#define CANVAS_HEIGHT		(350)
+#define LINE_COUNT			(29)
+#define LINE_SPACING		(2)
+#define FONT_SIZE			(8)
 
 CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title) 
 : CDirectXControl(parentWnd, WS_VSCROLL | WS_HSCROLL)
@@ -16,6 +17,8 @@ CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title)
 , m_maxScrollY(0)
 {
 	CreateResources();
+	m_canvasWidth = GetFontWidth() * 67;
+	m_canvasHeight = (GetFontHeight() + LINE_SPACING) * LINE_COUNT;
 	InitializeScrollBars();
 	SetTimer(m_hWnd, NULL, 16, NULL);
 }
@@ -137,10 +140,26 @@ long CSpuRegView::OnGetDlgCode(WPARAM, LPARAM)
 	return DLGC_WANTARROWS;
 }
 
+int32 CSpuRegView::GetFontWidth()
+{
+	TEXTMETRIC textMetric = {};
+	m_font->GetTextMetrics(&textMetric);
+	return textMetric.tmAveCharWidth;
+}
+
+int32 CSpuRegView::GetFontHeight()
+{
+	HDC dc = GetDC(NULL);
+	int32 result = MulDiv(FONT_SIZE, GetDeviceCaps(dc, LOGPIXELSY), 72);
+	ReleaseDC(NULL, dc);
+	return result;
+}
+
 void CSpuRegView::CreateResources()
 {
 	if(m_device.IsEmpty()) return;
-	D3DXCreateFont(m_device, -11, 0, FW_NORMAL, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Courier New"), &m_font);
+	int32 fontHeight = GetFontHeight();
+	D3DXCreateFont(m_device, -fontHeight, 0, FW_NORMAL, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Courier New"), &m_font);
 }
 
 void CSpuRegView::InitializeScrollBars()
@@ -151,10 +170,10 @@ void CSpuRegView::InitializeScrollBars()
 	m_offsetY = 0;
 
 	m_pageSizeX = clientRect.right;
-	m_maxScrollX = CANVAS_WIDTH - (m_pageSizeX - 1);
+	m_maxScrollX = std::max<int>(m_canvasWidth - (m_pageSizeX - 1), 0);
 
 	m_pageSizeY = clientRect.bottom;
-	m_maxScrollY = CANVAS_HEIGHT - (m_pageSizeY - 1);
+	m_maxScrollY = std::max<int>(m_canvasHeight - (m_pageSizeY - 1), 0);
 
 	{
 		SCROLLINFO scrollInfo;
@@ -162,7 +181,7 @@ void CSpuRegView::InitializeScrollBars()
 		scrollInfo.cbSize		= sizeof(SCROLLINFO);
 		scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
 		scrollInfo.nMin			= 0;
-		scrollInfo.nMax			= CANVAS_WIDTH;
+		scrollInfo.nMax			= m_canvasWidth;
 		scrollInfo.nPos			= m_offsetX;
 		scrollInfo.nPage		= m_pageSizeX;
 		SetScrollInfo(m_hWnd, SB_HORZ, &scrollInfo, TRUE);
@@ -174,7 +193,7 @@ void CSpuRegView::InitializeScrollBars()
 		scrollInfo.cbSize		= sizeof(SCROLLINFO);
 		scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
 		scrollInfo.nMin			= 0;
-		scrollInfo.nMax			= CANVAS_HEIGHT;
+		scrollInfo.nMax			= m_canvasHeight;
 		scrollInfo.nPos			= m_offsetY;
 		scrollInfo.nPage		= m_pageSizeY;
 		SetScrollInfo(m_hWnd, SB_VERT, &scrollInfo, TRUE);
@@ -323,5 +342,5 @@ void CSpuRegView::CLineDrawer::Draw(const TCHAR* text, int length)
 
 void CSpuRegView::CLineDrawer::Feed()
 {
-	m_posY += 12;
+	m_posY += GetFontHeight() + LINE_SPACING;
 }

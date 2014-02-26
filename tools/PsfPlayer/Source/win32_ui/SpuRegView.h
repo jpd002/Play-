@@ -43,6 +43,9 @@ private:
 		D3DCOLOR			m_color;
 	};
 
+	int32					GetFontWidth();
+	static int32			GetFontHeight();
+
 	void					CreateResources();
 	void					InitializeScrollBars();
 
@@ -51,6 +54,8 @@ private:
 
 	Iop::CSpuBase*			m_spu;
 	FontPtr					m_font;
+	uint32					m_canvasWidth = 0;
+	uint32					m_canvasHeight = 0;
 
 	std::tstring			m_title;
 
