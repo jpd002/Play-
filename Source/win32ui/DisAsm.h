@@ -1,13 +1,13 @@
 #pragma once
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
 #include "win32/GdiObj.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
 
-class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals::trackable
+class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals2::trackable
 {
 public:
 									CDisAsm(HWND, const RECT&, CVirtualMachine&, CMIPS*);

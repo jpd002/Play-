@@ -1,12 +1,12 @@
 #ifndef _MEMORYVIEWMIPS_H_
 #define _MEMORYVIEWMIPS_H_
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
 #include "MemoryView.h"
 
-class CMemoryViewMIPS : public CMemoryView, public boost::signals::trackable
+class CMemoryViewMIPS : public CMemoryView, public boost::signals2::trackable
 {
 public:
 									CMemoryViewMIPS(HWND, const RECT&, CVirtualMachine&, CMIPS*);
