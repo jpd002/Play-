@@ -4,10 +4,10 @@
     <Import Project="GeneralSettings_Base.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <CODEGEN_PATH>C:\Projects\CodeGen</CODEGEN_PATH>
-    <TDEMU_PATH>C:\Components\TDEmu</TDEMU_PATH>
-    <ZLIB_PATH>C:\Components\zlib-1.2.8</ZLIB_PATH>
-    <UNRAR_PATH>C:\Components\unrarsrc-4.0.3</UNRAR_PATH>
+    <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
+    <TDEMU_PATH>path_to\tdemu</TDEMU_PATH>
+    <ZLIB_PATH>path_to\zlib-1.2.8</ZLIB_PATH>
+    <UNRAR_PATH>path_to\unrarsrc-4.0.3</UNRAR_PATH>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>

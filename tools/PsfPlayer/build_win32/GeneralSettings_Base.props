@@ -2,8 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BOOST_PATH>C:\Components\boost_trunk</BOOST_PATH>
-    <FRAMEWORK_PATH>C:\Projects\Framework</FRAMEWORK_PATH>
+    <BOOST_PATH>path_to\boost-trunk</BOOST_PATH>
+    <FRAMEWORK_PATH>path_to\framework</FRAMEWORK_PATH>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
