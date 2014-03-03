@@ -10,6 +10,10 @@
       <AdditionalDependencies>TDEmu.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BOOST_PATH)\stage32\lib;$(DXSDK_DIR)Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(TDEMU_PATH)\TDEmu.dll $(OutputPath)</Command>
+      <Message>Copying dependencies...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
