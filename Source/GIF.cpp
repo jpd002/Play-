@@ -318,3 +318,14 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 
 	return qwc;
 }
+
+#define GIF_STAT 0x10003020
+
+uint32 CGIF::GetRegister(uint32 address)
+{
+	switch (address){
+	case GIF_STAT:
+		return 0;
+	}
+	return 0;
+}

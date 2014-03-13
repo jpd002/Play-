@@ -146,7 +146,18 @@ uint32 CIoman::Write(uint32 handle, uint32 size, void* buffer)
 	}
 	catch(const std::exception& except)
 	{
-		printf("%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
+		if (1 == handle){
+			const char* cbuffer = (const char *)buffer;
+			for (int i = 0; i < size; ++i){
+				putchar(cbuffer[i]);
+			}
+			putchar('\r');  putchar('\n');
+		}
+		else {
+			printf("%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
+			printf("Handle=%d, Size=%d\r\n", handle, size);
+		}
+		
 	}
 	return result;
 }

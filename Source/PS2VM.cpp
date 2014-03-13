@@ -385,7 +385,8 @@ void CPS2VM::CreateVM()
 		m_EE.m_pMemoryMap->InsertWriteMap(0x02000000,		0x02003FFF,							m_spr,																		0x01);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,		0x10FFFFFF,							bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),		0x02);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,	PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,	m_pVUMem0,																	0x03);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,		0x12FFFFFF,							bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x04);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR, PS2::VUMEM1ADDR + PS2::VUMEM1SIZE, m_pVUMem1, 0x04);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x05);
 
 		m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, PLACEHOLDER_1));
 
@@ -872,6 +873,22 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	{
 		nReturn = m_ipu.GetRegister(nAddress);
 	}
+	else if (nAddress >= 0x10003020 && nAddress <= 0x10003020)
+	{
+		nReturn = m_gif.GetRegister(nAddress);
+	}
+	else if (nAddress >= 0x10003800 && nAddress <= 0x10003970)
+	{
+		nReturn = m_vif.GetRegister(nAddress);
+	}
+	else if (nAddress >= 0x10003C00 && nAddress <= 0x10003D70)
+	{
+		nReturn = m_vif.GetRegister(nAddress);
+	}
+	else if (nAddress >= 0x10005000 && nAddress < 0x10006000)
+	{
+		nReturn = m_vif.GetFIFO1();
+	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
 		nReturn = m_dmac.GetRegister(nAddress);
@@ -913,6 +930,18 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		m_ipu.SetRegister(nAddress, nData);
 		ExecuteIpu();
+	}
+	else if (nAddress >= 0x10003800 && nAddress <= 0x10003970)
+	{
+		m_vif.SetRegister(nAddress, nData);
+	}
+	else if (nAddress >= 0x10003C00 && nAddress <= 0x10003D70)
+	{
+		m_vif.SetRegister(nAddress, nData);
+	}
+	else if (nAddress >= 0x10005000 && nAddress < 0x10006000)
+	{
+		m_vif.SetFIFO1(nData);
 	}
 	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
 	{

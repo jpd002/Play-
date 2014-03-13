@@ -86,6 +86,7 @@
 #define SYSCALL_NAME_SIFDMASTAT				"osSifDmaStat"
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
 #define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
+#define	SYSCALL_NAME_SIFSTOPDMA				"osSifStopDma"
 
 #ifdef DEBUGGER_INCLUDED
 
@@ -117,6 +118,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0044,		SYSCALL_NAME_WAITSEMA				},
 	{	0x0045,		SYSCALL_NAME_POLLSEMA				},
 	{	0x0064,		SYSCALL_NAME_FLUSHCACHE				},
+	{   0X006b,     SYSCALL_NAME_SIFSTOPDMA             },
 	{	0x0070,		SYSCALL_NAME_GSGETIMR				},
 	{	0x0071,		SYSCALL_NAME_GSPUTIMR				},
 	{	0x0073,		SYSCALL_NAME_SETVSYNCFLAG			},
@@ -294,22 +296,24 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 {
 	uint32 nMinAddr = 0xFFFFFFF0;
 	uint32 nMaxAddr = 0x00000000;
-	const ELFHEADER& header = m_pELF->GetHeader();
-
-	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
+	if (m_pELF)
 	{
-		ELFPROGRAMHEADER* p = m_pELF->GetProgram(i);
-		if(p != NULL)
+		const ELFHEADER& header = m_pELF->GetHeader();
+
+		for (unsigned int i = 0; i < header.nProgHeaderCount; i++)
 		{
-			//Wild Arms: Alter Code F has zero sized program headers
-			if(p->nFileSize == 0) continue;
-			uint32 end = p->nVAddress + p->nFileSize;
-			if(end >= PS2::EE_RAM_SIZE) continue;
-			nMinAddr = std::min<uint32>(nMinAddr, p->nVAddress);
-			nMaxAddr = std::max<uint32>(nMaxAddr, end);
+			ELFPROGRAMHEADER* p = m_pELF->GetProgram(i);
+			if (p != NULL)
+			{
+				//Wild Arms: Alter Code F has zero sized program headers
+				if (p->nFileSize == 0) continue;
+				uint32 end = p->nVAddress + p->nFileSize;
+				if (end >= PS2::EE_RAM_SIZE) continue;
+				nMinAddr = std::min<uint32>(nMinAddr, p->nVAddress);
+				nMaxAddr = std::max<uint32>(nMaxAddr, end);
+			}
 		}
 	}
-
 	return std::pair<uint32, uint32>(nMinAddr, nMaxAddr);
 }
 
@@ -2115,6 +2119,12 @@ void CPS2OS::sc_FlushCache()
 		//Flush instruction cache
 		OnRequestInstructionCacheFlush();
 	}
+}
+
+//6B
+void CPS2OS::sc_SifStopDma()
+{
+
 }
 
 //70

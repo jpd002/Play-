@@ -52,6 +52,7 @@ namespace PS2
 
 	enum
 	{
+		VUMEM1ADDR = 0x1100C000,
 		VUMEM1SIZE = 0x00004000,
 	};
 
