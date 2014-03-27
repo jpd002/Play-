@@ -214,6 +214,12 @@ void CGSHandler::ResetVBlank()
 	m_nCSR ^= 0x2000;
 }
 
+bool CGSHandler::IsInterruptPending()
+{
+	uint32 mask = (~m_nIMR >> 8) & 0x1f;
+	return (m_nCSR & mask) != 0;
+}
+
 uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 {
 	uint32 nData = 0;

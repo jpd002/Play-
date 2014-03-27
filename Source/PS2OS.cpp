@@ -687,6 +687,20 @@ void CPS2OS::AssembleInterruptHandler()
 	Asm.NOP();
 
 	{
+		//Check if INT0 (GS)
+		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0004);
+		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
+		Asm.NOP();
+
+		//Process handlers
+		Asm.LUI(CMIPS::T0, 0x1FC0);
+		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0000);
+		Asm.JALR(CMIPS::T0);
+		Asm.NOP();
+	}
+
+	{
 		//Check if INT1 (DMAC)
 		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0002);
 		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0005);

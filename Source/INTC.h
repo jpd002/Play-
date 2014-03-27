@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include "DMAC.h"
+#include "GSHandler.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -17,6 +18,7 @@ public:
 
 	enum LINES
 	{
+		INTC_LINE_GS			= 0,
 		INTC_LINE_DMAC			= 1,
 		INTC_LINE_VBLANK_START	= 2,
 		INTC_LINE_VBLANK_END	= 3,
@@ -24,7 +26,7 @@ public:
 		INTC_LINE_TIMER2		= 11,
 	};
 
-				CINTC(CDMAC&);
+	CINTC(CDMAC&, CGSHandler*&);
 	virtual		~CINTC();
 
 	void		Reset();
@@ -42,6 +44,7 @@ private:
 	uint32		m_INTC_STAT;
 	uint32		m_INTC_MASK;
 	CDMAC&		m_dmac;
+	CGSHandler*&	m_gsHandler;
 };
 
 #endif

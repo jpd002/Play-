@@ -507,6 +507,8 @@ public:
 	uint8*									GetRam();
 	uint64*									GetRegisters();
 
+	bool									IsInterruptPending();
+
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
 
 protected:
