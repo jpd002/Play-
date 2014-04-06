@@ -1,5 +1,4 @@
-#ifndef _PSF_ZIP_ARCHIVE_H_
-#define _PSF_ZIP_ARCHIVE_H_
+#pragma once
 
 #include "PsfArchive.h"
 #include "StdStream.h"
@@ -11,12 +10,12 @@ public:
 										CPsfZipArchive();
 	virtual								~CPsfZipArchive();
 	
-	virtual void						Open(const boost::filesystem::path&);
-	virtual void						ReadFileContents(const char*, void*, unsigned int);
+	virtual void						Open(const boost::filesystem::path&) override;
+	virtual void						ReadFileContents(const char*, void*, unsigned int) override;
 
 private:
-	Framework::CStdStream*				m_inputFile;
-	Framework::CZipArchiveReader*		m_archive;
-};
+	typedef std::unique_ptr<Framework::CZipArchiveReader> ZipArchiveReaderPtr;
 
-#endif
+	Framework::CStdStream				m_inputFile;
+	ZipArchiveReaderPtr					m_archive;
+};
