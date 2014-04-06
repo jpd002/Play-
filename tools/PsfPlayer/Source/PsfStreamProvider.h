@@ -1,5 +1,4 @@
-#ifndef _PSFSTREAMPROVIDER_H_
-#define _PSFSTREAMPROVIDER_H_
+#pragma once
 
 #include "PsfArchive.h"
 #include "Stream.h"
@@ -17,7 +16,7 @@ class CPhysicalPsfStreamProvider : public CPsfStreamProvider
 public:
 	virtual							~CPhysicalPsfStreamProvider() {}
 
-	Framework::CStream*				GetStreamForPath(const boost::filesystem::path&);
+	Framework::CStream*				GetStreamForPath(const boost::filesystem::path&) override;
 };
 
 class CArchivePsfStreamProvider : public CPsfStreamProvider
@@ -26,12 +25,10 @@ public:
 									CArchivePsfStreamProvider(const boost::filesystem::path&);
 	virtual							~CArchivePsfStreamProvider();
 
-	Framework::CStream*				GetStreamForPath(const boost::filesystem::path&);
+	Framework::CStream*				GetStreamForPath(const boost::filesystem::path&) override;
 
 private:
 	std::unique_ptr<CPsfArchive>	m_archive;
 };
 
 std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const boost::filesystem::path&);
-
-#endif
