@@ -3,15 +3,13 @@
 #include "make_unique.h"
 
 CPsfZipArchive::CPsfZipArchive()
-: m_inputFile(nullptr)
-, m_archive(nullptr)
 {
 
 }
 
 CPsfZipArchive::~CPsfZipArchive()
 {
-	
+
 }
 
 void CPsfZipArchive::Open(const boost::filesystem::path& filePath)

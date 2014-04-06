@@ -1,5 +1,4 @@
-#ifndef _PSF_RAR_ARCHIVE_H_
-#define _PSF_RAR_ARCHIVE_H_
+#pragma once
 
 #include "PsfArchive.h"
 
@@ -9,11 +8,9 @@ public:
 					CPsfRarArchive();
 	virtual			~CPsfRarArchive();
 	
-	virtual void	Open(const boost::filesystem::path&);
-	virtual void	ReadFileContents(const char*, void*, unsigned int);
+	virtual void	Open(const boost::filesystem::path&) override;
+	virtual void	ReadFileContents(const char*, void*, unsigned int) override;
 
 private:
 	void*			m_archive;
 };
-
-#endif
