@@ -1,5 +1,4 @@
-#ifndef _PSFLOADER_H_
-#define _PSFLOADER_H_
+#pragma once
 
 #include "PsfVm.h"
 #include "PsfBase.h"
@@ -25,5 +24,3 @@ private:
 	static void		LoadPsp(CPsfVm&, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 	static void		LoadPspRecurse(CPsfVm&, Psp::CPsfBios*, const boost::filesystem::path&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 };
-
-#endif
