@@ -18,6 +18,7 @@
 	#include <memory>
 	#include <stdexcept>
 	#include <algorithm>
+	#include <boost/filesystem.hpp>
 	#include "Jitter.h"
 	#include "Types.h"
 #endif
