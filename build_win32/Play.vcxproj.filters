@@ -637,6 +637,9 @@
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GifPacketView.cpp">
       <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\VuAnalysis.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
