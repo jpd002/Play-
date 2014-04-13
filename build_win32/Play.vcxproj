@@ -696,7 +696,7 @@
     <ProjectReference Include="..\..\Framework\build_win32\FrameworkOpenGl.vcxproj">
       <Project>{482892bb-6d81-4ca4-bfd5-01a756c21292}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\zlib-1.2.5-msvc100\zlib-1.2.5-msvc100.vcxproj">
+    <ProjectReference Include="..\..\zlib-1.2.8\zlib-1.2.8.vcxproj">
       <Project>{4a0b5134-ab23-452d-8513-8225fa178356}</Project>
     </ProjectReference>
   </ItemGroup>
