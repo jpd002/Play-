@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <BOOST_PATH>D:\Components\boost_trunk</BOOST_PATH>
+    <FRAMEWORK_PATH>D:\Projects\Framework</FRAMEWORK_PATH>
+    <CODEGEN_PATH>D:\Projects\CodeGen</CODEGEN_PATH>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(BOOST_PATH);$(FRAMEWORK_PATH)\include;$(CODEGEN_PATH)\include;$(ProjectDir)\..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="BOOST_PATH">
+      <Value>$(BOOST_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FRAMEWORK_PATH">
+      <Value>$(FRAMEWORK_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CODEGEN_PATH">
+      <Value>$(CODEGEN_PATH)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
