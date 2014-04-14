@@ -190,6 +190,13 @@ uint32 CVPU::GetITOP() const
 	return m_ITOP;
 }
 
+// Assumes written from the EE, so the stat bit is also reset.
+void CVPU::SetMark(uint32 value)
+{
+	m_MARK = value;
+	m_STAT.nMRK = 0;
+}
+
 uint8* CVPU::GetVuMemory() const
 {
 	return m_vuMem;

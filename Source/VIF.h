@@ -47,6 +47,12 @@ public:
 	void		SaveState(Framework::CZipArchiveWriter&);
 	void		LoadState(Framework::CZipArchiveReader&);
 
+	void		SetRegister(uint32 nAddress, uint32 nValue);
+	uint32		GetRegister(uint32 value);
+
+	uint32		GetFIFO1();
+	void		SetFIFO1(uint32 value);
+
 	uint32		ReceiveDMA0(uint32, uint32, bool);
 	uint32		ReceiveDMA1(uint32, uint32, bool);
 
@@ -90,6 +96,7 @@ public:
 		uint32					GetAvailableReadBytes() const;
 		uint32					GetRemainingDmaTransferSize() const;
 		void					Read(void*, uint32);
+		void					Write(uint32);
 		void					Flush();
 		void					Align32();
 		void					SetDmaParams(uint32, uint32);

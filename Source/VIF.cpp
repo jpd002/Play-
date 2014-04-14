@@ -75,6 +75,86 @@ void CVIF::LoadState(Framework::CZipArchiveReader& archive)
 	m_pVPU[1]->LoadState(archive);
 }
 
+#define VIF0_STAT		0x10003800
+#define VIF0_FBRST		0x10003810
+#define VIF0_ERR		0x10003820
+#define VIF0_MARK		0x10003830
+#define VIF0_CYCLE		0x10003840
+#define VIF0_MODE		0x10003850
+#define VIF0_NUM		0x10003860
+#define VIF0_MASK		0x10003870
+#define VIF0_CODE		0x10003880
+#define VIF0_ITOPS		0x10003890
+#define VIF0_ITOP		0x100038d0
+#define VIF0_TOP		0x100038e0
+#define VIF0_R0			0x10003900
+#define VIF0_R1			0x10003910
+#define VIF0_R2			0x10003920
+#define VIF0_R3			0x10003930
+#define VIF0_C0			0x10003940
+#define VIF0_C1			0x10003950
+#define VIF0_C2			0x10003960
+#define VIF0_C3			0x10003970
+
+#define VIF1_STAT		0x10003c00
+#define VIF1_FBRST		0x10003c10
+#define VIF1_ERR		0x10003c20
+#define VIF1_MARK		0x10003c30
+#define VIF1_CYCLE		0x10003c40
+#define VIF1_MODE		0x10003c50
+#define VIF1_NUM		0x10003c60
+#define VIF1_MASK		0x10003c70
+#define VIF1_CODE		0x10003c80
+#define VIF1_ITOPS		0x10003c90
+#define VIF1_BASE		0x10003ca0
+#define VIF1_OFST		0x10003cb0
+#define VIF1_TOPS		0x10003cc0
+#define VIF1_ITOP		0x10003cd0
+#define VIF1_TOP		0x10003ce0
+#define VIF1_R0			0x10003d00
+#define VIF1_R1			0x10003d10
+#define VIF1_R2			0x10003d20
+#define VIF1_R3			0x10003d30
+#define VIF1_C0			0x10003d40
+#define VIF1_C1			0x10003d50
+#define VIF1_C2			0x10003d60
+#define VIF1_C3			0x10003d70
+
+void CVIF::SetRegister(uint32 nAddress, uint32 nValue)
+{
+	switch (nAddress)
+	{
+	case VIF1_FBRST:
+		if (nValue & 1){
+			m_stream[1]->Flush();
+			m_pVPU[1]->Reset();
+		}
+		break;
+	case VIF1_ERR:
+		break;
+	case VIF1_MARK:
+		m_pVPU[1]->SetMark(nValue);
+		break;
+
+	}
+}
+
+uint32 CVIF::GetRegister(uint32 value)
+{
+	return 0;
+}
+
+uint32 CVIF::GetFIFO1()
+{
+	return 0;
+}
+
+void CVIF::SetFIFO1(uint32 value)
+{
+	m_stream[1]->Write(value);
+	m_pVPU[1]->ProcessPacket(*m_stream[1]);
+}
+
 uint32 CVIF::ReceiveDMA0(uint32 address, uint32 qwc, bool tagIncluded)
 {
 	unsigned int vpuNumber = 0;
@@ -266,6 +346,11 @@ CVIF::CFifoStream::CFifoStream(uint8* ram, uint8* spr)
 CVIF::CFifoStream::~CFifoStream()
 {
 
+}
+
+void CVIF::CFifoStream::Write(uint32 data)
+{
+	// TODO:
 }
 
 void CVIF::CFifoStream::Read(void* buffer, uint32 size)

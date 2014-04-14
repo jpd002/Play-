@@ -26,6 +26,8 @@ public:
 
 	virtual void		StartMicroProgram(uint32);
 
+	void				SetMark(uint32 value);
+
 	CMIPS&				GetContext() const;
 	uint8*				GetVuMemory() const;
 	bool				IsRunning() const;
