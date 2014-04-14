@@ -124,10 +124,8 @@ CMipsTestEngine::CValueSet::CValueSet(Framework::Xml::CNode* pValueSetNode)
 	Framework::Xml::GetAttributeIntValue(pValueSetNode, "InputId", reinterpret_cast<int*>(&m_nInputId));
 	Framework::Xml::GetAttributeIntValue(pValueSetNode, "InstanceId", reinterpret_cast<int*>(&m_nInstanceId));
 
-	for(Framework::Xml::CNode::NodeIterator itNode(pValueSetNode->GetChildrenBegin());
-		itNode != pValueSetNode->GetChildrenEnd(); itNode++)
+	for(const auto& pNode : pValueSetNode->GetChildren())
 	{
-		Framework::Xml::CNode* pNode(*itNode);
 		if(!pNode->IsTag()) continue;
 
 		//Check the value type
