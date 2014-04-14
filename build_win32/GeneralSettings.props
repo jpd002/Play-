@@ -1,17 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <BOOST_PATH>D:\Components\boost_trunk</BOOST_PATH>
+    <FRAMEWORK_PATH>D:\Projects\Framework</FRAMEWORK_PATH>
+    <CODEGEN_PATH>D:\Projects\CodeGen</CODEGEN_PATH>
+    <ZLIB_PATH>D:\Components\zlib-1.2.8</ZLIB_PATH>
+    <GLEW_PATH>D:\Components\glew-1.9.0</GLEW_PATH>
+    <BZLIB_PATH>D:\Components\bzip2-1.0.4</BZLIB_PATH>
+  </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;GLEW_STATIC;_IOP_EMULATE_MODULES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)/include;D:\Projects\CodeGen\include;$(DXSDK_DIR)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_PATH);$(ZLIB_PATH);$(BZLIB_PATH);$(FRAMEWORK_PATH)\include;$(CODEGEN_PATH)\include;$(DXSDK_DIR)Include;$(GLEW_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;uxtheme.lib;opengl32.lib;glu32.lib;dxguid.lib;glew32s.lib;dinput8.lib;vfw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBC.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BuildMacro Include="BOOST_PATH">
+      <Value>$(BOOST_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FRAMEWORK_PATH">
+      <Value>$(FRAMEWORK_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CODEGEN_PATH">
+      <Value>$(CODEGEN_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ZLIB_PATH">
+      <Value>$(ZLIB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GLEW_PATH">
+      <Value>$(GLEW_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BZLIB_PATH">
+      <Value>$(BZLIB_PATH)</Value>
+    </BuildMacro>
+  </ItemGroup>
 </Project>
