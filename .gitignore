@@ -2,3 +2,4 @@
 Debug
 Release
 *.ipch
+*.userprops
