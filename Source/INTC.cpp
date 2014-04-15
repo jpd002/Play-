@@ -10,7 +10,7 @@ CINTC::CINTC(CDMAC& dmac, CGSHandler*& gs)
 : m_INTC_STAT(0)
 , m_INTC_MASK(0)
 , m_dmac(dmac)
-, m_gsHandler(gs)
+, m_gs(gs)
 {
 
 }
@@ -28,7 +28,7 @@ void CINTC::Reset()
 
 bool CINTC::IsInterruptPending()
 {
-	if (m_gsHandler != nullptr && m_gsHandler->IsInterruptPending())
+	if((m_gs != nullptr) && m_gs->IsInterruptPending())
 	{
 		m_INTC_STAT |= 0x01;
 	}

@@ -216,7 +216,7 @@ void CGSHandler::ResetVBlank()
 
 bool CGSHandler::IsInterruptPending()
 {
-	uint32 mask = (~m_nIMR >> 8) & 0x1f;
+	uint32 mask = (~m_nIMR >> 8) & 0x1F;
 	return (m_nCSR & mask) != 0;
 }
 
