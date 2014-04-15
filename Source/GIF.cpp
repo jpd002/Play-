@@ -318,3 +318,17 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 
 	return qwc;
 }
+
+uint32 CGIF::GetRegister(uint32 address)
+{
+	switch(address)
+	{
+	case GIF_STAT:
+		return 0;
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Reading an unhandled register (0x%0.8X).\r\n", address);
+		break;
+	}
+	return 0;
+}
