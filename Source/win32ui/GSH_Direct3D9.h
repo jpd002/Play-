@@ -167,6 +167,7 @@ private:
 	void							TexUploader_Psm32(const TEX0&, const TEXA&, TexturePtr);
 	void							UploadConversionBuffer(const TEX0&, const TEXA&, TexturePtr);
 
+	uint32							ConvertTexturePsmct16(const TEX0&, const TEXA&);
 	uint32							ConvertTexturePsm8(const TEX0&, const TEXA&);
 	uint32							ConvertTexturePsm8H(const TEX0&, const TEXA&);
 	uint32							ConvertTexturePsm4(const TEX0&, const TEXA&);

@@ -65,6 +65,9 @@ CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const T
 	case PSMT8H:
 		textureChecksum = ConvertTexturePsm8H(tex0, texA);
 		break;
+	case PSMCT16:
+		textureChecksum = ConvertTexturePsmct16(tex0, texA);
+		break;
 	}
 
 	if(textureChecksum)
@@ -91,6 +94,7 @@ CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const T
 	case PSMT4:
 	case PSMT4HL:
 	case PSMT4HH:
+	case PSMCT16:
 		UploadConversionBuffer(tex0, texA, result);
 		break;
 	default:
@@ -259,6 +263,56 @@ uint32 CGSH_Direct3D9::ConvertTexturePsm8H(const TEX0& tex0, const TEXA& texA)
 		}
 
 		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32) * width);
+		dst += dstPitch;
+	}
+
+	return checksum;
+}
+
+uint32 CGSH_Direct3D9::ConvertTexturePsmct16(const TEX0& tex0, const TEXA& texA)
+{
+	unsigned int width = tex0.GetWidth();
+	unsigned int height = tex0.GetHeight();
+	unsigned int dstPitch = width;
+	uint32* dst = reinterpret_cast<uint32*>(m_cvtBuffer);
+	uint32 checksum = crc32(0, NULL, 0);
+
+	uint8 nTA0, nTA1;
+	if (tex0.nColorComp == 1)
+	{
+		nTA0 = texA.nTA0;
+		nTA1 = texA.nTA1;
+	}
+	else
+	{
+		nTA0 = 0;
+		nTA1 = 0;
+	}
+
+	CGsPixelFormats::CPixelIndexorPSMCT16S indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
+
+	for (unsigned int j = 0; j < height; j++)
+	{
+		for (unsigned int i = 0; i < width; i++)
+		{
+			uint16 pixel = indexor.GetPixel(i, j);
+			uint8 nB = (pixel >> 0) & 0x1F;
+			uint8 nG = (pixel >> 5) & 0x1F;
+			uint8 nR = (pixel >> 10) & 0x1F;
+			uint8 nA = (pixel >> 15) & 0x01;
+
+			nB <<= 3;
+			nG <<= 3;
+			nR <<= 3;
+			nA = (nA == 0) ? nTA0 : nTA1;
+
+			*(((uint8*)&dst[i]) + 0) = nB;
+			*(((uint8*)&dst[i]) + 1) = nG;
+			*(((uint8*)&dst[i]) + 2) = nR;
+			*(((uint8*)&dst[i]) + 3) = nA;
+		}
+
+		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32)* width);
 		dst += dstPitch;
 	}
 
