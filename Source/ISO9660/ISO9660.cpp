@@ -71,7 +71,6 @@ bool CISO9660::GetFileRecordFromDirectory(CDirectoryRecord* pRecord, uint32 nAdd
 		CDirectoryRecord Entry(&Directory);
 
 		if(Entry.GetLength() == 0) break;
-		if(Entry.IsDirectory()) continue;
 		if(strnicmp(Entry.GetName(), sFilename, strlen(sFilename))) continue;
 
 		(*pRecord) = Entry;
