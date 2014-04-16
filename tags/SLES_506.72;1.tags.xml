@@ -4,6 +4,7 @@
 		<tag address="00135388" value="DoDMA" />
 		<tag address="00135940" value="InitDma" />
 		<tag address="00135C08" value="kickoffDMA" />
+		<tag address="00139AF0" value="streamFromCD" />
 		<tag address="0013A008" value="readStreamedData" />
 		<tag address="0013A3D0" value="getLmp" />
 		<tag address="001401A8" value="FixupVif" />
