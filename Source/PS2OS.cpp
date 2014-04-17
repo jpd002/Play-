@@ -686,24 +686,34 @@ void CPS2OS::AssembleInterruptHandler()
 	//Asm.SW(CMIPS::S0, 0x0000, CMIPS::T0);
 	Asm.NOP();
 
-	{
-		//Check if INT0 (GS)
-		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0004);
-		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-		Asm.NOP();
+	static const auto generateIntHandler = 
+		[](CMIPSAssembler& assembler, uint32 line)
+		{
+			auto skipIntHandlerLabel = assembler.CreateLabel();
 
-		//Process handlers
-		Asm.LUI(CMIPS::T0, 0x1FC0);
-		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0000);
-		Asm.JALR(CMIPS::T0);
-		Asm.NOP();
-	}
+			//Check cause
+			assembler.ANDI(CMIPS::T0, CMIPS::S0, (1 << line));
+			assembler.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
+			assembler.NOP();
 
+			//Process handlers
+			assembler.LUI(CMIPS::T0, 0x1FC0);
+			assembler.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
+			assembler.ADDIU(CMIPS::A0, CMIPS::R0, line);
+			assembler.JALR(CMIPS::T0);
+			assembler.NOP();
+
+			assembler.MarkLabel(skipIntHandlerLabel);
+		};
+
+	generateIntHandler(Asm, CINTC::INTC_LINE_GS);
+	
 	{
+		auto skipIntHandlerLabel = Asm.CreateLabel();
+
 		//Check if INT1 (DMAC)
-		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0002);
-		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0005);
+		Asm.ANDI(CMIPS::T0, CMIPS::S0, (1 << CINTC::INTC_LINE_DMAC));
+		Asm.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
 		Asm.NOP();
 
 		//Go to DMAC interrupt handler
@@ -711,63 +721,14 @@ void CPS2OS::AssembleInterruptHandler()
 		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x1000);
 		Asm.JALR(CMIPS::T0);
 		Asm.NOP();
+
+		Asm.MarkLabel(skipIntHandlerLabel);
 	}
 
-	{
-		//Check if INT2 (Vblank Start)
-		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0004);
-		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-		Asm.NOP();
-
-		//Process handlers
-		Asm.LUI(CMIPS::T0, 0x1FC0);
-		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0002);
-		Asm.JALR(CMIPS::T0);
-		Asm.NOP();
-	}
-
-	{
-		//Check if INT3 (Vblank End)
-		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0008);
-		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-		Asm.NOP();
-
-		//Process handlers
-		Asm.LUI(CMIPS::T0, 0x1FC0);
-		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x0003);
-		Asm.JALR(CMIPS::T0);
-		Asm.NOP();
-	}
-
-	{
-		//Check if INT10 (Timer1)
-		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0400);
-		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-		Asm.NOP();
-
-		//Process handlers
-		Asm.LUI(CMIPS::T0, 0x1FC0);
-		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x000A);
-		Asm.JALR(CMIPS::T0);
-		Asm.NOP();
-	}
-
-	{
-		//Check if INT11 (Timer2)
-		Asm.ANDI(CMIPS::T0, CMIPS::S0, 0x0800);
-		Asm.BEQ(CMIPS::R0, CMIPS::T0, 0x0006);
-		Asm.NOP();
-
-		//Process handlers
-		Asm.LUI(CMIPS::T0, 0x1FC0);
-		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
-		Asm.ADDIU(CMIPS::A0, CMIPS::R0, 0x000B);
-		Asm.JALR(CMIPS::T0);
-		Asm.NOP();
-	}
+	generateIntHandler(Asm, CINTC::INTC_LINE_VBLANK_START);
+	generateIntHandler(Asm, CINTC::INTC_LINE_VBLANK_END);
+	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER1);
+	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER2);
 
 	//Restore EPC
 	Asm.LW(CMIPS::T0, 0x0200, CMIPS::K0);
