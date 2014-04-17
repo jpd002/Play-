@@ -888,7 +888,7 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	{
 		if(m_gs != NULL)
 		{
-			nReturn = m_gs->ReadPrivRegister(nAddress);		
+			nReturn = m_gs->ReadPrivRegister(nAddress);
 		}
 	}
 	else
