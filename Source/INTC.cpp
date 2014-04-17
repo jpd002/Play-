@@ -30,12 +30,12 @@ bool CINTC::IsInterruptPending()
 {
 	if((m_gs != nullptr) && m_gs->IsInterruptPending())
 	{
-		m_INTC_STAT |= 0x01;
+		m_INTC_STAT |= (1 << INTC_LINE_GS);
 	}
 
 	if(m_dmac.IsInterruptPending())
 	{
-		m_INTC_STAT |= 0x02;
+		m_INTC_STAT |= (1 << INTC_LINE_DMAC);
 	}
 
 	return (m_INTC_STAT & m_INTC_MASK) != 0;
