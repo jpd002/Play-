@@ -1,5 +1,6 @@
 <tags>
 	<ee_functions>
+		<tag address="00135178" value="startDMA" />
 		<tag address="00135380" value="WaitDMASema" />
 		<tag address="00135388" value="DoDMA" />
 		<tag address="00135940" value="InitDma" />
@@ -9,17 +10,28 @@
 		<tag address="0013A3D0" value="getLmp" />
 		<tag address="001401A8" value="FixupVif" />
 		<tag address="00140208" value="FixupTex" />
+		<tag address="00140EB0" value="drawSprite" />
+		<tag address="001435D0" value="addTexToList" />
 		<tag address="001437E8" value="FixupFnt" />
+		<tag address="0015AFA0" value="getSelectedMenuItem" />
+		<tag address="0015AFE0" value="setSelectedMenuItem" />
+		<tag address="0016E880" value="drawTransparentSprite" />
 		<tag address="001830B8" value="worldProc" />
 		<tag address="00189428" value="EnqueueDialogDemon" />
 		<tag address="002001C0" value="BootstrapVIFs" />
-		<tag address="00202798" value="loadNewLevel" />
-		<tag address="00203980" value="playMovie" />
+		<tag address="002002C0" value="transferToDisplay" />
+		<tag address="002006F0" value="setupFrame" />
+		<tag address="00201C40" value="legalProc" />
+		<tag address="00202798" value="logadNewLevel" />
+		<tag address="002035E8" value="langMenuProc" />
+		<tag address="00203980" value="playScene" />
 		<tag address="00203EC0" value="main" />
+		<tag address="00204950" value="defaultSceneProc" />
 		<tag address="00204A00" value="RemoveFromQueue" />
 		<tag address="00204AC8" value="QueueFunc" />
 		<tag address="00204C30" value="VBlankHandler" />
 		<tag address="002057D0" value="ResetVIFGIF" />
+		<tag address="00205AA8" value="setDisplayRegs" />
 		<tag address="00205C00" value="sceGsSynchPath" />
 		<tag address="00205F50" value="lookupDCHR" />
 		<tag address="002062A0" value="startChainDMA" />
@@ -165,6 +177,7 @@
 		<tag address="00208B78" value="EnableIntc" />
 		<tag address="00208BE0" value="DisableDmac" />
 		<tag address="00208C48" value="EnableDmac" />
+		<tag address="0020A8D8" value="SifCallRpc" />
 		<tag address="0020D318" value="SifWriteBackDCache" />
 		<tag address="0020EE40" value="cdSemaInit" />
 		<tag address="0020F4A0" value="CdCheckNCmd" />
