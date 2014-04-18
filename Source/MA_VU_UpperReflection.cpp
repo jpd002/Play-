@@ -218,7 +218,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"MADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ITOF15",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"MULA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"CLIP",		NULL,			CopyMnemonic,		ReflOpClip,			NULL,				NULL			},

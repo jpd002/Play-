@@ -118,6 +118,7 @@ private:
 		void								OPMULA();
 
 		//Vector 3
+		void								ITOF15();
 		void								CLIP();
 		void								MADDAi();
 		void								MSUBAi();

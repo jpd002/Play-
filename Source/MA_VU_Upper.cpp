@@ -387,6 +387,12 @@ void CMA_VU::CUpper::OPMULA()
 //Vector3 Instructions
 //////////////////////////////////////////////////
 
+//04
+void CMA_VU::CUpper::ITOF15()
+{
+	VUShared::ITOF15(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
 //07
 void CMA_VU::CUpper::CLIP()
 {
@@ -474,7 +480,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector2[0x20] =
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector3[0x20] =
 {
 	//0x00
-	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::CLIP,
+	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF15,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::CLIP,
 	//0x08
 	&CMA_VU::CUpper::MADDAi,		&CMA_VU::CUpper::MSUBAi,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::NOP,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
 	//0x10
