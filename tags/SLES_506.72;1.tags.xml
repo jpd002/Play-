@@ -11,18 +11,20 @@
 		<tag address="001401A8" value="FixupVif" />
 		<tag address="00140208" value="FixupTex" />
 		<tag address="00140EB0" value="drawSprite" />
+		<tag address="00142A08" value="processWorld" />
 		<tag address="001435D0" value="addTexToList" />
 		<tag address="001437E8" value="FixupFnt" />
 		<tag address="0015AFA0" value="getSelectedMenuItem" />
 		<tag address="0015AFE0" value="setSelectedMenuItem" />
 		<tag address="0016E880" value="drawTransparentSprite" />
+		<tag address="001826A0" value="loadLevel" />
 		<tag address="001830B8" value="worldProc" />
 		<tag address="00189428" value="EnqueueDialogDemon" />
 		<tag address="002001C0" value="BootstrapVIFs" />
 		<tag address="002002C0" value="transferToDisplay" />
 		<tag address="002006F0" value="setupFrame" />
 		<tag address="00201C40" value="legalProc" />
-		<tag address="00202798" value="logadNewLevel" />
+		<tag address="00202798" value="loadNewLevel" />
 		<tag address="002035E8" value="langMenuProc" />
 		<tag address="00203980" value="playScene" />
 		<tag address="00203EC0" value="main" />
@@ -188,6 +190,7 @@
 		<tag address="002102A0" value="cdSync" />
 		<tag address="00210348" value="cdSyncS" />
 		<tag address="002103B0" value="cdCheckSCmd" />
+		<tag address="00210C08" value="cdGetError" />
 		<tag address="002111C0" value="cdStInit" />
 		<tag address="002111F0" value="cdStStart" />
 		<tag address="00211288" value="cdStStop" />
