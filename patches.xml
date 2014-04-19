@@ -1,9 +1,8 @@
 <Patches>
 	<Executable Name="SLES_506.72;1" Title="Baldur's Gate: Dark Alliance">
 		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
-		<Patch Address="0x002119A8" Value="0x03E00008" Description="sceMpegGetPicture returns -1" />
-		<Patch Address="0x002119AC" Value="0x3C02FFFF" Description="sceMpegGetPicture returns -1" />
-		<Patch Address="0x00154F64" Value="0x10000016" Description="Return gracefully from movie play function" />
+		<Patch Address="0x00211ac0" Value="0x03E00008" Description="sceMpegIsEnd returns -1" />
+		<Patch Address="0x00211ac4" Value="0x3C02FFFF" Description="sceMpegIsEnd returns -1" />
 	</Executable>
 
 	<Executable Name="SLPM_660.81;1">
