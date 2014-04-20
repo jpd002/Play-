@@ -198,8 +198,11 @@
 		<tag address="00211430" value="sceCdStPause" />
 		<tag address="00211480" value="sceCdStResume" />
 		<tag address="00211520" value="cdStream" />
+                <tag address="00211680" value="sceMpegInit" />
+                <tag address="00211970" value="sceMpegAddBs" />
 		<tag address="002119A8" value="sceMpegGetPicture" />
 		<tag address="00211AC0" value="sceMpegIsEnd" />
+                <tag address="00211AE0" value="sceMpegReset" />
 		<tag address="00224A80" value="FailAssert" />
 		<tag address="00225A88" value="memset" />
 		<tag address="00225B98" value="logString" />
