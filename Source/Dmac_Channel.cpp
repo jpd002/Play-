@@ -39,6 +39,8 @@ void CChannel::Reset()
 	m_nQWC		= 0;
 	m_nTADR		= 0;
 	m_nSCCTRL	= 0;
+	m_nASR[0]	= 0;
+	m_nASR[1]	= 0;
 }
 
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
