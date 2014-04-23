@@ -38,7 +38,6 @@ void CTimer::Count(unsigned int ticks)
 		switch(timer->nMODE & 0x03)
 		{
 		case 0x00:
-		case 0x03:
 			divider = 1;
 			break;
 		case 0x01:
@@ -46,6 +45,9 @@ void CTimer::Count(unsigned int ticks)
 			break;
 		case 0x02:
 			divider = 256;
+			break;
+		case 0x03:
+			divider = 9437;		// PAL
 			break;
 		}
 
