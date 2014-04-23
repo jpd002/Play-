@@ -521,7 +521,7 @@ long CDisAsm::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 	return FALSE;
 }
 
-long CDisAsm::OnKeyDown(unsigned int nKey)
+long CDisAsm::OnKeyDown(WPARAM nKey, LPARAM)
 {
 	switch(nKey)
 	{

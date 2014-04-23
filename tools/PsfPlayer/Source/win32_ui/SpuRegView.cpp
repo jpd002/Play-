@@ -116,7 +116,7 @@ long CSpuRegView::OnMouseWheel(int, int, short delta)
 	return TRUE;
 }
 
-long CSpuRegView::OnKeyDown(unsigned int keyId)
+long CSpuRegView::OnKeyDown(WPARAM keyId, LPARAM)
 {
 	if(keyId == VK_LEFT || keyId == VK_RIGHT)
 	{

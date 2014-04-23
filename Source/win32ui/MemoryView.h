@@ -30,7 +30,7 @@ protected:
 	long									OnMouseWheel(int, int, short) override;
 	long									OnLeftButtonDown(int, int) override;
 	long									OnLeftButtonUp(int, int) override;
-	long									OnKeyDown(unsigned int) override;
+	long									OnKeyDown(WPARAM, LPARAM) override;
 
 private:
 	void									GetVisibleRowsCols(unsigned int*, unsigned int*);

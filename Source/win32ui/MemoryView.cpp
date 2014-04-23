@@ -324,53 +324,53 @@ long CMemoryView::OnLeftButtonDown(int nX, int nY)
 
 long CMemoryView::OnLeftButtonUp(int nX, int nY)
 {
-    SIZE FontSize = Win32::CClientDeviceContext(m_hWnd).GetFontSize(Win32::CFont(GetFont()));
+	SIZE FontSize = Win32::CClientDeviceContext(m_hWnd).GetFontSize(Win32::CFont(GetFont()));
 
-    nY -= YMARGIN;
-    nX -= XMARGIN + (8 * FontSize.cx) + 10;
+	nY -= YMARGIN;
+	nX -= XMARGIN + (8 * FontSize.cx) + 10;
 
-    if(nY < 0) return FALSE;
-    if(nX < 0) return FALSE;
+	if(nY < 0) return FALSE;
+	if(nX < 0) return FALSE;
 
-    unsigned int nLine, nRow;
-    uint32 nAddress;
-    unsigned int nCols, nRows;
+	unsigned int nLine, nRow;
+	uint32 nAddress;
+	unsigned int nCols, nRows;
 
-    //Find selected line
-    nLine = nY / (FontSize.cy + YSPACE);
+	//Find selected line
+	nLine = nY / (FontSize.cy + YSPACE);
 
-    //Find selected row;
-    nRow = nX / ((2 * FontSize.cx) + 3);
+	//Find selected row;
+	nRow = nX / ((2 * FontSize.cx) + 3);
    
-    GetRenderParams(FontSize, nCols, nRows, nAddress);
+	GetRenderParams(FontSize, nCols, nRows, nAddress);
 
-    if(nRow >= nRows) return FALSE;
+	if(nRow >= nRows) return FALSE;
 
-    SetSelectionStart(nAddress + nRow + (nLine * nRows));
+	SetSelectionStart(nAddress + nRow + (nLine * nRows));
 
-    return FALSE;
+	return FALSE;
 }
 
-long CMemoryView::OnKeyDown(unsigned int nKey)
+long CMemoryView::OnKeyDown(WPARAM nKey, LPARAM)
 {
-    switch(nKey)
-    {
-    case VK_RIGHT:
-        SetSelectionStart(m_nSelectionStart + 1);
-        break;
-    case VK_LEFT:
-        SetSelectionStart(m_nSelectionStart - 1);
-        break;
-    case VK_UP:
-    case VK_DOWN:
-        {
-            unsigned int nCols;
-            GetVisibleRowsCols(NULL, &nCols);
-            SetSelectionStart(m_nSelectionStart + ((nKey == VK_UP) ? (-static_cast<int>(nCols)) : (nCols)));
-        }
-    }
+	switch(nKey)
+	{
+	case VK_RIGHT:
+		SetSelectionStart(m_nSelectionStart + 1);
+		break;
+	case VK_LEFT:
+		SetSelectionStart(m_nSelectionStart - 1);
+		break;
+	case VK_UP:
+	case VK_DOWN:
+		{
+			unsigned int nCols;
+			GetVisibleRowsCols(NULL, &nCols);
+			SetSelectionStart(m_nSelectionStart + ((nKey == VK_UP) ? (-static_cast<int>(nCols)) : (nCols)));
+		}
+	}
 
-    return TRUE;
+	return TRUE;
 }
 
 void CMemoryView::SetSelectionStart(unsigned int nNewAddress)

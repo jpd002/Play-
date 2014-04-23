@@ -30,7 +30,7 @@ protected:
 	long							OnRightButtonUp(int, int) override;
 	long							OnMouseMove(WPARAM, int, int) override;
 	long							OnVScroll(unsigned int, unsigned int) override;
-	long							OnKeyDown(unsigned int) override;
+	long							OnKeyDown(WPARAM, LPARAM) override;
 	long							OnCopy() override;
 
 	virtual unsigned int			BuildContextMenu(HMENU);
