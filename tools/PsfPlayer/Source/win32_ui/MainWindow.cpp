@@ -485,7 +485,7 @@ void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 		archivePath = m_playlist.GetArchive(item.archiveId);
 	}
 
-	if(PlayFile(item.path.c_str(), archivePath))
+	if(PlayFile(item.path, archivePath))
 	{
 		CPlaylist::ITEM newItem(item);
 		CPlaylist::PopulateItemFromTags(newItem, m_tags);
@@ -507,18 +507,17 @@ void CMainWindow::OnPlaylistAddClick()
 	dialog.m_OFN.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
 	if(dialog.SummonOpen(m_hWnd))
 	{
-		Framework::Win32::CFileDialog::PathList paths(dialog.GetMultiPaths());
-		for(Framework::Win32::CFileDialog::PathList::const_iterator pathIterator(paths.begin());
-			paths.end() != pathIterator; pathIterator++)
+		auto paths(dialog.GetMultiPaths());
+		for(const auto& path : paths)
 		{
-			boost::filesystem::path filePath(*pathIterator);
+			boost::filesystem::path filePath(path);
 			CPlaylist::ITEM item;
 			item.path		= filePath.wstring();
 			item.title		= filePath.wstring();
 			item.length		= 0;
 			unsigned int itemId = m_playlist.InsertItem(item);
 
-			m_playlistDiscoveryService.AddItemInRun(filePath, boost::filesystem::path(), itemId);
+			m_playlistDiscoveryService.AddItemInRun(filePath.wstring(), boost::filesystem::path(), itemId);
 		}
 	}
 }
@@ -1109,7 +1108,7 @@ void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
 		for(unsigned int i = 0; i < m_playlist.GetItemCount(); i++)
 		{
 			const CPlaylist::ITEM& item(m_playlist.GetItem(i));
-			m_playlistDiscoveryService.AddItemInRun(item.path.c_str(), boost::filesystem::path(), item.id);
+			m_playlistDiscoveryService.AddItemInRun(item.path, boost::filesystem::path(), item.id);
 		}
 	}
 	catch(const std::exception& except)
@@ -1133,18 +1132,18 @@ void CMainWindow::LoadArchive(const boost::filesystem::path& archivePath)
 			
 			for(const auto& fileInfo : archive->GetFiles())
 			{
-				boost::filesystem::path filePath(fileInfo.name);
-				std::string fileExtension = filePath.extension().string();
-				if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
+				auto pathToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(fileInfo.name);
+				auto fileExtension = pathToken.GetExtension();
+				if(CPlaylist::IsLoadableExtension(fileExtension))
 				{
 					CPlaylist::ITEM newItem;
-					newItem.path = filePath.wstring();
+					newItem.path = pathToken.GetWidePath();
 					newItem.title = newItem.path;
 					newItem.length = 0;
 					newItem.archiveId = archiveId;
 					unsigned int itemId = m_playlist.InsertItem(newItem);
 
-					m_playlistDiscoveryService.AddItemInRun(filePath, archivePath, itemId);
+					m_playlistDiscoveryService.AddItemInRun(pathToken, archivePath, itemId);
 				}
 			}
 		}
@@ -1186,7 +1185,7 @@ void CMainWindow::Reset()
 	m_volumeAdjust = 1.0f;
 }
 
-bool CMainWindow::PlayFile(const boost::filesystem::path& filePath, const boost::filesystem::path& archivePath)
+bool CMainWindow::PlayFile(const CPsfPathToken& pathToken, const boost::filesystem::path& archivePath)
 {
 	EnableWindow(m_hWnd, FALSE);
 
@@ -1194,7 +1193,7 @@ bool CMainWindow::PlayFile(const boost::filesystem::path& filePath, const boost:
 	try
 	{
 		CPsfBase::TagMap tags;
-		CPsfLoader::LoadPsf(m_virtualMachine, filePath, archivePath, &tags);
+		CPsfLoader::LoadPsf(m_virtualMachine, pathToken, archivePath, &tags);
 		m_tags = CPsfTags(tags);
 		m_tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));
 		try

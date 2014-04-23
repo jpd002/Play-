@@ -85,7 +85,7 @@ private:
 
 	static LRESULT CALLBACK				MessageHookProc(int, WPARAM, LPARAM);
 
-	bool								PlayFile(const boost::filesystem::path&, const boost::filesystem::path&);
+	bool								PlayFile(const CPsfPathToken&, const boost::filesystem::path&);
 	void								LoadSingleFile(const boost::filesystem::path&);
 	void								LoadPlaylist(const boost::filesystem::path&);
 	void								LoadArchive(const boost::filesystem::path&);

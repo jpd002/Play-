@@ -40,16 +40,14 @@ const CPsfArchive::FileList& CPsfArchive::GetFiles() const
 	return m_files;
 }
 
-CPsfArchive::FileListIterator CPsfArchive::GetFileInfo(const char* path) const
+const CPsfArchive::FILEINFO* CPsfArchive::GetFileInfo(const char* path) const
 {
-	for(CPsfArchive::FileListIterator fileIterator(m_files.begin());
-		m_files.end() != fileIterator; fileIterator++)
+	for(const auto& fileInfo : m_files)
 	{
-		const FILEINFO& fileInfo(*fileIterator);
 		if(!stricmp(fileInfo.name.c_str(), path))
 		{
-			return fileIterator;
+			return &fileInfo;
 		}
 	}
-	return m_files.end();
+	return nullptr;
 }

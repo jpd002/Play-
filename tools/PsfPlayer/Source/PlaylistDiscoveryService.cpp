@@ -20,7 +20,7 @@ CPlaylistDiscoveryService::~CPlaylistDiscoveryService()
 	m_thread.join();
 }
 
-void CPlaylistDiscoveryService::AddItemInRun(const boost::filesystem::path& filePath, const boost::filesystem::path& archivePath, unsigned int itemId)
+void CPlaylistDiscoveryService::AddItemInRun(const CPsfPathToken& filePath, const boost::filesystem::path& archivePath, unsigned int itemId)
 {
 	COMMAND command;
 	command.runId		= m_runId;
@@ -98,7 +98,7 @@ void CPlaylistDiscoveryService::ThreadProc()
 				}
 				else
 				{
-					result.title = command.filePath.leaf().wstring();
+					result.title = command.filePath.GetWidePath();
 				}
 				
 				if(tags.HasTag("length"))

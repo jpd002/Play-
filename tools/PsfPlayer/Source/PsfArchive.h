@@ -1,9 +1,8 @@
-#ifndef _PSFARCHIVE_H_
-#define _PSFARCHIVE_H_
+#pragma once
 
 #include <list>
 #include <functional>
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 
 class CPsfArchive
 {
@@ -26,12 +25,10 @@ public:
 	virtual void			ReadFileContents(const char*, void*, unsigned int) = 0;
 
 	const FileList&			GetFiles() const;
-	FileListIterator		GetFileInfo(const char*) const;
+	const FILEINFO*			GetFileInfo(const char*) const;
 
 protected:
 	virtual void			Open(const boost::filesystem::path&) = 0;
 
 	FileList				m_files;
 };
-
-#endif

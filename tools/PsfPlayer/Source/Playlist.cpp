@@ -66,12 +66,11 @@ unsigned int CPlaylist::GetItemCount() const
 	return static_cast<unsigned int>(m_items.size());
 }
 
-bool CPlaylist::IsLoadableExtension(const char* extension)
+bool CPlaylist::IsLoadableExtension(const std::string& extension)
 {
-	for(auto loadableExtension = std::begin(g_loadableExtensions);
-		loadableExtension != std::end(g_loadableExtensions); loadableExtension++)
+	for(const auto& loadableExtension : g_loadableExtensions)
 	{
-		if(!stricmp(extension, *loadableExtension))
+		if(!stricmp(extension.c_str(), loadableExtension))
 		{
 			return true;
 		}
@@ -85,7 +84,7 @@ void CPlaylist::PopulateItemFromTags(ITEM& item, const CPsfTags& tags)
 	item.length		= CPsfTags::ConvertTimeString(tags.GetTagValue("length").c_str());
 }
 
-unsigned int CPlaylist::InsertArchive(const wchar_t* path)
+unsigned int CPlaylist::InsertArchive(const std::wstring& path)
 {
 	m_archives.push_back(path);
 	return static_cast<unsigned int>(m_archives.size());

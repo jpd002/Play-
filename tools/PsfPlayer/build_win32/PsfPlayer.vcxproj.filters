@@ -382,6 +382,9 @@
     <ClCompile Include="..\Source\PlaylistDiscoveryService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\PsfPathToken.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
@@ -739,6 +742,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\TimeToString.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\PsfPathToken.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

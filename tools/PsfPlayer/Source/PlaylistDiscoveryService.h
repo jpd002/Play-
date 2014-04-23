@@ -6,6 +6,7 @@
 #include "LockFreeQueue.h"
 #include "Playlist.h"
 #include "PsfTags.h"
+#include "PsfPathToken.h"
 
 class CPlaylistDiscoveryService
 {
@@ -13,14 +14,14 @@ public:
 									CPlaylistDiscoveryService();
 	virtual							~CPlaylistDiscoveryService();
 	
-	void							AddItemInRun(const boost::filesystem::path& filePath, const boost::filesystem::path& archivePath, unsigned int itemId);
+	void							AddItemInRun(const CPsfPathToken& filePath, const boost::filesystem::path& archivePath, unsigned int itemId);
 	void							ResetRun();
 	void							ProcessPendingItems(CPlaylist&);
 	
 private:
 	struct COMMAND
 	{
-		boost::filesystem::path		filePath;
+		CPsfPathToken				filePath;
 		boost::filesystem::path		archivePath;
 		unsigned int				runId;
 		unsigned int				itemId;

@@ -40,10 +40,10 @@ public:
 	void							Read(const boost::filesystem::path&);
 	void							Write(const boost::filesystem::path&);
 
-	static bool						IsLoadableExtension(const char*);
+	static bool						IsLoadableExtension(const std::string&);
 	static void						PopulateItemFromTags(ITEM&, const CPsfTags&);
 
-	unsigned int					InsertArchive(const wchar_t*);
+	unsigned int					InsertArchive(const std::wstring&);
 	std::wstring					GetArchive(unsigned int) const;
 
 	unsigned int					InsertItem(const ITEM&);

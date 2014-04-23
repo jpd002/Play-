@@ -38,13 +38,13 @@
 		unsigned int archiveId = m_playlist->InsertArchive(path.wstring().c_str());
 		for(const auto& file : archive->GetFiles())
 		{
-			boost::filesystem::path filePath(file.name);
-			std::string fileExtension = filePath.extension().string();
-			if((fileExtension.length() != 0) && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
+			auto filePath = CArchivePsfStreamProvider::GetPathTokenFromFilePath(file.name);
+			auto fileExtension = CPsfStreamProvider::GetPathTokenExtension(filePath);
+			if(!fileExtension.empty() && CPlaylist::IsLoadableExtension(fileExtension))
 			{
 				CPlaylist::ITEM newItem;
-				newItem.path = filePath.wstring();
-				newItem.title = string_cast<std::wstring>(newItem.path);
+				newItem.path = filePath;
+				newItem.title = filePath;
 				newItem.length = 0;
 				newItem.archiveId = archiveId;
 				unsigned int itemId = m_playlist->InsertItem(newItem);

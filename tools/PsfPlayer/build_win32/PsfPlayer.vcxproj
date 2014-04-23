@@ -477,6 +477,7 @@
     <ClCompile Include="..\Source\PsfBase.cpp" />
     <ClCompile Include="..\Source\PsfFs.cpp" />
     <ClCompile Include="..\Source\PsfLoader.cpp" />
+    <ClCompile Include="..\Source\PsfPathToken.cpp" />
     <ClCompile Include="..\Source\PsfRarArchive.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(FrameworkRoot)\include;$(ProjectDir)\Source;$(ProjectDir)\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugWithDebugger|Win32'">$(FrameworkRoot)\include;$(ProjectDir)\Source;$(ProjectDir)\..\..\Source;D:\Projects\CodeGen\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -643,6 +644,7 @@
     <ClInclude Include="..\Source\PsfBase.h" />
     <ClInclude Include="..\Source\PsfFs.h" />
     <ClInclude Include="..\Source\PsfLoader.h" />
+    <ClInclude Include="..\Source\PsfPathToken.h" />
     <ClInclude Include="..\Source\PsfRarArchive.h" />
     <ClInclude Include="..\Source\PsfStreamProvider.h" />
     <ClInclude Include="..\Source\PsfTags.h" />

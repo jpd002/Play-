@@ -9,15 +9,14 @@
 #include "psp/Psp_PsfSubSystem.h"
 
 #include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace filesystem = boost::filesystem;
 
-void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const filesystem::path& filePath, const filesystem::path& archivePath, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const CPsfPathToken& filePath, const filesystem::path& archivePath, CPsfBase::TagMap* tags)
 {
 	auto streamProvider = CreatePsfStreamProvider(archivePath);
 
-	std::string pathString = filePath.string();
+	auto pathString = filePath.GetWidePath();
 	size_t pathLength = pathString.length();
 	if(pathString[pathLength - 1] == '2')
 	{
@@ -33,7 +32,7 @@ void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const filesystem::path& filePat
 	}
 }
 
-void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	auto subSystem = std::make_shared<Iop::CPsfSubSystem>(false);
 	virtualMachine.SetSubSystem(subSystem);
@@ -45,7 +44,7 @@ void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const boost::filesystem::path& 
 	}
 }
 
-void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
 	CPsfBase psfFile(*input);
@@ -62,9 +61,9 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const bo
 	}
 	{
 		uint32 sp = 0, pc = 0;
-		if(libPath != NULL)
+		if(libPath != nullptr)
 		{
-			filesystem::path libFilePath(filePath.branch_path() / libPath);
+			auto libFilePath = streamProvider->GetSiblingPath(filePath, libPath);
 			LoadPsxRecurse(virtualMachine, bios, libFilePath, streamProvider);
 			sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			pc = virtualMachine.GetCpu().m_State.nPC;
@@ -88,13 +87,13 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const bo
 		unsigned int currentLib = 2;
 		while(1)
 		{
-			std::string libName = "_lib" + boost::lexical_cast<std::string>(currentLib);
+			std::string libName = "_lib" + std::to_string(currentLib);
 			const char* libPath = psfFile.GetTagValue(libName.c_str());
-			if(libPath == NULL)
+			if(libPath == nullptr)
 			{
 				break;
 			}
-			filesystem::path libFilePath(filePath.branch_path() / libPath);
+			auto libFilePath = streamProvider->GetSiblingPath(filePath, libPath);
 			uint32 sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			uint32 pc = virtualMachine.GetCpu().m_State.nPC;
 			LoadPsxRecurse(virtualMachine, bios, libFilePath, streamProvider);
@@ -105,7 +104,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const bo
 	}
 }
 
-void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	auto subSystem = std::make_shared<Iop::CPsfSubSystem>(true);
 	virtualMachine.SetSubSystem(subSystem);
@@ -118,7 +117,7 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const boost::filesystem::path& 
 	}
 }
 
-void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
 	CPsfBase psfFile(*input);
@@ -129,19 +128,19 @@ void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, con
 		throw std::runtime_error("Not a PlayStation2 psf.");
 	}
 	const char* libPath = psfFile.GetTagValue("_lib");
-	if(tags != NULL)
+	if(tags != nullptr)
 	{
 		tags->insert(psfFile.GetTagsBegin(), psfFile.GetTagsEnd());
 	}
-	if(libPath != NULL)
+	if(libPath != nullptr)
 	{
-		filesystem::path libFilePath(filePath.branch_path() / libPath);
+		auto libFilePath = streamProvider->GetSiblingPath(filePath, libPath);
 		LoadPs2Recurse(virtualMachine, bios, libFilePath, streamProvider);
 	}
 	bios->AppendArchive(psfFile);
 }
 
-void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	auto subSystem = std::make_shared<Psp::CPsfSubSystem>(0x00800000);
 	virtualMachine.SetSubSystem(subSystem);
@@ -153,7 +152,7 @@ void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const boost::filesystem::path& 
 	}
 }
 
-void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, const boost::filesystem::path& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
 	CPsfBase psfFile(*input);
@@ -170,7 +169,7 @@ void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, con
 	}
 	if(libPath != NULL)
 	{
-		filesystem::path libFilePath(filePath.branch_path() / libPath);
+		auto libFilePath = streamProvider->GetSiblingPath(filePath, libPath);
 		LoadPspRecurse(virtualMachine, bios, libFilePath, streamProvider);
 	}
 	bios->AppendArchive(psfFile);

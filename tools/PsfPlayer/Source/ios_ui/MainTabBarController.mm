@@ -202,13 +202,6 @@
 	self.selectedIndex = 1;
 	
 	unsigned int archiveId = playlistItem.archiveId;
-
-	NSString* filePath = stringWithWchar(playlistItem.path);
-	NSString* archivePath = nil;
-	if(archiveId != 0)
-	{
-		archivePath = stringWithWchar(m_playlist->GetArchive(archiveId));
-	}
 	
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
@@ -218,8 +211,8 @@
 		CPsfBase::TagMap tags;
 		CPsfLoader::LoadPsf(
 							*m_virtualMachine,
-							[filePath fileSystemRepresentation],
-							(archiveId == 0) ? NULL : [archivePath fileSystemRepresentation],
+							playlistItem.path,
+							(archiveId == 0) ? nullptr : m_playlist->GetArchive(archiveId),
 							&tags);
 		m_virtualMachine->SetReverbEnabled(true);
 		m_virtualMachine->Resume();
