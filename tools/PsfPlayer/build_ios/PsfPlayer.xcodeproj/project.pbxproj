@@ -10,6 +10,7 @@
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
+		701409181907FA6A008E3DE7 /* PsfPathToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 701409161907FA6A008E3DE7 /* PsfPathToken.cpp */; };
 		7016687117C7307E003504E0 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7016682917C72969003504E0 /* Storyboard.storyboard */; };
 		701E5CD017C0BDA600261AFD /* libboost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 708FE7C617C0B85400BFCDB2 /* libboost.a */; };
 		701E5CD117C0BDA600261AFD /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 708FE7D017C0B89000BFCDB2 /* libCodeGen.a */; };
@@ -176,6 +177,8 @@
 		1D6058910D05DD3D006BFB54 /* PsfPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PsfPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765070DF74369002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		701409161907FA6A008E3DE7 /* PsfPathToken.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfPathToken.cpp; path = ../Source/PsfPathToken.cpp; sourceTree = "<group>"; };
+		701409171907FA6A008E3DE7 /* PsfPathToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPathToken.h; path = ../Source/PsfPathToken.h; sourceTree = "<group>"; };
 		7016682917C72969003504E0 /* Storyboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Storyboard.storyboard; path = ../Source/ios_ui/Storyboard.storyboard; sourceTree = "<group>"; };
 		701B479A17C71B7700330B83 /* Launch-4inch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Launch-4inch.png"; path = "../Source/ios_ui/Launch-4inch.png"; sourceTree = "<group>"; };
 		701B479C17C71BDA00330B83 /* Launch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Launch.png; path = ../Source/ios_ui/Launch.png; sourceTree = "<group>"; };
@@ -613,6 +616,8 @@
 				708FE7A517C0B66700BFCDB2 /* PsfFs.h */,
 				708FE7A617C0B66700BFCDB2 /* PsfLoader.cpp */,
 				708FE7A717C0B66700BFCDB2 /* PsfLoader.h */,
+				701409161907FA6A008E3DE7 /* PsfPathToken.cpp */,
+				701409171907FA6A008E3DE7 /* PsfPathToken.h */,
 				708FE7AA17C0B66700BFCDB2 /* PsfStreamProvider.cpp */,
 				708FE7AB17C0B66700BFCDB2 /* PsfStreamProvider.h */,
 				708FE7AC17C0B66700BFCDB2 /* PsfTags.cpp */,
@@ -881,6 +886,7 @@
 				7E4B3CC20F9E994E00675ED7 /* ELF.cpp in Sources */,
 				7E4B3CC30F9E994E00675ED7 /* ElfFile.cpp in Sources */,
 				7E4B3CEF0F9E99A500675ED7 /* Log.cpp in Sources */,
+				701409181907FA6A008E3DE7 /* PsfPathToken.cpp in Sources */,
 				70D2317D1809EAC80008351C /* PlaylistDiscoveryService.cpp in Sources */,
 				7E4B3CF00F9E99A500675ED7 /* MA_MIPSIV.cpp in Sources */,
 				708FE7C017C0B82400BFCDB2 /* PsfVm.cpp in Sources */,

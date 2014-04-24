@@ -39,12 +39,12 @@
 		for(const auto& file : archive->GetFiles())
 		{
 			auto filePath = CArchivePsfStreamProvider::GetPathTokenFromFilePath(file.name);
-			auto fileExtension = CPsfStreamProvider::GetPathTokenExtension(filePath);
-			if(!fileExtension.empty() && CPlaylist::IsLoadableExtension(fileExtension))
+			auto fileExtension = filePath.GetExtension();
+			if(CPlaylist::IsLoadableExtension(fileExtension))
 			{
 				CPlaylist::ITEM newItem;
-				newItem.path = filePath;
-				newItem.title = filePath;
+				newItem.path = filePath.GetWidePath();
+				newItem.title = filePath.GetWidePath();
 				newItem.length = 0;
 				newItem.archiveId = archiveId;
 				unsigned int itemId = m_playlist->InsertItem(newItem);
