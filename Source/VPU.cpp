@@ -911,10 +911,10 @@ void CVPU::DisassembleCommand(CODE code)
 			CLog::GetInstance().Print(LOG_NAME, "MPG(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
 			break;
 		case 0x50:
-			CLog::GetInstance().Print(LOG_NAME, "DIRECT(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
+			CLog::GetInstance().Print(LOG_NAME, "DIRECT(imm = 0x%x);\r\n", code.nIMM);
 			break;
 		case 0x51:
-			CLog::GetInstance().Print(LOG_NAME, "DIRECTHL(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
+			CLog::GetInstance().Print(LOG_NAME, "DIRECTHL(imm = 0x%x);\r\n", code.nIMM);
 			break;
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Unknown command (0x%x).\r\n", code.nCMD);
