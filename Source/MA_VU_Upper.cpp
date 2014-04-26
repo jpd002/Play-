@@ -468,7 +468,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector1[0x20] =
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector2[0x20] =
 {
 	//0x00
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF12, 		&CMA_VU::CUpper::FTOI12,		&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::MULAi,
+	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF12, 		&CMA_VU::CUpper::FTOI12,		&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::MULAi,
 	//0x08
 	&CMA_VU::CUpper::ADDAi,			&CMA_VU::CUpper::SUBAi,			&CMA_VU::CUpper::MULA,			&CMA_VU::CUpper::OPMULA,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
 	//0x10

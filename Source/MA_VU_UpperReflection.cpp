@@ -174,7 +174,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX1[32] =
 INSTRUCTION CMA_VU::CUpper::m_cReflVX2[32] =
 {
 	//0x00
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"MADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
