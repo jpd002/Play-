@@ -484,11 +484,10 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	}
 
 	uint32 currentNum = (m_NUM == 0) ? 256 : m_NUM;
+	uint32 codeNum = (m_CODE.nNUM == 0) ? 256 : m_CODE.nNUM;
+	uint32 transfered = codeNum - currentNum;
 
-//    assert(m_NUM == nCommand.nNUM);
-//    uint32 nTransfered = m_CODE.nNUM - m_NUM;
-//    nDstAddr += nTransfered;
-
+	nDstAddr += transfered;
 	nDstAddr *= 0x10;
 
 	uint128* dst = reinterpret_cast<uint128*>(&m_vuMem[nDstAddr]);
