@@ -30,11 +30,16 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 
 	((this)->*(m_pOpVector[m_nOpcode & 0x3F]))();
 
+	//Make sure D and T bit aren't set
+	assert((m_nOpcode & 0x18000000) == 0);
+
+	//Check I bit
 	if(m_nOpcode & 0x80000000)
 	{
 		LOI(pCtx->m_pMemoryMap->GetInstruction(nAddress - 4));
 	}
 
+	//Check E bit
 	if(m_nOpcode & 0x40000000)
 	{
 		//Force exception checking if microprogram is done
