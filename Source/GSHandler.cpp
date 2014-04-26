@@ -211,7 +211,7 @@ void CGSHandler::ResetVBlank()
 	m_nCSR &= ~CSR_VSYNC_INT;
 
 	//Alternate current field
-	m_nCSR ^= 0x2000;
+	m_nCSR ^= CSR_FIELD;
 }
 
 bool CGSHandler::IsInterruptPending()
