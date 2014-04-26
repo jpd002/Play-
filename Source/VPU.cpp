@@ -486,6 +486,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	uint32 currentNum = (m_NUM == 0) ? 256 : m_NUM;
 	uint32 codeNum = (m_CODE.nNUM == 0) ? 256 : m_CODE.nNUM;
 	uint32 transfered = codeNum - currentNum;
+	assert(transfered == 0 || cl == wl);	//The value above is only valid for specific combinations of cl and wl
 
 	nDstAddr += transfered;
 	nDstAddr *= 0x10;
