@@ -230,7 +230,7 @@ void CVPU::ProcessPacket(StreamType& stream)
 
 		stream.Read(&m_CODE, sizeof(CODE));
 
-		//assert(m_CODE.nI == 0);
+		assert(m_CODE.nI == 0);
 
 		m_NUM = m_CODE.nNUM;
 
