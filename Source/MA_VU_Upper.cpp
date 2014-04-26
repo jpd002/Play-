@@ -214,7 +214,7 @@ void CMA_VU::CUpper::SUB()
 //2D
 void CMA_VU::CUpper::MSUB()
 {
-	VUShared::MSUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MSUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_relativePipeTime);
 }
 
 //2E

@@ -705,13 +705,21 @@ void VUShared::MR32(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	}
 }
 
-void VUShared::MSUB(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft)
+void VUShared::MSUB(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime)
 {
+	if(fd == 0)
+	{
+		//Use the temporary register to store the result
+		fd = 32;
+	}
+
 	MSUB_base(codeGen, dest,
 		offsetof(CMIPS, m_State.nCOP2[fd]),
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2[ft]),
 		false);
+
+	TestSZFlags(codeGen, dest, fd, relativePipeTime);
 }
 
 void VUShared::MSUBbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc)

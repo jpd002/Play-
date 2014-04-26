@@ -360,7 +360,7 @@ void CCOP_VU::VSUB()
 //2D
 void CCOP_VU::VMSUB()
 {
-	VUShared::MSUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MSUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
 }
 
 //2E
