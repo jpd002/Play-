@@ -111,6 +111,12 @@ void CMIPSAssembler::BGEZ(unsigned int nRS, uint16 nImmediate)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::BGEZ(unsigned int rs, LABEL label)
+{
+	CreateLabelReference(label);
+	BGEZ(rs, 0);
+}
+
 void CMIPSAssembler::BGTZ(unsigned int nRS, uint16 nImmediate)
 {
 	(*m_pPtr) = ((0x07) << 26) | (nRS << 21) | nImmediate;

@@ -31,6 +31,7 @@ public:
 	void				BEQ(unsigned int, unsigned int, uint16);
 	void				BEQ(unsigned int, unsigned int, LABEL);
 	void				BGEZ(unsigned int, uint16);
+	void				BGEZ(unsigned int, LABEL);
 	void				BGTZ(unsigned int, uint16);
 	void				BNE(unsigned int, unsigned int, uint16);
 	void				BNE(unsigned int, unsigned int, LABEL);
