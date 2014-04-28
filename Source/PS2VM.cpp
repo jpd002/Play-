@@ -373,25 +373,26 @@ void CPS2VM::CreateVM()
 	//EmotionEngine context setup
 	{
 		//Read map
-		m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_ram,					                                        0x00);
-		m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_spr,					                                        0x01);
-		m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),         0x02);
-		m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),         0x03);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000, 0x1C001000, m_fakeIopRam,													0x04);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_bios,				                                        0x05);
+		m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_ram,														0x00);
+		m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_spr,														0x01);
+		m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),		0x02);
+		m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),		0x03);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000, 0x1C001000, m_fakeIopRam,												0x04);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_bios,													0x05);
 
 		//Write map
 		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000,		0x01FFFFFF,							m_ram,																		0x00);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x02000000,		0x02003FFF,							m_spr,																		0x01);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,		0x10FFFFFF,							bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),		0x02);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,	PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,	m_pVUMem0,																	0x03);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,		0x12FFFFFF,							bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x04);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,	PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,	m_pVUMem1,																	0x04);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,		0x12FFFFFF,							bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x05);
 
 		m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, PLACEHOLDER_1));
 
 		//Instruction map
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,			                        0x00);
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios,				                    0x01);
+		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,	0x00);
+		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios,	0x01);
 
 		m_EE.m_pArch			= &m_EEArch;
 		m_EE.m_pCOP[0]			= &m_COP_SCU;
