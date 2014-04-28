@@ -749,6 +749,11 @@ void CPS2OS::AssembleDmacHandler()
 {
 	CMIPSAssembler Asm((uint32*)&m_bios[0x1000]);
 
+	auto testHandlerLabel = Asm.CreateLabel();
+	auto testChannelLabel = Asm.CreateLabel();
+	auto skipHandlerLabel = Asm.CreateLabel();
+	auto skipChannelLabel = Asm.CreateLabel();
+
 	//Prologue
 	//S0 -> Channel Counter
 	//S1 -> DMA Interrupt Status
@@ -761,14 +766,12 @@ void CPS2OS::AssembleDmacHandler()
 	Asm.SD(CMIPS::S2, 0x0018, CMIPS::SP);
 
 	//Clear INTC cause
-	Asm.LUI(CMIPS::T1, 0x1000);
-	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xF000);
-	Asm.ADDIU(CMIPS::T0, CMIPS::R0, 0x0002);
+	Asm.LI(CMIPS::T1, CINTC::INTC_STAT);
+	Asm.ADDIU(CMIPS::T0, CMIPS::R0, (1 << CINTC::INTC_LINE_DMAC));
 	Asm.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Load the DMA interrupt status
-	Asm.LUI(CMIPS::T0, 0x1000);
-	Asm.ORI(CMIPS::T0, CMIPS::T0, 0xE010);
+	Asm.LI(CMIPS::T0, CDMAC::D_STAT);
 	Asm.LW(CMIPS::T0, 0x0000, CMIPS::T0);
 
 	Asm.SRL(CMIPS::T1, CMIPS::T0, 16);
@@ -777,36 +780,38 @@ void CPS2OS::AssembleDmacHandler()
 	//Initialize channel counter
 	Asm.ADDIU(CMIPS::S0, CMIPS::R0, 0x0009);
 
+	Asm.MarkLabel(testChannelLabel);
+
 	//Check if that specific DMA channel interrupt is the cause
 	Asm.ORI(CMIPS::T0, CMIPS::R0, 0x0001);
 	Asm.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::S0);
 	Asm.AND(CMIPS::T0, CMIPS::T0, CMIPS::S1);
-	Asm.BEQ(CMIPS::T0, CMIPS::R0, 0x001A);
+	Asm.BEQ(CMIPS::T0, CMIPS::R0, skipChannelLabel);
 	Asm.NOP();
 
 	//Clear interrupt
-	Asm.LUI(CMIPS::T1, 0x1000);
-	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xE010);
+	Asm.LI(CMIPS::T1, CDMAC::D_STAT);
 	Asm.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Initialize DMAC handler loop
 	Asm.ADDU(CMIPS::S2, CMIPS::R0, CMIPS::R0);
 
+	Asm.MarkLabel(testHandlerLabel);
+
 	//Get the address to the current DMACHANDLER structure
 	Asm.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(DMACHANDLER));
 	Asm.MULTU(CMIPS::T0, CMIPS::S2, CMIPS::T0);
-	Asm.LUI(CMIPS::T1, 0x8000);
-	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xC000);
+	Asm.LI(CMIPS::T1, 0x8000C000);
 	Asm.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
 	//Check validity
 	Asm.LW(CMIPS::T1, 0x0000, CMIPS::T0);
-	Asm.BEQ(CMIPS::T1, CMIPS::R0, 0x000A);
+	Asm.BEQ(CMIPS::T1, CMIPS::R0, skipHandlerLabel);
 	Asm.NOP();
 
 	//Check if the channel is good one
 	Asm.LW(CMIPS::T1, 0x0004, CMIPS::T0);
-	Asm.BNE(CMIPS::S0, CMIPS::T1, 0x0007);
+	Asm.BNE(CMIPS::S0, CMIPS::T1, skipHandlerLabel);
 	Asm.NOP();
 
 	//Load the necessary stuff
@@ -819,15 +824,19 @@ void CPS2OS::AssembleDmacHandler()
 	Asm.JALR(CMIPS::T1);
 	Asm.NOP();
 
+	Asm.MarkLabel(skipHandlerLabel);
+
 	//Increment handler counter and test
 	Asm.ADDIU(CMIPS::S2, CMIPS::S2, 0x0001);
 	Asm.ADDIU(CMIPS::T0, CMIPS::R0, MAX_DMACHANDLER - 1);
-	Asm.BNE(CMIPS::S2, CMIPS::T0, 0xFFEC);
+	Asm.BNE(CMIPS::S2, CMIPS::T0, testHandlerLabel);
 	Asm.NOP();
+
+	Asm.MarkLabel(skipChannelLabel);
 
 	//Decrement channel counter and test
 	Asm.ADDIU(CMIPS::S0, CMIPS::S0, 0xFFFF);
-	Asm.BGEZ(CMIPS::S0, 0xFFE0);
+	Asm.BGEZ(CMIPS::S0, testChannelLabel);
 	Asm.NOP();
 
 	//Epilogue
