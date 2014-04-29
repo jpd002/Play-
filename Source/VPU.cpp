@@ -121,12 +121,15 @@ void CVPU::Reset()
 	memset(&m_CYCLE, 0, sizeof(CYCLE));
 	memset(&m_R, 0, sizeof(m_R));
 	memset(&m_C, 0, sizeof(m_C));
+	memset(&m_buffer, 0, sizeof(m_buffer));
 	m_MODE = 0;
 	m_NUM = 0;
 	m_MASK = 0;
 	m_MARK = 0;
 	m_ITOP = 0;
 	m_ITOPS = 0;
+	m_readTick = 0;
+	m_writeTick = 0;
 }
 
 void CVPU::SaveState(Framework::CZipArchiveWriter& archive)
