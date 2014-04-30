@@ -191,15 +191,15 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, uint8 reg, uint32 r
 		codeGen->Shl(2);
 		codeGen->AddRef();
 
-		//--- Generate value
+		//--- S flag
 		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[reg]));
 		codeGen->MD_IsNegative();
 		codeGen->Shl(4);
 
-		//Not even used anywhere...
-		//	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[reg]));
-		//	codeGen->MD_IsZero();
-		//	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2ZF));
+		//--- Z flag
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[reg]));
+		codeGen->MD_IsZero();
+		codeGen->Or();
 
 		//--- Store value
 		codeGen->StoreAtRef();
