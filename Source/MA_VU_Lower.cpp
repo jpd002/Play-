@@ -271,9 +271,46 @@ void CMA_VU::CLower::FSSET()
 //16
 void CMA_VU::CLower::FSAND()
 {
-	printf("Warning: Using FSAND.\r\n");
+	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
 
+	//Reset result
 	m_codeGen->PushCst(0);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+
+	//Check Z flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	m_codeGen->PushCst(0x000F);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x01);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//Check S flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	m_codeGen->PushCst(0x00F0);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x02);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//TODO: Check other flags
+
+	//Mask result
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	m_codeGen->PushCst(m_nImm12);
+	m_codeGen->And();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
