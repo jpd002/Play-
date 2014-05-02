@@ -201,6 +201,10 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, uint8 reg, uint32 r
 		codeGen->MD_IsZero();
 		codeGen->Or();
 
+		//Clear flags of inactive FMAC units
+		codeGen->PushCst((dest << 4) | dest);
+		codeGen->And();
+
 		//--- Store value
 		codeGen->StoreAtRef();
 	}
