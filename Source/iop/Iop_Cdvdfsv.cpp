@@ -356,19 +356,14 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 
 void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	uint32 nSector, nCount, nDstAddr, nCmd, nMode;
+	uint32 nSector		= args[0x00];
+	uint32 nCount		= args[0x01];
+	uint32 nDstAddr		= args[0x02];
+	uint32 nCmd			= args[0x03];
+	uint32 nMode		= args[0x04];
 
-	nSector		= args[0x00];
-	nCount		= args[0x01];
-	nDstAddr	= args[0x02];
-	nCmd		= args[0x03];
-	nMode		= args[0x04];
-
-	CLog::GetInstance().Print(LOG_NAME, "StreamCmd(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, cmd = 0x%0.8X);\r\n", \
-		nSector,
-		nCount,
-		nDstAddr,
-		nMode);
+	CLog::GetInstance().Print(LOG_NAME, "StreamCmd(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, cmd = 0x%0.8X, mode = 0x%0.8X);\r\n",
+		nSector, nCount, nDstAddr, nCmd, nMode);
 
 	switch(nCmd)
 	{
@@ -376,9 +371,7 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		//Start
 		m_nStreamPos = nSector;
 		ret[0] = 1;
-		
-		CLog::GetInstance().Print(LOG_NAME, "StreamStart(pos = 0x%0.8X);\r\n", \
-			nSector);
+		CLog::GetInstance().Print(LOG_NAME, "StreamStart(pos = 0x%0.8X);\r\n", nSector);
 		break;
 	case 2:
 		//Read
@@ -394,10 +387,8 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		}
 
 		ret[0] = nCount;
-
-		CLog::GetInstance().Print(LOG_NAME, "StreamRead(count = 0x%0.8X, dest = 0x%0.8X);\r\n", \
-			nCount, \
-			nDstAddr);
+		CLog::GetInstance().Print(LOG_NAME, "StreamRead(count = 0x%0.8X, dest = 0x%0.8X);\r\n",
+			nCount, nDstAddr);
 		break;
 	case 3:
 		//Stop
@@ -407,20 +398,15 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 	case 5:
 		//Init
 		ret[0] = 1;
-
-		CLog::GetInstance().Print(LOG_NAME, "StreamInit(bufsize = 0x%0.8X, numbuf = 0x%0.8X, buf = 0x%0.8X);\r\n", \
-			nSector, \
-			nCount, \
-			nDstAddr);
+		CLog::GetInstance().Print(LOG_NAME, "StreamInit(bufsize = 0x%0.8X, numbuf = 0x%0.8X, buf = 0x%0.8X);\r\n",
+			nSector, nCount, nDstAddr);
 		break;
 	case 4:
 	case 9:
 		//Seek
 		m_nStreamPos = nSector;
 		ret[0] = 1;
-
-		CLog::GetInstance().Print(LOG_NAME, "StreamSeek(pos = 0x%0.8X);\r\n", \
-			nSector);
+		CLog::GetInstance().Print(LOG_NAME, "StreamSeek(pos = 0x%0.8X);\r\n", nSector);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown stream command used.\r\n");
