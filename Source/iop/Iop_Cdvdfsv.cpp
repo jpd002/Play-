@@ -399,6 +399,11 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 			nCount, \
 			nDstAddr);
 		break;
+	case 3:
+		//Stop
+		ret[0] = 1;
+		CLog::GetInstance().Print(LOG_NAME, "StreamStop();\r\n");
+		break;
 	case 5:
 		//Init
 		ret[0] = 1;
