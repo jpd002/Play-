@@ -873,6 +873,14 @@ uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
 	{
 		nReturn = m_ipu.GetRegister(nAddress);
 	}
+	else if(nAddress >= CGIF::REGS_START && nAddress < CGIF::REGS_END)
+	{
+		nReturn = m_gif.GetRegister(nAddress);
+	}
+	else if(nAddress >= CVIF::REGS_START && nAddress < CVIF::REGS_END)
+	{
+		nReturn = m_vif.GetRegister(nAddress);
+	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
 		nReturn = m_dmac.GetRegister(nAddress);
@@ -914,6 +922,14 @@ uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		m_ipu.SetRegister(nAddress, nData);
 		ExecuteIpu();
+	}
+	else if(nAddress >= CGIF::REGS_START && nAddress < CGIF::REGS_END)
+	{
+		m_gif.SetRegister(nAddress, nData);
+	}
+	else if(nAddress >= CVIF::REGS_START && nAddress < CVIF::REGS_END)
+	{
+		m_vif.SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
 	{

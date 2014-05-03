@@ -11,6 +11,12 @@ public:
 		GIF_STAT	= 0x10003020
 	};
 
+	enum
+	{
+		REGS_START	= 0x10003000,
+		REGS_END	= 0x100030B0,
+	};
+
 	struct TAG
 	{
 		unsigned int	loops		: 15;
@@ -32,12 +38,16 @@ public:
 	uint32			ReceiveDMA(uint32, uint32, uint32, bool);
 	uint32			ProcessPacket(uint8*, uint32, uint32, const CGsPacketMetadata&);
 
-	uint32			GetRegister(uint32 address);
+	uint32			GetRegister(uint32);
+	void			SetRegister(uint32, uint32);
 
 private:
 	uint32			ProcessPacked(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
 	uint32			ProcessRegList(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
 	uint32			ProcessImage(uint8*, uint32, uint32);
+
+	void			DisassembleGet(uint32);
+	void			DisassembleSet(uint32, uint32);
 
 	uint16			m_loops;
 	uint8			m_cmd;

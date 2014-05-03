@@ -40,10 +40,20 @@ public:
 		STAT_VBS1	= 0x0100,
 	};
 
+	enum
+	{
+		REGS_START	= 0x10003800,
+		REGS_END	= 0x10003D80,
+	};
+
 				CVIF(CGIF&, uint8*, uint8*, const VPUINIT&, const VPUINIT&);
 	virtual		~CVIF();
 
 	void		Reset();
+
+	uint32		GetRegister(uint32);
+	void		SetRegister(uint32, uint32);
+
 	void		SaveState(Framework::CZipArchiveWriter&);
 	void		LoadState(Framework::CZipArchiveReader&);
 
@@ -119,6 +129,9 @@ private:
 	};
 
 	uint32			ProcessDMAPacket(unsigned int, uint32, uint32, bool);
+
+	void			DisassembleGet(uint32);
+	void			DisassembleSet(uint32, uint32);
 
 	uint32			m_VPU_STAT;
 	CVPU*			m_pVPU[2];

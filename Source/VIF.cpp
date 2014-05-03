@@ -52,6 +52,22 @@ void CVIF::Reset()
 	m_VPU_STAT = 0;
 }
 
+uint32 CVIF::GetRegister(uint32 address)
+{
+	uint32 result = 0;
+#ifdef _DEBUG
+	DisassembleGet(address);
+#endif
+	return result;
+}
+
+void CVIF::SetRegister(uint32 address, uint32 value)
+{
+#ifdef _DEBUG
+	DisassembleSet(address, value);
+#endif
+}
+
 void CVIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	//TODO: Save FifoStream states
@@ -251,6 +267,25 @@ void CVIF::SetStat(uint32 stat)
 	m_VPU_STAT = stat;
 }
 
+void CVIF::DisassembleGet(uint32 address)
+{
+	switch(address)
+	{
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
+		break;
+	}
+}
+
+void CVIF::DisassembleSet(uint32 address, uint32 value)
+{
+	switch(address)
+	{
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
+		break;
+	}
+}
 
 CVIF::CFifoStream::CFifoStream(uint8* ram, uint8* spr) 
 : m_ram(ram)

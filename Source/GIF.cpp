@@ -321,14 +321,45 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 
 uint32 CGIF::GetRegister(uint32 address)
 {
+	uint32 result = 0;
 	switch(address)
 	{
 	case GIF_STAT:
-		return 0;
-		break;
-	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading an unhandled register (0x%0.8X).\r\n", address);
+		result = 0;
 		break;
 	}
-	return 0;
+#ifdef _DEBUG
+	DisassembleGet(address);
+#endif
+	return result;
+}
+
+void CGIF::SetRegister(uint32 address, uint32 value)
+{
+#ifdef _DEBUG
+	DisassembleSet(address, value);
+#endif
+}
+
+void CGIF::DisassembleGet(uint32 address)
+{
+	switch(address)
+	{
+	case GIF_STAT:
+		CLog::GetInstance().Print(LOG_NAME, "= GIF_STAT.\r\n", address);
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
+		break;
+	}
+}
+
+void CGIF::DisassembleSet(uint32 address, uint32 value)
+{
+	switch(address)
+	{
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
+		break;
+	}
 }
