@@ -142,7 +142,7 @@ long CMemoryCardView::OnSize(unsigned int nX, unsigned int nY, unsigned int nTyp
 	return TRUE;
 }
 
-long CMemoryCardView::OnKeyDown(unsigned int nKey)
+long CMemoryCardView::OnKeyDown(WPARAM nKey, LPARAM)
 {
 	switch(nKey)
 	{

@@ -26,7 +26,7 @@ protected:
 	long								OnLeftButtonDown(int, int) override;
 	long								OnMouseWheel(int, int, short) override;
 	long								OnSize(unsigned int, unsigned int, unsigned int) override;
-	long								OnKeyDown(unsigned int) override;
+	long								OnKeyDown(WPARAM, LPARAM) override;
 
 private:
 	struct CViewState
