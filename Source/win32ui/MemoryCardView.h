@@ -1,8 +1,7 @@
-#ifndef _MEMORYCARDVIEW_H_
-#define _MEMORYCARDVIEW_H_
+#pragma once
 
 #include <boost/thread.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <map>
 #include "win32/Window.h"
 #include "win32/ClientDeviceContext.h"
@@ -13,12 +12,14 @@
 class CMemoryCardView : public Framework::Win32::CWindow
 {
 public:
+	typedef boost::signals2::signal<void (const CSave*)> SelectionChangeSignal;
+
 										CMemoryCardView(HWND, const RECT&);
 										~CMemoryCardView();
 
 	void								SetMemoryCard(CMemoryCard*);
 
-	boost::signal<void (const CSave*)>  m_OnSelectionChange;
+	SelectionChangeSignal				OnSelectionChange;
 
 protected:
 	long								OnPaint() override;
@@ -83,5 +84,3 @@ private:
 	CMemoryCard*						m_memoryCard;
 	CRender*							m_render;
 };
-
-#endif

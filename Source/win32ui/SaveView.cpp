@@ -232,7 +232,7 @@ long CSaveView::Delete()
 {
 	if(m_pSave == NULL) return FALSE;
 
-	m_OnDeleteClicked(m_pSave);
+	OnDeleteClick(m_pSave);
 
 	return FALSE;
 }

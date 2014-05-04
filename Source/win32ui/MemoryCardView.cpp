@@ -197,11 +197,11 @@ void CMemoryCardView::SetSelection(unsigned int nSelection)
 
 	if((m_viewState.m_nSelection < m_itemCount) && (m_memoryCard != NULL))
 	{
-		m_OnSelectionChange(m_memoryCard->GetSaveByIndex(m_viewState.m_nSelection));
+		OnSelectionChange(m_memoryCard->GetSaveByIndex(m_viewState.m_nSelection));
 	}
 	else
 	{
-		m_OnSelectionChange(NULL);
+		OnSelectionChange(NULL);
 	}
 }
 

@@ -56,8 +56,8 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, rc);
 	m_pSaveView			= new CSaveView(m_hWnd);
 
-	m_pSaveView->m_OnDeleteClicked.connect(bind(&CMcManagerWnd::Delete, this, PLACEHOLDER_1));
-	m_pMemoryCardView->m_OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, PLACEHOLDER_1));
+	m_pSaveView->OnDeleteClick.connect(bind(&CMcManagerWnd::Delete, this, PLACEHOLDER_1));
+	m_pMemoryCardView->OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, PLACEHOLDER_1));
 
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 0 (mc0)")), 0);
 	m_pMemoryCardList->SetItemData(m_pMemoryCardList->AddString(_T("Memory Card Slot 1 (mc1)")), 1);

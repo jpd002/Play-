@@ -296,7 +296,7 @@ long CNiceTabs::OnLeftButtonDown(int nX, int nY)
 		if((nX > nBase) && (nX < (nBase + nWidth)))
 		{
 			m_nSelected = i;
-			m_OnTabChange(m_List[i].nID);
+			OnTabChange(m_List[i].nID);
 			RedrawWindow(m_hWnd, NULL, NULL, RDW_INVALIDATE);
 			break;
 		}
@@ -330,7 +330,7 @@ long CNiceTabs::OnLeftButtonUp(int nX, int nY)
 		//Always safe to go back, since the first tab will never be deleted
 		m_nSelected--;
 
-		m_OnTabChange(m_List[m_nSelected].nID);
+		OnTabChange(m_List[m_nSelected].nID);
 		RedrawWindow(m_hWnd, NULL, NULL, RDW_INVALIDATE);
 	}
 	return FALSE;

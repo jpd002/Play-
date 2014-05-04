@@ -3,7 +3,7 @@
 #include "Types.h"
 #include "Convertible.h"
 #include <thread>
-#include <boost/signals2/signal.hpp>
+#include <boost/signals2.hpp>
 #include <vector>
 #include <functional>
 #include "MailBox.h"

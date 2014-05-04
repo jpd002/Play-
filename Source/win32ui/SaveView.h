@@ -1,8 +1,7 @@
-#ifndef _SAVEVIEW_H_
-#define _SAVEVIEW_H_
+#pragma once
 
 #include "SaveIconView.h"
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include "win32/Window.h"
 #include "win32/Edit.h"
 #include "win32/Button.h"
@@ -10,15 +9,17 @@
 #include "CommandSink.h"
 #include "../saves/Save.h"
 
-class CSaveView : public Framework::Win32::CWindow, public boost::signals::trackable
+class CSaveView : public Framework::Win32::CWindow, public boost::signals2::trackable
 {
 public:
+	typedef boost::signals2::signal<void (const CSave*)> DeleteClickSignal;
+
 										CSaveView(HWND);
 	virtual								~CSaveView();
 
 	void								SetSave(const CSave*);
 
-    boost::signal<void (const CSave*)>  m_OnDeleteClicked;
+	DeleteClickSignal					OnDeleteClick;
 
 protected:
 	long								OnSize(unsigned int, unsigned int, unsigned int);
@@ -35,7 +36,7 @@ private:
 	CCommandSink						m_CommandSink;
 
 	const CSave*						m_pSave;
-    Framework::FlatLayoutPtr			m_pLayout;
+	Framework::FlatLayoutPtr			m_pLayout;
 	Framework::Win32::CEdit*			m_pNameLine1;
 	Framework::Win32::CEdit*			m_pNameLine2;
 	Framework::Win32::CEdit*			m_pSize;
@@ -50,5 +51,3 @@ private:
 	CSaveIconView*						m_pIconViewWnd;
 	CSave::ICONTYPE						m_nIconType;
 };
-
-#endif

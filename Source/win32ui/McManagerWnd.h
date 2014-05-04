@@ -1,5 +1,4 @@
-#ifndef _MEMORYCARDMANAGER_H_
-#define _MEMORYCARDMANAGER_H_
+#pragma once
 
 #include "win32/ModalWindow.h"
 #include "win32/ComboBox.h"
@@ -10,7 +9,7 @@
 #include "SaveView.h"
 #include "../saves/SaveImporter.h"
 
-class CMcManagerWnd : public Framework::Win32::CModalWindow, public boost::signals::trackable
+class CMcManagerWnd : public Framework::Win32::CModalWindow, public boost::signals2::trackable
 {
 public:
 												CMcManagerWnd(HWND);
@@ -38,5 +37,3 @@ private:
 	Framework::Win32::CButton*					m_pImportButton;
 	Framework::FlatLayoutPtr					m_pLayout;
 };
-
-#endif

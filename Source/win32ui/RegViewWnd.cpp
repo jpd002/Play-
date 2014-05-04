@@ -56,7 +56,7 @@ CRegViewWnd::CRegViewWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* p
 	m_pCurrent = NULL;
 	SetCurrentView(0);
 
-	m_pTabs->m_OnTabChange.connect(bind(&CRegViewWnd::OnTabChange, this, _1));
+	m_pTabs->OnTabChange.connect(bind(&CRegViewWnd::OnTabChange, this, _1));
 
 	RefreshLayout();
 }

@@ -1,8 +1,7 @@
-#ifndef _NICETABS_H_
-#define _NICETABS_H_
+#pragma once
 
 #include <vector>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include "win32/CustomDrawn.h"
 
 class CNiceTabs : public Framework::Win32::CCustomDrawn
@@ -14,11 +13,13 @@ public:
 		TAB_FLAG_UNMOVABLE		= 0x02,
 	};
 
+	typedef boost::signals2::signal<void (unsigned int)> TabChangeSignal;
+
 										CNiceTabs(HWND, const RECT&);
 	virtual								~CNiceTabs();
 	void								InsertTab(const TCHAR*, unsigned long, unsigned int);
 
-	boost::signal<void (unsigned int)>	m_OnTabChange;
+	TabChangeSignal						OnTabChange;
 
 protected:
 	void								Paint(HDC);
@@ -52,5 +53,3 @@ private:
 	unsigned int						m_nLButtonEx;
 
 };
-
-#endif
