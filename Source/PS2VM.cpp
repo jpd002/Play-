@@ -1096,6 +1096,7 @@ int CPS2VM::ExecuteEe(int quota)
 			//callMs mode over
 			memcpy(&m_EE.m_State.nCOP2,		&m_VU0.m_State.nCOP2,	sizeof(m_EE.m_State.nCOP2));
 			memcpy(&m_EE.m_State.nCOP2A,	&m_VU0.m_State.nCOP2A,	sizeof(m_EE.m_State.nCOP2A));
+			memcpy(&m_EE.m_State.nCOP2VI,	&m_VU0.m_State.nCOP2VI, sizeof(m_EE.m_State.nCOP2VI));
 			m_EE.m_State.callMsEnabled = 0;
 		}
 	}
@@ -1119,6 +1120,7 @@ int CPS2VM::ExecuteEe(int quota)
 				//Copy the COP2 state to VPU0
 				memcpy(&m_VU0.m_State.nCOP2,	&m_EE.m_State.nCOP2,	sizeof(m_VU0.m_State.nCOP2));
 				memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
+				memcpy(&m_VU0.m_State.nCOP2VI,	&m_EE.m_State.nCOP2VI,	sizeof(m_VU0.m_State.nCOP2VI));
 				m_vif.StartVu0MicroProgram(m_EE.m_State.callMsAddr);
 				m_EE.m_State.nHasException = 0;
 			}
