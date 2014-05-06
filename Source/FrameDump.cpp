@@ -21,6 +21,8 @@ CFrameDump::~CFrameDump()
 void CFrameDump::Reset()
 {
 	m_packets.clear();
+	memset(m_initialGsRam, 0, CGSHandler::RAMSIZE);
+	memset(&m_initialGsRegisters, 0, sizeof(m_initialGsRegisters));
 }
 
 uint8* CFrameDump::GetInitialGsRam()
