@@ -583,6 +583,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	{
 		bool mustWrite = false;
 		uint128 writeValue;
+		memset(&writeValue, 0, sizeof(writeValue));
 
 		if(cl >= wl)
 		{
