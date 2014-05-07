@@ -1,5 +1,4 @@
-#ifndef _VPU1_H_
-#define _VPU1_H_
+#pragma once
 
 #include "VPU.h"
 
@@ -25,5 +24,3 @@ private:
 	uint32			m_TOP;
 	uint32			m_TOPS;
 };
-
-#endif
