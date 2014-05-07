@@ -100,8 +100,6 @@ protected:
 		CMDBUFFER_SIZE = 0x10000,
 	};
 
-	void				ExecuteThreadProc();
-	void				CommandThreadProc();
 	void				ExecuteMicro(uint32);
 	virtual void		ExecuteCommand(StreamType&, CODE);
 	virtual void		Cmd_UNPACK(StreamType&, CODE, uint32);

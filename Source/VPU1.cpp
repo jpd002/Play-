@@ -68,17 +68,14 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		m_OFST = nCommand.nIMM;
 		m_STAT.nDBF = 0;
 		m_TOPS = m_BASE;
-//		return 0;
 		break;
 	case 0x03:
 		//BASE
 		m_BASE = nCommand.nIMM;
-//		return 0;
 		break;
 	case 0x06:
 		//MSKPATH3
 		//Should mask bit somewhere...
-//		return 0;
 		break;
 	case 0x11:
 		//FLUSH
@@ -101,15 +98,14 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		{
 			m_STAT.nVEW = 0;
 		}
-//		return 0;
 		break;
 	case 0x50:
 	case 0x51:
 		//DIRECT/DIRECTHL
-		return Cmd_DIRECT(stream, nCommand);
+		Cmd_DIRECT(stream, nCommand);
 		break;
 	default:
-		return CVPU::ExecuteCommand(stream, nCommand);
+		CVPU::ExecuteCommand(stream, nCommand);
 		break;
 	}
 }

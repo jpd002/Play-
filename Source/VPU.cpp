@@ -299,19 +299,19 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x20:
 		//STMASK
-		return Cmd_STMASK(stream, nCommand);
+		Cmd_STMASK(stream, nCommand);
 		break;
 	case 0x30:
 		//STROW
-		return Cmd_STROW(stream, nCommand);
+		Cmd_STROW(stream, nCommand);
 		break;
 	case 0x31:
 		//STCOL
-		return Cmd_STCOL(stream, nCommand);
+		Cmd_STCOL(stream, nCommand);
 		break;
 	case 0x4A:
 		//MPG
-		return Cmd_MPG(stream, nCommand);
+		Cmd_MPG(stream, nCommand);
 		break;
 	default:
 		assert(0);
