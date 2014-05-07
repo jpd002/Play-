@@ -130,6 +130,10 @@ void CVPU::Reset()
 	m_ITOPS = 0;
 	m_readTick = 0;
 	m_writeTick = 0;
+#ifdef DELAYED_MSCAL
+	m_pendingMicroProgram = -1;
+	memset(&m_previousCODE, 0, sizeof(CODE));
+#endif
 }
 
 void CVPU::SaveState(Framework::CZipArchiveWriter& archive)
@@ -231,6 +235,9 @@ void CVPU::ProcessPacket(StreamType& stream)
 			continue;
 		}
 
+#ifdef DELAYED_MSCAL
+		m_previousCODE = m_CODE;
+#endif
 		stream.Read(&m_CODE, sizeof(CODE));
 
 		assert(m_CODE.nI == 0);
@@ -239,6 +246,13 @@ void CVPU::ProcessPacket(StreamType& stream)
 
 		ExecuteCommand(stream, m_CODE);
 	}
+
+#ifdef DELAYED_MSCAL
+	if(stream.GetAvailableReadBytes() == 0)
+	{
+		ResumeDelayedMicroProgram();
+	}
+#endif
 }
 
 void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
@@ -251,7 +265,23 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 #endif
 	if(nCommand.nCMD >= 0x60)
 	{
-		return Cmd_UNPACK(stream, nCommand, (nCommand.nIMM & 0x03FF));
+#ifdef DELAYED_MSCAL
+		//Check if previous cmd was MSCAL and if we have a pending MSCAL
+		if(m_previousCODE.nCMD == 0x14) 
+		{
+			uint32 prevImm = m_pendingMicroProgram / 8;
+			if(ResumeDelayedMicroProgram())
+			{
+				assert(m_previousCODE.nIMM == prevImm);
+				m_previousCODE.nCMD = 0;
+				//Set waiting for microprogram bit to make sure we come back here and execute UNPACK
+				m_STAT.nVEW = 1;
+				return;
+			}
+		}
+#endif
+		Cmd_UNPACK(stream, nCommand, (nCommand.nIMM & 0x03FF));
+		return;
 	}
 	switch(nCommand.nCMD)
 	{
@@ -263,6 +293,13 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 		m_CYCLE <<= nCommand.nIMM;
 		break;
 	case 0x04:
+#ifdef DELAYED_MSCAL
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
+		}
+#endif
 		m_ITOPS = nCommand.nIMM & 0x3FF;
 		break;
 	case 0x05:
@@ -286,7 +323,16 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x14:
 		//MSCAL
+#ifdef DELAYED_MSCAL
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
+		}
+		StartDelayedMicroProgram(nCommand.nIMM * 8);
+#else
 		StartMicroProgram(nCommand.nIMM * 8);
+#endif
 		break;
 	case 0x15:
 		//MSCALF
@@ -328,13 +374,50 @@ void CVPU::StartMicroProgram(uint32 address)
 	}
 
 	assert(!m_STAT.nVEW);
-	ExecuteMicro(address);
+	PrepareMicroProgram();
+	ExecuteMicroProgram(address);
 }
 
-void CVPU::ExecuteMicro(uint32 nAddress)
+#ifdef DELAYED_MSCAL
+
+void CVPU::StartDelayedMicroProgram(uint32 address)
+{
+	if(IsRunning())
+	{
+		m_STAT.nVEW = 1;
+		return;
+	}
+
+	assert(!m_STAT.nVEW);
+	PrepareMicroProgram();
+	m_pendingMicroProgram = address;
+}
+
+bool CVPU::ResumeDelayedMicroProgram()
+{
+	if(m_pendingMicroProgram != -1)
+	{
+		assert(!IsWaitingForProgramEnd());
+		assert(!IsRunning());
+		ExecuteMicroProgram(m_pendingMicroProgram);
+		m_pendingMicroProgram = -1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+#endif
+
+void CVPU::PrepareMicroProgram()
 {
 	m_ITOP = m_ITOPS;
+}
 
+void CVPU::ExecuteMicroProgram(uint32 nAddress)
+{
 	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
 
 	m_ctx->m_State.nPC = nAddress;

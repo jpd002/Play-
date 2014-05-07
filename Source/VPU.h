@@ -8,6 +8,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
+//#define DELAYED_MSCAL
+
 class CVPU
 {
 public:
@@ -24,8 +26,7 @@ public:
 	virtual void		LoadState(Framework::CZipArchiveReader&);
 	virtual void		ProcessPacket(StreamType&);
 
-	virtual void		StartMicroProgram(uint32);
-
+	void				StartMicroProgram(uint32);
 	CMIPS&				GetContext() const;
 	uint8*				GetVuMemory() const;
 	bool				IsRunning() const;
@@ -100,7 +101,13 @@ protected:
 		CMDBUFFER_SIZE = 0x10000,
 	};
 
-	void				ExecuteMicro(uint32);
+	void				ExecuteMicroProgram(uint32);
+	virtual void		PrepareMicroProgram();
+#ifdef DELAYED_MSCAL
+	void				StartDelayedMicroProgram(uint32);
+	bool				ResumeDelayedMicroProgram();
+#endif
+
 	virtual void		ExecuteCommand(StreamType&, CODE);
 	virtual void		Cmd_UNPACK(StreamType&, CODE, uint32);
 
@@ -137,6 +144,10 @@ protected:
 	uint32				m_ITOPS;
 	uint32				m_readTick;
 	uint32				m_writeTick;
+#ifdef DELAYED_MSCAL
+	uint32				m_pendingMicroProgram;
+	CODE				m_previousCODE;
+#endif
 
 	uint128				m_buffer;
 

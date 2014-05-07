@@ -11,9 +11,10 @@ public:
 	virtual void	LoadState(Framework::CZipArchiveReader&) override;
 	virtual uint32	GetTOP() const override;
 	virtual void	Reset() override;
-	virtual void	StartMicroProgram(uint32) override;
 
 protected:
+	virtual void	PrepareMicroProgram() override;
+
 	virtual void	ExecuteCommand(StreamType&, CODE) override;
 	void			Cmd_DIRECT(StreamType&, CODE);
 	virtual void	Cmd_UNPACK(StreamType&, CODE, uint32) override;

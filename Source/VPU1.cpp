@@ -87,6 +87,13 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		{
 			m_STAT.nVEW = 0;
 		}
+#ifdef DELAYED_MSCAL
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
+		}
+#endif
 		break;
 	case 0x13:
 		//FLUSHA
@@ -153,15 +160,9 @@ void CVPU1::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	return CVPU::Cmd_UNPACK(stream, nCommand, nDstAddr);
 }
 
-void CVPU1::StartMicroProgram(uint32 address)
+void CVPU1::PrepareMicroProgram()
 {
-	if(IsRunning())
-	{
-		m_STAT.nVEW = 1;
-		return;
-	}
-
-	assert(!m_STAT.nVEW);
+	CVPU::PrepareMicroProgram();
 
 	m_TOP = m_TOPS;
 
@@ -174,6 +175,4 @@ void CVPU1::StartMicroProgram(uint32 address)
 		m_TOPS = m_BASE + m_OFST;
 	}
 	m_STAT.nDBF = ~m_STAT.nDBF;
-
-	ExecuteMicro(address);
 }
