@@ -1,10 +1,19 @@
 <tags>
 	<ee_functions>
+		<tag address="001097F8" value="drawObjects" />
+		<tag address="00131038" value="normaliseQuat" />
+		<tag address="00132280" value="makeIdentityMtx4x4" />
+		<tag address="001322D0" value="makeIdentityMtx4x3" />
+		<tag address="00132310" value="makeIdentityMtx3x3" />
 		<tag address="00135178" value="startDMA" />
 		<tag address="00135380" value="WaitDMASema" />
 		<tag address="00135388" value="DoDMA" />
 		<tag address="00135940" value="InitDma" />
 		<tag address="00135C08" value="kickoffDMA" />
+		<tag address="00135CC8" value="GSIntcHandler" />
+		<tag address="00137060" value="getJointsPosRot" />
+		<tag address="001375B0" value="buildSkeleton" />
+		<tag address="00138800" value="writeAnimVifTags" />
 		<tag address="00139AF0" value="streamFromCD" />
 		<tag address="0013A008" value="readStreamedData" />
 		<tag address="0013A3D0" value="getLmp" />
@@ -3661,6 +3670,7 @@ D@" />
 " />
 			<tag address="00023CD0" value="Port Open faild
 " />
+			<tag address="00023CF4" value="." />
 			<tag address="00023D1C" value="Port Open faild
 " />
 			<tag address="00023D54" value="Port Open faild
@@ -3681,6 +3691,7 @@ D@" />
 " />
 			<tag address="000247C4" value="padman: Over Consumpt Max [%d][%d]
 " />
+			<tag address="00024E7C" value="	" />
 			<tag address="00027CFC" value="invalid function code (%03x)
 " />
 			<tag address="00027D38" value="yet sif hasn&apos;t been init
