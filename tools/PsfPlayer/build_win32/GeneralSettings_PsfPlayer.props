@@ -3,12 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="GeneralSettings.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros">
-    <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
-    <TDEMU_PATH>path_to\tdemu</TDEMU_PATH>
-    <ZLIB_PATH>path_to\zlib-1.2.8</ZLIB_PATH>
-    <UNRAR_PATH>path_to\unrarsrc-4.0.3</UNRAR_PATH>
-  </PropertyGroup>
+  <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
@@ -20,18 +15,5 @@
       <AdditionalLibraryDirectories>$(TDEMU_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <BuildMacro Include="CODEGEN_PATH">
-      <Value>$(CODEGEN_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="TDEMU_PATH">
-      <Value>$(TDEMU_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="ZLIB_PATH">
-      <Value>$(ZLIB_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="UNRAR_PATH">
-      <Value>$(UNRAR_PATH)</Value>
-    </BuildMacro>
-  </ItemGroup>
+  <ItemGroup />
 </Project>

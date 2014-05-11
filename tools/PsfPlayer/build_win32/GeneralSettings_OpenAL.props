@@ -3,9 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="GeneralSettings.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros">
-    <OPENAL_PATH>path_to\openal-1.1</OPENAL_PATH>
-  </PropertyGroup>
+  <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile />
@@ -18,9 +16,5 @@
       <AdditionalDependencies>openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <BuildMacro Include="OPENAL_PATH">
-      <Value>$(OPENAL_PATH)</Value>
-    </BuildMacro>
-  </ItemGroup>
+  <ItemGroup />
 </Project>

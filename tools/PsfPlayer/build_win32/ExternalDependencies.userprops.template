@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <BOOST_PATH>path_to\boost-trunk</BOOST_PATH>
+    <FRAMEWORK_PATH>path_to\framework</FRAMEWORK_PATH>
+    <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
+    <ZLIB_PATH>path_to\zlib-1.2.8</ZLIB_PATH>
+    <OPENAL_PATH>path_to\openal-1.1</OPENAL_PATH>
+    <UNRAR_PATH>path_to\unrarsrc-4.0.3</UNRAR_PATH>
+    <TDEMU_PATH>path_to\tdemu</TDEMU_PATH>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="BOOST_PATH">
+      <Value>$(BOOST_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FRAMEWORK_PATH">
+      <Value>$(FRAMEWORK_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CODEGEN_PATH">
+      <Value>$(CODEGEN_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ZLIB_PATH">
+      <Value>$(ZLIB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENAL_PATH">
+      <Value>$(OPENAL_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="UNRAR_PATH">
+      <Value>$(UNRAR_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="TDEMU_PATH">
+      <Value>$(TDEMU_PATH)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
