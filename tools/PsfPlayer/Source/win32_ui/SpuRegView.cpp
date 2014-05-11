@@ -142,6 +142,7 @@ long CSpuRegView::OnGetDlgCode(WPARAM, LPARAM)
 
 int32 CSpuRegView::GetFontWidth()
 {
+	if(m_device.IsEmpty()) return 0;
 	TEXTMETRIC textMetric = {};
 	m_font->GetTextMetrics(&textMetric);
 	return textMetric.tmAveCharWidth;
