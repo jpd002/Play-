@@ -1,5 +1,6 @@
 *.sdf
 Debug
 Release
+ReleaseWithDebugger
 *.ipch
 *.userprops
