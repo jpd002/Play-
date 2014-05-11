@@ -692,8 +692,6 @@ void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 
 void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 {
-	if(alphaReg == 0) return;
-
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
@@ -721,6 +719,12 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 	}
+	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
+	{
+		//(Cd - Cs) * As + Cs
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
+	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cd * As
@@ -739,10 +743,6 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
 		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
-	}
-	else
-	{
-//		printf("GSH_DirectX9: Unknown color blending formula.\r\n");
 	}
 }
 

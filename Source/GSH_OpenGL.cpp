@@ -562,10 +562,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 {
-	if(alphaReg == 0) return;
-
 	int nFunction = GL_FUNC_ADD_EXT;
-
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	if((alpha.nA == 0) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
@@ -576,40 +573,26 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
+	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
 	{
-		glBlendFunc(GL_ONE, GL_ONE);
-	}
-	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
-	{
-		glBlendFunc(GL_ONE, GL_ZERO);
+		//Cs * Ad + Cd * (1 - Ad)
+		glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
 	{
-		//Source alpha value is implied in the formula
-		//As = FIX / 0x80
-		if(glBlendColorEXT != NULL)
+		if(alpha.nFix == 0x80)
 		{
-			glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-			glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
+			glBlendFunc(GL_ONE, GL_ZERO);
 		}
-	}
-	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
-	{
-		//Cs * FIX + Cd
-		if(glBlendColor != NULL)
+		else
 		{
-			glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
-			glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
-		}
-	}
-	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
-	{
-		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
-		if(glBlendColorEXT != NULL)
-		{
-			glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-			glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT);
+			//Source alpha value is implied in the formula
+			//As = FIX / 0x80
+			if(glBlendColorEXT != NULL)
+			{
+				glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
+				glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
+			}
 		}
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
@@ -621,15 +604,40 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		//Cs * As
 		glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
 	}
-	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
-	{
-		//Cs * Ad + Cd * (1 - Ad)
-		glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
-	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 1) && (alpha.nD == 1))
 	{
 		//Cs * Ad + Cd
 		glBlendFunc(GL_DST_ALPHA, GL_ONE);
+	}
+	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
+	{
+		if(alpha.nFix == 0x80)
+		{
+			glBlendFunc(GL_ONE, GL_ONE);
+		}
+		else
+		{
+			//Cs * FIX + Cd
+			if(glBlendColor != NULL)
+			{
+				glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
+				glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
+			}
+		}
+	}
+	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
+	{
+		//(Cd - Cs) * As + Cs
+		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	}
+	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
+	{
+		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
+		if(glBlendColorEXT != NULL)
+		{
+			glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
+			glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT);
+		}
 	}
 //	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
 //	{
@@ -654,12 +662,6 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	{
 		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	}
-	else
-	{
-#ifdef _DEBUG
-		printf("GSH_OpenGL: Unknown color blending formula.\r\n");
-#endif
 	}
 
 	if(glBlendEquationEXT != NULL)
