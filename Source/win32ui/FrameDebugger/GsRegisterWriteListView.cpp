@@ -34,6 +34,7 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 {
 	m_frameDump = frameDump;
 
+	m_packetsTreeView->SetSelection(NULL);
 	m_packetsTreeView->DeleteAllItems();
 	m_drawingKickIndices.clear();
 	m_packetInfos.clear();
