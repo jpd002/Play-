@@ -631,10 +631,6 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 			m_receiveDma5(m_D5_MADR, m_D5_QWC * 0x10, 0, false);
 			m_D5_CHCR	&= ~0x100;
 			m_D_STAT	|= 0x20;
-//			if(IsInterruptPending())
-//			{
-//				CINTC::CheckInterrupts();
-//			}
 		}
 		break;
 	case D5_CHCR + 0x4:

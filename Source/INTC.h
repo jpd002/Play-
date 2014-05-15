@@ -1,5 +1,4 @@
-#ifndef _INTC_H_
-#define _INTC_H_
+#pragma once
 
 #include "Types.h"
 #include "DMAC.h"
@@ -46,5 +45,3 @@ private:
 	CDMAC&			m_dmac;
 	CGSHandler*&	m_gs;
 };
-
-#endif
