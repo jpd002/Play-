@@ -158,6 +158,22 @@ void VUShared::PushIntegerRegister(CMipsJitter* codeGen, unsigned int nRegister)
 	}
 }
 
+void VUShared::ClampVector(CMipsJitter* codeGen)
+{
+	//This will transform any NaN/INF (exponent == 0xFF) into a number with exponent == 0xFE
+	//and will leave all other numbers intact
+	static const uint32 exponentMask = 0x7F800000;
+	codeGen->PushTop();
+	codeGen->MD_PushCstExpand(exponentMask);
+	codeGen->MD_And();
+	codeGen->MD_PushCstExpand(exponentMask);
+	codeGen->MD_CmpEqW();
+	codeGen->MD_SrlW(31);
+	codeGen->MD_SllW(23);
+	codeGen->MD_Not();
+	codeGen->MD_And();
+}
+
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, uint8 reg, uint32 relativePipeTime)
 {
 	const int macOpLatency = 3;
@@ -237,6 +253,8 @@ void VUShared::MADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
+	//Clamping is needed by Baldur's Gate Deadly Alliance here because it multiplies junk values (potentially NaN/INF) by 0
+	ClampVector(codeGen);
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);

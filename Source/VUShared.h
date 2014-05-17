@@ -68,6 +68,7 @@ namespace VUShared
 	void						PullVector(CMipsJitter*, uint8, size_t);
 	void						PushIntegerRegister(CMipsJitter*, unsigned int);
 
+	void						ClampVector(CMipsJitter*);
 	void						TestSZFlags(CMipsJitter*, uint8, uint8, uint32);
 
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
