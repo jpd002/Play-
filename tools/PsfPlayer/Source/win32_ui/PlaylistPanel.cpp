@@ -198,7 +198,7 @@ void CPlaylistPanel::AddItem(const TCHAR* title, const TCHAR* length)
 	item.iItem		= m_playlistView->GetItemCount();
 	item.mask		= LVIF_TEXT;
 
-	int itemIdx = m_playlistView->InsertItem(&item);
+	int itemIdx = m_playlistView->InsertItem(item);
 	m_playlistView->SetItemText(itemIdx, 1, length);
 }
 
@@ -237,12 +237,12 @@ void CPlaylistPanel::CreateColumns()
 	memset(&column, 0, sizeof(LVCOLUMN));
 	column.pszText	= _T("Title");
 	column.mask		= LVCF_TEXT;
-	m_playlistView->InsertColumn(0, &column);
+	m_playlistView->InsertColumn(0, column);
 
 	memset(&column, 0, sizeof(LVCOLUMN));
 	column.pszText	= _T("Length");
 	column.mask		= LVCF_TEXT;
-	m_playlistView->InsertColumn(1, &column);
+	m_playlistView->InsertColumn(1, column);
 }
 
 void CPlaylistPanel::OnPlaylistItemInsert(const CPlaylist::ITEM& item)

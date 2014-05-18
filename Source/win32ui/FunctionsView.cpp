@@ -134,12 +134,12 @@ void CFunctionsView::CreateListColumns()
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Name");
 	col.mask		= LVCF_TEXT;
-	m_pList->InsertColumn(0, &col);
+	m_pList->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Address");
 	col.mask		= LVCF_TEXT;
-	m_pList->InsertColumn(1, &col);
+	m_pList->InsertColumn(1, col);
 }
 
 void CFunctionsView::ResizeListColumns()
@@ -207,7 +207,7 @@ void CFunctionsView::RefreshList()
 			it.iGroupId = GetFunctionGroupId(itTag->first);
 			it.mask |= LVIF_GROUPID;
 		}
-		m_pList->InsertItem(&it);
+		m_pList->InsertItem(it);
 	}
 
 	unsigned int nCount = m_pList->GetItemCount();
