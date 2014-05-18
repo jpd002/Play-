@@ -522,9 +522,10 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.zbufReg != zbufReg))
+		(m_renderState.zbufReg != zbufReg) ||
+		(m_renderState.testReg != testReg))
 	{
-		SetupDepthBuffer(zbufReg);
+		SetupDepthBuffer(zbufReg, testReg);
 	}
 
 	if(!m_renderState.isValid ||
@@ -710,8 +711,8 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 			break;
 		}
 
-		//Special trick used by Castlevania: Yami no Juin
-		//Always fail alpha testing but write RGBA if it fails
+		//Special way of turning off depth writes:
+		//Always fail alpha testing but write RGBA and not depth if it fails
 		if(tst.nAlphaMethod == 0 && tst.nAlphaFail == 1)
 		{
 			glDisable(GL_ALPHA_TEST);
@@ -759,9 +760,10 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 	}
 }
 
-void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg)
+void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 {
 	auto zbuf = make_convertible<ZBUF>(zbufReg);
+	auto test = make_convertible<TEST>(testReg);
 
 	switch(GetPsmPixelSize(zbuf.nPsm))
 	{
@@ -777,7 +779,13 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg)
 		break;
 	}
 
-	glDepthMask(zbuf.nMask ? GL_FALSE : GL_TRUE);
+	bool depthWriteEnabled = (zbuf.nMask ? false : true);
+	//If alpha test is enabled for always failing and update only colors, depth writes are disabled
+	if((test.nAlphaEnabled == 1) && (test.nAlphaMethod == 0) && (test.nAlphaFail == 1))
+	{
+		depthWriteEnabled = false;
+	}
+	glDepthMask(depthWriteEnabled ? GL_TRUE : GL_FALSE);
 }
 
 void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg)
