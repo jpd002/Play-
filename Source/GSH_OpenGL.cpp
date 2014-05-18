@@ -85,6 +85,7 @@ void CGSH_OpenGL::FlipImpl()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDisable(GL_SCISSOR_TEST);
 	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -403,6 +404,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
+	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
 	//--------------------------------------------------------
 	//Get shader caps
@@ -527,9 +529,10 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 
 	if(!m_renderState.isValid ||
 		(m_renderState.frameReg != frameReg) ||
-		(m_renderState.zbufReg != zbufReg))
+		(m_renderState.zbufReg != zbufReg) ||
+		(m_renderState.scissorReg != scissorReg))
 	{
-		SetupFramebuffer(frameReg, zbufReg);
+		SetupFramebuffer(frameReg, zbufReg, scissorReg);
 	}
 
 	if(!m_renderState.isValid ||
@@ -554,6 +557,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	m_renderState.alphaReg = alphaReg;
 	m_renderState.testReg = testReg;
 	m_renderState.zbufReg = zbufReg;
+	m_renderState.scissorReg = scissorReg;
 	m_renderState.frameReg = frameReg;
 	m_renderState.tex0Reg = tex0Reg;
 	m_renderState.tex1Reg = tex1Reg;
@@ -776,12 +780,13 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg)
 	glDepthMask(zbuf.nMask ? GL_FALSE : GL_TRUE);
 }
 
-void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg)
+void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg)
 {
 	if(frameReg == 0) return;
 
 	auto frame = make_convertible<FRAME>(frameReg);
 	auto zbuf = make_convertible<ZBUF>(zbufReg);
+	auto scissor = make_convertible<SCISSOR>(scissorReg);
 
 	bool r = (frame.nMask & 0x000000FF) == 0;
 	bool g = (frame.nMask & 0x0000FF00) == 0;
@@ -822,8 +827,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg)
 	}
 
 	glViewport(0, 0, framebuffer->m_width, framebuffer->m_height);
-	glScissor(0, 0, framebuffer->m_width, framebuffer->m_height);
-
+	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
@@ -834,6 +838,18 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	glEnable(GL_SCISSOR_TEST);
+	int scissorX = scissor.scax0;
+	int scissorY = scissor.scay0;
+	int scissorWidth = scissor.scax1 - scissor.scax0 + 1;
+	int scissorHeight = scissor.scay1 - scissor.scay0 + 1;
+	if(halfHeight)
+	{
+		scissorY *= 2;
+		scissorHeight *= 2;
+	}
+	glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
 }
 
 void CGSH_OpenGL::SetupFogColor()
@@ -1559,11 +1575,12 @@ void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength, bool dir
 	{
 		const auto& dstFramebuffer = (*dstFramebufferIterator);
 
+		glDisable(GL_SCISSOR_TEST);
+
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 
 		glViewport(0, 0, dstFramebuffer->m_width, dstFramebuffer->m_height);
-		glScissor(0, 0, dstFramebuffer->m_width, dstFramebuffer->m_height);
 
 		float projWidth = static_cast<float>(dstFramebuffer->m_width);
 		float projHeight = static_cast<float>(dstFramebuffer->m_height);

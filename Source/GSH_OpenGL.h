@@ -48,6 +48,7 @@ private:
 		uint64		testReg;
 		uint64		alphaReg;
 		uint64		zbufReg;
+		uint64		scissorReg;
 		uint64		tex0Reg;
 		uint64		tex1Reg;
 		uint64		clampReg;
@@ -217,7 +218,7 @@ private:
 	void							SetRenderingContext(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64);
-	void							SetupFramebuffer(uint64, uint64);
+	void							SetupFramebuffer(uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
 
