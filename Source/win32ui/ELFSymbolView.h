@@ -2,8 +2,7 @@
 #define _ELFSYMBOLVIEW_H_
 
 #include "win32/Window.h"
-#include "win32/DblBufferedCtrl.h"
-#include "win32/ListViewEx.h"
+#include "win32/ListView.h"
 #include "../ELF.h"
 #include <boost/flyweight.hpp>
 

@@ -4,7 +4,7 @@
 #include "win32/Dialog.h"
 #include "win32/Edit.h"
 #include "win32/Static.h"
-#include "win32/ListViewEx.h"
+#include "win32/ListView.h"
 #include "layout/VerticalLayout.h"
 #include "Types.h"
 #include "MemoryViewPtr.h"
