@@ -139,7 +139,6 @@ void CGSH_OpenGL::FlipImpl()
 	{
 		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 		unsigned int readCircuit = GetCurrentReadCircuit();
-//		unsigned int readCircuit = 1;
 		switch(readCircuit)
 		{
 		case 0:
