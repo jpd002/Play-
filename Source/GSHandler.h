@@ -602,7 +602,6 @@ protected:
 		uint32			nSize;
 		uint32			nRRX;
 		uint32			nRRY;
-		uint32			checksum;
 		bool			nDirty;
 	};
 
