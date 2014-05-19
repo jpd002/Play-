@@ -101,7 +101,7 @@ void CCallStackWnd::CreateColumns()
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Function");
 	col.mask	= LVCF_TEXT;
-	m_list->InsertColumn(0, &col);
+	m_list->InsertColumn(0, col);
 }
 
 void CCallStackWnd::Update()
@@ -124,7 +124,7 @@ void CCallStackWnd::Update()
 		item.pszText	= _T("Call stack unavailable at this state.");
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
 		item.lParam		= MIPS_INVALID_PC;
-		m_list->InsertItem(&item);
+		m_list->InsertItem(item);
 
 		m_list->SetRedraw(true);
 		return;
@@ -144,7 +144,7 @@ void CCallStackWnd::Update()
 		item.iItem		= m_list->GetItemCount();
 		item.mask		= LVIF_TEXT | LVIF_PARAM;
 		item.lParam		= callStackItem;
-		unsigned int i = m_list->InsertItem(&item);
+		unsigned int i = m_list->InsertItem(item);
 
 		std::tstring locationString = DebugUtils::PrintAddressLocation(callStackItem, m_context, modules);
 		m_list->SetItemText(i, 0, locationString.c_str());

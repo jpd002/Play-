@@ -48,7 +48,7 @@ private:
 	void							GetItemInfo(LVITEM*) const;
 
 	CELF*							m_pELF;
-	Framework::Win32::CListViewEx*	m_listView;
+	Framework::Win32::CListView*	m_listView;
 	ItemArray						m_items;
 
 	SORT_STATE						m_sortState;

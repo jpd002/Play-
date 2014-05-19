@@ -140,19 +140,19 @@ void CVFSManagerWnd::CreateListColumns()
 	col.pszText = _T("Device");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 4;
-	m_pList->InsertColumn(0, &col);
+	m_pList->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Binding Type");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 4;
-	m_pList->InsertColumn(1, &col);
+	m_pList->InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Binding Value");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 2;
-	m_pList->InsertColumn(2, &col);
+	m_pList->InsertColumn(2, col);
 }
 
 void CVFSManagerWnd::UpdateList()
@@ -173,7 +173,7 @@ void CVFSManagerWnd::UpdateList()
             itm.mask		= LVIF_TEXT | LVIF_PARAM;
             itm.pszText		= const_cast<TCHAR*>(sDeviceName.c_str());
             itm.lParam		= key;
-            index = m_pList->InsertItem(&itm);
+            index = m_pList->InsertItem(itm);
         }
 
         m_pList->SetItemText(index, 1, string_cast<tstring>(pDevice->GetBindingType()).c_str());

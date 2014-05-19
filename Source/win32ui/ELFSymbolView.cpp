@@ -29,39 +29,39 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 	Create(NULL, CLSNAME, _T(""), WS_CHILD | WS_DISABLED | WS_CLIPCHILDREN, Framework::Win32::CRect(0, 0, 1, 1), hParent, NULL);
 	SetClassPtr();
 
-	m_listView = new Framework::Win32::CListViewEx(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
+	m_listView = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_OWNERDATA);
 	m_listView->SetExtendedListViewStyle(m_listView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	LVCOLUMN col;
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Name");
 	col.mask		= LVCF_TEXT;
-	m_listView->InsertColumn(0, &col);
+	m_listView->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Address");
 	col.mask		= LVCF_TEXT;
-	m_listView->InsertColumn(1, &col);
+	m_listView->InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Size");
 	col.mask		= LVCF_TEXT;
-	m_listView->InsertColumn(2, &col);
+	m_listView->InsertColumn(2, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Type");
 	col.mask		= LVCF_TEXT;
-	m_listView->InsertColumn(3, &col);
+	m_listView->InsertColumn(3, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Binding");
 	col.mask		= LVCF_TEXT;
-	m_listView->InsertColumn(4, &col);
+	m_listView->InsertColumn(4, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Section");
 	col.mask		= LVCF_TEXT;
-	m_listView->InsertColumn(5, &col);
+	m_listView->InsertColumn(5, col);
 
 	RefreshLayout();
 
@@ -94,7 +94,11 @@ long CELFSymbolView::OnNotify(WPARAM wParam, NMHDR* hdr)
 {
 	if(IsNotifySource(m_listView, hdr))
 	{
-		m_listView->ProcessGetDisplayInfo(hdr, std::tr1::bind(&CELFSymbolView::GetItemInfo, this, std::tr1::placeholders::_1));
+		if(hdr->code == LVN_GETDISPINFO)
+		{
+			LV_DISPINFO* dispInfo = reinterpret_cast<LV_DISPINFO*>(hdr);
+			GetItemInfo(&dispInfo->item);
+		}
 
 		if(hdr->code == LVN_COLUMNCLICK)
 		{

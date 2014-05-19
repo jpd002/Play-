@@ -29,7 +29,7 @@ CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF)
 	{
 		m_memoryView = new CMemoryViewPtr(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
-		m_dynamicSectionListView = new Framework::Win32::CListViewEx(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT);
+		m_dynamicSectionListView = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT);
 		m_dynamicSectionListView->SetExtendedListViewStyle(m_dynamicSectionListView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 	}
 
@@ -251,12 +251,12 @@ void CELFSectionView::CreateDynamicSectionListViewColumns()
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Type");
 	col.mask		= LVCF_TEXT;
-	m_dynamicSectionListView->InsertColumn(0, &col);
+	m_dynamicSectionListView->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText		= _T("Value");
 	col.mask		= LVCF_TEXT;
-	m_dynamicSectionListView->InsertColumn(1, &col);
+	m_dynamicSectionListView->InsertColumn(1, col);
 
 	RECT rc = m_dynamicSectionListView->GetClientRect();
 

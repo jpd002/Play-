@@ -135,13 +135,13 @@ void CRendererSettingsWnd::CreateExtListColumns()
 	col.pszText = _T("Extension");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right * 3 / 4;
-	m_pExtList->InsertColumn(0, &col);
+	m_pExtList->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Availability");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 4;
-	m_pExtList->InsertColumn(1, &col);
+	m_pExtList->InsertColumn(1, col);
 }
 
 void CRendererSettingsWnd::UpdateExtList()
@@ -152,28 +152,28 @@ void CRendererSettingsWnd::UpdateExtList()
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("glBlendColor function");
-	i = m_pExtList->InsertItem(&itm);
+	i = m_pExtList->InsertItem(itm);
 
 	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendColorExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("GL_UNSIGNED_SHORT_1_5_5_5_REV texture format");
-	i = m_pExtList->InsertItem(&itm);
+	i = m_pExtList->InsertItem(itm);
 
 	m_pExtList->SetItemText(i, 1, m_pRenderer->IsRGBA5551ExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("glBlendEquation function");
-	i = m_pExtList->InsertItem(&itm);
+	i = m_pExtList->InsertItem(itm);
 
 	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendEquationExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("glFogCoordf function");
-	i = m_pExtList->InsertItem(&itm);
+	i = m_pExtList->InsertItem(itm);
 
 	m_pExtList->SetItemText(i, 1, m_pRenderer->IsFogCoordfExtSupported() ? _T("Present") : _T("Absent"));
 }

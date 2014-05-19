@@ -45,7 +45,7 @@ private:
 	Framework::Win32::CStatic*		m_contentsPlaceHolder;
 
 	CMemoryViewPtr*					m_memoryView;
-	Framework::Win32::CListViewEx*	m_dynamicSectionListView;
+	Framework::Win32::CListView*	m_dynamicSectionListView;
 };
 
 #endif

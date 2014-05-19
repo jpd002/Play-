@@ -182,19 +182,19 @@ void CControllerSettingsWnd::PopulateList()
 	column.pszText	= _T("Button");
 	column.mask		= LVCF_TEXT | LVCF_WIDTH;
 	column.cx		= 1 * rc.right / 5;
-	m_bindingList->InsertColumn(0, &column);
+	m_bindingList->InsertColumn(0, column);
 
 	memset(&column, 0, sizeof(LVCOLUMN));
 	column.pszText	= _T("Binding");
 	column.mask		= LVCF_TEXT | LVCF_WIDTH;
 	column.cx		= 3 * rc.right / 5;
-	m_bindingList->InsertColumn(1, &column);
+	m_bindingList->InsertColumn(1, column);
 
 	memset(&column, 0, sizeof(LVCOLUMN));
 	column.pszText	= _T("Current Value");
 	column.mask		= LVCF_TEXT | LVCF_WIDTH;
 	column.cx		= 1 * rc.right / 5;
-	m_bindingList->InsertColumn(2, &column);
+	m_bindingList->InsertColumn(2, column);
 
 	for(int i = PS2::CControllerInfo::MAX_BUTTONS - 1; i >= 0; i--)
 	{
@@ -204,6 +204,6 @@ void CControllerSettingsWnd::PopulateList()
 		itm.mask		= LVIF_TEXT | LVIF_PARAM;
 		itm.pszText		= const_cast<TCHAR*>(text.c_str());
 		itm.lParam		= i;
-		m_bindingList->InsertItem(&itm);
+		m_bindingList->InsertItem(itm);
 	}
 }

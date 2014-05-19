@@ -65,22 +65,22 @@ void CThreadsViewWnd::CreateColumns()
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Id");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(0, &col);
+	m_listView->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Priority");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(1, &col);
+	m_listView->InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Location");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(2, &col);
+	m_listView->InsertColumn(2, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("State");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(3, &col);
+	m_listView->InsertColumn(3, col);
 }
 
 void CThreadsViewWnd::RefreshLayout()
