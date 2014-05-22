@@ -40,6 +40,8 @@ protected:
 	CMIPS*							m_ctx;
 	int32							m_instructionSize;
 
+	SIZE							m_char_extent;
+
 private:
 	enum
 	{

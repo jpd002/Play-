@@ -3,6 +3,7 @@
 #include "DisAsm.h"
 #include "resource.h"
 #include "win32/InputBox.h"
+#include "win32/Font.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "WinUtils.h"
@@ -24,7 +25,7 @@
 
 CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
 : m_virtualMachine(virtualMachine)
-, m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
+, m_font(Framework::Win32::CreateFont(_T("Courier New"), 11))
 , m_ctx(ctx)
 , m_selected(0)
 , m_selectionEnd(-1)
@@ -651,11 +652,10 @@ void CDisAsm::Paint(HDC hDC)
 
 	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
 
-	SIZE s;
 	deviceContext.SelectObject(m_font);
-	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
+	GetTextExtentPoint32(hDC, _T("0"), 1, &m_char_extent);
 
-	int lines = (rwin.bottom - (YMARGIN * 2)) / (s.cy + YSPACE);
+	int lines = (rwin.bottom - (YMARGIN * 2)) / (m_char_extent.cy + YSPACE);
 	lines++;
 
 	RECT rmarg;
@@ -732,7 +732,7 @@ void CDisAsm::Paint(HDC hDC)
 			)
 		{
 			RECT rsel;
-			SetRect(&rsel, 18, y, rwin.right, y + s.cy + YSPACE);
+			SetRect(&rsel, 18, y, rwin.right, y + m_char_extent.cy + YSPACE);
 			if(m_focus)
 			{
 				FillRect(hDC, &rsel, (HBRUSH)GetStockObject(BLACK_BRUSH));
@@ -762,27 +762,27 @@ void CDisAsm::Paint(HDC hDC)
 			SelectObject(hDC, ltGrayPen);
 			if(address == sub->start)
 			{
-				MoveToEx(hDC, 90, y + s.cy + YSPACE, NULL);
-				LineTo(hDC, 90, y + ((s.cy + YSPACE) / 2) - 1);
-				LineTo(hDC, 95, y + ((s.cy + YSPACE) / 2));
+				MoveToEx(hDC, 90, y + m_char_extent.cy + YSPACE, NULL);
+				LineTo(hDC, 90, y + ((m_char_extent.cy + YSPACE) / 2) - 1);
+				LineTo(hDC, 95, y + ((m_char_extent.cy + YSPACE) / 2));
 			}
 			else if(address == sub->end)
 			{
 				MoveToEx(hDC, 90, y, NULL);
-				LineTo(hDC, 90, y + ((s.cy + YSPACE) / 2));
-				LineTo(hDC, 95, y + ((s.cy + YSPACE) / 2));
+				LineTo(hDC, 90, y + ((m_char_extent.cy + YSPACE) / 2));
+				LineTo(hDC, 95, y + ((m_char_extent.cy + YSPACE) / 2));
 			}
 			else
 			{
 				MoveToEx(hDC, 90, y, NULL);
-				LineTo(hDC, 90, y + s.cy + YSPACE);
+				LineTo(hDC, 90, y + m_char_extent.cy + YSPACE);
 			}
 		}
 
 		DrawInstructionDetails(deviceContext, address, y);
 		DrawInstructionMetadata(deviceContext, address, y);
 
-		y += s.cy + YSPACE;
+		y += m_char_extent.cy + YSPACE;
 	}
 
 	DeleteObject(ltGrayPen);
@@ -824,24 +824,24 @@ std::tstring CDisAsm::GetInstructionDetailsText(uint32 address)
 
 unsigned int CDisAsm::GetMetadataPosition() const
 {
-	return 450;
+	return m_char_extent.cx * 45;
 }
 
 void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
 {
 	uint32 data = GetInstruction(address);
-	deviceContext.TextOut(100, y, lexical_cast_hex<std::tstring>(data, 8).c_str());
+	deviceContext.TextOut(m_char_extent.cx*10, y, lexical_cast_hex<std::tstring>(data, 8).c_str());
 		
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, data, disAsm, 256);
-		deviceContext.TextOut(200, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_char_extent.cx * 20, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address, data, disAsm, 256);
-		deviceContext.TextOut(300, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_char_extent.cx * 30, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 }
 

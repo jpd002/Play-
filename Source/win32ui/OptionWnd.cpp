@@ -8,6 +8,8 @@
 
 using namespace Framework;
 
+#define SCALE(x) MulDiv(x, ydpi, 96)
+
 template <typename T> 
 COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
 : m_pTreeView(nullptr)
@@ -26,15 +28,17 @@ COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
 		RegisterClassEx(&wc);
 	}
 
-	Create(NULL, CLSNAME, sTitle, WNDSTYLE, Framework::Win32::CRect(0, 0, 640, 480), hParent, NULL);
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+
+	Create(NULL, CLSNAME, sTitle, WNDSTYLE, Framework::Win32::CRect(0, 0, SCALE(640), SCALE(480)), hParent, NULL);
 	SetClassPtr();
 
 	m_pTreeView		= new Win32::CTreeView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
 	m_pContainer	= new Win32::CStatic(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
 	m_pLayout = CHorizontalLayout::Create();
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(25, 20, 1, 0, m_pTreeView, false));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(75, 20, 3, 0, m_pContainer));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(25, SCALE(20), 1, 0, m_pTreeView, false));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(75, SCALE(20), 3, 0, m_pContainer));
 
 	RefreshLayout();
 }

@@ -14,6 +14,7 @@
 #define CLSNAME			_T("CMcManagerWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
+#define SCALE(x)		MulDiv(x, ydpi, 96)
 
 namespace filesystem = boost::filesystem;
 
@@ -45,7 +46,9 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 		RegisterClassEx(&wc);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("Memory Card Manager"), WNDSTYLE, Framework::Win32::CRect(0, 0, 600, 500), hParent, NULL);
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+
+	Create(WNDSTYLEEX, CLSNAME, _T("Memory Card Manager"), WNDSTYLE, Framework::Win32::CRect(0, 0, SCALE(600), SCALE(500)), hParent, NULL);
 	SetClassPtr();
 
 	RECT rc = GetClientRect();
@@ -64,24 +67,24 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 	m_pMemoryCardList->SetSelection(0);
 
 	Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
-	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(200, 23, m_pMemoryCardList));
-	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImportButton));
+	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(200), SCALE(23), m_pMemoryCardList));
+	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pImportButton));
 	pSubLayout0->InsertObject(Framework::CLayoutStretch::Create());
 
 	Framework::FlatLayoutPtr pSubLayout1 = Framework::CHorizontalLayout::Create();
-	pSubLayout1->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(130, 23, m_pMemoryCardView));
-	pSubLayout1->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(100, 100, 1, 1, m_pSaveView));
+	pSubLayout1->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(130), SCALE(23), m_pMemoryCardView));
+	pSubLayout1->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(SCALE(100), SCALE(100), 1, 1, m_pSaveView));
 	pSubLayout1->SetVerticalStretch(1);
 
 	Framework::FlatLayoutPtr pSubLayout2 = Framework::CHorizontalLayout::Create();
 	pSubLayout2->InsertObject(Framework::CLayoutStretch::Create());
-	pSubLayout2->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCloseButton));
+	pSubLayout2->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pCloseButton));
 
 	m_pLayout = Framework::CVerticalLayout::Create();
 	m_pLayout->InsertObject(pSubLayout0);
-	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Framework::Win32::CStatic(m_hWnd, rc, SS_ETCHEDFRAME)));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(200), 2, new Framework::Win32::CStatic(m_hWnd, rc, SS_ETCHEDFRAME)));
 	m_pLayout->InsertObject(pSubLayout1);
-	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(200, 2, new Framework::Win32::CStatic(m_hWnd, rc, SS_ETCHEDFRAME)));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(200), 2, new Framework::Win32::CStatic(m_hWnd, rc, SS_ETCHEDFRAME)));
 	m_pLayout->InsertObject(pSubLayout2);
 
 	RefreshLayout();

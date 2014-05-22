@@ -81,7 +81,11 @@ Win32::CModalWindow(hParent)
 		EnableWindow(hParent, FALSE);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("System Information"), WNDSTYLE, Framework::Win32::CRect(0, 0, 200, 285), hParent, NULL);
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+	int width = MulDiv(200, ydpi, 96);
+	int height = MulDiv(285, ydpi, 96);
+
+	Create(WNDSTYLEEX, CLSNAME, _T("System Information"), WNDSTYLE, Framework::Win32::CRect(0, 0, width, height), hParent, NULL);
 	SetClassPtr();
 
 	m_pProcessor	= new Win32::CStatic(m_hWnd, _T(""));
@@ -89,13 +93,15 @@ Win32::CModalWindow(hParent)
 	m_pThreads		= new Win32::CStatic(m_hWnd, _T(""));
 	m_pFeatures		= new Win32::CListBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), WS_VSCROLL | LBS_SORT);
 
+	int lineHeight = MulDiv(20, ydpi, 96);
+
 	m_pLayout = CVerticalLayout::Create();
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcesses));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pThreads));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor:"))));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pProcessor));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, new Win32::CStatic(m_hWnd, _T("Processor Features:"))));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(200, 200, 1, 1, m_pFeatures));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pProcesses));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pThreads));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Win32::CStatic(m_hWnd, _T("Processor:"))));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pProcessor));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Win32::CStatic(m_hWnd, _T("Processor Features:"))));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(lineHeight * 10, lineHeight*10, 1, 1, m_pFeatures));
 
 	m_nRDTSCThread = NULL;
 

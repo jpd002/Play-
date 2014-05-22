@@ -80,7 +80,7 @@ std::tstring CDisAsmVu::GetInstructionDetailsText(uint32 address)
 
 unsigned int CDisAsmVu::GetMetadataPosition() const
 {
-	return 900;
+	return m_char_extent.cx * 80;
 }
 
 void CDisAsmVu::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
@@ -91,29 +91,29 @@ void CDisAsmVu::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceC
 	uint32 upperInstruction = GetInstruction(address + 4);
 
 	std::tstring instructionCode = lexical_cast_hex<std::tstring>(upperInstruction, 8) + _T(" ") + lexical_cast_hex<std::tstring>(lowerInstruction, 8);
-	deviceContext.TextOut(100, y, instructionCode.c_str());
+	deviceContext.TextOut(m_char_extent.cx * 10, y, instructionCode.c_str());
 		
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 4, upperInstruction, disAsm, 256);
-		deviceContext.TextOut(250, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_char_extent.cx * 28, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 4, upperInstruction, disAsm, 256);
-		deviceContext.TextOut(350, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_char_extent.cx * 36, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 0, lowerInstruction, disAsm, 256);
-		deviceContext.TextOut(600, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_char_extent.cx * 55, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 0, lowerInstruction, disAsm, 256);
-		deviceContext.TextOut(700, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_char_extent.cx * 62, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 }
