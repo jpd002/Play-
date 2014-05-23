@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <exception>
 #include <boost/filesystem/path.hpp>
+#include <boost/algorithm/string.hpp>
 #include "PS2OS.h"
 #include "Ps2Const.h"
 #include "StdStream.h"
@@ -230,23 +231,22 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 
 		{
 			Framework::CStream* file(ioman->GetFileStream(handle));
-			std::string line;
 
-			Utils::GetLine(file, &line);
+			auto line = Utils::GetLine(file);
 			while(!file->IsEOF())
 			{
-				if(!strncmp(line.c_str(), "BOOT2", 5))
+				auto trimmedEnd = std::remove_if(line.begin(), line.end(), isspace);
+				auto trimmedLine = std::string(line.begin(), trimmedEnd);
+				std::vector<std::string> components;
+				boost::split(components, trimmedLine, boost::is_any_of("="), boost::algorithm::token_compress_on);
+				if(components.size() >= 2)
 				{
-					const char* tempPath = strstr(line.c_str(), "=");
-					if(tempPath != NULL)
+					if(components[0] == "BOOT2")
 					{
-						tempPath++;
-						if(tempPath[0] == ' ') tempPath++;
-						executablePath = tempPath;
-						break;
+						executablePath = components[1];
 					}
 				}
-				Utils::GetLine(file, &line);
+				line = Utils::GetLine(file);
 			}
 		}
 

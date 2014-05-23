@@ -6,8 +6,7 @@
 
 namespace Utils
 {
-	void			GetLine(Framework::CStream*, std::string*, bool = true);
-	const char*		GetFilenameFromPath(const char*, char = '\\');
+	std::string		GetLine(Framework::CStream*, bool = true);
 };
 
 #endif
