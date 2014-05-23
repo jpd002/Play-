@@ -76,9 +76,10 @@ private:
 	
 	virtual std::tstring			GetInstructionDetailsText(uint32);
 	virtual unsigned int			GetMetadataPosition() const;
+	virtual unsigned int			GetFuncBoundaryPosition() const;
 
 	virtual void					DrawInstructionDetails(Framework::Win32::CDeviceContext&, uint32, int);
-	void							DrawInstructionMetadata(Framework::Win32::CDeviceContext&, uint32, int);
+	void							DrawInstructionMetadata(Framework::Win32::CDeviceContext&, uint32, int, bool);
 
 	CVirtualMachine&				m_virtualMachine;
 	HBITMAP							m_arrowBitmap;

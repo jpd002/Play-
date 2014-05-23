@@ -726,6 +726,8 @@ void CDisAsm::Paint(HDC hDC)
 			}
 		}
 
+		bool selected = false;
+
 		if(
 			(address >= SelectionRange.first) && 
 			(address <= SelectionRange.second)
@@ -742,6 +744,7 @@ void CDisAsm::Paint(HDC hDC)
 				FillRect(hDC, &rsel, (HBRUSH)GetStockObject(GRAY_BRUSH));
 			}
 			SetTextColor(hDC, RGB(0xFF, 0xFF, 0xFF));
+			selected = true;
 		}
 		else
 		{
@@ -762,25 +765,25 @@ void CDisAsm::Paint(HDC hDC)
 			SelectObject(hDC, ltGrayPen);
 			if(address == sub->start)
 			{
-				MoveToEx(hDC, 90, y + m_char_extent.cy + YSPACE, NULL);
-				LineTo(hDC, 90, y + ((m_char_extent.cy + YSPACE) / 2) - 1);
-				LineTo(hDC, 95, y + ((m_char_extent.cy + YSPACE) / 2));
+				MoveToEx(hDC, GetFuncBoundaryPosition(), y + m_char_extent.cy + YSPACE, NULL);
+				LineTo(hDC, GetFuncBoundaryPosition(), y + ((m_char_extent.cy + YSPACE) / 2) - 1);
+				LineTo(hDC, GetFuncBoundaryPosition() + m_char_extent.cx * 0.5, y + ((m_char_extent.cy + YSPACE) / 2));
 			}
 			else if(address == sub->end)
 			{
-				MoveToEx(hDC, 90, y, NULL);
-				LineTo(hDC, 90, y + ((m_char_extent.cy + YSPACE) / 2));
-				LineTo(hDC, 95, y + ((m_char_extent.cy + YSPACE) / 2));
+				MoveToEx(hDC, GetFuncBoundaryPosition(), y, NULL);
+				LineTo(hDC, GetFuncBoundaryPosition(), y + ((m_char_extent.cy + YSPACE) / 2));
+				LineTo(hDC, GetFuncBoundaryPosition() + m_char_extent.cx * 0.5, y + ((m_char_extent.cy + YSPACE) / 2));
 			}
 			else
 			{
-				MoveToEx(hDC, 90, y, NULL);
-				LineTo(hDC, 90, y + m_char_extent.cy + YSPACE);
+				MoveToEx(hDC, GetFuncBoundaryPosition(), y, NULL);
+				LineTo(hDC, GetFuncBoundaryPosition(), y + m_char_extent.cy + YSPACE);
 			}
 		}
 
 		DrawInstructionDetails(deviceContext, address, y);
-		DrawInstructionMetadata(deviceContext, address, y);
+		DrawInstructionMetadata(deviceContext, address, y, selected);
 
 		y += m_char_extent.cy + YSPACE;
 	}
@@ -827,6 +830,11 @@ unsigned int CDisAsm::GetMetadataPosition() const
 	return m_char_extent.cx * 45;
 }
 
+unsigned int CDisAsm::GetFuncBoundaryPosition() const
+{
+	return m_char_extent.cx * 19.5;
+}
+
 void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
 {
 	uint32 data = GetInstruction(address);
@@ -845,7 +853,7 @@ void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceCon
 	}
 }
 
-void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y)
+void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y, bool selected)
 {
 	bool commentDrawn = false;
 	unsigned int metadataPosition = GetMetadataPosition();
@@ -856,7 +864,7 @@ void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceCo
 		if(tag != nullptr)
 		{
 			std::tstring disAsm = _T("@") + string_cast<std::tstring>(tag);
-			deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
+			deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), selected ? RGB(0x40, 0x80, 0xFF) : RGB(0x00, 0x00, 0x80));
 			commentDrawn = true;
 		}
 	}
@@ -872,7 +880,7 @@ void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceCo
 			if(tag != nullptr)
 			{
 				std::tstring disAsm = _T("-> ") + string_cast<std::tstring>(tag);
-				deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), RGB(0x00, 0x00, 0x80));
+				deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), selected ? RGB(0x40, 0x80, 0xFF) : RGB(0x00, 0x00, 0x80));
 				commentDrawn = true;
 			}
 		}
@@ -885,7 +893,7 @@ void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceCo
 		if(tag != nullptr)
 		{
 			std::tstring disAsm = _T(";") + string_cast<std::tstring>(tag);
-			deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), RGB(0x00, 0x80, 0x00));
+			deviceContext.TextOut(metadataPosition, y, disAsm.c_str(), selected ? RGB(0x00, 0xF0, 0x00) : RGB(0x00, 0x80, 0x00));
 			commentDrawn = true;
 		}
 	}
