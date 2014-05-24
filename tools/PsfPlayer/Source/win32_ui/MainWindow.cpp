@@ -1063,10 +1063,10 @@ void CMainWindow::LoadSingleFile(const boost::filesystem::path& filePath)
 	m_playlist.Clear();
 	m_playlistDiscoveryService.ResetRun();
 
+	//Insert a single item in the playlist
 	{
 		CPlaylist::ITEM item;
 		item.path = filePath.wstring();
-		CPlaylist::PopulateItemFromTags(item, m_tags);
 		m_playlist.InsertItem(item);
 	}
 
