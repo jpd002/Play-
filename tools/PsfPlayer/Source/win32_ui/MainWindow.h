@@ -127,15 +127,15 @@ private:
 	static uint32						GetNextRandomNumber(uint32);
 	static uint32						GetPrevRandomNumber(uint32);
 
-	Framework::Win32::CStatic*			m_timerLabel;
-	Framework::Win32::CStatic*			m_titleLabel;
+	Framework::Win32::CStatic			m_timerLabel;
+	Framework::Win32::CStatic			m_titleLabel;
 
-	Framework::Win32::CButton*			m_repeatButton;
-	Framework::Win32::CButton*			m_configButton;
+	Framework::Win32::CButton			m_repeatButton;
+	Framework::Win32::CButton			m_configButton;
 
-	Framework::Win32::CStatic*			m_placeHolder;
+	Framework::Win32::CStatic			m_placeHolder;
 
-	Framework::Win32::CButton*			m_pauseButton;
+	Framework::Win32::CButton			m_pauseButton;
 
 	Framework::Win32::CToolTip*			m_toolTip;
 

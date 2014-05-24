@@ -72,12 +72,6 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 , m_lastUpdateTime(~0)
 , m_selectedAudioPlugin(DEFAULT_SOUND_HANDLER_ID)
 , m_selectedCharEncoding(DEFAULT_CHAR_ENCODING_ID)
-, m_timerLabel(NULL)
-, m_titleLabel(NULL)
-, m_placeHolder(NULL)
-, m_configButton(NULL)
-, m_pauseButton(NULL)
-, m_repeatButton(NULL)
 , m_playlistPanel(NULL)
 , m_fileInformationPanel(NULL)
 , m_spu0RegViewPanel(NULL)
@@ -185,26 +179,26 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	m_prevTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PREV_TRACK), IMAGE_ICON, 16, 16, 0));
 	m_nextTrackIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_NEXT_TRACK), IMAGE_ICON, 16, 16, 0));
 
-	m_timerLabel = new Framework::Win32::CStatic(GetItem(IDC_TIMER_LABEL));
-	m_titleLabel = new Framework::Win32::CStatic(GetItem(IDC_TITLE_LABEL));
+	m_timerLabel = Framework::Win32::CStatic(GetItem(IDC_TIMER_LABEL));
+	m_titleLabel = Framework::Win32::CStatic(GetItem(IDC_TITLE_LABEL));
 
-	m_placeHolder = new Framework::Win32::CStatic(GetItem(IDC_PLACEHOLDER));
+	m_placeHolder = Framework::Win32::CStatic(GetItem(IDC_PLACEHOLDER));
 
-	m_configButton = new Framework::Win32::CButton(GetItem(IDC_CONFIG_BUTTON));
-	m_toolTip->AddTool(m_configButton->m_hWnd, _T("Configuration"));
-	m_configButton->SetIcon(m_configIcon);
+	m_configButton = Framework::Win32::CButton(GetItem(IDC_CONFIG_BUTTON));
+	m_toolTip->AddTool(m_configButton.m_hWnd, _T("Configuration"));
+	m_configButton.SetIcon(m_configIcon);
 
-	m_repeatButton = new Framework::Win32::CButton(GetItem(IDC_REPEAT_BUTTON));
-	m_toolTip->AddTool(m_repeatButton->m_hWnd, _T(""));
+	m_repeatButton = Framework::Win32::CButton(GetItem(IDC_REPEAT_BUTTON));
+	m_toolTip->AddTool(m_repeatButton.m_hWnd, _T(""));
 	UpdateRepeatButton();
 
-	m_pauseButton = new Framework::Win32::CButton(GetItem(IDC_PAUSE_BUTTON));
+	m_pauseButton = Framework::Win32::CButton(GetItem(IDC_PAUSE_BUTTON));
 
 	//Initialize symbol fonts
 	CreateSymbolFonts();
 
 	{
-		m_pauseButton->SetFont(m_webdingsFont);
+		m_pauseButton.SetFont(m_webdingsFont);
 		SendMessage(GetItem(ID_FILE_PREVIOUSTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_webdingsFont)), 0);
 		SendMessage(GetItem(ID_FILE_NEXTTRACK), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_webdingsFont)), 0);
 		SendMessage(GetItem(IDC_PREVTAB_BUTTON), WM_SETFONT, reinterpret_cast<WPARAM>(static_cast<HFONT>(m_webdingsFont)), 0);
@@ -268,13 +262,6 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 CMainWindow::~CMainWindow()
 {
 	m_virtualMachine.Pause();
-
-	delete m_timerLabel;
-	delete m_titleLabel;
-	delete m_placeHolder;
-	delete m_configButton;
-	delete m_repeatButton;
-	delete m_pauseButton;
 
 	for(unsigned int i = 0; i < MAX_PANELS; i++)
 	{
@@ -636,7 +623,7 @@ void CMainWindow::UpdateClock()
 		unsigned int seconds = static_cast<unsigned int>(time % 60);
 		unsigned int minutes = static_cast<unsigned int>(time / 60);
 		std::tstring timerText = lexical_cast_uint<std::tstring>(minutes, 2) + _T(":") + lexical_cast_uint<std::tstring>(seconds, 2);
-		m_timerLabel->SetText(timerText.c_str());
+		m_timerLabel.SetText(timerText.c_str());
 		m_lastUpdateTime = time;
 	}
 }
@@ -657,17 +644,17 @@ void CMainWindow::UpdateTitle()
 		windowText += _T(" ]");
 	}
 
-	m_titleLabel->SetText(titleLabelText.c_str());
+	m_titleLabel.SetText(titleLabelText.c_str());
 	SetText(windowText.c_str());
 }
 
 void CMainWindow::UpdatePlaybackButtons()
 {
 	CVirtualMachine::STATUS status = m_virtualMachine.GetStatus();
-	if(m_pauseButton != NULL)
+	if(m_pauseButton.m_hWnd != NULL)
 	{
-		m_pauseButton->Enable(m_ready ? TRUE : FALSE);
-		m_pauseButton->SetText((status == CVirtualMachine::PAUSED) ? TEXT_SYMBOL_PLAY : TEXT_SYMBOL_PAUSE);
+		m_pauseButton.Enable(m_ready ? TRUE : FALSE);
+		m_pauseButton.SetText((status == CVirtualMachine::PAUSED) ? TEXT_SYMBOL_PLAY : TEXT_SYMBOL_PAUSE);
 	}
 	if(m_configPopupMenu != NULL)
 	{
@@ -689,20 +676,20 @@ void CMainWindow::UpdateRepeatButton()
 	{
 	default:
 	case PLAYLIST_ONCE:
-		m_repeatButton->SetIcon(m_playListOnceIcon);
-		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Once"));
+		m_repeatButton.SetIcon(m_playListOnceIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton.m_hWnd), _T("Playlist Once"));
 		break;
 	case PLAYLIST_REPEAT:
-		m_repeatButton->SetIcon(m_repeatListIcon);
-		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Repeat"));
+		m_repeatButton.SetIcon(m_repeatListIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton.m_hWnd), _T("Playlist Repeat"));
 		break;
 	case PLAYLIST_SHUFFLE:
-		m_repeatButton->SetIcon(m_shuffleListIcon);
-		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Playlist Shuffle"));
+		m_repeatButton.SetIcon(m_shuffleListIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton.m_hWnd), _T("Playlist Shuffle"));
 		break;
 	case TRACK_REPEAT:
-		m_repeatButton->SetIcon(m_repeatTrackIcon);
-		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton->m_hWnd), _T("Track Repeat"));
+		m_repeatButton.SetIcon(m_repeatTrackIcon);
+		m_toolTip->SetToolText(reinterpret_cast<UINT_PTR>(m_repeatButton.m_hWnd), _T("Track Repeat"));
 		break;
 	}
 }
@@ -843,7 +830,7 @@ HACCEL CMainWindow::CreateAccelerators()
 
 void CMainWindow::CreateSymbolFonts()
 {
-	HFONT baseFont = m_pauseButton->GetFont();
+	HFONT baseFont = m_pauseButton.GetFont();
 
 	{
 		LOGFONT fontDef = { 0 };
@@ -1017,22 +1004,22 @@ void CMainWindow::OnConfig()
 {
 	SetForegroundWindow(m_hWnd);
 
-	RECT buttonRect = m_configButton->GetClientRect();
-	ClientToScreen(m_configButton->m_hWnd, reinterpret_cast<POINT*>(&buttonRect) + 0);
-	ClientToScreen(m_configButton->m_hWnd, reinterpret_cast<POINT*>(&buttonRect) + 1);
+	RECT buttonRect = m_configButton.GetClientRect();
+	ClientToScreen(m_configButton.m_hWnd, reinterpret_cast<POINT*>(&buttonRect) + 0);
+	ClientToScreen(m_configButton.m_hWnd, reinterpret_cast<POINT*>(&buttonRect) + 1);
 
 	TPMPARAMS tpmParams;
 	memset(&tpmParams, 0, sizeof(tpmParams));
 	tpmParams.cbSize = sizeof(tpmParams);
 	tpmParams.rcExclude = buttonRect;
 
-	g_messageFilterHookWindow = m_configButton->m_hWnd;
+	g_messageFilterHookWindow = m_configButton.m_hWnd;
 	g_messageFilterHook = SetWindowsHookEx(WH_MSGFILTER, MessageHookProc, NULL, GetCurrentThreadId());
 	TrackPopupMenuEx(GetSubMenu(m_configPopupMenu, 0), TPM_VERTICAL, buttonRect.left, buttonRect.top, m_hWnd, &tpmParams);
 	UnhookWindowsHookEx(g_messageFilterHook);
 	g_messageFilterHook = NULL;
 
-	m_configButton->SetCheck(false);
+	m_configButton.SetCheck(false);
 }
 
 LRESULT CALLBACK CMainWindow::MessageHookProc(int code, WPARAM wParam, LPARAM lParam)
@@ -1056,7 +1043,7 @@ void CMainWindow::ActivatePanel(unsigned int panelIdx)
 	{
 		m_panels[m_currentPanel]->Show(SW_HIDE);
 	}
-	RECT placeHolderRect = m_placeHolder->GetWindowRect();
+	RECT placeHolderRect = m_placeHolder.GetWindowRect();
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&placeHolderRect) + 0);
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&placeHolderRect) + 1);
 	m_currentPanel = panelIdx;
