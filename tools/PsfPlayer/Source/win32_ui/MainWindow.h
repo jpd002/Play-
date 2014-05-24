@@ -65,8 +65,8 @@ private:
 
 	struct CHARENCODING_INFO
 	{
-		int				id;
-		const TCHAR*	name;
+		CPsfTags::CHAR_ENCODING		id;
+		const TCHAR*				name;
 	};
 
 	CSoundHandler*						CreateHandler(const TCHAR*);
@@ -119,7 +119,7 @@ private:
 	void								UpdateCharEncodingMenu();
 	void								ChangeCharEncoding(unsigned int);
 	void								LoadCharEncodingPreferences();
-	int									FindCharEncoding(unsigned int);
+	static CPsfTags::CHAR_ENCODING		FindCharEncoding(unsigned int);
 
 	HACCEL								CreateAccelerators();
 	void								CreateSymbolFonts();
@@ -181,7 +181,7 @@ private:
 	uint64								m_fadePosition;
 	float								m_volumeAdjust;
 	int									m_selectedAudioPlugin;
-	int									m_selectedCharEncoding;
+	CPsfTags::CHAR_ENCODING				m_selectedCharEncoding;
 	REPEAT_MODE							m_repeatMode;
 	bool								m_reverbEnabled;
 	uint32								m_randomSeed;

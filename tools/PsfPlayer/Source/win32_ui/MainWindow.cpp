@@ -58,7 +58,7 @@ CMainWindow::CHARENCODING_INFO CMainWindow::m_charEncodingInfo[] =
 	{	CPsfTags::CE_WINDOWS_1252,	_T("Windows 1252")		},
 	{	CPsfTags::CE_SHIFT_JIS,		_T("Shift-JIS")			},
 	{	CPsfTags::CE_UTF8,			_T("UTF-8")				},
-	{	NULL,						NULL					},
+	{	CPsfTags::CE_INVALID,		NULL					},
 };
 
 HHOOK	CMainWindow::g_messageFilterHook = NULL;
@@ -801,6 +801,7 @@ void CMainWindow::ChangeCharEncoding(unsigned int encodingIdx)
 {
 	CHARENCODING_INFO* encodingInfo = m_charEncodingInfo + encodingIdx;
 	m_selectedCharEncoding = encodingInfo->id;
+	m_playlistDiscoveryService.SetCharEncoding(encodingInfo->id);
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CHAR_ENCODING_ID, m_selectedCharEncoding);
 	UpdateCharEncodingMenu();
 }
@@ -808,24 +809,28 @@ void CMainWindow::ChangeCharEncoding(unsigned int encodingIdx)
 void CMainWindow::LoadCharEncodingPreferences()
 {
 	int charEncodingId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CHAR_ENCODING_ID);
-	int charEncodingIdx = FindCharEncoding(charEncodingId);
-	if(charEncodingIdx == -1)
+	auto charEncoding = FindCharEncoding(charEncodingId);
+	if(charEncoding == CPsfTags::CE_INVALID)
 	{
 		m_selectedCharEncoding = DEFAULT_CHAR_ENCODING_ID;
 	}
 	else
 	{
-		m_selectedCharEncoding = charEncodingId;
+		m_selectedCharEncoding = charEncoding;
 	}
+	m_playlistDiscoveryService.SetCharEncoding(m_selectedCharEncoding);
 }
 
-int CMainWindow::FindCharEncoding(unsigned int encodingId)
+CPsfTags::CHAR_ENCODING CMainWindow::FindCharEncoding(unsigned int encodingId)
 {
 	for(unsigned int i = 0; m_charEncodingInfo[i].name != NULL; i++)
 	{
-		if(m_charEncodingInfo[i].id == encodingId) return i;
+		if(m_charEncodingInfo[i].id == encodingId)
+		{
+			return m_charEncodingInfo[i].id;
+		}
 	}
-	return -1;
+	return CPsfTags::CE_INVALID;
 }
 
 HACCEL CMainWindow::CreateAccelerators()

@@ -14,6 +14,8 @@ public:
 									CPlaylistDiscoveryService();
 	virtual							~CPlaylistDiscoveryService();
 	
+	void							SetCharEncoding(const CPsfTags::CHAR_ENCODING&);
+
 	void							AddItemInRun(const CPsfPathToken& filePath, const boost::filesystem::path& archivePath, unsigned int itemId);
 	void							ResetRun();
 	void							ProcessPendingItems(CPlaylist&);
