@@ -80,8 +80,15 @@ bool CPlaylist::IsLoadableExtension(const std::string& extension)
 
 void CPlaylist::PopulateItemFromTags(ITEM& item, const CPsfTags& tags)
 {
-	item.title		= tags.GetTagValue("title");
-	item.length		= CPsfTags::ConvertTimeString(tags.GetTagValue("length").c_str());
+	if(tags.HasTag("title"))
+	{
+		item.title = tags.GetTagValue("title");
+	}
+	else
+	{
+		item.title = item.path;
+	}
+	item.length = CPsfTags::ConvertTimeString(tags.GetTagValue("length").c_str());
 }
 
 unsigned int CPlaylist::InsertArchive(const std::wstring& path)

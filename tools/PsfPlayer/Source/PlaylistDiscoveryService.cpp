@@ -66,8 +66,7 @@ void CPlaylistDiscoveryService::ProcessPendingItems(CPlaylist& playlist)
 				if(itemIdx != -1)
 				{
 					CPlaylist::ITEM item = playlist.GetItem(itemIdx);
-					item.title	= result.title;
-					item.length	= result.length;
+					CPlaylist::PopulateItemFromTags(item, result.tags);
 					playlist.UpdateItem(itemIdx, item);
 				}
 			}
@@ -95,22 +94,7 @@ void CPlaylistDiscoveryService::ThreadProc()
 				RESULT result;
 				result.runId = command.runId;
 				result.itemId = command.itemId;
-				result.length = 0;
-				
-				if(tags.HasTag("title"))
-				{
-					result.title = tags.GetTagValue("title");
-				}
-				else
-				{
-					result.title = command.filePath.GetWidePath();
-				}
-				
-				if(tags.HasTag("length"))
-				{
-					result.length = tags.ConvertTimeString(tags.GetTagValue("length").c_str());
-				}
-								
+				result.tags = tags;
 				pendingResults.push_back(result);
 			}
 			catch(...)

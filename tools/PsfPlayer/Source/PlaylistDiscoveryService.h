@@ -33,8 +33,7 @@ private:
 	{
 		unsigned int	runId;
 		unsigned int	itemId;
-		std::wstring	title;
-		double			length;
+		CPsfTags		tags;
 	};
 	
 	typedef std::deque<COMMAND> CommandQueue;
