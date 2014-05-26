@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 
 template <typename StringType>
 static StringType TimeToString(double time)

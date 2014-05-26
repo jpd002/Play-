@@ -3,6 +3,7 @@
 #import "SH_OpenAL.h"
 #import "ObjCMemberFunctionPointer.h"
 #import <boost/filesystem.hpp>
+#import <boost/lexical_cast.hpp>
 #import "string_cast.h"
 #import <AVFoundation/AVAudioSession.h>
 #import <MediaPlayer/MediaPlayer.h>
