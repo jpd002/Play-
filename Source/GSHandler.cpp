@@ -214,6 +214,11 @@ void CGSHandler::ResetVBlank()
 	m_nCSR ^= CSR_FIELD;
 }
 
+int CGSHandler::GetPendingTransferCount() const
+{
+	return m_transferCount;
+}
+
 bool CGSHandler::IsInterruptPending()
 {
 	uint32 mask = (~m_nIMR >> 8) & 0x1F;
@@ -380,6 +385,8 @@ void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
 
 void CGSHandler::FeedImageData(void* data, uint32 length)
 {
+	m_transferCount++;
+
 	uint8* buffer = new uint8[length];
 	memcpy(buffer, data, length);
 	m_mailBox.SendCall(std::bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
@@ -387,6 +394,8 @@ void CGSHandler::FeedImageData(void* data, uint32 length)
 
 void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count, const CGsPacketMetadata* metadata)
 {
+	m_transferCount++;
+
 	auto massiveWrite = reinterpret_cast<MASSIVEWRITE_INFO*>(malloc(sizeof(MASSIVEWRITE_INFO) + (count * sizeof(RegisterWrite))));
 	memcpy(massiveWrite->writes, writeList, sizeof(CGSHandler::RegisterWrite) * count);
 	massiveWrite->count = count;
@@ -490,6 +499,9 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 		CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_TrxCtx.nDirty);
 #endif
 	}
+
+	assert(m_transferCount != 0);
+	m_transferCount--;
 }
 
 void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
@@ -508,6 +520,9 @@ void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
 		writeIterator++;
 	}
 	free(massiveWrite);
+
+	assert(m_transferCount != 0);
+	m_transferCount--;
 }
 
 void CGSHandler::BeginTransfer()

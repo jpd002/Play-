@@ -325,7 +325,10 @@ uint32 CGIF::GetRegister(uint32 address)
 	switch(address)
 	{
 	case GIF_STAT:
-		result = 0;
+		if(m_gs->GetPendingTransferCount() != 0)
+		{
+			result |= GIF_STAT_APATH3;
+		}
 		break;
 	}
 #ifdef _DEBUG

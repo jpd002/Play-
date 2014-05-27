@@ -13,6 +13,11 @@ public:
 
 	enum
 	{
+		GIF_STAT_APATH3 = 0xC00,
+	};
+
+	enum
+	{
 		REGS_START	= 0x10003000,
 		REGS_END	= 0x100030B0,
 	};

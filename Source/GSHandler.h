@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Types.h"
-#include "Convertible.h"
 #include <thread>
-#include <boost/signals2.hpp>
 #include <vector>
 #include <functional>
+#include <atomic>
+#include <boost/signals2.hpp>
+
+#include "Types.h"
+#include "Convertible.h"
 #include "MailBox.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -508,6 +510,7 @@ public:
 	uint8*									GetRam();
 	uint64*									GetRegisters();
 
+	int										GetPendingTransferCount() const;
 	bool									IsInterruptPending();
 
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
@@ -678,6 +681,7 @@ protected:
 	unsigned int							m_nCrtMode;
 	std::thread								m_thread;
 	std::recursive_mutex					m_registerMutex;
+	std::atomic<int>						m_transferCount;
 	CMailBox								m_mailBox;
 	bool									m_threadDone;
 	CFrameDump*								m_frameDump;
