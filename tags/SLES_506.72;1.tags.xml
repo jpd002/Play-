@@ -3338,7 +3338,11 @@ D@" />
 " />
 		<tag address="00211798" value="@" />
 		<tag address="002117A0" value="@" />
+		<tag address="002119C0" value="system data" />
+		<tag address="002119D0" value="store rgb32 dest pointer" />
+		<tag address="002119D4" value="store macroblock count" />
 		<tag address="00211D5C" value="work area size is too small" />
+		<tag address="00211DB4" value="system data" />
 		<tag address="00211DD0" value="image buffer needs to be aligned to 64byte boundary(0x%08x)" />
 		<tag address="00212274" value="the second field is missing" />
 		<tag address="00212404" value="[MPEG ERROR]%s
@@ -3359,6 +3363,10 @@ D@" />
 		<tag address="002153D8" value="Too many macroblocks in picture" />
 		<tag address="00215578" value="skiped macroblock in I picure is not allowed" />
 		<tag address="00215634" value="Invalid macroblock_type code: 0" />
+		<tag address="00215E74" value="IPU_CTRL" />
+		<tag address="00215E7C" value="v1 = IPU busy status | Error code detected" />
+		<tag address="00215E84" value="Here if busy and no error" />
+		<tag address="00215EC8" value="Loop while busy and no error" />
 		<tag address="00216D38" value="load_chroma_intra_quantizer_matrix == 1" />
 		<tag address="00216D54" value="load_chroma_non_intra_quantizer_matrix == 1" />
 		<tag address="00216F50" value="odd number of field pictures" />
