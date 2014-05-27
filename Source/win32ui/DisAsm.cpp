@@ -557,6 +557,28 @@ long CDisAsm::OnKeyDown(WPARAM nKey, LPARAM)
 			Redraw();
 		}
 		break;
+	case VK_RIGHT:
+		if (m_selected != MIPS_INVALID_PC)
+		{
+			uint32 nOpcode = GetInstruction(m_selected);
+			if (m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
+			{
+				m_address = m_selected;		// Ensure history tracks where we came from
+				GotoEA();
+				SetSelectedAddress(m_address);
+			}
+			else if (HistoryHasNext()){
+				HistoryGoForward();
+				SetSelectedAddress(m_address);
+			}
+		}
+		break;
+	case VK_LEFT:
+		if (HistoryHasPrevious()){
+			HistoryGoBack();
+			SetSelectedAddress(m_address);
+		}
+		break;
 	}
 	return TRUE;
 }
