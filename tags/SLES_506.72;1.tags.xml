@@ -20,6 +20,7 @@
 		<tag address="001401A8" value="FixupVif" />
 		<tag address="00140208" value="FixupTex" />
 		<tag address="00140EB0" value="drawSprite" />
+		<tag address="00142010" value="uploadLevelTexture" />
 		<tag address="00142A08" value="processWorld" />
 		<tag address="001435D0" value="addTexToList" />
 		<tag address="001437E8" value="FixupFnt" />
@@ -928,6 +929,7 @@ D@" />
 		<tag address="0014199C" value="tiletopright.tex" />
 		<tag address="00141A00" value="tilebotleft.tex" />
 		<tag address="00141A44" value="tilebotright.tex" />
+		<tag address="00142068" value="Read T0_COUNT" />
 		<tag address="00145B74" value="Actual Size" />
 		<tag address="00145B88" value="%d tri" />
 		<tag address="00146090" value="./%s" />
@@ -3141,10 +3143,13 @@ D@" />
 		<tag address="00202ED0" value="gauntletSecLeft" />
 		<tag address="002031A8" value="burneye" />
 		<tag address="00203238" value="tavern" />
+		<tag address="0020347C" value="Read TIMER0 COUNT" />
+		<tag address="00203488" value="Reset TIMER0 COUNT" />
 		<tag address="002035FC" value="langmenu.lmp" />
 		<tag address="00203604" value="langmenu.tex" />
 		<tag address="00203630" value="hud.lmp" />
 		<tag address="00203638" value="menulong.tex" />
+		<tag address="002038B8" value="Reset timer 0" />
 		<tag address="00203F40" value="VBL_SEMA" />
 		<tag address="00203F78" value="frameCounter" />
 		<tag address="00203FE0" value=" " />
