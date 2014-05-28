@@ -133,6 +133,7 @@ void CGSHandler::ResetBase()
 	m_nCrtMode = 2;
 	m_nCBP0	= 0;
 	m_nCBP1	= 0;
+	m_transferCount = 0;
 }
 
 void CGSHandler::ResetImpl()
@@ -472,32 +473,33 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 #ifdef _DEBUG
 		CLog::GetInstance().Print(LOG_NAME, "Warning. Received image data when no transfer was expected.\r\n");
 #endif
-		return;
 	}
-
-	if(m_TrxCtx.nSize < nLength)
+	else
 	{
-		nLength = m_TrxCtx.nSize;
-		//assert(0);
-		//return;
-	}
+		if(m_TrxCtx.nSize < nLength)
+		{
+			nLength = m_TrxCtx.nSize;
+			//assert(0);
+			//return;
+		}
 
-	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-	m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[bltBuf.nDstPsm]))(pData, nLength);
+		m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[bltBuf.nDstPsm]))(pData, nLength);
 
-	m_TrxCtx.nSize -= nLength;
+		m_TrxCtx.nSize -= nLength;
 
-	if(m_TrxCtx.nSize == 0)
-	{
-		TRXREG trxReg;
-		trxReg <<= m_nReg[GS_REG_TRXREG];
-		uint32 nSize = (bltBuf.GetDstWidth() * trxReg.nRRH * GetPsmPixelSize(bltBuf.nDstPsm)) / 8;
-		ProcessImageTransfer(bltBuf.GetDstPtr(), nSize, m_TrxCtx.nDirty);
+		if(m_TrxCtx.nSize == 0)
+		{
+			TRXREG trxReg;
+			trxReg <<= m_nReg[GS_REG_TRXREG];
+			uint32 nSize = (bltBuf.GetDstWidth() * trxReg.nRRH * GetPsmPixelSize(bltBuf.nDstPsm)) / 8;
+			ProcessImageTransfer(bltBuf.GetDstPtr(), nSize, m_TrxCtx.nDirty);
 
 #ifdef _DEBUG
-		CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_TrxCtx.nDirty);
+			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_TrxCtx.nDirty);
 #endif
+		}
 	}
 
 	assert(m_transferCount != 0);
