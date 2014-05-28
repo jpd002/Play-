@@ -26,6 +26,8 @@ void CPsfFs::ReadFile(Framework::CStream& stream, FILE& file)
 {
 	//Read size table
 	unsigned int sizeTableEntryCount = (file.size + file.blockSize - 1) / file.blockSize;
+	if(sizeTableEntryCount == 0) return;
+
 	uint32* sizeTable = reinterpret_cast<uint32*>(alloca(sizeTableEntryCount * sizeof(uint32)));
 	stream.Read(sizeTable, sizeof(uint32) * sizeTableEntryCount);
 
