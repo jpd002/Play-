@@ -68,7 +68,11 @@ std::string CStdio::PrintFormatted(CArgumentIterator& args)
 			while(!paramDone && *format != 0) 
 			{
 				char type = *(format++);
-				if(type == 's')
+				if (type == '%'){
+					output += type;
+					paramDone = true;
+				}
+				else if(type == 's')
 				{
 					const char* text = reinterpret_cast<const char*>(&m_ram[args.GetNext()]);
 					output += text;
