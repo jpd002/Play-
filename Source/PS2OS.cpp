@@ -2075,7 +2075,7 @@ void CPS2OS::sc_ReferSemaStatus()
 	SEMAPHOREPARAM* pSemaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
 
 	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema->nValid)
+	if(nullptr == pSema || !pSema->nValid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
