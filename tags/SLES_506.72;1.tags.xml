@@ -217,6 +217,12 @@
 		<tag address="002119A8" value="sceMpegGetPicture" />
 		<tag address="00211AC0" value="sceMpegIsEnd" />
 		<tag address="00211AE0" value="sceMpegReset" />
+		<tag address="00211BB0" value="mpeg_invoke_callback" />
+		<tag address="00211C00" value="mpeg_invoke_nodata_cb" />
+		<tag address="002123F8" value="log_mpeg_error" />
+		<tag address="00212438" value="notify_mpeg_error" />
+		<tag address="00212490" value="setMpegDMA4" />
+		<tag address="00216290" value="mpegIssueBDEC" />
 		<tag address="00224A80" value="FailAssert" />
 		<tag address="00225A88" value="memset" />
 		<tag address="00225B98" value="logString" />
@@ -3356,13 +3362,38 @@ D@" />
 		<tag address="002119C0" value="system data" />
 		<tag address="002119D0" value="store rgb32 dest pointer" />
 		<tag address="002119D4" value="store macroblock count" />
+		<tag address="00211BC0" value="a2 = mpeg system data" />
+		<tag address="00211BE4" value="invoke callback" />
 		<tag address="00211D5C" value="work area size is too small" />
+		<tag address="00211D94" value="s4 = 1" />
+		<tag address="00211D9C" value="s3 = 0" />
+		<tag address="00211DA4" value="s2 = mpegDecodeData" />
 		<tag address="00211DB4" value="system data" />
+		<tag address="00211DB8" value="rgb dest" />
+		<tag address="00211DC4" value="system_data.0 = 0" />
 		<tag address="00211DD0" value="image buffer needs to be aligned to 64byte boundary(0x%08x)" />
+		<tag address="00211DE0" value="0x00300d80 = 0" />
+		<tag address="00211E28" value="0x31fb80 = function table, 5 entries" />
+		<tag address="00211E34" value="call function[s4]" />
 		<tag address="00212274" value="the second field is missing" />
 		<tag address="00212404" value="[MPEG ERROR]%s
 " />
+		<tag address="00212470" value="error callback" />
+		<tag address="00212498" value="v1 = 64d600" />
+		<tag address="002124A8" value="t3 = uncached 64d600" />
+		<tag address="002124AC" value="t0 = bs length" />
+		<tag address="002124B4" value="t2 = bitstream" />
+		<tag address="002124C0" value="t1 = 0x000fff40 .. maximum DMA packet size" />
+		<tag address="002124D8" value="a3 = bytes for this packet" />
+		<tag address="002124EC" value="reduce the number of bytes left" />
+		<tag address="00212520" value="keep going while bytes remain" />
+		<tag address="00212524" value="next tag" />
+		<tag address="00212544" value="D4_TADR = 0x0064d600" />
+		<tag address="00212550" value="D4_QWC = 0" />
+		<tag address="00212560" value="D4_CHCR = start source chain" />
 		<tag address="002125FC" value="vertical size &gt; 2800" />
+		<tag address="00212B40" value="call stop dma callback" />
+		<tag address="00212BB4" value="call restart dma callback" />
 		<tag address="00212C40" value="_chroma_format needs to be 1: 420" />
 		<tag address="00212CB8" value="Unsupported profile/level" />
 		<tag address="00212EF4" value="Invalid modion type -- ignored(%d)" />
@@ -3371,7 +3402,10 @@ D@" />
 		<tag address="002137F4" value="(c) invalid motion_type(%d)-2" />
 		<tag address="00213BC0" value="P&gt;!" />
 		<tag address="00213D14" value="intra &amp;&amp; skip MB" />
+		<tag address="00214C54" value="no data callback" />
 		<tag address="00214D00" value="Error code detected(BDEC)" />
+		<tag address="00214D18" value="stop dma callback" />
+		<tag address="00214D38" value="restart dma callback" />
 		<tag address="00215180" value="= Skip to the next picture =" />
 		<tag address="0021520C" value="slice_start_code(0x%08x) out of range" />
 		<tag address="00215248" value="_sliceA0(): error happens" />
@@ -3382,12 +3416,38 @@ D@" />
 		<tag address="00215E7C" value="v1 = IPU busy status | Error code detected" />
 		<tag address="00215E84" value="Here if busy and no error" />
 		<tag address="00215EC8" value="Loop while busy and no error" />
+		<tag address="00215F10" value="a0 = IPU_CMD" />
+		<tag address="00215F14" value="exit if idle" />
+		<tag address="00215F24" value="v1 = IPU_CTRL" />
+		<tag address="00215F2C" value="exit if error" />
+		<tag address="00215F54" value="call 211c00 every 5000 loops" />
+		<tag address="00215F60" value="a0 = sce_mpeg_struct" />
+		<tag address="00215F68" value="IPU_CMD" />
+		<tag address="00215F7C" value="loop whilst busy and no error" />
+		<tag address="002162B4" value="s1 = - BP offset into byte" />
+		<tag address="002162C4" value="v1 = IPU_CTRL" />
+		<tag address="002162D4" value="if (IPU_CTRL &amp; 0x80004000 ==0x8000000)" />
+		<tag address="002162D8" value="i.e. IPU busy but no error" />
+		<tag address="00216334" value="here if IPU idle or error" />
+		<tag address="00216350" value="IPU_CMD = BDEC" />
+		<tag address="00216358" value="v1 = 0x00300e08" />
+		<tag address="00216528" value="v1 = IPU_BP" />
+		<tag address="0021652C" value="v1 = bit position in byte" />
+		<tag address="00216538" value="branch if bit position is 0" />
+		<tag address="002166B4" value="timestamp callback" />
 		<tag address="00216D38" value="load_chroma_intra_quantizer_matrix == 1" />
 		<tag address="00216D54" value="load_chroma_non_intra_quantizer_matrix == 1" />
 		<tag address="00216F50" value="odd number of field pictures" />
 		<tag address="00216FB8" value="unknown picture sutructure" />
 		<tag address="002174FC" value="Too small buffer size for %dx%d picture
 " />
+		<tag address="00217BEC" value="spin until IPU idle" />
+		<tag address="00217C14" value="D3_QWC" />
+		<tag address="00217C48" value="background callback" />
+		<tag address="00217C58" value="D3_CHCR" />
+		<tag address="00217C6C" value="wait until D3 idle" />
+		<tag address="00217C80" value="IPU_CTRL" />
+		<tag address="00217C94" value="wait until IPU idle" />
 		<tag address="00217EB0" value="CSC handler error
 " />
 		<tag address="00218E7C" value="fmodf" />
