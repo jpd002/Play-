@@ -68,7 +68,8 @@ std::string CStdio::PrintFormatted(CArgumentIterator& args)
 			while(!paramDone && *format != 0) 
 			{
 				char type = *(format++);
-				if (type == '%'){
+				if(type == '%')
+				{
 					output += type;
 					paramDone = true;
 				}
