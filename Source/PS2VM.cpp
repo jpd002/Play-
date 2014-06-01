@@ -1205,7 +1205,13 @@ void CPS2VM::EmuThread()
 				}
 				if(!m_EE.m_State.nHasException)
 				{
-					if(m_intc.IsInterruptPending())
+					if(
+						m_intc.IsInterruptPending()
+#ifdef DEBUGGER_INCLUDED
+						&& !m_singleStepEe
+						&& !m_executor.MustBreak()
+#endif
+						)
 					{
 						m_os->ExceptionHandler();
 					}
