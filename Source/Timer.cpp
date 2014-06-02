@@ -58,11 +58,12 @@ void CTimer::Count(unsigned int ticks)
 		nextCount = previousCount + countAdd;
 
 		uint32 compare = (timer->nCOMP == 0) ? 0x10000 : timer->nCOMP;
+		uint32 newFlags = 0;
 
 		//Check if it hit the reference value
 		if((previousCount < compare) && (nextCount >= compare))
 		{
-			timer->nMODE |= MODE_EQUAL_FLAG;
+			newFlags |= MODE_EQUAL_FLAG;
 			if(timer->nMODE & MODE_ZERO_RETURN)
 			{
 				timer->nCOUNT = nextCount - compare;
@@ -79,22 +80,16 @@ void CTimer::Count(unsigned int ticks)
 
 		if(timer->nCOUNT >= 0xFFFF)
 		{
-			timer->nMODE |= MODE_OVERFLOW_FLAG;
+			newFlags |= MODE_OVERFLOW_FLAG;
 			timer->nCOUNT &= 0xFFFF;
 		}
+		timer->nMODE |= newFlags;
 
 		uint32 nMask = (timer->nMODE & 0x300) << 2;
-		bool interruptPending = (timer->nMODE & nMask) != 0;
+		bool interruptPending = (newFlags & nMask) != 0;
 		if(interruptPending)
 		{
-			if(i == 1)
-			{
-				m_intc.AssertLine(CINTC::INTC_LINE_TIMER1);
-			}
-			else if(i == 2)
-			{
-				m_intc.AssertLine(CINTC::INTC_LINE_TIMER2);
-			}
+			m_intc.AssertLine(CINTC::INTC_LINE_TIMER0 + i);
 		}
 	}
 }
