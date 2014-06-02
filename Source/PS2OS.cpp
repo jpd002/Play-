@@ -46,8 +46,10 @@
 // 0x1FC03000	0x1FC03100		Thread epilogue
 // 0x1FC03100	0x1FC03200		Wait Thread Proc
 
-#define BIOS_ADDRESS_BASE			0x1FC00000
-#define BIOS_ADDRESS_WAITTHREADPROC	0x1FC03100
+#define BIOS_ADDRESS_KERNELSTACK_TOP	0x00030000
+
+#define BIOS_ADDRESS_BASE				0x1FC00000
+#define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 
 #define CONFIGPATH		"./config/"
 #define PATCHESFILENAME	"patches.xml"
@@ -152,9 +154,6 @@ CPS2OS::~CPS2OS()
 void CPS2OS::Initialize()
 {
 	m_pELF = NULL;
-
-	m_ee.m_State.nGPR[CMIPS::K0].nV[0] = 0x80030000;
-	m_ee.m_State.nGPR[CMIPS::K0].nV[1] = 0xFFFFFFFF;
 
 	m_pThreadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
 
@@ -654,6 +653,7 @@ void CPS2OS::AssembleInterruptHandler()
 	const uint32 stackFrameSize = 0x210;
 
 	//Epilogue (allocate stackFrameSize bytes)
+	Asm.LI(CMIPS::K0, BIOS_ADDRESS_KERNELSTACK_TOP);
 	Asm.ADDIU(CMIPS::K0, CMIPS::K0, 0x10000 - stackFrameSize);
 	
 	//Save context
@@ -731,6 +731,9 @@ void CPS2OS::AssembleInterruptHandler()
 	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER2);
 	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER3);
 
+	//Move back SP into K0 before restoring state
+	Asm.ADDIU(CMIPS::K0, CMIPS::SP, CMIPS::R0);
+
 	//Restore EPC
 	Asm.LW(CMIPS::T0, 0x0200, CMIPS::K0);
 	Asm.MTC0(CMIPS::T0, CCOP_SCU::EPC);
@@ -742,7 +745,6 @@ void CPS2OS::AssembleInterruptHandler()
 	}
 
 	//Prologue
-	Asm.ADDIU(CMIPS::K0, CMIPS::K0, stackFrameSize);
 	Asm.ERET();
 }
 
