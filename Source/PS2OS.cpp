@@ -729,6 +729,7 @@ void CPS2OS::AssembleInterruptHandler()
 	generateIntHandler(Asm, CINTC::INTC_LINE_VBLANK_END);
 	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER1);
 	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER2);
+	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER3);
 
 	//Restore EPC
 	Asm.LW(CMIPS::T0, 0x0200, CMIPS::K0);
@@ -2151,10 +2152,45 @@ void CPS2OS::sc_SetVSyncFlag()
 //74
 void CPS2OS::sc_SetSyscall()
 {
-	uint8 nNumber	= static_cast<uint8>(m_ee.m_State.nGPR[SC_PARAM0].nV[0] & 0xFF);
-	uint32 nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 number = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 address = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	GetCustomSyscallTable()[nNumber]	= nAddress;
+	if(number < 0x100)
+	{
+		GetCustomSyscallTable()[number] = address;
+	}
+	else if(number == 0x12C)
+	{
+		//This syscall doesn't do any bounds checking and it's possible to
+		//set INTC handler for timer 3 through this system call (a particular version of libcdvd does this)
+		//My guess is that the BIOS doesn't process custom INTC handlers for INT12 (timer 3) and the
+		//only way to have an handler placed on that interrupt line is to do that trick.
+
+		unsigned int line = 12;
+
+		uint32 handlerId = GetNextAvailableIntcHandlerId();
+		if(handlerId == 0xFFFFFFFF)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "Couldn't set INTC handler through SetSyscall");
+			return;
+		}
+
+		INTCHANDLER* pHandler = GetIntcHandler(handlerId);
+		pHandler->nValid	= 1;
+		pHandler->nAddress	= address & 0x1FFFFFFF;
+		pHandler->nCause	= line;
+		pHandler->nArg		= 0;
+		pHandler->nGP		= 0;
+
+		if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & (1 << line)))
+		{
+			m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, (1 << line));
+		}
+	}
+	else
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Unknown syscall set.", number);
+	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
