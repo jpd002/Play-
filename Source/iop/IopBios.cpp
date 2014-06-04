@@ -706,7 +706,28 @@ void CIopBios::DelayThreadTicks(uint32 delay)
 
 uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 {
-	uint32 alarmThreadId = CreateThread(m_alarmThreadProcAddress, 1, DEFAULT_STACKSIZE, 0);
+	uint32 alarmThreadId = -1;
+
+	//Find a thread we could recycle for a new alarm
+	for(auto threadIterator = m_threads.Begin();
+		threadIterator != m_threads.End(); threadIterator++)
+	{
+		const auto& thread(m_threads[threadIterator]);
+		if(thread == nullptr) continue;
+		if(thread->threadProc != m_alarmThreadProcAddress) continue;
+		if(thread->status == THREAD_STATUS_DORMANT)
+		{
+			alarmThreadId = thread->id;
+			break;
+		}
+	}
+
+	//If no threads are available, create a new one
+	if(alarmThreadId == -1)
+	{
+		alarmThreadId = CreateThread(m_alarmThreadProcAddress, 1, DEFAULT_STACKSIZE, 0);
+	}
+
 	StartThread(alarmThreadId);
 
 	auto thread = GetThread(alarmThreadId);
