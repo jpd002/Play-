@@ -232,6 +232,11 @@
 		<tag address="00216158" value="mpeg_peek_bits" />
 		<tag address="00216290" value="mpeg_skip_bits" />
 		<tag address="002163A8" value="mpeg_read_bits" />
+		<tag address="00216510" value="mpeg_find_header_prefix" />
+		<tag address="002165E8" value="mpeg_process_headers" />
+		<tag address="00216710" value="mpeg_process_picture_header" />
+		<tag address="002167E0" value="mpeg_process_extension_sequences" />
+		<tag address="00216AC0" value="skip_extra_bit_data" />
 		<tag address="00218068" value="sceIpuStopDMA" />
 		<tag address="002181E8" value="sceIpuRestartDMA" />
 		<tag address="00218420" value="sceIpuInit" />
@@ -3381,12 +3386,15 @@ D@" />
 		<tag address="00211724" value="D4_QWC = 0" />
 		<tag address="00211798" value="@" />
 		<tag address="002117A0" value="@" />
+		<tag address="00211814" value="set default dma stop callback" />
+		<tag address="00211980" value="a0 = bitstream" />
+		<tag address="00211998" value="300f48 = bitstream" />
+		<tag address="0021199C" value="300600 = bitstream length" />
 		<tag address="002119C0" value="system data" />
 		<tag address="002119D0" value="store rgb32 dest pointer" />
 		<tag address="002119D4" value="store macroblock count" />
 		<tag address="00211BC0" value="a2 = mpeg system data" />
 		<tag address="00211BE4" value="invoke callback" />
-		<tag address="00211814" value="set default dma stop callback" />
 		<tag address="00211D5C" value="work area size is too small" />
 		<tag address="00211D94" value="s4 = 1" />
 		<tag address="00211D9C" value="s3 = 0" />
@@ -3396,12 +3404,13 @@ D@" />
 		<tag address="00211DC4" value="system_data.0 = 0" />
 		<tag address="00211DD0" value="image buffer needs to be aligned to 64byte boundary(0x%08x)" />
 		<tag address="00211DE0" value="0x00300d80 = 0" />
-		<tag address="00211E28" value="0x31fb80 = function table, 5 entries" />
-		<tag address="00211E34" value="switch(s4)" />
+		<tag address="00211E00" value="s4 = frame type" />
+		<tag address="00211E28" value="0x31fb80 = frame type function table, 5 entries" />
+		<tag address="00211E34" value="switch(frame_type)" />
 		<tag address="00211E3C" value="case 0" />
-		<tag address="00211E50" value="case 1" />
-		<tag address="00211E80" value="case 2" />
-		<tag address="00211EA4" value="case 4,5" />
+		<tag address="00211E50" value="case 1 - I frame" />
+		<tag address="00211E80" value="case 2 - P frame" />
+		<tag address="00211EA4" value="case 3, 4 B,D frame" />
 		<tag address="00212274" value="the second field is missing" />
 		<tag address="00212404" value="[MPEG ERROR]%s
 " />
@@ -3419,17 +3428,17 @@ D@" />
 		<tag address="00212550" value="D4_QWC = 0" />
 		<tag address="00212560" value="D4_CHCR = start source chain" />
 		<tag address="002125FC" value="vertical size &gt; 2800" />
-		<tag address="00212B40" value="call stop dma callback" />
-		<tag address="00212BB4" value="call restart dma callback" />
 		<tag address="00212654" value="SETIQ" />
 		<tag address="0021266C" value="SETIQ command" />
 		<tag address="00212674" value="IQ data = 300580" />
 		<tag address="00212B38" value="stop DMA callback" />
+		<tag address="00212B40" value="call stop dma callback" />
 		<tag address="00212B58" value="Issue BCLR" />
 		<tag address="00212B74" value="D4_MADR = arg1" />
 		<tag address="00212B84" value="D4_QWC = 4" />
 		<tag address="00212B98" value="D4_CHCR = start normal from memory" />
 		<tag address="00212BAC" value="restart DMA callback" />
+		<tag address="00212BB4" value="call restart dma callback" />
 		<tag address="00212C40" value="_chroma_format needs to be 1: 420" />
 		<tag address="00212CB8" value="Unsupported profile/level" />
 		<tag address="00212EF4" value="Invalid modion type -- ignored(%d)" />
@@ -3489,13 +3498,28 @@ D@" />
 		<tag address="002164D0" value="s0 = left most bits requested" />
 		<tag address="002164DC" value="300524 = 300e08 table entry" />
 		<tag address="002164EC" value="300d98 (mpegBitsBuffer) = bits read" />
-		<tag address="00216510" value="mpeg_find_header_prefix" />
 		<tag address="00216528" value="v1 = IPU_BP" />
 		<tag address="0021652C" value="v1 = bit position in byte" />
 		<tag address="00216538" value="branch if bit position is 0" />
 		<tag address="00216604" value="sequence header code" />
 		<tag address="00216644" value="read 32 bits" />
+		<tag address="0021664C" value="branch if sequence header" />
+		<tag address="0021665C" value="branch if picture header" />
+		<tag address="00216664" value="unknown header, so ignore" />
+		<tag address="0021666C" value="branch if sequence end" />
+		<tag address="00216674" value="branch if group of pictures" />
 		<tag address="002166B4" value="timestamp callback" />
+		<tag address="002166D8" value="return frame type (30067c)" />
+		<tag address="00216734" value="300678 = temperal sequence number" />
+		<tag address="00216744" value="30067c = frame type" />
+		<tag address="00216754" value="300680 = VBV delay" />
+		<tag address="00216864" value="v1 = header" />
+		<tag address="00216874" value="loop if extension header" />
+		<tag address="0021687C" value="loop if user data" />
+		<tag address="00216B00" value="v1 = frame type (30067c)" />
+		<tag address="00216B04" value="branch if B frame" />
+		<tag address="00216B10" value="a0 = temperal sequence num (300678)" />
+		<tag address="00216B8C" value="a0 = temperal sequence number" />
 		<tag address="00216D38" value="load_chroma_intra_quantizer_matrix == 1" />
 		<tag address="00216D54" value="load_chroma_non_intra_quantizer_matrix == 1" />
 		<tag address="00216F50" value="odd number of field pictures" />
@@ -3511,27 +3535,6 @@ D@" />
 		<tag address="00217C94" value="wait until IPU idle" />
 		<tag address="00217EB0" value="CSC handler error
 " />
-		<tag address="00218484" value="D_ENABLEW - disable all DMA" />
-		<tag address="0021849C" value="IPU_CTRL = 0x40000000 = reset" />
-		<tag address="002184BC" value="wait until IPU is idle" />
-		<tag address="002184D4" value="IPU_CMD = BCLR" />
-		<tag address="002184EC" value="wait until IPU is idle" />
-		<tag address="002184FC" value="a1 = 0x00300ee0 = SETIQ data" />
-		<tag address="00218500" value="a0 = FIFO in write" />
-		<tag address="00218558" value="SETIQ command" />
-		<tag address="00218574" value="wait until idle" />
-		<tag address="0021858C" value="SETIQ command (non-intra)" />
-		<tag address="002185AC" value="wait until idle" />
-		<tag address="002185BC" value="v1 = 0x00300f30 = default VQ" />
-		<tag address="002185C0" value="a0 = IPU_in_FIFO write" />
-		<tag address="002185E8" value="SETVQ command" />
-		<tag address="00218604" value="wait until idle" />
-		<tag address="0021861C" value="CMD = SETTH" />
-		<tag address="0021863C" value="wait until idle" />
-		<tag address="00218654" value="IPU_CTRL = reset" />
-		<tag address="00218674" value="wait until idle" />
-		<tag address="0021868C" value="BCLR command" />
-		<tag address="002186A4" value="wait until idle" />
 		<tag address="002180E4" value="a1 = D4_MADR" />
 		<tag address="002180F4" value="store D4_MADR" />
 		<tag address="002180FC" value="v0 = D4_TADR" />
@@ -3555,6 +3558,27 @@ D@" />
 		<tag address="002181FC" value="v0 = fp" />
 		<tag address="00218208" value="a1 = saved D4_MADR" />
 		<tag address="00218210" value="a2 = saved D3_MADR" />
+		<tag address="00218484" value="D_ENABLEW - disable all DMA" />
+		<tag address="0021849C" value="IPU_CTRL = 0x40000000 = reset" />
+		<tag address="002184BC" value="wait until IPU is idle" />
+		<tag address="002184D4" value="IPU_CMD = BCLR" />
+		<tag address="002184EC" value="wait until IPU is idle" />
+		<tag address="002184FC" value="a1 = 0x00300ee0 = SETIQ data" />
+		<tag address="00218500" value="a0 = FIFO in write" />
+		<tag address="00218558" value="SETIQ command" />
+		<tag address="00218574" value="wait until idle" />
+		<tag address="0021858C" value="SETIQ command (non-intra)" />
+		<tag address="002185AC" value="wait until idle" />
+		<tag address="002185BC" value="v1 = 0x00300f30 = default VQ" />
+		<tag address="002185C0" value="a0 = IPU_in_FIFO write" />
+		<tag address="002185E8" value="SETVQ command" />
+		<tag address="00218604" value="wait until idle" />
+		<tag address="0021861C" value="CMD = SETTH" />
+		<tag address="0021863C" value="wait until idle" />
+		<tag address="00218654" value="IPU_CTRL = reset" />
+		<tag address="00218674" value="wait until idle" />
+		<tag address="0021868C" value="BCLR command" />
+		<tag address="002186A4" value="wait until idle" />
 		<tag address="00218E7C" value="fmodf" />
 		<tag address="0021D918" value="#" />
 		<tag address="00221610" value="2" />
