@@ -157,6 +157,12 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A2].nV0
 			));
 		break;
+	case 37:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CancelAlarm(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			));
+		break;
 	case 39:
 		USecToSysClock(
 			context.m_State.nGPR[CMIPS::A0].nV0,
@@ -257,6 +263,15 @@ uint32 CThbase::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 		m_bios.GetCurrentThreadId(), timePtr, alarmFunction, param);
 #endif
 	return m_bios.SetAlarm(timePtr, alarmFunction, param);
+}
+
+uint32 CThbase::CancelAlarm(uint32 alarmFunction, uint32 param)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : CancelAlarm(alarmFunction = 0x%0.8X, param = 0x%0.8X);\r\n",
+		m_bios.GetCurrentThreadId(), alarmFunction, param);
+#endif
+	return m_bios.CancelAlarm(alarmFunction, param);
 }
 
 void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)

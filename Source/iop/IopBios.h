@@ -136,6 +136,7 @@ public:
 	void						DelayThread(uint32);
 	void						DelayThreadTicks(uint32);
 	uint32						SetAlarm(uint32, uint32, uint32);
+	uint32						CancelAlarm(uint32, uint32);
 	THREAD*						GetThread(uint32);
 	uint32						GetCurrentThreadId() const;
 	void						ChangeThreadPriority(uint32, uint32);
