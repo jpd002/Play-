@@ -721,7 +721,8 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 
 	thread->context.gpr[CMIPS::A0] = thread->context.gpr[CMIPS::SP];
 
-	return alarmThreadId;
+	//Returns negative value on failure
+	return 0;
 }
 
 void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
