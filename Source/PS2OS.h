@@ -39,8 +39,10 @@ public:
 
 	uint32										LoadExecutable(const char*, const char*);
 
-	void										ExceptionHandler();
-	void										SysCallHandler();
+	void										HandleInterrupt();
+	void										HandleSyscall();
+	void										HandleReturnFromException();
+
 	static uint32								TranslateAddress(CMIPS*, uint32);
 
 	boost::signals2::signal<void ()>			OnExecutableChange;

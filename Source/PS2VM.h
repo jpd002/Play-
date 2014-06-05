@@ -144,6 +144,7 @@ private:
 
 	void						EEMemWriteHandler(uint32);
 	void						ReadToEeRam(uint32, uint32);
+	void						CheckPendingEeInterrupts();
 
 	void						FlushInstructionCache();
 	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);

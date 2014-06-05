@@ -1060,6 +1060,23 @@ void CPS2VM::ReadToEeRam(uint32 address, uint32 size)
 	m_executor.ClearActiveBlocksInRange(address, address + size);
 }
 
+void CPS2VM::CheckPendingEeInterrupts()
+{
+	if(!m_EE.m_State.nHasException)
+	{
+		if(
+			m_intc.IsInterruptPending()
+#ifdef DEBUGGER_INCLUDED
+			&& !m_singleStepEe
+			&& !m_executor.MustBreak()
+#endif
+			)
+		{
+			m_os->HandleInterrupt();
+		}
+	}
+}
+
 void CPS2VM::FlushInstructionCache()
 {
 	m_executor.Reset();
@@ -1111,7 +1128,7 @@ int CPS2VM::ExecuteEe(int quota)
 		switch(m_EE.m_State.nHasException)
 		{
 		case MIPS_EXCEPTION_SYSCALL:
-			m_os->SysCallHandler();
+			m_os->HandleSyscall();
 			break;
 		case MIPS_EXCEPTION_CALLMS:
 			assert(m_EE.m_State.callMsEnabled);
@@ -1124,16 +1141,20 @@ int CPS2VM::ExecuteEe(int quota)
 				memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
 				memcpy(&m_VU0.m_State.nCOP2VI,	&m_EE.m_State.nCOP2VI,	sizeof(m_VU0.m_State.nCOP2VI));
 				m_vif.StartVu0MicroProgram(m_EE.m_State.callMsAddr);
-				m_EE.m_State.nHasException = 0;
+				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
 			}
 			break;
 		case MIPS_EXCEPTION_CHECKPENDINGINT:
 			{
 				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-				if(m_intc.IsInterruptPending())
-				{
-					m_os->ExceptionHandler();
-				}
+				CheckPendingEeInterrupts();
+			}
+			break;
+		case MIPS_EXCEPTION_RETURNFROMEXCEPTION:
+			{
+				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
+				m_os->HandleReturnFromException();
+				CheckPendingEeInterrupts();
 			}
 			break;
 		default:
@@ -1205,19 +1226,7 @@ void CPS2VM::EmuThread()
 						m_sif.ProcessPackets();
 					}
 				}
-				if(!m_EE.m_State.nHasException)
-				{
-					if(
-						m_intc.IsInterruptPending()
-#ifdef DEBUGGER_INCLUDED
-						&& !m_singleStepEe
-						&& !m_executor.MustBreak()
-#endif
-						)
-					{
-						m_os->ExceptionHandler();
-					}
-				}
+				CheckPendingEeInterrupts();
 
 				//Check vblank stuff
 				if(m_vblankTicks <= 0)

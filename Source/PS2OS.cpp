@@ -1202,11 +1202,15 @@ CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 nID)
 	return &((DECI2HANDLER*)&m_ram[0x00008000])[nID];
 }
 
-void CPS2OS::ExceptionHandler()
+void CPS2OS::HandleInterrupt()
 {
 	m_semaWaitCount = 0;
-	ThreadShakeAndBake();
 	m_ee.GenerateInterrupt(0x1FC00200);
+}
+
+void CPS2OS::HandleReturnFromException()
+{
+	ThreadShakeAndBake();
 }
 
 uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrLO)
@@ -2344,7 +2348,7 @@ void CPS2OS::sc_GetMemorySize()
 //System Call Handler
 //////////////////////////////////////////////////
 
-void CPS2OS::SysCallHandler()
+void CPS2OS::HandleSyscall()
 {
 #ifdef PROFILE
 	CProfilerZone profilerZone(PROFILE_OTHERZONE);

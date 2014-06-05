@@ -165,6 +165,10 @@ void CCOP_SCU::ERET()
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 	}
 	m_codeGen->EndIf();
+
+	//Force the main loop to do special processing
+	m_codeGen->PushCst(MIPS_EXCEPTION_RETURNFROMEXCEPTION);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 
 //38

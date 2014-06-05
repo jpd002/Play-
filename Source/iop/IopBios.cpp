@@ -1614,6 +1614,8 @@ uint32 CIopBios::AssembleAlarmThreadProc(CMIPSAssembler& assembler)
 
 void CIopBios::HandleException()
 {
+	assert(m_cpu.m_State.nHasException == MIPS_EXCEPTION_SYSCALL);
+
 	m_rescheduleNeeded = false;
 
 	uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
