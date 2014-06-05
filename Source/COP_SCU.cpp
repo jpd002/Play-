@@ -144,7 +144,7 @@ void CCOP_SCU::ERET()
 	{
 		//ERL bit was set
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[ERROREPC]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 		//Clear ERL bit
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
@@ -156,7 +156,7 @@ void CCOP_SCU::ERET()
 	{
 		//EXL bit was set
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[EPC]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 		//Clear EXL bit
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
