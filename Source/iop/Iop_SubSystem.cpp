@@ -249,14 +249,15 @@ bool CSubSystem::IsCpuIdle()
 
 void CSubSystem::CountTicks(int ticks)
 {
+	static int g_dmaUpdateDelay = 10000;
 	m_counters.Update(ticks);
 	m_bios->CountTicks(ticks);
 	m_dmaUpdateTicks += ticks;
-	if(m_dmaUpdateTicks >= 100)
+	if(m_dmaUpdateTicks >= g_dmaUpdateDelay)
 	{
 		m_dmac.ResumeDma(4);
 		m_dmac.ResumeDma(8);
-		m_dmaUpdateTicks -= 100;
+		m_dmaUpdateTicks -= g_dmaUpdateDelay;
 	}
 }
 
