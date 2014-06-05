@@ -24,6 +24,10 @@
 		<tag address="00142A08" value="processWorld" />
 		<tag address="001435D0" value="addTexToList" />
 		<tag address="001437E8" value="FixupFnt" />
+		<tag address="0014E358" value="setFarClip" />
+		<tag address="00154918" value="cueMovie" />
+		<tag address="001581F0" value="cutFrame" />
+		<tag address="001591C0" value="queueCutFrame" />
 		<tag address="0015AFA0" value="getSelectedMenuItem" />
 		<tag address="0015AFE0" value="setSelectedMenuItem" />
 		<tag address="0016E880" value="drawTransparentSprite" />
@@ -3152,6 +3156,12 @@ D@" />
 		<tag address="002038B8" value="Reset timer 0" />
 		<tag address="00203F40" value="VBL_SEMA" />
 		<tag address="00203F78" value="frameCounter" />
+		<tag address="00203984" value="interlacedFlag=false" />
+		<tag address="0020398C" value="s1 = proc" />
+		<tag address="002039D0" value="wait for start of even frame" />
+		<tag address="002039F4" value="vbl counter" />
+		<tag address="00203C80" value="call proc" />
+		<tag address="00203D2C" value="wait for a full frame vblank" />
 		<tag address="00203FE0" value=" " />
 		<tag address="00204014" value="a%d%f
 " />
