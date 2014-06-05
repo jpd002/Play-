@@ -219,10 +219,21 @@
 		<tag address="00211AE0" value="sceMpegReset" />
 		<tag address="00211BB0" value="mpeg_invoke_callback" />
 		<tag address="00211C00" value="mpeg_invoke_nodata_cb" />
+		<tag address="00211D88" value="sceMpegGetPictureImpl" />
 		<tag address="002123F8" value="log_mpeg_error" />
 		<tag address="00212438" value="notify_mpeg_error" />
 		<tag address="00212490" value="setMpegDMA4" />
-		<tag address="00216290" value="mpegIssueBDEC" />
+		<tag address="00212B10" value="ipu_issue_fifo_reading_cmd" />
+		<tag address="00212E18" value="ipu_default_stopdma_cb" />
+		<tag address="00212E28" value="ipu_default_restartdma_cb" />
+		<tag address="00215E18" value="ipu_execute_command" />
+		<tag address="00215E48" value="ipu_wait_idle" />
+		<tag address="00215EF0" value="ipu_wait_get_CMD_val" />
+		<tag address="00216158" value="mpeg_peek_bits" />
+		<tag address="00216290" value="mpeg_skip_bits" />
+		<tag address="002163A8" value="mpeg_read_bits" />
+		<tag address="00218068" value="sceIpuStopDMA" />
+		<tag address="002181E8" value="sceIpuRestartDMA" />
 		<tag address="00218420" value="sceIpuInit" />
 		<tag address="00224A80" value="FailAssert" />
 		<tag address="00225A88" value="memset" />
@@ -3375,8 +3386,8 @@ D@" />
 		<tag address="002119D4" value="store macroblock count" />
 		<tag address="00211BC0" value="a2 = mpeg system data" />
 		<tag address="00211BE4" value="invoke callback" />
+		<tag address="00211814" value="set default dma stop callback" />
 		<tag address="00211D5C" value="work area size is too small" />
-		<tag address="00211D88" value="sceMpegGetPictureImpl" />
 		<tag address="00211D94" value="s4 = 1" />
 		<tag address="00211D9C" value="s3 = 0" />
 		<tag address="00211DA4" value="s2 = mpegDecodeData" />
@@ -3410,6 +3421,15 @@ D@" />
 		<tag address="002125FC" value="vertical size &gt; 2800" />
 		<tag address="00212B40" value="call stop dma callback" />
 		<tag address="00212BB4" value="call restart dma callback" />
+		<tag address="00212654" value="SETIQ" />
+		<tag address="0021266C" value="SETIQ command" />
+		<tag address="00212674" value="IQ data = 300580" />
+		<tag address="00212B38" value="stop DMA callback" />
+		<tag address="00212B58" value="Issue BCLR" />
+		<tag address="00212B74" value="D4_MADR = arg1" />
+		<tag address="00212B84" value="D4_QWC = 4" />
+		<tag address="00212B98" value="D4_CHCR = start normal from memory" />
+		<tag address="00212BAC" value="restart DMA callback" />
 		<tag address="00212C40" value="_chroma_format needs to be 1: 420" />
 		<tag address="00212CB8" value="Unsupported profile/level" />
 		<tag address="00212EF4" value="Invalid modion type -- ignored(%d)" />
@@ -3444,12 +3464,37 @@ D@" />
 		<tag address="002162C4" value="v1 = IPU_CTRL" />
 		<tag address="002162D4" value="if (IPU_CTRL &amp; 0x80004000 ==0x8000000)" />
 		<tag address="002162D8" value="i.e. IPU busy but no error" />
+		<tag address="00216324" value="loop while busy" />
 		<tag address="00216334" value="here if IPU idle or error" />
-		<tag address="00216350" value="IPU_CMD = BDEC" />
+		<tag address="00216350" value="IPU_CMD = FDEC" />
 		<tag address="00216358" value="v1 = 0x00300e08" />
+		<tag address="002163CC" value="s1 = num of bits to read" />
+		<tag address="002163E4" value="mask error and busy bits" />
+		<tag address="002163F0" value="here if IPU busy, no error" />
+		<tag address="0021643C" value="loop while busy no error" />
+		<tag address="0021644C" value="here if idle or error" />
+		<tag address="00216468" value="v0 = mpegBitsAvailable &lt; num bits" />
+		<tag address="00216470" value="here if we don&apos;t have enough bits in the buffer" />
+		<tag address="00216480" value="IPU_CMD = FDEC" />
+		<tag address="0021648C" value="300524 = 300e08 table entry" />
+		<tag address="00216498" value="mpegBitsBuffer = bits read" />
+		<tag address="002164A4" value="mpegBitsAvailable = 32" />
+		<tag address="002164AC" value="FDEC, skip num bits requested" />
+		<tag address="002164B0" value="s0 = bits buffer" />
+		<tag address="002164B8" value="v1 = FDEC = 4" />
+		<tag address="002164BC" value="execute FDEC" />
+		<tag address="002164C0" value="v1 = 16" />
+		<tag address="002164C8" value="a1 = bitsAvailable - bitsRequested" />
+		<tag address="002164CC" value="v1 = 300e08 + cmd*4" />
+		<tag address="002164D0" value="s0 = left most bits requested" />
+		<tag address="002164DC" value="300524 = 300e08 table entry" />
+		<tag address="002164EC" value="300d98 (mpegBitsBuffer) = bits read" />
+		<tag address="00216510" value="mpeg_find_header_prefix" />
 		<tag address="00216528" value="v1 = IPU_BP" />
 		<tag address="0021652C" value="v1 = bit position in byte" />
 		<tag address="00216538" value="branch if bit position is 0" />
+		<tag address="00216604" value="sequence header code" />
+		<tag address="00216644" value="read 32 bits" />
 		<tag address="002166B4" value="timestamp callback" />
 		<tag address="00216D38" value="load_chroma_intra_quantizer_matrix == 1" />
 		<tag address="00216D54" value="load_chroma_non_intra_quantizer_matrix == 1" />
@@ -3487,6 +3532,29 @@ D@" />
 		<tag address="00218674" value="wait until idle" />
 		<tag address="0021868C" value="BCLR command" />
 		<tag address="002186A4" value="wait until idle" />
+		<tag address="002180E4" value="a1 = D4_MADR" />
+		<tag address="002180F4" value="store D4_MADR" />
+		<tag address="002180FC" value="v0 = D4_TADR" />
+		<tag address="00218100" value="store D4_TADR" />
+		<tag address="00218104" value="v1 = D4_QWC" />
+		<tag address="00218108" value="store D4_QWC" />
+		<tag address="0021810C" value="v0 = D4_CHCR" />
+		<tag address="00218110" value="store D4_CHCR" />
+		<tag address="00218118" value="v0 = IPU_CTRL" />
+		<tag address="0021811C" value="mask OFC" />
+		<tag address="0021812C" value="wait until output FIFO is empty" />
+		<tag address="002181A8" value="a2 = D3_MADR" />
+		<tag address="002181C0" value="v0 = D3_QWC" />
+		<tag address="002181C8" value="v1 = D3_CHCR" />
+		<tag address="002181D0" value="v0 = IPU_BP" />
+		<tag address="002181D8" value="v1 = IPU_CTRL" />
+		<tag address="002181EC" value="v0 = saved IPU_BP" />
+		<tag address="002181F0" value="a0 = saved D4_QWC" />
+		<tag address="002181F4" value="v1 = IFC" />
+		<tag address="002181F8" value="t4 = bp" />
+		<tag address="002181FC" value="v0 = fp" />
+		<tag address="00218208" value="a1 = saved D4_MADR" />
+		<tag address="00218210" value="a2 = saved D3_MADR" />
 		<tag address="00218E7C" value="fmodf" />
 		<tag address="0021D918" value="#" />
 		<tag address="00221610" value="2" />
