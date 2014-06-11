@@ -89,6 +89,13 @@ public:
 			m_nPointer		= nPointer;
 			m_nWidth		= nWidth;
 			m_pMemory		= pMemory;
+
+			//This might not be thread safe (?)
+			if(!m_pageOffsetsInitialized)
+			{
+				BuildPageOffsetTable();
+				m_pageOffsetsInitialized = true;
+			}
 		}
 
 		typename Storage::Unit GetPixel(unsigned int nX, unsigned int nY)
@@ -103,11 +110,41 @@ public:
 
 		typename Storage::Unit* GetPixelAddress(unsigned int nX, unsigned int nY)
 		{
-			uint32 nAddress = GetColumnAddress(nX, nY);
-			return &((typename Storage::Unit*)&m_pMemory[nAddress])[Storage::m_nColumnSwizzleTable[nY][nX]];
+			uint32 pageNum = (nX / Storage::PAGEWIDTH) + (nY / Storage::PAGEHEIGHT) * (m_nWidth * 64) / Storage::PAGEWIDTH;
+
+			nX %= Storage::PAGEWIDTH;
+			nY %= Storage::PAGEHEIGHT;
+
+			uint32 pageOffset = m_pageOffsets[nY][nX];
+			auto pixelAddr = m_pMemory + ((m_nPointer + (pageNum * PAGESIZE) + pageOffset) & (CGSHandler::RAMSIZE - 1));
+			return reinterpret_cast<typename Storage::Unit*>(pixelAddr);
 		}
 
 	private:
+		void BuildPageOffsetTable()
+		{
+			for(uint32 y = 0; y < Storage::PAGEHEIGHT; y++)
+			{
+				for(uint32 x = 0; x < Storage::PAGEWIDTH; x++)
+				{
+					uint32 workX = x;
+					uint32 workY = y;
+
+					uint32 blockNum = Storage::m_nBlockSwizzleTable[workY / Storage::BLOCKHEIGHT][workX / Storage::BLOCKWIDTH];
+
+					workX %= Storage::BLOCKWIDTH;
+					workY %= Storage::BLOCKHEIGHT;
+
+					uint32 columnNum = (workY / Storage::COLUMNHEIGHT);
+
+					workY %= Storage::COLUMNHEIGHT;
+
+					uint32 offset = (blockNum * BLOCKSIZE) + (columnNum * COLUMNSIZE) + sizeof(Storage::Unit) * Storage::m_nColumnSwizzleTable[workY][workX];
+					m_pageOffsets[y][x] = offset;
+				}
+			}
+		}
+
 		uint32 GetColumnAddress(unsigned int& nX, unsigned int& nY)
 		{
 			uint32 nPageNum = (nX / Storage::PAGEWIDTH) + (nY / Storage::PAGEHEIGHT) * (m_nWidth * 64) / Storage::PAGEWIDTH;
@@ -145,6 +182,8 @@ public:
 		uint32		m_nPointer;
 		uint32		m_nWidth;
 		uint8*		m_pMemory;
+		static bool		m_pageOffsetsInitialized;
+		static uint32	m_pageOffsets[Storage::PAGEHEIGHT][Storage::PAGEWIDTH];
 	};
 
 	typedef CPixelIndexor<STORAGEPSMCT32>	CPixelIndexorPSMCT32;
@@ -156,6 +195,12 @@ public:
 
 //////////////////////////////////////////////
 //Some storage methods templates specializations
+
+template <typename Storage>
+bool CGsPixelFormats::CPixelIndexor<Storage>::m_pageOffsetsInitialized = false;
+
+template <typename Storage> 
+uint32 CGsPixelFormats::CPixelIndexor<Storage>::m_pageOffsets[Storage::PAGEHEIGHT][Storage::PAGEWIDTH];
 
 template <> 
 inline uint8 CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT4>::GetPixel(unsigned int nX, unsigned int nY)
@@ -204,24 +249,43 @@ inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT4>::SetPi
 	(*pPixel) |=  (nPixel	<< nShiftAmount);
 }
 
-template <> 
-inline uint8* CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT8>::GetPixelAddress(unsigned int nX, unsigned int nY)
+template <>
+inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT4>::BuildPageOffsetTable()
+{
+
+}
+
+template <>
+inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT8>::BuildPageOffsetTable()
 {
 	typedef CGsPixelFormats::STORAGEPSMT8 Storage;
 
-	unsigned int nByte, nTable;
-	uint32 nColumnNum, nOffset;
+	for(uint32 y = 0; y < Storage::PAGEHEIGHT; y++)
+	{
+		for(uint32 x = 0; x < Storage::PAGEWIDTH; x++)
+		{
+			uint32 workX = x;
+			uint32 workY = y;
 
-	nColumnNum = (nY / Storage::COLUMNHEIGHT) & 0x01;
-	nOffset = GetColumnAddress(nX, nY);
+			uint32 blockNum = Storage::m_nBlockSwizzleTable[workY / Storage::BLOCKHEIGHT][workX / Storage::BLOCKWIDTH];
 
-	nTable			=	(nY & 0x02) >> 1;
-	nByte			=	(nX & 0x08) >> 2;
-	nByte			+=	(nY & 0x02) >> 1;
-	nTable			^=	(nColumnNum);
+			workX %= Storage::BLOCKWIDTH;
+			workY %= Storage::BLOCKHEIGHT;
 
-	nX &= 0x7;
-	nY &= 0x1;
+			uint32 columnNum = (workY / Storage::COLUMNHEIGHT);
 
-	return reinterpret_cast<uint8*>(&((uint32*)&m_pMemory[nOffset])[Storage::m_nColumnWordTable[nTable][nY][nX]]) + nByte;
+			workY %= Storage::COLUMNHEIGHT;
+
+			uint32 table	=	(workY & 0x02) >> 1;
+			uint32 byte		=	(workX & 0x08) >> 2;
+			byte			+=	(workY & 0x02) >> 1;
+			table			^=	((y / Storage::COLUMNHEIGHT) & 1);
+
+			workX &= 0x7;
+			workY &= 0x1;
+
+			uint32 offset = (blockNum * BLOCKSIZE) + (columnNum * COLUMNSIZE) + (Storage::m_nColumnWordTable[table][workY][workX] * 4) + byte;
+			m_pageOffsets[y][x] = offset;
+		}
+	}
 }
