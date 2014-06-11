@@ -14,7 +14,18 @@ CMainWindow::CMainWindow()
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
-		RegisterClassEx(&Framework::Win32::CWindow::MakeWndClass(CLSNAME));
+		WNDCLASSEX wc;
+		memset(&wc, 0, sizeof(WNDCLASSEX));
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = NULL;
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		RegisterClassEx(&wc);
+
+		//RegisterClassEx(&Framework::Win32::CWindow::MakeWndClass(CLSNAME));
 	}
 
 	Framework::Win32::CRect clientRect(0, 0, 640, 480);

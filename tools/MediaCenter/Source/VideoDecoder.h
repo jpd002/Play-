@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MpegVideoState.h"
-#include "Bitmap.h"
+#include "bitmap/Bitmap.h"
 #include <boost/utility.hpp>
 #include <boost/signals2.hpp>
 #include <thread>

@@ -40,7 +40,7 @@ CFrameBufferWindow::CFrameBufferWindow(HWND hParent)
 
 	RECT rect;
 	::GetClientRect(hParent, &rect);
-	Create(NULL, CLSNAME, NULL, WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, &rect, hParent, NULL);
+	Create(NULL, CLSNAME, NULL, WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, rect, hParent, NULL);
 	SetClassPtr();
 
 	m_frameBuffer = -1;
