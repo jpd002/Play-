@@ -5,32 +5,15 @@
 #include <boost/filesystem.hpp>
 
 #define APP_NAME			_T("Play! Media Center")
-#define CLSNAME				_T("MainWindow")
 #define WNDSTYLE			(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX)
 #define WNDSTYLEEX			(0)
 
 CMainWindow::CMainWindow() 
 : m_frameBufferWindow(nullptr)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		WNDCLASSEX wc;
-		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize = sizeof(WNDCLASSEX);
-		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = NULL;
-		wc.hInstance = GetModuleHandle(NULL);
-		wc.lpszClassName = CLSNAME;
-		wc.lpfnWndProc = CWindow::WndProc;
-		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
-		RegisterClassEx(&wc);
-
-		//RegisterClassEx(&Framework::Win32::CWindow::MakeWndClass(CLSNAME));
-	}
-
 	Framework::Win32::CRect clientRect(0, 0, 640, 480);
 	AdjustWindowRectEx(clientRect, WNDSTYLE, TRUE, WNDSTYLEEX);
-	Create(WNDSTYLEEX, CLSNAME, APP_NAME, WNDSTYLE, clientRect, NULL, NULL);
+	Create(WNDSTYLEEX, Framework::Win32::CDefaultWndClass::GetName(), APP_NAME, WNDSTYLE, clientRect, NULL, NULL);
 	SetClassPtr();
 
 	auto menu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAIN_MENU));
