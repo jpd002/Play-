@@ -186,8 +186,8 @@ long CPixelBufferView::OnMouseWheel(int x, int y, short z)
 		auto clientRect = GetClientRect();
 		POINT mousePoint = { x, y };
 		ScreenToClient(m_hWnd, &mousePoint);
-		float relPosX = static_cast<float>(mousePoint.x) / static_cast<float>(clientRect.right);
-		float relPosY = static_cast<float>(mousePoint.y) / static_cast<float>(clientRect.bottom);
+		float relPosX = static_cast<float>(mousePoint.x) / static_cast<float>(clientRect.Right());
+		float relPosY = static_cast<float>(mousePoint.y) / static_cast<float>(clientRect.Bottom());
 		relPosX = std::max(relPosX, 0.f); relPosX = std::min(relPosX, 1.f);
 		relPosY = std::max(relPosY, 0.f); relPosY = std::min(relPosY, 1.f);
 
