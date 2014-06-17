@@ -54,7 +54,7 @@ void Gather(const char* archivePathName, const char* outputPathName)
 
 						CPsfVm virtualMachine;
 
-						CPsfLoader::LoadPsf(virtualMachine, archiveItemPath, archivePath);
+						CPsfLoader::LoadPsf(virtualMachine, archiveItemPath.wstring(), archivePath);
 						int currentTime = 0;
 						virtualMachine.OnNewFrame.connect(
 							[&currentTime] ()
