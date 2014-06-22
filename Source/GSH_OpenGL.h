@@ -1,5 +1,4 @@
-#ifndef _GSH_OPENGL_H_
-#define _GSH_OPENGL_H_
+#pragma once
 
 #include <list>
 #include <unordered_map>
@@ -20,14 +19,13 @@ public:
 
 	virtual void					LoadState(Framework::CZipArchiveReader&);
 	
-	void							ProcessImageTransfer(uint32, uint32, bool) override;
+	void							ProcessImageTransfer() override;
 	void							ProcessClutTransfer(uint32, uint32) override;
 	void							ProcessLocalToLocalTransfer() override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 
 	bool							IsBlendColorExtSupported();
 	bool							IsBlendEquationExtSupported();
-	bool							IsRGBA5551ExtSupported();
 	bool							IsFogCoordfExtSupported();
 
 protected:
@@ -66,7 +64,8 @@ private:
 		CVTBUFFERSIZE = 0x400000,
 	};
 
-	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(const TEX0&, const TEXA&);
+	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(const TEX0&);
+	typedef void (CGSH_OpenGL::*TEXTUREUPDATER)(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	struct VERTEX
 	{
@@ -124,14 +123,29 @@ private:
 	public:
 									CTexture();
 									~CTexture();
-		void						InvalidateFromMemorySpace(uint32, uint32);
 		void						Free();
+
+		void						InvalidateFromMemorySpace(uint32, uint32);
+		bool						IsPageDirty(uint32) const;
+		void						SetPageDirty(uint32);
+		bool						HasDirtyPages() const;
+		void						ClearDirtyPages();
 
 		uint32						m_start;
 		uint32						m_size;
 		uint64						m_tex0;
 		GLuint						m_texture;
 		bool						m_live;
+
+		typedef uint64 DirtyPageHolder;
+
+		enum
+		{
+			MAX_DIRTYPAGES_SECTIONS = 8,
+			MAX_DIRTYPAGES = sizeof(DirtyPageHolder) * 8 * MAX_DIRTYPAGES_SECTIONS
+		};
+
+		DirtyPageHolder				m_dirtyPages[MAX_DIRTYPAGES_SECTIONS];
 	};
 	typedef std::shared_ptr<CTexture> TexturePtr;
 	typedef std::list<TexturePtr> TextureList;
@@ -192,6 +206,7 @@ private:
 	void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
+	void							SetupTextureUploaders();
 	virtual void					PresentBackbuffer() = 0;
 	void							LinearZOrtho(float, float, float, float);
 	unsigned int					GetCurrentReadCircuit();
@@ -233,18 +248,27 @@ private:
 
 	void							DisplayTransferedImage(uint32);
 
-	void							TexUploader_Psm32(const TEX0&, const TEXA&);
-	void							TexUploader_Psm24(const TEX0&, const TEXA&);
+	//Texture uploaders
+	void							TexUploader_Invalid(const TEX0&);
 
-	void							TexUploader_Psm16_Cvt(const TEX0&, const TEXA&);
-	void							TexUploader_Psm16_Hw(const TEX0&, const TEXA&);
-	void							TexUploader_Psm16S_Hw(const TEX0&, const TEXA&);
+	void							TexUploader_Psm32(const TEX0&);
+	void							TexUploader_Psm16(const TEX0&);
+	void							TexUploader_Psm16S(const TEX0&);
 
-	void							TexUploader_Psm8(const TEX0&, const TEXA&);
-	void							TexUploader_Psm4(const TEX0&, const TEXA&);
-	template <uint32> void			TexUploader_Psm4H(const TEX0&, const TEXA&);
-	void							TexUploader_Psm8H(const TEX0&, const TEXA&);
-	
+	void							TexUploader_Psm8(const TEX0&);
+	void							TexUploader_Psm4(const TEX0&);
+	void							TexUploader_Psm8H(const TEX0&);
+	template <uint32> void			TexUploader_Psm4H(const TEX0&);
+
+	//Texture updaters
+	void							TexUpdater_Invalid(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+
+	void							TexUpdater_Psm32(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+	template <typename> void		TexUpdater_Psm16(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+
+	template <typename> void		TexUpdater_Psm48(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+	template <uint32, uint32> void	TexUpdater_Psm48H(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
 	float							m_nPrimOfsY;
@@ -258,10 +282,7 @@ private:
 
 	uint8*							m_pCvtBuffer;
 
-	void							VerifyRGBA5551Support();
-	bool							m_nIsRGBA5551Supported;
-
-	GLuint							TexCache_Search(const TEX0&);
+	CTexture*						TexCache_Search(const TEX0&);
 	void							TexCache_Insert(const TEX0&, GLuint);
 	void							TexCache_InvalidateTextures(uint32, uint32);
 
@@ -284,10 +305,9 @@ private:
 	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
 	static unsigned int				g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
 
-	TEXTUREUPLOADER					m_pTexUploader_Psm16;
+	TEXTUREUPLOADER					m_textureUploader[CGSHandler::PSM_MAX];
+	TEXTUREUPDATER					m_textureUpdater[CGSHandler::PSM_MAX];
 
 	ShaderInfoMap					m_shaderInfos;
 	RENDERSTATE						m_renderState;
 };
-
-#endif

@@ -26,7 +26,7 @@ public:
 									CGSH_Direct3D9(Framework::Win32::CWindow*);
 	virtual							~CGSH_Direct3D9();
 
-	void							ProcessImageTransfer(uint32, uint32, bool) override;
+	void							ProcessImageTransfer() override;
 	void							ProcessClutTransfer(uint32, uint32) override;
 	void							ProcessLocalToLocalTransfer() override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;

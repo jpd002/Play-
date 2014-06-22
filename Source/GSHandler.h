@@ -118,6 +118,7 @@ public:
 		PSMCT32		= 0x00,
 		PSMCT24		= 0x01,
 		PSMCT16		= 0x02,
+		PSMCT24_UNK	= 0x09,
 		PSMCT16S	= 0x0A,
 		PSMT8		= 0x13,
 		PSMT4		= 0x14,
@@ -501,11 +502,11 @@ public:
 	virtual void							SetCrt(bool, unsigned int, bool);
 	void									Initialize();
 	void									Release();
-	virtual void							ProcessImageTransfer(uint32, uint32, bool)	= 0;
-	virtual void							ProcessClutTransfer(uint32, uint32)			= 0;
-	virtual void							ProcessLocalToLocalTransfer()				= 0;
+	virtual void							ProcessImageTransfer() = 0;
+	virtual void							ProcessClutTransfer(uint32, uint32) = 0;
+	virtual void							ProcessLocalToLocalTransfer() = 0;
 	void									Flip(bool showOnly = false);
-	virtual void							ReadFramebuffer(uint32, uint32, void*)		= 0;
+	virtual void							ReadFramebuffer(uint32, uint32, void*) = 0;
 	
 	uint8*									GetRam();
 	uint64*									GetRegisters();
@@ -603,6 +604,7 @@ protected:
 	struct TRXCONTEXT
 	{
 		uint32			nSize;
+		uint32			nRealSize;
 		uint32			nRRX;
 		uint32			nRRY;
 		bool			nDirty;
@@ -648,6 +650,7 @@ protected:
 	void									ReadCLUT8(const TEX0&);
 
 	static unsigned int						GetPsmPixelSize(unsigned int);
+	static std::pair<uint32, uint32>		GetPsmPageSize(unsigned int);
 	static bool								IsPsmIDTEX(unsigned int);
 	static bool								IsPsmIDTEX4(unsigned int);
 	static bool								IsPsmIDTEX8(unsigned int);
@@ -666,7 +669,7 @@ protected:
 	FLIP_MODE								m_flipMode;
 	PRESENTATION_PARAMS						m_presentationParams;
 
-	TRXCONTEXT								m_TrxCtx;
+	TRXCONTEXT								m_trxCtx;
 
 	uint64									m_nReg[REGISTER_MAX];
 

@@ -5,6 +5,7 @@
 #include "GSH_OpenGL.h"
 #include "PtrMacro.h"
 #include "Log.h"
+#include "GsPixelFormats.h"
 
 //#define _WIREFRAME
 
@@ -281,15 +282,7 @@ void CGSH_OpenGL::InitializeRC()
 	glHint(GL_FOG_HINT, GL_NICEST);
 	glFogi(GL_FOG_COORDINATE_SOURCE_EXT, GL_FOG_COORDINATE_EXT);
 
-	VerifyRGBA5551Support();
-	if(!m_nIsRGBA5551Supported)
-	{
-		m_pTexUploader_Psm16 = &CGSH_OpenGL::TexUploader_Psm16_Cvt;
-	}
-	else
-	{
-		m_pTexUploader_Psm16 = &CGSH_OpenGL::TexUploader_Psm16_Hw;
-	}
+	SetupTextureUploaders();
 
 #ifdef _WIREFRAME
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -297,21 +290,6 @@ void CGSH_OpenGL::InitializeRC()
 #endif
 
 	PresentBackbuffer();
-}
-
-void CGSH_OpenGL::VerifyRGBA5551Support()
-{
-	unsigned int nTexture = 0;
-
-	m_nIsRGBA5551Supported = true;
-
-	glGenTextures(1, &nTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, 32, 32, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pRAM);
-	if(glGetError() == GL_INVALID_ENUM)
-	{
-		m_nIsRGBA5551Supported = false;
-	}
-	glDeleteTextures(1, &nTexture);
 }
 
 void CGSH_OpenGL::LinearZOrtho(float nLeft, float nRight, float nBottom, float nTop)
@@ -1548,11 +1526,27 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 	}
 }
 
-void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength, bool dirty)
+void CGSH_OpenGL::ProcessImageTransfer()
 {
-	if(dirty)
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	uint32 transferAddress = bltBuf.GetDstPtr();
+
+	if(m_trxCtx.nDirty)
 	{
-		TexCache_InvalidateTextures(nAddress, nLength);
+		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+
+		//Find the pages that are touched by this transfer
+		auto transferPageSize = GetPsmPageSize(bltBuf.nDstPsm);
+
+		uint32 pageCountX = (bltBuf.GetDstWidth() + transferPageSize.first - 1) / transferPageSize.first;
+		uint32 pageCountY = (trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
+
+		uint32 pageCount = pageCountX * pageCountY;
+		uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
+		uint32 transferOffset = (trxPos.nDSAY / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
+
+		TexCache_InvalidateTextures(transferAddress + transferOffset, transferSize);
 		m_renderState.isValid = false;
 	}
 
@@ -1561,14 +1555,12 @@ void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength, bool dir
 		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
 	{
 		const auto& framebuffer(*framebufferIterator);
-		if(framebuffer->m_basePtr == nAddress)
+		if(framebuffer->m_basePtr == transferAddress)
 		{
 			framebuffer->m_canBeUsedAsTexture = false;
 		}
 	}
 
-	BITBLTBUF bltBuf;
-	bltBuf <<= m_nReg[GS_REG_BITBLTBUF];
 	auto dstFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
 		[&] (const FramebufferPtr& framebuffer) 
 		{
@@ -1601,7 +1593,7 @@ void CGSH_OpenGL::ProcessImageTransfer(uint32 nAddress, uint32 nLength, bool dir
 
 		glBindFramebuffer(GL_FRAMEBUFFER, dstFramebuffer->m_framebuffer);
 
-		DisplayTransferedImage(nAddress);
+		DisplayTransferedImage(transferAddress);
 
 		m_renderState.isValid = false;
 	}
@@ -1685,8 +1677,6 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, nW / 64, nW, nH);
 
 	//Upload the texture
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, nW);
-
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1725,11 +1715,6 @@ bool CGSH_OpenGL::IsBlendColorExtSupported()
 bool CGSH_OpenGL::IsBlendEquationExtSupported()
 {
 	return glBlendEquationEXT != NULL;
-}
-
-bool CGSH_OpenGL::IsRGBA5551ExtSupported()
-{
-	return m_nIsRGBA5551Supported;
 }
 
 bool CGSH_OpenGL::IsFogCoordfExtSupported()

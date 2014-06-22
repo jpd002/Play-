@@ -158,13 +158,6 @@ void CRendererSettingsWnd::UpdateExtList()
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
-	itm.pszText		= _T("GL_UNSIGNED_SHORT_1_5_5_5_REV texture format");
-	i = m_pExtList->InsertItem(itm);
-
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsRGBA5551ExtSupported() ? _T("Present") : _T("Absent"));
-
-	memset(&itm, 0, sizeof(LVITEM));
-	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("glBlendEquation function");
 	i = m_pExtList->InsertItem(itm);
 

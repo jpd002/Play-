@@ -6,6 +6,22 @@
 class CGsPixelFormats
 {
 public:
+	//Various region sizes, in bytes
+	enum PAGESIZE
+	{
+		PAGESIZE = 8192,
+	};
+
+	enum BLOCKSIZE
+	{
+		BLOCKSIZE = 256,
+	};
+
+	enum COLUMNSIZE
+	{
+		COLUMNSIZE = 64,
+	};
+
 	struct STORAGEPSMCT32
 	{
 		enum PAGEWIDTH		{ PAGEWIDTH = 64 };
@@ -164,24 +180,9 @@ public:
 			return (m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE)) & (CGSHandler::RAMSIZE - 1);
 		}
 
-		enum PAGESIZE
-		{
-			PAGESIZE = 8192,
-		};
-
-		enum BLOCKSIZE
-		{
-			BLOCKSIZE = 256,
-		};
-
-		enum COLUMNSIZE
-		{
-			COLUMNSIZE = 64,
-		};
-
-		uint32		m_nPointer;
-		uint32		m_nWidth;
-		uint8*		m_pMemory;
+		uint32			m_nPointer;
+		uint32			m_nWidth;
+		uint8*			m_pMemory;
 		static bool		m_pageOffsetsInitialized;
 		static uint32	m_pageOffsets[Storage::PAGEHEIGHT][Storage::PAGEWIDTH];
 	};

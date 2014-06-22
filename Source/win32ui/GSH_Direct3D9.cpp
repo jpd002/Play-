@@ -57,7 +57,7 @@ CGSHandler::FactoryFunction CGSH_Direct3D9::GetFactoryFunction(Framework::Win32:
 	return [=] () { return new CGSH_Direct3D9(outputWnd); };
 }
 
-void CGSH_Direct3D9::ProcessImageTransfer(uint32, uint32, bool)
+void CGSH_Direct3D9::ProcessImageTransfer()
 {
 
 }

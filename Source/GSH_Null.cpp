@@ -20,7 +20,7 @@ void CGSH_Null::ReleaseImpl()
 
 }
 
-void CGSH_Null::ProcessImageTransfer(uint32 nAddress, uint32 nSize, bool dirty)
+void CGSH_Null::ProcessImageTransfer()
 {
 
 }

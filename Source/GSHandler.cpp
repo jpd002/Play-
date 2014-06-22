@@ -150,7 +150,7 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_pRAM,		RAMSIZE));
 	archive.InsertFile(new CMemoryStateFile(STATE_REGS,		m_nReg,		sizeof(uint64) * CGSHandler::REGISTER_MAX));
-	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX,	&m_TrxCtx,	sizeof(TRXCONTEXT)));
+	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX,	&m_trxCtx,	sizeof(TRXCONTEXT)));
 
 	{
 		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PRIVREGS);
@@ -173,7 +173,7 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 {
 	archive.BeginReadFile(STATE_RAM		)->Read(m_pRAM,		RAMSIZE);
 	archive.BeginReadFile(STATE_REGS	)->Read(m_nReg,		sizeof(uint64) * 0x80);
-	archive.BeginReadFile(STATE_TRXCTX	)->Read(&m_TrxCtx,	sizeof(TRXCONTEXT));
+	archive.BeginReadFile(STATE_TRXCTX	)->Read(&m_trxCtx,	sizeof(TRXCONTEXT));
 
 	{
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PRIVREGS));
@@ -468,7 +468,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 {
 	boost::scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
 
-	if(m_TrxCtx.nSize == 0)
+	if(m_trxCtx.nSize == 0)
 	{
 #ifdef _DEBUG
 		CLog::GetInstance().Print(LOG_NAME, "Warning. Received image data when no transfer was expected.\r\n");
@@ -476,28 +476,27 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 	}
 	else
 	{
-		if(m_TrxCtx.nSize < nLength)
+		if(m_trxCtx.nSize < nLength)
 		{
-			nLength = m_TrxCtx.nSize;
+			nLength = m_trxCtx.nSize;
 			//assert(0);
 			//return;
 		}
 
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-		m_TrxCtx.nDirty |= ((this)->*(m_pTransferHandler[bltBuf.nDstPsm]))(pData, nLength);
+		m_trxCtx.nDirty |= ((this)->*(m_pTransferHandler[bltBuf.nDstPsm]))(pData, nLength);
 
-		m_TrxCtx.nSize -= nLength;
+		m_trxCtx.nSize -= nLength;
 
-		if(m_TrxCtx.nSize == 0)
+		if(m_trxCtx.nSize == 0)
 		{
-			TRXREG trxReg;
-			trxReg <<= m_nReg[GS_REG_TRXREG];
-			uint32 nSize = (bltBuf.GetDstWidth() * trxReg.nRRH * GetPsmPixelSize(bltBuf.nDstPsm)) / 8;
-			ProcessImageTransfer(bltBuf.GetDstPtr(), nSize, m_TrxCtx.nDirty);
+			auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+			assert(m_trxCtx.nRRY == trxReg.nRRH);
+			ProcessImageTransfer();
 
 #ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_TrxCtx.nDirty);
+			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_trxCtx.nDirty);
 #endif
 		}
 	}
@@ -567,10 +566,11 @@ void CGSHandler::BeginTransfer()
 			break;
 		}
 
-		m_TrxCtx.nSize	= (trxReg.nRRW * trxReg.nRRH * nPixelSize) / 8;
-		m_TrxCtx.nRRX	= 0;
-		m_TrxCtx.nRRY	= 0;
-		m_TrxCtx.nDirty	= false;
+		m_trxCtx.nSize	= (trxReg.nRRW * trxReg.nRRH * nPixelSize) / 8;
+		m_trxCtx.nRealSize = m_trxCtx.nSize;
+		m_trxCtx.nRRX	= 0;
+		m_trxCtx.nRRY	= 0;
+		m_trxCtx.nDirty	= false;
 	}
 	else if(trxDir == 2)
 	{
@@ -646,8 +646,8 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
-		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
+		uint32 nX = (m_trxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_trxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		auto pPixel = Indexor.GetPixelAddress(nX, nY);
 
@@ -657,11 +657,11 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 			nDirty = true;
 		}
 
-		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == trxReg.nRRW)
+		m_trxCtx.nRRX++;
+		if(m_trxCtx.nRRX == trxReg.nRRW)
 		{
-			m_TrxCtx.nRRX = 0;
-			m_TrxCtx.nRRY++;
+			m_trxCtx.nRRX = 0;
+			m_trxCtx.nRRY++;
 		}
 	}
 
@@ -680,19 +680,19 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 
 	for(unsigned int i = 0; i < nLength; i += 3)
 	{
-		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
+		uint32 nX = (m_trxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_trxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		uint32* pDstPixel = Indexor.GetPixelAddress(nX, nY);
 		uint32 nSrcPixel = (*(uint32*)&pSrc[i]) & 0x00FFFFFF;
 		(*pDstPixel) &= 0xFF000000;
 		(*pDstPixel) |= nSrcPixel;
 
-		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == trxReg.nRRW)
+		m_trxCtx.nRRX++;
+		if(m_trxCtx.nRRX == trxReg.nRRW)
 		{
-			m_TrxCtx.nRRX = 0;
-			m_TrxCtx.nRRY++;
+			m_trxCtx.nRRX = 0;
+			m_trxCtx.nRRY++;
 		}
 	}
 
@@ -719,8 +719,8 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 
 		for(unsigned int j = 0; j < 2; j++)
 		{
-			uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
-			uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
+			uint32 nX = (m_trxCtx.nRRX + trxPos.nDSAX) % 2048;
+			uint32 nY = (m_trxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 			uint8 currentPixel = Indexor.GetPixel(nX, nY);
 			if(currentPixel != nPixel[j])
@@ -729,11 +729,11 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 				dirty = true;
 			}
 
-			m_TrxCtx.nRRX++;
-			if(m_TrxCtx.nRRX == trxReg.nRRW)
+			m_trxCtx.nRRX++;
+			if(m_trxCtx.nRRX == trxReg.nRRW)
 			{
-				m_TrxCtx.nRRX = 0;
-				m_TrxCtx.nRRY++;
+				m_trxCtx.nRRX = 0;
+				m_trxCtx.nRRY++;
 			}
 		}
 	}
@@ -755,8 +755,8 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 	for(unsigned int i = 0; i < nLength; i++)
 	{
 		//Pixel 1
-		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
+		uint32 nX = (m_trxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_trxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		uint8 nSrcPixel = pSrc[i] & 0x0F;
 
@@ -764,16 +764,16 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 		(*pDstPixel) &= ~nMask;
 		(*pDstPixel) |= (nSrcPixel << nShift);
 
-		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == trxReg.nRRW)
+		m_trxCtx.nRRX++;
+		if(m_trxCtx.nRRX == trxReg.nRRW)
 		{
-			m_TrxCtx.nRRX = 0;
-			m_TrxCtx.nRRY++;
+			m_trxCtx.nRRX = 0;
+			m_trxCtx.nRRY++;
 		}
 
 		//Pixel 2
-		nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
-		nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
+		nX = (m_trxCtx.nRRX + trxPos.nDSAX) % 2048;
+		nY = (m_trxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		nSrcPixel = (pSrc[i] & 0xF0);
 
@@ -781,11 +781,11 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 		(*pDstPixel) &= ~nMask;
 		(*pDstPixel) |= (nSrcPixel << (nShift - 4));
 
-		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == trxReg.nRRW)
+		m_trxCtx.nRRX++;
+		if(m_trxCtx.nRRX == trxReg.nRRW)
 		{
-			m_TrxCtx.nRRX = 0;
-			m_TrxCtx.nRRY++;
+			m_trxCtx.nRRX = 0;
+			m_trxCtx.nRRY++;
 		}
 	}
 
@@ -804,8 +804,8 @@ bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
-		uint32 nX = (m_TrxCtx.nRRX + trxPos.nDSAX) % 2048;
-		uint32 nY = (m_TrxCtx.nRRY + trxPos.nDSAY) % 2048;
+		uint32 nX = (m_trxCtx.nRRX + trxPos.nDSAX) % 2048;
+		uint32 nY = (m_trxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		uint8 nSrcPixel = pSrc[i];
 
@@ -813,11 +813,11 @@ bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 		(*pDstPixel) &= ~0xFF000000;
 		(*pDstPixel) |= (nSrcPixel << 24);
 
-		m_TrxCtx.nRRX++;
-		if(m_TrxCtx.nRRX == trxReg.nRRW)
+		m_trxCtx.nRRX++;
+		if(m_trxCtx.nRRX == trxReg.nRRW)
 		{
-			m_TrxCtx.nRRX = 0;
-			m_TrxCtx.nRRY++;
+			m_trxCtx.nRRX = 0;
+			m_trxCtx.nRRY++;
 		}
 	}
 
@@ -1127,9 +1127,9 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 	}
 }
 
-unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
+unsigned int CGSHandler::GetPsmPixelSize(unsigned int psm)
 {
-	switch(nPSM)
+	switch(psm)
 	{
 	case PSMCT32:
 	case PSMT4HH:
@@ -1138,7 +1138,7 @@ unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
 		return 32;
 		break;
 	case PSMCT24:
-	case 9:
+	case PSMCT24_UNK:
 		return 24;
 		break;
 	case PSMCT16:
@@ -1154,6 +1154,32 @@ unsigned int CGSHandler::GetPsmPixelSize(unsigned int nPSM)
 	default:
 		assert(0);
 		return 0;
+		break;
+	}
+}
+
+std::pair<uint32, uint32> CGSHandler::GetPsmPageSize(unsigned int psm)
+{
+	switch(psm)
+	{
+	case PSMCT32:
+	case PSMCT24:
+	case PSMCT24_UNK:
+	case PSMT8H:
+	case PSMT4HH:
+	case PSMT4HL:
+		return std::make_pair(CGsPixelFormats::STORAGEPSMCT32::PAGEWIDTH, CGsPixelFormats::STORAGEPSMCT32::PAGEHEIGHT);
+	case PSMCT16:
+		return std::make_pair(CGsPixelFormats::STORAGEPSMCT16::PAGEWIDTH, CGsPixelFormats::STORAGEPSMCT16::PAGEHEIGHT);
+	case PSMCT16S:
+		return std::make_pair(CGsPixelFormats::STORAGEPSMCT16S::PAGEWIDTH, CGsPixelFormats::STORAGEPSMCT16S::PAGEHEIGHT);
+	case PSMT8:
+		return std::make_pair(CGsPixelFormats::STORAGEPSMT8::PAGEWIDTH, CGsPixelFormats::STORAGEPSMT8::PAGEHEIGHT);
+	case PSMT4:
+		return std::make_pair(CGsPixelFormats::STORAGEPSMT4::PAGEWIDTH, CGsPixelFormats::STORAGEPSMT4::PAGEHEIGHT);
+	default:
+		assert(0);
+		return std::make_pair(0, 0);
 		break;
 	}
 }
