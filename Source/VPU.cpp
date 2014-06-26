@@ -635,7 +635,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 				}
 				else if(maskOp == MASK_MASK)
 				{
-					assert(0);
+					//Don't write anything
 				}
 				else
 				{
