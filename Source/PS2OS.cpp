@@ -727,6 +727,7 @@ void CPS2OS::AssembleInterruptHandler()
 
 	generateIntHandler(Asm, CINTC::INTC_LINE_VBLANK_START);
 	generateIntHandler(Asm, CINTC::INTC_LINE_VBLANK_END);
+	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER0);
 	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER1);
 	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER2);
 	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER3);
