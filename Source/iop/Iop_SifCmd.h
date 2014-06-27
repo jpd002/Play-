@@ -72,7 +72,6 @@ namespace Iop
 		CSysmem&				m_sysMem;
 		uint8*					m_ram;
 		uint32					m_memoryBufferAddr;
-		uint32					m_invokeParamsAddr;
 		uint32					m_trampolineAddr;
 		uint32					m_returnFromRpcInvokeAddr;
 		DynamicModuleList		m_servers;

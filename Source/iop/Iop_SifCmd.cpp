@@ -27,7 +27,6 @@ using namespace Iop;
 #define FUNCTION_SIFGETOTHERDATA		"SifGetOtherData"	
 #define FUNCTION_RETURNFROMRPCINVOKE	"ReturnFromRpcInvoke"
 
-#define INVOKE_PARAMS_SIZE			0x8000
 #define TRAMPOLINE_SIZE				0x800
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram) 
@@ -36,9 +35,8 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 , m_sysMem(sysMem)
 , m_ram(ram)
 {
-	m_memoryBufferAddr = m_sysMem.AllocateMemory(INVOKE_PARAMS_SIZE + TRAMPOLINE_SIZE, 0, 0);
-	m_invokeParamsAddr = m_memoryBufferAddr;
-	m_trampolineAddr = m_invokeParamsAddr + INVOKE_PARAMS_SIZE;
+	m_memoryBufferAddr = m_sysMem.AllocateMemory(TRAMPOLINE_SIZE, 0, 0);
+	m_trampolineAddr = m_memoryBufferAddr;
 
 	BuildExportTable();
 }
@@ -217,10 +215,7 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 	SIFRPCDATAQUEUE* dataQueue = reinterpret_cast<SIFRPCDATAQUEUE*>(&m_ram[serverData->queueAddr]);
 
 	//Copy params
-	assert(size <= INVOKE_PARAMS_SIZE);
-	uint32 copySize = std::min<uint32>(size, INVOKE_PARAMS_SIZE);
-
-	memcpy(&m_ram[serverData->buffer], params, copySize);
+	memcpy(&m_ram[serverData->buffer], params, size);
 	CIopBios::THREAD* thread(m_bios.GetThread(dataQueue->threadId));
 
 	assert(thread->status == CIopBios::THREAD_STATUS_SLEEPING);
