@@ -482,6 +482,9 @@ public:
 
 	void									SetFrameDump(CFrameDump*);
 
+	bool									GetDrawEnabled() const;
+	void									SetDrawEnabled(bool);
+
 	virtual void							WritePrivRegister(uint32, uint32);
 	virtual uint32							ReadPrivRegister(uint32);
 	
@@ -688,4 +691,5 @@ protected:
 	CMailBox								m_mailBox;
 	bool									m_threadDone;
 	CFrameDump*								m_frameDump;
+	bool									m_drawEnabled = true;
 };

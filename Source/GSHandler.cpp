@@ -194,6 +194,16 @@ void CGSHandler::SetFrameDump(CFrameDump* frameDump)
 	m_frameDump = frameDump;
 }
 
+bool CGSHandler::GetDrawEnabled() const
+{
+	return m_drawEnabled;
+}
+
+void CGSHandler::SetDrawEnabled(bool drawEnabled)
+{
+	m_drawEnabled = drawEnabled;
+}
+
 void CGSHandler::SetVBlank()
 {
 	if(m_flipMode == FLIP_MODE_VBLANK)

@@ -1454,6 +1454,8 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 	bool nDrawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);
 	bool nFog = (nRegister == GS_REG_XYZF2) || (nRegister == GS_REG_XYZF3);
 
+	if(!m_drawEnabled) nDrawingKick = false;
+
 	if(nFog)
 	{
 		m_VtxBuffer[m_nVtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;

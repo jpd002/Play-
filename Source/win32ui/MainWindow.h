@@ -78,6 +78,7 @@ private:
 	void							ShowDebugger();
 	void							ShowFrameDebugger();
 	void							DumpNextFrame();
+	void							ToggleGsDraw();
 	void							ShowSysInfo();
 	void							ShowAbout();
 	void							ShowSettingsDialog(CSettingsDialogProvider*);
