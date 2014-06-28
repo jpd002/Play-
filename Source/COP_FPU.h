@@ -1,5 +1,4 @@
-#ifndef _COP_FPU_H_
-#define _COP_FPU_H_
+#pragma once
 
 #include "MIPSCoprocessor.h"
 #include "MIPSReflection.h"
@@ -44,63 +43,63 @@ protected:
 private:
 	typedef void (CCOP_FPU::*InstructionFuncConstant)();
 
-	uint8						        m_nFT;
-	uint8						        m_nFS;
-	uint8						        m_nFD;
+	uint8								m_nFT;
+	uint8								m_nFS;
+	uint8								m_nFD;
 
 	static uint32						m_nCCMask[8];
 
-	void							    SetCCBit(bool, uint32);
-	void							    PushCCBit(uint32);
+	void								SetCCBit(bool, uint32);
+	void								PushCCBit(uint32);
 
-	static InstructionFuncConstant      m_pOpGeneral[0x20];
-	static InstructionFuncConstant      m_pOpSingle[0x40];
-	static InstructionFuncConstant      m_pOpWord[0x40];
+	static InstructionFuncConstant		m_pOpGeneral[0x20];
+	static InstructionFuncConstant		m_pOpSingle[0x40];
+	static InstructionFuncConstant		m_pOpWord[0x40];
 
 	//General
-	void							    MFC1();
+	void								MFC1();
 	void								CFC1();
-	void							    MTC1();
-	void							    CTC1();
-	void							    BC1();
-	void							    S();
-	void							    W();
+	void								MTC1();
+	void								CTC1();
+	void								BC1();
+	void								S();
+	void								W();
 
 	//Branch
-	void							    BC1F();
-	void							    BC1T();
-	void							    BC1FL();
-	void							    BC1TL();
+	void								BC1F();
+	void								BC1T();
+	void								BC1FL();
+	void								BC1TL();
 
 	//Single
-	void							    ADD_S();
-	void							    SUB_S();
-	void							    MUL_S();
-	void							    DIV_S();
-	void							    SQRT_S();
-	void							    ABS_S();
-	void							    MOV_S();
-	void							    NEG_S();
+	void								ADD_S();
+	void								SUB_S();
+	void								MUL_S();
+	void								DIV_S();
+	void								SQRT_S();
+	void								ABS_S();
+	void								MOV_S();
+	void								NEG_S();
 	void								TRUNC_W_S();
 	void								RSQRT_S();
-	void							    ADDA_S();
+	void								ADDA_S();
 	void								SUBA_S();
-	void							    MULA_S();
-	void							    MADD_S();
-	void							    MSUB_S();
-	void							    CVT_W_S();
-    void                                MAX_S();
-    void                                MIN_S();
-	void							    C_EQ_S();
-	void							    C_LT_S();
-	void							    C_LE_S();
+	void								MULA_S();
+	void								MADD_S();
+	void								MSUB_S();
+	void								CVT_W_S();
+    void								MAX_S();
+    void								MIN_S();
+	void								C_EQ_S();
+	void								C_LT_S();
+	void								C_LE_S();
 
 	//Word
-	void							    CVT_S_W();
+	void								CVT_S_W();
 
 	//Misc
-	void							    LWC1();
-	void							    SWC1();
+	void								LWC1();
+	void								SWC1();
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
@@ -109,5 +108,3 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflS[64];
 	static MIPSReflection::INSTRUCTION	m_cReflW[64];
 };
-
-#endif
