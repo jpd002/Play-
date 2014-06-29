@@ -1,8 +1,9 @@
-#ifndef _ROOTCOUNTERS_H_
-#define _ROOTCOUNTERS_H_
+#pragma once
 
 #include "Types.h"
 #include "Convertible.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -15,6 +16,10 @@ namespace Iop
 		virtual		~CRootCounters();
 
 		void		Reset();
+
+		void		LoadState(Framework::CZipArchiveReader&);
+		void		SaveState(Framework::CZipArchiveWriter&);
+
 		void		Update(unsigned int);
 
 		uint32		ReadRegister(uint32);
@@ -100,5 +105,3 @@ namespace Iop
 		unsigned int			m_pixelClocks;
 	};
 }
-
-#endif

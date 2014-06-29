@@ -93,6 +93,7 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_ram,			IOP_RAM_SIZE));
 	archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH,	m_scratchPad,	IOP_SCRATCH_SIZE));
 	m_intc.SaveState(archive);
+	m_counters.SaveState(archive);
 	m_spuCore0.SaveState(archive);
 	m_spuCore1.SaveState(archive);
 	m_bios->SaveState(archive);
@@ -104,6 +105,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			IOP_RAM_SIZE);
 	archive.BeginReadFile(STATE_SCRATCH		)->Read(m_scratchPad,	IOP_SCRATCH_SIZE);
 	m_intc.LoadState(archive);
+	m_counters.LoadState(archive);
 	m_spuCore0.LoadState(archive);
 	m_spuCore1.LoadState(archive);
 	m_bios->LoadState(archive);

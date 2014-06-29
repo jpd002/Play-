@@ -1,9 +1,13 @@
 #include <assert.h>
 #include "Iop_RootCounters.h"
 #include "Iop_Intc.h"
+#include "string_format.h"
 #include "../Log.h"
+#include "../RegisterStateFile.h"
 
 #define LOG_NAME ("iop_counters")
+
+#define STATE_REGS_XML	("iop_counters/regs.xml")
 
 using namespace Iop;
 
@@ -68,6 +72,35 @@ unsigned int CRootCounters::GetCounterIdByAddress(uint32 address)
 void CRootCounters::Reset()
 {
 	memset(&m_counter, 0, sizeof(m_counter));
+}
+
+void CRootCounters::LoadState(Framework::CZipArchiveReader& archive)
+{
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
+	{
+		auto& counter = m_counter[i];
+		auto counterPrefix = string_format("COUNTER_%d_", i);
+		counter.count		= registerFile.GetRegister32((counterPrefix + "COUNT").c_str());
+		counter.mode	  <<= registerFile.GetRegister32((counterPrefix + "MODE").c_str());
+		counter.target		= registerFile.GetRegister32((counterPrefix + "TGT").c_str());
+		counter.clockRemain	= registerFile.GetRegister32((counterPrefix + "REM").c_str());
+	}
+}
+
+void CRootCounters::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
+	{
+		const auto& counter = m_counter[i];
+		auto counterPrefix = string_format("COUNTER_%d_", i);
+		registerFile->SetRegister32((counterPrefix + "COUNT").c_str(), counter.count);
+		registerFile->SetRegister32((counterPrefix + "MODE").c_str(), counter.mode);
+		registerFile->SetRegister32((counterPrefix + "TGT").c_str(), counter.target);
+		registerFile->SetRegister32((counterPrefix + "REM").c_str(), counter.clockRemain);
+	}
+	archive.InsertFile(registerFile);
 }
 
 void CRootCounters::Update(unsigned int ticks)
