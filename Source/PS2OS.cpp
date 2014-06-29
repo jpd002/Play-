@@ -82,6 +82,8 @@
 #define SYSCALL_NAME_ISIGNALSEMA			"osiSignalSema"
 #define SYSCALL_NAME_WAITSEMA				"osWaitSema"
 #define SYSCALL_NAME_POLLSEMA				"osPollSema"
+#define SYSCALL_NAME_REFERSEMASTATUS		"osReferSemaStatus"
+#define SYSCALL_NAME_IREFERSEMASTATUS		"osiReferSemaStatus"
 #define SYSCALL_NAME_FLUSHCACHE				"osFlushCache"
 #define SYSCALL_NAME_GSGETIMR				"osGsGetIMR"
 #define SYSCALL_NAME_GSPUTIMR				"osGsPutIMR"
@@ -119,6 +121,8 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0043,		SYSCALL_NAME_ISIGNALSEMA			},
 	{	0x0044,		SYSCALL_NAME_WAITSEMA				},
 	{	0x0045,		SYSCALL_NAME_POLLSEMA				},
+	{	0x0047,		SYSCALL_NAME_REFERSEMASTATUS		},
+	{	0x0048,		SYSCALL_NAME_IREFERSEMASTATUS		},
 	{	0x0064,		SYSCALL_NAME_FLUSHCACHE				},
 	{	0x0070,		SYSCALL_NAME_GSGETIMR				},
 	{	0x0071,		SYSCALL_NAME_GSPUTIMR				},
@@ -2579,8 +2583,12 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x47:
+		sprintf(sDescription, SYSCALL_NAME_REFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		break;
 	case 0x48:
-		sprintf(sDescription, "iReferSemaStatus(semaid = %i, status = 0x%0.8X);",
+		sprintf(sDescription, SYSCALL_NAME_IREFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
