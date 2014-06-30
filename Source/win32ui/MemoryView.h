@@ -40,7 +40,6 @@ private:
 	void									UpdateCaretPosition();
 	void									GetRenderParams(const SIZE&, unsigned int&, unsigned int&, uint32&);
 
-	uint32									m_nSelectionStart;
-	uint32									m_nSize;
-	unsigned int							m_nPos;
+	uint32									m_selectionStart = 0;
+	uint32									m_size = 0;
 };
