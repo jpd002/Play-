@@ -14,7 +14,6 @@ CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, un
 	SetClassPtr();
 
 	m_mainSplitter = std::make_unique<Framework::Win32::CVerticalSplitter>(m_hWnd, GetClientRect());
-	m_mainSplitter->SetEdgePosition(0.5f);
 
 	m_bufferSelectionTab = std::make_unique<Framework::Win32::CTab>(*m_mainSplitter, Framework::Win32::CRect(0, 0, 1, 1), TCS_BOTTOM);
 	m_bufferSelectionTab->InsertTab(_T("Framebuffer"));
@@ -27,6 +26,8 @@ CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, un
 
 	m_mainSplitter->SetChild(0, *m_bufferSelectionTab);
 	m_mainSplitter->SetChild(1, *m_stateView);
+	m_mainSplitter->SetMasterChild(1);
+	m_mainSplitter->SetEdgePosition(0.5f);
 }
 
 CGsContextView::~CGsContextView()

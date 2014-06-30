@@ -31,11 +31,13 @@ CVu1ProgramView::CVu1ProgramView(HWND parent, const RECT& rect, CVu1Vm& virtualM
 
 	m_mainSplitter->SetChild(0, *m_subSplitter);
 	m_mainSplitter->SetChild(1, *m_memoryTab);
-	m_mainSplitter->SetEdgePosition(0.70);
+	m_mainSplitter->SetMasterChild(1);
+	m_mainSplitter->SetEdgePosition(0.65);
 
 	m_subSplitter->SetChild(0, *m_disAsm);
 	m_subSplitter->SetChild(1, *m_regView);
-	m_subSplitter->SetEdgePosition(0.70);
+	m_subSplitter->SetMasterChild(1);
+	m_subSplitter->SetEdgePosition(0.65);
 }
 
 CVu1ProgramView::~CVu1ProgramView()
