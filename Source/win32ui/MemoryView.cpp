@@ -106,6 +106,19 @@ unsigned int CMemoryView::GetScrollThumbPosition()
 	return si.nTrackPos;
 }
 
+HMENU CMemoryView::CreateContextualMenu()
+{
+	HMENU bytesPerLineMenu = CreatePopupMenu();
+	AppendMenu(bytesPerLineMenu, MF_STRING | ((m_bytesPerLine == 0) ? MF_CHECKED : MF_UNCHECKED), ID_MEMORYVIEW_COLUMNS_AUTO,		_T("Auto"));
+	AppendMenu(bytesPerLineMenu, MF_STRING | ((m_bytesPerLine == 16) ? MF_CHECKED : MF_UNCHECKED), ID_MEMORYVIEW_COLUMNS_16BYTES,	_T("16 bytes"));
+	AppendMenu(bytesPerLineMenu, MF_STRING | ((m_bytesPerLine == 32) ? MF_CHECKED : MF_UNCHECKED), ID_MEMORYVIEW_COLUMNS_32BYTES,	_T("32 bytes"));
+
+	HMENU menu = CreatePopupMenu();
+	AppendMenu(menu, MF_STRING | MF_POPUP, reinterpret_cast<UINT_PTR>(bytesPerLineMenu), _T("Bytes Per Line"));
+
+	return menu;
+}
+
 void CMemoryView::Paint(HDC hDC)
 {
 	Framework::Win32::CDeviceContext deviceContext(hDC);
@@ -175,6 +188,15 @@ void CMemoryView::SetMemorySize(uint32 size)
 	UpdateScrollRange();
 }
 
+void CMemoryView::SetBytesPerLine(uint32 bytesPerLine)
+{
+	m_bytesPerLine = bytesPerLine;
+	UpdateScrollRange();
+	ScrollToAddress(m_selectionStart);
+	UpdateCaretPosition();
+	Redraw();
+}
+
 long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 {
 	SCROLLINFO si;
@@ -211,6 +233,23 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 	UpdateCaretPosition();
 
 	Redraw();
+	return TRUE;
+}
+
+long CMemoryView::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
+{
+	switch(nID)
+	{
+	case ID_MEMORYVIEW_COLUMNS_AUTO:
+		SetBytesPerLine(0);
+		break;
+	case ID_MEMORYVIEW_COLUMNS_16BYTES:
+		SetBytesPerLine(0x10);
+		break;
+	case ID_MEMORYVIEW_COLUMNS_32BYTES:
+		SetBytesPerLine(0x20);
+		break;
+	}
 	return TRUE;
 }
 
@@ -285,6 +324,20 @@ long CMemoryView::OnLeftButtonUp(int nX, int nY)
 	return FALSE;
 }
 
+long CMemoryView::OnRightButtonUp(int nX, int nY)
+{
+	HMENU contextualMenu = CreateContextualMenu();
+
+	POINT pt;
+	pt.x = nX;
+	pt.y = nY;
+	ClientToScreen(m_hWnd, &pt);
+
+	TrackPopupMenu(contextualMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
+
+	return FALSE;
+}
+
 long CMemoryView::OnKeyDown(WPARAM nKey, LPARAM)
 {
 	switch(nKey)
@@ -351,9 +404,16 @@ CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 	renderParams.lines = (clientRect.bottom - (YMARGIN * 2)) / (fontSize.cy + YSPACE);
 	renderParams.lines++;
 	
-	//lineSize = (2 * XMARGIN) + (2 * LINESECTIONSPACING) + (ADDRESSCHARS * cx) + bytesPerLine * (2 * cx + BYTESPACING) + bytesPerLine * cx
-	renderParams.bytesPerLine = clientRect.right - (2 * XMARGIN) - (2 * LINESECTIONSPACING) - (ADDRESSCHARS * fontSize.cx);
-	renderParams.bytesPerLine /= ((2 * fontSize.cx + BYTESPACING) + (fontSize.cx));
+	if(m_bytesPerLine == 0)
+	{
+		//lineSize = (2 * XMARGIN) + (2 * LINESECTIONSPACING) + (ADDRESSCHARS * cx) + bytesPerLine * (2 * cx + BYTESPACING) + bytesPerLine * cx
+		renderParams.bytesPerLine = clientRect.right - (2 * XMARGIN) - (2 * LINESECTIONSPACING) - (ADDRESSCHARS * fontSize.cx);
+		renderParams.bytesPerLine /= ((2 * fontSize.cx + BYTESPACING) + (fontSize.cx));
+	}
+	else
+	{
+		renderParams.bytesPerLine = m_bytesPerLine;
+	}
 
 	renderParams.address = GetScrollOffset() * renderParams.bytesPerLine;
 

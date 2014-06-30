@@ -12,9 +12,15 @@ public:
 	virtual							~CMemoryViewMIPS();
 
 protected:
-	uint8							GetByte(uint32) override;
+	enum
+	{
+		ID_MEMORYVIEWMIPS_GOTOADDRESS = ID_MEMORYVIEW_MENU_MAX,
+		ID_MEMORYVIEWMIPS_FOLLOWPOINTER
+	};
 
-	long							OnRightButtonUp(int, int) override;
+	uint8							GetByte(uint32) override;
+	HMENU							CreateContextualMenu() override;
+
 	long							OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:

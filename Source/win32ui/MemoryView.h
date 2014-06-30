@@ -11,18 +11,30 @@ class CMemoryView : public Framework::Win32::CCustomDrawn
 public:
 											CMemoryView(HWND, const RECT&);
 	virtual									~CMemoryView();
+	
 	void									SetMemorySize(uint32);
+	void									SetBytesPerLine(uint32);
 	void									ScrollToAddress(uint32);
 	uint32									GetSelection();
 
 	boost::signals2::signal<void (uint32)>	OnSelectionChange;
 
 protected:
+	enum
+	{
+		ID_MEMORYVIEW_COLUMNS_AUTO = 40001,
+		ID_MEMORYVIEW_COLUMNS_16BYTES,
+		ID_MEMORYVIEW_COLUMNS_32BYTES,
+		ID_MEMORYVIEW_MENU_MAX
+	};
+
 	virtual uint8							GetByte(uint32) = 0;
+	virtual HMENU							CreateContextualMenu();
 
 	void									Paint(HDC) override;
 	void									SetSelectionStart(unsigned int);
 
+	long									OnCommand(unsigned short, unsigned short, HWND) override;
 	long									OnSize(unsigned int, unsigned int, unsigned int) override;
 	long									OnVScroll(unsigned int, unsigned int) override;
 	long									OnSetFocus() override;
@@ -30,6 +42,7 @@ protected:
 	long									OnMouseWheel(int, int, short) override;
 	long									OnLeftButtonDown(int, int) override;
 	long									OnLeftButtonUp(int, int) override;
+	long									OnRightButtonUp(int, int) override;
 	long									OnKeyDown(WPARAM, LPARAM) override;
 
 	Framework::Win32::CFont					m_font;
@@ -50,4 +63,5 @@ private:
 
 	uint32									m_selectionStart = 0;
 	uint32									m_size = 0;
+	uint32									m_bytesPerLine = 0;
 };

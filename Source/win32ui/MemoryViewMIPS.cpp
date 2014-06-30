@@ -1,12 +1,9 @@
 #include <boost/bind.hpp>
-#include "MemoryViewMIPS.h"
 #include "win32/InputBox.h"
-#include "lexical_cast_ex.h"
-#include "DebugExpressionEvaluator.h"
 #include "string_cast.h"
-
-#define ID_MEMORYVIEW_GOTOADDRESS		40001
-#define ID_MEMORYVIEW_FOLLOWPOINTER		40002
+#include "string_format.h"
+#include "MemoryViewMIPS.h"
+#include "DebugExpressionEvaluator.h"
 
 CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* context)
 : CMemoryView(hParent, rect)
@@ -25,15 +22,31 @@ CMemoryViewMIPS::~CMemoryViewMIPS()
 
 }
 
-long CMemoryViewMIPS::OnRightButtonUp(int nX, int nY)
+long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
 {
-	POINT pt;
-	pt.x = nX;
-	pt.y = nY;
-	ClientToScreen(m_hWnd, &pt);
+	switch(nID)
+	{
+	case ID_MEMORYVIEWMIPS_GOTOADDRESS:
+		GotoAddress();
+		break;
+	case ID_MEMORYVIEWMIPS_FOLLOWPOINTER:
+		FollowPointer();
+		break;
+	}
+	return CMemoryView::OnCommand(nID, nCmd, hSender);
+}
 
-	HMENU hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_BYPOSITION, ID_MEMORYVIEW_GOTOADDRESS, _T("Goto Address..."));
+uint8 CMemoryViewMIPS::GetByte(uint32 nAddress)
+{
+	return m_context->m_pMemoryMap->GetByte(nAddress);
+}
+
+HMENU CMemoryViewMIPS::CreateContextualMenu()
+{
+	HMENU menu = CMemoryView::CreateContextualMenu();
+
+	AppendMenu(menu, MF_SEPARATOR, 0, 0);
+	AppendMenu(menu, MF_STRING, ID_MEMORYVIEWMIPS_GOTOADDRESS, _T("Goto Address..."));
 
 	//Follow pointer
 	{
@@ -41,33 +54,12 @@ long CMemoryViewMIPS::OnRightButtonUp(int nX, int nY)
 		if((selection & 0x03) == 0)
 		{
 			uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(GetSelection());
-			std::tstring followPointerText = _T("Follow Pointer (0x") + lexical_cast_hex<std::tstring>(valueAtSelection, 8) + _T(")");
-			InsertMenu(hMenu, 1, MF_BYPOSITION, ID_MEMORYVIEW_FOLLOWPOINTER, followPointerText.c_str());
+			auto followPointerText = string_format(_T("Follow Pointer (0x%0.8X)"), valueAtSelection);
+			AppendMenu(menu, MF_STRING, ID_MEMORYVIEWMIPS_FOLLOWPOINTER, followPointerText.c_str());
 		}
 	}
 
-	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
-
-	return FALSE;
-}
-
-long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
-{
-	switch(nID)
-	{
-	case ID_MEMORYVIEW_GOTOADDRESS:
-		GotoAddress();
-		break;
-	case ID_MEMORYVIEW_FOLLOWPOINTER:
-		FollowPointer();
-		break;
-	}
-	return TRUE;
-}
-
-uint8 CMemoryViewMIPS::GetByte(uint32 nAddress)
-{
-	return m_context->m_pMemoryMap->GetByte(nAddress);
+	return menu;
 }
 
 void CMemoryViewMIPS::OnMachineStateChange()
