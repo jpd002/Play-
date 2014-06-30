@@ -33,12 +33,18 @@ protected:
 	long									OnKeyDown(WPARAM, LPARAM) override;
 
 private:
-	void									GetVisibleRowsCols(unsigned int*, unsigned int*);
+	struct RENDERPARAMS
+	{
+		unsigned int	lines = 0;
+		unsigned int	bytesPerLine = 0;
+		uint32			address = 0;
+	};
+
 	void									UpdateScrollRange();
 	unsigned int							GetScrollOffset();
 	unsigned int							GetScrollThumbPosition();
 	void									UpdateCaretPosition();
-	void									GetRenderParams(const SIZE&, unsigned int&, unsigned int&, uint32&);
+	RENDERPARAMS							GetRenderParams();
 
 	uint32									m_selectionStart = 0;
 	uint32									m_size = 0;

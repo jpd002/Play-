@@ -7,10 +7,12 @@
 #include "win32/DefaultWndClass.h"
 #include "lexical_cast_ex.h"
 
-#define CLSNAME		_T("CMemoryView")
-#define XMARGIN		5
-#define YMARGIN		5
-#define YSPACE		0
+#define XMARGIN				5
+#define YMARGIN				5
+#define YSPACE				0
+#define BYTESPACING			3
+#define LINESECTIONSPACING	20
+#define ADDRESSCHARS		8
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 {
@@ -30,21 +32,20 @@ HFONT CMemoryView::GetFont()
 	return (HFONT)GetStockObject(ANSI_FIXED_FONT);
 }
 
-void CMemoryView::ScrollToAddress(uint32 nAddress)
+void CMemoryView::ScrollToAddress(uint32 address)
 {
-	unsigned int nRows = 0, nCols = 0;
-	GetVisibleRowsCols(&nRows, &nCols);
+	auto renderParams = GetRenderParams();
 
 	//Humm, nvm...
-	if(nCols == 0) return;
-	if(nAddress >= m_size) return;
+	if(renderParams.bytesPerLine == 0) return;
+	if(address >= m_size) return;
 
-	unsigned int nRow = (nAddress / nCols);
+	unsigned int line = (address / renderParams.bytesPerLine);
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= nRow;
+	si.nPos			= line;
 	si.fMask		= SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
@@ -58,31 +59,33 @@ uint32 CMemoryView::GetSelection()
 
 void CMemoryView::UpdateScrollRange()
 {
-	unsigned int nRows = 0, nCols = 0;
-	GetVisibleRowsCols(&nRows, &nCols);
+	auto renderParams = GetRenderParams();
 
-	unsigned int nTotalRows = 0;
-	if(nCols != 0)
+	unsigned int totalLines = 0;
+	if(renderParams.bytesPerLine != 0)
 	{
-		nTotalRows = (m_size / nCols);
-		if((m_size % nCols) != 0) nTotalRows++;
+		totalLines = (m_size / renderParams.bytesPerLine);
+		if((m_size % renderParams.bytesPerLine) != 0) totalLines++;
 	}
 	else
 	{
-		nTotalRows = 0;
+		totalLines = 0;
 	}
+
+	//Render params always compensate for partially visible lines
+	unsigned int totallyVisibleLines = renderParams.lines - 1;
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize		= sizeof(SCROLLINFO);
 	si.nMin			= 0;
-	if(nTotalRows <= nRows)
+	if(totalLines <= totallyVisibleLines)
 	{
 		si.nMax		= 0;
 	}
 	else
 	{
-		si.nMax		= nTotalRows - nRows;
+		si.nMax		= totalLines - totallyVisibleLines;
 	}
 	si.fMask		= SIF_RANGE | SIF_DISABLENOSCROLL;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE); 
@@ -108,37 +111,6 @@ unsigned int CMemoryView::GetScrollThumbPosition()
 	return si.nTrackPos;
 }
 
-void CMemoryView::GetVisibleRowsCols(unsigned int* pRows, unsigned int* pCols)
-{
-	SIZE s = {};
-
-	{
-		Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-		Framework::Win32::CFont font(GetFont());
-
-		s = deviceContext.GetFontSize(font);
-	}
-
-	RECT rc = GetClientRect();
-
-	unsigned int nRows = (rc.bottom - (YMARGIN * 2)) / (s.cy + YSPACE);
-	unsigned int nCols = (rc.right - (2 * XMARGIN) - (5 * s.cx) - 17);
-	nCols /= (3 * (s.cx + 1));
-	if(nCols != 0)
-	{
-		nCols--;
-	}
-	
-	if(pRows != NULL)
-	{
-		*pRows = nRows;
-	}
-	if(pCols != NULL)
-	{
-		*pCols = nCols;
-	}
-}
-
 void CMemoryView::Paint(HDC hDC)
 {
 	Framework::Win32::CDeviceContext deviceContext(hDC);
@@ -149,58 +121,57 @@ void CMemoryView::Paint(HDC hDC)
 	Framework::Win32::CFont font(GetFont());
 	deviceContext.SelectObject(font);
 
-	SIZE s = deviceContext.GetFontSize(font);
+	SIZE fontSize = deviceContext.GetFontSize(font);
 
-	unsigned int nLines = 0, nFixedBytes = 0;
-	uint32 nAddress = 0;
-	GetRenderParams(s, nLines, nFixedBytes, nAddress);
-
-	unsigned int nBytes = nFixedBytes;
+	auto renderParams = GetRenderParams();
 	unsigned int nY = YMARGIN;
+	uint32 address = renderParams.address;
 
-	for(unsigned int i = 0; i < nLines; i++)
+	for(unsigned int i = 0; i < renderParams.lines; i++)
 	{
-		if(nAddress >= m_size)
+		if(address >= m_size)
 		{
 			break;
 		}
-		if((nAddress + nBytes) >= m_size)
+
+		unsigned int bytesForCurrentLine = renderParams.bytesPerLine;
+		if((address + bytesForCurrentLine) >= m_size)
 		{
-			nBytes = (m_size - nAddress);
+			bytesForCurrentLine = (m_size - address);
 		}
 
 		unsigned int nX = XMARGIN;
-		deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(nAddress, 8).c_str());
-		nX += (8 * s.cx) + 10;
+		deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(address, ADDRESSCHARS).c_str());
+		nX += (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING;
 
-		for(unsigned int j = 0; j < nBytes; j++)
+		for(unsigned int j = 0; j < bytesForCurrentLine; j++)
 		{
-			deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(GetByte(nAddress + j), 2).c_str());
-			nX += (2 * s.cx) + 3;
+			deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(GetByte(address + j), 2).c_str());
+			nX += (2 * fontSize.cx) + BYTESPACING;
 		}
-		nX += (nFixedBytes - nBytes) * (2 * s.cx + 3);
+		//Compensate for incomplete lines (when bytesForCurrentLine < bytesPerLine)
+		nX += (renderParams.bytesPerLine - bytesForCurrentLine) * (2 * fontSize.cx + BYTESPACING);
 
-		nX += 10;
+		nX += LINESECTIONSPACING;
 
-		for(unsigned int j = 0; j < nBytes; j++)
+		for(unsigned int j = 0; j < bytesForCurrentLine; j++)
 		{
-			uint8 nValue;
-			char sValue[2];
-
-			nValue = GetByte(nAddress + j);
+			uint8 nValue = GetByte(address + j);
 			if(nValue < 0x20 || nValue > 0x7F)
 			{
 				nValue = '.';
 			}
+
+			char sValue[2];
 			sValue[0] = nValue;
 			sValue[1] = 0x00;
 
 			deviceContext.TextOut(nX, nY, string_cast<std::tstring>(sValue).c_str());
-			nX += s.cx;
+			nX += fontSize.cx;
 		}
 
-		nY += (s.cy + YSPACE);
-		nAddress += nBytes;
+		nY += (fontSize.cy + YSPACE);
+		address += bytesForCurrentLine;
 	}
 }
 
@@ -304,24 +275,19 @@ long CMemoryView::OnLeftButtonUp(int nX, int nY)
 	SIZE fontSize = Framework::Win32::CClientDeviceContext(m_hWnd).GetFontSize(Framework::Win32::CFont(GetFont()));
 
 	nY -= YMARGIN;
-	nX -= XMARGIN + (8 * fontSize.cx) + 10;
+	nX -= XMARGIN + (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING;
 
 	if(nY < 0) return FALSE;
 	if(nX < 0) return FALSE;
 
-	//Find selected line
-	unsigned int nLine = nY / (fontSize.cy + YSPACE);
+	unsigned int selectedLine = nY / (fontSize.cy + YSPACE);
+	unsigned int selectedByte = nX / ((2 * fontSize.cx) + BYTESPACING);
 
-	//Find selected row;
-	unsigned int nRow = nX / ((2 * fontSize.cx) + 3);
+	auto renderParams = GetRenderParams();
 
-	uint32 nAddress = 0;
-	unsigned int nCols = 0, nRows = 0;
-	GetRenderParams(fontSize, nCols, nRows, nAddress);
+	if(selectedByte >= renderParams.bytesPerLine) return FALSE;
 
-	if(nRow >= nRows) return FALSE;
-
-	SetSelectionStart(nAddress + nRow + (nLine * nRows));
+	SetSelectionStart(renderParams.address + selectedByte + (selectedLine * renderParams.bytesPerLine));
 
 	return FALSE;
 }
@@ -339,10 +305,10 @@ long CMemoryView::OnKeyDown(WPARAM nKey, LPARAM)
 	case VK_UP:
 	case VK_DOWN:
 		{
-			unsigned int nCols = 0;
-			GetVisibleRowsCols(NULL, &nCols);
-			SetSelectionStart(m_selectionStart + ((nKey == VK_UP) ? (-static_cast<int>(nCols)) : (nCols)));
+			auto renderParams = GetRenderParams();
+			SetSelectionStart(m_selectionStart + ((nKey == VK_UP) ? (-static_cast<int>(renderParams.bytesPerLine)) : (renderParams.bytesPerLine)));
 		}
+		break;
 	}
 
 	return TRUE;
@@ -362,25 +328,17 @@ void CMemoryView::UpdateCaretPosition()
 {
 	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
 	Framework::Win32::CFont font(GetFont());
-
 	SIZE fontSize(deviceContext.GetFontSize(font));
-	uint32 nAddress = 0;
-	unsigned int nLines = 0, nBytes = 0;
-	GetRenderParams(
-		fontSize,
-		nLines,
-		nBytes,
-		nAddress);
-
+	auto renderParams = GetRenderParams();
 	if(
-		(nBytes != 0) &&
-		(m_selectionStart >= nAddress) && 
-		(m_selectionStart <= (nAddress + (nLines * nBytes)))
+		(renderParams.bytesPerLine != 0) &&
+		(m_selectionStart >= renderParams.address) && 
+		(m_selectionStart <= (renderParams.address + (renderParams.lines * renderParams.bytesPerLine)))
 		)
 	{
-		unsigned int nSelectionStart = m_selectionStart - nAddress;
-		int nX = XMARGIN + (8 * fontSize.cx) + 10 + (nSelectionStart % nBytes) * ((2 * fontSize.cx) + 3);
-		int nY = YMARGIN + (fontSize.cy + YSPACE) * (nSelectionStart / nBytes);
+		unsigned int selectionStart = m_selectionStart - renderParams.address;
+		int nX = XMARGIN + (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING + (selectionStart % renderParams.bytesPerLine) * ((2 * fontSize.cx) + BYTESPACING);
+		int nY = YMARGIN + (fontSize.cy + YSPACE) * (selectionStart / renderParams.bytesPerLine);
 		SetCaretPos(nX, nY);
 	}
 	else
@@ -389,22 +347,24 @@ void CMemoryView::UpdateCaretPosition()
 	}
 }
 
-void CMemoryView::GetRenderParams(const SIZE& FontSize, unsigned int& nLines, unsigned int& nFixedBytes, uint32& nAddress)
+CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 {
+	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
+	Framework::Win32::CFont font(GetFont());
+	SIZE fontSize(deviceContext.GetFontSize(font));
+
+	RENDERPARAMS renderParams;
+
 	RECT clientRect(GetClientRect());
 
-	nLines = (clientRect.bottom - (YMARGIN * 2)) / (FontSize.cy + YSPACE);
+	renderParams.lines = (clientRect.bottom - (YMARGIN * 2)) / (fontSize.cy + YSPACE);
+	renderParams.lines++;
 	
-	nFixedBytes = clientRect.right - (2 * XMARGIN) - (5 * FontSize.cx) - 17;
-	nFixedBytes /= (3 * (FontSize.cx + 1));
-	if(nFixedBytes != 0)
-	{
-		nFixedBytes--;
-	}
-	//nFixedBytes &= ~(0x0F);
-	//nBytes = nFixedBytes;
+	//lineSize = (2 * XMARGIN) + (2 * LINESECTIONSPACING) + (ADDRESSCHARS * cx) + bytesPerLine * (2 * cx + BYTESPACING) + bytesPerLine * cx
+	renderParams.bytesPerLine = clientRect.right - (2 * XMARGIN) - (2 * LINESECTIONSPACING) - (ADDRESSCHARS * fontSize.cx);
+	renderParams.bytesPerLine /= ((2 * fontSize.cx + BYTESPACING) + (fontSize.cx));
 
-	nLines++;
+	renderParams.address = GetScrollOffset() * renderParams.bytesPerLine;
 
-	nAddress = GetScrollOffset() * nFixedBytes;
+	return renderParams;
 }
