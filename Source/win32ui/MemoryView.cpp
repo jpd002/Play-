@@ -11,7 +11,7 @@
 #define YMARGIN				5
 #define YSPACE				0
 #define BYTESPACING			3
-#define LINESECTIONSPACING	20
+#define LINESECTIONSPACING	10
 #define ADDRESSCHARS		8
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
