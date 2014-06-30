@@ -83,7 +83,6 @@ void CMemoryViewMIPS::GotoAddress()
 		try
 		{
 			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(string_cast<std::string>(sValue).c_str(), m_context);
-			ScrollToAddress(nAddress);
 			SetSelectionStart(nAddress);
 		}
 		catch(const std::exception& exception)
@@ -103,6 +102,5 @@ void CMemoryViewMIPS::FollowPointer()
 	}
 
 	uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(GetSelection());
-	ScrollToAddress(valueAtSelection);
 	SetSelectionStart(valueAtSelection);
 }

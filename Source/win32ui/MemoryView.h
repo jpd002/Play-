@@ -14,8 +14,9 @@ public:
 	
 	void									SetMemorySize(uint32);
 	void									SetBytesPerLine(uint32);
-	void									ScrollToAddress(uint32);
+
 	uint32									GetSelection();
+	void									SetSelectionStart(unsigned int);
 
 	boost::signals2::signal<void (uint32)>	OnSelectionChange;
 
@@ -32,7 +33,6 @@ protected:
 	virtual HMENU							CreateContextualMenu();
 
 	void									Paint(HDC) override;
-	void									SetSelectionStart(unsigned int);
 
 	long									OnCommand(unsigned short, unsigned short, HWND) override;
 	long									OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -51,6 +51,7 @@ private:
 	struct RENDERPARAMS
 	{
 		unsigned int	lines = 0;
+		unsigned int	totallyVisibleLines = 0;
 		unsigned int	bytesPerLine = 0;
 		uint32			address = 0;
 	};
@@ -59,6 +60,7 @@ private:
 	unsigned int							GetScrollOffset();
 	unsigned int							GetScrollThumbPosition();
 	void									UpdateCaretPosition();
+	void									EnsureSelectionVisible();
 	RENDERPARAMS							GetRenderParams();
 
 	uint32									m_selectionStart = 0;

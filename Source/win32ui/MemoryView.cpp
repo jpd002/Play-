@@ -12,6 +12,7 @@
 #define BYTESPACING			3
 #define LINESECTIONSPACING	10
 #define ADDRESSCHARS		8
+#define PAGESIZE			10
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 : m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
@@ -27,29 +28,20 @@ CMemoryView::~CMemoryView()
 
 }
 
-void CMemoryView::ScrollToAddress(uint32 address)
-{
-	auto renderParams = GetRenderParams();
-
-	//Humm, nvm...
-	if(renderParams.bytesPerLine == 0) return;
-	if(address >= m_size) return;
-
-	unsigned int line = (address / renderParams.bytesPerLine);
-
-	SCROLLINFO si;
-	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= line;
-	si.fMask		= SIF_POS;
-	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
-
-	Redraw();
-}
-
 uint32 CMemoryView::GetSelection()
 {
 	return m_selectionStart;
+}
+
+void CMemoryView::SetSelectionStart(unsigned int newAddress)
+{
+	newAddress = std::max<int>(newAddress, 0);
+	newAddress = std::min<int>(newAddress, m_size - 1);
+
+	m_selectionStart = newAddress;
+	EnsureSelectionVisible();
+	UpdateCaretPosition();
+	OnSelectionChange(m_selectionStart);
 }
 
 void CMemoryView::UpdateScrollRange()
@@ -67,20 +59,17 @@ void CMemoryView::UpdateScrollRange()
 		totalLines = 0;
 	}
 
-	//Render params always compensate for partially visible lines
-	unsigned int totallyVisibleLines = renderParams.lines - 1;
-
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize		= sizeof(SCROLLINFO);
 	si.nMin			= 0;
-	if(totalLines <= totallyVisibleLines)
+	if(totalLines <= renderParams.totallyVisibleLines)
 	{
 		si.nMax		= 0;
 	}
 	else
 	{
-		si.nMax		= totalLines - totallyVisibleLines;
+		si.nMax		= totalLines - renderParams.totallyVisibleLines;
 	}
 	si.fMask		= SIF_RANGE | SIF_DISABLENOSCROLL;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE); 
@@ -192,7 +181,7 @@ void CMemoryView::SetBytesPerLine(uint32 bytesPerLine)
 {
 	m_bytesPerLine = bytesPerLine;
 	UpdateScrollRange();
-	ScrollToAddress(m_selectionStart);
+	EnsureSelectionVisible();
 	UpdateCaretPosition();
 	Redraw();
 }
@@ -210,10 +199,10 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 		nOffset--;
 		break;
 	case SB_PAGEDOWN:
-		nOffset += 10;
+		nOffset += PAGESIZE;
 		break;
 	case SB_PAGEUP:
-		nOffset -= 10;
+		nOffset -= PAGESIZE;
 		break;
 	case SB_THUMBPOSITION:
 	case SB_THUMBTRACK:
@@ -355,19 +344,16 @@ long CMemoryView::OnKeyDown(WPARAM nKey, LPARAM)
 			SetSelectionStart(m_selectionStart + ((nKey == VK_UP) ? (-static_cast<int>(renderParams.bytesPerLine)) : (renderParams.bytesPerLine)));
 		}
 		break;
+	case VK_PRIOR:
+	case VK_NEXT:
+		{
+			auto renderParams = GetRenderParams();
+			SetSelectionStart(m_selectionStart + ((nKey == VK_PRIOR) ? (-static_cast<int>(renderParams.bytesPerLine * PAGESIZE)) : (renderParams.bytesPerLine * PAGESIZE)));
+		}
+		break;
 	}
 
 	return TRUE;
-}
-
-void CMemoryView::SetSelectionStart(unsigned int nNewAddress)
-{
-	if(static_cast<int>(nNewAddress) < 0) return;
-	if(nNewAddress >= m_size) return;
-
-	m_selectionStart = nNewAddress;
-	UpdateCaretPosition();
-	OnSelectionChange(m_selectionStart);
 }
 
 void CMemoryView::UpdateCaretPosition()
@@ -392,6 +378,39 @@ void CMemoryView::UpdateCaretPosition()
 	}
 }
 
+void CMemoryView::EnsureSelectionVisible()
+{
+	auto renderParams = GetRenderParams();
+	uint32 address = m_selectionStart;
+
+	if(renderParams.bytesPerLine == 0) return;
+	if(address >= m_size) return;
+
+	uint32 visibleMin = renderParams.address;
+	uint32 visibleMax = renderParams.address + (renderParams.bytesPerLine * renderParams.totallyVisibleLines);
+
+	//Already visible
+	if(address >= visibleMin && address < visibleMax)
+	{
+		return;
+	}
+
+	unsigned int line = (address / renderParams.bytesPerLine);
+	if(address > renderParams.address)
+	{
+		line -= renderParams.totallyVisibleLines;
+	}
+
+	SCROLLINFO si;
+	memset(&si, 0, sizeof(SCROLLINFO));
+	si.cbSize		= sizeof(SCROLLINFO);
+	si.nPos			= line;
+	si.fMask		= SIF_POS;
+	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+
+	Redraw();
+}
+
 CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 {
 	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
@@ -401,8 +420,8 @@ CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 
 	RECT clientRect(GetClientRect());
 
-	renderParams.lines = (clientRect.bottom - (YMARGIN * 2)) / (fontSize.cy + YSPACE);
-	renderParams.lines++;
+	renderParams.totallyVisibleLines = (clientRect.bottom - (YMARGIN * 2)) / (fontSize.cy + YSPACE);
+	renderParams.lines = renderParams.totallyVisibleLines + 1;
 	
 	if(m_bytesPerLine == 0)
 	{
