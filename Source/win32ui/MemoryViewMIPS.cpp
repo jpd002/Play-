@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <boost/bind.hpp>
 #include "MemoryViewMIPS.h"
 #include "win32/InputBox.h"
@@ -9,11 +8,13 @@
 #define ID_MEMORYVIEW_GOTOADDRESS		40001
 #define ID_MEMORYVIEW_FOLLOWPOINTER		40002
 
-CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* context)
 : CMemoryView(hParent, rect)
 , m_virtualMachine(virtualMachine)
-, m_pCtx(pCtx)
+, m_context(context)
 {
+	m_font = CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
+
 	SetMemorySize(0x02004000);
 
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CMemoryViewMIPS::OnMachineStateChange, this));
@@ -39,7 +40,7 @@ long CMemoryViewMIPS::OnRightButtonUp(int nX, int nY)
 		uint32 selection = GetSelection();
 		if((selection & 0x03) == 0)
 		{
-			uint32 valueAtSelection = m_pCtx->m_pMemoryMap->GetWord(GetSelection());
+			uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(GetSelection());
 			std::tstring followPointerText = _T("Follow Pointer (0x") + lexical_cast_hex<std::tstring>(valueAtSelection, 8) + _T(")");
 			InsertMenu(hMenu, 1, MF_BYPOSITION, ID_MEMORYVIEW_FOLLOWPOINTER, followPointerText.c_str());
 		}
@@ -64,14 +65,9 @@ long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hS
 	return TRUE;
 }
 
-HFONT CMemoryViewMIPS::GetFont()
-{
-	return CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
-}
-
 uint8 CMemoryViewMIPS::GetByte(uint32 nAddress)
 {
-	return m_pCtx->m_pMemoryMap->GetByte(nAddress);
+	return m_context->m_pMemoryMap->GetByte(nAddress);
 }
 
 void CMemoryViewMIPS::OnMachineStateChange()
@@ -94,7 +90,7 @@ void CMemoryViewMIPS::GotoAddress()
 	{
 		try
 		{
-			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(string_cast<std::string>(sValue).c_str(), m_pCtx);
+			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(string_cast<std::string>(sValue).c_str(), m_context);
 			ScrollToAddress(nAddress);
 			SetSelectionStart(nAddress);
 		}
@@ -114,7 +110,7 @@ void CMemoryViewMIPS::FollowPointer()
 		return;
 	}
 
-	uint32 valueAtSelection = m_pCtx->m_pMemoryMap->GetWord(GetSelection());
+	uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(GetSelection());
 	ScrollToAddress(valueAtSelection);
 	SetSelectionStart(valueAtSelection);
 }

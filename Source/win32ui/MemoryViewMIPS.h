@@ -1,5 +1,4 @@
-#ifndef _MEMORYVIEWMIPS_H_
-#define _MEMORYVIEWMIPS_H_
+#pragma once
 
 #include <boost/signals2.hpp>
 #include "../MIPS.h"
@@ -13,10 +12,10 @@ public:
 	virtual							~CMemoryViewMIPS();
 
 protected:
-	virtual uint8					GetByte(uint32);
-	virtual HFONT					GetFont();
-	long							OnRightButtonUp(int, int);
-	long							OnCommand(unsigned short, unsigned short, HWND);
+	uint8							GetByte(uint32) override;
+
+	long							OnRightButtonUp(int, int) override;
+	long							OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	void							GotoAddress();
@@ -24,8 +23,6 @@ private:
 
 	void							OnMachineStateChange();
 
-	CMIPS*							m_pCtx;
+	CMIPS*							m_context;
 	CVirtualMachine&				m_virtualMachine;
 };
-
-#endif

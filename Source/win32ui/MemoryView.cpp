@@ -2,7 +2,6 @@
 #include <string.h>
 #include "MemoryView.h"
 #include "string_cast.h"
-#include "win32/GdiObj.h"
 #include "win32/ClientDeviceContext.h"
 #include "win32/DefaultWndClass.h"
 #include "lexical_cast_ex.h"
@@ -15,6 +14,7 @@
 #define ADDRESSCHARS		8
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
+: m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
 {
 	Create(WS_EX_CLIENTEDGE, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, parentWnd, NULL);
 	SetClassPtr();
@@ -25,11 +25,6 @@ CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 CMemoryView::~CMemoryView()
 {
 
-}
-
-HFONT CMemoryView::GetFont()
-{
-	return (HFONT)GetStockObject(ANSI_FIXED_FONT);
 }
 
 void CMemoryView::ScrollToAddress(uint32 address)
@@ -118,10 +113,9 @@ void CMemoryView::Paint(HDC hDC)
 	RECT rwin = GetClientRect();
 	BitBlt(deviceContext, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
 
-	Framework::Win32::CFont font(GetFont());
-	deviceContext.SelectObject(font);
+	deviceContext.SelectObject(m_font);
 
-	SIZE fontSize = deviceContext.GetFontSize(font);
+	SIZE fontSize = deviceContext.GetFontSize(m_font);
 
 	auto renderParams = GetRenderParams();
 	unsigned int nY = YMARGIN;
@@ -175,9 +169,9 @@ void CMemoryView::Paint(HDC hDC)
 	}
 }
 
-void CMemoryView::SetMemorySize(uint32 nSize)
+void CMemoryView::SetMemorySize(uint32 size)
 {
-	m_size = nSize;
+	m_size = size;
 	UpdateScrollRange();
 }
 
@@ -231,9 +225,8 @@ long CMemoryView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
 long CMemoryView::OnSetFocus()
 {
 	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-	Framework::Win32::CFont font(GetFont());
 
-	CreateCaret(m_hWnd, NULL, 2, deviceContext.GetFontHeight(font));
+	CreateCaret(m_hWnd, NULL, 2, deviceContext.GetFontHeight(m_font));
 	ShowCaret(m_hWnd);
 
 	UpdateCaretPosition();
@@ -272,7 +265,7 @@ long CMemoryView::OnLeftButtonDown(int nX, int nY)
 
 long CMemoryView::OnLeftButtonUp(int nX, int nY)
 {
-	SIZE fontSize = Framework::Win32::CClientDeviceContext(m_hWnd).GetFontSize(Framework::Win32::CFont(GetFont()));
+	SIZE fontSize = Framework::Win32::CClientDeviceContext(m_hWnd).GetFontSize(m_font);
 
 	nY -= YMARGIN;
 	nX -= XMARGIN + (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING;
@@ -327,8 +320,7 @@ void CMemoryView::SetSelectionStart(unsigned int nNewAddress)
 void CMemoryView::UpdateCaretPosition()
 {
 	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-	Framework::Win32::CFont font(GetFont());
-	SIZE fontSize(deviceContext.GetFontSize(font));
+	SIZE fontSize(deviceContext.GetFontSize(m_font));
 	auto renderParams = GetRenderParams();
 	if(
 		(renderParams.bytesPerLine != 0) &&
@@ -350,8 +342,7 @@ void CMemoryView::UpdateCaretPosition()
 CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 {
 	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-	Framework::Win32::CFont font(GetFont());
-	SIZE fontSize(deviceContext.GetFontSize(font));
+	SIZE fontSize(deviceContext.GetFontSize(m_font));
 
 	RENDERPARAMS renderParams;
 

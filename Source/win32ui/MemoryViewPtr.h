@@ -9,6 +9,7 @@ public:
 	void				SetData(void*, uint32);
 
 protected:
-	virtual uint8		GetByte(uint32);
+	virtual uint8		GetByte(uint32) override;
+
 	void*				m_pData;
 };

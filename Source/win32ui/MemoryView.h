@@ -3,6 +3,7 @@
 #include "Types.h"
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
+#include "win32/GdiObj.h"
 #include <boost/signals2.hpp>
 
 class CMemoryView : public Framework::Win32::CCustomDrawn
@@ -18,9 +19,8 @@ public:
 
 protected:
 	virtual uint8							GetByte(uint32) = 0;
-	virtual HFONT							GetFont();
 
-	void									Paint(HDC);
+	void									Paint(HDC) override;
 	void									SetSelectionStart(unsigned int);
 
 	long									OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -31,6 +31,8 @@ protected:
 	long									OnLeftButtonDown(int, int) override;
 	long									OnLeftButtonUp(int, int) override;
 	long									OnKeyDown(WPARAM, LPARAM) override;
+
+	Framework::Win32::CFont					m_font;
 
 private:
 	struct RENDERPARAMS
