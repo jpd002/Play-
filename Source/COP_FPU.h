@@ -87,6 +87,8 @@ private:
 	void								MULA_S();
 	void								MADD_S();
 	void								MSUB_S();
+	void								MADDA_S();
+	void								MSUBA_S();
 	void								CVT_W_S();
 	void								MAX_S();
 	void								MIN_S();
