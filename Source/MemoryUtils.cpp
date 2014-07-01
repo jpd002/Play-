@@ -47,7 +47,7 @@ uint64 MemoryUtils_GetDoubleProxy(CMIPS* context, uint32 address)
 
 uint128 MemoryUtils_GetQuadProxy(CMIPS* context, uint32 address)
 {
-	assert((address & 0x0F) == 0);
+	address &= ~0x0F;
 	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetReadMap(address);
 	uint128 result;
 #ifdef _DEBUG
