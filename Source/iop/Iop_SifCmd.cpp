@@ -28,6 +28,7 @@ using namespace Iop;
 #define FUNCTION_RETURNFROMRPCINVOKE	"ReturnFromRpcInvoke"
 
 #define TRAMPOLINE_SIZE				0x800
+#define SENDCMD_EXTRASTRUCT_SIZE	0x10
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram) 
 : m_sifMan(sifMan)
@@ -35,8 +36,9 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 , m_sysMem(sysMem)
 , m_ram(ram)
 {
-	m_memoryBufferAddr = m_sysMem.AllocateMemory(TRAMPOLINE_SIZE, 0, 0);
+	m_memoryBufferAddr = m_sysMem.AllocateMemory(TRAMPOLINE_SIZE + SENDCMD_EXTRASTRUCT_SIZE, 0, 0);
 	m_trampolineAddr = m_memoryBufferAddr;
+	m_sendCmdExtraStructAddr = m_memoryBufferAddr + TRAMPOLINE_SIZE;
 
 	BuildExportTable();
 }
@@ -243,9 +245,6 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 	CLog::GetInstance().Print(LOG_NAME, "SifSendCmd(commandId = 0x%0.8X, packetPtr = 0x%0.8X, packetSize = 0x%0.8X, srcExtraPtr = 0x%0.8X, dstExtraPtr = 0x%0.8X, sizeExtra = 0x%0.8X);\r\n",
 		commandId, packetPtr, packetSize, srcExtraPtr, dstExtraPtr, sizeExtra);
 
-	assert(srcExtraPtr == 0);
-	assert(dstExtraPtr == 0);
-	assert(sizeExtra == 0);
 	assert(packetSize >= 0x10);
 
 	uint8* packetData = m_ram + packetPtr;
@@ -254,6 +253,20 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 	header->nSize = packetSize;
 	header->nDest = 0;
 	m_sifMan.SendPacket(packetData, packetSize);
+
+	if(sizeExtra != 0)
+	{
+		assert(srcExtraPtr != 0);
+		assert(dstExtraPtr != 0);
+
+		uint32* dmaRegStruct = reinterpret_cast<uint32*>(m_ram + m_sendCmdExtraStructAddr);
+		dmaRegStruct[0] = srcExtraPtr;
+		dmaRegStruct[1] = dstExtraPtr;
+		dmaRegStruct[2] = sizeExtra;
+		dmaRegStruct[3] = 0;
+
+		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
+	}
 
 	return 1;
 }

@@ -28,8 +28,9 @@ namespace Iop
 		virtual void			SendCallReply(uint32, void*) = 0;
 		virtual void			GetOtherData(uint32, uint32, uint32) = 0;
 
-	protected:
 		virtual uint32			SifSetDma(uint32, uint32);
+
+	protected:
 		virtual uint32			SifDmaStat(uint32);
 		virtual uint32			SifSetDmaCallback(CMIPS&, uint32, uint32, uint32, uint32);
 

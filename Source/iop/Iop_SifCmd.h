@@ -73,6 +73,7 @@ namespace Iop
 		uint8*					m_ram;
 		uint32					m_memoryBufferAddr;
 		uint32					m_trampolineAddr;
+		uint32					m_sendCmdExtraStructAddr;
 		uint32					m_returnFromRpcInvokeAddr;
 		DynamicModuleList		m_servers;
 	};
