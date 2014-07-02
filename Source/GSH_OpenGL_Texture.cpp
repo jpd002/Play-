@@ -66,9 +66,39 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
+		if(!candidateFramebuffer->m_canBeUsedAsTexture) continue;
+
+		bool canBeUsed = false;
+		float offsetX = 0;
+
+		//Case: TEX0 points at the start of a frame buffer with the same width
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
-			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
-			candidateFramebuffer->m_canBeUsedAsTexture)
+			candidateFramebuffer->m_width == tex0.GetBufWidth())
+		{
+			canBeUsed = true;
+		}
+
+		//Another case: TEX0 is pointing to the start of a page within our framebuffer (BGDA does this)
+		else if(candidateFramebuffer->m_basePtr <= tex0.GetBufPtr() &&
+			candidateFramebuffer->m_psm == tex0.nPsm)
+		{
+			uint32 framebufferOffset = tex0.GetBufPtr() - candidateFramebuffer->m_basePtr;
+
+			//Bail if offset is not aligned on a page boundary
+			if((framebufferOffset & (CGsPixelFormats::PAGESIZE - 1)) != 0) continue;
+
+			auto framebufferPageSize = GetPsmPageSize(candidateFramebuffer->m_psm);
+			uint32 framebufferPageCountX = candidateFramebuffer->m_width / framebufferPageSize.first;
+			uint32 framebufferPageIndex = framebufferOffset / CGsPixelFormats::PAGESIZE;
+
+			//Bail if pointed page isn't on the first line
+			if(framebufferPageIndex >= framebufferPageCountX) continue;
+
+			canBeUsed = true;
+			offsetX = -static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
+		}
+
+		if(canBeUsed)
 		{
 			//We have a winner
 			glBindTexture(GL_TEXTURE_2D, candidateFramebuffer->m_texture);
@@ -80,6 +110,7 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 			if(halfHeight) scaleRatioY *= 2.0f;
 
+			glTranslatef(offsetX, 0, 0);
 			glScalef(scaleRatioX, scaleRatioY, 1);
 
 			return;
