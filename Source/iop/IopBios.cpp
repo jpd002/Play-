@@ -125,7 +125,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	m_threads.FreeAll();
 	m_semaphores.FreeAll();
 	m_intrHandlers.FreeAll();
+#ifdef DEBUGGER_INCLUDED
 	m_moduleTags.clear();
+#endif
 
 	DeleteModules();
 

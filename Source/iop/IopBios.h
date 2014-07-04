@@ -343,7 +343,9 @@ private:
 	IopModuleMapType				m_modules;
 	DynamicIopModuleListType		m_dynamicModules;
 
+#ifdef DEBUGGER_INCLUDED
 	BiosDebugModuleInfoArray		m_moduleTags;
+#endif
 	Iop::CSifMan*					m_sifMan;
 	Iop::CSifCmd*					m_sifCmd;
 	Iop::CStdio*					m_stdio;
