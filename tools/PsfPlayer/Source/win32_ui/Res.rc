@@ -242,8 +242,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,5,3
- PRODUCTVERSION 0,0,5,3
+ FILEVERSION 1,0,2,0
+ PRODUCTVERSION 1,0,2,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -261,12 +261,12 @@ BEGIN
             VALUE "Comments", "PsfPlayer - PlayStation Sound Format Player"
             VALUE "CompanyName", "Virtual Applications"
             VALUE "FileDescription", "PsfPlayer"
-            VALUE "FileVersion", "0, 0, 5, 3"
+            VALUE "FileVersion", "1.0.2.0"
             VALUE "InternalName", "PsfPlayer"
             VALUE "LegalCopyright", "Copyright (C) 2010 Virtual Applications"
             VALUE "OriginalFilename", "PsfPlayer.exe"
             VALUE "ProductName", "PsfPlayer - PlayStation Sound Format Player"
-            VALUE "ProductVersion", "0, 0, 5, 3"
+            VALUE "ProductVersion", "1.0.2.0"
         END
     END
     BLOCK "VarFileInfo"
