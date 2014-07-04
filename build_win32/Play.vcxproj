@@ -377,14 +377,23 @@
     <ClCompile Include="..\Source\VUShared_Reflection.cpp" />
     <ClCompile Include="..\Source\win32ui\AboutWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\AviStream.cpp" />
-    <ClCompile Include="..\Source\win32ui\CallStackWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\CallStackWnd.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\Source\win32ui\CdromSelectionWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\CommandSink.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugExpressionEvaluator.cpp" />
-    <ClCompile Include="..\Source\win32ui\Debugger.cpp" />
+    <ClCompile Include="..\Source\win32ui\Debugger.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugUtils.cpp" />
-    <ClCompile Include="..\Source\win32ui\DebugView.cpp" />
+    <ClCompile Include="..\Source\win32ui\DebugView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\Source\win32ui\DirectXControl.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsm.cpp" />
     <ClCompile Include="..\Source\win32ui\DisAsmVu.cpp" />
@@ -406,7 +415,10 @@
     <ClCompile Include="..\Source\win32ui\FrameDebugger\TabHost.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.cpp" />
     <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1Vm.cpp" />
-    <ClCompile Include="..\Source\win32ui\FunctionsView.cpp" />
+    <ClCompile Include="..\Source\win32ui\FunctionsView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp" />
     <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp" />
     <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp" />
@@ -446,7 +458,10 @@
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\SysInfoWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\ThreadCallStackViewWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\ThreadsViewWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\ThreadsViewWnd.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\Source\win32ui\VFSManagerWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\WinUtils.cpp" />
   </ItemGroup>

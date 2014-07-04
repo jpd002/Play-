@@ -1,5 +1,4 @@
-#ifndef _PS2OS_H_
-#define _PS2OS_H_
+#pragma once
 
 #include <string>
 #include <boost/signals2.hpp>
@@ -34,9 +33,6 @@ public:
 	CELF*										GetELF();
 	const char*									GetExecutableName() const;
 	std::pair<uint32, uint32>					GetExecutableRange() const;
-	BiosDebugModuleInfoArray					GetModuleInfos() const;
-	BiosDebugThreadInfoArray					GetThreadInfos() const;
-
 	uint32										LoadExecutable(const char*, const char*);
 
 	void										HandleInterrupt();
@@ -44,6 +40,11 @@ public:
 	void										HandleReturnFromException();
 
 	static uint32								TranslateAddress(CMIPS*, uint32);
+
+#ifdef DEBUGGER_INCLUDED
+	BiosDebugModuleInfoArray					GetModuleInfos() const override;
+	BiosDebugThreadInfoArray					GetThreadInfos() const override;
+#endif
 
 	boost::signals2::signal<void ()>			OnExecutableChange;
 	boost::signals2::signal<void ()>			OnExecutableUnloading;
@@ -332,5 +333,3 @@ private:
 	static const SYSCALL_NAME				g_syscallNames[];
 #endif
 };
-
-#endif

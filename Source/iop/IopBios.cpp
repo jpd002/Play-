@@ -474,103 +474,14 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		iopMod = reinterpret_cast<const IOPMOD*>(elf.GetSectionData(i));
 	}
 
-	//Update module tag
+	std::string moduleName = iopMod ? iopMod->moduleName : "";
+	if(moduleName.empty())
 	{
-		std::string moduleName = iopMod ? iopMod->moduleName : "";
-		if(moduleName.size() == 0)
-		{
-			moduleName = path;
-		}
-
-		auto moduleIterator(FindModule(moduleRange.first, moduleRange.second));
-		if(moduleIterator == std::end(m_moduleTags))
-		{
-			moduleIterator = FindModule(moduleName);
-			if(moduleIterator == std::end(m_moduleTags))
-			{
-				moduleIterator = m_moduleTags.insert(std::end(m_moduleTags), BIOS_DEBUG_MODULE_INFO());
-			}
-		}
-
-		auto& module(*moduleIterator);
-		module.name		= moduleName;
-		module.begin	= moduleRange.first;
-		module.end		= moduleRange.second;
-		module.param	= NULL;
+		moduleName = path;
 	}
 
-#ifdef _DEBUG
-	m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
-
-	bool functionAdded = false;
-	//Look for import tables
-	for(uint32 address = moduleRange.first; address < moduleRange.second; address += 4)
-	{
-		if(m_cpu.m_pMemoryMap->GetWord(address) == 0x41E00000)
-		{
-			if(m_cpu.m_pMemoryMap->GetWord(address + 4) != 0) continue;
-			
-			uint32 version = m_cpu.m_pMemoryMap->GetWord(address + 8);
-			std::string moduleName = ReadModuleName(address + 0xC);
-			IopModuleMapType::iterator module(m_modules.find(moduleName));
-
-			size_t moduleNameLength = moduleName.length();
-			uint32 entryAddress = address + 0x0C + ((moduleNameLength + 3) & ~0x03);
-			while(m_cpu.m_pMemoryMap->GetWord(entryAddress) == 0x03E00008)
-			{
-				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
-				uint32 functionId = target & 0xFFFF;
-				std::string functionName;
-				if(module != m_modules.end())
-				{
-					functionName = (module->second)->GetFunctionName(functionId);
-				}
-				else
-				{
-					char functionNameTemp[256];
-					sprintf(functionNameTemp, "unknown_%0.4X", functionId);
-					functionName = functionNameTemp;
-				}
-				if(m_cpu.m_Functions.Find(address) == NULL)
-				{
-					m_cpu.m_Functions.InsertTag(entryAddress, (std::string(moduleName) + "_" + functionName).c_str());
-					functionAdded = true;
-				}
-				entryAddress += 8;
-			}
-		}
-	}
-
-	//Look also for symbol tables
-	{
-		ELFSECTIONHEADER* pSymTab = elf.FindSection(".symtab");
-		if(pSymTab != NULL)
-		{
-			const char* pStrTab = reinterpret_cast<const char*>(elf.GetSectionData(pSymTab->nIndex));
-			if(pStrTab != NULL)
-			{
-				const ELFSYMBOL* pSym = reinterpret_cast<const ELFSYMBOL*>(elf.FindSectionData(".symtab"));
-				unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
-
-				for(unsigned int i = 0; i < nCount; i++)
-				{
-					if((pSym[i].nInfo & 0x0F) != 0x02) continue;
-					ELFSECTIONHEADER* symbolSection = elf.GetSection(pSym[i].nSectionIndex);
-					if(symbolSection == NULL) continue;
-					m_cpu.m_Functions.InsertTag(moduleRange.first + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
-					functionAdded = true;
-				}
-			}
-		}
-	}
-
-	if(functionAdded)
-	{
-		m_cpu.m_Functions.OnTagListChange();
-	}
-
-	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%0.8X.\r\n", 
-		path, moduleRange.first);
+#ifdef DEBUGGER_INCLUDED
+	PrepareModuleDebugInfo(elf, moduleRange, moduleName, path);
 #endif
 
 	//Patch for Shadow Hearts PSF set --------------------------------
@@ -1751,147 +1662,6 @@ void CIopBios::ReturnFromException()
 	Reschedule();
 }
 
-BiosDebugModuleInfoIterator CIopBios::FindModule(const std::string& name)
-{
-	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
-		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
-		{
-			return name == module.name;
-		}
-	);
-}
-
-BiosDebugModuleInfoIterator CIopBios::FindModule(uint32 beginAddress, uint32 endAddress)
-{
-	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
-		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
-		{
-			return (beginAddress == module.begin) && (endAddress == module.end);
-		}
-	);
-}
-
-#ifdef DEBUGGER_INCLUDED
-
-#define TAGS_SECTION_IOP_MODULES						("modules")
-#define TAGS_SECTION_IOP_MODULES_MODULE					("module")
-#define TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS	("beginAddress")
-#define TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS		("endAddress")
-#define TAGS_SECTION_IOP_MODULES_MODULE_NAME			("name")
-
-void CIopBios::LoadDebugTags(Framework::Xml::CNode* root)
-{
-	auto moduleSection = root->Select(TAGS_SECTION_IOP_MODULES);
-	if(moduleSection == NULL) return;
-
-	for(Framework::Xml::CFilteringNodeIterator nodeIterator(moduleSection, TAGS_SECTION_IOP_MODULES_MODULE);
-		!nodeIterator.IsEnd(); nodeIterator++)
-	{
-		auto moduleNode(*nodeIterator);
-		const char* moduleName		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME);
-		const char* beginAddress	= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
-		const char* endAddress		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
-		if(!moduleName || !beginAddress || !endAddress) continue;
-		if(FindModule(moduleName) != std::end(m_moduleTags)) continue;
-
-		BIOS_DEBUG_MODULE_INFO module;
-		module.name		= moduleName;
-		module.begin	= lexical_cast_hex<std::string>(beginAddress);
-		module.end		= lexical_cast_hex<std::string>(endAddress);
-		module.param	= NULL;
-		m_moduleTags.push_back(module);
-	}
-}
-
-void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
-{
-	Framework::Xml::CNode* moduleSection = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES, true);
-
-	for(auto moduleIterator(std::begin(m_moduleTags));
-		std::end(m_moduleTags) != moduleIterator; moduleIterator++)
-	{
-		const auto& module(*moduleIterator);
-		Framework::Xml::CNode* moduleNode = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
-		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,	lexical_cast_hex<std::string>(module.begin, 8).c_str());
-		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,		lexical_cast_hex<std::string>(module.end, 8).c_str());
-		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME,			module.name.c_str());
-		moduleSection->InsertNode(moduleNode);
-	}
-
-	root->InsertNode(moduleSection);
-}
-
-#endif
-
-BiosDebugModuleInfoArray CIopBios::GetModuleInfos() const
-{
-	return m_moduleTags;
-}
-
-BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
-{
-	BiosDebugThreadInfoArray threadInfos;
-
-	uint32 nextThreadId = ThreadLinkHead();
-	while(nextThreadId != 0)
-	{
-		THREAD* nextThread = m_threads[nextThreadId];
-
-		BIOS_DEBUG_THREAD_INFO threadInfo;
-		threadInfo.id			= nextThreadId;
-		threadInfo.priority		= nextThread->priority;
-		if(GetCurrentThreadId() == nextThreadId)
-		{
-			threadInfo.pc = m_cpu.m_State.nPC;
-			threadInfo.ra = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
-			threadInfo.sp = m_cpu.m_State.nGPR[CMIPS::SP].nV0;
-		}
-		else
-		{
-			threadInfo.pc = nextThread->context.epc;
-			threadInfo.ra = nextThread->context.gpr[CMIPS::RA];
-			threadInfo.sp = nextThread->context.gpr[CMIPS::SP];
-		}
-
-		switch(nextThread->status)
-		{
-		case THREAD_STATUS_DORMANT:
-			threadInfo.stateDescription = "Dormant";
-			break;
-		case THREAD_STATUS_RUNNING:
-			threadInfo.stateDescription = "Running";
-			break;
-		case THREAD_STATUS_SLEEPING:
-			threadInfo.stateDescription = "Sleeping";
-			break;
-		case THREAD_STATUS_WAITING_SEMAPHORE:
-			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(nextThread->waitSemaphore) + ")";
-			break;
-		case THREAD_STATUS_WAITING_EVENTFLAG:
-			threadInfo.stateDescription = "Waiting (Event Flag: " + boost::lexical_cast<std::string>(nextThread->waitEventFlag) + ")";
-			break;
-		case THREAD_STATUS_WAITING_MESSAGEBOX:
-			threadInfo.stateDescription = "Waiting (Message Box: " + boost::lexical_cast<std::string>(nextThread->waitMessageBox) + ")";
-			break;
-		case THREAD_STATUS_WAIT_VBLANK_START:
-			threadInfo.stateDescription = "Waiting (Vblank Start)";
-			break;
-		case THREAD_STATUS_WAIT_VBLANK_END:
-			threadInfo.stateDescription = "Waiting (Vblank End)";
-			break;
-		default:
-			threadInfo.stateDescription = "Unknown";
-			break;
-		}
-
-		threadInfos.push_back(threadInfo);
-
-		nextThreadId = nextThread->nextThreadId;
-	}
-
-	return threadInfos;
-}
-
 void CIopBios::DeleteModules()
 {
 	while(m_modules.size() != 0)
@@ -2099,3 +1869,241 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Debug Stuff
+
+#ifdef DEBUGGER_INCLUDED
+
+#define TAGS_SECTION_IOP_MODULES						("modules")
+#define TAGS_SECTION_IOP_MODULES_MODULE					("module")
+#define TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS	("beginAddress")
+#define TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS		("endAddress")
+#define TAGS_SECTION_IOP_MODULES_MODULE_NAME			("name")
+
+void CIopBios::LoadDebugTags(Framework::Xml::CNode* root)
+{
+	auto moduleSection = root->Select(TAGS_SECTION_IOP_MODULES);
+	if(moduleSection == NULL) return;
+
+	for(Framework::Xml::CFilteringNodeIterator nodeIterator(moduleSection, TAGS_SECTION_IOP_MODULES_MODULE);
+		!nodeIterator.IsEnd(); nodeIterator++)
+	{
+		auto moduleNode(*nodeIterator);
+		const char* moduleName		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME);
+		const char* beginAddress	= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
+		const char* endAddress		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
+		if(!moduleName || !beginAddress || !endAddress) continue;
+		if(FindModuleDebugInfo(moduleName) != std::end(m_moduleTags)) continue;
+
+		BIOS_DEBUG_MODULE_INFO module;
+		module.name		= moduleName;
+		module.begin	= lexical_cast_hex<std::string>(beginAddress);
+		module.end		= lexical_cast_hex<std::string>(endAddress);
+		module.param	= NULL;
+		m_moduleTags.push_back(module);
+	}
+}
+
+void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
+{
+	Framework::Xml::CNode* moduleSection = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES, true);
+
+	for(auto moduleIterator(std::begin(m_moduleTags));
+		std::end(m_moduleTags) != moduleIterator; moduleIterator++)
+	{
+		const auto& module(*moduleIterator);
+		Framework::Xml::CNode* moduleNode = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
+		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,	lexical_cast_hex<std::string>(module.begin, 8).c_str());
+		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,		lexical_cast_hex<std::string>(module.end, 8).c_str());
+		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME,			module.name.c_str());
+		moduleSection->InsertNode(moduleNode);
+	}
+
+	root->InsertNode(moduleSection);
+}
+
+BiosDebugModuleInfoArray CIopBios::GetModuleInfos() const
+{
+	return m_moduleTags;
+}
+
+BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
+{
+	BiosDebugThreadInfoArray threadInfos;
+
+	uint32 nextThreadId = ThreadLinkHead();
+	while(nextThreadId != 0)
+	{
+		THREAD* nextThread = m_threads[nextThreadId];
+
+		BIOS_DEBUG_THREAD_INFO threadInfo;
+		threadInfo.id			= nextThreadId;
+		threadInfo.priority		= nextThread->priority;
+		if(GetCurrentThreadId() == nextThreadId)
+		{
+			threadInfo.pc = m_cpu.m_State.nPC;
+			threadInfo.ra = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
+			threadInfo.sp = m_cpu.m_State.nGPR[CMIPS::SP].nV0;
+		}
+		else
+		{
+			threadInfo.pc = nextThread->context.epc;
+			threadInfo.ra = nextThread->context.gpr[CMIPS::RA];
+			threadInfo.sp = nextThread->context.gpr[CMIPS::SP];
+		}
+
+		switch(nextThread->status)
+		{
+		case THREAD_STATUS_DORMANT:
+			threadInfo.stateDescription = "Dormant";
+			break;
+		case THREAD_STATUS_RUNNING:
+			threadInfo.stateDescription = "Running";
+			break;
+		case THREAD_STATUS_SLEEPING:
+			threadInfo.stateDescription = "Sleeping";
+			break;
+		case THREAD_STATUS_WAITING_SEMAPHORE:
+			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(nextThread->waitSemaphore) + ")";
+			break;
+		case THREAD_STATUS_WAITING_EVENTFLAG:
+			threadInfo.stateDescription = "Waiting (Event Flag: " + boost::lexical_cast<std::string>(nextThread->waitEventFlag) + ")";
+			break;
+		case THREAD_STATUS_WAITING_MESSAGEBOX:
+			threadInfo.stateDescription = "Waiting (Message Box: " + boost::lexical_cast<std::string>(nextThread->waitMessageBox) + ")";
+			break;
+		case THREAD_STATUS_WAIT_VBLANK_START:
+			threadInfo.stateDescription = "Waiting (Vblank Start)";
+			break;
+		case THREAD_STATUS_WAIT_VBLANK_END:
+			threadInfo.stateDescription = "Waiting (Vblank End)";
+			break;
+		default:
+			threadInfo.stateDescription = "Unknown";
+			break;
+		}
+
+		threadInfos.push_back(threadInfo);
+
+		nextThreadId = nextThread->nextThreadId;
+	}
+
+	return threadInfos;
+}
+
+void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRange, const std::string& moduleName, const std::string& modulePath)
+{
+	//Update module tag
+	{
+		auto moduleIterator(FindModuleDebugInfo(moduleRange.first, moduleRange.second));
+		if(moduleIterator == std::end(m_moduleTags))
+		{
+			moduleIterator = FindModuleDebugInfo(moduleName);
+			if(moduleIterator == std::end(m_moduleTags))
+			{
+				moduleIterator = m_moduleTags.insert(std::end(m_moduleTags), BIOS_DEBUG_MODULE_INFO());
+			}
+		}
+
+		auto& module(*moduleIterator);
+		module.name		= moduleName;
+		module.begin	= moduleRange.first;
+		module.end		= moduleRange.second;
+		module.param	= NULL;
+	}
+
+	m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
+
+	bool functionAdded = false;
+	//Look for import tables
+	for(uint32 address = moduleRange.first; address < moduleRange.second; address += 4)
+	{
+		if(m_cpu.m_pMemoryMap->GetWord(address) == 0x41E00000)
+		{
+			if(m_cpu.m_pMemoryMap->GetWord(address + 4) != 0) continue;
+			
+			uint32 version = m_cpu.m_pMemoryMap->GetWord(address + 8);
+			std::string moduleName = ReadModuleName(address + 0xC);
+			IopModuleMapType::iterator module(m_modules.find(moduleName));
+
+			size_t moduleNameLength = moduleName.length();
+			uint32 entryAddress = address + 0x0C + ((moduleNameLength + 3) & ~0x03);
+			while(m_cpu.m_pMemoryMap->GetWord(entryAddress) == 0x03E00008)
+			{
+				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
+				uint32 functionId = target & 0xFFFF;
+				std::string functionName;
+				if(module != m_modules.end())
+				{
+					functionName = (module->second)->GetFunctionName(functionId);
+				}
+				else
+				{
+					char functionNameTemp[256];
+					sprintf(functionNameTemp, "unknown_%0.4X", functionId);
+					functionName = functionNameTemp;
+				}
+				if(m_cpu.m_Functions.Find(address) == NULL)
+				{
+					m_cpu.m_Functions.InsertTag(entryAddress, (std::string(moduleName) + "_" + functionName).c_str());
+					functionAdded = true;
+				}
+				entryAddress += 8;
+			}
+		}
+	}
+
+	//Look also for symbol tables
+	{
+		ELFSECTIONHEADER* pSymTab = elf.FindSection(".symtab");
+		if(pSymTab != NULL)
+		{
+			const char* pStrTab = reinterpret_cast<const char*>(elf.GetSectionData(pSymTab->nIndex));
+			if(pStrTab != NULL)
+			{
+				const ELFSYMBOL* pSym = reinterpret_cast<const ELFSYMBOL*>(elf.FindSectionData(".symtab"));
+				unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+
+				for(unsigned int i = 0; i < nCount; i++)
+				{
+					if((pSym[i].nInfo & 0x0F) != 0x02) continue;
+					ELFSECTIONHEADER* symbolSection = elf.GetSection(pSym[i].nSectionIndex);
+					if(symbolSection == NULL) continue;
+					m_cpu.m_Functions.InsertTag(moduleRange.first + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
+					functionAdded = true;
+				}
+			}
+		}
+	}
+
+	if(functionAdded)
+	{
+		m_cpu.m_Functions.OnTagListChange();
+	}
+
+	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%0.8X.\r\n", 
+		modulePath.c_str(), moduleRange.first);
+}
+
+BiosDebugModuleInfoIterator CIopBios::FindModuleDebugInfo(const std::string& name)
+{
+	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
+		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
+		{
+			return name == module.name;
+		}
+	);
+}
+
+BiosDebugModuleInfoIterator CIopBios::FindModuleDebugInfo(uint32 beginAddress, uint32 endAddress)
+{
+	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
+		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
+		{
+			return (beginAddress == module.begin) && (endAddress == module.end);
+		}
+	);
+}
+
+#endif

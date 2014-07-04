@@ -1,5 +1,4 @@
-#ifndef _IOPBIOS_H_
-#define _IOPBIOS_H_
+#pragma once
 
 #include <memory>
 #include <list>
@@ -112,14 +111,6 @@ public:
 
 	bool						IsIdle();
 
-#ifdef DEBUGGER_INCLUDED
-	void						LoadDebugTags(Framework::Xml::CNode*);
-	void						SaveDebugTags(Framework::Xml::CNode*);
-#endif
-
-	BiosDebugModuleInfoArray	GetModuleInfos() const;
-	BiosDebugThreadInfoArray	GetThreadInfos() const;
-
 	Iop::CIoman*				GetIoman();
 	Iop::CCdvdman*				GetCdvdman();
 	Iop::CLoadcore*				GetLoadcore();
@@ -166,6 +157,14 @@ public:
 
 	bool						RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	bool						ReleaseIntrHandler(uint32);
+
+#ifdef DEBUGGER_INCLUDED
+	void						LoadDebugTags(Framework::Xml::CNode*);
+	void						SaveDebugTags(Framework::Xml::CNode*);
+
+	BiosDebugModuleInfoArray	GetModuleInfos() const override;
+	BiosDebugThreadInfoArray	GetThreadInfos() const override;
+#endif
 
 private:
 	enum DEFAULT_STACKSIZE
@@ -304,12 +303,6 @@ private:
 	unsigned int					GetElfProgramToLoad(CELF&);
 	void							RelocateElf(CELF&, uint32);
 	std::string						ReadModuleName(uint32);
-	BiosDebugModuleInfoIterator		FindModule(const std::string&);
-	BiosDebugModuleInfoIterator		FindModule(uint32, uint32);
-#ifdef DEBUGGER_INCLUDED
-	void							LoadLoadedModules(Framework::Xml::CNode*);
-	void							SaveLoadedModules(Framework::Xml::CNode*);
-#endif
 	void							DeleteModules();
 	uint32							Push(uint32&, const uint8*, uint32);
 
@@ -322,6 +315,12 @@ private:
 	void							InitializeModuleLoader();
 	void							ProcessModuleLoad();
 	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
+
+#ifdef DEBUGGER_INCLUDED
+	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);
+	BiosDebugModuleInfoIterator		FindModuleDebugInfo(const std::string&);
+	BiosDebugModuleInfoIterator		FindModuleDebugInfo(uint32, uint32);
+#endif
 
 	CMIPS&							m_cpu;
 	uint8*							m_ram;
@@ -360,5 +359,3 @@ private:
 };
 
 typedef std::shared_ptr<CIopBios> IopBiosPtr;
-
-#endif

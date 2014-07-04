@@ -316,87 +316,6 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 	return std::pair<uint32, uint32>(nMinAddr, nMaxAddr);
 }
 
-BiosDebugModuleInfoArray CPS2OS::GetModuleInfos() const
-{
-	BiosDebugModuleInfoArray result;
-
-	if(m_pELF)
-	{
-		auto executableRange = GetExecutableRange();
-
-		BIOS_DEBUG_MODULE_INFO module;
-		module.name		= m_executableName;
-		module.begin	= executableRange.first;
-		module.end		= executableRange.second;
-		module.param	= m_pELF;
-		result.push_back(module);
-	}
-
-	return result;
-}
-
-BiosDebugThreadInfoArray CPS2OS::GetThreadInfos() const
-{
-	BiosDebugThreadInfoArray threadInfos;
-
-	CRoundRibbon::ITERATOR threadIterator(m_pThreadSchedule);
-
-	for(threadIterator = m_pThreadSchedule->Begin(); 
-		!threadIterator.IsEnd(); threadIterator++)
-	{
-		auto thread = GetThread(threadIterator.GetValue());
-		THREADCONTEXT* threadContext = reinterpret_cast<THREADCONTEXT*>(m_ram + thread->nContextPtr);
-
-		BIOS_DEBUG_THREAD_INFO threadInfo;
-		threadInfo.id			= threadIterator.GetValue();
-		threadInfo.priority		= thread->nPriority;
-		if(GetCurrentThreadId() == threadIterator.GetValue())
-		{
-			threadInfo.pc = m_ee.m_State.nPC;
-			threadInfo.ra = m_ee.m_State.nGPR[CMIPS::RA].nV0;
-			threadInfo.sp = m_ee.m_State.nGPR[CMIPS::SP].nV0;
-		}
-		else
-		{
-			threadInfo.pc = thread->nEPC;
-			threadInfo.ra = threadContext->nGPR[CMIPS::RA].nV0;
-			threadInfo.sp = threadContext->nGPR[CMIPS::SP].nV0;
-		}
-
-		switch(thread->nStatus)
-		{
-		case THREAD_RUNNING:
-			threadInfo.stateDescription = "Running";
-			break;
-		case THREAD_SLEEPING:
-			threadInfo.stateDescription = "Sleeping";
-			break;
-		case THREAD_WAITING:
-			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
-			break;
-		case THREAD_SUSPENDED:
-			threadInfo.stateDescription = "Suspended";
-			break;
-		case THREAD_SUSPENDED_SLEEPING:
-			threadInfo.stateDescription = "Suspended+Sleeping";
-			break;
-		case THREAD_SUSPENDED_WAITING:
-			threadInfo.stateDescription = "Suspended+Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
-			break;
-		case THREAD_ZOMBIE:
-			threadInfo.stateDescription = "Zombie";
-			break;
-		default:
-			threadInfo.stateDescription = "Unknown";
-			break;
-		}
-
-		threadInfos.push_back(threadInfo);
-	}
-
-	return threadInfos;
-}
-
 void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const ArgumentList& arguments)
 {
 	CELF* pELF(new CElfFile(stream));
@@ -2866,3 +2785,91 @@ bool CPS2OS::CRoundRibbon::ITERATOR::IsEnd()
 	if(m_pRibbon == NULL) return true;
 	return m_pRibbon->GetNode(m_nIndex) == NULL;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Debug Stuff
+
+#ifdef DEBUGGER_INCLUDED
+
+BiosDebugModuleInfoArray CPS2OS::GetModuleInfos() const
+{
+	BiosDebugModuleInfoArray result;
+
+	if(m_pELF)
+	{
+		auto executableRange = GetExecutableRange();
+
+		BIOS_DEBUG_MODULE_INFO module;
+		module.name		= m_executableName;
+		module.begin	= executableRange.first;
+		module.end		= executableRange.second;
+		module.param	= m_pELF;
+		result.push_back(module);
+	}
+
+	return result;
+}
+
+BiosDebugThreadInfoArray CPS2OS::GetThreadInfos() const
+{
+	BiosDebugThreadInfoArray threadInfos;
+
+	CRoundRibbon::ITERATOR threadIterator(m_pThreadSchedule);
+
+	for(threadIterator = m_pThreadSchedule->Begin(); 
+		!threadIterator.IsEnd(); threadIterator++)
+	{
+		auto thread = GetThread(threadIterator.GetValue());
+		THREADCONTEXT* threadContext = reinterpret_cast<THREADCONTEXT*>(m_ram + thread->nContextPtr);
+
+		BIOS_DEBUG_THREAD_INFO threadInfo;
+		threadInfo.id			= threadIterator.GetValue();
+		threadInfo.priority		= thread->nPriority;
+		if(GetCurrentThreadId() == threadIterator.GetValue())
+		{
+			threadInfo.pc = m_ee.m_State.nPC;
+			threadInfo.ra = m_ee.m_State.nGPR[CMIPS::RA].nV0;
+			threadInfo.sp = m_ee.m_State.nGPR[CMIPS::SP].nV0;
+		}
+		else
+		{
+			threadInfo.pc = thread->nEPC;
+			threadInfo.ra = threadContext->nGPR[CMIPS::RA].nV0;
+			threadInfo.sp = threadContext->nGPR[CMIPS::SP].nV0;
+		}
+
+		switch(thread->nStatus)
+		{
+		case THREAD_RUNNING:
+			threadInfo.stateDescription = "Running";
+			break;
+		case THREAD_SLEEPING:
+			threadInfo.stateDescription = "Sleeping";
+			break;
+		case THREAD_WAITING:
+			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
+			break;
+		case THREAD_SUSPENDED:
+			threadInfo.stateDescription = "Suspended";
+			break;
+		case THREAD_SUSPENDED_SLEEPING:
+			threadInfo.stateDescription = "Suspended+Sleeping";
+			break;
+		case THREAD_SUSPENDED_WAITING:
+			threadInfo.stateDescription = "Suspended+Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
+			break;
+		case THREAD_ZOMBIE:
+			threadInfo.stateDescription = "Zombie";
+			break;
+		default:
+			threadInfo.stateDescription = "Unknown";
+			break;
+		}
+
+		threadInfos.push_back(threadInfo);
+	}
+
+	return threadInfos;
+}
+
+#endif
