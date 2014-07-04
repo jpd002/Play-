@@ -147,8 +147,8 @@ void CThreadsViewWnd::Update()
 
 	if(!m_biosDebugInfoProvider) return;
 
-	auto threadInfos = m_biosDebugInfoProvider->GetThreadInfos();
-	auto moduleInfos = m_biosDebugInfoProvider->GetModuleInfos();
+	auto threadInfos = m_biosDebugInfoProvider->GetThreadsDebugInfo();
+	auto moduleInfos = m_biosDebugInfoProvider->GetModulesDebugInfo();
 
 	for(auto threadInfoIterator(std::begin(threadInfos));
 		threadInfoIterator != std::end(threadInfos); threadInfoIterator++)
@@ -184,7 +184,7 @@ void CThreadsViewWnd::OnListDblClick()
 
 	uint32 threadId = m_listView->GetItemData(nSelection);
 
-	auto threadInfos = m_biosDebugInfoProvider->GetThreadInfos();
+	auto threadInfos = m_biosDebugInfoProvider->GetThreadsDebugInfo();
 
 	auto threadInfoIterator = std::find_if(std::begin(threadInfos), std::end(threadInfos), 
 		[&] (const BIOS_DEBUG_THREAD_INFO& threadInfo) { return threadInfo.id == threadId; });
@@ -200,7 +200,7 @@ void CThreadsViewWnd::OnListDblClick()
 	else
 	{
 		CThreadCallStackViewWnd threadCallStackViewWnd(m_hWnd);
-		threadCallStackViewWnd.SetItems(m_context, callStackItems, m_biosDebugInfoProvider->GetModuleInfos());
+		threadCallStackViewWnd.SetItems(m_context, callStackItems, m_biosDebugInfoProvider->GetModulesDebugInfo());
 		threadCallStackViewWnd.DoModal();
 
 		if(threadCallStackViewWnd.HasSelection())

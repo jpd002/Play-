@@ -130,7 +130,7 @@ void CCallStackWnd::Update()
 		return;
 	}
 
-	auto modules = m_biosDebugInfoProvider ? m_biosDebugInfoProvider->GetModuleInfos() : BiosDebugModuleInfoArray();
+	auto modules = m_biosDebugInfoProvider ? m_biosDebugInfoProvider->GetModulesDebugInfo() : BiosDebugModuleInfoArray();
 
 	for(auto itemIterator(std::begin(callStackItems));
 		itemIterator != std::end(callStackItems); itemIterator++)

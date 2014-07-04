@@ -162,8 +162,8 @@ public:
 	void						LoadDebugTags(Framework::Xml::CNode*);
 	void						SaveDebugTags(Framework::Xml::CNode*);
 
-	BiosDebugModuleInfoArray	GetModuleInfos() const override;
-	BiosDebugThreadInfoArray	GetThreadInfos() const override;
+	BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
+	BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;
 #endif
 
 private:

@@ -33,8 +33,8 @@ class CBiosDebugInfoProvider
 public:
 	virtual									~CBiosDebugInfoProvider() {}
 #ifdef DEBUGGER_INCLUDED
-	virtual BiosDebugModuleInfoArray		GetModuleInfos() const = 0;
-	virtual BiosDebugThreadInfoArray		GetThreadInfos() const = 0;
+	virtual BiosDebugModuleInfoArray		GetModulesDebugInfo() const = 0;
+	virtual BiosDebugThreadInfoArray		GetThreadsDebugInfo() const = 0;
 #endif
 };
 

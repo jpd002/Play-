@@ -1923,12 +1923,12 @@ void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
 	root->InsertNode(moduleSection);
 }
 
-BiosDebugModuleInfoArray CIopBios::GetModuleInfos() const
+BiosDebugModuleInfoArray CIopBios::GetModulesDebugInfo() const
 {
 	return m_moduleTags;
 }
 
-BiosDebugThreadInfoArray CIopBios::GetThreadInfos() const
+BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 {
 	BiosDebugThreadInfoArray threadInfos;
 

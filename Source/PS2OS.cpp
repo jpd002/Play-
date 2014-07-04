@@ -2791,7 +2791,7 @@ bool CPS2OS::CRoundRibbon::ITERATOR::IsEnd()
 
 #ifdef DEBUGGER_INCLUDED
 
-BiosDebugModuleInfoArray CPS2OS::GetModuleInfos() const
+BiosDebugModuleInfoArray CPS2OS::GetModulesDebugInfo() const
 {
 	BiosDebugModuleInfoArray result;
 
@@ -2810,7 +2810,7 @@ BiosDebugModuleInfoArray CPS2OS::GetModuleInfos() const
 	return result;
 }
 
-BiosDebugThreadInfoArray CPS2OS::GetThreadInfos() const
+BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 {
 	BiosDebugThreadInfoArray threadInfos;
 

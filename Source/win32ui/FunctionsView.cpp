@@ -174,7 +174,7 @@ void CFunctionsView::RefreshList()
 	if(!m_context) return;
 	if(m_biosDebugInfoProvider)
 	{
-		m_modules = m_biosDebugInfoProvider->GetModuleInfos();
+		m_modules = m_biosDebugInfoProvider->GetModulesDebugInfo();
 	}
 	else
 	{
