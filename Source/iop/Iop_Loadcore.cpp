@@ -78,6 +78,9 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 	case 0x06:
 		LoadModuleFromMemory(args, argsSize, ret, retSize);
 		break;
+	case 0x09:
+		SearchModuleByName(args, argsSize, ret, retSize);
+		break;
 	case 0xFF:
 		//This is sometimes called after binding this server with a client
 		Initialize(args, argsSize, ret, retSize);
@@ -158,6 +161,25 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module at 0x%0.8X received with %d bytes arguments payload.\r\n", args[0], 0);
 	m_bios.LoadAndStartModule(args[0], NULL, 0);
 	ret[0] = 0x00000000;
+}
+
+void CLoadcore::SearchModuleByName(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	assert(argsSize >= 0x200);
+	assert(retSize >= 4);
+
+	const char* moduleName = reinterpret_cast<const char*>(args) + 8;
+	CLog::GetInstance().Print(LOG_NAME, "SearchModuleByName('%s');\r\n", moduleName);
+
+	if(m_bios.IsModuleLoaded(moduleName))
+	{
+		//Supposed to return some kind of id here...
+		ret[0] = 0x01234567;
+	}
+	else
+	{
+		ret[0] = -1;
+	}
 }
 
 void CLoadcore::Initialize(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

@@ -90,6 +90,8 @@ public:
 
 	void						LoadAndStartModule(const char*, const char*, unsigned int);
 	void						LoadAndStartModule(uint32, const char*, unsigned int);
+	bool						IsModuleLoaded(const char*) const;
+
 	void						HandleException();
 	void						HandleInterrupt();
 
@@ -184,7 +186,8 @@ private:
 		MAX_EVENTFLAG			= 64,
 		MAX_INTRHANDLER			= 32,
 		MAX_MESSAGEBOX			= 32,
-		MAX_MODULELOADREQUEST	= 32
+		MAX_MODULELOADREQUEST	= 32,
+		MAX_LOADEDMODULENAME	= 32,
 	};
 
 	enum WEF_FLAGS
@@ -252,6 +255,16 @@ private:
 		char			args[MAX_ARGS_SIZE];
 	};
 
+	struct LOADEDMODULENAME
+	{
+		enum
+		{
+			MAX_NAME_SIZE = 0x100,
+		};
+
+		char			name[MAX_NAME_SIZE];
+	};
+
 	struct IOPMOD
 	{
 		uint32			module;
@@ -315,6 +328,7 @@ private:
 	void							InitializeModuleLoader();
 	void							ProcessModuleLoad();
 	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
+	void							InsertLoadedModuleName(const std::string&);
 
 #ifdef DEBUGGER_INCLUDED
 	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);

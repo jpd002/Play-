@@ -54,7 +54,9 @@
 #define BIOS_HEAPBLOCK_SIZE					(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
 #define BIOS_MODULELOADREQUEST_BASE			(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
 #define BIOS_MODULELOADREQUEST_SIZE			(sizeof(CIopBios::MODULELOADREQUEST) * CIopBios::MAX_MODULELOADREQUEST)
-#define BIOS_CALCULATED_END					(BIOS_MODULELOADREQUEST_BASE + BIOS_MODULELOADREQUEST_SIZE)
+#define BIOS_LOADEDMODULENAME_BASE			(BIOS_MODULELOADREQUEST_BASE + BIOS_MODULELOADREQUEST_SIZE)
+#define BIOS_LOADEDMODULENAME_SIZE			(sizeof(CIopBios::LOADEDMODULENAME) * CIopBios::MAX_LOADEDMODULENAME)
+#define BIOS_CALCULATED_END					(BIOS_LOADEDMODULENAME_BASE + BIOS_LOADEDMODULENAME_SIZE)
 
 #define SYSCALL_EXITTHREAD				0x666
 #define SYSCALL_RETURNFROMEXCEPTION		0x667
@@ -482,6 +484,8 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		moduleName = path;
 	}
 
+	InsertLoadedModuleName(moduleName);
+
 #ifdef DEBUGGER_INCLUDED
 	PrepareModuleDebugInfo(elf, moduleRange, moduleName, path);
 #endif
@@ -499,6 +503,42 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 
 	RequestModuleLoad(entryPoint, iopMod ? (iopMod->gp + moduleRange.first) : 0, 
 		path, args, argsLength);
+}
+
+void CIopBios::InsertLoadedModuleName(const std::string& moduleName)
+{
+	bool loadedModuleNameAdded = false;
+	for(unsigned int i = 0; i < MAX_LOADEDMODULENAME; i++)
+	{
+		auto loadedModule = reinterpret_cast<LOADEDMODULENAME*>(m_ram + BIOS_LOADEDMODULENAME_BASE) + i;
+		if(!strcmp(loadedModule->name, moduleName.c_str()))
+		{
+			//Module name already exists (which is weird, but, ok).
+			loadedModuleNameAdded = true;
+			break;
+		}
+		if(!strlen(loadedModule->name))
+		{
+			strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULENAME::MAX_NAME_SIZE);
+			loadedModule->name[LOADEDMODULENAME::MAX_NAME_SIZE - 1] = 0;
+			loadedModuleNameAdded = true;
+			break;
+		}
+	}
+	assert(loadedModuleNameAdded);
+}
+
+bool CIopBios::IsModuleLoaded(const char* moduleName) const
+{
+	for(unsigned int i = 0; i < MAX_LOADEDMODULENAME; i++)
+	{
+		auto loadedModule = reinterpret_cast<LOADEDMODULENAME*>(m_ram + BIOS_LOADEDMODULENAME_BASE) + i;
+		if(!strcmp(loadedModule->name, moduleName))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 CIopBios::THREAD* CIopBios::GetThread(uint32 threadId)
