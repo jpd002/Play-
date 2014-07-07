@@ -683,7 +683,7 @@ void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 	
 	if(GetCrtIsInterlaced() && GetCrtIsFrameMode())
 	{
-		if(m_nCSR & 0x2000)
+		if(m_nCSR & CSR_FIELD)
 		{
 			m_nPrimOfsY += 0.5;
 		}
