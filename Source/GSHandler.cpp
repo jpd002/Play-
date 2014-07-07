@@ -219,8 +219,6 @@ void CGSHandler::ResetVBlank()
 {
 	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 
-	m_nCSR &= ~CSR_VSYNC_INT;
-
 	//Alternate current field
 	m_nCSR ^= CSR_FIELD;
 }
@@ -317,7 +315,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 				}
 				if(nData & CSR_VSYNC_INT)
 				{
-					ResetVBlank();
+					m_nCSR &= ~CSR_VSYNC_INT;
 				}
 				if(nData & CSR_RESET)
 				{
