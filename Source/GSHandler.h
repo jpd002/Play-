@@ -491,7 +491,7 @@ public:
 	void									SetLoggingEnabled(bool);
 	static std::string						DisassembleWrite(uint8, uint64);
 
-	virtual void							SetVBlank();
+	void									SetVBlank();
 	void									ResetVBlank();
 
 	void									WriteRegister(uint8, uint64);
