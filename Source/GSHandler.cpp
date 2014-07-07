@@ -310,21 +310,18 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		{
 			if(!(nAddress & 0x04))
 			{
-				SetVBlank();
+				std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+				if(nData & CSR_FINISH_EVENT)
 				{
-					std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-					if(nData & CSR_FINISH_EVENT)
-					{
-						m_nCSR &= ~CSR_FINISH_EVENT;
-					}
-					if(nData & CSR_VSYNC_INT)
-					{
-						ResetVBlank();
-					}
-					if(nData & CSR_RESET)
-					{
-						m_nCSR |= CSR_RESET;
-					}
+					m_nCSR &= ~CSR_FINISH_EVENT;
+				}
+				if(nData & CSR_VSYNC_INT)
+				{
+					ResetVBlank();
+				}
+				if(nData & CSR_RESET)
+				{
+					m_nCSR |= CSR_RESET;
 				}
 			}
 		}
