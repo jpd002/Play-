@@ -352,10 +352,6 @@ void CMA_EE::SetupReflectionTables()
 	m_ReflGeneral[0x1F].pGetMnemonic			= MIPSReflection::CopyMnemonic;
 	m_ReflGeneral[0x1F].pGetOperands			= ReflOpRtOffRs;
 
-	m_ReflSpecial[0x1D].sMnemonic				= "REEXCPT";
-	m_ReflSpecial[0x1D].pGetMnemonic			= MIPSReflection::CopyMnemonic;
-	m_ReflSpecial[0x1D].pGetOperands			= NULL;
-
 	m_ReflRegImm[0x18].sMnemonic				= "MTSAB";
 	m_ReflRegImm[0x18].pGetMnemonic				= MIPSReflection::CopyMnemonic;
 	m_ReflRegImm[0x18].pGetOperands				= ReflOpRsImm;

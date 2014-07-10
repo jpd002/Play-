@@ -47,9 +47,6 @@ private:
 	void								LQ();
 	void								SQ();
 
-	//Special
-	void								REEXCPT();
-
 	//RegImm
 	void								MTSAB();
 	void								MTSAH();

@@ -11,9 +11,6 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpGeneral[0x1E] = std::bind(&CMA_EE::LQ, this);
 	m_pOpGeneral[0x1F] = std::bind(&CMA_EE::SQ, this);
 
-	//OS special instructions
-	m_pOpSpecial[0x1D] = std::bind(&CMA_EE::REEXCPT, this);
-
 	m_pOpRegImm[0x18] = std::bind(&CMA_EE::MTSAB, this);
 	m_pOpRegImm[0x19] = std::bind(&CMA_EE::MTSAH, this);
 
@@ -158,15 +155,6 @@ void CMA_EE::MTSAH()
 	m_codeGen->Xor();
 	m_codeGen->Shl(0x04);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nSA));
-}
-
-//////////////////////////////////////////////////
-//Special Opcodes
-//////////////////////////////////////////////////
-
-void CMA_EE::REEXCPT()
-{
-//	m_pB->Call(CPS2OS::ExceptionReentry, 0, false);
 }
 
 //////////////////////////////////////////////////

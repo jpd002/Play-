@@ -38,7 +38,6 @@
 
 // BIOS area
 // Start		End				Description
-// 0x1FC00004	0x1FC00008		REEXCEPT instruction (for exception reentry) to be changed
 // 0x1FC00100	0x1FC00200		Custom System Call handling code
 // 0x1FC00200	0x1FC01000		Interrupt Handler
 // 0x1FC01000	0x1FC02000		DMAC Interrupt Handler
@@ -365,7 +364,6 @@ void CPS2OS::LoadExecutableInternal()
 
 	m_ee.m_State.nPC = header.nEntryPoint;
 	
-	*(uint32*)&m_bios[0x00000004] = 0x0000001D;
 	AssembleCustomSyscallHandler();
 	AssembleInterruptHandler();
 	AssembleDmacHandler();
