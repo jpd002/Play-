@@ -571,7 +571,7 @@ void CPS2OS::AssembleInterruptHandler()
 {
 	CMIPSAssembler Asm((uint32*)&m_bios[0x200]);
 
-	const uint32 stackFrameSize = 0x210;
+	const uint32 stackFrameSize = 0x230;
 
 	//Epilogue (allocate stackFrameSize bytes)
 	Asm.LI(CMIPS::K0, BIOS_ADDRESS_KERNELSTACK_TOP);
@@ -582,10 +582,20 @@ void CPS2OS::AssembleInterruptHandler()
 	{
 		Asm.SQ(i, (i * 0x10), CMIPS::K0);
 	}
-	
+
+	Asm.MFLO(CMIPS::V0);
+	Asm.MFLO1(CMIPS::V1);
+	Asm.SD(CMIPS::V0, 0x0200, CMIPS::K0);
+	Asm.SD(CMIPS::V1, 0x0208, CMIPS::K0);
+
+	Asm.MFHI(CMIPS::V0);
+	Asm.MFHI1(CMIPS::V1);
+	Asm.SD(CMIPS::V0, 0x0210, CMIPS::K0);
+	Asm.SD(CMIPS::V1, 0x0218, CMIPS::K0);
+
 	//Save EPC
 	Asm.MFC0(CMIPS::T0, CCOP_SCU::EPC);
-	Asm.SW(CMIPS::T0, 0x0200, CMIPS::K0);
+	Asm.SW(CMIPS::T0, 0x0220, CMIPS::K0);
 
 	//Set SP
 	Asm.ADDU(CMIPS::SP, CMIPS::K0, CMIPS::R0);
@@ -657,10 +667,20 @@ void CPS2OS::AssembleInterruptHandler()
 	Asm.ADDIU(CMIPS::K0, CMIPS::SP, CMIPS::R0);
 
 	//Restore EPC
-	Asm.LW(CMIPS::T0, 0x0200, CMIPS::K0);
+	Asm.LW(CMIPS::T0, 0x0220, CMIPS::K0);
 	Asm.MTC0(CMIPS::T0, CCOP_SCU::EPC);
 
 	//Restore Context
+	Asm.LD(CMIPS::V0, 0x0210, CMIPS::K0);
+	Asm.LD(CMIPS::V1, 0x0218, CMIPS::K0);
+	Asm.MTHI(CMIPS::V0);
+	Asm.MTHI1(CMIPS::V1);
+
+	Asm.LD(CMIPS::V0, 0x0200, CMIPS::K0);
+	Asm.LD(CMIPS::V1, 0x0208, CMIPS::K0);
+	Asm.MTLO(CMIPS::V0);
+	Asm.MTLO1(CMIPS::V1);
+
 	for(unsigned int i = 0; i < 32; i++)
 	{
 		Asm.LQ(i, (i * 0x10), CMIPS::K0);
@@ -1007,6 +1027,10 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 			if(i == CMIPS::K1) continue;
 			pContext->nGPR[i] = m_ee.m_State.nGPR[i];
 		}
+		pContext->nLO.nV[0] = m_ee.m_State.nLO[0];	pContext->nLO.nV[1] = m_ee.m_State.nLO[1];
+		pContext->nHI.nV[0] = m_ee.m_State.nHI[0];	pContext->nHI.nV[1] = m_ee.m_State.nHI[1];
+		pContext->nLO.nV[2] = m_ee.m_State.nLO1[0];	pContext->nLO.nV[3] = m_ee.m_State.nLO1[1];
+		pContext->nHI.nV[2] = m_ee.m_State.nHI1[0];	pContext->nHI.nV[3] = m_ee.m_State.nHI1[1];
 
 		pThread->nEPC = m_ee.m_State.nPC;
 	}
@@ -1027,6 +1051,10 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 			if(i == CMIPS::K1) continue;
 			m_ee.m_State.nGPR[i] = pContext->nGPR[i];
 		}
+		m_ee.m_State.nLO[0] = pContext->nLO.nV[0];	m_ee.m_State.nLO[1] = pContext->nLO.nV[1];
+		m_ee.m_State.nHI[0] = pContext->nHI.nV[0];	m_ee.m_State.nHI[1] = pContext->nHI.nV[1];
+		m_ee.m_State.nLO1[0] = pContext->nLO.nV[2];	m_ee.m_State.nLO1[1] = pContext->nLO.nV[3];
+		m_ee.m_State.nHI1[0] = pContext->nHI.nV[2];	m_ee.m_State.nHI1[1] = pContext->nHI.nV[3];
 	}
 
 	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", nID);
