@@ -109,6 +109,9 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 
 uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 {
+	CLog::GetInstance().Print(LOG_NAME, "AllocateMemory(size = 0x%0.8X, flags = 0x%0.8X, wantedAddress = 0x%0.8X);\r\n",
+		size, flags, wantedAddress);
+
 	const uint32 blockSize = MIN_BLOCK_SIZE;
 	size = ((size + (blockSize - 1)) / blockSize) * blockSize;
 
@@ -201,6 +204,8 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 
 uint32 CSysmem::FreeMemory(uint32 address)
 {
+	CLog::GetInstance().Print(LOG_NAME, "FreeMemory(address = 0x%0.8X);\r\n", address);
+
 	address -= m_memoryBegin;
 	//Search for block pointing at the address
 	uint32* nextBlockId = &m_headBlockId;
