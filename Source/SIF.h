@@ -32,7 +32,7 @@ public:
 	bool							IsModuleRegistered(uint32) const;
 	void							UnregisterModule(uint32);
 	void							SetDmaBuffer(uint32, uint32);
-	void							SendCallReply(uint32, void*);
+	void							SendCallReply(uint32, const void*);
 
 	uint32							ReceiveDMA5(uint32, uint32, uint32, bool);
 	uint32							ReceiveDMA6(uint32, uint32, uint32, bool);

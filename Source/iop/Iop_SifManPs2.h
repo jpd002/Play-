@@ -17,7 +17,7 @@ namespace Iop
 		virtual void	UnregisterModule(uint32) override;
 		virtual void	SendPacket(void*, uint32) override;
 		virtual void	SetDmaBuffer(uint32, uint32) override;
-		virtual void	SendCallReply(uint32, void*) override;
+		virtual void	SendCallReply(uint32, const void*) override;
 		virtual void	GetOtherData(uint32, uint32, uint32) override;
 
 		virtual uint32	SifSetDma(uint32, uint32) override;

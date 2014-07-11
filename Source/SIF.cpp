@@ -536,7 +536,7 @@ void CSIF::Cmd_GetOtherData(PACKETHDR* hdr)
 	}
 }
 
-void CSIF::SendCallReply(uint32 serverId, void* returnData)
+void CSIF::SendCallReply(uint32 serverId, const void* returnData)
 {
 	CallReplyMap::iterator replyIterator(m_callReplies.find(serverId));
 	assert(replyIterator != m_callReplies.end());
