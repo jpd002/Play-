@@ -78,6 +78,7 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		break;
 	case 0x06:
 		LoadModuleFromMemory(args, argsSize, ret, retSize);
+		return false;	//Block EE till module is loaded
 		break;
 	case 0x09:
 		SearchModuleByName(args, argsSize, ret, retSize);
