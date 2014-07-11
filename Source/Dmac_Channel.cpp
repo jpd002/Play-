@@ -291,12 +291,17 @@ void CChannel::ExecuteSourceChain()
 			break;
 		case 6:
 			//RET - Transfers QWC after the tag, pops TADR from ASR
-			assert(m_CHCR.nASP > 0);
-			m_CHCR.nASP--;
+			m_nMADR = m_nTADR + 0x10;
+			m_nQWC = (uint32)(nTag & 0xFFFF);
 
-			m_nMADR		= m_nTADR + 0x10;
-			m_nQWC		= (uint32)(nTag & 0xFFFF);
-			m_nTADR		= m_nASR[m_CHCR.nASP];
+			if (m_CHCR.nASP > 0){
+				m_CHCR.nASP--;
+				m_nTADR = m_nASR[m_CHCR.nASP];
+			}
+			else {
+				ClearSTR();
+			}
+			
 			break;
 		case 7:
 			//END - Data to transfer is after the tag, transfer is finished
