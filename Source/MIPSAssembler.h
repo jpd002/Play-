@@ -65,7 +65,15 @@ public:
 	void				LWR(unsigned int, uint16, unsigned int);
 	void				LQ(unsigned int, uint16, unsigned int);
 	void				MFC0(unsigned int, unsigned int);
+	void				MFHI(unsigned int);
+	void				MFHI1(unsigned int);
+	void				MFLO(unsigned int);
+	void				MFLO1(unsigned int);
 	void				MTC0(unsigned int, unsigned int);
+	void				MTHI(unsigned int);
+	void				MTHI1(unsigned int);
+	void				MTLO(unsigned int);
+	void				MTLO1(unsigned int);
 	void				MOV(unsigned int, unsigned int);
 	void				MULT(unsigned int, unsigned int, unsigned int);
 	void				MULTU(unsigned int, unsigned int, unsigned int);

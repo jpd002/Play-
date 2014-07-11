@@ -326,9 +326,57 @@ void CMIPSAssembler::MFC0(unsigned int nRT, unsigned int nRD)
 	m_pPtr++;
 }
 
+void CMIPSAssembler::MFHI(unsigned int rd)
+{
+	(*m_pPtr) = ((0x00) << 26) | (rd << 11) | (0x10);
+	m_pPtr++;
+}
+
+void CMIPSAssembler::MFHI1(unsigned int rd)
+{
+	(*m_pPtr) = ((0x1C) << 26) | (rd << 11) | (0x10);
+	m_pPtr++;
+}
+
+void CMIPSAssembler::MFLO(unsigned int rd)
+{
+	(*m_pPtr) = ((0x00) << 26) | (rd << 11) | (0x12);
+	m_pPtr++;
+}
+
+void CMIPSAssembler::MFLO1(unsigned int rd)
+{
+	(*m_pPtr) = ((0x1C) << 26) | (rd << 11) | (0x12);
+	m_pPtr++;
+}
+
 void CMIPSAssembler::MTC0(unsigned int nRT, unsigned int nRD)
 {
 	(*m_pPtr) = ((0x10) << 26) | ((0x04) << 21) | (nRT << 16) | (nRD << 11);
+	m_pPtr++;
+}
+
+void CMIPSAssembler::MTHI(unsigned int rs)
+{
+	(*m_pPtr) = ((0x00) << 26) | (rs << 21) | (0x11);
+	m_pPtr++;
+}
+
+void CMIPSAssembler::MTHI1(unsigned int rs)
+{
+	(*m_pPtr) = ((0x1C) << 26) | (rs << 21) | (0x11);
+	m_pPtr++;
+}
+
+void CMIPSAssembler::MTLO(unsigned int rs)
+{
+	(*m_pPtr) = ((0x00) << 26) | (rs << 21) | (0x13);
+	m_pPtr++;
+}
+
+void CMIPSAssembler::MTLO1(unsigned int rs)
+{
+	(*m_pPtr) = ((0x1C) << 26) | (rs << 21) | (0x13);
 	m_pPtr++;
 }
 
