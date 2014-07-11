@@ -12,6 +12,11 @@ namespace Iop
 	class CLoadcore : public CModule, public CSifModule
 	{
 	public:
+		enum MODULE_ID
+		{
+			MODULE_ID = 0x80000006
+		};
+
 		typedef std::function<uint32 (const char*, const char*)> LoadExecutableHandler;
 
 									CLoadcore(CIopBios&, uint8*, CSifMan&);
@@ -25,11 +30,6 @@ namespace Iop
 		void						SetLoadExecutableHandler(const LoadExecutableHandler&);
 
 	private:
-		enum MODULE_ID
-		{
-			MODULE_ID = 0x80000006
-		};
-
 		uint32						RegisterLibraryEntries(uint32*);
 		void						LoadModule(uint32*, uint32, uint32*, uint32);
 		void						LoadExecutable(uint32*, uint32, uint32*, uint32);

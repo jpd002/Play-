@@ -327,6 +327,7 @@ private:
 
 	void							InitializeModuleLoader();
 	void							ProcessModuleLoad();
+	void							FinishModuleLoad();
 	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
 	void							InsertLoadedModuleName(const std::string&);
 

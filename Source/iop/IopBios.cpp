@@ -63,7 +63,8 @@
 #define SYSCALL_RESCHEDULE				0x668
 #define SYSCALL_SLEEPTHREAD				0x669
 #define SYSCALL_PROCESSMODULELOAD		0x66A
-#define SYSCALL_DELAYTHREADTICKS		0x66B
+#define SYSCALL_FINISHMODULELOAD		0x66B
+#define SYSCALL_DELAYTHREADTICKS		0x66C
 
 #define STACK_FRAME_RESERVE_SIZE		0x10
 
@@ -437,10 +438,16 @@ void CIopBios::ProcessModuleLoad()
 		}
 		m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= 4;
 
-		m_cpu.m_State.nPC = moduleLoadRequest->entryPoint;
 		m_cpu.m_State.nGPR[CMIPS::GP].nV0 = moduleLoadRequest->gp;
-		m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_moduleLoaderThreadProcAddress;
+		m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_State.nPC;
+		m_cpu.m_State.nPC = moduleLoadRequest->entryPoint;
 	}
+}
+
+void CIopBios::FinishModuleLoad()
+{
+	//We need to notify the EE that the load request is over
+	m_sifMan->SendCallReply(Iop::CLoadcore::MODULE_ID, nullptr);
 }
 
 void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
@@ -1522,10 +1529,19 @@ uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 uint32 CIopBios::AssembleModuleLoaderThreadProc(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	
+	auto startLabel = assembler.CreateLabel();
+
+	assembler.MarkLabel(startLabel);
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_SLEEPTHREAD);
 	assembler.SYSCALL();
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_PROCESSMODULELOAD);
 	assembler.SYSCALL();
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_FINISHMODULELOAD);
+	assembler.SYSCALL();
+	assembler.BEQ(CMIPS::R0, CMIPS::R0, startLabel);
+	assembler.NOP();
+
 	return address;
 }
 
@@ -1591,6 +1607,9 @@ void CIopBios::HandleException()
 			break;
 		case SYSCALL_PROCESSMODULELOAD:
 			ProcessModuleLoad();
+			break;
+		case SYSCALL_FINISHMODULELOAD:
+			FinishModuleLoad();
 			break;
 		case SYSCALL_DELAYTHREADTICKS:
 			DelayThreadTicks(m_cpu.m_State.nGPR[CMIPS::A0].nV0);
