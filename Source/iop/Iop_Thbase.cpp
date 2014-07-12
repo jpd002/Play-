@@ -18,6 +18,7 @@ using namespace Iop;
 #define FUNCTION_DELAYTHREAD				"DelayThread"
 #define FUNCTION_GETSYSTEMTIME				"GetSystemTime"
 #define FUNCTION_SETALARM					"SetAlarm"
+#define FUNCTION_CANCELALARM				"CancelAlarm"
 #define FUNCTION_USECTOSYSCLOCK				"USecToSysClock"
 #define FUNCTION_SYSCLOCKTOUSEC				"SysClockToUSec"
 #define FUNCTION_GETCURRENTTHREADPRIORITY	"GetCurrentThreadPriority"
@@ -78,6 +79,9 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 35:
 		return FUNCTION_SETALARM;
+		break;
+	case 37:
+		return FUNCTION_CANCELALARM;
 		break;
 	case 39:
 		return FUNCTION_USECTOSYSCLOCK;
