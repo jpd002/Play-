@@ -78,6 +78,8 @@ void CSIF::Reset()
 	memset(m_nUserReg, 0, sizeof(uint32) * MAX_USERREG);
 
 	m_packetQueue.clear();
+	m_packetProcessed = true;
+
 	m_callReplies.clear();
 	m_bindReplies.clear();
 
@@ -215,13 +217,20 @@ void CSIF::SendPacket(void* packet, uint32 size)
 
 void CSIF::ProcessPackets()
 {
-	if(m_packetQueue.size() != 0)
+	if(m_packetProcessed && !m_packetQueue.empty())
 	{
 		assert(m_packetQueue.size() > 4);
 		uint32 size = *reinterpret_cast<uint32*>(&m_packetQueue[0]);
 		SendDMA(&m_packetQueue[4], size);
 		m_packetQueue.erase(m_packetQueue.begin(), m_packetQueue.begin() + 4 + size);
+		m_packetProcessed = false;
 	}
+}
+
+void CSIF::MarkPacketProcessed()
+{
+	assert(m_packetProcessed == false);
+	m_packetProcessed = true;
 }
 
 void CSIF::SendDMA(void* pData, uint32 nSize)

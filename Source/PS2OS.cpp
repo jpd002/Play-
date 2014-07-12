@@ -2193,6 +2193,17 @@ void CPS2OS::sc_SifSetDma()
 void CPS2OS::sc_SifSetDChain()
 {
 	//Humm, set the SIF0 DMA channel in destination chain mode?
+
+	//This syscall is invoked by the SIF dma interrupt handler (when a packet has been received)
+	//To make sure every packet generates an interrupt, the SIF will hold into any packet 
+	//that it might have in its queue while a packet is being processed.
+	//The MarkPacketProcess function will tell the SIF that the packet has been processed
+	//and that it can continue sending packets over. (Needed for Guilty Gear XX Accent Core Plus)
+	bool isInt = m_ee.m_State.nGPR[3].nV[1] == ~0;
+	if(isInt)
+	{
+		m_sif.MarkPacketProcessed();
+	}
 }
 
 //79

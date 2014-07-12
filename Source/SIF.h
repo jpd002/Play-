@@ -27,6 +27,7 @@ public:
 	void							Reset();
 	
 	void							ProcessPackets();
+	void							MarkPacketProcessed();
 
 	void							RegisterModule(uint32, CSifModule*);
 	bool							IsModuleRegistered(uint32) const;
@@ -163,7 +164,10 @@ private:
 	uint32							m_nUserReg[MAX_USERREG];
 
 	ModuleMap						m_modules;
+
 	PacketQueue						m_packetQueue;
+	bool							m_packetProcessed;
+
 	CallReplyMap					m_callReplies;
 	BindReplyMap					m_bindReplies;
 };
