@@ -37,8 +37,6 @@
 
 #define LOG_NAME		("ps2vm")
 
-//#define NEW_CYCLE_COUNTING
-
 #ifdef DEBUGGER_INCLUDED
 #define TAGS_PATH		("./tags/")
 #endif
@@ -1260,44 +1258,6 @@ void CPS2VM::EmuThread()
 					}
 				}
 
-#ifndef NEW_CYCLE_COUNTING
-				//EE CPU is 8 times faster than the IOP CPU
-
-				static const int tickStep = 4800;
-				m_eeExecutionTicks += tickStep;
-				m_iopExecutionTicks += tickStep / 8;
-
-				{
-#ifdef PROFILE
-					CProfilerZone profilerZone(PROFILE_EEZONE);
-#endif
-					m_eeExecutionTicks -= ExecuteEe(m_singleStepEe ? 1 : m_eeExecutionTicks);
-				}
-
-				unsigned int iopExecuted = 0;
-				{
-#ifdef PROFILE
-					CProfilerZone profilerZone(PROFILE_IOPZONE);
-#endif
-					iopExecuted = m_iop.ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
-					m_iopExecutionTicks -= iopExecuted;
-				}
-
-				int executed = tickStep;
-				if(IsEeIdle() && m_iop.IsCpuIdle())
-				{
-					executed *= 16;
-					m_eeExecutionTicks = 0;
-					m_iopExecutionTicks = 0;
-				}
-
-				m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += executed;
-				m_vblankTicks -= executed;
-				m_spuUpdateTicks -= executed;
-				m_timer.Count(executed);
-
-				m_iop.CountTicks(iopExecuted);
-#else
 				//EE CPU is 8 times faster than the IOP CPU
 				static const int tickStep = 480;
 				m_eeExecutionTicks += tickStep;
@@ -1345,7 +1305,6 @@ void CPS2VM::EmuThread()
 					if(m_iop.m_executor.MustBreak()) break;
 #endif
 				}
-#endif
 
 				m_vif.ExecuteVu0(m_singleStepVu0);
 				m_vif.ExecuteVu1(m_singleStepVu1);
