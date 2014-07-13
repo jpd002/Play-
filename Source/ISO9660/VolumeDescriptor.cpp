@@ -2,38 +2,36 @@
 #include <stdexcept>
 #include "VolumeDescriptor.h"
 
-using namespace Framework;
 using namespace ISO9660;
-using namespace std;
 
-CVolumeDescriptor::CVolumeDescriptor(CStream* stream)
+CVolumeDescriptor::CVolumeDescriptor(Framework::CStream* stream)
 {
-    //Starts at LBA 16
-    stream->Seek(0x8000, Framework::STREAM_SEEK_SET);
-    stream->Read(&m_nType, 1);
+	//Starts at LBA 16
+	stream->Seek(0x8000, Framework::STREAM_SEEK_SET);
+	stream->Read(&m_type, 1);
 
-    if(m_nType != 0x01)
-    {
-        throw runtime_error("Invalid ISO9660 Volume Descriptor.");
-    }
+	if(m_type != 0x01)
+	{
+		throw std::runtime_error("Invalid ISO9660 Volume Descriptor.");
+	}
 
-    stream->Read(m_sStdId, 5);
-    m_sStdId[5] = 0x00;
+	stream->Read(m_stdId, 5);
+	m_stdId[5] = 0x00;
 
-    if(strcmp(m_sStdId, "CD001"))
-    {
-        throw runtime_error("Invalid ISO9660 Volume Descriptor.");
-    }
+	if(strcmp(m_stdId, "CD001"))
+	{
+		throw std::runtime_error("Invalid ISO9660 Volume Descriptor.");
+	}
 
-    stream->Seek(34, Framework::STREAM_SEEK_CUR);
+	stream->Seek(34, Framework::STREAM_SEEK_CUR);
 
-    stream->Read(m_sVolumeId, 32);
-    m_sVolumeId[32] = 0x00;
+	stream->Read(m_volumeId, 32);
+	m_volumeId[32] = 0x00;
 
-    stream->Seek(68, Framework::STREAM_SEEK_CUR);
+	stream->Seek(68, Framework::STREAM_SEEK_CUR);
 
-    stream->Read(&m_nLPathTableAddress, 4);
-    stream->Read(&m_nMPathTableAddress, 4);
+	stream->Read(&m_LPathTableAddress, 4);
+	stream->Read(&m_MPathTableAddress, 4);
 }
 
 CVolumeDescriptor::~CVolumeDescriptor()
@@ -43,10 +41,10 @@ CVolumeDescriptor::~CVolumeDescriptor()
 
 uint32 CVolumeDescriptor::GetLPathTableAddress() const
 {
-    return m_nLPathTableAddress;
+	return m_LPathTableAddress;
 }
 
 uint32 CVolumeDescriptor::GetMPathTableAddress() const
 {
-    return m_nMPathTableAddress;
+	return m_MPathTableAddress;
 }

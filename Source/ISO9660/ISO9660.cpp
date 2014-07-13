@@ -1,93 +1,86 @@
 #include <limits.h>
 #include "ISO9660.h"
-#include "PtrMacro.h"
 #include "StdStream.h"
 #include "File.h"
 #include "DirectoryRecord.h"
 #include "stricmp.h"
 
-using namespace Framework;
 using namespace ISO9660;
-using namespace std;
 
-CISO9660::CISO9660(CStream* pStream) :
-m_pStream(pStream),
-m_volumeDescriptor(pStream),
-m_pathTable(pStream, m_volumeDescriptor.GetLPathTableAddress())
+CISO9660::CISO9660(Framework::CStream* stream)
+: m_stream(stream)
+, m_volumeDescriptor(stream)
+, m_pathTable(stream, m_volumeDescriptor.GetLPathTableAddress())
 {
 
 }
 
 CISO9660::~CISO9660()
 {
-	DELETEPTR(m_pStream);
+	delete m_stream;
 }
 
-void CISO9660::ReadBlock(uint32 nAddress, void* pData)
+void CISO9660::ReadBlock(uint32 address, void* data)
 {
 	//Caching mechanism?
-	m_pStream->Seek(nAddress * BLOCKSIZE, Framework::STREAM_SEEK_SET);
-	m_pStream->Read(pData, BLOCKSIZE);
+	m_stream->Seek(address * BLOCKSIZE, Framework::STREAM_SEEK_SET);
+	m_stream->Read(data, BLOCKSIZE);
 }
 
-bool CISO9660::GetFileRecord(CDirectoryRecord* pRecord, const char* sFilename)
+bool CISO9660::GetFileRecord(CDirectoryRecord* record, const char* filename)
 {
-	const char* sNext;
-	unsigned int nRecord;
-	unsigned int nAddress;
-
 	//Remove the first '/'
-	if(sFilename[0] == '/' || sFilename[0] == '\\') sFilename++;
+	if(filename[0] == '/' || filename[0] == '\\') filename++;
 
-	nRecord = m_pathTable.FindRoot();
+	unsigned int recordIndex = m_pathTable.FindRoot();
 
 	while(1)
 	{
 		//Find the next '/'
-		sNext = strchr(sFilename, '/');
-		if(sNext == NULL) break;
+		const char* next = strchr(filename, '/');
+		if(next == nullptr) break;
 
-        string sDir(sFilename, sNext);
-		nRecord = m_pathTable.FindDirectory(sDir.c_str(), nRecord);
-		if(nRecord == 0)
+		std::string dir(filename, next);
+		recordIndex = m_pathTable.FindDirectory(dir.c_str(), recordIndex);
+		if(recordIndex == 0)
 		{
 			return false;
 		}
 
-		sFilename = sNext + 1;
+		filename = next + 1;
 	}
 
-	nAddress = m_pathTable.GetDirectoryAddress(nRecord);
+	unsigned int address = m_pathTable.GetDirectoryAddress(recordIndex);
 
-	return GetFileRecordFromDirectory(pRecord, nAddress, sFilename);
+	return GetFileRecordFromDirectory(record, address, filename);
 }
 
-bool CISO9660::GetFileRecordFromDirectory(CDirectoryRecord* pRecord, uint32 nAddress, const char* sFilename)
+bool CISO9660::GetFileRecordFromDirectory(CDirectoryRecord* record, uint32 address, const char* filename)
 {
-	CFile Directory(this, nAddress * BLOCKSIZE, ULLONG_MAX - (nAddress * BLOCKSIZE));
+	CFile directory(this, address * BLOCKSIZE, ULLONG_MAX - (address * BLOCKSIZE));
 
 	while(1)
 	{
-		CDirectoryRecord Entry(&Directory);
+		CDirectoryRecord entry(&directory);
 
-		if(Entry.GetLength() == 0) break;
-		if(strnicmp(Entry.GetName(), sFilename, strlen(sFilename))) continue;
+		if(entry.GetLength() == 0) break;
+		if(strnicmp(entry.GetName(), filename, strlen(filename))) continue;
 
-		(*pRecord) = Entry;
+		(*record) = entry;
 		return true;
 	}
 
 	return false;
 }
 
-CStream* CISO9660::Open(const char* sFilename)
+Framework::CStream* CISO9660::Open(const char* filename)
 {
-	CDirectoryRecord Record;
+	CDirectoryRecord record;
 
-	if(GetFileRecord(&Record, sFilename))
+	if(GetFileRecord(&record, filename))
 	{
-		return new CFile(this, Record.GetPosition() * BLOCKSIZE, Record.GetDataLength());
+		return new CFile(this, record.GetPosition() * BLOCKSIZE, record.GetDataLength());
 	}
 
-	return NULL;
+	return nullptr;
 }

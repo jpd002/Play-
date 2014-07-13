@@ -1,17 +1,15 @@
 #include "File.h"
 
-using namespace Framework;
 using namespace ISO9660;
 
-CFile::CFile(CISO9660* pISO, uint64 nStart, uint64 nSize)
+CFile::CFile(CISO9660* iso, uint64 start, uint64 size)
+: m_iso(iso)
+, m_start(start)
+, m_end(start + size)
+, m_position(0)
+, m_blockPosition(static_cast<uint32>(start / CISO9660::BLOCKSIZE))
 {
-	m_pISO		= pISO;
-	m_nStart	= nStart;
-	m_nEnd		= nStart + nSize;
-	m_nPosition = 0;
-
-	m_nBlockPosition = (uint32)(m_nStart / CISO9660::BLOCKSIZE);
-	pISO->ReadBlock(m_nBlockPosition, m_nBlock);
+	iso->ReadBlock(m_blockPosition, m_block);
 }
 
 CFile::~CFile()
@@ -19,18 +17,18 @@ CFile::~CFile()
 
 }
 
-void CFile::Seek(int64 nAmount, STREAM_SEEK_DIRECTION nWhence)
+void CFile::Seek(int64 amount, Framework::STREAM_SEEK_DIRECTION whence)
 {
-	switch(nWhence)
+	switch(whence)
 	{
 	case Framework::STREAM_SEEK_SET:
-		m_nPosition = nAmount;
+		m_position = amount;
 		break;
 	case Framework::STREAM_SEEK_CUR:
-		m_nPosition += nAmount;
+		m_position += amount;
 		break;
 	case Framework::STREAM_SEEK_END:
-		m_nPosition = m_nEnd + 1;
+		m_position = m_end + 1;
 		break;
 	}
 }
@@ -39,36 +37,34 @@ uint64 CFile::Tell()
 {
 	if(IsEOF())
 	{
-		return m_nEnd - m_nStart;
+		return m_end - m_start;
 	}
-	return m_nPosition;
+	return m_position;
 }
 
-uint64 CFile::Read(void* pData, uint64 nLength)
+uint64 CFile::Read(void* data, uint64 length)
 {
-	uint64 nBlockPosition, nBlockRemain, nToRead, nTotal;
+	if(length == 0) return 0;
 
-	if(nLength == 0) return 0;
-
-	nTotal = nLength;
+	uint64 total = length;
 	//Read what's remaining of this block
 	while(1)
 	{
 		SyncBlock();
-		nBlockPosition	= (m_nStart + m_nPosition) % CISO9660::BLOCKSIZE;
-		nBlockRemain	= CISO9660::BLOCKSIZE - nBlockPosition;
-		nToRead			= (nLength > nBlockRemain) ? (nBlockRemain) : (nLength);
+		uint64 blockPosition	= (m_start + m_position) % CISO9660::BLOCKSIZE;
+		uint64 blockRemain		= CISO9660::BLOCKSIZE - blockPosition;
+		uint64 toRead			= (length > blockRemain) ? (blockRemain) : (length);
 
-		memcpy(pData, m_nBlock + nBlockPosition, (uint32)nToRead);
+		memcpy(data, m_block + blockPosition, static_cast<uint32>(toRead));
 
-		m_nPosition += nToRead;
-		nLength -= nToRead;
-		pData = (uint8*)pData + nToRead;
+		m_position += toRead;
+		length -= toRead;
+		data = reinterpret_cast<uint8*>(data) + toRead;
 
-		if(nLength == 0) break;
+		if(length == 0) break;
 	}
 
-	return nTotal;
+	return total;
 }
 
 uint64 CFile::Write(const void* pData, uint64 nLength)
@@ -78,16 +74,14 @@ uint64 CFile::Write(const void* pData, uint64 nLength)
 
 bool CFile::IsEOF()
 {
-	return ((m_nStart + m_nPosition) > m_nEnd);
+	return ((m_start + m_position) > m_end);
 }
 
 void CFile::SyncBlock()
 {
-	uint32 nPosition;
-	
-	nPosition = (uint32)((m_nStart + m_nPosition) / CISO9660::BLOCKSIZE);
-	if(nPosition == m_nBlockPosition) return;
+	uint32 position = static_cast<uint32>((m_start + m_position) / CISO9660::BLOCKSIZE);
+	if(position == m_blockPosition) return;
 
-	m_pISO->ReadBlock(nPosition, m_nBlock);
-	m_nBlockPosition = nPosition;
+	m_iso->ReadBlock(position, m_block);
+	m_blockPosition = position;
 }

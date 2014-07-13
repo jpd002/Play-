@@ -1,5 +1,4 @@
-#ifndef _ISO9660_PATHTABLE_H_
-#define _ISO9660_PATHTABLE_H_
+#pragma once
 
 #include "PathTableRecord.h"
 #include "Types.h"
@@ -19,11 +18,9 @@ namespace ISO9660
 		uint32								GetDirectoryAddress(unsigned int) const;
 
 	private:
-        typedef std::map<size_t, CPathTableRecord> RecordMapType;
+		typedef std::map<size_t, CPathTableRecord> RecordMapType;
 
-        RecordMapType                       m_records;
+		RecordMapType						m_records;
 	};
 
 }
-
-#endif
