@@ -53,6 +53,7 @@ namespace Dmac
 	private:
 		enum SCCTRL_BIT
 		{
+			SCCTRL_RETTOP		= 0x001,
 			SCCTRL_INITXFER		= 0x200,
 		};
 

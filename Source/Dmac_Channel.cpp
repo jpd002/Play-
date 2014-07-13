@@ -101,6 +101,7 @@ void CChannel::WriteCHCR(uint32 nValue)
 		{
 			m_nSCCTRL |= SCCTRL_INITXFER;
 		}
+		m_nSCCTRL &= ~SCCTRL_RETTOP;
 		Execute();
 	}
 }
@@ -217,6 +218,14 @@ void CChannel::ExecuteSourceChain()
 						ClearSTR();
 						continue;
 					}
+
+					//Transfer must also end when we encounter a RET tag with ASR == 0
+					if(m_nSCCTRL & SCCTRL_RETTOP)
+					{
+						ClearSTR();
+						m_nSCCTRL &= ~SCCTRL_RETTOP;
+						continue;
+					}
 				}
 			}
 			else
@@ -293,15 +302,15 @@ void CChannel::ExecuteSourceChain()
 			//RET - Transfers QWC after the tag, pops TADR from ASR
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)(nTag & 0xFFFF);
-
-			if (m_CHCR.nASP > 0){
+			if(m_CHCR.nASP > 0)
+			{
 				m_CHCR.nASP--;
 				m_nTADR = m_nASR[m_CHCR.nASP];
 			}
-			else {
-				ClearSTR();
+			else 
+			{
+				m_nSCCTRL |= SCCTRL_RETTOP;
 			}
-			
 			break;
 		case 7:
 			//END - Data to transfer is after the tag, transfer is finished
