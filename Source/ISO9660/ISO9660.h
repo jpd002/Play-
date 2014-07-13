@@ -19,7 +19,7 @@ public:
 
 	enum BLOCKSIZE
 	{
-		BLOCKSIZE = 0x800
+		BLOCKSIZE = 0x800ULL
 	};
 
 private:

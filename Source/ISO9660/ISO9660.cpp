@@ -23,7 +23,7 @@ CISO9660::~CISO9660()
 void CISO9660::ReadBlock(uint32 address, void* data)
 {
 	//Caching mechanism?
-	m_stream->Seek(address * BLOCKSIZE, Framework::STREAM_SEEK_SET);
+	m_stream->Seek(static_cast<uint64>(address) * BLOCKSIZE, Framework::STREAM_SEEK_SET);
 	m_stream->Read(data, BLOCKSIZE);
 }
 
@@ -79,7 +79,7 @@ Framework::CStream* CISO9660::Open(const char* filename)
 
 	if(GetFileRecord(&record, filename))
 	{
-		return new CFile(this, record.GetPosition() * BLOCKSIZE, record.GetDataLength());
+		return new CFile(this, static_cast<uint64>(record.GetPosition()) * BLOCKSIZE, record.GetDataLength());
 	}
 
 	return nullptr;
