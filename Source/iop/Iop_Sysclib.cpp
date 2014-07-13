@@ -56,6 +56,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 29:
 		return "strncmp";
 		break;
+	case 32:
+		return "strrchr";
+		break;
 	case 36:
 		return "strtol";
 		break;
@@ -148,6 +151,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
 			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
 			context.m_State.nGPR[CMIPS::A2].nV0);
+		break;
+	case 32:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __strrchr(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
 		break;
 	case 36:
 		assert(context.m_State.nGPR[CMIPS::A1].nV0 == 0);
@@ -245,6 +254,15 @@ uint32 CSysclib::__strncmp(const char* s1, const char* s2, uint32 length)
 void CSysclib::__strncpy(char* dst, const char* src, unsigned int count)
 {
 	strncpy(dst, src, count);
+}
+
+uint32 CSysclib::__strrchr(uint32 strPtr, uint32 character)
+{
+	const char* str = reinterpret_cast<char*>(m_ram + strPtr);
+	const char* result = strrchr(str, static_cast<int>(character));
+	if(result == nullptr) return 0;
+	size_t ptrDiff = result - str;
+	return strPtr + ptrDiff;
 }
 
 uint32 CSysclib::__strtol(const char* string, unsigned int radix)
