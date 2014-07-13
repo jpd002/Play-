@@ -276,7 +276,7 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 		}
 		catch(...)
 		{
-
+			throw std::runtime_error("Error occured while reading ELF executable from disk.");
 		}
 		ioman->Close(handle);
 	}
