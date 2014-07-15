@@ -9,6 +9,7 @@ using namespace Iop;
 
 #define FUNCTION_FLUSHDCACHE			"FlushDcache"
 #define FUNCTION_REGISTERLIBRARYENTRIES	"RegisterLibraryEntries"
+#define FUNCTION_QUERYBOOTMODE			"QueryBootMode"
 
 #define PATH_MAX_SIZE 252
 #define ARGS_MAX_SIZE 252
@@ -40,6 +41,9 @@ std::string CLoadcore::GetFunctionName(unsigned int functionId) const
 	case 6:
 		return FUNCTION_REGISTERLIBRARYENTRIES;
 		break;
+	case 12:
+		return FUNCTION_QUERYBOOTMODE;
+		break;
 	default:
 		return "unknown";
 		break;
@@ -55,6 +59,11 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(RegisterLibraryEntries(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
+	case 12:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(QueryBootMode(
 			context.m_State.nGPR[CMIPS::A0].nV0
 			));
 		break;
@@ -104,6 +113,12 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(exportTable = 0x%0.8X);\r\n", exportTablePtr);
 	uint32* exportTable = reinterpret_cast<uint32*>(&m_ram[exportTablePtr]);
 	m_bios.RegisterDynamicModule(new CDynamic(exportTable));
+	return 0;
+}
+
+uint32 CLoadcore::QueryBootMode(uint32 param)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_QUERYBOOTMODE "(param = %d);\r\n", param);
 	return 0;
 }
 
