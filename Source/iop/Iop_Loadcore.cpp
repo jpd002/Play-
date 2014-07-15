@@ -55,7 +55,7 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(RegisterLibraryEntries(
-			reinterpret_cast<uint32*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
+			context.m_State.nGPR[CMIPS::A0].nV0
 			));
 		break;
 	default:
@@ -99,11 +99,10 @@ void CLoadcore::SetLoadExecutableHandler(const LoadExecutableHandler& loadExecut
 	m_loadExecutableHandler = loadExecutableHandler;
 }
 
-uint32 CLoadcore::RegisterLibraryEntries(uint32* exportTable)
+uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
 {
-#ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(...);\r\n");
-#endif
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(exportTable = 0x%0.8X);\r\n", exportTablePtr);
+	uint32* exportTable = reinterpret_cast<uint32*>(&m_ram[exportTablePtr]);
 	m_bios.RegisterDynamicModule(new CDynamic(exportTable));
 	return 0;
 }

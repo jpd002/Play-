@@ -30,7 +30,7 @@ namespace Iop
 		void						SetLoadExecutableHandler(const LoadExecutableHandler&);
 
 	private:
-		uint32						RegisterLibraryEntries(uint32*);
+		uint32						RegisterLibraryEntries(uint32);
 		void						LoadModule(uint32*, uint32, uint32*, uint32);
 		void						LoadExecutable(uint32*, uint32, uint32*, uint32);
 		void						LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
