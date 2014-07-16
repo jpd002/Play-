@@ -62,14 +62,14 @@ struct MASSIVEWRITE_INFO
 
 CGSHandler::CGSHandler()
 : m_threadDone(false)
-, m_flipMode(FLIP_MODE_SMODE2)
+, m_flipMode(FLIP_MODE_VBLANK)
 , m_drawCallCount(0)
 , m_pCLUT(nullptr)
 , m_pRAM(nullptr)
 , m_frameDump(nullptr)
 , m_loggingEnabled(true)
 {
-	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_SMODE2);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_VBLANK);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
 	
 	m_presentationParams.mode = static_cast<PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
