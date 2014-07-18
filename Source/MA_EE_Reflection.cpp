@@ -121,8 +121,8 @@ INSTRUCTION CMA_EE::m_cReflMmi0[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PEXTLW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PPACW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PADDSH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
+	{	"PSUBSH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PEXTLH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PPACH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	//0x18

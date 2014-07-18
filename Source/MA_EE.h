@@ -87,6 +87,8 @@ private:
 	void								PADDSW();
 	void								PEXTLW();
 	void								PPACW();
+	void								PADDSH();
+	void								PSUBSH();
 	void								PEXTLH();
 	void								PPACH();
 	void								PEXTLB();
