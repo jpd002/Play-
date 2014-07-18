@@ -1676,7 +1676,8 @@ void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 	unsigned int nW2 = GetNextPowerOf2(nW);
 	unsigned int nH2 = GetNextPowerOf2(nH);
 
-	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, nW / 64, nW, nH);
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, bltBuf.GetDstWidth() / 64, nDX, nDY, nW, nH);
 
 	//Upload the texture
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
