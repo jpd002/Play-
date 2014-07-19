@@ -1654,11 +1654,8 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 
 void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
 {
-	TRXREG trxReg;
-	TRXPOS trxPos;
-
-	trxReg <<= m_nReg[GS_REG_TRXREG];
-	trxPos <<= m_nReg[GS_REG_TRXPOS];
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
 	unsigned int nW = trxReg.nRRW;
 	unsigned int nH = trxReg.nRRH;
