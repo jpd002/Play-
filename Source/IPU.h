@@ -183,7 +183,7 @@ private:
 	public:
 										CBDECCommand_ReadDct();
 
-		void							Initialize(CINFIFO*, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1);
+		void							Initialize(CINFIFO*, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1CoeffVLCTable, bool isMpeg2);
 		void							Execute();
 
 	private:
@@ -201,7 +201,8 @@ private:
 		int16*							m_block;
 		unsigned int					m_channelId;
 		bool							m_mbi;
-		bool							m_isMpeg1;
+		bool							m_isMpeg1CoeffVLCTable;
+		bool							m_isMpeg2;
 		unsigned int					m_blockIndex;
 		MPEG2::CDctCoefficientTable*	m_coeffTable;
 		int16*							m_dcPredictor;
@@ -214,7 +215,8 @@ private:
 	public:
 		struct CONTEXT
 		{
-			bool	isMpeg1;
+			bool	isMpeg1CoeffVLCTable;
+			bool	isMpeg2;
 			bool	isLinearQScale;
 			bool	isZigZag;
 			uint8*	intraIq;

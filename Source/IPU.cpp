@@ -228,13 +228,14 @@ void CIPU::InitializeCommand(uint32 value)
 		//BDEC
 		{
 			CBDECCommand::CONTEXT context;
-			context.isMpeg1			= GetIsMPEG1CoeffVLCTable();
-			context.isZigZag		= GetIsZigZagScan();
-			context.isLinearQScale	= GetIsLinearQScale();
-			context.dcPrecision		= GetDcPrecision();
-			context.intraIq			= m_nIntraIQ;
-			context.nonIntraIq		= m_nNonIntraIQ;
-			context.dcPredictor		= m_nDcPredictor;
+			context.isMpeg1CoeffVLCTable	= GetIsMPEG1CoeffVLCTable();
+			context.isMpeg2					= GetIsMPEG2();
+			context.isZigZag				= GetIsZigZagScan();
+			context.isLinearQScale			= GetIsLinearQScale();
+			context.dcPrecision				= GetDcPrecision();
+			context.intraIq					= m_nIntraIQ;
+			context.nonIntraIq				= m_nNonIntraIQ;
+			context.dcPredictor				= m_nDcPredictor;
 			m_BDECCommand.Initialize(&m_IN_FIFO, &m_OUT_FIFO, value, context);
 			m_currentCmd = &m_BDECCommand;
 		}
@@ -1047,7 +1048,7 @@ void CIPU::CBDECCommand::Execute()
 				{
 					m_readDctCoeffsCommand.Initialize(m_IN_FIFO, 
 						blockInfo.block, blockInfo.channel, 
-						m_context.dcPredictor, m_mbi, m_context.isMpeg1);
+						m_context.dcPredictor, m_mbi, m_context.isMpeg1CoeffVLCTable, m_context.isMpeg2);
 
 					m_state = STATE_DECODEBLOCK_READCOEFFS;
 				}
@@ -1127,26 +1128,28 @@ CIPU::CBDECCommand_ReadDct::CBDECCommand_ReadDct()
 , m_dcDiff(0)
 , m_channelId(0)
 , m_mbi(false)
-, m_isMpeg1(false)
+, m_isMpeg1CoeffVLCTable(false)
+, m_isMpeg2(true)
 , m_blockIndex(0)
 {
 
 }
 
-void CIPU::CBDECCommand_ReadDct::Initialize(CINFIFO* fifo, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1)
+void CIPU::CBDECCommand_ReadDct::Initialize(CINFIFO* fifo, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1CoeffVLCTable, bool isMpeg2)
 {
-	m_state			= STATE_INIT;
-	m_IN_FIFO		= fifo;
-	m_block			= block;
-	m_dcPredictor	= dcPredictor;
-	m_channelId		= channelId;
-	m_mbi			= mbi;
-	m_isMpeg1		= isMpeg1;
-	m_coeffTable	= NULL;
-	m_blockIndex	= 0;
-	m_dcDiff		= 0;
+	m_state					= STATE_INIT;
+	m_IN_FIFO				= fifo;
+	m_block					= block;
+	m_dcPredictor			= dcPredictor;
+	m_channelId				= channelId;
+	m_mbi					= mbi;
+	m_isMpeg1CoeffVLCTable	= isMpeg1CoeffVLCTable;
+	m_isMpeg2				= isMpeg2;
+	m_coeffTable			= NULL;
+	m_blockIndex			= 0;
+	m_dcDiff				= 0;
 
-	if(m_mbi && !m_isMpeg1)
+	if(m_mbi && !m_isMpeg1CoeffVLCTable)
 	{
 		m_coeffTable = CDctCoefficientTable1::GetInstance();
 	}
@@ -1208,11 +1211,11 @@ void CIPU::CBDECCommand_ReadDct::Execute()
 				MPEG2::RUNLEVELPAIR runLevelPair;
 				if(m_blockIndex == 0)
 				{
-					m_coeffTable->GetRunLevelPairDc(m_IN_FIFO, &runLevelPair, !m_isMpeg1);
+					m_coeffTable->GetRunLevelPairDc(m_IN_FIFO, &runLevelPair, m_isMpeg2);
 				}
 				else
 				{
-					m_coeffTable->GetRunLevelPair(m_IN_FIFO, &runLevelPair, !m_isMpeg1);
+					m_coeffTable->GetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2);
 				}
 				m_blockIndex += runLevelPair.nRun;
 			
