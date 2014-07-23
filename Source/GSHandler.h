@@ -652,12 +652,6 @@ protected:
 	void									ReadCLUT4(const TEX0&);
 	void									ReadCLUT8(const TEX0&);
 
-	static unsigned int						GetPsmPixelSize(unsigned int);
-	static std::pair<uint32, uint32>		GetPsmPageSize(unsigned int);
-	static bool								IsPsmIDTEX(unsigned int);
-	static bool								IsPsmIDTEX4(unsigned int);
-	static bool								IsPsmIDTEX8(unsigned int);
-
 	bool									m_loggingEnabled;
 
 	uint64									m_nPMODE;			//0x12000000

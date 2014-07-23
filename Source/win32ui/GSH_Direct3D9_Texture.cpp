@@ -123,9 +123,9 @@ uint32 CGSH_Direct3D9::RGBA16ToRGBA32(uint16 nColor)
 
 void CGSH_Direct3D9::FlattenClut(const TEX0& tex0, uint32* dstClut)
 {
-	unsigned int entryCount = IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
+	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
 
-	if(IsPsmIDTEX4(tex0.nPsm))
+	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
 	{
 		uint32 clutOffset = tex0.nCSA * 16;
 
@@ -154,7 +154,7 @@ void CGSH_Direct3D9::FlattenClut(const TEX0& tex0, uint32* dstClut)
 			}
 		}
 	}
-	else if(IsPsmIDTEX8(tex0.nPsm))
+	else if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
 	{
 		assert(tex0.nCSA == 0);
 
@@ -507,7 +507,7 @@ void CGSH_Direct3D9::TexCache_Insert(const TEX0& tex0, const TexturePtr& texture
 	cachedTexture->Free();
 
 	cachedTexture->m_nStart			= tex0.GetBufPtr();
-	cachedTexture->m_nSize			= tex0.GetBufWidth() * tex0.GetHeight() * GetPsmPixelSize(tex0.nPsm) / 8;
+	cachedTexture->m_nSize			= tex0.GetBufWidth() * tex0.GetHeight() * CGsPixelFormats::GetPsmPixelSize(tex0.nPsm) / 8;
 //	cachedTexture->m_nPSM			= pTex0->nPsm;
 //	cachedTexture->m_nCLUTAddress	= pTex0->GetCLUTPtr();
 	cachedTexture->m_nTex0			= *reinterpret_cast<const uint64*>(&tex0);

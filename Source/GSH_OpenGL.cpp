@@ -742,7 +742,7 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 	auto zbuf = make_convertible<ZBUF>(zbufReg);
 	auto test = make_convertible<TEST>(testReg);
 
-	switch(GetPsmPixelSize(zbuf.nPsm))
+	switch(CGsPixelFormats::GetPsmPixelSize(zbuf.nPsm))
 	{
 	case 16:
 		m_nMaxZ = 32768.0f;
@@ -888,15 +888,15 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0R
 		shaderCaps.texClampT = clampMode[1];
 	}
 
-	if(IsPsmIDTEX(tex0.nPsm) && ((tex1.nMinFilter != MIN_FILTER_NEAREST) || (tex1.nMagFilter != MIN_FILTER_NEAREST)))
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm) && ((tex1.nMinFilter != MIN_FILTER_NEAREST) || (tex1.nMagFilter != MIN_FILTER_NEAREST)))
 	{
 		//We'll need to filter the texture manually
 		shaderCaps.texBilinearFilter = 1;
 	}
 
-	if(IsPsmIDTEX(tex0.nPsm))
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
-		shaderCaps.texSourceMode = IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;
+		shaderCaps.texSourceMode = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;
 	}
 
 	shaderCaps.texFunction = tex0.nFunction;
@@ -989,7 +989,7 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 		}
 	}
 
-	if(IsPsmIDTEX(tex0.nPsm) && (nMinFilter != GL_NEAREST || nMagFilter != GL_NEAREST))
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm) && (nMinFilter != GL_NEAREST || nMagFilter != GL_NEAREST))
 	{
 		//We'll need to filter the texture manually
 		nMinFilter = GL_NEAREST;
@@ -1002,7 +1002,7 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, nWrapS);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, nWrapT);
 
-	if(IsPsmIDTEX(tex0.nPsm))
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
 		glActiveTexture(GL_TEXTURE1);
 		PreparePalette(tex0);
@@ -1539,7 +1539,7 @@ void CGSH_OpenGL::ProcessImageTransfer()
 		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
 		//Find the pages that are touched by this transfer
-		auto transferPageSize = GetPsmPageSize(bltBuf.nDstPsm);
+		auto transferPageSize = CGsPixelFormats::GetPsmPageSize(bltBuf.nDstPsm);
 
 		uint32 pageCountX = (bltBuf.GetDstWidth() + transferPageSize.first - 1) / transferPageSize.first;
 		uint32 pageCountY = (trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;

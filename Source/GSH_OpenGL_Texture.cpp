@@ -87,7 +87,7 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			//Bail if offset is not aligned on a page boundary
 			if((framebufferOffset & (CGsPixelFormats::PAGESIZE - 1)) != 0) continue;
 
-			auto framebufferPageSize = GetPsmPageSize(candidateFramebuffer->m_psm);
+			auto framebufferPageSize = CGsPixelFormats::GetPsmPageSize(candidateFramebuffer->m_psm);
 			uint32 framebufferPageCountX = candidateFramebuffer->m_width / framebufferPageSize.first;
 			uint32 framebufferPageIndex = framebufferOffset / CGsPixelFormats::PAGESIZE;
 
@@ -124,7 +124,7 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 		if(texture->HasDirtyPages())
 		{
-			auto texturePageSize = GetPsmPageSize(tex0.nPsm);
+			auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
 			uint32 pageCountX = (tex0.GetBufWidth() + texturePageSize.first - 1) / texturePageSize.first;
 			
 			for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CTexture::MAX_DIRTYPAGES; dirtyPageIndex++)
@@ -175,9 +175,9 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 	}
 
 	uint32 convertedClut[256];
-	unsigned int entryCount = IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
+	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
 
-	if(IsPsmIDTEX4(tex0.nPsm))
+	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
 	{
 		uint32 clutOffset = tex0.nCSA * 16;
 
@@ -206,7 +206,7 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 			}
 		}
 	}
-	else if(IsPsmIDTEX8(tex0.nPsm))
+	else if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
 	{
 		assert(tex0.nCSA == 0);
 
@@ -481,7 +481,7 @@ void CGSH_OpenGL::CTexture::InvalidateFromMemorySpace(uint32 start, uint32 size)
 
 	if(DoMemoryRangesOverlap(start, size, m_start, m_size))
 	{
-		auto texturePageSize = GetPsmPageSize(tex0.nPsm);
+		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
 
 		uint32 pageCountX = (tex0.GetBufWidth() + texturePageSize.first - 1) / texturePageSize.first;
 		uint32 pageCountY = (tex0.GetHeight() + texturePageSize.second - 1) / texturePageSize.second;
@@ -558,7 +558,7 @@ void CGSH_OpenGL::TexCache_Insert(const TEX0& tex0, GLuint textureHandle)
 	auto texture = *m_textureCache.rbegin();
 	texture->Free();
 
-	auto transferPageSize = GetPsmPageSize(tex0.nPsm);
+	auto transferPageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
 	uint32 pageCountX = (tex0.GetBufWidth() + transferPageSize.first - 1) / transferPageSize.first;
 	uint32 pageCountY = (tex0.GetHeight() + transferPageSize.second - 1) / transferPageSize.second;
 
@@ -631,7 +631,7 @@ GLuint CGSH_OpenGL::PalCache_Search(const TEX0& tex0)
 	{
 		auto palette = *paletteIterator;
 		if(!palette->m_live) continue;
-		if(IsPsmIDTEX4(tex0.nPsm) != palette->m_isIDTEX4) continue;
+		if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) != palette->m_isIDTEX4) continue;
 		if(tex0.nCPSM != palette->m_cpsm) continue;
 		if(tex0.nCSA != palette->m_csa) continue;
 		m_paletteCache.erase(paletteIterator);
@@ -671,9 +671,9 @@ void CGSH_OpenGL::PalCache_Insert(const TEX0& tex0, const uint32* contents, GLui
 	auto texture = *m_paletteCache.rbegin();
 	texture->Free();
 
-	unsigned int entryCount = IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
+	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
 
-	texture->m_isIDTEX4		= IsPsmIDTEX4(tex0.nPsm);
+	texture->m_isIDTEX4		= CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm);
 	texture->m_cpsm			= tex0.nCPSM;
 	texture->m_csa			= tex0.nCSA;
 	texture->m_texture		= textureHandle;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "Types.h"
 #include "GSHandler.h"
 
@@ -96,6 +97,12 @@ public:
 
 		typedef uint8 Unit;
 	};
+
+	static unsigned int						GetPsmPixelSize(unsigned int);
+	static std::pair<uint32, uint32>		GetPsmPageSize(unsigned int);
+	static bool								IsPsmIDTEX(unsigned int);
+	static bool								IsPsmIDTEX4(unsigned int);
+	static bool								IsPsmIDTEX8(unsigned int);
 
 	template <typename Storage> class CPixelIndexor
 	{

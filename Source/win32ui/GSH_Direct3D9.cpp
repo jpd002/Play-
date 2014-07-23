@@ -1,5 +1,6 @@
 #include "GSH_Direct3D9.h"
 #include "../Log.h"
+#include "../GsPixelFormats.h"
 #include <d3dx9math.h>
 
 #pragma comment (lib, "d3d9.lib")
@@ -928,7 +929,7 @@ void CGSH_Direct3D9::SetupDepthBuffer(uint64 zbufReg, uint64 frameReg)
 		m_depthbuffers.push_back(depthbuffer);
 	}
 
-	switch(GetPsmPixelSize(zbuf.nPsm))
+	switch(CGsPixelFormats::GetPsmPixelSize(zbuf.nPsm))
 	{
 	case 16:
 		m_nMaxZ = 32768.0f;
