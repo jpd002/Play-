@@ -157,10 +157,8 @@ void CGSH_OpenGL::FlipImpl()
 	unsigned int dispHeight = (d.nH + 1);
 
 	FramebufferPtr framebuffer;
-	for(auto framebufferIterator(std::begin(m_framebuffers));
-		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
-		const auto& candidateFramebuffer = *framebufferIterator;
 		if(candidateFramebuffer->m_basePtr == fb.GetBufPtr())
 		{
 			//We have a winner
@@ -232,10 +230,8 @@ void CGSH_OpenGL::FlipImpl()
 	static bool g_dumpFramebuffers = false;
 	if(g_dumpFramebuffers)
 	{
-		for(auto framebufferIterator(std::begin(m_framebuffers));
-			framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
+		for(const auto& framebuffer : m_framebuffers)
 		{
-			const auto& framebuffer(*framebufferIterator);
 			glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
 			DumpTexture(framebuffer->m_width, framebuffer->m_height, framebuffer->m_basePtr);
 		}
