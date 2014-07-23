@@ -640,6 +640,9 @@
     <ClCompile Include="..\Source\VuAnalysis.cpp">
       <Filter>Source Files\Core\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\GsCachedArea.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1243,6 +1246,9 @@
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VuExecutor.h">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\GsCachedArea.h">
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,6 +3,7 @@
 #include <list>
 #include <unordered_map>
 #include "GSHandler.h"
+#include "GsCachedArea.h"
 #include "opengl/OpenGlDef.h"
 #include "opengl/Program.h"
 #include "opengl/Shader.h"
@@ -125,27 +126,11 @@ private:
 									~CTexture();
 		void						Free();
 
-		void						InvalidateFromMemorySpace(uint32, uint32);
-		bool						IsPageDirty(uint32) const;
-		void						SetPageDirty(uint32);
-		bool						HasDirtyPages() const;
-		void						ClearDirtyPages();
-
-		uint32						m_start;
-		uint32						m_size;
 		uint64						m_tex0;
 		GLuint						m_texture;
 		bool						m_live;
 
-		typedef uint64 DirtyPageHolder;
-
-		enum
-		{
-			MAX_DIRTYPAGES_SECTIONS = 8,
-			MAX_DIRTYPAGES = sizeof(DirtyPageHolder) * 8 * MAX_DIRTYPAGES_SECTIONS
-		};
-
-		DirtyPageHolder				m_dirtyPages[MAX_DIRTYPAGES_SECTIONS];
+		CGsCachedArea				m_cachedArea;
 	};
 	typedef std::shared_ptr<CTexture> TexturePtr;
 	typedef std::list<TexturePtr> TextureList;

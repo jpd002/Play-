@@ -261,6 +261,7 @@
     <ClCompile Include="..\Source\FpMulTruncate.cpp" />
     <ClCompile Include="..\Source\FrameDump.cpp" />
     <ClCompile Include="..\Source\GIF.cpp" />
+    <ClCompile Include="..\Source\GsCachedArea.cpp" />
     <ClCompile Include="..\Source\GSHandler.cpp" />
     <ClCompile Include="..\Source\GSH_Null.cpp" />
     <ClCompile Include="..\Source\GSH_OpenGL.cpp" />
@@ -481,6 +482,7 @@
     <ClInclude Include="..\Source\FpMulTruncate.h" />
     <ClInclude Include="..\Source\FrameDump.h" />
     <ClInclude Include="..\Source\GIF.h" />
+    <ClInclude Include="..\Source\GsCachedArea.h" />
     <ClInclude Include="..\Source\GSHandler.h" />
     <ClInclude Include="..\Source\GSH_Null.h" />
     <ClInclude Include="..\Source\GSH_OpenGL.h" />

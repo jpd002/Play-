@@ -10,20 +10,6 @@
 
 #define TEX0_CLUTINFO_MASK (~0xFFFFFFE000000000ULL)
 
-static bool DoMemoryRangesOverlap(uint32 start1, uint32 size1, uint32 start2, uint32 size2)
-{
-	uint32 min1 = start1;
-	uint32 max1 = start1 + size1;
-
-	uint32 min2 = start2;
-	uint32 max2 = start2 + size2;
-
-	if(max1 < min2) return false;
-	if(min1 > max2) return false;
-	
-	return true;
-}
-
 /////////////////////////////////////////////////////////////
 // Texture Loading
 /////////////////////////////////////////////////////////////
@@ -121,18 +107,19 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 	if(texture)
 	{
 		glBindTexture(GL_TEXTURE_2D, texture->m_texture);
+		auto& cachedArea = texture->m_cachedArea;
 
-		if(texture->HasDirtyPages())
+		if(cachedArea.HasDirtyPages())
 		{
 			auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
-			uint32 pageCountX = (tex0.GetBufWidth() + texturePageSize.first - 1) / texturePageSize.first;
-			
-			for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CTexture::MAX_DIRTYPAGES; dirtyPageIndex++)
-			{
-				if(!texture->IsPageDirty(dirtyPageIndex)) continue;
+			auto pageRect = cachedArea.GetPageRect();
 
-				uint32 pageX = dirtyPageIndex % pageCountX;
-				uint32 pageY = dirtyPageIndex / pageCountX;
+			for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CGsCachedArea::MAX_DIRTYPAGES; dirtyPageIndex++)
+			{
+				if(!cachedArea.IsPageDirty(dirtyPageIndex)) continue;
+
+				uint32 pageX = dirtyPageIndex % pageRect.first;
+				uint32 pageY = dirtyPageIndex / pageRect.first;
 				uint32 texX = pageX * texturePageSize.first;
 				uint32 texY = pageY * texturePageSize.second;
 				uint32 texWidth = texturePageSize.first;
@@ -152,7 +139,7 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 				((this)->*(m_textureUpdater[tex0.nPsm]))(tex0, texX, texY, texWidth, texHeight);
 			}
 
-			texture->ClearDirtyPages();
+			cachedArea.ClearDirtyPages();
 		}
 	}
 	else
@@ -448,13 +435,11 @@ void CGSH_OpenGL::TexUpdater_Psm48H(const TEX0& tex0, unsigned int texX, unsigne
 /////////////////////////////////////////////////////////////
 
 CGSH_OpenGL::CTexture::CTexture()
-: m_start(0)
-, m_size(0)
-, m_tex0(0)
+: m_tex0(0)
 , m_texture(0)
 , m_live(false)
 {
-	ClearDirtyPages();
+
 }
 
 CGSH_OpenGL::CTexture::~CTexture()
@@ -470,65 +455,7 @@ void CGSH_OpenGL::CTexture::Free()
 		m_texture = 0;
 	}
 	m_live = false;
-	ClearDirtyPages();
-}
-
-void CGSH_OpenGL::CTexture::InvalidateFromMemorySpace(uint32 start, uint32 size)
-{
-	if(!m_live) return;
-
-	auto tex0 = make_convertible<TEX0>(m_tex0);
-
-	if(DoMemoryRangesOverlap(start, size, m_start, m_size))
-	{
-		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
-
-		uint32 pageCountX = (tex0.GetBufWidth() + texturePageSize.first - 1) / texturePageSize.first;
-		uint32 pageCountY = (tex0.GetHeight() + texturePageSize.second - 1) / texturePageSize.second;
-
-		//Find the pages that are touched by this transfer
-		uint32 pageStart = (start < m_start) ? 0 : ((start - m_start) / CGsPixelFormats::PAGESIZE);
-		uint32 pageCount = std::min<uint32>(pageCountX * pageCountY, (size + CGsPixelFormats::PAGESIZE - 1) / CGsPixelFormats::PAGESIZE);
-
-		for(unsigned int i = 0; i < pageCount; i++)
-		{
-			SetPageDirty(pageStart + i);
-		}
-
-		//Wouldn't make sense to go through here and not have at least a dirty page
-		assert(HasDirtyPages());
-	}
-}
-
-bool CGSH_OpenGL::CTexture::IsPageDirty(uint32 pageIndex) const
-{
-	assert(pageIndex < sizeof(m_dirtyPages) * 8);
-	unsigned int dirtyPageSection = pageIndex / (sizeof(m_dirtyPages[0]) * 8);
-	unsigned int dirtyPageIndex = pageIndex % (sizeof(m_dirtyPages[0]) * 8);
-	return (m_dirtyPages[dirtyPageSection] & (1ULL << dirtyPageIndex)) != 0;
-}
-
-void CGSH_OpenGL::CTexture::SetPageDirty(uint32 pageIndex)
-{
-	assert(pageIndex < sizeof(m_dirtyPages) * 8);
-	unsigned int dirtyPageSection = pageIndex / (sizeof(m_dirtyPages[0]) * 8);
-	unsigned int dirtyPageIndex = pageIndex % (sizeof(m_dirtyPages[0]) * 8);
-	m_dirtyPages[dirtyPageSection] |= (1ULL << dirtyPageIndex);
-}
-
-bool CGSH_OpenGL::CTexture::HasDirtyPages() const
-{
-	DirtyPageHolder dirtyStatus = 0;
-	for(unsigned int i = 0; i < MAX_DIRTYPAGES_SECTIONS; i++)
-	{
-		dirtyStatus |= m_dirtyPages[i];
-	}
-	return (dirtyStatus != 0);
-}
-
-void CGSH_OpenGL::CTexture::ClearDirtyPages()
-{
-	memset(m_dirtyPages, 0, sizeof(m_dirtyPages));
+	m_cachedArea.ClearDirtyPages();
 }
 
 /////////////////////////////////////////////////////////////
@@ -558,12 +485,8 @@ void CGSH_OpenGL::TexCache_Insert(const TEX0& tex0, GLuint textureHandle)
 	auto texture = *m_textureCache.rbegin();
 	texture->Free();
 
-	auto transferPageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
-	uint32 pageCountX = (tex0.GetBufWidth() + transferPageSize.first - 1) / transferPageSize.first;
-	uint32 pageCountY = (tex0.GetHeight() + transferPageSize.second - 1) / transferPageSize.second;
+	texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.GetHeight());
 
-	texture->m_start		= tex0.GetBufPtr();
-	texture->m_size			= pageCountX * pageCountY * CGsPixelFormats::PAGESIZE;
 	texture->m_tex0			= static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
 	texture->m_texture		= textureHandle;
 	texture->m_live			= true;
@@ -575,7 +498,7 @@ void CGSH_OpenGL::TexCache_Insert(const TEX0& tex0, GLuint textureHandle)
 void CGSH_OpenGL::TexCache_InvalidateTextures(uint32 start, uint32 size)
 {
 	std::for_each(std::begin(m_textureCache), std::end(m_textureCache), 
-		[start, size] (TexturePtr& texture) { texture->InvalidateFromMemorySpace(start, size); });
+		[start, size] (TexturePtr& texture) { if(texture->m_live) { texture->m_cachedArea.Invalidate(start, size); } });
 }
 
 void CGSH_OpenGL::TexCache_Flush()
