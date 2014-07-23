@@ -252,13 +252,10 @@ private:
 	void							TexUploader_Invalid(const TEX0&);
 
 	void							TexUploader_Psm32(const TEX0&);
-	void							TexUploader_Psm16(const TEX0&);
-	void							TexUploader_Psm16S(const TEX0&);
+	template <typename> void		TexUploader_Psm16(const TEX0&);
 
-	void							TexUploader_Psm8(const TEX0&);
-	void							TexUploader_Psm4(const TEX0&);
-	void							TexUploader_Psm8H(const TEX0&);
-	template <uint32> void			TexUploader_Psm4H(const TEX0&);
+	template <typename> void		TexUploader_Psm48(const TEX0&);
+	template <uint32, uint32> void	TexUploader_Psm48H(const TEX0&);
 
 	//Texture updaters
 	void							TexUpdater_Invalid(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
