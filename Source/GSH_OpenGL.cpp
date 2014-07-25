@@ -83,13 +83,16 @@ void CGSH_OpenGL::ResetImpl()
 
 void CGSH_OpenGL::FlipImpl()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//Clear all of our output framebuffer
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDisable(GL_SCISSOR_TEST);
-	glClearColor(0, 0, 0, 0);
-	glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
-	glClear(GL_COLOR_BUFFER_BIT);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDisable(GL_SCISSOR_TEST);
+		glClearColor(0, 0, 0, 0);
+		glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	unsigned int sourceWidth = GetCrtWidth();
 	unsigned int sourceHeight = GetCrtHeight();
@@ -159,7 +162,10 @@ void CGSH_OpenGL::FlipImpl()
 	FramebufferPtr framebuffer;
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
-		if(candidateFramebuffer->m_basePtr == fb.GetBufPtr())
+		if(
+			(candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+			(candidateFramebuffer->m_width == fb.GetBufWidth())
+			)
 		{
 			//We have a winner
 			framebuffer = candidateFramebuffer;
@@ -171,6 +177,12 @@ void CGSH_OpenGL::FlipImpl()
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
 		m_framebuffers.push_back(framebuffer);
+		PopulateFramebuffer(framebuffer);
+	}
+
+	if(framebuffer)
+	{
+		CommitFramebufferDirtyPages(framebuffer, 0, dispHeight);
 	}
 
 	if(framebuffer)
@@ -199,6 +211,8 @@ void CGSH_OpenGL::FlipImpl()
 		glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		glMatrixMode(GL_TEXTURE);
 		glLoadIdentity();
@@ -781,10 +795,10 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
 		m_framebuffers.push_back(framebuffer);
+		PopulateFramebuffer(framebuffer);
 	}
 
-	//Any framebuffer selected at this point can be used as a texture
-	framebuffer->m_canBeUsedAsTexture = true;
+	CommitFramebufferDirtyPages(framebuffer, scissor.scay0, scissor.scay1);
 
 	auto depthbuffer = FindDepthbuffer(zbuf, frame);
 	if(!depthbuffer)
@@ -1545,53 +1559,13 @@ void CGSH_OpenGL::ProcessImageTransfer()
 		uint32 transferOffset = (trxPos.nDSAY / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
 
 		TexCache_InvalidateTextures(transferAddress + transferOffset, transferSize);
-		m_renderState.isValid = false;
-	}
 
-	//Invalidate any framebuffer that might have been overwritten by texture data that can't be displayed
-	for(auto framebufferIterator(std::begin(m_framebuffers));
-		framebufferIterator != std::end(m_framebuffers); framebufferIterator++)
-	{
-		const auto& framebuffer(*framebufferIterator);
-		if(framebuffer->m_basePtr == transferAddress)
+		bool isUpperByteTransfer = (bltBuf.nDstPsm == PSMT8H) || (bltBuf.nDstPsm == PSMT4HL) || (bltBuf.nDstPsm == PSMT4HH);
+		for(const auto& framebuffer : m_framebuffers)
 		{
-			framebuffer->m_canBeUsedAsTexture = false;
+			if((framebuffer->m_psm == PSMCT24) && isUpperByteTransfer) continue;
+			framebuffer->m_cachedArea.Invalidate(transferAddress + transferOffset, transferSize);
 		}
-	}
-
-	auto dstFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
-		[&] (const FramebufferPtr& framebuffer) 
-		{
-			return 
-				framebuffer->m_basePtr == bltBuf.GetDstPtr() &&
-				framebuffer->m_width == bltBuf.GetDstWidth() &&
-				framebuffer->m_psm == bltBuf.nDstPsm;
-		}
-	);
-	if(dstFramebufferIterator != std::end(m_framebuffers))
-	{
-		const auto& dstFramebuffer = (*dstFramebufferIterator);
-
-		glDisable(GL_SCISSOR_TEST);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		glViewport(0, 0, dstFramebuffer->m_width, dstFramebuffer->m_height);
-
-		float projWidth = static_cast<float>(dstFramebuffer->m_width);
-		float projHeight = static_cast<float>(dstFramebuffer->m_height);
-		LinearZOrtho(0, projWidth, 0, projHeight);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		glBindFramebuffer(GL_FRAMEBUFFER, dstFramebuffer->m_framebuffer);
-
-		DisplayTransferedImage(transferAddress);
 
 		m_renderState.isValid = false;
 	}
@@ -1609,13 +1583,15 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 	auto srcFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
 		[&] (const FramebufferPtr& framebuffer) 
 		{
-			return framebuffer->m_basePtr == bltBuf.GetSrcPtr();
+			return (framebuffer->m_basePtr == bltBuf.GetSrcPtr()) &&
+				(framebuffer->m_width == bltBuf.GetSrcWidth());
 		}
 	);
 	auto dstFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
 		[&] (const FramebufferPtr& framebuffer) 
 		{
-			return framebuffer->m_basePtr == bltBuf.GetDstPtr();
+			return (framebuffer->m_basePtr == bltBuf.GetDstPtr()) && 
+				(framebuffer->m_width == bltBuf.GetDstWidth());
 		}
 	);
 	if(
@@ -1648,61 +1624,6 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buffer);
 }
 
-void CGSH_OpenGL::DisplayTransferedImage(uint32 nAddress)
-{
-	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
-	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
-
-	unsigned int nW = trxReg.nRRW;
-	unsigned int nH = trxReg.nRRH;
-
-	unsigned int nDX = trxPos.nDSAX;
-	unsigned int nDY = trxPos.nDSAY;
-
-	glUseProgram(0);
-
-	GLuint nTexture = 0;
-	glGenTextures(1, &nTexture);
-
-	glBindTexture(GL_TEXTURE_2D, nTexture);
-
-	unsigned int nW2 = GetNextPowerOf2(nW);
-	unsigned int nH2 = GetNextPowerOf2(nH);
-
-	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
-	FetchImagePSMCT32(reinterpret_cast<uint32*>(m_pCvtBuffer), nAddress, bltBuf.GetDstWidth() / 64, nDX, nDY, nW, nH);
-
-	//Upload the texture
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, nW2, nH2, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-
-	float nS = (float)nW / (float)nW2;
-	float nT = (float)nH / (float)nH2;
-
-	glBegin(GL_QUADS);
-		
-		glTexCoord2f(0.0f,		0.0f);
-		glVertex2f(nDX,			nDY);
-
-		glTexCoord2f(0.0f,		nT);
-		glVertex2f(nDX,			nDY + nH);
-
-		glTexCoord2f(nS,		nT);
-		glVertex2f(nDX + nW,	nDY + nH);
-
-		glTexCoord2f(nS,		0.0f);
-		glVertex2f(nDX + nW,	nDY);
-
-	glEnd();
-
-	glBindTexture(GL_TEXTURE_2D, NULL);
-
-	glDeleteTextures(1, &nTexture);
-}
-
 bool CGSH_OpenGL::IsBlendColorExtSupported()
 {
 	return glBlendColorEXT != NULL;
@@ -1729,8 +1650,9 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 , m_psm(psm)
 , m_framebuffer(0)
 , m_texture(0)
-, m_canBeUsedAsTexture(false)
 {
+	m_cachedArea.SetArea(psm, basePtr, width, height);
+
 	//Build color attachment
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -1741,6 +1663,8 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	glGenFramebuffers(1, &m_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 	glFramebufferTextureEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 CGSH_OpenGL::CFramebuffer::~CFramebuffer()
@@ -1752,6 +1676,66 @@ CGSH_OpenGL::CFramebuffer::~CFramebuffer()
 	if(m_texture != 0)
 	{
 		glDeleteTextures(1, &m_texture);
+	}
+}
+
+void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
+{
+	if(framebuffer->m_psm != PSMCT32)
+	{
+		//In some cases we might not want to populate the framebuffer if its
+		//pixel format isn't PSMCT32 since it will also change the pixel format of the
+		//underlying OpenGL framebuffer (due to the call to glTexImage2D)
+		return;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
+	((this)->*(m_textureUploader[framebuffer->m_psm]))(framebuffer->m_basePtr, 
+		framebuffer->m_width / 64, framebuffer->m_width, framebuffer->m_height);
+	assert(glGetError() == GL_NO_ERROR);
+}
+
+void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer, unsigned int minY, unsigned int maxY)
+{
+	auto& cachedArea = framebuffer->m_cachedArea;
+
+	if(cachedArea.HasDirtyPages())
+	{
+		glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
+
+		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(framebuffer->m_psm);
+		auto pageRect = cachedArea.GetPageRect();
+
+		for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CGsCachedArea::MAX_DIRTYPAGES; dirtyPageIndex++)
+		{
+			if(!cachedArea.IsPageDirty(dirtyPageIndex)) continue;
+
+			uint32 pageX = dirtyPageIndex % pageRect.first;
+			uint32 pageY = dirtyPageIndex / pageRect.first;
+			uint32 texX = pageX * texturePageSize.first;
+			uint32 texY = pageY * texturePageSize.second;
+			uint32 texWidth = texturePageSize.first;
+			uint32 texHeight = texturePageSize.second;
+			if(texX >= framebuffer->m_width) continue;
+			if(texY >= framebuffer->m_height) continue;
+			if(texY < minY) continue;
+			if(texY >= maxY) continue;
+			//assert(texX < tex0.GetWidth());
+			//assert(texY < tex0.GetHeight());
+			if((texX + texWidth) > framebuffer->m_width)
+			{
+				texWidth = framebuffer->m_width - texX;
+			}
+			if((texY + texHeight) > framebuffer->m_height)
+			{
+				texHeight = framebuffer->m_height - texY;
+			}
+			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64, texX, texY, texWidth, texHeight);
+		}
+
+		//Mark all pages as clean, but might be wrong due to range not
+		//covering an area that might be used later on
+		cachedArea.ClearDirtyPages();
 	}
 }
 

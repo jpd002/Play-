@@ -52,14 +52,13 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
-		if(!candidateFramebuffer->m_canBeUsedAsTexture) continue;
-
 		bool canBeUsed = false;
 		float offsetX = 0;
 
 		//Case: TEX0 points at the start of a frame buffer with the same width
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
-			candidateFramebuffer->m_width == tex0.GetBufWidth())
+			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+			candidateFramebuffer->m_psm == tex0.nPsm)
 		{
 			canBeUsed = true;
 		}
@@ -86,6 +85,8 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 		if(canBeUsed)
 		{
+			CommitFramebufferDirtyPages(candidateFramebuffer, 0, tex0.GetHeight());
+
 			//We have a winner
 			glBindTexture(GL_TEXTURE_2D, candidateFramebuffer->m_texture);
 
@@ -136,7 +137,7 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 				{
 					texHeight = tex0.GetHeight() - texY;
 				}
-				((this)->*(m_textureUpdater[tex0.nPsm]))(tex0, texX, texY, texWidth, texHeight);
+				((this)->*(m_textureUpdater[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texX, texY, texWidth, texHeight);
 			}
 
 			cachedArea.ClearDirtyPages();
@@ -147,7 +148,7 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		GLuint nTexture = 0;
 		glGenTextures(1, &nTexture);
 		glBindTexture(GL_TEXTURE_2D, nTexture);
-		((this)->*(m_textureUploader[tex0.nPsm]))(tex0);
+		((this)->*(m_textureUploader[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
 		TexCache_Insert(tex0, nTexture);
 	}
 }
@@ -253,108 +254,96 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 
 #endif
 }
 
-void CGSH_OpenGL::TexUploader_Invalid(const TEX0& tex0)
+void CGSH_OpenGL::TexUploader_Invalid(uint32, uint32, unsigned int, unsigned int)
 {
 	assert(0);
 }
 
-void CGSH_OpenGL::TexUploader_Psm32(const TEX0& tex0)
+void CGSH_OpenGL::TexUploader_Psm32(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
 {
-	unsigned int width		= tex0.GetWidth();
-	unsigned int height		= tex0.GetHeight();
-	uint32* dst				= reinterpret_cast<uint32*>(m_pCvtBuffer);
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bufPtr, bufWidth);
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < height; j++)
+	uint32* dst = reinterpret_cast<uint32*>(m_pCvtBuffer);
+	for(unsigned int j = 0; j < texHeight; j++)
 	{
-		for(unsigned int i = 0; i < width; i++)
-		{
-			dst[i] = Indexor.GetPixel(i, j);
-		}
-
-		dst += width;
-	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-}
-
-template <typename IndexorType>
-void CGSH_OpenGL::TexUploader_Psm16(const TEX0& tex0)
-{
-	unsigned int width		= tex0.GetWidth();
-	unsigned int height		= tex0.GetHeight();
-	uint16* dst				= reinterpret_cast<uint16*>(m_pCvtBuffer);
-
-	IndexorType indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < height; j++)
-	{
-		for(unsigned int i = 0; i < width; i++)
+		for(unsigned int i = 0; i < texWidth; i++)
 		{
 			dst[i] = indexor.GetPixel(i, j);
 		}
 
-		dst += width;
+		dst += texWidth;
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
 template <typename IndexorType>
-void CGSH_OpenGL::TexUploader_Psm48(const TEX0& tex0)
+void CGSH_OpenGL::TexUploader_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
 {
-	unsigned int width	= tex0.GetWidth();
-	unsigned int height = tex0.GetHeight();
-	uint8* dst			= m_pCvtBuffer;
+	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
 
-	IndexorType indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < height; j++)
+	uint16* dst = reinterpret_cast<uint16*>(m_pCvtBuffer);
+	for(unsigned int j = 0; j < texHeight; j++)
 	{
-		for(unsigned int i = 0; i < width; i++)
+		for(unsigned int i = 0; i < texWidth; i++)
 		{
 			dst[i] = indexor.GetPixel(i, j);
 		}
 
-		dst += width;
+		dst += texWidth;
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
+}
+
+template <typename IndexorType>
+void CGSH_OpenGL::TexUploader_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
+{
+	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
+
+	uint8* dst = m_pCvtBuffer;
+	for(unsigned int j = 0; j < texHeight; j++)
+	{
+		for(unsigned int i = 0; i < texWidth; i++)
+		{
+			dst[i] = indexor.GetPixel(i, j);
+		}
+
+		dst += texWidth;
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texWidth, texHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
 template <uint32 shiftAmount, uint32 mask>
-void CGSH_OpenGL::TexUploader_Psm48H(const TEX0& tex0)
+void CGSH_OpenGL::TexUploader_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
 {
-	unsigned int width		= tex0.GetWidth();
-	unsigned int height		= tex0.GetHeight();
-	uint8* dst				= m_pCvtBuffer;
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bufPtr, bufWidth);
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < height; j++)
+	uint8* dst = m_pCvtBuffer;
+	for(unsigned int j = 0; j < texHeight; j++)
 	{
-		for(unsigned int i = 0; i < width; i++)
+		for(unsigned int i = 0; i < texWidth; i++)
 		{
 			uint32 pixel = indexor.GetPixel(i, j);
 			pixel = (pixel >> shiftAmount) & mask;
 			dst[i] = static_cast<uint8>(pixel);
 		}
 
-		dst += width;
+		dst += texWidth;
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texWidth, texHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 }
 
-void CGSH_OpenGL::TexUpdater_Invalid(const TEX0& tex0, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+void CGSH_OpenGL::TexUpdater_Invalid(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
 	assert(0);
 }
 
-void CGSH_OpenGL::TexUpdater_Psm32(const TEX0& tex0, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+void CGSH_OpenGL::TexUpdater_Psm32(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bufPtr, bufWidth);
 
 	uint32* dst = reinterpret_cast<uint32*>(m_pCvtBuffer);
 	for(unsigned int y = 0; y < texHeight; y++)
@@ -371,9 +360,9 @@ void CGSH_OpenGL::TexUpdater_Psm32(const TEX0& tex0, unsigned int texX, unsigned
 }
 
 template <typename IndexorType>
-void CGSH_OpenGL::TexUpdater_Psm16(const TEX0& tex0, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
-	IndexorType indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
+	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
 
 	uint16* dst = reinterpret_cast<uint16*>(m_pCvtBuffer);
 	for(unsigned int y = 0; y < texHeight; y++)
@@ -390,9 +379,9 @@ void CGSH_OpenGL::TexUpdater_Psm16(const TEX0& tex0, unsigned int texX, unsigned
 }
 
 template <typename IndexorType>
-void CGSH_OpenGL::TexUpdater_Psm48(const TEX0& tex0, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+void CGSH_OpenGL::TexUpdater_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
-	IndexorType indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
+	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
 
 	uint8* dst = m_pCvtBuffer;
 	for(unsigned int y = 0; y < texHeight; y++)
@@ -410,9 +399,9 @@ void CGSH_OpenGL::TexUpdater_Psm48(const TEX0& tex0, unsigned int texX, unsigned
 }
 
 template <uint32 shiftAmount, uint32 mask>
-void CGSH_OpenGL::TexUpdater_Psm48H(const TEX0& tex0, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+void CGSH_OpenGL::TexUpdater_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bufPtr, bufWidth);
 
 	uint8* dst = m_pCvtBuffer;
 	for(unsigned int y = 0; y < texHeight; y++)

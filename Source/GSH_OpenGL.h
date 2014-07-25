@@ -62,11 +62,11 @@ private:
 
 	enum CVTBUFFERSIZE
 	{
-		CVTBUFFERSIZE = 0x400000,
+		CVTBUFFERSIZE = 0x800000,
 	};
 
-	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(const TEX0&);
-	typedef void (CGSH_OpenGL::*TEXTUREUPDATER)(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(uint32, uint32, unsigned int, unsigned int);
+	typedef void (CGSH_OpenGL::*TEXTUREUPDATER)(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	struct VERTEX
 	{
@@ -165,10 +165,11 @@ private:
 		uint32						m_width;
 		uint32						m_height;
 		uint32						m_psm;
-		bool						m_canBeUsedAsTexture;
 
 		GLuint						m_framebuffer;
 		GLuint						m_texture;
+
+		CGsCachedArea				m_cachedArea;
 	};
 	typedef std::shared_ptr<CFramebuffer> FramebufferPtr;
 	typedef std::vector<FramebufferPtr> FramebufferList;
@@ -231,25 +232,23 @@ private:
 
 	void							DumpTexture(unsigned int, unsigned int, uint32);
 
-	void							DisplayTransferedImage(uint32);
-
 	//Texture uploaders
-	void							TexUploader_Invalid(const TEX0&);
+	void							TexUploader_Invalid(uint32, uint32, unsigned int, unsigned int);
 
-	void							TexUploader_Psm32(const TEX0&);
-	template <typename> void		TexUploader_Psm16(const TEX0&);
+	void							TexUploader_Psm32(uint32, uint32, unsigned int, unsigned int);
+	template <typename> void		TexUploader_Psm16(uint32, uint32, unsigned int, unsigned int);
 
-	template <typename> void		TexUploader_Psm48(const TEX0&);
-	template <uint32, uint32> void	TexUploader_Psm48H(const TEX0&);
+	template <typename> void		TexUploader_Psm48(uint32, uint32, unsigned int, unsigned int);
+	template <uint32, uint32> void	TexUploader_Psm48H(uint32, uint32, unsigned int, unsigned int);
 
 	//Texture updaters
-	void							TexUpdater_Invalid(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+	void							TexUpdater_Invalid(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
-	void							TexUpdater_Psm32(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
-	template <typename> void		TexUpdater_Psm16(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+	void							TexUpdater_Psm32(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
+	template <typename> void		TexUpdater_Psm16(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
-	template <typename> void		TexUpdater_Psm48(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
-	template <uint32, uint32> void	TexUpdater_Psm48H(const TEX0&, unsigned int, unsigned int, unsigned int, unsigned int);
+	template <typename> void		TexUpdater_Psm48(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
+	template <uint32, uint32> void	TexUpdater_Psm48H(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX;
@@ -272,6 +271,9 @@ private:
 	GLuint							PalCache_Search(unsigned int, const uint32*);
 	void							PalCache_Insert(const TEX0&, const uint32*, GLuint);
 	void							PalCache_Invalidate(uint32);
+
+	void							PopulateFramebuffer(const FramebufferPtr&);
+	void							CommitFramebufferDirtyPages(const FramebufferPtr&, unsigned int, unsigned int);
 
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;
