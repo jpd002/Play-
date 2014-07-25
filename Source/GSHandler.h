@@ -498,10 +498,6 @@ public:
 	void									FeedImageData(void*, uint32);
 	void									WriteRegisterMassively(const RegisterWrite*, unsigned int, const CGsPacketMetadata*);
 
-	void									FetchImagePSMCT16(uint16*, uint32, uint32, uint32, uint32);
-	void									FetchImagePSMCT16S(uint16*, uint32, uint32, uint32, uint32);
-	void									FetchImagePSMCT32(uint32*, uint32, uint32, uint32, uint32, uint32, uint32);
-
 	virtual void							SetCrt(bool, unsigned int, bool);
 	void									Initialize();
 	void									Release();

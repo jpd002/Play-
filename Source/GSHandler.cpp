@@ -584,51 +584,6 @@ void CGSHandler::BeginTransfer()
 	}
 }
 
-void CGSHandler::FetchImagePSMCT16(uint16* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)
-{
-	CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, nBufPos, nBufWidth);
-
-	for(unsigned int j = 0; j < nHeight; j++)
-	{
-		for(unsigned int i = 0; i < nWidth; i++)
-		{
-			pDst[i] = Indexor.GetPixel(i, j);
-		}
-
-		pDst += (nWidth);
-	}
-}
-
-void CGSHandler::FetchImagePSMCT16S(uint16* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 nWidth, uint32 nHeight)
-{
-	CGsPixelFormats::CPixelIndexorPSMCT16S Indexor(m_pRAM, nBufPos, nBufWidth);
-
-	for(unsigned int j = 0; j < nHeight; j++)
-	{
-		for(unsigned int i = 0; i < nWidth; i++)
-		{
-			pDst[i] = Indexor.GetPixel(i, j);
-		}
-
-		pDst += (nWidth);
-	}
-}
-
-void CGSHandler::FetchImagePSMCT32(uint32* pDst, uint32 nBufPos, uint32 nBufWidth, uint32 xOffset, uint32 yOffset, uint32 nWidth, uint32 nHeight)
-{
-	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nBufPos, nBufWidth);
-
-	for(unsigned int j = 0; j < nHeight; j++)
-	{
-		for(unsigned int i = 0; i < nWidth; i++)
-		{
-			pDst[i] = Indexor.GetPixel(i + xOffset, j + yOffset);
-		}
-
-		pDst += (nWidth);
-	}
-}
-
 bool CGSHandler::TrxHandlerInvalid(void* pData, uint32 nLength)
 {
 	assert(0);
