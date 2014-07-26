@@ -123,9 +123,10 @@ public:
 	void						RegisterDynamicModule(Iop::CDynamic*);
 
 	uint32						CreateThread(uint32, uint32, uint32, uint32);
+	void						DeleteThread(uint32);
 	void						StartThread(uint32, uint32* = NULL);
 	void						ExitThread();
-	void						DeleteThread(uint32);
+	uint32						TerminateThread(uint32);
 	void						DelayThread(uint32);
 	void						DelayThreadTicks(uint32);
 	uint32						SetAlarm(uint32, uint32, uint32);

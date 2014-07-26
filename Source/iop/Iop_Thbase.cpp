@@ -8,7 +8,9 @@ using namespace Iop;
 
 #define FUNCTION_CREATETHREAD				"CreateThread"
 #define FUNCTION_STARTTHREAD				"StartThread"
+#define FUNCTION_DELETETHREAD				"DeleteThread"
 #define FUNCTION_EXITTHREAD					"ExitThread"
+#define FUNCTION_TERMINATETHREAD			"TerminateThread"
 #define FUNCTION_CHANGETHREADPRIORITY		"ChangeThreadPriority"
 #define FUNCTION_GETTHREADID				"GetThreadId"
 #define FUNCTION_REFERTHREADSTATUS			"ReferThreadStatus"
@@ -47,11 +49,17 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 	case 4:
 		return FUNCTION_CREATETHREAD;
 		break;
+	case 5:
+		return FUNCTION_DELETETHREAD;
+		break;
 	case 6:
 		return FUNCTION_STARTTHREAD;
 		break;
 	case 8:
 		return FUNCTION_EXITTHREAD;
+		break;
+	case 10:
+		return FUNCTION_TERMINATETHREAD;
 		break;
 	case 14:
 		return FUNCTION_CHANGETHREADPRIORITY;
@@ -107,6 +115,11 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 			reinterpret_cast<THREAD*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
 			));
 		break;
+	case 5:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DeleteThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(StartThread(
 			context.m_State.nGPR[CMIPS::A0].nV0,
@@ -115,6 +128,11 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ExitThread());
+		break;
+	case 10:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(TerminateThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
 		break;
 	case 14:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ChangeThreadPriority(
@@ -192,6 +210,12 @@ uint32 CThbase::CreateThread(const THREAD* thread)
 	return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize, thread->options);
 }
 
+uint32 CThbase::DeleteThread(uint32 threadId)
+{
+	m_bios.DeleteThread(threadId);
+	return 0;
+}
+
 uint32 CThbase::StartThread(uint32 threadId, uint32 param)
 {
 	m_bios.StartThread(threadId, &param);
@@ -202,6 +226,11 @@ uint32 CThbase::ExitThread()
 {
 	m_bios.ExitThread();
 	return 0;
+}
+
+uint32 CThbase::TerminateThread(uint32 threadId)
+{
+	return m_bios.TerminateThread(threadId);
 }
 
 uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)

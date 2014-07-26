@@ -593,6 +593,10 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 
 void CIopBios::DeleteThread(uint32 threadId)
 {
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: DeleteThread(threadId = %d);\r\n", 
+		CurrentThreadId(), threadId);
+#endif
 	THREAD* thread = m_threads[threadId];
 	UnlinkThread(threadId);
 	m_sysmem->FreeMemory(thread->stackBase);
@@ -643,6 +647,34 @@ void CIopBios::ExitThread()
 	THREAD* thread = GetThread(CurrentThreadId());
 	thread->status = THREAD_STATUS_DORMANT;
 	m_rescheduleNeeded = true;
+}
+
+uint32 CIopBios::TerminateThread(uint32 threadId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: TerminateThread(threadId = %d);\r\n", 
+		CurrentThreadId(), threadId);
+#endif
+
+	assert(threadId != CurrentThreadId());
+	auto thread = GetThread(threadId);
+	assert(thread != nullptr);
+	if(thread == nullptr)
+	{
+		return -1;
+	}
+	if(thread->waitSemaphore != 0)
+	{
+		auto semaphore = m_semaphores[thread->waitSemaphore];
+		if(semaphore != nullptr)
+		{
+			assert(semaphore->waitCount > 0);
+			semaphore->waitCount--;
+		}
+		thread->waitSemaphore = 0;
+	}
+	thread->status = THREAD_STATUS_DORMANT;
+	return 0;
 }
 
 void CIopBios::DelayThread(uint32 delay)
