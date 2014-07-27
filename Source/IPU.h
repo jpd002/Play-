@@ -98,7 +98,11 @@ private:
 		};
 
 	private:
+		void				SyncLookupBits();
+
 		uint8				m_buffer[BUFFERSIZE];
+		uint64				m_lookupBits;
+		bool				m_lookupBitsDirty;
 		unsigned int		m_size;
 		unsigned int		m_bitPosition;
 	};

@@ -675,6 +675,7 @@ void CIPU::CINFIFO::Write(void* data, unsigned int size)
 
 	memcpy(m_buffer + m_size, data, size);
 	m_size += size;
+	m_lookupBitsDirty = true;
 }
 
 bool CIPU::CINFIFO::TryPeekBits_LSBF(uint8 nBits, uint32& result)
@@ -685,6 +686,8 @@ bool CIPU::CINFIFO::TryPeekBits_LSBF(uint8 nBits, uint32& result)
 
 bool CIPU::CINFIFO::TryPeekBits_MSBF(uint8 size, uint32& result)
 {
+	assert(size <= 32);
+
 	int bitsAvailable = (m_size * 8) - m_bitPosition;
 	int bitsNeeded = size;
 	assert(bitsAvailable >= 0);
@@ -693,20 +696,16 @@ bool CIPU::CINFIFO::TryPeekBits_MSBF(uint8 size, uint32& result)
 		return false;
 	}
 
-	unsigned int bitPosition = m_bitPosition;
-	uint32 temp = 0;
-
-	for(unsigned int i = 0; i < size; i++)
+	if(m_lookupBitsDirty)
 	{
-		temp		<<= 1;
-		uint8 byte	= *(m_buffer + (bitPosition / 8));
-		uint8 bit	= (byte >> (7 - (bitPosition & 7))) & 1;
-		temp		|= bit;
-
-		bitPosition++;
+		SyncLookupBits();
+		m_lookupBitsDirty = false;
 	}
 
-	result = temp;
+	uint8 shift = 64 - (m_bitPosition % 32) - size;
+	uint64 mask = ~0ULL >> (64 - size);
+	result = static_cast<uint32>((m_lookupBits >> shift) & mask);
+
 	return true;
 }
 
@@ -718,6 +717,10 @@ void CIPU::CINFIFO::Advance(uint8 bits)
 	{
 		throw CBitStreamException();
 	}
+
+	uint32 wordsBefore = m_bitPosition / 32;
+	uint32 wordsAfter = (m_bitPosition + bits) / 32;
+	m_lookupBitsDirty |= (wordsBefore != wordsAfter);
 
 	m_bitPosition += bits;
 
@@ -739,6 +742,7 @@ void CIPU::CINFIFO::Advance(uint8 bits)
 		memmove(m_buffer, m_buffer + 16, m_size - 16);
 		m_size -= 16;
 		m_bitPosition -= 128;
+		m_lookupBitsDirty = true;
 	}
 }
 
@@ -766,6 +770,19 @@ void CIPU::CINFIFO::Reset()
 {
 	m_bitPosition = 0;
 	m_size = 0;
+	m_lookupBits = 0;
+	m_lookupBitsDirty = false;
+}
+
+void CIPU::CINFIFO::SyncLookupBits()
+{
+	unsigned int lookupPosition = (m_bitPosition & ~0x1F) / 8;
+	uint8 lookupBytes[8];
+	for(unsigned int i = 0; i < 8; i++)
+	{
+		lookupBytes[7 - i] = m_buffer[lookupPosition + i];
+	}
+	m_lookupBits = *reinterpret_cast<uint64*>(lookupBytes);
 }
 
 /////////////////////////////////////////////
