@@ -73,34 +73,6 @@ private:
 		Dma3ReceiveHandler	m_receiveHandler;
 	};
 
-	class CIDecFifo : public Framework::CBitStream, public COutFifoBase
-	{
-	public:
-						CIDecFifo();
-		virtual			~CIDecFifo();
-		void			Reset();
-		virtual void	Write(void*, unsigned int);
-		virtual void	Flush();
-		virtual uint32	GetBits_LSBF(uint8);
-		virtual uint32	GetBits_MSBF(uint8);
-		virtual bool	TryPeekBits_LSBF(uint8, uint32&);
-		virtual bool	TryPeekBits_MSBF(uint8, uint32&);
-		virtual void	SeekToByteAlign();
-		virtual bool	IsOnByteBoundary();
-		virtual void	Advance(uint8);
-		virtual uint8	GetBitIndex() const;
-
-	private:
-		enum BUFFERSIZE
-		{
-			BUFFERSIZE = 0x300,
-		};
-
-		uint8			m_nBuffer[BUFFERSIZE];
-		unsigned int	m_nReadPtr;
-		unsigned int	m_nWritePtr;
-	};
-
 	class CINFIFO : public Framework::CBitStream
 	{
 	public:
@@ -402,7 +374,6 @@ private:
 	};
 
 	void						InitializeCommand(uint32);
-//	void						DecodeIntra(uint8, uint8, uint8, uint8, uint8, uint8);
 
 	uint32						GetPictureType();
 	uint32						GetDcPrecision();

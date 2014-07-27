@@ -309,56 +309,6 @@ uint32 CIPU::ReceiveDMA4(uint32 nAddress, uint32 nQWC, bool nTagIncluded, uint8*
 	return nSize / 0x10;
 }
 
-/*
-void CIPU::DecodeIntra(uint8 nOFM, uint8 nDTE, uint8 nSGN, uint8 nDTD, uint8 nQSC, uint8 nFB)
-{
-	assert(0);
-
-	CIDecFifo IDecFifo;
-
-	m_IN_FIFO.Advance(nFB);
-
-	bool nResetDc = true;
-
-	while(1)
-	{
-		uint8 nDCTType;
-
-		uint32 nMBType = CMacroblockTypeITable::GetInstance()->GetSymbol(&m_IN_FIFO) >> 16;
-
-		if(nDTD != 0)
-		{
-			nDCTType = static_cast<uint8>(m_IN_FIFO.GetBits_MSBF(1));
-		}
-		else
-		{
-			nDCTType = 0;
-		}
-
-		if(nMBType == 2)
-		{
-			nQSC = static_cast<uint8>(m_IN_FIFO.GetBits_MSBF(5));
-		}
-
-		IDecFifo.Reset();
-
-		DecodeBlock(&IDecFifo, 1, nResetDc, nDCTType, nQSC, 0);
-		nResetDc = false;
-
-		ColorSpaceConversion(&IDecFifo, nOFM, nDTE, 1);
-
-		if(m_IN_FIFO.PeekBits_MSBF(23) == 0)
-		{
-			//We're done decoding
-			break;
-		}
-		
-		uint32 nMBAIncrement = CMacroblockAddressIncrementTable::GetInstance()->GetSymbol(&m_IN_FIFO) >> 16;
-		assert(nMBAIncrement == 1);
-	}
-}
-*/
-
 uint32 CIPU::GetPictureType()
 {
 	return (m_IPU_CTRL >> 24) & 0x7;
@@ -839,81 +789,6 @@ unsigned int CIPU::CINFIFO::GetAvailableBits()
 void CIPU::CINFIFO::Reset()
 {
 	m_nSize = 0;
-}
-
-/////////////////////////////////////////////
-//IDEC FIFO class implementation
-/////////////////////////////////////////////
-
-CIPU::CIDecFifo::CIDecFifo()
-{
-	Reset();
-}
-
-CIPU::CIDecFifo::~CIDecFifo()
-{
-	
-}
-
-void CIPU::CIDecFifo::Reset()
-{
-	m_nReadPtr = 0;
-	m_nWritePtr = 0;
-}
-
-void CIPU::CIDecFifo::Write(void* pBuffer, unsigned int nSize)
-{
-	assert((m_nWritePtr + nSize) <= BUFFERSIZE);
-	memcpy(m_nBuffer + m_nWritePtr, pBuffer, nSize);
-	m_nWritePtr += nSize;
-}
-
-void CIPU::CIDecFifo::Flush()
-{
-	//Nothing to do
-}
-
-bool CIPU::CIDecFifo::TryPeekBits_MSBF(uint8 nLength, uint32& result)
-{
-	return false;
-}
-
-uint32 CIPU::CIDecFifo::GetBits_MSBF(uint8 nLength)
-{
-	assert(nLength == 8);
-	assert(m_nReadPtr < BUFFERSIZE);
-	return m_nBuffer[m_nReadPtr++];
-}
-
-bool CIPU::CIDecFifo::TryPeekBits_LSBF(uint8 nLength, uint32& result)
-{
-	return false;
-}
-
-uint32 CIPU::CIDecFifo::GetBits_LSBF(uint8 nLength)
-{
-	throw std::exception();
-}
-
-void CIPU::CIDecFifo::SeekToByteAlign()
-{
-	throw std::exception();
-}
-
-bool CIPU::CIDecFifo::IsOnByteBoundary()
-{
-	throw std::exception();
-}
-
-void CIPU::CIDecFifo::Advance(uint8)
-{
-
-}
-
-uint8 CIPU::CIDecFifo::GetBitIndex() const
-{
-	assert(0);
-	return 0;
 }
 
 /////////////////////////////////////////////
