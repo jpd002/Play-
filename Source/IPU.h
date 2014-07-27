@@ -78,15 +78,15 @@ private:
 	public:
 							CINFIFO();
 		virtual				~CINFIFO();
+
 		void				Write(void*, unsigned int);
-		uint32				GetBits_MSBF(uint8);
-		uint32				GetBits_LSBF(uint8);
-		bool				TryPeekBits_LSBF(uint8, uint32&);
-		bool				TryPeekBits_MSBF(uint8, uint32&);
-		void				Advance(uint8);
-		void				SeekToByteAlign();
-		bool				IsOnByteBoundary();
-		uint8				GetBitIndex() const;
+
+		void				Advance(uint8) override;
+		uint8				GetBitIndex() const override;
+
+		bool				TryPeekBits_LSBF(uint8, uint32&) override;
+		bool				TryPeekBits_MSBF(uint8, uint32&) override;
+
 		void				SetBitPosition(unsigned int);
 		unsigned int		GetSize();
 		unsigned int		GetAvailableBits();
@@ -98,9 +98,9 @@ private:
 		};
 
 	private:
-		uint8				m_nBuffer[BUFFERSIZE];
-		unsigned int		m_nSize;
-		unsigned int		m_nBitPosition;
+		uint8				m_buffer[BUFFERSIZE];
+		unsigned int		m_size;
+		unsigned int		m_bitPosition;
 	};
 
 	class CCommand

@@ -654,9 +654,10 @@ void CIPU::COUTFIFO::RequestGrow(unsigned int nSize)
 /////////////////////////////////////////////
 
 CIPU::CINFIFO::CINFIFO()
+: m_size(0)
+, m_bitPosition(0)
 {
-	m_nSize			= 0;
-	m_nBitPosition	= 0;
+
 }
 
 CIPU::CINFIFO::~CINFIFO()
@@ -664,30 +665,16 @@ CIPU::CINFIFO::~CINFIFO()
 
 }
 
-void CIPU::CINFIFO::Write(void* pData, unsigned int nSize)
+void CIPU::CINFIFO::Write(void* data, unsigned int size)
 {
-	if(nSize + m_nSize > BUFFERSIZE) 
+	if((size + m_size) > BUFFERSIZE) 
 	{
 		assert(0);
 		return;
 	}
 
-	memcpy(m_nBuffer + m_nSize, pData, nSize);
-	m_nSize += nSize;
-}
-
-uint32 CIPU::CINFIFO::GetBits_LSBF(uint8 nBits)
-{
-	//Shouldn't be used
-	return 0;
-}
-
-uint32 CIPU::CINFIFO::GetBits_MSBF(uint8 nBits)
-{
-	uint32 nValue = PeekBits_MSBF(nBits);
-	Advance(nBits);
-
-	return nValue;
+	memcpy(m_buffer + m_size, data, size);
+	m_size += size;
 }
 
 bool CIPU::CINFIFO::TryPeekBits_LSBF(uint8 nBits, uint32& result)
@@ -696,52 +683,52 @@ bool CIPU::CINFIFO::TryPeekBits_LSBF(uint8 nBits, uint32& result)
 	return false;
 }
 
-bool CIPU::CINFIFO::TryPeekBits_MSBF(uint8 nBits, uint32& result)
+bool CIPU::CINFIFO::TryPeekBits_MSBF(uint8 size, uint32& result)
 {
-	int bitsAvailable = (m_nSize * 8) - m_nBitPosition;
-	int bitsNeeded = nBits;
+	int bitsAvailable = (m_size * 8) - m_bitPosition;
+	int bitsNeeded = size;
 	assert(bitsAvailable >= 0);
 	if(bitsAvailable < bitsNeeded)
 	{
 		return false;
 	}
 
-	unsigned int nBitPosition = m_nBitPosition;
-	uint32 nTemp = 0;
+	unsigned int bitPosition = m_bitPosition;
+	uint32 temp = 0;
 
-	for(unsigned int i = 0; i < nBits; i++)
+	for(unsigned int i = 0; i < size; i++)
 	{
-		nTemp		<<= 1;
-		uint8 nByte	= *(m_nBuffer + (nBitPosition / 8));
-		uint8 nBit	= (nByte >> (7 - (nBitPosition & 7))) & 1;
-		nTemp		|= nBit;
+		temp		<<= 1;
+		uint8 byte	= *(m_buffer + (bitPosition / 8));
+		uint8 bit	= (byte >> (7 - (bitPosition & 7))) & 1;
+		temp		|= bit;
 
-		nBitPosition++;
+		bitPosition++;
 	}
 
-	result = nTemp;
+	result = temp;
 	return true;
 }
 
-void CIPU::CINFIFO::Advance(uint8 nBits)
+void CIPU::CINFIFO::Advance(uint8 bits)
 {
-	if(nBits == 0) return;
+	if(bits == 0) return;
 
-	if((m_nBitPosition + nBits) > (m_nSize * 8))
+	if((m_bitPosition + bits) > (m_size * 8))
 	{
 		throw CBitStreamException();
 	}
 
-	m_nBitPosition += nBits;
+	m_bitPosition += bits;
 
-	while(m_nBitPosition >= 128)
+	while(m_bitPosition >= 128)
 	{
-		if(m_nSize == 0)
+		if(m_size == 0)
 		{
 			assert(0);
 		}
 
-		if((m_nSize == 0) && (m_nBitPosition != 0))
+		if((m_size == 0) && (m_bitPosition != 0))
 		{
 			//Humm, this seems to happen when the DMA4 has done the transfer
 			//but we need more data...
@@ -749,46 +736,36 @@ void CIPU::CINFIFO::Advance(uint8 nBits)
 		}
 
 		//Discard the read bytes
-		memmove(m_nBuffer, m_nBuffer + 16, m_nSize - 16);
-		m_nSize -= 16;
-		m_nBitPosition -= 128;
+		memmove(m_buffer, m_buffer + 16, m_size - 16);
+		m_size -= 16;
+		m_bitPosition -= 128;
 	}
-}
-
-void CIPU::CINFIFO::SeekToByteAlign()
-{
-	//Shouldn't be used
-}
-
-bool CIPU::CINFIFO::IsOnByteBoundary()
-{
-	//Shouldn't be used
-	return false;
 }
 
 uint8 CIPU::CINFIFO::GetBitIndex() const
 {
-	return m_nBitPosition;
+	return m_bitPosition;
 }
 
-void CIPU::CINFIFO::SetBitPosition(unsigned int nPosition)
+void CIPU::CINFIFO::SetBitPosition(unsigned int position)
 {
-	m_nBitPosition = nPosition;
+	m_bitPosition = position;
 }
 
 unsigned int CIPU::CINFIFO::GetSize()
 {
-	return m_nSize;
+	return m_size;
 }
 
 unsigned int CIPU::CINFIFO::GetAvailableBits()
 {
-	return (m_nSize * 8) - m_nBitPosition;
+	return (m_size * 8) - m_bitPosition;
 }
 
 void CIPU::CINFIFO::Reset()
 {
-	m_nSize = 0;
+	m_bitPosition = 0;
+	m_size = 0;
 }
 
 /////////////////////////////////////////////
