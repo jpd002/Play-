@@ -25,12 +25,12 @@ namespace Psp
 
 		bool						IsIdle();
 
-		BiosDebugModuleInfoArray	GetModuleInfos() const;
-		BiosDebugThreadInfoArray	GetThreadInfos() const;
-
 #ifdef DEBUGGER_INCLUDED
 		void						LoadDebugTags(Framework::Xml::CNode*);
 		void						SaveDebugTags(Framework::Xml::CNode*);
+
+		BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
+		BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;
 #endif
 
 	private:

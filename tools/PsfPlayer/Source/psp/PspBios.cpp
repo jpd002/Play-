@@ -343,15 +343,19 @@ void CBios::HandleException()
 	m_cpu.m_State.nHasException = 0;
 }
 
-BiosDebugModuleInfoArray CBios::GetModuleInfos() const
+#ifdef DEBUGGER_INCLUDED
+
+BiosDebugModuleInfoArray CBios::GetModulesDebugInfo() const
 {
 	return m_moduleTags;
 }
 
-BiosDebugThreadInfoArray CBios::GetThreadInfos() const
+BiosDebugThreadInfoArray CBios::GetThreadsDebugInfo() const
 {
 	return BiosDebugThreadInfoArray();
 }
+
+#endif
 
 void CBios::LoadModule(const char* path)
 {

@@ -146,16 +146,6 @@ bool CPsxBios::IsIdle()
 	return false;
 }
 
-BiosDebugModuleInfoArray CPsxBios::GetModuleInfos() const
-{
-	return BiosDebugModuleInfoArray();
-}
-
-BiosDebugThreadInfoArray CPsxBios::GetThreadInfos() const
-{
-	return BiosDebugThreadInfoArray();
-}
-
 #ifdef DEBUGGER_INCLUDED
 
 void CPsxBios::LoadDebugTags(Framework::Xml::CNode* root)
@@ -166,6 +156,16 @@ void CPsxBios::LoadDebugTags(Framework::Xml::CNode* root)
 void CPsxBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
 
+}
+
+BiosDebugModuleInfoArray CPsxBios::GetModulesDebugInfo() const
+{
+	return BiosDebugModuleInfoArray();
+}
+
+BiosDebugThreadInfoArray CPsxBios::GetThreadsDebugInfo() const
+{
+	return BiosDebugThreadInfoArray();
 }
 
 #endif

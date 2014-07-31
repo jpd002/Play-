@@ -24,9 +24,6 @@ namespace Psp
 		void						Reset();
 		void						LoadModule(const char*);
 
-		BiosDebugModuleInfoArray	GetModuleInfos() const;
-		BiosDebugThreadInfoArray	GetThreadInfos() const;
-
 		void						HandleException();
 
 		uint32						CreateThread(const char*, uint32, uint32, uint32, uint32, uint32);
@@ -45,6 +42,11 @@ namespace Psp
 		CIoFileMgrForUser*			GetIoFileMgr();
 		CSasCore*					GetSasCore();
 		CAudio*						GetAudio();
+
+#ifdef DEBUGGER_INCLUDED
+		BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
+		BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;
+#endif
 
 	private:
 		enum CONTROL_BLOCK

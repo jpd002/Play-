@@ -62,16 +62,6 @@ bool CPsfBios::IsIdle()
 	return false;
 }
 
-BiosDebugModuleInfoArray CPsfBios::GetModuleInfos() const
-{
-	return m_bios.GetModuleInfos();
-}
-
-BiosDebugThreadInfoArray CPsfBios::GetThreadInfos() const
-{
-	return m_bios.GetThreadInfos();
-}
-
 #ifdef DEBUGGER_INCLUDED
 
 void CPsfBios::LoadDebugTags(Framework::Xml::CNode* root)
@@ -82,6 +72,16 @@ void CPsfBios::LoadDebugTags(Framework::Xml::CNode* root)
 void CPsfBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
 
+}
+
+BiosDebugModuleInfoArray CPsfBios::GetModulesDebugInfo() const
+{
+	return m_bios.GetModulesDebugInfo();
+}
+
+BiosDebugThreadInfoArray CPsfBios::GetThreadsDebugInfo() const
+{
+	return m_bios.GetThreadsDebugInfo();
 }
 
 #endif

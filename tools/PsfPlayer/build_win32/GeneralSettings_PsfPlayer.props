@@ -9,6 +9,8 @@
     <ClCompile>
       <PreprocessorDefinitions>_NULL_SIFMAN;RAR_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)\..\Source;$(ProjectDir)\..\..\..\Source;$(ZLIB_PATH);$(UNRAR_PATH);$(TDEMU_PATH);$(CODEGEN_PATH)\include;$(DXSDK_DIR)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
