@@ -19,7 +19,6 @@
 #include "idct/IEEE1180.h"
 #include "DMAC.h"
 #include "Log.h"
-#include "PtrMacro.h"
 
 #define LOG_NAME ("ipu")
 //#define _DECODE_LOGGING
@@ -590,28 +589,20 @@ void CIPU::DisassembleCommand(uint32 nValue)
 }
 
 /////////////////////////////////////////////
-//COutFifoBase class implementation
-/////////////////////////////////////////////
-
-CIPU::COutFifoBase::~COutFifoBase()
-{
-
-}
-
-/////////////////////////////////////////////
 //OUT FIFO class implementation
 /////////////////////////////////////////////
 
 CIPU::COUTFIFO::COUTFIFO()
+: m_buffer(nullptr)
+, m_alloc(0)
+, m_size(0)
 {
-	m_pBuffer	= NULL;
-	m_nAlloc	= 0;
-	m_nSize		= 0;
+
 }
 
 CIPU::COUTFIFO::~COUTFIFO()
 {
-	DELETEPTR(m_pBuffer);
+	free(m_buffer);
 }
 
 void CIPU::COUTFIFO::SetReceiveHandler(const Dma3ReceiveHandler& handler)
@@ -619,33 +610,33 @@ void CIPU::COUTFIFO::SetReceiveHandler(const Dma3ReceiveHandler& handler)
 	m_receiveHandler = handler;
 }
 
-void CIPU::COUTFIFO::Write(void* pData, unsigned int nSize)
+void CIPU::COUTFIFO::Write(void* data, unsigned int size)
 {
-	RequestGrow(nSize);
+	RequestGrow(size);
 
-	memcpy(m_pBuffer + m_nSize, pData, nSize);
-	m_nSize += nSize;
+	memcpy(m_buffer + m_size, data, size);
+	m_size += size;
 }
 
 void CIPU::COUTFIFO::Flush()
 {
 	//Write to memory through DMA channel 3
-	assert((m_nSize & 0x0F) == 0);
-	uint32 nCopied = m_receiveHandler(m_pBuffer, m_nSize / 0x10);
-	nCopied *= 0x10;
+	assert((m_size & 0x0F) == 0);
+	uint32 copied = m_receiveHandler(m_buffer, m_size / 0x10);
+	copied *= 0x10;
 
-	assert(m_nSize == nCopied);
+	assert(m_size == copied);
 
-	memmove(m_pBuffer, m_pBuffer + nCopied, m_nSize - nCopied);
-	m_nSize -= nCopied;
+	memmove(m_buffer, m_buffer + copied, m_size - copied);
+	m_size -= copied;
 }
 
-void CIPU::COUTFIFO::RequestGrow(unsigned int nSize)
+void CIPU::COUTFIFO::RequestGrow(unsigned int size)
 {
-	while(m_nAlloc <= (nSize + m_nSize))
+	while(m_alloc <= (size + m_size))
 	{
-		m_nAlloc += GROWSIZE;
-		m_pBuffer = (uint8*)realloc(m_pBuffer, m_nAlloc);
+		m_alloc += GROWSIZE;
+		m_buffer = reinterpret_cast<uint8*>(realloc(m_buffer, m_alloc));
 	}
 }
 
@@ -833,7 +824,7 @@ CIPU::CBDECCommand::CBDECCommand()
 	memset(&m_context, 0, sizeof(m_context));
 }
 
-void CIPU::CBDECCommand::Initialize(CINFIFO* inFifo, COutFifoBase* outFifo, uint32 commandCode, const CONTEXT& context)
+void CIPU::CBDECCommand::Initialize(CINFIFO* inFifo, COUTFIFO* outFifo, uint32 commandCode, const CONTEXT& context)
 {
 	m_mbi		= static_cast<uint8>((commandCode >> 27) & 1) != 0;
 	m_dcr		= static_cast<uint8>((commandCode >> 26) & 1) != 0;

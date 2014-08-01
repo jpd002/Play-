@@ -42,34 +42,27 @@ private:
 		IPU_CTRL_RST = 0x40000000,
 	};
 
-	class COutFifoBase
+	class COUTFIFO
 	{
 	public:
-		virtual			~COutFifoBase();
-		virtual void	Write(void*, unsigned int) = 0;
-		virtual void	Flush() = 0;
-	};
+							COUTFIFO();
+		virtual				~COUTFIFO();
 
-	class COUTFIFO : public COutFifoBase
-	{
-	public:
-						COUTFIFO();
-		virtual			~COUTFIFO();
-		virtual void	Write(void*, unsigned int);
-		virtual void	Flush();
-		void			SetReceiveHandler(const Dma3ReceiveHandler&);
+		void				Write(void*, unsigned int);
+		void				Flush();
+		void				SetReceiveHandler(const Dma3ReceiveHandler&);
 
 	private:
-		void			RequestGrow(unsigned int);
+		void				RequestGrow(unsigned int);
 
 		enum GROWSIZE
 		{
 			GROWSIZE = 0x200,
 		};
 
-		unsigned int		m_nSize;
-		unsigned int		m_nAlloc;
-		uint8*				m_pBuffer;
+		unsigned int		m_size;
+		unsigned int		m_alloc;
+		uint8*				m_buffer;
 		Dma3ReceiveHandler	m_receiveHandler;
 	};
 
@@ -202,7 +195,7 @@ private:
 		};
 										CBDECCommand();
 
-		void							Initialize(CINFIFO*, COutFifoBase*, uint32, const CONTEXT&);
+		void							Initialize(CINFIFO*, COUTFIFO*, uint32, const CONTEXT&);
 		void							Execute();
 
 	private:
@@ -224,7 +217,7 @@ private:
 		};
 
 		CINFIFO*						m_IN_FIFO;
-		COutFifoBase*					m_OUT_FIFO;
+		COUTFIFO*						m_OUT_FIFO;
 		STATE							m_state;
 
 		bool							m_mbi;
