@@ -47,6 +47,9 @@ void CIPU::Reset()
 
 	m_isBusy			= false;
 	m_currentCmd		= nullptr;
+
+	m_IN_FIFO.Reset();
+	m_OUT_FIFO.Reset();
 }
 
 uint32 CIPU::GetRegister(uint32 nAddress)
@@ -147,6 +150,8 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		{
 			m_isBusy = false;
 			m_currentCmd = nullptr;
+			m_IN_FIFO.Reset();
+			m_OUT_FIFO.Reset();
 		}
 		nValue &= 0x3FFF0000;
 		m_IPU_CTRL &= ~0x3FFF0000;
@@ -629,6 +634,11 @@ void CIPU::COUTFIFO::Flush()
 
 	memmove(m_buffer, m_buffer + copied, m_size - copied);
 	m_size -= copied;
+}
+
+void CIPU::COUTFIFO::Reset()
+{
+	m_size = 0;
 }
 
 void CIPU::COUTFIFO::RequestGrow(unsigned int size)

@@ -52,6 +52,8 @@ private:
 		void				Flush();
 		void				SetReceiveHandler(const Dma3ReceiveHandler&);
 
+		void				Reset();
+
 	private:
 		void				RequestGrow(unsigned int);
 
