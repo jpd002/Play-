@@ -1,8 +1,6 @@
 <Patches>
 	<Executable Name="SLES_506.72;1" Title="Baldur's Gate: Dark Alliance" Region="EU">
 		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
-		<Patch Address="0x00211ac0" Value="0x03E00008" Description="sceMpegIsEnd returns -1" />
-		<Patch Address="0x00211ac4" Value="0x3C02FFFF" Description="sceMpegIsEnd returns -1" />
 	</Executable>
 	<Executable Name="SLPM_660.81;1" Title="Atelier Iris: Eternal Mana" Region="JP">
 		<Patch Address="0x0029B2E4" Value="0x03E00008" Description="Skips movies" />
