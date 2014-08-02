@@ -1021,11 +1021,11 @@ void CIPU::CBDECCommand_ReadDct::Initialize(CINFIFO* fifo, int16* block, unsigne
 
 	if(m_mbi && !m_isMpeg1CoeffVLCTable)
 	{
-		m_coeffTable = CDctCoefficientTable1::GetInstance();
+		m_coeffTable = &CDctCoefficientTable1::GetInstance();
 	}
 	else
 	{
-		m_coeffTable = CDctCoefficientTable0::GetInstance();
+		m_coeffTable = &CDctCoefficientTable0::GetInstance();
 	}
 }
 
@@ -1087,11 +1087,11 @@ void CIPU::CBDECCommand_ReadDct::Execute()
 				{
 					m_coeffTable->GetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2);
 				}
-				m_blockIndex += runLevelPair.nRun;
+				m_blockIndex += runLevelPair.run;
 			
 				if(m_blockIndex < 0x40)
 				{
-					m_block[m_blockIndex] = static_cast<int16>(runLevelPair.nLevel);
+					m_block[m_blockIndex] = static_cast<int16>(runLevelPair.level);
 #ifdef _DECODE_LOGGING
 					CLog::GetInstance().Print(LOG_NAME, "[%i]:%i ", index, runLevelPair.nLevel);
 #endif
