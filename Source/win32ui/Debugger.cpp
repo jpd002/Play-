@@ -303,19 +303,23 @@ void CDebugger::AssembleJAL()
 
 void CDebugger::ReanalyzeEe()
 {
-	std::pair<uint32, uint32> executableRange = m_virtualMachine.m_os->GetExecutableRange();
-	uint32 nMinAddr = executableRange.first;
-	uint32 nMaxAddr = executableRange.second & ~0x03;
+	if(m_virtualMachine.m_os->GetELF() == nullptr) return;
+
+	auto executableRange = m_virtualMachine.m_os->GetExecutableRange();
+	uint32 minAddr = executableRange.first;
+	uint32 maxAddr = executableRange.second & ~0x03;
 
 	m_virtualMachine.m_EE.m_pAnalysis->Clear();
-	m_virtualMachine.m_EE.m_pAnalysis->Analyse(nMinAddr, nMaxAddr);
+	m_virtualMachine.m_EE.m_pAnalysis->Analyse(minAddr, maxAddr);
 }
 
 void CDebugger::FindEeFunctions()
 {
-	std::pair<uint32, uint32> executableRange = m_virtualMachine.m_os->GetExecutableRange();
-	uint32 nMinAddr = executableRange.first;
-	uint32 nMaxAddr = executableRange.second & ~0x03;
+	if(m_virtualMachine.m_os->GetELF() == nullptr) return;
+
+	auto executableRange = m_virtualMachine.m_os->GetExecutableRange();
+	uint32 minAddr = executableRange.first;
+	uint32 maxAddr = executableRange.second & ~0x03;
 
 	{
 		Framework::CStdStream patternStream("ee_functions.xml", "rb");
@@ -326,10 +330,10 @@ void CDebugger::FindEeFunctions()
 			patternIterator != std::end(patternDb.GetPatterns()); ++patternIterator)
 		{
 			auto pattern = *patternIterator;
-			for(uint32 address = nMinAddr; address <= nMaxAddr; address += 4)
+			for(uint32 address = minAddr; address <= maxAddr; address += 4)
 			{
 				uint32* text = reinterpret_cast<uint32*>(m_virtualMachine.m_ram + address);
-				uint32 textSize = (nMaxAddr - address);
+				uint32 textSize = (maxAddr - address);
 				if(pattern.Matches(text, textSize))
 				{
 					m_virtualMachine.m_EE.m_Functions.InsertTag(address, pattern.name.c_str());
