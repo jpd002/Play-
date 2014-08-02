@@ -106,7 +106,7 @@ private:
 	{
 	public:
 		virtual			~CCommand() {}
-		virtual void	Execute() = 0;
+		virtual bool	Execute() = 0;
 
 	private:
 
@@ -118,7 +118,7 @@ private:
 	public:
 						CBCLRCommand();
 		void			Initialize(CINFIFO*, uint32);
-		void			Execute();
+		bool			Execute() override;
 
 	private:
 		CINFIFO*		m_IN_FIFO;
@@ -132,7 +132,7 @@ private:
 										CBDECCommand_ReadDcDiff();
 
 		void							Initialize(CINFIFO*, unsigned int, int16*);
-		void							Execute();
+		bool							Execute() override;
 
 	private:
 		enum STATE
@@ -155,7 +155,7 @@ private:
 										CBDECCommand_ReadDct();
 
 		void							Initialize(CINFIFO*, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1CoeffVLCTable, bool isMpeg2);
-		void							Execute();
+		bool							Execute() override;
 
 	private:
 		enum STATE
@@ -198,7 +198,7 @@ private:
 										CBDECCommand();
 
 		void							Initialize(CINFIFO*, COUTFIFO*, uint32, const CONTEXT&);
-		void							Execute();
+		bool							Execute() override;
 
 	private:
 		enum STATE
@@ -249,7 +249,7 @@ private:
 							CVDECCommand();
 
 		void				Initialize(CINFIFO*, uint32, uint32, uint32*);
-		void				Execute();
+		bool				Execute() override;
 
 	private:
 		enum STATE
@@ -273,7 +273,7 @@ private:
 						CFDECCommand();
 
 		void			Initialize(CINFIFO*, uint32, uint32*);
-		void			Execute();
+		bool			Execute() override;
 
 	private:
 		enum STATE
@@ -296,7 +296,7 @@ private:
 						CSETIQCommand();
 
 		void			Initialize(CINFIFO*, uint8*);
-		void			Execute();
+		bool			Execute() override;
 
 	private:
 		CINFIFO*		m_IN_FIFO;
@@ -311,7 +311,7 @@ private:
 						CSETVQCommand();
 
 		void			Initialize(CINFIFO*, uint16*);
-		void			Execute();
+		bool			Execute() override;
 
 	private:
 		CINFIFO*		m_IN_FIFO;
@@ -326,7 +326,7 @@ private:
 						CCSCCommand();
 
 		void			Initialize(CINFIFO*, COUTFIFO*, uint32);
-		void			Execute();
+		bool			Execute() override;
 
 	private:
 		enum STATE
@@ -364,7 +364,7 @@ private:
 						CSETTHCommand();
 
 		void			Initialize(uint32, uint16*, uint16*);
-		void			Execute();
+		bool			Execute() override;
 
 	private:
 		uint32			m_commandCode;

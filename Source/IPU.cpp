@@ -182,7 +182,11 @@ void CIPU::ExecuteCommand()
 		try
 		{
 			assert(m_currentCmd != NULL);
-			m_currentCmd->Execute();
+			bool result = m_currentCmd->Execute();
+			if(!result)
+			{
+				return;
+			}
 			m_currentCmd = nullptr;
 
 			//Clear BUSY states
@@ -803,10 +807,11 @@ void CIPU::CBCLRCommand::Initialize(CINFIFO* fifo, uint32 commandCode)
 	m_commandCode = commandCode;
 }
 
-void CIPU::CBCLRCommand::Execute()
+bool CIPU::CBCLRCommand::Execute()
 {
 	m_IN_FIFO->Reset();
 	m_IN_FIFO->SetBitPosition(m_commandCode & 0x7F);
+	return true;
 }
 
 /////////////////////////////////////////////
@@ -852,7 +857,7 @@ void CIPU::CBDECCommand::Initialize(CINFIFO* inFifo, COUTFIFO* outFifo, uint32 c
 	m_currentBlockIndex = 0;
 }
 
-void CIPU::CBDECCommand::Execute()
+bool CIPU::CBDECCommand::Execute()
 {
 	while(1)
 	{
@@ -930,7 +935,10 @@ void CIPU::CBDECCommand::Execute()
 			break;
 		case STATE_DECODEBLOCK_READCOEFFS:
 			{
-				m_readDctCoeffsCommand.Execute();
+				if(!m_readDctCoeffsCommand.Execute())
+				{
+					return false;
+				}
 
 				BLOCKENTRY& blockInfo(m_blocks[m_currentBlockIndex]);
 				int16 blockTemp[0x40];
@@ -979,7 +987,7 @@ void CIPU::CBDECCommand::Execute()
 
 				m_OUT_FIFO->Flush();
 			}
-			return;
+			return true;
 			break;
 		}
 	}
@@ -1029,7 +1037,7 @@ void CIPU::CBDECCommand_ReadDct::Initialize(CINFIFO* fifo, int16* block, unsigne
 	}
 }
 
-void CIPU::CBDECCommand_ReadDct::Execute()
+bool CIPU::CBDECCommand_ReadDct::Execute()
 {
 	while(1)
 	{
@@ -1053,7 +1061,10 @@ void CIPU::CBDECCommand_ReadDct::Execute()
 			break;
 		case STATE_READDCDIFF:
 			{
-				m_readDcDiffCommand.Execute();
+				if(!m_readDcDiffCommand.Execute())
+				{
+					return false;
+				}
 				m_block[0] = static_cast<int16>(m_dcPredictor[m_channelId] + m_dcDiff);
 				m_dcPredictor[m_channelId] = m_block[0];
 #ifdef _DECODE_LOGGING
@@ -1066,7 +1077,12 @@ void CIPU::CBDECCommand_ReadDct::Execute()
 			break;
 		case STATE_CHECKEOB:
 			{
-				if((m_blockIndex != 0) && m_coeffTable->IsEndOfBlock(m_IN_FIFO))
+				bool isEob = false;
+				if(m_coeffTable->TryIsEndOfBlock(m_IN_FIFO, isEob) != CVLCTable::DECODE_STATUS_SUCCESS)
+				{
+					return false;
+				}
+				if((m_blockIndex != 0) && isEob)
 				{
 					m_state = STATE_SKIPEOB;
 				}
@@ -1081,11 +1097,17 @@ void CIPU::CBDECCommand_ReadDct::Execute()
 				MPEG2::RUNLEVELPAIR runLevelPair;
 				if(m_blockIndex == 0)
 				{
-					m_coeffTable->GetRunLevelPairDc(m_IN_FIFO, &runLevelPair, m_isMpeg2);
+					if(m_coeffTable->TryGetRunLevelPairDc(m_IN_FIFO, &runLevelPair, m_isMpeg2) != CVLCTable::DECODE_STATUS_SUCCESS)
+					{
+						return false;
+					}
 				}
 				else
 				{
-					m_coeffTable->GetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2);
+					if(m_coeffTable->TryGetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2) != CVLCTable::DECODE_STATUS_SUCCESS)
+					{
+						return false;
+					}
 				}
 				m_blockIndex += runLevelPair.run;
 			
@@ -1106,8 +1128,11 @@ void CIPU::CBDECCommand_ReadDct::Execute()
 			}
 			break;
 		case STATE_SKIPEOB:
-			m_coeffTable->SkipEndOfBlock(m_IN_FIFO);
-			return;
+			if(m_coeffTable->TrySkipEndOfBlock(m_IN_FIFO) != CVLCTable::DECODE_STATUS_SUCCESS)
+			{
+				return false;
+			}
+			return true;
 			break;
 		}
 	}
@@ -1135,7 +1160,7 @@ void CIPU::CBDECCommand_ReadDcDiff::Initialize(CINFIFO* fifo, unsigned int chann
 	m_result = result;
 }
 
-void CIPU::CBDECCommand_ReadDcDiff::Execute()
+bool CIPU::CBDECCommand_ReadDcDiff::Execute()
 {
 	while(1)
 	{
@@ -1143,16 +1168,24 @@ void CIPU::CBDECCommand_ReadDcDiff::Execute()
 		{
 		case STATE_READSIZE:
 			{
+				uint32 dcSize = 0;
 				switch(m_channelId)
 				{
 				case 0:
-					m_dcSize = static_cast<uint8>(CDcSizeLuminanceTable::GetInstance()->GetSymbol(m_IN_FIFO));
+					if(CDcSizeLuminanceTable::GetInstance()->TryGetSymbol(m_IN_FIFO, dcSize) != CVLCTable::DECODE_STATUS_SUCCESS)
+					{
+						return false;
+					}
 					break;
 				case 1:
 				case 2:
-					m_dcSize = static_cast<uint8>(CDcSizeChrominanceTable::GetInstance()->GetSymbol(m_IN_FIFO));
+					if(CDcSizeChrominanceTable::GetInstance()->TryGetSymbol(m_IN_FIFO, dcSize) != CVLCTable::DECODE_STATUS_SUCCESS)
+					{
+						return false;
+					}
 					break;
 				}
+				m_dcSize = dcSize;
 				m_state = STATE_READDIFF;
 			}
 			break;
@@ -1165,8 +1198,14 @@ void CIPU::CBDECCommand_ReadDcDiff::Execute()
 				}
 				else
 				{
+					uint32 diffValue = 0;
+					if(!m_IN_FIFO->TryGetBits_MSBF(m_dcSize, diffValue))
+					{
+						return false;
+					}
+
 					int16 halfRange = (1 << (m_dcSize - 1));
-					result = static_cast<int16>(m_IN_FIFO->GetBits_MSBF(m_dcSize));
+					result = static_cast<int16>(diffValue);
 
 					if(result < halfRange)
 					{
@@ -1178,7 +1217,7 @@ void CIPU::CBDECCommand_ReadDcDiff::Execute()
 			}
 			break;
 		case STATE_DONE:
-			return;
+			return true;
 			break;
 		}
 	}
@@ -1247,7 +1286,7 @@ void CIPU::CVDECCommand::Initialize(CINFIFO* fifo, uint32 commandCode, uint32 pi
 	}
 }
 
-void CIPU::CVDECCommand::Execute()
+bool CIPU::CVDECCommand::Execute()
 {
 	while(1)
 	{
@@ -1267,7 +1306,7 @@ void CIPU::CVDECCommand::Execute()
 			}
 			break;
 		case STATE_DONE:
-			return;
+			return true;
 			break;
 		}
 	}
@@ -1294,7 +1333,7 @@ void CIPU::CFDECCommand::Initialize(CINFIFO* fifo, uint32 commandCode, uint32* r
 	m_result		= result;
 }
 
-void CIPU::CFDECCommand::Execute()
+bool CIPU::CFDECCommand::Execute()
 {
 	while(1)
 	{
@@ -1308,13 +1347,16 @@ void CIPU::CFDECCommand::Execute()
 			break;
 		case STATE_DECODE:
 			{
-				(*m_result) = m_IN_FIFO->PeekBits_MSBF(32);
+				if(!m_IN_FIFO->TryPeekBits_MSBF(32, *m_result))
+				{
+					return false;
+				}
 				m_state = STATE_DONE;
 				//CLog::GetInstance().Print(LOG_NAME, "FDEC result: %0.8X.\r\n", (*m_result));
 			}
 			break;
 		case STATE_DONE:
-			return;
+			return true;
 			break;
 		}
 	}
@@ -1339,13 +1381,14 @@ void CIPU::CSETIQCommand::Initialize(CINFIFO* fifo, uint8* matrix)
 	m_currentIndex	= 0;
 }
 
-void CIPU::CSETIQCommand::Execute()
+bool CIPU::CSETIQCommand::Execute()
 {
 	while(m_currentIndex != 0x40)
 	{
 		m_matrix[m_currentIndex] = static_cast<uint8>(m_IN_FIFO->GetBits_MSBF(8));
 		m_currentIndex++;
 	}
+	return true;
 }
 
 /////////////////////////////////////////////
@@ -1367,13 +1410,14 @@ void CIPU::CSETVQCommand::Initialize(CINFIFO* fifo, uint16* clut)
 	m_currentIndex	= 0;
 }
 
-void CIPU::CSETVQCommand::Execute()
+bool CIPU::CSETVQCommand::Execute()
 {
 	while(m_currentIndex != 0x10)
 	{
 		m_clut[m_currentIndex] = static_cast<uint16>(m_IN_FIFO->GetBits_MSBF(16));
 		m_currentIndex++;
 	}
+	return true;
 }
 
 /////////////////////////////////////////////
@@ -1405,7 +1449,7 @@ void CIPU::CCSCCommand::Initialize(CINFIFO* input, COUTFIFO* output, uint32 comm
 	m_currentIndex = 0;
 }
 
-void CIPU::CCSCCommand::Execute()
+bool CIPU::CCSCCommand::Execute()
 {
 	while(1)
 	{
@@ -1432,7 +1476,12 @@ void CIPU::CCSCCommand::Execute()
 				}
 				else
 				{
-					m_block[m_currentIndex] = static_cast<uint8>(m_IN_FIFO->GetBits_MSBF(8));
+					uint32 blockValue = 0;
+					if(!m_IN_FIFO->TryGetBits_MSBF(8, blockValue))
+					{
+						return false;
+					}
+					m_block[m_currentIndex] = static_cast<uint8>(blockValue);
 					m_currentIndex++;
 				}
 			}
@@ -1484,7 +1533,7 @@ void CIPU::CCSCCommand::Execute()
 			}
 			break;
 		case STATE_DONE:
-			return;
+			return true;
 			break;
 		}
 	}
@@ -1527,8 +1576,9 @@ void CIPU::CSETTHCommand::Initialize(uint32 commandCode, uint16* TH0, uint16* TH
 	m_TH1 = TH1;
 }
 
-void CIPU::CSETTHCommand::Execute()
+bool CIPU::CSETTHCommand::Execute()
 {
 	(*m_TH0) = static_cast<uint16>((m_commandCode >>  0) & 0x1FF);
 	(*m_TH1) = static_cast<uint16>((m_commandCode >> 16) & 0x1FF);
+	return true;
 }
