@@ -59,11 +59,11 @@ Label_Init:
 			m_dcDiffReader.Reset();
 			if(pictureCodingExtension.intraVlcFormat && isIntra)
 			{
-				m_coeffTable = MPEG2::CDctCoefficientTable1::GetInstance();
+				m_coeffTable = &MPEG2::CDctCoefficientTable1::GetInstance();
 			}
 			else
 			{
-				m_coeffTable = MPEG2::CDctCoefficientTable0::GetInstance();
+				m_coeffTable = &MPEG2::CDctCoefficientTable0::GetInstance();
 			}
 
 			if(isIntra)
@@ -108,11 +108,11 @@ Label_ReadCoeff:
 			{
 				m_coeffTable->GetRunLevelPair(&stream, &runLevelPair, isMpeg2);
 			}
-			m_blockIndex += runLevelPair.nRun;
+			m_blockIndex += runLevelPair.run;
 		
 			if(m_blockIndex < 0x40)
 			{
-				m_block[m_blockIndex] = static_cast<int16>(runLevelPair.nLevel);
+				m_block[m_blockIndex] = static_cast<int16>(runLevelPair.level);
 #ifdef _DECODE_LOGGING
 	            CLog::GetInstance().Print(LOG_NAME, "[%i]:%i ", index, runLevelPair.nLevel);
 #endif
