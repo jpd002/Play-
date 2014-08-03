@@ -7,9 +7,6 @@ using namespace Iop;
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
-#define FID_STDOUT	(1)
-#define FID_STDERR	(2)
-
 CIoman::CIoman(uint8* ram) 
 : m_ram(ram)
 , m_nextFileHandle(3)

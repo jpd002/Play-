@@ -1,4 +1,5 @@
 #include "Iop_Stdio.h"
+#include "Iop_Ioman.h"
 #include <boost/lexical_cast.hpp>
 #include "lexical_cast_ex.h"
 #include "../Log.h"
@@ -9,8 +10,9 @@
 
 using namespace Iop;
 
-CStdio::CStdio(uint8* ram) 
+CStdio::CStdio(uint8* ram, CIoman& ioman)
 : m_ram(ram)
+, m_ioman(ioman)
 {
 
 }
@@ -140,6 +142,6 @@ std::string CStdio::PrintFormatted(CArgumentIterator& args)
 void CStdio::__printf(CMIPS& context)
 {
 	CArgumentIterator args(context);
-	std::string output = PrintFormatted(args);
-	printf("%s", output.c_str());
+	auto output = PrintFormatted(args);
+	m_ioman.Write(CIoman::FID_STDOUT, output.length(), output.c_str());
 }

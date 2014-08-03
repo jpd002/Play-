@@ -1,5 +1,4 @@
-#ifndef _IOP_IOMAN_H_
-#define _IOP_IOMAN_H_
+#pragma once
 
 #include <map>
 #include <memory>
@@ -12,6 +11,12 @@ namespace Iop
 	class CIoman : public CModule
 	{
 	public:
+		enum
+		{
+			FID_STDOUT = 1,
+			FID_STDERR = 2
+		};
+
 		class CFile
 		{
 		public:
@@ -29,16 +34,16 @@ namespace Iop
 								CIoman(uint8*);
 		virtual					~CIoman();
 
-		virtual std::string		GetId() const;
-		virtual std::string		GetFunctionName(unsigned int) const;
-		virtual void			Invoke(CMIPS&, unsigned int);
+		virtual std::string		GetId() const override;
+		virtual std::string		GetFunctionName(unsigned int) const override;
+		virtual void			Invoke(CMIPS&, unsigned int) override;
 
 		void					RegisterDevice(const char*, const DevicePtr&);
 
 		uint32					Open(uint32, const char*);
 		uint32					Close(uint32);
 		uint32					Read(uint32, uint32, void*);
-		uint32					Write(uint32, uint32, void*);
+		uint32					Write(uint32, uint32, const void*);
 		uint32					Seek(uint32, uint32, uint32);
 		uint32					AddDrv(uint32);
 		uint32					DelDrv(const char*);
@@ -57,5 +62,3 @@ namespace Iop
 		uint32					m_nextFileHandle;
 	};
 }
-
-#endif

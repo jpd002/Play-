@@ -145,12 +145,12 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 
 	//Register built-in modules
 	{
-		m_stdio = new Iop::CStdio(m_ram);
-		RegisterModule(m_stdio);
-	}
-	{
 		m_ioman = new Iop::CIoman(m_ram);
 		RegisterModule(m_ioman);
+	}
+	{
+		m_stdio = new Iop::CStdio(m_ram, *m_ioman);
+		RegisterModule(m_stdio);
 	}
 	{
 		m_sysmem = new Iop::CSysmem(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_sifMan);
