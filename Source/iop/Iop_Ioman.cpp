@@ -7,6 +7,9 @@ using namespace Iop;
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
+#define FID_STDOUT	(1)
+#define FID_STDERR	(2)
+
 CIoman::CIoman(uint8* ram) 
 : m_ram(ram)
 , m_nextFileHandle(3)
@@ -14,12 +17,19 @@ CIoman::CIoman(uint8* ram)
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING, false);
 
 	//Insert standard files if requested.
-	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING))
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING)
+#ifdef DEBUGGER_INCLUDED
+		|| true
+#endif
+		)
 	{
 		try
 		{
-			m_files[1] = new Framework::CStdStream(fopen("ps2_stdout.txt", "ab"));
-			m_files[2] = new Framework::CStdStream(fopen("ps2_stderr.txt", "ab"));
+			auto stdoutPath = CAppConfig::GetBasePath() / "ps2_stdout.txt";
+			auto stderrPath = CAppConfig::GetBasePath() / "ps2_stderr.txt";
+
+			m_files[FID_STDOUT] = new Framework::CStdStream(fopen(stdoutPath.string().c_str(), "ab"));
+			m_files[FID_STDERR] = new Framework::CStdStream(fopen(stderrPath.string().c_str(), "ab"));
 		}
 		catch(...)
 		{
@@ -136,17 +146,25 @@ uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
 	return result;
 }
 
-uint32 CIoman::Write(uint32 handle, uint32 size, void* buffer)
+uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 {
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
 		Framework::CStream* stream = GetFileStream(handle);
 		result = static_cast<uint32>(stream->Write(buffer, size));
+		if((handle == FID_STDOUT) || (handle == FID_STDERR))
+		{
+			//Force flusing stdout and stderr
+			stream->Flush();
+		}
 	}
 	catch(const std::exception& except)
 	{
-		printf("%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
+		if((handle != FID_STDOUT) && (handle != FID_STDERR))
+		{
+			printf("%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
+		}
 	}
 	return result;
 }
