@@ -3,66 +3,62 @@
 
 namespace filesystem = boost::filesystem;
 
-CMemoryCard::CMemoryCard(const filesystem::path& BasePath) :
-m_BasePath(BasePath)
+CMemoryCard::CMemoryCard(const filesystem::path& basePath)
+: m_basePath(basePath)
 {
 	ScanSaves();
 }
 
 CMemoryCard::~CMemoryCard()
 {
-	
+
 }
 
 size_t CMemoryCard::GetSaveCount() const
 {
-	return m_Saves.size();
+	return m_saves.size();
 }
 
-const CSave* CMemoryCard::GetSaveByIndex(size_t nIndex) const
+const CSave* CMemoryCard::GetSaveByIndex(size_t index) const
 {
-	return &m_Saves[nIndex];
+	return m_saves[index].get();
 }
 
 filesystem::path CMemoryCard::GetBasePath() const
 {
-	return m_BasePath;
+	return m_basePath;
 }
 
 void CMemoryCard::RefreshContents()
 {
-	m_Saves.clear();
+	m_saves.clear();
 	ScanSaves();
 }
 
 void CMemoryCard::ScanSaves()
 {
-	filesystem::directory_iterator itEnd;
-	
 	try
 	{
-		for(filesystem::directory_iterator itElement(m_BasePath);
-			itElement != itEnd;
-			itElement++)
+		filesystem::directory_iterator endIterator;
+		for(filesystem::directory_iterator elementIterator(m_basePath);
+			elementIterator != endIterator; elementIterator++)
 		{
-            filesystem::path Element(*itElement);
+			filesystem::path element(*elementIterator);
 
-			if(filesystem::is_directory(Element))
+			if(filesystem::is_directory(element))
 			{
-				filesystem::path IconSysPath;
-                IconSysPath = Element / "icon.sys";
+				filesystem::path iconSysPath = element / "icon.sys";
 
 				//Check if 'icon.sys' exists in this directory
-				if(filesystem::exists(IconSysPath))
+				if(filesystem::exists(iconSysPath))
 				{
-					//Create new Save
-					m_Saves.push_back(new CSave(Element));
+					m_saves.push_back(std::make_shared<CSave>(element));
 				}
 			}
 		}
 	}
-	catch(const std::exception& Exception)
+	catch(const std::exception& exception)
 	{
-		printf("Exception caught in CMemoryCard::ScanSaves: %s\r\n", Exception.what());
+		printf("Exception caught in CMemoryCard::ScanSaves: %s\r\n", exception.what());
 	}
 }

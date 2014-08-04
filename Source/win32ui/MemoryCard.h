@@ -1,15 +1,14 @@
-#ifndef _MEMORYCARD_H_
-#define _MEMORYCARD_H_
+#pragma once
 
+#include <memory>
 #include <boost/filesystem/path.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include "../saves/Save.h"
 
 class CMemoryCard
 {
 public:
-	typedef boost::ptr_vector<CSave>	SaveList;
-	typedef SaveList::iterator			SaveIterator;
+	typedef std::shared_ptr<CSave>		SavePtr;
+	typedef std::vector<SavePtr>		SaveList;
 
 									CMemoryCard(const boost::filesystem::path&);
 	virtual							~CMemoryCard();
@@ -24,9 +23,7 @@ private:
 
 	void							ScanSaves();
 
-	SaveList						m_Saves;
-	boost::filesystem::path			m_BasePath;
+	SaveList						m_saves;
+	boost::filesystem::path			m_basePath;
 
 };
-
-#endif
