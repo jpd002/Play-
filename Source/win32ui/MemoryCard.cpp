@@ -52,7 +52,14 @@ void CMemoryCard::ScanSaves()
 				//Check if 'icon.sys' exists in this directory
 				if(filesystem::exists(iconSysPath))
 				{
-					m_saves.push_back(std::make_shared<CSave>(element));
+					try
+					{
+						m_saves.push_back(std::make_shared<CSave>(element));
+					}
+					catch(const std::exception& exception)
+					{
+						printf("Failed to create save: %s\r\n", exception.what());
+					}
 				}
 			}
 		}
