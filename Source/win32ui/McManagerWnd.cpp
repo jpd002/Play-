@@ -145,7 +145,12 @@ long CMcManagerWnd::OnCommand(unsigned short nId, unsigned short nCmd, HWND hWnd
 void CMcManagerWnd::Import()
 {
 	Framework::Win32::CFileDialog FileDialog;
-	FileDialog.m_OFN.lpstrFilter = _T("All supported types\0*.psu;*.xps;*.max\0EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0X-Port Save Dumps (*.xps)\0*.xps\0Action Replay MAX Save Dumps (*.max)\0*.max\0All files (*.*)\0*.*\0");
+	FileDialog.m_OFN.lpstrFilter = 
+		_T("All supported types\0*.psu;*.sps;*.xps;*.max\0")
+		_T("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0")
+		_T("Sharkport/X-Port Save Dumps (*.sps; *.xps)\0*.sps;*.xps\0")
+		_T("Action Replay MAX Save Dumps (*.max)\0*.max\0")
+		_T("All files (*.*)\0*.*\0");
 
 	Enable(FALSE);
 	unsigned int nRet = FileDialog.SummonOpen(m_hWnd);
