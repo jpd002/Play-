@@ -1,9 +1,12 @@
 #include "../AppConfig.h"
 #include "Iop_Ioman.h"
 #include "StdStream.h"
+#include "../Log.h"
 #include <stdexcept>
 
 using namespace Iop;
+
+#define LOG_NAME "iop_ioman"
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
@@ -76,6 +79,8 @@ void CIoman::RegisterDevice(const char* name, const DevicePtr& device)
 
 uint32 CIoman::Open(uint32 flags, const char* path)
 {
+	CLog::GetInstance().Print(LOG_NAME, "Open(flags = 0x%0.8X, path = '%s');\r\n", flags, path);
+
 	uint32 handle = 0xFFFFFFFF;
 	try
 	{
@@ -102,13 +107,15 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 	}
 	catch(const std::exception& except)
 	{
-		printf("%s: Error occured while trying to open file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to open file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return handle;
 }
 
 uint32 CIoman::Close(uint32 handle)
 {
+	CLog::GetInstance().Print(LOG_NAME, "Close(handle = %d);\r\n", handle);
+
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
@@ -123,13 +130,15 @@ uint32 CIoman::Close(uint32 handle)
 	}
 	catch(const std::exception& except)
 	{
-		printf("%s: Error occured while trying to close file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to close file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return result;
 }
 
 uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
 {
+	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %d, size = 0x%X, buffer = ptr);\r\n", handle, size);
+
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
@@ -138,13 +147,15 @@ uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
 	}
 	catch(const std::exception& except)
 	{
-		printf("%s: Error occured while trying to read file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to read file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return result;
 }
 
 uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 {
+	CLog::GetInstance().Print(LOG_NAME, "Write(handle = %d, size = 0x%X, buffer = ptr);\r\n", handle, size);
+
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
@@ -160,7 +171,7 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 	{
 		if((handle != FID_STDOUT) && (handle != FID_STDERR))
 		{
-			printf("%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
+			CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
 		}
 	}
 	return result;
@@ -168,6 +179,9 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 
 uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 {
+	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %d, position = 0x%X, whence = %d);\r\n", 
+		handle, position, whence);
+
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
@@ -190,18 +204,20 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 	}
 	catch(const std::exception& except)
 	{
-		printf("%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return result;
 }
 
 uint32 CIoman::AddDrv(uint32 drvPtr)
 {
+	CLog::GetInstance().Print(LOG_NAME, "AddDrv(drvPtr = ptr);\r\n");
 	return -1;
 }
 
 uint32 CIoman::DelDrv(const char* deviceName)
 {
+	CLog::GetInstance().Print(LOG_NAME, "DelDrv(deviceName = '%s');\r\n", deviceName);
 	return -1;
 }
 
@@ -255,7 +271,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		));
 		break;
 	default:
-		printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		break;
 	}
 }
