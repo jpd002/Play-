@@ -517,6 +517,26 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 		m_matcher = &CPathFinder::StarFilterMatcher;
 	}
 
+	if((*this.*m_matcher)("/."))
+	{
+		ENTRY entry;
+		memset(&entry, 0, sizeof(entry));
+		strcpy(reinterpret_cast<char*>(entry.name), ".");
+		entry.size = 0;
+		entry.attributes = 0x8427;
+		m_entries.push_back(entry);
+	}
+
+	if((*this.*m_matcher)("/.."))
+	{
+		ENTRY entry;
+		memset(&entry, 0, sizeof(entry));
+		strcpy(reinterpret_cast<char*>(entry.name), "..");
+		entry.size = 0;
+		entry.attributes = 0x8427;
+		m_entries.push_back(entry);
+	}
+
 	SearchRecurse(m_basePath);
 }
 
