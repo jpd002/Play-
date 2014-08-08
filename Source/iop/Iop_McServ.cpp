@@ -543,6 +543,7 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 		{
 			//Fill in the information
 			ENTRY entry;
+			memset(&entry, 0, sizeof(entry));
 
 			strncpy(reinterpret_cast<char*>(entry.name), relativePath.filename().string().c_str(), 0x1F);
 			entry.name[0x1F] = 0;
@@ -557,6 +558,22 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 				entry.size			= static_cast<uint32>(filesystem::file_size(*elementIterator));
 				entry.attributes	= 0x8497;
 			}
+
+			//Fill in modification date info
+			{
+				auto changeDate = filesystem::last_write_time(*elementIterator);
+				auto localChangeDate = localtime(&changeDate);
+
+				entry.modificationTime.second = localChangeDate->tm_sec;
+				entry.modificationTime.minute = localChangeDate->tm_min;
+				entry.modificationTime.hour = localChangeDate->tm_hour;
+				entry.modificationTime.day = localChangeDate->tm_mday;
+				entry.modificationTime.month = localChangeDate->tm_mon;
+				entry.modificationTime.year = localChangeDate->tm_year + 1900;
+			}
+
+			//boost::filesystem doesn't provide a way to get creation time, so just make it the same as modification date
+			entry.creationTime = entry.modificationTime;
 
 			m_entries.push_back(entry);
 		}
