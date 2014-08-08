@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Iop_Module.h"
-#include "Iop_SifMan.h"
 #include <string>
 #include <map>
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
+#include "StdStream.h"
+#include "Iop_Module.h"
+#include "Iop_SifMan.h"
 
 namespace Iop
 {
@@ -32,6 +33,11 @@ namespace Iop
 			OPEN_FLAG_WRONLY	= 0x00000002,
 			OPEN_FLAG_RDWR		= 0x00000003,
 			OPEN_FLAG_CREAT		= 0x00000200,
+		};
+
+		enum
+		{
+			MAX_FILES = 5
 		};
 
 		struct CMD
@@ -115,14 +121,11 @@ namespace Iop
 		void				GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
-		uint32				GenerateHandle();
-		FILE*				GetFileFromHandle(uint32);
+		uint32					GenerateHandle();
+		Framework::CStdStream*	GetFileFromHandle(uint32);
 
-		typedef std::map<uint32, FILE*> HandleMap;
-
-		HandleMap					m_handles;
+		Framework::CStdStream		m_files[MAX_FILES];
 		static const char*			m_mcPathPreference[2];
-		uint32						m_nextHandle;
 		boost::filesystem::path		m_currentDirectory;
 		CPathFinder					m_pathFinder;
 	};

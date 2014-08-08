@@ -17,18 +17,13 @@ const char* CMcServ::m_mcPathPreference[2] =
 };
 
 CMcServ::CMcServ(CSifMan& sif)
-: m_nextHandle(1)
 {
 	sif.RegisterModule(MODULE_ID, this);
 }
 
 CMcServ::~CMcServ()
 {
-	//Close any handles that might still be in there...
-	for(const auto& filePair : m_handles)
-	{
-		fclose(filePair.second);
-	}
+
 }
 
 std::string CMcServ::GetId() const
@@ -202,18 +197,24 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 			return;
 		}
 
-		FILE* file = fopen(filePath.string().c_str(), access);
-		if(file == nullptr)
+		try
+		{
+			auto file = Framework::CStdStream(filePath.string().c_str(), access);
+			uint32 handle = GenerateHandle();
+			if(handle == -1)
+			{
+				//Exhausted all file handles
+				throw std::exception();
+			}
+			m_files[handle] = std::move(file);
+			ret[0] = handle;
+		}
+		catch(...)
 		{
 			//-4 for not existing file?
 			ret[0] = -4;
 			return;
 		}
-
-		uint32 handle = GenerateHandle();
-		m_handles[handle] = file;
-
-		ret[0] = handle;
 	}
 }
 
@@ -221,19 +222,17 @@ void CMcServ::Close(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 {
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "Close(handle = %i);\r\n",
-		cmd->handle);
+	CLog::GetInstance().Print(LOG_NAME, "Close(handle = %i);\r\n", cmd->handle);
 
-	auto handleIterator = m_handles.find(cmd->handle);
-	if(handleIterator == m_handles.end())
+	auto file = GetFileFromHandle(cmd->handle);
+	if(file == nullptr)
 	{
 		ret[0] = -1;
 		assert(0);
 		return;
 	}
 
-	fclose(handleIterator->second);
-	m_handles.erase(handleIterator);
+	file->Clear();
 
 	ret[0] = 0;
 }
@@ -245,7 +244,7 @@ void CMcServ::Seek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %i, offset = 0x%0.8X, origin = 0x%0.8X);\r\n",
 		cmd->handle, cmd->offset, cmd->origin);
 
-	FILE* file = GetFileFromHandle(cmd->handle);
+	auto file = GetFileFromHandle(cmd->handle);
 	if(file == nullptr)
 	{
 		ret[0] = -1;
@@ -253,25 +252,25 @@ void CMcServ::Seek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		return;
 	}
 
-	int origin = SEEK_SET;
+	Framework::STREAM_SEEK_DIRECTION origin = Framework::STREAM_SEEK_SET;
 	switch(cmd->origin)
 	{
 	case 0:
-		origin = SEEK_SET;
+		origin = Framework::STREAM_SEEK_SET;
 		break;
 	case 1:
-		origin = SEEK_CUR;
+		origin = Framework::STREAM_SEEK_CUR;
 		break;
 	case 2:
-		origin = SEEK_END;
+		origin = Framework::STREAM_SEEK_END;
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	fseek(file, cmd->offset, origin);
-	ret[0] = ftell(file);
+	file->Seek(cmd->offset, origin);
+	ret[0] = static_cast<uint32>(file->Tell());
 }
 
 void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -281,8 +280,8 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %i, size = 0x%0.8X, bufferAddress = 0x%0.8X, paramAddress = 0x%0.8X);\r\n",
 		cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
 
-	FILE* file = GetFileFromHandle(cmd->handle);
-	if(file == NULL)
+	auto file = GetFileFromHandle(cmd->handle);
+	if(file == nullptr)
 	{
 		ret[0] = -1;
 		assert(0);
@@ -299,7 +298,7 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		reinterpret_cast<uint32*>(&ram[cmd->paramAddress])[1] = 0;
 	}
 
-	ret[0] = static_cast<uint32>(fread(dst, 1, cmd->size, file));
+	ret[0] = static_cast<uint32>(file->Read(dst, cmd->size));
 }
 
 void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -309,7 +308,7 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	CLog::GetInstance().Print(LOG_NAME, "Write(handle = %i, nSize = 0x%0.8X, bufferAddress = 0x%0.8X, origin = 0x%0.8X);\r\n",
 		cmd->handle, cmd->size, cmd->bufferAddress, cmd->origin);
 
-	FILE* file = GetFileFromHandle(cmd->handle);
+	auto file = GetFileFromHandle(cmd->handle);
 	if(file == nullptr)
 	{
 		ret[0] = -1;
@@ -323,11 +322,11 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	//Write "origin" bytes from "data" field first
 	if(cmd->origin != 0)
 	{
-		fwrite(cmd->data, 1, cmd->origin, file);
+		file->Write(cmd->data, cmd->origin);
 		result += cmd->origin;
 	}
 
-	result += static_cast<uint32>(fwrite(dst, 1, cmd->size, file));
+	result += static_cast<uint32>(file->Write(dst, cmd->size));
 	ret[0] = result;
 }
 
@@ -337,7 +336,7 @@ void CMcServ::Flush(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 	CLog::GetInstance().Print(LOG_NAME, "Flush(handle = %d);\r\n", cmd->handle);
 
-	FILE* file = GetFileFromHandle(cmd->handle);
+	auto file = GetFileFromHandle(cmd->handle);
 	if(file == nullptr)
 	{
 		ret[0] = -1;
@@ -345,7 +344,7 @@ void CMcServ::Flush(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		return;
 	}
 
-	fflush(file);
+	file->Flush();
 
 	ret[0] = 0;
 }
@@ -457,17 +456,26 @@ void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, 
 
 uint32 CMcServ::GenerateHandle()
 {
-	return m_nextHandle++;
+	for(unsigned int i = 0; i < MAX_FILES; i++)
+	{
+		if(m_files[i].IsEmpty()) return i;
+	}
+	return -1;
 }
 
-FILE* CMcServ::GetFileFromHandle(uint32 handle)
+Framework::CStdStream* CMcServ::GetFileFromHandle(uint32 handle)
 {
-	auto handleIterator = m_handles.find(handle);
-	if(handleIterator == m_handles.end())
+	assert(handle < MAX_FILES);
+	if(handle >= MAX_FILES)
 	{
-		return NULL;
+		return nullptr;
 	}
-	return handleIterator->second;
+	auto& file = m_files[handle];
+	if(file.IsEmpty())
+	{
+		return nullptr;
+	}
+	return &file;
 }
 
 /////////////////////////////////////////////
