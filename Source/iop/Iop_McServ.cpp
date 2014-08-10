@@ -182,6 +182,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 			access = "rb";
 			break;
 		case OPEN_FLAG_WRONLY:
+		case OPEN_FLAG_RDWR:
 			access = "r+b";
 			break;
 		case (OPEN_FLAG_CREAT | OPEN_FLAG_WRONLY):
@@ -423,10 +424,23 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			mcPath /= m_currentDirectory;
 			mcPath = filesystem::absolute(mcPath);
 
-			if(filesystem::exists(mcPath))
+			if(!filesystem::exists(mcPath))
 			{
-				m_pathFinder.Search(mcPath, cmd->name);
+				//Directory doesn't exist
+				ret[0] = -4;
+				return;
 			}
+
+			filesystem::path searchPath = mcPath / cmd->name;
+			searchPath.remove_filename();
+			if(!filesystem::exists(searchPath))
+			{
+				//Specified directory doesn't exist, this is an error
+				ret[0] = -4;
+				return;
+			}
+
+			m_pathFinder.Search(mcPath, cmd->name);
 		}
 
 		if(cmd->maxEntries > 0)
@@ -517,7 +531,15 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 		m_matcher = &CPathFinder::StarFilterMatcher;
 	}
 
-	if((*this.*m_matcher)("/."))
+	auto filterPath = boost::filesystem::path(m_filter);
+	filterPath.remove_filename();
+
+	auto currentDirPath = filterPath / ".";
+	auto parentDirPath = filterPath / "..";
+	auto currentDirPathString = currentDirPath.generic_string();
+	auto parentDirPathString = parentDirPath.generic_string();
+
+	if((*this.*m_matcher)(currentDirPathString.c_str()))
 	{
 		ENTRY entry;
 		memset(&entry, 0, sizeof(entry));
@@ -527,7 +549,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 		m_entries.push_back(entry);
 	}
 
-	if((*this.*m_matcher)("/.."))
+	if((*this.*m_matcher)(parentDirPathString.c_str()))
 	{
 		ENTRY entry;
 		memset(&entry, 0, sizeof(entry));
