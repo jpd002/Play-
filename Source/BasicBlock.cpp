@@ -16,6 +16,11 @@
 
 #endif
 
+#ifdef VTUNE_ENABLED
+#include <jitprofiling.h>
+#include "string_format.h"
+#endif
+
 #ifdef AOT_USE_CACHE
 
 struct AOT_BLOCK
@@ -89,6 +94,25 @@ void CBasicBlock::Compile()
 	}
 
 	m_function = CMemoryFunction(stream.GetBuffer(), stream.GetSize());
+	
+#ifdef VTUNE_ENABLED
+	if(iJIT_IsProfilingActive() == iJIT_SAMPLING_ON)
+	{
+		iJIT_Method_Load jmethod = {};
+		jmethod.method_id = iJIT_GetNewMethodID();
+		jmethod.class_file_name = "";
+		jmethod.source_file_name = __FILE__;
+
+		jmethod.method_load_address = m_function.GetCode();
+		jmethod.method_size = m_function.GetSize();
+		jmethod.line_number_size = 0;
+
+		auto functionName = string_format("BasicBlock_0x%0.8X_0x%0.8X", m_begin, m_end);
+
+		jmethod.method_name = const_cast<char*>(functionName.c_str());
+		iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, reinterpret_cast<void*>(&jmethod));
+	}
+#endif
 
 #endif
 

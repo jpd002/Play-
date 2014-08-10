@@ -8,6 +8,7 @@
     <ZLIB_PATH>path_to\zlib-1.2.8</ZLIB_PATH>
     <GLEW_PATH>path_to\glew-1.9.0</GLEW_PATH>
     <BZLIB_PATH>path_to\bzip2-1.0.4</BZLIB_PATH>
+	<VTUNE_PATH>path_to\vtune</VTUNE_PATH>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -29,6 +30,9 @@
     </BuildMacro>
     <BuildMacro Include="BZLIB_PATH">
       <Value>$(BZLIB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VTUNE_PATH">
+      <Value>$(VTUNE_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
