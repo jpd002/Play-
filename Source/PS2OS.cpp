@@ -64,6 +64,7 @@
 #define SYSCALL_NAME_DISABLEDMAC			"osDisableDmac"
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
 #define SYSCALL_NAME_STARTTHREAD			"osStartThread"
+#define SYSCALL_NAME_CHANGETHREADPRIORITY	"osChangeThreadPriority"
 #define SYSCALL_NAME_ICHANGETHREADPRIORITY	"osiChangeThreadPriority"
 #define SYSCALL_NAME_ROTATETHREADREADYQUEUE	"osRotateThreadReadyQueue"
 #define SYSCALL_NAME_GETTHREADID			"osGetThreadId"
@@ -104,6 +105,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0017,		SYSCALL_NAME_DISABLEDMAC			},
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
 	{	0x0022,		SYSCALL_NAME_STARTTHREAD			},
+	{	0x0029,		SYSCALL_NAME_CHANGETHREADPRIORITY	},
 	{	0x002A,		SYSCALL_NAME_ICHANGETHREADPRIORITY	},
 	{	0x002B,		SYSCALL_NAME_ROTATETHREADREADYQUEUE	},
 	{	0x002F,		SYSCALL_NAME_GETTHREADID			},
@@ -2451,7 +2453,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x29:
-		sprintf(sDescription, "ChangeThreadPriority(id = 0x%0.8X, priority = %i);", \
+		sprintf(sDescription, SYSCALL_NAME_CHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
