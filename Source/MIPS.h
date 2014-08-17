@@ -123,7 +123,6 @@ public:
 	bool						GenerateException(uint32);
 
 	MIPSSTATE					m_State;
-	uint32						m_nIllOpcode;
 
 	CMIPSArchitecture*			m_pArch;
 	CMIPSCoprocessor*			m_pCOP[4];

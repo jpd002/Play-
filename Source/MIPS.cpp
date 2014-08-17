@@ -33,8 +33,6 @@ CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd)
 	m_pCOP[3] = NULL;
 
 	Reset();
-
-	m_nIllOpcode = MIPS_INVALID_PC;
 }
 
 CMIPS::~CMIPS()
