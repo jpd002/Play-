@@ -79,142 +79,230 @@ void CMIPSAnalysis::ChangeSubroutineEnd(uint32 start, uint32 newEnd)
 	subroutine.nEnd = newEnd;
 }
 
-void CMIPSAnalysis::AnalyseSubroutines(uint32 nStart, uint32 nEnd, uint32 entryPoint)
+void CMIPSAnalysis::AnalyseSubroutines(uint32 start, uint32 end, uint32 entryPoint)
 {
-	nStart &= ~0x3;
-	nEnd &= ~0x3;
+	start &= ~0x3;
+	end &= ~0x3;
 
-	int nFound = 0;
+	auto subroutinesBefore = m_subroutines.size();
 
-	//First pass : Find stack alloc/release ranges
+	FindSubroutinesByStackAllocation(start, end);
+	FindSubroutinesByJumpTargets(start, end, entryPoint);
+	ExpandSubroutines(start, end);
+
+	printf("CMIPSAnalysis: Found %d subroutines in the range [0x%0.8X, 0x%0.8X].\r\n", m_subroutines.size() - subroutinesBefore, start, end);
+}
+
+static bool IsStackFreeingInstruction(uint32 opcode)
+{
+	return (opcode & 0xFFFF0000) == 0x27BD0000;
+}
+
+void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
+{
+	uint32 candidate = start;
+	while(candidate != end)
 	{
-		uint32 nCandidate = nStart;
-		while(nCandidate != nEnd)
+		uint32 returnAddr = 0;
+		uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(candidate);
+		if((opcode & 0xFFFF0000) == 0x27BD0000)
 		{
-			uint32 nReturnAddr = 0;
-			uint32 nOp = m_ctx->m_pMemoryMap->GetInstruction(nCandidate);
-			if((nOp & 0xFFFF0000) == 0x27BD0000)
+			//Found the head of a routine (stack allocation)
+			uint32 stackAmount = 0 - (int16)(opcode & 0xFFFF);
+			//Look for a JR RA
+			uint32 tempAddr = candidate;
+			while(tempAddr != end)
 			{
-				//Found the head of a routine (stack allocation)
-				uint32 nStackAmount = 0 - (int16)(nOp & 0xFFFF);
-				//Look for a JR RA
-				uint32 nTemp = nCandidate;
-				while(nTemp != nEnd)
+				opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr);
+
+				//Check SW/SD RA, 0x0000(SP)
+				if(
+					((opcode & 0xFFFF0000) == 0xAFBF0000) ||		//SW
+					((opcode & 0xFFFF0000) == 0xFFBF0000))			//SD
 				{
-					nOp = m_ctx->m_pMemoryMap->GetInstruction(nTemp);
-
-					//Check SW/SD RA, 0x0000(SP)
-					if(
-						((nOp & 0xFFFF0000) == 0xAFBF0000) ||		//SW
-						((nOp & 0xFFFF0000) == 0xFFBF0000))			//SD
-					{
-						nReturnAddr = (nOp & 0xFFFF);
-					}
-
-					//Check for JR RA or J
-					if((nOp == 0x03E00008) || ((nOp & 0xFC000000) == 0x08000000))
-					{
-						//Check if there's a stack unwinding instruction above or below
-
-						//Check above
-						//ADDIU SP, SP, 0x????
-						//JR RA
-					
-						nOp = m_ctx->m_pMemoryMap->GetInstruction(nTemp - 4);
-						if((nOp & 0xFFFF0000) == 0x27BD0000)
-						{
-							if(nStackAmount == (int16)(nOp & 0xFFFF))
-							{
-								//That's good...
-								InsertSubroutine(nCandidate, nTemp + 4, nCandidate, nTemp - 4, nStackAmount, nReturnAddr);
-								nCandidate = nTemp + 4;
-								nFound++;
-								break;
-							}
-						}
-
-						//Check below
-						//JR RA
-						//ADDIU SP, SP, 0x????
-
-						nOp = m_ctx->m_pMemoryMap->GetInstruction(nTemp + 4);
-						if((nOp & 0xFFFF0000) == 0x27BD0000)
-						{
-							if(nStackAmount == (int16)(nOp & 0xFFFF))
-							{
-								//That's good
-								InsertSubroutine(nCandidate, nTemp + 4, nCandidate, nTemp + 4, nStackAmount, nReturnAddr);
-								nCandidate = nTemp + 4;
-								nFound++;
-							}
-							break;
-						}
-						//No stack unwinding was found... just forget about this one
-						//break;
-					}
-					nTemp += 4;
+					returnAddr = (opcode & 0xFFFF);
 				}
-			}
-			nCandidate += 4;
-		}
-	}
-
-	//Second pass : Search for all JAL targets then scan for functions
-	{
-		std::set<uint32> subroutineAddresses;
-		for(uint32 address = nStart; address <= nEnd; address += 4)
-		{
-			uint32 nOp = m_ctx->m_pMemoryMap->GetInstruction(address);
-			if(
-				(nOp & 0xFC000000) == 0x0C000000 ||
-				(nOp & 0xFC000000) == 0x08000000)
-			{
-				uint32 jumpTarget = (nOp & 0x03FFFFFF) * 4;
-				if(jumpTarget < nStart) continue;
-				if(jumpTarget >= nEnd) continue;
-				subroutineAddresses.insert(jumpTarget);
-			}
-		}
-
-		if(entryPoint != -1)
-		{
-			subroutineAddresses.insert(entryPoint);
-		}
-
-		for(auto subroutineAddressIterator(std::begin(subroutineAddresses));
-			subroutineAddressIterator != std::end(subroutineAddresses); ++subroutineAddressIterator)
-		{
-			uint32 subroutineAddress = *subroutineAddressIterator;
-			if(subroutineAddress == 0) continue;
-
-			//Don't bother if we already found it
-			if(FindSubroutine(subroutineAddress)) continue;
-
-			//Otherwise, try to find a function that already exists
-			for(uint32 address = subroutineAddress; address <= nEnd; address += 4)
-			{
-				uint32 nOp = m_ctx->m_pMemoryMap->GetInstruction(address);
 
 				//Check for JR RA or J
-				if((nOp == 0x03E00008) || ((nOp & 0xFC000000) == 0x08000000))
+				if((opcode == 0x03E00008) || ((opcode & 0xFC000000) == 0x08000000))
 				{
-					InsertSubroutine(subroutineAddress, address + 4, 0, 0, 0, 0);
-					nFound++;
-					break;
-				}
+					//Check if there's a stack unwinding instruction above or below
 
-				auto subroutine = FindSubroutine(address);
-				if(subroutine)
-				{
-					//Function already exists, merge.
-					ChangeSubroutineStart(subroutine->nStart, subroutineAddress);
-					break;
+					//Check above
+					//ADDIU SP, SP, 0x????
+					//JR RA
+					
+					opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr - 4);
+					if(IsStackFreeingInstruction(opcode))
+					{
+						if(stackAmount == (int16)(opcode & 0xFFFF))
+						{
+							//That's good...
+							InsertSubroutine(candidate, tempAddr + 4, candidate, tempAddr - 4, stackAmount, returnAddr);
+							candidate = tempAddr + 4;
+							break;
+						}
+					}
+
+					//Check below
+					//JR RA
+					//ADDIU SP, SP, 0x????
+
+					opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr + 4);
+					if(IsStackFreeingInstruction(opcode))
+					{
+						if(stackAmount == (int16)(opcode & 0xFFFF))
+						{
+							//That's good
+							InsertSubroutine(candidate, tempAddr + 4, candidate, tempAddr + 4, stackAmount, returnAddr);
+							candidate = tempAddr + 4;
+						}
+						break;
+					}
+					//No stack unwinding was found... just forget about this one
+					//break;
 				}
+				tempAddr += 4;
 			}
+		}
+		candidate += 4;
+	}
+}
+
+void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint32 entryPoint)
+{
+	//Second pass : Search for all JAL targets then scan for functions
+	std::set<uint32> subroutineAddresses;
+	for(uint32 address = start; address <= end; address += 4)
+	{
+		uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+		if(
+			(opcode & 0xFC000000) == 0x0C000000 ||
+			(opcode & 0xFC000000) == 0x08000000)
+		{
+			uint32 jumpTarget = (opcode & 0x03FFFFFF) * 4;
+			if(jumpTarget < start) continue;
+			if(jumpTarget >= end) continue;
+			subroutineAddresses.insert(jumpTarget);
 		}
 	}
 
-	printf("CMIPSAnalysis: Found %d subroutines in the range [0x%0.8X, 0x%0.8X].\r\n", nFound, nStart, nEnd);
+	if(entryPoint != -1)
+	{
+		subroutineAddresses.insert(entryPoint);
+	}
+
+	for(const auto& subroutineAddress : subroutineAddresses)
+	{
+		if(subroutineAddress == 0) continue;
+
+		//Don't bother if we already found it
+		if(FindSubroutine(subroutineAddress)) continue;
+
+		//Otherwise, try to find a function that already exists
+		for(uint32 address = subroutineAddress; address <= end; address += 4)
+		{
+			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+
+			//Check for JR RA or J
+			if((opcode == 0x03E00008) || ((opcode & 0xFC000000) == 0x08000000))
+			{
+				InsertSubroutine(subroutineAddress, address + 4, 0, 0, 0, 0);
+				break;
+			}
+
+			auto subroutine = FindSubroutine(address);
+			if(subroutine)
+			{
+				//Function already exists, merge.
+				ChangeSubroutineStart(subroutine->nStart, subroutineAddress);
+				break;
+			}
+		}
+	}
+}
+
+void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableEnd)
+{
+	static const uint32 searchLimit = 0x1000;
+
+	const auto& findFreeSubroutineEnd =
+		[this](uint32 begin, uint32 end) -> uint32
+		{
+			for(uint32 address = begin; address <= begin + searchLimit; address += 4)
+			{
+				if(FindSubroutine(address) != nullptr) return MIPS_INVALID_PC;
+
+				uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+
+				//Check for JR RA or J
+				if((opcode == 0x03E00008) || ((opcode & 0xFC000000) == 0x08000000))
+				{
+					//+4 for delay slot
+					return address + 4;
+				}
+			}
+
+			return MIPS_INVALID_PC;
+		};
+
+	for(auto& subroutinePair : m_subroutines)
+	{
+		auto& subroutine = subroutinePair.second;
+
+		//Don't bother if subroutine is not in our range
+		if(subroutine.nStart < executableStart) continue;
+		if(subroutine.nEnd > executableEnd) continue;
+
+		//Search for branch targets that fall in space not allocated for a subroutine
+		for(uint32 address = subroutine.nStart; address <= subroutine.nEnd; address += 4)
+		{
+			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+			
+			auto branchType = m_ctx->m_pArch->IsInstructionBranch(m_ctx, address, opcode);
+			if(branchType != MIPS_BRANCH_NORMAL) continue;
+			
+			uint32 branchTarget = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
+
+			//Check if pointing inside our subroutine. If so, don't bother
+			if(branchTarget >= subroutine.nStart && branchTarget <= subroutine.nEnd) continue;
+
+			//Branch could be out of subroutine range, but that would be weird and we don't want to handle that
+			if(branchTarget < subroutine.nStart) continue;
+
+			//Check if branch is outside our search limit
+			if(branchTarget > (subroutine.nEnd + searchLimit)) continue;
+
+			//Doesn't make sense if target is outside range
+			if(branchTarget >= executableEnd) continue;
+
+			//If there's already a subroutine there, don't bother
+			if(FindSubroutine(branchTarget) != nullptr) continue;
+
+			uint32 routineEnd = findFreeSubroutineEnd(branchTarget, executableEnd);
+			if(routineEnd == MIPS_INVALID_PC) 
+			{
+				continue;
+			}
+
+			//Check invariant
+			assert(FindSubroutine(routineEnd) == nullptr);
+
+			//Check if we need to update stackAllocEnd
+			uint32 endOpcode = m_ctx->m_pMemoryMap->GetInstruction(routineEnd);
+
+			if(IsStackFreeingInstruction(endOpcode))
+			{
+				uint16 stackAmount = static_cast<int16>(endOpcode & 0xFFFF);
+				if(stackAmount == subroutine.nStackSize)
+				{
+					subroutine.nStackAllocEnd = std::max<uint32>(subroutine.nStackAllocEnd, routineEnd);
+				}
+			}
+
+			subroutine.nEnd = std::max<uint32>(subroutine.nEnd, routineEnd);
+		}
+	}
 }
 
 static bool TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& result)
@@ -248,7 +336,7 @@ void CMIPSAnalysis::AnalyseStringReferences(uint32 start, uint32 end)
 		bool registerWritten[0x20] = { false };
 		for(uint32 address = subroutine.nStart; address <= subroutine.nEnd; address += 4)
 		{
-			uint32 op = m_ctx->m_pMemoryMap->GetWord(address);
+			uint32 op = m_ctx->m_pMemoryMap->GetInstruction(address);
 
 			//LUI
 			if((op & 0xFC000000) == 0x3C000000)

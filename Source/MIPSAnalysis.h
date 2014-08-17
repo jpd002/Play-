@@ -39,6 +39,10 @@ private:
 	void								AnalyseSubroutines(uint32, uint32, uint32);
 	void								AnalyseStringReferences(uint32, uint32);
 
+	void								FindSubroutinesByStackAllocation(uint32, uint32);
+	void								FindSubroutinesByJumpTargets(uint32, uint32, uint32);
+	void								ExpandSubroutines(uint32, uint32);
+
 	CMIPS*								m_ctx;
 	SubroutineList						m_subroutines;
 };
