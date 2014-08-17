@@ -383,8 +383,8 @@ void CPS2OS::LoadExecutableInternal()
 	uint32 nMinAddr = executableRange.first;
 	uint32 nMaxAddr = executableRange.second & ~0x03;
 
-	m_ee.m_pAnalysis->Clear();
-	m_ee.m_pAnalysis->Analyse(nMinAddr, nMaxAddr, header.nEntryPoint);
+	m_ee.m_analysis->Clear();
+	m_ee.m_analysis->Analyse(nMinAddr, nMaxAddr, header.nEntryPoint);
 
 	//Tag system calls
 	for(uint32 address = nMinAddr; address < nMaxAddr; address += 4)

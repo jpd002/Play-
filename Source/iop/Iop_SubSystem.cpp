@@ -118,7 +118,7 @@ void CSubSystem::Reset()
 	memset(m_spuRam, 0, SPU_RAM_SIZE);
 	m_executor.Reset();
 	m_cpu.Reset();
-	m_cpu.m_pAnalysis->Clear();
+	m_cpu.m_analysis->Clear();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
 	m_spu.Reset();

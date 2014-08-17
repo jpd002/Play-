@@ -8,9 +8,9 @@ std::tstring DebugUtils::PrintAddressLocation(uint32 address, CMIPS* context, co
 
 	auto module = FindModuleAtAddress(modules, address);
 	const char* functionName = nullptr;
-	if(auto subroutine = context->m_pAnalysis->FindSubroutine(address))
+	if(auto subroutine = context->m_analysis->FindSubroutine(address))
 	{
-		functionName = context->m_Functions.Find(subroutine->nStart);
+		functionName = context->m_Functions.Find(subroutine->start);
 	}
 	bool hasParenthesis = (functionName != nullptr) || (module != nullptr);
 	if(hasParenthesis)

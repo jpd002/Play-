@@ -11,12 +11,12 @@ class CMIPSAnalysis
 public:
 	struct SUBROUTINE
 	{
-		uint32			nStart;
-		uint32			nEnd;
-		uint32			nStackAllocStart;
-		uint32			nStackAllocEnd;
-		uint32			nStackSize;
-		uint32			nReturnAddrPos;
+		uint32			start;
+		uint32			end;
+		uint32			stackAllocStart;
+		uint32			stackAllocEnd;
+		uint32			stackSize;
+		uint32			returnAddrPos;
 	};
 
 	typedef std::vector<uint32> CallStackItemArray;

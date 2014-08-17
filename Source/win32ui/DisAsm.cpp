@@ -756,17 +756,17 @@ void CDisAsm::Paint(HDC hDC)
 		}
 		
 		//Draw function boundaries
-		const CMIPSAnalysis::SUBROUTINE* sub = m_ctx->m_pAnalysis->FindSubroutine(address);
+		const CMIPSAnalysis::SUBROUTINE* sub = m_ctx->m_analysis->FindSubroutine(address);
 		if(sub != NULL)
 		{
 			SelectObject(hDC, ltGrayPen);
-			if(address == sub->nStart)
+			if(address == sub->start)
 			{
 				MoveToEx(hDC, 90, y + s.cy + YSPACE, NULL);
 				LineTo(hDC, 90, y + ((s.cy + YSPACE) / 2) - 1);
 				LineTo(hDC, 95, y + ((s.cy + YSPACE) / 2));
 			}
-			else if(address == sub->nEnd)
+			else if(address == sub->end)
 			{
 				MoveToEx(hDC, 90, y, NULL);
 				LineTo(hDC, 90, y + ((s.cy + YSPACE) / 2));

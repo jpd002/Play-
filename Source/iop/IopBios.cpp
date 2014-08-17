@@ -293,10 +293,10 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 	m_sifCmd->LoadState(archive);
 
 #ifdef DEBUGGER_INCLUDED
-	m_cpu.m_pAnalysis->Clear();
+	m_cpu.m_analysis->Clear();
 	for(const auto& moduleTag : m_moduleTags)
 	{
-		m_cpu.m_pAnalysis->Analyse(moduleTag.begin, moduleTag.end);
+		m_cpu.m_analysis->Analyse(moduleTag.begin, moduleTag.end);
 	}
 #endif
 
@@ -2106,7 +2106,7 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 		module.param	= NULL;
 	}
 
-	m_cpu.m_pAnalysis->Analyse(moduleRange.first, moduleRange.second);
+	m_cpu.m_analysis->Analyse(moduleRange.first, moduleRange.second);
 
 	bool functionAdded = false;
 	//Look for import tables

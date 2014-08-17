@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include "PtrMacro.h"
 #include "MIPS.h"
 #include "COP_SCU.h"
 
@@ -13,10 +12,12 @@ const char* CMIPS::m_sGPRName[] =
 };
 
 CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd) 
-: m_pAddrTranslator(NULL)
-, m_pArch(NULL)
+: m_pAddrTranslator(nullptr)
+, m_pArch(nullptr)
+, m_analysis(nullptr)
+, m_pMemoryMap(nullptr)
 {
-	m_pAnalysis = new CMIPSAnalysis(this);
+	m_analysis = new CMIPSAnalysis(this);
 	switch(nEnd)
 	{
 	case MEMORYMAP_ENDIAN_LSBF:
@@ -37,8 +38,8 @@ CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd)
 
 CMIPS::~CMIPS()
 {
-	DELETEPTR(m_pMemoryMap);
-	DELETEPTR(m_pAnalysis);
+	delete m_pMemoryMap;
+	delete m_analysis;
 }
 
 void CMIPS::Reset()

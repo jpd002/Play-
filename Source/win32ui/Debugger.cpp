@@ -309,8 +309,8 @@ void CDebugger::ReanalyzeEe()
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
-	m_virtualMachine.m_EE.m_pAnalysis->Clear();
-	m_virtualMachine.m_EE.m_pAnalysis->Analyse(minAddr, maxAddr);
+	m_virtualMachine.m_EE.m_analysis->Clear();
+	m_virtualMachine.m_EE.m_analysis->Analyse(minAddr, maxAddr);
 }
 
 void CDebugger::FindEeFunctions()

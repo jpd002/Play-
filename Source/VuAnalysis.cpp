@@ -62,7 +62,7 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 	for(const auto& subroutineAddress : subroutineAddresses)
 	{
 		//Don't bother if we already found it
-		if(ctx->m_pAnalysis->FindSubroutine(subroutineAddress)) continue;
+		if(ctx->m_analysis->FindSubroutine(subroutineAddress)) continue;
 
 		//Otherwise, try to find a function that already exists
 		for(uint32 address = subroutineAddress; address <= end; address += 8)
@@ -79,16 +79,16 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 				(upperInstruction & 0x40000000)
 				)
 			{
-				ctx->m_pAnalysis->InsertSubroutine(subroutineAddress, address + 8, 0, 0, 0, 0);
+				ctx->m_analysis->InsertSubroutine(subroutineAddress, address + 8, 0, 0, 0, 0);
 				routineCount++;
 				break;
 			}
 
-			auto subroutine = ctx->m_pAnalysis->FindSubroutine(address);
+			auto subroutine = ctx->m_analysis->FindSubroutine(address);
 			if(subroutine)
 			{
 				//Function already exists, merge.
-				ctx->m_pAnalysis->ChangeSubroutineStart(subroutine->nStart, subroutineAddress);
+				ctx->m_analysis->ChangeSubroutineStart(subroutine->start, subroutineAddress);
 				break;
 			}
 		}
@@ -98,7 +98,7 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 	for(uint32 address = begin; address <= end; address += 8)
 	{
 		//Address already associated with subroutine, don't bother
-		if(ctx->m_pAnalysis->FindSubroutine(address)) continue;
+		if(ctx->m_analysis->FindSubroutine(address)) continue;
 
 		uint32 lowerInstruction = ctx->m_pMemoryMap->GetInstruction(address + 0);
 		uint32 upperInstruction = ctx->m_pMemoryMap->GetInstruction(address + 4);
@@ -109,10 +109,10 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 			uint32 branchTarget = ctx->m_pArch->GetInstructionEffectiveAddress(ctx, address, lowerInstruction);
 			if(branchTarget != 0)
 			{
-				auto subroutine = ctx->m_pAnalysis->FindSubroutine(branchTarget);
+				auto subroutine = ctx->m_analysis->FindSubroutine(branchTarget);
 				if(subroutine)
 				{
-					ctx->m_pAnalysis->ChangeSubroutineEnd(subroutine->nStart, address + 8);
+					ctx->m_analysis->ChangeSubroutineEnd(subroutine->start, address + 8);
 				}
 			}
 		}

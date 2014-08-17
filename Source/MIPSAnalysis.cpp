@@ -24,29 +24,29 @@ void CMIPSAnalysis::Analyse(uint32 start, uint32 end, uint32 entryPoint)
 	AnalyseStringReferences(start, end);
 }
 
-void CMIPSAnalysis::InsertSubroutine(uint32 nStart, uint32 nEnd, uint32 nAllocStart, uint32 nAllocEnd, uint32 nStackSize, uint32 nReturnAddrPos)
+void CMIPSAnalysis::InsertSubroutine(uint32 start, uint32 end, uint32 stackAllocStart, uint32 stackAllocEnd, uint32 stackSize, uint32 returnAddrPos)
 {
-	assert(FindSubroutine(nStart) == NULL);
-	assert(FindSubroutine(nEnd) == NULL);
+	assert(FindSubroutine(start) == nullptr);
+	assert(FindSubroutine(end) == nullptr);
 
 	SUBROUTINE subroutine;
-	subroutine.nStart				= nStart;
-	subroutine.nEnd					= nEnd;
-	subroutine.nStackAllocStart		= nAllocStart;
-	subroutine.nStackAllocEnd		= nAllocEnd;
-	subroutine.nStackSize			= nStackSize;
-	subroutine.nReturnAddrPos		= nReturnAddrPos;
+	subroutine.start				= start;
+	subroutine.end					= end;
+	subroutine.stackAllocStart		= stackAllocStart;
+	subroutine.stackAllocEnd		= stackAllocEnd;
+	subroutine.stackSize			= stackSize;
+	subroutine.returnAddrPos		= returnAddrPos;
 
-	m_subroutines.insert(SubroutineList::value_type(nStart, subroutine));
+	m_subroutines.insert(std::make_pair(start, subroutine));
 }
 
-const CMIPSAnalysis::SUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 nAddress) const
+const CMIPSAnalysis::SUBROUTINE* CMIPSAnalysis::FindSubroutine(uint32 address) const
 {
-	auto subroutineIterator = m_subroutines.lower_bound(nAddress);
+	auto subroutineIterator = m_subroutines.lower_bound(address);
 	if(subroutineIterator == std::end(m_subroutines)) return nullptr;
 
 	auto& subroutine = subroutineIterator->second;
-	if(nAddress >= subroutine.nStart && nAddress <= subroutine.nEnd)
+	if(address >= subroutine.start && address <= subroutine.end)
 	{
 		return &subroutine;
 	}
@@ -62,7 +62,7 @@ void CMIPSAnalysis::ChangeSubroutineStart(uint32 currStart, uint32 newStart)
 	assert(subroutineIterator != std::end(m_subroutines));
 
 	SUBROUTINE subroutine(subroutineIterator->second);
-	subroutine.nStart = newStart;
+	subroutine.start = newStart;
 
 	m_subroutines.erase(subroutineIterator);
 	m_subroutines.insert(SubroutineList::value_type(newStart, subroutine));
@@ -76,7 +76,7 @@ void CMIPSAnalysis::ChangeSubroutineEnd(uint32 start, uint32 newEnd)
 	assert(subroutineIterator != std::end(m_subroutines));
 
 	auto& subroutine(subroutineIterator->second);
-	subroutine.nEnd = newEnd;
+	subroutine.end = newEnd;
 }
 
 void CMIPSAnalysis::AnalyseSubroutines(uint32 start, uint32 end, uint32 entryPoint)
@@ -215,7 +215,7 @@ void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint3
 			if(subroutine)
 			{
 				//Function already exists, merge.
-				ChangeSubroutineStart(subroutine->nStart, subroutineAddress);
+				ChangeSubroutineStart(subroutine->start, subroutineAddress);
 				break;
 			}
 		}
@@ -251,11 +251,11 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 		auto& subroutine = subroutinePair.second;
 
 		//Don't bother if subroutine is not in our range
-		if(subroutine.nStart < executableStart) continue;
-		if(subroutine.nEnd > executableEnd) continue;
+		if(subroutine.start < executableStart) continue;
+		if(subroutine.end > executableEnd) continue;
 
 		//Search for branch targets that fall in space not allocated for a subroutine
-		for(uint32 address = subroutine.nStart; address <= subroutine.nEnd; address += 4)
+		for(uint32 address = subroutine.start; address <= subroutine.end; address += 4)
 		{
 			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
 			
@@ -265,13 +265,13 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 			uint32 branchTarget = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
 
 			//Check if pointing inside our subroutine. If so, don't bother
-			if(branchTarget >= subroutine.nStart && branchTarget <= subroutine.nEnd) continue;
+			if(branchTarget >= subroutine.start && branchTarget <= subroutine.end) continue;
 
 			//Branch could be out of subroutine range, but that would be weird and we don't want to handle that
-			if(branchTarget < subroutine.nStart) continue;
+			if(branchTarget < subroutine.start) continue;
 
 			//Check if branch is outside our search limit
-			if(branchTarget > (subroutine.nEnd + searchLimit)) continue;
+			if(branchTarget > (subroutine.end + searchLimit)) continue;
 
 			//Doesn't make sense if target is outside range
 			if(branchTarget >= executableEnd) continue;
@@ -294,13 +294,13 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 			if(IsStackFreeingInstruction(endOpcode))
 			{
 				uint16 stackAmount = static_cast<int16>(endOpcode & 0xFFFF);
-				if(stackAmount == subroutine.nStackSize)
+				if(stackAmount == subroutine.stackSize)
 				{
-					subroutine.nStackAllocEnd = std::max<uint32>(subroutine.nStackAllocEnd, routineEnd);
+					subroutine.stackAllocEnd = std::max<uint32>(subroutine.stackAllocEnd, routineEnd);
 				}
 			}
 
-			subroutine.nEnd = std::max<uint32>(subroutine.nEnd, routineEnd);
+			subroutine.end = std::max<uint32>(subroutine.end, routineEnd);
 		}
 	}
 }
@@ -334,7 +334,7 @@ void CMIPSAnalysis::AnalyseStringReferences(uint32 start, uint32 end)
 		const auto& subroutine = subroutinePair.second;
 		uint32 registerValue[0x20] = { 0 };
 		bool registerWritten[0x20] = { false };
-		for(uint32 address = subroutine.nStart; address <= subroutine.nEnd; address += 4)
+		for(uint32 address = subroutine.start; address <= subroutine.end; address += 4)
 		{
 			uint32 op = m_ctx->m_pMemoryMap->GetInstruction(address);
 
@@ -383,7 +383,7 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 {
 	CallStackItemArray result;
 
-	auto routine = context->m_pAnalysis->FindSubroutine(pc);
+	auto routine = context->m_analysis->FindSubroutine(pc);
 	if(!routine)
 	{
 		if(IsValidProgramAddress(pc)) result.push_back(pc);
@@ -398,10 +398,10 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 	//stack
 
 	//Check if we need to check into the stack to get the RA
-	if(context->m_pAnalysis->FindSubroutine(ra) == routine)
+	if(context->m_analysis->FindSubroutine(ra) == routine)
 	{
-		ra = context->m_pMemoryMap->GetWord(sp + routine->nReturnAddrPos);
-		sp += routine->nStackSize;
+		ra = context->m_pMemoryMap->GetWord(sp + routine->returnAddrPos);
+		sp += routine->stackSize;
 	}
 	else
 	{
@@ -411,11 +411,11 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		//ADDIU SP, SP, 0x????
 		//If the PC is after this instruction, then, we've allocated stack
 
-		if(pc > routine->nStackAllocStart)
+		if(pc > routine->stackAllocStart)
 		{
-			if(pc <= routine->nStackAllocEnd)
+			if(pc <= routine->stackAllocEnd)
 			{
-				sp += routine->nStackSize;
+				sp += routine->stackSize;
 			}
 		}
 
@@ -430,7 +430,7 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		pc = ra;
 
 		//Check if we can go on...
-		routine = context->m_pAnalysis->FindSubroutine(pc);
+		routine = context->m_analysis->FindSubroutine(pc);
 		if(!routine)
 		{
 			if(IsValidProgramAddress(ra)) result.push_back(ra);
@@ -438,8 +438,8 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		}
 
 		//Get the next RA
-		ra = context->m_pMemoryMap->GetWord(sp + routine->nReturnAddrPos);
-		sp += routine->nStackSize;
+		ra = context->m_pMemoryMap->GetWord(sp + routine->returnAddrPos);
+		sp += routine->stackSize;
 	}
 
 	return result;

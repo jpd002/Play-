@@ -129,7 +129,7 @@ public:
 	CMemoryMap*					m_pMemoryMap;
 	BreakpointSet				m_breakpoints;
 
-	CMIPSAnalysis*				m_pAnalysis;
+	CMIPSAnalysis*				m_analysis;
 	CMIPSTags					m_Comments;
 	CMIPSTags					m_Functions;
 
