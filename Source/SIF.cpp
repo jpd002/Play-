@@ -193,6 +193,8 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	else
 	{
 		assert(nDstAddr < PS2::IOP_RAM_SIZE);
+		CLog::GetInstance().Print(LOG_NAME, "WriteToIop(dstAddr = 0x%0.8X, srcAddr = 0x%0.8X, size = 0x%0.8X);\r\n", 
+			nDstAddr, nSrcAddr, nSize);
 		if(nDstAddr >= 0 && nDstAddr <= CMD_RECVADDR)
 		{
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Trying to DMA in Bios Control Area.\r\n");
