@@ -180,6 +180,7 @@
 		<tag address="001113D0" value="cdRead" />
 		<tag address="00111680" value="cdGetError" />
 		<tag address="00111A40" value="sceMcInit" />
+		<tag address="0011DCA8" value="strcmp" />
 		<tag address="0011DD40" value="memcpy" />
 		<tag address="0011DEF8" value="memset" />
 		<tag address="00120A78" value="strcpy" />
@@ -192,6 +193,24 @@
 		<tag address="00151DE8" value="DoLock1" />
 		<tag address="00151E00" value="DoUnlock1" />
 		<tag address="00153450" value="logError" />
+		<tag address="00154500" value="adxf_GetPtStat" />
+		<tag address="00155400" value="EraseSJPointer" />
+		<tag address="001556F0" value="adxf_ReadSj32Safe" />
+		<tag address="00155748" value="adxf_ReadSj32" />
+		<tag address="001558A0" value="adxf_ReadNw32" />
+		<tag address="00155B00" value="adxf_ReadNw" />
+		<tag address="00155B78" value="adxf_Stop" />
+		<tag address="00155C68" value="adxf_SafeStopNw" />
+		<tag address="00155CA0" value="adxf_StopNw" />
+		<tag address="00155F90" value="adxf_Seek" />
+		<tag address="00156100" value="adxf_Tell" />
+		<tag address="00156168" value="adxf_GetFsizeSct" />
+		<tag address="00156238" value="adxf_SafeGetFsizeByte64" />
+		<tag address="00156270" value="adxf_GetFsizeByte64" />
+		<tag address="00156338" value="adxf_SafeGetNumReqSct" />
+		<tag address="00156380" value="adxf_GetNumReqSct" />
+		<tag address="00156408" value="adxf_GetNumReadSct" />
+		<tag address="00156470" value="adxf_GetStat" />
 		<tag address="001565C0" value="ADXF_GetFnameRangeEx" />
 		<tag address="00156EF0" value="adxt_exec_main_thrd" />
 		<tag address="00156F10" value="adxt_exec_tsvr" />
@@ -232,6 +251,9 @@
 		<tag address="00166638" value="sdrCheckError" />
 		<tag address="00166798" value="readSomeFile" />
 		<tag address="00167000" value="ExchangeSomePtrs" />
+		<tag address="00167448" value="DTR_ExecHndl" />
+		<tag address="00167878" value="DTR_Init" />
+		<tag address="001678F8" value="CreateDtr" />
 		<tag address="00167C00" value="CreateDtxServer" />
 		<tag address="00167D90" value="DTX_Create" />
 		<tag address="00167FB0" value="SendCustomSifCommand" />
@@ -246,16 +268,28 @@
 		<tag address="00169580" value="LoadCdCache" />
 		<tag address="0016A210" value="htCiGetFileSize" />
 		<tag address="0016A4A8" value="htCiOpen" />
+		<tag address="0016B9F0" value="LSC_CreateSafe" />
+		<tag address="0016BA28" value="LSC_Create" />
+		<tag address="0016F448" value="CreateMovieIopStuff" />
+		<tag address="0016F900" value="PS2RNA_Start" />
+		<tag address="0016FA70" value="PS2RNA_Unknown" />
+		<tag address="0016FB5C" value="PS2RNA_ClearBuf" />
+		<tag address="0016FBA4" value="PS2RNA_SetPcmType" />
+		<tag address="0016FF50" value="PS2RNA_SetStartSmpl" />
 		<tag address="00170530" value="SVM_Lock1" />
 		<tag address="00170548" value="SVM_Unlock1" />
 		<tag address="00170D48" value="ModifyBufferSize" />
 		<tag address="001710F8" value="CreateSJ" />
+		<tag address="00171150" value="CreateFsStruct" />
+		<tag address="001713E0" value="SJ::SafeCleanup" />
+		<tag address="00171410" value="SJ::Cleanup" />
 		<tag address="001714F8" value="InitializeBuffer" />
-		<tag address="001715A8" value="CheckAvailableBufferSize?" />
-		<tag address="001717F8" value="CopyReadDataStub" />
-		<tag address="00171848" value="CopyReadData" />
-		<tag address="001719E8" value="SafeConsumeData" />
-		<tag address="00171A38" value="ConsumeData" />
+		<tag address="001715A8" value="SJ::CheckAvailableBufferSize?" />
+		<tag address="00171658" value="SJ::???" />
+		<tag address="001717F8" value="SJ::CopyReadDataStub" />
+		<tag address="00171848" value="SJ::CopyReadData" />
+		<tag address="001719E8" value="SJ::SafeConsumeData" />
+		<tag address="00171A38" value="SJ::ConsumeData" />
 		<tag address="001734C0" value="SJX_Init" />
 		<tag address="00173820" value="SVM_Lock" />
 		<tag address="00173880" value="SVM_Unlock" />
@@ -265,14 +299,28 @@
 		<tag address="001739E8" value="SVM_Unlock4" />
 		<tag address="00173C68" value="SVM_SetCbSvrId" />
 		<tag address="00174158" value="SVM_ExecSvrFuncId" />
-		<tag address="00186238" value="mwPlyCalcWordCprmSfd" />
+		<tag address="00181148" value="CheckMpegControlCode" />
+		<tag address="001811B8" value="CheckMpegControlCode1" />
+		<tag address="00185BB8" value="SoftdecSkgHn" />
+		<tag address="001860A0" value="MwsfdCrePrm" />
+		<tag address="00186238" value="mwPlyCalcWorkCprmSfd" />
+		<tag address="00186298" value="outer_frmpool" />
 		<tag address="00186378" value="MWSFCRE_SetSupplySj" />
+		<tag address="00186448" value="mwPly::???" />
 		<tag address="001866B8" value="CreateSFD" />
+		<tag address="00186E80" value="mwsfcre_AttachPicUsrBuf" />
+		<tag address="00186F6C" value="mwPlyAttachPicUsrBuf" />
+		<tag address="00186FE0" value="MWSFCRE_DestroySfd" />
 		<tag address="00187210" value="CreateSJ" />
 		<tag address="00187238" value="mwPlyCreateSofdec" />
+		<tag address="00187778" value="AllocWorkBuffers" />
 		<tag address="001881D8" value="MWSFD_Malloc" />
+		<tag address="001883C8" value="mwPlyGetFrm" />
 		<tag address="001884E0" value="mwPlyGetCurFrm" />
 		<tag address="001886C8" value="GetRelFrameApi" />
+		<tag address="00189E70" value="logError" />
+		<tag address="00189E88" value="mwPlyInitSfdFx" />
+		<tag address="0018A490" value="ErrorCallback" />
 		<tag address="0018ABD8" value="mwPlyStartFname" />
 		<tag address="0018ABF0" value="mwPlyStartFname" />
 		<tag address="0018AEB0" value="mwply_StartSj" />
@@ -289,10 +337,19 @@
 		<tag address="0018BB00" value="SomethingToSprDma" />
 		<tag address="0018BB88" value="CheckDma" />
 		<tag address="0018BC50" value="Something_Subtitle" />
+		<tag address="0018C348" value="DURTIME" />
+		<tag address="0018C618" value="mwPlySetAudioSw" />
+		<tag address="0018C6A0" value="mwPlySetVideoSw" />
 		<tag address="0018C728" value="mwPlyGetSfdHn" />
+		<tag address="0018C778" value="mwPlyGetAdxtHn" />
+		<tag address="0018C7C8" value="mwPlyGetNumDropFrm" />
+		<tag address="0018C830" value="mwPlyGetNumSkipDec" />
+		<tag address="0018C8A8" value="mwPlySetBpicSkip" />
+		<tag address="0018C8C0" value="mwPlySetBpicSkip" />
+		<tag address="0018C8D8" value="mwPlySetBpicSkip" />
 		<tag address="0018CA30" value="mwPlyGetNumAudioCh" />
 		<tag address="0018CB48" value="mwPlyGetNumVideoCh" />
-		<tag address="0018CBD8" value="ReadMovieHandle" />
+		<tag address="0018CBD8" value="mwPly???" />
 		<tag address="0018CD28" value="mwCheckHandle" />
 		<tag address="0018CD58" value="mwPlySetLimitTime" />
 		<tag address="0018CE58" value="mwPlyGetStatChecker" />
@@ -311,16 +368,34 @@
 		<tag address="0018FD30" value="mwPlyStartAfsLp" />
 		<tag address="00190140" value="mwPlyLinkStm" />
 		<tag address="00191350" value="logError" />
+		<tag address="00191780" value="MWSTM_ReqStart" />
 		<tag address="00191E70" value="mwPlyExecSvrHndl" />
 		<tag address="00192088" value="MWSFSVR_IsSvrBdrHdnl" />
 		<tag address="00193A40" value="CopyBufferInfo" />
-		<tag address="00198278" value="MovieThing" />
+		<tag address="00198058" value="ReportErrorCode" />
+		<tag address="00198108" value="SoftdecSetErrCallback" />
+		<tag address="00198278" value="SFDHN::IsValid" />
+		<tag address="00198328" value="SVM_Lock1" />
+		<tag address="00198340" value="SVM_Unlock1" />
+		<tag address="00198500" value="MovieFunction1?" />
+		<tag address="00198518" value="MovieFunction2" />
+		<tag address="00198530" value="MovieFunction3?" />
+		<tag address="001985A0" value="MovieFunction3" />
+		<tag address="001985C8" value="CheckControlCodeRoot" />
 		<tag address="0019A978" value="mpegStuffRoot" />
+		<tag address="001A05E8" value="InitializeIPUStuff?" />
 		<tag address="001A0B68" value="IPUStuff" />
 		<tag address="001A1928" value="callMovieStuff" />
-		<tag address="001A47A0" value="mwFileHandleOp" />
-		<tag address="001A6040" value="ReadMovieHandleInternal" />
+		<tag address="001A34F0" value="CreateSoftDec" />
+		<tag address="001A4640" value="SFDHN::???" />
+		<tag address="001A47A0" value="SFDHN::???" />
+		<tag address="001A4940" value="SFDNH::???" />
+		<tag address="001A6040" value="SFDNH::???" />
+		<tag address="001A8D48" value="SFDNH::???" />
+		<tag address="001AA168" value="SFDHN::???" />
+		<tag address="00285100" value="GetPhysicalAddress" />
 		<tag address="00285160" value="SceGetDmaChannelBase" />
+		<tag address="00285730" value="CheckDmaStarted?" />
 		<tag address="0028F7C8" value="mpegStuff" />
 		<tag address="0028FBC8" value="ImageBufferStuff" />
 		<tag address="002B0860" value="WaitEndTitleDemo" />
@@ -507,6 +582,8 @@
 " />
 		<tag address="00140098" value="TCB Head" />
 		<tag address="00140110" value="TCB Tail" />
+		<tag address="0014021C" value="Read timer" />
+		<tag address="00140258" value="Read timer" />
 		<tag address="00141A08" value=" " />
 		<tag address="001432FC" value="d" />
 		<tag address="00143454" value="d" />
@@ -582,7 +659,9 @@ ADXF/PS2EE Ver.7.68 Build:Nov 14 2007 20:48:18
 		<tag address="00154278" value="E0042401:multi-load partition.(load partition)" />
 		<tag address="00154348" value="E9040804:can&apos;t open file.(load partition)" />
 		<tag address="00154554" value="E0041303:illigal parameter &apos;ptid&apos;.(adxf_GetPtStat)" />
+		<tag address="00154594" value="Check if S3 == 4" />
 		<tag address="00154660" value="AFS" />
+		<tag address="00154664" value="A0 = Ptr to read data" />
 		<tag address="00154684" value="E0040701:Illigal format(not AFS).(adxf_GetPtStat)" />
 		<tag address="001546DC" value="E0040702:Illigal number of file.(adxf_GetPtStat)" />
 		<tag address="00154930" value="E2122501:AFS file has 128MB or more of inside file.(adxf_GetPtStat)" />
@@ -593,6 +672,7 @@ ADXF/PS2EE Ver.7.68 Build:Nov 14 2007 20:48:18
 		<tag address="00154C78" value="E2005121502 : NULL pointer is passed." />
 		<tag address="00154D80" value="E2005121503 : NULL pointer is passed." />
 		<tag address="00154E3C" value="E2005121504 : NULL pointer is passed." />
+		<tag address="00155450" value="Clean SJ ptr" />
 		<tag address="0015576C" value="E9040811:&apos;adxf&apos; is NULL.(adxf_ReadSj32)" />
 		<tag address="00155780" value="E9040812:&apos;nsct&apos;is negative.(adxf_ReadSj32)" />
 		<tag address="00155794" value="E9040813:&apos;sj&apos;is NULL.(adxf_ReadSj32)" />
@@ -1024,6 +1104,7 @@ CRI CRW:STD/PS2EE Ver.0.83 Build:Nov 14 2007 20:48:42
 " />
 		<tag address="0016BA7C" value="E2005012802: Not enough instance (LSC_Create)
 " />
+		<tag address="0016BA98" value="Calls &quot;GetAvailableBufferSize&quot;" />
 		<tag address="0016BD24" value="E2005012803: Illigal parameter lsc=NULL
 " />
 		<tag address="0016BD50" value="E2005012804: Illigal parameter fname=%s
@@ -1113,8 +1194,10 @@ PL2ENC Ver.1.02 Build:Nov 14 2007 20:48:12
 " />
 		<tag address="0016EE00" value="E02041101: Failed, sceSifAllocIopHeap(%d) in PS2RNA_Init." />
 		<tag address="0016EF58" value="BASE_SFREQ" />
+		<tag address="0016F530" value="not enough PSJ handle" />
 		<tag address="0016F628" value="E0100401: can&apos;t create PS2RNA of IOP
 " />
+		<tag address="0016F684" value="can&apos;t create DTR handle" />
 		<tag address="0016F930" value="PS2RNA_Start: not implemented
 " />
 		<tag address="0016FB88" value="PS2RNA_ClearBuf: not implemented
@@ -1173,6 +1256,7 @@ PL2ENC Ver.1.02 Build:Nov 14 2007 20:48:12
 		<tag address="00170EFC" value="E2004090248" />
 		<tag address="00170F00" value=" : Specified handle is invalid." />
 		<tag address="00170F9C" value="SJRBF Error" />
+		<tag address="0017111C" value="Data Ptr" />
 		<tag address="001711F4" value="Store buffer ptr" />
 		<tag address="00171298" value="E2005120201" />
 		<tag address="001712A0" value=" : NULL pointer is passed." />
@@ -1215,6 +1299,16 @@ PL2ENC Ver.1.02 Build:Nov 14 2007 20:48:12
 		<tag address="00171890" value="Load handle?" />
 		<tag address="001718A8" value="E2004090214" />
 		<tag address="001718B0" value=" : Specified handle is invalid." />
+		<tag address="00171900" value="SJ[0x24] -&gt; Usually 0x800" />
+		<tag address="00171904" value="V1 = Ptr - Data Ptr" />
+		<tag address="00171914" value="A2 = A2 - V1" />
+		<tag address="00171918" value="V0 = (A3 &lt; A2)" />
+		<tag address="0017191C" value="A0 = A0 + V1" />
+		<tag address="00171920" value="(V0 != 0) -&gt; A2 = A3" />
+		<tag address="00171928" value="A0 = T0 + A0" />
+		<tag address="0017192C" value="A3 = Size" />
+		<tag address="00171930" value="A1 = Ptr" />
+		<tag address="00171934" value="T0 = Data Ptr from SJ" />
 		<tag address="0017197C" value="Store 0x0C here" />
 		<tag address="001719A4" value="Change buffer size" />
 		<tag address="00171A38" value="A0 = File handle" />
@@ -1311,7 +1405,10 @@ CRI MPV/PS2EE Ver.2.030 Build:Aug 13 2007 20:27:25
 		<tag address="001860D8" value="E206011 MwsfdCrePrm: illigal buffmt." />
 		<tag address="00186258" value="E1122613 mwPlyCalcWorkCprmSfd: cprm is NULL." />
 		<tag address="00186300" value="E6081102 outer_frmpool_size error" />
+		<tag address="00186320" value="outer_frmpool_ptr error" />
+		<tag address="001863CC" value="Data Ptr" />
 		<tag address="00186438" value="E20010703B MWSFCRE_SetSupplySj" />
+		<tag address="001867BC" value="V0 = 0xA75480" />
 		<tag address="00186820" value="Ptr stored here" />
 		<tag address="001868A0" value="E2053002 not enough work" />
 		<tag address="001868E4" value="E2053002 not enough work" />
@@ -1330,8 +1427,11 @@ CRI MPV/PS2EE Ver.2.030 Build:Aug 13 2007 20:27:25
 		<tag address="001872F0" value="E4061801 mwPlyCreateSofdec: Number of MWPLY handles exceeds its maximum number." />
 		<tag address="00187310" value="E2053006 mwPlyCreateSofdec: Didn&apos;t set malloc/free func." />
 		<tag address="001873F8" value="E2012 mwPlyCreate:can&apos;t create SFD" />
+		<tag address="00187454" value="S0 + 0x458 has data ptr" />
 		<tag address="00187468" value="E2013 mwPlyCreate:can&apos;t create SJ" />
 		<tag address="0018748C" value="E2020 mwPlyCreate:can&apos;t create SJ" />
+		<tag address="00187510" value="A0 = File Struct Ptr" />
+		<tag address="0018752C" value="A0 = File Struct Ptr" />
 		<tag address="00187578" value="E201185 can&apos;t create SfxHn" />
 		<tag address="001875AC" value="E201212 mwPlyCreate: can&apos;t set AddInfSJ" />
 		<tag address="00187718" value="E3012100 M1V Decode is not support yet." />
@@ -1351,7 +1451,8 @@ CRI MPV/PS2EE Ver.2.030 Build:Aug 13 2007 20:27:25
 		<tag address="00188398" value="E2010801 mwPlyGetFrmSync: handle is invalid." />
 		<tag address="00188430" value="E410131 mwPlyGetFrm: handle is invalid." />
 		<tag address="00188520" value="E1122614 mwPlyGetCurFrm: handle is invalid." />
-		<tag address="00188550" value="S1 = File Handle" />
+		<tag address="00188550" value="S1 = SFDHN" />
+		<tag address="00188568" value="Skips the whole thing if V1 == 0" />
 		<tag address="001886F4" value="E4110902 Don&apos;t use another type get/rel frame API together." />
 		<tag address="00188814" value="E201301 MWSFD: GetFps failed." />
 		<tag address="00188A98" value="E05111910 mwl_convPtypeFromSFD : Invalid Ptype" />
@@ -1427,6 +1528,7 @@ MWSFD/PS2EE Ver.4.46 Build:Aug 13 2007 20:27:38
 		<tag address="0018CAB4" value="E2080601 mwPlySetVideoCh: handle is invalid." />
 		<tag address="0018CAE0" value="E2080602 mwPlySetVideoCh: Invalid ch no." />
 		<tag address="0018CB74" value="E2080802 mwPlyGetNumVideoCh: handle is invalid." />
+		<tag address="0018CBE0" value="SFDHN Handle" />
 		<tag address="0018CD7C" value="E1122625 mwPlySetLimitTime: handle is invalid." />
 		<tag address="0018CDFC" value="E5090601 mwPlyGetLimitTime: handle is invalid." />
 		<tag address="0018CEF8" value="W200401 mwPlyGetStat: handle is invalid" />
@@ -1511,6 +1613,7 @@ MWSFD/PS2EE Ver.4.46 Build:Aug 13 2007 20:27:38
 		<tag address="00190DE0" value="E303112 MWSST_Create: can&apos;t create corehn." />
 		<tag address="001916A4" value="E99072103 mwPlyStartXX: can&apos;t link stream" />
 		<tag address="0019175C" value="E99072103 mwPlyStartXX: can&apos;t link stream" />
+		<tag address="001917C4" value="Ptr to &quot;SJ&quot;" />
 		<tag address="00191820" value="E211141 MWSTM_ReqStart: can&apos;t start &apos;%s&apos;" />
 		<tag address="00191EA8" value="E1071901 mwPlyExecSvrHndl: NULL handle." />
 		<tag address="001920B8" value="E2011101 MWSFSVR_IsSvrBdrHndl: handle is invalid." />
@@ -1531,6 +1634,7 @@ CRI SFD/PS2EE Ver.2.031 Build:Aug 13 2007 20:27:12
 		<tag address="001A9864" value="%p, %ld, %ld, 0x%08lX%08lX, %ld, %ld, %ld, %ld,   %ld, %ld,   %ld, %ld, %ld, %ld,   %ld, %ld,   %ld, %ld, %ld, %ld, %ld,   %ld, %ld,   %ld 
 " />
 		<tag address="001A99AC" value="" />
+		<tag address="001AA178" value="SFDNH[0x48]" />
 		<tag address="001AA378" value="
 CRI SFH/PS2EE Ver.2.09 Build:Aug 13 2007 20:27:28
 " />
@@ -1879,6 +1983,8 @@ CRI SUD/PS2EE Ver.0.05 Build:Aug 13 2007 20:27:35
 		<tag address="00281B9C" value="S ScriptEndW" />
 		<tag address="0028311C" value="8" />
 		<tag address="00283148" value="8" />
+		<tag address="00285740" value="Read CHCR" />
+		<tag address="0028574C" value="Check start bit" />
 		<tag address="00286E88" value="\" />
 		<tag address="00286E9C" value="[FIX]MSN_RESULT" />
 		<tag address="00286EC4" value="\" />
