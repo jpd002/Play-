@@ -123,6 +123,14 @@ static const char* g_textureClutLoadControlString[8] =
 	"(INVALID)",
 };
 
+static const char* g_wrapModeString[4] =
+{
+	"REPEAT",
+	"CLAMP",
+	"REGION_CLAMP",
+	"REGION_REPEAT"
+};
+
 std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 {
 	std::string result;
@@ -231,6 +239,17 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("\tCLUT Storage Mode: %d\r\n", tex0.nCSM + 1);
 		result += string_format("\tCLUT Entry Offset: %d\r\n", tex0.nCSA * 16);
 		result += string_format("\tCLUT Load Control: %s\r\n", g_textureClutLoadControlString[tex0.nCLD]);
+	}
+
+	{
+		auto clamp = make_convertible<CGSHandler::CLAMP>(gs->GetRegisters()[GS_REG_CLAMP_1 + contextId]);
+		result += string_format("Clamp:\r\n");
+		result += string_format("\tWrap Mode S: %s\r\n", g_wrapModeString[clamp.nWMS]);
+		result += string_format("\tWrap Mode T: %s\r\n", g_wrapModeString[clamp.nWMT]);
+		result += string_format("\tMin U: %d\r\n", clamp.GetMinU());
+		result += string_format("\tMax U: %d\r\n", clamp.GetMaxU());
+		result += string_format("\tMin V: %d\r\n", clamp.GetMinV());
+		result += string_format("\tMax V: %d\r\n", clamp.GetMaxV());
 	}
 
 	{
