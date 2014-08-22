@@ -655,6 +655,11 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	}
+	else if((alpha.nA == 2) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
+	{
+		//Cd (no blend)
+		glBlendFunc(GL_ZERO, GL_ONE);
+	}
 
 	if(glBlendEquationEXT != NULL)
 	{
