@@ -132,6 +132,14 @@ private:
 	typedef std::shared_ptr<CDepthbuffer> DepthbufferPtr;
 	typedef std::vector<DepthbufferPtr> DepthbufferList;
 
+	struct TEXTURE_INFO
+	{
+		TexturePtr		texture;
+		bool			isRenderTarget = false;
+		uint32			renderTargetWidth = 0;
+		uint32			renderTargetHeight = 0;
+	};
+
 	void							BeginScene();
 	void							EndScene();
 	bool							TestDevice();
@@ -155,8 +163,11 @@ private:
 	void							SetupDepthBuffer(uint64, uint64);
 	void							SetupTexture(uint64, uint64, uint64);
 	void							SetupFramebuffer(uint64);
-	TexturePtr						LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
+	TEXTURE_INFO					LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
 	void							GetTextureImpl(Framework::CBitmap&, uint64, uint64, uint64);
+
+	void							CopyTextureToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32);
+	void							CopyRenderTargetToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint32, uint32);
 
 	float							GetZ(float);
 	uint8							MulBy2Clamp(uint8);

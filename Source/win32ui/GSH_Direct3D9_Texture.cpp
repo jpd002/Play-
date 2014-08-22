@@ -5,18 +5,16 @@
 #include "GSH_Direct3D9.h"
 #include "../GsPixelFormats.h"
 
-CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const TEX1& tex1, const CLAMP& clamp)
+CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const TEX1& tex1, const CLAMP& clamp)
 {
+	TEXTURE_INFO result;
+
 	{
 		D3DXMATRIX textureMatrix;
 		D3DXMatrixIdentity(&textureMatrix);
 		D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
 		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
 	}
-
-	uint32 nPointer		= tex0.GetBufPtr();
-	uint32 nWidth		= tex0.GetWidth();
-	uint32 nHeight		= tex0.GetHeight();
 
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
@@ -38,12 +36,17 @@ CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const T
 				m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
 			}
 
-			return candidateFramebuffer->m_renderTarget;
+			result.texture = candidateFramebuffer->m_renderTarget;
+			result.isRenderTarget = true;
+			result.renderTargetWidth = candidateFramebuffer->m_width;
+			result.renderTargetHeight = candidateFramebuffer->m_height;
+
+			return result;
 		}
 	}
 
-	auto result = TexCache_SearchLive(tex0);
-	if(!result.IsEmpty()) return result;
+	result.texture = TexCache_SearchLive(tex0);
+	if(!result.texture.IsEmpty()) return result;
 
 	auto texA = make_convertible<TEXA>(m_nReg[GS_REG_TEXA]);
 
@@ -73,21 +76,24 @@ CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const T
 	if(textureChecksum)
 	{
 		//Check if we don't already have it somewhere...
-		result = TexCache_SearchDead(tex0, textureChecksum);
-		if(!result.IsEmpty())
+		result.texture = TexCache_SearchDead(tex0, textureChecksum);
+		if(!result.texture.IsEmpty())
 		{
 			return result;
 		}
 	}
 
+	uint32 width		= tex0.GetWidth();
+	uint32 height		= tex0.GetHeight();
+
 	HRESULT resultCode = S_OK;
-	resultCode = m_device->CreateTexture(nWidth, nHeight, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &result, NULL);
+	resultCode = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &result.texture, NULL);
 	assert(SUCCEEDED(resultCode));
 
 	switch(tex0.nPsm)
 	{
 	case PSMCT32:
-		TexUploader_Psm32(tex0, texA, result);
+		TexUploader_Psm32(tex0, texA, result.texture);
 		break;
 	case PSMT8:
 	case PSMT8H:
@@ -95,14 +101,14 @@ CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const T
 	case PSMT4HL:
 	case PSMT4HH:
 	case PSMCT16:
-		UploadConversionBuffer(tex0, texA, result);
+		UploadConversionBuffer(tex0, texA, result.texture);
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	TexCache_Insert(tex0, result, textureChecksum);
+	TexCache_Insert(tex0, result.texture, textureChecksum);
 
 	return result;
 }
