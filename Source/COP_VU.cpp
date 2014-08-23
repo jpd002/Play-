@@ -200,6 +200,9 @@ void CCOP_VU::CTC2()
 		case 21:
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
 			break;
+		case 22:
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2Q));
+			break;
 		case 27:
 			//CMSAR0
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.cmsar0));
