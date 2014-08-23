@@ -24,7 +24,7 @@ INSTRUCTION CMA_EE::m_cReflMmi[64] =
 {
 	//0x00
 	{	"MADD",		NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"MADDU",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PLZCW",	NULL,			CopyMnemonic,		ReflOpRdRs,			NULL,				NULL			},

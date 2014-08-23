@@ -53,6 +53,7 @@ private:
 
 	//Special2
 	void								MADD();
+	void								MADDU();
 	void								PLZCW();
 	void								MMI0();
 	void								MMI2();
@@ -129,7 +130,7 @@ private:
 	//Pmfhl
 	void								PMFHL_LW();
 
-	void								Generic_MADD(unsigned int);
+	void								Generic_MADD(unsigned int unit, bool isSigned);
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflMmi[64];

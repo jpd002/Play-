@@ -15,6 +15,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpRegImm[0x19] = std::bind(&CMA_EE::MTSAH, this);
 
 	m_pOpSpecial2[0x00] = std::bind(&CMA_EE::MADD, this);
+	m_pOpSpecial2[0x01] = std::bind(&CMA_EE::MADDU, this);
 	m_pOpSpecial2[0x04] = std::bind(&CMA_EE::PLZCW, this);
 	m_pOpSpecial2[0x08] = std::bind(&CMA_EE::MMI0, this);
 	m_pOpSpecial2[0x09] = std::bind(&CMA_EE::MMI2, this);
@@ -164,7 +165,13 @@ void CMA_EE::MTSAH()
 //00
 void CMA_EE::MADD()
 {
-	Generic_MADD(0);
+	Generic_MADD(0, true);
+}
+
+//01
+void CMA_EE::MADDU()
+{
+	Generic_MADD(0, false);
 }
 
 //04
@@ -257,7 +264,7 @@ void CMA_EE::DIVU1()
 //20
 void CMA_EE::MADD1()
 {
-	Generic_MADD(1);
+	Generic_MADD(1, true);
 }
 
 //28
@@ -1015,7 +1022,7 @@ void CMA_EE::PMFHL_LW()
 //Generic Stuff
 //////////////////////////////////////////////////
 
-void CMA_EE::Generic_MADD(unsigned int unit)
+void CMA_EE::Generic_MADD(unsigned int unit, bool isSigned)
 {
 	//prod = (HI || LO) + (RS * RT)
 	//LO = sex(prod[0])
@@ -1046,7 +1053,14 @@ void CMA_EE::Generic_MADD(unsigned int unit)
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->MultS();
+	if(isSigned)
+	{
+		m_codeGen->MultS();
+	}
+	else
+	{
+		m_codeGen->Mult();
+	}
 
 	m_codeGen->PushRel(lo[0]);
 	m_codeGen->PushRel(hi[0]);
