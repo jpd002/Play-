@@ -938,7 +938,12 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	m_nTexHeight = tex0.GetHeight();
 
 	glActiveTexture(GL_TEXTURE0);
-	PrepareTexture(tex0);
+	auto texInfo = PrepareTexture(tex0);
+
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glTranslatef(texInfo.offsetX, 0, 0);
+	glScalef(texInfo.scaleRatioX, texInfo.scaleRatioY, 1);
 
 	int nMagFilter, nMinFilter;
 
@@ -976,6 +981,7 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 
 	unsigned int clampMin[2] = { 0, 0 };
 	unsigned int clampMax[2] = { 0, 0 };
+	float textureScaleRatio[2] = { texInfo.scaleRatioX, texInfo.scaleRatioY };
 	GLenum nWrapS = g_nativeClampModes[clamp.nWMS];
 	GLenum nWrapT = g_nativeClampModes[clamp.nWMT];
 
@@ -1000,6 +1006,11 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 				{
 					clampMin[i]++;
 				}
+			}
+			if(clampMode[i] == TEXTURE_CLAMP_MODE_REGION_CLAMP)
+			{
+				clampMin[i] = static_cast<unsigned int>(static_cast<float>(clampMin[i]) * textureScaleRatio[i]);
+				clampMax[i] = static_cast<unsigned int>(static_cast<float>(clampMax[i]) * textureScaleRatio[i]);
 			}
 		}
 	}

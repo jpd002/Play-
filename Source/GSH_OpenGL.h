@@ -189,6 +189,13 @@ private:
 	typedef std::shared_ptr<CDepthbuffer> DepthbufferPtr;
 	typedef std::vector<DepthbufferPtr> DepthbufferList;
 
+	struct TEXTURE_INFO
+	{
+		float	offsetX = 0;
+		float	scaleRatioX = 1;
+		float	scaleRatioY = 1;
+	};
+
 	void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
@@ -196,7 +203,7 @@ private:
 	virtual void					PresentBackbuffer() = 0;
 	void							LinearZOrtho(float, float, float, float);
 	unsigned int					GetCurrentReadCircuit();
-	void							PrepareTexture(const TEX0&);
+	TEXTURE_INFO					PrepareTexture(const TEX0&);
 	void							PreparePalette(const TEX0&);
 
 	uint32							RGBA16ToRGBA32(uint16);

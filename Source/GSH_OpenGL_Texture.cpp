@@ -45,10 +45,9 @@ void CGSH_OpenGL::SetupTextureUploaders()
 	m_textureUpdater[PSMT4HH]		= &CGSH_OpenGL::TexUpdater_Psm48H<28, 0x0F>;
 }
 
-void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
+CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 {
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
+	TEXTURE_INFO texInfo;
 
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
@@ -97,10 +96,11 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 			if(halfHeight) scaleRatioY *= 2.0f;
 
-			glTranslatef(offsetX, 0, 0);
-			glScalef(scaleRatioX, scaleRatioY, 1);
+			texInfo.offsetX = offsetX;
+			texInfo.scaleRatioX = scaleRatioX;
+			texInfo.scaleRatioY = scaleRatioY;
 
-			return;
+			return texInfo;
 		}
 	}
 
@@ -151,6 +151,8 @@ void CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		((this)->*(m_textureUploader[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
 		TexCache_Insert(tex0, nTexture);
 	}
+
+	return texInfo;
 }
 
 void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
