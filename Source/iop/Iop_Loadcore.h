@@ -33,7 +33,7 @@ namespace Iop
 		uint32						RegisterLibraryEntries(uint32);
 		uint32						QueryBootMode(uint32);
 
-		void						LoadModule(uint32*, uint32, uint32*, uint32);
+		bool						LoadModule(uint32*, uint32, uint32*, uint32);
 		void						LoadExecutable(uint32*, uint32, uint32*, uint32);
 		void						LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
 		void						SearchModuleByName(uint32*, uint32, uint32*, uint32);

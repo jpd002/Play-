@@ -450,18 +450,19 @@ void CIopBios::FinishModuleLoad()
 	m_sifMan->SendCallReply(Iop::CLoadcore::MODULE_ID, nullptr);
 }
 
-void CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
+bool CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
 {
 	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
 	if(handle & 0x80000000)
 	{
-		CLog::GetInstance().Print(LOGNAME, "Tried to load '%s' which couldn't be found.", path);
-		return;
+		CLog::GetInstance().Print(LOGNAME, "Tried to load '%s' which couldn't be found.\r\n", path);
+		return false;
 	}
 	Iop::CIoman::CFile file(handle, *m_ioman);
 	Framework::CStream* stream = m_ioman->GetFileStream(file);
 	CElfFile module(*stream);
 	LoadAndStartModule(module, path, args, argsLength);
+	return true;
 }
 
 void CIopBios::LoadAndStartModule(uint32 modulePtr, const char* args, unsigned int argsLength)

@@ -88,7 +88,7 @@ public:
 								CIopBios(CMIPS&, uint8*, uint32);
 	virtual						~CIopBios();
 
-	void						LoadAndStartModule(const char*, const char*, unsigned int);
+	bool						LoadAndStartModule(const char*, const char*, unsigned int);
 	void						LoadAndStartModule(uint32, const char*, unsigned int);
 	bool						IsModuleLoaded(const char*) const;
 

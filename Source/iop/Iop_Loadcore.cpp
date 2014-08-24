@@ -79,8 +79,7 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 	switch(method)
 	{
 	case 0x00:
-		LoadModule(args, argsSize, ret, retSize);
-		return false;	//Block EE till module is loaded
+		return LoadModule(args, argsSize, ret, retSize);
 		break;
 	case 0x01:
 		LoadExecutable(args, argsSize, ret, retSize);
@@ -122,7 +121,7 @@ uint32 CLoadcore::QueryBootMode(uint32 param)
 	return 0;
 }
 
-void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
 {
 	char moduleName[PATH_MAX_SIZE];
 	char moduleArgs[ARGS_MAX_SIZE];
@@ -140,10 +139,21 @@ void CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//Load the module
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
 
-	m_bios.LoadAndStartModule(moduleName, moduleArgs, moduleArgsSize);
+	bool loadResult = m_bios.LoadAndStartModule(moduleName, moduleArgs, moduleArgsSize);
 
 	//This function returns something negative upon failure
 	ret[0] = 0x00000000;
+
+	if(loadResult)
+	{
+		//Block EE till the IOP has completed the operation and sends its reply to the EE
+		return false;
+	}
+	else
+	{
+		//Loading module failed, reply can be sent over immediately
+		return true;
+	}
 }
 
 void CLoadcore::LoadExecutable(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
