@@ -142,14 +142,14 @@ private:
 
 	struct THREADCONTEXT
 	{
-		uint128									nGPR[0x20];
-		uint128									nHI;
-		uint128									nLO;
-		uint32									nSA;
-		uint32									nFCSR;
-		uint32									nCOP1A;
-		uint32									nReserved3;
-		uint32									nCOP1[0x1C];
+		uint128									gpr[0x20];
+		uint128									hi;
+		uint128									lo;
+		uint32									sa;
+		uint32									fcsr;
+		uint32									cop1a;
+		uint32									reserved3;
+		uint32									cop1[0x1C];
 	};
 
 	struct DMACHANDLER
