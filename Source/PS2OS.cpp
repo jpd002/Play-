@@ -1037,6 +1037,16 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 		context->hi.nV[0] = m_ee.m_State.nHI[0];	context->hi.nV[1] = m_ee.m_State.nHI[1];
 		context->lo.nV[2] = m_ee.m_State.nLO1[0];	context->lo.nV[3] = m_ee.m_State.nLO1[1];
 		context->hi.nV[2] = m_ee.m_State.nHI1[0];	context->hi.nV[3] = m_ee.m_State.nHI1[1];
+		context->sa = m_ee.m_State.nSA;
+		for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
+		{
+			context->cop1[i] = m_ee.m_State.nCOP10[i * 2];
+		}
+		for(uint32 i = 0; i < 4; i++)
+		{
+			context->gpr[CMIPS::K0].nV[i] = m_ee.m_State.nCOP10[(i + THREADCONTEXT::COP1_REG_COUNT) * 2];
+		}
+		context->cop1a = m_ee.m_State.nCOP1A;
 
 		thread->epc = m_ee.m_State.nPC;
 	}
@@ -1061,6 +1071,16 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 		m_ee.m_State.nHI[0] = context->hi.nV[0];	m_ee.m_State.nHI[1] = context->hi.nV[1];
 		m_ee.m_State.nLO1[0] = context->lo.nV[2];	m_ee.m_State.nLO1[1] = context->lo.nV[3];
 		m_ee.m_State.nHI1[0] = context->hi.nV[2];	m_ee.m_State.nHI1[1] = context->hi.nV[3];
+		m_ee.m_State.nSA = context->sa;
+		for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
+		{
+			m_ee.m_State.nCOP10[i * 2] = context->cop1[i];
+		}
+		for(uint32 i = 0; i < 4; i++)
+		{
+			m_ee.m_State.nCOP10[(i + THREADCONTEXT::COP1_REG_COUNT) * 2] = context->gpr[CMIPS::K0].nV[i];
+		}
+		m_ee.m_State.nCOP1A = context->cop1a;
 	}
 
 	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", id);
