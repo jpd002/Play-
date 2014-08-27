@@ -383,42 +383,43 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 {
 	CallStackItemArray result;
 
-	auto routine = context->m_analysis->FindSubroutine(pc);
-	if(!routine)
 	{
-		if(IsValidProgramAddress(pc)) result.push_back(pc);
-		if(pc != ra)
+		auto routine = context->m_analysis->FindSubroutine(pc);
+		if(!routine)
 		{
-			if(IsValidProgramAddress(ra)) result.push_back(ra);
-		}
-		return result;
-	}
-
-	//We need to get to a state where we're ready to dig into the previous function's
-	//stack
-
-	//Check if we need to check into the stack to get the RA
-	if(context->m_analysis->FindSubroutine(ra) == routine)
-	{
-		ra = context->m_pMemoryMap->GetWord(sp + routine->returnAddrPos);
-		sp += routine->stackSize;
-	}
-	else
-	{
-		//We haven't called a sub routine yet... The RA is good, but we
-		//don't know wether stack memory has been allocated or not
-		
-		//ADDIU SP, SP, 0x????
-		//If the PC is after this instruction, then, we've allocated stack
-
-		if(pc > routine->stackAllocStart)
-		{
-			if(pc <= routine->stackAllocEnd)
+			if(IsValidProgramAddress(pc)) result.push_back(pc);
+			if(pc != ra)
 			{
-				sp += routine->stackSize;
+				if(IsValidProgramAddress(ra)) result.push_back(ra);
+			}
+			return result;
+		}
+
+		//We need to get to a state where we're ready to dig into the previous function's
+		//stack
+
+		//Check if we need to check into the stack to get the RA
+		if(context->m_analysis->FindSubroutine(ra) == routine)
+		{
+			ra = context->m_pMemoryMap->GetWord(sp + routine->returnAddrPos);
+			sp += routine->stackSize;
+		}
+		else
+		{
+			//We haven't called a sub routine yet... The RA is good, but we
+			//don't know wether stack memory has been allocated or not
+		
+			//ADDIU SP, SP, 0x????
+			//If the PC is after this instruction, then, we've allocated stack
+
+			if(pc > routine->stackAllocStart)
+			{
+				if(pc <= routine->stackAllocEnd)
+				{
+					sp += routine->stackSize;
+				}
 			}
 		}
-
 	}
 
 	while(1)
@@ -430,7 +431,7 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		pc = ra;
 
 		//Check if we can go on...
-		routine = context->m_analysis->FindSubroutine(pc);
+		auto routine = context->m_analysis->FindSubroutine(pc);
 		if(!routine)
 		{
 			if(IsValidProgramAddress(ra)) result.push_back(ra);
@@ -440,6 +441,12 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		//Get the next RA
 		ra = context->m_pMemoryMap->GetWord(sp + routine->returnAddrPos);
 		sp += routine->stackSize;
+
+		if((pc == ra) && (routine->stackSize == 0))
+		{
+			if(IsValidProgramAddress(ra)) result.push_back(ra);
+			break;
+		}
 	}
 
 	return result;
