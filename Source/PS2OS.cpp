@@ -145,10 +145,10 @@ namespace filesystem = boost::filesystem;
 CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) 
 : m_ee(ee)
 , m_gs(gs)
-, m_pELF(NULL)
+, m_elf(NULL)
 , m_ram(ram)
 , m_bios(bios)
-, m_pThreadSchedule(NULL)
+, m_threadSchedule(nullptr)
 , m_sif(sif)
 , m_iopBios(iopBios)
 {
@@ -162,9 +162,9 @@ CPS2OS::~CPS2OS()
 
 void CPS2OS::Initialize()
 {
-	m_pELF = NULL;
+	m_elf = NULL;
 
-	m_pThreadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
+	m_threadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
 
 	m_semaWaitId = -1;
 	m_semaWaitCount = 0;
@@ -176,7 +176,7 @@ void CPS2OS::Release()
 {
 	UnloadExecutable();
 	
-	DELETEPTR(m_pThreadSchedule);
+	DELETEPTR(m_threadSchedule);
 }
 
 bool CPS2OS::IsIdle() const
@@ -191,13 +191,13 @@ void CPS2OS::DumpIntcHandlers()
 
 	for(unsigned int i = 0; i < MAX_INTCHANDLER; i++)
 	{
-		INTCHANDLER* pHandler = GetIntcHandler(i + 1);
-		if(pHandler->nValid == 0) continue;
+		INTCHANDLER* handler = GetIntcHandler(i + 1);
+		if(handler->valid == 0) continue;
 
 		printf("ID: %0.2i, Line: %i, Address: 0x%0.8X.\r\n", \
 			i + 1,
-			pHandler->nCause,
-			pHandler->nAddress);
+			handler->cause,
+			handler->address);
 	}
 }
 
@@ -208,21 +208,21 @@ void CPS2OS::DumpDmacHandlers()
 
 	for(unsigned int i = 0; i < MAX_DMACHANDLER; i++)
 	{
-		DMACHANDLER* pHandler = GetDmacHandler(i + 1);
-		if(pHandler->nValid == 0) continue;
+		DMACHANDLER* handler = GetDmacHandler(i + 1);
+		if(handler->valid == 0) continue;
 
 		printf("ID: %0.2i, Channel: %i, Address: 0x%0.8X.\r\n", \
 			i + 1,
-			pHandler->nChannel,
-			pHandler->nAddress);
+			handler->channel,
+			handler->address);
 	}
 }
 
 void CPS2OS::BootFromFile(const char* sPath)
 {
-	filesystem::path ExecPath(sPath);
-	Framework::CStdStream stream(fopen(ExecPath.string().c_str(), "rb"));
-	LoadELF(stream, ExecPath.filename().string().c_str(), ArgumentList());
+	filesystem::path execPath(sPath);
+	Framework::CStdStream stream(fopen(execPath.string().c_str(), "rb"));
+	LoadELF(stream, execPath.filename().string().c_str(), ArgumentList());
 }
 
 void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
@@ -290,7 +290,7 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 
 CELF* CPS2OS::GetELF()
 {
-	return m_pELF;
+	return m_elf;
 }
 
 const char* CPS2OS::GetExecutableName() const
@@ -300,49 +300,49 @@ const char* CPS2OS::GetExecutableName() const
 
 std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 {
-	uint32 nMinAddr = 0xFFFFFFF0;
-	uint32 nMaxAddr = 0x00000000;
-	const ELFHEADER& header = m_pELF->GetHeader();
+	uint32 minAddr = 0xFFFFFFF0;
+	uint32 maxAddr = 0x00000000;
+	const ELFHEADER& header = m_elf->GetHeader();
 
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
-		ELFPROGRAMHEADER* p = m_pELF->GetProgram(i);
+		ELFPROGRAMHEADER* p = m_elf->GetProgram(i);
 		if(p != NULL)
 		{
 			//Wild Arms: Alter Code F has zero sized program headers
 			if(p->nFileSize == 0) continue;
 			uint32 end = p->nVAddress + p->nFileSize;
 			if(end >= PS2::EE_RAM_SIZE) continue;
-			nMinAddr = std::min<uint32>(nMinAddr, p->nVAddress);
-			nMaxAddr = std::max<uint32>(nMaxAddr, end);
+			minAddr = std::min<uint32>(minAddr, p->nVAddress);
+			maxAddr = std::max<uint32>(maxAddr, end);
 		}
 	}
 
-	return std::pair<uint32, uint32>(nMinAddr, nMaxAddr);
+	return std::pair<uint32, uint32>(minAddr, maxAddr);
 }
 
 void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const ArgumentList& arguments)
 {
-	CELF* pELF(new CElfFile(stream));
+	CELF* elf(new CElfFile(stream));
 
-	const ELFHEADER& header = pELF->GetHeader();
+	const ELFHEADER& header = elf->GetHeader();
 
 	//Check for MIPS CPU
 	if(header.nCPU != 8)
 	{
-		DELETEPTR(pELF);
+		DELETEPTR(elf);
 		throw std::runtime_error("Invalid target CPU. Must be MIPS.");
 	}
 
 	if(header.nType != 2)
 	{
-		DELETEPTR(pELF);
+		DELETEPTR(elf);
 		throw std::runtime_error("Not an executable ELF file.");
 	}
 	
 	UnloadExecutable();
 
-	m_pELF = pELF;
+	m_elf = elf;
 
 	m_executableName = sExecName;
 	m_currentArguments = arguments;
@@ -358,13 +358,13 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const Ar
 void CPS2OS::LoadExecutableInternal()
 {
 	//Copy program in main RAM
-	const ELFHEADER& header = m_pELF->GetHeader();
+	const ELFHEADER& header = m_elf->GetHeader();
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
-		ELFPROGRAMHEADER* p = m_pELF->GetProgram(i);
+		ELFPROGRAMHEADER* p = m_elf->GetProgram(i);
 		if(p != NULL)
 		{
-			memcpy(m_ram + p->nVAddress, m_pELF->GetContent() + p->nOffset, p->nFileSize);
+			memcpy(m_ram + p->nVAddress, m_elf->GetContent() + p->nOffset, p->nFileSize);
 		}
 	}
 
@@ -380,14 +380,14 @@ void CPS2OS::LoadExecutableInternal()
 
 #ifdef DEBUGGER_INCLUDED
 	std::pair<uint32, uint32> executableRange = GetExecutableRange();
-	uint32 nMinAddr = executableRange.first;
-	uint32 nMaxAddr = executableRange.second & ~0x03;
+	uint32 minAddr = executableRange.first;
+	uint32 maxAddr = executableRange.second & ~0x03;
 
 	m_ee.m_analysis->Clear();
-	m_ee.m_analysis->Analyse(nMinAddr, nMaxAddr, header.nEntryPoint);
+	m_ee.m_analysis->Analyse(minAddr, maxAddr, header.nEntryPoint);
 
 	//Tag system calls
-	for(uint32 address = nMinAddr; address < nMaxAddr; address += 4)
+	for(uint32 address = minAddr; address < maxAddr; address += 4)
 	{
 		//Check for SYSCALL opcode
 		uint32 opcode = *reinterpret_cast<uint32*>(m_ram + address);
@@ -435,11 +435,11 @@ void CPS2OS::LoadExecutableInternal()
 
 void CPS2OS::UnloadExecutable()
 {
-	if(m_pELF == NULL) return;
+	if(m_elf == NULL) return;
 
 	OnExecutableUnloading();
 
-	DELETEPTR(m_pELF);
+	DELETEPTR(m_elf);
 }
 
 uint32 CPS2OS::LoadExecutable(const char* path, const char* section)
@@ -510,34 +510,34 @@ void CPS2OS::ApplyPatches()
 	{
 		auto executableNode = (*itNode);
 
-		const char* sName = executableNode->GetAttribute("Name");
-		if(sName == NULL) continue;
+		const char* name = executableNode->GetAttribute("Name");
+		if(name == NULL) continue;
 
-		if(!strcmp(sName, GetExecutableName()))
+		if(!strcmp(name, GetExecutableName()))
 		{
 			//Found the right executable
-			unsigned int nPatchCount = 0;
+			unsigned int patchCount = 0;
 
 			for(Framework::Xml::CFilteringNodeIterator itNode(executableNode, "Patch"); !itNode.IsEnd(); itNode++)
 			{
-				auto pPatch = (*itNode);
+				auto patch = (*itNode);
 				
-				const char* sAddress	= pPatch->GetAttribute("Address");
-				const char* sValue		= pPatch->GetAttribute("Value");
+				const char* addressString	= patch->GetAttribute("Address");
+				const char* valueString		= patch->GetAttribute("Value");
 
-				if(sAddress == NULL) continue;
-				if(sValue == NULL) continue;
+				if(addressString == nullptr) continue;
+				if(valueString == nullptr) continue;
 
-				uint32 nValue = 0, nAddress = 0;
-				if(sscanf(sAddress, "%x", &nAddress) == 0) continue;
-				if(sscanf(sValue, "%x", &nValue) == 0) continue;
+				uint32 value = 0, address = 0;
+				if(sscanf(addressString, "%x", &address) == 0) continue;
+				if(sscanf(valueString, "%x", &value) == 0) continue;
 
-				*(uint32*)&m_ram[nAddress] = nValue;
+				*(uint32*)&m_ram[address] = value;
 
-				nPatchCount++;
+				patchCount++;
 			}
 
-			printf("PS2OS: Applied %i patch(es).\r\n", nPatchCount);
+			printf("PS2OS: Applied %i patch(es).\r\n", patchCount);
 
 			break;
 		}
@@ -546,82 +546,82 @@ void CPS2OS::ApplyPatches()
 
 void CPS2OS::AssembleCustomSyscallHandler()
 {
-	CMIPSAssembler Asm((uint32*)&m_bios[0x100]);
+	CMIPSAssembler assembler((uint32*)&m_bios[0x100]);
 
 	//Epilogue
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
-	Asm.SD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
+	assembler.SD(CMIPS::RA, 0x0000, CMIPS::SP);
 	
 	//Load the function address off the table at 0x80010000
-	Asm.SLL(CMIPS::T0, CMIPS::V1, 2);
-	Asm.LUI(CMIPS::T1, 0x8001);
-	Asm.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
-	Asm.LW(CMIPS::T0, 0x0000, CMIPS::T0);
+	assembler.SLL(CMIPS::T0, CMIPS::V1, 2);
+	assembler.LUI(CMIPS::T1, 0x8001);
+	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+	assembler.LW(CMIPS::T0, 0x0000, CMIPS::T0);
 	
 	//And the address with 0x1FFFFFFF
-	Asm.LUI(CMIPS::T1, 0x1FFF);
-	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xFFFF);
-	Asm.AND(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+	assembler.LUI(CMIPS::T1, 0x1FFF);
+	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xFFFF);
+	assembler.AND(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
 	//Jump to the system call address
-	Asm.JALR(CMIPS::T0);
-	Asm.NOP();
+	assembler.JALR(CMIPS::T0);
+	assembler.NOP();
 
 	//Prologue
-	Asm.LD(CMIPS::RA, 0x0000, CMIPS::SP);
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0x0010);
-	Asm.ERET();
+	assembler.LD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x0010);
+	assembler.ERET();
 }
 
 void CPS2OS::AssembleInterruptHandler()
 {
-	CMIPSAssembler Asm((uint32*)&m_bios[0x200]);
+	CMIPSAssembler assembler((uint32*)&m_bios[0x200]);
 
 	const uint32 stackFrameSize = 0x230;
 
 	//Epilogue (allocate stackFrameSize bytes)
-	Asm.LI(CMIPS::K0, BIOS_ADDRESS_KERNELSTACK_TOP);
-	Asm.ADDIU(CMIPS::K0, CMIPS::K0, 0x10000 - stackFrameSize);
+	assembler.LI(CMIPS::K0, BIOS_ADDRESS_KERNELSTACK_TOP);
+	assembler.ADDIU(CMIPS::K0, CMIPS::K0, 0x10000 - stackFrameSize);
 	
 	//Save context
 	for(unsigned int i = 0; i < 32; i++)
 	{
-		Asm.SQ(i, (i * 0x10), CMIPS::K0);
+		assembler.SQ(i, (i * 0x10), CMIPS::K0);
 	}
 
-	Asm.MFLO(CMIPS::V0);
-	Asm.MFLO1(CMIPS::V1);
-	Asm.SD(CMIPS::V0, 0x0200, CMIPS::K0);
-	Asm.SD(CMIPS::V1, 0x0208, CMIPS::K0);
+	assembler.MFLO(CMIPS::V0);
+	assembler.MFLO1(CMIPS::V1);
+	assembler.SD(CMIPS::V0, 0x0200, CMIPS::K0);
+	assembler.SD(CMIPS::V1, 0x0208, CMIPS::K0);
 
-	Asm.MFHI(CMIPS::V0);
-	Asm.MFHI1(CMIPS::V1);
-	Asm.SD(CMIPS::V0, 0x0210, CMIPS::K0);
-	Asm.SD(CMIPS::V1, 0x0218, CMIPS::K0);
+	assembler.MFHI(CMIPS::V0);
+	assembler.MFHI1(CMIPS::V1);
+	assembler.SD(CMIPS::V0, 0x0210, CMIPS::K0);
+	assembler.SD(CMIPS::V1, 0x0218, CMIPS::K0);
 
 	//Save EPC
-	Asm.MFC0(CMIPS::T0, CCOP_SCU::EPC);
-	Asm.SW(CMIPS::T0, 0x0220, CMIPS::K0);
+	assembler.MFC0(CMIPS::T0, CCOP_SCU::EPC);
+	assembler.SW(CMIPS::T0, 0x0220, CMIPS::K0);
 
 	//Set SP
-	Asm.ADDU(CMIPS::SP, CMIPS::K0, CMIPS::R0);
+	assembler.ADDU(CMIPS::SP, CMIPS::K0, CMIPS::R0);
 
 	//Get INTC status
-	Asm.LUI(CMIPS::T0, 0x1000);
-	Asm.ORI(CMIPS::T0, CMIPS::T0, 0xF000);
-	Asm.LW(CMIPS::S0, 0x0000, CMIPS::T0);
+	assembler.LUI(CMIPS::T0, 0x1000);
+	assembler.ORI(CMIPS::T0, CMIPS::T0, 0xF000);
+	assembler.LW(CMIPS::S0, 0x0000, CMIPS::T0);
 
 	//Get INTC mask
-	Asm.LUI(CMIPS::T1, 0x1000);
-	Asm.ORI(CMIPS::T1, CMIPS::T1, 0xF010);
-	Asm.LW(CMIPS::S1, 0x0000, CMIPS::T1);
+	assembler.LUI(CMIPS::T1, 0x1000);
+	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xF010);
+	assembler.LW(CMIPS::S1, 0x0000, CMIPS::T1);
 
 	//Get cause
-	Asm.AND(CMIPS::S0, CMIPS::S0, CMIPS::S1);
+	assembler.AND(CMIPS::S0, CMIPS::S0, CMIPS::S1);
 
 	//Clear cause
-	//Asm.SW(CMIPS::S0, 0x0000, CMIPS::T0);
-	Asm.NOP();
+	//assembler.SW(CMIPS::S0, 0x0000, CMIPS::T0);
+	assembler.NOP();
 
 	static const auto generateIntHandler = 
 		[](CMIPSAssembler& assembler, uint32 line)
@@ -643,161 +643,161 @@ void CPS2OS::AssembleInterruptHandler()
 			assembler.MarkLabel(skipIntHandlerLabel);
 		};
 
-	generateIntHandler(Asm, CINTC::INTC_LINE_GS);
+	generateIntHandler(assembler, CINTC::INTC_LINE_GS);
 	
 	{
-		auto skipIntHandlerLabel = Asm.CreateLabel();
+		auto skipIntHandlerLabel = assembler.CreateLabel();
 
 		//Check if INT1 (DMAC)
-		Asm.ANDI(CMIPS::T0, CMIPS::S0, (1 << CINTC::INTC_LINE_DMAC));
-		Asm.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
-		Asm.NOP();
+		assembler.ANDI(CMIPS::T0, CMIPS::S0, (1 << CINTC::INTC_LINE_DMAC));
+		assembler.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
+		assembler.NOP();
 
 		//Go to DMAC interrupt handler
-		Asm.LUI(CMIPS::T0, 0x1FC0);
-		Asm.ORI(CMIPS::T0, CMIPS::T0, 0x1000);
-		Asm.JALR(CMIPS::T0);
-		Asm.NOP();
+		assembler.LUI(CMIPS::T0, 0x1FC0);
+		assembler.ORI(CMIPS::T0, CMIPS::T0, 0x1000);
+		assembler.JALR(CMIPS::T0);
+		assembler.NOP();
 
-		Asm.MarkLabel(skipIntHandlerLabel);
+		assembler.MarkLabel(skipIntHandlerLabel);
 	}
 
-	generateIntHandler(Asm, CINTC::INTC_LINE_VBLANK_START);
-	generateIntHandler(Asm, CINTC::INTC_LINE_VBLANK_END);
-	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER0);
-	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER1);
-	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER2);
-	generateIntHandler(Asm, CINTC::INTC_LINE_TIMER3);
+	generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_START);
+	generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_END);
+	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER0);
+	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER1);
+	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER2);
+	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER3);
 
 	//Move back SP into K0 before restoring state
-	Asm.ADDIU(CMIPS::K0, CMIPS::SP, CMIPS::R0);
+	assembler.ADDIU(CMIPS::K0, CMIPS::SP, CMIPS::R0);
 
 	//Restore EPC
-	Asm.LW(CMIPS::T0, 0x0220, CMIPS::K0);
-	Asm.MTC0(CMIPS::T0, CCOP_SCU::EPC);
+	assembler.LW(CMIPS::T0, 0x0220, CMIPS::K0);
+	assembler.MTC0(CMIPS::T0, CCOP_SCU::EPC);
 
 	//Restore Context
-	Asm.LD(CMIPS::V0, 0x0210, CMIPS::K0);
-	Asm.LD(CMIPS::V1, 0x0218, CMIPS::K0);
-	Asm.MTHI(CMIPS::V0);
-	Asm.MTHI1(CMIPS::V1);
+	assembler.LD(CMIPS::V0, 0x0210, CMIPS::K0);
+	assembler.LD(CMIPS::V1, 0x0218, CMIPS::K0);
+	assembler.MTHI(CMIPS::V0);
+	assembler.MTHI1(CMIPS::V1);
 
-	Asm.LD(CMIPS::V0, 0x0200, CMIPS::K0);
-	Asm.LD(CMIPS::V1, 0x0208, CMIPS::K0);
-	Asm.MTLO(CMIPS::V0);
-	Asm.MTLO1(CMIPS::V1);
+	assembler.LD(CMIPS::V0, 0x0200, CMIPS::K0);
+	assembler.LD(CMIPS::V1, 0x0208, CMIPS::K0);
+	assembler.MTLO(CMIPS::V0);
+	assembler.MTLO1(CMIPS::V1);
 
 	for(unsigned int i = 0; i < 32; i++)
 	{
-		Asm.LQ(i, (i * 0x10), CMIPS::K0);
+		assembler.LQ(i, (i * 0x10), CMIPS::K0);
 	}
 
 	//Prologue
-	Asm.ERET();
+	assembler.ERET();
 }
 
 void CPS2OS::AssembleDmacHandler()
 {
-	CMIPSAssembler Asm((uint32*)&m_bios[0x1000]);
+	CMIPSAssembler assembler((uint32*)&m_bios[0x1000]);
 
-	auto testHandlerLabel = Asm.CreateLabel();
-	auto testChannelLabel = Asm.CreateLabel();
-	auto skipHandlerLabel = Asm.CreateLabel();
-	auto skipChannelLabel = Asm.CreateLabel();
+	auto testHandlerLabel = assembler.CreateLabel();
+	auto testChannelLabel = assembler.CreateLabel();
+	auto skipHandlerLabel = assembler.CreateLabel();
+	auto skipChannelLabel = assembler.CreateLabel();
 
 	//Prologue
 	//S0 -> Channel Counter
 	//S1 -> DMA Interrupt Status
 	//S2 -> Handler Counter
 
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
-	Asm.SD(CMIPS::RA, 0x0000, CMIPS::SP);
-	Asm.SD(CMIPS::S0, 0x0008, CMIPS::SP);
-	Asm.SD(CMIPS::S1, 0x0010, CMIPS::SP);
-	Asm.SD(CMIPS::S2, 0x0018, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
+	assembler.SD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.SD(CMIPS::S0, 0x0008, CMIPS::SP);
+	assembler.SD(CMIPS::S1, 0x0010, CMIPS::SP);
+	assembler.SD(CMIPS::S2, 0x0018, CMIPS::SP);
 
 	//Clear INTC cause
-	Asm.LI(CMIPS::T1, CINTC::INTC_STAT);
-	Asm.ADDIU(CMIPS::T0, CMIPS::R0, (1 << CINTC::INTC_LINE_DMAC));
-	Asm.SW(CMIPS::T0, 0x0000, CMIPS::T1);
+	assembler.LI(CMIPS::T1, CINTC::INTC_STAT);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, (1 << CINTC::INTC_LINE_DMAC));
+	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Load the DMA interrupt status
-	Asm.LI(CMIPS::T0, CDMAC::D_STAT);
-	Asm.LW(CMIPS::T0, 0x0000, CMIPS::T0);
+	assembler.LI(CMIPS::T0, CDMAC::D_STAT);
+	assembler.LW(CMIPS::T0, 0x0000, CMIPS::T0);
 
-	Asm.SRL(CMIPS::T1, CMIPS::T0, 16);
-	Asm.AND(CMIPS::S1, CMIPS::T0, CMIPS::T1);
+	assembler.SRL(CMIPS::T1, CMIPS::T0, 16);
+	assembler.AND(CMIPS::S1, CMIPS::T0, CMIPS::T1);
 
 	//Initialize channel counter
-	Asm.ADDIU(CMIPS::S0, CMIPS::R0, 0x0009);
+	assembler.ADDIU(CMIPS::S0, CMIPS::R0, 0x0009);
 
-	Asm.MarkLabel(testChannelLabel);
+	assembler.MarkLabel(testChannelLabel);
 
 	//Check if that specific DMA channel interrupt is the cause
-	Asm.ORI(CMIPS::T0, CMIPS::R0, 0x0001);
-	Asm.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::S0);
-	Asm.AND(CMIPS::T0, CMIPS::T0, CMIPS::S1);
-	Asm.BEQ(CMIPS::T0, CMIPS::R0, skipChannelLabel);
-	Asm.NOP();
+	assembler.ORI(CMIPS::T0, CMIPS::R0, 0x0001);
+	assembler.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::S0);
+	assembler.AND(CMIPS::T0, CMIPS::T0, CMIPS::S1);
+	assembler.BEQ(CMIPS::T0, CMIPS::R0, skipChannelLabel);
+	assembler.NOP();
 
 	//Clear interrupt
-	Asm.LI(CMIPS::T1, CDMAC::D_STAT);
-	Asm.SW(CMIPS::T0, 0x0000, CMIPS::T1);
+	assembler.LI(CMIPS::T1, CDMAC::D_STAT);
+	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Initialize DMAC handler loop
-	Asm.ADDU(CMIPS::S2, CMIPS::R0, CMIPS::R0);
+	assembler.ADDU(CMIPS::S2, CMIPS::R0, CMIPS::R0);
 
-	Asm.MarkLabel(testHandlerLabel);
+	assembler.MarkLabel(testHandlerLabel);
 
 	//Get the address to the current DMACHANDLER structure
-	Asm.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(DMACHANDLER));
-	Asm.MULTU(CMIPS::T0, CMIPS::S2, CMIPS::T0);
-	Asm.LI(CMIPS::T1, 0x8000C000);
-	Asm.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(DMACHANDLER));
+	assembler.MULTU(CMIPS::T0, CMIPS::S2, CMIPS::T0);
+	assembler.LI(CMIPS::T1, 0x8000C000);
+	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
 	//Check validity
-	Asm.LW(CMIPS::T1, 0x0000, CMIPS::T0);
-	Asm.BEQ(CMIPS::T1, CMIPS::R0, skipHandlerLabel);
-	Asm.NOP();
+	assembler.LW(CMIPS::T1, 0x0000, CMIPS::T0);
+	assembler.BEQ(CMIPS::T1, CMIPS::R0, skipHandlerLabel);
+	assembler.NOP();
 
 	//Check if the channel is good one
-	Asm.LW(CMIPS::T1, 0x0004, CMIPS::T0);
-	Asm.BNE(CMIPS::S0, CMIPS::T1, skipHandlerLabel);
-	Asm.NOP();
+	assembler.LW(CMIPS::T1, 0x0004, CMIPS::T0);
+	assembler.BNE(CMIPS::S0, CMIPS::T1, skipHandlerLabel);
+	assembler.NOP();
 
 	//Load the necessary stuff
-	Asm.LW(CMIPS::T1, 0x0008, CMIPS::T0);
-	Asm.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
-	Asm.LW(CMIPS::A1, 0x000C, CMIPS::T0);
-	Asm.LW(CMIPS::GP, 0x0010, CMIPS::T0);
+	assembler.LW(CMIPS::T1, 0x0008, CMIPS::T0);
+	assembler.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
+	assembler.LW(CMIPS::A1, 0x000C, CMIPS::T0);
+	assembler.LW(CMIPS::GP, 0x0010, CMIPS::T0);
 	
 	//Jump
-	Asm.JALR(CMIPS::T1);
-	Asm.NOP();
+	assembler.JALR(CMIPS::T1);
+	assembler.NOP();
 
-	Asm.MarkLabel(skipHandlerLabel);
+	assembler.MarkLabel(skipHandlerLabel);
 
 	//Increment handler counter and test
-	Asm.ADDIU(CMIPS::S2, CMIPS::S2, 0x0001);
-	Asm.ADDIU(CMIPS::T0, CMIPS::R0, MAX_DMACHANDLER - 1);
-	Asm.BNE(CMIPS::S2, CMIPS::T0, testHandlerLabel);
-	Asm.NOP();
+	assembler.ADDIU(CMIPS::S2, CMIPS::S2, 0x0001);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, MAX_DMACHANDLER - 1);
+	assembler.BNE(CMIPS::S2, CMIPS::T0, testHandlerLabel);
+	assembler.NOP();
 
-	Asm.MarkLabel(skipChannelLabel);
+	assembler.MarkLabel(skipChannelLabel);
 
 	//Decrement channel counter and test
-	Asm.ADDIU(CMIPS::S0, CMIPS::S0, 0xFFFF);
-	Asm.BGEZ(CMIPS::S0, testChannelLabel);
-	Asm.NOP();
+	assembler.ADDIU(CMIPS::S0, CMIPS::S0, 0xFFFF);
+	assembler.BGEZ(CMIPS::S0, testChannelLabel);
+	assembler.NOP();
 
 	//Epilogue
-	Asm.LD(CMIPS::RA, 0x0000, CMIPS::SP);
-	Asm.LD(CMIPS::S0, 0x0008, CMIPS::SP);
-	Asm.LD(CMIPS::S1, 0x0010, CMIPS::SP);
-	Asm.LD(CMIPS::S2, 0x0018, CMIPS::SP);
-	Asm.ADDIU(CMIPS::SP, CMIPS::SP, 0x20);
-	Asm.JR(CMIPS::RA);
-	Asm.NOP();
+	assembler.LD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.LD(CMIPS::S0, 0x0008, CMIPS::SP);
+	assembler.LD(CMIPS::S1, 0x0010, CMIPS::SP);
+	assembler.LD(CMIPS::S2, 0x0018, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x20);
+	assembler.JR(CMIPS::RA);
+	assembler.NOP();
 }
 
 void CPS2OS::AssembleIntcHandler()
@@ -874,21 +874,21 @@ void CPS2OS::AssembleIntcHandler()
 
 void CPS2OS::AssembleThreadEpilog()
 {
-	CMIPSAssembler Asm((uint32*)&m_bios[0x3000]);
+	CMIPSAssembler assembler((uint32*)&m_bios[0x3000]);
 	
-	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x23);
-	Asm.SYSCALL();
+	assembler.ADDIU(CMIPS::V1, CMIPS::R0, 0x23);
+	assembler.SYSCALL();
 }
 
 void CPS2OS::AssembleWaitThreadProc()
 {
-	CMIPSAssembler Asm((uint32*)&m_bios[BIOS_ADDRESS_WAITTHREADPROC - BIOS_ADDRESS_BASE]);
+	CMIPSAssembler assembler((uint32*)&m_bios[BIOS_ADDRESS_WAITTHREADPROC - BIOS_ADDRESS_BASE]);
 
-	Asm.ADDIU(CMIPS::V1, CMIPS::R0, 0x666);
-	Asm.SYSCALL();
+	assembler.ADDIU(CMIPS::V1, CMIPS::R0, 0x666);
+	assembler.SYSCALL();
 
-	Asm.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFD);
-	Asm.NOP();
+	assembler.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFD);
+	assembler.NOP();
 }
 
 uint32* CPS2OS::GetCustomSyscallTable()
@@ -911,7 +911,7 @@ uint32 CPS2OS::GetNextAvailableThreadId()
 	for(uint32 i = 0; i < MAX_THREAD; i++)
 	{
 		THREAD* thread = GetThread(i);
-		if(thread->nValid != 1)
+		if(thread->valid != 1)
 		{
 			return i;
 		}
@@ -920,9 +920,9 @@ uint32 CPS2OS::GetNextAvailableThreadId()
 	return 0xFFFFFFFF;
 }
 
-CPS2OS::THREAD* CPS2OS::GetThread(uint32 nID) const
+CPS2OS::THREAD* CPS2OS::GetThread(uint32 id) const
 {
-	return &((THREAD*)&m_ram[0x00011000])[nID];
+	return &((THREAD*)&m_ram[0x00011000])[id];
 }
 
 void CPS2OS::ThreadShakeAndBake()
@@ -941,74 +941,74 @@ void CPS2OS::ThreadShakeAndBake()
 
 	//First of all, revoke the current's thread right to execute itself
 	{
-		unsigned int nId = GetCurrentThreadId();
-		if(nId != 0)
+		unsigned int id = GetCurrentThreadId();
+		if(id != 0)
 		{
-			THREAD* thread = GetThread(nId);
-			thread->nQuota--;
+			THREAD* thread = GetThread(id);
+			thread->quota--;
 		}
 	}
 
 	//Check if all quotas expired
 	if(ThreadHasAllQuotasExpired())
 	{
-		CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
+		CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
 
 		//If so, regive a quota to everyone
-		for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+		for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
 		{
-			unsigned int nId = itThread.GetValue();
-			THREAD* thread = GetThread(nId);
+			unsigned int id = threadIterator.GetValue();
+			THREAD* thread = GetThread(id);
 
-			thread->nQuota = THREAD_INIT_QUOTA;
+			thread->quota = THREAD_INIT_QUOTA;
 		}
 	}
 
 	//Select thread to execute
 	{
-		unsigned int nId = 0;
-		THREAD* thread = NULL;
-		CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
+		unsigned int id = 0;
+		THREAD* thread = nullptr;
+		CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
 
 		//Next, find the next suitable thread to execute
-		for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+		for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
 		{
-			nId = itThread.GetValue();
-			thread = GetThread(nId);
+			id = threadIterator.GetValue();
+			thread = GetThread(id);
 
-			if(thread->nStatus != THREAD_RUNNING) continue;
-			//if(thread->nQuota == 0) continue;
+			if(thread->status != THREAD_RUNNING) continue;
+			//if(thread->quota == 0) continue;
 			break;
 		}
 
-		if(itThread.IsEnd())
+		if(threadIterator.IsEnd())
 		{
 			//Deadlock or something here
 			//printf("%s: Warning, no thread to execute.\r\n", LOG_NAME);
-			nId = 0;
+			id = 0;
 		}
 		else
 		{
 			//Remove and readd the thread into the queue
-			m_pThreadSchedule->Remove(thread->nScheduleID);
-			thread->nScheduleID = m_pThreadSchedule->Insert(nId, thread->nPriority);
+			m_threadSchedule->Remove(thread->scheduleID);
+			thread->scheduleID = m_threadSchedule->Insert(id, thread->priority);
 		}
 
-		ThreadSwitchContext(nId);
+		ThreadSwitchContext(id);
 	}
 }
 
 bool CPS2OS::ThreadHasAllQuotasExpired()
 {
-	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
+	CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
 
-	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+	for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
 	{
-		unsigned int nId = itThread.GetValue();
-		THREAD* thread = GetThread(nId);
+		unsigned int id = threadIterator.GetValue();
+		THREAD* thread = GetThread(id);
 
-		if(thread->nStatus != THREAD_RUNNING) continue;
-		if(thread->nQuota == 0) continue;
+		if(thread->status != THREAD_RUNNING) continue;
+		if(thread->quota == 0) continue;
 
 		return false;
 	}
@@ -1016,14 +1016,14 @@ bool CPS2OS::ThreadHasAllQuotasExpired()
 	return true;
 }
 
-void CPS2OS::ThreadSwitchContext(unsigned int nID)
+void CPS2OS::ThreadSwitchContext(unsigned int id)
 {
-	if(nID == GetCurrentThreadId()) return;
+	if(id == GetCurrentThreadId()) return;
 
 	//Save the context of the current thread
 	{
 		THREAD* thread = GetThread(GetCurrentThreadId());
-		THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->nContextPtr]);
+		THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 
 		//Save the context
 		for(uint32 i = 0; i < 0x20; i++)
@@ -1038,17 +1038,17 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 		context->lo.nV[2] = m_ee.m_State.nLO1[0];	context->lo.nV[3] = m_ee.m_State.nLO1[1];
 		context->hi.nV[2] = m_ee.m_State.nHI1[0];	context->hi.nV[3] = m_ee.m_State.nHI1[1];
 
-		thread->nEPC = m_ee.m_State.nPC;
+		thread->epc = m_ee.m_State.nPC;
 	}
 
-	SetCurrentThreadId(nID);
+	SetCurrentThreadId(id);
 
 	//Load the new context
 	{
 		THREAD* thread = GetThread(GetCurrentThreadId());
-		THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->nContextPtr]);
+		THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 
-		m_ee.m_State.nPC = thread->nEPC;
+		m_ee.m_State.nPC = thread->epc;
 
 		for(uint32 i = 0; i < 0x20; i++)
 		{
@@ -1063,23 +1063,23 @@ void CPS2OS::ThreadSwitchContext(unsigned int nID)
 		m_ee.m_State.nHI1[0] = context->hi.nV[2];	m_ee.m_State.nHI1[1] = context->hi.nV[3];
 	}
 
-	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", nID);
+	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", id);
 }
 
 void CPS2OS::CreateWaitThread()
 {
 	THREAD* thread = GetThread(0);
-	thread->nValid		= 1;
-	thread->nEPC		= BIOS_ADDRESS_WAITTHREADPROC;
-	thread->nStatus		= THREAD_ZOMBIE;
+	thread->valid		= 1;
+	thread->epc			= BIOS_ADDRESS_WAITTHREADPROC;
+	thread->status		= THREAD_ZOMBIE;
 }
 
 uint32 CPS2OS::GetNextAvailableSemaphoreId()
 {
 	for(uint32 i = 1; i < MAX_SEMAPHORE; i++)
 	{
-		SEMAPHORE* pSemaphore = GetSemaphore(i);
-		if(pSemaphore->nValid != 1)
+		SEMAPHORE* semaphore = GetSemaphore(i);
+		if(semaphore->valid != 1)
 		{
 			return i;
 		}
@@ -1088,22 +1088,22 @@ uint32 CPS2OS::GetNextAvailableSemaphoreId()
 	return 0xFFFFFFFF;
 }
 
-CPS2OS::SEMAPHORE* CPS2OS::GetSemaphore(uint32 nID)
+CPS2OS::SEMAPHORE* CPS2OS::GetSemaphore(uint32 id)
 {
-	if(nID == 0)
+	if(id == 0)
 	{
 		return NULL;
 	}
-	nID--;
-	return &((SEMAPHORE*)&m_ram[0x0000E000])[nID];
+	id--;
+	return &((SEMAPHORE*)&m_ram[0x0000E000])[id];
 }
 
 uint32 CPS2OS::GetNextAvailableDmacHandlerId()
 {
 	for(uint32 i = 1; i < MAX_DMACHANDLER; i++)
 	{
-		DMACHANDLER* pHandler = GetDmacHandler(i);
-		if(pHandler->nValid != 1)
+		DMACHANDLER* handler = GetDmacHandler(i);
+		if(handler->valid != 1)
 		{
 			return i;
 		}
@@ -1112,18 +1112,18 @@ uint32 CPS2OS::GetNextAvailableDmacHandlerId()
 	return 0xFFFFFFFF;
 }
 
-CPS2OS::DMACHANDLER* CPS2OS::GetDmacHandler(uint32 nID)
+CPS2OS::DMACHANDLER* CPS2OS::GetDmacHandler(uint32 id)
 {
-	nID--;
-	return &((DMACHANDLER*)&m_ram[0x0000C000])[nID];
+	id--;
+	return &((DMACHANDLER*)&m_ram[0x0000C000])[id];
 }
 
 uint32 CPS2OS::GetNextAvailableIntcHandlerId()
 {
 	for(uint32 i = 1; i < MAX_INTCHANDLER; i++)
 	{
-		INTCHANDLER* pHandler = GetIntcHandler(i);
-		if(pHandler->nValid != 1)
+		INTCHANDLER* handler = GetIntcHandler(i);
+		if(handler->valid != 1)
 		{
 			return i;
 		}
@@ -1132,18 +1132,18 @@ uint32 CPS2OS::GetNextAvailableIntcHandlerId()
 	return 0xFFFFFFFF;
 }
 
-CPS2OS::INTCHANDLER* CPS2OS::GetIntcHandler(uint32 nID)
+CPS2OS::INTCHANDLER* CPS2OS::GetIntcHandler(uint32 id)
 {
-	nID--;
-	return &((INTCHANDLER*)&m_ram[0x0000A000])[nID];
+	id--;
+	return &((INTCHANDLER*)&m_ram[0x0000A000])[id];
 }
 
 uint32 CPS2OS::GetNextAvailableDeci2HandlerId()
 {
 	for(uint32 i = 1; i < MAX_DECI2HANDLER; i++)
 	{
-		DECI2HANDLER* pHandler = GetDeci2Handler(i);
-		if(pHandler->nValid != 1)
+		DECI2HANDLER* handler = GetDeci2Handler(i);
+		if(handler->valid != 1)
 		{
 			return i;
 		}
@@ -1152,10 +1152,10 @@ uint32 CPS2OS::GetNextAvailableDeci2HandlerId()
 	return 0xFFFFFFFF;
 }
 
-CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 nID)
+CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 id)
 {
-	nID--;
-	return &((DECI2HANDLER*)&m_ram[0x00008000])[nID];
+	id--;
+	return &((DECI2HANDLER*)&m_ram[0x00008000])[id];
 }
 
 void CPS2OS::HandleInterrupt()
@@ -1169,17 +1169,17 @@ void CPS2OS::HandleReturnFromException()
 	ThreadShakeAndBake();
 }
 
-uint32 CPS2OS::TranslateAddress(CMIPS* pCtx, uint32 nVAddrLO)
+uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 {
-	if(nVAddrLO >= 0x70000000 && nVAddrLO <= 0x70003FFF)
+	if(vaddrLo >= 0x70000000 && vaddrLo <= 0x70003FFF)
 	{
-		return (nVAddrLO - 0x6E000000);
+		return (vaddrLo - 0x6E000000);
 	}
-	if(nVAddrLO >= 0x30100000 && nVAddrLO <= 0x31FFFFFF)
+	if(vaddrLo >= 0x30100000 && vaddrLo <= 0x31FFFFFF)
 	{
-		return (nVAddrLO - 0x30000000);
+		return (vaddrLo - 0x30000000);
 	}
-	return nVAddrLO & 0x1FFFFFFF;
+	return vaddrLo & 0x1FFFFFFF;
 }
 
 //////////////////////////////////////////////////
@@ -1194,13 +1194,13 @@ void CPS2OS::sc_Unhandled()
 //02
 void CPS2OS::sc_GsSetCrt()
 {
-	bool nIsInterlaced			= (m_ee.m_State.nGPR[SC_PARAM0].nV[0] != 0);
-	unsigned int nMode			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-	bool nIsFrameMode			= (m_ee.m_State.nGPR[SC_PARAM2].nV[0] != 0);
+	bool isInterlaced			= (m_ee.m_State.nGPR[SC_PARAM0].nV[0] != 0);
+	unsigned int mode			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	bool isFrameMode			= (m_ee.m_State.nGPR[SC_PARAM2].nV[0] != 0);
 
 	if(m_gs != NULL)
 	{
-		m_gs->SetCrt(nIsInterlaced, nMode, nIsFrameMode);
+		m_gs->SetCrt(isInterlaced, mode, isFrameMode);
 	}
 }
 
@@ -1225,52 +1225,52 @@ void CPS2OS::sc_LoadExecPS2()
 //10
 void CPS2OS::sc_AddIntcHandler()
 {
-	uint32 nCause	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-	uint32 nNext	= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
-	uint32 nArg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
+	uint32 cause	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 address	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 next		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+	uint32 arg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
 	/*
-	if(nNext != 0)
+	if(next != 0)
 	{
 		assert(0);
 	}
 	*/
 
-	uint32 nID = GetNextAvailableIntcHandlerId();
-	if(nID == 0xFFFFFFFF)
+	uint32 id = GetNextAvailableIntcHandlerId();
+	if(id == 0xFFFFFFFF)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	INTCHANDLER* pHandler = GetIntcHandler(nID);
-	pHandler->nValid	= 1;
-	pHandler->nAddress	= nAddress;
-	pHandler->nCause	= nCause;
-	pHandler->nArg		= nArg;
-	pHandler->nGP		= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
+	INTCHANDLER* handler = GetIntcHandler(id);
+	handler->valid		= 1;
+	handler->address	= address;
+	handler->cause		= cause;
+	handler->arg		= arg;
+	handler->gp			= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //11
 void CPS2OS::sc_RemoveIntcHandler()
 {
-	uint32 nCause	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nID		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 cause	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	INTCHANDLER* pHandler = GetIntcHandler(nID);
-	if(pHandler->nValid != 1)
+	INTCHANDLER* handler = GetIntcHandler(id);
+	if(handler->valid != 1)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	pHandler->nValid = 0;
+	handler->valid = 0;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -1279,48 +1279,48 @@ void CPS2OS::sc_RemoveIntcHandler()
 //12
 void CPS2OS::sc_AddDmacHandler()
 {
-	uint32 nChannel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nAddress	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-	uint32 nNext	= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
-	uint32 nArg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
+	uint32 channel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 address	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 next		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+	uint32 arg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
 	//The Next parameter indicates at which moment we'd want our DMAC handler to be called.
 	//-1 -> At the end
 	//0  -> At the start
 	//n  -> After handler 'n'
 
-	if(nNext != 0)
+	if(next != 0)
 	{
 		assert(0);
 	}
 
-	uint32 nID = GetNextAvailableDmacHandlerId();
-	if(nID == 0xFFFFFFFF)
+	uint32 id = GetNextAvailableDmacHandlerId();
+	if(id == 0xFFFFFFFF)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	DMACHANDLER* pHandler = GetDmacHandler(nID);
-	pHandler->nValid	= 1;
-	pHandler->nAddress	= nAddress;
-	pHandler->nChannel	= nChannel;
-	pHandler->nArg		= nArg;
-	pHandler->nGP		= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
+	DMACHANDLER* handler = GetDmacHandler(id);
+	handler->valid		= 1;
+	handler->address	= address;
+	handler->channel	= channel;
+	handler->arg		= arg;
+	handler->gp			= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //13
 void CPS2OS::sc_RemoveDmacHandler()
 {
-	uint32 nChannel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nID		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 channel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	DMACHANDLER* pHandler = GetDmacHandler(nID);
-	pHandler->nValid = 0x00;
+	DMACHANDLER* handler = GetDmacHandler(id);
+	handler->valid = 0x00;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -1329,12 +1329,12 @@ void CPS2OS::sc_RemoveDmacHandler()
 //14
 void CPS2OS::sc_EnableIntc()
 {
-	uint32 nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nMask = 1 << nCause;
+	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 mask = 1 << cause;
 
-	if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & nMask))
+	if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & mask))
 	{
-		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, nMask);
+		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, mask);
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
@@ -1344,11 +1344,11 @@ void CPS2OS::sc_EnableIntc()
 //15
 void CPS2OS::sc_DisableIntc()
 {
-	uint32 nCause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nMask = 1 << nCause;
-	if(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & nMask)
+	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 mask = 1 << cause;
+	if(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & mask)
 	{
-		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, nMask);
+		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, mask);
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
@@ -1358,12 +1358,12 @@ void CPS2OS::sc_DisableIntc()
 //16
 void CPS2OS::sc_EnableDmac()
 {
-	uint32 nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nRegister = 0x10000 << nChannel;
+	uint32 channel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 registerId = 0x10000 << channel;
 
-	if(!(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & nRegister))
+	if(!(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & registerId))
 	{
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, nRegister);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, registerId);
 	}
 
 	//Enable INT1
@@ -1379,12 +1379,12 @@ void CPS2OS::sc_EnableDmac()
 //17
 void CPS2OS::sc_DisableDmac()
 {
-	uint32 nChannel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nRegister = 0x10000 << nChannel;
+	uint32 channel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 registerId = 0x10000 << channel;
 
-	if(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & nRegister)
+	if(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & registerId)
 	{
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, nRegister);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, registerId);
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = 1;
 	}
 	else
@@ -1398,64 +1398,64 @@ void CPS2OS::sc_CreateThread()
 {
 	THREADPARAM* threadParam = (THREADPARAM*)&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]];
 
-	uint32 nID = GetNextAvailableThreadId();
-	if(nID == 0xFFFFFFFF)
+	uint32 id = GetNextAvailableThreadId();
+	if(id == 0xFFFFFFFF)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 		return;
 	}
 
 	THREAD* thread = GetThread(GetCurrentThreadId());
-	uint32 nHeapBase = thread->nHeapBase;
+	uint32 heapBase = thread->heapBase;
 
-	assert(threadParam->nPriority < 128);
+	assert(threadParam->priority < 128);
 
-	thread = GetThread(nID);
-	thread->nValid			= 1;
-	thread->nStatus			= THREAD_ZOMBIE;
-	thread->nStackBase		= threadParam->nStackBase;
-	thread->nEPC			= threadParam->nThreadProc;
-	thread->nPriority		= threadParam->nPriority;
-	thread->nHeapBase		= nHeapBase;
-	thread->nWakeUpCount	= 0;
-	thread->nQuota			= THREAD_INIT_QUOTA;
-	thread->nScheduleID		= m_pThreadSchedule->Insert(nID, threadParam->nPriority);
-	thread->nStackSize		= threadParam->nStackSize;
+	thread = GetThread(id);
+	thread->valid			= 1;
+	thread->status			= THREAD_ZOMBIE;
+	thread->stackBase		= threadParam->stackBase;
+	thread->epc				= threadParam->threadProc;
+	thread->priority		= threadParam->priority;
+	thread->heapBase		= heapBase;
+	thread->wakeUpCount		= 0;
+	thread->quota			= THREAD_INIT_QUOTA;
+	thread->scheduleID		= m_threadSchedule->Insert(id, threadParam->priority);
+	thread->stackSize		= threadParam->stackSize;
 
-	uint32 nStackAddr = threadParam->nStackBase + threadParam->nStackSize - STACKRES;
-	thread->nContextPtr	= nStackAddr;
+	uint32 stackAddr = threadParam->stackBase + threadParam->stackSize - STACKRES;
+	thread->contextPtr		= stackAddr;
 
 	assert(sizeof(THREADCONTEXT) == STACKRES);
 
-	THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->nContextPtr]);
+	THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	memset(context, 0, sizeof(THREADCONTEXT));
 
-	context->gpr[CMIPS::SP].nV0 = nStackAddr;
-	context->gpr[CMIPS::FP].nV0 = nStackAddr;
-	context->gpr[CMIPS::GP].nV0 = threadParam->nGP;
+	context->gpr[CMIPS::SP].nV0 = stackAddr;
+	context->gpr[CMIPS::FP].nV0 = stackAddr;
+	context->gpr[CMIPS::GP].nV0 = threadParam->gp;
 	context->gpr[CMIPS::RA].nV0 = 0x1FC03000;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //21
 void CPS2OS::sc_DeleteThread()
 {
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	THREAD* thread = GetThread(nID);
-	if(!thread->nValid)
+	THREAD* thread = GetThread(id);
+	if(!thread->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	m_pThreadSchedule->Remove(thread->nScheduleID);
+	m_threadSchedule->Remove(thread->scheduleID);
 
-	thread->nValid = 0;
+	thread->valid = 0;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -1468,17 +1468,17 @@ void CPS2OS::sc_StartThread()
 	uint32 arg	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	THREAD* thread = GetThread(id);
-	if(!thread->nValid)
+	if(!thread->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	assert(thread->nStatus == THREAD_ZOMBIE);
-	thread->nStatus = THREAD_RUNNING;
+	assert(thread->status == THREAD_ZOMBIE);
+	thread->status = THREAD_RUNNING;
 
-	THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->nContextPtr]);
+	THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	context->gpr[CMIPS::A0].nV0 = arg;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
@@ -1489,7 +1489,7 @@ void CPS2OS::sc_StartThread()
 void CPS2OS::sc_ExitThread()
 {
 	THREAD* thread = GetThread(GetCurrentThreadId());
-	thread->nStatus = THREAD_ZOMBIE;
+	thread->status = THREAD_ZOMBIE;
 
 	ThreadShakeAndBake();
 }
@@ -1497,17 +1497,17 @@ void CPS2OS::sc_ExitThread()
 //25
 void CPS2OS::sc_TerminateThread()
 {
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	THREAD* thread = GetThread(nID);
-	if(!thread->nValid)
+	THREAD* thread = GetThread(id);
+	if(!thread->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	thread->nStatus = THREAD_ZOMBIE;
+	thread->status = THREAD_ZOMBIE;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -1517,29 +1517,29 @@ void CPS2OS::sc_TerminateThread()
 //2A
 void CPS2OS::sc_ChangeThreadPriority()
 {
-	bool nInt		= m_ee.m_State.nGPR[3].nV[0] == 0x2A;
-	uint32 nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nPrio	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	bool isInt		= m_ee.m_State.nGPR[3].nV[0] == 0x2A;
+	uint32 id		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 prio		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	THREAD* thread = GetThread(nID);
-	if(!thread->nValid)
+	THREAD* thread = GetThread(id);
+	if(!thread->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	uint32 nPrevPrio = thread->nPriority;
-	thread->nPriority = nPrio;
+	uint32 prevPrio = thread->priority;
+	thread->priority = prio;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nPrevPrio;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = prevPrio;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 	//Reschedule?
-	m_pThreadSchedule->Remove(thread->nScheduleID);
-	thread->nScheduleID = m_pThreadSchedule->Insert(nID, thread->nPriority);
+	m_threadSchedule->Remove(thread->scheduleID);
+	thread->scheduleID = m_threadSchedule->Insert(id, thread->priority);
 
-	if(!nInt)
+	if(!isInt)
 	{
 		ThreadShakeAndBake();
 	}
@@ -1548,35 +1548,35 @@ void CPS2OS::sc_ChangeThreadPriority()
 //2B
 void CPS2OS::sc_RotateThreadReadyQueue()
 {
-	CRoundRibbon::ITERATOR itThread(m_pThreadSchedule);
+	CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
 
-	uint32 nPrio = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 prio = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	//TODO: Rescheduling isn't always necessary and will cause the current thread's priority queue to be
 	//rotated too since each time a thread is picked to be executed it's placed at the end of the queue...
 
 	//Find first of this priority and reinsert if it's the same as the current thread
 	//If it's not the same, the schedule will be rotated when another thread is choosen
-	for(itThread = m_pThreadSchedule->Begin(); !itThread.IsEnd(); itThread++)
+	for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
 	{
-		if(itThread.GetWeight() == nPrio)
+		if(threadIterator.GetWeight() == prio)
 		{
-			uint32 nID = itThread.GetValue();
-			if(nID == GetCurrentThreadId())
+			uint32 id = threadIterator.GetValue();
+			if(id == GetCurrentThreadId())
 			{
 				throw std::runtime_error("Need to reverify that.");
-				THREAD* thread(GetThread(nID));
-				m_pThreadSchedule->Remove(itThread.GetIndex());
-				thread->nScheduleID = m_pThreadSchedule->Insert(nID, nPrio);
+				THREAD* thread(GetThread(id));
+				m_threadSchedule->Remove(threadIterator.GetIndex());
+				thread->scheduleID = m_threadSchedule->Insert(id, prio);
 			}
 			break;
 		}
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nPrio;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = prio;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
-	if(!itThread.IsEnd())
+	if(!threadIterator.IsEnd())
 	{
 		//Change has been made
 		ThreadShakeAndBake();
@@ -1593,13 +1593,13 @@ void CPS2OS::sc_GetThreadId()
 //30
 void CPS2OS::sc_ReferThreadStatus()
 {
-	uint32 nID			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nStatusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 id			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 statusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	nStatusPtr &= (PS2::EE_RAM_SIZE - 1);
+	statusPtr &= (PS2::EE_RAM_SIZE - 1);
 
-	THREAD* thread = GetThread(nID);
-	if(!thread->nValid)
+	THREAD* thread = GetThread(id);
+	if(!thread->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
@@ -1607,40 +1607,40 @@ void CPS2OS::sc_ReferThreadStatus()
 	}
 
 	//THS_RUN = 0x01, THS_READY = 0x02, THS_WAIT = 0x04, THS_SUSPEND = 0x08, THS_DORMANT = 0x10
-	uint32 nRet = 0;
-	switch(thread->nStatus)
+	uint32 ret = 0;
+	switch(thread->status)
 	{
 	case THREAD_RUNNING:
-		nRet = 0x01;
+		ret = 0x01;
 		break;
 	case THREAD_WAITING:
 	case THREAD_SLEEPING:
-		nRet = 0x04;
+		ret = 0x04;
 		break;
 	case THREAD_SUSPENDED:
-		nRet = 0x08;
+		ret = 0x08;
 		break;
 	case THREAD_SUSPENDED_WAITING:
 	case THREAD_SUSPENDED_SLEEPING:
-		nRet = 0x0C;
+		ret = 0x0C;
 		break;
 	case THREAD_ZOMBIE:
-		nRet = 0x10;
+		ret = 0x10;
 		break;
 	}
 
-	if(nStatusPtr != 0)
+	if(statusPtr != 0)
 	{
-		THREADPARAM* threadParam = reinterpret_cast<THREADPARAM*>(&m_ram[nStatusPtr]);
+		THREADPARAM* threadParam = reinterpret_cast<THREADPARAM*>(&m_ram[statusPtr]);
 
-		threadParam->nStatus			= nRet;
-		threadParam->nPriority			= thread->nPriority;
-		threadParam->nCurrentPriority	= thread->nPriority;
-		threadParam->nStackBase			= thread->nStackBase;
-		threadParam->nStackSize			= thread->nStackSize;
+		threadParam->status				= ret;
+		threadParam->priority			= thread->priority;
+		threadParam->currentPriority	= thread->priority;
+		threadParam->stackBase			= thread->stackBase;
+		threadParam->stackSize			= thread->stackSize;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nRet;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = ret;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -1648,37 +1648,37 @@ void CPS2OS::sc_ReferThreadStatus()
 void CPS2OS::sc_SleepThread()
 {
 	THREAD* thread = GetThread(GetCurrentThreadId());
-	if(thread->nWakeUpCount == 0)
+	if(thread->wakeUpCount == 0)
 	{
-		assert(thread->nStatus == THREAD_RUNNING);
-		thread->nStatus = THREAD_SLEEPING;
+		assert(thread->status == THREAD_RUNNING);
+		thread->status = THREAD_SLEEPING;
 		ThreadShakeAndBake();
 		return;
 	}
 
-	thread->nWakeUpCount--;
+	thread->wakeUpCount--;
 }
 
 //33
 //34
 void CPS2OS::sc_WakeupThread()
 {
-	uint32 nID		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	bool nInt		= m_ee.m_State.nGPR[3].nV[0] == 0x34;
+	uint32 id		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	bool isInt		= m_ee.m_State.nGPR[3].nV[0] == 0x34;
 
-	THREAD* thread = GetThread(nID);
+	THREAD* thread = GetThread(id);
 
 	if(
-		(thread->nStatus == THREAD_SLEEPING) || 
-		(thread->nStatus == THREAD_SUSPENDED_SLEEPING))
+		(thread->status == THREAD_SLEEPING) || 
+		(thread->status == THREAD_SUSPENDED_SLEEPING))
 	{
-		switch(thread->nStatus)
+		switch(thread->status)
 		{
 		case THREAD_SLEEPING:
-			thread->nStatus = THREAD_RUNNING;
+			thread->status = THREAD_RUNNING;
 			break;
 		case THREAD_SUSPENDED_SLEEPING:
-			thread->nStatus = THREAD_SUSPENDED;
+			thread->status = THREAD_SUSPENDED;
 			break;
 		default:
 			assert(0);
@@ -1688,31 +1688,31 @@ void CPS2OS::sc_WakeupThread()
 	}
 	else
 	{
-		thread->nWakeUpCount++;
+		thread->wakeUpCount++;
 	}
 }
 
 //37
 void CPS2OS::sc_SuspendThread()
 {
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	
-	THREAD* thread = GetThread(nID);
-	if(!thread->nValid)
+	THREAD* thread = GetThread(id);
+	if(!thread->valid)
 	{
 		return;
 	}
 
-	switch(thread->nStatus)
+	switch(thread->status)
 	{
 	case THREAD_RUNNING:
-		thread->nStatus = THREAD_SUSPENDED;
+		thread->status = THREAD_SUSPENDED;
 		break;
 	case THREAD_WAITING:
-		thread->nStatus = THREAD_SUSPENDED_WAITING;
+		thread->status = THREAD_SUSPENDED_WAITING;
 		break;
 	case THREAD_SLEEPING:
-		thread->nStatus = THREAD_SUSPENDED_SLEEPING;
+		thread->status = THREAD_SUSPENDED_SLEEPING;
 		break;
 	default:
 		assert(0);
@@ -1725,24 +1725,24 @@ void CPS2OS::sc_SuspendThread()
 //39
 void CPS2OS::sc_ResumeThread()
 {
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	THREAD* thread = GetThread(nID);
-	if(!thread->nValid)
+	THREAD* thread = GetThread(id);
+	if(!thread->valid)
 	{
 		return;
 	}
 
-	switch(thread->nStatus)
+	switch(thread->status)
 	{
 	case THREAD_SUSPENDED:
-		thread->nStatus = THREAD_RUNNING;
+		thread->status = THREAD_RUNNING;
 		break;
 	case THREAD_SUSPENDED_WAITING:
-		thread->nStatus = THREAD_WAITING;
+		thread->status = THREAD_WAITING;
 		break;
 	case THREAD_SUSPENDED_SLEEPING:
-		thread->nStatus = THREAD_SLEEPING;
+		thread->status = THREAD_SLEEPING;
 		break;
 	default:
 		assert(0);
@@ -1755,17 +1755,17 @@ void CPS2OS::sc_ResumeThread()
 //3C
 void CPS2OS::sc_SetupThread()
 {
-	uint32 nStackBase = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
-	uint32 nStackSize = m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+	uint32 stackBase = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 stackSize = m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 
-	uint32 nStackAddr = 0;
-	if(nStackBase == 0xFFFFFFFF)
+	uint32 stackAddr = 0;
+	if(stackBase == 0xFFFFFFFF)
 	{
-		nStackAddr = 0x02000000;
+		stackAddr = 0x02000000;
 	}
 	else
 	{
-		nStackAddr = nStackBase + nStackSize;
+		stackAddr = stackBase + stackSize;
 	}
 
 	uint32 argsBase = m_ee.m_State.nGPR[SC_PARAM3].nV[0];
@@ -1792,19 +1792,19 @@ void CPS2OS::sc_SetupThread()
 
 	//Set up the main thread
 	THREAD* thread = GetThread(1);
-	thread->nValid			= 0x01;
-	thread->nStatus			= THREAD_RUNNING;
-	thread->nStackBase		= nStackAddr - nStackSize;
-	thread->nPriority		= 0;
-	thread->nQuota			= THREAD_INIT_QUOTA;
-	thread->nScheduleID		= m_pThreadSchedule->Insert(1, thread->nPriority);
+	thread->valid			= 0x01;
+	thread->status			= THREAD_RUNNING;
+	thread->stackBase		= stackAddr - stackSize;
+	thread->priority		= 0;
+	thread->quota			= THREAD_INIT_QUOTA;
+	thread->scheduleID		= m_threadSchedule->Insert(1, thread->priority);
 
-	nStackAddr -= STACKRES;
-	thread->nContextPtr		= nStackAddr;
+	stackAddr -= STACKRES;
+	thread->contextPtr		= stackAddr;
 
 	SetCurrentThreadId(1);
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nStackAddr;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = stackAddr;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -1813,19 +1813,19 @@ void CPS2OS::sc_SetupHeap()
 {
 	THREAD* thread = GetThread(GetCurrentThreadId());
 
-	uint32 nHeapBase = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nHeapSize = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 heapBase = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 heapSize = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	if(nHeapSize == 0xFFFFFFFF)
+	if(heapSize == 0xFFFFFFFF)
 	{
-		thread->nHeapBase = thread->nStackBase;
+		thread->heapBase = thread->stackBase;
 	}
 	else
 	{
-		thread->nHeapBase = nHeapBase + nHeapSize;
+		thread->heapBase = heapBase + heapSize;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = thread->nHeapBase;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = thread->heapBase;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -1834,42 +1834,42 @@ void CPS2OS::sc_EndOfHeap()
 {
 	THREAD* thread = GetThread(GetCurrentThreadId());
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = thread->nHeapBase;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = thread->heapBase;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //40
 void CPS2OS::sc_CreateSema()
 {
-	SEMAPHOREPARAM* pSemaParam = reinterpret_cast<SEMAPHOREPARAM*>(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+	SEMAPHOREPARAM* semaParam = reinterpret_cast<SEMAPHOREPARAM*>(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 
-	uint32 nID = GetNextAvailableSemaphoreId();
-	if(nID == 0xFFFFFFFF)
+	uint32 id = GetNextAvailableSemaphoreId();
+	if(id == 0xFFFFFFFF)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	SEMAPHORE* pSema = GetSemaphore(nID);
-	pSema->nValid		= 1;
-	pSema->nCount		= pSemaParam->nInitCount;
-	pSema->nMaxCount	= pSemaParam->nMaxCount;
-	pSema->nWaitCount	= 0;
+	SEMAPHORE* sema = GetSemaphore(id);
+	sema->valid			= 1;
+	sema->count			= semaParam->initCount;
+	sema->maxCount		= semaParam->maxCount;
+	sema->waitCount		= 0;
 
-	assert(pSema->nCount <= pSema->nMaxCount);
+	assert(sema->count <= sema->maxCount);
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //41
 void CPS2OS::sc_DeleteSema()
 {
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema->nValid)
+	SEMAPHORE* sema = GetSemaphore(id);
+	if(!sema->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
@@ -1877,14 +1877,14 @@ void CPS2OS::sc_DeleteSema()
 	}
 
 	//Check if any threads are waiting for this?
-	if(pSema->nWaitCount != 0)
+	if(sema->waitCount != 0)
 	{
 		assert(0);
 	}
 
-	pSema->nValid = 0;
+	sema->valid = 0;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -1892,79 +1892,79 @@ void CPS2OS::sc_DeleteSema()
 //43
 void CPS2OS::sc_SignalSema()
 {
-	bool nInt	= m_ee.m_State.nGPR[3].nV[0] == 0x43;
-	uint32 nID	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	bool isInt	= m_ee.m_State.nGPR[3].nV[0] == 0x43;
+	uint32 id	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema || !pSema->nValid)
+	SEMAPHORE* sema = GetSemaphore(id);
+	if(!sema || !sema->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 	
-	if(pSema->nWaitCount != 0)
+	if(sema->waitCount != 0)
 	{
 		//Unsleep all threads if they were waiting
 		for(uint32 i = 0; i < MAX_THREAD; i++)
 		{
 			THREAD* thread = GetThread(i);
-			if(!thread->nValid) continue;
-			if((thread->nStatus != THREAD_WAITING) && (thread->nStatus != THREAD_SUSPENDED_WAITING)) continue;
-			if(thread->nSemaWait != nID) continue;
+			if(!thread->valid) continue;
+			if((thread->status != THREAD_WAITING) && (thread->status != THREAD_SUSPENDED_WAITING)) continue;
+			if(thread->semaWait != id) continue;
 
-			switch(thread->nStatus)
+			switch(thread->status)
 			{
 			case THREAD_WAITING:
-				thread->nStatus = THREAD_RUNNING;
+				thread->status = THREAD_RUNNING;
 				break;
 			case THREAD_SUSPENDED_WAITING:
-				thread->nStatus = THREAD_SUSPENDED;
+				thread->status = THREAD_SUSPENDED;
 				break;
 			default:
 				assert(0);
 				break;
 			}
-			thread->nQuota = THREAD_INIT_QUOTA;
-			pSema->nWaitCount--;
+			thread->quota = THREAD_INIT_QUOTA;
+			sema->waitCount--;
 
-			if(pSema->nWaitCount == 0)
+			if(sema->waitCount == 0)
 			{
 				break;
 			}
 		}
 
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
-		if(!nInt)
+		if(!isInt)
 		{
 			ThreadShakeAndBake();
 		}
 	}
 	else
 	{
-		pSema->nCount++;
+		sema->count++;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //44
 void CPS2OS::sc_WaitSema()
 {
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema || !pSema->nValid)
+	SEMAPHORE* sema = GetSemaphore(id);
+	if(!sema || !sema->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	if((m_semaWaitId == nID) && (m_semaWaitCaller == m_ee.m_State.nGPR[CMIPS::RA].nV0))
+	if((m_semaWaitId == id) && (m_semaWaitCaller == m_ee.m_State.nGPR[CMIPS::RA].nV0))
 	{
 		m_semaWaitCount++;
 		if(m_semaWaitCount > 100)
@@ -1974,58 +1974,58 @@ void CPS2OS::sc_WaitSema()
 	}
 	else
 	{
-		m_semaWaitId = nID;
+		m_semaWaitId = id;
 		m_semaWaitCaller = m_ee.m_State.nGPR[CMIPS::RA].nV0;
 		m_semaWaitCount = 0;
 	}
 
-	if(pSema->nCount == 0)
+	if(sema->count == 0)
 	{
 		//Put this thread in sleep mode and reschedule...
-		pSema->nWaitCount++;
+		sema->waitCount++;
 
 		THREAD* thread = GetThread(GetCurrentThreadId());
-		assert(thread->nStatus == THREAD_RUNNING);
-		thread->nStatus	= THREAD_WAITING;
-		thread->nSemaWait	= nID;
+		assert(thread->status == THREAD_RUNNING);
+		thread->status		= THREAD_WAITING;
+		thread->semaWait	= id;
 
 		ThreadShakeAndBake();
 
 		return;
 	}
 
-	if(pSema->nCount != 0)
+	if(sema->count != 0)
 	{
-		pSema->nCount--;
+		sema->count--;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
 //45
 void CPS2OS::sc_PollSema()
 {
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema->nValid)
+	SEMAPHORE* sema = GetSemaphore(id);
+	if(!sema->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	if(pSema->nCount == 0)
+	if(sema->count == 0)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	pSema->nCount--;
+	sema->count--;
 	
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -2034,22 +2034,22 @@ void CPS2OS::sc_PollSema()
 void CPS2OS::sc_ReferSemaStatus()
 {
 	bool isInt = m_ee.m_State.nGPR[3].nV[0] != 0x47;
-	uint32 nID = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	SEMAPHOREPARAM* pSemaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	SEMAPHOREPARAM* semaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
 
-	SEMAPHORE* pSema = GetSemaphore(nID);
-	if(!pSema || !pSema->nValid)
+	SEMAPHORE* sema = GetSemaphore(id);
+	if(!sema || !sema->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
 		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
 		return;
 	}
 
-	pSemaParam->nCount			= pSema->nCount;
-	pSemaParam->nMaxCount		= pSema->nMaxCount;
-	pSemaParam->nWaitThreads	= pSema->nWaitCount;
+	semaParam->count		= sema->count;
+	semaParam->maxCount		= sema->maxCount;
+	semaParam->waitThreads	= sema->waitCount;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -2080,31 +2080,31 @@ void CPS2OS::sc_GsGetIMR()
 //71
 void CPS2OS::sc_GsPutIMR()
 {
-	uint32 nIMR = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 imr = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
 	if(m_gs != NULL)
 	{
-		m_gs->WritePrivRegister(CGSHandler::GS_IMR, nIMR);
+		m_gs->WritePrivRegister(CGSHandler::GS_IMR, imr);
 	}
 }
 
 //73
 void CPS2OS::sc_SetVSyncFlag()
 {
-	uint32 nPtr1	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nPtr2	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 ptr1		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 ptr2		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	*(uint32*)&m_ram[nPtr1] = 0x01;
+	*(uint32*)&m_ram[ptr1] = 0x01;
 
 	if(m_gs != NULL)
 	{
-		//*(uint32*)&m_ram[nPtr2] = 0x2000;
-		*(uint32*)&m_ram[nPtr2] = m_gs->ReadPrivRegister(CGSHandler::GS_CSR) & 0x2000;
+		//*(uint32*)&m_ram[ptr2] = 0x2000;
+		*(uint32*)&m_ram[ptr2] = m_gs->ReadPrivRegister(CGSHandler::GS_CSR) & 0x2000;
 	}
 	else
 	{
 		//Humm...
-		*(uint32*)&m_ram[nPtr2] = 0;
+		*(uint32*)&m_ram[ptr2] = 0;
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
@@ -2137,12 +2137,12 @@ void CPS2OS::sc_SetSyscall()
 			return;
 		}
 
-		INTCHANDLER* pHandler = GetIntcHandler(handlerId);
-		pHandler->nValid	= 1;
-		pHandler->nAddress	= address & 0x1FFFFFFF;
-		pHandler->nCause	= line;
-		pHandler->nArg		= 0;
-		pHandler->nGP		= 0;
+		INTCHANDLER* handler = GetIntcHandler(handlerId);
+		handler->valid		= 1;
+		handler->address	= address & 0x1FFFFFFF;
+		handler->cause		= line;
+		handler->arg		= 0;
+		handler->gp			= 0;
 
 		if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & (1 << line)))
 		{
@@ -2170,27 +2170,27 @@ void CPS2OS::sc_SifSetDma()
 {
 	struct DMAREG
 	{
-		uint32 nSrcAddr;
-		uint32 nDstAddr;
-		uint32 nSize;
-		uint32 nFlags;
+		uint32 srcAddr;
+		uint32 dstAddr;
+		uint32 size;
+		uint32 flags;
 	};
 
 	uint32 xferAddress = m_ee.m_State.nGPR[SC_PARAM0].nV[0] & (PS2::EE_RAM_SIZE - 1);
-	DMAREG* pXfer = reinterpret_cast<DMAREG*>(m_ram + xferAddress);
-	uint32 nCount = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	DMAREG* xfer = reinterpret_cast<DMAREG*>(m_ram + xferAddress);
+	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	//Returns count
 	//DMA might call an interrupt handler
-	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(nCount);
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(count);
 
-	for(unsigned int i = 0; i < nCount; i++)
+	for(unsigned int i = 0; i < count; i++)
 	{
-		uint32 nSize = (pXfer[i].nSize + 0x0F) / 0x10;
+		uint32 size = (xfer[i].size + 0x0F) / 0x10;
 
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_MADR,	pXfer[i].nSrcAddr);
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_TADR,	pXfer[i].nDstAddr);
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_QWC,	nSize);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_MADR,	xfer[i].srcAddr);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_TADR,	xfer[i].dstAddr);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_QWC,	size);
 		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_CHCR,	0x00000100);
 	}
 }
@@ -2215,10 +2215,10 @@ void CPS2OS::sc_SifSetDChain()
 //79
 void CPS2OS::sc_SifSetReg()
 {
-	uint32 nRegister	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nValue		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 registerId	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 value		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	m_sif.SetRegister(nRegister, nValue);
+	m_sif.SetRegister(registerId, value);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;
 }
@@ -2226,48 +2226,48 @@ void CPS2OS::sc_SifSetReg()
 //7A
 void CPS2OS::sc_SifGetReg()
 {
-	uint32 nRegister = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(m_sif.GetRegister(nRegister));
+	uint32 registerId = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(m_sif.GetRegister(registerId));
 }
 
 //7C
 void CPS2OS::sc_Deci2Call()
 {
-	uint32 nFunction	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 nParam		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 function		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 param		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 	
-	switch(nFunction)
+	switch(function)
 	{
 	case 0x01:
 		//Deci2Open
 		{
-			uint32 nID = GetNextAvailableDeci2HandlerId();
+			uint32 id = GetNextAvailableDeci2HandlerId();
 
-			DECI2HANDLER* pHandler = GetDeci2Handler(nID);
-			pHandler->nValid		= 1;
-			pHandler->nDevice		= *(uint32*)&m_ram[nParam + 0x00];
-			pHandler->nBufferAddr	= *(uint32*)&m_ram[nParam + 0x04];
+			DECI2HANDLER* handler = GetDeci2Handler(id);
+			handler->valid		= 1;
+			handler->device		= *(uint32*)&m_ram[param + 0x00];
+			handler->bufferAddr	= *(uint32*)&m_ram[param + 0x04];
 
-			m_ee.m_State.nGPR[SC_RETURN].nV[0] = nID;
+			m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 		}
 		break;
 	case 0x03:
 		//Deci2Send
 		{
-			uint32 nID = *reinterpret_cast<uint32*>(&m_ram[nParam + 0x00]);
+			uint32 id = *reinterpret_cast<uint32*>(&m_ram[param + 0x00]);
 
-			DECI2HANDLER* pHandler = GetDeci2Handler(nID);
+			DECI2HANDLER* handler = GetDeci2Handler(id);
 
-			if(pHandler->nValid != 0)
+			if(handler->valid != 0)
 			{
-				uint32 stringAddr  = *reinterpret_cast<uint32*>(&m_ram[pHandler->nBufferAddr + 0x10]);
+				uint32 stringAddr = *reinterpret_cast<uint32*>(&m_ram[handler->bufferAddr + 0x10]);
 				stringAddr &= (PS2::EE_RAM_SIZE - 1);
 
-				uint32 nLength = m_ram[stringAddr + 0x00] - 0x0C;
-				uint8* sString = &m_ram[stringAddr + 0x0C];
+				uint32 length = m_ram[stringAddr + 0x00] - 0x0C;
+				uint8* string = &m_ram[stringAddr + 0x0C];
 
-				m_iopBios.GetIoman()->Write(1, nLength, sString);
+				m_iopBios.GetIoman()->Write(1, length, string);
 			}
 
 			m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
@@ -2277,12 +2277,12 @@ void CPS2OS::sc_Deci2Call()
 	case 0x04:
 		//Deci2Poll
 		{
-			uint32 nID = *reinterpret_cast<uint32*>(&m_ram[nParam + 0x00]);
+			uint32 id = *reinterpret_cast<uint32*>(&m_ram[param + 0x00]);
 		
-			DECI2HANDLER* pHandler = GetDeci2Handler(nID);
-			if(pHandler->nValid != 0)
+			DECI2HANDLER* handler = GetDeci2Handler(id);
+			if(handler->valid != 0)
 			{
-				*(uint32*)&m_ram[pHandler->nBufferAddr + 0x0C] = 0;
+				*(uint32*)&m_ram[handler->bufferAddr + 0x0C] = 0;
 			}
 
 			m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
@@ -2292,13 +2292,13 @@ void CPS2OS::sc_Deci2Call()
 	case 0x10:
 		//kPuts
 		{
-			uint32 stringAddr = *reinterpret_cast<uint32*>(&m_ram[nParam]);
-			uint8* sString = &m_ram[stringAddr];
-			m_iopBios.GetIoman()->Write(1, static_cast<uint32>(strlen(reinterpret_cast<char*>(sString))), sString);
+			uint32 stringAddr = *reinterpret_cast<uint32*>(&m_ram[param]);
+			uint8* string = &m_ram[stringAddr];
+			m_iopBios.GetIoman()->Write(1, static_cast<uint32>(strlen(reinterpret_cast<char*>(string))), string);
 		}
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", nFunction, m_ee.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", function, m_ee.m_State.nPC);
 		break;
 	}
 
@@ -2328,30 +2328,30 @@ void CPS2OS::HandleSyscall()
 		throw std::runtime_error("Not a SYSCALL.");
 	}
 
-	uint32 nFunc = m_ee.m_State.nGPR[3].nV[0];
+	uint32 func = m_ee.m_State.nGPR[3].nV[0];
 	
-	if(nFunc == 0x666)
+	if(func == 0x666)
 	{
 		//Reschedule
 		ThreadShakeAndBake();
 	}
 	else
 	{
-		if(nFunc & 0x80000000)
+		if(func & 0x80000000)
 		{
-			nFunc = 0 - nFunc;
+			func = 0 - func;
 		}
 		//Save for custom handler
-		m_ee.m_State.nGPR[3].nV[0] = nFunc;
+		m_ee.m_State.nGPR[3].nV[0] = func;
 
-		if(GetCustomSyscallTable()[nFunc] == NULL)
+		if(GetCustomSyscallTable()[func] == NULL)
 		{
 	#ifdef _DEBUG
-			DisassembleSysCall(static_cast<uint8>(nFunc & 0xFF));
+			DisassembleSysCall(static_cast<uint8>(func & 0xFF));
 	#endif
-			if(nFunc < 0x80)
+			if(func < 0x80)
 			{
-				((this)->*(m_pSysCall[nFunc & 0xFF]))();
+				((this)->*(m_sysCall[func & 0xFF]))();
 			}
 		}
 		else
@@ -2363,145 +2363,145 @@ void CPS2OS::HandleSyscall()
 	m_ee.m_State.nHasException = 0;
 }
 
-void CPS2OS::DisassembleSysCall(uint8 nFunc)
+void CPS2OS::DisassembleSysCall(uint8 func)
 {
 #ifdef _DEBUG
-	std::string sDescription(GetSysCallDescription(nFunc));
-	if(sDescription.length() != 0)
+	std::string description(GetSysCallDescription(func));
+	if(description.length() != 0)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%d: %s\r\n", GetCurrentThreadId(), sDescription.c_str());
+		CLog::GetInstance().Print(LOG_NAME, "%d: %s\r\n", GetCurrentThreadId(), description.c_str());
 	}
 #endif
 }
 
-std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
+std::string CPS2OS::GetSysCallDescription(uint8 function)
 {
-	char sDescription[256];
+	char description[256];
 
-	strcpy(sDescription, "");
+	strcpy(description, "");
 
-	switch(nFunction)
+	switch(function)
 	{
 	case 0x02:
-		sprintf(sDescription, "GsSetCrt(interlace = %i, mode = %i, field = %i);", \
+		sprintf(description, "GsSetCrt(interlace = %i, mode = %i, field = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x06:
-		sprintf(sDescription, SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%0.8X, argc = %d, argv = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%0.8X, argc = %d, argv = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x10:
-		sprintf(sDescription, SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%0.8X, next = 0x%0.8X, arg = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%0.8X, next = 0x%0.8X, arg = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x11:
-		sprintf(sDescription, "RemoveIntcHandler(cause = %i, id = %i);", \
+		sprintf(description, "RemoveIntcHandler(cause = %i, id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x12:
-		sprintf(sDescription, "AddDmacHandler(channel = %i, address = 0x%0.8X, next = %i, arg = %i);", \
+		sprintf(description, "AddDmacHandler(channel = %i, address = 0x%0.8X, next = %i, arg = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x13:
-		sprintf(sDescription, "RemoveDmacHandler(channel = %i, handler = %i);", \
+		sprintf(description, "RemoveDmacHandler(channel = %i, handler = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x14:
-		sprintf(sDescription, SYSCALL_NAME_ENABLEINTC "(cause = %i);", \
+		sprintf(description, SYSCALL_NAME_ENABLEINTC "(cause = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x15:
-		sprintf(sDescription, SYSCALL_NAME_DISABLEINTC "(cause = %i);", \
+		sprintf(description, SYSCALL_NAME_DISABLEINTC "(cause = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x16:
-		sprintf(sDescription, SYSCALL_NAME_ENABLEDMAC "(channel = %i);", \
+		sprintf(description, SYSCALL_NAME_ENABLEDMAC "(channel = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x17:
-		sprintf(sDescription, SYSCALL_NAME_DISABLEDMAC "(channel = %i);", \
+		sprintf(description, SYSCALL_NAME_DISABLEDMAC "(channel = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x20:
-		sprintf(sDescription, SYSCALL_NAME_CREATETHREAD "(thread = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_CREATETHREAD "(thread = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x21:
-		sprintf(sDescription, "DeleteThread(id = 0x%0.8X);", \
+		sprintf(description, "DeleteThread(id = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x22:
-		sprintf(sDescription, SYSCALL_NAME_STARTTHREAD "(id = 0x%0.8X, a0 = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_STARTTHREAD "(id = 0x%0.8X, a0 = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x23:
-		sprintf(sDescription, "ExitThread();");
+		sprintf(description, "ExitThread();");
 		break;
 	case 0x25:
-		sprintf(sDescription, "TerminateThread(id = 0x%0.8X);", \
+		sprintf(description, "TerminateThread(id = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x29:
-		sprintf(sDescription, SYSCALL_NAME_CHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
+		sprintf(description, SYSCALL_NAME_CHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2A:
-		sprintf(sDescription, SYSCALL_NAME_ICHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
+		sprintf(description, SYSCALL_NAME_ICHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2B:
-		sprintf(sDescription, SYSCALL_NAME_ROTATETHREADREADYQUEUE "(prio = %i);", \
+		sprintf(description, SYSCALL_NAME_ROTATETHREADREADYQUEUE "(prio = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2F:
-		sprintf(sDescription, SYSCALL_NAME_GETTHREADID "();");
+		sprintf(description, SYSCALL_NAME_GETTHREADID "();");
 		break;
 	case 0x30:
-		sprintf(sDescription, SYSCALL_NAME_REFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_REFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x31:
-		sprintf(sDescription, SYSCALL_NAME_IREFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_IREFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x32:
-		sprintf(sDescription, SYSCALL_NAME_SLEEPTHREAD "();");
+		sprintf(description, SYSCALL_NAME_SLEEPTHREAD "();");
 		break;
 	case 0x33:
-		sprintf(sDescription, SYSCALL_NAME_WAKEUPTHREAD "(id = %i);", \
+		sprintf(description, SYSCALL_NAME_WAKEUPTHREAD "(id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x34:
-		sprintf(sDescription, SYSCALL_NAME_IWAKEUPTHREAD "(id = %i);", \
+		sprintf(description, SYSCALL_NAME_IWAKEUPTHREAD "(id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x37:
-		sprintf(sDescription, SYSCALL_NAME_SUSPENDTHREAD "(id = %i);", \
+		sprintf(description, SYSCALL_NAME_SUSPENDTHREAD "(id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x39:
-		sprintf(sDescription, SYSCALL_NAME_RESUMETHREAD "(id = %i);", \
+		sprintf(description, SYSCALL_NAME_RESUMETHREAD "(id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
-		sprintf(sDescription, "SetupThread(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);", \
+		sprintf(description, "SetupThread(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
@@ -2509,112 +2509,112 @@ std::string CPS2OS::GetSysCallDescription(uint8 nFunction)
 			m_ee.m_State.nGPR[SC_PARAM4].nV[0]);
 		break;
 	case 0x3D:
-		sprintf(sDescription, "SetupHeap(heap_start = 0x%0.8X, heap_size = 0x%0.8X);", \
+		sprintf(description, "SetupHeap(heap_start = 0x%0.8X, heap_size = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x3E:
-		sprintf(sDescription, SYSCALL_NAME_ENDOFHEAP "();");
+		sprintf(description, SYSCALL_NAME_ENDOFHEAP "();");
 		break;
 	case 0x40:
-		sprintf(sDescription, SYSCALL_NAME_CREATESEMA "(sema = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_CREATESEMA "(sema = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x41:
-		sprintf(sDescription, SYSCALL_NAME_DELETESEMA "(semaid = %i);", \
+		sprintf(description, SYSCALL_NAME_DELETESEMA "(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x42:
-		sprintf(sDescription, SYSCALL_NAME_SIGNALSEMA "(semaid = %i);", \
+		sprintf(description, SYSCALL_NAME_SIGNALSEMA "(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x43:
-		sprintf(sDescription, SYSCALL_NAME_ISIGNALSEMA "(semaid = %i);", \
+		sprintf(description, SYSCALL_NAME_ISIGNALSEMA "(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x44:
-		sprintf(sDescription, SYSCALL_NAME_WAITSEMA "(semaid = %i);", \
+		sprintf(description, SYSCALL_NAME_WAITSEMA "(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x45:
-		sprintf(sDescription, SYSCALL_NAME_POLLSEMA "(semaid = %i);", \
+		sprintf(description, SYSCALL_NAME_POLLSEMA "(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x46:
-		sprintf(sDescription, "iPollSema(semaid = %i);", \
+		sprintf(description, "iPollSema(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x47:
-		sprintf(sDescription, SYSCALL_NAME_REFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_REFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x48:
-		sprintf(sDescription, SYSCALL_NAME_IREFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_IREFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x64:
 	case 0x68:
 #ifdef _DEBUG
-//		sprintf(sDescription, SYSCALL_NAME_FLUSHCACHE "();");
+//		sprintf(description, SYSCALL_NAME_FLUSHCACHE "();");
 #endif
 		break;
 	case 0x70:
-		sprintf(sDescription, SYSCALL_NAME_GSGETIMR "();");
+		sprintf(description, SYSCALL_NAME_GSGETIMR "();");
 		break;
 	case 0x71:
-		sprintf(sDescription, SYSCALL_NAME_GSPUTIMR "(GS_IMR = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_GSPUTIMR "(GS_IMR = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x73:
-		sprintf(sDescription, SYSCALL_NAME_SETVSYNCFLAG "(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_SETVSYNCFLAG "(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x74:
-		sprintf(sDescription, "SetSyscall(num = 0x%0.2X, address = 0x%0.8X);", \
+		sprintf(description, "SetSyscall(num = 0x%0.2X, address = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x76:
-		sprintf(sDescription, SYSCALL_NAME_SIFDMASTAT "();");
+		sprintf(description, SYSCALL_NAME_SIFDMASTAT "();");
 		break;
 	case 0x77:
-		sprintf(sDescription, SYSCALL_NAME_SIFSETDMA "(list = 0x%0.8X, count = %i);", \
+		sprintf(description, SYSCALL_NAME_SIFSETDMA "(list = 0x%0.8X, count = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x78:
-		sprintf(sDescription, SYSCALL_NAME_SIFSETDCHAIN "();");
+		sprintf(description, SYSCALL_NAME_SIFSETDCHAIN "();");
 		break;
 	case 0x79:
-		sprintf(sDescription, "SifSetReg(register = 0x%0.8X, value = 0x%0.8X);", \
+		sprintf(description, "SifSetReg(register = 0x%0.8X, value = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7A:
-		sprintf(sDescription, "SifGetReg(register = 0x%0.8X);", \
+		sprintf(description, "SifGetReg(register = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x7C:
-		sprintf(sDescription, "Deci2Call(func = 0x%0.8X, param = 0x%0.8X);", \
+		sprintf(description, "Deci2Call(func = 0x%0.8X, param = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7F:
-		sprintf(sDescription, "GetMemorySize();");
+		sprintf(description, "GetMemorySize();");
 		break;
 	}
 
-	return std::string(sDescription);
+	return std::string(description);
 }
 
 //////////////////////////////////////////////////
 //System Call Handlers Table
 //////////////////////////////////////////////////
 
-CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
+CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 {
 	//0x00
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,		&CPS2OS::sc_LoadExecPS2,	&CPS2OS::sc_Unhandled,
@@ -2654,16 +2654,16 @@ CPS2OS::SystemCallHandler CPS2OS::m_pSysCall[0x80] =
 //Round Ribbon Implementation
 //////////////////////////////////////////////////
 
-CPS2OS::CRoundRibbon::CRoundRibbon(void* pMemory, uint32 nSize)
-: m_pNode(reinterpret_cast<NODE*>(pMemory))
-, m_nMaxNode(nSize / sizeof(NODE))
+CPS2OS::CRoundRibbon::CRoundRibbon(void* memory, uint32 size)
+: m_node(reinterpret_cast<NODE*>(memory))
+, m_maxNode(size / sizeof(NODE))
 {
-	memset(pMemory, 0, nSize);
+	memset(memory, 0, size);
 
-	NODE* pHead = GetNode(0);
-	pHead->nIndexNext	= -1;
-	pHead->nWeight		= -1;
-	pHead->nValid		= 1;
+	NODE* head = GetNode(0);
+	head->indexNext	= -1;
+	head->weight	= -1;
+	head->valid		= 1;
 }
 
 CPS2OS::CRoundRibbon::~CRoundRibbon()
@@ -2671,128 +2671,128 @@ CPS2OS::CRoundRibbon::~CRoundRibbon()
 
 }
 
-unsigned int CPS2OS::CRoundRibbon::Insert(uint32 nValue, uint32 nWeight)
+unsigned int CPS2OS::CRoundRibbon::Insert(uint32 value, uint32 weight)
 {
 	//Initialize the new node
-	NODE* pNode = AllocateNode();
-	if(pNode == NULL) return -1;
-	pNode->nWeight	= nWeight;
-	pNode->nValue	= nValue;
+	NODE* node = AllocateNode();
+	if(node == NULL) return -1;
+	node->weight	= weight;
+	node->value		= value;
 
 	//Insert node in list
-	NODE* pNext = GetNode(0);
-	NODE* pPrev = NULL;
+	NODE* next = GetNode(0);
+	NODE* prev = NULL;
 
 	while(1)
 	{
-		if(pNext == NULL)
+		if(next == NULL)
 		{
 			//We must insert there...
-			pNode->nIndexNext = pPrev->nIndexNext;
-			pPrev->nIndexNext = GetNodeIndex(pNode);
+			node->indexNext = prev->indexNext;
+			prev->indexNext = GetNodeIndex(node);
 			break;
 		}
 
-		if(pNext->nWeight == -1)
+		if(next->weight == -1)
 		{
-			pPrev = pNext;
-			pNext = GetNode(pNext->nIndexNext);
+			prev = next;
+			next = GetNode(next->indexNext);
 			continue;
 		}
 
-		if(pNode->nWeight < pNext->nWeight)
+		if(node->weight < next->weight)
 		{
-			pNext = NULL;
+			next = NULL;
 			continue;
 		}
 
-		pPrev = pNext;
-		pNext = GetNode(pNext->nIndexNext);
+		prev = next;
+		next = GetNode(next->indexNext);
 	}
 
-	return GetNodeIndex(pNode);
+	return GetNodeIndex(node);
 }
 
-void CPS2OS::CRoundRibbon::Remove(unsigned int nIndex)
+void CPS2OS::CRoundRibbon::Remove(unsigned int index)
 {
-	if(nIndex == 0) return;
+	if(index == 0) return;
 
-	NODE* pCurr = GetNode(nIndex);
-	if(pCurr == NULL) return;
-	if(pCurr->nValid != 1) return;
+	NODE* curr = GetNode(index);
+	if(curr == NULL) return;
+	if(curr->valid != 1) return;
 
-	NODE* pNode = GetNode(0);
+	NODE* node = GetNode(0);
 
 	while(1)
 	{
-		if(pNode == NULL) break;
-		assert(pNode->nValid);
+		if(node == NULL) break;
+		assert(node->valid);
 
-		if(pNode->nIndexNext == nIndex)
+		if(node->indexNext == index)
 		{
-			pNode->nIndexNext = pCurr->nIndexNext;
+			node->indexNext = curr->indexNext;
 			break;
 		}
 		
-		pNode = GetNode(pNode->nIndexNext);
+		node = GetNode(node->indexNext);
 	}
 
-	FreeNode(pCurr);
+	FreeNode(curr);
 }
 
 unsigned int CPS2OS::CRoundRibbon::Begin()
 {
-	return GetNode(0)->nIndexNext;
+	return GetNode(0)->indexNext;
 }
 
-CPS2OS::CRoundRibbon::NODE* CPS2OS::CRoundRibbon::GetNode(unsigned int nIndex)
+CPS2OS::CRoundRibbon::NODE* CPS2OS::CRoundRibbon::GetNode(unsigned int index)
 {
-	if(nIndex >= m_nMaxNode) return NULL;
-	return m_pNode + nIndex;
+	if(index >= m_maxNode) return NULL;
+	return m_node + index;
 }
 
-unsigned int CPS2OS::CRoundRibbon::GetNodeIndex(NODE* pNode)
+unsigned int CPS2OS::CRoundRibbon::GetNodeIndex(NODE* node)
 {
-	return (unsigned int)(pNode - m_pNode);
+	return (unsigned int)(node - m_node);
 }
 
 CPS2OS::CRoundRibbon::NODE* CPS2OS::CRoundRibbon::AllocateNode()
 {
-	for(unsigned int i = 1; i < m_nMaxNode; i++)
+	for(unsigned int i = 1; i < m_maxNode; i++)
 	{
-		NODE* pNode = GetNode(i);
-		if(pNode->nValid == 1) continue;
-		pNode->nValid = 1;
-		return pNode;
+		NODE* node = GetNode(i);
+		if(node->valid == 1) continue;
+		node->valid = 1;
+		return node;
 	}
 
 	return NULL;
 }
 
-void CPS2OS::CRoundRibbon::FreeNode(NODE* pNode)
+void CPS2OS::CRoundRibbon::FreeNode(NODE* node)
 {
-	pNode->nValid = 0;
+	node->valid = 0;
 }
 
 CPS2OS::CRoundRibbon::ITERATOR::ITERATOR(CRoundRibbon* pRibbon)
-: m_pRibbon(pRibbon)
-, m_nIndex(0)
+: m_ribbon(pRibbon)
+, m_index(0)
 {
 
 }
 
-CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator =(unsigned int nIndex)
+CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator =(unsigned int index)
 {
-	m_nIndex = nIndex;
+	m_index = index;
 	return (*this);
 }
 
-CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator ++(int nAmount)
+CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator ++(int)
 {
 	if(!IsEnd())
 	{
-		NODE* pNode = m_pRibbon->GetNode(m_nIndex);
-		m_nIndex = pNode->nIndexNext;
+		NODE* node = m_ribbon->GetNode(m_index);
+		m_index = node->indexNext;
 	}
 
 	return (*this);
@@ -2802,7 +2802,7 @@ uint32 CPS2OS::CRoundRibbon::ITERATOR::GetValue()
 {
 	if(!IsEnd())
 	{
-		return m_pRibbon->GetNode(m_nIndex)->nValue;
+		return m_ribbon->GetNode(m_index)->value;
 	}
 
 	return 0;
@@ -2812,7 +2812,7 @@ uint32 CPS2OS::CRoundRibbon::ITERATOR::GetWeight()
 {
 	if(!IsEnd())
 	{
-		return m_pRibbon->GetNode(m_nIndex)->nWeight;
+		return m_ribbon->GetNode(m_index)->weight;
 	}
 
 	return -1;
@@ -2820,13 +2820,13 @@ uint32 CPS2OS::CRoundRibbon::ITERATOR::GetWeight()
 
 unsigned int CPS2OS::CRoundRibbon::ITERATOR::GetIndex()
 {
-	return m_nIndex;
+	return m_index;
 }
 
 bool CPS2OS::CRoundRibbon::ITERATOR::IsEnd()
 {
-	if(m_pRibbon == NULL) return true;
-	return m_pRibbon->GetNode(m_nIndex) == NULL;
+	if(m_ribbon == NULL) return true;
+	return m_ribbon->GetNode(m_index) == NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2838,7 +2838,7 @@ BiosDebugModuleInfoArray CPS2OS::GetModulesDebugInfo() const
 {
 	BiosDebugModuleInfoArray result;
 
-	if(m_pELF)
+	if(m_elf)
 	{
 		auto executableRange = GetExecutableRange();
 
@@ -2846,7 +2846,7 @@ BiosDebugModuleInfoArray CPS2OS::GetModulesDebugInfo() const
 		module.name		= m_executableName;
 		module.begin	= executableRange.first;
 		module.end		= executableRange.second;
-		module.param	= m_pELF;
+		module.param	= m_elf;
 		result.push_back(module);
 	}
 
@@ -2857,17 +2857,17 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 {
 	BiosDebugThreadInfoArray threadInfos;
 
-	CRoundRibbon::ITERATOR threadIterator(m_pThreadSchedule);
+	CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
 
-	for(threadIterator = m_pThreadSchedule->Begin(); 
+	for(threadIterator = m_threadSchedule->Begin(); 
 		!threadIterator.IsEnd(); threadIterator++)
 	{
 		auto thread = GetThread(threadIterator.GetValue());
-		THREADCONTEXT* threadContext = reinterpret_cast<THREADCONTEXT*>(m_ram + thread->nContextPtr);
+		THREADCONTEXT* threadContext = reinterpret_cast<THREADCONTEXT*>(m_ram + thread->contextPtr);
 
 		BIOS_DEBUG_THREAD_INFO threadInfo;
 		threadInfo.id			= threadIterator.GetValue();
-		threadInfo.priority		= thread->nPriority;
+		threadInfo.priority		= thread->priority;
 		if(GetCurrentThreadId() == threadIterator.GetValue())
 		{
 			threadInfo.pc = m_ee.m_State.nPC;
@@ -2876,12 +2876,12 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 		}
 		else
 		{
-			threadInfo.pc = thread->nEPC;
+			threadInfo.pc = thread->epc;
 			threadInfo.ra = threadContext->gpr[CMIPS::RA].nV0;
 			threadInfo.sp = threadContext->gpr[CMIPS::SP].nV0;
 		}
 
-		switch(thread->nStatus)
+		switch(thread->status)
 		{
 		case THREAD_RUNNING:
 			threadInfo.stateDescription = "Running";
@@ -2890,7 +2890,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 			threadInfo.stateDescription = "Sleeping";
 			break;
 		case THREAD_WAITING:
-			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
+			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->semaWait) + ")";
 			break;
 		case THREAD_SUSPENDED:
 			threadInfo.stateDescription = "Suspended";
@@ -2899,7 +2899,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 			threadInfo.stateDescription = "Suspended+Sleeping";
 			break;
 		case THREAD_SUSPENDED_WAITING:
-			threadInfo.stateDescription = "Suspended+Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->nSemaWait) + ")";
+			threadInfo.stateDescription = "Suspended+Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->semaWait) + ")";
 			break;
 		case THREAD_ZOMBIE:
 			threadInfo.stateDescription = "Zombie";

@@ -73,17 +73,17 @@ private:
 			bool								IsEnd();
 
 		private:
-			CRoundRibbon*						m_pRibbon;
-			unsigned int						m_nIndex;
+			CRoundRibbon*						m_ribbon;
+			unsigned int						m_index;
 		};
 
 	private:
 		struct NODE
 		{
-			uint32								nValue;
-			uint32								nWeight;
-			unsigned int						nIndexNext;
-			unsigned int						nValid;
+			uint32								value;
+			uint32								weight;
+			unsigned int						indexNext;
+			unsigned int						valid;
 		};
 
 		NODE*									GetNode(unsigned int);
@@ -91,53 +91,53 @@ private:
 		NODE*									AllocateNode();
 		void									FreeNode(NODE*);
 
-		NODE*									m_pNode;
-		uint32									m_nMaxNode;
+		NODE*									m_node;
+		uint32									m_maxNode;
 	};
 
 	struct SEMAPHOREPARAM
 	{
-		uint32									nCount;
-		uint32									nMaxCount;
-		uint32									nInitCount;
-		uint32									nWaitThreads;
-		uint32									nAttributes;
-		uint32									nOptions;
+		uint32									count;
+		uint32									maxCount;
+		uint32									initCount;
+		uint32									waitThreads;
+		uint32									attributes;
+		uint32									options;
 	};
 
 	struct THREADPARAM
 	{
-		uint32									nStatus;
-		uint32									nThreadProc;
-		uint32									nStackBase;
-		uint32									nStackSize;
-		uint32									nGP;
-		uint32									nPriority;
-		uint32									nCurrentPriority;
+		uint32									status;
+		uint32									threadProc;
+		uint32									stackBase;
+		uint32									stackSize;
+		uint32									gp;
+		uint32									priority;
+		uint32									currentPriority;
 	};
 
 	struct SEMAPHORE
 	{
-		uint32									nValid;
-		uint32									nCount;
-		uint32									nMaxCount;
-		uint32									nWaitCount;
+		uint32									valid;
+		uint32									count;
+		uint32									maxCount;
+		uint32									waitCount;
 	};
 
 	struct THREAD
 	{
-		uint32									nValid;
-		uint32									nStatus;
-		uint32									nContextPtr;
-		uint32									nStackBase;
-		uint32									nHeapBase;
-		uint32									nEPC;
-		uint32									nPriority;
-		uint32									nSemaWait;
-		uint32									nWakeUpCount;
-		uint32									nScheduleID;
-		uint32									nStackSize;
-		uint32									nQuota;
+		uint32									valid;
+		uint32									status;
+		uint32									contextPtr;
+		uint32									stackBase;
+		uint32									heapBase;
+		uint32									epc;
+		uint32									priority;
+		uint32									semaWait;
+		uint32									wakeUpCount;
+		uint32									scheduleID;
+		uint32									stackSize;
+		uint32									quota;
 	};
 
 	struct THREADCONTEXT
@@ -154,27 +154,27 @@ private:
 
 	struct DMACHANDLER
 	{
-		uint32									nValid;
-		uint32									nChannel;
-		uint32									nAddress;
-		uint32									nArg;
-		uint32									nGP;
+		uint32									valid;
+		uint32									channel;
+		uint32									address;
+		uint32									arg;
+		uint32									gp;
 	};
 
 	struct INTCHANDLER
 	{
-		uint32									nValid;
-		uint32									nCause;
-		uint32									nAddress;
-		uint32									nArg;
-		uint32									nGP;
+		uint32									valid;
+		uint32									cause;
+		uint32									address;
+		uint32									arg;
+		uint32									gp;
 	};
 
 	struct DECI2HANDLER
 	{
-		uint32									nValid;
-		uint32									nDevice;
-		uint32									nBufferAddr;
+		uint32									valid;
+		uint32									device;
+		uint32									bufferAddr;
 	};
 
 #ifdef DEBUGGER_INCLUDED
@@ -232,7 +232,7 @@ private:
 	void									DisassembleSysCall(uint8);
 	std::string								GetSysCallDescription(uint8);
 
-	static SystemCallHandler				m_pSysCall[0x80];
+	static SystemCallHandler				m_sysCall[0x80];
 
 	void									AssembleCustomSyscallHandler();
 	void									AssembleInterruptHandler();
@@ -311,9 +311,9 @@ private:
 	void									sc_GetMemorySize();
 	void									sc_Unhandled();
 
-	CELF*									m_pELF;
+	CELF*									m_elf;
 	CMIPS&									m_ee;
-	CRoundRibbon*							m_pThreadSchedule;
+	CRoundRibbon*							m_threadSchedule;
 
 	std::string								m_executableName;
 	ArgumentList							m_currentArguments;
