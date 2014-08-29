@@ -1047,6 +1047,7 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 			context->gpr[CMIPS::K0].nV[i] = m_ee.m_State.nCOP10[(i + THREADCONTEXT::COP1_REG_COUNT) * 2];
 		}
 		context->cop1a = m_ee.m_State.nCOP1A;
+		context->fcsr = m_ee.m_State.nFCSR;
 
 		thread->epc = m_ee.m_State.nPC;
 	}
@@ -1081,6 +1082,7 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 			m_ee.m_State.nCOP10[(i + THREADCONTEXT::COP1_REG_COUNT) * 2] = context->gpr[CMIPS::K0].nV[i];
 		}
 		m_ee.m_State.nCOP1A = context->cop1a;
+		m_ee.m_State.nFCSR = context->fcsr;
 	}
 
 	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", id);
