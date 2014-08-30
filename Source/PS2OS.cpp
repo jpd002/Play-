@@ -1418,7 +1418,7 @@ void CPS2OS::sc_DisableDmac()
 //20
 void CPS2OS::sc_CreateThread()
 {
-	THREADPARAM* threadParam = (THREADPARAM*)&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]];
+	auto threadParam = reinterpret_cast<THREADPARAM*>(&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]]);
 
 	uint32 id = GetNextAvailableThreadId();
 	if(id == 0xFFFFFFFF)
@@ -1428,7 +1428,7 @@ void CPS2OS::sc_CreateThread()
 		return;
 	}
 
-	THREAD* thread = GetThread(GetCurrentThreadId());
+	auto thread = GetThread(GetCurrentThreadId());
 	uint32 heapBase = thread->heapBase;
 
 	assert(threadParam->priority < 128);
