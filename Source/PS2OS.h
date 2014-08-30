@@ -131,6 +131,7 @@ private:
 		uint32									contextPtr;
 		uint32									stackBase;
 		uint32									heapBase;
+		uint32									threadProc;
 		uint32									epc;
 		uint32									priority;
 		uint32									semaWait;

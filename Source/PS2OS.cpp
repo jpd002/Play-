@@ -1439,6 +1439,7 @@ void CPS2OS::sc_CreateThread()
 	thread->status			= THREAD_ZOMBIE;
 	thread->stackBase		= threadParam->stackBase;
 	thread->epc				= threadParam->threadProc;
+	thread->threadProc		= threadParam->threadProc;
 	thread->priority		= threadParam->priority;
 	thread->heapBase		= heapBase;
 	thread->wakeUpCount		= 0;
@@ -1500,9 +1501,13 @@ void CPS2OS::sc_StartThread()
 
 	assert(thread->status == THREAD_ZOMBIE);
 	thread->status = THREAD_RUNNING;
+	thread->epc = thread->threadProc;
 
 	THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	context->gpr[CMIPS::A0].nV0 = arg;
+	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
+	context->gpr[CMIPS::SP].nV0 = thread->contextPtr;
+	context->gpr[CMIPS::FP].nV0 = thread->contextPtr;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
