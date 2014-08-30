@@ -48,6 +48,7 @@
 #define BIOS_ADDRESS_KERNELSTACK_TOP	0x00030000
 
 #define BIOS_ADDRESS_BASE				0x1FC00000
+#define BIOS_ADDRESS_THREADEPILOG		0x1FC03000
 #define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 
 #define CONFIGPATH		"./config/"
@@ -874,7 +875,7 @@ void CPS2OS::AssembleIntcHandler()
 
 void CPS2OS::AssembleThreadEpilog()
 {
-	CMIPSAssembler assembler((uint32*)&m_bios[0x3000]);
+	CMIPSAssembler assembler((uint32*)&m_bios[BIOS_ADDRESS_THREADEPILOG - BIOS_ADDRESS_BASE]);
 	
 	assembler.ADDIU(CMIPS::V1, CMIPS::R0, 0x23);
 	assembler.SYSCALL();
@@ -1456,7 +1457,7 @@ void CPS2OS::sc_CreateThread()
 	context->gpr[CMIPS::SP].nV0 = stackAddr;
 	context->gpr[CMIPS::FP].nV0 = stackAddr;
 	context->gpr[CMIPS::GP].nV0 = threadParam->gp;
-	context->gpr[CMIPS::RA].nV0 = 0x1FC03000;
+	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
