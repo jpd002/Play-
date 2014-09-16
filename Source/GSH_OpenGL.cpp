@@ -182,7 +182,11 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(framebuffer)
 	{
-		CommitFramebufferDirtyPages(framebuffer, 0, dispHeight);
+		//BGDA (US version) requires the interlaced check to work properly
+		//Data read from dirty pages here would probably need to be scaled up by 2
+		//if we are in interlaced mode (guessing that Unreal Tournament would need that here)
+		bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+		CommitFramebufferDirtyPages(framebuffer, 0, halfHeight ? (dispHeight / 2) : dispHeight);
 	}
 
 	if(framebuffer)

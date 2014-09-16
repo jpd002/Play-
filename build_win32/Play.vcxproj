@@ -698,7 +698,7 @@
     <ResourceCompile Include="..\Source\win32ui\Res.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\bzip2-1.0.4\bzip2-1.0.4.vcxproj">
+    <ProjectReference Include="..\..\bzip2-1.0.6\bzip2-1.0.6.vcxproj">
       <Project>{8c48c11a-7c3f-4699-b62f-b0a66f0f78f7}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\CodeGen\build_win32\CodeGen.vcxproj">
