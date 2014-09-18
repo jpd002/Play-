@@ -83,6 +83,7 @@ void CMipsExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 
 	if(!blocksToDelete.empty())
 	{
+		//TODO: Actually delete the blocks, because remove_if only rearranges items leaving us a new end iterator
 		m_blocks.remove_if([&] (const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
 	}
 }
