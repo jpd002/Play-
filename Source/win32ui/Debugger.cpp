@@ -14,8 +14,8 @@
 #include "xml/Parser.h"
 #include "Debugger.h"
 #include "resource.h"
-#include "PtrMacro.h"
 #include "string_cast.h"
+#include "WinUtils.h"
 
 #define CLSNAME			_T("CDebugger")
 
@@ -105,8 +105,8 @@ CDebugger::~CDebugger()
 		delete m_pView[i];
 	}
 
-	DELETEPTR(m_pELFView);
-	DELETEPTR(m_pFunctionsView);
+	delete m_pELFView;
+	delete m_pFunctionsView;
 }
 
 HACCEL CDebugger::GetAccelerators()
