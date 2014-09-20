@@ -26,6 +26,7 @@
 #include "../Profiler.h"
 #include "resource.h"
 #include "FileFilters.h"
+#include "WinUtils.h"
 
 #define CLSNAME						_T("MainWindow")
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
@@ -87,7 +88,8 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 		RegisterClassEx(&wc);
 	}
 
-	Create(NULL, CLSNAME, _T(""), WNDSTYLE, Framework::Win32::CRect(0, 0, 640, 480), NULL, NULL);
+	auto windowRect = WinUtils::PointsToPixels(Framework::Win32::CRect(0, 0, 640, 480));
+	Create(NULL, CLSNAME, _T(""), WNDSTYLE, windowRect, NULL, NULL);
 	SetClassPtr();
 
 #ifdef DEBUGGER_INCLUDED
