@@ -1,13 +1,23 @@
+#include "win32/Font.h"
+#include "win32/ClientDeviceContext.h"
 #include "RegViewPage.h"
+#include "WinUtils.h"
 
 #define CLSNAME			_T("CRegViewPage")
-#define XMARGIN			6
-#define YMARGIN			5
-#define YSPACE			4
 
 CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
-: m_font(CreateFont(-11, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, _T("Courier New")))
+: m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
 {
+	//Fill in render metrics
+	{
+		auto fontSize = GetFixedFontSize(m_font);
+		m_renderMetrics.xmargin = WinUtils::PointsToPixels(6);
+		m_renderMetrics.yspace = WinUtils::PointsToPixels(4);
+		m_renderMetrics.ymargin = WinUtils::PointsToPixels(5);
+		m_renderMetrics.fontSizeX = fontSize.cx;
+		m_renderMetrics.fontSizeY = fontSize.cy;
+	}
+
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
@@ -119,25 +129,12 @@ unsigned int CRegViewPage::GetLineCount(const char* sText)
 	return nLines;
 }
 
-unsigned int CRegViewPage::GetFontHeight()
-{
-	HDC hDC = GetDC(m_hWnd);
-	SelectObject(hDC, m_font);
-
-	SIZE s;
-	GetTextExtentPoint32(hDC, _T("0"), 1, &s);
-
-	ReleaseDC(m_hWnd, hDC);
-
-	return s.cy;
-}
-
 unsigned int CRegViewPage::GetVisibleLineCount()
 {
-	RECT rwin = GetClientRect();
-	unsigned int nFontCY = GetFontHeight();
-	unsigned int nLines = (rwin.bottom - (YMARGIN * 2)) / (nFontCY + YSPACE);
-	return nLines;
+	auto clientRect = GetClientRect();
+	unsigned int lineStep = (m_renderMetrics.fontSizeY + m_renderMetrics.yspace);
+	unsigned int lines = (clientRect.Bottom() - (m_renderMetrics.ymargin * 2)) / lineStep;
+	return lines;
 }
 
 void CRegViewPage::Paint(HDC hDC)
@@ -146,7 +143,7 @@ void CRegViewPage::Paint(HDC hDC)
 
 	BitBlt(hDC, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
 
-	unsigned int nFontCY = GetFontHeight();
+	unsigned int nFontCY = m_renderMetrics.fontSizeY;
 	unsigned int nTotal = GetVisibleLineCount();
 	unsigned int nScrollPos = GetScrollPosition();
 
@@ -154,8 +151,8 @@ void CRegViewPage::Paint(HDC hDC)
 
 	unsigned int nCurrent = 0;
 	unsigned int nCount = 0;
-	unsigned int nX = XMARGIN;
-	unsigned int nY = YMARGIN;
+	unsigned int nX = m_renderMetrics.xmargin;
+	unsigned int nY = m_renderMetrics.ymargin;
 
 	const char* sLine = m_text.c_str();
 	while(sLine != NULL)
@@ -175,7 +172,7 @@ void CRegViewPage::Paint(HDC hDC)
 
 		int textLength = (sNext == NULL) ? strlen(sLine) : static_cast<int>(sNext - sLine - 2);
 		DrawTextA(hDC, sLine, textLength, Framework::Win32::CRect(nX, nY, nX, nY), DT_NOCLIP | DT_EXPANDTABS);
-		nY += (nFontCY + YSPACE);
+		nY += (nFontCY + m_renderMetrics.yspace);
 
 		nCurrent++;
 		sLine = sNext;
