@@ -39,6 +39,18 @@ CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine
 	m_breakpointBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BREAKPOINT));
 	m_breakpointMaskBitmap = WinUtils::CreateMask(m_breakpointBitmap, 0xFF00FF);
 
+	//Fill in render metrics
+	{
+		auto fontSize = GetFixedFontSize(m_font);
+		m_renderMetrics.leftBarSize = WinUtils::PointsToPixels(17);
+		m_renderMetrics.xmargin = WinUtils::PointsToPixels(18);
+		m_renderMetrics.yspace = WinUtils::PointsToPixels(3);
+		m_renderMetrics.ymargin = WinUtils::PointsToPixels(1);
+		m_renderMetrics.fontSizeX = fontSize.cx;
+		m_renderMetrics.fontSizeY = fontSize.cy;
+		m_renderMetrics.xtextStart = m_renderMetrics.xmargin + MulDiv(fontSize.cx, 3, 5);
+	}
+
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
@@ -55,27 +67,6 @@ CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine
 
 	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, hParent, NULL);
 	SetClassPtr();
-
-	//Fill in render metrics
-	{
-		m_renderMetrics.leftBarSize = WinUtils::PointsToPixels(17);
-		m_renderMetrics.xmargin = WinUtils::PointsToPixels(18);
-		m_renderMetrics.yspace = WinUtils::PointsToPixels(3);
-		m_renderMetrics.ymargin = WinUtils::PointsToPixels(1);
-
-		{
-			Framework::Win32::CClientDeviceContext dc(m_hWnd);
-
-			dc.SelectObject(m_font);
-
-			SIZE s = { 0, 0 };
-			GetTextExtentPoint32(dc, _T("0"), 1, &s);
-			m_renderMetrics.fontSizeX = s.cx;
-			m_renderMetrics.fontSizeY = s.cy;
-		}
-
-		m_renderMetrics.xtextStart = m_renderMetrics.xmargin + MulDiv(m_renderMetrics.fontSizeX, 3, 5);
-	}
 
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDisAsm::OnMachineStateChange, this));
 	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CDisAsm::OnRunningStateChange, this));
