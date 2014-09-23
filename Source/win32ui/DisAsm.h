@@ -18,6 +18,17 @@ public:
 	void							SetSelectedAddress(uint32);
 
 protected:
+	struct RENDERMETRICS
+	{
+		int leftBarSize = 0;
+		int xmargin = 0;
+		int xtextStart = 0;
+		int yspace = 0;
+		int ymargin = 0;
+		int fontSizeX = 0;
+		int fontSizeY = 0;
+	};
+
 	void							Paint(HDC) override;
 
 	long							OnMouseWheel(int, int, short) override;
@@ -39,8 +50,7 @@ protected:
 
 	CMIPS*							m_ctx;
 	int32							m_instructionSize;
-
-	SIZE							m_char_extent;
+	RENDERMETRICS					m_renderMetrics;
 
 private:
 	enum
@@ -60,7 +70,6 @@ private:
 	void							ToggleBreakpoint(uint32);
 	uint32							GetAddressAtPosition(unsigned int, unsigned int);
 	unsigned int					GetLineCount();
-	unsigned int					GetFontHeight();
 	bool							IsAddressVisible(uint32);
 	SelectionRangeType				GetSelectionRange();
 	void							HistoryReset();
