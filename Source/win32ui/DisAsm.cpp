@@ -4,6 +4,7 @@
 #include "resource.h"
 #include "win32/InputBox.h"
 #include "win32/Font.h"
+#include "win32/DefaultWndClass.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "lexical_cast_ex.h"
@@ -11,8 +12,6 @@
 #include "../Ps2Const.h"
 #include "win32/ClientDeviceContext.h"
 #include "DebugExpressionEvaluator.h"
-
-#define CLSNAME		_T("CDisAsm")
 
 #define ID_DISASM_GOTOPC		40001
 #define ID_DISASM_GOTOADDRESS	40002
@@ -22,7 +21,7 @@
 #define ID_DISASM_GOTOPREV		40006
 #define ID_DISASM_GOTONEXT		40007
 
-CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
+CDisAsm::CDisAsm(HWND parentWnd, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
 : m_virtualMachine(virtualMachine)
 , m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
 , m_ctx(ctx)
@@ -51,21 +50,7 @@ CDisAsm::CDisAsm(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine
 		m_renderMetrics.xtextStart = m_renderMetrics.xmargin + MulDiv(fontSize.cx, 3, 5);
 	}
 
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		WNDCLASSEX w;
-		memset(&w, 0, sizeof(WNDCLASSEX));
-		w.cbSize		= sizeof(WNDCLASSEX);
-		w.lpfnWndProc	= CWindow::WndProc;
-		w.lpszClassName	= CLSNAME;
-		w.hbrBackground	= NULL;
-		w.hInstance		= GetModuleHandle(NULL);
-		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
-		w.style			= CS_DBLCLKS | CS_OWNDC;
-		RegisterClassEx(&w);
-	}
-
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, hParent, NULL);
+	Create(WS_EX_CLIENTEDGE, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, parentWnd, NULL);
 	SetClassPtr();
 
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDisAsm::OnMachineStateChange, this));
