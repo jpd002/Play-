@@ -1,5 +1,6 @@
 #include <boost/bind.hpp>
 #include "win32/InputBox.h"
+#include "win32/Font.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "MemoryViewMIPS.h"
@@ -10,7 +11,7 @@ CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine
 , m_virtualMachine(virtualMachine)
 , m_context(context)
 {
-	m_font = CreateFont(-11, 0, 0, 0, 400, 0, 0, 0, 0, 1, 2, 1, 49, _T("Courier New"));
+	m_font = Framework::Win32::CreateFont(_T("Courier New"), 8);
 
 	SetMemorySize(0x02004000);
 

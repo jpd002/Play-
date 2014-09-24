@@ -1,22 +1,26 @@
 #include <stdio.h>
 #include <string.h>
-#include "MemoryView.h"
-#include "string_cast.h"
 #include "win32/ClientDeviceContext.h"
 #include "win32/DefaultWndClass.h"
+#include "string_cast.h"
 #include "lexical_cast_ex.h"
+#include "MemoryView.h"
+#include "WinUtils.h"
 
-#define XMARGIN				5
-#define YMARGIN				5
-#define YSPACE				0
-#define BYTESPACING			3
-#define LINESECTIONSPACING	10
 #define ADDRESSCHARS		8
 #define PAGESIZE			10
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 : m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
 {
+	{
+		m_renderMetrics.xmargin				= WinUtils::PointsToPixels(5);
+		m_renderMetrics.ymargin				= WinUtils::PointsToPixels(5);
+		m_renderMetrics.yspace				= WinUtils::PointsToPixels(0);
+		m_renderMetrics.byteSpacing			= WinUtils::PointsToPixels(3);
+		m_renderMetrics.lineSectionSpacing	= WinUtils::PointsToPixels(10);
+	}
+
 	Create(WS_EX_CLIENTEDGE, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, parentWnd, NULL);
 	SetClassPtr();
 
@@ -120,7 +124,7 @@ void CMemoryView::Paint(HDC hDC)
 	SIZE fontSize = deviceContext.GetFontSize(m_font);
 
 	auto renderParams = GetRenderParams();
-	unsigned int nY = YMARGIN;
+	unsigned int nY = m_renderMetrics.ymargin;
 	uint32 address = renderParams.address;
 
 	for(unsigned int i = 0; i < renderParams.lines; i++)
@@ -136,19 +140,19 @@ void CMemoryView::Paint(HDC hDC)
 			bytesForCurrentLine = (m_size - address);
 		}
 
-		unsigned int nX = XMARGIN;
+		unsigned int nX = m_renderMetrics.xmargin;
 		deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(address, ADDRESSCHARS).c_str());
-		nX += (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING;
+		nX += (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing;
 
 		for(unsigned int j = 0; j < bytesForCurrentLine; j++)
 		{
 			deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(GetByte(address + j), 2).c_str());
-			nX += (2 * fontSize.cx) + BYTESPACING;
+			nX += (2 * fontSize.cx) + m_renderMetrics.byteSpacing;
 		}
 		//Compensate for incomplete lines (when bytesForCurrentLine < bytesPerLine)
-		nX += (renderParams.bytesPerLine - bytesForCurrentLine) * (2 * fontSize.cx + BYTESPACING);
+		nX += (renderParams.bytesPerLine - bytesForCurrentLine) * (2 * fontSize.cx + m_renderMetrics.byteSpacing);
 
-		nX += LINESECTIONSPACING;
+		nX += m_renderMetrics.lineSectionSpacing;
 
 		for(unsigned int j = 0; j < bytesForCurrentLine; j++)
 		{
@@ -166,7 +170,7 @@ void CMemoryView::Paint(HDC hDC)
 			nX += fontSize.cx;
 		}
 
-		nY += (fontSize.cy + YSPACE);
+		nY += (fontSize.cy + m_renderMetrics.yspace);
 		address += bytesForCurrentLine;
 	}
 }
@@ -295,14 +299,14 @@ long CMemoryView::OnLeftButtonUp(int nX, int nY)
 {
 	SIZE fontSize = Framework::Win32::CClientDeviceContext(m_hWnd).GetFontSize(m_font);
 
-	nY -= YMARGIN;
-	nX -= XMARGIN + (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING;
+	nY -= m_renderMetrics.ymargin;
+	nX -= m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing;
 
 	if(nY < 0) return FALSE;
 	if(nX < 0) return FALSE;
 
-	unsigned int selectedLine = nY / (fontSize.cy + YSPACE);
-	unsigned int selectedByte = nX / ((2 * fontSize.cx) + BYTESPACING);
+	unsigned int selectedLine = nY / (fontSize.cy + m_renderMetrics.yspace);
+	unsigned int selectedByte = nX / ((2 * fontSize.cx) + m_renderMetrics.byteSpacing);
 
 	auto renderParams = GetRenderParams();
 
@@ -368,8 +372,8 @@ void CMemoryView::UpdateCaretPosition()
 		)
 	{
 		unsigned int selectionStart = m_selectionStart - renderParams.address;
-		int nX = XMARGIN + (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING + (selectionStart % renderParams.bytesPerLine) * ((2 * fontSize.cx) + BYTESPACING);
-		int nY = YMARGIN + (fontSize.cy + YSPACE) * (selectionStart / renderParams.bytesPerLine);
+		int nX = m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing + (selectionStart % renderParams.bytesPerLine) * ((2 * fontSize.cx) + m_renderMetrics.byteSpacing);
+		int nY = m_renderMetrics.ymargin + (fontSize.cy + m_renderMetrics.yspace) * (selectionStart / renderParams.bytesPerLine);
 		SetCaretPos(nX, nY);
 	}
 	else
@@ -420,14 +424,14 @@ CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 
 	RECT clientRect(GetClientRect());
 
-	renderParams.totallyVisibleLines = (clientRect.bottom - (YMARGIN * 2)) / (fontSize.cy + YSPACE);
+	renderParams.totallyVisibleLines = (clientRect.bottom - (m_renderMetrics.ymargin * 2)) / (fontSize.cy + m_renderMetrics.yspace);
 	renderParams.lines = renderParams.totallyVisibleLines + 1;
 	
 	if(m_bytesPerLine == 0)
 	{
-		//lineSize = (2 * XMARGIN) + (2 * LINESECTIONSPACING) + (ADDRESSCHARS * cx) + bytesPerLine * (2 * cx + BYTESPACING) + bytesPerLine * cx
-		renderParams.bytesPerLine = clientRect.right - (2 * XMARGIN) - (2 * LINESECTIONSPACING) - (ADDRESSCHARS * fontSize.cx);
-		renderParams.bytesPerLine /= ((2 * fontSize.cx + BYTESPACING) + (fontSize.cx));
+		//lineSize = (2 * m_renderMetrics.xmargin) + (2 * m_renderMetrics.lineSectionSpacing) + (ADDRESSCHARS * cx) + bytesPerLine * (2 * cx + m_renderMetrics.byteSpacing) + bytesPerLine * cx
+		renderParams.bytesPerLine = clientRect.right - (2 * m_renderMetrics.xmargin) - (2 * m_renderMetrics.lineSectionSpacing) - (ADDRESSCHARS * fontSize.cx);
+		renderParams.bytesPerLine /= ((2 * fontSize.cx + m_renderMetrics.byteSpacing) + (fontSize.cx));
 	}
 	else
 	{

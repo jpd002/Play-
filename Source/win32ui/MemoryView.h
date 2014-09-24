@@ -48,6 +48,15 @@ protected:
 	Framework::Win32::CFont					m_font;
 
 private:
+	struct RENDERMETRICS
+	{
+		unsigned int	xmargin = 0;
+		unsigned int	ymargin = 0;
+		unsigned int	yspace = 0;
+		unsigned int	byteSpacing = 0;
+		unsigned int	lineSectionSpacing = 0;
+	};
+
 	struct RENDERPARAMS
 	{
 		unsigned int	lines = 0;
@@ -66,4 +75,5 @@ private:
 	uint32									m_selectionStart = 0;
 	uint32									m_size = 0;
 	uint32									m_bytesPerLine = 0;
+	RENDERMETRICS							m_renderMetrics;
 };
