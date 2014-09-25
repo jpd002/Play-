@@ -205,8 +205,6 @@ END
 
 IDB_ARROW               BITMAP                  "Images\\arrow.bmp"
 IDB_BREAKPOINT          BITMAP                  "Images\\bpoint.bmp"
-IDB_EXD                 BITMAP                  "Images\\exd.bmp"
-IDB_EX                  BITMAP                  "Images\\ex.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

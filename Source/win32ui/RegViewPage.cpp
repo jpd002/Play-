@@ -31,7 +31,7 @@ CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
 		RegisterClassEx(&w);
 	}
 
-	Create(WS_EX_CLIENTEDGE, CLSNAME, _T(""), WS_CHILD | WS_VSCROLL, rect, hParent, NULL);
+	Create(0, CLSNAME, _T(""), WS_CHILD | WS_VSCROLL, rect, hParent, NULL);
 	SetClassPtr();
 }
 
