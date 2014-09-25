@@ -693,15 +693,14 @@ void CDisAsm::Paint(HDC hDC)
 	SetRect(&rmarg, 0, 0, m_renderMetrics.leftBarSize, rwin.bottom);
 	FillRect(hDC, &rmarg, (HBRUSH)COLOR_WINDOW);
 
-	HPEN ltGrayPen = CreatePen(PS_SOLID, WinUtils::PointsToPixels(2), RGB(0x40, 0x40, 0x40));
+	Framework::Win32::CPen ltGrayPen = CreatePen(PS_SOLID, WinUtils::PointsToPixels(2), RGB(0x40, 0x40, 0x40));
 
 	//Draw the margin border line
 	{
-		HPEN pen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
+		Framework::Win32::CPen pen = CreatePen(PS_SOLID, 0, RGB(0x80, 0x80, 0x80));
 		SelectObject(hDC, pen);
 		MoveToEx(hDC, m_renderMetrics.leftBarSize, 0, NULL);
 		LineTo(hDC, m_renderMetrics.leftBarSize, rwin.bottom);
-		DeleteObject(pen);
 	}
 
 	SetBkMode(hDC, TRANSPARENT);
@@ -793,8 +792,6 @@ void CDisAsm::Paint(HDC hDC)
 
 		y += lineStep;
 	}
-
-	DeleteObject(ltGrayPen);
 }
 
 unsigned int CDisAsm::BuildContextMenu(HMENU menuHandle)
