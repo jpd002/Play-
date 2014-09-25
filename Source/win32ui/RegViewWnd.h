@@ -26,7 +26,7 @@ private:
 	void				OnTabChange(unsigned int);
 	void				RefreshLayout();
 
-	CWindow*			m_pRegView[MAXTABS];
-	CWindow*			m_pCurrent;
-	CNiceTabs*			m_pTabs;
+	CWindow*			m_regView[MAXTABS];
+	CWindow*			m_current = nullptr;
+	CNiceTabs*			m_tabs = nullptr;
 };
