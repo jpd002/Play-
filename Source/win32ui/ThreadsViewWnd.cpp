@@ -4,40 +4,30 @@
 #include "ThreadsViewWnd.h"
 #include "ThreadCallStackViewWnd.h"
 #include "win32/Rect.h"
+#include "win32/DefaultWndClass.h"
 #include "../PS2VM.h"
 #include "resource.h"
 #include "DebugUtils.h"
+#include "WinUtils.h"
 
-#define CLSNAME		_T("ThreadsViewWnd")
+#define WND_STYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
-CThreadsViewWnd::CThreadsViewWnd(HWND hParent, CVirtualMachine& virtualMachine)
+CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine)
 : m_listView(nullptr)
 , m_context(nullptr)
 , m_biosDebugInfoProvider(nullptr)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		WNDCLASSEX wc;
-		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		RegisterClassEx(&wc);
-	}
+	auto windowRect = WinUtils::PointsToPixels(Framework::Win32::CRect(0, 0, 700, 300));
 
-	Create(NULL, CLSNAME, _T("Threads"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, 
-		Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
+	Create(NULL, Framework::Win32::CDefaultWndClass().GetName(), _T("Threads"), WND_STYLE, windowRect, parentWnd, NULL);
 	SetClassPtr();
 
-	m_listView = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT);
-	m_listView->SetExtendedListViewStyle(m_listView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
+	m_listView = Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT);
+	m_listView.SetExtendedListViewStyle(m_listView.GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	CreateColumns();
 
-	SetSize(700, 300);
+	SetSize(windowRect.Width(), windowRect.Height());
 	RefreshLayout();
 
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CThreadsViewWnd::Update, this));
@@ -46,7 +36,7 @@ CThreadsViewWnd::CThreadsViewWnd(HWND hParent, CVirtualMachine& virtualMachine)
 
 CThreadsViewWnd::~CThreadsViewWnd()
 {
-	delete m_listView;
+
 }
 
 void CThreadsViewWnd::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
@@ -60,50 +50,61 @@ void CThreadsViewWnd::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDeb
 void CThreadsViewWnd::CreateColumns()
 {
 	LVCOLUMN col;
-	RECT rc = m_listView->GetClientRect();
+	RECT rc = m_listView.GetClientRect();
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Id");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(0, col);
+	m_listView.InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Priority");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(1, col);
+	m_listView.InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Location");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(2, col);
+	m_listView.InsertColumn(2, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("State");
 	col.mask	= LVCF_TEXT;
-	m_listView->InsertColumn(3, col);
+	m_listView.InsertColumn(3, col);
 }
 
 void CThreadsViewWnd::RefreshLayout()
 {
-	if(m_listView != NULL)
+	if(m_listView.m_hWnd != NULL)
 	{
-		RECT rc = GetClientRect();
+		{
+			auto rc = GetClientRect();
+			m_listView.SetSizePosition(rc);
+		}
 
-		m_listView->SetPosition(0, 0);
-		m_listView->SetSize(rc.right, rc.bottom);
+		{
+			auto rc = m_listView.GetClientRect();
 
-		rc = m_listView->GetClientRect();
+			{
+				unsigned int colSize = WinUtils::PointsToPixels(50);
+				m_listView.SetColumnWidth(0, colSize);
+				rc.SetRight(rc.Right() - colSize);
+			}
 
-		m_listView->SetColumnWidth(0, 50);
-		rc.right -= 50;
+			{
+				unsigned int colSize = WinUtils::PointsToPixels(50);
+				m_listView.SetColumnWidth(1, colSize);
+				rc.SetRight(rc.Right() - colSize);
+			}
 
-		m_listView->SetColumnWidth(1, 50);
-		rc.right -= 50;
+			{
+				unsigned int colSize = WinUtils::PointsToPixels(400);
+				m_listView.SetColumnWidth(2, colSize);
+				rc.SetRight(rc.Right() - colSize);
+			}
 
-		m_listView->SetColumnWidth(2, 400);
-		rc.right -= 400;
-
-		m_listView->SetColumnWidth(3, rc.right);
+			m_listView.SetColumnWidth(3, rc.Right());
+		}
 	}
 }
 
@@ -126,16 +127,13 @@ long CThreadsViewWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 
 long CThreadsViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
 {
-	if(m_listView != NULL)
+	if(CWindow::IsNotifySource(&m_listView, pHdr))
 	{
-		if(CWindow::IsNotifySource(m_listView, pHdr))
+		switch(pHdr->code)
 		{
-			switch(pHdr->code)
-			{
-			case NM_DBLCLK:
-				OnListDblClick();
-				break;
-			}
+		case NM_DBLCLK:
+			OnListDblClick();
+			break;
 		}
 	}
 	return FALSE;
@@ -143,7 +141,7 @@ long CThreadsViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
 
 void CThreadsViewWnd::Update()
 {
-	m_listView->DeleteAllItems();
+	m_listView.DeleteAllItems();
 
 	if(!m_biosDebugInfoProvider) return;
 
@@ -157,32 +155,27 @@ void CThreadsViewWnd::Update()
 
 		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
-		item.iItem		= m_listView->GetItemCount();
+		item.iItem		= m_listView.GetItemCount();
 		item.lParam		= threadInfo.id;
 		item.mask		= LVIF_PARAM;
-		int itemIndex = m_listView->InsertItem(item);
+		int itemIndex = m_listView.InsertItem(item);
 
-		m_listView->SetItemText(itemIndex, 0, boost::lexical_cast<std::tstring>(threadInfo.id).c_str());
-		m_listView->SetItemText(itemIndex, 1, boost::lexical_cast<std::tstring>(threadInfo.priority).c_str());
+		m_listView.SetItemText(itemIndex, 0, boost::lexical_cast<std::tstring>(threadInfo.id).c_str());
+		m_listView.SetItemText(itemIndex, 1, boost::lexical_cast<std::tstring>(threadInfo.priority).c_str());
 
 		std::tstring locationString = DebugUtils::PrintAddressLocation(threadInfo.pc, m_context, moduleInfos);
-		m_listView->SetItemText(itemIndex, 2, locationString.c_str());
+		m_listView.SetItemText(itemIndex, 2, locationString.c_str());
 
-		m_listView->SetItemText(itemIndex, 3, string_cast<std::tstring>(threadInfo.stateDescription).c_str());
+		m_listView.SetItemText(itemIndex, 3, string_cast<std::tstring>(threadInfo.stateDescription).c_str());
 	}
-}
-
-INT_PTR WINAPI DialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	return FALSE;
 }
 
 void CThreadsViewWnd::OnListDblClick()
 {
-	int nSelection = m_listView->GetSelection();
+	int nSelection = m_listView.GetSelection();
 	if(nSelection == -1) return;
 
-	uint32 threadId = m_listView->GetItemData(nSelection);
+	uint32 threadId = m_listView.GetItemData(nSelection);
 
 	auto threadInfos = m_biosDebugInfoProvider->GetThreadsDebugInfo();
 

@@ -30,7 +30,7 @@ private:
 	void									RefreshLayout();
 	void									OnListDblClick();
 
-	Framework::Win32::CListView*			m_listView;
+	Framework::Win32::CListView				m_listView;
 
 	CMIPS*									m_context;
 	CBiosDebugInfoProvider*					m_biosDebugInfoProvider;
