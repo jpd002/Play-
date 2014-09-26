@@ -102,18 +102,18 @@ void CDisAsmVu::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceC
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 4, upperInstruction, disAsm, 256);
-		deviceContext.TextOut(m_renderMetrics.fontSizeX * 42, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_renderMetrics.fontSizeX * 43, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 0, lowerInstruction, disAsm, 256);
-		deviceContext.TextOut(m_renderMetrics.fontSizeX * 66, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_renderMetrics.fontSizeX * 71, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 0, lowerInstruction, disAsm, 256);
-		deviceContext.TextOut(m_renderMetrics.fontSizeX * 73, y, string_cast<std::tstring>(disAsm).c_str());
+		deviceContext.TextOut(m_renderMetrics.fontSizeX * 79, y, string_cast<std::tstring>(disAsm).c_str());
 	}
 }
