@@ -12,6 +12,8 @@
 
 using namespace Framework;
 
+#define SCALE(x) MulDiv(x, ydpi, 96)
+
 CRendererSettingsWnd::CRendererSettingsWnd(HWND hParent, CGSH_OpenGL* pRenderer) :
 CModalWindow(hParent)
 {
@@ -33,7 +35,11 @@ CModalWindow(hParent)
 		RegisterClassEx(&w);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("Renderer Settings"), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 350), hParent, NULL);
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+	int width = MulDiv(400, ydpi, 96);
+	int height = MulDiv(350, ydpi, 96);
+
+	Create(WNDSTYLEEX, CLSNAME, _T("Renderer Settings"), WNDSTYLE, Framework::Win32::CRect(0, 0, width, height), hParent, NULL);
 	SetClassPtr();
 
 	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
@@ -60,28 +66,28 @@ CModalWindow(hParent)
 
 	FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
 	{
-		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(150, 23, new Win32::CStatic(m_hWnd, _T("Swap frame buffer at:"), SS_CENTERIMAGE)));
+		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(150, SCALE(23), new Win32::CStatic(m_hWnd, _T("Swap frame buffer at:"), SS_CENTERIMAGE)));
 		pSubLayout0->InsertObject(CLayoutStretch::Create());
-		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 23, m_pFlipModeComboBox));
+		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(23), m_pFlipModeComboBox));
 		pSubLayout0->SetVerticalStretch(0);
 	}
 
 	FlatLayoutPtr pSubLayout1 = CHorizontalLayout::Create();
 	{
 		pSubLayout1->InsertObject(CLayoutStretch::Create());
-		pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk));
-		pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel));
+		pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, SCALE(23), m_pOk));
+		pSubLayout1->InsertObject(Win32::CLayoutWindow::CreateButtonBehavior(100, SCALE(23), m_pCancel));
 		pSubLayout1->SetVerticalStretch(0);
 	}
 
 	m_pLayout = CVerticalLayout::Create();
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pLineCheck));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pForceBilinearCheck));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(15), m_pLineCheck));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(15), m_pForceBilinearCheck));
 	m_pLayout->InsertObject(pSubLayout0);
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, rc, SS_ETCHEDHORZ)));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(15), new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pExtList));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 30, new Win32::CStatic(m_hWnd, _T("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
+	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(30), new Win32::CStatic(m_hWnd, _T("For more information about the consequences of the absence of an extension, please consult the documentation."), SS_LEFT)));
 	m_pLayout->InsertObject(pSubLayout1);
 
 	RefreshLayout();

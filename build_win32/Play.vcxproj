@@ -433,7 +433,6 @@
     <ClCompile Include="..\Source\win32ui\MemoryViewMIPS.cpp" />
     <ClCompile Include="..\Source\win32ui\MemoryViewMIPSWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\MemoryViewPtr.cpp" />
-    <ClCompile Include="..\Source\win32ui\NiceTabs.cpp" />
     <ClCompile Include="..\Source\win32ui\OptionWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\OutputWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\PH_DirectInput.cpp" />
@@ -644,7 +643,6 @@
     <ClInclude Include="..\Source\win32ui\MemoryViewMIPS.h" />
     <ClInclude Include="..\Source\win32ui\MemoryViewMIPSWnd.h" />
     <ClInclude Include="..\Source\win32ui\MemoryViewPtr.h" />
-    <ClInclude Include="..\Source\win32ui\NiceTabs.h" />
     <ClInclude Include="..\Source\win32ui\OptionWnd.h" />
     <ClInclude Include="..\Source\win32ui\OutputWnd.h" />
     <ClInclude Include="..\Source\win32ui\PH_DirectInput.h" />
@@ -673,8 +671,6 @@
     <None Include="..\Source\License.txt" />
     <None Include="..\Source\win32ui\Images\arrow.bmp" />
     <None Include="..\Source\win32ui\Images\bpoint.bmp" />
-    <None Include="..\Source\win32ui\Images\ex.bmp" />
-    <None Include="..\Source\win32ui\Images\exd.bmp" />
     <None Include="..\Source\win32ui\images\grab.cur" />
     <None Include="..\Source\win32ui\images\grabbing.cur" />
     <None Include="..\Source\win32ui\Images\purei.ico" />

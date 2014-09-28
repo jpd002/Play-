@@ -2,8 +2,15 @@
 #include <boost/lexical_cast.hpp>
 #include <iomanip>
 #include <functional>
-#include "MainWindow.h"
+#include "string_format.h"
+#include "string_cast.h"
+#include "StdStreamUtils.h"
 #include "PtrMacro.h"
+#include "PathUtils.h"
+#include "win32/FileDialog.h"
+#include "win32/AcceleratorTableGenerator.h"
+#include "win32/MenuItem.h"
+#include "MainWindow.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../PS2OS.h"
@@ -11,9 +18,6 @@
 #include "GSH_OpenGLWin32.h"
 #include "../GSH_Null.h"
 #include "PH_DirectInput.h"
-#include "win32/FileDialog.h"
-#include "win32/AcceleratorTableGenerator.h"
-#include "win32/MenuItem.h"
 #include "VFSManagerWnd.h"
 #include "McManagerWnd.h"
 #include "Debugger.h"
@@ -21,11 +25,8 @@
 #include "AboutWnd.h"
 #include "../Profiler.h"
 #include "resource.h"
-#include "string_cast.h"
 #include "FileFilters.h"
-#include "PathUtils.h"
-#include "string_format.h"
-#include "StdStreamUtils.h"
+#include "WinUtils.h"
 
 #define CLSNAME						_T("MainWindow")
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
@@ -87,7 +88,8 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 		RegisterClassEx(&wc);
 	}
 
-	Create(NULL, CLSNAME, _T(""), WNDSTYLE, Framework::Win32::CRect(0, 0, 640, 480), NULL, NULL);
+	auto windowRect = WinUtils::PointsToPixels(Framework::Win32::CRect(0, 0, 640, 480));
+	Create(NULL, CLSNAME, _T(""), WNDSTYLE, windowRect, NULL, NULL);
 	SetClassPtr();
 
 #ifdef DEBUGGER_INCLUDED

@@ -15,6 +15,7 @@
 #define CLSNAME			_T("VFSManagerWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
+#define SCALE(x)		MulDiv(x, ydpi, 96)
 
 using namespace Framework;
 using namespace std;
@@ -36,7 +37,9 @@ CModalWindow(hParent)
 		RegisterClassEx(&w);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("Virtual File System Manager"), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 250), hParent, NULL);
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+
+	Create(WNDSTYLEEX, CLSNAME, _T("Virtual File System Manager"), WNDSTYLE, Framework::Win32::CRect(0, 0, SCALE(400), SCALE(250)), hParent, NULL);
 	SetClassPtr();
 
 	m_pList = new Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SORTASCENDING);
@@ -48,11 +51,11 @@ CModalWindow(hParent)
 	m_pLayout =
 		VerticalLayoutContainer(
 			LayoutExpression(Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pList)) +
-			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 40, new Win32::CStatic(m_hWnd, _T("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT))) +
+			LayoutExpression(Win32::CLayoutWindow::CreateTextBoxBehavior(SCALE(100), SCALE(50), new Win32::CStatic(m_hWnd, _T("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT))) +
 			HorizontalLayoutContainer(
 				LayoutExpression(CLayoutStretch::Create()) +
-				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk)) +
-				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel))
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pOk)) +
+				LayoutExpression(Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pCancel))
 			)
 		);
 

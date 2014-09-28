@@ -13,6 +13,8 @@
 #define DEFAULT_GROUPID		(1)
 #define DEFAULT_GROUPNAME	_T("Global")
 
+#define SCALE(x)	MulDiv(x, ydpi, 96)
+
 CFunctionsView::CFunctionsView(HWND hParent) 
 : m_context(nullptr)
 , m_biosDebugInfoProvider(nullptr)
@@ -34,7 +36,8 @@ CFunctionsView::CFunctionsView(HWND hParent)
 #ifndef FUNCTIONSVIEW_STANDALONE
 	windowStyle |= WS_CHILD;
 #endif
-	Create(NULL, CLSNAME, _T("Functions"), windowStyle, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+	Create(NULL, CLSNAME, _T("Functions"), windowStyle, Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
 	SetClassPtr();
 
 	m_pList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 0, 0), LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
@@ -49,16 +52,16 @@ CFunctionsView::CFunctionsView(HWND hParent)
 
 	Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
 	pSubLayout0->InsertObject(Framework::CLayoutStretch::Create());
-	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pNew));
-	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pRename));
-	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pDelete));
-	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pImport));
+	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pNew));
+	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pRename));
+	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pDelete));
+	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pImport));
 
 	m_pLayout = Framework::CVerticalLayout::Create();
 	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pList));
 	m_pLayout->InsertObject(pSubLayout0);
 
-	SetSize(469, 612);
+	SetSize(SCALE(469), SCALE(612));
 
 	RefreshLayout();
 }

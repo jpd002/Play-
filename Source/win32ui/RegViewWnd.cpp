@@ -3,60 +3,35 @@
 #include "RegViewSCU.h"
 #include "RegViewFPU.h"
 #include "RegViewVU.h"
-#include "PtrMacro.h"
+#include "win32/DefaultWndClass.h"
 
-#define CLSNAME		_T("CRegViewWnd")
+#define WND_STYLE (WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
-using namespace Framework;
-using namespace boost;
-
-CRegViewWnd::CRegViewWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+CRegViewWnd::CRegViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS* ctx)
 {
-	RECT rc;
+	auto windowRect = Framework::Win32::CRect(0, 0, 320, 240);
 
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		WNDCLASSEX wc;
-		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		RegisterClassEx(&wc);
-	}
-	
-	SetRect(&rc, 0, 0, 320, 240);
-
-	Create(NULL, CLSNAME, _T("Registers"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, &rc, hParent, NULL);
+	Create(NULL, Framework::Win32::CDefaultWndClass::GetName(), _T("Registers"), WND_STYLE, windowRect, parentWnd, NULL);
 	SetClassPtr();
 
-	m_pRegView[0] = new CRegViewGeneral(m_hWnd, rc, virtualMachine, pCtx);
-	m_pRegView[1] = new CRegViewSCU(m_hWnd, rc, virtualMachine, pCtx);
-	m_pRegView[2] = new CRegViewFPU(m_hWnd, rc, virtualMachine, pCtx);
-	m_pRegView[3] = new CRegViewVU(m_hWnd, rc, virtualMachine, pCtx);
+	m_tabs = Framework::Win32::CTab(m_hWnd, windowRect, TCS_BOTTOM);
+	m_tabs.InsertTab(_T("General"));
+	m_tabs.InsertTab(_T("SCU"));
+	m_tabs.InsertTab(_T("FPU"));
+	m_tabs.InsertTab(_T("VU"));
 
-	m_pRegView[0]->Enable(false);
-	m_pRegView[1]->Enable(false);
-	m_pRegView[2]->Enable(false);
-	m_pRegView[3]->Enable(false);
+	m_regView[0] = new CRegViewGeneral(m_hWnd, windowRect, virtualMachine, ctx);
+	m_regView[1] = new CRegViewSCU(m_hWnd, windowRect, virtualMachine, ctx);
+	m_regView[2] = new CRegViewFPU(m_hWnd, windowRect, virtualMachine, ctx);
+	m_regView[3] = new CRegViewVU(m_hWnd, windowRect, virtualMachine, ctx);
 
-	m_pRegView[0]->Show(SW_HIDE);
-	m_pRegView[1]->Show(SW_HIDE);
-	m_pRegView[2]->Show(SW_HIDE);
-	m_pRegView[3]->Show(SW_HIDE);
+	for(unsigned int i = 0; i < MAXTABS; i++)
+	{
+		m_regView[i]->Enable(false);
+		m_regView[i]->Show(SW_HIDE);
+	}
 
-	m_pTabs = new CNiceTabs(m_hWnd, rc);
-	m_pTabs->InsertTab(_T("General"),	CNiceTabs::TAB_FLAG_UNDELETEABLE, 0);
-	m_pTabs->InsertTab(_T("SCU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 1);
-	m_pTabs->InsertTab(_T("FPU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 2);
-	m_pTabs->InsertTab(_T("VU"),		CNiceTabs::TAB_FLAG_UNDELETEABLE, 3);
-
-	m_pCurrent = NULL;
-	SetCurrentView(0);
-
-	m_pTabs->OnTabChange.connect(bind(&CRegViewWnd::OnTabChange, this, _1));
+	SelectTab(0);
 
 	RefreshLayout();
 }
@@ -65,35 +40,35 @@ CRegViewWnd::~CRegViewWnd()
 {
 	for(unsigned int i = 0; i < MAXTABS; i++)
 	{
-		DELETEPTR(m_pRegView[i]);
+		delete m_regView[i];
 	}
-
-	DELETEPTR(m_pTabs);
 }
 
 void CRegViewWnd::RefreshLayout()
 {
-	RECT rc = GetClientRect();
+	auto clientRect = GetClientRect();
 
-	if(m_pCurrent != NULL)
+	m_tabs.SetSizePosition(clientRect);
+
+	if(m_current != nullptr)
 	{
-		m_pCurrent->SetSize(rc.right, rc.bottom - 21);
+		auto displayAreaRect = m_tabs.GetDisplayAreaRect();
+		displayAreaRect.ClientToScreen(m_tabs.m_hWnd);
+		displayAreaRect.ScreenToClient(m_hWnd);
+		m_current->SetSizePosition(displayAreaRect);
+		SetWindowPos(m_tabs.m_hWnd, m_current->m_hWnd, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 	}
-
-	m_pTabs->SetPosition(0, rc.bottom - 21);
-	m_pTabs->SetSize(rc.right, 21);
-
 }
 
-long CRegViewWnd::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
+long CRegViewWnd::OnSize(unsigned int, unsigned int, unsigned int)
 {
 	RefreshLayout();
 	return TRUE;
 }
 
-long CRegViewWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
+long CRegViewWnd::OnSysCommand(unsigned int cmd, LPARAM)
 {
-	switch(nCmd)
+	switch(cmd)
 	{
 	case SC_CLOSE:
 		Show(SW_HIDE);
@@ -102,27 +77,46 @@ long CRegViewWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 	return TRUE;
 }
 
-void CRegViewWnd::OnTabChange(unsigned int nTabID)
+long CRegViewWnd::OnNotify(WPARAM param, NMHDR* hdr)
 {
-	SetCurrentView(nTabID);
+	if(CWindow::IsNotifySource(&m_tabs, hdr))
+	{
+		switch(hdr->code)
+		{
+		case TCN_SELCHANGING:
+			UnselectTab(m_tabs.GetSelection());
+			break;
+		case TCN_SELCHANGE:
+			SelectTab(m_tabs.GetSelection());
+			break;
+		}
+	}
+	return FALSE;
 }
 
-void CRegViewWnd::SetCurrentView(unsigned int nView)
+void CRegViewWnd::SelectTab(unsigned int viewIndex)
 {
-	if(m_pCurrent != NULL)
-	{
-		m_pCurrent->Enable(false);
-		m_pCurrent->Show(SW_HIDE);
-	}
+	assert(m_current == nullptr);
 
-	m_pCurrent = m_pRegView[nView];
+	m_current = m_regView[viewIndex];
 
-	if(m_pCurrent != NULL)
+	if(m_current != nullptr)
 	{
-		m_pCurrent->Enable(true);
-		m_pCurrent->Show(SW_SHOW);
-		m_pCurrent->SetFocus();
+		m_current->Enable(true);
+		m_current->Show(SW_SHOW);
+		m_current->SetFocus();
 	}
 
 	RefreshLayout();
+}
+
+void CRegViewWnd::UnselectTab(unsigned int viewIndex)
+{
+	if(m_current != nullptr)
+	{
+		m_current->Enable(false);
+		m_current->Show(SW_HIDE);
+	}
+
+	m_current = nullptr;
 }

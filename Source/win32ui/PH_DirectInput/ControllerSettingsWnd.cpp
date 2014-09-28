@@ -12,6 +12,7 @@
 #define CLSNAME		_T("ContollerSettingsWnd")
 #define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
+#define SCALE(x)	MulDiv(x, ydpi, 96)
 
 using namespace PH_DirectInput;
 
@@ -36,7 +37,9 @@ CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, CInputManager& input
 		RegisterClassEx(&wc);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("Controller Settings"), WNDSTYLE, Framework::Win32::CRect(0, 0, 550, 400), parent, NULL);
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+
+	Create(WNDSTYLEEX, CLSNAME, _T("Controller Settings"), WNDSTYLE, Framework::Win32::CRect(0, 0, SCALE(550), SCALE(400)), parent, NULL);
 	SetClassPtr();
 
 	m_bindingList		= new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_NOSORTHEADER);
@@ -48,12 +51,12 @@ CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, CInputManager& input
 
 	m_layout = 
 		Framework::VerticalLayoutContainer(
-			Framework::Win32::CLayoutWindow::CreateCustomBehavior(100, 100, 1, 1, m_bindingList) +
+		Framework::Win32::CLayoutWindow::CreateCustomBehavior(SCALE(100), SCALE(100), 1, 1, m_bindingList) +
 			Framework::HorizontalLayoutContainer(
-				Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_autoConfigButton) +
+			Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_autoConfigButton) +
 				Framework::CLayoutStretch::Create() +
-				Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_ok) +
-				Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_cancel)
+				Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_ok) +
+				Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_cancel)
 			)
 		);
 

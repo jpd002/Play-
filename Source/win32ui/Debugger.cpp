@@ -14,8 +14,8 @@
 #include "xml/Parser.h"
 #include "Debugger.h"
 #include "resource.h"
-#include "PtrMacro.h"
 #include "string_cast.h"
+#include "WinUtils.h"
 
 #define CLSNAME			_T("CDebugger")
 
@@ -105,8 +105,8 @@ CDebugger::~CDebugger()
 		delete m_pView[i];
 	}
 
-	DELETEPTR(m_pELFView);
-	DELETEPTR(m_pFunctionsView);
+	delete m_pELFView;
+	delete m_pFunctionsView;
 }
 
 HACCEL CDebugger::GetAccelerators()
@@ -348,58 +348,61 @@ void CDebugger::FindEeFunctions()
 
 void CDebugger::Layout1024()
 {
-	GetDisassemblyWindow()->SetPosition(0, 0);
-	GetDisassemblyWindow()->SetSize(700, 435);
+	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 700, 435));
+	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 0, 324, 572));
+	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 435, 700, 265));
+	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 572, 324, 128));
+
+	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
 
-	GetRegisterViewWindow()->SetPosition(700, 0);
-	GetRegisterViewWindow()->SetSize(324, 572);
+	GetRegisterViewWindow()->SetSizePosition(registerViewWindowRect);
 	GetRegisterViewWindow()->Show(SW_SHOW);
 
-	GetMemoryViewWindow()->SetPosition(0, 435);
-	GetMemoryViewWindow()->SetSize(700, 265);
+	GetMemoryViewWindow()->SetSizePosition(memoryViewWindowRect);
 	GetMemoryViewWindow()->Show(SW_SHOW);
 
-	GetCallStackWindow()->SetPosition(700, 572);
-	GetCallStackWindow()->SetSize(324, 128);
+	GetCallStackWindow()->SetSizePosition(callStackWindowRect);
 	GetCallStackWindow()->Show(SW_SHOW);
 }
 
 void CDebugger::Layout1280()
 {
-	GetDisassemblyWindow()->SetPosition(0, 0);
-	GetDisassemblyWindow()->SetSize(900, 540);
+	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 900, 540));
+	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 0, 380, 784));
+	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 540, 900, 416));
+	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 784, 380, 172));
+
+	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
 
-	GetRegisterViewWindow()->SetPosition(900, 0);
-	GetRegisterViewWindow()->SetSize(380, 784);
+	GetRegisterViewWindow()->SetSizePosition(registerViewWindowRect);
 	GetRegisterViewWindow()->Show(SW_SHOW);
 
-	GetMemoryViewWindow()->SetPosition(0, 540);
-	GetMemoryViewWindow()->SetSize(900, 416);
+	GetMemoryViewWindow()->SetSizePosition(memoryViewWindowRect);
 	GetMemoryViewWindow()->Show(SW_SHOW);
 
-	GetCallStackWindow()->SetPosition(900, 784);
-	GetCallStackWindow()->SetSize(380, 172);
+	GetCallStackWindow()->SetSizePosition(callStackWindowRect);
 	GetCallStackWindow()->Show(SW_SHOW);
 }
 
 void CDebugger::Layout1600()
 {
-	GetDisassemblyWindow()->SetPosition(0, 0);
-	GetDisassemblyWindow()->SetSize(1094, 725);
+	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 1094, 725));
+	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 0, 506, 725));
+	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 725, 1094, 407));
+	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 725, 506, 407));
+
+	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
 
-	GetRegisterViewWindow()->SetPosition(1094, 0);
-	GetRegisterViewWindow()->SetSize(506, 725);
+	GetRegisterViewWindow()->SetSizePosition(registerViewWindowRect);
 	GetRegisterViewWindow()->Show(SW_SHOW);
 
-	GetMemoryViewWindow()->SetPosition(0, 725);
-	GetMemoryViewWindow()->SetSize(1094, 407);
+	GetMemoryViewWindow()->SetSizePosition(memoryViewWindowRect);
 	GetMemoryViewWindow()->Show(SW_SHOW);
 
-	GetCallStackWindow()->SetPosition(1094, 725);
-	GetCallStackWindow()->SetSize(506, 407);
+	GetCallStackWindow()->SetSizePosition(callStackWindowRect);
 	GetCallStackWindow()->Show(SW_SHOW);
 }
 

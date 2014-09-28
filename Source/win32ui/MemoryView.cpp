@@ -1,22 +1,27 @@
 #include <stdio.h>
 #include <string.h>
-#include "MemoryView.h"
-#include "string_cast.h"
 #include "win32/ClientDeviceContext.h"
 #include "win32/DefaultWndClass.h"
+#include "win32/Font.h"
+#include "string_cast.h"
 #include "lexical_cast_ex.h"
+#include "MemoryView.h"
+#include "WinUtils.h"
 
-#define XMARGIN				5
-#define YMARGIN				5
-#define YSPACE				0
-#define BYTESPACING			3
-#define LINESECTIONSPACING	10
 #define ADDRESSCHARS		8
 #define PAGESIZE			10
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 : m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
 {
+	{
+		m_renderMetrics.xmargin				= WinUtils::PointsToPixels(5);
+		m_renderMetrics.ymargin				= WinUtils::PointsToPixels(5);
+		m_renderMetrics.yspace				= WinUtils::PointsToPixels(0);
+		m_renderMetrics.byteSpacing			= WinUtils::PointsToPixels(3);
+		m_renderMetrics.lineSectionSpacing	= WinUtils::PointsToPixels(10);
+	}
+
 	Create(WS_EX_CLIENTEDGE, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, parentWnd, NULL);
 	SetClassPtr();
 
@@ -112,15 +117,15 @@ void CMemoryView::Paint(HDC hDC)
 {
 	Framework::Win32::CDeviceContext deviceContext(hDC);
 
-	RECT rwin = GetClientRect();
-	BitBlt(deviceContext, 0, 0, rwin.right, rwin.bottom, NULL, 0, 0, WHITENESS);
+	auto rwin = GetClientRect();
+	BitBlt(deviceContext, 0, 0, rwin.Right(), rwin.Bottom(), NULL, 0, 0, WHITENESS);
 
 	deviceContext.SelectObject(m_font);
 
-	SIZE fontSize = deviceContext.GetFontSize(m_font);
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
 	auto renderParams = GetRenderParams();
-	unsigned int nY = YMARGIN;
+	unsigned int y = m_renderMetrics.ymargin;
 	uint32 address = renderParams.address;
 
 	for(unsigned int i = 0; i < renderParams.lines; i++)
@@ -136,37 +141,37 @@ void CMemoryView::Paint(HDC hDC)
 			bytesForCurrentLine = (m_size - address);
 		}
 
-		unsigned int nX = XMARGIN;
-		deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(address, ADDRESSCHARS).c_str());
-		nX += (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING;
+		unsigned int x = m_renderMetrics.xmargin;
+		deviceContext.TextOut(x, y, lexical_cast_hex<std::tstring>(address, ADDRESSCHARS).c_str());
+		x += (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing;
 
 		for(unsigned int j = 0; j < bytesForCurrentLine; j++)
 		{
-			deviceContext.TextOut(nX, nY, lexical_cast_hex<std::tstring>(GetByte(address + j), 2).c_str());
-			nX += (2 * fontSize.cx) + BYTESPACING;
+			deviceContext.TextOut(x, y, lexical_cast_hex<std::tstring>(GetByte(address + j), 2).c_str());
+			x += (2 * fontSize.cx) + m_renderMetrics.byteSpacing;
 		}
 		//Compensate for incomplete lines (when bytesForCurrentLine < bytesPerLine)
-		nX += (renderParams.bytesPerLine - bytesForCurrentLine) * (2 * fontSize.cx + BYTESPACING);
+		x += (renderParams.bytesPerLine - bytesForCurrentLine) * (2 * fontSize.cx + m_renderMetrics.byteSpacing);
 
-		nX += LINESECTIONSPACING;
+		x += m_renderMetrics.lineSectionSpacing;
 
 		for(unsigned int j = 0; j < bytesForCurrentLine; j++)
 		{
-			uint8 nValue = GetByte(address + j);
-			if(nValue < 0x20 || nValue > 0x7F)
+			uint8 value = GetByte(address + j);
+			if(value < 0x20 || value > 0x7F)
 			{
-				nValue = '.';
+				value = '.';
 			}
 
-			char sValue[2];
-			sValue[0] = nValue;
-			sValue[1] = 0x00;
+			char valueString[2];
+			valueString[0] = value;
+			valueString[1] = 0x00;
 
-			deviceContext.TextOut(nX, nY, string_cast<std::tstring>(sValue).c_str());
-			nX += fontSize.cx;
+			deviceContext.TextOut(x, y, string_cast<std::tstring>(valueString).c_str());
+			x += fontSize.cx;
 		}
 
-		nY += (fontSize.cy + YSPACE);
+		y += (fontSize.cy + m_renderMetrics.yspace);
 		address += bytesForCurrentLine;
 	}
 }
@@ -186,27 +191,27 @@ void CMemoryView::SetBytesPerLine(uint32 bytesPerLine)
 	Redraw();
 }
 
-long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
+long CMemoryView::OnVScroll(unsigned int scrollType, unsigned int)
 {
 	SCROLLINFO si;
-	int nOffset = (int)GetScrollOffset();
-	switch(nType)
+	int offset = (int)GetScrollOffset();
+	switch(scrollType)
 	{
 	case SB_LINEDOWN:
-		nOffset++;
+		offset++;
 		break;
 	case SB_LINEUP:
-		nOffset--;
+		offset--;
 		break;
 	case SB_PAGEDOWN:
-		nOffset += PAGESIZE;
+		offset += PAGESIZE;
 		break;
 	case SB_PAGEUP:
-		nOffset -= PAGESIZE;
+		offset -= PAGESIZE;
 		break;
 	case SB_THUMBPOSITION:
 	case SB_THUMBTRACK:
-		nOffset = GetScrollThumbPosition();
+		offset = GetScrollThumbPosition();
 		break;
 	default:
 		return FALSE;
@@ -215,7 +220,7 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= nOffset;
+	si.nPos			= offset;
 	si.fMask		= SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
@@ -225,9 +230,9 @@ long CMemoryView::OnVScroll(unsigned int nType, unsigned int nTrackPos)
 	return TRUE;
 }
 
-long CMemoryView::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
+long CMemoryView::OnCommand(unsigned short id, unsigned short, HWND)
 {
-	switch(nID)
+	switch(id)
 	{
 	case ID_MEMORYVIEW_COLUMNS_AUTO:
 		SetBytesPerLine(0);
@@ -242,19 +247,19 @@ long CMemoryView::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 	return TRUE;
 }
 
-long CMemoryView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)
+long CMemoryView::OnSize(unsigned int type, unsigned int x, unsigned int y)
 {
 	UpdateScrollRange();
 	UpdateCaretPosition();
-	CCustomDrawn::OnSize(nType, nX, nY);
+	CCustomDrawn::OnSize(type, x, y);
 	return TRUE;
 }
 
 long CMemoryView::OnSetFocus()
 {
-	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
-	CreateCaret(m_hWnd, NULL, 2, deviceContext.GetFontHeight(m_font));
+	CreateCaret(m_hWnd, NULL, 2, fontSize.cy);
 	ShowCaret(m_hWnd);
 
 	UpdateCaretPosition();
@@ -285,24 +290,24 @@ long CMemoryView::OnMouseWheel(int x, int y, short z)
 	return FALSE;
 }
 
-long CMemoryView::OnLeftButtonDown(int nX, int nY)
+long CMemoryView::OnLeftButtonDown(int x, int y)
 {
 	SetFocus();
 	return FALSE;
 }
 
-long CMemoryView::OnLeftButtonUp(int nX, int nY)
+long CMemoryView::OnLeftButtonUp(int x, int y)
 {
-	SIZE fontSize = Framework::Win32::CClientDeviceContext(m_hWnd).GetFontSize(m_font);
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
-	nY -= YMARGIN;
-	nX -= XMARGIN + (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING;
+	y -= m_renderMetrics.ymargin;
+	x -= m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing;
 
-	if(nY < 0) return FALSE;
-	if(nX < 0) return FALSE;
+	if(y < 0) return FALSE;
+	if(x < 0) return FALSE;
 
-	unsigned int selectedLine = nY / (fontSize.cy + YSPACE);
-	unsigned int selectedByte = nX / ((2 * fontSize.cx) + BYTESPACING);
+	unsigned int selectedLine = y / (fontSize.cy + m_renderMetrics.yspace);
+	unsigned int selectedByte = x / ((2 * fontSize.cx) + m_renderMetrics.byteSpacing);
 
 	auto renderParams = GetRenderParams();
 
@@ -313,13 +318,13 @@ long CMemoryView::OnLeftButtonUp(int nX, int nY)
 	return FALSE;
 }
 
-long CMemoryView::OnRightButtonUp(int nX, int nY)
+long CMemoryView::OnRightButtonUp(int x, int y)
 {
 	HMENU contextualMenu = CreateContextualMenu();
 
 	POINT pt;
-	pt.x = nX;
-	pt.y = nY;
+	pt.x = x;
+	pt.y = y;
 	ClientToScreen(m_hWnd, &pt);
 
 	TrackPopupMenu(contextualMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
@@ -327,9 +332,9 @@ long CMemoryView::OnRightButtonUp(int nX, int nY)
 	return FALSE;
 }
 
-long CMemoryView::OnKeyDown(WPARAM nKey, LPARAM)
+long CMemoryView::OnKeyDown(WPARAM key, LPARAM)
 {
-	switch(nKey)
+	switch(key)
 	{
 	case VK_RIGHT:
 		SetSelectionStart(m_selectionStart + 1);
@@ -341,14 +346,14 @@ long CMemoryView::OnKeyDown(WPARAM nKey, LPARAM)
 	case VK_DOWN:
 		{
 			auto renderParams = GetRenderParams();
-			SetSelectionStart(m_selectionStart + ((nKey == VK_UP) ? (-static_cast<int>(renderParams.bytesPerLine)) : (renderParams.bytesPerLine)));
+			SetSelectionStart(m_selectionStart + ((key == VK_UP) ? (-static_cast<int>(renderParams.bytesPerLine)) : (renderParams.bytesPerLine)));
 		}
 		break;
 	case VK_PRIOR:
 	case VK_NEXT:
 		{
 			auto renderParams = GetRenderParams();
-			SetSelectionStart(m_selectionStart + ((nKey == VK_PRIOR) ? (-static_cast<int>(renderParams.bytesPerLine * PAGESIZE)) : (renderParams.bytesPerLine * PAGESIZE)));
+			SetSelectionStart(m_selectionStart + ((key == VK_PRIOR) ? (-static_cast<int>(renderParams.bytesPerLine * PAGESIZE)) : (renderParams.bytesPerLine * PAGESIZE)));
 		}
 		break;
 	}
@@ -358,8 +363,7 @@ long CMemoryView::OnKeyDown(WPARAM nKey, LPARAM)
 
 void CMemoryView::UpdateCaretPosition()
 {
-	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-	SIZE fontSize(deviceContext.GetFontSize(m_font));
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 	auto renderParams = GetRenderParams();
 	if(
 		(renderParams.bytesPerLine != 0) &&
@@ -368,9 +372,9 @@ void CMemoryView::UpdateCaretPosition()
 		)
 	{
 		unsigned int selectionStart = m_selectionStart - renderParams.address;
-		int nX = XMARGIN + (ADDRESSCHARS * fontSize.cx) + LINESECTIONSPACING + (selectionStart % renderParams.bytesPerLine) * ((2 * fontSize.cx) + BYTESPACING);
-		int nY = YMARGIN + (fontSize.cy + YSPACE) * (selectionStart / renderParams.bytesPerLine);
-		SetCaretPos(nX, nY);
+		int x = m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing + (selectionStart % renderParams.bytesPerLine) * ((2 * fontSize.cx) + m_renderMetrics.byteSpacing);
+		int y = m_renderMetrics.ymargin + (fontSize.cy + m_renderMetrics.yspace) * (selectionStart / renderParams.bytesPerLine);
+		SetCaretPos(x, y);
 	}
 	else
 	{
@@ -413,21 +417,20 @@ void CMemoryView::EnsureSelectionVisible()
 
 CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 {
-	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-	SIZE fontSize(deviceContext.GetFontSize(m_font));
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
 	RENDERPARAMS renderParams;
 
 	RECT clientRect(GetClientRect());
 
-	renderParams.totallyVisibleLines = (clientRect.bottom - (YMARGIN * 2)) / (fontSize.cy + YSPACE);
+	renderParams.totallyVisibleLines = (clientRect.bottom - (m_renderMetrics.ymargin * 2)) / (fontSize.cy + m_renderMetrics.yspace);
 	renderParams.lines = renderParams.totallyVisibleLines + 1;
 	
 	if(m_bytesPerLine == 0)
 	{
-		//lineSize = (2 * XMARGIN) + (2 * LINESECTIONSPACING) + (ADDRESSCHARS * cx) + bytesPerLine * (2 * cx + BYTESPACING) + bytesPerLine * cx
-		renderParams.bytesPerLine = clientRect.right - (2 * XMARGIN) - (2 * LINESECTIONSPACING) - (ADDRESSCHARS * fontSize.cx);
-		renderParams.bytesPerLine /= ((2 * fontSize.cx + BYTESPACING) + (fontSize.cx));
+		//lineSize = (2 * m_renderMetrics.xmargin) + (2 * m_renderMetrics.lineSectionSpacing) + (ADDRESSCHARS * cx) + bytesPerLine * (2 * cx + m_renderMetrics.byteSpacing) + bytesPerLine * cx
+		renderParams.bytesPerLine = clientRect.right - (2 * m_renderMetrics.xmargin) - (2 * m_renderMetrics.lineSectionSpacing) - (ADDRESSCHARS * fontSize.cx);
+		renderParams.bytesPerLine /= ((2 * fontSize.cx + m_renderMetrics.byteSpacing) + (fontSize.cx));
 	}
 	else
 	{

@@ -5,8 +5,6 @@
 #define IDR_DEBUGGER                    101
 #define IDB_ARROW                       102
 #define IDB_BREAKPOINT                  103
-#define IDB_EXD                         107
-#define IDB_EX                          108
 #define IDR_MAINWINDOW                  109
 #define IDI_PUREI                       110
 #define IDC_GRAB                        115

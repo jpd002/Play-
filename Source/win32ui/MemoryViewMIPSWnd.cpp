@@ -3,6 +3,7 @@
 #include "lexical_cast_ex.h"
 
 #define CLSNAME		_T("MemoryViewMIPSWnd")
+#define SCALE(x)	MulDiv(x, ydpi, 96)
 
 CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* pCtx)
 : m_memoryView(nullptr)
@@ -20,13 +21,15 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND hParent, CVirtualMachine& virtualMac
 		wc.lpfnWndProc		= CWindow::WndProc;
 		RegisterClassEx(&wc);
 	}
-	
-	Create(NULL, CLSNAME, _T("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
+
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+
+	Create(NULL, CLSNAME, _T("Memory"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
 	SetClassPtr();
 
-	m_addressEdit = new Framework::Win32::CEdit(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), _T(""), ES_READONLY);
+	m_addressEdit = new Framework::Win32::CEdit(m_hWnd, Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), _T(""), ES_READONLY);
 
-	m_memoryView = new CMemoryViewMIPS(m_hWnd, Framework::Win32::CRect(0, 0, 320, 240), virtualMachine, pCtx);
+	m_memoryView = new CMemoryViewMIPS(m_hWnd, Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), virtualMachine, pCtx);
 	m_memoryView->OnSelectionChange.connect(boost::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, _1));
 
 	UpdateStatusBar();
@@ -72,7 +75,8 @@ void CMemoryViewMIPSWnd::RefreshLayout()
 {
 	RECT rc = GetClientRect();
 
-	static const int addressEditHeight = 21;
+	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
+	const int addressEditHeight = SCALE(21);
 
 	m_addressEdit->SetSize(rc.right, addressEditHeight);
 	m_memoryView->SetPosition(0, addressEditHeight);
