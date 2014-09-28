@@ -365,43 +365,43 @@ INSTRUCTION CCOP_FPU::m_cReflW[64] =
 
 void CCOP_FPU::SetupReflectionTables()
 {
-	static_assert(sizeof(m_ReflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
-	static_assert(sizeof(m_ReflCop1)	== sizeof(m_cReflCop1),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflBc1)		== sizeof(m_cReflBc1),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflS)		== sizeof(m_cReflS),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflW)		== sizeof(m_cReflW),		"Array sizes don't match");
+	static_assert(sizeof(m_reflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
+	static_assert(sizeof(m_reflCop1)	== sizeof(m_cReflCop1),		"Array sizes don't match");
+	static_assert(sizeof(m_reflBc1)		== sizeof(m_cReflBc1),		"Array sizes don't match");
+	static_assert(sizeof(m_reflS)		== sizeof(m_cReflS),		"Array sizes don't match");
+	static_assert(sizeof(m_reflW)		== sizeof(m_cReflW),		"Array sizes don't match");
 
-	memcpy(m_ReflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
-	memcpy(m_ReflCop1,		m_cReflCop1,	sizeof(m_cReflCop1));
-	memcpy(m_ReflBc1,		m_cReflBc1,		sizeof(m_cReflBc1));
-	memcpy(m_ReflS,			m_cReflS,		sizeof(m_cReflS));
-	memcpy(m_ReflW,			m_cReflW,		sizeof(m_cReflW));
+	memcpy(m_reflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
+	memcpy(m_reflCop1,		m_cReflCop1,	sizeof(m_cReflCop1));
+	memcpy(m_reflBc1,		m_cReflBc1,		sizeof(m_cReflBc1));
+	memcpy(m_reflS,			m_cReflS,		sizeof(m_cReflS));
+	memcpy(m_reflW,			m_cReflW,		sizeof(m_cReflW));
 
-	m_ReflGeneralTable.nShift	= 26;
-	m_ReflGeneralTable.nMask	= 0x3F;
-	m_ReflGeneralTable.pTable	= m_ReflGeneral;
+	m_reflGeneralTable.nShift	= 26;
+	m_reflGeneralTable.nMask	= 0x3F;
+	m_reflGeneralTable.pTable	= m_reflGeneral;
 
-	m_ReflCop1Table.nShift		= 21;
-	m_ReflCop1Table.nMask		= 0x1F;
-	m_ReflCop1Table.pTable		= m_ReflCop1;
+	m_reflCop1Table.nShift		= 21;
+	m_reflCop1Table.nMask		= 0x1F;
+	m_reflCop1Table.pTable		= m_reflCop1;
 
-	m_ReflBc1Table.nShift		= 16;
-	m_ReflBc1Table.nMask		= 0x03;
-	m_ReflBc1Table.pTable		= m_ReflBc1;
+	m_reflBc1Table.nShift		= 16;
+	m_reflBc1Table.nMask		= 0x03;
+	m_reflBc1Table.pTable		= m_reflBc1;
 
-	m_ReflSTable.nShift			= 0;
-	m_ReflSTable.nMask			= 0x3F;
-	m_ReflSTable.pTable			= m_ReflS;
+	m_reflSTable.nShift			= 0;
+	m_reflSTable.nMask			= 0x3F;
+	m_reflSTable.pTable			= m_reflS;
 
-	m_ReflWTable.nShift			= 0;
-	m_ReflWTable.nMask			= 0x3F;
-	m_ReflWTable.pTable			= m_ReflW;
+	m_reflWTable.nShift			= 0;
+	m_reflWTable.nMask			= 0x3F;
+	m_reflWTable.pTable			= m_reflW;
 
-	m_ReflGeneral[0x11].pSubTable	= &m_ReflCop1Table;
+	m_reflGeneral[0x11].pSubTable	= &m_reflCop1Table;
 
-	m_ReflCop1[0x08].pSubTable		= &m_ReflBc1Table;
-	m_ReflCop1[0x10].pSubTable		= &m_ReflSTable;
-	m_ReflCop1[0x14].pSubTable		= &m_ReflWTable;
+	m_reflCop1[0x08].pSubTable		= &m_reflBc1Table;
+	m_reflCop1[0x10].pSubTable		= &m_reflSTable;
+	m_reflCop1[0x14].pSubTable		= &m_reflWTable;
 }
 
 void CCOP_FPU::GetInstruction(uint32 nOpcode, char* sText)
@@ -415,7 +415,7 @@ void CCOP_FPU::GetInstruction(uint32 nOpcode, char* sText)
 
 	INSTRUCTION Instr;
 	Instr.pGetMnemonic	= SubTableMnemonic;
-	Instr.pSubTable		= &m_ReflGeneralTable;
+	Instr.pSubTable		= &m_reflGeneralTable;
 	Instr.pGetMnemonic(&Instr, NULL, nOpcode, sText, nCount);
 }
 
@@ -430,8 +430,8 @@ void CCOP_FPU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 
 	INSTRUCTION Instr;
 	Instr.pGetOperands	= SubTableOperands;
-	Instr.pSubTable		= &m_ReflGeneralTable;
-	Instr.pGetOperands(&Instr, NULL, nAddress, nOpcode, sText, nCount);	
+	Instr.pSubTable		= &m_reflGeneralTable;
+	Instr.pGetOperands(&Instr, NULL, nAddress, nOpcode, sText, nCount);
 }
 
 MIPS_BRANCH_TYPE CCOP_FPU::IsBranch(uint32 nOpcode)
@@ -440,7 +440,7 @@ MIPS_BRANCH_TYPE CCOP_FPU::IsBranch(uint32 nOpcode)
 
 	INSTRUCTION Instr;
 	Instr.pIsBranch		= SubTableIsBranch;
-	Instr.pSubTable		= &m_ReflGeneralTable;
+	Instr.pSubTable		= &m_reflGeneralTable;
 	return Instr.pIsBranch(&Instr, NULL, nOpcode);
 }
 
@@ -450,6 +450,6 @@ uint32 CCOP_FPU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
 
 	INSTRUCTION Instr;
 	Instr.pGetEffectiveAddress	= SubTableEffAddr;
-	Instr.pSubTable				= &m_ReflGeneralTable;
+	Instr.pSubTable				= &m_reflGeneralTable;
 	return Instr.pGetEffectiveAddress(&Instr, NULL, nAddress, nOpcode);
 }

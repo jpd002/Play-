@@ -28,33 +28,33 @@ protected:
 
 	static uint32						ReflEaOffset(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
 
-	MIPSReflection::INSTRUCTION			m_ReflGeneral[64];
-	MIPSReflection::INSTRUCTION			m_ReflCop1[32];
-	MIPSReflection::INSTRUCTION			m_ReflBc1[4];
-	MIPSReflection::INSTRUCTION			m_ReflS[64];
-	MIPSReflection::INSTRUCTION			m_ReflW[64];
+	MIPSReflection::INSTRUCTION			m_reflGeneral[64];
+	MIPSReflection::INSTRUCTION			m_reflCop1[32];
+	MIPSReflection::INSTRUCTION			m_reflBc1[4];
+	MIPSReflection::INSTRUCTION			m_reflS[64];
+	MIPSReflection::INSTRUCTION			m_reflW[64];
 
-	MIPSReflection::SUBTABLE			m_ReflGeneralTable;
-	MIPSReflection::SUBTABLE			m_ReflCop1Table;
-	MIPSReflection::SUBTABLE			m_ReflBc1Table;
-	MIPSReflection::SUBTABLE			m_ReflSTable;
-	MIPSReflection::SUBTABLE			m_ReflWTable;
+	MIPSReflection::SUBTABLE			m_reflGeneralTable;
+	MIPSReflection::SUBTABLE			m_reflCop1Table;
+	MIPSReflection::SUBTABLE			m_reflBc1Table;
+	MIPSReflection::SUBTABLE			m_reflSTable;
+	MIPSReflection::SUBTABLE			m_reflWTable;
 
 private:
 	typedef void (CCOP_FPU::*InstructionFuncConstant)();
 
-	uint8								m_nFT;
-	uint8								m_nFS;
-	uint8								m_nFD;
+	uint8								m_ft = 0;
+	uint8								m_fs = 0;
+	uint8								m_fd = 0;
 
-	static uint32						m_nCCMask[8];
+	static const uint32					m_ccMask[8];
 
 	void								SetCCBit(bool, uint32);
 	void								PushCCBit(uint32);
 
-	static InstructionFuncConstant		m_pOpGeneral[0x20];
-	static InstructionFuncConstant		m_pOpSingle[0x40];
-	static InstructionFuncConstant		m_pOpWord[0x40];
+	static InstructionFuncConstant		m_opGeneral[0x20];
+	static InstructionFuncConstant		m_opSingle[0x40];
+	static InstructionFuncConstant		m_opWord[0x40];
 
 	//General
 	void								MFC1();
