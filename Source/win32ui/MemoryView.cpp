@@ -2,6 +2,7 @@
 #include <string.h>
 #include "win32/ClientDeviceContext.h"
 #include "win32/DefaultWndClass.h"
+#include "win32/Font.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "MemoryView.h"
@@ -121,7 +122,7 @@ void CMemoryView::Paint(HDC hDC)
 
 	deviceContext.SelectObject(m_font);
 
-	SIZE fontSize = deviceContext.GetFontSize(m_font);
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
 	auto renderParams = GetRenderParams();
 	unsigned int y = m_renderMetrics.ymargin;
@@ -256,9 +257,9 @@ long CMemoryView::OnSize(unsigned int type, unsigned int x, unsigned int y)
 
 long CMemoryView::OnSetFocus()
 {
-	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
-	CreateCaret(m_hWnd, NULL, 2, deviceContext.GetFontHeight(m_font));
+	CreateCaret(m_hWnd, NULL, 2, fontSize.cy);
 	ShowCaret(m_hWnd);
 
 	UpdateCaretPosition();
@@ -297,7 +298,7 @@ long CMemoryView::OnLeftButtonDown(int x, int y)
 
 long CMemoryView::OnLeftButtonUp(int x, int y)
 {
-	auto fontSize = Framework::Win32::CClientDeviceContext(m_hWnd).GetFontSize(m_font);
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
 	y -= m_renderMetrics.ymargin;
 	x -= m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing;
@@ -362,8 +363,7 @@ long CMemoryView::OnKeyDown(WPARAM key, LPARAM)
 
 void CMemoryView::UpdateCaretPosition()
 {
-	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-	SIZE fontSize(deviceContext.GetFontSize(m_font));
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 	auto renderParams = GetRenderParams();
 	if(
 		(renderParams.bytesPerLine != 0) &&
@@ -417,8 +417,7 @@ void CMemoryView::EnsureSelectionVisible()
 
 CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 {
-	Framework::Win32::CClientDeviceContext deviceContext(m_hWnd);
-	auto fontSize = deviceContext.GetFontSize(m_font);
+	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
 	RENDERPARAMS renderParams;
 
