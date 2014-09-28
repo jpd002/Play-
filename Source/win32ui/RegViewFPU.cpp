@@ -5,9 +5,8 @@
 CRegViewFPU::CRegViewFPU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
 : CRegViewPage(hParent, rect)
 , m_pCtx(pC)
+, m_nViewMode(VIEWMODE_SINGLE)
 {
-	m_nViewMode = VIEWMODE_SINGLE;
-	
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewFPU::OnMachineStateChange, this));
 	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewFPU::OnRunningStateChange, this));
 }
@@ -80,7 +79,7 @@ std::string CRegViewFPU::RenderWord()
 			sprintf(sReg, "F%i ", i);
 		}
 
-		uint32 nData = ((uint32*)s->nCOP10)[i * 2];
+		uint32 nData = ((uint32*)s->nCOP1)[i];
 
 		sprintf(sText, "%s: 0x%0.8X\r\n", sReg, nData);
 		result += sText;
@@ -109,7 +108,7 @@ std::string CRegViewFPU::RenderSingle()
 			sprintf(sReg, "F%i ", i);
 		}
 
-		uint32 nData = ((uint32*)s->nCOP10)[i * 2];
+		uint32 nData = ((uint32*)s->nCOP1)[i];
 		float nValue = *(float*)(&nData);
 
 		sprintf(sText, "%s: %+.24e\r\n", sReg, nValue);
@@ -127,18 +126,12 @@ std::string CRegViewFPU::RenderSingle()
 
 long CRegViewFPU::OnRightButtonUp(int nX, int nY)
 {
-	POINT pt;
-	HMENU hMenu;
-
-	pt.x = nX;
-	pt.y = nY;
+	POINT pt = { nX, nY };
 	ClientToScreen(m_hWnd, &pt);
 
-	hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == 0 ? MF_CHECKED : 0), 40000 + 0, _T("32 Bits Integers"));
-	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_nViewMode == 1 ? MF_CHECKED : 0), 40000 + 1, _T("64 Bits Integers"));
-	InsertMenu(hMenu, 2, MF_BYPOSITION | (m_nViewMode == 2 ? MF_CHECKED : 0), 40000 + 2, _T("Single Precision Floating-Point Numbers"));
-	InsertMenu(hMenu, 3, MF_BYPOSITION | (m_nViewMode == 3 ? MF_CHECKED : 0), 40000 + 3, _T("Double Precision Floating-Point Numbers"));
+	HMENU hMenu = CreatePopupMenu();
+	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == VIEWMODE_WORD ? MF_CHECKED : 0),	40000 + VIEWMODE_WORD,		_T("32 Bits Integers"));
+	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_nViewMode == VIEWMODE_SINGLE ? MF_CHECKED : 0),	40000 + VIEWMODE_SINGLE,	_T("Single Precision Floating-Point Numbers"));
 
 	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
 

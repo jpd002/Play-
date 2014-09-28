@@ -60,8 +60,7 @@ __attribute__((aligned(16)))
 	uint32				nCOP0[32];
 
 	//COP1
-	uint32				nCOP10[32];
-	uint32				nCOP11[32];
+	uint32				nCOP1[32];
 	uint32				nCOP1A;
 	uint32				nFCSR;
 

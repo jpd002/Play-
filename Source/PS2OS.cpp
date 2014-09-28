@@ -1041,11 +1041,11 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 		context->sa = m_ee.m_State.nSA;
 		for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
 		{
-			context->cop1[i] = m_ee.m_State.nCOP10[i * 2];
+			context->cop1[i] = m_ee.m_State.nCOP1[i];
 		}
 		for(uint32 i = 0; i < 4; i++)
 		{
-			context->gpr[CMIPS::K0].nV[i] = m_ee.m_State.nCOP10[(i + THREADCONTEXT::COP1_REG_COUNT) * 2];
+			context->gpr[CMIPS::K0].nV[i] = m_ee.m_State.nCOP1[i + THREADCONTEXT::COP1_REG_COUNT];
 		}
 		context->cop1a = m_ee.m_State.nCOP1A;
 		context->fcsr = m_ee.m_State.nFCSR;
@@ -1076,11 +1076,11 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 		m_ee.m_State.nSA = context->sa;
 		for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
 		{
-			m_ee.m_State.nCOP10[i * 2] = context->cop1[i];
+			m_ee.m_State.nCOP1[i] = context->cop1[i];
 		}
 		for(uint32 i = 0; i < 4; i++)
 		{
-			m_ee.m_State.nCOP10[(i + THREADCONTEXT::COP1_REG_COUNT) * 2] = context->gpr[CMIPS::K0].nV[i];
+			m_ee.m_State.nCOP1[i + THREADCONTEXT::COP1_REG_COUNT] = context->gpr[CMIPS::K0].nV[i];
 		}
 		m_ee.m_State.nCOP1A = context->cop1a;
 		m_ee.m_State.nFCSR = context->fcsr;

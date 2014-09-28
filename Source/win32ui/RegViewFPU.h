@@ -12,20 +12,18 @@ public:
 									CRegViewFPU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewFPU();
 
-	enum VIEWMODE
-	{
-		VIEWMODE_WORD   = 0,
-		VIEWMODE_LONG   = 1,
-		VIEWMODE_SINGLE = 2,
-		VIEWMODE_DOUBLE = 3,
-		VIEWMODE_MAX,
-	};
-
 protected:
 	long							OnRightButtonUp(int, int);
 	long							OnCommand(unsigned short, unsigned short, HWND);
 
 private:
+	enum VIEWMODE
+	{
+		VIEWMODE_WORD,
+		VIEWMODE_SINGLE,
+		VIEWMODE_MAX,
+	};
+
 	void							Update();
 	std::string 					GetDisplayText();
 
