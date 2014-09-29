@@ -355,6 +355,15 @@ void CMA_EE::PSUBW()
 	PullVector(m_nRD);
 }
 
+//02
+void CMA_EE::PCGTW()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_CmpGtW();
+	PullVector(m_nRD);
+}
+
 //03
 void CMA_EE::PMAXW()
 {
@@ -1098,7 +1107,7 @@ void CMA_EE::Generic_MADD(unsigned int unit, bool isSigned)
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
 {
 	//0x00
-	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::Illegal,		&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::Illegal,		&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
+	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::PCGTW,			&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::Illegal,		&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
 	//0x08
 	&CMA_EE::PADDB,			&CMA_EE::PSUBB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10

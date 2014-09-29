@@ -79,6 +79,7 @@ private:
 	//Mmi0
 	void								PADDW();
 	void								PSUBW();
+	void								PCGTW();
 	void								PMAXW();
 	void								PADDH();
 	void								PCGTH();
