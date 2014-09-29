@@ -244,27 +244,27 @@ void CMIPSAssembler::JR(unsigned int rs)
 	m_ptr++;
 }
 
-void CMIPSAssembler::LD(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::LD(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x37) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x37) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
-void CMIPSAssembler::LDL(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::LDL(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x1A) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x1A) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
-void CMIPSAssembler::LDR(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::LDR(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x1B) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x1B) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
-void CMIPSAssembler::LHU(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::LHU(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x25) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x25) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
@@ -291,21 +291,21 @@ void CMIPSAssembler::LBU(unsigned int rt, uint16 offset, unsigned int base)
 	m_ptr++;
 }
 
-void CMIPSAssembler::LW(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::LW(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x23) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x23) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
-void CMIPSAssembler::LWL(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::LWL(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x22) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x22) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
-void CMIPSAssembler::LWR(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::LWR(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x26) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x26) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
@@ -386,9 +386,9 @@ void CMIPSAssembler::ORI(unsigned int rt, unsigned int rs, uint16 immediate)
 	m_ptr++;
 }
 
-void CMIPSAssembler::SD(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::SD(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x3F) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x3F) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
@@ -461,9 +461,9 @@ void CMIPSAssembler::SB(unsigned int rt, uint16 offset, unsigned int base)
 	m_ptr++;
 }
 
-void CMIPSAssembler::SW(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CMIPSAssembler::SW(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x2B) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x2B) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
