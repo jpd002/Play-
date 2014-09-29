@@ -248,7 +248,7 @@ INSTRUCTION CMA_EE::m_cReflMmi3[32] =
 	//0x18
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PEXCH",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 	{	"PCPYH",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

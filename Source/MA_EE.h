@@ -125,6 +125,7 @@ private:
 	void								PCPYUD();
 	void								POR();
 	void								PNOR();
+	void								PEXCH();
 	void								PCPYH();
 	void								PEXCW();
 

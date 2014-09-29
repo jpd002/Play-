@@ -960,6 +960,38 @@ void CMA_EE::PNOR()
 	PullVector(m_nRD);
 }
 
+//1A
+void CMA_EE::PEXCH()
+{
+	for(unsigned int i = 0; i < 4; i += 2)
+	{
+		//Compute first value
+		//t0 = rt[0] >> 16;
+		//t1 = (rt[1] & 0xFFFF0000)
+		//t2 = t0 | t1
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 0]));
+		m_codeGen->Srl(16);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 1]));
+		m_codeGen->PushCst(0xFFFF0000);
+		m_codeGen->And();
+		m_codeGen->Or();
+
+		//Compute second value
+		//t0 = rt[1] << 16;
+		//t1 = (r1[0] & 0x0000FFFF)
+		//t2 = t0 | t1
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 1]));
+		m_codeGen->Shl(16);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 0]));
+		m_codeGen->PushCst(0x0000FFFF);
+		m_codeGen->And();
+		m_codeGen->Or();
+
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i + 0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i + 1]));
+	}
+}
+
 //1B
 void CMA_EE::PCPYH()
 {
@@ -1149,7 +1181,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYH,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXCW,			&CMA_EE::Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXCH,			&CMA_EE::PCPYH,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXCW,			&CMA_EE::Illegal,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpPmfhl[0x20] = 
