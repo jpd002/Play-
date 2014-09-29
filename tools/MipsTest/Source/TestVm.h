@@ -1,8 +1,7 @@
-#ifndef _TESTVM_H_
-#define _TESTVM_H_
+#pragma once
 
 #include "MIPS.h"
-#include "MA_MIPSIV.h"
+#include "MA_EE.h"
 #include "MipsExecutor.h"
 
 class CTestVm
@@ -21,8 +20,6 @@ public:
 
 	uint8*				m_ram;
 	CMIPS				m_cpu;
-	CMA_MIPSIV			m_cpuArch;
+	CMA_EE				m_cpuArch;
 	CMipsExecutor		m_executor;
 };
-
-#endif

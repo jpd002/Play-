@@ -4,7 +4,6 @@ CTestVm::CTestVm()
 : m_cpu(MEMORYMAP_ENDIAN_LSBF)
 , m_executor(m_cpu, (RAM_SIZE))
 , m_ram(new uint8[RAM_SIZE])
-, m_cpuArch(MIPS_REGSIZE_64)
 {
 	m_cpu.m_pMemoryMap->InsertReadMap(0, RAM_SIZE - 1, m_ram, 0x01);
 	m_cpu.m_pMemoryMap->InsertWriteMap(0, RAM_SIZE - 1, m_ram, 0x01);

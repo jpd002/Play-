@@ -152,6 +152,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\BasicBlock.cpp" />
+    <ClCompile Include="..\..\Source\EEAssembler.cpp" />
+    <ClCompile Include="..\..\Source\MA_EE.cpp" />
+    <ClCompile Include="..\..\Source\MA_EE_Reflection.cpp" />
     <ClCompile Include="..\..\Source\MA_MIPSIV.cpp" />
     <ClCompile Include="..\..\Source\MA_MIPSIV_Reflection.cpp" />
     <ClCompile Include="..\..\Source\MA_MIPSIV_Templates.cpp" />
@@ -168,7 +171,9 @@
     <ClCompile Include="..\..\Source\MIPSReflection.cpp" />
     <ClCompile Include="..\..\Source\MIPSTags.cpp" />
     <ClCompile Include="Source\Add64Test.cpp" />
+    <ClCompile Include="Source\ExchangeTest.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\PackTest.cpp" />
     <ClCompile Include="Source\SetLessThanTest.cpp" />
     <ClCompile Include="Source\Shift32Test.cpp" />
     <ClCompile Include="Source\Shift64Test.cpp" />
@@ -183,6 +188,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\BasicBlock.h" />
+    <ClInclude Include="..\..\Source\EEAssembler.h" />
+    <ClInclude Include="..\..\Source\MA_EE.h" />
     <ClInclude Include="..\..\Source\MA_MIPSIV.h" />
     <ClInclude Include="..\..\Source\MemoryMap.h" />
     <ClInclude Include="..\..\Source\MemoryUtils.h" />
@@ -198,6 +205,8 @@
     <ClInclude Include="..\..\Source\MIPSReflection.h" />
     <ClInclude Include="..\..\Source\MIPSTags.h" />
     <ClInclude Include="Source\Add64Test.h" />
+    <ClInclude Include="Source\ExchangeTest.h" />
+    <ClInclude Include="Source\PackTest.h" />
     <ClInclude Include="Source\SetLessThanTest.h" />
     <ClInclude Include="Source\Shift32Test.h" />
     <ClInclude Include="Source\Shift64Test.h" />
