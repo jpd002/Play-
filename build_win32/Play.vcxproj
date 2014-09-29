@@ -340,7 +340,6 @@
     <ClCompile Include="..\Source\MIPSAnalysis.cpp" />
     <ClCompile Include="..\Source\MIPSArchitecture.cpp" />
     <ClCompile Include="..\Source\MIPSAssembler.cpp" />
-    <ClCompile Include="..\Source\MipsAssemblerDefinitions.cpp" />
     <ClCompile Include="..\Source\MIPSCoprocessor.cpp" />
     <ClCompile Include="..\Source\MipsExecutor.cpp" />
     <ClCompile Include="..\Source\MipsFunctionPatternDb.cpp" />
@@ -555,7 +554,6 @@
     <ClInclude Include="..\Source\MIPSAnalysis.h" />
     <ClInclude Include="..\Source\MIPSArchitecture.h" />
     <ClInclude Include="..\Source\MIPSAssembler.h" />
-    <ClInclude Include="..\Source\MipsAssemblerDefinitions.h" />
     <ClInclude Include="..\Source\MIPSCoprocessor.h" />
     <ClInclude Include="..\Source\MipsExecutor.h" />
     <ClInclude Include="..\Source\MipsFunctionPatternDb.h" />

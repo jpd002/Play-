@@ -112,9 +112,6 @@
     <ClCompile Include="..\Source\MIPSAssembler.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\MipsAssemblerDefinitions.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\MIPSCoprocessor.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -697,9 +694,6 @@
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MIPSAssembler.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MipsAssemblerDefinitions.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\MIPSCoprocessor.h">

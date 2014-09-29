@@ -1,5 +1,4 @@
-#ifndef _MIPSASSEMBLER_H_
-#define _MIPSASSEMBLER_H_
+#pragma once
 
 #include "Types.h"
 #include <map>
@@ -97,10 +96,6 @@ public:
 	void				SW(unsigned int, uint16, unsigned int);
 	void				SYSCALL();
 
-	void				AssembleString(const char*);
-
-	static unsigned int GetRegisterIndex(const char*);
-
 private:
 	void				ResolveLabelReferences();
 	void				CreateLabelReference(LABEL);
@@ -113,11 +108,9 @@ private:
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 
-	uint32*					m_pPtr;
-	uint32*					m_pStartPtr;
+	uint32*					m_ptr = nullptr;
+	uint32*					m_startPtr = nullptr;
 	LabelMapType			m_labels;
 	LabelReferenceMapType	m_labelReferences;
 	unsigned int			m_nextLabelId;
 };
-
-#endif
