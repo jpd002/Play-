@@ -73,9 +73,6 @@
     <ClCompile Include="..\..\Source\MipsAssemblerDefinitions.cpp">
       <Filter>Source Files\Play Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MipsTestEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Add64Test.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -148,9 +145,6 @@
       <Filter>Source Files\Play Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Test.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\MipsTestEngine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Add64Test.h">

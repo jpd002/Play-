@@ -170,7 +170,6 @@
     <ClCompile Include="..\..\Source\MIPSTags.cpp" />
     <ClCompile Include="Source\Add64Test.cpp" />
     <ClCompile Include="Source\Main.cpp" />
-    <ClCompile Include="Source\MipsTestEngine.cpp" />
     <ClCompile Include="Source\SetLessThanTest.cpp" />
     <ClCompile Include="Source\Shift32Test.cpp" />
     <ClCompile Include="Source\Shift64Test.cpp" />
@@ -201,7 +200,6 @@
     <ClInclude Include="..\..\Source\MIPSReflection.h" />
     <ClInclude Include="..\..\Source\MIPSTags.h" />
     <ClInclude Include="Source\Add64Test.h" />
-    <ClInclude Include="Source\MipsTestEngine.h" />
     <ClInclude Include="Source\SetLessThanTest.h" />
     <ClInclude Include="Source\Shift32Test.h" />
     <ClInclude Include="Source\Shift64Test.h" />
