@@ -442,24 +442,27 @@ void CMA_EE::PPACW()
 	//RS = A
 	//RT = B
 	//RD = A2 A0 B2 B0
-	assert(m_nRS != m_nRD);
-	assert(m_nRT != m_nRD);
 
-	//0
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	//The order of operations here is quite important because RS, RT and RD can be equal
+	//- Elements 1 and 3 in the destination register are unused in the source registers so, it's safe to write them first
+	//- Element 2 in the destination register isn't used after the previous operations, so it's safe to override
+	//- Only element 0 remains which is filled with element 0 from source, which is safe even if registers are the same
 
 	//1
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 
+	//3
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+
 	//2
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 
-	//3
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+	//0
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 //14
