@@ -6,9 +6,9 @@ CEEAssembler::CEEAssembler(uint32* ptr)
 
 }
 
-void CEEAssembler::LQ(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CEEAssembler::LQ(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x1E) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x1E) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
 
@@ -36,8 +36,8 @@ void CEEAssembler::MTLO1(unsigned int rs)
 	m_ptr++;
 }
 
-void CEEAssembler::SQ(unsigned int rt, uint16 nOffset, unsigned int nBase)
+void CEEAssembler::SQ(unsigned int rt, uint16 offset, unsigned int base)
 {
-	(*m_ptr) = ((0x1F) << 26) | (nBase << 21) | (rt << 16) | nOffset;
+	(*m_ptr) = ((0x1F) << 26) | (base << 21) | (rt << 16) | offset;
 	m_ptr++;
 }
