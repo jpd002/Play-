@@ -14,7 +14,7 @@
 #include "ElfFile.h"
 #include "COP_SCU.h"
 #include "uint128.h"
-#include "MIPSAssembler.h"
+#include "EEAssembler.h"
 #include "Profiler.h"
 #include "PathUtils.h"
 #include "xml/Node.h"
@@ -576,7 +576,7 @@ void CPS2OS::AssembleCustomSyscallHandler()
 
 void CPS2OS::AssembleInterruptHandler()
 {
-	CMIPSAssembler assembler((uint32*)&m_bios[0x200]);
+	CEEAssembler assembler((uint32*)&m_bios[0x200]);
 
 	const uint32 stackFrameSize = 0x230;
 

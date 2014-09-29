@@ -62,17 +62,12 @@ public:
 	void				LW(unsigned int, uint16, unsigned int);
 	void				LWL(unsigned int, uint16, unsigned int);
 	void				LWR(unsigned int, uint16, unsigned int);
-	void				LQ(unsigned int, uint16, unsigned int);
 	void				MFC0(unsigned int, unsigned int);
 	void				MFHI(unsigned int);
-	void				MFHI1(unsigned int);
 	void				MFLO(unsigned int);
-	void				MFLO1(unsigned int);
 	void				MTC0(unsigned int, unsigned int);
 	void				MTHI(unsigned int);
-	void				MTHI1(unsigned int);
 	void				MTLO(unsigned int);
-	void				MTLO1(unsigned int);
 	void				MOV(unsigned int, unsigned int);
 	void				MULT(unsigned int, unsigned int, unsigned int);
 	void				MULTU(unsigned int, unsigned int, unsigned int);
@@ -91,10 +86,12 @@ public:
 	void				SRAV(unsigned int, unsigned int, unsigned int);
 	void				SRL(unsigned int, unsigned int, unsigned int);
 	void				SRLV(unsigned int, unsigned int, unsigned int);
-	void				SQ(unsigned int, uint16, unsigned int);
 	void				SB(unsigned int, uint16, unsigned int);
 	void				SW(unsigned int, uint16, unsigned int);
 	void				SYSCALL();
+
+protected:
+	uint32*				m_ptr = nullptr;
 
 private:
 	void				ResolveLabelReferences();
@@ -108,7 +105,6 @@ private:
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 
-	uint32*					m_ptr = nullptr;
 	uint32*					m_startPtr = nullptr;
 	LabelMapType			m_labels;
 	LabelReferenceMapType	m_labelReferences;

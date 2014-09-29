@@ -637,6 +637,9 @@
     <ClCompile Include="..\Source\GsCachedArea.cpp">
       <Filter>Source Files\Core\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\EEAssembler.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1237,6 +1240,9 @@
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\GsCachedArea.h">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\EEAssembler.h">
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>
