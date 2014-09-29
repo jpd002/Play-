@@ -296,6 +296,7 @@ private:
 	void									sc_ReferThreadStatus();
 	void									sc_SleepThread();
 	void									sc_WakeupThread();
+	void									sc_CancelWakeupThread();
 	void									sc_SuspendThread();
 	void									sc_ResumeThread();
 	void									sc_SetupThread();
