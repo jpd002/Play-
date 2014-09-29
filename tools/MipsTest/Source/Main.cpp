@@ -21,11 +21,10 @@ static const TestFactoryFunction s_factories[] =
 int main(int argc, const char** argv)
 {
 	CTestVm virtualMachine;
-
-	for(auto testFactoryIterator(std::begin(s_factories));
-		testFactoryIterator != std::end(s_factories); testFactoryIterator++)
+	
+	for(const auto& factory : s_factories)
 	{
-		CTest* test = (*testFactoryIterator)();
+		auto test = factory();
 		test->Execute(virtualMachine);
 		delete test;
 	}
