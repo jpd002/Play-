@@ -132,6 +132,7 @@ private:
 	void								VMULA();
 	void								VOPMULA();
 	void								VRSQRT();
+	void								VILWR();
 	void								VRINIT();
 
 	//V3
@@ -140,6 +141,7 @@ private:
 	void								VCLIP();
 	void								VNOP();
 	void								VWAITQ();
+	void								VISWR();
 	void								VRXOR();
 
 	uint8								m_nBc;
