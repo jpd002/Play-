@@ -124,19 +124,18 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 	}
 
 	uint32 currentPoint = MIPS_INVALID_PC;
-	for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
-		pointIterator != partitionPoints.end(); pointIterator++)
+	for(const auto& point : partitionPoints)
 	{
 		if(currentPoint != MIPS_INVALID_PC)
 		{
 			uint32 beginAddress = currentPoint;
-			uint32 endAddress = *pointIterator - 4;
+			uint32 endAddress = point - 4;
 			//Sanity checks
 			assert((beginAddress & 0x07) == 0x00);
 			assert((endAddress & 0x07) == 0x04);
 			CreateBlock(beginAddress, endAddress);
 		}
-		currentPoint = *pointIterator;
+		currentPoint = point;
 	}
 /*
 	//Convenient cutting for debugging purposes
