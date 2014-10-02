@@ -1831,7 +1831,8 @@ void CPS2OS::sc_SetupThread()
 
 		*reinterpret_cast<uint32*>(m_ram + argsBase) = argsCount;
 		uint32 argsPtrs = argsBase + 4;
-		uint32 argsPayload = argsPtrs + (argsCount * 4);
+		//We add 1 to argsCount because argv[argc] must be equal to 0
+		uint32 argsPayload = argsPtrs + ((argsCount + 1) * 4);
 		for(uint32 i = 0; i < argsCount; i++)
 		{
 			const auto& currentArg = completeArgList[i];
@@ -1840,6 +1841,8 @@ void CPS2OS::sc_SetupThread()
 			memcpy(m_ram + argsPayload, currentArg.c_str(), argSize);
 			argsPayload += argSize;
 		}
+		//Set argv[argc] to 0
+		*reinterpret_cast<uint32*>(m_ram + argsPtrs + (argsCount * 4)) = 0;
 	}
 
 	//Set up the main thread
