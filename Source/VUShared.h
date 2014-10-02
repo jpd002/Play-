@@ -59,6 +59,7 @@ namespace VUShared
 
 	bool						DestinationHasElement(uint8, unsigned int);
 	void						ComputeMemAccessAddr(CMipsJitter*, unsigned int, uint32, uint32);
+	uint32						GetDestOffset(uint8);
 	void						SetQuadMasked(CMIPS*, const uint128&, uint32, uint32);
 	uint32*						GetVectorElement(CMIPS*, unsigned int, unsigned int);
 	size_t						GetVectorElement(unsigned int, unsigned int);
@@ -95,10 +96,12 @@ namespace VUShared
 	void						FTOI15(CMipsJitter*, uint8, uint8, uint8);
 	void						IADD(CMipsJitter*, uint8, uint8, uint8);
 	void						IADDI(CMipsJitter*, uint8, uint8, uint8);
+	void						ILWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						ITOF0(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF4(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF12(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF15(CMipsJitter*, uint8, uint8, uint8);
+	void						ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						MADDi(CMipsJitter*, uint8, uint8, uint8);
@@ -174,6 +177,7 @@ namespace VUShared
 	void						ReflOpQFsfFtf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpIdIsIt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpItFsf(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpItIsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpItIsImm5(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
 	void						ReflOpAffAccFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);

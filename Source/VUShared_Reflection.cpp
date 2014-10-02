@@ -219,6 +219,15 @@ void VUShared::ReflOpIdIsIt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	sprintf(sText, "VI%i, VI%i, VI%i", nID, nIS, nIT);
 }
 
+void VUShared::ReflOpItIsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
+{
+	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 it	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is	= static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	sprintf(text, "VI%i, (VI%i)%s", it, is, m_sDestination[dest]);
+}
+
 void VUShared::ReflOpItIsImm5(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8  nIT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);

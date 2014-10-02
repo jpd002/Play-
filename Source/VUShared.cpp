@@ -43,6 +43,16 @@ void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegis
 	codeGen->And();
 }
 
+uint32 VUShared::GetDestOffset(uint8 dest)
+{
+	if(dest & 0x0001) return 0xC;
+	if(dest & 0x0002) return 0x8;
+	if(dest & 0x0004) return 0x4;
+	if(dest & 0x0008) return 0x0;
+
+	return 0;
+}
+
 void VUShared::SetQuadMasked(CMIPS* context, const uint128& value, uint32 address, uint32 mask)
 {
 	assert((address & 0x0F) == 0);
@@ -538,6 +548,23 @@ void VUShared::IADDI(CMipsJitter* codeGen, uint8 it, uint8 is, uint8 imm5)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
+void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+{
+	//Push context
+	codeGen->PushCtx();
+
+	//Compute address
+	ComputeMemAccessAddr(codeGen, is, 0, GetDestOffset(dest));
+	if(baseAddress != 0)
+	{
+		codeGen->PushCst(baseAddress);
+		codeGen->Add();
+	}
+
+	codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+}
+
 void VUShared::ITOF0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
@@ -570,6 +597,42 @@ void VUShared::ITOF15(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 	codeGen->MD_PushCstExpand(32768.0f);
 	codeGen->MD_DivS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
+}
+
+void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+{
+	//Compute value to store
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->PushCst(0xFFFF);
+	codeGen->And();
+
+	//Compute address
+	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
+	if(baseAddress != 0)
+	{
+		codeGen->PushCst(baseAddress);
+		codeGen->Add();
+	}
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
+		{
+			codeGen->PushCtx();
+			codeGen->PushIdx(2);
+			codeGen->PushIdx(2);
+			codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+		}
+
+		if(i != 3)
+		{
+			codeGen->PushCst(4);
+			codeGen->Add();
+		}
+	}
+
+	codeGen->PullTop();
+	codeGen->PullTop();
 }
 
 void VUShared::MADD(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft)

@@ -82,16 +82,6 @@ void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
 	m_codeGen->EndIf();
 }
 
-uint32 CMA_VU::CLower::GetDestOffset(uint8 nDest)
-{
-	if(nDest & 0x0001) return 0xC;
-	if(nDest & 0x0002) return 0x8;
-	if(nDest & 0x0004) return 0x4;
-	if(nDest & 0x0008) return 0x0;
-
-	return 0;
-}
-
 bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
 {
 	assert((address & 0x07) == 0);
@@ -150,7 +140,7 @@ void CMA_VU::CLower::ILW()
 		m_codeGen,
 		m_nIS,
 		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		GetDestOffset(m_nDest));
+		VUShared::GetDestOffset(m_nDest));
 
 	//Read memory
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
@@ -767,15 +757,7 @@ void CMA_VU::CLower::RSQRT()
 //0F
 void CMA_VU::CLower::ILWR()
 {
-	//Push context
-	m_codeGen->PushCtx();
-
-	//Compute address
-	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, GetDestOffset(m_nDest));
-
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
-
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
 }
 
 //10
@@ -858,33 +840,7 @@ void CMA_VU::CLower::WAITQ()
 //0F
 void CMA_VU::CLower::ISWR()
 {
-	//Compute value to store
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->PushCst(0xFFFF);
-	m_codeGen->And();
-
-	//Compute address
-	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
-
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
-		{
-			m_codeGen->PushCtx();
-			m_codeGen->PushIdx(2);
-			m_codeGen->PushIdx(2);
-			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
-		}
-
-		if(i != 3)
-		{
-			m_codeGen->PushCst(4);
-			m_codeGen->Add();
-		}
-	}
-
-	m_codeGen->PullTop();
-	m_codeGen->PullTop();
+	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
 }
 
 //1C

@@ -207,7 +207,6 @@ private:
 		uint32								m_relativePipeTime;
 
 		void								SetBranchAddress(bool, int32);
-		static uint32						GetDestOffset(uint8);
 		static bool							IsLOI(CMIPS*, uint32);
 
 		static void							ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -220,7 +219,6 @@ private:
 		static void							ReflOpItOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsOfs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItIsImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-		static void							ReflOpItIsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpItOfsIsDst(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpImm24(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 		static void							ReflOpVi1Imm24(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
