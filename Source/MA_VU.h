@@ -302,6 +302,7 @@ private:
 		void								MFIR();
 		void								RGET();
 		void								XITOP();
+		void								ERSQRT();
 
 		//Vector2
 		void								LQD();
