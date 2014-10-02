@@ -926,6 +926,16 @@ void CMA_EE::PROT3W()
 //MMI3 Opcodes
 //////////////////////////////////////////////////
 
+//08
+void CMA_EE::PMTHI()
+{
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+		m_codeGen->PullRel(GetHiOffset(i));
+	}
+}
+
 //0E
 void CMA_EE::PCPYUD()
 {
@@ -1180,7 +1190,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 	//0x00
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
+	&CMA_EE::PMTHI,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18

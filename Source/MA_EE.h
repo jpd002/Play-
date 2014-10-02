@@ -122,6 +122,7 @@ private:
 	void								PROT3W();
 
 	//Mmi3
+	void								PMTHI();
 	void								PCPYUD();
 	void								POR();
 	void								PNOR();
