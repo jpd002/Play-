@@ -1,5 +1,4 @@
-#ifndef _IOP_SUBSYSTEM_H_
-#define _IOP_SUBSYSTEM_H_
+#pragma once
 
 #include "../MIPS.h"
 #include "../MA_MIPSIV.h"
@@ -34,8 +33,8 @@ namespace Iop
 		void				NotifyVBlankStart();
 		void				NotifyVBlankEnd();
 
-		virtual void		SaveState(Framework::CZipArchiveWriter&);
-		virtual void		LoadState(Framework::CZipArchiveReader&);
+		void				SaveState(Framework::CZipArchiveWriter&);
+		void				LoadState(Framework::CZipArchiveReader&);
 
 		uint8*				m_ram;
 		uint8*				m_scratchPad;
@@ -69,5 +68,3 @@ namespace Iop
 		int					m_dmaUpdateTicks;
 	};
 }
-
-#endif

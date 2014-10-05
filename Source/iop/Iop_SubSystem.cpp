@@ -7,11 +7,11 @@
 using namespace Iop;
 using namespace PS2;
 
-#define LOG_NAME ("iop_subsystem")
+#define LOG_NAME			("iop_subsystem")
 
-#define STATE_CPU		("iop_cpu")
-#define STATE_RAM		("iop_ram")
-#define STATE_SCRATCH	("iop_scratch")
+#define STATE_CPU			("iop_cpu")
+#define STATE_RAM			("iop_ram")
+#define STATE_SCRATCH		("iop_scratch")
 
 CSubSystem::CSubSystem(bool ps2Mode) 
 : m_cpu(MEMORYMAP_ENDIAN_LSBF)
