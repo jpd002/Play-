@@ -3,12 +3,10 @@
 #include "Log.h"
 #include "placeholder_def.h"
 #include "MemoryStateFile.h"
-#include "Profiler.h"
 
 using namespace Ee;
 
 #define LOG_NAME		("ee_subsystem")
-#define PROFILE_EEZONE	"EE"
 
 #define STATE_EE		("ee")
 #define STATE_VU0		("vu0")
@@ -327,10 +325,6 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 
 uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 {
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_EEZONE);
-#endif
-
 	uint32 nReturn = 0;
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
@@ -377,10 +371,6 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 
 uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 {
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_EEZONE);
-#endif
-
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
 		m_timer.SetRegister(nAddress, nData);

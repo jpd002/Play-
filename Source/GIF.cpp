@@ -3,15 +3,10 @@
 #include "GIF.h"
 #include "uint128.h"
 #include "Ps2Const.h"
-#include "Profiler.h"
 #include "Log.h"
 #include "FrameDump.h"
 
-#define LOG_NAME			("gif")
-
-#ifdef	PROFILE
-#define PROFILE_GIFZONE		"GIF"
-#endif
+#define LOG_NAME ("gif")
 
 CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
 : m_gs(gs)
@@ -24,6 +19,7 @@ CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
 , m_regList(0)
 , m_eop(false)
 , m_qtemp(0)
+, m_gifProfilerZone(CProfiler::GetInstance().RegisterZone("GIF"))
 {
 
 }
@@ -209,7 +205,7 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 	static CGSHandler::RegisterWriteList writeList;
 
 #ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_GIFZONE);
+	CProfilerZone profilerZone(m_gifProfilerZone);
 #endif
 
 #ifdef _DEBUG

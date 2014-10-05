@@ -1,16 +1,11 @@
 #include <stdio.h>
 #include "DMAC.h"
 #include "Ps2Const.h"
-#include "Profiler.h"
 #include "Log.h"
 #include "RegisterStateFile.h"
 #include "placeholder_def.h"
 #include "MIPS.h"
 #include "COP_SCU.h"
-
-#ifdef	PROFILE
-#define	PROFILE_DMACZONE "DMAC"
-#endif
 
 #define LOG_NAME            ("dmac")
 #define STATE_REGS_XML      ("dmac/regs.xml")
@@ -447,11 +442,6 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 {
-
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_DMACZONE);
-#endif
-
 	switch(nAddress)
 	{
 	//Channel 0

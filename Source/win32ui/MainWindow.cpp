@@ -23,7 +23,6 @@
 #include "Debugger.h"
 #include "SysInfoWnd.h"
 #include "AboutWnd.h"
-#include "../Profiler.h"
 #include "resource.h"
 #include "FileFilters.h"
 #include "WinUtils.h"
@@ -127,6 +126,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 
 	m_virtualMachine.m_ee->m_gs->OnNewFrame.connect(boost::bind(&CMainWindow::OnNewFrame, this, _1));
+	m_virtualMachine.ProfileFrameDone.connect(boost::bind(&CMainWindow::OnProfileFrameDone, this, _1));
 
 	SetTimer(m_hWnd, NULL, 1000, NULL);
 	//Initialize status bar
@@ -317,40 +317,40 @@ long CMainWindow::OnTimer(WPARAM)
 		+ boost::lexical_cast<std::tstring>(dcpf) + _T(" dc/f");
 	m_statusBar->SetText(FPSPANEL, sCaption.c_str());
 
-	m_frames = 0;
-	m_drawCallCount = 0;
-
 #ifdef PROFILE
 
-	CProfiler::ZoneList Zones;
-	double nTotalTime;
-	xstringstream sProfileCaption;
+	std::tstring profilerTextResult;
 
-	Zones = CProfiler::GetInstance().GetStats();
-	CProfiler::GetInstance().Reset();
-
-	nTotalTime = 0;
-
-	for(CProfiler::ZoneList::iterator itZone = Zones.begin();
-		itZone != Zones.end();
-		itZone++)
+	if(m_frames != 0)
 	{
-		nTotalTime += (*itZone).GetTime();		
+		std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
+
+		uint64 totalTime = 0;
+
+		for(const auto& zonePair : m_profilerZones)
+		{
+			totalTime += zonePair.second;
+		}
+
+//		float avgFrameTime = (static_cast<double>(totalTime) /  static_cast<double>(m_frames * 1000));
+//		profilerTextResult = string_format(_T("Avg Frame Time: %0.2fms"), avgFrameTime);
+
+		for(const auto& zonePair : m_profilerZones)
+		{
+			float timeSpent = static_cast<double>(zonePair.second) / static_cast<double>(totalTime);
+			float msSpent = static_cast<double>(zonePair.second) / static_cast<double>(m_frames * 1000);
+			profilerTextResult += string_format(_T("%s: %0.2f%%(%0.2fms) "), string_cast<std::tstring>(zonePair.first).c_str(), timeSpent * 100.f, msSpent);
+		}
+
+		for(auto& zonePair : m_profilerZones) { zonePair.second = 0; }
 	}
 
-	sProfileCaption.precision(4);
-
-	for(CProfiler::ZoneList::iterator itZone = Zones.begin();
-		itZone != Zones.end();
-		itZone++)
-	{
-		sProfileCaption << (*itZone).GetName() << ": " << setw(5) << ((double)(*itZone).GetTime() / nTotalTime) * 100 << " ";
-	}
-
-	m_statusBar->SetText(STATUSPANEL, sProfileCaption.str().c_str());
-
+	m_statusBar->SetText(STATUSPANEL, profilerTextResult.c_str());
 
 #endif
+
+	m_frames = 0;
+	m_drawCallCount = 0;
 
 	return TRUE;
 }
@@ -936,6 +936,24 @@ void CMainWindow::OnNewFrame(uint32 drawCallCount)
 
 	m_frames++;
 	m_drawCallCount += drawCallCount;
+}
+
+void CMainWindow::OnProfileFrameDone(const CProfiler::ZoneArray& zones)
+{
+	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
+
+	for(auto& zone : zones)
+	{
+		auto zoneIterator = m_profilerZones.find(zone.name);
+		if(zoneIterator != std::end(m_profilerZones))
+		{
+			zoneIterator->second += zone.totalTime;
+		}
+		else
+		{
+			m_profilerZones.insert(std::make_pair(zone.name, zone.totalTime));
+		}
+	}
 }
 
 void CMainWindow::OnExecutableChange()

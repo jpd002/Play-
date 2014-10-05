@@ -28,7 +28,6 @@
 #include "xml/Parser.h"
 #include "AppConfig.h"
 #include "PathUtils.h"
-#include "Profiler.h"
 #include "iop/IopBios.h"
 #include "iop/DirectoryDevice.h"
 #include "iop/IsoDevice.h"
@@ -52,11 +51,6 @@
 
 #define VPU_LOG_BASE		"./vpu_logs/"
 
-#ifdef	PROFILE
-#define PROFILE_EEZONE		"EE"
-#define PROFILE_IOPZONE		"IOP"
-#endif
-
 namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM()
@@ -74,6 +68,11 @@ CPS2VM::CPS2VM()
 , m_iopExecutionTicks(0)
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
 , m_pCDROM0(NULL)
+, m_eeProfilerZone(CProfiler::GetInstance().RegisterZone("EE"))
+, m_iopProfilerZone(CProfiler::GetInstance().RegisterZone("IOP"))
+, m_spuProfilerZone(CProfiler::GetInstance().RegisterZone("SPU"))
+, m_gsSyncProfilerZone(CProfiler::GetInstance().RegisterZone("GSSYNC"))
+, m_otherProfilerZone(CProfiler::GetInstance().RegisterZone("OTHER"))
 {
 	const char* basicDirectorySettings[] =
 	{
@@ -528,8 +527,62 @@ void CPS2VM::OnGsNewFrame()
 #endif
 }
 
+void CPS2VM::UpdateEe()
+{
+#ifdef PROFILE
+	CProfilerZone profilerZone(m_eeProfilerZone);
+#endif
+
+	while(m_eeExecutionTicks > 0)
+	{
+		int executed = m_ee->ExecuteCpu(m_singleStepEe ? 1 : m_eeExecutionTicks);
+		if(m_ee->IsCpuIdle())
+		{
+			executed = m_eeExecutionTicks;
+		}
+
+		m_eeExecutionTicks -= executed;
+		m_ee->CountTicks(executed);
+		m_vblankTicks -= executed;
+		m_spuUpdateTicks -= executed;
+
+#ifdef DEBUGGER_INCLUDED
+		if(m_singleStepEe) break;
+		if(m_ee->m_executor.MustBreak()) break;
+#endif
+	}
+}
+
+void CPS2VM::UpdateIop()
+{
+#ifdef PROFILE
+	CProfilerZone profilerZone(m_iopProfilerZone);
+#endif
+
+	while(m_iopExecutionTicks > 0)
+	{
+		int executed = m_iop->ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
+		if(m_iop->IsCpuIdle())
+		{
+			executed = m_iopExecutionTicks;
+		}
+
+		m_iopExecutionTicks -= executed;
+		m_iop->CountTicks(executed);
+
+#ifdef DEBUGGER_INCLUDED
+		if(m_singleStepIop) break;
+		if(m_iop->m_executor.MustBreak()) break;
+#endif
+	}
+}
+
 void CPS2VM::UpdateSpu()
 {
+#ifdef PROFILE
+	CProfilerZone profilerZone(m_spuProfilerZone);
+#endif
+
 	Iop::CSpuBase* spu[2] = { &m_iop->m_spuCore0, &m_iop->m_spuCore1 };
 	const int sampleRate = 44100;
 	const int sampleCount = 352;
@@ -651,9 +704,7 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 
 void CPS2VM::EmuThread()
 {
-#ifdef PROFILE
 	CProfiler::GetInstance().SetWorkThread();
-#endif
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -667,9 +718,10 @@ void CPS2VM::EmuThread()
 		}
 		if(m_nStatus == RUNNING)
 		{
-#ifdef PROFILER
-			CProfilerZone profilerZone(PROFILE_OTHERZONE);
+#ifdef PROFILE
+			CProfilerZone profilerZone(m_otherProfilerZone);
 #endif
+
 			if(m_spuUpdateTicks <= 0)
 			{
 				UpdateSpu();
@@ -690,6 +742,9 @@ void CPS2VM::EmuThread()
 
 						if(m_ee->m_gs != NULL)
 						{
+#ifdef PROFILE
+							CProfilerZone profilerZone(m_gsSyncProfilerZone);
+#endif
 							m_ee->m_gs->SetVBlank();
 						}
 
@@ -697,6 +752,13 @@ void CPS2VM::EmuThread()
 						{
 							m_pad->Update(m_ee->m_ram);
 						}
+#ifdef PROFILE
+						{
+							auto stats = CProfiler::GetInstance().GetStats();
+							ProfileFrameDone(stats);
+							CProfiler::GetInstance().Reset();
+						}
+#endif
 					}
 					else
 					{
@@ -715,47 +777,8 @@ void CPS2VM::EmuThread()
 				m_eeExecutionTicks += tickStep;
 				m_iopExecutionTicks += tickStep / 8;
 
-				while(m_eeExecutionTicks > 0)
-				{
-#ifdef PROFILE
-					CProfilerZone profilerZone(PROFILE_EEZONE);
-#endif
-					int executed = m_ee->ExecuteCpu(m_singleStepEe ? 1 : m_eeExecutionTicks);
-					if(m_ee->IsCpuIdle())
-					{
-						executed = m_eeExecutionTicks;
-					}
-
-					m_eeExecutionTicks -= executed;
-					m_ee->CountTicks(executed);
-					m_vblankTicks -= executed;
-					m_spuUpdateTicks -= executed;
-
-#ifdef DEBUGGER_INCLUDED
-					if(m_singleStepEe) break;
-					if(m_ee->m_executor.MustBreak()) break;
-#endif
-				}
-
-				while(m_iopExecutionTicks > 0)
-				{
-#ifdef PROFILE
-					CProfilerZone profilerZone(PROFILE_IOPZONE);
-#endif
-					int executed = m_iop->ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
-					if(m_iop->IsCpuIdle())
-					{
-						executed = m_iopExecutionTicks;
-					}
-
-					m_iopExecutionTicks -= executed;
-					m_iop->CountTicks(executed);
-
-#ifdef DEBUGGER_INCLUDED
-					if(m_singleStepIop) break;
-					if(m_iop->m_executor.MustBreak()) break;
-#endif
-				}
+				UpdateEe();
+				UpdateIop();
 
 				m_ee->m_vif.ExecuteVu0(m_singleStepVu0);
 				m_ee->m_vif.ExecuteVu1(m_singleStepVu1);

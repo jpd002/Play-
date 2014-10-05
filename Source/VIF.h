@@ -6,6 +6,7 @@
 #include "GIF.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
+#include "Profiler.h"
 
 class CVPU;
 
@@ -139,6 +140,8 @@ private:
 	uint8*			m_ram;
 	uint8*			m_spr;
 	CFifoStream*	m_stream[2];
+
+	CProfiler::ZoneHandle m_vifProfilerZone = 0;
 };
 
 #endif

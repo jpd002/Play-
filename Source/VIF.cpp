@@ -3,16 +3,10 @@
 #include "VPU.h"
 #include "VPU1.h"
 #include "GIF.h"
-#include "Profiler.h"
 #include "Ps2Const.h"
 #include "RegisterStateFile.h"
 #include "Log.h"
 #include "FrameDump.h"
-
-#ifdef	PROFILE
-#define	PROFILE_VIFZONE "VIF"
-#define PROFILE_VU1ZONE	"VU0"
-#endif
 
 #define LOG_NAME				("vif")
 #define STATE_REGS_XML			("vif/regs.xml")
@@ -23,6 +17,7 @@ CVIF::CVIF(CGIF& gif, uint8* ram, uint8* spr, const VPUINIT& vpu0Init, const VPU
 , m_ram(ram)
 , m_spr(spr)
 , m_VPU_STAT(0)
+, m_vifProfilerZone(CProfiler::GetInstance().RegisterZone("VIF"))
 {
 	m_pVPU[0] = new CVPU(*this, 0, vpu0Init);
 	m_pVPU[1] = new CVPU1(*this, 1, vpu1Init);
@@ -117,13 +112,13 @@ uint32 CVIF::ReceiveDMA1(uint32 address, uint32 qwc, bool tagIncluded)
 
 uint32 CVIF::ProcessDMAPacket(unsigned int vpuNumber, uint32 address, uint32 qwc, bool tagIncluded)
 {
+#ifdef PROFILE
+	CProfilerZone profilerZone(m_vifProfilerZone);
+#endif
+
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = 0x%X, tagIncluded = %i\r\n",
 		vpuNumber, address, qwc, static_cast<int>(tagIncluded));
-#endif
-
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_VIFZONE);
 #endif
 
 	m_stream[vpuNumber]->SetDmaParams(address, qwc * 0x10);
@@ -217,18 +212,12 @@ bool CVIF::IsVu1WaitingForProgramEnd() const
 void CVIF::ExecuteVu0(bool singleStep)
 {
 	if(!IsVu0Running()) return;
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_VIFZONE);
-#endif
 	m_pVPU[0]->Execute(singleStep);
 }
 
 void CVIF::ExecuteVu1(bool singleStep)
 {
 	if(!IsVu1Running()) return;
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_VIFZONE);
-#endif	
 	m_pVPU[1]->Execute(singleStep);
 }
 

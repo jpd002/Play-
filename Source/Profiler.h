@@ -1,47 +1,47 @@
-#ifndef _PROFILER_H_
-#define _PROFILER_H_
-
-#ifdef PROFILE
+#pragma once
 
 #include <string>
-#include <ctime>
-#include <map>
 #include <stack>
 #include <thread>
+#include <vector>
 #include "Singleton.h"
-
-#define PROFILE_OTHERZONE "Other"
+#include "Types.h"
 
 class CProfiler : public CSingleton<CProfiler>
 {
 public:
-	typedef std::map<std::string, clock_t> ZoneMap;
-		
-	friend				CSingleton;
+	typedef uint32 ZoneHandle;
 
-	void				BeginIteration();
-	void				EndIteration();
+	struct ZONE
+	{
+		std::string		name;
+		uint64			totalTime = 0;
+	};
 
-	void				BeginZone(const char*);
-	void				EndZone();
+	typedef std::vector<ZONE> ZoneArray;
+	typedef std::chrono::system_clock::time_point TimePoint;
 
-	ZoneMap				GetStats();
+						CProfiler();
+	virtual				~CProfiler();
+
+	ZoneHandle			RegisterZone(const char*);
+
+	void				EnterZone(ZoneHandle);
+	void				ExitZone();
+
+	ZoneArray			GetStats() const;
 	void				Reset();
 
 	void				SetWorkThread();
 	
 private:
-	typedef std::stack<std::string> ZoneStack;
+	typedef std::stack<ZoneHandle> ZoneStack;
 	
-						CProfiler();
-	virtual				~CProfiler();
+	void				AddTimeToZone(ZoneHandle, uint64);
 
-	void				AddTimeToCurrentZone(clock_t);
-
-	std::mutex			m_mutex;
-	clock_t				m_currentTime;
-	ZoneMap				m_zones;
+	ZoneArray			m_zones;
 	ZoneStack			m_zoneStack;
+	TimePoint			m_currentTime;
 	
 #ifdef _DEBUG
 	std::thread::id		m_workThreadId;
@@ -51,13 +51,6 @@ private:
 class CProfilerZone
 {
 public:
-					CProfilerZone(const char*);
-					~CProfilerZone();
-	
-private:
-	const char*		m_name;
+							CProfilerZone(CProfiler::ZoneHandle);
+							~CProfilerZone();
 };
-
-#endif
-
-#endif

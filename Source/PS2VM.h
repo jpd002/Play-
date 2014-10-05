@@ -12,6 +12,7 @@
 #include "iop/Iop_SubSystem.h"
 #include "iop/IopBios.h"
 #include "FrameDump.h"
+#include "Profiler.h"
 
 enum PS2VM_MSG
 {
@@ -37,6 +38,7 @@ public:
 	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
 	typedef std::function<void (const CFrameDump&)> FrameDumpCallback;
+	typedef boost::signals2::signal<void (const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
 
 								CPS2VM();
 	virtual						~CPS2VM();
@@ -82,13 +84,9 @@ public:
 
 	IopBiosPtr					m_iopOs;
 
-	int							m_vblankTicks;
-	bool						m_inVblank;
-	int							m_spuUpdateTicks;
-	int							m_eeExecutionTicks;
-	int							m_iopExecutionTicks;
-
 	CISO9660*					m_pCDROM0;
+
+	ProfileFrameDoneSignal		ProfileFrameDone;
 
 private:
 	void						CreateVM();
@@ -109,7 +107,10 @@ private:
 	void						CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
 	void						DestroyPadHandlerImpl();
 
+	void						UpdateEe();
+	void						UpdateIop();
 	void						UpdateSpu();
+
 	void						OnGsNewFrame();
 
 	void						CDROM0_Initialize();
@@ -126,6 +127,13 @@ private:
 	CMailBox					m_mailBox;
 	STATUS						m_nStatus;
 	bool						m_nEnd;
+
+	int							m_vblankTicks = 0;
+	bool						m_inVblank = 0;
+	int							m_spuUpdateTicks = 0;
+	int							m_eeExecutionTicks = 0;
+	int							m_iopExecutionTicks = 0;
+
 	bool						m_singleStepEe;
 	bool						m_singleStepIop;
 	bool						m_singleStepVu0;
@@ -135,4 +143,10 @@ private:
 	FrameDumpCallback			m_frameDumpCallback;
 	std::mutex					m_frameDumpCallbackMutex;
 	bool						m_dumpingFrame = false;
+
+	CProfiler::ZoneHandle		m_eeProfilerZone = 0;
+	CProfiler::ZoneHandle		m_iopProfilerZone = 0;
+	CProfiler::ZoneHandle		m_spuProfilerZone = 0;
+	CProfiler::ZoneHandle		m_gsSyncProfilerZone = 0;
+	CProfiler::ZoneHandle		m_otherProfilerZone = 0;
 };

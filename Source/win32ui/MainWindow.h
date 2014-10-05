@@ -12,6 +12,7 @@
 #include "Debugger.h"
 #include "FrameDebugger/FrameDebugger.h"
 #endif
+#include "../Profiler.h"
 #include "../PS2VM.h"
 
 class CMainWindow : public Framework::Win32::CWindow, public boost::signals2::trackable
@@ -103,6 +104,8 @@ private:
 	void							UpdateUI();
 
 	void							OnNewFrame(uint32);
+	void							OnProfileFrameDone(const CProfiler::ZoneArray&);
+
 	void							OnOutputWndSizeChange();
 	void							OnExecutableChange();
 
@@ -132,5 +135,10 @@ private:
 	std::unique_ptr<CDebugger>		m_debugger;
 	std::unique_ptr<CFrameDebugger>	m_frameDebugger;
 #endif
+
+	typedef std::map<std::string, uint64> ZoneMap;
+	std::mutex						m_profilerZonesMutex;
+	ZoneMap							m_profilerZones;
+
 	static double					m_statusBarPanelWidths[2];
 };

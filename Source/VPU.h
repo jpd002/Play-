@@ -7,6 +7,7 @@
 #include "Convertible.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
+#include "Profiler.h"
 
 //#define DELAYED_MSCAL
 
@@ -166,4 +167,6 @@ protected:
 
 	unsigned int		m_vpuNumber;
 	CVuExecutor			m_executor;
+
+	CProfiler::ZoneHandle m_vuProfilerZone = 0;
 };

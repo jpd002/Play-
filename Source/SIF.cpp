@@ -2,7 +2,6 @@
 #include "Ps2Const.h"
 #include "SIF.h"
 #include "PtrMacro.h"
-#include "Profiler.h"
 #include "Log.h"
 #include "iop/IopBios.h"
 #include "StructCollectionStateFile.h"
@@ -15,10 +14,6 @@
 
 #define STATE_REGS_XML				("sif/regs.xml")
 #define STATE_CALL_REPLIES_XML		("sif/call_replies.xml")
-
-#ifdef	PROFILE
-#define	PROFILE_SIFZONE "SIF"
-#endif
 
 #define STATE_PACKET_HEADER_SIZE				("Packet_Header_Size")
 #define STATE_PACKET_HEADER_DEST				("Packet_Header_Dest")

@@ -15,7 +15,6 @@
 #include "COP_SCU.h"
 #include "uint128.h"
 #include "EEAssembler.h"
-#include "Profiler.h"
 #include "PathUtils.h"
 #include "xml/Node.h"
 #include "xml/Parser.h"
@@ -51,9 +50,9 @@
 #define BIOS_ADDRESS_THREADEPILOG		0x1FC03000
 #define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 
-#define CONFIGPATH		"./config/"
-#define PATCHESFILENAME	"patches.xml"
-#define LOG_NAME		("ps2os")
+#define CONFIGPATH			"./config/"
+#define PATCHESFILENAME		"patches.xml"
+#define LOG_NAME			("ps2os")
 
 #define THREAD_INIT_QUOTA			(15)
 
@@ -2372,10 +2371,6 @@ void CPS2OS::sc_GetMemorySize()
 
 void CPS2OS::HandleSyscall()
 {
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_OTHERZONE);
-#endif
-
 	uint32 searchAddress = m_ee.m_State.nCOP0[CCOP_SCU::EPC];
 	uint32 callInstruction = m_ee.m_pMemoryMap->GetInstruction(searchAddress);
 	if(callInstruction != 0x0000000C)

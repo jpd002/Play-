@@ -1,6 +1,7 @@
 #include "Profiler.h"
 
-#ifdef PROFILE
+#include <chrono>
+#include <cassert>
 
 CProfiler::CProfiler()
 {
@@ -12,63 +13,73 @@ CProfiler::~CProfiler()
 
 }
 
-void CProfiler::BeginIteration()
+CProfiler::ZoneHandle CProfiler::RegisterZone(const char* name)
 {
-	Reset();
-	m_currentTime = clock();
+#ifdef PROFILE
+	for(unsigned int i = 0; i < m_zones.size(); i++)
+	{
+		const auto& zone(m_zones[i]);
+		if(zone.name == name) return i;
+	}
+	auto newZone = ZONE();
+	newZone.name = name;
+	newZone.totalTime = 0;
+	m_zones.push_back(newZone);
+	return static_cast<CProfiler::ZoneHandle>(m_zones.size() - 1);
+#else
+	return 0;
+#endif
 }
 
-void CProfiler::EndIteration()
-{
-	std::lock_guard<std::mutex> mutexLock(m_mutex);
-}
-
-void CProfiler::BeginZone(const char* name)
+void CProfiler::EnterZone(ZoneHandle zoneHandle)
 {
 	assert(std::this_thread::get_id() == m_workThreadId);
 	
-	clock_t nTime = clock();
+	auto thisTime = std::chrono::high_resolution_clock::now();
 
+	if(!m_zoneStack.empty())
 	{
-		std::lock_guard<std::mutex> mutexLock(m_mutex);
-		AddTimeToCurrentZone(nTime - m_currentTime);
-		m_zoneStack.push(name);
+		auto topZoneHandle = m_zoneStack.top();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(thisTime - m_currentTime);
+		AddTimeToZone(topZoneHandle, duration.count());
 	}
 
-	m_currentTime = clock();
+	m_zoneStack.push(zoneHandle);
+
+	m_currentTime = thisTime;
 }
 
-void CProfiler::EndZone()
+void CProfiler::ExitZone()
 {
 	assert(std::this_thread::get_id() == m_workThreadId);
-	
-	clock_t nTime = clock();
+	assert(!m_zoneStack.empty());
+
+	auto thisTime = std::chrono::high_resolution_clock::now();
 
 	{
-		std::lock_guard<std::mutex> mutexLock(m_mutex);
-
-		if(m_zoneStack.size() == 0)
-		{
-			throw std::runtime_error("Currently not inside any zone.");
-		}
-
-		AddTimeToCurrentZone(nTime - m_currentTime);
-		m_zoneStack.pop();
+		auto topZoneHandle = m_zoneStack.top();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(thisTime - m_currentTime);
+		AddTimeToZone(topZoneHandle, duration.count());
 	}
 
-	m_currentTime = clock();
+	m_zoneStack.pop();
+
+	m_currentTime = thisTime;
 }
 
-CProfiler::ZoneMap CProfiler::GetStats()
+CProfiler::ZoneArray CProfiler::GetStats() const
 {
-	std::lock_guard<std::mutex> mutexLock(m_mutex);
+	assert(std::this_thread::get_id() == m_workThreadId);
 	return m_zones;
 }
 
 void CProfiler::Reset()
 {
-	std::lock_guard<std::mutex> mutexLock(m_mutex);
-	std::for_each(std::begin(m_zones), std::end(m_zones), [] (ZoneMap::value_type& zonePair) { zonePair.second = 0; });
+	assert(std::this_thread::get_id() == m_workThreadId);
+	for(auto& zone : m_zones)
+	{
+		zone.totalTime = 0;
+	}
 }
 
 void CProfiler::SetWorkThread()
@@ -78,30 +89,26 @@ void CProfiler::SetWorkThread()
 #endif
 }
 
-void CProfiler::AddTimeToCurrentZone(clock_t time)
+void CProfiler::AddTimeToZone(ZoneHandle zoneHandle, uint64 timeUs)
 {
-	std::string currentZoneName = (m_zoneStack.size() == 0) ? PROFILE_OTHERZONE : m_zoneStack.top();
-	auto zoneIterator = m_zones.find(currentZoneName);
-	if(zoneIterator == std::end(m_zones))
-	{
-		m_zones.insert(ZoneMap::value_type(currentZoneName, 0));
-		zoneIterator = m_zones.find(currentZoneName);
-	}
-	zoneIterator->second += time;
+	assert(m_zones.size() > zoneHandle);
+	auto& zone = m_zones[zoneHandle];
+	zone.totalTime += timeUs;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //CProfilerZone
 
-CProfilerZone::CProfilerZone(const char* name)
-: m_name(name)
+CProfilerZone::CProfilerZone(CProfiler::ZoneHandle handle)
 {
-	CProfiler::GetInstance().BeginZone(name);
+#ifdef PROFILE
+	CProfiler::GetInstance().EnterZone(handle);
+#endif
 }
 
 CProfilerZone::~CProfilerZone()
 {
-	CProfiler::GetInstance().EndZone();
-}
-
+#ifdef PROFILE
+	CProfiler::GetInstance().ExitZone();
 #endif
+}

@@ -2,6 +2,7 @@
 
 #include "Types.h"
 #include "GSHandler.h"
+#include "Profiler.h"
 
 class CGIF
 {
@@ -65,4 +66,6 @@ private:
 	uint8*			m_spr;
 	CGSHandler*&	m_gs;
 	std::mutex		m_pathMutex;
+
+	CProfiler::ZoneHandle m_gifProfilerZone = 0;
 };

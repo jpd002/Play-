@@ -35,6 +35,7 @@ CVPU::CVPU(CVIF& vif, unsigned int vpuNumber, const CVIF::VPUINIT& vpuInit)
 , m_vuMem(vpuInit.vuMem)
 , m_ctx(vpuInit.context)
 , m_executor(*vpuInit.context)
+, m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
 #ifdef DEBUGGER_INCLUDED
 , m_microMemMiniState(new uint8[(vpuNumber == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
 , m_vuMemMiniState(new uint8[(vpuNumber == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE])
@@ -55,6 +56,10 @@ CVPU::~CVPU()
 
 void CVPU::Execute(bool singleStep)
 {
+#ifdef PROFILE
+	CProfilerZone profilerZone(m_vuProfilerZone);
+#endif
+
 	unsigned int quota = singleStep ? 1 : 5000;
 	assert(IsRunning());
 	m_executor.Execute(quota);
