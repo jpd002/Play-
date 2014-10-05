@@ -3,27 +3,13 @@
 #include <thread>
 #include "AppDef.h"
 #include "Types.h"
-#include "DMAC.h"
-#include "GIF.h"
-#include "SIF.h"
-#include "VIF.h"
-#include "IPU.h"
-#include "INTC.h"
-#include "Timer.h"
 #include "MIPS.h"
 #include "MailBox.h"
-#include "GSHandler.h"
 #include "PadHandler.h"
 #include "iso9660/ISO9660.h"
 #include "VirtualMachine.h"
-#include "MipsExecutor.h"
-#include "MA_VU.h"
-#include "MA_EE.h"
-#include "COP_SCU.h"
-#include "COP_FPU.h"
-#include "COP_VU.h"
+#include "Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
-#include "PS2OS.h"
 #include "iop/IopBios.h"
 #include "FrameDump.h"
 
@@ -48,6 +34,8 @@ enum PS2VM_MSG
 class CPS2VM : public CVirtualMachine
 {
 public:
+	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
+	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
 	typedef std::function<void (const CFrameDump&)> FrameDumpCallback;
 
 								CPS2VM();
@@ -87,45 +75,12 @@ public:
 	void						SaveDebugTags(const char*);
 #endif
 
-	uint32						IOPortReadHandler(uint32);
-	uint32						IOPortWriteHandler(uint32, uint32);
-
-	uint32						Vu0IoPortReadHandler(uint32);
-	uint32						Vu0IoPortWriteHandler(uint32, uint32);
-
-	uint32						Vu1IoPortReadHandler(uint32);
-	uint32						Vu1IoPortWriteHandler(uint32, uint32);
-
-	CGSHandler*					m_gs;
 	CPadHandler*				m_pad;
 
-	Iop::CSubSystem				m_iop;
+	EeSubSystemPtr				m_ee;
+	IopSubSystemPtr				m_iop;
 
-	uint8*						m_ram;
-	uint8*						m_bios;
-	uint8*						m_spr;
-	uint8*						m_fakeIopRam;
-
-	uint8*						m_pVUMem0;
-	uint8*						m_pMicroMem0;
-
-	uint8*						m_pVUMem1;
-	uint8*						m_pMicroMem1;
-
-	CDMAC						m_dmac;
-	CGIF						m_gif;
-	CSIF						m_sif;
-	CVIF						m_vif;
-	CINTC						m_intc;
-	CIPU						m_ipu;
-	CTimer						m_timer;
-	CPS2OS*						m_os;
 	IopBiosPtr					m_iopOs;
-
-	CMIPS						m_EE;
-	CMIPS						m_VU0;
-	CMIPS						m_VU1;
-	CMipsExecutor				m_executor;
 
 	int							m_vblankTicks;
 	bool						m_inVblank;
@@ -142,11 +97,7 @@ private:
 	void						SaveVMState(const char*, unsigned int&);
 	void						LoadVMState(const char*, unsigned int&);
 
-	void						EEMemWriteHandler(uint32);
 	void						ReadToEeRam(uint32, uint32);
-	void						CheckPendingEeInterrupts();
-
-	void						FlushInstructionCache();
 	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 
 	void						ResumeImpl();
@@ -167,26 +118,14 @@ private:
 	void						CDROM0_Destroy();
 	void						SetIopCdImage(CISO9660*);
 
-	void						LoadBIOS();
 	void						RegisterModulesInPadHandler();
-	void						FillFakeIopRam();
 
-	void						ExecuteIpu();
-
-	int							ExecuteEe(int);
-	bool						IsEeIdle() const;
 	void						EmuThread();
 
 	std::thread					m_thread;
 	CMailBox					m_mailBox;
 	STATUS						m_nStatus;
 	bool						m_nEnd;
-	CMA_VU						m_MAVU0;
-	CMA_VU						m_MAVU1;
-	CMA_EE						m_EEArch;
-	CCOP_SCU					m_COP_SCU;
-	CCOP_FPU					m_COP_FPU;
-	CCOP_VU						m_COP_VU;
 	bool						m_singleStepEe;
 	bool						m_singleStepIop;
 	bool						m_singleStepVu0;
@@ -195,5 +134,5 @@ private:
 	CFrameDump					m_frameDump;
 	FrameDumpCallback			m_frameDumpCallback;
 	std::mutex					m_frameDumpCallbackMutex;
-	bool						m_dumpingFrame;
+	bool						m_dumpingFrame = false;
 };

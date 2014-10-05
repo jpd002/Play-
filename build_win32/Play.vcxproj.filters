@@ -640,6 +640,9 @@
     <ClCompile Include="..\Source\EEAssembler.cpp">
       <Filter>Source Files\Core\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Ee_SubSystem.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1243,6 +1246,9 @@
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\EEAssembler.h">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Ee_SubSystem.h">
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>

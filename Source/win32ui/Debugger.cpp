@@ -68,17 +68,17 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	m_nCurrentView = -1;
 
 	memset(m_pView, 0, sizeof(m_pView));
-	m_pView[DEBUGVIEW_EE]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_EE, 
-		std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_os, "EmotionEngine");
-	m_pView[DEBUGVIEW_VU0]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_VU0, 
+	m_pView[DEBUGVIEW_EE]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_EE, 
+		std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
+	m_pView[DEBUGVIEW_VU0]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0, 
 		std::bind(&CPS2VM::StepEe, &m_virtualMachine), nullptr, "Vector Unit 0", CDisAsmWnd::DISASM_VU);
-	m_pView[DEBUGVIEW_VU1]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_VU1, 
+	m_pView[DEBUGVIEW_VU1]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1, 
 		std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", CDisAsmWnd::DISASM_VU);
-	m_pView[DEBUGVIEW_IOP]  = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_iop.m_cpu, 
+	m_pView[DEBUGVIEW_IOP]  = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu, 
 		std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iopOs.get(), "IO Processor");
 
-	m_virtualMachine.m_os->OnExecutableChange.connect(boost::bind(&CDebugger::OnExecutableChange, this));
-	m_virtualMachine.m_os->OnExecutableUnloading.connect(boost::bind(&CDebugger::OnExecutableUnloading, this));
+	m_virtualMachine.m_ee->m_os->OnExecutableChange.connect(boost::bind(&CDebugger::OnExecutableChange, this));
+	m_virtualMachine.m_ee->m_os->OnExecutableUnloading.connect(boost::bind(&CDebugger::OnExecutableUnloading, this));
 
 	ActivateView(DEBUGVIEW_EE);
 	LoadSettings();
@@ -276,7 +276,7 @@ void CDebugger::FindValue()
 	printf("-----------------------------\r\n");
 	for(unsigned int i = 0; i < PS2::EE_RAM_SIZE; i += 4)
 	{
-		if(*(uint32*)&m_virtualMachine.m_ram[i] == nValue)
+		if(*(uint32*)&m_virtualMachine.m_ee->m_ram[i] == nValue)
 		{
 			printf("0x%0.8X\r\n", i);
 		}
@@ -298,26 +298,26 @@ void CDebugger::AssembleJAL()
 	_stscanf(sTarget, _T("%x"), &nValueTarget);
 	_stscanf(sAssemble, _T("%x"), &nValueAssemble);
 
-	*(uint32*)&m_virtualMachine.m_ram[nValueAssemble] = 0x0C000000 | (nValueTarget / 4);
+	*(uint32*)&m_virtualMachine.m_ee->m_ram[nValueAssemble] = 0x0C000000 | (nValueTarget / 4);
 }
 
 void CDebugger::ReanalyzeEe()
 {
-	if(m_virtualMachine.m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
-	auto executableRange = m_virtualMachine.m_os->GetExecutableRange();
+	auto executableRange = m_virtualMachine.m_ee->m_os->GetExecutableRange();
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
-	m_virtualMachine.m_EE.m_analysis->Clear();
-	m_virtualMachine.m_EE.m_analysis->Analyse(minAddr, maxAddr);
+	m_virtualMachine.m_ee->m_EE.m_analysis->Clear();
+	m_virtualMachine.m_ee->m_EE.m_analysis->Analyse(minAddr, maxAddr);
 }
 
 void CDebugger::FindEeFunctions()
 {
-	if(m_virtualMachine.m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
-	auto executableRange = m_virtualMachine.m_os->GetExecutableRange();
+	auto executableRange = m_virtualMachine.m_ee->m_os->GetExecutableRange();
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
@@ -332,17 +332,17 @@ void CDebugger::FindEeFunctions()
 			auto pattern = *patternIterator;
 			for(uint32 address = minAddr; address <= maxAddr; address += 4)
 			{
-				uint32* text = reinterpret_cast<uint32*>(m_virtualMachine.m_ram + address);
+				uint32* text = reinterpret_cast<uint32*>(m_virtualMachine.m_ee->m_ram + address);
 				uint32 textSize = (maxAddr - address);
 				if(pattern.Matches(text, textSize))
 				{
-					m_virtualMachine.m_EE.m_Functions.InsertTag(address, pattern.name.c_str());
+					m_virtualMachine.m_ee->m_EE.m_Functions.InsertTag(address, pattern.name.c_str());
 					break;
 				}
 			}
 		}
 
-		m_virtualMachine.m_EE.m_Functions.OnTagListChange();
+		m_virtualMachine.m_ee->m_EE.m_Functions.OnTagListChange();
 	}
 }
 
@@ -751,7 +751,7 @@ void CDebugger::OnExecutableUnloading()
 
 void CDebugger::OnExecutableChangeMsg()
 {
-	m_pELFView->SetELF(m_virtualMachine.m_os->GetELF());
+	m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
 //	m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
 
 	LoadDebugTags();
@@ -770,16 +770,16 @@ void CDebugger::OnExecutableUnloadingMsg()
 void CDebugger::LoadDebugTags()
 {
 #ifdef DEBUGGER_INCLUDED
-	m_virtualMachine.LoadDebugTags(m_virtualMachine.m_os->GetExecutableName());
+	m_virtualMachine.LoadDebugTags(m_virtualMachine.m_ee->m_os->GetExecutableName());
 #endif
 }
 
 void CDebugger::SaveDebugTags()
 {
 #ifdef DEBUGGER_INCLUDED
-	if(m_virtualMachine.m_os->GetELF() != NULL)
+	if(m_virtualMachine.m_ee->m_os->GetELF() != NULL)
 	{
-		m_virtualMachine.SaveDebugTags(m_virtualMachine.m_os->GetExecutableName());
+		m_virtualMachine.SaveDebugTags(m_virtualMachine.m_ee->m_os->GetExecutableName());
 	}
 #endif
 }

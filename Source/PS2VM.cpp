@@ -33,7 +33,6 @@
 #include "iop/DirectoryDevice.h"
 #include "iop/IsoDevice.h"
 #include "Log.h"
-#include "placeholder_def.h"
 
 #define LOG_NAME		("ps2vm")
 
@@ -41,53 +40,28 @@
 #define TAGS_PATH		("./tags/")
 #endif
 
-#define STATE_EE		("ee")
-#define STATE_VU0		("vu0")
-#define STATE_VU1		("vu1")
-#define STATE_RAM		("ram")
-#define STATE_SPR		("spr")
-#define STATE_VUMEM0	("vumem0")
-#define STATE_MICROMEM0	("micromem0")
-#define STATE_VUMEM1	("vumem1")
-#define STATE_MICROMEM1	("micromem1")
-
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT		("vfs/host")
 #define PREF_PS2_MC0_DIRECTORY_DEFAULT		("vfs/mc0")
 #define PREF_PS2_MC1_DIRECTORY_DEFAULT		("vfs/mc1")
 
-#define		FRAME_TICKS			(PS2::EE_CLOCK_FREQ / 60)
-#define		ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
-#define		VBLANK_TICKS		(FRAME_TICKS / 10)
+#define FRAME_TICKS			(PS2::EE_CLOCK_FREQ / 60)
+#define ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
+#define VBLANK_TICKS		(FRAME_TICKS / 10)
 
-#define		SPU_UPDATE_TICKS	(FRAME_TICKS / 2)
+#define SPU_UPDATE_TICKS	(FRAME_TICKS / 2)
 
-#define		FAKE_IOP_RAM_SIZE	(0x1000)
-
-#define		VPU_LOG_BASE		"./vpu_logs/"
+#define VPU_LOG_BASE		"./vpu_logs/"
 
 #ifdef	PROFILE
-#define	PROFILE_EEZONE "EE"
-#define PROFILE_IOPZONE "IOP"
+#define PROFILE_EEZONE		"EE"
+#define PROFILE_IOPZONE		"IOP"
 #endif
 
 namespace filesystem = boost::filesystem;
 
-CPS2VM::CPS2VM() 
-: m_ram(new uint8[PS2::EE_RAM_SIZE])
-, m_bios(new uint8[PS2::EE_BIOS_SIZE])
-, m_spr(new uint8[PS2::EE_SPR_SIZE])
-, m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
-, m_pVUMem0(new uint8[PS2::VUMEM0SIZE])
-, m_pMicroMem0(new uint8[PS2::MICROMEM0SIZE])
-, m_pVUMem1(new uint8[PS2::VUMEM1SIZE])
-, m_pMicroMem1(new uint8[PS2::MICROMEM1SIZE])
-, m_EE(MEMORYMAP_ENDIAN_LSBF)
-, m_VU0(MEMORYMAP_ENDIAN_LSBF)
-, m_VU1(MEMORYMAP_ENDIAN_LSBF)
-, m_executor(m_EE, 0x20000000)
-, m_nStatus(PAUSED)
+CPS2VM::CPS2VM()
+: m_nStatus(PAUSED)
 , m_nEnd(false)
-, m_gs(NULL)
 , m_pad(NULL)
 , m_singleStepEe(false)
 , m_singleStepIop(false)
@@ -100,18 +74,6 @@ CPS2VM::CPS2VM()
 , m_iopExecutionTicks(0)
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
 , m_pCDROM0(NULL)
-, m_dmac(m_ram, m_spr, m_pVUMem0, m_EE)
-, m_gif(m_gs, m_ram, m_spr)
-, m_sif(m_dmac, m_ram, m_iop.m_ram)
-, m_vif(m_gif, m_ram, m_spr, CVIF::VPUINIT(m_pMicroMem0, m_pVUMem0, &m_VU0), CVIF::VPUINIT(m_pMicroMem1, m_pVUMem1, &m_VU1))
-, m_intc(m_dmac, m_gs)
-, m_timer(m_intc)
-, m_COP_SCU(MIPS_REGSIZE_64)
-, m_COP_FPU(MIPS_REGSIZE_64)
-, m_COP_VU(MIPS_REGSIZE_64)
-, m_MAVU0(false)
-, m_MAVU1(true)
-, m_iop(true)
 {
 	const char* basicDirectorySettings[] =
 	{
@@ -132,18 +94,18 @@ CPS2VM::CPS2VM()
 		CAppConfig::GetInstance().RegisterPreferenceString(setting, absolutePath.string().c_str());
 	}
 	
-	m_iopOs = std::make_shared<CIopBios>(m_iop.m_cpu, m_iop.m_ram, PS2::IOP_RAM_SIZE);
-	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_gs, m_sif, *m_iopOs);
-	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CPS2VM::FlushInstructionCache, this));
-	m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
+	m_iop = std::make_unique<Iop::CSubSystem>(true);
+	m_iopOs = std::make_shared<CIopBios>(m_iop->m_cpu, m_iop->m_ram, PS2::IOP_RAM_SIZE);
+
+	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *m_iopOs);
+	m_ee->m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
 }
 
 CPS2VM::~CPS2VM()
 {
-	delete m_os;
 	{
 		//Big hack to force deletion of the IopBios
-		m_iop.SetBios(Iop::BiosBasePtr());
+		m_iop->SetBios(Iop::BiosBasePtr());
 		m_iopOs.reset();
 	}
 }
@@ -154,18 +116,18 @@ CPS2VM::~CPS2VM()
 
 void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
-	if(m_gs != NULL) return;
+	if(m_ee->m_gs != NULL) return;
 	m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, factoryFunction), true);
 }
 
 CGSHandler* CPS2VM::GetGSHandler()
 {
-	return m_gs;
+	return m_ee->m_gs;
 }
 
 void CPS2VM::DestroyGSHandler()
 {
-	if(m_gs == NULL) return;
+	if(m_ee->m_gs == NULL) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyGsImpl, this), true);
 }
 
@@ -232,14 +194,14 @@ void CPS2VM::DumpEEIntcHandlers()
 {
 //	if(m_pOS == NULL) return;
 	if(m_nStatus != PAUSED) return;
-	m_os->DumpIntcHandlers();
+	m_ee->m_os->DumpIntcHandlers();
 }
 
 void CPS2VM::DumpEEDmacHandlers()
 {
 //	if(m_pOS == NULL) return;
 	if(m_nStatus != PAUSED) return;
-	m_os->DumpDmacHandlers();
+	m_ee->m_os->DumpDmacHandlers();
 }
 
 void CPS2VM::Initialize()
@@ -313,16 +275,16 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream));
 		Framework::Xml::CNode* tagsNode = document->Select(TAGS_SECTION_TAGS);
 		if(!tagsNode) return;
-		m_EE.m_Functions.Unserialize(tagsNode, TAGS_SECTION_EE_FUNCTIONS);
-		m_EE.m_Comments.Unserialize(tagsNode, TAGS_SECTION_EE_COMMENTS);
-		m_VU1.m_Functions.Unserialize(tagsNode, TAGS_SECTION_VU1_FUNCTIONS);
-		m_VU1.m_Comments.Unserialize(tagsNode, TAGS_SECTION_VU1_COMMENTS);
+		m_ee->m_EE.m_Functions.Unserialize(tagsNode, TAGS_SECTION_EE_FUNCTIONS);
+		m_ee->m_EE.m_Comments.Unserialize(tagsNode, TAGS_SECTION_EE_COMMENTS);
+		m_ee->m_VU1.m_Functions.Unserialize(tagsNode, TAGS_SECTION_VU1_FUNCTIONS);
+		m_ee->m_VU1.m_Comments.Unserialize(tagsNode, TAGS_SECTION_VU1_COMMENTS);
 		{
 			Framework::Xml::CNode* sectionNode = tagsNode->Select(TAGS_SECTION_IOP);
 			if(sectionNode)
 			{
-				m_iop.m_cpu.m_Functions.Unserialize(sectionNode, TAGS_SECTION_IOP_FUNCTIONS);
-				m_iop.m_cpu.m_Comments.Unserialize(sectionNode, TAGS_SECTION_IOP_COMMENTS);
+				m_iop->m_cpu.m_Functions.Unserialize(sectionNode, TAGS_SECTION_IOP_FUNCTIONS);
+				m_iop->m_cpu.m_Comments.Unserialize(sectionNode, TAGS_SECTION_IOP_COMMENTS);
 				m_iopOs->LoadDebugTags(sectionNode);
 			}
 		}
@@ -340,14 +302,14 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 		std::string packagePath = MakeDebugTagsPackagePath(packageName);
 		Framework::CStdStream stream(packagePath.c_str(), "wb");
 		boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true)); 
-		m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
-		m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);
-		m_VU1.m_Functions.Serialize(document.get(), TAGS_SECTION_VU1_FUNCTIONS);
-		m_VU1.m_Comments.Serialize(document.get(), TAGS_SECTION_VU1_COMMENTS);
+		m_ee->m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
+		m_ee->m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);
+		m_ee->m_VU1.m_Functions.Serialize(document.get(), TAGS_SECTION_VU1_FUNCTIONS);
+		m_ee->m_VU1.m_Comments.Serialize(document.get(), TAGS_SECTION_VU1_COMMENTS);
 		{
 			Framework::Xml::CNode* iopNode = new Framework::Xml::CNode(TAGS_SECTION_IOP, true);
-			m_iop.m_cpu.m_Functions.Serialize(iopNode, TAGS_SECTION_IOP_FUNCTIONS);
-			m_iop.m_cpu.m_Comments.Serialize(iopNode, TAGS_SECTION_IOP_COMMENTS);
+			m_iop->m_cpu.m_Functions.Serialize(iopNode, TAGS_SECTION_IOP_FUNCTIONS);
+			m_iop->m_cpu.m_Comments.Serialize(iopNode, TAGS_SECTION_IOP_COMMENTS);
 			m_iopOs->SaveDebugTags(iopNode);
 			document->InsertNode(iopNode);
 		}
@@ -367,138 +329,25 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 
 void CPS2VM::CreateVM()
 {
-	printf("PS2VM: Virtual Machine Memory Usage: RAM: %i MBs, BIOS: %i MBs, SPR: %i KBs.\r\n", 
-		   PS2::EE_RAM_SIZE / 0x100000, PS2::EE_BIOS_SIZE / 0x100000, PS2::EE_SPR_SIZE / 0x1000);
-	
-	//EmotionEngine context setup
-	{
-		//Read map
-		m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_ram,														0x00);
-		m_EE.m_pMemoryMap->InsertReadMap(0x02000000, 0x02003FFF, m_spr,														0x01);
-		m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),		0x02);
-		m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, bind(&CPS2VM::IOPortReadHandler, this, PLACEHOLDER_1),		0x03);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000, 0x1C001000, m_fakeIopRam,												0x04);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_bios,													0x05);
-
-		//Write map
-		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000,		0x01FFFFFF,							m_ram,																		0x00);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x02000000,		0x02003FFF,							m_spr,																		0x01);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,		0x10FFFFFF,							bind(&CPS2VM::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),		0x02);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,	PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,	m_pVUMem0,																	0x03);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,	PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,	m_pVUMem1,																	0x04);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,		0x12FFFFFF,							bind(&CPS2VM::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x05);
-
-		m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CPS2VM::EEMemWriteHandler, this, PLACEHOLDER_1));
-
-		//Instruction map
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,	0x00);
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios,	0x01);
-
-		m_EE.m_pArch			= &m_EEArch;
-		m_EE.m_pCOP[0]			= &m_COP_SCU;
-		m_EE.m_pCOP[1]			= &m_COP_FPU;
-		m_EE.m_pCOP[2]			= &m_COP_VU;
-
-		m_EE.m_pAddrTranslator	= CPS2OS::TranslateAddress;
-	}
-
-	//Vector Unit 0 context setup
-	{
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00000000, 0x00000FFF, m_pVUMem0,                                                    0x01);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00001000, 0x00001FFF, m_pVUMem0,                                                    0x02);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00002000, 0x00002FFF, m_pVUMem0,                                                    0x03);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00003000, 0x00003FFF, m_pVUMem0,                                                    0x04);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortReadHandler, this, PLACEHOLDER_1),     0x05);
-
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00000FFF, m_pVUMem0,                                                                 0x01);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00001000, 0x00001FFF, m_pVUMem0,                                                                 0x02);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00002000, 0x00002FFF, m_pVUMem0,                                                                 0x03);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00003000, 0x00003FFF, m_pVUMem0,                                                                 0x04);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00004000, 0x00008FFF, bind(&CPS2VM::Vu0IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),  0x05);
-
-		m_VU0.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00000FFF, m_pMicroMem0,                                  0x00);
-
-		m_VU0.m_pArch			= &m_MAVU0;
-		m_VU0.m_pAddrTranslator	= CMIPS::TranslateAddress64;
-	}
-
-	//Vector Unit 1 context setup
-	{
-		m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                                     0x00);
-		m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortReadHandler, this, PLACEHOLDER_1),          0x01);
-
-		m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_pVUMem1,	                                                              0x00);
-		m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, bind(&CPS2VM::Vu1IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),  0x01);
-
-		m_VU1.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_pMicroMem1,                                  0x01);
-
-		m_VU1.m_pArch			= &m_MAVU1;
-		m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
-	}
-
-	m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_ram));
-	m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(6, bind(&CSIF::ReceiveDMA6, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-
-	m_ipu.SetDMA3ReceiveHandler(bind(&CDMAC::ResumeDMA3, &m_dmac, PLACEHOLDER_1, PLACEHOLDER_2));
-
 	CDROM0_Initialize();
-
 	ResetVM();
-
-	printf("PS2VM: Created PS2 Virtual Machine.\r\n");
 }
 
 void CPS2VM::ResetVM()
 {
-	m_os->Release();
-	m_executor.Reset();
+	m_ee->Reset();
 
-	memset(m_ram,			0, PS2::EE_RAM_SIZE);
-	memset(m_spr,			0, PS2::EE_SPR_SIZE);
-	memset(m_bios,			0, PS2::EE_BIOS_SIZE);
-	memset(m_fakeIopRam,	0, FAKE_IOP_RAM_SIZE);
-	memset(m_pVUMem0,		0, PS2::VUMEM0SIZE);
-	memset(m_pMicroMem0,	0, PS2::MICROMEM0SIZE);
-	memset(m_pVUMem1,		0, PS2::VUMEM1SIZE);
-	memset(m_pMicroMem1,	0, PS2::MICROMEM1SIZE);
-
-	m_iop.Reset();
-	m_iop.SetBios(m_iopOs);
+	m_iop->Reset();
+	m_iop->SetBios(m_iopOs);
 
 	//LoadBIOS();
 
-	//Reset Contexts
-	m_EE.Reset();
-	m_VU0.Reset();
-	m_VU1.Reset();
-
-	m_EE.m_Comments.RemoveTags();
-	m_EE.m_Functions.RemoveTags();
-	m_VU0.m_Comments.RemoveTags();
-	m_VU0.m_Functions.RemoveTags();
-	m_VU1.m_Comments.RemoveTags();
-	m_VU1.m_Functions.RemoveTags();
-
-	//Reset subunits
-	m_sif.Reset();
-	m_ipu.Reset();
-	m_gif.Reset();
-	m_vif.Reset();
-	m_dmac.Reset();
-	m_intc.Reset();
-	m_timer.Reset();
-
-	if(m_gs != NULL)
+	if(m_ee->m_gs != NULL)
 	{
-		m_gs->Reset();
+		m_ee->m_gs->Reset();
 	}
 
-	m_os->Initialize();
-	m_iopOs->Reset(new Iop::CSifManPs2(m_sif, m_ram, m_iop.m_ram));
+	m_iopOs->Reset(new Iop::CSifManPs2(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
 
 	CDROM0_Reset();
 
@@ -507,7 +356,7 @@ void CPS2VM::ResetVM()
 	m_iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_pCDROM0)));
 
-	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_os, std::placeholders::_1, std::placeholders::_2));
+	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
 
 	m_iopOs->GetCdvdfsv()->SetReadToEeRamHandler(std::bind(&CPS2VM::ReadToEeRam, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -518,7 +367,6 @@ void CPS2VM::ResetVM()
 	m_iopExecutionTicks = 0;
 
 	RegisterModulesInPadHandler();
-	FillFakeIopRam();
 
 #ifdef DEBUGGER_INCLUDED
 	try
@@ -537,15 +385,11 @@ void CPS2VM::ResetVM()
 void CPS2VM::DestroyVM()
 {
 	CDROM0_Destroy();
-
-	FREEPTR(m_ram);
-	FREEPTR(m_bios);
-	FREEPTR(m_fakeIopRam);
 }
 
 void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 {
-	if(m_gs == NULL)
+	if(m_ee->m_gs == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot save state.\r\n");
 		result = 1;
@@ -557,23 +401,9 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 		Framework::CStdStream stateStream(sPath, "wb");
 		Framework::CZipArchiveWriter archive;
 
-		archive.InsertFile(new CMemoryStateFile(STATE_EE,			&m_EE.m_State,	sizeof(MIPSSTATE)));
-		archive.InsertFile(new CMemoryStateFile(STATE_VU0,			&m_VU0.m_State,	sizeof(MIPSSTATE)));
-		archive.InsertFile(new CMemoryStateFile(STATE_VU1,			&m_VU1.m_State,	sizeof(MIPSSTATE)));
-		archive.InsertFile(new CMemoryStateFile(STATE_RAM,			m_ram,			PS2::EE_RAM_SIZE));
-		archive.InsertFile(new CMemoryStateFile(STATE_SPR,			m_spr,			PS2::EE_SPR_SIZE));
-		archive.InsertFile(new CMemoryStateFile(STATE_VUMEM0,		m_pVUMem0,		PS2::VUMEM0SIZE));
-		archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM0,	m_pMicroMem0,	PS2::MICROMEM0SIZE));
-		archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,		m_pVUMem1,		PS2::VUMEM1SIZE));
-		archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,	m_pMicroMem1,	PS2::MICROMEM1SIZE));
-
-		m_iop.SaveState(archive);
-		m_gs->SaveState(archive);
-		m_dmac.SaveState(archive);
-		m_intc.SaveState(archive);
-		m_sif.SaveState(archive);
-		m_vif.SaveState(archive);
-		m_timer.SaveState(archive);
+		m_ee->SaveState(archive);
+		m_iop->SaveState(archive);
+		m_ee->m_gs->SaveState(archive);
 		m_iopOs->GetPadman()->SaveState(archive);
 		//TODO: Save CDVDFSV state
 
@@ -592,7 +422,7 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 
 void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 {
-	if(m_gs == NULL)
+	if(m_ee->m_gs == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot load state.\r\n");
 		result = 1;
@@ -606,23 +436,9 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 		
 		try
 		{
-			archive.BeginReadFile(STATE_EE			)->Read(&m_EE.m_State,	sizeof(MIPSSTATE));
-			archive.BeginReadFile(STATE_VU0			)->Read(&m_VU0.m_State,	sizeof(MIPSSTATE));
-			archive.BeginReadFile(STATE_VU1			)->Read(&m_VU1.m_State,	sizeof(MIPSSTATE));
-			archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			PS2::EE_RAM_SIZE);
-			archive.BeginReadFile(STATE_SPR			)->Read(m_spr,			PS2::EE_SPR_SIZE);
-			archive.BeginReadFile(STATE_VUMEM0		)->Read(m_pVUMem0,		PS2::VUMEM0SIZE);
-			archive.BeginReadFile(STATE_MICROMEM0	)->Read(m_pMicroMem0,	PS2::MICROMEM0SIZE);
-			archive.BeginReadFile(STATE_VUMEM1		)->Read(m_pVUMem1,		PS2::VUMEM1SIZE);
-			archive.BeginReadFile(STATE_MICROMEM1	)->Read(m_pMicroMem1,	PS2::MICROMEM1SIZE);
-
-			m_iop.LoadState(archive);
-			m_gs->LoadState(archive);
-			m_dmac.LoadState(archive);
-			m_intc.LoadState(archive);
-			m_sif.LoadState(archive);
-			m_vif.LoadState(archive);
-			m_timer.LoadState(archive);
+			m_ee->LoadState(archive);
+			m_iop->LoadState(archive);
+			m_ee->m_gs->LoadState(archive);
 			m_iopOs->GetPadman()->LoadState(archive);
 		}
 		catch(...)
@@ -640,7 +456,6 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 
 	printf("PS2VM: Loaded state from file '%s'.\r\n", sPath);
 
-	m_executor.Reset();
 	OnMachineStateChange();
 
 	result = 0;
@@ -654,30 +469,30 @@ void CPS2VM::PauseImpl()
 void CPS2VM::ResumeImpl()
 {
 #ifdef DEBUGGER_INCLUDED
-	m_executor.DisableBreakpointsOnce();
-	m_iop.m_executor.DisableBreakpointsOnce();
-	m_vif.DisableVu1BreakpointsOnce();
+	m_ee->m_executor.DisableBreakpointsOnce();
+	m_iop->m_executor.DisableBreakpointsOnce();
+	m_ee->m_vif.DisableVu1BreakpointsOnce();
 #endif
 	m_nStatus = RUNNING;
 }
 
 void CPS2VM::DestroyImpl()
 {
-	DELETEPTR(m_gs);
+	DELETEPTR(m_ee->m_gs);
 	m_nEnd = true;
 }
 
 void CPS2VM::CreateGsImpl(const CGSHandler::FactoryFunction& factoryFunction)
 {
-	m_gs = factoryFunction();
-	m_gs->Initialize();
-	m_gs->OnNewFrame.connect(boost::bind(&CPS2VM::OnGsNewFrame, this));
+	m_ee->m_gs = factoryFunction();
+	m_ee->m_gs->Initialize();
+	m_ee->m_gs->OnNewFrame.connect(boost::bind(&CPS2VM::OnGsNewFrame, this));
 }
 
 void CPS2VM::DestroyGsImpl()
 {
-	m_gs->Release();
-	DELETEPTR(m_gs);
+	m_ee->m_gs->Release();
+	DELETEPTR(m_ee->m_gs);
 }
 
 void CPS2VM::CreatePadHandlerImpl(const CPadHandler::FactoryFunction& factoryFunction)
@@ -697,7 +512,7 @@ void CPS2VM::OnGsNewFrame()
 	std::unique_lock<std::mutex> dumpFrameCallbackMutexLock(m_frameDumpCallbackMutex);
 	if(m_dumpingFrame)
 	{
-		m_gs->SetFrameDump(nullptr);
+		m_ee->m_gs->SetFrameDump(nullptr);
 		m_frameDumpCallback(m_frameDump);
 		m_dumpingFrame = false;
 		m_frameDumpCallback = FrameDumpCallback();
@@ -705,9 +520,9 @@ void CPS2VM::OnGsNewFrame()
 	else if(m_frameDumpCallback)
 	{
 		m_frameDump.Reset();
-		memcpy(m_frameDump.GetInitialGsRam(), m_gs->GetRam(), CGSHandler::RAMSIZE);
-		memcpy(m_frameDump.GetInitialGsRegisters(), m_gs->GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
-		m_gs->SetFrameDump(&m_frameDump);
+		memcpy(m_frameDump.GetInitialGsRam(), m_ee->m_gs->GetRam(), CGSHandler::RAMSIZE);
+		memcpy(m_frameDump.GetInitialGsRegisters(), m_ee->m_gs->GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+		m_ee->m_gs->SetFrameDump(&m_frameDump);
 		m_dumpingFrame = true;
 	}
 #endif
@@ -715,7 +530,7 @@ void CPS2VM::OnGsNewFrame()
 
 void CPS2VM::UpdateSpu()
 {
-	Iop::CSpuBase* spu[2] = { &m_iop.m_spuCore0, &m_iop.m_spuCore1 };
+	Iop::CSpuBase* spu[2] = { &m_iop->m_spuCore0, &m_iop->m_spuCore1 };
 	const int sampleRate = 44100;
 	const int sampleCount = 352;
 	size_t bufferSize = sampleCount * sizeof(int16);
@@ -814,372 +629,24 @@ void CPS2VM::SetIopCdImage(CISO9660* image)
 	m_iopOs->GetCdvdman()->SetIsoImage(image);
 }
 
-void CPS2VM::LoadBIOS()
-{
-	Framework::CStdStream BiosStream(fopen("./vfs/rom0/scph10000.bin", "rb"));
-	BiosStream.Read(m_bios, PS2::EE_BIOS_SIZE);
-}
-
 void CPS2VM::RegisterModulesInPadHandler()
 {
 	if(m_pad == NULL) return;
 
 	m_pad->RemoveAllListeners();
 	m_pad->InsertListener(m_iopOs->GetPadman());
-	m_pad->InsertListener(&m_iop.m_sio2);
-}
-
-void CPS2VM::FillFakeIopRam()
-{
-	struct IOPMODINFO
-	{
-		uint32 nextPtr;
-		uint32 namePtr;
-
-		uint16 version;
-		uint16 newFlags;
-		uint16 id;
-		uint16 flags;
-
-		uint32 entry;
-		uint32 gp;
-		uint32 textStart;
-		uint32 textSize;
-		uint32 dataSize;
-		uint32 bssSize;
-		uint32 unused1;
-		uint32 unused2;
-	};
-
-	IOPMODINFO* moduleInfo = reinterpret_cast<IOPMODINFO*>(m_fakeIopRam + 0x800);
-	moduleInfo->nextPtr = 0x0;
-	moduleInfo->namePtr = 0xC00;
-
-	strcpy(reinterpret_cast<char*>(m_fakeIopRam + 0xC00), "sio2man");
-}
-
-uint32 CPS2VM::IOPortReadHandler(uint32 nAddress)
-{
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_OTHERZONE);
-#endif
-
-	uint32 nReturn = 0;
-	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
-	{
-		nReturn = m_timer.GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
-	{
-		nReturn = m_ipu.GetRegister(nAddress);
-	}
-	else if(nAddress >= CGIF::REGS_START && nAddress < CGIF::REGS_END)
-	{
-		nReturn = m_gif.GetRegister(nAddress);
-	}
-	else if(nAddress >= CVIF::REGS_START && nAddress < CVIF::REGS_END)
-	{
-		nReturn = m_vif.GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
-	{
-		nReturn = m_dmac.GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
-	{
-		nReturn = m_intc.GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
-	{
-		nReturn = m_dmac.GetRegister(nAddress);
-	}
-	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
-	{
-		if(m_gs != NULL)
-		{
-			nReturn = m_gs->ReadPrivRegister(nAddress);
-		}
-	}
-	else
-	{
-		printf("PS2VM: Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
-	}
-
-	return nReturn;
-}
-
-uint32 CPS2VM::IOPortWriteHandler(uint32 nAddress, uint32 nData)
-{
-#ifdef PROFILE
-	CProfilerZone profilerZone(PROFILE_OTHERZONE);
-#endif
-
-	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
-	{
-		m_timer.SetRegister(nAddress, nData);
-	}
-	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
-	{
-		m_ipu.SetRegister(nAddress, nData);
-		ExecuteIpu();
-	}
-	else if(nAddress >= CGIF::REGS_START && nAddress < CGIF::REGS_END)
-	{
-		m_gif.SetRegister(nAddress, nData);
-	}
-	else if(nAddress >= CVIF::REGS_START && nAddress < CVIF::REGS_END)
-	{
-		m_vif.SetRegister(nAddress, nData);
-	}
-	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
-	{
-		m_ipu.SetRegister(nAddress, nData);
-		ExecuteIpu();
-	}
-	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
-	{
-		m_dmac.SetRegister(nAddress, nData);
-		ExecuteIpu();
-	}
-	else if(nAddress >= 0x1000F000 && nAddress <= 0x1000F01C)
-	{
-		m_intc.SetRegister(nAddress, nData);
-	}
-	else if(nAddress == 0x1000F180)
-	{
-		//stdout data
-		throw std::runtime_error("Not implemented.");
-//        m_sif.GetFileIO()->Write(1, 1, &nData);
-	}
-	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
-	{
-		m_dmac.SetRegister(nAddress, nData);
-	}
-	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
-	{
-		if(m_gs != NULL)
-		{
-			m_gs->WritePrivRegister(nAddress, nData);
-		}
-	}
-	else
-	{
-		printf("PS2VM: Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, nData, m_EE.m_State.nPC);
-	}
-
-	return 0;
-}
-
-uint32 CPS2VM::Vu0IoPortReadHandler(uint32 address)
-{
-	uint32 result = 0;
-	switch(address)
-	{
-	case CVIF::VU_ITOP:
-		result = m_vif.GetITop0();
-		break;
-	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU0 IO port (0x%0.8X).\r\n", address);
-		break;
-	}
-	return result;
-}
-
-uint32 CPS2VM::Vu0IoPortWriteHandler(uint32 address, uint32 value)
-{
-	switch(address)
-	{
-	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%0.8X, 0x%0.8X).\r\n", 
-								  address, value);
-		break;
-	}
-	return 0;
-}
-
-uint32 CPS2VM::Vu1IoPortReadHandler(uint32 address)
-{
-	uint32 result = 0xCCCCCCCC;
-	switch(address)
-	{
-	case CVIF::VU_ITOP:
-		result = m_vif.GetITop1();
-		break;
-	case CVIF::VU_TOP:
-		result = m_vif.GetTop1();
-		break;
-	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%0.8X).\r\n", address);
-		break;
-	}
-	return result;
-}
-
-uint32 CPS2VM::Vu1IoPortWriteHandler(uint32 address, uint32 value)
-{
-	switch(address)
-	{
-	case CVIF::VU_XGKICK:
-		m_vif.ProcessXGKICK(value);
-		break;
-	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%0.8X, 0x%0.8X).\r\n", 
-								  address, value);
-		break;
-	}
-	return 0;
-}
-
-void CPS2VM::EEMemWriteHandler(uint32 nAddress)
-{
-	if(nAddress < PS2::EE_RAM_SIZE)
-	{
-		//Check if the block we're about to invalidate is the same
-		//as the one we're executing in
-		CBasicBlock* block = m_executor.FindBlockAt(nAddress);
-		if(block)
-		{
-			if(m_executor.FindBlockAt(m_EE.m_State.nPC) != block)
-			{
-				m_executor.DeleteBlock(block);
-			}
-			else
-			{
-#ifdef _DEBUG
-				printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n", m_EE.m_State.nPC);
-#endif
-			}
-		}
-	}
+	m_pad->InsertListener(&m_iop->m_sio2);
 }
 
 void CPS2VM::ReadToEeRam(uint32 address, uint32 size)
 {
-	m_executor.ClearActiveBlocksInRange(address, address + size);
-}
-
-void CPS2VM::CheckPendingEeInterrupts()
-{
-	if(!m_EE.m_State.nHasException)
-	{
-		if(
-			m_intc.IsInterruptPending()
-#ifdef DEBUGGER_INCLUDED
-			&& !m_singleStepEe
-			&& !m_executor.MustBreak()
-#endif
-			)
-		{
-			m_os->HandleInterrupt();
-		}
-	}
-}
-
-void CPS2VM::FlushInstructionCache()
-{
-	m_executor.Reset();
+	m_ee->m_executor.ClearActiveBlocksInRange(address, address + size);
 }
 
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)
 {
 	ResetVM();
-	m_os->BootFromCDROM(arguments);
-}
-
-void CPS2VM::ExecuteIpu()
-{
-	m_dmac.ResumeDMA4();
-	while(m_ipu.WillExecuteCommand())
-	{
-		m_ipu.ExecuteCommand();
-		if(m_ipu.WillExecuteCommand() && m_dmac.IsDMA4Started())
-		{
-			m_dmac.ResumeDMA4();
-		}
-		else
-		{
-			break;
-		}
-	}
-}
-
-int CPS2VM::ExecuteEe(int quota)
-{
-	int executed = 0;
-	if(m_EE.m_State.callMsEnabled)
-	{
-		if(!m_vif.IsVu0Running())
-		{
-			//callMs mode over
-			memcpy(&m_EE.m_State.nCOP2,		&m_VU0.m_State.nCOP2,	sizeof(m_EE.m_State.nCOP2));
-			memcpy(&m_EE.m_State.nCOP2A,	&m_VU0.m_State.nCOP2A,	sizeof(m_EE.m_State.nCOP2A));
-			memcpy(&m_EE.m_State.nCOP2VI,	&m_VU0.m_State.nCOP2VI, sizeof(m_EE.m_State.nCOP2VI));
-			m_EE.m_State.callMsEnabled = 0;
-		}
-	}
-	else if(!m_EE.m_State.nHasException)
-	{
-		executed = (quota - m_executor.Execute(quota));
-	}
-	if(m_EE.m_State.nHasException)
-	{
-		switch(m_EE.m_State.nHasException)
-		{
-		case MIPS_EXCEPTION_SYSCALL:
-			m_os->HandleSyscall();
-			break;
-		case MIPS_EXCEPTION_CALLMS:
-			assert(m_EE.m_State.callMsEnabled);
-			if(m_EE.m_State.callMsEnabled)
-			{
-				//We are in callMs mode
-				assert(!m_vif.IsVu0Running());
-				//Copy the COP2 state to VPU0
-				memcpy(&m_VU0.m_State.nCOP2,	&m_EE.m_State.nCOP2,	sizeof(m_VU0.m_State.nCOP2));
-				memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
-				memcpy(&m_VU0.m_State.nCOP2VI,	&m_EE.m_State.nCOP2VI,	sizeof(m_VU0.m_State.nCOP2VI));
-				m_vif.StartVu0MicroProgram(m_EE.m_State.callMsAddr);
-				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-			}
-			break;
-		case MIPS_EXCEPTION_CHECKPENDINGINT:
-			{
-				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-				CheckPendingEeInterrupts();
-			}
-			break;
-		case MIPS_EXCEPTION_RETURNFROMEXCEPTION:
-			{
-				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-				m_os->HandleReturnFromException();
-				CheckPendingEeInterrupts();
-			}
-			break;
-		default:
-			assert(0);
-			break;
-		}
-		assert(!m_EE.m_State.nHasException);
-	}
-	return executed;
-}
-
-bool CPS2VM::IsEeIdle() const
-{
-	CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
-	if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-	{
-		return true;
-	}
-	else if(m_os->IsIdle())
-	{
-		return true;
-	}
-	else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
-	{
-		return true;
-	}
-	return false;
+	m_ee->m_os->BootFromCDROM(arguments);
 }
 
 void CPS2VM::EmuThread()
@@ -1200,6 +667,9 @@ void CPS2VM::EmuThread()
 		}
 		if(m_nStatus == RUNNING)
 		{
+#ifdef PROFILER
+			CProfilerZone profilerZone(PROFILE_OTHERZONE);
+#endif
 			if(m_spuUpdateTicks <= 0)
 			{
 				UpdateSpu();
@@ -1208,24 +678,6 @@ void CPS2VM::EmuThread()
 
 			//EE execution
 			{
-				if(!m_vif.IsVu0Running() || (m_vif.IsVu0Running() && !m_vif.IsVu0WaitingForProgramEnd()))
-				{
-					m_dmac.ResumeDMA0();
-				}
-				if(!m_vif.IsVu1Running() || (m_vif.IsVu1Running() && !m_vif.IsVu1WaitingForProgramEnd()))
-				{
-					m_dmac.ResumeDMA1();
-				}
-				ExecuteIpu();
-				if(!m_EE.m_State.nHasException)
-				{
-					if((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0)
-					{
-						m_sif.ProcessPackets();
-					}
-				}
-				CheckPendingEeInterrupts();
-
 				//Check vblank stuff
 				if(m_vblankTicks <= 0)
 				{
@@ -1233,27 +685,27 @@ void CPS2VM::EmuThread()
 					if(m_inVblank)
 					{
 						m_vblankTicks += VBLANK_TICKS;
-						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
-						m_iop.NotifyVBlankStart();
+						m_ee->NotifyVBlankStart();
+						m_iop->NotifyVBlankStart();
 
-						if(m_gs != NULL)
+						if(m_ee->m_gs != NULL)
 						{
-							m_gs->SetVBlank();
+							m_ee->m_gs->SetVBlank();
 						}
 
 						if(m_pad != NULL)
 						{
-							m_pad->Update(m_ram);
+							m_pad->Update(m_ee->m_ram);
 						}
 					}
 					else
 					{
 						m_vblankTicks += ONSCREEN_TICKS;
-						m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
-						m_iop.NotifyVBlankEnd();
-						if(m_gs != NULL)
+						m_ee->NotifyVBlankEnd();
+						m_iop->NotifyVBlankEnd();
+						if(m_ee->m_gs != NULL)
 						{
-							m_gs->ResetVBlank();
+							m_ee->m_gs->ResetVBlank();
 						}
 					}
 				}
@@ -1268,21 +720,20 @@ void CPS2VM::EmuThread()
 #ifdef PROFILE
 					CProfilerZone profilerZone(PROFILE_EEZONE);
 #endif
-					int executed = ExecuteEe(m_singleStepEe ? 1 : m_eeExecutionTicks);
-					if(IsEeIdle())
+					int executed = m_ee->ExecuteCpu(m_singleStepEe ? 1 : m_eeExecutionTicks);
+					if(m_ee->IsCpuIdle())
 					{
 						executed = m_eeExecutionTicks;
 					}
 
 					m_eeExecutionTicks -= executed;
-					m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += executed;
+					m_ee->CountTicks(executed);
 					m_vblankTicks -= executed;
-					m_timer.Count(executed);
 					m_spuUpdateTicks -= executed;
 
 #ifdef DEBUGGER_INCLUDED
 					if(m_singleStepEe) break;
-					if(m_executor.MustBreak()) break;
+					if(m_ee->m_executor.MustBreak()) break;
 #endif
 				}
 
@@ -1291,29 +742,29 @@ void CPS2VM::EmuThread()
 #ifdef PROFILE
 					CProfilerZone profilerZone(PROFILE_IOPZONE);
 #endif
-					int executed = m_iop.ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
-					if(m_iop.IsCpuIdle())
+					int executed = m_iop->ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
+					if(m_iop->IsCpuIdle())
 					{
 						executed = m_iopExecutionTicks;
 					}
 
 					m_iopExecutionTicks -= executed;
-					m_iop.CountTicks(executed);
+					m_iop->CountTicks(executed);
 
 #ifdef DEBUGGER_INCLUDED
 					if(m_singleStepIop) break;
-					if(m_iop.m_executor.MustBreak()) break;
+					if(m_iop->m_executor.MustBreak()) break;
 #endif
 				}
 
-				m_vif.ExecuteVu0(m_singleStepVu0);
-				m_vif.ExecuteVu1(m_singleStepVu1);
+				m_ee->m_vif.ExecuteVu0(m_singleStepVu0);
+				m_ee->m_vif.ExecuteVu1(m_singleStepVu1);
 			}
 #ifdef DEBUGGER_INCLUDED
 			if(
-			   m_executor.MustBreak() || 
-			   m_iop.m_executor.MustBreak() ||
-			   m_vif.MustVu1Break() ||
+			   m_ee->m_executor.MustBreak() || 
+			   m_iop->m_executor.MustBreak() ||
+			   m_ee->m_vif.MustVu1Break() ||
 			   m_singleStepEe || m_singleStepIop || m_singleStepVu0 || m_singleStepVu1)
 			{
 				m_nStatus = PAUSED;

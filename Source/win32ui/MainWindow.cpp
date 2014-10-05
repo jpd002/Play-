@@ -126,13 +126,13 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	m_deactivatePause = false;
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 
-	m_virtualMachine.m_gs->OnNewFrame.connect(boost::bind(&CMainWindow::OnNewFrame, this, _1));
+	m_virtualMachine.m_ee->m_gs->OnNewFrame.connect(boost::bind(&CMainWindow::OnNewFrame, this, _1));
 
 	SetTimer(m_hWnd, NULL, 1000, NULL);
 	//Initialize status bar
 	OnTimer(0);
 
-	m_virtualMachine.m_os->OnExecutableChange.connect(boost::bind(&CMainWindow::OnExecutableChange, this));
+	m_virtualMachine.m_ee->m_os->OnExecutableChange.connect(boost::bind(&CMainWindow::OnExecutableChange, this));
 
 	CreateStateSlotMenu();
 	CreateAccelerators();
@@ -437,7 +437,7 @@ void CMainWindow::PauseWhenFocusLost()
 
 void CMainWindow::SaveState()
 {
-	if(m_virtualMachine.m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
 	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 	if(m_virtualMachine.SaveState(GenerateStatePath().string().c_str()) == 0)
@@ -452,7 +452,7 @@ void CMainWindow::SaveState()
 
 void CMainWindow::LoadState()
 {
-	if(m_virtualMachine.m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
 	if(m_virtualMachine.LoadState(GenerateStatePath().string().c_str()) == 0)
 	{
@@ -623,7 +623,7 @@ void CMainWindow::ShowMcManager()
 
 void CMainWindow::LoadELF(const char* sFilename)
 {
-	CPS2OS& os = *m_virtualMachine.m_os;
+	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
 
@@ -644,7 +644,7 @@ void CMainWindow::LoadELF(const char* sFilename)
 
 void CMainWindow::BootCDROM()
 {
-	CPS2OS& os = *m_virtualMachine.m_os;
+	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
 
@@ -759,8 +759,8 @@ void CMainWindow::RefreshLayout()
 		presentationParams.mode = presentationMode;
 		presentationParams.windowWidth = outputWidth;
 		presentationParams.windowHeight = outputHeight;
-		m_virtualMachine.m_gs->SetPresentationParams(presentationParams);
-		m_virtualMachine.m_gs->Flip(true);
+		m_virtualMachine.m_ee->m_gs->SetPresentationParams(presentationParams);
+		m_virtualMachine.m_ee->m_gs->Flip(true);
 	}
 }
 
@@ -845,13 +845,13 @@ boost::filesystem::path CMainWindow::GetStateDirectoryPath()
 
 boost::filesystem::path CMainWindow::GenerateStatePath() const
 {
-	std::string stateFileName = std::string(m_virtualMachine.m_os->GetExecutableName()) + ".st" + std::to_string(m_stateSlot) + ".zip";
+	std::string stateFileName = std::string(m_virtualMachine.m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(m_stateSlot) + ".zip";
 	return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 
 void CMainWindow::UpdateUI()
 {
-	CPS2OS& os = *m_virtualMachine.m_os;
+	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
 
 	//Fix the file menu
 	{
@@ -928,7 +928,7 @@ void CMainWindow::OnNewFrame(uint32 drawCallCount)
 	{
 		WaitForSingleObject(m_recordAviMutex, INFINITE);
 
-		m_virtualMachine.m_gs->ReadFramebuffer(m_recordBufferWidth, m_recordBufferHeight, m_recordBuffer);
+		m_virtualMachine.m_ee->m_gs->ReadFramebuffer(m_recordBufferWidth, m_recordBufferHeight, m_recordBuffer);
 		m_aviStream.Write(m_recordBuffer);
 
 		ReleaseMutex(m_recordAviMutex);
