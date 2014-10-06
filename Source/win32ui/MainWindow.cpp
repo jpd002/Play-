@@ -316,9 +316,8 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 long CMainWindow::OnTimer(WPARAM)
 {
 	uint32 dcpf = (m_frames != 0) ? (m_drawCallCount / m_frames) : 0;
-	std::tstring sCaption = boost::lexical_cast<std::tstring>(m_frames) + _T(" f/s, ")
-		+ boost::lexical_cast<std::tstring>(dcpf) + _T(" dc/f");
-	m_statusBar.SetText(FPSPANEL, sCaption.c_str());
+	auto caption = string_format(_T("%d f/s, %d dc/f"), m_frames, dcpf);
+	m_statusBar.SetText(FPSPANEL, caption.c_str());
 
 #ifdef PROFILE
 	m_statsOverlayWnd.Update(m_frames);
