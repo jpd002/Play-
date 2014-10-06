@@ -23,10 +23,10 @@ public:
 	int								Loop();
 
 protected:
-	long							OnTimer(WPARAM);
-	long							OnCommand(unsigned short, unsigned short, HWND);
-	long							OnActivateApp(bool, unsigned long);
-	long							OnSize(unsigned int, unsigned int, unsigned int);
+	long							OnTimer(WPARAM) override;
+	long							OnCommand(unsigned short, unsigned short, HWND) override;
+	long							OnActivateApp(bool, unsigned long) override;
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
 
 private:
 	class CScopedVmPauser
@@ -129,7 +129,7 @@ private:
 	unsigned int					m_recordBufferWidth;
 	unsigned int					m_recordBufferHeight;
 
-	Framework::Win32::CStatusBar*	m_statusBar;
+	Framework::Win32::CStatusBar	m_statusBar;
 	COutputWnd*						m_outputWnd;
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<CDebugger>		m_debugger;

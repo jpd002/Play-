@@ -64,7 +64,6 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 , m_drawCallCount(0)
 , m_stateSlot(0)
 , m_outputWnd(nullptr)
-, m_statusBar(nullptr)
 , m_accTable(NULL)
 {
 	m_recordAviMutex = CreateMutex(NULL, FALSE, NULL);
@@ -112,10 +111,10 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 
 	m_outputWnd = new COutputWnd(m_hWnd);
 
-	m_statusBar = new Framework::Win32::CStatusBar(m_hWnd);
-	m_statusBar->SetParts(2, m_statusBarPanelWidths);
-	m_statusBar->SetText(STATUSPANEL,	sVersion);
-	m_statusBar->SetText(FPSPANEL,		_T(""));
+	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
+	m_statusBar.SetParts(2, m_statusBarPanelWidths);
+	m_statusBar.SetText(STATUSPANEL,	sVersion);
+	m_statusBar.SetText(FPSPANEL,		_T(""));
 
 	//m_virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
 	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
@@ -172,7 +171,6 @@ CMainWindow::~CMainWindow()
 #endif
 
 	DELETEPTR(m_outputWnd);
-	DELETEPTR(m_statusBar);
 
 	DestroyAcceleratorTable(m_accTable);
 
@@ -315,7 +313,7 @@ long CMainWindow::OnTimer(WPARAM)
 	uint32 dcpf = (m_frames != 0) ? (m_drawCallCount / m_frames) : 0;
 	std::tstring sCaption = boost::lexical_cast<std::tstring>(m_frames) + _T(" f/s, ")
 		+ boost::lexical_cast<std::tstring>(dcpf) + _T(" dc/f");
-	m_statusBar->SetText(FPSPANEL, sCaption.c_str());
+	m_statusBar.SetText(FPSPANEL, sCaption.c_str());
 
 #ifdef PROFILE
 
@@ -739,18 +737,15 @@ void CMainWindow::RecordAvi()
 
 void CMainWindow::RefreshLayout()
 {
-	RECT clientRect = GetClientRect();
+	auto clientRect = GetClientRect();
 
-	unsigned int clientWidth = clientRect.right - clientRect.left;
-	unsigned int clientHeight = clientRect.bottom - clientRect.top;
-
-	unsigned int outputWidth = clientWidth;
-	unsigned int outputHeight = std::max<int>(clientHeight - m_statusBar->GetHeight(), 0);
+	unsigned int outputWidth = clientRect.Width();
+	unsigned int outputHeight = std::max<int>(clientRect.Height() - m_statusBar.GetHeight(), 0);
 
 	m_outputWnd->SetSize(outputWidth, outputHeight);
 
-	m_statusBar->RefreshGeometry();
-	m_statusBar->SetParts(2, m_statusBarPanelWidths);
+	m_statusBar.RefreshGeometry();
+	m_statusBar.SetParts(2, m_statusBarPanelWidths);
 
 	{
 		auto presentationMode = static_cast<CGSHandler::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
@@ -773,12 +768,12 @@ void CMainWindow::PrintStatusTextA(const char* format, ...)
 	_vsnprintf(text, 256, format, args);
 	va_end(args);
 
-	m_statusBar->SetText(STATUSPANEL, string_cast<std::tstring>(text).c_str());
+	m_statusBar.SetText(STATUSPANEL, string_cast<std::tstring>(text).c_str());
 }
 
 void CMainWindow::SetStatusText(const TCHAR* text)
 {
-	m_statusBar->SetText(STATUSPANEL, text);
+	m_statusBar.SetText(STATUSPANEL, text);
 }
 
 void CMainWindow::CreateAccelerators()
