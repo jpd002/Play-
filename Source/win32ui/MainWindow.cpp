@@ -111,6 +111,8 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 
 	m_outputWnd = new COutputWnd(m_hWnd);
 
+	m_statsOverlayWnd = CStatsOverlayWindow(m_hWnd);
+
 	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
 	m_statusBar.SetParts(2, m_statusBarPanelWidths);
 	m_statusBar.SetText(STATUSPANEL,	sVersion);
@@ -125,7 +127,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 
 	m_virtualMachine.m_ee->m_gs->OnNewFrame.connect(boost::bind(&CMainWindow::OnNewFrame, this, _1));
-	m_virtualMachine.ProfileFrameDone.connect(boost::bind(&CMainWindow::OnProfileFrameDone, this, _1));
+	m_virtualMachine.ProfileFrameDone.connect(boost::bind(&CStatsOverlayWindow::OnProfileFrameDone, &m_statsOverlayWnd, _1));
 
 	SetTimer(m_hWnd, NULL, 1000, NULL);
 	//Initialize status bar
@@ -156,6 +158,9 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	UpdateUI();
 	Center();
 	Show(SW_SHOW);
+#ifdef PROFILE
+	m_statsOverlayWnd.Show(SW_SHOW);
+#endif
 }
 
 CMainWindow::~CMainWindow()
@@ -316,35 +321,7 @@ long CMainWindow::OnTimer(WPARAM)
 	m_statusBar.SetText(FPSPANEL, sCaption.c_str());
 
 #ifdef PROFILE
-
-	std::tstring profilerTextResult;
-
-	if(m_frames != 0)
-	{
-		std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
-
-		uint64 totalTime = 0;
-
-		for(const auto& zonePair : m_profilerZones)
-		{
-			totalTime += zonePair.second;
-		}
-
-//		float avgFrameTime = (static_cast<double>(totalTime) /  static_cast<double>(m_frames * 1000));
-//		profilerTextResult = string_format(_T("Avg Frame Time: %0.2fms"), avgFrameTime);
-
-		for(const auto& zonePair : m_profilerZones)
-		{
-			float timeSpent = static_cast<double>(zonePair.second) / static_cast<double>(totalTime);
-			float msSpent = static_cast<double>(zonePair.second) / static_cast<double>(m_frames * 1000);
-			profilerTextResult += string_format(_T("%s: %0.2f%%(%0.2fms) "), string_cast<std::tstring>(zonePair.first).c_str(), timeSpent * 100.f, msSpent);
-		}
-
-		for(auto& zonePair : m_profilerZones) { zonePair.second = 0; }
-	}
-
-	m_statusBar->SetText(STATUSPANEL, profilerTextResult.c_str());
-
+	m_statsOverlayWnd.Update(m_frames);
 #endif
 
 	m_frames = 0;
@@ -381,7 +358,14 @@ long CMainWindow::OnSize(unsigned int, unsigned int, unsigned int)
 	{
 		RefreshLayout();
 	}
+	RefreshStatsOverlayLayout();
 	return TRUE;
+}
+
+long CMainWindow::OnMove(int x, int y)
+{
+	RefreshStatsOverlayLayout();
+	return FALSE;
 }
 
 void CMainWindow::OpenELF()
@@ -759,6 +743,21 @@ void CMainWindow::RefreshLayout()
 	}
 }
 
+void CMainWindow::RefreshStatsOverlayLayout()
+{
+	auto clientRect = GetClientRect();
+
+	unsigned int outputWidth = clientRect.Width();
+	unsigned int outputHeight = std::max<int>(clientRect.Height() - m_statusBar.GetHeight(), 0);
+
+	auto clientScreenRect = Framework::Win32::CRect(0, 0, outputWidth, outputHeight);
+	clientScreenRect.ClientToScreen(m_hWnd);
+	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL, 
+		clientScreenRect.Left(), clientScreenRect.Top(), 
+		clientScreenRect.Width(), clientScreenRect.Height(),
+		SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
 void CMainWindow::PrintStatusTextA(const char* format, ...)
 {
 	char text[256];
@@ -931,24 +930,6 @@ void CMainWindow::OnNewFrame(uint32 drawCallCount)
 
 	m_frames++;
 	m_drawCallCount += drawCallCount;
-}
-
-void CMainWindow::OnProfileFrameDone(const CProfiler::ZoneArray& zones)
-{
-	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
-
-	for(auto& zone : zones)
-	{
-		auto zoneIterator = m_profilerZones.find(zone.name);
-		if(zoneIterator != std::end(m_profilerZones))
-		{
-			zoneIterator->second += zone.totalTime;
-		}
-		else
-		{
-			m_profilerZones.insert(std::make_pair(zone.name, zone.totalTime));
-		}
-	}
 }
 
 void CMainWindow::OnExecutableChange()

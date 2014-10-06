@@ -8,6 +8,7 @@
 #include "SettingsDialogProvider.h"
 #include "OutputWnd.h"
 #include "AviStream.h"
+#include "StatsOverlayWindow.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
 #include "FrameDebugger/FrameDebugger.h"
@@ -27,6 +28,7 @@ protected:
 	long							OnCommand(unsigned short, unsigned short, HWND) override;
 	long							OnActivateApp(bool, unsigned long) override;
 	long							OnSize(unsigned int, unsigned int, unsigned int) override;
+	long							OnMove(int, int) override;
 
 private:
 	class CScopedVmPauser
@@ -90,6 +92,7 @@ private:
 
 	void							LoadELF(const char*);
 	void							RefreshLayout();
+	void							RefreshStatsOverlayLayout();
 	void							PrintVersion(TCHAR*, size_t);
 	void							PrintStatusTextA(const char*, ...);
 	void							SetStatusText(const TCHAR*);
@@ -104,7 +107,6 @@ private:
 	void							UpdateUI();
 
 	void							OnNewFrame(uint32);
-	void							OnProfileFrameDone(const CProfiler::ZoneArray&);
 
 	void							OnOutputWndSizeChange();
 	void							OnExecutableChange();
@@ -131,14 +133,11 @@ private:
 
 	Framework::Win32::CStatusBar	m_statusBar;
 	COutputWnd*						m_outputWnd;
+	CStatsOverlayWindow				m_statsOverlayWnd;
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<CDebugger>		m_debugger;
 	std::unique_ptr<CFrameDebugger>	m_frameDebugger;
 #endif
-
-	typedef std::map<std::string, uint64> ZoneMap;
-	std::mutex						m_profilerZonesMutex;
-	ZoneMap							m_profilerZones;
 
 	static double					m_statusBarPanelWidths[2];
 };

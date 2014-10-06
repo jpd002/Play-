@@ -451,6 +451,7 @@
     <ClCompile Include="..\Source\win32ui\RendererSettingsWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\SaveIconView.cpp" />
     <ClCompile Include="..\Source\win32ui\SaveView.cpp" />
+    <ClCompile Include="..\Source\win32ui\StatsOverlayWindow.cpp" />
     <ClCompile Include="..\Source\win32ui\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -664,6 +665,7 @@
     <ClInclude Include="..\Source\win32ui\SaveIconView.h" />
     <ClInclude Include="..\Source\win32ui\SaveView.h" />
     <ClInclude Include="..\Source\win32ui\SettingsDialogProvider.h" />
+    <ClInclude Include="..\Source\win32ui\StatsOverlayWindow.h" />
     <ClInclude Include="..\Source\win32ui\StdAfx.h" />
     <ClInclude Include="..\Source\win32ui\SysInfoWnd.h" />
     <ClInclude Include="..\Source\win32ui\ThreadCallStackViewWnd.h" />
