@@ -58,7 +58,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflV[64] =
 	{	"MADD",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
 	{	"ADD",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
 	{	"MADD",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SUB",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"SUB",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
 	{	"MSUB",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,				NULL			},
@@ -101,7 +101,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX0[32] =
 	{	"ITOF0",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"FTOI0",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	{	"MULA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"MULA",		NULL,			CopyMnemonic,		ReflOpAccFsQ,		NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

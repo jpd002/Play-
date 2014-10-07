@@ -174,6 +174,12 @@ void CMA_VU::CUpper::MADDi()
 	VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
+//24
+void CMA_VU::CUpper::SUBq()
+{
+	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
+}
+
 //26
 void CMA_VU::CUpper::SUBi()
 {
@@ -300,6 +306,12 @@ void CMA_VU::CUpper::ITOF0()
 void CMA_VU::CUpper::FTOI0()
 {
 	VUShared::FTOI0(m_codeGen, m_nDest, m_nFT, m_nFS);
+}
+
+//07
+void CMA_VU::CUpper::MULAq()
+{
+	VUShared::MULAq(m_codeGen, m_nDest, m_nFS);
 }
 
 //0A
@@ -437,7 +449,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector[0x40] =
 	//0x18
 	&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULq,			&CMA_VU::CUpper::MAXi,			&CMA_VU::CUpper::MULi,			&CMA_VU::CUpper::MINIi,
 	//0x20
-	&CMA_VU::CUpper::ADDq,			&CMA_VU::CUpper::MADDq,			&CMA_VU::CUpper::ADDi,			&CMA_VU::CUpper::MADDi,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::SUBi,			&CMA_VU::CUpper::MSUBi,
+	&CMA_VU::CUpper::ADDq,			&CMA_VU::CUpper::MADDq,			&CMA_VU::CUpper::ADDi,			&CMA_VU::CUpper::MADDi,			&CMA_VU::CUpper::SUBq,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::SUBi,			&CMA_VU::CUpper::MSUBi,
 	//0x28
 	&CMA_VU::CUpper::ADD,			&CMA_VU::CUpper::MADD,			&CMA_VU::CUpper::MUL,			&CMA_VU::CUpper::MAX,			&CMA_VU::CUpper::SUB,			&CMA_VU::CUpper::MSUB,			&CMA_VU::CUpper::OPMSUB,		&CMA_VU::CUpper::MINI,
 	//0x30
@@ -449,7 +461,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector[0x40] =
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector0[0x20] =
 {
 	//0x00
-	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF0,			&CMA_VU::CUpper::FTOI0,			&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::Illegal,
+	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF0,			&CMA_VU::CUpper::FTOI0,			&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::MULAq,
 	//0x08
 	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::ADDA,			&CMA_VU::CUpper::SUBA,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
 	//0x10

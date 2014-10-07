@@ -1165,6 +1165,14 @@ void VUShared::SUBi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 	TestSZFlags(codeGen, nDest, nFd, relativePipeTime);
 }
 
+void VUShared::SUBq(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
+{
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
+	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2Q));
+	codeGen->MD_SubS();
+	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[fd]));
+}
+
 void VUShared::SUBA(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft)
 {
 	SUBA_base(codeGen, dest,

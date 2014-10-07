@@ -75,6 +75,7 @@ private:
 		void								MADDq();
 		void								ADDi();
 		void								MADDi();
+		void								SUBq();
 		void								SUBi();
 		void								MSUBi();
 		void								ADD();
@@ -99,6 +100,7 @@ private:
 		//Vector 0
 		void								ITOF0();
 		void								FTOI0();
+		void								MULAq();
 		void								ADDA();
 		void								SUBA();
 

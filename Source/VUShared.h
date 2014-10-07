@@ -147,6 +147,7 @@ namespace VUShared
 	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						SUBi(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						SUBq(CMipsJitter*, uint8, uint8, uint8);
 	void						SUBA(CMipsJitter*, uint8, uint8, uint8);
 	void						SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						SUBAi(CMipsJitter*, uint8, uint8);
