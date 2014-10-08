@@ -1,9 +1,9 @@
 #include "MA_VU.h"
 #include "MIPS.h"
 
-CMA_VU::CMA_VU(bool maskDataAddress)
+CMA_VU::CMA_VU(unsigned int vuNumber)
 : CMIPSArchitecture(MIPS_REGSIZE_64)
-, m_Lower(maskDataAddress)
+, m_Lower(vuNumber)
 {
 	SetupReflectionTables();
 }

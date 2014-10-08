@@ -42,8 +42,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 , m_COP_SCU(MIPS_REGSIZE_64)
 , m_COP_FPU(MIPS_REGSIZE_64)
 , m_COP_VU(MIPS_REGSIZE_64)
-, m_MAVU0(false)
-, m_MAVU1(true)
+, m_MAVU0(0)
+, m_MAVU1(1)
 {
 	//EmotionEngine context setup
 	{
@@ -150,6 +150,8 @@ void CSubSystem::Reset()
 	m_EE.Reset();
 	m_VU0.Reset();
 	m_VU1.Reset();
+
+	m_VU1.m_State.vuMem1 = m_vuMem1;
 
 	m_EE.m_Comments.RemoveTags();
 	m_EE.m_Functions.RemoveTags();

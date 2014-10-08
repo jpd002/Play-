@@ -96,6 +96,8 @@ __attribute__((aligned(16)))
 	uint32				cmsar0;
 	uint32				callMsEnabled;
 	uint32				callMsAddr;
+
+	void*				vuMem1;
 };
 
 #define MIPS_INVALID_PC			(0x00000001)

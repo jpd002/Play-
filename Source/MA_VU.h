@@ -10,7 +10,7 @@
 class CMA_VU : public CMIPSArchitecture
 {
 public:
-											CMA_VU(bool);
+											CMA_VU(unsigned int);
 	virtual									~CMA_VU();
 	virtual void							CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
 	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int) override;
@@ -166,7 +166,7 @@ private:
 	class CLower : public CMIPSInstructionFactory
 	{
 	public:
-											CLower(bool);
+											CLower(unsigned int);
 		virtual								~CLower();
 
 		void								SetupReflectionTables();
@@ -207,6 +207,7 @@ private:
 		uint16								m_nImm15S;
 		uint32								m_nImm24;
 		uint32								m_relativePipeTime;
+		unsigned int						m_vuNumber = 0;
 
 		void								SetBranchAddress(bool, int32);
 		static bool							IsLOI(CMIPS*, uint32);
