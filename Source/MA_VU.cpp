@@ -1,9 +1,8 @@
 #include "MA_VU.h"
 #include "MIPS.h"
 
-CMA_VU::CMA_VU(unsigned int vuNumber)
+CMA_VU::CMA_VU()
 : CMIPSArchitecture(MIPS_REGSIZE_64)
-, m_Lower(vuNumber)
 {
 	SetupReflectionTables();
 }
