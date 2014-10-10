@@ -6,6 +6,27 @@
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 
+static void LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
+{
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
+		{
+			codeGen->PushTop();
+			codeGen->LoadFromRef();
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[it].nV[i]));
+		}
+
+		if(i != 3)
+		{
+			codeGen->PushCst(4);
+			codeGen->AddRef();
+		}
+	}
+
+	codeGen->PullTop();
+}
+
 CMA_VU::CLower::CLower()
 : CMIPSInstructionFactory(MIPS_REGSIZE_32)
 , m_nImm5(0)
@@ -97,18 +118,17 @@ bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
 //00
 void CMA_VU::CLower::LQ()
 {
+	//TODO: This can be improved if (m_dest == 0xF)
+
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 	VUShared::ComputeMemAccessAddr(
 		m_codeGen,
 		m_nIS,
 		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
 		0);
+	m_codeGen->AddRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
-	VUShared::PullVector(m_codeGen, m_nDest, offsetof(CMIPS, m_State.nCOP2[m_nIT]));
-
-	m_codeGen->PullTop();
+	LQbase(m_codeGen, m_nDest, m_nIT);
 }
 
 //01
@@ -562,14 +582,11 @@ void CMA_VU::CLower::MOVE()
 //0D
 void CMA_VU::CLower::LQI()
 {
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
+	m_codeGen->AddRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
-	VUShared::PullVector(m_codeGen, m_nDest, offsetof(CMIPS, m_State.nCOP2[m_nIT]));
-
-	m_codeGen->PullTop();
+	LQbase(m_codeGen, m_nDest, m_nIT);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 	m_codeGen->PushCst(1);
@@ -756,14 +773,11 @@ void CMA_VU::CLower::LQD()
 	m_codeGen->Sub();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
+	m_codeGen->AddRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
-	VUShared::PullVector(m_codeGen, m_nDest, offsetof(CMIPS, m_State.nCOP2[m_nIT]));
-
-	m_codeGen->PullTop();
+	LQbase(m_codeGen, m_nDest, m_nIT);
 }
 
 //0E
