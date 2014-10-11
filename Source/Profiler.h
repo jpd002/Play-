@@ -4,6 +4,7 @@
 #include <stack>
 #include <thread>
 #include <vector>
+#include <boost/chrono.hpp>
 #include "Singleton.h"
 #include "Types.h"
 
@@ -19,7 +20,7 @@ public:
 	};
 
 	typedef std::vector<ZONE> ZoneArray;
-	typedef std::chrono::system_clock::time_point TimePoint;
+	typedef boost::chrono::high_resolution_clock::time_point TimePoint;
 
 						CProfiler();
 	virtual				~CProfiler();
