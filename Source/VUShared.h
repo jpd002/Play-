@@ -102,6 +102,7 @@ namespace VUShared
 	void						ITOF12(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF15(CMipsJitter*, uint8, uint8, uint8);
 	void						ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						LQbase(CMipsJitter*, uint8, uint8);
 	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						MADDi(CMipsJitter*, uint8, uint8, uint8);
@@ -141,6 +142,7 @@ namespace VUShared
 	void						RNEXT(CMipsJitter*, uint8, uint8);
 	void						RSQRT(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						RXOR(CMipsJitter*, uint8, uint8);
+	void						SQbase(CMipsJitter*, uint8, uint8);
 	void						SQD(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SQI(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SQRT(CMipsJitter*, uint8, uint8, uint32);

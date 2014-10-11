@@ -6,27 +6,6 @@
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 
-static void LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
-{
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
-		{
-			codeGen->PushTop();
-			codeGen->LoadFromRef();
-			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[it].nV[i]));
-		}
-
-		if(i != 3)
-		{
-			codeGen->PushCst(4);
-			codeGen->AddRef();
-		}
-	}
-
-	codeGen->PullTop();
-}
-
 CMA_VU::CLower::CLower()
 : CMIPSInstructionFactory(MIPS_REGSIZE_32)
 , m_nImm5(0)
@@ -128,7 +107,7 @@ void CMA_VU::CLower::LQ()
 		0);
 	m_codeGen->AddRef();
 
-	LQbase(m_codeGen, m_nDest, m_nIT);
+	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
 }
 
 //01
@@ -147,23 +126,7 @@ void CMA_VU::CLower::SQ()
 
 	m_codeGen->AddRef();
 
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
-		{
-			m_codeGen->PushTop();
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[i]));
-			m_codeGen->StoreAtRef();
-		}
-
-		if(i != 3)
-		{
-			m_codeGen->PushCst(4);
-			m_codeGen->AddRef();
-		}
-	}
-
-	m_codeGen->PullTop();
+	VUShared::SQbase(m_codeGen, m_nDest, m_nIS);
 }
 
 //04
@@ -586,7 +549,7 @@ void CMA_VU::CLower::LQI()
 	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
 	m_codeGen->AddRef();
 
-	LQbase(m_codeGen, m_nDest, m_nIT);
+	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 	m_codeGen->PushCst(1);
@@ -777,7 +740,7 @@ void CMA_VU::CLower::LQD()
 	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
 	m_codeGen->AddRef();
 
-	LQbase(m_codeGen, m_nDest, m_nIT);
+	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
 }
 
 //0E
