@@ -637,23 +637,31 @@ void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 
 void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 {
-	for(unsigned int i = 0; i < 4; i++)
+	if(dest == 0xF)
 	{
-		if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
-		{
-			codeGen->PushTop();
-			codeGen->LoadFromRef();
-			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[it].nV[i]));
-		}
-
-		if(i != 3)
-		{
-			codeGen->PushCst(4);
-			codeGen->AddRef();
-		}
+		codeGen->MD_LoadFromRef();
+		codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[it]));
 	}
+	else
+	{
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
+			{
+				codeGen->PushTop();
+				codeGen->LoadFromRef();
+				codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[it].nV[i]));
+			}
 
-	codeGen->PullTop();
+			if(i != 3)
+			{
+				codeGen->PushCst(4);
+				codeGen->AddRef();
+			}
+		}
+
+		codeGen->PullTop();
+	}
 }
 
 void VUShared::MADD(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft)
@@ -1087,23 +1095,31 @@ void VUShared::RXOR(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
 
 void VUShared::SQbase(CMipsJitter* codeGen, uint8 dest, uint8 is)
 {
-	for(unsigned int i = 0; i < 4; i++)
+	if(dest == 0xF)
 	{
-		if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
-		{
-			codeGen->PushTop();
-			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[is].nV[i]));
-			codeGen->StoreAtRef();
-		}
-
-		if(i != 3)
-		{
-			codeGen->PushCst(4);
-			codeGen->AddRef();
-		}
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[is]));
+		codeGen->MD_StoreAtRef();
 	}
+	else
+	{
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
+			{
+				codeGen->PushTop();
+				codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[is].nV[i]));
+				codeGen->StoreAtRef();
+			}
 
-	codeGen->PullTop();
+			if(i != 3)
+			{
+				codeGen->PushCst(4);
+				codeGen->AddRef();
+			}
+		}
+
+		codeGen->PullTop();
+	}
 }
 
 void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 baseAddress)
