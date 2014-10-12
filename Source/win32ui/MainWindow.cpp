@@ -45,6 +45,8 @@
 #define ID_MAIN_DEBUG_DUMPFRAME			(0xDEAF)
 #define ID_MAIN_DEBUG_ENABLEGSDRAW		(0xDEB0)
 
+#define ID_MAIN_PROFILE_RESETSTATS		(0xDFAD)
+
 #define PREF_UI_PAUSEWHENFOCUSLOST	"ui.pausewhenfocuslost"
 
 double CMainWindow::m_statusBarPanelWidths[2] =
@@ -302,6 +304,11 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 	case ID_MAIN_DEBUG_ENABLEGSDRAW:
 		ToggleGsDraw();
 		break;
+#ifdef PROFILE
+	case ID_MAIN_PROFILE_RESETSTATS:
+		m_statsOverlayWnd.ResetStats();
+		break;
+#endif
 	case ID_MAIN_HELP_SYSINFO:
 		ShowSysInfo();
 		break;
@@ -785,6 +792,9 @@ void CMainWindow::CreateAccelerators()
 	generator.Insert(ID_MAIN_VIEW_FILLSCREEN,			'K',			FVIRTKEY | FCONTROL);
 	generator.Insert(ID_MAIN_VIEW_ACTUALSIZE,			'L',			FVIRTKEY | FCONTROL);
 	generator.Insert(ID_MAIN_DEBUG_DUMPFRAME,			VK_F11,			FVIRTKEY);
+#ifdef PROFILE
+	generator.Insert(ID_MAIN_PROFILE_RESETSTATS,		VK_F3,			FVIRTKEY);
+#endif
 	m_accTable = generator.Create();
 }
 
