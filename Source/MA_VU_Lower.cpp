@@ -97,8 +97,6 @@ bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
 //00
 void CMA_VU::CLower::LQ()
 {
-	//TODO: This can be improved if (m_dest == 0xF)
-
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 	VUShared::ComputeMemAccessAddr(
 		m_codeGen,
@@ -113,8 +111,6 @@ void CMA_VU::CLower::LQ()
 //01
 void CMA_VU::CLower::SQ()
 {
-	//TODO: This can be improved if (m_dest == 0xF)
-
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 
 	//Compute address
