@@ -14,9 +14,10 @@ public:
 
 	CStatsOverlayWindow&	operator =(CStatsOverlayWindow&&);
 
-	void					OnProfileFrameDone(const CProfiler::ZoneArray&);
-
 	void					Update(unsigned int);
+	void					ResetStats();
+
+	void					OnProfileFrameDone(const CProfiler::ZoneArray&);
 
 private:
 	struct RENDERMETRICS
@@ -28,7 +29,14 @@ private:
 		int fontSizeY = 0;
 	};
 
-	typedef std::map<std::string, uint64> ZoneMap;
+	struct ZONEINFO
+	{
+		uint64 currentValue = 0;
+		uint64 minValue = ~0ULL;
+		uint64 maxValue = 0;
+	};
+
+	typedef std::map<std::string, ZONEINFO> ZoneMap;
 
 	std::mutex				m_profilerZonesMutex;
 	ZoneMap					m_profilerZones;
