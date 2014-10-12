@@ -62,7 +62,8 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 
 		for(const auto& zonePair : m_profilerZones)
 		{
-			totalTime += zonePair.second;
+			const auto& zoneInfo = zonePair.second;
+			totalTime += zoneInfo.currentValue;
 		}
 
 		//float avgFrameTime = (static_cast<double>(totalTime) /  static_cast<double>(m_frames * 1000));
@@ -72,15 +73,20 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 		int y = m_renderMetrics.marginY;
 		for(const auto& zonePair : m_profilerZones)
 		{
-			float ratioSpent = (totalTime != 0) ? static_cast<double>(zonePair.second) / static_cast<double>(totalTime) : 0;
-			float msSpent = (frames != 0) ? static_cast<double>(zonePair.second) / static_cast<double>(frames * 1000) : 0;
+			const auto& zoneInfo = zonePair.second;
+			float avgRatioSpent = (totalTime != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(totalTime) : 0;
+			float avgMsSpent = (frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(frames * 1000) : 0;
+			float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(1000) : 0;
+			float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(1000);
 			memDc.TextOut(x + 0  , y, string_cast<std::tstring>(zonePair.first).c_str());
-			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 10), y, string_format(_T("%0.2f%%"), ratioSpent * 100.f).c_str());
-			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 20), y, string_format(_T("%0.2fms"), msSpent).c_str());
+			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 10), y, string_format(_T("%6.2f%%"), avgRatioSpent * 100.f).c_str());
+			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 20), y, string_format(_T("%6.2fms"), avgMsSpent).c_str());
+			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 30), y, string_format(_T("%6.2fms"), minMsSpent).c_str());
+			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 40), y, string_format(_T("%6.2fms"), maxMsSpent).c_str());
 			y += m_renderMetrics.fontSizeY + m_renderMetrics.spaceY;
 		}
 
-		for(auto& zonePair : m_profilerZones) { zonePair.second = 0; }
+		for(auto& zonePair : m_profilerZones) { zonePair.second.currentValue = 0; }
 	}
 
 	POINT dstPt = { windowRect.Left(), windowRect.Top() };
@@ -91,20 +97,24 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 	assert(result == TRUE);
 }
 
+void CStatsOverlayWindow::ResetStats()
+{
+	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
+	m_profilerZones.clear();
+}
+
 void CStatsOverlayWindow::OnProfileFrameDone(const CProfiler::ZoneArray& zones)
 {
 	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
 
 	for(auto& zone : zones)
 	{
-		auto zoneIterator = m_profilerZones.find(zone.name);
-		if(zoneIterator != std::end(m_profilerZones))
+		auto& zoneInfo = m_profilerZones[zone.name];
+		zoneInfo.currentValue += zone.totalTime;
+		if(zone.totalTime != 0)
 		{
-			zoneIterator->second += zone.totalTime;
+			zoneInfo.minValue = std::min<uint64>(zoneInfo.minValue, zone.totalTime);
 		}
-		else
-		{
-			m_profilerZones.insert(std::make_pair(zone.name, zone.totalTime));
-		}
+		zoneInfo.maxValue = std::max<uint64>(zoneInfo.maxValue, zone.totalTime);
 	}
 }
