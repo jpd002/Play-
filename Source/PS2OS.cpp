@@ -149,7 +149,7 @@ namespace filesystem = boost::filesystem;
 CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) 
 : m_ee(ee)
 , m_gs(gs)
-, m_elf(NULL)
+, m_elf(nullptr)
 , m_ram(ram)
 , m_bios(bios)
 , m_threadSchedule(nullptr)
@@ -166,7 +166,7 @@ CPS2OS::~CPS2OS()
 
 void CPS2OS::Initialize()
 {
-	m_elf = NULL;
+	m_elf = nullptr;
 
 	m_threadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
 
