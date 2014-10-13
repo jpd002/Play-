@@ -1090,11 +1090,6 @@ void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 	//Store
 	codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 	ComputeMemAccessAddr(codeGen, it, 0, 0);
-	if(baseAddress != 0)
-	{
-		codeGen->PushCst(baseAddress);
-		codeGen->Add();
-	}
 	codeGen->AddRef();
 
 	VUShared::SQbase(codeGen, dest, is);
@@ -1104,11 +1099,6 @@ void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 {
 	codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 	ComputeMemAccessAddr(codeGen, it, 0, 0);
-	if(baseAddress != 0)
-	{
-		codeGen->PushCst(baseAddress);
-		codeGen->Add();
-	}
 	codeGen->AddRef();
 
 	VUShared::SQbase(codeGen, dest, is);
