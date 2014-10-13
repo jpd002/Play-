@@ -1715,7 +1715,10 @@ void CPS2OS::sc_WakeupThread()
 			assert(0);
 			break;
 		}
-		ThreadShakeAndBake();
+		if(!isInt)
+		{
+			ThreadShakeAndBake();
+		}
 	}
 	else
 	{
