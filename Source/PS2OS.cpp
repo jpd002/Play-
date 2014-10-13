@@ -25,7 +25,7 @@
 
 // PS2OS Memory Allocation
 // Start		End				Description
-// 0x80000000	0x80000004		Current Thread ID
+// 0x80000010	0x80000014		Current Thread ID
 // 0x80008000	0x8000A000		DECI2 Handlers
 // 0x8000A000	0x8000C000		INTC Handlers
 // 0x8000C000	0x8000E000		DMAC Handlers
@@ -45,6 +45,7 @@
 // 0x1FC03100	0x1FC03200		Wait Thread Proc
 
 #define BIOS_ADDRESS_KERNELSTACK_TOP	0x00030000
+#define BIOS_ADDRESS_CURRENT_THREAD_ID	0x00000010
 
 #define BIOS_ADDRESS_BASE				0x1FC00000
 #define BIOS_ADDRESS_THREADEPILOG		0x1FC03000
@@ -149,7 +150,7 @@ namespace filesystem = boost::filesystem;
 CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) 
 : m_ee(ee)
 , m_gs(gs)
-, m_elf(NULL)
+, m_elf(nullptr)
 , m_ram(ram)
 , m_bios(bios)
 , m_threadSchedule(nullptr)
@@ -166,7 +167,7 @@ CPS2OS::~CPS2OS()
 
 void CPS2OS::Initialize()
 {
-	m_elf = NULL;
+	m_elf = nullptr;
 
 	m_threadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
 
@@ -902,12 +903,12 @@ uint32* CPS2OS::GetCustomSyscallTable()
 
 uint32 CPS2OS::GetCurrentThreadId() const
 {
-	return *(uint32*)&m_ram[0x00000000];
+	return *reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID);
 }
 
-void CPS2OS::SetCurrentThreadId(uint32 nThread)
+void CPS2OS::SetCurrentThreadId(uint32 threadId)
 {
-	*(uint32*)&m_ram[0x00000000] = nThread;
+	*reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID) = threadId;
 }
 
 uint32 CPS2OS::GetNextAvailableThreadId()
@@ -1715,7 +1716,10 @@ void CPS2OS::sc_WakeupThread()
 			assert(0);
 			break;
 		}
-		ThreadShakeAndBake();
+		if(!isInt)
+		{
+			ThreadShakeAndBake();
+		}
 	}
 	else
 	{
