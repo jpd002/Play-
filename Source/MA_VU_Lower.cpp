@@ -139,8 +139,7 @@ void CMA_VU::CLower::ILW()
 
 	m_codeGen->AddRef();
 
-	m_codeGen->LoadFromRef();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::ILWbase(m_codeGen, m_nIT);
 }
 
 //05
@@ -158,26 +157,7 @@ void CMA_VU::CLower::ISW()
 		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
 		0);
 
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(VUShared::DestinationHasElement(static_cast<uint8>(m_nDest), i))
-		{
-			m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
-			m_codeGen->PushIdx(1);		//Push computed address
-			m_codeGen->AddRef();		//Make new ref value
-			m_codeGen->PushIdx(2);		//Push value to store
-			m_codeGen->StoreAtRef();
-		}
-
-		if(i != 3)
-		{
-			m_codeGen->PushCst(4);
-			m_codeGen->Add();
-		}
-	}
-
-	m_codeGen->PullTop();
-	m_codeGen->PullTop();
+	VUShared::ISWbase(m_codeGen, m_nDest);
 }
 
 //08

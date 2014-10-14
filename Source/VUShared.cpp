@@ -505,21 +505,20 @@ void VUShared::IADDI(CMipsJitter* codeGen, uint8 it, uint8 is, uint8 imm5)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
+void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
+{
+	codeGen->LoadFromRef();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+}
+
 void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
 {
-	//Push context
-	codeGen->PushCtx();
-
 	//Compute address
+	codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
 	ComputeMemAccessAddr(codeGen, is, 0, GetDestOffset(dest));
-	if(baseAddress != 0)
-	{
-		codeGen->PushCst(baseAddress);
-		codeGen->Add();
-	}
+	codeGen->AddRef();
 
-	codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	ILWbase(codeGen, it);
 }
 
 void VUShared::ITOF0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
@@ -556,29 +555,17 @@ void VUShared::ITOF15(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
 }
 
-void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+void VUShared::ISWbase(CMipsJitter* codeGen, uint8 dest)
 {
-	//Compute value to store
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
-	codeGen->PushCst(0xFFFF);
-	codeGen->And();
-
-	//Compute address
-	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
-	if(baseAddress != 0)
-	{
-		codeGen->PushCst(baseAddress);
-		codeGen->Add();
-	}
-
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
 		{
-			codeGen->PushCtx();
-			codeGen->PushIdx(2);
-			codeGen->PushIdx(2);
-			codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+			codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+			codeGen->PushIdx(1);		//Push computed address
+			codeGen->AddRef();			//Make new ref value
+			codeGen->PushIdx(2);		//Push value to store
+			codeGen->StoreAtRef();
 		}
 
 		if(i != 3)
@@ -590,6 +577,19 @@ void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 
 	codeGen->PullTop();
 	codeGen->PullTop();
+}
+
+void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+{
+	//Compute value to store
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->PushCst(0xFFFF);
+	codeGen->And();
+
+	//Compute address
+	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
+
+	ISWbase(codeGen, dest);
 }
 
 void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
