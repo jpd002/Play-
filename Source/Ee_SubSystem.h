@@ -62,6 +62,23 @@ namespace Ee
 		CMIPS						m_VU1;
 		CMipsExecutor				m_executor;
 
+#if defined(_MSC_VER)
+
+		//Overload operator new and delete to make sure we get proper 16-byte aligned structures
+		//C++11 has support for aligned struct/classes, but VC++2013 doesn't support them
+
+		void* operator new(size_t allocSize)
+		{
+			return _aligned_malloc(allocSize, 16);
+		}
+
+		void operator delete(void* ptr)
+		{
+			_aligned_free(ptr);
+		}
+
+#endif
+
 	private:
 		uint32						IOPortReadHandler(uint32);
 		uint32						IOPortWriteHandler(uint32, uint32);
