@@ -16,11 +16,9 @@ namespace Iop
 							CCdvdfsv(CSifMan&, uint8*);
 		virtual				~CCdvdfsv();
 
-		virtual std::string	GetId() const;
-		virtual std::string	GetFunctionName(unsigned int) const;
-		virtual void		Invoke(CMIPS&, unsigned int);
-//		virtual void		SaveState(Framework::CStream*);
-//		virtual void		LoadState(Framework::CStream*);
+		virtual std::string	GetId() const override;
+		virtual std::string	GetFunctionName(unsigned int) const override;
+		virtual void		Invoke(CMIPS&, unsigned int) override;
 
 		void				SetIsoImage(CISO9660*);
 		void				SetReadToEeRamHandler(const ReadToEeRamHandler&);
@@ -51,14 +49,14 @@ namespace Iop
 		void				StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
 		void				SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
-		uint32				m_nStreamPos;
-		uint8*				m_iopRam;
-		CISO9660*			m_iso;
+		uint32				m_streamPos = 0;
+		uint8*				m_iopRam = nullptr;
+		CISO9660*			m_iso = nullptr;
 
-		bool				m_delayReadSuccess;
-		uint32				m_lastReadSector;
-		uint32				m_lastReadCount;
-		uint32				m_lastReadAddr;
+		bool				m_delayReadSuccess = false;
+		uint32				m_lastReadSector = 0;
+		uint32				m_lastReadCount = 0;
+		uint32				m_lastReadAddr = 0;
 
 		CSifModuleAdapter	m_module592;
 		CSifModuleAdapter	m_module593;

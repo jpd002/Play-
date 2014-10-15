@@ -1,5 +1,4 @@
-#ifndef _SIFMODULEADAPTER_H_
-#define _SIFMODULEADAPTER_H_
+#pragma once
 
 #include <functional>
 #include "SifModule.h"
@@ -25,7 +24,7 @@ public:
 		
 	}
 
-	virtual bool Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+	virtual bool Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram) override
 	{ 
 		m_handler(method, args, argsSize, ret, retSize, ram);
 		return true;
@@ -34,5 +33,3 @@ public:
 private:
 	SifCommandHandler m_handler;
 };
-
-#endif
