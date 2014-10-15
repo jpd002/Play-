@@ -43,6 +43,7 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 , m_function(nullptr)
 #endif
 {
+	m_linkedBlocks[0] = m_linkedBlocks[1] = nullptr;
 	assert(m_end >= m_begin);
 }
 
@@ -233,4 +234,35 @@ unsigned int CBasicBlock::GetSelfLoopCount() const
 void CBasicBlock::SetSelfLoopCount(unsigned int selfLoopCount)
 {
 	m_selfLoopCount = selfLoopCount;
+}
+
+CBasicBlock* CBasicBlock::GetLinkedBlock(unsigned int linkSlot) const
+{
+	assert(linkSlot < MAX_LINKEDBLOCKS);
+	return m_linkedBlocks[linkSlot];
+}
+
+void CBasicBlock::SetLinkedBlock(unsigned int linkSlot, CBasicBlock* linkedBlock)
+{
+	assert(linkSlot < MAX_LINKEDBLOCKS);
+	m_linkedBlocks[linkSlot] = linkedBlock;
+	if(linkedBlock != nullptr)
+	{
+		linkedBlock->AddReferer(m_begin);
+	}
+}
+
+const CBasicBlock::RefererSet& CBasicBlock::GetReferers() const
+{
+	return m_referers;
+}
+
+void CBasicBlock::ClearReferers()
+{
+	m_referers.clear();
+}
+
+void CBasicBlock::AddReferer(uint32 address)
+{
+	m_referers.insert(address);
 }
