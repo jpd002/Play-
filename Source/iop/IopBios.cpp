@@ -1049,6 +1049,9 @@ void CIopBios::NotifyVBlankEnd()
 			nextThread->status = THREAD_STATUS_RUNNING;
 		}
 	}
+#ifdef _IOP_EMULATE_MODULES
+	m_cdvdfsv->ProcessCommands(m_sifMan);
+#endif
 }
 
 uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)

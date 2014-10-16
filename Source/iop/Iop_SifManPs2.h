@@ -21,6 +21,8 @@ namespace Iop
 
 		uint32			SifSetDma(uint32, uint32) override;
 
+		uint8*			GetEeRam() const;
+
 	private:
 		CSIF&			m_sif;
 		uint8*			m_eeRam;

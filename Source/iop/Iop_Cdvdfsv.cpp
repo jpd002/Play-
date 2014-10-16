@@ -2,6 +2,7 @@
 #include "../Log.h"
 #include "../Ps2Const.h"
 #include "Iop_Cdvdfsv.h"
+#include "Iop_SifManPs2.h"
 
 using namespace Iop;
 
@@ -46,6 +47,48 @@ std::string CCdvdfsv::GetFunctionName(unsigned int) const
 	return "unknown";
 }
 
+void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
+{
+	if(m_pendingCommand != COMMAND_NONE)
+	{
+		static const uint32 sectorSize = 0x800;
+
+		if(m_pendingCommand == COMMAND_READ)
+		{
+			auto sifManPs2 = dynamic_cast<CSifManPs2*>(sifMan);
+			assert(sifManPs2 != nullptr);
+
+			uint8* eeRam = sifManPs2->GetEeRam();
+
+			if(m_iso != nullptr)
+			{
+				for(unsigned int i = 0; i < m_pendingReadCount; i++)
+				{
+					m_iso->ReadBlock(m_pendingReadSector + i, eeRam + (m_pendingReadAddr + (i * sectorSize)));
+				}
+			}
+
+			if(m_readToEeRamHandler)
+			{
+				m_readToEeRamHandler(m_pendingReadAddr, sectorSize * m_pendingReadCount);
+			}
+		}
+		else if(m_pendingCommand == COMMAND_READIOP)
+		{
+			if(m_iso != nullptr)
+			{
+				for(unsigned int i = 0; i < m_pendingReadCount; i++)
+				{
+					m_iso->ReadBlock(m_pendingReadSector + i, m_iopRam + (m_pendingReadAddr + (i * sectorSize)));
+				}
+			}
+		}
+
+		m_pendingCommand = COMMAND_NONE;
+		sifMan->SendCallReply(MODULE_ID_4, nullptr);
+	}
+}
+
 void CCdvdfsv::SetIsoImage(CISO9660* iso)
 {
 	m_iso = iso;
@@ -61,7 +104,7 @@ void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)
 	throw std::runtime_error("Not implemented.");
 }
 
-void CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -82,9 +125,10 @@ void CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x592, method);
 		break;
 	}
+	return true;
 }
 
-void CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -150,14 +194,16 @@ void CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x593, method);
 		break;
 	}
+	return true;
 }
 
-void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
 	case 0x01:
 		Read(args, argsSize, ret, retSize, ram);
+		return false;
 		break;
 
 	case 0x04:
@@ -185,19 +231,16 @@ void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 
 	case 0x0D:
 		ReadIopMem(args, argsSize, ret, retSize, ram);
+		return false;
 		break;
 
 	case 0x0E:
 		//DiskReady (returns 2 if ready, 6 if not ready)
 		assert(retSize >= 4);
 		CLog::GetInstance().Print(LOG_NAME, "NDiskReady();\r\n");
-		if(m_delayReadSuccess)
+		if(m_pendingCommand != COMMAND_NONE)
 		{
 			ret[0x00] = 6;
-			m_lastReadSector = 0;
-			m_lastReadCount = 0;
-			m_lastReadAddr = 0;
-			m_delayReadSuccess = false;
 		}
 		else
 		{
@@ -209,9 +252,10 @@ void CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x595, method);
 		break;
 	}
+	return true;
 }
 
-void CCdvdfsv::Invoke597(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CCdvdfsv::Invoke597(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -222,14 +266,15 @@ void CCdvdfsv::Invoke597(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x597, method);
 		break;
 	}
+	return true;
 }
 
-void CCdvdfsv::Invoke59A(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CCdvdfsv::Invoke59A(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	Invoke59C(method, args, argsSize, ret, retSize, ram);
+	return Invoke59C(method, args, argsSize, ret, retSize, ram);
 }
 
-void CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -247,6 +292,7 @@ void CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x59C, method);
 		break;
 	}
+	return true;
 }
 
 void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -259,36 +305,18 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	CLog::GetInstance().Print(LOG_NAME, "Read(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n",
 		sector, count, dstAddr, mode);
 
-	static const uint32 sectorSize = 0x800;
-
-	if(m_iso != nullptr)
-	{
-		for(unsigned int i = 0; i < count; i++)
-		{
-			m_iso->ReadBlock(sector + i, ram + (dstAddr + (i * sectorSize)));
-		}
-	}
-
-	if(m_readToEeRamHandler)
-	{
-		m_readToEeRamHandler(dstAddr, sectorSize * count);
-	}
-
+	//We write the result now, but ideally should be only written
+	//when pending read is completed
 	if(retSize >= 4)
 	{
 		ret[0] = 0;
 	}
 
-	if((sector == m_lastReadSector) && (count == m_lastReadCount) && (dstAddr == m_lastReadAddr))
-	{
-		//Induce a fake read delay because Wild Arms: Alter Code F relies on that to determine read success.
-		CLog::GetInstance().Print(LOG_NAME, "Read: Faking delay because we're trying to read the same way twice.\r\n");
-		m_delayReadSuccess = true;
-	}
-
-	m_lastReadSector = sector;
-	m_lastReadCount = count;
-	m_lastReadAddr = dstAddr;
+	assert(m_pendingCommand == COMMAND_NONE);
+	m_pendingCommand = COMMAND_READ;
+	m_pendingReadSector = sector;
+	m_pendingReadCount = count;
+	m_pendingReadAddr = dstAddr;
 }
 
 void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -301,30 +329,16 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	CLog::GetInstance().Print(LOG_NAME, "ReadIopMem(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n",
 		sector, count, dstAddr, mode);
 
-	if(m_iso != nullptr)
-	{
-		for(unsigned int i = 0; i < count; i++)
-		{
-			m_iso->ReadBlock(sector + i, m_iopRam + dstAddr);
-			dstAddr += 0x800;
-		}
-	}
-
 	if(retSize >= 4)
 	{
 		ret[0] = 0;
 	}
 
-	if((sector == m_lastReadSector) && (count == m_lastReadCount) && (dstAddr == m_lastReadAddr))
-	{
-		//Induce a fake read delay because Wild Arms: Alter Code F relies on that to determine read success.
-		CLog::GetInstance().Print(LOG_NAME, "Read: Faking delay because we're trying to read the same way twice.\r\n");
-		m_delayReadSuccess = true;
-	}
-
-	m_lastReadSector = sector;
-	m_lastReadCount = count;
-	m_lastReadAddr = dstAddr;
+	assert(m_pendingCommand == COMMAND_NONE);
+	m_pendingCommand = COMMAND_READIOP;
+	m_pendingReadSector = sector;
+	m_pendingReadCount = count;
+	m_pendingReadAddr = dstAddr;
 }
 
 void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

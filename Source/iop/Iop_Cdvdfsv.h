@@ -20,6 +20,7 @@ namespace Iop
 		std::string			GetFunctionName(unsigned int) const override;
 		void				Invoke(CMIPS&, unsigned int) override;
 
+		void				ProcessCommands(CSifMan*);
 		void				SetIsoImage(CISO9660*);
 		void				SetReadToEeRamHandler(const ReadToEeRamHandler&);
 
@@ -36,12 +37,19 @@ namespace Iop
 		};
 
 	private:
-		void				Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		void				Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		void				Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		void				Invoke597(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		void				Invoke59A(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		void				Invoke59C(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		enum COMMAND
+		{
+			COMMAND_NONE,
+			COMMAND_READ,
+			COMMAND_READIOP
+		};
+
+		bool				Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool				Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool				Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool				Invoke597(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool				Invoke59A(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool				Invoke59C(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
 		//Methods
 		void				Read(uint32*, uint32, uint32*, uint32, uint8*);
@@ -53,10 +61,10 @@ namespace Iop
 		uint8*				m_iopRam = nullptr;
 		CISO9660*			m_iso = nullptr;
 
-		bool				m_delayReadSuccess = false;
-		uint32				m_lastReadSector = 0;
-		uint32				m_lastReadCount = 0;
-		uint32				m_lastReadAddr = 0;
+		COMMAND				m_pendingCommand = COMMAND_NONE;
+		uint32				m_pendingReadSector = 0;
+		uint32				m_pendingReadCount = 0;
+		uint32				m_pendingReadAddr = 0;
 
 		CSifModuleAdapter	m_module592;
 		CSifModuleAdapter	m_module593;

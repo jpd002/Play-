@@ -6,7 +6,7 @@
 class CSifModuleAdapter : public CSifModule
 {
 public:
-	typedef std::function<void (uint32, uint32*, uint32, uint32*, uint32, uint8*)> SifCommandHandler;
+	typedef std::function<bool (uint32, uint32*, uint32, uint32*, uint32, uint8*)> SifCommandHandler;
 
 	CSifModuleAdapter()
 	{
@@ -25,9 +25,8 @@ public:
 	}
 
 	virtual bool Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram) override
-	{ 
-		m_handler(method, args, argsSize, ret, retSize, ram);
-		return true;
+	{
+		return m_handler(method, args, argsSize, ret, retSize, ram);
 	}
 
 private:
