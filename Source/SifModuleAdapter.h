@@ -13,8 +13,8 @@ public:
 
 	}
 
-	CSifModuleAdapter(const SifCommandHandler& handler) :
-	m_handler(handler)
+	CSifModuleAdapter(const SifCommandHandler& handler)
+		: m_handler(handler)
 	{
 
 	}

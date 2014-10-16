@@ -1,5 +1,4 @@
-#ifndef _IOP_SIFMANPS2_H_
-#define _IOP_SIFMANPS2_H_
+#pragma once
 
 #include "Iop_SifMan.h"
 #include "../Sif.h"
@@ -12,15 +11,15 @@ namespace Iop
 						CSifManPs2(CSIF&, uint8*, uint8*);
 		virtual			~CSifManPs2();
 
-		virtual void	RegisterModule(uint32, CSifModule*) override;
-		virtual bool	IsModuleRegistered(uint32) override;
-		virtual void	UnregisterModule(uint32) override;
-		virtual void	SendPacket(void*, uint32) override;
-		virtual void	SetDmaBuffer(uint32, uint32) override;
-		virtual void	SendCallReply(uint32, const void*) override;
-		virtual void	GetOtherData(uint32, uint32, uint32) override;
+		void			RegisterModule(uint32, CSifModule*) override;
+		bool			IsModuleRegistered(uint32) override;
+		void			UnregisterModule(uint32) override;
+		void			SendPacket(void*, uint32) override;
+		void			SetDmaBuffer(uint32, uint32) override;
+		void			SendCallReply(uint32, const void*) override;
+		void			GetOtherData(uint32, uint32, uint32) override;
 
-		virtual uint32	SifSetDma(uint32, uint32) override;
+		uint32			SifSetDma(uint32, uint32) override;
 
 	private:
 		CSIF&			m_sif;
@@ -28,5 +27,3 @@ namespace Iop
 		uint8*			m_iopRam;
 	};
 }
-
-#endif

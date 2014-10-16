@@ -544,11 +544,11 @@ void CSIF::Cmd_GetOtherData(PACKETHDR* hdr)
 
 void CSIF::SendCallReply(uint32 serverId, const void* returnData)
 {
-	CallReplyMap::iterator replyIterator(m_callReplies.find(serverId));
+	auto replyIterator(m_callReplies.find(serverId));
 	assert(replyIterator != m_callReplies.end());
 	if(replyIterator == m_callReplies.end()) return;
 
-	CALLREQUESTINFO& requestInfo(replyIterator->second);
+	auto& requestInfo(replyIterator->second);
 	if(requestInfo.call.nRecv != 0 && returnData != nullptr)
 	{
 		uint32 dstPtr = requestInfo.call.nRecv & (PS2::EE_RAM_SIZE - 1);
