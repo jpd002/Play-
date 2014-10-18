@@ -42,12 +42,6 @@ namespace Jitter
 class CBasicBlock
 {
 public:
-	typedef std::set<uint32> RefererSet;
-
-	enum
-	{
-		MAX_LINKEDBLOCKS = 2
-	};
 									CBasicBlock(CMIPS&, uint32, uint32);
 	virtual							~CBasicBlock();
 	unsigned int					Execute();
@@ -58,12 +52,6 @@ public:
 	bool							IsCompiled() const;
 	unsigned int					GetSelfLoopCount() const;
 	void							SetSelfLoopCount(unsigned int);
-
-	CBasicBlock*					GetLinkedBlock(unsigned int) const;
-	void							SetLinkedBlock(unsigned int, CBasicBlock*);
-
-	const RefererSet&				GetReferers() const;
-	void							ClearReferers();
 
 #ifdef AOT_BUILD_CACHE
 	static void						SetAotBlockOutputStream(Framework::CStdStream*);
@@ -77,7 +65,6 @@ protected:
 	virtual void					CompileRange(CMipsJitter*);
 
 private:
-	void							AddReferer(uint32);
 
 #ifdef AOT_BUILD_CACHE
 	static Framework::CStdStream*	m_aotBlockOutputStream;
@@ -91,6 +78,4 @@ private:
 #endif
 
 	unsigned int					m_selfLoopCount;
-	CBasicBlock*					m_linkedBlocks[MAX_LINKEDBLOCKS];
-	RefererSet						m_referers;
 };

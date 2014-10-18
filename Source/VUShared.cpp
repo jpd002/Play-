@@ -514,7 +514,7 @@ void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
 void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
 {
 	//Compute address
-	codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	ComputeMemAccessAddr(codeGen, is, 0, GetDestOffset(dest));
 	codeGen->AddRef();
 
@@ -561,7 +561,7 @@ void VUShared::ISWbase(CMipsJitter* codeGen, uint8 dest)
 	{
 		if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
 		{
-			codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+			codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 			codeGen->PushIdx(1);		//Push computed address
 			codeGen->AddRef();			//Make new ref value
 			codeGen->PushIdx(2);		//Push value to store
@@ -1088,7 +1088,7 @@ void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 
 	//Store
-	codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	ComputeMemAccessAddr(codeGen, it, 0, 0);
 	codeGen->AddRef();
 
@@ -1097,7 +1097,7 @@ void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 
 void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 baseAddress)
 {
-	codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	ComputeMemAccessAddr(codeGen, it, 0, 0);
 	codeGen->AddRef();
 

@@ -49,18 +49,6 @@ void CMipsExecutor::ClearActiveBlocks()
 		CBasicBlock** subTable = m_blockTable[i];
 		if(subTable != NULL)
 		{
-			for(uint32 lo = 0; lo < 0x10000; lo += 4)
-			{
-				auto block = subTable[lo / 4];
-				if(block != nullptr)
-				{
-					//We reset the values here because the block might
-					//still be held by another object (ie.: VuExecutor)
-					block->ClearReferers();
-					block->SetLinkedBlock(0, nullptr);
-					block->SetLinkedBlock(1, nullptr);
-				}
-			}
 			delete [] subTable;
 			m_blockTable[i] = NULL;
 		}
@@ -105,38 +93,16 @@ int CMipsExecutor::Execute(int cycles)
 	CBasicBlock* block(nullptr);
 	while(cycles > 0)
 	{
-		CBasicBlock* prevBlock = block;
-		block = nullptr;
 		uint32 address = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
-		//Check if we're executing the same block
-		if(prevBlock && prevBlock->GetBeginAddress() == address)
-		{
-			prevBlock->SetSelfLoopCount(prevBlock->GetSelfLoopCount() + 1);
-			block = prevBlock;
-		}
-		//Check if we are executing a linked block
-		if(!block && prevBlock)
-		{
-			for(unsigned int i = 0; i < CBasicBlock::MAX_LINKEDBLOCKS; i++)
-			{
-				auto linkedBlock = prevBlock->GetLinkedBlock(i);
-				if(linkedBlock && linkedBlock->GetBeginAddress() == address)
-				{
-					block = linkedBlock;
-					break;
-				}
-			}
-		}
-		//Look for block in block table
-		if(!block)
+		if(!block || address != block->GetBeginAddress())
 		{
 			block = FindBlockStartingAt(address);
-			if(!block)
+			if(block == NULL)
 			{
 				//We need to partition the space and compile the blocks
 				PartitionFunction(address);
 				block = FindBlockStartingAt(address);
-				if(!block)
+				if(block == NULL)
 				{
 					throw std::runtime_error("Couldn't create block starting at address.");
 				}
@@ -145,24 +111,10 @@ int CMipsExecutor::Execute(int cycles)
 			{
 				block->Compile();
 			}
-			//Link block to previous one
-			if(prevBlock)
-			{
-				for(unsigned int i = 0; i < CBasicBlock::MAX_LINKEDBLOCKS; i++)
-				{
-					auto linkedBlock = prevBlock->GetLinkedBlock(i);
-					if(linkedBlock && linkedBlock->GetBeginAddress() == address)
-					{
-						//Already linked, but kinda weird if we get here.
-						break;
-					}
-					if(!linkedBlock)
-					{
-						prevBlock->SetLinkedBlock(i, block);
-						break;
-					}
-				}
-			}
+		}
+		else if(block != NULL)
+		{
+			block->SetSelfLoopCount(block->GetSelfLoopCount() + 1);
 		}
 
 #ifdef DEBUGGER_INCLUDED
@@ -297,27 +249,6 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 		subTable[loAddress / 4] = NULL;
 	}
 
-	for(uint32 refererAddress : block->GetReferers())
-	{
-		auto refererBlock = FindBlockStartingAt(refererAddress);
-		if(refererBlock)
-		{
-			bool removed = false;
-			for(unsigned int i = 0; i < CBasicBlock::MAX_LINKEDBLOCKS; i++)
-			{
-				auto linkedBlock = refererBlock->GetLinkedBlock(i);
-				if(linkedBlock == block)
-				{
-					refererBlock->SetLinkedBlock(i, nullptr);
-					removed = true;
-					break;
-				}
-			}
-			assert(removed);
-		}
-	}
-	block->ClearReferers();
-
 	//Remove block from our lists
 	auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&] (const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
 	assert(blockIterator != std::end(m_blocks));
@@ -326,7 +257,7 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 
 CMipsExecutor::BasicBlockPtr CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
-	return BasicBlockPtr(new CBasicBlock(context, start, end));
+	return std::make_shared<CBasicBlock>(context, start, end);
 }
 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)
