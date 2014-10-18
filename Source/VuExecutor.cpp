@@ -44,10 +44,10 @@ CMipsExecutor::BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 be
 
 	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSizeByte);
 
-	std::pair<CachedBlockMap::iterator, CachedBlockMap::iterator> equalRange = m_cachedBlocks.equal_range(checksum);
+	auto equalRange = m_cachedBlocks.equal_range(checksum);
 	for(; equalRange.first != equalRange.second; ++equalRange.first)
 	{
-		const BasicBlockPtr& basicBlock(equalRange.first->second);
+		const auto& basicBlock(equalRange.first->second);
 		if(basicBlock->GetBeginAddress() == begin)
 		{
 			if(basicBlock->GetEndAddress() == end)
@@ -57,8 +57,8 @@ CMipsExecutor::BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 be
 		}
 	}
 
-	BasicBlockPtr result(new CVuBasicBlock(context, begin, end));
-	m_cachedBlocks.insert(CachedBlockMap::value_type(checksum, result));
+	auto result = std::make_shared<CVuBasicBlock>(context, begin, end);
+	m_cachedBlocks.insert(std::make_pair(checksum, result));
 	return result;
 }
 
