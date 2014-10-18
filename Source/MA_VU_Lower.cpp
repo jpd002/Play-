@@ -97,7 +97,7 @@ bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
 //00
 void CMA_VU::CLower::LQ()
 {
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(
 		m_codeGen,
 		m_nIS,
@@ -111,7 +111,7 @@ void CMA_VU::CLower::LQ()
 //01
 void CMA_VU::CLower::SQ()
 {
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
@@ -128,7 +128,7 @@ void CMA_VU::CLower::SQ()
 //04
 void CMA_VU::CLower::ILW()
 {
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
@@ -521,7 +521,7 @@ void CMA_VU::CLower::MOVE()
 //0D
 void CMA_VU::CLower::LQI()
 {
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
 	m_codeGen->AddRef();
 
@@ -712,7 +712,7 @@ void CMA_VU::CLower::LQD()
 	m_codeGen->Sub();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_State.vuMem));
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
 	m_codeGen->AddRef();
 

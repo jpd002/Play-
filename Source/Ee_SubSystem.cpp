@@ -137,6 +137,10 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
 	}
 
+	m_EE.m_vuMem = m_vuMem0;
+	m_VU0.m_vuMem = m_vuMem0;
+	m_VU1.m_vuMem = m_vuMem1;
+
 	m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
@@ -178,10 +182,6 @@ void CSubSystem::Reset()
 	m_EE.Reset();
 	m_VU0.Reset();
 	m_VU1.Reset();
-
-	m_EE.m_State.vuMem = m_vuMem0;
-	m_VU0.m_State.vuMem = m_vuMem0;
-	m_VU1.m_State.vuMem = m_vuMem1;
 
 	m_EE.m_Comments.RemoveTags();
 	m_EE.m_Functions.RemoveTags();

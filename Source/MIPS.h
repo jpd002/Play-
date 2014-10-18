@@ -96,8 +96,6 @@ __attribute__((aligned(16)))
 	uint32				cmsar0;
 	uint32				callMsEnabled;
 	uint32				callMsAddr;
-
-	void*				vuMem;
 };
 
 #define MIPS_INVALID_PC			(0x00000001)
@@ -124,6 +122,8 @@ public:
 	bool						GenerateException(uint32);
 
 	MIPSSTATE					m_State;
+
+	void*						m_vuMem = nullptr;
 
 	CMIPSArchitecture*			m_pArch;
 	CMIPSCoprocessor*			m_pCOP[4];
