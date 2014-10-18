@@ -49,6 +49,18 @@ void CMipsExecutor::ClearActiveBlocks()
 		CBasicBlock** subTable = m_blockTable[i];
 		if(subTable != NULL)
 		{
+			for(uint32 lo = 0; lo < 0x10000; lo += 4)
+			{
+				auto block = subTable[lo / 4];
+				if(block != nullptr)
+				{
+					//We reset the values here because the block might
+					//still be held by another object (ie.: VuExecutor)
+					block->ClearReferers();
+					block->SetLinkedBlock(0, nullptr);
+					block->SetLinkedBlock(1, nullptr);
+				}
+			}
 			delete [] subTable;
 			m_blockTable[i] = NULL;
 		}
