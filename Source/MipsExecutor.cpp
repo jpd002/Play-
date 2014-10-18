@@ -326,7 +326,7 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 
 CMipsExecutor::BasicBlockPtr CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
-	return BasicBlockPtr(new CBasicBlock(context, start, end));
+	return std::make_shared<CBasicBlock>(context, start, end);
 }
 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)
