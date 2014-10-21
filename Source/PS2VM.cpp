@@ -32,6 +32,7 @@
 #include "iop/DirectoryDevice.h"
 #include "iop/IsoDevice.h"
 #include "Log.h"
+#include "../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
 
 #define LOG_NAME		("ps2vm")
 
@@ -47,7 +48,7 @@
 #define ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
 #define VBLANK_TICKS		(FRAME_TICKS / 10)
 
-#define SPU_UPDATE_TICKS	(FRAME_TICKS / 2)
+#define SPU_UPDATE_TICKS	(PS2::IOP_CLOCK_OVER_FREQ / 1000)
 
 #define VPU_LOG_BASE		"./vpu_logs/"
 
@@ -98,6 +99,8 @@ CPS2VM::CPS2VM()
 
 	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *m_iopOs);
 	m_ee->m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
+
+	m_soundHandler = new CSH_WaveOut();
 }
 
 CPS2VM::~CPS2VM()
@@ -365,6 +368,9 @@ void CPS2VM::ResetVM()
 	m_eeExecutionTicks = 0;
 	m_iopExecutionTicks = 0;
 
+	m_spuUpdateTicks = 0;
+	m_currentBlock = 0;
+
 	RegisterModulesInPadHandler();
 
 #ifdef DEBUGGER_INCLUDED
@@ -544,7 +550,6 @@ void CPS2VM::UpdateEe()
 		m_eeExecutionTicks -= executed;
 		m_ee->CountTicks(executed);
 		m_vblankTicks -= executed;
-		m_spuUpdateTicks -= executed;
 
 #ifdef DEBUGGER_INCLUDED
 		if(m_singleStepEe) break;
@@ -568,6 +573,7 @@ void CPS2VM::UpdateIop()
 		}
 
 		m_iopExecutionTicks -= executed;
+		m_spuUpdateTicks -= executed;
 		m_iop->CountTicks(executed);
 
 #ifdef DEBUGGER_INCLUDED
@@ -583,26 +589,37 @@ void CPS2VM::UpdateSpu()
 	CProfilerZone profilerZone(m_spuProfilerZone);
 #endif
 
-	Iop::CSpuBase* spu[2] = { &m_iop->m_spuCore0, &m_iop->m_spuCore1 };
-	const int sampleRate = 44100;
-	const int sampleCount = 352;
-	size_t bufferSize = sampleCount * sizeof(int16);
+	unsigned int blockOffset = (BLOCK_SIZE * m_currentBlock);
+	int16* samplesSpu0 = m_samples + blockOffset;
 
-	for(unsigned int i = 0; i < 2; i++)
+	m_iop->m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
+
+	if(m_iop->m_spuCore1.IsEnabled())
 	{
-		if(spu[i]->IsEnabled())
-		{
-			int16* tempSamples = reinterpret_cast<int16*>(alloca(bufferSize));
-			spu[i]->Render(tempSamples, sampleCount, sampleRate);
+		int16 samplesSpu1[BLOCK_SIZE];
+		m_iop->m_spuCore1.Render(samplesSpu1, BLOCK_SIZE, 44100);
 
-			//for(unsigned int j = 0; j < sampleCount; j++)
-			//{
-			//	int32 resultSample = static_cast<int32>(samples[j]) + static_cast<int32>(tempSamples[j]);
-			//	resultSample = max<int32>(resultSample, SHRT_MIN);
-			//	resultSample = min<int32>(resultSample, SHRT_MAX);
-			//	samples[j] = static_cast<int16>(resultSample);
-			//}
+		for(unsigned int i = 0; i < BLOCK_SIZE; i++)
+		{
+			int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
+			resultSample = std::max<int32>(resultSample, SHRT_MIN);
+			resultSample = std::min<int32>(resultSample, SHRT_MAX);
+			samplesSpu0[i] = static_cast<int16>(resultSample);
 		}
+	}
+
+	m_currentBlock++;
+	if(m_currentBlock == BLOCK_COUNT)
+	{
+		if(m_soundHandler)
+		{
+			if(m_soundHandler->HasFreeBuffers())
+			{
+				m_soundHandler->RecycleBuffers();
+			}
+			m_soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, 44100);
+		}
+		m_currentBlock = 0;
 	}
 }
 

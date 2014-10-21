@@ -468,6 +468,7 @@
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\VFSManagerWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\WinUtils.cpp" />
+    <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h" />
@@ -672,6 +673,7 @@
     <ClInclude Include="..\Source\win32ui\ThreadsViewWnd.h" />
     <ClInclude Include="..\Source\win32ui\VFSManagerWnd.h" />
     <ClInclude Include="..\Source\win32ui\WinUtils.h" />
+    <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\License.txt" />

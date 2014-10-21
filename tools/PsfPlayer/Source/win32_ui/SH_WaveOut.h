@@ -12,10 +12,10 @@ public:
 
 	static CSoundHandler*	HandlerFactory();
 
-	void					Reset();
-	bool					HasFreeBuffers();
-	void					RecycleBuffers();
-	void					Write(int16*, unsigned int, unsigned int);
+	void					Reset() override;
+	bool					HasFreeBuffers() override;
+	void					RecycleBuffers() override;
+	void					Write(int16*, unsigned int, unsigned int) override;
 
 private:
 	enum
