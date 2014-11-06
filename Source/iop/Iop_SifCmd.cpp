@@ -20,6 +20,7 @@ using namespace Iop;
 #define FUNCTION_SIFSENDCMD				"SifSendCmd"
 #define FUNCTION_SIFINITRPC				"SifInitRpc"
 #define FUNCTION_SIFBINDRPC				"SifBindRpc"
+#define FUNCTION_SIFCALLRPC				"SifCallRpc"
 #define FUNCTION_SIFREGISTERRPC			"SifRegisterRpc"
 #define FUNCTION_SIFCHECKSTATRPC		"SifCheckStatRpc"
 #define FUNCTION_SIFSETRPCQUEUE			"SifSetRpcQueue"
@@ -105,6 +106,9 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 		break;
 	case 15:
 		return FUNCTION_SIFBINDRPC;
+		break;
+	case 16:
+		return FUNCTION_SIFCALLRPC;
 		break;
 	case 17:
 		return FUNCTION_SIFREGISTERRPC;
