@@ -16,9 +16,9 @@ namespace Iop
 
 		void					GenerateHandlers(uint8*, CSysmem&);
 
-		virtual std::string		GetId() const;
-		virtual std::string		GetFunctionName(unsigned int) const;
-		virtual void			Invoke(CMIPS&, unsigned int);
+		std::string				GetId() const override;
+		std::string				GetFunctionName(unsigned int) const override;
+		void					Invoke(CMIPS&, unsigned int) override;
 
 		virtual void			RegisterModule(uint32, CSifModule*) = 0;
 		virtual bool			IsModuleRegistered(uint32) = 0;

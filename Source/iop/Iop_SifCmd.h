@@ -18,9 +18,9 @@ namespace Iop
 								CSifCmd(CIopBios&, CSifMan&, CSysmem&, uint8*);
 		virtual					~CSifCmd();
 
-		virtual std::string		GetId() const;
-		virtual std::string		GetFunctionName(unsigned int) const;
-		virtual void			Invoke(CMIPS&, unsigned int);
+		std::string				GetId() const override;
+		std::string				GetFunctionName(unsigned int) const override;
+		void					Invoke(CMIPS&, unsigned int) override;
 
 		void					ProcessInvocation(uint32, uint32, uint32*, uint32);
 

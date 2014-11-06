@@ -8,13 +8,13 @@ namespace Iop
 	class CSifManNull : public CSifMan
 	{
 	public:
-		virtual void	RegisterModule(uint32, CSifModule*) override;
-		virtual bool	IsModuleRegistered(uint32) override;
-		virtual void	UnregisterModule(uint32) override;
-		virtual void	SendPacket(void*, uint32) override;
-		virtual void	SetDmaBuffer(uint32, uint32) override;
-		virtual void	SendCallReply(uint32, const void*) override;
-		virtual void	GetOtherData(uint32, uint32, uint32) override;
+		void	RegisterModule(uint32, CSifModule*) override;
+		bool	IsModuleRegistered(uint32) override;
+		void	UnregisterModule(uint32) override;
+		void	SendPacket(void*, uint32) override;
+		void	SetDmaBuffer(uint32, uint32) override;
+		void	SendCallReply(uint32, const void*) override;
+		void	GetOtherData(uint32, uint32, uint32) override;
 	};
 }
 
