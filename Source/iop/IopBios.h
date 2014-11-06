@@ -332,6 +332,8 @@ private:
 	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
 	void							InsertLoadedModuleName(const std::string&);
 
+	void							DumpLibSdCall(uint32);
+
 #ifdef DEBUGGER_INCLUDED
 	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);
 	BiosDebugModuleInfoIterator		FindModuleDebugInfo(const std::string&);
