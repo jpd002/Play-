@@ -1257,6 +1257,9 @@
     <ClInclude Include="..\Source\win32ui\StatsOverlayWindow.h">
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\SifDefs.h">
+      <Filter>Source Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\win32ui\manifest.xml">

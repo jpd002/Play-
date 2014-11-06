@@ -1,7 +1,7 @@
 #include "Iop_FileIo.h"
 #include "Iop_Ioman.h"
 #include "../Log.h"
-#include "../SIF.h"
+#include "../SifDefs.h"
 
 #define LOG_NAME ("iop_fileio")
 
@@ -143,9 +143,9 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                size_t packetSize = sizeof(PACKETHDR);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
                 header->nCID = 0x80000011;
                 header->nSize = packetSize;
                 header->nDest = 0;
@@ -172,9 +172,9 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                size_t packetSize = sizeof(PACKETHDR);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
                 header->nCID = 0x80000011;
                 header->nSize = packetSize;
                 header->nDest = 0;
@@ -201,9 +201,9 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                size_t packetSize = sizeof(PACKETHDR);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
                 header->nCID = 0x80000011;
                 header->nSize = packetSize;
                 header->nDest = 0;
@@ -231,9 +231,9 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                size_t packetSize = sizeof(PACKETHDR);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
                 header->nCID = 0x80000011;
                 header->nSize = packetSize;
                 header->nDest = 0;
@@ -262,9 +262,9 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(CSIF::PACKETHDR);
+                size_t packetSize = sizeof(PACKETHDR);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(callbackPacket);
+                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
                 header->nCID = 0x80000011;
                 header->nSize = packetSize;
                 header->nDest = 0;

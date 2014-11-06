@@ -252,7 +252,7 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 	assert(packetSize >= 0x10);
 
 	uint8* packetData = m_ram + packetPtr;
-	CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(packetData);
+	PACKETHDR* header = reinterpret_cast<PACKETHDR*>(packetData);
 	header->nCID = commandId;
 	header->nSize = packetSize;
 	header->nDest = 0;

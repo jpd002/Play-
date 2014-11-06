@@ -1,8 +1,8 @@
-#ifndef _SIF_H_
-#define _SIF_H_
+#pragma once
 
 #include <map>
 #include <vector>
+#include "SifDefs.h"
 #include "SifModule.h"
 #include "DMAC.h"
 #include "zip/ZipArchiveWriter.h"
@@ -13,13 +13,6 @@
 class CSIF
 {
 public:
-	struct PACKETHDR
-	{
-		uint32						nSize;
-		uint32						nDest;
-		uint32						nCID;
-		uint32						nOptional;
-	};
 
 									CSIF(CDMAC&, uint8*, uint8*);
 	virtual							~CSIF();
@@ -52,53 +45,6 @@ private:
 	enum CONST_MAX_USERREG
 	{
 		MAX_USERREG = 0x10,
-	};
-
-	enum CONST_SIF_CMD
-	{
-		SIF_CMD_INIT		= 0x80000002,
-		SIF_CMD_REND		= 0x80000008,
-		SIF_CMD_BIND		= 0x80000009,
-		SIF_CMD_CALL		= 0x8000000A,
-		SIF_CMD_OTHERDATA	= 0x8000000C,
-	};
-
-	struct RPCREQUESTEND
-	{
-		PACKETHDR					Header;
-		uint32						nRecordID;
-		uint32						nPacketAddr;
-		uint32						nRPCID;
-		uint32						nClientDataAddr;
-		uint32						nCID;
-		uint32						nServerDataAddr;
-		uint32						nBuffer;
-		uint32						nClientBuffer;
-	};
-
-	struct RPCBIND
-	{
-		PACKETHDR					Header;
-		uint32						nRecordID;
-		uint32						nPacketAddr;
-		uint32						nRPCID;
-		uint32						nClientDataAddr;
-		uint32						nSID;
-	};
-
-	struct RPCCALL
-	{
-		PACKETHDR					Header;
-		uint32						nRecordID;
-		uint32						nPacketAddr;
-		uint32						nRPCID;
-		uint32						nClientDataAddr;
-		uint32						nRPCNumber;
-		uint32						nSendSize;
-		uint32						nRecv;
-		uint32						nRecvSize;
-		uint32						nRecvMode;
-		uint32						nServerDataAddr;
 	};
 
 	struct RPCOTHERDATA

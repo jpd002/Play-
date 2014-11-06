@@ -586,6 +586,7 @@
     <ClInclude Include="..\Source\saves\SaveImporterBase.h" />
     <ClInclude Include="..\Source\saves\XpsSaveImporter.h" />
     <ClInclude Include="..\Source\SIF.h" />
+    <ClInclude Include="..\Source\SifDefs.h" />
     <ClInclude Include="..\Source\SifModule.h" />
     <ClInclude Include="..\Source\SifModuleAdapter.h" />
     <ClInclude Include="..\Source\StructCollectionStateFile.h" />
