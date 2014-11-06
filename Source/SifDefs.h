@@ -11,51 +11,68 @@ enum CONST_SIF_CMD
 	SIF_CMD_OTHERDATA	= 0x8000000C,
 };
 
-struct PACKETHDR
+struct SIFCMDHEADER
 {
-	uint32						nSize;
-	uint32						nDest;
-	uint32						nCID;
-	uint32						nOptional;
+	uint32 size;
+	uint32 dest;
+	uint32 commandId;
+	uint32 optional;
 };
+static_assert(sizeof(SIFCMDHEADER) == 0x10, "sizeof(SIFCMDHEADER) must be 16 bytes.");
 
-struct RPCBIND
+struct SIFRPCBIND
 {
-	PACKETHDR					Header;
-	uint32						nRecordID;
-	uint32						nPacketAddr;
-	uint32						nRPCID;
-	uint32						nClientDataAddr;
-	uint32						nSID;
+	SIFCMDHEADER	header;
+	uint32			recordId;
+	uint32			packetAddr;
+	uint32			rpcId;
+	uint32			clientDataAddr;
+	uint32			serverId;
 };
+static_assert(sizeof(SIFRPCBIND) == 0x24, "sizeof(SIFRPCBIND) must be 36 bytes.");
 
-struct RPCCALL
+struct SIFRPCCALL
 {
-	PACKETHDR					Header;
-	uint32						nRecordID;
-	uint32						nPacketAddr;
-	uint32						nRPCID;
-	uint32						nClientDataAddr;
-	uint32						nRPCNumber;
-	uint32						nSendSize;
-	uint32						nRecv;
-	uint32						nRecvSize;
-	uint32						nRecvMode;
-	uint32						nServerDataAddr;
+	SIFCMDHEADER	header;
+	uint32			recordId;
+	uint32			packetAddr;
+	uint32			rpcId;
+	uint32			clientDataAddr;
+	uint32			rpcNumber;
+	uint32			sendSize;
+	uint32			recv;
+	uint32			recvSize;
+	uint32			recvMode;
+	uint32			serverDataAddr;
 };
+static_assert(sizeof(SIFRPCCALL) == 0x38, "sizeof(SIFRPCCALL) must be 56 bytes.");
 
-struct RPCREQUESTEND
+struct SIFRPCREQUESTEND
 {
-	PACKETHDR					Header;
-	uint32						nRecordID;
-	uint32						nPacketAddr;
-	uint32						nRPCID;
-	uint32						nClientDataAddr;
-	uint32						nCID;
-	uint32						nServerDataAddr;
-	uint32						nBuffer;
-	uint32						nClientBuffer;
+	SIFCMDHEADER	header;
+	uint32			recordId;
+	uint32			packetAddr;
+	uint32			rpcId;
+	uint32			clientDataAddr;
+	uint32			commandId;
+	uint32			serverDataAddr;
+	uint32			buffer;
+	uint32			cbuffer;
 };
+static_assert(sizeof(SIFRPCREQUESTEND) == 0x30, "sizeof(SIFRPCREQUESTEND) must be 48 bytes.");
+
+struct SIFRPCOTHERDATA
+{
+	SIFCMDHEADER	header;
+	uint32			recordId;
+	uint32			packetAddr;
+	uint32			rpcId;
+	uint32			receiveDataAddr;
+	uint32			srcPtr;
+	uint32			dstPtr;
+	uint32			size;
+};
+static_assert(sizeof(SIFRPCOTHERDATA) == 0x2C, "sizeof(SIFRPCOTHERDATA) must be 44 bytes.");
 
 struct SIFRPCHEADER
 {

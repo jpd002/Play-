@@ -47,51 +47,39 @@ private:
 		MAX_USERREG = 0x10,
 	};
 
-	struct RPCOTHERDATA
-	{
-		PACKETHDR					Header;
-		uint32						nRecordID;
-		uint32						nPacketAddr;
-		uint32						nRPCID;
-		uint32						nReceiveDataAddr;
-		uint32						nSrcPtr;
-		uint32						nDstPtr;
-		uint32						nSize;
-	};
-
 	struct SETSREG
 	{
-		PACKETHDR					Header;
+		SIFCMDHEADER				Header;
 		uint32						nRegister;
 		uint32						nValue;
 	};
 
 	struct CALLREQUESTINFO
 	{
-		RPCCALL						call;
-		RPCREQUESTEND				reply;
+		SIFRPCCALL					call;
+		SIFRPCREQUESTEND			reply;
 	};
 
 	typedef std::map<uint32, CSifModule*> ModuleMap;
 	typedef std::vector<uint8> PacketQueue;
 	typedef std::map<uint32, CALLREQUESTINFO> CallReplyMap;
-	typedef std::map<uint32, RPCREQUESTEND> BindReplyMap;
+	typedef std::map<uint32, SIFRPCREQUESTEND> BindReplyMap;
 
 	void							DeleteModules();
 
-	void							SaveState_Header(const std::string&, CStructFile&, const PACKETHDR&);
-	void							SaveState_RpcCall(CStructFile&, const RPCCALL&);
-	void							SaveState_RequestEnd(CStructFile&, const RPCREQUESTEND&);
+	void							SaveState_Header(const std::string&, CStructFile&, const SIFCMDHEADER&);
+	void							SaveState_RpcCall(CStructFile&, const SIFRPCCALL&);
+	void							SaveState_RequestEnd(CStructFile&, const SIFRPCREQUESTEND&);
 
-	void							LoadState_Header(const std::string&, const CStructFile&, PACKETHDR&);
-	void							LoadState_RpcCall(const CStructFile&, RPCCALL&);
-	void							LoadState_RequestEnd(const CStructFile&, RPCREQUESTEND&);
+	void							LoadState_Header(const std::string&, const CStructFile&, SIFCMDHEADER&);
+	void							LoadState_RpcCall(const CStructFile&, SIFRPCCALL&);
+	void							LoadState_RequestEnd(const CStructFile&, SIFRPCREQUESTEND&);
 
-	void							Cmd_SetEERecvAddr(PACKETHDR*);
-	void							Cmd_Initialize(PACKETHDR*);
-	void							Cmd_Bind(PACKETHDR*);
-	void							Cmd_Call(PACKETHDR*);
-	void							Cmd_GetOtherData(PACKETHDR*);
+	void							Cmd_SetEERecvAddr(SIFCMDHEADER*);
+	void							Cmd_Initialize(SIFCMDHEADER*);
+	void							Cmd_Bind(SIFCMDHEADER*);
+	void							Cmd_Call(SIFCMDHEADER*);
+	void							Cmd_GetOtherData(SIFCMDHEADER*);
 
 	uint8*							m_eeRam;
 	uint8*							m_iopRam;

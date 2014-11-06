@@ -252,10 +252,10 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 	assert(packetSize >= 0x10);
 
 	uint8* packetData = m_ram + packetPtr;
-	PACKETHDR* header = reinterpret_cast<PACKETHDR*>(packetData);
-	header->nCID = commandId;
-	header->nSize = packetSize;
-	header->nDest = 0;
+	auto header = reinterpret_cast<SIFCMDHEADER*>(packetData);
+	header->commandId = commandId;
+	header->size = packetSize;
+	header->dest = 0;
 	m_sifMan.SendPacket(packetData, packetSize);
 
 	if(sizeExtra != 0)

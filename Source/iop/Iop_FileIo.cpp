@@ -143,13 +143,13 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(PACKETHDR);
+                size_t packetSize = sizeof(SIFCMDHEADER);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
-                header->nCID = 0x80000011;
-                header->nSize = packetSize;
-                header->nDest = 0;
-                header->nOptional = 0;
+                auto header = reinterpret_cast<SIFCMDHEADER*>(callbackPacket);
+                header->commandId = 0x80000011;
+                header->size = packetSize;
+                header->dest = 0;
+                header->optional = 0;
                 m_sifMan.SendPacket(callbackPacket, packetSize);
             }
         }
@@ -172,13 +172,13 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(PACKETHDR);
+                size_t packetSize = sizeof(SIFCMDHEADER);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
-                header->nCID = 0x80000011;
-                header->nSize = packetSize;
-                header->nDest = 0;
-                header->nOptional = 0;
+                auto header = reinterpret_cast<SIFCMDHEADER*>(callbackPacket);
+                header->commandId = 0x80000011;
+                header->size = packetSize;
+                header->dest = 0;
+                header->optional = 0;
                 m_sifMan.SendPacket(callbackPacket, packetSize);
             }
         }
@@ -201,13 +201,13 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(PACKETHDR);
+                size_t packetSize = sizeof(SIFCMDHEADER);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
-                header->nCID = 0x80000011;
-                header->nSize = packetSize;
-                header->nDest = 0;
-                header->nOptional = 0;
+                auto header = reinterpret_cast<SIFCMDHEADER*>(callbackPacket);
+                header->commandId = 0x80000011;
+                header->size = packetSize;
+                header->dest = 0;
+                header->optional = 0;
                 m_sifMan.SendPacket(callbackPacket, packetSize);
             }
         }
@@ -231,13 +231,13 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(PACKETHDR);
+                size_t packetSize = sizeof(SIFCMDHEADER);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
-                header->nCID = 0x80000011;
-                header->nSize = packetSize;
-                header->nDest = 0;
-                header->nOptional = 0;
+                auto header = reinterpret_cast<SIFCMDHEADER*>(callbackPacket);
+                header->commandId = 0x80000011;
+                header->size = packetSize;
+                header->dest = 0;
+                header->optional = 0;
                 m_sifMan.SendPacket(callbackPacket, packetSize);
             }
         }
@@ -262,13 +262,13 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             }
 
             {
-                size_t packetSize = sizeof(PACKETHDR);
+                size_t packetSize = sizeof(SIFCMDHEADER);
                 uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
-                PACKETHDR* header = reinterpret_cast<PACKETHDR*>(callbackPacket);
-                header->nCID = 0x80000011;
-                header->nSize = packetSize;
-                header->nDest = 0;
-                header->nOptional = 0;
+                auto header = reinterpret_cast<SIFCMDHEADER*>(callbackPacket);
+                header->commandId = 0x80000011;
+                header->size = packetSize;
+                header->dest = 0;
+                header->optional = 0;
                 m_sifMan.SendPacket(callbackPacket, packetSize);
             }
         }
