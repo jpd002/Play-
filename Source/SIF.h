@@ -117,5 +117,3 @@ private:
 	CallReplyMap					m_callReplies;
 	BindReplyMap					m_bindReplies;
 };
-
-#endif
