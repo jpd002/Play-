@@ -2226,16 +2226,8 @@ void CPS2OS::sc_SifDmaStat()
 //77
 void CPS2OS::sc_SifSetDma()
 {
-	struct DMAREG
-	{
-		uint32 srcAddr;
-		uint32 dstAddr;
-		uint32 size;
-		uint32 flags;
-	};
-
 	uint32 xferAddress = m_ee.m_State.nGPR[SC_PARAM0].nV[0] & (PS2::EE_RAM_SIZE - 1);
-	DMAREG* xfer = reinterpret_cast<DMAREG*>(m_ram + xferAddress);
+	auto xfer = reinterpret_cast<SIFDMAREG*>(m_ram + xferAddress);
 	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	//Returns count

@@ -11,6 +11,15 @@ enum CONST_SIF_CMD
 	SIF_CMD_OTHERDATA	= 0x8000000C,
 };
 
+struct SIFDMAREG
+{
+	uint32 srcAddr;
+	uint32 dstAddr;
+	uint32 size;
+	uint32 flags;
+};
+static_assert(sizeof(SIFDMAREG) == 0x10, "sizeof(SIFDMAREG) must be 16 bytes.");
+
 struct SIFCMDHEADER
 {
 	uint32 size;

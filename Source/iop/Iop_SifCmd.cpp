@@ -263,11 +263,11 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 		assert(srcExtraPtr != 0);
 		assert(dstExtraPtr != 0);
 
-		uint32* dmaRegStruct = reinterpret_cast<uint32*>(m_ram + m_sendCmdExtraStructAddr);
-		dmaRegStruct[0] = srcExtraPtr;
-		dmaRegStruct[1] = dstExtraPtr;
-		dmaRegStruct[2] = sizeExtra;
-		dmaRegStruct[3] = 0;
+		auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_ram + m_sendCmdExtraStructAddr);
+		dmaReg->srcAddr = srcExtraPtr;
+		dmaReg->dstAddr = dstExtraPtr;
+		dmaReg->size = sizeExtra;
+		dmaReg->flags = 0;
 
 		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
 	}
