@@ -15,6 +15,7 @@ namespace Iop
 		void	SetDmaBuffer(uint32, uint32) override;
 		void	SendCallReply(uint32, const void*) override;
 		void	GetOtherData(uint32, uint32, uint32) override;
+		void	SetCustomCommandHandler(const CustomCommandHandler&) override;
 	};
 }
 

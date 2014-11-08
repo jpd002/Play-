@@ -52,6 +52,11 @@ void CSifManPs2::GetOtherData(uint32 dst, uint32 src, uint32 size)
 	memcpy(dstPtr, srcPtr, size);
 }
 
+void CSifManPs2::SetCustomCommandHandler(const CustomCommandHandler& customCommandHandler)
+{
+	m_sif.SetCustomCommandHandler(customCommandHandler);
+}
+
 uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 {
 	CSifMan::SifSetDma(structAddr, count);

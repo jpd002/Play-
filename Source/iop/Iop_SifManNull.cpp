@@ -36,3 +36,8 @@ void CSifManNull::GetOtherData(uint32, uint32, uint32)
 {
 
 }
+
+void CSifManNull::SetCustomCommandHandler(const CustomCommandHandler&)
+{
+
+}

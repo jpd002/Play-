@@ -171,14 +171,9 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 			Cmd_GetOtherData(hdr);
 			break;
 		default:
+			if(m_customCommandHandler)
 			{
-				SIFCMDHEADER header;
-				header.commandId	= hdr->commandId;
-				header.size			= sizeof(SIFCMDHEADER);
-				header.dest			= 0;
-				header.optional		= 0;
-
-				SendPacket(&header, sizeof(SIFCMDHEADER));
+				m_customCommandHandler(hdr);
 			}
 			break;
 		}
@@ -546,6 +541,11 @@ void CSIF::SendCallReply(uint32 serverId, const void* returnData)
 	}
 	SendPacket(&requestInfo.reply, sizeof(SIFRPCREQUESTEND));
 	m_callReplies.erase(replyIterator);
+}
+
+void CSIF::SetCustomCommandHandler(const CustomCommandHandler& customCommandHandler)
+{
+	m_customCommandHandler = customCommandHandler;
 }
 
 /////////////////////////////////////////////////////////

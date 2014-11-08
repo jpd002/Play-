@@ -1,5 +1,4 @@
-#ifndef _IOP_SIFCMD_H_
-#define _IOP_SIFCMD_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
@@ -58,8 +57,11 @@ namespace Iop
 		void					ClearServers();
 		void					BuildExportTable();
 
+		void					ProcessCustomCommand(const SIFCMDHEADER*);
+
 		uint32					SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
 		uint32					SifBindRpc(uint32, uint32, uint32);
+		void					SifCallRpc(CMIPS&);
 		void					SifRegisterRpc(CMIPS&);
 		uint32					SifCheckStatRpc(uint32);
 		void					SifSetRpcQueue(uint32, uint32);
@@ -78,5 +80,3 @@ namespace Iop
 		DynamicModuleList		m_servers;
 	};
 }
-
-#endif
