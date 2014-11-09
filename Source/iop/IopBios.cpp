@@ -153,7 +153,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_stdio);
 	}
 	{
-		m_sysmem = new Iop::CSysmem(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_sifMan);
+		m_sysmem = new Iop::CSysmem(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_ioman, *m_sifMan);
 		RegisterModule(m_sysmem);
 	}
 	{

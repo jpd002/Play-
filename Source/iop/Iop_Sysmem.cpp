@@ -12,10 +12,12 @@ using namespace Iop;
 
 #define MIN_BLOCK_SIZE  0x20
 
-CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, uint32 blockBase, CStdio& stdio, CSifMan& sifMan) 
-: m_memoryBegin(memoryBegin)
+CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, uint32 blockBase, CStdio& stdio, CIoman& ioman, CSifMan& sifMan)
+: m_iopRam(ram)
+, m_memoryBegin(memoryBegin)
 , m_memoryEnd(memoryEnd)
 , m_stdio(stdio)
+, m_ioman(ioman)
 , m_memorySize(memoryEnd - memoryBegin)
 , m_blocks(reinterpret_cast<BLOCK*>(&ram[blockBase]), 1, MAX_BLOCKS)
 {
@@ -95,6 +97,11 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x02:
 		assert(argsSize == 4);
 		ret[0] = SifFreeMemory(args[0]);
+		break;
+	case 0x03:
+		assert(argsSize >= 4);
+		assert(retSize == 4);
+		ret[0] = SifLoadMemory(args[0], reinterpret_cast<const char*>(args) + 4);
 		break;
 	case 0x04:
 		assert(retSize == 4);
@@ -246,6 +253,23 @@ uint32 CSysmem::SifAllocateSystemMemory(uint32 nSize, uint32 nFlags, uint32 nPtr
 	CLog::GetInstance().Print(LOG_NAME, "result = 0x%0.8X = AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", 
 		result, nFlags, nSize, nPtr);
 	return result;
+}
+
+uint32 CSysmem::SifLoadMemory(uint32 address, const char* filePath)
+{
+	CLog::GetInstance().Print(LOG_NAME, "LoadMemory(address = 0x%0.8X, filePath = '%s');\r\n",
+		address, filePath);
+
+	auto fd = m_ioman.Open(Ioman::CDevice::OPEN_FLAG_RDONLY, filePath);
+	if(static_cast<int32>(fd) < 0)
+	{
+		return fd;
+	}
+	uint32 fileSize = m_ioman.Seek(fd, 0, CIoman::SEEK_DIR_END);
+	m_ioman.Seek(fd, 0, CIoman::SEEK_DIR_SET);
+	m_ioman.Read(fd, fileSize, m_iopRam + address);
+	m_ioman.Close(fd);
+	return 0;
 }
 
 uint32 CSysmem::SifFreeMemory(uint32 address)
