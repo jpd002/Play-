@@ -188,13 +188,13 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 		Framework::CStream* stream = GetFileStream(handle);
 		switch(whence)
 		{
-		case 0:
+		case SEEK_DIR_SET:
 			whence = Framework::STREAM_SEEK_SET;
 			break;
-		case 1:
+		case SEEK_DIR_CUR:
 			whence = Framework::STREAM_SEEK_CUR;
 			break;
-		case 2:
+		case SEEK_DIR_END:
 			whence = Framework::STREAM_SEEK_END;
 			break;
 		}

@@ -17,6 +17,13 @@ namespace Iop
 			FID_STDERR = 2
 		};
 
+		enum
+		{
+			SEEK_DIR_SET = 0,
+			SEEK_DIR_CUR = 1,
+			SEEK_DIR_END = 2
+		};
+
 		class CFile
 		{
 		public:
