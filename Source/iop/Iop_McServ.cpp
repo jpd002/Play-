@@ -103,7 +103,7 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 	}
 	if(wantFreeSpace)
 	{
-		retBuffer[0x01] = 0x800000;
+		retBuffer[0x01] = 0x2000;		//Number of clusters, cluster size = 1024 bytes
 	}
 	if(wantFormatted)
 	{
