@@ -119,10 +119,12 @@ namespace Iop
 		void				Flush(uint32*, uint32, uint32*, uint32, uint8*);
 		void				ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetDir(uint32*, uint32, uint32*, uint32, uint8*);
+		void				Delete(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
-		uint32					GenerateHandle();
-		Framework::CStdStream*	GetFileFromHandle(uint32);
+		uint32						GenerateHandle();
+		Framework::CStdStream*		GetFileFromHandle(uint32);
+		boost::filesystem::path		GetAbsoluteFilePath(unsigned int, unsigned int, const char*) const;
 
 		Framework::CStdStream		m_files[MAX_FILES];
 		static const char*			m_mcPathPreference[2];

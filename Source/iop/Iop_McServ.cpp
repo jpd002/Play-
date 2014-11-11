@@ -72,6 +72,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x0D:
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;
+	case 0x0F:
+		Delete(args, argsSize, ret, retSize, ram);
+		break;
 	case 0xFE:
 		//Get version?
 		GetVersionInformation(args, argsSize, ret, retSize, ram);
@@ -138,17 +141,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 	try
 	{
-		filesystem::path mcPath = filesystem::path(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[cmd->port]));
-		filesystem::path requestedFilePath(cmd->name);
-
-		if(!requestedFilePath.root_directory().empty())
-		{
-			filePath = mcPath / requestedFilePath;
-		}
-		else
-		{
-			filePath = mcPath / m_currentDirectory / requestedFilePath;
-		}
+		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
 	}
 	catch(const std::exception& exception)
 	{
@@ -456,6 +449,36 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	ret[0] = result;
 }
 
+void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	auto cmd = reinterpret_cast<const CMD*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "Delete(port = %d, slot = %d, name = '%s');\r\n", cmd->port, cmd->slot, cmd->name);
+
+	boost::filesystem::path filePath;
+
+	try
+	{
+		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+	}
+	catch(const std::exception& exception)
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Error while executing Delete: %s\r\n.", exception.what());
+		ret[0] = -1;
+		return;
+	}
+
+	if(boost::filesystem::exists(filePath))
+	{
+		boost::filesystem::remove(filePath);
+		ret[0] = 0;
+	}
+	else
+	{
+		ret[0] = -1;
+	}
+}
+
 void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(argsSize == 0x30);
@@ -490,6 +513,21 @@ Framework::CStdStream* CMcServ::GetFileFromHandle(uint32 handle)
 		return nullptr;
 	}
 	return &file;
+}
+
+boost::filesystem::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, const char* name) const
+{
+	auto mcPath = filesystem::path(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[port]));
+	auto requestedFilePath = boost::filesystem::path(name);
+
+	if(!requestedFilePath.root_directory().empty())
+	{
+		return mcPath / requestedFilePath;
+	}
+	else
+	{
+		return mcPath / m_currentDirectory / requestedFilePath;
+	}
 }
 
 /////////////////////////////////////////////
