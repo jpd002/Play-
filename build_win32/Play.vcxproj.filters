@@ -1280,6 +1280,7 @@
     <None Include="..\Source\win32ui\FrameDebugger\PixelBufferViewShader.fx">
       <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Source\win32ui\Res.rc">
