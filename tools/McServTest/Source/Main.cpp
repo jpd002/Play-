@@ -39,39 +39,64 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 	Iop::CSifManNull sifMan;
 	Iop::CMcServ mcServ(sifMan);
 
-	uint32 result = 0;
-
-	Iop::CMcServ::CMD cmd;
-	memset(&cmd, 0, sizeof(cmd));
-	cmd.maxEntries = test.maxEntries;
-	assert(test.query.length() <= sizeof(cmd.name));
-	strncpy(cmd.name, test.query.c_str(), sizeof(cmd.name));
-
-	std::vector<Iop::CMcServ::ENTRY> entries;
-	entries.resize(cmd.maxEntries);
-	mcServ.Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
-
-	assert(result == test.result);
-	for(unsigned int i = 0; i < test.entries.size(); i++)
+	if(!test.currentDirectory.empty())
 	{
-		const auto& entry = entries[i];
-		const auto& refEntry = test.entries[i];
-		if(strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()))
+		uint32 result = 0;
+
+		Iop::CMcServ::CMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		assert(test.currentDirectory.size() <= sizeof(cmd.name));
+		strncpy(cmd.name, test.currentDirectory.c_str(), sizeof(cmd.name));
+
+		mcServ.Invoke(0xC, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+	}
+
+	{
+		uint32 result = 0;
+
+		Iop::CMcServ::CMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.maxEntries = test.maxEntries;
+		assert(test.query.length() <= sizeof(cmd.name));
+		strncpy(cmd.name, test.query.c_str(), sizeof(cmd.name));
+
+		std::vector<Iop::CMcServ::ENTRY> entries;
+		if(cmd.maxEntries > 0)
 		{
-			assert(0);
+			entries.resize(cmd.maxEntries);
+		}
+		mcServ.Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+
+		assert(result == test.result);
+		for(unsigned int i = 0; i < test.entries.size(); i++)
+		{
+			const auto& entry = entries[i];
+			const auto& refEntry = test.entries[i];
+			if(strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()))
+			{
+				assert(0);
+			}
 		}
 	}
 }
 
 int main(int argc, const char** argv)
 {
-	CGameTestSheet testSheet(Framework::CStdStream("./tests/HalfLife.xml", "rb"));
+	auto testsPath = boost::filesystem::path("./tests/");
 
-	for(const auto& test : testSheet.GetTests())
+	boost::filesystem::directory_iterator endDirectoryIterator;
+	for(boost::filesystem::directory_iterator directoryIterator(testsPath);
+		directoryIterator != endDirectoryIterator; directoryIterator++)
 	{
-		auto environment = testSheet.GetEnvironment(test.environmentId);
-		PrepareTestEnvironment(environment);
-		ExecuteTest(test);
+		auto testPath = directoryIterator->path();
+		CGameTestSheet testSheet(Framework::CreateInputStdStream(testPath.native()));
+
+		for(const auto& test : testSheet.GetTests())
+		{
+			auto environment = testSheet.GetEnvironment(test.environmentId);
+			PrepareTestEnvironment(environment);
+			ExecuteTest(test);
+		}
 	}
 
 	return 0;

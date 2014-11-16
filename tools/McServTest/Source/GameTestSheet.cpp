@@ -79,6 +79,7 @@ void CGameTestSheet::ParseSheet(Framework::CStream& stream)
 			test.environmentId = Framework::Xml::GetAttributeIntValue(testNode, "EnvironmentId");
 			test.maxEntries = Framework::Xml::GetAttributeIntValue(testNode, "MaxEntries");
 			test.result = Framework::Xml::GetAttributeIntValue(testNode, "Result");
+			Framework::Xml::GetAttributeStringValue(testNode, "CurrentDirectory", &test.currentDirectory);
 			auto entryNodes = testNode->SelectNodes("Entry");
 			for(const auto& entryNode : entryNodes)
 			{

@@ -32,6 +32,7 @@ public:
 		uint32			environmentId = 0;
 		int32			maxEntries = 0;
 		int32			result = 0;
+		std::string		currentDirectory;
 		EntryArray		entries;
 	};
 	typedef std::vector<TEST> TestArray;

@@ -24,7 +24,7 @@
 		<Test Query="BESLES-50504SYSTEM/system.cfg" EnvironmentId="1" MaxEntries="1" Result="1">
 			<Entry Name="system.cfg" />
 		</Test>
-		<!-- This should return only one entry -->
+		<!-- This probably should return only one entry -->
 		<Test Query="BESLES-50504valve*" EnvironmentId="2" MaxEntries="10" Result="7">
 			<Entry Name="BESLES-50504valve0" />
 			<Entry Name="BESLES-50504valve0" />
