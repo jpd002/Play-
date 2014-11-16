@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include <boost/filesystem/operations.hpp>
+#include <boost/algorithm/string.hpp>
 #include "../AppConfig.h"
 #include "../Log.h"
 #include "Iop_McServ.h"
@@ -400,7 +400,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	assert(argsSize >= 0x414);
 
-	CMD* cmd = reinterpret_cast<CMD*>(args);
+	auto cmd = reinterpret_cast<const CMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%0.8X, name = %s);\r\n",
 		cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
@@ -558,23 +558,24 @@ void CMcServ::CPathFinder::Reset()
 
 void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const char* filter)
 {
-	m_basePath	= basePath;
-	m_filter	= filter;
+	m_basePath = basePath;
 
-	if(m_filter[0] != '/')
+	std::string filterPathString = filter;
+	if(filterPathString[0] != '/')
 	{
-		m_filter = "/" + m_filter;
-	}
-	if(m_filter.find('?') != std::string::npos)
-	{
-		m_matcher = &CPathFinder::QuestionMarkFilterMatcher;
-	}
-	else
-	{
-		m_matcher = &CPathFinder::StarFilterMatcher;
+		filterPathString = "/" + filterPathString;
 	}
 
-	auto filterPath = boost::filesystem::path(m_filter);
+	{
+		std::string filterExpString = filterPathString;
+		boost::replace_all(filterExpString, "\\", "\\\\");
+		boost::replace_all(filterExpString, ".", "\\.");
+		boost::replace_all(filterExpString, "?", ".");
+		boost::replace_all(filterExpString, "*", ".*");
+		m_filterExp = std::regex(filterExpString);
+	}
+
+	auto filterPath = boost::filesystem::path(filterPathString);
 	filterPath.remove_filename();
 
 	auto currentDirPath = filterPath / ".";
@@ -582,7 +583,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 	auto currentDirPathString = currentDirPath.generic_string();
 	auto parentDirPathString = parentDirPath.generic_string();
 
-	if((*this.*m_matcher)(currentDirPathString.c_str()))
+	if(std::regex_match(currentDirPathString, m_filterExp))
 	{
 		ENTRY entry;
 		memset(&entry, 0, sizeof(entry));
@@ -592,7 +593,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 		m_entries.push_back(entry);
 	}
 
-	if((*this.*m_matcher)(parentDirPathString.c_str()))
+	if(std::regex_match(parentDirPathString, m_filterExp))
 	{
 		ENTRY entry;
 		memset(&entry, 0, sizeof(entry));
@@ -632,7 +633,7 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 		relativePathString.erase(0, m_basePath.string().size());
 
 		//Attempt to match this against the filter
-		if((*this.*m_matcher)(relativePathString.c_str()))
+		if(std::regex_match(relativePathString, m_filterExp))
 		{
 			//Fill in the information
 			ENTRY entry;
@@ -676,71 +677,4 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 			SearchRecurse(*elementIterator);
 		}
 	}
-}
-
-//Based on an algorithm found on http://xoomer.alice.it/acantato/dev/wildcard/wildmatch.html
-bool CMcServ::CPathFinder::StarFilterMatcher(const char* path)
-{
-	const char* pattern = m_filter.c_str();
-	bool star = false;
-
-	const char* s(nullptr);
-	const char* p(nullptr);
-
-_loopStart:
-
-	for(s = path, p = pattern; *s; s++, p++)
-	{
-		switch(*p)
-		{
-		case '*':
-			star = true;
-			path = s;
-			pattern = p;
-			if((*++p) == 0) return true;
-			goto _loopStart;
-			break;
-		default:
-			if(toupper(*s) != toupper(*p))
-			{
-				goto _starCheck;
-			}
-			break;
-		}
-	}
-
-	if(*p == '*') p++;
-	return (*p) == 0;
-
-_starCheck:
-	if(!star) return false;
-	path++;
-	goto _loopStart;
-}
-
-bool CMcServ::CPathFinder::QuestionMarkFilterMatcher(const char* path)
-{
-	const char* src = m_filter.c_str();
-	const char* dst = path;
-
-	while(1)
-	{
-		if(*src == 0 && *dst == 0)
-		{
-			return true;
-		}
-
-		if(*src == 0) return false;
-		if(*dst == 0) return false;
-
-		if(*src != '?')
-		{
-			if(*src != *dst) return false;
-		}
-
-		src++;
-		dst++;
-	}
-
-	return false;
 }

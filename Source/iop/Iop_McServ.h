@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <regex>
 #include <boost/filesystem.hpp>
 #include "StdStream.h"
 #include "Iop_Module.h"
@@ -99,17 +100,13 @@ namespace Iop
 
 		private:
 			typedef std::vector<ENTRY> EntryList;
-			typedef bool (CPathFinder::*StringMatcher)(const char*);
 
 			void						SearchRecurse(const boost::filesystem::path&);
-			bool						StarFilterMatcher(const char*);
-			bool						QuestionMarkFilterMatcher(const char*);
 
 			EntryList					m_entries;
 			boost::filesystem::path		m_basePath;
-			std::string					m_filter;
+			std::regex					m_filterExp;
 			unsigned int				m_index;
-			StringMatcher				m_matcher;
 		};
 
 		void				GetInfo(uint32*, uint32, uint32*, uint32, uint8*);
