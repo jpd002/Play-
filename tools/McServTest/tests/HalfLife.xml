@@ -1,0 +1,45 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BESLES-50504SYSTEM" />
+			<File Name="/BESLES-50504SYSTEM/BESLES-50504SYSTEM" Size="36" />
+			<File Name="/BESLES-50504SYSTEM/icon.sys" Size="964" />
+			<File Name="/BESLES-50504SYSTEM/lambda.ico" Size="35992" />
+			<File Name="/BESLES-50504SYSTEM/system.cfg" Size="8228" />
+		</Environment>
+		<Environment Id="2">
+			<Directory Name="/BESLES-50504valve0" />
+			<File Name="/BESLES-50504valve0/BESLES-50504valve0" Size="36" />
+			<File Name="/BESLES-50504valve0/copygord.ico" Size="128328" />
+			<File Name="/BESLES-50504valve0/icon.sys" Size="964" />
+			<File Name="/BESLES-50504valve0/idlegord.ico" Size="128328" />
+			<File Name="/BESLES-50504valve0/save0.sav" Size="59724" />
+			<File Name="/BESLES-50504valve0/save2.sav" Size="11013" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="BESLES-50504SYSTEM/icon.sys" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
+		<Test Query="BESLES-50504SYSTEM/system.cfg" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="system.cfg" />
+		</Test>
+		<!-- This should return only one entry -->
+		<Test Query="BESLES-50504valve*" EnvironmentId="2" MaxEntries="10" Result="7">
+			<Entry Name="BESLES-50504valve0" />
+			<Entry Name="BESLES-50504valve0" />
+			<Entry Name="copygord.ico" />
+			<Entry Name="icon.sys" />
+			<Entry Name="idlegord.ico" />
+			<Entry Name="save0.sav" />
+			<Entry Name="save2.sav" />
+		</Test>
+		<Test Query="BESLES-50504valve0/icon.sys" EnvironmentId="2" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
+		<Test Query="BESLES-50504valve0/save*.sav" EnvironmentId="2" MaxEntries="10" Result="2">
+			<Entry Name="save0.sav" />
+			<Entry Name="save2.sav" />
+		</Test>
+	</Tests>
+</Game>

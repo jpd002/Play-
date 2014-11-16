@@ -26,6 +26,11 @@ CMcServ::~CMcServ()
 
 }
 
+const char* CMcServ::GetMcPathPreference(unsigned int port)
+{
+	return m_mcPathPreference[port];
+}
+
 std::string CMcServ::GetId() const
 {
 	return "mcserv";

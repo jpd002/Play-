@@ -13,8 +13,43 @@ namespace Iop
 	class CMcServ : public CModule, public CSifModule
 	{
 	public:
+		struct CMD
+		{
+			uint32	port;
+			uint32	slot;
+			uint32	flags;
+			uint32	maxEntries;
+			uint32	tableAddress;
+			char	name[0x400];
+		};
+		static_assert(sizeof(CMD) == 0x414, "Size of CMD structure must be 0x414 bytes.");
+
+		struct ENTRY
+		{
+			struct TIME
+			{
+				uint8	unknown;
+				uint8	second;
+				uint8	minute;
+				uint8	hour;
+				uint8	day;
+				uint8	month;
+				uint16	year;
+			};
+
+			TIME	creationTime;
+			TIME	modificationTime;
+			uint32	size;
+			uint16	attributes;
+			uint16	reserved0;
+			uint32	reserved1[2];
+			uint8	name[0x20];
+		};
+
 							CMcServ(CSifMan&);
 		virtual				~CMcServ();
+
+		static const char*	GetMcPathPreference(unsigned int);
 
 		std::string			GetId() const override;
 		std::string			GetFunctionName(unsigned int) const override;
@@ -40,17 +75,6 @@ namespace Iop
 			MAX_FILES = 5
 		};
 
-		struct CMD
-		{
-			uint32	port;
-			uint32	slot;
-			uint32	flags;
-			int32	maxEntries;
-			uint32	tableAddress;
-			char	name[0x400];
-		};
-		static_assert(sizeof(CMD) == 0x414, "Size of CMD structure must be 0x414 bytes.");
-
 		struct FILECMD
 		{
 			uint32	handle;
@@ -61,28 +85,6 @@ namespace Iop
 			uint32	bufferAddress;
 			uint32	paramAddress;
 			char	data[16];
-		};
-
-		struct ENTRY
-		{
-			struct TIME
-			{
-				uint8	unknown;
-				uint8	second;
-				uint8	minute;
-				uint8	hour;
-				uint8	day;
-				uint8	month;
-				uint16	year;
-			};
-
-			TIME	creationTime;
-			TIME	modificationTime;
-			uint32	size;
-			uint16	attributes;
-			uint16	reserved0;
-			uint32	reserved1[2];
-			uint8	name[0x20];
 		};
 
 		class CPathFinder
