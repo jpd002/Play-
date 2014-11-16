@@ -131,6 +131,7 @@ void CFileIo::CFileIoHandler3100::Invoke(uint32 method, uint32* args, uint32 arg
             *ret = m_ioman->Open(command->flags, command->fileName);
 
             //Send response
+			if(resultPtr[0] != 0)
             {
                 OPENREPLY reply;
                 reply.header.commandId = 0;
