@@ -18,7 +18,7 @@ namespace Iop
 			uint32	port;
 			uint32	slot;
 			uint32	flags;
-			uint32	maxEntries;
+			int32	maxEntries;
 			uint32	tableAddress;
 			char	name[0x400];
 		};
