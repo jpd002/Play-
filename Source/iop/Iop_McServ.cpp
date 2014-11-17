@@ -419,7 +419,10 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			m_pathFinder.Reset();
 
 			filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[cmd->port]));
-			mcPath /= m_currentDirectory;
+			if(cmd->name[0] != '/')
+			{
+				mcPath /= m_currentDirectory;
+			}
 			mcPath = filesystem::absolute(mcPath);
 
 			if(!filesystem::exists(mcPath))
@@ -441,10 +444,8 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			m_pathFinder.Search(mcPath, cmd->name);
 		}
 
-		if(cmd->maxEntries > 0)
-		{
-			result = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[cmd->tableAddress]), cmd->maxEntries);
-		}
+		auto entries = (cmd->maxEntries > 0) ? reinterpret_cast<ENTRY*>(&ram[cmd->tableAddress]) : nullptr;
+		result = m_pathFinder.Read(entries, cmd->maxEntries);
 	}
 	catch(const std::exception& exception)
 	{
@@ -611,9 +612,12 @@ unsigned int CMcServ::CPathFinder::Read(ENTRY* entry, unsigned int size)
 	assert(m_index <= m_entries.size());
 	unsigned int remaining = m_entries.size() - m_index;
 	unsigned int readCount = std::min<unsigned int>(remaining, size);
-	for(unsigned int i = 0; i < readCount; i++)
+	if(entry != nullptr)
 	{
-		entry[i] = m_entries[i + m_index];
+		for(unsigned int i = 0; i < readCount; i++)
+		{
+			entry[i] = m_entries[i + m_index];
+		}
 	}
 	m_index += readCount;
 	return readCount;
