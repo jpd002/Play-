@@ -23,6 +23,12 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 6:
+		return "toupper";
+		break;
+	case 7:
+		return "tolower";
+		break;
 	case 8:
 		return "look_ctype_table";
 		break;
@@ -72,6 +78,14 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nD0 = toupper(
+			context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = tolower(
+			context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __look_ctype_table(
 			context.m_State.nGPR[CMIPS::A0].nV0);
