@@ -156,7 +156,8 @@ void CGSH_Direct3D9::FlattenClut(const TEX0& tex0, uint32* dstClut)
 
 			for(unsigned int i = 0; i < 16; i++)
 			{
-				dstClut[i] = RGBA16ToRGBA32(m_pCLUT[i + clutOffset]);
+				uint32 color = RGBA16ToRGBA32(m_pCLUT[i + clutOffset]);
+				dstClut[i] = Color_Ps2ToDx9(color);
 			}
 		}
 	}
@@ -181,7 +182,8 @@ void CGSH_Direct3D9::FlattenClut(const TEX0& tex0, uint32* dstClut)
 		{
 			for(unsigned int i = 0; i < 256; i++)
 			{
-				dstClut[i] = RGBA16ToRGBA32(m_pCLUT[i]);
+				uint32 color = RGBA16ToRGBA32(m_pCLUT[i]);
+				dstClut[i] = Color_Ps2ToDx9(color);
 			}
 		}
 	}
