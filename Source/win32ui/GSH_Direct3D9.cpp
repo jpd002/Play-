@@ -774,36 +774,30 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 
 	if(tst.nAlphaEnabled)
 	{
-		unsigned int alphaFunc = D3DCMP_NEVER;
-
-		switch(tst.nAlphaMethod)
+		static const D3DCMPFUNC g_alphaTestFunc[ALPHA_TEST_MAX] =
 		{
-		case 0:
-			alphaFunc = D3DCMP_NEVER;
-			break;
-		case 1:
-			alphaFunc = D3DCMP_ALWAYS;
-			break;
-		case 2:
-			alphaFunc = D3DCMP_LESS;
-			break;
-		case 5:
-			alphaFunc = D3DCMP_GREATEREQUAL;
-			break;
-		case 6:
-			alphaFunc = D3DCMP_GREATER;
-			break;
-		case 7:
-			alphaFunc = D3DCMP_NOTEQUAL;
-			break;
-		default:
-			assert(0);
-			break;
-		}
+			D3DCMP_NEVER,
+			D3DCMP_ALWAYS,
+			D3DCMP_LESS,
+			D3DCMP_LESSEQUAL,
+			D3DCMP_EQUAL,
+			D3DCMP_GREATEREQUAL,
+			D3DCMP_GREATER,
+			D3DCMP_NOTEQUAL
+		};
 
-		m_device->SetRenderState(D3DRS_ALPHAFUNC, alphaFunc);
-		m_device->SetRenderState(D3DRS_ALPHAREF, tst.nAlphaRef);
-		m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
+		//Special way of turning off depth writes:
+		//Always fail alpha testing but write RGBA and not depth if it fails
+		if(tst.nAlphaMethod == ALPHA_TEST_NEVER && tst.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
+		{
+			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_FALSE);
+		}
+		else
+		{
+			m_device->SetRenderState(D3DRS_ALPHAFUNC, g_alphaTestFunc[tst.nAlphaMethod]);
+			m_device->SetRenderState(D3DRS_ALPHAREF, tst.nAlphaRef);
+			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
+		}
 	}
 	else
 	{

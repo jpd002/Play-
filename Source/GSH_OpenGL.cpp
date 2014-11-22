@@ -678,45 +678,28 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 
 	if(tst.nAlphaEnabled)
 	{
-		unsigned int nFunc = GL_NEVER;
-		switch(tst.nAlphaMethod)
+		static const GLenum g_alphaTestFunc[ALPHA_TEST_MAX] =
 		{
-		case 0:
-			nFunc = GL_NEVER;
-			break;
-		case 1:
-			nFunc = GL_ALWAYS;
-			break;
-		case 2:
-			nFunc = GL_LESS;
-			break;
-		case 4:
-			nFunc = GL_EQUAL;
-			break;
-		case 5:
-			nFunc = GL_GEQUAL;
-			break;
-		case 6:
-			nFunc = GL_GREATER;
-			break;
-		case 7:
-			nFunc = GL_NOTEQUAL;
-			break;
-		default:
-			assert(0);
-			break;
-		}
+			GL_NEVER,
+			GL_ALWAYS,
+			GL_LESS,
+			GL_LEQUAL,
+			GL_EQUAL,
+			GL_GEQUAL,
+			GL_GREATER,
+			GL_NOTEQUAL
+		};
 
 		//Special way of turning off depth writes:
 		//Always fail alpha testing but write RGBA and not depth if it fails
-		if(tst.nAlphaMethod == 0 && tst.nAlphaFail == 1)
+		if(tst.nAlphaMethod == ALPHA_TEST_NEVER && tst.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
 		{
 			glDisable(GL_ALPHA_TEST);
 		}
 		else
 		{
 			float nValue = (float)tst.nAlphaRef / 255.0f;
-			glAlphaFunc(nFunc, nValue);
+			glAlphaFunc(g_alphaTestFunc[tst.nAlphaMethod], nValue);
 
 			glEnable(GL_ALPHA_TEST);
 		}
