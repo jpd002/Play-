@@ -27,6 +27,8 @@ CVu1Vm::CVu1Vm()
 
 		m_vu1.m_pArch			= &m_maVu1;
 		m_vu1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
+
+		m_vu1.m_vuMem = m_vuMem1;
 	}
 
 	Reset();
