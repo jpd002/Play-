@@ -48,8 +48,6 @@ void CGsContextView::UpdateBufferView()
 	{
 		uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
 		auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
-		framebuffer = framebuffer.ResizeCanvas(640, 200);
-		framebuffer = framebuffer.Resize(640, 400);
 		m_bufferView->SetBitmap(framebuffer);
 	}
 	else if(m_bufferSelectionTab->GetSelection() == 1)

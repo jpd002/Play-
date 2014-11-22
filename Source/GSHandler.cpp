@@ -384,6 +384,16 @@ uint64* CGSHandler::GetRegisters()
 	return m_nReg;
 }
 
+uint64 CGSHandler::GetSMODE2() const
+{
+	return m_nSMODE2;
+}
+
+void CGSHandler::SetSMODE2(uint64 value)
+{
+	m_nSMODE2 = value;
+}
+
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
 {
 	m_mailBox.SendCall(std::bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));

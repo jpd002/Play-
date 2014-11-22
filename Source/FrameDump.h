@@ -58,6 +58,9 @@ public:
 	uint8*					GetInitialGsRam();
 	uint64*					GetInitialGsRegisters();
 
+	uint64					GetInitialSMODE2() const;
+	void					SetInitialSMODE2(uint64);
+
 	const PacketArray&		GetPackets() const;
 	void					AddPacket(const CGSHandler::RegisterWrite*, uint32, const CGsPacketMetadata*);
 
@@ -65,7 +68,8 @@ public:
 	void					Write(Framework::CStream&) const;
 
 private:
-	uint8*					m_initialGsRam;
+	uint8*					m_initialGsRam = nullptr;
 	uint64					m_initialGsRegisters[CGSHandler::REGISTER_MAX];
+	uint64					m_initialSMODE2 = 0;
 	PacketArray				m_packets;
 };

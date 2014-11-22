@@ -185,6 +185,7 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	uint64* gsRegisters = m_gs->GetRegisters();
 	memcpy(gsRam, m_frameDump.GetInitialGsRam(), CGSHandler::RAMSIZE);
 	memcpy(gsRegisters, m_frameDump.GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+	m_gs->SetSMODE2(m_frameDump.GetInitialSMODE2());
 
 	CGsPacket::WriteArray writes;
 

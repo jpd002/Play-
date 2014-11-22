@@ -509,9 +509,17 @@ public:
 	
 	uint8*									GetRam();
 	uint64*									GetRegisters();
+	
+	uint64									GetSMODE2() const;
+	void									SetSMODE2(uint64);
 
 	int										GetPendingTransferCount() const;
 	bool									IsInterruptPending();
+
+	unsigned int							GetCrtWidth() const;
+	unsigned int							GetCrtHeight() const;
+	bool									GetCrtIsInterlaced() const;
+	bool									GetCrtIsFrameMode() const;
 
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
 
@@ -613,11 +621,6 @@ protected:
 
 	void									LogWrite(uint8, uint64);
 	void									LogPrivateWrite(uint32);
-
-	unsigned int							GetCrtWidth() const;
-	unsigned int							GetCrtHeight() const;
-	bool									GetCrtIsInterlaced() const;
-	bool									GetCrtIsFrameMode() const;
 
 	void									LoadSettings();
 	void									WriteToDelayedRegister(uint32, uint32, DELAYED_REGISTER&);
