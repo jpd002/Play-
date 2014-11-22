@@ -485,8 +485,8 @@ public:
 	bool									GetDrawEnabled() const;
 	void									SetDrawEnabled(bool);
 
-	virtual void							WritePrivRegister(uint32, uint32);
-	virtual uint32							ReadPrivRegister(uint32);
+	void									WritePrivRegister(uint32, uint32);
+	uint32									ReadPrivRegister(uint32);
 	
 	void									SetLoggingEnabled(bool);
 	static std::string						DisassembleWrite(uint8, uint64);
