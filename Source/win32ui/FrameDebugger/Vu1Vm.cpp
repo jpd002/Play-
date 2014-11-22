@@ -30,8 +30,6 @@ CVu1Vm::CVu1Vm()
 	}
 
 	Reset();
-
-//	m_thread = std::thread([&] () { ThreadProc(); });
 }
 
 CVu1Vm::~CVu1Vm()
@@ -124,15 +122,3 @@ uint32 CVu1Vm::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 	}
 	return 0;
 }
-
-//void CVu1Vm::ThreadProc()
-//{
-//	while(!m_threadDone)
-//	{
-//		while(m_mailBox.IsPending())
-//		{
-//			m_mailBox.ReceiveCall();
-//		}
-//		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//	}
-//}
