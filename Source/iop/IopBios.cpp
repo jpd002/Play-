@@ -637,7 +637,14 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 	thread->context.epc = thread->threadProc;
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
-	m_rescheduleNeeded = true;
+
+	// If the thread we are starting is the same priority or lower than the current one, do yield.
+	// If may be that the correct action is never to yield - the docs aren't really clear.
+	// INET.IRX depends on startThread not yielding when starting a thread of the same priority.
+	THREAD* currentThread = GetThread(CurrentThreadId());
+	if (currentThread == nullptr || currentThread->priority < thread->priority){
+		m_rescheduleNeeded = true;
+	}
 }
 
 void CIopBios::ExitThread()
