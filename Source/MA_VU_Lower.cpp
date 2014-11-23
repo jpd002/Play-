@@ -629,7 +629,7 @@ void CMA_VU::CLower::ESIN()
 		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
 		for(unsigned int j = 0; j < exponent - 1; j++)
 		{
-			m_codeGen->PushTop();
+			m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
 			m_codeGen->FP_Mul();
 		}
 
