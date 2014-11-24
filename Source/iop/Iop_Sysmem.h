@@ -50,6 +50,8 @@ namespace Iop
 		uint32					SifLoadMemory(uint32, const char*);
 		uint32					SifFreeMemory(uint32);
 
+		uint32					QueryMaxFreeMemSize();
+
 		uint8*					m_iopRam = nullptr;
 		BlockListType			m_blocks;
 		uint32					m_memoryBegin;

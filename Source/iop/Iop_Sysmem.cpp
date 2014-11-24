@@ -9,6 +9,8 @@ using namespace Iop;
 #define FUNCTION_ALLOCATEMEMORY		"AllocateMemory"
 #define FUNCTION_FREEMEMORY			"FreeMemory"
 #define FUNCTION_PRINTF				"printf"
+#define FUNCTION_QUERY_MEM_SIZE		"QueryMemSize"
+#define FUNCTION_QUERY_MAX_FREE_MEM_SIZE "QueryMaxFreeMemSize"
 
 #define MIN_BLOCK_SIZE  0x20
 
@@ -52,6 +54,12 @@ std::string CSysmem::GetFunctionName(unsigned int functionId) const
 	case 5:
 		return FUNCTION_FREEMEMORY;
 		break;
+	case 6:
+		return FUNCTION_QUERY_MEM_SIZE;
+		break;
+	case 7:
+		return FUNCTION_QUERY_MAX_FREE_MEM_SIZE;
+		break;
 	case 14:
 		return FUNCTION_PRINTF;
 		break;
@@ -76,6 +84,12 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(FreeMemory(
 			context.m_State.nGPR[CMIPS::A0].nV[0]
 			));
+		break;
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nD0 = m_memorySize;
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = QueryMaxFreeMemSize();
 		break;
 	case 14:
 		m_stdio.__printf(context);
@@ -107,11 +121,37 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		assert(retSize == 4);
 		ret[0] = SifAllocateSystemMemory(args[0], args[1], args[2]);
 		break;
+	case 0x06:
+		ret[0] = m_memorySize;
+		break;
+	case 0x07:
+		ret[0] = QueryMaxFreeMemSize();
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
 		break;
 	}
 	return true;
+}
+
+uint32 CSysmem::QueryMaxFreeMemSize()
+{
+	uint32 maxSize = 0;
+	uint32 begin = 0;
+	uint32* nextBlockId = &m_headBlockId;
+	BLOCK* nextBlock = m_blocks[*nextBlockId];
+	while (nextBlock != NULL)
+	{
+		uint32 end = nextBlock->address;
+		if ((end - begin) >= maxSize)
+		{
+			maxSize = end - begin;
+		}
+		begin = nextBlock->address + nextBlock->size;
+		nextBlockId = &nextBlock->nextBlock;
+		nextBlock = m_blocks[*nextBlockId];
+	}
+	return maxSize;
 }
 
 uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
