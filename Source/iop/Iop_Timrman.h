@@ -25,8 +25,8 @@ namespace Iop
 		void			SetTimerCompare(CMIPS&, uint32, uint32);
 		int				GetHardTimerIntrCode(uint32);
 		int				SetTimerCallback(CMIPS&, int, uint32, uint32, uint32);
-		int				UnknownTimerFunction22(uint32, uint32, uint32, uint32);
-		int				UnknownTimerFunction23(uint32);
+		int				SetupHardTimer(uint32, uint32, uint32, uint32);
+		int				StartHardTimer(uint32);
 
 		CIopBios&		m_bios;
 	};

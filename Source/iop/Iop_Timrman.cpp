@@ -14,8 +14,8 @@
 #define FUNCTION_SETTIMERCOMPARE		"SetTimerCompare"
 #define FUNCTION_GETHARDTIMERINTRCODE	"GetHardTimerIntrCode"
 #define FUNCTION_SETTIMERCALLBACK		"SetTimerCallback"
-#define FUNCTION_UNKNOWNTIMERFUNCTION22	"UnknownTimerFunction22"
-#define FUNCTION_UNKNOWNTIMERFUNCTION23	"UnknownTimerFunction23"
+#define FUNCTION_SETUPHARDTIMER			"SetupHardTimer"
+#define FUNCTION_STARTHARDTIMER			"StartHardTimer"
 
 using namespace Iop;
 
@@ -61,10 +61,10 @@ std::string CTimrman::GetFunctionName(unsigned int functionId) const
 		return FUNCTION_SETTIMERCALLBACK;
 		break;
 	case 22:
-		return FUNCTION_UNKNOWNTIMERFUNCTION22;
+		return FUNCTION_SETUPHARDTIMER;
 		break;
 	case 23:
-		return FUNCTION_UNKNOWNTIMERFUNCTION23;
+		return FUNCTION_STARTHARDTIMER;
 		break;
 	default:
 		return "unknown";
@@ -124,7 +124,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A3].nV0);
 		break;
 	case 22:
-		context.m_State.nGPR[CMIPS::V0].nD0 = UnknownTimerFunction22(
+		context.m_State.nGPR[CMIPS::V0].nD0 = SetupHardTimer(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0,
@@ -132,7 +132,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 			);
 		break;
 	case 23:
-		context.m_State.nGPR[CMIPS::V0].nD0 = UnknownTimerFunction23(
+		context.m_State.nGPR[CMIPS::V0].nD0 = StartHardTimer(
 			context.m_State.nGPR[CMIPS::A0].nV0
 			);
 		break;
@@ -146,7 +146,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 int CTimrman::AllocHardTimer(uint32 source, uint32 size, uint32 prescale)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d).\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d).",
 		source, size, prescale);
 #endif
 	for(unsigned int i = 0; i < CRootCounters::MAX_COUNTERS; i++)
@@ -156,9 +156,15 @@ int CTimrman::AllocHardTimer(uint32 source, uint32 size, uint32 prescale)
 			((CRootCounters::g_counterSources[i] & source) != 0)
 			)
 		{
+#ifdef _DEBUG
+			CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER " - returns %d.\r\n", (i + 1));
+#endif
 			return (i + 1);
 		}
 	}
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER " - returns %d.\r\n", 0);
+#endif
 	return 0;
 }
 
@@ -239,19 +245,19 @@ int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 target, uint3
 	return 0;
 }
 
-int CTimrman::UnknownTimerFunction22(uint32 timerId, uint32 unknown0, uint32 unknown1, uint32 unknown2)
+int CTimrman::SetupHardTimer(uint32 timerId, uint32 source, uint32 mode, uint32 prescale)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_UNKNOWNTIMERFUNCTION22 "(timerId = %d, unknown0 = %d, unknown1 = %d, unknown2 = %d).\r\n",
-		timerId, unknown0, unknown1, unknown2);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETUPHARDTIMER "(timerId = %d, source = %d, mode = %d, prescale = %d).\r\n",
+		timerId, source, mode, prescale);
 #endif
 	return 0;
 }
 
-int CTimrman::UnknownTimerFunction23(uint32 timerId)
+int CTimrman::StartHardTimer(uint32 timerId)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_UNKNOWNTIMERFUNCTION23 "(timerId = %d).\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STARTHARDTIMER "(timerId = %d).\r\n",
 		timerId);
 #endif
 	return 0;
