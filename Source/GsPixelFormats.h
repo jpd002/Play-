@@ -4,6 +4,9 @@
 #include "Types.h"
 #include "GSHandler.h"
 
+//defined in limits.h
+#undef PAGESIZE
+
 class CGsPixelFormats
 {
 public:
@@ -162,7 +165,7 @@ public:
 
 					workY %= Storage::COLUMNHEIGHT;
 
-					uint32 offset = (blockNum * BLOCKSIZE) + (columnNum * COLUMNSIZE) + sizeof(Storage::Unit) * Storage::m_nColumnSwizzleTable[workY][workX];
+					uint32 offset = (blockNum * BLOCKSIZE) + (columnNum * COLUMNSIZE) + sizeof(typename Storage::Unit) * Storage::m_nColumnSwizzleTable[workY][workX];
 					m_pageOffsets[y][x] = offset;
 				}
 			}
