@@ -65,7 +65,7 @@ private:
 
 	enum CVTBUFFERSIZE
 	{
-		CVTBUFFERSIZE = 0x400000,
+		CVTBUFFERSIZE = 2048*2048*4,
 	};
 
 	struct RENDERSTATE
@@ -91,7 +91,6 @@ private:
 
 		uint32						m_nStart;
 		uint32						m_nSize;
-		unsigned int				m_nPSM;
 		uint32						m_nCLUTAddress;
 		uint64						m_nTex0;
 		uint64						m_nTexClut;
