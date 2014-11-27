@@ -468,13 +468,13 @@ void CCOP_VU::VMADDAbc()
 //
 void CCOP_VU::VMSUBAbc()
 {
-	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //
 void CCOP_VU::VMULAbc()
 {
-	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //////////////////////////////////////////////////
@@ -560,7 +560,7 @@ void CCOP_VU::VMADDA()
 //0B
 void CCOP_VU::VMSUBA()
 {
-	VUShared::MSUBA(m_codeGen, m_nDest, m_nFS, m_nFT);
+	VUShared::MSUBA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
 }
 
 //0C

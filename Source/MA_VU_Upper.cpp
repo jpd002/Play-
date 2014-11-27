@@ -283,13 +283,13 @@ void CMA_VU::CUpper::MADDAbc()
 //03
 void CMA_VU::CUpper::MSUBAbc()
 {
-	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //06
 void CMA_VU::CUpper::MULAbc()
 {
-	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //////////////////////////////////////////////////
@@ -425,7 +425,7 @@ void CMA_VU::CUpper::MADDAi()
 //09
 void CMA_VU::CUpper::MSUBAi()
 {
-	VUShared::MSUBAi(m_codeGen, m_nDest, m_nFS);
+	VUShared::MSUBAi(m_codeGen, m_nDest, m_nFS, m_relativePipeTime);
 }
 
 //0B
