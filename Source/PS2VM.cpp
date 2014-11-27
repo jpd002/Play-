@@ -637,16 +637,18 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 			}
 
 			//Gotta think of something better than that...
+#ifndef __ANDROID__		//This is temporary till we get bzip2 to compile on Android
 			if(!stricmp(extension, ".isz"))
 			{
 				pStream = new CIszImageStream(new Framework::CStdStream(sPath, "rb"));
 			}
+#endif
 #ifdef WIN32
 			else if(sPath[0] == '\\')
 			{
 				pStream = new Framework::Win32::CVolumeStream(sPath[4]);
 			}
-#else
+#elif !defined(__ANDROID__)
 			else
 			{
 				pStream = new Framework::Posix::CVolumeStream(sPath);
