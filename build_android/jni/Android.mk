@@ -36,6 +36,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/COP_VU_Reflection.cpp \
 							../../Source/DMAC.cpp \
 							../../Source/Dmac_Channel.cpp \
+							../../Source/Ee_SubSystem.cpp \
 							../../Source/EEAssembler.cpp \
 							../../Source/ELF.cpp \
 							../../Source/ElfFile.cpp \
@@ -123,6 +124,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/MIPSTags.cpp \
 							../../Source/PadHandler.cpp \
 							../../Source/PadListener.cpp \
+							../../Source/Profiler.cpp \
 							../../Source/PS2OS.cpp \
 							../../Source/PS2VM.cpp \
 							../../Source/RegisterStateFile.cpp \
@@ -139,7 +141,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/VuExecutor.cpp \
 							../../Source/VUShared.cpp \
 							../../Source/VUShared_Reflection.cpp
-LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES
+LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -D_DEBUG
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
 LOCAL_LDLIBS 			:= -landroid -lz

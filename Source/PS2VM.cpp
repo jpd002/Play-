@@ -3,6 +3,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <memory>
+#include "make_unique.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
 #include "PS2OS.h"
