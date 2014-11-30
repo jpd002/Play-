@@ -195,6 +195,7 @@ BEGIN
     POPUP "&Settings"
     BEGIN
         MENUITEM "Depth Test Enabled",          ID_FD_SETTINGS_DEPTHTEST
+        MENUITEM "Alpha Blend Enabled",         ID_FD_SETTINGS_ALPHABLEND
     END
 END
 

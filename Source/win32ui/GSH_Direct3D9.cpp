@@ -22,7 +22,6 @@ CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
 : m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 , m_cvtBuffer(nullptr)
 , m_sceneBegun(false)
-, m_depthTestingEnabled(true)
 , m_currentTextureWidth(0)
 , m_currentTextureHeight(0)
 {
@@ -86,6 +85,18 @@ bool CGSH_Direct3D9::GetDepthTestingEnabled() const
 void CGSH_Direct3D9::SetDepthTestingEnabled(bool depthTestingEnabled)
 {
 	m_depthTestingEnabled = depthTestingEnabled;
+	m_renderState.isValid = false;
+}
+
+bool CGSH_Direct3D9::GetAlphaBlendingEnabled() const
+{
+	return m_alphaBlendingEnabled;
+}
+
+void CGSH_Direct3D9::SetAlphaBlendingEnabled(bool alphaBlendingEnabled)
+{
+	m_alphaBlendingEnabled = alphaBlendingEnabled;
+	m_renderState.isValid = false;
 }
 
 void CGSH_Direct3D9::InitializeImpl()
@@ -463,8 +474,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 	}
 
-	m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, (m_primitiveMode.nAlpha != 0) ? TRUE : FALSE);
-
 	if(m_primitiveMode.nFog)
 	{
 		//glEnable(GL_FOG);
@@ -579,8 +588,6 @@ void CGSH_Direct3D9::Prim_Sprite()
 
 	nZ = GetZ(nZ);
 
-	m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, (m_primitiveMode.nAlpha != 0) ? TRUE : FALSE);
-
 	if(m_primitiveMode.nTexture)
 	{
 		m_device->SetTexture(0, m_currentTexture);
@@ -645,15 +652,25 @@ void CGSH_Direct3D9::Prim_Sprite()
 	}
 }
 
-void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
+void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 {
-	uint64 testReg = m_nReg[GS_REG_TEST_1 + nContext];
-	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + nContext];
-	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + nContext];
-	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + nContext];
-	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + nContext];
-	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + nContext];
-	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + nContext];
+	auto prim = make_convertible<PRMODE>(primReg);
+
+	unsigned int context = prim.nContext;
+
+	uint64 testReg = m_nReg[GS_REG_TEST_1 + context];
+	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + context];
+	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + context];
+	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + context];
+	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
+	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
+	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
+
+	if(!m_renderState.isValid ||
+		(m_renderState.primReg != primReg))
+	{
+		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, ((prim.nAlpha != 0) && m_alphaBlendingEnabled) ? TRUE : FALSE);
+	}
 
 	if(!m_renderState.isValid ||
 		(m_renderState.alphaReg != alphaReg))
@@ -689,6 +706,7 @@ void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 	}
 
 	m_renderState.isValid = true;
+	m_renderState.primReg = primReg;
 	m_renderState.alphaReg = alphaReg;
 	m_renderState.testReg = testReg;
 	m_renderState.zbufReg = zbufReg;
@@ -697,8 +715,7 @@ void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 	m_renderState.tex1Reg = tex1Reg;
 	m_renderState.clampReg = clampReg;
 
-	XYOFFSET offset;
-	offset <<= m_nReg[GS_REG_XYOFFSET_1 + nContext];
+	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
 	
@@ -1041,7 +1058,7 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 				m_primitiveMode <<= m_nReg[GS_REG_PRMODE];
 			}
 
-			SetRenderingContext(m_primitiveMode.nContext);
+			SetRenderingContext(m_primitiveMode);
 
 			switch(m_primitiveType)
 			{

@@ -106,6 +106,9 @@ long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndF
 		case ID_FD_SETTINGS_DEPTHTEST:
 			ToggleDepthTest();
 			break;
+		case ID_FD_SETTINGS_ALPHABLEND:
+			ToggleAlphaBlending();
+			break;
 		case ID_FD_VU1_STEP:
 			StepVu1();
 			break;
@@ -169,10 +172,16 @@ void CFrameDebugger::CreateAcceleratorTables()
 
 void CFrameDebugger::UpdateMenus()
 {
-	auto depthTestMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_DEPTHTEST);
-	assert(!depthTestMenuItem.IsEmpty());
-
-	depthTestMenuItem.Check(m_gs->GetDepthTestingEnabled());
+	{
+		auto depthTestMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_DEPTHTEST);
+		assert(!depthTestMenuItem.IsEmpty());
+		depthTestMenuItem.Check(m_gs->GetDepthTestingEnabled());
+	}
+	{
+		auto alphaBlendMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_ALPHABLEND);
+		assert(!alphaBlendMenuItem.IsEmpty());
+		alphaBlendMenuItem.Check(m_gs->GetAlphaBlendingEnabled());
+	}
 }
 
 void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
@@ -274,6 +283,17 @@ void CFrameDebugger::ShowFrameDumpSelector()
 void CFrameDebugger::ToggleDepthTest()
 {
 	m_gs->SetDepthTestingEnabled(!m_gs->GetDepthTestingEnabled());
+	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
+	if(selectedItemIndex != -1)
+	{
+		UpdateDisplay(selectedItemIndex);
+	}
+	UpdateMenus();
+}
+
+void CFrameDebugger::ToggleAlphaBlending()
+{
+	m_gs->SetAlphaBlendingEnabled(!m_gs->GetAlphaBlendingEnabled());
 	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
 	if(selectedItemIndex != -1)
 	{

@@ -41,6 +41,7 @@ private:
 	void											LoadFrameDump(const TCHAR*);
 	void											ShowFrameDumpSelector();
 	void											ToggleDepthTest();
+	void											ToggleAlphaBlending();
 	void											StepVu1();
 
 	std::unique_ptr<CGSH_Direct3D9>					m_gs;
