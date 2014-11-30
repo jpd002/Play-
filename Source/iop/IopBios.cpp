@@ -751,9 +751,28 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 {
 	//TODO: This needs to garantee that the alarm handler function won't be called after the cancel
-#ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: Warning. CancelAlarm not supported.\r\n", CurrentThreadId());
-#endif
+
+	uint32 alarmThreadId = -1;
+
+	for(auto threadIterator = m_threads.Begin();
+		threadIterator != m_threads.End(); threadIterator++)
+	{
+		const auto& thread(m_threads[threadIterator]);
+		if(thread == nullptr) continue;
+		if(thread->threadProc == m_alarmThreadProcAddress)
+		{
+			alarmThreadId = thread->id;
+			break;
+		}
+	}
+
+	if(alarmThreadId == -1)
+	{
+		// handler not registered
+		return -105;
+	}
+
+	TerminateThread(alarmThreadId);
 	return 0;
 }
 
