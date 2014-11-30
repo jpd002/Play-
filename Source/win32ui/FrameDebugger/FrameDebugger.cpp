@@ -207,6 +207,20 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	m_gs->WriteRegisterMassively(writes.data(), writes.size(), nullptr);
 	m_gs->Flip();
 
+	const auto& drawingKicks = m_frameDump.GetDrawingKicks();
+	auto prevKickIndexIterator = drawingKicks.lower_bound(targetCmdIndex);
+	if((prevKickIndexIterator == std::end(drawingKicks)) || (prevKickIndexIterator->first != targetCmdIndex))
+	{
+		prevKickIndexIterator = std::prev(prevKickIndexIterator);
+	}
+	if(prevKickIndexIterator != std::end(drawingKicks))
+	{
+		m_currentDrawingKick = prevKickIndexIterator->second;
+	}
+	else
+	{
+		m_currentDrawingKick = DRAWINGKICK_INFO();
+	}
 	UpdateCurrentTab();
 
 	EnableWindow(m_hWnd, TRUE);
@@ -219,7 +233,7 @@ void CFrameDebugger::UpdateCurrentTab()
 		if(auto tab = m_tab->GetTab(m_tab->GetSelection()))
 		{
 			auto debuggerTab = dynamic_cast<IFrameDebuggerTab*>(tab);
-			debuggerTab->UpdateState(m_gs.get(), &m_currentMetadata);
+			debuggerTab->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
 		}
 	}
 }
@@ -231,6 +245,7 @@ void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
 		boost::filesystem::path dumpPath(dumpPathName);
 		auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
 		m_frameDump.Read(inputStream);
+		m_frameDump.IdentifyDrawingKicks();
 	}
 	catch(const std::exception& exception)
 	{

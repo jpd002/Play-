@@ -35,9 +35,10 @@ CGsContextView::~CGsContextView()
 
 }
 
-void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*)
+void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK_INFO* drawingKick)
 {
 	assert(gs == m_gs);
+	m_drawingKick = (*drawingKick);
 	UpdateBufferView();
 	m_stateView->UpdateState(m_gs);
 }
@@ -48,6 +49,7 @@ void CGsContextView::UpdateBufferView()
 	{
 		uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
 		auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
+		RenderDrawKick(framebuffer);
 		m_bufferView->SetBitmap(framebuffer);
 	}
 	else if(m_bufferSelectionTab->GetSelection() == 1)
@@ -59,6 +61,45 @@ void CGsContextView::UpdateBufferView()
 		auto texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1Reg, clampReg);
 
 		m_bufferView->SetBitmap(texture);
+	}
+}
+
+void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
+{
+	if(m_drawingKick.primType == CGSHandler::PRIM_INVALID) return;
+	if(m_drawingKick.context != m_contextId) return;
+
+	auto primHighlightColor = Framework::CColor(0, 0xFF, 0, 0xFF);
+
+	switch(m_drawingKick.primType)
+	{
+	case CGSHandler::PRIM_TRIANGLE:
+	case CGSHandler::PRIM_TRIANGLESTRIP:
+	case CGSHandler::PRIM_TRIANGLEFAN:
+		{
+			int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
+			int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
+			int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
+			int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
+			int x3 = static_cast<int16>(m_drawingKick.vertex[2].x) / 16;
+			int y3 = static_cast<int16>(m_drawingKick.vertex[2].y) / 16;
+			bitmap.DrawLine(x1, y1, x2, y2, primHighlightColor);
+			bitmap.DrawLine(x1, y1, x3, y3, primHighlightColor);
+			bitmap.DrawLine(x2, y2, x3, y3, primHighlightColor);
+		}
+		break;
+	case CGSHandler::PRIM_SPRITE:
+		{
+			int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
+			int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
+			int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
+			int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
+			bitmap.DrawLine(x1, y1, x1, y2, primHighlightColor);
+			bitmap.DrawLine(x1, y2, x2, y2, primHighlightColor);
+			bitmap.DrawLine(x2, y2, x2, y1, primHighlightColor);
+			bitmap.DrawLine(x2, y1, x1, y1, primHighlightColor);
+		}
+		break;
 	}
 }
 

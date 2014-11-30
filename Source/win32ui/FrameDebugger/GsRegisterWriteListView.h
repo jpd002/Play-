@@ -58,8 +58,6 @@ private:
 		HTREEITEM	treeViewItem;
 	};
 
-	void											IdentifyDrawingKicks();
-
 	uint32											GetItemIndexFromTreeViewItem(TVITEM*) const;
 
 	long											OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW*);
@@ -76,8 +74,7 @@ private:
 	std::unique_ptr<Framework::Win32::CButton>		m_prevDrawKickButton;
 	std::unique_ptr<Framework::Win32::CButton>		m_nextDrawKickButton;
 
-	CFrameDump*										m_frameDump;
-	std::set<uint32>								m_drawingKickIndices;
+	CFrameDump*										m_frameDump = nullptr;
 	std::vector<PACKETINFO>							m_packetInfos;
 	std::vector<WRITEINFO>							m_writeInfos;
 };

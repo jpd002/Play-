@@ -36,13 +36,10 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 
 	m_packetsTreeView->SetSelection(NULL);
 	m_packetsTreeView->DeleteAllItems();
-	m_drawingKickIndices.clear();
 	m_packetInfos.clear();
 	m_writeInfos.clear();
 
 	if(m_frameDump == nullptr) return;
-
-	IdentifyDrawingKicks();
 
 	m_packetsTreeView->SetRedraw(false);
 
@@ -51,10 +48,11 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 	m_packetInfos.reserve(m_frameDump->GetPackets().size());
 
 	uint32 packetIndex = 0, cmdIndex = 0;
+	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
 	for(const auto& packet : m_frameDump->GetPackets())
 	{
-		auto lowerBoundIterator = m_drawingKickIndices.upper_bound(cmdIndex);
-		auto upperBoundIterator = m_drawingKickIndices.lower_bound(cmdIndex + packet.writes.size());
+		auto lowerBoundIterator = drawingKicks.upper_bound(cmdIndex);
+		auto upperBoundIterator = drawingKicks.lower_bound(cmdIndex + packet.writes.size());
 
 		int kickCount = static_cast<int>(std::distance(lowerBoundIterator, upperBoundIterator));
 		
@@ -151,7 +149,8 @@ long CGsRegisterWriteListView::OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW* custo
 		HTREEITEM drawItemParent = m_packetsTreeView->GetItemParent(drawItem);
 		if(drawItemParent == nullptr) return CDRF_DODEFAULT;
 		uint32 drawItemPacketIndex = m_packetsTreeView->GetItemParam<uint32>(drawItem);
-		if(m_drawingKickIndices.find(drawItemPacketIndex) != std::end(m_drawingKickIndices))
+		const auto& drawingKicks = m_frameDump->GetDrawingKicks();
+		if(drawingKicks.find(drawItemPacketIndex) != std::end(drawingKicks))
 		{
 			SelectObject(customDraw->nmcd.hdc, m_drawCallItemFont);
 			return CDRF_DODEFAULT | CDRF_NEWFONT;
@@ -216,54 +215,6 @@ void CGsRegisterWriteListView::OnPacketsTreeViewSelChanged(NMTREEVIEW* treeView)
 	SendMessage(GetParent(), WM_NOTIFY, reinterpret_cast<WPARAM>(m_hWnd), reinterpret_cast<LPARAM>(&selchangedInfo));
 }
 
-void CGsRegisterWriteListView::IdentifyDrawingKicks()
-{
-	assert(m_frameDump != nullptr);
-
-	static const unsigned int g_initVertexCounts[8] = { 1, 2, 2, 3, 3, 3, 2, 0 };
-	static const unsigned int g_nextVertexCounts[8] = { 1, 2, 1, 3, 1, 1, 2, 0 };
-
-	CGSHandler::PRIM currentPrim;
-	currentPrim <<= m_frameDump->GetInitialGsRegisters()[GS_REG_PRIM];
-
-	unsigned int vertexCount = g_initVertexCounts[currentPrim.nType];
-
-	uint32 cmdIndex = 0;
-	for(const auto& packet : m_frameDump->GetPackets())
-	{
-		for(const auto& registerWrite : packet.writes)
-		{
-			if(registerWrite.first == GS_REG_PRIM)
-			{
-				currentPrim <<= registerWrite.second;
-				vertexCount = g_initVertexCounts[currentPrim.nType];
-			}
-			else if(
-				(registerWrite.first == GS_REG_XYZ2) || 
-				(registerWrite.first == GS_REG_XYZ3) ||
-				(registerWrite.first == GS_REG_XYZF2) ||
-				(registerWrite.first == GS_REG_XYZF3))
-			{
-				if(vertexCount != 0)
-				{
-					vertexCount--;
-					if(vertexCount == 0)
-					{
-						bool drawingKick = (registerWrite.first == GS_REG_XYZ2) || (registerWrite.first == GS_REG_XYZF2);
-						vertexCount = g_nextVertexCounts[currentPrim.nType];
-						if(drawingKick)
-						{
-							m_drawingKickIndices.insert(cmdIndex);
-						}
-					}
-				}
-			}
-
-			cmdIndex++;
-		}
-	}
-}
-
 void CGsRegisterWriteListView::GoToWrite(uint32 writeIndex)
 {
 	auto packetInfoIterator = std::lower_bound(std::begin(m_packetInfos), std::end(m_packetInfos), writeIndex, 
@@ -294,14 +245,15 @@ void CGsRegisterWriteListView::OnPrevDrawKick()
 		selectedItemIndex = GetItemIndexFromTreeViewItem(&treeViewItem);
 	}
 
-	auto prevKickIndexIterator = std::prev(m_drawingKickIndices.lower_bound(selectedItemIndex));
-	if(prevKickIndexIterator == std::end(m_drawingKickIndices))
+	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
+	auto prevKickIndexIterator = std::prev(drawingKicks.lower_bound(selectedItemIndex));
+	if(prevKickIndexIterator == std::end(drawingKicks))
 	{
 		//Nothing to do here
 		return;
 	}
 
-	GoToWrite(*prevKickIndexIterator);
+	GoToWrite(prevKickIndexIterator->first);
 }
 
 void CGsRegisterWriteListView::OnNextDrawKick()
@@ -318,12 +270,13 @@ void CGsRegisterWriteListView::OnNextDrawKick()
 		selectedItemIndex = GetItemIndexFromTreeViewItem(&treeViewItem);
 	}
 
-	auto nextKickIndexIterator = m_drawingKickIndices.upper_bound(selectedItemIndex);
-	if(nextKickIndexIterator == std::end(m_drawingKickIndices))
+	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
+	auto nextKickIndexIterator = drawingKicks.upper_bound(selectedItemIndex);
+	if(nextKickIndexIterator == std::end(drawingKicks))
 	{
 		//Nothing to do here
 		return;
 	}
 
-	GoToWrite(*nextKickIndexIterator);
+	GoToWrite(nextKickIndexIterator->first);
 }

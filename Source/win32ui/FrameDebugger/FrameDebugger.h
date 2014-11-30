@@ -45,6 +45,7 @@ private:
 
 	std::unique_ptr<CGSH_Direct3D9>					m_gs;
 	CGsPacketMetadata								m_currentMetadata;
+	DRAWINGKICK_INFO								m_currentDrawingKick;
 	CFrameDump										m_frameDump;
 	CVu1Vm											m_vu1vm;
 

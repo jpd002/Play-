@@ -134,3 +134,89 @@ void CFrameDump::Write(Framework::CStream& output) const
 
 	archive.Write(output);
 }
+
+void CFrameDump::IdentifyDrawingKicks()
+{
+	m_drawingKicks.clear();
+
+	DRAWINGKICK_INFO drawingKickInfo;
+
+	static const unsigned int g_initVertexCounts[8] = { 1, 2, 2, 3, 3, 3, 2, 0 };
+	static const unsigned int g_nextVertexCounts[8] = { 1, 2, 1, 3, 1, 1, 2, 0 };
+
+	CGSHandler::PRIM currentPrim;
+	currentPrim <<= GetInitialGsRegisters()[GS_REG_PRIM];
+
+	CGSHandler::XYOFFSET currentOfs[2];
+	currentOfs[0] <<= GetInitialGsRegisters()[GS_REG_XYOFFSET_1];
+	currentOfs[1] <<= GetInitialGsRegisters()[GS_REG_XYOFFSET_2];
+
+	unsigned int vertexCount = g_initVertexCounts[currentPrim.nType];
+
+	uint32 cmdIndex = 0;
+	for(const auto& packet : GetPackets())
+	{
+		for(const auto& registerWrite : packet.writes)
+		{
+			if(registerWrite.first == GS_REG_PRIM)
+			{
+				currentPrim <<= registerWrite.second;
+				vertexCount = g_initVertexCounts[currentPrim.nType];
+			}
+			else if(
+				(registerWrite.first == GS_REG_XYOFFSET_1) ||
+				(registerWrite.first == GS_REG_XYOFFSET_2))
+			{
+				currentOfs[registerWrite.first - GS_REG_XYOFFSET_1] <<= registerWrite.second;
+			}
+			else if(
+				(registerWrite.first == GS_REG_XYZ2) || 
+				(registerWrite.first == GS_REG_XYZ3) ||
+				(registerWrite.first == GS_REG_XYZF2) ||
+				(registerWrite.first == GS_REG_XYZF3))
+			{
+				if(vertexCount != 0)
+				{
+					vertexCount--;
+
+					const auto& offset = currentOfs[currentPrim.nContext];
+
+					drawingKickInfo.primType = currentPrim.nType;
+					drawingKickInfo.context = currentPrim.nContext;
+					drawingKickInfo.vertex[vertexCount].x = ((registerWrite.second >>  0) & 0xFFFF) - offset.nOffsetX;
+					drawingKickInfo.vertex[vertexCount].y = ((registerWrite.second >> 16) & 0xFFFF) - offset.nOffsetY;
+
+					if(vertexCount == 0)
+					{
+						bool drawingKick = (registerWrite.first == GS_REG_XYZ2) || (registerWrite.first == GS_REG_XYZF2);
+						if(drawingKick)
+						{
+							m_drawingKicks.insert(std::make_pair(cmdIndex, drawingKickInfo));
+						}
+						vertexCount = g_nextVertexCounts[currentPrim.nType];
+						switch(currentPrim.nType)
+						{
+						case CGSHandler::PRIM_LINESTRIP:
+							memcpy(&drawingKickInfo.vertex[1], &drawingKickInfo.vertex[0], sizeof(DRAWINGKICK_INFO::VERTEX));
+							break;
+						case CGSHandler::PRIM_TRIANGLESTRIP:
+							memcpy(&drawingKickInfo.vertex[2], &drawingKickInfo.vertex[1], sizeof(DRAWINGKICK_INFO::VERTEX));
+							memcpy(&drawingKickInfo.vertex[1], &drawingKickInfo.vertex[0], sizeof(DRAWINGKICK_INFO::VERTEX));
+							break;
+						case CGSHandler::PRIM_TRIANGLEFAN:
+							memcpy(&drawingKickInfo.vertex[1], &drawingKickInfo.vertex[0], sizeof(DRAWINGKICK_INFO::VERTEX));
+							break;
+						}
+					}
+				}
+			}
+
+			cmdIndex++;
+		}
+	}
+}
+
+const DrawingKickInfoMap& CFrameDump::GetDrawingKicks() const
+{
+	return m_drawingKicks;
+}
