@@ -640,9 +640,11 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 
 	// If the thread we are starting is the same priority or lower than the current one, do yield.
 	// If may be that the correct action is never to yield - the docs aren't really clear.
-	// INET.IRX depends on startThread not yielding when starting a thread of the same priority.
-	THREAD* currentThread = GetThread(CurrentThreadId());
-	if (currentThread == nullptr || currentThread->priority < thread->priority){
+	// INET.IRX (from Champions: Return to Arms) depends on startThread not yielding when starting a 
+	// thread of the same priority.
+	auto currentThread = GetThread(CurrentThreadId());
+	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
+	{
 		m_rescheduleNeeded = true;
 	}
 }
