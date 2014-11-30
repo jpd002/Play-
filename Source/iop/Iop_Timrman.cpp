@@ -156,15 +156,9 @@ int CTimrman::AllocHardTimer(uint32 source, uint32 size, uint32 prescale)
 			((CRootCounters::g_counterSources[i] & source) != 0)
 			)
 		{
-#ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER " - returns %d.\r\n", (i + 1));
-#endif
 			return (i + 1);
 		}
 	}
-#ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER " - returns %d.\r\n", 0);
-#endif
 	return 0;
 }
 

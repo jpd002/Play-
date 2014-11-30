@@ -6,11 +6,11 @@ using namespace Iop;
 
 #define LOG_NAME ("iop_sysmem")
 
-#define FUNCTION_ALLOCATEMEMORY		"AllocateMemory"
-#define FUNCTION_FREEMEMORY			"FreeMemory"
-#define FUNCTION_PRINTF				"printf"
-#define FUNCTION_QUERY_MEM_SIZE		"QueryMemSize"
-#define FUNCTION_QUERY_MAX_FREE_MEM_SIZE "QueryMaxFreeMemSize"
+#define FUNCTION_ALLOCATEMEMORY			"AllocateMemory"
+#define FUNCTION_FREEMEMORY				"FreeMemory"
+#define FUNCTION_PRINTF					"printf"
+#define FUNCTION_QUERYMEMSIZE			"QueryMemSize"
+#define FUNCTION_QUERYMAXFREEMEMSIZE	"QueryMaxFreeMemSize"
 
 #define MIN_BLOCK_SIZE  0x20
 
@@ -55,10 +55,10 @@ std::string CSysmem::GetFunctionName(unsigned int functionId) const
 		return FUNCTION_FREEMEMORY;
 		break;
 	case 6:
-		return FUNCTION_QUERY_MEM_SIZE;
+		return FUNCTION_QUERYMEMSIZE;
 		break;
 	case 7:
-		return FUNCTION_QUERY_MAX_FREE_MEM_SIZE;
+		return FUNCTION_QUERYMAXFREEMEMSIZE;
 		break;
 	case 14:
 		return FUNCTION_PRINTF;
