@@ -969,39 +969,23 @@ void CGSH_Direct3D9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:
-		m_primitiveType = (unsigned int)(nData & 0x07);
+		m_primitiveType = static_cast<unsigned int>(nData & 0x07);
 		switch(m_primitiveType)
 		{
-		case 0:
-			//Point
+		case PRIM_POINT:
 			m_vtxCount = 1;
 			break;
-		case 1:
-			//Line
+		case PRIM_LINE:
+		case PRIM_LINESTRIP:
 			m_vtxCount = 2;
 			break;
-		case 2:
-			//Line strip
+		case PRIM_TRIANGLE:
+		case PRIM_TRIANGLESTRIP:
+		case PRIM_TRIANGLEFAN:
+			m_vtxCount = 3;
+			break;
+		case PRIM_SPRITE:
 			m_vtxCount = 2;
-			break;
-		case 3:
-			//Triangle
-			m_vtxCount = 3;
-			break;
-		case 4:
-			//Triangle Strip
-			m_vtxCount = 3;
-			break;
-		case 5:
-			//Triangle Fan
-			m_vtxCount = 3;
-			break;
-		case 6:
-			//Sprite (rectangle)
-			m_vtxCount = 2;
-			break;
-		default:
-			printf("GS: Unhandled primitive type (%i) encountered.\r\n", m_primitiveType);
 			break;
 		}
 		break;
@@ -1061,33 +1045,33 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 
 			switch(m_primitiveType)
 			{
-			case 0:
+			case PRIM_POINT:
 				//if(drawingKick) Prim_Point();
 				break;
-			case 1:
+			case PRIM_LINE:
 				//if(drawingKick) Prim_Line();
 				break;
-			case 2:
+			case PRIM_LINESTRIP:
 				//if(drawingKick) Prim_Line();
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
-			case 3:
+			case PRIM_TRIANGLE:
 				if(drawingKick) Prim_Triangle();
 				m_vtxCount = 3;
 				break;
-			case 4:
+			case PRIM_TRIANGLESTRIP:
 				if(drawingKick) Prim_Triangle();
 				memcpy(&m_vtxBuffer[2], &m_vtxBuffer[1], sizeof(VERTEX));
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
-			case 5:
+			case PRIM_TRIANGLEFAN:
 				if(drawingKick) Prim_Triangle();
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
-			case 6:
+			case PRIM_SPRITE:
 				if(drawingKick) Prim_Sprite();
 				m_vtxCount = 2;
 				break;
