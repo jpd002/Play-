@@ -2,34 +2,18 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BOOST_PATH>path_to\boost-trunk</BOOST_PATH>
     <FRAMEWORK_PATH>path_to\framework</FRAMEWORK_PATH>
     <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
-    <ZLIB_PATH>path_to\zlib-1.2.8</ZLIB_PATH>
-    <GLEW_PATH>path_to\glew-1.9.0</GLEW_PATH>
-    <BZLIB_PATH>path_to\bzip2-1.0.4</BZLIB_PATH>
-	<VTUNE_PATH>path_to\vtune</VTUNE_PATH>
+    <VTUNE_PATH>path_to\vtune</VTUNE_PATH>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
-    <BuildMacro Include="BOOST_PATH">
-      <Value>$(BOOST_PATH)</Value>
-    </BuildMacro>
     <BuildMacro Include="FRAMEWORK_PATH">
       <Value>$(FRAMEWORK_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="CODEGEN_PATH">
       <Value>$(CODEGEN_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="ZLIB_PATH">
-      <Value>$(ZLIB_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="GLEW_PATH">
-      <Value>$(GLEW_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="BZLIB_PATH">
-      <Value>$(BZLIB_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="VTUNE_PATH">
       <Value>$(VTUNE_PATH)</Value>
