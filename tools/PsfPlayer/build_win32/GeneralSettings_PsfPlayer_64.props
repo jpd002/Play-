@@ -8,7 +8,7 @@
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>TDEmu64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST_PATH)\stage64\lib;$(DXSDK_DIR)Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TDEMU_PATH)\TDEmu64.dll $(OutputPath)</Command>

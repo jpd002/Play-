@@ -744,6 +744,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Todolist.txt" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Source\win32_ui\Res.rc">
