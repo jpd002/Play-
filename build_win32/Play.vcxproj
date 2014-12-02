@@ -695,15 +695,13 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebugger|x64'">$(IntDir)\%(Filename).obj</Outputs>
     </CustomBuild>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Source\win32ui\ElfViewRes.rc" />
     <ResourceCompile Include="..\Source\win32ui\Res.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\bzip2-1.0.6\bzip2-1.0.6.vcxproj">
-      <Project>{8c48c11a-7c3f-4699-b62f-b0a66f0f78f7}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\CodeGen\build_win32\CodeGen.vcxproj">
       <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
     </ProjectReference>
@@ -715,9 +713,6 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Framework\build_win32\FrameworkOpenGl.vcxproj">
       <Project>{482892bb-6d81-4ca4-bfd5-01a756c21292}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\zlib-1.2.8\zlib-1.2.8.vcxproj">
-      <Project>{4a0b5134-ab23-452d-8513-8225fa178356}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -732,5 +727,34 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets" Condition="Exists('..\..\NuGet..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets')" />
+    <Import Project="..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets" Condition="Exists('..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets')" />
+    <Import Project="..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets" Condition="Exists('..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" />
+    <Import Project="..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets" Condition="Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" />
+    <Import Project="..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\rxd_glew.redist.1.10.0.1\build\native\rxd_glew.redist.targets" Condition="Exists('..\..\NuGetPackages\rxd_glew.redist.1.10.0.1\build\native\rxd_glew.redist.targets')" />
+    <Import Project="..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets" Condition="Exists('..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\rxd_glew.redist.1.10.0.1\build\native\rxd_glew.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\rxd_glew.redist.1.10.0.1\build\native\rxd_glew.redist.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets'))" />
+  </Target>
 </Project>
