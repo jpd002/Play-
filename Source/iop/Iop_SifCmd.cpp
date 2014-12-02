@@ -17,7 +17,10 @@ using namespace Iop;
 #define MODULE_NAME						"sifcmd"
 #define MODULE_VERSION					0x101
 
+#define FUNCTION_SIFSETCMDBUFFER		"SifSetCmdBuffer"
+#define FUNCTION_SIFADDCMDHANDLER		"SifAddCmdHandler"
 #define FUNCTION_SIFSENDCMD				"SifSendCmd"
+#define FUNCTION_ISIFSENDCMD			"iSifSendCmd"
 #define FUNCTION_SIFINITRPC				"SifInitRpc"
 #define FUNCTION_SIFBINDRPC				"SifBindRpc"
 #define FUNCTION_SIFCALLRPC				"SifCallRpc"
@@ -98,8 +101,17 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 8:
+		return FUNCTION_SIFSETCMDBUFFER;
+		break;
+	case 10:
+		return FUNCTION_SIFADDCMDHANDLER;
+		break;
 	case 12:
 		return FUNCTION_SIFSENDCMD;
+		break;
+	case 13:
+		return FUNCTION_ISIFSENDCMD;
 		break;
 	case 14:
 		return FUNCTION_SIFINITRPC;
@@ -138,6 +150,18 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case 8:
+		CLog::GetInstance().Print(LOG_NAME, "** Unimplemented ** "FUNCTION_SIFSETCMDBUFFER"(pData=0x%0.8X, len=%d)\r\n",
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 10:
+		CLog::GetInstance().Print(LOG_NAME, "** Unimplemented ** "FUNCTION_SIFADDCMDHANDLER"(pos=%d, handler=0x%0.8X, data=0x%0.8X)\r\n",
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0
+			);
+		break;
 	case 12:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifSendCmd(
 			context.m_State.nGPR[CMIPS::A0].nV0,
@@ -146,6 +170,19 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A3].nV0,
 			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10),
 			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14));
+		break;
+	case 13:
+		// called when interrupts disabled. Do we need to do anything different?
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifSendCmd(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0,
+			context.m_State.nGPR[CMIPS::A3].nV0,
+			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10),
+			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14));
+		break;
+	case 14:
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFINITRPC "\r\n");
 		break;
 	case 15:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifBindRpc(

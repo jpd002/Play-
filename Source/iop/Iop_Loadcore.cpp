@@ -10,6 +10,7 @@ using namespace Iop;
 #define FUNCTION_FLUSHDCACHE			"FlushDcache"
 #define FUNCTION_REGISTERLIBRARYENTRIES	"RegisterLibraryEntries"
 #define FUNCTION_QUERYBOOTMODE			"QueryBootMode"
+#define FUNCTION_SETREBOOTTIMELIBHANDLINGMODE "SetRebootTimeLibraryHandlingMode"
 
 #define PATH_MAX_SIZE 252
 #define ARGS_MAX_SIZE 252
@@ -44,6 +45,9 @@ std::string CLoadcore::GetFunctionName(unsigned int functionId) const
 	case 12:
 		return FUNCTION_QUERYBOOTMODE;
 		break;
+	case 27:
+		return FUNCTION_SETREBOOTTIMELIBHANDLINGMODE;
+		break;
 	default:
 		return "unknown";
 		break;
@@ -66,6 +70,10 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(QueryBootMode(
 			context.m_State.nGPR[CMIPS::A0].nV0
 			));
+		break;
+	case 27:
+		// SetRebootLibraryHandlingMode(libhead* lib, int mode)
+		context.m_State.nGPR[CMIPS::V0].nD0 = 0;
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (PC: 0x%0.8X).\r\n", 
@@ -185,7 +193,7 @@ void CLoadcore::LoadExecutable(uint32* args, uint32 argsSize, uint32* ret, uint3
 void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
 {
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module at 0x%0.8X received with %d bytes arguments payload.\r\n", args[0], 0);
-	m_bios.LoadAndStartModule(args[0], NULL, 0);
+	m_bios.LoadAndStartModule(args[0], reinterpret_cast<const char*>(args)+8 + PATH_MAX_SIZE, args[1]);
 	ret[0] = 0x00000000;
 }
 
