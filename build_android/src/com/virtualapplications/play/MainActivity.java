@@ -13,5 +13,15 @@ public class MainActivity extends Activity
 	{
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
+		
+		((Button)findViewById(R.id.startTests)).setOnClickListener(
+			new OnClickListener() 
+			{
+				public void onClick(View view) 
+				{
+					NativeInterop.start();
+				}
+			}
+		);
 	}
 }
