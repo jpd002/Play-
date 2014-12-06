@@ -6,6 +6,7 @@ void CFlagsTest::Execute(CTestVm& virtualMachine)
 
 	auto microMem = reinterpret_cast<uint32*>(virtualMachine.m_microMem);
 
+	//From Champions: Return to Arms - MAC op latency needs to be 4 so that FSAND reads the proper result
 /*
 00001F78    00211004 01F35802    SUB            VF0w, VF2w, VF1x               LQ              VF19xyzw, $0002(VI11)		//pipe = 0		//macTime = 0 + 4 = 4
 00001F80    00A3A93C 01FE5803    ITOF0          VF3yw, VF21yw                  LQ              VF30xyzw, $0003(VI11)		//pipe = 1
