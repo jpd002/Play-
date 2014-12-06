@@ -143,7 +143,7 @@ void VUShared::ClampVector(CMipsJitter* codeGen)
 
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime)
 {
-	const int macOpLatency = 3;
+	const int macOpLatency = 4;
 
 	//Write value time
 	{
