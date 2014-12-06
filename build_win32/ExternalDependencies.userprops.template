@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <FRAMEWORK_PATH>path_to\framework</FRAMEWORK_PATH>
     <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
+    <BZLIB_PATH>path_to\bzip2-1.0.6</BZLIB_PATH>
     <VTUNE_PATH>path_to\vtune</VTUNE_PATH>
   </PropertyGroup>
   <PropertyGroup />
@@ -14,6 +15,9 @@
     </BuildMacro>
     <BuildMacro Include="CODEGEN_PATH">
       <Value>$(CODEGEN_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BZLIB_PATH">
+      <Value>$(BZLIB_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="VTUNE_PATH">
       <Value>$(VTUNE_PATH)</Value>

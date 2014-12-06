@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Play Core">
+      <UniqueIdentifier>{524ea005-2387-41b3-be8e-0eedfb5e1729}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests">
+      <UniqueIdentifier>{4569652f-7f33-4f88-83a5-66cbcaaa913d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Play Core\EE">
+      <UniqueIdentifier>{7294e13d-2ef6-449c-8887-9d6a9660e014}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\tools\MipsTest\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\TestVm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_MIPSIV.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_MIPSIV_Reflection.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_MIPSIV_Templates.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPS.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPSAnalysis.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPSArchitecture.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPSCoprocessor.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MipsExecutor.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPSInstructionFactory.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MipsJitter.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPSReflection.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPSTags.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\BasicBlock.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MemoryMap.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MemoryUtils.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MIPSAssembler.cpp">
+      <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\Add64Test.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\Shift32Test.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\Shift64Test.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\SetLessThanTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\SplitLoadTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\ExchangeTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\EEAssembler.cpp">
+      <Filter>Source Files\Play Core\EE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_EE.cpp">
+      <Filter>Source Files\Play Core\EE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MA_EE_Reflection.cpp">
+      <Filter>Source Files\Play Core\EE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\PackTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\tools\MipsTest\TestVm.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MA_MIPSIV.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPS.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSAnalysis.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSArchitecture.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSCoprocessor.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MipsExecutor.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSInstructionFactory.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MipsJitter.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSModule.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSReflection.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSTags.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\StdAfx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\BasicBlock.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MemoryMap.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MemoryUtils.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MIPSAssembler.h">
+      <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\Test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\Add64Test.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\Shift32Test.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\Shift64Test.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\SetLessThanTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\SplitLoadTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\ExchangeTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\EEAssembler.h">
+      <Filter>Source Files\Play Core\EE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\MA_EE.h">
+      <Filter>Source Files\Play Core\EE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\PackTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

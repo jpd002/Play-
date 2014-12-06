@@ -300,6 +300,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
+	case D2_MADR + 0x0:
+		return m_D2.m_nMADR;
+		break;
+	case D2_MADR + 0x4:
+	case D2_MADR + 0x8:
+	case D2_MADR + 0xC:
+		return 0;
+		break;
+
 	case D2_TADR + 0x0:
 		return m_D2.m_nTADR;
 		break;
