@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkOpenGl", "..\..\Fr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkDirectX", "..\..\Framework\build_win32\FrameworkDirectX.vcxproj", "{A286EAD1-ACEA-4132-ACDD-6520168BDEBB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MipsTest", "..\tools\MipsTest\MipsTest.vcxproj", "{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MipsTest", "MipsTest.vcxproj", "{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VuTest", "VuTest.vcxproj", "{DF91D764-A551-4EA8-A8DF-3E49E1B879EB}"
 EndProject
