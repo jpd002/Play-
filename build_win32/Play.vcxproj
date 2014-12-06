@@ -702,6 +702,9 @@
     <ResourceCompile Include="..\Source\win32ui\Res.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\bzip2-1.0.6\bzip2-1.0.6.vcxproj">
+      <Project>{8c48c11a-7c3f-4699-b62f-b0a66f0f78f7}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\CodeGen\build_win32\CodeGen.vcxproj">
       <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
     </ProjectReference>
@@ -727,8 +730,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets" Condition="Exists('..\..\NuGet..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets')" />
-    <Import Project="..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets" Condition="Exists('..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets')" />
     <Import Project="..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets" Condition="Exists('..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" />
     <Import Project="..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets" Condition="Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" />
     <Import Project="..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" />
@@ -744,8 +745,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\bzip2.redist.1.0.6.11\build\native\bzip2.redist.targets'))" />
-    <Error Condition="!Exists('..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\bzip2.1.0.6.11\build\native\bzip2.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets'))" />

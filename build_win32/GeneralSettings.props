@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets">
     <Import Project="ExternalDependencies.userprops" />
@@ -7,7 +7,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_IOP_EMULATE_MODULES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FRAMEWORK_PATH)\include;$(CODEGEN_PATH)\include;$(DXSDK_DIR)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FRAMEWORK_PATH)\include;$(CODEGEN_PATH)\include;$(BZLIB_PATH);$(DXSDK_DIR)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;uxtheme.lib;opengl32.lib;glu32.lib;dxguid.lib;dinput8.lib;vfw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
