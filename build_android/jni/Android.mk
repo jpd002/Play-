@@ -145,7 +145,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -D_DEBUG -DDISABLE_LOGGING
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
-LOCAL_LDLIBS 			:= -landroid -lz
+LOCAL_LDLIBS 			:= -landroid -llog -lz
 LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libboost
 
 include $(BUILD_SHARED_LIBRARY)

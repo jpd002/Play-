@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
+import java.io.*;
 
 public class MainActivity extends Activity 
 {
@@ -13,6 +14,11 @@ public class MainActivity extends Activity
 	{
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
+		
+		File filesDir = getFilesDir();
+		NativeInterop.setFilesDirPath(filesDir.getAbsolutePath());
+		
+		NativeInterop.createVirtualMachine();
 		
 		((Button)findViewById(R.id.startTests)).setOnClickListener(
 			new OnClickListener() 
