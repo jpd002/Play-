@@ -1249,6 +1249,13 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 				tst.nDestAlphaEnabled, tst.nDestAlphaMode, tst.nDepthEnabled, tst.nDepthMethod);
 		}
 		break;
+	case GS_REG_FBA_1:
+	case GS_REG_FBA_2:
+		{
+			auto value = static_cast<uint8>(data & 1);
+			result = string_format("FBA_%d(FBA: %d)", (registerId == GS_REG_FBA_1) ? 1 : 2, value);
+		}
+		break;
 	case GS_REG_FRAME_1:
 	case GS_REG_FRAME_2:
 		{
