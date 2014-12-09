@@ -896,6 +896,11 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0R
 		shaderCaps.texBilinearFilter = 1;
 	}
 
+	if(tex0.nColorComp == 1)
+	{
+		shaderCaps.texHasAlpha = 1;
+	}
+
 	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
 		shaderCaps.texSourceMode = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;

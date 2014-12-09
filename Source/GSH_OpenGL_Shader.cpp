@@ -168,6 +168,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << "	textureColor = texture2D(g_texture, texCoord.st);"								<< std::endl;
 	}
 
+	if(!caps.texHasAlpha)
+	{
+		shaderBuilder << "	textureColor.a = 1.0;" << std::endl;
+	}
+
 	switch(caps.texFunction)
 	{
 	default:

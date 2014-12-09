@@ -99,6 +99,7 @@ private:
 		unsigned int texClampS			: 2;
 		unsigned int texClampT			: 2;
 		unsigned int texSourceMode		: 2;
+		unsigned int texHasAlpha		: 1;
 		unsigned int texBilinearFilter	: 1;
 		unsigned int hasFog				: 1;
 
