@@ -732,6 +732,10 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 {
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
+	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, D3DZB_TRUE);
+	m_device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
+	m_device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
+
 	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
