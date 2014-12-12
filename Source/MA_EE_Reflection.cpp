@@ -104,7 +104,7 @@ INSTRUCTION CMA_EE::m_cReflMmi0[32] =
 	{	"PCGTW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PMAXW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PADDH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PSUBH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PCGTH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PMAXH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	//0x08
@@ -167,7 +167,7 @@ INSTRUCTION CMA_EE::m_cReflMmi1[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18
 	{	"PADDUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{   "PSUBUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PEXTUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"QFSRV",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -230,7 +230,7 @@ INSTRUCTION CMA_EE::m_cReflMmi3[32] =
 	//0x08
 	{	"PMTHI",	NULL,			CopyMnemonic,		ReflOpRs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PINTEH",	NULL,			CopyMnemonic,		ReflOpRs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

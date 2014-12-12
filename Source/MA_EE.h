@@ -82,6 +82,7 @@ private:
 	void								PCGTW();
 	void								PMAXW();
 	void								PADDH();
+	void								PSUBH();
 	void								PCGTH();
 	void								PMAXH();
 	void								PADDB();
@@ -106,6 +107,7 @@ private:
 	void								PADDUW();
 	void								PEXTUW();
 	void								PADDUB();
+	void								PSUBUB();
 	void								PEXTUB();
 	void								QFSRV();
 
@@ -123,6 +125,7 @@ private:
 
 	//Mmi3
 	void								PMTHI();
+	void								PINTEH();
 	void								PCPYUD();
 	void								POR();
 	void								PNOR();
@@ -132,6 +135,7 @@ private:
 
 	//Pmfhl
 	void								PMFHL_LW();
+	void								PMFHL_UW();
 
 	void								Generic_MADD(unsigned int unit, bool isSigned);
 
