@@ -54,10 +54,18 @@ namespace Iop
 			uint32		queueAddr;
 		};
 
+		// m_cmdBuffer is an array of these structures.
+		struct SIFCMDDATA
+		{
+			uint32		sifCmdHandler;
+			uint32		data;
+			uint32		gp;
+		};
+
 		void					ClearServers();
 		void					BuildExportTable();
 
-		void					ProcessCustomCommand(const SIFCMDHEADER*);
+		void					ProcessCustomCommand(uint32);
 
 		uint32					SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
 		uint32					SifBindRpc(uint32, uint32, uint32);
@@ -68,6 +76,11 @@ namespace Iop
 		void					SifRpcLoop(uint32);
 		uint32					SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
 		void					ReturnFromRpcInvoke(CMIPS&);
+		uint32					SifSetCmdBuffer(uint32 pData, uint32 len);
+		void					SifAddCmdHandler(uint32 pos, uint32 handler, uint32 data);
+
+		uint32					m_cmdBuffer = 0;
+		uint32					m_cmdBufferLen = 0;
 
 		CIopBios&				m_bios;
 		CSifMan&				m_sifMan;

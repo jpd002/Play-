@@ -161,6 +161,8 @@ public:
 	bool						RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	bool						ReleaseIntrHandler(uint32);
 
+	void						TriggerCallback(uint32 address, uint32 arg0, uint32 arg1);
+
 #ifdef DEBUGGER_INCLUDED
 	void						LoadDebugTags(Framework::Xml::CNode*);
 	void						SaveDebugTags(Framework::Xml::CNode*);

@@ -216,11 +216,18 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	}
 #endif
 
-	const int sifDmaBufferSize = 0x1000;
-	uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0, 0);
-#ifndef _NULL_SIFMAN
-	m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
-#endif
+	{
+		const int sifDmaBufferSize = 0x1000;
+		uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0, 0);
+		m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
+	}
+
+	{
+		const int sifCmdBufferSize = 0x100;
+		uint32 sifCmdBufferPtr = m_sysmem->AllocateMemory(sifCmdBufferSize, 0, 0);
+		m_sifMan->SetCmdBuffer(sifCmdBufferPtr, sifCmdBufferSize);
+	}
+
 	m_sifMan->GenerateHandlers(m_ram, *m_sysmem);
 
 	InitializeModuleLoader();
@@ -1993,6 +2000,39 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 			}
 		}
 	}
+}
+
+void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
+{
+	// Call the addres on a callback thread with A0 set to arg0
+	uint32 callbackThreadId = -1;
+
+	//Find a thread we could recycle for a new callback
+	for (auto threadIterator = m_threads.Begin();
+		threadIterator != m_threads.End(); threadIterator++)
+	{
+		const auto& thread(m_threads[threadIterator]);
+		if(thread == nullptr) continue;
+		if(thread->threadProc != address) continue;
+		if(thread->status == THREAD_STATUS_DORMANT)
+		{
+			callbackThreadId = thread->id;
+			break;
+		}
+	}
+
+	//If no threads are available, create a new one
+	if(callbackThreadId == -1)
+	{
+		callbackThreadId = CreateThread(address, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	}
+
+	ChangeThreadPriority(callbackThreadId, 1);
+	StartThread(callbackThreadId);
+
+	auto thread = GetThread(callbackThreadId);
+	thread->context.gpr[CMIPS::A0] = arg0;
+	thread->context.gpr[CMIPS::A1] = arg1;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,6 @@
 #include "StructCollectionStateFile.h"
 #include "lexical_cast_ex.h"
 
-#define		CMD_RECVADDR		(CIopBios::CONTROL_BLOCK_END)
 #define		RPC_RECVADDR		0xDEADBEEF
 
 #define LOG_NAME					("sif")
@@ -41,17 +40,9 @@
 #define STATE_PACKET_REQUEST_END_CLIENTBUFFER	("Packet_Request_End_ClientBuffer")
 
 CSIF::CSIF(CDMAC& dmac, uint8* eeRam, uint8* iopRam)
-: m_nMAINADDR(0)
-, m_nSUBADDR(0)
-, m_nMSFLAG(0)
-, m_nSMFLAG(0)
-, m_nEERecvAddr(0)
-, m_nDataAddr(0)
-, m_dmac(dmac)
+: m_dmac(dmac)
 , m_eeRam(eeRam)
 , m_iopRam(iopRam)
-, m_dmaBuffer(NULL)
-, m_dmaBufferSize(0)
 {
 
 }
@@ -64,8 +55,7 @@ CSIF::~CSIF()
 void CSIF::Reset()
 {
 	m_nMAINADDR		= 0;
-	//This should be the address to which the IOP receives its requests from the EE
-	m_nSUBADDR		= CMD_RECVADDR;
+	m_nSUBADDR		= 0;
 	m_nMSFLAG		= 0;
 //	m_nSMFLAG		= 0x20000;
 	m_nSMFLAG		= 0x60000;
@@ -83,8 +73,15 @@ void CSIF::Reset()
 
 void CSIF::SetDmaBuffer(uint32 bufferAddress, uint32 size)
 {
-	m_dmaBuffer = m_iopRam + bufferAddress;
+	m_dmaBufferAddress = bufferAddress;
 	m_dmaBufferSize = size;
+}
+
+void CSIF::SetCmdBuffer(uint32 bufferAddress, uint32 size)
+{
+	m_cmdBufferAddress = bufferAddress;
+	m_cmdBufferSize = size;
+	m_nSUBADDR = bufferAddress;
 }
 
 void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
@@ -120,7 +117,7 @@ uint32 CSIF::ReceiveDMA5(uint32 srcAddress, uint32 size, uint32 unused, bool isT
 	{
 		throw std::runtime_error("Packet too big.");
 	}
-	memcpy(m_eeRam + srcAddress, m_dmaBuffer, size);
+	memcpy(m_eeRam + srcAddress, m_iopRam + m_dmaBufferAddress, size);
 	return size;
 }
 
@@ -138,7 +135,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 		m_nDataAddr = nSrcAddr;
 		return nSize;
 	}
-	else if(nDstAddr == CMD_RECVADDR)
+	else if(nDstAddr == m_nSUBADDR)
 	{
 		auto hdr = reinterpret_cast<SIFCMDHEADER*>(m_eeRam + nSrcAddr);
 
@@ -173,7 +170,8 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 		default:
 			if(m_customCommandHandler)
 			{
-				m_customCommandHandler(hdr);
+				memcpy(m_iopRam + nDstAddr, m_eeRam + nSrcAddr, nSize);
+				m_customCommandHandler(nDstAddr);
 			}
 			break;
 		}
@@ -185,7 +183,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 		assert(nDstAddr < PS2::IOP_RAM_SIZE);
 		CLog::GetInstance().Print(LOG_NAME, "WriteToIop(dstAddr = 0x%0.8X, srcAddr = 0x%0.8X, size = 0x%0.8X);\r\n", 
 			nDstAddr, nSrcAddr, nSize);
-		if(nDstAddr >= 0 && nDstAddr <= CMD_RECVADDR)
+		if(nDstAddr >= 0 && nDstAddr <= CIopBios::CONTROL_BLOCK_END)
 		{
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Trying to DMA in Bios Control Area.\r\n");
 		}
@@ -234,7 +232,7 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 		throw std::runtime_error("Packet too big.");
 	}
 
-	memcpy(m_dmaBuffer, pData, nSize);
+	memcpy(m_iopRam + m_dmaBufferAddress, pData, nSize);
 	uint32 nQuads = (nSize + 0x0F) / 0x10;
 
 	m_dmac.SetRegister(CDMAC::D5_MADR, m_nEERecvAddr);

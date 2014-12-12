@@ -13,7 +13,7 @@
 class CSIF
 {
 public:
-	typedef std::function<void (const SIFCMDHEADER*)> CustomCommandHandler;
+	typedef std::function<void (uint32)> CustomCommandHandler;
 
 									CSIF(CDMAC&, uint8*, uint8*);
 	virtual							~CSIF();
@@ -27,6 +27,7 @@ public:
 	bool							IsModuleRegistered(uint32) const;
 	void							UnregisterModule(uint32);
 	void							SetDmaBuffer(uint32, uint32);
+	void							SetCmdBuffer(uint32, uint32);
 	void							SendCallReply(uint32, const void*);
 	void							SetCustomCommandHandler(const CustomCommandHandler&);
 
@@ -85,17 +86,19 @@ private:
 
 	uint8*							m_eeRam;
 	uint8*							m_iopRam;
-	uint8*							m_dmaBuffer;
-	uint32							m_dmaBufferSize;
+	uint32							m_dmaBufferAddress = 0;
+	uint32							m_dmaBufferSize = 0;
+	uint32							m_cmdBufferAddress = 0;
+	uint32							m_cmdBufferSize = 0;
 	CDMAC&							m_dmac;
 
-	uint32							m_nMAINADDR;
-	uint32							m_nSUBADDR;
-	uint32							m_nMSFLAG;
-	uint32							m_nSMFLAG;
+	uint32							m_nMAINADDR = 0;
+	uint32							m_nSUBADDR = 0;
+	uint32							m_nMSFLAG = 0;
+	uint32							m_nSMFLAG = 0;
 
-	uint32							m_nEERecvAddr;
-	uint32							m_nDataAddr;
+	uint32							m_nEERecvAddr = 0;
+	uint32							m_nDataAddr = 0;
 
 	uint32							m_nUserReg[MAX_USERREG];
 
