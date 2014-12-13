@@ -162,7 +162,7 @@ INSTRUCTION CMA_EE::m_cReflMmi1[32] =
 	{	"PEXTUW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PSUBSH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18

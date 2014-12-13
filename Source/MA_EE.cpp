@@ -627,6 +627,15 @@ void CMA_EE::PEXTUW()
 	PullVector(m_nRD);
 }
 
+//15
+void CMA_EE::PSUBUH()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_SubHUS();
+	PullVector(m_nRD);
+}
+
 //18
 void CMA_EE::PADDUB()
 {
@@ -1222,7 +1231,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] =
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
-	&CMA_EE::PADDUW,		&CMA_EE::Illegal,		&CMA_EE::PEXTUW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PADDUW,		&CMA_EE::Illegal,		&CMA_EE::PEXTUW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSUBUH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
 	&CMA_EE::PADDUB,		&CMA_EE::PSUBUB,		&CMA_EE::PEXTUB,		&CMA_EE::QFSRV,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 };
