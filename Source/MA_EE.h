@@ -91,7 +91,6 @@ private:
 	void								PEXTLW();
 	void								PPACW();
 	void								PADDSH();
-	void								PSUBSH();
 	void								PEXTLH();
 	void								PPACH();
 	void								PEXTLB();
@@ -106,6 +105,9 @@ private:
 	void								PCEQB();
 	void								PADDUW();
 	void								PEXTUW();
+	void								PSUBSH();
+	void								PEXTUH();
+
 	void								PSUBUH();
 	void								PADDUB();
 	void								PSUBUB();
