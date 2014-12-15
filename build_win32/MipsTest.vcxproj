@@ -166,8 +166,10 @@
     <ClCompile Include="..\Source\MipsJitter.cpp" />
     <ClCompile Include="..\Source\MIPSReflection.cpp" />
     <ClCompile Include="..\Source\MIPSTags.cpp" />
+    <ClCompile Include="..\Source\MIPSTraces.cpp" />
     <ClCompile Include="..\tools\MipsTest\Add64Test.cpp" />
     <ClCompile Include="..\tools\MipsTest\ExchangeTest.cpp" />
+    <ClCompile Include="..\tools\MipsTest\ExtendTest.cpp" />
     <ClCompile Include="..\tools\MipsTest\Main.cpp" />
     <ClCompile Include="..\tools\MipsTest\PackTest.cpp" />
     <ClCompile Include="..\tools\MipsTest\SetLessThanTest.cpp" />
@@ -202,6 +204,7 @@
     <ClInclude Include="..\Source\MIPSTags.h" />
     <ClInclude Include="..\tools\MipsTest\Add64Test.h" />
     <ClInclude Include="..\tools\MipsTest\ExchangeTest.h" />
+    <ClInclude Include="..\tools\MipsTest\ExtendTest.h" />
     <ClInclude Include="..\tools\MipsTest\PackTest.h" />
     <ClInclude Include="..\tools\MipsTest\SetLessThanTest.h" />
     <ClInclude Include="..\tools\MipsTest\Shift32Test.h" />
