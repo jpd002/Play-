@@ -168,20 +168,46 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << "	textureColor = texture2D(g_texture, texCoord.st);"								<< std::endl;
 	}
 
-	if(!caps.texHasAlpha)
+	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
 	{
-		shaderBuilder << "	textureColor.a = 1.0;" << std::endl;
-	}
+		if(!caps.texHasAlpha)
+		{
+			shaderBuilder << "	textureColor.a = 1.0;" << std::endl;
+		}
 
-	switch(caps.texFunction)
+		switch(caps.texFunction)
+		{
+		case TEX0_FUNCTION_MODULATE:
+			shaderBuilder << "	textureColor *= gl_Color;" << std::endl;
+			break;
+		case TEX0_FUNCTION_DECAL:
+			break;
+		case TEX0_FUNCTION_HIGHLIGHT:
+			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * gl_Color.rgb) + gl_Color.aaa;" << std::endl;
+			if(!caps.texHasAlpha)
+			{
+				shaderBuilder << "	textureColor.a = gl_Color.a;" << std::endl;
+			}
+			else
+			{
+				shaderBuilder << "	textureColor.a += gl_Color.a;" << std::endl;
+			}
+			break;
+		case TEX0_FUNCTION_HIGHLIGHT2:
+			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * gl_Color.rgb) + gl_Color.aaa;" << std::endl;
+			if(!caps.texHasAlpha)
+			{
+				shaderBuilder << "	textureColor.a = gl_Color.a;" << std::endl;
+			}
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	}
+	else
 	{
-	default:
-		assert(0);
-	case TEX0_FUNCTION_MODULATE:
-		shaderBuilder << "	textureColor *= gl_Color;"														<< std::endl;
-		break;
-	case TEX0_FUNCTION_DECAL:
-		break;
+		shaderBuilder << "	textureColor = gl_Color;" << std::endl;
 	}
 
 	if(caps.hasFog)
