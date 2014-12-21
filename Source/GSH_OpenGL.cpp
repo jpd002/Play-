@@ -394,6 +394,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + context];
 	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
+	uint64 texAReg = m_nReg[GS_REG_TEXA];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
 	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
@@ -404,7 +405,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	SHADERCAPS shaderCaps;
 	memset(&shaderCaps, 0, sizeof(SHADERCAPS));
 
-	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, clampReg);
+	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, texAReg, clampReg);
 
 	if(prim.nFog)
 	{
@@ -433,6 +434,8 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		shaderInfo.texelSizeUniform		= glGetUniformLocation(*shader, "g_texelSize");
 		shaderInfo.clampMinUniform		= glGetUniformLocation(*shader, "g_clampMin");
 		shaderInfo.clampMaxUniform		= glGetUniformLocation(*shader, "g_clampMax");
+		shaderInfo.texA0Uniform			= glGetUniformLocation(*shader, "g_texA0");
+		shaderInfo.texA1Uniform			= glGetUniformLocation(*shader, "g_texA1");
 
 		m_shaderInfos.insert(ShaderInfoMap::value_type(static_cast<uint32>(shaderCaps), shaderInfo));
 		shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
@@ -530,10 +533,11 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	if(!m_renderState.isValid ||
 		(m_renderState.tex0Reg != tex0Reg) ||
 		(m_renderState.tex1Reg != tex1Reg) ||
+		(m_renderState.texAReg != texAReg) ||
 		(m_renderState.clampReg != clampReg) ||
 		(m_renderState.primReg != primReg))
 	{
-		SetupTexture(shaderInfo, primReg, tex0Reg, tex1Reg, clampReg);
+		SetupTexture(shaderInfo, primReg, tex0Reg, tex1Reg, texAReg, clampReg);
 	}
 
 	XYOFFSET offset;
@@ -553,6 +557,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	m_renderState.frameReg = frameReg;
 	m_renderState.tex0Reg = tex0Reg;
 	m_renderState.tex1Reg = tex1Reg;
+	m_renderState.texAReg = texAReg;
 	m_renderState.clampReg = clampReg;
 }
 
@@ -868,10 +873,11 @@ bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 cla
 	return false;
 }
 
-void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
+void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
 {
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto tex1 = make_convertible<TEX1>(tex1Reg);
+	auto texA = make_convertible<TEXA>(texAReg);
 	auto clamp = make_convertible<CLAMP>(clampReg);
 
 	shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_STD;
@@ -901,15 +907,30 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0R
 		shaderCaps.texHasAlpha = 1;
 	}
 
+	if((tex0.nPsm == PSMCT16) || (tex0.nPsm == PSMCT16S) || (tex0.nPsm == PSMCT24))
+	{
+		shaderCaps.texUseAlphaExpansion = 1;
+	}
+
 	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
+		if((tex0.nCPSM == PSMCT16) || (tex0.nCPSM == PSMCT16S))
+		{
+			shaderCaps.texUseAlphaExpansion = 1;
+		}
+
 		shaderCaps.texSourceMode = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;
+	}
+
+	if(texA.nAEM)
+	{
+		shaderCaps.texBlackIsTransparent = 1;
 	}
 
 	shaderCaps.texFunction = tex0.nFunction;
 }
 
-void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
+void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
 {
 	auto prim = make_convertible<PRMODE>(primReg);
 
@@ -924,6 +945,7 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto tex1 = make_convertible<TEX1>(tex1Reg);
+	auto texA = make_convertible<TEXA>(texAReg);
 	auto clamp = make_convertible<CLAMP>(clampReg);
 
 	m_nTexWidth = tex0.GetWidth();
@@ -1053,6 +1075,18 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	{
 		glUniform2f(shaderInfo.clampMaxUniform,
 			static_cast<float>(clampMax[0]), static_cast<float>(clampMax[1]));
+	}
+
+	if(shaderInfo.texA0Uniform != -1)
+	{
+		float a = static_cast<float>(MulBy2Clamp(texA.nTA0)) / 255.f;
+		glUniform1f(shaderInfo.texA0Uniform, a);
+	}
+
+	if(shaderInfo.texA1Uniform != -1)
+	{
+		float a = static_cast<float>(MulBy2Clamp(texA.nTA1)) / 255.f;
+		glUniform1f(shaderInfo.texA1Uniform, a);
 	}
 }
 
