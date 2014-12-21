@@ -893,6 +893,11 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 		m_nCBP0 = tex0.nCBP;
 		updateNeeded = true;
 	}
+	else if(tex0.nCLD == 4)
+	{
+		updateNeeded = (m_nCBP0 != tex0.nCBP);
+		m_nCBP0 = tex0.nCBP;
+	}
 	else
 	{
 		updateNeeded = true;
