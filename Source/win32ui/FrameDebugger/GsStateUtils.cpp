@@ -242,6 +242,14 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 	}
 
 	{
+		auto texA = make_convertible<CGSHandler::TEXA>(gs->GetRegisters()[GS_REG_TEXA]);
+		result += string_format("Texture Alpha:\r\n");
+		result += string_format("\tAlpha 0: 0x%0.2X\r\n", texA.nTA0);
+		result += string_format("\tAlpha 1: 0x%0.2X\r\n", texA.nTA1);
+		result += string_format("\tBlack Is Transparent: %s\r\n", g_yesNoString[texA.nAEM]);
+	}
+
+	{
 		auto clamp = make_convertible<CGSHandler::CLAMP>(gs->GetRegisters()[GS_REG_CLAMP_1 + contextId]);
 		result += string_format("Clamp:\r\n");
 		result += string_format("\tWrap Mode S: %s\r\n", g_wrapModeString[clamp.nWMS]);
