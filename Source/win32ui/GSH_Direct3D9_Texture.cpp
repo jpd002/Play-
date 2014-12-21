@@ -239,11 +239,13 @@ uint32 CGSH_Direct3D9::ConvertTexturePsm8(const TEX0& tex0, const TEXA& texA)
 	{
 		for(unsigned int i = 0; i < width; i++)
 		{
-			if (i <= bufWidthBytes){
+			if(i <= bufWidthBytes)
+			{
 				uint32 pixel = indexor.GetPixel(i, j);
 				dst[i] = clut[pixel];
 			}
-			else {
+			else
+			{
 				dst[i] = 0;
 			}
 		}
@@ -274,12 +276,14 @@ uint32 CGSH_Direct3D9::ConvertTexturePsm8H(const TEX0& tex0, const TEXA& texA)
 	{
 		for(unsigned int i = 0; i < width; i++)
 		{
-			if (i <= bufWidthBytes){
+			if(i <= bufWidthBytes)
+			{
 				uint32 pixel = indexor.GetPixel(i, j);
 				pixel >>= 24;
 				dst[i] = clut[pixel];
 			}
-			else {
+			else
+			{
 				dst[i] = 0;
 			}
 		}

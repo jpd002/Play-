@@ -65,7 +65,7 @@ private:
 
 	enum CVTBUFFERSIZE
 	{
-		CVTBUFFERSIZE = 2048*2048*4,
+		CVTBUFFERSIZE = 2048 * 2048 * 4,
 	};
 
 	struct RENDERSTATE
