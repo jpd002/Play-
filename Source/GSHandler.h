@@ -53,6 +53,7 @@ enum GS_REGS
 	GS_REG_ALPHA_2		= 0x43,
 	GS_REG_TEST_1		= 0x47,
 	GS_REG_TEST_2		= 0x48,
+	GS_REG_PABE			= 0x49,
 	GS_REG_FBA_1		= 0x4A,
 	GS_REG_FBA_2		= 0x4B,
 	GS_REG_FRAME_1		= 0x4C,
