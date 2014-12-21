@@ -1249,6 +1249,12 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 				tst.nDestAlphaEnabled, tst.nDestAlphaMode, tst.nDepthEnabled, tst.nDepthMethod);
 		}
 		break;
+	case GS_REG_PABE:
+		{
+			auto value = static_cast<uint8>(data & 1);
+			result = string_format("PABE(PABE: %d)", value);
+		}
+		break;
 	case GS_REG_FBA_1:
 	case GS_REG_FBA_2:
 		{
