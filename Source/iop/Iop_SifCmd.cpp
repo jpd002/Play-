@@ -182,7 +182,7 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14));
 		break;
 	case 14:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFINITRPC "\r\n");
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFINITRPC "();\r\n");
 		break;
 	case 15:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifBindRpc(
