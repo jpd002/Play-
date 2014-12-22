@@ -200,6 +200,15 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 			i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
 	}
 
+	result += string_format("Fog:\r\n");
+	result += string_format("\t                    F\r\n");
+	for(unsigned int i = 0; i < 3; i++)
+	{
+		auto vertex = vertices[i];
+		result += string_format("\tVertex %i:        0x%0.2X\r\n", 
+			i, vertex.nFog);
+	}
+
 	return result;
 }
 
