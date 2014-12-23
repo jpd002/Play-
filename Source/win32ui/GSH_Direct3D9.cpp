@@ -1040,16 +1040,16 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 	{
 		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
 		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
 		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(nValue >> 56);
 	}
 	else
 	{
 		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue;
 		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
 		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(m_nReg[GS_REG_FOG] >> 56);
 	}
 
