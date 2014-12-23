@@ -709,7 +709,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x20
-	{	"B",		NULL,			NULL				},
+	{	"B",		NULL,			ReflOpAffNone		},
 	{	"BAL",		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
