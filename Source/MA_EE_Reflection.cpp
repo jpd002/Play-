@@ -167,7 +167,7 @@ INSTRUCTION CMA_EE::m_cReflMmi1[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x18
 	{	"PADDUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{   "PSUBUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
+	{	"PSUBUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PEXTUB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"QFSRV",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -230,7 +230,7 @@ INSTRUCTION CMA_EE::m_cReflMmi3[32] =
 	//0x08
 	{	"PMTHI",	NULL,			CopyMnemonic,		ReflOpRs,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	"PINTEH",	NULL,			CopyMnemonic,		ReflOpRs,			NULL,				NULL			},
+	{	"PINTEH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -260,7 +260,7 @@ INSTRUCTION CMA_EE::m_cReflPmfhl[32] =
 {
 	//0x00
 	{	"PMFHL.LW",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PMFHL.UW",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

@@ -636,7 +636,7 @@ void CMA_EE::PADDUB()
 	PullVector(m_nRD);
 }
 
-//18
+//19
 void CMA_EE::PSUBUB()
 {
 	PushVector(m_nRS);
@@ -644,6 +644,7 @@ void CMA_EE::PSUBUB()
 	m_codeGen->MD_SubBUS();
 	PullVector(m_nRD);
 }
+
 //1A
 void CMA_EE::PEXTUB()
 {
@@ -956,8 +957,7 @@ void CMA_EE::PMTHI()
 //0A
 void CMA_EE::PINTEH()
 {
-	// rs shifts to high half
-	for (unsigned int i = 0; i < 4; i++)
+	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
 		m_codeGen->Shl(16);
@@ -1094,6 +1094,7 @@ void CMA_EE::PEXCW()
 //PMFHL
 //////////////////////////////////////////////////
 
+//00
 void CMA_EE::PMFHL_LW()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
@@ -1109,6 +1110,7 @@ void CMA_EE::PMFHL_LW()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 }
 
+//01
 void CMA_EE::PMFHL_UW()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[1]));
@@ -1204,7 +1206,7 @@ void CMA_EE::Generic_MADD(unsigned int unit, bool isSigned)
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
 {
 	//0x00
-	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::PCGTW,			&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::PSUBH,		&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
+	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::PCGTW,			&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::PSUBH,			&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
 	//0x08
 	&CMA_EE::PADDB,			&CMA_EE::PSUBB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
