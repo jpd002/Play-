@@ -3,23 +3,21 @@
 #include "MIPS.h"
 #include "offsetof_def.h"
 
-using namespace std;
-
 void CMA_MIPSIV::Template_Add32(bool isSigned)
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
-    m_codeGen->Add();
+	m_codeGen->Add();
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
 		m_codeGen->PushTop();
 		m_codeGen->SignExt();
-	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 void CMA_MIPSIV::Template_Add64(bool isSigned)
@@ -34,26 +32,26 @@ void CMA_MIPSIV::Template_Add64(bool isSigned)
 
 void CMA_MIPSIV::Template_Sub32(bool isSigned)
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
-    m_codeGen->Sub();
+	m_codeGen->Sub();
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
 		m_codeGen->PushTop();
-	    m_codeGen->SignExt();
-	    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		m_codeGen->SignExt();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 {
-    //TODO: Need to check if this used correctly... LBU, LHU and LW uses this (why LW? and why sign extend on LBU and LHU?)
+	//TODO: Need to check if this used correctly... LBU, LHU and LW uses this (why LW? and why sign extend on LBU and LHU?)
 
-    ComputeMemAccessAddr();
+	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
@@ -67,14 +65,14 @@ void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 	}
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
-    m_codeGen->PullTop();
+	m_codeGen->PullTop();
 }
 
 void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType& Function)
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    Function(m_nSA);
-    
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	Function(m_nSA);
+
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
 		m_codeGen->PushTop();
@@ -82,14 +80,14 @@ void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType&
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& function)
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    function();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	function();
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -98,36 +96,36 @@ void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& functi
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	}
 
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
 void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, unsigned int unit)
 {
-    size_t lo[2];
-    size_t hi[2];
+	size_t lo[2];
+	size_t hi[2];
 
-    switch(unit)
-    {
-    case 0:
-        lo[0] = offsetof(CMIPS, m_State.nLO[0]);
-        lo[1] = offsetof(CMIPS, m_State.nLO[1]);
-        hi[0] = offsetof(CMIPS, m_State.nHI[0]);
-        hi[1] = offsetof(CMIPS, m_State.nHI[1]);
-        break;
-    case 1:
-        lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
-        lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
-        hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
-        hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
-        break;
-    default:
-        throw runtime_error("Invalid unit number.");
-        break;
-    }
+	switch(unit)
+	{
+	case 0:
+		lo[0] = offsetof(CMIPS, m_State.nLO[0]);
+		lo[1] = offsetof(CMIPS, m_State.nLO[1]);
+		hi[0] = offsetof(CMIPS, m_State.nHI[0]);
+		hi[1] = offsetof(CMIPS, m_State.nHI[1]);
+		break;
+	case 1:
+		lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
+		lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
+		hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
+		hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
+		break;
+	default:
+		throw std::runtime_error("Invalid unit number.");
+		break;
+	}
 
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    Function();
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	Function();
 
 	m_codeGen->PushTop();
 
@@ -138,7 +136,7 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(lo[1]);
 	}
-    m_codeGen->PullRel(lo[0]);
+	m_codeGen->PullRel(lo[0]);
 
 	m_codeGen->ExtHigh64();
 	if(m_regSize == MIPS_REGSIZE_64)
@@ -147,42 +145,42 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(hi[1]);
 	}
-    m_codeGen->PullRel(hi[0]);
+	m_codeGen->PullRel(hi[0]);
 
-    if(m_nRD != 0)
-    {
+	if(m_nRD != 0)
+	{
 		//Wierd EE MIPS spinoff...
-        m_codeGen->PushRel(lo[0]);
-        m_codeGen->PushRel(lo[1]);
+		m_codeGen->PushRel(lo[0]);
+		m_codeGen->PushRel(lo[1]);
 
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
-    }
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
 }
 
 void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, unsigned int unit)
 {
-    size_t lo[2];
-    size_t hi[2];
+	size_t lo[2];
+	size_t hi[2];
 
-    switch(unit)
-    {
-    case 0:
-        lo[0] = offsetof(CMIPS, m_State.nLO[0]);
-        lo[1] = offsetof(CMIPS, m_State.nLO[1]);
-        hi[0] = offsetof(CMIPS, m_State.nHI[0]);
-        hi[1] = offsetof(CMIPS, m_State.nHI[1]);
-        break;
-    case 1:
-        lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
-        lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
-        hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
-        hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
-        break;
-    default:
-        throw runtime_error("Invalid unit number.");
-        break;
-    }
+	switch(unit)
+	{
+	case 0:
+		lo[0] = offsetof(CMIPS, m_State.nLO[0]);
+		lo[1] = offsetof(CMIPS, m_State.nLO[1]);
+		hi[0] = offsetof(CMIPS, m_State.nHI[0]);
+		hi[1] = offsetof(CMIPS, m_State.nHI[1]);
+		break;
+	case 1:
+		lo[0] = offsetof(CMIPS, m_State.nLO1[0]);
+		lo[1] = offsetof(CMIPS, m_State.nLO1[1]);
+		hi[0] = offsetof(CMIPS, m_State.nHI1[0]);
+		hi[1] = offsetof(CMIPS, m_State.nHI1[1]);
+		break;
+	default:
+		throw std::runtime_error("Invalid unit number.");
+		break;
+	}
 
 	//Check for zero
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -238,17 +236,17 @@ void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(isEqual ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE);
-    {
-        m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-        m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
 		if(m_regSize == MIPS_REGSIZE_64)
 		{
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 		}
-    }
-    m_codeGen->EndIf();
+	}
+	m_codeGen->EndIf();
 }
 
 void CMA_MIPSIV::Template_SetLessThanImm(bool isSigned)
@@ -324,14 +322,14 @@ void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
 
 	Jitter::CONDITION branchCondition = condition ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE;
 
-    if(likely)
-    {
+	if(likely)
+	{
 		BranchLikely(branchCondition);
-    }
-    else
-    {
-        Branch(branchCondition);
-    }
+	}
+	else
+	{
+		Branch(branchCondition);
+	}
 }
 
 void CMA_MIPSIV::Template_BranchGez(bool condition, bool likely)
@@ -345,21 +343,21 @@ void CMA_MIPSIV::Template_BranchGez(bool condition, bool likely)
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
 	}
 
-    m_codeGen->PushCst(0x80000000);
-    m_codeGen->And();
+	m_codeGen->PushCst(0x80000000);
+	m_codeGen->And();
 
-    m_codeGen->PushCst(0);
+	m_codeGen->PushCst(0);
 
 	Jitter::CONDITION branchCondition = condition ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE;
 
 	if(likely)
-    {
-        BranchLikely(branchCondition);
-    }
-    else
-    {
-        Branch(branchCondition);
-    }
+	{
+		BranchLikely(branchCondition);
+	}
+	else
+	{
+		Branch(branchCondition);
+	}
 }
 
 void CMA_MIPSIV::Template_BranchLez(bool condition, bool likely)
@@ -383,12 +381,12 @@ void CMA_MIPSIV::Template_BranchLez(bool condition, bool likely)
 		branchCondition = Jitter::CONDITION_NE;
 	}
 
-    if(likely)
-    {
-        BranchLikely(branchCondition);
-    }
-    else
-    {
-        Branch(branchCondition);
-    }
+	if(likely)
+	{
+		BranchLikely(branchCondition);
+	}
+	else
+	{
+		Branch(branchCondition);
+	}
 }
