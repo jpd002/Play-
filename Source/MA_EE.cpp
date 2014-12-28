@@ -1006,7 +1006,7 @@ void CMA_EE::PCPYUD()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
 	
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));	
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 }
 
 //12
