@@ -14,53 +14,55 @@ void CExtendTest::Execute(CTestVm& virtualMachine)
 	const uint32 constantValue5 = 0xBBBBAAAA;
 	const uint32 constantValue6 = 0xDDDDCCCC;
 	const uint32 constantValue7 = 0xFFFFEEEE;
-	const uint64 rdHigh = 0x7777FFFF6666EEEEULL;
-	const uint64 rdLow  = 0x5555DDDD4444CCCCULL;
-	const uint64 rd2High = 0x3333BBBB2222AAAAULL;
-	const uint64 rd2Low  = 0x1111999900008888ULL;
+	const uint64 extuhResultLow  = 0x5555DDDD4444CCCCULL;
+	const uint64 extuhResultHigh = 0x7777FFFF6666EEEEULL;
+	const uint64 extlhResultLow  = 0x1111999900008888ULL;
+	const uint64 extlhResultHigh = 0x3333BBBB2222AAAAULL;
 
-	auto rs = CMIPS::A0;
-	auto rt = CMIPS::A1;
-	auto rd = CMIPS::T0;
-	auto rd2 = CMIPS::T1;
+	auto valueRegister0 = CMIPS::A0;
+	auto valueRegister1 = CMIPS::A1;
+	auto extlhResult = CMIPS::T0;
+	auto extuhResult = CMIPS::T1;
 
 	virtualMachine.Reset();
 
 	{
 		CEEAssembler assembler(reinterpret_cast<uint32*>(virtualMachine.m_ram + baseAddress));
 
-		//PEXCH
-		assembler.PEXTUH(rd, rs, rt);
-		assembler.PEXTLH(rd2, rs, rt);
+		//PEXTLH
+		assembler.PEXTLH(extlhResult, valueRegister0, valueRegister1);
+
+		//PEXTUH
+		assembler.PEXTUH(extuhResult, valueRegister0, valueRegister1);
 
 		assembler.SYSCALL();
 	}
 
 	//Setup initial state
-	cpu.m_State.nGPR[rs].nV[0] = constantValue0;
-	cpu.m_State.nGPR[rs].nV[1] = constantValue1;
-	cpu.m_State.nGPR[rs].nV[2] = constantValue2;
-	cpu.m_State.nGPR[rs].nV[3] = constantValue3;
-	cpu.m_State.nGPR[rt].nV[0] = constantValue4;
-	cpu.m_State.nGPR[rt].nV[1] = constantValue5;
-	cpu.m_State.nGPR[rt].nV[2] = constantValue6;
-	cpu.m_State.nGPR[rt].nV[3] = constantValue7;
+	cpu.m_State.nGPR[valueRegister0].nV[0] = constantValue0;
+	cpu.m_State.nGPR[valueRegister0].nV[1] = constantValue1;
+	cpu.m_State.nGPR[valueRegister0].nV[2] = constantValue2;
+	cpu.m_State.nGPR[valueRegister0].nV[3] = constantValue3;
+	cpu.m_State.nGPR[valueRegister1].nV[0] = constantValue4;
+	cpu.m_State.nGPR[valueRegister1].nV[1] = constantValue5;
+	cpu.m_State.nGPR[valueRegister1].nV[2] = constantValue6;
+	cpu.m_State.nGPR[valueRegister1].nV[3] = constantValue7;
 
 	//Execute
 	virtualMachine.ExecuteTest(baseAddress);
 
 	//Check final state
-	TEST_VERIFY(cpu.m_State.nGPR[rs].nV[0] == constantValue0);
-	TEST_VERIFY(cpu.m_State.nGPR[rs].nV[1] == constantValue1);
-	TEST_VERIFY(cpu.m_State.nGPR[rs].nV[2] == constantValue2);
-	TEST_VERIFY(cpu.m_State.nGPR[rs].nV[3] == constantValue3);
-	TEST_VERIFY(cpu.m_State.nGPR[rt].nV[0] == constantValue4);
-	TEST_VERIFY(cpu.m_State.nGPR[rt].nV[1] == constantValue5);
-	TEST_VERIFY(cpu.m_State.nGPR[rt].nV[2] == constantValue6);
-	TEST_VERIFY(cpu.m_State.nGPR[rt].nV[3] == constantValue7);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister0].nV[0] == constantValue0);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister0].nV[1] == constantValue1);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister0].nV[2] == constantValue2);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister0].nV[3] == constantValue3);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister1].nV[0] == constantValue4);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister1].nV[1] == constantValue5);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister1].nV[2] == constantValue6);
+	TEST_VERIFY(cpu.m_State.nGPR[valueRegister1].nV[3] == constantValue7);
 
-	TEST_VERIFY(cpu.m_State.nGPR[rd].nD0 == rdLow);
-	TEST_VERIFY(cpu.m_State.nGPR[rd].nD1 == rdHigh);
-	TEST_VERIFY(cpu.m_State.nGPR[rd2].nD0 == rd2Low);
-	TEST_VERIFY(cpu.m_State.nGPR[rd2].nD1 == rd2High);
+	TEST_VERIFY(cpu.m_State.nGPR[extlhResult].nD0 == extlhResultLow);
+	TEST_VERIFY(cpu.m_State.nGPR[extlhResult].nD1 == extlhResultHigh);
+	TEST_VERIFY(cpu.m_State.nGPR[extuhResult].nD0 == extuhResultLow);
+	TEST_VERIFY(cpu.m_State.nGPR[extuhResult].nD1 == extuhResultHigh);
 }
