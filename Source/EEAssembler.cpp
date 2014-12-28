@@ -66,6 +66,12 @@ void CEEAssembler::PEXCW(unsigned int rd, unsigned int rt)
 	m_ptr++;
 }
 
+void CEEAssembler::PPACH(unsigned int rd, unsigned int rs, unsigned int rt)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x17) << 6) | (0x08);
+	m_ptr++;
+}
+
 void CEEAssembler::PPACW(unsigned int rd, unsigned int rs, unsigned int rt)
 {
 	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x13) << 6) | (0x08);
