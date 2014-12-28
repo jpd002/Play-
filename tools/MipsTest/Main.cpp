@@ -9,6 +9,7 @@
 #include "ExchangeTest.h"
 #include "ExtendTest.h"
 #include "PackTest.h"
+#include "PackedMultiplyTest.h"
 
 typedef std::function<CTest* ()> TestFactoryFunction;
 
@@ -21,7 +22,8 @@ static const TestFactoryFunction s_factories[] =
 	[] () -> CTest* { return new CShift64Test();		},
 	[] () -> CTest* { return new CExchangeTest();		},
 	[] () -> CTest* { return new CExtendTest();			},
-	[]() -> CTest* { return new CPackTest();			}
+	[] () -> CTest* { return new CPackTest();			},
+	[] () -> CTest* { return new CPackedMultiplyTest();	}
 };
 
 int main(int argc, const char** argv)

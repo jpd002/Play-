@@ -17,6 +17,10 @@ public:
 	void				PEXTLH(unsigned int, unsigned int, unsigned int);
 	void				PEXTUH(unsigned int, unsigned int, unsigned int);
 	void				PEXCW(unsigned int, unsigned int);
+	void				PMFLO(unsigned int);
+	void				PMFHI(unsigned int);
+	void				PMFHL_UW(unsigned int);
+	void				PMULTH(unsigned int, unsigned int, unsigned int);
 	void				PPACH(unsigned int, unsigned int, unsigned int);
 	void				PPACW(unsigned int, unsigned int, unsigned int);
 	void				SQ(unsigned int, uint16, unsigned int);

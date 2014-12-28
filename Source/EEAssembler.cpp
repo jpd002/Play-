@@ -66,6 +66,30 @@ void CEEAssembler::PEXCW(unsigned int rd, unsigned int rt)
 	m_ptr++;
 }
 
+void CEEAssembler::PMFLO(unsigned int rd)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rd << 11) | ((0x09) << 6) | (0x09);
+	m_ptr++;
+}
+
+void CEEAssembler::PMFHI(unsigned int rd)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rd << 11) | ((0x08) << 6) | (0x09);
+	m_ptr++;
+}
+
+void CEEAssembler::PMFHL_UW(unsigned int rd)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rd << 11) | ((0x01) << 6) | (0x30);
+	m_ptr++;
+}
+
+void CEEAssembler::PMULTH(unsigned int rd, unsigned int rs, unsigned int rt)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x1C) << 6) | (0x09);
+	m_ptr++;
+}
+
 void CEEAssembler::PPACH(unsigned int rd, unsigned int rs, unsigned int rt)
 {
 	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x17) << 6) | (0x08);
