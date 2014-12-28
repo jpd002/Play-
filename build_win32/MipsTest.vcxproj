@@ -166,7 +166,6 @@
     <ClCompile Include="..\Source\MipsJitter.cpp" />
     <ClCompile Include="..\Source\MIPSReflection.cpp" />
     <ClCompile Include="..\Source\MIPSTags.cpp" />
-    <ClCompile Include="..\Source\MIPSTraces.cpp" />
     <ClCompile Include="..\tools\MipsTest\Add64Test.cpp" />
     <ClCompile Include="..\tools\MipsTest\ExchangeTest.cpp" />
     <ClCompile Include="..\tools\MipsTest\ExtendTest.cpp" />

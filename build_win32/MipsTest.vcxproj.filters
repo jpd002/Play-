@@ -103,9 +103,6 @@
     <ClCompile Include="..\tools\MipsTest\PackTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\MIPSTraces.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\tools\MipsTest\ExtendTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
