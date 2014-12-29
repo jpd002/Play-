@@ -14,6 +14,8 @@ public:
 	void				MTLO1(unsigned int);
 	void				PADDW(unsigned int, unsigned int, unsigned int);
 	void				PEXCH(unsigned int, unsigned int);
+	void				PEXTLB(unsigned int, unsigned int, unsigned int);
+	void				PEXTUB(unsigned int, unsigned int, unsigned int);
 	void				PEXTLH(unsigned int, unsigned int, unsigned int);
 	void				PEXTUH(unsigned int, unsigned int, unsigned int);
 	void				PEXCW(unsigned int, unsigned int);

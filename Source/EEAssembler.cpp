@@ -48,6 +48,18 @@ void CEEAssembler::PEXCH(unsigned int rd, unsigned int rt)
 	m_ptr++;
 }
 
+void CEEAssembler::PEXTLB(unsigned int rd, unsigned int rs, unsigned int rt)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x1A) << 6) | (0x08);
+	m_ptr++;
+}
+
+void CEEAssembler::PEXTUB(unsigned int rd, unsigned int rs, unsigned int rt)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x1A) << 6) | (0x28);
+	m_ptr++;
+}
+
 void CEEAssembler::PEXTLH(unsigned int rd, unsigned int rs, unsigned int rt)
 {
 	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x16) << 6) | (0x08);
