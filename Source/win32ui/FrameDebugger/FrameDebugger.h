@@ -40,6 +40,7 @@ private:
 
 	void											LoadFrameDump(const TCHAR*);
 	void											ShowFrameDumpSelector();
+	void											ToggleAlphaTest();
 	void											ToggleDepthTest();
 	void											ToggleAlphaBlending();
 	void											StepVu1();
