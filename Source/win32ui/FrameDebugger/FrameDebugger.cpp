@@ -103,6 +103,9 @@ long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndF
 		case ID_FD_FILE_LOADDUMP:
 			ShowFrameDumpSelector();
 			break;
+		case ID_FD_SETTINGS_ALPHATEST:
+			ToggleAlphaTest();
+			break;
 		case ID_FD_SETTINGS_DEPTHTEST:
 			ToggleDepthTest();
 			break;
@@ -172,6 +175,11 @@ void CFrameDebugger::CreateAcceleratorTables()
 
 void CFrameDebugger::UpdateMenus()
 {
+	{
+		auto alphaTestMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_ALPHATEST);
+		assert(!alphaTestMenuItem.IsEmpty());
+		alphaTestMenuItem.Check(m_gs->GetAlphaTestingEnabled());
+	}
 	{
 		auto depthTestMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_DEPTHTEST);
 		assert(!depthTestMenuItem.IsEmpty());
@@ -278,6 +286,17 @@ void CFrameDebugger::ShowFrameDumpSelector()
 	{
 		LoadFrameDump(fileDialog.GetPath());
 	}
+}
+
+void CFrameDebugger::ToggleAlphaTest()
+{
+	m_gs->SetAlphaTestingEnabled(!m_gs->GetAlphaTestingEnabled());
+	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
+	if(selectedItemIndex != -1)
+	{
+		UpdateDisplay(selectedItemIndex);
+	}
+	UpdateMenus();
 }
 
 void CFrameDebugger::ToggleDepthTest()

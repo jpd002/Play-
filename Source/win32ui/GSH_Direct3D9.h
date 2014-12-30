@@ -37,6 +37,9 @@ public:
 	bool							GetAlphaBlendingEnabled() const;
 	void							SetAlphaBlendingEnabled(bool);
 
+	bool							GetAlphaTestingEnabled() const;
+	void							SetAlphaTestingEnabled(bool);
+
 	Framework::CBitmap				GetFramebuffer(uint64);
 	Framework::CBitmap				GetTexture(uint64, uint64, uint64);
 	const VERTEX*					GetInputVertices() const;
@@ -201,6 +204,7 @@ private:
 
 	bool							m_depthTestingEnabled = true;
 	bool							m_alphaBlendingEnabled = true;
+	bool							m_alphaTestingEnabled = true;
 
 	COutputWnd*						m_outputWnd;
 	Direct3DPtr						m_d3d;

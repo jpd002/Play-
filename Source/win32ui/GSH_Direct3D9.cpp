@@ -99,6 +99,17 @@ void CGSH_Direct3D9::SetAlphaBlendingEnabled(bool alphaBlendingEnabled)
 	m_renderState.isValid = false;
 }
 
+bool CGSH_Direct3D9::GetAlphaTestingEnabled() const
+{
+	return m_alphaTestingEnabled;
+}
+
+void CGSH_Direct3D9::SetAlphaTestingEnabled(bool alphaTestingEnabled)
+{
+	m_alphaTestingEnabled = alphaTestingEnabled;
+	m_renderState.isValid = false;
+}
+
 void CGSH_Direct3D9::InitializeImpl()
 {
 	m_d3d = Direct3DPtr(Direct3DCreate9(D3D_SDK_VERSION));
@@ -822,7 +833,7 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 		{
 			m_device->SetRenderState(D3DRS_ALPHAFUNC, g_alphaTestFunc[tst.nAlphaMethod]);
 			m_device->SetRenderState(D3DRS_ALPHAREF, tst.nAlphaRef);
-			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
+			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, m_alphaTestingEnabled ? D3DZB_TRUE : D3DZB_FALSE);
 		}
 	}
 	else
