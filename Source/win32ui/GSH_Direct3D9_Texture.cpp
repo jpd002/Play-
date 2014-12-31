@@ -25,10 +25,6 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const
 			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
 
-			//If we're currently in interlaced mode, framebuffer will have twice the height
-			bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-			if(halfHeight) scaleRatioY *= 2.0f;
-
 			{
 				D3DXMATRIX textureMatrix;
 				D3DXMatrixIdentity(&textureMatrix);

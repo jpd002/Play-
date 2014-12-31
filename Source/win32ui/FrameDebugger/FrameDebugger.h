@@ -43,11 +43,13 @@ private:
 	void											ToggleAlphaTest();
 	void											ToggleDepthTest();
 	void											ToggleAlphaBlending();
+	void											SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE);
 	void											StepVu1();
 
 	std::unique_ptr<CGSH_Direct3D9>					m_gs;
 	CGsPacketMetadata								m_currentMetadata;
 	DRAWINGKICK_INFO								m_currentDrawingKick;
+	CGsContextView::FB_DISPLAY_MODE					m_fbDisplayMode = CGsContextView::FB_DISPLAY_MODE_RAW;
 	CFrameDump										m_frameDump;
 	CVu1Vm											m_vu1vm;
 

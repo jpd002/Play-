@@ -35,6 +35,12 @@ CGsContextView::~CGsContextView()
 
 }
 
+void CGsContextView::SetFbDisplayMode(FB_DISPLAY_MODE fbDisplayMode)
+{
+	m_fbDisplayMode = fbDisplayMode;
+	UpdateBufferView();
+}
+
 void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK_INFO* drawingKick)
 {
 	assert(gs == m_gs);
@@ -52,6 +58,15 @@ void CGsContextView::UpdateBufferView()
 		if(!framebuffer.IsEmpty())
 		{
 			RenderDrawKick(framebuffer);
+			if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
+			{
+				framebuffer = framebuffer.ResizeCanvas(640, 448);
+			}
+			else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
+			{
+				framebuffer = framebuffer.ResizeCanvas(640, 224);
+				framebuffer = framebuffer.Resize(640, 448);
+			}
 		}
 		m_bufferView->SetBitmap(framebuffer);
 	}

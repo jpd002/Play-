@@ -110,13 +110,16 @@
 #define ID_FD_VU1_STEP                  40178
 #define ID_FD_SETTINGS_ALPHABLEND       40181
 #define ID_FD_SETTINGS_ALPHATEST        40183
+#define ID_FD_SETTINGS_FB_RAW           40188
+#define ID_FD_SETTINGS_FB_448P          40192
+#define ID_FD_SETTINGS_FB_448I          40193
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        119
-#define _APS_NEXT_COMMAND_VALUE         40184
+#define _APS_NEXT_COMMAND_VALUE         40194
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
