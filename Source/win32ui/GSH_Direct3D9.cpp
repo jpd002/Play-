@@ -951,10 +951,8 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 	//Any framebuffer selected at this point can be used as a texture
 	framebuffer->m_canBeUsedAsTexture = true;
 
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-
 	float projWidth = static_cast<float>(framebuffer->m_width);
-	float projHeight = static_cast<float>(halfHeight ? (framebuffer->m_height / 2) : framebuffer->m_height);
+	float projHeight = static_cast<float>(framebuffer->m_height);
 
 	HRESULT result = S_OK;
 	Framework::Win32::CComPtr<IDirect3DSurface9> renderSurface;

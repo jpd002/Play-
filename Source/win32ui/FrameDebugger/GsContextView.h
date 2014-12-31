@@ -12,8 +12,17 @@
 class CGsContextView : public Framework::Win32::CWindow, public IFrameDebuggerTab
 {
 public:
+	enum FB_DISPLAY_MODE
+	{
+		FB_DISPLAY_MODE_RAW,
+		FB_DISPLAY_MODE_448P,
+		FB_DISPLAY_MODE_448I
+	};
+
 													CGsContextView(HWND, const RECT&, CGSHandler*, unsigned int);
 	virtual											~CGsContextView();
+
+	void											SetFbDisplayMode(FB_DISPLAY_MODE);
 
 	void											UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*) override;
 
@@ -33,5 +42,6 @@ private:
 
 	unsigned int									m_contextId = 0;
 	CGSHandler*										m_gs = nullptr;
+	FB_DISPLAY_MODE									m_fbDisplayMode = FB_DISPLAY_MODE_RAW;
 	DRAWINGKICK_INFO								m_drawingKick;
 };
