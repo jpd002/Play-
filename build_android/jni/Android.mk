@@ -27,6 +27,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libPlay
 LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
+							../../Source/androidui/NativeInterop.cpp \
 							../../Source/BasicBlock.cpp \
 							../../Source/COP_FPU.cpp \
 							../../Source/COP_FPU_Reflection.cpp \
@@ -141,10 +142,10 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/VuExecutor.cpp \
 							../../Source/VUShared.cpp \
 							../../Source/VUShared_Reflection.cpp
-LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -D_DEBUG
+LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -D_DEBUG -DDISABLE_LOGGING
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
-LOCAL_LDLIBS 			:= -landroid -lz
+LOCAL_LDLIBS 			:= -landroid -llog -lz
 LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libboost
 
 include $(BUILD_SHARED_LIBRARY)

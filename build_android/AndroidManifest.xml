@@ -5,10 +5,10 @@
 	android:versionName="1.0">
 	<uses-sdk android:minSdkVersion="19" />
 	<uses-feature android:glEsVersion="0x00030000" android:required="true" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<application android:label="@string/app_name">
 		<activity 
-			android:name="com.virtualapplications.play.MainActivity"
-			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+			android:name=".MainActivity"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
