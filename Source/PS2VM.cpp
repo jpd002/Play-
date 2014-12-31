@@ -162,6 +162,13 @@ void CPS2VM::StepIop()
 	m_mailBox.SendCall(std::bind(&CPS2VM::ResumeImpl, this), true);
 }
 
+void CPS2VM::StepVu0()
+{
+	if(GetStatus() == RUNNING) return;
+	m_singleStepVu0 = true;
+	m_mailBox.SendCall(std::bind(&CPS2VM::ResumeImpl, this), true);
+}
+
 void CPS2VM::StepVu1()
 {
 	if(GetStatus() == RUNNING) return;

@@ -261,11 +261,17 @@ VUShared::VUINSTRUCTION* VUShared::DereferenceInstruction(VUSUBTABLE* pSubTable,
 void VUShared::SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
 {
 	pInstr = DereferenceInstruction(pInstr->subTable, nOpcode);
-	if(pInstr->pGetAffectedOperands == NULL) 
+	if(pInstr->pGetAffectedOperands == nullptr)
 	{
+		//We should always have something that tells us what is affected (even if it's nothing)
 		return;
 	}
 	pInstr->pGetAffectedOperands(pInstr, pCtx, nAddress, nOpcode, operandSet);
+}
+
+void VUShared::ReflOpAffNone(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+{
+	//Nothing is affected
 }
 
 void VUShared::ReflOpAffAccFsI(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)

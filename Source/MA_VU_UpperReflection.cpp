@@ -332,7 +332,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX0[32] =
 	//0x00
 	{	"ADDA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"MADDA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"ITOF0",	NULL,			ReflOpAffFtFs		},
 	{	"FTOI0",	NULL,			ReflOpAffFtFs		},
@@ -419,8 +419,8 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX2[32] =
 	{	"MULA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	"MULA",		NULL,			ReflOpAffAccFsI		},
 	//0x08
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"ADDA",		NULL,			ReflOpAffAccFsI,	},
+	{	"SUBA",		NULL,			ReflOpAffAccFsI,	},
 	{	"MULA",		NULL,			ReflOpAffAccFsFt	},
 	{	"OPMULA",	NULL,			ReflOpAffAccFsFt	},
 	{	NULL,		NULL,			NULL				},
@@ -462,7 +462,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 	{	"MADDA",	NULL,			ReflOpAffAccFsI		},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsI		},
 	{	NULL,		NULL,			NULL				},
-	{	"NOP",		NULL,			NULL				},
+	{	"NOP",		NULL,			ReflOpAffNone		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},

@@ -40,9 +40,11 @@ CFrameDebugger::CFrameDebugger()
 	m_tab = std::make_unique<CTabHost>(*m_mainSplitter, GetClientRect());
 
 	m_gsContextView0 = std::make_unique<CGsContextView>(*m_tab, GetClientRect(), m_gs.get(), 0);
+	m_gsContextView0->SetFbDisplayMode(m_fbDisplayMode);
 	m_gsContextView0->Show(SW_HIDE);
 
 	m_gsContextView1 = std::make_unique<CGsContextView>(*m_tab, GetClientRect(), m_gs.get(), 1);
+	m_gsContextView1->SetFbDisplayMode(m_fbDisplayMode);
 	m_gsContextView1->Show(SW_HIDE);
 
 	m_gsInputStateView = std::make_unique<CGsInputStateView>(*m_tab, GetClientRect());
@@ -103,11 +105,23 @@ long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndF
 		case ID_FD_FILE_LOADDUMP:
 			ShowFrameDumpSelector();
 			break;
+		case ID_FD_SETTINGS_ALPHATEST:
+			ToggleAlphaTest();
+			break;
 		case ID_FD_SETTINGS_DEPTHTEST:
 			ToggleDepthTest();
 			break;
 		case ID_FD_SETTINGS_ALPHABLEND:
 			ToggleAlphaBlending();
+			break;
+		case ID_FD_SETTINGS_FB_RAW:
+			SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE_RAW);
+			break;
+		case ID_FD_SETTINGS_FB_448I:
+			SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE_448I);
+			break;
+		case ID_FD_SETTINGS_FB_448P:
+			SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE_448P);
 			break;
 		case ID_FD_VU1_STEP:
 			StepVu1();
@@ -173,6 +187,11 @@ void CFrameDebugger::CreateAcceleratorTables()
 void CFrameDebugger::UpdateMenus()
 {
 	{
+		auto alphaTestMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_ALPHATEST);
+		assert(!alphaTestMenuItem.IsEmpty());
+		alphaTestMenuItem.Check(m_gs->GetAlphaTestingEnabled());
+	}
+	{
 		auto depthTestMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_DEPTHTEST);
 		assert(!depthTestMenuItem.IsEmpty());
 		depthTestMenuItem.Check(m_gs->GetDepthTestingEnabled());
@@ -181,6 +200,21 @@ void CFrameDebugger::UpdateMenus()
 		auto alphaBlendMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_ALPHABLEND);
 		assert(!alphaBlendMenuItem.IsEmpty());
 		alphaBlendMenuItem.Check(m_gs->GetAlphaBlendingEnabled());
+	}
+	{
+		auto fbDisplayModeRawMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_FB_RAW);
+		assert(!fbDisplayModeRawMenuItem.IsEmpty());
+		fbDisplayModeRawMenuItem.Check(m_fbDisplayMode == CGsContextView::FB_DISPLAY_MODE_RAW);
+	}
+	{
+		auto fbDisplayMode448iMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_FB_448I);
+		assert(!fbDisplayMode448iMenuItem.IsEmpty());
+		fbDisplayMode448iMenuItem.Check(m_fbDisplayMode == CGsContextView::FB_DISPLAY_MODE_448I);
+	}
+	{
+		auto fbDisplayMode448pMenuItem = Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_FD_SETTINGS_FB_448P);
+		assert(!fbDisplayMode448pMenuItem.IsEmpty());
+		fbDisplayMode448pMenuItem.Check(m_fbDisplayMode == CGsContextView::FB_DISPLAY_MODE_448P);
 	}
 }
 
@@ -280,6 +314,17 @@ void CFrameDebugger::ShowFrameDumpSelector()
 	}
 }
 
+void CFrameDebugger::ToggleAlphaTest()
+{
+	m_gs->SetAlphaTestingEnabled(!m_gs->GetAlphaTestingEnabled());
+	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
+	if(selectedItemIndex != -1)
+	{
+		UpdateDisplay(selectedItemIndex);
+	}
+	UpdateMenus();
+}
+
 void CFrameDebugger::ToggleDepthTest()
 {
 	m_gs->SetDepthTestingEnabled(!m_gs->GetDepthTestingEnabled());
@@ -299,6 +344,14 @@ void CFrameDebugger::ToggleAlphaBlending()
 	{
 		UpdateDisplay(selectedItemIndex);
 	}
+	UpdateMenus();
+}
+
+void CFrameDebugger::SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE fbDisplayMode)
+{
+	m_gsContextView0->SetFbDisplayMode(fbDisplayMode);
+	m_gsContextView1->SetFbDisplayMode(fbDisplayMode);
+	m_fbDisplayMode = fbDisplayMode;
 	UpdateMenus();
 }
 

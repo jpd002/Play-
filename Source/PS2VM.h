@@ -48,6 +48,7 @@ public:
 
 	void						StepEe();
 	void						StepIop();
+	void						StepVu0();
 	void						StepVu1();
 
 	void						Resume();

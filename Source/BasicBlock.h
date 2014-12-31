@@ -15,7 +15,7 @@ struct AOT_BLOCK_KEY
 
 	bool operator <(const AOT_BLOCK_KEY& k2) const
 	{
-		const AOT_BLOCK_KEY& k1 = (*this);
+		const auto& k1 = (*this);
 		if(k1.crc == k2.crc)
 		{
 			if(k1.begin == k2.begin)

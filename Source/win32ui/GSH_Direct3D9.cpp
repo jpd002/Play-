@@ -99,6 +99,17 @@ void CGSH_Direct3D9::SetAlphaBlendingEnabled(bool alphaBlendingEnabled)
 	m_renderState.isValid = false;
 }
 
+bool CGSH_Direct3D9::GetAlphaTestingEnabled() const
+{
+	return m_alphaTestingEnabled;
+}
+
+void CGSH_Direct3D9::SetAlphaTestingEnabled(bool alphaTestingEnabled)
+{
+	m_alphaTestingEnabled = alphaTestingEnabled;
+	m_renderState.isValid = false;
+}
+
 void CGSH_Direct3D9::InitializeImpl()
 {
 	m_d3d = Direct3DPtr(Direct3DCreate9(D3D_SDK_VERSION));
@@ -833,7 +844,7 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 		{
 			m_device->SetRenderState(D3DRS_ALPHAFUNC, g_alphaTestFunc[tst.nAlphaMethod]);
 			m_device->SetRenderState(D3DRS_ALPHAREF, tst.nAlphaRef);
-			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
+			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, m_alphaTestingEnabled ? D3DZB_TRUE : D3DZB_FALSE);
 		}
 	}
 	else
@@ -951,10 +962,8 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 	//Any framebuffer selected at this point can be used as a texture
 	framebuffer->m_canBeUsedAsTexture = true;
 
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-
 	float projWidth = static_cast<float>(framebuffer->m_width);
-	float projHeight = static_cast<float>(halfHeight ? (framebuffer->m_height / 2) : framebuffer->m_height);
+	float projHeight = static_cast<float>(framebuffer->m_height);
 
 	HRESULT result = S_OK;
 	Framework::Win32::CComPtr<IDirect3DSurface9> renderSurface;
@@ -1051,16 +1060,16 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 	{
 		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
 		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
 		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(nValue >> 56);
 	}
 	else
 	{
 		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue;
 		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
 		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(m_nReg[GS_REG_FOG] >> 56);
 	}
 

@@ -1,3 +1,4 @@
+#include <boost/filesystem.hpp>
 #include "PsfVm.h"
 #include "PsfLoader.h"
 #include "MemoryUtils.h"
@@ -9,8 +10,8 @@
 #include "Jitter_CodeGen_Arm.h"
 #include "MemStream.h"
 #include "Iop_PsfSubSystem.h"
+#include "psp/Psp_PsfSubSystem.h"
 #include "ThreadPool.h"
-#include <boost/filesystem.hpp>
 #include "Playlist.h"
 #include "make_unique.h"
 
@@ -128,7 +129,7 @@ unsigned int CompileFunction(CPsfVm& virtualMachine, CMipsJitter* jitter, const 
 	}
 }
 
-AotBlockMap GetBlocksFromCache(const filesystem::path& blockCachePath)
+AotBlockMap GetBlocksFromCache(const filesystem::path& blockCachePath, const char* cacheFilter)
 {
 	AotBlockMap result;
 
@@ -137,6 +138,12 @@ AotBlockMap GetBlocksFromCache(const filesystem::path& blockCachePath)
 		pathIterator != path_end; pathIterator++)
 	{
 		const auto& filePath = (*pathIterator);
+		auto filePathExtension = filePath.path().extension();
+		if(filePathExtension.string() != std::string(cacheFilter))
+		{
+			continue;
+		}
+
 		printf("Processing %s...\r\n", filePath.path().string().c_str());
 
 		auto blockCacheStream = Framework::CreateInputStdStream(filePath.path().native());
@@ -181,12 +188,62 @@ AotBlockMap GetBlocksFromCache(const filesystem::path& blockCachePath)
 	return result;
 }
 
-void Compile(const char* databasePathName, const char* cpuArchName, const char* imageFormatName, const char* outputPath)
+void CompileFunctions(CPsfVm& virtualMachine, const AotBlockMap& blocks, CMipsJitter* jitter, Jitter::CObjectFile& objectFile, FunctionTable& functionTable)
 {
+	functionTable.reserve(functionTable.size() + blocks.size());
+
+	for(const auto& blockCachePair : blocks)
+	{
+		const auto& blockKey = blockCachePair.first;
+
+		auto functionName = "aotblock_" + std::to_string(blockKey.crc) + "_" + std::to_string(blockKey.begin) + "_" + std::to_string(blockKey.end);
+
+		try
+		{
+			unsigned int functionSymbolIndex = CompileFunction(virtualMachine, jitter, blockCachePair.second, objectFile, functionName, blockKey.begin, blockKey.end);
+
+			FUNCTION_TABLE_ITEM tableItem = { blockKey, functionSymbolIndex };
+			functionTable.push_back(tableItem);
+		}
+		catch(const std::exception& exception)
+		{
+			//We failed to add function to the table, we assume that it's because it was
+			//already added in a previous pass (in PSP pass after IOP pass has been completed)
+			printf("Warning: Failed to add function '%s' in table: %s.\r\n", functionName.c_str(), exception.what());
+		}
+	}
+}
+
+void CompileIopFunctions(const char* databasePathName, CMipsJitter* jitter, Jitter::CObjectFile& objectFile, FunctionTable& functionTable)
+{
+	filesystem::path databasePath(databasePathName);
+	auto blocks = GetBlocksFromCache(databasePath, ".blockcache_iop");
+
+	printf("Got %d IOP blocks to compile.\r\n", blocks.size());
+
 	CPsfVm virtualMachine;
 	auto subSystem = std::make_shared<Iop::CPsfSubSystem>(false);
 	virtualMachine.SetSubSystem(subSystem);
 
+	CompileFunctions(virtualMachine, blocks, jitter, objectFile, functionTable);
+}
+
+void CompilePspFunctions(const char* databasePathName, CMipsJitter* jitter, Jitter::CObjectFile& objectFile, FunctionTable& functionTable)
+{
+	filesystem::path databasePath(databasePathName);
+	auto blocks = GetBlocksFromCache(databasePath, ".blockcache_psp");
+
+	printf("Got %d PSP blocks to compile.\r\n", blocks.size());
+
+	CPsfVm virtualMachine;
+	auto subSystem = std::make_shared<Psp::CPsfSubSystem>();
+	virtualMachine.SetSubSystem(subSystem);
+
+	CompileFunctions(virtualMachine, blocks, jitter, objectFile, functionTable);
+}
+
+void Compile(const char* databasePathName, const char* cpuArchName, const char* imageFormatName, const char* outputPath)
+{
 	Jitter::CCodeGen* codeGen = nullptr;
 	Jitter::CObjectFile::CPU_ARCH cpuArch = Jitter::CObjectFile::CPU_ARCH_X86;
 	if(!strcmp(cpuArchName, "x86"))
@@ -230,9 +287,6 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	objectFile->AddExternalSymbol("_SWL_Proxy", &SWL_Proxy);
 	objectFile->AddExternalSymbol("_SWR_Proxy", &SWR_Proxy);
 
-	filesystem::path databasePath(databasePathName);
-	auto blocks = GetBlocksFromCache(databasePath);
-
 	//Initialize Jitter Service
 	auto jitter = new CMipsJitter(codeGen);
 	for(unsigned int i = 0; i < 4; i++)
@@ -243,22 +297,10 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 			);
 	}
 
-	printf("Got %d blocks to compile.\r\n", blocks.size());
-
 	FunctionTable functionTable;
-	functionTable.reserve(blocks.size());
 
-	for(const auto& blockCachePair : blocks)
-	{
-		const auto& blockKey = blockCachePair.first;
-
-		auto functionName = "aotblock_" + std::to_string(blockKey.crc) + "_" + std::to_string(blockKey.begin) + "_" + std::to_string(blockKey.end);
-
-		unsigned int functionSymbolIndex = CompileFunction(virtualMachine, jitter, blockCachePair.second, *objectFile, functionName, blockKey.begin, blockKey.end);
-
-		FUNCTION_TABLE_ITEM tableItem = { blockKey, functionSymbolIndex };
-		functionTable.push_back(tableItem);
-	}
+	CompileIopFunctions(databasePathName, jitter, *objectFile, functionTable);
+	CompilePspFunctions(databasePathName, jitter, *objectFile, functionTable);
 
 	std::sort(functionTable.begin(), functionTable.end(), 
 		[] (const FUNCTION_TABLE_ITEM& item1, const FUNCTION_TABLE_ITEM& item2)
@@ -267,6 +309,7 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 		}
 	);
 
+	//Write out block table
 	{
 		Framework::CMemStream blockTableStream;
 		Jitter::CObjectFile::INTERNAL_SYMBOL blockTableSymbol;
@@ -294,6 +337,7 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 		objectFile->AddInternalSymbol(blockTableSymbol);
 	}
 
+	//Write out block count
 	{
 		Jitter::CObjectFile::INTERNAL_SYMBOL blockCountSymbol;
 		blockCountSymbol.name		= "__aot_blockCount";
