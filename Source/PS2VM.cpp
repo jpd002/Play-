@@ -555,6 +555,9 @@ void CPS2VM::UpdateEe()
 		m_vblankTicks -= executed;
 		m_spuUpdateTicks -= executed;
 
+		//Stop executing if executing VU subroutine
+		if(m_ee->m_EE.m_State.callMsEnabled) break;
+
 #ifdef DEBUGGER_INCLUDED
 		if(m_singleStepEe) break;
 		if(m_ee->m_executor.MustBreak()) break;
