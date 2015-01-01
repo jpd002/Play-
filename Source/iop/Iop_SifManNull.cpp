@@ -27,6 +27,11 @@ void CSifManNull::SetDmaBuffer(uint32, uint32)
 
 }
 
+void CSifManNull::SetCmdBuffer(uint32, uint32)
+{
+
+}
+
 void CSifManNull::SendCallReply(uint32, const void*)
 {
 

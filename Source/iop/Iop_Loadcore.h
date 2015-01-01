@@ -32,6 +32,7 @@ namespace Iop
 	private:
 		uint32						RegisterLibraryEntries(uint32);
 		uint32						QueryBootMode(uint32);
+		uint32						SetRebootTimeLibraryHandlingMode(uint32, uint32);
 
 		bool						LoadModule(uint32*, uint32, uint32*, uint32);
 		void						LoadExecutable(uint32*, uint32, uint32*, uint32);

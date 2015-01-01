@@ -1,5 +1,4 @@
-#ifndef _IOP_SIFMANNULL_H_
-#define _IOP_SIFMANNULL_H_
+#pragma once
 
 #include "Iop_SifMan.h"
 
@@ -13,10 +12,9 @@ namespace Iop
 		void	UnregisterModule(uint32) override;
 		void	SendPacket(void*, uint32) override;
 		void	SetDmaBuffer(uint32, uint32) override;
+		void	SetCmdBuffer(uint32, uint32) override;
 		void	SendCallReply(uint32, const void*) override;
 		void	GetOtherData(uint32, uint32, uint32) override;
 		void	SetCustomCommandHandler(const CustomCommandHandler&) override;
 	};
 }
-
-#endif

@@ -14,18 +14,29 @@ void CPackTest::Execute(CTestVm& virtualMachine)
 	const uint32 constantValue5 = 0x55555555;
 	const uint32 constantValue6 = 0x66666666;
 	const uint32 constantValue7 = 0x77777777;
+	const uint64 pachResultLow  = 0x7777666655554444ULL;
+	const uint64 pachResultHigh = 0x3333222211110000ULL;
 	const uint64 pacwResultLow  = 0x6666666644444444ULL;
 	const uint64 pacwResultHigh = 0x2222222200000000ULL;
 
 	auto valueRegister0	= CMIPS::A0;
 	auto valueRegister1 = CMIPS::A1;
-	auto pacwResult		= CMIPS::T0;
-	auto pacwSelfResult	= CMIPS::T1;
+	auto pachResult		= CMIPS::T0;
+	auto pachSelfResult	= CMIPS::T1;
+	auto pacwResult		= CMIPS::T2;
+	auto pacwSelfResult	= CMIPS::T3;
 
 	virtualMachine.Reset();
 
 	{
 		CEEAssembler assembler(reinterpret_cast<uint32*>(virtualMachine.m_ram + baseAddress));
+
+		//PPACH
+		assembler.PPACH(pachResult, valueRegister0, valueRegister1);
+
+		//PPACH (self)
+		assembler.PADDW(pachSelfResult, valueRegister0, CMIPS::R0);
+		assembler.PPACH(pachSelfResult, pachSelfResult, valueRegister1);
 
 		//PPACW
 		assembler.PPACW(pacwResult, valueRegister0, valueRegister1);
@@ -61,6 +72,12 @@ void CPackTest::Execute(CTestVm& virtualMachine)
 	TEST_VERIFY(cpu.m_State.nGPR[valueRegister1].nV[1] == constantValue5);
 	TEST_VERIFY(cpu.m_State.nGPR[valueRegister1].nV[2] == constantValue6);
 	TEST_VERIFY(cpu.m_State.nGPR[valueRegister1].nV[3] == constantValue7);
+
+	TEST_VERIFY(cpu.m_State.nGPR[pachResult].nD0 == pachResultLow);
+	TEST_VERIFY(cpu.m_State.nGPR[pachResult].nD1 == pachResultHigh);
+
+	TEST_VERIFY(cpu.m_State.nGPR[pachSelfResult].nD0 == pachResultLow);
+	TEST_VERIFY(cpu.m_State.nGPR[pachSelfResult].nD1 == pachResultHigh);
 
 	TEST_VERIFY(cpu.m_State.nGPR[pacwResult].nD0 == pacwResultLow);
 	TEST_VERIFY(cpu.m_State.nGPR[pacwResult].nD1 == pacwResultHigh);

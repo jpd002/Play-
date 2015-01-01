@@ -505,7 +505,18 @@ void CGSH_Direct3D9::Prim_Triangle()
 		//Textured triangle
 		if(m_primitiveMode.nUseUV)
 		{
-			//TODO
+			UV uv[3];
+			uv[0] <<= m_vtxBuffer[2].nUV;
+			uv[1] <<= m_vtxBuffer[1].nUV;
+			uv[2] <<= m_vtxBuffer[0].nUV;
+
+			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
+			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
+			nU3 = uv[2].GetU() / static_cast<float>(m_currentTextureWidth);
+
+			nV1 = uv[0].GetV() / static_cast<float>(m_currentTextureHeight);
+			nV2 = uv[1].GetV() / static_cast<float>(m_currentTextureHeight);
+			nV3 = uv[2].GetV() / static_cast<float>(m_currentTextureHeight);
 		}
 		else
 		{

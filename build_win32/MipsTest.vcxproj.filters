@@ -103,6 +103,12 @@
     <ClCompile Include="..\tools\MipsTest\PackTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\ExtendTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\MipsTest\PackedMultiplyTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tools\MipsTest\TestVm.h">
@@ -184,6 +190,12 @@
       <Filter>Source Files\Play Core\EE</Filter>
     </ClInclude>
     <ClInclude Include="..\tools\MipsTest\PackTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\ExtendTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\MipsTest\PackedMultiplyTest.h">
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>
