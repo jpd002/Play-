@@ -376,9 +376,14 @@ void CPS2OS::LoadExecutableInternal()
 	const ELFHEADER& header = m_elf->GetHeader();
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
-		ELFPROGRAMHEADER* p = m_elf->GetProgram(i);
-		if(p != NULL)
+		auto p = m_elf->GetProgram(i);
+		if(p != nullptr)
 		{
+			if(p->nVAddress >= PS2::EE_RAM_SIZE)
+			{
+				assert(false);
+				continue;
+			}
 			memcpy(m_ram + p->nVAddress, m_elf->GetContent() + p->nOffset, p->nFileSize);
 		}
 	}
