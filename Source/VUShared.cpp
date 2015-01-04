@@ -239,6 +239,8 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
+	//Clamping is needed by Dynasty Warriors 2 here because it multiplies junk values (potentially NaN/INF) by some other value
+	ClampVector(codeGen);
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
