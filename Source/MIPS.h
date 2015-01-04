@@ -103,8 +103,6 @@ __attribute__((aligned(16)))
 class CMIPS
 {
 public:
-	typedef unsigned int		(*TickFunctionType)(unsigned int, CMIPS*);
-	typedef void				(*SysCallHandlerType)(CMIPS*);
 	typedef uint32				(*AddressTranslator)(CMIPS*, uint32);
 	typedef std::set<uint32>	BreakpointSet;
 
