@@ -112,7 +112,6 @@ public:
 	bool						IsBranch(uint32);
 	static long					GetBranch(uint16);
 	static uint32				TranslateAddress64(CMIPS*, uint32);
-	static void					DefaultSysCallHandler(CMIPS*);
 
 	void						Reset();
 
