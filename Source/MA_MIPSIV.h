@@ -198,6 +198,7 @@ private:
 	void							BGEZ();
 	void							BLTZL();
 	void							BGEZL();
+	void							BGEZAL();
 
 	//Opcode tables
 	typedef void (CMA_MIPSIV::*InstructionFuncConstant)();
