@@ -1,5 +1,4 @@
-#ifndef _MA_MIPSIV_H_
-#define _MA_MIPSIV_H_
+#pragma once
 
 #include <functional>
 #include "MIPSArchitecture.h"
@@ -212,5 +211,3 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflSpecial[MAX_SPECIAL_OPS];
 	static MIPSReflection::INSTRUCTION	m_cReflRegImm[MAX_REGIMM_OPS];
 };
-
-#endif
