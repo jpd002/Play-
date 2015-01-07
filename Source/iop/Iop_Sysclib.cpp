@@ -187,8 +187,8 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		{
 			uint32* dest = reinterpret_cast<uint32*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]);
 			uint32 value = context.m_State.nGPR[CMIPS::A1].nV0;
-			uint32 numChars = context.m_State.nGPR[CMIPS::A2].nV0;
-			uint32* end = dest + numChars;
+			uint32 numBytes = context.m_State.nGPR[CMIPS::A2].nV0;
+			uint32* end = dest + (numBytes / 4);
 			while(dest < end)
 			{
 				*dest++ = value;
