@@ -342,7 +342,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 
 void CGSHandler::Initialize()
 {
-	m_mailBox.SendCall(std::bind(&CGSHandler::InitializeImpl, this));
+	m_mailBox.SendCall(std::bind(&CGSHandler::InitializeImpl, this), true);
 }
 
 void CGSHandler::Release()
