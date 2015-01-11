@@ -1329,16 +1329,13 @@ void CGSH_OpenGL::Prim_Triangle()
 			
 			glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, MulBy2Clamp(rgbaq[0].nA));
 			if(glFogCoordfEXT) glFogCoordfEXT(nF1);
-			if(glFogCoordfEXT) glFogCoordfEXT(nF1);
 			glVertex3f(nX1, nY1, nZ1);
 
 			glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, MulBy2Clamp(rgbaq[1].nA));
 			if(glFogCoordfEXT) glFogCoordfEXT(nF2);
-			if(glFogCoordfEXT) glFogCoordfEXT(nF2);
 			glVertex3f(nX2, nY2, nZ2);
 
 			glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, MulBy2Clamp(rgbaq[2].nA));
-			if(glFogCoordfEXT) glFogCoordfEXT(nF3);
 			if(glFogCoordfEXT) glFogCoordfEXT(nF3);
 			glVertex3f(nX3, nY3, nZ3);
 
