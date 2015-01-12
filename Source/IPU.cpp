@@ -312,7 +312,10 @@ uint32 CIPU::ReceiveDMA4(uint32 nAddress, uint32 nQWC, bool nTagIncluded, uint8*
 	uint32 nSize = std::min<uint32>(nQWC * 0x10, availableFifoSize);
 	assert((nSize & 0xF) == 0);
 
-	m_IN_FIFO.Write(ram + nAddress, nSize);
+	if(nSize != 0)
+	{
+		m_IN_FIFO.Write(ram + nAddress, nSize);
+	}
 
 	return nSize / 0x10;
 }
