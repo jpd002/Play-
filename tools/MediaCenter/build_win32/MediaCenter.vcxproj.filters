@@ -165,4 +165,12 @@
       <Filter>Source Files\ui</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="nuget.config">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="packages.config">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
