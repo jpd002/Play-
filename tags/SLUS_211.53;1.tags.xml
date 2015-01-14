@@ -9,6 +9,7 @@
 		<tag address="00119720" value="CheckIpuDmaStat" />
 		<tag address="0011A088" value="sceMpegGetPicture" />
 		<tag address="0011A128" value="DoIpuSomething" />
+		<tag address="0011A280" value="sceMpegCallExternalHandler" />
 		<tag address="0011EB58" value="DmaSomething" />
 		<tag address="0011ED90" value="GetIpuCtrl" />
 		<tag address="0011F0C0" value="syscall_0000" />
@@ -188,9 +189,13 @@
 		<tag address="0013AD88" value="YieldToDecodingThread" />
 		<tag address="0013B6B0" value="FinishMoviePlaying" />
 		<tag address="0013C2C8" value="SendSif" />
+		<tag address="0013D460" value="SetMovieStateTo1" />
 		<tag address="0013D470" value="GetMovieState" />
 		<tag address="0013D478" value="SetMovieState" />
 		<tag address="0013D628" value="MovieDecodeThreadProc" />
+		<tag address="0013DB10" value="MpegHandler2" />
+		<tag address="0013DB40" value="MpegHandler3" />
+		<tag address="0013DB70" value="MpegHandler5" />
 	</ee_functions>
 	<ee_comments>
 		<tag address="001001BC" value="#" />
@@ -270,6 +275,7 @@
 		<tag address="0011982C" value="image buffer needs to be aligned to 64byte boundary(0x%08x)" />
 		<tag address="00119848" value="Need to re-setup libipu since sceMpegGetPicture was aborted
 " />
+		<tag address="0011A2D0" value="Call failure handler?" />
 		<tag address="0011A540" value="odd number of field pictures" />
 		<tag address="0011A598" value="unknown picture sutructure" />
 		<tag address="0011A668" value="work area size is too small" />
@@ -448,6 +454,7 @@
 		<tag address="0013AA0C" value="Jump here if read to be skipped" />
 		<tag address="0013AC90" value="V0 = S3 = Finish?" />
 		<tag address="0013D9D0" value="Jump up above" />
+		<tag address="0013D9D4" value="Enters when failure" />
 		<tag address="0013E690" value="cdrom0:\MODULES\IOPRP300.IMG;1" />
 		<tag address="0014112C" value=" " />
 		<tag address="00141678" value=" " />
