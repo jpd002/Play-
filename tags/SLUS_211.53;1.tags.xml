@@ -5,11 +5,24 @@
 		<tag address="0010A898" value="strcpy" />
 		<tag address="00110D08" value="syscall_0080" />
 		<tag address="00111980" value="sceGsSyncPath" />
+		<tag address="00114DE0" value="sceMpegMotionCompense?" />
+		<tag address="001154B8" value="sceMpegMotionCompenseStuff" />
+		<tag address="00116A48" value="sceMpegCheckAvailableData" />
+		<tag address="00116CB0" value="DoFDEC" />
+		<tag address="00116DD8" value="sceMpegCheckBusyOrError" />
+		<tag address="00117088" value="DoDma9Stuff" />
+		<tag address="00117208" value="sceMpegQuadShift" />
+		<tag address="00117F98" value="DecodeSlice" />
 		<tag address="001193E8" value="StartMovie" />
 		<tag address="00119720" value="CheckIpuDmaStat" />
 		<tag address="0011A088" value="sceMpegGetPicture" />
 		<tag address="0011A128" value="DoIpuSomething" />
 		<tag address="0011A280" value="sceMpegCallExternalHandler" />
+		<tag address="0011A2F8" value="sceMpegCallNoDataHandler" />
+		<tag address="0011E858" value="sceMpegReportError" />
+		<tag address="0011E908" value="sceMpegReportErrorCode" />
+		<tag address="0011E9D0" value="sceMpegReportErrorWrapper" />
+		<tag address="0011EA28" value="sceMpegReportErrorWrapper2" />
 		<tag address="0011EB58" value="DmaSomething" />
 		<tag address="0011ED90" value="GetIpuCtrl" />
 		<tag address="0011F0C0" value="syscall_0000" />
@@ -166,6 +179,8 @@
 		<tag address="00128FC8" value="syscall_0058" />
 		<tag address="00128FD8" value="syscall_0058" />
 		<tag address="00128FE8" value="syscall_0059" />
+		<tag address="001295A0" value="DisableInterrupts" />
+		<tag address="001295F0" value="EnableInterrupts" />
 		<tag address="00129678" value="syscall_005A" />
 		<tag address="00129700" value="syscall_0083" />
 		<tag address="00129848" value="syscall_0074" />
@@ -189,10 +204,12 @@
 		<tag address="0013AD88" value="YieldToDecodingThread" />
 		<tag address="0013B6B0" value="FinishMoviePlaying" />
 		<tag address="0013C2C8" value="SendSif" />
+		<tag address="0013C3E0" value="StopDMA4?" />
 		<tag address="0013D460" value="SetMovieStateTo1" />
 		<tag address="0013D470" value="GetMovieState" />
 		<tag address="0013D478" value="SetMovieState" />
 		<tag address="0013D628" value="MovieDecodeThreadProc" />
+		<tag address="0013DAD8" value="MpegHandler1" />
 		<tag address="0013DB10" value="MpegHandler2" />
 		<tag address="0013DB40" value="MpegHandler3" />
 		<tag address="0013DB70" value="MpegHandler5" />
@@ -256,11 +273,34 @@
 		<tag address="00114958" value="(a) invalid motion_type(%d)-0" />
 		<tag address="00114BAC" value="(b) invalid motion_type(%d)-1" />
 		<tag address="00114DA0" value="(c) invalid motion_type(%d)-2" />
+		<tag address="00114E68" value="Read D9_CHCR" />
 		<tag address="00114EA8" value="Invalid modion type -- ignored(%d)" />
 		<tag address="001155EC" value="intra &amp;&amp; skip MB" />
 		<tag address="001158E8" value="= Skip to the next picture =" />
+		<tag address="001159A4" value="Read D3_QWC" />
+		<tag address="00115A44" value="Read IPU_BP" />
+		<tag address="00115A48" value="Read IPU_TOP" />
+		<tag address="00115A98" value="Read IPU_CTRL" />
+		<tag address="00115AA0" value="Skip if no error" />
 		<tag address="00115B34" value="Too many macroblocks in picture" />
 		<tag address="00116320" value="Invalid macroblock_type code: 0" />
+		<tag address="00116624" value="Write to IPU_CMD" />
+		<tag address="00116A98" value="Reads IPU_CTRL" />
+		<tag address="00116AA0" value="Branch if ECD bit is set" />
+		<tag address="00116AD8" value="Reads IPU_BP" />
+		<tag address="00116AE0" value="A1 = Command type?" />
+		<tag address="00116AE4" value="V1 = IFC" />
+		<tag address="00116AE8" value="V0 = FP" />
+		<tag address="00116AF4" value="V1 = IFC + FP" />
+		<tag address="00116AF8" value="A0 = BP" />
+		<tag address="00116AFC" value="Command == BDEC" />
+		<tag address="00116B00" value="V0 = (IFC + FP - BP)" />
+		<tag address="00116B04" value="Command == VDEC" />
+		<tag address="00116B08" value="Check if number of bits left is less than 32" />
+		<tag address="00116B0C" value="Command == FDEC" />
+		<tag address="00116B20" value="Reads D4_QWC" />
+		<tag address="00116CF8" value="Write to IPU_CMD" />
+		<tag address="00116D6C" value="Write to IPU_CMD" />
 		<tag address="00116EA8" value="skiped macroblock in I picure is not allowed" />
 		<tag address="00118020" value="slice_start_code(0x%08x) out of range" />
 		<tag address="001180C0" value="_sceMpegSliceA0(): error happens" />
@@ -269,6 +309,7 @@
 		<tag address="001189B8" value="Unsupported profile/level" />
 		<tag address="00118AD4" value="load_chroma_intra_quantizer_matrix == 1" />
 		<tag address="00118AF4" value="load_chroma_non_intra_quantizer_matrix == 1" />
+		<tag address="001190C4" value="IPU_BP" />
 		<tag address="00119440" value="The size of work area is too small" />
 		<tag address="001195DC" value="internal alignment error. _bstag:%d" />
 		<tag address="001195EC" value="internal alignment error. _idct:%d" />
