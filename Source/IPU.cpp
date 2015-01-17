@@ -21,7 +21,9 @@
 #include "Log.h"
 
 #define LOG_NAME ("ipu")
+
 //#define _DECODE_LOGGING
+#define DECODE_LOG_NAME ("ipu_decode")
 
 using namespace IPU;
 using namespace MPEG2;
@@ -888,6 +890,11 @@ bool CIPU::CBDECCommand::Execute()
 			break;
 		case STATE_RESETDC:
 			{
+#ifdef _DECODE_LOGGING
+				static int currentMbIndex = 0;
+				CLog::GetInstance().Print(DECODE_LOG_NAME, "Macroblock(%d, CBP: 0x%0.2X)\r\n", 
+					currentMbIndex++, m_codedBlockPattern);
+#endif
 				if(m_dcr)
 				{
 					int16 resetValue = 0;
@@ -1049,7 +1056,8 @@ bool CIPU::CBDECCommand_ReadDct::Execute()
 		case STATE_INIT:
 			{
 #ifdef _DECODE_LOGGING
-				CLog::GetInstance().Print(LOG_NAME, "Block = ");
+				static int currentBlockIndex = 0;
+				CLog::GetInstance().Print(DECODE_LOG_NAME, "Block(%d) = ", currentBlockIndex++);
 #endif
 				if(m_mbi)
 				{
@@ -1071,7 +1079,7 @@ bool CIPU::CBDECCommand_ReadDct::Execute()
 				m_block[0] = static_cast<int16>(m_dcPredictor[m_channelId] + m_dcDiff);
 				m_dcPredictor[m_channelId] = m_block[0];
 #ifdef _DECODE_LOGGING
-				CLog::GetInstance().Print(LOG_NAME, "[%d]:%d ", 0, block[0]);
+				CLog::GetInstance().Print(DECODE_LOG_NAME, "[%d]: %d ", 0, m_block[0]);
 #endif
 				m_blockIndex = 1;
 				m_state = STATE_CHECKEOB;
@@ -1118,7 +1126,7 @@ bool CIPU::CBDECCommand_ReadDct::Execute()
 				{
 					m_block[m_blockIndex] = static_cast<int16>(runLevelPair.level);
 #ifdef _DECODE_LOGGING
-					CLog::GetInstance().Print(LOG_NAME, "[%i]:%i ", index, runLevelPair.nLevel);
+					CLog::GetInstance().Print(DECODE_LOG_NAME, "[%d]: %d ", m_blockIndex, runLevelPair.level);
 #endif
 				}
 				else
@@ -1135,6 +1143,9 @@ bool CIPU::CBDECCommand_ReadDct::Execute()
 			{
 				return false;
 			}
+#ifdef _DECODE_LOGGING
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "\r\n");
+#endif
 			return true;
 			break;
 		}
@@ -1305,10 +1316,35 @@ bool CIPU::CVDECCommand::Execute()
 			{
 				(*m_result) = m_table->GetSymbol(m_IN_FIFO);
 				m_state = STATE_DONE;
-//				CLog::GetInstance().Print(LOG_NAME, "VDEC (%dth) result: %0.8X.\r\n", currentVDEC++, (*m_result));
 			}
 			break;
 		case STATE_DONE:
+#ifdef _DECODE_LOGGING
+			const char* tableName = "unknown";
+			if(m_table == CMacroblockAddressIncrementTable::GetInstance())
+			{
+				tableName = "mb increment";
+			}
+			else if(
+				(m_table == CMacroblockTypeITable::GetInstance()) ||
+				(m_table == CMacroblockTypePTable::GetInstance()) ||
+				(m_table == CMacroblockTypeBTable::GetInstance())
+				)
+			{
+				tableName = "mb type";
+			}
+			else if(m_table == CMotionCodeTable::GetInstance())
+			{
+				tableName = "motion code";
+			}
+			else if(m_table == CDmVectorTable::GetInstance())
+			{
+				tableName = "dm vector";
+			}
+			static unsigned int currentVdec = 0;
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, '%s') = %d\r\n", 
+				currentVdec++, tableName, static_cast<int16>((*m_result) & 0xFFFF));
+#endif
 			return true;
 			break;
 		}
@@ -1355,7 +1391,6 @@ bool CIPU::CFDECCommand::Execute()
 					return false;
 				}
 				m_state = STATE_DONE;
-				//CLog::GetInstance().Print(LOG_NAME, "FDEC result: %0.8X.\r\n", (*m_result));
 			}
 			break;
 		case STATE_DONE:

@@ -3,6 +3,8 @@
 #include "VideoStream_ReadDct.h"
 #include "MPEG2/DctCoefficientTable0.h"
 #include "MPEG2/DctCoefficientTable1.h"
+#include "../../../Source/Log.h"
+#include "LogSettings.h"
 
 using namespace VideoStream;
 
@@ -54,6 +56,10 @@ void ReadDct::Execute(void* context, Framework::CBitStream& stream)
 
 Label_Init:
 		{
+#ifdef _DECODE_LOGGING
+			static int currentBlockIndex = 0;
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "Block(%d) = ", currentBlockIndex++);
+#endif
 			bool isIntra = (pictureHeader.pictureCodingType == PICTURE_TYPE_I || decoderState.macroblockType & MACROBLOCK_MODE_INTRA);
 
 			m_dcDiffReader.Reset();
@@ -82,6 +88,9 @@ Label_ReadDcDifferential:
 		m_dcDiffReader.Execute(context, stream);
 		m_block[0] = static_cast<int16>(decoderState.dcPredictor[m_channel] + decoderState.dcDifferential);
 		decoderState.dcPredictor[m_channel] = m_block[0];
+#ifdef _DECODE_LOGGING
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "[%d]: %d ", 0, m_block[0]);
+#endif
 		m_blockIndex++;
 		m_programState = STATE_CHECKEOB;
 		continue;
@@ -114,7 +123,7 @@ Label_ReadCoeff:
 			{
 				m_block[m_blockIndex] = static_cast<int16>(runLevelPair.level);
 #ifdef _DECODE_LOGGING
-	            CLog::GetInstance().Print(LOG_NAME, "[%i]:%i ", index, runLevelPair.nLevel);
+				CLog::GetInstance().Print(DECODE_LOG_NAME, "[%d]: %d ", m_blockIndex, runLevelPair.level);
 #endif
 			}
 			else
@@ -130,6 +139,9 @@ Label_ReadCoeff:
 
 Label_SkipEob:
 		m_coeffTable->SkipEndOfBlock(&stream);
+#ifdef _DECODE_LOGGING
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "\r\n");
+#endif
 		return;
 	}
 }

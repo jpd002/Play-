@@ -2,6 +2,8 @@
 #include "VideoStream_ReadMotionVector.h"
 #include "MpegVideoState.h"
 #include "MPEG2/MotionCodeTable.h"
+#include "../../../Source/Log.h"
+#include "LogSettings.h"
 
 using namespace VideoStream;
 
@@ -77,6 +79,10 @@ Label_Init:
 Label_ReadHMotionCode:
 		{
 			decoderState.motionCode[0] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
+#ifdef _DECODE_LOGGING
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'motion code') = %d\r\n",
+				g_currentVdec++, decoderState.motionCode[0]);
+#endif
 			decoderState.motionResidual[0] = 0;
 			if(decoderState.motionCode[0] != 0 && m_hrSize != 0)
 			{
@@ -99,6 +105,10 @@ Label_ReadHMotionResidual:
 Label_ReadVMotionCode:
 		{
 			decoderState.motionCode[1] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
+#ifdef _DECODE_LOGGING
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'motion code') = %d\r\n",
+				g_currentVdec++, decoderState.motionCode[1]);
+#endif
 			decoderState.motionResidual[1] = 0;
 			if(decoderState.motionCode[1] != 0 && m_vrSize != 0)
 			{

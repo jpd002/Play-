@@ -83,7 +83,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Source\Log.cpp" />
     <ClCompile Include="..\Source\Ac3SoundStreamDecoder.cpp" />
+    <ClCompile Include="..\Source\AppConfig.cpp" />
+    <ClCompile Include="..\Source\LogSettings.cpp" />
     <ClCompile Include="..\Source\ProgramStreamDecoder.cpp" />
     <ClCompile Include="..\Source\RawMpeg2Container.cpp" />
     <ClCompile Include="..\Source\VideoDecoder.cpp" />
@@ -116,7 +119,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Source\Log.h" />
     <ClInclude Include="..\Source\Ac3SoundStreamDecoder.h" />
+    <ClInclude Include="..\Source\AppConfig.h" />
+    <ClInclude Include="..\Source\LogSettings.h" />
     <ClInclude Include="..\Source\MpegVideoState.h" />
     <ClInclude Include="..\Source\ProgramStreamDecoder.h" />
     <ClInclude Include="..\Source\RawMpeg2Container.h" />

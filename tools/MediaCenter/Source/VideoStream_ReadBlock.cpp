@@ -151,24 +151,6 @@ void ReadBlock::InverseScan(void* context, int16* block)
 	}	
 }
 
-//static void DumpBlock(short* bp)
-//{
-//	unsigned int i;
-//	
-//	for(i = 0; i < 64; i += 8)
-//	{
-//		printf("%+0.4i %+0.4i %+0.4i %+0.4i %+0.4i %+0.4i %+0.4i %+0.4i\r\n", \
-//			   bp[i + 0], \
-//			   bp[i + 1], \
-//			   bp[i + 2], \
-//			   bp[i + 3], \
-//			   bp[i + 4], \
-//			   bp[i + 5], \
-//			   bp[i + 6], \
-//			   bp[i + 7]);
-//	}
-//}
-
 void ReadBlock::ProcessBlock(void* context, int16* block)
 {
 	InverseScan(context, block);
