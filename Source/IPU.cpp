@@ -81,7 +81,6 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_BP + 0x0:
-		assert(!m_isBusy);
 		return ((m_IN_FIFO.GetSize() / 0x10) << 8) | (m_IN_FIFO.GetBitIndex());
 		break;
 
