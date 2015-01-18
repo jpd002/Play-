@@ -94,7 +94,9 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		if(!m_isBusy)
 		{
 			unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
-			return m_IN_FIFO.PeekBits_MSBF(availableSize);
+			uint32 result = m_IN_FIFO.PeekBits_MSBF(availableSize);
+			result <<= (32 - availableSize);
+			return result;
 		}
 		else
 		{
