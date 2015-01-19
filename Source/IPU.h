@@ -1,17 +1,18 @@
-#ifndef _IPU_H_
-#define _IPU_H_
+#pragma once
 
+#include <functional>
 #include "Types.h"
 #include "BitStream.h"
+#include "MemStream.h"
 #include "mpeg2/VLCTable.h"
 #include "mpeg2/DctCoefficientTable.h"
-#include <functional>
 #include "MailBox.h"
+#include "Convertible.h"
 
 class CIPU
 {
 public:
-	typedef std::function<uint32 (void*, uint32)> Dma3ReceiveHandler;
+	typedef std::function<uint32 (const void*, uint32)> Dma3ReceiveHandler;
 
 						CIPU();
 	virtual				~CIPU();
@@ -34,6 +35,7 @@ public:
 
 	void				ExecuteCommand();
 	bool				WillExecuteCommand() const;
+	bool				HasPendingOUTFIFOData() const;
 
 private:
 	enum IPU_CTRL_BITS
@@ -42,13 +44,77 @@ private:
 		IPU_CTRL_RST = 0x40000000,
 	};
 
+	enum IPU_CMD_TYPE
+	{
+		IPU_CMD_BCLR,
+		IPU_CMD_IDEC,
+		IPU_CMD_BDEC,
+		IPU_CMD_VDEC,
+		IPU_CMD_FDEC,
+		IPU_CMD_SETIQ,
+		IPU_CMD_SETVQ,
+		IPU_CMD_CSC,
+		IPU_CMD_PACK,
+		IPU_CMD_SETTH,
+	};
+
+	struct CMD_IDEC : public convertible<uint32>
+	{
+		unsigned int fb			: 6;
+		unsigned int unused0	: 10;
+		unsigned int qsc		: 5;
+		unsigned int unused1	: 3;
+		unsigned int dtd		: 1;
+		unsigned int sgn		: 1;
+		unsigned int dte		: 1;
+		unsigned int ofm		: 1;
+		unsigned int cmdId		: 4;
+	};
+	static_assert(sizeof(CMD_IDEC) == 4, "Size of CMD_IDEC must be 4.");
+
+	struct CMD_BDEC : public convertible<uint32>
+	{
+		unsigned int fb			: 6;
+		unsigned int unused0	: 10;
+		unsigned int qsc		: 5;
+		unsigned int unused1	: 4;
+		unsigned int dt			: 1;
+		unsigned int dcr		: 1;
+		unsigned int mbi		: 1;
+		unsigned int cmdId		: 4;
+	};
+	static_assert(sizeof(CMD_BDEC) == 4, "Size of CMD_BDEC must be 4.");
+
+	struct CMD_CSC : public convertible<uint32>
+	{
+		unsigned int mbc		: 11;
+		unsigned int unused0	: 15;
+		unsigned int dte		: 1;
+		unsigned int ofm		: 1;
+		unsigned int cmdId		: 4;
+	};
+	static_assert(sizeof(CMD_CSC) == 4, "Size of CMD_CSC must be 4.");
+
+	struct DECODER_CONTEXT
+	{
+		bool	isMpeg1CoeffVLCTable = false;
+		bool	isMpeg2 = false;
+		bool	isLinearQScale = false;
+		bool	isZigZag = false;
+		uint8*	intraIq = nullptr;
+		uint8*	nonIntraIq = nullptr;
+		int16*	dcPredictor = nullptr;
+		uint32	dcPrecision = 0;
+	};
+
 	class COUTFIFO
 	{
 	public:
 							COUTFIFO();
 		virtual				~COUTFIFO();
 
-		void				Write(void*, unsigned int);
+		uint32				GetSize() const;
+		void				Write(const void*, unsigned int);
 		void				Flush();
 		void				SetReceiveHandler(const Dma3ReceiveHandler&);
 
@@ -125,6 +191,53 @@ private:
 		uint32			m_commandCode;
 	};
 
+	//0x01 ------------------------------------------------------------
+	class CBDECCommand;
+	class CCSCCommand;
+
+	class CIDECCommand : public CCommand
+	{
+	public:
+						CIDECCommand();
+
+		void			Initialize(CBDECCommand*, CCSCCommand*, CINFIFO*, COUTFIFO*, uint32, const DECODER_CONTEXT&);
+		bool			Execute() override;
+
+	private:
+		enum STATE
+		{
+			STATE_ADVANCE,
+			STATE_READMBTYPE,
+			STATE_READDCTTYPE,
+			STATE_READQSC,
+			STATE_INITREADBLOCK,
+			STATE_READBLOCK,
+			STATE_CHECKSTARTCODE,
+			STATE_READMBINCREMENT,
+			STATE_CSCINIT,
+			STATE_CSC,
+			STATE_DONE
+		};
+
+		CMD_IDEC				m_command = make_convertible<CMD_IDEC>(0);
+		STATE					m_state = STATE_DONE;
+
+		CBDECCommand*			m_BDECCommand = nullptr;
+		CCSCCommand*			m_CSCCommand = nullptr;
+		CINFIFO*				m_IN_FIFO = nullptr;
+		COUTFIFO*				m_OUT_FIFO = nullptr;
+
+		CINFIFO					m_temp_IN_FIFO;
+		COUTFIFO				m_temp_OUT_FIFO;
+
+		Framework::CMemStream	m_blockStream;
+
+		DECODER_CONTEXT			m_context;
+		uint32					m_mbType = 0;
+		uint32					m_qsc = 0;
+		uint32					m_mbCount = 0;
+	};
+
 	//0x02 ------------------------------------------------------------
 	class CBDECCommand_ReadDcDiff : public CCommand
 	{
@@ -184,20 +297,9 @@ private:
 	class CBDECCommand : public CCommand
 	{
 	public:
-		struct CONTEXT
-		{
-			bool	isMpeg1CoeffVLCTable;
-			bool	isMpeg2;
-			bool	isLinearQScale;
-			bool	isZigZag;
-			uint8*	intraIq;
-			uint8*	nonIntraIq;
-			int16*	dcPredictor;
-			uint32	dcPrecision;
-		};
 										CBDECCommand();
 
-		void							Initialize(CINFIFO*, COUTFIFO*, uint32, const CONTEXT&);
+		void							Initialize(CINFIFO*, COUTFIFO*, uint32, const DECODER_CONTEXT&);
 		bool							Execute() override;
 
 	private:
@@ -218,17 +320,13 @@ private:
 			unsigned int				channel;
 		};
 
-		CINFIFO*						m_IN_FIFO;
-		COUTFIFO*						m_OUT_FIFO;
-		STATE							m_state;
+		CMD_BDEC						m_command = make_convertible<CMD_BDEC>(0);
+		STATE							m_state = STATE_DONE;
 
-		bool							m_mbi;
-		bool							m_dcr;
-		bool							m_dt;
-		uint8							m_qsc;
-		uint8							m_fb;
+		CINFIFO*						m_IN_FIFO = nullptr;
+		COUTFIFO*						m_OUT_FIFO = nullptr;
 
-		uint8							m_codedBlockPattern;
+		uint8							m_codedBlockPattern = 0;
 
 		BLOCKENTRY						m_blocks[6];
 
@@ -236,9 +334,9 @@ private:
 		int16							m_cbBlock[64];
 		int16							m_crBlock[64];
 
-		unsigned int					m_currentBlockIndex;
+		unsigned int					m_currentBlockIndex = 0;
 
-		CONTEXT							m_context;
+		DECODER_CONTEXT					m_context;
 		CBDECCommand_ReadDct			m_readDctCoeffsCommand;
 	};
 
@@ -334,6 +432,7 @@ private:
 			STATE_READBLOCKSTART,
 			STATE_READBLOCK,
 			STATE_CONVERTBLOCK,
+			STATE_FLUSHBLOCK,
 			STATE_DONE,
 		};
 
@@ -344,13 +443,14 @@ private:
 
 		void			GenerateCbCrMap();
 
-		CINFIFO*		m_IN_FIFO;
-		COUTFIFO*		m_OUT_FIFO;
-		uint8			m_OFM;
-		uint8			m_DTE;
-		uint16			m_MBC;
-		unsigned int	m_currentIndex;
-		STATE			m_state;
+		STATE			m_state = STATE_DONE;
+		CMD_CSC			m_command = make_convertible<CMD_CSC>(0);
+
+		CINFIFO*		m_IN_FIFO = nullptr;
+		COUTFIFO*		m_OUT_FIFO = nullptr;
+
+		unsigned int	m_currentIndex = 0;
+		unsigned int	m_mbCount = 0;
 
 		unsigned int	m_nCbCrMap[0x100];
 
@@ -374,6 +474,7 @@ private:
 
 	void						InitializeCommand(uint32);
 
+	DECODER_CONTEXT				GetDecoderContext();
 	uint32						GetPictureType();
 	uint32						GetDcPrecision();
 	bool						GetIsMPEG2();
@@ -406,6 +507,7 @@ private:
 
 	CCommand*					m_currentCmd;
 	CBCLRCommand				m_BCLRCommand;
+	CIDECCommand				m_IDECCommand;
 	CBDECCommand				m_BDECCommand;
 	CVDECCommand				m_VDECCommand;
 	CFDECCommand				m_FDECCommand;
@@ -414,5 +516,3 @@ private:
 	CCSCCommand					m_CSCCommand;
 	CSETTHCommand				m_SETTHCommand;
 };
-
-#endif
