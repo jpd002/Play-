@@ -852,7 +852,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		scissorY *= 2;
 		scissorHeight *= 2;
 	}
-	glScissor(scissorX, scissorY, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
+	glScissor(scissorX * FBSCALE, scissorY * FBSCALE, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
 }
 
 void CGSH_OpenGL::SetupFogColor()
