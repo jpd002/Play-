@@ -9,6 +9,13 @@
 
 //#define _WIREFRAME
 
+//#define HIGHRES_MODE
+#ifdef HIGHRES_MODE
+#define FBSCALE (2.0f)
+#else
+#define FBSCALE (1.0f)
+#endif
+
 GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
 	GL_REPEAT,
@@ -177,7 +184,9 @@ void CGSH_OpenGL::FlipImpl()
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
 		m_framebuffers.push_back(framebuffer);
+#ifndef HIGHRES_MODE
 		PopulateFramebuffer(framebuffer);
+#endif
 	}
 
 	if(framebuffer)
@@ -251,7 +260,7 @@ void CGSH_OpenGL::FlipImpl()
 		for(const auto& framebuffer : m_framebuffers)
 		{
 			glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
-			DumpTexture(framebuffer->m_width, framebuffer->m_height, framebuffer->m_basePtr);
+			DumpTexture(framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE, framebuffer->m_basePtr);
 		}
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -792,7 +801,9 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
 		m_framebuffers.push_back(framebuffer);
+#ifndef HIGHRES_MODE
 		PopulateFramebuffer(framebuffer);
+#endif
 	}
 
 	CommitFramebufferDirtyPages(framebuffer, scissor.scay0, scissor.scay1);
@@ -818,7 +829,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		assert(glGetError() == GL_NO_ERROR);
 	}
 
-	glViewport(0, 0, framebuffer->m_width, framebuffer->m_height);
+	glViewport(0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -841,7 +852,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		scissorY *= 2;
 		scissorHeight *= 2;
 	}
-	glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
+	glScissor(scissorX, scissorY, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
 }
 
 void CGSH_OpenGL::SetupFogColor()
@@ -1685,7 +1696,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build color attachment
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width * FBSCALE, m_height * FBSCALE, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	assert(glGetError() == GL_NO_ERROR);
 		
 	//Build framebuffer
@@ -1782,7 +1793,7 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build depth attachment
 	glGenRenderbuffers(1, &m_depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width * FBSCALE, m_height * FBSCALE);
 	assert(glGetError() == GL_NO_ERROR);
 }
 
