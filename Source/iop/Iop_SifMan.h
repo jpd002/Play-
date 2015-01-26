@@ -11,6 +11,7 @@ namespace Iop
 	class CSifMan : public CModule
 	{
 	public:
+		typedef std::function<void (const std::string&)> ModuleResetHandler;
 		typedef std::function<void (uint32)> CustomCommandHandler;
 
 								CSifMan();
@@ -30,6 +31,7 @@ namespace Iop
 		virtual void			SetCmdBuffer(uint32, uint32) = 0;
 		virtual void			SendCallReply(uint32, const void*) = 0;
 		virtual void			GetOtherData(uint32, uint32, uint32) = 0;
+		virtual void			SetModuleResetHandler(const ModuleResetHandler&) = 0;
 		virtual void			SetCustomCommandHandler(const CustomCommandHandler&) = 0;
 
 		virtual uint32			SifSetDma(uint32, uint32);

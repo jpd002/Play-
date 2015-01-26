@@ -43,6 +43,7 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 	m_memoryBufferAddr = m_sysMem.AllocateMemory(TRAMPOLINE_SIZE + SENDCMD_EXTRASTRUCT_SIZE, 0, 0);
 	m_trampolineAddr = m_memoryBufferAddr;
 	m_sendCmdExtraStructAddr = m_memoryBufferAddr + TRAMPOLINE_SIZE;
+	sifMan.SetModuleResetHandler([&] (const std::string& path) { bios.ProcessModuleReset(path); });
 	sifMan.SetCustomCommandHandler([&] (uint32 commandHeaderAddr) { ProcessCustomCommand(commandHeaderAddr); });
 	BuildExportTable();
 }

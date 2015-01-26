@@ -19,6 +19,7 @@ namespace Iop
 		void			SetCmdBuffer(uint32, uint32) override;
 		void			SendCallReply(uint32, const void*) override;
 		void			GetOtherData(uint32, uint32, uint32) override;
+		void			SetModuleResetHandler(const ModuleResetHandler&) override;
 		void			SetCustomCommandHandler(const CustomCommandHandler&) override;
 
 		uint32			SifSetDma(uint32, uint32) override;

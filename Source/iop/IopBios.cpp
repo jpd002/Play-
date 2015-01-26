@@ -201,7 +201,8 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	}
 #ifdef _IOP_EMULATE_MODULES
 	{
-		RegisterModule(new Iop::CFileIo(*m_sifMan, *m_ioman));
+		m_fileIo = new Iop::CFileIo(*m_sifMan, *m_ioman);
+		RegisterModule(m_fileIo);
 	}
 	{
 		m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan, m_ram);
@@ -554,6 +555,30 @@ bool CIopBios::IsModuleLoaded(const char* moduleName) const
 		}
 	}
 	return false;
+}
+
+void CIopBios::ProcessModuleReset(const std::string& imagePath)
+{
+	unsigned int imageVersion = 1000;
+	auto imageFileName = strstr(imagePath.c_str(), "IOPRP");
+	if(imageFileName != nullptr)
+	{
+		auto cvtCount = sscanf(imageFileName, "IOPRP%d.IMG;1", &imageVersion);
+		if(cvtCount == 1)
+		{
+			if(imageVersion < 100)
+			{
+				imageVersion = imageVersion * 100;
+			}
+			else
+			{
+				imageVersion = imageVersion * 10;
+			}
+		}
+	}
+#ifdef _IOP_EMULATE_MODULES
+	m_fileIo->SetModuleVersion(imageVersion);
+#endif
 }
 
 CIopBios::THREAD* CIopBios::GetThread(uint32 threadId)

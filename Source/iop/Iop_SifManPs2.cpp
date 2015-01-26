@@ -57,6 +57,11 @@ void CSifManPs2::GetOtherData(uint32 dst, uint32 src, uint32 size)
 	memcpy(dstPtr, srcPtr, size);
 }
 
+void CSifManPs2::SetModuleResetHandler(const ModuleResetHandler& moduleResetHandler)
+{
+	m_sif.SetModuleResetHandler(moduleResetHandler);
+}
+
 void CSifManPs2::SetCustomCommandHandler(const CustomCommandHandler& customCommandHandler)
 {
 	m_sif.SetCustomCommandHandler(customCommandHandler);

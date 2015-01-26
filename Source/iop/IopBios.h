@@ -17,6 +17,7 @@
 #include "Iop_Loadcore.h"
 #include "Iop_Dynamic.h"
 #ifdef _IOP_EMULATE_MODULES
+#include "Iop_FileIo.h"
 #include "Iop_PadMan.h"
 #include "Iop_Cdvdfsv.h"
 #endif
@@ -91,6 +92,7 @@ public:
 	bool						LoadAndStartModule(const char*, const char*, unsigned int);
 	void						LoadAndStartModule(uint32, const char*, unsigned int);
 	bool						IsModuleLoaded(const char*) const;
+	void						ProcessModuleReset(const std::string&);
 
 	void						HandleException();
 	void						HandleInterrupt();
@@ -373,6 +375,7 @@ private:
 	Iop::CModload*					m_modload;
 	Iop::CLoadcore*					m_loadcore;
 #ifdef _IOP_EMULATE_MODULES
+	Iop::CFileIo*					m_fileIo;
 	Iop::CPadMan*					m_padman;
 	Iop::CCdvdfsv*					m_cdvdfsv;
 #endif

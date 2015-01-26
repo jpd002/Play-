@@ -281,7 +281,10 @@
     <ClCompile Include="..\Source\iop\Iop_Dmac.cpp" />
     <ClCompile Include="..\Source\iop\Iop_DmacChannel.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Dynamic.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2100.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler1000.cpp" />
     <ClCompile Include="..\Source\iop\Iop_FileIo.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2300.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Intc.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Intrman.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Ioman.cpp" />
@@ -505,6 +508,9 @@
     <ClInclude Include="..\Source\iop\Iop_DmacChannel.h" />
     <ClInclude Include="..\Source\iop\Iop_Dynamic.h" />
     <ClInclude Include="..\Source\iop\Iop_FileIo.h" />
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler1000.h" />
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2100.h" />
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2300.h" />
     <ClInclude Include="..\Source\iop\Iop_Intc.h" />
     <ClInclude Include="..\Source\iop\Iop_Intrman.h" />
     <ClInclude Include="..\Source\iop\Iop_Ioman.h" />
