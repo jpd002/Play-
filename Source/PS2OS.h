@@ -7,6 +7,7 @@
 #include "GSHandler.h"
 #include "SIF.h"
 #include "BiosDebugInfoProvider.h"
+#include "OsStructManager.h"
 
 class CIopBios;
 
@@ -192,6 +193,15 @@ private:
 		uint32									bufferAddr;
 	};
 
+	struct ALARM
+	{
+		uint32									isValid;
+		uint32									delay;
+		uint32									callback;
+		uint32									callbackParam;
+		uint32									gp;
+	};
+
 #ifdef DEBUGGER_INCLUDED
 	struct SYSCALL_NAME
 	{
@@ -217,6 +227,7 @@ private:
 		MAX_DMACHANDLER		= 128,
 		MAX_INTCHANDLER		= 128,
 		MAX_DECI2HANDLER	= 32,
+		MAX_ALARM			= 4,
 	};
 
 	enum THREAD_STATUS
@@ -229,6 +240,8 @@ private:
 		THREAD_SUSPENDED_SLEEPING	= 0x06,
 		THREAD_ZOMBIE				= 0x07,
 	};
+
+	typedef COsStructManager<ALARM> AlarmList;
 
 	typedef void (CPS2OS::*SystemCallHandler)();
 
@@ -248,6 +261,7 @@ private:
 	void									AssembleInterruptHandler();
 	void									AssembleDmacHandler();
 	void									AssembleIntcHandler();
+	void									AssembleAlarmHandler();
 	void									AssembleThreadEpilog();
 	void									AssembleWaitThreadProc();
 
@@ -285,6 +299,8 @@ private:
 	void									sc_DisableIntc();
 	void									sc_EnableDmac();
 	void									sc_DisableDmac();
+	void									sc_SetAlarm();
+	void									sc_ReleaseAlarm();
 	void									sc_CreateThread();
 	void									sc_DeleteThread();
 	void									sc_StartThread();
@@ -322,15 +338,17 @@ private:
 	void									sc_GetMemorySize();
 	void									sc_Unhandled();
 
+	uint8*									m_ram = nullptr;
+	uint8*									m_bios = nullptr;
+
 	CELF*									m_elf;
 	CMIPS&									m_ee;
 	CRoundRibbon*							m_threadSchedule;
+	AlarmList								m_alarms;
 
 	std::string								m_executableName;
 	ArgumentList							m_currentArguments;
 
-	uint8*									m_ram;
-	uint8*									m_bios;
 	CGSHandler*&							m_gs;
 	CSIF&									m_sif;
 	CIopBios&								m_iopBios;

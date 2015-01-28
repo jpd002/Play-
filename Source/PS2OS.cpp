@@ -31,6 +31,7 @@
 // 0x8000C000	0x8000E000		DMAC Handlers
 // 0x8000E000	0x80010000		Semaphores
 // 0x80010000	0x80010800		Custom System Call addresses (0x200 entries)
+// 0x80010800	0x80011000		Alarms
 // 0x80011000	0x80020000		Threads
 // 0x80020000	0x80030000		Kernel Stack
 // 0x80030000	0x80032000		Thread Linked List
@@ -43,13 +44,18 @@
 // 0x1FC02000	0x1FC03000		INTC Handler
 // 0x1FC03000	0x1FC03100		Thread epilogue
 // 0x1FC03100	0x1FC03200		Wait Thread Proc
+// 0x1FC03200	0x1FC03300		Alarm Handler
 
 #define BIOS_ADDRESS_KERNELSTACK_TOP	0x00030000
 #define BIOS_ADDRESS_CURRENT_THREAD_ID	0x00000010
+#define BIOS_ADDRESS_ALARM_BASE			0x00010800
 
 #define BIOS_ADDRESS_BASE				0x1FC00000
 #define BIOS_ADDRESS_THREADEPILOG		0x1FC03000
 #define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
+#define BIOS_ADDRESS_ALARMHANDLER		0x1FC03200
+
+#define BIOS_ID_BASE					1
 
 #define CONFIGPATH			"./config/"
 #define PATCHESFILENAME		"patches.xml"
@@ -66,6 +72,8 @@
 #define SYSCALL_NAME_DISABLEINTC			"osDisableIntc"
 #define SYSCALL_NAME_ENABLEDMAC				"osEnableDmac"
 #define SYSCALL_NAME_DISABLEDMAC			"osDisableDmac"
+#define SYSCALL_NAME_SETALARM				"osSetAlarm"
+#define SYSCALL_NAME_IRELEASEALARM			"osiReleaseAlarm"
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
 #define SYSCALL_NAME_DELETETHREAD			"osDeleteThread"
 #define SYSCALL_NAME_STARTTHREAD			"osStartThread"
@@ -115,6 +123,8 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0015,		SYSCALL_NAME_DISABLEINTC			},
 	{	0x0016,		SYSCALL_NAME_ENABLEDMAC				},
 	{	0x0017,		SYSCALL_NAME_DISABLEDMAC			},
+	{	0x0018,		SYSCALL_NAME_SETALARM				},
+	{	0x001F,		SYSCALL_NAME_IRELEASEALARM			},
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
 	{	0x0021,		SYSCALL_NAME_DELETETHREAD			},
 	{	0x0022,		SYSCALL_NAME_STARTTHREAD			},
@@ -166,6 +176,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, C
 , m_threadSchedule(nullptr)
 , m_sif(sif)
 , m_iopBios(iopBios)
+, m_alarms(reinterpret_cast<ALARM*>(&m_ram[BIOS_ADDRESS_ALARM_BASE]), BIOS_ID_BASE, MAX_ALARM)
 {
 	Initialize();
 }
@@ -396,6 +407,7 @@ void CPS2OS::LoadExecutableInternal()
 	AssembleIntcHandler();
 	AssembleThreadEpilog();
 	AssembleWaitThreadProc();
+	AssembleAlarmHandler();
 	CreateWaitThread();
 
 #ifdef DEBUGGER_INCLUDED
@@ -689,6 +701,9 @@ void CPS2OS::AssembleInterruptHandler()
 	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER2);
 	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER3);
 
+	assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
+	assembler.NOP();
+
 	//Move back SP into K0 before restoring state
 	assembler.ADDIU(CMIPS::K0, CMIPS::SP, CMIPS::R0);
 
@@ -908,6 +923,68 @@ void CPS2OS::AssembleWaitThreadProc()
 	assembler.SYSCALL();
 
 	assembler.BEQ(CMIPS::R0, CMIPS::R0, 0xFFFD);
+	assembler.NOP();
+}
+
+void CPS2OS::AssembleAlarmHandler()
+{
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_bios[BIOS_ADDRESS_ALARMHANDLER - BIOS_ADDRESS_BASE]));
+
+	auto checkHandlerLabel = assembler.CreateLabel();
+	auto moveToNextHandler = assembler.CreateLabel();
+
+	//Prologue
+	//S0 -> Handler Counter
+
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
+	assembler.SD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.SD(CMIPS::S0, 0x0008, CMIPS::SP);
+
+	//Initialize handler loop
+	assembler.ADDU(CMIPS::S0, CMIPS::R0, CMIPS::R0);
+
+	assembler.MarkLabel(checkHandlerLabel);
+
+	//Get the address to the current INTCHANDLER structure
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(ALARM));
+	assembler.MULTU(CMIPS::T0, CMIPS::S0, CMIPS::T0);
+	assembler.LI(CMIPS::T1, BIOS_ADDRESS_ALARM_BASE);
+	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+
+	//Check validity
+	assembler.LW(CMIPS::T1, offsetof(ALARM, isValid), CMIPS::T0);
+	assembler.BEQ(CMIPS::T1, CMIPS::R0, moveToNextHandler);
+	assembler.NOP();
+
+	//Load the necessary stuff
+	assembler.LW(CMIPS::T1, offsetof(ALARM, callback), CMIPS::T0);
+	assembler.ADDIU(CMIPS::A0, CMIPS::S0, BIOS_ID_BASE);
+	assembler.LW(CMIPS::A1, offsetof(ALARM, delay), CMIPS::T0);
+	assembler.LW(CMIPS::A2, offsetof(ALARM, callbackParam), CMIPS::T0);
+	assembler.LW(CMIPS::GP, offsetof(ALARM, gp), CMIPS::T0);
+	
+	//Jump
+	assembler.JALR(CMIPS::T1);
+	assembler.NOP();
+
+	//Delete handler (call iReleaseAlarm)
+	assembler.ADDIU(CMIPS::A0, CMIPS::S0, BIOS_ID_BASE);
+	assembler.ADDIU(CMIPS::V1, CMIPS::R0, -0x1F);
+	assembler.SYSCALL();
+
+	assembler.MarkLabel(moveToNextHandler);
+
+	//Increment handler counter and test
+	assembler.ADDIU(CMIPS::S0, CMIPS::S0, 0x0001);
+	assembler.ADDIU(CMIPS::T0, CMIPS::R0, MAX_ALARM - 1);
+	assembler.BNE(CMIPS::S0, CMIPS::T0, checkHandlerLabel);
+	assembler.NOP();
+
+	//Epilogue
+	assembler.LD(CMIPS::RA, 0x0000, CMIPS::SP);
+	assembler.LD(CMIPS::S0, 0x0008, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x10);
+	assembler.JR(CMIPS::RA);
 	assembler.NOP();
 }
 
@@ -1433,6 +1510,45 @@ void CPS2OS::sc_DisableDmac()
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;
 	}
+}
+
+//18
+void CPS2OS::sc_SetAlarm()
+{
+	uint32 delay			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 callback			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 callbackParam	= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+
+	auto alarmId = m_alarms.Allocate();
+	assert(alarmId != -1);
+	if(alarmId == -1)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		return;
+	}
+
+	auto alarm = m_alarms[alarmId];
+	alarm->delay			= delay;
+	alarm->callback			= callback;
+	alarm->callbackParam	= callbackParam;
+	alarm->gp				= m_ee.m_State.nGPR[CMIPS::GP].nV0;
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = alarmId;
+}
+
+//1F
+void CPS2OS::sc_ReleaseAlarm()
+{
+	uint32 alarmId = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+
+	auto alarm = m_alarms[alarmId];
+	if(alarm == nullptr)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		return;
+	}
+
+	m_alarms.Free(alarmId);
 }
 
 //20
@@ -2495,6 +2611,16 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_DISABLEDMAC "(channel = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
+	case 0x18:
+		sprintf(description, SYSCALL_NAME_SETALARM "(time = %d, proc = 0x%0.8X, arg = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0], 
+			m_ee.m_State.nGPR[SC_PARAM1].nV[0], 
+			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
+		break;
+	case 0x1F:
+		sprintf(description, SYSCALL_NAME_IRELEASEALARM "(id = %d);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
 	case 0x20:
 		sprintf(description, SYSCALL_NAME_CREATETHREAD "(thread = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
@@ -2692,7 +2818,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x10
 	&CPS2OS::sc_AddIntcHandler,		&CPS2OS::sc_RemoveIntcHandler,		&CPS2OS::sc_AddDmacHandler,			&CPS2OS::sc_RemoveDmacHandler,		&CPS2OS::sc_EnableIntc,		&CPS2OS::sc_DisableIntc,		&CPS2OS::sc_EnableDmac,			&CPS2OS::sc_DisableDmac,
 	//0x18
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_SetAlarm,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ReleaseAlarm,
 	//0x20
 	&CPS2OS::sc_CreateThread,		&CPS2OS::sc_DeleteThread,			&CPS2OS::sc_StartThread,			&CPS2OS::sc_ExitThread,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_TerminateThread,	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x28
