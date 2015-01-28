@@ -1,5 +1,4 @@
-#ifndef _OSSTRUCTMANAGER_H_
-#define _OSSTRUCTMANAGER_H_
+#pragma once
 
 template<typename StructType>
 class COsStructManager
@@ -7,10 +6,10 @@ class COsStructManager
 public:
 	typedef uint32 iterator;
 
-	COsStructManager(StructType* structBase, uint32 idBase, uint32 structMax) :
-	  m_structBase(structBase),
-	  m_idBase(idBase),
-	  m_structMax(structMax)
+	COsStructManager(StructType* structBase, uint32 idBase, uint32 structMax)
+	: m_structBase(structBase)
+	, m_idBase(idBase)
+	, m_structMax(structMax)
 	{
 
 	}
@@ -27,7 +26,7 @@ public:
 		{
 			return nullptr;
 		}
-		StructType* structPtr = m_structBase + index;
+		auto structPtr = m_structBase + index;
 		if(!structPtr->isValid)
 		{
 			return nullptr;
@@ -77,9 +76,7 @@ public:
 	}
 
 private:
-	StructType* m_structBase;
-	uint32		m_structMax;
-	uint32		m_idBase;
+	StructType*		m_structBase = nullptr;
+	uint32			m_structMax = 0;
+	uint32			m_idBase = 0;
 };
-
-#endif
