@@ -39,8 +39,8 @@
 // Start		End				Description
 // 0x1FC00100	0x1FC00200		Custom System Call handling code
 // 0x1FC00200	0x1FC01000		Interrupt Handler
-// 0x1FC01000	0x1FC02000		DMAC Interrupt Handler
-// 0x1FC02000	0x1FC03000		GS Interrupt Handler
+// 0x1FC01000	0x1FC02000		DMAC Handler
+// 0x1FC02000	0x1FC03000		INTC Handler
 // 0x1FC03000	0x1FC03100		Thread epilogue
 // 0x1FC03100	0x1FC03200		Wait Thread Proc
 
