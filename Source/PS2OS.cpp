@@ -48,9 +48,12 @@
 
 #define BIOS_ADDRESS_KERNELSTACK_TOP	0x00030000
 #define BIOS_ADDRESS_CURRENT_THREAD_ID	0x00000010
+#define BIOS_ADDRESS_DMACHANDLER_BASE	0x0000C000
 #define BIOS_ADDRESS_ALARM_BASE			0x00010800
 
 #define BIOS_ADDRESS_BASE				0x1FC00000
+#define BIOS_ADDRESS_INTERRUPTHANDLER	0x1FC00200
+#define BIOS_ADDRESS_DMACHANDLER		0x1FC01000
 #define BIOS_ADDRESS_THREADEPILOG		0x1FC03000
 #define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 #define BIOS_ADDRESS_ALARMHANDLER		0x1FC03200
@@ -176,7 +179,8 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, C
 , m_threadSchedule(nullptr)
 , m_sif(sif)
 , m_iopBios(iopBios)
-, m_alarms(reinterpret_cast<ALARM*>(&m_ram[BIOS_ADDRESS_ALARM_BASE]), BIOS_ID_BASE, MAX_ALARM)
+, m_dmacHandlers(reinterpret_cast<DMACHANDLER*>(m_ram + BIOS_ADDRESS_DMACHANDLER_BASE), BIOS_ID_BASE, MAX_DMACHANDLER)
+, m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
 {
 	Initialize();
 }
@@ -234,8 +238,8 @@ void CPS2OS::DumpDmacHandlers()
 
 	for(unsigned int i = 0; i < MAX_DMACHANDLER; i++)
 	{
-		DMACHANDLER* handler = GetDmacHandler(i + 1);
-		if(handler->valid == 0) continue;
+		auto handler = m_dmacHandlers[i + 1];
+		if(handler == nullptr) continue;
 
 		printf("ID: %0.2i, Channel: %i, Address: 0x%0.8X.\r\n", \
 			i + 1,
@@ -607,7 +611,7 @@ void CPS2OS::AssembleCustomSyscallHandler()
 
 void CPS2OS::AssembleInterruptHandler()
 {
-	CEEAssembler assembler((uint32*)&m_bios[0x200]);
+	CEEAssembler assembler(reinterpret_cast<uint32*>(&m_bios[BIOS_ADDRESS_INTERRUPTHANDLER - BIOS_ADDRESS_BASE]));
 
 	const uint32 stackFrameSize = 0x230;
 
@@ -686,9 +690,7 @@ void CPS2OS::AssembleInterruptHandler()
 		assembler.NOP();
 
 		//Go to DMAC interrupt handler
-		assembler.LUI(CMIPS::T0, 0x1FC0);
-		assembler.ORI(CMIPS::T0, CMIPS::T0, 0x1000);
-		assembler.JALR(CMIPS::T0);
+		assembler.JAL(BIOS_ADDRESS_DMACHANDLER);
 		assembler.NOP();
 
 		assembler.MarkLabel(skipIntHandlerLabel);
@@ -733,7 +735,7 @@ void CPS2OS::AssembleInterruptHandler()
 
 void CPS2OS::AssembleDmacHandler()
 {
-	CMIPSAssembler assembler((uint32*)&m_bios[0x1000]);
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_bios[BIOS_ADDRESS_DMACHANDLER - BIOS_ADDRESS_BASE]));
 
 	auto testHandlerLabel = assembler.CreateLabel();
 	auto testChannelLabel = assembler.CreateLabel();
@@ -787,24 +789,24 @@ void CPS2OS::AssembleDmacHandler()
 	//Get the address to the current DMACHANDLER structure
 	assembler.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(DMACHANDLER));
 	assembler.MULTU(CMIPS::T0, CMIPS::S2, CMIPS::T0);
-	assembler.LI(CMIPS::T1, 0x8000C000);
+	assembler.LI(CMIPS::T1, BIOS_ADDRESS_DMACHANDLER_BASE);
 	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
 	//Check validity
-	assembler.LW(CMIPS::T1, 0x0000, CMIPS::T0);
+	assembler.LW(CMIPS::T1, offsetof(DMACHANDLER, isValid), CMIPS::T0);
 	assembler.BEQ(CMIPS::T1, CMIPS::R0, skipHandlerLabel);
 	assembler.NOP();
 
 	//Check if the channel is good one
-	assembler.LW(CMIPS::T1, 0x0004, CMIPS::T0);
+	assembler.LW(CMIPS::T1, offsetof(DMACHANDLER, channel), CMIPS::T0);
 	assembler.BNE(CMIPS::S0, CMIPS::T1, skipHandlerLabel);
 	assembler.NOP();
 
 	//Load the necessary stuff
-	assembler.LW(CMIPS::T1, 0x0008, CMIPS::T0);
+	assembler.LW(CMIPS::T1, offsetof(DMACHANDLER, address), CMIPS::T0);
 	assembler.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
-	assembler.LW(CMIPS::A1, 0x000C, CMIPS::T0);
-	assembler.LW(CMIPS::GP, 0x0010, CMIPS::T0);
+	assembler.LW(CMIPS::A1, offsetof(DMACHANDLER, arg), CMIPS::T0);
+	assembler.LW(CMIPS::GP, offsetof(DMACHANDLER, gp), CMIPS::T0);
 	
 	//Jump
 	assembler.JALR(CMIPS::T1);
@@ -1217,26 +1219,6 @@ CPS2OS::SEMAPHORE* CPS2OS::GetSemaphore(uint32 id)
 	return &((SEMAPHORE*)&m_ram[0x0000E000])[id];
 }
 
-uint32 CPS2OS::GetNextAvailableDmacHandlerId()
-{
-	for(uint32 i = 1; i < MAX_DMACHANDLER; i++)
-	{
-		DMACHANDLER* handler = GetDmacHandler(i);
-		if(handler->valid != 1)
-		{
-			return i;
-		}
-	}
-
-	return 0xFFFFFFFF;
-}
-
-CPS2OS::DMACHANDLER* CPS2OS::GetDmacHandler(uint32 id)
-{
-	id--;
-	return &((DMACHANDLER*)&m_ram[0x0000C000])[id];
-}
-
 uint32 CPS2OS::GetNextAvailableIntcHandlerId()
 {
 	for(uint32 i = 1; i < MAX_INTCHANDLER; i++)
@@ -1413,23 +1395,20 @@ void CPS2OS::sc_AddDmacHandler()
 		assert(0);
 	}
 
-	uint32 id = GetNextAvailableDmacHandlerId();
+	uint32 id = m_dmacHandlers.Allocate();
 	if(id == 0xFFFFFFFF)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 
-	DMACHANDLER* handler = GetDmacHandler(id);
-	handler->valid		= 1;
+	auto handler = m_dmacHandlers[id];
 	handler->address	= address;
 	handler->channel	= channel;
 	handler->arg		= arg;
 	handler->gp			= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //13
@@ -1438,11 +1417,16 @@ void CPS2OS::sc_RemoveDmacHandler()
 	uint32 channel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 id		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	DMACHANDLER* handler = GetDmacHandler(id);
-	handler->valid = 0x00;
+	auto handler = m_dmacHandlers[id];
+	if(handler == nullptr)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		return;
+	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_dmacHandlers.Free(id);
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;
 }
 
 //14

@@ -170,7 +170,7 @@ private:
 
 	struct DMACHANDLER
 	{
-		uint32									valid;
+		uint32									isValid;
 		uint32									channel;
 		uint32									address;
 		uint32									arg;
@@ -241,6 +241,7 @@ private:
 		THREAD_ZOMBIE				= 0x07,
 	};
 
+	typedef COsStructManager<DMACHANDLER> DmacHandlerList;
 	typedef COsStructManager<ALARM> AlarmList;
 
 	typedef void (CPS2OS::*SystemCallHandler)();
@@ -278,9 +279,6 @@ private:
 
 	uint32									GetNextAvailableSemaphoreId();
 	SEMAPHORE*								GetSemaphore(uint32);
-
-	uint32									GetNextAvailableDmacHandlerId();
-	DMACHANDLER*							GetDmacHandler(uint32);
 
 	uint32									GetNextAvailableIntcHandlerId();
 	INTCHANDLER*							GetIntcHandler(uint32);
@@ -344,6 +342,7 @@ private:
 	CELF*									m_elf;
 	CMIPS&									m_ee;
 	CRoundRibbon*							m_threadSchedule;
+	DmacHandlerList							m_dmacHandlers;
 	AlarmList								m_alarms;
 
 	std::string								m_executableName;
