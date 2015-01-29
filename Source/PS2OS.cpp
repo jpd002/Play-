@@ -1230,7 +1230,7 @@ uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 
 void CPS2OS::sc_Unhandled()
 {
-	printf("PS2OS: Unknown system call (0x%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
+	CLog::GetInstance().Print(LOG_NAME, "Unknown system call (0x%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
 }
 
 //02
