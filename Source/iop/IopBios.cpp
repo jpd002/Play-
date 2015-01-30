@@ -153,7 +153,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_stdio);
 	}
 	{
-		m_sysmem = new Iop::CSysmem(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_sifMan);
+		m_sysmem = new Iop::CSysmem(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_ioman, *m_sifMan);
 		RegisterModule(m_sysmem);
 	}
 	{
@@ -216,11 +216,18 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	}
 #endif
 
-	const int sifDmaBufferSize = 0x1000;
-	uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0, 0);
-#ifndef _NULL_SIFMAN
-	m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
-#endif
+	{
+		const int sifDmaBufferSize = 0x1000;
+		uint32 sifDmaBufferPtr = m_sysmem->AllocateMemory(sifDmaBufferSize, 0, 0);
+		m_sifMan->SetDmaBuffer(sifDmaBufferPtr, sifDmaBufferSize);
+	}
+
+	{
+		const int sifCmdBufferSize = 0x100;
+		uint32 sifCmdBufferPtr = m_sysmem->AllocateMemory(sifCmdBufferSize, 0, 0);
+		m_sifMan->SetCmdBuffer(sifCmdBufferPtr, sifCmdBufferSize);
+	}
+
 	m_sifMan->GenerateHandlers(m_ram, *m_sysmem);
 
 	InitializeModuleLoader();
@@ -687,7 +694,16 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 	thread->context.epc = thread->threadProc;
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
-	m_rescheduleNeeded = true;
+
+	// If the thread we are starting is the same priority or lower than the current one, do yield.
+	// If may be that the correct action is never to yield - the docs aren't really clear.
+	// INET.IRX (from Champions: Return to Arms) depends on startThread not yielding when starting a 
+	// thread of the same priority.
+	auto currentThread = GetThread(CurrentThreadId());
+	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
+	{
+		m_rescheduleNeeded = true;
+	}
 }
 
 void CIopBios::ExitThread()
@@ -792,9 +808,28 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 {
 	//TODO: This needs to garantee that the alarm handler function won't be called after the cancel
-#ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: Warning. CancelAlarm not supported.\r\n", CurrentThreadId());
-#endif
+
+	uint32 alarmThreadId = -1;
+
+	for(auto threadIterator = m_threads.Begin();
+		threadIterator != m_threads.End(); threadIterator++)
+	{
+		const auto& thread(m_threads[threadIterator]);
+		if(thread == nullptr) continue;
+		if(thread->threadProc == m_alarmThreadProcAddress)
+		{
+			alarmThreadId = thread->id;
+			break;
+		}
+	}
+
+	if(alarmThreadId == -1)
+	{
+		// handler not registered
+		return -105;
+	}
+
+	TerminateThread(alarmThreadId);
 	return 0;
 }
 
@@ -2022,6 +2057,39 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 			}
 		}
 	}
+}
+
+void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
+{
+	// Call the addres on a callback thread with A0 set to arg0
+	uint32 callbackThreadId = -1;
+
+	//Find a thread we could recycle for a new callback
+	for (auto threadIterator = m_threads.Begin();
+		threadIterator != m_threads.End(); threadIterator++)
+	{
+		const auto& thread(m_threads[threadIterator]);
+		if(thread == nullptr) continue;
+		if(thread->threadProc != address) continue;
+		if(thread->status == THREAD_STATUS_DORMANT)
+		{
+			callbackThreadId = thread->id;
+			break;
+		}
+	}
+
+	//If no threads are available, create a new one
+	if(callbackThreadId == -1)
+	{
+		callbackThreadId = CreateThread(address, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	}
+
+	ChangeThreadPriority(callbackThreadId, 1);
+	StartThread(callbackThreadId);
+
+	auto thread = GetThread(callbackThreadId);
+	thread->context.gpr[CMIPS::A0] = arg0;
+	thread->context.gpr[CMIPS::A1] = arg1;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

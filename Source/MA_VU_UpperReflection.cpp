@@ -95,7 +95,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX0[32] =
 {
 	//0x00
 	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SUBA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"ITOF0",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
@@ -135,7 +135,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX1[32] =
 {
 	//0x00
 	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SUBA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"ITOF4",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
@@ -175,7 +175,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX2[32] =
 {
 	//0x00
 	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SUBA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"ITOF12",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
@@ -215,7 +215,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX3[32] =
 {
 	//0x00
 	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"SUBA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"ITOF15",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
@@ -331,8 +331,8 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX0[32] =
 {
 	//0x00
 	{	"ADDA",		NULL,			ReflOpAffAccFsFtBc	},
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"SUBA",		NULL,			ReflOpAffAccFsFtBc	},
+	{	"MADDA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"ITOF0",	NULL,			ReflOpAffFtFs		},
 	{	"FTOI0",	NULL,			ReflOpAffFtFs		},
@@ -371,7 +371,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX1[32] =
 {
 	//0x00
 	{	"ADDA",		NULL,			ReflOpAffAccFsFtBc	},
-	{	NULL,		NULL,			NULL				},
+	{	"SUBA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	"MADDA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"ITOF4",	NULL,			ReflOpAffFtFs,		},
@@ -410,8 +410,8 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX1[32] =
 VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX2[32] =
 {
 	//0x00
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"ADDA",		NULL,			ReflOpAffAccFsFtBc	},
+	{	"SUBA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	"MADDA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"ITOF12",	NULL,			ReflOpAffFtFs		},
@@ -419,8 +419,8 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX2[32] =
 	{	"MULA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	"MULA",		NULL,			ReflOpAffAccFsI		},
 	//0x08
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"ADDA",		NULL,			ReflOpAffAccFsI,	},
+	{	"SUBA",		NULL,			ReflOpAffAccFsI,	},
 	{	"MULA",		NULL,			ReflOpAffAccFsFt	},
 	{	"OPMULA",	NULL,			ReflOpAffAccFsFt	},
 	{	NULL,		NULL,			NULL				},
@@ -450,8 +450,8 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX2[32] =
 VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 {
 	//0x00
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"ADDA",		NULL,			ReflOpAffAccFsFtBc	},
+	{	"SUBA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	"MADDA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	NULL,		NULL,			NULL				},
@@ -462,7 +462,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 	{	"MADDA",	NULL,			ReflOpAffAccFsI		},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsI		},
 	{	NULL,		NULL,			NULL				},
-	{	"NOP",		NULL,			NULL				},
+	{	"NOP",		NULL,			ReflOpAffNone		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},

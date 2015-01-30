@@ -1,13 +1,15 @@
-#ifndef _MA_ALLEGREX_H_
-#define _MA_ALLEGREX_H_
+#pragma once
 
 #include "MA_MIPSIV.h"
+
+#undef MAX
+#undef MIN
 
 class CMA_ALLEGREX : public CMA_MIPSIV
 {
 public:
 										CMA_ALLEGREX();
-	virtual                             ~CMA_ALLEGREX();
+	virtual								~CMA_ALLEGREX();
 
 protected:
 	enum
@@ -53,4 +55,3 @@ private:
 
 };
 
-#endif

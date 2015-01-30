@@ -53,6 +53,9 @@ enum GS_REGS
 	GS_REG_ALPHA_2		= 0x43,
 	GS_REG_TEST_1		= 0x47,
 	GS_REG_TEST_2		= 0x48,
+	GS_REG_PABE			= 0x49,
+	GS_REG_FBA_1		= 0x4A,
+	GS_REG_FBA_2		= 0x4B,
 	GS_REG_FRAME_1		= 0x4C,
 	GS_REG_FRAME_2		= 0x4D,
 	GS_REG_ZBUF_1		= 0x4E,
@@ -130,6 +133,18 @@ public:
 		PSMZ16		= 0x32,
 		PSMZ16S		= 0x3A,
 		PSM_MAX,
+	};
+
+	enum PRIM_TYPE
+	{
+		PRIM_POINT,
+		PRIM_LINE,
+		PRIM_LINESTRIP,
+		PRIM_TRIANGLE,
+		PRIM_TRIANGLESTRIP,
+		PRIM_TRIANGLEFAN,
+		PRIM_SPRITE,
+		PRIM_INVALID,
 	};
 
 	enum REGISTER_MAX
@@ -485,8 +500,8 @@ public:
 	bool									GetDrawEnabled() const;
 	void									SetDrawEnabled(bool);
 
-	virtual void							WritePrivRegister(uint32, uint32);
-	virtual uint32							ReadPrivRegister(uint32);
+	void									WritePrivRegister(uint32, uint32);
+	uint32									ReadPrivRegister(uint32);
 	
 	void									SetLoggingEnabled(bool);
 	static std::string						DisassembleWrite(uint8, uint64);
@@ -509,9 +524,17 @@ public:
 	
 	uint8*									GetRam();
 	uint64*									GetRegisters();
+	
+	uint64									GetSMODE2() const;
+	void									SetSMODE2(uint64);
 
 	int										GetPendingTransferCount() const;
 	bool									IsInterruptPending();
+
+	unsigned int							GetCrtWidth() const;
+	unsigned int							GetCrtHeight() const;
+	bool									GetCrtIsInterlaced() const;
+	bool									GetCrtIsFrameMode() const;
 
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
 
@@ -560,6 +583,27 @@ protected:
 		MIN_FILTER_NEAREST_MIP_LINEAR	= 3,
 		MIN_FILTER_LINEAR_MIP_NEAREST	= 4,
 		MIN_FILTER_LINEAR_MIP_LINEAR	= 5
+	};
+
+	enum ALPHA_TEST_METHOD
+	{
+		ALPHA_TEST_NEVER,
+		ALPHA_TEST_ALWAYS,
+		ALPHA_TEST_LESS,
+		ALPHA_TEST_LEQUAL,
+		ALPHA_TEST_EQUAL,
+		ALPHA_TEST_GEQUAL,
+		ALPHA_TEST_GREATER,
+		ALPHA_TEST_NOTEQUAL,
+		ALPHA_TEST_MAX
+	};
+
+	enum ALPHA_TEST_FAIL_METHOD
+	{
+		ALPHA_TEST_FAIL_KEEP,
+		ALPHA_TEST_FAIL_FBONLY,
+		ALPHA_TEST_FAIL_ZBONLY,
+		ALPHA_TEST_FAIL_RGBONLY
 	};
 
 	//-----------------------------------
@@ -613,11 +657,6 @@ protected:
 
 	void									LogWrite(uint8, uint64);
 	void									LogPrivateWrite(uint32);
-
-	unsigned int							GetCrtWidth() const;
-	unsigned int							GetCrtHeight() const;
-	bool									GetCrtIsInterlaced() const;
-	bool									GetCrtIsFrameMode() const;
 
 	void									LoadSettings();
 	void									WriteToDelayedRegister(uint32, uint32, DELAYED_REGISTER&);

@@ -208,7 +208,7 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 	CProfilerZone profilerZone(m_gifProfilerZone);
 #endif
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(DEBUGGER_INCLUDED)
 	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%0.8X of 0x%0.8X bytes.\r\n", 
 		packetMetadata.pathIndex, address, end - address);
 #endif

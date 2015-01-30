@@ -50,6 +50,7 @@ private:
 		uint64		scissorReg;
 		uint64		tex0Reg;
 		uint64		tex1Reg;
+		uint64		texAReg;
 		uint64		clampReg;
 		GLuint		shaderHandle;
 	};
@@ -95,12 +96,15 @@ private:
 
 	struct SHADERCAPS : public convertible<uint32>
 	{
-		unsigned int texFunction		: 2;		//0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
-		unsigned int texClampS			: 2;
-		unsigned int texClampT			: 2;
-		unsigned int texSourceMode		: 2;
-		unsigned int texBilinearFilter	: 1;
-		unsigned int hasFog				: 1;
+		unsigned int texFunction			: 2;		//0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
+		unsigned int texClampS				: 2;
+		unsigned int texClampT				: 2;
+		unsigned int texSourceMode			: 2;
+		unsigned int texHasAlpha			: 1;
+		unsigned int texBilinearFilter		: 1;
+		unsigned int texUseAlphaExpansion	: 1;
+		unsigned int texBlackIsTransparent	: 1;
+		unsigned int hasFog					: 1;
 
 		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
 	};
@@ -115,6 +119,8 @@ private:
 		GLint							texelSizeUniform;
 		GLint							clampMinUniform;
 		GLint							clampMaxUniform;
+		GLint							texA0Uniform;
+		GLint							texA1Uniform;
 	};
 
 	typedef std::unordered_map<uint32, SHADERINFO> ShaderInfoMap;
@@ -231,8 +237,8 @@ private:
 	void							SetupFogColor();
 
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
-	void							FillShaderCapsFromTexture(SHADERCAPS&, uint64, uint64, uint64);
-	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64);
+	void							FillShaderCapsFromTexture(SHADERCAPS&, uint64, uint64, uint64, uint64);
+	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
 
 	FramebufferPtr					FindFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;

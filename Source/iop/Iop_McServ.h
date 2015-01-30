@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <regex>
 #include <boost/filesystem.hpp>
 #include "StdStream.h"
 #include "Iop_Module.h"
@@ -13,8 +14,43 @@ namespace Iop
 	class CMcServ : public CModule, public CSifModule
 	{
 	public:
+		struct CMD
+		{
+			uint32	port;
+			uint32	slot;
+			uint32	flags;
+			int32	maxEntries;
+			uint32	tableAddress;
+			char	name[0x400];
+		};
+		static_assert(sizeof(CMD) == 0x414, "Size of CMD structure must be 0x414 bytes.");
+
+		struct ENTRY
+		{
+			struct TIME
+			{
+				uint8	unknown;
+				uint8	second;
+				uint8	minute;
+				uint8	hour;
+				uint8	day;
+				uint8	month;
+				uint16	year;
+			};
+
+			TIME	creationTime;
+			TIME	modificationTime;
+			uint32	size;
+			uint16	attributes;
+			uint16	reserved0;
+			uint32	reserved1[2];
+			uint8	name[0x20];
+		};
+
 							CMcServ(CSifMan&);
 		virtual				~CMcServ();
+
+		static const char*	GetMcPathPreference(unsigned int);
 
 		std::string			GetId() const override;
 		std::string			GetFunctionName(unsigned int) const override;
@@ -40,17 +76,6 @@ namespace Iop
 			MAX_FILES = 5
 		};
 
-		struct CMD
-		{
-			uint32	port;
-			uint32	slot;
-			uint32	flags;
-			int32	maxEntries;
-			uint32	tableAddress;
-			char	name[0x400];
-		};
-		static_assert(sizeof(CMD) == 0x414, "Size of CMD structure must be 0x414 bytes.");
-
 		struct FILECMD
 		{
 			uint32	handle;
@@ -61,28 +86,6 @@ namespace Iop
 			uint32	bufferAddress;
 			uint32	paramAddress;
 			char	data[16];
-		};
-
-		struct ENTRY
-		{
-			struct TIME
-			{
-				uint8	unknown;
-				uint8	second;
-				uint8	minute;
-				uint8	hour;
-				uint8	day;
-				uint8	month;
-				uint16	year;
-			};
-
-			TIME	creationTime;
-			TIME	modificationTime;
-			uint32	size;
-			uint16	attributes;
-			uint16	reserved0;
-			uint32	reserved1[2];
-			uint8	name[0x20];
 		};
 
 		class CPathFinder
@@ -97,17 +100,13 @@ namespace Iop
 
 		private:
 			typedef std::vector<ENTRY> EntryList;
-			typedef bool (CPathFinder::*StringMatcher)(const char*);
 
 			void						SearchRecurse(const boost::filesystem::path&);
-			bool						StarFilterMatcher(const char*);
-			bool						QuestionMarkFilterMatcher(const char*);
 
 			EntryList					m_entries;
 			boost::filesystem::path		m_basePath;
-			std::string					m_filter;
+			std::regex					m_filterExp;
 			unsigned int				m_index;
-			StringMatcher				m_matcher;
 		};
 
 		void				GetInfo(uint32*, uint32, uint32*, uint32, uint8*);
@@ -119,10 +118,12 @@ namespace Iop
 		void				Flush(uint32*, uint32, uint32*, uint32, uint8*);
 		void				ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetDir(uint32*, uint32, uint32*, uint32, uint8*);
+		void				Delete(uint32*, uint32, uint32*, uint32, uint8*);
 		void				GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
-		uint32					GenerateHandle();
-		Framework::CStdStream*	GetFileFromHandle(uint32);
+		uint32						GenerateHandle();
+		Framework::CStdStream*		GetFileFromHandle(uint32);
+		boost::filesystem::path		GetAbsoluteFilePath(unsigned int, unsigned int, const char*) const;
 
 		Framework::CStdStream		m_files[MAX_FILES];
 		static const char*			m_mcPathPreference[2];

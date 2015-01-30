@@ -468,13 +468,13 @@ void CCOP_VU::VMADDAbc()
 //
 void CCOP_VU::VMSUBAbc()
 {
-	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //
 void CCOP_VU::VMULAbc()
 {
-	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //////////////////////////////////////////////////
@@ -503,6 +503,12 @@ void CCOP_VU::VMULAq()
 void CCOP_VU::VADDA()
 {
 	VUShared::ADDA(m_codeGen, m_nDest, m_nFS, m_nFT);
+}
+
+//0B
+void CCOP_VU::VSUBA()
+{
+	VUShared::SUBA(m_codeGen, m_nDest, m_nFS, m_nFT);
 }
 
 //0C
@@ -560,7 +566,7 @@ void CCOP_VU::VMADDA()
 //0B
 void CCOP_VU::VMSUBA()
 {
-	VUShared::MSUBA(m_codeGen, m_nDest, m_nFS, m_nFT);
+	VUShared::MSUBA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
 }
 
 //0C
@@ -732,7 +738,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF0,		&CCOP_VU::VFTOI0,		&CCOP_VU::VMULAbc,		&CCOP_VU::VMULAq,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::Illegal,		&CCOP_VU::VMOVE,		&CCOP_VU::Illegal,		&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::VSUBA,		&CCOP_VU::VMOVE,		&CCOP_VU::Illegal,		&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
 	//0x10
 	&CCOP_VU::VRNEXT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18

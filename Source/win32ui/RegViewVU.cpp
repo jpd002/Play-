@@ -81,6 +81,9 @@ std::string CRegViewVU::GetDisplayText()
 	sprintf(sLine, "CLIP : 0x%0.6X\r\n", pState->nCOP2CF);
 	result += sLine;
 
+	sprintf(sLine, "PIPE : 0x%0.4X\r\n", pState->pipeTime);
+	result += sLine;
+
 	sprintf(sLine, "PIPEQ: 0x%0.4X - %+.7e\r\n", pState->pipeQ.counter, *(float*)&pState->pipeQ.heldValue);
 	result += sLine;
 

@@ -1,8 +1,8 @@
-#ifndef _IOP_SYSMEM_H_
-#define _IOP_SYSMEM_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "Iop_Stdio.h"
+#include "Iop_Ioman.h"
 #include "../OsStructManager.h"
 #include "../SifModule.h"
 
@@ -26,13 +26,13 @@ namespace Iop
 			MAX_BLOCKS = 256,
 		};
 
-								CSysmem(uint8*, uint32, uint32, uint32, Iop::CStdio&, CSifMan&);
+								CSysmem(uint8*, uint32, uint32, uint32, CStdio&, CIoman&, CSifMan&);
 		virtual					~CSysmem();
 
-		std::string				GetId() const;
-		std::string				GetFunctionName(unsigned int) const;
-		void					Invoke(CMIPS&, unsigned int);
-		bool					Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		std::string				GetId() const override;
+		std::string				GetFunctionName(unsigned int) const override;
+		void					Invoke(CMIPS&, unsigned int) override;
+		bool					Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 		uint32					AllocateMemory(uint32, uint32, uint32);
 		uint32					FreeMemory(uint32);
@@ -47,15 +47,18 @@ namespace Iop
 
 		uint32					SifAllocate(uint32);
 		uint32					SifAllocateSystemMemory(uint32, uint32, uint32);
+		uint32					SifLoadMemory(uint32, const char*);
 		uint32					SifFreeMemory(uint32);
 
+		uint32					QueryMaxFreeMemSize();
+
+		uint8*					m_iopRam = nullptr;
 		BlockListType			m_blocks;
 		uint32					m_memoryBegin;
 		uint32					m_memoryEnd;
 		uint32					m_memorySize;
 		uint32					m_headBlockId;
-		Iop::CStdio&			m_stdio;
+		CStdio&					m_stdio;
+		CIoman&					m_ioman;
 	};
 }
-
-#endif

@@ -40,6 +40,11 @@ void CSifManPs2::SetDmaBuffer(uint32 bufferAddress, uint32 size)
 	m_sif.SetDmaBuffer(bufferAddress, size);
 }
 
+void CSifManPs2::SetCmdBuffer(uint32 bufferAddress, uint32 size)
+{
+	m_sif.SetCmdBuffer(bufferAddress, size);
+}
+
 void CSifManPs2::SendCallReply(uint32 serverId, const void* returnData)
 {
 	m_sif.SendCallReply(serverId, returnData);
@@ -52,29 +57,26 @@ void CSifManPs2::GetOtherData(uint32 dst, uint32 src, uint32 size)
 	memcpy(dstPtr, srcPtr, size);
 }
 
+void CSifManPs2::SetCustomCommandHandler(const CustomCommandHandler& customCommandHandler)
+{
+	m_sif.SetCustomCommandHandler(customCommandHandler);
+}
+
 uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 {
 	CSifMan::SifSetDma(structAddr, count);
-
-	struct DMAREG
-	{
-		uint32 nSrcAddr;
-		uint32 nDstAddr;
-		uint32 nSize;
-		uint32 nFlags;
-	};
 
 	if(structAddr == 0)
 	{
 		return 0;
 	}
 
-	DMAREG* pXfer = reinterpret_cast<DMAREG*>(m_iopRam + structAddr);
+	auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_iopRam + structAddr);
 	for(unsigned int i = 0; i < count; i++)
 	{
-		uint8* src = m_iopRam + pXfer[i].nSrcAddr;
-		uint8* dst = m_eeRam + pXfer[i].nDstAddr;
-		memcpy(dst, src, pXfer[i].nSize);
+		uint8* src = m_iopRam + dmaReg[i].srcAddr;
+		uint8* dst = m_eeRam + dmaReg[i].dstAddr;
+		memcpy(dst, src, dmaReg[i].size);
 	}
 
 	return count;

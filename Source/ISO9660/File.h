@@ -21,12 +21,13 @@ namespace ISO9660
 	private:
 		void				SyncBlock();
 
-		CISO9660*			m_iso;
-		uint64				m_start;
-		uint64				m_end;
-		uint64				m_position;
-		uint32				m_blockPosition;
+		CISO9660*			m_iso = nullptr;
+		uint64				m_start = 0;
+		uint64				m_end = 0;
+		uint64				m_position = 0;
+		uint32				m_blockPosition = 0;
 		uint8				m_block[CISO9660::BLOCKSIZE];
+		bool				m_isEof = false;
 	};
 
 }

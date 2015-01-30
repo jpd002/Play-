@@ -34,6 +34,12 @@ public:
 	bool							GetDepthTestingEnabled() const;
 	void							SetDepthTestingEnabled(bool);
 
+	bool							GetAlphaBlendingEnabled() const;
+	void							SetAlphaBlendingEnabled(bool);
+
+	bool							GetAlphaTestingEnabled() const;
+	void							SetAlphaTestingEnabled(bool);
+
 	Framework::CBitmap				GetFramebuffer(uint64);
 	Framework::CBitmap				GetTexture(uint64, uint64, uint64);
 	const VERTEX*					GetInputVertices() const;
@@ -62,12 +68,13 @@ private:
 
 	enum CVTBUFFERSIZE
 	{
-		CVTBUFFERSIZE = 0x400000,
+		CVTBUFFERSIZE = 2048 * 2048 * 4,
 	};
 
 	struct RENDERSTATE
 	{
 		bool		isValid;
+		uint64		primReg;
 		uint64		frameReg;
 		uint64		testReg;
 		uint64		alphaReg;
@@ -87,7 +94,6 @@ private:
 
 		uint32						m_nStart;
 		uint32						m_nSize;
-		unsigned int				m_nPSM;
 		uint32						m_nCLUTAddress;
 		uint64						m_nTex0;
 		uint64						m_nTexClut;
@@ -157,7 +163,7 @@ private:
 	void							SetReadCircuitMatrix(int, int);
 	void							VertexKick(uint8, uint64);
 
-	void							SetRenderingContext(unsigned int);
+	void							SetRenderingContext(uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
@@ -195,7 +201,9 @@ private:
 
 	void							FlattenClut(const TEX0&, uint32*);
 
-	bool							m_depthTestingEnabled;
+	bool							m_depthTestingEnabled = true;
+	bool							m_alphaBlendingEnabled = true;
+	bool							m_alphaTestingEnabled = true;
 
 	COutputWnd*						m_outputWnd;
 	Direct3DPtr						m_d3d;

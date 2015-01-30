@@ -108,6 +108,7 @@ private:
 	void								VITOF0();
 	void								VFTOI0();
 	void								VADDA();
+	void								VSUBA();
 	void								VMOVE();
 	void								VDIV();
 	void								VMTIR();

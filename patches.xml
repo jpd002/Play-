@@ -2,15 +2,7 @@
 	<Executable Name="SLES_506.72;1" Title="Baldur's Gate: Dark Alliance" Region="EU">
 		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
 	</Executable>
-	<Executable Name="SLPM_660.81;1" Title="Atelier Iris: Eternal Mana" Region="JP">
-		<Patch Address="0x0029B2E4" Value="0x03E00008" Description="Skips movies" />
-		<Patch Address="0x0029B2E8" Value="0x24020000" Description="Skips movies" />
-	</Executable>
-	<Executable Name="SLUS_211.13;1" Title="Atelier Iris: Eternal Name" Region="US">
-		<Patch Address="0x0029B8DC" Value="0x00000000" Description="Skips movies" />
-		<Patch Address="0x0029B8EC" Value="0x00000000" Description="Skips movies" />
-		<Patch Address="0x0029B8F8" Value="0x00000000" Description="Skips movies" />
-	</Executable>
+
 	<Executable Name="SLPM_661.75;1" Title="Akumajou Dracula - Yami No Juin" Region="JP">
 		<Patch Address="0x009B47D0" Value="0x00000002" Description="Enable libcdvd tracing."/>
 		<Patch Address="0x00400868" Value="0x081D8174" Description="Redirect calls from printf stub to the real printf" />
@@ -46,11 +38,5 @@
 	<Executable Name="SLUS_218.42;1" Title="Dragonball Z: Infinite World" Region="US">
 		<Patch Address="0x002B0888" Value="0x00000000" Description="Skip opening movie" />
 	</Executable>
-
-	<Executable Name="SLUS_209.83;1" Title="Musashi: Samurai Legend" Region="US">
-		<Patch Address="0x00285210" Value="0x03E00008" Description="sceMpegGetPicture returns -1" />
-		<Patch Address="0x00285214" Value="0x3C02FFFF" Description="sceMpegGetPicture returns -1" />
-		<Patch Address="0x00285330" Value="0x03E00008" Description="sceMpegIsEnd returns 1" />
-		<Patch Address="0x00285334" Value="0x3C020001" Description="sceMpegIsEnd returns 1" />
-	</Executable>
+	
 </Patches>

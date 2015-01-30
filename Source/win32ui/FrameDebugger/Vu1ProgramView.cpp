@@ -45,7 +45,7 @@ CVu1ProgramView::~CVu1ProgramView()
 
 }
 
-void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata)
+void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata, DRAWINGKICK_INFO*)
 {
 #ifdef DEBUGGER_INCLUDED
 	memcpy(m_virtualMachine.GetMicroMem1(), metadata->microMem1, PS2::MICROMEM1SIZE);

@@ -10,5 +10,5 @@ public:
 							CGsInputStateView(HWND, const RECT&);
 	virtual					~CGsInputStateView();
 
-	void					UpdateState(CGSHandler*, CGsPacketMetadata*) override;
+	void					UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*) override;
 };

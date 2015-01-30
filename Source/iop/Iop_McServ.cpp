@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include <boost/filesystem/operations.hpp>
+#include <boost/algorithm/string.hpp>
 #include "../AppConfig.h"
 #include "../Log.h"
 #include "Iop_McServ.h"
@@ -24,6 +24,11 @@ CMcServ::CMcServ(CSifMan& sif)
 CMcServ::~CMcServ()
 {
 
+}
+
+const char* CMcServ::GetMcPathPreference(unsigned int port)
+{
+	return m_mcPathPreference[port];
 }
 
 std::string CMcServ::GetId() const
@@ -72,6 +77,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x0D:
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;
+	case 0x0F:
+		Delete(args, argsSize, ret, retSize, ram);
+		break;
 	case 0xFE:
 		//Get version?
 		GetVersionInformation(args, argsSize, ret, retSize, ram);
@@ -103,7 +111,7 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 	}
 	if(wantFreeSpace)
 	{
-		retBuffer[0x01] = 0x800000;
+		retBuffer[0x01] = 0x2000;		//Number of clusters, cluster size = 1024 bytes
 	}
 	if(wantFormatted)
 	{
@@ -138,17 +146,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 	try
 	{
-		filesystem::path mcPath = filesystem::path(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[cmd->port]));
-		filesystem::path requestedFilePath(cmd->name);
-
-		if(!requestedFilePath.root_directory().empty())
-		{
-			filePath = mcPath / requestedFilePath;
-		}
-		else
-		{
-			filePath = mcPath / m_currentDirectory / requestedFilePath;
-		}
+		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
 	}
 	catch(const std::exception& exception)
 	{
@@ -402,7 +400,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	assert(argsSize >= 0x414);
 
-	CMD* cmd = reinterpret_cast<CMD*>(args);
+	auto cmd = reinterpret_cast<const CMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%0.8X, name = %s);\r\n",
 		cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
@@ -421,7 +419,10 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			m_pathFinder.Reset();
 
 			filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[cmd->port]));
-			mcPath /= m_currentDirectory;
+			if(cmd->name[0] != '/')
+			{
+				mcPath /= m_currentDirectory;
+			}
 			mcPath = filesystem::absolute(mcPath);
 
 			if(!filesystem::exists(mcPath))
@@ -443,10 +444,8 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			m_pathFinder.Search(mcPath, cmd->name);
 		}
 
-		if(cmd->maxEntries > 0)
-		{
-			result = m_pathFinder.Read(reinterpret_cast<ENTRY*>(&ram[cmd->tableAddress]), cmd->maxEntries);
-		}
+		auto entries = (cmd->maxEntries > 0) ? reinterpret_cast<ENTRY*>(&ram[cmd->tableAddress]) : nullptr;
+		result = m_pathFinder.Read(entries, cmd->maxEntries);
 	}
 	catch(const std::exception& exception)
 	{
@@ -454,6 +453,36 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	}
 
 	ret[0] = result;
+}
+
+void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	auto cmd = reinterpret_cast<const CMD*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "Delete(port = %d, slot = %d, name = '%s');\r\n", cmd->port, cmd->slot, cmd->name);
+
+	boost::filesystem::path filePath;
+
+	try
+	{
+		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+	}
+	catch(const std::exception& exception)
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Error while executing Delete: %s\r\n.", exception.what());
+		ret[0] = -1;
+		return;
+	}
+
+	if(boost::filesystem::exists(filePath))
+	{
+		boost::filesystem::remove(filePath);
+		ret[0] = 0;
+	}
+	else
+	{
+		ret[0] = -1;
+	}
 }
 
 void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -492,6 +521,21 @@ Framework::CStdStream* CMcServ::GetFileFromHandle(uint32 handle)
 	return &file;
 }
 
+boost::filesystem::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, const char* name) const
+{
+	auto mcPath = filesystem::path(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[port]));
+	auto requestedFilePath = boost::filesystem::path(name);
+
+	if(!requestedFilePath.root_directory().empty())
+	{
+		return mcPath / requestedFilePath;
+	}
+	else
+	{
+		return mcPath / m_currentDirectory / requestedFilePath;
+	}
+}
+
 /////////////////////////////////////////////
 //CPathFinder Implementation
 /////////////////////////////////////////////
@@ -515,23 +559,24 @@ void CMcServ::CPathFinder::Reset()
 
 void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const char* filter)
 {
-	m_basePath	= basePath;
-	m_filter	= filter;
+	m_basePath = basePath;
 
-	if(m_filter[0] != '/')
+	std::string filterPathString = filter;
+	if(filterPathString[0] != '/')
 	{
-		m_filter = "/" + m_filter;
-	}
-	if(m_filter.find('?') != std::string::npos)
-	{
-		m_matcher = &CPathFinder::QuestionMarkFilterMatcher;
-	}
-	else
-	{
-		m_matcher = &CPathFinder::StarFilterMatcher;
+		filterPathString = "/" + filterPathString;
 	}
 
-	auto filterPath = boost::filesystem::path(m_filter);
+	{
+		std::string filterExpString = filterPathString;
+		boost::replace_all(filterExpString, "\\", "\\\\");
+		boost::replace_all(filterExpString, ".", "\\.");
+		boost::replace_all(filterExpString, "?", ".");
+		boost::replace_all(filterExpString, "*", ".*");
+		m_filterExp = std::regex(filterExpString);
+	}
+
+	auto filterPath = boost::filesystem::path(filterPathString);
 	filterPath.remove_filename();
 
 	auto currentDirPath = filterPath / ".";
@@ -539,7 +584,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 	auto currentDirPathString = currentDirPath.generic_string();
 	auto parentDirPathString = parentDirPath.generic_string();
 
-	if((*this.*m_matcher)(currentDirPathString.c_str()))
+	if(std::regex_match(currentDirPathString, m_filterExp))
 	{
 		ENTRY entry;
 		memset(&entry, 0, sizeof(entry));
@@ -549,7 +594,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 		m_entries.push_back(entry);
 	}
 
-	if((*this.*m_matcher)(parentDirPathString.c_str()))
+	if(std::regex_match(parentDirPathString, m_filterExp))
 	{
 		ENTRY entry;
 		memset(&entry, 0, sizeof(entry));
@@ -567,9 +612,12 @@ unsigned int CMcServ::CPathFinder::Read(ENTRY* entry, unsigned int size)
 	assert(m_index <= m_entries.size());
 	unsigned int remaining = m_entries.size() - m_index;
 	unsigned int readCount = std::min<unsigned int>(remaining, size);
-	for(unsigned int i = 0; i < readCount; i++)
+	if(entry != nullptr)
 	{
-		entry[i] = m_entries[i + m_index];
+		for(unsigned int i = 0; i < readCount; i++)
+		{
+			entry[i] = m_entries[i + m_index];
+		}
 	}
 	m_index += readCount;
 	return readCount;
@@ -589,7 +637,7 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 		relativePathString.erase(0, m_basePath.string().size());
 
 		//Attempt to match this against the filter
-		if((*this.*m_matcher)(relativePathString.c_str()))
+		if(std::regex_match(relativePathString, m_filterExp))
 		{
 			//Fill in the information
 			ENTRY entry;
@@ -633,71 +681,4 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 			SearchRecurse(*elementIterator);
 		}
 	}
-}
-
-//Based on an algorithm found on http://xoomer.alice.it/acantato/dev/wildcard/wildmatch.html
-bool CMcServ::CPathFinder::StarFilterMatcher(const char* path)
-{
-	const char* pattern = m_filter.c_str();
-	bool star = false;
-
-	const char* s(nullptr);
-	const char* p(nullptr);
-
-_loopStart:
-
-	for(s = path, p = pattern; *s; s++, p++)
-	{
-		switch(*p)
-		{
-		case '*':
-			star = true;
-			path = s;
-			pattern = p;
-			if((*++p) == 0) return true;
-			goto _loopStart;
-			break;
-		default:
-			if(toupper(*s) != toupper(*p))
-			{
-				goto _starCheck;
-			}
-			break;
-		}
-	}
-
-	if(*p == '*') p++;
-	return (*p) == 0;
-
-_starCheck:
-	if(!star) return false;
-	path++;
-	goto _loopStart;
-}
-
-bool CMcServ::CPathFinder::QuestionMarkFilterMatcher(const char* path)
-{
-	const char* src = m_filter.c_str();
-	const char* dst = path;
-
-	while(1)
-	{
-		if(*src == 0 && *dst == 0)
-		{
-			return true;
-		}
-
-		if(*src == 0) return false;
-		if(*dst == 0) return false;
-
-		if(*src != '?')
-		{
-			if(*src != *dst) return false;
-		}
-
-		src++;
-		dst++;
-	}
-
-	return false;
 }

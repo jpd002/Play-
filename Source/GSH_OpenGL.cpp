@@ -9,6 +9,13 @@
 
 //#define _WIREFRAME
 
+//#define HIGHRES_MODE
+#ifdef HIGHRES_MODE
+#define FBSCALE (2.0f)
+#else
+#define FBSCALE (1.0f)
+#endif
+
 GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
 	GL_REPEAT,
@@ -177,7 +184,9 @@ void CGSH_OpenGL::FlipImpl()
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
 		m_framebuffers.push_back(framebuffer);
+#ifndef HIGHRES_MODE
 		PopulateFramebuffer(framebuffer);
+#endif
 	}
 
 	if(framebuffer)
@@ -251,7 +260,7 @@ void CGSH_OpenGL::FlipImpl()
 		for(const auto& framebuffer : m_framebuffers)
 		{
 			glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
-			DumpTexture(framebuffer->m_width, framebuffer->m_height, framebuffer->m_basePtr);
+			DumpTexture(framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE, framebuffer->m_basePtr);
 		}
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -394,6 +403,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + context];
 	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
+	uint64 texAReg = m_nReg[GS_REG_TEXA];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
 	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
@@ -404,7 +414,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	SHADERCAPS shaderCaps;
 	memset(&shaderCaps, 0, sizeof(SHADERCAPS));
 
-	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, clampReg);
+	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, texAReg, clampReg);
 
 	if(prim.nFog)
 	{
@@ -433,6 +443,8 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		shaderInfo.texelSizeUniform		= glGetUniformLocation(*shader, "g_texelSize");
 		shaderInfo.clampMinUniform		= glGetUniformLocation(*shader, "g_clampMin");
 		shaderInfo.clampMaxUniform		= glGetUniformLocation(*shader, "g_clampMax");
+		shaderInfo.texA0Uniform			= glGetUniformLocation(*shader, "g_texA0");
+		shaderInfo.texA1Uniform			= glGetUniformLocation(*shader, "g_texA1");
 
 		m_shaderInfos.insert(ShaderInfoMap::value_type(static_cast<uint32>(shaderCaps), shaderInfo));
 		shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
@@ -530,10 +542,11 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	if(!m_renderState.isValid ||
 		(m_renderState.tex0Reg != tex0Reg) ||
 		(m_renderState.tex1Reg != tex1Reg) ||
+		(m_renderState.texAReg != texAReg) ||
 		(m_renderState.clampReg != clampReg) ||
 		(m_renderState.primReg != primReg))
 	{
-		SetupTexture(shaderInfo, primReg, tex0Reg, tex1Reg, clampReg);
+		SetupTexture(shaderInfo, primReg, tex0Reg, tex1Reg, texAReg, clampReg);
 	}
 
 	XYOFFSET offset;
@@ -553,6 +566,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	m_renderState.frameReg = frameReg;
 	m_renderState.tex0Reg = tex0Reg;
 	m_renderState.tex1Reg = tex1Reg;
+	m_renderState.texAReg = texAReg;
 	m_renderState.clampReg = clampReg;
 }
 
@@ -563,22 +577,22 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 
 	if((alpha.nA == 0) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
-		glBlendFunc(GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
 	{
 		//Cs * Ad + Cd * (1 - Ad)
-		glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+		glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
 	{
 		if(alpha.nFix == 0x80)
 		{
-			glBlendFunc(GL_ONE, GL_ZERO);
+			glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 		}
 		else
 		{
@@ -587,29 +601,29 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 			if(glBlendColorEXT != NULL)
 			{
 				glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-				glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
+				glBlendFuncSeparate(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT, GL_ONE, GL_ZERO);
 			}
 		}
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cs * As
-		glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 1) && (alpha.nD == 1))
 	{
 		//Cs * Ad + Cd
-		glBlendFunc(GL_DST_ALPHA, GL_ONE);
+		glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
 	{
 		if(alpha.nFix == 0x80)
 		{
-			glBlendFunc(GL_ONE, GL_ONE);
+			glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 		}
 		else
 		{
@@ -617,14 +631,14 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 			if(glBlendColor != NULL)
 			{
 				glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
-				glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
+				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 			}
 		}
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
 		//(Cd - Cs) * As + Cs
-		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+		glBlendFuncSeparate(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
 	{
@@ -632,7 +646,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		if(glBlendColorEXT != NULL)
 		{
 			glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-			glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT);
+			glBlendFuncSeparate(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT, GL_ONE, GL_ZERO);
 		}
 	}
 //	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
@@ -644,25 +658,25 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
 		//Cd * As + Cs
-		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+		glBlendFuncSeparate(GL_ONE, GL_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cd * As
 		//glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
 		//REMOVE
-		glBlendFunc(GL_ZERO, GL_ONE);
+		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 		//REMOVE
 	}
 	else if((alpha.nA == 2) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
 		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 2) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
 	{
 		//Cd (no blend)
-		glBlendFunc(GL_ZERO, GL_ONE);
+		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 	}
 
 	if(glBlendEquationEXT != NULL)
@@ -678,45 +692,28 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 
 	if(tst.nAlphaEnabled)
 	{
-		unsigned int nFunc = GL_NEVER;
-		switch(tst.nAlphaMethod)
+		static const GLenum g_alphaTestFunc[ALPHA_TEST_MAX] =
 		{
-		case 0:
-			nFunc = GL_NEVER;
-			break;
-		case 1:
-			nFunc = GL_ALWAYS;
-			break;
-		case 2:
-			nFunc = GL_LESS;
-			break;
-		case 4:
-			nFunc = GL_EQUAL;
-			break;
-		case 5:
-			nFunc = GL_GEQUAL;
-			break;
-		case 6:
-			nFunc = GL_GREATER;
-			break;
-		case 7:
-			nFunc = GL_NOTEQUAL;
-			break;
-		default:
-			assert(0);
-			break;
-		}
+			GL_NEVER,
+			GL_ALWAYS,
+			GL_LESS,
+			GL_LEQUAL,
+			GL_EQUAL,
+			GL_GEQUAL,
+			GL_GREATER,
+			GL_NOTEQUAL
+		};
 
 		//Special way of turning off depth writes:
 		//Always fail alpha testing but write RGBA and not depth if it fails
-		if(tst.nAlphaMethod == 0 && tst.nAlphaFail == 1)
+		if(tst.nAlphaMethod == ALPHA_TEST_NEVER && tst.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
 		{
 			glDisable(GL_ALPHA_TEST);
 		}
 		else
 		{
 			float nValue = (float)tst.nAlphaRef / 255.0f;
-			glAlphaFunc(nFunc, nValue);
+			glAlphaFunc(g_alphaTestFunc[tst.nAlphaMethod], nValue);
 
 			glEnable(GL_ALPHA_TEST);
 		}
@@ -804,7 +801,9 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
 		m_framebuffers.push_back(framebuffer);
+#ifndef HIGHRES_MODE
 		PopulateFramebuffer(framebuffer);
+#endif
 	}
 
 	CommitFramebufferDirtyPages(framebuffer, scissor.scay0, scissor.scay1);
@@ -830,7 +829,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		assert(glGetError() == GL_NO_ERROR);
 	}
 
-	glViewport(0, 0, framebuffer->m_width, framebuffer->m_height);
+	glViewport(0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -853,7 +852,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		scissorY *= 2;
 		scissorHeight *= 2;
 	}
-	glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
+	glScissor(scissorX * FBSCALE, scissorY * FBSCALE, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
 }
 
 void CGSH_OpenGL::SetupFogColor()
@@ -885,10 +884,11 @@ bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 cla
 	return false;
 }
 
-void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
+void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
 {
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto tex1 = make_convertible<TEX1>(tex1Reg);
+	auto texA = make_convertible<TEXA>(texAReg);
 	auto clamp = make_convertible<CLAMP>(clampReg);
 
 	shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_STD;
@@ -913,15 +913,35 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0R
 		shaderCaps.texBilinearFilter = 1;
 	}
 
+	if(tex0.nColorComp == 1)
+	{
+		shaderCaps.texHasAlpha = 1;
+	}
+
+	if((tex0.nPsm == PSMCT16) || (tex0.nPsm == PSMCT16S) || (tex0.nPsm == PSMCT24))
+	{
+		shaderCaps.texUseAlphaExpansion = 1;
+	}
+
 	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
+		if((tex0.nCPSM == PSMCT16) || (tex0.nCPSM == PSMCT16S))
+		{
+			shaderCaps.texUseAlphaExpansion = 1;
+		}
+
 		shaderCaps.texSourceMode = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;
+	}
+
+	if(texA.nAEM)
+	{
+		shaderCaps.texBlackIsTransparent = 1;
 	}
 
 	shaderCaps.texFunction = tex0.nFunction;
 }
 
-void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
+void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
 {
 	auto prim = make_convertible<PRMODE>(primReg);
 
@@ -936,6 +956,7 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto tex1 = make_convertible<TEX1>(tex1Reg);
+	auto texA = make_convertible<TEXA>(texAReg);
 	auto clamp = make_convertible<CLAMP>(clampReg);
 
 	m_nTexWidth = tex0.GetWidth();
@@ -1065,6 +1086,18 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	{
 		glUniform2f(shaderInfo.clampMaxUniform,
 			static_cast<float>(clampMax[0]), static_cast<float>(clampMax[1]));
+	}
+
+	if(shaderInfo.texA0Uniform != -1)
+	{
+		float a = static_cast<float>(MulBy2Clamp(texA.nTA0)) / 255.f;
+		glUniform1f(shaderInfo.texA0Uniform, a);
+	}
+
+	if(shaderInfo.texA1Uniform != -1)
+	{
+		float a = static_cast<float>(MulBy2Clamp(texA.nTA1)) / 255.f;
+		glUniform1f(shaderInfo.texA1Uniform, a);
 	}
 }
 
@@ -1306,12 +1339,15 @@ void CGSH_OpenGL::Prim_Triangle()
 		glBegin(GL_TRIANGLES);
 			
 			glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, MulBy2Clamp(rgbaq[0].nA));
+			if(glFogCoordfEXT) glFogCoordfEXT(nF1);
 			glVertex3f(nX1, nY1, nZ1);
 
 			glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, MulBy2Clamp(rgbaq[1].nA));
+			if(glFogCoordfEXT) glFogCoordfEXT(nF2);
 			glVertex3f(nX2, nY2, nZ2);
 
 			glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, MulBy2Clamp(rgbaq[2].nA));
+			if(glFogCoordfEXT) glFogCoordfEXT(nF3);
 			glVertex3f(nX3, nY3, nZ3);
 
 		glEnd();
@@ -1427,39 +1463,23 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:
-		m_nPrimitiveType = (unsigned int)(nData & 0x07);
+		m_nPrimitiveType = static_cast<unsigned int>(nData & 0x07);
 		switch(m_nPrimitiveType)
 		{
-		case 0:
-			//Point
+		case PRIM_POINT:
 			m_nVtxCount = 1;
 			break;
-		case 1:
-			//Line
+		case PRIM_LINE:
+		case PRIM_LINESTRIP:
 			m_nVtxCount = 2;
 			break;
-		case 2:
-			//Line strip
+		case PRIM_TRIANGLE:
+		case PRIM_TRIANGLESTRIP:
+		case PRIM_TRIANGLEFAN:
+			m_nVtxCount = 3;
+			break;
+		case PRIM_SPRITE:
 			m_nVtxCount = 2;
-			break;
-		case 3:
-			//Triangle
-			m_nVtxCount = 3;
-			break;
-		case 4:
-			//Triangle Strip
-			m_nVtxCount = 3;
-			break;
-		case 5:
-			//Triangle Fan
-			m_nVtxCount = 3;
-			break;
-		case 6:
-			//Sprite (rectangle)
-			m_nVtxCount = 2;
-			break;
-		default:
-			printf("GS: Unhandled primitive type (%i) encountered.\r\n", m_nPrimitiveType);
 			break;
 		}
 		break;
@@ -1524,33 +1544,33 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 
 		switch(m_nPrimitiveType)
 		{
-		case 0:
+		case PRIM_POINT:
 			if(nDrawingKick) Prim_Point();
 			break;
-		case 1:
+		case PRIM_LINE:
 			if(nDrawingKick) Prim_Line();
 			break;
-		case 2:
+		case PRIM_LINESTRIP:
 			if(nDrawingKick) Prim_Line();
 			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
 			m_nVtxCount = 1;
 			break;
-		case 3:
+		case PRIM_TRIANGLE:
 			if(nDrawingKick) Prim_Triangle();
 			m_nVtxCount = 3;
 			break;
-		case 4:
+		case PRIM_TRIANGLESTRIP:
 			if(nDrawingKick) Prim_Triangle();
 			memcpy(&m_VtxBuffer[2], &m_VtxBuffer[1], sizeof(VERTEX));
 			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
 			m_nVtxCount = 1;
 			break;
-		case 5:
+		case PRIM_TRIANGLEFAN:
 			if(nDrawingKick) Prim_Triangle();
 			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
 			m_nVtxCount = 1;
 			break;
-		case 6:
+		case PRIM_SPRITE:
 			if(nDrawingKick) Prim_Sprite();
 			m_nVtxCount = 2;
 			break;
@@ -1676,7 +1696,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build color attachment
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width * FBSCALE, m_height * FBSCALE, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	assert(glGetError() == GL_NO_ERROR);
 		
 	//Build framebuffer
@@ -1773,7 +1793,7 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build depth attachment
 	glGenRenderbuffers(1, &m_depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width * FBSCALE, m_height * FBSCALE);
 	assert(glGetError() == GL_NO_ERROR);
 }
 

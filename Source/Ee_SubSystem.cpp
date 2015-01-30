@@ -548,6 +548,10 @@ void CSubSystem::ExecuteIpu()
 	while(m_ipu.WillExecuteCommand())
 	{
 		m_ipu.ExecuteCommand();
+		if(m_ipu.HasPendingOUTFIFOData())
+		{
+			break;
+		}
 		if(m_ipu.WillExecuteCommand() && m_dmac.IsDMA4Started())
 		{
 			m_dmac.ResumeDMA4();

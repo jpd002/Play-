@@ -3,6 +3,8 @@
 #include "VideoStream_ReadMacroblock.h"
 #include "MPEG2/MacroblockAddressIncrementTable.h"
 #include "MPEG2/CodedBlockPatternTable.h"
+#include "../../../Source/Log.h"
+#include "LogSettings.h"
 
 using namespace VideoStream;
 
@@ -77,12 +79,21 @@ Label_Escape:
 
 Label_SkipEscape:
 		stream.Advance(11);
+#ifdef _DECODE_LOGGING
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'mb increment') = %d\r\n",
+			g_currentVdec++, 35);
+#endif
 		decoderState.mbIncrement += 33;
 		m_programState = STATE_ESCAPE;
 		continue;
 
 Label_ReadMbIncrement:
-		decoderState.mbIncrement += MPEG2::CMacroblockAddressIncrementTable::GetInstance()->GetSymbol(&stream);
+		uint32 increment = MPEG2::CMacroblockAddressIncrementTable::GetInstance()->GetSymbol(&stream);
+#ifdef _DECODE_LOGGING
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'mb increment') = %d\r\n",
+			g_currentVdec++, increment);
+#endif
+		decoderState.mbIncrement += increment;
 		if(decoderState.mbIncrement != 1)
 		{
 			decoderState.currentMbAddress += (decoderState.mbIncrement - 1);
@@ -123,6 +134,10 @@ Label_ReadMbIncrement:
 
 Label_ReadMbModes:
 		m_macroblockModesReader.Execute(context, stream);
+#ifdef _DECODE_LOGGING
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'mb type') = %d\r\n",
+			g_currentVdec++, decoderState.macroblockType);
+#endif
 		if(
 			(!pictureCodingExtension.framePredFrameDct) &&
 			(decoderState.macroblockType & (MACROBLOCK_MODE_BLOCK_PATTERN | MACROBLOCK_MODE_INTRA))
@@ -242,6 +257,14 @@ Label_CheckMbModes_Cbp:
 
 Label_ReadBlockInit:
 		m_blockReader.Reset();
+#ifdef _DECODE_LOGGING
+		if(decoderState.codedBlockPattern != 0)
+		{
+			static int currentMbIndex = 0;
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "Macroblock(%d, CBP: 0x%0.2X)\r\n", 
+				currentMbIndex++, decoderState.codedBlockPattern);
+		}
+#endif
 		m_programState = STATE_READBLOCK;
 		continue;
 

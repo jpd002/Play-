@@ -22,7 +22,6 @@ CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
 : m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 , m_cvtBuffer(nullptr)
 , m_sceneBegun(false)
-, m_depthTestingEnabled(true)
 , m_currentTextureWidth(0)
 , m_currentTextureHeight(0)
 {
@@ -86,6 +85,29 @@ bool CGSH_Direct3D9::GetDepthTestingEnabled() const
 void CGSH_Direct3D9::SetDepthTestingEnabled(bool depthTestingEnabled)
 {
 	m_depthTestingEnabled = depthTestingEnabled;
+	m_renderState.isValid = false;
+}
+
+bool CGSH_Direct3D9::GetAlphaBlendingEnabled() const
+{
+	return m_alphaBlendingEnabled;
+}
+
+void CGSH_Direct3D9::SetAlphaBlendingEnabled(bool alphaBlendingEnabled)
+{
+	m_alphaBlendingEnabled = alphaBlendingEnabled;
+	m_renderState.isValid = false;
+}
+
+bool CGSH_Direct3D9::GetAlphaTestingEnabled() const
+{
+	return m_alphaTestingEnabled;
+}
+
+void CGSH_Direct3D9::SetAlphaTestingEnabled(bool alphaTestingEnabled)
+{
+	m_alphaTestingEnabled = alphaTestingEnabled;
+	m_renderState.isValid = false;
 }
 
 void CGSH_Direct3D9::InitializeImpl()
@@ -463,8 +485,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 	}
 
-	m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, (m_primitiveMode.nAlpha != 0) ? TRUE : FALSE);
-
 	if(m_primitiveMode.nFog)
 	{
 		//glEnable(GL_FOG);
@@ -485,7 +505,18 @@ void CGSH_Direct3D9::Prim_Triangle()
 		//Textured triangle
 		if(m_primitiveMode.nUseUV)
 		{
-			//TODO
+			UV uv[3];
+			uv[0] <<= m_vtxBuffer[2].nUV;
+			uv[1] <<= m_vtxBuffer[1].nUV;
+			uv[2] <<= m_vtxBuffer[0].nUV;
+
+			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
+			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
+			nU3 = uv[2].GetU() / static_cast<float>(m_currentTextureWidth);
+
+			nV1 = uv[0].GetV() / static_cast<float>(m_currentTextureHeight);
+			nV2 = uv[1].GetV() / static_cast<float>(m_currentTextureHeight);
+			nV3 = uv[2].GetV() / static_cast<float>(m_currentTextureHeight);
 		}
 		else
 		{
@@ -579,8 +610,6 @@ void CGSH_Direct3D9::Prim_Sprite()
 
 	nZ = GetZ(nZ);
 
-	m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, (m_primitiveMode.nAlpha != 0) ? TRUE : FALSE);
-
 	if(m_primitiveMode.nTexture)
 	{
 		m_device->SetTexture(0, m_currentTexture);
@@ -645,15 +674,25 @@ void CGSH_Direct3D9::Prim_Sprite()
 	}
 }
 
-void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
+void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 {
-	uint64 testReg = m_nReg[GS_REG_TEST_1 + nContext];
-	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + nContext];
-	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + nContext];
-	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + nContext];
-	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + nContext];
-	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + nContext];
-	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + nContext];
+	auto prim = make_convertible<PRMODE>(primReg);
+
+	unsigned int context = prim.nContext;
+
+	uint64 testReg = m_nReg[GS_REG_TEST_1 + context];
+	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + context];
+	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + context];
+	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + context];
+	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
+	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
+	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
+
+	if(!m_renderState.isValid ||
+		(m_renderState.primReg != primReg))
+	{
+		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, ((prim.nAlpha != 0) && m_alphaBlendingEnabled) ? TRUE : FALSE);
+	}
 
 	if(!m_renderState.isValid ||
 		(m_renderState.alphaReg != alphaReg))
@@ -689,6 +728,7 @@ void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 	}
 
 	m_renderState.isValid = true;
+	m_renderState.primReg = primReg;
 	m_renderState.alphaReg = alphaReg;
 	m_renderState.testReg = testReg;
 	m_renderState.zbufReg = zbufReg;
@@ -697,8 +737,7 @@ void CGSH_Direct3D9::SetRenderingContext(unsigned int nContext)
 	m_renderState.tex1Reg = tex1Reg;
 	m_renderState.clampReg = clampReg;
 
-	XYOFFSET offset;
-	offset <<= m_nReg[GS_REG_XYOFFSET_1 + nContext];
+	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
 	
@@ -715,10 +754,19 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 {
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
+	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, D3DZB_TRUE);
+	m_device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
+	m_device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
+
 	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	}
+	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_DESTALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVDESTALPHA);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
 	{
@@ -774,36 +822,30 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 
 	if(tst.nAlphaEnabled)
 	{
-		unsigned int alphaFunc = D3DCMP_NEVER;
-
-		switch(tst.nAlphaMethod)
+		static const D3DCMPFUNC g_alphaTestFunc[ALPHA_TEST_MAX] =
 		{
-		case 0:
-			alphaFunc = D3DCMP_NEVER;
-			break;
-		case 1:
-			alphaFunc = D3DCMP_ALWAYS;
-			break;
-		case 2:
-			alphaFunc = D3DCMP_LESS;
-			break;
-		case 5:
-			alphaFunc = D3DCMP_GREATEREQUAL;
-			break;
-		case 6:
-			alphaFunc = D3DCMP_GREATER;
-			break;
-		case 7:
-			alphaFunc = D3DCMP_NOTEQUAL;
-			break;
-		default:
-			assert(0);
-			break;
-		}
+			D3DCMP_NEVER,
+			D3DCMP_ALWAYS,
+			D3DCMP_LESS,
+			D3DCMP_LESSEQUAL,
+			D3DCMP_EQUAL,
+			D3DCMP_GREATEREQUAL,
+			D3DCMP_GREATER,
+			D3DCMP_NOTEQUAL
+		};
 
-		m_device->SetRenderState(D3DRS_ALPHAFUNC, alphaFunc);
-		m_device->SetRenderState(D3DRS_ALPHAREF, tst.nAlphaRef);
-		m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
+		//Special way of turning off depth writes:
+		//Always fail alpha testing but write RGBA and not depth if it fails
+		if(tst.nAlphaMethod == ALPHA_TEST_NEVER && tst.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
+		{
+			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_FALSE);
+		}
+		else
+		{
+			m_device->SetRenderState(D3DRS_ALPHAFUNC, g_alphaTestFunc[tst.nAlphaMethod]);
+			m_device->SetRenderState(D3DRS_ALPHAREF, tst.nAlphaRef);
+			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, m_alphaTestingEnabled ? D3DZB_TRUE : D3DZB_FALSE);
+		}
 	}
 	else
 	{
@@ -920,10 +962,8 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 	//Any framebuffer selected at this point can be used as a texture
 	framebuffer->m_canBeUsedAsTexture = true;
 
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-
 	float projWidth = static_cast<float>(framebuffer->m_width);
-	float projHeight = static_cast<float>(halfHeight ? (framebuffer->m_height / 2) : framebuffer->m_height);
+	float projHeight = static_cast<float>(framebuffer->m_height);
 
 	HRESULT result = S_OK;
 	Framework::Win32::CComPtr<IDirect3DSurface9> renderSurface;
@@ -975,39 +1015,23 @@ void CGSH_Direct3D9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:
-		m_primitiveType = (unsigned int)(nData & 0x07);
+		m_primitiveType = static_cast<unsigned int>(nData & 0x07);
 		switch(m_primitiveType)
 		{
-		case 0:
-			//Point
+		case PRIM_POINT:
 			m_vtxCount = 1;
 			break;
-		case 1:
-			//Line
+		case PRIM_LINE:
+		case PRIM_LINESTRIP:
 			m_vtxCount = 2;
 			break;
-		case 2:
-			//Line strip
+		case PRIM_TRIANGLE:
+		case PRIM_TRIANGLESTRIP:
+		case PRIM_TRIANGLEFAN:
+			m_vtxCount = 3;
+			break;
+		case PRIM_SPRITE:
 			m_vtxCount = 2;
-			break;
-		case 3:
-			//Triangle
-			m_vtxCount = 3;
-			break;
-		case 4:
-			//Triangle Strip
-			m_vtxCount = 3;
-			break;
-		case 5:
-			//Triangle Fan
-			m_vtxCount = 3;
-			break;
-		case 6:
-			//Sprite (rectangle)
-			m_vtxCount = 2;
-			break;
-		default:
-			printf("GS: Unhandled primitive type (%i) encountered.\r\n", m_primitiveType);
 			break;
 		}
 		break;
@@ -1036,16 +1060,16 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 	{
 		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
 		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
 		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(nValue >> 56);
 	}
 	else
 	{
 		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue;
 		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST		= m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
 		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(m_nReg[GS_REG_FOG] >> 56);
 	}
 
@@ -1063,37 +1087,37 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 				m_primitiveMode <<= m_nReg[GS_REG_PRMODE];
 			}
 
-			SetRenderingContext(m_primitiveMode.nContext);
+			SetRenderingContext(m_primitiveMode);
 
 			switch(m_primitiveType)
 			{
-			case 0:
+			case PRIM_POINT:
 				//if(drawingKick) Prim_Point();
 				break;
-			case 1:
+			case PRIM_LINE:
 				//if(drawingKick) Prim_Line();
 				break;
-			case 2:
+			case PRIM_LINESTRIP:
 				//if(drawingKick) Prim_Line();
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
-			case 3:
+			case PRIM_TRIANGLE:
 				if(drawingKick) Prim_Triangle();
 				m_vtxCount = 3;
 				break;
-			case 4:
+			case PRIM_TRIANGLESTRIP:
 				if(drawingKick) Prim_Triangle();
 				memcpy(&m_vtxBuffer[2], &m_vtxBuffer[1], sizeof(VERTEX));
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
-			case 5:
+			case PRIM_TRIANGLEFAN:
 				if(drawingKick) Prim_Triangle();
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
-			case 6:
+			case PRIM_SPRITE:
 				if(drawingKick) Prim_Sprite();
 				m_vtxCount = 2;
 				break;

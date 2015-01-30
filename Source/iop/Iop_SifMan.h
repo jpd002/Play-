@@ -1,7 +1,7 @@
-#ifndef _IOP_SIFMAN_H_
-#define _IOP_SIFMAN_H_
+#pragma once
 
 #include "../SifModule.h"
+#include "../SifDefs.h"
 #include "Iop_Module.h"
 
 namespace Iop
@@ -11,22 +11,26 @@ namespace Iop
 	class CSifMan : public CModule
 	{
 	public:
+		typedef std::function<void (uint32)> CustomCommandHandler;
+
 								CSifMan();
 		virtual					~CSifMan();
 
 		void					GenerateHandlers(uint8*, CSysmem&);
 
-		virtual std::string		GetId() const;
-		virtual std::string		GetFunctionName(unsigned int) const;
-		virtual void			Invoke(CMIPS&, unsigned int);
+		std::string				GetId() const override;
+		std::string				GetFunctionName(unsigned int) const override;
+		void					Invoke(CMIPS&, unsigned int) override;
 
 		virtual void			RegisterModule(uint32, CSifModule*) = 0;
 		virtual bool			IsModuleRegistered(uint32) = 0;
 		virtual void			UnregisterModule(uint32) = 0;
 		virtual void			SendPacket(void*, uint32) = 0;
 		virtual void			SetDmaBuffer(uint32, uint32) = 0;
+		virtual void			SetCmdBuffer(uint32, uint32) = 0;
 		virtual void			SendCallReply(uint32, const void*) = 0;
 		virtual void			GetOtherData(uint32, uint32, uint32) = 0;
+		virtual void			SetCustomCommandHandler(const CustomCommandHandler&) = 0;
 
 		virtual uint32			SifSetDma(uint32, uint32);
 
@@ -37,5 +41,3 @@ namespace Iop
 		uint32					m_sifSetDmaCallbackHandlerPtr;
 	};
 }
-
-#endif

@@ -12,7 +12,7 @@ CGsInputStateView::~CGsInputStateView()
 
 }
 
-void CGsInputStateView::UpdateState(CGSHandler* gs, CGsPacketMetadata*)
+void CGsInputStateView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK_INFO*)
 {
 	std::string result;
 	result += CGsStateUtils::GetInputState(gs);

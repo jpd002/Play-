@@ -1,0 +1,21 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BISLPS-25206YsComp" />
+			<File Name="/BISLPS-25206YsComp/BISLPS-25206YsComp" Size="128000" />
+			<File Name="/BISLPS-25206YsComp/icon.sys" Size="964" />
+			<File Name="/BISLPS-25206YsComp/MAESTRO.DAT" Size="72" />
+			<File Name="/BISLPS-25206YsComp/ys.ico" Size="35992" />
+			<File Name="/BISLPS-25206YsComp/YS1REG" Size="85" />
+			<File Name="/BISLPS-25206YsComp/YS2REG.DAT" Size="752" />
+			<File Name="/BISLPS-25206YsComp/YS1200.BMP" Size="307200" />
+			<File Name="/BISLPS-25206YsComp/YS1201.BMP" Size="307200" />
+			<File Name="/BISLPS-25206YsComp/YS1202.BMP" Size="307200" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="/BISLPS-25206YsComp/icon.sys" EnvironmentId="1" MaxEntries="-1" Result="1" />
+		<Test Query="/BISLPS-25206YsComp/BISLPS-25206YsComp" EnvironmentId="1" MaxEntries="-1" 
+			Result="1" CurrentDirectory="/BISLPS-25206YsComp" />
+	</Tests>
+</Game>

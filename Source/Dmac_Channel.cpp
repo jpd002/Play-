@@ -87,7 +87,6 @@ void CChannel::WriteCHCR(uint32 nValue)
 
 	if(m_CHCR.nSTR == 1)
 	{
-		m_CHCR.nSTR = ~m_CHCR.nSTR;
 		m_CHCR.nSTR = ((nValue & CDMAC::CHCR_STR) != 0) ? 1 : 0;
 	}
 	else

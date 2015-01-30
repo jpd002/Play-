@@ -3,6 +3,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <memory>
+#include "make_unique.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
 #include "PS2OS.h"
@@ -161,6 +162,13 @@ void CPS2VM::StepIop()
 {
 	if(GetStatus() == RUNNING) return;
 	m_singleStepIop = true;
+	m_mailBox.SendCall(std::bind(&CPS2VM::ResumeImpl, this), true);
+}
+
+void CPS2VM::StepVu0()
+{
+	if(GetStatus() == RUNNING) return;
+	m_singleStepVu0 = true;
 	m_mailBox.SendCall(std::bind(&CPS2VM::ResumeImpl, this), true);
 }
 
@@ -527,6 +535,7 @@ void CPS2VM::OnGsNewFrame()
 		m_frameDump.Reset();
 		memcpy(m_frameDump.GetInitialGsRam(), m_ee->m_gs->GetRam(), CGSHandler::RAMSIZE);
 		memcpy(m_frameDump.GetInitialGsRegisters(), m_ee->m_gs->GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+		m_frameDump.SetInitialSMODE2(m_ee->m_gs->GetSMODE2());
 		m_ee->m_gs->SetFrameDump(&m_frameDump);
 		m_dumpingFrame = true;
 	}
@@ -550,6 +559,9 @@ void CPS2VM::UpdateEe()
 		m_eeExecutionTicks -= executed;
 		m_ee->CountTicks(executed);
 		m_vblankTicks -= executed;
+
+		//Stop executing if executing VU subroutine
+		if(m_ee->m_EE.m_State.callMsEnabled) break;
 
 #ifdef DEBUGGER_INCLUDED
 		if(m_singleStepEe) break;
@@ -653,16 +665,18 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 			}
 
 			//Gotta think of something better than that...
+#ifndef __ANDROID__		//This is temporary till we get bzip2 to compile on Android
 			if(!stricmp(extension, ".isz"))
 			{
 				pStream = new CIszImageStream(new Framework::CStdStream(sPath, "rb"));
 			}
+#endif
 #ifdef WIN32
 			else if(sPath[0] == '\\')
 			{
 				pStream = new Framework::Win32::CVolumeStream(sPath[4]);
 			}
-#else
+#elif !defined(__ANDROID__)
 			else
 			{
 				pStream = new Framework::Posix::CVolumeStream(sPath);

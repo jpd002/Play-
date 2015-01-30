@@ -147,15 +147,13 @@ void CDMAC::ResumeDMA1()
 	m_D1.Execute();
 }
 
-uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
+uint32 CDMAC::ResumeDMA3(const void* pBuffer, uint32 nSize)
 {
-	void* pDst;
-
-	assert(m_D3_CHCR & CHCR_STR);
 	if(!(m_D3_CHCR & CHCR_STR)) return 0;
 
 	nSize = std::min<uint32>(nSize, m_D3_QWC);
 
+	void* pDst = nullptr;
 	if(m_D3_MADR & 0x80000000)
 	{
 		pDst = m_spr + (m_D3_MADR & (PS2::EE_SPR_SIZE - 1));
@@ -297,6 +295,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 	case D2_CHCR + 0x4:
 	case D2_CHCR + 0x8:
 	case D2_CHCR + 0xC:
+		return 0;
+		break;
+
+	case D2_MADR + 0x0:
+		return m_D2.m_nMADR;
+		break;
+	case D2_MADR + 0x4:
+	case D2_MADR + 0x8:
+	case D2_MADR + 0xC:
 		return 0;
 		break;
 
@@ -910,6 +917,18 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		break;
 	case D3_QWC:
 		CLog::GetInstance().Print(LOG_NAME, "= D3_QWC.\r\n");
+		break;
+	case D4_CHCR:
+		CLog::GetInstance().Print(LOG_NAME, "= D4_CHCR.\r\n");
+		break;
+	case D4_MADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D4_MADR.\r\n");
+		break;
+	case D4_QWC:
+		CLog::GetInstance().Print(LOG_NAME, "= D4_QWC.\r\n");
+		break;
+	case D4_TADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D4_TADR.\r\n");
 		break;
 	case D8_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "= D8_CHCR.\r\n");

@@ -27,12 +27,22 @@ void CSifManNull::SetDmaBuffer(uint32, uint32)
 
 }
 
+void CSifManNull::SetCmdBuffer(uint32, uint32)
+{
+
+}
+
 void CSifManNull::SendCallReply(uint32, const void*)
 {
 
 }
 
 void CSifManNull::GetOtherData(uint32, uint32, uint32)
+{
+
+}
+
+void CSifManNull::SetCustomCommandHandler(const CustomCommandHandler&)
 {
 
 }

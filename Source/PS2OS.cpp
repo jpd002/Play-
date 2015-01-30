@@ -59,13 +59,18 @@
 
 #define SYSCALL_NAME_LOADEXECPS2			"osLoadExecPS2"
 #define SYSCALL_NAME_ADDINTCHANDLER			"osAddIntcHandler"
+#define SYSCALL_NAME_REMOVEINTCHANDLER		"osRemoveIntcHandler"
+#define SYSCALL_NAME_ADDDMACHANDLER			"osAddDmacHandler"
+#define SYSCALL_NAME_REMOVEDMACHANDLER		"osRemoveDmacHandler"
 #define SYSCALL_NAME_ENABLEINTC				"osEnableIntc"
 #define SYSCALL_NAME_DISABLEINTC			"osDisableIntc"
 #define SYSCALL_NAME_ENABLEDMAC				"osEnableDmac"
 #define SYSCALL_NAME_DISABLEDMAC			"osDisableDmac"
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
+#define SYSCALL_NAME_DELETETHREAD			"osDeleteThread"
 #define SYSCALL_NAME_STARTTHREAD			"osStartThread"
 #define SYSCALL_NAME_EXITDELETETHREAD		"osExitDeleteThread"
+#define SYSCALL_NAME_TERMINATETHREAD		"osTerminateThread"
 #define SYSCALL_NAME_CHANGETHREADPRIORITY	"osChangeThreadPriority"
 #define SYSCALL_NAME_ICHANGETHREADPRIORITY	"osiChangeThreadPriority"
 #define SYSCALL_NAME_ROTATETHREADREADYQUEUE	"osRotateThreadReadyQueue"
@@ -103,13 +108,18 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 {
 	{	0x0006,		SYSCALL_NAME_LOADEXECPS2			},
 	{	0x0010,		SYSCALL_NAME_ADDINTCHANDLER			},
+	{	0x0011,		SYSCALL_NAME_REMOVEINTCHANDLER		},
+	{	0x0012,		SYSCALL_NAME_ADDDMACHANDLER			},
+	{	0x0013,		SYSCALL_NAME_REMOVEDMACHANDLER		},
 	{	0x0014,		SYSCALL_NAME_ENABLEINTC				},
 	{	0x0015,		SYSCALL_NAME_DISABLEINTC			},
 	{	0x0016,		SYSCALL_NAME_ENABLEDMAC				},
 	{	0x0017,		SYSCALL_NAME_DISABLEDMAC			},
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
+	{	0x0021,		SYSCALL_NAME_DELETETHREAD			},
 	{	0x0022,		SYSCALL_NAME_STARTTHREAD			},
 	{	0x0024,		SYSCALL_NAME_EXITDELETETHREAD		},
+	{	0x0025,		SYSCALL_NAME_TERMINATETHREAD		},
 	{	0x0029,		SYSCALL_NAME_CHANGETHREADPRIORITY	},
 	{	0x002A,		SYSCALL_NAME_ICHANGETHREADPRIORITY	},
 	{	0x002B,		SYSCALL_NAME_ROTATETHREADREADYQUEUE	},
@@ -366,9 +376,14 @@ void CPS2OS::LoadExecutableInternal()
 	const ELFHEADER& header = m_elf->GetHeader();
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
-		ELFPROGRAMHEADER* p = m_elf->GetProgram(i);
-		if(p != NULL)
+		auto p = m_elf->GetProgram(i);
+		if(p != nullptr)
 		{
+			if(p->nVAddress >= PS2::EE_RAM_SIZE)
+			{
+				assert(false);
+				continue;
+			}
 			memcpy(m_ram + p->nVAddress, m_elf->GetContent() + p->nOffset, p->nFileSize);
 		}
 	}
@@ -1215,7 +1230,7 @@ uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 
 void CPS2OS::sc_Unhandled()
 {
-	printf("PS2OS: Unknown system call (0x%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
+	CLog::GetInstance().Print(LOG_NAME, "Unknown system call (0x%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
 }
 
 //02
@@ -2226,16 +2241,8 @@ void CPS2OS::sc_SifDmaStat()
 //77
 void CPS2OS::sc_SifSetDma()
 {
-	struct DMAREG
-	{
-		uint32 srcAddr;
-		uint32 dstAddr;
-		uint32 size;
-		uint32 flags;
-	};
-
 	uint32 xferAddress = m_ee.m_State.nGPR[SC_PARAM0].nV[0] & (PS2::EE_RAM_SIZE - 1);
-	DMAREG* xfer = reinterpret_cast<DMAREG*>(m_ram + xferAddress);
+	auto xfer = reinterpret_cast<SIFDMAREG*>(m_ram + xferAddress);
 	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	//Returns count
@@ -2456,19 +2463,19 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x11:
-		sprintf(description, "RemoveIntcHandler(cause = %i, id = %i);", \
+		sprintf(description, SYSCALL_NAME_REMOVEINTCHANDLER "(cause = %i, id = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x12:
-		sprintf(description, "AddDmacHandler(channel = %i, address = 0x%0.8X, next = %i, arg = %i);", \
+		sprintf(description, SYSCALL_NAME_ADDDMACHANDLER "(channel = %i, address = 0x%0.8X, next = %i, arg = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x13:
-		sprintf(description, "RemoveDmacHandler(channel = %i, handler = %i);", \
+		sprintf(description, SYSCALL_NAME_REMOVEDMACHANDLER "(channel = %i, handler = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -2493,7 +2500,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x21:
-		sprintf(description, "DeleteThread(id = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_DELETETHREAD "(id = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x22:
@@ -2505,7 +2512,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, "ExitThread();");
 		break;
 	case 0x25:
-		sprintf(description, "TerminateThread(id = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_TERMINATETHREAD "(id = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x29:

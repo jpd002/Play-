@@ -23,6 +23,12 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 6:
+		return "toupper";
+		break;
+	case 7:
+		return "tolower";
+		break;
 	case 8:
 		return "look_ctype_table";
 		break;
@@ -62,6 +68,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 36:
 		return "strtol";
 		break;
+	case 41:
+		return "wmemset";
+		break;
 	default:
 		return "unknown";
 		break;
@@ -72,6 +81,14 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nD0 = toupper(
+			context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = tolower(
+			context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __look_ctype_table(
 			context.m_State.nGPR[CMIPS::A0].nV0);
@@ -164,6 +181,20 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
 			context.m_State.nGPR[CMIPS::A2].nV0
 			));
+		break;
+	case 41:
+		//wmemset
+		{
+			uint32* dest = reinterpret_cast<uint32*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]);
+			uint32 value = context.m_State.nGPR[CMIPS::A1].nV0;
+			uint32 numBytes = context.m_State.nGPR[CMIPS::A2].nV0;
+			uint32* end = dest + (numBytes / 4);
+			while(dest < end)
+			{
+				*dest++ = value;
+			}
+			context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nV0;
+		}
 		break;
 	default:
 		printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);

@@ -17,9 +17,13 @@ using namespace Iop;
 #define MODULE_NAME						"sifcmd"
 #define MODULE_VERSION					0x101
 
+#define FUNCTION_SIFSETCMDBUFFER		"SifSetCmdBuffer"
+#define FUNCTION_SIFADDCMDHANDLER		"SifAddCmdHandler"
 #define FUNCTION_SIFSENDCMD				"SifSendCmd"
+#define FUNCTION_ISIFSENDCMD			"iSifSendCmd"
 #define FUNCTION_SIFINITRPC				"SifInitRpc"
 #define FUNCTION_SIFBINDRPC				"SifBindRpc"
+#define FUNCTION_SIFCALLRPC				"SifCallRpc"
 #define FUNCTION_SIFREGISTERRPC			"SifRegisterRpc"
 #define FUNCTION_SIFCHECKSTATRPC		"SifCheckStatRpc"
 #define FUNCTION_SIFSETRPCQUEUE			"SifSetRpcQueue"
@@ -39,7 +43,7 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 	m_memoryBufferAddr = m_sysMem.AllocateMemory(TRAMPOLINE_SIZE + SENDCMD_EXTRASTRUCT_SIZE, 0, 0);
 	m_trampolineAddr = m_memoryBufferAddr;
 	m_sendCmdExtraStructAddr = m_memoryBufferAddr + TRAMPOLINE_SIZE;
-
+	sifMan.SetCustomCommandHandler([&] (uint32 commandHeaderAddr) { ProcessCustomCommand(commandHeaderAddr); });
 	BuildExportTable();
 }
 
@@ -97,14 +101,26 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 8:
+		return FUNCTION_SIFSETCMDBUFFER;
+		break;
+	case 10:
+		return FUNCTION_SIFADDCMDHANDLER;
+		break;
 	case 12:
 		return FUNCTION_SIFSENDCMD;
+		break;
+	case 13:
+		return FUNCTION_ISIFSENDCMD;
 		break;
 	case 14:
 		return FUNCTION_SIFINITRPC;
 		break;
 	case 15:
 		return FUNCTION_SIFBINDRPC;
+		break;
+	case 16:
+		return FUNCTION_SIFCALLRPC;
 		break;
 	case 17:
 		return FUNCTION_SIFREGISTERRPC;
@@ -134,7 +150,19 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case 8:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifSetCmdBuffer(
+			context.m_State.nGPR[CMIPS::A0].nV0, 
+			context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 10:
+		SifAddCmdHandler(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0);
+		break;
 	case 12:
+	case 13:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifSendCmd(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0,
@@ -143,11 +171,17 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10),
 			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14));
 		break;
+	case 14:
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFINITRPC "();\r\n");
+		break;
 	case 15:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifBindRpc(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0);
+		break;
+	case 16:
+		SifCallRpc(context);
 		break;
 	case 17:
 		SifRegisterRpc(context);
@@ -240,30 +274,100 @@ void CSifCmd::ReturnFromRpcInvoke(CMIPS& context)
 	m_sifMan.SendCallReply(serverData->serverId, returnData);
 }
 
+void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
+{
+	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
+	if(commandHeader->commandId == SIF_CMD_REND)
+	{
+		auto requestEnd = reinterpret_cast<const SIFRPCREQUESTEND*>(commandHeader);
+		assert(requestEnd->clientDataAddr != 0);
+		auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + requestEnd->clientDataAddr);
+		if(requestEnd->commandId == SIF_CMD_BIND)
+		{
+			clientData->serverDataAddr = requestEnd->serverDataAddr;
+			clientData->buffPtr = requestEnd->buffer;
+			clientData->cbuffPtr = requestEnd->cbuffer;
+		}
+		else if(requestEnd->commandId == SIF_CMD_CALL)
+		{
+			assert(clientData->endFctPtr == 0);
+		}
+		else
+		{
+			assert(0);
+		}
+		assert(clientData->header.semaId != 0);
+		m_bios.SignalSemaphore(clientData->header.semaId, true);
+		m_bios.DeleteSemaphore(clientData->header.semaId);
+		clientData->header.semaId = 0;
+	}
+	else
+	{
+		if((m_cmdBuffer != 0) && (commandHeader->commandId < m_cmdBufferLen))
+		{
+			const auto& cmdDataEntry = (reinterpret_cast<SIFCMDDATA*>(m_ram + m_cmdBuffer))[commandHeader->commandId];
+			
+			CLog::GetInstance().Print(LOG_NAME, "Calling SIF command handler for command 0x%0.8X at 0x%0.8X with data 0x%0.8X.\r\n", 
+				commandHeader->commandId, cmdDataEntry.sifCmdHandler, cmdDataEntry.data);
+
+			//This expects to be in an interrupt and the handler is called in the interrupt.
+			//That's not the case here though, so we try for the same effect by calling the handler outside of an interrupt.
+			//TODO: Set GP
+			m_bios.TriggerCallback(cmdDataEntry.sifCmdHandler, commandHeaderAddr, cmdDataEntry.data);
+		}
+	}
+}
+
+uint32 CSifCmd::SifSetCmdBuffer(uint32 data, uint32 length)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETCMDBUFFER "(data = 0x%0.8X, length = %d);\r\n",
+		data, length);
+
+	uint32 originalBuffer = m_cmdBuffer;
+	m_cmdBuffer = data;
+	m_cmdBufferLen = length;
+
+	return originalBuffer;
+}
+
+void CSifCmd::SifAddCmdHandler(uint32 pos, uint32 handler, uint32 data)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFADDCMDHANDLER "(pos = 0x%0.8X, handler = 0x%0.8X, data = 0x%0.8X);\r\n",
+		pos, handler, data);
+	if((m_cmdBuffer != 0) && (pos < m_cmdBufferLen))
+	{
+		auto& cmdDataEntry = (reinterpret_cast<SIFCMDDATA*>(m_ram + m_cmdBuffer))[pos];
+		//TODO: Set GP
+		cmdDataEntry.sifCmdHandler = handler;
+		cmdDataEntry.data = data;
+	}
+	else
+	{
+		CLog::GetInstance().Print(LOG_NAME, "SifAddCmdHandler - error command buffer too small or not set.\r\n");
+	}
+}
+
 uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize, uint32 srcExtraPtr, uint32 dstExtraPtr, uint32 sizeExtra)
 {
-	CLog::GetInstance().Print(LOG_NAME, "SifSendCmd(commandId = 0x%0.8X, packetPtr = 0x%0.8X, packetSize = 0x%0.8X, srcExtraPtr = 0x%0.8X, dstExtraPtr = 0x%0.8X, sizeExtra = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSENDCMD "(commandId = 0x%0.8X, packetPtr = 0x%0.8X, packetSize = 0x%0.8X, srcExtraPtr = 0x%0.8X, dstExtraPtr = 0x%0.8X, sizeExtra = 0x%0.8X);\r\n",
 		commandId, packetPtr, packetSize, srcExtraPtr, dstExtraPtr, sizeExtra);
 
 	assert(packetSize >= 0x10);
 
 	uint8* packetData = m_ram + packetPtr;
-	CSIF::PACKETHDR* header = reinterpret_cast<CSIF::PACKETHDR*>(packetData);
-	header->nCID = commandId;
-	header->nSize = packetSize;
-	header->nDest = 0;
+	auto header = reinterpret_cast<SIFCMDHEADER*>(packetData);
+	header->commandId = commandId;
+	header->size = packetSize;
+	header->dest = 0;
 	m_sifMan.SendPacket(packetData, packetSize);
 
-	if(sizeExtra != 0)
+	if(sizeExtra != 0 && srcExtraPtr != 0 && dstExtraPtr != 0)
 	{
-		assert(srcExtraPtr != 0);
-		assert(dstExtraPtr != 0);
-
-		uint32* dmaRegStruct = reinterpret_cast<uint32*>(m_ram + m_sendCmdExtraStructAddr);
-		dmaRegStruct[0] = srcExtraPtr;
-		dmaRegStruct[1] = dstExtraPtr;
-		dmaRegStruct[2] = sizeExtra;
-		dmaRegStruct[3] = 0;
+		auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_ram + m_sendCmdExtraStructAddr);
+		dmaReg->srcAddr = srcExtraPtr;
+		dmaReg->dstAddr = dstExtraPtr;
+		dmaReg->size = sizeExtra;
+		dmaReg->flags = 0;
 
 		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
 	}
@@ -271,13 +375,80 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 	return 1;
 }
 
-uint32 CSifCmd::SifBindRpc(uint32 clientDataAddress, uint32 rpcNumber, uint32 mode)
+uint32 CSifCmd::SifBindRpc(uint32 clientDataAddr, uint32 serverId, uint32 mode)
 {
-	CLog::GetInstance().Print(LOG_NAME, "SifBindRpc(clientData = 0x%0.8X, rpcNumber = 0x%0.8X, mode = 0x%0.8X);\r\n",
-		clientDataAddress, rpcNumber, mode);
-	//Set struct t_SifRpcServerData *server to 0
-	*reinterpret_cast<uint32*>(&m_ram[clientDataAddress + 0x24]) = rpcNumber;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFBINDRPC "(clientDataAddr = 0x%0.8X, serverId = 0x%0.8X, mode = 0x%0.8X);\r\n",
+		clientDataAddr, serverId, mode);
+
+	//Could be in non waiting mode
+	assert(mode == 0);
+
+	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
+	clientData->serverDataAddr = serverId;
+	clientData->header.semaId = m_bios.CreateSemaphore(0, 1);
+	m_bios.WaitSemaphore(clientData->header.semaId);
+
+	SIFRPCBIND bindPacket;
+	memset(&bindPacket, 0, sizeof(SIFRPCBIND));
+	bindPacket.header.commandId	= SIF_CMD_BIND;
+	bindPacket.header.size		= sizeof(SIFRPCBIND);
+	bindPacket.serverId			= serverId;
+	bindPacket.clientDataAddr	= clientDataAddr;
+	m_sifMan.SendPacket(&bindPacket, sizeof(bindPacket));
+
 	return 0;
+}
+
+void CSifCmd::SifCallRpc(CMIPS& context)
+{
+	uint32 clientDataAddr	= context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 rpcNumber		= context.m_State.nGPR[CMIPS::A1].nV0;
+	uint32 mode				= context.m_State.nGPR[CMIPS::A2].nV0;
+	uint32 sendAddr			= context.m_State.nGPR[CMIPS::A3].nV0;
+	uint32 sendSize			= context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10);
+	uint32 recvAddr			= context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14);
+	uint32 recvSize			= context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x18);
+	uint32 endFctAddr		= context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x1C);
+	uint32 endParam			= context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x20);
+
+	assert(mode == 0);
+
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCALLRPC 
+		"(clientDataAddr = 0x%0.8X, rpcNumber = 0x%0.8X, mode = 0x%0.8X, sendAddr = 0x%0.8X, sendSize = 0x%0.8X, "
+		"recvAddr = 0x%0.8X, recvSize = 0x%0.8X, endFctAddr = 0x%0.8X, endParam = 0x%0.8X);\r\n",
+		clientDataAddr, rpcNumber, mode, sendAddr, sendSize, recvAddr, recvSize, endFctAddr, endParam);
+
+	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
+	clientData->endFctPtr = endFctAddr;
+	clientData->endParam = endParam;
+	clientData->header.semaId = m_bios.CreateSemaphore(0, 1);
+	m_bios.WaitSemaphore(clientData->header.semaId);
+
+	{
+		auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_ram + m_sendCmdExtraStructAddr);
+		dmaReg->srcAddr = sendAddr;
+		dmaReg->dstAddr = clientData->buffPtr;
+		dmaReg->size = sendSize;
+		dmaReg->flags = 0;
+
+		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
+	}
+
+	SIFRPCCALL callPacket;
+	memset(&callPacket, 0, sizeof(SIFRPCCALL));
+	callPacket.header.commandId	= SIF_CMD_CALL;
+	callPacket.header.size		= sizeof(SIFRPCCALL);
+	callPacket.rpcNumber		= rpcNumber;
+	callPacket.sendSize			= sendSize;
+	callPacket.recv				= recvAddr;
+	callPacket.recvSize			= recvSize;
+	callPacket.recvMode			= 1;
+	callPacket.clientDataAddr	= clientDataAddr;
+	callPacket.serverDataAddr	= clientData->serverDataAddr;
+
+	m_sifMan.SendPacket(&callPacket, sizeof(callPacket));
+
+	context.m_State.nGPR[CMIPS::V0].nD0 = 0;
 }
 
 void CSifCmd::SifRegisterRpc(CMIPS& context)
@@ -290,7 +461,7 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 	uint32 cbuffer			= context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14);
 	uint32 queueAddr		= context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x18);
 
-	CLog::GetInstance().Print(LOG_NAME, "SifRegisterRpc(serverData = 0x%0.8X, serverId = 0x%0.8X, function = 0x%0.8X, buffer = 0x%0.8X, cfunction = 0x%0.8X, cbuffer = 0x%0.8X, queue = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFREGISTERRPC "(serverData = 0x%0.8X, serverId = 0x%0.8X, function = 0x%0.8X, buffer = 0x%0.8X, cfunction = 0x%0.8X, cbuffer = 0x%0.8X, queue = 0x%0.8X);\r\n",
 		serverDataAddr, serverId, function, buffer, cfunction, cbuffer, queueAddr);
 
 	bool moduleRegistered = m_sifMan.IsModuleRegistered(serverId);

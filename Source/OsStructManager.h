@@ -25,12 +25,12 @@ public:
 		index -= m_idBase;
 		if(index >= m_structMax)
 		{
-			return NULL;
+			return nullptr;
 		}
 		StructType* structPtr = m_structBase + index;
 		if(!structPtr->isValid)
 		{
-			return NULL;
+			return nullptr;
 		}
 		return structPtr;
 	}

@@ -342,7 +342,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 
 void CGSHandler::Initialize()
 {
-	m_mailBox.SendCall(std::bind(&CGSHandler::InitializeImpl, this));
+	m_mailBox.SendCall(std::bind(&CGSHandler::InitializeImpl, this), true);
 }
 
 void CGSHandler::Release()
@@ -382,6 +382,16 @@ uint8* CGSHandler::GetRam()
 uint64* CGSHandler::GetRegisters()
 {
 	return m_nReg;
+}
+
+uint64 CGSHandler::GetSMODE2() const
+{
+	return m_nSMODE2;
+}
+
+void CGSHandler::SetSMODE2(uint64 value)
+{
+	m_nSMODE2 = value;
 }
 
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
@@ -883,6 +893,11 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 		m_nCBP0 = tex0.nCBP;
 		updateNeeded = true;
 	}
+	else if(tex0.nCLD == 4)
+	{
+		updateNeeded = (m_nCBP0 != tex0.nCBP);
+		m_nCBP0 = tex0.nCBP;
+	}
 	else
 	{
 		updateNeeded = true;
@@ -1237,6 +1252,19 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 			result = string_format("TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i)",
 				(registerId == GS_REG_TEST_1) ? 1 : 2, tst.nAlphaEnabled, tst.nAlphaMethod, tst.nAlphaRef, tst.nAlphaFail,
 				tst.nDestAlphaEnabled, tst.nDestAlphaMode, tst.nDepthEnabled, tst.nDepthMethod);
+		}
+		break;
+	case GS_REG_PABE:
+		{
+			auto value = static_cast<uint8>(data & 1);
+			result = string_format("PABE(PABE: %d)", value);
+		}
+		break;
+	case GS_REG_FBA_1:
+	case GS_REG_FBA_2:
+		{
+			auto value = static_cast<uint8>(data & 1);
+			result = string_format("FBA_%d(FBA: %d)", (registerId == GS_REG_FBA_1) ? 1 : 2, value);
 		}
 		break;
 	case GS_REG_FRAME_1:

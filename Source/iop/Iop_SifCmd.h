@@ -1,5 +1,4 @@
-#ifndef _IOP_SIFCMD_H_
-#define _IOP_SIFCMD_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
@@ -18,9 +17,9 @@ namespace Iop
 								CSifCmd(CIopBios&, CSifMan&, CSysmem&, uint8*);
 		virtual					~CSifCmd();
 
-		virtual std::string		GetId() const;
-		virtual std::string		GetFunctionName(unsigned int) const;
-		virtual void			Invoke(CMIPS&, unsigned int);
+		std::string				GetId() const override;
+		std::string				GetFunctionName(unsigned int) const override;
+		void					Invoke(CMIPS&, unsigned int) override;
 
 		void					ProcessInvocation(uint32, uint32, uint32*, uint32);
 
@@ -55,17 +54,33 @@ namespace Iop
 			uint32		queueAddr;
 		};
 
+		// m_cmdBuffer is an array of these structures.
+		struct SIFCMDDATA
+		{
+			uint32		sifCmdHandler;
+			uint32		data;
+			uint32		gp;
+		};
+
 		void					ClearServers();
 		void					BuildExportTable();
 
+		void					ProcessCustomCommand(uint32);
+
 		uint32					SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
 		uint32					SifBindRpc(uint32, uint32, uint32);
+		void					SifCallRpc(CMIPS&);
 		void					SifRegisterRpc(CMIPS&);
 		uint32					SifCheckStatRpc(uint32);
 		void					SifSetRpcQueue(uint32, uint32);
 		void					SifRpcLoop(uint32);
 		uint32					SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
 		void					ReturnFromRpcInvoke(CMIPS&);
+		uint32					SifSetCmdBuffer(uint32 pData, uint32 len);
+		void					SifAddCmdHandler(uint32 pos, uint32 handler, uint32 data);
+
+		uint32					m_cmdBuffer = 0;
+		uint32					m_cmdBufferLen = 0;
 
 		CIopBios&				m_bios;
 		CSifMan&				m_sifMan;
@@ -78,5 +93,3 @@ namespace Iop
 		DynamicModuleList		m_servers;
 	};
 }
-
-#endif

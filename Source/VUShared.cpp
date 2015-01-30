@@ -141,9 +141,9 @@ void VUShared::ClampVector(CMipsJitter* codeGen)
 	codeGen->MD_And();
 }
 
-void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, uint8 reg, uint32 relativePipeTime)
+void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime)
 {
-	const int macOpLatency = 3;
+	const int macOpLatency = 4;
 
 	//Write value time
 	{
@@ -175,12 +175,12 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, uint8 reg, uint32 r
 		codeGen->AddRef();
 
 		//--- S flag
-		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[reg]));
+		codeGen->MD_PushRel(regOffset);
 		codeGen->MD_IsNegative();
 		codeGen->Shl(4);
 
 		//--- Z flag
-		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[reg]));
+		codeGen->MD_PushRel(regOffset);
 		codeGen->MD_IsZero();
 		codeGen->Or();
 
@@ -239,6 +239,8 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
+	//Clamping is needed by Dynasty Warriors 2 here because it multiplies junk values (potentially NaN/INF) by some other value
+	ClampVector(codeGen);
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
@@ -284,7 +286,7 @@ void VUShared::MSUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	PullVector(codeGen, dest, fd);
 }
 
-void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand)
+void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand, uint32 relativePipeTime)
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
@@ -299,6 +301,7 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	codeGen->MD_MulS();
 	codeGen->MD_SubS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
+	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A), relativePipeTime);
 }
 
 void VUShared::ABS(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
@@ -321,7 +324,7 @@ void VUShared::ADD(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
 	codeGen->MD_AddS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 
-	TestSZFlags(codeGen, nDest, nFd, relativePipeTime);
+	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
 void VUShared::ADDbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc, uint32 relativePipeTime)
@@ -337,7 +340,7 @@ void VUShared::ADDbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 	codeGen->MD_AddS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 
-	TestSZFlags(codeGen, nDest, nFd, relativePipeTime);
+	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
 void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
@@ -790,7 +793,7 @@ void VUShared::MSUB(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 
 		offsetof(CMIPS, m_State.nCOP2[ft]),
 		false);
 
-	TestSZFlags(codeGen, dest, fd, relativePipeTime);
+	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[fd]), relativePipeTime);
 }
 
 void VUShared::MSUBbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc)
@@ -820,28 +823,28 @@ void VUShared::MSUBq(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 		true);
 }
 
-void VUShared::MSUBA(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft)
+void VUShared::MSUBA(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint32 relativePipeTime)
 {
 	MSUBA_base(codeGen, dest,
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2[ft]),
-		false);
+		false, relativePipeTime);
 }
 
-void VUShared::MSUBAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc)
+void VUShared::MSUBAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime)
 {
 	MSUBA_base(codeGen, dest,
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
-		true);
+		true, relativePipeTime);
 }
 
-void VUShared::MSUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs)
+void VUShared::MSUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relativePipeTime)
 {
 	MSUBA_base(codeGen, dest,
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2I),
-		true);
+		true, relativePipeTime);
 }
 
 void VUShared::MFIR(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 is)
@@ -877,7 +880,7 @@ void VUShared::MULbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 	codeGen->MD_MulS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 
-	TestSZFlags(codeGen, nDest, nFd, relativePipeTime);
+	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
 void VUShared::MULi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
@@ -909,12 +912,13 @@ void VUShared::MULA(CMipsJitter* codeGen, uint8 nDest, uint8 nFs, uint8 nFt)
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
 }
 
-void VUShared::MULAbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFs, uint8 nFt, uint8 nBc)
+void VUShared::MULAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
+	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]));
 	codeGen->MD_MulS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2A));
+	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
+	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A), relativePipeTime);
 }
 
 void VUShared::MULAi(CMipsJitter* codeGen, uint8 nDest, uint8 nFs)
@@ -983,7 +987,7 @@ void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 fd, uint8 fs, uint8 ft, uint32
 	codeGen->FP_Sub();
 	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPZ));
 
-	TestSZFlags(codeGen, 0xF, tempRegIndex, relativePipeTime);
+	TestSZFlags(codeGen, 0xF, offsetof(CMIPS, m_State.nCOP2[tempRegIndex]), relativePipeTime);
 
 	if(fd != 0)
 	{
@@ -1133,7 +1137,7 @@ void VUShared::SUB(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
 	codeGen->MD_SubS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 
-	TestSZFlags(codeGen, nDest, nFd, relativePipeTime);
+	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
 void VUShared::SUBbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc, uint32 relativePipeTime)
@@ -1149,7 +1153,7 @@ void VUShared::SUBbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 	codeGen->MD_SubS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 
-	TestSZFlags(codeGen, nDest, nFd, relativePipeTime);
+	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
 void VUShared::SUBi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 relativePipeTime)
@@ -1159,7 +1163,7 @@ void VUShared::SUBi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 	codeGen->MD_SubS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 
-	TestSZFlags(codeGen, nDest, nFd, relativePipeTime);
+	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
 void VUShared::SUBq(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)

@@ -200,6 +200,15 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 			i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
 	}
 
+	result += string_format("Fog:\r\n");
+	result += string_format("\t                    F\r\n");
+	for(unsigned int i = 0; i < 3; i++)
+	{
+		auto vertex = vertices[i];
+		result += string_format("\tVertex %i:        0x%0.2X\r\n", 
+			i, vertex.nFog);
+	}
+
 	return result;
 }
 
@@ -239,6 +248,14 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("\tCLUT Storage Mode: %d\r\n", tex0.nCSM + 1);
 		result += string_format("\tCLUT Entry Offset: %d\r\n", tex0.nCSA * 16);
 		result += string_format("\tCLUT Load Control: %s\r\n", g_textureClutLoadControlString[tex0.nCLD]);
+	}
+
+	{
+		auto texA = make_convertible<CGSHandler::TEXA>(gs->GetRegisters()[GS_REG_TEXA]);
+		result += string_format("Texture Alpha:\r\n");
+		result += string_format("\tAlpha 0: 0x%0.2X\r\n", texA.nTA0);
+		result += string_format("\tAlpha 1: 0x%0.2X\r\n", texA.nTA1);
+		result += string_format("\tBlack Is Transparent: %s\r\n", g_yesNoString[texA.nAEM]);
 	}
 
 	{

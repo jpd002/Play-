@@ -1,0 +1,3 @@
+BOOST_PATH			:= /path/to/boost
+FRAMEWORK_PATH		:= /path/to/Framework
+CODEGEN_PATH		:= /path/to/CodeGen

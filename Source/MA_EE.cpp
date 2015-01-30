@@ -382,6 +382,15 @@ void CMA_EE::PADDH()
 	PullVector(m_nRD);
 }
 
+//05
+void CMA_EE::PSUBH()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_SubH();
+	PullVector(m_nRD);
+}
+
 //06
 void CMA_EE::PCGTH()
 {
@@ -618,12 +627,39 @@ void CMA_EE::PEXTUW()
 	PullVector(m_nRD);
 }
 
+//15
+void CMA_EE::PSUBUH()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_SubHUS();
+	PullVector(m_nRD);
+}
+
+//16
+void CMA_EE::PEXTUH()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_UnpackUpperHW();
+	PullVector(m_nRD);
+}
+
 //18
 void CMA_EE::PADDUB()
 {
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddBUS();
+	PullVector(m_nRD);
+}
+
+//19
+void CMA_EE::PSUBUB()
+{
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_SubBUS();
 	PullVector(m_nRD);
 }
 
@@ -936,6 +972,25 @@ void CMA_EE::PMTHI()
 	}
 }
 
+//0A
+void CMA_EE::PINTEH()
+{
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+		m_codeGen->Shl(16);
+		m_codeGen->PushCst(0xFFFF0000);
+		m_codeGen->And();
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushCst(0xFFFF);
+		m_codeGen->And();
+
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+	}
+}
+
 //0E
 void CMA_EE::PCPYUD()
 {
@@ -951,7 +1006,7 @@ void CMA_EE::PCPYUD()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
 	
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));	
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 }
 
 //12
@@ -1057,6 +1112,7 @@ void CMA_EE::PEXCW()
 //PMFHL
 //////////////////////////////////////////////////
 
+//00
 void CMA_EE::PMFHL_LW()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
@@ -1069,6 +1125,22 @@ void CMA_EE::PMFHL_LW()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+}
+
+//01
+void CMA_EE::PMFHL_UW()
+{
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO1[1]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
+
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 }
 
@@ -1152,7 +1224,7 @@ void CMA_EE::Generic_MADD(unsigned int unit, bool isSigned)
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
 {
 	//0x00
-	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::PCGTW,			&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::Illegal,		&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
+	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::PCGTW,			&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::PSUBH,			&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
 	//0x08
 	&CMA_EE::PADDB,			&CMA_EE::PSUBB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
@@ -1168,9 +1240,9 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] =
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
-	&CMA_EE::PADDUW,		&CMA_EE::Illegal,		&CMA_EE::PEXTUW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PADDUW,		&CMA_EE::Illegal,		&CMA_EE::PEXTUW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSUBUH,		&CMA_EE::PEXTUH,		&CMA_EE::Illegal,
 	//0x18
-	&CMA_EE::PADDUB,		&CMA_EE::Illegal,		&CMA_EE::PEXTUB,		&CMA_EE::QFSRV,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PADDUB,		&CMA_EE::PSUBUB,		&CMA_EE::PEXTUB,		&CMA_EE::QFSRV,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] = 
@@ -1190,7 +1262,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 	//0x00
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&CMA_EE::PMTHI,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
+	&CMA_EE::PMTHI,			&CMA_EE::Illegal,		&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
@@ -1200,7 +1272,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpPmfhl[0x20] = 
 {
 	//0x00
-	&CMA_EE::PMFHL_LW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PMFHL_LW,		&CMA_EE::PMFHL_UW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10

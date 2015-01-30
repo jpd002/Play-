@@ -27,11 +27,11 @@ CVu1Vm::CVu1Vm()
 
 		m_vu1.m_pArch			= &m_maVu1;
 		m_vu1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
+
+		m_vu1.m_vuMem = m_vuMem1;
 	}
 
 	Reset();
-
-//	m_thread = std::thread([&] () { ThreadProc(); });
 }
 
 CVu1Vm::~CVu1Vm()
@@ -124,15 +124,3 @@ uint32 CVu1Vm::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 	}
 	return 0;
 }
-
-//void CVu1Vm::ThreadProc()
-//{
-//	while(!m_threadDone)
-//	{
-//		while(m_mailBox.IsPending())
-//		{
-//			m_mailBox.ReceiveCall();
-//		}
-//		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//	}
-//}

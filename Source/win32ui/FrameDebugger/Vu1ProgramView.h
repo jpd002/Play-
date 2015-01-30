@@ -16,7 +16,7 @@ public:
 													CVu1ProgramView(HWND, const RECT&, CVu1Vm&);
 	virtual											~CVu1ProgramView();
 
-	void											UpdateState(CGSHandler*, CGsPacketMetadata*) override;
+	void											UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*) override;
 
 	void											StepVu1();
 
