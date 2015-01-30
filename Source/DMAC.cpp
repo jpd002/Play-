@@ -147,15 +147,13 @@ void CDMAC::ResumeDMA1()
 	m_D1.Execute();
 }
 
-uint32 CDMAC::ResumeDMA3(void* pBuffer, uint32 nSize)
+uint32 CDMAC::ResumeDMA3(const void* pBuffer, uint32 nSize)
 {
-	void* pDst;
-
-	assert(m_D3_CHCR & CHCR_STR);
 	if(!(m_D3_CHCR & CHCR_STR)) return 0;
 
 	nSize = std::min<uint32>(nSize, m_D3_QWC);
 
+	void* pDst = nullptr;
 	if(m_D3_MADR & 0x80000000)
 	{
 		pDst = m_spr + (m_D3_MADR & (PS2::EE_SPR_SIZE - 1));

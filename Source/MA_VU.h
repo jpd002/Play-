@@ -93,6 +93,7 @@ private:
 
 		//Vector X Common
 		void								ADDAbc();
+		void								SUBAbc();
 		void								MADDAbc();
 		void								MSUBAbc();
 		void								MULAbc();
