@@ -49,6 +49,7 @@
 #define BIOS_ADDRESS_KERNELSTACK_TOP	0x00030000
 #define BIOS_ADDRESS_CURRENT_THREAD_ID	0x00000010
 #define BIOS_ADDRESS_DMACHANDLER_BASE	0x0000C000
+#define BIOS_ADDRESS_SEMAPHORE_BASE		0x0000E000
 #define BIOS_ADDRESS_ALARM_BASE			0x00010800
 
 #define BIOS_ADDRESS_BASE				0x1FC00000
@@ -179,6 +180,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, C
 , m_threadSchedule(nullptr)
 , m_sif(sif)
 , m_iopBios(iopBios)
+, m_semaphores(reinterpret_cast<SEMAPHORE*>(m_ram + BIOS_ADDRESS_SEMAPHORE_BASE), BIOS_ID_BASE, MAX_SEMAPHORE)
 , m_dmacHandlers(reinterpret_cast<DMACHANDLER*>(m_ram + BIOS_ADDRESS_DMACHANDLER_BASE), BIOS_ID_BASE, MAX_DMACHANDLER)
 , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
 {
@@ -1195,30 +1197,6 @@ void CPS2OS::CreateWaitThread()
 	thread->status		= THREAD_ZOMBIE;
 }
 
-uint32 CPS2OS::GetNextAvailableSemaphoreId()
-{
-	for(uint32 i = 1; i < MAX_SEMAPHORE; i++)
-	{
-		SEMAPHORE* semaphore = GetSemaphore(i);
-		if(semaphore->valid != 1)
-		{
-			return i;
-		}
-	}
-
-	return 0xFFFFFFFF;
-}
-
-CPS2OS::SEMAPHORE* CPS2OS::GetSemaphore(uint32 id)
-{
-	if(id == 0)
-	{
-		return NULL;
-	}
-	id--;
-	return &((SEMAPHORE*)&m_ram[0x0000E000])[id];
-}
-
 uint32 CPS2OS::GetNextAvailableIntcHandlerId()
 {
 	for(uint32 i = 1; i < MAX_INTCHANDLER; i++)
@@ -2014,26 +1992,23 @@ void CPS2OS::sc_EndOfHeap()
 //40
 void CPS2OS::sc_CreateSema()
 {
-	SEMAPHOREPARAM* semaParam = reinterpret_cast<SEMAPHOREPARAM*>(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+	auto semaParam = reinterpret_cast<SEMAPHOREPARAM*>(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 
-	uint32 id = GetNextAvailableSemaphoreId();
+	uint32 id = m_semaphores.Allocate();
 	if(id == 0xFFFFFFFF)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 
-	SEMAPHORE* sema = GetSemaphore(id);
-	sema->valid			= 1;
+	auto sema = m_semaphores[id];
 	sema->count			= semaParam->initCount;
 	sema->maxCount		= semaParam->maxCount;
 	sema->waitCount		= 0;
 
 	assert(sema->count <= sema->maxCount);
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //41
@@ -2041,11 +2016,10 @@ void CPS2OS::sc_DeleteSema()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* sema = GetSemaphore(id);
-	if(!sema->valid)
+	auto sema = m_semaphores[id];
+	if(sema == nullptr)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 
@@ -2055,10 +2029,9 @@ void CPS2OS::sc_DeleteSema()
 		assert(0);
 	}
 
-	sema->valid = 0;
+	m_semaphores.Free(id);
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //42
@@ -2068,11 +2041,10 @@ void CPS2OS::sc_SignalSema()
 	bool isInt	= m_ee.m_State.nGPR[3].nV[0] == 0x43;
 	uint32 id	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* sema = GetSemaphore(id);
-	if(!sema || !sema->valid)
+	auto sema = m_semaphores[id];
+	if(sema == nullptr)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 	
@@ -2120,8 +2092,7 @@ void CPS2OS::sc_SignalSema()
 		sema->count++;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //44
@@ -2129,11 +2100,10 @@ void CPS2OS::sc_WaitSema()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* sema = GetSemaphore(id);
-	if(!sema || !sema->valid)
+	auto sema = m_semaphores[id];
+	if(sema == nullptr)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 
@@ -2172,8 +2142,7 @@ void CPS2OS::sc_WaitSema()
 		sema->count--;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //45
@@ -2181,25 +2150,22 @@ void CPS2OS::sc_PollSema()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	SEMAPHORE* sema = GetSemaphore(id);
-	if(!sema->valid)
+	auto sema = m_semaphores[id];
+	if(sema == nullptr)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 
 	if(sema->count == 0)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 
 	sema->count--;
 	
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //47
@@ -2210,11 +2176,10 @@ void CPS2OS::sc_ReferSemaStatus()
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	SEMAPHOREPARAM* semaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
 
-	SEMAPHORE* sema = GetSemaphore(id);
-	if(!sema || !sema->valid)
+	auto sema = m_semaphores[id];
+	if(sema == nullptr)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
 
@@ -2222,8 +2187,7 @@ void CPS2OS::sc_ReferSemaStatus()
 	semaParam->maxCount		= sema->maxCount;
 	semaParam->waitThreads	= sema->waitCount;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //64

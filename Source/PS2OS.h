@@ -119,7 +119,7 @@ private:
 
 	struct SEMAPHORE
 	{
-		uint32									valid;
+		uint32									isValid;
 		uint32									count;
 		uint32									maxCount;
 		uint32									waitCount;
@@ -241,6 +241,7 @@ private:
 		THREAD_ZOMBIE				= 0x07,
 	};
 
+	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<DMACHANDLER> DmacHandlerList;
 	typedef COsStructManager<ALARM> AlarmList;
 
@@ -276,9 +277,6 @@ private:
 	void									ThreadShakeAndBake();
 	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
-
-	uint32									GetNextAvailableSemaphoreId();
-	SEMAPHORE*								GetSemaphore(uint32);
 
 	uint32									GetNextAvailableIntcHandlerId();
 	INTCHANDLER*							GetIntcHandler(uint32);
@@ -342,6 +340,7 @@ private:
 	CELF*									m_elf;
 	CMIPS&									m_ee;
 	CRoundRibbon*							m_threadSchedule;
+	SemaphoreList							m_semaphores;
 	DmacHandlerList							m_dmacHandlers;
 	AlarmList								m_alarms;
 
