@@ -12,6 +12,7 @@ CFileIo::CFileIo(CSifMan& sifMan, CIoman& ioman)
 , m_ioman(ioman)
 {
 	m_sifMan.RegisterModule(SIF_MODULE_ID, this);
+	m_handler = std::make_unique<CFileIoHandler1000>(&m_ioman);
 }
 
 CFileIo::~CFileIo()
