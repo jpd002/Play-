@@ -18,7 +18,7 @@ public:
 
 	typedef boost::signals2::signal<void (const char*, const ArgumentList&)> RequestLoadExecutableEvent;
 
-												CPS2OS(CMIPS&, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
+												CPS2OS(CMIPS&, uint8*, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
 	virtual										~CPS2OS();
 
 	void										Initialize();
@@ -278,6 +278,8 @@ private:
 	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
 
+	uint8*									GetStructPtr(uint32) const;
+
 	uint32									GetNextAvailableIntcHandlerId();
 	INTCHANDLER*							GetIntcHandler(uint32);
 
@@ -336,6 +338,7 @@ private:
 
 	uint8*									m_ram = nullptr;
 	uint8*									m_bios = nullptr;
+	uint8*									m_spr = nullptr;
 
 	CELF*									m_elf;
 	CMIPS&									m_ee;

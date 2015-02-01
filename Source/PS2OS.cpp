@@ -171,12 +171,13 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 
 namespace filesystem = boost::filesystem;
 
-CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) 
+CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios) 
 : m_ee(ee)
 , m_gs(gs)
 , m_elf(nullptr)
 , m_ram(ram)
 , m_bios(bios)
+, m_spr(spr)
 , m_threadSchedule(nullptr)
 , m_sif(sif)
 , m_iopBios(iopBios)
@@ -1123,8 +1124,8 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 
 	//Save the context of the current thread
 	{
-		THREAD* thread = GetThread(GetCurrentThreadId());
-		THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
+		auto thread = GetThread(GetCurrentThreadId());
+		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 
 		//Save the context
 		for(uint32 i = 0; i < 0x20; i++)
@@ -1157,8 +1158,8 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 
 	//Load the new context
 	{
-		THREAD* thread = GetThread(GetCurrentThreadId());
-		THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
+		auto thread = GetThread(GetCurrentThreadId());
+		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 
 		m_ee.m_State.nPC = thread->epc;
 
@@ -1195,6 +1196,22 @@ void CPS2OS::CreateWaitThread()
 	thread->valid		= 1;
 	thread->epc			= BIOS_ADDRESS_WAITTHREADPROC;
 	thread->status		= THREAD_ZOMBIE;
+}
+
+uint8* CPS2OS::GetStructPtr(uint32 address) const
+{
+	uint8* memory = nullptr;
+	if(address >= 0x70000000)
+	{
+		address &= (PS2::EE_SPR_SIZE - 1);
+		memory = m_spr;
+	}
+	else
+	{
+		address &= (PS2::EE_RAM_SIZE - 1);
+		memory = m_ram;
+	}
+	return memory + address;
 }
 
 uint32 CPS2OS::GetNextAvailableIntcHandlerId()
@@ -1516,7 +1533,7 @@ void CPS2OS::sc_ReleaseAlarm()
 //20
 void CPS2OS::sc_CreateThread()
 {
-	auto threadParam = reinterpret_cast<THREADPARAM*>(&m_ram[m_ee.m_State.nGPR[SC_PARAM0].nV[0]]);
+	auto threadParam = reinterpret_cast<THREADPARAM*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 
 	uint32 id = GetNextAvailableThreadId();
 	if(id == 0xFFFFFFFF)
@@ -1721,8 +1738,6 @@ void CPS2OS::sc_ReferThreadStatus()
 	uint32 id			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 statusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	statusPtr &= (PS2::EE_RAM_SIZE - 1);
-
 	THREAD* thread = GetThread(id);
 	if(!thread->valid)
 	{
@@ -1756,7 +1771,7 @@ void CPS2OS::sc_ReferThreadStatus()
 
 	if(statusPtr != 0)
 	{
-		THREADPARAM* threadParam = reinterpret_cast<THREADPARAM*>(&m_ram[statusPtr]);
+		auto threadParam = reinterpret_cast<THREADPARAM*>(GetStructPtr(statusPtr));
 
 		threadParam->status				= ret;
 		threadParam->priority			= thread->priority;
@@ -1992,7 +2007,7 @@ void CPS2OS::sc_EndOfHeap()
 //40
 void CPS2OS::sc_CreateSema()
 {
-	auto semaParam = reinterpret_cast<SEMAPHOREPARAM*>(m_ram + m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+	auto semaParam = reinterpret_cast<SEMAPHOREPARAM*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 
 	uint32 id = m_semaphores.Allocate();
 	if(id == 0xFFFFFFFF)
@@ -2305,8 +2320,7 @@ void CPS2OS::sc_SifDmaStat()
 //77
 void CPS2OS::sc_SifSetDma()
 {
-	uint32 xferAddress = m_ee.m_State.nGPR[SC_PARAM0].nV[0] & (PS2::EE_RAM_SIZE - 1);
-	auto xfer = reinterpret_cast<SIFDMAREG*>(m_ram + xferAddress);
+	auto xfer = reinterpret_cast<SIFDMAREG*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	//Returns count
@@ -3006,7 +3020,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 		!threadIterator.IsEnd(); threadIterator++)
 	{
 		auto thread = GetThread(threadIterator.GetValue());
-		THREADCONTEXT* threadContext = reinterpret_cast<THREADCONTEXT*>(m_ram + thread->contextPtr);
+		auto threadContext = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 
 		BIOS_DEBUG_THREAD_INFO threadInfo;
 		threadInfo.id			= threadIterator.GetValue();
