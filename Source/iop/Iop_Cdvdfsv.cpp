@@ -437,7 +437,8 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	//20 - Unknown
 	//24 - Path
 
-	char* path = reinterpret_cast<char*>(args) + pathOffset;
+	const char* path = reinterpret_cast<const char*>(args) + pathOffset;
+	CLog::GetInstance().Print(LOG_NAME, "SearchFile(path = %s);\r\n", path);
 
 	//Fix all slashes
 	std::string fixedPath(path);
@@ -450,7 +451,16 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 		}
 	}
 
-	CLog::GetInstance().Print(LOG_NAME, "SearchFile(path = %s);\r\n", fixedPath.c_str());
+	//Hack to remove any superfluous version extensions (ie.: ;1) that might be present in the path
+	//Don't know if this is valid behavior but shouldn't hurt compatibility. This was done for Sengoku Musou 2.
+	while(1)
+	{
+		auto semColCount = std::count(fixedPath.begin(), fixedPath.end(), ';');
+		if(semColCount <= 1) break;
+		auto semColPos = fixedPath.rfind(';');
+		assert(semColPos != std::string::npos);
+		fixedPath = std::string(fixedPath.begin(), fixedPath.begin() + semColPos);
+	}
 
 	ISO9660::CDirectoryRecord record;
 	if(!m_iso->GetFileRecord(&record, fixedPath.c_str()))
