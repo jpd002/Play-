@@ -11,11 +11,11 @@
 #include "StdStream.h"
 #include "win32/AcceleratorTableGenerator.h"
 #include "win32/InputBox.h"
+#include "win32/DpiUtils.h"
 #include "xml/Parser.h"
 #include "Debugger.h"
 #include "resource.h"
 #include "string_cast.h"
-#include "WinUtils.h"
 
 #define CLSNAME			_T("CDebugger")
 
@@ -348,10 +348,10 @@ void CDebugger::FindEeFunctions()
 
 void CDebugger::Layout1024()
 {
-	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 700, 435));
-	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 0, 324, 572));
-	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 435, 700, 265));
-	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 572, 324, 128));
+	auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 700, 435));
+	auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 0, 324, 572));
+	auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 435, 700, 265));
+	auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 572, 324, 128));
 
 	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
@@ -368,10 +368,10 @@ void CDebugger::Layout1024()
 
 void CDebugger::Layout1280()
 {
-	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 900, 540));
-	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 0, 380, 784));
-	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 540, 900, 416));
-	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 784, 380, 172));
+	auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 900, 540));
+	auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 0, 380, 784));
+	auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 540, 900, 416));
+	auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 784, 380, 172));
 
 	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
@@ -388,10 +388,10 @@ void CDebugger::Layout1280()
 
 void CDebugger::Layout1600()
 {
-	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 1094, 725));
-	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 0, 506, 725));
-	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 725, 1094, 407));
-	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 725, 506, 407));
+	auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 1094, 725));
+	auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 0, 506, 725));
+	auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 725, 1094, 407));
+	auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 725, 506, 407));
 
 	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);

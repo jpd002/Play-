@@ -5,10 +5,10 @@
 #include "ThreadCallStackViewWnd.h"
 #include "win32/Rect.h"
 #include "win32/DefaultWndClass.h"
+#include "win32/DpiUtils.h"
 #include "../PS2VM.h"
 #include "resource.h"
 #include "DebugUtils.h"
-#include "WinUtils.h"
 
 #define WND_STYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
@@ -17,7 +17,7 @@ CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine
 , m_context(nullptr)
 , m_biosDebugInfoProvider(nullptr)
 {
-	auto windowRect = WinUtils::PointsToPixels(Framework::Win32::CRect(0, 0, 700, 300));
+	auto windowRect = Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 700, 300));
 
 	Create(NULL, Framework::Win32::CDefaultWndClass().GetName(), _T("Threads"), WND_STYLE, windowRect, parentWnd, NULL);
 	SetClassPtr();
@@ -86,19 +86,19 @@ void CThreadsViewWnd::RefreshLayout()
 			auto rc = m_listView.GetClientRect();
 
 			{
-				unsigned int colSize = WinUtils::PointsToPixels(50);
+				unsigned int colSize = Framework::Win32::PointsToPixels(50);
 				m_listView.SetColumnWidth(0, colSize);
 				rc.SetRight(rc.Right() - colSize);
 			}
 
 			{
-				unsigned int colSize = WinUtils::PointsToPixels(50);
+				unsigned int colSize = Framework::Win32::PointsToPixels(50);
 				m_listView.SetColumnWidth(1, colSize);
 				rc.SetRight(rc.Right() - colSize);
 			}
 
 			{
-				unsigned int colSize = WinUtils::PointsToPixels(400);
+				unsigned int colSize = Framework::Win32::PointsToPixels(400);
 				m_listView.SetColumnWidth(2, colSize);
 				rc.SetRight(rc.Right() - colSize);
 			}
