@@ -3,10 +3,10 @@
 #include "win32/ClientDeviceContext.h"
 #include "win32/DefaultWndClass.h"
 #include "win32/Font.h"
+#include "win32/DpiUtils.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "MemoryView.h"
-#include "WinUtils.h"
 
 #define ADDRESSCHARS		8
 #define PAGESIZE			10
@@ -15,11 +15,11 @@ CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 : m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
 {
 	{
-		m_renderMetrics.xmargin				= WinUtils::PointsToPixels(5);
-		m_renderMetrics.ymargin				= WinUtils::PointsToPixels(5);
-		m_renderMetrics.yspace				= WinUtils::PointsToPixels(0);
-		m_renderMetrics.byteSpacing			= WinUtils::PointsToPixels(3);
-		m_renderMetrics.lineSectionSpacing	= WinUtils::PointsToPixels(10);
+		m_renderMetrics.xmargin				= Framework::Win32::PointsToPixels(5);
+		m_renderMetrics.ymargin				= Framework::Win32::PointsToPixels(5);
+		m_renderMetrics.yspace				= Framework::Win32::PointsToPixels(0);
+		m_renderMetrics.byteSpacing			= Framework::Win32::PointsToPixels(3);
+		m_renderMetrics.lineSectionSpacing	= Framework::Win32::PointsToPixels(10);
 	}
 
 	Create(WS_EX_CLIENTEDGE, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, parentWnd, NULL);

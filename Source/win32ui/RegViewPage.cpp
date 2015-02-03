@@ -1,7 +1,7 @@
 #include "win32/Font.h"
 #include "win32/ClientDeviceContext.h"
+#include "win32/DpiUtils.h"
 #include "RegViewPage.h"
-#include "WinUtils.h"
 
 #define CLSNAME			_T("CRegViewPage")
 
@@ -11,9 +11,9 @@ CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
 	//Fill in render metrics
 	{
 		auto fontSize = GetFixedFontSize(m_font);
-		m_renderMetrics.xmargin = WinUtils::PointsToPixels(6);
-		m_renderMetrics.yspace = WinUtils::PointsToPixels(4);
-		m_renderMetrics.ymargin = WinUtils::PointsToPixels(5);
+		m_renderMetrics.xmargin = Framework::Win32::PointsToPixels(6);
+		m_renderMetrics.yspace = Framework::Win32::PointsToPixels(4);
+		m_renderMetrics.ymargin = Framework::Win32::PointsToPixels(5);
 		m_renderMetrics.fontSizeX = fontSize.cx;
 		m_renderMetrics.fontSizeY = fontSize.cy;
 	}
