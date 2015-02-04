@@ -124,15 +124,6 @@ BEGIN
         MENUITEM "Vector Unit 1 View\tAlt+3",   ID_VIEW_VU1VIEW
         MENUITEM "IOP View\tAlt+4",             ID_VIEW_IOPVIEW
     END
-    POPUP "Logging"
-    BEGIN
-        MENUITEM "GIF/GS Logging",              ID_LOGGING_GS
-        MENUITEM "DMAC Logging",                ID_LOGGING_DMAC
-        MENUITEM "IPU Logging",                 ID_LOGGING_IPU
-        MENUITEM "OS Logging",                  ID_LOGGING_OS
-        MENUITEM "SIF Logging",                 ID_LOGGING_SIF
-        MENUITEM "IOP Logging",                 ID_LOGGING_IOP
-    END
     POPUP "&Window"
     BEGIN
         MENUITEM "&Cascade",                    ID_WINDOW_CASCAD

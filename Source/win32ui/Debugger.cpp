@@ -88,7 +88,6 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 		GetDisassemblyWindow()->SetFocus();
 	}
 
-	UpdateLoggingMenu();
 	CreateAccelerators();
 }
 
@@ -118,12 +117,6 @@ void CDebugger::RegisterPreferences()
 {
 	CAppConfig& config(CAppConfig::GetInstance());
 
-	config.RegisterPreferenceInteger("debugger.log.posx",				0);
-	config.RegisterPreferenceInteger("debugger.log.posy",				0);
-	config.RegisterPreferenceInteger("debugger.log.sizex",				0);
-	config.RegisterPreferenceInteger("debugger.log.sizey",				0);
-	config.RegisterPreferenceBoolean("debugger.log.visible",			true);
-
 	config.RegisterPreferenceInteger("debugger.disasm.posx",			0);
 	config.RegisterPreferenceInteger("debugger.disasm.posy",			0);
 	config.RegisterPreferenceInteger("debugger.disasm.sizex",			0);
@@ -147,35 +140,6 @@ void CDebugger::RegisterPreferences()
 	config.RegisterPreferenceInteger("debugger.callstack.sizex",		0);
 	config.RegisterPreferenceInteger("debugger.callstack.sizey",		0);
 	config.RegisterPreferenceBoolean("debugger.callstack.visible",		true);
-}
-
-void CDebugger::UpdateLoggingMenu()
-{
-	HMENU hMenu = GetMenu(m_hWnd);
-
-	hMenu = GetSubMenu(hMenu, 2);
-
-	const int stateCount = 8;
-	bool nState[stateCount];
-	memset(nState, 0, sizeof(nState));
-//	nState[0] = m_virtualMachine.m_Logging.GetGSLoggingStatus();
-//	nState[1] = m_virtualMachine.m_Logging.GetDMACLoggingStatus();
-//	nState[2] = m_virtualMachine.m_Logging.GetIPULoggingStatus();
-//	nState[3] = m_virtualMachine.m_Logging.GetOSLoggingStatus();
-//	nState[4] = m_virtualMachine.m_Logging.GetOSRecordingStatus();
-//	nState[5] = m_virtualMachine.m_Logging.GetSIFLoggingStatus();
-//	nState[6] = m_virtualMachine.m_Logging.GetIOPLoggingStatus();
-	for(unsigned int i = 0; i < stateCount; i++)
-	{
-		MENUITEMINFO mii;
-
-		memset(&mii, 0, sizeof(MENUITEMINFO));
-		mii.cbSize		= sizeof(MENUITEMINFO);
-		mii.fMask		= MIIM_STATE;
-		mii.fState		= nState[i] ? MFS_CHECKED : 0;
-
-		SetMenuItemInfo(hMenu, i, TRUE, &mii);
-	}
 }
 
 void CDebugger::UpdateTitle()
@@ -641,30 +605,6 @@ long CDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 		break;
 	case ID_VIEW_IOPVIEW:
 		ActivateView(DEBUGVIEW_IOP);
-		break;
-	case ID_LOGGING_GS:
-//		m_virtualMachine.m_Logging.SetGSLoggingStatus(!m_virtualMachine.m_Logging.GetGSLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_DMAC:
-//		m_virtualMachine.m_Logging.SetDMACLoggingStatus(!m_virtualMachine.m_Logging.GetDMACLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_IPU:
-//		m_virtualMachine.m_Logging.SetIPULoggingStatus(!m_virtualMachine.m_Logging.GetIPULoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_OS:
-//		m_virtualMachine.m_Logging.SetOSLoggingStatus(!m_virtualMachine.m_Logging.GetOSLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_SIF:
-//		m_virtualMachine.m_Logging.SetSIFLoggingStatus(!m_virtualMachine.m_Logging.GetSIFLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_IOP:
-//		m_virtualMachine.m_Logging.SetIOPLoggingStatus(!m_virtualMachine.m_Logging.GetIOPLoggingStatus());
-		UpdateLoggingMenu();
 		break;
 	case ID_WINDOW_CASCAD:
 		m_pMDIClient->Cascade();

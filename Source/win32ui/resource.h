@@ -21,7 +21,6 @@
 #define ID_WINDOW_TILEVERTICAL          40007
 #define ID_WINDOW_CASCAD                40008
 #define ID_VIEW_ELF                     40010
-#define ID_VIEW_LOG                     40011
 #define ID_VIEW_DISASSEMBLY             40012
 #define ID_VIEW_FUNCTIONS               40022
 #define ID_VIRTUALMACHINE_SAVESTATE     40023
@@ -31,8 +30,6 @@
 #define ID_VM_SAVESTATE                 40028
 #define ID_VM_LOADSTATE                 40029
 #define ID_VM_STEP                      40030
-#define ID_LOGGING_GS                   40031
-#define ID_LOGGING_ENABLEGIFLOGGING     40032
 #define ID_VIEW_MEMORY                  40033
 #define ID_FILE_LOADELF                 40035
 #define ID_DEBUG_STARTDEBUGGER          40038
@@ -42,10 +39,6 @@
 #define ID_OPTIONS                      40046
 #define ID_MAIN_FILE_EXIT               40047
 #define ID_MAIN_FILE_LOADELF            40048
-#define ID_LOGGING_DMACLOGGING          40052
-#define ID_LOGGING_OSLOGGING            40053
-#define ID_LOGGING_DMAC                 40054
-#define ID_LOGGING_OS                   40055
 #define ID_HELP_SYSTEMINFORMATION       40056
 #define ID_HELP_SYSINFO                 40057
 #define ID_MAIN_HELP_SYSINFO            40058
@@ -59,8 +52,6 @@
 #define ID_VIEW_CALLSTACK               40068
 #define ID_WINDOW_LAYOUT                40069
 #define ID_WINDOW_LAYOUT1280            40070
-#define ID_LOGGING_IPULOGGING           40073
-#define ID_LOGGING_IPU                  40074
 #define ID_VIRTUALMACHINE_STATESLOT     40075
 #define ID_STATESLOT_0                  40076
 #define ID_STATESLOT_1                  40077
@@ -87,8 +78,6 @@
 #define ID_VM_ASMJAL                    40109
 #define ID_VM_DUMPINTCHANDLERS          40119
 #define ID_VM_DUMPDMACHANDLERS          40121
-#define ID_LOGGING_SIF                  40125
-#define ID_LOGGING_IOP                  40127
 #define ID_MAIN_OPTIONS_MCMANAGER       40130
 #define ID_VIEW_THREADS                 40133
 #define ID_WINDOW_LAYOUT1600            40137

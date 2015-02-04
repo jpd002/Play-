@@ -32,7 +32,6 @@ private:
 	};
 
 	void							RegisterPreferences();
-	void							UpdateLoggingMenu();
 	void							UpdateTitle();
 	void							LoadSettings();
 	void							SaveSettings();
