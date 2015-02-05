@@ -396,6 +396,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\Debugger\FindCallersViewWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugUtils.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -617,6 +618,7 @@
     <ClInclude Include="..\Source\win32ui\DebugExpressionEvaluator.h" />
     <ClInclude Include="..\Source\win32ui\Debugger.h" />
     <ClInclude Include="..\Source\win32ui\DebuggerChildWnd.h" />
+    <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h" />
     <ClInclude Include="..\Source\win32ui\DebugUtils.h" />
     <ClInclude Include="..\Source\win32ui\DebugView.h" />
     <ClInclude Include="..\Source\win32ui\DirectXControl.h" />

@@ -64,6 +64,11 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	m_threadsView->Show(SW_HIDE);
 	m_threadsView->OnGotoAddress.connect(boost::bind(&CDebugger::OnThreadsViewAddressDblClick, this, _1));
 
+	//Find Callers View Initialization
+	m_findCallersView = new CFindCallersViewWnd(m_pMDIClient->m_hWnd);
+	m_findCallersView->Show(SW_HIDE);
+	m_findCallersView->AddressSelected.connect([&] (uint32 address) { OnFindCallersAddressDblClick(address); });
+
 	//Debug Views Initialization
 	m_nCurrentView = -1;
 
@@ -400,9 +405,12 @@ void CDebugger::ActivateView(unsigned int nView)
 		GetCurrentView()->Hide();
 	}
 
+	m_findCallersRequestConnection.disconnect();
+
 	m_nCurrentView = nView;
 	LoadViewLayout();
 	UpdateTitle();
+
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
 		m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
@@ -413,6 +421,9 @@ void CDebugger::ActivateView(unsigned int nView)
 	{
 		GetDisassemblyWindow()->SetFocus();
 	}
+
+	m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->GetDisAsm()->FindCallersRequested.connect(
+		[&] (uint32 address) { OnFindCallersRequested(address); });
 }
 
 void CDebugger::SaveViewLayout()
@@ -663,9 +674,9 @@ long CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 	return CMDIFrame::OnWndProc(nMsg, wParam, lParam);
 }
 
-void CDebugger::OnFunctionsViewFunctionDblClick(uint32 nAddress)
+void CDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
 {
-	GetDisassemblyWindow()->SetAddress(nAddress);
+	GetDisassemblyWindow()->GetDisAsm()->SetAddress(address);
 }
 
 void CDebugger::OnFunctionsViewFunctionsStateChange()
@@ -673,10 +684,11 @@ void CDebugger::OnFunctionsViewFunctionsStateChange()
 	GetDisassemblyWindow()->Refresh();
 }
 
-void CDebugger::OnThreadsViewAddressDblClick(uint32 nAddress)
+void CDebugger::OnThreadsViewAddressDblClick(uint32 address)
 {
-	GetDisassemblyWindow()->SetCenterAtAddress(nAddress);
-	GetDisassemblyWindow()->SetSelectedAddress(nAddress);
+	auto disAsm = GetDisassemblyWindow()->GetDisAsm();
+	disAsm->SetCenterAtAddress(address);
+	disAsm->SetSelectedAddress(address);
 }
 
 void CDebugger::OnExecutableChange()
@@ -687,6 +699,22 @@ void CDebugger::OnExecutableChange()
 void CDebugger::OnExecutableUnloading()
 {
 	SendMessage(m_hWnd, WM_EXECUNLOAD, 0, 0);
+}
+
+void CDebugger::OnFindCallersRequested(uint32 address)
+{
+	auto context = GetCurrentView()->GetContext();
+
+	m_findCallersView->FindCallers(context, address);
+	m_findCallersView->Show(SW_SHOW);
+	m_findCallersView->SetFocus();
+}
+
+void CDebugger::OnFindCallersAddressDblClick(uint32 address)
+{
+	auto disAsm = GetDisassemblyWindow()->GetDisAsm();
+	disAsm->SetCenterAtAddress(address);
+	disAsm->SetSelectedAddress(address);
 }
 
 void CDebugger::OnExecutableChangeMsg()

@@ -655,6 +655,9 @@
     <ClCompile Include="..\Source\iop\Iop_FileIoHandler2100.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\win32ui\Debugger\FindCallersViewWnd.cpp">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1277,6 +1280,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_FileIoHandler2100.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

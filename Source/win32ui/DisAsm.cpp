@@ -223,22 +223,7 @@ void CDisAsm::FindCallers()
 		return;
 	}
 
-	printf("Searching callers...\r\n");
-
-	for(int i = 0; i < PS2::EE_RAM_SIZE; i += 4)
-	{
-		uint32 nVal = m_ctx->m_pMemoryMap->GetInstruction(i);
-		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
-		{
-			nVal &= 0x3FFFFFF;
-			nVal *= 4;
-			if(nVal == m_selected)
-			{
-				printf("JAL: 0x%0.8X\r\n", i);
-			}
-		}
-	}
-	printf("Done.\r\n");
+	FindCallersRequested(m_selected);
 }
 
 unsigned int CDisAsm::GetLineCount()

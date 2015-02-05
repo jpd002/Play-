@@ -81,6 +81,7 @@ CCallStackWnd* CDebugView::GetCallStackWindow()
 
 void CDebugView::OnCallStackWndFunctionDblClick(uint32 nAddress)
 {
-	m_disAsmWnd->SetCenterAtAddress(nAddress);
-	m_disAsmWnd->SetSelectedAddress(nAddress);
+	auto disAsm = m_disAsmWnd->GetDisAsm();
+	disAsm->SetCenterAtAddress(nAddress);
+	disAsm->SetSelectedAddress(nAddress);
 }
