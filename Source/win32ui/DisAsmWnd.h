@@ -14,12 +14,10 @@ public:
 	};
 
 						CDisAsmWnd(HWND, CVirtualMachine&, CMIPS*, DISASM_TYPE);
-						~CDisAsmWnd();
-	void				Refresh();
+	virtual				~CDisAsmWnd();
 
-	void				SetAddress(uint32);
-	void				SetCenterAtAddress(uint32);
-	void				SetSelectedAddress(uint32);
+	void				Refresh();
+	CDisAsm*			GetDisAsm() const;
 
 protected:
 	long				OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -28,5 +26,5 @@ protected:
 
 private:
 	void				RefreshLayout();
-	CDisAsm*			m_disAsm;
+	CDisAsm*			m_disAsm = nullptr;
 };
