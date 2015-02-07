@@ -12,6 +12,7 @@ using namespace Iop;
 #define FUNCTION_CLEAREVENTFLAG				"ClearEventFlag"
 #define FUNCTION_WAITEVENTFLAG				"WaitEventFlag"
 #define FUNCTION_REFEREVENTFLAGSTATUS		"ReferEventFlagStatus"
+#define FUNCTION_IREFEREVENTFLAGSTATUS		"iReferEventFlagStatus"
 
 CThevent::CThevent(CIopBios& bios, uint8* ram) 
 : m_bios(bios)
@@ -51,6 +52,9 @@ std::string CThevent::GetFunctionName(unsigned int functionId) const
 		break;
 	case 13:
 		return FUNCTION_REFEREVENTFLAGSTATUS;
+		break;
+	case 14:
+		return FUNCTION_IREFEREVENTFLAGSTATUS;
 		break;
 	default:
 		return "unknown";
@@ -94,6 +98,7 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	case 13:
+	case 14:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferEventFlagStatus(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
