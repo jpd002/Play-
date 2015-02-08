@@ -381,6 +381,8 @@ static bool IsValidProgramAddress(uint32 address)
 
 CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, uint32 pc, uint32 sp, uint32 ra)
 {
+	uint32 physicalSp = context->m_pAddrTranslator(context, sp);
+
 	CallStackItemArray result;
 
 	{
@@ -401,8 +403,8 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		//Check if we need to check into the stack to get the RA
 		if(context->m_analysis->FindSubroutine(ra) == routine)
 		{
-			ra = context->m_pMemoryMap->GetWord(sp + routine->returnAddrPos);
-			sp += routine->stackSize;
+			ra = context->m_pMemoryMap->GetWord(physicalSp + routine->returnAddrPos);
+			physicalSp += routine->stackSize;
 		}
 		else
 		{
@@ -416,7 +418,7 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 			{
 				if(pc <= routine->stackAllocEnd)
 				{
-					sp += routine->stackSize;
+					physicalSp += routine->stackSize;
 				}
 			}
 		}
@@ -439,8 +441,8 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		}
 
 		//Get the next RA
-		ra = context->m_pMemoryMap->GetWord(sp + routine->returnAddrPos);
-		sp += routine->stackSize;
+		ra = context->m_pMemoryMap->GetWord(physicalSp + routine->returnAddrPos);
+		physicalSp += routine->stackSize;
 
 		if((pc == ra) && (routine->stackSize == 0))
 		{
