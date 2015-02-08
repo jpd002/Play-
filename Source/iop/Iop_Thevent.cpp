@@ -10,6 +10,7 @@ using namespace Iop;
 #define FUNCTION_SETEVENTFLAG				"SetEventFlag"
 #define FUNCTION_ISETEVENTFLAG				"iSetEventFlag"
 #define FUNCTION_CLEAREVENTFLAG				"ClearEventFlag"
+#define FUNCTION_ICLEAREVENTFLAG			"iClearEventFlag"
 #define FUNCTION_WAITEVENTFLAG				"WaitEventFlag"
 #define FUNCTION_REFEREVENTFLAGSTATUS		"ReferEventFlagStatus"
 #define FUNCTION_IREFEREVENTFLAGSTATUS		"iReferEventFlagStatus"
@@ -46,6 +47,9 @@ std::string CThevent::GetFunctionName(unsigned int functionId) const
 		break;
 	case 8:
 		return FUNCTION_CLEAREVENTFLAG;
+		break;
+	case 9:
+		return FUNCTION_ICLEAREVENTFLAG;
 		break;
 	case 10:
 		return FUNCTION_WAITEVENTFLAG;
@@ -84,6 +88,7 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	case 8:
+	case 9:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ClearEventFlag(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
