@@ -316,7 +316,7 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	m_pendingCommand = COMMAND_READ;
 	m_pendingReadSector = sector;
 	m_pendingReadCount = count;
-	m_pendingReadAddr = dstAddr;
+	m_pendingReadAddr = dstAddr & 0x1FFFFFFF;
 }
 
 void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -338,7 +338,7 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	m_pendingCommand = COMMAND_READIOP;
 	m_pendingReadSector = sector;
 	m_pendingReadCount = count;
-	m_pendingReadAddr = dstAddr;
+	m_pendingReadAddr = dstAddr & 0x1FFFFFFF;
 }
 
 void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
