@@ -261,6 +261,19 @@ void CSubSystem::CountTicks(int ticks)
 		m_dmac.ResumeDma(8);
 		m_dmaUpdateTicks -= g_dmaUpdateDelay;
 	}
+	{
+		bool irqPending = false;
+		irqPending |= m_spuCore0.GetIrqPending();
+		irqPending |= m_spuCore1.GetIrqPending();
+		if(irqPending)
+		{
+			m_intc.AssertLine(CIntc::LINE_SPU2);
+		}
+		else
+		{
+			m_intc.ClearLine(CIntc::LINE_SPU2);
+		}
+	}
 }
 
 int CSubSystem::ExecuteCpu(int quota)

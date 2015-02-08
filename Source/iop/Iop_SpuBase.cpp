@@ -141,6 +141,8 @@ void CSpuBase::Reset()
 	m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
+	m_irqAddr = 0;
+	m_irqPending = false;
 	m_bufferAddr = 0;
 
 	m_reverbCurrAddr = 0;
@@ -202,11 +204,30 @@ uint16 CSpuBase::GetControl() const
 void CSpuBase::SetControl(uint16 value)
 {
 	m_ctrl = value;
+	if((m_ctrl & CONTROL_IRQ) == 0)
+	{
+		m_irqPending = false;
+	}
 }
 
 void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
 {
 	m_baseSamplingRate = samplingRate;
+}
+
+bool CSpuBase::GetIrqPending() const
+{
+	return m_irqPending;
+}
+
+uint32 CSpuBase::GetIrqAddress() const
+{
+	return m_irqAddr;
+}
+
+void CSpuBase::SetIrqAddress(uint32 value)
+{
+	m_irqAddr = value & (m_ramSize - 1);
 }
 
 uint32 CSpuBase::GetTransferAddress() const
@@ -465,6 +486,13 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
+
+			//TODO: Improve address detection (used by DW5, SW2, OW2 in movie playback)
+			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (channel.current >= m_irqAddr))
+			{
+				m_irqPending = true;
+			}
+
 			//Mix samples
 			UpdateAdsr(channel);
 			int32 inputSample = static_cast<int32>(readSample);

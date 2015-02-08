@@ -19,6 +19,8 @@ namespace Iop
 
 			void			Reset();
 
+			CSpuBase&		GetSpuBase() const;
+
 			uint32			ReadRegister(uint32, uint32);
 			uint32			WriteRegister(uint32, uint32);
 
@@ -38,6 +40,8 @@ namespace Iop
 				S_VMIXER_HI		= 0x1F900194,
 				S_VMIXER_LO		= 0x1F900196,
 				CORE_ATTR		= 0x1F90019A,
+				A_IRQA_HI		= 0x1F90019C,
+				A_IRQA_LO		= 0x1F90019E,
 				A_KON_HI		= 0x1F9001A0,
 				A_KON_LO		= 0x1F9001A2,
 				A_KOFF_HI		= 0x1F9001A4,
