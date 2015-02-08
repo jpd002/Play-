@@ -168,6 +168,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_loadcore);
 	}
 	{
+		m_libsd = std::make_shared<Iop::CLibSd>();
+	}
+	{
 		RegisterModule(new Iop::CThbase(*this, m_ram));
 	}
 	{
@@ -1828,6 +1831,8 @@ void CIopBios::DeleteModules()
 	}
 	m_dynamicModules.clear();
 
+	m_libsd.reset();
+
 	m_sifMan = NULL;
 	m_stdio = NULL;
 	m_ioman = NULL;
@@ -2224,7 +2229,11 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
 				uint32 functionId = target & 0xFFFF;
 				std::string functionName;
-				if(module != m_modules.end())
+				if(moduleName == m_libsd->GetId())
+				{
+					functionName = m_libsd->GetFunctionName(functionId);
+				}
+				else if(module != m_modules.end())
 				{
 					functionName = (module->second)->GetFunctionName(functionId);
 				}

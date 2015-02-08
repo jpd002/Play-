@@ -288,6 +288,7 @@
     <ClCompile Include="..\Source\iop\Iop_Intc.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Intrman.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Ioman.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_LibSd.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp" />
     <ClCompile Include="..\Source\iop\Iop_McServ.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Modload.cpp" />
@@ -515,6 +516,7 @@
     <ClInclude Include="..\Source\iop\Iop_Intc.h" />
     <ClInclude Include="..\Source\iop\Iop_Intrman.h" />
     <ClInclude Include="..\Source\iop\Iop_Ioman.h" />
+    <ClInclude Include="..\Source\iop\Iop_LibSd.h" />
     <ClInclude Include="..\Source\iop\Iop_Loadcore.h" />
     <ClInclude Include="..\Source\iop\Iop_McServ.h" />
     <ClInclude Include="..\Source\iop\Iop_Modload.h" />

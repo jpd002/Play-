@@ -15,6 +15,7 @@
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
 #include "Iop_Loadcore.h"
+#include "Iop_LibSd.h"
 #include "Iop_Dynamic.h"
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_FileIo.h"
@@ -295,6 +296,7 @@ private:
 	typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
 	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
+	typedef std::shared_ptr<Iop::CModule> ModulePtr;
 
 	void							RegisterModule(Iop::CModule*);
 	void							ClearDynamicModules();
@@ -374,6 +376,7 @@ private:
 	Iop::CSysmem*					m_sysmem;
 	Iop::CModload*					m_modload;
 	Iop::CLoadcore*					m_loadcore;
+	ModulePtr						m_libsd;
 #ifdef _IOP_EMULATE_MODULES
 	Iop::CFileIo*					m_fileIo;
 	Iop::CPadMan*					m_padman;
