@@ -1429,14 +1429,15 @@ void CPS2OS::sc_EnableIntc()
 {
 	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 mask = 1 << cause;
+	bool changed = false;
 
 	if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & mask))
 	{
 		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, mask);
+		changed = true;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = changed ? 1 : 0;
 }
 
 //15
@@ -1444,13 +1445,15 @@ void CPS2OS::sc_DisableIntc()
 {
 	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 mask = 1 << cause;
+	bool changed = false;
+
 	if(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & mask)
 	{
 		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, mask);
+		changed = true;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = changed ? 1 : 0;
 }
 
 //16
