@@ -307,7 +307,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x10
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"FCEQ",		NULL,			CopyMnemonic,		ReflOpVi1Imm24,		NULL,				NULL			},
 	{	"FCSET",	NULL,			CopyMnemonic,		ReflOpImm24,		NULL,				NULL			},
 	{	"FCAND",	NULL,			CopyMnemonic,		ReflOpVi1Imm24,		NULL,				NULL			},
 	{	"FCOR",		NULL,			CopyMnemonic,		ReflOpVi1Imm24,		NULL,				NULL			},
@@ -691,7 +691,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x10
-	{	NULL,		NULL,			NULL				},
+	{	"FCEQ",		NULL,			NULL				},
 	{	"FCSET",	NULL,			NULL				},
 	{	"FCAND",	NULL,			NULL				},
 	{	"FCOR",		NULL,			NULL				},

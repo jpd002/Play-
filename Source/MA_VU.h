@@ -254,6 +254,7 @@ private:
 		void								ISW();
 		void								IADDIU();
 		void								ISUBIU();
+		void								FCEQ();
 		void								FCSET();
 		void								FCAND();
 		void								FCOR();
