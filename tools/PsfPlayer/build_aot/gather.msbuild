@@ -1,6 +1,6 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<PsfAotPath>..\build_win32\x64\ReleaseAot\PsfAot.exe</PsfAotPath>
+		<PsfAotPath>$(MSBuildThisFileDirectory)\..\build_win32\x64\ReleaseAot\PsfAot.exe</PsfAotPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<PsfFile Include="E:\Media\Aot\*.zip" />
