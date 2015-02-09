@@ -382,6 +382,9 @@
     <ClCompile Include="..\Source\PsfPathToken.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_LibSd.cpp">
+      <Filter>Source Files\Purei Core\iop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
@@ -740,6 +743,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\PsfPathToken.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_LibSd.h">
+      <Filter>Source Files\Purei Core\iop</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
