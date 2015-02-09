@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D05BD6D7-C644-418C-9767-5D392359079F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bzip2-1.0.6", "..\..\bzip2-1.0.6\bzip2-1.0.6.vcxproj", "{8C48C11A-7C3F-4699-B62F-B0A66F0F78F7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bzip2-1.0.6", "..\..\Dependencies\build_win32\bzip2-1.0.6.vcxproj", "{8C48C11A-7C3F-4699-B62F-B0A66F0F78F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
