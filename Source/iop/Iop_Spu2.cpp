@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "make_unique.h"
 #include "Iop_Spu2.h"
 #include "../Log.h"
 #include "placeholder_def.h"
