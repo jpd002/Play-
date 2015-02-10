@@ -52,30 +52,41 @@ void Gather(const char* archivePathName, const char* outputPathName)
 					[=] ()
 					{
 						printf("Processing %s...\r\n", archiveItemPath.string().c_str());
+						fflush(stdout);
 
-						CPsfVm virtualMachine;
+						try
+						{
+							CPsfVm virtualMachine;
 
-						CPsfLoader::LoadPsf(virtualMachine, archiveItemPath.wstring(), archivePath);
-						int currentTime = 0;
-						virtualMachine.OnNewFrame.connect(
-							[&currentTime] ()
-							{
-								currentTime += 16;
-							});
+							CPsfLoader::LoadPsf(virtualMachine, archiveItemPath.wstring(), archivePath);
+							int currentTime = 0;
+							virtualMachine.OnNewFrame.connect(
+								[&currentTime] ()
+								{
+									currentTime += 16;
+								});
 
-						virtualMachine.Resume();
+							virtualMachine.Resume();
 
 #ifdef _DEBUG
-						static const unsigned int executionTime = 1;
+							static const unsigned int executionTime = 1;
 #else
-						static const unsigned int executionTime = 10;
+							static const unsigned int executionTime = 10;
 #endif
-						while(currentTime <= (executionTime * 60 * 1000))
-						{
-							std::this_thread::sleep_for(std::chrono::milliseconds(10));
-						}
+							while(currentTime <= (executionTime * 60 * 1000))
+							{
+								std::this_thread::sleep_for(std::chrono::milliseconds(10));
+							}
 
-						virtualMachine.Pause();
+							virtualMachine.Pause();
+						}
+						catch(const std::exception& exception)
+						{
+							printf("Failed to process '%s', reason: '%s'.\r\n", 
+								archiveItemPath.string().c_str(), exception.what());
+							fflush(stdout);
+							throw;
+						}
 					}
 				);
 			}
@@ -372,9 +383,15 @@ int main(int argc, char** argv)
 			PrintUsage();
 			return -1;
 		}
-		else
+
+		try
 		{
 			Gather(argv[2], argv[3]);
+		}
+		catch(const std::exception& exception)
+		{
+			printf("Failed to gather: %s\r\n", exception.what());
+			return -1;
 		}
 	}
 	else if(!strcmp(argv[1], "compile"))
