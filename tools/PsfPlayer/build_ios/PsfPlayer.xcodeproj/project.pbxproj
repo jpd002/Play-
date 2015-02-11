@@ -43,6 +43,7 @@
 		70BA8D2F180C724900A73E9E /* PlaylistBarIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 70BA8D2D180C724900A73E9E /* PlaylistBarIcon@2x.png */; };
 		70BA8D35180C733500A73E9E /* TrackInfoBarIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 70BA8D33180C733500A73E9E /* TrackInfoBarIcon.png */; };
 		70BA8D36180C733500A73E9E /* TrackInfoBarIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 70BA8D34180C733500A73E9E /* TrackInfoBarIcon@2x.png */; };
+		70BDCA641A8B069600C2CEE7 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BDCA621A8B069600C2CEE7 /* Iop_LibSd.cpp */; };
 		70C0A5AB1A41377D00501C01 /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70C0A5AA1A41373F00501C01 /* libCodeGen.a */; };
 		70C0A5AC1A41377D00501C01 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70C0A5A41A41373000501C01 /* libFramework.a */; };
 		70C37E6E17C769DD00D18224 /* MainTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70C37E6D17C769DD00D18224 /* MainTabBarController.mm */; };
@@ -227,6 +228,8 @@
 		70BA8D2D180C724900A73E9E /* PlaylistBarIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "PlaylistBarIcon@2x.png"; path = "../Source/ios_ui/PlaylistBarIcon@2x.png"; sourceTree = "<group>"; };
 		70BA8D33180C733500A73E9E /* TrackInfoBarIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = TrackInfoBarIcon.png; path = ../Source/ios_ui/TrackInfoBarIcon.png; sourceTree = "<group>"; };
 		70BA8D34180C733500A73E9E /* TrackInfoBarIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "TrackInfoBarIcon@2x.png"; path = "../Source/ios_ui/TrackInfoBarIcon@2x.png"; sourceTree = "<group>"; };
+		70BDCA621A8B069600C2CEE7 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_LibSd.cpp; path = ../../../Source/iop/Iop_LibSd.cpp; sourceTree = "<group>"; };
+		70BDCA631A8B069600C2CEE7 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_LibSd.h; path = ../../../Source/iop/Iop_LibSd.h; sourceTree = "<group>"; };
 		70C0A59F1A41373000501C01 /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../../../../Framework/build_ios/Framework.xcodeproj; sourceTree = "<group>"; };
 		70C0A5A51A41373F00501C01 /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../../../CodeGen/build_ios/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		70C37E6C17C7698000D18224 /* MainTabBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainTabBarController.h; path = ../Source/ios_ui/MainTabBarController.h; sourceTree = "<group>"; };
@@ -713,6 +716,8 @@
 				7E4B3D3C0F9E9A3D00675ED7 /* Iop_Intrman.h */,
 				7E4B3D3D0F9E9A3D00675ED7 /* Iop_Ioman.cpp */,
 				7E4B3D3E0F9E9A3D00675ED7 /* Iop_Ioman.h */,
+				70BDCA621A8B069600C2CEE7 /* Iop_LibSd.cpp */,
+				70BDCA631A8B069600C2CEE7 /* Iop_LibSd.h */,
 				7E4B3D3F0F9E9A3D00675ED7 /* Iop_Loadcore.cpp */,
 				7E4B3D400F9E9A3D00675ED7 /* Iop_Loadcore.h */,
 				7E4B3D410F9E9A3D00675ED7 /* Iop_Modload.cpp */,
@@ -730,10 +735,10 @@
 				7E4B3D4D0F9E9A3D00675ED7 /* Iop_SifManNull.h */,
 				7E4B3D4E0F9E9A3D00675ED7 /* Iop_Spu.cpp */,
 				7E4B3D4F0F9E9A3D00675ED7 /* Iop_Spu.h */,
-				7E4B3D500F9E9A3D00675ED7 /* Iop_Spu2.cpp */,
-				7E4B3D510F9E9A3D00675ED7 /* Iop_Spu2.h */,
 				7E4B3D520F9E9A3D00675ED7 /* Iop_Spu2_Core.cpp */,
 				7E4B3D530F9E9A3D00675ED7 /* Iop_Spu2_Core.h */,
+				7E4B3D500F9E9A3D00675ED7 /* Iop_Spu2.cpp */,
+				7E4B3D510F9E9A3D00675ED7 /* Iop_Spu2.h */,
 				7E4B3D540F9E9A3D00675ED7 /* Iop_SpuBase.cpp */,
 				7E4B3D550F9E9A3D00675ED7 /* Iop_SpuBase.h */,
 				7E4B3D560F9E9A3D00675ED7 /* Iop_Stdio.cpp */,
@@ -900,6 +905,7 @@
 				7E4B3D6C0F9E9A3D00675ED7 /* Iop_DmacChannel.cpp in Sources */,
 				7E4B3D6D0F9E9A3D00675ED7 /* Iop_Dynamic.cpp in Sources */,
 				7E4B3D6E0F9E9A3D00675ED7 /* Iop_Intc.cpp in Sources */,
+				70BDCA641A8B069600C2CEE7 /* Iop_LibSd.cpp in Sources */,
 				7E4B3D6F0F9E9A3D00675ED7 /* Iop_Intrman.cpp in Sources */,
 				7E4B3D700F9E9A3D00675ED7 /* Iop_Ioman.cpp in Sources */,
 				7E4B3D710F9E9A3D00675ED7 /* Iop_Loadcore.cpp in Sources */,
