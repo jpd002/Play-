@@ -1,14 +1,16 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<PsfAotPath>$(MSBuildThisFileDirectory)\..\build_win32\x64\ReleaseAot\PsfAot.exe</PsfAotPath>
+		<InputDir>D:\Media\Aot</InputDir>
+		<OutputDir>.\blocks</OutputDir>
 	</PropertyGroup>
 	<ItemGroup>
-		<PsfFile Include="E:\Media\Aot\*.zip" />
+		<PsfFiles Include="$(InputDir)\*.zip" />
 	</ItemGroup>
-	<Target Name="Build">
-		<MakeDir Directories="./blocks/" />
+	<Target Name="Build" Inputs="@(PsfFiles)" Outputs="$(OutputDir)\%(FileName).blockcache_iop)">
+		<MakeDir Directories="$(OutputDir)" />
 		<Exec 
-			Command="&quot;$(PsfAotPath)&quot; gather &quot;%(PsfFile.Identity)&quot; &quot;./blocks/%(PsfFile.FileName).blockcache_iop&quot;"
+			Command="&quot;$(PsfAotPath)&quot; gather &quot;%(PsfFiles.Identity)&quot; &quot;$(OutputDir)\%(PsfFiles.FileName).blockcache_iop&quot;"
 			ContinueOnError="ErrorAndContinue" 
 		/>
 	</Target>
