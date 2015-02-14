@@ -727,12 +727,12 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	NULL,		NULL,			NULL				},
 	//0x10
 	{	"FCEQ",		NULL,			ReflOpAffWrVi1		},
-	{	"FCSET",	NULL,			NULL				},
+	{	"FCSET",	NULL,			ReflOpAffNone		},
 	{	"FCAND",	NULL,			ReflOpAffWrVi1		},
 	{	"FCOR",		NULL,			ReflOpAffWrVi1		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"FSAND",	NULL,			NULL				},
+	{	"FSAND",	NULL,			ReflOpAffWrIt		},
 	{	NULL,		NULL,			NULL				},
 	//0x18
 	{	NULL,		NULL,			NULL				},

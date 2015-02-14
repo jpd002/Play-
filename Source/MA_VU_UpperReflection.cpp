@@ -273,12 +273,12 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflV[64] =
 	{	"MSUB",		NULL,			ReflOpAffFdFsFtBc	},
 	//0x10
 	{	"MAX",		NULL,			ReflOpAffFdFsFtBc	},
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
 	{	"MAX",		NULL,			ReflOpAffFdFsFtBc	},
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"MAX",		NULL,			ReflOpAffFdFsFtBc	},
+	{	"MAX",		NULL,			ReflOpAffFdFsFtBc	},
+	{	"MINI",		NULL,			ReflOpAffFdFsFtBc	},
+	{	"MINI",		NULL,			ReflOpAffFdFsFtBc	},
+	{	"MINI",		NULL,			ReflOpAffFdFsFtBc	},
 	{	"MINI",		NULL,			ReflOpAffFdFsFtBc	},
 	//0x18
 	{	"MUL",		NULL,			ReflOpAffFdFsFtBc	},
@@ -286,7 +286,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflV[64] =
 	{	"MUL",		NULL,			ReflOpAffFdFsFtBc	},
 	{	"MUL",		NULL,			ReflOpAffFdFsFtBc	},
 	{	"MUL",		NULL,			ReflOpAffFdFsQ		},
-	{	NULL,		NULL,			NULL				},
+	{	"MAX",		NULL,			ReflOpAffFdFsI		},
 	{	"MUL",		NULL,			ReflOpAffFdFsI		},
 	{	"MINI",		NULL,			ReflOpAffFdFsI		},
 	//0x20
