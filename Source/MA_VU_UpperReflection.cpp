@@ -457,7 +457,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"MULA",		NULL,			ReflOpAffAccFsFtBc	},
-	{	"CLIP",		NULL,			NULL				},
+	{	"CLIP",		NULL,			ReflOpAffWrCfRdFsFt	},
 	//0x08
 	{	"MADDA",	NULL,			ReflOpAffAccFsI		},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsI		},

@@ -209,81 +209,116 @@ uint32 CMA_VU::CLower::ReflEaIs(INSTRUCTION* instr, CMIPS* context, uint32 addre
 // Extended Reflection Stuff
 /////////////////////////////////////////////////
 
-void CMA_VU::CLower::ReflOpAffFtDstOfsIs(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
-	uint8 is		= (uint8 )((opcode >> 11) & 0x001F);
+	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	operandSet.writeF = ft;
 	operandSet.readI0 = is;
 }
 
-void CMA_VU::CLower::ReflOpAffFsDstOfsIt(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffRdItFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 it		= (uint8 )((opcode >> 16) & 0x001F);
-	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
-
-	operandSet.readF0 = fs;
-	operandSet.readI0 = it;
-}
-
-void CMA_VU::CLower::ReflOpAffFtDstFsDst(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
-{
-	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
-	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
-
-	operandSet.readF0 = fs;
-	operandSet.writeF = ft;
-}
-
-void CMA_VU::CLower::ReflOpAffFsDstItInc(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
-{
-	uint8 it		= (uint8 )((opcode >> 16) & 0x001F);
-	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.readI0 = it;
-	operandSet.writeI = it;
 	operandSet.readF0 = fs;
 }
 
-void CMA_VU::CLower::ReflOpAffFtIs(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
-	uint8 is		= (uint8 )((opcode >> 11) & 0x001F);
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	operandSet.readI0 = is;
-	operandSet.writeF = ft;
+	operandSet.readI0 = it;
+	operandSet.readI1 = is;
 }
 
-void CMA_VU::CLower::ReflOpAffFtDstIsInc(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffWrFtRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 ft		= (uint8 )((opcode >> 16) & 0x001F);
-	uint8 is		= (uint8 )((opcode >> 11) & 0x001F);
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	operandSet.writeF = ft;
+	operandSet.readF0 = fs;
+}
+
+void CMA_VU::CLower::ReflOpAffWrFtIsRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.writeF = ft;
 	operandSet.readI0 = is;
 	operandSet.writeI = is;
 }
 
-void CMA_VU::CLower::ReflOpAffItFsf(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffWrFtRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 it		= (uint8)((opcode >> 16) & 0x001F);
-	uint8 fs		= (uint8)((opcode >> 11) & 0x001F);
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	operandSet.writeF = ft;
+	operandSet.readI0 = is;
+}
+
+void CMA_VU::CLower::ReflOpAffWrIdRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
+	auto id = static_cast<uint8>((opcode >>  6) & 0x001F);
+
+	operandSet.readI0 = it;
+	operandSet.readI1 = is;
+	operandSet.writeI = id;
+}
+
+void CMA_VU::CLower::ReflOpAffWrIt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+
+	operandSet.writeI = it;
+}
+
+void CMA_VU::CLower::ReflOpAffWrItRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.writeI = it;
 	operandSet.readF0 = fs;
 }
 
-void CMA_VU::CLower::ReflOpAffPFs(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffWrItRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	operandSet.writeI = it;
+	operandSet.readI0 = is;
+}
+
+void CMA_VU::CLower::ReflOpAffWrItRdItFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	operandSet.writeI = it;
+	operandSet.readI0 = it;
 	operandSet.readF0 = fs;
 }
 
-void CMA_VU::CLower::ReflOpAffPFsf(VUINSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffWrPRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 fs		= (uint8 )((opcode >> 11) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	//TODO: Write P
 	operandSet.readF0 = fs;
+}
+
+void CMA_VU::CLower::ReflOpAffWrVi1(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	operandSet.writeI = 1;
 }
 
 INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
@@ -673,17 +708,17 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
 VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 {
 	//0x00
-	{	"LQ",		NULL,			ReflOpAffFtDstOfsIs	},
-	{	"SQ",		NULL,			ReflOpAffFsDstOfsIt	},
+	{	"LQ",		NULL,			ReflOpAffWrFtRdIs	},
+	{	"SQ",		NULL,			ReflOpAffRdItFs		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"ILW",		NULL,			NULL				},
-	{	"ISW",		NULL,			NULL				},
+	{	"ILW",		NULL,			ReflOpAffWrItRdIs	},
+	{	"ISW",		NULL,			ReflOpAffRdItIs		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x08
-	{	"IADDIU",	NULL,			NULL				},
-	{	"ISUBIU",	NULL,			NULL				},
+	{	"IADDIU",	NULL,			ReflOpAffWrItRdIs	},
+	{	"ISUBIU",	NULL,			ReflOpAffWrItRdIs	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -691,10 +726,10 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x10
-	{	"FCEQ",		NULL,			NULL				},
+	{	"FCEQ",		NULL,			ReflOpAffWrVi1		},
 	{	"FCSET",	NULL,			NULL				},
-	{	"FCAND",	NULL,			NULL				},
-	{	"FCOR",		NULL,			NULL				},
+	{	"FCAND",	NULL,			ReflOpAffWrVi1		},
+	{	"FCOR",		NULL,			ReflOpAffWrVi1		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"FSAND",	NULL,			NULL				},
@@ -702,30 +737,30 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	//0x18
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"FMAND",	NULL,			NULL				},
+	{	"FMAND",	NULL,			ReflOpAffWrItRdIs	},
 	{	NULL,		NULL,			NULL				},
-	{	"FCGET",	NULL,			NULL				},
+	{	"FCGET",	NULL,			ReflOpAffWrIt		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x20
 	{	"B",		NULL,			ReflOpAffNone		},
-	{	"BAL",		NULL,			NULL				},
+	{	"BAL",		NULL,			ReflOpAffWrIt		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"JR",		NULL,			NULL				},
-	{	"JALR",		NULL,			NULL				},
+	{	"JR",		NULL,			ReflOpAffRdIs		},
+	{	"JALR",		NULL,			ReflOpAffWrItRdIs	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x28
-	{	"IBEQ",		NULL,			NULL				},
-	{	"IBNE",		NULL,			NULL				},
+	{	"IBEQ",		NULL,			ReflOpAffRdItIs		},
+	{	"IBNE",		NULL,			ReflOpAffRdItIs		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"IBLTZ",	NULL,			NULL				},
-	{	"IBGTZ",	NULL,			NULL				},
-	{	"IBLEZ",	NULL,			NULL				},
-	{	"IBGEZ",	NULL,			NULL				},
+	{	"IBLTZ",	NULL,			ReflOpAffRdIs		},
+	{	"IBGTZ",	NULL,			ReflOpAffRdIs		},
+	{	"IBLEZ",	NULL,			ReflOpAffRdIs		},
+	{	"IBGEZ",	NULL,			ReflOpAffRdIs		},
 	//0x30
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -875,12 +910,12 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflV[64] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x30
-	{	"IADD",		NULL,			NULL				},
-	{	"ISUB",		NULL,			NULL				},
-	{	"IADDI",	NULL,			NULL				},
+	{	"IADD",		NULL,			ReflOpAffWrIdRdItIs	},
+	{	"ISUB",		NULL,			ReflOpAffWrIdRdItIs	},
+	{	"IADDI",	NULL,			ReflOpAffWrItRdIs	},
 	{	NULL,		NULL,			NULL				},
-	{	"IAND",		NULL,			NULL				},
-	{	"IOR",		NULL,			NULL				},
+	{	"IAND",		NULL,			ReflOpAffWrIdRdItIs	},
+	{	"IOR",		NULL,			ReflOpAffWrIdRdItIs	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	//0x38
@@ -910,10 +945,10 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"MOVE",		NULL,			ReflOpAffFtDstFsDst	},
-	{	"LQI",		NULL,			ReflOpAffFtDstIsInc	},
+	{	"MOVE",		NULL,			ReflOpAffWrFtRdFs	},
+	{	"LQI",		NULL,			ReflOpAffWrFtIsRdIs	},
 	{	"DIV",		NULL,			ReflOpAffQFsfFtf	},
-	{	"MTIR",		NULL,			ReflOpAffItFsf		},
+	{	"MTIR",		NULL,			ReflOpAffWrItRdFs	},
 	//0x10
 	{	"RNEXT",	NULL,			ReflOpAffFtR		},
 	{	NULL,		NULL,			NULL				},
@@ -926,12 +961,12 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	//0x18
 	{	NULL,		NULL,			NULL				},
 	{	"MFP",		NULL,			NULL				},
-	{	"XTOP",		NULL,			NULL				},
-	{	"XGKICK",	NULL,			NULL				},
+	{	"XTOP",		NULL,			ReflOpAffWrIt		},
+	{	"XGKICK",	NULL,			ReflOpAffRdIs		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"ESIN",		NULL,			ReflOpAffPFsf		},
+	{	"ESIN",		NULL,			ReflOpAffWrPRdFs	},
 };
 
 VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
@@ -950,10 +985,10 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"MR32",		NULL,			ReflOpAffFtDstFsDst	},
-	{	"SQI",		NULL,			ReflOpAffFsDstItInc	},
+	{	"MR32",		NULL,			ReflOpAffWrFtRdFs	},
+	{	"SQI",		NULL,			ReflOpAffWrItRdItFs	},
 	{	NULL,		NULL,			NULL				},
-	{	"MFIR",		NULL,			ReflOpAffFtIs		},
+	{	"MFIR",		NULL,			ReflOpAffWrFtRdIs	},
 	//0x10
 	{	"RGET",		NULL,			ReflOpAffFtR		},
 	{	NULL,		NULL,			NULL				},
@@ -993,7 +1028,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"RSQRT",	NULL,			ReflOpAffQFsfFtf	},
-	{	"ILWR",		NULL,			NULL				},
+	{	"ILWR",		NULL,			ReflOpAffWrItRdIs	},
 	//0x10
 	{	"RINIT",	NULL,			ReflOpAffRFsf		},
 	{	NULL,		NULL,			NULL				},
@@ -1010,7 +1045,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"ERCPR",	NULL,			ReflOpAffPFsf		},
+	{	"ERCPR",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
 };
 
@@ -1033,7 +1068,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"WAITQ",	NULL,			ReflOpAffQ			},
-	{	NULL,		NULL,			NULL				},
+	{	"ISWR",		NULL,			ReflOpAffRdItIs		},
 	//0x10
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -1048,7 +1083,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"ERLENG",	NULL,			ReflOpAffPFs		},
+	{	"ERLENG",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
 	{	"WAITP",	NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},

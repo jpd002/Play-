@@ -264,6 +264,7 @@ void VUShared::SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint
 	if(pInstr->pGetAffectedOperands == nullptr)
 	{
 		//We should always have something that tells us what is affected (even if it's nothing)
+		assert(0);
 		return;
 	}
 	pInstr->pGetAffectedOperands(pInstr, pCtx, nAddress, nOpcode, operandSet);
@@ -375,4 +376,14 @@ void VUShared::ReflOpAffQFsfFtf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddr
 	operandSet.readF0 = nFT;
 	operandSet.readF1 = nFS;
 	operandSet.syncQ = true;
+}
+
+void VUShared::ReflOpAffWrCfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	//TODO: Write CF
+	operandSet.readF0 = ft;
+	operandSet.readF1 = fs;
 }
