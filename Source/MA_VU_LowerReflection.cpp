@@ -262,6 +262,14 @@ void CMA_VU::CLower::ReflOpAffWrFtRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 op
 	operandSet.readI0 = is;
 }
 
+void CMA_VU::CLower::ReflOpAffWrFtRdP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+
+	//TODO: Read P
+	operandSet.writeF = ft;
+}
+
 void CMA_VU::CLower::ReflOpAffWrIdRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
 	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
@@ -960,12 +968,12 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	NULL,		NULL,			NULL				},
 	//0x18
 	{	NULL,		NULL,			NULL				},
-	{	"MFP",		NULL,			NULL				},
+	{	"MFP",		NULL,			ReflOpAffWrFtRdP	},
 	{	"XTOP",		NULL,			ReflOpAffWrIt		},
 	{	"XGKICK",	NULL,			ReflOpAffRdIs		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"ESQRT",	NULL,			ReflOpAffWrPRdFs	},
 	{	"ESIN",		NULL,			ReflOpAffWrPRdFs	},
 };
 
@@ -1043,7 +1051,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"ELENG",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
 	{	"ERCPR",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
