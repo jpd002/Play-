@@ -74,8 +74,8 @@ namespace VUShared
 	void						TestSZFlags(CMipsJitter*, uint8, size_t, uint32);
 
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
-	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
-	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
+	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
+	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						SUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
 	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
@@ -106,13 +106,13 @@ namespace VUShared
 	void						ISWbase(CMipsJitter*, uint8);
 	void						ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						LQbase(CMipsJitter*, uint8, uint8);
-	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8);
-	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
-	void						MADDi(CMipsJitter*, uint8, uint8, uint8);
-	void						MADDq(CMipsJitter*, uint8, uint8, uint8);
-	void						MADDA(CMipsJitter*, uint8, uint8, uint8);
-	void						MADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
-	void						MADDAi(CMipsJitter*, uint8, uint8);
+	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
+	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
+	void						MADDi(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MADDA(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
+	void						MADDAi(CMipsJitter*, uint8, uint8, uint32);
 	void						MAX(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MAXbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						MAXi(CMipsJitter*, uint8, uint8, uint8);
