@@ -57,6 +57,8 @@ namespace VUShared
 	int32						GetImm11Offset(uint16);
 	int32						GetBranch(uint16);
 
+	void						VerifyVuReflectionTable(MIPSReflection::INSTRUCTION*, VUShared::VUINSTRUCTION*, size_t);
+
 	bool						DestinationHasElement(uint8, unsigned int);
 	void						ComputeMemAccessAddr(CMipsJitter*, unsigned int, uint32, uint32);
 	uint32						GetDestOffset(uint8);

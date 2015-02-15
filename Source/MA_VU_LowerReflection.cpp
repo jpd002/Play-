@@ -739,7 +739,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	"FCAND",	NULL,			ReflOpAffWrVi1		},
 	{	"FCOR",		NULL,			ReflOpAffWrVi1		},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"FSSET",	NULL,			NULL				},
 	{	"FSAND",	NULL,			ReflOpAffWrIt		},
 	{	NULL,		NULL,			NULL				},
 	//0x18
@@ -995,7 +995,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"MR32",		NULL,			ReflOpAffWrFtRdFs	},
 	{	"SQI",		NULL,			ReflOpAffWrItRdItFs	},
-	{	NULL,		NULL,			NULL				},
+	{	"SQRT",		NULL,			NULL				},
 	{	"MFIR",		NULL,			ReflOpAffWrFtRdIs	},
 	//0x10
 	{	"RGET",		NULL,			ReflOpAffFtR		},
@@ -1013,7 +1013,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"ERSQRT",	NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 };
 
@@ -1034,7 +1034,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"LQD",		NULL,			NULL				},
 	{	"RSQRT",	NULL,			ReflOpAffQFsfFtf	},
 	{	"ILWR",		NULL,			ReflOpAffWrItRdIs	},
 	//0x10
@@ -1052,7 +1052,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"ELENG",	NULL,			ReflOpAffWrPRdFs	},
-	{	NULL,		NULL,			NULL				},
+	{	"ESUM",		NULL,			NULL				},
 	{	"ERCPR",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
 };
@@ -1074,7 +1074,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"SQD",		NULL,			NULL				},
 	{	"WAITQ",	NULL,			ReflOpAffQ			},
 	{	"ISWR",		NULL,			ReflOpAffRdItIs		},
 	//0x10
@@ -1112,6 +1112,13 @@ void CMA_VU::CLower::SetupReflectionTables()
 	static_assert(sizeof(m_VuReflVX1)		== sizeof(m_cVuReflVX1),		"Array sizes don't match");
 	static_assert(sizeof(m_VuReflVX2)		== sizeof(m_cVuReflVX2),		"Array sizes don't match");
 	static_assert(sizeof(m_VuReflVX3)		== sizeof(m_cVuReflVX3),		"Array sizes don't match");
+
+	VerifyVuReflectionTable(m_cReflGeneral,	m_cVuReflGeneral,	sizeof(m_cReflGeneral)	/ sizeof(m_cReflGeneral[0]));
+	VerifyVuReflectionTable(m_cReflV,		m_cVuReflV,			sizeof(m_cReflV)		/ sizeof(m_cReflV[0]));
+	VerifyVuReflectionTable(m_cReflVX0,		m_cVuReflVX0,		sizeof(m_cReflVX0)		/ sizeof(m_cReflVX0[0]));
+	VerifyVuReflectionTable(m_cReflVX1,		m_cVuReflVX1,		sizeof(m_cReflVX1)		/ sizeof(m_cReflVX1[0]));
+	VerifyVuReflectionTable(m_cReflVX2,		m_cVuReflVX2,		sizeof(m_cReflVX2)		/ sizeof(m_cReflVX2[0]));
+	VerifyVuReflectionTable(m_cReflVX3,		m_cVuReflVX3,		sizeof(m_cReflVX3)		/ sizeof(m_cReflVX3[0]));
 
 	memcpy(m_ReflGeneral,	m_cReflGeneral, sizeof(m_cReflGeneral));
 	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));

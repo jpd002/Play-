@@ -49,6 +49,23 @@ int32 VUShared::GetBranch(uint16 nImm11)
 	return GetImm11Offset(nImm11) * 8;
 }
 
+void VUShared::VerifyVuReflectionTable(MIPSReflection::INSTRUCTION* refl, VUShared::VUINSTRUCTION* vuRefl, size_t tableSize)
+{
+	for(unsigned int i = 0; i < tableSize; i++)
+	{
+		const char* reflMnem = refl[i].sMnemonic;
+		const char* reflVuMnem = vuRefl[i].name;
+		if((reflMnem == nullptr) || (reflVuMnem == nullptr))
+		{
+			assert(reflMnem == reflVuMnem);
+		}
+		else
+		{
+			assert(!strcmp(reflMnem, reflVuMnem));
+		}
+	}
+}
+
 void VUShared::ReflOpFdFsI(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nFS	= (uint8)((nOpcode >> 11) & 0x001F);

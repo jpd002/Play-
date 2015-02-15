@@ -293,8 +293,8 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflV[64] =
 	{	"ADD",		NULL,			ReflOpAffFdFsQ		},
 	{	"MADD",		NULL,			ReflOpAffFdFsQ		},
 	{	"ADD",		NULL,			ReflOpAffFdFsI		},
-	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"MADD",		NULL,			NULL				},
+	{	"SUB",		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"SUB",		NULL,			ReflOpAffFdFsI		},
 	{	"MSUB",		NULL,			ReflOpAffFdFsI		},
@@ -304,7 +304,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflV[64] =
 	{	"MUL",		NULL,			ReflOpAffFdFsFt		},
 	{	"MAX",		NULL,			ReflOpAffFdFsFt		},
 	{	"SUB",		NULL,			ReflOpAffFdFsFt		},
-	{	NULL,		NULL,			NULL				},
+	{	"MSUB",		NULL,			NULL				},
 	{	"OPMSUB",	NULL,			ReflOpAffFdFsFt		},
 	{	"MINI",		NULL,			ReflOpAffFdFsFt		},
 	//0x30
@@ -337,12 +337,12 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX0[32] =
 	{	"ITOF0",	NULL,			ReflOpAffFtFs		},
 	{	"FTOI0",	NULL,			ReflOpAffFtFs		},
 	{	"MULA",		NULL,			ReflOpAffAccFsFtBc	},
-	{	NULL,		NULL,			NULL				},
+	{	"MULA",		NULL,			NULL				},
 	//0x08
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"ADDA",		NULL,			ReflOpAffAccFsFt	},
-	{	NULL,		NULL,			NULL				},
+	{	"SUBA",		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -454,7 +454,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 	{	"SUBA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	"MADDA",	NULL,			ReflOpAffAccFsFtBc	},
 	{	"MSUBA",	NULL,			ReflOpAffAccFsFtBc	},
-	{	NULL,		NULL,			NULL				},
+	{	"ITOF15",	NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"MULA",		NULL,			ReflOpAffAccFsFtBc	},
 	{	"CLIP",		NULL,			ReflOpAffWrCfRdFsFt	},
@@ -500,6 +500,12 @@ void CMA_VU::CUpper::SetupReflectionTables()
 	static_assert(sizeof(m_VuReflVX1)	== sizeof(m_cVuReflVX1),	"Array sizes don't match");
 	static_assert(sizeof(m_VuReflVX2)	== sizeof(m_cVuReflVX2),	"Array sizes don't match");
 	static_assert(sizeof(m_VuReflVX3)	== sizeof(m_cVuReflVX3),	"Array sizes don't match");
+
+	VerifyVuReflectionTable(m_cReflV,		m_cVuReflV,			sizeof(m_cReflV)		/ sizeof(m_cReflV[0]));
+	VerifyVuReflectionTable(m_cReflVX0,		m_cVuReflVX0,		sizeof(m_cReflVX0)		/ sizeof(m_cReflVX0[0]));
+	VerifyVuReflectionTable(m_cReflVX1,		m_cVuReflVX1,		sizeof(m_cReflVX1)		/ sizeof(m_cReflVX1[0]));
+	VerifyVuReflectionTable(m_cReflVX2,		m_cVuReflVX2,		sizeof(m_cReflVX2)		/ sizeof(m_cReflVX2[0]));
+	VerifyVuReflectionTable(m_cReflVX3,		m_cVuReflVX3,		sizeof(m_cReflVX3)		/ sizeof(m_cReflVX3[0]));
 
 	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
 	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
