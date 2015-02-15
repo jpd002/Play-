@@ -111,7 +111,7 @@ unsigned int CompileFunction(CPsfVm& virtualMachine, CMipsJitter* jitter, const 
 		Jitter::CObjectFile::INTERNAL_SYMBOL func;
 
 		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler(
-			[&] (void* symbol, uint32 offset)
+			[&] (uintptr_t symbol, uint32 offset)
 			{
 				Jitter::CObjectFile::SYMBOL_REFERENCE ref;
 				ref.offset		= offset;
@@ -287,16 +287,16 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	}
 
 	codeGen->RegisterExternalSymbols(objectFile.get());
-	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", &MemoryUtils_GetByteProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", &MemoryUtils_GetHalfProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", &MemoryUtils_GetWordProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy", &MemoryUtils_SetByteProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy", &MemoryUtils_SetHalfProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy", &MemoryUtils_SetWordProxy);
-	objectFile->AddExternalSymbol("_LWL_Proxy", &LWL_Proxy);
-	objectFile->AddExternalSymbol("_LWR_Proxy", &LWR_Proxy);
-	objectFile->AddExternalSymbol("_SWL_Proxy", &SWL_Proxy);
-	objectFile->AddExternalSymbol("_SWR_Proxy", &SWR_Proxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetByteProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetHalfProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetWordProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetByteProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetHalfProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy));
+	objectFile->AddExternalSymbol("_LWL_Proxy", reinterpret_cast<uintptr_t>(&LWL_Proxy));
+	objectFile->AddExternalSymbol("_LWR_Proxy", reinterpret_cast<uintptr_t>(&LWR_Proxy));
+	objectFile->AddExternalSymbol("_SWL_Proxy", reinterpret_cast<uintptr_t>(&SWL_Proxy));
+	objectFile->AddExternalSymbol("_SWR_Proxy", reinterpret_cast<uintptr_t>(&SWR_Proxy));
 
 	//Initialize Jitter Service
 	auto jitter = new CMipsJitter(codeGen);
