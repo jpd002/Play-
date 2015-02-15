@@ -234,6 +234,11 @@ void CMA_VU::CLower::ReflOpAffRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opco
 	operandSet.readI1 = is;
 }
 
+void CMA_VU::CLower::ReflOpAffRdP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	//TODO: Read P
+}
+
 void CMA_VU::CLower::ReflOpAffWrFtRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
 	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
@@ -1074,7 +1079,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"SQD",		NULL,			NULL				},
+	{	"SQD",		NULL,			ReflOpAffWrItRdItFs	},
 	{	"WAITQ",	NULL,			ReflOpAffQ			},
 	{	"ISWR",		NULL,			ReflOpAffRdItIs		},
 	//0x10
@@ -1093,7 +1098,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"ERLENG",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
-	{	"WAITP",	NULL,			NULL				},
+	{	"WAITP",	NULL,			ReflOpAffRdP		},
 	{	NULL,		NULL,			NULL				},
 };
 
