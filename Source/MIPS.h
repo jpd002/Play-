@@ -18,7 +18,8 @@ struct REGISTER_PIPELINE
 
 enum
 {
-	MACFLAG_PIPELINE_SLOTS = 4,
+	//Must be a power of 2
+	MACFLAG_PIPELINE_SLOTS = 8,
 };
 
 struct MACFLAG_PIPELINE
