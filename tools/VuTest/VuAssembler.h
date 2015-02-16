@@ -62,14 +62,18 @@ public:
 
 		static uint32		ITOF0(DEST, VF_REGISTER, VF_REGISTER);
 		static uint32		MADDbc(DEST, VF_REGISTER, VF_REGISTER, VF_REGISTER, BROADCAST);
+		static uint32		MADDAbc(DEST, VF_REGISTER, VF_REGISTER, BROADCAST);
 		static uint32		MULAbc(DEST, VF_REGISTER, VF_REGISTER, BROADCAST);
 		static uint32		NOP();
+		static uint32		OPMULA(VF_REGISTER, VF_REGISTER);
+		static uint32		OPMSUB(VF_REGISTER, VF_REGISTER, VF_REGISTER);
 		static uint32		SUBbc(DEST, VF_REGISTER, VF_REGISTER, VF_REGISTER, BROADCAST);
 	};
 
 	class Lower
 	{
 	public:
+		static uint32		FMAND(VI_REGISTER, VI_REGISTER);
 		static uint32		FSAND(VI_REGISTER, uint16);
 		static uint32		NOP();
 	};

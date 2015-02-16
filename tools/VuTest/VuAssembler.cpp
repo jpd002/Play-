@@ -42,6 +42,16 @@ uint32 CVuAssembler::Upper::MADDbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF
 	return result;
 }
 
+uint32 CVuAssembler::Upper::MADDAbc(DEST dest, VF_REGISTER fs, VF_REGISTER ft, BROADCAST bc)
+{
+	uint32 result = 0x000000BC;
+	result |= bc;
+	result |= (fs << 11);
+	result |= (ft << 16);
+	result |= (dest << 21);
+	return result;
+}
+
 uint32 CVuAssembler::Upper::MULAbc(DEST dest, VF_REGISTER fs, VF_REGISTER ft, BROADCAST bc)
 {
 	uint32 result = 0x000001BC;
@@ -55,6 +65,23 @@ uint32 CVuAssembler::Upper::MULAbc(DEST dest, VF_REGISTER fs, VF_REGISTER ft, BR
 uint32 CVuAssembler::Upper::NOP()
 {
 	return 0x000002FF;
+}
+
+uint32 CVuAssembler::Upper::OPMULA(VF_REGISTER fs, VF_REGISTER ft)
+{
+	uint32 result = 0x01C002FE;
+	result |= (fs << 11);
+	result |= (ft << 16);
+	return result;
+}
+
+uint32 CVuAssembler::Upper::OPMSUB(VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER ft)
+{
+	uint32 result = 0x01C0002E;
+	result |= (fd <<  6);
+	result |= (fs << 11);
+	result |= (ft << 16);
+	return result;
 }
 
 uint32 CVuAssembler::Upper::SUBbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER ft, BROADCAST bc)
@@ -71,6 +98,14 @@ uint32 CVuAssembler::Upper::SUBbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_
 //---------------------------------------------------------------------------------
 //LOWER OPs
 //---------------------------------------------------------------------------------
+
+uint32 CVuAssembler::Lower::FMAND(VI_REGISTER it, VI_REGISTER is)
+{
+	uint32 result = 0x34000000;
+	result |= (it << 16);
+	result |= (is << 11);
+	return result;
+}
 
 uint32 CVuAssembler::Lower::FSAND(VI_REGISTER it, uint16 imm)
 {

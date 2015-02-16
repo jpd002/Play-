@@ -172,6 +172,7 @@
     <ClCompile Include="..\Source\VUShared_Reflection.cpp" />
     <ClCompile Include="..\tools\VuTest\FlagsTest.cpp" />
     <ClCompile Include="..\tools\VuTest\Main.cpp" />
+    <ClCompile Include="..\tools\VuTest\FlagsTest2.cpp" />
     <ClCompile Include="..\tools\VuTest\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -202,6 +203,7 @@
     <ClInclude Include="..\Source\VuExecutor.h" />
     <ClInclude Include="..\Source\VUShared.h" />
     <ClInclude Include="..\tools\VuTest\FlagsTest.h" />
+    <ClInclude Include="..\tools\VuTest\FlagsTest2.h" />
     <ClInclude Include="..\tools\VuTest\StdAfx.h" />
     <ClInclude Include="..\tools\VuTest\Test.h" />
     <ClInclude Include="..\tools\VuTest\TestVm.h" />

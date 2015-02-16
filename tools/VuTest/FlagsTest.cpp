@@ -41,7 +41,7 @@ void CFlagsTest::Execute(CTestVm& virtualMachine)
 		CVuAssembler::Lower::NOP()
 	);
 
-	//pipe = 5		//check result from SUBbc operation
+	//pipe = 5		//check result from SUBbc operation (valid from pipe >= 1)
 	assembler.Write(
 		CVuAssembler::Upper::NOP(),
 		CVuAssembler::Lower::FSAND(CVuAssembler::VI13, 0xF)
