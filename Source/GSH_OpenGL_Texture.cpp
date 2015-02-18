@@ -79,7 +79,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			if(framebufferPageIndex >= framebufferPageCountX) continue;
 
 			canBeUsed = true;
-			offsetX = -static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
+			offsetX = static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
 		}
 
 		if(canBeUsed)
