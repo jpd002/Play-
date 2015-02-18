@@ -110,6 +110,7 @@ private:
 		void								FTOI4();
 		void								ABS();
 		void								MADDA();
+		void								MSUBA();
 
 		//Vector 2
 		void								ITOF12();
