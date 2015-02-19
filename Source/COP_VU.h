@@ -110,6 +110,7 @@ private:
 	void								VADDA();
 	void								VSUBA();
 	void								VMOVE();
+	void								VLQI();
 	void								VDIV();
 	void								VMTIR();
 	void								VRNEXT();

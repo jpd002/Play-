@@ -517,6 +517,12 @@ void CCOP_VU::VMOVE()
 	VUShared::MOVE(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//0D
+void CCOP_VU::VLQI()
+{
+	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, PS2::VUMEM0ADDR);
+}
+
 //0E
 void CCOP_VU::VDIV()
 {
@@ -738,7 +744,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF0,		&CCOP_VU::VFTOI0,		&CCOP_VU::VMULAbc,		&CCOP_VU::VMULAq,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::VSUBA,		&CCOP_VU::VMOVE,		&CCOP_VU::Illegal,		&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::VSUBA,		&CCOP_VU::VMOVE,		&CCOP_VU::VLQI,			&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
 	//0x10
 	&CCOP_VU::VRNEXT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18

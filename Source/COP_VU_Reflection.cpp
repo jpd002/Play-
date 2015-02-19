@@ -276,7 +276,7 @@ INSTRUCTION CCOP_VU::m_cReflVX0[32] =
 	{	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VMOVE",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VLQI",		NULL,			CopyMnemonic,		ReflOpFtDstIsInc,	NULL,				NULL			},
 	{	"VDIV",		NULL,			CopyMnemonic,		ReflOpQFsfFtf,		NULL,				NULL			},
 	{	"VMTIR",	NULL,			CopyMnemonic,		ReflOpItFsf,		NULL,				NULL			},
 	//0x10

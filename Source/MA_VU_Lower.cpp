@@ -541,16 +541,7 @@ void CMA_VU::CLower::MOVE()
 //0D
 void CMA_VU::CLower::LQI()
 {
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
-	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
-	m_codeGen->AddRef();
-
-	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushCst(1);
-	m_codeGen->Add();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
 }
 
 //0E
