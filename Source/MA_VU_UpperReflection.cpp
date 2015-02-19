@@ -304,7 +304,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflV[64] =
 	{	"MUL",		NULL,			ReflOpAffWrFdRdFtFs	},
 	{	"MAX",		NULL,			ReflOpAffWrFdRdFtFs	},
 	{	"SUB",		NULL,			ReflOpAffWrFdRdFtFs	},
-	{	"MSUB",		NULL,			NULL				},
+	{	"MSUB",		NULL,			ReflOpAffWrFdRdFtFs	},
 	{	"OPMSUB",	NULL,			ReflOpAffWrFdRdFtFs	},
 	{	"MINI",		NULL,			ReflOpAffWrFdRdFtFs	},
 	//0x30
@@ -454,7 +454,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 	{	"SUBA",		NULL,			ReflOpAffWrARdFtFs	},
 	{	"MADDA",	NULL,			ReflOpAffWrARdFtFs	},
 	{	"MSUBA",	NULL,			ReflOpAffWrARdFtFs	},
-	{	"ITOF15",	NULL,			NULL				},
+	{	"ITOF15",	NULL,			ReflOpAffFtFs		},
 	{	NULL,		NULL,			NULL				},
 	{	"MULA",		NULL,			ReflOpAffWrARdFtFs	},
 	{	"CLIP",		NULL,			ReflOpAffWrCfRdFtFs	},

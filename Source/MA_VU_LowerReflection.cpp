@@ -1014,7 +1014,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	//0x18
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"XITOP",	NULL,			NULL				},
+	{	"XITOP",	NULL,			ReflOpAffWrIt		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
