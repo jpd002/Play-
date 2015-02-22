@@ -196,11 +196,12 @@ namespace VUShared
 	void						ReflOpAffFtR(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void						ReflOpAffQFsfFtf(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	
 	void						ReflOpAffWrARdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffWrCfRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffWrFdRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void						ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void						ReflOpAffWrQRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	VUINSTRUCTION*				DereferenceInstruction(VUSUBTABLE*, uint32);
 	void						SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32, uint32, OPERANDSET&);
