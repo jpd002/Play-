@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "Types.h"
 
 class CGsCachedArea
