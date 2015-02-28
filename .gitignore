@@ -8,3 +8,5 @@ ReleaseAot
 *.userprops
 *.suo
 *.user
+xcuserdata
+
