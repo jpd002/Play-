@@ -128,6 +128,14 @@ void CCOP_SCU::BC0T()
 	Branch(Jitter::CONDITION_NE);
 }
 
+//02
+void CCOP_SCU::BC0FL()
+{
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[CPCOND0]));
+	m_codeGen->PushCst(0);
+	BranchLikely(Jitter::CONDITION_EQ);
+}
+
 //////////////////////////////////////////////////
 //Coprocessor Specific Opcodes
 //////////////////////////////////////////////////
@@ -212,7 +220,7 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpGeneral[0x20] =
 CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpBC0[0x20] = 
 {
 	//0x00
-	&CCOP_SCU::BC0F,		&CCOP_SCU::BC0T,  		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+	&CCOP_SCU::BC0F,		&CCOP_SCU::BC0T,		&CCOP_SCU::BC0FL,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x08
 	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x10

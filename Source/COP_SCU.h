@@ -62,6 +62,7 @@ private:
 	//BC0
 	void								BC0F();
 	void								BC0T();
+	void								BC0FL();
 
 	//C0
 	void								ERET();
