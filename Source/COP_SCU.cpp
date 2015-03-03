@@ -42,7 +42,7 @@ const char* CCOP_SCU::m_sRegName[] =
 	"*RESERVED*"
 };
 
-CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize) 
+CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize)
 : CMIPSCoprocessor(nRegSize)
 , m_nRT(0)
 , m_nRD(0)
@@ -67,7 +67,7 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* 
 //00
 void CCOP_SCU::MFC0()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -75,13 +75,13 @@ void CCOP_SCU::MFC0()
 		m_codeGen->SignExt();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
 	}
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 }
 
 //04
 void CCOP_SCU::MTC0()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
 	if(m_nRD == CCOP_SCU::STATUS)
 	{
@@ -187,10 +187,10 @@ void CCOP_SCU::EI()
 //39
 void CCOP_SCU::DI()
 {
-    m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-    m_codeGen->PushCst(~0x00010001);
-    m_codeGen->And();
-    m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
+	m_codeGen->PushCst(~0x00010001);
+	m_codeGen->And();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 }
 
 //////////////////////////////////////////////////
@@ -202,7 +202,7 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpGeneral[0x20] =
 	//0x00
 	&CCOP_SCU::MFC0,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::MTC0,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x08
-	&CCOP_SCU::BC0,   		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+	&CCOP_SCU::BC0,			&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x10
 	&CCOP_SCU::C0,			&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x18
