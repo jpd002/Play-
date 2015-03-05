@@ -22,7 +22,6 @@
 	#include <map>
 
 	#include <boost/signals2.hpp>
-	#include <boost/thread.hpp>
 	#include <boost/lexical_cast.hpp>
 #endif
 

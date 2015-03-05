@@ -7,4 +7,7 @@ ReleaseAot
 *.ipch
 *.userprops
 *.suo
+*.aps
 *.user
+xcuserdata
+
