@@ -179,7 +179,7 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfo = 0x%0.8X, name = '%s');\r\n",
-        fileInfoPtr, name);
+		fileInfoPtr, name);
 #endif
 
 	uint32 result = 0;
