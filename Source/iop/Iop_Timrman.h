@@ -18,7 +18,7 @@ namespace Iop
 		void			Invoke(CMIPS&, unsigned int);
 
 	private:
-		int				AllocHardTimer(uint32, uint32, uint32);
+		int				AllocHardTimer(CMIPS&, uint32, uint32, uint32);
 		int				ReferHardTimer(uint32, uint32, uint32, uint32);
 		void			SetTimerMode(CMIPS&, uint32, uint32);
 		int				GetTimerStatus(CMIPS&, uint32);

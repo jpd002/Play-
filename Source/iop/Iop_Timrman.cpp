@@ -78,6 +78,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nD0 = AllocHardTimer(
+			context,
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0
@@ -143,12 +144,17 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
-int CTimrman::AllocHardTimer(uint32 source, uint32 size, uint32 prescale)
+int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 prescale)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d);\r\n",
 		source, size, prescale);
 #endif
+	assert(
+		(source == CRootCounters::COUNTER_SOURCE_SYSCLOCK) || 
+		(source == CRootCounters::COUNTER_SOURCE_PIXEL) || 
+		(source == CRootCounters::COUNTER_SOURCE_HLINE)
+	);
 	for(unsigned int i = 0; i < CRootCounters::MAX_COUNTERS; i++)
 	{
 		if(
@@ -156,6 +162,12 @@ int CTimrman::AllocHardTimer(uint32 source, uint32 size, uint32 prescale)
 			((CRootCounters::g_counterSources[i] & source) != 0)
 			)
 		{
+			//Set proper clock divider
+			auto modeAddr = CRootCounters::g_counterBaseAddresses[i] + CRootCounters::CNT_MODE;
+			auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
+			mode.clc = (source != CRootCounters::COUNTER_SOURCE_SYSCLOCK) ? 1 : 0;
+			context.m_pMemoryMap->SetWord(modeAddr, mode);
+
 			return (i + 1);
 		}
 	}
@@ -228,9 +240,16 @@ int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 target, uint3
 	uint32 timerInterruptLine = CRootCounters::g_counterInterruptLines[timerId];
 	m_bios.RegisterIntrHandler(timerInterruptLine, 0, handler, arg);
 	
+	auto modeAddr = CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE;
+	auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
+
+	mode.tar = 1;
+	mode.iq1 = 1;
+	mode.iq2 = 1;
+
 	//Enable timer
 	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_COUNT,	0x0000);
-	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE,		0x0058);
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE,		mode);
 	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_TARGET,	target);
 
 	uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
