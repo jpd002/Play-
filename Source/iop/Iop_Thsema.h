@@ -28,8 +28,10 @@ namespace Iop
 		uint32			CreateSemaphore(const SEMAPHORE*);
 		uint32			DeleteSemaphore(uint32);
 		uint32			WaitSemaphore(uint32);
+		uint32			PollSemaphore(uint32);
 		uint32			SignalSemaphore(uint32);
 		uint32			iSignalSemaphore(uint32);
+		uint32			ReferSemaphoreStatus(uint32, uint32);
 
 		uint8*			m_ram;
 		CIopBios&		m_bios;
