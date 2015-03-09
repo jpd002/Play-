@@ -182,6 +182,11 @@ void CMemoryView::SetMemorySize(uint32 size)
 	UpdateScrollRange();
 }
 
+uint32 CMemoryView::GetBytesPerLine() const
+{
+	return m_bytesPerLine;
+}
+
 void CMemoryView::SetBytesPerLine(uint32 bytesPerLine)
 {
 	m_bytesPerLine = bytesPerLine;

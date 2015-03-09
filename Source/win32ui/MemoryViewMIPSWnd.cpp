@@ -26,6 +26,11 @@ CMemoryViewMIPSWnd::~CMemoryViewMIPSWnd()
 	delete m_memoryView;
 }
 
+CMemoryViewMIPS* CMemoryViewMIPSWnd::GetMemoryView() const
+{
+	return m_memoryView;
+}
+
 long CMemoryViewMIPSWnd::OnSize(unsigned int nType, unsigned int nCX, unsigned int nCY)
 {
 	RefreshLayout();

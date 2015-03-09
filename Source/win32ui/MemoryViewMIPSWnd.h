@@ -11,6 +11,8 @@ public:
 									CMemoryViewMIPSWnd(HWND, CVirtualMachine&, CMIPS*);
 									~CMemoryViewMIPSWnd();
 
+	CMemoryViewMIPS*				GetMemoryView() const;
+
 protected:
 	long							OnSize(unsigned int, unsigned int, unsigned int) override;
 	long							OnSysCommand(unsigned int, LPARAM) override;

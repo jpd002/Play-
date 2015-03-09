@@ -56,6 +56,9 @@ private:
 	void							LoadViewLayout();
 	void							SaveViewLayout();
 
+	void							LoadBytesPerLine();
+	void							SaveBytesPerLine();
+
 	CDebugView*						GetCurrentView();
 	CMIPS*							GetContext();
 	CDisAsmWnd*						GetDisassemblyWindow();
