@@ -27,8 +27,12 @@ namespace Iop
 		uint32					CdDiskReady(uint32);
 		uint32					CdReadClock(uint32);
 		uint32					CdStatus();
+		uint32					CdCallback(uint32);
 
 		CISO9660*				m_image = nullptr;
 		uint8*					m_ram = nullptr;
+
+		//TODO: Save state of this
+		uint32					m_callbackPtr = 0;
 	};
 };

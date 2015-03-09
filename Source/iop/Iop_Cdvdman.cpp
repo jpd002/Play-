@@ -12,6 +12,7 @@
 #define FUNCTION_CDDISKREADY	"CdDiskReady"
 #define FUNCTION_CDREADCLOCK	"CdReadClock"
 #define FUNCTION_CDSTATUS		"CdStatus"
+#define FUNCTION_CDCALLBACK		"CdCallback"
 
 using namespace Iop;
 
@@ -62,6 +63,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 28:
 		return FUNCTION_CDSTATUS;
 		break;
+	case 37:
+		return FUNCTION_CDCALLBACK;
+		break;
 	default:
 		return "unknown";
 		break;
@@ -107,6 +111,9 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 	case 28:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStatus();
 		break;
+	case 37:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdCallback(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
 			functionId);
@@ -139,6 +146,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 			buffer += sectorSize;
 		}
 	}
+	assert(m_callbackPtr == 0);
 	return 1;
 }
 
@@ -258,4 +266,14 @@ uint32 CCdvdman::CdStatus()
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
 	return 0;
+}
+
+uint32 CCdvdman::CdCallback(uint32 callbackPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDCALLBACK "(callbackPtr = %0.8X);\r\n",
+		callbackPtr);
+
+	uint32 oldCallbackPtr = m_callbackPtr;
+	m_callbackPtr = callbackPtr;
+	return oldCallbackPtr;
 }
