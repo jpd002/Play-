@@ -55,9 +55,13 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/iop/Iop_DmacChannel.cpp \
 							../../Source/iop/Iop_Dynamic.cpp \
 							../../Source/iop/Iop_FileIo.cpp \
+							../../Source/iop/Iop_FileIoHandler1000.cpp \
+							../../Source/iop/Iop_FileIoHandler2100.cpp \
+							../../Source/iop/Iop_FileIoHandler2300.cpp \
 							../../Source/iop/Iop_Intc.cpp \
 							../../Source/iop/Iop_Intrman.cpp \
 							../../Source/iop/Iop_Ioman.cpp \
+							../../Source/iop/Iop_LibSd.cpp \
 							../../Source/iop/Iop_Loadcore.cpp \
 							../../Source/iop/Iop_McServ.cpp \
 							../../Source/iop/Iop_Modload.cpp \
