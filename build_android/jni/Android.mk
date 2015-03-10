@@ -27,6 +27,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libPlay
 LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
+							../../Source/androidui/GSH_OpenGLAndroid.cpp \
 							../../Source/androidui/NativeInterop.cpp \
 							../../Source/BasicBlock.cpp \
 							../../Source/COP_FPU.cpp \
@@ -45,6 +46,11 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/FrameDump.cpp \
 							../../Source/GIF.cpp \
 							../../Source/GSHandler.cpp \
+							../../Source/GSH_Null.cpp \
+							../../Source/GSH_OpenGL.cpp \
+							../../Source/GSH_OpenGL_Shader.cpp \
+							../../Source/GSH_OpenGL_Texture.cpp \
+							../../Source/GsCachedArea.cpp \
 							../../Source/GsPixelFormats.cpp \
 							../../Source/INTC.cpp \
 							../../Source/iop/ArgumentIterator.cpp \
@@ -149,7 +155,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -D_DEBUG -DDISABLE_LOGGING
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
-LOCAL_LDLIBS 			:= -landroid -llog -lz
+LOCAL_LDLIBS 			:= -landroid -llog -lGLESv3 -lEGL -lz
 LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libboost
 
 include $(BUILD_SHARED_LIBRARY)
