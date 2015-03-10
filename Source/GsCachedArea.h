@@ -1,6 +1,6 @@
 #pragma once
 
-#include <algorithm>
+#include <utility>
 #include "Types.h"
 
 class CGsCachedArea
