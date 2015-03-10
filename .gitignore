@@ -1,13 +1,17 @@
-*.sdf
+build_android/bin
+build_android/gen
+build_android/libs
+build_android/obj
 Debug
 Release
 ReleaseWithDebugger
 DebugAot
 ReleaseAot
-*.ipch
-*.userprops
-*.suo
 *.aps
+*.ipch
+*.sdf
+*.suo
 *.user
+*.userprops
 xcuserdata
 
