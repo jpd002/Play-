@@ -228,8 +228,8 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
+	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
 	//0x28
 	{	"VADD",		NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
@@ -240,7 +240,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VOPMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	//0x30
-	{	"VIADD",	NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,				NULL			},
+	{	"VIADD",	NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	"VIADDI",	NULL,			CopyMnemonic,		ReflOpItIsImm5,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
@@ -391,8 +391,8 @@ INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VCLIP",	NULL,			CopyMnemonic,		ReflOpClip, 		NULL,				NULL			},
 	//0x08
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
+	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VNOP",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

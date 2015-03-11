@@ -151,7 +151,7 @@
 	g_virtualMachine->Reset();
 	try
 	{
-		CPS2OS* os = g_virtualMachine->m_os;
+		CPS2OS* os = g_virtualMachine->m_ee->m_os;
 		os->BootFromFile([fileName fileSystemRepresentation]);
 		g_virtualMachine->Resume();
 	}
@@ -168,7 +168,7 @@
 	g_virtualMachine->Reset();
 	try
 	{
-		CPS2OS* os = g_virtualMachine->m_os;
+		CPS2OS* os = g_virtualMachine->m_ee->m_os;
 		os->BootFromCDROM(CPS2OS::ArgumentList());
 		g_virtualMachine->Resume();
 	}
@@ -181,7 +181,7 @@
 
 -(BOOL)validateUserInterfaceItem: (id<NSValidatedUserInterfaceItem>)item
 {
-	bool hasElf = g_virtualMachine->m_os->GetELF() != NULL;
+	bool hasElf = g_virtualMachine->m_ee->m_os->GetELF() != NULL;
 	auto presentationMode = static_cast<CGSHandler::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 	if(
 	   item == pauseResumeMenuItem ||
@@ -213,8 +213,8 @@
 	presentationParams.windowWidth = static_cast<unsigned int>(contentSize.width);
 	presentationParams.windowHeight = static_cast<unsigned int>(contentSize.height);
 	presentationParams.mode = presentationMode;
-	g_virtualMachine->m_gs->SetPresentationParams(presentationParams);
-	g_virtualMachine->m_gs->Flip();
+	g_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
+	g_virtualMachine->m_ee->m_gs->Flip();
 }
 
 @end
