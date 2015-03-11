@@ -691,10 +691,10 @@ void CCOP_VU::VCLIP()
 	VUShared::CLIP(m_codeGen, m_nFS, m_nFT);
 }
 
-//09
+//08
 void CCOP_VU::VMADDAi()
 {
-	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS);
+	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS, 0);
 }
 
 //09
