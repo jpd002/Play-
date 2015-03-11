@@ -287,10 +287,6 @@ void CGSH_OpenGL::LoadSettings()
 
 void CGSH_OpenGL::InitializeRC()
 {
-#ifdef WIN32
-	glewInit();
-#endif
-
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(0.0f);

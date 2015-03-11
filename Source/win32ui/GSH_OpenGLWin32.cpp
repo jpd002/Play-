@@ -43,6 +43,8 @@ void CGSH_OpenGLWin32::InitializeImpl()
 	m_hRC = wglCreateContext(m_hDC);
 	wglMakeCurrent(m_hDC, m_hRC);
 
+	glewInit();
+
 	CGSH_OpenGL::InitializeImpl();
 }
 
