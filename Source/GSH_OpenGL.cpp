@@ -568,7 +568,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 {
-	int nFunction = GL_FUNC_ADD_EXT;
+	int nFunction = GL_FUNC_ADD;
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	if((alpha.nA == 0) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
@@ -594,11 +594,8 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		{
 			//Source alpha value is implied in the formula
 			//As = FIX / 0x80
-			if(glBlendColorEXT != NULL)
-			{
-				glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-				glBlendFuncSeparate(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT, GL_ONE, GL_ZERO);
-			}
+			glBlendColor(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
+			glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 		}
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
@@ -624,11 +621,8 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		else
 		{
 			//Cs * FIX + Cd
-			if(glBlendColor != NULL)
-			{
-				glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
-				glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
-			}
+			glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
+			glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 		}
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
@@ -638,12 +632,9 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
 	{
-		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
-		if(glBlendColorEXT != NULL)
-		{
-			glBlendColorEXT(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
-			glBlendFuncSeparate(GL_CONSTANT_ALPHA_EXT, GL_CONSTANT_ALPHA_EXT, GL_ONE, GL_ZERO);
-		}
+		nFunction = GL_FUNC_REVERSE_SUBTRACT;
+		glBlendColor(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
+		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 	}
 //	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
 //	{
@@ -666,7 +657,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	}
 	else if((alpha.nA == 2) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
-		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
+		nFunction = GL_FUNC_REVERSE_SUBTRACT;
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 2) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
@@ -675,10 +666,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 	}
 
-	if(glBlendEquationEXT != NULL)
-	{
-		glBlendEquationEXT(nFunction);
-	}
+	glBlendEquation(nFunction);
 }
 
 void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
