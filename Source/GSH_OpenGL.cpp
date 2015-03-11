@@ -289,7 +289,7 @@ void CGSH_OpenGL::InitializeRC()
 {
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClearDepth(0.0f);
+	glClearDepthf(0.0f);
 	glEnable(GL_TEXTURE_2D);
 
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
