@@ -1,8 +1,12 @@
 #include <jni.h>
 #include <cassert>
 #include <android/log.h>
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
 #include "PathUtils.h"
 #include "../PS2VM.h"
+#include "../GSH_Null.h"
+#include "GSH_OpenGLAndroid.h"
 
 #define LOG_NAME "Play!"
 
@@ -29,8 +33,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Initialize();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_start(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_start(JNIEnv* env, jobject obj, jobject surface)
 {
+	auto nativeWindow = ANativeWindow_fromSurface(env, surface);
+	g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
 	g_virtualMachine->Reset();
 	g_virtualMachine->m_ee->m_os->BootFromFile("/storage/emulated/legacy/demo2b.elf");
 	Log_Print("Before step.");

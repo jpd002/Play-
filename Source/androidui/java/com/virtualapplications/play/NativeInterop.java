@@ -1,5 +1,7 @@
 package com.virtualapplications.play;
 
+import android.view.*;
+
 public class NativeInterop
 {
 	 static 
@@ -9,5 +11,5 @@ public class NativeInterop
 
 	 public static native void setFilesDirPath(String dirPath);
 	 public static native void createVirtualMachine();
-	 public static native void start();
+	 public static native void start(Surface surface);
 }
