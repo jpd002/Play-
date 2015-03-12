@@ -1,7 +1,7 @@
 #include "GSH_OpenGLWin32.h"
 #include "RendererSettingsWnd.h"
 
-PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_PFD =
+PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_pfd =
 {
 	sizeof(PIXELFORMATDESCRIPTOR),
 	1,
@@ -20,7 +20,7 @@ PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_PFD =
 };
 
 CGSH_OpenGLWin32::CGSH_OpenGLWin32(Framework::Win32::CWindow* outputWindow)
-: m_pOutputWnd(outputWindow)
+: m_outputWnd(outputWindow)
 {
 
 }
@@ -30,20 +30,41 @@ CGSH_OpenGLWin32::~CGSH_OpenGLWin32()
 
 }
 
-CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Framework::Win32::CWindow* pOutputWnd)
+CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Framework::Win32::CWindow* outputWindow)
 {
-	return std::bind(&CGSH_OpenGLWin32::GSHandlerFactory, pOutputWnd);
+	return std::bind(&CGSH_OpenGLWin32::GSHandlerFactory, outputWindow);
 }
 
 void CGSH_OpenGLWin32::InitializeImpl()
 {
-	m_hDC = GetDC(m_pOutputWnd->m_hWnd);
-	unsigned int pf = ChoosePixelFormat(m_hDC, &m_PFD);
-	SetPixelFormat(m_hDC, pf, &m_PFD);
-	m_hRC = wglCreateContext(m_hDC);
-	wglMakeCurrent(m_hDC, m_hRC);
+	m_dc = GetDC(m_outputWnd->m_hWnd);
+	unsigned int pf = ChoosePixelFormat(m_dc, &m_pfd);
+	SetPixelFormat(m_dc, pf, &m_pfd);
+	m_context = wglCreateContext(m_dc);
+	wglMakeCurrent(m_dc, m_context);
 
-	glewInit();
+	auto result = glewInit();
+	assert(result == GLEW_OK);
+
+	if(wglCreateContextAttribsARB != nullptr)
+	{
+		auto prevContext = m_context;
+
+		static const int attributes[] = 
+		{
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			0
+		};
+
+		m_context = wglCreateContextAttribsARB(m_dc, nullptr, attributes);
+		assert(m_context != nullptr);
+
+		wglMakeCurrent(m_dc, m_context);
+		auto deleteResult = wglDeleteContext(prevContext);
+		assert(deleteResult == TRUE);
+	}
 
 	CGSH_OpenGL::InitializeImpl();
 }
@@ -53,12 +74,12 @@ void CGSH_OpenGLWin32::ReleaseImpl()
 	CGSH_OpenGL::ReleaseImpl();
 
 	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(m_hRC);
+	wglDeleteContext(m_context);
 }
 
 void CGSH_OpenGLWin32::PresentBackbuffer()
 {
-	SwapBuffers(m_hDC);
+	SwapBuffers(m_dc);
 }
 
 CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
@@ -78,7 +99,7 @@ void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
 	PalCache_Flush();
 }
 
-CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Framework::Win32::CWindow* pParam)
+CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Framework::Win32::CWindow* outputWindow)
 {
-	return new CGSH_OpenGLWin32(pParam);
+	return new CGSH_OpenGLWin32(outputWindow);
 }

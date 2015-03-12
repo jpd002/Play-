@@ -1,5 +1,4 @@
-#ifndef _GSH_OPENGLWIN32_H_
-#define _GSH_OPENGLWIN32_H_
+#pragma once
 
 #include "../GSH_OpenGL.h"
 #include "win32/Window.h"
@@ -27,11 +26,9 @@ protected:
 private:
 	static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);
 
-	Framework::Win32::CWindow*		m_pOutputWnd;
+	Framework::Win32::CWindow*		m_outputWnd = nullptr;
 
-	HGLRC							m_hRC;
-	HDC								m_hDC;
-	static PIXELFORMATDESCRIPTOR	m_PFD;
+	HGLRC							m_context = nullptr;
+	HDC								m_dc = nullptr;
+	static PIXELFORMATDESCRIPTOR	m_pfd;
 };
-
-#endif
