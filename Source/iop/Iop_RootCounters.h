@@ -12,6 +12,21 @@ namespace Iop
 	class CRootCounters
 	{
 	public:
+		struct MODE : public convertible<uint32>
+		{
+			unsigned int en			: 1;
+			unsigned int unused0	: 2;
+			unsigned int tar		: 1;
+			unsigned int iq1		: 1;
+			unsigned int unused1	: 1;
+			unsigned int iq2		: 1;
+			unsigned int unused2	: 1;
+			unsigned int clc		: 1;
+			unsigned int div		: 1;
+			unsigned int unused3	: 22;
+		};
+		static_assert(sizeof(MODE) == sizeof(uint32), "MODE structure size is too small");
+
 					CRootCounters(unsigned int, Iop::CIntc&);
 		virtual		~CRootCounters();
 
@@ -71,21 +86,6 @@ namespace Iop
 		static const uint32		g_counterSizes[MAX_COUNTERS];
 
 	private:
-		struct MODE : public convertible<uint32>
-		{
-			unsigned int en			: 1;
-			unsigned int unused0	: 2;
-			unsigned int tar		: 1;
-			unsigned int iq1		: 1;
-			unsigned int unused1	: 1;
-			unsigned int iq2		: 1;
-			unsigned int unused2	: 1;
-			unsigned int clc		: 1;
-			unsigned int div		: 1;
-			unsigned int unused3	: 22;
-		};
-		static_assert(sizeof(MODE) == sizeof(uint32), "MODE structure size is too small");
-	
 		struct COUNTER
 		{
 			uint32				count;
