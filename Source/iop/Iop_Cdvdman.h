@@ -3,12 +3,14 @@
 #include "Iop_Module.h"
 #include "../ISO9660/ISO9660.h"
 
+class CIopBios;
+
 namespace Iop
 {
 	class CCdvdman : public CModule
 	{
 	public:
-								CCdvdman(uint8*);
+								CCdvdman(CIopBios&, uint8*);
 		virtual					~CCdvdman();
 
 		virtual std::string		GetId() const override;
@@ -29,6 +31,7 @@ namespace Iop
 		uint32					CdStatus();
 		uint32					CdCallback(uint32);
 
+		CIopBios&				m_bios;
 		CISO9660*				m_image = nullptr;
 		uint8*					m_ram = nullptr;
 

@@ -192,7 +192,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(new Iop::CVblank(*this));
 	}
 	{
-		m_cdvdman = new Iop::CCdvdman(m_ram);
+		m_cdvdman = new Iop::CCdvdman(*this, m_ram);
 		RegisterModule(m_cdvdman);
 	}
 	{

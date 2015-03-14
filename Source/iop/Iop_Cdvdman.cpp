@@ -1,4 +1,5 @@
 #include "../Log.h"
+#include "IopBios.h"
 #include "Iop_Cdvdman.h"
 
 #define LOG_NAME			"iop_cdvdman"
@@ -16,8 +17,9 @@
 
 using namespace Iop;
 
-CCdvdman::CCdvdman(uint8* ram)
-: m_ram(ram)
+CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
+: m_bios(bios)
+, m_ram(ram)
 {
 
 }
@@ -146,7 +148,11 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 			buffer += sectorSize;
 		}
 	}
-	assert(m_callbackPtr == 0);
+	if(m_callbackPtr != 0)
+	{
+		static const uint32 callbackTypeCdRead = 1;
+		m_bios.TriggerCallback(m_callbackPtr, callbackTypeCdRead, 0);
+	}
 	return 1;
 }
 
