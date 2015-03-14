@@ -206,6 +206,7 @@ void CGSH_OpenGL::FlipImpl()
 		float v0 = 0;
 		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
 
+#ifndef GLES_COMPATIBILITY
 		glUseProgram(0);
 
 		glMatrixMode(GL_PROJECTION);
@@ -248,6 +249,7 @@ void CGSH_OpenGL::FlipImpl()
 
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
+#endif
 	}
 
 	m_renderState.isValid = false;
@@ -290,8 +292,11 @@ void CGSH_OpenGL::InitializeRC()
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepthf(0.0f);
+#ifndef GLES_COMPATIBILITY
 	glEnable(GL_TEXTURE_2D);
+#endif
 
+#ifndef GLES_COMPATIBILITY
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 	//Initialize fog
@@ -300,6 +305,7 @@ void CGSH_OpenGL::InitializeRC()
 	glFogf(GL_FOG_END, 1.0f);
 	glHint(GL_FOG_HINT, GL_NICEST);
 	glFogi(GL_FOG_COORDINATE_SOURCE_EXT, GL_FOG_COORDINATE_EXT);
+#endif
 
 	SetupTextureUploaders();
 
@@ -313,6 +319,7 @@ void CGSH_OpenGL::InitializeRC()
 
 void CGSH_OpenGL::LinearZOrtho(float nLeft, float nRight, float nBottom, float nTop)
 {
+#ifndef GLES_COMPATIBILITY
 	float nMatrix[16];
 
 	nMatrix[ 0] = 2.0f / (nRight - nLeft);
@@ -336,6 +343,7 @@ void CGSH_OpenGL::LinearZOrtho(float nLeft, float nRight, float nBottom, float n
 	nMatrix[15] = 1;
 
 	glMultMatrixf(nMatrix);
+#endif
 }
 
 unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
@@ -489,6 +497,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 //			glDisable(GL_BLEND);
 //		}
 
+#ifndef GLES_COMPATIBILITY
 		if(prim.nShading)
 		{
 			glShadeModel(GL_SMOOTH);
@@ -497,6 +506,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		{
 			glShadeModel(GL_FLAT);
 		}
+#endif
 
 		if(prim.nAlpha)
 		{
@@ -674,6 +684,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 	TEST tst;
 	tst <<= nData;
 
+#ifndef GLES_COMPATIBILITY
 	if(tst.nAlphaEnabled)
 	{
 		static const GLenum g_alphaTestFunc[ALPHA_TEST_MAX] =
@@ -706,6 +717,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 	{
 		glDisable(GL_ALPHA_TEST);
 	}
+#endif
 
 	if(tst.nDepthEnabled)
 	{
@@ -815,6 +827,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 
 	glViewport(0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE);
 	
+#ifndef GLES_COMPATIBILITY
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
@@ -837,10 +850,12 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		scissorHeight *= 2;
 	}
 	glScissor(scissorX * FBSCALE, scissorY * FBSCALE, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
+#endif
 }
 
 void CGSH_OpenGL::SetupFogColor()
 {
+#ifndef GLES_COMPATIBILITY
 	float nColor[4];
 
 	FOGCOL color;
@@ -851,6 +866,7 @@ void CGSH_OpenGL::SetupFogColor()
 	nColor[3] = 0.0f;
 
 	glFogfv(GL_FOG_COLOR, nColor);
+#endif
 }
 
 bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 clampMax)
@@ -949,10 +965,12 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	glActiveTexture(GL_TEXTURE0);
 	auto texInfo = PrepareTexture(tex0);
 
+#ifndef GLES_COMPATIBILITY
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glTranslatef(texInfo.offsetX, 0, 0);
 	glScalef(texInfo.scaleRatioX, texInfo.scaleRatioY, 1);
+#endif
 
 	int nMagFilter, nMinFilter;
 
@@ -1115,6 +1133,7 @@ CGSH_OpenGL::DepthbufferPtr CGSH_OpenGL::FindDepthbuffer(const ZBUF& zbuf, const
 
 void CGSH_OpenGL::Prim_Point()
 {
+#ifndef GLES_COMPATIBILITY
 	XYZ xyz;
 	xyz <<= m_VtxBuffer[0].nPosition;
 
@@ -1144,10 +1163,12 @@ void CGSH_OpenGL::Prim_Point()
 		//Yay for textured points!
 		assert(0);
 	}
+#endif
 }
 
 void CGSH_OpenGL::Prim_Line()
 {
+#ifndef GLES_COMPATIBILITY
 	XYZ xyz[2];
 	xyz[0] <<= m_VtxBuffer[1].nPosition;
 	xyz[1] <<= m_VtxBuffer[0].nPosition;
@@ -1201,10 +1222,12 @@ void CGSH_OpenGL::Prim_Line()
 		//Yay for textured lines!
 		assert(0);
 	}
+#endif
 }
 
 void CGSH_OpenGL::Prim_Triangle()
 {
+#ifndef GLES_COMPATIBILITY
 	float nF1, nF2, nF3;
 
 	RGBAQ rgbaq[3];
@@ -1336,10 +1359,12 @@ void CGSH_OpenGL::Prim_Triangle()
 
 		glEnd();
 	}
+#endif
 }
 
 void CGSH_OpenGL::Prim_Sprite()
 {
+#ifndef GLES_COMPATIBILITY
 	RGBAQ rgbaq[2];
 
 	XYZ xyz[2];
@@ -1434,6 +1459,7 @@ void CGSH_OpenGL::Prim_Sprite()
 	{
 		assert(0);
 	}
+#endif
 }
 
 /////////////////////////////////////////////////////////////
@@ -1643,24 +1669,38 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 
 void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
+#ifndef GLES_COMPATIBILITY
 	glFlush();
 	glFinish();
 	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buffer);
+#endif
 }
 
 bool CGSH_OpenGL::IsBlendColorExtSupported()
 {
+#ifndef GLES_COMPATIBILITY
 	return glBlendColorEXT != NULL;
+#else
+	return true;
+#endif
 }
 
 bool CGSH_OpenGL::IsBlendEquationExtSupported()
 {
+#ifndef GLES_COMPATIBILITY
 	return glBlendEquationEXT != NULL;
+#else
+	return true;
+#endif
 }
 
 bool CGSH_OpenGL::IsFogCoordfExtSupported()
 {
+#ifndef GLES_COMPATIBILITY
 	return glFogCoordfEXT != NULL;
+#else
+	return true;
+#endif
 }
 
 /////////////////////////////////////////////////////////////

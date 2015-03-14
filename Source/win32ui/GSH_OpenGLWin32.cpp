@@ -46,6 +46,7 @@ void CGSH_OpenGLWin32::InitializeImpl()
 	auto result = glewInit();
 	assert(result == GLEW_OK);
 
+#ifdef GLES_COMPATIBILITY
 	if(wglCreateContextAttribsARB != nullptr)
 	{
 		auto prevContext = m_context;
@@ -65,6 +66,7 @@ void CGSH_OpenGLWin32::InitializeImpl()
 		auto deleteResult = wglDeleteContext(prevContext);
 		assert(deleteResult == TRUE);
 	}
+#endif
 
 	CGSH_OpenGL::InitializeImpl();
 }

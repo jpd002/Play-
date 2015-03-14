@@ -295,7 +295,9 @@ void CGSH_OpenGL::TexUploader_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int
 		dst += texWidth;
 	}
 
+#ifndef GLES_COMPATIBILITY
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
+#endif
 }
 
 template <typename IndexorType>
@@ -377,7 +379,9 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 		dst += texWidth;
 	}
 
+#ifndef GLES_COMPATIBILITY
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
+#endif
 }
 
 template <typename IndexorType>
