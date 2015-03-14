@@ -293,7 +293,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflV[64] =
 	{	"ADD",		NULL,			ReflOpAffFdFsQ		},
 	{	"MADD",		NULL,			ReflOpAffFdFsQ		},
 	{	"ADD",		NULL,			ReflOpAffFdFsI		},
-	{	"MADD",		NULL,			NULL				},
+	{	"MADD",		NULL,			ReflOpAffFdFsI		},
 	{	"SUB",		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"SUB",		NULL,			ReflOpAffFdFsI		},

@@ -354,16 +354,6 @@ void VUShared::ReflOpAffQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	operandSet.syncQ = true;
 }
 
-void VUShared::ReflOpAffQFsfFtf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
-{
-	uint8 nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
-	
-	operandSet.readF0 = nFT;
-	operandSet.readF1 = nFS;
-	operandSet.syncQ = true;
-}
-
 void VUShared::ReflOpAffWrARdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
 	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
@@ -393,4 +383,24 @@ void VUShared::ReflOpAffWrFdRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode
 	operandSet.writeF = fd;
 	operandSet.readF0 = ft;
 	operandSet.readF1 = fs;
+}
+
+void VUShared::ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	
+	//Would probably be write Q
+	operandSet.readF0 = ft;
+	operandSet.syncQ = true;
+}
+
+void VUShared::ReflOpAffWrQRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	
+	//Would probably be write Q
+	operandSet.readF0 = ft;
+	operandSet.readF1 = fs;
+	operandSet.syncQ = true;
 }

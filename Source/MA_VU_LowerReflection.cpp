@@ -735,7 +735,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	"FCAND",	NULL,			ReflOpAffWrVi1		},
 	{	"FCOR",		NULL,			ReflOpAffWrVi1		},
 	{	NULL,		NULL,			NULL				},
-	{	"FSSET",	NULL,			NULL				},
+	{	"FSSET",	NULL,			ReflOpAffNone		},
 	{	"FSAND",	NULL,			ReflOpAffWrIt		},
 	{	NULL,		NULL,			NULL				},
 	//0x18
@@ -951,7 +951,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"MOVE",		NULL,			ReflOpAffWrFtRdFs	},
 	{	"LQI",		NULL,			ReflOpAffWrFtIsRdIs	},
-	{	"DIV",		NULL,			ReflOpAffQFsfFtf	},
+	{	"DIV",		NULL,			ReflOpAffWrQRdFtFs	},
 	{	"MTIR",		NULL,			ReflOpAffWrItRdFs	},
 	//0x10
 	{	"RNEXT",	NULL,			ReflOpAffFtR		},
@@ -991,7 +991,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"MR32",		NULL,			ReflOpAffWrFtRdFs	},
 	{	"SQI",		NULL,			ReflOpAffWrItRdItFs	},
-	{	"SQRT",		NULL,			NULL				},
+	{	"SQRT",		NULL,			ReflOpAffWrQRdFt	},
 	{	"MFIR",		NULL,			ReflOpAffWrFtRdIs	},
 	//0x10
 	{	"RGET",		NULL,			ReflOpAffFtR		},
@@ -1030,8 +1030,8 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	"LQD",		NULL,			NULL				},
-	{	"RSQRT",	NULL,			ReflOpAffQFsfFtf	},
+	{	"LQD",		NULL,			ReflOpAffWrFtIsRdIs	},
+	{	"RSQRT",	NULL,			ReflOpAffWrQRdFtFs	},
 	{	"ILWR",		NULL,			ReflOpAffWrItRdIs	},
 	//0x10
 	{	"RINIT",	NULL,			ReflOpAffRFsf		},

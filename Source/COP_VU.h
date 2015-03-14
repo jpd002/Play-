@@ -79,6 +79,8 @@ private:
 	void								VMADDq();
 	void								VMADDi();
 	void								VMSUBq();
+	void								VSUBi();
+	void								VMSUBi();
 	void								VADD();
 	void								VMADD();
 	void								VMUL();
@@ -141,6 +143,8 @@ private:
 	void								VITOF15();
 	void								VFTOI15();
 	void								VCLIP();
+	void								VMADDAi();
+	void								VMSUBAi();
 	void								VNOP();
 	void								VWAITQ();
 	void								VISWR();

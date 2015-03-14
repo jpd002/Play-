@@ -332,6 +332,18 @@ void CCOP_VU::VMSUBq()
 	VUShared::MSUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
 }
 
+//26
+void CCOP_VU::VSUBi()
+{
+	VUShared::SUBi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+}
+
+//27
+void CCOP_VU::VMSUBi()
+{
+	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS);
+}
+
 //28
 void CCOP_VU::VADD()
 {
@@ -679,6 +691,18 @@ void CCOP_VU::VCLIP()
 	VUShared::CLIP(m_codeGen, m_nFS, m_nFT);
 }
 
+//08
+void CCOP_VU::VMADDAi()
+{
+	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS, 0);
+}
+
+//09
+void CCOP_VU::VMSUBAi()
+{
+	VUShared::MSUBAi(m_codeGen, m_nDest, m_nFS, 0);
+}
+
 //0B
 void CCOP_VU::VNOP()
 {
@@ -730,7 +754,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x18
 	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::VMULi,		&CCOP_VU::VMINIi,
 	//0x20
-	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::Illegal,		&CCOP_VU::VMADDi,		&CCOP_VU::Illegal,		&CCOP_VU::VMSUBq,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::Illegal,		&CCOP_VU::VMADDi,		&CCOP_VU::Illegal,		&CCOP_VU::VMSUBq,		&CCOP_VU::VSUBi,		&CCOP_VU::VMSUBi,
 	//0x28
 	&CCOP_VU::VADD,			&CCOP_VU::VMADD,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::VMSUB,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
 	//0x30
@@ -780,7 +804,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx3[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF15,		&CCOP_VU::VFTOI15,		&CCOP_VU::VMULAbc,		&CCOP_VU::VCLIP,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VNOP,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VWAITQ,		&CCOP_VU::VISWR,
+	&CCOP_VU::VMADDAi,		&CCOP_VU::VMSUBAi,		&CCOP_VU::Illegal,		&CCOP_VU::VNOP,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VWAITQ,		&CCOP_VU::VISWR,
 	//0x10
 	&CCOP_VU::VRXOR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18

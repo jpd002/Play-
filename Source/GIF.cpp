@@ -125,10 +125,7 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memo
 				break;
 			case 0x0E:
 				//A + D
-				if(m_gs != NULL)
-				{
-					writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(packet.nD1), packet.nD0));
-				}
+				writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(packet.nD1), packet.nD0));
 				break;
 			case 0x0F:
 				//NOP
