@@ -19,7 +19,7 @@
 class CMainWindow : public Framework::Win32::CWindow, public boost::signals2::trackable
 {
 public:
-									CMainWindow(CPS2VM&, char*);
+									CMainWindow(CPS2VM&);
 									~CMainWindow();
 	int								Loop();
 
@@ -89,6 +89,8 @@ private:
 	void							ShowControllerSettings();
 	void							ShowVfsManager();
 	void							ShowMcManager();
+
+	void							ProcessCommandLine();
 
 	void							LoadELF(const char*);
 	void							RefreshLayout();

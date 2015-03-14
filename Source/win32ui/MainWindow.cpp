@@ -55,7 +55,7 @@ double CMainWindow::m_statusBarPanelWidths[2] =
 	0.3,
 };
 
-CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine) 
+CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 : m_virtualMachine(virtualMachine)
 , m_recordingAvi(false)
 , m_recordBuffer(nullptr)
@@ -140,20 +140,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	CreateStateSlotMenu();
 	CreateAccelerators();
 
-	if(strstr(cmdLine, "--cdrom0") != nullptr)
-	{
-		BootCDROM();
-	}
-#ifdef DEBUGGER_INCLUDED
-	if(strstr(cmdLine, "--debugger") != nullptr)
-	{
-		ShowDebugger();
-	}
-	if(strstr(cmdLine, "--framedebugger") != nullptr)
-	{
-		ShowFrameDebugger();
-	}
-#endif
+	ProcessCommandLine();
 
 	RefreshLayout();
 
@@ -607,6 +594,34 @@ void CMainWindow::ShowMcManager()
 	{
 		ResumePause();
 	}	
+}
+
+void CMainWindow::ProcessCommandLine()
+{
+	for(unsigned int i = 0; i < __argc; i++)
+	{
+		auto arg = __targv[i];
+		if(_tcsstr(arg, _T("--cdrom0")) != nullptr)
+		{
+			BootCDROM();
+		}
+		else if(_tcsstr(arg, _T("--elf")) != nullptr)
+		{
+			if((__argc - i) < 2) continue;
+			auto nextArg = __targv[i + 1];
+			LoadELF(string_cast<std::string>(nextArg).c_str());
+		}
+#ifdef DEBUGGER_INCLUDED
+		else if(_tcsstr(arg, _T("--debugger")) != nullptr)
+		{
+			ShowDebugger();
+		}
+		else if(_tcsstr(arg, _T("--framedebugger")) != nullptr)
+		{
+			ShowFrameDebugger();
+		}
+#endif
+	}
 }
 
 void CMainWindow::LoadELF(const char* sFilename)

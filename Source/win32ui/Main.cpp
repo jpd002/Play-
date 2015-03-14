@@ -4,10 +4,10 @@
 #include <jitprofiling.h>
 #endif
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, char* sCmdLine, int)
+int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	CPS2VM virtualMachine;
-	CMainWindow MainWindow(virtualMachine, sCmdLine);
+	CMainWindow MainWindow(virtualMachine);
 	MainWindow.Loop();
 #ifdef VTUNE_ENABLED
 	iJIT_NotifyEvent(iJVM_EVENT_TYPE_SHUTDOWN, NULL);
