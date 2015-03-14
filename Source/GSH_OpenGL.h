@@ -224,6 +224,8 @@ private:
 	Framework::OpenGl::CShader		GenerateFragmentShader(const SHADERCAPS&);
 	std::string						GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE, const char*);
 
+	Framework::OpenGl::ProgramPtr	GeneratePresentProgram();
+
 	void							Prim_Point();
 	void							Prim_Line();
 	void							Prim_Triangle();
@@ -287,6 +289,8 @@ private:
 
 	void							PopulateFramebuffer(const FramebufferPtr&);
 	void							CommitFramebufferDirtyPages(const FramebufferPtr&, unsigned int, unsigned int);
+
+	Framework::OpenGl::ProgramPtr	m_presentProgram;
 
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;

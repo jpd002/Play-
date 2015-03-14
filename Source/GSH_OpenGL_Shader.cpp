@@ -276,3 +276,53 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 	std::string shaderSource = shaderBuilder.str();
 	return shaderSource;
 }
+
+Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
+{
+	Framework::OpenGl::CShader vertexShader(GL_VERTEX_SHADER);
+	Framework::OpenGl::CShader pixelShader(GL_FRAGMENT_SHADER);
+
+	{
+		std::stringstream shaderBuilder;
+		shaderBuilder << "#version 150" << std::endl;
+		shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "void main()" << std::endl;
+		shaderBuilder << "{" << std::endl;
+		shaderBuilder << "	vec2 outputPosition;" << std::endl;
+		shaderBuilder << "	outputPosition.x = float(gl_VertexID / 2) * 4.0 - 1.0;" << std::endl;
+		shaderBuilder << "	outputPosition.y = float(gl_VertexID % 2) * 4.0 - 1.0;" << std::endl;
+		shaderBuilder << "	v_texCoord.x = float(gl_VertexID / 2) * 2.0;" << std::endl;
+		shaderBuilder << "	v_texCoord.y = 1.0 - float(gl_VertexID % 2) * 2.0;" << std::endl;
+		shaderBuilder << "	gl_Position = vec4(outputPosition, 0, 1);" << std::endl;
+		shaderBuilder << "}" << std::endl;
+
+		vertexShader.SetSource(shaderBuilder.str().c_str());
+		bool result = vertexShader.Compile();
+		assert(result);
+	}
+
+	{
+		std::stringstream shaderBuilder;
+		shaderBuilder << "#version 150" << std::endl;
+		shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "void main()" << std::endl;
+		shaderBuilder << "{" << std::endl;
+		shaderBuilder << "	gl_FragColor = vec4(v_texCoord, 0, 1);" << std::endl;
+		shaderBuilder << "}" << std::endl;
+
+		pixelShader.SetSource(shaderBuilder.str().c_str());
+		bool result = pixelShader.Compile();
+		assert(result);
+	}
+
+	auto program = std::make_shared<Framework::OpenGl::CProgram>();
+
+	{
+		program->AttachShader(vertexShader);
+		program->AttachShader(pixelShader);
+		bool result = program->Link();
+		assert(result);
+	}
+
+	return program;
+}

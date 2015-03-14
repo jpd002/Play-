@@ -78,6 +78,7 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_textureCache.clear();
 	m_paletteCache.clear();
 	m_shaderInfos.clear();
+	m_presentProgram.reset();
 }
 
 void CGSH_OpenGL::ResetImpl()
@@ -249,6 +250,13 @@ void CGSH_OpenGL::FlipImpl()
 
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
+#else
+		GLuint vertexArray = 0;
+		glGenVertexArrays(1, &vertexArray);
+		glBindVertexArray(vertexArray);
+		glUseProgram(*m_presentProgram);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDeleteVertexArrays(1, &vertexArray);
 #endif
 	}
 
@@ -314,6 +322,7 @@ void CGSH_OpenGL::InitializeRC()
 	glDisable(GL_TEXTURE_2D);
 #endif
 
+	m_presentProgram = GeneratePresentProgram();
 	PresentBackbuffer();
 }
 

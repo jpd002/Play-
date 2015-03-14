@@ -47,11 +47,18 @@ void CGSH_OpenGLAndroid::InitializeImpl()
 	auto makeCurrentResult = eglMakeCurrent(m_display, m_surface, m_surface, context);
 	assert(makeCurrentResult != EGL_FALSE);
 	
-	GLint w = 0, h = 0;
-	eglQuerySurface(m_display, m_surface, EGL_WIDTH, &w);
-	eglQuerySurface(m_display, m_surface, EGL_HEIGHT, &h);
-	
-	CLog::GetInstance().Print("gles", "w: %d, h: %d\r\n", w, h);
+	{
+		GLint w = 0, h = 0;
+		eglQuerySurface(m_display, m_surface, EGL_WIDTH, &w);
+		eglQuerySurface(m_display, m_surface, EGL_HEIGHT, &h);
+		
+		PRESENTATION_PARAMS presentationParams;
+		presentationParams.mode 			= PRESENTATION_MODE_FIT;
+		presentationParams.windowWidth 		= w;
+		presentationParams.windowHeight 	= h;
+
+		SetPresentationParams(presentationParams);
+	}
 	
 	CGSH_OpenGL::InitializeImpl();
 }
