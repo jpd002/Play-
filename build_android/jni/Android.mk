@@ -5,7 +5,7 @@ include $(LOCAL_PATH)/ExternalDependencies.mk
 include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libboost
-LOCAL_SRC_FILES 		:= $(BOOST_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libboost.a
+LOCAL_SRC_FILES 		:= $(DEPENDENCIES_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libboost.a
 
 include $(PREBUILT_STATIC_LIBRARY)
 
