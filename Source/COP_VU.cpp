@@ -404,6 +404,12 @@ void CCOP_VU::VIADDI()
 	VUShared::IADDI(m_codeGen, m_nIT, m_nIS, m_nImm5);
 }
 
+//35
+void CCOP_VU::VIOR()
+{
+	VUShared::IOR(m_codeGen, m_nID, m_nIS, m_nIT);
+}
+
 //38
 void CCOP_VU::VCALLMS()
 {
@@ -758,7 +764,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x28
 	&CCOP_VU::VADD,			&CCOP_VU::VMADD,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::VMSUB,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
 	//0x30
-	&CCOP_VU::VIADD,		&CCOP_VU::Illegal,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::VIADD,		&CCOP_VU::Illegal,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VIOR,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x38
 	&CCOP_VU::VCALLMS,		&CCOP_VU::VCALLMSR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
 };

@@ -245,7 +245,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VIADDI",	NULL,			CopyMnemonic,		ReflOpItIsImm5,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VIOR",		NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	//0x38

@@ -91,6 +91,7 @@ private:
 	void								VMINI();
 	void								VIADD();
 	void								VIADDI();
+	void								VIOR();
 	void								VCALLMS();
 	void								VCALLMSR();
 	void								VX0();

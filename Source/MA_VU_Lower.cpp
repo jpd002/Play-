@@ -498,10 +498,7 @@ void CMA_VU::CLower::IAND()
 //35
 void CMA_VU::CLower::IOR()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->Or();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
+	VUShared::IOR(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //3C

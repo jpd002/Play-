@@ -526,6 +526,14 @@ void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 	ILWbase(codeGen, it);
 }
 
+void VUShared::IOR(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->Or();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+}
+
 void VUShared::ITOF0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
