@@ -1,8 +1,12 @@
 #include "../Log.h"
+#include "../RegisterStateFile.h"
 #include "IopBios.h"
 #include "Iop_Cdvdman.h"
 
 #define LOG_NAME			"iop_cdvdman"
+
+#define STATE_FILENAME			("iop_cdvdman/state.xml")
+#define STATE_CALLBACK_ADDRESS	("CallbackAddress")
 
 #define FUNCTION_CDREAD			"CdRead"
 #define FUNCTION_CDSEEK			"CdSeek"
@@ -27,6 +31,19 @@ CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
 CCdvdman::~CCdvdman()
 {
 
+}
+
+void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
+{
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_FILENAME));
+	m_callbackPtr = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
+}
+
+void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
+	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);
+	archive.InsertFile(registerFile);
 }
 
 std::string CCdvdman::GetId() const
