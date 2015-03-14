@@ -252,7 +252,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	m_renderState.isValid = false;
 
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 
 	static bool g_dumpFramebuffers = false;
 	if(g_dumpFramebuffers)
@@ -550,7 +550,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
 	
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 
 	m_renderState.isValid = true;
 	m_renderState.shaderHandle = shaderHandle;
@@ -802,7 +802,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer->m_depthBuffer);
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 
 	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	assert(result == GL_FRAMEBUFFER_COMPLETE);
@@ -810,7 +810,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	{
 		GLenum drawBufferId = GL_COLOR_ATTACHMENT0;
 		glDrawBuffers(1, &drawBufferId);
-		assert(glGetError() == GL_NO_ERROR);
+		CHECKGLERROR();
 	}
 
 	glViewport(0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE);
@@ -1633,7 +1633,7 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 			0, 0, srcFramebuffer->m_width, srcFramebuffer->m_height, 
 			0, 0, srcFramebuffer->m_width, srcFramebuffer->m_height, 
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		assert(glGetError() == GL_NO_ERROR);
+		CHECKGLERROR();
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
@@ -1681,7 +1681,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width * FBSCALE, m_height * FBSCALE, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 		
 	//Build framebuffer
 	glGenFramebuffers(1, &m_framebuffer);
@@ -1716,7 +1716,7 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 	glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
 	((this)->*(m_textureUploader[framebuffer->m_psm]))(framebuffer->m_basePtr, 
 		framebuffer->m_width / 64, framebuffer->m_width, framebuffer->m_height);
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 }
 
 void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer, unsigned int minY, unsigned int maxY)
@@ -1778,7 +1778,7 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 	glGenRenderbuffers(1, &m_depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width * FBSCALE, m_height * FBSCALE);
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 }
 
 CGSH_OpenGL::CDepthbuffer::~CDepthbuffer()
