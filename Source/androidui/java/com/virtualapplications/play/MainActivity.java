@@ -39,7 +39,7 @@ public class MainActivity extends Activity
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
 		
-		_renderView = new RenderView(this);
+		_renderView = new SurfaceView(this);
 		
 		File filesDir = getFilesDir();
 		NativeInterop.setFilesDirPath(filesDir.getAbsolutePath());
