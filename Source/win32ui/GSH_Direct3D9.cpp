@@ -126,10 +126,12 @@ void CGSH_Direct3D9::InitializeImpl()
 	m_cvtBuffer = new uint8[CVTBUFFERSIZE];
 }
 
-void CGSH_Direct3D9::ResetBase()
+void CGSH_Direct3D9::ResetImpl()
 {
 	memset(&m_vtxBuffer, 0, sizeof(m_vtxBuffer));
-	CGSHandler::ResetBase();
+	m_framebuffers.clear();
+	m_depthbuffers.clear();
+	CGSHandler::ResetImpl();
 }
 
 void CGSH_Direct3D9::ReleaseImpl()

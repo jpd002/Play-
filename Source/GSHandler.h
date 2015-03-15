@@ -655,7 +655,7 @@ protected:
 	void									ThreadProc();
 	virtual void							InitializeImpl() = 0;
 	virtual void							ReleaseImpl() = 0;
-	virtual void							ResetBase();
+	void									ResetBase();
 	virtual void							ResetImpl();
 	virtual void							FlipImpl();
 	void									MarkNewFrame();
