@@ -61,7 +61,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 	bool linkResult = result->Link();
 	assert(linkResult);
 
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 
 	return result;
 }
@@ -84,7 +84,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 	bool compilationResult = result.Compile();
 	assert(compilationResult);
 
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 
 	return result;
 }
@@ -248,7 +248,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	bool compilationResult = result.Compile();
 	assert(compilationResult);
 
-	assert(glGetError() == GL_NO_ERROR);
+	CHECKGLERROR();
 
 	return result;
 }
