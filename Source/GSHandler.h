@@ -423,7 +423,7 @@ public:
 		unsigned int	nReserved1			: 4;
 		unsigned int	nMask				: 1;
 		unsigned int	nReserved2			: 31;
-		uint32			GetBasePtr() const	{ return nPtr * 2048; }
+		uint32			GetBasePtr() const	{ return nPtr * 8192; }
 	};
 	static_assert(sizeof(ZBUF) == sizeof(uint64), "Size of ZBUF struct must be 8 bytes.");
 
