@@ -24,7 +24,7 @@ namespace Iop
 		uint32			DisableIntrLine(CMIPS&, uint32, uint32);
 		uint32			EnableInterrupts(CMIPS&);
 		uint32			DisableInterrupts(CMIPS&);
-		uint32			SuspendInterrupts(CMIPS&, uint32*);
+		uint32			SuspendInterrupts(CMIPS&, uint32);
 		uint32			ResumeInterrupts(CMIPS&, uint32);
 		uint32			QueryIntrContext(CMIPS&);
 		uint8*			m_ram;
