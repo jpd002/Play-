@@ -238,6 +238,7 @@ uint32 CIntrman::QueryIntrContext(CMIPS& context)
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, FUNCTION_QUERYINTRCONTEXT "();\r\n");
 #endif
-	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-	return (statusRegister & CMIPS::STATUS_EXL ? 1 : 0);
+	uint32 statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
+	//If we're inside an exception or if interrupts are disabled, we are inside an interrupt context
+	return ((statusRegister & CMIPS::STATUS_EXL) != 0) || ((statusRegister & CMIPS::STATUS_INT) == 0);
 }
