@@ -286,6 +286,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 		std::stringstream shaderBuilder;
 		shaderBuilder << "#version 150" << std::endl;
 		shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "uniform vec2 g_texCoordScale;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
 		shaderBuilder << "	vec2 outputPosition;" << std::endl;
@@ -293,6 +294,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 		shaderBuilder << "	outputPosition.y = float(gl_VertexID % 2) * 4.0 - 1.0;" << std::endl;
 		shaderBuilder << "	v_texCoord.x = float(gl_VertexID / 2) * 2.0;" << std::endl;
 		shaderBuilder << "	v_texCoord.y = 1.0 - float(gl_VertexID % 2) * 2.0;" << std::endl;
+		shaderBuilder << "	v_texCoord = v_texCoord * g_texCoordScale;" << std::endl;
 		shaderBuilder << "	gl_Position = vec4(outputPosition, 0, 1);" << std::endl;
 		shaderBuilder << "}" << std::endl;
 
@@ -305,9 +307,10 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 		std::stringstream shaderBuilder;
 		shaderBuilder << "#version 150" << std::endl;
 		shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
-		shaderBuilder << "	gl_FragColor = vec4(v_texCoord, 0, 1);" << std::endl;
+		shaderBuilder << "	gl_FragColor = texture2D(g_texture, v_texCoord);" << std::endl;
 		shaderBuilder << "}" << std::endl;
 
 		pixelShader.SetSource(shaderBuilder.str().c_str());

@@ -7,6 +7,7 @@
 #include "opengl/OpenGlDef.h"
 #include "opengl/Program.h"
 #include "opengl/Shader.h"
+#include "opengl/Resource.h"
 
 #define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
@@ -291,11 +292,15 @@ private:
 	void							CommitFramebufferDirtyPages(const FramebufferPtr&, unsigned int, unsigned int);
 
 	Framework::OpenGl::ProgramPtr	m_presentProgram;
+	GLint							m_presentTextureUniform = -1;
+	GLint							m_presentTexCoordScaleUniform = -1;
 
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;
 	FramebufferList					m_framebuffers;
 	DepthbufferList					m_depthbuffers;
+
+	Framework::OpenGl::CVertexArray	m_emptyVertexArray;
 
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;

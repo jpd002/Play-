@@ -79,6 +79,7 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_paletteCache.clear();
 	m_shaderInfos.clear();
 	m_presentProgram.reset();
+	m_emptyVertexArray.Reset();
 }
 
 void CGSH_OpenGL::ResetImpl()
@@ -207,17 +208,8 @@ void CGSH_OpenGL::FlipImpl()
 		float v0 = 0;
 		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
 
-#ifndef GLES_COMPATIBILITY
-		glUseProgram(0);
-
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-
 		glDisable(GL_BLEND);
 		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_ALPHA_TEST);
-		glColor4f(1, 1, 1, 1);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -228,6 +220,16 @@ void CGSH_OpenGL::FlipImpl()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+#ifndef GLES_COMPATIBILITY
+		glUseProgram(0);
+
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+
+		glDisable(GL_ALPHA_TEST);
+		glColor4f(1, 1, 1, 1);
 
 		glMatrixMode(GL_TEXTURE);
 		glLoadIdentity();
@@ -251,12 +253,21 @@ void CGSH_OpenGL::FlipImpl()
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 #else
-		GLuint vertexArray = 0;
-		glGenVertexArrays(1, &vertexArray);
-		glBindVertexArray(vertexArray);
 		glUseProgram(*m_presentProgram);
+
+		assert(m_presentTextureUniform != -1);
+		glUniform1i(m_presentTextureUniform, 0);
+
+		assert(m_presentTexCoordScaleUniform != -1);
+		glUniform2f(m_presentTexCoordScaleUniform, u1, v1);
+
+		glBindVertexArray(m_emptyVertexArray);
+
+#ifdef _DEBUG
+		m_presentProgram->Validate();
+#endif
+
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDeleteVertexArrays(1, &vertexArray);
 #endif
 	}
 
@@ -323,7 +334,14 @@ void CGSH_OpenGL::InitializeRC()
 #endif
 
 	m_presentProgram = GeneratePresentProgram();
+	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
+	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
+
+	m_emptyVertexArray = Framework::OpenGl::CVertexArray::Create();
+
 	PresentBackbuffer();
+
+	CHECKGLERROR();
 }
 
 void CGSH_OpenGL::LinearZOrtho(float nLeft, float nRight, float nBottom, float nTop)
@@ -1736,6 +1754,8 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	glGenFramebuffers(1, &m_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
+
+	CHECKGLERROR();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
