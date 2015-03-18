@@ -32,6 +32,11 @@ unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
 	TEXTURE_CLAMP_MODE_REGION_REPEAT
 };
 
+static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
+{
+	return (a << 24) | (b << 16) | (g << 8) | (r);
+}
+
 CGSH_OpenGL::CGSH_OpenGL() 
 : m_pCvtBuffer(nullptr)
 {
@@ -80,6 +85,8 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_shaderInfos.clear();
 	m_presentProgram.reset();
 	m_emptyVertexArray.Reset();
+	m_primBuffer.Reset();
+	m_primVertexArray.Reset();
 }
 
 void CGSH_OpenGL::ResetImpl()
@@ -338,39 +345,62 @@ void CGSH_OpenGL::InitializeRC()
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
 
 	m_emptyVertexArray = Framework::OpenGl::CVertexArray::Create();
+	m_primBuffer = Framework::OpenGl::CBuffer::Create();
+	m_primVertexArray = GeneratePrimVertexArray();
 
 	PresentBackbuffer();
 
 	CHECKGLERROR();
 }
 
-void CGSH_OpenGL::LinearZOrtho(float nLeft, float nRight, float nBottom, float nTop)
+Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 {
-#ifndef GLES_COMPATIBILITY
-	float nMatrix[16];
+	auto vertexArray = Framework::OpenGl::CVertexArray::Create();
 
-	nMatrix[ 0] = 2.0f / (nRight - nLeft);
-	nMatrix[ 1] = 0;
-	nMatrix[ 2] = 0;
-	nMatrix[ 3] = 0;
+	glBindVertexArray(vertexArray);
 
-	nMatrix[ 4] = 0;
-	nMatrix[ 5] = 2.0f / (nTop - nBottom);
-	nMatrix[ 6] = 0;
-	nMatrix[ 7] = 0;
+	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
 
-	nMatrix[ 8] = 0;
-	nMatrix[ 9] = 0;
-	nMatrix[10] = 1;
-	nMatrix[11] = 0;
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 3, GL_FLOAT, 
+		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(0));
 
-	nMatrix[12] = - (nRight + nLeft) / (nRight - nLeft);
-	nMatrix[13] = - (nTop + nBottom) / (nTop - nBottom);
-	nMatrix[14] = 0;
-	nMatrix[15] = 1;
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), 4, GL_UNSIGNED_BYTE, 
+		GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(12));
 
-	glMultMatrixf(nMatrix);
-#endif
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT, 
+		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(16));
+
+	glBindVertexArray(0);
+
+	CHECKGLERROR();
+
+	return vertexArray;
+}
+
+void CGSH_OpenGL::MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
+{
+	matrix[ 0] = 2.0f / (right - left);
+	matrix[ 1] = 0;
+	matrix[ 2] = 0;
+	matrix[ 3] = 0;
+
+	matrix[ 4] = 0;
+	matrix[ 5] = 2.0f / (top - bottom);
+	matrix[ 6] = 0;
+	matrix[ 7] = 0;
+
+	matrix[ 8] = 0;
+	matrix[ 9] = 0;
+	matrix[10] = 1;
+	matrix[11] = 0;
+
+	matrix[12] = - (right + left) / (right - left);
+	matrix[13] = - (top + bottom) / (top - bottom);
+	matrix[14] = 0;
+	matrix[15] = 1;
 }
 
 unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
@@ -468,6 +498,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		SHADERINFO shaderInfo;
 		shaderInfo.shader = shader;
 
+		shaderInfo.projMatrixUniform	= glGetUniformLocation(*shader, "g_projMatrix");
 		shaderInfo.textureUniform		= glGetUniformLocation(*shader, "g_texture");
 		shaderInfo.paletteUniform		= glGetUniformLocation(*shader, "g_palette");
 		shaderInfo.textureSizeUniform	= glGetUniformLocation(*shader, "g_textureSize");
@@ -569,7 +600,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		(m_renderState.zbufReg != zbufReg) ||
 		(m_renderState.scissorReg != scissorReg))
 	{
-		SetupFramebuffer(frameReg, zbufReg, scissorReg);
+		SetupFramebuffer(shaderInfo, frameReg, zbufReg, scissorReg);
 	}
 
 	if(!m_renderState.isValid ||
@@ -804,7 +835,7 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 	glDepthMask(depthWriteEnabled ? GL_TRUE : GL_FALSE);
 }
 
-void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg)
+void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg, uint64 zbufReg, uint64 scissorReg)
 {
 	if(frameReg == 0) return;
 
@@ -854,17 +885,26 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 
 	glViewport(0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE);
 	
-#ifndef GLES_COMPATIBILITY
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
 	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 	float projWidth = static_cast<float>(framebuffer->m_width);
 	float projHeight = static_cast<float>(halfHeight ? (framebuffer->m_height / 2) : framebuffer->m_height);
-	LinearZOrtho(0, projWidth, 0, projHeight);
+
+	float projMatrix[16];
+	MakeLinearZOrtho(projMatrix, 0, projWidth, 0, projHeight);
+
+#ifndef GLES_COMPATIBILITY
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMultMatrixf(projMatrix);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+#else
+	if(shaderInfo.projMatrixUniform != -1)
+	{
+		glUniformMatrix4fv(shaderInfo.projMatrixUniform, 1, GL_FALSE, projMatrix);
+	}
+#endif
 
 	glEnable(GL_SCISSOR_TEST);
 	int scissorX = scissor.scax0;
@@ -877,7 +917,6 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		scissorHeight *= 2;
 	}
 	glScissor(scissorX * FBSCALE, scissorY * FBSCALE, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
-#endif
 }
 
 void CGSH_OpenGL::SetupFogColor()
@@ -1391,7 +1430,6 @@ void CGSH_OpenGL::Prim_Triangle()
 
 void CGSH_OpenGL::Prim_Sprite()
 {
-#ifndef GLES_COMPATIBILITY
 	RGBAQ rgbaq[2];
 
 	XYZ xyz[2];
@@ -1412,6 +1450,7 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	nZ = GetZ(nZ);
 
+#ifndef GLES_COMPATIBILITY
 	if(m_PrimitiveMode.nTexture)
 	{
 		float nS[2], nT[2];
@@ -1486,6 +1525,28 @@ void CGSH_OpenGL::Prim_Sprite()
 	{
 		assert(0);
 	}
+#else
+//	auto color = MakeColor(
+//		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
+//		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+	auto color = 0xFFFFFFFF;
+
+	PRIM_VERTEX vertices[] =
+	{
+		{	nX1,	nY2,	nZ,	color,	0,	1	},
+		{	nX1,	nY1,	nZ,	color,	0,	0	},
+		{	nX2,	nY2,	nZ,	color,	1,	1	},
+		{	nX2,	nY1,	nZ,	color,	1,	0	},
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_DYNAMIC_DRAW);
+
+	glBindVertexArray(m_primVertexArray);
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	CHECKGLERROR();
 #endif
 }
 

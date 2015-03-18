@@ -58,6 +58,10 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 	result->AttachShader(vertexShader);
 	result->AttachShader(fragmentShader);
 
+	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), "a_position");
+	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), "a_color");
+	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
+
 	bool linkResult = result->Link();
 	assert(linkResult);
 
@@ -69,6 +73,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& caps)
 {
 	std::stringstream shaderBuilder;
+#ifndef GLES_COMPATIBILITY
 	shaderBuilder << "void main()"													<< std::endl;
 	shaderBuilder << "{"															<< std::endl;
 	shaderBuilder << "	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"	<< std::endl;
@@ -76,6 +81,21 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 	shaderBuilder << "	gl_Position = ftransform();"								<< std::endl;
 	shaderBuilder << "	gl_FogFragCoord = gl_FogCoord;"								<< std::endl;
 	shaderBuilder << "}"															<< std::endl;
+#else
+	shaderBuilder << "#version 150" << std::endl;
+	shaderBuilder << "uniform mat4 g_projMatrix;" << std::endl;
+	shaderBuilder << "attribute vec3 a_position;" << std::endl;
+	shaderBuilder << "attribute vec4 a_color;" << std::endl;
+	shaderBuilder << "attribute vec2 a_texCoord;" << std::endl;
+	shaderBuilder << "varying vec4 v_color;" << std::endl;
+	shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+	shaderBuilder << "void main()" << std::endl;
+	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	v_color = a_color;" << std::endl;
+	shaderBuilder << "	v_texCoord = a_texCoord;" << std::endl;
+	shaderBuilder << "	gl_Position = g_projMatrix * vec4(a_position, 1);" << std::endl;
+	shaderBuilder << "}" << std::endl;
+#endif
 
 	auto shaderSource = shaderBuilder.str();
 
@@ -93,6 +113,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 {
 	std::stringstream shaderBuilder;
 
+#ifndef GLES_COMPATIBILITY
 	//Unused uniforms will get optimized away
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
 	shaderBuilder << "uniform sampler2D g_palette;" << std::endl;
@@ -240,6 +261,16 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	}
 
 	shaderBuilder << "}" << std::endl;
+#else
+	shaderBuilder << "#version 150" << std::endl;
+	shaderBuilder << "varying vec4 v_color;" << std::endl;
+	shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
+	shaderBuilder << "void main()" << std::endl;
+	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	gl_FragColor = texture2D(g_texture, v_texCoord);" << std::endl;
+	shaderBuilder << "}" << std::endl;
+#endif
 
 	auto shaderSource = shaderBuilder.str();
 

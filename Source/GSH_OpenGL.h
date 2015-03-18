@@ -114,6 +114,7 @@ private:
 	struct SHADERINFO
 	{
 		Framework::OpenGl::ProgramPtr	shader;
+		GLint							projMatrixUniform;
 		GLint							textureUniform;
 		GLint							paletteUniform;
 		GLint							textureSizeUniform;
@@ -203,12 +204,26 @@ private:
 		float	scaleRatioY = 1;
 	};
 
+	enum class PRIM_VERTEX_ATTRIB
+	{
+		POSITION = 1,
+		COLOR = 2,
+		TEXCOORD = 3,
+	};
+
+	struct PRIM_VERTEX
+	{
+		float x, y, z;
+		uint32 color;
+		float u, v;
+	};
+
 	void							WriteRegisterImpl(uint8, uint64);
 
 	void							InitializeRC();
 	void							SetupTextureUploaders();
 	virtual void					PresentBackbuffer() = 0;
-	void							LinearZOrtho(float, float, float, float);
+	void							MakeLinearZOrtho(float*, float, float, float, float);
 	unsigned int					GetCurrentReadCircuit();
 	TEXTURE_INFO					PrepareTexture(const TEX0&);
 	void							PreparePalette(const TEX0&);
@@ -226,6 +241,7 @@ private:
 	std::string						GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE, const char*);
 
 	Framework::OpenGl::ProgramPtr	GeneratePresentProgram();
+	Framework::OpenGl::CVertexArray	GeneratePrimVertexArray();
 
 	void							Prim_Point();
 	void							Prim_Line();
@@ -235,7 +251,7 @@ private:
 	void							SetRenderingContext(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
-	void							SetupFramebuffer(uint64, uint64, uint64);
+	void							SetupFramebuffer(const SHADERINFO&, uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
 
@@ -301,6 +317,8 @@ private:
 	DepthbufferList					m_depthbuffers;
 
 	Framework::OpenGl::CVertexArray	m_emptyVertexArray;
+	Framework::OpenGl::CBuffer		m_primBuffer;
+	Framework::OpenGl::CVertexArray	m_primVertexArray;
 
 	VERTEX							m_VtxBuffer[3];
 	int								m_nVtxCount;
