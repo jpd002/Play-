@@ -425,7 +425,8 @@ void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned
 		massiveWrite->metadata = CGsPacketMetadata();
 	}
 #endif
-	m_mailBox.SendCall([=] () { WriteRegisterMassivelyImpl(massiveWrite); });
+	//Bind is used here because using a lambda seems to cause problems on Android/clang
+	m_mailBox.SendCall(std::bind(&CGSHandler::WriteRegisterMassivelyImpl, this, massiveWrite));
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
