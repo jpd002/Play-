@@ -152,10 +152,14 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/VuExecutor.cpp \
 							../../Source/VUShared.cpp \
 							../../Source/VUShared_Reflection.cpp
-LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -D_DEBUG -DDISABLE_LOGGING -DGLES_COMPATIBILITY
+LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -DDISABLE_LOGGING -DGLES_COMPATIBILITY
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
 LOCAL_LDLIBS 			:= -landroid -llog -lGLESv3 -lEGL -lz
 LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libboost
+
+ifeq ($(APP_OPTIM),debug)
+LOCAL_CFLAGS			+= -D_DEBUG
+endif
 
 include $(BUILD_SHARED_LIBRARY)
