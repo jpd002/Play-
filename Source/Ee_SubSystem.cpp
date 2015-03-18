@@ -65,11 +65,14 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 , m_COP_VU(MIPS_REGSIZE_64)
 {
 	//Some alignment checks, this is needed because of SIMD instructions used in generated code
+	//TODO: Make this work properly on Android
+#ifndef __ANDROID__
 	assert((reinterpret_cast<size_t>(&m_EE.m_State) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(&m_VU0.m_State) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(&m_VU1.m_State) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(m_vuMem0) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(m_vuMem1) & 0x0F) == 0);
+#endif
 
 	//EmotionEngine context setup
 	{
