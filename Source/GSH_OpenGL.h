@@ -229,6 +229,8 @@ private:
 	void							Prim_Triangle();
 	void							Prim_Sprite();
 
+	void							DrawToDepth(unsigned int, uint64);
+
 	void							SetRenderingContext(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
@@ -299,6 +301,7 @@ private:
 
 	PRMODE							m_PrimitiveMode;
 	unsigned int					m_nPrimitiveType;
+	bool							m_drawingToDepth = false;
 
 	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
 	static unsigned int				g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];

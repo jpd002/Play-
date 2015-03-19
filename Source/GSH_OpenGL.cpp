@@ -810,6 +810,13 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 
 	glColorMask(r, g, b, a);
 
+	//Check if we're drawing into a buffer that's been used for depth before
+	{
+		auto zbufWrite = make_convertible<ZBUF>(frameReg);
+		auto depthbuffer = FindDepthbuffer(zbufWrite, frame);
+		m_drawingToDepth = (depthbuffer != nullptr);
+	}
+
 	//Look for a framebuffer that matches the specified information
 	auto framebuffer = FindFramebuffer(frame);
 	if(!framebuffer)
@@ -1467,6 +1474,42 @@ void CGSH_OpenGL::Prim_Sprite()
 	}
 }
 
+void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
+{
+	//A game might be attempting to clear depth by using the zbuffer
+	//as a frame buffer and drawing a black sprite into it
+	//Space Harrier does this
+
+	//Must be flat, no texture map, no fog, no blend and no aa
+	if((primReg & 0x1F8) != 0) return;
+
+	//Must be a sprite
+	if(primitiveType != PRIM_SPRITE) return;
+
+	auto prim = make_convertible<PRMODE>(primReg);
+
+	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + prim.nContext];
+
+	auto frame = make_convertible<FRAME>(frameReg);
+	auto zbufWrite = make_convertible<ZBUF>(frameReg);
+
+	auto depthbuffer = FindDepthbuffer(zbufWrite, frame);
+	assert(depthbuffer);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer->m_depthBuffer);
+	CHECKGLERROR();
+
+	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(result == GL_FRAMEBUFFER_COMPLETE);
+
+	glDepthMask(GL_TRUE);
+	glClearDepthf(0);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	//Invalidate state
+	m_renderState.isValid = false;
+}
+
 /////////////////////////////////////////////////////////////
 // Other Functions
 /////////////////////////////////////////////////////////////
@@ -1589,6 +1632,11 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 			if(nDrawingKick) Prim_Sprite();
 			m_nVtxCount = 2;
 			break;
+		}
+
+		if(nDrawingKick && m_drawingToDepth)
+		{
+			DrawToDepth(m_nPrimitiveType, m_PrimitiveMode);
 		}
 	}
 }
