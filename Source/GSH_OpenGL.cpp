@@ -532,9 +532,10 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	if(!m_renderState.isValid ||
 		(m_renderState.frameReg != frameReg) ||
 		(m_renderState.zbufReg != zbufReg) ||
-		(m_renderState.scissorReg != scissorReg))
+		(m_renderState.scissorReg != scissorReg) ||
+		(m_renderState.testReg != testReg))
 	{
-		SetupFramebuffer(frameReg, zbufReg, scissorReg);
+		SetupFramebuffer(frameReg, zbufReg, scissorReg, testReg);
 	}
 
 	if(!m_renderState.isValid ||
@@ -683,12 +684,11 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	}
 }
 
-void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
+void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 {
-	TEST tst;
-	tst <<= nData;
+	auto test = make_convertible<TEST>(testReg);
 
-	if(tst.nAlphaEnabled)
+	if(test.nAlphaEnabled)
 	{
 		static const GLenum g_alphaTestFunc[ALPHA_TEST_MAX] =
 		{
@@ -702,16 +702,16 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 			GL_NOTEQUAL
 		};
 
-		//Special way of turning off depth writes:
-		//Always fail alpha testing but write RGBA and not depth if it fails
-		if(tst.nAlphaMethod == ALPHA_TEST_NEVER && tst.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
+		//Handle special way of turning off color or depth writes
+		//Proper write masks will be set at other places
+		if((test.nAlphaMethod == ALPHA_TEST_NEVER) && (test.nAlphaFail != ALPHA_TEST_FAIL_KEEP))
 		{
 			glDisable(GL_ALPHA_TEST);
 		}
 		else
 		{
-			float nValue = (float)tst.nAlphaRef / 255.0f;
-			glAlphaFunc(g_alphaTestFunc[tst.nAlphaMethod], nValue);
+			float nValue = (float)test.nAlphaRef / 255.0f;
+			glAlphaFunc(g_alphaTestFunc[test.nAlphaMethod], nValue);
 
 			glEnable(GL_ALPHA_TEST);
 		}
@@ -721,11 +721,11 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 nData)
 		glDisable(GL_ALPHA_TEST);
 	}
 
-	if(tst.nDepthEnabled)
+	if(test.nDepthEnabled)
 	{
 		unsigned int nFunc = GL_NEVER;
 
-		switch(tst.nDepthMethod)
+		switch(test.nDepthMethod)
 		{
 		case 0:
 			nFunc = GL_NEVER;
@@ -772,25 +772,42 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 
 	bool depthWriteEnabled = (zbuf.nMask ? false : true);
 	//If alpha test is enabled for always failing and update only colors, depth writes are disabled
-	if((test.nAlphaEnabled == 1) && (test.nAlphaMethod == 0) && (test.nAlphaFail == 1))
+	if(
+		(test.nAlphaEnabled == 1) && 
+		(test.nAlphaMethod == ALPHA_TEST_NEVER) && 
+		((test.nAlphaFail == ALPHA_TEST_FAIL_FBONLY) || (test.nAlphaFail == ALPHA_TEST_FAIL_RGBONLY)))
 	{
 		depthWriteEnabled = false;
 	}
 	glDepthMask(depthWriteEnabled ? GL_TRUE : GL_FALSE);
 }
 
-void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg)
+void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg, uint64 testReg)
 {
 	if(frameReg == 0) return;
 
 	auto frame = make_convertible<FRAME>(frameReg);
 	auto zbuf = make_convertible<ZBUF>(zbufReg);
 	auto scissor = make_convertible<SCISSOR>(scissorReg);
+	auto test = make_convertible<TEST>(testReg);
 
 	bool r = (frame.nMask & 0x000000FF) == 0;
 	bool g = (frame.nMask & 0x0000FF00) == 0;
 	bool b = (frame.nMask & 0x00FF0000) == 0;
 	bool a = (frame.nMask & 0xFF000000) == 0;
+
+	if((test.nAlphaEnabled == 1) && (test.nAlphaMethod == ALPHA_TEST_NEVER))
+	{
+		if(test.nAlphaFail == ALPHA_TEST_FAIL_RGBONLY)
+		{
+			a = false;
+		}
+		else if(test.nAlphaFail == ALPHA_TEST_FAIL_ZBONLY)
+		{
+			r = g = b = a = false;
+		}
+	}
+
 	glColorMask(r, g, b, a);
 
 	//Look for a framebuffer that matches the specified information

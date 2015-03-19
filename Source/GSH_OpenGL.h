@@ -232,7 +232,7 @@ private:
 	void							SetRenderingContext(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
-	void							SetupFramebuffer(uint64, uint64, uint64);
+	void							SetupFramebuffer(uint64, uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
 
