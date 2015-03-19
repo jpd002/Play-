@@ -239,6 +239,7 @@ private:
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void							FillShaderCapsFromTexture(SHADERCAPS&, uint64, uint64, uint64, uint64);
 	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
+	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 
 	FramebufferPtr					FindFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
