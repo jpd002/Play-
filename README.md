@@ -27,7 +27,7 @@ C:\Projects
 - Play
 
 
-### Building on Android ###
+### Building for Android ###
 
 Building for Android has only been tested under Cygwin, but should work on other UNIX-like environments.
 
