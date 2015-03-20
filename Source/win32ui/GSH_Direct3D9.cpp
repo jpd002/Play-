@@ -836,9 +836,9 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
 			D3DCMP_NOTEQUAL
 		};
 
-		//Special way of turning off depth writes:
-		//Always fail alpha testing but write RGBA and not depth if it fails
-		if(tst.nAlphaMethod == ALPHA_TEST_NEVER && tst.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
+		//If alpha test is set to always fail but don't keep fragment info, we need to set
+		//proper masks at in other places
+		if(tst.nAlphaMethod == ALPHA_TEST_NEVER && tst.nAlphaFail != ALPHA_TEST_FAIL_KEEP)
 		{
 			m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_FALSE);
 		}
