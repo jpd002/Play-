@@ -78,6 +78,9 @@ std::string CRegViewVU::GetDisplayText()
 	sprintf(sLine, "MACF : 0x%0.4X\r\n", pState->nCOP2MF);
 	result += sLine;
 
+	sprintf(sLine, "STKF : 0x%0.4X\r\n", pState->nCOP2SF);
+	result += sLine;
+
 	sprintf(sLine, "CLIP : 0x%0.6X\r\n", pState->nCOP2CF);
 	result += sLine;
 

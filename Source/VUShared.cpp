@@ -188,6 +188,12 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 		codeGen->PushCst((dest << 4) | dest);
 		codeGen->And();
 
+		//Update sticky flags
+		codeGen->PushTop();
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+		codeGen->Or();
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+
 		//--- Store value
 		codeGen->StoreAtRef();
 	}

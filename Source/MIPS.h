@@ -84,6 +84,7 @@ __attribute__((aligned(16)))
 	uint32				nCOP2R;
 	uint32				nCOP2CF;
 	uint32				nCOP2MF;
+	uint32				nCOP2SF;
 	uint32				nCOP2T;
 
 	uint32				nCOP2VI[16];
