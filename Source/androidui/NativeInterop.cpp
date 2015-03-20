@@ -20,6 +20,14 @@ void Log_Print(const char* fmt, ...)
 	va_end(ap);
 }
 
+std::string GetStringFromJstring(JNIEnv* env, jstring javaString)
+{
+	auto nativeString = env->GetStringUTFChars(javaString, JNI_FALSE);
+	std::string result(nativeString);
+	env->ReleaseStringUTFChars(javaString, nativeString);
+	return result;
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setFilesDirPath(JNIEnv* env, jobject obj, jstring dirPathString)
 {
 	auto dirPath = env->GetStringUTFChars(dirPathString, 0);
@@ -33,12 +41,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Initialize();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_start(JNIEnv* env, jobject obj, jobject surface)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_start(JNIEnv* env, jobject obj, 
+	jobject surface, jstring selectedFilePath)
 {
 	auto nativeWindow = ANativeWindow_fromSurface(env, surface);
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
 	g_virtualMachine->Reset();
-	g_virtualMachine->m_ee->m_os->BootFromFile("/storage/emulated/legacy/demo2b.elf");
+	g_virtualMachine->m_ee->m_os->BootFromFile(GetStringFromJstring(env, selectedFilePath).c_str());
 	Log_Print("Before step.");
 	g_virtualMachine->StepEe();
 	Log_Print("Stepping.");

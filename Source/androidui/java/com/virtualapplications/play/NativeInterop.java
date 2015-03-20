@@ -11,5 +11,5 @@ public class NativeInterop
 
 	 public static native void setFilesDirPath(String dirPath);
 	 public static native void createVirtualMachine();
-	 public static native void start(Surface surface);
+	 public static native void start(Surface surface, String selectedFilePath);
 }
