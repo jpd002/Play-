@@ -1450,13 +1450,11 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	nZ = GetZ(nZ);
 
-#ifndef GLES_COMPATIBILITY
+	float nS[2] = { 0 ,0 };
+	float nT[2] = { 0, 0 };
+
 	if(m_PrimitiveMode.nTexture)
 	{
-		float nS[2], nT[2];
-
-		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-
 		if(m_PrimitiveMode.nUseUV)
 		{
 			UV uv[2];
@@ -1487,6 +1485,12 @@ void CGSH_OpenGL::Prim_Sprite()
 			nT[0] = st[0].nT / nQ1;
 			nT[1] = st[1].nT / nQ2;
 		}
+	}
+
+#ifndef GLES_COMPATIBILITY
+	if(m_PrimitiveMode.nTexture)
+	{
+		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
 
 		glBegin(GL_QUADS);
 		{
@@ -1533,14 +1537,14 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	PRIM_VERTEX vertices[] =
 	{
-		{	nX1,	nY2,	nZ,	color,	0,	1	},
-		{	nX1,	nY1,	nZ,	color,	0,	0	},
-		{	nX2,	nY2,	nZ,	color,	1,	1	},
-		{	nX2,	nY1,	nZ,	color,	1,	0	},
+		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1]	},
+		{	nX1,	nY1,	nZ,	color,	nS[0],	nT[0]	},
+		{	nX2,	nY2,	nZ,	color,	nS[1],	nT[1]	},
+		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0]	},
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW);
 
 	glBindVertexArray(m_primVertexArray);
 
