@@ -338,7 +338,7 @@ void CGSHandler::Flip(bool showOnly)
 		m_mailBox.FlushCalls();
 		m_mailBox.SendCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
-	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this));
+	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this), true);
 }
 
 void CGSHandler::FlipImpl()
