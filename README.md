@@ -21,19 +21,15 @@ For more information, please visit [purei.org](http://purei.org)
 Make sure your working copies share the same parent folder. Your setup should look like this:
 
 C:\Projects
-</br>
-├─CodeGen
-</br>
-├─Dependencies
-</br>
-├─Framework
-</br>
-├─Play
+- CodeGen
+- Dependencies
+- Framework
+- Play
 
 
 ### Building on Android ###
 
-Building for Android has only been tested under Cygwin, but should work on UNIX-like environments.
+Building for Android has only been tested under Cygwin, but should work on other UNIX-like environments.
 
 - Make a copy of `ExternalDependencies.mk.template` found in `build_android/jni` and rename to `ExternalDependencies.mk`
 - Open the newly copied `ExternalDependencies.mk` and change paths inside to point to the proper dependency/repository paths (ie.: `/path/to/CodeGen` -> `/cygdrive/c/ProjectsGit/CodeGen/`)
