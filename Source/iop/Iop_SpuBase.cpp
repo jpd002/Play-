@@ -485,13 +485,17 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					reader.ClearDidChangeRepeat();
 				}
 			}
+
+			uint32 prevAddress = channel.current;
+
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
 
 			//TODO: Improve address detection (used by DW5, SW2, OW2 in movie playback)
-			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (channel.current >= m_irqAddr))
+			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (prevAddress != 0) && (prevAddress != channel.current) &&
+				(m_irqAddr >= prevAddress) && (m_irqAddr <= channel.current))
 			{
 				m_irqPending = true;
 			}
