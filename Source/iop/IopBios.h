@@ -252,8 +252,8 @@ private:
 		uint32			attrib;
 		uint32			option;
 		uint32			initCount;
-		uint32			currentCount;
 		uint32			maxCount;
+		uint32			currentCount;
 		uint32			numWaitThreads;
 	};
 
