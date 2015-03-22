@@ -1503,7 +1503,7 @@ void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
 	assert(result == GL_FRAMEBUFFER_COMPLETE);
 
 	glDepthMask(GL_TRUE);
-	glClearDepthf(0);
+	glClearDepth(0);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	//Invalidate state
