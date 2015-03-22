@@ -315,7 +315,12 @@ void CGSH_OpenGL::InitializeRC()
 {
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+#ifndef GLES_COMPATIBILITY
+	glClearDepth(0.0f);
+#else
 	glClearDepthf(0.0f);
+#endif
+
 #ifndef GLES_COMPATIBILITY
 	glEnable(GL_TEXTURE_2D);
 #endif
@@ -1605,7 +1610,11 @@ void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
 	assert(result == GL_FRAMEBUFFER_COMPLETE);
 
 	glDepthMask(GL_TRUE);
+#ifndef GLES_COMPATIBILITY
 	glClearDepth(0);
+#else
+	glClearDepthf(0);
+#endif
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	//Invalidate state
