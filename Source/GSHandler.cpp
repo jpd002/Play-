@@ -62,14 +62,12 @@ struct MASSIVEWRITE_INFO
 
 CGSHandler::CGSHandler()
 : m_threadDone(false)
-, m_flipMode(FLIP_MODE_VBLANK)
 , m_drawCallCount(0)
 , m_pCLUT(nullptr)
 , m_pRAM(nullptr)
 , m_frameDump(nullptr)
 , m_loggingEnabled(true)
 {
-	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_VBLANK);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
 	
 	m_presentationParams.mode = static_cast<PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
@@ -206,7 +204,6 @@ void CGSHandler::SetDrawEnabled(bool drawEnabled)
 
 void CGSHandler::SetVBlank()
 {
-	if(m_flipMode == FLIP_MODE_VBLANK)
 	{
 		Flip();
 	}
@@ -274,16 +271,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		}
 		break;
 	case GS_SMODE2:
-		{
-			W_REG(nAddress, nData, m_nSMODE2);
-			if(nAddress & 0x04)
-			{
-				if(m_flipMode == FLIP_MODE_SMODE2)
-				{
-					Flip();
-				}
-			}
-		}
+		W_REG(nAddress, nData, m_nSMODE2);
 		break;
 	case GS_DISPFB1:
 		WriteToDelayedRegister(nAddress, nData, m_nDISPFB1);
@@ -293,13 +281,6 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		break;
 	case GS_DISPFB2:
 		WriteToDelayedRegister(nAddress, nData, m_nDISPFB2);
-		if(nAddress & 0x04)
-		{
-			if(m_flipMode == FLIP_MODE_DISPFB2)
-			{
-				Flip();
-			}
-		}
 		break;
 	case GS_DISPLAY2:
 		WriteToDelayedRegister(nAddress, nData, m_nDISPLAY2);
@@ -357,7 +338,7 @@ void CGSHandler::Flip(bool showOnly)
 		m_mailBox.FlushCalls();
 		m_mailBox.SendCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
-	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this));
+	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this), true);
 }
 
 void CGSHandler::FlipImpl()
@@ -1390,11 +1371,6 @@ void CGSHandler::LogPrivateWrite(uint32 address)
 		//IMR
 		break;
 	}
-}
-
-void CGSHandler::LoadSettings()
-{
-	m_flipMode = static_cast<FLIP_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_FLIPMODE));
 }
 
 void CGSHandler::WriteToDelayedRegister(uint32 address, uint32 value, DELAYED_REGISTER& delayedRegister)

@@ -17,7 +17,6 @@ class CFrameDump;
 class CGsPacketMetadata;
 struct MASSIVEWRITE_INFO;
 
-#define PREF_CGSHANDLER_FLIPMODE				"renderer.flipmode"
 #define PREF_CGSHANDLER_PRESENTATION_MODE		"renderer.presentationmode"
 
 enum GS_REGS
@@ -73,13 +72,6 @@ public:
 	enum RAMSIZE
 	{
 		RAMSIZE = 0x00400000,
-	};
-
-	enum FLIP_MODE
-	{
-		FLIP_MODE_SMODE2 = 0,
-		FLIP_MODE_DISPFB2 = 1,
-		FLIP_MODE_VBLANK = 2
 	};
 	
 	enum PRESENTATION_MODE
@@ -431,7 +423,7 @@ public:
 		unsigned int	nReserved1			: 4;
 		unsigned int	nMask				: 1;
 		unsigned int	nReserved2			: 31;
-		uint32			GetBasePtr() const	{ return nPtr * 2048; }
+		uint32			GetBasePtr() const	{ return nPtr * 8192; }
 	};
 	static_assert(sizeof(ZBUF) == sizeof(uint64), "Size of ZBUF struct must be 8 bytes.");
 
@@ -658,13 +650,12 @@ protected:
 	void									LogWrite(uint8, uint64);
 	void									LogPrivateWrite(uint32);
 
-	void									LoadSettings();
 	void									WriteToDelayedRegister(uint32, uint32, DELAYED_REGISTER&);
 
 	void									ThreadProc();
 	virtual void							InitializeImpl() = 0;
 	virtual void							ReleaseImpl() = 0;
-	virtual void							ResetBase();
+	void									ResetBase();
 	virtual void							ResetImpl();
 	virtual void							FlipImpl();
 	void									MarkNewFrame();
@@ -698,7 +689,6 @@ protected:
 	uint64									m_nCSR;				//0x12001000
 	uint64									m_nIMR;				//0x12001010
 
-	FLIP_MODE								m_flipMode;
 	PRESENTATION_PARAMS						m_presentationParams;
 
 	TRXCONTEXT								m_trxCtx;

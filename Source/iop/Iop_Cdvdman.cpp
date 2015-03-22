@@ -1,24 +1,29 @@
 #include "../Log.h"
+#include "../RegisterStateFile.h"
+#include "IopBios.h"
 #include "Iop_Cdvdman.h"
 
-#define LOG_NAME            "iop_cdvdman"
+#define LOG_NAME			"iop_cdvdman"
 
-#define FUNCTION_CDREAD         "CdRead"
+#define STATE_FILENAME			("iop_cdvdman/state.xml")
+#define STATE_CALLBACK_ADDRESS	("CallbackAddress")
+
+#define FUNCTION_CDREAD			"CdRead"
 #define FUNCTION_CDSEEK			"CdSeek"
-#define FUNCTION_CDGETERROR     "CdGetError"
+#define FUNCTION_CDGETERROR		"CdGetError"
 #define FUNCTION_CDSEARCHFILE	"CdSearchFile"
-#define FUNCTION_CDSYNC         "CdSync"
-#define FUNCTION_CDGETDISKTYPE  "CdGetDiskType"
-#define FUNCTION_CDDISKREADY    "CdDiskReady"
+#define FUNCTION_CDSYNC			"CdSync"
+#define FUNCTION_CDGETDISKTYPE	"CdGetDiskType"
+#define FUNCTION_CDDISKREADY	"CdDiskReady"
 #define FUNCTION_CDREADCLOCK	"CdReadClock"
 #define FUNCTION_CDSTATUS		"CdStatus"
+#define FUNCTION_CDCALLBACK		"CdCallback"
 
 using namespace Iop;
-using namespace std;
 
-CCdvdman::CCdvdman(uint8* ram) :
-m_ram(ram),
-m_image(NULL)
+CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
+: m_bios(bios)
+, m_ram(ram)
 {
 
 }
@@ -28,133 +33,157 @@ CCdvdman::~CCdvdman()
 
 }
 
-string CCdvdman::GetId() const
+void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 {
-    return "cdvdman";
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_FILENAME));
+	m_callbackPtr = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
 }
 
-string CCdvdman::GetFunctionName(unsigned int functionId) const
+void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive)
 {
-    switch(functionId)
-    {
-    case 6:
-        return FUNCTION_CDREAD;
-        break;
+	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
+	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);
+	archive.InsertFile(registerFile);
+}
+
+std::string CCdvdman::GetId() const
+{
+	return "cdvdman";
+}
+
+std::string CCdvdman::GetFunctionName(unsigned int functionId) const
+{
+	switch(functionId)
+	{
+	case 6:
+		return FUNCTION_CDREAD;
+		break;
 	case 7:
 		return FUNCTION_CDSEEK;
 		break;
-    case 8:
-        return FUNCTION_CDGETERROR;
-        break;
+	case 8:
+		return FUNCTION_CDGETERROR;
+		break;
 	case 10:
 		return FUNCTION_CDSEARCHFILE;
 		break;
-    case 11:
-        return FUNCTION_CDSYNC;
-        break;
-    case 12:
-        return FUNCTION_CDGETDISKTYPE;
-        break;
-    case 13:
-        return FUNCTION_CDDISKREADY;
-        break;
+	case 11:
+		return FUNCTION_CDSYNC;
+		break;
+	case 12:
+		return FUNCTION_CDGETDISKTYPE;
+		break;
+	case 13:
+		return FUNCTION_CDDISKREADY;
+		break;
 	case 24:
 		return FUNCTION_CDREADCLOCK;
 		break;
 	case 28:
 		return FUNCTION_CDSTATUS;
 		break;
-    default:
-        return "unknown";
-        break;
-    }
+	case 37:
+		return FUNCTION_CDCALLBACK;
+		break;
+	default:
+		return "unknown";
+		break;
+	}
 }
 
 void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 {
-    switch(functionId)
-    {
-    case 6:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdRead(
-            ctx.m_State.nGPR[CMIPS::A0].nV0,
-            ctx.m_State.nGPR[CMIPS::A1].nV0,
-            ctx.m_State.nGPR[CMIPS::A2].nV0,
-            ctx.m_State.nGPR[CMIPS::A3].nV0);
-        break;
+	switch(functionId)
+	{
+	case 6:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdRead(
+			ctx.m_State.nGPR[CMIPS::A0].nV0,
+			ctx.m_State.nGPR[CMIPS::A1].nV0,
+			ctx.m_State.nGPR[CMIPS::A2].nV0,
+			ctx.m_State.nGPR[CMIPS::A3].nV0);
+		break;
 	case 7:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSeek(
 			ctx.m_State.nGPR[CMIPS::A0].nV0
 			);
 		break;
-    case 8:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetError();
-        break;
+	case 8:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetError();
+		break;
 	case 10:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSearchFile(
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSearchFile(
 			ctx.m_State.nGPR[CMIPS::A0].nV0,
 			ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
-    case 11:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSync(ctx.m_State.nGPR[CMIPS::A0].nV0);
-        break;
-    case 12:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetDiskType();
-        break;
-    case 13:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdDiskReady(ctx.m_State.nGPR[CMIPS::A0].nV0);
-        break;
+	case 11:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSync(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 12:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetDiskType();
+		break;
+	case 13:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdDiskReady(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
 	case 24:
-        ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadClock(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadClock(ctx.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 28:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStatus();
 		break;
-    default:
-        CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
-            functionId);
-        break;
-    }
+	case 37:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdCallback(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
+			functionId);
+		break;
+	}
 }
 
 void CCdvdman::SetIsoImage(CISO9660* image)
 {
-    m_image = image;
+	m_image = image;
 }
 
 uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr, uint32 modePtr)
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%0.8X, modePtr = 0x%0.8X);\r\n",
-        startSector, sectorCount, bufferPtr, modePtr);
-    if(modePtr != 0)
-    {
-        uint8* mode = &m_ram[modePtr];
-        //Does that make sure it's 2048 byte mode?
-        assert(mode[2] == 0);
-    }
-    if(m_image != NULL && bufferPtr != 0)
-    {
-        uint8* buffer = &m_ram[bufferPtr];
-        uint32 sectorSize = 2048;
-        for(unsigned int i = 0; i < sectorCount; i++)
-        {
-            m_image->ReadBlock(startSector + i, buffer);
-            buffer += sectorSize;
-        }
-    }
-    return 1;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%0.8X, modePtr = 0x%0.8X);\r\n",
+		startSector, sectorCount, bufferPtr, modePtr);
+	if(modePtr != 0)
+	{
+		uint8* mode = &m_ram[modePtr];
+		//Does that make sure it's 2048 byte mode?
+		assert(mode[2] == 0);
+	}
+	if(m_image != NULL && bufferPtr != 0)
+	{
+		uint8* buffer = &m_ram[bufferPtr];
+		uint32 sectorSize = 2048;
+		for(unsigned int i = 0; i < sectorCount; i++)
+		{
+			m_image->ReadBlock(startSector + i, buffer);
+			buffer += sectorSize;
+		}
+	}
+	if(m_callbackPtr != 0)
+	{
+		static const uint32 callbackTypeCdRead = 1;
+		m_bios.TriggerCallback(m_callbackPtr, callbackTypeCdRead, 0);
+	}
+	return 1;
 }
 
 uint32 CCdvdman::CdSeek(uint32 sector)
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEEK "(sector = 0x%X);\r\n",
-        sector);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEEK "(sector = 0x%X);\r\n",
+		sector);
 	return 1;
 }
 
 uint32 CCdvdman::CdGetError()
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETERROR "();\r\n");
-    return 0;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETERROR "();\r\n");
+	return 0;
 }
 
 uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
@@ -181,7 +210,7 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfo = 0x%0.8X, name = '%s');\r\n",
-        fileInfoPtr, name);
+		fileInfoPtr, name);
 #endif
 
 	uint32 result = 0;
@@ -216,23 +245,23 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 
 uint32 CCdvdman::CdSync(uint32 mode)
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "(mode = %i);\r\n",
-        mode);
-    return 0;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "(mode = %i);\r\n",
+		mode);
+	return 0;
 }
 
 uint32 CCdvdman::CdGetDiskType()
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
-    //0x14 = PS2DVD
-    return 0x14;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
+	//0x14 = PS2DVD
+	return 0x14;
 }
 
 uint32 CCdvdman::CdDiskReady(uint32 mode)
 {
-    CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %i);\r\n",
-        mode);
-    return 2;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %i);\r\n",
+		mode);
+	return 2;
 }
 
 uint32 CCdvdman::CdReadClock(uint32 clockPtr)
@@ -260,4 +289,14 @@ uint32 CCdvdman::CdStatus()
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
 	return 0;
+}
+
+uint32 CCdvdman::CdCallback(uint32 callbackPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDCALLBACK "(callbackPtr = %0.8X);\r\n",
+		callbackPtr);
+
+	uint32 oldCallbackPtr = m_callbackPtr;
+	m_callbackPtr = callbackPtr;
+	return oldCallbackPtr;
 }

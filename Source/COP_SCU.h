@@ -1,5 +1,4 @@
-#ifndef _COP_SCU_H_
-#define _COP_SCU_H_
+#pragma once
 
 #include "MIPSCoprocessor.h"
 #include "MIPSReflection.h"
@@ -9,7 +8,7 @@ class CCOP_SCU : public CMIPSCoprocessor
 public:
 	enum REGISTER
 	{
-        COUNT       = 0x09,
+		COUNT		= 0x09,
 		STATUS		= 0x0C,
 		EPC			= 0x0E,
 		CPCOND0		= 0x15,
@@ -48,7 +47,7 @@ private:
 	typedef void (CCOP_SCU::*InstructionFuncConstant)();
 
 	static InstructionFuncConstant		m_pOpGeneral[0x20];
-    static InstructionFuncConstant		m_pOpBC0[0x20];
+	static InstructionFuncConstant		m_pOpBC0[0x20];
 	static InstructionFuncConstant		m_pOpC0[0x40];
 
 	uint8								m_nRT;
@@ -57,12 +56,13 @@ private:
 	//General
 	void								MFC0();
 	void								MTC0();
-    void								BC0();
+	void								BC0();
 	void								C0();
 
-    //BC0
-    void								BC0F();
-    void								BC0T();
+	//BC0
+	void								BC0F();
+	void								BC0T();
+	void								BC0FL();
 
 	//C0
 	void								ERET();
@@ -75,5 +75,3 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflBc0[4];
 	static MIPSReflection::INSTRUCTION	m_cReflC0[64];
 };
-
-#endif

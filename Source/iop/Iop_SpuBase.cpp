@@ -13,6 +13,7 @@ using namespace Iop;
 #define STATE_PREFIX			("iop_spu/spu_")
 #define STATE_SUFFIX			(".xml")
 #define STATE_REGS_CTRL			("CTRL")
+#define STATE_REGS_IRQADDR		("IRQADDR")
 
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
 {
@@ -165,6 +166,7 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_ctrl = registerFile.GetRegister32(STATE_REGS_CTRL);
+	m_irqAddr = registerFile.GetRegister32(STATE_REGS_IRQADDR);
 }
 
 void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
@@ -173,6 +175,7 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CTRL, m_ctrl);
+	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
 	archive.InsertFile(registerFile);
 }
 
@@ -482,13 +485,17 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					reader.ClearDidChangeRepeat();
 				}
 			}
+
+			uint32 prevAddress = channel.current;
+
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
 
 			//TODO: Improve address detection (used by DW5, SW2, OW2 in movie playback)
-			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (channel.current >= m_irqAddr))
+			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (prevAddress != 0) && (prevAddress != channel.current) &&
+				(m_irqAddr >= prevAddress) && (m_irqAddr <= channel.current))
 			{
 				m_irqPending = true;
 			}

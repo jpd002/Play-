@@ -89,6 +89,7 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const
 	switch(tex0.nPsm)
 	{
 	case PSMCT32:
+	case PSMCT24:
 		TexUploader_Psm32(tex0, texA, result.texture);
 		break;
 	case PSMT8:

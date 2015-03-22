@@ -252,7 +252,13 @@ void CMA_VU::CLower::FCOR()
 //15
 void CMA_VU::CLower::FSSET()
 {
-	//Sticky flags not implemented yet...
+	//Only clear sticky flags
+	uint32 stickyFlagsValue = ((m_nImm12 >> 6) & 0x3F);
+	if(stickyFlagsValue == 0)
+	{
+		m_codeGen->PushCst(0);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+	}
 }
 
 //16
@@ -287,6 +293,34 @@ void CMA_VU::CLower::FSAND()
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 		m_codeGen->PushCst(0x02);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//Check ZS flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	m_codeGen->PushCst(0x000F);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x40);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//Check SS flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	m_codeGen->PushCst(0x00F0);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x80);
 		m_codeGen->Or();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 	}
@@ -498,10 +532,7 @@ void CMA_VU::CLower::IAND()
 //35
 void CMA_VU::CLower::IOR()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->Or();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
+	VUShared::IOR(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //3C

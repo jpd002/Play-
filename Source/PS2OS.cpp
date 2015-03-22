@@ -113,6 +113,7 @@
 #define SYSCALL_NAME_SIFDMASTAT				"osSifDmaStat"
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
 #define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
+#define SYSCALL_NAME_DECI2CALL				"osDeci2Call"
 
 #ifdef DEBUGGER_INCLUDED
 
@@ -164,6 +165,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0076,		SYSCALL_NAME_SIFDMASTAT				},
 	{	0x0077,		SYSCALL_NAME_SIFSETDMA				},
 	{	0x0078,		SYSCALL_NAME_SIFSETDCHAIN			},
+	{	0x007C,		SYSCALL_NAME_DECI2CALL				},
 	{	0x0000,		NULL								}
 };
 
@@ -2758,8 +2760,8 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x7C:
-		sprintf(description, "Deci2Call(func = 0x%0.8X, param = 0x%0.8X);", \
-			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
+		sprintf(description, SYSCALL_NAME_DECI2CALL "(func = 0x%0.8X, param = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7F:

@@ -188,6 +188,12 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 		codeGen->PushCst((dest << 4) | dest);
 		codeGen->And();
 
+		//Update sticky flags
+		codeGen->PushTop();
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+		codeGen->Or();
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+
 		//--- Store value
 		codeGen->StoreAtRef();
 	}
@@ -524,6 +530,14 @@ void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 	codeGen->AddRef();
 
 	ILWbase(codeGen, it);
+}
+
+void VUShared::IOR(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->Or();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
 }
 
 void VUShared::ITOF0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)

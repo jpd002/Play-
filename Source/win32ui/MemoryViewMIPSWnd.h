@@ -1,5 +1,4 @@
-#ifndef _MEMORYVIEWMIPSWND_H_
-#define _MEMORYVIEWMIPSWND_H_
+#pragma once
 
 #include "win32/MDIChild.h"
 #include "win32/Edit.h"
@@ -12,18 +11,18 @@ public:
 									CMemoryViewMIPSWnd(HWND, CVirtualMachine&, CMIPS*);
 									~CMemoryViewMIPSWnd();
 
+	CMemoryViewMIPS*				GetMemoryView() const;
+
 protected:
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnSysCommand(unsigned int, LPARAM);
-	long							OnSetFocus();
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
+	long							OnSysCommand(unsigned int, LPARAM) override;
+	long							OnSetFocus() override;
 
 private:
 	void							RefreshLayout();
 	void							UpdateStatusBar();
 	void							OnMemoryViewSelectionChange(uint32);
 
-	CMemoryViewMIPS*				m_memoryView;
-	Framework::Win32::CEdit*		m_addressEdit;
+	CMemoryViewMIPS*				m_memoryView = nullptr;
+	Framework::Win32::CEdit*		m_addressEdit = nullptr;
 };
-
-#endif

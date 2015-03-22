@@ -148,6 +148,8 @@ public:
 	uint32						DeleteSemaphore(uint32);
 	uint32						SignalSemaphore(uint32, bool);
 	uint32						WaitSemaphore(uint32);
+	uint32						PollSemaphore(uint32);
+	uint32						ReferSemaphoreStatus(uint32, uint32);
 
 	uint32						CreateEventFlag(uint32, uint32, uint32);
 	uint32						SetEventFlag(uint32, uint32, bool);
@@ -243,6 +245,16 @@ private:
 	{
 		uint32			isValid;
 		uint32			nextMsgPtr;
+	};
+
+	struct SEMAPHORE_STATUS
+	{
+		uint32			attrib;
+		uint32			option;
+		uint32			initCount;
+		uint32			maxCount;
+		uint32			currentCount;
+		uint32			numWaitThreads;
 	};
 
 	struct MODULELOADREQUEST

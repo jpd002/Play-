@@ -13,6 +13,8 @@ public:
 	virtual									~CMemoryView();
 	
 	void									SetMemorySize(uint32);
+
+	uint32									GetBytesPerLine() const;
 	void									SetBytesPerLine(uint32);
 
 	uint32									GetSelection();

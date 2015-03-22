@@ -22,6 +22,8 @@
 #define WM_EXECUNLOAD	(WM_USER + 0)
 #define WM_EXECCHANGE	(WM_USER + 1)
 
+#define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH	"debugger.memoryview.bytewidth"
+
 CDebugger::CDebugger(CPS2VM& virtualMachine)
 : m_virtualMachine(virtualMachine)
 {
@@ -122,29 +124,30 @@ void CDebugger::RegisterPreferences()
 {
 	CAppConfig& config(CAppConfig::GetInstance());
 
-	config.RegisterPreferenceInteger("debugger.disasm.posx",			0);
-	config.RegisterPreferenceInteger("debugger.disasm.posy",			0);
-	config.RegisterPreferenceInteger("debugger.disasm.sizex",			0);
-	config.RegisterPreferenceInteger("debugger.disasm.sizey",			0);
-	config.RegisterPreferenceBoolean("debugger.disasm.visible",			true);
+	config.RegisterPreferenceInteger("debugger.disasm.posx",				0);
+	config.RegisterPreferenceInteger("debugger.disasm.posy",				0);
+	config.RegisterPreferenceInteger("debugger.disasm.sizex",				0);
+	config.RegisterPreferenceInteger("debugger.disasm.sizey",				0);
+	config.RegisterPreferenceBoolean("debugger.disasm.visible",				true);
 
-	config.RegisterPreferenceInteger("debugger.regview.posx",			0);
-	config.RegisterPreferenceInteger("debugger.regview.posy",			0);
-	config.RegisterPreferenceInteger("debugger.regview.sizex",			0);
-	config.RegisterPreferenceInteger("debugger.regview.sizey",			0);
-	config.RegisterPreferenceBoolean("debugger.regview.visible",		true);
+	config.RegisterPreferenceInteger("debugger.regview.posx",				0);
+	config.RegisterPreferenceInteger("debugger.regview.posy",				0);
+	config.RegisterPreferenceInteger("debugger.regview.sizex",				0);
+	config.RegisterPreferenceInteger("debugger.regview.sizey",				0);
+	config.RegisterPreferenceBoolean("debugger.regview.visible",			true);
 
-	config.RegisterPreferenceInteger("debugger.memoryview.posx",		0);
-	config.RegisterPreferenceInteger("debugger.memoryview.posy",		0);
-	config.RegisterPreferenceInteger("debugger.memoryview.sizex",		0);
-	config.RegisterPreferenceInteger("debugger.memoryview.sizey",		0);
-	config.RegisterPreferenceBoolean("debugger.memoryview.visible",		true);
+	config.RegisterPreferenceInteger("debugger.memoryview.posx",			0);
+	config.RegisterPreferenceInteger("debugger.memoryview.posy",			0);
+	config.RegisterPreferenceInteger("debugger.memoryview.sizex",			0);
+	config.RegisterPreferenceInteger("debugger.memoryview.sizey",			0);
+	config.RegisterPreferenceBoolean("debugger.memoryview.visible",			true);
+	config.RegisterPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH,	0);
 
-	config.RegisterPreferenceInteger("debugger.callstack.posx",			0);
-	config.RegisterPreferenceInteger("debugger.callstack.posy",			0);
-	config.RegisterPreferenceInteger("debugger.callstack.sizex",		0);
-	config.RegisterPreferenceInteger("debugger.callstack.sizey",		0);
-	config.RegisterPreferenceBoolean("debugger.callstack.visible",		true);
+	config.RegisterPreferenceInteger("debugger.callstack.posx",				0);
+	config.RegisterPreferenceInteger("debugger.callstack.posy",				0);
+	config.RegisterPreferenceInteger("debugger.callstack.sizex",			0);
+	config.RegisterPreferenceInteger("debugger.callstack.sizey",			0);
+	config.RegisterPreferenceBoolean("debugger.callstack.visible",			true);
 }
 
 void CDebugger::UpdateTitle()
@@ -165,11 +168,13 @@ void CDebugger::UpdateTitle()
 void CDebugger::LoadSettings()
 {
 	LoadViewLayout();
+	LoadBytesPerLine();
 }
 
 void CDebugger::SaveSettings()
 {
 	SaveViewLayout();
+	SaveBytesPerLine();
 }
 
 void CDebugger::SerializeWindowGeometry(CWindow* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
@@ -401,6 +406,7 @@ void CDebugger::ActivateView(unsigned int nView)
 
 	if(m_nCurrentView != -1)
 	{
+		SaveBytesPerLine();
 		SaveViewLayout();
 		GetCurrentView()->Hide();
 	}
@@ -409,6 +415,7 @@ void CDebugger::ActivateView(unsigned int nView)
 
 	m_nCurrentView = nView;
 	LoadViewLayout();
+	LoadBytesPerLine();
 	UpdateTitle();
 
 	{
@@ -486,6 +493,20 @@ void CDebugger::LoadViewLayout()
 		"debugger.callstack.sizex", \
 		"debugger.callstack.sizey", \
 		"debugger.callstack.visible");
+}
+
+void CDebugger::SaveBytesPerLine()
+{
+	auto memoryView = GetMemoryViewWindow()->GetMemoryView();
+	auto bytesPerLine = memoryView->GetBytesPerLine();
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH, bytesPerLine);
+}
+
+void CDebugger::LoadBytesPerLine()
+{
+	auto bytesPerLine = CAppConfig::GetInstance().GetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH);
+	auto memoryView = GetMemoryViewWindow()->GetMemoryView();
+	memoryView->SetBytesPerLine(bytesPerLine);
 }
 
 CDebugView* CDebugger::GetCurrentView()
