@@ -63,6 +63,7 @@ enum GS_REGS
 	GS_REG_TRXPOS		= 0x51,
 	GS_REG_TRXREG		= 0x52,
 	GS_REG_TRXDIR		= 0x53,
+	GS_REG_SIGNAL		= 0x60,
 	GS_REG_FINISH		= 0x61,
 };
 
@@ -95,6 +96,7 @@ public:
 
 	enum
 	{
+		CSR_SIGNAL_EVENT	= 0x0001,
 		CSR_FINISH_EVENT	= 0x0002,
 		CSR_VSYNC_INT		= 0x0008,
 		CSR_RESET			= 0x0200,
