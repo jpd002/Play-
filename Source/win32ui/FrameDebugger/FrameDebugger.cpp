@@ -251,14 +251,21 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	m_gs->Flip();
 
 	const auto& drawingKicks = m_frameDump.GetDrawingKicks();
-	auto prevKickIndexIterator = drawingKicks.lower_bound(targetCmdIndex);
-	if((prevKickIndexIterator == std::end(drawingKicks)) || (prevKickIndexIterator->first != targetCmdIndex))
+	if(!drawingKicks.empty())
 	{
-		prevKickIndexIterator = std::prev(prevKickIndexIterator);
-	}
-	if(prevKickIndexIterator != std::end(drawingKicks))
-	{
-		m_currentDrawingKick = prevKickIndexIterator->second;
+		auto prevKickIndexIterator = drawingKicks.lower_bound(targetCmdIndex);
+		if((prevKickIndexIterator == std::end(drawingKicks)) || (prevKickIndexIterator->first != targetCmdIndex))
+		{
+			prevKickIndexIterator = std::prev(prevKickIndexIterator);
+		}
+		if(prevKickIndexIterator != std::end(drawingKicks))
+		{
+			m_currentDrawingKick = prevKickIndexIterator->second;
+		}
+		else
+		{
+			m_currentDrawingKick = DRAWINGKICK_INFO();
+		}
 	}
 	else
 	{

@@ -246,6 +246,8 @@ void CGsRegisterWriteListView::OnPrevDrawKick()
 	}
 
 	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
+	if(drawingKicks.empty()) return;
+
 	auto prevKickIndexIterator = std::prev(drawingKicks.lower_bound(selectedItemIndex));
 	if(prevKickIndexIterator == std::end(drawingKicks))
 	{
