@@ -1577,10 +1577,9 @@ void CGSH_OpenGL::Prim_Sprite()
 		assert(0);
 	}
 #else
-//	auto color = MakeColor(
-//		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
-//		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-	auto color = 0xFFFFFFFF;
+	auto color = MakeColor(
+		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
+		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
 
 	PRIM_VERTEX vertices[] =
 	{

@@ -268,7 +268,16 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
-	shaderBuilder << "	gl_FragColor = texture2D(g_texture, v_texCoord);" << std::endl;
+	shaderBuilder << "	vec4 textureColor = vec4(1, 1, 1, 1);" << std::endl;
+	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
+	{
+		shaderBuilder << "	textureColor = texture2D(g_texture, v_texCoord);" << std::endl;
+	}
+	else
+	{
+		shaderBuilder << "	textureColor = v_color;" << std::endl;
+	}
+	shaderBuilder << "	gl_FragColor = textureColor;" << std::endl;
 	shaderBuilder << "}" << std::endl;
 #endif
 
