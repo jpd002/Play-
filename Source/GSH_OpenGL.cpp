@@ -1320,7 +1320,6 @@ void CGSH_OpenGL::Prim_Line()
 
 void CGSH_OpenGL::Prim_Triangle()
 {
-#ifndef GLES_COMPATIBILITY
 	float nF1, nF2, nF3;
 
 	RGBAQ rgbaq[3];
@@ -1361,10 +1360,12 @@ void CGSH_OpenGL::Prim_Triangle()
 		nF1 = nF2 = nF3 = 0.0;
 	}
 
+	float nS[3] = { 0 ,0, 0 };
+	float nT[3] = { 0, 0, 0 };
+	float nQ[3] = { 1, 1, 1 };
+
 	if(m_PrimitiveMode.nTexture)
 	{
-		//Textured triangle
-
 		if(m_PrimitiveMode.nUseUV)
 		{
 			UV uv[3];
@@ -1372,29 +1373,13 @@ void CGSH_OpenGL::Prim_Triangle()
 			uv[1] <<= m_VtxBuffer[1].nUV;
 			uv[2] <<= m_VtxBuffer[0].nUV;
 
-			float nU1 = uv[0].GetU() / static_cast<float>(m_nTexWidth);
-			float nU2 = uv[1].GetU() / static_cast<float>(m_nTexWidth);
-			float nU3 = uv[2].GetU() / static_cast<float>(m_nTexWidth);
+			nS[0] = uv[0].GetU() / static_cast<float>(m_nTexWidth);
+			nS[1] = uv[1].GetU() / static_cast<float>(m_nTexWidth);
+			nS[2] = uv[2].GetU() / static_cast<float>(m_nTexWidth);
 
-			float nV1 = uv[0].GetV() / static_cast<float>(m_nTexHeight);
-			float nV2 = uv[1].GetV() / static_cast<float>(m_nTexHeight);
-			float nV3 = uv[2].GetV() / static_cast<float>(m_nTexHeight);
-
-			glBegin(GL_TRIANGLES);
-			{
-				glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-				glTexCoord2f(nU1, nV1);
-				glVertex3f(nX1, nY1, nZ1);
-
-				glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-				glTexCoord2f(nU2, nV2);
-				glVertex3f(nX2, nY2, nZ2);
-
-				glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-				glTexCoord2f(nU3, nV3);
-				glVertex3f(nX3, nY3, nZ3);
-			}
-			glEnd();
+			nT[0] = uv[0].GetV() / static_cast<float>(m_nTexHeight);
+			nT[1] = uv[1].GetV() / static_cast<float>(m_nTexHeight);
+			nT[2] = uv[2].GetV() / static_cast<float>(m_nTexHeight);
 		}
 		else
 		{
@@ -1403,8 +1388,8 @@ void CGSH_OpenGL::Prim_Triangle()
 			st[1] <<= m_VtxBuffer[1].nST;
 			st[2] <<= m_VtxBuffer[0].nST;
 
-			float nS1 = st[0].nS, nS2 = st[1].nS, nS3 = st[2].nS;
-			float nT1 = st[0].nT, nT2 = st[1].nT, nT3 = st[2].nT;
+			nS[0] = st[0].nS; nS[1] = st[1].nS; nS[2] = st[2].nS;
+			nT[0] = st[0].nT; nT[1] = st[1].nT; nT[2] = st[2].nT;
 
 			bool isQ0Neg = (rgbaq[0].nQ < 0);
 			bool isQ1Neg = (rgbaq[1].nQ < 0);
@@ -1413,31 +1398,38 @@ void CGSH_OpenGL::Prim_Triangle()
 			assert(isQ0Neg == isQ1Neg);
 			assert(isQ1Neg == isQ2Neg);
 
-			glBegin(GL_TRIANGLES);
-			{
-				glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-				glTexCoord4f(nS1, nT1, 0, rgbaq[0].nQ);
-				if(glFogCoordfEXT) glFogCoordfEXT(nF1);
-				glVertex3f(nX1, nY1, nZ1);
-
-				glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-				glTexCoord4f(nS2, nT2, 0, rgbaq[1].nQ);
-				if(glFogCoordfEXT) glFogCoordfEXT(nF2);
-				glVertex3f(nX2, nY2, nZ2);
-
-				glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-				glTexCoord4f(nS3, nT3, 0, rgbaq[2].nQ);
-				if(glFogCoordfEXT) glFogCoordfEXT(nF3);
-				glVertex3f(nX3, nY3, nZ3);
-			}
-			glEnd();
+			nQ[0] = rgbaq[0].nQ; nQ[1] = rgbaq[1].nQ; nQ[2] = rgbaq[2].nQ;
 		}
+	}
+
+#ifndef GLES_COMPATIBILITY
+	if(m_PrimitiveMode.nTexture)
+	{
+		//Textured triangle
+		glBegin(GL_TRIANGLES);
+		{
+			glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+			glTexCoord4f(nS[0], nT[0], 0, nQ[0]);
+			if(glFogCoordfEXT) glFogCoordfEXT(nF1);
+			glVertex3f(nX1, nY1, nZ1);
+
+			glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
+			glTexCoord4f(nS[1], nT[1], 0, nQ[1]);
+			if(glFogCoordfEXT) glFogCoordfEXT(nF2);
+			glVertex3f(nX2, nY2, nZ2);
+
+			glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
+			glTexCoord4f(nS[2], nT[2], 0, nQ[2]);
+			if(glFogCoordfEXT) glFogCoordfEXT(nF3);
+			glVertex3f(nX3, nY3, nZ3);
+		}
+		glEnd();
 	}
 	else
 	{
 		//Non Textured Triangle
 		glBegin(GL_TRIANGLES);
-			
+		{
 			glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, MulBy2Clamp(rgbaq[0].nA));
 			if(glFogCoordfEXT) glFogCoordfEXT(nF1);
 			glVertex3f(nX1, nY1, nZ1);
@@ -1449,9 +1441,37 @@ void CGSH_OpenGL::Prim_Triangle()
 			glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, MulBy2Clamp(rgbaq[2].nA));
 			if(glFogCoordfEXT) glFogCoordfEXT(nF3);
 			glVertex3f(nX3, nY3, nZ3);
-
+		}
 		glEnd();
 	}
+#else
+	auto color1 = MakeColor(
+		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
+		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+
+	auto color2 = MakeColor(
+		MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG),
+		MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
+
+	auto color3 = MakeColor(
+		MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG),
+		MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
+
+	PRIM_VERTEX vertices[] =
+	{
+		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0]	},
+		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1]	},
+		{	nX3,	nY3,	nZ3,	color3,	nS[2],	nT[2]	},
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW);
+
+	glBindVertexArray(m_primVertexArray);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	CHECKGLERROR();
 #endif
 }
 
