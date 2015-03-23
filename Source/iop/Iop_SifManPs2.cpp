@@ -1,4 +1,5 @@
 #include "Iop_SifManPs2.h"
+#include "../Ps2Const.h"
 
 using namespace Iop;
 
@@ -52,7 +53,7 @@ void CSifManPs2::SendCallReply(uint32 serverId, const void* returnData)
 
 void CSifManPs2::GetOtherData(uint32 dst, uint32 src, uint32 size)
 {
-	uint8* srcPtr = m_eeRam + src;
+	uint8* srcPtr = m_eeRam + (src & (PS2::EE_RAM_SIZE - 1));
 	uint8* dstPtr = m_iopRam + dst;
 	memcpy(dstPtr, srcPtr, size);
 }
@@ -80,7 +81,7 @@ uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 	for(unsigned int i = 0; i < count; i++)
 	{
 		uint8* src = m_iopRam + dmaReg[i].srcAddr;
-		uint8* dst = m_eeRam + dmaReg[i].dstAddr;
+		uint8* dst = m_eeRam + (dmaReg[i].dstAddr & (PS2::EE_RAM_SIZE - 1));
 		memcpy(dst, src, dmaReg[i].size);
 	}
 

@@ -111,10 +111,8 @@ void CChannel::Execute()
 	{
 		if(m_dmac.m_D_ENABLE)
 		{
-			if(m_nNumber != 4)
-			{
-				throw std::runtime_error("Need to check that case.");
-			}
+			//TODO: Need to check cases where this is done on channels other than 4
+			assert(m_nNumber == 4);
 			return;
 		}
 		if((m_nNumber == 1) && (m_CHCR.nDIR == 0))

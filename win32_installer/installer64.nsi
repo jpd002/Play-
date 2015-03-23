@@ -101,6 +101,8 @@ SectionEnd
 
 Section "Uninstall"
   
+  SetRegView 64
+  
   ; Remove registry keys
   DeleteRegKey HKLM "${REG_UNINSTALL}"
   DeleteRegKey HKLM SOFTWARE\NSIS_Play
