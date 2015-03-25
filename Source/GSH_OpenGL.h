@@ -215,7 +215,7 @@ private:
 	{
 		float x, y, z;
 		uint32 color;
-		float u, v;
+		float s, t, q;
 	};
 
 	void							WriteRegisterImpl(uint8, uint64);

@@ -86,9 +86,9 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 	shaderBuilder << "uniform mat4 g_projMatrix;" << std::endl;
 	shaderBuilder << "attribute vec3 a_position;" << std::endl;
 	shaderBuilder << "attribute vec4 a_color;" << std::endl;
-	shaderBuilder << "attribute vec2 a_texCoord;" << std::endl;
+	shaderBuilder << "attribute vec3 a_texCoord;" << std::endl;
 	shaderBuilder << "varying vec4 v_color;" << std::endl;
-	shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+	shaderBuilder << "varying vec3 v_texCoord;" << std::endl;
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	v_color = a_color;" << std::endl;
@@ -264,14 +264,14 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 #else
 	shaderBuilder << "#version 150" << std::endl;
 	shaderBuilder << "varying vec4 v_color;" << std::endl;
-	shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+	shaderBuilder << "varying vec3 v_texCoord;" << std::endl;
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	vec4 textureColor = vec4(1, 1, 1, 1);" << std::endl;
 	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
 	{
-		shaderBuilder << "	textureColor = texture2D(g_texture, v_texCoord);" << std::endl;
+		shaderBuilder << "	textureColor = texture2DProj(g_texture, v_texCoord);" << std::endl;
 	}
 	else
 	{

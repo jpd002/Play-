@@ -373,7 +373,7 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 		GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(12));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT, 
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 3, GL_FLOAT, 
 		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(16));
 
 	glBindVertexArray(0);
@@ -1459,9 +1459,9 @@ void CGSH_OpenGL::Prim_Triangle()
 
 	PRIM_VERTEX vertices[] =
 	{
-		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0]	},
-		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1]	},
-		{	nX3,	nY3,	nZ3,	color3,	nS[2],	nT[2]	},
+		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0]	},
+		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1]	},
+		{	nX3,	nY3,	nZ3,	color3,	nS[2],	nT[2],	nQ[2]	},
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
@@ -1583,10 +1583,10 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	PRIM_VERTEX vertices[] =
 	{
-		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1]	},
-		{	nX1,	nY1,	nZ,	color,	nS[0],	nT[0]	},
-		{	nX2,	nY2,	nZ,	color,	nS[1],	nT[1]	},
-		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0]	},
+		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1],	1	},
+		{	nX1,	nY1,	nZ,	color,	nS[0],	nT[0],	1	},
+		{	nX2,	nY2,	nZ,	color,	nS[1],	nT[1],	1	},
+		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0],	1	},
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
