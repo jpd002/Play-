@@ -1127,6 +1127,8 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 	//Save the context of the current thread
 	{
 		auto thread = GetThread(GetCurrentThreadId());
+		thread->contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
+
 		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 
 		//Save the context
@@ -1161,32 +1163,37 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 	//Load the new context
 	{
 		auto thread = GetThread(GetCurrentThreadId());
-		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
-
 		m_ee.m_State.nPC = thread->epc;
 
-		for(uint32 i = 0; i < 0x20; i++)
+		//Thread 0 doesn't have a context
+		if(id != 0)
 		{
-			if(i == CMIPS::R0) continue;
-			if(i == CMIPS::K0) continue;
-			if(i == CMIPS::K1) continue;
-			m_ee.m_State.nGPR[i] = context->gpr[i];
+			assert(thread->contextPtr != 0);
+			auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
+
+			for(uint32 i = 0; i < 0x20; i++)
+			{
+				if(i == CMIPS::R0) continue;
+				if(i == CMIPS::K0) continue;
+				if(i == CMIPS::K1) continue;
+				m_ee.m_State.nGPR[i] = context->gpr[i];
+			}
+			m_ee.m_State.nLO[0] = context->lo.nV[0];	m_ee.m_State.nLO[1] = context->lo.nV[1];
+			m_ee.m_State.nHI[0] = context->hi.nV[0];	m_ee.m_State.nHI[1] = context->hi.nV[1];
+			m_ee.m_State.nLO1[0] = context->lo.nV[2];	m_ee.m_State.nLO1[1] = context->lo.nV[3];
+			m_ee.m_State.nHI1[0] = context->hi.nV[2];	m_ee.m_State.nHI1[1] = context->hi.nV[3];
+			m_ee.m_State.nSA = context->sa;
+			for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
+			{
+				m_ee.m_State.nCOP1[i] = context->cop1[i];
+			}
+			for(uint32 i = 0; i < 4; i++)
+			{
+				m_ee.m_State.nCOP1[i + THREADCONTEXT::COP1_REG_COUNT] = context->gpr[CMIPS::K0].nV[i];
+			}
+			m_ee.m_State.nCOP1A = context->cop1a;
+			m_ee.m_State.nFCSR = context->fcsr;
 		}
-		m_ee.m_State.nLO[0] = context->lo.nV[0];	m_ee.m_State.nLO[1] = context->lo.nV[1];
-		m_ee.m_State.nHI[0] = context->hi.nV[0];	m_ee.m_State.nHI[1] = context->hi.nV[1];
-		m_ee.m_State.nLO1[0] = context->lo.nV[2];	m_ee.m_State.nLO1[1] = context->lo.nV[3];
-		m_ee.m_State.nHI1[0] = context->hi.nV[2];	m_ee.m_State.nHI1[1] = context->hi.nV[3];
-		m_ee.m_State.nSA = context->sa;
-		for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
-		{
-			m_ee.m_State.nCOP1[i] = context->cop1[i];
-		}
-		for(uint32 i = 0; i < 4; i++)
-		{
-			m_ee.m_State.nCOP1[i + THREADCONTEXT::COP1_REG_COUNT] = context->gpr[CMIPS::K0].nV[i];
-		}
-		m_ee.m_State.nCOP1A = context->cop1a;
-		m_ee.m_State.nFCSR = context->fcsr;
 	}
 
 	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", id);
@@ -1548,12 +1555,14 @@ void CPS2OS::sc_CreateThread()
 		return;
 	}
 
-	auto thread = GetThread(GetCurrentThreadId());
-	uint32 heapBase = thread->heapBase;
+	auto parentThread = GetThread(GetCurrentThreadId());
+	uint32 heapBase = parentThread->heapBase;
 
 	assert(threadParam->priority < 128);
 
-	thread = GetThread(id);
+	uint32 stackAddr = threadParam->stackBase + threadParam->stackSize;
+
+	auto thread = GetThread(id);
 	thread->valid			= 1;
 	thread->status			= THREAD_ZOMBIE;
 	thread->stackBase		= threadParam->stackBase;
@@ -1565,13 +1574,9 @@ void CPS2OS::sc_CreateThread()
 	thread->quota			= THREAD_INIT_QUOTA;
 	thread->scheduleID		= m_threadSchedule->Insert(id, threadParam->priority);
 	thread->stackSize		= threadParam->stackSize;
+	thread->contextPtr		= stackAddr - STACKRES;
 
-	uint32 stackAddr = threadParam->stackBase + threadParam->stackSize - STACKRES;
-	thread->contextPtr		= stackAddr;
-
-	assert(sizeof(THREADCONTEXT) == STACKRES);
-
-	THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
+	auto context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	memset(context, 0, sizeof(THREADCONTEXT));
 
 	context->gpr[CMIPS::SP].nV0 = stackAddr;
@@ -1622,7 +1627,7 @@ void CPS2OS::sc_StartThread()
 	thread->status = THREAD_RUNNING;
 	thread->epc = thread->threadProc;
 
-	THREADCONTEXT* context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
+	auto context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	context->gpr[CMIPS::A0].nV0 = arg;
 	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
 	context->gpr[CMIPS::SP].nV0 = thread->contextPtr;
@@ -1962,16 +1967,14 @@ void CPS2OS::sc_SetupThread()
 	}
 
 	//Set up the main thread
-	THREAD* thread = GetThread(1);
+	auto thread = GetThread(1);
 	thread->valid			= 0x01;
 	thread->status			= THREAD_RUNNING;
 	thread->stackBase		= stackAddr - stackSize;
 	thread->priority		= 0;
 	thread->quota			= THREAD_INIT_QUOTA;
 	thread->scheduleID		= m_threadSchedule->Insert(1, thread->priority);
-
-	stackAddr -= STACKRES;
-	thread->contextPtr		= stackAddr;
+	thread->contextPtr		= 0;
 
 	SetCurrentThreadId(1);
 
