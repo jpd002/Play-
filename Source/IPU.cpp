@@ -93,6 +93,8 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		if(!m_isBusy)
 		{
 			unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
+			//If no bits are available, return zero immediately, shift below won't have any effect
+			if(availableSize == 0) return 0;
 			uint32 result = m_IN_FIFO.PeekBits_MSBF(availableSize);
 			result <<= (32 - availableSize);
 			return result;
@@ -104,7 +106,12 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_TOP + 0x4:
-		return GetBusyBit(m_isBusy);
+		{
+			//Not quite sure about this... are we really busy if there's no data in the FIFO?
+			//This was needed to fix Timesplitters
+			unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
+			return GetBusyBit(m_isBusy) | GetBusyBit(availableSize != 32);
+		}
 		break;
 
 	case IPU_TOP + 0x8:
@@ -700,6 +707,7 @@ bool CIPU::CINFIFO::TryPeekBits_LSBF(uint8 nBits, uint32& result)
 
 bool CIPU::CINFIFO::TryPeekBits_MSBF(uint8 size, uint32& result)
 {
+	assert(size != 0);
 	assert(size <= 32);
 
 	int bitsAvailable = (m_size * 8) - m_bitPosition;
