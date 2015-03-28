@@ -667,6 +667,12 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 		//REMOVE
 	}
+	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 2))
+	{
+		//Cd * FIX
+		glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
+		glBlendFuncSeparate(GL_ZERO, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
+	}
 	else if((alpha.nA == 2) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
 		nFunction = GL_FUNC_REVERSE_SUBTRACT_EXT;
