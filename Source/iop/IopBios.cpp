@@ -584,54 +584,6 @@ void CIopBios::ProcessModuleReset(const std::string& imagePath)
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SetModuleVersion(imageVersion);
 #endif
-#define LIBSD_LOG_NAME "libsd"
-
-void CIopBios::DumpLibSdCall(uint32 functionId)
-{
-	switch(functionId)
-	{
-	case 4:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdInit(flag = %d);\r\n", 
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0);
-		break;
-	case 5:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdSetParam(entry = 0x%0.4X, value = 0x%0.4X);\r\n", 
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0, m_cpu.m_State.nGPR[CMIPS::A1].nV0);
-		break;
-	case 7:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdSetSwitch(entry = 0x%0.4X, value = 0x%0.8X);\r\n",
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0, m_cpu.m_State.nGPR[CMIPS::A1].nV0);
-		break;
-	case 9:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdSetAddr(entry = 0x%0.4X, value = 0x%0.8X);\r\n", 
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0, m_cpu.m_State.nGPR[CMIPS::A1].nV0);
-		break;
-	case 10:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdGetAddr(entry = 0x%0.4X);\r\n", m_cpu.m_State.nGPR[CMIPS::A0].nV0);
-		break;
-	case 17:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdVoiceTrans(channel = 0x%0.4X, mode = 0x%0.4X, maddr = 0x%0.8X, saddr = 0x%0.8X, size = 0x%0.8X);\r\n",
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0, m_cpu.m_State.nGPR[CMIPS::A1].nV0, 
-			m_cpu.m_State.nGPR[CMIPS::A2].nV0, m_cpu.m_State.nGPR[CMIPS::A3].nV0, 
-			m_cpu.m_State.nGPR[CMIPS::T0].nV0);
-		break;
-	case 18:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdBlockTrans(channel = 0x%0.4X, mode = 0x%0.4X, maddr = 0x%0.8X, size = 0x%0.8X);\r\n",
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0, m_cpu.m_State.nGPR[CMIPS::A1].nV0, 
-			m_cpu.m_State.nGPR[CMIPS::A2].nV0, m_cpu.m_State.nGPR[CMIPS::A3].nV0);
-		break;
-	case 19:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdVoiceTransStatus(channel = 0x%0.4X, flag = 0x%0.4X);\r\n",
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0, m_cpu.m_State.nGPR[CMIPS::A1].nV0);
-		break;
-	case 20:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "sceSdBlockTransStatus(channel = 0x%0.4X, flag = 0x%0.4X);\r\n",
-			m_cpu.m_State.nGPR[CMIPS::A0].nV0, m_cpu.m_State.nGPR[CMIPS::A1].nV0);
-		break;
-	default:
-		CLog::GetInstance().Print(LIBSD_LOG_NAME, "unknownlibsd(%d);\r\n", functionId);
-		break;
-	}
 }
 
 CIopBios::THREAD* CIopBios::GetThread(uint32 threadId)
@@ -1824,7 +1776,8 @@ void CIopBios::HandleException()
 #ifdef _DEBUG
 		if(moduleName == "libsd")
 		{
-			DumpLibSdCall(functionId);
+			//TODO: Hook that up again
+			//DumpLibSdCall(functionId);
 		}
 #endif
 
