@@ -52,30 +52,41 @@ void Gather(const char* archivePathName, const char* outputPathName)
 					[=] ()
 					{
 						printf("Processing %s...\r\n", archiveItemPath.string().c_str());
+						fflush(stdout);
 
-						CPsfVm virtualMachine;
+						try
+						{
+							CPsfVm virtualMachine;
 
-						CPsfLoader::LoadPsf(virtualMachine, archiveItemPath.wstring(), archivePath);
-						int currentTime = 0;
-						virtualMachine.OnNewFrame.connect(
-							[&currentTime] ()
-							{
-								currentTime += 16;
-							});
+							CPsfLoader::LoadPsf(virtualMachine, archiveItemPath.wstring(), archivePath);
+							int currentTime = 0;
+							virtualMachine.OnNewFrame.connect(
+								[&currentTime] ()
+								{
+									currentTime += 16;
+								});
 
-						virtualMachine.Resume();
+							virtualMachine.Resume();
 
 #ifdef _DEBUG
-						static const unsigned int executionTime = 1;
+							static const unsigned int executionTime = 1;
 #else
-						static const unsigned int executionTime = 10;
+							static const unsigned int executionTime = 10;
 #endif
-						while(currentTime <= (executionTime * 60 * 1000))
-						{
-							std::this_thread::sleep_for(std::chrono::milliseconds(10));
-						}
+							while(currentTime <= (executionTime * 60 * 1000))
+							{
+								std::this_thread::sleep_for(std::chrono::milliseconds(10));
+							}
 
-						virtualMachine.Pause();
+							virtualMachine.Pause();
+						}
+						catch(const std::exception& exception)
+						{
+							printf("Failed to process '%s', reason: '%s'.\r\n", 
+								archiveItemPath.string().c_str(), exception.what());
+							fflush(stdout);
+							throw;
+						}
 					}
 				);
 			}
@@ -100,7 +111,7 @@ unsigned int CompileFunction(CPsfVm& virtualMachine, CMipsJitter* jitter, const 
 		Jitter::CObjectFile::INTERNAL_SYMBOL func;
 
 		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler(
-			[&] (void* symbol, uint32 offset)
+			[&] (uintptr_t symbol, uint32 offset)
 			{
 				Jitter::CObjectFile::SYMBOL_REFERENCE ref;
 				ref.offset		= offset;
@@ -276,16 +287,16 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	}
 
 	codeGen->RegisterExternalSymbols(objectFile.get());
-	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", &MemoryUtils_GetByteProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", &MemoryUtils_GetHalfProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", &MemoryUtils_GetWordProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy", &MemoryUtils_SetByteProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy", &MemoryUtils_SetHalfProxy);
-	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy", &MemoryUtils_SetWordProxy);
-	objectFile->AddExternalSymbol("_LWL_Proxy", &LWL_Proxy);
-	objectFile->AddExternalSymbol("_LWR_Proxy", &LWR_Proxy);
-	objectFile->AddExternalSymbol("_SWL_Proxy", &SWL_Proxy);
-	objectFile->AddExternalSymbol("_SWR_Proxy", &SWR_Proxy);
+	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetByteProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetHalfProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetWordProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetByteProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetHalfProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy));
+	objectFile->AddExternalSymbol("_LWL_Proxy", reinterpret_cast<uintptr_t>(&LWL_Proxy));
+	objectFile->AddExternalSymbol("_LWR_Proxy", reinterpret_cast<uintptr_t>(&LWR_Proxy));
+	objectFile->AddExternalSymbol("_SWL_Proxy", reinterpret_cast<uintptr_t>(&SWL_Proxy));
+	objectFile->AddExternalSymbol("_SWR_Proxy", reinterpret_cast<uintptr_t>(&SWR_Proxy));
 
 	//Initialize Jitter Service
 	auto jitter = new CMipsJitter(codeGen);
@@ -372,9 +383,15 @@ int main(int argc, char** argv)
 			PrintUsage();
 			return -1;
 		}
-		else
+
+		try
 		{
 			Gather(argv[2], argv[3]);
+		}
+		catch(const std::exception& exception)
+		{
+			printf("Failed to gather: %s\r\n", exception.what());
+			return -1;
 		}
 	}
 	else if(!strcmp(argv[1], "compile"))

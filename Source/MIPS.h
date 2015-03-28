@@ -18,7 +18,8 @@ struct REGISTER_PIPELINE
 
 enum
 {
-	MACFLAG_PIPELINE_SLOTS = 4,
+	//Must be a power of 2
+	MACFLAG_PIPELINE_SLOTS = 8,
 };
 
 struct MACFLAG_PIPELINE
@@ -83,6 +84,7 @@ __attribute__((aligned(16)))
 	uint32				nCOP2R;
 	uint32				nCOP2CF;
 	uint32				nCOP2MF;
+	uint32				nCOP2SF;
 	uint32				nCOP2T;
 
 	uint32				nCOP2VI[16];

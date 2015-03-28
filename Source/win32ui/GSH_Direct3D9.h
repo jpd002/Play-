@@ -47,7 +47,7 @@ public:
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 
 protected:
-	virtual void					ResetBase() override;
+	virtual void					ResetImpl() override;
 	virtual void					InitializeImpl() override;
 	virtual void					ReleaseImpl() override;
 	virtual void					FlipImpl() override;

@@ -3,9 +3,9 @@
 #include "win32/ClientDeviceContext.h"
 #include "win32/MemoryDeviceContext.h"
 #include "win32/Font.h"
+#include "win32/DpiUtils.h"
 #include "string_format.h"
 #include "string_cast.h"
-#include "WinUtils.h"
 
 CStatsOverlayWindow::CStatsOverlayWindow()
 {
@@ -18,11 +18,11 @@ CStatsOverlayWindow::CStatsOverlayWindow(HWND parentWnd)
 	//Fill in render metrics
 	{
 		auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
-		m_renderMetrics.marginX = WinUtils::PointsToPixels(10);
-		m_renderMetrics.marginY = WinUtils::PointsToPixels(10);
+		m_renderMetrics.marginX = Framework::Win32::PointsToPixels(10);
+		m_renderMetrics.marginY = Framework::Win32::PointsToPixels(10);
 		m_renderMetrics.fontSizeX = fontSize.cx;
 		m_renderMetrics.fontSizeY = fontSize.cy;
-		m_renderMetrics.spaceY = WinUtils::PointsToPixels(3);
+		m_renderMetrics.spaceY = Framework::Win32::PointsToPixels(3);
 	}
 
 	Create(WS_EX_TRANSPARENT | WS_EX_LAYERED, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_POPUP, Framework::Win32::CRect(0, 0, 128, 128), parentWnd, NULL);

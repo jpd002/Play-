@@ -10,12 +10,16 @@
 class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals2::trackable
 {
 public:
+	typedef boost::signals2::signal<void (uint32)> FindCallersRequestedEvent;
+
 									CDisAsm(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CDisAsm();
 
 	void							SetAddress(uint32);
 	void							SetCenterAtAddress(uint32);
 	void							SetSelectedAddress(uint32);
+
+	FindCallersRequestedEvent		FindCallersRequested;
 
 protected:
 	struct RENDERMETRICS

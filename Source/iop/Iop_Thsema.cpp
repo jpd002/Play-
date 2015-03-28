@@ -11,6 +11,8 @@ using namespace Iop;
 #define FUNCTION_SIGNALSEMAPHORE	"SignalSemaphore"
 #define FUNCTION_ISIGNALSEMAPHORE	"iSignalSemaphore"
 #define FUNCTION_WAITSEMAPHORE		"WaitSemaphore"
+#define FUNCTION_POLLSEMAPHORE		"PollSemaphore"
+#define FUNCTION_REFERSEMASTATUS	"ReferSemaStatus"
 
 CThsema::CThsema(CIopBios& bios, uint8* ram)
 : m_bios(bios)
@@ -46,7 +48,13 @@ std::string CThsema::GetFunctionName(unsigned int functionId) const
 		return FUNCTION_ISIGNALSEMAPHORE;
 		break;
 	case 8:
-		return FUNCTION_WAITSEMAPHORE; 
+		return FUNCTION_WAITSEMAPHORE;
+		break;
+	case 9:
+		return FUNCTION_POLLSEMAPHORE;
+		break;
+	case 11:
+		return FUNCTION_REFERSEMASTATUS;
 		break;
 	default:
 		return "unknown";
@@ -83,6 +91,17 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0
 			));
 		break;
+	case 9:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(PollSemaphore(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			));
+		break;
+	case 11:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferSemaphoreStatus(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			));
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
 		break;
@@ -112,4 +131,14 @@ uint32 CThsema::iSignalSemaphore(uint32 semaphoreId)
 uint32 CThsema::WaitSemaphore(uint32 semaphoreId)
 {
 	return m_bios.WaitSemaphore(semaphoreId);
+}
+
+uint32 CThsema::PollSemaphore(uint32 semaphoreId)
+{
+	return m_bios.PollSemaphore(semaphoreId);
+}
+
+uint32 CThsema::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
+{
+	return m_bios.ReferSemaphoreStatus(semaphoreId, statusPtr);
 }

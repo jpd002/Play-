@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "make_unique.h"
 #include "Iop_Spu2.h"
 #include "../Log.h"
 #include "placeholder_def.h"
@@ -134,15 +135,15 @@ CSpu2::CSpu2(CSpuBase& spuBase0, CSpuBase& spuBase1)
 	for(unsigned int i = 0; i < CORE_NUM; i++)
 	{
 		CSpuBase& base(i == 0 ? spuBase0 : spuBase1);
-		m_core[i] = new CCore(i, base);
+		m_core[i] = std::make_unique<CCore>(i, base);
 	}
 
 	m_readDispatchInfo.global = std::bind(&CSpu2::ReadRegisterImpl, this, std::placeholders::_1, std::placeholders::_2);
 	m_writeDispatchInfo.global = std::bind(&CSpu2::WriteRegisterImpl, this, std::placeholders::_1, std::placeholders::_2);
 	for(unsigned int i = 0; i < CORE_NUM; i++)
 	{
-		m_readDispatchInfo.core[i] = std::bind(&CCore::ReadRegister, m_core[i], std::placeholders::_1, std::placeholders::_2);
-		m_writeDispatchInfo.core[i] = std::bind(&CCore::WriteRegister, m_core[i], std::placeholders::_1, std::placeholders::_2);
+		m_readDispatchInfo.core[i] = std::bind(&CCore::ReadRegister, m_core[i].get(), std::placeholders::_1, std::placeholders::_2);
+		m_writeDispatchInfo.core[i] = std::bind(&CCore::WriteRegister, m_core[i].get(), std::placeholders::_1, std::placeholders::_2);
 	}
 }
 
@@ -162,8 +163,8 @@ void CSpu2::Reset()
 CCore* CSpu2::GetCore(unsigned int coreId)
 {
 	assert(coreId < CORE_NUM);
-	if(coreId >= CORE_NUM) return NULL;
-	return m_core[coreId];
+	if(coreId >= CORE_NUM) return nullptr;
+	return m_core[coreId].get();
 }
 
 uint32 CSpu2::ReadRegister(uint32 address)
@@ -196,8 +197,21 @@ uint32 CSpu2::ProcessRegisterAccess(const REGISTER_DISPATCH_INFO& dispatchInfo, 
 
 uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
 {
+	uint32 result = 0;
+	switch(address)
+	{
+	case C_IRQINFO:
+		for(unsigned int i = 0; i < CORE_NUM; i++)
+		{
+			if(m_core[i]->GetSpuBase().GetIrqPending())
+			{
+				result |= (1 << (i + 2));
+			}
+		}
+		break;
+	}
 	LogRead(address);
-	return 0;
+	return result;
 }
 
 uint32 CSpu2::WriteRegisterImpl(uint32 address, uint32 value)
@@ -210,6 +224,9 @@ void CSpu2::LogRead(uint32 address)
 {
 	switch(address)
 	{
+	case C_IRQINFO:
+		CLog::GetInstance().Print(LOG_NAME, " = C_IRQINFO\r\n");
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%0.8X.\r\n", address);
 		break;

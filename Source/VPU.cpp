@@ -716,6 +716,10 @@ bool CVPU::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& w
 		//V2-16
 		success = Unpack_V16(stream, writeValue, 2, usn);
 		break;
+	case 0x06:
+		//V2-8
+		success = Unpack_V8(stream, writeValue, 2, usn);
+		break;
 	case 0x08:
 		//V3-32
 		success = Unpack_V32(stream, writeValue, 3);
@@ -930,7 +934,7 @@ void CVPU::DisassembleCommand(CODE code)
 			"(Unknown)",
 			"V2-32",
 			"V2-16",
-			"(Unknown)",
+			"V2-8",
 			"(Unknown)",
 			"V3-32",
 			"V3-16",

@@ -115,7 +115,7 @@ void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
 	case 17:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SuspendInterrupts(
 			context,
-			reinterpret_cast<uint32*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
+			context.m_State.nGPR[CMIPS::A0].nV0
 			));
 		break;
 	case 18:
@@ -205,15 +205,21 @@ uint32 CIntrman::DisableInterrupts(CMIPS& context)
 	return 0;
 }
 
-uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32* state)
+uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32 statePtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, FUNCTION_SUSPENDINTERRUPTS "();\r\n");
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_SUSPENDINTERRUPTS "(statePtr = 0x%0.8X);\r\n", 
+		statePtr);
 #endif
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-	(*state) = statusRegister & CMIPS::STATUS_INT;
+	uint32 result = ((statusRegister & CMIPS::STATUS_INT) != 0) ? 0 : -1;
+	if(statePtr != 0)
+	{
+		uint32* state = reinterpret_cast<uint32*>(m_ram + statePtr);
+		(*state) = statusRegister & CMIPS::STATUS_INT;
+	}
 	statusRegister &= ~CMIPS::STATUS_INT;
-	return 0;
+	return result;
 }
 
 uint32 CIntrman::ResumeInterrupts(CMIPS& context, uint32 state)
@@ -238,6 +244,7 @@ uint32 CIntrman::QueryIntrContext(CMIPS& context)
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, FUNCTION_QUERYINTRCONTEXT "();\r\n");
 #endif
-	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-	return (statusRegister & CMIPS::STATUS_EXL ? 1 : 0);
+	uint32 statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
+	//If we're inside an exception or if interrupts are disabled, we are inside an interrupt context
+	return ((statusRegister & CMIPS::STATUS_EXL) != 0) || ((statusRegister & CMIPS::STATUS_INT) == 0);
 }

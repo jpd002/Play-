@@ -15,8 +15,10 @@
 #include "Iop_Sysmem.h"
 #include "Iop_Modload.h"
 #include "Iop_Loadcore.h"
+#include "Iop_LibSd.h"
 #include "Iop_Dynamic.h"
 #ifdef _IOP_EMULATE_MODULES
+#include "Iop_FileIo.h"
 #include "Iop_PadMan.h"
 #include "Iop_Cdvdfsv.h"
 #endif
@@ -91,6 +93,7 @@ public:
 	bool						LoadAndStartModule(const char*, const char*, unsigned int);
 	void						LoadAndStartModule(uint32, const char*, unsigned int);
 	bool						IsModuleLoaded(const char*) const;
+	void						ProcessModuleReset(const std::string&);
 
 	void						HandleException();
 	void						HandleInterrupt();
@@ -145,6 +148,8 @@ public:
 	uint32						DeleteSemaphore(uint32);
 	uint32						SignalSemaphore(uint32, bool);
 	uint32						WaitSemaphore(uint32);
+	uint32						PollSemaphore(uint32);
+	uint32						ReferSemaphoreStatus(uint32, uint32);
 
 	uint32						CreateEventFlag(uint32, uint32, uint32);
 	uint32						SetEventFlag(uint32, uint32, bool);
@@ -242,6 +247,16 @@ private:
 		uint32			nextMsgPtr;
 	};
 
+	struct SEMAPHORE_STATUS
+	{
+		uint32			attrib;
+		uint32			option;
+		uint32			initCount;
+		uint32			maxCount;
+		uint32			currentCount;
+		uint32			numWaitThreads;
+	};
+
 	struct MODULELOADREQUEST
 	{
 		enum 
@@ -293,6 +308,7 @@ private:
 	typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
 	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
+	typedef std::shared_ptr<Iop::CModule> ModulePtr;
 
 	void							RegisterModule(Iop::CModule*);
 	void							ClearDynamicModules();
@@ -374,7 +390,9 @@ private:
 	Iop::CSysmem*					m_sysmem;
 	Iop::CModload*					m_modload;
 	Iop::CLoadcore*					m_loadcore;
+	ModulePtr						m_libsd;
 #ifdef _IOP_EMULATE_MODULES
+	Iop::CFileIo*					m_fileIo;
 	Iop::CPadMan*					m_padman;
 	Iop::CCdvdfsv*					m_cdvdfsv;
 #endif

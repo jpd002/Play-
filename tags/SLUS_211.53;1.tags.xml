@@ -19,6 +19,7 @@
 		<tag address="0011A128" value="DoIpuSomething" />
 		<tag address="0011A280" value="sceMpegCallExternalHandler" />
 		<tag address="0011A2F8" value="sceMpegCallNoDataHandler" />
+		<tag address="0011E280" value="sceMpegDemuxPssRing" />
 		<tag address="0011E858" value="sceMpegReportError" />
 		<tag address="0011E908" value="sceMpegReportErrorCode" />
 		<tag address="0011E9D0" value="sceMpegReportErrorWrapper" />
@@ -167,6 +168,7 @@
 		<tag address="00122868" value="iSifSendCmd" />
 		<tag address="001229F0" value="WritebackDCache" />
 		<tag address="00123428" value="SifCallRpc" />
+		<tag address="00123628" value="SifCheckStatRpc" />
 		<tag address="00128E08" value="syscall_005A" />
 		<tag address="00128E50" value="syscall_005B" />
 		<tag address="00128E60" value="syscall_0074" />
@@ -203,8 +205,11 @@
 		<tag address="0013A988" value="ReadMovieDataLoop" />
 		<tag address="0013AD88" value="YieldToDecodingThread" />
 		<tag address="0013B6B0" value="FinishMoviePlaying" />
+		<tag address="0013B878" value="UpdateMovieAvailableDataCaller" />
 		<tag address="0013C2C8" value="SendSif" />
 		<tag address="0013C3E0" value="StopDMA4?" />
+		<tag address="0013C718" value="UpdateMovieAvailableData" />
+		<tag address="0013D408" value="UpdateMovieAvailableDataEx" />
 		<tag address="0013D460" value="SetMovieStateTo1" />
 		<tag address="0013D470" value="GetMovieState" />
 		<tag address="0013D478" value="SetMovieState" />
@@ -494,6 +499,12 @@
 " />
 		<tag address="0013AA0C" value="Jump here if read to be skipped" />
 		<tag address="0013AC90" value="V0 = S3 = Finish?" />
+		<tag address="0013C728" value="S1 = A1" />
+		<tag address="0013C738" value="Reads data available" />
+		<tag address="0013C740" value="V1 = V1 + S1" />
+		<tag address="0013C750" value="Writes data available" />
+		<tag address="0013C7D8" value="Read CHCR" />
+		<tag address="0013C7DC" value="Read MADR" />
 		<tag address="0013D9D0" value="Jump up above" />
 		<tag address="0013D9D4" value="Enters when failure" />
 		<tag address="0013E690" value="cdrom0:\MODULES\IOPRP300.IMG;1" />
@@ -928,6 +939,7 @@
 			<tag address="0005CD18" value="cdvdman_unknown" />
 			<tag address="0005CD20" value="cdvdman_unknown" />
 			<tag address="0005CD28" value="cdvdman_unknown" />
+			<tag address="00061660" value="SD_RpcHandler" />
 			<tag address="0006F8B4" value="cdvdman_unknown" />
 			<tag address="0006F8BC" value="cdvdman_unknown" />
 			<tag address="0006F8C4" value="cdvdman_CdRead" />

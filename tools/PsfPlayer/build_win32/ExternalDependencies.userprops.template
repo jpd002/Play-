@@ -5,7 +5,7 @@
     <FRAMEWORK_PATH>path_to\framework</FRAMEWORK_PATH>
     <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
     <OPENAL_PATH>path_to\openal-1.1</OPENAL_PATH>
-    <UNRAR_PATH>path_to\unrarsrc-4.0.3</UNRAR_PATH>
+    <UNRAR_PATH>path_to\unrarsrc-5.2.5</UNRAR_PATH>
     <TDEMU_PATH>path_to\tdemu</TDEMU_PATH>
   </PropertyGroup>
   <PropertyGroup />

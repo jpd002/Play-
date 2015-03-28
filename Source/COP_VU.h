@@ -79,6 +79,8 @@ private:
 	void								VMADDq();
 	void								VMADDi();
 	void								VMSUBq();
+	void								VSUBi();
+	void								VMSUBi();
 	void								VADD();
 	void								VMADD();
 	void								VMUL();
@@ -89,6 +91,7 @@ private:
 	void								VMINI();
 	void								VIADD();
 	void								VIADDI();
+	void								VIOR();
 	void								VCALLMS();
 	void								VCALLMSR();
 	void								VX0();
@@ -110,6 +113,7 @@ private:
 	void								VADDA();
 	void								VSUBA();
 	void								VMOVE();
+	void								VLQI();
 	void								VDIV();
 	void								VMTIR();
 	void								VRNEXT();
@@ -140,6 +144,8 @@ private:
 	void								VITOF15();
 	void								VFTOI15();
 	void								VCLIP();
+	void								VMADDAi();
+	void								VMSUBAi();
 	void								VNOP();
 	void								VWAITQ();
 	void								VISWR();

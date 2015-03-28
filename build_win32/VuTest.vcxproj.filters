@@ -97,6 +97,12 @@
     <ClCompile Include="..\Source\FpMulTruncate.cpp">
       <Filter>Source Files\Play Core\VU</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\VuTest\VuAssembler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\VuTest\FlagsTest2.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\MIPS.h">
@@ -167,6 +173,12 @@
     </ClInclude>
     <ClInclude Include="..\Source\FpMulTruncate.h">
       <Filter>Source Files\Play Core\VU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\VuTest\VuAssembler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\VuTest\FlagsTest2.h">
+      <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -168,6 +168,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_loadcore);
 	}
 	{
+		m_libsd = std::make_shared<Iop::CLibSd>();
+	}
+	{
 		RegisterModule(new Iop::CThbase(*this, m_ram));
 	}
 	{
@@ -189,7 +192,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(new Iop::CVblank(*this));
 	}
 	{
-		m_cdvdman = new Iop::CCdvdman(m_ram);
+		m_cdvdman = new Iop::CCdvdman(*this, m_ram);
 		RegisterModule(m_cdvdman);
 	}
 	{
@@ -201,7 +204,8 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	}
 #ifdef _IOP_EMULATE_MODULES
 	{
-		RegisterModule(new Iop::CFileIo(*m_sifMan, *m_ioman));
+		m_fileIo = new Iop::CFileIo(*m_sifMan, *m_ioman);
+		RegisterModule(m_fileIo);
 	}
 	{
 		m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan, m_ram);
@@ -279,6 +283,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(modulesFile);
 
 	m_sifCmd->SaveState(archive);
+	m_cdvdman->SaveState(archive);
 }
 
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
@@ -298,6 +303,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 	}
 
 	m_sifCmd->LoadState(archive);
+	m_cdvdman->LoadState(archive);
 
 #ifdef DEBUGGER_INCLUDED
 	m_cpu.m_analysis->Clear();
@@ -556,6 +562,28 @@ bool CIopBios::IsModuleLoaded(const char* moduleName) const
 	return false;
 }
 
+void CIopBios::ProcessModuleReset(const std::string& imagePath)
+{
+	unsigned int imageVersion = 1000;
+	auto imageFileName = strstr(imagePath.c_str(), "IOPRP");
+	if(imageFileName != nullptr)
+	{
+		auto cvtCount = sscanf(imageFileName, "IOPRP%d.IMG;1", &imageVersion);
+		if(cvtCount == 1)
+		{
+			if(imageVersion < 100)
+			{
+				imageVersion = imageVersion * 100;
+			}
+			else
+			{
+				imageVersion = imageVersion * 10;
+			}
+		}
+	}
+#ifdef _IOP_EMULATE_MODULES
+	m_fileIo->SetModuleVersion(imageVersion);
+#endif
 #define LIBSD_LOG_NAME "libsd"
 
 void CIopBios::DumpLibSdCall(uint32 functionId)
@@ -1263,6 +1291,49 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 	return semaphore->count;
 }
 
+uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
+{
+	CLog::GetInstance().Print(LOGNAME, "%d: PollSemaphore(semaphoreId = %d);\r\n", 
+		CurrentThreadId(), semaphoreId);
+
+	auto semaphore = m_semaphores[semaphoreId];
+	if(semaphore == nullptr)
+	{
+		return -1;
+	}
+
+	if(semaphore->count == 0)
+	{
+		return -1;
+	}
+
+	semaphore->count--;
+
+	return 0;
+}
+
+uint32 CIopBios::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
+{
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferSemaphoreStatus(semaphoreId = %d, statusPtr = 0x%0.8X);\r\n", 
+		CurrentThreadId(), semaphoreId, statusPtr);
+
+	auto semaphore = m_semaphores[semaphoreId];
+	if(semaphore == nullptr)
+	{
+		return -1;
+	}
+
+	auto status = reinterpret_cast<SEMAPHORE_STATUS*>(m_ram + statusPtr);
+	status->attrib			= 0;
+	status->option			= 0;
+	status->initCount		= 0;
+	status->maxCount		= semaphore->maxCount;
+	status->currentCount	= semaphore->count;
+	status->numWaitThreads	= semaphore->waitCount;
+
+	return 0;
+}
+
 uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initValue)
 {
 #ifdef _DEBUG
@@ -1860,6 +1931,8 @@ void CIopBios::DeleteModules()
 	}
 	m_dynamicModules.clear();
 
+	m_libsd.reset();
+
 	m_sifMan = NULL;
 	m_stdio = NULL;
 	m_ioman = NULL;
@@ -2256,7 +2329,11 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
 				uint32 functionId = target & 0xFFFF;
 				std::string functionName;
-				if(module != m_modules.end())
+				if(moduleName == m_libsd->GetId())
+				{
+					functionName = m_libsd->GetFunctionName(functionId);
+				}
+				else if(module != m_modules.end())
 				{
 					functionName = (module->second)->GetFunctionName(functionId);
 				}

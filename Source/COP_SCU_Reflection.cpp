@@ -148,7 +148,7 @@ INSTRUCTION CCOP_SCU::m_cReflBc0[4] =
 	//0x00
 	{	"BC0F",			NULL,			CopyMnemonic,		ReflOpCcOff,		MIPSReflection::IsBranch,	ReflEaOffset	},
 	{	"BC0T",			NULL,			CopyMnemonic,		ReflOpCcOff,		MIPSReflection::IsBranch,	ReflEaOffset	},
-	{	NULL,			NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"BC0FL",		NULL,			CopyMnemonic,		ReflOpCcOff,		MIPSReflection::IsBranch,	ReflEaOffset	},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,						NULL			},
 };
 

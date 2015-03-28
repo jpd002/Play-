@@ -4,7 +4,6 @@
 #define WNDSTYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
 CDisAsmWnd::CDisAsmWnd(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS* ctx, DISASM_TYPE disAsmType)
-: m_disAsm(nullptr)
 {
 	Create(NULL, Framework::Win32::CDefaultWndClass::GetName(), _T("Disassembly"), WNDSTYLE, 
 		Framework::Win32::CRect(0, 0, 320, 240), parentWnd, NULL);
@@ -32,19 +31,9 @@ CDisAsmWnd::~CDisAsmWnd()
 	delete m_disAsm;
 }
 
-void CDisAsmWnd::SetAddress(uint32 nAddress)
+CDisAsm* CDisAsmWnd::GetDisAsm() const
 {
-	m_disAsm->SetAddress(nAddress);
-}
-
-void CDisAsmWnd::SetCenterAtAddress(uint32 address)
-{
-	m_disAsm->SetCenterAtAddress(address);
-}
-
-void CDisAsmWnd::SetSelectedAddress(uint32 address)
-{
-	m_disAsm->SetSelectedAddress(address);
+	return m_disAsm;
 }
 
 void CDisAsmWnd::Refresh()

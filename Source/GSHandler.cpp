@@ -62,14 +62,12 @@ struct MASSIVEWRITE_INFO
 
 CGSHandler::CGSHandler()
 : m_threadDone(false)
-, m_flipMode(FLIP_MODE_VBLANK)
 , m_drawCallCount(0)
 , m_pCLUT(nullptr)
 , m_pRAM(nullptr)
 , m_frameDump(nullptr)
 , m_loggingEnabled(true)
 {
-	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, FLIP_MODE_VBLANK);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
 	
 	m_presentationParams.mode = static_cast<PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
@@ -206,7 +204,6 @@ void CGSHandler::SetDrawEnabled(bool drawEnabled)
 
 void CGSHandler::SetVBlank()
 {
-	if(m_flipMode == FLIP_MODE_VBLANK)
 	{
 		Flip();
 	}
@@ -274,16 +271,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		}
 		break;
 	case GS_SMODE2:
-		{
-			W_REG(nAddress, nData, m_nSMODE2);
-			if(nAddress & 0x04)
-			{
-				if(m_flipMode == FLIP_MODE_SMODE2)
-				{
-					Flip();
-				}
-			}
-		}
+		W_REG(nAddress, nData, m_nSMODE2);
 		break;
 	case GS_DISPFB1:
 		WriteToDelayedRegister(nAddress, nData, m_nDISPFB1);
@@ -293,13 +281,6 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		break;
 	case GS_DISPFB2:
 		WriteToDelayedRegister(nAddress, nData, m_nDISPFB2);
-		if(nAddress & 0x04)
-		{
-			if(m_flipMode == FLIP_MODE_DISPFB2)
-			{
-				Flip();
-			}
-		}
 		break;
 	case GS_DISPLAY2:
 		WriteToDelayedRegister(nAddress, nData, m_nDISPLAY2);
@@ -309,6 +290,10 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			if(!(nAddress & 0x04))
 			{
 				std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+				if(nData & CSR_SIGNAL_EVENT)
+				{
+					m_nCSR &= ~CSR_SIGNAL_EVENT;
+				}
 				if(nData & CSR_FINISH_EVENT)
 				{
 					m_nCSR &= ~CSR_FINISH_EVENT;
@@ -357,7 +342,7 @@ void CGSHandler::Flip(bool showOnly)
 		m_mailBox.FlushCalls();
 		m_mailBox.SendCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
-	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this));
+	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this), true);
 }
 
 void CGSHandler::FlipImpl()
@@ -430,7 +415,11 @@ void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
-	m_nReg[nRegister] = nData;
+	assert(nRegister < REGISTER_MAX);
+	if(nRegister < REGISTER_MAX)
+	{
+		m_nReg[nRegister] = nData;
+	}
 
 	switch(nRegister)
 	{
@@ -464,6 +453,14 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 	case GS_REG_TRXDIR:
 		BeginTransfer();
+		break;
+
+	case GS_REG_SIGNAL:
+		{
+			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+			//TODO: Update SIGLBLID
+			m_nCSR |= CSR_SIGNAL_EVENT;
+		}
 		break;
 
 	case GS_REG_FINISH:
@@ -1307,6 +1304,10 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_TRXDIR:
 		result = string_format("TRXDIR(XDIR: %i)", data & 0x03);
 		break;
+	case GS_REG_SIGNAL:
+		result = string_format("SIGNAL(IDMSK: 0x%0.8X, ID: 0x%0.8X)",
+			static_cast<uint32>(data >> 32), static_cast<uint32>(data));
+		break;
 	case GS_REG_FINISH:
 		result = "FINISH()";
 		break;
@@ -1385,11 +1386,6 @@ void CGSHandler::LogPrivateWrite(uint32 address)
 		//IMR
 		break;
 	}
-}
-
-void CGSHandler::LoadSettings()
-{
-	m_flipMode = static_cast<FLIP_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_FLIPMODE));
 }
 
 void CGSHandler::WriteToDelayedRegister(uint32 address, uint32 value, DELAYED_REGISTER& delayedRegister)

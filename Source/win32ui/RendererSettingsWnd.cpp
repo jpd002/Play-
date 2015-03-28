@@ -47,7 +47,6 @@ CModalWindow(hParent)
 
 	m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_flipMode					= static_cast<CGSHandler::FLIP_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_FLIPMODE));
 
 	m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_CHECKBOX);
 	m_pLineCheck->SetCheck(m_nLinesAsQuads);
@@ -55,22 +54,8 @@ CModalWindow(hParent)
 	m_pForceBilinearCheck = new Win32::CButton(_T("Force bilinear texture sampling"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_CHECKBOX);
 	m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
 
-	m_pFlipModeComboBox = new Win32::CComboBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), CBS_DROPDOWNLIST | WS_VSCROLL);
-	m_pFlipModeComboBox->AddString(_T("#1 - SMODE2"));
-	m_pFlipModeComboBox->AddString(_T("#2 - DISPFB2"));
-	m_pFlipModeComboBox->AddString(_T("#3 - VBLANK"));
-	m_pFlipModeComboBox->SetSelection(m_flipMode);
-
 	m_pExtList = new Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
 	m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
-
-	FlatLayoutPtr pSubLayout0 = CHorizontalLayout::Create();
-	{
-		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(150, SCALE(23), new Win32::CStatic(m_hWnd, _T("Swap frame buffer at:"), SS_CENTERIMAGE)));
-		pSubLayout0->InsertObject(CLayoutStretch::Create());
-		pSubLayout0->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(23), m_pFlipModeComboBox));
-		pSubLayout0->SetVerticalStretch(0);
-	}
 
 	FlatLayoutPtr pSubLayout1 = CHorizontalLayout::Create();
 	{
@@ -83,7 +68,6 @@ CModalWindow(hParent)
 	m_pLayout = CVerticalLayout::Create();
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(15), m_pLineCheck));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(15), m_pForceBilinearCheck));
-	m_pLayout->InsertObject(pSubLayout0);
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Win32::CStatic(m_hWnd, rc, SS_ETCHEDHORZ)));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(15), new Win32::CStatic(m_hWnd, _T("OpenGL extension availability report:"))));
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pExtList));
@@ -179,11 +163,8 @@ void CRendererSettingsWnd::UpdateExtList()
 
 void CRendererSettingsWnd::Save()
 {
-	m_flipMode = static_cast<CGSHandler::FLIP_MODE>(m_pFlipModeComboBox->GetSelection());
-
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, m_nLinesAsQuads);
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
-	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSHANDLER_FLIPMODE, m_flipMode);
 }
 
 bool CRendererSettingsWnd::ProcessCheckBoxMessage(HWND hSender, Win32::CButton* pCheckBox, bool* pFlag)

@@ -111,17 +111,15 @@ void CChannel::Execute()
 	{
 		if(m_dmac.m_D_ENABLE)
 		{
-			if(m_nNumber != 4)
-			{
-				throw std::runtime_error("Need to check that case.");
-			}
+			//TODO: Need to check cases where this is done on channels other than 4
+			assert(m_nNumber == 4);
 			return;
 		}
 		if((m_nNumber == 1) && (m_CHCR.nDIR == 0))
 		{
 			//Humm, destination mode, not supported for now.
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Using destination mode for channel %d. Cancelling transfer.\r\n", m_nNumber);
-			m_CHCR.nSTR = 0;
+			ClearSTR();
 			return;
 		}
 		switch(m_CHCR.nMOD)

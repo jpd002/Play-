@@ -52,6 +52,8 @@ RequestExecutionLevel admin
 
 ;--------------------------------
 
+!define REG_UNINSTALL "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play"
+
 ; The stuff to install
 Section "Play! (required)"
 
@@ -61,7 +63,9 @@ Section "Play! (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "..\x64\Release\Play.exe"
+  File "..\build_win32\x64\Play\Release\Play.exe"
+  File "..\build_win32\x64\Play\Release\glew32.dll"
+  File "..\build_win32\x64\Play\Release\zlib.dll"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
@@ -70,10 +74,12 @@ Section "Play! (required)"
   WriteRegStr HKLM SOFTWARE\NSIS_Play "Install_Dir" "$INSTDIR"
   
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "DisplayName" "Play"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play" "NoRepair" 1
+  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayName" "Play"
+  WriteRegStr HKLM "${REG_UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "${REG_UNINSTALL}" "NoModify" 1
+  WriteRegDWORD HKLM "${REG_UNINSTALL}" "NoRepair" 1
+  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayIcon" '"$INSTDIR\Play.exe"'
+  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayVersion" "${APP_VERSION}"
   WriteUninstaller "uninstall.exe"
   
 SectionEnd
@@ -95,12 +101,16 @@ SectionEnd
 
 Section "Uninstall"
   
+  SetRegView 64
+  
   ; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Play"
+  DeleteRegKey HKLM "${REG_UNINSTALL}"
   DeleteRegKey HKLM SOFTWARE\NSIS_Play
 
   ; Remove files and uninstaller
   Delete $INSTDIR\Play.exe
+  Delete $INSTDIR\glew32.dll
+  Delete $INSTDIR\zlib.dll
   Delete $INSTDIR\Readme.html
   Delete $INSTDIR\Changelog.html
   Delete $INSTDIR\Patches.xml

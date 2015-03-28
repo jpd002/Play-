@@ -50,6 +50,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 19:
 		return "sprintf";
 		break;
+	case 21:
+		return "strchr";
+		break;
 	case 22:
 		return "strcmp";
 		break;
@@ -137,6 +140,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 19:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__sprintf(context));
+		break;
+	case 21:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __strchr(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
 		break;
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strcmp(
@@ -287,10 +296,19 @@ void CSysclib::__strncpy(char* dst, const char* src, unsigned int count)
 	strncpy(dst, src, count);
 }
 
+uint32 CSysclib::__strchr(uint32 strPtr, uint32 character)
+{
+	auto str = reinterpret_cast<const char*>(m_ram + strPtr);
+	auto result = strchr(str, static_cast<int>(character));
+	if(result == nullptr) return 0;
+	size_t ptrDiff = result - str;
+	return strPtr + ptrDiff;
+}
+
 uint32 CSysclib::__strrchr(uint32 strPtr, uint32 character)
 {
-	const char* str = reinterpret_cast<char*>(m_ram + strPtr);
-	const char* result = strrchr(str, static_cast<int>(character));
+	auto str = reinterpret_cast<const char*>(m_ram + strPtr);
+	auto result = strrchr(str, static_cast<int>(character));
 	if(result == nullptr) return 0;
 	size_t ptrDiff = result - str;
 	return strPtr + ptrDiff;

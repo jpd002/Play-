@@ -11,16 +11,18 @@
 #include "StdStream.h"
 #include "win32/AcceleratorTableGenerator.h"
 #include "win32/InputBox.h"
+#include "win32/DpiUtils.h"
 #include "xml/Parser.h"
 #include "Debugger.h"
 #include "resource.h"
 #include "string_cast.h"
-#include "WinUtils.h"
 
 #define CLSNAME			_T("CDebugger")
 
 #define WM_EXECUNLOAD	(WM_USER + 0)
 #define WM_EXECCHANGE	(WM_USER + 1)
+
+#define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH	"debugger.memoryview.bytewidth"
 
 CDebugger::CDebugger(CPS2VM& virtualMachine)
 : m_virtualMachine(virtualMachine)
@@ -64,6 +66,11 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	m_threadsView->Show(SW_HIDE);
 	m_threadsView->OnGotoAddress.connect(boost::bind(&CDebugger::OnThreadsViewAddressDblClick, this, _1));
 
+	//Find Callers View Initialization
+	m_findCallersView = new CFindCallersViewWnd(m_pMDIClient->m_hWnd);
+	m_findCallersView->Show(SW_HIDE);
+	m_findCallersView->AddressSelected.connect([&] (uint32 address) { OnFindCallersAddressDblClick(address); });
+
 	//Debug Views Initialization
 	m_nCurrentView = -1;
 
@@ -88,7 +95,6 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 		GetDisassemblyWindow()->SetFocus();
 	}
 
-	UpdateLoggingMenu();
 	CreateAccelerators();
 }
 
@@ -118,64 +124,30 @@ void CDebugger::RegisterPreferences()
 {
 	CAppConfig& config(CAppConfig::GetInstance());
 
-	config.RegisterPreferenceInteger("debugger.log.posx",				0);
-	config.RegisterPreferenceInteger("debugger.log.posy",				0);
-	config.RegisterPreferenceInteger("debugger.log.sizex",				0);
-	config.RegisterPreferenceInteger("debugger.log.sizey",				0);
-	config.RegisterPreferenceBoolean("debugger.log.visible",			true);
+	config.RegisterPreferenceInteger("debugger.disasm.posx",				0);
+	config.RegisterPreferenceInteger("debugger.disasm.posy",				0);
+	config.RegisterPreferenceInteger("debugger.disasm.sizex",				0);
+	config.RegisterPreferenceInteger("debugger.disasm.sizey",				0);
+	config.RegisterPreferenceBoolean("debugger.disasm.visible",				true);
 
-	config.RegisterPreferenceInteger("debugger.disasm.posx",			0);
-	config.RegisterPreferenceInteger("debugger.disasm.posy",			0);
-	config.RegisterPreferenceInteger("debugger.disasm.sizex",			0);
-	config.RegisterPreferenceInteger("debugger.disasm.sizey",			0);
-	config.RegisterPreferenceBoolean("debugger.disasm.visible",			true);
+	config.RegisterPreferenceInteger("debugger.regview.posx",				0);
+	config.RegisterPreferenceInteger("debugger.regview.posy",				0);
+	config.RegisterPreferenceInteger("debugger.regview.sizex",				0);
+	config.RegisterPreferenceInteger("debugger.regview.sizey",				0);
+	config.RegisterPreferenceBoolean("debugger.regview.visible",			true);
 
-	config.RegisterPreferenceInteger("debugger.regview.posx",			0);
-	config.RegisterPreferenceInteger("debugger.regview.posy",			0);
-	config.RegisterPreferenceInteger("debugger.regview.sizex",			0);
-	config.RegisterPreferenceInteger("debugger.regview.sizey",			0);
-	config.RegisterPreferenceBoolean("debugger.regview.visible",		true);
+	config.RegisterPreferenceInteger("debugger.memoryview.posx",			0);
+	config.RegisterPreferenceInteger("debugger.memoryview.posy",			0);
+	config.RegisterPreferenceInteger("debugger.memoryview.sizex",			0);
+	config.RegisterPreferenceInteger("debugger.memoryview.sizey",			0);
+	config.RegisterPreferenceBoolean("debugger.memoryview.visible",			true);
+	config.RegisterPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH,	0);
 
-	config.RegisterPreferenceInteger("debugger.memoryview.posx",		0);
-	config.RegisterPreferenceInteger("debugger.memoryview.posy",		0);
-	config.RegisterPreferenceInteger("debugger.memoryview.sizex",		0);
-	config.RegisterPreferenceInteger("debugger.memoryview.sizey",		0);
-	config.RegisterPreferenceBoolean("debugger.memoryview.visible",		true);
-
-	config.RegisterPreferenceInteger("debugger.callstack.posx",			0);
-	config.RegisterPreferenceInteger("debugger.callstack.posy",			0);
-	config.RegisterPreferenceInteger("debugger.callstack.sizex",		0);
-	config.RegisterPreferenceInteger("debugger.callstack.sizey",		0);
-	config.RegisterPreferenceBoolean("debugger.callstack.visible",		true);
-}
-
-void CDebugger::UpdateLoggingMenu()
-{
-	HMENU hMenu = GetMenu(m_hWnd);
-
-	hMenu = GetSubMenu(hMenu, 2);
-
-	const int stateCount = 8;
-	bool nState[stateCount];
-	memset(nState, 0, sizeof(nState));
-//	nState[0] = m_virtualMachine.m_Logging.GetGSLoggingStatus();
-//	nState[1] = m_virtualMachine.m_Logging.GetDMACLoggingStatus();
-//	nState[2] = m_virtualMachine.m_Logging.GetIPULoggingStatus();
-//	nState[3] = m_virtualMachine.m_Logging.GetOSLoggingStatus();
-//	nState[4] = m_virtualMachine.m_Logging.GetOSRecordingStatus();
-//	nState[5] = m_virtualMachine.m_Logging.GetSIFLoggingStatus();
-//	nState[6] = m_virtualMachine.m_Logging.GetIOPLoggingStatus();
-	for(unsigned int i = 0; i < stateCount; i++)
-	{
-		MENUITEMINFO mii;
-
-		memset(&mii, 0, sizeof(MENUITEMINFO));
-		mii.cbSize		= sizeof(MENUITEMINFO);
-		mii.fMask		= MIIM_STATE;
-		mii.fState		= nState[i] ? MFS_CHECKED : 0;
-
-		SetMenuItemInfo(hMenu, i, TRUE, &mii);
-	}
+	config.RegisterPreferenceInteger("debugger.callstack.posx",				0);
+	config.RegisterPreferenceInteger("debugger.callstack.posy",				0);
+	config.RegisterPreferenceInteger("debugger.callstack.sizex",			0);
+	config.RegisterPreferenceInteger("debugger.callstack.sizey",			0);
+	config.RegisterPreferenceBoolean("debugger.callstack.visible",			true);
 }
 
 void CDebugger::UpdateTitle()
@@ -196,11 +168,13 @@ void CDebugger::UpdateTitle()
 void CDebugger::LoadSettings()
 {
 	LoadViewLayout();
+	LoadBytesPerLine();
 }
 
 void CDebugger::SaveSettings()
 {
 	SaveViewLayout();
+	SaveBytesPerLine();
 }
 
 void CDebugger::SerializeWindowGeometry(CWindow* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
@@ -348,10 +322,10 @@ void CDebugger::FindEeFunctions()
 
 void CDebugger::Layout1024()
 {
-	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 700, 435));
-	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 0, 324, 572));
-	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 435, 700, 265));
-	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 572, 324, 128));
+	auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 700, 435));
+	auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 0, 324, 572));
+	auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 435, 700, 265));
+	auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 572, 324, 128));
 
 	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
@@ -368,10 +342,10 @@ void CDebugger::Layout1024()
 
 void CDebugger::Layout1280()
 {
-	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 900, 540));
-	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 0, 380, 784));
-	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 540, 900, 416));
-	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 784, 380, 172));
+	auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 900, 540));
+	auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 0, 380, 784));
+	auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 540, 900, 416));
+	auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 784, 380, 172));
 
 	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
@@ -388,10 +362,10 @@ void CDebugger::Layout1280()
 
 void CDebugger::Layout1600()
 {
-	auto disassemblyWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 1094, 725));
-	auto registerViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 0, 506, 725));
-	auto memoryViewWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 725, 1094, 407));
-	auto callStackWindowRect = WinUtils::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 725, 506, 407));
+	auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 1094, 725));
+	auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 0, 506, 725));
+	auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 725, 1094, 407));
+	auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 725, 506, 407));
 
 	GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
 	GetDisassemblyWindow()->Show(SW_SHOW);
@@ -432,13 +406,18 @@ void CDebugger::ActivateView(unsigned int nView)
 
 	if(m_nCurrentView != -1)
 	{
+		SaveBytesPerLine();
 		SaveViewLayout();
 		GetCurrentView()->Hide();
 	}
 
+	m_findCallersRequestConnection.disconnect();
+
 	m_nCurrentView = nView;
 	LoadViewLayout();
+	LoadBytesPerLine();
 	UpdateTitle();
+
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
 		m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
@@ -449,6 +428,9 @@ void CDebugger::ActivateView(unsigned int nView)
 	{
 		GetDisassemblyWindow()->SetFocus();
 	}
+
+	m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->GetDisAsm()->FindCallersRequested.connect(
+		[&] (uint32 address) { OnFindCallersRequested(address); });
 }
 
 void CDebugger::SaveViewLayout()
@@ -511,6 +493,20 @@ void CDebugger::LoadViewLayout()
 		"debugger.callstack.sizex", \
 		"debugger.callstack.sizey", \
 		"debugger.callstack.visible");
+}
+
+void CDebugger::SaveBytesPerLine()
+{
+	auto memoryView = GetMemoryViewWindow()->GetMemoryView();
+	auto bytesPerLine = memoryView->GetBytesPerLine();
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH, bytesPerLine);
+}
+
+void CDebugger::LoadBytesPerLine()
+{
+	auto bytesPerLine = CAppConfig::GetInstance().GetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH);
+	auto memoryView = GetMemoryViewWindow()->GetMemoryView();
+	memoryView->SetBytesPerLine(bytesPerLine);
 }
 
 CDebugView* CDebugger::GetCurrentView()
@@ -642,30 +638,6 @@ long CDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 	case ID_VIEW_IOPVIEW:
 		ActivateView(DEBUGVIEW_IOP);
 		break;
-	case ID_LOGGING_GS:
-//		m_virtualMachine.m_Logging.SetGSLoggingStatus(!m_virtualMachine.m_Logging.GetGSLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_DMAC:
-//		m_virtualMachine.m_Logging.SetDMACLoggingStatus(!m_virtualMachine.m_Logging.GetDMACLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_IPU:
-//		m_virtualMachine.m_Logging.SetIPULoggingStatus(!m_virtualMachine.m_Logging.GetIPULoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_OS:
-//		m_virtualMachine.m_Logging.SetOSLoggingStatus(!m_virtualMachine.m_Logging.GetOSLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_SIF:
-//		m_virtualMachine.m_Logging.SetSIFLoggingStatus(!m_virtualMachine.m_Logging.GetSIFLoggingStatus());
-		UpdateLoggingMenu();
-		break;
-	case ID_LOGGING_IOP:
-//		m_virtualMachine.m_Logging.SetIOPLoggingStatus(!m_virtualMachine.m_Logging.GetIOPLoggingStatus());
-		UpdateLoggingMenu();
-		break;
 	case ID_WINDOW_CASCAD:
 		m_pMDIClient->Cascade();
 		return FALSE;
@@ -723,9 +695,9 @@ long CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 	return CMDIFrame::OnWndProc(nMsg, wParam, lParam);
 }
 
-void CDebugger::OnFunctionsViewFunctionDblClick(uint32 nAddress)
+void CDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
 {
-	GetDisassemblyWindow()->SetAddress(nAddress);
+	GetDisassemblyWindow()->GetDisAsm()->SetAddress(address);
 }
 
 void CDebugger::OnFunctionsViewFunctionsStateChange()
@@ -733,10 +705,11 @@ void CDebugger::OnFunctionsViewFunctionsStateChange()
 	GetDisassemblyWindow()->Refresh();
 }
 
-void CDebugger::OnThreadsViewAddressDblClick(uint32 nAddress)
+void CDebugger::OnThreadsViewAddressDblClick(uint32 address)
 {
-	GetDisassemblyWindow()->SetCenterAtAddress(nAddress);
-	GetDisassemblyWindow()->SetSelectedAddress(nAddress);
+	auto disAsm = GetDisassemblyWindow()->GetDisAsm();
+	disAsm->SetCenterAtAddress(address);
+	disAsm->SetSelectedAddress(address);
 }
 
 void CDebugger::OnExecutableChange()
@@ -747,6 +720,22 @@ void CDebugger::OnExecutableChange()
 void CDebugger::OnExecutableUnloading()
 {
 	SendMessage(m_hWnd, WM_EXECUNLOAD, 0, 0);
+}
+
+void CDebugger::OnFindCallersRequested(uint32 address)
+{
+	auto context = GetCurrentView()->GetContext();
+
+	m_findCallersView->FindCallers(context, address);
+	m_findCallersView->Show(SW_SHOW);
+	m_findCallersView->SetFocus();
+}
+
+void CDebugger::OnFindCallersAddressDblClick(uint32 address)
+{
+	auto disAsm = GetDisassemblyWindow()->GetDisAsm();
+	disAsm->SetCenterAtAddress(address);
+	disAsm->SetSelectedAddress(address);
 }
 
 void CDebugger::OnExecutableChangeMsg()

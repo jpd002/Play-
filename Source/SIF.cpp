@@ -8,6 +8,7 @@
 #include "lexical_cast_ex.h"
 
 #define		RPC_RECVADDR		0xDEADBEEF
+#define		SIF_RESETADDR		0		//Only works if equals to 0
 
 #define LOG_NAME					("sif")
 
@@ -133,6 +134,20 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 		//This should be the arguments for the call command
 		//Just save the source address for later use
 		m_nDataAddr = nSrcAddr;
+		return nSize;
+	}
+	else if(nDstAddr == SIF_RESETADDR)
+	{
+		auto commandData = m_eeRam + nSrcAddr;
+		if(commandData[0] == 0x68)
+		{
+			auto pathSize = *reinterpret_cast<uint32*>(commandData + 0x10);
+			auto path = std::string(commandData + 0x18, commandData + 0x18 + pathSize);
+			if(m_moduleResetHandler)
+			{
+				m_moduleResetHandler(path);
+			}
+		}
 		return nSize;
 	}
 	else if(nDstAddr == m_nSUBADDR)
@@ -541,6 +556,11 @@ void CSIF::SendCallReply(uint32 serverId, const void* returnData)
 	m_callReplies.erase(replyIterator);
 }
 
+void CSIF::SetModuleResetHandler(const ModuleResetHandler& moduleResetHandler)
+{
+	m_moduleResetHandler = moduleResetHandler;
+}
+
 void CSIF::SetCustomCommandHandler(const CustomCommandHandler& customCommandHandler)
 {
 	m_customCommandHandler = customCommandHandler;
@@ -581,7 +601,7 @@ uint32 CSIF::GetRegister(uint32 nRegister)
 			return m_nSMFLAG;
 			break;
 		case 0x80000000:
-			return 0;
+			return SIF_RESETADDR;
 			break;
 		case 0x80000002:
 //			return 0;

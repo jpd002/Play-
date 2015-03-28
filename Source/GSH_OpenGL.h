@@ -229,16 +229,19 @@ private:
 	void							Prim_Triangle();
 	void							Prim_Sprite();
 
+	void							DrawToDepth(unsigned int, uint64);
+
 	void							SetRenderingContext(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
-	void							SetupFramebuffer(uint64, uint64, uint64);
+	void							SetupFramebuffer(uint64, uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
 
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void							FillShaderCapsFromTexture(SHADERCAPS&, uint64, uint64, uint64, uint64);
 	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
+	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 
 	FramebufferPtr					FindFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
@@ -298,6 +301,7 @@ private:
 
 	PRMODE							m_PrimitiveMode;
 	unsigned int					m_nPrimitiveType;
+	bool							m_drawingToDepth = false;
 
 	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
 	static unsigned int				g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];

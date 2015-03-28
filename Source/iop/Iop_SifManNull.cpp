@@ -42,6 +42,11 @@ void CSifManNull::GetOtherData(uint32, uint32, uint32)
 
 }
 
+void CSifManNull::SetModuleResetHandler(const ModuleResetHandler&)
+{
+
+}
+
 void CSifManNull::SetCustomCommandHandler(const CustomCommandHandler&)
 {
 

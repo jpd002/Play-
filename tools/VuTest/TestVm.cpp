@@ -27,6 +27,7 @@ CTestVm::~CTestVm()
 void CTestVm::Reset()
 {
 	m_cpu.Reset();
+	m_executor.Reset();
 	memset(m_vuMem, 0, PS2::VUMEM1SIZE);
 	memset(m_microMem, 0, PS2::MICROMEM1SIZE);
 }

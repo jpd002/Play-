@@ -49,6 +49,23 @@ int32 VUShared::GetBranch(uint16 nImm11)
 	return GetImm11Offset(nImm11) * 8;
 }
 
+void VUShared::VerifyVuReflectionTable(MIPSReflection::INSTRUCTION* refl, VUShared::VUINSTRUCTION* vuRefl, size_t tableSize)
+{
+	for(unsigned int i = 0; i < tableSize; i++)
+	{
+		const char* reflMnem = refl[i].sMnemonic;
+		const char* reflVuMnem = vuRefl[i].name;
+		if((reflMnem == nullptr) || (reflVuMnem == nullptr))
+		{
+			assert(reflMnem == reflVuMnem);
+		}
+		else
+		{
+			assert(!strcmp(reflMnem, reflVuMnem));
+		}
+	}
+}
+
 void VUShared::ReflOpFdFsI(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nFS	= (uint8)((nOpcode >> 11) & 0x001F);
@@ -127,6 +144,15 @@ void VUShared::ReflOpFtIs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 	uint8 nIS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
 	sprintf(sText, "VF%i%s, VI%i", nFT, m_sDestination[nDest], nIS);
+}
+
+void VUShared::ReflOpFtDstIsInc(INSTRUCTION*, CMIPS*, uint32, uint32 opcode, char* text, unsigned int count)
+{
+	auto dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
+	auto ft		= static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto is		= static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	sprintf(text, "VF%i%s, (VI%i++)", ft, m_sDestination[dest], is);
 }
 
 void VUShared::ReflOpClip(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -264,6 +290,7 @@ void VUShared::SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint
 	if(pInstr->pGetAffectedOperands == nullptr)
 	{
 		//We should always have something that tells us what is affected (even if it's nothing)
+		assert(0);
 		return;
 	}
 	pInstr->pGetAffectedOperands(pInstr, pCtx, nAddress, nOpcode, operandSet);
@@ -279,46 +306,6 @@ void VUShared::ReflOpAffAccFsI(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddre
 	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
 
 	operandSet.readF0 = nFS;
-}
-
-void VUShared::ReflOpAffAccFsFt(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
-{
-	uint8 nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
-
-	operandSet.readF0 = nFS;
-	operandSet.readF1 = nFT;
-}
-
-void VUShared::ReflOpAffAccFsFtBc(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
-{
-	uint8 nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
-
-	operandSet.readF0 = nFS;
-	operandSet.readF1 = nFT;
-}
-
-void VUShared::ReflOpAffFdFsFt(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
-{
-	uint8 nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
-	uint8 nFD		= (uint8)((nOpcode >>  6) & 0x001F);
-
-	operandSet.readF0 = nFS;
-	operandSet.readF1 = nFT;
-	operandSet.writeF = nFD;
-}
-
-void VUShared::ReflOpAffFdFsFtBc(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
-{
-	uint8 nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
-	uint8 nFD		= (uint8)((nOpcode >>  6) & 0x001F);
-
-	operandSet.readF0 = nFS;
-	operandSet.readF1 = nFT;
-	operandSet.writeF = nFD;
 }
 
 void VUShared::ReflOpAffFdFsQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
@@ -367,12 +354,53 @@ void VUShared::ReflOpAffQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	operandSet.syncQ = true;
 }
 
-void VUShared::ReflOpAffQFsfFtf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
+void VUShared::ReflOpAffWrARdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	uint8 nFT		= (uint8)((nOpcode >> 16) & 0x001F);
-	uint8 nFS		= (uint8)((nOpcode >> 11) & 0x001F);
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	//TODO: Write A
+	operandSet.readF0 = ft;
+	operandSet.readF1 = fs;
+}
+
+void VUShared::ReflOpAffWrCfRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	//TODO: Write CF
+	operandSet.readF0 = ft;
+	operandSet.readF1 = fs;
+}
+
+void VUShared::ReflOpAffWrFdRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	auto fd = static_cast<uint8>((opcode >>  6) & 0x001F);
+
+	operandSet.writeF = fd;
+	operandSet.readF0 = ft;
+	operandSet.readF1 = fs;
+}
+
+void VUShared::ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
 	
-	operandSet.readF0 = nFT;
-	operandSet.readF1 = nFS;
+	//Would probably be write Q
+	operandSet.readF0 = ft;
+	operandSet.syncQ = true;
+}
+
+void VUShared::ReflOpAffWrQRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	
+	//Would probably be write Q
+	operandSet.readF0 = ft;
+	operandSet.readF1 = fs;
 	operandSet.syncQ = true;
 }

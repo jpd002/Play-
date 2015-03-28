@@ -21,12 +21,18 @@ namespace Iop
 
 		enum
 		{
+			C_IRQINFO	= 0x1F9007C2
+		};
+
+		enum
+		{
 			REGS_BEGIN	= 0x1F900000,
 			REGS_END	= 0x1F90FFFF,
 		};
 
 	private:
 		typedef std::function<uint32 (uint32, uint32)> RegisterAccessFunction;
+		typedef std::unique_ptr<Spu2::CCore> CorePtr;
 
 		enum
 		{
@@ -47,7 +53,7 @@ namespace Iop
 
 		REGISTER_DISPATCH_INFO		m_readDispatchInfo;
 		REGISTER_DISPATCH_INFO		m_writeDispatchInfo;
-		Spu2::CCore*				m_core[CORE_NUM];
+		CorePtr						m_core[CORE_NUM];
 	};
 }
 

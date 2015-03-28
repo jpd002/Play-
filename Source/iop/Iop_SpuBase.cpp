@@ -13,6 +13,7 @@ using namespace Iop;
 #define STATE_PREFIX			("iop_spu/spu_")
 #define STATE_SUFFIX			(".xml")
 #define STATE_REGS_CTRL			("CTRL")
+#define STATE_REGS_IRQADDR		("IRQADDR")
 
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
 {
@@ -141,6 +142,8 @@ void CSpuBase::Reset()
 	m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
+	m_irqAddr = 0;
+	m_irqPending = false;
 	m_bufferAddr = 0;
 
 	m_reverbCurrAddr = 0;
@@ -163,6 +166,7 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_ctrl = registerFile.GetRegister32(STATE_REGS_CTRL);
+	m_irqAddr = registerFile.GetRegister32(STATE_REGS_IRQADDR);
 }
 
 void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
@@ -171,6 +175,7 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CTRL, m_ctrl);
+	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
 	archive.InsertFile(registerFile);
 }
 
@@ -202,11 +207,30 @@ uint16 CSpuBase::GetControl() const
 void CSpuBase::SetControl(uint16 value)
 {
 	m_ctrl = value;
+	if((m_ctrl & CONTROL_IRQ) == 0)
+	{
+		m_irqPending = false;
+	}
 }
 
 void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
 {
 	m_baseSamplingRate = samplingRate;
+}
+
+bool CSpuBase::GetIrqPending() const
+{
+	return m_irqPending;
+}
+
+uint32 CSpuBase::GetIrqAddress() const
+{
+	return m_irqAddr;
+}
+
+void CSpuBase::SetIrqAddress(uint32 value)
+{
+	m_irqAddr = value & (m_ramSize - 1);
 }
 
 uint32 CSpuBase::GetTransferAddress() const
@@ -461,10 +485,21 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					reader.ClearDidChangeRepeat();
 				}
 			}
+
+			uint32 prevAddress = channel.current;
+
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
+
+			//TODO: Improve address detection (used by DW5, SW2, OW2 in movie playback)
+			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (prevAddress != 0) && (prevAddress != channel.current) &&
+				(m_irqAddr >= prevAddress) && (m_irqAddr <= channel.current))
+			{
+				m_irqPending = true;
+			}
+
 			//Mix samples
 			UpdateAdsr(channel);
 			int32 inputSample = static_cast<int32>(readSample);

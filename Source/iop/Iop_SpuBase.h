@@ -73,6 +73,7 @@ namespace Iop
 		enum CONTROL
 		{
 			CONTROL_REVERB	= 0x80,
+			CONTROL_IRQ		= 0x40,
 			CONTROL_DMA		= 0x30,
 		};
 
@@ -156,6 +157,11 @@ namespace Iop
 		void			SetStreamingEnabled(bool);
 
 		void			SetBaseSamplingRate(uint32);
+
+		bool			GetIrqPending() const;
+
+		uint32			GetIrqAddress() const;
+		void			SetIrqAddress(uint32);
 
 		uint32			GetTransferAddress() const;
 		void			SetTransferAddress(uint32);
@@ -266,6 +272,8 @@ namespace Iop
 		uint32				m_ramSize;
 		unsigned int		m_spuNumber;
 		uint32				m_baseSamplingRate;
+		uint32				m_irqAddr = 0;
+		bool				m_irqPending = false;
 		uint32				m_bufferAddr;
 		UNION32_16			m_channelOn;
 		UNION32_16			m_channelReverb;

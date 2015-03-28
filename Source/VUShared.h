@@ -57,6 +57,8 @@ namespace VUShared
 	int32						GetImm11Offset(uint16);
 	int32						GetBranch(uint16);
 
+	void						VerifyVuReflectionTable(MIPSReflection::INSTRUCTION*, VUShared::VUINSTRUCTION*, size_t);
+
 	bool						DestinationHasElement(uint8, unsigned int);
 	void						ComputeMemAccessAddr(CMipsJitter*, unsigned int, uint32, uint32);
 	uint32						GetDestOffset(uint8);
@@ -72,8 +74,8 @@ namespace VUShared
 	void						TestSZFlags(CMipsJitter*, uint8, size_t, uint32);
 
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
-	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
-	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
+	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
+	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						SUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
 	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
@@ -97,6 +99,7 @@ namespace VUShared
 	void						IADDI(CMipsJitter*, uint8, uint8, uint8);
 	void						ILWbase(CMipsJitter*, uint8);
 	void						ILWR(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						IOR(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF0(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF4(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF12(CMipsJitter*, uint8, uint8, uint8);
@@ -104,13 +107,14 @@ namespace VUShared
 	void						ISWbase(CMipsJitter*, uint8);
 	void						ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						LQbase(CMipsJitter*, uint8, uint8);
-	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8);
-	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
-	void						MADDi(CMipsJitter*, uint8, uint8, uint8);
-	void						MADDq(CMipsJitter*, uint8, uint8, uint8);
-	void						MADDA(CMipsJitter*, uint8, uint8, uint8);
-	void						MADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
-	void						MADDAi(CMipsJitter*, uint8, uint8);
+	void						LQI(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
+	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
+	void						MADDi(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MADDA(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
+	void						MADDAi(CMipsJitter*, uint8, uint8, uint32);
 	void						MAX(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MAXbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						MAXi(CMipsJitter*, uint8, uint8, uint8);
@@ -170,6 +174,7 @@ namespace VUShared
 	void						ReflOpFsDstItInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFtIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpFtDstIsInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpClip(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpAccFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpAccFsQ(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -186,17 +191,18 @@ namespace VUShared
 
 	void						ReflOpAffNone(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffAccFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void						ReflOpAffAccFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void						ReflOpAffAccFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void						ReflOpAffFdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void						ReflOpAffFdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffFdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffFdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffRFsf(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffFtR(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void						ReflOpAffQFsfFtf(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	
+	void						ReflOpAffWrARdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void						ReflOpAffWrCfRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void						ReflOpAffWrFdRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void						ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void						ReflOpAffWrQRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	VUINSTRUCTION*				DereferenceInstruction(VUSUBTABLE*, uint32);
 	void						SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32, uint32, OPERANDSET&);

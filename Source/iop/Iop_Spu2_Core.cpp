@@ -77,6 +77,11 @@ void CCore::Reset()
 	m_streamStatus = 0;
 }
 
+CSpuBase& CCore::GetSpuBase() const
+{
+	return m_spuBase;
+}
+
 uint16 CCore::GetAddressLo(uint32 address)
 {
 	return static_cast<uint16>((address >> 1) & 0xFFFF);
@@ -238,6 +243,12 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 			{
 				m_spuBase.ClearEndFlags();
 			}
+			break;
+		case A_IRQA_HI:
+			m_spuBase.SetIrqAddress(SetAddressHi(m_spuBase.GetIrqAddress(), static_cast<uint16>(value)));
+			break;
+		case A_IRQA_LO:
+			m_spuBase.SetIrqAddress(SetAddressLo(m_spuBase.GetIrqAddress(), static_cast<uint16>(value)));
 			break;
 		case A_TSA_HI:
 			m_spuBase.SetTransferAddress(SetAddressHi(m_spuBase.GetTransferAddress(), static_cast<uint16>(value)));
@@ -425,6 +436,12 @@ void CCore::LogWrite(uint32 address, uint32 value)
 		break;
 	case S_ENDX_HI:
 		CLog::GetInstance().Print(logName, "S_ENDX_HI = 0x%0.4X\r\n", value);
+		break;
+	case A_IRQA_HI:
+		CLog::GetInstance().Print(logName, "A_IRQA_HI = 0x%0.4X\r\n", value);
+		break;
+	case A_IRQA_LO:
+		CLog::GetInstance().Print(logName, "A_IRQA_LO = 0x%0.4X\r\n", value);
 		break;
 	case A_TSA_HI:
 		CLog::GetInstance().Print(logName, "A_TSA_HI = 0x%0.4X\r\n", value);

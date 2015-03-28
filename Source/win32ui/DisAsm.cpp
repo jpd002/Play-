@@ -5,12 +5,13 @@
 #include "win32/InputBox.h"
 #include "win32/Font.h"
 #include "win32/DefaultWndClass.h"
+#include "win32/DpiUtils.h"
+#include "win32/ClientDeviceContext.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 #include "WinUtils.h"
 #include "../Ps2Const.h"
-#include "win32/ClientDeviceContext.h"
 #include "DebugExpressionEvaluator.h"
 
 #define ID_DISASM_GOTOPC		40001
@@ -41,10 +42,10 @@ CDisAsm::CDisAsm(HWND parentWnd, const RECT& rect, CVirtualMachine& virtualMachi
 	//Fill in render metrics
 	{
 		auto fontSize = GetFixedFontSize(m_font);
-		m_renderMetrics.leftBarSize = WinUtils::PointsToPixels(17);
-		m_renderMetrics.xmargin = WinUtils::PointsToPixels(18);
-		m_renderMetrics.yspace = WinUtils::PointsToPixels(3);
-		m_renderMetrics.ymargin = WinUtils::PointsToPixels(1);
+		m_renderMetrics.leftBarSize = Framework::Win32::PointsToPixels(17);
+		m_renderMetrics.xmargin = Framework::Win32::PointsToPixels(18);
+		m_renderMetrics.yspace = Framework::Win32::PointsToPixels(3);
+		m_renderMetrics.ymargin = Framework::Win32::PointsToPixels(1);
 		m_renderMetrics.fontSizeX = fontSize.cx;
 		m_renderMetrics.fontSizeY = fontSize.cy;
 		m_renderMetrics.xtextStart = m_renderMetrics.xmargin + MulDiv(fontSize.cx, 3, 5);
@@ -222,22 +223,7 @@ void CDisAsm::FindCallers()
 		return;
 	}
 
-	printf("Searching callers...\r\n");
-
-	for(int i = 0; i < PS2::EE_RAM_SIZE; i += 4)
-	{
-		uint32 nVal = m_ctx->m_pMemoryMap->GetInstruction(i);
-		if(((nVal & 0xFC000000) == 0x0C000000) || ((nVal & 0xFC000000) == 0x08000000))
-		{
-			nVal &= 0x3FFFFFF;
-			nVal *= 4;
-			if(nVal == m_selected)
-			{
-				printf("JAL: 0x%0.8X\r\n", i);
-			}
-		}
-	}
-	printf("Done.\r\n");
+	FindCallersRequested(m_selected);
 }
 
 unsigned int CDisAsm::GetLineCount()
@@ -693,7 +679,7 @@ void CDisAsm::Paint(HDC hDC)
 	SetRect(&rmarg, 0, 0, m_renderMetrics.leftBarSize, rwin.bottom);
 	FillRect(hDC, &rmarg, (HBRUSH)COLOR_WINDOW);
 
-	Framework::Win32::CPen ltGrayPen = CreatePen(PS_SOLID, WinUtils::PointsToPixels(2), RGB(0x40, 0x40, 0x40));
+	Framework::Win32::CPen ltGrayPen = CreatePen(PS_SOLID, Framework::Win32::PointsToPixels(2), RGB(0x40, 0x40, 0x40));
 
 	//Draw the margin border line
 	{
@@ -719,7 +705,7 @@ void CDisAsm::Paint(HDC hDC)
 		if(m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints))
 		{
 			auto breakpointSrcRect = Framework::Win32::MakeRectPositionSize(0, 0, 15, 15);
-			auto breakpointDstRect = WinUtils::PointsToPixels(breakpointSrcRect).CenterInside(iconArea);
+			auto breakpointDstRect = Framework::Win32::PointsToPixels(breakpointSrcRect).CenterInside(iconArea);
 			DrawMaskedBitmap(hDC, breakpointDstRect, m_breakpointBitmap, m_breakpointMaskBitmap, breakpointSrcRect);
 		}
 
@@ -729,7 +715,7 @@ void CDisAsm::Paint(HDC hDC)
 			if(address == m_ctx->m_State.nPC)
 			{
 				auto arrowSrcRect = Framework::Win32::MakeRectPositionSize(0, 0, 13, 13);
-				auto arrowDstRect = WinUtils::PointsToPixels(arrowSrcRect).CenterInside(iconArea);
+				auto arrowDstRect = Framework::Win32::PointsToPixels(arrowSrcRect).CenterInside(iconArea);
 				DrawMaskedBitmap(hDC, arrowDstRect, m_arrowBitmap, m_arrowMaskBitmap, arrowSrcRect);
 			}
 		}

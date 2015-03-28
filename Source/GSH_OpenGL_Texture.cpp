@@ -45,6 +45,18 @@ void CGSH_OpenGL::SetupTextureUploaders()
 	m_textureUpdater[PSMT4HH]		= &CGSH_OpenGL::TexUpdater_Psm48H<28, 0x0F>;
 }
 
+bool CGSH_OpenGL::IsCompatibleFramebufferPSM(unsigned int psmFb, unsigned int psmTex)
+{
+	if(psmTex == CGSHandler::PSMCT24)
+	{
+		return (psmFb == CGSHandler::PSMCT24) || (psmFb == CGSHandler::PSMCT32);
+	}
+	else
+	{
+		return (psmFb == psmTex);
+	}
+}
+
 CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 {
 	TEXTURE_INFO texInfo;
@@ -57,7 +69,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		//Case: TEX0 points at the start of a frame buffer with the same width
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
 			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
-			candidateFramebuffer->m_psm == tex0.nPsm)
+			IsCompatibleFramebufferPSM(candidateFramebuffer->m_psm, tex0.nPsm))
 		{
 			canBeUsed = true;
 		}
@@ -79,7 +91,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			if(framebufferPageIndex >= framebufferPageCountX) continue;
 
 			canBeUsed = true;
-			offsetX = -static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
+			offsetX = static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
 		}
 
 		if(canBeUsed)

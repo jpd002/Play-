@@ -2,6 +2,7 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <unrar/rar.hpp>
+#include "string_cast.h"
 #include "stricmp.h"
 
 static Archive* ConvertArchive(void* archivePtr)
@@ -22,7 +23,7 @@ CPsfRarArchive::~CPsfRarArchive()
 void CPsfRarArchive::Open(const boost::filesystem::path& filePath)
 {
 	Archive* arc(ConvertArchive(m_archive));
-	arc->Open(filePath.string().c_str(), filePath.wstring().c_str());
+	arc->Open(filePath.wstring().c_str());
 	arc->IsArchive(false);
 	if(!arc->IsOpened())
 	{
@@ -31,14 +32,14 @@ void CPsfRarArchive::Open(const boost::filesystem::path& filePath)
 
 	while(arc->ReadHeader() > 0)
 	{
-		if(arc->ShortBlock.HeadType == FILE_HEAD)
+		if(arc->ShortBlock.HeaderType == HEAD_FILE)
 		{
 			if(!arc->IsArcDir())
 			{
 				FILEINFO fileInfo;
-				fileInfo.name = arc->NewLhd.FileName;
+				fileInfo.name = string_cast<std::string>(arc->FileHead.FileName);
 				boost::replace_all(fileInfo.name, "\\", "/");
-				fileInfo.length = static_cast<unsigned int>(arc->NewLhd.FullUnpSize);
+				fileInfo.length = static_cast<unsigned int>(arc->FileHead.UnpSize);
 				m_files.push_back(fileInfo);
 			}
 		}
@@ -63,24 +64,22 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 	dataIo.Init();
 
 	Unpack unpack(&dataIo);
-	unpack.Init(NULL);
 
 	while(arc->ReadHeader() > 0)
 	{
-		if(arc->ShortBlock.HeadType == FILE_HEAD)
+		if(arc->ShortBlock.HeaderType == HEAD_FILE)
 		{
 			if(!arc->IsArcDir())
 			{
-				bool isGoodFile = !stricmp(fixedFileName.c_str(), arc->NewLhd.FileName);
+				bool isGoodFile = !stricmp(fixedFileName.c_str(), string_cast<std::string>(arc->FileHead.FileName).c_str());
 
 				dataIo.SetFiles(arc, NULL);
-				dataIo.SetPackedSizeToRead(arc->NewLhd.FullPackSize);
+				dataIo.SetPackedSizeToRead(arc->FileHead.PackSize);
 
 				dataIo.CurUnpRead = 0;
 				dataIo.CurUnpWrite = 0;
-				dataIo.UnpFileCRC = arc->OldFormat ? 0 : 0xFFFFFFFF;
-				dataIo.PackedCRC = 0xFFFFFFFF;
-
+				dataIo.UnpHash.Init(arc->FileHead.FileHash.Type, 1);
+				dataIo.PackedDataHash.Init(arc->FileHead.FileHash.Type, 1);
 				dataIo.SetTestMode(!isGoodFile);
 
 				if(isGoodFile)
@@ -88,13 +87,14 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 					dataIo.SetUnpackToMemory(reinterpret_cast<byte*>(buffer), bufferLength);
 				}
 
-				unpack.SetDestSize(arc->NewLhd.FullUnpSize);
+				unpack.Init(arc->FileHead.WinSize, arc->FileHead.Solid);
+				unpack.SetDestSize(arc->FileHead.UnpSize);
 
-				if(arc->NewLhd.Method == 0x30)
+				if(arc->FileHead.Method == 0x30)
 				{
 					std::vector<byte> unstoreBuffer;
 					unstoreBuffer.resize(0x10000);
-					uint toReadSize = arc->NewLhd.FullUnpSize;
+					uint toReadSize = arc->FileHead.UnpSize;
 					while(1)
 					{
 						uint code = dataIo.UnpRead(&unstoreBuffer[0], unstoreBuffer.size());
@@ -109,10 +109,10 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 				}
 				else
 				{
-					unpack.DoUnpack(arc->NewLhd.UnpVer, (arc->NewLhd.Flags & LHD_SOLID) != 0);
+					unpack.DoUnpack(arc->FileHead.UnpVer, arc->FileHead.Solid);
 				}
 
-				if(arc->NewLhd.FileCRC != ~dataIo.UnpFileCRC)
+				if(!dataIo.UnpHash.Cmp(&arc->FileHead.FileHash, arc->FileHead.UseHashKey ? arc->FileHead.HashKey : nullptr))
 				{
 					throw std::runtime_error("CRC check error.");
 				}

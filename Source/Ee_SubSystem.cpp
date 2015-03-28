@@ -150,7 +150,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 	m_ipu.SetDMA3ReceiveHandler(bind(&CDMAC::ResumeDMA3, &m_dmac, PLACEHOLDER_1, PLACEHOLDER_2));
 
-	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_gs, m_sif, iopBios);
+	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_spr, m_gs, m_sif, iopBios);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CSubSystem::FlushInstructionCache, this));
 }
 

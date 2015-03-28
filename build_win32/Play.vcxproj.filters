@@ -649,6 +649,21 @@
     <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2300.cpp">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler1000.cpp">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2100.cpp">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\Debugger\FindCallersViewWnd.cpp">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_LibSd.cpp">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1265,6 +1280,21 @@
     </ClInclude>
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h">
       <Filter>Source Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2300.h">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler1000.h">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2100.h">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h">
+      <Filter>Source Files\Win32 UI\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_LibSd.h">
+      <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

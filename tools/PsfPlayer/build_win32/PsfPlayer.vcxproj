@@ -391,6 +391,7 @@
     <ClCompile Include="..\..\..\Source\iop\Iop_Intc.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Intrman.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Ioman.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_LibSd.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Loadcore.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Modload.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_RootCounters.cpp" />
@@ -635,6 +636,7 @@
     <ClInclude Include="..\..\..\Source\iop\Iop_Intc.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Intrman.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Ioman.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_LibSd.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Loadcore.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Modload.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Module.h" />
@@ -751,11 +753,11 @@
     <ProjectReference Include="..\..\..\..\CodeGen\build_win32\CodeGen.vcxproj">
       <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Dependencies\build_win32\unrarsrc-5.2.5.vcxproj">
+      <Project>{28f9e5b7-74eb-4daa-a7c0-e09d2ff43291}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\Framework\build_win32\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\unrarsrc-4.0.3\unrarsrc-4.0.3.vcxproj">
-      <Project>{28f9e5b7-74eb-4daa-a7c0-e09d2ff43291}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

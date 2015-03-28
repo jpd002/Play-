@@ -281,10 +281,14 @@
     <ClCompile Include="..\Source\iop\Iop_Dmac.cpp" />
     <ClCompile Include="..\Source\iop\Iop_DmacChannel.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Dynamic.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2100.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler1000.cpp" />
     <ClCompile Include="..\Source\iop\Iop_FileIo.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2300.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Intc.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Intrman.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Ioman.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_LibSd.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp" />
     <ClCompile Include="..\Source\iop\Iop_McServ.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Modload.cpp" />
@@ -393,6 +397,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp" />
+    <ClCompile Include="..\Source\win32ui\Debugger\FindCallersViewWnd.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugUtils.cpp" />
     <ClCompile Include="..\Source\win32ui\DebugView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -506,9 +511,13 @@
     <ClInclude Include="..\Source\iop\Iop_DmacChannel.h" />
     <ClInclude Include="..\Source\iop\Iop_Dynamic.h" />
     <ClInclude Include="..\Source\iop\Iop_FileIo.h" />
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler1000.h" />
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2100.h" />
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2300.h" />
     <ClInclude Include="..\Source\iop\Iop_Intc.h" />
     <ClInclude Include="..\Source\iop\Iop_Intrman.h" />
     <ClInclude Include="..\Source\iop\Iop_Ioman.h" />
+    <ClInclude Include="..\Source\iop\Iop_LibSd.h" />
     <ClInclude Include="..\Source\iop\Iop_Loadcore.h" />
     <ClInclude Include="..\Source\iop\Iop_McServ.h" />
     <ClInclude Include="..\Source\iop\Iop_Modload.h" />
@@ -612,6 +621,7 @@
     <ClInclude Include="..\Source\win32ui\DebugExpressionEvaluator.h" />
     <ClInclude Include="..\Source\win32ui\Debugger.h" />
     <ClInclude Include="..\Source\win32ui\DebuggerChildWnd.h" />
+    <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h" />
     <ClInclude Include="..\Source\win32ui\DebugUtils.h" />
     <ClInclude Include="..\Source\win32ui\DebugView.h" />
     <ClInclude Include="..\Source\win32ui\DirectXControl.h" />
@@ -704,7 +714,7 @@
     <ResourceCompile Include="..\Source\win32ui\Res.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\bzip2-1.0.6\bzip2-1.0.6.vcxproj">
+    <ProjectReference Include="..\..\Dependencies\build_win32\bzip2-1.0.6.vcxproj">
       <Project>{8c48c11a-7c3f-4699-b62f-b0a66f0f78f7}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\CodeGen\build_win32\CodeGen.vcxproj">

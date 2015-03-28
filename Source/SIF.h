@@ -13,6 +13,7 @@
 class CSIF
 {
 public:
+	typedef std::function<void (const std::string&)> ModuleResetHandler;
 	typedef std::function<void (uint32)> CustomCommandHandler;
 
 									CSIF(CDMAC&, uint8*, uint8*);
@@ -29,6 +30,7 @@ public:
 	void							SetDmaBuffer(uint32, uint32);
 	void							SetCmdBuffer(uint32, uint32);
 	void							SendCallReply(uint32, const void*);
+	void							SetModuleResetHandler(const ModuleResetHandler&);
 	void							SetCustomCommandHandler(const CustomCommandHandler&);
 
 	uint32							ReceiveDMA5(uint32, uint32, uint32, bool);
@@ -110,5 +112,6 @@ private:
 	CallReplyMap					m_callReplies;
 	BindReplyMap					m_bindReplies;
 
+	ModuleResetHandler				m_moduleResetHandler;
 	CustomCommandHandler			m_customCommandHandler;
 };

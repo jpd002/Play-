@@ -87,7 +87,7 @@ void CMA_VU::CUpper::SUBbc()
 //0B
 void CMA_VU::CUpper::MADDbc()
 {
-	VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //0C
@@ -159,7 +159,7 @@ void CMA_VU::CUpper::ADDq()
 //21
 void CMA_VU::CUpper::MADDq()
 {
-	VUShared::MADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MADDq(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //22
@@ -171,7 +171,7 @@ void CMA_VU::CUpper::ADDi()
 //23
 void CMA_VU::CUpper::MADDi()
 {
-	VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //24
@@ -201,7 +201,7 @@ void CMA_VU::CUpper::ADD()
 //29
 void CMA_VU::CUpper::MADD()
 {
-	VUShared::MADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_relativePipeTime);
 }
 
 //2A
@@ -283,7 +283,7 @@ void CMA_VU::CUpper::SUBAbc()
 //02
 void CMA_VU::CUpper::MADDAbc()
 {
-	VUShared::MADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::MADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //03
@@ -357,7 +357,13 @@ void CMA_VU::CUpper::ABS()
 //0A
 void CMA_VU::CUpper::MADDA()
 {
-	VUShared::MADDA(m_codeGen, m_nDest, m_nFS, m_nFT);
+	VUShared::MADDA(m_codeGen, m_nDest, m_nFS, m_nFT, m_relativePipeTime);
+}
+
+//0B
+void CMA_VU::CUpper::MSUBA()
+{
+	VUShared::MSUBA(m_codeGen, m_nDest, m_nFS, m_nFT, m_relativePipeTime);
 }
 
 //////////////////////////////////////////////////
@@ -425,7 +431,7 @@ void CMA_VU::CUpper::CLIP()
 //08
 void CMA_VU::CUpper::MADDAi()
 {
-	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS);
+	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS, m_relativePipeTime);
 }
 
 //09
@@ -481,7 +487,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector1[0x20] =
 	//0x00
 	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::SUBAbc,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF4,			&CMA_VU::CUpper::FTOI4,			&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::ABS,
 	//0x08
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDA,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
+	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MADDA,			&CMA_VU::CUpper::MSUBA,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
 	//0x10
 	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
 	//0x18

@@ -1,11 +1,11 @@
-#ifndef _DEBUGGER_H_
-#define _DEBUGGER_H_
+#pragma once
 
 #include "win32/MDIFrame.h"
 #include "ELFView.h"
 #include "FunctionsView.h"
 #include "ThreadsViewWnd.h"
 #include "DebugView.h"
+#include "./Debugger/FindCallersViewWnd.h"
 #include "../PS2VM.h"
 
 class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals2::trackable
@@ -32,7 +32,6 @@ private:
 	};
 
 	void							RegisterPreferences();
-	void							UpdateLoggingMenu();
 	void							UpdateTitle();
 	void							LoadSettings();
 	void							SaveSettings();
@@ -57,6 +56,9 @@ private:
 	void							LoadViewLayout();
 	void							SaveViewLayout();
 
+	void							LoadBytesPerLine();
+	void							SaveBytesPerLine();
+
 	CDebugView*						GetCurrentView();
 	CMIPS*							GetContext();
 	CDisAsmWnd*						GetDisassemblyWindow();
@@ -70,6 +72,8 @@ private:
 	void							OnThreadsViewAddressDblClick(uint32);
 	void							OnExecutableChange();
 	void							OnExecutableUnloading();
+	void							OnFindCallersRequested(uint32);
+	void							OnFindCallersAddressDblClick(uint32);
 
 	//Tunnelled handlers
 	void							OnExecutableChangeMsg();
@@ -77,12 +81,13 @@ private:
 
 	HACCEL							m_nAccTable;
 
-	CELFView*						m_pELFView;
-	CFunctionsView*					m_pFunctionsView;
-	CThreadsViewWnd*				m_threadsView;
+	boost::signals2::connection		m_findCallersRequestConnection;
+
+	CELFView*						m_pELFView = nullptr;
+	CFunctionsView*					m_pFunctionsView = nullptr;
+	CThreadsViewWnd*				m_threadsView = nullptr;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
+	CFindCallersViewWnd*			m_findCallersView = nullptr;
 	unsigned int					m_nCurrentView;
 	CPS2VM&							m_virtualMachine;
 };
-
-#endif
