@@ -1,0 +1,10 @@
+{
+	"title": "Play!",
+	"background": "background.png",
+	"icon-size": 80,
+	"contents":
+	[
+		{ "x": 160, "y": 300, "type": "file", "path": "../build_macosx/build/Release/Play!.app" },
+		{ "x": 480, "y": 300, "type": "link", "path": "/Applications" }
+	]
+}
