@@ -312,6 +312,12 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 	case VA_SSA_LO:
 		result = GetAddressLo(channel.address);
 		break;
+	case VA_LSAX_HI:
+		result = GetAddressHi(channel.repeat);
+		break;
+	case VA_LSAX_LO:
+		result = GetAddressLo(channel.repeat);
+		break;
 	case VA_NAX_HI:
 		result = GetAddressHi(channel.current);
 		break;
@@ -513,6 +519,14 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 result
 		break;
 	case VA_SSA_LO:
 		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_SSA_LO = %0.4X.\r\n", 
+			channelId, result);
+		break;
+	case VA_LSAX_HI:
+		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_LSAX_HI = 0x%0.4X.\r\n", 
+			channelId, result);
+		break;
+	case VA_LSAX_LO:
+		CLog::GetInstance().Print(logName, "ch%0.2i: = VA_LSAX_LO = 0x%0.4X.\r\n", 
 			channelId, result);
 		break;
 	case VA_NAX_HI:
