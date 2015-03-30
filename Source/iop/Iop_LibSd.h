@@ -11,6 +11,6 @@ namespace Iop
 		virtual std::string		GetFunctionName(unsigned int) const;
 		virtual void			Invoke(CMIPS&, unsigned int);
 
-		void					DumpLibSdCall(uint32);
+		static void				TraceCall(CMIPS&, unsigned int);
 	};
 }

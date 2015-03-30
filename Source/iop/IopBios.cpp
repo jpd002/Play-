@@ -1776,8 +1776,7 @@ void CIopBios::HandleException()
 #ifdef _DEBUG
 		if(moduleName == "libsd")
 		{
-			//TODO: Hook that up again
-			//DumpLibSdCall(functionId);
+			Iop::CLibSd::TraceCall(m_cpu, functionId);
 		}
 #endif
 
