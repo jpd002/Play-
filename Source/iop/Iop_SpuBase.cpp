@@ -491,7 +491,8 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			uint32 prevAddress = channel.current;
 
 			int16 readSample = 0;
-			reader.SetPitch(m_baseSamplingRate, channel.pitch);
+			//We need to check if pitch is 0 here because FFX does that for its voice overs
+			reader.SetPitch(m_baseSamplingRate, (channel.pitch != 0) ? channel.pitch : 0x1000);
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
 
