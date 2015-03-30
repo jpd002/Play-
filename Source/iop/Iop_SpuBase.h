@@ -218,6 +218,7 @@ namespace Iop
 			void			SetPitch(uint32, uint16);
 			void			GetSamples(int16*, unsigned int, unsigned int);
 			uint8*			GetRepeat() const;
+			void			SetRepeat(uint8*);
 			uint8*			GetCurrent() const;
 			bool			IsDone() const;
 			bool			GetEndFlag() const;

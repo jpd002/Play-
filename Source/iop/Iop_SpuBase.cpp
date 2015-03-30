@@ -484,6 +484,8 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					channel.repeat = static_cast<uint32>(repeat - m_ram);
 					reader.ClearDidChangeRepeat();
 				}
+				//Update repeat in case it has been changed externally (needed for FFX)
+				reader.SetRepeat(m_ram + channel.repeat);
 			}
 
 			uint32 prevAddress = channel.current;
@@ -973,6 +975,11 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 uint8* CSpuBase::CSampleReader::GetRepeat() const
 {
 	return m_repeat;
+}
+
+void CSpuBase::CSampleReader::SetRepeat(uint8* repeat)
+{
+	m_repeat = repeat;
 }
 
 uint8* CSpuBase::CSampleReader::GetCurrent() const
