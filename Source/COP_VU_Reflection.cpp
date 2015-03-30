@@ -210,7 +210,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMAX",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
 	//0x18
 	{	"VMUL",		NULL,			CopyMnemonic,		ReflOpFdFsFtBc,		NULL,						NULL			},
