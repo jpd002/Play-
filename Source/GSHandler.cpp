@@ -290,6 +290,10 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			if(!(nAddress & 0x04))
 			{
 				std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+				if(nData & CSR_SIGNAL_EVENT)
+				{
+					m_nCSR &= ~CSR_SIGNAL_EVENT;
+				}
 				if(nData & CSR_FINISH_EVENT)
 				{
 					m_nCSR &= ~CSR_FINISH_EVENT;
@@ -450,6 +454,14 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 	case GS_REG_TRXDIR:
 		BeginTransfer();
+		break;
+
+	case GS_REG_SIGNAL:
+		{
+			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+			//TODO: Update SIGLBLID
+			m_nCSR |= CSR_SIGNAL_EVENT;
+		}
 		break;
 
 	case GS_REG_FINISH:
@@ -1292,6 +1304,10 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 		break;
 	case GS_REG_TRXDIR:
 		result = string_format("TRXDIR(XDIR: %i)", data & 0x03);
+		break;
+	case GS_REG_SIGNAL:
+		result = string_format("SIGNAL(IDMSK: 0x%0.8X, ID: 0x%0.8X)",
+			static_cast<uint32>(data >> 32), static_cast<uint32>(data));
 		break;
 	case GS_REG_FINISH:
 		result = "FINISH()";

@@ -241,6 +241,13 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 					//+4 for delay slot
 					return address + 4;
 				}
+
+				//Check for BEQ R0, R0, $label
+				if((opcode & 0xFFFF0000) == 0x10000000)
+				{
+					//+4 for delay slot
+					return address + 4;
+				}
 			}
 
 			return MIPS_INVALID_PC;

@@ -140,6 +140,12 @@ void CCOP_SCU::BC0FL()
 //Coprocessor Specific Opcodes
 //////////////////////////////////////////////////
 
+//02
+void CCOP_SCU::TLBWI()
+{
+	//TLB not supported for now
+}
+
 //18
 void CCOP_SCU::ERET()
 {
@@ -232,7 +238,7 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpBC0[0x20] =
 CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpC0[0x40] =
 {
 	//0x00
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::TLBWI,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x08
 	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x10

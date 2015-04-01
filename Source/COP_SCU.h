@@ -65,6 +65,7 @@ private:
 	void								BC0FL();
 
 	//C0
+	void								TLBWI();
 	void								ERET();
 	void								EI();
 	void								DI();

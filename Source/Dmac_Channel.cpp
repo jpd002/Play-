@@ -119,7 +119,7 @@ void CChannel::Execute()
 		{
 			//Humm, destination mode, not supported for now.
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Using destination mode for channel %d. Cancelling transfer.\r\n", m_nNumber);
-			m_CHCR.nSTR = 0;
+			ClearSTR();
 			return;
 		}
 		switch(m_CHCR.nMOD)
