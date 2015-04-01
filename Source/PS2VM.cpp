@@ -661,7 +661,15 @@ void CPS2VM::CDROM0_Mount(const char* path)
 #elif !defined(__ANDROID__)
 			else
 			{
-				stream = new Framework::Posix::CVolumeStream(path);
+				try
+				{
+					stream = new Framework::Posix::CVolumeStream(path);
+				}
+				catch(...)
+				{
+					//Ok if it fails here, might be a standard ISO image file
+					//which will be handled below
+				}
 			}
 #endif
 
