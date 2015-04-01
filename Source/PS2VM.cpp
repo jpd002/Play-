@@ -654,7 +654,7 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			}
 #endif
 #ifdef WIN32
-			else if(sPath[0] == '\\')
+			else if(path[0] == '\\')
 			{
 				stream = new Framework::Win32::CVolumeStream(path[4]);
 			}
