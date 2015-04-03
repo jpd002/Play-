@@ -182,6 +182,11 @@ void CDMAC::ResumeDMA4()
 	m_D4.Execute();
 }
 
+void CDMAC::ResumeDMA8()
+{
+	m_D8.Execute();
+}
+
 bool CDMAC::IsDMA4Started() const
 {
 	return (m_D4.m_CHCR.nSTR != 0) && (m_D_ENABLE == 0);
@@ -805,6 +810,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	case D_RBSR + 0x0:
 		m_D_RBSR = nData;
+		assert((m_D_RBSR & 0xF) == 0);
 		break;
 	case D_RBSR + 0x4:
 	case D_RBSR + 0x8:

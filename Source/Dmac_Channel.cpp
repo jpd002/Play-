@@ -139,7 +139,19 @@ void CChannel::Execute()
 
 void CChannel::ExecuteNormal()
 {
-	uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+	uint32 qwc = m_nQWC;
+
+	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 8)
+	{
+		//Adjust QWC if we're in MFIFO mode
+		uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
+		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+		assert(ringBufferAddr < ringBufferSize);
+
+		qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
+	}
+
+	uint32 nRecv = m_pReceive(m_nMADR, qwc, 0, false);
 
 	m_nMADR	+= nRecv * 0x10;
 	m_nQWC	-= nRecv;
@@ -147,6 +159,16 @@ void CChannel::ExecuteNormal()
 	if(m_nQWC == 0)
 	{
 		ClearSTR();
+	}
+
+	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 8)
+	{
+		//Loop MADR if needed
+		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+		if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
+		{
+			m_nMADR = m_dmac.m_D_RBOR;
+		}
 	}
 }
 
@@ -177,13 +199,6 @@ void CChannel::ExecuteSourceChain()
 			{
 				break;
 			}
-
-//			uint32 currentPos = (m_nTADR & m_dmac.m_D_RBSR) + m_dmac.m_D_RBOR;
-//			if(currentPos != m_nTADR)
-//			{
-//				int i = 0;
-//				i++;
-//			}
 		}
 
 		//Check if device received DMAtag
@@ -320,12 +335,37 @@ void CChannel::ExecuteSourceChain()
 			break;
 		}
 
-		if(m_nQWC != 0)
+		uint32 qwc = m_nQWC;
+		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
 		{
-			uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+			//Adjust QWC in MFIFO mode
+			uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
+			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+			assert(ringBufferAddr < ringBufferSize);
+
+			qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
+		}
+
+		if(qwc != 0)
+		{
+			uint32 nRecv = m_pReceive(m_nMADR, qwc, 0, false);
 
 			m_nMADR		+= nRecv * 0x10;
 			m_nQWC		-= nRecv;
+		}
+
+		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
+		{
+			//Loop MADR if needed
+			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+			if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
+			{
+				m_nMADR = m_dmac.m_D_RBOR;
+				//Mask TADR because it's in the ring buffer zone
+				m_nTADR -= m_dmac.m_D_RBOR;
+				m_nTADR &= m_dmac.m_D_RBSR;
+				m_nTADR += m_dmac.m_D_RBOR;
+			}
 		}
 	}
 }

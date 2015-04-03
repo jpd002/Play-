@@ -292,6 +292,7 @@ void CSubSystem::CountTicks(int ticks)
 	{
 		m_dmac.ResumeDMA1();
 	}
+	m_dmac.ResumeDMA8();
 	ExecuteIpu();
 	if(!m_EE.m_State.nHasException)
 	{
