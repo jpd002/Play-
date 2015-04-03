@@ -41,6 +41,7 @@ private:
 	enum IPU_CTRL_BITS
 	{
 		IPU_CTRL_ECD = 0x00004000,
+		IPU_CTRL_SCD = 0x00008000,
 		IPU_CTRL_RST = 0x40000000,
 	};
 
@@ -166,6 +167,11 @@ private:
 		bool				m_lookupBitsDirty;
 		unsigned int		m_size;
 		unsigned int		m_bitPosition;
+	};
+
+	class CStartCodeException : public std::exception
+	{
+
 	};
 
 	class CCommand

@@ -143,6 +143,7 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 				assert(m_IPU_CTRL & IPU_CTRL_ECD);
 			}
 			m_IPU_CTRL &= ~IPU_CTRL_ECD;
+			m_IPU_CTRL &= ~IPU_CTRL_SCD;
 			InitializeCommand(nValue);
 			m_isBusy = true;
 		}
@@ -206,10 +207,19 @@ void CIPU::ExecuteCommand()
 		{
 
 		}
+		catch(const CStartCodeException&)
+		{
+			m_currentCmd = nullptr;
+			m_isBusy = false;
+			m_IPU_CTRL |= IPU_CTRL_SCD;
+			CLog::GetInstance().Print(LOG_NAME, "Start code encountered.\r\n");
+		}
 		catch(const CVLCTable::CVLCTableException&)
 		{
+			m_currentCmd = nullptr;
+			m_isBusy = false;
 			m_IPU_CTRL |= IPU_CTRL_ECD;
-			CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.");
+			CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.\r\n");
 		}
 	}
 }
@@ -1161,6 +1171,18 @@ bool CIPU::CBDECCommand::Execute()
 				m_OUT_FIFO->Write(m_blocks[5].block, sizeof(int16) * 0x40);
 
 				m_OUT_FIFO->Flush();
+
+				//Check if there's more than 7 zero bits after this and set "start code detected"
+				{
+					uint32 nextBits = 0;
+					if(m_IN_FIFO->TryPeekBits_MSBF(8, nextBits))
+					{
+						if(nextBits == 0)
+						{
+							throw CStartCodeException();
+						}
+					}
+				}
 			}
 			return true;
 			break;
