@@ -202,7 +202,7 @@ uint64 CDMAC::FetchDMATag(uint32 nAddress)
 bool CDMAC::IsEndTagId(uint32 nTag)
 {
 	nTag = ((nTag >> 28) & 0x07);
-	return ((nTag == 0x00) || (nTag == 0x07));
+	return ((nTag == CChannel::DMATAG_REFE) || (nTag == CChannel::DMATAG_END));
 }
 
 uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
