@@ -369,6 +369,8 @@ void CPS2VM::ResetVM()
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
 
+	m_spuUpdateTicks = SPU_UPDATE_TICKS;
+
 	m_eeExecutionTicks = 0;
 	m_iopExecutionTicks = 0;
 

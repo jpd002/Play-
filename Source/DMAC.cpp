@@ -89,8 +89,24 @@ void CDMAC::Reset()
 	//Reset Channel 2
 	m_D2.Reset();
 
+	//Reset Channel 3
+	m_D3_CHCR = 0;
+	m_D3_MADR = 0;
+	m_D3_QWC = 0;
+
 	//Reset Channel 4
 	m_D4.Reset();
+
+	//Reset Channel 5
+	m_D5_CHCR = 0;
+	m_D5_MADR = 0;
+	m_D5_QWC = 0;
+
+	//Reset Channel 6
+	m_D6_CHCR = 0;
+	m_D6_MADR = 0;
+	m_D6_QWC = 0;
+	m_D6_TADR = 0;
 
 	//Reset Channel 8
 	m_D8.Reset();

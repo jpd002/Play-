@@ -46,6 +46,8 @@ void CIPU::Reset()
 	m_IPU_CTRL			= 0;
 	m_IPU_CMD[0]		= 0;
 	m_IPU_CMD[1]		= 0;
+	m_nTH0				= 0;
+	m_nTH1				= 0;
 
 	m_isBusy			= false;
 	m_currentCmd		= nullptr;
