@@ -305,7 +305,7 @@ private:
 	public:
 										CBDECCommand();
 
-		void							Initialize(CINFIFO*, COUTFIFO*, uint32, const DECODER_CONTEXT&);
+		void							Initialize(CINFIFO*, COUTFIFO*, uint32, bool, const DECODER_CONTEXT&);
 		bool							Execute() override;
 
 	private:
@@ -331,6 +331,7 @@ private:
 
 		CINFIFO*						m_IN_FIFO = nullptr;
 		COUTFIFO*						m_OUT_FIFO = nullptr;
+		bool							m_checkStartCode = false;
 
 		uint8							m_codedBlockPattern = 0;
 
