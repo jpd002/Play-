@@ -196,7 +196,6 @@
     <ClInclude Include="..\Source\MipsExecutor.h" />
     <ClInclude Include="..\Source\MIPSInstructionFactory.h" />
     <ClInclude Include="..\Source\MipsJitter.h" />
-    <ClInclude Include="..\Source\MIPSModule.h" />
     <ClInclude Include="..\Source\MIPSReflection.h" />
     <ClInclude Include="..\Source\MIPSTags.h" />
     <ClInclude Include="..\Source\VuBasicBlock.h" />
