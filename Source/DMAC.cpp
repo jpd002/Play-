@@ -294,6 +294,10 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 	case D1_CHCR + 0x0:
 		return m_D1.ReadCHCR();
 		break;
+	case D1_CHCR + 0x1:
+		//This is done by FFXII
+		return m_D1.ReadCHCR() >> 8;
+		break;
 	case D1_CHCR + 0x4:
 	case D1_CHCR + 0x8:
 	case D1_CHCR + 0xC:
@@ -420,6 +424,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
+	case D8_QWC + 0x0:
+		return m_D8.m_nQWC;
+		break;
+	case D8_QWC + 0x4:
+	case D8_QWC + 0x8:
+	case D8_QWC + 0xC:
+		return 0;
+		break;
+
 	//Channel 9
 	case D9_CHCR + 0x0:
 		return m_D9.ReadCHCR();
@@ -461,7 +474,7 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read to an unhandled IO port (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
 		break;
 	}
 
@@ -508,6 +521,10 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	//Channel 1
 	case D1_CHCR + 0x0:
 		m_D1.WriteCHCR(nData);
+		break;
+	case D1_CHCR + 0x1:
+		//This is done by FFXII
+		m_D1.WriteCHCR((m_D1.ReadCHCR() & ~0xFF00) | ((nData & 0xFF) << 8));
 		break;
 	case D1_CHCR + 0x4:
 	case D1_CHCR + 0x8:
@@ -957,6 +974,9 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		break;
 	case D8_MADR:
 		CLog::GetInstance().Print(LOG_NAME, "= D8_MADR.\r\n");
+		break;
+	case D8_QWC:
+		CLog::GetInstance().Print(LOG_NAME, "= D8_QWC.\r\n");
 		break;
 	case D9_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "= D9_CHCR.\r\n");
