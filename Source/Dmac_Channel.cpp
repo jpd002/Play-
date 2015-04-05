@@ -128,6 +128,7 @@ void CChannel::Execute()
 			ExecuteNormal();
 			break;
 		case 0x01:
+		case 0x03:		//FFXII uses 3 here, assuming source chain mode
 			ExecuteSourceChain();
 			break;
 		default:
