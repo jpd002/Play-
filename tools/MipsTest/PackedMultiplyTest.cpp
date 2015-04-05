@@ -22,6 +22,8 @@ void CPackedMultiplyTest::Execute(CTestVm& virtualMachine)
 	const uint64 multhHiHigh		= 0xFFFF8889F92C06D4ULL;
 	const uint64 mfhlUwResultLow	= 0xF258A741F92C5C29ULL;
 	const uint64 mfhlUwResultHigh	= 0xFFFF8889F49F0B61ULL;
+	const uint64 mfhlLhResultLow	= 0xA7413E945C290000ULL;
+	const uint64 mfhlLhResultHigh	= 0x888906D40B619630ULL;
 
 	auto valueRegister0		= CMIPS::A0;
 	auto valueRegister1		= CMIPS::A1;
@@ -32,6 +34,7 @@ void CPackedMultiplyTest::Execute(CTestVm& virtualMachine)
 	auto multhSelfLo		= CMIPS::T4;
 	auto multhSelfHi		= CMIPS::T5;
 	auto mfhlUwResult		= CMIPS::T6;
+	auto mfhlLhResult		= CMIPS::T7;
 
 	virtualMachine.Reset();
 
@@ -51,6 +54,9 @@ void CPackedMultiplyTest::Execute(CTestVm& virtualMachine)
 
 		//PMFHL.UW
 		assembler.PMFHL_UW(mfhlUwResult);
+
+		//PMFHL.LH
+		assembler.PMFHL_LH(mfhlLhResult);
 
 		assembler.SYSCALL();
 	}
@@ -100,4 +106,7 @@ void CPackedMultiplyTest::Execute(CTestVm& virtualMachine)
 
 	TEST_VERIFY(cpu.m_State.nGPR[mfhlUwResult].nD0 == mfhlUwResultLow);
 	TEST_VERIFY(cpu.m_State.nGPR[mfhlUwResult].nD1 == mfhlUwResultHigh);
+
+	TEST_VERIFY(cpu.m_State.nGPR[mfhlLhResult].nD0 == mfhlLhResultLow);
+	TEST_VERIFY(cpu.m_State.nGPR[mfhlLhResult].nD1 == mfhlLhResultHigh);
 }
