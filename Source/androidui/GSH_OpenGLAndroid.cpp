@@ -34,17 +34,47 @@ void CGSH_OpenGLAndroid::InitializeImpl()
 	m_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 	eglInitialize(m_display, 0, 0);
 	
-	EGLConfig config = 0;
 	EGLint numConfigs = 0;
-	eglChooseConfig(m_display, attribs, &config, 1, &numConfigs);
+	eglChooseConfig(m_display, attribs, &m_config, 1, &numConfigs);
+	assert(numConfigs > 0);
 	
-	m_surface = eglCreateWindowSurface(m_display, config, m_window, NULL);
+	m_context = eglCreateContext(m_display, m_config, NULL, NULL);
+	assert(m_context != EGL_NO_CONTEXT);
+
+	SetupContext();
+	
+	CGSH_OpenGL::InitializeImpl();
+}
+
+void CGSH_OpenGLAndroid::PresentBackbuffer()
+{
+	eglSwapBuffers(m_display, m_surface);
+}
+
+void CGSH_OpenGLAndroid::SetWindow(NativeWindowType window)
+{
+	m_window = window;
+	m_mailBox.SendCall(
+		[this] ()
+		{
+			SetupContext();
+		},
+		true
+	);
+}
+
+void CGSH_OpenGLAndroid::SetupContext()
+{
+	if(m_surface != EGL_NO_SURFACE)
+	{
+		eglDestroySurface(m_display, m_surface);
+		m_surface = EGL_NO_SURFACE;
+	}
+	
+	m_surface = eglCreateWindowSurface(m_display, m_config, m_window, NULL);
 	assert(m_surface != EGL_NO_SURFACE);
 	
-	auto context = eglCreateContext(m_display, config, NULL, NULL);
-	assert(context != EGL_NO_CONTEXT);
-	
-	auto makeCurrentResult = eglMakeCurrent(m_display, m_surface, m_surface, context);
+	auto makeCurrentResult = eglMakeCurrent(m_display, m_surface, m_surface, m_context);
 	assert(makeCurrentResult != EGL_FALSE);
 	
 	{
@@ -59,11 +89,4 @@ void CGSH_OpenGLAndroid::InitializeImpl()
 
 		SetPresentationParams(presentationParams);
 	}
-	
-	CGSH_OpenGL::InitializeImpl();
-}
-
-void CGSH_OpenGLAndroid::PresentBackbuffer()
-{
-	eglSwapBuffers(m_display, m_surface);
 }

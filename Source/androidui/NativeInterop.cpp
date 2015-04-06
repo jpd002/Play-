@@ -77,6 +77,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setupGsHandler(JNIEnv* env, jobject obj, jobject surface)
 {
 	auto nativeWindow = ANativeWindow_fromSurface(env, surface);
-	g_virtualMachine->DestroyGSHandler();
-	g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
+	auto gsHandler = g_virtualMachine->GetGSHandler();
+	if(gsHandler == nullptr)
+	{
+		g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
+	}
+	else
+	{
+		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
+	}
 }
