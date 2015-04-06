@@ -37,18 +37,46 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_createVirtualMachine(JNIEnv* env, jobject obj)
 {
+	assert(g_virtualMachine == nullptr);
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_start(JNIEnv* env, jobject obj, 
-	jobject surface, jstring selectedFilePath)
+extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineCreated(JNIEnv* env, jobject obj)
 {
-	auto nativeWindow = ANativeWindow_fromSurface(env, surface);
-	g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
+	return (g_virtualMachine != nullptr);
+}
+
+extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineRunning(JNIEnv* env, jobject obj)
+{
+	if(g_virtualMachine == nullptr) return false;
+	return g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING;
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_resumeVirtualMachine(JNIEnv* env, jobject obj)
+{
+	assert(g_virtualMachine != nullptr);
+	if(g_virtualMachine == nullptr) return;
+	g_virtualMachine->Resume();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_pauseVirtualMachine(JNIEnv* env, jobject obj)
+{
+	assert(g_virtualMachine != nullptr);
+	if(g_virtualMachine == nullptr) return;
+	g_virtualMachine->Pause();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_loadElf(JNIEnv* env, jobject obj, jstring selectedFilePath)
+{
+	assert(g_virtualMachine != nullptr);
 	g_virtualMachine->Reset();
 	g_virtualMachine->m_ee->m_os->BootFromFile(GetStringFromJstring(env, selectedFilePath).c_str());
-	Log_Print("Before step.");
-	g_virtualMachine->StepEe();
-	Log_Print("Stepping.");
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setupGsHandler(JNIEnv* env, jobject obj, jobject surface)
+{
+	auto nativeWindow = ANativeWindow_fromSurface(env, surface);
+	g_virtualMachine->DestroyGSHandler();
+	g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
 }
