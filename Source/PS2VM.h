@@ -68,6 +68,9 @@ public:
 	void						CreatePadHandler(const CPadHandler::FactoryFunction&);
 	void						DestroyPadHandler();
 
+	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);
+	void						DestroySoundHandler();
+
 	unsigned int				SaveState(const char*);
 	unsigned int				LoadState(const char*);
 

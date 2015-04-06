@@ -26,6 +26,7 @@
 #include "AboutWnd.h"
 #include "resource.h"
 #include "FileFilters.h"
+#include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
 
 #define CLSNAME						_T("MainWindow")
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
@@ -124,6 +125,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
 
 	m_virtualMachine.CreatePadHandler(CPH_DirectInput::GetFactoryFunction(m_hWnd));
+	m_virtualMachine.CreateSoundHandler(&CSH_WaveOut::HandlerFactory);
 
 	m_deactivatePause = false;
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
@@ -171,6 +173,7 @@ CMainWindow::~CMainWindow()
 
 	m_virtualMachine.DestroyPadHandler();
 	m_virtualMachine.DestroyGSHandler();
+	m_virtualMachine.DestroySoundHandler();
 
 #ifdef DEBUGGER_INCLUDED
 	m_frameDebugger.reset();

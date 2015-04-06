@@ -33,7 +33,6 @@
 #include "iop/DirectoryDevice.h"
 #include "iop/IsoDevice.h"
 #include "Log.h"
-#include "../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
 
 #define LOG_NAME		("ps2vm")
 
@@ -99,8 +98,6 @@ CPS2VM::CPS2VM()
 
 	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *m_iopOs);
 	m_ee->m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
-
-	m_soundHandler = new CSH_WaveOut();
 }
 
 CPS2VM::~CPS2VM()
@@ -143,6 +140,30 @@ void CPS2VM::DestroyPadHandler()
 {
 	if(m_pad == NULL) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyPadHandlerImpl, this), true);
+}
+
+void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFunction)
+{
+	if(m_soundHandler != nullptr) return;
+	m_mailBox.SendCall(
+		[this, factoryFunction] ()
+		{
+			m_soundHandler = factoryFunction();
+		},
+		true
+	);
+}
+
+void CPS2VM::DestroySoundHandler()
+{
+	if(m_soundHandler == nullptr) return;
+	m_mailBox.SendCall(
+		[this] ()
+		{
+			delete m_soundHandler;
+		},
+		true
+	);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
