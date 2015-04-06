@@ -138,6 +138,7 @@ private:
 	//Pmfhl
 	void								PMFHL_LW();
 	void								PMFHL_UW();
+	void								PMFHL_LH();
 
 	void								Generic_MADD(unsigned int unit, bool isSigned);
 
