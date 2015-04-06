@@ -128,6 +128,7 @@ void CChannel::Execute()
 			ExecuteNormal();
 			break;
 		case 0x01:
+		case 0x03:		//FFXII uses 3 here, assuming source chain mode
 			ExecuteSourceChain();
 			break;
 		default:
@@ -139,7 +140,19 @@ void CChannel::Execute()
 
 void CChannel::ExecuteNormal()
 {
-	uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+	uint32 qwc = m_nQWC;
+
+	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 8)
+	{
+		//Adjust QWC if we're in MFIFO mode
+		uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
+		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+		assert(ringBufferAddr < ringBufferSize);
+
+		qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
+	}
+
+	uint32 nRecv = m_pReceive(m_nMADR, qwc, 0, false);
 
 	m_nMADR	+= nRecv * 0x10;
 	m_nQWC	-= nRecv;
@@ -147,6 +160,16 @@ void CChannel::ExecuteNormal()
 	if(m_nQWC == 0)
 	{
 		ClearSTR();
+	}
+
+	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 8)
+	{
+		//Loop MADR if needed
+		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+		if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
+		{
+			m_nMADR = m_dmac.m_D_RBOR;
+		}
 	}
 }
 
@@ -177,13 +200,6 @@ void CChannel::ExecuteSourceChain()
 			{
 				break;
 			}
-
-//			uint32 currentPos = (m_nTADR & m_dmac.m_D_RBSR) + m_dmac.m_D_RBOR;
-//			if(currentPos != m_nTADR)
-//			{
-//				int i = 0;
-//				i++;
-//			}
 		}
 
 		//Check if device received DMAtag
@@ -257,36 +273,36 @@ void CChannel::ExecuteSourceChain()
 		//m_nCHCR &= ~0xFFFF0000;
 		//m_nCHCR |= nTag & 0xFFFF0000;
 
-		uint8 nID = (uint8)((nTag >> 28) & 0x07);
+		uint8 nID = static_cast<uint8>((nTag >> 28) & 0x07);
 
 		switch(nID)
 		{
-		case 0:
+		case DMATAG_REFE:
 			//REFE - Data to transfer is pointer in memory address, transfer is done
 			m_nMADR		= (uint32)((nTag >>  32) & 0xFFFFFFFF);
 			m_nQWC		= (uint32)((nTag >>   0) & 0x0000FFFF);
 			m_nTADR		= m_nTADR + 0x10;
 			break;
-		case 1:
+		case DMATAG_CNT:
 			//CNT - Data to transfer is after the tag, next tag is after the data
 			m_nMADR		= m_nTADR + 0x10;
 			m_nQWC		= (uint32)(nTag & 0xFFFF);
 			m_nTADR		= (m_nQWC * 0x10) + m_nMADR;
 			break;
-		case 2:
+		case DMATAG_NEXT:
 			//NEXT - Transfers data after tag, next tag is at position in ADDR field
 			m_nMADR		= m_nTADR + 0x10;
 			m_nQWC		= (uint32)((nTag >>   0) & 0x0000FFFF);
 			m_nTADR		= (uint32)((nTag >>  32) & 0xFFFFFFFF);
 			break;
-		case 3:
-		case 4:
+		case DMATAG_REF:
+		case DMATAG_REFS:
 			//REF/REFS - Data to transfer is pointed in memory address, next tag is after this tag
 			m_nMADR		= (uint32)((nTag >>  32) & 0xFFFFFFFF);
 			m_nQWC		= (uint32)((nTag >>   0) & 0x0000FFFF);
 			m_nTADR		= m_nTADR + 0x10;
 			break;
-		case 5:
+		case DMATAG_CALL:
 			//CALL - Transfers QWC after the tag, saves next address in ASR, TADR = ADDR
 			assert(m_CHCR.nASP < 2);
 			m_nMADR				= m_nTADR + 0x10;
@@ -295,7 +311,7 @@ void CChannel::ExecuteSourceChain()
 			m_nTADR				= (uint32)((nTag >>  32) & 0xFFFFFFFF);
 			m_CHCR.nASP++;
 			break;
-		case 6:
+		case DMATAG_RET:
 			//RET - Transfers QWC after the tag, pops TADR from ASR
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)(nTag & 0xFFFF);
@@ -309,7 +325,7 @@ void CChannel::ExecuteSourceChain()
 				m_nSCCTRL |= SCCTRL_RETTOP;
 			}
 			break;
-		case 7:
+		case DMATAG_END:
 			//END - Data to transfer is after the tag, transfer is finished
 			m_nMADR		= m_nTADR + 0x10;
 			m_nQWC		= (uint32)(nTag & 0xFFFF);
@@ -320,12 +336,37 @@ void CChannel::ExecuteSourceChain()
 			break;
 		}
 
-		if(m_nQWC != 0)
+		uint32 qwc = m_nQWC;
+		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
 		{
-			uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+			//Adjust QWC in MFIFO mode
+			uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
+			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+			assert(ringBufferAddr < ringBufferSize);
+
+			qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
+		}
+
+		if(qwc != 0)
+		{
+			uint32 nRecv = m_pReceive(m_nMADR, qwc, 0, false);
 
 			m_nMADR		+= nRecv * 0x10;
 			m_nQWC		-= nRecv;
+		}
+
+		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
+		{
+			//Loop MADR if needed
+			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+			if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
+			{
+				m_nMADR = m_dmac.m_D_RBOR;
+				//Mask TADR because it's in the ring buffer zone
+				m_nTADR -= m_dmac.m_D_RBOR;
+				m_nTADR &= m_dmac.m_D_RBSR;
+				m_nTADR += m_dmac.m_D_RBOR;
+			}
 		}
 	}
 }

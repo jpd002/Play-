@@ -10,6 +10,7 @@ ReleaseAot
 *.aps
 *.ipch
 *.sdf
+*.opensdf
 *.suo
 *.user
 *.userprops

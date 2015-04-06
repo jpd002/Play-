@@ -96,6 +96,12 @@ void CEEAssembler::PMFHL_UW(unsigned int rd)
 	m_ptr++;
 }
 
+void CEEAssembler::PMFHL_LH(unsigned int rd)
+{
+	(*m_ptr) = ((0x1C) << 26) | (rd << 11) | ((0x03) << 6) | (0x30);
+	m_ptr++;
+}
+
 void CEEAssembler::PMULTH(unsigned int rd, unsigned int rs, unsigned int rt)
 {
 	(*m_ptr) = ((0x1C) << 26) | (rs << 21) | (rt << 16) | (rd << 11) | ((0x1C) << 6) | (0x09);

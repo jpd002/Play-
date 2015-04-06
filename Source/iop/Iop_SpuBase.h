@@ -72,9 +72,10 @@ namespace Iop
 
 		enum CONTROL
 		{
-			CONTROL_REVERB	= 0x80,
-			CONTROL_IRQ		= 0x40,
-			CONTROL_DMA		= 0x30,
+			CONTROL_REVERB		= 0x80,
+			CONTROL_IRQ			= 0x40,
+			CONTROL_DMA			= 0x30,
+			CONTROL_DMA_READ	= 0x20,
 		};
 
 		enum
@@ -218,6 +219,7 @@ namespace Iop
 			void			SetPitch(uint32, uint16);
 			void			GetSamples(int16*, unsigned int, unsigned int);
 			uint8*			GetRepeat() const;
+			void			SetRepeat(uint8*);
 			uint8*			GetCurrent() const;
 			bool			IsDone() const;
 			bool			GetEndFlag() const;

@@ -1773,6 +1773,13 @@ void CIopBios::HandleException()
 		uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
 		std::string moduleName = ReadModuleName(searchAddress + 0x0C);
 
+#ifdef _DEBUG
+		if(moduleName == "libsd")
+		{
+			Iop::CLibSd::TraceCall(m_cpu, functionId);
+		}
+#endif
+
 		IopModuleMapType::iterator module(m_modules.find(moduleName));
 		if(module != m_modules.end())
 		{

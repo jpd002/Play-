@@ -157,10 +157,18 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 	}
 	else
 	{
+		//Validate texture dimensions to prevent problems
+		auto texWidth = tex0.GetWidth();
+		auto texHeight = tex0.GetHeight();
+		assert(texWidth <= 1024);
+		assert(texHeight <= 1024);
+		texWidth = std::min<uint32>(texWidth, 1024);
+		texHeight = std::min<uint32>(texHeight, 1024);
+
 		GLuint nTexture = 0;
 		glGenTextures(1, &nTexture);
 		glBindTexture(GL_TEXTURE_2D, nTexture);
-		((this)->*(m_textureUploader[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
+		((this)->*(m_textureUploader[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texWidth, texHeight);
 		TexCache_Insert(tex0, nTexture);
 	}
 

@@ -148,7 +148,8 @@ std::pair<uint32, uint32> CGsPixelFormats::GetPsmPageSize(unsigned int psm)
 		return std::make_pair(CGsPixelFormats::STORAGEPSMT4::PAGEWIDTH, CGsPixelFormats::STORAGEPSMT4::PAGEHEIGHT);
 	default:
 		assert(0);
-		return std::make_pair(0, 0);
+		//Return a dummy value to prevent crashing
+		return std::make_pair(CGsPixelFormats::STORAGEPSMCT32::PAGEWIDTH, CGsPixelFormats::STORAGEPSMCT32::PAGEHEIGHT);
 		break;
 	}
 }
