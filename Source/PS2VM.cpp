@@ -115,7 +115,7 @@ CPS2VM::~CPS2VM()
 
 void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
-	if(m_ee->m_gs != NULL) return;
+	if(m_ee->m_gs != nullptr) return;
 	m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, factoryFunction), true);
 }
 
@@ -126,19 +126,19 @@ CGSHandler* CPS2VM::GetGSHandler()
 
 void CPS2VM::DestroyGSHandler()
 {
-	if(m_ee->m_gs == NULL) return;
+	if(m_ee->m_gs == nullptr) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyGsImpl, this), true);
 }
 
 void CPS2VM::CreatePadHandler(const CPadHandler::FactoryFunction& factoryFunction)
 {
-	if(m_pad != NULL) return;
+	if(m_pad != nullptr) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::CreatePadHandlerImpl, this, factoryFunction), true);
 }
 
 void CPS2VM::DestroyPadHandler()
 {
-	if(m_pad == NULL) return;
+	if(m_pad == nullptr) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyPadHandlerImpl, this), true);
 }
 
