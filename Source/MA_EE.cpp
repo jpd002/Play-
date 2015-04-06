@@ -1144,6 +1144,35 @@ void CMA_EE::PMFHL_UW()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 }
 
+//03
+void CMA_EE::PMFHL_LH()
+{
+	static const size_t offsets[8] =
+	{
+		offsetof(CMIPS, m_State.nLO[0]),
+		offsetof(CMIPS, m_State.nLO[1]),
+		offsetof(CMIPS, m_State.nHI[0]),
+		offsetof(CMIPS, m_State.nHI[1]),
+		offsetof(CMIPS, m_State.nLO1[0]),
+		offsetof(CMIPS, m_State.nLO1[1]),
+		offsetof(CMIPS, m_State.nHI1[0]),
+		offsetof(CMIPS, m_State.nHI1[1])
+	};
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRel(offsets[(i * 2) + 0]);
+		m_codeGen->PushCst(0xFFFF);
+		m_codeGen->And();
+	
+		m_codeGen->PushRel(offsets[(i * 2) + 1]);
+		m_codeGen->Shl(16);
+
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+	}
+}
+
 //////////////////////////////////////////////////
 //Generic Stuff
 //////////////////////////////////////////////////
@@ -1272,7 +1301,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpPmfhl[0x20] = 
 {
 	//0x00
-	&CMA_EE::PMFHL_LW,		&CMA_EE::PMFHL_UW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PMFHL_LW,		&CMA_EE::PMFHL_UW,		&CMA_EE::Illegal,		&CMA_EE::PMFHL_LH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10

@@ -364,6 +364,15 @@ void VUShared::ReflOpAffWrARdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode,
 	operandSet.readF1 = fs;
 }
 
+void VUShared::ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	//TODO: Write A
+	operandSet.readF0 = fs;
+	operandSet.readQ = true;
+}
+
 void VUShared::ReflOpAffWrCfRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
 	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);

@@ -138,9 +138,6 @@
     <ClInclude Include="..\Source\MipsJitter.h">
       <Filter>Source Files\Play Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\MIPSModule.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\MIPSReflection.h">
       <Filter>Source Files\Play Core</Filter>
     </ClInclude>

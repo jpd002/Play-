@@ -199,6 +199,7 @@ namespace VUShared
 	void						ReflOpAffQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	
 	void						ReflOpAffWrARdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void						ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffWrCfRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffWrFdRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void						ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);

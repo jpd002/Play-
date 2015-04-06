@@ -33,7 +33,11 @@ void CGIF::Reset()
 {
 	m_loops = 0;
 	m_cmd = 0;
+	m_regs = 0;
+	m_regsTemp = 0;
+	m_regList = 0;
 	m_eop = false;
+	m_qtemp = 0;
 }
 
 uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memory, uint32 address, uint32 end)

@@ -262,7 +262,7 @@ INSTRUCTION CMA_EE::m_cReflPmfhl[32] =
 	{	"PMFHL.LW",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
 	{	"PMFHL.UW",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PMFHL.LH",	NULL,			CopyMnemonic,		ReflOpRd,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

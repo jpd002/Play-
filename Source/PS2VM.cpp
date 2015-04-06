@@ -372,6 +372,8 @@ void CPS2VM::ResetVM()
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
 
+	m_spuUpdateTicks = SPU_UPDATE_TICKS;
+
 	m_eeExecutionTicks = 0;
 	m_iopExecutionTicks = 0;
 
@@ -646,49 +648,57 @@ void CPS2VM::CDROM0_Reset()
 	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 }
 
-void CPS2VM::CDROM0_Mount(const char* sPath)
+void CPS2VM::CDROM0_Mount(const char* path)
 {
 	//Check if there's an m_pCDROM0 already
 	//Check if files are linked to this m_pCDROM0 too and do something with them
 
-	size_t pathLength = strlen(sPath);
+	size_t pathLength = strlen(path);
 	if(pathLength != 0)
 	{
 		try
 		{
-			Framework::CStream* pStream(NULL);
+			Framework::CStream* stream = nullptr;
 			const char* extension = "";
 			if(pathLength >= 4)
 			{
-				extension = sPath + pathLength - 4;
+				extension = path + pathLength - 4;
 			}
 
 			//Gotta think of something better than that...
 #ifndef __ANDROID__		//This is temporary till we get bzip2 to compile on Android
 			if(!stricmp(extension, ".isz"))
 			{
-				pStream = new CIszImageStream(new Framework::CStdStream(sPath, "rb"));
+				stream = new CIszImageStream(new Framework::CStdStream(path, "rb"));
 			}
 #endif
 #ifdef WIN32
-			else if(sPath[0] == '\\')
+			else if(path[0] == '\\')
 			{
-				pStream = new Framework::Win32::CVolumeStream(sPath[4]);
+				stream = new Framework::Win32::CVolumeStream(path[4]);
 			}
 #elif !defined(__ANDROID__)
 			else
 			{
-				pStream = new Framework::Posix::CVolumeStream(sPath);
+				try
+				{
+					stream = new Framework::Posix::CVolumeStream(path);
+				}
+				catch(...)
+				{
+					//Ok if it fails here, might be a standard ISO image file
+					//which will be handled below
+				}
 			}
 #endif
 
 			//If it's null after all that, just feed it to a StdStream
-			if(pStream == NULL)
+			if(stream == nullptr)
 			{
-				pStream = new Framework::CStdStream(sPath, "rb");
+				stream = new Framework::CStdStream(path, "rb");
 			}
 
-			m_pCDROM0 = new CISO9660(pStream);
+			m_pCDROM0 = new CISO9660(stream);
 			SetIopCdImage(m_pCDROM0);
 		}
 		catch(const std::exception& Exception)
@@ -697,7 +707,7 @@ void CPS2VM::CDROM0_Mount(const char* sPath)
 		}
 	}
 
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, sPath);
+	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, path);
 }
 
 void CPS2VM::CDROM0_Destroy()

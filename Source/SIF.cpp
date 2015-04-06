@@ -61,6 +61,14 @@ void CSIF::Reset()
 //	m_nSMFLAG		= 0x20000;
 	m_nSMFLAG		= 0x60000;
 
+	m_nEERecvAddr	= 0;
+	m_nDataAddr		= 0;
+
+	m_dmaBufferAddress	= 0;
+	m_dmaBufferSize		= 0;
+	m_cmdBufferAddress	= 0;
+	m_cmdBufferSize		= 0;
+
 	memset(m_nUserReg, 0, sizeof(uint32) * MAX_USERREG);
 
 	m_packetQueue.clear();

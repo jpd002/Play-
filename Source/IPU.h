@@ -41,6 +41,7 @@ private:
 	enum IPU_CTRL_BITS
 	{
 		IPU_CTRL_ECD = 0x00004000,
+		IPU_CTRL_SCD = 0x00008000,
 		IPU_CTRL_RST = 0x40000000,
 	};
 
@@ -166,6 +167,11 @@ private:
 		bool				m_lookupBitsDirty;
 		unsigned int		m_size;
 		unsigned int		m_bitPosition;
+	};
+
+	class CStartCodeException : public std::exception
+	{
+
 	};
 
 	class CCommand
@@ -299,7 +305,7 @@ private:
 	public:
 										CBDECCommand();
 
-		void							Initialize(CINFIFO*, COUTFIFO*, uint32, const DECODER_CONTEXT&);
+		void							Initialize(CINFIFO*, COUTFIFO*, uint32, bool, const DECODER_CONTEXT&);
 		bool							Execute() override;
 
 	private:
@@ -325,6 +331,7 @@ private:
 
 		CINFIFO*						m_IN_FIFO = nullptr;
 		COUTFIFO*						m_OUT_FIFO = nullptr;
+		bool							m_checkStartCode = false;
 
 		uint8							m_codedBlockPattern = 0;
 

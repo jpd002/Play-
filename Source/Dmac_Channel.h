@@ -16,6 +16,18 @@ namespace Dmac
 	class CChannel
 	{
 	public:
+		enum DMATAG_TYPE
+		{
+			DMATAG_REFE,
+			DMATAG_CNT,
+			DMATAG_NEXT,
+			DMATAG_REF,
+			DMATAG_REFS,
+			DMATAG_CALL,
+			DMATAG_RET,
+			DMATAG_END
+		};
+
 		struct CHCR : public convertible<uint32>
 		{
 			unsigned int		nDIR		: 1;

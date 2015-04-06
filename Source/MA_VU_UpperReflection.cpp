@@ -337,7 +337,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX0[32] =
 	{	"ITOF0",	NULL,			ReflOpAffFtFs		},
 	{	"FTOI0",	NULL,			ReflOpAffFtFs		},
 	{	"MULA",		NULL,			ReflOpAffWrARdFtFs	},
-	{	"MULA",		NULL,			NULL				},
+	{	"MULA",		NULL,			ReflOpAffWrARdFsQ	},
 	//0x08
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},

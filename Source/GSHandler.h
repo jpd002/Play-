@@ -126,7 +126,7 @@ public:
 		PSMZ24		= 0x31,
 		PSMZ16		= 0x32,
 		PSMZ16S		= 0x3A,
-		PSM_MAX,
+		PSM_MAX		= 0x40,
 	};
 
 	enum PRIM_TYPE

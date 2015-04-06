@@ -383,6 +383,11 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	{
 		blockAmount = 1;
 	}
+	if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_READ)
+	{
+		//DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
+		blockAmount = std::min<uint32>(blockAmount, 0x10);
+	}
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)
 	{
@@ -484,12 +489,15 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					channel.repeat = static_cast<uint32>(repeat - m_ram);
 					reader.ClearDidChangeRepeat();
 				}
+				//Update repeat in case it has been changed externally (needed for FFX)
+				reader.SetRepeat(m_ram + channel.repeat);
 			}
 
 			uint32 prevAddress = channel.current;
 
 			int16 readSample = 0;
-			reader.SetPitch(m_baseSamplingRate, channel.pitch);
+			//We need to check if pitch is 0 here because FFX does that for its voice overs
+			reader.SetPitch(m_baseSamplingRate, (channel.pitch != 0) ? channel.pitch : 0x1000);
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
 
@@ -973,6 +981,11 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 uint8* CSpuBase::CSampleReader::GetRepeat() const
 {
 	return m_repeat;
+}
+
+void CSpuBase::CSampleReader::SetRepeat(uint8* repeat)
+{
+	m_repeat = repeat;
 }
 
 uint8* CSpuBase::CSampleReader::GetCurrent() const

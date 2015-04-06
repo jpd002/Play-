@@ -46,6 +46,8 @@ void CIPU::Reset()
 	m_IPU_CTRL			= 0;
 	m_IPU_CMD[0]		= 0;
 	m_IPU_CMD[1]		= 0;
+	m_nTH0				= 0;
+	m_nTH1				= 0;
 
 	m_isBusy			= false;
 	m_currentCmd		= nullptr;
@@ -143,6 +145,7 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 				assert(m_IPU_CTRL & IPU_CTRL_ECD);
 			}
 			m_IPU_CTRL &= ~IPU_CTRL_ECD;
+			m_IPU_CTRL &= ~IPU_CTRL_SCD;
 			InitializeCommand(nValue);
 			m_isBusy = true;
 		}
@@ -206,10 +209,19 @@ void CIPU::ExecuteCommand()
 		{
 
 		}
+		catch(const CStartCodeException&)
+		{
+			m_currentCmd = nullptr;
+			m_isBusy = false;
+			m_IPU_CTRL |= IPU_CTRL_SCD;
+			CLog::GetInstance().Print(LOG_NAME, "Start code encountered.\r\n");
+		}
 		catch(const CVLCTable::CVLCTableException&)
 		{
+			m_currentCmd = nullptr;
+			m_isBusy = false;
 			m_IPU_CTRL |= IPU_CTRL_ECD;
-			CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.");
+			CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.\r\n");
 		}
 	}
 }
@@ -244,7 +256,7 @@ void CIPU::InitializeCommand(uint32 value)
 		break;
 	case IPU_CMD_BDEC:
 		{
-			m_BDECCommand.Initialize(&m_IN_FIFO, &m_OUT_FIFO, value, GetDecoderContext());
+			m_BDECCommand.Initialize(&m_IN_FIFO, &m_OUT_FIFO, value, true, GetDecoderContext());
 			m_currentCmd = &m_BDECCommand;
 		}
 		break;
@@ -909,7 +921,7 @@ bool CIPU::CIDECCommand::Execute()
 				bdecCommand.dt		= 0;
 				bdecCommand.dcr		= (m_mbCount == 0) ? 1 : 0;
 				bdecCommand.qsc		= m_qsc;
-				m_BDECCommand->Initialize(m_IN_FIFO, &m_temp_OUT_FIFO, bdecCommand, m_context);
+				m_BDECCommand->Initialize(m_IN_FIFO, &m_temp_OUT_FIFO, bdecCommand, false, m_context);
 				m_state = STATE_READBLOCK;
 				m_blockStream.ResetBuffer();
 			}
@@ -1012,10 +1024,12 @@ CIPU::CBDECCommand::CBDECCommand()
 	m_blocks[5].block = m_crBlock;		m_blocks[5].channel = 2;
 }
 
-void CIPU::CBDECCommand::Initialize(CINFIFO* inFifo, COUTFIFO* outFifo, uint32 commandCode, const DECODER_CONTEXT& context)
+void CIPU::CBDECCommand::Initialize(CINFIFO* inFifo, COUTFIFO* outFifo, uint32 commandCode, bool checkStartCode, const DECODER_CONTEXT& context)
 {
 	m_command <<= commandCode;
 	assert(m_command.cmdId == IPU_CMD_BDEC);
+
+	m_checkStartCode = checkStartCode;
 
 	m_context = context;
 
@@ -1161,6 +1175,19 @@ bool CIPU::CBDECCommand::Execute()
 				m_OUT_FIFO->Write(m_blocks[5].block, sizeof(int16) * 0x40);
 
 				m_OUT_FIFO->Flush();
+
+				//Check if there's more than 7 zero bits after this and set "start code detected"
+				if(m_checkStartCode)
+				{
+					uint32 nextBits = 0;
+					if(m_IN_FIFO->TryPeekBits_MSBF(8, nextBits))
+					{
+						if(nextBits == 0)
+						{
+							throw CStartCodeException();
+						}
+					}
+				}
 			}
 			return true;
 			break;
