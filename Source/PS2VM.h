@@ -154,7 +154,7 @@ private:
 	};
 
 	int16						m_samples[BLOCK_SIZE * BLOCK_COUNT];
-	int							m_currentBlock = 0;
+	int							m_currentSpuBlock = 0;
 	CSoundHandler*				m_soundHandler = nullptr;
 
 	CProfiler::ZoneHandle		m_eeProfilerZone = 0;

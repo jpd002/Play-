@@ -372,13 +372,11 @@ void CPS2VM::ResetVM()
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
 
-	m_spuUpdateTicks = SPU_UPDATE_TICKS;
-
 	m_eeExecutionTicks = 0;
 	m_iopExecutionTicks = 0;
 
-	m_spuUpdateTicks = 0;
-	m_currentBlock = 0;
+	m_spuUpdateTicks = SPU_UPDATE_TICKS;
+	m_currentSpuBlock = 0;
 
 	RegisterModulesInPadHandler();
 
@@ -602,7 +600,7 @@ void CPS2VM::UpdateSpu()
 	CProfilerZone profilerZone(m_spuProfilerZone);
 #endif
 
-	unsigned int blockOffset = (BLOCK_SIZE * m_currentBlock);
+	unsigned int blockOffset = (BLOCK_SIZE * m_currentSpuBlock);
 	int16* samplesSpu0 = m_samples + blockOffset;
 
 	m_iop->m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
@@ -621,8 +619,8 @@ void CPS2VM::UpdateSpu()
 		}
 	}
 
-	m_currentBlock++;
-	if(m_currentBlock == BLOCK_COUNT)
+	m_currentSpuBlock++;
+	if(m_currentSpuBlock == BLOCK_COUNT)
 	{
 		if(m_soundHandler)
 		{
@@ -632,7 +630,7 @@ void CPS2VM::UpdateSpu()
 			}
 			m_soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, 44100);
 		}
-		m_currentBlock = 0;
+		m_currentSpuBlock = 0;
 	}
 }
 
