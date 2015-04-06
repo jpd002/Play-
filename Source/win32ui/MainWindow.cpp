@@ -5,7 +5,6 @@
 #include "string_format.h"
 #include "string_cast.h"
 #include "StdStreamUtils.h"
-#include "PtrMacro.h"
 #include "PathUtils.h"
 #include "win32/FileDialog.h"
 #include "win32/AcceleratorTableGenerator.h"
@@ -180,7 +179,7 @@ CMainWindow::~CMainWindow()
 	m_debugger.reset();
 #endif
 
-	DELETEPTR(m_outputWnd);
+	delete m_outputWnd;
 
 	DestroyAcceleratorTable(m_accTable);
 
@@ -553,7 +552,7 @@ void CMainWindow::ShowSettingsDialog(CSettingsDialogProvider* provider)
 
 	Framework::Win32::CModalWindow* pWindow = provider->CreateSettingsDialog(m_hWnd);
 	pWindow->DoModal();
-	DELETEPTR(pWindow);
+	delete pWindow;
 	provider->OnSettingsDialogDestroyed();
 
 	Redraw();
