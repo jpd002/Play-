@@ -161,6 +161,7 @@ void CPS2VM::DestroySoundHandler()
 		[this] ()
 		{
 			delete m_soundHandler;
+			m_soundHandler = nullptr;
 		},
 		true
 	);
