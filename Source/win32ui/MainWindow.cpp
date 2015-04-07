@@ -608,7 +608,7 @@ void CMainWindow::ShowMcManager()
 	if(nPaused)
 	{
 		ResumePause();
-	}	
+	}
 }
 
 void CMainWindow::LoadELF(const char* sFilename)

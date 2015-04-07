@@ -45,9 +45,7 @@
 #define ID_MAIN_HELP_ABOUT              40059
 #define ID_FILE_BOOTCDROM               40060
 #define ID_OPTIONS_VFSMANAGER           40063
-#define ID_OPTIONS_CONFIGEDI            40064
 #define ID_MAIN_OPTIONS_VFSMANAGER      40065
-#define ID_MAIN_OPTIONS_CONFIGEDI       40066
 #define ID_MAIN_FILE_BOOTCDROM          40067
 #define ID_VIEW_CALLSTACK               40068
 #define ID_WINDOW_LAYOUT                40069
