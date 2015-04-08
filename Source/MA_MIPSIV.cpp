@@ -289,6 +289,8 @@ void CMA_MIPSIV::ADDIU()
 	}
 	else
 	{
+		if(m_nRT == 0) return;
+
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushCst(static_cast<int16>(m_nImmediate));
 		m_codeGen->Add();
@@ -317,6 +319,8 @@ void CMA_MIPSIV::SLTIU()
 //0C
 void CMA_MIPSIV::ANDI()
 {
+	if(m_nRT == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushCst(m_nImmediate);
 	
@@ -333,6 +337,8 @@ void CMA_MIPSIV::ANDI()
 //0D
 void CMA_MIPSIV::ORI()
 {
+	if(m_nRT == 0) return;
+
 	//Lower 32-bits
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushCst(m_nImmediate);
@@ -350,6 +356,8 @@ void CMA_MIPSIV::ORI()
 //0E
 void CMA_MIPSIV::XORI()
 {
+	if(m_nRT == 0) return;
+
 	//Lower 32-bits
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushCst(m_nImmediate);
@@ -364,6 +372,8 @@ void CMA_MIPSIV::XORI()
 //0F
 void CMA_MIPSIV::LUI()
 {
+	if(m_nRT == 0) return;
+
 	m_codeGen->PushCst(m_nImmediate << 16);
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -441,6 +451,8 @@ void CMA_MIPSIV::BGTZL()
 //19
 void CMA_MIPSIV::DADDIU()
 {
+	if(m_nRT == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -901,6 +913,8 @@ void CMA_MIPSIV::MTLO()
 //14
 void CMA_MIPSIV::DSLLV()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -912,6 +926,8 @@ void CMA_MIPSIV::DSLLV()
 //16
 void CMA_MIPSIV::DSRLV()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -923,6 +939,8 @@ void CMA_MIPSIV::DSRLV()
 //17
 void CMA_MIPSIV::DSRAV()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -982,6 +1000,8 @@ void CMA_MIPSIV::SUBU()
 //24
 void CMA_MIPSIV::AND()
 {
+	if(m_nRD == 0) return;
+
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -1001,6 +1021,8 @@ void CMA_MIPSIV::AND()
 //25
 void CMA_MIPSIV::OR()
 {
+	if(m_nRD == 0) return;
+
 	//TODO: Use a 64-bits op
 	unsigned int regCount = (m_regSize == MIPS_REGSIZE_64) ? 2 : 1;
 	for(unsigned int i = 0; i < regCount; i++)
@@ -1017,6 +1039,8 @@ void CMA_MIPSIV::OR()
 //26
 void CMA_MIPSIV::XOR()
 {
+	if(m_nRD == 0) return;
+
 	unsigned int regCount = (m_regSize == MIPS_REGSIZE_64) ? 2 : 1;
 	for(unsigned int i = 0; i < regCount; i++)
 	{
@@ -1032,6 +1056,8 @@ void CMA_MIPSIV::XOR()
 //27
 void CMA_MIPSIV::NOR()
 {
+	if(m_nRD == 0) return;
+
 	unsigned int regCount = (m_regSize == MIPS_REGSIZE_64) ? 2 : 1;
 	for(unsigned int i = 0; i < regCount; i++)
 	{
@@ -1072,6 +1098,8 @@ void CMA_MIPSIV::DADDU()
 //2F
 void CMA_MIPSIV::DSUBU()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -1083,6 +1111,8 @@ void CMA_MIPSIV::DSUBU()
 //38
 void CMA_MIPSIV::DSLL()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -1093,6 +1123,8 @@ void CMA_MIPSIV::DSLL()
 //3A
 void CMA_MIPSIV::DSRL()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -1103,6 +1135,8 @@ void CMA_MIPSIV::DSRL()
 //3B
 void CMA_MIPSIV::DSRA()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -1113,6 +1147,8 @@ void CMA_MIPSIV::DSRA()
 //3C
 void CMA_MIPSIV::DSLL32()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -1123,6 +1159,8 @@ void CMA_MIPSIV::DSLL32()
 //3E
 void CMA_MIPSIV::DSRL32()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -1133,6 +1171,8 @@ void CMA_MIPSIV::DSRL32()
 //3F
 void CMA_MIPSIV::DSRA32()
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
