@@ -48,6 +48,7 @@
 #define ID_MAIN_PROFILE_RESETSTATS		(0xDFAD)
 
 #define PREF_UI_PAUSEWHENFOCUSLOST	"ui.pausewhenfocuslost"
+#define PREF_UI_SOUNDENABLED		"ui.soundenabled"
 
 double CMainWindow::m_statusBarPanelWidths[2] =
 {
@@ -73,6 +74,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	TCHAR sVersion[256];
 
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SOUNDENABLED, false);
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -124,7 +126,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine, char* cmdLine)
 	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
 
 	m_virtualMachine.CreatePadHandler(CPH_DirectInput::GetFactoryFunction(m_hWnd));
-	m_virtualMachine.CreateSoundHandler(&CSH_WaveOut::HandlerFactory);
+	SetupSoundHandler();
 
 	m_deactivatePause = false;
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
@@ -293,6 +295,9 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 		break;
 	case ID_MAIN_OPTIONS_MCMANAGER:
 		ShowMcManager();
+		break;
+	case ID_MAIN_OPTIONS_ENABLESOUND:
+		ToggleSoundEnabled();
 		break;
 	case ID_MAIN_DEBUG_SHOWDEBUG:
 		ShowDebugger();
@@ -611,6 +616,14 @@ void CMainWindow::ShowMcManager()
 	}
 }
 
+void CMainWindow::ToggleSoundEnabled()
+{
+	auto soundEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SOUNDENABLED);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_UI_SOUNDENABLED, !soundEnabled);
+	SetupSoundHandler();
+	UpdateUI();
+}
+
 void CMainWindow::LoadELF(const char* sFilename)
 {
 	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
@@ -857,6 +870,7 @@ boost::filesystem::path CMainWindow::GenerateStatePath() const
 void CMainWindow::UpdateUI()
 {
 	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
+	Framework::Win32::CMenuItem mainMenu(GetMenu(m_hWnd));
 
 	//Fix the file menu
 	{
@@ -908,6 +922,12 @@ void CMainWindow::UpdateUI()
 		CheckMenuItem(viewMenu, ID_MAIN_VIEW_ACTUALSIZE, ((presentationMode == CGSHandler::PRESENTATION_MODE_ORIGINAL) ? MF_CHECKED : MF_UNCHECKED) | MF_BYCOMMAND);
 	}
 
+	//Fix the options menu
+	{
+		auto enableSoundMenuItem = mainMenu.FindById(ID_MAIN_OPTIONS_ENABLESOUND);
+		enableSoundMenuItem.Check(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SOUNDENABLED));
+	}
+
 	TCHAR sTitle[256];
 	const char* sExec = os.GetExecutableName();
 	if(strlen(sExec))
@@ -946,6 +966,19 @@ void CMainWindow::OnNewFrame(uint32 drawCallCount)
 void CMainWindow::OnExecutableChange()
 {
 	UpdateUI();
+}
+
+void CMainWindow::SetupSoundHandler()
+{
+	auto soundEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SOUNDENABLED);
+	if(soundEnabled)
+	{
+		m_virtualMachine.CreateSoundHandler(&CSH_WaveOut::HandlerFactory);
+	}
+	else
+	{
+		m_virtualMachine.DestroySoundHandler();
+	}
 }
 
 CMainWindow::CScopedVmPauser::CScopedVmPauser(CPS2VM& virtualMachine)
