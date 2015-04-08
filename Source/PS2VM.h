@@ -153,7 +153,7 @@ private:
 	{
 		SAMPLE_COUNT = 44,
 		BLOCK_SIZE = SAMPLE_COUNT * 2,
-		BLOCK_COUNT = 10,
+		BLOCK_COUNT = 400,
 	};
 
 	int16						m_samples[BLOCK_SIZE * BLOCK_COUNT];
