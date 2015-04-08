@@ -147,7 +147,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Quit\tAlt+F4",               ID_MAIN_FILE_EXIT
     END
-    POPUP "Virtual Machine"
+    POPUP "Virtual &Machine"
     BEGIN
         MENUITEM "&Pause / Resume\tF5",         ID_MAIN_VM_RESUME
         MENUITEM "R&eset",                      ID_MAIN_VM_RESET, GRAYED
@@ -163,14 +163,14 @@ BEGIN
         MENUITEM "Fill Screen\tCtrl+K",         ID_MAIN_VIEW_FILLSCREEN
         MENUITEM "Actual Size\tCtrl+L",         ID_MAIN_VIEW_ACTUALSIZE
     END
-    POPUP "Options"
+    POPUP "&Options"
     BEGIN
         MENUITEM "Renderer Settings...",        ID_MAIN_OPTIONS_RENDERER
         MENUITEM "Controller Settings...",      ID_MAIN_OPTIONS_CONTROLLER
         MENUITEM "&Virtual File System Manager...", ID_MAIN_OPTIONS_VFSMANAGER
         MENUITEM "Memory Card Manager...",      ID_MAIN_OPTIONS_MCMANAGER
     END
-    POPUP "Help"
+    POPUP "&Help"
     BEGIN
         MENUITEM "System Information...",       ID_MAIN_HELP_SYSINFO
         MENUITEM "&About...",                   ID_MAIN_HELP_ABOUT
