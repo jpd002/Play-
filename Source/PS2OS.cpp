@@ -1394,13 +1394,28 @@ void CPS2OS::sc_AddDmacHandler()
 	//0  -> At the start
 	//n  -> After handler 'n'
 
-	if(next != 0)
-	{
-		assert(0);
-	}
-
 	uint32 id = m_dmacHandlers.Allocate();
 	if(id == 0xFFFFFFFF)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		return;
+	}
+
+	switch (next)
+	{
+	case -1:
+	{
+		id = m_dmacHandlers.End();
+		break;
+	}
+	default:
+	{
+		id = next + m_dmacHandlers.Begin();
+		break;
+	}
+	}
+
+	if (id > 127)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
