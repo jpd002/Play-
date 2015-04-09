@@ -649,12 +649,10 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			}
 
 			//Gotta think of something better than that...
-#ifndef __ANDROID__		//This is temporary till we get bzip2 to compile on Android
 			if(!stricmp(extension, ".isz"))
 			{
 				stream = new CIszImageStream(new Framework::CStdStream(path, "rb"));
 			}
-#endif
 #ifdef WIN32
 			else if(path[0] == '\\')
 			{

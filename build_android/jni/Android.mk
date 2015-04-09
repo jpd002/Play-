@@ -11,6 +11,13 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
+LOCAL_MODULE			:= libbzip2
+LOCAL_SRC_FILES 		:= $(DEPENDENCIES_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libbzip2.a
+
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+
 LOCAL_MODULE			:= libFramework
 LOCAL_SRC_FILES 		:= $(FRAMEWORK_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libFramework.a
 
@@ -108,6 +115,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/IPU_MacroblockTypeITable.cpp \
 							../../Source/IPU_MacroblockTypePTable.cpp \
 							../../Source/IPU_MotionCodeTable.cpp \
+							../../Source/IszImageStream.cpp \
 							../../Source/Log.cpp \
 							../../Source/MA_EE.cpp \
 							../../Source/MA_EE_Reflection.cpp \
@@ -153,10 +161,10 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/VUShared.cpp \
 							../../Source/VUShared_Reflection.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -DDISABLE_LOGGING -DGLES_COMPATIBILITY
-LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
+LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(DEPENDENCIES_PATH)/bzip2-1.0.6 $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
 LOCAL_LDLIBS 			:= -landroid -llog -lGLESv3 -lEGL -lz
-LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libboost
+LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libbzip2 libboost
 
 ifeq ($(APP_OPTIM),debug)
 LOCAL_CFLAGS			+= -D_DEBUG
