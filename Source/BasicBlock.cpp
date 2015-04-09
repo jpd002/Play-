@@ -206,6 +206,7 @@ unsigned int CBasicBlock::Execute()
 	assert(m_context.m_State.nCOP2[0].nV1 == 0x00000000);
 	assert(m_context.m_State.nCOP2[0].nV2 == 0x00000000);
 	assert(m_context.m_State.nCOP2[0].nV3 == 0x3F800000);
+	assert(m_context.m_State.nCOP2VI[0] == 0);
 
 	return ((m_end - m_begin) / 4) + 1;
 }
