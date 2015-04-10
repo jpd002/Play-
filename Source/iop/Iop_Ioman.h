@@ -56,6 +56,7 @@ namespace Iop
 		uint32					DelDrv(const char*);
 
 		Framework::CStream*		GetFileStream(uint32);
+		void					SetFileStream(uint32, Framework::CStream*);
 
 	private:
 		typedef std::map<uint32, Framework::CStream*> FileMapType;
