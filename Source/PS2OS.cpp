@@ -67,6 +67,7 @@
 
 #define THREAD_INIT_QUOTA			(15)
 
+#define SYSCALL_NAME_EXIT					"osExit"
 #define SYSCALL_NAME_LOADEXECPS2			"osLoadExecPS2"
 #define SYSCALL_NAME_ADDINTCHANDLER			"osAddIntcHandler"
 #define SYSCALL_NAME_REMOVEINTCHANDLER		"osRemoveIntcHandler"
@@ -119,6 +120,7 @@
 
 const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 {
+	{	0x0004,		SYSCALL_NAME_EXIT					},
 	{	0x0006,		SYSCALL_NAME_LOADEXECPS2			},
 	{	0x0010,		SYSCALL_NAME_ADDINTCHANDLER			},
 	{	0x0011,		SYSCALL_NAME_REMOVEINTCHANDLER		},
@@ -1307,6 +1309,13 @@ void CPS2OS::sc_GsSetCrt()
 	{
 		m_gs->SetCrt(isInterlaced, mode, isFrameMode);
 	}
+}
+
+
+//04
+void CPS2OS::sc_Exit()
+{
+	OnRequestExit();
 }
 
 //06
@@ -2535,6 +2544,9 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
+	case 0x04:
+		sprintf(description, SYSCALL_NAME_EXIT "();");
+		break;
 	case 0x06:
 		sprintf(description, SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%0.8X, argc = %d, argv = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
@@ -2782,7 +2794,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 {
 	//0x00
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_LoadExecPS2,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Exit,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_LoadExecPS2,		&CPS2OS::sc_Unhandled,
 	//0x08
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x10
