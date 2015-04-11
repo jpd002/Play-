@@ -268,6 +268,7 @@ void CGSH_OpenGL::FlipImpl()
 		assert(m_presentTexCoordScaleUniform != -1);
 		glUniform2f(m_presentTexCoordScaleUniform, u1, v1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(m_emptyVertexArray);
 
 #ifdef _DEBUG
