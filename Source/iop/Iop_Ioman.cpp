@@ -231,6 +231,19 @@ Framework::CStream* CIoman::GetFileStream(uint32 handle)
 	return file->second;
 }
 
+void CIoman::SetFileStream(uint32 handle, Framework::CStream* stream)
+{
+	{
+		auto prevStreamIterator = m_files.find(handle);
+		if(prevStreamIterator != std::end(m_files))
+		{
+			delete prevStreamIterator->second;
+			m_files.erase(prevStreamIterator);
+		}
+	}
+	m_files[handle] = stream;
+}
+
 //IOP Invoke
 void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 {

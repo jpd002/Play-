@@ -66,6 +66,7 @@
 #define SYSCALL_FINISHMODULELOAD		0x66B
 #define SYSCALL_DELAYTHREADTICKS		0x66C
 
+//This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE		0x10
 
 CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
@@ -1657,6 +1658,7 @@ uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 uint32 CIopBios::AssembleReturnFromException(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, STACK_FRAME_RESERVE_SIZE);
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_RETURNFROMEXCEPTION);
 	assembler.SYSCALL();
 	return address;
@@ -1852,6 +1854,7 @@ void CIopBios::HandleInterrupt()
 				CurrentThreadId() = -1;
 				INTRHANDLER* handler = m_intrHandlers[handlerId];
 				m_cpu.m_State.nPC = handler->handler;
+				m_cpu.m_State.nGPR[CMIPS::SP].nD0 -= STACK_FRAME_RESERVE_SIZE;
 				m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(handler->arg);
 				m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_returnFromExceptionAddress);
 			}

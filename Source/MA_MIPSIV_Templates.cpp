@@ -5,6 +5,8 @@
 
 void CMA_MIPSIV::Template_Add32(bool isSigned)
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
@@ -22,6 +24,8 @@ void CMA_MIPSIV::Template_Add32(bool isSigned)
 
 void CMA_MIPSIV::Template_Add64(bool isSigned)
 {
+	if(m_nRD == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -32,6 +36,8 @@ void CMA_MIPSIV::Template_Add64(bool isSigned)
 
 void CMA_MIPSIV::Template_Sub32(bool isSigned)
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
@@ -70,6 +76,8 @@ void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 
 void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType& Function)
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	Function(m_nSA);
 
@@ -85,6 +93,8 @@ void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType&
 
 void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& function)
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	function();
@@ -223,6 +233,8 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 
 void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 {
+	if(m_nRD == 0) return;
+
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));

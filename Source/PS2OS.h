@@ -51,6 +51,7 @@ public:
 	boost::signals2::signal<void ()>			OnExecutableUnloading;
 	boost::signals2::signal<void ()>			OnRequestInstructionCacheFlush;
 	RequestLoadExecutableEvent					OnRequestLoadExecutable;
+	boost::signals2::signal<void ()>			OnRequestExit;
 
 private:
 	class CRoundRibbon
@@ -288,6 +289,7 @@ private:
 
 	//Various system calls
 	void									sc_GsSetCrt();
+	void									sc_Exit();
 	void									sc_LoadExecPS2();
 	void									sc_AddIntcHandler();
 	void									sc_RemoveIntcHandler();
