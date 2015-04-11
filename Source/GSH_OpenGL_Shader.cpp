@@ -82,13 +82,13 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 	shaderBuilder << "	gl_FogFragCoord = gl_FogCoord;"								<< std::endl;
 	shaderBuilder << "}"															<< std::endl;
 #else
-	shaderBuilder << "#version 150" << std::endl;
+	shaderBuilder << "#version 300 es" << std::endl;
 	shaderBuilder << "uniform mat4 g_projMatrix;" << std::endl;
-	shaderBuilder << "attribute vec3 a_position;" << std::endl;
-	shaderBuilder << "attribute vec4 a_color;" << std::endl;
-	shaderBuilder << "attribute vec3 a_texCoord;" << std::endl;
-	shaderBuilder << "varying vec4 v_color;" << std::endl;
-	shaderBuilder << "varying vec3 v_texCoord;" << std::endl;
+	shaderBuilder << "in vec3 a_position;" << std::endl;
+	shaderBuilder << "in vec4 a_color;" << std::endl;
+	shaderBuilder << "in vec3 a_texCoord;" << std::endl;
+	shaderBuilder << "out vec4 v_color;" << std::endl;
+	shaderBuilder << "out vec3 v_texCoord;" << std::endl;
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	v_color = a_color;" << std::endl;
@@ -262,22 +262,24 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	shaderBuilder << "}" << std::endl;
 #else
-	shaderBuilder << "#version 150" << std::endl;
-	shaderBuilder << "varying vec4 v_color;" << std::endl;
-	shaderBuilder << "varying vec3 v_texCoord;" << std::endl;
+	shaderBuilder << "#version 300 es" << std::endl;
+	shaderBuilder << "precision mediump float;" << std::endl;
+	shaderBuilder << "in vec4 v_color;" << std::endl;
+	shaderBuilder << "in vec3 v_texCoord;" << std::endl;
+	shaderBuilder << "out vec4 fragColor;" << std::endl;
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	vec4 textureColor = vec4(1, 1, 1, 1);" << std::endl;
 	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
 	{
-		shaderBuilder << "	textureColor = texture2DProj(g_texture, v_texCoord);" << std::endl;
+		shaderBuilder << "	textureColor = textureProj(g_texture, v_texCoord);" << std::endl;
 	}
 	else
 	{
 		shaderBuilder << "	textureColor = v_color;" << std::endl;
 	}
-	shaderBuilder << "	gl_FragColor = textureColor;" << std::endl;
+	shaderBuilder << "	fragColor = textureColor;" << std::endl;
 	shaderBuilder << "}" << std::endl;
 #endif
 
@@ -324,8 +326,9 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 
 	{
 		std::stringstream shaderBuilder;
-		shaderBuilder << "#version 150" << std::endl;
-		shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "#version 300 es" << std::endl;
+		shaderBuilder << "in vec3 a_position;" << std::endl;
+		shaderBuilder << "out vec2 v_texCoord;" << std::endl;
 		shaderBuilder << "uniform vec2 g_texCoordScale;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
@@ -345,12 +348,14 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 
 	{
 		std::stringstream shaderBuilder;
-		shaderBuilder << "#version 150" << std::endl;
-		shaderBuilder << "varying vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "#version 300 es" << std::endl;
+		shaderBuilder << "precision mediump float;" << std::endl;
+		shaderBuilder << "in vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "out vec4 fragColor;" << std::endl;
 		shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
-		shaderBuilder << "	gl_FragColor = texture2D(g_texture, v_texCoord);" << std::endl;
+		shaderBuilder << "	fragColor = texture(g_texture, v_texCoord);" << std::endl;
 		shaderBuilder << "}" << std::endl;
 
 		pixelShader.SetSource(shaderBuilder.str().c_str());
