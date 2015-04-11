@@ -664,6 +664,9 @@
     <ClCompile Include="..\Source\iop\Iop_LibSd.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\CsoImageStream.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1295,6 +1298,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_LibSd.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\CsoImageStream.h">
+      <Filter>Source Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
