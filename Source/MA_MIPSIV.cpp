@@ -464,6 +464,8 @@ void CMA_MIPSIV::DADDIU()
 //1A
 void CMA_MIPSIV::LDL()
 {
+	if(m_nRT == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddr();
@@ -476,6 +478,8 @@ void CMA_MIPSIV::LDL()
 //1B
 void CMA_MIPSIV::LDR()
 {
+	if(m_nRT == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddr();
@@ -488,6 +492,8 @@ void CMA_MIPSIV::LDR()
 //20
 void CMA_MIPSIV::LB()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
@@ -509,6 +515,8 @@ void CMA_MIPSIV::LB()
 //21
 void CMA_MIPSIV::LH()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
@@ -530,6 +538,8 @@ void CMA_MIPSIV::LH()
 //22
 void CMA_MIPSIV::LWL()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
@@ -565,6 +575,8 @@ void CMA_MIPSIV::LHU()
 //26
 void CMA_MIPSIV::LWR()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
@@ -582,6 +594,8 @@ void CMA_MIPSIV::LWR()
 //27
 void CMA_MIPSIV::LWU()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
@@ -715,6 +729,8 @@ void CMA_MIPSIV::LDC2()
 //37
 void CMA_MIPSIV::LD()
 {
+	if(m_nRT == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddr();

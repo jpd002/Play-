@@ -107,6 +107,8 @@ size_t CMA_EE::GetHiOffset(unsigned int index)
 //1E
 void CMA_EE::LQ()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();

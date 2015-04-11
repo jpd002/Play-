@@ -55,6 +55,8 @@ void CMA_MIPSIV::Template_Sub32(bool isSigned)
 
 void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 {
+	if(m_nRT == 0) return;
+
 	//TODO: Need to check if this used correctly... LBU, LHU and LW uses this (why LW? and why sign extend on LBU and LHU?)
 
 	ComputeMemAccessAddr();
