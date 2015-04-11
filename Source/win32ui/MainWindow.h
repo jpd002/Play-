@@ -89,6 +89,7 @@ private:
 	void							ShowControllerSettings();
 	void							ShowVfsManager();
 	void							ShowMcManager();
+	void							ToggleSoundEnabled();
 
 	void							ProcessCommandLine();
 
@@ -112,6 +113,8 @@ private:
 
 	void							OnOutputWndSizeChange();
 	void							OnExecutableChange();
+
+	void							SetupSoundHandler();
 
 	CPS2VM&							m_virtualMachine;
 

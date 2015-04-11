@@ -5,6 +5,8 @@
 class CSoundHandler
 {
 public:
+	typedef std::function<CSoundHandler* (void)> FactoryFunction;
+
 	virtual				~CSoundHandler() {}
 
 	virtual void		Reset() = 0;

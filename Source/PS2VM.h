@@ -11,6 +11,7 @@
 #include "Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
 #include "iop/IopBios.h"
+#include "../tools/PsfPlayer/Source/SoundHandler.h"
 #include "FrameDump.h"
 #include "Profiler.h"
 
@@ -66,6 +67,9 @@ public:
 
 	void						CreatePadHandler(const CPadHandler::FactoryFunction&);
 	void						DestroyPadHandler();
+
+	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);
+	void						DestroySoundHandler();
 
 	unsigned int				SaveState(const char*);
 	unsigned int				LoadState(const char*);
@@ -144,6 +148,17 @@ private:
 	FrameDumpCallback			m_frameDumpCallback;
 	std::mutex					m_frameDumpCallbackMutex;
 	bool						m_dumpingFrame = false;
+
+	enum
+	{
+		SAMPLE_COUNT = 44,
+		BLOCK_SIZE = SAMPLE_COUNT * 2,
+		BLOCK_COUNT = 400,
+	};
+
+	int16						m_samples[BLOCK_SIZE * BLOCK_COUNT];
+	int							m_currentSpuBlock = 0;
+	CSoundHandler*				m_soundHandler = nullptr;
 
 	CProfiler::ZoneHandle		m_eeProfilerZone = 0;
 	CProfiler::ZoneHandle		m_iopProfilerZone = 0;

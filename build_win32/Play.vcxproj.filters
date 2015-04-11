@@ -646,6 +646,9 @@
     <ClCompile Include="..\Source\win32ui\StatsOverlayWindow.cpp">
       <Filter>Source Files\Win32 UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\iop\Iop_FileIoHandler2300.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
@@ -1273,6 +1276,9 @@
       <Filter>Source Files\Win32 UI</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\SifDefs.h">
+      <Filter>Source Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_FileIoHandler2300.h">

@@ -48,7 +48,7 @@
 #define ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
 #define VBLANK_TICKS		(FRAME_TICKS / 10)
 
-#define SPU_UPDATE_TICKS	(FRAME_TICKS / 2)
+#define SPU_UPDATE_TICKS	(PS2::IOP_CLOCK_OVER_FREQ / 1000)
 
 #define VPU_LOG_BASE		"./vpu_logs/"
 
@@ -115,7 +115,7 @@ CPS2VM::~CPS2VM()
 
 void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
-	if(m_ee->m_gs != NULL) return;
+	if(m_ee->m_gs != nullptr) return;
 	m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, factoryFunction), true);
 }
 
@@ -126,20 +126,45 @@ CGSHandler* CPS2VM::GetGSHandler()
 
 void CPS2VM::DestroyGSHandler()
 {
-	if(m_ee->m_gs == NULL) return;
+	if(m_ee->m_gs == nullptr) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyGsImpl, this), true);
 }
 
 void CPS2VM::CreatePadHandler(const CPadHandler::FactoryFunction& factoryFunction)
 {
-	if(m_pad != NULL) return;
+	if(m_pad != nullptr) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::CreatePadHandlerImpl, this, factoryFunction), true);
 }
 
 void CPS2VM::DestroyPadHandler()
 {
-	if(m_pad == NULL) return;
+	if(m_pad == nullptr) return;
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyPadHandlerImpl, this), true);
+}
+
+void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFunction)
+{
+	if(m_soundHandler != nullptr) return;
+	m_mailBox.SendCall(
+		[this, factoryFunction] ()
+		{
+			m_soundHandler = factoryFunction();
+		},
+		true
+	);
+}
+
+void CPS2VM::DestroySoundHandler()
+{
+	if(m_soundHandler == nullptr) return;
+	m_mailBox.SendCall(
+		[this] ()
+		{
+			delete m_soundHandler;
+			m_soundHandler = nullptr;
+		},
+		true
+	);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -369,10 +394,11 @@ void CPS2VM::ResetVM()
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
 
-	m_spuUpdateTicks = SPU_UPDATE_TICKS;
-
 	m_eeExecutionTicks = 0;
 	m_iopExecutionTicks = 0;
+
+	m_spuUpdateTicks = SPU_UPDATE_TICKS;
+	m_currentSpuBlock = 0;
 
 	RegisterModulesInPadHandler();
 
@@ -554,7 +580,6 @@ void CPS2VM::UpdateEe()
 		m_eeExecutionTicks -= executed;
 		m_ee->CountTicks(executed);
 		m_vblankTicks -= executed;
-		m_spuUpdateTicks -= executed;
 
 		//Stop executing if executing VU subroutine
 		if(m_ee->m_EE.m_State.callMsEnabled) break;
@@ -581,6 +606,7 @@ void CPS2VM::UpdateIop()
 		}
 
 		m_iopExecutionTicks -= executed;
+		m_spuUpdateTicks -= executed;
 		m_iop->CountTicks(executed);
 
 #ifdef DEBUGGER_INCLUDED
@@ -596,26 +622,37 @@ void CPS2VM::UpdateSpu()
 	CProfilerZone profilerZone(m_spuProfilerZone);
 #endif
 
-	Iop::CSpuBase* spu[2] = { &m_iop->m_spuCore0, &m_iop->m_spuCore1 };
-	const int sampleRate = 44100;
-	const int sampleCount = 352;
-	size_t bufferSize = sampleCount * sizeof(int16);
+	unsigned int blockOffset = (BLOCK_SIZE * m_currentSpuBlock);
+	int16* samplesSpu0 = m_samples + blockOffset;
 
-	for(unsigned int i = 0; i < 2; i++)
+	m_iop->m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
+
+	if(m_iop->m_spuCore1.IsEnabled())
 	{
-		if(spu[i]->IsEnabled())
-		{
-			int16* tempSamples = reinterpret_cast<int16*>(alloca(bufferSize));
-			spu[i]->Render(tempSamples, sampleCount, sampleRate);
+		int16 samplesSpu1[BLOCK_SIZE];
+		m_iop->m_spuCore1.Render(samplesSpu1, BLOCK_SIZE, 44100);
 
-			//for(unsigned int j = 0; j < sampleCount; j++)
-			//{
-			//	int32 resultSample = static_cast<int32>(samples[j]) + static_cast<int32>(tempSamples[j]);
-			//	resultSample = max<int32>(resultSample, SHRT_MIN);
-			//	resultSample = min<int32>(resultSample, SHRT_MAX);
-			//	samples[j] = static_cast<int16>(resultSample);
-			//}
+		for(unsigned int i = 0; i < BLOCK_SIZE; i++)
+		{
+			int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
+			resultSample = std::max<int32>(resultSample, SHRT_MIN);
+			resultSample = std::min<int32>(resultSample, SHRT_MAX);
+			samplesSpu0[i] = static_cast<int16>(resultSample);
 		}
+	}
+
+	m_currentSpuBlock++;
+	if(m_currentSpuBlock == BLOCK_COUNT)
+	{
+		if(m_soundHandler)
+		{
+			if(m_soundHandler->HasFreeBuffers())
+			{
+				m_soundHandler->RecycleBuffers();
+			}
+			m_soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, 44100);
+		}
+		m_currentSpuBlock = 0;
 	}
 }
 

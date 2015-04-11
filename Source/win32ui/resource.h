@@ -45,9 +45,7 @@
 #define ID_MAIN_HELP_ABOUT              40059
 #define ID_FILE_BOOTCDROM               40060
 #define ID_OPTIONS_VFSMANAGER           40063
-#define ID_OPTIONS_CONFIGEDI            40064
 #define ID_MAIN_OPTIONS_VFSMANAGER      40065
-#define ID_MAIN_OPTIONS_CONFIGEDI       40066
 #define ID_MAIN_FILE_BOOTCDROM          40067
 #define ID_VIEW_CALLSTACK               40068
 #define ID_WINDOW_LAYOUT                40069
@@ -102,13 +100,14 @@
 #define ID_FD_SETTINGS_FB_RAW           40188
 #define ID_FD_SETTINGS_FB_448P          40192
 #define ID_FD_SETTINGS_FB_448I          40193
+#define ID_MAIN_OPTIONS_ENABLESOUND     40195
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        119
-#define _APS_NEXT_COMMAND_VALUE         40194
+#define _APS_NEXT_COMMAND_VALUE         40196
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
