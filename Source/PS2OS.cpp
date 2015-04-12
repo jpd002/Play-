@@ -2481,7 +2481,11 @@ void CPS2OS::HandleSyscall()
 	uint32 callInstruction = m_ee.m_pMemoryMap->GetInstruction(searchAddress);
 	if(callInstruction != 0x0000000C)
 	{
-		throw std::runtime_error("Not a SYSCALL.");
+		//This will happen if an ADDIU R0, R0, $x instruction is encountered. Not sure if there's a use for that on the EE
+		CLog::GetInstance().Print(LOG_NAME, "System call exception occured but no SYSCALL instruction found (addr = 0x%0.8X, opcode = 0x%0.8X).\r\n",
+			searchAddress, callInstruction);
+		m_ee.m_State.nHasException = 0;
+		return;
 	}
 
 	uint32 func = m_ee.m_State.nGPR[3].nV[0];
