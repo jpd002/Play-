@@ -101,8 +101,12 @@ void CCOP_FPU::CFC1()
 	if(m_fs == 31)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
-		m_codeGen->SignExt();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[1]));
+		if(m_regSize == MIPS_REGSIZE_64)
+		{
+			m_codeGen->PushTop();
+			m_codeGen->SignExt();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[1]));
+		}
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[0]));
 	}
 	else

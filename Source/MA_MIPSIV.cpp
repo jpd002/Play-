@@ -464,6 +464,8 @@ void CMA_MIPSIV::DADDIU()
 //1A
 void CMA_MIPSIV::LDL()
 {
+	if(m_nRT == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddr();
@@ -476,6 +478,8 @@ void CMA_MIPSIV::LDL()
 //1B
 void CMA_MIPSIV::LDR()
 {
+	if(m_nRT == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddr();
@@ -488,6 +492,8 @@ void CMA_MIPSIV::LDR()
 //20
 void CMA_MIPSIV::LB()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
@@ -509,6 +515,8 @@ void CMA_MIPSIV::LB()
 //21
 void CMA_MIPSIV::LH()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
@@ -530,6 +538,8 @@ void CMA_MIPSIV::LH()
 //22
 void CMA_MIPSIV::LWL()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
@@ -565,6 +575,8 @@ void CMA_MIPSIV::LHU()
 //26
 void CMA_MIPSIV::LWR()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
@@ -582,6 +594,8 @@ void CMA_MIPSIV::LWR()
 //27
 void CMA_MIPSIV::LWU()
 {
+	if(m_nRT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
@@ -715,6 +729,8 @@ void CMA_MIPSIV::LDC2()
 //37
 void CMA_MIPSIV::LD()
 {
+	if(m_nRT == 0) return;
+
 	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddr();
@@ -1212,6 +1228,15 @@ void CMA_MIPSIV::BGEZL()
 	Template_BranchGez(true, true);
 }
 
+//10
+void CMA_MIPSIV::BLTZAL()
+{
+	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
+
+	BLTZ();
+}
+
 //11
 void CMA_MIPSIV::BGEZAL()
 {
@@ -1219,6 +1244,24 @@ void CMA_MIPSIV::BGEZAL()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
 
 	BGEZ();
+}
+
+//12
+void CMA_MIPSIV::BLTZALL()
+{
+	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
+
+	BLTZL();
+}
+
+//13
+void CMA_MIPSIV::BGEZALL()
+{
+	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
+
+	BGEZL();
 }
 
 //////////////////////////////////////////////////
@@ -1272,7 +1315,7 @@ CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpRegImm[MAX_REGIMM_OPS] =
 	//0x08
 	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x10
-	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::BGEZAL,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
+	&CMA_MIPSIV::BLTZAL,		&CMA_MIPSIV::BGEZAL,		&CMA_MIPSIV::BLTZALL,		&CMA_MIPSIV::BGEZALL,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x18
 	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 };
