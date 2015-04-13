@@ -115,6 +115,7 @@
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
 #define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
 #define SYSCALL_NAME_DECI2CALL				"osDeci2Call"
+#define SYSCALL_NAME_MACHINETYPE			"osMachineType"
 
 #ifdef DEBUGGER_INCLUDED
 
@@ -168,6 +169,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0077,		SYSCALL_NAME_SIFSETDMA				},
 	{	0x0078,		SYSCALL_NAME_SIFSETDCHAIN			},
 	{	0x007C,		SYSCALL_NAME_DECI2CALL				},
+	{	0x007E,		SYSCALL_NAME_MACHINETYPE			},
 	{	0x0000,		NULL								}
 };
 
@@ -2464,6 +2466,14 @@ void CPS2OS::sc_Deci2Call()
 
 }
 
+//7E
+void CPS2OS::sc_MachineType()
+{
+	//Return 0x100 for liberx (is this ok?)
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0x100;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+}
+
 //7F
 void CPS2OS::sc_GetMemorySize()
 {
@@ -2783,6 +2793,9 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
+	case 0x7E:
+		sprintf(description, SYSCALL_NAME_MACHINETYPE "();");
+		break;
 	case 0x7F:
 		sprintf(description, "GetMemorySize();");
 		break;
@@ -2828,7 +2841,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x70
 	&CPS2OS::sc_GsGetIMR,			&CPS2OS::sc_GsPutIMR,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetVSyncFlag,			&CPS2OS::sc_SetSyscall,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_SifDmaStat,			&CPS2OS::sc_SifSetDma,
 	//0x78
-	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_GetMemorySize,
+	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_MachineType,		&CPS2OS::sc_GetMemorySize,
 };
 
 //////////////////////////////////////////////////
