@@ -110,14 +110,15 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		{
 			assert(retSize == 4);
 			auto command = reinterpret_cast<SEEKCOMMAND*>(args);
-			*ret = m_ioman->Seek(command->fd, command->offset, command->whence);
+			auto result = m_ioman->Seek(command->fd, command->offset, command->whence);
+			(*ret) = (static_cast<int32>(result) >= 0) ? 1 : 0;
 
 			//Send response
 			{
 				SEEKREPLY reply;
 				reply.header.commandId = 4;
 				CopyHeader(reply.header, command->header);
-				reply.result = *ret;
+				reply.result = result;
 				reply.unknown2 = 0;
 				reply.unknown3 = 0;
 				reply.unknown4 = 0;
