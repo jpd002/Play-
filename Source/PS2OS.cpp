@@ -1042,7 +1042,7 @@ void CPS2OS::ThreadShakeAndBake()
 	}
 
 	//Don't switch if interrupts are disabled
-	if(!(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_INT))
+	if(!(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE))
 	{
 		return;
 	}

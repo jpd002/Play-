@@ -145,9 +145,9 @@ public:
 
 	enum
 	{
-		STATUS_INT = 0x01,
-		STATUS_EXL = 0x02,
-		STATUS_ERL = 0x04
+		STATUS_IE	= (1 << 0),
+		STATUS_EXL	= (1 << 1),
+		STATUS_ERL	= (1 << 2)
 	};
 
 	static const char*			m_sGPRName[];

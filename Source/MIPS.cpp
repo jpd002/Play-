@@ -88,7 +88,7 @@ uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrLO)
 bool CMIPS::GenerateInterrupt(uint32 nAddress)
 {
 	//Check if interrupts are enabled
-	if(!(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_INT)) return false;
+	if(!(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_IE)) return false;
 
 	//Check if we're in exception mode (interrupts are disabled in exception mode)
 	if(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_EXL) return false;

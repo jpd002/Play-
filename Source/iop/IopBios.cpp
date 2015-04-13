@@ -124,7 +124,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 	ThreadLinkHead() = 0;
 	CurrentThreadId() = -1;
 
-	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 
 	m_threads.FreeAll();
 	m_semaphores.FreeAll();
