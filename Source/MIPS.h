@@ -147,7 +147,8 @@ public:
 	{
 		STATUS_IE	= (1 << 0),
 		STATUS_EXL	= (1 << 1),
-		STATUS_ERL	= (1 << 2)
+		STATUS_ERL	= (1 << 2),
+		STATUS_EIE	= (1 << 16),		//PS2 EE specific
 	};
 
 	static const char*			m_sGPRName[];

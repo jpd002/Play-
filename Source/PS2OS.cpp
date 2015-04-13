@@ -59,6 +59,8 @@
 #define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 #define BIOS_ADDRESS_ALARMHANDLER		0x1FC03200
 
+#define INTERRUPTS_ENABLED_MASK			(CMIPS::STATUS_IE | CMIPS::STATUS_EIE)
+
 #define BIOS_ID_BASE					1
 
 #define CONFIGPATH			"./config/"
@@ -209,6 +211,8 @@ void CPS2OS::Initialize()
 	m_semaWaitCount = 0;
 	m_semaWaitCaller = 0;
 	m_semaWaitThreadId = -1;
+
+	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 }
 
 void CPS2OS::Release()
@@ -1042,7 +1046,7 @@ void CPS2OS::ThreadShakeAndBake()
 	}
 
 	//Don't switch if interrupts are disabled
-	if(!(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE))
+	if((m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) != INTERRUPTS_ENABLED_MASK)
 	{
 		return;
 	}
@@ -1269,6 +1273,12 @@ CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 id)
 
 void CPS2OS::HandleInterrupt()
 {
+	//Check if interrupts are enabled here because EIE bit isn't checked by CMIPS
+	if((m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) != INTERRUPTS_ENABLED_MASK)
+	{
+		return;
+	}
+
 	m_semaWaitCount = 0;
 	m_ee.GenerateInterrupt(0x1FC00200);
 }
