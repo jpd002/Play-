@@ -565,20 +565,35 @@ bool CIopBios::IsModuleLoaded(const char* moduleName) const
 
 void CIopBios::ProcessModuleReset(const std::string& imagePath)
 {
-	unsigned int imageVersion = 1000;
-	auto imageFileName = strstr(imagePath.c_str(), "IOPRP");
-	if(imageFileName != nullptr)
+	struct IMAGE_FILE_PATTERN
 	{
-		auto cvtCount = sscanf(imageFileName, "IOPRP%d.IMG;1", &imageVersion);
-		if(cvtCount == 1)
+		const char* start;
+		const char* pattern;
+	};
+	static const IMAGE_FILE_PATTERN g_imageFilePatterns[] =
+	{
+		{	"IOPRP",	"IOPRP%d.IMG;1"		},
+		{	"DNAS",		"DNAS%d.IMG;1"		}
+	};
+
+	unsigned int imageVersion = 1000;
+	for(const auto imageFilePattern : g_imageFilePatterns)
+	{
+		auto imageFileName = strstr(imagePath.c_str(), imageFilePattern.start);
+		if(imageFileName != nullptr)
 		{
-			if(imageVersion < 100)
+			auto cvtCount = sscanf(imageFileName, imageFilePattern.pattern, &imageVersion);
+			if(cvtCount == 1)
 			{
-				imageVersion = imageVersion * 100;
-			}
-			else
-			{
-				imageVersion = imageVersion * 10;
+				if(imageVersion < 100)
+				{
+					imageVersion = imageVersion * 100;
+				}
+				else
+				{
+					imageVersion = imageVersion * 10;
+				}
+				break;
 			}
 		}
 	}
