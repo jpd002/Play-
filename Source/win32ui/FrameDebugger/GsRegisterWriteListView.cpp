@@ -233,6 +233,8 @@ void CGsRegisterWriteListView::GoToWrite(uint32 writeIndex)
 
 void CGsRegisterWriteListView::OnPrevDrawKick()
 {
+	if(m_frameDump == nullptr) return;
+
 	unsigned int selectedItemIndex = 0;
 
 	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
@@ -260,6 +262,8 @@ void CGsRegisterWriteListView::OnPrevDrawKick()
 
 void CGsRegisterWriteListView::OnNextDrawKick()
 {
+	if(m_frameDump == nullptr) return;
+
 	unsigned int selectedItemIndex = 0;
 
 	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
