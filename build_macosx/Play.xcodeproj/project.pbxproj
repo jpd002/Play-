@@ -1204,6 +1204,7 @@
 			baseConfigurationReference = 70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ../Source/macosxui/Info.plist;
+				INFOPLIST_PREPROCESS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1214,6 +1215,7 @@
 			baseConfigurationReference = 70320D1C1A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = ../Source/macosxui/Info.plist;
+				INFOPLIST_PREPROCESS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
