@@ -2,6 +2,7 @@
 #include "../../FrameDump.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "win32/DpiUtils.h"
 
 CGsRegisterWriteListView::CGsRegisterWriteListView(HWND parentWnd, const RECT& rect)
 : m_frameDump(nullptr)
@@ -10,7 +11,8 @@ CGsRegisterWriteListView::CGsRegisterWriteListView(HWND parentWnd, const RECT& r
 		Framework::Win32::CRect(0, 0, 1024, 768), parentWnd, nullptr);
 	SetClassPtr();
 
-	m_packetsTreeView = std::make_unique<Framework::Win32::CTreeView>(m_hWnd, Framework::Win32::CRect(0, 0, 300, 300), 
+	m_packetsTreeView = std::make_unique<Framework::Win32::CTreeView>(m_hWnd, 
+		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 300, 300)),
 		TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
 
 	{
@@ -21,8 +23,10 @@ CGsRegisterWriteListView::CGsRegisterWriteListView(HWND parentWnd, const RECT& r
 		m_drawCallItemFont = CreateFontIndirect(&fontInfo);
 	}
 
-	m_prevDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Prev Draw Kick"), m_hWnd, Framework::Win32::CRect(0, 0, 100, 25));
-	m_nextDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Next Draw Kick"), m_hWnd, Framework::Win32::CRect(100, 0, 200, 25));
+	m_prevDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Prev Draw Kick"), 
+		m_hWnd, Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 100, 25)));
+	m_nextDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Next Draw Kick"), 
+		m_hWnd, Framework::Win32::PointsToPixels(Framework::Win32::CRect(100, 0, 200, 25)));
 }
 
 CGsRegisterWriteListView::~CGsRegisterWriteListView()
@@ -97,8 +101,9 @@ uint32 CGsRegisterWriteListView::GetSelectedItemIndex() const
 
 long CGsRegisterWriteListView::OnSize(unsigned int, unsigned int, unsigned int)
 {
-	Framework::Win32::CRect clientRect = GetClientRect();
-	Framework::Win32::CRect packetsTreeViewRect(0, 30, clientRect.Right(), clientRect.Bottom());
+	auto clientRect = GetClientRect();
+	Framework::Win32::CRect packetsTreeViewRect(0, Framework::Win32::PointsToPixels(30), 
+		clientRect.Right(), clientRect.Bottom());
 	m_packetsTreeView->SetSizePosition(packetsTreeViewRect);
 	return TRUE;
 }
