@@ -221,7 +221,7 @@
 -(void)requestModification
 {
 	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", nil];
+	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", @"cso", nil];
 	if([openPanel runModalForTypes:fileTypes] != NSOKButton)
 	{
 		return;

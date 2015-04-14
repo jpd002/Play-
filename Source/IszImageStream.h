@@ -10,11 +10,11 @@ public:
                         CIszImageStream(Framework::CStream*);
     virtual             ~CIszImageStream();
 
-    virtual void        Seek(int64, Framework::STREAM_SEEK_DIRECTION);
-    virtual uint64      Tell();
-    virtual uint64      Read(void*, uint64);
-    virtual uint64      Write(const void*, uint64);
-    virtual bool        IsEOF();
+    virtual void        Seek(int64, Framework::STREAM_SEEK_DIRECTION) override;
+    virtual uint64      Tell() override;
+    virtual uint64      Read(void*, uint64) override;
+    virtual uint64      Write(const void*, uint64) override;
+    virtual bool        IsEOF() override;
 
 private:
 #pragma pack(push, 1)
