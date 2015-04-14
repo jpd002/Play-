@@ -446,6 +446,133 @@ float CGSH_Direct3D9::GetZ(float nZ)
 	}
 }
 
+void CGSH_Direct3D9::Prim_Line()
+{
+	float nU1 = 0, nU2 = 0;
+	float nV1 = 0, nV2 = 0;
+	float nF1 = 0, nF2 = 0;
+
+	XYZ vertex[2];
+	vertex[0] <<= m_vtxBuffer[1].nPosition;
+	vertex[1] <<= m_vtxBuffer[0].nPosition;
+
+	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX();
+	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY();
+	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ();
+
+	RGBAQ rgbaq[2];
+	rgbaq[0] <<= m_vtxBuffer[1].nRGBAQ;
+	rgbaq[1] <<= m_vtxBuffer[0].nRGBAQ;
+
+	nX1 -= m_nPrimOfsX;
+	nX2 -= m_nPrimOfsX;
+
+	nY1 -= m_nPrimOfsY;
+	nY2 -= m_nPrimOfsY;
+
+	nZ1 = GetZ(nZ1);
+	nZ2 = GetZ(nZ2);
+
+	if(m_primitiveMode.nShading)
+	{
+		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
+	}
+	else
+	{
+		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
+	}
+
+	if(m_primitiveMode.nFog)
+	{
+		//glEnable(GL_FOG);
+
+		nF1 = (float)(0xFF - m_vtxBuffer[1].nFog) / 255.0f;
+		nF2 = (float)(0xFF - m_vtxBuffer[0].nFog) / 255.0f;
+	}
+	else
+	{
+		nF1 = nF2 = 0.0;
+	}
+
+	if(m_primitiveMode.nTexture)
+	{
+		m_device->SetTexture(0, m_currentTexture);
+
+		//Textured triangle
+		if(m_primitiveMode.nUseUV)
+		{
+			UV uv[2];
+			uv[0] <<= m_vtxBuffer[1].nUV;
+			uv[1] <<= m_vtxBuffer[0].nUV;
+
+			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
+			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
+
+			nV1 = uv[0].GetV() / static_cast<float>(m_currentTextureHeight);
+			nV2 = uv[1].GetV() / static_cast<float>(m_currentTextureHeight);
+		}
+		else
+		{
+			ST st[2];
+			st[0] <<= m_vtxBuffer[1].nST;
+			st[1] <<= m_vtxBuffer[0].nST;
+
+			nU1 = st[0].nS, nU2 = st[1].nS;
+			nV1 = st[0].nT, nV2 = st[1].nT;
+
+			nU1 /= rgbaq[0].nQ;
+			nU2 /= rgbaq[1].nQ;
+
+			nV1 /= rgbaq[0].nQ;
+			nV2 /= rgbaq[1].nQ;
+		}
+	}
+	else
+	{
+		m_device->SetTexture(0, NULL);
+	}
+
+	//Build vertex buffer
+	{
+		HRESULT result = S_OK;
+
+		DWORD color0 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[0].nA),	MulBy2Clamp(rgbaq[0].nR),	MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB));
+		DWORD color1 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[1].nA),	MulBy2Clamp(rgbaq[1].nR),	MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB));
+
+		CUSTOMVERTEX vertices[] =
+		{
+			{	nX1,	nY1,	nZ1,	color0,		nU1,	nV1 },
+			{	nX2,	nY2,	nZ2,	color1,		nU2,	nV2 },
+		};
+
+		uint8* buffer = NULL;
+		result = m_triangleVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		assert(result == S_OK);
+		{
+			memcpy(buffer, vertices, sizeof(vertices));
+		}
+		result = m_triangleVb->Unlock();
+		assert(result == S_OK);
+
+		// select which vertex format we are using
+		result = m_device->SetFVF(CUSTOMFVF);
+		assert(result == S_OK);
+
+		// select the vertex buffer to display
+		result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
+		assert(result == S_OK);
+
+		// copy the vertex buffer to the back buffer
+		result = m_device->DrawPrimitive(D3DPT_LINELIST, 0, 1);
+		assert(result == S_OK);
+	}
+
+	if(m_primitiveMode.nFog)
+	{
+		//glDisable(GL_FOG);
+	}
+}
+
 void CGSH_Direct3D9::Prim_Triangle()
 {
 	float nU1 = 0, nU2 = 0, nU3 = 0;
@@ -1097,10 +1224,10 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 				//if(drawingKick) Prim_Point();
 				break;
 			case PRIM_LINE:
-				//if(drawingKick) Prim_Line();
+				if(drawingKick) Prim_Line();
 				break;
 			case PRIM_LINESTRIP:
-				//if(drawingKick) Prim_Line();
+				if(drawingKick) Prim_Line();
 				memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 				m_vtxCount = 1;
 				break;
