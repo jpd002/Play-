@@ -19,7 +19,7 @@ struct CsoHeader
 	uint8 reserved[2];
 };
 
-CCsoImageStream::CCsoImageStream(CStream *baseStream)
+CCsoImageStream::CCsoImageStream(CStream* baseStream)
 	: m_baseStream(baseStream), m_readBuffer(nullptr), m_zlibBuffer(nullptr), m_index(nullptr), m_position(0)
 {
 	if(baseStream == nullptr)
@@ -128,10 +128,10 @@ bool CCsoImageStream::IsEOF()
 	return m_position >= GetTotalSize();
 }
 
-uint64 CCsoImageStream::Read(void *buffer, uint64 size)
+uint64 CCsoImageStream::Read(void* buffer, uint64 size)
 {
 	uint64 remaining = size;
-	uint8 *dest = reinterpret_cast<uint8 *>(buffer);
+	uint8* dest = reinterpret_cast<uint8*>(buffer);
 
 	// We read only one frame at a time for now.
 	while(remaining > 0 && !IsEOF())
@@ -145,7 +145,7 @@ uint64 CCsoImageStream::Read(void *buffer, uint64 size)
 	return size - remaining;
 }
 
-uint64 CCsoImageStream::Write(const void *buffer, uint64 size)
+uint64 CCsoImageStream::Write(const void* buffer, uint64 size)
 {
 	throw std::exception("Unable to write to CSO, read only.");
 }
@@ -155,7 +155,7 @@ uint64 CCsoImageStream::GetTotalSize() const
 	return m_totalSize;
 }
 
-uint32 CCsoImageStream::ReadFromNextFrame(uint8 *dest, uint64 maxBytes)
+uint32 CCsoImageStream::ReadFromNextFrame(uint8* dest, uint64 maxBytes)
 {
 	assert(!IsEOF());
 
@@ -227,7 +227,7 @@ void CCsoImageStream::DecompressFrame(uint32 frame, uint64 readBufferSize)
 	m_zlibBufferFrame = frame;
 }
 
-uint64 CCsoImageStream::ReadBaseAt(uint64 pos, uint8 *dest, uint64 bytes)
+uint64 CCsoImageStream::ReadBaseAt(uint64 pos, uint8* dest, uint64 bytes)
 {
 	m_baseStream->Seek(pos, Framework::STREAM_SEEK_SET);
 	return m_baseStream->Read(dest, bytes);
