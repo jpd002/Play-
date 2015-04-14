@@ -19,7 +19,6 @@
 		70320D1E1A99EAC4001E9C4B /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1A1A99EAC4001E9C4B /* GeneralSettings.xcconfig */; };
 		70320D1F1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */; };
 		70320D201A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1C1A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig */; };
-		7065AA2815E4F9BD006F1FE6 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7065AA2715E4F9BD006F1FE6 /* icon.icns */; };
 		70684979151E882000C9574F /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684976151E880F00C9574F /* libCodeGen.a */; };
 		7068497B151E883D00C9574F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497A151E883D00C9574F /* OpenGL.framework */; };
 		7068497D151E885200C9574F /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497C151E885200C9574F /* libz.dylib */; };
@@ -76,6 +75,7 @@
 		70B414861AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147F1AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp */; };
 		70B414871AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */; };
 		70B414881AA21D1100AC7DE4 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */; };
+		70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70C0C84D1ADC97A900492241 /* Images.xcassets */; };
 		70F0372B15D83CEF006A96F1 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F0372A15D83CEF006A96F1 /* GSH_OpenGL_Shader.cpp */; };
 		70F0372E15D83D0E006A96F1 /* Iop_Thmsgbx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */; };
 		7E4C15751517CBD400357777 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E4C15721517CBD400357777 /* main.mm */; };
@@ -211,7 +211,6 @@
 		70320D1A1A99EAC4001E9C4B /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
 		70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		70320D1C1A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
-		7065AA2715E4F9BD006F1FE6 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../Source/macosxui/icon.icns; sourceTree = "<group>"; };
 		7068496E151E880E00C9574F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7068497A151E883D00C9574F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7068497C151E885200C9574F /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -320,6 +319,7 @@
 		70B414821AA21D1100AC7DE4 /* Iop_FileIoHandler2300.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_FileIoHandler2300.h; path = ../Source/iop/Iop_FileIoHandler2300.h; sourceTree = "<group>"; };
 		70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_LibSd.cpp; path = ../Source/iop/Iop_LibSd.cpp; sourceTree = "<group>"; };
 		70B414841AA21D1100AC7DE4 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_LibSd.h; path = ../Source/iop/Iop_LibSd.h; sourceTree = "<group>"; };
+		70C0C84D1ADC97A900492241 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
 		70F0372A15D83CEF006A96F1 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
 		70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thmsgbx.cpp; path = ../Source/iop/Iop_Thmsgbx.cpp; sourceTree = "<group>"; };
 		70F0372D15D83D0E006A96F1 /* Iop_Thmsgbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thmsgbx.h; path = ../Source/iop/Iop_Thmsgbx.h; sourceTree = "<group>"; };
@@ -618,6 +618,7 @@
 		70684A05151E89BC00C9574F /* macosxui */ = {
 			isa = PBXGroup;
 			children = (
+				70C0C84D1ADC97A900492241 /* Images.xcassets */,
 				70684A33151E8B2400C9574F /* English.lproj */,
 				700DF99415DF699000818F3B /* patches.xml */,
 				70684A07151E89E200C9574F /* ApplicationDelegate.mm */,
@@ -639,7 +640,6 @@
 				70684A19151E89E200C9574F /* VfsManagerBindings.h */,
 				70684A1C151E89E200C9574F /* VfsManagerController.mm */,
 				70684A1B151E89E200C9574F /* VfsManagerController.h */,
-				7065AA2715E4F9BD006F1FE6 /* icon.icns */,
 			);
 			name = macosxui;
 			sourceTree = "<group>";
@@ -978,12 +978,12 @@
 				70320D1F1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig in Resources */,
 				70320D201A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig in Resources */,
 				70684A3C151E8B2400C9574F /* VfsManager.xib in Resources */,
+				70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */,
 				70320D1D1A99EAC4001E9C4B /* ExternalDependencies.xcconfig in Resources */,
 				700DF99515DF699000818F3B /* patches.xml in Resources */,
 				700DF99C15DFC0CB00818F3B /* MainMenu.xib in Resources */,
 				700FB58015E11E1E00C322DE /* OutputWindow.xib in Resources */,
 				70320D1E1A99EAC4001E9C4B /* GeneralSettings.xcconfig in Resources */,
-				7065AA2815E4F9BD006F1FE6 /* icon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1203,7 +1203,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = ../Source/macosxui/Info.plist;
+				INFOPLIST_PREPROCESS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1213,7 +1215,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 70320D1C1A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = ../Source/macosxui/Info.plist;
+				INFOPLIST_PREPROCESS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

@@ -61,7 +61,7 @@
 	NSArray* fileTypes = [NSArray arrayWithObject: @"elf"];
 	openPanel.allowedFileTypes = fileTypes;
 	openPanel.canChooseDirectories = NO;
-	if([openPanel runModal] != NSOKButton)
+	if([openPanel runModal] != NSModalResponseOK)
 	{
 		return;
 	}
@@ -76,7 +76,7 @@
 	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", nil];
 	openPanel.allowedFileTypes = fileTypes;
 	openPanel.canChooseDirectories = NO;
-	if([openPanel runModal] != NSOKButton)
+	if([openPanel runModal] != NSModalResponseOK)
 	{
 		return;
 	}
