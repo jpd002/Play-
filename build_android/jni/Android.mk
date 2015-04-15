@@ -43,6 +43,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/COP_SCU_Reflection.cpp \
 							../../Source/COP_VU.cpp \
 							../../Source/COP_VU_Reflection.cpp \
+							../../Source/CsoImageStream.cpp \
 							../../Source/DMAC.cpp \
 							../../Source/Dmac_Channel.cpp \
 							../../Source/Ee_SubSystem.cpp \
