@@ -20,6 +20,7 @@
 #include "Posix_VolumeStream.h"
 #endif
 #include "stricmp.h"
+#include "CsoImageStream.h"
 #include "IszImageStream.h"
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
@@ -689,6 +690,10 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			if(!stricmp(extension, ".isz"))
 			{
 				stream = new CIszImageStream(new Framework::CStdStream(path, "rb"));
+			}
+			else if(!stricmp(extension, ".cso"))
+			{
+				stream = new CCsoImageStream(new Framework::CStdStream(path, "rb"));
 			}
 #ifdef WIN32
 			else if(path[0] == '\\')

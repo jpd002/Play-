@@ -61,7 +61,7 @@
 	NSArray* fileTypes = [NSArray arrayWithObject: @"elf"];
 	openPanel.allowedFileTypes = fileTypes;
 	openPanel.canChooseDirectories = NO;
-	if([openPanel runModal] != NSOKButton)
+	if([openPanel runModal] != NSModalResponseOK)
 	{
 		return;
 	}
@@ -73,10 +73,10 @@
 -(IBAction)bootDiskImageMenuSelected: (id)sender
 {
 	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", nil];
+	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", @"cso", nil];
 	openPanel.allowedFileTypes = fileTypes;
 	openPanel.canChooseDirectories = NO;
-	if([openPanel runModal] != NSOKButton)
+	if([openPanel runModal] != NSModalResponseOK)
 	{
 		return;
 	}

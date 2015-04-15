@@ -268,6 +268,7 @@ void CGSH_OpenGL::FlipImpl()
 		assert(m_presentTexCoordScaleUniform != -1);
 		glUniform2f(m_presentTexCoordScaleUniform, u1, v1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(m_emptyVertexArray);
 
 #ifdef _DEBUG
@@ -343,6 +344,7 @@ void CGSH_OpenGL::InitializeRC()
 	glDisable(GL_TEXTURE_2D);
 #endif
 
+#ifdef GLES_COMPATIBILITY
 	m_presentProgram = GeneratePresentProgram();
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
@@ -350,6 +352,7 @@ void CGSH_OpenGL::InitializeRC()
 	m_emptyVertexArray = Framework::OpenGl::CVertexArray::Create();
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
+#endif
 
 	PresentBackbuffer();
 
