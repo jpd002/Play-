@@ -178,6 +178,7 @@ private:
 	float							GetZ(float);
 	uint8							MulBy2Clamp(uint8);
 
+	void							Prim_Line();
 	void							Prim_Triangle();
 	void							Prim_Sprite();
 

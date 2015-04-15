@@ -147,7 +147,7 @@ uint64 CCsoImageStream::Read(void* buffer, uint64 size)
 
 uint64 CCsoImageStream::Write(const void* buffer, uint64 size)
 {
-	throw std::exception("Unable to write to CSO, read only.");
+	throw std::runtime_error("Unable to write to CSO, read only.");
 }
 
 uint64 CCsoImageStream::GetTotalSize() const
@@ -178,7 +178,7 @@ uint32 CCsoImageStream::ReadFromNextFrame(uint8* dest, uint64 maxBytes)
 		// Just read directly, easy.
 		if(ReadBaseAt(frameRawPos + offset, dest, bytes) != bytes)
 		{
-			throw std::exception("Unable to read uncompressed bytes from CSO.");
+			throw std::runtime_error("Unable to read uncompressed bytes from CSO.");
 		}
 	}
 	else
@@ -207,7 +207,7 @@ void CCsoImageStream::DecompressFrame(uint32 frame, uint64 readBufferSize)
 	z.opaque = Z_NULL;
 	if(inflateInit2(&z, -15) != Z_OK)
 	{
-		throw std::exception("Unable to initialize zlib for CSO decompression.");
+		throw std::runtime_error("Unable to initialize zlib for CSO decompression.");
 	}
 
 	z.next_in = m_readBuffer;
@@ -219,7 +219,7 @@ void CCsoImageStream::DecompressFrame(uint32 frame, uint64 readBufferSize)
 	if(status != Z_STREAM_END || z.total_out != m_frameSize)
 	{
 		inflateEnd(&z);
-		throw std::exception("Unable to decompress CSO frame using zlib.");
+		throw std::runtime_error("Unable to decompress CSO frame using zlib.");
 	}
 	inflateEnd(&z);
 

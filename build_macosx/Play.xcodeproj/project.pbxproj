@@ -68,6 +68,7 @@
 		70684A29151E8A2C00C9574F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684A28151E8A2C00C9574F /* IOKit.framework */; };
 		70684A3A151E8B2400C9574F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 70684A34151E8B2400C9574F /* InfoPlist.strings */; };
 		70684A3C151E8B2400C9574F /* VfsManager.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70684A38151E8B2400C9574F /* VfsManager.xib */; };
+		707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */; };
 		70B414781AA21C2200AC7DE4 /* Ee_SubSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414741AA21C2200AC7DE4 /* Ee_SubSystem.cpp */; };
 		70B414791AA21C2200AC7DE4 /* EEAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414761AA21C2200AC7DE4 /* EEAssembler.cpp */; };
 		70B4147C1AA21C4B00AC7DE4 /* GsCachedArea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147A1AA21C4B00AC7DE4 /* GsCachedArea.cpp */; };
@@ -305,6 +306,8 @@
 		70684A28151E8A2C00C9574F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		70684A35151E8B2400C9574F /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
 		70684A39151E8B2400C9574F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = VfsManager.xib; sourceTree = "<group>"; };
+		707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CsoImageStream.cpp; path = ../Source/CsoImageStream.cpp; sourceTree = "<group>"; };
+		707AF6B71ADE04AB00EA1374 /* CsoImageStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CsoImageStream.h; path = ../Source/CsoImageStream.h; sourceTree = "<group>"; };
 		70B414741AA21C2200AC7DE4 /* Ee_SubSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Ee_SubSystem.cpp; path = ../Source/Ee_SubSystem.cpp; sourceTree = "<group>"; };
 		70B414751AA21C2200AC7DE4 /* Ee_SubSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ee_SubSystem.h; path = ../Source/Ee_SubSystem.h; sourceTree = "<group>"; };
 		70B414761AA21C2200AC7DE4 /* EEAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EEAssembler.cpp; path = ../Source/EEAssembler.cpp; sourceTree = "<group>"; };
@@ -656,6 +659,19 @@
 			path = ../Source/macosxui/English.lproj;
 			sourceTree = "<group>";
 		};
+		707AF6B51ADE047400EA1374 /* DiskStreams */ = {
+			isa = PBXGroup;
+			children = (
+				707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */,
+				707AF6B71ADE04AB00EA1374 /* CsoImageStream.h */,
+				7E4C15D11519A99100357777 /* IszImageStream.cpp */,
+				7E4C15D21519A99100357777 /* IszImageStream.h */,
+				7E4C16041519A9A400357777 /* Posix_VolumeStream.cpp */,
+				7E4C16051519A9A400357777 /* Posix_VolumeStream.h */,
+			);
+			name = DiskStreams;
+			sourceTree = "<group>";
+		};
 		7E4C15701517CBB900357777 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -691,6 +707,7 @@
 				7E4C159F1519A8FE00357777 /* COP_VU_Reflection.cpp */,
 				7E4C159D1519A8FE00357777 /* COP_VU.cpp */,
 				7E4C159E1519A8FE00357777 /* COP_VU.h */,
+				707AF6B51ADE047400EA1374 /* DiskStreams */,
 				7E4C15A21519A8FE00357777 /* Dmac_Channel.cpp */,
 				7E4C15A31519A8FE00357777 /* Dmac_Channel.h */,
 				7E4C15A01519A8FE00357777 /* DMAC.cpp */,
@@ -740,8 +757,6 @@
 				7E4C15B61519A8FE00357777 /* IPU.cpp */,
 				7E4C15B71519A8FE00357777 /* IPU.h */,
 				7E4C15C41519A94900357777 /* ISO9660 */,
-				7E4C15D11519A99100357777 /* IszImageStream.cpp */,
-				7E4C15D21519A99100357777 /* IszImageStream.h */,
 				7E4C15D31519A99100357777 /* Log.cpp */,
 				7E4C15D41519A99100357777 /* Log.h */,
 				7E4C15D71519A99200357777 /* MA_EE_Reflection.cpp */,
@@ -789,8 +804,6 @@
 				7E4C16011519A9A300357777 /* PadHandler.h */,
 				7E4C16021519A9A300357777 /* PadListener.cpp */,
 				7E4C16031519A9A400357777 /* PadListener.h */,
-				7E4C16041519A9A400357777 /* Posix_VolumeStream.cpp */,
-				7E4C16051519A9A400357777 /* Posix_VolumeStream.h */,
 				7E4C16061519A9A400357777 /* Profiler.cpp */,
 				7E4C16071519A9A400357777 /* Profiler.h */,
 				7E4C16081519A9A400357777 /* Ps2Const.h */,
@@ -1097,6 +1110,7 @@
 				706849EE151E896900C9574F /* Iop_Modload.cpp in Sources */,
 				706849EF151E896900C9574F /* Iop_PadMan.cpp in Sources */,
 				706849F0151E896900C9574F /* Iop_RootCounters.cpp in Sources */,
+				707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */,
 				706849F1151E896900C9574F /* Iop_SifCmd.cpp in Sources */,
 				706849F2151E896900C9574F /* Iop_SifDynamic.cpp in Sources */,
 				706849F3151E896900C9574F /* Iop_SifMan.cpp in Sources */,
