@@ -344,6 +344,7 @@ void CGSH_OpenGL::InitializeRC()
 	glDisable(GL_TEXTURE_2D);
 #endif
 
+#ifdef GLES_COMPATIBILITY
 	m_presentProgram = GeneratePresentProgram();
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
@@ -351,6 +352,7 @@ void CGSH_OpenGL::InitializeRC()
 	m_emptyVertexArray = Framework::OpenGl::CVertexArray::Create();
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
+#endif
 
 	PresentBackbuffer();
 
@@ -2009,7 +2011,7 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build depth attachment
 	glGenRenderbuffers(1, &m_depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width * FBSCALE, m_height * FBSCALE);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_width * FBSCALE, m_height * FBSCALE);
 	CHECKGLERROR();
 }
 
