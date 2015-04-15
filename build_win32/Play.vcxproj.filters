@@ -47,6 +47,9 @@
     <Filter Include="Source Files\Win32 UI\FrameDebugger">
       <UniqueIdentifier>{9b66dc69-81ef-45ff-bb5d-07c525e171ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Core\DiskStreams">
+      <UniqueIdentifier>{526110a3-3881-47e5-a5f6-b1237428d043}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AppConfig.cpp">
@@ -74,9 +77,6 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\ElfFile.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IszImageStream.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Log.cpp">
@@ -143,9 +143,6 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Utils.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VolumeStream.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\iop\ArgumentIterator.cpp">
@@ -664,8 +661,14 @@
     <ClCompile Include="..\Source\iop\Iop_LibSd.cpp">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\IszImageStream.cpp">
+      <Filter>Source Files\Core\DiskStreams</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\CsoImageStream.cpp">
-      <Filter>Source Files\Core</Filter>
+      <Filter>Source Files\Core\DiskStreams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\VolumeStream.cpp">
+      <Filter>Source Files\Core\DiskStreams</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -694,9 +697,6 @@
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Integer64.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IszImageStream.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Log.h">
@@ -778,9 +778,6 @@
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VirtualMachine.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VolumeStream.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\ArgumentIterator.h">
@@ -1299,8 +1296,14 @@
     <ClInclude Include="..\Source\iop\Iop_LibSd.h">
       <Filter>Source Files\Core\Iop\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\IszImageStream.h">
+      <Filter>Source Files\Core\DiskStreams</Filter>
+    </ClInclude>
     <ClInclude Include="..\Source\CsoImageStream.h">
-      <Filter>Source Files\Core</Filter>
+      <Filter>Source Files\Core\DiskStreams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\VolumeStream.h">
+      <Filter>Source Files\Core\DiskStreams</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
