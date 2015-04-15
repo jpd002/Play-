@@ -315,9 +315,37 @@ void CDebugger::FindEeFunctions()
 				}
 			}
 		}
-
-		m_virtualMachine.m_ee->m_EE.m_Functions.OnTagListChange();
 	}
+	
+	{
+		//Identify functions that reference special string literals (TODO: Move that inside a file)
+		static const std::map<std::string, std::string> stringFuncs = 
+		{
+			{	"SceSifrpcBind",									"SifBindRpc"		},
+			{	"SceSifrpcCall",									"SifCallRpc"		},
+			{	"call cdread cmd\n",								"CdRead"			},
+			{	"sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n",	"GsPutDrawEnv"		},
+			{	"sceGsSyncPath: DMA Ch.1 does not terminate\r\n",	"GsSyncPath"		},
+		};
+
+		{
+			auto& eeFunctions = m_virtualMachine.m_ee->m_EE.m_Functions;
+			const auto& eeComments = m_virtualMachine.m_ee->m_EE.m_Comments;
+			const auto& eeAnalysis = m_virtualMachine.m_ee->m_EE.m_analysis;
+			for(auto tagIterator = eeComments.GetTagsBegin(); 
+				tagIterator != eeComments.GetTagsEnd(); tagIterator++)
+			{
+				const auto& tag = *tagIterator;
+				auto subroutine = eeAnalysis->FindSubroutine(tag.first);
+				if(subroutine == nullptr) continue;
+				auto stringFunc = stringFuncs.find(tag.second);
+				if(stringFunc == std::end(stringFuncs)) continue;
+				eeFunctions.InsertTag(subroutine->start, stringFunc->second.c_str());
+			}
+		}
+	}
+
+	m_virtualMachine.m_ee->m_EE.m_Functions.OnTagListChange();
 }
 
 void CDebugger::Layout1024()
