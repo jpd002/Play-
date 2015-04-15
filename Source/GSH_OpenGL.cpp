@@ -344,6 +344,7 @@ void CGSH_OpenGL::InitializeRC()
 	glDisable(GL_TEXTURE_2D);
 #endif
 
+#ifdef GLES_COMPATIBILITY
 	m_presentProgram = GeneratePresentProgram();
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
@@ -351,6 +352,7 @@ void CGSH_OpenGL::InitializeRC()
 	m_emptyVertexArray = Framework::OpenGl::CVertexArray::Create();
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
+#endif
 
 	PresentBackbuffer();
 
