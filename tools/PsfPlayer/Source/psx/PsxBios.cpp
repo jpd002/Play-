@@ -64,7 +64,7 @@ void CPsxBios::Reset()
 
 	//Setup kernel stack
 	m_cpu.m_State.nGPR[CMIPS::K0].nD0 = static_cast<int32>(KERNEL_STACK);
-	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_INT;
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 
 	AssembleEventChecker();
 	AssembleInterruptHandler();
