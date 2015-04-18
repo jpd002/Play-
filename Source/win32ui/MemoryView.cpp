@@ -405,10 +405,6 @@ void CMemoryView::EnsureSelectionVisible()
 	}
 
 	unsigned int line = (address / renderParams.bytesPerLine);
-	if(address > renderParams.address)
-	{
-		line -= renderParams.totallyVisibleLines;
-	}
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
