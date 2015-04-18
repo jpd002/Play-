@@ -395,7 +395,7 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const Ar
 
 	OnExecutableChange();
 
-	printf("PS2OS: Loaded '%s' executable file.\r\n", sExecName);
+	CLog::GetInstance().Print(LOG_NAME, "Loaded '%s' executable file.\r\n", sExecName);
 }
 
 void CPS2OS::LoadExecutableInternal()
@@ -545,7 +545,7 @@ void CPS2OS::ApplyPatches()
 	}
 	catch(const std::exception& exception)
 	{
-		printf("Failed to open patch definition file: %s.\r\n", exception.what());
+		CLog::GetInstance().Print(LOG_NAME, "Failed to open patch definition file: %s.\r\n", exception.what());
 		return;
 	}
 
@@ -586,7 +586,7 @@ void CPS2OS::ApplyPatches()
 				patchCount++;
 			}
 
-			printf("PS2OS: Applied %i patch(es).\r\n", patchCount);
+			CLog::GetInstance().Print(LOG_NAME, "Applied %i patch(es).\r\n", patchCount);
 
 			break;
 		}
