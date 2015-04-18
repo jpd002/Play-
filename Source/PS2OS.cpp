@@ -719,6 +719,12 @@ void CPS2OS::AssembleInterruptHandler()
 	assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
 	assembler.NOP();
 
+	//Make sure interrupts are enabled (This is needed by some games that play
+	//with the status register in interrupt handlers and is done by the EE BIOS)
+	assembler.MFC0(CMIPS::T0, CCOP_SCU::STATUS);
+	assembler.ORI(CMIPS::T0, CMIPS::T0, CMIPS::STATUS_IE);
+	assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
+
 	//Move back SP into K0 before restoring state
 	assembler.ADDIU(CMIPS::K0, CMIPS::SP, CMIPS::R0);
 
