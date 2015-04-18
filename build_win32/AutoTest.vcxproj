@@ -155,6 +155,7 @@
     <ClCompile Include="..\Source\COP_SCU_Reflection.cpp" />
     <ClCompile Include="..\Source\COP_VU.cpp" />
     <ClCompile Include="..\Source\COP_VU_Reflection.cpp" />
+    <ClCompile Include="..\Source\CsoImageStream.cpp" />
     <ClCompile Include="..\Source\DMAC.cpp" />
     <ClCompile Include="..\Source\Dmac_Channel.cpp" />
     <ClCompile Include="..\Source\EEAssembler.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="..\Source\COP_FPU.h" />
     <ClInclude Include="..\Source\COP_SCU.h" />
     <ClInclude Include="..\Source\COP_VU.h" />
+    <ClInclude Include="..\Source\CsoImageStream.h" />
     <ClInclude Include="..\Source\DMAC.h" />
     <ClInclude Include="..\Source\Dmac_Channel.h" />
     <ClInclude Include="..\Source\EEAssembler.h" />

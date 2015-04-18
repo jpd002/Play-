@@ -17,6 +17,9 @@
     <Filter Include="Source Files\Play Core\ISO9660">
       <UniqueIdentifier>{a4cda72f-64dd-4471-a7d4-37bc35525715}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Play Core\DiskStreams">
+      <UniqueIdentifier>{3f6d9a68-7b19-4e84-8e46-29affdf6c086}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\tools\AutoTest\Main.cpp">
@@ -322,13 +325,7 @@
     <ClCompile Include="..\Source\IPU_MotionCodeTable.cpp">
       <Filter>Source Files\Play Core\EE</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\IszImageStream.cpp">
-      <Filter>Source Files\Play Core\EE</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\VIF.cpp">
-      <Filter>Source Files\Play Core\EE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VolumeStream.cpp">
       <Filter>Source Files\Play Core\EE</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\VPU.cpp">
@@ -390,6 +387,15 @@
     </ClCompile>
     <ClCompile Include="..\Source\PadHandler.cpp">
       <Filter>Source Files\Play Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\CsoImageStream.cpp">
+      <Filter>Source Files\Play Core\DiskStreams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\IszImageStream.cpp">
+      <Filter>Source Files\Play Core\DiskStreams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\VolumeStream.cpp">
+      <Filter>Source Files\Play Core\DiskStreams</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -696,13 +702,7 @@
     <ClInclude Include="..\Source\IPU_MotionCodeTable.h">
       <Filter>Source Files\Play Core\EE</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\IszImageStream.h">
-      <Filter>Source Files\Play Core\EE</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\VIF.h">
-      <Filter>Source Files\Play Core\EE</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VolumeStream.h">
       <Filter>Source Files\Play Core\EE</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VPU.h">
@@ -743,6 +743,15 @@
     </ClInclude>
     <ClInclude Include="..\Source\PadHandler.h">
       <Filter>Source Files\Play Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\CsoImageStream.h">
+      <Filter>Source Files\Play Core\DiskStreams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\IszImageStream.h">
+      <Filter>Source Files\Play Core\DiskStreams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\VolumeStream.h">
+      <Filter>Source Files\Play Core\DiskStreams</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
