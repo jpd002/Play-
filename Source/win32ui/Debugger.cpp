@@ -326,6 +326,7 @@ void CDebugger::FindEeFunctions()
 			{	"call cdread cmd\n",								"CdRead"			},
 			{	"sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n",	"GsPutDrawEnv"		},
 			{	"sceGsSyncPath: DMA Ch.1 does not terminate\r\n",	"GsSyncPath"		},
+			{	"sceDbcReceiveData: rpc error\n",					"DbcReceiveData"	}
 		};
 
 		{
