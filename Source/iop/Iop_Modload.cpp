@@ -25,7 +25,27 @@ std::string CModload::GetId() const
 
 std::string CModload::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+	switch(functionId)
+	{
+	case 7:
+		return "LoadStartModule";
+		break;
+	case 8:
+		return "StartModule";
+		break;
+	case 10:
+		return "LoadModuleBuffer";
+		break;
+	case 16:
+		return "GetModuleIdList";
+		break;
+	case 17:
+		return "ReferModuleStatus";
+		break;
+	default:
+		return "unknown";
+		break;
+	}
 }
 
 void CModload::Invoke(CMIPS& context, unsigned int functionId)
