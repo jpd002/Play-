@@ -1743,7 +1743,7 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 			uint32 id = threadIterator.GetValue();
 			if(id == GetCurrentThreadId())
 			{
-				throw std::runtime_error("Need to reverify that.");
+				//TODO: Need to verify that
 				THREAD* thread(GetThread(id));
 				m_threadSchedule->Remove(threadIterator.GetIndex());
 				thread->scheduleID = m_threadSchedule->Insert(id, prio);
