@@ -1,6 +1,48 @@
 #include "PS2VM.h"
 #include <boost/filesystem.hpp>
 #include "StdStream.h"
+#include "StdStreamUtils.h"
+#include "Utils.h"
+
+std::vector<std::string> ReadLines(Framework::CStream& inputStream)
+{
+	std::vector<std::string> lines;
+	lines.push_back(Utils::GetLine(&inputStream));
+	while(!inputStream.IsEOF())
+	{
+		lines.push_back(Utils::GetLine(&inputStream));
+	}
+	return lines;
+}
+
+bool CompareResults(const boost::filesystem::path& testFilePath)
+{
+	try
+	{
+		auto resultFilePath = testFilePath;
+		resultFilePath.replace_extension(".result");
+		auto expectedFilePath = testFilePath;
+		expectedFilePath.replace_extension(".expected");
+		auto resultStream = Framework::CreateInputStdStream(resultFilePath.string());
+		auto expectedStream = Framework::CreateInputStdStream(expectedFilePath.string());
+
+		auto resultLines = ReadLines(resultStream);
+		auto expectedLines = ReadLines(expectedStream);
+
+		if(resultLines.size() != expectedLines.size()) return false;
+
+		for(unsigned int i = 0; i < resultLines.size(); i++)
+		{
+			if(resultLines[i] != expectedLines[i]) return false;
+		}
+
+		return true;
+	}
+	catch(...)
+	{
+		return false;
+	}
+}
 
 void ExecuteTest(const boost::filesystem::path& testFilePath)
 {
@@ -47,7 +89,10 @@ void ScanAndExecuteTests(const boost::filesystem::path& testDirPath)
 		}
 		if(testPath.extension() == ".elf")
 		{
+			printf("Testing '%s': ", testPath.string().c_str());
 			ExecuteTest(testPath);
+			bool succeeded = CompareResults(testPath);
+			printf("%s.\r\n", succeeded ? "SUCCEEDED" : "FAILED");
 		}
 	}
 }
