@@ -266,7 +266,10 @@ private:
 		void								FCOR();
 		void								FSSET();
 		void								FSAND();
+		void								FSOR();
+		void								FMEQ();
 		void								FMAND();
+		void								FMOR();
 		void								FCGET();
 		void								B();
 		void								BAL();
