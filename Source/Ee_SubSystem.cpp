@@ -90,8 +90,9 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,			0x10FFFFFF,									bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),	0x02);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR,	PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE,	m_microMem0,																0x03);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,		PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,			m_vuMem0,																	0x04);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,		PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,			m_vuMem1,																	0x05);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,			0x12FFFFFF,									bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),0x06);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR,	PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE,	m_microMem1,																0x05);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,		PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,			m_vuMem1,																	0x06);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,			0x12FFFFFF,									bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),0x07);
 
 		m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CSubSystem::EEMemWriteHandler, this, PLACEHOLDER_1));
 
