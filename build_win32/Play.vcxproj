@@ -138,6 +138,7 @@
       <PreprocessorDefinitions>_DEBUG;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <AdditionalOptions>/Zm128 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,6 +156,7 @@
       <PreprocessorDefinitions>_DEBUG;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <AdditionalOptions>/Zm128 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -174,6 +176,8 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -194,6 +198,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -215,6 +221,8 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -235,6 +243,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
