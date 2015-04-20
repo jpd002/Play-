@@ -670,6 +670,9 @@
     <ClCompile Include="..\Source\VolumeStream.cpp">
       <Filter>Source Files\Core\DiskStreams</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\FpAddTruncate.cpp">
+      <Filter>Source Files\Core\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -1304,6 +1307,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\VolumeStream.h">
       <Filter>Source Files\Core\DiskStreams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\FpAddTruncate.h">
+      <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

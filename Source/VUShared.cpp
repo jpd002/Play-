@@ -2,6 +2,7 @@
 #include "MIPS.h"
 #include "offsetof_def.h"
 #include "FpMulTruncate.h"
+#include "FpAddTruncate.h"
 #include "MemoryUtils.h"
 
 #define LATENCY_DIV     (7 - 1)
@@ -353,10 +354,22 @@ void VUShared::ADDbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 
 void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
+#if 1
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(!VUShared::DestinationHasElement(nDest, i)) continue;
+
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
+		codeGen->Call(reinterpret_cast<void*>(&FpAddTruncate), 2, true);
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
+	}
+#else
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
 	codeGen->MD_AddS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+#endif
 }
 
 void VUShared::ADDq(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
@@ -915,6 +928,7 @@ void VUShared::MULbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 
 void VUShared::MULi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 {
+#if 0
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		if(!VUShared::DestinationHasElement(nDest, i)) continue;
@@ -924,6 +938,12 @@ void VUShared::MULi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 		codeGen->Call(reinterpret_cast<void*>(&FpMulTruncate), 2, true);
 		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
 	}
+#else
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+	codeGen->MD_MulS();
+	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+#endif
 }
 
 void VUShared::MULq(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 address)

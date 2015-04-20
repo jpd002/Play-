@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\BasicBlock.cpp" />
+    <ClCompile Include="..\Source\FpAddTruncate.cpp" />
     <ClCompile Include="..\Source\FpMulTruncate.cpp" />
     <ClCompile Include="..\Source\MA_VU.cpp" />
     <ClCompile Include="..\Source\MA_VU_Lower.cpp" />
@@ -184,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\BasicBlock.h" />
+    <ClInclude Include="..\Source\FpAddTruncate.h" />
     <ClInclude Include="..\Source\FpMulTruncate.h" />
     <ClInclude Include="..\Source\MA_VU.h" />
     <ClInclude Include="..\Source\MemoryMap.h" />

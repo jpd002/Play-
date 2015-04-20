@@ -397,6 +397,9 @@
     <ClCompile Include="..\Source\VolumeStream.cpp">
       <Filter>Source Files\Play Core\DiskStreams</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\FpAddTruncate.cpp">
+      <Filter>Source Files\Play Core\EE</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\MA_MIPSIV.h">
@@ -752,6 +755,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\VolumeStream.h">
       <Filter>Source Files\Play Core\DiskStreams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\FpAddTruncate.h">
+      <Filter>Source Files\Play Core\EE</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -263,6 +263,7 @@
     <ClCompile Include="..\Source\Ee_SubSystem.cpp" />
     <ClCompile Include="..\Source\ELF.cpp" />
     <ClCompile Include="..\Source\ElfFile.cpp" />
+    <ClCompile Include="..\Source\FpAddTruncate.cpp" />
     <ClCompile Include="..\Source\FpMulTruncate.cpp" />
     <ClCompile Include="..\Source\FrameDump.cpp" />
     <ClCompile Include="..\Source\GIF.cpp" />
@@ -492,6 +493,7 @@
     <ClInclude Include="..\Source\Ee_SubSystem.h" />
     <ClInclude Include="..\Source\ELF.h" />
     <ClInclude Include="..\Source\ElfFile.h" />
+    <ClInclude Include="..\Source\FpAddTruncate.h" />
     <ClInclude Include="..\Source\FpMulTruncate.h" />
     <ClInclude Include="..\Source\FrameDump.h" />
     <ClInclude Include="..\Source\GIF.h" />
