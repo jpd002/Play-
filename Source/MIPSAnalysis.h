@@ -3,6 +3,7 @@
 #include "Types.h"
 #include <map>
 #include <vector>
+#include <functional>
 
 class CMIPS;
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include "Types.h"
 #include "xml/Node.h"
 
 class CMipsFunctionPatternDb
