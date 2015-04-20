@@ -1270,7 +1270,6 @@ void CGSH_OpenGL::Prim_Point()
 
 void CGSH_OpenGL::Prim_Line()
 {
-#ifndef GLES_COMPATIBILITY
 	XYZ xyz[2];
 	xyz[0] <<= m_VtxBuffer[1].nPosition;
 	xyz[1] <<= m_VtxBuffer[0].nPosition;
@@ -1284,12 +1283,17 @@ void CGSH_OpenGL::Prim_Line()
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
 
+	RGBAQ rgbaq[2];
+	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
+	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
+
+	float nS[2] = { 0 ,0 };
+	float nT[2] = { 0, 0 };
+	float nQ[2] = { 1, 1 };
+
+#ifndef GLES_COMPATIBILITY
 	if(!m_PrimitiveMode.nUseUV && !m_PrimitiveMode.nTexture)
 	{
-		RGBAQ rgbaq[2];
-		rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
-		rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
-
 		if(m_nLinesAsQuads)
 		{
 			glBegin(GL_QUADS);
@@ -1324,6 +1328,29 @@ void CGSH_OpenGL::Prim_Line()
 		//Yay for textured lines!
 		assert(0);
 	}
+#else
+	auto color1 = MakeColor(
+		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
+		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+
+	auto color2 = MakeColor(
+		MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG),
+		MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
+
+	PRIM_VERTEX vertices[] =
+	{
+		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0]	},
+		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1]	},
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW);
+
+	glBindVertexArray(m_primVertexArray);
+
+	glDrawArrays(GL_LINES, 0, 2);
+
+	CHECKGLERROR();
 #endif
 }
 
