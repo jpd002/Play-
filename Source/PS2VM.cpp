@@ -3,6 +3,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <memory>
+#include <fenv.h>
 #include "make_unique.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
@@ -767,6 +768,7 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 
 void CPS2VM::EmuThread()
 {
+	fesetround(FE_TOWARDZERO);
 	CProfiler::GetInstance().SetWorkThread();
 	while(1)
 	{
