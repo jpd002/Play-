@@ -253,6 +253,8 @@ private:
 		static void							ReflOpAffWrPRdFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void							ReflOpAffWrVi1(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 
+		void								BuildStatusInIT();
+
 		//General
 		void								LQ();
 		void								SQ();

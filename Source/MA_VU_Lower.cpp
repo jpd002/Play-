@@ -261,8 +261,8 @@ void CMA_VU::CLower::FSSET()
 	}
 }
 
-//16
-void CMA_VU::CLower::FSAND()
+// Helper for FSAND and FSOR.  Grabs STATUS flag into current m_nIT register.
+void CMA_VU::CLower::BuildStatusInIT()
 {
 	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
 
@@ -327,6 +327,12 @@ void CMA_VU::CLower::FSAND()
 	m_codeGen->EndIf();
 
 	//TODO: Check other flags
+}
+
+//16
+void CMA_VU::CLower::FSAND()
+{
+	BuildStatusInIT();
 
 	//Mask result
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -335,73 +341,10 @@ void CMA_VU::CLower::FSAND()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
-//16
+//17
 void CMA_VU::CLower::FSOR()
 {
-	// TODO: Share code with FSAND, but Or at the end.
-	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
-
-	//Reset result
-	m_codeGen->PushCst(0);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-
-	//Check Z flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
-	m_codeGen->PushCst(0x000F);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x01);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//Check S flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
-	m_codeGen->PushCst(0x00F0);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x02);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//Check ZS flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
-	m_codeGen->PushCst(0x000F);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x40);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//Check SS flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
-	m_codeGen->PushCst(0x00F0);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x80);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//TODO: Check other flags
+	BuildStatusInIT();
 
 	//Mask result
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -410,7 +353,7 @@ void CMA_VU::CLower::FSOR()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
-//1A
+//18
 void CMA_VU::CLower::FMEQ()
 {
 	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
@@ -432,7 +375,7 @@ void CMA_VU::CLower::FMAND()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
-//1A
+//1B
 void CMA_VU::CLower::FMOR()
 {
 	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
