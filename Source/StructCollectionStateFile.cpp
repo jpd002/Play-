@@ -1,3 +1,4 @@
+#include <memory>
 #include "StructCollectionStateFile.h"
 #include "xml/Node.h"
 #include "xml/Writer.h"

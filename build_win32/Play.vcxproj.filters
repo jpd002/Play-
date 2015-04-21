@@ -5,1314 +5,450 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source Files\Core">
-      <UniqueIdentifier>{8a3f0f5b-d668-4e5a-9905-74fcdaeb8bb7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\Iop">
-      <UniqueIdentifier>{397b1893-b58d-4cbc-a60a-5d80fde424ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\Iop\Modules">
-      <UniqueIdentifier>{dd772a53-7b40-4709-8255-80b85f9d6b8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\Iop\Modules\Ioman">
-      <UniqueIdentifier>{9db91494-5961-4256-96af-083621a76b3b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\Iop\Hardware">
-      <UniqueIdentifier>{c0b28c62-317c-4f4b-874b-b9dae01496d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\Iso9660">
-      <UniqueIdentifier>{4899fddb-dc56-457a-9daa-992ddf41e9ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\Saves">
-      <UniqueIdentifier>{d31c1ce5-c9df-4d7d-9861-5031d0850547}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\Ee">
-      <UniqueIdentifier>{8dc3e9d7-541a-4a79-a628-6c3412021a99}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\StateFiles">
-      <UniqueIdentifier>{57f240d8-6789-4624-9ed6-d647d8c94f7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Win32 UI">
-      <UniqueIdentifier>{9dd4a225-d2b2-4dde-a1f0-4cdb7902a331}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Win32 UI\McManager">
-      <UniqueIdentifier>{a00f28f4-3d1d-4064-a8ac-6adbb21f4936}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Win32 UI\Debugger">
+    <Filter Include="Source Files\Debugger">
       <UniqueIdentifier>{35baa85a-62b3-4914-899e-b7c1a311ccfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Win32 UI\PH_DirectInput">
-      <UniqueIdentifier>{544f28b1-06e8-479f-b715-21ab8e8e19ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Win32 UI\FrameDebugger">
+    <Filter Include="Source Files\FrameDebugger">
       <UniqueIdentifier>{9b66dc69-81ef-45ff-bb5d-07c525e171ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Core\DiskStreams">
-      <UniqueIdentifier>{526110a3-3881-47e5-a5f6-b1237428d043}</UniqueIdentifier>
+    <Filter Include="Source Files\McManager">
+      <UniqueIdentifier>{a00f28f4-3d1d-4064-a8ac-6adbb21f4936}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PH_DirectInput">
+      <UniqueIdentifier>{544f28b1-06e8-479f-b715-21ab8e8e19ea}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\AppConfig.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\BasicBlock.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ControllerInfo.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_FPU.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_FPU_Reflection.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_SCU.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_SCU_Reflection.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ELF.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ElfFile.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Log.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_MIPSIV.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_MIPSIV_Reflection.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_MIPSIV_Templates.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MailBox.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MemoryMap.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MemoryUtils.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPS.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSAnalysis.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSArchitecture.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSAssembler.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSCoprocessor.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MipsExecutor.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSInstructionFactory.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MipsJitter.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSReflection.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSTags.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\PadHandler.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\PadListener.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Profiler.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\PS2VM.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Utils.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\ArgumentIterator.cpp">
-      <Filter>Source Files\Core\Iop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_SubSystem.cpp">
-      <Filter>Source Files\Core\Iop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\IopBios.cpp">
-      <Filter>Source Files\Core\Iop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Cdvdfsv.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Cdvdman.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Dynamic.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_FileIo.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Intrman.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Ioman.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_McServ.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Modload.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_PadMan.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_SifCmd.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_SifDynamic.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_SifMan.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_SifManNull.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_SifManPs2.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Stdio.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Sysclib.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Sysmem.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Thbase.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Thevent.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Thsema.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Timrman.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Vblank.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\DirectoryDevice.cpp">
-      <Filter>Source Files\Core\Iop\Modules\Ioman</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\IsoDevice.cpp">
-      <Filter>Source Files\Core\Iop\Modules\Ioman</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Dmac.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_DmacChannel.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Intc.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_RootCounters.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Spu.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Spu2.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Spu2_Core.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_SpuBase.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ISO9660\DirectoryRecord.cpp">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ISO9660\File.cpp">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ISO9660\ISO9660.cpp">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ISO9660\PathTable.cpp">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ISO9660\PathTableRecord.cpp">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ISO9660\VolumeDescriptor.cpp">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\Icon.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\Save.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\SaveExporter.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\SaveImporter.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_VU.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_VU_Reflection.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\DMAC.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Dmac_Channel.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\FpMulTruncate.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GIF.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_Null.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSHandler.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\INTC.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_DmVectorTable.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockAddressIncrementTable.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockTypeBTable.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockTypeITable.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockTypePTable.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MotionCodeTable.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_EE.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_EE_Reflection.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\PS2OS.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\SIF.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Timer.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VIF.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VPU.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VPU1.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuBasicBlock.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuExecutor.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VUShared.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VUShared_Reflection.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MemoryStateFile.cpp">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\RegisterStateFile.cpp">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\StructCollectionStateFile.cpp">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\StructFile.cpp">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\AboutWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\AviStream.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\CdromSelectionWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\CommandSink.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\Main.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\MainWindow.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\OptionWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\OutputWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\RendererSettingsWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\StdAfx.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\SysInfoWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\VFSManagerWnd.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\WinUtils.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32ui\IconMesh.cpp">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\McManagerWnd.cpp">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\MemoryCardView.cpp">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\MemoryCard.cpp">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\SaveIconView.cpp">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\SaveView.cpp">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebugExpressionEvaluator.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\CallStackWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\Debugger.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebugView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DisAsm.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DisAsmWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\ELFHeaderView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\ELFProgramView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\ELFSectionView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\ELFSymbolView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\ELFView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FunctionsView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\MemoryView.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\MemoryViewMIPS.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\MemoryViewMIPSWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\MemoryViewPtr.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\RegViewFPU.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\RegViewGeneral.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\RegViewPage.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\RegViewSCU.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\RegViewVU.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\RegViewWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Lower.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_UpperReflection.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_LowerReflection.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Upper.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MipsFunctionPatternDb.cpp">
-      <Filter>Source Files\Core</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\PH_DirectInput.cpp">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputManager.cpp">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.cpp">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.cpp">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\ThreadsViewWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\ThreadCallStackViewWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DebugUtils.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Thmsgbx.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_Sio2.cpp">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\SaveImporterBase.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\MaxSaveImporter.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\XpsSaveImporter.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\saves\PsuSaveImporter.cpp">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\FrameDump.cpp">
-      <Filter>Source Files\Core</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\FrameDebugger.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsInputStateView.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsStateUtils.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\DirectXControl.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextView.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferView.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GsPixelFormats.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextStateView.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1Vm.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\DisAsmVu.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\TabHost.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\FrameDebugger\GifPacketView.cpp">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuAnalysis.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GsCachedArea.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\EEAssembler.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Ee_SubSystem.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\StatsOverlayWindow.cpp">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2300.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_FileIoHandler1000.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2100.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\Debugger\FindCallersViewWnd.cpp">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_LibSd.cpp">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
+    <ClCompile Include="..\Source\win32ui\AboutWnd.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\IszImageStream.cpp">
-      <Filter>Source Files\Core\DiskStreams</Filter>
+    <ClCompile Include="..\Source\win32ui\AviStream.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\CsoImageStream.cpp">
-      <Filter>Source Files\Core\DiskStreams</Filter>
+    <ClCompile Include="..\Source\win32ui\CdromSelectionWnd.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\VolumeStream.cpp">
-      <Filter>Source Files\Core\DiskStreams</Filter>
+    <ClCompile Include="..\Source\win32ui\CommandSink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\DirectXControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\OptionWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\OutputWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\RendererSettingsWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\StatsOverlayWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\SysInfoWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\VFSManagerWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\WinUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\AppConfig.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\AppDef.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\BasicBlock.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ControllerInfo.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\COP_FPU.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\COP_SCU.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ELF.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ElfFile.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Integer64.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Log.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MA_MIPSIV.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MailBox.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MemoryMap.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MemoryUtils.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPS.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSAnalysis.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSArchitecture.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSAssembler.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSCoprocessor.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MipsExecutor.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSInstructionFactory.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MipsJitter.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSReflection.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSTags.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\OsStructManager.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\PadHandler.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\PadListener.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Profiler.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Ps2Const.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\PS2VM.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\PS2VM_Preferences.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\SifModule.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\SifModuleAdapter.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\uint128.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Utils.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VirtualMachine.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\ArgumentIterator.h">
-      <Filter>Source Files\Core\Iop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_BiosBase.h">
-      <Filter>Source Files\Core\Iop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_SubSystem.h">
-      <Filter>Source Files\Core\Iop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\IopBios.h">
-      <Filter>Source Files\Core\Iop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Cdvdfsv.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Cdvdman.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Dynamic.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_FileIo.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Intrman.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Ioman.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Loadcore.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_McServ.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Modload.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Module.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_PadMan.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_SifCmd.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_SifDynamic.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_SifManNull.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_SifManPs2.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Stdio.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Sysclib.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Sysmem.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Thbase.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Thevent.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Thsema.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Timrman.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Vblank.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Ioman_Device.h">
-      <Filter>Source Files\Core\Iop\Modules\Ioman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\DirectoryDevice.h">
-      <Filter>Source Files\Core\Iop\Modules\Ioman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\IsoDevice.h">
-      <Filter>Source Files\Core\Iop\Modules\Ioman</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Dmac.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_DmacChannel.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Intc.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_RootCounters.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Spu.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Spu2.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Spu2_Core.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_SpuBase.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ISO9660\DirectoryRecord.h">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ISO9660\File.h">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ISO9660\ISO9660.h">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ISO9660\PathTable.h">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ISO9660\PathTableRecord.h">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ISO9660\VolumeDescriptor.h">
-      <Filter>Source Files\Core\Iso9660</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\Icon.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\Save.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\SaveExporter.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\SaveImporter.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\COP_VU.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\DMAC.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Dmac_Channel.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FpMulTruncate.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GIF.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GSH_Null.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GSH_OpenGL.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GSHandler.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\INTC.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_DmVectorTable.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockAddressIncrementTable.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockTypeBTable.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockTypeITable.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockTypePTable.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MotionCodeTable.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MA_EE.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\PS2OS.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\SIF.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Timer.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VIF.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VPU.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VPU1.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuBasicBlock.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuExecutor.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VUShared.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MemoryStateFile.h">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\RegisterStateFile.h">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\StructCollectionStateFile.h">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\StructFile.h">
-      <Filter>Source Files\Core\StateFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\AboutWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\AviStream.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\CdromSelectionWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\CommandSink.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\FileFilters.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\MainWindow.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\OptionWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\OutputWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\RendererSettingsWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\resource.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\SettingsDialogProvider.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\StdAfx.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\SysInfoWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\VFSManagerWnd.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\WinUtils.h">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\IconMesh.h">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\McManagerWnd.h">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MemoryCardView.h">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MemoryCard.h">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\SaveIconView.h">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\SaveView.h">
-      <Filter>Source Files\Win32 UI\McManager</Filter>
+      <Filter>Source Files\McManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\DebugExpressionEvaluator.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\CallStackWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\Debugger.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\DebuggerChildWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\DebugView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\DisAsm.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\DisAsmWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ELFHeaderView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ELFProgramView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ELFSectionView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ELFSymbolView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ELFView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ElfViewRes.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FunctionsView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MemoryView.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MemoryViewMIPS.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MemoryViewMIPSWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MemoryViewPtr.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewFPU.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewGeneral.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewPage.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewSCU.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewVU.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\RegViewWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MA_VU.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MipsFunctionPatternDb.h">
-      <Filter>Source Files\Core</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\PH_DirectInput.h">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputManager.h">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.h">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.h">
-      <Filter>Source Files\Win32 UI\PH_DirectInput</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_SifMan.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
+      <Filter>Source Files\PH_DirectInput</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ThreadsViewWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\ThreadCallStackViewWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\DebugUtils.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\BiosDebugInfoProvider.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Thmsgbx.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_Sio2.h">
-      <Filter>Source Files\Core\Iop\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\SaveImporterBase.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\MaxSaveImporter.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\XpsSaveImporter.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\saves\PsuSaveImporter.h">
-      <Filter>Source Files\Core\Saves</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FrameDump.h">
-      <Filter>Source Files\Core</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebugger.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsInputStateView.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsStateUtils.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\DirectXControl.h">
-      <Filter>Source Files\Win32 UI</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextView.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferView.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GsPixelFormats.h">
-      <Filter>Source Files\Core\Ee</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextStateView.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h">
-      <Filter>Source Files\Win32 UI</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebuggerTab.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1Vm.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\DisAsmVu.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\TabHost.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GifPacketView.h">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuAnalysis.h">
-      <Filter>Source Files\Core\Ee</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VuExecutor.h">
       <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\GsCachedArea.h">
-      <Filter>Source Files\Core\Ee</Filter>
+    <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h">
+      <Filter>Source Files\Debugger</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\EEAssembler.h">
-      <Filter>Source Files\Core\Ee</Filter>
+    <ClInclude Include="..\Source\win32ui\AboutWnd.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Ee_SubSystem.h">
-      <Filter>Source Files\Core\Ee</Filter>
+    <ClInclude Include="..\Source\win32ui\AviStream.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\CdromSelectionWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\CommandSink.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\DirectXControl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\FileFilters.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\MainWindow.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\OptionWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\OutputWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\RendererSettingsWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\resource.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\SettingsDialogProvider.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\StatsOverlayWindow.h">
-      <Filter>Source Files\Win32 UI</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\SifDefs.h">
-      <Filter>Source Files\Core</Filter>
+    <ClInclude Include="..\Source\win32ui\StdAfx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\SysInfoWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\VFSManagerWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\WinUtils.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2300.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_FileIoHandler1000.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2100.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_LibSd.h">
-      <Filter>Source Files\Core\Iop\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IszImageStream.h">
-      <Filter>Source Files\Core\DiskStreams</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\CsoImageStream.h">
-      <Filter>Source Files\Core\DiskStreams</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VolumeStream.h">
-      <Filter>Source Files\Core\DiskStreams</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\win32ui\manifest.xml">
-      <Filter>Source Files\Win32 UI</Filter>
-    </None>
-    <None Include="..\Source\win32ui\manifest64.xml">
-      <Filter>Source Files\Win32 UI</Filter>
-    </None>
     <None Include="..\Source\License.txt" />
     <None Include="..\Source\win32ui\Images\arrow.bmp" />
     <None Include="..\Source\win32ui\Images\bpoint.bmp" />
@@ -1320,24 +456,30 @@
     <None Include="..\Source\win32ui\images\grab.cur" />
     <None Include="..\Source\win32ui\images\grabbing.cur" />
     <None Include="..\Source\win32ui\FrameDebugger\CheckerboardShader.fx">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </None>
     <None Include="..\Source\win32ui\FrameDebugger\PixelBufferViewShader.fx">
-      <Filter>Source Files\Win32 UI\FrameDebugger</Filter>
+      <Filter>Source Files\FrameDebugger</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="..\Source\win32ui\manifest.xml">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\Source\win32ui\manifest64.xml">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\Source\win32ui\Res.rc">
-      <Filter>Source Files\Win32 UI</Filter>
-    </ResourceCompile>
     <ResourceCompile Include="..\Source\win32ui\ElfViewRes.rc">
-      <Filter>Source Files\Win32 UI\Debugger</Filter>
+      <Filter>Source Files\Debugger</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="..\Source\win32ui\Res.rc">
+      <Filter>Source Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Source\win32ui\SysInfo_x64.asm">
-      <Filter>Source Files\Win32 UI</Filter>
+      <Filter>Source Files</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

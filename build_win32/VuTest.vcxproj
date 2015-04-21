@@ -147,29 +147,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\BasicBlock.cpp" />
-    <ClCompile Include="..\Source\FpMulTruncate.cpp" />
-    <ClCompile Include="..\Source\MA_VU.cpp" />
-    <ClCompile Include="..\Source\MA_VU_Lower.cpp" />
-    <ClCompile Include="..\Source\MA_VU_LowerReflection.cpp" />
-    <ClCompile Include="..\Source\MA_VU_Upper.cpp" />
-    <ClCompile Include="..\Source\MA_VU_UpperReflection.cpp" />
-    <ClCompile Include="..\Source\MemoryMap.cpp" />
-    <ClCompile Include="..\Source\MemoryUtils.cpp" />
-    <ClCompile Include="..\Source\MIPS.cpp" />
-    <ClCompile Include="..\Source\MIPSAnalysis.cpp" />
-    <ClCompile Include="..\Source\MIPSArchitecture.cpp" />
-    <ClCompile Include="..\Source\MIPSAssembler.cpp" />
-    <ClCompile Include="..\Source\MIPSCoprocessor.cpp" />
-    <ClCompile Include="..\Source\MipsExecutor.cpp" />
-    <ClCompile Include="..\Source\MIPSInstructionFactory.cpp" />
-    <ClCompile Include="..\Source\MipsJitter.cpp" />
-    <ClCompile Include="..\Source\MIPSReflection.cpp" />
-    <ClCompile Include="..\Source\MIPSTags.cpp" />
-    <ClCompile Include="..\Source\VuBasicBlock.cpp" />
-    <ClCompile Include="..\Source\VuExecutor.cpp" />
-    <ClCompile Include="..\Source\VUShared.cpp" />
-    <ClCompile Include="..\Source\VUShared_Reflection.cpp" />
     <ClCompile Include="..\tools\VuTest\FlagsTest.cpp" />
     <ClCompile Include="..\tools\VuTest\Main.cpp" />
     <ClCompile Include="..\tools\VuTest\FlagsTest2.cpp" />
@@ -183,24 +160,6 @@
     <ClCompile Include="..\tools\VuTest\VuAssembler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\BasicBlock.h" />
-    <ClInclude Include="..\Source\FpMulTruncate.h" />
-    <ClInclude Include="..\Source\MA_VU.h" />
-    <ClInclude Include="..\Source\MemoryMap.h" />
-    <ClInclude Include="..\Source\MemoryUtils.h" />
-    <ClInclude Include="..\Source\MIPS.h" />
-    <ClInclude Include="..\Source\MIPSAnalysis.h" />
-    <ClInclude Include="..\Source\MIPSArchitecture.h" />
-    <ClInclude Include="..\Source\MIPSAssembler.h" />
-    <ClInclude Include="..\Source\MIPSCoprocessor.h" />
-    <ClInclude Include="..\Source\MipsExecutor.h" />
-    <ClInclude Include="..\Source\MIPSInstructionFactory.h" />
-    <ClInclude Include="..\Source\MipsJitter.h" />
-    <ClInclude Include="..\Source\MIPSReflection.h" />
-    <ClInclude Include="..\Source\MIPSTags.h" />
-    <ClInclude Include="..\Source\VuBasicBlock.h" />
-    <ClInclude Include="..\Source\VuExecutor.h" />
-    <ClInclude Include="..\Source\VUShared.h" />
     <ClInclude Include="..\tools\VuTest\FlagsTest.h" />
     <ClInclude Include="..\tools\VuTest\FlagsTest2.h" />
     <ClInclude Include="..\tools\VuTest\StdAfx.h" />
@@ -218,12 +177,16 @@
     <ProjectReference Include="..\..\Framework\build_win32\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
     </ProjectReference>
+    <ProjectReference Include="PlayCore.vcxproj">
+      <Project>{d060d0bf-20e4-4dcd-975e-9ee6ddf4f73a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets" Condition="Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" />
     <Import Project="..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets" Condition="Exists('..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" />
     <Import Project="..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets')" />
     <Import Project="..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets')" />
     <Import Project="..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets')" />
     <Import Project="..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets')" />
@@ -235,6 +198,7 @@
     <Error Condition="!Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets'))" />

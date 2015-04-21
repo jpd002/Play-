@@ -1,3 +1,4 @@
+#include <memory>
 #include "RegisterStateFile.h"
 #include "xml/Node.h"
 #include "xml/Writer.h"

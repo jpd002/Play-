@@ -5,56 +5,11 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source Files\Play Core">
-      <UniqueIdentifier>{524ea005-2387-41b3-be8e-0eedfb5e1729}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Tests">
       <UniqueIdentifier>{4569652f-7f33-4f88-83a5-66cbcaaa913d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Play Core\VU">
-      <UniqueIdentifier>{415c603f-c305-4674-b835-2c35b6b35866}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\MIPS.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSAnalysis.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSArchitecture.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSCoprocessor.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MipsExecutor.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSInstructionFactory.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MipsJitter.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSReflection.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSTags.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\BasicBlock.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MemoryMap.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MemoryUtils.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MIPSAssembler.cpp">
-      <Filter>Source Files\Play Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\tools\VuTest\StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -67,36 +22,6 @@
     <ClCompile Include="..\tools\VuTest\FlagsTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\MA_VU.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Lower.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_LowerReflection.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Upper.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_UpperReflection.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VUShared.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VUShared_Reflection.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuBasicBlock.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuExecutor.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\FpMulTruncate.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
     <ClCompile Include="..\tools\VuTest\VuAssembler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,45 +30,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\MIPS.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSAnalysis.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSArchitecture.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSCoprocessor.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MipsExecutor.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSInstructionFactory.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MipsJitter.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSReflection.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSTags.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\BasicBlock.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MemoryMap.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MemoryUtils.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MIPSAssembler.h">
-      <Filter>Source Files\Play Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\tools\VuTest\StdAfx.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -155,21 +41,6 @@
     </ClInclude>
     <ClInclude Include="..\tools\VuTest\FlagsTest.h">
       <Filter>Source Files\Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MA_VU.h">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VUShared.h">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuBasicBlock.h">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuExecutor.h">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FpMulTruncate.h">
-      <Filter>Source Files\Play Core\VU</Filter>
     </ClInclude>
     <ClInclude Include="..\tools\VuTest\VuAssembler.h">
       <Filter>Source Files</Filter>
