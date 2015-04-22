@@ -59,6 +59,7 @@ namespace PS2
 
 	enum
 	{
+		MICROMEM1ADDR = 0x11008000,
 		MICROMEM1SIZE = 0x00004000,
 	};
 

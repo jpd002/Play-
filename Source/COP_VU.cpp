@@ -1,10 +1,13 @@
 #include <assert.h>
 #include "COP_VU.h"
 #include "VUShared.h"
+#include "Log.h"
 #include "MIPS.h"
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 #include "Ps2Const.h"
+
+#define LOG_NAME				("vpu")
 
 CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) 
 : CMIPSCoprocessor(nRegSize)
@@ -126,13 +129,16 @@ void CCOP_VU::CFC2()
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 			break;
 		case 16:	//STATUS
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of STATUS flag through CFC2.\r\n");
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
+			break;
 		case 20:	//R
-			assert(0);
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of R register through CFC2.\r\n");
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
 			break;
 		case 17:	//MAC flag
 #ifdef _DEBUG
-			printf("Warning: Reading contents of MAC flag through CFC2.\r\n");
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of MAC flag through CFC2.\r\n");
 #endif
 		case 26:	//TPC
 		case 28:	//FBRST
@@ -191,6 +197,16 @@ void CCOP_VU::CTC2()
 		{
 		case 16:
 			//STATUS - Not implemented
+#ifdef _DEBUG
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing contents of STATUS flag through CTC2.\r\n");
+#endif
+			m_codeGen->PullTop();
+			break;
+		case 17:
+			//MAC - Not implemented
+#ifdef _DEBUG
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing contents of MAC flag through CTC2.\r\n");
+#endif
 			m_codeGen->PullTop();
 			break;
 		case 18:
@@ -209,6 +225,13 @@ void CCOP_VU::CTC2()
 			break;
 		case 28:
 			//FBRST - Don't care
+			m_codeGen->PullTop();
+			break;
+		case 31:
+			//CMSAR1 - Not implemented (this should start vu1 like vcallmsr starts vu0.)
+#ifdef _DEBUG
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing CMSAR1 through CTC2 (start vu1.)\r\n");
+#endif
 			m_codeGen->PullTop();
 			break;
 		default:
