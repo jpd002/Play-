@@ -203,6 +203,8 @@ void CMA_EE::MMI2()
 //10
 void CMA_EE::MFHI1()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
@@ -223,6 +225,8 @@ void CMA_EE::MTHI1()
 //12
 void CMA_EE::MFLO1()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO1[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
