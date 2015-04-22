@@ -23,5 +23,6 @@
 -(IBAction)vfsManagerMenuSelected: (id)sender;
 -(void)bootFromElf: (NSString*)fileName;
 -(void)bootFromCdrom0;
+-(void)updateTitle;
 
 @end

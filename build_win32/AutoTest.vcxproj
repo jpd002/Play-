@@ -93,6 +93,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,6 +107,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,6 +123,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,6 +142,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,128 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\AppConfig.cpp" />
-    <ClCompile Include="..\Source\BasicBlock.cpp" />
-    <ClCompile Include="..\Source\COP_FPU.cpp" />
-    <ClCompile Include="..\Source\COP_FPU_Reflection.cpp" />
-    <ClCompile Include="..\Source\COP_SCU.cpp" />
-    <ClCompile Include="..\Source\COP_SCU_Reflection.cpp" />
-    <ClCompile Include="..\Source\COP_VU.cpp" />
-    <ClCompile Include="..\Source\COP_VU_Reflection.cpp" />
-    <ClCompile Include="..\Source\DMAC.cpp" />
-    <ClCompile Include="..\Source\Dmac_Channel.cpp" />
-    <ClCompile Include="..\Source\EEAssembler.cpp" />
-    <ClCompile Include="..\Source\Ee_SubSystem.cpp" />
-    <ClCompile Include="..\Source\ELF.cpp" />
-    <ClCompile Include="..\Source\ElfFile.cpp" />
-    <ClCompile Include="..\Source\FpMulTruncate.cpp" />
-    <ClCompile Include="..\Source\FrameDump.cpp" />
-    <ClCompile Include="..\Source\GIF.cpp" />
-    <ClCompile Include="..\Source\GsCachedArea.cpp" />
-    <ClCompile Include="..\Source\GSHandler.cpp" />
-    <ClCompile Include="..\Source\GsPixelFormats.cpp" />
-    <ClCompile Include="..\Source\INTC.cpp" />
-    <ClCompile Include="..\Source\iop\ArgumentIterator.cpp" />
-    <ClCompile Include="..\Source\iop\DirectoryDevice.cpp" />
-    <ClCompile Include="..\Source\iop\IopBios.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Cdvdfsv.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Cdvdman.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Dmac.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_DmacChannel.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Dynamic.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_FileIo.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_FileIoHandler1000.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2100.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2300.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Intc.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Intrman.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Ioman.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_LibSd.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_McServ.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Modload.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_PadMan.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_RootCounters.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_SifCmd.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_SifDynamic.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_SifMan.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_SifManNull.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_SifManPs2.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Sio2.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Spu.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Spu2.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Spu2_Core.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_SpuBase.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Stdio.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_SubSystem.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Sysclib.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Sysmem.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Thbase.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Thevent.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Thmsgbx.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Thsema.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Timrman.cpp" />
-    <ClCompile Include="..\Source\iop\Iop_Vblank.cpp" />
-    <ClCompile Include="..\Source\iop\IsoDevice.cpp" />
-    <ClCompile Include="..\Source\IPU.cpp" />
-    <ClCompile Include="..\Source\IPU_DmVectorTable.cpp" />
-    <ClCompile Include="..\Source\IPU_MacroblockAddressIncrementTable.cpp" />
-    <ClCompile Include="..\Source\IPU_MacroblockTypeBTable.cpp" />
-    <ClCompile Include="..\Source\IPU_MacroblockTypeITable.cpp" />
-    <ClCompile Include="..\Source\IPU_MacroblockTypePTable.cpp" />
-    <ClCompile Include="..\Source\IPU_MotionCodeTable.cpp" />
-    <ClCompile Include="..\Source\ISO9660\DirectoryRecord.cpp" />
-    <ClCompile Include="..\Source\ISO9660\File.cpp" />
-    <ClCompile Include="..\Source\ISO9660\ISO9660.cpp" />
-    <ClCompile Include="..\Source\ISO9660\PathTable.cpp" />
-    <ClCompile Include="..\Source\ISO9660\PathTableRecord.cpp" />
-    <ClCompile Include="..\Source\ISO9660\VolumeDescriptor.cpp" />
-    <ClCompile Include="..\Source\IszImageStream.cpp" />
-    <ClCompile Include="..\Source\Log.cpp" />
-    <ClCompile Include="..\Source\MailBox.cpp" />
-    <ClCompile Include="..\Source\MA_EE.cpp" />
-    <ClCompile Include="..\Source\MA_EE_Reflection.cpp" />
-    <ClCompile Include="..\Source\MA_MIPSIV.cpp" />
-    <ClCompile Include="..\Source\MA_MIPSIV_Reflection.cpp" />
-    <ClCompile Include="..\Source\MA_MIPSIV_Templates.cpp" />
-    <ClCompile Include="..\Source\MA_VU.cpp" />
-    <ClCompile Include="..\Source\MA_VU_Lower.cpp" />
-    <ClCompile Include="..\Source\MA_VU_LowerReflection.cpp" />
-    <ClCompile Include="..\Source\MA_VU_Upper.cpp" />
-    <ClCompile Include="..\Source\MA_VU_UpperReflection.cpp" />
-    <ClCompile Include="..\Source\MemoryMap.cpp" />
-    <ClCompile Include="..\Source\MemoryStateFile.cpp" />
-    <ClCompile Include="..\Source\MemoryUtils.cpp" />
-    <ClCompile Include="..\Source\MIPS.cpp" />
-    <ClCompile Include="..\Source\MIPSAnalysis.cpp" />
-    <ClCompile Include="..\Source\MIPSArchitecture.cpp" />
-    <ClCompile Include="..\Source\MIPSAssembler.cpp" />
-    <ClCompile Include="..\Source\MIPSCoprocessor.cpp" />
-    <ClCompile Include="..\Source\MipsExecutor.cpp" />
-    <ClCompile Include="..\Source\MIPSInstructionFactory.cpp" />
-    <ClCompile Include="..\Source\MipsJitter.cpp" />
-    <ClCompile Include="..\Source\MIPSReflection.cpp" />
-    <ClCompile Include="..\Source\MIPSTags.cpp" />
-    <ClCompile Include="..\Source\PadHandler.cpp" />
-    <ClCompile Include="..\Source\PadListener.cpp" />
-    <ClCompile Include="..\Source\Profiler.cpp" />
-    <ClCompile Include="..\Source\PS2OS.cpp" />
-    <ClCompile Include="..\Source\PS2VM.cpp" />
-    <ClCompile Include="..\Source\RegisterStateFile.cpp" />
-    <ClCompile Include="..\Source\SIF.cpp" />
-    <ClCompile Include="..\Source\StructCollectionStateFile.cpp" />
-    <ClCompile Include="..\Source\StructFile.cpp" />
-    <ClCompile Include="..\Source\Timer.cpp" />
-    <ClCompile Include="..\Source\Utils.cpp" />
-    <ClCompile Include="..\Source\VIF.cpp" />
-    <ClCompile Include="..\Source\VolumeStream.cpp" />
-    <ClCompile Include="..\Source\VPU.cpp" />
-    <ClCompile Include="..\Source\VPU1.cpp" />
-    <ClCompile Include="..\Source\VuAnalysis.cpp" />
-    <ClCompile Include="..\Source\VuBasicBlock.cpp" />
-    <ClCompile Include="..\Source\VuExecutor.cpp" />
-    <ClCompile Include="..\Source\VUShared.cpp" />
-    <ClCompile Include="..\Source\VUShared_Reflection.cpp" />
     <ClCompile Include="..\tools\AutoTest\Main.cpp" />
     <ClCompile Include="..\tools\AutoTest\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -278,122 +162,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\AppConfig.h" />
-    <ClInclude Include="..\Source\BasicBlock.h" />
-    <ClInclude Include="..\Source\COP_FPU.h" />
-    <ClInclude Include="..\Source\COP_SCU.h" />
-    <ClInclude Include="..\Source\COP_VU.h" />
-    <ClInclude Include="..\Source\DMAC.h" />
-    <ClInclude Include="..\Source\Dmac_Channel.h" />
-    <ClInclude Include="..\Source\EEAssembler.h" />
-    <ClInclude Include="..\Source\Ee_SubSystem.h" />
-    <ClInclude Include="..\Source\ELF.h" />
-    <ClInclude Include="..\Source\ElfFile.h" />
-    <ClInclude Include="..\Source\FpMulTruncate.h" />
-    <ClInclude Include="..\Source\FrameDump.h" />
-    <ClInclude Include="..\Source\GIF.h" />
-    <ClInclude Include="..\Source\GsCachedArea.h" />
-    <ClInclude Include="..\Source\GSHandler.h" />
-    <ClInclude Include="..\Source\GsPixelFormats.h" />
-    <ClInclude Include="..\Source\INTC.h" />
-    <ClInclude Include="..\Source\Integer64.h" />
-    <ClInclude Include="..\Source\iop\ArgumentIterator.h" />
-    <ClInclude Include="..\Source\iop\DirectoryDevice.h" />
-    <ClInclude Include="..\Source\iop\Ioman_Device.h" />
-    <ClInclude Include="..\Source\iop\IopBios.h" />
-    <ClInclude Include="..\Source\iop\Iop_BiosBase.h" />
-    <ClInclude Include="..\Source\iop\Iop_Cdvdfsv.h" />
-    <ClInclude Include="..\Source\iop\Iop_Cdvdman.h" />
-    <ClInclude Include="..\Source\iop\Iop_Dmac.h" />
-    <ClInclude Include="..\Source\iop\Iop_DmacChannel.h" />
-    <ClInclude Include="..\Source\iop\Iop_Dynamic.h" />
-    <ClInclude Include="..\Source\iop\Iop_FileIo.h" />
-    <ClInclude Include="..\Source\iop\Iop_FileIoHandler1000.h" />
-    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2100.h" />
-    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2300.h" />
-    <ClInclude Include="..\Source\iop\Iop_Intc.h" />
-    <ClInclude Include="..\Source\iop\Iop_Intrman.h" />
-    <ClInclude Include="..\Source\iop\Iop_Ioman.h" />
-    <ClInclude Include="..\Source\iop\Iop_LibSd.h" />
-    <ClInclude Include="..\Source\iop\Iop_Loadcore.h" />
-    <ClInclude Include="..\Source\iop\Iop_McServ.h" />
-    <ClInclude Include="..\Source\iop\Iop_Modload.h" />
-    <ClInclude Include="..\Source\iop\Iop_Module.h" />
-    <ClInclude Include="..\Source\iop\Iop_PadMan.h" />
-    <ClInclude Include="..\Source\iop\Iop_RootCounters.h" />
-    <ClInclude Include="..\Source\iop\Iop_SifCmd.h" />
-    <ClInclude Include="..\Source\iop\Iop_SifDynamic.h" />
-    <ClInclude Include="..\Source\iop\Iop_SifMan.h" />
-    <ClInclude Include="..\Source\iop\Iop_SifManNull.h" />
-    <ClInclude Include="..\Source\iop\Iop_SifManPs2.h" />
-    <ClInclude Include="..\Source\iop\Iop_Sio2.h" />
-    <ClInclude Include="..\Source\iop\Iop_Spu.h" />
-    <ClInclude Include="..\Source\iop\Iop_Spu2.h" />
-    <ClInclude Include="..\Source\iop\Iop_Spu2_Core.h" />
-    <ClInclude Include="..\Source\iop\Iop_SpuBase.h" />
-    <ClInclude Include="..\Source\iop\Iop_Stdio.h" />
-    <ClInclude Include="..\Source\iop\Iop_SubSystem.h" />
-    <ClInclude Include="..\Source\iop\Iop_Sysclib.h" />
-    <ClInclude Include="..\Source\iop\Iop_Sysmem.h" />
-    <ClInclude Include="..\Source\iop\Iop_Thbase.h" />
-    <ClInclude Include="..\Source\iop\Iop_Thevent.h" />
-    <ClInclude Include="..\Source\iop\Iop_Thmsgbx.h" />
-    <ClInclude Include="..\Source\iop\Iop_Thsema.h" />
-    <ClInclude Include="..\Source\iop\Iop_Timrman.h" />
-    <ClInclude Include="..\Source\iop\Iop_Vblank.h" />
-    <ClInclude Include="..\Source\iop\IsoDevice.h" />
-    <ClInclude Include="..\Source\IPU.h" />
-    <ClInclude Include="..\Source\IPU_DmVectorTable.h" />
-    <ClInclude Include="..\Source\IPU_MacroblockAddressIncrementTable.h" />
-    <ClInclude Include="..\Source\IPU_MacroblockTypeBTable.h" />
-    <ClInclude Include="..\Source\IPU_MacroblockTypeITable.h" />
-    <ClInclude Include="..\Source\IPU_MacroblockTypePTable.h" />
-    <ClInclude Include="..\Source\IPU_MotionCodeTable.h" />
-    <ClInclude Include="..\Source\ISO9660\DirectoryRecord.h" />
-    <ClInclude Include="..\Source\ISO9660\File.h" />
-    <ClInclude Include="..\Source\ISO9660\ISO9660.h" />
-    <ClInclude Include="..\Source\ISO9660\PathTable.h" />
-    <ClInclude Include="..\Source\ISO9660\PathTableRecord.h" />
-    <ClInclude Include="..\Source\ISO9660\VolumeDescriptor.h" />
-    <ClInclude Include="..\Source\IszImageStream.h" />
-    <ClInclude Include="..\Source\Log.h" />
-    <ClInclude Include="..\Source\MailBox.h" />
-    <ClInclude Include="..\Source\MA_EE.h" />
-    <ClInclude Include="..\Source\MA_MIPSIV.h" />
-    <ClInclude Include="..\Source\MA_VU.h" />
-    <ClInclude Include="..\Source\MemoryMap.h" />
-    <ClInclude Include="..\Source\MemoryStateFile.h" />
-    <ClInclude Include="..\Source\MemoryUtils.h" />
-    <ClInclude Include="..\Source\MIPS.h" />
-    <ClInclude Include="..\Source\MIPSAnalysis.h" />
-    <ClInclude Include="..\Source\MIPSArchitecture.h" />
-    <ClInclude Include="..\Source\MIPSAssembler.h" />
-    <ClInclude Include="..\Source\MIPSCoprocessor.h" />
-    <ClInclude Include="..\Source\MipsExecutor.h" />
-    <ClInclude Include="..\Source\MIPSInstructionFactory.h" />
-    <ClInclude Include="..\Source\MipsJitter.h" />
-    <ClInclude Include="..\Source\MIPSReflection.h" />
-    <ClInclude Include="..\Source\MIPSTags.h" />
-    <ClInclude Include="..\Source\PadHandler.h" />
-    <ClInclude Include="..\Source\PadListener.h" />
-    <ClInclude Include="..\Source\Profiler.h" />
-    <ClInclude Include="..\Source\PS2OS.h" />
-    <ClInclude Include="..\Source\PS2VM.h" />
-    <ClInclude Include="..\Source\PS2VM_Preferences.h" />
-    <ClInclude Include="..\Source\RegisterStateFile.h" />
-    <ClInclude Include="..\Source\SIF.h" />
-    <ClInclude Include="..\Source\StructCollectionStateFile.h" />
-    <ClInclude Include="..\Source\StructFile.h" />
-    <ClInclude Include="..\Source\Timer.h" />
-    <ClInclude Include="..\Source\Utils.h" />
-    <ClInclude Include="..\Source\VIF.h" />
-    <ClInclude Include="..\Source\VolumeStream.h" />
-    <ClInclude Include="..\Source\VPU.h" />
-    <ClInclude Include="..\Source\VPU1.h" />
-    <ClInclude Include="..\Source\VuAnalysis.h" />
-    <ClInclude Include="..\Source\VuBasicBlock.h" />
-    <ClInclude Include="..\Source\VuExecutor.h" />
-    <ClInclude Include="..\Source\VUShared.h" />
     <ClInclude Include="..\tools\AutoTest\StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -408,6 +176,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Framework\build_win32\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="PlayCore.vcxproj">
+      <Project>{d060d0bf-20e4-4dcd-975e-9ee6ddf4f73a}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

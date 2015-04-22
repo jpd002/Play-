@@ -190,7 +190,7 @@ uint32 CIntrman::EnableInterrupts(CMIPS& context)
 #endif
 
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-	statusRegister |= CMIPS::STATUS_INT;
+	statusRegister |= CMIPS::STATUS_IE;
 	return 0;
 }
 
@@ -201,7 +201,7 @@ uint32 CIntrman::DisableInterrupts(CMIPS& context)
 #endif
 
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-	statusRegister &= ~CMIPS::STATUS_INT;
+	statusRegister &= ~CMIPS::STATUS_IE;
 	return 0;
 }
 
@@ -212,13 +212,13 @@ uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32 statePtr)
 		statePtr);
 #endif
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-	uint32 result = ((statusRegister & CMIPS::STATUS_INT) != 0) ? 0 : -1;
+	uint32 result = ((statusRegister & CMIPS::STATUS_IE) != 0) ? 0 : -1;
 	if(statePtr != 0)
 	{
 		uint32* state = reinterpret_cast<uint32*>(m_ram + statePtr);
-		(*state) = statusRegister & CMIPS::STATUS_INT;
+		(*state) = statusRegister & CMIPS::STATUS_IE;
 	}
-	statusRegister &= ~CMIPS::STATUS_INT;
+	statusRegister &= ~CMIPS::STATUS_IE;
 	return result;
 }
 
@@ -230,11 +230,11 @@ uint32 CIntrman::ResumeInterrupts(CMIPS& context, uint32 state)
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
 	if(state)
 	{
-		statusRegister |= CMIPS::STATUS_INT;
+		statusRegister |= CMIPS::STATUS_IE;
 	}
 	else
 	{
-		statusRegister &= ~CMIPS::STATUS_INT;
+		statusRegister &= ~CMIPS::STATUS_IE;
 	}
 	return 0;
 }
@@ -246,5 +246,5 @@ uint32 CIntrman::QueryIntrContext(CMIPS& context)
 #endif
 	uint32 statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
 	//If we're inside an exception or if interrupts are disabled, we are inside an interrupt context
-	return ((statusRegister & CMIPS::STATUS_EXL) != 0) || ((statusRegister & CMIPS::STATUS_INT) == 0);
+	return ((statusRegister & CMIPS::STATUS_EXL) != 0) || ((statusRegister & CMIPS::STATUS_IE) == 0);
 }

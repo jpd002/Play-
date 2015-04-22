@@ -335,6 +335,7 @@ private:
 	void									sc_SifSetReg();
 	void									sc_SifGetReg();
 	void									sc_Deci2Call();
+	void									sc_MachineType();
 	void									sc_GetMemorySize();
 	void									sc_Unhandled();
 

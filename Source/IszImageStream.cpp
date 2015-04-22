@@ -8,13 +8,8 @@
 
 CIszImageStream::CIszImageStream(CStream* baseStream)
 : m_baseStream(baseStream)
-, m_blockDescriptorTable(NULL)
-, m_cachedBlock(NULL)
-, m_readBuffer(NULL)
-, m_cachedBlockNumber(-1)
-, m_position(0)
 {
-	if(baseStream == NULL)
+	if(baseStream == nullptr)
 	{
 		throw std::runtime_error("Null base stream supplied.");
 	}

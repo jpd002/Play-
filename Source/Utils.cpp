@@ -8,12 +8,12 @@ std::string Utils::GetLine(Framework::CStream* stream, bool nIgnoreCR)
 	stream->Read(&nChar, 1);
 	while(!stream->IsEOF())
 	{
+		if(nChar == '\n') break;
 		if(!(nIgnoreCR && (nChar == '\r')))
 		{
 			result += nChar;
 		}
 		stream->Read(&nChar, 1);
-		if(nChar == '\n') break;
 	}
 	return result;
 }

@@ -59,6 +59,8 @@
 #define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 #define BIOS_ADDRESS_ALARMHANDLER		0x1FC03200
 
+#define INTERRUPTS_ENABLED_MASK			(CMIPS::STATUS_IE | CMIPS::STATUS_EIE)
+
 #define BIOS_ID_BASE					1
 
 #define CONFIGPATH			"./config/"
@@ -115,6 +117,7 @@
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
 #define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
 #define SYSCALL_NAME_DECI2CALL				"osDeci2Call"
+#define SYSCALL_NAME_MACHINETYPE			"osMachineType"
 
 #ifdef DEBUGGER_INCLUDED
 
@@ -168,6 +171,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0077,		SYSCALL_NAME_SIFSETDMA				},
 	{	0x0078,		SYSCALL_NAME_SIFSETDCHAIN			},
 	{	0x007C,		SYSCALL_NAME_DECI2CALL				},
+	{	0x007E,		SYSCALL_NAME_MACHINETYPE			},
 	{	0x0000,		NULL								}
 };
 
@@ -207,6 +211,8 @@ void CPS2OS::Initialize()
 	m_semaWaitCount = 0;
 	m_semaWaitCaller = 0;
 	m_semaWaitThreadId = -1;
+
+	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 }
 
 void CPS2OS::Release()
@@ -389,7 +395,7 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const Ar
 
 	OnExecutableChange();
 
-	printf("PS2OS: Loaded '%s' executable file.\r\n", sExecName);
+	CLog::GetInstance().Print(LOG_NAME, "Loaded '%s' executable file.\r\n", sExecName);
 }
 
 void CPS2OS::LoadExecutableInternal()
@@ -539,7 +545,7 @@ void CPS2OS::ApplyPatches()
 	}
 	catch(const std::exception& exception)
 	{
-		printf("Failed to open patch definition file: %s.\r\n", exception.what());
+		CLog::GetInstance().Print(LOG_NAME, "Failed to open patch definition file: %s.\r\n", exception.what());
 		return;
 	}
 
@@ -580,7 +586,7 @@ void CPS2OS::ApplyPatches()
 				patchCount++;
 			}
 
-			printf("PS2OS: Applied %i patch(es).\r\n", patchCount);
+			CLog::GetInstance().Print(LOG_NAME, "Applied %i patch(es).\r\n", patchCount);
 
 			break;
 		}
@@ -712,6 +718,12 @@ void CPS2OS::AssembleInterruptHandler()
 
 	assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
 	assembler.NOP();
+
+	//Make sure interrupts are enabled (This is needed by some games that play
+	//with the status register in interrupt handlers and is done by the EE BIOS)
+	assembler.MFC0(CMIPS::T0, CCOP_SCU::STATUS);
+	assembler.ORI(CMIPS::T0, CMIPS::T0, CMIPS::STATUS_IE);
+	assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
 
 	//Move back SP into K0 before restoring state
 	assembler.ADDIU(CMIPS::K0, CMIPS::SP, CMIPS::R0);
@@ -1040,7 +1052,7 @@ void CPS2OS::ThreadShakeAndBake()
 	}
 
 	//Don't switch if interrupts are disabled
-	if(!(m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_INT))
+	if((m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) != INTERRUPTS_ENABLED_MASK)
 	{
 		return;
 	}
@@ -1267,6 +1279,12 @@ CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 id)
 
 void CPS2OS::HandleInterrupt()
 {
+	//Check if interrupts are enabled here because EIE bit isn't checked by CMIPS
+	if((m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) != INTERRUPTS_ENABLED_MASK)
+	{
+		return;
+	}
+
 	m_semaWaitCount = 0;
 	m_ee.GenerateInterrupt(0x1FC00200);
 }
@@ -1725,7 +1743,7 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 			uint32 id = threadIterator.GetValue();
 			if(id == GetCurrentThreadId())
 			{
-				throw std::runtime_error("Need to reverify that.");
+				//TODO: Need to verify that
 				THREAD* thread(GetThread(id));
 				m_threadSchedule->Remove(threadIterator.GetIndex());
 				thread->scheduleID = m_threadSchedule->Insert(id, prio);
@@ -2464,6 +2482,14 @@ void CPS2OS::sc_Deci2Call()
 
 }
 
+//7E
+void CPS2OS::sc_MachineType()
+{
+	//Return 0x100 for liberx (is this ok?)
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0x100;
+	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+}
+
 //7F
 void CPS2OS::sc_GetMemorySize()
 {
@@ -2481,7 +2507,11 @@ void CPS2OS::HandleSyscall()
 	uint32 callInstruction = m_ee.m_pMemoryMap->GetInstruction(searchAddress);
 	if(callInstruction != 0x0000000C)
 	{
-		throw std::runtime_error("Not a SYSCALL.");
+		//This will happen if an ADDIU R0, R0, $x instruction is encountered. Not sure if there's a use for that on the EE
+		CLog::GetInstance().Print(LOG_NAME, "System call exception occured but no SYSCALL instruction found (addr = 0x%0.8X, opcode = 0x%0.8X).\r\n",
+			searchAddress, callInstruction);
+		m_ee.m_State.nHasException = 0;
+		return;
 	}
 
 	uint32 func = m_ee.m_State.nGPR[3].nV[0];
@@ -2779,6 +2809,9 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
+	case 0x7E:
+		sprintf(description, SYSCALL_NAME_MACHINETYPE "();");
+		break;
 	case 0x7F:
 		sprintf(description, "GetMemorySize();");
 		break;
@@ -2824,7 +2857,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x70
 	&CPS2OS::sc_GsGetIMR,			&CPS2OS::sc_GsPutIMR,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetVSyncFlag,			&CPS2OS::sc_SetSyscall,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_SifDmaStat,			&CPS2OS::sc_SifSetDma,
 	//0x78
-	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_GetMemorySize,
+	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_MachineType,		&CPS2OS::sc_GetMemorySize,
 };
 
 //////////////////////////////////////////////////

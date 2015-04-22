@@ -98,7 +98,19 @@ void CCOP_FPU::MFC1()
 //02
 void CCOP_FPU::CFC1()
 {
-	if(m_fs == 31)
+	if(m_fs < 16)
+	{
+		//Implementation and Revision Register
+		//Value given away by the PS2 (Impl 46, Revision 3.0)
+		m_codeGen->PushCst(0x2E30);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[0]));
+		if(m_regSize == MIPS_REGSIZE_64)
+		{
+			m_codeGen->PushCst(0);
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[1]));
+		}
+	}
+	else
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
 		if(m_regSize == MIPS_REGSIZE_64)
@@ -108,10 +120,6 @@ void CCOP_FPU::CFC1()
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[1]));
 		}
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[0]));
-	}
-	else
-	{
-		assert(0);
 	}
 }
 

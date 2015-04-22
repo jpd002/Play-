@@ -189,7 +189,7 @@ void CCOP_SCU::ERET()
 void CCOP_SCU::EI()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-	m_codeGen->PushCst(0x00010001);
+	m_codeGen->PushCst(CMIPS::STATUS_EIE);
 	m_codeGen->Or();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 
@@ -202,7 +202,7 @@ void CCOP_SCU::EI()
 void CCOP_SCU::DI()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
-	m_codeGen->PushCst(~0x00010001);
+	m_codeGen->PushCst(~CMIPS::STATUS_EIE);
 	m_codeGen->And();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 }
