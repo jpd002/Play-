@@ -28,6 +28,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpSpecial2[0x1A] = std::bind(&CMA_EE::DIV1, this);
 	m_pOpSpecial2[0x1B] = std::bind(&CMA_EE::DIVU1, this);
 	m_pOpSpecial2[0x20] = std::bind(&CMA_EE::MADD1, this);
+	m_pOpSpecial2[0x21] = std::bind(&CMA_EE::MADDU1, this);
 	m_pOpSpecial2[0x28] = std::bind(&CMA_EE::MMI1, this);
 	m_pOpSpecial2[0x29] = std::bind(&CMA_EE::MMI3, this);
 	m_pOpSpecial2[0x30] = std::bind(&CMA_EE::PMFHL, this);
@@ -267,6 +268,12 @@ void CMA_EE::DIVU1()
 void CMA_EE::MADD1()
 {
 	Generic_MADD(1, true);
+}
+
+//21
+void CMA_EE::MADDU1()
+{
+	Generic_MADD(1, false);
 }
 
 //28
