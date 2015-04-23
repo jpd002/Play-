@@ -414,6 +414,13 @@ void CCOP_FPU::MIN_S()
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
+//30
+void CCOP_FPU::C_F_S()
+{
+	m_codeGen->PushCst(0);
+	SetCCBit(true, m_ccMask[((m_nOpcode >> 8) & 0x07)]);
+}
+
 //32
 void CCOP_FPU::C_EQ_S()
 {
@@ -520,7 +527,7 @@ CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_opSingle[0x40] =
 	//0x28
 	&CCOP_FPU::MAX_S,		&CCOP_FPU::MIN_S,	    &CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 	//0x30
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_EQ_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LE_S,		&CCOP_FPU::Illegal,
+	&CCOP_FPU::C_F_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_EQ_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LE_S,		&CCOP_FPU::Illegal,
 	//0x38
 	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 };

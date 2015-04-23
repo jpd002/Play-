@@ -153,6 +153,7 @@
 	{
 		CPS2OS* os = g_virtualMachine->m_ee->m_os;
 		os->BootFromFile([fileName fileSystemRepresentation]);
+		[self updateTitle];
 		g_virtualMachine->Resume();
 	}
 	catch(const std::exception& exception)
@@ -170,6 +171,7 @@
 	{
 		CPS2OS* os = g_virtualMachine->m_ee->m_os;
 		os->BootFromCDROM(CPS2OS::ArgumentList());
+		[self updateTitle];
 		g_virtualMachine->Resume();
 	}
 	catch(const std::exception& exception)
@@ -177,6 +179,13 @@
 		NSString* errorMessage = [[NSString alloc] initWithUTF8String: exception.what()];
 		NSRunCriticalAlertPanel(@"Load ELF error:", errorMessage, NULL, NULL, NULL);
 	}
+}
+
+-(void)updateTitle
+{
+	CPS2OS* os = g_virtualMachine->m_ee->m_os;
+	auto executableName = os->GetExecutableName();
+	outputWindowController.window.title = [NSString stringWithFormat: @"Play! - %s", executableName];
 }
 
 -(BOOL)validateUserInterfaceItem: (id<NSValidatedUserInterfaceItem>)item

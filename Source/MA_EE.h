@@ -66,6 +66,7 @@ private:
 	void								DIV1();
 	void								DIVU1();
 	void								MADD1();
+	void								MADDU1();
 	void								MMI1();
 	void								MMI3();
 	void								PMFHL();

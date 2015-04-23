@@ -90,6 +90,75 @@ bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
 	return (upperInstruction & 0x80000000) != 0;
 }
 
+void CMA_VU::CLower::BuildStatusInIT()
+{
+	//Helper for FSAND and FSOR.  Grabs STATUS flag into current m_nIT register.
+
+	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
+
+	//Reset result
+	m_codeGen->PushCst(0);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+
+	//Check Z flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	m_codeGen->PushCst(0x000F);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x01);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//Check S flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	m_codeGen->PushCst(0x00F0);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x02);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//Check ZS flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	m_codeGen->PushCst(0x000F);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x40);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//Check SS flag
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	m_codeGen->PushCst(0x00F0);
+	m_codeGen->And();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+		m_codeGen->PushCst(0x80);
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	}
+	m_codeGen->EndIf();
+
+	//TODO: Check other flags
+}
+
 //////////////////////////////////////////////////
 //General Instructions
 //////////////////////////////////////////////////
@@ -264,74 +333,35 @@ void CMA_VU::CLower::FSSET()
 //16
 void CMA_VU::CLower::FSAND()
 {
-	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
-
-	//Reset result
-	m_codeGen->PushCst(0);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-
-	//Check Z flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
-	m_codeGen->PushCst(0x000F);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x01);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//Check S flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
-	m_codeGen->PushCst(0x00F0);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x02);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//Check ZS flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
-	m_codeGen->PushCst(0x000F);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x40);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//Check SS flag
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
-	m_codeGen->PushCst(0x00F0);
-	m_codeGen->And();
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_NE);
-	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-		m_codeGen->PushCst(0x80);
-		m_codeGen->Or();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	}
-	m_codeGen->EndIf();
-
-	//TODO: Check other flags
+	BuildStatusInIT();
 
 	//Mask result
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 	m_codeGen->PushCst(m_nImm12);
 	m_codeGen->And();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+}
+
+//17
+void CMA_VU::CLower::FSOR()
+{
+	BuildStatusInIT();
+
+	//Mask result
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	m_codeGen->PushCst(m_nImm12);
+	m_codeGen->Or();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+}
+
+//18
+void CMA_VU::CLower::FMEQ()
+{
+	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
+
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	m_codeGen->Cmp(Jitter::CONDITION_EQ);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -343,6 +373,17 @@ void CMA_VU::CLower::FMAND()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 	m_codeGen->And();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+}
+
+//1B
+void CMA_VU::CLower::FMOR()
+{
+	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
+
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	m_codeGen->Or();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -905,9 +946,9 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpGeneral[0x80] =
 	//0x08
 	&CMA_VU::CLower::IADDIU,		&CMA_VU::CLower::ISUBIU,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x10
-	&CMA_VU::CLower::FCEQ,			&CMA_VU::CLower::FCSET,			&CMA_VU::CLower::FCAND,			&CMA_VU::CLower::FCOR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FSSET,			&CMA_VU::CLower::FSAND,			&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::FCEQ,			&CMA_VU::CLower::FCSET,			&CMA_VU::CLower::FCAND,			&CMA_VU::CLower::FCOR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FSSET,			&CMA_VU::CLower::FSAND,			&CMA_VU::CLower::FSOR,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FMAND,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FCGET,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::FMEQ,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FMAND,			&CMA_VU::CLower::FMOR,			&CMA_VU::CLower::FCGET,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x20
 	&CMA_VU::CLower::B,				&CMA_VU::CLower::BAL,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::JR,			&CMA_VU::CLower::JALR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x28

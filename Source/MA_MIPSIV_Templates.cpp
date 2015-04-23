@@ -111,8 +111,10 @@ void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& functi
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
-void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, unsigned int unit)
+void CMA_MIPSIV::Template_Mult32(bool isSigned, unsigned int unit)
 {
+	auto function = isSigned ? &CMipsJitter::MultS : &CMipsJitter::Mult;
+
 	size_t lo[2];
 	size_t hi[2];
 
@@ -137,7 +139,7 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	Function();
+	((m_codeGen)->*(function))();
 
 	m_codeGen->PushTop();
 
@@ -170,8 +172,10 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
 	}
 }
 
-void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, unsigned int unit)
+void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit)
 {
+	auto function = isSigned ? &CMipsJitter::DivS : &CMipsJitter::Div;
+
 	size_t lo[2];
 	size_t hi[2];
 
@@ -202,22 +206,56 @@ void CMA_MIPSIV::Template_Div32(const TemplateOperationFunctionType& function, u
 		m_codeGen->PushCst(~0);
 		m_codeGen->PullRel(lo[0]);
 
-		m_codeGen->PushCst(~0);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PullRel(hi[0]);
 	}
 	m_codeGen->Else();
 	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		function();
+		if(isSigned)
+		{
+			//Check for overflow condition (0x80000000 / 0xFFFFFFFF)
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+			m_codeGen->PushCst(0x80000000);
+			m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
-		m_codeGen->PushTop();
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+			m_codeGen->PushCst(0xFFFFFFFF);
+			m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
-		m_codeGen->ExtLow64();
-		m_codeGen->PullRel(lo[0]);
+			m_codeGen->And();
+		}
+		else
+		{
+			m_codeGen->PushCst(0);
+		}
 
-		m_codeGen->ExtHigh64();
-		m_codeGen->PullRel(hi[0]);
+		m_codeGen->PushCst(0);
+
+		m_codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			//Overflow
+			m_codeGen->PushCst(0x80000000);
+			m_codeGen->PullRel(lo[0]);
+
+			m_codeGen->PushCst(0);
+			m_codeGen->PullRel(hi[0]);
+		}
+		m_codeGen->Else();
+		{
+			//No overflow, carry on
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+			((m_codeGen)->*(function))();
+
+			m_codeGen->PushTop();
+
+			m_codeGen->ExtLow64();
+			m_codeGen->PullRel(lo[0]);
+
+			m_codeGen->ExtHigh64();
+			m_codeGen->PullRel(hi[0]);
+		}
+		m_codeGen->EndIf();
 	}
 	m_codeGen->EndIf();
 
