@@ -75,7 +75,10 @@ void CMipsJitter::PushRel64(size_t offset)
 
 Jitter::CJitter::LABEL CMipsJitter::GetFinalBlockLabel()
 {
-	m_lastBlockLabel = CreateLabel();
+	if(m_lastBlockLabel == -1)
+	{
+		m_lastBlockLabel = CreateLabel();
+	}
 	return m_lastBlockLabel;
 }
 
