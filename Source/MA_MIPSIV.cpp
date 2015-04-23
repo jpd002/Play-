@@ -968,13 +968,13 @@ void CMA_MIPSIV::DSRAV()
 //18
 void CMA_MIPSIV::MULT()
 {
-	Template_Mult32(std::bind(&Jitter::CJitter::MultS, m_codeGen), 0);
+	Template_Mult32(true, 0);
 }
 
 //19
 void CMA_MIPSIV::MULTU()
 {
-	Template_Mult32(std::bind(&Jitter::CJitter::Mult, m_codeGen), 0);
+	Template_Mult32(false, 0);
 }
 
 //1A

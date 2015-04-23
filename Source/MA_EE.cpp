@@ -247,13 +247,13 @@ void CMA_EE::MTLO1()
 //18
 void CMA_EE::MULT1()
 {
-	Template_Mult32(std::bind(&Jitter::CJitter::MultS, m_codeGen), 1);
+	Template_Mult32(true, 1);
 }
 
 //19
 void CMA_EE::MULTU1()
 {
-	Template_Mult32(std::bind(&Jitter::CJitter::Mult, m_codeGen), 1);
+	Template_Mult32(false, 1);
 }
 
 //1A

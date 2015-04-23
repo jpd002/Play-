@@ -111,8 +111,10 @@ void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& functi
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
-void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, unsigned int unit)
+void CMA_MIPSIV::Template_Mult32(bool isSigned, unsigned int unit)
 {
+	auto function = isSigned ? &CMipsJitter::MultS : &CMipsJitter::Mult;
+
 	size_t lo[2];
 	size_t hi[2];
 
@@ -137,7 +139,7 @@ void CMA_MIPSIV::Template_Mult32(const TemplateOperationFunctionType& Function, 
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	Function();
+	((m_codeGen)->*(function))();
 
 	m_codeGen->PushTop();
 
