@@ -439,6 +439,9 @@
     <ClCompile Include="..\Source\saves\XpsSaveImporter.cpp">
       <Filter>Source Files\Saves</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\FpAddTruncate.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -857,6 +860,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\saves\XpsSaveImporter.h">
       <Filter>Source Files\Saves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\FpAddTruncate.h">
+      <Filter>Source Files\Ee</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
