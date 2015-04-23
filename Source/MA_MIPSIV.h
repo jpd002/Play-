@@ -81,7 +81,7 @@ protected:
 	void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
 	void Template_ShiftVar32(const TemplateOperationFunctionType&);
 	void Template_Mult32(const TemplateOperationFunctionType&, unsigned int);
-	void Template_Div32(const TemplateOperationFunctionType&, unsigned int);
+	void Template_Div32(bool, unsigned int);
 	void Template_MovEqual(bool);
 	void Template_SetLessThanImm(bool);
 	void Template_SetLessThanReg(bool);

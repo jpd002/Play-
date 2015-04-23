@@ -259,13 +259,13 @@ void CMA_EE::MULTU1()
 //1A
 void CMA_EE::DIV1()
 {
-	Template_Div32(std::bind(&Jitter::CJitter::DivS, m_codeGen), 1);
+	Template_Div32(true, 1);
 }
 
 //1B
 void CMA_EE::DIVU1()
 {
-	Template_Div32(std::bind(&Jitter::CJitter::Div, m_codeGen), 1);
+	Template_Div32(false, 1);
 }
 
 //20

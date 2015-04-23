@@ -980,13 +980,13 @@ void CMA_MIPSIV::MULTU()
 //1A
 void CMA_MIPSIV::DIV()
 {
-	Template_Div32(std::bind(&Jitter::CJitter::DivS, m_codeGen), 0);
+	Template_Div32(true, 0);
 }
 
 //1B
 void CMA_MIPSIV::DIVU()
 {
-	Template_Div32(std::bind(&Jitter::CJitter::Div, m_codeGen), 0);
+	Template_Div32(false, 0);
 }
 
 //20
