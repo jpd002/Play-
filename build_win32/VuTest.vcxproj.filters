@@ -28,9 +28,6 @@
     <ClCompile Include="..\tools\VuTest\FlagsTest2.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\FpAddTruncate.cpp">
-      <Filter>Source Files\Play Core\VU</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tools\VuTest\StdAfx.h">
@@ -50,9 +47,6 @@
     </ClInclude>
     <ClInclude Include="..\tools\VuTest\FlagsTest2.h">
       <Filter>Source Files\Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FpAddTruncate.h">
-      <Filter>Source Files\Play Core\VU</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

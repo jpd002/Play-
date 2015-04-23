@@ -226,9 +226,6 @@
     <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\FpAddTruncate.cpp">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\win32ui\IconMesh.h">
@@ -449,9 +446,6 @@
     </ClInclude>
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FpAddTruncate.h">
-      <Filter>Source Files\Core\Ee</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

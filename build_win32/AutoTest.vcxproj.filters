@@ -13,16 +13,10 @@
     <ClCompile Include="..\tools\AutoTest\StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\FpAddTruncate.cpp">
-      <Filter>Source Files\Play Core\EE</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tools\AutoTest\StdAfx.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FpAddTruncate.h">
-      <Filter>Source Files\Play Core\EE</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
