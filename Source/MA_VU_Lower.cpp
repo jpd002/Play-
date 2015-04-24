@@ -232,6 +232,8 @@ void CMA_VU::CLower::ISW()
 //08
 void CMA_VU::CLower::IADDIU()
 {
+	if(m_nIT == 0) return;
+
 	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
 	m_codeGen->Add();
@@ -241,6 +243,8 @@ void CMA_VU::CLower::IADDIU()
 //09
 void CMA_VU::CLower::ISUBIU()
 {
+	if(m_nIT == 0) return;
+
 	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
 	m_codeGen->Sub();
@@ -549,6 +553,8 @@ void CMA_VU::CLower::IADD()
 //31
 void CMA_VU::CLower::ISUB()
 {
+	if(m_nID == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 	m_codeGen->Sub();
@@ -564,6 +570,8 @@ void CMA_VU::CLower::IADDI()
 //34
 void CMA_VU::CLower::IAND()
 {
+	if(m_nID == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 	m_codeGen->And();
