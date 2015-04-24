@@ -1743,9 +1743,11 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 		{
 		case PRIM_POINT:
 			if(nDrawingKick) Prim_Point();
+			m_nVtxCount = 1;
 			break;
 		case PRIM_LINE:
 			if(nDrawingKick) Prim_Line();
+			m_nVtxCount = 2;
 			break;
 		case PRIM_LINESTRIP:
 			if(nDrawingKick) Prim_Line();
