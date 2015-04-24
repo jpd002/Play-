@@ -41,6 +41,28 @@ public class MainActivity extends Activity
 		updateFileListView();
 	}
 	
+	private void displayErrorMessage(String message)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		builder.setTitle("Error");
+		builder.setMessage(message);
+
+		builder.setPositiveButton("OK", 
+			new DialogInterface.OnClickListener() 
+			{
+				@Override
+				public void onClick(DialogInterface dialog, int id) 
+				{
+					
+				}
+			}
+		);
+		
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+	
 	private String getCurrentDirectory()
 	{
 		return _preferences.getString(PREFERENCE_CURRENT_DIRECTORY, Environment.getExternalStorageDirectory().getAbsolutePath());
@@ -68,6 +90,10 @@ public class MainActivity extends Activity
 					fileListItems.add(new FileListItem(file.getAbsolutePath()));
 				}
 				else if(file.getName().endsWith(".elf"))
+				{
+					fileListItems.add(new FileListItem(file.getAbsolutePath()));
+				}
+				else if(file.getName().endsWith(".isz"))
 				{
 					fileListItems.add(new FileListItem(file.getAbsolutePath()));
 				}
@@ -111,7 +137,22 @@ public class MainActivity extends Activity
 					}
 					else
 					{
-						NativeInterop.loadElf(fileListItem.getPath());
+						try
+						{
+							if(fileListItem.getPath().endsWith(".elf"))
+							{
+								NativeInterop.loadElf(fileListItem.getPath());
+							}
+							else
+							{
+								NativeInterop.bootDiskImage(fileListItem.getPath());
+							}
+						}
+						catch(Exception ex)
+						{
+							displayMessage(ex.getMessage());
+							return;
+						}
 						//TODO: Catch errors that might happen while loading files
 						Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
 						startActivity(intent);
