@@ -28,6 +28,7 @@ public:
 	virtual void		ProcessPacket(StreamType&);
 
 	void				StartMicroProgram(uint32);
+	void				InvalidateMicroProgram();
 	CMIPS&				GetContext() const;
 	uint8*				GetVuMemory() const;
 	bool				IsRunning() const;
