@@ -72,8 +72,17 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_loadElf(JNIEnv* env, jobject obj, jstring selectedFilePath)
 {
 	assert(g_virtualMachine != nullptr);
+	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
-	g_virtualMachine->m_ee->m_os->BootFromFile(GetStringFromJstring(env, selectedFilePath).c_str());
+	try
+	{
+		g_virtualMachine->m_ee->m_os->BootFromFile(GetStringFromJstring(env, selectedFilePath).c_str());
+	}
+	catch(const std::exception& exception)
+	{
+		jclass exceptionClass = env->FindClass("java/lang/Exception");
+		env->ThrowNew(exceptionClass, exception.what());
+	}
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_bootDiskImage(JNIEnv* env, jobject obj, jstring selectedFilePath)
