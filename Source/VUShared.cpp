@@ -128,6 +128,10 @@ void VUShared::PushIntegerRegister(CMipsJitter* codeGen, unsigned int nRegister)
 
 void VUShared::ClampVector(CMipsJitter* codeGen)
 {
+#ifdef __ANDROID__
+	return;
+#endif
+
 	//This will transform any NaN/INF (exponent == 0xFF) into a number with exponent == 0xFE
 	//and will leave all other numbers intact
 	static const uint32 exponentMask = 0x7F800000;
@@ -144,6 +148,10 @@ void VUShared::ClampVector(CMipsJitter* codeGen)
 
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime)
 {
+#ifdef __ANDROID__
+	return;
+#endif
+
 	const int macOpLatency = 4;
 
 	//Write value time
@@ -1300,6 +1308,10 @@ void VUShared::QueueInPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, u
 
 void VUShared::CheckMacFlagPipeline(CMipsJitter* codeGen, uint32 relativePipeTime)
 {
+#ifdef __ANDROID__
+	return;
+#endif
+
 	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
 	{
 		codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeMac.pipeTimes));
