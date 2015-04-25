@@ -179,6 +179,14 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		ret[0x00] = 0;
 		break;
 
+	case 0x16:
+		//Break
+		{
+			CLog::GetInstance().Print(LOG_NAME, "Break();\r\n");
+			ret[0x00] = 1;
+		}
+		break;
+
 	case 0x22:
 		{
 			//Set Media Mode (1 - CDROM, 2 - DVDROM)

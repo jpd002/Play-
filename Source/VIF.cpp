@@ -189,6 +189,11 @@ void CVIF::StartVu0MicroProgram(uint32 address)
 	m_pVPU[0]->StartMicroProgram(address);
 }
 
+void CVIF::InvalidateVu0MicroProgram()
+{
+	m_pVPU[0]->InvalidateMicroProgram();
+}
+
 bool CVIF::IsVu0Running() const
 {
 	return m_pVPU[0]->IsRunning();

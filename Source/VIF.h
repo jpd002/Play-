@@ -69,6 +69,7 @@ public:
 	void		ProcessXGKICK(uint32);
 
 	void		StartVu0MicroProgram(uint32);
+	void		InvalidateVu0MicroProgram();
 
 	bool		IsVu0Running() const;
 	bool		IsVu1Running() const;

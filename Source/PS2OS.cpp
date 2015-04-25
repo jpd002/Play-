@@ -1620,7 +1620,14 @@ void CPS2OS::sc_DeleteThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	THREAD* thread = GetThread(id);
+	if(id == GetCurrentThreadId())
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		return;
+	}
+
+	auto thread = GetThread(id);
 	if(!thread->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1632,7 +1639,7 @@ void CPS2OS::sc_DeleteThread()
 
 	thread->valid = 0;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -1678,7 +1685,14 @@ void CPS2OS::sc_TerminateThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	THREAD* thread = GetThread(id);
+	if(id == GetCurrentThreadId())
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		return;
+	}
+
+	auto thread = GetThread(id);
 	if(!thread->valid)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
@@ -1688,7 +1702,7 @@ void CPS2OS::sc_TerminateThread()
 
 	thread->status = THREAD_ZOMBIE;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 

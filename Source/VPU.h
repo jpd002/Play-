@@ -28,6 +28,7 @@ public:
 	virtual void		ProcessPacket(StreamType&);
 
 	void				StartMicroProgram(uint32);
+	void				InvalidateMicroProgram();
 	CMIPS&				GetContext() const;
 	uint8*				GetVuMemory() const;
 	bool				IsRunning() const;
@@ -152,9 +153,9 @@ protected:
 
 	uint128				m_buffer;
 
-	uint8*				m_microMem;
-	uint8*				m_vuMem;
-	CMIPS*				m_ctx;
+	uint8*				m_microMem = nullptr;
+	uint8*				m_vuMem = nullptr;
+	CMIPS*				m_ctx = nullptr;
 	CVIF&				m_vif;
 
 #ifdef DEBUGGER_INCLUDED
@@ -165,7 +166,7 @@ protected:
 	uint32				m_itopMiniState;
 #endif
 
-	unsigned int		m_vpuNumber;
+	unsigned int		m_vpuNumber = 0;
 	CVuExecutor			m_executor;
 
 	CProfiler::ZoneHandle m_vuProfilerZone = 0;

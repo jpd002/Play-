@@ -1,5 +1,4 @@
-#ifndef _MIPSJITTER_H_
-#define _MIPSJITTER_H_
+#pragma once
 
 #include <map>
 #include "Jitter.h"
@@ -34,5 +33,3 @@ private:
 	VariableStatusMap	m_variableStatus;
 	LABEL				m_lastBlockLabel;
 };
-
-#endif

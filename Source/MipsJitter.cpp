@@ -75,26 +75,29 @@ void CMipsJitter::PushRel64(size_t offset)
 
 Jitter::CJitter::LABEL CMipsJitter::GetFinalBlockLabel()
 {
-	m_lastBlockLabel = CreateLabel();
+	if(m_lastBlockLabel == -1)
+	{
+		m_lastBlockLabel = CreateLabel();
+	}
 	return m_lastBlockLabel;
 }
 
 void CMipsJitter::SetVariableAsConstant(size_t variableId, uint32 value)
 {
-    VARIABLESTATUS status;
+	VARIABLESTATUS status;
 	status.operandType = Jitter::SYM_CONSTANT;
-    status.operandValue = value;
-    SetVariableStatus(variableId, status);
+	status.operandValue = value;
+	SetVariableStatus(variableId, status);
 }
 
 CMipsJitter::VARIABLESTATUS* CMipsJitter::GetVariableStatus(size_t variableId)
 {
-    VariableStatusMap::iterator statusIterator(m_variableStatus.find(variableId));
-    return statusIterator == m_variableStatus.end() ? NULL : &statusIterator->second;
+	auto statusIterator(m_variableStatus.find(variableId));
+	return statusIterator == m_variableStatus.end() ? nullptr : &statusIterator->second;
 }
 
 void CMipsJitter::SetVariableStatus(size_t variableId, const VARIABLESTATUS& status)
 {
-    assert(GetVariableStatus(variableId) == NULL);
-    m_variableStatus[variableId] = status;
+	assert(GetVariableStatus(variableId) == NULL);
+	m_variableStatus[variableId] = status;
 }

@@ -28,6 +28,7 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpSpecial2[0x1A] = std::bind(&CMA_EE::DIV1, this);
 	m_pOpSpecial2[0x1B] = std::bind(&CMA_EE::DIVU1, this);
 	m_pOpSpecial2[0x20] = std::bind(&CMA_EE::MADD1, this);
+	m_pOpSpecial2[0x21] = std::bind(&CMA_EE::MADDU1, this);
 	m_pOpSpecial2[0x28] = std::bind(&CMA_EE::MMI1, this);
 	m_pOpSpecial2[0x29] = std::bind(&CMA_EE::MMI3, this);
 	m_pOpSpecial2[0x30] = std::bind(&CMA_EE::PMFHL, this);
@@ -202,6 +203,8 @@ void CMA_EE::MMI2()
 //10
 void CMA_EE::MFHI1()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
@@ -222,6 +225,8 @@ void CMA_EE::MTHI1()
 //12
 void CMA_EE::MFLO1()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO1[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
@@ -242,31 +247,37 @@ void CMA_EE::MTLO1()
 //18
 void CMA_EE::MULT1()
 {
-	Template_Mult32(std::bind(&Jitter::CJitter::MultS, m_codeGen), 1);
+	Template_Mult32(true, 1);
 }
 
 //19
 void CMA_EE::MULTU1()
 {
-	Template_Mult32(std::bind(&Jitter::CJitter::Mult, m_codeGen), 1);
+	Template_Mult32(false, 1);
 }
 
 //1A
 void CMA_EE::DIV1()
 {
-	Template_Div32(std::bind(&Jitter::CJitter::DivS, m_codeGen), 1);
+	Template_Div32(true, 1);
 }
 
 //1B
 void CMA_EE::DIVU1()
 {
-	Template_Div32(std::bind(&Jitter::CJitter::Div, m_codeGen), 1);
+	Template_Div32(false, 1);
 }
 
 //20
 void CMA_EE::MADD1()
 {
 	Generic_MADD(1, true);
+}
+
+//21
+void CMA_EE::MADDU1()
+{
+	Generic_MADD(1, false);
 }
 
 //28
