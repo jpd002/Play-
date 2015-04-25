@@ -383,6 +383,11 @@ void CVPU::StartMicroProgram(uint32 address)
 	ExecuteMicroProgram(address);
 }
 
+void CVPU::InvalidateMicroProgram()
+{
+	m_executor.ClearActiveBlocks();
+}
+
 #ifdef DELAYED_MSCAL
 
 void CVPU::StartDelayedMicroProgram(uint32 address)

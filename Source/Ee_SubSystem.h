@@ -83,6 +83,8 @@ namespace Ee
 		uint32						IOPortReadHandler(uint32);
 		uint32						IOPortWriteHandler(uint32, uint32);
 
+		uint32						Vu0MicroMemWriteHandler(uint32, uint32);
+
 		uint32						Vu0IoPortReadHandler(uint32);
 		uint32						Vu0IoPortWriteHandler(uint32, uint32);
 

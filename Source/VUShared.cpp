@@ -515,6 +515,8 @@ void VUShared::FTOI15(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 
 void VUShared::IADD(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 {
+	if(id == 0) return;
+
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 	codeGen->Add();
@@ -523,6 +525,8 @@ void VUShared::IADD(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 
 void VUShared::IADDI(CMipsJitter* codeGen, uint8 it, uint8 is, uint8 imm5)
 {
+	if(it == 0) return;
+
 	PushIntegerRegister(codeGen, is);
 	codeGen->PushCst(imm5 | ((imm5 & 0x10) != 0 ? 0xFFFFFFE0 : 0x0));
 	codeGen->Add();
@@ -547,6 +551,8 @@ void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 
 void VUShared::IOR(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 {
+	if(id == 0) return;
+
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 	codeGen->Or();
