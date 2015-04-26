@@ -6,7 +6,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#include "FpMulTruncate.h"
+#include "FpAddTruncate.h"
 
 typedef uint32 rep_t;
 typedef int32 srep_t;
@@ -32,8 +32,8 @@ typedef float fp_t;
 static inline int rep_clz(rep_t a) {
 #ifdef _WIN32
    DWORD r = 0;
-   _BitScanForward(&r, a);
-   return 32 - r;
+   _BitScanReverse(&r, a);
+   return (31 - r);
 #else
 	return __builtin_clz(a);
 #endif
