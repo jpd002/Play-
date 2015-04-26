@@ -150,7 +150,7 @@ public class MainActivity extends Activity
 						}
 						catch(Exception ex)
 						{
-							displayMessage(ex.getMessage());
+							displayErrorMessage(ex.getMessage());
 							return;
 						}
 						//TODO: Catch errors that might happen while loading files

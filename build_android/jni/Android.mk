@@ -50,6 +50,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/EEAssembler.cpp \
 							../../Source/ELF.cpp \
 							../../Source/ElfFile.cpp \
+							../../Source/FpAddTruncate.cpp \
 							../../Source/FpMulTruncate.cpp \
 							../../Source/FrameDump.cpp \
 							../../Source/GIF.cpp \
