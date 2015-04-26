@@ -15,6 +15,7 @@
 		7017B3901652F660008ACEAC /* Iop_Sio2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7017B38E1652F660008ACEAC /* Iop_Sio2.cpp */; };
 		703093B117BE5ADD009662A1 /* GsPixelFormats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093AF17BE5AB1009662A1 /* GsPixelFormats.cpp */; };
 		703093B217BE5AE1009662A1 /* FrameDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093AD17BE5AB1009662A1 /* FrameDump.cpp */; };
+		7031AA5D1AED898800FA7B53 /* FpAddTruncate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA5B1AED898800FA7B53 /* FpAddTruncate.cpp */; };
 		70320D1D1A99EAC4001E9C4B /* ExternalDependencies.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D191A99EAC4001E9C4B /* ExternalDependencies.xcconfig */; };
 		70320D1E1A99EAC4001E9C4B /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1A1A99EAC4001E9C4B /* GeneralSettings.xcconfig */; };
 		70320D1F1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */; };
@@ -208,6 +209,8 @@
 		703093AE17BE5AB1009662A1 /* FrameDump.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FrameDump.h; path = ../Source/FrameDump.h; sourceTree = "<group>"; };
 		703093AF17BE5AB1009662A1 /* GsPixelFormats.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GsPixelFormats.cpp; path = ../Source/GsPixelFormats.cpp; sourceTree = "<group>"; };
 		703093B017BE5AB1009662A1 /* GsPixelFormats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GsPixelFormats.h; path = ../Source/GsPixelFormats.h; sourceTree = "<group>"; };
+		7031AA5B1AED898800FA7B53 /* FpAddTruncate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FpAddTruncate.cpp; path = ../Source/FpAddTruncate.cpp; sourceTree = "<group>"; };
+		7031AA5C1AED898800FA7B53 /* FpAddTruncate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FpAddTruncate.h; path = ../Source/FpAddTruncate.h; sourceTree = "<group>"; };
 		70320D191A99EAC4001E9C4B /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		70320D1A1A99EAC4001E9C4B /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
 		70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
@@ -720,6 +723,8 @@
 				7E4C15A51519A8FE00357777 /* ELF.h */,
 				7E4C15A61519A8FE00357777 /* ElfFile.cpp */,
 				7E4C15A71519A8FE00357777 /* ElfFile.h */,
+				7031AA5B1AED898800FA7B53 /* FpAddTruncate.cpp */,
+				7031AA5C1AED898800FA7B53 /* FpAddTruncate.h */,
 				7E4C15A81519A8FE00357777 /* FpMulTruncate.cpp */,
 				7E4C15A91519A8FE00357777 /* FpMulTruncate.h */,
 				703093AD17BE5AB1009662A1 /* FrameDump.cpp */,
@@ -1091,6 +1096,7 @@
 				7ECB244E1519AC0A00C4BBF8 /* VuBasicBlock.cpp in Sources */,
 				7ECB244F1519AC0A00C4BBF8 /* VuExecutor.cpp in Sources */,
 				7ECB24501519AC0A00C4BBF8 /* VUShared.cpp in Sources */,
+				7031AA5D1AED898800FA7B53 /* FpAddTruncate.cpp in Sources */,
 				7ECB24511519AC0A00C4BBF8 /* VUShared_Reflection.cpp in Sources */,
 				7E4C15751517CBD400357777 /* main.mm in Sources */,
 				706849DE151E896900C9574F /* ArgumentIterator.cpp in Sources */,
