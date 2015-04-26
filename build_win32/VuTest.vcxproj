@@ -163,6 +163,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\tools\VuTest\TestVm.cpp" />
+    <ClCompile Include="..\tools\VuTest\TriAceTest.cpp" />
     <ClCompile Include="..\tools\VuTest\VuAssembler.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +172,7 @@
     <ClInclude Include="..\tools\VuTest\StdAfx.h" />
     <ClInclude Include="..\tools\VuTest\Test.h" />
     <ClInclude Include="..\tools\VuTest\TestVm.h" />
+    <ClInclude Include="..\tools\VuTest\TriAceTest.h" />
     <ClInclude Include="..\tools\VuTest\VuAssembler.h" />
   </ItemGroup>
   <ItemGroup>

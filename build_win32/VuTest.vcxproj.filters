@@ -28,6 +28,9 @@
     <ClCompile Include="..\tools\VuTest\FlagsTest2.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\VuTest\TriAceTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tools\VuTest\StdAfx.h">
@@ -46,6 +49,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\tools\VuTest\FlagsTest2.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\VuTest\TriAceTest.h">
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>

@@ -22,6 +22,15 @@ void CVuAssembler::Write(uint32 upperOp, uint32 lowerOp)
 //UPPER OPs
 //---------------------------------------------------------------------------------
 
+uint32 CVuAssembler::Upper::ADDi(DEST dest, VF_REGISTER fd, VF_REGISTER fs)
+{
+	uint32 result = 0x00000022;
+	result |= (fd <<  6);
+	result |= (fs << 11);
+	result |= (dest << 21);
+	return result;
+}
+
 uint32 CVuAssembler::Upper::ITOF0(DEST dest, VF_REGISTER ft, VF_REGISTER fs)
 {
 	uint32 result = 0x0000013C;
@@ -48,6 +57,15 @@ uint32 CVuAssembler::Upper::MADDAbc(DEST dest, VF_REGISTER fs, VF_REGISTER ft, B
 	result |= bc;
 	result |= (fs << 11);
 	result |= (ft << 16);
+	result |= (dest << 21);
+	return result;
+}
+
+uint32 CVuAssembler::Upper::MULi(DEST dest, VF_REGISTER fd, VF_REGISTER fs)
+{
+	uint32 result = 0x0000001E;
+	result |= (fd <<  6);
+	result |= (fs << 11);
 	result |= (dest << 21);
 	return result;
 }

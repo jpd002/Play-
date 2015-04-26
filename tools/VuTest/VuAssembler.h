@@ -57,12 +57,15 @@ public:
 	public:
 		enum
 		{
+			I_BIT = 0x80000000,
 			E_BIT = 0x40000000,
 		};
 
+		static uint32		ADDi(DEST, VF_REGISTER, VF_REGISTER);
 		static uint32		ITOF0(DEST, VF_REGISTER, VF_REGISTER);
 		static uint32		MADDbc(DEST, VF_REGISTER, VF_REGISTER, VF_REGISTER, BROADCAST);
 		static uint32		MADDAbc(DEST, VF_REGISTER, VF_REGISTER, BROADCAST);
+		static uint32		MULi(DEST, VF_REGISTER, VF_REGISTER);
 		static uint32		MULAbc(DEST, VF_REGISTER, VF_REGISTER, BROADCAST);
 		static uint32		NOP();
 		static uint32		OPMULA(VF_REGISTER, VF_REGISTER);
