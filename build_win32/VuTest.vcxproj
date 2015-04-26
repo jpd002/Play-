@@ -153,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\tools\VuTest\AddTest.cpp" />
     <ClCompile Include="..\tools\VuTest\FlagsTest.cpp" />
     <ClCompile Include="..\tools\VuTest\Main.cpp" />
     <ClCompile Include="..\tools\VuTest\FlagsTest2.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="..\tools\VuTest\VuAssembler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\tools\VuTest\AddTest.h" />
     <ClInclude Include="..\tools\VuTest\FlagsTest.h" />
     <ClInclude Include="..\tools\VuTest\FlagsTest2.h" />
     <ClInclude Include="..\tools\VuTest\StdAfx.h" />
