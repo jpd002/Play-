@@ -3,7 +3,7 @@
 	package="com.virtualapplications.play"
 	android:versionCode="1"
 	android:versionName="1.0">
-	<uses-sdk android:minSdkVersion="19" />
+	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="22" />
 	<uses-feature android:glEsVersion="0x00030000" android:required="true" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<application 
