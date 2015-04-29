@@ -19,6 +19,8 @@ public:
 	void									Write(int16*, unsigned int, unsigned int);
 
 private:
+	typedef Framework::Win32::CComPtr<IClassFactory> ClassFactoryPtr;
+
 	class VoiceCallback : public IXAudio2VoiceCallback
 	{
 	public:
@@ -60,6 +62,7 @@ private:
 
 	void									OnBufferEnd(void*);
 
+	ClassFactoryPtr							m_classFactory;
 	Framework::Win32::CComPtr<IXAudio2>		m_xaudio2;
 	IXAudio2MasteringVoice*					m_masteringVoice;
 	IXAudio2SourceVoice*					m_sourceVoice;
