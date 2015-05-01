@@ -1128,6 +1128,8 @@ void CMA_EE::PEXCW()
 //00
 void CMA_EE::PMFHL_LW()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
@@ -1144,6 +1146,8 @@ void CMA_EE::PMFHL_LW()
 //01
 void CMA_EE::PMFHL_UW()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
@@ -1160,6 +1164,8 @@ void CMA_EE::PMFHL_UW()
 //03
 void CMA_EE::PMFHL_LH()
 {
+	if(m_nRD == 0) return;
+
 	static const size_t offsets[8] =
 	{
 		offsetof(CMIPS, m_State.nLO[0]),
