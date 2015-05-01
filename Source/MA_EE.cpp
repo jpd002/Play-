@@ -1192,6 +1192,81 @@ void CMA_EE::PMFHL_LH()
 	}
 }
 
+//04
+void CMA_EE::PMFHL_SH()
+{
+	if(m_nRD == 0) return;
+
+	static const auto emitClamp =
+		[] (CMipsJitter* codeGen, size_t offsetToClamp)
+		{
+			codeGen->PushRel(offsetToClamp);
+			codeGen->PushCst(0x7FFF);
+			codeGen->BeginIf(Jitter::CONDITION_GT);
+			{
+				codeGen->PushCst(0x7FFF);
+				codeGen->PullRel(offsetToClamp);
+			}
+			codeGen->EndIf();
+
+			codeGen->PushRel(offsetToClamp);
+			codeGen->PushCst(0xFFFF8000);
+			codeGen->BeginIf(Jitter::CONDITION_LT);
+			{
+				codeGen->PushCst(0x8000);
+				codeGen->PullRel(offsetToClamp);
+			}
+			codeGen->EndIf();
+		};
+
+	static const size_t offsets[8] =
+	{
+		offsetof(CMIPS, m_State.nLO[0]),
+		offsetof(CMIPS, m_State.nLO[1]),
+		offsetof(CMIPS, m_State.nHI[0]),
+		offsetof(CMIPS, m_State.nHI[1]),
+		offsetof(CMIPS, m_State.nLO1[0]),
+		offsetof(CMIPS, m_State.nLO1[1]),
+		offsetof(CMIPS, m_State.nHI1[0]),
+		offsetof(CMIPS, m_State.nHI1[1])
+	};
+
+	static const size_t tempOffset = offsetof(CMIPS, m_State.nCOP2T);
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		size_t dstOffset = offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]);
+
+		//Lo part
+		{
+			m_codeGen->PushRel(offsets[(i * 2) + 0]);
+			m_codeGen->PullRel(tempOffset);
+
+			emitClamp(m_codeGen, tempOffset);
+
+			m_codeGen->PushRel(tempOffset);
+			m_codeGen->PullRel(dstOffset);
+		}
+
+		//Hi part
+		{
+			m_codeGen->PushRel(offsets[(i * 2) + 1]);
+			m_codeGen->PullRel(tempOffset);
+			emitClamp(m_codeGen, tempOffset);
+		}
+
+		//Merge
+		{
+			m_codeGen->PushRel(dstOffset);
+			m_codeGen->PushRel(tempOffset);
+			m_codeGen->Shl(16);
+
+			m_codeGen->Or();
+			m_codeGen->PullRel(dstOffset);
+		}
+	}
+}
+
 //////////////////////////////////////////////////
 //Generic Stuff
 //////////////////////////////////////////////////
@@ -1320,7 +1395,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpPmfhl[0x20] = 
 {
 	//0x00
-	&CMA_EE::PMFHL_LW,		&CMA_EE::PMFHL_UW,		&CMA_EE::Illegal,		&CMA_EE::PMFHL_LH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PMFHL_LW,		&CMA_EE::PMFHL_UW,		&CMA_EE::Illegal,		&CMA_EE::PMFHL_LH,		&CMA_EE::PMFHL_SH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
