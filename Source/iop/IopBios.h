@@ -371,7 +371,7 @@ private:
 
 	uint32							m_moduleLoaderThreadId;
 
-	bool							m_rescheduleNeeded;
+	bool							m_rescheduleNeeded = false;
 	LoadedModuleList				m_loadedModules;
 	ThreadList						m_threads;
 	SemaphoreList					m_semaphores;

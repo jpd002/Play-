@@ -87,7 +87,6 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_padman(nullptr)
 , m_cdvdfsv(nullptr)
 #endif
-, m_rescheduleNeeded(false)
 , m_threadFinishAddress(0)
 , m_returnFromExceptionAddress(0)
 , m_idleFunctionAddress(0)
