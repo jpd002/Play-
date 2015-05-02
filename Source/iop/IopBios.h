@@ -90,9 +90,10 @@ public:
 								CIopBios(CMIPS&, uint8*, uint32);
 	virtual						~CIopBios();
 
-	bool						LoadAndStartModule(const char*, const char*, unsigned int);
-	void						LoadAndStartModule(uint32, const char*, unsigned int);
-	bool						IsModuleLoaded(const char*) const;
+	int32						LoadModule(const char*);
+	int32						LoadModule(uint32);
+	int32						StartModule(uint32, const char*, const char*, unsigned int);
+	int32						SearchModuleByName(const char*) const;
 	void						ProcessModuleReset(const std::string&);
 
 	void						HandleException();
@@ -195,7 +196,7 @@ private:
 		MAX_INTRHANDLER			= 32,
 		MAX_MESSAGEBOX			= 32,
 		MAX_MODULELOADREQUEST	= 32,
-		MAX_LOADEDMODULENAME	= 32,
+		MAX_LOADEDMODULE		= 32,
 	};
 
 	enum WEF_FLAGS
@@ -273,14 +274,17 @@ private:
 		char			args[MAX_ARGS_SIZE];
 	};
 
-	struct LOADEDMODULENAME
+	struct LOADEDMODULE
 	{
 		enum
 		{
 			MAX_NAME_SIZE = 0x100,
 		};
 
+		uint32			isValid;
 		char			name[MAX_NAME_SIZE];
+		uint32			entryPoint;
+		uint32			gp;
 	};
 
 	struct IOPMOD
@@ -305,6 +309,7 @@ private:
 	typedef COsStructManager<EVENTFLAG> EventFlagList;
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
 	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
+	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
 	typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
 	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
@@ -330,7 +335,7 @@ private:
 	uint32&							ModuleLoadRequestHead() const;
 	uint32&							ModuleLoadRequestFree() const;
 
-	void							LoadAndStartModule(CELF&, const char*, const char*, unsigned int);
+	int32							LoadModule(CELF&, const char*);
 	uint32							LoadExecutable(CELF&, ExecutableRange&);
 	unsigned int					GetElfProgramToLoad(CELF&);
 	void							RelocateElf(CELF&, uint32);
@@ -348,7 +353,6 @@ private:
 	void							ProcessModuleLoad();
 	void							FinishModuleLoad();
 	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
-	void							InsertLoadedModuleName(const std::string&);
 
 #ifdef DEBUGGER_INCLUDED
 	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);
@@ -368,12 +372,13 @@ private:
 	uint32							m_moduleLoaderThreadId;
 
 	bool							m_rescheduleNeeded;
+	LoadedModuleList				m_loadedModules;
 	ThreadList						m_threads;
 	SemaphoreList					m_semaphores;
 	EventFlagList					m_eventFlags;
 	IntrHandlerList					m_intrHandlers;
 	MessageBoxList					m_messageBoxes;
-		
+
 	IopModuleMapType				m_modules;
 	DynamicIopModuleListType		m_dynamicModules;
 
