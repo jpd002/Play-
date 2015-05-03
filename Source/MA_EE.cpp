@@ -180,6 +180,8 @@ void CMA_EE::MADDU()
 //04
 void CMA_EE::PLZCW()
 {
+	if(m_nRD == 0) return;
+
 	for(unsigned int i = 0; i < 2; i++)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
@@ -301,6 +303,8 @@ void CMA_EE::PMFHL()
 //34
 void CMA_EE::PSLLH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRT);
 	m_codeGen->MD_SllH(m_nSA);
 	PullVector(m_nRD);
@@ -309,6 +313,8 @@ void CMA_EE::PSLLH()
 //36
 void CMA_EE::PSRLH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRT);
 	m_codeGen->MD_SrlH(m_nSA);
 	PullVector(m_nRD);
@@ -317,6 +323,8 @@ void CMA_EE::PSRLH()
 //37
 void CMA_EE::PSRAH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRT);
 	m_codeGen->MD_SraH(m_nSA);
 	PullVector(m_nRD);
@@ -325,6 +333,8 @@ void CMA_EE::PSRAH()
 //3C
 void CMA_EE::PSLLW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRT);
 	m_codeGen->MD_SllW(m_nSA);
 	PullVector(m_nRD);
@@ -333,6 +343,8 @@ void CMA_EE::PSLLW()
 //3E
 void CMA_EE::PSRLW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRT);
 	m_codeGen->MD_SrlW(m_nSA);
 	PullVector(m_nRD);
@@ -341,6 +353,8 @@ void CMA_EE::PSRLW()
 //3F
 void CMA_EE::PSRAW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRT);
 	m_codeGen->MD_SraW(m_nSA);
 	PullVector(m_nRD);
@@ -353,6 +367,8 @@ void CMA_EE::PSRAW()
 //00
 void CMA_EE::PADDW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddW();
@@ -362,6 +378,8 @@ void CMA_EE::PADDW()
 //01
 void CMA_EE::PSUBW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_SubW();
@@ -371,6 +389,8 @@ void CMA_EE::PSUBW()
 //02
 void CMA_EE::PCGTW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_CmpGtW();
@@ -380,6 +400,8 @@ void CMA_EE::PCGTW()
 //03
 void CMA_EE::PMAXW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_MaxW();
@@ -389,6 +411,8 @@ void CMA_EE::PMAXW()
 //04
 void CMA_EE::PADDH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddH();
@@ -398,6 +422,8 @@ void CMA_EE::PADDH()
 //05
 void CMA_EE::PSUBH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_SubH();
@@ -407,6 +433,8 @@ void CMA_EE::PSUBH()
 //06
 void CMA_EE::PCGTH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_CmpGtH();
@@ -416,6 +444,8 @@ void CMA_EE::PCGTH()
 //07
 void CMA_EE::PMAXH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_MaxH();
@@ -425,6 +455,8 @@ void CMA_EE::PMAXH()
 //08
 void CMA_EE::PADDB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddB();
@@ -434,6 +466,8 @@ void CMA_EE::PADDB()
 //09
 void CMA_EE::PSUBB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_SubB();
@@ -443,6 +477,8 @@ void CMA_EE::PSUBB()
 //10
 void CMA_EE::PADDSW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddWSS();
@@ -452,6 +488,8 @@ void CMA_EE::PADDSW()
 //12
 void CMA_EE::PEXTLW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_UnpackLowerWD();
@@ -461,6 +499,8 @@ void CMA_EE::PEXTLW()
 //13
 void CMA_EE::PPACW()
 {
+	if(m_nRD == 0) return;
+
 	//RS = A
 	//RT = B
 	//RD = A2 A0 B2 B0
@@ -490,6 +530,8 @@ void CMA_EE::PPACW()
 //14
 void CMA_EE::PADDSH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddHSS();
@@ -499,6 +541,8 @@ void CMA_EE::PADDSH()
 //15
 void CMA_EE::PSUBSH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_SubHSS();
@@ -508,6 +552,8 @@ void CMA_EE::PSUBSH()
 //16
 void CMA_EE::PEXTLH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_UnpackLowerHW();
@@ -517,6 +563,8 @@ void CMA_EE::PEXTLH()
 //17
 void CMA_EE::PPACH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_PackWH();
@@ -526,6 +574,8 @@ void CMA_EE::PPACH()
 //1A
 void CMA_EE::PEXTLB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_UnpackLowerBH();
@@ -535,6 +585,8 @@ void CMA_EE::PEXTLB()
 //1B
 void CMA_EE::PPACB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_PackHB();
@@ -544,6 +596,8 @@ void CMA_EE::PPACB()
 //1E
 void CMA_EE::PEXT5()
 {
+	if(m_nRD == 0) return;
+
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
@@ -580,6 +634,8 @@ void CMA_EE::PEXT5()
 //02
 void CMA_EE::PCEQW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_CmpEqW();
@@ -589,6 +645,8 @@ void CMA_EE::PCEQW()
 //03
 void CMA_EE::PMINW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_MinW();
@@ -598,6 +656,8 @@ void CMA_EE::PMINW()
 //06
 void CMA_EE::PCEQH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_CmpEqH();
@@ -607,6 +667,8 @@ void CMA_EE::PCEQH()
 //07
 void CMA_EE::PMINH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_MinH();
@@ -616,6 +678,8 @@ void CMA_EE::PMINH()
 //0A
 void CMA_EE::PCEQB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_CmpEqB();
@@ -625,6 +689,8 @@ void CMA_EE::PCEQB()
 //10
 void CMA_EE::PADDUW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddWUS();
@@ -634,6 +700,8 @@ void CMA_EE::PADDUW()
 //12
 void CMA_EE::PEXTUW()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_UnpackUpperWD();
@@ -643,6 +711,8 @@ void CMA_EE::PEXTUW()
 //15
 void CMA_EE::PSUBUH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_SubHUS();
@@ -652,6 +722,8 @@ void CMA_EE::PSUBUH()
 //16
 void CMA_EE::PEXTUH()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_UnpackUpperHW();
@@ -661,6 +733,8 @@ void CMA_EE::PEXTUH()
 //18
 void CMA_EE::PADDUB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_AddBUS();
@@ -670,6 +744,8 @@ void CMA_EE::PADDUB()
 //19
 void CMA_EE::PSUBUB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_SubBUS();
@@ -679,6 +755,8 @@ void CMA_EE::PSUBUB()
 //1A
 void CMA_EE::PEXTUB()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_UnpackUpperBH();
@@ -802,6 +880,8 @@ void CMA_EE::PDIVW()
 //0E
 void CMA_EE::PCPYLD()
 {
+	if(m_nRD == 0) return;
+
 	//A0
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
@@ -820,6 +900,8 @@ void CMA_EE::PCPYLD()
 //12
 void CMA_EE::PAND()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_And();
@@ -829,6 +911,8 @@ void CMA_EE::PAND()
 //13
 void CMA_EE::PXOR()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_Xor();
@@ -914,6 +998,8 @@ void CMA_EE::PMULTH()
 //1E
 void CMA_EE::PEXEW()
 {
+	if(m_nRD == 0) return;
+
 	size_t offset[4];
 
 	if(m_nRT == m_nRD)
@@ -944,6 +1030,8 @@ void CMA_EE::PEXEW()
 //1F
 void CMA_EE::PROT3W()
 {
+	if(m_nRD == 0) return;
+
 	size_t offset[4];
 
 	if(m_nRT == m_nRD)
@@ -988,6 +1076,8 @@ void CMA_EE::PMTHI()
 //0A
 void CMA_EE::PINTEH()
 {
+	if(m_nRD == 0) return;
+
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
@@ -1007,6 +1097,8 @@ void CMA_EE::PINTEH()
 //0E
 void CMA_EE::PCPYUD()
 {
+	if(m_nRD == 0) return;
+
 	//A
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
@@ -1025,6 +1117,8 @@ void CMA_EE::PCPYUD()
 //12
 void CMA_EE::POR()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_Or();
@@ -1034,6 +1128,8 @@ void CMA_EE::POR()
 //13
 void CMA_EE::PNOR()
 {
+	if(m_nRD == 0) return;
+
 	PushVector(m_nRS);
 	PushVector(m_nRT);
 	m_codeGen->MD_Or();
@@ -1044,6 +1140,8 @@ void CMA_EE::PNOR()
 //1A
 void CMA_EE::PEXCH()
 {
+	if(m_nRD == 0) return;
+
 	for(unsigned int i = 0; i < 4; i += 2)
 	{
 		//Compute first value
@@ -1076,6 +1174,8 @@ void CMA_EE::PEXCH()
 //1B
 void CMA_EE::PCPYH()
 {
+	if(m_nRD == 0) return;
+
 	for(unsigned int i = 0; i < 4; i += 2)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
@@ -1094,6 +1194,8 @@ void CMA_EE::PCPYH()
 //1E
 void CMA_EE::PEXCW()
 {
+	if(m_nRD == 0) return;
+
 	size_t offset[4];
 
 	if(m_nRT == m_nRD)
