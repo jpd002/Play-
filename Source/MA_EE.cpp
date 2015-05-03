@@ -853,31 +853,7 @@ void CMA_EE::PDIVW()
 {
 	for(unsigned int i = 0; i < 2; i++)
 	{
-		unsigned int regOffset = i * 2;
-
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
-		m_codeGen->DivS();
-
-		m_codeGen->PushTop();
-
-		//Quotient
-		m_codeGen->ExtLow64();
-		{
-			m_codeGen->PushTop();
-			m_codeGen->SignExt();
-			m_codeGen->PullRel(GetLoOffset(regOffset + 1));
-		}
-		m_codeGen->PullRel(GetLoOffset(regOffset + 0));
-
-		//Remainder
-		m_codeGen->ExtHigh64();
-		{
-			m_codeGen->PushTop();
-			m_codeGen->SignExt();
-			m_codeGen->PullRel(GetHiOffset(regOffset + 1));
-		}
-		m_codeGen->PullRel(GetHiOffset(regOffset + 0));
+		Template_Div32(true, i, i * 2);
 	}
 }
 

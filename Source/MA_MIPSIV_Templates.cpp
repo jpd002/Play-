@@ -172,7 +172,7 @@ void CMA_MIPSIV::Template_Mult32(bool isSigned, unsigned int unit)
 	}
 }
 
-void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit)
+void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit, unsigned int regOffset)
 {
 	auto function = isSigned ? &CMipsJitter::DivS : &CMipsJitter::Div;
 
@@ -199,14 +199,14 @@ void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit)
 	}
 
 	//Check for zero
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		m_codeGen->PushCst(~0);
 		m_codeGen->PullRel(lo[0]);
 
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
 		m_codeGen->PullRel(hi[0]);
 	}
 	m_codeGen->Else();
@@ -214,11 +214,11 @@ void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit)
 		if(isSigned)
 		{
 			//Check for overflow condition (0x80000000 / 0xFFFFFFFF)
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
 			m_codeGen->PushCst(0x80000000);
 			m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
 			m_codeGen->PushCst(0xFFFFFFFF);
 			m_codeGen->Cmp(Jitter::CONDITION_EQ);
 
@@ -243,8 +243,8 @@ void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit)
 		m_codeGen->Else();
 		{
 			//No overflow, carry on
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
 			((m_codeGen)->*(function))();
 
 			m_codeGen->PushTop();
