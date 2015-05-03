@@ -28,13 +28,6 @@
 		<Patch Address="0x0028823C" Value="0x3C02FFFF" Description="sceMpegGetPicture returns -1" />
 	</Executable>
 	
-	<Executable Name="SLUS_200.79;1" Title="Dynasty Warriors 2" Region="US">
-		<Patch Address="0x00313D78" Value="0x03E00008" Description="sceMpegGetPicture returns -1" />
-		<Patch Address="0x00313D7C" Value="0x3C02FFFF" Description="sceMpegGetPicture returns -1" />
-		<Patch Address="0x00313E90" Value="0x03E00008" Description="sceMpegIsEnd returns 1" />
-		<Patch Address="0x00313E94" Value="0x3C020001" Description="sceMpegIsEnd returns 1" />
-	</Executable>
-	
 	<Executable Name="SLUS_218.42;1" Title="Dragonball Z: Infinite World" Region="US">
 		<Patch Address="0x002B0888" Value="0x00000000" Description="Skip opening movie" />
 	</Executable>
