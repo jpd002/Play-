@@ -780,6 +780,8 @@ void CMA_EE::QFSRV()
 //08
 void CMA_EE::PMFHI()
 {
+	if(m_nRD == 0) return;
+
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(GetHiOffset(i));
@@ -790,6 +792,8 @@ void CMA_EE::PMFHI()
 //09
 void CMA_EE::PMFLO()
 {
+	if(m_nRD == 0) return;
+
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(GetLoOffset(i));
