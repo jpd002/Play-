@@ -382,6 +382,16 @@ void CIopBios::RequestModuleLoad(uint32 moduleEntryPoint, uint32 gp, const char*
 
 void CIopBios::ProcessModuleLoad()
 {
+	static const auto pushToStack =
+		[] (uint8* dst, uint32& stackAddress, const uint8* src, uint32 size)
+		{
+			uint32 fixedSize = ((size + 0x3) & ~0x3);
+			uint32 copyAddress = stackAddress - size;
+			stackAddress -= fixedSize;
+			memcpy(dst + copyAddress, src, size);
+			return copyAddress;
+		};
+
 	assert(GetCurrentThreadId() == m_moduleLoaderThreadId);
 
 	uint32 requestPtr = ModuleLoadRequestHead();
@@ -420,34 +430,33 @@ void CIopBios::ProcessModuleLoad()
 		typedef std::vector<uint32> ParamListType;
 		ParamListType paramList;
 
-		paramList.push_back(Push(
+		paramList.push_back(pushToStack(
+			m_ram,
 			m_cpu.m_State.nGPR[CMIPS::SP].nV0,
 			reinterpret_cast<const uint8*>(path),
 			static_cast<uint32>(strlen(path)) + 1));
 		if(argsLength != 0)
 		{
+			uint32 stackArgsBase = pushToStack(
+				m_ram,
+				m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+				reinterpret_cast<const uint8*>(args), 
+				argsLength);
 			unsigned int argsPos = 0;
 			while(argsPos < argsLength)
 			{
-				const char* arg = args + argsPos;
+				uint32 argAddress = stackArgsBase + argsPos;
+				const char* arg = reinterpret_cast<const char*>(m_ram) + argAddress;
 				unsigned int argLength = static_cast<unsigned int>(strlen(arg)) + 1;
-				if(argLength == 1) 
-				{
-					break;
-				}
 				argsPos += argLength;
-				uint32 argAddress = Push(
-					m_cpu.m_State.nGPR[CMIPS::SP].nV0,
-					reinterpret_cast<const uint8*>(arg),
-					static_cast<uint32>(argLength));
 				paramList.push_back(argAddress);
 			}
 		}
 		m_cpu.m_State.nGPR[CMIPS::A0].nV0 = static_cast<uint32>(paramList.size());
-		for(ParamListType::reverse_iterator param(paramList.rbegin());
-			paramList.rend() != param; param++)
+		for(auto param = paramList.rbegin(); paramList.rend() != param; param++)
 		{
-			m_cpu.m_State.nGPR[CMIPS::A1].nV0 = Push(
+			m_cpu.m_State.nGPR[CMIPS::A1].nV0 = pushToStack(
+				m_ram,
 				m_cpu.m_State.nGPR[CMIPS::SP].nV0,
 				reinterpret_cast<const uint8*>(&(*param)),
 				4);
@@ -1956,14 +1965,6 @@ void CIopBios::RegisterDynamicModule(Iop::CDynamic* dynamicModule)
 {
 	m_dynamicModules.push_back(dynamicModule);
 	RegisterModule(dynamicModule);
-}
-
-uint32 CIopBios::Push(uint32& address, const uint8* data, uint32 size)
-{
-	uint32 fixedSize = ((size + 0x3) / 0x4) * 0x4;
-	address -= fixedSize;
-	memcpy(&m_ram[address], data, size);
-	return address;
 }
 
 uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)

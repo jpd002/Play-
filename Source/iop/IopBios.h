@@ -341,7 +341,6 @@ private:
 	void							RelocateElf(CELF&, uint32);
 	std::string						ReadModuleName(uint32);
 	void							DeleteModules();
-	uint32							Push(uint32&, const uint8*, uint32);
 
 	uint32							AssembleThreadFinish(CMIPSAssembler&);
 	uint32							AssembleReturnFromException(CMIPSAssembler&);
