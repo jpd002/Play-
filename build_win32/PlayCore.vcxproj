@@ -50,9 +50,6 @@
     <ClCompile Include="..\Source\GsCachedArea.cpp" />
     <ClCompile Include="..\Source\GSHandler.cpp" />
     <ClCompile Include="..\Source\GSH_Null.cpp" />
-    <ClCompile Include="..\Source\GSH_OpenGL.cpp" />
-    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp" />
-    <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp" />
     <ClCompile Include="..\Source\GsPixelFormats.cpp" />
     <ClCompile Include="..\Source\INTC.cpp" />
     <ClCompile Include="..\Source\iop\ArgumentIterator.cpp" />
@@ -197,7 +194,6 @@
     <ClInclude Include="..\Source\GsCachedArea.h" />
     <ClInclude Include="..\Source\GSHandler.h" />
     <ClInclude Include="..\Source\GSH_Null.h" />
-    <ClInclude Include="..\Source\GSH_OpenGL.h" />
     <ClInclude Include="..\Source\GsPixelFormats.h" />
     <ClInclude Include="..\Source\INTC.h" />
     <ClInclude Include="..\Source\Integer64.h" />
@@ -522,7 +518,6 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets" Condition="Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" />
     <Import Project="..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" />
-    <Import Project="..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets" Condition="Exists('..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -530,6 +525,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.1.2.8.7\build\native\zlib.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets'))" />
-    <Error Condition="!Exists('..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\rxd_glew.1.10.0.1\build\native\rxd_glew.targets'))" />
   </Target>
 </Project>

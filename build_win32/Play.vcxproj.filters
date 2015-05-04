@@ -17,6 +17,12 @@
     <Filter Include="Source Files\PH_DirectInput">
       <UniqueIdentifier>{544f28b1-06e8-479f-b715-21ab8e8e19ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GSH_OpenGL">
+      <UniqueIdentifier>{268c5359-c292-4854-b1c3-3c869d1c1cbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GSH_Direct3D9">
+      <UniqueIdentifier>{d88718a1-4063-436d-b08b-da90d6ee383b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\win32ui\IconMesh.cpp">
@@ -184,15 +190,6 @@
     <ClCompile Include="..\Source\win32ui\DirectXControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32ui\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -225,6 +222,24 @@
     </ClCompile>
     <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\GSH_OpenGL.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp">
+      <Filter>Source Files\GSH_Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp">
+      <Filter>Source Files\GSH_Direct3D9</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -381,9 +396,6 @@
     <ClInclude Include="..\Source\win32ui\FrameDebugger\GifPacketView.h">
       <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\VuExecutor.h">
-      <Filter>Source Files\Core\Ee</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h">
       <Filter>Source Files\Debugger</Filter>
     </ClInclude>
@@ -403,12 +415,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\FileFilters.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\MainWindow.h">
@@ -446,6 +452,15 @@
     </ClInclude>
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\GSH_OpenGL.h">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h">
+      <Filter>Source Files\GSH_Direct3D9</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

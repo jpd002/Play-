@@ -178,15 +178,6 @@
     <ClCompile Include="..\Source\GSH_Null.cpp">
       <Filter>Source Files\Ee</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\GSHandler.cpp">
       <Filter>Source Files\Ee</Filter>
     </ClCompile>
@@ -604,9 +595,6 @@
       <Filter>Source Files\Ee</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\GSH_Null.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GSH_OpenGL.h">
       <Filter>Source Files\Ee</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\GSHandler.h">
