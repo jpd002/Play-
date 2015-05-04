@@ -63,7 +63,6 @@
 
 #define BIOS_ID_BASE					1
 
-#define CONFIGPATH			"./config/"
 #define PATCHESFILENAME		"patches.xml"
 #define LOG_NAME			("ps2os")
 
