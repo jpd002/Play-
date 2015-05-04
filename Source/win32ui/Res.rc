@@ -100,8 +100,6 @@ BEGIN
     POPUP "&Virtual Machine"
     BEGIN
         MENUITEM "Resume\tF5",                  ID_VM_RESUME
-        MENUITEM "&Save State\tF7",             ID_VM_SAVESTATE
-        MENUITEM "Load State\tF8",              ID_VM_LOADSTATE
         MENUITEM "Step CPU\tF10",               ID_VM_STEP
         MENUITEM "Dump INTC Handlers",          ID_VM_DUMPINTCHANDLERS
         MENUITEM "Dump DMAC Handlers",          ID_VM_DUMPDMACHANDLERS

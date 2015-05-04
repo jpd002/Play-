@@ -27,8 +27,6 @@
 #define ID_VIRTUALMACHINE_LOADSTATE     40024
 #define ID_VIRTUALMACHINE_RESUME        40026
 #define ID_VM_RESUME                    40027
-#define ID_VM_SAVESTATE                 40028
-#define ID_VM_LOADSTATE                 40029
 #define ID_VM_STEP                      40030
 #define ID_VIEW_MEMORY                  40033
 #define ID_FILE_LOADELF                 40035

@@ -572,8 +572,6 @@ CCallStackWnd* CDebugger::GetCallStackWindow()
 void CDebugger::CreateAccelerators()
 {
 	Framework::Win32::CAcceleratorTableGenerator generator;
-	generator.Insert(ID_VM_SAVESTATE,			VK_F7,	FVIRTKEY);
-	generator.Insert(ID_VM_LOADSTATE,			VK_F8,	FVIRTKEY);
 	generator.Insert(ID_VIEW_FUNCTIONS,			'F',	FCONTROL | FVIRTKEY);
 	generator.Insert(ID_VIEW_THREADS,			'T',	FCONTROL | FVIRTKEY);
 	generator.Insert(ID_VM_STEP,				VK_F10,	FVIRTKEY);
@@ -600,12 +598,6 @@ long CDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 		break;
 	case ID_VM_RESUME:
 		Resume();
-		break;
-	case ID_VM_SAVESTATE:
-		m_virtualMachine.SaveState("./config/state.sta");
-		break;
-	case ID_VM_LOADSTATE:
-		m_virtualMachine.LoadState("./config/state.sta");
 		break;
 	case ID_VM_DUMPINTCHANDLERS:
 		m_virtualMachine.DumpEEIntcHandlers();
