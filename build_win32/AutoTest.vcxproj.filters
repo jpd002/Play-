@@ -13,9 +13,18 @@
     <ClCompile Include="..\tools\AutoTest\StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\AutoTest\JUnitTestReportWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tools\AutoTest\StdAfx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\AutoTest\TestReportWriter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\AutoTest\JUnitTestReportWriter.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
