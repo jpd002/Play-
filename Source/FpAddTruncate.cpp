@@ -3,10 +3,8 @@
 
 #include <limits.h>
 #include <boost/cstdint.hpp>
-#ifdef _WIN32
-#include <Windows.h>
-#endif
 #include "FpAddTruncate.h"
+#include "BitManip.h"
 
 typedef uint32 rep_t;
 typedef int32 srep_t;
@@ -30,13 +28,7 @@ typedef float fp_t;
 #define qnanRep         (exponentMask | quietBit)
 
 static inline int rep_clz(rep_t a) {
-#ifdef _WIN32
-   DWORD r = 0;
-   _BitScanReverse(&r, a);
-   return (31 - r);
-#else
 	return __builtin_clz(a);
-#endif
 }
 
 uint32 FpAddTruncate(uint32 a, uint32 b) 
