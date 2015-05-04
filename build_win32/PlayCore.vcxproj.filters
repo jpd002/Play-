@@ -133,9 +133,6 @@
     <ClCompile Include="..\Source\StructFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -433,6 +430,9 @@
     <ClCompile Include="..\Source\FpAddTruncate.cpp">
       <Filter>Source Files\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Timer.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -547,9 +547,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\StructFile.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Timer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\uint128.h">
@@ -850,6 +847,9 @@
       <Filter>Source Files\Saves</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\FpAddTruncate.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Timer.h">
       <Filter>Source Files\Ee</Filter>
     </ClInclude>
   </ItemGroup>
