@@ -38,10 +38,6 @@
 
 #define LOG_NAME		("ps2vm")
 
-#ifdef DEBUGGER_INCLUDED
-#define TAGS_PATH		("./tags/")
-#endif
-
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT		("vfs/host")
 #define PREF_PS2_MC0_DIRECTORY_DEFAULT		("vfs/mc0")
 #define PREF_PS2_MC1_DIRECTORY_DEFAULT		("vfs/mc1")
@@ -289,14 +285,14 @@ void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
 #define TAGS_SECTION_IOP_FUNCTIONS	("functions")
 #define TAGS_SECTION_IOP_COMMENTS	("comments")
 
+#define TAGS_PATH		("tags/")
+
 std::string CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
 {
-	filesystem::path tagsPath(TAGS_PATH);
-	if(!filesystem::exists(tagsPath))
-	{
-		filesystem::create_directory(tagsPath);
-	}
-	return std::string(TAGS_PATH) + std::string(packageName) + std::string(".tags.xml");
+	auto tagsPath = CAppConfig::GetBasePath() / boost::filesystem::path(TAGS_PATH);
+	Framework::PathUtils::EnsurePathExists(tagsPath);
+	auto tagsPackagePath = tagsPath / (std::string(packageName) + std::string(".tags.xml"));
+	return tagsPackagePath.string();
 }
 
 void CPS2VM::LoadDebugTags(const char* packageName)
