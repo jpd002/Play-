@@ -474,6 +474,17 @@ void CMA_EE::PSUBB()
 	PullVector(m_nRD);
 }
 
+//0A
+void CMA_EE::PCGTB()
+{
+	if(m_nRD == 0) return;
+
+	PushVector(m_nRS);
+	PushVector(m_nRT);
+	m_codeGen->MD_CmpGtB();
+	PullVector(m_nRD);
+}
+
 //10
 void CMA_EE::PADDSW()
 {
@@ -1431,7 +1442,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
 	//0x00
 	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::PCGTW,			&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::PSUBH,			&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
 	//0x08
-	&CMA_EE::PADDB,			&CMA_EE::PSUBB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PADDB,			&CMA_EE::PSUBB,			&CMA_EE::PCGTB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::PADDSW,		&CMA_EE::Illegal,		&CMA_EE::PEXTLW,		&CMA_EE::PPACW,			&CMA_EE::PADDSH,		&CMA_EE::PSUBSH,		&CMA_EE::PEXTLH,		&CMA_EE::PPACH,
 	//0x18

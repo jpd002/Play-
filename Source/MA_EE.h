@@ -88,6 +88,7 @@ private:
 	void								PMAXH();
 	void								PADDB();
 	void								PSUBB();
+	void								PCGTB();
 	void								PADDSW();
 	void								PEXTLW();
 	void								PPACW();
