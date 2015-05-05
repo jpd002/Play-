@@ -3,8 +3,7 @@
 #include "xml/Writer.h"
 #include "string_format.h"
 
-CJUnitTestReportWriter::CJUnitTestReportWriter(const boost::filesystem::path& reportPath)
-: m_reportPath(reportPath)
+CJUnitTestReportWriter::CJUnitTestReportWriter()
 {
 	m_reportNode = std::make_unique<Framework::Xml::CNode>("", true);
 	auto testSuitesNode = new Framework::Xml::CNode("testsuites", true);
@@ -16,9 +15,7 @@ CJUnitTestReportWriter::CJUnitTestReportWriter(const boost::filesystem::path& re
 
 CJUnitTestReportWriter::~CJUnitTestReportWriter()
 {
-	m_testSuiteNode->InsertAttribute("tests", string_format("%d", m_testCount).c_str());
-	auto testOutputFileStream = Framework::CreateOutputStdStream(m_reportPath.native());
-	Framework::Xml::CWriter::WriteDocument(testOutputFileStream, m_reportNode.get());
+
 }
 
 void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, bool succeeded)
@@ -35,4 +32,11 @@ void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, bool s
 	m_testSuiteNode->InsertNode(testCaseNode);
 
 	m_testCount++;
+}
+
+void CJUnitTestReportWriter::Write(const boost::filesystem::path& reportPath)
+{
+	m_testSuiteNode->InsertAttribute("tests", string_format("%d", m_testCount).c_str());
+	auto testOutputFileStream = Framework::CreateOutputStdStream(reportPath.native());
+	Framework::Xml::CWriter::WriteDocument(testOutputFileStream, m_reportNode.get());
 }

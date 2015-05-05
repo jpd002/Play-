@@ -7,16 +7,16 @@
 class CJUnitTestReportWriter : public CTestReportWriter
 {
 public:
-								CJUnitTestReportWriter(const boost::filesystem::path&);
+								CJUnitTestReportWriter();
 	virtual						~CJUnitTestReportWriter();
 
 	void						ReportTestEntry(const std::string&, bool) override;
+	void						Write(const boost::filesystem::path&) override;
 
 private:
 	typedef std::unique_ptr<Framework::Xml::CNode> NodePtr;
 
 	NodePtr						m_reportNode;
 	Framework::Xml::CNode*		m_testSuiteNode = nullptr;
-	boost::filesystem::path		m_reportPath;
 	unsigned int				m_testCount = 0;
 };
