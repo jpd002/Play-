@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MIPS.h"
-#include "MA_EE.h"
+#include "ee/MA_EE.h"
 #include "MipsExecutor.h"
 
 class CTestVm

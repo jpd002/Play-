@@ -3,6 +3,7 @@
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "Utils.h"
+#include "JUnitTestReportWriter.h"
 
 std::vector<std::string> ReadLines(Framework::CStream& inputStream)
 {
@@ -75,7 +76,7 @@ void ExecuteTest(const boost::filesystem::path& testFilePath)
 	virtualMachine.Destroy();
 }
 
-void ScanAndExecuteTests(const boost::filesystem::path& testDirPath)
+void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestReportWriterPtr& testReportWriter)
 {
 	boost::filesystem::directory_iterator endIterator;
 	for(auto testPathIterator = boost::filesystem::directory_iterator(testDirPath);
@@ -84,7 +85,7 @@ void ScanAndExecuteTests(const boost::filesystem::path& testDirPath)
 		auto testPath = testPathIterator->path();
 		if(boost::filesystem::is_directory(testPath))
 		{
-			ScanAndExecuteTests(testPath);
+			ScanAndExecuteTests(testPath, testReportWriter);
 			continue;
 		}
 		if(testPath.extension() == ".elf")
@@ -93,6 +94,10 @@ void ScanAndExecuteTests(const boost::filesystem::path& testDirPath)
 			ExecuteTest(testPath);
 			bool succeeded = CompareResults(testPath);
 			printf("%s.\r\n", succeeded ? "SUCCEEDED" : "FAILED");
+			if(testReportWriter)
+			{
+				testReportWriter->ReportTestEntry(testPath.string(), succeeded);
+			}
 		}
 	}
 }
@@ -101,10 +106,56 @@ int main(int argc, const char** argv)
 {
 	if(argc < 2)
 	{
-		printf("Usage: AutoTest [test directory]\r\n");
+		printf("Usage: AutoTest [options] testDir\r\n");
+		printf("Options: \r\n");
+		printf("\t --junitreport <path>\t Writes JUnit format report at <path>.\r\n");
 		return -1;
 	}
-	boost::filesystem::path autoTestRoot = argv[1];
-	ScanAndExecuteTests(autoTestRoot);
+
+	TestReportWriterPtr testReportWriter;
+	boost::filesystem::path autoTestRoot;
+	boost::filesystem::path reportPath;
+
+	for(int i = 1; i < argc; i++)
+	{
+		if(!strcmp(argv[i], "--junitreport"))
+		{
+			if((i + 1) >= argc)
+			{
+				printf("Error: Path must be specified for --junitreport option.\r\n");
+				return -1;
+			}
+			testReportWriter = std::make_shared<CJUnitTestReportWriter>();
+			reportPath = boost::filesystem::path(argv[i + 1]);
+			i++;
+		}
+		else
+		{
+			autoTestRoot = argv[i];
+			break;
+		}
+	}
+
+	if(autoTestRoot.empty())
+	{
+		printf("Error: No test directory specified.\r\n");
+		return -1;
+	}
+
+	ScanAndExecuteTests(autoTestRoot, testReportWriter);
+
+	if(testReportWriter)
+	{
+		try
+		{
+			testReportWriter->Write(reportPath);
+		}
+		catch(const std::exception& exception)
+		{
+			printf("Error: Failed to write test report: %s\r\n", exception.what());
+			return -1;
+		}
+	}
+
 	return 0;
 }

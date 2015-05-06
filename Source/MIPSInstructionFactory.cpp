@@ -105,5 +105,7 @@ void CMIPSInstructionFactory::BranchLikely(Jitter::CONDITION condition)
 
 void CMIPSInstructionFactory::Illegal()
 {
+#ifdef _DEBUG
 	throw std::runtime_error("Illegal instruction.");
+#endif
 }

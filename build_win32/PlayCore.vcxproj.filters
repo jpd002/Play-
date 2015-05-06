@@ -23,6 +23,9 @@
     <Filter Include="Source Files\Saves">
       <UniqueIdentifier>{c2347279-b3d0-4997-9f81-96260d139d65}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Gs">
+      <UniqueIdentifier>{e10d1100-13e4-41a0-84f8-5a9d03f07162}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AppConfig.cpp">
@@ -133,9 +136,6 @@
     <ClCompile Include="..\Source\StructFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -147,126 +147,6 @@
     </ClCompile>
     <ClCompile Include="..\Source\IszImageStream.cpp">
       <Filter>Source Files\DiskStreams</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_VU.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\COP_VU_Reflection.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\DMAC.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Dmac_Channel.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Ee_SubSystem.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\EEAssembler.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\FpMulTruncate.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GIF.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GsCachedArea.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_Null.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSHandler.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GsPixelFormats.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\INTC.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_DmVectorTable.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockAddressIncrementTable.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockTypeBTable.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockTypeITable.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MacroblockTypePTable.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU_MotionCodeTable.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\IPU.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_EE.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_EE_Reflection.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\PS2OS.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Lower.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_LowerReflection.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_Upper.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MA_VU_UpperReflection.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\SIF.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuAnalysis.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuBasicBlock.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VuExecutor.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VUShared.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VUShared_Reflection.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VPU1.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VPU.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VIF.cpp">
-      <Filter>Source Files\Ee</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\iop\ArgumentIterator.cpp">
       <Filter>Source Files\Iop</Filter>
@@ -412,7 +292,7 @@
     <ClCompile Include="..\Source\ISO9660\VolumeDescriptor.cpp">
       <Filter>Source Files\Iso9660</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\StdAfx.cpp">
+    <ClCompile Include="..\Source\ui_win32\StdAfx.cpp">
       <Filter>Source Files\Precompiled Header</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\saves\Icon.cpp">
@@ -439,8 +319,122 @@
     <ClCompile Include="..\Source\saves\XpsSaveImporter.cpp">
       <Filter>Source Files\Saves</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\FpAddTruncate.cpp">
+    <ClCompile Include="..\Source\ee\COP_VU.cpp">
       <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\COP_VU_Reflection.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\DMAC.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\Dmac_Channel.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\Ee_SubSystem.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\EEAssembler.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\FpAddTruncate.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\FpMulTruncate.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\GIF.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\INTC.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\IPU.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\IPU_DmVectorTable.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\IPU_MacroblockAddressIncrementTable.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\IPU_MacroblockTypeBTable.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\IPU_MacroblockTypeITable.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\IPU_MacroblockTypePTable.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\IPU_MotionCodeTable.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\MA_EE.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\MA_EE_Reflection.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\MA_VU.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\MA_VU_Lower.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\MA_VU_LowerReflection.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\MA_VU_Upper.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\MA_VU_UpperReflection.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\PS2OS.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\SIF.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\Timer.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VIF.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VPU.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VPU1.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VuAnalysis.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VuBasicBlock.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VuExecutor.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VUShared.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\VUShared_Reflection.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\gs\GsCachedArea.cpp">
+      <Filter>Source Files\Gs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\gs\GSH_Null.cpp">
+      <Filter>Source Files\Gs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\gs\GSHandler.cpp">
+      <Filter>Source Files\Gs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\gs\GsPixelFormats.cpp">
+      <Filter>Source Files\Gs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -558,9 +552,6 @@
     <ClInclude Include="..\Source\StructFile.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Timer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\uint128.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -578,108 +569,6 @@
     </ClInclude>
     <ClInclude Include="..\Source\IszImageStream.h">
       <Filter>Source Files\DiskStreams</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\COP_VU.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\DMAC.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Dmac_Channel.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Ee_SubSystem.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\EEAssembler.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FpMulTruncate.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GIF.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GsCachedArea.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GSH_Null.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GSH_OpenGL.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GSHandler.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GsPixelFormats.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\INTC.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_DmVectorTable.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockAddressIncrementTable.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockTypeBTable.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockTypeITable.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MacroblockTypePTable.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\IPU_MotionCodeTable.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MA_EE.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\PS2OS.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\MA_VU.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\SIF.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\SifDefs.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\SifModule.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\SifModuleAdapter.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuAnalysis.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuBasicBlock.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VuExecutor.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VUShared.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VPU1.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VPU.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VIF.h">
-      <Filter>Source Files\Ee</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\ArgumentIterator.h">
       <Filter>Source Files\Iop</Filter>
@@ -834,7 +723,7 @@
     <ClInclude Include="..\Source\ISO9660\VolumeDescriptor.h">
       <Filter>Source Files\Iso9660</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32ui\StdAfx.h">
+    <ClInclude Include="..\Source\ui_win32\StdAfx.h">
       <Filter>Source Files\Precompiled Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\saves\Icon.h">
@@ -861,8 +750,101 @@
     <ClInclude Include="..\Source\saves\XpsSaveImporter.h">
       <Filter>Source Files\Saves</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\FpAddTruncate.h">
+    <ClInclude Include="..\Source\ee\COP_VU.h">
       <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\DMAC.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\Dmac_Channel.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\Ee_SubSystem.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\EEAssembler.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\FpAddTruncate.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\FpMulTruncate.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\GIF.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\INTC.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\IPU.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\IPU_DmVectorTable.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\IPU_MacroblockAddressIncrementTable.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\IPU_MacroblockTypeBTable.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\IPU_MacroblockTypeITable.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\IPU_MacroblockTypePTable.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\IPU_MotionCodeTable.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\MA_EE.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\MA_VU.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\PS2OS.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\SIF.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\Timer.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\VIF.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\VPU.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\VPU1.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\VuAnalysis.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\VuBasicBlock.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\VuExecutor.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\VUShared.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\gs\GsCachedArea.h">
+      <Filter>Source Files\Gs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\gs\GSH_Null.h">
+      <Filter>Source Files\Gs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\gs\GSHandler.h">
+      <Filter>Source Files\Gs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\gs\GsPixelFormats.h">
+      <Filter>Source Files\Gs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

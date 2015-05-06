@@ -8,7 +8,7 @@
 #include "PadHandler.h"
 #include "iso9660/ISO9660.h"
 #include "VirtualMachine.h"
-#include "Ee_SubSystem.h"
+#include "ee/Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
 #include "iop/IopBios.h"
 #include "../tools/PsfPlayer/Source/SoundHandler.h"

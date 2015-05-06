@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Types.h"
-#include "GSHandler.h"
+#include "gs/GSHandler.h"
 #include "Stream.h"
 #include "Ps2Const.h"
 #include "MIPS.h"

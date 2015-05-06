@@ -387,6 +387,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	{
 		//DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
 		blockAmount = std::min<uint32>(blockAmount, 0x10);
+		return blockAmount;
 	}
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)

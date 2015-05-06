@@ -153,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\tools\AutoTest\JUnitTestReportWriter.cpp" />
     <ClCompile Include="..\tools\AutoTest\Main.cpp" />
     <ClCompile Include="..\tools\AutoTest\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -162,7 +163,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\tools\AutoTest\JUnitTestReportWriter.h" />
     <ClInclude Include="..\tools\AutoTest\StdAfx.h" />
+    <ClInclude Include="..\tools\AutoTest\TestReportWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

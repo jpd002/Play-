@@ -74,8 +74,11 @@ namespace Iop
 		{
 			CONTROL_REVERB		= 0x80,
 			CONTROL_IRQ			= 0x40,
+
 			CONTROL_DMA			= 0x30,
-			CONTROL_DMA_READ	= 0x20,
+			CONTROL_DMA_IO		= 0x10,
+			CONTROL_DMA_WRITE	= 0x20,
+			CONTROL_DMA_READ	= 0x30,
 		};
 
 		enum

@@ -156,12 +156,16 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//Load the module
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
 
-	bool loadResult = m_bios.LoadAndStartModule(moduleName, moduleArgs, moduleArgsSize);
+	auto moduleId = m_bios.LoadModule(moduleName);
+	if(moduleId >= 0)
+	{
+		moduleId = m_bios.StartModule(moduleId, moduleName, moduleArgs, moduleArgsSize);
+	}
 
 	//This function returns something negative upon failure
 	ret[0] = 0x00000000;
 
-	if(loadResult)
+	if(moduleId >= 0)
 	{
 		//Block EE till the IOP has completed the operation and sends its reply to the EE
 		return false;
@@ -204,7 +208,11 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 	const char* moduleArgs = reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE;
 	uint32 moduleArgsSize = args[1];
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module at 0x%0.8X received with %d bytes arguments payload.\r\n", args[0], moduleArgsSize);
-	m_bios.LoadAndStartModule(args[0], moduleArgs, moduleArgsSize);
+	auto moduleId = m_bios.LoadModule(args[0]);
+	if(moduleId >= 0)
+	{
+		moduleId = m_bios.StartModule(moduleId, "", moduleArgs, moduleArgsSize);
+	}
 	ret[0] = 0x00000000;
 }
 
@@ -215,16 +223,8 @@ void CLoadcore::SearchModuleByName(uint32* args, uint32 argsSize, uint32* ret, u
 
 	const char* moduleName = reinterpret_cast<const char*>(args) + 8;
 	CLog::GetInstance().Print(LOG_NAME, "SearchModuleByName('%s');\r\n", moduleName);
-
-	if(m_bios.IsModuleLoaded(moduleName))
-	{
-		//Supposed to return some kind of id here...
-		ret[0] = 0x01234567;
-	}
-	else
-	{
-		ret[0] = -1;
-	}
+	auto moduleId = m_bios.SearchModuleByName(moduleName);
+	ret[0] = moduleId;
 }
 
 void CLoadcore::Initialize(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

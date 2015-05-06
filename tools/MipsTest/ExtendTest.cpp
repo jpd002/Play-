@@ -1,5 +1,5 @@
 #include "ExtendTest.h"
-#include "EEAssembler.h"
+#include "ee/EEAssembler.h"
 
 void CExtendTest::Execute(CTestVm& virtualMachine)
 {

@@ -54,9 +54,9 @@
 #define BIOS_HEAPBLOCK_SIZE					(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
 #define BIOS_MODULELOADREQUEST_BASE			(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
 #define BIOS_MODULELOADREQUEST_SIZE			(sizeof(CIopBios::MODULELOADREQUEST) * CIopBios::MAX_MODULELOADREQUEST)
-#define BIOS_LOADEDMODULENAME_BASE			(BIOS_MODULELOADREQUEST_BASE + BIOS_MODULELOADREQUEST_SIZE)
-#define BIOS_LOADEDMODULENAME_SIZE			(sizeof(CIopBios::LOADEDMODULENAME) * CIopBios::MAX_LOADEDMODULENAME)
-#define BIOS_CALCULATED_END					(BIOS_LOADEDMODULENAME_BASE + BIOS_LOADEDMODULENAME_SIZE)
+#define BIOS_LOADEDMODULE_BASE				(BIOS_MODULELOADREQUEST_BASE + BIOS_MODULELOADREQUEST_SIZE)
+#define BIOS_LOADEDMODULE_SIZE				(sizeof(CIopBios::LOADEDMODULE) * CIopBios::MAX_LOADEDMODULE)
+#define BIOS_CALCULATED_END					(BIOS_LOADEDMODULE_BASE + BIOS_LOADEDMODULE_SIZE)
 
 #define SYSCALL_EXITTHREAD				0x666
 #define SYSCALL_RETURNFROMEXCEPTION		0x667
@@ -68,6 +68,8 @@
 
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE		0x10
+
+#define ERROR_SEMAPHORE_ZERO	(-419)
 
 CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
 : m_cpu(cpu)
@@ -85,7 +87,6 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_padman(nullptr)
 , m_cdvdfsv(nullptr)
 #endif
-, m_rescheduleNeeded(false)
 , m_threadFinishAddress(0)
 , m_returnFromExceptionAddress(0)
 , m_idleFunctionAddress(0)
@@ -97,6 +98,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
 , m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
 , m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOX)
+, m_loadedModules(reinterpret_cast<LOADEDMODULE*>(&m_ram[BIOS_LOADEDMODULE_BASE]), 1, MAX_LOADEDMODULE)
 {
 	static_assert(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END, "Control block size is too small");
 }
@@ -380,6 +382,16 @@ void CIopBios::RequestModuleLoad(uint32 moduleEntryPoint, uint32 gp, const char*
 
 void CIopBios::ProcessModuleLoad()
 {
+	static const auto pushToStack =
+		[] (uint8* dst, uint32& stackAddress, const uint8* src, uint32 size)
+		{
+			uint32 fixedSize = ((size + 0x3) & ~0x3);
+			uint32 copyAddress = stackAddress - size;
+			stackAddress -= fixedSize;
+			memcpy(dst + copyAddress, src, size);
+			return copyAddress;
+		};
+
 	assert(GetCurrentThreadId() == m_moduleLoaderThreadId);
 
 	uint32 requestPtr = ModuleLoadRequestHead();
@@ -418,34 +430,33 @@ void CIopBios::ProcessModuleLoad()
 		typedef std::vector<uint32> ParamListType;
 		ParamListType paramList;
 
-		paramList.push_back(Push(
+		paramList.push_back(pushToStack(
+			m_ram,
 			m_cpu.m_State.nGPR[CMIPS::SP].nV0,
 			reinterpret_cast<const uint8*>(path),
 			static_cast<uint32>(strlen(path)) + 1));
 		if(argsLength != 0)
 		{
+			uint32 stackArgsBase = pushToStack(
+				m_ram,
+				m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+				reinterpret_cast<const uint8*>(args), 
+				argsLength);
 			unsigned int argsPos = 0;
 			while(argsPos < argsLength)
 			{
-				const char* arg = args + argsPos;
+				uint32 argAddress = stackArgsBase + argsPos;
+				const char* arg = reinterpret_cast<const char*>(m_ram) + argAddress;
 				unsigned int argLength = static_cast<unsigned int>(strlen(arg)) + 1;
-				if(argLength == 1) 
-				{
-					break;
-				}
 				argsPos += argLength;
-				uint32 argAddress = Push(
-					m_cpu.m_State.nGPR[CMIPS::SP].nV0,
-					reinterpret_cast<const uint8*>(arg),
-					static_cast<uint32>(argLength));
 				paramList.push_back(argAddress);
 			}
 		}
 		m_cpu.m_State.nGPR[CMIPS::A0].nV0 = static_cast<uint32>(paramList.size());
-		for(ParamListType::reverse_iterator param(paramList.rbegin());
-			paramList.rend() != param; param++)
+		for(auto param = paramList.rbegin(); paramList.rend() != param; param++)
 		{
-			m_cpu.m_State.nGPR[CMIPS::A1].nV0 = Push(
+			m_cpu.m_State.nGPR[CMIPS::A1].nV0 = pushToStack(
+				m_ram,
 				m_cpu.m_State.nGPR[CMIPS::SP].nV0,
 				reinterpret_cast<const uint8*>(&(*param)),
 				4);
@@ -464,29 +475,34 @@ void CIopBios::FinishModuleLoad()
 	m_sifMan->SendCallReply(Iop::CLoadcore::MODULE_ID, nullptr);
 }
 
-bool CIopBios::LoadAndStartModule(const char* path, const char* args, unsigned int argsLength)
+int32 CIopBios::LoadModule(const char* path)
 {
 	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
 	if(handle & 0x80000000)
 	{
 		CLog::GetInstance().Print(LOGNAME, "Tried to load '%s' which couldn't be found.\r\n", path);
-		return false;
+		return -1;
 	}
 	Iop::CIoman::CFile file(handle, *m_ioman);
 	Framework::CStream* stream = m_ioman->GetFileStream(file);
 	CElfFile module(*stream);
-	LoadAndStartModule(module, path, args, argsLength);
-	return true;
+	return LoadModule(module, path);
 }
 
-void CIopBios::LoadAndStartModule(uint32 modulePtr, const char* args, unsigned int argsLength)
+int32 CIopBios::LoadModule(uint32 modulePtr)
 {
 	CELF module(m_ram + modulePtr);
-	LoadAndStartModule(module, "", args, argsLength);
+	return LoadModule(module, "");
 }
 
-void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args, unsigned int argsLength)
+int32 CIopBios::LoadModule(CELF& elf, const char* path)
 {
+	uint32 loadedModuleId = m_loadedModules.Allocate();
+	assert(loadedModuleId != -1);
+	if(loadedModuleId == -1) return -1;
+
+	auto loadedModule = m_loadedModules[loadedModuleId];
+
 	ExecutableRange moduleRange;
 	uint32 entryPoint = LoadExecutable(elf, moduleRange);
 
@@ -505,8 +521,11 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 	{
 		moduleName = path;
 	}
-
-	InsertLoadedModuleName(moduleName);
+	
+	//Fill in module info
+	strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULE::MAX_NAME_SIZE);
+	loadedModule->entryPoint	= entryPoint;
+	loadedModule->gp			= iopMod ? (iopMod->gp + moduleRange.first) : 0;
 
 #ifdef DEBUGGER_INCLUDED
 	PrepareModuleDebugInfo(elf, moduleRange, moduleName, path);
@@ -523,44 +542,32 @@ void CIopBios::LoadAndStartModule(CELF& elf, const char* path, const char* args,
 		}
 	}
 
-	RequestModuleLoad(entryPoint, iopMod ? (iopMod->gp + moduleRange.first) : 0, 
-		path, args, argsLength);
+	return loadedModuleId;
 }
 
-void CIopBios::InsertLoadedModuleName(const std::string& moduleName)
+int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char* args, uint32 argsLength)
 {
-	bool loadedModuleNameAdded = false;
-	for(unsigned int i = 0; i < MAX_LOADEDMODULENAME; i++)
+	auto loadedModule = m_loadedModules[loadedModuleId];
+	if(loadedModule == nullptr)
 	{
-		auto loadedModule = reinterpret_cast<LOADEDMODULENAME*>(m_ram + BIOS_LOADEDMODULENAME_BASE) + i;
-		if(!strcmp(loadedModule->name, moduleName.c_str()))
-		{
-			//Module name already exists (which is weird, but, ok).
-			loadedModuleNameAdded = true;
-			break;
-		}
-		if(!strlen(loadedModule->name))
-		{
-			strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULENAME::MAX_NAME_SIZE);
-			loadedModule->name[LOADEDMODULENAME::MAX_NAME_SIZE - 1] = 0;
-			loadedModuleNameAdded = true;
-			break;
-		}
+		return -1;
 	}
-	assert(loadedModuleNameAdded);
+	RequestModuleLoad(loadedModule->entryPoint, loadedModule->gp, path, args, argsLength);
+	return loadedModuleId;
 }
 
-bool CIopBios::IsModuleLoaded(const char* moduleName) const
+int32 CIopBios::SearchModuleByName(const char* moduleName) const
 {
-	for(unsigned int i = 0; i < MAX_LOADEDMODULENAME; i++)
+	for(unsigned int i = 0; i < MAX_LOADEDMODULE; i++)
 	{
-		auto loadedModule = reinterpret_cast<LOADEDMODULENAME*>(m_ram + BIOS_LOADEDMODULENAME_BASE) + i;
+		auto loadedModule = m_loadedModules[i];
+		if(loadedModule == nullptr) continue;
 		if(!strcmp(loadedModule->name, moduleName))
 		{
-			return true;
+			return i;
 		}
 	}
-	return false;
+	return -1;
 }
 
 void CIopBios::ProcessModuleReset(const std::string& imagePath)
@@ -1272,7 +1279,7 @@ uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
 
 	if(semaphore->count == 0)
 	{
-		return -1;
+		return ERROR_SEMAPHORE_ZERO;
 	}
 
 	semaphore->count--;
@@ -1958,14 +1965,6 @@ void CIopBios::RegisterDynamicModule(Iop::CDynamic* dynamicModule)
 {
 	m_dynamicModules.push_back(dynamicModule);
 	RegisterModule(dynamicModule);
-}
-
-uint32 CIopBios::Push(uint32& address, const uint8* data, uint32 size)
-{
-	uint32 fixedSize = ((size + 0x3) / 0x4) * 0x4;
-	address -= fixedSize;
-	memcpy(&m_ram[address], data, size);
-	return address;
 }
 
 uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)

@@ -29,7 +29,9 @@ void CPsfBios::AppendArchive(const CPsfBase& psfFile)
 void CPsfBios::Start()
 {
 	std::string execPath = std::string(PSF_DEVICENAME) + ":/psf2.irx";
-	m_bios.LoadAndStartModule(execPath.c_str(), NULL, 0);
+	auto moduleId = m_bios.LoadModule(execPath.c_str());
+	assert(moduleId >= 0);
+	m_bios.StartModule(moduleId, execPath.c_str(), nullptr, 0);
 }
 
 void CPsfBios::HandleException()

@@ -1,5 +1,4 @@
-#ifndef _IOP_MODLOAD_H_
-#define _IOP_MODLOAD_H_
+#pragma once
 
 #include "Iop_Module.h"
 
@@ -13,15 +12,17 @@ namespace Iop
 						CModload(CIopBios&, uint8*);
 		virtual			~CModload();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
-		uint32			LoadStartModule(const char*, uint32, const char*, uint32*);
+		uint32			LoadStartModule(uint32, uint32, uint32, uint32);
+		uint32			StartModule(uint32, uint32, uint32, uint32, uint32);
+		uint32			LoadModuleBuffer(uint32);
+		uint32			GetModuleIdList(uint32, uint32, uint32);
+
 		CIopBios&		m_bios;
-		uint8*			m_ram;
+		uint8*			m_ram = nullptr;
 	};
 }
-
-#endif

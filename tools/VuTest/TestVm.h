@@ -1,8 +1,8 @@
 #pragma once
 
 #include "MIPS.h"
-#include "MA_VU.h"
-#include "VuExecutor.h"
+#include "ee/MA_VU.h"
+#include "ee/VuExecutor.h"
 
 class CTestVm
 {

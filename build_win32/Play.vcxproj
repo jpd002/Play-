@@ -145,7 +145,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/win32ui/manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -163,7 +163,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/win32ui/manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest64.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -186,7 +186,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/win32ui/manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebugger|Win32'">
@@ -208,7 +208,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/win32ui/manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -231,7 +231,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/win32ui/manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest64.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebugger|x64'">
@@ -253,85 +253,88 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/win32ui/manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest64.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\win32ui\AboutWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\AviStream.cpp" />
-    <ClCompile Include="..\Source\win32ui\CallStackWnd.cpp">
+    <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.cpp" />
+    <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Shader.cpp" />
+    <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Texture.cpp" />
+    <ClCompile Include="..\Source\ui_win32\AboutWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\AviStream.cpp" />
+    <ClCompile Include="..\Source\ui_win32\CallStackWnd.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\CdromSelectionWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\CommandSink.cpp" />
-    <ClCompile Include="..\Source\win32ui\DebugExpressionEvaluator.cpp" />
-    <ClCompile Include="..\Source\win32ui\Debugger.cpp">
+    <ClCompile Include="..\Source\ui_win32\CdromSelectionWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\CommandSink.cpp" />
+    <ClCompile Include="..\Source\ui_win32\DebugExpressionEvaluator.cpp" />
+    <ClCompile Include="..\Source\ui_win32\Debugger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\DebuggerChildWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\Debugger\FindCallersViewWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\DebugUtils.cpp" />
-    <ClCompile Include="..\Source\win32ui\DebugView.cpp">
+    <ClCompile Include="..\Source\ui_win32\DebuggerChildWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\Debugger\FindCallersViewWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\DebugUtils.cpp" />
+    <ClCompile Include="..\Source\ui_win32\DebugView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\DirectXControl.cpp" />
-    <ClCompile Include="..\Source\win32ui\DisAsm.cpp" />
-    <ClCompile Include="..\Source\win32ui\DisAsmVu.cpp" />
-    <ClCompile Include="..\Source\win32ui\DisAsmWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\ELFHeaderView.cpp" />
-    <ClCompile Include="..\Source\win32ui\ELFProgramView.cpp" />
-    <ClCompile Include="..\Source\win32ui\ELFSectionView.cpp" />
-    <ClCompile Include="..\Source\win32ui\ELFSymbolView.cpp" />
-    <ClCompile Include="..\Source\win32ui\ELFView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\FrameDebugger.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\GifPacketView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextStateView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsContextView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsInputStateView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\GsStateUtils.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\TabHost.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.cpp" />
-    <ClCompile Include="..\Source\win32ui\FrameDebugger\Vu1Vm.cpp" />
-    <ClCompile Include="..\Source\win32ui\FunctionsView.cpp">
+    <ClCompile Include="..\Source\ui_win32\DirectXControl.cpp" />
+    <ClCompile Include="..\Source\ui_win32\DisAsm.cpp" />
+    <ClCompile Include="..\Source\ui_win32\DisAsmVu.cpp" />
+    <ClCompile Include="..\Source\ui_win32\DisAsmWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\ELFHeaderView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\ELFProgramView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\ELFSectionView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\ELFSymbolView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\ELFView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\FrameDebugger.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GifPacketView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsContextStateView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsContextView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsInputStateView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsRegisterWriteListView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsStateUtils.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\PixelBufferView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewOverlay.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\TabHost.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\Vu1ProgramView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\Vu1Vm.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FunctionsView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9.cpp" />
-    <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp" />
-    <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp" />
-    <ClCompile Include="..\Source\win32ui\IconMesh.cpp" />
-    <ClCompile Include="..\Source\win32ui\Main.cpp" />
-    <ClCompile Include="..\Source\win32ui\MainWindow.cpp" />
-    <ClCompile Include="..\Source\win32ui\McManagerWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\MemoryCard.cpp" />
-    <ClCompile Include="..\Source\win32ui\MemoryCardView.cpp" />
-    <ClCompile Include="..\Source\win32ui\MemoryView.cpp" />
-    <ClCompile Include="..\Source\win32ui\MemoryViewMIPS.cpp" />
-    <ClCompile Include="..\Source\win32ui\MemoryViewMIPSWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\MemoryViewPtr.cpp" />
-    <ClCompile Include="..\Source\win32ui\OptionWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\OutputWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\PH_DirectInput.cpp" />
-    <ClCompile Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.cpp" />
-    <ClCompile Include="..\Source\win32ui\PH_DirectInput\InputManager.cpp" />
-    <ClCompile Include="..\Source\win32ui\RegViewFPU.cpp" />
-    <ClCompile Include="..\Source\win32ui\RegViewGeneral.cpp" />
-    <ClCompile Include="..\Source\win32ui\RegViewPage.cpp" />
-    <ClCompile Include="..\Source\win32ui\RegViewSCU.cpp" />
-    <ClCompile Include="..\Source\win32ui\RegViewVU.cpp" />
-    <ClCompile Include="..\Source\win32ui\RegViewWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\RendererSettingsWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\SaveIconView.cpp" />
-    <ClCompile Include="..\Source\win32ui\SaveView.cpp" />
-    <ClCompile Include="..\Source\win32ui\StatsOverlayWindow.cpp" />
-    <ClCompile Include="..\Source\win32ui\StdAfx.cpp">
+    <ClCompile Include="..\Source\ui_win32\GSH_Direct3D9.cpp" />
+    <ClCompile Include="..\Source\ui_win32\GSH_Direct3D9_Texture.cpp" />
+    <ClCompile Include="..\Source\ui_win32\GSH_OpenGLWin32.cpp" />
+    <ClCompile Include="..\Source\ui_win32\IconMesh.cpp" />
+    <ClCompile Include="..\Source\ui_win32\Main.cpp" />
+    <ClCompile Include="..\Source\ui_win32\MainWindow.cpp" />
+    <ClCompile Include="..\Source\ui_win32\McManagerWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\MemoryCard.cpp" />
+    <ClCompile Include="..\Source\ui_win32\MemoryCardView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\MemoryView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\MemoryViewMIPS.cpp" />
+    <ClCompile Include="..\Source\ui_win32\MemoryViewMIPSWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\MemoryViewPtr.cpp" />
+    <ClCompile Include="..\Source\ui_win32\OptionWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\OutputWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\PH_DirectInput.cpp" />
+    <ClCompile Include="..\Source\ui_win32\PH_DirectInput\ControllerSettingsWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\PH_DirectInput\InputBindingSelectionWindow.cpp" />
+    <ClCompile Include="..\Source\ui_win32\PH_DirectInput\InputManager.cpp" />
+    <ClCompile Include="..\Source\ui_win32\RegViewFPU.cpp" />
+    <ClCompile Include="..\Source\ui_win32\RegViewGeneral.cpp" />
+    <ClCompile Include="..\Source\ui_win32\RegViewPage.cpp" />
+    <ClCompile Include="..\Source\ui_win32\RegViewSCU.cpp" />
+    <ClCompile Include="..\Source\ui_win32\RegViewVU.cpp" />
+    <ClCompile Include="..\Source\ui_win32\RegViewWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\RendererSettingsWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\SaveIconView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\SaveView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\StatsOverlayWindow.cpp" />
+    <ClCompile Include="..\Source\ui_win32\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -339,100 +342,101 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebugger|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\SysInfoWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\ThreadCallStackViewWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\ThreadsViewWnd.cpp">
+    <ClCompile Include="..\Source\ui_win32\SysInfoWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\ThreadCallStackViewWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\ThreadsViewWnd.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\VFSManagerWnd.cpp" />
-    <ClCompile Include="..\Source\win32ui\WinUtils.cpp" />
+    <ClCompile Include="..\Source\ui_win32\VFSManagerWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\WinUtils.cpp" />
     <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\win32ui\AboutWnd.h" />
-    <ClInclude Include="..\Source\win32ui\AviStream.h" />
-    <ClInclude Include="..\Source\win32ui\CallStackWnd.h" />
-    <ClInclude Include="..\Source\win32ui\CdromSelectionWnd.h" />
-    <ClInclude Include="..\Source\win32ui\CommandSink.h" />
-    <ClInclude Include="..\Source\win32ui\DebugExpressionEvaluator.h" />
-    <ClInclude Include="..\Source\win32ui\Debugger.h" />
-    <ClInclude Include="..\Source\win32ui\DebuggerChildWnd.h" />
-    <ClInclude Include="..\Source\win32ui\Debugger\FindCallersViewWnd.h" />
-    <ClInclude Include="..\Source\win32ui\DebugUtils.h" />
-    <ClInclude Include="..\Source\win32ui\DebugView.h" />
-    <ClInclude Include="..\Source\win32ui\DirectXControl.h" />
-    <ClInclude Include="..\Source\win32ui\DisAsm.h" />
-    <ClInclude Include="..\Source\win32ui\DisAsmVu.h" />
-    <ClInclude Include="..\Source\win32ui\DisAsmWnd.h" />
-    <ClInclude Include="..\Source\win32ui\ELFHeaderView.h" />
-    <ClInclude Include="..\Source\win32ui\ELFProgramView.h" />
-    <ClInclude Include="..\Source\win32ui\ELFSectionView.h" />
-    <ClInclude Include="..\Source\win32ui\ELFSymbolView.h" />
-    <ClInclude Include="..\Source\win32ui\ELFView.h" />
-    <ClInclude Include="..\Source\win32ui\ElfViewRes.h" />
-    <ClInclude Include="..\Source\win32ui\FileFilters.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebugger.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\FrameDebuggerTab.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\GifPacketView.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextStateView.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsContextView.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsInputStateView.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsRegisterWriteListView.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\GsStateUtils.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferView.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\PixelBufferViewOverlay.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\TabHost.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1ProgramView.h" />
-    <ClInclude Include="..\Source\win32ui\FrameDebugger\Vu1Vm.h" />
-    <ClInclude Include="..\Source\win32ui\FunctionsView.h" />
-    <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h" />
-    <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h" />
-    <ClInclude Include="..\Source\win32ui\IconMesh.h" />
-    <ClInclude Include="..\Source\win32ui\MainWindow.h" />
-    <ClInclude Include="..\Source\win32ui\McManagerWnd.h" />
-    <ClInclude Include="..\Source\win32ui\MemoryCard.h" />
-    <ClInclude Include="..\Source\win32ui\MemoryCardView.h" />
-    <ClInclude Include="..\Source\win32ui\MemoryView.h" />
-    <ClInclude Include="..\Source\win32ui\MemoryViewMIPS.h" />
-    <ClInclude Include="..\Source\win32ui\MemoryViewMIPSWnd.h" />
-    <ClInclude Include="..\Source\win32ui\MemoryViewPtr.h" />
-    <ClInclude Include="..\Source\win32ui\OptionWnd.h" />
-    <ClInclude Include="..\Source\win32ui\OutputWnd.h" />
-    <ClInclude Include="..\Source\win32ui\PH_DirectInput.h" />
-    <ClInclude Include="..\Source\win32ui\PH_DirectInput\ControllerSettingsWnd.h" />
-    <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputBindingSelectionWindow.h" />
-    <ClInclude Include="..\Source\win32ui\PH_DirectInput\InputManager.h" />
-    <ClInclude Include="..\Source\win32ui\RegViewFPU.h" />
-    <ClInclude Include="..\Source\win32ui\RegViewGeneral.h" />
-    <ClInclude Include="..\Source\win32ui\RegViewPage.h" />
-    <ClInclude Include="..\Source\win32ui\RegViewSCU.h" />
-    <ClInclude Include="..\Source\win32ui\RegViewVU.h" />
-    <ClInclude Include="..\Source\win32ui\RegViewWnd.h" />
-    <ClInclude Include="..\Source\win32ui\RendererSettingsWnd.h" />
-    <ClInclude Include="..\Source\win32ui\resource.h" />
-    <ClInclude Include="..\Source\win32ui\SaveIconView.h" />
-    <ClInclude Include="..\Source\win32ui\SaveView.h" />
-    <ClInclude Include="..\Source\win32ui\SettingsDialogProvider.h" />
-    <ClInclude Include="..\Source\win32ui\StatsOverlayWindow.h" />
-    <ClInclude Include="..\Source\win32ui\StdAfx.h" />
-    <ClInclude Include="..\Source\win32ui\SysInfoWnd.h" />
-    <ClInclude Include="..\Source\win32ui\ThreadCallStackViewWnd.h" />
-    <ClInclude Include="..\Source\win32ui\ThreadsViewWnd.h" />
-    <ClInclude Include="..\Source\win32ui\VFSManagerWnd.h" />
-    <ClInclude Include="..\Source\win32ui\WinUtils.h" />
+    <ClInclude Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.h" />
+    <ClInclude Include="..\Source\ui_win32\AboutWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\AviStream.h" />
+    <ClInclude Include="..\Source\ui_win32\CallStackWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\CdromSelectionWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\CommandSink.h" />
+    <ClInclude Include="..\Source\ui_win32\DebugExpressionEvaluator.h" />
+    <ClInclude Include="..\Source\ui_win32\Debugger.h" />
+    <ClInclude Include="..\Source\ui_win32\DebuggerChildWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\Debugger\FindCallersViewWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\DebugUtils.h" />
+    <ClInclude Include="..\Source\ui_win32\DebugView.h" />
+    <ClInclude Include="..\Source\ui_win32\DirectXControl.h" />
+    <ClInclude Include="..\Source\ui_win32\DisAsm.h" />
+    <ClInclude Include="..\Source\ui_win32\DisAsmVu.h" />
+    <ClInclude Include="..\Source\ui_win32\DisAsmWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\ELFHeaderView.h" />
+    <ClInclude Include="..\Source\ui_win32\ELFProgramView.h" />
+    <ClInclude Include="..\Source\ui_win32\ELFSectionView.h" />
+    <ClInclude Include="..\Source\ui_win32\ELFSymbolView.h" />
+    <ClInclude Include="..\Source\ui_win32\ELFView.h" />
+    <ClInclude Include="..\Source\ui_win32\ElfViewRes.h" />
+    <ClInclude Include="..\Source\ui_win32\FileFilters.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\FrameDebugger.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\FrameDebuggerTab.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GifPacketView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsContextStateView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsContextView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsInputStateView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsRegisterWriteListView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsStateUtils.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\PixelBufferView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewOverlay.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\TabHost.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\Vu1ProgramView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\Vu1Vm.h" />
+    <ClInclude Include="..\Source\ui_win32\FunctionsView.h" />
+    <ClInclude Include="..\Source\ui_win32\GSH_Direct3D9.h" />
+    <ClInclude Include="..\Source\ui_win32\GSH_OpenGLWin32.h" />
+    <ClInclude Include="..\Source\ui_win32\IconMesh.h" />
+    <ClInclude Include="..\Source\ui_win32\MainWindow.h" />
+    <ClInclude Include="..\Source\ui_win32\McManagerWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\MemoryCard.h" />
+    <ClInclude Include="..\Source\ui_win32\MemoryCardView.h" />
+    <ClInclude Include="..\Source\ui_win32\MemoryView.h" />
+    <ClInclude Include="..\Source\ui_win32\MemoryViewMIPS.h" />
+    <ClInclude Include="..\Source\ui_win32\MemoryViewMIPSWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\MemoryViewPtr.h" />
+    <ClInclude Include="..\Source\ui_win32\OptionWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\OutputWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\PH_DirectInput.h" />
+    <ClInclude Include="..\Source\ui_win32\PH_DirectInput\ControllerSettingsWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\PH_DirectInput\InputBindingSelectionWindow.h" />
+    <ClInclude Include="..\Source\ui_win32\PH_DirectInput\InputManager.h" />
+    <ClInclude Include="..\Source\ui_win32\RegViewFPU.h" />
+    <ClInclude Include="..\Source\ui_win32\RegViewGeneral.h" />
+    <ClInclude Include="..\Source\ui_win32\RegViewPage.h" />
+    <ClInclude Include="..\Source\ui_win32\RegViewSCU.h" />
+    <ClInclude Include="..\Source\ui_win32\RegViewVU.h" />
+    <ClInclude Include="..\Source\ui_win32\RegViewWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\RendererSettingsWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\resource.h" />
+    <ClInclude Include="..\Source\ui_win32\SaveIconView.h" />
+    <ClInclude Include="..\Source\ui_win32\SaveView.h" />
+    <ClInclude Include="..\Source\ui_win32\SettingsDialogProvider.h" />
+    <ClInclude Include="..\Source\ui_win32\StatsOverlayWindow.h" />
+    <ClInclude Include="..\Source\ui_win32\StdAfx.h" />
+    <ClInclude Include="..\Source\ui_win32\SysInfoWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\ThreadCallStackViewWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\ThreadsViewWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\VFSManagerWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\WinUtils.h" />
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\License.txt" />
-    <None Include="..\Source\win32ui\Images\arrow.bmp" />
-    <None Include="..\Source\win32ui\Images\bpoint.bmp" />
-    <None Include="..\Source\win32ui\images\grab.cur" />
-    <None Include="..\Source\win32ui\images\grabbing.cur" />
-    <None Include="..\Source\win32ui\Images\purei.ico" />
-    <None Include="..\Source\win32ui\manifest.xml" />
-    <None Include="..\Source\win32ui\manifest64.xml" />
-    <CustomBuild Include="..\Source\win32ui\SysInfo_x64.asm">
+    <None Include="..\Source\ui_win32\Images\arrow.bmp" />
+    <None Include="..\Source\ui_win32\Images\bpoint.bmp" />
+    <None Include="..\Source\ui_win32\images\grab.cur" />
+    <None Include="..\Source\ui_win32\images\grabbing.cur" />
+    <None Include="..\Source\ui_win32\Images\purei.ico" />
+    <None Include="..\Source\ui_win32\manifest.xml" />
+    <None Include="..\Source\ui_win32\manifest64.xml" />
+    <CustomBuild Include="..\Source\ui_win32\SysInfo_x64.asm">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 /c /Fo"$(IntDir)\%(Filename).obj" %(Identity)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 /c /Fo"$(IntDir)\%(Filename).obj" %(Identity)</Command>
@@ -447,8 +451,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\Source\win32ui\ElfViewRes.rc" />
-    <ResourceCompile Include="..\Source\win32ui\Res.rc" />
+    <ResourceCompile Include="..\Source\ui_win32\ElfViewRes.rc" />
+    <ResourceCompile Include="..\Source\ui_win32\Res.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Dependencies\build_win32\bzip2-1.0.6.vcxproj">
@@ -471,12 +475,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\win32ui\FrameDebugger\CheckerboardShader.fx">
+    <None Include="..\Source\ui_win32\FrameDebugger\CheckerboardShader.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\win32ui\FrameDebugger\PixelBufferViewShader.fx">
+    <None Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewShader.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

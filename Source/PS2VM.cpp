@@ -1,17 +1,14 @@
 #include <stdio.h>
 #include <exception>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem.hpp>
 #include <memory>
 #include <fenv.h>
 #include "make_unique.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
-#include "PS2OS.h"
+#include "ee/PS2OS.h"
 #include "Ps2Const.h"
 #include "iop/Iop_SifManPs2.h"
-#include "VIF.h"
-#include "Timer.h"
 #include "PtrMacro.h"
 #include "StdStream.h"
 #include "GZipStream.h"
@@ -37,10 +34,6 @@
 #include "Log.h"
 
 #define LOG_NAME		("ps2vm")
-
-#ifdef DEBUGGER_INCLUDED
-#define TAGS_PATH		("./tags/")
-#endif
 
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT		("vfs/host")
 #define PREF_PS2_MC0_DIRECTORY_DEFAULT		("vfs/mc0")
@@ -294,14 +287,14 @@ void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
 #define TAGS_SECTION_IOP_FUNCTIONS	("functions")
 #define TAGS_SECTION_IOP_COMMENTS	("comments")
 
+#define TAGS_PATH		("tags/")
+
 std::string CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
 {
-	filesystem::path tagsPath(TAGS_PATH);
-	if(!filesystem::exists(tagsPath))
-	{
-		filesystem::create_directory(tagsPath);
-	}
-	return std::string(TAGS_PATH) + std::string(packageName) + std::string(".tags.xml");
+	auto tagsPath = CAppConfig::GetBasePath() / boost::filesystem::path(TAGS_PATH);
+	Framework::PathUtils::EnsurePathExists(tagsPath);
+	auto tagsPackagePath = tagsPath / (std::string(packageName) + std::string(".tags.xml"));
+	return tagsPackagePath.string();
 }
 
 void CPS2VM::LoadDebugTags(const char* packageName)
