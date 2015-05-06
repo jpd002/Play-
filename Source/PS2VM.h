@@ -66,6 +66,7 @@ public:
 	void						DestroyGSHandler();
 
 	void						CreatePadHandler(const CPadHandler::FactoryFunction&);
+	CPadHandler*				GetPadHandler();
 	void						DestroyPadHandler();
 
 	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);

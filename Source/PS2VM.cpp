@@ -138,6 +138,11 @@ void CPS2VM::CreatePadHandler(const CPadHandler::FactoryFunction& factoryFunctio
 	m_mailBox.SendCall(std::bind(&CPS2VM::CreatePadHandlerImpl, this, factoryFunction), true);
 }
 
+CPadHandler* CPS2VM::GetPadHandler()
+{
+	return m_pad;
+}
+
 void CPS2VM::DestroyPadHandler()
 {
 	if(m_pad == nullptr) return;
