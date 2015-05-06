@@ -292,7 +292,7 @@
     <ClCompile Include="..\Source\ISO9660\VolumeDescriptor.cpp">
       <Filter>Source Files\Iso9660</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\win32ui\StdAfx.cpp">
+    <ClCompile Include="..\Source\ui_win32\StdAfx.cpp">
       <Filter>Source Files\Precompiled Header</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\saves\Icon.cpp">
@@ -723,7 +723,7 @@
     <ClInclude Include="..\Source\ISO9660\VolumeDescriptor.h">
       <Filter>Source Files\Iso9660</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\win32ui\StdAfx.h">
+    <ClInclude Include="..\Source\ui_win32\StdAfx.h">
       <Filter>Source Files\Precompiled Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\saves\Icon.h">

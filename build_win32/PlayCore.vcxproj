@@ -162,7 +162,7 @@
     <ClCompile Include="..\Source\StructFile.cpp" />
     <ClCompile Include="..\Source\Utils.cpp" />
     <ClCompile Include="..\Source\VolumeStream.cpp" />
-    <ClCompile Include="..\Source\win32ui\StdAfx.cpp">
+    <ClCompile Include="..\Source\ui_win32\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebugger|Win32'">Create</PrecompiledHeader>
@@ -307,7 +307,7 @@
     <ClInclude Include="..\Source\Utils.h" />
     <ClInclude Include="..\Source\VirtualMachine.h" />
     <ClInclude Include="..\Source\VolumeStream.h" />
-    <ClInclude Include="..\Source\win32ui\StdAfx.h" />
+    <ClInclude Include="..\Source\ui_win32\StdAfx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D060D0BF-20E4-4DCD-975E-9EE6DDF4F73A}</ProjectGuid>
