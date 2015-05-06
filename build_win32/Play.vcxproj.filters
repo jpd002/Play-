@@ -223,15 +223,6 @@
     <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL.cpp">
-      <Filter>Source Files\GSH_OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Shader.cpp">
-      <Filter>Source Files\GSH_OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_OpenGL_Texture.cpp">
-      <Filter>Source Files\GSH_OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\win32ui\GSH_OpenGLWin32.cpp">
       <Filter>Source Files\GSH_OpenGL</Filter>
     </ClCompile>
@@ -240,6 +231,15 @@
     </ClCompile>
     <ClCompile Include="..\Source\win32ui\GSH_Direct3D9_Texture.cpp">
       <Filter>Source Files\GSH_Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Shader.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Texture.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -453,14 +453,14 @@
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\GSH_OpenGL.h">
-      <Filter>Source Files\GSH_OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\win32ui\GSH_OpenGLWin32.h">
       <Filter>Source Files\GSH_OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\win32ui\GSH_Direct3D9.h">
       <Filter>Source Files\GSH_Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.h">
+      <Filter>Source Files\GSH_OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

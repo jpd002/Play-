@@ -1,5 +1,5 @@
 #include "PackedMultiplyTest.h"
-#include "EEAssembler.h"
+#include "ee/EEAssembler.h"
 
 void CPackedMultiplyTest::Execute(CTestVm& virtualMachine)
 {

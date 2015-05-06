@@ -6,7 +6,7 @@
 #include "../AppConfig.h"
 #include "../MIPSAssembler.h"
 #include "../Ps2Const.h"
-#include "../PS2OS.h"
+#include "../ee/PS2OS.h"
 #include "../MipsFunctionPatternDb.h"
 #include "StdStream.h"
 #include "win32/AcceleratorTableGenerator.h"

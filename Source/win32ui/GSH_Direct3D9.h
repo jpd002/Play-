@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GSHandler.h"
+#include "../gs/GSHandler.h"
 #include "win32/Window.h"
 #include "win32/ComPtr.h"
 #include "bitmap/Bitmap.h"

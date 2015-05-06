@@ -7,7 +7,7 @@
 #include "win32/TreeView.h"
 #include "win32/Button.h"
 #include "win32/GdiObj.h"
-#include "../../GSHandler.h"
+#include "../../gs/GSHandler.h"
 
 class CGsRegisterWriteListView : public Framework::Win32::CWindow
 {

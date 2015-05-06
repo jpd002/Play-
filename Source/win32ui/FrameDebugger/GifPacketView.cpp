@@ -1,7 +1,7 @@
 #include "GifPacketView.h"
 #include "win32/DeviceContext.h"
-#include "../../GSHandler.h"
-#include "../../GIF.h"
+#include "../../gs/GSHandler.h"
+#include "../../ee/GIF.h"
 #include "../../uint128.h"
 #include "string_format.h"
 

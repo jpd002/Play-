@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <d3dx9.h>
 #include "GSH_Direct3D9.h"
-#include "../GsPixelFormats.h"
+#include "../gs/GsPixelFormats.h"
 
 CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const TEX1& tex1, const CLAMP& clamp)
 {

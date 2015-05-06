@@ -1,6 +1,6 @@
 #include "Iop_SifCmd.h"
 #include "IopBios.h"
-#include "../SIF.h"
+#include "../ee/SIF.h"
 #include "../Log.h"
 #include "../StructCollectionStateFile.h"
 #include <boost/lexical_cast.hpp>

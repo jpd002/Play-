@@ -3,7 +3,7 @@
 #include "win32/Window.h"
 #include "win32/Splitter.h"
 #include "win32/Tab.h"
-#include "../../GSHandler.h"
+#include "../../gs/GSHandler.h"
 #include "../../FrameDump.h"
 #include "FrameDebuggerTab.h"
 #include "PixelBufferView.h"

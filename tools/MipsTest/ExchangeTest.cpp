@@ -1,5 +1,5 @@
 #include "ExchangeTest.h"
-#include "EEAssembler.h"
+#include "ee/EEAssembler.h"
 
 void CExchangeTest::Execute(CTestVm& virtualMachine)
 {

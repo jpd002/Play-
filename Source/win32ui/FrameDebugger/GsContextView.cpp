@@ -1,6 +1,6 @@
 #include "GsContextView.h"
 #include "GsStateUtils.h"
-#include "../../GsPixelFormats.h"
+#include "../../gs/GsPixelFormats.h"
 #include "../GSH_Direct3D9.h"
 #include "win32/VerticalSplitter.h"
 

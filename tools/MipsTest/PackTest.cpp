@@ -1,5 +1,5 @@
 #include "PackTest.h"
-#include "EEAssembler.h"
+#include "ee/EEAssembler.h"
 
 void CPackTest::Execute(CTestVm& virtualMachine)
 {

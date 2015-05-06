@@ -1,6 +1,6 @@
 #include "GSH_Direct3D9.h"
 #include "../Log.h"
-#include "../GsPixelFormats.h"
+#include "../gs/GsPixelFormats.h"
 #include <d3dx9math.h>
 
 #pragma comment (lib, "d3d9.lib")

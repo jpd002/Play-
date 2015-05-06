@@ -6,7 +6,7 @@
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "win32/ComboBox.h"
-#include "../GSH_OpenGL.h"
+#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 
 class CRendererSettingsWnd : public Framework::Win32::CModalWindow
 {
