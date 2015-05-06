@@ -13,7 +13,7 @@ public class EmulatorActivity extends Activity
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
-		Log.w(Constants.TAG, "EmulatorActivity - onCreate");
+		//Log.w(Constants.TAG, "EmulatorActivity - onCreate");
 		
 		_renderView = new SurfaceView(this);
 		SurfaceHolder holder = _renderView.getHolder();
@@ -34,7 +34,7 @@ public class EmulatorActivity extends Activity
 		@Override 
 		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 		{
-			Log.w(Constants.TAG, String.format("surfaceChanged -> format: %d, width: %d, height: %d", format, width, height));
+			//Log.w(Constants.TAG, String.format("surfaceChanged -> format: %d, width: %d, height: %d", format, width, height));
 			Surface surface = holder.getSurface();
 			NativeInterop.setupGsHandler(surface);
 			NativeInterop.resumeVirtualMachine();
