@@ -36,6 +36,7 @@ LOCAL_MODULE			:= libPlay
 LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/androidui/GSH_OpenGLAndroid.cpp \
 							../../Source/androidui/NativeInterop.cpp \
+							../../Source/androidui/PH_Android.cpp \
 							../../Source/BasicBlock.cpp \
 							../../Source/COP_FPU.cpp \
 							../../Source/COP_FPU_Reflection.cpp \

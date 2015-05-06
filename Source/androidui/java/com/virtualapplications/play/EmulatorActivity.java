@@ -19,6 +19,26 @@ public class EmulatorActivity extends Activity
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
 		
+		_renderView.setOnTouchListener(
+			new View.OnTouchListener()
+			{
+				@Override
+				public boolean onTouch(View view, MotionEvent event)
+				{
+					switch(event.getActionMasked())
+					{
+					case MotionEvent.ACTION_DOWN:
+						NativeInterop.reportInput(true);
+						break;
+					case MotionEvent.ACTION_UP:
+						NativeInterop.reportInput(false);
+						break;
+					}
+					return true;
+				}
+			}
+		);
+		
 		setContentView(_renderView);
 	}
 	

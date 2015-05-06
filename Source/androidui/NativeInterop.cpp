@@ -9,6 +9,7 @@
 #include "../PS2VM_Preferences.h"
 #include "../GSH_Null.h"
 #include "GSH_OpenGLAndroid.h"
+#include "PH_Android.h"
 
 #define LOG_NAME "Play!"
 
@@ -42,6 +43,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	assert(g_virtualMachine == nullptr);
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
+	g_virtualMachine->CreatePadHandler(CPH_Android::GetFactoryFunction());
 }
 
 extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineCreated(JNIEnv* env, jobject obj)
@@ -113,5 +115,14 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	else
 	{
 		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
+	}
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_reportInput(JNIEnv* env, jobject obj, jboolean pressed)
+{
+	auto padHandler = g_virtualMachine->GetPadHandler();
+	if(padHandler)
+	{
+		static_cast<CPH_Android*>(padHandler)->ReportInput((pressed == JNI_TRUE) ? true : false);
 	}
 }
