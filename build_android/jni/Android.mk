@@ -34,7 +34,6 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libPlay
 LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
-							../../Source/androidui/PH_Android.cpp \
 							../../Source/BasicBlock.cpp \
 							../../Source/COP_FPU.cpp \
 							../../Source/COP_FPU_Reflection.cpp \
@@ -162,6 +161,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/StructFile.cpp \
 							../../Source/ui_android/GSH_OpenGLAndroid.cpp \
 							../../Source/ui_android/NativeInterop.cpp \
+							../../Source/ui_android/PH_Android.cpp \
 							../../Source/Utils.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -DDISABLE_LOGGING -DGLES_COMPATIBILITY
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(DEPENDENCIES_PATH)/bzip2-1.0.6 $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
