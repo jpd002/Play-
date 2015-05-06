@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GSH_OpenGL.h"
+#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "opengl/OpenGlDef.h"
 
 class CGSH_OpenGLAndroid : public CGSH_OpenGL

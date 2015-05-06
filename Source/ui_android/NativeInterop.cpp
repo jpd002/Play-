@@ -7,7 +7,7 @@
 #include "../AppConfig.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
-#include "../GSH_Null.h"
+#include "../gs/GSH_Null.h"
 #include "GSH_OpenGLAndroid.h"
 
 #define LOG_NAME "Play!"
