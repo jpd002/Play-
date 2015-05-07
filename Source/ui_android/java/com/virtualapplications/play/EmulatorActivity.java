@@ -15,6 +15,8 @@ public class EmulatorActivity extends Activity
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "EmulatorActivity - onCreate");
 		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
 		_renderView = new SurfaceView(this);
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
