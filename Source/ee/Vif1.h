@@ -1,24 +1,31 @@
 #pragma once
 
-#include "VPU.h"
+#include "Vif.h"
 
-class CVPU1 : public CVPU
+class CGIF;
+
+class CVif1 : public CVif
 {
 public:
-					CVPU1(CVIF&, unsigned int, const CVIF::VPUINIT&);
+					CVif1(unsigned int, CVpu&, CGIF&, uint8*, uint8*);
+	virtual			~CVif1();
+
+	virtual void	Reset() override;
 	virtual void	SaveState(Framework::CZipArchiveWriter&) override;
 	virtual void	LoadState(Framework::CZipArchiveReader&) override;
+
 	virtual uint32	GetTOP() const override;
-	virtual void	Reset() override;
 
-protected:
-	virtual void	PrepareMicroProgram() override;
-
+private:
 	virtual void	ExecuteCommand(StreamType&, CODE) override;
+
 	void			Cmd_DIRECT(StreamType&, CODE);
 	virtual void	Cmd_UNPACK(StreamType&, CODE, uint32) override;
 
-private:
+	virtual void	PrepareMicroProgram() override;
+
+	CGIF&			m_gif;
+
 	uint32			m_BASE;
 	uint32			m_OFST;
 	uint32			m_TOP;

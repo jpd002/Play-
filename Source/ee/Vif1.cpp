@@ -1,36 +1,44 @@
-#include <boost/lexical_cast.hpp>
-#include "VPU1.h"
-#include "../Ps2Const.h"
+#include <cassert>
+#include <algorithm>
+#include "string_format.h"
 #include "../RegisterStateFile.h"
 #include "../FrameDump.h"
+#include "GIF.h"
+#include "VPU.h"
+#include "Vif1.h"
 
-#define STATE_PREFIX			("vif/vpu1_")
-#define STATE_SUFFIX			(".xml")
+#define STATE_PATH_FORMAT		("vpu/vif1_%d.xml")
 #define STATE_REGS_BASE			("BASE")
 #define STATE_REGS_TOP			("TOP")
 #define STATE_REGS_TOPS			("TOPS")
 #define STATE_REGS_OFST			("OFST")
 
-CVPU1::CVPU1(CVIF& vif, unsigned int vpuNumber, const CVIF::VPUINIT& vpuInit) 
-: CVPU(vif, vpuNumber, vpuInit)
+CVif1::CVif1(unsigned int number, CVpu& vpu, CGIF& gif, uint8* ram, uint8* spr)
+: CVif(1, vpu, ram, spr)
+, m_gif(gif)
 {
 
 }
 
-void CVPU1::Reset()
+CVif1::~CVif1()
 {
-	CVPU::Reset();
+
+}
+
+void CVif1::Reset()
+{
+	CVif::Reset();
 	m_BASE	= 0;
 	m_TOP	= 0;
 	m_TOPS	= 0;
 	m_OFST	= 0;
 }
 
-void CVPU1::SaveState(Framework::CZipArchiveWriter& archive)
+void CVif1::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CVPU::SaveState(archive);
+	CVif::SaveState(archive);
 
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_vpuNumber) + STATE_SUFFIX;
+	auto path = string_format(STATE_PATH_FORMAT, m_number);
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_BASE,	m_BASE);
 	registerFile->SetRegister32(STATE_REGS_TOP,		m_TOP);
@@ -39,11 +47,11 @@ void CVPU1::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(registerFile);
 }
 
-void CVPU1::LoadState(Framework::CZipArchiveReader& archive)
+void CVif1::LoadState(Framework::CZipArchiveReader& archive)
 {
-	CVPU::LoadState(archive);
+	CVif::LoadState(archive);
 
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_vpuNumber) + STATE_SUFFIX;
+	auto path = string_format(STATE_PATH_FORMAT, m_number);
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_BASE	= registerFile.GetRegister32(STATE_REGS_BASE);
 	m_TOP	= registerFile.GetRegister32(STATE_REGS_TOP);
@@ -51,12 +59,12 @@ void CVPU1::LoadState(Framework::CZipArchiveReader& archive)
 	m_OFST	= registerFile.GetRegister32(STATE_REGS_OFST);
 }
 
-uint32 CVPU1::GetTOP() const
+uint32 CVif1::GetTOP() const
 {
 	return m_TOP;
 }
 
-void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
+void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 {
 #ifdef _DEBUG
 	DisassembleCommand(nCommand);
@@ -79,7 +87,7 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x11:
 		//FLUSH
-		if(m_vif.IsVu1Running())
+		if(m_vpu.IsVuRunning())
 		{
 			m_STAT.nVEW = 1;
 		}
@@ -97,7 +105,7 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x13:
 		//FLUSHA
-		if(m_vif.IsVu1Running())
+		if(m_vpu.IsVuRunning())
 		{
 			m_STAT.nVEW = 1;
 		}
@@ -112,12 +120,12 @@ void CVPU1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		Cmd_DIRECT(stream, nCommand);
 		break;
 	default:
-		CVPU::ExecuteCommand(stream, nCommand);
+		CVif::ExecuteCommand(stream, nCommand);
 		break;
 	}
 }
 
-void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
+void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 {
 	uint32 nSize = stream.GetAvailableReadBytes();
 	nSize = std::min<uint32>(m_CODE.nIMM * 0x10, nSize);
@@ -131,7 +139,7 @@ void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 		int32 remainingLength = nSize;
 		while(remainingLength > 0)
 		{
-			uint32 processed = m_vif.GetGif().ProcessPacket(packet, 0, remainingLength, CGsPacketMetadata(2));
+			uint32 processed = m_gif.ProcessPacket(packet, 0, remainingLength, CGsPacketMetadata(2));
 			packet += processed;
 			remainingLength -= processed;
 			assert(remainingLength >= 0);
@@ -149,7 +157,7 @@ void CVPU1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 	}
 }
 
-void CVPU1::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
+void CVif1::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
 	bool nFlg = (m_CODE.nIMM & 0x8000) != 0;
 	if(nFlg) 
@@ -157,12 +165,12 @@ void CVPU1::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 		nDstAddr += m_TOPS;
 	}
 
-	return CVPU::Cmd_UNPACK(stream, nCommand, nDstAddr);
+	return CVif::Cmd_UNPACK(stream, nCommand, nDstAddr);
 }
 
-void CVPU1::PrepareMicroProgram()
+void CVif1::PrepareMicroProgram()
 {
-	CVPU::PrepareMicroProgram();
+	CVif::PrepareMicroProgram();
 
 	m_TOP = m_TOPS;
 

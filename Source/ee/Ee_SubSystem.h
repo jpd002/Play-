@@ -6,7 +6,7 @@
 #include "DMAC.h"
 #include "GIF.h"
 #include "SIF.h"
-#include "VIF.h"
+#include "Vpu.h"
 #include "IPU.h"
 #include "INTC.h"
 #include "Timer.h"
@@ -51,7 +51,8 @@ namespace Ee
 		CDMAC						m_dmac;
 		CGIF						m_gif;
 		CSIF						m_sif;
-		CVIF						m_vif;
+		CVpu						m_vpu0;
+		CVpu						m_vpu1;
 		CINTC						m_intc;
 		CIPU						m_ipu;
 		CTimer						m_timer;

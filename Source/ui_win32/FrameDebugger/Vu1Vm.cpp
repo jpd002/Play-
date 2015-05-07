@@ -1,7 +1,7 @@
 #include "Vu1Vm.h"
 #include "../../Ps2Const.h"
 #include "../../Log.h"
-#include "../../ee/VIF.h"
+#include "../../ee/Vpu.h"
 
 #define LOG_NAME "Vu1Vm"
 
@@ -98,10 +98,10 @@ uint32 CVu1Vm::Vu1IoPortReadHandler(uint32 address)
 	uint32 result = 0xCCCCCCCC;
 	switch(address)
 	{
-	case CVIF::VU_ITOP:
+	case CVpu::VU_ITOP:
 		result = m_vpu1_ITOP;
 		break;
-	case CVIF::VU_TOP:
+	case CVpu::VU_TOP:
 		result = m_vpu1_TOP;
 		break;
 	default:
@@ -115,7 +115,7 @@ uint32 CVu1Vm::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 {
 	switch(address)
 	{
-	case CVIF::VU_XGKICK:
+	case CVpu::VU_XGKICK:
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%0.8X, 0x%0.8X).\r\n", 
