@@ -1,6 +1,6 @@
 #pragma once
 
-#include "win32ui/DirectXControl.h"
+#include "ui_win32/DirectXControl.h"
 #include "iop/Iop_SpuBase.h"
 #include "win32/ComPtr.h"
 
