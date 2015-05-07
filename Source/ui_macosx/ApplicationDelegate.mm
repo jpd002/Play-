@@ -3,7 +3,7 @@
 #import "GSH_OpenGLMacOSX.h"
 #import "PH_HidMacOSX.h"
 #import "Globals.h"
-#import "../PS2OS.h"
+#import "../ee/PS2OS.h"
 #import "../PS2VM_Preferences.h"
 #import "../AppConfig.h"
 

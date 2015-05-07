@@ -1,7 +1,7 @@
 #ifndef _GSH_OPENGLMACOSX_H_
 #define _GSH_OPENGLMACOSX_H_
 
-#include "../GSH_OpenGL.h"
+#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 
 class CGSH_OpenGLMacOSX : public CGSH_OpenGL
 {
