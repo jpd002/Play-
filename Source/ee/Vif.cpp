@@ -58,6 +58,7 @@ void CVif::Reset()
 	m_ITOPS = 0;
 	m_readTick = 0;
 	m_writeTick = 0;
+	m_stream.Reset();
 #ifdef DELAYED_MSCAL
 	m_pendingMicroProgram = -1;
 	memset(&m_previousCODE, 0, sizeof(CODE));
@@ -168,11 +169,7 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, bool tagIncluded)
 		m_number, address, qwc, static_cast<int>(tagIncluded));
 #endif
 
-	m_stream.SetDmaParams(address, qwc * 0x10);
-	if(tagIncluded)
-	{
-		m_stream.Read(nullptr, 8);
-	}
+	m_stream.SetDmaParams(address, qwc * 0x10, tagIncluded);
 
 	ProcessPacket(m_stream);
 
@@ -985,10 +982,6 @@ void CVif::DisassembleCommand(CODE code)
 CVif::CFifoStream::CFifoStream(uint8* ram, uint8* spr) 
 : m_ram(ram)
 , m_spr(spr)
-, m_source(NULL)
-, m_endAddress(0)
-, m_nextAddress(0)
-, m_bufferPosition(BUFFERSIZE)
 {
 
 }
@@ -996,6 +989,15 @@ CVif::CFifoStream::CFifoStream(uint8* ram, uint8* spr)
 CVif::CFifoStream::~CFifoStream()
 {
 
+}
+
+void CVif::CFifoStream::Reset()
+{
+	m_bufferPosition = BUFFERSIZE;
+	m_nextAddress = 0;
+	m_endAddress = 0;
+	m_tagIncluded = false;
+	m_source = nullptr;
 }
 
 void CVif::CFifoStream::Read(void* buffer, uint32 size)
@@ -1021,7 +1023,7 @@ void CVif::CFifoStream::Flush()
 	m_bufferPosition = BUFFERSIZE;
 }
 
-void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size)
+void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size, bool tagIncluded)
 {
 	if(address & 0x80000000)
 	{
@@ -1037,6 +1039,7 @@ void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size)
 	}
 	m_nextAddress = address;
 	m_endAddress = address + size;
+	m_tagIncluded = tagIncluded;
 	SyncBuffer();
 }
 
@@ -1070,5 +1073,11 @@ void CVif::CFifoStream::SyncBuffer()
 		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
 		m_nextAddress += 0x10;
 		m_bufferPosition = 0;
+		if(m_tagIncluded)
+		{
+			//Skip next 8 bytes
+			m_tagIncluded = false;
+			m_bufferPosition += 8;
+		}
 	}
 }

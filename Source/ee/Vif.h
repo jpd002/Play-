@@ -51,12 +51,14 @@ protected:
 								CFifoStream(uint8*, uint8*);
 		virtual					~CFifoStream();
 
+		void					Reset();
+
 		uint32					GetAvailableReadBytes() const;
 		uint32					GetRemainingDmaTransferSize() const;
 		void					Read(void*, uint32);
 		void					Flush();
 		void					Align32();
-		void					SetDmaParams(uint32, uint32);
+		void					SetDmaParams(uint32, uint32, bool);
 
 		uint8*					m_ram;
 		uint8*					m_spr;
@@ -70,10 +72,11 @@ protected:
 		};
 
 		uint128					m_buffer;
-		uint32					m_bufferPosition;
-		uint32					m_nextAddress;
-		uint32					m_endAddress;
-		uint8*					m_source;
+		uint32					m_bufferPosition = BUFFERSIZE;
+		uint32					m_nextAddress = 0;
+		uint32					m_endAddress = 0;
+		bool					m_tagIncluded = false;
+		uint8*					m_source = nullptr;
 	};
 
 	typedef CFifoStream StreamType;
