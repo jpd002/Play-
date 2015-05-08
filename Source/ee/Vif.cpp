@@ -75,6 +75,16 @@ uint32 CVif::GetRegister(uint32 address)
 
 void CVif::SetRegister(uint32 address, uint32 value)
 {
+	switch(address)
+	{
+	case VIF1_FBRST:
+		if(value & FBRST_STC)
+		{
+			m_STAT.nVIS = 0;
+			m_STAT.nINT = 0;
+		}
+		break;
+	}
 #ifdef _DEBUG
 	DisassembleSet(address, value);
 #endif
@@ -178,6 +188,11 @@ bool CVif::IsWaitingForProgramEnd() const
 	return (m_STAT.nVEW != 0);
 }
 
+bool CVif::IsStalledByInterrupt() const
+{
+	return (m_STAT.nVIS != 0);
+}
+
 void CVif::ProcessPacket(StreamType& stream)
 {
 	while(stream.GetAvailableReadBytes())
@@ -209,9 +224,20 @@ void CVif::ProcessPacket(StreamType& stream)
 #ifdef DELAYED_MSCAL
 		m_previousCODE = m_CODE;
 #endif
+		if(m_STAT.nVIS)
+		{
+			//Should check for MARK command
+			break;
+		}
+
 		stream.Read(&m_CODE, sizeof(CODE));
 
-		assert(m_CODE.nI == 0);
+		if(m_CODE.nI != 0)
+		{
+			//Next command will be stalled
+			m_STAT.nVIS = 1;
+			m_STAT.nINT = 1;
+		}
 
 		m_NUM = m_CODE.nNUM;
 
@@ -838,6 +864,9 @@ void CVif::DisassembleSet(uint32 address, uint32 value)
 {
 	switch(address)
 	{
+	case VIF1_FBRST:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
 		break;

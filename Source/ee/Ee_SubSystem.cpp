@@ -303,6 +303,10 @@ void CSubSystem::CountTicks(int ticks)
 	if(!m_vpu1.IsVuRunning() || (m_vpu1.IsVuRunning() && !m_vpu1.GetVif().IsWaitingForProgramEnd()))
 	{
 		m_dmac.ResumeDMA1();
+		if(m_vpu1.GetVif().IsStalledByInterrupt())
+		{
+			m_intc.AssertLine(CINTC::INTC_LINE_VIF1);
+		}
 	}
 	m_dmac.ResumeDMA8();
 	ExecuteIpu();

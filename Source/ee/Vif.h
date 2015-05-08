@@ -18,6 +18,7 @@ public:
 		REGS0_START	= 0x10003800,
 		REGS0_END	= 0x10003A00,
 		REGS1_START	= 0x10003C00,
+		VIF1_FBRST	= 0x10003C10,
 		REGS1_END	= 0x10003E00,
 	};
 
@@ -36,8 +37,14 @@ public:
 	uint32						ReceiveDMA(uint32, uint32, bool);
 
 	bool						IsWaitingForProgramEnd() const;
+	bool						IsStalledByInterrupt() const;
 
 protected:
+	enum
+	{
+		FBRST_STC = 0x08
+	};
+
 	class CFifoStream
 	{
 	public:
