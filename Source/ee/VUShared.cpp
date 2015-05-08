@@ -932,6 +932,12 @@ void VUShared::MUL(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
 
 void VUShared::MULbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc, uint32 relativePipeTime)
 {
+	if(nFd == 0)
+	{
+		//Use the temporary register to store the result
+		nFd = 32;
+	}
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
 	codeGen->MD_MulS();
