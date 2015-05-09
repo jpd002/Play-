@@ -433,6 +433,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
+	case D8_SADR + 0x0:
+		return m_D8_SADR;
+		break;
+	case D8_SADR + 0x4:
+	case D8_SADR + 0x8:
+	case D8_SADR + 0xC:
+		return 0;
+		break;
+
 	//Channel 9
 	case D9_CHCR + 0x0:
 		return m_D9.ReadCHCR();
@@ -449,6 +458,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 	case D9_MADR + 0x4:
 	case D9_MADR + 0x8:
 	case D9_MADR + 0xC:
+		return 0;
+		break;
+
+	case D9_SADR + 0x0:
+		return m_D9_SADR;
+		break;
+	case D9_SADR + 0x4:
+	case D9_SADR + 0x8:
+	case D9_SADR + 0xC:
 		return 0;
 		break;
 
@@ -978,11 +996,17 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 	case D8_QWC:
 		CLog::GetInstance().Print(LOG_NAME, "= D8_QWC.\r\n");
 		break;
+	case D8_SADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D8_SADR.\r\n");
+		break;
 	case D9_CHCR:
 		CLog::GetInstance().Print(LOG_NAME, "= D9_CHCR.\r\n");
 		break;
 	case D9_MADR:
 		CLog::GetInstance().Print(LOG_NAME, "= D9_MADR.\r\n");
+		break;
+	case D9_SADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D9_SADR.\r\n");
 		break;
 	case D_CTRL:
 		CLog::GetInstance().Print(LOG_NAME, "= D_CTRL.\r\n");
