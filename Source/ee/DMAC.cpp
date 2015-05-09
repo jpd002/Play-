@@ -16,6 +16,11 @@
 #define STATE_REGS_RBOR     ("D_RBOR")
 #define STATE_REGS_D9_SADR  ("D9_SADR")
 
+#define MADR_WRITE_MASK			(~0x0000000F)
+#define SPR_MADR_WRITE_MASK		(~0x8000000F)
+
+#define SADR_WRITE_MASK			((PS2::EE_SPR_SIZE - 1) & ~0x0F)
+
 using namespace Framework;
 using namespace Dmac;
 
@@ -513,7 +518,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D0_MADR + 0x0:
-		m_D0.m_nMADR = nData;
+		m_D0.m_nMADR = nData & MADR_WRITE_MASK;
 		break;
 	case D0_MADR + 0x4:
 	case D0_MADR + 0x8:
@@ -551,7 +556,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	case D1_MADR + 0x0:
 		assert(m_D1.m_CHCR.nSTR == 0);
-		m_D1.m_nMADR = nData;
+		m_D1.m_nMADR = nData & MADR_WRITE_MASK;
 		break;
 	case D1_MADR + 0x4:
 	case D1_MADR + 0x8:
@@ -585,7 +590,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	//D2_MADR
 	case D2_MADR + 0x0:
-		m_D2.m_nMADR = nData;
+		m_D2.m_nMADR = nData & MADR_WRITE_MASK;
 		break;
 	case D2_MADR + 0x4:
 	case D2_MADR + 0x8:
@@ -623,7 +628,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	//D3_MADR
 	case D3_MADR + 0x00:
-		m_D3_MADR = nData;
+		m_D3_MADR = nData & MADR_WRITE_MASK;
 		break;
 	case D3_MADR + 0x04:
 	case D3_MADR + 0x08:
@@ -651,7 +656,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	//D4_MADR
 	case D4_MADR + 0x0:
 		assert(m_D4.m_CHCR.nSTR == 0);
-		m_D4.m_nMADR = nData;
+		m_D4.m_nMADR = nData & MADR_WRITE_MASK;
 		break;
 	case D4_MADR + 0x4:
 	case D4_MADR + 0x8:
@@ -693,7 +698,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	//D5_MADR
 	case D5_MADR + 0x0:
-		m_D5_MADR = nData;
+		m_D5_MADR = nData & MADR_WRITE_MASK;
 		break;
 	case D5_MADR + 0x4:
 	case D5_MADR + 0x8:
@@ -725,7 +730,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	//D6_MADR
 	case D6_MADR + 0x0:
-		m_D6_MADR = nData;
+		m_D6_MADR = nData & MADR_WRITE_MASK;
 		break;
 	case D6_MADR + 0x4:
 	case D6_MADR + 0x8:
@@ -760,7 +765,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D8_MADR + 0x0:
-		m_D8.m_nMADR = nData;
+		m_D8.m_nMADR = nData & SPR_MADR_WRITE_MASK;
 		break;
 	case D8_MADR + 0x4:
 	case D8_MADR + 0x8:
@@ -776,7 +781,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D8_SADR + 0x0:
-		m_D8_SADR = nData;
+		m_D8_SADR = nData & SADR_WRITE_MASK;
 		break;
 	case D8_SADR + 0x4:
 	case D8_SADR + 0x8:
@@ -793,7 +798,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D9_MADR + 0x0:
-		m_D9.m_nMADR = nData;
+		m_D9.m_nMADR = nData & SPR_MADR_WRITE_MASK;
 		break;
 	case D9_MADR + 0x4:
 	case D9_MADR + 0x8:
@@ -817,7 +822,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D9_SADR + 0x0:
-		m_D9_SADR = nData;
+		m_D9_SADR = nData & SADR_WRITE_MASK;
 		break;
 	case D9_SADR + 0x4:
 	case D9_SADR + 0x8:
