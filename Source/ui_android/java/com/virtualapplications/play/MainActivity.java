@@ -75,6 +75,19 @@ public class MainActivity extends Activity
 		preferencesEditor.commit();
 	}
 	
+	private static boolean IsLoadableExecutableFileName(String fileName)
+	{
+		return fileName.endsWith(".elf");
+	}
+	
+	private static boolean IsLoadableDiskImageFileName(String fileName)
+	{
+		return 
+				fileName.endsWith(".iso") || 
+				fileName.endsWith(".cso") || 
+				fileName.endsWith(".isz");
+	}
+	
 	private static FileListItem[] getFileList(String directoryPath)
 	{
 		ArrayList<FileListItem> fileListItems = new ArrayList<FileListItem>();
@@ -89,11 +102,11 @@ public class MainActivity extends Activity
 				{
 					fileListItems.add(new FileListItem(file.getAbsolutePath()));
 				}
-				else if(file.getName().endsWith(".elf"))
+				else if(IsLoadableExecutableFileName(file.getName()))
 				{
 					fileListItems.add(new FileListItem(file.getAbsolutePath()));
 				}
-				else if(file.getName().endsWith(".isz"))
+				else if(IsLoadableDiskImageFileName(file.getName()))
 				{
 					fileListItems.add(new FileListItem(file.getAbsolutePath()));
 				}
@@ -139,7 +152,7 @@ public class MainActivity extends Activity
 					{
 						try
 						{
-							if(fileListItem.getPath().endsWith(".elf"))
+							if(IsLoadableExecutableFileName(fileListItem.getPath()))
 							{
 								NativeInterop.loadElf(fileListItem.getPath());
 							}
