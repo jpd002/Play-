@@ -90,7 +90,9 @@ private:
 	void								VOPMSUB();
 	void								VMINI();
 	void								VIADD();
+	void								VISUB();
 	void								VIADDI();
+	void								VIAND();
 	void								VIOR();
 	void								VCALLMS();
 	void								VCALLMSR();

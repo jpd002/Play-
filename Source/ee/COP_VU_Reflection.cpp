@@ -241,10 +241,10 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMINI",	NULL,			CopyMnemonic,		ReflOpFdFsFt,		NULL,						NULL			},
 	//0x30
 	{	"VIADD",	NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VISUB",	NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,						NULL			},
 	{	"VIADDI",	NULL,			CopyMnemonic,		ReflOpItIsImm5,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VIAND",	NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,						NULL			},
 	{	"VIOR",		NULL,			CopyMnemonic,		ReflOpIdIsIt,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
