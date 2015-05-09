@@ -539,7 +539,7 @@ void CPS2VM::OnGsNewFrame()
 {
 #ifdef DEBUGGER_INCLUDED
 	std::unique_lock<std::mutex> dumpFrameCallbackMutexLock(m_frameDumpCallbackMutex);
-	if(m_dumpingFrame)
+	if(m_dumpingFrame && !m_frameDump.GetPackets().empty())
 	{
 		m_ee->m_gs->SetFrameDump(nullptr);
 		m_frameDumpCallback(m_frameDump);
