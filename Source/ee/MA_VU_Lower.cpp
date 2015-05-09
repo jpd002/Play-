@@ -553,12 +553,7 @@ void CMA_VU::CLower::IADD()
 //31
 void CMA_VU::CLower::ISUB()
 {
-	if(m_nID == 0) return;
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->Sub();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
+	VUShared::ISUB(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //32
@@ -570,12 +565,7 @@ void CMA_VU::CLower::IADDI()
 //34
 void CMA_VU::CLower::IAND()
 {
-	if(m_nID == 0) return;
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->And();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
+	VUShared::IAND(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //35
