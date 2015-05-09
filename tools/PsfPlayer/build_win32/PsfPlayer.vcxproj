@@ -440,7 +440,7 @@
     <ClCompile Include="..\..\..\Source\RegisterStateFile.cpp" />
     <ClCompile Include="..\..\..\Source\StructCollectionStateFile.cpp" />
     <ClCompile Include="..\..\..\Source\StructFile.cpp" />
-    <ClCompile Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\DebugExpressionEvaluator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -450,8 +450,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\DirectXControl.cpp" />
-    <ClCompile Include="..\..\..\Source\win32ui\DisAsm.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\DirectXControl.cpp" />
+    <ClCompile Include="..\..\..\Source\ui_win32\DisAsm.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -461,7 +461,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\FunctionsView.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\FunctionsView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -471,7 +471,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\MemoryView.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\MemoryView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -481,7 +481,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\MemoryViewMIPS.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\MemoryViewMIPS.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -491,7 +491,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\RegViewGeneral.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\RegViewGeneral.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -501,7 +501,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\RegViewPage.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\RegViewPage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -511,7 +511,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\WinUtils.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\WinUtils.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">true</ExcludedFromBuild>
@@ -684,15 +684,15 @@
     <ClInclude Include="..\..\..\Source\RegisterStateFile.h" />
     <ClInclude Include="..\..\..\Source\StructCollectionStateFile.h" />
     <ClInclude Include="..\..\..\Source\StructFile.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\DirectXControl.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\DisAsm.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\FunctionsView.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\MemoryView.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\MemoryViewMIPS.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\RegViewGeneral.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\RegViewPage.h" />
-    <ClInclude Include="..\..\..\Source\win32ui\WinUtils.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\DebugExpressionEvaluator.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\DirectXControl.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\DisAsm.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\FunctionsView.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\MemoryView.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\MemoryViewMIPS.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\RegViewGeneral.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\RegViewPage.h" />
+    <ClInclude Include="..\..\..\Source\ui_win32\WinUtils.h" />
     <ClInclude Include="..\Source\AppConfig.h" />
     <ClInclude Include="..\Source\AppDef.h" />
     <ClInclude Include="..\Source\Debuggable.h" />
