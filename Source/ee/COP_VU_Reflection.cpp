@@ -226,7 +226,7 @@ INSTRUCTION CCOP_VU::m_cReflV[64] =
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	"VMADD",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsQ,		NULL,						NULL			},
 	{	"VSUB",		NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},
 	{	"VMSUB",	NULL,			CopyMnemonic,		ReflOpFdFsI,		NULL,						NULL			},

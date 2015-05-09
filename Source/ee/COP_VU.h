@@ -78,6 +78,7 @@ private:
 	void								VADDq();
 	void								VMADDq();
 	void								VMADDi();
+	void								VSUBq();
 	void								VMSUBq();
 	void								VSUBi();
 	void								VMSUBi();

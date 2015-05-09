@@ -350,6 +350,12 @@ void CCOP_VU::VMADDi()
 	VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
+//24
+void CCOP_VU::VSUBq()
+{
+	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
+}
+
 //25
 void CCOP_VU::VMSUBq()
 {
@@ -784,7 +790,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x18
 	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::VMULi,		&CCOP_VU::VMINIi,
 	//0x20
-	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::Illegal,		&CCOP_VU::VMADDi,		&CCOP_VU::Illegal,		&CCOP_VU::VMSUBq,		&CCOP_VU::VSUBi,		&CCOP_VU::VMSUBi,
+	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::Illegal,		&CCOP_VU::VMADDi,		&CCOP_VU::VSUBq,		&CCOP_VU::VMSUBq,		&CCOP_VU::VSUBi,		&CCOP_VU::VMSUBi,
 	//0x28
 	&CCOP_VU::VADD,			&CCOP_VU::VMADD,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::VMSUB,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
 	//0x30
