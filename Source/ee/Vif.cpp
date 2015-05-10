@@ -818,7 +818,7 @@ void CVif::StartMicroProgram(uint32 address)
 
 void CVif::StartDelayedMicroProgram(uint32 address)
 {
-	if(IsRunning())
+	if(m_vpu.IsVuRunning())
 	{
 		m_STAT.nVEW = 1;
 		return;
@@ -834,8 +834,8 @@ bool CVif::ResumeDelayedMicroProgram()
 	if(m_pendingMicroProgram != -1)
 	{
 		assert(!IsWaitingForProgramEnd());
-		assert(!IsRunning());
-		ExecuteMicroProgram(m_pendingMicroProgram);
+		assert(!m_vpu.IsVuRunning());
+		m_vpu.ExecuteMicroProgram(m_pendingMicroProgram);
 		m_pendingMicroProgram = -1;
 		return true;
 	}
