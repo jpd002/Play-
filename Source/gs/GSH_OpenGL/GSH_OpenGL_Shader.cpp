@@ -263,17 +263,54 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "}" << std::endl;
 #else
 	shaderBuilder << "#version 300 es" << std::endl;
+
 	shaderBuilder << "precision mediump float;" << std::endl;
+
 	shaderBuilder << "in vec4 v_color;" << std::endl;
 	shaderBuilder << "in vec3 v_texCoord;" << std::endl;
 	shaderBuilder << "out vec4 fragColor;" << std::endl;
+
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
+	shaderBuilder << "uniform sampler2D g_palette;" << std::endl;
+
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	vec4 textureColor = vec4(1, 1, 1, 1);" << std::endl;
-	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
+	if(caps.isIndexedTextureSource())
+	{
+		//if(!caps.texBilinearFilter)
+		{
+			shaderBuilder << "	float colorIndex = textureProj(g_texture, v_texCoord).r * 255.0;" << std::endl;
+			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
+			{
+				shaderBuilder << "	textureColor = texture2D(g_palette, vec2(colorIndex / 16.0, 1));" << std::endl;
+			}
+			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
+			{
+				shaderBuilder << "	textureColor = texture2D(g_palette, vec2(colorIndex / 256.0, 1));" << std::endl;
+			}
+		}
+	}
+	else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_STD)
 	{
 		shaderBuilder << "	textureColor = textureProj(g_texture, v_texCoord);" << std::endl;
+	}
+	
+	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
+	{
+		if(!caps.texHasAlpha)
+		{
+			shaderBuilder << "	textureColor.a = 1.0;" << std::endl;
+		}
+
+		switch(caps.texFunction)
+		{
+		case TEX0_FUNCTION_MODULATE:
+			shaderBuilder << "	textureColor *= v_color;" << std::endl;
+			break;
+		case TEX0_FUNCTION_DECAL:
+			break;
+		}
 	}
 	else
 	{
