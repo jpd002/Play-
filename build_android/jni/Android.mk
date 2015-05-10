@@ -67,9 +67,9 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/ee/PS2OS.cpp \
 							../../Source/ee/SIF.cpp \
 							../../Source/ee/Timer.cpp \
-							../../Source/ee/VIF.cpp \
-							../../Source/ee/VPU.cpp \
-							../../Source/ee/VPU1.cpp \
+							../../Source/ee/Vif.cpp \
+							../../Source/ee/Vif1.cpp \
+							../../Source/ee/Vpu.cpp \
 							../../Source/ee/VuAnalysis.cpp \
 							../../Source/ee/VuBasicBlock.cpp \
 							../../Source/ee/VuExecutor.cpp \

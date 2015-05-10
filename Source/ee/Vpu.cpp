@@ -1,3 +1,4 @@
+#include "make_unique.h"
 #include "../Log.h"
 #include "../RegisterStateFile.h"
 #include "../Ps2Const.h"
