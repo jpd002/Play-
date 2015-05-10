@@ -400,15 +400,6 @@
     <ClCompile Include="..\Source\ee\Timer.cpp">
       <Filter>Source Files\Ee</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\ee\VIF.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ee\VPU.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ee\VPU1.cpp">
-      <Filter>Source Files\Ee</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\ee\VuAnalysis.cpp">
       <Filter>Source Files\Ee</Filter>
     </ClCompile>
@@ -435,6 +426,15 @@
     </ClCompile>
     <ClCompile Include="..\Source\gs\GsPixelFormats.cpp">
       <Filter>Source Files\Gs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\Vif.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\Vif1.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ee\Vpu.cpp">
+      <Filter>Source Files\Ee</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -813,15 +813,6 @@
     <ClInclude Include="..\Source\ee\Timer.h">
       <Filter>Source Files\Ee</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\ee\VIF.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ee\VPU.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ee\VPU1.h">
-      <Filter>Source Files\Ee</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\ee\VuAnalysis.h">
       <Filter>Source Files\Ee</Filter>
     </ClInclude>
@@ -845,6 +836,15 @@
     </ClInclude>
     <ClInclude Include="..\Source\gs\GsPixelFormats.h">
       <Filter>Source Files\Gs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\Vif.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\Vif1.h">
+      <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\Vpu.h">
+      <Filter>Source Files\Ee</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

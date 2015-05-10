@@ -157,6 +157,7 @@ void CSpuBase::Reset()
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
 	{
 		m_reader[i].Reset();
+		m_reader[i].SetMemory(m_ram, m_ramSize);
 	}
 }
 
@@ -471,7 +472,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			CSampleReader& reader(m_reader[i]);
 			if(channel.status == KEY_ON)
 			{
-				reader.SetParams(m_ram + channel.address, m_ram + channel.repeat);
+				reader.SetParams(channel.address, channel.repeat);
 				reader.ClearEndFlag();
 				channel.status = ATTACK;
 				channel.adsrVolume = 0;
@@ -486,12 +487,11 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				}
 				if(reader.DidChangeRepeat())
 				{
-					uint8* repeat = reader.GetRepeat();
-					channel.repeat = static_cast<uint32>(repeat - m_ram);
+					channel.repeat = reader.GetRepeat();
 					reader.ClearDidChangeRepeat();
 				}
 				//Update repeat in case it has been changed externally (needed for FFX)
-				reader.SetRepeat(m_ram + channel.repeat);
+				reader.SetRepeat(channel.repeat);
 			}
 
 			uint32 prevAddress = channel.current;
@@ -500,7 +500,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			//We need to check if pitch is 0 here because FFX does that for its voice overs
 			reader.SetPitch(m_baseSamplingRate, (channel.pitch != 0) ? channel.pitch : 0x1000);
 			reader.GetSamples(&readSample, 1, sampleRate);
-			channel.current = static_cast<uint32>(reader.GetCurrent() - m_ram);
+			channel.current = reader.GetCurrent();
 
 			//TODO: Improve address detection (used by DW5, SW2, OW2 in movie playback)
 			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (prevAddress != 0) && (prevAddress != channel.current) &&
@@ -815,7 +815,6 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 ///////////////////////////////////////////////////////
 
 CSpuBase::CSampleReader::CSampleReader()
-: m_nextSample(NULL)
 {
 	Reset();
 }
@@ -827,8 +826,8 @@ CSpuBase::CSampleReader::~CSampleReader()
 
 void CSpuBase::CSampleReader::Reset()
 {
-	m_nextSample = NULL;
-	m_repeat = NULL;
+	m_nextSampleAddr = 0;
+	m_repeatAddr = 0;
 	memset(m_buffer, 0, sizeof(m_buffer));
 	m_pitch = 0;
 	m_srcSampleIdx = 0;
@@ -841,11 +840,18 @@ void CSpuBase::CSampleReader::Reset()
 	m_endFlag = false;
 }
 
-void CSpuBase::CSampleReader::SetParams(uint8* address, uint8* repeat)
+void CSpuBase::CSampleReader::SetMemory(uint8* ram, uint32 ramSize)
+{
+	m_ram = ram;
+	m_ramSize = ramSize;
+	assert((ramSize & (ramSize - 1)) == 0);
+}
+
+void CSpuBase::CSampleReader::SetParams(uint32 address, uint32 repeat)
 {
 	m_srcSampleIdx = 0;
-	m_nextSample = address;
-	m_repeat = repeat;
+	m_nextSampleAddr = address;
+	m_repeatAddr = repeat;
 	m_s1 = 0;
 	m_s2 = 0;
 	m_nextValid = false;
@@ -861,7 +867,6 @@ void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 
 void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int dstSamplingRate)
 {
-	assert(m_nextSample != NULL);
 	for(unsigned int i = 0; i < sampleCount; i++)
 	{
 		samples[i] = GetSample(dstSamplingRate);
@@ -904,10 +909,12 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 {
 	int32 workBuffer[28];
 
+	uint8* nextSample = m_ram + m_nextSampleAddr;
+
 	//Read header
-	uint8 shiftFactor = m_nextSample[0] & 0xF;
-	uint8 predictNumber = m_nextSample[0] >> 4;
-	uint8 flags = m_nextSample[1];
+	uint8 shiftFactor = nextSample[0] & 0xF;
+	uint8 predictNumber = nextSample[0] >> 4;
+	uint8 flags = nextSample[1];
 	assert(predictNumber < 5);
 
 	if(m_done)
@@ -921,7 +928,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 		unsigned int workBufferPtr = 0;
 		for(unsigned int i = 2; i < 16; i++)
 		{
-			uint8 sampleByte = m_nextSample[i];
+			uint8 sampleByte = nextSample[i];
 			int16 firstSample = ((sampleByte & 0x0F) << 12);
 			int16 secondSample = ((sampleByte & 0xF0) << 8);
 			firstSample >>= shiftFactor;
@@ -958,11 +965,13 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	if(flags & 0x04)
 	{
-		m_repeat = m_nextSample;
+		m_repeatAddr = m_nextSampleAddr;
 		m_didChangeRepeat = true;
 	}
 
-	m_nextSample += 0x10;
+	m_nextSampleAddr += 0x10;
+	assert(m_nextSampleAddr < m_ramSize);
+	m_nextSampleAddr &= (m_ramSize - 1);
 
 	if(flags & 0x01)
 	{
@@ -970,7 +979,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 		if(flags == 0x03)
 		{
-			m_nextSample = m_repeat;
+			m_nextSampleAddr = m_repeatAddr;
 		}
 		else
 		{
@@ -979,19 +988,19 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	}
 }
 
-uint8* CSpuBase::CSampleReader::GetRepeat() const
+uint32 CSpuBase::CSampleReader::GetRepeat() const
 {
-	return m_repeat;
+	return m_repeatAddr;
 }
 
-void CSpuBase::CSampleReader::SetRepeat(uint8* repeat)
+void CSpuBase::CSampleReader::SetRepeat(uint32 repeatAddr)
 {
-	m_repeat = repeat;
+	m_repeatAddr = repeatAddr;
 }
 
-uint8* CSpuBase::CSampleReader::GetCurrent() const
+uint32 CSpuBase::CSampleReader::GetCurrent() const
 {
-	return m_nextSample;
+	return m_nextSampleAddr;
 }
 
 bool CSpuBase::CSampleReader::IsDone() const

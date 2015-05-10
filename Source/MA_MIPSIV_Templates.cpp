@@ -203,8 +203,28 @@ void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit, unsigned int r
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
-		m_codeGen->PushCst(~0);
-		m_codeGen->PullRel(lo[0]);
+		if(isSigned)
+		{
+			//If r[rs] < 0, then lo = 1 else lo = ~0
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
+			m_codeGen->PushCst(0);
+			m_codeGen->BeginIf(Jitter::CONDITION_LT);
+			{
+				m_codeGen->PushCst(1);
+				m_codeGen->PullRel(lo[0]);
+			}
+			m_codeGen->Else();
+			{
+				m_codeGen->PushCst(~0);
+				m_codeGen->PullRel(lo[0]);
+			}
+			m_codeGen->EndIf();
+		}
+		else
+		{
+			m_codeGen->PushCst(~0);
+			m_codeGen->PullRel(lo[0]);
+		}
 
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
 		m_codeGen->PullRel(hi[0]);

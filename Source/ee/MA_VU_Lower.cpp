@@ -2,7 +2,7 @@
 #include "../MIPS.h"
 #include "../MemoryUtils.h"
 #include "MA_VU.h"
-#include "VIF.h"
+#include "Vpu.h"
 #include "VUShared.h"
 #include "offsetof_def.h"
 
@@ -553,12 +553,7 @@ void CMA_VU::CLower::IADD()
 //31
 void CMA_VU::CLower::ISUB()
 {
-	if(m_nID == 0) return;
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->Sub();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
+	VUShared::ISUB(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //32
@@ -570,12 +565,7 @@ void CMA_VU::CLower::IADDI()
 //34
 void CMA_VU::CLower::IAND()
 {
-	if(m_nID == 0) return;
-
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->And();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nID]));
+	VUShared::IAND(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //35
@@ -661,7 +651,7 @@ void CMA_VU::CLower::XTOP()
 	m_codeGen->PushCtx();
 
 	//Compute Address
-	m_codeGen->PushCst(CVIF::VU_TOP);
+	m_codeGen->PushCst(CVpu::VU_TOP);
 
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -677,7 +667,7 @@ void CMA_VU::CLower::XGKICK()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 
 	//Compute Address
-	m_codeGen->PushCst(CVIF::VU_XGKICK);
+	m_codeGen->PushCst(CVpu::VU_XGKICK);
 
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }
@@ -777,7 +767,7 @@ void CMA_VU::CLower::XITOP()
 	m_codeGen->PushCtx();
 
 	//Compute Address
-	m_codeGen->PushCst(CVIF::VU_ITOP);
+	m_codeGen->PushCst(CVpu::VU_ITOP);
 
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));

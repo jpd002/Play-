@@ -169,6 +169,8 @@ private:
 									CFramebuffer(uint32, uint32, uint32, uint32);
 									~CFramebuffer();
 
+		void						SetBufferWidth(uint32);
+
 		uint32						m_basePtr;
 		uint32						m_width;
 		uint32						m_height;
@@ -176,6 +178,7 @@ private:
 
 		GLuint						m_framebuffer;
 		GLuint						m_texture;
+		uint32						m_textureWidth;
 
 		CGsCachedArea				m_cachedArea;
 	};
@@ -262,7 +265,7 @@ private:
 	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 
-	FramebufferPtr					FindFramebuffer(const FRAME&) const;
+	FramebufferPtr					FindCompatibleFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
 
 	void							DumpTexture(unsigned int, unsigned int, uint32);

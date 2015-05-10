@@ -350,6 +350,12 @@ void CCOP_VU::VMADDi()
 	VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
+//24
+void CCOP_VU::VSUBq()
+{
+	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
+}
+
 //25
 void CCOP_VU::VMSUBq()
 {
@@ -422,10 +428,22 @@ void CCOP_VU::VIADD()
 	VUShared::IADD(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
+//31
+void CCOP_VU::VISUB()
+{
+	VUShared::ISUB(m_codeGen, m_nID, m_nIS, m_nIT);
+}
+
 //32
 void CCOP_VU::VIADDI()
 {
 	VUShared::IADDI(m_codeGen, m_nIT, m_nIS, m_nImm5);
+}
+
+//34
+void CCOP_VU::VIAND()
+{
+	VUShared::IAND(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
 //35
@@ -784,11 +802,11 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
 	//0x18
 	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::Illegal,		&CCOP_VU::VMULi,		&CCOP_VU::VMINIi,
 	//0x20
-	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::Illegal,		&CCOP_VU::VMADDi,		&CCOP_VU::Illegal,		&CCOP_VU::VMSUBq,		&CCOP_VU::VSUBi,		&CCOP_VU::VMSUBi,
+	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::Illegal,		&CCOP_VU::VMADDi,		&CCOP_VU::VSUBq,		&CCOP_VU::VMSUBq,		&CCOP_VU::VSUBi,		&CCOP_VU::VMSUBi,
 	//0x28
 	&CCOP_VU::VADD,			&CCOP_VU::VMADD,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::VMSUB,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
 	//0x30
-	&CCOP_VU::VIADD,		&CCOP_VU::Illegal,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VIOR,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::VIADD,		&CCOP_VU::VISUB,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::VIAND,		&CCOP_VU::VIOR,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x38
 	&CCOP_VU::VCALLMS,		&CCOP_VU::VCALLMSR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
 };

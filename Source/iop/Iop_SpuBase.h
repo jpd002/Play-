@@ -217,13 +217,14 @@ namespace Iop
 			virtual			~CSampleReader();
 
 			void			Reset();
+			void			SetMemory(uint8*, uint32);
 
-			void			SetParams(uint8*, uint8*);
+			void			SetParams(uint32, uint32);
 			void			SetPitch(uint32, uint16);
 			void			GetSamples(int16*, unsigned int, unsigned int);
-			uint8*			GetRepeat() const;
-			void			SetRepeat(uint8*);
-			uint8*			GetCurrent() const;
+			uint32			GetRepeat() const;
+			void			SetRepeat(uint32);
+			uint32			GetCurrent() const;
 			bool			IsDone() const;
 			bool			GetEndFlag() const;
 			void			ClearEndFlag();
@@ -241,10 +242,13 @@ namespace Iop
 			void			AdvanceBuffer();
 			int16			GetSample(unsigned int);
 
+			uint8*			m_ram = nullptr;
+			uint32			m_ramSize = 0;
+
 			uint32			m_srcSampleIdx;
 			unsigned int	m_srcSamplingRate;
-			uint8*			m_nextSample;
-			uint8*			m_repeat;
+			uint32			m_nextSampleAddr = 0;
+			uint32			m_repeatAddr = 0;
 			int16			m_buffer[BUFFER_SAMPLES * 2];
 			uint16			m_pitch;
 			int32			m_s1;

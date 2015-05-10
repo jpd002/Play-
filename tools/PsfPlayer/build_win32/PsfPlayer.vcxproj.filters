@@ -112,28 +112,28 @@
     <ClCompile Include="..\..\..\Source\MIPSTags.cpp">
       <Filter>Source Files\Purei Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\DebugExpressionEvaluator.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\DisAsm.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\DisAsm.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\FunctionsView.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\FunctionsView.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\MemoryView.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\MemoryView.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\MemoryViewMIPS.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\MemoryViewMIPS.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\RegViewGeneral.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\RegViewGeneral.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\RegViewPage.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\RegViewPage.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\WinUtils.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\WinUtils.cpp">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\iop\ArgumentIterator.cpp">
@@ -373,7 +373,7 @@
     <ClCompile Include="..\Source\win32_ui\Main_Aot.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\win32ui\DirectXControl.cpp">
+    <ClCompile Include="..\..\..\Source\ui_win32\DirectXControl.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\PlaylistDiscoveryService.cpp">
@@ -447,28 +447,28 @@
     <ClInclude Include="..\..\..\Source\MIPSTags.h">
       <Filter>Source Files\Purei Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\DebugExpressionEvaluator.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\DebugExpressionEvaluator.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\DisAsm.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\DisAsm.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\FunctionsView.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\FunctionsView.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\MemoryView.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\MemoryView.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\MemoryViewMIPS.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\MemoryViewMIPS.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\RegViewGeneral.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\RegViewGeneral.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\RegViewPage.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\RegViewPage.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\WinUtils.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\WinUtils.h">
       <Filter>Source Files\Purei Core\win32</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\iop\ArgumentIterator.h">
@@ -729,7 +729,7 @@
     <ClInclude Include="..\..\..\Source\RegisterStateFile.h">
       <Filter>Source Files\Purei Core\states</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\win32ui\DirectXControl.h">
+    <ClInclude Include="..\..\..\Source\ui_win32\DirectXControl.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\LockFreeQueue.h">

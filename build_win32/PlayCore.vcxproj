@@ -62,9 +62,9 @@
     <ClCompile Include="..\Source\ee\PS2OS.cpp" />
     <ClCompile Include="..\Source\ee\SIF.cpp" />
     <ClCompile Include="..\Source\ee\Timer.cpp" />
-    <ClCompile Include="..\Source\ee\VIF.cpp" />
-    <ClCompile Include="..\Source\ee\VPU.cpp" />
-    <ClCompile Include="..\Source\ee\VPU1.cpp" />
+    <ClCompile Include="..\Source\ee\Vif.cpp" />
+    <ClCompile Include="..\Source\ee\Vif1.cpp" />
+    <ClCompile Include="..\Source\ee\Vpu.cpp" />
     <ClCompile Include="..\Source\ee\VuAnalysis.cpp" />
     <ClCompile Include="..\Source\ee\VuBasicBlock.cpp" />
     <ClCompile Include="..\Source\ee\VuExecutor.cpp" />
@@ -201,9 +201,9 @@
     <ClInclude Include="..\Source\ee\PS2OS.h" />
     <ClInclude Include="..\Source\ee\SIF.h" />
     <ClInclude Include="..\Source\ee\Timer.h" />
-    <ClInclude Include="..\Source\ee\VIF.h" />
-    <ClInclude Include="..\Source\ee\VPU.h" />
-    <ClInclude Include="..\Source\ee\VPU1.h" />
+    <ClInclude Include="..\Source\ee\Vif.h" />
+    <ClInclude Include="..\Source\ee\Vif1.h" />
+    <ClInclude Include="..\Source\ee\Vpu.h" />
     <ClInclude Include="..\Source\ee\VuAnalysis.h" />
     <ClInclude Include="..\Source\ee\VuBasicBlock.h" />
     <ClInclude Include="..\Source\ee\VuExecutor.h" />

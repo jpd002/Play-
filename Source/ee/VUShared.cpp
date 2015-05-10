@@ -541,6 +541,16 @@ void VUShared::IADDI(CMipsJitter* codeGen, uint8 it, uint8 is, uint8 imm5)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
+void VUShared::IAND(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
+{
+	if(id == 0) return;
+
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->And();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+}
+
 void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
 {
 	codeGen->LoadFromRef();
@@ -564,6 +574,16 @@ void VUShared::IOR(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 	codeGen->Or();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+}
+
+void VUShared::ISUB(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
+{
+	if(id == 0) return;
+
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->Sub();
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
 }
 
@@ -932,6 +952,12 @@ void VUShared::MUL(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint
 
 void VUShared::MULbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc, uint32 relativePipeTime)
 {
+	if(nFd == 0)
+	{
+		//Use the temporary register to store the result
+		nFd = 32;
+	}
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
 	codeGen->MD_MulS();

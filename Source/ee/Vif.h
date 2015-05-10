@@ -1,52 +1,86 @@
 #pragma once
 
 #include "Types.h"
-#include "../MIPS.h"
-#include "../Profiler.h"
-#include "VIF.h"
-#include "VuExecutor.h"
 #include "Convertible.h"
+#include "../uint128.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
 //#define DELAYED_MSCAL
 
-class CVPU
+class CVpu;
+
+class CVif
 {
 public:
-	typedef CVIF::CFifoStream StreamType;
+	enum
+	{
+		REGS0_START	= 0x10003800,
+		REGS0_END	= 0x10003A00,
+		REGS1_START	= 0x10003C00,
+		VIF1_FBRST	= 0x10003C10,
+		REGS1_END	= 0x10003E00,
+	};
 
-						CVPU(CVIF&, unsigned int, const CVIF::VPUINIT&);
-	virtual				~CVPU();
+								CVif(unsigned int, CVpu&, uint8*, uint8*);
+	virtual						~CVif();
 
-	void				Execute(bool);
-	virtual void		Reset();
-	virtual uint32		GetTOP() const;
-	virtual uint32		GetITOP() const;
-	virtual void		SaveState(Framework::CZipArchiveWriter&);
-	virtual void		LoadState(Framework::CZipArchiveReader&);
-	virtual void		ProcessPacket(StreamType&);
+	virtual void				Reset();
+	uint32						GetRegister(uint32);
+	void						SetRegister(uint32, uint32);
+	virtual void				SaveState(Framework::CZipArchiveWriter&);
+	virtual void				LoadState(Framework::CZipArchiveReader&);
 
-	void				StartMicroProgram(uint32);
-	void				InvalidateMicroProgram();
-	CMIPS&				GetContext() const;
-	uint8*				GetVuMemory() const;
-	bool				IsRunning() const;
-	bool				IsWaitingForProgramEnd() const;
+	virtual uint32				GetTOP() const;
+	virtual uint32				GetITOP() const;
 
-#ifdef DEBUGGER_INCLUDED
-	bool				MustBreak() const;
-	void				DisableBreakpointsOnce();
+	uint32						ReceiveDMA(uint32, uint32, bool);
 
-	void				SaveMiniState();
-	const MIPSSTATE&	GetVuMiniState() const;
-	uint8*				GetVuMemoryMiniState() const;
-	uint8*				GetMicroMemoryMiniState() const;
-	uint32				GetVuTopMiniState() const;
-	uint32				GetVuItopMiniState() const;
-#endif
+	bool						IsWaitingForProgramEnd() const;
+	bool						IsStalledByInterrupt() const;
 
 protected:
+	enum
+	{
+		FBRST_STC = 0x08
+	};
+
+	class CFifoStream
+	{
+	public:
+								CFifoStream(uint8*, uint8*);
+		virtual					~CFifoStream();
+
+		void					Reset();
+
+		uint32					GetAvailableReadBytes() const;
+		uint32					GetRemainingDmaTransferSize() const;
+		void					Read(void*, uint32);
+		void					Flush();
+		void					Align32();
+		void					SetDmaParams(uint32, uint32, bool);
+
+		uint8*					m_ram;
+		uint8*					m_spr;
+
+	private:
+		void					SyncBuffer();
+
+		enum
+		{
+			BUFFERSIZE = 0x10
+		};
+
+		uint128					m_buffer;
+		uint32					m_bufferPosition = BUFFERSIZE;
+		uint32					m_nextAddress = 0;
+		uint32					m_endAddress = 0;
+		bool					m_tagIncluded = false;
+		uint8*					m_source = nullptr;
+	};
+
+	typedef CFifoStream StreamType;
+
 	struct STAT : public convertible<uint32>
 	{
 		unsigned int	nVPS		: 2;
@@ -98,18 +132,7 @@ protected:
 		MASK_MASK = 3
 	};
 
-	enum
-	{
-		CMDBUFFER_SIZE = 0x10000,
-	};
-
-	void				ExecuteMicroProgram(uint32);
-	virtual void		PrepareMicroProgram();
-#ifdef DELAYED_MSCAL
-	void				StartDelayedMicroProgram(uint32);
-	bool				ResumeDelayedMicroProgram();
-#endif
-
+	void				ProcessPacket(StreamType&);
 	virtual void		ExecuteCommand(StreamType&, CODE);
 	virtual void		Cmd_UNPACK(StreamType&, CODE, uint32);
 
@@ -127,11 +150,22 @@ protected:
 	bool				Unpack_V32(StreamType&, uint128&, unsigned int);
 	bool				Unpack_V45(StreamType&, uint128&);
 
-	uint32				GetVbs() const;
-	bool				IsVuRunning() const;
 	uint32				GetMaskOp(unsigned int, unsigned int) const;
 
+	virtual void		PrepareMicroProgram();
+	void				StartMicroProgram(uint32);
+#ifdef DELAYED_MSCAL
+	void				StartDelayedMicroProgram(uint32);
+	bool				ResumeDelayedMicroProgram();
+#endif
+
 	void				DisassembleCommand(CODE);
+	void				DisassembleGet(uint32);
+	void				DisassembleSet(uint32, uint32);
+
+	unsigned int		m_number = 0;
+	CVpu&				m_vpu;
+	CFifoStream			m_stream;
 
 	STAT				m_STAT;
 	CYCLE				m_CYCLE;
@@ -150,24 +184,4 @@ protected:
 	uint32				m_pendingMicroProgram;
 	CODE				m_previousCODE;
 #endif
-
-	uint128				m_buffer;
-
-	uint8*				m_microMem = nullptr;
-	uint8*				m_vuMem = nullptr;
-	CMIPS*				m_ctx = nullptr;
-	CVIF&				m_vif;
-
-#ifdef DEBUGGER_INCLUDED
-	MIPSSTATE			m_vuMiniState;
-	uint8*				m_microMemMiniState;
-	uint8*				m_vuMemMiniState;
-	uint32				m_topMiniState;
-	uint32				m_itopMiniState;
-#endif
-
-	unsigned int		m_vpuNumber = 0;
-	CVuExecutor			m_executor;
-
-	CProfiler::ZoneHandle m_vuProfilerZone = 0;
 };

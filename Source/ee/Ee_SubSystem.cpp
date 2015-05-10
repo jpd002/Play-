@@ -2,6 +2,7 @@
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "../MemoryStateFile.h"
+#include "Vif.h"
 #include "placeholder_def.h"
 
 using namespace Ee;
@@ -57,7 +58,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
 , m_gif(m_gs, m_ram, m_spr)
 , m_sif(m_dmac, m_ram, iopRam)
-, m_vif(m_gif, m_ram, m_spr, CVIF::VPUINIT(m_microMem0, m_vuMem0, &m_VU0), CVIF::VPUINIT(m_microMem1, m_vuMem1, &m_VU1))
+, m_vpu0(0, CVpu::VPUINIT(m_microMem0, m_vuMem0, &m_VU0), m_gif, m_ram, m_spr)
+, m_vpu1(1, CVpu::VPUINIT(m_microMem1, m_vuMem1, &m_VU1), m_gif, m_ram, m_spr)
 , m_intc(m_dmac, m_gs)
 , m_timer(m_intc)
 , m_COP_SCU(MIPS_REGSIZE_64)
@@ -150,8 +152,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	m_VU0.m_vuMem = m_vuMem0;
 	m_VU1.m_vuMem = m_vuMem1;
 
-	m_dmac.SetChannelTransferFunction(0, bind(&CVIF::ReceiveDMA0, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(1, bind(&CVIF::ReceiveDMA1, &m_vif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
+	m_dmac.SetChannelTransferFunction(0, bind(&CVif::ReceiveDMA, &m_vpu0.GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
+	m_dmac.SetChannelTransferFunction(1, bind(&CVif::ReceiveDMA, &m_vpu1.GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(2, bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(4, bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_ram));
 	m_dmac.SetChannelTransferFunction(5, bind(&CSIF::ReceiveDMA5, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
@@ -203,7 +205,8 @@ void CSubSystem::Reset()
 	m_sif.Reset();
 	m_ipu.Reset();
 	m_gif.Reset();
-	m_vif.Reset();
+	m_vpu0.Reset();
+	m_vpu1.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
 	m_timer.Reset();
@@ -217,7 +220,7 @@ int CSubSystem::ExecuteCpu(int quota)
 	int executed = 0;
 	if(m_EE.m_State.callMsEnabled)
 	{
-		if(!m_vif.IsVu0Running())
+		if(!m_vpu0.IsVuRunning())
 		{
 			//callMs mode over
 			memcpy(&m_EE.m_State.nCOP2,		&m_VU0.m_State.nCOP2,	sizeof(m_EE.m_State.nCOP2));
@@ -242,12 +245,12 @@ int CSubSystem::ExecuteCpu(int quota)
 			if(m_EE.m_State.callMsEnabled)
 			{
 				//We are in callMs mode
-				assert(!m_vif.IsVu0Running());
+				assert(!m_vpu0.IsVuRunning());
 				//Copy the COP2 state to VPU0
 				memcpy(&m_VU0.m_State.nCOP2,	&m_EE.m_State.nCOP2,	sizeof(m_VU0.m_State.nCOP2));
 				memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
 				memcpy(&m_VU0.m_State.nCOP2VI,	&m_EE.m_State.nCOP2VI,	sizeof(m_VU0.m_State.nCOP2VI));
-				m_vif.StartVu0MicroProgram(m_EE.m_State.callMsAddr);
+				m_vpu0.ExecuteMicroProgram(m_EE.m_State.callMsAddr);
 				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
 			}
 			break;
@@ -293,13 +296,17 @@ bool CSubSystem::IsCpuIdle() const
 
 void CSubSystem::CountTicks(int ticks)
 {
-	if(!m_vif.IsVu0Running() || (m_vif.IsVu0Running() && !m_vif.IsVu0WaitingForProgramEnd()))
+	if(!m_vpu0.IsVuRunning() || (m_vpu0.IsVuRunning() && !m_vpu0.GetVif().IsWaitingForProgramEnd()))
 	{
 		m_dmac.ResumeDMA0();
 	}
-	if(!m_vif.IsVu1Running() || (m_vif.IsVu1Running() && !m_vif.IsVu1WaitingForProgramEnd()))
+	if(!m_vpu1.IsVuRunning() || (m_vpu1.IsVuRunning() && !m_vpu1.GetVif().IsWaitingForProgramEnd()))
 	{
 		m_dmac.ResumeDMA1();
+		if(m_vpu1.GetVif().IsStalledByInterrupt())
+		{
+			m_intc.AssertLine(CINTC::INTC_LINE_VIF1);
+		}
 	}
 	m_dmac.ResumeDMA8();
 	ExecuteIpu();
@@ -340,7 +347,8 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	m_dmac.SaveState(archive);
 	m_intc.SaveState(archive);
 	m_sif.SaveState(archive);
-	m_vif.SaveState(archive);
+	m_vpu0.SaveState(archive);
+	m_vpu1.SaveState(archive);
 	m_timer.SaveState(archive);
 }
 
@@ -359,7 +367,8 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_dmac.LoadState(archive);
 	m_intc.LoadState(archive);
 	m_sif.LoadState(archive);
-	m_vif.LoadState(archive);
+	m_vpu0.LoadState(archive);
+	m_vpu1.LoadState(archive);
 	m_timer.LoadState(archive);
 
 	m_executor.Reset();
@@ -380,9 +389,13 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	{
 		nReturn = m_gif.GetRegister(nAddress);
 	}
-	else if(nAddress >= CVIF::REGS_START && nAddress < CVIF::REGS_END)
+	else if(nAddress >= CVif::REGS0_START && nAddress < CVif::REGS0_END)
 	{
-		nReturn = m_vif.GetRegister(nAddress);
+		nReturn = m_vpu0.GetVif().GetRegister(nAddress);
+	}
+	else if(nAddress >= CVif::REGS1_START && nAddress < CVif::REGS1_END)
+	{
+		nReturn = m_vpu1.GetVif().GetRegister(nAddress);
 	}
 	else if(nAddress >= 0x10008000 && nAddress <= 0x1000EFFC)
 	{
@@ -426,9 +439,13 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		m_gif.SetRegister(nAddress, nData);
 	}
-	else if(nAddress >= CVIF::REGS_START && nAddress < CVIF::REGS_END)
+	else if(nAddress >= CVif::REGS0_START && nAddress < CVif::REGS0_END)
 	{
-		m_vif.SetRegister(nAddress, nData);
+		m_vpu0.GetVif().SetRegister(nAddress, nData);
+	}
+	else if(nAddress >= CVif::REGS1_START && nAddress < CVif::REGS1_END)
+	{
+		m_vpu1.GetVif().SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
 	{
@@ -472,7 +489,7 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 uint32 CSubSystem::Vu0MicroMemWriteHandler(uint32 address, uint32 value)
 {
 	*reinterpret_cast<uint32*>(m_microMem0 + (address - PS2::MICROMEM0ADDR)) = value;
-	m_vif.InvalidateVu0MicroProgram();
+	m_vpu0.InvalidateMicroProgram();
 	return 0;
 }
 
@@ -481,8 +498,8 @@ uint32 CSubSystem::Vu0IoPortReadHandler(uint32 address)
 	uint32 result = 0;
 	switch(address)
 	{
-	case CVIF::VU_ITOP:
-		result = m_vif.GetITop0();
+	case CVpu::VU_ITOP:
+		result = m_vpu0.GetVif().GetITOP();
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU0 IO port (0x%0.8X).\r\n", address);
@@ -508,11 +525,11 @@ uint32 CSubSystem::Vu1IoPortReadHandler(uint32 address)
 	uint32 result = 0xCCCCCCCC;
 	switch(address)
 	{
-	case CVIF::VU_ITOP:
-		result = m_vif.GetITop1();
+	case CVpu::VU_ITOP:
+		result = m_vpu1.GetVif().GetITOP();
 		break;
-	case CVIF::VU_TOP:
-		result = m_vif.GetTop1();
+	case CVpu::VU_TOP:
+		result = m_vpu1.GetVif().GetTOP();
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%0.8X).\r\n", address);
@@ -525,8 +542,8 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 {
 	switch(address)
 	{
-	case CVIF::VU_XGKICK:
-		m_vif.ProcessXGKICK(value);
+	case CVpu::VU_XGKICK:
+		m_vpu1.ProcessXgKick(value);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%0.8X, 0x%0.8X).\r\n", 

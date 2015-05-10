@@ -1,13 +1,15 @@
-#include <boost/lexical_cast.hpp>
-#include "VPU.h"
+#include <cassert>
+#include <stdexcept>
+#include "string_format.h"
 #include "../Log.h"
-#include "../RegisterStateFile.h"
 #include "../Ps2Const.h"
+#include "../RegisterStateFile.h"
+#include "Vpu.h"
+#include "Vif.h"
 
-#define LOG_NAME				("vpu")
+#define LOG_NAME ("vif")
 
-#define STATE_PREFIX			("vif/vpu_")
-#define STATE_SUFFIX			(".xml")
+#define STATE_PATH_FORMAT		("vpu/vif_%d.xml")
 #define STATE_REGS_STAT			("STAT")
 #define STATE_REGS_CODE			("CODE")
 #define STATE_REGS_CYCLE		("CYCLE")
@@ -28,105 +30,26 @@
 #define STATE_REGS_READTICK		("readTick")
 #define STATE_REGS_WRITETICK	("writeTick")
 
-CVPU::CVPU(CVIF& vif, unsigned int vpuNumber, const CVIF::VPUINIT& vpuInit)
-: m_vif(vif)
-, m_vpuNumber(vpuNumber)
-, m_microMem(vpuInit.microMem)
-, m_vuMem(vpuInit.vuMem)
-, m_ctx(vpuInit.context)
-, m_executor(*vpuInit.context)
-, m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
-#ifdef DEBUGGER_INCLUDED
-, m_microMemMiniState(new uint8[(vpuNumber == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
-, m_vuMemMiniState(new uint8[(vpuNumber == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE])
-, m_topMiniState(0)
-, m_itopMiniState(0)
-#endif
+CVif::CVif(unsigned int number, CVpu& vpu, uint8* ram, uint8* spr)
+: m_number(number)
+, m_stream(ram, spr)
+, m_vpu(vpu)
 {
 
 }
 
-CVPU::~CVPU()
+CVif::~CVif()
 {
-#ifdef DEBUGGER_INCLUDED
-	delete [] m_microMemMiniState;
-	delete [] m_vuMemMiniState;
-#endif
+
 }
 
-void CVPU::Execute(bool singleStep)
+void CVif::Reset()
 {
-#ifdef PROFILE
-	CProfilerZone profilerZone(m_vuProfilerZone);
-#endif
-
-	unsigned int quota = singleStep ? 1 : 5000;
-	assert(IsRunning());
-	m_executor.Execute(quota);
-	if(m_ctx->m_State.nHasException)
-	{
-		//E bit encountered
-		m_vif.SetStat(m_vif.GetStat() & ~GetVbs());
-	}
-}
-
-#ifdef DEBUGGER_INCLUDED
-
-bool CVPU::MustBreak() const
-{
-	return m_executor.MustBreak();
-}
-
-void CVPU::DisableBreakpointsOnce()
-{
-	m_executor.DisableBreakpointsOnce();
-}
-
-void CVPU::SaveMiniState()
-{
-	memcpy(m_microMemMiniState, m_microMem, (m_vpuNumber == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE);
-	memcpy(m_vuMemMiniState, m_vuMem, (m_vpuNumber == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE);
-	memcpy(&m_vuMiniState, &m_ctx->m_State, sizeof(MIPSSTATE));
-	m_topMiniState = (m_vpuNumber == 0) ? 0 : GetTOP();
-	m_itopMiniState = GetITOP();
-}
-
-const MIPSSTATE& CVPU::GetVuMiniState() const
-{
-	return m_vuMiniState;
-}
-
-uint8* CVPU::GetVuMemoryMiniState() const
-{
-	return m_vuMemMiniState;
-}
-
-uint8* CVPU::GetMicroMemoryMiniState() const
-{
-	return m_microMemMiniState;
-}
-
-uint32 CVPU::GetVuTopMiniState() const
-{
-	return m_topMiniState;
-}
-
-uint32 CVPU::GetVuItopMiniState() const
-{
-	return m_itopMiniState;
-}
-
-#endif
-
-void CVPU::Reset()
-{
-	m_executor.Reset();
 	memset(&m_STAT, 0, sizeof(STAT));
 	memset(&m_CODE, 0, sizeof(CODE));
 	memset(&m_CYCLE, 0, sizeof(CYCLE));
 	memset(&m_R, 0, sizeof(m_R));
 	memset(&m_C, 0, sizeof(m_C));
-	memset(&m_buffer, 0, sizeof(m_buffer));
 	m_MODE = 0;
 	m_NUM = 0;
 	m_MASK = 0;
@@ -135,15 +58,42 @@ void CVPU::Reset()
 	m_ITOPS = 0;
 	m_readTick = 0;
 	m_writeTick = 0;
+	m_stream.Reset();
 #ifdef DELAYED_MSCAL
 	m_pendingMicroProgram = -1;
 	memset(&m_previousCODE, 0, sizeof(CODE));
 #endif
 }
 
-void CVPU::SaveState(Framework::CZipArchiveWriter& archive)
+uint32 CVif::GetRegister(uint32 address)
 {
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_vpuNumber) + STATE_SUFFIX;
+	uint32 result = 0;
+#ifdef _DEBUG
+	DisassembleGet(address);
+#endif
+	return result;
+}
+
+void CVif::SetRegister(uint32 address, uint32 value)
+{
+	switch(address)
+	{
+	case VIF1_FBRST:
+		if(value & FBRST_STC)
+		{
+			m_STAT.nVIS = 0;
+			m_STAT.nINT = 0;
+		}
+		break;
+	}
+#ifdef _DEBUG
+	DisassembleSet(address, value);
+#endif
+}
+
+void CVif::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto path = string_format(STATE_PATH_FORMAT, m_number);
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_STAT,		m_STAT);
 	registerFile->SetRegister32(STATE_REGS_CODE,		m_CODE);
@@ -167,9 +117,9 @@ void CVPU::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(registerFile);
 }
 
-void CVPU::LoadState(Framework::CZipArchiveReader& archive)
+void CVif::LoadState(Framework::CZipArchiveReader& archive)
 {
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_vpuNumber) + STATE_SUFFIX;
+	auto path = string_format(STATE_PATH_FORMAT, m_number);
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_STAT		<<= registerFile.GetRegister32(STATE_REGS_STAT);
 	m_CODE		<<= registerFile.GetRegister32(STATE_REGS_CODE);
@@ -192,27 +142,55 @@ void CVPU::LoadState(Framework::CZipArchiveReader& archive)
 	m_writeTick	= registerFile.GetRegister32(STATE_REGS_WRITETICK);
 }
 
-uint32 CVPU::GetTOP() const
+uint32 CVif::GetTOP() const
 {
 	throw std::exception();
 }
 
-uint32 CVPU::GetITOP() const
+uint32 CVif::GetITOP() const
 {
 	return m_ITOP;
 }
 
-uint8* CVPU::GetVuMemory() const
+uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, bool tagIncluded)
 {
-	return m_vuMem;
+	if(m_STAT.nVEW && m_vpu.IsVuRunning())
+	{
+		//Is waiting for program end, don't bother
+		return 0;
+	}
+
+#ifdef PROFILE
+	CProfilerZone profilerZone(m_vifProfilerZone);
+#endif
+
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = 0x%X, tagIncluded = %i\r\n",
+		m_number, address, qwc, static_cast<int>(tagIncluded));
+#endif
+
+	m_stream.SetDmaParams(address, qwc * 0x10, tagIncluded);
+
+	ProcessPacket(m_stream);
+
+	uint32 remainingSize = m_stream.GetRemainingDmaTransferSize();
+	assert((remainingSize & 0x0F) == 0);
+	remainingSize /= 0x10;
+
+	return qwc - remainingSize;
 }
 
-CMIPS& CVPU::GetContext() const
+bool CVif::IsWaitingForProgramEnd() const
 {
-	return *m_ctx;
+	return (m_STAT.nVEW != 0);
 }
 
-void CVPU::ProcessPacket(StreamType& stream)
+bool CVif::IsStalledByInterrupt() const
+{
+	return (m_STAT.nVIS != 0);
+}
+
+void CVif::ProcessPacket(StreamType& stream)
 {
 	while(stream.GetAvailableReadBytes())
 	{
@@ -233,7 +211,7 @@ void CVPU::ProcessPacket(StreamType& stream)
 		}
 		if(m_STAT.nVEW == 1)
 		{
-			if(IsRunning()) break;
+			if(m_vpu.IsVuRunning()) break;
 			m_STAT.nVEW = 0;
 			//Command is waiting for micro-program to end.
 			ExecuteCommand(stream, m_CODE);
@@ -243,9 +221,20 @@ void CVPU::ProcessPacket(StreamType& stream)
 #ifdef DELAYED_MSCAL
 		m_previousCODE = m_CODE;
 #endif
+		if(m_STAT.nVIS)
+		{
+			//Should check for MARK command
+			break;
+		}
+
 		stream.Read(&m_CODE, sizeof(CODE));
 
-		assert(m_CODE.nI == 0);
+		if(m_CODE.nI != 0)
+		{
+			//Next command will be stalled
+			m_STAT.nVIS = 1;
+			m_STAT.nINT = 1;
+		}
 
 		m_NUM = m_CODE.nNUM;
 
@@ -260,10 +249,10 @@ void CVPU::ProcessPacket(StreamType& stream)
 #endif
 }
 
-void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
+void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 {
 #ifdef _DEBUG
-	if(m_vpuNumber == 0)
+	if(m_number == 0)
 	{
 		DisassembleCommand(nCommand);
 	}
@@ -317,7 +306,7 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x10:
 		//FLUSHE
-		if(IsVuRunning())
+		if(m_vpu.IsVuRunning())
 		{
 			m_STAT.nVEW = 1;
 		}
@@ -346,7 +335,7 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x17:
 		//MSCNT
-		StartMicroProgram(m_ctx->m_State.nPC);
+		StartMicroProgram(m_vpu.GetContext().m_State.nPC);
 		break;
 	case 0x20:
 		//STMASK
@@ -370,84 +359,7 @@ void CVPU::ExecuteCommand(StreamType& stream, CODE nCommand)
 	}
 }
 
-void CVPU::StartMicroProgram(uint32 address)
-{
-	if(IsRunning())
-	{
-		m_STAT.nVEW = 1;
-		return;
-	}
-
-	assert(!m_STAT.nVEW);
-	PrepareMicroProgram();
-	ExecuteMicroProgram(address);
-}
-
-void CVPU::InvalidateMicroProgram()
-{
-	m_executor.ClearActiveBlocks();
-}
-
-#ifdef DELAYED_MSCAL
-
-void CVPU::StartDelayedMicroProgram(uint32 address)
-{
-	if(IsRunning())
-	{
-		m_STAT.nVEW = 1;
-		return;
-	}
-
-	assert(!m_STAT.nVEW);
-	PrepareMicroProgram();
-	m_pendingMicroProgram = address;
-}
-
-bool CVPU::ResumeDelayedMicroProgram()
-{
-	if(m_pendingMicroProgram != -1)
-	{
-		assert(!IsWaitingForProgramEnd());
-		assert(!IsRunning());
-		ExecuteMicroProgram(m_pendingMicroProgram);
-		m_pendingMicroProgram = -1;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-#endif
-
-void CVPU::PrepareMicroProgram()
-{
-	m_ITOP = m_ITOPS;
-}
-
-void CVPU::ExecuteMicroProgram(uint32 nAddress)
-{
-	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
-
-	m_ctx->m_State.nPC = nAddress;
-	m_ctx->m_State.pipeTime = 0;
-	m_ctx->m_State.nHasException = 0;
-
-#ifdef DEBUGGER_INCLUDED
-	SaveMiniState();
-#endif
-
-	m_vif.SetStat(m_vif.GetStat() | GetVbs());
-
-	for(unsigned int i = 0; i < 100; i++)
-	{
-		Execute(false);
-		if(!IsRunning()) break;
-	}
-}
-
-void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
+void CVif::Cmd_MPG(StreamType& stream, CODE nCommand)
 {
 	uint32 nSize = stream.GetAvailableReadBytes();
 
@@ -463,7 +375,7 @@ void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
 	uint32 nDstAddr = (m_CODE.nIMM * 8) + nTransfered;
 
 	//Check if microprogram is running
-	if(IsRunning())
+	if(m_vpu.IsVuRunning())
 	{
 		m_STAT.nVEW = 1;
 		return;
@@ -475,10 +387,11 @@ void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
 		stream.Read(microProgram, nSize);
 
 		//Check if there's a change
-		if(memcmp(m_microMem + nDstAddr, microProgram, nSize) != 0)
+		auto microMem = m_vpu.GetMicroMemory();
+		if(memcmp(microMem + nDstAddr, microProgram, nSize) != 0)
 		{
-			m_executor.ClearActiveBlocks();
-			memcpy(m_microMem + nDstAddr, microProgram, nSize);
+			m_vpu.InvalidateMicroProgram();
+			memcpy(microMem + nDstAddr, microProgram, nSize);
 		}
 	}
 
@@ -493,7 +406,7 @@ void CVPU::Cmd_MPG(StreamType& stream, CODE nCommand)
 	}
 }
 
-void CVPU::Cmd_STROW(StreamType& stream, CODE nCommand)
+void CVif::Cmd_STROW(StreamType& stream, CODE nCommand)
 {
 	if(m_NUM == 0)
 	{
@@ -517,7 +430,7 @@ void CVPU::Cmd_STROW(StreamType& stream, CODE nCommand)
 	}
 }
 
-void CVPU::Cmd_STCOL(StreamType& stream, CODE nCommand)
+void CVif::Cmd_STCOL(StreamType& stream, CODE nCommand)
 {
 	if(m_NUM == 0)
 	{
@@ -541,7 +454,7 @@ void CVPU::Cmd_STCOL(StreamType& stream, CODE nCommand)
 	}
 }
 
-void CVPU::Cmd_STMASK(StreamType& stream, CODE command)
+void CVif::Cmd_STMASK(StreamType& stream, CODE command)
 {
 	if(m_NUM == 0)
 	{
@@ -564,7 +477,7 @@ void CVPU::Cmd_STMASK(StreamType& stream, CODE command)
 	}
 }
 
-void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
+void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
 	assert((nCommand.nCMD & 0x60) == 0x60);
 
@@ -587,7 +500,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	nDstAddr += transfered;
 	nDstAddr *= 0x10;
 
-	uint128* dst = reinterpret_cast<uint128*>(&m_vuMem[nDstAddr]);
+	uint128* dst = reinterpret_cast<uint128*>(m_vpu.GetVuMemory() + nDstAddr);
 
 	while((currentNum != 0) && stream.GetAvailableReadBytes())
 	{
@@ -696,7 +609,7 @@ void CVPU::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	m_NUM = static_cast<uint8>(currentNum);
 }
 
-bool CVPU::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& writeValue, bool usn)
+bool CVif::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& writeValue, bool usn)
 {
 	bool success = false;
 	switch(nCommand.nCMD & 0x0F)
@@ -760,7 +673,7 @@ bool CVPU::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& w
 	return success;
 }
 
-bool CVPU::Unpack_S32(StreamType& stream, uint128& result)
+bool CVif::Unpack_S32(StreamType& stream, uint128& result)
 {
 	if(stream.GetAvailableReadBytes() < 4) return false;
 
@@ -775,7 +688,7 @@ bool CVPU::Unpack_S32(StreamType& stream, uint128& result)
 	return true;
 }
 
-bool CVPU::Unpack_S16(StreamType& stream, uint128& result, bool zeroExtend)
+bool CVif::Unpack_S16(StreamType& stream, uint128& result, bool zeroExtend)
 {
 	if(stream.GetAvailableReadBytes() < 2) return false;
 
@@ -794,7 +707,7 @@ bool CVPU::Unpack_S16(StreamType& stream, uint128& result, bool zeroExtend)
 	return true;
 }
 
-bool CVPU::Unpack_S8(StreamType& stream, uint128& result, bool zeroExtend)
+bool CVif::Unpack_S8(StreamType& stream, uint128& result, bool zeroExtend)
 {
 	if(stream.GetAvailableReadBytes() < 1) return false;
 
@@ -813,7 +726,7 @@ bool CVPU::Unpack_S8(StreamType& stream, uint128& result, bool zeroExtend)
 	return true;
 }
 
-bool CVPU::Unpack_V8(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
+bool CVif::Unpack_V8(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
 {
 	if(stream.GetAvailableReadBytes() < (fields)) return false;
 
@@ -832,7 +745,7 @@ bool CVPU::Unpack_V8(StreamType& stream, uint128& result, unsigned int fields, b
 	return true;
 }
 
-bool CVPU::Unpack_V16(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
+bool CVif::Unpack_V16(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
 {
 	if(stream.GetAvailableReadBytes() < (fields * 2)) return false;
 
@@ -851,7 +764,7 @@ bool CVPU::Unpack_V16(StreamType& stream, uint128& result, unsigned int fields, 
 	return true;
 }
 
-bool CVPU::Unpack_V32(StreamType& stream, uint128& result, unsigned int fields)
+bool CVif::Unpack_V32(StreamType& stream, uint128& result, unsigned int fields)
 {
 	if(stream.GetAvailableReadBytes() < (fields * 4)) return false;
 
@@ -860,7 +773,7 @@ bool CVPU::Unpack_V32(StreamType& stream, uint128& result, unsigned int fields)
 	return true;
 }
 
-bool CVPU::Unpack_V45(StreamType& stream, uint128& result)
+bool CVif::Unpack_V45(StreamType& stream, uint128& result)
 {
 	if(stream.GetAvailableReadBytes() < 2) return false;
 
@@ -875,42 +788,7 @@ bool CVPU::Unpack_V45(StreamType& stream, uint128& result)
 	return true;
 }
 
-uint32 CVPU::GetVbs() const
-{
-	switch(m_vpuNumber)
-	{
-	case 0: 
-		return CVIF::STAT_VBS0;
-	case 1: 
-		return CVIF::STAT_VBS1;
-	default: 
-		throw std::exception();
-	}
-}
-
-bool CVPU::IsVuRunning() const
-{
-	if(m_vpuNumber == 0)
-	{
-		return m_vif.IsVu0Running();
-	}
-	else
-	{
-		return m_vif.IsVu1Running();
-	}
-}
-
-bool CVPU::IsRunning() const
-{
-	return (m_vif.GetStat() & GetVbs()) != 0;
-}
-
-bool CVPU::IsWaitingForProgramEnd() const
-{
-	return (m_STAT.nVEW != 0);
-}
-
-uint32 CVPU::GetMaskOp(unsigned int row, unsigned int col) const
+uint32 CVif::GetMaskOp(unsigned int row, unsigned int col) const
 {
 	if(col > 3) col = 3;
 	assert(row < 4);
@@ -918,11 +796,85 @@ uint32 CVPU::GetMaskOp(unsigned int row, unsigned int col) const
 	return (m_MASK >> (index * 2)) & 0x03;
 }
 
-void CVPU::DisassembleCommand(CODE code)
+void CVif::PrepareMicroProgram()
+{
+	m_ITOP = m_ITOPS;
+}
+
+void CVif::StartMicroProgram(uint32 address)
+{
+	if(m_vpu.IsVuRunning())
+	{
+		m_STAT.nVEW = 1;
+		return;
+	}
+
+	assert(!m_STAT.nVEW);
+	PrepareMicroProgram();
+	m_vpu.ExecuteMicroProgram(address);
+}
+
+#ifdef DELAYED_MSCAL
+
+void CVif::StartDelayedMicroProgram(uint32 address)
+{
+	if(m_vpu.IsVuRunning())
+	{
+		m_STAT.nVEW = 1;
+		return;
+	}
+
+	assert(!m_STAT.nVEW);
+	PrepareMicroProgram();
+	m_pendingMicroProgram = address;
+}
+
+bool CVif::ResumeDelayedMicroProgram()
+{
+	if(m_pendingMicroProgram != -1)
+	{
+		assert(!IsWaitingForProgramEnd());
+		assert(!m_vpu.IsVuRunning());
+		m_vpu.ExecuteMicroProgram(m_pendingMicroProgram);
+		m_pendingMicroProgram = -1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+#endif
+
+void CVif::DisassembleGet(uint32 address)
+{
+	switch(address)
+	{
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
+		break;
+	}
+}
+
+void CVif::DisassembleSet(uint32 address, uint32 value)
+{
+	switch(address)
+	{
+	case VIF1_FBRST:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
+		break;
+	}
+}
+
+void CVif::DisassembleCommand(CODE code)
 {
 	if(m_STAT.nVPS != 0) return;
 
-	CLog::GetInstance().Print(LOG_NAME, "vpu%i : ", m_vpuNumber);
+	CLog::GetInstance().Print(LOG_NAME, "vif%i : ", m_number);
 
 	if(code.nI)
 	{
@@ -1020,6 +972,112 @@ void CVPU::DisassembleCommand(CODE code)
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Unknown command (0x%x).\r\n", code.nCMD);
 			break;
+		}
+	}
+}
+
+//CFifoStream
+//--------------------------------------------------
+
+CVif::CFifoStream::CFifoStream(uint8* ram, uint8* spr) 
+: m_ram(ram)
+, m_spr(spr)
+{
+
+}
+
+CVif::CFifoStream::~CFifoStream()
+{
+
+}
+
+void CVif::CFifoStream::Reset()
+{
+	m_bufferPosition = BUFFERSIZE;
+	m_nextAddress = 0;
+	m_endAddress = 0;
+	m_tagIncluded = false;
+	m_source = nullptr;
+}
+
+void CVif::CFifoStream::Read(void* buffer, uint32 size)
+{
+	assert(m_source != NULL);
+	uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
+	while(size != 0)
+	{
+		SyncBuffer();
+		uint32 read = std::min<uint32>(size, BUFFERSIZE - m_bufferPosition);
+		if(readBuffer != NULL)
+		{
+			memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, read);
+			readBuffer += read;
+		}
+		m_bufferPosition += read;
+		size -= read;
+	}
+}
+
+void CVif::CFifoStream::Flush()
+{
+	m_bufferPosition = BUFFERSIZE;
+}
+
+void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size, bool tagIncluded)
+{
+	if(address & 0x80000000)
+	{
+		m_source = m_spr;
+		address &= (PS2::EE_SPR_SIZE - 1);
+		assert((address + size) <= PS2::EE_SPR_SIZE);
+	}
+	else
+	{
+		m_source = m_ram;
+		address &= (PS2::EE_RAM_SIZE - 1);
+		assert((address + size) <= PS2::EE_RAM_SIZE);
+	}
+	m_nextAddress = address;
+	m_endAddress = address + size;
+	m_tagIncluded = tagIncluded;
+	SyncBuffer();
+}
+
+uint32 CVif::CFifoStream::GetAvailableReadBytes() const
+{
+	return GetRemainingDmaTransferSize() + (BUFFERSIZE - m_bufferPosition);
+}
+
+uint32 CVif::CFifoStream::GetRemainingDmaTransferSize() const
+{
+	return m_endAddress - m_nextAddress;
+}
+
+void CVif::CFifoStream::Align32()
+{
+	unsigned int remainBytes = m_bufferPosition & 0x03;
+	if(remainBytes == 0) return;
+	Read(NULL, 4 - remainBytes);
+	assert((m_bufferPosition & 0x03) == 0);
+}
+
+void CVif::CFifoStream::SyncBuffer()
+{
+	assert(m_bufferPosition <= BUFFERSIZE);
+	if(m_bufferPosition >= BUFFERSIZE)
+	{
+		if(m_nextAddress >= m_endAddress)
+		{
+			throw std::exception();
+		}
+		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
+		m_nextAddress += 0x10;
+		m_bufferPosition = 0;
+		if(m_tagIncluded)
+		{
+			//Skip next 8 bytes
+			m_tagIncluded = false;
+			m_bufferPosition += 8;
 		}
 	}
 }
