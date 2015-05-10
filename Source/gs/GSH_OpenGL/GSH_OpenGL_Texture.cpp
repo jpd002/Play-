@@ -101,7 +101,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			//We have a winner
 			glBindTexture(GL_TEXTURE_2D, candidateFramebuffer->m_texture);
 
-			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
+			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_textureWidth);
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
 
 			//If we're currently in interlaced mode, framebuffer will have twice the height
