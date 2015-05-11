@@ -2,13 +2,16 @@ package com.virtualapplications.play;
 
 import android.app.*;
 import android.content.*;
+import android.content.pm.*;
 import android.os.*;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.*;
 import java.io.*;
+import java.text.*;
 import java.util.*;
+import java.util.zip.*;
 
 public class MainActivity extends Activity 
 {	
@@ -40,12 +43,29 @@ public class MainActivity extends Activity
 		prepareFileListView();
 		updateFileListView();
 	}
+
+	private static long getBuildDate(Context context) 
+	{
+		try
+		{
+			ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
+			ZipFile zf = new ZipFile(ai.sourceDir);
+			ZipEntry ze = zf.getEntry("classes.dex");
+			long time = ze.getTime();
+			return time;
+		} 
+		catch (Exception e) 
+		{
+
+		}
+		return 0;
+	}
 	
-	private void displayErrorMessage(String message)
+	private void displaySimpleMessage(String title, String message)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-		builder.setTitle("Error");
+		builder.setTitle(title);
 		builder.setMessage(message);
 
 		builder.setPositiveButton("OK", 
@@ -61,6 +81,35 @@ public class MainActivity extends Activity
 		
 		AlertDialog dialog = builder.create();
 		dialog.show();
+	}
+	
+	private void displayAboutDialog()
+	{
+		long buildDate = getBuildDate(this);
+		String buildDateString = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(buildDate);
+		String aboutMessage = String.format("Build Date: %s", buildDateString);
+		displaySimpleMessage("About Play!", aboutMessage);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) 
+	{
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.layout.main_menu, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) 
+	{
+		switch(item.getItemId()) 
+		{
+		case R.id.main_menu_about:
+			displayAboutDialog();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 	
 	private String getCurrentDirectory()
@@ -163,7 +212,7 @@ public class MainActivity extends Activity
 						}
 						catch(Exception ex)
 						{
-							displayErrorMessage(ex.getMessage());
+							displaySimpleMessage("Error", ex.getMessage());
 							return;
 						}
 						//TODO: Catch errors that might happen while loading files
