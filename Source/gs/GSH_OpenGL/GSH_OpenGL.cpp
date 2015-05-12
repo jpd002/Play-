@@ -94,6 +94,8 @@ void CGSH_OpenGL::ResetImpl()
 	PalCache_Flush();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
+	m_renderState.isValid = false;
+	m_drawingToDepth = false;
 }
 
 void CGSH_OpenGL::FlipImpl()
