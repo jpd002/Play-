@@ -1340,8 +1340,8 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 		CurrentThreadId(), eventId, value, inInterrupt);
 #endif
 
-	EVENTFLAG* eventFlag = m_eventFlags[eventId];
-	if(eventFlag == NULL)
+	auto eventFlag = m_eventFlags[eventId];
+	if(eventFlag == nullptr)
 	{
 		return -1;
 	}
@@ -1400,8 +1400,8 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 		CurrentThreadId(), eventId, value, mode, resultPtr);
 #endif
 
-	EVENTFLAG* eventFlag = m_eventFlags[eventId];
-	if(eventFlag == NULL)
+	auto eventFlag = m_eventFlags[eventId];
+	if(eventFlag == nullptr)
 	{
 		return -1;
 	}
@@ -1410,7 +1410,7 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 		(resultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + resultPtr) : nullptr);
 	if(!success)
 	{
-		THREAD* thread = GetThread(CurrentThreadId());
+		auto thread = GetThread(CurrentThreadId());
 		thread->status					= THREAD_STATUS_WAITING_EVENTFLAG;
 		thread->waitEventFlag			= eventId;
 		thread->waitEventFlagMode		= mode;
