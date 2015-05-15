@@ -353,6 +353,7 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 		{
 			//Wild Arms: Alter Code F has zero sized program headers
 			if(p->nFileSize == 0) continue;
+			if(!(p->nFlags & CELF::PF_X)) continue;
 			uint32 end = p->nVAddress + p->nFileSize;
 			if(end >= PS2::EE_RAM_SIZE) continue;
 			minAddr = std::min<uint32>(minAddr, p->nVAddress);
