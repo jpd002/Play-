@@ -216,10 +216,9 @@ uint32 CThbase::DeleteThread(uint32 threadId)
 	return 0;
 }
 
-uint32 CThbase::StartThread(uint32 threadId, uint32 param)
+int32 CThbase::StartThread(uint32 threadId, uint32 param)
 {
-	m_bios.StartThread(threadId, &param);
-	return 0;
+	return m_bios.StartThread(threadId, param);
 }
 
 uint32 CThbase::ExitThread()

@@ -336,7 +336,7 @@ void CIopBios::InitializeModuleLoader()
 	}
 
 	m_moduleLoaderThreadId = CreateThread(m_moduleLoaderThreadProcAddress, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
-	StartThread(m_moduleLoaderThreadId);
+	StartThread(m_moduleLoaderThreadId, 0);
 }
 
 void CIopBios::RequestModuleLoad(uint32 moduleEntryPoint, uint32 gp, const char* path, const char* args, unsigned int argsLength)
@@ -664,37 +664,32 @@ void CIopBios::DeleteThread(uint32 threadId)
 	m_threads.Free(threadId);
 }
 
-void CIopBios::StartThread(uint32 threadId, uint32* param)
+int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%i: StartThread(threadId = %i, param = 0x%0.8X);\r\n", 
 		CurrentThreadId(), threadId, param);
 #endif
 
-	THREAD* thread = GetThread(threadId);
-	assert(thread != NULL);
-
-	if(thread == NULL)
+	auto thread = GetThread(threadId);
+	assert(thread != nullptr);
+	if(thread == nullptr)
 	{
-		return;
-	}
-
-	if(thread->status == THREAD_STATUS_RUNNING)
-	{
-		return;
+		return -1;
 	}
 
 	if(thread->status != THREAD_STATUS_DORMANT)
 	{
-		throw std::runtime_error("Invalid thread state.");
+		CLog::GetInstance().Print(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
+			CurrentThreadId(), threadId);
+		assert(false);
+		return -1;
 	}
+
 	thread->status = THREAD_STATUS_RUNNING;
-	if(param != NULL)
-	{
-		thread->context.gpr[CMIPS::A0] = *param;
-	}
 	thread->priority = thread->initPriority;
 	thread->context.epc = thread->threadProc;
+	thread->context.gpr[CMIPS::A0] = param;
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 
@@ -707,6 +702,8 @@ void CIopBios::StartThread(uint32 threadId, uint32* param)
 	{
 		m_rescheduleNeeded = true;
 	}
+
+	return 0;
 }
 
 void CIopBios::ExitThread()
@@ -790,7 +787,7 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 		alarmThreadId = CreateThread(m_alarmThreadProcAddress, 1, DEFAULT_STACKSIZE, 0);
 	}
 
-	StartThread(alarmThreadId);
+	StartThread(alarmThreadId, 0);
 
 	auto thread = GetThread(alarmThreadId);
 	thread->context.gpr[CMIPS::SP] -= 0x20;
@@ -2127,7 +2124,7 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 	}
 
 	ChangeThreadPriority(callbackThreadId, 1);
-	StartThread(callbackThreadId);
+	StartThread(callbackThreadId, 0);
 
 	auto thread = GetThread(callbackThreadId);
 	thread->context.gpr[CMIPS::A0] = arg0;
