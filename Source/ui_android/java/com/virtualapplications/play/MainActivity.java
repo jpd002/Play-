@@ -167,7 +167,7 @@ public class MainActivity extends Activity
 	
 	private void prepareFileListView()
 	{
-		_fileListView = (ListView)findViewById(R.id.fileList);
+		_fileListView = (ListView)findViewById(R.id.main_fileList);
 		
 		View header = (View)getLayoutInflater().inflate(R.layout.fileview_header, null);
 		_fileListViewHeader = (TextView)header.findViewById(R.id.headerTextView);
