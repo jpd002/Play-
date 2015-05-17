@@ -62,7 +62,6 @@ CPS2VM::CPS2VM()
 , m_eeExecutionTicks(0)
 , m_iopExecutionTicks(0)
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
-, m_pCDROM0(NULL)
 , m_eeProfilerZone(CProfiler::GetInstance().RegisterZone("EE"))
 , m_iopProfilerZone(CProfiler::GetInstance().RegisterZone("IOP"))
 , m_spuProfilerZone(CProfiler::GetInstance().RegisterZone("SPU"))
@@ -385,7 +384,7 @@ void CPS2VM::ResetVM()
 	m_iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
-	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_pCDROM0)));
+	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_cdrom0)));
 
 	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
 
@@ -659,12 +658,12 @@ void CPS2VM::UpdateSpu()
 void CPS2VM::CDROM0_Initialize()
 {
 	CAppConfig::GetInstance().RegisterPreferenceString(PS2VM_CDROM0PATH, "");
-	m_pCDROM0 = NULL;
+	m_cdrom0.reset();
 }
 
 void CPS2VM::CDROM0_Reset()
 {
-	DELETEPTR(m_pCDROM0);
+	m_cdrom0.reset();
 	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 }
 
@@ -720,8 +719,8 @@ void CPS2VM::CDROM0_Mount(const char* path)
 				stream = new Framework::CStdStream(path, "rb");
 			}
 
-			m_pCDROM0 = new CISO9660(stream);
-			SetIopCdImage(m_pCDROM0);
+			m_cdrom0 = std::make_unique<CISO9660>(stream);
+			SetIopCdImage(m_cdrom0.get());
 		}
 		catch(const std::exception& Exception)
 		{
@@ -734,8 +733,8 @@ void CPS2VM::CDROM0_Mount(const char* path)
 
 void CPS2VM::CDROM0_Destroy()
 {
-	SetIopCdImage(NULL);
-	DELETEPTR(m_pCDROM0);
+	SetIopCdImage(nullptr);
+	m_cdrom0.reset();
 }
 
 void CPS2VM::SetIopCdImage(CISO9660* image)
