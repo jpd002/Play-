@@ -15,33 +15,13 @@ public class EmulatorActivity extends Activity
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "EmulatorActivity - onCreate");
 		
+		setContentView(R.layout.emulator);
+
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
-		_renderView = new SurfaceView(this);
+		_renderView = (SurfaceView)findViewById(R.id.emulator_view);
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
-		
-		_renderView.setOnTouchListener(
-			new View.OnTouchListener()
-			{
-				@Override
-				public boolean onTouch(View view, MotionEvent event)
-				{
-					switch(event.getActionMasked())
-					{
-					case MotionEvent.ACTION_DOWN:
-						NativeInterop.reportInput(true);
-						break;
-					case MotionEvent.ACTION_UP:
-						NativeInterop.reportInput(false);
-						break;
-					}
-					return true;
-				}
-			}
-		);
-		
-		setContentView(_renderView);
 	}
 	
 	@Override

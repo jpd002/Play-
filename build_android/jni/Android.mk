@@ -35,6 +35,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE			:= libPlay
 LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/BasicBlock.cpp \
+							../../Source/ControllerInfo.cpp \
 							../../Source/COP_FPU.cpp \
 							../../Source/COP_FPU_Reflection.cpp \
 							../../Source/COP_SCU.cpp \
