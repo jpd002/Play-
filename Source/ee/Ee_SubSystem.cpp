@@ -325,7 +325,12 @@ void CSubSystem::CountTicks(int ticks)
 void CSubSystem::NotifyVBlankStart()
 {
 	m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
-	m_os->NotifyVBlankStart();
+	if(m_os->CheckVBlankFlag())
+	{
+		//Make sure a vblank start interrupt is serviced now because
+		//if vsync flag was set, we want to make sure interrupt is caught
+		CheckPendingInterrupts();
+	}
 }
 
 void CSubSystem::NotifyVBlankEnd()

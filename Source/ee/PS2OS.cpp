@@ -1311,20 +1311,24 @@ void CPS2OS::HandleReturnFromException()
 	ThreadShakeAndBake();
 }
 
-void CPS2OS::NotifyVBlankStart()
+bool CPS2OS::CheckVBlankFlag()
 {
+	bool changed = false;
 	auto vsyncFlagPtrs = GetVsyncFlagPtrs();
 
 	if(vsyncFlagPtrs.first != 0)
 	{
 		*reinterpret_cast<uint32*>(m_ram + vsyncFlagPtrs.first) = 1;
+		changed = true;
 	}
 	if(vsyncFlagPtrs.second != 0)
 	{
 		*reinterpret_cast<uint64*>(m_ram + vsyncFlagPtrs.second) = m_gs->ReadPrivRegister(CGSHandler::GS_CSR);
+		changed = true;
 	}
 
 	SetVsyncFlagPtrs(0, 0);
+	return changed;
 }
 
 uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
