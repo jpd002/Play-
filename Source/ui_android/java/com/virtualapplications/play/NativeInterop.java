@@ -22,5 +22,5 @@ public class NativeInterop
 	
 	public static native void setupGsHandler(Surface surface);
 	
-	public static native void reportInput(boolean pressed);
+	public static native void reportInput(int button, boolean pressed);
 }

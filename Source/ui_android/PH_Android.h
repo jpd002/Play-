@@ -12,8 +12,8 @@ public:
 
 	void						Update(uint8*) override;
 
-	void						ReportInput(bool);
+	void						ReportInput(uint32, bool);
 	
 private:
-	bool						m_pressed = false;
+	bool						m_buttonStates[PS2::CControllerInfo::MAX_BUTTONS];
 };

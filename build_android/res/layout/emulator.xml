@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	>
+	<SurfaceView
+		android:id="@+id/emulator_view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		/>
+	<com.virtualapplications.play.VirtualPadView
+		android:id="@+id/emulator_virtualpad"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:focusable="true"
+		android:focusableInTouchMode="true"
+		/>
+</FrameLayout>
