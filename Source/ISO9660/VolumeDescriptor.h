@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Stream.h"
+#include "BlockProvider.h"
 
 namespace ISO9660
 {
@@ -8,7 +8,7 @@ namespace ISO9660
 	class CVolumeDescriptor
 	{
 	public:
-					CVolumeDescriptor(Framework::CStream&);
+					CVolumeDescriptor(CBlockProvider*);
 					~CVolumeDescriptor();
 
 		uint32		GetLPathTableAddress() const;
