@@ -218,6 +218,7 @@
 		704F23B21B0011C8009FD916 /* Vif1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vif1.h; path = ../Source/ee/Vif1.h; sourceTree = "<group>"; };
 		704F23B31B0011C8009FD916 /* Vpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vpu.cpp; path = ../Source/ee/Vpu.cpp; sourceTree = "<group>"; };
 		704F23B41B0011C8009FD916 /* Vpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vpu.h; path = ../Source/ee/Vpu.h; sourceTree = "<group>"; };
+		705B16BC1B097DD00081B3C6 /* BlockProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlockProvider.h; path = ../Source/ISO9660/BlockProvider.h; sourceTree = "<group>"; };
 		7068496E151E880E00C9574F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7068497A151E883D00C9574F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7068497C151E885200C9574F /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -874,6 +875,7 @@
 		7E4C15C41519A94900357777 /* ISO9660 */ = {
 			isa = PBXGroup;
 			children = (
+				705B16BC1B097DD00081B3C6 /* BlockProvider.h */,
 				7E4C15C51519A96700357777 /* DirectoryRecord.cpp */,
 				7E4C15C61519A96700357777 /* DirectoryRecord.h */,
 				7E4C15C71519A96700357777 /* File.cpp */,

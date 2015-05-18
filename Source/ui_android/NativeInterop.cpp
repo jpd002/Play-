@@ -118,11 +118,11 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	}
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_reportInput(JNIEnv* env, jobject obj, jboolean pressed)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_reportInput(JNIEnv* env, jobject obj, jint buttonId, jboolean pressed)
 {
 	auto padHandler = g_virtualMachine->GetPadHandler();
 	if(padHandler)
 	{
-		static_cast<CPH_Android*>(padHandler)->ReportInput((pressed == JNI_TRUE) ? true : false);
+		static_cast<CPH_Android*>(padHandler)->ReportInput(buttonId, (pressed == JNI_TRUE) ? true : false);
 	}
 }

@@ -90,11 +90,11 @@ public:
 
 	IopBiosPtr					m_iopOs;
 
-	CISO9660*					m_pCDROM0;
-
 	ProfileFrameDoneSignal		ProfileFrameDone;
 
 private:
+	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
+
 	void						CreateVM();
 	void						ResetVM();
 	void						DestroyVM();
@@ -149,6 +149,8 @@ private:
 	FrameDumpCallback			m_frameDumpCallback;
 	std::mutex					m_frameDumpCallbackMutex;
 	bool						m_dumpingFrame = false;
+
+	Iso9660Ptr					m_cdrom0;
 
 	enum
 	{

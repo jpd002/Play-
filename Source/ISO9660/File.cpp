@@ -4,13 +4,20 @@
 
 using namespace ISO9660;
 
-CFile::CFile(CISO9660* iso, uint64 start, uint64 size)
-: m_iso(iso)
+CFile::CFile(CBlockProvider* blockProvider, uint64 start)
+: m_blockProvider(blockProvider)
+, m_start(start)
+, m_end(ULLONG_MAX)
+{
+	InitBlock();
+}
+
+CFile::CFile(CBlockProvider* blockProvider, uint64 start, uint64 size)
+: m_blockProvider(blockProvider)
 , m_start(start)
 , m_end(start + size)
-, m_blockPosition(static_cast<uint32>(start / CISO9660::BLOCKSIZE))
 {
-	iso->ReadBlock(m_blockPosition, m_block);
+	InitBlock();
 }
 
 CFile::~CFile()
@@ -56,8 +63,8 @@ uint64 CFile::Read(void* data, uint64 length)
 	while(1)
 	{
 		SyncBlock();
-		uint64 blockPosition	= (m_start + m_position) % CISO9660::BLOCKSIZE;
-		uint64 blockRemain		= CISO9660::BLOCKSIZE - blockPosition;
+		uint64 blockPosition	= (m_start + m_position) % CBlockProvider::BLOCKSIZE;
+		uint64 blockRemain		= CBlockProvider::BLOCKSIZE - blockPosition;
 		uint64 toRead			= (length > blockRemain) ? (blockRemain) : (length);
 
 		memcpy(data, m_block + blockPosition, static_cast<uint32>(toRead));
@@ -82,11 +89,17 @@ bool CFile::IsEOF()
 	return m_isEof;
 }
 
+void CFile::InitBlock()
+{
+	m_blockPosition = static_cast<uint32>(m_start / CBlockProvider::BLOCKSIZE);
+	m_blockProvider->ReadBlock(m_blockPosition, m_block);
+}
+
 void CFile::SyncBlock()
 {
-	uint32 position = static_cast<uint32>((m_start + m_position) / CISO9660::BLOCKSIZE);
+	uint32 position = static_cast<uint32>((m_start + m_position) / CBlockProvider::BLOCKSIZE);
 	if(position == m_blockPosition) return;
 
-	m_iso->ReadBlock(position, m_block);
+	m_blockProvider->ReadBlock(position, m_block);
 	m_blockPosition = position;
 }

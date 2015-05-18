@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BlockProvider.h"
 #include "PathTableRecord.h"
 #include "Types.h"
 #include <map>
@@ -10,7 +11,7 @@ namespace ISO9660
 	class CPathTable
 	{
 	public:
-											CPathTable(Framework::CStream*, uint32);
+											CPathTable(CBlockProvider*, uint32);
 											~CPathTable();
 
 		unsigned int						FindRoot() const;

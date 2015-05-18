@@ -32,6 +32,7 @@
 #include "iop/DirectoryDevice.h"
 #include "iop/IsoDevice.h"
 #include "Log.h"
+#include "ISO9660/BlockProvider.h"
 
 #define LOG_NAME		("ps2vm")
 
@@ -62,7 +63,6 @@ CPS2VM::CPS2VM()
 , m_eeExecutionTicks(0)
 , m_iopExecutionTicks(0)
 , m_spuUpdateTicks(SPU_UPDATE_TICKS)
-, m_pCDROM0(NULL)
 , m_eeProfilerZone(CProfiler::GetInstance().RegisterZone("EE"))
 , m_iopProfilerZone(CProfiler::GetInstance().RegisterZone("IOP"))
 , m_spuProfilerZone(CProfiler::GetInstance().RegisterZone("SPU"))
@@ -385,7 +385,7 @@ void CPS2VM::ResetVM()
 	m_iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
-	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_pCDROM0)));
+	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_cdrom0)));
 
 	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
 
@@ -659,12 +659,12 @@ void CPS2VM::UpdateSpu()
 void CPS2VM::CDROM0_Initialize()
 {
 	CAppConfig::GetInstance().RegisterPreferenceString(PS2VM_CDROM0PATH, "");
-	m_pCDROM0 = NULL;
+	m_cdrom0.reset();
 }
 
 void CPS2VM::CDROM0_Reset()
 {
-	DELETEPTR(m_pCDROM0);
+	m_cdrom0.reset();
 	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 }
 
@@ -678,7 +678,7 @@ void CPS2VM::CDROM0_Mount(const char* path)
 	{
 		try
 		{
-			Framework::CStream* stream = nullptr;
+			std::shared_ptr<Framework::CStream> stream;
 			const char* extension = "";
 			if(pathLength >= 4)
 			{
@@ -688,23 +688,23 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			//Gotta think of something better than that...
 			if(!stricmp(extension, ".isz"))
 			{
-				stream = new CIszImageStream(new Framework::CStdStream(path, "rb"));
+				stream = std::make_shared<CIszImageStream>(new Framework::CStdStream(path, "rb"));
 			}
 			else if(!stricmp(extension, ".cso"))
 			{
-				stream = new CCsoImageStream(new Framework::CStdStream(path, "rb"));
+				stream = std::make_shared<CCsoImageStream>(new Framework::CStdStream(path, "rb"));
 			}
 #ifdef WIN32
 			else if(path[0] == '\\')
 			{
-				stream = new Framework::Win32::CVolumeStream(path[4]);
+				stream = std::make_shared<Framework::Win32::CVolumeStream>(path[4]);
 			}
 #elif !defined(__ANDROID__)
 			else
 			{
 				try
 				{
-					stream = new Framework::Posix::CVolumeStream(path);
+					stream = std::make_shared<Framework::Posix::CVolumeStream>(path);
 				}
 				catch(...)
 				{
@@ -715,13 +715,24 @@ void CPS2VM::CDROM0_Mount(const char* path)
 #endif
 
 			//If it's null after all that, just feed it to a StdStream
-			if(stream == nullptr)
+			if(!stream)
 			{
-				stream = new Framework::CStdStream(path, "rb");
+				stream = std::make_shared<Framework::CStdStream>(path, "rb");
 			}
 
-			m_pCDROM0 = new CISO9660(stream);
-			SetIopCdImage(m_pCDROM0);
+			try
+			{
+				auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
+				m_cdrom0 = std::make_unique<CISO9660>(blockProvider);
+			}
+			catch(...)
+			{
+				//Failed with block size 2048, try with CD-ROM XA
+				auto blockProvider = std::make_shared<ISO9660::CBlockProviderCDROMXA>(stream);
+				m_cdrom0 = std::make_unique<CISO9660>(blockProvider);
+			}
+
+			SetIopCdImage(m_cdrom0.get());
 		}
 		catch(const std::exception& Exception)
 		{
@@ -734,8 +745,8 @@ void CPS2VM::CDROM0_Mount(const char* path)
 
 void CPS2VM::CDROM0_Destroy()
 {
-	SetIopCdImage(NULL);
-	DELETEPTR(m_pCDROM0);
+	SetIopCdImage(nullptr);
+	m_cdrom0.reset();
 }
 
 void CPS2VM::SetIopCdImage(CISO9660* image)
