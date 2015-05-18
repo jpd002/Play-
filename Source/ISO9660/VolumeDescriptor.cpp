@@ -1,11 +1,16 @@
 #include <string.h>
 #include <stdexcept>
 #include "VolumeDescriptor.h"
+#include "File.h"
+
+#define VOLUME_DESCRIPTOR_LBA 16ULL
 
 using namespace ISO9660;
 
-CVolumeDescriptor::CVolumeDescriptor(Framework::CStream& stream)
+CVolumeDescriptor::CVolumeDescriptor(CBlockProvider* blockProvider)
 {
+	CFile stream(blockProvider, VOLUME_DESCRIPTOR_LBA * CBlockProvider::BLOCKSIZE);
+	
 	stream.Read(&m_type, 1);
 
 	if(m_type != 0x01)

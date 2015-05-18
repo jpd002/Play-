@@ -22,7 +22,7 @@ public:
 private:
 	bool						GetFileRecordFromDirectory(ISO9660::CDirectoryRecord*, uint32, const char*);
 
+	BlockProviderPtr			m_blockProvider;
 	ISO9660::CVolumeDescriptor	m_volumeDescriptor;
 	ISO9660::CPathTable			m_pathTable;
-	BlockProviderPtr			m_blockProvider;
 };

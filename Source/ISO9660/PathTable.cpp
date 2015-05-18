@@ -1,11 +1,13 @@
 #include <assert.h>
 #include "PathTable.h"
+#include "File.h"
 #include "stricmp.h"
 
 using namespace ISO9660;
 
-CPathTable::CPathTable(Framework::CStream& stream)
+CPathTable::CPathTable(CBlockProvider* blockProvider, uint32 tableLba)
 {
+	CFile stream(blockProvider, static_cast<uint64>(tableLba) * CBlockProvider::BLOCKSIZE);
 	while(1)
 	{
 		CPathTableRecord record(stream);

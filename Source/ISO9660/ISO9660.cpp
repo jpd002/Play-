@@ -7,12 +7,10 @@
 
 using namespace ISO9660;
 
-#define VOLUME_DESCRIPTOR_LBA	16
-
 CISO9660::CISO9660(const BlockProviderPtr& blockProvider)
 : m_blockProvider(blockProvider)
-, m_volumeDescriptor(CFile(blockProvider.get(), VOLUME_DESCRIPTOR_LBA * CBlockProvider::BLOCKSIZE))
-, m_pathTable(CFile(blockProvider.get(), m_volumeDescriptor.GetLPathTableAddress() * CBlockProvider::BLOCKSIZE))
+, m_volumeDescriptor(blockProvider.get())
+, m_pathTable(blockProvider.get(), m_volumeDescriptor.GetLPathTableAddress())
 {
 
 }
