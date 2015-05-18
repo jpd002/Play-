@@ -846,5 +846,8 @@
     <ClInclude Include="..\Source\ee\Vpu.h">
       <Filter>Source Files\Ee</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\ISO9660\BlockProvider.h">
+      <Filter>Source Files\Iso9660</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

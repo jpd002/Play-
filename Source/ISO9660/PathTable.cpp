@@ -4,10 +4,8 @@
 
 using namespace ISO9660;
 
-CPathTable::CPathTable(Framework::CStream* stream, uint32 address)
+CPathTable::CPathTable(Framework::CStream& stream)
 {
-	stream->Seek(address * 0x800, Framework::STREAM_SEEK_SET);
-
 	while(1)
 	{
 		CPathTableRecord record(stream);

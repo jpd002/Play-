@@ -261,6 +261,7 @@
     <ClInclude Include="..\Source\iop\Iop_Timrman.h" />
     <ClInclude Include="..\Source\iop\Iop_Vblank.h" />
     <ClInclude Include="..\Source\iop\IsoDevice.h" />
+    <ClInclude Include="..\Source\ISO9660\BlockProvider.h" />
     <ClInclude Include="..\Source\ISO9660\DirectoryRecord.h" />
     <ClInclude Include="..\Source\ISO9660\File.h" />
     <ClInclude Include="..\Source\ISO9660\ISO9660.h" />

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Stream.h"
-#include "ISO9660.h"
+#include "BlockProvider.h"
 
 namespace ISO9660
 {
@@ -9,8 +8,8 @@ namespace ISO9660
 	class CFile : public Framework::CStream
 	{
 	public:
-
-							CFile(CISO9660*, uint64, uint64);
+							CFile(CBlockProvider*, uint64);
+							CFile(CBlockProvider*, uint64, uint64);
 							~CFile();
 		void				Seek(int64, Framework::STREAM_SEEK_DIRECTION) override;
 		uint64				Tell() override;
@@ -19,14 +18,15 @@ namespace ISO9660
 		bool				IsEOF() override;
 
 	private:
+		void				InitBlock();
 		void				SyncBlock();
 
-		CISO9660*			m_iso = nullptr;
+		CBlockProvider*		m_blockProvider = nullptr;
 		uint64				m_start = 0;
 		uint64				m_end = 0;
 		uint64				m_position = 0;
 		uint32				m_blockPosition = 0;
-		uint8				m_block[CISO9660::BLOCKSIZE];
+		uint8				m_block[CBlockProvider::BLOCKSIZE];
 		bool				m_isEof = false;
 	};
 

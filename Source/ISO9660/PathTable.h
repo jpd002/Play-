@@ -10,7 +10,7 @@ namespace ISO9660
 	class CPathTable
 	{
 	public:
-											CPathTable(Framework::CStream*, uint32);
+											CPathTable(Framework::CStream&);
 											~CPathTable();
 
 		unsigned int						FindRoot() const;
