@@ -1868,8 +1868,7 @@ void CPS2OS::sc_ReferThreadStatus()
 		threadParam->stackSize			= thread->stackSize;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = ret;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = ret;
 }
 
 //32
