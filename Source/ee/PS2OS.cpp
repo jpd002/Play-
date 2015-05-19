@@ -1827,10 +1827,10 @@ void CPS2OS::sc_ReferThreadStatus()
 	uint32 statusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	THREAD* thread = GetThread(id);
+	auto thread = GetThread(id);
 	if(!thread->valid)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 
