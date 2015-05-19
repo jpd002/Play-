@@ -4,6 +4,8 @@ import android.graphics.*;
 
 class VirtualPadButton
 {
+	private int _pointerId;
+	
 	private String _caption;
 	private RectF _bounds;
 	private int _value;
@@ -14,6 +16,16 @@ class VirtualPadButton
 		_caption = caption;
 		_value = value;
 		_bounds = bounds;
+	}
+	
+	public void setPointerId(int pointerId)
+	{
+		_pointerId = pointerId;
+	}
+	
+	public int getPointerId()
+	{
+		return _pointerId;
 	}
 	
 	public int getValue()
