@@ -1826,9 +1826,21 @@ void CPS2OS::sc_ReferThreadStatus()
 	uint32 id			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 statusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
+	if(id >= MAX_THREAD)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	if(id == 0)
+	{
+		id = GetCurrentThreadId();
+	}
+
 	auto thread = GetThread(id);
 	if(!thread->valid)
 	{
+		//TODO: This is actually valid on a real PS2 and won't return an error
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
