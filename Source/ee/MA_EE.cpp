@@ -13,6 +13,9 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	m_pOpRegImm[0x18] = std::bind(&CMA_EE::MTSAB, this);
 	m_pOpRegImm[0x19] = std::bind(&CMA_EE::MTSAH, this);
 
+	m_pOpSpecial[0x28] = std::bind(&CMA_EE::MFSA, this);
+	m_pOpSpecial[0x29] = std::bind(&CMA_EE::MTSA, this);
+
 	m_pOpSpecial2[0x00] = std::bind(&CMA_EE::MADD, this);
 	m_pOpSpecial2[0x01] = std::bind(&CMA_EE::MADDU, this);
 	m_pOpSpecial2[0x04] = std::bind(&CMA_EE::PLZCW, this);
@@ -157,6 +160,28 @@ void CMA_EE::MTSAH()
 	m_codeGen->PushCst(m_nImmediate & 0x07);
 	m_codeGen->Xor();
 	m_codeGen->Shl(0x04);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nSA));
+}
+
+//////////////////////////////////////////////////
+//Special Opcodes
+//////////////////////////////////////////////////
+
+//28
+void CMA_EE::MFSA()
+{
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nSA));
+	m_codeGen->Srl(3);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
+//29
+void CMA_EE::MTSA()
+{
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushCst(0xF);
+	m_codeGen->And();
+	m_codeGen->Shl(3);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nSA));
 }
 

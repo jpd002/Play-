@@ -360,6 +360,14 @@ void CMA_EE::SetupReflectionTables()
 	m_ReflRegImm[0x19].pGetMnemonic				= MIPSReflection::CopyMnemonic;
 	m_ReflRegImm[0x19].pGetOperands				= ReflOpRsImm;
 
+	m_ReflSpecial[0x28].sMnemonic				= "MFSA";
+	m_ReflSpecial[0x28].pGetMnemonic			= MIPSReflection::CopyMnemonic;
+	m_ReflSpecial[0x28].pGetOperands			= ReflOpRd;
+
+	m_ReflSpecial[0x29].sMnemonic				= "MTSA";
+	m_ReflSpecial[0x29].pGetMnemonic			= MIPSReflection::CopyMnemonic;
+	m_ReflSpecial[0x29].pGetOperands			= ReflOpRs;
+
 	//Fix MULT/MULTU operands
 	m_ReflSpecial[0x18].pGetOperands			= ReflOpRdRsRt;
 	m_ReflSpecial[0x19].pGetOperands			= ReflOpRdRsRt;
