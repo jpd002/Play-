@@ -1826,7 +1826,6 @@ void CPS2OS::sc_ReferThreadStatus()
 	uint32 id			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 statusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	THREAD* thread = GetThread(id);
 	auto thread = GetThread(id);
 	if(!thread->valid)
 	{
