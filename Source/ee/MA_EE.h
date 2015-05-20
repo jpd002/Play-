@@ -51,6 +51,10 @@ private:
 	void								MTSAB();
 	void								MTSAH();
 
+	//Special
+	void								MFSA();
+	void								MTSA();
+
 	//Special2
 	void								MADD();
 	void								MADDU();

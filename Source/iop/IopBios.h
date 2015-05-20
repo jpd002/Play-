@@ -128,7 +128,7 @@ public:
 
 	uint32						CreateThread(uint32, uint32, uint32, uint32);
 	void						DeleteThread(uint32);
-	void						StartThread(uint32, uint32* = NULL);
+	int32						StartThread(uint32, uint32);
 	void						ExitThread();
 	uint32						TerminateThread(uint32);
 	void						DelayThread(uint32);

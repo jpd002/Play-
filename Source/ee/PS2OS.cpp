@@ -46,11 +46,13 @@
 // 0x1FC03100	0x1FC03200		Wait Thread Proc
 // 0x1FC03200	0x1FC03300		Alarm Handler
 
-#define BIOS_ADDRESS_KERNELSTACK_TOP	0x00030000
-#define BIOS_ADDRESS_CURRENT_THREAD_ID	0x00000010
-#define BIOS_ADDRESS_DMACHANDLER_BASE	0x0000C000
-#define BIOS_ADDRESS_SEMAPHORE_BASE		0x0000E000
-#define BIOS_ADDRESS_ALARM_BASE			0x00010800
+#define BIOS_ADDRESS_KERNELSTACK_TOP		0x00030000
+#define BIOS_ADDRESS_CURRENT_THREAD_ID		0x00000010
+#define BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR	0x00000014
+#define BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR	0x00000018
+#define BIOS_ADDRESS_DMACHANDLER_BASE		0x0000C000
+#define BIOS_ADDRESS_SEMAPHORE_BASE			0x0000E000
+#define BIOS_ADDRESS_ALARM_BASE				0x00010800
 
 #define BIOS_ADDRESS_BASE				0x1FC00000
 #define BIOS_ADDRESS_INTERRUPTHANDLER	0x1FC00200
@@ -212,6 +214,7 @@ void CPS2OS::Initialize()
 	m_semaWaitThreadId = -1;
 
 	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
+	SetVsyncFlagPtrs(0, 0);
 }
 
 void CPS2OS::Release()
@@ -353,6 +356,7 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 		{
 			//Wild Arms: Alter Code F has zero sized program headers
 			if(p->nFileSize == 0) continue;
+			if(!(p->nFlags & CELF::PF_X)) continue;
 			uint32 end = p->nVAddress + p->nFileSize;
 			if(end >= PS2::EE_RAM_SIZE) continue;
 			minAddr = std::min<uint32>(minAddr, p->nVAddress);
@@ -1221,6 +1225,19 @@ void CPS2OS::CreateWaitThread()
 	thread->status		= THREAD_ZOMBIE;
 }
 
+std::pair<uint32, uint32> CPS2OS::GetVsyncFlagPtrs() const
+{
+	uint32 value1Ptr = *reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR);
+	uint32 value2Ptr = *reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR);
+	return std::make_pair(value1Ptr, value2Ptr);
+}
+
+void CPS2OS::SetVsyncFlagPtrs(uint32 value1Ptr, uint32 value2Ptr)
+{
+	*reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR) = value1Ptr;
+	*reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR) = value2Ptr;
+}
+
 uint8* CPS2OS::GetStructPtr(uint32 address) const
 {
 	uint8* memory = nullptr;
@@ -1292,6 +1309,26 @@ void CPS2OS::HandleInterrupt()
 void CPS2OS::HandleReturnFromException()
 {
 	ThreadShakeAndBake();
+}
+
+bool CPS2OS::CheckVBlankFlag()
+{
+	bool changed = false;
+	auto vsyncFlagPtrs = GetVsyncFlagPtrs();
+
+	if(vsyncFlagPtrs.first != 0)
+	{
+		*reinterpret_cast<uint32*>(m_ram + vsyncFlagPtrs.first) = 1;
+		changed = true;
+	}
+	if(vsyncFlagPtrs.second != 0)
+	{
+		*reinterpret_cast<uint64*>(m_ram + vsyncFlagPtrs.second) = m_gs->ReadPrivRegister(CGSHandler::GS_CSR);
+		changed = true;
+	}
+
+	SetVsyncFlagPtrs(0, 0);
+	return changed;
 }
 
 uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
@@ -1789,11 +1826,22 @@ void CPS2OS::sc_ReferThreadStatus()
 	uint32 id			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 statusPtr	= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	THREAD* thread = GetThread(id);
+	if(id >= MAX_THREAD)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	if(id == 0)
+	{
+		id = GetCurrentThreadId();
+	}
+
+	auto thread = GetThread(id);
 	if(!thread->valid)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		//TODO: This is actually valid on a real PS2 and won't return an error
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 
@@ -1831,8 +1879,7 @@ void CPS2OS::sc_ReferThreadStatus()
 		threadParam->stackSize			= thread->stackSize;
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = ret;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = ret;
 }
 
 //32
@@ -2292,21 +2339,10 @@ void CPS2OS::sc_GsPutIMR()
 //73
 void CPS2OS::sc_SetVSyncFlag()
 {
-	uint32 ptr1		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 ptr2		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 ptr1 = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 ptr2 = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	*(uint32*)&m_ram[ptr1] = 0x01;
-
-	if(m_gs != NULL)
-	{
-		//*(uint32*)&m_ram[ptr2] = 0x2000;
-		*(uint32*)&m_ram[ptr2] = m_gs->ReadPrivRegister(CGSHandler::GS_CSR) & 0x2000;
-	}
-	else
-	{
-		//Humm...
-		*(uint32*)&m_ram[ptr2] = 0;
-	}
+	SetVsyncFlagPtrs(ptr1, ptr2);
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;

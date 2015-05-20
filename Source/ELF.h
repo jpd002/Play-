@@ -118,6 +118,13 @@ public:
 		PT_PHDR			= 6,
 	};
 
+	enum PROGRAM_HEADER_FLAG
+	{
+		PF_X			= 0x01,
+		PF_W			= 0x02,
+		PF_R			= 0x04,
+	};
+
 	enum DYNAMIC_INFO_TYPE
 	{
 		DT_NONE			= 0,

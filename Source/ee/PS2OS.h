@@ -39,6 +39,7 @@ public:
 	void										HandleInterrupt();
 	void										HandleSyscall();
 	void										HandleReturnFromException();
+	bool										CheckVBlankFlag();
 
 	static uint32								TranslateAddress(CMIPS*, uint32);
 
@@ -278,6 +279,9 @@ private:
 	void									ThreadShakeAndBake();
 	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
+
+	std::pair<uint32, uint32>				GetVsyncFlagPtrs() const;
+	void									SetVsyncFlagPtrs(uint32, uint32);
 
 	uint8*									GetStructPtr(uint32) const;
 
