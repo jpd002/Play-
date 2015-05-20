@@ -78,7 +78,7 @@ public class VirtualPadView extends SurfaceView
 		int pointerId = event.getPointerId(pointerIndex);
 		float x = event.getX(pointerIndex);
 		float y = event.getY(pointerIndex);
-		if(action == MotionEvent.ACTION_DOWN)
+		if(action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN)
 		{
 			for(VirtualPadButton button : _buttons)
 			{
@@ -88,15 +88,16 @@ public class VirtualPadView extends SurfaceView
 					NativeInterop.reportInput(button.getValue(), true);
 					button.setPressed(true);
 					postInvalidate();
+					button.setPointerId(pointerId);
 					break;
 				}
 			}
 		}
-		else if(action == MotionEvent.ACTION_UP)
+		else if(action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP)
 		{
 			for(VirtualPadButton button : _buttons)
 			{
-				if(button.getPressed())
+				if(button.getPointerId() == pointerId && button.getPressed())
 				{
 					NativeInterop.reportInput(button.getValue(), false);
 					button.setPressed(false);
