@@ -6,13 +6,16 @@
 
 using namespace Iop;
 
+#define FUNCTION_INIT					"Init"
 #define FUNCTION_SETPARAM				"SetParam"
 #define FUNCTION_SETSWITCH				"SetSwitch"
 #define FUNCTION_SETADDR				"SetAddr"
 #define FUNCTION_GETADDR				"GetAddr"
 #define FUNCTION_SETCOREATTR			"SetCoreAttr"
 #define FUNCTION_VOICETRANS				"VoiceTrans"
+#define FUNCTION_BLOCKTRANS				"BlockTrans"
 #define FUNCTION_VOICETRANSSTATUS		"VoiceTransStatus"
+#define FUNCTION_BLOCKTRANSSTATUS		"BlockTransStatus"
 #define FUNCTION_SETTRANSINTRHANDLER	"SetTransIntrHandler"
 #define FUNCTION_SETSPU2INTRHANDLER		"SetSpu2IntrHandler"
 
@@ -27,6 +30,9 @@ std::string CLibSd::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 4:
+		return FUNCTION_INIT;
+		break;
 	case 5:
 		return FUNCTION_SETPARAM;
 		break;
@@ -45,8 +51,14 @@ std::string CLibSd::GetFunctionName(unsigned int functionId) const
 	case 17:
 		return FUNCTION_VOICETRANS;
 		break;
+	case 18:
+		return FUNCTION_BLOCKTRANS;
+		break;
 	case 19:
 		return FUNCTION_VOICETRANSSTATUS;
+		break;
+	case 20:
+		return FUNCTION_BLOCKTRANSSTATUS;
 		break;
 	case 26:
 		return FUNCTION_SETTRANSINTRHANDLER;
@@ -70,7 +82,7 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 	switch(functionId)
 	{
 	case 4:
-		CLog::GetInstance().Print(LOG_NAME, "sceSdInit(flag = %d);\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_INIT "(flag = %d);\r\n", 
 			context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 5:
@@ -88,6 +100,10 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 	case 10:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETADDR "(entry = 0x%0.4X);\r\n", context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
+	case 11:
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETCOREATTR "(entry = 0x%0.4X, value = 0x%0.4X);\r\n",
+			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
 	case 17:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_VOICETRANS "(channel = 0x%0.4X, mode = 0x%0.4X, maddr = 0x%0.8X, saddr = 0x%0.8X, size = 0x%0.8X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0, 
@@ -95,7 +111,7 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::T0].nV0);
 		break;
 	case 18:
-		CLog::GetInstance().Print(LOG_NAME, "sceSdBlockTrans(channel = 0x%0.4X, mode = 0x%0.4X, maddr = 0x%0.8X, size = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_BLOCKTRANS "(channel = 0x%0.4X, mode = 0x%0.4X, maddr = 0x%0.8X, size = 0x%0.8X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0, 
 			context.m_State.nGPR[CMIPS::A2].nV0, context.m_State.nGPR[CMIPS::A3].nV0);
 		break;
@@ -104,7 +120,7 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 20:
-		CLog::GetInstance().Print(LOG_NAME, "sceSdBlockTransStatus(channel = 0x%0.4X, flag = 0x%0.4X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_BLOCKTRANSSTATUS "(channel = 0x%0.4X, flag = 0x%0.4X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 26:
