@@ -1,5 +1,4 @@
-#ifndef _TIMRMAN_H_
-#define _TIMRMAN_H_
+#pragma once
 
 #include "Iop_Module.h"
 
@@ -13,9 +12,9 @@ namespace Iop
 						CTimrman(CIopBios&);
 		virtual			~CTimrman();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		int				AllocHardTimer(CMIPS&, uint32, uint32, uint32);
@@ -31,5 +30,3 @@ namespace Iop
 		CIopBios&		m_bios;
 	};
 }
-
-#endif
