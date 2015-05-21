@@ -128,6 +128,10 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
+	case 27:
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSPU2INTRHANDLER "(function = 0x%0.8X, arg = 0x%0.8X);\r\n",
+			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "unknownlibsd(%d);\r\n", functionId);
 		break;
