@@ -232,6 +232,7 @@ private:
 		MAX_ALARM			= 4,
 	};
 
+	//TODO: Use "refer" status enum values
 	enum THREAD_STATUS
 	{
 		THREAD_RUNNING				= 0x01,
@@ -241,6 +242,15 @@ private:
 		THREAD_SUSPENDED_WAITING	= 0x05,
 		THREAD_SUSPENDED_SLEEPING	= 0x06,
 		THREAD_ZOMBIE				= 0x07,
+	};
+
+	enum THREAD_STATUS_REFER
+	{
+		THS_RUN			= 0x01,
+		THS_READY		= 0x02,
+		THS_WAIT		= 0x04,
+		THS_SUSPEND		= 0x08,
+		THS_DORMANT		= 0x10,
 	};
 
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;

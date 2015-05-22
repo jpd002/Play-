@@ -1845,26 +1845,32 @@ void CPS2OS::sc_ReferThreadStatus()
 		return;
 	}
 
-	//THS_RUN = 0x01, THS_READY = 0x02, THS_WAIT = 0x04, THS_SUSPEND = 0x08, THS_DORMANT = 0x10
 	uint32 ret = 0;
 	switch(thread->status)
 	{
 	case THREAD_RUNNING:
-		ret = 0x01;
+		if(id == GetCurrentThreadId())
+		{
+			ret = THS_RUN;
+		}
+		else
+		{
+			ret = THS_READY;
+		}
 		break;
 	case THREAD_WAITING:
 	case THREAD_SLEEPING:
-		ret = 0x04;
+		ret = THS_WAIT;
 		break;
 	case THREAD_SUSPENDED:
-		ret = 0x08;
+		ret = THS_SUSPEND;
 		break;
 	case THREAD_SUSPENDED_WAITING:
 	case THREAD_SUSPENDED_SLEEPING:
-		ret = 0x0C;
+		ret = (THS_WAIT | THS_SUSPEND);
 		break;
 	case THREAD_ZOMBIE:
-		ret = 0x10;
+		ret = THS_DORMANT;
 		break;
 	}
 
