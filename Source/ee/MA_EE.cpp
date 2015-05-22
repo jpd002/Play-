@@ -937,60 +937,47 @@ void CMA_EE::PXOR()
 //1C
 void CMA_EE::PMULTH()
 {
+	static const size_t offsets[8] =
 	{
-		//A0xB0
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		m_codeGen->MultSHL();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[0]));
+		offsetof(CMIPS, m_State.nLO[0]),
+		offsetof(CMIPS, m_State.nLO[1]),
+		offsetof(CMIPS, m_State.nHI[0]),
+		offsetof(CMIPS, m_State.nHI[1]),
+		offsetof(CMIPS, m_State.nLO1[0]),
+		offsetof(CMIPS, m_State.nLO1[1]),
+		offsetof(CMIPS, m_State.nHI1[0]),
+		offsetof(CMIPS, m_State.nHI1[1])
+	};
 
-		//A1xB1
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		m_codeGen->MultSHH();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO[1]));
-	}
-
+	for(unsigned int i = 0; i < 4; i++)
 	{
-		//A2xB2
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-		m_codeGen->MultSHL();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[0]));
+		//Lower 16-bits
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->SignExt16();
 
-		//A3xB3
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-		m_codeGen->MultSHH();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI[1]));
-	}
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->SignExt16();
 
-	{
-		//A4xB4
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
-		m_codeGen->MultSHL();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO1[0]));
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
 
-		//A5xB5
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
-		m_codeGen->MultSHH();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nLO1[1]));
-	}
+			m_codeGen->PullRel(offsets[(i * 2) + 0]);
+		}
 
-	{
-		//A6xB6
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
-		m_codeGen->MultSHL();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI1[0]));
+		//Higher 16-bits
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->Sra(16);
 
-		//A7xB7
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
-		m_codeGen->MultSHH();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nHI1[1]));
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->Sra(16);
+
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
+
+			m_codeGen->PullRel(offsets[(i * 2) + 1]);
+		}
 	}
 
 	if(m_nRD != 0)

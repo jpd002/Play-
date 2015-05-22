@@ -44,6 +44,16 @@ public class MainActivity extends Activity
 		updateFileListView();
 	}
 
+	@Override
+	public void onBackPressed()
+	{
+		File currentDirectoryFile = new File(getCurrentDirectory());
+		File parentDirectoryFile = currentDirectoryFile.getParentFile();
+		if(parentDirectoryFile == null) return;
+		setCurrentDirectory(currentDirectoryFile.getParentFile().getAbsolutePath());
+		updateFileListView();
+	}
+
 	private static long getBuildDate(Context context) 
 	{
 		try
