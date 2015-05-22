@@ -60,9 +60,6 @@ protected:
 		void					Align32();
 		void					SetDmaParams(uint32, uint32, bool);
 
-		uint8*					m_ram;
-		uint8*					m_spr;
-
 	private:
 		void					SyncBuffer();
 
@@ -70,6 +67,9 @@ protected:
 		{
 			BUFFERSIZE = 0x10
 		};
+
+		uint8*					m_ram = nullptr;
+		uint8*					m_spr = nullptr;
 
 		uint128					m_buffer;
 		uint32					m_bufferPosition = BUFFERSIZE;
