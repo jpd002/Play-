@@ -11,6 +11,7 @@
 #define FUNCTION_REFERHARDTIMER			"ReferHardTimer"
 #define FUNCTION_SETTIMERMODE			"SetTimerMode"
 #define FUNCTION_GETTIMERSTATUS			"GetTimerStatus"
+#define FUNCTION_GETTIMERCOUNTER		"GetTimerCounter"
 #define FUNCTION_SETTIMERCOMPARE		"SetTimerCompare"
 #define FUNCTION_GETHARDTIMERINTRCODE	"GetHardTimerIntrCode"
 #define FUNCTION_SETTIMERCALLBACK		"SetTimerCallback"
@@ -50,6 +51,9 @@ std::string CTimrman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 8:
 		return FUNCTION_GETTIMERSTATUS;
+		break;
+	case 10:
+		return FUNCTION_GETTIMERCOUNTER;
 		break;
 	case 11:
 		return FUNCTION_SETTIMERCOMPARE;
@@ -101,6 +105,12 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = GetTimerStatus(
+			context,
+			context.m_State.nGPR[CMIPS::A0].nV0
+			);
+		break;
+	case 10:
+		context.m_State.nGPR[CMIPS::V0].nD0 = GetTimerCounter(
 			context,
 			context.m_State.nGPR[CMIPS::A0].nV0
 			);
@@ -203,6 +213,17 @@ int CTimrman::GetTimerStatus(CMIPS& context, uint32 timerId)
 	if(timerId == 0) return 0;
 	timerId--;
 	return context.m_pMemoryMap->GetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE) | 0x800;
+}
+
+int CTimrman::GetTimerCounter(CMIPS& context, uint32 timerId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETTIMERCOUNTER "(timerId = %d).\r\n",
+		timerId);
+#endif
+	if(timerId == 0) return 0;
+	timerId--;
+	return context.m_pMemoryMap->GetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_COUNT);
 }
 
 void CTimrman::SetTimerCompare(CMIPS& context, uint32 timerId, uint32 compare)
