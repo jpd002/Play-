@@ -311,7 +311,7 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	auto file = GetFileFromHandle(cmd->handle);
 	if(file == nullptr)
 	{
-		ret[0] = -1;
+		ret[0] = RET_PERMISSION_DENIED;
 		assert(0);
 		return;
 	}
