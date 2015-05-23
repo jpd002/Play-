@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FDDEEF2D-1ED6-44B7-B88A-912C2400EA8D}</ProjectGuid>
+    <ProjectGuid>{A2064EB3-BA2F-49A6-826D-BE2903E38359}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>McServTest</RootNamespace>
   </PropertyGroup>
@@ -92,11 +92,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,11 +106,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,12 +121,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,12 +139,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,53 +155,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\iop\ArgumentIterator.cpp" />
-    <ClCompile Include="..\..\Source\iop\Iop_Ioman.cpp" />
-    <ClCompile Include="..\..\Source\iop\Iop_McServ.cpp" />
-    <ClCompile Include="..\..\Source\iop\Iop_SifMan.cpp" />
-    <ClCompile Include="..\..\Source\iop\Iop_SifManNull.cpp" />
-    <ClCompile Include="..\..\Source\iop\Iop_Stdio.cpp" />
-    <ClCompile Include="..\..\Source\iop\Iop_Sysmem.cpp" />
-    <ClCompile Include="..\..\Source\Log.cpp" />
-    <ClCompile Include="..\..\Source\MemoryMap.cpp" />
-    <ClCompile Include="..\..\Source\MIPS.cpp" />
-    <ClCompile Include="..\..\Source\MIPSAnalysis.cpp" />
-    <ClCompile Include="..\..\Source\MIPSAssembler.cpp" />
-    <ClCompile Include="..\..\Source\MIPSTags.cpp" />
-    <ClCompile Include="Source\AppConfig.cpp" />
-    <ClCompile Include="Source\GameTestSheet.cpp" />
-    <ClCompile Include="Source\Main.cpp" />
-    <ClCompile Include="Source\StdAfx.cpp">
+    <ProjectReference Include="..\..\Framework\build_win32\Framework.vcxproj">
+      <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="PlayCore.vcxproj">
+      <Project>{d060d0bf-20e4-4dcd-975e-9ee6ddf4f73a}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\tools\McServTest\AppConfig.cpp" />
+    <ClCompile Include="..\tools\McServTest\GameTestSheet.cpp" />
+    <ClCompile Include="..\tools\McServTest\Main.cpp" />
+    <ClCompile Include="..\tools\McServTest\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\iop\ArgumentIterator.h" />
-    <ClInclude Include="..\..\Source\iop\Iop_Ioman.h" />
-    <ClInclude Include="..\..\Source\iop\Iop_McServ.h" />
-    <ClInclude Include="..\..\Source\iop\Iop_SifMan.h" />
-    <ClInclude Include="..\..\Source\iop\Iop_SifManNull.h" />
-    <ClInclude Include="..\..\Source\iop\Iop_Stdio.h" />
-    <ClInclude Include="..\..\Source\iop\Iop_Sysmem.h" />
-    <ClInclude Include="..\..\Source\Log.h" />
-    <ClInclude Include="..\..\Source\MemoryMap.h" />
-    <ClInclude Include="..\..\Source\MIPS.h" />
-    <ClInclude Include="..\..\Source\MIPSAnalysis.h" />
-    <ClInclude Include="..\..\Source\MIPSAssembler.h" />
-    <ClInclude Include="..\..\Source\MIPSTags.h" />
-    <ClInclude Include="Source\AppConfig.h" />
-    <ClInclude Include="Source\GameTestSheet.h" />
-    <ClInclude Include="Source\StdAfx.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Framework\build_win32\Framework.vcxproj">
-      <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
-    </ProjectReference>
+    <ClInclude Include="..\tools\McServTest\AppConfig.h" />
+    <ClInclude Include="..\tools\McServTest\GameTestSheet.h" />
+    <ClInclude Include="..\tools\McServTest\StdAfx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets')" />
+    <Import Project="..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets" Condition="Exists('..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.57.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_filesystem-vc120.1.57.0.0\build\native\boost_filesystem-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_date_time-vc120.1.57.0.0\build\native\boost_date_time-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_system-vc120.1.57.0.0\build\native\boost_system-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_chrono-vc120.1.57.0.0\build\native\boost_chrono-vc120.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_thread-vc120.1.57.0.0\build\native\boost_thread-vc120.targets'))" />
+  </Target>
 </Project>
