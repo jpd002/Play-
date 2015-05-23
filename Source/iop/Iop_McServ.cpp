@@ -211,8 +211,8 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		}
 		catch(...)
 		{
-			//-4 for not existing file?
-			ret[0] = -4;
+			//Not existing file?
+			ret[0] = RET_NO_ENTRY;
 			return;
 		}
 	}
@@ -384,7 +384,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		else
 		{
 			//Not found (I guess)
-			result = -4;
+			result = RET_NO_ENTRY;
 		}
 	}
 	catch(const std::exception& exception)
@@ -429,7 +429,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			if(!filesystem::exists(mcPath))
 			{
 				//Directory doesn't exist
-				ret[0] = -4;
+				ret[0] = RET_NO_ENTRY;
 				return;
 			}
 
@@ -438,7 +438,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			if(!filesystem::exists(searchPath))
 			{
 				//Specified directory doesn't exist, this is an error
-				ret[0] = -4;
+				ret[0] = RET_NO_ENTRY;
 				return;
 			}
 

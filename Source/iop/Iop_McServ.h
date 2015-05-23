@@ -66,6 +66,7 @@ namespace Iop
 		enum RETURN_CODES
 		{
 			RET_OK					= 0,
+			RET_NO_ENTRY			= -4,
 			RET_PERMISSION_DENIED	= -5
 		};
 
