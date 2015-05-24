@@ -17,6 +17,8 @@ public:
 	virtual uint32	GetTOP() const override;
 
 private:
+	typedef std::vector<uint8> ByteArray;
+
 	virtual void	ExecuteCommand(StreamType&, CODE) override;
 
 	void			Cmd_DIRECT(StreamType&, CODE);
@@ -30,4 +32,6 @@ private:
 	uint32			m_OFST;
 	uint32			m_TOP;
 	uint32			m_TOPS;
+
+	ByteArray		m_directBuffer;
 };

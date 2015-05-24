@@ -133,7 +133,12 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 
 	if(nSize != 0)
 	{
-		uint8* packet = reinterpret_cast<uint8*>(alloca(nSize));
+		if(m_directBuffer.size() < nSize)
+		{
+			m_directBuffer.resize(nSize);
+		}
+
+		auto packet = m_directBuffer.data();
 		stream.Read(packet, nSize);
 
 		int32 remainingLength = nSize;
