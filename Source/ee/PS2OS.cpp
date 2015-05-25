@@ -1706,6 +1706,8 @@ void CPS2OS::sc_StartThread()
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+
+	ThreadShakeAndBake();
 }
 
 //23
