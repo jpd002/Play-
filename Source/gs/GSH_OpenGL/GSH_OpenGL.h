@@ -19,7 +19,7 @@ public:
 									CGSH_OpenGL();
 	virtual							~CGSH_OpenGL();
 
-	virtual void					LoadState(Framework::CZipArchiveReader&);
+	virtual void					LoadState(Framework::CZipArchiveReader&) override;
 	
 	void							ProcessImageTransfer() override;
 	void							ProcessClutTransfer(uint32, uint32) override;
@@ -115,6 +115,7 @@ private:
 	{
 		Framework::OpenGl::ProgramPtr	shader;
 		GLint							projMatrixUniform;
+		GLint							texMatrixUniform;
 		GLint							textureUniform;
 		GLint							paletteUniform;
 		GLint							textureSizeUniform;
@@ -221,7 +222,7 @@ private:
 		float s, t, q;
 	};
 
-	void							WriteRegisterImpl(uint8, uint64);
+	void							WriteRegisterImpl(uint8, uint64) override;
 
 	void							InitializeRC();
 	void							SetupTextureUploaders();

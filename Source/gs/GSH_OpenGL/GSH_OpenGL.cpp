@@ -506,6 +506,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		shaderInfo.shader = shader;
 
 		shaderInfo.projMatrixUniform	= glGetUniformLocation(*shader, "g_projMatrix");
+		shaderInfo.texMatrixUniform		= glGetUniformLocation(*shader, "g_texMatrix");
 		shaderInfo.textureUniform		= glGetUniformLocation(*shader, "g_texture");
 		shaderInfo.paletteUniform		= glGetUniformLocation(*shader, "g_palette");
 		shaderInfo.textureSizeUniform	= glGetUniformLocation(*shader, "g_textureSize");
@@ -1169,6 +1170,21 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
+
+#ifdef GLES_COMPATIBILITY
+	float texMatrix[16];
+	memset(texMatrix, 0, sizeof(texMatrix));
+	texMatrix[0 + (0 * 4)] = texInfo.scaleRatioX;
+	texMatrix[3 + (0 * 4)] = texInfo.offsetX;
+	texMatrix[1 + (1 * 4)] = texInfo.scaleRatioY;
+	texMatrix[2 + (2 * 4)] = 1;
+	texMatrix[3 + (3 * 4)] = 1;
+
+	if(shaderInfo.texMatrixUniform != -1)
+	{
+		glUniformMatrix4fv(shaderInfo.texMatrixUniform, 1, GL_FALSE, texMatrix);
+	}
+#endif
 
 	if(shaderInfo.textureSizeUniform != -1)
 	{

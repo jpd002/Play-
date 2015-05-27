@@ -83,16 +83,22 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 	shaderBuilder << "}"															<< std::endl;
 #else
 	shaderBuilder << "#version 300 es" << std::endl;
+
 	shaderBuilder << "uniform mat4 g_projMatrix;" << std::endl;
+	shaderBuilder << "uniform mat4 g_texMatrix;" << std::endl;
+
 	shaderBuilder << "in vec3 a_position;" << std::endl;
 	shaderBuilder << "in vec4 a_color;" << std::endl;
 	shaderBuilder << "in vec3 a_texCoord;" << std::endl;
+
 	shaderBuilder << "out vec4 v_color;" << std::endl;
 	shaderBuilder << "out vec3 v_texCoord;" << std::endl;
+
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	vec4 texCoord = g_texMatrix * vec4(a_texCoord, 1);" << std::endl;
 	shaderBuilder << "	v_color = a_color;" << std::endl;
-	shaderBuilder << "	v_texCoord = a_texCoord;" << std::endl;
+	shaderBuilder << "	v_texCoord = texCoord.xyz;" << std::endl;
 	shaderBuilder << "	gl_Position = g_projMatrix * vec4(a_position, 1);" << std::endl;
 	shaderBuilder << "}" << std::endl;
 #endif
