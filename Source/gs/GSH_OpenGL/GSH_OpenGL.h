@@ -115,6 +115,7 @@ private:
 	{
 		Framework::OpenGl::ProgramPtr	shader;
 		GLint							projMatrixUniform;
+		GLint							texMatrixUniform;
 		GLint							textureUniform;
 		GLint							paletteUniform;
 		GLint							textureSizeUniform;
