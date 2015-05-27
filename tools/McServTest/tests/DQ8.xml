@@ -1,0 +1,15 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BASLUS-21207dq8_0" />
+			<File Name="/BASLUS-21207dq8_0/BASLUS-21207dq8_0" Size="23776" />
+			<File Name="/BASLUS-21207dq8_0/dq8ic.ico" Size="49726" />
+			<File Name="/BASLUS-21207dq8_0/dq8ic_c.ico" Size="49726" />
+			<File Name="/BASLUS-21207dq8_0/dq8ic_d.ico" Size="49726" />
+			<File Name="/BASLUS-21207dq8_0/icon.sys" Size="964" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="/BASLUS-21207dq8???" EnvironmentId="1" MaxEntries="-1" Result="1" />
+	</Tests>
+</Game>
