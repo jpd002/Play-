@@ -3,6 +3,7 @@
 #include "Types.h"
 #include "Convertible.h"
 #include "../uint128.h"
+#include "../Profiler.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -184,4 +185,6 @@ protected:
 	uint32				m_pendingMicroProgram;
 	CODE				m_previousCODE;
 #endif
+
+	CProfiler::ZoneHandle	m_vifProfilerZone = 0;
 };
