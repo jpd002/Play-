@@ -222,6 +222,13 @@ private:
 		float s, t, q;
 	};
 
+	enum VERTEX_BUFFER_SIZE
+	{
+		VERTEX_BUFFER_SIZE = 0x1000,
+	};
+
+	typedef std::vector<PRIM_VERTEX> VertexBuffer;
+
 	void							WriteRegisterImpl(uint8, uint64) override;
 
 	void							InitializeRC();
@@ -251,6 +258,8 @@ private:
 	void							Prim_Line();
 	void							Prim_Triangle();
 	void							Prim_Sprite();
+
+	void							FlushVertexBuffer();
 
 	void							DrawToDepth(unsigned int, uint64);
 
@@ -331,7 +340,7 @@ private:
 	int								m_nVtxCount;
 
 	PRMODE							m_PrimitiveMode;
-	unsigned int					m_nPrimitiveType;
+	unsigned int					m_primitiveType;
 	bool							m_drawingToDepth = false;
 
 	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
@@ -342,4 +351,5 @@ private:
 
 	ShaderInfoMap					m_shaderInfos;
 	RENDERSTATE						m_renderState;
+	VertexBuffer					m_vertexBuffer;
 };
