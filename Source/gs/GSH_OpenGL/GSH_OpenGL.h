@@ -19,7 +19,7 @@ public:
 									CGSH_OpenGL();
 	virtual							~CGSH_OpenGL();
 
-	virtual void					LoadState(Framework::CZipArchiveReader&);
+	virtual void					LoadState(Framework::CZipArchiveReader&) override;
 	
 	void							ProcessImageTransfer() override;
 	void							ProcessClutTransfer(uint32, uint32) override;
@@ -115,6 +115,7 @@ private:
 	{
 		Framework::OpenGl::ProgramPtr	shader;
 		GLint							projMatrixUniform;
+		GLint							texMatrixUniform;
 		GLint							textureUniform;
 		GLint							paletteUniform;
 		GLint							textureSizeUniform;
@@ -221,7 +222,14 @@ private:
 		float s, t, q;
 	};
 
-	void							WriteRegisterImpl(uint8, uint64);
+	enum VERTEX_BUFFER_SIZE
+	{
+		VERTEX_BUFFER_SIZE = 0x1000,
+	};
+
+	typedef std::vector<PRIM_VERTEX> VertexBuffer;
+
+	void							WriteRegisterImpl(uint8, uint64) override;
 
 	void							InitializeRC();
 	void							SetupTextureUploaders();
@@ -250,6 +258,8 @@ private:
 	void							Prim_Line();
 	void							Prim_Triangle();
 	void							Prim_Sprite();
+
+	void							FlushVertexBuffer();
 
 	void							DrawToDepth(unsigned int, uint64);
 
@@ -330,7 +340,7 @@ private:
 	int								m_nVtxCount;
 
 	PRMODE							m_PrimitiveMode;
-	unsigned int					m_nPrimitiveType;
+	unsigned int					m_primitiveType;
 	bool							m_drawingToDepth = false;
 
 	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
@@ -341,4 +351,5 @@ private:
 
 	ShaderInfoMap					m_shaderInfos;
 	RENDERSTATE						m_renderState;
+	VertexBuffer					m_vertexBuffer;
 };

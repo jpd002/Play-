@@ -812,6 +812,18 @@ void CMA_EE::QFSRV()
 //MMI2 Opcodes
 //////////////////////////////////////////////////
 
+//02
+void CMA_EE::PSLLVW()
+{
+	Generic_PSxxV([this] () { m_codeGen->Shl(); });
+}
+
+//03
+void CMA_EE::PSRLVW()
+{
+	Generic_PSxxV([this] () { m_codeGen->Srl(); });
+}
+
 //08
 void CMA_EE::PMFHI()
 {
@@ -1064,6 +1076,12 @@ void CMA_EE::PROT3W()
 //////////////////////////////////////////////////
 //MMI3 Opcodes
 //////////////////////////////////////////////////
+
+//03
+void CMA_EE::PSRAVW()
+{
+	Generic_PSxxV([this] () { m_codeGen->Sra(); });
+}
 
 //08
 void CMA_EE::PMTHI()
@@ -1444,6 +1462,23 @@ void CMA_EE::Generic_MADD(unsigned int unit, bool isSigned)
 	}
 }
 
+void CMA_EE::Generic_PSxxV(const TemplateOperationFunctionType& function)
+{
+	if(m_nRD == 0) return;
+
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i * 2]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i * 2]));
+		function();
+
+		m_codeGen->PushTop();
+		m_codeGen->SignExt();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[(i * 2) + 1]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[(i * 2) + 0]));
+	}
+}
+
 //////////////////////////////////////////////////
 //Opcode Tables
 //////////////////////////////////////////////////
@@ -1475,7 +1510,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] = 
 {
 	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSLLVW,		&CMA_EE::PSRLVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
 	&CMA_EE::PMFHI,			&CMA_EE::PMFLO,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTW,		&CMA_EE::PDIVW,			&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
 	//0x10
@@ -1487,7 +1522,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 
 {
 	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSRAVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
 	&CMA_EE::PMTHI,			&CMA_EE::Illegal,		&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
 	//0x10

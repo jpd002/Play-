@@ -1,0 +1,14 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BASLUS-21005-08" />
+			<File Name="/BASLUS-21005-08/BASLUS-21005-08" Size="46304" />
+			<File Name="/BASLUS-21005-08/icon.sys" Size="964" />
+			<File Name="/BASLUS-21005-08/kh2.ico" Size="35416" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="BASLUS-21005-??" EnvironmentId="1" MaxEntries="-1" Result="1"
+			CurrentDirectory="/" />
+	</Tests>
+</Game>

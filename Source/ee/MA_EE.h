@@ -120,6 +120,8 @@ private:
 	void								QFSRV();
 
 	//Mmi2
+	void								PSLLVW();
+	void								PSRLVW();
 	void								PMFHI();
 	void								PMFLO();
 	void								PMULTW();
@@ -132,6 +134,7 @@ private:
 	void								PROT3W();
 
 	//Mmi3
+	void								PSRAVW();
 	void								PMTHI();
 	void								PINTEH();
 	void								PCPYUD();
@@ -148,6 +151,7 @@ private:
 	void								PMFHL_SH();
 
 	void								Generic_MADD(unsigned int unit, bool isSigned);
+	void								Generic_PSxxV(const TemplateOperationFunctionType&);
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflMmi[64];

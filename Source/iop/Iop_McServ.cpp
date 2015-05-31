@@ -366,7 +366,14 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 		if(!requestedDirectory.root_directory().empty())
 		{
-			newCurrentDirectory = requestedDirectory;
+			if(requestedDirectory.string() != "/")
+			{
+				newCurrentDirectory = requestedDirectory;
+			}
+			else
+			{
+				newCurrentDirectory.clear();
+			}
 		}
 		else
 		{
@@ -572,7 +579,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 		std::string filterExpString = filterPathString;
 		boost::replace_all(filterExpString, "\\", "\\\\");
 		boost::replace_all(filterExpString, ".", "\\.");
-		boost::replace_all(filterExpString, "?", ".");
+		boost::replace_all(filterExpString, "?", ".?");
 		boost::replace_all(filterExpString, "*", ".*");
 		m_filterExp = std::regex(filterExpString);
 	}

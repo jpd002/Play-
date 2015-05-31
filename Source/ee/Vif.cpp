@@ -34,6 +34,7 @@ CVif::CVif(unsigned int number, CVpu& vpu, uint8* ram, uint8* spr)
 : m_number(number)
 , m_stream(ram, spr)
 , m_vpu(vpu)
+, m_vifProfilerZone(CProfiler::GetInstance().RegisterZone(string_format("VIF%d", number).c_str()))
 {
 
 }
