@@ -8,8 +8,12 @@
 
 //#define _WIREFRAME
 
+#ifdef GLES_COMPATIBILITY
+#define HIGHRES_MODE
+#endif
+
 //#define HIGHRES_MODE
-#if defined(HIGHRES_MODE) || defined(GLES_COMPATIBILITY)
+#ifdef HIGHRES_MODE
 #define FBSCALE (2.0f)
 #else
 #define FBSCALE (1.0f)
