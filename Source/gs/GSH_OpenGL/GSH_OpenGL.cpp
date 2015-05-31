@@ -9,7 +9,7 @@
 //#define _WIREFRAME
 
 //#define HIGHRES_MODE
-#ifdef HIGHRES_MODE
+#if defined(HIGHRES_MODE) || defined(GLES_COMPATIBILITY)
 #define FBSCALE (2.0f)
 #else
 #define FBSCALE (1.0f)
