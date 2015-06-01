@@ -240,8 +240,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,2,6
- PRODUCTVERSION 0,0,2,6
+ FILEVERSION 0,0,3,0
+ PRODUCTVERSION 0,0,3,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -259,12 +259,12 @@ BEGIN
             VALUE "Comments", "Play! - PlayStation 2 Emulator"
             VALUE "CompanyName", "Virtual Applications"
             VALUE "FileDescription", "Play!"
-            VALUE "FileVersion", "0, 0, 2, 6"
+            VALUE "FileVersion", "0.0.3.0"
             VALUE "InternalName", "Play!"
             VALUE "LegalCopyright", "Copyright (C) 2010 Virtual Applications"
             VALUE "OriginalFilename", "Play.exe"
             VALUE "ProductName", "Play! - PlayStation 2 Emulator"
-            VALUE "ProductVersion", "0, 0, 2, 6"
+            VALUE "ProductVersion", "0.0.3.0"
         END
     END
     BLOCK "VarFileInfo"
