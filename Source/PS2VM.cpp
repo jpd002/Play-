@@ -699,7 +699,7 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			{
 				stream = std::make_shared<Framework::Win32::CVolumeStream>(path[4]);
 			}
-#elif !defined(__ANDROID__)
+#elif !defined(__ANDROID__) && !TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
 			else
 			{
 				try

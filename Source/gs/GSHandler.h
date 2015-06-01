@@ -635,6 +635,7 @@ protected:
 		unsigned int	nMagY		: 5;
 		unsigned int	nW			: 12;
 		unsigned int	nH			: 12;
+		unsigned int	reserved	: 8;
 	};
 	static_assert(sizeof(DISPLAY) == sizeof(uint64), "Size of DISPLAY struct must be 8 bytes.");
 
