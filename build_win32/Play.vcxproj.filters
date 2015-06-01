@@ -467,7 +467,7 @@
     <None Include="..\Source\License.txt" />
     <None Include="..\Source\ui_win32\Images\arrow.bmp" />
     <None Include="..\Source\ui_win32\Images\bpoint.bmp" />
-    <None Include="..\Source\ui_win32\Images\purei.ico" />
+    <None Include="..\Source\ui_win32\Images\play.ico" />
     <None Include="..\Source\ui_win32\images\grab.cur" />
     <None Include="..\Source\ui_win32\images\grabbing.cur" />
     <None Include="..\Source\ui_win32\FrameDebugger\CheckerboardShader.fx">

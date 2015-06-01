@@ -6,7 +6,7 @@
 #define IDB_ARROW                       102
 #define IDB_BREAKPOINT                  103
 #define IDR_MAINWINDOW                  109
-#define IDI_PUREI                       110
+#define IDI_PLAY                        110
 #define IDC_GRAB                        115
 #define IDC_GRABBING                    116
 #define IDB_REFRESH                     117

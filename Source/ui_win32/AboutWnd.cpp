@@ -30,7 +30,7 @@ CAboutWnd::CAboutWnd(HWND parentWnd)
 	SetClassPtr();
 
 	m_pImage = new Framework::Win32::CStatic(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), SS_ICON);
-	m_pImage->SetIcon(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PUREI), IMAGE_ICON, 48, 48, 0));
+	m_pImage->SetIcon(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PLAY), IMAGE_ICON, 48, 48, 0));
 
 	auto date(string_cast<std::tstring>(__DATE__));
 	auto zlibVersion(string_cast<std::tstring>(ZLIB_VERSION));

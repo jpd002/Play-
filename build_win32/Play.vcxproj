@@ -433,7 +433,7 @@
     <None Include="..\Source\ui_win32\Images\bpoint.bmp" />
     <None Include="..\Source\ui_win32\images\grab.cur" />
     <None Include="..\Source\ui_win32\images\grabbing.cur" />
-    <None Include="..\Source\ui_win32\Images\purei.ico" />
+    <None Include="..\Source\ui_win32\Images\play.ico" />
     <None Include="..\Source\ui_win32\manifest.xml" />
     <None Include="..\Source\ui_win32\manifest64.xml" />
     <CustomBuild Include="..\Source\ui_win32\SysInfo_x64.asm">

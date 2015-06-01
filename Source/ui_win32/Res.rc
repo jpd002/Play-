@@ -212,7 +212,7 @@ IDB_BREAKPOINT          BITMAP                  "Images\\bpoint.bmp"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_PUREI               ICON                    "Images\\purei.ico"
+IDI_PLAY                ICON                    "Images\\play.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
