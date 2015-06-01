@@ -10,12 +10,14 @@ class VirtualPadButton
 	private RectF _bounds;
 	private int _value;
 	private boolean _pressed = false;
+	private Bitmap _bitmap;
 	
-	public VirtualPadButton(String caption, int value, RectF bounds)
+	public VirtualPadButton(String caption, int value, RectF bounds, Bitmap bitmap)
 	{
 		_caption = caption;
 		_value = value;
 		_bounds = bounds;
+		_bitmap = bitmap;
 	}
 	
 	public void setPointerId(int pointerId)
@@ -50,26 +52,13 @@ class VirtualPadButton
 	
 	public void draw(Canvas canvas)
 	{
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setFilterBitmap(true);
+		if (_pressed)
 		{
-			Paint squarePaint = new Paint();
-			if(_pressed)
-			{
-				squarePaint.setARGB(255, 128, 128, 128);
-			}
-			else
-			{
-				squarePaint.setARGB(128, 128, 128, 128);
-			}
-			canvas.drawRect(_bounds, squarePaint);
+			paint.setColorFilter(new LightingColorFilter(0xFFBBBBBB, 0x00000000));
 		}
-
-		{
-			Paint textPaint = new Paint();
-			textPaint.setColor(Color.WHITE);
-			textPaint.setTextAlign(Paint.Align.CENTER);
-			textPaint.setTextSize(40);
-			float textOffset = (textPaint.descent() + textPaint.ascent()) / 2;
-			canvas.drawText(_caption, _bounds.centerX(), _bounds.centerY() - textOffset, textPaint);
-		}
+		canvas.drawBitmap(_bitmap, null, _bounds, paint);
 	}
 };
