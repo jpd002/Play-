@@ -289,11 +289,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			shaderBuilder << "	float colorIndex = textureProj(g_texture, v_texCoord).r * 255.0;" << std::endl;
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
-				shaderBuilder << "	textureColor = texture(g_palette, vec2(colorIndex / 16.0, 1));" << std::endl;
+				shaderBuilder << "	textureColor = texture(g_palette, vec2(colorIndex / 15.0, 1));" << std::endl;
 			}
 			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
 			{
-				shaderBuilder << "	textureColor = texture(g_palette, vec2(colorIndex / 256.0, 1));" << std::endl;
+				shaderBuilder << "	textureColor = texture(g_palette, vec2(colorIndex / 255.0, 1));" << std::endl;
 			}
 		}
 	}
