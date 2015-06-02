@@ -1,5 +1,4 @@
-#ifndef _IOP_SPUBASE_H_
-#define _IOP_SPUBASE_H_
+#pragma once
 
 #include "Types.h"
 #include "BasicUnion.h"
@@ -300,5 +299,3 @@ namespace Iop
 		float				m_volumeAdjust;
 	};
 }
-
-#endif
