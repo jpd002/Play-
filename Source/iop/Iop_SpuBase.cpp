@@ -907,7 +907,13 @@ void CSpuBase::CSampleReader::AdvanceBuffer()
 
 void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 {
-	int32 workBuffer[28];
+	if(m_done)
+	{
+		memset(dst, 0, sizeof(int16) * BUFFER_SAMPLES);
+		return;
+	}
+
+	int32 workBuffer[BUFFER_SAMPLES];
 
 	uint8* nextSample = m_ram + m_nextSampleAddr;
 
@@ -916,12 +922,6 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	uint8 predictNumber = nextSample[0] >> 4;
 	uint8 flags = nextSample[1];
 	assert(predictNumber < 5);
-
-	if(m_done)
-	{
-		memset(m_buffer, 0, sizeof(int16) * BUFFER_SAMPLES);
-		return;
-	}
 
 	//Get intermediate values
 	{
@@ -949,7 +949,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 			{  122,		-60		},
 		};
 
-		for(unsigned int i = 0; i < 28; i++)
+		for(unsigned int i = 0; i < BUFFER_SAMPLES; i++)
 		{
 			int32 currentValue = workBuffer[i] * 64;
 			currentValue += (m_s1 * predictorTable[predictNumber][0]) / 64;
