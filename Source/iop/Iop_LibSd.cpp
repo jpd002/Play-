@@ -1,5 +1,6 @@
 #include "Iop_LibSd.h"
 #include "../Log.h"
+#include "string_format.h"
 
 //Not an actual implementation of the LIBSD module
 //It is only used for debugging purposes (ie.: function names)
@@ -9,6 +10,7 @@ using namespace Iop;
 #define FUNCTION_INIT					"Init"
 #define FUNCTION_SETPARAM				"SetParam"
 #define FUNCTION_SETSWITCH				"SetSwitch"
+#define FUNCTION_GETSWITCH				"GetSwitch"
 #define FUNCTION_SETADDR				"SetAddr"
 #define FUNCTION_GETADDR				"GetAddr"
 #define FUNCTION_SETCOREATTR			"SetCoreAttr"
@@ -38,6 +40,9 @@ std::string CLibSd::GetFunctionName(unsigned int functionId) const
 		break;
 	case 7:
 		return FUNCTION_SETSWITCH;
+		break;
+	case 8:
+		return FUNCTION_GETSWITCH;
 		break;
 	case 9:
 		return FUNCTION_SETADDR;
@@ -77,6 +82,25 @@ void CLibSd::Invoke(CMIPS&, unsigned int)
 
 }
 
+std::string DecodeSwitch(uint16 switchId)
+{
+	std::string result;
+	switch(switchId >> 8)
+	{
+	case 0x15:
+		result = "KEYON";
+		break;
+	case 0x17:
+		result = "ENDX";
+		break;
+	default:
+		result = string_format("unknown (0x%0.2X)", switchId >> 8);
+		break;
+	}
+	result += string_format(", CORE%d", switchId & 1);
+	return result;
+}
+
 void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
@@ -90,8 +114,14 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 7:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSWITCH "(entry = 0x%0.4X, value = 0x%0.8X);\r\n",
-			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSWITCH "(entry = 0x%0.4X, value = 0x%0.8X); //(%s)\r\n",
+			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0,
+			DecodeSwitch(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
+		break;
+	case 8:
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETSWITCH "(entry = 0x%0.4X); //(%s)\r\n", 
+			context.m_State.nGPR[CMIPS::A0].nV0, 
+			DecodeSwitch(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 9:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETADDR "(entry = 0x%0.4X, value = 0x%0.8X);\r\n", 
