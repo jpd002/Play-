@@ -1,8 +1,9 @@
 #include <cassert>
 #include <cmath>
+#include "string_format.h"
 #include "../Log.h"
-#include "Iop_SpuBase.h"
 #include "../RegisterStateFile.h"
+#include "Iop_SpuBase.h"
 
 using namespace Iop;
 
@@ -10,10 +11,26 @@ using namespace Iop;
 #define TIME_SCALE (0x1000)
 #define LOG_NAME ("iop_spubase")
 
-#define STATE_PREFIX			("iop_spu/spu_")
-#define STATE_SUFFIX			(".xml")
-#define STATE_REGS_CTRL			("CTRL")
-#define STATE_REGS_IRQADDR		("IRQADDR")
+#define STATE_PATH_FORMAT					("iop_spu/spu_%d.xml")
+#define STATE_REGS_CTRL						("CTRL")
+#define STATE_REGS_IRQADDR					("IRQADDR")
+#define STATE_REGS_BUFFERADDR				("BUFFERADDR")
+#define STATE_REGS_REVERBWORKADDRSTART		("REVERBWORKADDRSTART")
+#define STATE_REGS_REVERBWORKADDREND		("REVERBWORKADDREND")
+#define STATE_REGS_REVERBCURRADDR			("REVERBCURRADDR")
+#define STATE_CHANNEL_REGS_PREFIX			("CHANNEL%d_")
+#define STATE_CHANNEL_REGS_VOLUMELEFT		("VOLUMELEFT")
+#define STATE_CHANNEL_REGS_VOLUMERIGHT		("VOLUMERIGHT")
+#define STATE_CHANNEL_REGS_VOLUMELEFTABS	("VOLUMELEFTABS")
+#define STATE_CHANNEL_REGS_VOLUMERIGHTABS	("VOLUMERIGHTABS")
+#define STATE_CHANNEL_REGS_STATUS			("STATUS")
+#define STATE_CHANNEL_REGS_PITCH			("PITCH")
+#define STATE_CHANNEL_REGS_ADSRLEVEL		("ADSRLEVEL")
+#define STATE_CHANNEL_REGS_ADSRRATE			("ADSRRATE")
+#define STATE_CHANNEL_REGS_ADSRVOLUME		("ADSRVOLUME")
+#define STATE_CHANNEL_REGS_ADDRESS			("ADDRESS")
+#define STATE_CHANNEL_REGS_REPEAT			("REPEAT")
+#define STATE_CHANNEL_REGS_CURRENT			("CURRENT")
 
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
 {
@@ -163,20 +180,65 @@ void CSpuBase::Reset()
 
 void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 {
-	std::string path = STATE_PREFIX + std::to_string(m_spuNumber) + STATE_SUFFIX;
+	auto path = string_format(STATE_PATH_FORMAT, m_spuNumber);
 
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_ctrl = registerFile.GetRegister32(STATE_REGS_CTRL);
 	m_irqAddr = registerFile.GetRegister32(STATE_REGS_IRQADDR);
+	m_bufferAddr = registerFile.GetRegister32(STATE_REGS_BUFFERADDR);
+	m_reverbWorkAddrStart = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
+	m_reverbWorkAddrEnd = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDREND);
+	m_reverbCurrAddr = registerFile.GetRegister32(STATE_REGS_REVERBCURRADDR);
+
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		auto& channel = m_channel[i];
+		auto channelPrefix = string_format(STATE_CHANNEL_REGS_PREFIX, i);
+		channel.volumeLeft <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFT).c_str());
+		channel.volumeRight <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHT).c_str());
+		channel.volumeLeftAbs = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFTABS).c_str());
+		channel.volumeRightAbs = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHTABS).c_str());
+		channel.status = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_STATUS).c_str());
+		channel.pitch = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_PITCH).c_str());
+		channel.adsrLevel <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRLEVEL).c_str());
+		channel.adsrRate <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRRATE).c_str());
+		channel.adsrVolume = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRVOLUME).c_str());
+		channel.address = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str());
+		channel.repeat = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str());
+		channel.current = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str());
+	}
 }
 
 void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	std::string path = STATE_PREFIX + std::to_string(m_spuNumber) + STATE_SUFFIX;
+	auto path = string_format(STATE_PATH_FORMAT, m_spuNumber);
 
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CTRL, m_ctrl);
 	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
+	registerFile->SetRegister32(STATE_REGS_BUFFERADDR, m_bufferAddr);
+	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
+	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
+	registerFile->SetRegister32(STATE_REGS_REVERBCURRADDR, m_reverbCurrAddr);
+
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		const auto& channel = m_channel[i];
+		auto channelPrefix = string_format(STATE_CHANNEL_REGS_PREFIX, i);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFT).c_str(), channel.volumeLeft);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHT).c_str(), channel.volumeRight);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFTABS).c_str(), channel.volumeLeftAbs);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHTABS).c_str(), channel.volumeRightAbs);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_STATUS).c_str(), channel.status);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_PITCH).c_str(), channel.pitch);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRLEVEL).c_str(), channel.adsrLevel);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRRATE).c_str(), channel.adsrRate);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRVOLUME).c_str(), channel.adsrVolume);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str(), channel.address);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str(), channel.repeat);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str(), channel.current);
+	}
+
 	archive.InsertFile(registerFile);
 }
 

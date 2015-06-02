@@ -12,6 +12,7 @@ using namespace PS2;
 #define STATE_CPU			("iop_cpu")
 #define STATE_RAM			("iop_ram")
 #define STATE_SCRATCH		("iop_scratch")
+#define STATE_SPURAM		("iop_spuram")
 
 CSubSystem::CSubSystem(bool ps2Mode) 
 : m_cpu(MEMORYMAP_ENDIAN_LSBF)
@@ -92,6 +93,7 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(new CMemoryStateFile(STATE_CPU,		&m_cpu.m_State, sizeof(MIPSSTATE)));
 	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_ram,			IOP_RAM_SIZE));
 	archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH,	m_scratchPad,	IOP_SCRATCH_SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_SPURAM,	m_spuRam,		SPU_RAM_SIZE));
 	m_intc.SaveState(archive);
 	m_counters.SaveState(archive);
 	m_spuCore0.SaveState(archive);
@@ -104,6 +106,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	archive.BeginReadFile(STATE_CPU			)->Read(&m_cpu.m_State,	sizeof(MIPSSTATE));
 	archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			IOP_RAM_SIZE);
 	archive.BeginReadFile(STATE_SCRATCH		)->Read(m_scratchPad,	IOP_SCRATCH_SIZE);
+	archive.BeginReadFile(STATE_SPURAM		)->Read(m_spuRam,		SPU_RAM_SIZE);
 	m_intc.LoadState(archive);
 	m_counters.LoadState(archive);
 	m_spuCore0.LoadState(archive);
