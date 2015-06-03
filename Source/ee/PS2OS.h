@@ -319,6 +319,7 @@ private:
 	void									sc_DeleteThread();
 	void									sc_StartThread();
 	void									sc_ExitThread();
+	void									sc_ExitDeleteThread();
 	void									sc_TerminateThread();
 	void									sc_ChangeThreadPriority();
 	void									sc_RotateThreadReadyQueue();
