@@ -85,6 +85,7 @@
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
 #define SYSCALL_NAME_DELETETHREAD			"osDeleteThread"
 #define SYSCALL_NAME_STARTTHREAD			"osStartThread"
+#define SYSCALL_NAME_EXITTHREAD				"osExitThread"
 #define SYSCALL_NAME_EXITDELETETHREAD		"osExitDeleteThread"
 #define SYSCALL_NAME_TERMINATETHREAD		"osTerminateThread"
 #define SYSCALL_NAME_CHANGETHREADPRIORITY	"osChangeThreadPriority"
@@ -139,6 +140,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
 	{	0x0021,		SYSCALL_NAME_DELETETHREAD			},
 	{	0x0022,		SYSCALL_NAME_STARTTHREAD			},
+	{	0x0023,		SYSCALL_NAME_EXITTHREAD				},
 	{	0x0024,		SYSCALL_NAME_EXITDELETETHREAD		},
 	{	0x0025,		SYSCALL_NAME_TERMINATETHREAD		},
 	{	0x0029,		SYSCALL_NAME_CHANGETHREADPRIORITY	},
@@ -1722,7 +1724,7 @@ void CPS2OS::sc_StartThread()
 //23
 void CPS2OS::sc_ExitThread()
 {
-	THREAD* thread = GetThread(GetCurrentThreadId());
+	auto thread = GetThread(GetCurrentThreadId());
 	thread->status = THREAD_ZOMBIE;
 
 	ThreadShakeAndBake();
@@ -2714,7 +2716,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x23:
-		sprintf(description, "ExitThread();");
+		sprintf(description, SYSCALL_NAME_EXITTHREAD "();");
 		break;
 	case 0x25:
 		sprintf(description, SYSCALL_NAME_TERMINATETHREAD "(id = 0x%0.8X);", \
