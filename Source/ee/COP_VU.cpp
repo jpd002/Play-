@@ -757,6 +757,12 @@ void CCOP_VU::VNOP()
 	//Nothing to do
 }
 
+//0D
+void CCOP_VU::VSQD()
+{
+	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT, PS2::VUMEM0ADDR);
+}
+
 //0E
 void CCOP_VU::VWAITQ()
 {
@@ -852,7 +858,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx3[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF15,		&CCOP_VU::VFTOI15,		&CCOP_VU::VMULAbc,		&CCOP_VU::VCLIP,
 	//0x08
-	&CCOP_VU::VMADDAi,		&CCOP_VU::VMSUBAi,		&CCOP_VU::Illegal,		&CCOP_VU::VNOP,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VWAITQ,		&CCOP_VU::VISWR,
+	&CCOP_VU::VMADDAi,		&CCOP_VU::VMSUBAi,		&CCOP_VU::Illegal,		&CCOP_VU::VNOP,			&CCOP_VU::Illegal,		&CCOP_VU::VSQD,			&CCOP_VU::VWAITQ,		&CCOP_VU::VISWR,
 	//0x10
 	&CCOP_VU::VRXOR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18

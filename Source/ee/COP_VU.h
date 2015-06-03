@@ -150,6 +150,7 @@ private:
 	void								VMADDAi();
 	void								VMSUBAi();
 	void								VNOP();
+	void								VSQD();
 	void								VWAITQ();
 	void								VISWR();
 	void								VRXOR();
