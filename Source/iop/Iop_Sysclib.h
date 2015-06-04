@@ -30,6 +30,7 @@ namespace Iop
 		void			__strncpy(char*, const char*, unsigned int);
 		uint32			__strchr(uint32, uint32);
 		uint32			__strrchr(uint32, uint32);
+		uint32			__strstr(uint32, uint32);
 		uint32			__strcspn(uint32, uint32);
 		uint32			__strtol(const char*, unsigned int);
 		uint8*			m_ram;
