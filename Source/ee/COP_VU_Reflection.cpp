@@ -396,7 +396,7 @@ INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"VNOP",		NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VSQD",		NULL,			CopyMnemonic,		ReflOpFsDstItDec,	NULL,				NULL			},
 	{	"VWAITQ",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	"VISWR",	NULL,			CopyMnemonic,		ReflOpItIsDst,		NULL,				NULL			},
 	//0x10

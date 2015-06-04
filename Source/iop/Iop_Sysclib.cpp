@@ -68,8 +68,14 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 29:
 		return "strncmp";
 		break;
+	case 30:
+		return "strncpy";
+		break;
 	case 32:
 		return "strrchr";
+		break;
+	case 34:
+		return "strstr";
 		break;
 	case 36:
 		return "strtol";
@@ -189,6 +195,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 32:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strrchr(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
+	case 34:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __strstr(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
 		);
@@ -321,6 +333,16 @@ uint32 CSysclib::__strrchr(uint32 strPtr, uint32 character)
 	if(result == nullptr) return 0;
 	size_t ptrDiff = result - str;
 	return strPtr + ptrDiff;
+}
+
+uint32 CSysclib::__strstr(uint32 str1Ptr, uint32 str2Ptr)
+{
+	auto str1 = reinterpret_cast<const char*>(m_ram + str1Ptr);
+	auto str2 = reinterpret_cast<const char*>(m_ram + str2Ptr);
+	auto result = strstr(str1, str2);
+	if(result == nullptr) return 0;
+	size_t ptrDiff = result - str1;
+	return str1Ptr + ptrDiff;
 }
 
 uint32 CSysclib::__strcspn(uint32 str1Ptr, uint32 str2Ptr)

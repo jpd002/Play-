@@ -17,6 +17,9 @@
 #else
 #include "Posix_VolumeStream.h"
 #endif
+#ifdef __ANDROID__
+#include "PosixFileStream.h"
+#endif
 #include "stricmp.h"
 #include "CsoImageStream.h"
 #include "IszImageStream.h"
@@ -668,6 +671,15 @@ void CPS2VM::CDROM0_Reset()
 	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 }
 
+Framework::CStream* CPS2VM::CDROM0_CreateImageStream(const char* path)
+{
+#ifdef __ANDROID__
+	return new Framework::CPosixFileStream(path, O_RDONLY);
+#else
+	return new Framework::CStdStream(path, "rb");
+#endif
+}
+
 void CPS2VM::CDROM0_Mount(const char* path)
 {
 	//Check if there's an m_pCDROM0 already
@@ -688,11 +700,11 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			//Gotta think of something better than that...
 			if(!stricmp(extension, ".isz"))
 			{
-				stream = std::make_shared<CIszImageStream>(new Framework::CStdStream(path, "rb"));
+				stream = std::make_shared<CIszImageStream>(CDROM0_CreateImageStream(path));
 			}
 			else if(!stricmp(extension, ".cso"))
 			{
-				stream = std::make_shared<CCsoImageStream>(new Framework::CStdStream(path, "rb"));
+				stream = std::make_shared<CCsoImageStream>(CDROM0_CreateImageStream(path));
 			}
 #ifdef WIN32
 			else if(path[0] == '\\')
@@ -717,7 +729,7 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			//If it's null after all that, just feed it to a StdStream
 			if(!stream)
 			{
-				stream = std::make_shared<Framework::CStdStream>(path, "rb");
+				stream = std::shared_ptr<Framework::CStream>(CDROM0_CreateImageStream(path));
 			}
 
 			try
