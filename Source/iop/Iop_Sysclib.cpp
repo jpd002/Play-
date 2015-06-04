@@ -68,6 +68,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 29:
 		return "strncmp";
 		break;
+	case 30:
+		return "strncpy";
+		break;
 	case 32:
 		return "strrchr";
 		break;
