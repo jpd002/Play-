@@ -556,7 +556,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				reader.SetRepeat(channel.repeat);
 			}
 
-			uint32 prevAddress = channel.current;
+			reader.SetIrqAddress(m_irqAddr);
 
 			int16 readSample = 0;
 			//We need to check if pitch is 0 here because FFX does that for its voice overs
@@ -564,12 +564,12 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = reader.GetCurrent();
 
-			//TODO: Improve address detection (used by DW5, SW2, OW2 in movie playback)
-			if((m_ctrl & CONTROL_IRQ) && (m_irqAddr != 0) && (prevAddress != 0) && (prevAddress != channel.current) &&
-				(m_irqAddr >= prevAddress) && (m_irqAddr <= channel.current))
+			if((m_ctrl & CONTROL_IRQ) && reader.GetIrqPending())
 			{
 				m_irqPending = true;
 			}
+
+			reader.ClearIrqPending();
 
 			//Mix samples
 			UpdateAdsr(channel);
@@ -890,6 +890,7 @@ void CSpuBase::CSampleReader::Reset()
 {
 	m_nextSampleAddr = 0;
 	m_repeatAddr = 0;
+	m_irqAddr = 0;
 	memset(m_buffer, 0, sizeof(m_buffer));
 	m_pitch = 0;
 	m_srcSampleIdx = 0;
@@ -900,6 +901,7 @@ void CSpuBase::CSampleReader::Reset()
 	m_didChangeRepeat = false;
 	m_nextValid = false;
 	m_endFlag = false;
+	m_irqPending = false;
 }
 
 void CSpuBase::CSampleReader::SetMemory(uint8* ram, uint32 ramSize)
@@ -978,6 +980,11 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	int32 workBuffer[BUFFER_SAMPLES];
 
 	uint8* nextSample = m_ram + m_nextSampleAddr;
+
+	if(m_nextSampleAddr == m_irqAddr)
+	{
+		m_irqPending = true;
+	}
 
 	//Read header
 	uint8 shiftFactor = nextSample[0] & 0xF;
@@ -1065,6 +1072,11 @@ uint32 CSpuBase::CSampleReader::GetCurrent() const
 	return m_nextSampleAddr;
 }
 
+void CSpuBase::CSampleReader::SetIrqAddress(uint32 irqAddr)
+{
+	m_irqAddr = irqAddr;
+}
+
 bool CSpuBase::CSampleReader::IsDone() const
 {
 	return m_done;
@@ -1078,6 +1090,16 @@ bool CSpuBase::CSampleReader::GetEndFlag() const
 void CSpuBase::CSampleReader::ClearEndFlag()
 {
 	m_endFlag = false;
+}
+
+bool CSpuBase::CSampleReader::GetIrqPending() const
+{
+	return m_irqPending;
+}
+
+void CSpuBase::CSampleReader::ClearIrqPending()
+{
+	m_irqPending = false;
 }
 
 bool CSpuBase::CSampleReader::DidChangeRepeat() const

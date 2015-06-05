@@ -224,9 +224,12 @@ namespace Iop
 			uint32			GetRepeat() const;
 			void			SetRepeat(uint32);
 			uint32			GetCurrent() const;
+			void			SetIrqAddress(uint32);
 			bool			IsDone() const;
 			bool			GetEndFlag() const;
 			void			ClearEndFlag();
+			bool			GetIrqPending() const;
+			void			ClearIrqPending();
 
 			bool			DidChangeRepeat() const;
 			void			ClearDidChangeRepeat();
@@ -248,6 +251,7 @@ namespace Iop
 			unsigned int	m_srcSamplingRate;
 			uint32			m_nextSampleAddr = 0;
 			uint32			m_repeatAddr = 0;
+			uint32			m_irqAddr = 0;
 			int16			m_buffer[BUFFER_SAMPLES * 2];
 			uint16			m_pitch;
 			int32			m_s1;
@@ -255,6 +259,7 @@ namespace Iop
 			bool			m_done;
 			bool			m_nextValid;
 			bool			m_endFlag;
+			bool			m_irqPending = false;
 			bool			m_didChangeRepeat;
 		};
 
