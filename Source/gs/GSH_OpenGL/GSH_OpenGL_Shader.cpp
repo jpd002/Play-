@@ -291,7 +291,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		if(caps.texBlackIsTransparent)
 		{
 			shaderBuilder << "	float black = inputColor.r + inputColor.g + inputColor.b;" << std::endl;
-			shaderBuilder << "	if(black == 0) alpha = 0;" << std::endl;
+			shaderBuilder << "	if(black == 0.0) alpha = 0.0;" << std::endl;
 		}
 		shaderBuilder << "	return vec4(inputColor.rgb, alpha);" << std::endl;
 	}
