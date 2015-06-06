@@ -393,6 +393,42 @@ void CCore::LogRead(uint32 address, uint32 value)
 	case STATX:
 		CLog::GetInstance().Print(logName, "= STATX\r\n");
 		break;
+	case S_PMON_HI:
+		CLog::GetInstance().Print(logName, "= S_PMON_HI = 0x%0.4X.\r\n", value);
+		break;
+	case S_PMON_LO:
+		CLog::GetInstance().Print(logName, "= S_PMON_LO = 0x%0.4X.\r\n", value);
+		break;
+	case S_NON_HI:
+		CLog::GetInstance().Print(logName, "= S_NON_HI = 0x%0.4X.\r\n", value);
+		break;
+	case S_NON_LO:
+		CLog::GetInstance().Print(logName, "= S_NON_LO = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXL_HI:
+		CLog::GetInstance().Print(logName, "= S_VMIXL_HI = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXL_LO:
+		CLog::GetInstance().Print(logName, "= S_VMIXL_LO = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXEL_HI:
+		CLog::GetInstance().Print(logName, "= S_VMIXEL_HI = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXEL_LO:
+		CLog::GetInstance().Print(logName, "= S_VMIXEL_LO = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXR_HI:
+		CLog::GetInstance().Print(logName, "= S_VMIXR_HI = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXR_LO:
+		CLog::GetInstance().Print(logName, "= S_VMIXR_LO = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXER_HI:
+		CLog::GetInstance().Print(logName, "= S_VMIXER_HI = 0x%0.4X.\r\n", value);
+		break;
+	case S_VMIXER_LO:
+		CLog::GetInstance().Print(logName, "= S_VMIXER_LO = 0x%0.4X.\r\n", value);
+		break;
 	case S_ENDX_HI:
 		CLog::GetInstance().Print(logName, "= S_ENDX_HI = 0x%0.4X.\r\n", value);
 		break;
@@ -422,6 +458,42 @@ void CCore::LogWrite(uint32 address, uint32 value)
 	const char* logName = m_logName.c_str();
 	switch(address)
 	{
+	case S_PMON_HI:
+		CLog::GetInstance().Print(logName, "S_PMON_HI = 0x%0.4X\r\n", value);
+		break;
+	case S_PMON_LO:
+		CLog::GetInstance().Print(logName, "S_PMON_LO = 0x%0.4X\r\n", value);
+		break;
+	case S_NON_HI:
+		CLog::GetInstance().Print(logName, "S_NON_HI = 0x%0.4X\r\n", value);
+		break;
+	case S_NON_LO:
+		CLog::GetInstance().Print(logName, "S_NON_LO = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXL_HI:
+		CLog::GetInstance().Print(logName, "S_VMIXL_HI = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXL_LO:
+		CLog::GetInstance().Print(logName, "S_VMIXL_LO = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXEL_HI:
+		CLog::GetInstance().Print(logName, "S_VMIXEL_HI = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXEL_LO:
+		CLog::GetInstance().Print(logName, "S_VMIXEL_LO = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXR_HI:
+		CLog::GetInstance().Print(logName, "S_VMIXR_HI = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXR_LO:
+		CLog::GetInstance().Print(logName, "S_VMIXR_LO = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXER_HI:
+		CLog::GetInstance().Print(logName, "S_VMIXER_HI = 0x%0.4X\r\n", value);
+		break;
+	case S_VMIXER_LO:
+		CLog::GetInstance().Print(logName, "S_VMIXER_LO = 0x%0.4X\r\n", value);
+		break;
 	case CORE_ATTR:
 		CLog::GetInstance().Print(logName, "CORE_ATTR = 0x%0.4X\r\n", value);
 		break;
