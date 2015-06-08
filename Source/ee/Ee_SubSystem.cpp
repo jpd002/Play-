@@ -76,8 +76,6 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,		PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,			m_vuMem1,																		0x06);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,			0x12FFFFFF,									bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x07);
 
-		m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CSubSystem::EEMemWriteHandler, this, PLACEHOLDER_1));
-
 		//Instruction map
 		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,	0x00);
 		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios,	0x01);
@@ -533,29 +531,6 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 		break;
 	}
 	return 0;
-}
-
-void CSubSystem::EEMemWriteHandler(uint32 nAddress)
-{
-	if(nAddress < PS2::EE_RAM_SIZE)
-	{
-		//Check if the block we're about to invalidate is the same
-		//as the one we're executing in
-		CBasicBlock* block = m_executor.FindBlockAt(nAddress);
-		if(block)
-		{
-			if(m_executor.FindBlockAt(m_EE.m_State.nPC) != block)
-			{
-				m_executor.DeleteBlock(block);
-			}
-			else
-			{
-#ifdef _DEBUG
-				printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n", m_EE.m_State.nPC);
-#endif
-			}
-		}
-	}
 }
 
 void CSubSystem::ExecuteIpu()
