@@ -22,7 +22,6 @@ namespace Iop
 
 		void				ProcessCommands(CSifMan*);
 		void				SetIsoImage(CISO9660*);
-		void				SetReadToEeRamHandler(const ReadToEeRamHandler&);
 
 		enum MODULE_ID
 		{
@@ -72,7 +71,5 @@ namespace Iop
 		CSifModuleAdapter	m_module597;
 		CSifModuleAdapter	m_module59A;
 		CSifModuleAdapter	m_module59C;
-
-		ReadToEeRamHandler	m_readToEeRamHandler;
 	};
 }

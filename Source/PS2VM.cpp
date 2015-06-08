@@ -392,8 +392,6 @@ void CPS2VM::ResetVM()
 
 	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
 
-	m_iopOs->GetCdvdfsv()->SetReadToEeRamHandler(std::bind(&CPS2VM::ReadToEeRam, this, std::placeholders::_1, std::placeholders::_2));
-
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
 
@@ -774,11 +772,6 @@ void CPS2VM::RegisterModulesInPadHandler()
 	m_pad->RemoveAllListeners();
 	m_pad->InsertListener(m_iopOs->GetPadman());
 	m_pad->InsertListener(&m_iop->m_sio2);
-}
-
-void CPS2VM::ReadToEeRam(uint32 address, uint32 size)
-{
-	m_ee->m_executor.ClearActiveBlocksInRange(address, address + size);
 }
 
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)
