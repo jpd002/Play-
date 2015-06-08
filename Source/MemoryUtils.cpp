@@ -120,7 +120,7 @@ void MemoryUtils_SetDoubleProxy(CMIPS* context, uint64 value64, uint32 address)
 
 void MemoryUtils_SetQuadProxy(CMIPS* context, const uint128& value, uint32 address)
 {
-	assert((address & 0x0F) == 0);
+	address &= ~0x0F;
 	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetWriteMap(address);
 	if(e == NULL) 
 	{
