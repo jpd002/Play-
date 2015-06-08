@@ -22,7 +22,7 @@ using namespace Ee;
 #define FAKE_IOP_RAM_SIZE	(0x1000)
 
 CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
-: m_ram(new uint8[PS2::EE_RAM_SIZE])
+: m_ram(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::EE_RAM_SIZE, framework_getpagesize())))
 , m_bios(new uint8[PS2::EE_BIOS_SIZE])
 , m_spr(new uint8[PS2::EE_SPR_SIZE])
 , m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
@@ -33,7 +33,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 , m_EE(MEMORYMAP_ENDIAN_LSBF)
 , m_VU0(MEMORYMAP_ENDIAN_LSBF)
 , m_VU1(MEMORYMAP_ENDIAN_LSBF)
-, m_executor(m_EE, 0x20000000)
+, m_executor(m_EE, m_ram)
 , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
 , m_gif(m_gs, m_ram, m_spr)
 , m_sif(m_dmac, m_ram, iopRam)
@@ -141,7 +141,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 CSubSystem::~CSubSystem()
 {
-	delete [] m_ram;
+	m_executor.Reset();
+	framework_aligned_free(m_ram);
 	delete [] m_bios;
 	delete [] m_fakeIopRam;
 	framework_aligned_free(m_vuMem0);

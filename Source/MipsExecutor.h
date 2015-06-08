@@ -16,7 +16,7 @@ public:
 	void						DeleteBlock(CBasicBlock*);
 	virtual void				Reset();
 	void						ClearActiveBlocks();
-	void						ClearActiveBlocksInRange(uint32, uint32);
+	virtual void				ClearActiveBlocksInRange(uint32, uint32);
 
 #ifdef DEBUGGER_INCLUDED
 	bool						MustBreak() const;
@@ -30,6 +30,8 @@ protected:
 	void						CreateBlock(uint32, uint32);
 	virtual BasicBlockPtr		BlockFactory(CMIPS&, uint32, uint32);
 	virtual void				PartitionFunction(uint32);
+	
+	void						ClearActiveBlocksInRangeInternal(uint32, uint32, CBasicBlock*);
 
 	BlockList					m_blocks;
 	CMIPS&						m_context;

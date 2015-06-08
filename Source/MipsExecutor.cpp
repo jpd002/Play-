@@ -1,5 +1,10 @@
 #include "MipsExecutor.h"
 
+static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
+{
+	return (address >= start) && (address <= end);
+}
+
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
 : m_context(context)
 , m_subTableCount(0)
@@ -59,8 +64,18 @@ void CMipsExecutor::ClearActiveBlocks()
 
 void CMipsExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 {
+	ClearActiveBlocksInRangeInternal(start, end, nullptr);
+}
+
+void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
+{
 	uint32 hiStart = start >> 16;
 	uint32 hiEnd = end >> 16;
+
+	//We need to increase the range to make sure we catch any
+	//block that are straddling table boundaries
+	if(hiStart != 0) hiStart--;
+	if(hiEnd != (m_subTableCount - 1)) hiEnd++;
 
 	std::set<CBasicBlock*> blocksToDelete;
 
@@ -72,10 +87,11 @@ void CMipsExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 		for(uint32 lo = 0; lo < 0x10000; lo += 4)
 		{
 			uint32 tableAddress = (hi << 16) | lo;
-			if(tableAddress < start) continue;
-			if(tableAddress >= end) continue;
-			CBasicBlock* block = table[lo / 4];
+			auto block = table[lo / 4];
 			if(block == nullptr) continue;
+			if(block == protectedBlock) continue;
+			if(!IsInsideRange(block->GetBeginAddress(), start, end) 
+				&& !IsInsideRange(block->GetEndAddress(), start, end)) continue;
 			table[lo / 4] = nullptr;
 			blocksToDelete.insert(block);
 		}
@@ -83,7 +99,6 @@ void CMipsExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 
 	if(!blocksToDelete.empty())
 	{
-		//TODO: Actually delete the blocks, because remove_if only rearranges items leaving us a new end iterator
 		m_blocks.remove_if([&] (const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
 	}
 }
