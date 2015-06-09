@@ -881,4 +881,5 @@ void CPS2VM::EmuThread()
 #endif
 		}
 	}
+	m_ee->m_executor.RemoveExceptionHandler();
 }
