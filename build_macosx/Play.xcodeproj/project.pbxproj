@@ -21,6 +21,7 @@
 		704F23B51B0011C8009FD916 /* Vif.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23AF1B0011C8009FD916 /* Vif.cpp */; };
 		704F23B61B0011C8009FD916 /* Vif1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23B11B0011C8009FD916 /* Vif1.cpp */; };
 		704F23B71B0011C8009FD916 /* Vpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23B31B0011C8009FD916 /* Vpu.cpp */; };
+		7056F2851B2683C700389AFB /* EeExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7056F2831B2683C700389AFB /* EeExecutor.cpp */; };
 		70684979151E882000C9574F /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684976151E880F00C9574F /* libCodeGen.a */; };
 		7068497B151E883D00C9574F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497A151E883D00C9574F /* OpenGL.framework */; };
 		7068497D151E885200C9574F /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497C151E885200C9574F /* libz.dylib */; };
@@ -218,6 +219,8 @@
 		704F23B21B0011C8009FD916 /* Vif1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vif1.h; path = ../Source/ee/Vif1.h; sourceTree = "<group>"; };
 		704F23B31B0011C8009FD916 /* Vpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vpu.cpp; path = ../Source/ee/Vpu.cpp; sourceTree = "<group>"; };
 		704F23B41B0011C8009FD916 /* Vpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vpu.h; path = ../Source/ee/Vpu.h; sourceTree = "<group>"; };
+		7056F2831B2683C700389AFB /* EeExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EeExecutor.cpp; path = ../Source/ee/EeExecutor.cpp; sourceTree = "<group>"; };
+		7056F2841B2683C700389AFB /* EeExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EeExecutor.h; path = ../Source/ee/EeExecutor.h; sourceTree = "<group>"; };
 		705B16BC1B097DD00081B3C6 /* BlockProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlockProvider.h; path = ../Source/ISO9660/BlockProvider.h; sourceTree = "<group>"; };
 		7068496E151E880E00C9574F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7068497A151E883D00C9574F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -693,6 +696,8 @@
 				70D9F0F51AFB016900197BBE /* Ee_SubSystem.h */,
 				70D9F0F61AFB016900197BBE /* EEAssembler.cpp */,
 				70D9F0F71AFB016900197BBE /* EEAssembler.h */,
+				7056F2831B2683C700389AFB /* EeExecutor.cpp */,
+				7056F2841B2683C700389AFB /* EeExecutor.h */,
 				70D9F0F81AFB016900197BBE /* FpAddTruncate.cpp */,
 				70D9F0F91AFB016900197BBE /* FpAddTruncate.h */,
 				70D9F0FA1AFB016900197BBE /* FpMulTruncate.cpp */,
@@ -1154,6 +1159,7 @@
 				70D9F13B1AFB016900197BBE /* IPU_MotionCodeTable.cpp in Sources */,
 				706849FF151E896900C9574F /* Iop_Thevent.cpp in Sources */,
 				70684A00151E896900C9574F /* Iop_Thsema.cpp in Sources */,
+				7056F2851B2683C700389AFB /* EeExecutor.cpp in Sources */,
 				70684A01151E896900C9574F /* Iop_Timrman.cpp in Sources */,
 				70D9F15A1AFB018900197BBE /* GSHandler.cpp in Sources */,
 				70684A02151E896900C9574F /* Iop_Vblank.cpp in Sources */,

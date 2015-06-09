@@ -1,7 +1,10 @@
 #pragma once
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include <mach/mach.h>
+#include <thread>
 #endif
 
 #include "../MipsExecutor.h"
@@ -12,6 +15,9 @@ public:
 							CEeExecutor(CMIPS&, uint8*);
 	virtual					~CEeExecutor();
 
+	void					AddExceptionHandler();
+	void					RemoveExceptionHandler();
+	
 	void					Reset() override;
 	void					ClearActiveBlocksInRange(uint32, uint32) override;
 
@@ -19,17 +25,23 @@ public:
 
 private:
 	uint8*					m_ram = nullptr;
-	uint32					m_pageSize = 0;
+	size_t					m_pageSize = 0;
 
+	bool					HandleAccessFault(intptr_t);
 	void					SetMemoryProtected(void*, size_t, bool);
-
-#ifdef _MSC_VER
+	
+#if defined(_WIN32)
 	static LONG CALLBACK	HandleException(_EXCEPTION_POINTERS*);
 	LONG					HandleExceptionInternal(_EXCEPTION_POINTERS*);
 
 	LPVOID					m_handler = NULL;
-#else
+#elif defined(__ANDROID__)
 	static void				HandleException(int, siginfo_t*, void*);
 	void					HandleExceptionInternal(int, siginfo_t*, void*);
+#elif defined(__APPLE__)
+	void					HandlerThreadProc();
+	
+	mach_port_t				m_port = MACH_PORT_NULL;
+	std::thread				m_handlerThread;
 #endif
 };

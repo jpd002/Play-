@@ -784,6 +784,7 @@ void CPS2VM::EmuThread()
 {
 	fesetround(FE_TOWARDZERO);
 	CProfiler::GetInstance().SetWorkThread();
+	m_ee->m_executor.AddExceptionHandler();
 	while(1)
 	{
 		while(m_mailBox.IsPending())
