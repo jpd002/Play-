@@ -101,7 +101,6 @@ private:
 	void						SaveVMState(const char*, unsigned int&);
 	void						LoadVMState(const char*, unsigned int&);
 
-	void						ReadToEeRam(uint32, uint32);
 	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 
 	void						ResumeImpl();

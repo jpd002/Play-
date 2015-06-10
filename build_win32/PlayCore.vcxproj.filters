@@ -436,6 +436,9 @@
     <ClCompile Include="..\Source\ee\Vpu.cpp">
       <Filter>Source Files\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ee\EeExecutor.cpp">
+      <Filter>Source Files\Ee</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -848,6 +851,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\ISO9660\BlockProvider.h">
       <Filter>Source Files\Iso9660</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ee\EeExecutor.h">
+      <Filter>Source Files\Ee</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

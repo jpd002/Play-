@@ -40,6 +40,7 @@
     <ClCompile Include="..\Source\ee\DMAC.cpp" />
     <ClCompile Include="..\Source\ee\Dmac_Channel.cpp" />
     <ClCompile Include="..\Source\ee\EEAssembler.cpp" />
+    <ClCompile Include="..\Source\ee\EeExecutor.cpp" />
     <ClCompile Include="..\Source\ee\Ee_SubSystem.cpp" />
     <ClCompile Include="..\Source\ee\FpAddTruncate.cpp" />
     <ClCompile Include="..\Source\ee\FpMulTruncate.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="..\Source\ee\DMAC.h" />
     <ClInclude Include="..\Source\ee\Dmac_Channel.h" />
     <ClInclude Include="..\Source\ee\EEAssembler.h" />
+    <ClInclude Include="..\Source\ee\EeExecutor.h" />
     <ClInclude Include="..\Source\ee\Ee_SubSystem.h" />
     <ClInclude Include="..\Source\ee\FpAddTruncate.h" />
     <ClInclude Include="..\Source\ee\FpMulTruncate.h" />

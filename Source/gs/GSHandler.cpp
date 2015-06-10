@@ -544,13 +544,9 @@ void CGSHandler::BeginTransfer()
 	if(trxDir == 0)
 	{
 		//From Host to Local
-		BITBLTBUF bltBuf;
-		TRXREG trxReg;
-
-		bltBuf <<= m_nReg[GS_REG_BITBLTBUF];
-		trxReg <<= m_nReg[GS_REG_TRXREG];
-
-		unsigned int nPixelSize;
+		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+		unsigned int nPixelSize = 0;
 
 		//We need to figure out the pixel size of the source stream
 		switch(bltBuf.nDstPsm)

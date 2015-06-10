@@ -14,7 +14,6 @@ enum MEMORYMAP_ENDIANESS
 class CMemoryMap
 {
 public:
-	typedef std::function<void (uint32)> WriteNotifyHandlerType;
 	typedef std::function<uint32 (uint32, uint32)> MemoryMapHandlerType;
 
 	enum MEMORYMAP_TYPE
@@ -47,12 +46,10 @@ public:
 	void									InsertInstructionMap(uint32, uint32, void*, unsigned char);
 	const MEMORYMAPELEMENT*					GetReadMap(uint32) const;
 	const MEMORYMAPELEMENT*					GetWriteMap(uint32) const;
-	void									SetWriteNotifyHandler(const WriteNotifyHandlerType&);
 
 protected:
 	typedef std::vector<MEMORYMAPELEMENT> MemoryMapListType;
 
-	WriteNotifyHandlerType					m_WriteNotifyHandler;
 	static const MEMORYMAPELEMENT*			GetMap(const MemoryMapListType&, uint32);
 
 	MemoryMapListType						m_instructionMap;
