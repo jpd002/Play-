@@ -169,7 +169,7 @@ void CEeExecutor::HandleException(int sigId, siginfo_t* sigInfo, void* baseConte
 void CEeExecutor::HandleExceptionInternal(int sigId, siginfo_t* sigInfo, void* baseContext)
 {
 	if(sigId != SIGSEGV) return;
-	if(HandleAccessFault(sigInfo->si_addr))
+	if(HandleAccessFault(reinterpret_cast<intptr_t>(sigInfo->si_addr)))
 	{
 		return;
 	}
