@@ -22,7 +22,7 @@ using namespace Ee;
 #define FAKE_IOP_RAM_SIZE	(0x1000)
 
 CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
-: m_ram(new uint8[PS2::EE_RAM_SIZE])
+: m_ram(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::EE_RAM_SIZE, framework_getpagesize())))
 , m_bios(new uint8[PS2::EE_BIOS_SIZE])
 , m_spr(new uint8[PS2::EE_SPR_SIZE])
 , m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
@@ -33,7 +33,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 , m_EE(MEMORYMAP_ENDIAN_LSBF)
 , m_VU0(MEMORYMAP_ENDIAN_LSBF)
 , m_VU1(MEMORYMAP_ENDIAN_LSBF)
-, m_executor(m_EE, 0x20000000)
+, m_executor(m_EE, m_ram)
 , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
 , m_gif(m_gs, m_ram, m_spr)
 , m_sif(m_dmac, m_ram, iopRam)
@@ -75,8 +75,6 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR,	PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE,	m_microMem1,																	0x05);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,		PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,			m_vuMem1,																		0x06);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,			0x12FFFFFF,									bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x07);
-
-		m_EE.m_pMemoryMap->SetWriteNotifyHandler(bind(&CSubSystem::EEMemWriteHandler, this, PLACEHOLDER_1));
 
 		//Instruction map
 		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,	0x00);
@@ -143,7 +141,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 CSubSystem::~CSubSystem()
 {
-	delete [] m_ram;
+	m_executor.Reset();
+	framework_aligned_free(m_ram);
 	delete [] m_bios;
 	delete [] m_fakeIopRam;
 	framework_aligned_free(m_vuMem0);
@@ -533,29 +532,6 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 		break;
 	}
 	return 0;
-}
-
-void CSubSystem::EEMemWriteHandler(uint32 nAddress)
-{
-	if(nAddress < PS2::EE_RAM_SIZE)
-	{
-		//Check if the block we're about to invalidate is the same
-		//as the one we're executing in
-		CBasicBlock* block = m_executor.FindBlockAt(nAddress);
-		if(block)
-		{
-			if(m_executor.FindBlockAt(m_EE.m_State.nPC) != block)
-			{
-				m_executor.DeleteBlock(block);
-			}
-			else
-			{
-#ifdef _DEBUG
-				printf("PS2VM: Warning. Writing to the same cache block as the one we're currently executing in. PC: 0x%0.8X\r\n", m_EE.m_State.nPC);
-#endif
-			}
-		}
-	}
 }
 
 void CSubSystem::ExecuteIpu()

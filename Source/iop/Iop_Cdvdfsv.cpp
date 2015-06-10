@@ -67,11 +67,6 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 					m_iso->ReadBlock(m_pendingReadSector + i, eeRam + (m_pendingReadAddr + (i * sectorSize)));
 				}
 			}
-
-			if(m_readToEeRamHandler)
-			{
-				m_readToEeRamHandler(m_pendingReadAddr, sectorSize * m_pendingReadCount);
-			}
 		}
 		else if(m_pendingCommand == COMMAND_READIOP)
 		{
@@ -92,11 +87,6 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 void CCdvdfsv::SetIsoImage(CISO9660* iso)
 {
 	m_iso = iso;
-}
-
-void CCdvdfsv::SetReadToEeRamHandler(const ReadToEeRamHandler& readToEeRamHandler)
-{
-	m_readToEeRamHandler = readToEeRamHandler;
 }
 
 void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)

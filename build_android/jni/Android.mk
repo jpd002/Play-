@@ -47,6 +47,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/ee/Dmac_Channel.cpp \
 							../../Source/ee/Ee_SubSystem.cpp \
 							../../Source/ee/EEAssembler.cpp \
+							../../Source/ee/EeExecutor.cpp \
 							../../Source/ee/FpAddTruncate.cpp \
 							../../Source/ee/FpMulTruncate.cpp \
 							../../Source/ee/GIF.cpp \

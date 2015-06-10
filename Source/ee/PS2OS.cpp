@@ -2336,11 +2336,6 @@ void CPS2OS::sc_ReferSemaStatus()
 void CPS2OS::sc_FlushCache()
 {
 	uint32 operationType = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	if(operationType == 2)
-	{
-		//Flush instruction cache
-		OnRequestInstructionCacheFlush();
-	}
 }
 
 //70

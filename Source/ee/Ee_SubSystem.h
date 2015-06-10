@@ -3,7 +3,7 @@
 #include "AlignedAlloc.h"
 #include "../COP_SCU.h"
 #include "../COP_FPU.h"
-#include "../MipsExecutor.h"
+#include "EeExecutor.h"
 #include "DMAC.h"
 #include "GIF.h"
 #include "SIF.h"
@@ -62,7 +62,7 @@ namespace Ee
 		CMIPS						m_EE;
 		CMIPS						m_VU0;
 		CMIPS						m_VU1;
-		CMipsExecutor				m_executor;
+		CEeExecutor					m_executor;
 
 		void* operator new(size_t allocSize)
 		{
@@ -86,7 +86,6 @@ namespace Ee
 		uint32						Vu1IoPortReadHandler(uint32);
 		uint32						Vu1IoPortWriteHandler(uint32, uint32);
 
-		void						EEMemWriteHandler(uint32);
 		void						ExecuteIpu();
 
 		void						CheckPendingInterrupts();
