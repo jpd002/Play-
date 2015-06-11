@@ -80,6 +80,14 @@ namespace Iop
 			CONTROL_DMA_READ	= 0x30,
 		};
 
+		enum TRANSFER_MODE
+		{
+			TRANSFER_MODE_VOICE			= 0,
+			TRANSFER_MODE_BLOCK_CORE0IN	= 1,
+			TRANSFER_MODE_BLOCK_CORE1IN	= 2,
+			TRANSFER_MODE_BLOCK_READ	= 4
+		};
+
 		enum
 		{
 			FB_SRC_A = 0,
@@ -157,14 +165,15 @@ namespace Iop
 		void			SetVolumeAdjust(float);
 		void			SetReverbEnabled(bool);
 
-		void			SetStreamingEnabled(bool);
-
 		void			SetBaseSamplingRate(uint32);
 
 		bool			GetIrqPending() const;
 
 		uint32			GetIrqAddress() const;
 		void			SetIrqAddress(uint32);
+
+		uint16			GetTransferMode() const;
+		void			SetTransferMode(uint16);
 
 		uint32			GetTransferAddress() const;
 		void			SetTransferAddress(uint32);
@@ -287,7 +296,8 @@ namespace Iop
 		uint32				m_baseSamplingRate;
 		uint32				m_irqAddr = 0;
 		bool				m_irqPending = false;
-		uint32				m_bufferAddr;
+		uint16				m_transferMode;
+		uint32				m_transferAddr;
 		UNION32_16			m_channelOn;
 		UNION32_16			m_channelReverb;
 		uint32				m_reverbWorkAddrStart;
@@ -300,7 +310,6 @@ namespace Iop
 		CSampleReader		m_reader[MAX_CHANNEL];
 		uint32				m_adsrLogTable[160];
 		bool				m_reverbEnabled;
-		bool				m_streamingEnabled;
 		float				m_volumeAdjust;
 	};
 }

@@ -56,7 +56,7 @@ namespace Iop
 				A_TSA_HI		= 0x1F9001A8,
 				A_TSA_LO		= 0x1F9001AA,
 				A_STD			= 0x1F9001AC,
-				A_STREAM		= 0x1F9001B0,
+				A_TS_MODE		= 0x1F9001B0,
 				VA_REG_BASE		= 0x1F9001C0,
 				VA_SSA_HI		= 0x1F9001C0,
 				VA_SSA_LO		= 0x1F9001C2,
@@ -113,7 +113,6 @@ namespace Iop
 			REGISTER_DISPATCH_INFO	m_readDispatch;
 			REGISTER_DISPATCH_INFO	m_writeDispatch;
 			unsigned int			m_coreId;
-			uint16					m_streamStatus;
 			std::string				m_logName;
 			CSpuBase&				m_spuBase;
 		};

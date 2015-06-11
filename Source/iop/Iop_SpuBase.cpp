@@ -14,7 +14,8 @@ using namespace Iop;
 #define STATE_PATH_FORMAT					("iop_spu/spu_%d.xml")
 #define STATE_REGS_CTRL						("CTRL")
 #define STATE_REGS_IRQADDR					("IRQADDR")
-#define STATE_REGS_BUFFERADDR				("BUFFERADDR")
+#define STATE_REGS_TRANSFERADDR				("TRANSFERADDR")
+#define STATE_REGS_TRANSFERMODE				("TRANSFERMODE")
 #define STATE_REGS_REVERBWORKADDRSTART		("REVERBWORKADDRSTART")
 #define STATE_REGS_REVERBWORKADDREND		("REVERBWORKADDREND")
 #define STATE_REGS_REVERBCURRADDR			("REVERBCURRADDR")
@@ -113,7 +114,6 @@ CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, unsigned int spuNumber)
 , m_ramSize(ramSize)
 , m_spuNumber(spuNumber)
 , m_reverbEnabled(true)
-, m_streamingEnabled(false)
 {
 	Reset();
 
@@ -151,7 +151,6 @@ CSpuBase::~CSpuBase()
 
 void CSpuBase::Reset()
 {
-	m_streamingEnabled = false;
 	m_ctrl = 0;
 
 	m_volumeAdjust = 1.0f;
@@ -161,7 +160,8 @@ void CSpuBase::Reset()
 	m_reverbTicks = 0;
 	m_irqAddr = 0;
 	m_irqPending = false;
-	m_bufferAddr = 0;
+	m_transferMode = 0;
+	m_transferAddr = 0;
 
 	m_reverbCurrAddr = 0;
 	m_reverbWorkAddrStart = 0;
@@ -185,7 +185,8 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_ctrl = registerFile.GetRegister32(STATE_REGS_CTRL);
 	m_irqAddr = registerFile.GetRegister32(STATE_REGS_IRQADDR);
-	m_bufferAddr = registerFile.GetRegister32(STATE_REGS_BUFFERADDR);
+	m_transferMode = registerFile.GetRegister32(STATE_REGS_TRANSFERMODE);
+	m_transferAddr = registerFile.GetRegister32(STATE_REGS_TRANSFERADDR);
 	m_reverbWorkAddrStart = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
 	m_reverbWorkAddrEnd = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDREND);
 	m_reverbCurrAddr = registerFile.GetRegister32(STATE_REGS_REVERBCURRADDR);
@@ -216,7 +217,8 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CTRL, m_ctrl);
 	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
-	registerFile->SetRegister32(STATE_REGS_BUFFERADDR, m_bufferAddr);
+	registerFile->SetRegister32(STATE_REGS_TRANSFERMODE, m_transferMode);
+	registerFile->SetRegister32(STATE_REGS_TRANSFERADDR, m_transferAddr);
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
 	registerFile->SetRegister32(STATE_REGS_REVERBCURRADDR, m_reverbCurrAddr);
@@ -257,11 +259,6 @@ void CSpuBase::SetReverbEnabled(bool enabled)
 	m_reverbEnabled = enabled;
 }
 
-void CSpuBase::SetStreamingEnabled(bool enabled)
-{
-	m_streamingEnabled = enabled;
-}
-
 uint16 CSpuBase::GetControl() const
 {
 	return m_ctrl;
@@ -296,14 +293,24 @@ void CSpuBase::SetIrqAddress(uint32 value)
 	m_irqAddr = value & (m_ramSize - 1);
 }
 
+uint16 CSpuBase::GetTransferMode() const
+{
+	return m_transferMode;
+}
+
+void CSpuBase::SetTransferMode(uint16 transferMode)
+{
+	m_transferMode = transferMode;
+}
+
 uint32 CSpuBase::GetTransferAddress() const
 {
-	return m_bufferAddr;
+	return m_transferAddr;
 }
 
 void CSpuBase::SetTransferAddress(uint32 value)
 {
-	m_bufferAddr = value & (m_ramSize - 1);
+	m_transferAddr = value & (m_ramSize - 1);
 }
 
 UNION32_16 CSpuBase::GetChannelOn() const
@@ -440,11 +447,13 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%0.8X. Size = 0x%0.8X bytes.\r\n", 
-		m_bufferAddr, blockSize * blockAmount);
+		m_transferAddr, blockSize * blockAmount);
 #endif
-	if(m_streamingEnabled)
+	if(m_transferMode != TRANSFER_MODE_VOICE)
 	{
+		//CORE0/1 block modes should have transferAddr == 0
 		blockAmount = 1;
+		return blockAmount;
 	}
 	if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_READ)
 	{
@@ -455,10 +464,10 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	unsigned int blocksTransfered = 0;
 	for(unsigned int i = 0; i < blockAmount; i++)
 	{
-		uint32 copySize = std::min<uint32>(m_ramSize - m_bufferAddr, blockSize);
-		memcpy(m_ram + m_bufferAddr, buffer, copySize);
-		m_bufferAddr += blockSize;
-		m_bufferAddr &= m_ramSize - 1;
+		uint32 copySize = std::min<uint32>(m_ramSize - m_transferAddr, blockSize);
+		memcpy(m_ram + m_transferAddr, buffer, copySize);
+		m_transferAddr += blockSize;
+		m_transferAddr &= m_ramSize - 1;
 		buffer += blockSize;
 		blocksTransfered++;
 	}
@@ -467,9 +476,9 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 
 void CSpuBase::WriteWord(uint16 value)
 {
-	assert((m_bufferAddr + 1) < m_ramSize);
-	*reinterpret_cast<uint16*>(&m_ram[m_bufferAddr]) = value;
-	m_bufferAddr += 2;
+	assert((m_transferAddr + 1) < m_ramSize);
+	*reinterpret_cast<uint16*>(&m_ram[m_transferAddr]) = value;
+	m_transferAddr += 2;
 }
 
 int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 currentVolume)

@@ -74,7 +74,7 @@ CCore::~CCore()
 
 void CCore::Reset()
 {
-	m_streamStatus = 0;
+
 }
 
 CSpuBase& CCore::GetSpuBase() const
@@ -160,8 +160,8 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 	case CORE_ATTR:
 		result = m_spuBase.GetControl();
 		break;
-	case A_STREAM:
-		result = m_streamStatus;
+	case A_TS_MODE:
+		result = m_spuBase.GetTransferMode();
 		break;
 	case A_TSA_HI:
 		result = GetAddressHi(m_spuBase.GetTransferAddress());
@@ -214,10 +214,8 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		case A_STD:
 			m_spuBase.WriteWord(static_cast<uint16>(value));
 			break;
-		case A_STREAM:
-			//Still no idea what this is used for, assuming it's used to throttle DMA transfers to the SPU (for streaming purposes)
-			m_streamStatus = static_cast<uint16>(value);
-			m_spuBase.SetStreamingEnabled(m_streamStatus != 0);
+		case A_TS_MODE:
+			m_spuBase.SetTransferMode(static_cast<uint16>(value));
 			break;
 		case S_VMIXER_HI:
 			m_spuBase.SetChannelReverbLo(static_cast<uint16>(value));
@@ -438,8 +436,8 @@ void CCore::LogRead(uint32 address, uint32 value)
 	case A_TSA_HI:
 		CLog::GetInstance().Print(logName, "= A_TSA_HI = 0x%0.4X.\r\n", value);
 		break;
-	case A_STREAM:
-		CLog::GetInstance().Print(logName, "= A_STREAM = 0x%0.4X.\r\n", value);
+	case A_TS_MODE:
+		CLog::GetInstance().Print(logName, "= A_TS_MODE = 0x%0.4X.\r\n", value);
 		break;
 	case A_ESA_LO:
 		CLog::GetInstance().Print(logName, "= A_ESA_LO = 0x%0.4X.\r\n", value);
@@ -530,8 +528,8 @@ void CCore::LogWrite(uint32 address, uint32 value)
 	case A_STD:
 		CLog::GetInstance().Print(logName, "A_STD = 0x%0.4X\r\n", value);
 		break;
-	case A_STREAM:
-		CLog::GetInstance().Print(logName, "A_STREAM = 0x%0.4X\r\n", value);
+	case A_TS_MODE:
+		CLog::GetInstance().Print(logName, "A_TS_MODE = 0x%0.4X\r\n", value);
 		break;
 	case A_ESA_LO:
 		CLog::GetInstance().Print(logName, "A_ESA_LO = 0x%0.4X\r\n", value);
