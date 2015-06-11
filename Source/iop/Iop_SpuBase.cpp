@@ -207,6 +207,14 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 		channel.address = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str());
 		channel.repeat = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str());
 		channel.current = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str());
+
+		//Reset reader (not actually ok, but better than nothing)
+		auto& reader = m_reader[i];
+		reader.Reset();
+		if((channel.status != STOPPED) && (channel.status != KEY_ON))
+		{
+			reader.SetParams(channel.address, channel.repeat);
+		}
 	}
 }
 
