@@ -1,5 +1,4 @@
-#ifndef _SPU2_CORE_H_
-#define _SPU2_CORE_H_
+#pragma once
 
 #include <string>
 #include <functional>
@@ -120,5 +119,3 @@ namespace Iop
 		};
 	};
 };
-
-#endif
