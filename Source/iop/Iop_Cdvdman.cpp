@@ -7,6 +7,7 @@
 
 #define STATE_FILENAME			("iop_cdvdman/state.xml")
 #define STATE_CALLBACK_ADDRESS	("CallbackAddress")
+#define STATE_STATUS			("Status")
 
 #define FUNCTION_CDREAD			"CdRead"
 #define FUNCTION_CDSEEK			"CdSeek"
@@ -37,12 +38,14 @@ void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_FILENAME));
 	m_callbackPtr = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
+	m_status = registerFile.GetRegister32(STATE_STATUS);
 }
 
 void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
 	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);
+	registerFile->SetRegister32(STATE_STATUS, m_status);
 	archive.InsertFile(registerFile);
 }
 
@@ -170,6 +173,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 		static const uint32 callbackTypeCdRead = 1;
 		m_bios.TriggerCallback(m_callbackPtr, callbackTypeCdRead, 0);
 	}
+	m_status = CDVD_STATUS_READING;
 	return 1;
 }
 
@@ -247,6 +251,10 @@ uint32 CCdvdman::CdSync(uint32 mode)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "(mode = %i);\r\n",
 		mode);
+	if(m_status == CDVD_STATUS_READING)
+	{
+		m_status = CDVD_STATUS_PAUSED;
+	}
 	return 0;
 }
 
@@ -261,6 +269,7 @@ uint32 CCdvdman::CdDiskReady(uint32 mode)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %i);\r\n",
 		mode);
+	m_status = CDVD_STATUS_PAUSED;
 	return 2;
 }
 
@@ -288,7 +297,7 @@ uint32 CCdvdman::CdReadClock(uint32 clockPtr)
 uint32 CCdvdman::CdStatus()
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
-	return 0;
+	return m_status;
 }
 
 uint32 CCdvdman::CdCallback(uint32 callbackPtr)

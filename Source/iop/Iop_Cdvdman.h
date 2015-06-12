@@ -25,6 +25,14 @@ namespace Iop
 		void					SaveState(Framework::CZipArchiveWriter&);
 
 	private:
+		enum CDVD_STATUS
+		{
+			CDVD_STATUS_STOPPED = 0,
+			CDVD_STATUS_SPINNING = 2,
+			CDVD_STATUS_READING = 6,
+			CDVD_STATUS_PAUSED = 10,
+		};
+
 		uint32					CdRead(uint32, uint32, uint32, uint32);
 		uint32					CdSeek(uint32);
 		uint32					CdGetError();
@@ -41,5 +49,6 @@ namespace Iop
 		uint8*					m_ram = nullptr;
 
 		uint32					m_callbackPtr = 0;
+		uint32					m_status = CDVD_STATUS_STOPPED;
 	};
 };
