@@ -4,10 +4,15 @@ import android.app.*;
 import android.os.*;
 import android.util.*;
 import android.view.*;
+import android.widget.*;
+import java.util.*;
 
 public class EmulatorActivity extends Activity 
 {
 	private SurfaceView _renderView;
+	private TextView _statsTextView;
+	private Timer _statsTimer = new Timer();
+	private Handler _statsTimerHandler;
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -28,6 +33,9 @@ public class EmulatorActivity extends Activity
 		_renderView = (SurfaceView)findViewById(R.id.emulator_view);
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
+		
+		_statsTextView = (TextView)findViewById(R.id.emulator_stats);
+		setupStatsTimer();
 	}
 	
 	@Override
@@ -35,6 +43,35 @@ public class EmulatorActivity extends Activity
 	{
 		super.onPause();
 		NativeInterop.pauseVirtualMachine();
+	}
+	
+	private void setupStatsTimer()
+	{
+		_statsTimerHandler = 
+			new Handler()
+			{
+				@Override
+				public void handleMessage(Message message)
+				{
+					int frames = StatsManager.getFrames();
+					int drawCalls = StatsManager.getDrawCalls();
+					int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
+					_statsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
+					StatsManager.clearStats();
+				}
+			};
+		
+		_statsTimer.schedule(
+			new TimerTask() 
+			{
+				@Override
+				public void run()
+				{
+					_statsTimerHandler.obtainMessage().sendToTarget();
+				}
+			},
+			0,
+			1000);
 	}
 	
 	private class SurfaceCallback implements SurfaceHolder.Callback
