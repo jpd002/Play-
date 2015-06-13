@@ -191,7 +191,7 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 	{
 		uint32 clutOffset = tex0.nCSA * 16;
 
-		if(tex0.nCPSM == PSMCT32)
+		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
 		{
 			assert(tex0.nCSA < 16);
 
@@ -206,7 +206,7 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				convertedClut[i] = color;
 			}
 		}
-		else
+		else if(tex0.nCPSM == PSMCT16)
 		{
 			assert(tex0.nCSA < 32);
 
@@ -215,12 +215,16 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				convertedClut[i] = RGBA16ToRGBA32(m_pCLUT[i + clutOffset]);
 			}
 		}
+		else
+		{
+			assert(false);
+		}
 	}
 	else if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
 	{
 		assert(tex0.nCSA == 0);
 
-		if(tex0.nCPSM == PSMCT32)
+		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
 		{
 			for(unsigned int i = 0; i < 256; i++)
 			{
@@ -233,12 +237,16 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				convertedClut[i] = color;
 			}
 		}
-		else
+		else if(tex0.nCPSM == PSMCT16)
 		{
 			for(unsigned int i = 0; i < 256; i++)
 			{
 				convertedClut[i] = RGBA16ToRGBA32(m_pCLUT[i]);
 			}
+		}
+		else
+		{
+			assert(false);
 		}
 	}
 

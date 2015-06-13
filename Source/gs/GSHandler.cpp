@@ -905,7 +905,7 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 		if(tex0.nCSM == 0)
 		{
 			//CSM1 mode
-			if(tex0.nCPSM == PSMCT32)
+			if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
 			{
 				assert(tex0.nCSA < 16);
 
@@ -1034,7 +1034,7 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 	{
 		bool changed = false;
 
-		if(tex0.nCPSM == PSMCT32)
+		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
 		{
 			CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
 
