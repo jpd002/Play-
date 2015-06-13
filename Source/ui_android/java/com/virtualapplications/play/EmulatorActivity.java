@@ -45,6 +45,13 @@ public class EmulatorActivity extends Activity
 		NativeInterop.pauseVirtualMachine();
 	}
 	
+	@Override
+	public void onDestroy()
+	{
+		_statsTimer.cancel();
+		super.onDestroy();
+	}
+	
 	private void setupStatsTimer()
 	{
 		_statsTimerHandler = 
