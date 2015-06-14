@@ -1,6 +1,7 @@
 package com.virtualapplications.play;
 
 import android.app.*;
+import android.content.*;
 import android.os.*;
 import android.util.*;
 import android.view.*;
@@ -34,8 +35,12 @@ public class EmulatorActivity extends Activity
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
 		
-		_statsTextView = (TextView)findViewById(R.id.emulator_stats);
-		setupStatsTimer();
+		final SharedPreferences _preferences = getSharedPreferences("prefs", MODE_PRIVATE);
+		if (_preferences.getBoolean("fpsValue", false))
+		{
+			_statsTextView = (TextView)findViewById(R.id.emulator_stats);
+			setupStatsTimer();
+		}
 	}
 	
 	@Override

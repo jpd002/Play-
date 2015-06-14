@@ -30,7 +30,7 @@ public class MainActivity extends Activity
 		
 		setContentView(R.layout.main);
 		
-		_preferences = getPreferences(MODE_PRIVATE);
+		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		
 		File filesDir = getFilesDir();
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
@@ -101,6 +101,23 @@ public class MainActivity extends Activity
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
 	
+	private void setFps(MenuItem item)
+	{
+		SharedPreferences.Editor preferencesEditor = _preferences.edit();
+
+		if (item.isChecked())
+		{
+			preferencesEditor.putBoolean("fpsValue", false);
+		}
+		else
+		{
+			preferencesEditor.putBoolean("fpsValue", true);
+		}
+		preferencesEditor.commit();
+
+		item.setChecked(_preferences.getBoolean("fpsValue", false));
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) 
 	{
@@ -110,12 +127,22 @@ public class MainActivity extends Activity
 	}
 	
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu)
+	{
+		menu.getItem(1).setChecked(_preferences.getBoolean("fpsValue", false));
+		return super.onPrepareOptionsMenu(menu);
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) 
 	{
 		switch(item.getItemId()) 
 		{
 		case R.id.main_menu_about:
 			displayAboutDialog();
+			return true;
+		case R.id.main_menu_fps:
+			setFps(item);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
