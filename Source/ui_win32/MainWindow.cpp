@@ -74,7 +74,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	TCHAR sVersion[256];
 
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SOUNDENABLED, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SOUNDENABLED, true);
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
