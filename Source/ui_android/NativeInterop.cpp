@@ -10,6 +10,7 @@
 #include "../gs/GSH_Null.h"
 #include "GSH_OpenGLAndroid.h"
 #include "PH_Android.h"
+#include "StatsManager.h"
 
 #define LOG_NAME "Play!"
 
@@ -111,6 +112,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	if(gsHandler == nullptr)
 	{
 		g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
+		g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(
+			boost::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), _1));
 	}
 	else
 	{

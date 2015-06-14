@@ -17,4 +17,10 @@
 		android:focusable="true"
 		android:focusableInTouchMode="true"
 		/>
+	<TextView 
+		android:id="@+id/emulator_stats"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content" 
+		android:text="Test string label stuff" 
+	/>
 </FrameLayout>

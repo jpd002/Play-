@@ -143,6 +143,7 @@ public class MainActivity extends Activity
 	{
 		return 
 				fileName.endsWith(".iso") || 
+				fileName.endsWith(".bin") ||
 				fileName.endsWith(".cso") || 
 				fileName.endsWith(".isz");
 	}

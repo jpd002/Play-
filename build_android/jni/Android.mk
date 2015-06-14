@@ -164,6 +164,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/ui_android/GSH_OpenGLAndroid.cpp \
 							../../Source/ui_android/NativeInterop.cpp \
 							../../Source/ui_android/PH_Android.cpp \
+							../../Source/ui_android/StatsManager.cpp \
 							../../Source/Utils.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -DDISABLE_LOGGING -DGLES_COMPATIBILITY
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(DEPENDENCIES_PATH)/bzip2-1.0.6 $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
