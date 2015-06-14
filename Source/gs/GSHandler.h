@@ -504,7 +504,7 @@ public:
 	void									ResetVBlank();
 
 	void									WriteRegister(uint8, uint64);
-	void									FeedImageData(void*, uint32);
+	void									FeedImageData(const void*, uint32);
 	void									WriteRegisterMassively(const RegisterWrite*, unsigned int, const CGsPacketMetadata*);
 
 	virtual void							SetCrt(bool, unsigned int, bool);

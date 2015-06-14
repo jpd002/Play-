@@ -383,7 +383,7 @@ void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
 	m_mailBox.SendCall(std::bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
 }
 
-void CGSHandler::FeedImageData(void* data, uint32 length)
+void CGSHandler::FeedImageData(const void* data, uint32 length)
 {
 	m_transferCount++;
 
