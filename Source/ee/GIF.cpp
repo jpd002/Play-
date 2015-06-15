@@ -204,6 +204,15 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 {
 	std::unique_lock<std::mutex> pathLock(m_pathMutex);
 	static CGSHandler::RegisterWriteList writeList;
+	static const auto flushWriteList =
+		[] (CGSHandler* gs, const CGsPacketMetadata& packetMetadata)
+		{
+			if((gs != nullptr) && !writeList.empty())
+			{
+				gs->WriteRegisterMassively(writeList.data(), static_cast<unsigned int>(writeList.size()), &packetMetadata);
+			}
+			writeList.clear();
+		};
 
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_gifProfilerZone);
@@ -259,6 +268,10 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 			break;
 		case 0x02:
 		case 0x03:
+			//We need to flush our list here because image data can be embedded in a GIF packet
+			//that specifies pixel transfer information in GS registers (and that has to be send first)
+			//This is done by FFX
+			flushWriteList(m_gs, packetMetadata);
 			address += ProcessImage(memory, address, end);
 			break;
 		}
@@ -272,10 +285,7 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 		}
 	}
 
-	if((m_gs != nullptr) && !writeList.empty())
-	{
-		m_gs->WriteRegisterMassively(writeList.data(), static_cast<unsigned int>(writeList.size()), &packetMetadata);
-	}
+	flushWriteList(m_gs, packetMetadata);
 
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "Processed 0x%0.8X bytes.\r\n", address - start);
