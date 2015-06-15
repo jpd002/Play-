@@ -471,6 +471,10 @@ void CIopBios::ProcessModuleLoad()
 
 void CIopBios::FinishModuleLoad()
 {
+	//Make sure interrupts are enabled at the end of this
+	//some games disable interrupts but never enable them back! (The Mark of Kri)
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
+
 	//We need to notify the EE that the load request is over
 	m_sifMan->SendCallReply(Iop::CLoadcore::MODULE_ID, nullptr);
 }
