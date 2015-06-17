@@ -50,7 +50,7 @@ public:
 		return framework_aligned_free(ptr);
 	}
 
-	void			Execute(bool);
+	virtual void			Execute(bool);
 	void					Reset();
 	void					SaveState(Framework::CZipArchiveWriter&);
 	void					LoadState(Framework::CZipArchiveReader&);
