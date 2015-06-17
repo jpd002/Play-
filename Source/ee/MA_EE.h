@@ -94,6 +94,7 @@ private:
 	void								PSUBB();
 	void								PCGTB();
 	void								PADDSW();
+	void								PSUBSW();
 	void								PEXTLW();
 	void								PPACW();
 	void								PADDSH();

@@ -118,7 +118,7 @@ INSTRUCTION CMA_EE::m_cReflMmi0[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x10
 	{	"PADDSW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PSUBSW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PEXTLW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PPACW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PADDSH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
