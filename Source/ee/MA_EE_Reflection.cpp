@@ -229,7 +229,7 @@ INSTRUCTION CMA_EE::m_cReflMmi3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x08
 	{	"PMTHI",	NULL,			CopyMnemonic,		ReflOpRs,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PMTLO",	NULL,			CopyMnemonic,		ReflOpRs,			NULL,				NULL			},
 	{	"PINTEH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},

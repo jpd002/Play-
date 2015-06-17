@@ -136,6 +136,7 @@ private:
 	//Mmi3
 	void								PSRAVW();
 	void								PMTHI();
+	void								PMTLO();
 	void								PINTEH();
 	void								PCPYUD();
 	void								POR();

@@ -1093,6 +1093,16 @@ void CMA_EE::PMTHI()
 	}
 }
 
+//09
+void CMA_EE::PMTLO()
+{
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+		m_codeGen->PullRel(GetLoOffset(i));
+	}
+}
+
 //0A
 void CMA_EE::PINTEH()
 {
@@ -1524,7 +1534,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 	//0x00
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSRAVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&CMA_EE::PMTHI,			&CMA_EE::Illegal,		&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
+	&CMA_EE::PMTHI,			&CMA_EE::PMTLO,			&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
