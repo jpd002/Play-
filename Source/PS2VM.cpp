@@ -506,7 +506,7 @@ void CPS2VM::ResumeImpl()
 #ifdef DEBUGGER_INCLUDED
 	m_ee->m_executor.DisableBreakpointsOnce();
 	m_iop->m_executor.DisableBreakpointsOnce();
-	m_ee->m_vpu1.DisableBreakpointsOnce();
+	m_ee->m_vpu1->DisableBreakpointsOnce();
 #endif
 	m_nStatus = RUNNING;
 }
@@ -860,14 +860,14 @@ void CPS2VM::EmuThread()
 				UpdateEe();
 				UpdateIop();
 
-				m_ee->m_vpu0.Execute(m_singleStepVu0);
-				m_ee->m_vpu1.Execute(m_singleStepVu1);
+				m_ee->m_vpu0->Execute(m_singleStepVu0);
+				m_ee->m_vpu1->Execute(m_singleStepVu1);
 			}
 #ifdef DEBUGGER_INCLUDED
 			if(
 			   m_ee->m_executor.MustBreak() || 
 			   m_iop->m_executor.MustBreak() ||
-			   m_ee->m_vpu1.MustBreak() ||
+			   m_ee->m_vpu1->MustBreak() ||
 			   m_singleStepEe || m_singleStepIop || m_singleStepVu0 || m_singleStepVu1)
 			{
 				m_nStatus = PAUSED;
