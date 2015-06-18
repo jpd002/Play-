@@ -128,6 +128,7 @@ private:
 	void								PMULTW();
 	void								PDIVW();
 	void								PCPYLD();
+	void								PMADDH();
 	void								PAND();
 	void								PXOR();
 	void								PMULTH();

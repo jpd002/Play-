@@ -935,6 +935,73 @@ void CMA_EE::PCPYLD()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
+//10
+void CMA_EE::PMADDH()
+{
+	static const size_t offsets[8] =
+	{
+		offsetof(CMIPS, m_State.nLO[0]),
+		offsetof(CMIPS, m_State.nLO[1]),
+		offsetof(CMIPS, m_State.nHI[0]),
+		offsetof(CMIPS, m_State.nHI[1]),
+		offsetof(CMIPS, m_State.nLO1[0]),
+		offsetof(CMIPS, m_State.nLO1[1]),
+		offsetof(CMIPS, m_State.nHI1[0]),
+		offsetof(CMIPS, m_State.nHI1[1])
+	};
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		//Lower 16-bits
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->SignExt16();
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->SignExt16();
+
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
+
+			m_codeGen->PushRel(offsets[(i * 2) + 0]);
+			m_codeGen->Add();
+			m_codeGen->PullRel(offsets[(i * 2) + 0]);
+		}
+
+		//Higher 16-bits
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->Sra(16);
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->Sra(16);
+
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
+
+			m_codeGen->PushRel(offsets[(i * 2) + 1]);
+			m_codeGen->Add();
+			m_codeGen->PullRel(offsets[(i * 2) + 1]);
+		}
+	}
+
+	if(m_nRD != 0)
+	{
+		//Copy to RD
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI[0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO1[0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
+	}
+}
+
 //12
 void CMA_EE::PAND()
 {
@@ -1535,7 +1602,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x08
 	&CMA_EE::PMFHI,			&CMA_EE::PMFLO,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTW,		&CMA_EE::PDIVW,			&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
 	//0x10
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PMADDH,		&CMA_EE::Illegal,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
 };
