@@ -37,8 +37,8 @@ namespace Ee
 		void						SaveState(Framework::CZipArchiveWriter&);
 		void						LoadState(Framework::CZipArchiveReader&);
 
-		void						SetVpu0(CVpu*);
-		void						SetVpu1(CVpu*);
+		void						SetVpu0(std::shared_ptr<CVpu>);
+		void						SetVpu1(std::shared_ptr<CVpu>);
 
 		uint8*						m_ram = nullptr;
 		uint8*						m_bios = nullptr;
@@ -55,8 +55,8 @@ namespace Ee
 		CDMAC						m_dmac;
 		CGIF						m_gif;
 		CSIF						m_sif;
-		CVpu*						m_vpu0;
-		CVpu*						m_vpu1;
+		std::shared_ptr<CVpu>		m_vpu0;
+		std::shared_ptr<CVpu>		m_vpu1;
 		CINTC						m_intc;
 		CIPU						m_ipu;
 		CTimer						m_timer;

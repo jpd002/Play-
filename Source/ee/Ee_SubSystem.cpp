@@ -50,8 +50,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	assert((reinterpret_cast<size_t>(m_vuMem0) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(m_vuMem1) & 0x0F) == 0);
 
-	m_vpu0 = new CVpu(0, CVpu::VPUINIT(m_microMem0, m_vuMem0, &m_VU0), m_gif, m_ram, m_spr);
-	m_vpu1 = new CVpu(1, CVpu::VPUINIT(m_microMem1, m_vuMem1, &m_VU1), m_gif, m_ram, m_spr);
+	m_vpu0 = std::make_shared<CVpu>(0, CVpu::VPUINIT(m_microMem0, m_vuMem0, &m_VU0), m_gif, m_ram, m_spr);
+	m_vpu1 = std::make_shared<CVpu>(1, CVpu::VPUINIT(m_microMem1, m_vuMem1, &m_VU1), m_gif, m_ram, m_spr);
 
 	//EmotionEngine context setup
 	{
@@ -149,23 +149,15 @@ CSubSystem::~CSubSystem()
 	framework_aligned_free(m_vuMem0);
 	framework_aligned_free(m_vuMem1);
 	delete m_os;
-	delete m_vpu0;
-	delete m_vpu1;
 }
 
-void CSubSystem::SetVpu0(CVpu* newVpu0)
+void CSubSystem::SetVpu0(std::shared_ptr<CVpu> newVpu0)
 {
-	if (newVpu0 != m_vpu0){
-		delete m_vpu0;
-	}
 	m_vpu0 = newVpu0;
 }
 
-void CSubSystem::SetVpu1(CVpu* newVpu1)
+void CSubSystem::SetVpu1(std::shared_ptr<CVpu> newVpu1)
 {
-	if (newVpu1 != m_vpu1){
-		delete m_vpu1;
-	}
 	m_vpu1 = newVpu1;
 }
 
