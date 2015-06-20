@@ -2536,7 +2536,7 @@ void CPS2OS::sc_Deci2Call()
 				uint32 length = m_ram[stringAddr + 0x00] - 0x0C;
 				uint8* string = &m_ram[stringAddr + 0x0C];
 
-				m_iopBios.GetIoman()->Write(1, length, string);
+				m_iopBios.GetIoman()->Write(Iop::CIoman::FID_STDOUT, length, string);
 			}
 
 			m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
