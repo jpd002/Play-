@@ -305,6 +305,7 @@ private:
 	void									sc_GsSetCrt();
 	void									sc_Exit();
 	void									sc_LoadExecPS2();
+	void									sc_ExecPS2();
 	void									sc_AddIntcHandler();
 	void									sc_RemoveIntcHandler();
 	void									sc_AddDmacHandler();

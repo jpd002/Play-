@@ -72,6 +72,7 @@
 
 #define SYSCALL_NAME_EXIT					"osExit"
 #define SYSCALL_NAME_LOADEXECPS2			"osLoadExecPS2"
+#define SYSCALL_NAME_EXECPS2				"osExecPS2"
 #define SYSCALL_NAME_ADDINTCHANDLER			"osAddIntcHandler"
 #define SYSCALL_NAME_REMOVEINTCHANDLER		"osRemoveIntcHandler"
 #define SYSCALL_NAME_ADDDMACHANDLER			"osAddDmacHandler"
@@ -1393,6 +1394,20 @@ void CPS2OS::sc_LoadExecPS2()
 	OnRequestLoadExecutable(fileName.c_str(), arguments);
 }
 
+//07
+void CPS2OS::sc_ExecPS2()
+{
+	uint32 pc			= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 gp			= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 argCount		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
+	uint32 argValuesPtr	= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
+
+	m_ee.m_State.nPC = pc;
+	m_ee.m_State.nGPR[CMIPS::GP].nD0 = static_cast<int32>(gp);
+	m_ee.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(argCount);
+	m_ee.m_State.nGPR[CMIPS::A1].nD0 = static_cast<int32>(argValuesPtr);
+}
+
 //10
 void CPS2OS::sc_AddIntcHandler()
 {
@@ -2659,6 +2674,13 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
+	case 0x07:
+		sprintf(description, SYSCALL_NAME_EXECPS2 "(pc = 0x%0.8X, gp = 0x%0.8X, argc = %d, argv = 0x%0.8X);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+			m_ee.m_State.nGPR[SC_PARAM0].nV[1],
+			m_ee.m_State.nGPR[SC_PARAM0].nV[2],
+			m_ee.m_State.nGPR[SC_PARAM0].nV[3]);
+		break;
 	case 0x10:
 		sprintf(description, SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%0.8X, next = 0x%0.8X, arg = 0x%0.8X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
@@ -2906,7 +2928,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 {
 	//0x00
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Exit,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_LoadExecPS2,		&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GsSetCrt,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Exit,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_LoadExecPS2,		&CPS2OS::sc_ExecPS2,
 	//0x08
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x10
