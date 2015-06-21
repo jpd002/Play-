@@ -2,6 +2,7 @@
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "../MemoryStateFile.h"
+#include "../iop/IopBios.h"
 #include "Vif.h"
 #include "placeholder_def.h"
 
@@ -44,6 +45,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 , m_COP_SCU(MIPS_REGSIZE_64)
 , m_COP_FPU(MIPS_REGSIZE_64)
 , m_COP_VU(MIPS_REGSIZE_64)
+, m_iopBios(iopBios)
 {
 	//Some alignment checks, this is needed because of SIMD instructions used in generated code
 	assert((reinterpret_cast<size_t>(&m_EE.m_State) & 0x0F) == 0);
@@ -445,8 +447,7 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	else if(nAddress == 0x1000F180)
 	{
 		//stdout data
-		throw std::runtime_error("Not implemented.");
-//        m_sif.GetFileIO()->Write(1, 1, &nData);
+		m_iopBios.GetIoman()->Write(Iop::CIoman::FID_STDOUT, 1, &nData);
 	}
 	else if(nAddress >= 0x1000F520 && nAddress <= 0x1000F59C)
 	{

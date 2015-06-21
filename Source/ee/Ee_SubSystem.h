@@ -58,6 +58,7 @@ namespace Ee
 		CIPU						m_ipu;
 		CTimer						m_timer;
 		CPS2OS*						m_os;
+		CIopBios&					m_iopBios;
 
 		CMIPS						m_EE;
 		CMIPS						m_VU0;
