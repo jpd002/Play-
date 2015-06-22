@@ -149,6 +149,7 @@
 		70834CE11B1BD7EE00E8D5C6 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834CE01B1BD7EE00E8D5C6 /* libz.dylib */; };
 		70834CE61B1BE1AE00E8D5C6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834CE51B1BE1AE00E8D5C6 /* UIKit.framework */; };
 		70834CE81B1BE1C500E8D5C6 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834CE71B1BE1C500E8D5C6 /* libbz2.dylib */; };
+		70AD235B1B38A00500137AA0 /* EeExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23591B38A00500137AA0 /* EeExecutor.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -459,6 +460,8 @@
 		70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Purei_Prefix.pch; path = ../Source/ui_ios/Purei_Prefix.pch; sourceTree = "<group>"; };
 		70834CE51B1BE1AE00E8D5C6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.3.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		70834CE71B1BE1C500E8D5C6 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.3.sdk/usr/lib/libbz2.dylib; sourceTree = DEVELOPER_DIR; };
+		70AD23591B38A00500137AA0 /* EeExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EeExecutor.cpp; path = ../Source/ee/EeExecutor.cpp; sourceTree = "<group>"; };
+		70AD235A1B38A00500137AA0 /* EeExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EeExecutor.h; path = ../Source/ee/EeExecutor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -670,6 +673,8 @@
 				70834BA61B1BD6A300E8D5C6 /* Ee_SubSystem.h */,
 				70834BA71B1BD6A300E8D5C6 /* EEAssembler.cpp */,
 				70834BA81B1BD6A300E8D5C6 /* EEAssembler.h */,
+				70AD23591B38A00500137AA0 /* EeExecutor.cpp */,
+				70AD235A1B38A00500137AA0 /* EeExecutor.h */,
 				70834BA91B1BD6A300E8D5C6 /* FpAddTruncate.cpp */,
 				70834BAA1B1BD6A300E8D5C6 /* FpAddTruncate.h */,
 				70834BAB1B1BD6A300E8D5C6 /* FpMulTruncate.cpp */,
@@ -987,6 +992,7 @@
 				70834B721B1BD2C300E8D5C6 /* MIPSInstructionFactory.cpp in Sources */,
 				70834B5C1B1BD2C300E8D5C6 /* COP_SCU_Reflection.cpp in Sources */,
 				70834C791B1BD70700E8D5C6 /* Iop_PadMan.cpp in Sources */,
+				70AD235B1B38A00500137AA0 /* EeExecutor.cpp in Sources */,
 				70834CA01B1BD78D00E8D5C6 /* File.cpp in Sources */,
 				70834B731B1BD2C300E8D5C6 /* MipsJitter.cpp in Sources */,
 				70834BEB1B1BD6A300E8D5C6 /* IPU_MacroblockTypePTable.cpp in Sources */,
