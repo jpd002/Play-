@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "MaxSaveImporter.h"
 #include "LzAri.h"
 #include "MemStream.h"
@@ -21,7 +22,7 @@ void CMaxSaveImporter::Import(Framework::CStream& inputStream, const filesystem:
 	inputStream.Read(magic, sizeof(magic));
 	if(memcmp(magic, "Ps2PowerSave", sizeof(magic)) != 0)
 	{
-		throw std::exception("Invalid MAX save file.");
+		throw std::runtime_error("Invalid MAX save file.");
 	}
 
 	uint32 checksum = inputStream.Read32();
