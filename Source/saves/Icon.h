@@ -1,5 +1,4 @@
-#ifndef _ICON_H_
-#define _ICON_H_
+#pragma once
 
 #include "Types.h"
 #include "Stream.h"
@@ -67,6 +66,5 @@ private:
 	uint16*			m_pTexture;
 };
 
-typedef std::tr1::shared_ptr<CIcon> IconPtr;
+typedef std::shared_ptr<CIcon> IconPtr;
 
-#endif
