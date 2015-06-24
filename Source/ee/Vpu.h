@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AlignedAlloc.h"
 #include "Types.h"
 #include "../MIPS.h"
 #include "../Profiler.h"
@@ -39,16 +38,6 @@ public:
 
 							CVpu(unsigned int, const VPUINIT&, CGIF&, uint8*, uint8*);
 	virtual					~CVpu();
-
-	void* operator new(size_t allocSize)
-	{
-		return framework_aligned_alloc(allocSize, 0x10);
-	}
-
-	void operator delete(void* ptr)
-	{
-		return framework_aligned_free(ptr);
-	}
 
 	virtual void			Execute(bool);
 	void					Reset();
