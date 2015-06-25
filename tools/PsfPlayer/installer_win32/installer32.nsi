@@ -67,6 +67,7 @@ Section "PsfPlayer (required)"
   File "..\build_win32\Win32\Release\SH_OpenAL.dll"
   File "..\build_win32\Win32\Release\SH_XAudio2.dll"
   File "..\build_win32\Win32\Release\TDEmu.dll"
+  File "..\build_win32\Win32\Release\zlib.dll"
   File "..\changelog.html"
   
   ; Write the installation path into the registry
