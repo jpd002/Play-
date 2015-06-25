@@ -2,7 +2,7 @@
 #import "MainViewController.h"
 #import "GlEsView.h"
 #include "../PS2VM.h"
-#include "../gs/GSH_Null.h"
+#include "GSH_OpenGLiOS.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -21,7 +21,7 @@ CPS2VM* g_virtualMachine = nullptr;
 	
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
-	g_virtualMachine->CreateGSHandler(CGSH_Null::GetFactoryFunction());
+	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)view.layer));
 
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();

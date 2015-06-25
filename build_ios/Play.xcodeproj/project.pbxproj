@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */; };
+		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
+		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
+		704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */; };
 		70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */; };
 		70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 70834AE51B1BCB0100E8D5C6 /* Info.plist */; };
 		70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE61B1BCB0100E8D5C6 /* main.mm */; };
@@ -194,6 +198,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLiOS.cpp; path = ../Source/ui_ios/GSH_OpenGLiOS.cpp; sourceTree = "<group>"; };
+		704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLiOS.h; path = ../Source/ui_ios/GSH_OpenGLiOS.h; sourceTree = "<group>"; };
+		704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
+		704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Texture.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp; sourceTree = "<group>"; };
+		704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp; sourceTree = "<group>"; };
+		704E1C521B3BA25000C0ACE3 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
 		70834AAE1B1BC70300E8D5C6 /* Play!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Play!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Source/ui_ios/AppDelegate.h; sourceTree = "<group>"; };
 		70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ui_ios/AppDelegate.mm; sourceTree = "<group>"; };
@@ -545,13 +555,15 @@
 				70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */,
 				70AD23681B38A39000137AA0 /* GlEsView.h */,
 				70AD23651B38A2FE00137AA0 /* GlEsView.mm */,
+				704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */,
+				704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */,
 				70834AE51B1BCB0100E8D5C6 /* Info.plist */,
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
-				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 				70834AE71B1BCB0100E8D5C6 /* MainViewController.h */,
 				70834AE81B1BCB0100E8D5C6 /* MainViewController.mm */,
+				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 			);
 			name = ui_ios;
 			sourceTree = "<group>";
@@ -773,6 +785,10 @@
 				70834C021B1BD6E000E8D5C6 /* GsCachedArea.h */,
 				70834C031B1BD6E000E8D5C6 /* GSH_Null.cpp */,
 				70834C041B1BD6E000E8D5C6 /* GSH_Null.h */,
+				704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */,
+				704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */,
+				704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */,
+				704E1C521B3BA25000C0ACE3 /* GSH_OpenGL.h */,
 				70834C051B1BD6E000E8D5C6 /* GSHandler.cpp */,
 				70834C061B1BD6E000E8D5C6 /* GSHandler.h */,
 				70834C071B1BD6E000E8D5C6 /* GsPixelFormats.cpp */,
@@ -1056,6 +1072,7 @@
 				70834B731B1BD2C300E8D5C6 /* MipsJitter.cpp in Sources */,
 				70834BEB1B1BD6A300E8D5C6 /* IPU_MacroblockTypePTable.cpp in Sources */,
 				70834BEA1B1BD6A300E8D5C6 /* IPU_MacroblockTypeITable.cpp in Sources */,
+				704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */,
 				70834BE01B1BD6A300E8D5C6 /* DMAC.cpp in Sources */,
 				70AD23951B39199300137AA0 /* MaxSaveImporter.cpp in Sources */,
 				70834C8F1B1BD70700E8D5C6 /* IopBios.cpp in Sources */,
@@ -1079,6 +1096,7 @@
 				70834C7A1B1BD70700E8D5C6 /* Iop_RootCounters.cpp in Sources */,
 				70834BE31B1BD6A300E8D5C6 /* FpAddTruncate.cpp in Sources */,
 				70834C7B1B1BD70700E8D5C6 /* Iop_SifCmd.cpp in Sources */,
+				704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */,
 				70AD23961B39199300137AA0 /* PsuSaveImporter.cpp in Sources */,
 				70AD238A1B38FFBA00137AA0 /* Save.cpp in Sources */,
 				70834B591B1BD2C300E8D5C6 /* ControllerInfo.cpp in Sources */,
@@ -1102,6 +1120,7 @@
 				70834B7A1B1BD2C300E8D5C6 /* PS2VM.cpp in Sources */,
 				70834C0C1B1BD6E000E8D5C6 /* GsPixelFormats.cpp in Sources */,
 				70834B601B1BD2C300E8D5C6 /* ElfFile.cpp in Sources */,
+				704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */,
 				70834C741B1BD70700E8D5C6 /* Iop_Ioman.cpp in Sources */,
 				70834C8D1B1BD70700E8D5C6 /* Iop_Timrman.cpp in Sources */,
 				70834C891B1BD70700E8D5C6 /* Iop_Thbase.cpp in Sources */,
@@ -1155,6 +1174,7 @@
 				70834C8A1B1BD70700E8D5C6 /* Iop_Thevent.cpp in Sources */,
 				70834B741B1BD2C300E8D5C6 /* MIPSReflection.cpp in Sources */,
 				70834CA31B1BD78D00E8D5C6 /* PathTableRecord.cpp in Sources */,
+				704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */,
 				70834BF51B1BD6A300E8D5C6 /* PS2OS.cpp in Sources */,
 				70834BF61B1BD6A300E8D5C6 /* SIF.cpp in Sources */,
 				70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */,
