@@ -106,6 +106,7 @@ private:
 		unsigned int texUseAlphaExpansion	: 1;
 		unsigned int texBlackIsTransparent	: 1;
 		unsigned int hasFog					: 1;
+		unsigned int padding				: 19;
 
 		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
 	};
