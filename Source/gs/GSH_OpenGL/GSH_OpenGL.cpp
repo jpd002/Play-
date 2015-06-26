@@ -107,7 +107,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	//Clear all of our output framebuffer
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_presentFramebuffer);
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glDisable(GL_SCISSOR_TEST);
