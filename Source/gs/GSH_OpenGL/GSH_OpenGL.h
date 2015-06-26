@@ -39,6 +39,8 @@ protected:
 	virtual void					ResetImpl() override;
 	virtual void					FlipImpl() override;
 
+	GLuint							m_presentFramebuffer = 0;
+
 private:
 	struct RENDERSTATE
 	{
