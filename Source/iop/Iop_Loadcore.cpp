@@ -163,7 +163,7 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	}
 
 	//This function returns something negative upon failure
-	ret[0] = 0x00000000;
+	ret[0] = moduleId;
 
 	if(moduleId >= 0)
 	{
@@ -213,7 +213,7 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 	{
 		moduleId = m_bios.StartModule(moduleId, "", moduleArgs, moduleArgsSize);
 	}
-	ret[0] = 0x00000000;
+	ret[0] = moduleId;
 }
 
 void CLoadcore::SearchModuleByName(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
