@@ -401,13 +401,13 @@ void CIopBios::ProcessModuleStart()
 		return;
 	}
 
-	auto moduleLoadRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + requestPtr);
+	auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + requestPtr);
 	
 	//Unlink from active list and link in free list
 	{
-		ModuleStartRequestHead() = moduleLoadRequest->nextPtr;
+		ModuleStartRequestHead() = moduleStartRequest->nextPtr;
 
-		moduleLoadRequest->nextPtr = ModuleStartRequestFree();
+		moduleStartRequest->nextPtr = ModuleStartRequestFree();
 		ModuleStartRequestFree() = requestPtr;
 	}
 
@@ -420,14 +420,14 @@ void CIopBios::ProcessModuleStart()
 		m_cpu.m_State.nGPR[CMIPS::SP].nV0 = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	}
 
-	auto loadedModule = m_loadedModules[moduleLoadRequest->moduleId];
+	auto loadedModule = m_loadedModules[moduleStartRequest->moduleId];
 	assert(loadedModule != nullptr);
 
 	//Patch loader thread context with proper info to invoke module entry proc
 	{
-		const char* path = moduleLoadRequest->path;
-		const char* args = moduleLoadRequest->args;
-		uint32 argsLength = moduleLoadRequest->argsLength;
+		const char* path = moduleStartRequest->path;
+		const char* args = moduleStartRequest->args;
+		uint32 argsLength = moduleStartRequest->argsLength;
 
 		typedef std::vector<uint32> ParamListType;
 		ParamListType paramList;
