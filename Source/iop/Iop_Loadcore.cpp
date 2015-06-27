@@ -98,6 +98,12 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		LoadModuleFromMemory(args, argsSize, ret, retSize);
 		return false;	//Block EE till module is loaded
 		break;
+	case 0x07:
+		return StopModule(args, argsSize, ret, retSize);
+		break;
+	case 0x08:
+		UnloadModule(args, argsSize, ret, retSize);
+		break;
 	case 0x09:
 		SearchModuleByName(args, argsSize, ret, retSize);
 		break;
@@ -214,6 +220,47 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 		moduleId = m_bios.StartModule(moduleId, "", moduleArgs, moduleArgsSize);
 	}
 	ret[0] = moduleId;
+}
+
+bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	char moduleArgs[ARGS_MAX_SIZE];
+
+	assert(argsSize == 512);
+	assert(retSize >= 4);
+
+	uint32 moduleId = args[0];
+	uint32 moduleArgsSize = args[1];
+
+	memcpy(moduleArgs, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
+
+	CLog::GetInstance().Print(LOG_NAME, "StopModule(moduleId = %d, args, argsSize = 0x%0.8X);\r\n", 
+		moduleId, moduleArgsSize);
+
+	auto result = m_bios.StopModule(moduleId);
+	ret[0] = result;
+
+	if(result >= 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+void CLoadcore::UnloadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	assert(argsSize == 4);
+	assert(retSize >= 4);
+
+	uint32 moduleId = args[0];
+
+	CLog::GetInstance().Print(LOG_NAME, "UnloadModule(moduleId = %d);\r\n", moduleId);
+
+	auto result = m_bios.UnloadModule(moduleId);
+	ret[0] = result;
 }
 
 void CLoadcore::SearchModuleByName(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

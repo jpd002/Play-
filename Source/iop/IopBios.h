@@ -92,7 +92,9 @@ public:
 
 	int32						LoadModule(const char*);
 	int32						LoadModule(uint32);
+	int32						UnloadModule(uint32);
 	int32						StartModule(uint32, const char*, const char*, unsigned int);
+	int32						StopModule(uint32);
 	int32						SearchModuleByName(const char*) const;
 	void						ProcessModuleReset(const std::string&);
 
@@ -190,9 +192,8 @@ private:
 
 	enum class MODULE_STATE : uint32
 	{
-		LOADED,
-		STARTED,
-		STOPPED
+		STOPPED,
+		STARTED
 	};
 
 	enum class MODULE_RESIDENT_STATE : uint32
@@ -282,6 +283,7 @@ private:
 
 		uint32			nextPtr;
 		uint32			moduleId;
+		uint32			stopRequest;
 		char			path[MAX_PATH_SIZE];
 		uint32			argsLength;
 		char			args[MAX_ARGS_SIZE];
@@ -296,6 +298,7 @@ private:
 
 		uint32					isValid;
 		char					name[MAX_NAME_SIZE];
+		uint32					start;
 		uint32					entryPoint;
 		uint32					gp;
 		MODULE_STATE			state;
@@ -366,7 +369,7 @@ private:
 	void							InitializeModuleStarter();
 	void							ProcessModuleStart();
 	void							FinishModuleStart();
-	void							RequestModuleStart(uint32, const char*, const char*, unsigned int);
+	void							RequestModuleStart(bool, uint32, const char*, const char*, unsigned int);
 
 #ifdef DEBUGGER_INCLUDED
 	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);
