@@ -465,6 +465,7 @@ void CIopBios::ProcessModuleStart()
 		}
 		m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= 4;
 
+		m_cpu.m_State.nGPR[CMIPS::S0].nV0 = moduleStartRequest->moduleId;
 		m_cpu.m_State.nGPR[CMIPS::GP].nV0 = loadedModule->gp;
 		m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_State.nPC;
 		m_cpu.m_State.nPC = loadedModule->entryPoint;
@@ -473,6 +474,16 @@ void CIopBios::ProcessModuleStart()
 
 void CIopBios::FinishModuleStart()
 {
+	auto moduleResidentState = static_cast<MODULE_RESIDENT_STATE>(m_cpu.m_State.nGPR[CMIPS::A0].nV0 & 0x3);
+	assert(moduleResidentState != MODULE_RESIDENT_STATE::NO_RESIDENT_END);
+
+	uint32 moduleId = m_cpu.m_State.nGPR[CMIPS::S0].nV0;
+	auto loadedModule = m_loadedModules[moduleId];
+	assert(loadedModule != nullptr);
+	assert(loadedModule->state == MODULE_STATE::LOADED);
+	loadedModule->state				= MODULE_STATE::STARTED;
+	loadedModule->residentState		= moduleResidentState;
+
 	//Make sure interrupts are enabled at the end of this
 	//some games disable interrupts but never enable them back! (The Mark of Kri)
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
@@ -532,6 +543,7 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 	strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULE::MAX_NAME_SIZE);
 	loadedModule->entryPoint	= entryPoint;
 	loadedModule->gp			= iopMod ? (iopMod->gp + moduleRange.first) : 0;
+	loadedModule->state			= MODULE_STATE::LOADED;
 
 #ifdef DEBUGGER_INCLUDED
 	PrepareModuleDebugInfo(elf, moduleRange, moduleName, path);
@@ -558,6 +570,7 @@ int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char*
 	{
 		return -1;
 	}
+	assert(loadedModule->state == MODULE_STATE::LOADED);
 	RequestModuleStart(loadedModuleId, path, args, argsLength);
 	return loadedModuleId;
 }
@@ -1708,6 +1721,7 @@ uint32 CIopBios::AssembleModuleStarterThreadProc(CMIPSAssembler& assembler)
 	assembler.SYSCALL();
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_PROCESSMODULESTART);
 	assembler.SYSCALL();
+	assembler.ADDU(CMIPS::A0, CMIPS::V0, CMIPS::R0);
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_FINISHMODULESTART);
 	assembler.SYSCALL();
 	assembler.BEQ(CMIPS::R0, CMIPS::R0, startLabel);

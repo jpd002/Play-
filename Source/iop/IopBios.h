@@ -188,6 +188,20 @@ private:
 		DEFAULT_PRIORITY = 64,
 	};
 
+	enum class MODULE_STATE
+	{
+		LOADED,
+		STARTED,
+		STOPPED
+	};
+
+	enum class MODULE_RESIDENT_STATE
+	{
+		RESIDENT_END			= 0,
+		NO_RESIDENT_END			= 1,
+		REMOVABLE_RESIDENT_END	= 2,
+	};
+
 	enum
 	{
 		MAX_THREAD				= 128,
@@ -280,10 +294,12 @@ private:
 			MAX_NAME_SIZE = 0x100,
 		};
 
-		uint32			isValid;
-		char			name[MAX_NAME_SIZE];
-		uint32			entryPoint;
-		uint32			gp;
+		uint32					isValid;
+		char					name[MAX_NAME_SIZE];
+		uint32					entryPoint;
+		uint32					gp;
+		MODULE_STATE			state;
+		MODULE_RESIDENT_STATE	residentState;
 	};
 
 	struct IOPMOD
