@@ -14,6 +14,7 @@
 #define STATE_REGS_PCR		("D_PCR")
 #define STATE_REGS_RBSR     ("D_RBSR")
 #define STATE_REGS_RBOR     ("D_RBOR")
+#define STATE_REGS_D8_SADR  ("D8_SADR")
 #define STATE_REGS_D9_SADR  ("D9_SADR")
 
 #define MADR_WRITE_MASK			(~0x0000000F)
@@ -909,11 +910,14 @@ void CDMAC::LoadState(CZipArchiveReader& archive)
 	m_D_PCR		= registerFile.GetRegister32(STATE_REGS_PCR);
 	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
 	m_D_RBOR	= registerFile.GetRegister32(STATE_REGS_RBOR);
+	m_D8_SADR	= registerFile.GetRegister32(STATE_REGS_D8_SADR);
 	m_D9_SADR	= registerFile.GetRegister32(STATE_REGS_D9_SADR);
 
+	m_D0.LoadState(archive);
 	m_D1.LoadState(archive);
 	m_D2.LoadState(archive);
 	m_D4.LoadState(archive);
+	m_D8.LoadState(archive);
 	m_D9.LoadState(archive);
 }
 
@@ -925,12 +929,15 @@ void CDMAC::SaveState(CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_PCR,		m_D_PCR);
 	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
 	registerFile->SetRegister32(STATE_REGS_RBOR,	m_D_RBOR);
+	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
 	registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
 	archive.InsertFile(registerFile);
 
+	m_D0.SaveState(archive);
 	m_D1.SaveState(archive);
 	m_D2.SaveState(archive);
 	m_D4.SaveState(archive);
+	m_D8.SaveState(archive);
 	m_D9.SaveState(archive);
 }
 
