@@ -267,8 +267,7 @@ private:
 		};
 
 		uint32			nextPtr;
-		uint32			entryPoint;
-		uint32			gp;
+		uint32			moduleId;
 		char			path[MAX_PATH_SIZE];
 		uint32			argsLength;
 		char			args[MAX_ARGS_SIZE];
@@ -351,7 +350,7 @@ private:
 	void							InitializeModuleStarter();
 	void							ProcessModuleStart();
 	void							FinishModuleStart();
-	void							RequestModuleStart(uint32, uint32, const char*, const char*, unsigned int);
+	void							RequestModuleStart(uint32, const char*, const char*, unsigned int);
 
 #ifdef DEBUGGER_INCLUDED
 	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);

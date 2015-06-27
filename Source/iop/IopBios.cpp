@@ -339,7 +339,7 @@ void CIopBios::InitializeModuleStarter()
 	StartThread(m_moduleStarterThreadId, 0);
 }
 
-void CIopBios::RequestModuleStart(uint32 moduleEntryPoint, uint32 gp, const char* path, const char* args, unsigned int argsLength)
+void CIopBios::RequestModuleStart(uint32 moduleId, const char* path, const char* args, unsigned int argsLength)
 {
 	uint32 requestPtr = ModuleStartRequestFree();
 	assert(requestPtr != 0);
@@ -367,8 +367,7 @@ void CIopBios::RequestModuleStart(uint32 moduleEntryPoint, uint32 gp, const char
 		moduleStartRequest->nextPtr = 0;
 	}
 
-	moduleStartRequest->entryPoint	= moduleEntryPoint;
-	moduleStartRequest->gp			= gp;
+	moduleStartRequest->moduleId = moduleId;
 
 	assert((strlen(path) + 1) <= MODULESTARTREQUEST::MAX_PATH_SIZE);
 	strncpy(moduleStartRequest->path, path, MODULESTARTREQUEST::MAX_PATH_SIZE);
@@ -421,6 +420,9 @@ void CIopBios::ProcessModuleStart()
 		m_cpu.m_State.nGPR[CMIPS::SP].nV0 = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	}
 
+	auto loadedModule = m_loadedModules[moduleLoadRequest->moduleId];
+	assert(loadedModule != nullptr);
+
 	//Patch loader thread context with proper info to invoke module entry proc
 	{
 		const char* path = moduleLoadRequest->path;
@@ -463,9 +465,9 @@ void CIopBios::ProcessModuleStart()
 		}
 		m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= 4;
 
-		m_cpu.m_State.nGPR[CMIPS::GP].nV0 = moduleLoadRequest->gp;
+		m_cpu.m_State.nGPR[CMIPS::GP].nV0 = loadedModule->gp;
 		m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_State.nPC;
-		m_cpu.m_State.nPC = moduleLoadRequest->entryPoint;
+		m_cpu.m_State.nPC = loadedModule->entryPoint;
 	}
 }
 
@@ -556,7 +558,7 @@ int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char*
 	{
 		return -1;
 	}
-	RequestModuleStart(loadedModule->entryPoint, loadedModule->gp, path, args, argsLength);
+	RequestModuleStart(loadedModuleId, path, args, argsLength);
 	return loadedModuleId;
 }
 
