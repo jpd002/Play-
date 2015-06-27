@@ -195,7 +195,7 @@ private:
 		MAX_EVENTFLAG			= 64,
 		MAX_INTRHANDLER			= 32,
 		MAX_MESSAGEBOX			= 32,
-		MAX_MODULELOADREQUEST	= 32,
+		MAX_MODULESTARTREQUEST	= 32,
 		MAX_LOADEDMODULE		= 32,
 	};
 
@@ -258,7 +258,7 @@ private:
 		uint32			numWaitThreads;
 	};
 
-	struct MODULELOADREQUEST
+	struct MODULESTARTREQUEST
 	{
 		enum 
 		{
@@ -332,8 +332,8 @@ private:
 	uint32&							ThreadLinkHead() const;
 	uint32&							CurrentThreadId() const;
 	uint64&							CurrentTime() const;
-	uint32&							ModuleLoadRequestHead() const;
-	uint32&							ModuleLoadRequestFree() const;
+	uint32&							ModuleStartRequestHead() const;
+	uint32&							ModuleStartRequestFree() const;
 
 	int32							LoadModule(CELF&, const char*);
 	uint32							LoadExecutable(CELF&, ExecutableRange&);
@@ -345,13 +345,13 @@ private:
 	uint32							AssembleThreadFinish(CMIPSAssembler&);
 	uint32							AssembleReturnFromException(CMIPSAssembler&);
 	uint32							AssembleIdleFunction(CMIPSAssembler&);
-	uint32							AssembleModuleLoaderThreadProc(CMIPSAssembler&);
+	uint32							AssembleModuleStarterThreadProc(CMIPSAssembler&);
 	uint32							AssembleAlarmThreadProc(CMIPSAssembler&);
 
-	void							InitializeModuleLoader();
-	void							ProcessModuleLoad();
-	void							FinishModuleLoad();
-	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
+	void							InitializeModuleStarter();
+	void							ProcessModuleStart();
+	void							FinishModuleStart();
+	void							RequestModuleStart(uint32, uint32, const char*, const char*, unsigned int);
 
 #ifdef DEBUGGER_INCLUDED
 	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);
@@ -365,10 +365,10 @@ private:
 	uint32							m_threadFinishAddress;
 	uint32							m_returnFromExceptionAddress;
 	uint32							m_idleFunctionAddress;
-	uint32							m_moduleLoaderThreadProcAddress;
+	uint32							m_moduleStarterThreadProcAddress;
 	uint32							m_alarmThreadProcAddress;
 
-	uint32							m_moduleLoaderThreadId;
+	uint32							m_moduleStarterThreadId;
 
 	bool							m_rescheduleNeeded = false;
 	LoadedModuleList				m_loadedModules;
