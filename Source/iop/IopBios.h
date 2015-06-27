@@ -188,14 +188,14 @@ private:
 		DEFAULT_PRIORITY = 64,
 	};
 
-	enum class MODULE_STATE
+	enum class MODULE_STATE : uint32
 	{
 		LOADED,
 		STARTED,
 		STOPPED
 	};
 
-	enum class MODULE_RESIDENT_STATE
+	enum class MODULE_RESIDENT_STATE : uint32
 	{
 		RESIDENT_END			= 0,
 		NO_RESIDENT_END			= 1,
