@@ -162,6 +162,17 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//Load the module
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
 
+	//HACK: This is needed to make 'doom.elf' read input properly
+	if(
+		!strcmp(moduleName, "rom0:XSIO2MAN") || 
+		!strcmp(moduleName, "rom0:XPADMAN") ||
+		!strcmp(moduleName, "rom0:XMTAPMAN")
+		)
+	{
+		ret[0] = 0;
+		return true;
+	}
+
 	auto moduleId = m_bios.LoadModule(moduleName);
 	if(moduleId >= 0)
 	{
