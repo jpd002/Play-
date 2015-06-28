@@ -8,17 +8,21 @@
 
 #if defined(__APPLE__)
 
-#include "TargetConditionals.h"
+#include <TargetConditionals.h>
 
-//TODO: Include ARM/iOS stuff
-
-#if TARGET_RT_64_BIT
+#if TARGET_CPU_ARM
+#define DISABLE_PROTECTION
+#define STATE_FLAVOR			ARM_THREAD_STATE32
+#define STATE_FLAVOR_COUNT		ARM_THREAD_STATE32_COUNT
+#elif TARGET_CPU_X86
+#define STATE_FLAVOR			x86_THREAD_STATE32
+#define STATE_FLAVOR_COUNT		x86_THREAD_STATE32_COUNT
+#elif TARGET_CPU_X86_64
 #define STATE_FLAVOR			x86_THREAD_STATE64
 #define STATE_FLAVOR_COUNT		x86_THREAD_STATE64_COUNT
 #else
-#define STATE_FLAVOR			x86_THREAD_STATE32
-#define STATE_FLAVOR_COUNT		x86_THREAD_STATE32_COUNT
-#endif // !TARGET_RT_64_BIT
+#error Unsupported CPU architecture
+#endif
 
 #endif
 
@@ -40,6 +44,10 @@ void CEeExecutor::AddExceptionHandler()
 {
 	assert(g_eeExecutor == nullptr);
 	g_eeExecutor = this;
+
+#ifdef DISABLE_PROTECTION
+	return;
+#endif
 
 #if defined(_WIN32)
 	m_handler = AddVectoredExceptionHandler(TRUE, &CEeExecutor::HandleException);
@@ -124,6 +132,10 @@ bool CEeExecutor::HandleAccessFault(intptr_t ptr)
 
 void CEeExecutor::SetMemoryProtected(void* addr, size_t size, bool protect)
 {
+#ifdef DISABLE_PROTECTION
+	return;
+#endif
+
 #if defined(_WIN32)
 	DWORD oldProtect = 0;
 	BOOL result = VirtualProtect(addr, size, protect ? PAGE_READONLY : PAGE_READWRITE, &oldProtect);
