@@ -5,10 +5,13 @@ SDKROOT = iphoneos
 CLANG_CXX_LANGUAGE_STANDARD = c++0x
 CLANG_CXX_LIBRARY = libc++
 
-COMBINE_HIDPI_IMAGES = YES
+VALID_ARCHS = armv7
 
 OTHER_CFLAGS = -fvisibility=hidden
 OTHER_LDFLAGS = -ObjC -framework boost
+
+PRODUCT_NAME = Play!
+INFOPLIST_FILE = ../Source/ui_ios/Info.plist
 
 GCC_PRECOMPILE_PREFIX_HEADER = YES
 GCC_PREFIX_HEADER = ../Source/ui_ios/Purei_Prefix.pch
