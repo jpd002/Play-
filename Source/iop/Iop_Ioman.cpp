@@ -211,13 +211,15 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 
 uint32 CIoman::AddDrv(uint32 drvPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "AddDrv(drvPtr = ptr);\r\n");
+	CLog::GetInstance().Print(LOG_NAME, "AddDrv(drvPtr = 0x%0.8X);\r\n",
+		drvPtr);
 	return -1;
 }
 
-uint32 CIoman::DelDrv(const char* deviceName)
+uint32 CIoman::DelDrv(uint32 drvPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "DelDrv(deviceName = '%s');\r\n", deviceName);
+	CLog::GetInstance().Print(LOG_NAME, "DelDrv(drvPtr = 0x%0.8X);\r\n",
+		drvPtr);
 	return -1;
 }
 
@@ -280,7 +282,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelDrv(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nD0])
+			context.m_State.nGPR[CMIPS::A0].nV0
 		));
 		break;
 	default:
