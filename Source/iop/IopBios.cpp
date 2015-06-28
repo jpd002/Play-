@@ -36,8 +36,8 @@
 #define BIOS_THREAD_LINK_HEAD_BASE			(CIopBios::CONTROL_BLOCK_START + 0x0000)
 #define BIOS_CURRENT_THREAD_ID_BASE			(CIopBios::CONTROL_BLOCK_START + 0x0008)
 #define BIOS_CURRENT_TIME_BASE				(CIopBios::CONTROL_BLOCK_START + 0x0010)
-#define BIOS_MODULELOADREQUEST_HEAD_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0018)
-#define BIOS_MODULELOADREQUEST_FREE_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0020)
+#define BIOS_MODULESTARTREQUEST_HEAD_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0018)
+#define BIOS_MODULESTARTREQUEST_FREE_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0020)
 #define BIOS_HANDLERS_BASE					(CIopBios::CONTROL_BLOCK_START + 0x0100)
 #define BIOS_HANDLERS_END					(BIOS_THREADS_BASE - 1)
 #define BIOS_THREADS_BASE					(CIopBios::CONTROL_BLOCK_START + 0x0200)
@@ -52,9 +52,9 @@
 #define BIOS_MESSAGEBOX_SIZE				(sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
 #define BIOS_HEAPBLOCK_BASE					(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
 #define BIOS_HEAPBLOCK_SIZE					(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
-#define BIOS_MODULELOADREQUEST_BASE			(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
-#define BIOS_MODULELOADREQUEST_SIZE			(sizeof(CIopBios::MODULELOADREQUEST) * CIopBios::MAX_MODULELOADREQUEST)
-#define BIOS_LOADEDMODULE_BASE				(BIOS_MODULELOADREQUEST_BASE + BIOS_MODULELOADREQUEST_SIZE)
+#define BIOS_MODULESTARTREQUEST_BASE		(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
+#define BIOS_MODULESTARTREQUEST_SIZE		(sizeof(CIopBios::MODULESTARTREQUEST) * CIopBios::MAX_MODULESTARTREQUEST)
+#define BIOS_LOADEDMODULE_BASE				(BIOS_MODULESTARTREQUEST_BASE + BIOS_MODULESTARTREQUEST_SIZE)
 #define BIOS_LOADEDMODULE_SIZE				(sizeof(CIopBios::LOADEDMODULE) * CIopBios::MAX_LOADEDMODULE)
 #define BIOS_CALCULATED_END					(BIOS_LOADEDMODULE_BASE + BIOS_LOADEDMODULE_SIZE)
 
@@ -62,8 +62,8 @@
 #define SYSCALL_RETURNFROMEXCEPTION		0x667
 #define SYSCALL_RESCHEDULE				0x668
 #define SYSCALL_SLEEPTHREAD				0x669
-#define SYSCALL_PROCESSMODULELOAD		0x66A
-#define SYSCALL_FINISHMODULELOAD		0x66B
+#define SYSCALL_PROCESSMODULESTART		0x66A
+#define SYSCALL_FINISHMODULESTART		0x66B
 #define SYSCALL_DELAYTHREADTICKS		0x66C
 
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
@@ -90,8 +90,8 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_threadFinishAddress(0)
 , m_returnFromExceptionAddress(0)
 , m_idleFunctionAddress(0)
-, m_moduleLoaderThreadProcAddress(0)
-, m_moduleLoaderThreadId(0)
+, m_moduleStarterThreadProcAddress(0)
+, m_moduleStarterThreadId(0)
 , m_alarmThreadProcAddress(0)
 , m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
 , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
@@ -116,7 +116,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
 		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
-		m_moduleLoaderThreadProcAddress = AssembleModuleLoaderThreadProc(assembler);
+		m_moduleStarterThreadProcAddress = AssembleModuleStarterThreadProc(assembler);
 		m_alarmThreadProcAddress = AssembleAlarmThreadProc(assembler);
 		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
 	}
@@ -237,7 +237,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 
 	m_sifMan->GenerateHandlers(m_ram, *m_sysmem);
 
-	InitializeModuleLoader();
+	InitializeModuleStarter();
 
 	Reschedule();
 }
@@ -257,14 +257,14 @@ uint64& CIopBios::CurrentTime() const
 	return *reinterpret_cast<uint64*>(m_ram + BIOS_CURRENT_TIME_BASE);
 }
 
-uint32& CIopBios::ModuleLoadRequestHead() const
+uint32& CIopBios::ModuleStartRequestHead() const
 {
-	return *reinterpret_cast<uint32*>(m_ram + BIOS_MODULELOADREQUEST_HEAD_BASE);
+	return *reinterpret_cast<uint32*>(m_ram + BIOS_MODULESTARTREQUEST_HEAD_BASE);
 }
 
-uint32& CIopBios::ModuleLoadRequestFree() const
+uint32& CIopBios::ModuleStartRequestFree() const
 {
-	return *reinterpret_cast<uint32*>(m_ram + BIOS_MODULELOADREQUEST_FREE_BASE);
+	return *reinterpret_cast<uint32*>(m_ram + BIOS_MODULESTARTREQUEST_FREE_BASE);
 }
 
 void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
@@ -323,25 +323,25 @@ bool CIopBios::IsIdle()
 	return (m_cpu.m_State.nPC == m_idleFunctionAddress);
 }
 
-void CIopBios::InitializeModuleLoader()
+void CIopBios::InitializeModuleStarter()
 {
-	ModuleLoadRequestHead() = 0;
-	ModuleLoadRequestFree() = BIOS_MODULELOADREQUEST_BASE;
+	ModuleStartRequestHead() = 0;
+	ModuleStartRequestFree() = BIOS_MODULESTARTREQUEST_BASE;
 
 	//Initialize Module Load Request Free List
-	for(unsigned int i = 0; i < (MAX_MODULELOADREQUEST - 1); i++)
+	for(unsigned int i = 0; i < (MAX_MODULESTARTREQUEST - 1); i++)
 	{
-		auto moduleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + BIOS_MODULELOADREQUEST_BASE) + i;
-		moduleLoadRequest->nextPtr = reinterpret_cast<uint8*>(moduleLoadRequest + 1) - m_ram;
+		auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + BIOS_MODULESTARTREQUEST_BASE) + i;
+		moduleStartRequest->nextPtr = reinterpret_cast<uint8*>(moduleStartRequest + 1) - m_ram;
 	}
 
-	m_moduleLoaderThreadId = CreateThread(m_moduleLoaderThreadProcAddress, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
-	StartThread(m_moduleLoaderThreadId, 0);
+	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	StartThread(m_moduleStarterThreadId, 0);
 }
 
-void CIopBios::RequestModuleLoad(uint32 moduleEntryPoint, uint32 gp, const char* path, const char* args, unsigned int argsLength)
+void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char* path, const char* args, unsigned int argsLength)
 {
-	uint32 requestPtr = ModuleLoadRequestFree();
+	uint32 requestPtr = ModuleStartRequestFree();
 	assert(requestPtr != 0);
 	if(requestPtr == 0)
 	{
@@ -349,38 +349,38 @@ void CIopBios::RequestModuleLoad(uint32 moduleEntryPoint, uint32 gp, const char*
 		return;
 	}
 
-	auto moduleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + requestPtr);
+	auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + requestPtr);
 
 	//Unlink from free list and link in active list (at the end)
 	{
-		ModuleLoadRequestFree() = moduleLoadRequest->nextPtr;
+		ModuleStartRequestFree() = moduleStartRequest->nextPtr;
 
-		uint32* currentPtr = &ModuleLoadRequestHead();
+		uint32* currentPtr = &ModuleStartRequestHead();
 		while(*currentPtr != 0)
 		{
-			auto currentModuleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + *currentPtr);
+			auto currentModuleLoadRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + *currentPtr);
 			currentPtr = &currentModuleLoadRequest->nextPtr;
 		}
 
 		*currentPtr = requestPtr;
 
-		moduleLoadRequest->nextPtr = 0;
+		moduleStartRequest->nextPtr = 0;
 	}
 
-	moduleLoadRequest->entryPoint	= moduleEntryPoint;
-	moduleLoadRequest->gp			= gp;
+	moduleStartRequest->moduleId	= moduleId;
+	moduleStartRequest->stopRequest	= stopRequest;
 
-	assert((strlen(path) + 1) <= MODULELOADREQUEST::MAX_PATH_SIZE);
-	strncpy(moduleLoadRequest->path, path, MODULELOADREQUEST::MAX_PATH_SIZE);
-	moduleLoadRequest->path[MODULELOADREQUEST::MAX_PATH_SIZE - 1] = 0;
+	assert((strlen(path) + 1) <= MODULESTARTREQUEST::MAX_PATH_SIZE);
+	strncpy(moduleStartRequest->path, path, MODULESTARTREQUEST::MAX_PATH_SIZE);
+	moduleStartRequest->path[MODULESTARTREQUEST::MAX_PATH_SIZE - 1] = 0;
 
-	memcpy(moduleLoadRequest->args, args, argsLength);
-	moduleLoadRequest->argsLength	= argsLength;
+	memcpy(moduleStartRequest->args, args, argsLength);
+	moduleStartRequest->argsLength	= argsLength;
 
-	WakeupThread(m_moduleLoaderThreadId, false);
+	WakeupThread(m_moduleStarterThreadId, false);
 }
 
-void CIopBios::ProcessModuleLoad()
+void CIopBios::ProcessModuleStart()
 {
 	static const auto pushToStack =
 		[] (uint8* dst, uint32& stackAddress, const uint8* src, uint32 size)
@@ -392,9 +392,9 @@ void CIopBios::ProcessModuleLoad()
 			return copyAddress;
 		};
 
-	assert(GetCurrentThreadId() == m_moduleLoaderThreadId);
+	assert(GetCurrentThreadId() == m_moduleStarterThreadId);
 
-	uint32 requestPtr = ModuleLoadRequestHead();
+	uint32 requestPtr = ModuleStartRequestHead();
 	assert(requestPtr != 0);
 	if(requestPtr == 0)
 	{
@@ -402,30 +402,34 @@ void CIopBios::ProcessModuleLoad()
 		return;
 	}
 
-	auto moduleLoadRequest = reinterpret_cast<MODULELOADREQUEST*>(m_ram + requestPtr);
+	auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + requestPtr);
 	
 	//Unlink from active list and link in free list
 	{
-		ModuleLoadRequestHead() = moduleLoadRequest->nextPtr;
+		ModuleStartRequestHead() = moduleStartRequest->nextPtr;
 
-		moduleLoadRequest->nextPtr = ModuleLoadRequestFree();
-		ModuleLoadRequestFree() = requestPtr;
+		moduleStartRequest->nextPtr = ModuleStartRequestFree();
+		ModuleStartRequestFree() = requestPtr;
 	}
 
-	assert(GetCurrentThreadId() == m_moduleLoaderThreadId);
+	assert(GetCurrentThreadId() == m_moduleStarterThreadId);
 
 	//Reset stack pointer
 	{
-		auto thread = GetThread(m_moduleLoaderThreadId);
+		auto thread = GetThread(m_moduleStarterThreadId);
 		assert(thread);
 		m_cpu.m_State.nGPR[CMIPS::SP].nV0 = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	}
 
+	auto loadedModule = m_loadedModules[moduleStartRequest->moduleId];
+	assert(loadedModule != nullptr);
+
 	//Patch loader thread context with proper info to invoke module entry proc
+	if(!moduleStartRequest->stopRequest)
 	{
-		const char* path = moduleLoadRequest->path;
-		const char* args = moduleLoadRequest->args;
-		uint32 argsLength = moduleLoadRequest->argsLength;
+		const char* path = moduleStartRequest->path;
+		const char* args = moduleStartRequest->args;
+		uint32 argsLength = moduleStartRequest->argsLength;
 
 		typedef std::vector<uint32> ParamListType;
 		ParamListType paramList;
@@ -461,16 +465,45 @@ void CIopBios::ProcessModuleLoad()
 				reinterpret_cast<const uint8*>(&(*param)),
 				4);
 		}
-		m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= 4;
-
-		m_cpu.m_State.nGPR[CMIPS::GP].nV0 = moduleLoadRequest->gp;
-		m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_State.nPC;
-		m_cpu.m_State.nPC = moduleLoadRequest->entryPoint;
 	}
+	else
+	{
+		//When invoking entry routine for module stop, A0 needs to be -1
+		m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(-1);
+	}
+
+	m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= 4;
+
+	m_cpu.m_State.nGPR[CMIPS::S0].nV0 = moduleStartRequest->moduleId;
+	m_cpu.m_State.nGPR[CMIPS::S1].nV0 = moduleStartRequest->stopRequest;
+	m_cpu.m_State.nGPR[CMIPS::GP].nV0 = loadedModule->gp;
+	m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_State.nPC;
+	m_cpu.m_State.nPC = loadedModule->entryPoint;
 }
 
-void CIopBios::FinishModuleLoad()
+void CIopBios::FinishModuleStart()
 {
+	uint32 moduleId = m_cpu.m_State.nGPR[CMIPS::S0].nV0;
+	uint32 stopRequest = m_cpu.m_State.nGPR[CMIPS::S1].nV0;
+	auto moduleResidentState = static_cast<MODULE_RESIDENT_STATE>(m_cpu.m_State.nGPR[CMIPS::A0].nV0 & 0x3);
+
+	auto loadedModule = m_loadedModules[moduleId];
+	assert(loadedModule != nullptr);
+
+	if(!stopRequest)
+	{
+		assert(moduleResidentState != MODULE_RESIDENT_STATE::NO_RESIDENT_END);
+		assert(loadedModule->state == MODULE_STATE::STOPPED);
+		loadedModule->state			= MODULE_STATE::STARTED;
+		loadedModule->residentState	= moduleResidentState;
+	}
+	else
+	{
+		assert(moduleResidentState == MODULE_RESIDENT_STATE::NO_RESIDENT_END);
+		assert(loadedModule->state == MODULE_STATE::STARTED);
+		loadedModule->state = MODULE_STATE::STOPPED;
+	}
+
 	//Make sure interrupts are enabled at the end of this
 	//some games disable interrupts but never enable them back! (The Mark of Kri)
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
@@ -528,8 +561,10 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 	
 	//Fill in module info
 	strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULE::MAX_NAME_SIZE);
+	loadedModule->start			= moduleRange.first;
 	loadedModule->entryPoint	= entryPoint;
 	loadedModule->gp			= iopMod ? (iopMod->gp + moduleRange.first) : 0;
+	loadedModule->state			= MODULE_STATE::STOPPED;
 
 #ifdef DEBUGGER_INCLUDED
 	PrepareModuleDebugInfo(elf, moduleRange, moduleName, path);
@@ -549,6 +584,28 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 	return loadedModuleId;
 }
 
+int32 CIopBios::UnloadModule(uint32 loadedModuleId)
+{
+	auto loadedModule = m_loadedModules[loadedModuleId];
+	if(loadedModule == nullptr)
+	{
+		CLog::GetInstance().Print(LOGNAME, "UnloadModule failed because specified module (%d) doesn't exist.\r\n", 
+			loadedModuleId);
+		return -1;
+	}
+	if(loadedModule->state != MODULE_STATE::STOPPED)
+	{
+		CLog::GetInstance().Print(LOGNAME, "UnloadModule failed because specified module (%d) wasn't stopped.\r\n",
+			loadedModuleId);
+		return -1;
+	}
+
+	//TODO: Check return value here.
+	m_sysmem->FreeMemory(loadedModule->start);
+	m_loadedModules.Free(loadedModuleId);
+	return loadedModuleId;
+}
+
 int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char* args, uint32 argsLength)
 {
 	auto loadedModule = m_loadedModules[loadedModuleId];
@@ -556,7 +613,33 @@ int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char*
 	{
 		return -1;
 	}
-	RequestModuleLoad(loadedModule->entryPoint, loadedModule->gp, path, args, argsLength);
+	assert(loadedModule->state == MODULE_STATE::STOPPED);
+	RequestModuleStart(false, loadedModuleId, path, args, argsLength);
+	return loadedModuleId;
+}
+
+int32 CIopBios::StopModule(uint32 loadedModuleId)
+{
+	auto loadedModule = m_loadedModules[loadedModuleId];
+	if(loadedModule == nullptr)
+	{
+		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) doesn't exist.\r\n", 
+			loadedModuleId);
+		return -1;
+	}
+	if(loadedModule->state != MODULE_STATE::STARTED)
+	{
+		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) wasn't started.\r\n",
+			loadedModuleId);
+		return -1;
+	}
+	if(loadedModule->residentState != MODULE_RESIDENT_STATE::REMOVABLE_RESIDENT_END)
+	{
+		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) isn't removable.\r\n",
+			loadedModuleId);
+		return -1;
+	}
+	RequestModuleStart(true, loadedModuleId, "other", nullptr, 0);
 	return loadedModuleId;
 }
 
@@ -1695,7 +1778,7 @@ uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 	return address;
 }
 
-uint32 CIopBios::AssembleModuleLoaderThreadProc(CMIPSAssembler& assembler)
+uint32 CIopBios::AssembleModuleStarterThreadProc(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
 	
@@ -1704,9 +1787,10 @@ uint32 CIopBios::AssembleModuleLoaderThreadProc(CMIPSAssembler& assembler)
 	assembler.MarkLabel(startLabel);
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_SLEEPTHREAD);
 	assembler.SYSCALL();
-	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_PROCESSMODULELOAD);
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_PROCESSMODULESTART);
 	assembler.SYSCALL();
-	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_FINISHMODULELOAD);
+	assembler.ADDU(CMIPS::A0, CMIPS::V0, CMIPS::R0);
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_FINISHMODULESTART);
 	assembler.SYSCALL();
 	assembler.BEQ(CMIPS::R0, CMIPS::R0, startLabel);
 	assembler.NOP();
@@ -1774,11 +1858,11 @@ void CIopBios::HandleException()
 		case SYSCALL_SLEEPTHREAD:
 			SleepThread();
 			break;
-		case SYSCALL_PROCESSMODULELOAD:
-			ProcessModuleLoad();
+		case SYSCALL_PROCESSMODULESTART:
+			ProcessModuleStart();
 			break;
-		case SYSCALL_FINISHMODULELOAD:
-			FinishModuleLoad();
+		case SYSCALL_FINISHMODULESTART:
+			FinishModuleStart();
 			break;
 		case SYSCALL_DELAYTHREADTICKS:
 			DelayThreadTicks(m_cpu.m_State.nGPR[CMIPS::A0].nV0);

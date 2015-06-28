@@ -92,7 +92,9 @@ public:
 
 	int32						LoadModule(const char*);
 	int32						LoadModule(uint32);
+	int32						UnloadModule(uint32);
 	int32						StartModule(uint32, const char*, const char*, unsigned int);
+	int32						StopModule(uint32);
 	int32						SearchModuleByName(const char*) const;
 	void						ProcessModuleReset(const std::string&);
 
@@ -188,6 +190,19 @@ private:
 		DEFAULT_PRIORITY = 64,
 	};
 
+	enum class MODULE_STATE : uint32
+	{
+		STOPPED,
+		STARTED
+	};
+
+	enum class MODULE_RESIDENT_STATE : uint32
+	{
+		RESIDENT_END			= 0,
+		NO_RESIDENT_END			= 1,
+		REMOVABLE_RESIDENT_END	= 2,
+	};
+
 	enum
 	{
 		MAX_THREAD				= 128,
@@ -195,7 +210,7 @@ private:
 		MAX_EVENTFLAG			= 64,
 		MAX_INTRHANDLER			= 32,
 		MAX_MESSAGEBOX			= 32,
-		MAX_MODULELOADREQUEST	= 32,
+		MAX_MODULESTARTREQUEST	= 32,
 		MAX_LOADEDMODULE		= 32,
 	};
 
@@ -258,7 +273,7 @@ private:
 		uint32			numWaitThreads;
 	};
 
-	struct MODULELOADREQUEST
+	struct MODULESTARTREQUEST
 	{
 		enum 
 		{
@@ -267,8 +282,8 @@ private:
 		};
 
 		uint32			nextPtr;
-		uint32			entryPoint;
-		uint32			gp;
+		uint32			moduleId;
+		uint32			stopRequest;
 		char			path[MAX_PATH_SIZE];
 		uint32			argsLength;
 		char			args[MAX_ARGS_SIZE];
@@ -281,10 +296,13 @@ private:
 			MAX_NAME_SIZE = 0x100,
 		};
 
-		uint32			isValid;
-		char			name[MAX_NAME_SIZE];
-		uint32			entryPoint;
-		uint32			gp;
+		uint32					isValid;
+		char					name[MAX_NAME_SIZE];
+		uint32					start;
+		uint32					entryPoint;
+		uint32					gp;
+		MODULE_STATE			state;
+		MODULE_RESIDENT_STATE	residentState;
 	};
 
 	struct IOPMOD
@@ -332,8 +350,8 @@ private:
 	uint32&							ThreadLinkHead() const;
 	uint32&							CurrentThreadId() const;
 	uint64&							CurrentTime() const;
-	uint32&							ModuleLoadRequestHead() const;
-	uint32&							ModuleLoadRequestFree() const;
+	uint32&							ModuleStartRequestHead() const;
+	uint32&							ModuleStartRequestFree() const;
 
 	int32							LoadModule(CELF&, const char*);
 	uint32							LoadExecutable(CELF&, ExecutableRange&);
@@ -345,13 +363,13 @@ private:
 	uint32							AssembleThreadFinish(CMIPSAssembler&);
 	uint32							AssembleReturnFromException(CMIPSAssembler&);
 	uint32							AssembleIdleFunction(CMIPSAssembler&);
-	uint32							AssembleModuleLoaderThreadProc(CMIPSAssembler&);
+	uint32							AssembleModuleStarterThreadProc(CMIPSAssembler&);
 	uint32							AssembleAlarmThreadProc(CMIPSAssembler&);
 
-	void							InitializeModuleLoader();
-	void							ProcessModuleLoad();
-	void							FinishModuleLoad();
-	void							RequestModuleLoad(uint32, uint32, const char*, const char*, unsigned int);
+	void							InitializeModuleStarter();
+	void							ProcessModuleStart();
+	void							FinishModuleStart();
+	void							RequestModuleStart(bool, uint32, const char*, const char*, unsigned int);
 
 #ifdef DEBUGGER_INCLUDED
 	void							PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);
@@ -365,10 +383,10 @@ private:
 	uint32							m_threadFinishAddress;
 	uint32							m_returnFromExceptionAddress;
 	uint32							m_idleFunctionAddress;
-	uint32							m_moduleLoaderThreadProcAddress;
+	uint32							m_moduleStarterThreadProcAddress;
 	uint32							m_alarmThreadProcAddress;
 
-	uint32							m_moduleLoaderThreadId;
+	uint32							m_moduleStarterThreadId;
 
 	bool							m_rescheduleNeeded = false;
 	LoadedModuleList				m_loadedModules;

@@ -1,5 +1,4 @@
-#ifndef _IOP_LOADCORE_H_
-#define _IOP_LOADCORE_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
@@ -22,10 +21,10 @@ namespace Iop
 									CLoadcore(CIopBios&, uint8*, CSifMan&);
 		virtual						~CLoadcore();
 
-		std::string					GetId() const;
-		std::string					GetFunctionName(unsigned int) const;
-		void						Invoke(CMIPS&, unsigned int);
-		bool						Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		std::string					GetId() const override;
+		std::string					GetFunctionName(unsigned int) const override;
+		void						Invoke(CMIPS&, unsigned int) override;
+		bool						Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 		void						SetLoadExecutableHandler(const LoadExecutableHandler&);
 
@@ -37,6 +36,8 @@ namespace Iop
 		bool						LoadModule(uint32*, uint32, uint32*, uint32);
 		void						LoadExecutable(uint32*, uint32, uint32*, uint32);
 		void						LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
+		bool						StopModule(uint32*, uint32, uint32*, uint32);
+		void						UnloadModule(uint32*, uint32, uint32*, uint32);
 		void						SearchModuleByName(uint32*, uint32, uint32*, uint32);
 		void						Initialize(uint32*, uint32, uint32*, uint32);
 
@@ -46,5 +47,3 @@ namespace Iop
 		LoadExecutableHandler		m_loadExecutableHandler;
 	};
 }
-
-#endif

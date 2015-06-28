@@ -98,6 +98,12 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		LoadModuleFromMemory(args, argsSize, ret, retSize);
 		return false;	//Block EE till module is loaded
 		break;
+	case 0x07:
+		return StopModule(args, argsSize, ret, retSize);
+		break;
+	case 0x08:
+		UnloadModule(args, argsSize, ret, retSize);
+		break;
 	case 0x09:
 		SearchModuleByName(args, argsSize, ret, retSize);
 		break;
@@ -156,6 +162,17 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//Load the module
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
 
+	//HACK: This is needed to make 'doom.elf' read input properly
+	if(
+		!strcmp(moduleName, "rom0:XSIO2MAN") || 
+		!strcmp(moduleName, "rom0:XPADMAN") ||
+		!strcmp(moduleName, "rom0:XMTAPMAN")
+		)
+	{
+		ret[0] = 0;
+		return true;
+	}
+
 	auto moduleId = m_bios.LoadModule(moduleName);
 	if(moduleId >= 0)
 	{
@@ -163,7 +180,7 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	}
 
 	//This function returns something negative upon failure
-	ret[0] = 0x00000000;
+	ret[0] = moduleId;
 
 	if(moduleId >= 0)
 	{
@@ -213,7 +230,48 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 	{
 		moduleId = m_bios.StartModule(moduleId, "", moduleArgs, moduleArgsSize);
 	}
-	ret[0] = 0x00000000;
+	ret[0] = moduleId;
+}
+
+bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	char moduleArgs[ARGS_MAX_SIZE];
+
+	assert(argsSize == 512);
+	assert(retSize >= 4);
+
+	uint32 moduleId = args[0];
+	uint32 moduleArgsSize = args[1];
+
+	memcpy(moduleArgs, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
+
+	CLog::GetInstance().Print(LOG_NAME, "StopModule(moduleId = %d, args, argsSize = 0x%0.8X);\r\n", 
+		moduleId, moduleArgsSize);
+
+	auto result = m_bios.StopModule(moduleId);
+	ret[0] = result;
+
+	if(result >= 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+void CLoadcore::UnloadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+{
+	assert(argsSize == 4);
+	assert(retSize >= 4);
+
+	uint32 moduleId = args[0];
+
+	CLog::GetInstance().Print(LOG_NAME, "UnloadModule(moduleId = %d);\r\n", moduleId);
+
+	auto result = m_bios.UnloadModule(moduleId);
+	ret[0] = result;
 }
 
 void CLoadcore::SearchModuleByName(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

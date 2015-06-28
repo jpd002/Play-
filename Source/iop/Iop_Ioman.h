@@ -53,7 +53,7 @@ namespace Iop
 		uint32					Write(uint32, uint32, const void*);
 		uint32					Seek(uint32, uint32, uint32);
 		uint32					AddDrv(uint32);
-		uint32					DelDrv(const char*);
+		uint32					DelDrv(uint32);
 
 		Framework::CStream*		GetFileStream(uint32);
 		void					SetFileStream(uint32, Framework::CStream*);
