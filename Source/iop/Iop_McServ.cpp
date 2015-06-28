@@ -633,6 +633,7 @@ unsigned int CMcServ::CPathFinder::Read(ENTRY* entry, unsigned int size)
 
 void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 {
+	bool found = false;
 	filesystem::directory_iterator endIterator;
 
 	for(filesystem::directory_iterator elementIterator(path);
@@ -682,9 +683,10 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 			entry.creationTime = entry.modificationTime;
 
 			m_entries.push_back(entry);
+			found = true;
 		}
 
-		if(filesystem::is_directory(*elementIterator))
+		if(filesystem::is_directory(*elementIterator) && !found)
 		{
 			SearchRecurse(*elementIterator);
 		}
