@@ -1,0 +1,22 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BASLUS-20963FF1203" />
+			<File Name="/BASLUS-20963FF1203/BASLUS-20963FF1203" Size="57864" />
+			<File Name="/BASLUS-20963FF1203/icon.sys" Size="964" />
+			<File Name="/BASLUS-20963FF1203/static.ico" Size="33688" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="/BASLUS-20963FF12*" EnvironmentId="1" MaxEntries="100" Result="1">
+			<Entry Name="BASLUS-20963FF1203" />
+		</Test>
+		<Test Query="/BASLUS-20963FF1203/*" EnvironmentId="1" MaxEntries="7" Result="5">
+			<Entry Name="." />
+			<Entry Name=".." />
+			<Entry Name="BASLUS-20963FF1203" />
+			<Entry Name="icon.sys" />
+			<Entry Name="static.ico" />
+		</Test>
+	</Tests>
+</Game>

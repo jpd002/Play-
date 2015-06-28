@@ -24,15 +24,8 @@
 		<Test Query="BESLES-50504SYSTEM/system.cfg" EnvironmentId="1" MaxEntries="1" Result="1">
 			<Entry Name="system.cfg" />
 		</Test>
-		<!-- This probably should return only one entry -->
-		<Test Query="BESLES-50504valve*" EnvironmentId="2" MaxEntries="10" Result="7">
+		<Test Query="BESLES-50504valve*" EnvironmentId="2" MaxEntries="10" Result="1">
 			<Entry Name="BESLES-50504valve0" />
-			<Entry Name="BESLES-50504valve0" />
-			<Entry Name="copygord.ico" />
-			<Entry Name="icon.sys" />
-			<Entry Name="idlegord.ico" />
-			<Entry Name="save0.sav" />
-			<Entry Name="save2.sav" />
 		</Test>
 		<Test Query="BESLES-50504valve0/icon.sys" EnvironmentId="2" MaxEntries="1" Result="1">
 			<Entry Name="icon.sys" />
