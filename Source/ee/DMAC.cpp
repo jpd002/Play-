@@ -22,6 +22,16 @@
 
 #define SADR_WRITE_MASK			((PS2::EE_SPR_SIZE - 1) & ~0x0F)
 
+#define REGISTER_READ(addr, value)		\
+	case (addr) + 0x0:					\
+		return (value);					\
+		break;							\
+	case (addr) + 0x4:					\
+	case (addr) + 0x8:					\
+	case (addr) + 0xC:					\
+		return 0;						\
+		break;
+
 using namespace Framework;
 using namespace Dmac;
 
@@ -412,69 +422,17 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		break;
 
 	//Channel 8
-	case D8_CHCR + 0x0:
-		return m_D8.ReadCHCR();
-		break;
-	case D8_CHCR + 0x4:
-	case D8_CHCR + 0x8:
-	case D8_CHCR + 0xC:
-		return 0;
-		break;
-
-	case D8_MADR + 0x0:
-		return m_D8.m_nMADR;
-		break;
-	case D8_MADR + 0x4:
-	case D8_MADR + 0x8:
-	case D8_MADR + 0xC:
-		return 0;
-		break;
-
-	case D8_QWC + 0x0:
-		return m_D8.m_nQWC;
-		break;
-	case D8_QWC + 0x4:
-	case D8_QWC + 0x8:
-	case D8_QWC + 0xC:
-		return 0;
-		break;
-
-	case D8_SADR + 0x0:
-		return m_D8_SADR;
-		break;
-	case D8_SADR + 0x4:
-	case D8_SADR + 0x8:
-	case D8_SADR + 0xC:
-		return 0;
-		break;
+	REGISTER_READ(D8_CHCR, m_D8.ReadCHCR())
+	REGISTER_READ(D8_MADR, m_D8.m_nMADR)
+	REGISTER_READ(D8_QWC,  m_D8.m_nQWC)
+	REGISTER_READ(D8_SADR, m_D8_SADR)
 
 	//Channel 9
-	case D9_CHCR + 0x0:
-		return m_D9.ReadCHCR();
-		break;
-	case D9_CHCR + 0x4:
-	case D9_CHCR + 0x8:
-	case D9_CHCR + 0xC:
-		return 0;
-		break;
-
-	case D9_MADR + 0x0:
-		return m_D9.m_nMADR;
-		break;
-	case D9_MADR + 0x4:
-	case D9_MADR + 0x8:
-	case D9_MADR + 0xC:
-		return 0;
-		break;
-
-	case D9_SADR + 0x0:
-		return m_D9_SADR;
-		break;
-	case D9_SADR + 0x4:
-	case D9_SADR + 0x8:
-	case D9_SADR + 0xC:
-		return 0;
-		break;
+	REGISTER_READ(D9_CHCR, m_D9.ReadCHCR())
+	REGISTER_READ(D9_MADR, m_D9.m_nMADR)
+	REGISTER_READ(D9_QWC,  m_D9.m_nQWC)
+	REGISTER_READ(D9_TADR, m_D9.m_nTADR)
+	REGISTER_READ(D9_SADR, m_D9_SADR)
 
 	//General Registers
 	case D_CTRL:
@@ -1016,6 +974,9 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		break;
 	case D9_MADR:
 		CLog::GetInstance().Print(LOG_NAME, "= D9_MADR.\r\n");
+		break;
+	case D9_TADR:
+		CLog::GetInstance().Print(LOG_NAME, "= D9_TADR.\r\n");
 		break;
 	case D9_SADR:
 		CLog::GetInstance().Print(LOG_NAME, "= D9_SADR.\r\n");
