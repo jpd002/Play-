@@ -69,6 +69,13 @@ void CVif::Reset()
 uint32 CVif::GetRegister(uint32 address)
 {
 	uint32 result = 0;
+	switch(address)
+	{
+	case VIF0_MARK:
+	case VIF1_MARK:
+		result = m_MARK;
+		break;
+	}
 #ifdef _DEBUG
 	DisassembleGet(address);
 #endif
@@ -85,6 +92,10 @@ void CVif::SetRegister(uint32 address, uint32 value)
 			m_STAT.nVIS = 0;
 			m_STAT.nINT = 0;
 		}
+		break;
+	case VIF0_MARK:
+	case VIF1_MARK:
+		m_MARK = value;
 		break;
 	}
 #ifdef _DEBUG
@@ -852,6 +863,12 @@ void CVif::DisassembleGet(uint32 address)
 {
 	switch(address)
 	{
+	case VIF0_MARK:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK.\r\n");
+		break;
+	case VIF1_MARK:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK.\r\n");
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
 		break;
@@ -864,6 +881,12 @@ void CVif::DisassembleSet(uint32 address, uint32 value)
 	{
 	case VIF1_FBRST:
 		CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
+		break;
+	case VIF0_MARK:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK = 0x%0.8X.\r\n", value);
+		break;
+	case VIF1_MARK:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK = 0x%0.8X.\r\n", value);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
