@@ -1,8 +1,10 @@
 # Play!
 
-Play is an attempt at creating a PlayStation 2 emulator for the Win32, OSX and Android platforms.
+Play! is an attempt to create a PlayStation 2 emulator for Windows, OS X, Android & iOS platforms.
 
-For more information, please visit [purei.org](http://purei.org)
+Ongoing compatibility list can be found here: [Compatibility List Wiki](https://github.com/jpd002/Play-/wiki/Compatible-games).
+
+For more information, please visit [purei.org](http://purei.org).
 
 ## Project Dependencies ##
 
