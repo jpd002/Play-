@@ -9,7 +9,7 @@ import java.util.*;
 
 public class VirtualPadView extends SurfaceView
 {
-	private ArrayList<VirtualPadButton> _buttons = new ArrayList<VirtualPadButton>();
+	private ArrayList<VirtualPadItem> _items = new ArrayList<VirtualPadItem>();
 
 	private Bitmap select = BitmapFactory.decodeResource(getResources(), R.drawable.select);
 	private Bitmap start = BitmapFactory.decodeResource(getResources(), R.drawable.start);
@@ -43,40 +43,45 @@ public class VirtualPadView extends SurfaceView
 		float startSelPadPosX = (w - 384) / 2;
 		float startSelPadPosY = h - 64 - margin;
 		
-		_buttons.clear();
+		_items.clear();
 
-		_buttons.add(new VirtualPadButton("Select", VirtualPadConstants.BUTTON_SELECT,
+		_items.add(new VirtualPadButton("Select", VirtualPadConstants.BUTTON_SELECT,
 				new RectF(startSelPadPosX + 0, startSelPadPosY + 0, startSelPadPosX + 128, startSelPadPosY + 64),
 				select));
-		_buttons.add(new VirtualPadButton("Start", VirtualPadConstants.BUTTON_START,
+		_items.add(new VirtualPadButton("Start", VirtualPadConstants.BUTTON_START,
 				new RectF(startSelPadPosX + 256, startSelPadPosY + 0, startSelPadPosX + 384, startSelPadPosY + 64),
 				start));
 
-		_buttons.add(new VirtualPadButton("Up", VirtualPadConstants.BUTTON_UP,
+		_items.add(new VirtualPadButton("Up", VirtualPadConstants.BUTTON_UP,
 				new RectF(dpadPosX + 128, dpadPosY + 0, dpadPosX + 256, dpadPosY + 192),
 				up));
-		_buttons.add(new VirtualPadButton("Down", VirtualPadConstants.BUTTON_DOWN,
+		_items.add(new VirtualPadButton("Down", VirtualPadConstants.BUTTON_DOWN,
 				new RectF(dpadPosX + 128, dpadPosY + 192, dpadPosX + 256, dpadPosY + 384),
 				down));
-		_buttons.add(new VirtualPadButton("Left", VirtualPadConstants.BUTTON_LEFT,
+		_items.add(new VirtualPadButton("Left", VirtualPadConstants.BUTTON_LEFT,
 				new RectF(dpadPosX + 0, dpadPosY + 128, dpadPosX + 192, dpadPosY + 256),
 				left));
-		_buttons.add(new VirtualPadButton("Right", VirtualPadConstants.BUTTON_RIGHT,
+		_items.add(new VirtualPadButton("Right", VirtualPadConstants.BUTTON_RIGHT,
 				new RectF(dpadPosX + 192, dpadPosY + 128, dpadPosX + 384, dpadPosY + 256),
 				right));
 
-		_buttons.add(new VirtualPadButton("Triangle", VirtualPadConstants.BUTTON_TRIANGLE,
+		_items.add(new VirtualPadButton("Triangle", VirtualPadConstants.BUTTON_TRIANGLE,
 				new RectF(actionPadPosX + 128, actionPadPosY + 0, actionPadPosX + 256, actionPadPosY + 128),
 				triangle));
-		_buttons.add(new VirtualPadButton("Cross", VirtualPadConstants.BUTTON_CROSS,
+		_items.add(new VirtualPadButton("Cross", VirtualPadConstants.BUTTON_CROSS,
 				new RectF(actionPadPosX + 128, actionPadPosY + 256, actionPadPosX + 256, actionPadPosY + 384),
 				cross));
-		_buttons.add(new VirtualPadButton("Square", VirtualPadConstants.BUTTON_SQUARE,
+		_items.add(new VirtualPadButton("Square", VirtualPadConstants.BUTTON_SQUARE,
 				new RectF(actionPadPosX + 0, actionPadPosY + 128, actionPadPosX + 128, actionPadPosY + 256),
 				square));
-		_buttons.add(new VirtualPadButton("Circle", VirtualPadConstants.BUTTON_CIRCLE,
+		_items.add(new VirtualPadButton("Circle", VirtualPadConstants.BUTTON_CIRCLE,
 				new RectF(actionPadPosX + 256, actionPadPosY + 128, actionPadPosX + 384, actionPadPosY + 256),
 				circle));
+
+		int buttonSize = 128;
+		_items.add(new VirtualPadStick("Analog Left", VirtualPadConstants.ANALOG_LEFT_X, VirtualPadConstants.ANALOG_LEFT_Y,
+				new RectF((w - buttonSize) / 2, (h - buttonSize) / 2, ((w - buttonSize) / 2) + buttonSize, ((h - buttonSize) / 2) + buttonSize),
+				select));
 
 		postInvalidate();
 	}
@@ -85,9 +90,9 @@ public class VirtualPadView extends SurfaceView
 	public void draw(Canvas canvas)
 	{
 		super.draw(canvas);
-		for(VirtualPadButton button : _buttons)
+		for(VirtualPadItem item : _items)
 		{
-			button.draw(canvas);
+			item.draw(canvas);
 		}
 	}
 	
@@ -101,27 +106,37 @@ public class VirtualPadView extends SurfaceView
 		float y = event.getY(pointerIndex);
 		if(action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN)
 		{
-			for(VirtualPadButton button : _buttons)
+			for(VirtualPadItem item : _items)
 			{
-				RectF bounds = button.getBounds();
+				RectF bounds = item.getBounds();
 				if(bounds.contains(x, y))
 				{
-					NativeInterop.reportInput(button.getValue(), true);
-					button.setPressed(true);
+					item.setPointerId(pointerId);
+					item.onPointerDown(x, y);
 					postInvalidate();
-					button.setPointerId(pointerId);
 					break;
+				}
+			}
+		}
+		else if(action == MotionEvent.ACTION_MOVE)
+		{
+			for(VirtualPadItem item : _items)
+			{
+				if(item.getPointerId() == pointerId)
+				{
+					item.onPointerMove(x, y);
+					postInvalidate();
 				}
 			}
 		}
 		else if(action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP)
 		{
-			for(VirtualPadButton button : _buttons)
+			for(VirtualPadItem item : _items)
 			{
-				if(button.getPointerId() == pointerId && button.getPressed())
+				if(item.getPointerId() == pointerId)
 				{
-					NativeInterop.reportInput(button.getValue(), false);
-					button.setPressed(false);
+					item.onPointerUp();
+					item.setPointerId(-1);
 					postInvalidate();
 					break;
 				}

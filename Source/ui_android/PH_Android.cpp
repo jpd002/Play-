@@ -4,6 +4,7 @@
 CPH_Android::CPH_Android()
 {
 	memset(&m_buttonStates, 0, sizeof(m_buttonStates));
+	memset(&m_axisStates, 0, sizeof(m_axisStates));
 }
 
 CPH_Android::~CPH_Android()
@@ -23,13 +24,20 @@ void CPH_Android::Update(uint8* ram)
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
 			auto button = static_cast<PS2::CControllerInfo::BUTTON>(i);
-			if(PS2::CControllerInfo::IsAxis(button)) continue;
-			listener->SetButtonState(0, button, m_buttonStates[i], ram);
+			if(PS2::CControllerInfo::IsAxis(button))
+			{
+				float buttonValue = ((m_axisStates[i] + 1.0f) / 2.0f) * 255.f;
+				listener->SetAxisState(0, button, static_cast<uint8>(buttonValue), ram);
+			}
+			else
+			{
+				listener->SetButtonState(0, button, m_buttonStates[i], ram);
+			}
 		}
 	}
 }
 
-void CPH_Android::ReportInput(uint32 buttonId, bool pressed)
+void CPH_Android::SetButtonState(uint32 buttonId, bool pressed)
 {
 	switch(buttonId)
 	{
@@ -62,6 +70,25 @@ void CPH_Android::ReportInput(uint32 buttonId, bool pressed)
 		break;
 	case com_virtualapplications_play_VirtualPadConstants_BUTTON_CROSS:
 		m_buttonStates[PS2::CControllerInfo::CROSS] = pressed;
+		break;
+	}
+}
+
+void CPH_Android::SetAxisState(uint32 buttonId, float value)
+{
+	switch(buttonId)
+	{
+	case com_virtualapplications_play_VirtualPadConstants_ANALOG_LEFT_X:
+		m_axisStates[PS2::CControllerInfo::ANALOG_LEFT_X] = value;
+		break;
+	case com_virtualapplications_play_VirtualPadConstants_ANALOG_LEFT_Y:
+		m_axisStates[PS2::CControllerInfo::ANALOG_LEFT_Y] = value;
+		break;
+	case com_virtualapplications_play_VirtualPadConstants_ANALOG_RIGHT_X:
+		m_axisStates[PS2::CControllerInfo::ANALOG_RIGHT_X] = value;
+		break;
+	case com_virtualapplications_play_VirtualPadConstants_ANALOG_RIGHT_Y:
+		m_axisStates[PS2::CControllerInfo::ANALOG_RIGHT_Y] = value;
 		break;
 	}
 }

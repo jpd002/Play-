@@ -14,7 +14,7 @@
 
 #define LOG_NAME "Play!"
 
-static CPS2VM* g_virtualMachine = nullptr;
+CPS2VM* g_virtualMachine = nullptr;
 
 void Log_Print(const char* fmt, ...)
 {
@@ -118,14 +118,5 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	else
 	{
 		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
-	}
-}
-
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_reportInput(JNIEnv* env, jobject obj, jint buttonId, jboolean pressed)
-{
-	auto padHandler = g_virtualMachine->GetPadHandler();
-	if(padHandler)
-	{
-		static_cast<CPH_Android*>(padHandler)->ReportInput(buttonId, (pressed == JNI_TRUE) ? true : false);
 	}
 }

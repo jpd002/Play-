@@ -12,8 +12,10 @@ public:
 
 	void						Update(uint8*) override;
 
-	void						ReportInput(uint32, bool);
+	void						SetButtonState(uint32, bool);
+	void						SetAxisState(uint32, float);
 	
 private:
 	bool						m_buttonStates[PS2::CControllerInfo::MAX_BUTTONS];
+	float						m_axisStates[PS2::CControllerInfo::MAX_BUTTONS];
 };

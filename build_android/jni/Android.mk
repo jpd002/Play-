@@ -162,6 +162,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/StructCollectionStateFile.cpp \
 							../../Source/StructFile.cpp \
 							../../Source/ui_android/GSH_OpenGLAndroid.cpp \
+							../../Source/ui_android/InputManager.cpp \
 							../../Source/ui_android/NativeInterop.cpp \
 							../../Source/ui_android/PH_Android.cpp \
 							../../Source/ui_android/StatsManager.cpp \

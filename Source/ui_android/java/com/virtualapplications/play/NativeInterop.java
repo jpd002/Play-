@@ -21,6 +21,4 @@ public class NativeInterop
 	public static native void bootDiskImage(String selectedFilePath);
 	
 	public static native void setupGsHandler(Surface surface);
-	
-	public static native void reportInput(int button, boolean pressed);
 }

@@ -14,4 +14,8 @@ public class VirtualPadConstants
 	public static final int BUTTON_DOWN			= 7;
 	public static final int BUTTON_LEFT			= 8;
 	public static final int BUTTON_RIGHT		= 9;
+	public static final int ANALOG_LEFT_X		= 10;
+	public static final int ANALOG_LEFT_Y		= 11;
+	public static final int ANALOG_RIGHT_X		= 12;
+	public static final int ANALOG_RIGHT_Y		= 13;
 };

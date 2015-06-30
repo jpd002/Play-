@@ -2,60 +2,44 @@ package com.virtualapplications.play;
 
 import android.graphics.*;
 
-class VirtualPadButton
+class VirtualPadButton extends VirtualPadItem
 {
-	private int _pointerId;
-	
 	private String _caption;
-	private RectF _bounds;
+	private Bitmap _bitmap;
 	private int _value;
 	private boolean _pressed = false;
-	private Bitmap _bitmap;
 	
 	public VirtualPadButton(String caption, int value, RectF bounds, Bitmap bitmap)
 	{
+		super(bounds);
 		_caption = caption;
-		_value = value;
-		_bounds = bounds;
 		_bitmap = bitmap;
+		_value = value;
 	}
 	
-	public void setPointerId(int pointerId)
+	@Override
+	public void onPointerDown(float x, float y)
 	{
-		_pointerId = pointerId;
+		_pressed = true;
+		InputManager.setButtonState(_value, true);
+		super.onPointerDown(x, y);
 	}
 	
-	public int getPointerId()
+	@Override
+	public void onPointerUp()
 	{
-		return _pointerId;
+		_pressed = false;
+		InputManager.setButtonState(_value, false);
+		super.onPointerUp();
 	}
 	
-	public int getValue()
-	{
-		return _value;
-	}
-	
-	public RectF getBounds()
-	{
-		return _bounds;
-	}
-	
-	boolean getPressed()
-	{
-		return _pressed;
-	}
-	
-	void setPressed(boolean pressed)
-	{
-		_pressed = pressed;
-	}
-	
+	@Override
 	public void draw(Canvas canvas)
 	{
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
 		paint.setFilterBitmap(true);
-		if (_pressed)
+		if(_pressed)
 		{
 			paint.setColorFilter(new LightingColorFilter(0xFFBBBBBB, 0x00000000));
 		}
