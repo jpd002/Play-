@@ -21,6 +21,7 @@ public class VirtualPadView extends SurfaceView
 	private Bitmap cross = BitmapFactory.decodeResource(getResources(), R.drawable.cross);
 	private Bitmap square = BitmapFactory.decodeResource(getResources(), R.drawable.square);
 	private Bitmap circle = BitmapFactory.decodeResource(getResources(), R.drawable.circle);
+	private Bitmap analogStick = BitmapFactory.decodeResource(getResources(), R.drawable.analogstick);
 	
 	public VirtualPadView(Context context, AttributeSet attribs)
 	{
@@ -34,7 +35,7 @@ public class VirtualPadView extends SurfaceView
 	{
 		Log.w(Constants.TAG, String.format("onSizeChanged - %d, %d, %d, %d", w, h, oldw, oldh));
 
-		float buttonSize = 128;
+		float analogStickSize = 192;
 		float margin = 64;
 		
 		float dpadPosX = margin;
@@ -43,8 +44,8 @@ public class VirtualPadView extends SurfaceView
 		float actionPadPosY = h - 384 - margin;
 		float startSelPadPosX = (w - 384) / 2;
 		float startSelPadPosY = h - 64 - margin;
-		float leftAnalogStickPosX = dpadPosX + 384 + buttonSize;
-		float rightAnalogStickPosX = actionPadPosX - (buttonSize * 2);
+		float leftAnalogStickPosX = dpadPosX + 384 + analogStickSize;
+		float rightAnalogStickPosX = actionPadPosX - (analogStickSize * 2);
 		float analogStickPosY = h - 384 - margin;
 		
 		_items.clear();
@@ -83,11 +84,11 @@ public class VirtualPadView extends SurfaceView
 				circle));
 
 		_items.add(new VirtualPadStick("Analog Left", VirtualPadConstants.ANALOG_LEFT_X, VirtualPadConstants.ANALOG_LEFT_Y,
-				new RectF(leftAnalogStickPosX, analogStickPosY, leftAnalogStickPosX + buttonSize, analogStickPosY + buttonSize),
-				select));
+				new RectF(leftAnalogStickPosX, analogStickPosY, leftAnalogStickPosX + analogStickSize, analogStickPosY + analogStickSize),
+				analogStick));
 		_items.add(new VirtualPadStick("Analog Right", VirtualPadConstants.ANALOG_RIGHT_X, VirtualPadConstants.ANALOG_RIGHT_Y,
-				new RectF(rightAnalogStickPosX, analogStickPosY, rightAnalogStickPosX + buttonSize, analogStickPosY + buttonSize),
-				select));
+				new RectF(rightAnalogStickPosX, analogStickPosY, rightAnalogStickPosX + analogStickSize, analogStickPosY + analogStickSize),
+				analogStick));
 
 		postInvalidate();
 	}

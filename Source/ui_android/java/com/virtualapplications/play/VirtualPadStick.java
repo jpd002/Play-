@@ -55,14 +55,9 @@ class VirtualPadStick extends VirtualPadItem
 	{
 		RectF offsetRect = new RectF(_bounds);
 		offsetRect.offset(_offset.x, _offset.y);
-		
+
 		Paint paint = new Paint();
-		paint.setColor(Color.rgb(0, 255, 0));
-		paint.setFilterBitmap(true);
-		//if(_pressed)
-		//{
-		//	paint.setColorFilter(new LightingColorFilter(0xFFBBBBBB, 0x00000000));
-		//}
-		canvas.drawRect(offsetRect, paint);
+		paint.setAntiAlias(true);
+		canvas.drawBitmap(_bitmap, null, offsetRect, paint);
 	}
 };
