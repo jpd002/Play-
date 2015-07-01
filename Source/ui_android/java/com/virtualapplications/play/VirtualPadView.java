@@ -34,6 +34,7 @@ public class VirtualPadView extends SurfaceView
 	{
 		Log.w(Constants.TAG, String.format("onSizeChanged - %d, %d, %d, %d", w, h, oldw, oldh));
 
+		float buttonSize = 128;
 		float margin = 64;
 		
 		float dpadPosX = margin;
@@ -42,6 +43,9 @@ public class VirtualPadView extends SurfaceView
 		float actionPadPosY = h - 384 - margin;
 		float startSelPadPosX = (w - 384) / 2;
 		float startSelPadPosY = h - 64 - margin;
+		float leftAnalogStickPosX = dpadPosX + 384 + buttonSize;
+		float rightAnalogStickPosX = actionPadPosX - (buttonSize * 2);
+		float analogStickPosY = h - 384 - margin;
 		
 		_items.clear();
 
@@ -78,9 +82,11 @@ public class VirtualPadView extends SurfaceView
 				new RectF(actionPadPosX + 256, actionPadPosY + 128, actionPadPosX + 384, actionPadPosY + 256),
 				circle));
 
-		int buttonSize = 128;
 		_items.add(new VirtualPadStick("Analog Left", VirtualPadConstants.ANALOG_LEFT_X, VirtualPadConstants.ANALOG_LEFT_Y,
-				new RectF((w - buttonSize) / 2, (h - buttonSize) / 2, ((w - buttonSize) / 2) + buttonSize, ((h - buttonSize) / 2) + buttonSize),
+				new RectF(leftAnalogStickPosX, analogStickPosY, leftAnalogStickPosX + buttonSize, analogStickPosY + buttonSize),
+				select));
+		_items.add(new VirtualPadStick("Analog Right", VirtualPadConstants.ANALOG_RIGHT_X, VirtualPadConstants.ANALOG_RIGHT_Y,
+				new RectF(rightAnalogStickPosX, analogStickPosY, rightAnalogStickPosX + buttonSize, analogStickPosY + buttonSize),
 				select));
 
 		postInvalidate();

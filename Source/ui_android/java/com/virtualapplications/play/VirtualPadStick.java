@@ -11,7 +11,7 @@ class VirtualPadStick extends VirtualPadItem
 	
 	private PointF _pressPosition = new PointF();
 	private PointF _offset = new PointF();
-	private static float _radius = 200;
+	private static float _radius = 150;
 	
 	public VirtualPadStick(String caption, int valueAxisX, int valueAxisY, RectF bounds, Bitmap bitmap)
 	{
