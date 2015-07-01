@@ -123,6 +123,7 @@ private:
 
 		//Vector 3
 		void								ITOF15();
+		void								FTOI15();
 		void								CLIP();
 		void								MADDAi();
 		void								MSUBAi();
