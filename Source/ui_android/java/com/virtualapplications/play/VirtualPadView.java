@@ -107,12 +107,12 @@ public class VirtualPadView extends SurfaceView
 	public boolean onTouchEvent(final MotionEvent event)
 	{
 		int action = event.getActionMasked();
-		int pointerIndex = event.getActionIndex();
-		int pointerId = event.getPointerId(pointerIndex);
-		float x = event.getX(pointerIndex);
-		float y = event.getY(pointerIndex);
 		if(action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN)
 		{
+			int pointerIndex = event.getActionIndex();
+			int pointerId = event.getPointerId(pointerIndex);
+			float x = event.getX(pointerIndex);
+			float y = event.getY(pointerIndex);
 			for(VirtualPadItem item : _items)
 			{
 				RectF bounds = item.getBounds();
@@ -127,17 +127,26 @@ public class VirtualPadView extends SurfaceView
 		}
 		else if(action == MotionEvent.ACTION_MOVE)
 		{
-			for(VirtualPadItem item : _items)
+			int pointerCount = event.getPointerCount();
+			for(int i = 0; i < pointerCount; i++)
 			{
-				if(item.getPointerId() == pointerId)
+				int pointerId = event.getPointerId(i);
+				float x = event.getX(i);
+				float y = event.getY(i);
+				for(VirtualPadItem item : _items)
 				{
-					item.onPointerMove(x, y);
-					postInvalidate();
+					if(item.getPointerId() == pointerId)
+					{
+						item.onPointerMove(x, y);
+						postInvalidate();
+					}
 				}
 			}
 		}
 		else if(action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP)
 		{
+			int pointerIndex = event.getActionIndex();
+			int pointerId = event.getPointerId(pointerIndex);
 			for(VirtualPadItem item : _items)
 			{
 				if(item.getPointerId() == pointerId)
