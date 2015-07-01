@@ -596,6 +596,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	{
 		FlushVertexBuffer();
 		SetupBlendingFunction(alphaReg);
+		CHECKGLERROR();
 	}
 
 	if(!m_renderState.isValid ||
@@ -603,6 +604,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	{
 		FlushVertexBuffer();
 		SetupTestFunctions(testReg);
+		CHECKGLERROR();
 	}
 
 	if(!m_renderState.isValid ||
@@ -611,6 +613,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	{
 		FlushVertexBuffer();
 		SetupDepthBuffer(zbufReg, testReg);
+		CHECKGLERROR();
 	}
 
 	if(!m_renderState.isValid ||
@@ -621,6 +624,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	{
 		FlushVertexBuffer();
 		SetupFramebuffer(shaderInfo, frameReg, zbufReg, scissorReg, testReg);
+		CHECKGLERROR();
 	}
 
 	if(!m_renderState.isValid ||
@@ -632,6 +636,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	{
 		FlushVertexBuffer();
 		SetupTexture(shaderInfo, primReg, tex0Reg, tex1Reg, texAReg, clampReg);
+		CHECKGLERROR();
 	}
 
 	XYOFFSET offset;
@@ -1089,7 +1094,8 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	glScalef(texInfo.scaleRatioX, texInfo.scaleRatioY, 1);
 #endif
 
-	int nMagFilter, nMinFilter;
+	GLenum nMagFilter = GL_NEAREST;
+	GLenum nMinFilter = GL_NEAREST;
 
 	//Setup sampling modes
 	if(tex1.nMagFilter == MAG_FILTER_NEAREST)
