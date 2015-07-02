@@ -106,6 +106,7 @@ private:
 	void								PEXT5();
 
 	//Mmi1
+	void								PABSW();
 	void								PCEQW();
 	void								PMINW();
 	void								PCEQH();
