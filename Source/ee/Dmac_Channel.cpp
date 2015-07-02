@@ -355,18 +355,22 @@ void CChannel::ExecuteSourceChain()
 			m_nQWC		-= nRecv;
 		}
 
-		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
+		if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
 		{
-			//Loop MADR if needed
-			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
-			if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
+			if(nID == DMATAG_CNT)
 			{
-				m_nMADR = m_dmac.m_D_RBOR;
-				//Mask TADR because it's in the ring buffer zone
-				m_nTADR -= m_dmac.m_D_RBOR;
-				m_nTADR &= m_dmac.m_D_RBSR;
-				m_nTADR += m_dmac.m_D_RBOR;
+				//Loop MADR if needed
+				uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+				if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
+				{
+					m_nMADR = m_dmac.m_D_RBOR;
+				}
 			}
+
+			//Mask TADR because it's in the ring buffer zone
+			m_nTADR -= m_dmac.m_D_RBOR;
+			m_nTADR &= m_dmac.m_D_RBSR;
+			m_nTADR += m_dmac.m_D_RBOR;
 		}
 	}
 }
