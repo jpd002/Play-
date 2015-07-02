@@ -4,22 +4,20 @@ import android.graphics.*;
 
 class VirtualPadStick extends VirtualPadItem
 {
-	private String _caption;
-	private Bitmap _bitmap;
 	private int _valueAxisX;
 	private int _valueAxisY;
+	private Bitmap _bitmap;
 	
 	private PointF _pressPosition = new PointF();
 	private PointF _offset = new PointF();
 	private static float _radius = 150;
 	
-	public VirtualPadStick(String caption, int valueAxisX, int valueAxisY, RectF bounds, Bitmap bitmap)
+	public VirtualPadStick(RectF bounds, int valueAxisX, int valueAxisY, Bitmap bitmap)
 	{
 		super(bounds);
-		_caption = caption;
-		_bitmap = bitmap;
 		_valueAxisX = valueAxisX;
 		_valueAxisY = valueAxisY;
+		_bitmap = bitmap;
 	}
 	
 	@Override

@@ -21,6 +21,7 @@ public class VirtualPadView extends SurfaceView
 	private Bitmap cross = BitmapFactory.decodeResource(getResources(), R.drawable.cross);
 	private Bitmap square = BitmapFactory.decodeResource(getResources(), R.drawable.square);
 	private Bitmap circle = BitmapFactory.decodeResource(getResources(), R.drawable.circle);
+	private Bitmap lr = BitmapFactory.decodeResource(getResources(), R.drawable.lr);
 	private Bitmap analogStick = BitmapFactory.decodeResource(getResources(), R.drawable.analogstick);
 	
 	public VirtualPadView(Context context, AttributeSet attribs)
@@ -36,6 +37,8 @@ public class VirtualPadView extends SurfaceView
 		Log.w(Constants.TAG, String.format("onSizeChanged - %d, %d, %d, %d", w, h, oldw, oldh));
 
 		float analogStickSize = 192;
+		float lrButtonWidth = 256;
+		float lrButtonHeight = 128;
 		float margin = 64;
 		
 		float dpadPosX = margin;
@@ -44,51 +47,68 @@ public class VirtualPadView extends SurfaceView
 		float actionPadPosY = h - 384 - margin;
 		float startSelPadPosX = (w - 384) / 2;
 		float startSelPadPosY = h - 64 - margin;
+		float leftButtonsPosX = margin;
+		float leftButtonsPosY = margin;
+		float rightButtonsPosX = w - (margin + lrButtonWidth);
+		float rightButtonsPosY = margin;
 		float leftAnalogStickPosX = dpadPosX + 384 + analogStickSize;
 		float rightAnalogStickPosX = actionPadPosX - (analogStickSize * 2);
 		float analogStickPosY = h - 384 - margin;
 		
 		_items.clear();
 
-		_items.add(new VirtualPadButton("Select", VirtualPadConstants.BUTTON_SELECT,
+		_items.add(new VirtualPadButton(
 				new RectF(startSelPadPosX + 0, startSelPadPosY + 0, startSelPadPosX + 128, startSelPadPosY + 64),
-				select));
-		_items.add(new VirtualPadButton("Start", VirtualPadConstants.BUTTON_START,
+				VirtualPadConstants.BUTTON_SELECT, select));
+		_items.add(new VirtualPadButton(
 				new RectF(startSelPadPosX + 256, startSelPadPosY + 0, startSelPadPosX + 384, startSelPadPosY + 64),
-				start));
+				VirtualPadConstants.BUTTON_START, start));
 
-		_items.add(new VirtualPadButton("Up", VirtualPadConstants.BUTTON_UP,
+		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 128, dpadPosY + 0, dpadPosX + 256, dpadPosY + 192),
-				up));
-		_items.add(new VirtualPadButton("Down", VirtualPadConstants.BUTTON_DOWN,
+				VirtualPadConstants.BUTTON_UP, up));
+		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 128, dpadPosY + 192, dpadPosX + 256, dpadPosY + 384),
-				down));
-		_items.add(new VirtualPadButton("Left", VirtualPadConstants.BUTTON_LEFT,
+				VirtualPadConstants.BUTTON_DOWN, down));
+		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 0, dpadPosY + 128, dpadPosX + 192, dpadPosY + 256),
-				left));
-		_items.add(new VirtualPadButton("Right", VirtualPadConstants.BUTTON_RIGHT,
+				VirtualPadConstants.BUTTON_LEFT, left));
+		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 192, dpadPosY + 128, dpadPosX + 384, dpadPosY + 256),
-				right));
+				VirtualPadConstants.BUTTON_RIGHT, right));
 
-		_items.add(new VirtualPadButton("Triangle", VirtualPadConstants.BUTTON_TRIANGLE,
+		_items.add(new VirtualPadButton(
+				new RectF(leftButtonsPosX, leftButtonsPosY, leftButtonsPosX + lrButtonWidth, leftButtonsPosY + lrButtonHeight),
+				VirtualPadConstants.BUTTON_L2, lr, "L2"));
+		_items.add(new VirtualPadButton(
+				new RectF(leftButtonsPosX, leftButtonsPosY + lrButtonHeight, leftButtonsPosX + lrButtonWidth, leftButtonsPosY + lrButtonHeight * 2),
+				VirtualPadConstants.BUTTON_L1, lr, "L1"));
+		_items.add(new VirtualPadButton(
+				new RectF(rightButtonsPosX, rightButtonsPosY, rightButtonsPosX + lrButtonWidth, rightButtonsPosY + lrButtonHeight),
+				VirtualPadConstants.BUTTON_R2, lr, "R2"));
+		_items.add(new VirtualPadButton(
+				new RectF(rightButtonsPosX, rightButtonsPosY + lrButtonHeight, rightButtonsPosX + lrButtonWidth, rightButtonsPosY + lrButtonHeight * 2),
+				VirtualPadConstants.BUTTON_R1, lr, "R1"));
+				
+		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 128, actionPadPosY + 0, actionPadPosX + 256, actionPadPosY + 128),
-				triangle));
-		_items.add(new VirtualPadButton("Cross", VirtualPadConstants.BUTTON_CROSS,
+				VirtualPadConstants.BUTTON_TRIANGLE, triangle));
+		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 128, actionPadPosY + 256, actionPadPosX + 256, actionPadPosY + 384),
-				cross));
-		_items.add(new VirtualPadButton("Square", VirtualPadConstants.BUTTON_SQUARE,
+				VirtualPadConstants.BUTTON_CROSS, cross));
+		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 0, actionPadPosY + 128, actionPadPosX + 128, actionPadPosY + 256),
-				square));
-		_items.add(new VirtualPadButton("Circle", VirtualPadConstants.BUTTON_CIRCLE,
+				VirtualPadConstants.BUTTON_SQUARE, square));
+		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 256, actionPadPosY + 128, actionPadPosX + 384, actionPadPosY + 256),
-				circle));
+				VirtualPadConstants.BUTTON_CIRCLE, circle));
 
-		_items.add(new VirtualPadStick("Analog Left", VirtualPadConstants.ANALOG_LEFT_X, VirtualPadConstants.ANALOG_LEFT_Y,
+		_items.add(new VirtualPadStick(
 				new RectF(leftAnalogStickPosX, analogStickPosY, leftAnalogStickPosX + analogStickSize, analogStickPosY + analogStickSize),
-				analogStick));
-		_items.add(new VirtualPadStick("Analog Right", VirtualPadConstants.ANALOG_RIGHT_X, VirtualPadConstants.ANALOG_RIGHT_Y,
+				VirtualPadConstants.ANALOG_LEFT_X, VirtualPadConstants.ANALOG_LEFT_Y, analogStick));
+		_items.add(new VirtualPadStick(
 				new RectF(rightAnalogStickPosX, analogStickPosY, rightAnalogStickPosX + analogStickSize, analogStickPosY + analogStickSize),
-				analogStick));
+				VirtualPadConstants.ANALOG_RIGHT_X, VirtualPadConstants.ANALOG_RIGHT_Y, analogStick));
 
 		postInvalidate();
 	}

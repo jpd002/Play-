@@ -71,6 +71,18 @@ void CPH_Android::SetButtonState(uint32 buttonId, bool pressed)
 	case com_virtualapplications_play_VirtualPadConstants_BUTTON_CROSS:
 		m_buttonStates[PS2::CControllerInfo::CROSS] = pressed;
 		break;
+	case com_virtualapplications_play_VirtualPadConstants_BUTTON_L1:
+		m_buttonStates[PS2::CControllerInfo::L1] = pressed;
+		break;
+	case com_virtualapplications_play_VirtualPadConstants_BUTTON_L2:
+		m_buttonStates[PS2::CControllerInfo::L2] = pressed;
+		break;
+	case com_virtualapplications_play_VirtualPadConstants_BUTTON_R1:
+		m_buttonStates[PS2::CControllerInfo::R1] = pressed;
+		break;
+	case com_virtualapplications_play_VirtualPadConstants_BUTTON_R2:
+		m_buttonStates[PS2::CControllerInfo::R2] = pressed;
+		break;
 	}
 }
 

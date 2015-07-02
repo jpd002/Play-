@@ -1,20 +1,27 @@
 package com.virtualapplications.play;
 
 import android.graphics.*;
+import android.text.*;
 
 class VirtualPadButton extends VirtualPadItem
 {
-	private String _caption;
-	private Bitmap _bitmap;
 	private int _value;
+	private Bitmap _bitmap;
+	private String _caption;
+
 	private boolean _pressed = false;
 	
-	public VirtualPadButton(String caption, int value, RectF bounds, Bitmap bitmap)
+	public VirtualPadButton(RectF bounds, int value, Bitmap bitmap)
 	{
 		super(bounds);
-		_caption = caption;
-		_bitmap = bitmap;
 		_value = value;
+		_bitmap = bitmap;
+	}
+
+	public VirtualPadButton(RectF bounds, int value, Bitmap bitmap, String caption)
+	{
+		this(bounds, value, bitmap);
+		_caption = caption;
 	}
 	
 	@Override
@@ -44,5 +51,14 @@ class VirtualPadButton extends VirtualPadItem
 			paint.setColorFilter(new LightingColorFilter(0xFFBBBBBB, 0x00000000));
 		}
 		canvas.drawBitmap(_bitmap, null, _bounds, paint);
+
+		if(!TextUtils.isEmpty(_caption))
+		{
+			paint.setColor(Color.WHITE);
+			paint.setTextAlign(Paint.Align.CENTER);
+			paint.setTextSize(40);
+			float textOffset = (paint.descent() + paint.ascent()) / 2;
+			canvas.drawText(_caption, _bounds.centerX(), _bounds.centerY() - textOffset, paint);
+		}
 	}
 };
