@@ -489,7 +489,7 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	}
 	else
 	{
-		ret[0] = -1;
+		ret[0] = RET_NO_ENTRY;
 	}
 }
 
