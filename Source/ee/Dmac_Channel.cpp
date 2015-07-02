@@ -342,7 +342,7 @@ void CChannel::ExecuteSourceChain()
 			//Adjust QWC in MFIFO mode
 			uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
 			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
-			assert(ringBufferAddr < ringBufferSize);
+			assert(ringBufferAddr <= ringBufferSize);
 
 			qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
 		}
