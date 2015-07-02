@@ -84,7 +84,7 @@ namespace VUShared
 	void						ABS(CMipsJitter*, uint8, uint8, uint8);
 	void						ADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						ADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
-	void						ADDi(CMipsJitter*, uint8, uint8, uint8);
+	void						ADDi(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						ADDq(CMipsJitter*, uint8, uint8, uint8);
 	void						ADDA(CMipsJitter*, uint8, uint8, uint8);
 	void						ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);

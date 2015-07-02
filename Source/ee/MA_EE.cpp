@@ -677,6 +677,49 @@ void CMA_EE::PEXT5()
 //MMI1 Opcodes
 //////////////////////////////////////////////////
 
+//01
+void CMA_EE::PABSW()
+{
+	if(m_nRD == 0) return;
+
+	//RD = (RT != 0x80000000) ? |RT| : 0x7FFFFFFF;
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		auto srcOffset = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]);
+		auto dstOffset = offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]);
+
+		m_codeGen->PushRel(srcOffset);
+		m_codeGen->PushCst(0x80000000);
+
+		m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+		{
+			m_codeGen->PushCst(0x7FFFFFFF);
+			m_codeGen->PullRel(dstOffset);
+		}
+		m_codeGen->Else();
+		{
+			m_codeGen->PushRel(srcOffset);
+			m_codeGen->PushCst(0);
+
+			m_codeGen->BeginIf(Jitter::CONDITION_LT);
+			{
+				m_codeGen->PushCst(0);
+				m_codeGen->PushRel(srcOffset);
+				m_codeGen->Sub();
+				m_codeGen->PullRel(dstOffset);
+			}
+			m_codeGen->Else();
+			{
+				m_codeGen->PushRel(srcOffset);
+				m_codeGen->PullRel(dstOffset);
+			}
+			m_codeGen->EndIf();
+		}
+		m_codeGen->EndIf();
+	}
+}
+
 //02
 void CMA_EE::PCEQW()
 {
@@ -1586,7 +1629,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 
 {
 	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQH,			&CMA_EE::PMINH,
+	&CMA_EE::Illegal,		&CMA_EE::PABSW,			&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQH,			&CMA_EE::PMINH,
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10
