@@ -352,8 +352,14 @@ void VUShared::ADDbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, ui
 	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
-void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 relativePipeTime)
 {
+	if(nFd == 0)
+	{
+		//Use the temporary register to store the result
+		nFd = 32;
+	}
+
 #if 1
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -370,6 +376,8 @@ void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
 	codeGen->MD_AddS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 #endif
+
+	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
 
 void VUShared::ADDq(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)

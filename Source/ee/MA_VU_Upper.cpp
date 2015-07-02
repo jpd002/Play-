@@ -165,7 +165,7 @@ void CMA_VU::CUpper::MADDq()
 //22
 void CMA_VU::CUpper::ADDi()
 {
-	VUShared::ADDi(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::ADDi(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //23
