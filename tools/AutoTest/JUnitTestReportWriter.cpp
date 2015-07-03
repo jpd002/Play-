@@ -18,14 +18,25 @@ CJUnitTestReportWriter::~CJUnitTestReportWriter()
 
 }
 
-void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, bool succeeded)
+void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, const TESTRESULT& result)
 {
 	auto testCaseNode = new Framework::Xml::CNode("testcase", true);
 	testCaseNode->InsertAttribute("name", testName.c_str());
 
-	if(!succeeded)
+	if(!result.succeeded)
 	{
+		std::string failureDetails;
+		for(const auto& lineDiff : result.lineDiffs)
+		{
+			auto failureLine = string_format(
+				"result   : %s\r\n"
+				"expected : %s\r\n"
+				"\r\n",
+				lineDiff.result.c_str(), lineDiff.expected.c_str());
+			failureDetails += failureLine;
+		}
 		auto resultNode = new Framework::Xml::CNode("failure", true);
+		resultNode->InsertTextNode(failureDetails.c_str());
 		testCaseNode->InsertNode(resultNode);
 	}
 

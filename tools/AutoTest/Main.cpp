@@ -16,8 +16,10 @@ std::vector<std::string> ReadLines(Framework::CStream& inputStream)
 	return lines;
 }
 
-bool CompareResults(const boost::filesystem::path& testFilePath)
+TESTRESULT GetTestResult(const boost::filesystem::path& testFilePath)
 {
+	TESTRESULT result;
+	result.succeeded = false;
 	try
 	{
 		auto resultFilePath = testFilePath;
@@ -30,19 +32,27 @@ bool CompareResults(const boost::filesystem::path& testFilePath)
 		auto resultLines = ReadLines(resultStream);
 		auto expectedLines = ReadLines(expectedStream);
 
-		if(resultLines.size() != expectedLines.size()) return false;
+		if(resultLines.size() != expectedLines.size()) return result;
 
 		for(unsigned int i = 0; i < resultLines.size(); i++)
 		{
-			if(resultLines[i] != expectedLines[i]) return false;
+			if(resultLines[i] != expectedLines[i])
+			{
+				LINEDIFF lineDiff;
+				lineDiff.expected = expectedLines[i];
+				lineDiff.result = resultLines[i];
+				result.lineDiffs.push_back(lineDiff);
+			}
 		}
 
-		return true;
+		result.succeeded = result.lineDiffs.empty();
+		return result;
 	}
 	catch(...)
 	{
-		return false;
+
 	}
+	return result;
 }
 
 void ExecuteTest(const boost::filesystem::path& testFilePath)
@@ -92,11 +102,11 @@ void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestR
 		{
 			printf("Testing '%s': ", testPath.string().c_str());
 			ExecuteTest(testPath);
-			bool succeeded = CompareResults(testPath);
-			printf("%s.\r\n", succeeded ? "SUCCEEDED" : "FAILED");
+			auto result = GetTestResult(testPath);
+			printf("%s.\r\n", result.succeeded ? "SUCCEEDED" : "FAILED");
 			if(testReportWriter)
 			{
-				testReportWriter->ReportTestEntry(testPath.string(), succeeded);
+				testReportWriter->ReportTestEntry(testPath.string(), result);
 			}
 		}
 	}

@@ -10,7 +10,7 @@ public:
 								CJUnitTestReportWriter();
 	virtual						~CJUnitTestReportWriter();
 
-	void						ReportTestEntry(const std::string&, bool) override;
+	void						ReportTestEntry(const std::string&, const TESTRESULT&) override;
 	void						Write(const boost::filesystem::path&) override;
 
 private:
