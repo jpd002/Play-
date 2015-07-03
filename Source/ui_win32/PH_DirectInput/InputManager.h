@@ -1,5 +1,4 @@
-#ifndef _PH_DI_INPUTMANAGER_H_
-#define _PH_DI_INPUTMANAGER_H_
+#pragma once
 
 #include "directinput/Manager.h"
 #include "tcharx.h"
@@ -55,20 +54,20 @@ namespace PH_DirectInput
 
 			static void						RegisterPreferences(Framework::CConfig&, const char*);
 
-			virtual BINDINGTYPE				GetBindingType() const;
+			virtual BINDINGTYPE				GetBindingType() const override;
 
-			virtual std::tstring			GetDescription(Framework::DirectInput::CManager*) const;
-			virtual void					ProcessEvent(const GUID&, uint32, uint32);
+			virtual std::tstring			GetDescription(Framework::DirectInput::CManager*) const override;
+			virtual void					ProcessEvent(const GUID&, uint32, uint32) override;
 
-			virtual uint32					GetValue() const;
-			virtual void					SetValue(uint32);
+			virtual uint32					GetValue() const override;
+			virtual void					SetValue(uint32) override;
 
-			virtual void					Save(Framework::CConfig&, const char*) const;
-			virtual void					Load(Framework::CConfig&, const char*);
+			virtual void					Save(Framework::CConfig&, const char*) const override;
+			virtual void					Load(Framework::CConfig&, const char*) override;
 
 		private:
 			BINDINGINFO						m_binding;
-			uint32							m_value;
+			uint32							m_value = 0;
 		};
 
 		class CPovHatBinding : public CBinding
@@ -79,23 +78,23 @@ namespace PH_DirectInput
 
 			static void						RegisterPreferences(Framework::CConfig&, const char*);
 
-			virtual BINDINGTYPE				GetBindingType() const;
+			virtual BINDINGTYPE				GetBindingType() const override;
 
-			virtual std::tstring			GetDescription(Framework::DirectInput::CManager*) const;
-			virtual void					ProcessEvent(const GUID&, uint32, uint32);
+			virtual std::tstring			GetDescription(Framework::DirectInput::CManager*) const override;
+			virtual void					ProcessEvent(const GUID&, uint32, uint32) override;
 
-			virtual uint32					GetValue() const;
-			virtual void					SetValue(uint32);
+			virtual uint32					GetValue() const override;
+			virtual void					SetValue(uint32) override;
 
-			virtual void					Save(Framework::CConfig&, const char*) const;
-			virtual void					Load(Framework::CConfig&, const char*);
+			virtual void					Save(Framework::CConfig&, const char*) const override;
+			virtual void					Load(Framework::CConfig&, const char*) override;
 
 		private:
 			static int32					GetShortestDistanceBetweenAngles(int32, int32);
 
 			BINDINGINFO						m_binding;
-			uint32							m_refValue;
-			uint32							m_value;
+			uint32							m_refValue = 0;
+			uint32							m_value = 0;
 		};
 
 		class CSimulatedAxisBinding : public CBinding
@@ -106,23 +105,23 @@ namespace PH_DirectInput
 
 			static void						RegisterPreferences(Framework::CConfig&, const char*);
 
-			virtual BINDINGTYPE				GetBindingType() const;
+			virtual BINDINGTYPE				GetBindingType() const override;
 
-			virtual std::tstring			GetDescription(Framework::DirectInput::CManager*) const;
-			virtual void					ProcessEvent(const GUID&, uint32, uint32);
+			virtual std::tstring			GetDescription(Framework::DirectInput::CManager*) const override;
+			virtual void					ProcessEvent(const GUID&, uint32, uint32) override;
 
-			virtual uint32					GetValue() const;
-			virtual void					SetValue(uint32);
+			virtual uint32					GetValue() const override;
+			virtual void					SetValue(uint32) override;
 
-			virtual void					Save(Framework::CConfig&, const char*) const;
-			virtual void					Load(Framework::CConfig&, const char*);
+			virtual void					Save(Framework::CConfig&, const char*) const override;
+			virtual void					Load(Framework::CConfig&, const char*) override;
 
 		private:
 			BINDINGINFO						m_key1Binding;
 			BINDINGINFO						m_key2Binding;
 
-			uint32							m_key1State;
-			uint32							m_key2State;
+			uint32							m_key1State = 0;
+			uint32							m_key2State = 0;
 		};
 
 											CInputManager(HWND, Framework::CConfig&);
@@ -148,7 +147,6 @@ namespace PH_DirectInput
 
 		void								OnInputEventReceived(const GUID&, uint32, uint32);
 
-		static void							RegisterBindingPreference(Framework::CConfig&, const char*);
 
 		BindingPtr							m_bindings[PS2::CControllerInfo::MAX_BUTTONS];
 		static uint32						m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
@@ -157,5 +155,3 @@ namespace PH_DirectInput
 		Framework::CConfig&					m_config;
 	};
 }
-
-#endif

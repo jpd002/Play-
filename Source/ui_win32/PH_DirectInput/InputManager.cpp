@@ -1,7 +1,7 @@
-#include "InputManager.h"
-#include "win32/GuidUtils.h"
 #include <string.h>
 #include <boost/lexical_cast.hpp>
+#include "InputManager.h"
+#include "win32/GuidUtils.h"
 
 #define CONFIG_PREFIX						("input")
 #define CONFIG_BINDING_TYPE					("bindingtype")
@@ -235,7 +235,6 @@ std::tstring CInputManager::GetBindingDescription(PS2::CControllerInfo::BUTTON b
 
 CInputManager::CSimpleBinding::CSimpleBinding(const GUID& device, uint32 id) 
 : m_binding(device, id)
-, m_value(0)
 {
 
 }
@@ -310,7 +309,6 @@ void CInputManager::CSimpleBinding::RegisterPreferences(Framework::CConfig& conf
 CInputManager::CPovHatBinding::CPovHatBinding(const GUID& device, uint32 id, uint32 refValue) 
 : m_binding(device, id)
 , m_refValue(refValue)
-, m_value(0)
 {
 
 }
