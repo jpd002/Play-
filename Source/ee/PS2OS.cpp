@@ -375,16 +375,16 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const Ar
 {
 	CELF* elf(new CElfFile(stream));
 
-	const ELFHEADER& header = elf->GetHeader();
+	const auto& header = elf->GetHeader();
 
 	//Check for MIPS CPU
-	if(header.nCPU != 8)
+	if(header.nCPU != CELF::EM_MIPS)
 	{
 		DELETEPTR(elf);
 		throw std::runtime_error("Invalid target CPU. Must be MIPS.");
 	}
 
-	if(header.nType != 2)
+	if(header.nType != CELF::ET_EXEC)
 	{
 		DELETEPTR(elf);
 		throw std::runtime_error("Not an executable ELF file.");
