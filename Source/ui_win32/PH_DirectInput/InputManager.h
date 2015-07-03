@@ -147,6 +147,7 @@ namespace PH_DirectInput
 
 		void								OnInputEventReceived(const GUID&, uint32, uint32);
 
+		static std::tstring					GetBindingInfoDescription(Framework::DirectInput::CManager*, const BINDINGINFO&);
 
 		BindingPtr							m_bindings[PS2::CControllerInfo::MAX_BUTTONS];
 		static uint32						m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];

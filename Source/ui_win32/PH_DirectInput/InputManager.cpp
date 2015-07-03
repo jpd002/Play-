@@ -210,6 +210,21 @@ void CInputManager::OnInputEventReceived(const GUID& device, uint32 id, uint32 v
 	}
 }
 
+std::tstring CInputManager::GetBindingInfoDescription(Framework::DirectInput::CManager* directInputManager, const BINDINGINFO& binding)
+{
+	DIDEVICEINSTANCE deviceInstance;
+	DIDEVICEOBJECTINSTANCE objectInstance;
+	if(!directInputManager->GetDeviceInfo(binding.device, &deviceInstance))
+	{
+		return _T("");
+	}
+	if(!directInputManager->GetDeviceObjectInfo(binding.device, binding.id, &objectInstance))
+	{
+		return _T("");
+	}
+	return std::tstring(deviceInstance.tszInstanceName) + _T(": ") + std::tstring(objectInstance.tszName);
+}
+
 Framework::DirectInput::CManager* CInputManager::GetDirectInputManager() const
 {
 	return m_directInputManager;
@@ -265,17 +280,7 @@ void CInputManager::CSimpleBinding::Load(Framework::CConfig& config, const char*
 
 std::tstring CInputManager::CSimpleBinding::GetDescription(Framework::DirectInput::CManager* directInputManager) const
 {
-	DIDEVICEINSTANCE deviceInstance;
-	DIDEVICEOBJECTINSTANCE objectInstance;
-	if(!directInputManager->GetDeviceInfo(m_binding.device, &deviceInstance))
-	{
-		return _T("");
-	}
-	if(!directInputManager->GetDeviceObjectInfo(m_binding.device, m_binding.id, &objectInstance))
-	{
-		return _T("");
-	}
-	return std::tstring(deviceInstance.tszInstanceName) + _T(": ") + std::tstring(objectInstance.tszName);
+	return GetBindingInfoDescription(directInputManager, m_binding);
 }
 
 void CInputManager::CSimpleBinding::ProcessEvent(const GUID& device, uint32 id, uint32 value)
@@ -341,17 +346,7 @@ void CInputManager::CPovHatBinding::Load(Framework::CConfig& config, const char*
 
 std::tstring CInputManager::CPovHatBinding::GetDescription(Framework::DirectInput::CManager* directInputManager) const
 {
-	DIDEVICEINSTANCE deviceInstance;
-	DIDEVICEOBJECTINSTANCE objectInstance;
-	if(!directInputManager->GetDeviceInfo(m_binding.device, &deviceInstance))
-	{
-		return _T("");
-	}
-	if(!directInputManager->GetDeviceObjectInfo(m_binding.device, m_binding.id, &objectInstance))
-	{
-		return _T("");
-	}
-	return std::tstring(deviceInstance.tszInstanceName) + _T(": ") + std::tstring(objectInstance.tszName);
+	return GetBindingInfoDescription(directInputManager, m_binding);
 }
 
 void CInputManager::CPovHatBinding::ProcessEvent(const GUID& device, uint32 id, uint32 value)
